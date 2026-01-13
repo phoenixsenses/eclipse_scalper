@@ -1,0 +1,24 @@
+# Secrets
+.env
+.env.*
+
+# Python
+__pycache__/
+*.pyc
+
+# Runtime & logs
+logs/
+*.log
+runlog.txt
+*.csv
+
+# Brain / state / data
+brain/
+data/
+
+# IDE
+.vscode/
+
+# OS
+Thumbs.db
+.DS_Store
