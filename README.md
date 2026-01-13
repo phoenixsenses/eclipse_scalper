@@ -1,8 +1,4 @@
-Perfect timing. A \*\*README.md\*\* is the front door of the project.
 
-Below is a \*\*clean, honest, first-version README\*\* you can paste as-is.
-
-It explains what this is, how to run it, and—crucially—how \*\*not\*\* to hurt yourself.
 
 
 
