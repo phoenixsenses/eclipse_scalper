@@ -1,12 +1,13 @@
-# execution/reconcile.py — SCALPER ETERNAL — REALITY RECONCILER — 2026 v1.6 (DIAGNOSTIC-AWARE + NO SILENT OPTIONALS)
-# Patch vs v1.5:
-# - ✅ Wires diagnostics helper into optional imports (explicit "OPTIONAL MISSING" logs)
-# - ✅ Makes kill-switch optional import loud (no silent None)
-# - ✅ Optional one-shot module banner (keeps logs readable)
-# - ✅ No logic change to reconcile itself
+# execution/reconcile.py — SCALPER ETERNAL — REALITY RECONCILER — 2026 v1.8 (STOP SPAM FIX + RAW SYMBOL FALLBACK + THROTTLE)
+# Patch vs v1.7:
+# - ✅ FIX: Prevents "STOP_MARKET placed 30x" by ensuring open-orders fetch uses correct raw futures symbol (DOGE/USDT:USDT)
+# - ✅ HARDEN: Adds per-symbol stop placement throttle (default 60s) even if open-orders fetch fails
+# - ✅ HARDEN: Ensures bot.state.positions dict is persistent and written back after orphan adoption
+# - ✅ Keeps: orphan adoption, hedge-aware ex_map, optional imports, router-integrated stop ladder
 
 import asyncio
 import time
+from types import SimpleNamespace
 from typing import Dict, Any, Optional, Tuple, List
 
 from utils.logging import log_entry, log_core
@@ -59,6 +60,9 @@ def _diag_dump(bot, note: str) -> None:
 
 # Optional kill-switch gate (used only to skip creating new protective stops)
 is_halted = _optional_import("risk.kill_switch", "is_halted")
+
+# Optional Position model (if present)
+Position = _optional_import("brain.state", "Position")
 
 
 # ----------------------------
@@ -129,18 +133,71 @@ def _ensure_run_context(bot) -> dict:
     return rc if isinstance(rc, dict) else {}
 
 
+def _is_binance_futures(bot) -> bool:
+    """
+    Best-effort check for binance futures mode so we can build raw symbols like DOGE/USDT:USDT.
+    """
+    ex = getattr(bot, "ex", None)
+    if ex is None:
+        return False
+    # ccxt wrappers often have ex.options['defaultType']
+    try:
+        opt = getattr(ex, "options", None)
+        if isinstance(opt, dict):
+            dt = str(opt.get("defaultType") or "").lower().strip()
+            if dt in ("future", "futures"):
+                return True
+    except Exception:
+        pass
+    # your bootstrap log shows defaultType=future, but we can't parse logs here; just keep heuristics
+    return True  # conservative: safe to build futures raw symbols for USDT-margined
+
+
+def _canonical_to_binance_linear_raw(k: str) -> str:
+    """
+    Convert DOGEUSDT -> DOGE/USDT:USDT
+    Only safe for USDT linear futures.
+    """
+    kk = _symkey(k)
+    if not kk.endswith("USDT"):
+        return kk
+    base = kk[:-4]
+    if not base:
+        return kk
+    return f"{base}/USDT:USDT"
+
+
 def _resolve_raw_symbol(bot, k: str) -> str:
+    """
+    Prefer bot.data.raw_symbol map.
+    If missing and we're in futures, build binance-style raw symbol fallback so fetch_open_orders works.
+    """
+    kk = _symkey(k)
+
+    # 1) data.raw_symbol (best)
     try:
         data = getattr(bot, "data", None)
         raw_map = getattr(data, "raw_symbol", {}) if data is not None else {}
-        if isinstance(raw_map, dict) and raw_map.get(k):
-            return str(raw_map[k])
+        if isinstance(raw_map, dict) and raw_map.get(kk):
+            return str(raw_map[kk])
     except Exception:
         pass
-    return k  # fallback canonical
+
+    # 2) heuristic for binance linear futures (critical fix for your stop spam)
+    try:
+        if _is_binance_futures(bot):
+            return _canonical_to_binance_linear_raw(kk)
+    except Exception:
+        pass
+
+    # 3) fallback canonical
+    return kk
 
 
 def _extract_pos_size_side(pos: Dict[str, Any]) -> Tuple[float, Optional[str]]:
+    """
+    Returns (abs_size, side_hint) where side_hint in {"long","short"} when known.
+    """
     side = None
 
     contracts = _safe_float(pos.get("contracts"), 0.0)
@@ -267,6 +324,40 @@ def _alert_ok(bot, key: str, msg: str, cooldown_sec: float) -> bool:
     return True
 
 
+def _make_pos_obj(k: str, *, side: Optional[str], size_abs: float, entry_price: float):
+    """
+    Create a Position-like object with attribute access.
+    Prefers brain.state.Position if available, else SimpleNamespace.
+    """
+    try:
+        if callable(Position):
+            # try common constructor patterns
+            try:
+                return Position(symbol=k, side=side, size=float(size_abs), entry_price=float(entry_price))  # type: ignore
+            except Exception:
+                pass
+            try:
+                p = Position()  # type: ignore
+                setattr(p, "symbol", k)
+                setattr(p, "side", side)
+                setattr(p, "size", float(size_abs))
+                setattr(p, "entry_price", float(entry_price))
+                return p
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+    p = SimpleNamespace()
+    p.symbol = k
+    p.side = side
+    p.size = float(size_abs)
+    p.entry_price = float(entry_price)
+    # safety defaults expected by other modules
+    p.atr = float(getattr(p, "atr", 0.0) or 0.0)
+    return p
+
+
 # ----------------------------
 # Exchange fetch helpers
 # ----------------------------
@@ -364,9 +455,9 @@ async def _place_stop_ladder_router(
     k: str,
 ) -> Optional[str]:
     """
-    Ladder stop restore like entry.py:
+    Ladder stop restore:
     A) amount + reduceOnly
-    B) closePosition fallbacks (amount variations)
+    B) closePosition fallbacks
     """
     stop_side = "sell" if side == "long" else "buy"
 
@@ -417,6 +508,32 @@ async def _place_stop_ladder_router(
     return None
 
 
+def _stop_throttle_ok(bot, k: str) -> bool:
+    """
+    Hard guard to prevent repeated stop placement attempts.
+    Default: 60 seconds per symbol.
+    """
+    rc = _ensure_run_context(bot)
+    store = rc.get("stop_throttle")
+    if not isinstance(store, dict):
+        store = {}
+        rc["stop_throttle"] = store
+
+    now = _now()
+    last = _safe_float(store.get(k), 0.0)
+    throttle = float(_cfg(bot, "RECONCILE_STOP_THROTTLE_SEC", 60.0))
+
+    if throttle <= 0:
+        store[k] = now
+        return True
+
+    if (now - last) < throttle:
+        return False
+
+    store[k] = now
+    return True
+
+
 async def _ensure_protective_stop(bot, k: str, pos_obj, ex_side_hint: Optional[str], ex_size: float):
     if not _cfg(bot, "GUARDIAN_ENSURE_STOP", True):
         return
@@ -428,12 +545,23 @@ async def _ensure_protective_stop(bot, k: str, pos_obj, ex_side_hint: Optional[s
         except Exception:
             pass
 
+    # Throttle first: even if open-orders fetch fails, we refuse to spam stops.
+    if not _stop_throttle_ok(bot, k):
+        return
+
     sym_raw = _resolve_raw_symbol(bot, k)
 
+    # if any reduce-only stop exists, we're good
     try:
         oo = await _fetch_open_orders_best_effort(bot, sym_raw)
         for o in oo:
             if isinstance(o, dict) and _is_reduce_only(o) and _is_stop_like(o):
+                # store id for visibility/debug (optional)
+                try:
+                    if o.get("id"):
+                        setattr(pos_obj, "stop_order_id", str(o.get("id")))
+                except Exception:
+                    pass
                 return
     except Exception:
         pass
@@ -484,15 +612,17 @@ async def _ensure_protective_stop(bot, k: str, pos_obj, ex_side_hint: Optional[s
     )
 
     if oid:
-        msg = f"RECONCILE: PROTECTIVE STOP RESTORED {k}"
+        try:
+            setattr(pos_obj, "stop_order_id", str(oid))
+        except Exception:
+            pass
+        msg = f"RECONCILE: PROTECTIVE STOP RESTORED {k} (id={oid})"
         if _alert_ok(bot, f"{k}:stop_restored", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
             await _safe_speak(bot, msg, "critical")
     else:
         msg = f"RECONCILE: STOP RESTORE FAILED {k}"
         if _alert_ok(bot, f"{k}:stop_failed", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
             await _safe_speak(bot, msg, "critical")
-        # Optional: uncomment when debugging stop restore failures
-        # _diag_dump(bot, f"{k} stop restore failed")
 
 
 # ----------------------------
@@ -537,15 +667,28 @@ async def reconcile_tick(bot):
     auto_flat_orphans = bool(_cfg(bot, "GUARDIAN_AUTO_FLAT_ORPHANS", False))
     full_scan = _truthy(_cfg(bot, "RECONCILE_FULL_SCAN_ORPHANS", True))
 
+    adopt_orphans = _truthy(_cfg(bot, "RECONCILE_ADOPT_ORPHANS", True))
+
     _ensure_shutdown_event(bot)
 
+    # Ensure a persistent dict reference lives on bot.state
     try:
         if not hasattr(bot.state, "positions") or not isinstance(getattr(bot.state, "positions", None), dict):
             bot.state.positions = {}
     except Exception:
-        pass
+        try:
+            bot.state.positions = {}
+        except Exception:
+            pass
 
-    state_positions: Dict[str, Any] = getattr(bot.state, "positions", {}) or {}
+    state_positions: Dict[str, Any] = getattr(bot.state, "positions", {})  # must be the actual dict on state
+    if not isinstance(state_positions, dict):
+        state_positions = {}
+        try:
+            bot.state.positions = state_positions
+        except Exception:
+            pass
+
     active = getattr(bot, "active_symbols", set()) or set()
 
     tracked_syms = set(_symkey(s) for s in state_positions.keys())
@@ -558,7 +701,8 @@ async def reconcile_tick(bot):
             return
         ex_positions = await _fetch_positions_best_effort(bot, list(tracked_syms))
 
-    ex_map: Dict[str, Dict[str, Any]] = {}
+    # Build exchange map: symbol -> list of position dicts (hedge-mode can return multiple legs)
+    ex_map: Dict[str, List[Dict[str, Any]]] = {}
     if isinstance(ex_positions, list):
         for p in ex_positions:
             if not isinstance(p, dict):
@@ -569,20 +713,56 @@ async def reconcile_tick(bot):
             kk = _symkey(sym)
             size, _ = _extract_pos_size_side(p)
             if size > 0:
-                ex_map[kk] = p
+                ex_map.setdefault(kk, []).append(p)
 
-    # 1) ORPHAN EXCHANGE POSITIONS
-    for k, p in ex_map.items():
-        if k not in state_positions:
-            size, side = _extract_pos_size_side(p)
-            entry_px = _extract_entry_price(p)
+    # 1) ORPHAN EXCHANGE POSITIONS (adopt)
+    for k, plist in ex_map.items():
+        if k in state_positions:
+            continue
 
-            msg = f"RECONCILE: ORPHAN EXCHANGE POSITION {k} | side={side} | size={size:.6f} | entry={entry_px:.6f}"
-            log_core.critical(msg)
-            if _alert_ok(bot, f"{k}:orphan_pos", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
-                await _safe_speak(bot, msg, "critical")
+        legs: List[Tuple[float, Optional[str], float]] = []
+        for p in plist:
+            sz, sd = _extract_pos_size_side(p)
+            ep = _extract_entry_price(p)
+            if sz > 0:
+                legs.append((sz, sd, ep))
 
-            if auto_flat_orphans and side in ("long", "short") and size > 0:
+        adopted_side: Optional[str] = None
+        adopted_size: float = 0.0
+        adopted_entry: float = 0.0
+        multi = False
+
+        if len(legs) == 1 and legs[0][1] in ("long", "short"):
+            adopted_size, adopted_side, adopted_entry = legs[0]
+        else:
+            multi = True
+            adopted_size = sum(x[0] for x in legs)
+            adopted_entry = 0.0
+            adopted_side = None
+
+        if legs:
+            for (sz, sd, ep) in legs:
+                msg = f"RECONCILE: ORPHAN EXCHANGE POSITION {k} | side={sd} | size={sz:.6f} | entry={ep:.6f}"
+                log_core.critical(msg)
+                if _alert_ok(bot, f"{k}:orphan_pos:{sd}:{int(sz*1e6)}", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
+                    await _safe_speak(bot, msg, "critical")
+
+        if adopt_orphans and adopted_size > 0:
+            try:
+                pos_obj = _make_pos_obj(k, side=adopted_side, size_abs=adopted_size, entry_price=adopted_entry)
+                state_positions[k] = pos_obj
+                msgA = f"RECONCILE: ORPHAN ADOPTED {k} | side={adopted_side} | size={adopted_size:.6f}"
+                if multi:
+                    msgA += " | NOTE=multi-leg/unknown-side (entry blocked; stop not auto-placed)"
+                log_core.critical(msgA)
+                if _alert_ok(bot, f"{k}:orphan_adopted", msgA, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
+                    await _safe_speak(bot, msgA, "critical")
+            except Exception as e:
+                log_entry.error(f"RECONCILE: orphan adopt failed {k}: {e}")
+
+        if auto_flat_orphans:
+            if len(legs) == 1 and legs[0][1] in ("long", "short"):
+                size, side, _ = legs[0]
                 try:
                     sym_raw = _resolve_raw_symbol(bot, k)
                     close_side = "sell" if side == "long" else "buy"
@@ -627,35 +807,59 @@ async def reconcile_tick(bot):
 
     # 3) DRIFT reconcile + entry_price patch + protective stop
     for k, pos_obj in list(state_positions.items()):
-        ex_p = ex_map.get(k)
-        if not isinstance(ex_p, dict):
+        plist = ex_map.get(k)
+        if not plist:
             continue
 
-        ex_size, ex_side = _extract_pos_size_side(ex_p)
-        if ex_size <= 0:
+        best_p = None
+        best_size = 0.0
+        best_side = None
+        for p in plist:
+            ex_size, ex_side = _extract_pos_size_side(p)
+            if ex_size > best_size:
+                best_size, best_side, best_p = ex_size, ex_side, p
+
+        if not isinstance(best_p, dict) or best_size <= 0:
             continue
 
         st_size = abs(_safe_float(getattr(pos_obj, "size", 0.0), 0.0))
         thresh = max(drift_abs, st_size * drift_pct) if st_size > 0 else drift_abs
 
-        if st_size <= 0 or (thresh > 0 and abs(st_size - ex_size) > thresh):
+        if st_size <= 0 or (thresh > 0 and abs(st_size - best_size) > thresh):
             try:
-                setattr(pos_obj, "size", float(ex_size))
+                setattr(pos_obj, "size", float(best_size))
             except Exception:
                 pass
-            msg = f"RECONCILE: SIZE SYNC {k} state={st_size:.6f} -> ex={ex_size:.6f}"
+            msg = f"RECONCILE: SIZE SYNC {k} state={st_size:.6f} -> ex={best_size:.6f}"
             if _alert_ok(bot, f"{k}:size_sync", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
                 await _safe_speak(bot, msg, "info")
 
         if _safe_float(getattr(pos_obj, "entry_price", 0.0), 0.0) <= 0:
-            ep = _extract_entry_price(ex_p)
+            ep = _extract_entry_price(best_p)
             if ep > 0:
                 try:
                     setattr(pos_obj, "entry_price", float(ep))
                 except Exception:
                     pass
 
-        await _ensure_protective_stop(bot, k, pos_obj, ex_side, ex_size)
+        try:
+            st_side = str(getattr(pos_obj, "side", "") or "").lower().strip()
+        except Exception:
+            st_side = ""
+        if st_side not in ("long", "short") and best_side in ("long", "short"):
+            try:
+                setattr(pos_obj, "side", best_side)
+            except Exception:
+                pass
+
+        if best_side in ("long", "short"):
+            await _ensure_protective_stop(bot, k, pos_obj, best_side, best_size)
+
+    # ensure state dict stays attached
+    try:
+        bot.state.positions = state_positions
+    except Exception:
+        pass
 
 
 # Backward compatibility for older code that still imports guardian_loop from reconcile.py
@@ -672,6 +876,4 @@ async def guardian_loop(bot):
             raise
         except Exception as e:
             log_entry.error(f"Reconcile legacy loop error: {e}")
-            # Optional: uncomment if you want auto-diag on legacy crashes
-            # _diag_dump(bot, f"legacy loop exception: {e}")
         await asyncio.sleep(poll_sec)

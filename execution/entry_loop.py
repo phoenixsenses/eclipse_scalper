@@ -1,16 +1,17 @@
-# execution/entry_loop.py — SCALPER ETERNAL — ENTRY LOOP — 2026 v1.4 (ENV+CFG SIZING RESOLVER)
-# Patch vs v1.3:
-# - ✅ FIX: Entry sizing reads ENV + cfg (supports FIXED_NOTIONAL_USDT + common aliases)
-# - ✅ FIX: Sizing warning prints resolved values (not cfg-only zeros)
-# - ✅ Keeps: tuple no-trade throttle, diag throttle, sizing warn throttle
-# - ✅ Guardian-safe: never raises
+# execution/entry_loop.py — SCALPER ETERNAL — ENTRY LOOP — 2026 v1.6 (PENDING-LOCK + COOLDOWN + OPEN-ORDERS ADOPT)
+# Patch vs v1.5:
+# - ✅ FIX: Per-symbol "pending entry" lock so you cannot machine-gun entries (even if reconcile is lagging)
+# - ✅ FIX: Cooldown after ANY submitted entry attempt (success OR fail) to avoid rapid re-fire loops
+# - ✅ HARDEN: Optional open-orders / open-position probe (best-effort) to detect real exposure even if brain-state is stale
+# - ✅ SAFETY: backoff on margin-insufficient (-2019) retained
+# - ✅ Keeps: ENV-first overrides, sizing resolver, tuple adapter, throttled logs, guardian-safe (never raises)
 
 from __future__ import annotations
 
 import asyncio
 import os
 import time
-from typing import Any, Dict, Optional, Callable
+from typing import Any, Dict, Optional, Callable, Tuple
 
 from utils.logging import log_entry, log_core
 from execution.order_router import create_order
@@ -57,6 +58,40 @@ def _truthy(x) -> bool:
     if isinstance(x, str) and x.strip().lower() in ("true", "1", "yes", "y", "on"):
         return True
     return False
+
+
+def _env_get(name: str) -> str:
+    try:
+        return str(os.getenv(name, "")).strip()
+    except Exception:
+        return ""
+
+
+def _cfg_env_float(bot, name: str, default: float) -> float:
+    """
+    ENV wins, then cfg, then default.
+    """
+    v = _env_get(name)
+    if v != "":
+        try:
+            return float(v)
+        except Exception:
+            pass
+    try:
+        return float(_cfg(bot, name, default) or default)
+    except Exception:
+        return float(default)
+
+
+def _cfg_env_bool(bot, name: str, default: Any = False) -> bool:
+    """
+    ENV wins, then cfg.
+    Accepts strings like "1/true/on".
+    """
+    v = _env_get(name)
+    if v != "":
+        return _truthy(v)
+    return _truthy(_cfg(bot, name, default))
 
 
 def _symkey(sym: str) -> str:
@@ -117,9 +152,10 @@ def _pick_symbols(bot) -> list[str]:
     return ["BTCUSDT"]
 
 
-def _in_position(bot, k: str) -> bool:
+def _in_position_brain(bot, k: str) -> bool:
     """
     Cheap check: state.positions contains k with nonzero size.
+    Note: if reconcile never adopts exchange positions, this may remain false.
     """
     try:
         st = getattr(bot, "state", None)
@@ -239,7 +275,6 @@ def _throttled_log(key: str, every_sec: float, fn: Callable[[str], None], msg: s
             _LAST_LOG_TS[key] = now
             fn(msg)
     except Exception:
-        # never fatal
         pass
 
 
@@ -284,7 +319,6 @@ def _tuple_to_sig_dict(
         if short_sig and not long_sig:
             return {"action": "sell", "confidence": conf, "type": "market", "symbol": sym}
 
-        # both false OR both true => treat as no actionable signal
         if diag:
             _throttled_log(
                 key=f"tuple_no_trade:{sym}",
@@ -304,8 +338,7 @@ async def _maybe_call_signal(fn: Callable, bot, symbol: str, diag: bool = False)
     - tuple-returning scalper_signal() -> (long, short, confidence)
     Tries multiple signatures, including canonical: fn(sym, data=bot.data, cfg=bot.cfg)
     """
-    # how often to print "no-trade" tuple diag per symbol
-    no_trade_log_every = float(_cfg(bot, "ENTRY_NO_TRADE_LOG_EVERY_SEC", 5.0) or 5.0)
+    no_trade_log_every = float(_cfg_env_float(bot, "ENTRY_NO_TRADE_LOG_EVERY_SEC", 5.0) or 5.0)
 
     # 1) Preferred: fn(symbol, data=bot.data, cfg=bot.cfg)
     try:
@@ -323,7 +356,7 @@ async def _maybe_call_signal(fn: Callable, bot, symbol: str, diag: bool = False)
         log_entry.warning(f"ENTRY_LOOP signal failed {symbol}: {e}")
         return None
 
-    # 2) fn(bot, symbol) (legacy pattern)
+    # 2) fn(bot, symbol)
     try:
         out = fn(bot, symbol)
         if asyncio.iscoroutine(out):
@@ -339,7 +372,7 @@ async def _maybe_call_signal(fn: Callable, bot, symbol: str, diag: bool = False)
         log_entry.warning(f"ENTRY_LOOP signal failed {symbol}: {e}")
         return None
 
-    # 3) fn(symbol, bot=bot) (older adapter path)
+    # 3) fn(symbol, bot=bot)
     try:
         out = fn(symbol, bot=bot)
         if asyncio.iscoroutine(out):
@@ -402,7 +435,6 @@ def _get_price(bot, symbol: str) -> float:
         data = getattr(bot, "data", None)
         gp = getattr(data, "get_price", None) if data is not None else None
         if callable(gp):
-            # get_price signature varies; keep it super safe
             try:
                 px = float(gp(k, in_position=False) or 0.0)
             except TypeError:
@@ -456,6 +488,143 @@ def _sizing_fallback_amount(bot, symbol: str) -> Optional[float]:
 
 
 # ----------------------------
+# Anti-spam: pending entry tracking (locks + cooldown)
+# ----------------------------
+
+_ENTRY_LOCKS: Dict[str, asyncio.Lock] = {}
+_PENDING_UNTIL: Dict[str, float] = {}          # k -> ts until which entries are blocked
+_PENDING_ORDER_ID: Dict[str, str] = {}         # k -> last submitted order id (best-effort)
+
+
+def _get_entry_lock(k: str) -> asyncio.Lock:
+    lk = _ENTRY_LOCKS.get(k)
+    if isinstance(lk, asyncio.Lock):
+        return lk
+    lk = asyncio.Lock()
+    _ENTRY_LOCKS[k] = lk
+    return lk
+
+
+def _set_pending(k: str, *, sec: float, order_id: Optional[str] = None) -> None:
+    try:
+        _PENDING_UNTIL[k] = _now() + max(0.0, float(sec))
+        if order_id:
+            _PENDING_ORDER_ID[k] = str(order_id)
+    except Exception:
+        pass
+
+
+def _pending_active(k: str) -> bool:
+    try:
+        until = float(_PENDING_UNTIL.get(k, 0.0) or 0.0)
+        return _now() < until
+    except Exception:
+        return False
+
+
+async def _has_open_entry_order(bot, k: str, sym_raw: str) -> bool:
+    """
+    Best-effort: detect open orders from exchange to avoid stacking while reconcile lags.
+    This is intentionally conservative and never fatal.
+    """
+    try:
+        enabled = _cfg_env_bool(bot, "ENTRY_PROBE_OPEN_ORDERS", True)
+        if not enabled:
+            return False
+
+        ex = getattr(bot, "ex", None)
+        if ex is None:
+            return False
+
+        fn = getattr(ex, "fetch_open_orders", None)
+        if not callable(fn):
+            return False
+
+        # Some exchanges want raw symbol; we try sym_raw first, then k.
+        try:
+            orders = await fn(sym_raw)
+        except Exception:
+            try:
+                orders = await fn(k)
+            except Exception:
+                return False
+
+        if not isinstance(orders, (list, tuple)) or not orders:
+            return False
+
+        # If we can, ignore reduceOnly/closePosition orders (exits); entry loop should only care about entry-ish orders.
+        for o in orders:
+            if not isinstance(o, dict):
+                continue
+            info = o.get("info") or {}
+            params = o.get("params") or {}
+
+            ro = info.get("reduceOnly", params.get("reduceOnly"))
+            cp = info.get("closePosition", params.get("closePosition"))
+            if _truthy(ro) or _truthy(cp):
+                continue
+
+            status = str(o.get("status") or "").lower()
+            if status in ("open", "new", "partially_filled", ""):
+                return True
+
+        return False
+    except Exception:
+        return False
+
+
+async def _has_open_position_exchange(bot, k: str, sym_raw: str) -> bool:
+    """
+    Best-effort: detect if exchange reports an open position.
+    This helps when brain-state isn't adopted yet.
+    """
+    try:
+        enabled = _cfg_env_bool(bot, "ENTRY_PROBE_EXCHANGE_POSITIONS", False)
+        if not enabled:
+            return False
+
+        ex = getattr(bot, "ex", None)
+        if ex is None:
+            return False
+
+        fn = getattr(ex, "fetch_positions", None)
+        if not callable(fn):
+            return False
+
+        try:
+            poss = await fn([sym_raw])
+        except Exception:
+            try:
+                poss = await fn([k])
+            except Exception:
+                return False
+
+        if not isinstance(poss, (list, tuple)) or not poss:
+            return False
+
+        for p in poss:
+            if not isinstance(p, dict):
+                continue
+            # ccxt position formats vary; try common fields:
+            sz = p.get("contracts")
+            if sz is None:
+                sz = p.get("contractSize")
+            if sz is None:
+                sz = p.get("size")
+            if sz is None:
+                sz = p.get("positionAmt")
+            try:
+                if sz is not None and abs(float(sz)) > 0.0:
+                    return True
+            except Exception:
+                continue
+
+        return False
+    except Exception:
+        return False
+
+
+# ----------------------------
 # Entry loop
 # ----------------------------
 
@@ -466,21 +635,35 @@ async def entry_loop(bot) -> None:
     """
     shutdown_ev = _ensure_shutdown_event(bot)
 
-    poll_sec = float(_cfg(bot, "ENTRY_POLL_SEC", 1.0) or 1.0)
-    per_symbol_gap_sec = float(_cfg(bot, "ENTRY_PER_SYMBOL_GAP_SEC", 2.5) or 2.5)
+    # ENV overrides for safety knobs
+    poll_sec = _cfg_env_float(bot, "ENTRY_POLL_SEC", 1.0)
+    per_symbol_gap_sec = _cfg_env_float(bot, "ENTRY_PER_SYMBOL_GAP_SEC", 2.5)
+    local_cooldown_sec = _cfg_env_float(bot, "ENTRY_LOCAL_COOLDOWN_SEC", 8.0)
+    min_conf = _cfg_env_float(bot, "ENTRY_MIN_CONFIDENCE", 0.0)
 
-    local_cooldown_sec = float(_cfg(bot, "ENTRY_LOCAL_COOLDOWN_SEC", 8.0) or 8.0)
-    min_conf = float(_cfg(bot, "ENTRY_MIN_CONFIDENCE", 0.0) or 0.0)
+    # NEW: pending-block window after submit to stop stacking while reconcile adopts
+    pending_block_sec = _cfg_env_float(bot, "ENTRY_PENDING_BLOCK_SEC", 30.0)
 
-    respect_kill = bool(_truthy(_cfg(bot, "ENTRY_RESPECT_KILL_SWITCH", True)))
-    hedge_hint_mode = bool(_truthy(_cfg(bot, "HEDGE_MODE", False) or _cfg(bot, "HEDGE_SAFE", False)))
+    respect_kill = bool(_cfg_env_bool(bot, "ENTRY_RESPECT_KILL_SWITCH", True))
 
-    diag = _truthy(os.getenv("SCALPER_SIGNAL_DIAG", _cfg(bot, "SCALPER_SIGNAL_DIAG", "0")))
+    # Hedge hint mode can be set via ENV too
+    hedge_hint_mode = bool(
+        _cfg_env_bool(bot, "HEDGE_MODE", False)
+        or _cfg_env_bool(bot, "HEDGE_SAFE", False)
+        or _truthy(_cfg(bot, "HEDGE_MODE", False) or _cfg(bot, "HEDGE_SAFE", False))
+    )
 
-    # Throttle: sizing warning every N seconds
-    sizing_warn_every = float(_cfg(bot, "ENTRY_SIZING_WARN_EVERY_SEC", 30.0) or 30.0)
+    # diag can be controlled via ENV, else cfg
+    diag = _cfg_env_bool(bot, "SCALPER_SIGNAL_DIAG", _cfg(bot, "SCALPER_SIGNAL_DIAG", "0"))
+
+    sizing_warn_every = _cfg_env_float(bot, "ENTRY_SIZING_WARN_EVERY_SEC", 30.0)
     last_sizing_warn_ts = 0.0
 
+    # Backoff on margin insufficient to prevent spam
+    margin_backoff_sec = _cfg_env_float(bot, "ENTRY_MARGIN_INSUFFICIENT_BACKOFF_SEC", 900.0)  # 15m default
+    backoff_until_by_sym: Dict[str, float] = {}
+
+    # Local cooldown memory
     last_attempt_by_sym: Dict[str, float] = {}
     last_symbol_tick = 0.0
 
@@ -523,179 +706,236 @@ async def entry_loop(bot) -> None:
                 if not k:
                     continue
 
-                # skip if already in position
-                if _in_position(bot, k):
+                # margin-insufficient backoff gate
+                bo = float(backoff_until_by_sym.get(k, 0.0) or 0.0)
+                if bo > 0 and _now() < bo:
                     continue
 
-                # local per-symbol cooldown
+                # hard pending gate (prevents stacking during adopt/reconcile lag)
+                if _pending_active(k):
+                    continue
+
+                # skip if already in position (brain-state)
+                if _in_position_brain(bot, k):
+                    continue
+
+                # local cooldown
                 la = float(last_attempt_by_sym.get(k, 0.0) or 0.0)
                 if local_cooldown_sec > 0 and (_now() - la) < local_cooldown_sec:
                     continue
 
-                # must have a signal function to do anything
+                # must have signal function to do anything
                 if not callable(sig_fn):
                     continue
 
-                sig = await _maybe_call_signal(sig_fn, bot, k, diag=diag)
-                if not isinstance(sig, dict) or not sig:
-                    await asyncio.sleep(max(0.01, per_symbol_gap_sec))
-                    continue
-
-                action = _parse_action(sig)
-                if action not in ("buy", "sell"):
-                    await asyncio.sleep(max(0.01, per_symbol_gap_sec))
-                    continue
-
-                # confidence gate
-                try:
-                    conf = float(sig.get("confidence", sig.get("conf", 0.0)) or 0.0)
-                except Exception:
-                    conf = 0.0
-                if min_conf > 0 and conf < min_conf:
-                    await asyncio.sleep(max(0.01, per_symbol_gap_sec))
-                    continue
-
-                otype = _parse_order_type(sig)
-                price = _parse_price(sig) if otype == "limit" else None
-                amt = _parse_amount(sig)
-
-                if amt is None:
-                    amt = _sizing_fallback_amount(bot, k)
-
-                if amt is None or amt <= 0:
-                    # Throttled warning: you have signals but no sizing configured
-                    if sizing_warn_every > 0 and (_now() - last_sizing_warn_ts) >= sizing_warn_every:
-                        last_sizing_warn_ts = _now()
-                        fixed_qty, fixed_notional = _resolve_sizing(bot)
-                        log_entry.warning(
-                            "ENTRY_LOOP: sizing missing; set FIXED_QTY or FIXED_NOTIONAL_USDT. "
-                            f"(FIXED_QTY={fixed_qty}, FIXED_NOTIONAL_USDT={fixed_notional})"
-                        )
-                    last_attempt_by_sym[k] = _now()
-                    await asyncio.sleep(max(0.01, per_symbol_gap_sec))
-                    continue
-
+                # resolve raw symbol once (needed for exchange probes)
                 sym_raw = _resolve_raw_symbol(bot, k, k)
 
-                # Hedge hint: positionSide wants LONG/SHORT; router accepts "long"/"short"
-                hedge_side_hint = None
-                if hedge_hint_mode:
-                    hedge_side_hint = "long" if action == "buy" else "short"
-
-                last_attempt_by_sym[k] = _now()
+                # best-effort exchange probes (optional)
+                try:
+                    if await _has_open_entry_order(bot, k, sym_raw):
+                        _set_pending(k, sec=max(5.0, pending_block_sec * 0.5))
+                        continue
+                except Exception:
+                    pass
 
                 try:
-                    if otype == "limit":
-                        if price is None or price <= 0:
-                            log_entry.warning(f"ENTRY_LOOP: limit signal missing price for {k}")
+                    if await _has_open_position_exchange(bot, k, sym_raw):
+                        _set_pending(k, sec=max(5.0, pending_block_sec * 0.5))
+                        continue
+                except Exception:
+                    pass
+
+                # Acquire per-symbol entry lock to prevent concurrent submit storms
+                lk = _get_entry_lock(k)
+                if lk.locked():
+                    continue
+
+                async with lk:
+                    # re-check gates after lock (race-safe)
+                    if shutdown_ev.is_set():
+                        break
+                    if _pending_active(k):
+                        continue
+                    if _in_position_brain(bot, k):
+                        continue
+                    bo = float(backoff_until_by_sym.get(k, 0.0) or 0.0)
+                    if bo > 0 and _now() < bo:
+                        continue
+
+                    # mark attempt NOW to enforce cooldown even if we error later
+                    last_attempt_by_sym[k] = _now()
+
+                    sig = await _maybe_call_signal(sig_fn, bot, k, diag=diag)
+                    if not isinstance(sig, dict) or not sig:
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
+
+                    action = _parse_action(sig)
+                    if action not in ("buy", "sell"):
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
+
+                    # confidence gate
+                    try:
+                        conf = float(sig.get("confidence", sig.get("conf", 0.0)) or 0.0)
+                    except Exception:
+                        conf = 0.0
+                    if min_conf > 0 and conf < min_conf:
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
+
+                    otype = _parse_order_type(sig)
+                    price = _parse_price(sig) if otype == "limit" else None
+                    amt = _parse_amount(sig)
+                    if amt is None:
+                        amt = _sizing_fallback_amount(bot, k)
+
+                    if amt is None or amt <= 0:
+                        if sizing_warn_every > 0 and (_now() - last_sizing_warn_ts) >= sizing_warn_every:
+                            last_sizing_warn_ts = _now()
+                            fixed_qty, fixed_notional = _resolve_sizing(bot)
+                            log_entry.warning(
+                                "ENTRY_LOOP: sizing missing; set FIXED_QTY or FIXED_NOTIONAL_USDT. "
+                                f"(FIXED_QTY={fixed_qty}, FIXED_NOTIONAL_USDT={fixed_notional})"
+                            )
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
+
+                    # Hedge hint: router accepts "long"/"short" for entries
+                    hedge_side_hint = None
+                    if hedge_hint_mode:
+                        hedge_side_hint = "long" if action == "buy" else "short"
+
+                    # Submit order
+                    try:
+                        if otype == "limit":
+                            if price is None or price <= 0:
+                                log_entry.warning(f"ENTRY_LOOP: limit signal missing price for {k}")
+                                await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                                continue
+
+                            res = await create_order(
+                                bot,
+                                symbol=sym_raw,
+                                type="LIMIT",
+                                side=action,
+                                amount=float(amt),
+                                price=float(price),
+                                params={},
+                                intent_reduce_only=False,
+                                intent_close_position=False,
+                                hedge_side_hint=hedge_side_hint,
+                                retries=int(_cfg_env_float(bot, "ENTRY_ROUTER_RETRIES", 6) or 6),
+                            )
+                        else:
+                            res = await create_order(
+                                bot,
+                                symbol=sym_raw,
+                                type="MARKET",
+                                side=action,
+                                amount=float(amt),
+                                price=None,
+                                params={},
+                                intent_reduce_only=False,
+                                intent_close_position=False,
+                                hedge_side_hint=hedge_side_hint,
+                                retries=int(_cfg_env_float(bot, "ENTRY_ROUTER_RETRIES", 4) or 4),
+                            )
+
+                        oid = None
+                        if isinstance(res, dict):
+                            oid = res.get("id") or (res.get("info") or {}).get("orderId")
+
+                        if res is None:
+                            log_entry.warning(f"ENTRY_LOOP: create_order returned None for {k}")
+                            if callable(emit):
+                                try:
+                                    await emit(
+                                        bot,
+                                        "entry.order_failed",
+                                        data={"symbol": k, "action": action, "type": otype},
+                                        symbol=k,
+                                        level="critical",
+                                    )
+                                except Exception:
+                                    pass
+                            # even if failed, block briefly to prevent rapid spam while exchange is angry
+                            _set_pending(k, sec=max(3.0, pending_block_sec * 0.25))
                             await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                             continue
 
-                        res = await create_order(
-                            bot,
-                            symbol=sym_raw,
-                            type="LIMIT",
-                            side=action,
-                            amount=float(amt),
-                            price=float(price),
-                            params={},
-                            intent_reduce_only=False,
-                            intent_close_position=False,
-                            hedge_side_hint=hedge_side_hint,
-                            retries=int(_cfg(bot, "ENTRY_ROUTER_RETRIES", 6) or 6),
-                        )
-                    else:
-                        res = await create_order(
-                            bot,
-                            symbol=sym_raw,
-                            type="MARKET",
-                            side=action,
-                            amount=float(amt),
-                            price=None,
-                            params={},
-                            intent_reduce_only=False,
-                            intent_close_position=False,
-                            hedge_side_hint=hedge_side_hint,
-                            retries=int(_cfg(bot, "ENTRY_ROUTER_RETRIES", 4) or 4),
-                        )
+                        # ✅ key anti-stack: once we submitted ANY entry, block more entries for a while
+                        _set_pending(k, sec=max(5.0, pending_block_sec), order_id=str(oid) if oid else None)
 
-                    oid = None
-                    if isinstance(res, dict):
-                        oid = res.get("id") or (res.get("info") or {}).get("orderId")
+                        log_core.critical(f"ENTRY_LOOP: ORDER SUBMITTED {k} {action.upper()} type={otype} amt={amt} id={oid}")
 
-                    if res is None:
-                        log_entry.warning(f"ENTRY_LOOP: create_order returned None for {k}")
+                        # Register watch for limit/pending orders (optional)
+                        if otype == "limit" and callable(register_entry_watch) and oid:
+                            try:
+                                await register_entry_watch(
+                                    bot,
+                                    symbol=sym_raw,
+                                    order_id=str(oid),
+                                    side=("long" if action == "buy" else "short"),
+                                    amount=float(amt),
+                                    price=float(price or 0.0),
+                                    meta={"confidence": conf, "signal": {kk: vv for kk, vv in sig.items() if kk not in ("raw",)}},
+                                )
+                            except Exception:
+                                pass
+
+                        # Telemetry (optional)
                         if callable(emit):
                             try:
                                 await emit(
                                     bot,
-                                    "entry.order_failed",
-                                    data={"symbol": k, "action": action, "type": otype},
+                                    "entry.submitted",
+                                    data={
+                                        "symbol": k,
+                                        "action": action,
+                                        "type": otype,
+                                        "amount": float(amt),
+                                        "price": float(price) if price is not None else None,
+                                        "confidence": conf,
+                                        "order_id": oid,
+                                        "pending_block_sec": float(pending_block_sec),
+                                    },
+                                    symbol=k,
+                                    level="info",
+                                )
+                            except Exception:
+                                pass
+
+                        if _truthy(_cfg(bot, "ENTRY_NOTIFY", False)):
+                            await _safe_speak(bot, f"ENTRY {k} {action.upper()} {otype} amt={amt}", "info")
+
+                    except asyncio.CancelledError:
+                        raise
+                    except Exception as e:
+                        # try to detect margin insufficient and backoff
+                        msg = str(e)
+                        if "Margin is insufficient" in msg or '"code":-2019' in msg or "code': -2019" in msg:
+                            until = _now() + max(60.0, float(margin_backoff_sec))
+                            backoff_until_by_sym[k] = until
+                            log_entry.critical(f"ENTRY_LOOP: margin insufficient → backing off {k} for {int(margin_backoff_sec)}s")
+                            # also block short-term so we don't keep hammering before backoff map is checked again
+                            _set_pending(k, sec=max(10.0, pending_block_sec * 0.5))
+                        else:
+                            log_entry.error(f"ENTRY_LOOP: order submit failed {k}: {e}")
+                            _set_pending(k, sec=max(3.0, pending_block_sec * 0.25))
+
+                        if callable(emit):
+                            try:
+                                await emit(
+                                    bot,
+                                    "entry.exception",
+                                    data={"symbol": k, "err": repr(e)[:300]},
                                     symbol=k,
                                     level="critical",
                                 )
                             except Exception:
                                 pass
-                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
-                        continue
-
-                    log_core.critical(f"ENTRY_LOOP: ORDER SUBMITTED {k} {action.upper()} type={otype} amt={amt} id={oid}")
-
-                    # Register watch for limit/pending orders (optional)
-                    if otype == "limit" and callable(register_entry_watch) and oid:
-                        try:
-                            await register_entry_watch(
-                                bot,
-                                symbol=sym_raw,
-                                order_id=str(oid),
-                                side=("long" if action == "buy" else "short"),
-                                amount=float(amt),
-                                price=float(price or 0.0),
-                                meta={"confidence": conf, "signal": {kk: vv for kk, vv in sig.items() if kk not in ("raw",)}},
-                            )
-                        except Exception:
-                            pass
-
-                    # Telemetry (optional)
-                    if callable(emit):
-                        try:
-                            await emit(
-                                bot,
-                                "entry.submitted",
-                                data={
-                                    "symbol": k,
-                                    "action": action,
-                                    "type": otype,
-                                    "amount": float(amt),
-                                    "price": float(price) if price is not None else None,
-                                    "confidence": conf,
-                                    "order_id": oid,
-                                },
-                                symbol=k,
-                                level="info",
-                            )
-                        except Exception:
-                            pass
-
-                    # optional notify
-                    if _truthy(_cfg(bot, "ENTRY_NOTIFY", False)):
-                        await _safe_speak(bot, f"ENTRY {k} {action.upper()} {otype} amt={amt}", "info")
-
-                except asyncio.CancelledError:
-                    raise
-                except Exception as e:
-                    log_entry.error(f"ENTRY_LOOP: order submit failed {k}: {e}")
-                    if callable(emit):
-                        try:
-                            await emit(
-                                bot,
-                                "entry.exception",
-                                data={"symbol": k, "err": repr(e)[:300]},
-                                symbol=k,
-                                level="critical",
-                            )
-                        except Exception:
-                            pass
 
                 await asyncio.sleep(max(0.01, per_symbol_gap_sec))
 

@@ -1,10 +1,9 @@
-# execution/bootstrap.py — SCALPER ETERNAL — ONE TRUE ENTRYPOINT — 2026 v1.7
-# Patch vs your v1.6:
-# - ✅ NEW: Loads .env automatically (same behavior as your tools/test_binance_env.py)
-# - ✅ NEW: Windows UTF-8 hardening to prevent "Φ" / UnicodeEncodeError (works with Select-String piping)
-# - ✅ FIX: Reads Binance keys from BINANCE_API_KEY / BINANCE_API_SECRET (and falls back to API_KEY / API_SECRET)
-# - ✅ KEEP: ACTIVE_SYMBOLS bridge -> cfg.ACTIVE_SYMBOLS + bot.active_symbols
-# - ✅ KEEP: robust data_ready gating + multi-shape cache support
+# execution/bootstrap.py — SCALPER ETERNAL — ONE TRUE ENTRYPOINT — 2026 v1.8 (OPTIONAL EXIT/POSITION MANAGER TASKS)
+# Patch vs v1.7:
+# - ✅ NEW: Starts optional exit/position manager loops as tasks (single bot/ex/state — no double-brain)
+# - ✅ NEW: Starts protection loops BEFORE entry (so stops/management are online first)
+# - ✅ NEW: Clear warnings when optional loops are missing (no silent “why no exits?”)
+# - ✅ KEEP: .env load, UTF-8 hardening, ACTIVE_SYMBOLS bridge, data_ready gating, robust cache support
 # - ✅ Guardian-safe: never raises from shutdown paths
 
 from __future__ import annotations
@@ -708,6 +707,9 @@ async def main() -> None:
 
     _run_diagnostics_best_effort(bot)
 
+    # ------------------------------------------------------------
+    # Required loops
+    # ------------------------------------------------------------
     guardian_mod = _opt_import("execution.guardian")
     guardian_loop = _callable(guardian_mod, "guardian_loop") if guardian_mod else None
     if not callable(guardian_loop):
@@ -719,6 +721,27 @@ async def main() -> None:
     data_loop_mod = _opt_import("execution.data_loop")
     data_loop = _callable(data_loop_mod, "data_loop") if data_loop_mod else None
 
+    # ------------------------------------------------------------
+    # Optional loops (best effort)
+    # ------------------------------------------------------------
+    pm_mod = _opt_import("execution.position_manager")
+    position_manager_loop = None
+    if pm_mod:
+        position_manager_loop = (
+            _callable(pm_mod, "position_manager_loop")
+            or _callable(pm_mod, "position_manager")
+            or _callable(pm_mod, "run")
+        )
+
+    exit_mod = _opt_import("execution.exit")
+    exit_loop = None
+    if exit_mod:
+        exit_loop = (
+            _callable(exit_mod, "exit_loop")
+            or _callable(exit_mod, "exit")
+            or _callable(exit_mod, "run")
+        )
+
     _opt_import("execution.telemetry")
 
     tasks: List[asyncio.Task] = []
@@ -726,6 +749,17 @@ async def main() -> None:
     # Start guardian + data first
     _maybe_start_task(tasks, "guardian.guardian_loop", guardian_loop, bot)
     _maybe_start_task(tasks, "data_loop.data_loop", data_loop, bot)
+
+    # Start protection loops BEFORE entry (so management is online first)
+    if callable(position_manager_loop):
+        _maybe_start_task(tasks, "position_manager.loop", position_manager_loop, bot)
+    else:
+        log_core.warning("[bootstrap] optional loop missing: execution.position_manager.(position_manager_loop/run)")
+
+    if callable(exit_loop):
+        _maybe_start_task(tasks, "exit.loop", exit_loop, bot)
+    else:
+        log_core.warning("[bootstrap] optional loop missing: execution.exit.(exit_loop/run)")
 
     # Start entry with gating wrapper
     if callable(entry_loop):

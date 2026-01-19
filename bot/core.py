@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-# bot/core.py — SCALPER ETERNAL — GOD-EMPEROR CORE — 2026 v4.7c (RUNNER-COMPAT + LOOP COHERENCE)
+# bot/core.py — SCALPER ETERNAL — GOD-EMPEROR CORE — 2026 v4.8 (RUNNER-COHERENT + DATA_READY + ENV SYMBOL RESPECT)
+
+from __future__ import annotations
 
 import asyncio
 import time
 import os
 import random
 from datetime import datetime, timezone
-from typing import Set, Dict, List, Optional, Any, Iterable
+from typing import Set, Dict, List, Optional, Any
 
 from utils.logging import log, log_core, log_data, log_brain
 from brain.state import PsycheState
@@ -14,6 +16,7 @@ from brain.persistence import save_brain, load_brain
 from data.cache import GodEmperorDataOracle as DataCache
 from notifications.telegram import Notifier
 from exchanges.binance import get_exchange
+
 from execution.entry import try_enter
 from execution.emergency import emergency_flat
 from execution.exit import handle_exit
@@ -21,6 +24,7 @@ from strategies.risk import portfolio_heat
 
 # Kill switch
 from risk.kill_switch import evaluate as ks_evaluate, trade_allowed as ks_trade_allowed, is_halted as ks_is_halted
+
 
 FALLBACK_SYMBOLS = [
     "BTCUSDT", "ETHUSDT", "SOLUSDT", "XRPUSDT", "DOGEUSDT",
@@ -38,7 +42,7 @@ CORRELATION_GROUPS = {
     "MEME": ["DOGEUSDT", "SHIBUSDT", "PEPEUSDT", "BONKUSDT", "FLOKIUSDT", "WIFUSDT"],
 }
 
-CORE_VERSION = "god-emperor-ascendant-absolute-v4.7c-2026-jan06"
+CORE_VERSION = "god-emperor-ascendant-absolute-v4.8-2026-jan"
 STARTUP_TIMESTAMP = time.time()
 
 
@@ -114,8 +118,23 @@ def _extract_usdt_equity(balance: Any) -> float:
 
 
 class EclipseEternal:
+    """
+    Runner-compatible bot core.
+
+    Key contract for bootstrap:
+      - bot.ex / bot.exchange
+      - bot.data (DataCache)
+      - bot.state
+      - bot.cfg
+      - bot._shutdown asyncio.Event
+      - bot.data_ready asyncio.Event  (NEW: bootstrap gating)
+      - bot.active_symbols set[str] canonical
+    """
+
     def __init__(self):
         self.ex = get_exchange()
+        self.exchange = self.ex  # alias for runner compatibility
+
         self.state = PsycheState()
         self.data = DataCache()
 
@@ -129,13 +148,21 @@ class EclipseEternal:
         self.min_amounts: Dict[str, float] = {}   # canonical keys only
 
         self.session_peak_equity: float = 0.0
+
         self._shutdown = asyncio.Event()
+        self._shutdown_once = asyncio.Event()
+
+        # ✅ bootstrap gating expects this
+        self.data_ready = asyncio.Event()
+
         self.cfg = None
 
-        self._shutdown_once = asyncio.Event()
         self._tasks: Dict[str, asyncio.Task] = {}
         self._entry_semaphore = asyncio.Semaphore(10)
         self._last_entry_attempt: Dict[str, float] = {}
+
+        # only set once
+        self._data_ready_set_once = False
 
     async def speak(self, text: str, priority: str = "critical"):
         if self.notify:
@@ -197,10 +224,45 @@ class EclipseEternal:
             pass
         return fallback
 
+    def _maybe_set_data_ready(self) -> None:
+        """
+        Best-effort: set once when we have at least *some* usable market data.
+        bootstrap waits on this to start entry loop.
+        """
+        if self._data_ready_set_once:
+            return
+        try:
+            # price map exists?
+            price_map = getattr(self.data, "price", None)
+            if isinstance(price_map, dict) and any(_safe_float(v, 0.0) > 0 for v in price_map.values()):
+                self._data_ready_set_once = True
+                self.data_ready.set()
+                return
+        except Exception:
+            pass
+
+        # fallback: any df not-empty
+        try:
+            for k in list(self.active_symbols)[:4]:
+                df = None
+                try:
+                    df = self.data.get_df(k, "1m")
+                except Exception:
+                    df = None
+                if df is not None and getattr(df, "empty", True) is False and len(df) >= 10:
+                    self._data_ready_set_once = True
+                    self.data_ready.set()
+                    return
+        except Exception:
+            pass
+
     # ---------------------------
     # Symbol discovery
     # ---------------------------
     async def _load_dynamic_symbols(self):
+        """
+        Only used if runner/bootstrap didn't already set active_symbols.
+        """
         try:
             markets_obj = None
             try:
@@ -301,12 +363,19 @@ class EclipseEternal:
     # Core lifecycle
     # ---------------------------
     async def start(self):
+        """
+        Runner/bootstrap may call this OR may just use loops directly.
+        This method is safe either way.
+        """
         try:
             self.state.version = CORE_VERSION
         except Exception:
             pass
 
         log_core.critical(f"GOD-EMPEROR CORE AWAKENED — VERSION {CORE_VERSION}")
+
+        # default: do NOT spawn internal watchers (bootstrap/guardian owns supervision)
+        spawn_internal = bool(getattr(self.cfg, "CORE_SPAWN_INTERNAL_WATCHERS", False) or False)
 
         max_pos = int(getattr(self.cfg, "MAX_CONCURRENT_POSITIONS", 5) or 5)
         self._entry_semaphore = asyncio.Semaphore(max(2, max_pos * 2))
@@ -358,7 +427,15 @@ class EclipseEternal:
         else:
             log_brain.info("Fresh consciousness")
 
-        await self._load_dynamic_symbols()
+        # ✅ Respect symbols pre-set by bootstrap/env
+        if not self.active_symbols:
+            await self._load_dynamic_symbols()
+        else:
+            # ensure canonical set + min map exists
+            self.active_symbols = set(_symkey(s) for s in self.active_symbols if s)
+            for k in self.active_symbols:
+                self.min_amounts.setdefault(k, 0.0)
+
         log_core.critical(f"{len(self.active_symbols)} symbols active")
 
         # PRIME equity once
@@ -382,14 +459,15 @@ class EclipseEternal:
 
         self.state.current_day = datetime.now(timezone.utc).date()
 
-        # IMPORTANT:
-        # Core no longer spawns guardian/reconcile/entry_watch/emergency loops.
-        # Runner supervises those loops. Core only provides bot.start() + data_loop/signal_loop.
+        # ✅ internal loops only if explicitly enabled
+        if spawn_internal:
+            self._track_task("watcher", self._safe_loop("watcher", self._watcher_loop()))
+            self._track_task("cache_saver", self._safe_loop("cache_saver", self._cache_saver_loop()))
+            log_core.critical("CORE ONLINE — internal watcher loops spawned")
+        else:
+            log_core.critical("CORE ONLINE — runner-supervised mode (no internal watcher loops)")
 
-        self._track_task("watcher", self._safe_loop("watcher", self._watcher_loop()))
-        self._track_task("cache_saver", self._safe_loop("cache_saver", self._cache_saver_loop()))
-
-        log_core.critical("CORE ONLINE — waiting for shutdown")
+        # keep alive until shutdown (useful if start() is used as entrypoint)
         while not self._shutdown.is_set():
             await asyncio.sleep(5)
 
@@ -400,6 +478,10 @@ class EclipseEternal:
         """
         Runner will spawn this. It starts per-symbol polling tasks.
         """
+        if not self.active_symbols:
+            # if runner starts data_loop without calling start(), we still need symbols
+            await self._load_dynamic_symbols()
+
         # Start polling tasks using CANONICAL symbols
         for k in sorted(self.active_symbols):
             log_data.info(f"Polling → {k}")
@@ -417,6 +499,7 @@ class EclipseEternal:
 
         # Keep alive until shutdown
         while not self._shutdown.is_set():
+            self._maybe_set_data_ready()
             await asyncio.sleep(1.0)
 
     async def signal_loop(self):
@@ -520,6 +603,9 @@ class EclipseEternal:
         except Exception as e:
             log_core.error(f"Entry task failed {sym} {side}: {e}")
 
+    # ---------------------------
+    # Optional internal watcher loops (OFF by default)
+    # ---------------------------
     async def _cache_saver_loop(self):
         interval = float(os.getenv("CACHE_SAVE_SEC", "180"))
         while not self._shutdown.is_set():
@@ -532,7 +618,7 @@ class EclipseEternal:
                 pass
 
     async def _watcher_loop(self):
-        log_core.info("Watcher active")
+        log_core.info("Watcher active (internal)")
 
         orders_poll_sec = float(getattr(self.cfg, "CLOSED_ORDERS_POLL_SEC", 25.0))
         last_orders_poll = 0.0
@@ -595,6 +681,10 @@ class EclipseEternal:
             await asyncio.sleep(23)
 
     async def _poll_closed_orders_for_exits(self):
+        """
+        Internal-only exit polling.
+        If you're using guardian Exit Watcher, leave CORE_SPAWN_INTERNAL_WATCHERS=False and this won't run.
+        """
         symbols = set(_symkey(s) for s in (self.state.positions or {}).keys())
         extra = int(os.getenv("CLOSED_ORDERS_EXTRA_SYMBOLS", "8"))
         if extra > 0 and self.active_symbols:
@@ -625,6 +715,10 @@ class EclipseEternal:
 
         log_core.critical("CORE SHUTDOWN")
         self._shutdown.set()
+        try:
+            self.data_ready.set()
+        except Exception:
+            pass
 
         try:
             await self._cancel_all_tasks()

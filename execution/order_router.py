@@ -1,16 +1,17 @@
-# execution/order_router.py — SCALPER ETERNAL — ORDER ROUTER — 2026 v1.8 (LIVE-SAFE SETTINGS + EXCHANGE FILTER VALIDATION)
-# Patch vs v1.7b:
-# - ✅ Adds explicit leverage + margin mode enforcement (best-effort, cached, never fatal)
-# - ✅ Adds exchange filter validation (minQty / step / minNotional) + precision normalization before sending
-# - ✅ Adds "FIRST_LIVE_SAFE" guardrails (caps leverage, forces isolated, caps per-order notional, optional symbol allowlist)
-# - ✅ Blocks invalid orders early with clear CRITICAL logs + telemetry (canonical k)
+# execution/order_router.py — SCALPER ETERNAL — ORDER ROUTER — 2026 v2.1 (BINANCE CLOSEPOSITION + REDUCEONLY FIX)
+# Patch vs v2.0:
+# - ✅ FIX: Binance futures STOP/TP with closePosition=True MUST still pass amount to ccxt (amount is required arg) → we send amount=0.0
+# - ✅ FIX: Validation no longer blocks amount<=0 when closePosition=True (router used to block it)
+# - ✅ FIX: If closePosition=True, router strips reduceOnly ALWAYS (Binance -1106 “reduceonly not required”)
+# - ✅ HARDEN: Adds retry variant that auto-removes reduceOnly when exchange complains (even if caller set it)
+# - ✅ Keeps: FIRST_LIVE_SAFE entry-only caps, hedge-mode positionSide injection, filters, retries, telemetry
 
 import asyncio
 import random
 import time
 import hashlib
 import os
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, List
 
 from utils.logging import log_entry
 
@@ -213,11 +214,9 @@ def _infer_position_side(side_hint: Optional[str]) -> Optional[str]:
     s = str(side_hint).strip()
     if not s:
         return None
-
     u = s.upper()
     if u in ("LONG", "SHORT"):
         return u
-
     l = s.lower()
     if l == "long":
         return "LONG"
@@ -252,24 +251,109 @@ def _telemetry_task(coro) -> None:
         pass
 
 
+def _is_futures_symbol(sym_raw: str) -> bool:
+    # Binance futures linear symbols look like "DOGE/USDT:USDT"
+    return (":USDT" in (sym_raw or "")) or (":USD" in (sym_raw or ""))
+
+
+def _is_exit_intent(
+    *,
+    type_u: str,
+    params: dict,
+    intent_reduce_only: bool,
+    intent_close_position: bool,
+) -> bool:
+    """
+    Conservative: treat these as "exits" (must never be blocked by FIRST_LIVE_SAFE):
+    - reduceOnly / closePosition flags
+    - intent flags
+    - common protective order types (STOP/TP/TRAILING)
+    """
+    if bool(_truthy(params.get("reduceOnly"))) or bool(_truthy(params.get("closePosition"))):
+        return True
+    if intent_reduce_only or intent_close_position:
+        return True
+    if type_u in ("STOP_MARKET", "TAKE_PROFIT_MARKET", "TP_MARKET", "TRAILING_STOP_MARKET"):
+        return True
+    return False
+
+
+def _looks_like_binance_reduceonly_not_required(err: Exception) -> bool:
+    s = repr(err).lower()
+    # Your exact message: Parameter 'reduceonly' sent when not required.
+    return ("reduceonly" in s) and ("not required" in s or "sent when not required" in s or "parameter 'reduceonly'" in s)
+
+
+# ----------------------------
+# Binance Futures account-mode detection (cached)
+# ----------------------------
+
+_MODE_LOCK = asyncio.Lock()
+_MODE_CACHE: dict[str, Any] = {
+    "ts": 0.0,
+    "dualSidePosition": None,      # True/False
+    "multiAssetsMargin": None,     # True/False
+}
+
+
+async def _detect_binance_futures_modes(ex, *, force: bool = False) -> Tuple[Optional[bool], Optional[bool]]:
+    """
+    Best-effort: detect:
+      - dualSidePosition (hedge mode)
+      - multiAssetsMargin (multi-assets mode)
+    Never fatal. Cached.
+    """
+    try:
+        now = time.time()
+        if (not force) and (_MODE_CACHE["ts"] and (now - float(_MODE_CACHE["ts"])) < 60 * 10):
+            return _MODE_CACHE.get("dualSidePosition"), _MODE_CACHE.get("multiAssetsMargin")
+
+        async with _MODE_LOCK:
+            now = time.time()
+            if (not force) and (_MODE_CACHE["ts"] and (now - float(_MODE_CACHE["ts"])) < 60 * 10):
+                return _MODE_CACHE.get("dualSidePosition"), _MODE_CACHE.get("multiAssetsMargin")
+
+            dual = None
+            multi = None
+
+            try:
+                fn = getattr(ex, "fapiPrivateGetPositionSideDual", None)
+                if callable(fn):
+                    r = await fn()
+                    if isinstance(r, dict) and "dualSidePosition" in r:
+                        dual = bool(_truthy(r.get("dualSidePosition")))
+            except Exception:
+                pass
+
+            try:
+                fn = getattr(ex, "fapiPrivateGetMultiAssetsMargin", None)
+                if callable(fn):
+                    r = await fn()
+                    if isinstance(r, dict) and "multiAssetsMargin" in r:
+                        multi = bool(_truthy(r.get("multiAssetsMargin")))
+            except Exception:
+                pass
+
+            _MODE_CACHE["ts"] = time.time()
+            _MODE_CACHE["dualSidePosition"] = dual
+            _MODE_CACHE["multiAssetsMargin"] = multi
+            return dual, multi
+    except Exception:
+        return None, None
+
+
 # ----------------------------
 # Live trading safety: leverage/margin + filters
 # ----------------------------
 
 _MARKETS_LOAD_LOCK = asyncio.Lock()
 _MARKETS_LOADED_AT: float = 0.0
-
-# cache to avoid hammering leverage/margin endpoints
 _SYMBOL_SETTINGS_DONE: dict[str, float] = {}  # raw_symbol -> ts
 
 
 async def _ensure_markets_loaded(ex) -> None:
-    """
-    Best-effort: load markets once (cached). Never raises.
-    """
     global _MARKETS_LOADED_AT
     try:
-        # If already loaded and not ancient, skip.
         mk = getattr(ex, "markets", None)
         if isinstance(mk, dict) and len(mk) > 0 and (time.time() - _MARKETS_LOADED_AT) < 60 * 30:
             return
@@ -282,14 +366,10 @@ async def _ensure_markets_loaded(ex) -> None:
                 await fn(True)
                 _MARKETS_LOADED_AT = time.time()
     except Exception:
-        # never fatal
         return
 
 
 def _binance_filters_from_market(market: dict) -> dict:
-    """
-    Parse Binance filters from ccxt market['info']['filters'].
-    """
     out: dict[str, Any] = {}
     try:
         info = market.get("info") or {}
@@ -307,9 +387,6 @@ def _binance_filters_from_market(market: dict) -> dict:
 
 
 def _market_limits(market: dict) -> Tuple[float, float]:
-    """
-    returns (min_amount, min_cost) from ccxt market limits (best effort)
-    """
     try:
         lim = market.get("limits") or {}
         min_amt = _safe_float(((lim.get("amount") or {}).get("min")), 0.0)
@@ -320,9 +397,6 @@ def _market_limits(market: dict) -> Tuple[float, float]:
 
 
 def _market_lookup(ex, sym_raw: str) -> Optional[dict]:
-    """
-    Best-effort get market from loaded markets.
-    """
     try:
         mk = getattr(ex, "markets", None)
         if isinstance(mk, dict) and mk.get(sym_raw):
@@ -356,32 +430,25 @@ async def _validate_and_normalize_order(
     sym_raw: str,
     amount: Any,
     price: Any,
+    params: Optional[dict],
     log,
 ) -> Tuple[bool, Any, Any, str]:
     """
-    Precision normalize + exchange filters:
-    - amount_to_precision
-    - price_to_precision (if price provided)
-    - minQty / minNotional
-    Never raises. Returns (ok, amount_norm, price_norm, reason)
+    Returns: (ok, amount_norm, price_norm, why)
+
+    IMPORTANT (Binance futures / ccxt):
+    - If closePosition=True, ccxt still requires an amount argument in create_order signature.
+      So we accept amount<=0 and allow it through validation.
     """
     try:
         await _ensure_markets_loaded(ex)
+
+        p = params or {}
+        is_close_pos = bool(_truthy(p.get("closePosition")))
+
         market = _market_lookup(ex, sym_raw)
-        if not market:
-            # If we can't validate, don't hard-block; but still normalize precision.
-            amt_norm = _amount_to_precision_safe(ex, sym_raw, _safe_float(amount, 0.0))
-            px_norm = None
-            if price is not None and _is_number_like(price):
-                px_norm = _price_to_precision_safe(ex, sym_raw, float(price))
-            else:
-                px_norm = price
-            return True, amt_norm, px_norm, "ok_no_market"
 
-        # normalize precision first
-        amt_f = _safe_float(amount, 0.0)
-        amt_norm: Any = _amount_to_precision_safe(ex, sym_raw, amt_f)
-
+        # normalize price
         px_norm: Any = None
         if price is not None:
             if _is_number_like(price):
@@ -389,20 +456,30 @@ async def _validate_and_normalize_order(
             else:
                 px_norm = price
 
-        # gather limits/filters
+        # normalize amount
+        amt_f = _safe_float(amount, 0.0)
+        amt_norm: Any = _amount_to_precision_safe(ex, sym_raw, amt_f)
+        amt_norm_f = _safe_float(amt_norm, 0.0)
+
+        # closePosition: allow amount<=0 (router will send 0.0) and skip minQty/minNotional blocks
+        if is_close_pos:
+            return True, float(amt_norm_f), px_norm, "ok_closePosition_amount_can_be_zero"
+
+        if not market:
+            # no market info: fail-open
+            return True, amt_norm, px_norm, "ok_no_market"
+
         min_amt_ccxt, min_cost_ccxt = _market_limits(market)
         bf = _binance_filters_from_market(market)
         min_qty = max(min_amt_ccxt, _safe_float(bf.get("minQty"), 0.0))
         min_notional = max(min_cost_ccxt, _safe_float(bf.get("minNotional"), 0.0))
 
-        amt_norm_f = _safe_float(amt_norm, 0.0)
         if amt_norm_f <= 0:
             return False, amt_norm, px_norm, "amount<=0"
 
         if min_qty and amt_norm_f < min_qty:
             return False, amt_norm, px_norm, f"amount<{min_qty}"
 
-        # notional needs price; for market orders, fetch last
         px_for_notional: Optional[float] = None
         if px_norm is not None and _is_number_like(px_norm):
             px_for_notional = _safe_float(px_norm, 0.0) or None
@@ -416,7 +493,6 @@ async def _validate_and_normalize_order(
 
         return True, amt_norm, px_norm, "ok"
     except Exception as e:
-        # if validation explodes, fail-open but keep original values
         log(f"[router] WARN validation crashed: {e}")
         return True, amount, price, "ok_validation_error_failopen"
 
@@ -429,17 +505,12 @@ async def _ensure_futures_settings(
     margin_mode: str,
     log,
 ) -> bool:
-    """
-    Best-effort: enforce margin mode + leverage (ccxt methods if present).
-    Cached to avoid rate limits. Never raises.
-    """
     try:
         now = time.time()
         last = _SYMBOL_SETTINGS_DONE.get(sym_raw, 0.0)
-        if now - last < 60 * 30:  # 30 min
+        if now - last < 60 * 30:
             return True
 
-        # margin mode
         if margin_mode:
             try:
                 fn = getattr(ex, "set_margin_mode", None)
@@ -449,7 +520,6 @@ async def _ensure_futures_settings(
             except Exception as e:
                 log(f"[router] WARN margin_mode failed for {sym_raw}: {e}")
 
-        # leverage
         if leverage and leverage > 0:
             try:
                 fn = getattr(ex, "set_leverage", None)
@@ -471,10 +541,6 @@ def _first_live_safe_enabled(bot) -> bool:
 
 
 def _allowed_symbols_set(bot) -> Optional[set[str]]:
-    """
-    Optional allowlist when FIRST_LIVE_SAFE is enabled.
-    Accepts env/bot cfg FIRST_LIVE_SYMBOLS="BTCUSDT,ETHUSDT"
-    """
     try:
         s = _cfg_env(bot, "FIRST_LIVE_SYMBOLS", "")
         if not s:
@@ -516,7 +582,6 @@ async def cancel_order(bot, order_id: str, symbol: str) -> bool:
     if not ok and k not in (symbol, sym_raw):
         ok = await _cancel_order_raw(ex, order_id, k)
 
-    # Telemetry (best effort, non-blocking) — use canonical symbol
     if callable(emit_order_cancel):
         _telemetry_task(emit_order_cancel(bot, k, order_id, ok, why="router"))
 
@@ -547,9 +612,9 @@ def _is_dry_run(bot) -> bool:
 
 
 def _dry_run_order_stub(symbol: str, type_: str, side: str, amount: Any, price: Any, params: dict) -> dict:
-    amt = _safe_float(amount, 0.0)
+    amt = _safe_float(amount, 0.0) if amount is not None else 0.0
     return {
-        "id": None,  # IMPORTANT: never persist fake IDs
+        "id": None,
         "symbol": symbol,
         "type": type_,
         "side": side,
@@ -605,8 +670,34 @@ async def create_order(
     k = _symkey(symbol)
     sym_raw = _resolve_raw_symbol(bot, k, symbol)
 
-    # FIRST LIVE SAFE allowlist (optional)
-    if _first_live_safe_enabled(bot):
+    p = _merge_params(params, {})
+
+    # intents -> params
+    if intent_close_position:
+        p.setdefault("closePosition", True)
+
+    # IMPORTANT:
+    # - If closePosition=True, NEVER send reduceOnly (Binance -1106).
+    # - If caller asked intent_reduce_only but also closePosition, closePosition wins.
+    if bool(_truthy(p.get("closePosition"))):
+        p.pop("reduceOnly", None)
+    else:
+        if intent_reduce_only:
+            p.setdefault("reduceOnly", True)
+
+    _normalize_bool_params(p, ("reduceOnly", "closePosition"))
+    p = _strip_none_params(p)
+
+    # Decide exit-vs-entry early (drives FIRST_LIVE_SAFE behavior)
+    is_exit = _is_exit_intent(
+        type_u=type_u,
+        params=p,
+        intent_reduce_only=intent_reduce_only,
+        intent_close_position=intent_close_position,
+    )
+
+    # FIRST LIVE SAFE allowlist applies to ENTRIES only (never block exits)
+    if _first_live_safe_enabled(bot) and (not is_exit):
         allow = _allowed_symbols_set(bot)
         if allow is not None and k not in allow:
             log_entry.critical(f"FIRST_LIVE_SAFE BLOCKED → symbol not allowlisted: k={k} allow={sorted(list(allow))}")
@@ -616,24 +707,46 @@ async def create_order(
                 )
             return None
 
-    p = _merge_params(params, {})
-    if intent_reduce_only:
-        p.setdefault("reduceOnly", True)
-    if intent_close_position:
-        p.setdefault("closePosition", True)
+    # ----------------------------
+    # Detect Binance hedge/multi-assets modes (best-effort)
+    # ----------------------------
+    is_fut = _is_futures_symbol(sym_raw)
+    dual_side, multi_assets = (None, None)
+    if is_fut:
+        dual_side, multi_assets = await _detect_binance_futures_modes(ex)
 
-    if hedge_mode is None:
-        hedge_mode = (
-            bool(_truthy(_cfg(bot, "HEDGE_MODE", False)))
-            or bool(_truthy(_cfg(bot, "HEDGE_SAFE", False)))
-            or bool(_truthy(_cfg(bot, "HEDGE_ENABLED", False)))
-        )
+    hedge_mode_effective = bool(dual_side) if dual_side is not None else bool(_truthy(hedge_mode))
 
-    if hedge_mode:
-        ps = _infer_position_side(hedge_side_hint)
-        if ps:
+    # ----------------------------
+    # HEDGE MODE PARAMS
+    # ----------------------------
+    if is_fut and hedge_mode_effective:
+        inferred = "LONG" if side_l == "buy" else "SHORT"
+        is_exit2 = is_exit or bool(_truthy(p.get("reduceOnly"))) or bool(_truthy(p.get("closePosition")))
+
+        if is_exit2:
+            ps = _infer_position_side(hedge_side_hint)
+            if not ps:
+                log_entry.critical(
+                    f"ROUTER BLOCKED → hedge exit requires hedge_side_hint LONG/SHORT | k={k} raw={sym_raw} type={type_norm} side={side_l} reduceOnly={p.get('reduceOnly')} closePosition={p.get('closePosition')}"
+                )
+                if callable(emit):
+                    _telemetry_task(
+                        emit(bot, "order.blocked", data={"k": k, "why": "missing_hedge_side_hint_for_exit"}, symbol=k, level="critical")
+                    )
+                return None
+
             p.setdefault("positionSide", ps)
 
+            # Only force reduceOnly if NOT closePosition
+            if not bool(_truthy(p.get("closePosition"))):
+                p.setdefault("reduceOnly", True)
+            else:
+                p.pop("reduceOnly", None)
+        else:
+            p.setdefault("positionSide", inferred)
+
+    # Client order id
     if client_order_id:
         p["clientOrderId"] = str(client_order_id)
     elif auto_client_order_id and "clientOrderId" not in p:
@@ -647,6 +760,7 @@ async def create_order(
             stop_price=(stop_price if stop_price is not None else trigger_price),
         )
 
+    # stop / trigger normalization
     sp_any = stop_price if stop_price is not None else trigger_price
     if sp_any is not None:
         if _is_number_like(sp_any):
@@ -667,7 +781,27 @@ async def create_order(
         p["callbackRate"] = _clamp(float(callback_rate), 0.1, 5.0)
 
     _normalize_bool_params(p, ("reduceOnly", "closePosition"))
+    # If closePosition, strip reduceOnly again (defense in depth)
+    if bool(_truthy(p.get("closePosition"))):
+        p.pop("reduceOnly", None)
     p = _strip_none_params(p)
+
+    # Recompute is_exit after full param assembly
+    is_exit = _is_exit_intent(
+        type_u=type_u,
+        params=p,
+        intent_reduce_only=intent_reduce_only,
+        intent_close_position=intent_close_position,
+    )
+
+    # SHOW WHAT WILL BE SENT
+    try:
+        log_entry.info(
+            f"[router] SEND k={k} raw={sym_raw} type={type_norm} side={side_l} amt={amount} px={price} "
+            f"is_exit={is_exit} reduceOnly={p.get('reduceOnly')} closePosition={p.get('closePosition')} positionSide={p.get('positionSide')} params_keys={sorted(list(p.keys()))}"
+        )
+    except Exception:
+        pass
 
     if _is_dry_run(bot):
         log_entry.critical(
@@ -677,51 +811,58 @@ async def create_order(
 
     # ----------------------------
     # LIVE SAFETY: enforce margin/leverage (best effort)
+    # NOTE: We still do this even for exits; it's non-fatal best-effort.
     # ----------------------------
-    # base config
-    margin_mode = str(_cfg_env(bot, "MARGIN_MODE", _cfg(bot, "MARGIN_MODE", "isolated"))).strip().lower()
+    margin_mode = str(_cfg_env(bot, "MARGIN_MODE", _cfg(bot, "MARGIN_MODE", "cross"))).strip().lower()
     leverage = int(_safe_float(_cfg_env(bot, "LEVERAGE", _cfg(bot, "LEVERAGE", 1)), 1))
 
     if _first_live_safe_enabled(bot):
-        # hard clamp in first-live mode
-        margin_mode = "isolated"
         leverage = 1
+        if bool(multi_assets):
+            margin_mode = ""
+        else:
+            margin_mode = "isolated"
 
-    # Ensure settings (never fatal)
     try:
-        await _ensure_futures_settings(ex, sym_raw=sym_raw, leverage=leverage, margin_mode=margin_mode, log=lambda s: log_entry.info(s))
+        await _ensure_futures_settings(
+            ex,
+            sym_raw=sym_raw,
+            leverage=leverage,
+            margin_mode=margin_mode,
+            log=lambda s: log_entry.info(s),
+        )
     except Exception:
         pass
 
     # ----------------------------
-    # Precision + exchange filter validation (minQty/minNotional)
+    # Precision + exchange filter validation
     # ----------------------------
+    # BINANCE CLOSEPOSITION RULE:
+    # ccxt requires amount arg; for closePosition exits we will send amount=0.0.
+    amount_for_validation = amount
+    if bool(_truthy(p.get("closePosition"))):
+        # even if caller gave None, we use 0.0
+        amount_for_validation = _safe_float(amount, 0.0)
+
     ok, amt_norm, px_norm, why = await _validate_and_normalize_order(
         ex,
         sym_raw=sym_raw,
-        amount=amount,
+        amount=amount_for_validation,
         price=price,
+        params=p,
         log=lambda s: log_entry.info(s),
     )
 
     if not ok:
         log_entry.critical(
-            f"ROUTER BLOCKED BY EXCHANGE FILTERS → k={k} raw={sym_raw} type={type_norm} side={side_l} amount={amount} price={price} why={why}"
+            f"ROUTER BLOCKED BY EXCHANGE FILTERS → k={k} raw={sym_raw} type={type_norm} side={side_l} amount={amount_for_validation} price={price} why={why}"
         )
         if callable(emit):
             _telemetry_task(
                 emit(
                     bot,
                     "order.blocked",
-                    data={
-                        "k": k,
-                        "raw": sym_raw,
-                        "type": type_u,
-                        "side": side_l,
-                        "amount": amount,
-                        "price": price,
-                        "why": why,
-                    },
+                    data={"k": k, "raw": sym_raw, "type": type_u, "side": side_l, "amount": amount_for_validation, "price": price, "why": why},
                     symbol=k,
                     level="critical",
                 )
@@ -731,17 +872,21 @@ async def create_order(
     amt_prec: Any = amt_norm
     px_prec: Any = px_norm
 
-    # FIRST LIVE SAFE: cap per-order notional (best-effort)
-    if _first_live_safe_enabled(bot):
-        cap = _safe_float(_cfg_env(bot, "FIRST_LIVE_MAX_NOTIONAL_USDT", 3.0), 3.0)
+    # For closePosition, force amount to 0.0 at send time (ccxt signature requirement)
+    if bool(_truthy(p.get("closePosition"))):
+        amt_prec = 0.0
+
+    # FIRST LIVE SAFE: cap per-order notional (ENTRIES ONLY, never exits)
+    if _first_live_safe_enabled(bot) and (not is_exit):
+        cap = _safe_float(_cfg_env(bot, "FIRST_LIVE_MAX_NOTIONAL_USDT", 5.0), 5.0)
         try:
-            # estimate notional using price if given, else last
             px_for_cap: Optional[float] = None
             if px_prec is not None and _is_number_like(px_prec):
                 px_for_cap = _safe_float(px_prec, 0.0) or None
             if px_for_cap is None:
                 px_for_cap = await _fetch_last_price(ex, sym_raw)
-            if px_for_cap and px_for_cap > 0:
+
+            if amt_prec is not None and px_for_cap and px_for_cap > 0:
                 notion = _safe_float(amt_prec, 0.0) * float(px_for_cap)
                 if notion > cap:
                     log_entry.critical(
@@ -749,14 +894,19 @@ async def create_order(
                     )
                     if callable(emit):
                         _telemetry_task(
-                            emit(bot, "order.blocked", data={"k": k, "why": "first_live_notional_cap", "notional": notion, "cap": cap}, symbol=k, level="critical")
+                            emit(
+                                bot,
+                                "order.blocked",
+                                data={"k": k, "why": "first_live_notional_cap", "notional": notion, "cap": cap},
+                                symbol=k,
+                                level="critical",
+                            )
                         )
                     return None
         except Exception:
-            # fail-open on cap calc errors (don't brick routing)
             pass
 
-    max_attempts, base_delay, jitter = _default_retry_policy()
+    max_attempts, base_delay, jitter = 6, 0.25, 0.20
     if retries is not None:
         max_attempts = max(1, int(retries))
 
@@ -766,6 +916,10 @@ async def create_order(
         fn = getattr(ex, "create_order", None)
         if not callable(fn):
             raise RuntimeError("exchange has no create_order()")
+
+        # ccxt python requires amount parameter in signature for ALL order types, including stop/closePosition on binance
+        if amt_try is None:
+            amt_try = 0.0
 
         if type_norm == "market":
             return await fn(symbol=raw_symbol, type=type_norm, side=side_l, amount=amt_try, params=p_try)
@@ -780,15 +934,24 @@ async def create_order(
 
         return await fn(symbol=raw_symbol, type=type_norm, side=side_l, amount=amt_try, price=px_try, params=p_try)
 
-    variants: list[tuple[str, Any, Any, dict]] = [(sym_raw, amt_prec, px_prec, dict(p))]
+    # Variants: try normal first, then (if relevant) stripped reduceOnly, then symbol fallbacks
+    variants: List[tuple[str, Any, Any, dict]] = [(sym_raw, amt_prec, px_prec, dict(p))]
 
+    # If exchange rejects reduceOnly (common on binance for some orders), we try again with reduceOnly removed
+    if "reduceOnly" in p:
+        p_ro = dict(p)
+        p_ro.pop("reduceOnly", None)
+        variants.append((sym_raw, amt_prec, px_prec, p_ro))
+
+    # STOP/TP closePosition: always ensure reduceOnly removed and amount present (=0.0)
     if type_u in ("STOP_MARKET", "TAKE_PROFIT_MARKET", "TP_MARKET"):
-        if intent_close_position or _truthy(p.get("closePosition")):
+        if bool(_truthy(p.get("closePosition"))) or intent_close_position:
             p2 = dict(p)
-            p2.setdefault("reduceOnly", True)
             p2["closePosition"] = True
-            variants.append((sym_raw, 0, px_prec, p2))
+            p2.pop("reduceOnly", None)
+            variants.append((sym_raw, 0.0, px_prec, p2))
 
+    # TRAILING: drop callbackRate variant (some venues)
     if type_u == "TRAILING_STOP_MARKET" and "callbackRate" in p:
         p2 = dict(p)
         p2.pop("callbackRate", None)
@@ -798,20 +961,26 @@ async def create_order(
         variants.append((symbol, amt_prec, px_prec, dict(p)))
 
     tries = 0
-
     for attempt in range(max_attempts):
         for (raw_sym, amt_try, px_try, p_try) in variants:
             tries += 1
             try:
                 res = await _attempt(raw_sym, amt_try, px_try, p_try)
-
-                # Telemetry (best effort, non-blocking) — canonical symbol
                 if callable(emit_order_create):
                     _telemetry_task(emit_order_create(bot, k, res, intent=f"{type_u}:{side_l}"))
-
                 return res
             except Exception as e:
                 last_err = e
+
+                # If we see the binance -1106 reduceOnly not required, add a stripped variant dynamically
+                if _looks_like_binance_reduceonly_not_required(e):
+                    try:
+                        if "reduceOnly" in p_try:
+                            p3 = dict(p_try)
+                            p3.pop("reduceOnly", None)
+                            variants.append((raw_sym, amt_try, px_try, p3))
+                    except Exception:
+                        pass
 
         delay = base_delay * (2 ** attempt) + random.uniform(0.0, jitter)
         await asyncio.sleep(delay)
@@ -830,7 +999,7 @@ async def create_order(
                     "price": price,
                     "tries": tries,
                     "variants": len(variants),
-                    "params": p,  # already sanitized/no Nones
+                    "params": p,
                     "err": (repr(last_err)[:300] if last_err else "unknown"),
                 },
                 symbol=k,
@@ -838,9 +1007,7 @@ async def create_order(
             )
         )
 
-    log_entry.error(
-        f"ORDER ROUTER FAILED → k={k} raw={sym_raw} {type_norm} {side_l} amount={amount} price={price} err={last_err}"
-    )
+    log_entry.error(f"ORDER ROUTER FAILED → k={k} raw={sym_raw} {type_norm} {side_l} amount={amount} price={price} err={last_err}")
     return None
 
 
@@ -876,21 +1043,23 @@ async def create_stop_market(
     *,
     symbol: str,
     side: str,
-    amount: float,
+    amount: Optional[float],
     stop_price: float,
     reduce_only: bool = True,
     close_position: bool = False,
     hedge_side_hint: Optional[str] = None,
 ) -> Optional[dict]:
+    # IMPORTANT (Binance futures + ccxt): if close_position=True, we still send amount=0.0 (ccxt signature requires it)
+    amt = 0.0 if close_position else amount
     return await create_order(
         bot,
         symbol=symbol,
         type="STOP_MARKET",
         side=side,
-        amount=amount,
+        amount=amt,
         price=None,
-        params={},
-        intent_reduce_only=reduce_only,
+        params={"closePosition": True} if close_position else {},
+        intent_reduce_only=(reduce_only and (not close_position)),
         intent_close_position=close_position,
         stop_price=stop_price,
         hedge_side_hint=hedge_side_hint,

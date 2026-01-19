@@ -1,10 +1,9 @@
-# execution/exit.py — SCALPER ETERNAL — COSMIC REAPER ASCENDANT — 2026 v4.7 (ROUTER-INTEGRATED)
-# Patch vs your v4.6d:
-# - ✅ Uses execution/order_router.py for ALL create/cancel (consistent symbol resolution + retries + dry-run)
-# - ✅ Removes local _create_order_with_retries (router already does this)
-# - ✅ Fixes bug: _place_trailing_ladder no longer gets invalid allow_nonstandard_order_type kwarg
-# - ✅ Preserves your behavior: canonical state keys, ABS remaining size, BE ladder, STOP_MARKET closePosition fallbacks,
-#   trailing debounce, min-amount lookup, known_exit_order_ids under lock.
+# execution/exit.py — SCALPER ETERNAL — COSMIC REAPER ASCENDANT — 2026 v4.8 (ROUTER v2.0 + HEDGE SIDE HINT + CLOSEPOSITION FIX)
+# Patch vs v4.7:
+# - ✅ FIX: closePosition STOP_MARKET ladder no longer sends amount=0 / "0" variants (router rejects/filters)
+# - ✅ FIX: closePosition STOP_MARKET ladder uses amount=None and does NOT request reduceOnly (prevents -1106 reduceOnly)
+# - ✅ NEW: Optional hedge_side_hint via positionSide injection (LONG/SHORT) for BE stops + trailing orders
+# - ✅ KEEP: router-integrated create/cancel, ABS remaining size, BE ladder, trailing debounce, min-amount lookup, known_exit_order_ids lock
 
 import time
 import asyncio
@@ -13,7 +12,7 @@ from typing import Optional
 from utils.logging import log_entry, log
 from brain.persistence import save_brain
 
-from execution.order_router import create_order, cancel_order  # ✅ NEW ROUTER
+from execution.order_router import create_order, cancel_order  # ✅ ROUTER
 
 
 _EXIT_LOCKS: dict[str, asyncio.Lock] = {}
@@ -184,6 +183,38 @@ def _get_current_price(bot, k: str, sym_any: str) -> float:
     return 0.0
 
 
+# ----------------------------
+# Hedge helpers (best-effort)
+# ----------------------------
+
+def _hedge_enabled(bot) -> bool:
+    """
+    Best-effort hedge mode detection:
+    - If exchange wrapper exposes hedge_mode/position_mode
+    - Else assume hedge is ON (your core often tries to enable it).
+    """
+    ex = getattr(bot, "ex", None)
+    if ex is None:
+        return True
+    for attr in ("hedge_mode", "position_mode", "hedgeMode"):
+        try:
+            v = getattr(ex, attr, None)
+            if isinstance(v, bool):
+                return v
+        except Exception:
+            pass
+    return True
+
+
+def _position_side_for_trade(side: str) -> str:
+    # Binance expects LONG/SHORT in hedge mode
+    return "LONG" if str(side).lower().strip() == "long" else "SHORT"
+
+
+# ----------------------------
+# Markets / min amount
+# ----------------------------
+
 async def _ensure_markets_loaded(bot) -> None:
     """
     Wrapper-compatible markets load.
@@ -283,8 +314,25 @@ async def _get_min_amount(bot, sym_any: str, k: str) -> float:
     return 0.0
 
 
-async def _place_stop_ladder(bot, *, sym_any: str, side: str, qty: float, stop_price: float, k: str):
+# ----------------------------
+# Stop / trailing ladders (router-safe)
+# ----------------------------
+
+async def _place_stop_ladder(
+    bot,
+    *,
+    sym_any: str,
+    side: str,
+    qty: float,
+    stop_price: float,
+    k: str,
+    pos_side: Optional[str] = None,
+):
     stop_side = "sell" if side == "long" else "buy"
+
+    base_params = {}
+    if pos_side:
+        base_params["positionSide"] = pos_side
 
     # A) amount + reduceOnly (normal best path)
     try:
@@ -295,7 +343,7 @@ async def _place_stop_ladder(bot, *, sym_any: str, side: str, qty: float, stop_p
             side=stop_side,
             amount=float(qty),
             price=None,
-            params={},
+            params=dict(base_params),
             intent_reduce_only=True,
             intent_close_position=False,
             stop_price=float(stop_price),
@@ -304,45 +352,25 @@ async def _place_stop_ladder(bot, *, sym_any: str, side: str, qty: float, stop_p
     except Exception as e1:
         log_entry.warning(f"BE stop A failed {k}: {e1}")
 
-    # B) closePosition=True — ladder for extra safety
-    last_err = None
-    for amt_try in (float(qty), 0.0, 0):
-        try:
-            return await create_order(
-                bot,
-                symbol=sym_any,
-                type="STOP_MARKET",
-                side=stop_side,
-                amount=amt_try,
-                price=None,
-                params={"closePosition": True},
-                intent_reduce_only=True,
-                intent_close_position=True,
-                stop_price=float(stop_price),
-                retries=6,
-            )
-        except Exception as e2:
-            last_err = e2
-
-    log_entry.error(f"BE stop B failed {k} (all fallbacks): {last_err}")
-
-    # C) last resort: closePosition without reduceOnly
+    # B) closePosition=True — router v1.9b+/v2 expects amount=None and NO reduceOnly
     try:
+        p = dict(base_params)
+        p["closePosition"] = True
         return await create_order(
             bot,
             symbol=sym_any,
             type="STOP_MARKET",
             side=stop_side,
-            amount=float(qty),
+            amount=None,                 # ✅ omit amount
             price=None,
-            params={"closePosition": True},
-            intent_reduce_only=False,
+            params=p,
+            intent_reduce_only=False,     # ✅ do NOT request reduceOnly (prevents -1106)
             intent_close_position=True,
             stop_price=float(stop_price),
             retries=6,
         )
-    except Exception as e3:
-        log_entry.error(f"BE stop C failed {k}: {e3}")
+    except Exception as e2:
+        log_entry.error(f"BE stop B failed {k}: {e2}")
 
     return None
 
@@ -356,8 +384,14 @@ async def _place_trailing_ladder(
     activation_price: float,
     callback_rate: float,
     k: str,
+    pos_side: Optional[str] = None,
 ):
     close_side = "sell" if side == "long" else "buy"
+    cb = _clamp(float(callback_rate), 0.1, 5.0)
+
+    base_params = {}
+    if pos_side:
+        base_params["positionSide"] = pos_side
 
     # A) activation + callback + reduceOnly
     try:
@@ -368,10 +402,10 @@ async def _place_trailing_ladder(
             side=close_side,
             amount=float(qty),
             price=None,
-            params={},
+            params=dict(base_params),
             intent_reduce_only=True,
             activation_price=float(activation_price),
-            callback_rate=float(callback_rate),
+            callback_rate=float(cb),
             retries=6,
         )
     except Exception as e1:
@@ -386,7 +420,7 @@ async def _place_trailing_ladder(
             side=close_side,
             amount=float(qty),
             price=None,
-            params={},
+            params=dict(base_params),
             intent_reduce_only=True,
             activation_price=float(activation_price),
             retries=6,
@@ -396,6 +430,10 @@ async def _place_trailing_ladder(
 
     return None
 
+
+# ----------------------------
+# Exit handler (called by your fill/updates pipeline)
+# ----------------------------
 
 async def handle_exit(bot, order: dict):
     if not isinstance(order, dict):
@@ -443,6 +481,9 @@ async def handle_exit(bot, order: dict):
 
         cfg = bot.cfg
         perf = _ensure_sym_perf(bot.state, k)
+
+        # Hedge side hint (ONLY if hedge mode)
+        pos_side = _position_side_for_trade(getattr(pos, "side", "")) if _hedge_enabled(bot) else None
 
         # Track entry size once (absolute)
         if _safe_float(perf.get("entry_size_abs", 0.0), 0.0) <= 0.0:
@@ -501,6 +542,7 @@ async def handle_exit(bot, order: dict):
                             qty=remaining_after,
                             stop_price=float(be_price),
                             k=k,
+                            pos_side=pos_side,  # ✅ hedge hint
                         )
                         if new_stop and isinstance(new_stop, dict) and new_stop.get("id"):
                             pos.hard_stop_order_id = new_stop.get("id")
@@ -523,14 +565,17 @@ async def handle_exit(bot, order: dict):
                 and duration_seconds < float(cfg.VELOCITY_MINUTES) * 60.0
             ):
                 try:
+                    params = {}
+                    if pos_side:
+                        params["positionSide"] = pos_side
                     await create_order(
                         bot,
                         symbol=sym_any,
-                        type="market",
+                        type="MARKET",
                         side="sell" if pos.side == "long" else "buy",
                         amount=float(remaining_after),
                         price=None,
-                        params={},
+                        params=params,
                         intent_reduce_only=True,
                         retries=6,
                     )
@@ -677,6 +722,7 @@ async def handle_exit(bot, order: dict):
                         activation_price=float(activation_price),
                         callback_rate=float(cb_tight),
                         k=k,
+                        pos_side=pos_side,  # ✅ hedge hint
                     )
                     if tight_order and isinstance(tight_order, dict) and tight_order.get("id"):
                         perf["trailing_order_ids"].append(tight_order["id"])
@@ -690,6 +736,7 @@ async def handle_exit(bot, order: dict):
                         activation_price=float(activation_price),
                         callback_rate=float(cb_loose),
                         k=k,
+                        pos_side=pos_side,  # ✅ hedge hint
                     )
                     if loose_order and isinstance(loose_order, dict) and loose_order.get("id"):
                         perf["trailing_order_ids"].append(loose_order["id"])
@@ -702,6 +749,7 @@ async def handle_exit(bot, order: dict):
                     activation_price=float(activation_price),
                     callback_rate=float(cb_main),
                     k=k,
+                    pos_side=pos_side,  # ✅ hedge hint
                 )
                 if trail_order and isinstance(trail_order, dict) and trail_order.get("id"):
                     perf["trailing_order_ids"].append(trail_order["id"])

@@ -1,8 +1,8 @@
-# execution/entry.py — SCALPER ETERNAL — THE BLADE ASCENDANT — 2026 v4.7c (SKIP REASONS VISIBLE + THROTTLED)
-# Patch vs v4.7b:
-# - ✅ Makes SKIP reasons visible in normal logs (INFO)
-# - ✅ Adds per-(symbol,side,reason) throttle to avoid log spam
-# - ✅ Logs trade_allowed() exceptions (visibility) without changing behavior
+# execution/entry.py — SCALPER ETERNAL — THE BLADE ASCENDANT — 2026 v4.8b (TP HEDGE-SAFE + ROUTER EXIT HINTS)
+# Patch vs v4.8:
+# - ✅ Adds hedge_side_hint=pos_side to TP1/TP2 LIMIT exits (belt+suspenders for hedge mode)
+# - ✅ Adds hedge_side_hint=pos_side to emergency flatten (so router can enforce hedge exits)
+# - ✅ Keeps: router v1.9b+ closePosition stop cleanup, SKIP reasons visible + throttled, safety flatten
 
 import asyncio
 import time
@@ -306,7 +306,12 @@ async def _get_funding_rate_safely(bot, k: str, sym_raw: str) -> float:
     return cached
 
 
-async def _emergency_flatten(bot, sym_raw: str, side: str, qty: float, why: str, k: str):
+async def _emergency_flatten(bot, sym_raw: str, side: str, qty: float, why: str, k: str, pos_side: Optional[str] = None):
+    """
+    Emergency flatten should be hedge-safe too.
+    - intent_reduce_only=True
+    - hedge_side_hint=pos_side (so router can enforce hedge exits)
+    """
     for attempt in range(2):
         try:
             await create_order(
@@ -316,8 +321,9 @@ async def _emergency_flatten(bot, sym_raw: str, side: str, qty: float, why: str,
                 side="sell" if side == "long" else "buy",
                 amount=float(qty),
                 price=None,
-                params={},
+                params=({"positionSide": pos_side} if pos_side else {}),
                 intent_reduce_only=True,
+                hedge_side_hint=pos_side,
                 retries=6,
             )
             return True
@@ -354,7 +360,7 @@ async def _place_stop_ladder(
     if pos_side:
         base_params["positionSide"] = pos_side
 
-    # A) amount + reduceOnly
+    # A) amount + reduceOnly (standard protective stop)
     try:
         order = await create_order(
             bot,
@@ -367,6 +373,7 @@ async def _place_stop_ladder(
             intent_reduce_only=True,
             intent_close_position=False,
             stop_price=float(stop_price),
+            hedge_side_hint=pos_side,
             retries=6,
         )
         if isinstance(order, dict) and order.get("id"):
@@ -374,32 +381,31 @@ async def _place_stop_ladder(
     except Exception as e1:
         log_entry.warning(f"{k} stop A failed: {e1}")
 
-    # B) closePosition ladder
-    last = None
-    for amt_try in (float(qty), 0.0, 0, "0", "0.0"):
-        try:
-            p = dict(base_params)
-            p["closePosition"] = True
-            order = await create_order(
-                bot,
-                symbol=sym_raw,
-                type="STOP_MARKET",
-                side=stop_side,
-                amount=amt_try,
-                price=None,
-                params=p,
-                intent_reduce_only=True,
-                intent_close_position=True,
-                stop_price=float(stop_price),
-                retries=6,
-            )
-            if isinstance(order, dict) and order.get("id"):
-                return order.get("id")
-        except Exception as e2:
-            last = e2
-            continue
+    # B) closePosition stop (router v1.9b+ expects amount=None and NO reduceOnly)
+    try:
+        p = dict(base_params)
+        p["closePosition"] = True
 
-    log_entry.critical(f"{k} stop B failed (all fallbacks): {last}")
+        order = await create_order(
+            bot,
+            symbol=sym_raw,
+            type="STOP_MARKET",
+            side=stop_side,
+            amount=None,                 # ✅ omit amount for closePosition
+            price=None,
+            params=p,
+            intent_reduce_only=False,     # ✅ do NOT request reduceOnly
+            intent_close_position=True,
+            stop_price=float(stop_price),
+            hedge_side_hint=pos_side,
+            retries=6,
+        )
+        if isinstance(order, dict) and order.get("id"):
+            return order.get("id")
+    except Exception as e2:
+        log_entry.warning(f"{k} stop B failed: {e2}")
+
+    log_entry.critical(f"{k} stop failed (all fallbacks exhausted)")
     return None
 
 
@@ -434,6 +440,7 @@ async def _place_trailing_ladder(
             intent_reduce_only=True,
             activation_price=float(activation_price),
             callback_rate=float(cb),
+            hedge_side_hint=pos_side,
             retries=6,
         )
         return bool(order)
@@ -452,6 +459,7 @@ async def _place_trailing_ladder(
             params=dict(base_params),
             intent_reduce_only=True,
             activation_price=float(activation_price),
+            hedge_side_hint=pos_side,
             retries=6,
         )
         return bool(order)
@@ -757,7 +765,7 @@ async def try_enter(bot, sym: str, side: str):
             if (filled / req_amt) < cfg.MIN_FILL_RATIO:
                 _skip(bot, k, side, f"partial fill {filled/req_amt:.1%} < {cfg.MIN_FILL_RATIO:.1%} — flatten")
                 ok = await _emergency_flatten(
-                    bot, sym_raw, side, float(filled), "Partial fill below MIN_FILL_RATIO", k
+                    bot, sym_raw, side, float(filled), "Partial fill below MIN_FILL_RATIO", k, pos_side=pos_side
                 )
                 if not ok:
                     _skip(bot, k, side, "partial flatten failed (blacklisted)")
@@ -769,7 +777,7 @@ async def try_enter(bot, sym: str, side: str):
             slippage_pct = abs(entry_price - ref_px) / ref_px if ref_px > 0 else 0.0
             if slippage_pct > cfg.SLIPPAGE_MAX_PCT:
                 _skip(bot, k, side, f"slippage {slippage_pct:.2%} > {cfg.SLIPPAGE_MAX_PCT:.2%} — flatten")
-                await _emergency_flatten(bot, sym_raw, side, float(filled), "Slippage exceeded", k)
+                await _emergency_flatten(bot, sym_raw, side, float(filled), "Slippage exceeded", k, pos_side=pos_side)
                 return
 
             pos = Position(
@@ -798,7 +806,7 @@ async def try_enter(bot, sym: str, side: str):
 
             if stop_id is None:
                 bot.state.positions.pop(k, None)
-                await _emergency_flatten(bot, sym_raw, side, float(filled), "STOP placement failed", k)
+                await _emergency_flatten(bot, sym_raw, side, float(filled), "STOP placement failed", k, pos_side=pos_side)
                 return
 
             tp1_pct = stop_pct * float(cfg.TP1_RR_MULT)
@@ -817,6 +825,7 @@ async def try_enter(bot, sym: str, side: str):
             if pos_side:
                 tp_params["positionSide"] = pos_side
 
+            # ✅ TP exits: include hedge_side_hint=pos_side (router exit safety in hedge mode)
             if tp1_amount > 0 and (min_amt <= 0 or tp1_amount >= min_amt):
                 await create_order(
                     bot,
@@ -827,6 +836,7 @@ async def try_enter(bot, sym: str, side: str):
                     price=float(tp1_price),
                     params=dict(tp_params),
                     intent_reduce_only=True,
+                    hedge_side_hint=pos_side,
                     retries=6,
                 )
             else:
@@ -842,6 +852,7 @@ async def try_enter(bot, sym: str, side: str):
                     price=float(tp2_price),
                     params=dict(tp_params),
                     intent_reduce_only=True,
+                    hedge_side_hint=pos_side,
                     retries=6,
                 )
             else:

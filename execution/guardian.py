@@ -1,13 +1,18 @@
-# execution/guardian.py — SCALPER ETERNAL — BRAINSTEM OF REALITY — 2026 v1.6 (POSITION MANAGER TICK WIRED)
-# Patch vs v1.5:
-# - ✅ Optional-imports execution.position_manager.position_manager_tick with diagnostics.we_dont_have_this()
-# - ✅ Runs position_manager_tick after reconcile (truth first), before emergency (so emergency sees latest protection)
-# - ✅ Optional on_halt hook for position_manager
+# execution/guardian.py — SCALPER ETERNAL — BRAINSTEM OF REALITY — 2026 v1.7 (EXIT WATCHER WIRED)
+# Patch vs v1.6:
+# - ✅ NEW: Exit watcher inside guardian (best-effort, never fatal)
+# - ✅ Polls fetch_my_trades / fetch_closed_orders / fetch_orders (whichever exists)
+# - ✅ Dedup via state.known_exit_order_ids + state.known_exit_trade_ids
+# - ✅ Calls execution.exit.handle_exit(bot, order) for reduce-only / closePosition intent
+# - ✅ Cursor ("since") tracking to avoid re-processing old fills
+# - ✅ Fully optional and config-driven; defaults to ON if endpoints exist
+
+from __future__ import annotations
 
 import asyncio
 import time
 import random
-from typing import Any, Awaitable, Callable, Optional
+from typing import Any, Awaitable, Callable, Optional, Dict, List
 
 from utils.logging import log_core, log_entry
 
@@ -66,6 +71,13 @@ except Exception as e:
     position_manager_tick = None
     we_dont_have_this("execution.position_manager.position_manager_tick", e)
 
+# ✅ Exit handler (wired)
+try:
+    from execution.exit import handle_exit  # type: ignore
+except Exception as e:
+    handle_exit = None
+    we_dont_have_this("execution.exit.handle_exit", e)
+
 
 def _cfg(bot, name: str, default):
     try:
@@ -91,9 +103,6 @@ def _ensure_shutdown_event(bot) -> asyncio.Event:
 
 
 def _ensure_shutdown_fields(bot) -> None:
-    """
-    Store shutdown forensic info in bot.state so every module can report consistently.
-    """
     st = getattr(bot, "state", None)
     if st is None:
         return
@@ -106,10 +115,6 @@ def _ensure_shutdown_fields(bot) -> None:
 
 
 def _record_shutdown_reason(bot, reason: str, source: str) -> None:
-    """
-    This does NOT set shutdown. It only records why, so when shutdown is set elsewhere
-    you can see the cause.
-    """
     try:
         _ensure_shutdown_fields(bot)
         st = bot.state
@@ -133,9 +138,6 @@ async def _safe_call(name: str, fn: Callable[..., Awaitable[Any]], *args, **kwar
 
 
 async def _cancel_task_bounded(task: asyncio.Task, *, wait_sec: float = 0.35) -> None:
-    """
-    Cancel a task and await it, but never hang forever.
-    """
     if task.done():
         return
     task.cancel()
@@ -155,10 +157,6 @@ async def _run_legacy_loop_briefly(
     bot,
     brief_sec: float,
 ):
-    """
-    For modules that only expose an infinite loop (legacy).
-    Run it briefly with a timeout; then cancel it cleanly.
-    """
     if not callable(loop_fn):
         return
 
@@ -205,19 +203,364 @@ async def _emergency_tick(bot, brief_sec: float):
 
 
 async def _position_manager_tick(bot, brief_sec: float):
-    """
-    Tick-based position management (breakeven/stop sanity/trailing rebuild).
-    """
     if not callable(position_manager_tick):
         return
     await _safe_call("position_manager.position_manager_tick", position_manager_tick, bot)
 
 
+# ----------------------------
+# Exit watcher helpers
+# ----------------------------
+
+def _truthy(x) -> bool:
+    if x is True:
+        return True
+    if isinstance(x, (int, float)) and x != 0:
+        return True
+    if isinstance(x, str) and x.strip().lower() in ("true", "1", "yes", "y", "t"):
+        return True
+    return False
+
+
+def _is_reduce_only_like(obj: dict) -> bool:
+    """
+    Detect reduce-only intent across order/trade shapes.
+    """
+    try:
+        if _truthy(obj.get("reduceOnly")):
+            return True
+        info = obj.get("info") or {}
+        if isinstance(info, dict):
+            if _truthy(info.get("reduceOnly")):
+                return True
+            if _truthy(info.get("closePosition")):
+                return True
+
+        params = obj.get("params") or {}
+        if isinstance(params, dict):
+            if _truthy(params.get("reduceOnly")):
+                return True
+            if _truthy(params.get("closePosition")):
+                return True
+
+        # Some trade feeds only say "side" and "amount" — we don't treat those as reduce-only.
+    except Exception:
+        pass
+    return False
+
+
+def _ensure_known_exit_sets(state) -> None:
+    try:
+        s = getattr(state, "known_exit_order_ids", None)
+        if not isinstance(s, set):
+            state.known_exit_order_ids = set()
+    except Exception:
+        try:
+            state.known_exit_order_ids = set()
+        except Exception:
+            pass
+
+    try:
+        t = getattr(state, "known_exit_trade_ids", None)
+        if not isinstance(t, set):
+            state.known_exit_trade_ids = set()
+    except Exception:
+        try:
+            state.known_exit_trade_ids = set()
+        except Exception:
+            pass
+
+
+def _rc_map(state) -> dict:
+    try:
+        rc = getattr(state, "run_context", None)
+        if not isinstance(rc, dict):
+            state.run_context = {}
+            rc = state.run_context
+        return rc
+    except Exception:
+        return {}
+
+
+def _get_exit_since_ms(state) -> int:
+    """
+    Cursor for trade/order polling.
+    Stored in state.run_context["exit_since_ms"].
+    """
+    rc = _rc_map(state)
+    v = rc.get("exit_since_ms")
+    try:
+        vv = int(v)
+        if vv > 0:
+            return vv
+    except Exception:
+        pass
+    # default: last ~2 minutes to avoid missing anything right after boot
+    return int(time.time() * 1000) - 2 * 60 * 1000
+
+
+def _set_exit_since_ms(state, since_ms: int) -> None:
+    rc = _rc_map(state)
+    try:
+        rc["exit_since_ms"] = int(since_ms)
+    except Exception:
+        pass
+
+
+def _ms_from_ts_any(x) -> int:
+    """
+    Accept seconds, ms, ISO-ish unsupported => 0.
+    """
+    if x is None:
+        return 0
+    try:
+        if isinstance(x, (int, float)):
+            # heuristic: if it's too large it's already ms
+            if float(x) > 10_000_000_000:  # > ~2286-11-20 in seconds
+                return int(x)
+            return int(float(x) * 1000)
+    except Exception:
+        pass
+    return 0
+
+
+def _normalize_trade_to_order_like(trade: dict) -> dict:
+    """
+    Convert a ccxt trade into an "order-like" dict that exit.handle_exit can digest.
+    Key goal: provide:
+      - id
+      - symbol
+      - filled
+      - info.executedQty
+      - info.realizedPnl if present
+      - reduceOnly / closePosition if present (usually not)
+    """
+    out = dict(trade or {})
+    try:
+        # ensure id exists
+        if not out.get("id"):
+            oid = out.get("order") or out.get("orderId") or out.get("tradeId")
+            if oid:
+                out["id"] = str(oid)
+
+        # approximate filled
+        amt = out.get("amount")
+        if amt is not None and out.get("filled") is None:
+            out["filled"] = amt
+
+        info = out.get("info") or {}
+        if not isinstance(info, dict):
+            info = {"raw": info}
+        # set executedQty if missing
+        if "executedQty" not in info and out.get("filled") is not None:
+            info["executedQty"] = out.get("filled")
+        out["info"] = info
+    except Exception:
+        pass
+    return out
+
+
+async def _exit_watch_tick(bot) -> None:
+    """
+    Best-effort poller that tries multiple endpoints and feeds reduce-only intent into handle_exit().
+    Never raises.
+    """
+    if not callable(handle_exit):
+        return
+
+    enabled = bool(_cfg(bot, "EXIT_WATCH_ENABLED", True))
+    if not enabled:
+        return
+
+    ex = getattr(bot, "ex", None)
+    if ex is None:
+        return
+
+    st = getattr(bot, "state", None)
+    if st is None:
+        return
+
+    _ensure_known_exit_sets(st)
+
+    # Config knobs
+    limit = int(_cfg(bot, "EXIT_WATCH_LIMIT", 50))
+    if limit <= 0:
+        limit = 50
+
+    # cursor in ms
+    since_ms = _get_exit_since_ms(st)
+    max_seen_ms = since_ms
+
+    # Symbol scope (optional): if you have active symbols, prefer filtering
+    symbols_any: List[str] = []
+    try:
+        syms = getattr(bot, "active_symbols", None) or getattr(getattr(bot, "cfg", None), "ACTIVE_SYMBOLS", None)
+        if isinstance(syms, (set, list, tuple)):
+            symbols_any = [str(x) for x in list(syms)]
+    except Exception:
+        symbols_any = []
+
+    # Helper: process an order-like object
+    async def _process_order_like(obj: dict) -> None:
+        nonlocal max_seen_ms
+
+        if not isinstance(obj, dict):
+            return
+
+        oid = obj.get("id") or (obj.get("info") or {}).get("orderId") or obj.get("order")
+        if oid:
+            oid = str(oid)
+
+        # dedupe by order id (primary)
+        if oid and oid in st.known_exit_order_ids:
+            return
+
+        # Reduce-only intent filter
+        if not _is_reduce_only_like(obj):
+            return
+
+        # Update cursor timestamp if we can
+        ts_ms = 0
+        try:
+            ts_ms = _ms_from_ts_any(obj.get("timestamp"))
+            if ts_ms <= 0:
+                ts_ms = _ms_from_ts_any((obj.get("info") or {}).get("updateTime"))
+            if ts_ms <= 0:
+                ts_ms = _ms_from_ts_any((obj.get("info") or {}).get("time"))
+        except Exception:
+            ts_ms = 0
+
+        if ts_ms > max_seen_ms:
+            max_seen_ms = ts_ms
+
+        # Mark seen early (avoid re-entrancy duplicates)
+        if oid:
+            st.known_exit_order_ids.add(oid)
+
+        # Hand off to your exit engine
+        try:
+            await handle_exit(bot, obj)
+        except Exception as e:
+            log_entry.error(f"EXIT_WATCH: handle_exit failed: {e}")
+
+    # Helper: process trades (as fallback)
+    async def _process_trade(tr: dict) -> None:
+        nonlocal max_seen_ms
+        if not isinstance(tr, dict):
+            return
+
+        tid = tr.get("id") or tr.get("tradeId")
+        if tid:
+            tid = str(tid)
+            if tid in st.known_exit_trade_ids:
+                return
+
+        ts_ms = _ms_from_ts_any(tr.get("timestamp"))
+        if ts_ms > max_seen_ms:
+            max_seen_ms = ts_ms
+
+        # Convert to order-like and attempt reduce-only detection
+        order_like = _normalize_trade_to_order_like(tr)
+
+        # If trade has an order id, prefer that for dedupe too
+        oid = order_like.get("id")
+        if oid:
+            oid = str(oid)
+            if oid in st.known_exit_order_ids:
+                return
+
+        # Trades usually don’t indicate reduceOnly, so we only forward if we can infer:
+        # - if it references an order that is reduceOnly in info (rare)
+        # - or if exchange provides closePosition/reduceOnly in trade.info (sometimes)
+        if not _is_reduce_only_like(order_like):
+            # no signal => ignore
+            return
+
+        # mark seen
+        if tid:
+            st.known_exit_trade_ids.add(tid)
+        if oid:
+            st.known_exit_order_ids.add(oid)
+
+        try:
+            await handle_exit(bot, order_like)
+        except Exception as e:
+            log_entry.error(f"EXIT_WATCH: handle_exit(trade->order_like) failed: {e}")
+
+    # 1) fetch_closed_orders (best if available)
+    try:
+        fn = getattr(ex, "fetch_closed_orders", None)
+        if callable(fn):
+            if symbols_any:
+                # poll per symbol to avoid huge responses
+                for sym in symbols_any[:12]:
+                    try:
+                        arr = await fn(sym, since_ms, limit)
+                        if isinstance(arr, list):
+                            for o in arr:
+                                await _process_order_like(o)
+                    except Exception:
+                        continue
+            else:
+                arr = await fn(None, since_ms, limit)
+                if isinstance(arr, list):
+                    for o in arr:
+                        await _process_order_like(o)
+    except Exception:
+        pass
+
+    # 2) fetch_orders (sometimes easier than closed_orders)
+    try:
+        fn = getattr(ex, "fetch_orders", None)
+        if callable(fn):
+            if symbols_any:
+                for sym in symbols_any[:12]:
+                    try:
+                        arr = await fn(sym, since_ms, limit)
+                        if isinstance(arr, list):
+                            for o in arr:
+                                await _process_order_like(o)
+                    except Exception:
+                        continue
+            else:
+                arr = await fn(None, since_ms, limit)
+                if isinstance(arr, list):
+                    for o in arr:
+                        await _process_order_like(o)
+    except Exception:
+        pass
+
+    # 3) fetch_my_trades (fallback)
+    try:
+        fn = getattr(ex, "fetch_my_trades", None)
+        if callable(fn):
+            if symbols_any:
+                for sym in symbols_any[:12]:
+                    try:
+                        arr = await fn(sym, since_ms, limit)
+                        if isinstance(arr, list):
+                            for tr in arr:
+                                await _process_trade(tr)
+                    except Exception:
+                        continue
+            else:
+                arr = await fn(None, since_ms, limit)
+                if isinstance(arr, list):
+                    for tr in arr:
+                        await _process_trade(tr)
+    except Exception:
+        pass
+
+    # Advance cursor slightly (avoid re-reading boundary items forever)
+    if max_seen_ms > since_ms:
+        _set_exit_since_ms(st, int(max_seen_ms) + 1)
+
+
+# ----------------------------
+# Skip ledger snapshot helpers (unchanged)
+# ----------------------------
+
 def _get_skip_ledger(bot) -> Optional[dict]:
-    """
-    Optional: entry.py may record skip reasons into bot.state.run_context["skip_ledger"].
-    We keep this best-effort and totally non-fatal.
-    """
     try:
         st = getattr(bot, "state", None)
         rc = getattr(st, "run_context", None) if st is not None else None
@@ -231,10 +574,6 @@ def _get_skip_ledger(bot) -> Optional[dict]:
 
 
 def _format_skip_ledger_snapshot(ledger: dict, max_items: int = 8) -> str:
-    """
-    Expect ledger to be {symbol: {...}} or {symbol: [..]} depending on your implementation.
-    We try to print something useful regardless.
-    """
     items = []
     try:
         for k, v in ledger.items():
@@ -270,11 +609,7 @@ async def guardian_loop(bot):
     """
     The brainstem loop: short, frequent, resilient, monotonic cadence.
 
-    IMPORTANT:
-    - Guardian does NOT shut the bot down by default.
-    - It only records reasons and logs them.
-    - If you want guardian to force shutdown on repeated timeouts, enable:
-        GUARDIAN_SHUTDOWN_ON_TIMEOUT = True
+    Guardian does NOT shut the bot down by default.
     """
     poll_sec = float(_cfg(bot, "GUARDIAN_POLL_SEC", 5.0))
     respect_kill = bool(_cfg(bot, "GUARDIAN_RESPECT_KILL_SWITCH", True))
@@ -285,16 +620,21 @@ async def guardian_loop(bot):
     legacy_brief_sec = float(_cfg(bot, "GUARDIAN_LEGACY_BRIEF_SEC", 0.25))
     jitter = float(_cfg(bot, "GUARDIAN_JITTER_SEC", 0.10))
 
-    # Debug telemetry (optional)
     log_cycle_failures = bool(_cfg(bot, "GUARDIAN_LOG_CYCLE_FAILURES", True))
     max_timeout_streak = int(_cfg(bot, "GUARDIAN_MAX_TIMEOUT_STREAK", 6))
     max_fail_streak = int(_cfg(bot, "GUARDIAN_MAX_FAIL_STREAK", 12))
 
-    # Optional skip ledger snapshots
     skip_snap_enabled = bool(_cfg(bot, "GUARDIAN_SKIP_SNAPSHOT_ENABLED", False))
     skip_snap_cooldown = float(_cfg(bot, "GUARDIAN_SKIP_SNAPSHOT_COOLDOWN_SEC", 30.0))
     skip_snap_max_items = int(_cfg(bot, "GUARDIAN_SKIP_SNAPSHOT_MAX_ITEMS", 8))
     _last_skip_snap = 0.0
+
+    # ✅ Exit watcher cadence (separate from guardian poll)
+    exit_watch_enabled = bool(_cfg(bot, "EXIT_WATCH_ENABLED", True))
+    exit_watch_every = float(_cfg(bot, "EXIT_WATCH_EVERY_SEC", 1.25))
+    if exit_watch_every <= 0:
+        exit_watch_every = 1.25
+    _last_exit_watch = 0.0
 
     shutdown_ev = _ensure_shutdown_event(bot)
     _ensure_shutdown_fields(bot)
@@ -306,6 +646,8 @@ async def guardian_loop(bot):
     fail_streak = 0
 
     async def _one_cycle():
+        nonlocal _last_exit_watch, _last_skip_snap
+
         # 0) Kill-switch tick (EVALUATE)
         if respect_kill and callable(tick_kill_switch):
             await _safe_call("kill_switch.tick_kill_switch", tick_kill_switch, bot)
@@ -317,6 +659,13 @@ async def guardian_loop(bot):
                 halted = bool(is_halted(bot))
             except Exception:
                 halted = False
+
+        # ✅ Exit watch tick (high-frequency, lightweight)
+        if exit_watch_enabled and callable(handle_exit):
+            now_ts = _now()
+            if (now_ts - _last_exit_watch) >= exit_watch_every:
+                _last_exit_watch = now_ts
+                await _safe_call("exit_watch_tick", _exit_watch_tick, bot)
 
         # 1) Entry watch: ALWAYS run (safety housekeeping)
         if callable(poll_entry_watches):
@@ -344,7 +693,7 @@ async def guardian_loop(bot):
             except Exception as e:
                 we_dont_have_this("execution.reconcile.on_halt (runtime)", e)
 
-        # 2b) Position manager tick: ALWAYS run (management independent of fills)
+        # 2b) Position manager tick: ALWAYS run
         await _position_manager_tick(bot, legacy_brief_sec)
 
         # Optional: position manager halt hook
@@ -370,7 +719,6 @@ async def guardian_loop(bot):
                 we_dont_have_this("execution.emergency.on_halt (runtime)", e)
 
         # 4) Optional: skip ledger snapshot (observability only)
-        nonlocal _last_skip_snap
         if skip_snap_enabled:
             now_ts = _now()
             if (now_ts - _last_skip_snap) >= max(5.0, skip_snap_cooldown):
@@ -406,10 +754,8 @@ async def guardian_loop(bot):
             except asyncio.CancelledError:
                 raise
 
-        # set next tick before running cycle to reduce drift
         next_tick = max(next_tick + poll_sec, time.monotonic() + 0.001)
 
-        # Random jitter: de-sync multiple bots
         if jitter and jitter > 0:
             try:
                 j = random.uniform(0.0, min(float(jitter), 0.25))
@@ -420,8 +766,6 @@ async def guardian_loop(bot):
 
         try:
             await _run_cycle_with_timeout()
-
-            # success resets streaks
             timeout_streak = 0
             fail_streak = 0
 

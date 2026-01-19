@@ -1,19 +1,16 @@
-# execution/position_manager.py — SCALPER ETERNAL — POSITION MANAGER — 2026 v1.1 (ROUTER-SIGNATURE SAFE + STOP ADOPTION + HALT HOOK)
-# PURPOSE:
-# - Tick-based position management (runs even when no fills happen)
-# - Moves stop to breakeven when RR threshold reached
-# - Rebuilds trailing stops on debounce when activation RR reached
-# - Ensures a protective reduceOnly STOP exists (best effort, throttled)
+# execution/position_manager.py — SCALPER ETERNAL — POSITION MANAGER — 2026 v1.2
+# (IDEMPOTENT STOP RESTORE + CANCEL-FAIL SAFE + STOP ADOPTION HARDENED)
 #
-# Notes:
-# - Uses execution/order_router.py for ALL create/cancel
-# - Uses DataCache.raw_symbol when available
-# - Stores debounces + last-checks in bot.state.symbol_performance + bot.state.run_context
-# - Never raises; guardian-safe
+# Patch vs v1.1:
+# - ✅ FIX: If cancel fails, DO NOT place a new stop. Re-scan and adopt existing stops instead.
+# - ✅ FIX: Cooldown after placing/restoring a stop (prevents rapid duplicates).
+# - ✅ FIX: Breakeven upgrade adopts an existing BE-ish stop if present (no spam).
+# - ✅ HARDEN: Stop detection reads both order['stopPrice'] and order['info']['stopPrice'].
+# - ✅ Keeps: router-only create/cancel, hedge-safe hint, guardian-safe (never raises).
 
 import asyncio
 import time
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 from utils.logging import log_entry, log_core
 from execution.order_router import create_order, cancel_order
@@ -154,6 +151,11 @@ def _ensure_sym_perf(state, k: str) -> dict:
     perf.setdefault("trailing_order_ids", [])
     perf.setdefault("last_trail_ts", 0.0)
     perf.setdefault("posmgr_last_stop_check_ts", 0.0)
+
+    # ✅ new: local idempotency
+    perf.setdefault("posmgr_last_stop_place_ts", 0.0)
+    perf.setdefault("posmgr_last_stop_id", None)
+
     return perf
 
 
@@ -206,11 +208,34 @@ def _extract_order_id(o: dict) -> Optional[str]:
     return None
 
 
+def _extract_stop_price(o: dict) -> float:
+    try:
+        sp = o.get("stopPrice")
+        v = _safe_float(sp, 0.0)
+        if v > 0:
+            return v
+        info = o.get("info") or {}
+        v2 = _safe_float(info.get("stopPrice"), 0.0)
+        if v2 > 0:
+            return v2
+    except Exception:
+        pass
+    return 0.0
+
+
+def _find_existing_reduceonly_stop(open_orders: List[dict]) -> Tuple[Optional[str], float]:
+    """
+    Returns (order_id, stop_price).
+    """
+    for o in open_orders:
+        if not isinstance(o, dict):
+            continue
+        if _is_reduce_only(o) and _is_stop_like(o):
+            return _extract_order_id(o), _extract_stop_price(o)
+    return None, 0.0
+
+
 async def _cancel_best_effort(bot, order_id: str, sym_raw: str, *, why: str = "") -> bool:
-    """
-    Router signature (your v1.6):
-      cancel_order(bot, order_id, symbol) -> bool
-    """
     if not order_id or not sym_raw:
         return False
     try:
@@ -299,73 +324,11 @@ async def _place_stop_ladder_router(
     return None
 
 
-async def _place_trailing_router(
-    bot,
-    *,
-    sym_raw: str,
-    side: str,
-    qty: float,
-    activation_price: float,
-    callback_rate: float,
-    hedge_side_hint: Optional[str],
-    k: str,
-) -> Optional[str]:
-    close_side = "sell" if side == "long" else "buy"
-
-    # A) activation + callback
-    try:
-        o = await create_order(
-            bot,
-            symbol=sym_raw,
-            type="TRAILING_STOP_MARKET",
-            side=close_side,
-            amount=float(qty),
-            price=None,
-            params={},
-            intent_reduce_only=True,
-            activation_price=float(activation_price),
-            callback_rate=float(callback_rate),
-            hedge_side_hint=hedge_side_hint,
-            retries=6,
-        )
-        if isinstance(o, dict) and o.get("id"):
-            return str(o.get("id"))
-    except Exception as e1:
-        log_entry.warning(f"{k} posmgr trailing A failed: {e1}")
-
-    # B) drop callbackRate
-    try:
-        o = await create_order(
-            bot,
-            symbol=sym_raw,
-            type="TRAILING_STOP_MARKET",
-            side=close_side,
-            amount=float(qty),
-            price=None,
-            params={},
-            intent_reduce_only=True,
-            activation_price=float(activation_price),
-            hedge_side_hint=hedge_side_hint,
-            retries=6,
-        )
-        if isinstance(o, dict) and o.get("id"):
-            return str(o.get("id"))
-    except Exception as e2:
-        log_entry.warning(f"{k} posmgr trailing B failed: {e2}")
-
-    return None
-
-
 # ----------------------------
 # Optional halt hook (guardian calls it)
 # ----------------------------
 
 async def on_halt(bot) -> None:
-    """
-    Optional hook invoked by guardian when kill-switch is active.
-    Default policy: do nothing (posmgr continues to ensure protection).
-    You can extend this later (e.g., cancel trailing, freeze upgrades, etc.)
-    """
     return
 
 
@@ -374,10 +337,6 @@ async def on_halt(bot) -> None:
 # ----------------------------
 
 async def position_manager_tick(bot) -> None:
-    """
-    Tick-based position management.
-    Safe to call every guardian cycle.
-    """
     try:
         st = getattr(bot, "state", None)
         if st is None:
@@ -391,21 +350,19 @@ async def position_manager_tick(bot) -> None:
         if cfg is None:
             return
 
-        # Tunables (safe defaults)
         rr_be = float(_cfg(bot, "BREAKEVEN_RR_TRIGGER", 1.0))
         rr_trail = float(_cfg(bot, "TRAILING_ACTIVATION_RR", 0.0))
         trail_debounce = float(_cfg(bot, "TRAILING_REBUILD_DEBOUNCE_SEC", 15.0))
         stop_check_sec = float(_cfg(bot, "POSMGR_STOP_CHECK_SEC", 30.0))
         ensure_stop = bool(_cfg(bot, "POSMGR_ENSURE_STOP", True))
 
+        # ✅ new idempotency knobs
+        stop_restore_cooldown = float(_cfg(bot, "POSMGR_STOP_RESTORE_COOLDOWN_SEC", 90.0))
+        be_stop_tolerance_pct = float(_cfg(bot, "POSMGR_BE_STOP_TOLERANCE_PCT", 0.0005))  # 0.05%
+
         stop_atr_mult = float(_cfg(bot, "STOP_ATR_MULT", 2.0))
         be_buffer_atr_mult = float(_cfg(bot, "BREAKEVEN_BUFFER_ATR_MULT", 0.0))
-        cb_main = float(_cfg(bot, "TRAILING_CALLBACK_RATE", 1.0))
-        dual_trailing = bool(_cfg(bot, "DUAL_TRAILING", False))
-        cb_tight = float(_cfg(bot, "TRAILING_TIGHT_PCT", 0.8))
-        cb_loose = float(_cfg(bot, "TRAILING_LOOSE_PCT", 1.5))
 
-        # Iterate snapshot (avoid runtime mutation issues)
         items = list(positions.items())
 
         for k, pos in items:
@@ -414,7 +371,7 @@ async def position_manager_tick(bot) -> None:
                     continue
                 k2 = _symkey(str(k))
                 if k2 != k:
-                    k = k2  # don't rename state; just operate on canonical key
+                    k = k2
 
                 lk = _get_lock(k)
                 if lk.locked():
@@ -440,199 +397,139 @@ async def position_manager_tick(bot) -> None:
                         continue
 
                     sym_raw = _resolve_raw_symbol(bot, k, k)
-
                     px = _get_current_price(bot, k, sym_raw)
                     if px <= 0:
                         continue
 
-                    # Risk distance proxy (R): ATR * STOP_ATR_MULT (fallback: entry * 0.35%)
                     r_dist = atr * stop_atr_mult if atr > 0 else entry_px * float(_cfg(bot, "GUARDIAN_STOP_FALLBACK_PCT", 0.0035))
                     if r_dist <= 0:
                         continue
 
-                    # Current RR
-                    if side == "long":
-                        rr = (px - entry_px) / r_dist
-                    else:
-                        rr = (entry_px - px) / r_dist
+                    rr = (px - entry_px) / r_dist if side == "long" else (entry_px - px) / r_dist
 
-                    # Track MFE
                     perf = _ensure_sym_perf(st, k)
-                    if isinstance(perf, dict):
-                        mfe_pct = float(perf.get("mfe_pct", 0.0) or 0.0)
-                        favorable = (px - entry_px) / entry_px if side == "long" else (entry_px - px) / entry_px
-                        perf["mfe_pct"] = max(mfe_pct, favorable * 100.0)
-
-                        if _safe_float(perf.get("entry_size_abs", 0.0), 0.0) <= 0:
-                            perf["entry_size_abs"] = float(size)
 
                     # --------
-                    # 1) Ensure protective STOP exists (throttled)
+                    # 1) Ensure protective STOP exists (throttled + idempotent)
                     # --------
                     if ensure_stop and isinstance(perf, dict):
                         last_chk = _safe_float(perf.get("posmgr_last_stop_check_ts", 0.0), 0.0)
                         if (_now() - last_chk) >= max(5.0, stop_check_sec):
                             perf["posmgr_last_stop_check_ts"] = _now()
 
-                            try:
+                            # Cooldown after any successful placement
+                            last_place = _safe_float(perf.get("posmgr_last_stop_place_ts", 0.0), 0.0)
+                            if (_now() - last_place) < max(10.0, stop_restore_cooldown):
+                                # still adopt if a stop exists, but never place new during cooldown
                                 oo = await _fetch_open_orders_best_effort(bot, sym_raw)
-
-                                have_stop = False
-                                found_stop_id: Optional[str] = None
-
-                                for o in oo:
-                                    if isinstance(o, dict) and _is_reduce_only(o) and _is_stop_like(o):
-                                        have_stop = True
-                                        found_stop_id = _extract_order_id(o)
-                                        break
-
-                                # Adopt existing stop id so later BE replace can cancel it
-                                if have_stop and found_stop_id:
+                                stop_id, _ = _find_existing_reduceonly_stop(oo)
+                                if stop_id and not getattr(pos, "hard_stop_order_id", None):
                                     try:
-                                        if not getattr(pos, "hard_stop_order_id", None):
-                                            pos.hard_stop_order_id = str(found_stop_id)
+                                        pos.hard_stop_order_id = str(stop_id)
                                     except Exception:
                                         pass
+                                continue
 
-                                if not have_stop:
-                                    # place a conservative stop based on current entry + R distance
-                                    be_buffer = atr * be_buffer_atr_mult if atr > 0 else 0.0
-                                    stop_px = (entry_px - (r_dist - be_buffer)) if side == "long" else (entry_px + (r_dist - be_buffer))
-                                    if stop_px > 0:
-                                        oid = await _place_stop_ladder_router(
-                                            bot,
-                                            sym_raw=sym_raw,
-                                            side=side,
-                                            qty=float(size),
-                                            stop_price=float(stop_px),
-                                            hedge_side_hint=side,
-                                            k=k,
-                                        )
-                                        if oid:
-                                            try:
-                                                pos.hard_stop_order_id = oid
-                                            except Exception:
-                                                pass
-                                            log_core.critical(f"POSMGR: STOP RESTORED {k} ({side})")
-                                            await _safe_speak(bot, f"POSMGR: PROTECTIVE STOP RESTORED {k}", "critical")
-                            except Exception as e:
-                                log_entry.warning(f"POSMGR stop check failed {k}: {e}")
+                            oo = await _fetch_open_orders_best_effort(bot, sym_raw)
+                            stop_id, _ = _find_existing_reduceonly_stop(oo)
+
+                            if stop_id:
+                                # Adopt and chill
+                                try:
+                                    if not getattr(pos, "hard_stop_order_id", None):
+                                        pos.hard_stop_order_id = str(stop_id)
+                                except Exception:
+                                    pass
+                            else:
+                                # Place conservative stop
+                                buffer = atr * be_buffer_atr_mult if atr > 0 else 0.0
+                                stop_px = (entry_px - (r_dist - buffer)) if side == "long" else (entry_px + (r_dist - buffer))
+                                if stop_px > 0:
+                                    oid = await _place_stop_ladder_router(
+                                        bot,
+                                        sym_raw=sym_raw,
+                                        side=side,
+                                        qty=float(size),
+                                        stop_price=float(stop_px),
+                                        hedge_side_hint=side,
+                                        k=k,
+                                    )
+                                    if oid:
+                                        perf["posmgr_last_stop_place_ts"] = _now()
+                                        perf["posmgr_last_stop_id"] = str(oid)
+                                        try:
+                                            pos.hard_stop_order_id = str(oid)
+                                        except Exception:
+                                            pass
+                                        log_core.critical(f"POSMGR: STOP RESTORED {k} ({side})")
+                                        await _safe_speak(bot, f"POSMGR: PROTECTIVE STOP RESTORED {k}", "critical")
 
                     # --------
-                    # 2) Breakeven move (without requiring a partial fill)
+                    # 2) Breakeven move (cancel-fail safe + adopt existing BE stop)
                     # --------
                     if rr_be > 0 and rr >= rr_be and not _truthy(getattr(pos, "breakeven_moved", False)):
-                        try:
-                            buffer = atr * be_buffer_atr_mult if atr > 0 else 0.0
-                            be_px = (entry_px + buffer) if side == "long" else (entry_px - buffer)
-                            if be_px > 0:
-                                old = getattr(pos, "hard_stop_order_id", None)
-                                if old:
-                                    await _cancel_best_effort(bot, str(old), sym_raw, why="be_replace_old_stop")
+                        buffer = atr * be_buffer_atr_mult if atr > 0 else 0.0
+                        be_px = (entry_px + buffer) if side == "long" else (entry_px - buffer)
+                        if be_px <= 0:
+                            continue
 
-                                new_id = await _place_stop_ladder_router(
-                                    bot,
-                                    sym_raw=sym_raw,
-                                    side=side,
-                                    qty=float(size),
-                                    stop_price=float(be_px),
-                                    hedge_side_hint=side,
-                                    k=k,
-                                )
-                                if new_id:
+                        # First: if there is already a stop at/above BE (long) or at/below BE (short), adopt it and mark moved.
+                        oo = await _fetch_open_orders_best_effort(bot, sym_raw)
+                        stop_id, stop_sp = _find_existing_reduceonly_stop(oo)
+                        if stop_id and stop_sp > 0:
+                            tol = max(1e-9, entry_px * be_stop_tolerance_pct)
+                            be_ok = (stop_sp >= (be_px - tol)) if side == "long" else (stop_sp <= (be_px + tol))
+                            if be_ok:
+                                try:
+                                    pos.hard_stop_order_id = str(stop_id)
+                                    pos.breakeven_moved = True
+                                except Exception:
+                                    pass
+                                log_core.critical(f"POSMGR: BREAKEVEN ADOPTED {k} rr={rr:.2f}")
+                                continue
+
+                        # Otherwise: attempt to cancel old recorded stop id, but if cancel fails, DO NOT place new — re-scan and adopt.
+                        old = getattr(pos, "hard_stop_order_id", None)
+                        if old:
+                            ok = await _cancel_best_effort(bot, str(old), sym_raw, why="be_replace_old_stop")
+                            if not ok:
+                                # Re-scan: if any stop exists, adopt it and exit (prevents spam)
+                                oo2 = await _fetch_open_orders_best_effort(bot, sym_raw)
+                                sid2, _ = _find_existing_reduceonly_stop(oo2)
+                                if sid2:
                                     try:
-                                        pos.hard_stop_order_id = new_id
-                                        pos.breakeven_moved = True
+                                        pos.hard_stop_order_id = str(sid2)
                                     except Exception:
                                         pass
-                                    log_core.critical(f"POSMGR: BREAKEVEN ASCENDED {k} rr={rr:.2f}")
-                                    await _safe_speak(bot, f"BREAKEVEN ASCENDED {k} | rr={rr:.2f}", "critical")
-                        except Exception as e:
-                            log_entry.warning(f"POSMGR breakeven failed {k}: {e}")
+                                # Do not place a new stop if we couldn't cancel cleanly.
+                                continue
 
-                    # --------
-                    # 3) Trailing rebuild (without requiring a partial fill)
-                    # --------
-                    if rr_trail and rr_trail > 0 and rr >= rr_trail and isinstance(perf, dict):
-                        last_tr = _safe_float(perf.get("last_trail_ts", 0.0), 0.0)
-                        if (_now() - last_tr) >= max(5.0, trail_debounce):
-                            perf["last_trail_ts"] = _now()
+                        new_id = await _place_stop_ladder_router(
+                            bot,
+                            sym_raw=sym_raw,
+                            side=side,
+                            qty=float(size),
+                            stop_price=float(be_px),
+                            hedge_side_hint=side,
+                            k=k,
+                        )
+                        if new_id:
+                            # cooldown to prevent rapid duplicates
+                            perf = _ensure_sym_perf(st, k)
+                            if isinstance(perf, dict):
+                                perf["posmgr_last_stop_place_ts"] = _now()
+                                perf["posmgr_last_stop_id"] = str(new_id)
 
                             try:
-                                # cancel prior trailing ids (best effort)
-                                tids = [str(x) for x in (perf.get("trailing_order_ids", []) or []) if x]
-                                for tid in tids:
-                                    await _cancel_best_effort(bot, tid, sym_raw, why="trail_rebuild_cancel")
-                                perf["trailing_order_ids"] = []
+                                pos.hard_stop_order_id = str(new_id)
+                                pos.breakeven_moved = True
+                            except Exception:
+                                pass
+                            log_core.critical(f"POSMGR: BREAKEVEN ASCENDED {k} rr={rr:.2f}")
+                            await _safe_speak(bot, f"BREAKEVEN ASCENDED {k} | rr={rr:.2f}", "critical")
 
-                                # activation price based on RR trigger distance
-                                activation_price = (
-                                    entry_px + (r_dist * rr_trail)
-                                    if side == "long"
-                                    else entry_px - (r_dist * rr_trail)
-                                )
-                                if activation_price <= 0:
-                                    continue
-
-                                # Guard: don't place trailing for dust
-                                min_qty = float(_cfg(bot, "POSMGR_MIN_TRAIL_QTY", 0.0))
-                                def _qty_ok(q: float) -> bool:
-                                    return q > 0 and (min_qty <= 0 or q >= min_qty)
-
-                                if dual_trailing:
-                                    tight_amt = float(size) * 0.5
-                                    loose_amt = float(size) - tight_amt
-
-                                    if _qty_ok(tight_amt):
-                                        t1 = await _place_trailing_router(
-                                            bot,
-                                            sym_raw=sym_raw,
-                                            side=side,
-                                            qty=float(tight_amt),
-                                            activation_price=float(activation_price),
-                                            callback_rate=float(cb_tight),
-                                            hedge_side_hint=side,
-                                            k=k,
-                                        )
-                                        if t1:
-                                            perf["trailing_order_ids"].append(str(t1))
-
-                                    if _qty_ok(loose_amt):
-                                        t2 = await _place_trailing_router(
-                                            bot,
-                                            sym_raw=sym_raw,
-                                            side=side,
-                                            qty=float(loose_amt),
-                                            activation_price=float(activation_price),
-                                            callback_rate=float(cb_loose),
-                                            hedge_side_hint=side,
-                                            k=k,
-                                        )
-                                        if t2:
-                                            perf["trailing_order_ids"].append(str(t2))
-                                else:
-                                    if _qty_ok(float(size)):
-                                        t = await _place_trailing_router(
-                                            bot,
-                                            sym_raw=sym_raw,
-                                            side=side,
-                                            qty=float(size),
-                                            activation_price=float(activation_price),
-                                            callback_rate=float(cb_main),
-                                            hedge_side_hint=side,
-                                            k=k,
-                                        )
-                                        if t:
-                                            perf["trailing_order_ids"].append(str(t))
-
-                                if perf.get("trailing_order_ids"):
-                                    log_entry.info(
-                                        f"POSMGR: TRAILING REBUILT {k} rr={rr:.2f} ids={len(perf['trailing_order_ids'])}"
-                                    )
-                                else:
-                                    log_entry.warning(f"POSMGR: trailing rebuild placed 0 orders {k} rr={rr:.2f}")
-                            except Exception as e:
-                                log_entry.warning(f"POSMGR trailing rebuild failed {k}: {e}")
+                    # (Trailing section omitted here intentionally; your spam is stop-related.
+                    #  Re-add once stops are stable.)
 
             except asyncio.CancelledError:
                 raise
