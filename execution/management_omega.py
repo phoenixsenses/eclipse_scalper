@@ -5,6 +5,20 @@ from config.settings import Config
 
 cfg = Config()
 
+
+def _normalize_callback_rate(val) -> float:
+    """
+    Binance expects callbackRate in percent units within [0.1, 5.0].
+    If user passes 45 (likely "45%"), normalize to 0.45 before clamping.
+    """
+    try:
+        v = float(val)
+    except (ValueError, TypeError):
+        return 1.0
+    if v > 5.0:
+        v = v / 100.0
+    return max(0.1, min(5.0, v))
+
 async def manage_position_omega(bot, sym: str, pos, confidence: float):
     """
     v17 — OMEGA PROTOCOL MANAGEMENT
@@ -61,10 +75,10 @@ async def manage_position_omega(bot, sym: str, pos, confidence: float):
                     sym, 'TRAILING_STOP_MARKET',
                     'sell' if side == 'long' else 'buy',
                     size,
-                    params={'callbackRate': round(trail_pct * 100, 2), 'reduceOnly': True}
+                    params={'callbackRate': _normalize_callback_rate(trail_pct), 'reduceOnly': True}
                 )
                 trailing_active = True
-                log_entry.info(f"OMEGA TRAILING ACTIVATED → {sym} | Rate: {trail_pct:.1f}% | R: {pnl_r:.1f}")
+                log_entry.info(f"OMEGA TRAILING ACTIVATED → {sym} | Rate: {_normalize_callback_rate(trail_pct):.2f}% | R: {pnl_r:.1f}")
 
         except Exception as e:
             log_entry.error(f"Omega management error {sym}: {e}")

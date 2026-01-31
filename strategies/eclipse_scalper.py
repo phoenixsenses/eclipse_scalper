@@ -80,6 +80,26 @@ def _env_int(name: str, default: int) -> int:
         return int(default)
 
 
+def _env_float_sym(name: str, default: float, sym_suffix: str) -> float:
+    try:
+        v = os.getenv(f"{name}_{sym_suffix}", "")
+        if v is None or str(v).strip() == "":
+            return float(default)
+        return float(v)
+    except Exception:
+        return float(default)
+
+
+def _env_bool_sym(name: str, default: bool, sym_suffix: str) -> bool:
+    try:
+        v = os.getenv(f"{name}_{sym_suffix}", "")
+        if v is None or str(v).strip() == "":
+            return bool(default)
+        return str(v).strip().lower() in ("1", "true", "yes", "y", "on")
+    except Exception:
+        return bool(default)
+
+
 def _safe_find_peaks(arr: np.ndarray, prominence: float):
     """SciPy optional peaks: returns empty arrays if unavailable or errors."""
     if find_peaks is None:
@@ -103,6 +123,8 @@ def _symkey(sym: str) -> str:
     s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
     s = s.replace(":USDT", "USDT").replace(":", "")
     s = s.replace("/", "")
+    if s.endswith("USDTUSDT"):
+        s = s[:-4]
     return s
 
 
@@ -450,6 +472,42 @@ def scalper_signal(sym: str, data=None, cfg=None, *args, **kwargs) -> tuple[bool
     # Optional: use confidence as a final “okay trade” threshold in micro
     MICRO_CONF_TH = _env_float("SCALPER_MICRO_CONF_TH", 0.0)  # 0 disables
 
+    # Enhanced gates (on by default, env-disable if needed)
+    ENHANCED = os.getenv("SCALPER_ENHANCED", "1").strip().lower() in ("1", "true", "yes", "y", "on")
+    RANGE_ATR_MIN = _env_float("SCALPER_RANGE_ATR_MIN", 0.60 if micro_profile else 0.80)
+    VOL_MIN_MULT = _env_float("SCALPER_VOL_MIN_MULT", 0.70 if micro_profile else 0.90)
+    ENH_TREND_1H = os.getenv("SCALPER_ENH_TREND_1H", "1").strip().lower() in ("1", "true", "yes", "y", "on")
+
+    # Symbol-specific base overrides (e.g., SCALPER_ADX_TH_BTC=12)
+    sym_base = _base_from_usdt(k) or k
+    sym_suffix = sym_base.upper()
+    VOL_Z_TH = _env_float_sym("SCALPER_VOL_Z_TH", VOL_Z_TH, sym_suffix)
+    VOL_Z_SOFT_TH = _env_float_sym("SCALPER_VOL_Z_SOFT_TH", VOL_Z_SOFT_TH, sym_suffix)
+    PREV_VOL_Z_TH = _env_float_sym("SCALPER_PREV_VOL_Z_TH", PREV_VOL_Z_TH, sym_suffix)
+    ADX_TH = _env_float_sym("SCALPER_ADX_TH", ADX_TH, sym_suffix)
+    BB_CHOP_TH = _env_float_sym("SCALPER_BB_CHOP_TH", BB_CHOP_TH, sym_suffix)
+    VWAP_BASE_DIST = _env_float_sym("SCALPER_VWAP_BASE_DIST", VWAP_BASE_DIST, sym_suffix)
+    VWAP_ATR_MULT = _env_float_sym("SCALPER_VWAP_ATR_MULT", VWAP_ATR_MULT, sym_suffix)
+    DYN_MOM_MULT = _env_float_sym("SCALPER_DYN_MOM_MULT", DYN_MOM_MULT, sym_suffix)
+    DYN_MOM_FLOOR = _env_float_sym("SCALPER_DYN_MOM_FLOOR", DYN_MOM_FLOOR, sym_suffix)
+    ATR_PCT_SOFT_TH = _env_float_sym("SCALPER_ATR_PCT_SOFT_TH", ATR_PCT_SOFT_TH, sym_suffix)
+    RANGE_ATR_MIN = _env_float_sym("SCALPER_RANGE_ATR_MIN", RANGE_ATR_MIN, sym_suffix)
+    VOL_MIN_MULT = _env_float_sym("SCALPER_VOL_MIN_MULT", VOL_MIN_MULT, sym_suffix)
+
+    # Quality mode (opt-in): tighter filters for better trade quality
+    QUALITY_MODE = os.getenv("SCALPER_QUALITY_MODE", "").strip().lower() in ("1", "true", "yes", "y", "on")
+    QUALITY_CONF_MIN = _env_float("SCALPER_QUALITY_CONF_MIN", 0.62 if micro_profile else 0.72)
+    QUALITY_DIST_MULT = _env_float("SCALPER_QUALITY_DIST_MULT", 1.10)
+    QUALITY_MOM_MULT = _env_float("SCALPER_QUALITY_MOM_MULT", 1.10)
+    QUALITY_ADX_BONUS = _env_float("SCALPER_QUALITY_ADX_BONUS", 3.0)
+
+    # Symbol-specific override profile (e.g., SCALPER_QUALITY_MODE_BTC=1)
+    QUALITY_MODE = _env_bool_sym("SCALPER_QUALITY_MODE", QUALITY_MODE, sym_suffix)
+    QUALITY_CONF_MIN = _env_float_sym("SCALPER_QUALITY_CONF_MIN", QUALITY_CONF_MIN, sym_suffix)
+    QUALITY_DIST_MULT = _env_float_sym("SCALPER_QUALITY_DIST_MULT", QUALITY_DIST_MULT, sym_suffix)
+    QUALITY_MOM_MULT = _env_float_sym("SCALPER_QUALITY_MOM_MULT", QUALITY_MOM_MULT, sym_suffix)
+    QUALITY_ADX_BONUS = _env_float_sym("SCALPER_QUALITY_ADX_BONUS", QUALITY_ADX_BONUS, sym_suffix)
+
     # ----------------------------
     # DEBUG_LOOSE relax (new)
     # ----------------------------
@@ -563,6 +621,9 @@ def scalper_signal(sym: str, data=None, cfg=None, *args, **kwargs) -> tuple[bool
 
         atr_ma = float(atr50_s.iloc[-1]) if np.isfinite(atr50_s.iloc[-1]) else atr
 
+        # Enhanced gates: range + volume floor
+        range_atr = (h - l) / atr if atr > 0 else 0.0
+
         vol_regime = (
             "HIGH" if atr > atr_ma * 1.5 else
             "LOW" if atr < atr_ma * 0.7 else
@@ -609,6 +670,10 @@ def scalper_signal(sym: str, data=None, cfg=None, *args, **kwargs) -> tuple[bool
         vol_mean = float(vol_mean_s.iloc[-1]) if np.isfinite(vol_mean_s.iloc[-1]) else 0.0
         vol_std = float(vol_std_s.iloc[-1]) if np.isfinite(vol_std_s.iloc[-1]) else 0.0
         vol_z = (v - vol_mean) / vol_std if vol_std > 0 else 0.0
+
+        vol_floor_ok = True
+        if vol_mean > 0:
+            vol_floor_ok = v >= (vol_mean * VOL_MIN_MULT)
 
         vol_spike_hard = vol_z > VOL_Z_TH
         vol_spike_soft = vol_z > VOL_Z_SOFT_TH
@@ -681,6 +746,29 @@ def scalper_signal(sym: str, data=None, cfg=None, *args, **kwargs) -> tuple[bool
             ema_200_15m = float(df_15m["c"].ewm(span=200, adjust=False).mean().iloc[-1])
             trend_long = trend_long and (c > ema_200_15m)
             trend_short = trend_short and (c < ema_200_15m)
+
+        if ENHANCED and ENH_TREND_1H and (not DEBUG_LOOSE):
+            df_1h, _used1h = _get_df_flexible(data, sym, "1h")
+            if df_1h is not None and len(df_1h) >= 200 and "c" in df_1h.columns:
+                ema_200_1h = float(df_1h["c"].ewm(span=200, adjust=False).mean().iloc[-1])
+                trend_long = trend_long and (c > ema_200_1h)
+                trend_short = trend_short and (c < ema_200_1h)
+
+        # Quality gate: demand stronger trend/move/structure
+        quality_ok = True
+        if QUALITY_MODE:
+            if not trending or (adx < (ADX_TH + QUALITY_ADX_BONUS)):
+                quality_ok = False
+            if vwap_distance <= (dist_th * QUALITY_DIST_MULT):
+                quality_ok = False
+            if long_mom and (mom < (dynamic_mom * QUALITY_MOM_MULT)):
+                quality_ok = False
+            if short_mom and (mom > (-dynamic_mom * QUALITY_MOM_MULT)):
+                quality_ok = False
+            if range_atr and range_atr < RANGE_ATR_MIN:
+                quality_ok = False
+            if not vol_floor_ok:
+                quality_ok = False
 
         rsi_series = ta.momentum.RSIIndicator(df["c"], window=14).rsi()
         rsi = float(rsi_series.iloc[-1]) if np.isfinite(rsi_series.iloc[-1]) else 50.0
@@ -765,15 +853,22 @@ def scalper_signal(sym: str, data=None, cfg=None, *args, **kwargs) -> tuple[bool
 
         confirm_move = (vol_spike_hard or vol_spike_soft or impulse_soft)
 
+        enhanced_ok = True
+        if ENHANCED and (not DEBUG_LOOSE):
+            if range_atr and range_atr < RANGE_ATR_MIN:
+                enhanced_ok = False
+            if not vol_floor_ok:
+                enhanced_ok = False
+
         if micro_profile:
-            base_long = long_mom and above_vwap and ha_mom_5m_ok and (trend_long or trending) and (not choppy)
-            base_short = short_mom and (not above_vwap) and ha_mom_5m_ok and (trend_short or trending) and (not choppy)
+            base_long = long_mom and above_vwap and ha_mom_5m_ok and (trend_long or trending) and (not choppy) and enhanced_ok and quality_ok
+            base_short = short_mom and (not above_vwap) and ha_mom_5m_ok and (trend_short or trending) and (not choppy) and enhanced_ok and quality_ok
 
             long_signal = base_long and distance_ok and confirm_move and trig_long
             short_signal = base_short and distance_ok and confirm_move and trig_short
         else:
-            base_long = long_mom and above_vwap and distance_ok and trend_long and ha_mom_5m_ok and (not choppy) and trending
-            base_short = short_mom and (not above_vwap) and distance_ok and trend_short and ha_mom_5m_ok and (not choppy) and trending
+            base_long = long_mom and above_vwap and distance_ok and trend_long and ha_mom_5m_ok and (not choppy) and trending and enhanced_ok and quality_ok
+            base_short = short_mom and (not above_vwap) and distance_ok and trend_short and ha_mom_5m_ok and (not choppy) and trending and enhanced_ok and quality_ok
 
             confirm_long = persistence_long or vol_spike_hard or (impulse_soft and trending)
             confirm_short = persistence_short or vol_spike_hard or (impulse_soft and trending)
@@ -853,6 +948,10 @@ def scalper_signal(sym: str, data=None, cfg=None, *args, **kwargs) -> tuple[bool
 
         confidence = round(votes / max_votes if max_votes > 0 else 0.0, 2)
 
+        if QUALITY_MODE and (long_signal or short_signal) and confidence < QUALITY_CONF_MIN:
+            long_signal = False
+            short_signal = False
+
         # Optional confidence gate for micro (disabled by default)
         if micro_profile and MICRO_CONF_TH > 0:
             if long_signal and confidence < MICRO_CONF_TH:
@@ -891,6 +990,11 @@ def scalper_signal(sym: str, data=None, cfg=None, *args, **kwargs) -> tuple[bool
                 blockers.append("chop")
             if not distance_ok:
                 blockers.append(f"vwapD<{dist_th:.4f}")
+            if ENHANCED and (not DEBUG_LOOSE):
+                if range_atr and range_atr < RANGE_ATR_MIN:
+                    blockers.append(f"rangeATR<{RANGE_ATR_MIN:.2f}")
+                if not vol_floor_ok:
+                    blockers.append(f"vol<{VOL_MIN_MULT:.2f}x")
             if long_mom and not above_vwap:
                 blockers.append("below_vwap")
             if short_mom and above_vwap:

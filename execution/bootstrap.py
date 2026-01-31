@@ -175,7 +175,7 @@ def _env_any(keys: list[str], default: str = "") -> str:
 # ----------------------------
 
 def _load_cfg() -> Any:
-    for modname in ("config", "settings"):
+    for modname in ("config.settings", "config", "settings"):
         m = _opt_import(modname)
         if not m:
             continue
@@ -183,7 +183,15 @@ def _load_cfg() -> Any:
             return getattr(m, "CFG")
         if hasattr(m, "cfg"):
             return getattr(m, "cfg")
-        return m
+        # If module exposes Config class, instantiate it
+        try:
+            cfg_cls = getattr(m, "Config", None)
+            if callable(cfg_cls):
+                return cfg_cls()
+        except Exception:
+            pass
+        # If module doesn't provide config, try next
+        continue
     return SimpleNamespace()
 
 
@@ -279,6 +287,33 @@ def _ensure_state_shape(st: Any) -> Any:
             st.positions = {}
     except Exception:
         pass
+
+    for name, default in (
+        ("blacklist", {}),
+        ("blacklist_reason", {}),
+        ("last_exit_time", {}),
+        ("consecutive_losses", {}),
+        ("known_exit_order_ids", set()),
+        ("current_equity", 0.0),
+        ("start_of_day_equity", 0.0),
+        ("daily_pnl", 0.0),
+        ("win_streak", 0),
+        ("total_trades", 0),
+        ("total_wins", 0),
+        ("session_peak_equity", 0.0),
+        ("SYMBOL_COOLDOWN_MINUTES", 12),
+    ):
+        try:
+            if not hasattr(st, name):
+                setattr(st, name, default)
+            else:
+                cur = getattr(st, name)
+                if isinstance(default, dict) and not isinstance(cur, dict):
+                    setattr(st, name, {})
+                if isinstance(default, set) and not isinstance(cur, set):
+                    setattr(st, name, set())
+        except Exception:
+            pass
 
     try:
         if not hasattr(st, "symbol_performance") or not isinstance(getattr(st, "symbol_performance", None), dict):
@@ -692,6 +727,14 @@ async def main() -> None:
     if getattr(bot, "notify", None) is None:
         _build_notify_best_effort(bot)
 
+    # Optional: bootstrap raw_symbol map from exchange markets
+    try:
+        bm = getattr(getattr(bot, "data", None), "bootstrap_markets", None)
+        if callable(bm):
+            await bm(bot)
+    except Exception as e:
+        log_core.warning(f"[bootstrap] data.bootstrap_markets failed: {e}")
+
     # Boot diagnostics
     log_core.info(
         f"[bootstrap] bot.data={type(getattr(bot,'data',None)).__name__} data_valid={_data_is_valid(getattr(bot,'data',None))}"
@@ -715,8 +758,29 @@ async def main() -> None:
     if not callable(guardian_loop):
         raise RuntimeError("execution.guardian.guardian_loop is required but missing")
 
-    entry_loop_mod = _opt_import("execution.entry_loop")
-    entry_loop = _callable(entry_loop_mod, "entry_loop") if entry_loop_mod else None
+    # Entry loop selection:
+    # ENTRY_LOOP_MODE=full|basic (default: full if available, else basic)
+    entry_mode = os.getenv("ENTRY_LOOP_MODE", "").strip().lower()
+    prefer_basic = entry_mode in ("basic", "simple", "lite")
+    prefer_full = entry_mode in ("full", "risk", "advanced")
+
+    # Prefer full-risk entry loop if present, fallback to basic entry_loop
+    entry_loop_mod = None
+    if prefer_basic:
+        entry_loop_mod = _opt_import("execution.entry_loop")
+    elif prefer_full:
+        entry_loop_mod = _opt_import("execution.entry_loop_full") or _opt_import("execution.entry_loop")
+    else:
+        entry_loop_mod = _opt_import("execution.entry_loop_full") or _opt_import("execution.entry_loop")
+    entry_loop = None
+    if entry_loop_mod:
+        entry_loop = _callable(entry_loop_mod, "entry_loop_full") or _callable(entry_loop_mod, "entry_loop")
+        if entry_loop and entry_loop.__name__ == "entry_loop_full":
+            log_core.info("[bootstrap] entry loop: FULL (execution.entry_loop_full.entry_loop_full)")
+        elif entry_loop:
+            log_core.info("[bootstrap] entry loop: BASIC (execution.entry_loop.entry_loop)")
+        else:
+            log_core.warning("[bootstrap] entry loop: NONE (no callable found)")
 
     data_loop_mod = _opt_import("execution.data_loop")
     data_loop = _callable(data_loop_mod, "data_loop") if data_loop_mod else None
@@ -755,11 +819,15 @@ async def main() -> None:
         _maybe_start_task(tasks, "position_manager.loop", position_manager_loop, bot)
     else:
         log_core.warning("[bootstrap] optional loop missing: execution.position_manager.(position_manager_loop/run)")
+        if os.getenv("BOOT_REQUIRE_POSMGR", "1").strip().lower() not in ("0", "false", "no", "off"):
+            raise RuntimeError("bootstrap requires execution.position_manager (set BOOT_REQUIRE_POSMGR=0 to bypass)")
 
     if callable(exit_loop):
         _maybe_start_task(tasks, "exit.loop", exit_loop, bot)
     else:
         log_core.warning("[bootstrap] optional loop missing: execution.exit.(exit_loop/run)")
+        if os.getenv("BOOT_REQUIRE_EXIT", "1").strip().lower() not in ("0", "false", "no", "off"):
+            raise RuntimeError("bootstrap requires execution.exit (set BOOT_REQUIRE_EXIT=0 to bypass)")
 
     # Start entry with gating wrapper
     if callable(entry_loop):

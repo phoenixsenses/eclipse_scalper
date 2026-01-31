@@ -46,6 +46,20 @@ def safe_float(d, key, default=0.0):
     except (ValueError, TypeError):
         return default
 
+
+def _normalize_callback_rate(val) -> float:
+    """
+    Binance expects callbackRate in percent units within [0.1, 5.0].
+    If user passes 45 (likely "45%"), normalize to 0.45 before clamping.
+    """
+    try:
+        v = float(val)
+    except (ValueError, TypeError):
+        return 1.0
+    if v > 5.0:
+        v = v / 100.0
+    return max(0.1, min(5.0, v))
+
 class EclipseGuardian:
     def __init__(self):
         self.bot = EclipseEternal()
@@ -187,7 +201,7 @@ class EclipseGuardian:
             # === SIMPLE TRAILING (activate after +1.5%) ===
             activation_pct = 1.5
             if unrealized_pct > activation_pct and not state_pos.trailing_active:
-                callback_rate = int(cfg.TRAILING_CALLBACK_RATE)
+                callback_rate = _normalize_callback_rate(getattr(cfg, "TRAILING_CALLBACK_RATE", 1.0))
                 try:
                     await self.bot.ex.create_order(
                         symbol=sym,
@@ -201,7 +215,7 @@ class EclipseGuardian:
                         }
                     )
                     state_pos.trailing_active = True
-                    await self.send_divine_message(f"TRAILING STOP ACTIVATED {internal_sym} — {callback_rate/100:.1f}% callback")
+                    await self.send_divine_message(f"TRAILING STOP ACTIVATED {internal_sym} — {callback_rate:.2f}% callback")
                 except Exception as e:
                     await self.send_divine_message(f"Trailing activation failed {internal_sym}: {e}")
 

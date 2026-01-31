@@ -262,6 +262,7 @@ class CosmicExchangeOracle:
                 return await fn(*args, **kwargs)
 
             except ccxt.AuthenticationError as e:
+                self.error_count += 1
                 log_core.critical(f"AUTHENTICATION FAILED: {e}")
                 if len(self.api_keys) > 1:
                     await self._failover_account()
@@ -269,16 +270,19 @@ class CosmicExchangeOracle:
                     raise
 
             except ccxt.RateLimitExceeded:
+                self.error_count += 1
                 delay = 1.0 * (2**attempt) + random.uniform(0, 0.5)
                 log_core.warning(f"Rate limit — cosmic pause {delay:.2f}s")
                 await asyncio.sleep(delay)
 
             except ccxt.RequestTimeout:
+                self.error_count += 1
                 delay = 0.5 * (2**attempt) + random.uniform(0, 0.3)
                 log_core.warning(f"Timeout — retry in {delay:.2f}s")
                 await asyncio.sleep(delay)
 
             except ccxt.ExchangeError as e:
+                self.error_count += 1
                 error_str = str(e)
                 if "Nonce" in error_str or "Timestamp" in error_str:
                     await self._sync_time()
@@ -313,6 +317,7 @@ class CosmicExchangeOracle:
         return await self.safe_request("fetch_balance")
 
     async def fetch_positions(self, symbols=None):
+        await self._ensure_markets_loaded()
         # Resolve each symbol if list passed
         if isinstance(symbols, (list, tuple)):
             symbols = [self._resolve_symbol(s) for s in symbols if s]
@@ -322,6 +327,7 @@ class CosmicExchangeOracle:
         # Binance often requires a symbol; None returns []
         if symbol is None:
             return []
+        await self._ensure_markets_loaded()
         raw = self._resolve_symbol(symbol)
         return await self.safe_request("fetch_closed_orders", raw, limit=limit)
 
@@ -329,6 +335,7 @@ class CosmicExchangeOracle:
         # Binance often requires a symbol; None returns []
         if symbol is None:
             return []
+        await self._ensure_markets_loaded()
         raw = self._resolve_symbol(symbol)
         return await self.safe_request("fetch_open_orders", raw)
 
@@ -358,6 +365,7 @@ class CosmicExchangeOracle:
                 "info": {"dry_run": True},
             }
 
+        await self._ensure_markets_loaded()
         raw = self._resolve_symbol(symbol)
         return await self.safe_request("create_order", raw, type, side, amount, price, params=p)
 
@@ -365,6 +373,7 @@ class CosmicExchangeOracle:
         if self._is_dry_run():
             log_core.info(f"DRY_RUN: would cancel_order id={id_} symbol={symbol}")
             return {"id": id_, "symbol": symbol, "status": "canceled", "info": {"dry_run": True}}
+        await self._ensure_markets_loaded()
         raw = self._resolve_symbol(symbol)
         return await self.safe_request("cancel_order", id_, raw)
 
@@ -377,6 +386,7 @@ class CosmicExchangeOracle:
             if now - ts <= self.TICKER_TTL:
                 return dict(val)
 
+        await self._ensure_markets_loaded()
         raw = self._resolve_symbol(symbol)
         result = await self.safe_request("fetch_ticker", raw)
         if isinstance(result, dict):
@@ -391,6 +401,7 @@ class CosmicExchangeOracle:
         limit=None,
         params: Optional[dict] = None,
     ):
+        await self._ensure_markets_loaded()
         raw = self._resolve_symbol(symbol)
         return await self.safe_request("fetch_ohlcv", raw, timeframe, since, limit, params=params or {})
 
@@ -403,6 +414,7 @@ class CosmicExchangeOracle:
             if now - ts <= self.FUNDING_TTL:
                 return float(rate)
 
+        await self._ensure_markets_loaded()
         raw = self._resolve_symbol(symbol)
         result = await self.safe_request("fetch_funding_rate", raw)
         rate = float(result.get("fundingRate", 0.0) or 0.0) if isinstance(result, dict) else 0.0

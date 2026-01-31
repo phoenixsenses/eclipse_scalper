@@ -1,8 +1,9 @@
-# execution/entry.py — SCALPER ETERNAL — THE BLADE ASCENDANT — 2026 v4.8b (TP HEDGE-SAFE + ROUTER EXIT HINTS)
-# Patch vs v4.8:
-# - ✅ Adds hedge_side_hint=pos_side to TP1/TP2 LIMIT exits (belt+suspenders for hedge mode)
-# - ✅ Adds hedge_side_hint=pos_side to emergency flatten (so router can enforce hedge exits)
-# - ✅ Keeps: router v1.9b+ closePosition stop cleanup, SKIP reasons visible + throttled, safety flatten
+# execution/entry.py — SCALPER ETERNAL — THE BLADE ASCENDANT — 2026 v4.8c (STOP DUPLICATE FIX + ADOPT EXISTING)
+# Patch vs v4.8b:
+# - ✅ FIX: STOP orders use position-stable clientOrderId (per-position, not per-call)
+# - ✅ FIX: If Binance returns -4116 (duplicate clientOrderId), treat as "already placed" and ADOPT existing open order id
+# - ✅ HARDEN: stop A/B use different clientOrderId suffixes (prevents internal collisions)
+# - ✅ Keeps: TP hedge-safe hints, router v2.2 closePosition behavior, safety flatten, skip throttling
 
 import asyncio
 import time
@@ -106,7 +107,6 @@ def _hedge_enabled(bot) -> bool:
 
 
 def _position_side_for_trade(side: str) -> str:
-    # Binance expects LONG/SHORT in hedge mode
     return "LONG" if str(side).lower().strip() == "long" else "SHORT"
 
 
@@ -198,10 +198,6 @@ def _order_avg_price(order: dict, fallback: float) -> float:
 
 
 def _skip(bot, k: str, side: str, reason: str):
-    """
-    Visible SKIP logging with spam throttle.
-    Logs each identical (k,side,reason) at most once per SKIP_LOG_THROTTLE_SEC.
-    """
     try:
         throttle = float(getattr(getattr(bot, "cfg", None), "SKIP_LOG_THROTTLE_SEC", 12.0) or 12.0)
         if throttle < 0:
@@ -278,6 +274,49 @@ async def _get_fresh_last(bot, sym_raw: str, fallback: float) -> float:
     return fallback
 
 
+async def _refresh_equity_if_needed(bot) -> float:
+    """
+    Best-effort equity refresh from exchange if state is empty.
+    Returns current_equity (may be 0.0 if unavailable).
+    """
+    try:
+        cur = float(getattr(bot.state, "current_equity", 0.0) or 0.0)
+        sod = float(getattr(bot.state, "start_of_day_equity", 0.0) or 0.0)
+        if cur > 0 or sod > 0:
+            return cur or sod
+    except Exception:
+        pass
+
+    ex = getattr(bot, "ex", None)
+    if ex is None:
+        return 0.0
+    try:
+        fn = getattr(ex, "fetch_balance", None)
+        if not callable(fn):
+            return 0.0
+        bal = await fn()
+        total = (bal or {}).get("total") or {}
+        for key in ("USDT", "USD"):
+            v = total.get(key)
+            eq = _safe_float(v, 0.0)
+            if eq > 0:
+                bot.state.current_equity = eq
+                if _safe_float(getattr(bot.state, "start_of_day_equity", 0.0), 0.0) <= 0:
+                    bot.state.start_of_day_equity = eq
+                return eq
+        # fallback: try info->totalWalletBalance
+        info = (bal or {}).get("info") or {}
+        eq = _safe_float(info.get("totalWalletBalance") or info.get("totalWalletBalanceUSD"), 0.0)
+        if eq > 0:
+            bot.state.current_equity = eq
+            if _safe_float(getattr(bot.state, "start_of_day_equity", 0.0), 0.0) <= 0:
+                bot.state.start_of_day_equity = eq
+            return eq
+    except Exception:
+        pass
+    return 0.0
+
+
 async def _get_funding_rate_safely(bot, k: str, sym_raw: str) -> float:
     cached = 0.0
     try:
@@ -306,12 +345,49 @@ async def _get_funding_rate_safely(bot, k: str, sym_raw: str) -> float:
     return cached
 
 
+def _looks_like_dup_client_order_id(err: Exception) -> bool:
+    s = repr(err)
+    # Binance futures duplicate clientOrderId => code -4116
+    return ("-4116" in s) or ("ClientOrderId is duplicated" in s) or ("clientorderid is duplicated" in s.lower())
+
+
+async def _fetch_open_orders_safe(bot, sym_raw: str) -> list:
+    try:
+        fn = getattr(bot.ex, "fetch_open_orders", None)
+        if callable(fn):
+            res = await fn(sym_raw)
+            return res if isinstance(res, list) else []
+    except Exception:
+        pass
+    return []
+
+
+def _order_client_id_any(order: dict) -> str:
+    if not isinstance(order, dict):
+        return ""
+    info = order.get("info") or {}
+    for k in ("clientOrderId", "clientOrderID", "origClientOrderId", "origClientOrderID"):
+        v = order.get(k) or info.get(k)
+        if v:
+            return str(v)
+    return ""
+
+
+async def _adopt_open_order_id_by_client_id(bot, sym_raw: str, client_id: str) -> Optional[str]:
+    if not client_id:
+        return None
+    oo = await _fetch_open_orders_safe(bot, sym_raw)
+    for o in oo:
+        try:
+            if _order_client_id_any(o) == str(client_id):
+                oid = (o or {}).get("id") or ((o or {}).get("info") or {}).get("orderId")
+                return str(oid) if oid else None
+        except Exception:
+            continue
+    return None
+
+
 async def _emergency_flatten(bot, sym_raw: str, side: str, qty: float, why: str, k: str, pos_side: Optional[str] = None):
-    """
-    Emergency flatten should be hedge-safe too.
-    - intent_reduce_only=True
-    - hedge_side_hint=pos_side (so router can enforce hedge exits)
-    """
     for attempt in range(2):
         try:
             await create_order(
@@ -353,12 +429,17 @@ async def _place_stop_ladder(
     stop_price: float,
     k: str,
     pos_side: Optional[str],
+    stop_client_id_base: str,
 ):
     stop_side = "sell" if side == "long" else "buy"
 
     base_params = {}
     if pos_side:
         base_params["positionSide"] = pos_side
+
+    # Make client IDs stable per position, different for A/B
+    cid_a = f"{stop_client_id_base}_A"
+    cid_b = f"{stop_client_id_base}_B"
 
     # A) amount + reduceOnly (standard protective stop)
     try:
@@ -374,14 +455,21 @@ async def _place_stop_ladder(
             intent_close_position=False,
             stop_price=float(stop_price),
             hedge_side_hint=pos_side,
+            client_order_id=cid_a,  # ✅ stable id
             retries=6,
         )
         if isinstance(order, dict) and order.get("id"):
             return order.get("id")
     except Exception as e1:
+        # ✅ If duplicate clientOrderId, adopt existing open order id
+        if _looks_like_dup_client_order_id(e1):
+            adopted = await _adopt_open_order_id_by_client_id(bot, sym_raw, cid_a)
+            if adopted:
+                log_entry.warning(f"{k} stop A duplicate → ADOPTED open order id={adopted}")
+                return adopted
         log_entry.warning(f"{k} stop A failed: {e1}")
 
-    # B) closePosition stop (router v1.9b+ expects amount=None and NO reduceOnly)
+    # B) closePosition stop (router will force amount=0.0 anyway)
     try:
         p = dict(base_params)
         p["closePosition"] = True
@@ -391,18 +479,24 @@ async def _place_stop_ladder(
             symbol=sym_raw,
             type="STOP_MARKET",
             side=stop_side,
-            amount=None,                 # ✅ omit amount for closePosition
+            amount=None,
             price=None,
             params=p,
-            intent_reduce_only=False,     # ✅ do NOT request reduceOnly
+            intent_reduce_only=False,
             intent_close_position=True,
             stop_price=float(stop_price),
             hedge_side_hint=pos_side,
+            client_order_id=cid_b,  # ✅ stable id, different from A
             retries=6,
         )
         if isinstance(order, dict) and order.get("id"):
             return order.get("id")
     except Exception as e2:
+        if _looks_like_dup_client_order_id(e2):
+            adopted = await _adopt_open_order_id_by_client_id(bot, sym_raw, cid_b)
+            if adopted:
+                log_entry.warning(f"{k} stop B duplicate → ADOPTED open order id={adopted}")
+                return adopted
         log_entry.warning(f"{k} stop B failed: {e2}")
 
     log_entry.critical(f"{k} stop failed (all fallbacks exhausted)")
@@ -487,13 +581,11 @@ async def try_enter(bot, sym: str, side: str):
         if k not in getattr(bot, "active_symbols", set()):
             return
 
-        # Kill switch gate
         try:
             if not await trade_allowed(bot):
                 _skip(bot, k, side, "kill_switch halted")
                 return
         except Exception as e:
-            # Visibility only; behavior stays permissive (continues)
             log_entry.warning(f"{k} trade_allowed() error — allowing by exception: {e}")
 
         _record_last_entry_attempt(bot, k)
@@ -514,6 +606,8 @@ async def try_enter(bot, sym: str, side: str):
             return
 
         equity = float(bot.state.current_equity or bot.state.start_of_day_equity or 0.0)
+        if equity <= 0:
+            equity = float(await _refresh_equity_if_needed(bot) or 0.0)
         if equity <= 0:
             log_entry.warning(f"{k} equity unknown/zero — trading blocked")
             return
@@ -539,8 +633,7 @@ async def try_enter(bot, sym: str, side: str):
             _skip(bot, k, side, "daily loss limit exceeded")
             return
 
-        # Strategy uses raw symbol
-        long_sig, short_sig, confidence = generate_signal(sym_raw, bot.data)
+        long_sig, short_sig, confidence = generate_signal(sym_raw, data=bot.data, cfg=cfg)
         confidence = float(confidence or 0.0)
 
         if confidence < cfg.MIN_CONFIDENCE:
@@ -675,7 +768,6 @@ async def try_enter(bot, sym: str, side: str):
             f"Notional ${notional:.2f} | Amount {amount:.6f} | Conf {confidence:.2f} | Funding {funding_rate:+.5f}"
         )
 
-        # Hedge side injection (ONLY if hedge mode)
         pos_side = _position_side_for_trade(side) if _hedge_enabled(bot) else None
 
         try:
@@ -684,7 +776,6 @@ async def try_enter(bot, sym: str, side: str):
             entry_type = str(getattr(cfg, "ENTRY_ORDER_TYPE", "MARKET") or "MARKET").upper()
             entry_side = "buy" if side == "long" else "sell"
 
-            # LIMIT entry (optional, watched)
             if entry_type == "LIMIT":
                 off = float(getattr(cfg, "ENTRY_LIMIT_OFFSET_PCT", 0.0) or 0.0)
                 limit_px = ref_px * (1.0 - off) if side == "long" else ref_px * (1.0 + off)
@@ -739,7 +830,6 @@ async def try_enter(bot, sym: str, side: str):
                 log_entry.info(f"LIMIT ENTRY PLACED → {k} {side.upper()} qty={amount:.6f} px={limit_px:.6f}")
                 return
 
-            # MARKET entry (default)
             p_entry = {}
             if pos_side:
                 p_entry["positionSide"] = pos_side
@@ -793,6 +883,10 @@ async def try_enter(bot, sym: str, side: str):
 
             stop_price = entry_price * (1.0 - stop_pct) if side == "long" else entry_price * (1.0 + stop_pct)
 
+            # ✅ position-stable STOP client id (same across retries for this position)
+            entry_ts_ms = int(pos.entry_ts * 1000)
+            stop_client_id_base = f"SE_STOP_{k}_{pos_side or 'ONEWAY'}_{entry_ts_ms}"
+
             stop_id = await _place_stop_ladder(
                 bot,
                 sym_raw=sym_raw,
@@ -801,6 +895,7 @@ async def try_enter(bot, sym: str, side: str):
                 stop_price=float(stop_price),
                 k=k,
                 pos_side=pos_side,
+                stop_client_id_base=stop_client_id_base,
             )
             pos.hard_stop_order_id = stop_id
 
@@ -825,7 +920,6 @@ async def try_enter(bot, sym: str, side: str):
             if pos_side:
                 tp_params["positionSide"] = pos_side
 
-            # ✅ TP exits: include hedge_side_hint=pos_side (router exit safety in hedge mode)
             if tp1_amount > 0 and (min_amt <= 0 or tp1_amount >= min_amt):
                 await create_order(
                     bot,
@@ -880,9 +974,7 @@ async def try_enter(bot, sym: str, side: str):
                         pos_side=pos_side,
                     )
                     if not ok:
-                        log_entry.warning(
-                            f"{k} trailing skipped (fallbacks exhausted) — hard stop + TPs still active"
-                        )
+                        log_entry.warning(f"{k} trailing skipped (fallbacks exhausted) — hard stop + TPs still active")
                 else:
                     log_entry.warning(f"{k} trailing skipped (amount {remaining:.6f} < min {min_amt:.6f})")
 

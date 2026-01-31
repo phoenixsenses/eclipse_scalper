@@ -133,6 +133,15 @@ def _ensure_run_context(bot) -> dict:
     return rc if isinstance(rc, dict) else {}
 
 
+def _phantom_store(bot) -> dict:
+    rc = _ensure_run_context(bot)
+    store = rc.get("phantom")
+    if not isinstance(store, dict):
+        store = {}
+        rc["phantom"] = store
+    return store
+
+
 def _is_binance_futures(bot) -> bool:
     """
     Best-effort check for binance futures mode so we can build raw symbols like DOGE/USDT:USDT.
@@ -140,17 +149,27 @@ def _is_binance_futures(bot) -> bool:
     ex = getattr(bot, "ex", None)
     if ex is None:
         return False
-    # ccxt wrappers often have ex.options['defaultType']
+    # wrapper path: ex.exchange.options
     try:
-        opt = getattr(ex, "options", None)
+        inner = getattr(ex, "exchange", None)
+        opt = getattr(inner, "options", None) if inner is not None else None
         if isinstance(opt, dict):
             dt = str(opt.get("defaultType") or "").lower().strip()
-            if dt in ("future", "futures"):
+            if dt in ("future", "futures", "swap"):
                 return True
     except Exception:
         pass
-    # your bootstrap log shows defaultType=future, but we can't parse logs here; just keep heuristics
-    return True  # conservative: safe to build futures raw symbols for USDT-margined
+    # ccxt wrappers sometimes expose options directly
+    try:
+        opt2 = getattr(ex, "options", None)
+        if isinstance(opt2, dict):
+            dt2 = str(opt2.get("defaultType") or "").lower().strip()
+            if dt2 in ("future", "futures", "swap"):
+                return True
+    except Exception:
+        pass
+    # If we can't confirm futures, default to False to avoid bad symbol format on spot.
+    return False
 
 
 def _canonical_to_binance_linear_raw(k: str) -> str:
@@ -376,44 +395,44 @@ async def _fetch_open_orders_best_effort(bot, sym_raw: str) -> List[dict]:
         return []
 
 
-async def _fetch_positions_best_effort(bot, symbols: Optional[List[str]] = None) -> List[dict]:
+async def _fetch_positions_best_effort(bot, symbols: Optional[List[str]] = None) -> Tuple[List[dict], bool]:
     """
     Some ccxt wrappers accept fetch_positions([symbols]); some don't.
     If symbols is None -> fetch all positions (for orphan scan).
     """
     ex = getattr(bot, "ex", None)
     if ex is None:
-        return []
+        return [], False
     fp = getattr(ex, "fetch_positions", None)
     if not callable(fp):
-        return []
+        return [], False
 
     if symbols is None:
         try:
             res = await ex.fetch_positions()
-            return res if isinstance(res, list) else []
+            return (res if isinstance(res, list) else []), True
         except Exception:
-            return []
+            return [], False
 
     try:
         res = await ex.fetch_positions(symbols)
         if isinstance(res, list):
-            return res
+            return res, True
     except Exception:
         pass
 
     try:
         res = await ex.fetch_positions()
         if not isinstance(res, list):
-            return []
+            return [], False
         want = set(_symkey(s) for s in symbols)
         out = []
         for p in res:
             if isinstance(p, dict) and _symkey(p.get("symbol") or "") in want:
                 out.append(p)
-        return out
+        return out, True
     except Exception:
-        return []
+        return [], False
 
 
 async def _cancel_reduce_only_open_orders(bot, sym_raw: str, *, cancel_stops: bool = True, cancel_tps: bool = True):
@@ -695,11 +714,15 @@ async def reconcile_tick(bot):
     tracked_syms |= set(_symkey(s) for s in active if s)
 
     if full_scan:
-        ex_positions = await _fetch_positions_best_effort(bot, None)
+        ex_positions, ok = await _fetch_positions_best_effort(bot, None)
     else:
         if not tracked_syms:
             return
-        ex_positions = await _fetch_positions_best_effort(bot, list(tracked_syms))
+        ex_positions, ok = await _fetch_positions_best_effort(bot, list(tracked_syms))
+
+    if not ok:
+        log_entry.warning("RECONCILE: fetch_positions failed — skipping phantom/orphan checks this cycle")
+        return
 
     # Build exchange map: symbol -> list of position dicts (hedge-mode can return multiple legs)
     ex_map: Dict[str, List[Dict[str, Any]]] = {}
@@ -787,18 +810,35 @@ async def reconcile_tick(bot):
                         await _safe_speak(bot, msg3, "critical")
 
     # 2) PHANTOM STATE POSITIONS
+    phantom = _phantom_store(bot)
+    phantom_miss = int(_cfg(bot, "RECONCILE_PHANTOM_MISS_COUNT", 3))
+    phantom_grace = float(_cfg(bot, "RECONCILE_PHANTOM_GRACE_SEC", 45.0))
+
     for k in list(state_positions.keys()):
-        if k not in ex_map:
-            sym_raw = _resolve_raw_symbol(bot, k)
-            log_core.warning(f"RECONCILE: PHANTOM STATE POSITION {k} — clearing + cancel reduceOnly orders")
-            msg = f"RECONCILE: PHANTOM STATE POSITION {k} — cleared"
-            if _alert_ok(bot, f"{k}:phantom_cleared", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
-                await _safe_speak(bot, msg, "info")
-            await _cancel_reduce_only_open_orders(bot, sym_raw)
-            try:
-                state_positions.pop(k, None)
-            except Exception:
-                pass
+        if k in ex_map:
+            phantom.pop(k, None)
+            continue
+
+        now = _now()
+        ent = phantom.get(k) if isinstance(phantom.get(k), dict) else {}
+        first_ts = _safe_float(ent.get("first_ts", 0.0), 0.0) or now
+        misses = int(ent.get("misses", 0)) + 1
+        phantom[k] = {"first_ts": first_ts, "misses": misses}
+
+        if misses < max(1, phantom_miss) or (now - first_ts) < max(0.0, phantom_grace):
+            continue
+
+        sym_raw = _resolve_raw_symbol(bot, k)
+        log_core.warning(f"RECONCILE: PHANTOM STATE POSITION {k} — clearing + cancel reduceOnly orders")
+        msg = f"RECONCILE: PHANTOM STATE POSITION {k} — cleared"
+        if _alert_ok(bot, f"{k}:phantom_cleared", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
+            await _safe_speak(bot, msg, "info")
+        await _cancel_reduce_only_open_orders(bot, sym_raw)
+        try:
+            state_positions.pop(k, None)
+        except Exception:
+            pass
+        phantom.pop(k, None)
 
     # 2b) ORPHAN reduceOnly orders (no position exists)
     for k in list(tracked_syms):

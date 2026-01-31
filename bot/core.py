@@ -406,6 +406,14 @@ class EclipseEternal:
         except Exception:
             pass
 
+        # Bootstrap raw_symbol map from exchange markets (best effort)
+        try:
+            bm = getattr(self.data, "bootstrap_markets", None)
+            if callable(bm):
+                await bm(self)
+        except Exception:
+            pass
+
         restored = await load_brain(self.state)
 
         try:

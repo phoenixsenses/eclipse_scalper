@@ -459,6 +459,12 @@ async def emergency_flat(bot, reason: str = "COSMIC_CHAOS", forced: bool = False
             for attempt in range(1, attempts_per_plan + 1):
                 try:
                     use_params = dict(params)
+                    hedge_hint = None
+                    ps = use_params.get("positionSide")
+                    if isinstance(ps, str) and ps.upper() in ("LONG", "SHORT"):
+                        hedge_hint = ps.upper()
+                    else:
+                        hedge_hint = "LONG" if side_to_close == "sell" else "SHORT"
 
                     await create_order(
                         bot,
@@ -470,6 +476,7 @@ async def emergency_flat(bot, reason: str = "COSMIC_CHAOS", forced: bool = False
                         params=use_params,
                         intent_reduce_only=_truthy(use_params.get("reduceOnly")),
                         intent_close_position=_truthy(use_params.get("closePosition")),
+                        hedge_side_hint=hedge_hint,
                         retries=6 if forced else 4,
                     )
                     success_any = True
@@ -540,6 +547,12 @@ async def emergency_flat(bot, reason: str = "COSMIC_CHAOS", forced: bool = False
 
             for (side_to_close, amt, params) in plans:
                 try:
+                    hedge_hint = None
+                    ps = params.get("positionSide")
+                    if isinstance(ps, str) and ps.upper() in ("LONG", "SHORT"):
+                        hedge_hint = ps.upper()
+                    else:
+                        hedge_hint = "LONG" if side_to_close == "sell" else "SHORT"
                     await create_order(
                         bot,
                         symbol=sym_any,
@@ -549,6 +562,7 @@ async def emergency_flat(bot, reason: str = "COSMIC_CHAOS", forced: bool = False
                         price=None,
                         params=dict(params),
                         intent_reduce_only=False,
+                        hedge_side_hint=hedge_hint,
                         retries=8,
                     )
                 except Exception:

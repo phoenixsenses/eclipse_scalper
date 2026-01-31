@@ -212,7 +212,13 @@ def _has_position_best_effort(bot, k: str) -> bool:
     try:
         state_pos = getattr(bot.state, "positions", {}) or {}
         if isinstance(state_pos, dict) and k in state_pos:
-            return True
+            p = state_pos.get(k)
+            try:
+                sz = float(getattr(p, "size", 0.0))
+                if abs(sz) > 0.0:
+                    return True
+            except Exception:
+                return True
     except Exception:
         pass
 
@@ -220,7 +226,16 @@ def _has_position_best_effort(bot, k: str) -> bool:
         ex = getattr(bot, "ex", None)
         pos_cache = getattr(ex, "positions", None)
         if isinstance(pos_cache, dict) and k in pos_cache:
-            return True
+            p = pos_cache.get(k)
+            try:
+                sz = p.get("contracts") if isinstance(p, dict) else getattr(p, "contracts", None)
+                if sz is None:
+                    sz = p.get("size") if isinstance(p, dict) else getattr(p, "size", None)
+                if sz is None:
+                    return True
+                return abs(float(sz)) > 0.0
+            except Exception:
+                return True
     except Exception:
         pass
 

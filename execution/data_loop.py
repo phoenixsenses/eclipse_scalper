@@ -125,7 +125,11 @@ class _MiniDataCache:
         return _safe_float(self.price.get(k), 0.0)
 
     def get_cache_age(self, k: str, tf: str = "1m") -> float:
-        ts = _safe_float(self.last_poll_ts.get(k), 0.0)
+        key = f"{_symkey(k)}_{tf}" if tf else _symkey(k)
+        ts = _safe_float(self.last_poll_ts.get(key), 0.0)
+        if ts <= 0 and tf:
+            # fallback to non-tf key if present
+            ts = _safe_float(self.last_poll_ts.get(_symkey(k)), 0.0)
         if ts <= 0:
             return float("inf")
         return max(0.0, _now() - ts)
@@ -275,6 +279,14 @@ def _candidate_raw_symbols(ex, d, k: str) -> list[str]:
         markets = getattr(ex, "markets", None)
     except Exception:
         markets = None
+
+    # wrapper path: ex.exchange.markets
+    if not isinstance(markets, dict):
+        try:
+            inner = getattr(ex, "exchange", None)
+            markets = getattr(inner, "markets", None) if inner is not None else None
+        except Exception:
+            markets = None
 
     if isinstance(markets, dict) and markets:
         # Prefer exact hits among our likely candidates, but only if exchange lists them
@@ -504,14 +516,14 @@ async def data_loop(bot) -> None:
                                 merged = _merge_ohlcv(prev, rows, max_keep=ohlcv_keep)
                                 d.ohlcv[k] = merged
                                 d.ohlcv[used] = merged
-                                d.last_poll_ts[k] = _now()
+                                d.last_poll_ts[f"{k}_{timeframe}"] = _now()
                                 # only set raw_symbol if it WORKED
                                 d.raw_symbol[k] = used
                         except Exception:
                             try:
                                 prev = d.ohlcv.get(k) or []
                                 d.ohlcv[k] = _merge_ohlcv(prev, rows, max_keep=ohlcv_keep)
-                                d.last_poll_ts[k] = _now()
+                                d.last_poll_ts[f"{k}_{timeframe}"] = _now()
                                 d.raw_symbol[k] = used
                             except Exception:
                                 pass

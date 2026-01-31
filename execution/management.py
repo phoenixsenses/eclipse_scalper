@@ -5,6 +5,20 @@ from utils.logging import log
 
 cfg = Config()
 
+
+def _normalize_callback_rate(val) -> float:
+    """
+    Binance expects callbackRate in percent units within [0.1, 5.0].
+    If user passes 45 (likely "45%"), normalize to 0.45 before clamping.
+    """
+    try:
+        v = float(val)
+    except (ValueError, TypeError):
+        return 1.0
+    if v > 5.0:
+        v = v / 100.0
+    return max(0.1, min(5.0, v))
+
 async def manage_position(bot, sym: str, pos):
     """Trailing stop + breakeven management"""
     while sym in bot.state.positions:
@@ -39,7 +53,7 @@ async def manage_position(bot, sym: str, pos):
                     side='sell' if pos.side == 'long' else 'buy',
                     amount=abs(pos.size),
                     params={
-                        'callbackRate': round(cfg.TRAILING_MULTIPLIER * 100, 2),
+                        'callbackRate': _normalize_callback_rate(getattr(cfg, "TRAILING_MULTIPLIER", 1.0)),
                         'reduceOnly': True
                     }
                 )

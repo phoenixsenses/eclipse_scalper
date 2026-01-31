@@ -72,6 +72,14 @@ def print_diagnostics(bot=None) -> None:
         else:
             print("config        : <missing>")
 
+        # Entry loop mode (env-driven)
+        try:
+            import os
+            entry_mode = os.getenv("ENTRY_LOOP_MODE", "").strip().lower() or "auto"
+            print(f"entry_loop    : {entry_mode}")
+        except Exception:
+            print("entry_loop    : <unknown>")
+
         # State
         state = getattr(bot, "state", None)
         if state is not None:

@@ -248,6 +248,25 @@ TELEGRAM\_CHAT\_ID=optional
 
 ```
 
+\*\*Bootstrap profile (choose one):\*\*
+
+Micro (small equity / safer):
+```env
+SCALPER\_MODE=micro
+SCALPER\_DRY\_RUN=1
+SCALPER\_SIGNAL\_PROFILE=micro
+ENTRY\_LOOP\_MODE=full
+ACTIVE\_SYMBOLS=BTCUSDT,ETHUSDT
+```
+
+Production (larger equity):
+```env
+SCALPER\_MODE=production
+SCALPER\_DRY\_RUN=0
+ENTRY\_LOOP\_MODE=full
+ACTIVE\_SYMBOLS=BTCUSDT,ETHUSDT,SOLUSDT
+```
+
 
 
 \*\*Important flags:\*\*
@@ -257,6 +276,7 @@ TELEGRAM\_CHAT\_ID=optional
 \* `SCALPER\_DRY\_RUN=1` → no real orders
 
 \* `SCALPER\_DRY\_RUN=0` → live trading (dangerous)
+\* `ENTRY\_LOOP\_MODE=full|basic` → choose entry loop when using `execution/bootstrap.py` (default: full if available)
 
 
 
