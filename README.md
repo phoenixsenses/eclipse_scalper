@@ -534,6 +534,34 @@ ENTRY\_DATA\_QUALITY\_ROLL\_MIN=70
 ENTRY\_DATA\_QUALITY\_KILL\_SEC=120
 ```
 
+\### Signal data health report
+
+Read the telemetry JSONL (or `TELEMETRY_PATH`) to summarize per-symbol `data.quality` scores,
+`data.stale` counts, and missing-data hits:
+
+```bash
+python eclipse_scalper/tools/signal_data_health.py --path logs/telemetry.jsonl --since-min 60
+```
+
+This prints the worst average/full-score symbols, staleness counts with max age, and any
+`data.ticker_missing`/`data.ohlcv_missing` rows in the window so you can pause the entry loop or
+refresh tickers before the next live run.
+
+
+### Core health (risk/sizing/signal) summary
+
+`tools/core_health.py` pulls from the same telemetry JSONL and surfaces:
+
+- Top exposures (order notional) plus the average entry confidence and net order direction per symbol.
+- Risk and kill-switch counts so you can spot repeated safety or sizing triggers over the window.
+- Blocked-reason counts plus exit event/code summaries to validate how the signal engine is behaving.
+
+```bash
+python eclipse_scalper/tools/core_health.py --path logs/telemetry.jsonl --since-min 60 --limit 2000
+```
+
+Use the report whenever you want a single snapshot covering risk, sizing, and signal activity before touching the live loop.
+
 ---
 
 \## Running the Bot (Dry Run)
@@ -721,6 +749,8 @@ Keep `logs/telemetry.jsonl` (or the file defined by `TELEMETRY_PATH`) up to date
 The scheduled job now runs `python eclipse_scalper/tools/telemetry_dashboard_notify.py --path logs/telemetry.jsonl --codes-per-symbol --codes-top 4`. This wrapper prints the dashboard snapshot to the workflow log, installs the repo’s dependencies (`python -m pip install -r eclipse_scalper/requirements.txt`), and posts the same summary to Telegram when `TELEGRAM_TOKEN` and `TELEGRAM_CHAT_ID` are configured as [repository secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets). The notifier reuses `eclipse_scalper.notifications.telegram.Notifier`, so you get the same `speak` behavior already used elsewhere.
 
 Leave the secrets empty if you only need GitHub Actions visibility; the job still succeeds and simply skips the Telegram send. If you do set those secrets, keep an eye on Telegram so you know when the latest snapshot hits critical topics like `exit.*` events or repeated `ERR_*` codes.
+
+The workflow also runs `python eclipse_scalper/tools/signal_data_health.py ...` and `python eclipse_scalper/tools/core_health.py ...`, captures their stdout to `logs/signal_data_health.txt` / `logs/core_health.txt`, and uploads those files along with `logs/telemetry_health.html` as the `telemetry-snapshots` artifact for quick download.
 
 ### Alert classification
 

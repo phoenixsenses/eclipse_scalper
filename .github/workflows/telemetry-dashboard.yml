@@ -1,0 +1,53 @@
+name: Telemetry Dashboard Snapshot
+
+on:
+  schedule:
+    # every 6 hours to keep the snapshot fresh
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  snapshot:
+    name: Dashboard snapshot
+    runs-on: ubuntu-latest
+    env:
+      TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -r eclipse_scalper/requirements.txt
+
+      - name: Run telemetry dashboard notifier
+        run: >
+          python eclipse_scalper/tools/telemetry_dashboard_notify.py
+          --path logs/telemetry.jsonl
+          --codes-per-symbol
+          --codes-top 4
+
+      - name: Run telemetry classifier
+        run: >
+          python eclipse_scalper/tools/telemetry_classifier.py
+          --path logs/telemetry.jsonl
+          --since-min 60
+      - name: Run signal data health report
+        run: |
+          python eclipse_scalper/tools/signal_data_health.py --path logs/telemetry.jsonl --since-min 60 > logs/signal_data_health.txt
+      - name: Run core health dashboard
+        run: |
+          python eclipse_scalper/tools/core_health.py --path logs/telemetry.jsonl --since-min 60 --limit 2000 > logs/core_health.txt
+      - name: Upload telemetry artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: telemetry-snapshots
+          path: |
+            logs/telemetry_health.html
+            logs/signal_data_health.txt
+            logs/core_health.txt
