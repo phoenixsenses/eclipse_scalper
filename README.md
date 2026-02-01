@@ -547,6 +547,7 @@ This prints the worst average/full-score symbols, staleness counts with max age,
 `data.ticker_missing`/`data.ohlcv_missing` rows in the window so you can pause the entry loop or
 refresh tickers before the next live run.
 
++You can override CORE_HEALTH_EQUITY (default 100000) so the dashboard reports exposure as a percent of your preferred capital base, and it now surfaces the anomaly pause window/payload directly when the guard is active.
 
 ### Core health (risk/sizing/signal) summary
 
@@ -753,6 +754,8 @@ Leave the secrets empty if you only need GitHub Actions visibility; the job stil
 The workflow also runs `python eclipse_scalper/tools/signal_data_health.py ...` and `python eclipse_scalper/tools/core_health.py ...`, captures their stdout to `logs/signal_data_health.txt` / `logs/core_health.txt`, and uploads those files along with `logs/telemetry_health.html` as the `telemetry-snapshots` artifact for quick download.
 
 The scheduled job now also runs `python eclipse_scalper/tools/telemetry_anomaly.py --path logs/telemetry.jsonl --since-min 60 --output logs/telemetry_anomaly.txt` and uploads the report. When the detector sees an exposure spike (> default 50%), confidence drop (> default 15%), risk event surge (>3), or new exit code, it notifies the Telegram channel using the same secrets so you get a proactive alert alongside the artifact.
+The Telegram alert now includes the anomaly pause expiration when one was triggered, so you immediately know not only that trading paused but also when the guard will re-open (and why).
+The workflow also runs `telemetry_dashboard_page.py` to render those text reports as a single HTML dashboard and runs `telemetry_alert_summary.py` to summarize all artifacts; the summary script pings Telegram whenever anomalies were found so the artifact download + alert channel stay in sync.
 
 The detector also writes `logs/telemetry_anomaly_state.json`, and `execution/entry_loop.py` consults `execution/anomaly_guard.py` before every poll. When `pause_until` is still in the future, entries are blocked with `anomaly_pause` (plus the reasons show in the report) so the guard automatically mitigates the spike instead of letting the bot continue.
 

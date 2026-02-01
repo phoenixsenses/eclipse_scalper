@@ -46,6 +46,20 @@ jobs:
       - name: Run telemetry anomaly detector
         run: |
           python eclipse_scalper/tools/telemetry_anomaly.py --path logs/telemetry.jsonl --since-min 60 --output logs/telemetry_anomaly.txt
+      - name: Generate telemetry dashboard page
+        run: |
+          python eclipse_scalper/tools/telemetry_dashboard_page.py
+          --core logs/core_health.txt
+          --signal logs/signal_data_health.txt
+          --anomaly logs/telemetry_anomaly.txt
+          --output logs/telemetry_dashboard_page.html
+      - name: Summarize telemetry alert artifacts
+        run: |
+          python eclipse_scalper/tools/telemetry_alert_summary.py
+          --signal logs/signal_data_health.txt
+          --core logs/core_health.txt
+          --anomaly logs/telemetry_anomaly.txt
+          --output logs/telemetry_alert_summary.txt
       - name: Upload telemetry artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -54,4 +68,7 @@ jobs:
             logs/telemetry_health.html
             logs/signal_data_health.txt
             logs/core_health.txt
+            logs/telemetry_anomaly.txt
+            logs/telemetry_dashboard_page.html
+            logs/telemetry_alert_summary.txt
             logs/telemetry_anomaly.txt
