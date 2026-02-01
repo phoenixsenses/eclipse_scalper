@@ -752,6 +752,8 @@ Leave the secrets empty if you only need GitHub Actions visibility; the job stil
 
 The workflow also runs `python eclipse_scalper/tools/signal_data_health.py ...` and `python eclipse_scalper/tools/core_health.py ...`, captures their stdout to `logs/signal_data_health.txt` / `logs/core_health.txt`, and uploads those files along with `logs/telemetry_health.html` as the `telemetry-snapshots` artifact for quick download.
 
+The scheduled job now also runs `python eclipse_scalper/tools/telemetry_anomaly.py --path logs/telemetry.jsonl --since-min 60 --output logs/telemetry_anomaly.txt` and uploads the report. When the detector sees an exposure spike (> default 50%), confidence drop (> default 15%), risk event surge (>3), or new exit code, it notifies the Telegram channel using the same secrets so you get a proactive alert alongside the artifact.
+
 ### Alert classification
 
 A subsequent workflow step runs `python eclipse_scalper/tools/telemetry_classifier.py --path logs/telemetry.jsonl --since-min 60`. This helper keeps a small state file at `logs/telemetry_classifier_state.json`, compares the current window against the previous snapshot, and flags:

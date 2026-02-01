@@ -43,6 +43,9 @@ jobs:
       - name: Run core health dashboard
         run: |
           python eclipse_scalper/tools/core_health.py --path logs/telemetry.jsonl --since-min 60 --limit 2000 > logs/core_health.txt
+      - name: Run telemetry anomaly detector
+        run: |
+          python eclipse_scalper/tools/telemetry_anomaly.py --path logs/telemetry.jsonl --since-min 60 --output logs/telemetry_anomaly.txt
       - name: Upload telemetry artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -51,3 +54,4 @@ jobs:
             logs/telemetry_health.html
             logs/signal_data_health.txt
             logs/core_health.txt
+            logs/telemetry_anomaly.txt
