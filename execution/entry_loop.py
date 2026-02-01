@@ -14,13 +14,36 @@ import time
 from typing import Any, Dict, Optional, Callable, Tuple
 
 from utils.logging import log_entry, log_core
-from execution.order_router import create_order
+from execution.order_router import create_order, cancel_order
+from execution.anomaly_guard import should_pause as anomaly_should_pause
 
 # Optional telemetry (never fatal)
 try:
-    from execution.telemetry import emit  # type: ignore
+    from execution.telemetry import emit, emit_throttled, count_recent  # type: ignore
 except Exception:
     emit = None
+    emit_throttled = None
+    count_recent = None
+
+try:
+    from execution.data_quality import staleness_check, update_quality_state  # type: ignore
+    from execution.error_codes import (
+        ERR_STALE_DATA,
+        ERR_DATA_QUALITY,
+        ERR_ROUTER_BLOCK,
+        ERR_PARTIAL_FILL,
+        ERR_UNKNOWN,
+        map_reason,
+    )  # type: ignore
+except Exception:
+    staleness_check = None
+    update_quality_state = None
+    ERR_STALE_DATA = "ERR_STALE_DATA"
+    ERR_DATA_QUALITY = "ERR_DATA_QUALITY"
+    ERR_ROUTER_BLOCK = "ERR_ROUTER_BLOCK"
+    ERR_PARTIAL_FILL = "ERR_PARTIAL_FILL"
+    ERR_UNKNOWN = "ERR_UNKNOWN"
+    map_reason = None
 
 # Optional entry_watch (never fatal)
 try:
@@ -116,6 +139,18 @@ def _ensure_shutdown_event(bot) -> asyncio.Event:
     return ev
 
 
+def _ensure_data_ready_event(bot) -> asyncio.Event:
+    ev = getattr(bot, "data_ready", None)
+    if isinstance(ev, asyncio.Event):
+        return ev
+    ev = asyncio.Event()
+    try:
+        bot.data_ready = ev  # type: ignore[attr-defined]
+    except Exception:
+        pass
+    return ev
+
+
 async def _safe_speak(bot, text: str, priority: str = "info") -> None:
     notify = getattr(bot, "notify", None)
     if notify is None:
@@ -180,6 +215,47 @@ def _resolve_raw_symbol(bot, k: str, fallback: str) -> str:
     except Exception:
         pass
     return fallback
+
+
+def _order_filled(order: dict) -> float:
+    try:
+        if order is None:
+            return 0.0
+        if "filled" in order:
+            return float(order.get("filled") or 0.0)
+        info = order.get("info") or {}
+        return float(info.get("executedQty") or 0.0)
+    except Exception:
+        return 0.0
+
+
+def _recent_router_blocks(bot, k: str, window_sec: float, *, now_ts: Optional[float] = None) -> int:
+    try:
+        st = getattr(bot, "state", None)
+        tel = getattr(st, "telemetry", None) if st is not None else None
+        recent = getattr(tel, "recent", None)
+        if recent is None:
+            return 0
+        now = _now() if now_ts is None else float(now_ts)
+        kk = _symkey(k)
+        count = 0
+        for ev in list(recent):
+            try:
+                if str(ev.get("event")) != "order.blocked":
+                    continue
+                ts = float(ev.get("ts") or 0.0)
+                if ts <= 0 or (now - ts) > window_sec:
+                    continue
+                sym = _symkey(ev.get("symbol") or ev.get("data", {}).get("k") or "")
+                if sym and sym == kk:
+                    count += 1
+            except Exception:
+                continue
+        return count
+    except Exception:
+        return 0
+
+
 
 
 # ----------------------------
@@ -494,6 +570,71 @@ def _sizing_fallback_amount(bot, symbol: str) -> Optional[float]:
 _ENTRY_LOCKS: Dict[str, asyncio.Lock] = {}
 _PENDING_UNTIL: Dict[str, float] = {}          # k -> ts until which entries are blocked
 _PENDING_ORDER_ID: Dict[str, str] = {}         # k -> last submitted order id (best-effort)
+_QUALITY_LOW_START: Dict[str, float] = {}
+_QUALITY_LOW_LAST: Dict[str, float] = {}
+
+
+async def _emit_latency(
+    bot,
+    *,
+    symbol: str,
+    stage: str,
+    duration_ms: float,
+    result: str = "success",
+) -> None:
+    if duration_ms <= 0:
+        return
+    if not callable(emit):
+        return
+    data = {
+        "symbol": symbol,
+        "stage": stage,
+        "duration_ms": round(duration_ms, 2),
+        "result": result,
+    }
+    try:
+        await emit(bot, "telemetry.latency", data=data, symbol=symbol, level="info")
+    except Exception:
+        pass
+
+
+async def _emit_entry_blocked(
+    bot,
+    symbol: str,
+    reason: str,
+    *,
+    level: str = "warning",
+    data: Optional[Dict[str, Any]] = None,
+    throttle_sec: float = 0.0,
+    throttle_key: Optional[str] = None,
+) -> None:
+    if not callable(emit):
+        return
+    data_payload: Dict[str, Any] = dict(data or {})
+    data_payload.setdefault("symbol", symbol)
+    data_payload.setdefault("reason", reason)
+    if "code" not in data_payload:
+        try:
+            code = map_reason(reason) if callable(map_reason) else ERR_UNKNOWN
+        except Exception:
+            code = ERR_UNKNOWN
+        data_payload["code"] = code
+    try:
+        if throttle_sec > 0 and callable(emit_throttled):
+            key = throttle_key or f"{symbol}:{reason}"
+            await emit_throttled(
+                bot,
+                "entry.blocked",
+                key=key,
+                cooldown_sec=throttle_sec,
+                data=data_payload,
+                symbol=symbol,
+                level=level,
+            )
+        else:
+            await emit(bot, "entry.blocked", data=data_payload, symbol=symbol, level=level)
+    except Exception:
+        pass
 
 
 def _get_entry_lock(k: str) -> asyncio.Lock:
@@ -634,9 +775,11 @@ async def entry_loop(bot) -> None:
     Places NEW entries only. Exits/stop management handled elsewhere (exit/posmgr).
     """
     shutdown_ev = _ensure_shutdown_event(bot)
+    data_ready_ev = _ensure_data_ready_event(bot)
 
     # ENV overrides for safety knobs
     poll_sec = _cfg_env_float(bot, "ENTRY_POLL_SEC", 1.0)
+    wait_data_sec = _cfg_env_float(bot, "ENTRY_WAIT_FOR_DATA_READY_SEC", 8.0)
     per_symbol_gap_sec = _cfg_env_float(bot, "ENTRY_PER_SYMBOL_GAP_SEC", 2.5)
     local_cooldown_sec = _cfg_env_float(bot, "ENTRY_LOCAL_COOLDOWN_SEC", 8.0)
     min_conf = _cfg_env_float(bot, "ENTRY_MIN_CONFIDENCE", 0.0)
@@ -673,9 +816,20 @@ async def entry_loop(bot) -> None:
 
     log_core.info("ENTRY_LOOP ONLINE — scanning for new entries")
 
+    # initial data-ready wait (best-effort)
+    if wait_data_sec > 0 and not data_ready_ev.is_set():
+        try:
+            await asyncio.wait_for(data_ready_ev.wait(), timeout=wait_data_sec)
+        except Exception:
+            pass
+
     while not shutdown_ev.is_set():
         try:
             now = _now()
+
+            if wait_data_sec > 0 and not data_ready_ev.is_set():
+                await asyncio.sleep(max(0.25, poll_sec))
+                continue
 
             # optional kill-switch gate
             if respect_kill and callable(trade_allowed):
@@ -687,6 +841,13 @@ async def entry_loop(bot) -> None:
                 except Exception:
                     await asyncio.sleep(max(0.25, poll_sec))
                     continue
+
+            paused, remaining = anomaly_should_pause()
+            if paused:
+                await _emit_entry_blocked(bot, "ANOMALY", "anomaly_pause", throttle_sec=60.0)
+                wait = remaining if remaining > 0 else poll_sec
+                await asyncio.sleep(max(poll_sec, wait))
+                continue
 
             # avoid super tight spin if poll_sec tiny
             if poll_sec > 0 and (now - last_symbol_tick) < poll_sec:
@@ -722,10 +883,12 @@ async def entry_loop(bot) -> None:
                 # local cooldown
                 la = float(last_attempt_by_sym.get(k, 0.0) or 0.0)
                 if local_cooldown_sec > 0 and (_now() - la) < local_cooldown_sec:
+                    await _emit_entry_blocked(bot, k, "cooldown_local", throttle_sec=5.0)
                     continue
 
                 # must have signal function to do anything
                 if not callable(sig_fn):
+                    await _emit_entry_blocked(bot, k, "signal_missing", throttle_sec=60.0)
                     continue
 
                 # resolve raw symbol once (needed for exchange probes)
@@ -735,6 +898,7 @@ async def entry_loop(bot) -> None:
                 try:
                     if await _has_open_entry_order(bot, k, sym_raw):
                         _set_pending(k, sec=max(5.0, pending_block_sec * 0.5))
+                        await _emit_entry_blocked(bot, k, "router_open_order", throttle_sec=15.0)
                         continue
                 except Exception:
                     pass
@@ -742,6 +906,7 @@ async def entry_loop(bot) -> None:
                 try:
                     if await _has_open_position_exchange(bot, k, sym_raw):
                         _set_pending(k, sec=max(5.0, pending_block_sec * 0.5))
+                        await _emit_entry_blocked(bot, k, "risk_exchange_position", throttle_sec=15.0)
                         continue
                 except Exception:
                     pass
@@ -756,8 +921,10 @@ async def entry_loop(bot) -> None:
                     if shutdown_ev.is_set():
                         break
                     if _pending_active(k):
+                        await _emit_entry_blocked(bot, k, "cooldown_pending", throttle_sec=10.0)
                         continue
                     if _in_position_brain(bot, k):
+                        await _emit_entry_blocked(bot, k, "risk_in_position", throttle_sec=10.0)
                         continue
                     bo = float(backoff_until_by_sym.get(k, 0.0) or 0.0)
                     if bo > 0 and _now() < bo:
@@ -766,13 +933,110 @@ async def entry_loop(bot) -> None:
                     # mark attempt NOW to enforce cooldown even if we error later
                     last_attempt_by_sym[k] = _now()
 
+                    # Unified staleness + data-quality guard
+                    if callable(staleness_check):
+                        max_sec = float(_cfg_env_float(bot, "ENTRY_DATA_MAX_STALE_SEC", 180.0) or 180.0)
+                        ok, age_sec, _src = staleness_check(bot, k, tf="1m", max_sec=max_sec)
+                        if not ok:
+                            if callable(emit):
+                                try:
+                                    await emit(
+                                        bot,
+                                        "entry.blocked",
+                                        data={"symbol": k, "reason": "stale_data", "age_sec": age_sec, "max_sec": max_sec, "code": ERR_STALE_DATA},
+                                        symbol=k,
+                                        level="warning",
+                                    )
+                                except Exception:
+                                    pass
+                            await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                            continue
+
+                    if callable(update_quality_state):
+                        q_min = float(_cfg_env_float(bot, "ENTRY_DATA_QUALITY_MIN", 60.0) or 60.0)
+                        q_tf = str(_cfg(bot, "ENTRY_DATA_QUALITY_TF", os.getenv("ENTRY_DATA_QUALITY_TF", "1m")) or "1m")
+                        q_window = int(_cfg_env_float(bot, "ENTRY_DATA_QUALITY_WINDOW", 120) or 120)
+                        q_emit = float(_cfg_env_float(bot, "ENTRY_DATA_QUALITY_EMIT_SEC", 60.0) or 60.0)
+                        roll_min = float(_cfg_env_float(bot, "ENTRY_DATA_QUALITY_ROLL_MIN", q_min) or q_min)
+                        kill_sec = float(_cfg_env_float(bot, "ENTRY_DATA_QUALITY_KILL_SEC", 120.0) or 120.0)
+                        score = update_quality_state(bot, k, tf=q_tf, max_sec=float(_cfg_env_float(bot, "ENTRY_DATA_MAX_STALE_SEC", 180.0) or 180.0), window=q_window, emit_sec=q_emit)
+                        dq = getattr(getattr(bot, "state", None), "data_quality", {}) or {}
+                        info = dq.get(k) or {}
+                        roll_score = float(info.get("roll", score))
+                        now_ts = _now()
+                        if roll_score < roll_min and kill_sec > 0:
+                            last = float(_QUALITY_LOW_START.get(k, 0.0) or 0.0)
+                            if last == 0:
+                                _QUALITY_LOW_START[k] = now_ts
+                            elif (now_ts - last) >= kill_sec:
+                                _QUALITY_LOW_LAST[k] = now_ts
+                        if callable(emit):
+                            try:
+                                await emit(
+                                    bot,
+                                    "entry.blocked",
+                                    data={
+                                        "symbol": k,
+                                        "reason": "data_quality_roll",
+                                        "roll": roll_score,
+                                        "min": roll_min,
+                                        "history_n": int(info.get("n", 0) or 0),
+                                        "code": ERR_DATA_QUALITY,
+                                    },
+                                    symbol=k,
+                                    level="warning",
+                                )
+                            except Exception:
+                                pass
+                        if callable(emit_throttled):
+                            try:
+                                await emit_throttled(
+                                    bot,
+                                    "data.quality.roll_alert",
+                                    key=f"{k}:quality_roll",
+                                    cooldown_sec=max(15.0, kill_sec),
+                                    data={
+                                        "symbol": k,
+                                        "roll": roll_score,
+                                        "min": roll_min,
+                                        "history_n": int(info.get("n", 0) or 0),
+                                    },
+                                    symbol=k,
+                                    level="warning",
+                                )
+                            except Exception:
+                                pass
+                                await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                                continue
+                        else:
+                            _QUALITY_LOW_START.pop(k, None)
+                            _QUALITY_LOW_LAST.pop(k, None)
+                        if q_min > 0 and score < q_min:
+                            if callable(emit):
+                                try:
+                                    await emit(
+                                        bot,
+                                        "entry.blocked",
+                                        data={"symbol": k, "reason": "data_quality", "score": score, "min": q_min, "code": ERR_DATA_QUALITY},
+                                        symbol=k,
+                                        level="warning",
+                                    )
+                                except Exception:
+                                    pass
+                            await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                            continue
+                    sig_start = _now()
                     sig = await _maybe_call_signal(sig_fn, bot, k, diag=diag)
+                    sig_duration_ms = (_now() - sig_start) * 1000.0
+                    await _emit_latency(bot, symbol=k, stage="signal", duration_ms=sig_duration_ms, result="success" if sig else "no_signal")
                     if not isinstance(sig, dict) or not sig:
+                        await _emit_entry_blocked(bot, k, "signal_missing", throttle_sec=30.0)
                         await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                         continue
 
                     action = _parse_action(sig)
                     if action not in ("buy", "sell"):
+                        await _emit_entry_blocked(bot, k, "signal_action", throttle_sec=30.0)
                         await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                         continue
 
@@ -782,6 +1046,7 @@ async def entry_loop(bot) -> None:
                     except Exception:
                         conf = 0.0
                     if min_conf > 0 and conf < min_conf:
+                        await _emit_entry_blocked(bot, k, "confidence_low", throttle_sec=30.0)
                         await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                         continue
 
@@ -799,6 +1064,7 @@ async def entry_loop(bot) -> None:
                                 "ENTRY_LOOP: sizing missing; set FIXED_QTY or FIXED_NOTIONAL_USDT. "
                                 f"(FIXED_QTY={fixed_qty}, FIXED_NOTIONAL_USDT={fixed_notional})"
                             )
+                        await _emit_entry_blocked(bot, k, "sizing_missing", throttle_sec=60.0)
                         await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                         continue
 
@@ -807,11 +1073,63 @@ async def entry_loop(bot) -> None:
                     if hedge_hint_mode:
                         hedge_side_hint = "long" if action == "buy" else "short"
 
+                    # Safety: block entries after recent router blocks
+                    if _cfg_env_bool(bot, "ENTRY_BLOCK_ON_ROUTER_BLOCK", True):
+                        window_sec = float(_cfg_env_float(bot, "ENTRY_BLOCK_ROUTER_WINDOW_SEC", 60.0) or 60.0)
+                        threshold = int(_cfg_env_float(bot, "ENTRY_BLOCK_ROUTER_THRESHOLD", 1) or 1)
+                        backoff_sec = float(_cfg_env_float(bot, "ENTRY_BLOCK_ROUTER_BACKOFF_SEC", 10.0) or 10.0)
+                        if window_sec > 0 and threshold > 0:
+                            if callable(count_recent):
+                                blocked = int(
+                                    count_recent(bot, event="order.blocked", symbol=k, window_sec=window_sec)
+                                )
+                            else:
+                                blocked = _recent_router_blocks(bot, k, window_sec)
+                            if blocked >= threshold:
+                                log_entry.warning(
+                                    f"ENTRY_LOOP: router blocks={blocked} within {window_sec:.0f}s → backoff {k}"
+                                )
+                                await _emit_entry_blocked(
+                                    bot,
+                                    k,
+                                    "router_block",
+                                    data={"count": blocked, "window_sec": window_sec},
+                                    throttle_sec=5.0,
+                                )
+                                _set_pending(k, sec=max(3.0, backoff_sec))
+                                await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                                continue
+
+                    # Unified safety throttle: recent entry.blocked events
+                    if _cfg_env_bool(bot, "ENTRY_BLOCK_ON_ERRORS", False) and callable(count_recent):
+                        err_window = float(_cfg_env_float(bot, "ENTRY_BLOCK_ERRORS_WINDOW_SEC", 60.0) or 60.0)
+                        err_thresh = int(_cfg_env_float(bot, "ENTRY_BLOCK_ERRORS_THRESHOLD", 3) or 3)
+                        err_backoff = float(_cfg_env_float(bot, "ENTRY_BLOCK_ERRORS_BACKOFF_SEC", 15.0) or 15.0)
+                        if err_window > 0 and err_thresh > 0:
+                            err_count = int(count_recent(bot, event="entry.blocked", symbol=k, window_sec=err_window))
+                            if err_count >= err_thresh:
+                                log_entry.warning(
+                                    f"ENTRY_LOOP: entry.blocked={err_count} within {err_window:.0f}s → backoff {k}"
+                                )
+                                await _emit_entry_blocked(
+                                    bot,
+                                    k,
+                                    "error_flood",
+                                    data={"count": err_count, "window_sec": err_window},
+                                    throttle_sec=30.0,
+                                )
+                                _set_pending(k, sec=max(3.0, err_backoff))
+                                await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                                continue
+
                     # Submit order
+                    order_start = _now()
+                    order_result = "success"
                     try:
                         if otype == "limit":
                             if price is None or price <= 0:
                                 log_entry.warning(f"ENTRY_LOOP: limit signal missing price for {k}")
+                                await _emit_entry_blocked(bot, k, "signal_limit_price", throttle_sec=30.0)
                                 await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                                 continue
 
@@ -842,10 +1160,78 @@ async def entry_loop(bot) -> None:
                                 hedge_side_hint=hedge_side_hint,
                                 retries=int(_cfg_env_float(bot, "ENTRY_ROUTER_RETRIES", 4) or 4),
                             )
+                    except asyncio.CancelledError:
+                        raise
+                    except Exception as e:
+                        order_result = "error"
+                        # try to detect margin insufficient and backoff
+                        msg = str(e)
+                        if "Margin is insufficient" in msg or '"code":-2019' in msg or "code': -2019" in msg:
+                            until = _now() + max(60.0, float(margin_backoff_sec))
+                            backoff_until_by_sym[k] = until
+                            log_entry.critical(f"ENTRY_LOOP: margin insufficient → backing off {k} for {int(margin_backoff_sec)}s")
+                            await _emit_entry_blocked(
+                                bot,
+                                k,
+                                "margin_insufficient",
+                                level="critical",
+                                throttle_sec=30.0,
+                            )
+                            _set_pending(k, sec=max(10.0, pending_block_sec * 0.5))
+                        else:
+                            log_entry.error(f"ENTRY_LOOP: order submit failed {k}: {e}")
+                            _set_pending(k, sec=max(3.0, pending_block_sec * 0.25))
+
+                        if callable(emit):
+                            try:
+                                await emit(
+                                    bot,
+                                    "entry.exception",
+                                    data={"symbol": k, "err": repr(e)[:300]},
+                                    symbol=k,
+                                    level="critical",
+                                )
+                            except Exception:
+                                pass
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
+                    finally:
+                        duration_ms = (_now() - order_start) * 1000.0
+                        await _emit_latency(bot, symbol=k, stage="order_router", duration_ms=duration_ms, result=order_result)
 
                         oid = None
                         if isinstance(res, dict):
                             oid = res.get("id") or (res.get("info") or {}).get("orderId")
+
+                        # Partial fill handling (optional)
+                        if isinstance(res, dict):
+                            min_ratio = float(_cfg_env_float(bot, "ENTRY_PARTIAL_MIN_FILL_RATIO", 0.5) or 0.5)
+                            if min_ratio > 0:
+                                filled = _order_filled(res)
+                                req_amt = float(amt or 0.0)
+                                ratio = (filled / req_amt) if (req_amt > 0 and filled > 0) else 0.0
+                                if ratio > 0 and ratio < min_ratio:
+                                    if _cfg_env_bool(bot, "ENTRY_PARTIAL_CANCEL", True) and oid and otype == "limit":
+                                        try:
+                                            await cancel_order(bot, str(oid), sym_raw)
+                                        except Exception:
+                                            pass
+                                    await _emit_entry_blocked(
+                                        bot,
+                                        k,
+                                        "partial_fill",
+                                        data={
+                                            "filled": filled,
+                                            "requested": req_amt,
+                                            "ratio": ratio,
+                                            "min_ratio": min_ratio,
+                                            "code": ERR_PARTIAL_FILL,
+                                        },
+                                        throttle_sec=20.0,
+                                    )
+                                    _set_pending(k, sec=max(3.0, float(_cfg_env_float(bot, "ENTRY_PARTIAL_BACKOFF_SEC", 10.0) or 10.0)))
+                                    await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                                    continue
 
                         if res is None:
                             log_entry.warning(f"ENTRY_LOOP: create_order returned None for {k}")
@@ -909,33 +1295,6 @@ async def entry_loop(bot) -> None:
 
                         if _truthy(_cfg(bot, "ENTRY_NOTIFY", False)):
                             await _safe_speak(bot, f"ENTRY {k} {action.upper()} {otype} amt={amt}", "info")
-
-                    except asyncio.CancelledError:
-                        raise
-                    except Exception as e:
-                        # try to detect margin insufficient and backoff
-                        msg = str(e)
-                        if "Margin is insufficient" in msg or '"code":-2019' in msg or "code': -2019" in msg:
-                            until = _now() + max(60.0, float(margin_backoff_sec))
-                            backoff_until_by_sym[k] = until
-                            log_entry.critical(f"ENTRY_LOOP: margin insufficient → backing off {k} for {int(margin_backoff_sec)}s")
-                            # also block short-term so we don't keep hammering before backoff map is checked again
-                            _set_pending(k, sec=max(10.0, pending_block_sec * 0.5))
-                        else:
-                            log_entry.error(f"ENTRY_LOOP: order submit failed {k}: {e}")
-                            _set_pending(k, sec=max(3.0, pending_block_sec * 0.25))
-
-                        if callable(emit):
-                            try:
-                                await emit(
-                                    bot,
-                                    "entry.exception",
-                                    data={"symbol": k, "err": repr(e)[:300]},
-                                    symbol=k,
-                                    level="critical",
-                                )
-                            except Exception:
-                                pass
 
                 await asyncio.sleep(max(0.01, per_symbol_gap_sec))
 

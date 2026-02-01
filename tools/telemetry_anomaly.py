@@ -15,7 +15,6 @@ import os
 import statistics
 import sys
 import time
-from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -138,6 +137,7 @@ def main(argv=None) -> int:
     parser.add_argument("--exposure-thresh", type=float, default=0.5, help="Relative spike threshold")
     parser.add_argument("--confidence-drop", type=float, default=0.15, help="Absolute drop fraction")
     parser.add_argument("--risk-thresh", type=int, default=3, help="Risk event count threshold")
+    parser.add_argument("--pause-sec", type=int, default=300, help="Seconds to pause entries when anomalies fire")
     parser.add_argument("--no-notify", action="store_true", help="Skip Telegram notification")
     parser.add_argument("--output", default="logs/telemetry_anomaly.txt", help="Report file")
 
@@ -178,6 +178,9 @@ def main(argv=None) -> int:
         f"- risk events: {metrics['risk_total']}",
         f"- exit events: {metrics['exit_events']} codes={','.join(metrics['exit_codes']) or 'none'}",
     ]
+    if pause_until:
+        ts_str = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime(pause_until))
+        report.append(f"- anomaly pause until: {ts_str}")
     if anomalies:
         report.append("\nAnomalies detected:")
         report.extend(f"  • {item}" for item in anomalies)
@@ -191,12 +194,17 @@ def main(argv=None) -> int:
         notifier = _build_notifier()
         _send_alert(notifier, "\n".join(report))
 
+    pause_until = 0.0
+    if anomalies:
+        pause_until = time.time() + max(1, args.pause_sec)
+
     new_state = {
         "exposures": curr_exposures,
         "avg_confidence": curr_conf,
         "risk_total": metrics["risk_total"],
         "exit_codes": metrics["exit_codes"],
         "last_ts": int(time.time()),
+        "pause_until": pause_until,
     }
     _persist_state(state_path, new_state)
     for line in report:

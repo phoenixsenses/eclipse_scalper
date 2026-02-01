@@ -754,6 +754,8 @@ The workflow also runs `python eclipse_scalper/tools/signal_data_health.py ...` 
 
 The scheduled job now also runs `python eclipse_scalper/tools/telemetry_anomaly.py --path logs/telemetry.jsonl --since-min 60 --output logs/telemetry_anomaly.txt` and uploads the report. When the detector sees an exposure spike (> default 50%), confidence drop (> default 15%), risk event surge (>3), or new exit code, it notifies the Telegram channel using the same secrets so you get a proactive alert alongside the artifact.
 
+The detector also writes `logs/telemetry_anomaly_state.json`, and `execution/entry_loop.py` consults `execution/anomaly_guard.py` before every poll. When `pause_until` is still in the future, entries are blocked with `anomaly_pause` (plus the reasons show in the report) so the guard automatically mitigates the spike instead of letting the bot continue.
+
 ### Alert classification
 
 A subsequent workflow step runs `python eclipse_scalper/tools/telemetry_classifier.py --path logs/telemetry.jsonl --since-min 60`. This helper keeps a small state file at `logs/telemetry_classifier_state.json`, compares the current window against the previous snapshot, and flags:
