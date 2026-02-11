@@ -451,6 +451,36 @@ EXIT\_VWAP\_REQUIRE\_CROSS=1
 
 ---
 
+\## Exit ATR-Scaled Timing (Optional)
+
+Scale time/stagnation exits by entry ATR% so higher-volatility positions get more room and lower-volatility positions are closed faster.
+
+- `EXIT_ATR_SCALE_ENABLED` (default `0`): enable ATR-based scaling in `execution/exit.py`.
+- `EXIT_ATR_SCALE_REF_PCT` (default `0.003`): reference ATR% used as scale baseline.
+- `EXIT_ATR_SCALE_MIN` (default `0.6`): minimum timing multiplier clamp.
+- `EXIT_ATR_SCALE_MAX` (default `1.6`): maximum timing multiplier clamp.
+- Per-symbol overrides are supported with `_SYMBOL` suffix, for example:
+  - `EXIT_ATR_SCALE_REF_PCT_DOGE`
+  - `EXIT_ATR_SCALE_MIN_DOGE`
+  - `EXIT_ATR_SCALE_MAX_DOGE`
+
+Telemetry note: when scaling applies, the bot emits `exit.atr_scaled`.
+
+Example:
+```env
+EXIT_ATR_SCALE_ENABLED=1
+EXIT_ATR_SCALE_REF_PCT=0.003
+EXIT_ATR_SCALE_MIN=0.6
+EXIT_ATR_SCALE_MAX=1.6
+```
+
+Per-symbol exit timing overrides are also supported:
+- `EXIT_MAX_HOLD_SEC_DOGE`
+- `EXIT_STAGNATION_SEC_DOGE`
+- `EXIT_STAGNATION_ATR_DOGE`
+
+---
+
 \## Entry Loop Safety (Router Blocks)
 
 Block new entries if the router has recently blocked orders for the same symbol.
@@ -500,16 +530,25 @@ If an entry fills below a minimum ratio, cancel the remainder (limit orders) and
 \- `ENTRY\_PARTIAL\_ESCALATE\_COUNT` (default `3`)
 \- `ENTRY\_PARTIAL\_ESCALATE\_BACKOFF\_SEC` (default `120`)
 \- `ENTRY\_PARTIAL\_ESCALATE\_TELEM\_CD\_SEC` (default `300`)
+\- `ENTRY\_PARTIAL\_CANCEL\_RETRIES` (default `2`)
+\- `ENTRY\_PARTIAL\_CANCEL\_DELAY\_SEC` (default `0.25`)
+\- `ENTRY\_PARTIAL\_FORCE\_FLATTEN` (default `1`)
+\- `ENTRY\_PARTIAL\_FLATTEN\_RETRIES` (default `2`)
 
 Example:
 ```env
 ENTRY\_PARTIAL\_MIN\_FILL\_RATIO=0.6
 ENTRY\_PARTIAL\_CANCEL=1
 ENTRY\_PARTIAL\_BACKOFF\_SEC=15
+ENTRY\_PARTIAL\_FORCE\_FLATTEN=1
 ```
 
 
 When `ratio < ENTRY_PARTIAL_MIN_FILL_RATIO` keeps firing, the entry loop records each hit per symbol. After `ENTRY_PARTIAL_ESCALATE_COUNT` hits within `ENTRY_PARTIAL_ESCALATE_WINDOW_SEC` the guard extends the pending block to at least `ENTRY_PARTIAL_ESCALATE_BACKOFF_SEC`, resets the hit counter, and emits `entry.partial_fill_escalation` (throttled via `ENTRY_PARTIAL_ESCALATE_TELEM_CD_SEC`). Include this event in your dashboards/notifications (telemetry dashboard, guard history alerts, etc.) so you can spot when partial fills are straining the execution path before you tweak `ENTRY_PARTIAL_MIN_FILL_RATIO` or leverage.
+
+The partial-fill resolver now emits `entry.partial_fill_state` with explicit outcomes:
+- `partial_forced_flatten`: below-threshold fill was detected and a reduce-only market flatten succeeded.
+- `partial_stuck`: below-threshold fill remained unresolved (cancel/flatten could not safely resolve it).
 
 The adaptive guard already listens for `entry.partial_fill_escalation` and (by default) raises `ENTRY_MIN_CONFIDENCE` by `ADAPTIVE_GUARD_PARTIAL_ESCALATE_DELTA` for `ADAPTIVE_GUARD_PARTIAL_ESCALATE_DURATION_SEC` seconds. Use those knobs to tune how aggressively the guard pauses entries/leverage when repeated partial fills keep triggering the escalation event.
 ### Router notional guard (optional)
@@ -545,6 +584,35 @@ ENTRY\_DATA\_QUALITY\_ROLL\_SEC=900
 ENTRY\_DATA\_QUALITY\_ROLL\_MIN=70
 ENTRY\_DATA\_QUALITY\_KILL\_SEC=120
 ```
+
+\### Entry sizing scaling (adaptive + confidence)
+
+The entry loop now supports three independent sizing modifiers before order placement:
+
+1. Adaptive guard notional scale (`ADAPTIVE_GUARD_NOTIONAL_SCALE`), emitted as `entry.notional_scaled`.
+2. Adaptive guard fixed-qty scale (`ADAPTIVE_GUARD_QTY_SCALE`), emitted as `entry.qty_scaled`.
+3. Confidence-based sizing scale (`ENTRY_CONF_SCALE_*`), emitted as `entry.notional_scaled` with `reason=confidence`.
+
+Confidence scaling knobs:
+- `ENTRY_CONF_SCALE_ENABLED` (default `0`)
+- `ENTRY_CONF_SCALE_MIN_CONF` (default `0.35`)
+- `ENTRY_CONF_SCALE_MAX_CONF` (default `0.75`)
+- `ENTRY_CONF_SCALE_MIN` (default `0.5`)
+- `ENTRY_CONF_SCALE_MAX` (default `1.0`)
+
+Example:
+```env
+ADAPTIVE_GUARD_QTY_SCALE=1
+ENTRY_CONF_SCALE_ENABLED=1
+ENTRY_CONF_SCALE_MIN_CONF=0.40
+ENTRY_CONF_SCALE_MAX_CONF=0.75
+ENTRY_CONF_SCALE_MIN=0.60
+ENTRY_CONF_SCALE_MAX=1.00
+```
+
+Per-symbol sizing overrides are supported:
+- `FIXED_NOTIONAL_USDT_DOGE`
+- `FIXED_QTY_DOGE`
 
 ### Signal data health report
 
@@ -705,6 +773,19 @@ Validate your settings:
 ```bash
 python tools/corr_group_check.py
 ```
+
+Dynamic notional scaling by group exposure is also available (in addition to hard caps):
+
+- `CORR_GROUP_EXPOSURE_SCALE_ENABLED` (default `0`)
+- `CORR_GROUP_EXPOSURE_SCALE` (default `0.7`)
+- `CORR_GROUP_EXPOSURE_SCALE_MIN` (default `0.25`)
+- `CORR_GROUP_EXPOSURE_REF_NOTIONAL` (default `0`, falls back to group/global notional cap)
+- Optional per-group overrides:
+  - `CORR_GROUP_EXPOSURE_SCALE_BY_GROUP`
+  - `CORR_GROUP_EXPOSURE_SCALE_MIN_BY_GROUP`
+  - `CORR_GROUP_EXPOSURE_REF_NOTIONAL_BY_GROUP`
+
+When active, the entry loop emits `entry.notional_scaled` with `reason=corr_group_exposure ...`.
 
 Example output:
 ```text
@@ -944,6 +1025,24 @@ Set `TELEGRAM_TOKEN` and `TELEGRAM_CHAT_ID` in `.env` to enable auto-notificatio
 
 `ROUTER_RETRY_POLICY` lets you sway the router's retry loop for known transient classes (network blips, exchange busy, timestamp skew). Each entry in the comma-separated list has the form `reason=max:delay:max_delay:extra` and overrides the base `ROUTER_RETRY_BASE_SEC`/`ROUTER_RETRY_MAX_DELAY_SEC` for that reason before stopping. The defaults keep `network=8:0.35:3:2`, `exchange_busy=7:0.45:4:2`, and `timestamp=4:0.3:2:1`, and the router still emits `order.create.retry_alert` (with `tries`, `reason`, and `code`) whenever the throttle limit passes so your dashboards or adaptive guard know when retries are still in flight.
 
+### Reliability model (execution layer)
+
+Execution reliability is defined as bounded wrongness under partial information, not perfect correctness under ideal conditions.
+
+- Invariants: `docs/execution_invariants.md`
+- Belief/debt model: `docs/belief_state_model.md`
+- Failure-mode analysis: `docs/execution_fmea.md`
+- Observability lifecycle contract: `docs/observability_contract.md`
+- Router + reconcile hardening summary: `docs/execution_reliability.md`
+- Deep system walkthrough: `docs/execution_system_summary.md`
+
+Use `docs/execution_system_summary.md` as the primary onboarding reference for execution incidents and hardening work.
+It explains the architecture as a closed reliability loop:
+exchange evidence -> local belief/debt -> belief controller guard knobs ->
+entry-only risk clamping -> reconcile-driven recovery (with exits always safe).
+
+The new chaos scenario test suite (`tools/test_execution_chaos_scenarios.py`) is wired into CI so timeout/duplicate/partial-fill and reconcile contradiction paths are checked on each push/PR.
+
 ---
 
 ## Unit Tests
@@ -958,6 +1057,20 @@ Run the new exit-telemetry helper test directly when you touch `execution.exit`:
 
 ```bash
 python tools/test_exit_telemetry_helper_unit.py
+```
+
+Recent targeted tests added for telemetry/sizing/exit behavior:
+
+```bash
+python tools/test_adaptive_guard_unit.py
+python tools/test_entry_qty_scale_unit.py
+python tools/test_entry_conf_scale_unit.py
+python tools/test_entry_symbol_sizing_unit.py
+python tools/test_corr_group_exposure_scale_unit.py
+python tools/test_exit_atr_scale_unit.py
+python tools/test_exit_symbol_overrides_unit.py
+python tools/test_exit_quality_dashboard_unit.py
+python tools/test_position_closed_unit.py
 ```
 Run a single test:
 
