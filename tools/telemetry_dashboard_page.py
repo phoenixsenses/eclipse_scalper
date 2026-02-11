@@ -157,7 +157,7 @@ def _read_reliability_gate_section(path: Path) -> str:
             lines.append("top_contributors: " + ", ".join(f"{k}={v}" for (k, v) in ranked))
     if mismatch_ids:
         lines.append("top_missing_ids: " + ", ".join(mismatch_ids[:5]))
-    return f"<h2>Reliability Gate</h2><pre>{'\n'.join(lines)}</pre>"
+    return "<h2>Reliability Gate</h2><pre>" + "\n".join(lines) + "</pre>"
 
 
 def _load_jsonl(path: Path) -> list[dict]:
@@ -198,7 +198,7 @@ def _guard_reason_summary(events: list[dict], limit: int = 8) -> str:
     lines = ["Top Guard Reasons", "-" * 18]
     for label, cnt in counts.most_common(limit):
         lines.append(f"{label}: {cnt}")
-    return f"<h2>Top Guard Reasons</h2><pre>{'\n'.join(lines)}</pre>"
+    return "<h2>Top Guard Reasons</h2><pre>" + "\n".join(lines) + "</pre>"
 
 
 def _guard_symbol_spark(events: list[dict], limit: int = 8, width: int = 20) -> str:
@@ -227,7 +227,7 @@ def _guard_symbol_spark(events: list[dict], limit: int = 8, width: int = 20) -> 
         bar_len = max(1, int(round((cnt / max_count) * width))) if cnt > 0 else 0
         bar = "#" * bar_len
         lines.append(f"{symbol:10} | {bar} {cnt}")
-    return f"<h2>Guard Hits By Symbol</h2><pre>{'\n'.join(lines)}</pre>"
+    return "<h2>Guard Hits By Symbol</h2><pre>" + "\n".join(lines) + "</pre>"
 
 
 def _partial_fill_state_summary(events: list[dict], limit: int = 8) -> str:
@@ -275,7 +275,7 @@ def _partial_fill_state_summary(events: list[dict], limit: int = 8) -> str:
     lines.append(
         f"cancel_ok={cancel_ok_count}/{len(rows)} | flatten_ok={flatten_ok_count}/{len(rows)}"
     )
-    return f"<h2>Partial Fill Outcomes</h2><pre>{'\n'.join(lines)}</pre>"
+    return "<h2>Partial Fill Outcomes</h2><pre>" + "\n".join(lines) + "</pre>"
 
 
 def _reconcile_first_gate_summary(events: list[dict], limit: int = 8, severity_threshold: float = 0.85) -> str:
@@ -330,7 +330,7 @@ def _reconcile_first_gate_summary(events: list[dict], limit: int = 8, severity_t
         lines.append("Top severity symbols:")
         for symbol, sev in sev_sorted:
             lines.append(f"- {symbol}: {sev:.2f}")
-    return f"<h2>Reconcile-First Gate</h2><pre>{'\n'.join(lines)}</pre>"
+    return "<h2>Reconcile-First Gate</h2><pre>" + "\n".join(lines) + "</pre>"
 
 
 def _entry_budget_summary(events: list[dict], limit: int = 8) -> str:
@@ -370,7 +370,7 @@ def _entry_budget_summary(events: list[dict], limit: int = 8) -> str:
         lines.append("Scaled top symbols:")
         for symbol, cnt in scaled_by_symbol.most_common(limit):
             lines.append(f"- {symbol}: {cnt}")
-    return f"<h2>Entry Budget Pressure</h2><pre>{'\n'.join(lines)}</pre>"
+    return "<h2>Entry Budget Pressure</h2><pre>" + "\n".join(lines) + "</pre>"
 
 
 def _replace_envelope_summary(events: list[dict], limit: int = 8) -> str:
@@ -395,7 +395,7 @@ def _replace_envelope_summary(events: list[dict], limit: int = 8) -> str:
     lines.append("Top symbols:")
     for symbol, cnt in symbol_counts.most_common(limit):
         lines.append(f"- {symbol}: {cnt}")
-    return f"<h2>Replace Envelope Blocks</h2><pre>{'\n'.join(lines)}</pre>"
+    return "<h2>Replace Envelope Blocks</h2><pre>" + "\n".join(lines) + "</pre>"
 
 
 def _rebuild_orphan_summary(events: list[dict], limit: int = 8) -> str:
@@ -427,7 +427,7 @@ def _rebuild_orphan_summary(events: list[dict], limit: int = 8) -> str:
     lines.append("Top symbols:")
     for symbol, cnt in by_symbol.most_common(limit):
         lines.append(f"- {symbol}: {cnt}")
-    return f"<h2>Rebuild Orphan Decisions</h2><pre>{'\n'.join(lines)}</pre>"
+    return "<h2>Rebuild Orphan Decisions</h2><pre>" + "\n".join(lines) + "</pre>"
 
 
 def _belief_state_summary(events: list[dict], limit: int = 8) -> str:
@@ -482,7 +482,7 @@ def _belief_state_summary(events: list[dict], limit: int = 8) -> str:
         f"max debt sec: {max_debt:.1f}",
         f"max debt symbols: {max_syms}",
     ]
-    return f"<h2>Execution Belief State</h2><pre>{'\n'.join(lines)}</pre>"
+    return "<h2>Execution Belief State</h2><pre>" + "\n".join(lines) + "</pre>"
 
 
 def _recovery_stage_summary(events: list[dict], limit: int = 8) -> str:
@@ -518,7 +518,7 @@ def _recovery_stage_summary(events: list[dict], limit: int = 8) -> str:
         lines.append("Top symbols in staged recovery windows:")
         for sym, cnt in symbol_counts.most_common(limit):
             lines.append(f"- {sym}: {cnt}")
-    return f"<h2>Recovery Stage Timeline</h2><pre>{'\n'.join(lines)}</pre>"
+    return "<h2>Recovery Stage Timeline</h2><pre>" + "\n".join(lines) + "</pre>"
 
 
 def _severity_debt_trend_summary(events: list[dict], severity_threshold: float = 0.85) -> str:
@@ -564,7 +564,7 @@ def _severity_debt_trend_summary(events: list[dict], severity_threshold: float =
     ]
     if c6 > 0 and c1 > 0:
         lines.append(f"momentum(1h-6h avg): {(a1 - a6):+.2f}")
-    return f"<h2>Severity Debt Trend</h2><pre>{'\n'.join(lines)}</pre>"
+    return "<h2>Severity Debt Trend</h2><pre>" + "\n".join(lines) + "</pre>"
 
 
 def _pick_latest_correlation_id(events: list[dict]) -> str:
@@ -612,7 +612,7 @@ def _journal_replay_summary(events: list[dict], journal_path: Path, replay_limit
             f"- {tr.get('machine')} {tr.get('entity')} "
             f"{tr.get('from')}->{tr.get('to')} ({tr.get('reason')})"
         )
-    return f"<h2>Execution Journal Replay</h2><pre>{'\n'.join(lines)}</pre>"
+    return "<h2>Execution Journal Replay</h2><pre>" + "\n".join(lines) + "</pre>"
 
 
 def _exit_quality_delta(path: Path) -> str:
@@ -636,7 +636,7 @@ def _exit_quality_delta(path: Path) -> str:
         f"win_rate: {win24:.1%} vs {win7:.1%} (delta {win_delta:+.1%})",
         f"avg_pnl: {pnl24:.4f} vs {pnl7:.4f} (delta {pnl_delta:+.4f})",
     ]
-    return f"<h2>Exit Quality Deltas</h2><pre>{'\n'.join(lines)}</pre>"
+    return "<h2>Exit Quality Deltas</h2><pre>" + "\n".join(lines) + "</pre>"
 
 
 def _notify_state_summary(path: Path) -> str:
@@ -701,7 +701,7 @@ def _notify_state_summary(path: Path) -> str:
         f"reconcile_max_severity: {sev:.2f} (prev {prev_sev:.2f})",
         f"reconcile_max_streak: {streak} (prev {prev_streak})",
     ]
-    return f"<h2>Notifier State</h2><pre>{'\n'.join(lines)}</pre>"
+    return "<h2>Notifier State</h2><pre>" + "\n".join(lines) + "</pre>"
 
 
 def main(argv=None) -> int:
