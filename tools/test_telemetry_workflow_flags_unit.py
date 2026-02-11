@@ -20,6 +20,9 @@ class TelemetryWorkflowFlagsTests(unittest.TestCase):
             "RECOVERY_RED_LOCK_CRITICAL_STREAK",
             "simulate_red_lock_event",
             "simulate_recovery_stage_override",
+            "expected_notifier_level",
+            "expected_recovery_stage",
+            "expected_red_lock_streak",
             "simulate_red_lock_seed_streak",
             "--reconcile-first-gate-critical-threshold",
             "--reconcile-first-gate-severity-threshold",
@@ -32,6 +35,8 @@ class TelemetryWorkflowFlagsTests(unittest.TestCase):
             "Save notifier state cache",
             "actions/cache/save@v4",
             "Inspect notifier state",
+            "Assert smoke notifier expectations",
+            "tools/telemetry_smoke_assert.py",
             "recovery_red_lock_streak",
         ]
         for flag in required:

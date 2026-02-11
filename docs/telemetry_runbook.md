@@ -27,7 +27,10 @@ Use this to validate that notifier state escalates to `critical` when the RED_LO
 gh workflow run .github/workflows/telemetry-dashboard.yml \
   -R phoenixsenses/eclipse_scalper \
   -f simulate_red_lock_event=true \
-  -f simulate_red_lock_seed_streak=1
+  -f simulate_red_lock_seed_streak=1 \
+  -f expected_notifier_level=critical \
+  -f expected_recovery_stage=RED_LOCK \
+  -f expected_red_lock_streak=2
 ```
 
 Expected in workflow logs:
@@ -46,7 +49,10 @@ Use this to validate streak reset when recovery stage is not `RED_LOCK`.
 gh workflow run .github/workflows/telemetry-dashboard.yml \
   -R phoenixsenses/eclipse_scalper \
   -f simulate_recovery_stage_override=POST_RED_WARMUP \
-  -f simulate_red_lock_seed_streak=2
+  -f simulate_red_lock_seed_streak=2 \
+  -f expected_notifier_level=normal \
+  -f expected_recovery_stage=POST_RED_WARMUP \
+  -f expected_red_lock_streak=0
 ```
 
 Expected in workflow logs:
@@ -55,6 +61,7 @@ Expected in workflow logs:
   - `recovery_stage_latest=POST_RED_WARMUP`
   - `recovery_red_lock_streak=0`
 - Notifier decision is usually `normal_unchanged` unless other signals degrade state.
+- `Assert smoke notifier expectations` step must pass.
 
 ## Fast Incident Triage
 

@@ -14,6 +14,18 @@ on:
         description: "Inject this guard_recovery_stage value (e.g. POST_RED_WARMUP) for reset-path smoke tests"
         required: false
         default: ""
+      expected_notifier_level:
+        description: "Optional smoke assertion: expected notifier level (normal/critical)"
+        required: false
+        default: ""
+      expected_recovery_stage:
+        description: "Optional smoke assertion: expected recovery stage value"
+        required: false
+        default: ""
+      expected_red_lock_streak:
+        description: "Optional smoke assertion: expected recovery_red_lock_streak value"
+        required: false
+        default: ""
       simulate_red_lock_seed_streak:
         description: "Optional prior RED_LOCK streak seed (e.g. 1 with threshold=2 to force critical)"
         required: false
@@ -254,6 +266,15 @@ jobs:
           else
             echo "notifier_state: missing"
           fi
+
+      - name: Assert smoke notifier expectations
+        if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.expected_notifier_level != '' || github.event.inputs.expected_recovery_stage != '' || github.event.inputs.expected_red_lock_streak != '') }}
+        run: |
+          python tools/telemetry_smoke_assert.py \
+            --state logs/telemetry_dashboard_notify_state.json \
+            --expected-level "${{ github.event.inputs.expected_notifier_level }}" \
+            --expected-stage "${{ github.event.inputs.expected_recovery_stage }}" \
+            --expected-red-lock-streak "${{ github.event.inputs.expected_red_lock_streak }}"
 
       - name: Save notifier state cache
         if: always()
