@@ -886,6 +886,73 @@ def _record_reconcile_first_pressure(bot, *, symbol: str, severity: float, reaso
         pass
 
 
+def _replace_budget_state(bot) -> tuple[dict, dict]:
+    st = getattr(bot, "state", None)
+    if st is None:
+        return {}, {}
+    rc = getattr(st, "run_context", None)
+    if not isinstance(rc, dict):
+        st.run_context = {}
+        rc = st.run_context
+    budget = rc.get("replace_budget")
+    if not isinstance(budget, dict):
+        budget = {"global": [], "by_symbol": {}}
+        rc["replace_budget"] = budget
+    by_symbol = budget.get("by_symbol")
+    if not isinstance(by_symbol, dict):
+        by_symbol = {}
+        budget["by_symbol"] = by_symbol
+    return budget, by_symbol
+
+
+def _replace_budget_over_limit(bot, *, symbol: str) -> tuple[bool, dict]:
+    window_sec = max(10.0, _safe_float(_cfg_env(bot, "ROUTER_REPLACE_BUDGET_WINDOW_SEC", 300), 300.0))
+    max_global = max(1, int(_safe_float(_cfg_env(bot, "ROUTER_REPLACE_BUDGET_MAX_GLOBAL", 20), 20.0)))
+    max_symbol = max(1, int(_safe_float(_cfg_env(bot, "ROUTER_REPLACE_BUDGET_MAX_PER_SYMBOL", 6), 6.0)))
+    now_ts = float(time.time())
+    cutoff = now_ts - window_sec
+    budget, by_symbol = _replace_budget_state(bot)
+    glob = budget.get("global")
+    if not isinstance(glob, list):
+        glob = []
+        budget["global"] = glob
+    glob[:] = [float(ts) for ts in glob if _safe_float(ts, 0.0) >= cutoff]
+    k = _symkey(symbol)
+    sym_list = by_symbol.get(k)
+    if not isinstance(sym_list, list):
+        sym_list = []
+        by_symbol[k] = sym_list
+    sym_list[:] = [float(ts) for ts in sym_list if _safe_float(ts, 0.0) >= cutoff]
+    over_global = len(glob) >= max_global
+    over_symbol = len(sym_list) >= max_symbol
+    return bool(over_global or over_symbol), {
+        "window_sec": float(window_sec),
+        "max_global": int(max_global),
+        "max_symbol": int(max_symbol),
+        "count_global": int(len(glob)),
+        "count_symbol": int(len(sym_list)),
+        "over_global": bool(over_global),
+        "over_symbol": bool(over_symbol),
+        "symbol": str(k),
+    }
+
+
+def _replace_budget_mark(bot, *, symbol: str) -> None:
+    now_ts = float(time.time())
+    budget, by_symbol = _replace_budget_state(bot)
+    glob = budget.get("global")
+    if not isinstance(glob, list):
+        glob = []
+        budget["global"] = glob
+    glob.append(now_ts)
+    k = _symkey(symbol)
+    sym_list = by_symbol.get(k)
+    if not isinstance(sym_list, list):
+        sym_list = []
+        by_symbol[k] = sym_list
+    sym_list.append(now_ts)
+
+
 def _intent_ledger_record(
     bot,
     *,
@@ -2619,6 +2686,38 @@ async def cancel_replace_order(
     retries: int = 3,
     correlation_id: Optional[str] = None,
 ) -> Optional[dict]:
+    over_budget, budget_meta = _replace_budget_over_limit(bot, symbol=symbol)
+    if over_budget:
+        _record_reconcile_first_pressure(
+            bot,
+            symbol=_symkey(symbol),
+            severity=_safe_float(_cfg_env(bot, "ROUTER_REPLACE_BUDGET_GATE_SEVERITY", 0.95), 0.95),
+            reason="replace_budget_exceeded",
+        )
+        if callable(emit):
+            _telemetry_task(
+                emit(
+                    bot,
+                    "order.replace_budget_block",
+                    data={
+                        "k": _symkey(symbol),
+                        "cancel_order_id": str(cancel_order_id),
+                        "reason": "replace_budget_exceeded",
+                        "correlation_id": str(correlation_id or ""),
+                        **dict(budget_meta),
+                    },
+                    symbol=_symkey(symbol),
+                    level="critical",
+                )
+            )
+        _request_reconcile_hint(
+            bot,
+            symbol=str(symbol),
+            reason="replace_budget_exceeded",
+            correlation_id=str(correlation_id or ""),
+        )
+        return None
+
     def _estimate_symbol_exposure_notional(sym_key: str) -> float:
         total = 0.0
         try:
@@ -2698,6 +2797,7 @@ async def cancel_replace_order(
             status_cb = _status_fn
 
         strict_replace = _truthy(_cfg_env(bot, "ROUTER_REPLACE_STRICT_TRANSITIONS", True))
+        _replace_budget_mark(bot, symbol=symbol)
         try:
             outcome = await _replace_manager.run_cancel_replace(
                 cancel_order_id=str(cancel_order_id),

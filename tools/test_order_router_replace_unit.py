@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import time
 import types
 import unittest
 import sys
@@ -220,6 +221,49 @@ class OrderRouterReplaceTests(unittest.TestCase):
         self.assertIn("replace_race", str(km.get("reconcile_first_gate_last_reason", "") or ""))
         events = list(km.get("reconcile_first_gate_events", []) or [])
         self.assertGreaterEqual(len(events), 1)
+
+    def test_cancel_replace_budget_block_emits_and_hints(self):
+        bot = DummyBot(DummyEx(), DummyData({"BTCUSDT": "BTC/USDT:USDT"}))
+        bot.state.run_context = {
+            "replace_budget": {
+                "global": [time.time()],
+                "by_symbol": {"BTCUSDT": [time.time()]},
+            }
+        }
+        os.environ["ROUTER_REPLACE_BUDGET_WINDOW_SEC"] = "300"
+        os.environ["ROUTER_REPLACE_BUDGET_MAX_GLOBAL"] = "1"
+        os.environ["ROUTER_REPLACE_BUDGET_MAX_PER_SYMBOL"] = "1"
+        captured = []
+
+        async def _fake_emit(_bot, event, data=None, **_kwargs):
+            captured.append((str(event), dict(data or {})))
+
+        orig_emit = order_router.emit
+        order_router.emit = _fake_emit
+        try:
+            res = asyncio.run(
+                order_router.cancel_replace_order(
+                    bot,
+                    cancel_order_id="oid-1",
+                    symbol="BTC/USDT",
+                    type="LIMIT",
+                    side="buy",
+                    amount=1.0,
+                    price=100.0,
+                    retries=1,
+                )
+            )
+        finally:
+            order_router.emit = orig_emit
+            os.environ.pop("ROUTER_REPLACE_BUDGET_WINDOW_SEC", None)
+            os.environ.pop("ROUTER_REPLACE_BUDGET_MAX_GLOBAL", None)
+            os.environ.pop("ROUTER_REPLACE_BUDGET_MAX_PER_SYMBOL", None)
+
+        self.assertIsNone(res)
+        self.assertTrue(any(ev == "order.replace_budget_block" for ev, _ in captured))
+        hints = bot.state.run_context.get("reconcile_hints") or {}
+        self.assertIn("BTCUSDT", hints)
+        self.assertIn("replace_budget_exceeded", str((hints.get("BTCUSDT") or {}).get("reason") or ""))
 
 
 if __name__ == "__main__":

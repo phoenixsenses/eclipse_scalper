@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import tempfile
 import types
 import unittest
@@ -524,6 +525,57 @@ class ChaosScenariosV2Tests(unittest.TestCase):
             data = dict((transitions[-1].get("data") or {}))
             self.assertTrue(str(data.get("transition") or "").strip())
             self.assertTrue(str(data.get("new_mode") or "").strip())
+
+    def test_replace_storm_hits_budget_and_stops_retry_spam(self):
+        ex = _RestartExchange(positions=[], orders=[], trades=[])
+        bot = _DummyBot(ex)
+        bot.state.run_context = {}
+        env = dict(os.environ)
+        os.environ["ROUTER_REPLACE_BUDGET_WINDOW_SEC"] = "300"
+        os.environ["ROUTER_REPLACE_BUDGET_MAX_GLOBAL"] = "2"
+        os.environ["ROUTER_REPLACE_BUDGET_MAX_PER_SYMBOL"] = "2"
+        calls = {"n": 0}
+
+        async def _fake_run_cancel_replace(**_kwargs):
+            calls["n"] += 1
+            return types.SimpleNamespace(
+                success=False,
+                state="REPLACE_RACE",
+                reason="replace_reconcile_required",
+                attempts=1,
+                ambiguity_count=1,
+                last_status="unknown",
+            )
+
+        orig_replace = order_router._replace_manager
+        order_router._replace_manager = types.SimpleNamespace(run_cancel_replace=_fake_run_cancel_replace)
+        try:
+            for _ in range(4):
+                asyncio.run(
+                    order_router.cancel_replace_order(
+                        bot,
+                        cancel_order_id="oid-storm",
+                        symbol="BTC/USDT",
+                        type="LIMIT",
+                        side="buy",
+                        amount=1.0,
+                        price=100.0,
+                        retries=1,
+                    )
+                )
+        finally:
+            order_router._replace_manager = orig_replace
+            os.environ.clear()
+            os.environ.update(env)
+
+        # Budget limit should cap replace-manager invocations.
+        self.assertLessEqual(int(calls["n"]), 2)
+        hints = dict((bot.state.run_context or {}).get("reconcile_hints") or {})
+        self.assertIn("BTCUSDT", hints)
+        self.assertIn(
+            "replace_budget_exceeded",
+            str((hints.get("BTCUSDT") or {}).get("reason") or ""),
+        )
 
 
 if __name__ == "__main__":
