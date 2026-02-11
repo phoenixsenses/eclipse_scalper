@@ -176,15 +176,7 @@ jobs:
       - name: Inspect notifier state
         run: |
           if [ -f logs/telemetry_dashboard_notify_state.json ]; then
-            python - <<'PY'
-            import json
-            from pathlib import Path
-            p = Path("logs/telemetry_dashboard_notify_state.json")
-            d = json.loads(p.read_text(encoding="utf-8"))
-            print("notifier_state:")
-            for k in ("level", "recovery_stage_latest", "recovery_red_lock_streak", "last_decision_reason", "last_decision_sent"):
-              print(f"- {k}={d.get(k)}")
-            PY
+            python -c "import json; from pathlib import Path; p=Path('logs/telemetry_dashboard_notify_state.json'); d=json.loads(p.read_text(encoding='utf-8')); print('notifier_state:'); [print(f'- {k}={d.get(k)}') for k in ('level','recovery_stage_latest','recovery_red_lock_streak','last_decision_reason','last_decision_sent')]"
           else
             echo "notifier_state: missing"
           fi
