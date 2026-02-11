@@ -674,6 +674,43 @@ class TelemetryDashboardNotifyTests(unittest.TestCase):
             self.assertIn("level", saved)
             self.assertIn("updated_at", saved)
 
+    def test_main_no_notify_still_persists_state(self):
+        with tempfile.TemporaryDirectory() as td:
+            tele = Path(td) / "telemetry.jsonl"
+            gate = Path(td) / "reliability_gate.txt"
+            state = Path(td) / "notify_state.json"
+            tele.write_text("", encoding="utf-8")
+            gate.write_text(
+                "\n".join(
+                    [
+                        "Execution Reliability Gate",
+                        "replay_mismatch_count=0",
+                        "journal_coverage_ratio=1.000",
+                        "invalid_transition_count=0",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            with mock.patch.object(tdn, "_run_dashboard", return_value=("dashboard-ok", 0)), \
+                mock.patch.object(tdn, "_send_alert") as send_alert:
+                rc = tdn.main(
+                    [
+                        "--path",
+                        str(tele),
+                        "--reliability-gate",
+                        str(gate),
+                        "--state-path",
+                        str(state),
+                        "--no-notify",
+                    ]
+                )
+                self.assertEqual(rc, 0)
+                self.assertFalse(send_alert.called)
+            saved = json.loads(state.read_text(encoding="utf-8"))
+            self.assertIn("level", saved)
+            self.assertIn("updated_at", saved)
+
     def test_main_recovery_red_lock_streak_escalates_to_critical(self):
         with tempfile.TemporaryDirectory() as td:
             tele = Path(td) / "telemetry.jsonl"

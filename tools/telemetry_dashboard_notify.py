@@ -590,10 +590,7 @@ def main(argv=None) -> int:
         args.guard_history,
         guard_history_path,
     )
-    if args.no_notify:
-        return rc
-
-    notifier = _build_notifier()
+    notifier = None if args.no_notify else _build_notifier()
     if stdout:
         header = f"Telemetry snapshot: {telemetry_path.name}"
         belief = _belief_state_snippet(telemetry_path)
