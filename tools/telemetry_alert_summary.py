@@ -470,6 +470,14 @@ def _reliability_gate_lines(path: Path) -> tuple[list[str], dict[str, Any]]:
         )[:3]
         if ranked:
             rows.append("- top_contributors: " + ", ".join(f"{k}={v}" for (k, v) in ranked))
+        critical_keys = ("position", "orphan", "coverage_gap", "replace_race", "contradiction")
+        critical_ranked = sorted(
+            [(str(k), int(cats.get(k, 0))) for k in critical_keys if int(cats.get(k, 0)) > 0],
+            key=lambda kv: int(kv[1]),
+            reverse=True,
+        )[:3]
+        if critical_ranked:
+            rows.append("- critical_contributors: " + ", ".join(f"{k}={v}" for (k, v) in critical_ranked))
     return rows, {
         "replay_mismatch_count": replay_mismatch,
         "invalid_transition_count": invalid_transitions,

@@ -51,7 +51,7 @@ class TelemetryDashboardNotifyTests(unittest.TestCase):
                         "replay_mismatch_count=2",
                         "journal_coverage_ratio=0.750",
                         "invalid_transition_count=1",
-                        'replay_mismatch_categories={"ledger":1,"transition":1,"belief":0,"position":0,"orphan":0,"coverage_gap":0,"replace_race":0,"contradiction":0,"unknown":0}',
+                        'replay_mismatch_categories={"ledger":1,"transition":1,"belief":0,"position":2,"orphan":0,"coverage_gap":0,"replace_race":0,"contradiction":0,"unknown":0}',
                         "replay_mismatch_ids:",
                         "- CID-A",
                         "- CID-B",
@@ -65,12 +65,13 @@ class TelemetryDashboardNotifyTests(unittest.TestCase):
             self.assertIn("replay_mismatch=2", snippet)
             self.assertIn("invalid_transitions=1", snippet)
             self.assertIn("journal_coverage=0.750", snippet)
-            self.assertIn("mismatch_categories: ledger=1 transition=1 belief=0 position=0 orphan=0", snippet)
+            self.assertIn("mismatch_categories: ledger=1 transition=1 belief=0 position=2 orphan=0", snippet)
+            self.assertIn("critical_contributors: position=2", snippet)
             self.assertIn("missing_ids: CID-A, CID-B", snippet)
             self.assertTrue(degraded)
             self.assertEqual(int(metrics.get("replay_mismatch_count", 0)), 2)
             self.assertEqual(int(metrics.get("replay_mismatch_cat_ledger", 0)), 1)
-            self.assertEqual(int(metrics.get("replay_mismatch_cat_position", 0)), 0)
+            self.assertEqual(int(metrics.get("replay_mismatch_cat_position", 0)), 2)
 
     def test_reliability_gate_snippet_empty_when_missing(self):
         with tempfile.TemporaryDirectory() as td:

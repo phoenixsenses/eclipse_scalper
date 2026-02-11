@@ -201,6 +201,14 @@ def _reliability_gate_snippet(
         )[:3]
         if ranked:
             msg += "\n- top_contributors: " + ", ".join(f"{k}={v}" for (k, v) in ranked)
+        critical_keys = ("position", "orphan", "coverage_gap", "replace_race", "contradiction")
+        critical_ranked = sorted(
+            [(str(k), int(categories.get(k, 0))) for k in critical_keys if int(categories.get(k, 0)) > 0],
+            key=lambda kv: int(kv[1]),
+            reverse=True,
+        )[:3]
+        if critical_ranked:
+            msg += "\n- critical_contributors: " + ", ".join(f"{k}={v}" for (k, v) in critical_ranked)
     if mismatch_ids:
         msg += "\n- missing_ids: " + ", ".join(mismatch_ids)
     return msg, degraded, {

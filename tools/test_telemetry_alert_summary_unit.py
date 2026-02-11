@@ -48,6 +48,8 @@ class TelemetryAlertSummaryTests(unittest.TestCase):
             self.assertEqual(int(metrics.get("replace_race_count", 0)), 3)
             self.assertEqual(int(metrics.get("evidence_contradiction_count", 0)), 4)
             self.assertTrue(any("top_contributors:" in s for s in lines))
+            self.assertTrue(any("critical_contributors:" in s for s in lines))
+            self.assertTrue(any("position=1" in s for s in lines if "critical_contributors:" in s))
 
     def test_reliability_gate_lines_empty_when_missing(self):
         with tempfile.TemporaryDirectory() as td:
