@@ -216,3 +216,80 @@ def should_refresh_protection(
     if max_refresh_interval_sec > 0 and (now - last) >= float(max_refresh_interval_sec):
         return True
     return False
+
+
+def update_coverage_gap_state(
+    state: dict[str, Any],
+    *,
+    required_qty: float,
+    covered: bool,
+    ttl_sec: float = 90.0,
+    now_ts: Optional[float] = None,
+    reason: str = "",
+    coverage_ratio: float = 1.0,
+) -> dict[str, Any]:
+    """
+    Track protection coverage gaps across ticks and surface TTL breaches.
+    """
+    now = float(now_ts if now_ts is not None else time.time())
+    req = abs(_safe_float(required_qty, 0.0))
+    ttl = max(0.0, _safe_float(ttl_sec, 0.0))
+    ratio = max(0.0, _safe_float(coverage_ratio, 1.0))
+    if not isinstance(state, dict):
+        state = {}
+    prev_ttl_breached = bool(state.get("ttl_breached", False))
+
+    # No open exposure (or coverage restored) clears active gap state.
+    if req <= 0.0 or bool(covered):
+        if _safe_float(state.get("gap_first_ts", 0.0), 0.0) > 0.0:
+            state["last_resolved_ts"] = float(now)
+        state["active"] = False
+        state["covered"] = True
+        state["required_qty"] = float(req)
+        state["coverage_ratio"] = float(max(1.0, ratio if req > 0.0 else 1.0))
+        state["gap_first_ts"] = 0.0
+        state["gap_last_ts"] = float(now)
+        state["gap_seconds"] = 0.0
+        state["ttl_breached"] = False
+        state["reason"] = "covered"
+        return {
+            "active": False,
+            "gap_seconds": 0.0,
+            "ttl_breached": False,
+            "new_ttl_breach": False,
+            "breach_count": int(_safe_float(state.get("breach_count", 0), 0.0)),
+            "required_qty": float(req),
+            "coverage_ratio": float(state["coverage_ratio"]),
+            "reason": "covered",
+        }
+
+    first_ts = _safe_float(state.get("gap_first_ts", 0.0), 0.0)
+    if first_ts <= 0.0:
+        first_ts = float(now)
+    gap_seconds = max(0.0, float(now - first_ts))
+    ttl_breached = bool(ttl > 0.0 and gap_seconds >= ttl)
+    new_ttl_breach = bool(ttl_breached and not prev_ttl_breached)
+    if new_ttl_breach:
+        state["breach_count"] = int(_safe_float(state.get("breach_count", 0), 0.0)) + 1
+
+    state["active"] = True
+    state["covered"] = False
+    state["required_qty"] = float(req)
+    state["coverage_ratio"] = float(ratio)
+    state["gap_first_ts"] = float(first_ts)
+    state["gap_last_ts"] = float(now)
+    state["gap_seconds"] = float(gap_seconds)
+    state["ttl_breached"] = bool(ttl_breached)
+    state["ttl_sec"] = float(ttl)
+    state["reason"] = str(reason or "uncovered")
+
+    return {
+        "active": True,
+        "gap_seconds": float(gap_seconds),
+        "ttl_breached": bool(ttl_breached),
+        "new_ttl_breach": bool(new_ttl_breach),
+        "breach_count": int(_safe_float(state.get("breach_count", 0), 0.0)),
+        "required_qty": float(req),
+        "coverage_ratio": float(ratio),
+        "reason": str(state["reason"]),
+    }

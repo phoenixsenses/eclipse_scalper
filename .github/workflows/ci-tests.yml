@@ -23,6 +23,12 @@ jobs:
             cmd: pytest -q tools/test_execution_chaos_scenarios.py -k cancel_after_fill_unknown_order_is_idempotent_success
           - name: replace-race-single-exposure
             cmd: pytest -q tools/test_execution_chaos_scenarios_v2.py -k crash_mid_replace_filled_after_cancel_rebuild_reconcile_stays_single_exposure
+          - name: contradiction-burst-freezes-entry
+            cmd: pytest -q tools/test_execution_chaos_scenarios_v2.py -k contradiction_spike_in_runtime_gate_freezes_entries
+          - name: coverage-gap-ttl-freezes-entry
+            cmd: pytest -q tools/test_execution_chaos_scenarios_v2.py -k protection_gap_ttl_breach_freezes_entries_in_runtime_loop
+          - name: runtime-warmup-staged-recovery
+            cmd: pytest -q tools/test_execution_chaos_scenarios_v2.py -k runtime_gate_freeze_then_warmup_reenable_is_constrained
 
     steps:
       - name: Check out repo
@@ -202,6 +208,9 @@ jobs:
             echo "- Chaos Required - ack-after-fill-recovery"
             echo "- Chaos Required - cancel-unknown-idempotent"
             echo "- Chaos Required - replace-race-single-exposure"
+            echo "- Chaos Required - contradiction-burst-freezes-entry"
+            echo "- Chaos Required - coverage-gap-ttl-freezes-entry"
+            echo "- Chaos Required - runtime-warmup-staged-recovery"
             echo ""
             echo "Invariant gate metrics:"
             if [ -f logs/reliability_gate_ci.txt ]; then

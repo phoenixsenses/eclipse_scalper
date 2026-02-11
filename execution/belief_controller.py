@@ -172,6 +172,15 @@ class BeliefController:
         debt_sec = _safe_float(belief_state.get("belief_debt_sec", 0.0), 0.0)
         debt_symbols = max(0, int(_safe_float(belief_state.get("belief_debt_symbols", 0), 0.0)))
         mismatch_streak = max(0, int(_safe_float(belief_state.get("mismatch_streak", 0), 0.0)))
+        protection_coverage_gap_seconds = max(
+            0.0, _safe_float(belief_state.get("protection_coverage_gap_seconds", 0.0), 0.0)
+        )
+        protection_coverage_gap_symbols = max(
+            0.0, _safe_float(belief_state.get("protection_coverage_gap_symbols", 0), 0.0)
+        )
+        protection_coverage_ttl_breaches = max(
+            0.0, _safe_float(belief_state.get("protection_coverage_ttl_breaches", 0), 0.0)
+        )
         evidence_confidence = _clamp(_safe_float(belief_state.get("evidence_confidence", 1.0), 1.0), 0.0, 1.0)
         evidence_degraded_sources = max(0, int(_safe_float(belief_state.get("evidence_degraded_sources", 0), 0.0)))
         evidence_ws_gap_rate = max(0.0, _safe_float(belief_state.get("evidence_ws_gap_rate", 0.0), 0.0))
@@ -240,6 +249,14 @@ class BeliefController:
         growth_ref = max(1.0, self._cfg(cfg, "BELIEF_GROWTH_REF_PER_MIN", 120.0))
         symbol_weight = self._cfg(cfg, "BELIEF_SYMBOL_WEIGHT", 0.2)
         streak_weight = self._cfg(cfg, "BELIEF_STREAK_WEIGHT", 0.03)
+        protection_gap_ref = max(1.0, self._cfg(cfg, "BELIEF_PROTECTION_GAP_REF_SEC", 90.0))
+        protection_gap_weight = _clamp(self._cfg(cfg, "BELIEF_PROTECTION_GAP_WEIGHT", 0.25), 0.0, 3.0)
+        protection_gap_symbol_weight = _clamp(
+            self._cfg(cfg, "BELIEF_PROTECTION_GAP_SYMBOL_WEIGHT", 0.15), 0.0, 3.0
+        )
+        protection_gap_ttl_weight = _clamp(
+            self._cfg(cfg, "BELIEF_PROTECTION_GAP_TTL_BREACH_WEIGHT", 0.5), 0.0, 5.0
+        )
         evidence_weight = _clamp(self._cfg(cfg, "BELIEF_EVIDENCE_WEIGHT", 0.35), 0.0, 2.0)
         evidence_source_weight = _clamp(self._cfg(cfg, "BELIEF_EVIDENCE_SOURCE_WEIGHT", 0.08), 0.0, 1.0)
         evidence_source_gap_weight = _clamp(self._cfg(cfg, "BELIEF_EVIDENCE_SOURCE_GAP_WEIGHT", 0.08), 0.0, 1.0)
@@ -269,6 +286,7 @@ class BeliefController:
         evidence_contradiction_burn_norm = _clamp(
             float(evidence_contradiction_burn_rate) / float(evidence_contradiction_burn_ref), 0.0, 1.0
         )
+        protection_gap_norm = _clamp(float(protection_coverage_gap_seconds) / float(protection_gap_ref), 0.0, 3.0)
         gate_mismatch_ref = max(1.0, self._cfg(cfg, "BELIEF_RUNTIME_GATE_MISMATCH_REF", 1.0))
         gate_invalid_ref = max(1.0, self._cfg(cfg, "BELIEF_RUNTIME_GATE_INVALID_REF", 1.0))
         gate_weight = _clamp(self._cfg(cfg, "BELIEF_RUNTIME_GATE_WEIGHT", 0.35), 0.0, 3.0)
@@ -353,6 +371,9 @@ class BeliefController:
             (debt_sec / debt_ref)
             + (debt_symbols * symbol_weight)
             + (mismatch_streak * streak_weight)
+            + (protection_gap_norm * protection_gap_weight)
+            + (float(protection_coverage_gap_symbols) * protection_gap_symbol_weight)
+            + (float(protection_coverage_ttl_breaches) * protection_gap_ttl_weight)
             + (evidence_debt * evidence_weight)
             + (float(evidence_degraded_sources) * evidence_source_weight)
             + (float(evidence_gap_debt) * evidence_source_gap_weight)
@@ -462,6 +483,36 @@ class BeliefController:
         kill_trip = self.mode == "RED"
         if not allow_entries:
             max_notional = 0.0
+
+        protection_gap_trip_sec = max(1.0, self._cfg(cfg, "BELIEF_PROTECTION_GAP_TRIP_SEC", 90.0))
+        protection_gap_cd_extra = max(0.0, self._cfg(cfg, "BELIEF_PROTECTION_GAP_COOLDOWN_EXTRA_SEC", 20.0))
+        protection_gap_min_conf_extra = _clamp(
+            self._cfg(cfg, "BELIEF_PROTECTION_GAP_MIN_CONF_EXTRA", 0.06), 0.0, 1.0
+        )
+        protection_gap_degraded = bool(
+            float(protection_coverage_gap_seconds) >= float(protection_gap_trip_sec)
+            or float(protection_coverage_ttl_breaches) > 0.0
+        )
+        if protection_gap_degraded:
+            allow_entries = False
+            max_notional = 0.0
+            max_lev = max(1, int(max_lev * 0.7))
+            min_conf = _clamp(max(min_conf, base_conf) + protection_gap_min_conf_extra, 0.0, 1.0)
+            cooldown = float(cooldown + protection_gap_cd_extra)
+            for sym in list(per_symbol.keys()):
+                per_symbol[sym]["allow_entries"] = False
+                per_symbol[sym]["max_notional_usdt"] = 0.0
+                per_symbol[sym]["reason"] = (
+                    str(per_symbol[sym].get("reason") or "") + " | protection_gap_degraded"
+                ).strip()
+            if self._MODES.index(self.mode) < self._MODES.index("ORANGE"):
+                self.mode = "ORANGE"
+            reason = (
+                f"{reason} | protection_gap_degraded:"
+                f"gap={float(protection_coverage_gap_seconds):.1f}s"
+                f" symbols={int(protection_coverage_gap_symbols)}"
+                f" ttl_breaches={int(protection_coverage_ttl_breaches)}"
+            )
 
         gate_recover_sec = max(1.0, self._cfg(cfg, "BELIEF_RUNTIME_GATE_RECOVER_SEC", 120.0))
         gate_cd_extra = max(0.0, self._cfg(cfg, "BELIEF_RUNTIME_GATE_COOLDOWN_EXTRA_SEC", 30.0))
@@ -659,12 +710,16 @@ class BeliefController:
             self._last_contradiction_ts = float(now)
         unlock_min_cov = _clamp(self._cfg(cfg, "BELIEF_UNLOCK_MIN_JOURNAL_COVERAGE", 0.90), 0.0, 1.0)
         unlock_contrad_sec = max(0.0, self._cfg(cfg, "BELIEF_UNLOCK_CONTRADICTION_CLEAR_SEC", 60.0))
+        unlock_max_protection_gap_sec = max(
+            0.0, self._cfg(cfg, "BELIEF_UNLOCK_MAX_PROTECTION_GAP_SEC", 0.0)
+        )
         unlock_healthy_ticks_required = max(1, int(self._cfg(cfg, "BELIEF_UNLOCK_HEALTHY_TICKS_REQUIRED", 3.0)))
         is_healthy_tick = bool(
             (not runtime_gate_effective_degraded)
             and (not reconcile_first_spike_degraded)
             and (float(runtime_gate_cov) >= float(unlock_min_cov))
             and (not contradiction_active)
+            and (float(protection_coverage_gap_seconds) <= float(unlock_max_protection_gap_sec))
         )
         if is_healthy_tick:
             self._healthy_ticks += 1
@@ -682,6 +737,11 @@ class BeliefController:
             unlock_needs.append(
                 f"contradiction_clear {float(contradiction_clear_sec):.0f}s/{float(unlock_contrad_sec):.0f}s"
             )
+        if float(protection_coverage_gap_seconds) > float(unlock_max_protection_gap_sec):
+            unlock_needs.append(
+                f"protection_gap {float(protection_coverage_gap_seconds):.1f}s/"
+                f"{float(unlock_max_protection_gap_sec):.1f}s"
+            )
         unlock_requirements = "; ".join(unlock_needs) if unlock_needs else "stable"
         cause_tags: list[str] = []
         if runtime_gate_effective_degraded:
@@ -694,6 +754,8 @@ class BeliefController:
             cause_tags.append("evidence_contradiction")
         if float(evidence_contradiction_burn_norm) > 0.0:
             cause_tags.append("evidence_contradiction_burn")
+        if float(protection_coverage_gap_seconds) > 0.0:
+            cause_tags.append("protection_gap")
         if float(runtime_gate_mismatch_count) > 0.0:
             cause_tags.append("replay_mismatch")
         if transition:

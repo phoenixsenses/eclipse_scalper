@@ -577,6 +577,48 @@ class ChaosScenariosV2Tests(unittest.TestCase):
             str((hints.get("BTCUSDT") or {}).get("reason") or ""),
         )
 
+    def test_protection_gap_ttl_breach_freezes_entries_in_runtime_loop(self):
+        ex = _RestartExchange(
+            positions=[{"symbol": "BTC/USDT:USDT", "contracts": 1.0, "side": "long", "entryPrice": 100.0}],
+            orders=[],
+            trades=[],
+        )
+        bot = _DummyBot(ex)
+        bot.state.positions = {
+            "BTCUSDT": types.SimpleNamespace(side="long", size=1.0, entry_price=100.0, atr=0.0),
+        }
+        bot.state.run_context = {
+            "protection_gap_state": {"BTCUSDT": {"gap_first_ts": reconcile._now() - 120.0, "ttl_breached": False}}
+        }
+        bot.cfg.RECONCILE_PROTECTION_GAP_TTL_SEC = 60.0
+        bot.cfg.RECONCILE_ALERT_COOLDOWN_SEC = 0.0
+        bot.cfg.BELIEF_YELLOW_SCORE = 99.0
+        bot.cfg.BELIEF_ORANGE_SCORE = 199.0
+        bot.cfg.BELIEF_RED_SCORE = 299.0
+        bot.cfg.BELIEF_YELLOW_GROWTH = 99.0
+        bot.cfg.BELIEF_ORANGE_GROWTH = 199.0
+        bot.cfg.BELIEF_RED_GROWTH = 299.0
+        bot.cfg.BELIEF_PROTECTION_GAP_TRIP_SEC = 60.0
+
+        orig_stop = reconcile._ensure_protective_stop
+        orig_tp = reconcile._ensure_protective_tp
+        reconcile._ensure_protective_stop = lambda *_a, **_k: asyncio.sleep(0, result="failed")
+        reconcile._ensure_protective_tp = lambda *_a, **_k: asyncio.sleep(0, result="tp_disabled")
+        try:
+            asyncio.run(reconcile.reconcile_tick(bot))
+        finally:
+            reconcile._ensure_protective_stop = orig_stop
+            reconcile._ensure_protective_tp = orig_tp
+
+        knobs = dict(getattr(bot.state, "guard_knobs", {}) or {})
+        self.assertTrue(bool(knobs))
+        self.assertFalse(bool(knobs.get("allow_entries", True)))
+        self.assertIn("protection_gap_degraded", str(knobs.get("reason") or ""))
+
+        rm = dict(getattr(bot.state, "reconcile_metrics", {}) or {})
+        self.assertGreater(float(rm.get("protection_coverage_gap_seconds", 0.0) or 0.0), 0.0)
+        self.assertGreaterEqual(int(rm.get("protection_coverage_ttl_breaches", 0) or 0), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -271,6 +271,38 @@ class BeliefControllerTests(unittest.TestCase):
         self.assertEqual(str(getattr(k, "runtime_gate_reason", "")), "mismatch>0")
         self.assertTrue(ctl.allows_intent("exit"))
 
+    def test_protection_gap_ttl_breach_freezes_entries(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_YELLOW_SCORE=9.0,
+            BELIEF_ORANGE_SCORE=10.0,
+            BELIEF_RED_SCORE=11.0,
+            BELIEF_YELLOW_GROWTH=9.0,
+            BELIEF_ORANGE_GROWTH=9.0,
+            BELIEF_RED_GROWTH=9.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_PROTECTION_GAP_TRIP_SEC=60.0,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+        k = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "protection_coverage_gap_seconds": 75.0,
+                "protection_coverage_gap_symbols": 1,
+                "protection_coverage_ttl_breaches": 1,
+            },
+            cfg,
+        )
+        self.assertFalse(k.allow_entries)
+        self.assertEqual(float(k.max_notional_usdt), 0.0)
+        self.assertIn("protection_gap_degraded", str(k.reason))
+        self.assertTrue(ctl.allows_intent("exit"))
+
     def test_runtime_gate_recovery_warmup_applies_tighter_posture(self):
         cfg = types.SimpleNamespace(
             BELIEF_DEBT_REF_SEC=300.0,

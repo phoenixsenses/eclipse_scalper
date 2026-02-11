@@ -199,6 +199,385 @@ class PositionManagerTests(unittest.TestCase):
 
         self.assertEqual(calls["stops"], 0)
 
+    def test_reconcile_tracks_mismatch_streak_for_kill_switch(self):
+        class DummyEx:
+            async def fetch_positions(self, *_args, **_kwargs):
+                return []
+
+        class DummyState:
+            def __init__(self):
+                self.positions = {"BTCUSDT": SimpleNamespace(side="long", size=1.0, entry_price=100.0, atr=0.0)}
+                self.run_context = {}
+                self.kill_metrics = {}
+
+        class DummyBot:
+            def __init__(self):
+                self.ex = DummyEx()
+                self.state = DummyState()
+                self._shutdown = asyncio.Event()
+                self.active_symbols = {"BTCUSDT"}
+                self.cfg = SimpleNamespace(
+                    RECONCILE_FULL_SCAN_ORPHANS=True,
+                    RECONCILE_PHANTOM_MISS_COUNT=1,
+                    RECONCILE_PHANTOM_GRACE_SEC=0.0,
+                )
+
+        bot = DummyBot()
+        asyncio.run(reconcile.reconcile_tick(bot))
+        self.assertGreaterEqual(int(bot.state.kill_metrics.get("reconcile_mismatch_streak", 0) or 0), 1)
+
+    def test_reconcile_stop_repair_cooldown_prevents_thrashing(self):
+        class DummyEx:
+            pass
+
+        class DummyBot:
+            def __init__(self):
+                self.ex = DummyEx()
+                self.state = SimpleNamespace(
+                    positions={},
+                    run_context={"protection_refresh": {"BTCUSDT": {"qty": 1.0, "ts": reconcile._now()}}},
+                    reconcile_metrics={},
+                )
+                self.cfg = SimpleNamespace(
+                    GUARDIAN_ENSURE_STOP=True,
+                    GUARDIAN_RESPECT_KILL_SWITCH=False,
+                    RECONCILE_STOP_THROTTLE_SEC=0.0,
+                    RECONCILE_REPAIR_COOLDOWN_SEC=999.0,
+                    STOP_ATR_MULT=1.0,
+                    GUARDIAN_STOP_BUFFER_ATR_MULT=0.0,
+                )
+
+        pos = SimpleNamespace(side="long", size=1.0, entry_price=100.0, atr=1.0)
+        bot = DummyBot()
+        calls = {"place": 0}
+
+        async def _fake_fetch_open_orders_best_effort(*_args, **_kwargs):
+            return []
+
+        async def _fake_place_stop_ladder_router(*_args, **_kwargs):
+            calls["place"] += 1
+            return f"oid-{calls['place']}"
+
+        orig_fetch = reconcile._fetch_open_orders_best_effort
+        orig_place = reconcile._place_stop_ladder_router
+        orig_halt = reconcile.is_halted
+        reconcile._fetch_open_orders_best_effort = _fake_fetch_open_orders_best_effort
+        reconcile._place_stop_ladder_router = _fake_place_stop_ladder_router
+        reconcile.is_halted = lambda _bot: False
+        try:
+            out1 = asyncio.run(reconcile._ensure_protective_stop(bot, "BTCUSDT", pos, "long", 1.0))
+            out2 = asyncio.run(reconcile._ensure_protective_stop(bot, "BTCUSDT", pos, "long", 1.0))
+        finally:
+            reconcile._fetch_open_orders_best_effort = orig_fetch
+            reconcile._place_stop_ladder_router = orig_place
+            reconcile.is_halted = orig_halt
+
+        self.assertEqual(out1, "restored")
+        self.assertEqual(out2, "repair_cooldown")
+        self.assertEqual(calls["place"], 1)
+
+    def test_reconcile_stop_refresh_deferred_avoids_duplicate_stop(self):
+        class DummyEx:
+            pass
+
+        class DummyBot:
+            def __init__(self):
+                self.ex = DummyEx()
+                self.state = SimpleNamespace(
+                    positions={},
+                    run_context={"protection_refresh": {"BTCUSDT": {"qty": 1.0, "ts": reconcile._now()}}},
+                    reconcile_metrics={},
+                )
+                self.cfg = SimpleNamespace(
+                    GUARDIAN_ENSURE_STOP=True,
+                    GUARDIAN_RESPECT_KILL_SWITCH=False,
+                    RECONCILE_STOP_THROTTLE_SEC=0.0,
+                    RECONCILE_REPAIR_COOLDOWN_SEC=0.0,
+                    STOP_ATR_MULT=1.0,
+                    GUARDIAN_STOP_BUFFER_ATR_MULT=0.0,
+                    RECONCILE_STOP_MIN_COVERAGE_RATIO=0.98,
+                    RECONCILE_STOP_REFRESH_MIN_DELTA_RATIO=0.20,
+                    RECONCILE_STOP_REFRESH_MIN_DELTA_ABS=0.20,
+                    RECONCILE_STOP_REFRESH_MAX_INTERVAL_SEC=300.0,
+                    RECONCILE_STOP_REFRESH_FORCE_COVERAGE_RATIO=0.80,
+                )
+
+        pos = SimpleNamespace(side="long", size=1.05, entry_price=100.0, atr=1.0)
+        bot = DummyBot()
+        calls = {"place": 0, "replace": 0}
+
+        async def _fake_fetch_open_orders_best_effort(*_args, **_kwargs):
+            return [{"id": "stop-1", "type": "STOP_MARKET", "params": {"reduceOnly": True}, "amount": 1.0}]
+
+        async def _fake_place_stop_ladder_router(*_args, **_kwargs):
+            calls["place"] += 1
+            return "new-stop"
+
+        async def _fake_cancel_replace(*_args, **_kwargs):
+            calls["replace"] += 1
+            return {"id": "replaced-stop"}
+
+        orig_fetch = reconcile._fetch_open_orders_best_effort
+        orig_place = reconcile._place_stop_ladder_router
+        orig_replace = reconcile.cancel_replace_order
+        orig_halt = reconcile.is_halted
+        reconcile._fetch_open_orders_best_effort = _fake_fetch_open_orders_best_effort
+        reconcile._place_stop_ladder_router = _fake_place_stop_ladder_router
+        reconcile.cancel_replace_order = _fake_cancel_replace
+        reconcile.is_halted = lambda _bot: False
+        try:
+            out = asyncio.run(reconcile._ensure_protective_stop(bot, "BTCUSDT", pos, "long", 1.05))
+        finally:
+            reconcile._fetch_open_orders_best_effort = orig_fetch
+            reconcile._place_stop_ladder_router = orig_place
+            reconcile.cancel_replace_order = orig_replace
+            reconcile.is_halted = orig_halt
+
+        self.assertEqual(out, "refresh_deferred")
+        self.assertEqual(calls["replace"], 0)
+        self.assertEqual(calls["place"], 0)
+
+    def test_reconcile_stop_refresh_force_ratio_triggers_replace(self):
+        class DummyEx:
+            pass
+
+        class DummyBot:
+            def __init__(self):
+                self.ex = DummyEx()
+                self.state = SimpleNamespace(
+                    positions={},
+                    run_context={},
+                    reconcile_metrics={},
+                )
+                self.cfg = SimpleNamespace(
+                    GUARDIAN_ENSURE_STOP=True,
+                    GUARDIAN_RESPECT_KILL_SWITCH=False,
+                    RECONCILE_STOP_THROTTLE_SEC=0.0,
+                    RECONCILE_REPAIR_COOLDOWN_SEC=0.0,
+                    STOP_ATR_MULT=1.0,
+                    GUARDIAN_STOP_BUFFER_ATR_MULT=0.0,
+                    RECONCILE_STOP_MIN_COVERAGE_RATIO=0.98,
+                    RECONCILE_STOP_REFRESH_MIN_DELTA_RATIO=0.50,
+                    RECONCILE_STOP_REFRESH_MIN_DELTA_ABS=1.0,
+                    RECONCILE_STOP_REFRESH_MAX_INTERVAL_SEC=300.0,
+                    RECONCILE_STOP_REFRESH_FORCE_COVERAGE_RATIO=0.80,
+                )
+
+        pos = SimpleNamespace(side="long", size=1.0, entry_price=100.0, atr=1.0)
+        bot = DummyBot()
+        calls = {"replace": 0}
+
+        async def _fake_fetch_open_orders_best_effort(*_args, **_kwargs):
+            return [{"id": "stop-1", "type": "STOP_MARKET", "params": {"reduceOnly": True}, "amount": 0.4}]
+
+        async def _fake_cancel_replace(*_args, **_kwargs):
+            calls["replace"] += 1
+            return {"id": "stop-2"}
+
+        orig_fetch = reconcile._fetch_open_orders_best_effort
+        orig_replace = reconcile.cancel_replace_order
+        orig_halt = reconcile.is_halted
+        reconcile._fetch_open_orders_best_effort = _fake_fetch_open_orders_best_effort
+        reconcile.cancel_replace_order = _fake_cancel_replace
+        reconcile.is_halted = lambda _bot: False
+        try:
+            out = asyncio.run(reconcile._ensure_protective_stop(bot, "BTCUSDT", pos, "long", 1.0))
+        finally:
+            reconcile._fetch_open_orders_best_effort = orig_fetch
+            reconcile.cancel_replace_order = orig_replace
+            reconcile.is_halted = orig_halt
+
+        self.assertEqual(out, "restored")
+        self.assertEqual(calls["replace"], 1)
+
+    def test_reconcile_tp_refresh_deferred_avoids_duplicate_tp(self):
+        class DummyEx:
+            pass
+
+        class DummyBot:
+            def __init__(self):
+                self.ex = DummyEx()
+                self.state = SimpleNamespace(
+                    positions={},
+                    run_context={"protection_refresh_tp": {"BTCUSDT": {"qty": 1.0, "ts": reconcile._now()}}},
+                    reconcile_metrics={},
+                )
+                self.cfg = SimpleNamespace(
+                    GUARDIAN_ENSURE_TP=True,
+                    RECONCILE_TP_MIN_COVERAGE_RATIO=0.98,
+                    RECONCILE_TP_REFRESH_MIN_DELTA_RATIO=0.20,
+                    RECONCILE_TP_REFRESH_MIN_DELTA_ABS=0.20,
+                    RECONCILE_TP_REFRESH_MAX_INTERVAL_SEC=300.0,
+                    RECONCILE_TP_REFRESH_FORCE_COVERAGE_RATIO=0.80,
+                    TP_ATR_MULT=1.8,
+                    RECONCILE_TP_FALLBACK_PCT=0.005,
+                )
+
+        pos = SimpleNamespace(side="long", size=1.05, entry_price=100.0, atr=1.0)
+        bot = DummyBot()
+        calls = {"place": 0, "replace": 0}
+
+        async def _fake_fetch_open_orders_best_effort(*_args, **_kwargs):
+            return [{"id": "tp-1", "type": "TAKE_PROFIT_MARKET", "params": {"reduceOnly": True}, "amount": 1.0}]
+
+        async def _fake_place_tp_ladder_router(*_args, **_kwargs):
+            calls["place"] += 1
+            return "new-tp"
+
+        async def _fake_cancel_replace(*_args, **_kwargs):
+            calls["replace"] += 1
+            return {"id": "replaced-tp"}
+
+        orig_fetch = reconcile._fetch_open_orders_best_effort
+        orig_place_tp = reconcile._place_tp_ladder_router
+        orig_replace = reconcile.cancel_replace_order
+        reconcile._fetch_open_orders_best_effort = _fake_fetch_open_orders_best_effort
+        reconcile._place_tp_ladder_router = _fake_place_tp_ladder_router
+        reconcile.cancel_replace_order = _fake_cancel_replace
+        try:
+            out = asyncio.run(reconcile._ensure_protective_tp(bot, "BTCUSDT", pos, "long", 1.05))
+        finally:
+            reconcile._fetch_open_orders_best_effort = orig_fetch
+            reconcile._place_tp_ladder_router = orig_place_tp
+            reconcile.cancel_replace_order = orig_replace
+
+        self.assertEqual(out, "tp_refresh_deferred")
+        self.assertEqual(calls["replace"], 0)
+        self.assertEqual(calls["place"], 0)
+
+    def test_reconcile_tp_refresh_force_ratio_triggers_replace(self):
+        class DummyEx:
+            pass
+
+        class DummyBot:
+            def __init__(self):
+                self.ex = DummyEx()
+                self.state = SimpleNamespace(
+                    positions={},
+                    run_context={},
+                    reconcile_metrics={},
+                )
+                self.cfg = SimpleNamespace(
+                    GUARDIAN_ENSURE_TP=True,
+                    RECONCILE_TP_MIN_COVERAGE_RATIO=0.98,
+                    RECONCILE_TP_REFRESH_MIN_DELTA_RATIO=0.50,
+                    RECONCILE_TP_REFRESH_MIN_DELTA_ABS=1.0,
+                    RECONCILE_TP_REFRESH_MAX_INTERVAL_SEC=300.0,
+                    RECONCILE_TP_REFRESH_FORCE_COVERAGE_RATIO=0.80,
+                    TP_ATR_MULT=1.8,
+                    RECONCILE_TP_FALLBACK_PCT=0.005,
+                )
+
+        pos = SimpleNamespace(side="long", size=1.0, entry_price=100.0, atr=1.0)
+        bot = DummyBot()
+        calls = {"replace": 0}
+
+        async def _fake_fetch_open_orders_best_effort(*_args, **_kwargs):
+            return [{"id": "tp-1", "type": "TAKE_PROFIT_MARKET", "params": {"reduceOnly": True}, "amount": 0.4}]
+
+        async def _fake_cancel_replace(*_args, **_kwargs):
+            calls["replace"] += 1
+            return {"id": "tp-2"}
+
+        orig_fetch = reconcile._fetch_open_orders_best_effort
+        orig_replace = reconcile.cancel_replace_order
+        reconcile._fetch_open_orders_best_effort = _fake_fetch_open_orders_best_effort
+        reconcile.cancel_replace_order = _fake_cancel_replace
+        try:
+            out = asyncio.run(reconcile._ensure_protective_tp(bot, "BTCUSDT", pos, "long", 1.0))
+        finally:
+            reconcile._fetch_open_orders_best_effort = orig_fetch
+            reconcile.cancel_replace_order = orig_replace
+
+        self.assertEqual(out, "tp_restored")
+        self.assertEqual(calls["replace"], 1)
+
+    def test_reconcile_emits_belief_state_event(self):
+        class DummyEx:
+            async def fetch_positions(self, *_args, **_kwargs):
+                return []
+
+        class DummyState:
+            def __init__(self):
+                self.positions = {"BTCUSDT": SimpleNamespace(side="long", size=1.0, entry_price=100.0, atr=0.0)}
+                self.run_context = {}
+                self.kill_metrics = {}
+                self.reconcile_metrics = {}
+
+        class DummyBot:
+            def __init__(self):
+                self.ex = DummyEx()
+                self.state = DummyState()
+                self._shutdown = asyncio.Event()
+                self.active_symbols = {"BTCUSDT"}
+                self.cfg = SimpleNamespace(
+                    RECONCILE_FULL_SCAN_ORPHANS=True,
+                    RECONCILE_PHANTOM_MISS_COUNT=1,
+                    RECONCILE_PHANTOM_GRACE_SEC=0.0,
+                )
+
+        bot = DummyBot()
+        events = []
+
+        async def _fake_emit(_bot, event, data=None, **_kwargs):
+            events.append({"event": event, "data": dict(data or {})})
+
+        orig_emit = reconcile._tel_emit
+        reconcile._tel_emit = _fake_emit
+        try:
+            asyncio.run(reconcile.reconcile_tick(bot))
+        finally:
+            reconcile._tel_emit = orig_emit
+
+        belief = next((e for e in events if e.get("event") == "execution.belief_state"), None)
+        self.assertIsNotNone(belief)
+        self.assertIn("belief_debt_sec", belief["data"])
+        self.assertIn("evidence_confidence", belief["data"])
+        self.assertIn("intent_unknown_count", belief["data"])
+
+    def test_reconcile_tracks_protection_gap_ttl_breach_metrics(self):
+        class DummyEx:
+            async def fetch_positions(self, *_args, **_kwargs):
+                return [{"symbol": "BTCUSDT", "contracts": 1.0, "side": "long", "entryPrice": 100.0}]
+
+        class DummyState:
+            def __init__(self):
+                self.positions = {
+                    "BTCUSDT": SimpleNamespace(side="long", size=1.0, entry_price=100.0, atr=0.0)
+                }
+                self.run_context = {
+                    "protection_gap_state": {"BTCUSDT": {"gap_first_ts": reconcile._now() - 120.0, "ttl_breached": False}}
+                }
+                self.kill_metrics = {}
+                self.reconcile_metrics = {}
+
+        class DummyBot:
+            def __init__(self):
+                self.ex = DummyEx()
+                self.state = DummyState()
+                self._shutdown = asyncio.Event()
+                self.active_symbols = {"BTCUSDT"}
+                self.cfg = SimpleNamespace(
+                    RECONCILE_FULL_SCAN_ORPHANS=True,
+                    RECONCILE_PROTECTION_GAP_TTL_SEC=60.0,
+                    RECONCILE_ALERT_COOLDOWN_SEC=0.0,
+                )
+
+        bot = DummyBot()
+        orig_stop = reconcile._ensure_protective_stop
+        orig_tp = reconcile._ensure_protective_tp
+        reconcile._ensure_protective_stop = lambda *_a, **_k: asyncio.sleep(0, result="failed")
+        reconcile._ensure_protective_tp = lambda *_a, **_k: asyncio.sleep(0, result="tp_disabled")
+        try:
+            asyncio.run(reconcile.reconcile_tick(bot))
+        finally:
+            reconcile._ensure_protective_stop = orig_stop
+            reconcile._ensure_protective_tp = orig_tp
+
+        rm = getattr(bot.state, "reconcile_metrics", {}) or {}
+        self.assertGreater(float(rm.get("protection_coverage_gap_seconds", 0.0) or 0.0), 0.0)
+        self.assertGreaterEqual(int(rm.get("protection_coverage_ttl_breaches", 0) or 0), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

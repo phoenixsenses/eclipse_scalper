@@ -78,6 +78,10 @@
   - detects under-covered stop quantity
   - provides anti-churn refresh gating (`min_delta_ratio`, `max_refresh_interval_sec`)
 - Reconcile now uses protection coverage to refresh undersized stops via bounded cancel/replace instead of only binary present/missing behavior.
+- Added a strict protection coverage gap tracker with TTL:
+  - per-symbol coverage gaps are tracked across reconcile ticks
+  - TTL breaches emit critical reconcile telemetry and increase mismatch pressure
+  - persistent gaps feed belief-controller posture tightening (entry-only clamp, exits still exempt)
 
 ### 10) Restart Rebuild + Chaos v2
 - Added `execution/rebuild.py` for startup reconstruction:

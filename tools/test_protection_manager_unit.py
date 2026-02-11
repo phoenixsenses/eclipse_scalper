@@ -85,6 +85,44 @@ class ProtectionManagerTests(unittest.TestCase):
             )
         )
 
+    def test_update_coverage_gap_state_trips_ttl_and_increments_breach(self):
+        state = {"gap_first_ts": 10.0, "ttl_breached": False}
+        out = pm.update_coverage_gap_state(
+            state,
+            required_qty=2.0,
+            covered=False,
+            ttl_sec=30.0,
+            now_ts=50.0,
+            reason="failed",
+            coverage_ratio=0.0,
+        )
+        self.assertTrue(out["active"])
+        self.assertTrue(out["ttl_breached"])
+        self.assertTrue(out["new_ttl_breach"])
+        self.assertEqual(int(out["breach_count"]), 1)
+
+    def test_update_coverage_gap_state_resolves_on_coverage_restore(self):
+        state = {
+            "active": True,
+            "gap_first_ts": 10.0,
+            "gap_seconds": 20.0,
+            "ttl_breached": True,
+            "breach_count": 2,
+        }
+        out = pm.update_coverage_gap_state(
+            state,
+            required_qty=2.0,
+            covered=True,
+            ttl_sec=30.0,
+            now_ts=40.0,
+            reason="present",
+            coverage_ratio=1.0,
+        )
+        self.assertFalse(out["active"])
+        self.assertFalse(out["ttl_breached"])
+        self.assertEqual(float(out["gap_seconds"]), 0.0)
+        self.assertEqual(int(out["breach_count"]), 2)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -57,6 +57,7 @@ _kill_request_halt = _optional_import("risk.kill_switch", "request_halt")
 _assess_stop_coverage = _optional_import("execution.protection_manager", "assess_stop_coverage")
 _assess_tp_coverage = _optional_import("execution.protection_manager", "assess_tp_coverage")
 _should_refresh_protection = _optional_import("execution.protection_manager", "should_refresh_protection")
+_update_coverage_gap_state = _optional_import("execution.protection_manager", "update_coverage_gap_state")
 _state_machine = _optional_import("execution.state_machine")
 _journal_transition = _optional_import("execution.event_journal", "journal_transition")
 
@@ -305,6 +306,9 @@ def _ensure_reconcile_metrics(bot) -> Dict[str, Any]:
     rm.setdefault("runtime_gate_evidence_contradiction_count", 0)
     rm.setdefault("runtime_gate_degrade_score", 0.0)
     rm.setdefault("runtime_gate_replay_mismatch_ids", [])
+    rm.setdefault("protection_coverage_gap_seconds", 0.0)
+    rm.setdefault("protection_coverage_gap_symbols", 0)
+    rm.setdefault("protection_coverage_ttl_breaches", 0)
     rm.setdefault("reconcile_first_gate_count", 0)
     rm.setdefault("reconcile_first_gate_max_severity", 0.0)
     rm.setdefault("reconcile_first_gate_max_streak", 0)
@@ -454,6 +458,10 @@ def _collect_symbol_belief_debt(metrics: Dict[str, Any]) -> Dict[str, float]:
         if age > 0:
             out[kk] = float(age)
     return out
+
+
+def _stop_outcome_is_covered(outcome: str) -> bool:
+    return str(outcome or "").strip().lower() in ("present", "restored")
 
 
 def _ensure_belief_controller(bot):
@@ -1259,6 +1267,7 @@ async def reconcile_tick(bot):
     repair_actions = 0
     repair_skipped = 0
     mismatch_symbols: set[str] = set()
+    coverage_ttl_breaches = 0
 
     drift_abs = float(_cfg(bot, "GUARDIAN_SIZE_DRIFT_ABS", 0.0))
     drift_pct = float(_cfg(bot, "GUARDIAN_SIZE_DRIFT_PCT", 0.05))
@@ -1268,6 +1277,11 @@ async def reconcile_tick(bot):
     adopt_orphans = _truthy(_cfg(bot, "RECONCILE_ADOPT_ORPHANS", True))
 
     _ensure_shutdown_event(bot)
+    rc = _ensure_run_context(bot)
+    protection_gap_state = rc.get("protection_gap_state")
+    if not isinstance(protection_gap_state, dict):
+        protection_gap_state = {}
+        rc["protection_gap_state"] = protection_gap_state
 
     # Ensure a persistent dict reference lives on bot.state
     try:
@@ -1524,11 +1538,64 @@ async def reconcile_tick(bot):
                 mismatch_symbols.add(k)
                 _record_symbol_mismatch(metrics, k)
 
+            if callable(_update_coverage_gap_state):
+                s = protection_gap_state.get(k)
+                if not isinstance(s, dict):
+                    s = {}
+                    protection_gap_state[k] = s
+                cov = _update_coverage_gap_state(
+                    s,
+                    required_qty=float(best_size),
+                    covered=bool(_stop_outcome_is_covered(stop_outcome)),
+                    ttl_sec=float(_cfg(bot, "RECONCILE_PROTECTION_GAP_TTL_SEC", 90.0) or 90.0),
+                    now_ts=_now(),
+                    reason=str(stop_outcome),
+                    coverage_ratio=(1.0 if _stop_outcome_is_covered(stop_outcome) else 0.0),
+                )
+                if bool((cov or {}).get("new_ttl_breach", False)):
+                    coverage_ttl_breaches += 1
+                    mismatch_events += 1
+                    mismatch_symbols.add(k)
+                    _record_symbol_mismatch(metrics, k)
+                    gap_sec = float(_safe_float((cov or {}).get("gap_seconds", 0.0), 0.0))
+                    msg = (
+                        f"RECONCILE: PROTECTION COVERAGE GAP TTL BREACH {k} "
+                        f"gap={gap_sec:.1f}s outcome={stop_outcome}"
+                    )
+                    if _alert_ok(
+                        bot,
+                        f"{k}:protection_gap_ttl",
+                        msg,
+                        float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0)),
+                    ):
+                        await _safe_speak(bot, msg, "critical")
+
     # ensure state dict stays attached
     try:
         bot.state.positions = state_positions
     except Exception:
         pass
+
+    protection_gap_seconds = 0.0
+    protection_gap_symbols = 0
+    if isinstance(protection_gap_state, dict):
+        for key in list(protection_gap_state.keys()):
+            ent = protection_gap_state.get(key)
+            if not isinstance(ent, dict):
+                protection_gap_state.pop(key, None)
+                continue
+            active_gap = bool(ent.get("active", False))
+            gap_sec = max(0.0, _safe_float(ent.get("gap_seconds", 0.0), 0.0))
+            req_qty = max(0.0, _safe_float(ent.get("required_qty", 0.0), 0.0))
+            if active_gap and req_qty > 0.0 and gap_sec > 0.0:
+                protection_gap_symbols += 1
+                if gap_sec > protection_gap_seconds:
+                    protection_gap_seconds = gap_sec
+            elif (not active_gap) and req_qty <= 0.0:
+                protection_gap_state.pop(key, None)
+    metrics["protection_coverage_gap_seconds"] = float(protection_gap_seconds)
+    metrics["protection_coverage_gap_symbols"] = int(protection_gap_symbols)
+    metrics["protection_coverage_ttl_breaches"] = int(coverage_ttl_breaches)
 
     if mismatch_events > 0:
         metrics["mismatch_streak"] = int(metrics.get("mismatch_streak", 0) or 0) + int(mismatch_events)
@@ -1539,6 +1606,9 @@ async def reconcile_tick(bot):
         "mismatch_events": int(mismatch_events),
         "repair_actions": int(repair_actions),
         "repair_skipped": int(repair_skipped),
+        "protection_coverage_gap_seconds": float(protection_gap_seconds),
+        "protection_coverage_gap_symbols": int(protection_gap_symbols),
+        "protection_coverage_ttl_breaches": int(coverage_ttl_breaches),
         "ts": _now(),
     }
     healthy_syms = set(_symkey(s) for s in tracked_syms if _symkey(s) and _symkey(s) not in mismatch_symbols)
@@ -1712,6 +1782,15 @@ async def reconcile_tick(bot):
         km["reconcile_intent_unknown_count"] = int(metrics["intent_unknown_count"])
         km["reconcile_intent_unknown_oldest_sec"] = float(metrics["intent_unknown_oldest_sec"])
         km["reconcile_intent_unknown_mean_resolve_sec"] = float(metrics["intent_unknown_mean_resolve_sec"])
+        km["reconcile_protection_coverage_gap_seconds"] = float(
+            metrics.get("protection_coverage_gap_seconds", 0.0) or 0.0
+        )
+        km["reconcile_protection_coverage_gap_symbols"] = int(
+            metrics.get("protection_coverage_gap_symbols", 0) or 0
+        )
+        km["reconcile_protection_coverage_ttl_breaches"] = int(
+            metrics.get("protection_coverage_ttl_breaches", 0) or 0
+        )
 
     belief_trace = {}
     guard_knobs = None
@@ -1731,6 +1810,15 @@ async def reconcile_tick(bot):
                     "belief_debt_symbols": int(debt_syms),
                     "symbol_belief_debt_sec": dict(symbol_belief_debt_sec),
                     "mismatch_streak": int(metrics.get("mismatch_streak", 0) or 0),
+                    "protection_coverage_gap_seconds": float(
+                        metrics.get("protection_coverage_gap_seconds", 0.0) or 0.0
+                    ),
+                    "protection_coverage_gap_symbols": int(
+                        metrics.get("protection_coverage_gap_symbols", 0) or 0
+                    ),
+                    "protection_coverage_ttl_breaches": int(
+                        metrics.get("protection_coverage_ttl_breaches", 0) or 0
+                    ),
                     "evidence_confidence": float(metrics.get("evidence_confidence", 1.0) or 1.0),
                     "evidence_degraded_sources": int(metrics.get("evidence_degraded_sources", 0) or 0),
                     "evidence_ws_score": float(metrics.get("evidence_ws_score", 1.0) or 1.0),
@@ -1862,6 +1950,15 @@ async def reconcile_tick(bot):
                     "mismatch_events": int(mismatch_events),
                     "repair_actions": int(repair_actions),
                     "repair_skipped": int(repair_skipped),
+                    "protection_coverage_gap_seconds": float(
+                        metrics.get("protection_coverage_gap_seconds", 0.0) or 0.0
+                    ),
+                    "protection_coverage_gap_symbols": int(
+                        metrics.get("protection_coverage_gap_symbols", 0) or 0
+                    ),
+                    "protection_coverage_ttl_breaches": int(
+                        metrics.get("protection_coverage_ttl_breaches", 0) or 0
+                    ),
                     "mismatch_streak": int(metrics.get("mismatch_streak", 0) or 0),
                     "belief_debt_sec": float(debt_sec),
                     "belief_debt_symbols": int(debt_syms),
@@ -2051,6 +2148,15 @@ async def reconcile_tick(bot):
                     ),
                     "repair_actions": int(repair_actions),
                     "repair_skipped": int(repair_skipped),
+                    "protection_coverage_gap_seconds": float(
+                        metrics.get("protection_coverage_gap_seconds", 0.0) or 0.0
+                    ),
+                    "protection_coverage_gap_symbols": int(
+                        metrics.get("protection_coverage_gap_symbols", 0) or 0
+                    ),
+                    "protection_coverage_ttl_breaches": int(
+                        metrics.get("protection_coverage_ttl_breaches", 0) or 0
+                    ),
                     "guard_mode": (str(getattr(guard_knobs, "mode", "")) if guard_knobs is not None else ""),
                     "allow_entries": (bool(getattr(guard_knobs, "allow_entries", True)) if guard_knobs is not None else True),
                     "guard_recovery_stage": (
