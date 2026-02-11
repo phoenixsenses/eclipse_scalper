@@ -80,10 +80,10 @@ jobs:
           python - <<'PY'
           import importlib
           modules = [
-              "eclipse_scalper.tools.telemetry_dashboard_page",
-              "eclipse_scalper.tools.telemetry_alert_summary",
-              "eclipse_scalper.tools.telemetry_dashboard_notify",
-              "eclipse_scalper.execution.reliability_gate_runtime",
+              "tools.telemetry_dashboard_page",
+              "tools.telemetry_alert_summary",
+              "tools.telemetry_dashboard_notify",
+              "execution.reliability_gate_runtime",
           ]
           for m in modules:
               importlib.import_module(m)
