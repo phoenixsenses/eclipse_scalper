@@ -312,6 +312,89 @@ class BeliefControllerTests(unittest.TestCase):
         self.assertLessEqual(k.max_notional_usdt, 50.0)
         self.assertLessEqual(k.max_leverage, 10)
 
+    def test_reconcile_first_spike_freezes_entries_without_runtime_gate(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_YELLOW_SCORE=9.0,
+            BELIEF_ORANGE_SCORE=10.0,
+            BELIEF_RED_SCORE=11.0,
+            BELIEF_YELLOW_GROWTH=9.0,
+            BELIEF_ORANGE_GROWTH=9.0,
+            BELIEF_RED_GROWTH=9.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_RECONCILE_FIRST_GATE_COUNT_THRESHOLD=2,
+            BELIEF_RECONCILE_FIRST_GATE_SEVERITY_THRESHOLD=0.85,
+            BELIEF_RECONCILE_FIRST_GATE_STREAK_THRESHOLD=2,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+        k = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "runtime_gate_degraded": False,
+                "reconcile_first_gate_count": 2,
+                "reconcile_first_gate_max_severity": 0.9,
+                "reconcile_first_gate_max_streak": 2,
+                "reconcile_first_gate_last_reason": "runtime_gate_reconcile_first",
+            },
+            cfg,
+        )
+        self.assertFalse(k.allow_entries)
+        self.assertEqual(k.max_notional_usdt, 0.0)
+        self.assertTrue(bool(getattr(k, "reconcile_first_gate_degraded", False)))
+        self.assertEqual(str(getattr(k, "recovery_stage", "")), "RECONCILE_FIRST_GATE_DEGRADED")
+
+    def test_reconcile_first_spike_recovery_uses_runtime_warmup(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_YELLOW_SCORE=9.0,
+            BELIEF_ORANGE_SCORE=10.0,
+            BELIEF_RED_SCORE=11.0,
+            BELIEF_YELLOW_GROWTH=9.0,
+            BELIEF_ORANGE_GROWTH=9.0,
+            BELIEF_RED_GROWTH=9.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_RUNTIME_GATE_RECOVER_SEC=60.0,
+            BELIEF_RUNTIME_GATE_WARMUP_NOTIONAL_SCALE=0.5,
+            BELIEF_RECONCILE_FIRST_GATE_COUNT_THRESHOLD=2,
+            BELIEF_RECONCILE_FIRST_GATE_SEVERITY_THRESHOLD=0.85,
+            BELIEF_RECONCILE_FIRST_GATE_STREAK_THRESHOLD=2,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+        ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "reconcile_first_gate_count": 2,
+                "reconcile_first_gate_max_severity": 0.9,
+                "reconcile_first_gate_max_streak": 2,
+            },
+            cfg,
+        )
+        clock.tick(1.0)
+        k = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "reconcile_first_gate_count": 0,
+                "reconcile_first_gate_max_severity": 0.0,
+                "reconcile_first_gate_max_streak": 0,
+            },
+            cfg,
+        )
+        self.assertTrue(k.allow_entries)
+        self.assertIn("runtime_gate_warmup", str(k.reason))
+        self.assertEqual(str(getattr(k, "recovery_stage", "")), "RUNTIME_GATE_WARMUP")
+
     def test_per_symbol_budget_output(self):
         cfg = types.SimpleNamespace(
             BELIEF_DEBT_REF_SEC=100.0,

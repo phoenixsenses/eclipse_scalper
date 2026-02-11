@@ -271,7 +271,74 @@ def _ensure_reconcile_metrics(bot) -> Dict[str, Any]:
     rm.setdefault("runtime_gate_cat_unknown", 0)
     rm.setdefault("runtime_gate_degrade_score", 0.0)
     rm.setdefault("runtime_gate_replay_mismatch_ids", [])
+    rm.setdefault("reconcile_first_gate_count", 0)
+    rm.setdefault("reconcile_first_gate_max_severity", 0.0)
+    rm.setdefault("reconcile_first_gate_max_streak", 0)
+    rm.setdefault("reconcile_first_gate_last_reason", "")
     return rm
+
+
+def _recent_reconcile_first_gate_metrics(bot) -> Dict[str, Any]:
+    out = {
+        "count": 0,
+        "max_severity": 0.0,
+        "max_streak": 0,
+        "last_reason": "",
+    }
+    try:
+        st = getattr(bot, "state", None)
+        km = getattr(st, "kill_metrics", None) if st is not None else None
+        if not isinstance(km, dict):
+            return out
+        events = km.get("reconcile_first_gate_events")
+        if not isinstance(events, list):
+            return out
+        now_ts = _now()
+        window_sec = max(10.0, float(_cfg(bot, "BELIEF_RECONCILE_FIRST_WINDOW_SEC", 120.0) or 120.0))
+        severity_threshold = max(
+            0.0, float(_cfg(bot, "BELIEF_RECONCILE_FIRST_SEVERITY_THRESHOLD", 0.85) or 0.85)
+        )
+        max_events = int(_cfg(bot, "BELIEF_RECONCILE_FIRST_EVENTS_MAX", 160) or 160)
+        if max_events < 20:
+            max_events = 20
+        recent: list[dict] = []
+        for ev in events:
+            if not isinstance(ev, dict):
+                continue
+            ts = _safe_float(ev.get("ts", 0.0), 0.0)
+            if ts <= 0 or (now_ts - ts) > window_sec:
+                continue
+            recent.append(ev)
+        if len(recent) > max_events:
+            recent = recent[-max_events:]
+        # Trim stored list to avoid unbounded growth.
+        km["reconcile_first_gate_events"] = recent
+        if not recent:
+            km["reconcile_first_gate_current_streak"] = 0
+            return out
+        out["count"] = int(len(recent))
+        out["max_severity"] = float(
+            max(_safe_float(ev.get("severity", 0.0), 0.0) for ev in recent)
+        )
+        out["last_reason"] = str((recent[-1] or {}).get("reason", "") or "")
+        streak = 0
+        max_streak = 0
+        for ev in recent:
+            sev = _safe_float(ev.get("severity", 0.0), 0.0)
+            if sev >= severity_threshold:
+                streak += 1
+                if streak > max_streak:
+                    max_streak = streak
+            else:
+                streak = 0
+        out["max_streak"] = int(max_streak)
+        km["reconcile_first_gate_current_streak"] = int(streak)
+        km["reconcile_first_gate_max_streak"] = int(
+            max(int(km.get("reconcile_first_gate_max_streak", 0) or 0), int(max_streak))
+        )
+    except Exception:
+        return out
+    return out
 
 
 def _record_symbol_mismatch(metrics: Dict[str, Any], symbol: str) -> None:
@@ -1529,6 +1596,19 @@ async def reconcile_tick(bot):
     metrics["runtime_gate_degrade_score"] = float(_safe_float(gate.get("degrade_score", 0.0), 0.0))
     gate_ids = gate.get("replay_mismatch_ids")
     metrics["runtime_gate_replay_mismatch_ids"] = list(gate_ids) if isinstance(gate_ids, list) else []
+    reconcile_gate_recent = _recent_reconcile_first_gate_metrics(bot)
+    metrics["reconcile_first_gate_count"] = int(
+        _safe_float(reconcile_gate_recent.get("count", 0), 0.0)
+    )
+    metrics["reconcile_first_gate_max_severity"] = float(
+        _safe_float(reconcile_gate_recent.get("max_severity", 0.0), 0.0)
+    )
+    metrics["reconcile_first_gate_max_streak"] = int(
+        _safe_float(reconcile_gate_recent.get("max_streak", 0), 0.0)
+    )
+    metrics["reconcile_first_gate_last_reason"] = str(
+        reconcile_gate_recent.get("last_reason", "") or ""
+    )
     metrics["last_summary"]["belief_debt_sec"] = float(debt_sec)
     metrics["last_summary"]["belief_debt_symbols"] = int(debt_syms)
     metrics["last_summary"]["belief_confidence"] = float(conf)
@@ -1591,6 +1671,16 @@ async def reconcile_tick(bot):
                     "runtime_gate_replay_mismatch_ids": list(
                         metrics.get("runtime_gate_replay_mismatch_ids", []) or []
                     )[:5],
+                    "reconcile_first_gate_count": int(metrics.get("reconcile_first_gate_count", 0) or 0),
+                    "reconcile_first_gate_max_severity": float(
+                        metrics.get("reconcile_first_gate_max_severity", 0.0) or 0.0
+                    ),
+                    "reconcile_first_gate_max_streak": int(
+                        metrics.get("reconcile_first_gate_max_streak", 0) or 0
+                    ),
+                    "reconcile_first_gate_last_reason": str(
+                        metrics.get("reconcile_first_gate_last_reason", "") or ""
+                    ),
                 },
                 getattr(bot, "cfg", None),
             )
@@ -1658,6 +1748,16 @@ async def reconcile_tick(bot):
                     "runtime_gate_replay_mismatch_ids": list(
                         metrics.get("runtime_gate_replay_mismatch_ids", []) or []
                     )[:5],
+                    "reconcile_first_gate_count": int(metrics.get("reconcile_first_gate_count", 0) or 0),
+                    "reconcile_first_gate_max_severity": float(
+                        metrics.get("reconcile_first_gate_max_severity", 0.0) or 0.0
+                    ),
+                    "reconcile_first_gate_max_streak": int(
+                        metrics.get("reconcile_first_gate_max_streak", 0) or 0
+                    ),
+                    "reconcile_first_gate_last_reason": str(
+                        metrics.get("reconcile_first_gate_last_reason", "") or ""
+                    ),
                     "intent_unknown_count": int(metrics.get("intent_unknown_count", 0) or 0),
                     "intent_unknown_oldest_sec": float(metrics.get("intent_unknown_oldest_sec", 0.0) or 0.0),
                     "intent_unknown_mean_resolve_sec": float(
@@ -1719,6 +1819,16 @@ async def reconcile_tick(bot):
                     "runtime_gate_replay_mismatch_ids": list(
                         metrics.get("runtime_gate_replay_mismatch_ids", []) or []
                     )[:5],
+                    "reconcile_first_gate_count": int(metrics.get("reconcile_first_gate_count", 0) or 0),
+                    "reconcile_first_gate_max_severity": float(
+                        metrics.get("reconcile_first_gate_max_severity", 0.0) or 0.0
+                    ),
+                    "reconcile_first_gate_max_streak": int(
+                        metrics.get("reconcile_first_gate_max_streak", 0) or 0
+                    ),
+                    "reconcile_first_gate_last_reason": str(
+                        metrics.get("reconcile_first_gate_last_reason", "") or ""
+                    ),
                     "intent_unknown_count": int(metrics.get("intent_unknown_count", 0) or 0),
                     "intent_unknown_oldest_sec": float(metrics.get("intent_unknown_oldest_sec", 0.0) or 0.0),
                     "intent_unknown_mean_resolve_sec": float(
