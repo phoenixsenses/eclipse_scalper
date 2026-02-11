@@ -1,0 +1,125 @@
+name: CI Tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "**"
+
+jobs:
+  execution-reliability:
+    name: Execution reliability tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run execution chaos baseline suites
+        run: |
+          pytest -q tools/test_execution_chaos_scenarios.py
+          pytest -q tools/test_execution_chaos_scenarios_v2.py
+
+      - name: Run required chaos gate scenarios
+        run: |
+          pytest -q tools/test_execution_chaos_scenarios.py -k router_recovers_timeout_and_duplicate_then_returns_partial_fill
+          pytest -q tools/test_execution_chaos_scenarios.py -k cancel_after_fill_unknown_order_is_idempotent_success
+          pytest -q tools/test_execution_chaos_scenarios_v2.py -k crash_mid_replace_filled_after_cancel_rebuild_reconcile_stays_single_exposure
+          pytest -q tools/test_execution_chaos_scenarios.py -k ws_down_rest_healthy_degrades_without_collapsing_confidence
+          pytest -q tools/test_execution_chaos_scenarios.py -k rest_stale_and_ws_lag_drive_high_degradation
+          pytest -q tools/test_execution_chaos_scenarios.py -k retry_storm_pressure_is_bounded_by_router_attempts
+
+      - name: Run execution invariant suite
+        run: |
+          pytest -q tools/test_state_machine_unit.py
+          pytest -q tools/test_belief_controller_unit.py
+          pytest -q tools/test_order_router_unit.py
+          pytest -q tools/test_replace_manager_unit.py
+          pytest -q tools/test_intent_ledger_unit.py
+          pytest -q tools/test_protection_manager_unit.py
+          pytest -q tools/test_reliability_gate_unit.py
+          pytest -q tools/test_reliability_gate_runtime_unit.py
+          pytest -q tools/test_telemetry_alert_summary_unit.py
+          pytest -q tools/test_telemetry_dashboard_notify_unit.py
+          pytest -q tools/test_telemetry_belief_state_unit.py
+          pytest -q tools/test_telemetry_workflow_flags_unit.py
+
+      - name: Enforce reliability gate thresholds on synthetic fixture
+        run: |
+          mkdir -p logs
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          tele = [
+              {"event": "order.retry", "data": {"correlation_id": "CID-GATE-1"}},
+          ]
+          journ = [
+              {
+                  "event": "state.transition",
+                  "data": {
+                      "machine": "order_intent",
+                      "state_from": "INTENT_CREATED",
+                      "state_to": "SUBMITTED",
+                      "correlation_id": "CID-GATE-1",
+                  },
+              }
+          ]
+          Path("logs/telemetry_gate_fixture.jsonl").write_text(
+              "\n".join(json.dumps(x) for x in tele) + "\n",
+              encoding="utf-8",
+          )
+          Path("logs/journal_gate_fixture.jsonl").write_text(
+              "\n".join(json.dumps(x) for x in journ) + "\n",
+              encoding="utf-8",
+          )
+          PY
+          python tools/reliability_gate.py \
+            --telemetry logs/telemetry_gate_fixture.jsonl \
+            --journal logs/journal_gate_fixture.jsonl \
+            --output logs/reliability_gate_ci.txt \
+            --max-replay-mismatch 0 \
+            --max-invalid-transitions 0 \
+            --min-journal-coverage 1.0 \
+            --enforce
+
+      - name: Verify reliability gate degrades on missing journal coverage
+        run: |
+          mkdir -p logs
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          tele = [
+              {"event": "order.retry", "data": {"correlation_id": "CID-GATE-MISS"}},
+          ]
+          journ = []
+          Path("logs/telemetry_gate_missing_fixture.jsonl").write_text(
+              "\n".join(json.dumps(x) for x in tele) + "\n",
+              encoding="utf-8",
+          )
+          Path("logs/journal_gate_missing_fixture.jsonl").write_text(
+              "\n".join(json.dumps(x) for x in journ) + ("\n" if journ else ""),
+              encoding="utf-8",
+          )
+          PY
+          set +e
+          python tools/reliability_gate.py \
+            --telemetry logs/telemetry_gate_missing_fixture.jsonl \
+            --journal logs/journal_gate_missing_fixture.jsonl \
+            --output logs/reliability_gate_ci_missing.txt \
+            --max-replay-mismatch 0 \
+            --max-invalid-transitions 0 \
+            --min-journal-coverage 1.0 \
+            --enforce
+          rc=$?
+          set -e
+          test "$rc" -ne 0
