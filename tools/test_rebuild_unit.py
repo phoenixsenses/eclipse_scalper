@@ -147,6 +147,58 @@ class RebuildUnitTests(unittest.TestCase):
             self.assertTrue(any(str(r.get("client_order_id") or "") == "SL_BTC_1" for r in rows))
             self.assertTrue(any(str(r.get("reason") or "") == "rebuild_open_order_seen" for r in rows))
 
+    def test_rebuild_orphan_policy_override_applies_deterministically(self):
+        with tempfile.TemporaryDirectory() as td:
+            ex = _DummyEx(
+                positions=[],
+                orders=[
+                    {
+                        "id": "o3",
+                        "symbol": "DOGE/USDT:USDT",
+                        "status": "open",
+                        "type": "LIMIT",
+                        "clientOrderId": "ENTRY_DOGE_3",
+                        "params": {},
+                    }
+                ],
+                trades=[],
+            )
+            bot = self._bot(ex, td)
+            bot.cfg.REBUILD_ORPHAN_POLICY = "orphan_entry_order=FREEZE"
+            out = asyncio.run(rebuild.rebuild_local_state(bot, freeze_on_orphans=False, adopt_orphans=False))
+            self.assertTrue(bool(out.get("halted", False)))
+            self.assertEqual(int(out.get("orphans", 0)), 1)
+            orphan = dict((out.get("orphans_list") or [{}])[0] or {})
+            self.assertEqual(str(orphan.get("class") or ""), "orphan_entry_order")
+            self.assertEqual(str(orphan.get("action") or ""), "FREEZE")
+            self.assertEqual(str(orphan.get("policy_source") or ""), "policy_override")
+            self.assertEqual(str((out.get("orphan_policy") or {}).get("orphan_entry_order") or ""), "FREEZE")
+
+    def test_rebuild_freeze_on_orphans_forces_freeze_over_policy(self):
+        with tempfile.TemporaryDirectory() as td:
+            ex = _DummyEx(
+                positions=[],
+                orders=[
+                    {
+                        "id": "o4",
+                        "symbol": "DOGE/USDT:USDT",
+                        "status": "open",
+                        "type": "LIMIT",
+                        "clientOrderId": "ENTRY_DOGE_4",
+                        "params": {},
+                    }
+                ],
+                trades=[],
+            )
+            bot = self._bot(ex, td)
+            bot.cfg.REBUILD_ORPHAN_POLICY = "unknown_position_exposure=CANCEL"
+            out = asyncio.run(rebuild.rebuild_local_state(bot, freeze_on_orphans=True, adopt_orphans=False))
+            self.assertTrue(bool(out.get("halted", False)))
+            orphan = dict((out.get("orphans_list") or [{}])[0] or {})
+            self.assertEqual(str(orphan.get("class") or ""), "unknown_position_exposure")
+            self.assertEqual(str(orphan.get("action") or ""), "FREEZE")
+            self.assertEqual(str(orphan.get("policy_source") or ""), "forced_freeze")
+
 
 if __name__ == "__main__":
     unittest.main()

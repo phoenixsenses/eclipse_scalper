@@ -158,6 +158,41 @@ class IntentLedgerTests(unittest.TestCase):
             finally:
                 intent_ledger.time.time = orig_now
 
+    def test_load_from_journal_orders_by_ts_for_deterministic_stage(self):
+        with tempfile.TemporaryDirectory() as td:
+            ledger_path = Path(td) / "intent_ledger.jsonl"
+            journal_path = Path(td) / "execution_journal.jsonl"
+            # Intentionally out-of-order lines by ts.
+            rows = [
+                {
+                    "event": "intent.ledger",
+                    "data": {
+                        "ts": 200.0,
+                        "intent_id": "CID-ORD-1",
+                        "stage": "DONE",
+                        "symbol": "BTCUSDT",
+                        "status": "closed",
+                        "reason": "fill",
+                    },
+                },
+                {
+                    "event": "intent.ledger",
+                    "data": {
+                        "ts": 100.0,
+                        "intent_id": "CID-ORD-1",
+                        "stage": "SUBMITTED_UNKNOWN",
+                        "symbol": "BTCUSDT",
+                        "status": "open",
+                        "reason": "submit",
+                    },
+                },
+            ]
+            journal_path.write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
+            bot = self._bot(ledger_path)
+            got = intent_ledger.get_intent(bot, "CID-ORD-1")
+            self.assertIsNotNone(got)
+            self.assertEqual(str(got.get("stage") or ""), "DONE")
+
 
 if __name__ == "__main__":
     unittest.main()

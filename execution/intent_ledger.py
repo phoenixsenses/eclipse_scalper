@@ -149,6 +149,7 @@ def _load_from_disk(store: dict) -> None:
     loaded = False
     if path.exists():
         try:
+            rows: list[dict] = []
             for raw in path.read_text(encoding="utf-8").splitlines():
                 line = str(raw or "").strip()
                 if not line:
@@ -157,6 +158,10 @@ def _load_from_disk(store: dict) -> None:
                     payload = json.loads(line)
                 except Exception:
                     continue
+                if isinstance(payload, dict):
+                    rows.append(payload)
+            rows.sort(key=lambda d: _safe_float(d.get("ts"), 0.0))
+            for payload in rows:
                 _apply(store, payload)
                 loaded = True
         except Exception:
@@ -168,6 +173,7 @@ def _load_from_disk(store: dict) -> None:
     if not jpath.exists():
         return
     try:
+        rows: list[dict] = []
         for raw in jpath.read_text(encoding="utf-8").splitlines():
             line = str(raw or "").strip()
             if not line:
@@ -181,6 +187,9 @@ def _load_from_disk(store: dict) -> None:
             data = payload.get("data")
             if not isinstance(data, dict):
                 continue
+            rows.append(data)
+        rows.sort(key=lambda d: _safe_float(d.get("ts"), 0.0))
+        for data in rows:
             _apply(store, data)
     except Exception:
         return

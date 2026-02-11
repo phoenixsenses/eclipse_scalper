@@ -214,6 +214,52 @@ def _classify_orphan(
     return "unknown_position_exposure", "FREEZE", "unclassified_orphan"
 
 
+def _parse_orphan_policy(raw: Any) -> Dict[str, str]:
+    out: Dict[str, str] = {}
+    s = str(raw or "").strip()
+    if not s:
+        return out
+    parts = [p.strip() for p in s.replace(";", ",").split(",") if p.strip()]
+    for part in parts:
+        if "=" not in part:
+            continue
+        k, v = part.split("=", 1)
+        klass = str(k or "").strip().lower()
+        action = str(v or "").strip().upper()
+        if not klass:
+            continue
+        if action not in ("ADOPT", "CANCEL", "FREEZE"):
+            continue
+        out[klass] = action
+    return out
+
+
+def _orphan_policy_map(bot) -> Dict[str, str]:
+    policy: Dict[str, str] = {
+        "orphan_protective_order": "ADOPT",
+        "orphan_reduce_only_exit": "CANCEL",
+        "orphan_entry_order": "CANCEL",
+        "unknown_position_exposure": "FREEZE",
+    }
+    raw = ""
+    try:
+        cfg = getattr(bot, "cfg", None)
+        raw = str(getattr(cfg, "REBUILD_ORPHAN_POLICY", "") or "").strip()
+    except Exception:
+        raw = ""
+    if not raw:
+        try:
+            import os
+
+            raw = str(os.getenv("REBUILD_ORPHAN_POLICY", "") or "").strip()
+        except Exception:
+            raw = ""
+    override = _parse_orphan_policy(raw)
+    if override:
+        policy.update(override)
+    return policy
+
+
 def _rebuild_intent_id(*, symbol: str, order_id: str, client_order_id: str) -> str:
     base = f"{symbol}|{order_id}|{client_order_id}"
     digest = hashlib.sha1(base.encode("utf-8")).hexdigest()[:12]
@@ -337,6 +383,7 @@ async def rebuild_local_state(
         rebuilt[k] = _build_position(symbol=k, side=side, size=float(size), entry_price=float(entry_price), entry_ts=float(entry_ts))
 
     orphan_decisions: List[dict] = []
+    orphan_policy = _orphan_policy_map(bot)
     for o in open_orders:
         if not isinstance(o, dict):
             continue
@@ -355,6 +402,17 @@ async def rebuild_local_state(
             protective=protective,
             freeze_on_orphans=freeze_on_orphans,
         )
+        policy_action = str(orphan_policy.get(str(klass or "").lower()) or action).upper()
+        policy_source = "default"
+        if policy_action != str(action or "").upper():
+            policy_source = "policy_override"
+            action = policy_action
+            reason = f"{reason}|policy:{policy_action.lower()}"
+        if freeze_on_orphans and str(klass or "").lower() == "unknown_position_exposure":
+            if str(action or "").upper() != "FREEZE":
+                reason = f"{reason}|policy:forced_freeze"
+            action = "FREEZE"
+            policy_source = "forced_freeze"
         order_id = str(o.get("id") or "")
         client_order_id = _order_client_order_id(o)
         intent_id = ""
@@ -404,6 +462,7 @@ async def rebuild_local_state(
             "reduce_only": bool(reduce_only),
             "protective": bool(protective),
             "cancel_ok": False,
+            "policy_source": str(policy_source),
         }
         if action == "CANCEL":
             ent["cancel_ok"] = bool(await _cancel_order_best_effort(ex, str(ent["order_id"]), str(o.get("symbol") or k)))
@@ -421,7 +480,7 @@ async def rebuild_local_state(
                         order_id=order_id,
                         status=("canceled" if ent["cancel_ok"] else "open"),
                         reason=("rebuild_orphan_canceled" if ent["cancel_ok"] else "rebuild_orphan_cancel_failed"),
-                        meta={"class": klass, "action": action},
+                        meta={"class": klass, "action": action, "policy_source": policy_source},
                     )
                 except Exception:
                     pass
@@ -439,7 +498,7 @@ async def rebuild_local_state(
                     order_id=order_id,
                     status="open",
                     reason="rebuild_orphan_frozen",
-                    meta={"class": klass, "action": action},
+                    meta={"class": klass, "action": action, "policy_source": policy_source},
                 )
             except Exception:
                 pass
@@ -458,6 +517,7 @@ async def rebuild_local_state(
                         "reduce_only": bool(ent.get("reduce_only", False)),
                         "protective": bool(ent.get("protective", False)),
                         "cancel_ok": bool(ent.get("cancel_ok", False)),
+                        "policy_source": str(ent.get("policy_source") or "default"),
                     },
                 )
             except Exception:
@@ -489,6 +549,7 @@ async def rebuild_local_state(
             "CANCEL": int(sum(1 for x in orphan_decisions if str(x.get("action") or "").upper() == "CANCEL")),
             "FREEZE": int(sum(1 for x in orphan_decisions if str(x.get("action") or "").upper() == "FREEZE")),
         },
+        "orphan_policy": dict(orphan_policy),
     }
     rc["rebuild"] = summary
     try:
