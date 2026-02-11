@@ -868,6 +868,8 @@ python tools/telemetry_dashboard.py --path logs/telemetry.jsonl --guard-events -
 
 ## Scheduled telemetry snapshots
 
+Telemetry smoke workflow status: [![Telemetry Smoke Assertions](https://github.com/phoenixsenses/eclipse_scalper/actions/workflows/telemetry-smoke.yml/badge.svg)](https://github.com/phoenixsenses/eclipse_scalper/actions/workflows/telemetry-smoke.yml)
+
 The workflow `.github/workflows/telemetry-dashboard.yml` runs the dashboard helper every six hours (plus whenever you trigger `workflow_dispatch`). It checks out the repo, sets up Python 3.12, installs the notifier runtime dependency (`python-telegram-bot==22.5`), and executes:
 
 For operational procedures (manual trigger/watch, RED_LOCK smoke, reset smoke, and incident triage), see `docs/telemetry_runbook.md`.
