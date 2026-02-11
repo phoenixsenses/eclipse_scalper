@@ -83,6 +83,39 @@ class ReliabilityGateTests(unittest.TestCase):
         self.assertGreaterEqual(int(out.get("replace_race_count", 0) or 0), 1)
         self.assertGreaterEqual(int(out.get("evidence_contradiction_count", 0) or 0), 1)
 
+    def test_render_includes_critical_contributors(self):
+        report = {
+            "telemetry_corr_ids": 4,
+            "journal_corr_ids": 3,
+            "replay_mismatch_count": 1,
+            "journal_coverage_ratio": 0.75,
+            "invalid_transition_count": 0,
+            "position_mismatch_count": 2,
+            "orphan_count": 1,
+            "protection_coverage_gap_seconds": 9.0,
+            "replace_race_count": 3,
+            "evidence_contradiction_count": 4,
+            "replay_mismatch_ids": ["CID-X"],
+            "replay_mismatch_categories": {
+                "ledger": 0,
+                "transition": 0,
+                "belief": 0,
+                "position": 2,
+                "orphan": 1,
+                "coverage_gap": 1,
+                "replace_race": 3,
+                "contradiction": 4,
+                "unknown": 0,
+            },
+        }
+        text = rg._render(
+            report,
+            telemetry_path=Path("logs/telemetry.jsonl"),
+            journal_path=Path("logs/execution_journal.jsonl"),
+        )
+        self.assertIn("top_contributors=contradiction:4,replace_race:3,position:2", text)
+        self.assertIn("critical_contributors=contradiction:4,replace_race:3,position:2", text)
+
 
 if __name__ == "__main__":
     unittest.main()

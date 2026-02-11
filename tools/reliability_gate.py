@@ -242,24 +242,40 @@ def _render(report: Dict[str, Any], *, telemetry_path: Path, journal_path: Path)
     ]
     categories = report.get("replay_mismatch_categories")
     if isinstance(categories, dict) and categories:
+        normalized = {
+            "ledger": int(categories.get("ledger", 0) or 0),
+            "transition": int(categories.get("transition", 0) or 0),
+            "belief": int(categories.get("belief", 0) or 0),
+            "position": int(categories.get("position", 0) or 0),
+            "orphan": int(categories.get("orphan", 0) or 0),
+            "coverage_gap": int(categories.get("coverage_gap", 0) or 0),
+            "replace_race": int(categories.get("replace_race", 0) or 0),
+            "contradiction": int(categories.get("contradiction", 0) or 0),
+            "unknown": int(categories.get("unknown", 0) or 0),
+        }
         lines.append(
             "replay_mismatch_categories="
             + json.dumps(
-                {
-                    "ledger": int(categories.get("ledger", 0) or 0),
-                    "transition": int(categories.get("transition", 0) or 0),
-                    "belief": int(categories.get("belief", 0) or 0),
-                    "position": int(categories.get("position", 0) or 0),
-                    "orphan": int(categories.get("orphan", 0) or 0),
-                    "coverage_gap": int(categories.get("coverage_gap", 0) or 0),
-                    "replace_race": int(categories.get("replace_race", 0) or 0),
-                    "contradiction": int(categories.get("contradiction", 0) or 0),
-                    "unknown": int(categories.get("unknown", 0) or 0),
-                },
+                normalized,
                 ensure_ascii=True,
                 separators=(",", ":"),
             )
         )
+        ranked = sorted(
+            [(str(k), int(v)) for (k, v) in normalized.items() if int(v) > 0],
+            key=lambda kv: int(kv[1]),
+            reverse=True,
+        )[:3]
+        if ranked:
+            lines.append("top_contributors=" + ",".join(f"{k}:{v}" for (k, v) in ranked))
+        critical_keys = ("position", "orphan", "coverage_gap", "replace_race", "contradiction")
+        critical_ranked = sorted(
+            [(str(k), int(normalized.get(k, 0))) for k in critical_keys if int(normalized.get(k, 0)) > 0],
+            key=lambda kv: int(kv[1]),
+            reverse=True,
+        )[:3]
+        if critical_ranked:
+            lines.append("critical_contributors=" + ",".join(f"{k}:{v}" for (k, v) in critical_ranked))
     missing = report.get("replay_mismatch_ids")
     if isinstance(missing, list) and missing:
         lines.append("replay_mismatch_ids:")
