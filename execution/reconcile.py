@@ -1664,6 +1664,15 @@ async def reconcile_tick(bot):
                         metrics.get("intent_unknown_mean_resolve_sec", 0.0) or 0.0
                     ),
                     "guard_mode": (str(getattr(guard_knobs, "mode", "")) if guard_knobs is not None else ""),
+                    "guard_recovery_stage": (
+                        str(getattr(guard_knobs, "recovery_stage", "")) if guard_knobs is not None else ""
+                    ),
+                    "guard_unlock_conditions": (
+                        str(getattr(guard_knobs, "unlock_conditions", "")) if guard_knobs is not None else ""
+                    ),
+                    "guard_next_unlock_sec": (
+                        float(getattr(guard_knobs, "next_unlock_sec", 0.0) or 0.0) if guard_knobs is not None else 0.0
+                    ),
                 },
                 level=("warning" if mismatch_events > 0 else "info"),
             )
@@ -1719,6 +1728,15 @@ async def reconcile_tick(bot):
                     "repair_skipped": int(repair_skipped),
                     "guard_mode": (str(getattr(guard_knobs, "mode", "")) if guard_knobs is not None else ""),
                     "allow_entries": (bool(getattr(guard_knobs, "allow_entries", True)) if guard_knobs is not None else True),
+                    "guard_recovery_stage": (
+                        str(getattr(guard_knobs, "recovery_stage", "")) if guard_knobs is not None else ""
+                    ),
+                    "guard_unlock_conditions": (
+                        str(getattr(guard_knobs, "unlock_conditions", "")) if guard_knobs is not None else ""
+                    ),
+                    "guard_next_unlock_sec": (
+                        float(getattr(guard_knobs, "next_unlock_sec", 0.0) or 0.0) if guard_knobs is not None else 0.0
+                    ),
                     "trace": belief_trace,
                 },
                 level=("warning" if conf < 0.75 else "info"),

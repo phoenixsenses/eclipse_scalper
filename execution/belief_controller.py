@@ -66,6 +66,7 @@ class BeliefController:
         self._down_since: Dict[str, float] = {}
         self._last_trace: Optional[DecisionTrace] = None
         self._runtime_gate_recover_until = 0.0
+        self._post_red_warmup_until = 0.0
 
     def explain(self) -> DecisionTrace:
         if self._last_trace is not None:
@@ -229,6 +230,11 @@ class BeliefController:
                     self.mode_since = now
                     self._down_since.clear()
                     transition = f"{prev}->{self.mode}"
+                    if prev == "RED":
+                        post_red_warmup_sec = max(
+                            0.0, self._cfg(cfg, "BELIEF_POST_RED_WARMUP_SEC", 180.0)
+                        )
+                        self._post_red_warmup_until = float(now + post_red_warmup_sec)
             else:
                 self._down_since.clear()
 
@@ -295,6 +301,7 @@ class BeliefController:
         gate_warmup_lev_scale = _clamp(self._cfg(cfg, "BELIEF_RUNTIME_GATE_WARMUP_LEVERAGE_SCALE", 0.6), 0.1, 1.0)
         gate_trip_kill = bool(self._cfg(cfg, "BELIEF_RUNTIME_GATE_TRIP_KILL", False))
         runtime_recovering = bool(now < float(self._runtime_gate_recover_until))
+        post_red_recovering = bool(now < float(self._post_red_warmup_until))
         if runtime_gate_degraded:
             self._runtime_gate_recover_until = float(now + gate_recover_sec)
             allow_entries = False
@@ -363,6 +370,74 @@ class BeliefController:
                 )
             reason = f"{reason} | runtime_gate_soft_scale={soft_scale:.2f}"
 
+        if post_red_recovering:
+            rem = max(0.0, float(self._post_red_warmup_until - now))
+            post_notional_scale = _clamp(
+                self._cfg(cfg, "BELIEF_POST_RED_WARMUP_NOTIONAL_SCALE", 0.6), 0.0, 1.0
+            )
+            post_lev_scale = _clamp(
+                self._cfg(cfg, "BELIEF_POST_RED_WARMUP_LEVERAGE_SCALE", 0.7), 0.1, 1.0
+            )
+            post_conf_extra = _clamp(
+                self._cfg(cfg, "BELIEF_POST_RED_WARMUP_MIN_CONF_EXTRA", 0.06), 0.0, 1.0
+            )
+            post_cd_extra = max(0.0, self._cfg(cfg, "BELIEF_POST_RED_WARMUP_COOLDOWN_EXTRA_SEC", 20.0))
+            max_notional = float(max_notional * post_notional_scale)
+            max_lev = max(1, int(max_lev * post_lev_scale))
+            min_conf = _clamp(min_conf + post_conf_extra, 0.0, 1.0)
+            cooldown = float(cooldown + post_cd_extra)
+            for sym in list(per_symbol.keys()):
+                per_symbol[sym]["max_notional_usdt"] = float(
+                    _safe_float(per_symbol[sym].get("max_notional_usdt", 0.0), 0.0)
+                    * post_notional_scale
+                )
+                per_symbol[sym]["max_leverage"] = max(
+                    1,
+                    int(_safe_float(per_symbol[sym].get("max_leverage", 1), 1.0) * post_lev_scale),
+                )
+                per_symbol[sym]["entry_cooldown_seconds"] = float(
+                    _safe_float(per_symbol[sym].get("entry_cooldown_seconds", base_cd), base_cd)
+                    + post_cd_extra
+                )
+                per_symbol[sym]["reason"] = (
+                    str(per_symbol[sym].get("reason") or "") + " | post_red_warmup"
+                ).strip()
+            reason = f"{reason} | post_red_warmup={rem:.0f}s"
+
+        recovery_stage = ""
+        unlock_conditions = "stable"
+        next_unlock_sec = 0.0
+        if runtime_gate_degraded:
+            recovery_stage = "RUNTIME_GATE_DEGRADED"
+            unlock_conditions = (
+                f"runtime gate clear required ({runtime_gate_reason})"
+                if runtime_gate_reason
+                else "runtime gate clear required"
+            )
+        elif runtime_recovering:
+            rem = max(0.0, float(self._runtime_gate_recover_until - now))
+            recovery_stage = "RUNTIME_GATE_WARMUP"
+            unlock_conditions = f"runtime gate warmup remaining {rem:.0f}s"
+            next_unlock_sec = rem
+        elif post_red_recovering:
+            rem = max(0.0, float(self._post_red_warmup_until - now))
+            recovery_stage = "POST_RED_WARMUP"
+            unlock_conditions = f"post-red warmup remaining {rem:.0f}s"
+            next_unlock_sec = rem
+        elif self.mode == "RED":
+            recovery_stage = "RED_LOCK"
+            unlock_conditions = f"debt/growth must stay below recovery thresholds for {recover_sec:.0f}s"
+            next_unlock_sec = float(recover_sec)
+        elif self.mode == "ORANGE":
+            recovery_stage = "ORANGE_RECOVERY"
+            unlock_conditions = f"debt must remain below hysteresis threshold for {recover_sec:.0f}s"
+            next_unlock_sec = float(recover_sec)
+        elif self.mode == "YELLOW":
+            recovery_stage = "YELLOW_WATCH"
+            unlock_conditions = "maintain low debt and stable evidence to return GREEN"
+        else:
+            recovery_stage = "GREEN"
+
         trace = DecisionTrace(
             mode=self.mode,
             debt_score=float(debt_score),
@@ -386,5 +461,8 @@ class BeliefController:
             runtime_gate_degraded=bool(runtime_gate_degraded),
             runtime_gate_reason=str(runtime_gate_reason),
             runtime_gate_degrade_score=float(runtime_gate_degrade_score),
+            recovery_stage=str(recovery_stage),
+            unlock_conditions=str(unlock_conditions),
+            next_unlock_sec=float(next_unlock_sec),
             per_symbol=per_symbol,
         )

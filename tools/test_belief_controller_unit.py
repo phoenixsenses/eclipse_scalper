@@ -440,6 +440,52 @@ class BeliefControllerTests(unittest.TestCase):
         self.assertLessEqual(float(pressured.max_notional_usdt), float(base.max_notional_usdt))
         self.assertLessEqual(int(pressured.max_leverage), int(base.max_leverage))
 
+    def test_post_red_recovery_ladder_applies_warmup_caps(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=100.0,
+            BELIEF_SYMBOL_WEIGHT=0.0,
+            BELIEF_STREAK_WEIGHT=0.0,
+            BELIEF_YELLOW_SCORE=0.8,
+            BELIEF_ORANGE_SCORE=1.2,
+            BELIEF_RED_SCORE=2.0,
+            BELIEF_YELLOW_GROWTH=9.0,
+            BELIEF_ORANGE_GROWTH=9.0,
+            BELIEF_RED_GROWTH=9.0,
+            BELIEF_MODE_PERSIST_SEC=0.0,
+            BELIEF_MODE_RECOVER_SEC=2.0,
+            BELIEF_DOWN_HYST=0.8,
+            BELIEF_POST_RED_WARMUP_SEC=10.0,
+            BELIEF_POST_RED_WARMUP_NOTIONAL_SCALE=0.5,
+            BELIEF_POST_RED_WARMUP_LEVERAGE_SCALE=0.5,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+        k_red = ctl.update(
+            {"belief_debt_sec": 300.0, "belief_debt_symbols": 0, "mismatch_streak": 0},
+            cfg,
+        )
+        self.assertEqual(k_red.mode, "RED")
+        self.assertFalse(k_red.allow_entries)
+        self.assertIn("RED_LOCK", str(getattr(k_red, "recovery_stage", "")))
+
+        clock.tick(3.0)
+        ctl.update(
+            {"belief_debt_sec": 0.0, "belief_debt_symbols": 0, "mismatch_streak": 0},
+            cfg,
+        )
+        clock.tick(3.0)
+        k_orange = ctl.update(
+            {"belief_debt_sec": 0.0, "belief_debt_symbols": 0, "mismatch_streak": 0},
+            cfg,
+        )
+        self.assertIn(k_orange.mode, ("ORANGE", "YELLOW"))
+        self.assertIn("post_red_warmup", str(k_orange.reason))
+        self.assertEqual(str(getattr(k_orange, "recovery_stage", "")), "POST_RED_WARMUP")
+        self.assertGreater(float(getattr(k_orange, "next_unlock_sec", 0.0) or 0.0), 0.0)
+
 
 if __name__ == "__main__":
     unittest.main()

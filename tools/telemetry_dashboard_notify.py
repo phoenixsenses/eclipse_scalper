@@ -205,6 +205,11 @@ def _belief_state_snippet(path: Path) -> str:
                 "symbols": int(data.get("belief_debt_symbols") or 0),
                 "conf": float(data.get("belief_confidence") or 0.0),
                 "streak": int(data.get("mismatch_streak") or 0),
+                "guard_mode": str(data.get("guard_mode") or ""),
+                "allow_entries": bool(data.get("allow_entries", True)),
+                "recovery_stage": str(data.get("guard_recovery_stage") or ""),
+                "unlock": str(data.get("guard_unlock_conditions") or ""),
+                "next_unlock_sec": float(data.get("guard_next_unlock_sec") or 0.0),
             }
         )
     if not rows:
@@ -213,7 +218,10 @@ def _belief_state_snippet(path: Path) -> str:
     return (
         "Execution belief state:\n"
         f"- debt={latest['debt']:.1f}s symbols={latest['symbols']} "
-        f"confidence={latest['conf']:.2f} streak={latest['streak']}"
+        f"confidence={latest['conf']:.2f} streak={latest['streak']}\n"
+        f"- guard_mode={latest['guard_mode'] or 'n/a'} allow_entries={bool(latest['allow_entries'])} "
+        f"recovery_stage={latest['recovery_stage'] or 'n/a'} next_unlock_sec={float(latest['next_unlock_sec']):.1f}\n"
+        f"- unlock_conditions={latest['unlock'] or 'stable'}"
     )
 
 

@@ -422,6 +422,11 @@ def _belief_state_summary(events: list[dict], limit: int = 8) -> str:
                 "mismatch_streak": int(data.get("mismatch_streak") or 0),
                 "repair_actions": int(data.get("repair_actions") or 0),
                 "repair_skipped": int(data.get("repair_skipped") or 0),
+                "guard_mode": str(data.get("guard_mode") or ""),
+                "allow_entries": bool(data.get("allow_entries", True)),
+                "guard_recovery_stage": str(data.get("guard_recovery_stage") or ""),
+                "guard_unlock_conditions": str(data.get("guard_unlock_conditions") or ""),
+                "guard_next_unlock_sec": float(data.get("guard_next_unlock_sec") or 0.0),
             }
         )
     if not rows:
@@ -437,6 +442,15 @@ def _belief_state_summary(events: list[dict], limit: int = 8) -> str:
             f"latest debt={latest['debt_sec']:.1f}s symbols={latest['debt_symbols']} "
             f"confidence={latest['confidence']:.2f} streak={latest['mismatch_streak']}"
         ),
+        (
+            f"latest guard_mode={latest['guard_mode'] or 'n/a'} "
+            f"allow_entries={bool(latest['allow_entries'])}"
+        ),
+        (
+            f"latest recovery_stage={latest['guard_recovery_stage'] or 'n/a'} "
+            f"next_unlock_sec={float(latest['guard_next_unlock_sec']):.1f}"
+        ),
+        f"latest unlock_conditions={latest['guard_unlock_conditions'] or 'stable'}",
         (
             f"latest repair_actions={latest['repair_actions']} "
             f"repair_skipped={latest['repair_skipped']}"
