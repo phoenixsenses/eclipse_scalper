@@ -397,6 +397,49 @@ class BeliefControllerTests(unittest.TestCase):
         self.assertGreaterEqual(float(pressured.min_entry_conf), float(base.min_entry_conf))
         self.assertIn("runtime_gate_soft_scale", str(pressured.reason))
 
+    def test_runtime_gate_category_pressure_tightens_posture(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_SYMBOL_WEIGHT=0.0,
+            BELIEF_STREAK_WEIGHT=0.0,
+            BELIEF_YELLOW_SCORE=99.0,
+            BELIEF_ORANGE_SCORE=199.0,
+            BELIEF_RED_SCORE=299.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=199.0,
+            BELIEF_RED_GROWTH=299.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_RUNTIME_GATE_WEIGHT=0.2,
+            BELIEF_RUNTIME_GATE_CAT_LEDGER_WEIGHT=1.0,
+            BELIEF_RUNTIME_GATE_CAT_TRANSITION_WEIGHT=1.0,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+        base = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+            },
+            cfg,
+        )
+        clock.tick(1.0)
+        pressured = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "runtime_gate_degraded": False,
+                "runtime_gate_cat_ledger": 1,
+                "runtime_gate_cat_transition": 1,
+            },
+            cfg,
+        )
+        self.assertLessEqual(float(pressured.max_notional_usdt), float(base.max_notional_usdt))
+        self.assertLessEqual(int(pressured.max_leverage), int(base.max_leverage))
+
 
 if __name__ == "__main__":
     unittest.main()

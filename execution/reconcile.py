@@ -264,6 +264,11 @@ def _ensure_reconcile_metrics(bot) -> Dict[str, Any]:
     rm.setdefault("runtime_gate_mismatch_severity", 0.0)
     rm.setdefault("runtime_gate_invalid_severity", 0.0)
     rm.setdefault("runtime_gate_coverage_severity", 0.0)
+    rm.setdefault("runtime_gate_mismatch_category_score", 0.0)
+    rm.setdefault("runtime_gate_cat_ledger", 0)
+    rm.setdefault("runtime_gate_cat_transition", 0)
+    rm.setdefault("runtime_gate_cat_belief", 0)
+    rm.setdefault("runtime_gate_cat_unknown", 0)
     rm.setdefault("runtime_gate_degrade_score", 0.0)
     rm.setdefault("runtime_gate_replay_mismatch_ids", [])
     return rm
@@ -1507,6 +1512,20 @@ async def reconcile_tick(bot):
     metrics["runtime_gate_mismatch_severity"] = float(_safe_float(gate.get("mismatch_severity", 0.0), 0.0))
     metrics["runtime_gate_invalid_severity"] = float(_safe_float(gate.get("invalid_severity", 0.0), 0.0))
     metrics["runtime_gate_coverage_severity"] = float(_safe_float(gate.get("coverage_severity", 0.0), 0.0))
+    metrics["runtime_gate_mismatch_category_score"] = float(
+        _safe_float(gate.get("mismatch_category_score", 0.0), 0.0)
+    )
+    cats = gate.get("replay_mismatch_categories")
+    if isinstance(cats, dict):
+        metrics["runtime_gate_cat_ledger"] = int(_safe_float(cats.get("ledger", 0), 0.0))
+        metrics["runtime_gate_cat_transition"] = int(_safe_float(cats.get("transition", 0), 0.0))
+        metrics["runtime_gate_cat_belief"] = int(_safe_float(cats.get("belief", 0), 0.0))
+        metrics["runtime_gate_cat_unknown"] = int(_safe_float(cats.get("unknown", 0), 0.0))
+    else:
+        metrics["runtime_gate_cat_ledger"] = 0
+        metrics["runtime_gate_cat_transition"] = 0
+        metrics["runtime_gate_cat_belief"] = 0
+        metrics["runtime_gate_cat_unknown"] = 0
     metrics["runtime_gate_degrade_score"] = float(_safe_float(gate.get("degrade_score", 0.0), 0.0))
     gate_ids = gate.get("replay_mismatch_ids")
     metrics["runtime_gate_replay_mismatch_ids"] = list(gate_ids) if isinstance(gate_ids, list) else []
@@ -1565,6 +1584,10 @@ async def reconcile_tick(bot):
                     "runtime_gate_degrade_score": float(
                         metrics.get("runtime_gate_degrade_score", 0.0) or 0.0
                     ),
+                    "runtime_gate_cat_ledger": int(metrics.get("runtime_gate_cat_ledger", 0) or 0),
+                    "runtime_gate_cat_transition": int(metrics.get("runtime_gate_cat_transition", 0) or 0),
+                    "runtime_gate_cat_belief": int(metrics.get("runtime_gate_cat_belief", 0) or 0),
+                    "runtime_gate_cat_unknown": int(metrics.get("runtime_gate_cat_unknown", 0) or 0),
                     "runtime_gate_replay_mismatch_ids": list(
                         metrics.get("runtime_gate_replay_mismatch_ids", []) or []
                     )[:5],

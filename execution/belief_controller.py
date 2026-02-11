@@ -112,6 +112,12 @@ class BeliefController:
         runtime_gate_degrade_score = _clamp(
             _safe_float(belief_state.get("runtime_gate_degrade_score", 0.0), 0.0), 0.0, 1.0
         )
+        runtime_gate_cat_ledger = max(0.0, _safe_float(belief_state.get("runtime_gate_cat_ledger", 0), 0.0))
+        runtime_gate_cat_transition = max(
+            0.0, _safe_float(belief_state.get("runtime_gate_cat_transition", 0), 0.0)
+        )
+        runtime_gate_cat_belief = max(0.0, _safe_float(belief_state.get("runtime_gate_cat_belief", 0), 0.0))
+        runtime_gate_cat_unknown = max(0.0, _safe_float(belief_state.get("runtime_gate_cat_unknown", 0), 0.0))
 
         debt_ref = max(1.0, self._cfg(cfg, "BELIEF_DEBT_REF_SEC", 300.0))
         growth_ref = max(1.0, self._cfg(cfg, "BELIEF_GROWTH_REF_PER_MIN", 120.0))
@@ -131,11 +137,21 @@ class BeliefController:
         gate_weight = _clamp(self._cfg(cfg, "BELIEF_RUNTIME_GATE_WEIGHT", 0.35), 0.0, 3.0)
         gate_cov_weight = _clamp(self._cfg(cfg, "BELIEF_RUNTIME_GATE_COVERAGE_WEIGHT", 1.0), 0.0, 3.0)
         gate_score_weight = _clamp(self._cfg(cfg, "BELIEF_RUNTIME_GATE_SCORE_WEIGHT", 0.5), 0.0, 3.0)
+        gate_cat_ledger_weight = _clamp(self._cfg(cfg, "BELIEF_RUNTIME_GATE_CAT_LEDGER_WEIGHT", 0.8), 0.0, 3.0)
+        gate_cat_transition_weight = _clamp(
+            self._cfg(cfg, "BELIEF_RUNTIME_GATE_CAT_TRANSITION_WEIGHT", 0.7), 0.0, 3.0
+        )
+        gate_cat_belief_weight = _clamp(self._cfg(cfg, "BELIEF_RUNTIME_GATE_CAT_BELIEF_WEIGHT", 0.4), 0.0, 3.0)
+        gate_cat_unknown_weight = _clamp(self._cfg(cfg, "BELIEF_RUNTIME_GATE_CAT_UNKNOWN_WEIGHT", 0.2), 0.0, 3.0)
         gate_debt = (
             (runtime_gate_mismatch_count / gate_mismatch_ref)
             + (runtime_gate_invalid_count / gate_invalid_ref)
             + ((1.0 - runtime_gate_cov) * gate_cov_weight)
             + (runtime_gate_degrade_score * gate_score_weight)
+            + (runtime_gate_cat_ledger * gate_cat_ledger_weight)
+            + (runtime_gate_cat_transition * gate_cat_transition_weight)
+            + (runtime_gate_cat_belief * gate_cat_belief_weight)
+            + (runtime_gate_cat_unknown * gate_cat_unknown_weight)
         )
 
         debt_score = (
