@@ -39,6 +39,31 @@ try:
 except Exception:
     map_reason = None
 
+try:
+    from execution import error_policy as _error_policy  # type: ignore
+except Exception:
+    _error_policy = None
+
+try:
+    from execution import replace_manager as _replace_manager  # type: ignore
+except Exception:
+    _replace_manager = None
+
+try:
+    from execution import state_machine as _state_machine  # type: ignore
+except Exception:
+    _state_machine = None
+
+try:
+    from execution import event_journal as _event_journal  # type: ignore
+except Exception:
+    _event_journal = None
+
+try:
+    from execution import intent_ledger as _intent_ledger  # type: ignore
+except Exception:
+    _intent_ledger = None
+
 
 # ----------------------------
 # Helpers
@@ -138,6 +163,23 @@ _DEFAULT_RETRY_POLICIES: dict[str, dict[str, Any]] = {
     "timestamp": {"extra_attempts": 1, "base_delay": 0.3, "max_delay": 2.5},
 }
 
+_ERROR_CLASS_RETRYABLE = "retryable"
+_ERROR_CLASS_RETRYABLE_MOD = "retryable_with_modification"
+_ERROR_CLASS_IDEMPOTENT = "idempotent_safe"
+_ERROR_CLASS_FATAL = "fatal"
+
+_EXCHANGE_RETRY_POLICIES: dict[str, dict[str, dict[str, Any]]] = {
+    "binance": {
+        "exchange_busy": {"extra_attempts": 2, "base_delay": 0.45, "max_delay": 4.0},
+        "timestamp": {"extra_attempts": 1, "base_delay": 0.3, "max_delay": 2.5},
+    },
+    "coinbase": {
+        "exchange_busy": {"extra_attempts": 3, "base_delay": 0.6, "max_delay": 6.0},
+        "network": {"extra_attempts": 3, "base_delay": 0.45, "max_delay": 5.0},
+        "timestamp": {"extra_attempts": 1, "base_delay": 0.35, "max_delay": 3.0},
+    },
+}
+
 
 def _parse_retry_policy_entry(value: str) -> dict[str, Any]:
     out: dict[str, Any] = {}
@@ -185,9 +227,56 @@ def _collect_retry_policy_overrides(bot) -> dict[str, dict[str, Any]]:
     return out
 
 
+def _exchange_id(bot) -> str:
+    try:
+        ex = _get_ex(bot)
+        if ex is None:
+            return ""
+        eid = getattr(ex, "id", None)
+        if eid:
+            return str(eid).strip().lower()
+        inner = getattr(ex, "exchange", None)
+        eid2 = getattr(inner, "id", None) if inner is not None else None
+        if eid2:
+            return str(eid2).strip().lower()
+    except Exception:
+        pass
+    return ""
+
+
+def _collect_exchange_retry_policy_overrides(bot, ex_id: str) -> dict[str, dict[str, Any]]:
+    if not ex_id:
+        return {}
+    raw = str(_cfg_env(bot, f"ROUTER_RETRY_POLICY_{str(ex_id).upper()}", "") or "")
+    if not raw:
+        return {}
+    out: dict[str, dict[str, Any]] = {}
+    entries = [e.strip() for e in raw.replace(";", ",").split(",") if e.strip()]
+    for entry in entries:
+        if "=" not in entry:
+            continue
+        name, value = entry.split("=", 1)
+        key = str(name).strip().lower()
+        if not key:
+            continue
+        parsed = _parse_retry_policy_entry(value)
+        if parsed:
+            out[key] = parsed
+    return out
+
+
 def _build_retry_policies(bot) -> dict[str, dict[str, Any]]:
     policies: dict[str, dict[str, Any]] = {k: dict(v) for k, v in _DEFAULT_RETRY_POLICIES.items()}
+    ex_id = _exchange_id(bot)
+    ex_defaults = _EXCHANGE_RETRY_POLICIES.get(ex_id, {})
+    for key, data in ex_defaults.items():
+        merged = dict(policies.get(key, {}))
+        merged.update(data)
+        policies[key] = merged
     overrides = _collect_retry_policy_overrides(bot)
+    ex_overrides = _collect_exchange_retry_policy_overrides(bot, ex_id)
+    if ex_overrides:
+        overrides.update(ex_overrides)
     for key, data in overrides.items():
         existing = policies.get(key, {})
         merged = dict(existing)
@@ -344,25 +433,62 @@ def _resolve_leverage(bot, k: str, sym_raw: str, *, is_exit: bool = False) -> in
                 lev = float(lev) * float(scale)
                 if callable(emit_throttled):
                     try:
-                        emit_throttled(
-                            bot,
-                            "order.leverage_scaled",
-                            key=f"{sym_key}:{reason or 'guard_history'}",
-                            cooldown_sec=120.0,
-                            data={
-                                "symbol": sym_key,
-                                "base_leverage": base,
-                                "scaled_leverage": lev,
-                                "scale": scale,
-                                "reason": reason or "guard_history",
-                            },
-                            symbol=sym_key,
-                            level="warning",
+                        _telemetry_task(
+                            emit_throttled(
+                                bot,
+                                "order.leverage_scaled",
+                                key=f"{sym_key}:{reason or 'guard_history'}",
+                                cooldown_sec=120.0,
+                                data={
+                                    "symbol": sym_key,
+                                    "base_leverage": base,
+                                    "scaled_leverage": lev,
+                                    "scale": scale,
+                                    "reason": reason or "guard_history",
+                                },
+                                symbol=sym_key,
+                                level="warning",
+                            )
                         )
                     except Exception:
                         pass
         except Exception:
             pass
+
+    # Belief controller is the single writer for entry guard knobs.
+    if not is_exit:
+        guard_cap = 0.0
+        try:
+            st = getattr(bot, "state", None)
+            raw_knobs = getattr(st, "guard_knobs", None) if st is not None else None
+            if isinstance(raw_knobs, dict):
+                guard_cap = _safe_float(raw_knobs.get("max_leverage"), 0.0)
+            elif raw_knobs is not None:
+                guard_cap = _safe_float(getattr(raw_knobs, "max_leverage", 0.0), 0.0)
+        except Exception:
+            guard_cap = 0.0
+        if guard_cap > 0 and lev > guard_cap:
+            lev = float(guard_cap)
+            if callable(emit_throttled):
+                try:
+                    _telemetry_task(
+                        emit_throttled(
+                            bot,
+                            "order.leverage_scaled",
+                            key=f"{sym_key}:belief_controller",
+                            cooldown_sec=60.0,
+                            data={
+                                "symbol": sym_key,
+                                "scaled_leverage": lev,
+                                "cap": guard_cap,
+                                "reason": "belief_controller_cap",
+                            },
+                            symbol=sym_key,
+                            level="warning",
+                        )
+                    )
+                except Exception:
+                    pass
 
     lev_min = _safe_float(_cfg_env(bot, "LEVERAGE_MIN", 1), 1)
     lev_max = _safe_float(_cfg_env(bot, "LEVERAGE_MAX", 125), 125)
@@ -421,60 +547,44 @@ def _binance_filter_reason(msg: str) -> Optional[str]:
 
 
 def _classify_order_error(err: Exception, *, ex=None, sym_raw: Optional[str] = None) -> tuple[bool, str, str]:
-    """
-    Returns (retryable, reason, code).
-    """
-    msg = _error_text(err)
-    is_futures = False
-    try:
-        if ex is not None and sym_raw:
-            is_futures = _is_futures_symbol_ex(ex, sym_raw)
-    except Exception:
-        is_futures = False
+    if _error_policy is None:
+        msg = _error_text(err)
+        if any(x in msg for x in ("timeout", "timed out", "temporarily unavailable", "connection", "econnreset", "network")):
+            return True, "network", (map_reason("network") if callable(map_reason) else "ERR_UNKNOWN")
+        return True, "unknown", (map_reason(msg) if callable(map_reason) else "ERR_UNKNOWN")
+    return _error_policy.classify_order_error(err, ex=ex, sym_raw=sym_raw, map_reason=map_reason)
 
-    # Binance-specific patterns (spot + futures)
-    bin_filter = _binance_filter_reason(msg)
-    if bin_filter:
-        return False, bin_filter, (map_reason(bin_filter) if callable(map_reason) else "ERR_ROUTER_BLOCK")
 
-    if "position side" in msg or "dual side position" in msg or "hedge mode" in msg:
-        return False, "position_side", (map_reason("position_side") if callable(map_reason) else "ERR_ROUTER_BLOCK")
-    if "reduceonly" in msg and ("rejected" in msg or "not required" in msg):
-        return False, "reduceonly", (map_reason("reduceonly") if callable(map_reason) else "ERR_ROUTER_BLOCK")
+def _error_class_from_reason(err: Exception, *, retryable: bool, reason: str) -> str:
+    if _error_policy is None:
+        rs = str(reason or "").strip().lower()
+        if _looks_like_binance_client_id_duplicate(err) or _looks_like_binance_client_id_too_long(err):
+            return _ERROR_CLASS_RETRYABLE_MOD
+        if _looks_like_binance_reduceonly_not_required(err) or rs == "reduceonly":
+            return _ERROR_CLASS_RETRYABLE_MOD
+        if rs == "unknown_order" or _looks_like_unknown_order(err):
+            return _ERROR_CLASS_IDEMPOTENT
+        if retryable:
+            return _ERROR_CLASS_RETRYABLE
+        return _ERROR_CLASS_FATAL
+    policy = _error_policy.classify_order_error_policy(err, ex=None, sym_raw=None, map_reason=map_reason)
+    return str(policy.get("error_class") or _ERROR_CLASS_FATAL)
 
-    bin_code = _extract_binance_code(msg)
-    if bin_code is not None:
-        if bin_code in (-1000, -1001, -1003, -1006, -1007, -1008):
-            return True, "exchange_busy", (map_reason("exchange_busy") if callable(map_reason) else "ERR_UNKNOWN")
-        if bin_code in (-1021,):
-            return True, "timestamp", (map_reason("timestamp") if callable(map_reason) else "ERR_UNKNOWN")
-        if bin_code in (-1022,):
-            return False, "auth", (map_reason("auth") if callable(map_reason) else "ERR_ROUTER_BLOCK")
-        if bin_code in (-1100, -1101, -1102, -1103):
-            return False, "invalid_params", (map_reason("invalid_params") if callable(map_reason) else "ERR_ROUTER_BLOCK")
-        if bin_code in (-1111, -1112):
-            return False, "price_filter", (map_reason("price") if callable(map_reason) else "ERR_ROUTER_BLOCK")
-        if bin_code in (-1121,):
-            return False, "invalid_symbol", (map_reason("symbol") if callable(map_reason) else "ERR_ROUTER_BLOCK")
-        if bin_code in (-2019,):
-            return False, "margin_insufficient", (map_reason("margin") if callable(map_reason) else "ERR_MARGIN")
-        if bin_code in (-2021,):
-            return False, "stop_price_invalid", (map_reason("stop") if callable(map_reason) else "ERR_ROUTER_BLOCK")
-        if bin_code in (-2011,) and (not is_futures):
-            return False, "unknown_order", (map_reason("unknown_order") if callable(map_reason) else "ERR_ROUTER_BLOCK")
-    if any(x in msg for x in ("insufficient", "margin", "balance")):
-        return False, "margin_insufficient", (map_reason("margin") if callable(map_reason) else "ERR_MARGIN")
-    if any(x in msg for x in ("invalid symbol", "symbol not found", "unknown symbol")):
-        return False, "invalid_symbol", (map_reason("symbol") if callable(map_reason) else "ERR_ROUTER_BLOCK")
-    if any(x in msg for x in ("min notional", "min amount", "notional", "lot size")):
-        return False, "min_notional", (map_reason("min_notional") if callable(map_reason) else "ERR_MIN_NOTIONAL")
-    if any(x in msg for x in ("price filter", "precision", "invalid price", "bad price")):
-        return False, "price_filter", (map_reason("price") if callable(map_reason) else "ERR_ROUTER_BLOCK")
-    if any(x in msg for x in ("order would trigger immediately", "stop price")):
-        return False, "stop_price_invalid", (map_reason("stop") if callable(map_reason) else "ERR_ROUTER_BLOCK")
-    if any(x in msg for x in ("timeout", "timed out", "temporarily unavailable", "connection", "econnreset", "network")):
-        return True, "network", (map_reason("network") if callable(map_reason) else "ERR_UNKNOWN")
-    return True, "unknown", (map_reason(msg) if callable(map_reason) else "ERR_UNKNOWN")
+
+def _classify_order_error_policy(err: Exception, *, ex=None, sym_raw: Optional[str] = None) -> dict[str, Any]:
+    if _error_policy is None:
+        retryable, reason, code = _classify_order_error(err, ex=ex, sym_raw=sym_raw)
+        err_class = _error_class_from_reason(err, retryable=retryable, reason=reason)
+        return {
+            "retryable": bool(retryable),
+            "reason": str(reason),
+            "code": str(code),
+            "error_class": err_class,
+            "retry_with_modification": err_class == _ERROR_CLASS_RETRYABLE_MOD,
+            "idempotent_safe": err_class == _ERROR_CLASS_IDEMPOTENT,
+            "fatal": err_class == _ERROR_CLASS_FATAL,
+        }
+    return _error_policy.classify_order_error_policy(err, ex=ex, sym_raw=sym_raw, map_reason=map_reason)
 
 
 def _truthy(x) -> bool:
@@ -667,15 +777,113 @@ def _make_client_order_id(
     amount: Any,
     price: Any,
     stop_price: Any,
+    bucket: int = 0,
 ) -> str:
-    blob = f"{sym_raw}|{type_norm}|{side_l}|{amount}|{price}|{stop_price}"
-    h = hashlib.sha256(blob.encode("utf-8")).hexdigest()[:20]
-    return f"{prefix}{h}"
+    pref = _sanitize_client_order_id(prefix, max_len=8) or "SE"
+    sym = _symkey(sym_raw)[:6] or "SYM"
+    blob = f"{sym_raw}|{type_norm}|{side_l}|{amount}|{price}|{stop_price}|{int(bucket)}"
+    h = hashlib.sha256(blob.encode("utf-8")).hexdigest()[:16]
+    out = f"{pref}_{sym}_{h}"
+    return _sanitize_client_order_id(out) or "SE"
+
+
+def _intent_client_order_prefix(*, type_u: str, is_exit: bool, fallback: str = "SE") -> str:
+    t = str(type_u or "").upper().strip()
+    if is_exit:
+        if t.startswith("TAKE_PROFIT") or t == "TP_MARKET":
+            return "TP"
+        if t.startswith("STOP") or t == "TRAILING_STOP_MARKET":
+            return "SL"
+        return "EXIT"
+    if t.startswith("TAKE_PROFIT") or t == "TP_MARKET":
+        return "TP"
+    if t.startswith("STOP") or t == "TRAILING_STOP_MARKET":
+        return "SL"
+    if t in ("MARKET", "LIMIT"):
+        return "ENTRY"
+    return _sanitize_client_order_id(fallback, max_len=8) or "SE"
+
+
+def _make_correlation_id(
+    *,
+    intent_prefix: str,
+    sym_raw: str,
+    side_l: str,
+    type_norm: str,
+    bucket: int,
+) -> str:
+    pref = _sanitize_client_order_id(intent_prefix, max_len=8) or "SE"
+    sym = _symkey(sym_raw)[:6] or "SYM"
+    blob = f"{pref}|{sym_raw}|{side_l}|{type_norm}|{int(bucket)}"
+    h = hashlib.sha1(blob.encode("utf-8")).hexdigest()[:12]
+    return f"{pref}-{sym}-{h}"
 
 
 def _telemetry_task(coro) -> None:
     try:
         asyncio.create_task(coro)
+    except Exception:
+        try:
+            coro.close()
+        except Exception:
+            pass
+
+
+def _request_reconcile_hint(bot, *, symbol: str, reason: str, correlation_id: str = "") -> None:
+    try:
+        st = getattr(bot, "state", None)
+        if st is None:
+            return
+        rc = getattr(st, "run_context", None)
+        if not isinstance(rc, dict):
+            st.run_context = {}
+            rc = st.run_context
+        hints = rc.get("reconcile_hints")
+        if not isinstance(hints, dict):
+            hints = {}
+            rc["reconcile_hints"] = hints
+        k = _symkey(symbol)
+        hints[k or str(symbol or "").upper()] = {
+            "ts": float(time.time()),
+            "reason": str(reason or "router_replace_fail_closed"),
+            "correlation_id": str(correlation_id or ""),
+        }
+    except Exception:
+        pass
+
+
+def _intent_ledger_record(
+    bot,
+    *,
+    intent_id: str,
+    stage: str,
+    symbol: str = "",
+    side: str = "",
+    order_type: str = "",
+    is_exit: bool = False,
+    client_order_id: str = "",
+    order_id: str = "",
+    status: str = "",
+    reason: str = "",
+    meta: Optional[dict] = None,
+) -> None:
+    if _intent_ledger is None:
+        return
+    try:
+        _intent_ledger.record(
+            bot,
+            intent_id=intent_id,
+            stage=stage,
+            symbol=symbol,
+            side=side,
+            order_type=order_type,
+            is_exit=is_exit,
+            client_order_id=client_order_id,
+            order_id=order_id,
+            status=status,
+            reason=reason,
+            meta=meta,
+        )
     except Exception:
         pass
 
@@ -716,16 +924,22 @@ def _is_exit_intent(
 
 
 def _looks_like_binance_reduceonly_not_required(err: Exception) -> bool:
+    if _error_policy is not None:
+        return bool(_error_policy.looks_like_binance_reduceonly_not_required(err))
     s = repr(err).lower()
     return ("reduceonly" in s) and ("not required" in s or "sent when not required" in s or "parameter 'reduceonly'" in s)
 
 
 def _looks_like_binance_client_id_duplicate(err: Exception) -> bool:
+    if _error_policy is not None:
+        return bool(_error_policy.looks_like_binance_client_id_duplicate(err))
     s = repr(err).lower()
     return ("-4116" in s) or ("clientorderid is duplicated" in s) or ("client order id is duplicated" in s)
 
 
 def _looks_like_binance_client_id_too_long(err: Exception) -> bool:
+    if _error_policy is not None:
+        return bool(_error_policy.looks_like_binance_client_id_too_long(err))
     s = repr(err).lower()
     return ("-4015" in s) or ("client order id length" in s) or ("less than 36" in s)
 
@@ -735,9 +949,11 @@ def _looks_like_unknown_order(err: Exception) -> bool:
     Binance/CCXT "already canceled / unknown order / order not found" patterns.
     Treat as idempotent success for cancel.
     """
+    if _error_policy is not None:
+        return bool(_error_policy.looks_like_unknown_order(err))
     s = repr(err).lower()
     return (
-        ("-2011" in s)  # Binance unknown order
+        ("-2011" in s)
         or ("unknown order" in s)
         or ("order does not exist" in s)
         or ("order not found" in s)
@@ -801,16 +1017,18 @@ def _sanitize_client_id_fields(p: dict) -> dict:
     return p
 
 
-def _freshen_client_order_id(existing: Any) -> str:
+def _freshen_client_order_id(existing: Any, *, salt: Optional[str] = None) -> str:
     """
-    Keep <36 chars; append _XXXXXX. Always returns sanitized string.
+    Keep <36 chars; rotate hash tail without growing the identifier on retries.
     """
     base = _sanitize_client_order_id(existing) or "SE"
-    # leave room for "_" + 6
-    room = 1 + 6
-    base = base[: max(1, _BINANCE_CLIENT_ID_MAX - room)]
-    suffix = hashlib.sha1(f"{time.time()}|{random.random()}".encode("utf-8")).hexdigest()[:6]
-    return _sanitize_client_order_id(f"{base}_{suffix}") or f"{base}_{suffix}"
+    stem = re.sub(r"_[0-9a-f]{6,10}$", "", base, flags=re.IGNORECASE)
+    room = 1 + 8
+    stem = stem[: max(1, _BINANCE_CLIENT_ID_MAX - room)]
+    payload = f"{stem}|{salt if salt is not None else f'{time.time()}|{random.random()}'}"
+    suffix = hashlib.sha1(payload.encode("utf-8")).hexdigest()[:8]
+    out = f"{stem}_{suffix}"
+    return _sanitize_client_order_id(out) or out
 
 
 def _variant_key(sym: str, amt: Any, px: Any, p: dict) -> str:
@@ -1188,7 +1406,21 @@ async def _cancel_order_raw(ex, order_id: str, sym_raw: str) -> Tuple[bool, Opti
     return False, None
 
 
-async def cancel_order(bot, order_id: str, symbol: str) -> bool:
+async def _fetch_order_status_best_effort(ex, order_id: str, sym_raw: str) -> Optional[str]:
+    try:
+        fn = getattr(ex, "fetch_order", None)
+        if callable(fn):
+            order = await fn(order_id, sym_raw)
+            if isinstance(order, dict):
+                st = str(order.get("status") or "").strip().lower()
+                if st:
+                    return st
+    except Exception:
+        return None
+    return None
+
+
+async def cancel_order(bot, order_id: str, symbol: str, *, correlation_id: Optional[str] = None) -> bool:
     """
     Idempotent cancel:
     - If order already gone/unknown -> return True (goal achieved: it's not live anymore)
@@ -1198,42 +1430,116 @@ async def cancel_order(bot, order_id: str, symbol: str) -> bool:
         return False
 
     k = _symkey(symbol)
+    corr_id = str(correlation_id or "").strip()
+    if (not corr_id) and (_intent_ledger is not None):
+        try:
+            corr_id = str(_intent_ledger.resolve_intent_id(bot, order_id=str(order_id or "")) or "").strip()
+        except Exception:
+            corr_id = ""
     sym_raw = _resolve_raw_symbol(bot, k, symbol)
 
-    # try a few symbol spellings, but treat unknown-order as success
-    candidates = []
-    candidates.append(sym_raw)
+    candidates = [sym_raw]
     if symbol and symbol != sym_raw:
         candidates.append(symbol)
     if k and k not in (symbol, sym_raw):
         candidates.append(k)
 
     last_err: Optional[Exception] = None
-    last_err_code: str = "ERR_UNKNOWN"
-    last_err_reason: str = "unknown"
     saw_unknown = False
+    unknown_conflict = False
+    unknown_status: Optional[str] = None
+    _intent_ledger_record(
+        bot,
+        intent_id=(corr_id or f"CANCEL-{order_id}"),
+        stage="CANCEL_SENT",
+        symbol=k,
+        order_id=str(order_id or ""),
+        reason="cancel_request",
+    )
 
     for sym_try in candidates:
         ok, err = await _cancel_order_raw(ex, order_id, sym_try)
         if ok:
             if callable(emit_order_cancel):
-                _telemetry_task(emit_order_cancel(bot, k, order_id, True, why="router"))
+                _telemetry_task(
+                    emit_order_cancel(
+                        bot,
+                        k,
+                        order_id,
+                        True,
+                        why="router",
+                        correlation_id=corr_id,
+                    )
+                )
+            _intent_ledger_record(
+                bot,
+                intent_id=(corr_id or f"CANCEL-{order_id}"),
+                stage="DONE",
+                symbol=k,
+                order_id=str(order_id or ""),
+                status="canceled",
+                reason="cancel_success",
+            )
             return True
-        if err is not None:
-            if _looks_like_unknown_order(err):
-                saw_unknown = True
-            else:
-                last_err = err
+        if err is None:
+            continue
+        if _looks_like_unknown_order(err):
+            saw_unknown = True
+            st = await _fetch_order_status_best_effort(ex, order_id, sym_try)
+            if st:
+                unknown_status = st
+            if st in ("open", "new", "partially_filled"):
+                unknown_conflict = True
+            continue
+        last_err = err
 
-    if saw_unknown and last_err is None:
+    if saw_unknown and (not unknown_conflict):
         # ✅ idempotent success after exhausting symbol candidates
-        log_entry.info(f"[router] cancel idempotent success (already gone) | k={k} id={order_id}")
+        log_entry.info(f"[router] cancel idempotent success (already gone) | k={k} id={order_id} st={unknown_status or 'na'}")
         if callable(emit_order_cancel):
-            _telemetry_task(emit_order_cancel(bot, k, order_id, True, why="already_gone"))
+            _telemetry_task(
+                emit_order_cancel(
+                    bot,
+                    k,
+                    order_id,
+                    True,
+                    why="already_gone",
+                    correlation_id=corr_id,
+                    status=unknown_status,
+                )
+            )
+        _intent_ledger_record(
+            bot,
+            intent_id=(corr_id or f"CANCEL-{order_id}"),
+            stage="DONE",
+            symbol=k,
+            order_id=str(order_id or ""),
+            status=(unknown_status or "already_gone"),
+            reason="cancel_idempotent",
+        )
         return True
 
     if callable(emit_order_cancel):
-        _telemetry_task(emit_order_cancel(bot, k, order_id, False, why=(repr(last_err)[:120] if last_err else "unknown")))
+        _telemetry_task(
+            emit_order_cancel(
+                bot,
+                k,
+                order_id,
+                False,
+                why=(repr(last_err)[:120] if last_err else "unknown"),
+                correlation_id=corr_id,
+                status=unknown_status,
+            )
+        )
+    _intent_ledger_record(
+        bot,
+        intent_id=(corr_id or f"CANCEL-{order_id}"),
+        stage="CANCEL_FAILED",
+        symbol=k,
+        order_id=str(order_id or ""),
+        status=(unknown_status or ""),
+        reason=(repr(last_err)[:120] if last_err else "unknown"),
+    )
 
     if last_err is not None:
         log_entry.warning(f"[router] cancel failed | k={k} id={order_id} err={last_err}")
@@ -1297,6 +1603,7 @@ async def create_order(
     hedge_mode: Optional[bool] = None,
     respect_kill_switch: bool = False,
     retries: Optional[int] = None,
+    correlation_id: Optional[str] = None,
 ) -> Optional[dict]:
     ex = _get_ex(bot)
     if ex is None:
@@ -1323,7 +1630,15 @@ async def create_order(
         return None
 
     k = _symkey(symbol)
+    corr_id = str(correlation_id or "").strip()
+    if (not corr_id) and (_intent_ledger is not None):
+        try:
+            corr_id = str(_intent_ledger.resolve_intent_id(bot, order_id=str(order_id or "")) or "").strip()
+        except Exception:
+            corr_id = ""
     sym_raw = _resolve_raw_symbol(bot, k, symbol)
+    coid_bucket_sec = max(1, int(_safe_float(_cfg_env(bot, "ROUTER_CLIENT_ID_BUCKET_SEC", 30), 30)))
+    coid_bucket = int(time.time() // coid_bucket_sec)
 
     p = _merge_params(params, {})
     p = _strip_none_params(p)
@@ -1546,6 +1861,61 @@ async def create_order(
         intent_reduce_only=intent_reduce_only,
         intent_close_position=intent_close_position,
     )
+    intent_prefix = _intent_client_order_prefix(type_u=type_u, is_exit=is_exit, fallback=client_order_id_prefix)
+    corr_id = str(correlation_id or "").strip()
+    if not corr_id:
+        corr_id = _make_correlation_id(
+            intent_prefix=intent_prefix,
+            sym_raw=sym_raw,
+            side_l=side_l,
+            type_norm=type_norm,
+            bucket=coid_bucket,
+        )
+
+    client_order_id_live = ""
+    order_id_live = ""
+    intent_state = "INTENT_CREATED"
+
+    def _journal_intent_transition(next_state: str, reason: str, *, meta: Optional[dict] = None) -> None:
+        nonlocal intent_state
+        nxt = str(next_state or "").strip().upper()
+        if not nxt:
+            return
+        prev = intent_state
+        try:
+            if _state_machine is not None:
+                _state_machine.transition(_state_machine.MachineKind.ORDER_INTENT, prev, nxt, reason)
+            intent_state = nxt
+        except Exception:
+            intent_state = nxt
+        _intent_ledger_record(
+            bot,
+            intent_id=str(corr_id or ""),
+            stage=nxt,
+            symbol=k,
+            side=side_l,
+            order_type=type_u,
+            is_exit=bool(is_exit),
+            client_order_id=client_order_id_live,
+            order_id=order_id_live,
+            status=str((meta or {}).get("status") or ""),
+            reason=reason,
+            meta=dict(meta or {}),
+        )
+        try:
+            if _event_journal is not None:
+                _event_journal.journal_transition(
+                    bot,
+                    machine="order_intent",
+                    entity=str(corr_id or ""),
+                    state_from=prev,
+                    state_to=nxt,
+                    reason=reason,
+                    correlation_id=corr_id,
+                    meta=dict(meta or {}),
+                )
+        except Exception:
+            pass
 
     # ----------------------------
     # clientOrderId logic (ALWAYS sanitize, ALWAYS <36)
@@ -1564,25 +1934,81 @@ async def create_order(
         if want_auto and ("clientOrderId" not in p):
             stop_for_id = p.get("stopPrice")
             s = _make_client_order_id(
-                prefix=client_order_id_prefix,
+                prefix=intent_prefix,
                 sym_raw=sym_raw,
                 type_norm=type_norm,
                 side_l=side_l,
                 amount=amount,
                 price=price,
                 stop_price=stop_for_id,
+                bucket=coid_bucket,
             )
             p["clientOrderId"] = _sanitize_client_order_id(s) or "SE"
 
     # final hard sanitize (fail-safe)
     p = _sanitize_client_id_fields(p)
+    client_order_id_live = str(p.get("clientOrderId") or "").strip()
+    if _intent_ledger is not None and _truthy(_cfg_env(bot, "INTENT_LEDGER_REUSE_ENABLED", False)):
+        try:
+            seen = _intent_ledger.find_reusable_intent(
+                bot,
+                intent_id=str(corr_id or ""),
+                client_order_id=client_order_id_live,
+            )
+        except Exception:
+            seen = None
+        if isinstance(seen, dict):
+            status_seen = str(seen.get("status") or "open").lower().strip() or "open"
+            oid_seen = str(seen.get("order_id") or "").strip()
+            log_entry.warning(
+                f"[router] intent ledger reuse -> skip duplicate submit | k={k} corr={corr_id} coid={client_order_id_live} stage={seen.get('stage')}"
+            )
+            if callable(emit):
+                _telemetry_task(
+                    emit(
+                        bot,
+                        "order.intent_reused",
+                        data={
+                            "k": k,
+                            "correlation_id": corr_id,
+                            "client_order_id": client_order_id_live,
+                            "order_id": oid_seen,
+                            "stage": str(seen.get("stage") or ""),
+                            "status": status_seen,
+                        },
+                        symbol=k,
+                        level="warning",
+                    )
+                )
+            return {
+                "id": (oid_seen or None),
+                "symbol": sym_raw,
+                "type": type_norm,
+                "side": side_l,
+                "amount": _safe_float(amount, 0.0),
+                "filled": 0.0,
+                "status": status_seen,
+                "info": {"intent_ledger_reused": True, "correlation_id": corr_id, "clientOrderId": client_order_id_live},
+            }
+    _intent_ledger_record(
+        bot,
+        intent_id=str(corr_id or ""),
+        stage="INTENT_CREATED",
+        symbol=k,
+        side=side_l,
+        order_type=type_u,
+        is_exit=bool(is_exit),
+        client_order_id=client_order_id_live,
+        order_id=order_id_live,
+        reason="router_prepare",
+    )
 
     # log
     try:
         log_entry.info(
             f"[router] SEND k={k} raw={sym_raw} type={type_norm} side={side_l} amt={amount} px={price} "
             f"is_exit={is_exit} reduceOnly={p.get('reduceOnly')} closePosition={p.get('closePosition')} "
-            f"positionSide={p.get('positionSide')} clientOrderId={p.get('clientOrderId')} params_keys={sorted(list(p.keys()))}"
+            f"positionSide={p.get('positionSide')} clientOrderId={p.get('clientOrderId')} corr={corr_id} params_keys={sorted(list(p.keys()))}"
         )
     except Exception:
         pass
@@ -1776,6 +2202,7 @@ async def create_order(
     last_err: Optional[Exception] = None
     last_err_code: str = "ERR_UNKNOWN"
     last_err_reason: str = "unknown"
+    last_err_class: str = _ERROR_CLASS_FATAL
     retry_alert_tries = int(_safe_float(_cfg_env(bot, "ROUTER_RETRY_ALERT_TRIES", 6), 6))
     retry_alert_cd = float(_safe_float(_cfg_env(bot, "ROUTER_RETRY_ALERT_COOLDOWN_SEC", 60.0), 60.0))
 
@@ -1843,23 +2270,84 @@ async def create_order(
     start_ts = time.monotonic()
     tries = 0
     attempt = 0
+    abort_retries = False
     while attempt < max_attempts:
         if max_elapsed > 0 and (time.monotonic() - start_ts) >= max_elapsed:
             break
         for (raw_sym, amt_try, px_try, p_try) in list(variants):
             tries += 1
             try:
+                _journal_intent_transition(
+                    "SUBMITTED",
+                    "router_send",
+                    meta={"k": k, "attempt": attempt + 1, "tries": tries, "raw": raw_sym, "type": type_u, "side": side_l},
+                )
                 res = await _attempt(raw_sym, amt_try, px_try, p_try)
+                order_id_live = str((res or {}).get("id") or "").strip()
+                status = str((res or {}).get("status") or "").lower().strip()
+                if status in ("partially_filled",):
+                    _journal_intent_transition("PARTIAL", "exchange_status", meta={"status": status})
+                elif status in ("closed", "filled"):
+                    _journal_intent_transition("FILLED", "exchange_status", meta={"status": status})
+                    _journal_intent_transition("DONE", "terminal_fill", meta={"status": status})
+                elif status in ("open", "new"):
+                    _journal_intent_transition("OPEN", "exchange_status", meta={"status": status})
+                else:
+                    _journal_intent_transition("ACKED", "exchange_ack", meta={"status": status})
                 if callable(emit_order_create):
-                    _telemetry_task(emit_order_create(bot, k, res, intent=f"{type_u}:{side_l}"))
+                    _telemetry_task(
+                        emit_order_create(
+                            bot,
+                            k,
+                            res,
+                            intent=f"{type_u}:{side_l}",
+                            correlation_id=corr_id,
+                        )
+                    )
                 return res
             except Exception as e:
                 last_err = e
-                retryable, reason, code = _classify_order_error(e, ex=ex, sym_raw=sym_raw)
+                policy_meta = _classify_order_error_policy(e, ex=ex, sym_raw=sym_raw)
+                retryable = bool(policy_meta.get("retryable"))
+                reason = str(policy_meta.get("reason") or "unknown")
+                code = str(policy_meta.get("code") or "ERR_UNKNOWN")
+                err_class = str(policy_meta.get("error_class") or _ERROR_CLASS_FATAL)
+                if reason in ("unknown_order", "unknown"):
+                    unknown_state = "SUBMITTED_UNKNOWN"
+                    try:
+                        if _state_machine is not None:
+                            unknown_state = str(_state_machine.map_unknown_order_state(intent_state))
+                    except Exception:
+                        unknown_state = "SUBMITTED_UNKNOWN"
+                    _journal_intent_transition(unknown_state, f"error:{reason}", meta={"error_class": err_class})
                 last_err_code = code
                 last_err_reason = reason
+                last_err_class = err_class
                 if bump is not None:
                     bump(bot, "order.create.retry", 1)
+                if callable(emit):
+                    _telemetry_task(
+                        emit(
+                            bot,
+                            "order.retry",
+                            data={
+                                "k": k,
+                                "raw": raw_sym,
+                                "tries": tries,
+                                "attempt": attempt + 1,
+                                "type": type_u,
+                                "side": side_l,
+                                "error_class": err_class,
+                                "reason": reason,
+                                "code": code,
+                                "retryable": retryable,
+                                "correlation_id": corr_id,
+                                "err": (repr(e)[:220] if e else "unknown"),
+                            },
+                            level="warning",
+                            symbol=k,
+                        )
+                    )
                 if callable(emit_throttled) and tries >= retry_alert_tries:
                     _telemetry_task(
                         emit_throttled(
@@ -1876,6 +2364,8 @@ async def create_order(
                                 "err": (repr(e)[:200] if e else "unknown"),
                                 "reason": reason,
                                 "code": code,
+                                "error_class": err_class,
+                                "correlation_id": corr_id,
                             },
                             level="warning",
                             symbol=k,
@@ -1920,14 +2410,21 @@ async def create_order(
                     coid = (p_try or {}).get("clientOrderId")
                     if coid:
                         p4 = dict(p_try)
-                        p4["clientOrderId"] = _freshen_client_order_id(coid)
+                        p4["clientOrderId"] = _freshen_client_order_id(coid, salt=f"{corr_id}:{tries}")
                         _push_variant(variants, seen, raw_sym, amt_try, px_try, p4)
                         log_entry.warning(
                             f"[router] BINANCE DUP CLIENT_ID -> freshened clientOrderId {coid} -> {p4.get('clientOrderId')} | k={k}"
                         )
 
-                if not retryable:
+                if err_class in (_ERROR_CLASS_FATAL, _ERROR_CLASS_IDEMPOTENT):
+                    abort_retries = True
                     break
+                if not retryable:
+                    abort_retries = True
+                    break
+
+        if abort_retries:
+            break
 
         delay_base = policy_delay_override if policy_delay_override is not None else base_delay
         delay_max = policy_max_delay_override if policy_max_delay_override is not None else max_delay
@@ -1966,13 +2463,348 @@ async def create_order(
                     "err": (repr(last_err)[:300] if last_err else "unknown"),
                     "reason": last_err_reason,
                     "code": last_err_code,
+                    "error_class": last_err_class,
+                    "correlation_id": corr_id,
                 },
                 symbol=k,
                 level="critical",
             )
         )
 
-    log_entry.error(f"ORDER ROUTER FAILED → k={k} raw={sym_raw} {type_norm} {side_l} amount={amount} price={price} err={last_err}")
+    log_entry.error(
+        f"ORDER ROUTER FAILED → k={k} raw={sym_raw} {type_norm} {side_l} amount={amount} price={price} corr={corr_id} err={last_err}"
+    )
+    _journal_intent_transition(
+        "DONE",
+        "terminal_error",
+        meta={"reason": last_err_reason, "code": last_err_code, "error_class": last_err_class},
+    )
+    return None
+
+
+# ----------------------------
+# Cancel / Replace helper
+# ----------------------------
+
+async def cancel_replace_order(
+    bot,
+    *,
+    cancel_order_id: str,
+    symbol: str,
+    type: str,
+    side: str,
+    amount: Any,
+    price: Optional[Any] = None,
+    stop_price: Optional[Any] = None,
+    params: Optional[Dict[str, Any]] = None,
+    retries: int = 3,
+    correlation_id: Optional[str] = None,
+) -> Optional[dict]:
+    def _estimate_symbol_exposure_notional(sym_key: str) -> float:
+        total = 0.0
+        try:
+            pos_map = getattr(getattr(bot, "state", None), "positions", None)
+            if not isinstance(pos_map, dict):
+                return 0.0
+            for kk, pos in pos_map.items():
+                if _symkey(kk) != _symkey(sym_key):
+                    continue
+                try:
+                    sz = abs(float(getattr(pos, "size", 0.0) or 0.0))
+                    px = float(getattr(pos, "entry_price", 0.0) or 0.0)
+                    if sz > 0 and px > 0:
+                        total += (sz * px)
+                except Exception:
+                    continue
+        except Exception:
+            return 0.0
+        return float(max(0.0, total))
+
+    max_attempts = max(1, int(retries or 1))
+    corr = str(correlation_id or "").strip()
+    if not corr:
+        corr = _make_correlation_id(
+            intent_prefix="REPLACE",
+            sym_raw=symbol,
+            side_l=str(side or "").lower().strip(),
+            type_norm=_normalize_type_for_ccxt(str(type or "").upper().strip()),
+            bucket=int(time.time() // max(1, int(_safe_float(_cfg_env(bot, "ROUTER_CLIENT_ID_BUCKET_SEC", 30), 30)))),
+        )
+    _intent_ledger_record(
+        bot,
+        intent_id=str(corr or ""),
+        stage="INTENT_CREATED",
+        symbol=_symkey(symbol),
+        side=str(side or "").lower().strip(),
+        order_type=str(type or "").upper().strip(),
+        reason="cancel_replace_start",
+        order_id=str(cancel_order_id or ""),
+    )
+    new_notional = 0.0
+    try:
+        amt_f = abs(float(amount or 0.0))
+        px_f = float(price or 0.0)
+        if amt_f > 0 and px_f > 0:
+            new_notional = float(amt_f * px_f)
+    except Exception:
+        new_notional = 0.0
+    cur_notional = _estimate_symbol_exposure_notional(_symkey(symbol))
+    max_worst_case_notional = max(0.0, float(_safe_float(_cfg_env(bot, "ROUTER_REPLACE_MAX_WORST_CASE_NOTIONAL", 0.0), 0.0)))
+    max_ambiguity_attempts = max(0, int(_safe_float(_cfg_env(bot, "ROUTER_REPLACE_MAX_AMBIGUITY_ATTEMPTS", 0), 0.0)))
+    if _replace_manager is not None:
+        async def _cancel_fn(order_id: str, sym: str) -> bool:
+            return bool(await cancel_order(bot, order_id, sym, correlation_id=corr))
+
+        async def _create_fn() -> Optional[dict]:
+            return await create_order(
+                bot,
+                symbol=symbol,
+                type=type,
+                side=side,
+                amount=amount,
+                price=price,
+                stop_price=stop_price,
+                params=params or {},
+                retries=1,
+                correlation_id=corr,
+            )
+
+        status_cb = None
+        if _truthy(_cfg_env(bot, "ROUTER_REPLACE_STATUS_CHECK", False)):
+            async def _status_fn(order_id: str, sym: str) -> Optional[str]:
+                ex = _get_ex(bot)
+                if ex is None:
+                    return None
+                return await _fetch_order_status_best_effort(ex, order_id, _resolve_raw_symbol(bot, _symkey(sym), sym))
+            status_cb = _status_fn
+
+        strict_replace = _truthy(_cfg_env(bot, "ROUTER_REPLACE_STRICT_TRANSITIONS", True))
+        try:
+            outcome = await _replace_manager.run_cancel_replace(
+                cancel_order_id=str(cancel_order_id),
+                symbol=str(symbol),
+                max_attempts=max_attempts,
+                cancel_fn=_cancel_fn,
+                create_fn=_create_fn,
+                status_fn=status_cb,
+                strict_transitions=strict_replace,
+                current_exposure_notional=float(cur_notional),
+                new_order_notional=float(new_notional),
+                max_worst_case_notional=float(max_worst_case_notional),
+                max_ambiguity_attempts=int(max_ambiguity_attempts),
+            )
+        except Exception as exc:
+            exc_name = str(getattr(getattr(exc, "__class__", None), "__name__", "Exception") or "Exception")
+            _request_reconcile_hint(
+                bot,
+                symbol=str(symbol),
+                reason=f"replace_transition_error:{exc_name}",
+                correlation_id=corr,
+            )
+            if callable(emit):
+                _telemetry_task(
+                    emit(
+                        bot,
+                        "order.cancel_replace_transition_error",
+                        data={
+                            "k": _symkey(symbol),
+                            "cancel_order_id": str(cancel_order_id),
+                            "max_attempts": max_attempts,
+                            "strict_transitions": bool(strict_replace),
+                            "err": repr(exc)[:240],
+                            "correlation_id": corr,
+                        },
+                        symbol=_symkey(symbol),
+                        level="critical",
+                    )
+                )
+            _intent_ledger_record(
+                bot,
+                intent_id=str(corr or ""),
+                stage="DONE",
+                symbol=_symkey(symbol),
+                side=str(side or "").lower().strip(),
+                order_type=str(type or "").upper().strip(),
+                order_id=str(cancel_order_id or ""),
+                status="transition_error",
+                reason=f"replace_transition_error:{exc_name}",
+            )
+            return None
+        if bool(getattr(outcome, "success", False)):
+            new_order = getattr(outcome, "order", None)
+            oid = str((new_order or {}).get("id") or "").strip() if isinstance(new_order, dict) else ""
+            _intent_ledger_record(
+                bot,
+                intent_id=str(corr or ""),
+                stage="DONE",
+                symbol=_symkey(symbol),
+                side=str(side or "").lower().strip(),
+                order_type=str(type or "").upper().strip(),
+                order_id=oid,
+                status="replaced",
+                reason="cancel_replace_success",
+            )
+            return getattr(outcome, "order", None)
+        outcome_reason = str(getattr(outcome, "reason", "") or "")
+        if outcome_reason in ("replace_envelope_block", "replace_ambiguity_cap", "replace_reconcile_required"):
+            if callable(emit):
+                _telemetry_task(
+                    emit(
+                        bot,
+                        ("order.replace_reconcile_required" if outcome_reason == "replace_reconcile_required" else "order.replace_envelope_block"),
+                        data={
+                            "k": _symkey(symbol),
+                            "cancel_order_id": str(cancel_order_id),
+                            "reason": outcome_reason,
+                            "state": str(getattr(outcome, "state", "")),
+                            "attempts": int(getattr(outcome, "attempts", 0) or 0),
+                            "last_status": str(getattr(outcome, "last_status", "")),
+                            "current_exposure_notional": float(cur_notional),
+                            "new_order_notional": float(new_notional),
+                            "max_worst_case_notional": float(max_worst_case_notional),
+                            "max_ambiguity_attempts": int(max_ambiguity_attempts),
+                            "ambiguity_count": int(getattr(outcome, "ambiguity_count", 0) or 0),
+                            "cancel_attempts": int(getattr(outcome, "cancel_attempts", 0) or 0),
+                            "create_attempts": int(getattr(outcome, "create_attempts", 0) or 0),
+                            "status_checks": int(getattr(outcome, "status_checks", 0) or 0),
+                            "correlation_id": corr,
+                        },
+                        symbol=_symkey(symbol),
+                        level="critical",
+                    )
+                )
+        if callable(emit):
+            _telemetry_task(
+                emit(
+                    bot,
+                    "order.cancel_replace_giveup",
+                    data={
+                        "k": _symkey(symbol),
+                        "cancel_order_id": str(cancel_order_id),
+                        "max_attempts": max_attempts,
+                        "state": str(getattr(outcome, "state", "")),
+                        "reason": str(getattr(outcome, "reason", "")),
+                        "attempts": int(getattr(outcome, "attempts", 0) or 0),
+                        "last_status": str(getattr(outcome, "last_status", "")),
+                        "current_exposure_notional": float(cur_notional),
+                        "new_order_notional": float(new_notional),
+                        "max_worst_case_notional": float(max_worst_case_notional),
+                        "max_ambiguity_attempts": int(max_ambiguity_attempts),
+                        "ambiguity_count": int(getattr(outcome, "ambiguity_count", 0) or 0),
+                        "cancel_attempts": int(getattr(outcome, "cancel_attempts", 0) or 0),
+                        "create_attempts": int(getattr(outcome, "create_attempts", 0) or 0),
+                        "status_checks": int(getattr(outcome, "status_checks", 0) or 0),
+                        "correlation_id": corr,
+                    },
+                    symbol=_symkey(symbol),
+                    level="critical",
+                )
+            )
+        _request_reconcile_hint(
+            bot,
+            symbol=str(symbol),
+            reason=f"replace_giveup:{str(getattr(outcome, 'reason', '') or 'unknown')}",
+            correlation_id=corr,
+        )
+        _intent_ledger_record(
+            bot,
+            intent_id=str(corr or ""),
+            stage="DONE",
+            symbol=_symkey(symbol),
+            side=str(side or "").lower().strip(),
+            order_type=str(type or "").upper().strip(),
+            order_id=str(cancel_order_id or ""),
+            status="giveup",
+            reason="cancel_replace_giveup",
+            meta={
+                "attempts": int(getattr(outcome, "attempts", 0) or 0),
+                "last_status": str(getattr(outcome, "last_status", "")),
+                "ambiguity_count": int(getattr(outcome, "ambiguity_count", 0) or 0),
+                "cancel_attempts": int(getattr(outcome, "cancel_attempts", 0) or 0),
+                "create_attempts": int(getattr(outcome, "create_attempts", 0) or 0),
+                "status_checks": int(getattr(outcome, "status_checks", 0) or 0),
+            },
+        )
+        return None
+
+    for idx in range(max_attempts):
+        ok = await cancel_order(bot, cancel_order_id, symbol, correlation_id=corr)
+        if not ok:
+            if callable(emit):
+                _telemetry_task(
+                    emit(
+                        bot,
+                        "order.cancel_replace_failed",
+                        data={
+                            "k": _symkey(symbol),
+                            "cancel_order_id": str(cancel_order_id),
+                            "attempt": idx + 1,
+                            "reason": "cancel_failed",
+                            "correlation_id": corr,
+                        },
+                        symbol=_symkey(symbol),
+                        level="warning",
+                    )
+                )
+            continue
+        res = await create_order(
+            bot,
+            symbol=symbol,
+            type=type,
+            side=side,
+            amount=amount,
+            price=price,
+            stop_price=stop_price,
+            params=params or {},
+            retries=1,
+            correlation_id=corr,
+        )
+        if res is not None:
+            oid = str((res or {}).get("id") or "").strip() if isinstance(res, dict) else ""
+            _intent_ledger_record(
+                bot,
+                intent_id=str(corr or ""),
+                stage="DONE",
+                symbol=_symkey(symbol),
+                side=str(side or "").lower().strip(),
+                order_type=str(type or "").upper().strip(),
+                order_id=oid,
+                status="replaced",
+                reason="cancel_replace_success",
+            )
+            return res
+    if callable(emit):
+        _telemetry_task(
+            emit(
+                bot,
+                "order.cancel_replace_giveup",
+                data={
+                    "k": _symkey(symbol),
+                    "cancel_order_id": str(cancel_order_id),
+                    "max_attempts": max_attempts,
+                    "correlation_id": corr,
+                },
+                symbol=_symkey(symbol),
+                level="critical",
+            )
+        )
+    _request_reconcile_hint(
+        bot,
+        symbol=str(symbol),
+        reason="replace_giveup:fallback_loop",
+        correlation_id=corr,
+    )
+    _intent_ledger_record(
+        bot,
+        intent_id=str(corr or ""),
+        stage="DONE",
+        symbol=_symkey(symbol),
+        side=str(side or "").lower().strip(),
+        order_type=str(type or "").upper().strip(),
+        order_id=str(cancel_order_id or ""),
+        status="giveup",
+        reason="cancel_replace_giveup",
+    )
     return None
 
 
