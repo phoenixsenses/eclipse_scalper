@@ -15,7 +15,7 @@ for p in (ROOT, PKG):
     if str(p) not in sys.path:
         sys.path.insert(0, str(p))
 
-from eclipse_scalper.execution import rebuild, reconcile, replace_manager  # noqa: E402
+from eclipse_scalper.execution import rebuild, reconcile, replace_manager, order_router  # noqa: E402
 from tools import replay_trade  # noqa: E402
 
 
@@ -58,6 +58,7 @@ class _DummyBot:
             reconcile_metrics={},
             halt=False,
         )
+        self.data = types.SimpleNamespace(raw_symbol={"BTCUSDT": "BTC/USDT:USDT"})
         self.cfg = types.SimpleNamespace(
             RECONCILE_FULL_SCAN_ORPHANS=False,
             RECONCILE_PHANTOM_MISS_COUNT=1,
@@ -396,6 +397,50 @@ class ChaosScenariosV2Tests(unittest.TestCase):
                 self.assertLessEqual(float(k2.get("max_notional_usdt", 999.0)), 50.0)
             if "max_leverage" in k2:
                 self.assertLessEqual(int(k2.get("max_leverage", 999)), 10)
+
+    def test_replace_race_spike_auto_degrades_entry_posture(self):
+        ex = _RestartExchange(positions=[], orders=[], trades=[])
+        bot = _DummyBot(ex)
+        bot.cfg.BELIEF_RECONCILE_FIRST_GATE_COUNT_THRESHOLD = 1
+        bot.cfg.BELIEF_RECONCILE_FIRST_GATE_SEVERITY_THRESHOLD = 0.80
+        bot.cfg.BELIEF_RECONCILE_FIRST_GATE_STREAK_THRESHOLD = 1
+        bot.cfg.BELIEF_RUNTIME_GATE_RECOVER_SEC = 120.0
+
+        async def _fake_run_cancel_replace(**_kwargs):
+            return types.SimpleNamespace(
+                success=False,
+                state="REPLACE_RACE",
+                reason="replace_reconcile_required",
+                attempts=2,
+                ambiguity_count=2,
+                last_status="unknown",
+            )
+
+        orig_replace = order_router._replace_manager
+        order_router._replace_manager = types.SimpleNamespace(run_cancel_replace=_fake_run_cancel_replace)
+        try:
+            res = asyncio.run(
+                order_router.cancel_replace_order(
+                    bot,
+                    cancel_order_id="oid-1",
+                    symbol="BTC/USDT",
+                    type="LIMIT",
+                    side="buy",
+                    amount=1.0,
+                    price=100.0,
+                    retries=1,
+                )
+            )
+        finally:
+            order_router._replace_manager = orig_replace
+
+        self.assertIsNone(res)
+        asyncio.run(reconcile.reconcile_tick(bot))
+        knobs = dict(getattr(bot.state, "guard_knobs", {}) or {})
+        self.assertTrue(bool(knobs))
+        self.assertFalse(bool(knobs.get("allow_entries", True)))
+        self.assertTrue(bool(knobs.get("reconcile_first_gate_degraded", False)))
+        self.assertIn("reconcile_first", str(knobs.get("reason") or "").lower())
 
 
 if __name__ == "__main__":

@@ -182,6 +182,45 @@ class OrderRouterReplaceTests(unittest.TestCase):
         events = [e for e, _ in captured]
         self.assertIn("order.replace_envelope_block", events)
 
+    def test_cancel_replace_reconcile_required_records_reconcile_first_pressure(self):
+        bot = DummyBot(DummyEx(), DummyData({"BTCUSDT": "BTC/USDT:USDT"}))
+        bot.state.kill_metrics = {}
+
+        async def _fake_run_cancel_replace(**_kwargs):
+            return types.SimpleNamespace(
+                success=False,
+                state="REPLACE_RACE",
+                reason="replace_reconcile_required",
+                attempts=2,
+                ambiguity_count=2,
+                last_status="unknown",
+            )
+
+        orig_replace = order_router._replace_manager
+        order_router._replace_manager = types.SimpleNamespace(run_cancel_replace=_fake_run_cancel_replace)
+        try:
+            res = asyncio.run(
+                order_router.cancel_replace_order(
+                    bot,
+                    cancel_order_id="oid-1",
+                    symbol="BTC/USDT",
+                    type="LIMIT",
+                    side="buy",
+                    amount=1.0,
+                    price=100.0,
+                    retries=1,
+                )
+            )
+        finally:
+            order_router._replace_manager = orig_replace
+
+        self.assertIsNone(res)
+        km = dict(getattr(bot.state, "kill_metrics", {}) or {})
+        self.assertGreaterEqual(int(km.get("reconcile_first_gate_count", 0) or 0), 1)
+        self.assertIn("replace_race", str(km.get("reconcile_first_gate_last_reason", "") or ""))
+        events = list(km.get("reconcile_first_gate_events", []) or [])
+        self.assertGreaterEqual(len(events), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

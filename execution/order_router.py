@@ -852,6 +852,40 @@ def _request_reconcile_hint(bot, *, symbol: str, reason: str, correlation_id: st
         pass
 
 
+def _record_reconcile_first_pressure(bot, *, symbol: str, severity: float, reason: str = "") -> None:
+    """
+    Router-side escalation hook for ambiguity storms (e.g., replace-race loops).
+    Reconcile and belief-controller consume this via kill_metrics to clamp entries.
+    """
+    try:
+        st = getattr(bot, "state", None)
+        if st is None:
+            return
+        km = getattr(st, "kill_metrics", None)
+        if not isinstance(km, dict):
+            st.kill_metrics = {}
+            km = st.kill_metrics
+        events = km.get("reconcile_first_gate_events")
+        if not isinstance(events, list):
+            events = []
+            km["reconcile_first_gate_events"] = events
+        now_ts = float(time.time())
+        max_events = max(20, int(_safe_float(_cfg_env(bot, "BELIEF_RECONCILE_FIRST_EVENTS_MAX", 160), 160.0)))
+        window_sec = max(10.0, _safe_float(_cfg_env(bot, "BELIEF_RECONCILE_FIRST_WINDOW_SEC", 120), 120.0))
+        cutoff = now_ts - window_sec
+        events[:] = [ev for ev in events if isinstance(ev, dict) and _safe_float(ev.get("ts"), 0.0) >= cutoff]
+        sev = max(0.0, min(1.0, float(severity or 0.0)))
+        events.append({"ts": now_ts, "symbol": _symkey(symbol), "severity": sev, "reason": str(reason or "")})
+        if len(events) > max_events:
+            del events[:-max_events]
+        km["reconcile_first_gate_count"] = int(km.get("reconcile_first_gate_count", 0) or 0) + 1
+        km["reconcile_first_gate_last_ts"] = float(now_ts)
+        km["reconcile_first_gate_last_severity"] = float(sev)
+        km["reconcile_first_gate_last_reason"] = str(reason or "")
+    except Exception:
+        pass
+
+
 def _intent_ledger_record(
     bot,
     *,
@@ -2732,6 +2766,17 @@ async def cancel_replace_order(
             return getattr(outcome, "order", None)
         outcome_reason = str(getattr(outcome, "reason", "") or "")
         if outcome_reason in ("replace_envelope_block", "replace_ambiguity_cap", "replace_reconcile_required"):
+            if outcome_reason in ("replace_ambiguity_cap", "replace_reconcile_required"):
+                race_base = _safe_float(_cfg_env(bot, "ROUTER_REPLACE_RACE_GATE_SEVERITY", 0.90), 0.90)
+                ambiguity_bump = _safe_float(getattr(outcome, "ambiguity_count", 0), 0.0) * 0.05
+                attempt_bump = _safe_float(getattr(outcome, "attempts", 0), 0.0) * 0.02
+                race_sev = max(0.0, min(1.0, float(race_base + ambiguity_bump + attempt_bump)))
+                _record_reconcile_first_pressure(
+                    bot,
+                    symbol=_symkey(symbol),
+                    severity=race_sev,
+                    reason=f"replace_race:{outcome_reason}",
+                )
             if callable(emit):
                 _telemetry_task(
                     emit(
