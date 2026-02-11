@@ -637,6 +637,131 @@ class TelemetryDashboardNotifyTests(unittest.TestCase):
             self.assertEqual(saved.get("last_decision_reason"), "level_transition:normal->critical")
             self.assertTrue(saved.get("last_decision_sent"))
 
+    def test_main_recovery_red_lock_streak_escalates_to_critical(self):
+        with tempfile.TemporaryDirectory() as td:
+            tele = Path(td) / "telemetry.jsonl"
+            gate = Path(td) / "reliability_gate.txt"
+            state = Path(td) / "notify_state.json"
+            tele.write_text(
+                "\n".join(
+                    [
+                        '{"event":"execution.belief_state","data":{"guard_recovery_stage":"RED_LOCK","guard_unlock_conditions":"wait stability window"}}',
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            gate.write_text(
+                "\n".join(
+                    [
+                        "Execution Reliability Gate",
+                        "replay_mismatch_count=0",
+                        "journal_coverage_ratio=1.000",
+                        "invalid_transition_count=0",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            with mock.patch.object(tdn, "_run_dashboard", return_value=("dashboard-ok", 0)), \
+                mock.patch.object(tdn, "_build_notifier", return_value=object()), \
+                mock.patch.object(tdn, "_send_alert") as send_alert:
+                rc1 = tdn.main(
+                    [
+                        "--path",
+                        str(tele),
+                        "--reliability-gate",
+                        str(gate),
+                        "--state-path",
+                        str(state),
+                        "--recovery-red-lock-critical-streak",
+                        "2",
+                    ]
+                )
+                rc2 = tdn.main(
+                    [
+                        "--path",
+                        str(tele),
+                        "--reliability-gate",
+                        str(gate),
+                        "--state-path",
+                        str(state),
+                        "--recovery-red-lock-critical-streak",
+                        "2",
+                    ]
+                )
+                self.assertEqual(rc1, 0)
+                self.assertEqual(rc2, 0)
+                self.assertGreaterEqual(send_alert.call_count, 2)
+                _, kwargs = send_alert.call_args
+                self.assertEqual(kwargs.get("level"), "critical")
+
+            saved = json.loads(state.read_text(encoding="utf-8"))
+            self.assertEqual(saved.get("recovery_stage_latest"), "RED_LOCK")
+            self.assertEqual(saved.get("recovery_red_lock_streak"), 2)
+            self.assertEqual(saved.get("level"), "critical")
+
+    def test_main_recovery_red_lock_streak_resets_when_stage_changes(self):
+        with tempfile.TemporaryDirectory() as td:
+            tele = Path(td) / "telemetry.jsonl"
+            gate = Path(td) / "reliability_gate.txt"
+            state = Path(td) / "notify_state.json"
+            gate.write_text(
+                "\n".join(
+                    [
+                        "Execution Reliability Gate",
+                        "replay_mismatch_count=0",
+                        "journal_coverage_ratio=1.000",
+                        "invalid_transition_count=0",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            with mock.patch.object(tdn, "_run_dashboard", return_value=("dashboard-ok", 0)), \
+                mock.patch.object(tdn, "_build_notifier", return_value=object()), \
+                mock.patch.object(tdn, "_send_alert"):
+                tele.write_text(
+                    '{"event":"execution.belief_state","data":{"guard_recovery_stage":"RED_LOCK"}}\n',
+                    encoding="utf-8",
+                )
+                rc1 = tdn.main(
+                    [
+                        "--path",
+                        str(tele),
+                        "--reliability-gate",
+                        str(gate),
+                        "--state-path",
+                        str(state),
+                        "--recovery-red-lock-critical-streak",
+                        "3",
+                    ]
+                )
+                self.assertEqual(rc1, 0)
+                saved1 = json.loads(state.read_text(encoding="utf-8"))
+                self.assertEqual(saved1.get("recovery_red_lock_streak"), 1)
+
+                tele.write_text(
+                    '{"event":"execution.belief_state","data":{"guard_recovery_stage":"POST_RED_WARMUP"}}\n',
+                    encoding="utf-8",
+                )
+                rc2 = tdn.main(
+                    [
+                        "--path",
+                        str(tele),
+                        "--reliability-gate",
+                        str(gate),
+                        "--state-path",
+                        str(state),
+                        "--recovery-red-lock-critical-streak",
+                        "3",
+                    ]
+                )
+                self.assertEqual(rc2, 0)
+                saved2 = json.loads(state.read_text(encoding="utf-8"))
+                self.assertEqual(saved2.get("recovery_red_lock_streak"), 0)
+                self.assertEqual(saved2.get("recovery_stage_latest"), "POST_RED_WARMUP")
+
 
 if __name__ == "__main__":
     unittest.main()

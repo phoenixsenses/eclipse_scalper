@@ -483,6 +483,7 @@ def _is_worsened(prev: dict[str, Any], curr: dict[str, Any]) -> bool:
         "reconcile_gate_count",
         "reconcile_gate_max_severity",
         "reconcile_gate_max_streak",
+        "recovery_red_lock_streak",
         "entry_budget_depleted",
         "replace_envelope_count",
     )
@@ -557,6 +558,12 @@ def main(argv=None) -> int:
     )
     parser.add_argument("--entry-budget-depleted-critical-threshold", type=int, default=1)
     parser.add_argument("--replace-envelope-critical-threshold", type=int, default=1)
+    parser.add_argument(
+        "--recovery-red-lock-critical-streak",
+        type=int,
+        default=int(os.getenv("RECOVERY_RED_LOCK_CRITICAL_STREAK", "2")),
+        help="Force critical level when latest recovery stage is RED_LOCK for this many consecutive runs",
+    )
     parser.add_argument(
         "--guard-history-path",
         default=os.getenv("TELEMETRY_GUARD_HISTORY_PATH", "logs/telemetry_guard_history.csv"),
@@ -665,6 +672,17 @@ def main(argv=None) -> int:
         }
         state_path = Path(args.state_path)
         prev_state = _load_notify_state(state_path)
+        prev_red_streak = int(_safe_float(prev_state.get("recovery_red_lock_streak", 0), 0.0)) if isinstance(prev_state, dict) else 0
+        if str(current_state.get("recovery_stage_latest") or "").upper() == "RED_LOCK":
+            red_lock_streak = prev_red_streak + 1
+        else:
+            red_lock_streak = 0
+        current_state["recovery_red_lock_streak"] = int(red_lock_streak)
+        recovery_red_lock_degraded = bool(
+            int(red_lock_streak) >= max(1, int(args.recovery_red_lock_critical_streak))
+        )
+        if recovery_red_lock_degraded:
+            current_state["level"] = "critical"
         should_send, decision_reason = _decide_notify(prev_state, current_state)
         current_state = _attach_prev_snapshot(current_state, prev_state)
         current_state["last_decision_reason"] = decision_reason

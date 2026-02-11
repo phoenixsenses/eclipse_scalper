@@ -13,6 +13,8 @@ jobs:
     env:
       TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      TELEMETRY_DASHBOARD_NOTIFY_STATE_PATH: logs/telemetry_dashboard_notify_state.json
+      RECOVERY_RED_LOCK_CRITICAL_STREAK: "2"
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -23,35 +25,53 @@ jobs:
           python-version: '3.10'
 
       - name: Install dependencies
-        run: python -m pip install --upgrade pip && python -m pip install -r eclipse_scalper/requirements.txt
+        run: python -m pip install --upgrade pip && python -m pip install -r requirements.txt
+
+      - name: Build reliability gate summary
+        run: |
+          python tools/reliability_gate.py \
+            --telemetry logs/telemetry.jsonl \
+            --journal logs/execution_journal.jsonl \
+            --output logs/reliability_gate.txt \
+            --allow-missing
 
       - name: Run telemetry dashboard notifier
         run: >
-          python eclipse_scalper/tools/telemetry_dashboard_notify.py
+          python tools/telemetry_dashboard_notify.py
           --path logs/telemetry.jsonl
           --codes-per-symbol
           --codes-top 4
           --guard-events
           --guard-history
           --guard-history-path logs/telemetry_guard_history.csv
+          --reliability-gate logs/reliability_gate.txt
+          --reliability-max-replay-mismatch 0
+          --reliability-max-invalid-transitions 0
+          --reliability-min-journal-coverage 0.90
+          --reconcile-first-gate-critical-threshold 2
+          --reconcile-first-gate-severity-threshold 0.85
+          --reconcile-first-gate-severity-streak-threshold 2
+          --recovery-red-lock-critical-streak ${RECOVERY_RED_LOCK_CRITICAL_STREAK}
+          --entry-budget-depleted-critical-threshold 2
+          --replace-envelope-critical-threshold 2
 
       - name: Run telemetry classifier
         run: >
-          python eclipse_scalper/tools/telemetry_classifier.py
+          python tools/telemetry_classifier.py
           --path logs/telemetry.jsonl
           --since-min 60
       - name: Run signal data health report
         run: |
-          python eclipse_scalper/tools/signal_data_health.py --path logs/telemetry.jsonl --since-min 60 > logs/signal_data_health.txt
+          python tools/signal_data_health.py --path logs/telemetry.jsonl --since-min 60 > logs/signal_data_health.txt
       - name: Run core health dashboard
         run: |
-          python eclipse_scalper/tools/core_health.py --path logs/telemetry.jsonl --since-min 60 --limit 2000 > logs/core_health.txt
+          python tools/core_health.py --path logs/telemetry.jsonl --since-min 60 --limit 2000 > logs/core_health.txt
       - name: Run telemetry anomaly detector
         run: |
-          python eclipse_scalper/tools/telemetry_anomaly.py --path logs/telemetry.jsonl --since-min 60 --output logs/telemetry_anomaly.txt
+          python tools/telemetry_anomaly.py --path logs/telemetry.jsonl --since-min 60 --output logs/telemetry_anomaly.txt
       - name: Run telemetry drift detection
         run: |
-          python eclipse_scalper/tools/telemetry_drift_detection.py \
+          python tools/telemetry_drift_detection.py \
             --path logs/telemetry.jsonl \
             --since-min 60 \
             --min-count 6 \
@@ -61,7 +81,7 @@ jobs:
             --summary logs/telemetry_drift_summary.txt
       - name: Run signal exit telemetry notifier
         run: |
-          python eclipse_scalper/tools/telemetry_signal_exit_notify.py \
+          python tools/telemetry_signal_exit_notify.py \
             --path logs/telemetry.jsonl \
             --since-min 60 \
             --emit-event \
@@ -72,14 +92,14 @@ jobs:
             --recovery-duration 600
       - name: Run telemetry guard timeline
         run: |
-          python eclipse_scalper/tools/telemetry_guard_timeline.py \
+          python tools/telemetry_guard_timeline.py \
             --path logs/telemetry.jsonl \
             --state logs/telemetry_adaptive_guard.json \
             --since-min 180 \
             --notify
       - name: Build guard history table
         run: |
-          python eclipse_scalper/tools/telemetry_guard_history.py \
+          python tools/telemetry_guard_history.py \
             --drift-summary logs/telemetry_drift_summary.txt \
             --signal-exit logs/signal_exit_notify.txt \
             --guard-timeline logs/telemetry_guard_timeline.txt \
@@ -88,7 +108,7 @@ jobs:
             --limit 48
       - name: Run telemetry dashboard summary
         run: |
-          python eclipse_scalper/tools/telemetry_dashboard.py \
+          python tools/telemetry_dashboard.py \
             --path logs/telemetry.jsonl \
             --limit 1000 \
             --guard-events \
@@ -96,7 +116,7 @@ jobs:
             --guard-history-path logs/telemetry_guard_history.csv
       - name: Guard history alerts
         run: |
-          python eclipse_scalper/tools/telemetry_guard_history_alerts.py \
+          python tools/telemetry_guard_history_alerts.py \
             --path logs/telemetry_guard_history.csv \
             --window 8 \
             --threshold 3 \
@@ -104,7 +124,7 @@ jobs:
             --notify
       - name: Defense posture summary
         run: |
-          python eclipse_scalper/tools/defense_system.py \
+          python tools/defense_system.py \
             --history logs/telemetry_guard_history.csv \
             --rows 16 \
             --actions logs/telemetry_anomaly_actions.json \
@@ -112,19 +132,31 @@ jobs:
             --notify
       - name: Generate telemetry dashboard page
         run: |
-          python eclipse_scalper/tools/telemetry_dashboard_page.py
-          --core logs/core_health.txt
-          --signal logs/signal_data_health.txt
-          --anomaly logs/telemetry_anomaly.txt
-          --output logs/telemetry_dashboard_page.html
+          python tools/telemetry_dashboard_page.py \
+            --core logs/core_health.txt \
+            --signal logs/signal_data_health.txt \
+            --anomaly logs/telemetry_anomaly.txt \
+            --reliability-gate logs/reliability_gate.txt \
+            --output logs/telemetry_dashboard_page.html
       - name: Summarize telemetry alert artifacts
         run: |
-          python eclipse_scalper/tools/telemetry_alert_summary.py
-          --signal logs/signal_data_health.txt
-          --core logs/core_health.txt
-          --anomaly logs/telemetry_anomaly.txt
-          --signal-exit logs/signal_exit_notify.txt
-          --output logs/telemetry_alert_summary.txt
+          python tools/telemetry_alert_summary.py \
+            --signal logs/signal_data_health.txt \
+            --core logs/core_health.txt \
+            --anomaly logs/telemetry_anomaly.txt \
+            --signal-exit logs/signal_exit_notify.txt \
+            --reliability-gate logs/reliability_gate.txt \
+            --reconcile-first-gate-severity-threshold 0.85 \
+            --reconcile-first-gate-severity-streak-threshold 2 \
+            --rebuild-orphan-freeze-threshold 1 \
+            --output logs/telemetry_alert_summary.txt
+      - name: Build latest replay summary
+        run: |
+          python tools/replay_latest_summary.py \
+            --telemetry logs/telemetry.jsonl \
+            --journal logs/execution_journal.jsonl \
+            --output logs/replay_latest.txt \
+            --limit 10
       - name: Upload telemetry artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -143,3 +175,6 @@ jobs:
             logs/telemetry_guard_history.html
             logs/telemetry_drift_summary.txt
             logs/signal_exit_notify.txt
+            logs/replay_latest.txt
+            logs/reliability_gate.txt
+            logs/telemetry_dashboard_notify_state.json
