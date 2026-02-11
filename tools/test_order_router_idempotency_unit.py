@@ -170,6 +170,134 @@ class OrderRouterIdempotencyTests(unittest.TestCase):
         for ch in s1:
             self.assertTrue(ch.isalnum() or ch in ("_", "-"))
 
+    def test_create_order_blocks_duplicate_submit_when_pending_unknown_exists(self):
+        sym_raw = "BTC/USDT:USDT"
+        sym = "BTC/USDT"
+        market = {"contract": True}
+        ex = DummyEx(markets={sym_raw: market}, market_meta=market, dual_side=True)
+        bot = DummyBot(ex, DummyData({"BTCUSDT": sym_raw}))
+
+        with tempfile.TemporaryDirectory() as td:
+            bot.cfg.INTENT_LEDGER_ENABLED = True
+            bot.cfg.INTENT_LEDGER_REUSE_ENABLED = True
+            bot.cfg.INTENT_LEDGER_PATH = str(Path(td) / "intent_ledger.jsonl")
+            bot.cfg.INTENT_LEDGER_UNKNOWN_MAX_AGE_SEC = 600.0
+
+            corr = "ENTRY-BTC-UNKNOWN"
+            coid = "ENTRY_BTC_UNKNOWN_1"
+            from eclipse_scalper.execution import intent_ledger  # noqa: E402
+
+            intent_ledger.record(
+                bot,
+                intent_id=corr,
+                stage="SUBMITTED_UNKNOWN",
+                symbol="BTCUSDT",
+                side="buy",
+                order_type="MARKET",
+                client_order_id=coid,
+                order_id="",
+                status="unknown",
+                reason="timeout",
+            )
+
+            orig_validate = order_router._validate_and_normalize_order
+
+            async def _ok_validate(*_args, **_kwargs):
+                return True, 1.0, None, "ok"
+
+            order_router._validate_and_normalize_order = _ok_validate
+            try:
+                res = asyncio.run(
+                    order_router.create_order(
+                        bot,
+                        symbol=sym,
+                        type="MARKET",
+                        side="buy",
+                        amount=1.0,
+                        params={"clientOrderId": coid},
+                        retries=1,
+                        correlation_id=corr,
+                    )
+                )
+            finally:
+                order_router._validate_and_normalize_order = orig_validate
+
+            self.assertIsNotNone(res)
+            self.assertEqual(len(ex.create_calls), 0)
+            info = dict((res or {}).get("info") or {})
+            self.assertTrue(bool(info.get("intent_pending_unknown", False)))
+            self.assertEqual(str(info.get("stage") or ""), "SUBMITTED_UNKNOWN")
+
+    def test_restart_recovers_pending_unknown_from_journal_and_blocks_duplicate(self):
+        sym_raw = "BTC/USDT:USDT"
+        sym = "BTC/USDT"
+        market = {"contract": True}
+        ex = DummyEx(markets={sym_raw: market}, market_meta=market, dual_side=True)
+        bot = DummyBot(ex, DummyData({"BTCUSDT": sym_raw}))
+
+        with tempfile.TemporaryDirectory() as td:
+            ledger_path = Path(td) / "intent_ledger.jsonl"
+            journal_path = Path(td) / "execution_journal.jsonl"
+            bot.cfg.INTENT_LEDGER_ENABLED = True
+            bot.cfg.INTENT_LEDGER_REUSE_ENABLED = True
+            bot.cfg.INTENT_LEDGER_PATH = str(ledger_path)
+            bot.cfg.EVENT_JOURNAL_PATH = str(journal_path)
+            bot.cfg.INTENT_LEDGER_UNKNOWN_MAX_AGE_SEC = 600.0
+
+            corr = "ENTRY-BTC-RESTART-UNK"
+            coid = "ENTRY_BTC_RESTART_UNK_1"
+            from eclipse_scalper.execution import intent_ledger  # noqa: E402
+
+            intent_ledger.record(
+                bot,
+                intent_id=corr,
+                stage="SUBMITTED_UNKNOWN",
+                symbol="BTCUSDT",
+                side="buy",
+                order_type="MARKET",
+                client_order_id=coid,
+                status="unknown",
+                reason="timeout",
+            )
+            self.assertTrue(journal_path.exists())
+            if ledger_path.exists():
+                ledger_path.unlink()
+
+            # fresh runtime process with empty run_context; must recover from journal mirror
+            bot2 = DummyBot(ex, DummyData({"BTCUSDT": sym_raw}))
+            bot2.cfg.INTENT_LEDGER_ENABLED = True
+            bot2.cfg.INTENT_LEDGER_REUSE_ENABLED = True
+            bot2.cfg.INTENT_LEDGER_PATH = str(ledger_path)
+            bot2.cfg.EVENT_JOURNAL_PATH = str(journal_path)
+            bot2.cfg.INTENT_LEDGER_UNKNOWN_MAX_AGE_SEC = 600.0
+
+            orig_validate = order_router._validate_and_normalize_order
+
+            async def _ok_validate(*_args, **_kwargs):
+                return True, 1.0, None, "ok"
+
+            order_router._validate_and_normalize_order = _ok_validate
+            try:
+                res = asyncio.run(
+                    order_router.create_order(
+                        bot2,
+                        symbol=sym,
+                        type="MARKET",
+                        side="buy",
+                        amount=1.0,
+                        params={"clientOrderId": coid},
+                        retries=1,
+                        correlation_id=corr,
+                    )
+                )
+            finally:
+                order_router._validate_and_normalize_order = orig_validate
+
+            self.assertIsNotNone(res)
+            self.assertEqual(len(ex.create_calls), 0)
+            info = dict((res or {}).get("info") or {})
+            self.assertTrue(bool(info.get("intent_pending_unknown", False)))
+
     def test_freshen_client_order_id_length_and_diff(self):
         base = "SE_DUPLICATE_TEST_0123456789_ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         s1 = order_router._freshen_client_order_id(base, salt="a")

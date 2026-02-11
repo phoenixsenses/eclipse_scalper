@@ -1962,6 +1962,60 @@ async def create_order(
     client_order_id_live = str(p.get("clientOrderId") or "").strip()
     if _intent_ledger is not None and _truthy(_cfg_env(bot, "INTENT_LEDGER_REUSE_ENABLED", False)):
         try:
+            pending_unknown = _intent_ledger.find_pending_unknown_intent(
+                bot,
+                intent_id=str(corr_id or ""),
+                client_order_id=client_order_id_live,
+            )
+        except Exception:
+            pending_unknown = None
+        if isinstance(pending_unknown, dict):
+            stage_unknown = str(pending_unknown.get("stage") or "SUBMITTED_UNKNOWN")
+            status_unknown = str(pending_unknown.get("status") or "unknown").lower().strip() or "unknown"
+            oid_unknown = str(pending_unknown.get("order_id") or "").strip()
+            log_entry.warning(
+                f"[router] pending unknown intent -> block duplicate submit | k={k} corr={corr_id} coid={client_order_id_live} stage={stage_unknown}"
+            )
+            _request_reconcile_hint(
+                bot,
+                symbol=k,
+                reason=f"intent_pending_unknown:{stage_unknown}",
+                correlation_id=str(corr_id or ""),
+            )
+            if callable(emit):
+                _telemetry_task(
+                    emit(
+                        bot,
+                        "order.intent_pending_unknown",
+                        data={
+                            "k": k,
+                            "correlation_id": corr_id,
+                            "client_order_id": client_order_id_live,
+                            "order_id": oid_unknown,
+                            "stage": stage_unknown,
+                            "status": status_unknown,
+                        },
+                        symbol=k,
+                        level="warning",
+                    )
+                )
+            return {
+                "id": (oid_unknown or None),
+                "symbol": sym_raw,
+                "type": type_norm,
+                "side": side_l,
+                "amount": _safe_float(amount, 0.0),
+                "filled": 0.0,
+                "status": status_unknown,
+                "info": {
+                    "intent_pending_unknown": True,
+                    "correlation_id": corr_id,
+                    "clientOrderId": client_order_id_live,
+                    "stage": stage_unknown,
+                },
+            }
+    if _intent_ledger is not None and _truthy(_cfg_env(bot, "INTENT_LEDGER_REUSE_ENABLED", False)):
+        try:
             seen = _intent_ledger.find_reusable_intent(
                 bot,
                 intent_id=str(corr_id or ""),

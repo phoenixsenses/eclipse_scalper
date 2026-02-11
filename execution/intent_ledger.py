@@ -103,6 +103,17 @@ def _reuse_max_age_sec(bot) -> float:
     return max(0.0, _safe_float(os.getenv("INTENT_LEDGER_REUSE_MAX_AGE_SEC", "900"), 900.0))
 
 
+def _unknown_max_age_sec(bot) -> float:
+    try:
+        cfg = getattr(bot, "cfg", None)
+        raw = getattr(cfg, "INTENT_LEDGER_UNKNOWN_MAX_AGE_SEC", None)
+        if raw is not None:
+            return max(0.0, _safe_float(raw, 300.0))
+    except Exception:
+        pass
+    return max(0.0, _safe_float(os.getenv("INTENT_LEDGER_UNKNOWN_MAX_AGE_SEC", "300"), 300.0))
+
+
 def _new_store(path: str, journal_path: str = "") -> dict:
     return {
         "loaded": False,
@@ -332,6 +343,34 @@ def find_reusable_intent(
     if stage not in _REUSABLE_STAGES:
         return None
     ttl = _reuse_max_age_sec(bot) if max_age_sec is None else max(0.0, _safe_float(max_age_sec, 0.0))
+    if ttl > 0:
+        age = max(0.0, time.time() - _safe_float(rec.get("ts"), 0.0))
+        if age > ttl:
+            return None
+    return dict(rec)
+
+
+def find_pending_unknown_intent(
+    bot,
+    *,
+    intent_id: str = "",
+    client_order_id: str = "",
+    order_id: str = "",
+    max_age_sec: Optional[float] = None,
+) -> Optional[Dict[str, Any]]:
+    store = _ensure_store(bot)
+    if store is None:
+        return None
+    iid = resolve_intent_id(bot, intent_id=intent_id, client_order_id=client_order_id, order_id=order_id)
+    if not iid:
+        return None
+    rec = (store.get("intents") or {}).get(iid)
+    if not isinstance(rec, dict):
+        return None
+    stage = str(rec.get("stage") or "").upper().strip()
+    if stage not in _UNKNOWN_STAGES:
+        return None
+    ttl = _unknown_max_age_sec(bot) if max_age_sec is None else max(0.0, _safe_float(max_age_sec, 0.0))
     if ttl > 0:
         age = max(0.0, time.time() - _safe_float(rec.get("ts"), 0.0))
         if age > ttl:

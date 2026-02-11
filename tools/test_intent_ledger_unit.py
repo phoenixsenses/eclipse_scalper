@@ -133,6 +133,31 @@ class IntentLedgerTests(unittest.TestCase):
                 "CID-JRN-1",
             )
 
+    def test_find_pending_unknown_intent_respects_stage_and_age(self):
+        with tempfile.TemporaryDirectory() as td:
+            ledger_path = Path(td) / "intent_ledger.jsonl"
+            bot = self._bot(ledger_path)
+            bot.cfg.INTENT_LEDGER_UNKNOWN_MAX_AGE_SEC = 300.0
+
+            orig_now = intent_ledger.time.time
+            try:
+                intent_ledger.time.time = lambda: 100.0
+                intent_ledger.record(
+                    bot,
+                    intent_id="CID-UNK-1",
+                    stage="SUBMITTED_UNKNOWN",
+                    symbol="BTCUSDT",
+                    client_order_id="ENTRY_BTC_UNK",
+                )
+                intent_ledger.time.time = lambda: 200.0
+                pending = intent_ledger.find_pending_unknown_intent(bot, client_order_id="ENTRY_BTC_UNK")
+                self.assertIsNotNone(pending)
+                intent_ledger.time.time = lambda: 500.0
+                expired = intent_ledger.find_pending_unknown_intent(bot, client_order_id="ENTRY_BTC_UNK")
+                self.assertIsNone(expired)
+            finally:
+                intent_ledger.time.time = orig_now
+
 
 if __name__ == "__main__":
     unittest.main()
