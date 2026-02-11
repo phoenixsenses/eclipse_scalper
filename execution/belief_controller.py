@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import time
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
@@ -74,8 +75,13 @@ class BeliefController:
         self._runtime_gate_recover_until = 0.0
         self._runtime_gate_critical_hold_until = 0.0
         self._post_red_warmup_until = 0.0
+        self._refresh_budget_recover_until = 0.0
         self._healthy_ticks = 0
         self._last_contradiction_ts = 0.0
+        self._refresh_budget_blocked_level = 0.0
+        self._refresh_budget_force_level = 0.0
+        self._refresh_budget_prev_blocked_count = 0.0
+        self._refresh_budget_prev_force_count = 0.0
 
     def _compute_mode_target(
         self,
@@ -181,6 +187,33 @@ class BeliefController:
         protection_coverage_ttl_breaches = max(
             0.0, _safe_float(belief_state.get("protection_coverage_ttl_breaches", 0), 0.0)
         )
+        protection_refresh_budget_blocked_count = max(
+            0.0, _safe_float(belief_state.get("protection_refresh_budget_blocked_count", 0), 0.0)
+        )
+        protection_refresh_budget_force_override_count = max(
+            0.0, _safe_float(belief_state.get("protection_refresh_budget_force_override_count", 0), 0.0)
+        )
+        refresh_decay_sec = max(1.0, self._cfg(cfg, "BELIEF_PROTECTION_REFRESH_DECAY_SEC", 180.0))
+        if self.last_update > 0:
+            refresh_dt = max(0.0, now - self.last_update)
+            refresh_decay = float(math.exp(-refresh_dt / refresh_decay_sec))
+        else:
+            refresh_decay = 1.0
+        blocked_delta = max(
+            0.0, float(protection_refresh_budget_blocked_count) - float(self._refresh_budget_prev_blocked_count)
+        )
+        force_delta = max(
+            0.0,
+            float(protection_refresh_budget_force_override_count) - float(self._refresh_budget_prev_force_count),
+        )
+        self._refresh_budget_blocked_level = (
+            float(self._refresh_budget_blocked_level) * refresh_decay
+        ) + float(blocked_delta)
+        self._refresh_budget_force_level = (
+            float(self._refresh_budget_force_level) * refresh_decay
+        ) + float(force_delta)
+        self._refresh_budget_prev_blocked_count = float(protection_refresh_budget_blocked_count)
+        self._refresh_budget_prev_force_count = float(protection_refresh_budget_force_override_count)
         evidence_confidence = _clamp(_safe_float(belief_state.get("evidence_confidence", 1.0), 1.0), 0.0, 1.0)
         evidence_degraded_sources = max(0, int(_safe_float(belief_state.get("evidence_degraded_sources", 0), 0.0)))
         evidence_ws_gap_rate = max(0.0, _safe_float(belief_state.get("evidence_ws_gap_rate", 0.0), 0.0))
@@ -281,6 +314,14 @@ class BeliefController:
         )
         protection_gap_ttl_weight = _clamp(
             self._cfg(cfg, "BELIEF_PROTECTION_GAP_TTL_BREACH_WEIGHT", 0.5), 0.0, 5.0
+        )
+        refresh_blocked_ref = max(1.0, self._cfg(cfg, "BELIEF_PROTECTION_REFRESH_BLOCKED_REF", 3.0))
+        refresh_force_ref = max(1.0, self._cfg(cfg, "BELIEF_PROTECTION_REFRESH_FORCE_REF", 2.0))
+        refresh_blocked_weight = _clamp(
+            self._cfg(cfg, "BELIEF_PROTECTION_REFRESH_BLOCKED_WEIGHT", 0.15), 0.0, 2.0
+        )
+        refresh_force_weight = _clamp(
+            self._cfg(cfg, "BELIEF_PROTECTION_REFRESH_FORCE_WEIGHT", 0.10), 0.0, 2.0
         )
         evidence_weight = _clamp(self._cfg(cfg, "BELIEF_EVIDENCE_WEIGHT", 0.35), 0.0, 2.0)
         evidence_source_weight = _clamp(self._cfg(cfg, "BELIEF_EVIDENCE_SOURCE_WEIGHT", 0.08), 0.0, 1.0)
@@ -421,6 +462,11 @@ class BeliefController:
             + (protection_gap_norm * protection_gap_weight)
             + (float(protection_coverage_gap_symbols) * protection_gap_symbol_weight)
             + (float(protection_coverage_ttl_breaches) * protection_gap_ttl_weight)
+            + ((float(self._refresh_budget_blocked_level) / refresh_blocked_ref) * refresh_blocked_weight)
+            + (
+                (float(self._refresh_budget_force_level) / refresh_force_ref)
+                * refresh_force_weight
+            )
             + (evidence_debt * evidence_weight)
             + (float(evidence_degraded_sources) * evidence_source_weight)
             + (float(evidence_gap_debt) * evidence_source_gap_weight)
@@ -562,6 +608,101 @@ class BeliefController:
                 f" symbols={int(protection_coverage_gap_symbols)}"
                 f" ttl_breaches={int(protection_coverage_ttl_breaches)}"
             )
+        refresh_budget_hard_threshold = max(
+            1, int(self._cfg(cfg, "BELIEF_PROTECTION_REFRESH_ENTRY_BLOCK_THRESHOLD", 3.0))
+        )
+        refresh_budget_recover_sec = max(
+            1.0, self._cfg(cfg, "BELIEF_PROTECTION_REFRESH_RECOVER_SEC", 90.0)
+        )
+        refresh_budget_notional_scale = _clamp(
+            self._cfg(cfg, "BELIEF_PROTECTION_REFRESH_NOTIONAL_SCALE", 0.70), 0.0, 1.0
+        )
+        refresh_budget_lev_scale = _clamp(
+            self._cfg(cfg, "BELIEF_PROTECTION_REFRESH_LEVERAGE_SCALE", 0.80), 0.1, 1.0
+        )
+        refresh_budget_min_conf_extra = _clamp(
+            self._cfg(cfg, "BELIEF_PROTECTION_REFRESH_MIN_CONF_EXTRA", 0.04), 0.0, 1.0
+        )
+        refresh_budget_cd_extra = max(
+            0.0, self._cfg(cfg, "BELIEF_PROTECTION_REFRESH_COOLDOWN_EXTRA_SEC", 10.0)
+        )
+        refresh_pressure = (
+            (float(self._refresh_budget_blocked_level) / refresh_blocked_ref)
+            + (float(self._refresh_budget_force_level) / refresh_force_ref)
+        )
+        refresh_budget_pressure = bool(refresh_pressure > 0.0)
+        refresh_budget_hard_blocked = False
+        if refresh_budget_pressure:
+            pressure_scale = _clamp(
+                min(
+                    float(refresh_budget_notional_scale),
+                    1.0 - (0.15 * float(self._refresh_budget_blocked_level))
+                    - (0.10 * float(self._refresh_budget_force_level)),
+                ),
+                0.20,
+                1.0,
+            )
+            max_notional = float(max_notional * pressure_scale)
+            max_lev = max(1, int(max_lev * min(refresh_budget_lev_scale, pressure_scale)))
+            min_conf = _clamp(
+                min_conf
+                + refresh_budget_min_conf_extra
+                + (0.01 * float(self._refresh_budget_blocked_level)),
+                0.0,
+                1.0,
+            )
+            cooldown = float(
+                cooldown
+                + refresh_budget_cd_extra
+                + float(self._refresh_budget_blocked_level)
+            )
+            for sym in list(per_symbol.keys()):
+                per_symbol[sym]["max_notional_usdt"] = float(
+                    _safe_float(per_symbol[sym].get("max_notional_usdt", 0.0), 0.0) * pressure_scale
+                )
+                per_symbol[sym]["max_leverage"] = max(
+                    1,
+                    int(_safe_float(per_symbol[sym].get("max_leverage", 1), 1.0) * min(refresh_budget_lev_scale, pressure_scale)),
+                )
+                per_symbol[sym]["min_entry_conf"] = _clamp(
+                    _safe_float(per_symbol[sym].get("min_entry_conf", base_conf), base_conf)
+                    + refresh_budget_min_conf_extra,
+                    0.0,
+                    1.0,
+                )
+                per_symbol[sym]["entry_cooldown_seconds"] = float(
+                    _safe_float(per_symbol[sym].get("entry_cooldown_seconds", base_cd), base_cd)
+                    + refresh_budget_cd_extra
+                )
+                per_symbol[sym]["reason"] = (
+                    str(per_symbol[sym].get("reason") or "") + " | protection_refresh_budget_pressure"
+                ).strip()
+            reason = (
+                f"{reason} | protection_refresh_budget_pressure:"
+                f"blocked={int(protection_refresh_budget_blocked_count)}"
+                f" force={int(protection_refresh_budget_force_override_count)}"
+                f" blocked_level={float(self._refresh_budget_blocked_level):.2f}"
+                f" force_level={float(self._refresh_budget_force_level):.2f}"
+                f" scale={pressure_scale:.2f}"
+            )
+            if float(self._refresh_budget_blocked_level) >= float(refresh_budget_hard_threshold):
+                allow_entries = False
+                max_notional = 0.0
+                refresh_budget_hard_blocked = True
+                self._refresh_budget_recover_until = float(now + refresh_budget_recover_sec)
+                for sym in list(per_symbol.keys()):
+                    per_symbol[sym]["allow_entries"] = False
+                    per_symbol[sym]["max_notional_usdt"] = 0.0
+                    per_symbol[sym]["reason"] = (
+                        str(per_symbol[sym].get("reason") or "") + " | protection_refresh_budget_hard_block"
+                    ).strip()
+                if self._MODES.index(self.mode) < self._MODES.index("ORANGE"):
+                    self.mode = "ORANGE"
+                reason = (
+                    f"{reason} | protection_refresh_budget_hard_block:"
+                    f"blocked={int(protection_refresh_budget_blocked_count)}"
+                    f" blocked_level={float(self._refresh_budget_blocked_level):.2f}"
+                )
 
         gate_recover_sec = max(1.0, self._cfg(cfg, "BELIEF_RUNTIME_GATE_RECOVER_SEC", 120.0))
         gate_cd_extra = max(0.0, self._cfg(cfg, "BELIEF_RUNTIME_GATE_COOLDOWN_EXTRA_SEC", 30.0))
@@ -715,6 +856,51 @@ class BeliefController:
             else:
                 reason = f"{reason} | runtime_gate_soft_scale={soft_scale:.2f}"
 
+        refresh_warmup_active = bool(
+            (not runtime_gate_effective_degraded)
+            and (not reconcile_first_spike_degraded)
+            and (not refresh_budget_hard_blocked)
+            and (now < float(self._refresh_budget_recover_until))
+        )
+        if refresh_warmup_active:
+            rem = max(0.0, float(self._refresh_budget_recover_until - now))
+            warm_notional_scale = _clamp(
+                self._cfg(cfg, "BELIEF_PROTECTION_REFRESH_WARMUP_NOTIONAL_SCALE", 0.80), 0.0, 1.0
+            )
+            warm_lev_scale = _clamp(
+                self._cfg(cfg, "BELIEF_PROTECTION_REFRESH_WARMUP_LEVERAGE_SCALE", 0.85), 0.1, 1.0
+            )
+            warm_conf_extra = _clamp(
+                self._cfg(cfg, "BELIEF_PROTECTION_REFRESH_WARMUP_MIN_CONF_EXTRA", 0.03), 0.0, 1.0
+            )
+            warm_cd_extra = max(
+                0.0, self._cfg(cfg, "BELIEF_PROTECTION_REFRESH_WARMUP_COOLDOWN_EXTRA_SEC", 8.0)
+            )
+            allow_entries = True
+            if base_notional > 0 and max_notional <= 0:
+                max_notional = float(base_notional)
+            max_notional = float(max_notional * warm_notional_scale)
+            max_lev = max(1, int(max_lev * warm_lev_scale))
+            min_conf = _clamp(min_conf + warm_conf_extra, 0.0, 1.0)
+            cooldown = float(cooldown + warm_cd_extra)
+            for sym in list(per_symbol.keys()):
+                per_symbol[sym]["allow_entries"] = bool(per_symbol[sym].get("allow_entries", True))
+                per_symbol[sym]["max_notional_usdt"] = float(
+                    _safe_float(per_symbol[sym].get("max_notional_usdt", 0.0), 0.0) * warm_notional_scale
+                )
+                per_symbol[sym]["max_leverage"] = max(
+                    1,
+                    int(_safe_float(per_symbol[sym].get("max_leverage", 1), 1.0) * warm_lev_scale),
+                )
+                per_symbol[sym]["entry_cooldown_seconds"] = float(
+                    _safe_float(per_symbol[sym].get("entry_cooldown_seconds", base_cd), base_cd)
+                    + warm_cd_extra
+                )
+                per_symbol[sym]["reason"] = (
+                    str(per_symbol[sym].get("reason") or "") + " | protection_refresh_budget_warmup"
+                ).strip()
+            reason = f"{reason} | protection_refresh_budget_warmup={rem:.0f}s"
+
         if post_red_recovering:
             rem = max(0.0, float(self._post_red_warmup_until - now))
             post_notional_scale = _clamp(
@@ -797,6 +983,12 @@ class BeliefController:
         cause_tags: list[str] = []
         if runtime_gate_effective_degraded:
             cause_tags.append("runtime_gate")
+        if refresh_budget_pressure:
+            cause_tags.append("protection_refresh_budget")
+        if refresh_budget_hard_blocked:
+            cause_tags.append("protection_refresh_hard_block")
+        if refresh_warmup_active:
+            cause_tags.append("protection_refresh_budget_warmup")
         if critical_trip or critical_hold_active:
             cause_tags.append("runtime_gate_critical")
         if reconcile_first_spike_degraded:
@@ -824,6 +1016,16 @@ class BeliefController:
                 if runtime_gate_effective_reason
                 else "runtime gate clear required"
             )
+        elif refresh_budget_hard_blocked:
+            rem = max(0.0, float(self._refresh_budget_recover_until - now))
+            recovery_stage = "PROTECTION_REFRESH_HARD_BLOCK"
+            unlock_conditions = (
+                "protection refresh blocked level must decay below threshold "
+                f"(blocked_level={float(self._refresh_budget_blocked_level):.2f}, "
+                f"threshold={float(refresh_budget_hard_threshold):.2f}, "
+                f"warmup_after={rem:.0f}s)"
+            )
+            next_unlock_sec = rem
         elif reconcile_first_spike_degraded:
             recovery_stage = "RECONCILE_FIRST_GATE_DEGRADED"
             unlock_conditions = (
@@ -841,6 +1043,11 @@ class BeliefController:
             rem = max(0.0, float(self._post_red_warmup_until - now))
             recovery_stage = "POST_RED_WARMUP"
             unlock_conditions = f"post-red warmup remaining {rem:.0f}s"
+            next_unlock_sec = rem
+        elif refresh_warmup_active:
+            rem = max(0.0, float(self._refresh_budget_recover_until - now))
+            recovery_stage = "PROTECTION_REFRESH_WARMUP"
+            unlock_conditions = f"protection refresh warmup remaining {rem:.0f}s"
             next_unlock_sec = rem
         elif self.mode == "RED":
             recovery_stage = "RED_LOCK"
@@ -894,5 +1101,7 @@ class BeliefController:
             recovery_stage=str(recovery_stage),
             unlock_conditions=str(unlock_conditions),
             next_unlock_sec=float(next_unlock_sec),
+            protection_refresh_budget_blocked_level=float(self._refresh_budget_blocked_level),
+            protection_refresh_budget_force_level=float(self._refresh_budget_force_level),
             per_symbol=per_symbol,
         )

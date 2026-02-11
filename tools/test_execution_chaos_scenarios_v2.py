@@ -742,7 +742,10 @@ class ChaosScenariosV2Tests(unittest.TestCase):
             cfg,
         )
         self.assertFalse(hard_block.allow_entries)
-        self.assertIn(str(getattr(hard_block, "recovery_stage", "")), ("ORANGE_RECOVERY", "YELLOW_WATCH", "GREEN"))
+        self.assertIn(
+            str(getattr(hard_block, "recovery_stage", "")),
+            ("PROTECTION_REFRESH_HARD_BLOCK", "ORANGE_RECOVERY", "YELLOW_WATCH", "GREEN"),
+        )
         self.assertIn("protection_refresh_budget_hard_block", str(hard_block.reason))
 
         clock.tick(3.0)

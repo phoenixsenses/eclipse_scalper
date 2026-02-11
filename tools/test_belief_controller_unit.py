@@ -244,9 +244,12 @@ class BeliefControllerTests(unittest.TestCase):
             BELIEF_YELLOW_SCORE=9.0,
             BELIEF_ORANGE_SCORE=10.0,
             BELIEF_RED_SCORE=11.0,
-            BELIEF_YELLOW_GROWTH=9.0,
-            BELIEF_ORANGE_GROWTH=9.0,
-            BELIEF_RED_GROWTH=9.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=99.0,
+            BELIEF_RED_GROWTH=99.0,
+            BELIEF_MODE_PERSIST_SEC=0.0,
+            BELIEF_MODE_RECOVER_SEC=1.0,
+            BELIEF_DOWN_HYST=0.99,
             FIXED_NOTIONAL_USDT=100.0,
             LEVERAGE=20,
             ENTRY_MIN_CONFIDENCE=0.2,
@@ -277,9 +280,12 @@ class BeliefControllerTests(unittest.TestCase):
             BELIEF_YELLOW_SCORE=9.0,
             BELIEF_ORANGE_SCORE=10.0,
             BELIEF_RED_SCORE=11.0,
-            BELIEF_YELLOW_GROWTH=9.0,
-            BELIEF_ORANGE_GROWTH=9.0,
-            BELIEF_RED_GROWTH=9.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=99.0,
+            BELIEF_RED_GROWTH=99.0,
+            BELIEF_MODE_PERSIST_SEC=0.0,
+            BELIEF_MODE_RECOVER_SEC=1.0,
+            BELIEF_DOWN_HYST=0.99,
             FIXED_NOTIONAL_USDT=100.0,
             LEVERAGE=20,
             ENTRY_MIN_CONFIDENCE=0.2,
@@ -309,9 +315,9 @@ class BeliefControllerTests(unittest.TestCase):
             BELIEF_YELLOW_SCORE=9.0,
             BELIEF_ORANGE_SCORE=10.0,
             BELIEF_RED_SCORE=11.0,
-            BELIEF_YELLOW_GROWTH=9.0,
-            BELIEF_ORANGE_GROWTH=9.0,
-            BELIEF_RED_GROWTH=9.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=99.0,
+            BELIEF_RED_GROWTH=99.0,
             FIXED_NOTIONAL_USDT=100.0,
             LEVERAGE=20,
             ENTRY_MIN_CONFIDENCE=0.2,
@@ -344,6 +350,145 @@ class BeliefControllerTests(unittest.TestCase):
         self.assertIn("runtime_gate_warmup", k.reason)
         self.assertLessEqual(k.max_notional_usdt, 50.0)
         self.assertLessEqual(k.max_leverage, 10)
+
+    def test_protection_refresh_budget_pressure_tightens_entry_knobs(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_YELLOW_SCORE=9.0,
+            BELIEF_ORANGE_SCORE=10.0,
+            BELIEF_RED_SCORE=11.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=99.0,
+            BELIEF_RED_GROWTH=99.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_PROTECTION_REFRESH_BLOCKED_REF=3.0,
+            BELIEF_PROTECTION_REFRESH_FORCE_REF=2.0,
+            BELIEF_PROTECTION_REFRESH_NOTIONAL_SCALE=0.7,
+            BELIEF_PROTECTION_REFRESH_LEVERAGE_SCALE=0.8,
+            BELIEF_PROTECTION_REFRESH_MIN_CONF_EXTRA=0.04,
+            BELIEF_PROTECTION_REFRESH_COOLDOWN_EXTRA_SEC=10.0,
+            BELIEF_PROTECTION_REFRESH_ENTRY_BLOCK_THRESHOLD=99,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+        base = ctl.update(
+            {"belief_debt_sec": 0.0, "belief_debt_symbols": 0, "mismatch_streak": 0},
+            cfg,
+        )
+        clock.tick(1.0)
+        pressured = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "protection_refresh_budget_blocked_count": 2,
+                "protection_refresh_budget_force_override_count": 1,
+            },
+            cfg,
+        )
+        self.assertTrue(pressured.allow_entries)
+        self.assertLessEqual(float(pressured.max_notional_usdt), float(base.max_notional_usdt))
+        self.assertLessEqual(int(pressured.max_leverage), int(base.max_leverage))
+        self.assertGreaterEqual(float(pressured.min_entry_conf), float(base.min_entry_conf))
+        self.assertIn("protection_refresh_budget_pressure", str(pressured.reason))
+
+    def test_protection_refresh_budget_hard_threshold_freezes_entries(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_YELLOW_SCORE=9.0,
+            BELIEF_ORANGE_SCORE=10.0,
+            BELIEF_RED_SCORE=11.0,
+            BELIEF_YELLOW_GROWTH=9.0,
+            BELIEF_ORANGE_GROWTH=9.0,
+            BELIEF_RED_GROWTH=9.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_PROTECTION_REFRESH_ENTRY_BLOCK_THRESHOLD=3,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+        k = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "protection_refresh_budget_blocked_count": 3,
+                "protection_refresh_budget_force_override_count": 0,
+            },
+            cfg,
+        )
+        self.assertFalse(k.allow_entries)
+        self.assertEqual(float(k.max_notional_usdt), 0.0)
+        self.assertIn("protection_refresh_budget_hard_block", str(k.reason))
+        self.assertEqual(str(getattr(k, "recovery_stage", "")), "PROTECTION_REFRESH_HARD_BLOCK")
+        self.assertIn("blocked level must decay below threshold", str(getattr(k, "unlock_conditions", "")))
+
+    def test_protection_refresh_hard_block_release_uses_warmup_before_full_unlock(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_YELLOW_SCORE=99.0,
+            BELIEF_ORANGE_SCORE=199.0,
+            BELIEF_RED_SCORE=299.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=99.0,
+            BELIEF_RED_GROWTH=99.0,
+            BELIEF_MODE_PERSIST_SEC=0.0,
+            BELIEF_MODE_RECOVER_SEC=1.0,
+            BELIEF_DOWN_HYST=0.99,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_PROTECTION_REFRESH_ENTRY_BLOCK_THRESHOLD=2,
+            BELIEF_PROTECTION_REFRESH_DECAY_SEC=2.0,
+            BELIEF_PROTECTION_REFRESH_RECOVER_SEC=20.0,
+            BELIEF_PROTECTION_REFRESH_WARMUP_NOTIONAL_SCALE=0.8,
+            BELIEF_PROTECTION_REFRESH_WARMUP_LEVERAGE_SCALE=0.8,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+
+        blocked = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "protection_refresh_budget_blocked_count": 2,
+            },
+            cfg,
+        )
+        self.assertFalse(blocked.allow_entries)
+        self.assertIn("protection_refresh_budget_hard_block", str(blocked.reason))
+
+        clock.tick(6.0)
+        warm = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "protection_refresh_budget_blocked_count": 2,
+            },
+            cfg,
+        )
+        self.assertTrue(warm.allow_entries)
+        self.assertIn("protection_refresh_budget_warmup", str(warm.reason))
+        self.assertLess(float(warm.max_notional_usdt), 100.0)
+
+        clock.tick(25.0)
+        clear = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "protection_refresh_budget_blocked_count": 2,
+            },
+            cfg,
+        )
+        self.assertTrue(clear.allow_entries)
+        self.assertNotIn("protection_refresh_budget_warmup", str(clear.reason))
+        self.assertGreater(float(clear.max_notional_usdt), 0.0)
 
     def test_reconcile_first_spike_freezes_entries_without_runtime_gate(self):
         cfg = types.SimpleNamespace(
