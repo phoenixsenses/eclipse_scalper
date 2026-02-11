@@ -463,6 +463,42 @@ def _belief_state_summary(events: list[dict], limit: int = 8) -> str:
     return f"<h2>Execution Belief State</h2><pre>{'\n'.join(lines)}</pre>"
 
 
+def _recovery_stage_summary(events: list[dict], limit: int = 8) -> str:
+    stage_counts: Counter[str] = Counter()
+    symbol_counts: Counter[str] = Counter()
+    total = 0
+    for ev in events:
+        if str(ev.get("event") or "") != "execution.belief_state":
+            continue
+        data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+        stage = str(data.get("guard_recovery_stage") or "UNKNOWN").strip().upper() or "UNKNOWN"
+        stage_counts[stage] += 1
+        total += 1
+        worst = data.get("worst_symbols")
+        if isinstance(worst, list):
+            for item in worst:
+                sym = ""
+                if isinstance(item, (list, tuple)) and item:
+                    sym = str(item[0] or "").strip().upper()
+                elif isinstance(item, dict):
+                    sym = str(item.get("symbol") or item.get("k") or "").strip().upper()
+                else:
+                    sym = str(item or "").strip().upper()
+                if sym:
+                    symbol_counts[sym] += 1
+    if total <= 0:
+        return "<h2>Recovery Stage Timeline</h2><p><em>No execution.belief_state events found.</em></p>"
+    lines = [f"Recovery Stage Timeline (events={total})", "-" * 38, "By recovery stage:"]
+    for stage, cnt in stage_counts.most_common(limit):
+        lines.append(f"- {stage}: {cnt}")
+    if symbol_counts:
+        lines.append("")
+        lines.append("Top symbols in staged recovery windows:")
+        for sym, cnt in symbol_counts.most_common(limit):
+            lines.append(f"- {sym}: {cnt}")
+    return f"<h2>Recovery Stage Timeline</h2><pre>{'\n'.join(lines)}</pre>"
+
+
 def _severity_debt_trend_summary(events: list[dict], severity_threshold: float = 0.85) -> str:
     ts_rows: list[tuple[float, float]] = []
     for ev in events:
@@ -690,6 +726,7 @@ def main(argv=None) -> int:
         _rebuild_orphan_summary(telemetry_events),
         _partial_fill_state_summary(telemetry_events),
         _belief_state_summary(telemetry_events),
+        _recovery_stage_summary(telemetry_events),
         _severity_debt_trend_summary(
             telemetry_events,
             severity_threshold=max(0.0, float(args.reconcile_first_gate_severity_threshold)),
