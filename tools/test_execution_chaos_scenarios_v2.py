@@ -20,6 +20,10 @@ from eclipse_scalper.execution import rebuild, reconcile, replace_manager, order
 from eclipse_scalper.execution.belief_controller import BeliefController  # noqa: E402
 from tools import replay_trade  # noqa: E402
 
+# CI-import hardening: ensure reconcile always has a usable belief controller class.
+if getattr(reconcile, "_BeliefController", None) is None:
+    reconcile._BeliefController = BeliefController
+
 
 def _load_journal_rows(path: Path) -> list[dict]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
