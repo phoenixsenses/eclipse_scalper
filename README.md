@@ -1,4 +1,4 @@
-
+﻿
 
 
 
@@ -28,11 +28,27 @@ Binance (spot \& futures), with a strong emphasis on:
 
 \- debuggability
 
-\- and gradual escalation from simulation → micro → live
+\- and gradual escalation from simulation â†’ micro â†’ live
 
 
 
 This repository contains the \*\*core engine\*\*, not exchange secrets or runtime state.
+
+\## Quick Strategy Map
+
+\- Alpha path: signal components + filters decide entry/exit intents.
+
+\- Reliability path: exchange evidence updates belief/debt, then controller clamps entry risk.
+
+\- Entry controls: confidence gates, notional/leverage scaling, correlation caps, adaptive cooldowns.
+
+\- Exit controls: protective exits stay available even when reliability posture is degraded.
+
+\- Reconcile loop: resolves local-vs-exchange drift and repairs safety gaps.
+
+\- Telemetry loop: dashboards/alerts feed adaptive guards and runtime posture.
+
+See `docs/strategies_summary.md` and `docs/execution_system_summary.md` for the full model.
 
 
 
@@ -40,7 +56,7 @@ This repository contains the \*\*core engine\*\*, not exchange secrets or runtim
 
 
 
-\## ⚠️ Disclaimer (Read This First)
+\## âš ï¸ Disclaimer (Read This First)
 
 
 
@@ -82,37 +98,37 @@ You are responsible for every trade executed.
 
 eclipse\_scalper/
 
-│
+â”‚
 
-├── bot/                # Core runner and orchestration
+â”œâ”€â”€ bot/                # Core runner and orchestration
 
-├── execution/          # Entry, exit, order routing, guardian loops
+â”œâ”€â”€ execution/          # Entry, exit, order routing, guardian loops
 
-├── strategies/         # Signal logic (Eclipse Scalper strategy)
+â”œâ”€â”€ strategies/         # Signal logic (Eclipse Scalper strategy)
 
-├── risk/               # Kill-switches and safety logic
+â”œâ”€â”€ risk/               # Kill-switches and safety logic
 
-├── exchanges/          # Exchange adapters (Binance)
+â”œâ”€â”€ exchanges/          # Exchange adapters (Binance)
 
-├── notifications/      # Telegram, alerts
+â”œâ”€â”€ notifications/      # Telegram, alerts
 
-├── config/             # Static configuration helpers
+â”œâ”€â”€ config/             # Static configuration helpers
 
-├── utils/              # Logging, helpers
+â”œâ”€â”€ utils/              # Logging, helpers
 
-├── tools/              # Smoke tests \& diagnostics
+â”œâ”€â”€ tools/              # Smoke tests \& diagnostics
 
-│
+â”‚
 
-├── main.py             # Main entry point
+â”œâ”€â”€ main.py             # Main entry point
 
-├── guardian.py         # Global safety guardian
+â”œâ”€â”€ guardian.py         # Global safety guardian
 
-├── signal\_check.py     # Signal diagnostics
+â”œâ”€â”€ signal\_check.py     # Signal diagnostics
 
-├── settings.py         # Runtime settings
+â”œâ”€â”€ settings.py         # Runtime settings
 
-└── requirements.txt    # Python dependencies
+â””â”€â”€ requirements.txt    # Python dependencies
 
 
 
@@ -252,7 +268,7 @@ For quick local testing you can set `EXCHANGE_ADAPTER=mock` (or any registered n
 ```bash
 EXCHANGE_ADAPTER=mock python main.py
 ```
-We’ve now registered a real `coinbase` adapter as well. Point `EXCHANGE_ADAPTER=coinbase` when you want to run through that venue (ensure `COINBASE_API_KEY`, `COINBASE_API_SECRET`, and `COINBASE_API_PASSPHRASE` are set in `.env`).
+Weâ€™ve now registered a real `coinbase` adapter as well. Point `EXCHANGE_ADAPTER=coinbase` when you want to run through that venue (ensure `COINBASE_API_KEY`, `COINBASE_API_SECRET`, and `COINBASE_API_PASSPHRASE` are set in `.env`).
 
 ```
 
@@ -281,10 +297,10 @@ ACTIVE\_SYMBOLS=BTCUSDT,ETHUSDT,SOLUSDT
 
 
 
-\* `SCALPER\_DRY\_RUN=1` → no real orders
+\* `SCALPER\_DRY\_RUN=1` â†’ no real orders
 
-\* `SCALPER\_DRY\_RUN=0` → live trading (dangerous)
-\* `ENTRY\_LOOP\_MODE=full|basic` → choose entry loop when using `execution/bootstrap.py` (default: full if available)
+\* `SCALPER\_DRY\_RUN=0` â†’ live trading (dangerous)
+\* `ENTRY\_LOOP\_MODE=full|basic` â†’ choose entry loop when using `execution/bootstrap.py` (default: full if available)
 
 
 
@@ -369,9 +385,9 @@ it down when volume collapses, helping the signal gate prefer sustained moves ov
 \- `SCALPER\_VOL\_RATIO\_WEIGHT` (default `0.4` micro / `0.35` production): multiplier applied to the
   clamped volume ratio delta before it adjusts confidence.
 \- `SCALPER\_VOL\_RATIO\_MAX\_BOOST` (default `0.4` micro / `0.5` production): upper bound on the
-  positive volume delta (so the multiplier never raises confidence by more than ~40–50%).
+  positive volume delta (so the multiplier never raises confidence by more than ~40â€“50%).
 \- `SCALPER\_VOL\_RATIO\_MAX\_DROP` (default `0.2` micro / `0.25` production): upper bound on how far
-  the multiplier can push confidence downward (keeps the factor above ~0.6–0.8 even when volumes collapse).
+  the multiplier can push confidence downward (keeps the factor above ~0.6â€“0.8 even when volumes collapse).
 
 The classifier emits `vol_ratio` plus the resulting multiplier, so you can track the volume pulse in telemetry.
 
@@ -641,7 +657,7 @@ Run the companion feedback helper to append an `exit.signal_issue` record whenev
 
 The entry loop now monitors `logs/telemetry_recovery_state.json` (or `TELEMETRY_RECOVERY_STATE`) and raises `MIN_CONFIDENCE` whenever the state is active, so the recovery autopilot stays in force until the file expires.
 
-Additionally, `entry_loop` now scans the telemetry log for new `exit.signal_issue` events before every poll and logs a summary + emits `entry.blocked` when feedback triggers; disable this behavior with `ENTRY_SIGNAL_FEEDBACK_ENABLED=0` if the extra logging isn’t wanted.
+Additionally, `entry_loop` now scans the telemetry log for new `exit.signal_issue` events before every poll and logs a summary + emits `entry.blocked` when feedback triggers; disable this behavior with `ENTRY_SIGNAL_FEEDBACK_ENABLED=0` if the extra logging isnâ€™t wanted.
 
 You can override CORE_HEALTH_EQUITY (default 100000) so the dashboard reports exposure as a percent of your preferred capital base, and it now surfaces the anomaly pause window/payload directly when the guard is active.
 
@@ -702,11 +718,11 @@ Suggested progression:
 - Keep `FIRST_LIVE_SAFE=1` + allowlist until you trust the behavior.
 
 Key risk knobs (quick reference):
-- `MAX_DAILY_LOSS_PCT`, `MAX_DRAWDOWN_PCT` → hard daily limits.
-- `KILL_DAILY_HALT_SEC`, `KILL_DRAWDOWN_HALT_SEC`, `KILL_DAILY_HALT_UNTIL_UTC` → auto-pause window.
-- `FIXED_NOTIONAL_USDT`, `LEVERAGE`, `MARGIN_MODE` → exposure sizing.
-- `CORR_GROUP_*` → correlation caps (group positions + notional).
-- `SCALPER_*` guards → data staleness, session, cooldown.
+- `MAX_DAILY_LOSS_PCT`, `MAX_DRAWDOWN_PCT` â†’ hard daily limits.
+- `KILL_DAILY_HALT_SEC`, `KILL_DRAWDOWN_HALT_SEC`, `KILL_DAILY_HALT_UNTIL_UTC` â†’ auto-pause window.
+- `FIXED_NOTIONAL_USDT`, `LEVERAGE`, `MARGIN_MODE` â†’ exposure sizing.
+- `CORR_GROUP_*` â†’ correlation caps (group positions + notional).
+- `SCALPER_*` guards â†’ data staleness, session, cooldown.
 
 Leverage overrides:
 - `LEVERAGE_BY_SYMBOL` (e.g., `BTCUSDT=10,ETHUSDT=5`) or `LEVERAGE_BTCUSDT=10` for a single symbol.
@@ -715,7 +731,7 @@ Leverage overrides:
 - `LEVERAGE_GROUP_DYNAMIC=1` enables dynamic leverage scaling by open positions in the same group.
   - `LEVERAGE_GROUP_SCALE` (default `0.7`) is applied per open symbol in the group.
   - `LEVERAGE_GROUP_SCALE_MIN` (default `1`) is the floor after scaling.
-  - `LEVERAGE_GROUP_EXCLUDE_SELF` (default `1`) excludes the current symbol if it’s already open.
+  - `LEVERAGE_GROUP_EXCLUDE_SELF` (default `1`) excludes the current symbol if itâ€™s already open.
   - `LEVERAGE_GROUP_EXPOSURE=1` switches to exposure-weighted scaling (group notional / equity).
     - `LEVERAGE_GROUP_EXPOSURE_REF_PCT` (default `0.10`) is the exposure step size.
 
@@ -852,17 +868,39 @@ python tools/telemetry_dashboard.py --path logs/telemetry.jsonl --guard-events -
 
 ## Scheduled telemetry snapshots
 
-The workflow `.github/workflows/telemetry-dashboard.yml` runs the dashboard helper every six hours (plus whenever you trigger `workflow_dispatch`). It checks out the repo, sets up Python 3.10, installs `eclipse_scalper/requirements.txt`, and executes:
+The workflow `.github/workflows/telemetry-dashboard.yml` runs the dashboard helper every six hours (plus whenever you trigger `workflow_dispatch`). It checks out the repo, sets up Python 3.12, installs the notifier runtime dependency (`python-telegram-bot==22.5`), and executes:
 
 ```bash
 python eclipse_scalper/tools/telemetry_dashboard_notify.py --path logs/telemetry.jsonl --codes-per-symbol --codes-top 4
 ```
 
-Keep `logs/telemetry.jsonl` (or the file defined by `TELEMETRY_PATH`) up to date so the scheduled job can read real telemetry. You can also edit the workflow’s cron if you want a different cadence.
+Keep `logs/telemetry.jsonl` (or the file defined by `TELEMETRY_PATH`) up to date so the scheduled job can read real telemetry. You can also edit the workflowâ€™s cron if you want a different cadence.
+
+### Workflow smoke commands (escalation + reset)
+
+Use these manual dispatch commands to validate notifier streak behavior without waiting for live telemetry conditions:
+
+```bash
+gh workflow run .github/workflows/telemetry-dashboard.yml \
+  -R phoenixsenses/eclipse_scalper \
+  -f simulate_red_lock_event=true \
+  -f simulate_red_lock_seed_streak=1
+```
+
+This injects a synthetic `RED_LOCK` event and, with the default threshold `RECOVERY_RED_LOCK_CRITICAL_STREAK=2`, should transition notifier state to `level=critical`.
+
+```bash
+gh workflow run .github/workflows/telemetry-dashboard.yml \
+  -R phoenixsenses/eclipse_scalper \
+  -f simulate_recovery_stage_override=POST_RED_WARMUP \
+  -f simulate_red_lock_seed_streak=2
+```
+
+This injects a non-RED recovery stage and should reset `recovery_red_lock_streak` to `0` (de-escalation path). Confirm values in the workflow's **Inspect notifier state** step.
 
 ### Notifications
 
-The scheduled job now runs `python eclipse_scalper/tools/telemetry_dashboard_notify.py --path logs/telemetry.jsonl --codes-per-symbol --codes-top 4`. This wrapper prints the dashboard snapshot to the workflow log, installs the repo’s dependencies (`python -m pip install -r eclipse_scalper/requirements.txt`), and posts the same summary to Telegram when `TELEGRAM_TOKEN` and `TELEGRAM_CHAT_ID` are configured as [repository secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets). The notifier reuses `eclipse_scalper.notifications.telegram.Notifier`, so you get the same `speak` behavior already used elsewhere.
+The scheduled job now runs `python eclipse_scalper/tools/telemetry_dashboard_notify.py --path logs/telemetry.jsonl --codes-per-symbol --codes-top 4`. This wrapper prints the dashboard snapshot to the workflow log and posts the same summary to Telegram when `TELEGRAM_TOKEN` and `TELEGRAM_CHAT_ID` are configured as [repository secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets). The notifier reuses `eclipse_scalper.notifications.telegram.Notifier`, so you get the same `speak` behavior already used elsewhere.
 
 Leave the secrets empty if you only need GitHub Actions visibility; the job still succeeds and simply skips the Telegram send. If you do set those secrets, keep an eye on Telegram so you know when the latest snapshot hits critical topics like `exit.*` events or repeated `ERR_*` codes.
 
@@ -908,7 +946,7 @@ python eclipse_scalper/tools/telemetry_drift_detection.py \
   --event-path logs/telemetry_drift.jsonl
 ```
 
-The tool writes `logs/telemetry_drift_summary.txt` and, when a symbol’s current-half mean deviates from the baseline half by more than `zscore × stdev`, it emits `telemetry.confidence_drift` events that you can feed into your dashboards/alerts; drop `--emit-event` if you only need the report.
+The tool writes `logs/telemetry_drift_summary.txt` and, when a symbolâ€™s current-half mean deviates from the baseline half by more than `zscore Ã— stdev`, it emits `telemetry.confidence_drift` events that you can feed into your dashboards/alerts; drop `--emit-event` if you only need the report.
 
 The scheduled job now runs `python eclipse_scalper/tools/telemetry_signal_exit_notify.py --path logs/telemetry.jsonl --since-min 60 --emit-event --recovery-min-confidence 0.7 --recovery-duration 600 --issue-ratio 0.2 --issue-count 2`. This wrapper calls both `signal_exit_health.py` and `signal_exit_feedback.py`, stores the combined text plus the low-confidence ratio/count/symbol context in `logs/signal_exit_notify.txt`, and posts the same summary to Telegram whenever low-confidence exits or telemetry guards trigger.
 
@@ -962,18 +1000,18 @@ The same workflow also runs `tools/telemetry_guard_history.py` to append a row w
 
 Immediately after building the guard history table, the job now executes `tools/telemetry_dashboard.py --path logs/telemetry.jsonl --guard-events --guard-history` so the dashboard log notes the latest guard telemetry counts and history rows alongside the core summary; that output is also uploaded as part of the snapshot artifacts so you can align the partial-fill/retry alerts with the guard history before reviewing the Telegram notifications.
 
-Every scheduled snapshot now runs `tools/telemetry_guard_history_alerts.py --path logs/telemetry_guard_history.csv --window 8 --threshold 3 --hit-rate 0.25 --notify`. The helper checks the partial/retry hits rate plus the raw count within the recent rows, prints the summary, and only posts to Telegram when either the hit count or hit ratio is too high—this keeps you alerted when spikes persist even if the raw count is modest.
+Every scheduled snapshot now runs `tools/telemetry_guard_history_alerts.py --path logs/telemetry_guard_history.csv --window 8 --threshold 3 --hit-rate 0.25 --notify`. The helper checks the partial/retry hits rate plus the raw count within the recent rows, prints the summary, and only posts to Telegram when either the hit count or hit ratio is too highâ€”this keeps you alerted when spikes persist even if the raw count is modest.
 
 The generated `logs/telemetry_guard_history.html` now shows a tiny sparkline above the history table that tracks the `partial_retry_hits` column so you can scan the hit trend visually before diving into the rows or alerts.
 
-The workflow also runs `tools/defense_system.py --history logs/telemetry_guard_history.csv --rows 16 --actions logs/telemetry_anomaly_actions.json --timeline logs/telemetry_guard_timeline.txt --notify`. That helper prints a defense severity score, outlines levered tuning suggestions (confidence, notional, leverage), and notifies Telegram when severity ≥ 2 so you can adjust your strategy before the guard has to ratchet `ENTRY_MIN_CONFIDENCE` again.
+The workflow also runs `tools/defense_system.py --history logs/telemetry_guard_history.csv --rows 16 --actions logs/telemetry_anomaly_actions.json --timeline logs/telemetry_guard_timeline.txt --notify`. That helper prints a defense severity score, outlines levered tuning suggestions (confidence, notional, leverage), and notifies Telegram when severity â‰¥ 2 so you can adjust your strategy before the guard has to ratchet `ENTRY_MIN_CONFIDENCE` again.
 
 ### Alert classification
 
 A subsequent workflow step runs `python eclipse_scalper/tools/telemetry_classifier.py --path logs/telemetry.jsonl --since-min 60`. This helper keeps a small state file at `logs/telemetry_classifier_state.json`, compares the current window against the previous snapshot, and flags:
 
 - **Exit spikes** when `exit.*` event totals exceed `--exit-threshold` (default `5`) and are higher than the last run.
-- **New telemetry codes** by remembering every `data.code` you’ve seen and reporting any novel entries.
+- **New telemetry codes** by remembering every `data.code` youâ€™ve seen and reporting any novel entries.
 - **Confidence drops** by averaging `confidence`/`conf` fields in entry-related telemetry and alerting when the score falls by more than `--confidence-drop-pct` (default `15%`) relative to the prior average.
 
 It reuses the same Telegram secrets so alerts appear in the same channel as the dashboard snapshot, but it only posts when at least one trigger fires. Run the classifier locally with `--no-notify` if you want to inspect the summary without sending Telegram messages, or tweak the thresholds to suit your guardrails.
@@ -1035,11 +1073,23 @@ Execution reliability is defined as bounded wrongness under partial information,
 - Observability lifecycle contract: `docs/observability_contract.md`
 - Router + reconcile hardening summary: `docs/execution_reliability.md`
 - Deep system walkthrough: `docs/execution_system_summary.md`
+- Strategy architecture summary: `docs/strategies_summary.md`
+- 90-day reliability roadmap: `docs/execution_roadmap_90d.md`
 
 Use `docs/execution_system_summary.md` as the primary onboarding reference for execution incidents and hardening work.
 It explains the architecture as a closed reliability loop:
 exchange evidence -> local belief/debt -> belief controller guard knobs ->
 entry-only risk clamping -> reconcile-driven recovery (with exits always safe).
+
+Use `docs/strategies_summary.md` as the strategy-level onboarding companion.
+It explains how alpha decisions, sizing/leverage controls, correlation caps, and telemetry-driven reliability controls work together.
+
+### Reliability Workflow Templates
+
+- Milestone planning template:
+  - `.github/ISSUE_TEMPLATE/reliability_milestone.md`
+- Incident review template:
+  - `.github/ISSUE_TEMPLATE/reliability_incident_review.md`
 
 The new chaos scenario test suite (`tools/test_execution_chaos_scenarios.py`) is wired into CI so timeout/duplicate/partial-fill and reconcile contradiction paths are checked on each push/PR.
 
@@ -1129,7 +1179,7 @@ Eclipse Scalper is designed around layered defense:
 
 
 
-If something looks wrong — \*\*it probably is\*\*.
+If something looks wrong â€” \*\*it probably is\*\*.
 
 Stop the bot, inspect logs, adjust, retry.
 
@@ -1143,17 +1193,17 @@ Stop the bot, inspect logs, adjust, retry.
 
 
 
-\* ✅ Core execution engine
+\* âœ… Core execution engine
 
-\* ✅ Signal pipeline
+\* âœ… Signal pipeline
 
-\* ✅ Order router
+\* âœ… Order router
 
-\* ✅ Risk kill-switches
+\* âœ… Risk kill-switches
 
-\* ⚠️ Strategy tuning ongoing
+\* âš ï¸ Strategy tuning ongoing
 
-\* ⚠️ Live trading requires caution
+\* âš ï¸ Live trading requires caution
 
 
 
@@ -1194,4 +1244,5 @@ Used carelessly, it teaches you faster.
 
 
 Proceed deliberately.
+
 
