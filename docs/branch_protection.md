@@ -16,6 +16,18 @@ Set these as required status checks on `main`:
 - `Chaos Required - replace-race-single-exposure`
 - `Execution Invariants and Gate`
 
+## One-command helper
+
+```powershell
+.\tools\apply_branch_protection.ps1
+```
+
+Verify only (no changes):
+
+```powershell
+.\tools\apply_branch_protection.ps1 -VerifyOnly
+```
+
 ## PowerShell command (`gh api`)
 
 ```powershell
