@@ -147,10 +147,7 @@ jobs:
             --core logs/core_health.txt \
             --anomaly logs/telemetry_anomaly.txt \
             --signal-exit logs/signal_exit_notify.txt \
-            --reliability-gate logs/reliability_gate.txt \
-            --reconcile-first-gate-severity-threshold 0.85 \
-            --reconcile-first-gate-severity-streak-threshold 2 \
-            --rebuild-orphan-freeze-threshold 1 \
+            --telemetry logs/telemetry.jsonl \
             --output logs/telemetry_alert_summary.txt
       - name: Build latest replay summary
         run: |
