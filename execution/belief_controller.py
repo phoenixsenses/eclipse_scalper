@@ -189,6 +189,30 @@ class BeliefController:
         evidence_ws_error_rate = max(0.0, _safe_float(belief_state.get("evidence_ws_error_rate", 0.0), 0.0))
         evidence_rest_error_rate = max(0.0, _safe_float(belief_state.get("evidence_rest_error_rate", 0.0), 0.0))
         evidence_fill_error_rate = max(0.0, _safe_float(belief_state.get("evidence_fill_error_rate", 0.0), 0.0))
+        evidence_ws_source_conf = _clamp(
+            _safe_float(
+                belief_state.get("evidence_ws_confidence", belief_state.get("evidence_ws_score", 1.0)),
+                1.0,
+            ),
+            0.0,
+            1.0,
+        )
+        evidence_rest_source_conf = _clamp(
+            _safe_float(
+                belief_state.get("evidence_rest_confidence", belief_state.get("evidence_rest_score", 1.0)),
+                1.0,
+            ),
+            0.0,
+            1.0,
+        )
+        evidence_fill_source_conf = _clamp(
+            _safe_float(
+                belief_state.get("evidence_fill_confidence", belief_state.get("evidence_fill_score", 1.0)),
+                1.0,
+            ),
+            0.0,
+            1.0,
+        )
         evidence_contradiction_score = _clamp(
             _safe_float(belief_state.get("evidence_contradiction_score", 0.0), 0.0), 0.0, 1.0
         )
@@ -201,6 +225,7 @@ class BeliefController:
         evidence_contradiction_burn_rate = max(
             0.0, _safe_float(belief_state.get("evidence_contradiction_burn_rate", 0.0), 0.0)
         )
+        evidence_contradiction_tags = str(belief_state.get("evidence_contradiction_tags", "") or "").strip()
         runtime_gate_degraded = bool(belief_state.get("runtime_gate_degraded", False))
         runtime_gate_reason = str(belief_state.get("runtime_gate_reason", "") or "").strip()
         runtime_gate_mismatch_count = max(
@@ -276,6 +301,12 @@ class BeliefController:
         evidence_contradiction_burn_ref = max(
             1.0, self._cfg(cfg, "BELIEF_EVIDENCE_CONTRADICTION_BURN_REF", 3.0)
         )
+        evidence_source_disagree_weight = _clamp(
+            self._cfg(cfg, "BELIEF_EVIDENCE_SOURCE_DISAGREE_WEIGHT", 0.45), 0.0, 2.0
+        )
+        evidence_contradiction_tag_weight = _clamp(
+            self._cfg(cfg, "BELIEF_EVIDENCE_CONTRADICTION_TAG_WEIGHT", 0.15), 0.0, 1.0
+        )
         evidence_debt = (1.0 - evidence_confidence)
         evidence_gap_debt = (
             float(evidence_ws_gap_rate) + float(evidence_rest_gap_rate) + float(evidence_fill_gap_rate)
@@ -286,6 +317,22 @@ class BeliefController:
         evidence_contradiction_burn_norm = _clamp(
             float(evidence_contradiction_burn_rate) / float(evidence_contradiction_burn_ref), 0.0, 1.0
         )
+        evidence_source_disagree = max(
+            0.0,
+            max(
+                float(evidence_ws_source_conf),
+                float(evidence_rest_source_conf),
+                float(evidence_fill_source_conf),
+            )
+            - min(
+                float(evidence_ws_source_conf),
+                float(evidence_rest_source_conf),
+                float(evidence_fill_source_conf),
+            ),
+        )
+        evidence_tag_debt = 0.0
+        if evidence_contradiction_tags:
+            evidence_tag_debt = min(1.0, len([x for x in evidence_contradiction_tags.split(",") if x.strip()]) / 3.0)
         protection_gap_norm = _clamp(float(protection_coverage_gap_seconds) / float(protection_gap_ref), 0.0, 3.0)
         gate_mismatch_ref = max(1.0, self._cfg(cfg, "BELIEF_RUNTIME_GATE_MISMATCH_REF", 1.0))
         gate_invalid_ref = max(1.0, self._cfg(cfg, "BELIEF_RUNTIME_GATE_INVALID_REF", 1.0))
@@ -382,6 +429,8 @@ class BeliefController:
             + (float(evidence_contradiction_count) * evidence_contradiction_count_weight)
             + (float(evidence_contradiction_streak) * evidence_contradiction_streak_weight)
             + (float(evidence_contradiction_burn_norm) * evidence_contradiction_burn_weight)
+            + (float(evidence_source_disagree) * evidence_source_disagree_weight)
+            + (float(evidence_tag_debt) * evidence_contradiction_tag_weight)
             + (gate_debt * gate_weight)
             + (reconcile_first_gate_debt * reconcile_first_gate_weight)
         )
@@ -705,6 +754,8 @@ class BeliefController:
             or float(evidence_contradiction_score) > 0.0
             or float(evidence_contradiction_streak) > 0.0
             or float(evidence_contradiction_burn_norm) > 0.0
+            or float(evidence_source_disagree) > 0.0
+            or bool(evidence_contradiction_tags)
         )
         if contradiction_active:
             self._last_contradiction_ts = float(now)
@@ -752,6 +803,8 @@ class BeliefController:
             cause_tags.append("reconcile_first_spike")
         if contradiction_active:
             cause_tags.append("evidence_contradiction")
+        if float(evidence_source_disagree) > 0.0:
+            cause_tags.append("evidence_source_disagreement")
         if float(evidence_contradiction_burn_norm) > 0.0:
             cause_tags.append("evidence_contradiction_burn")
         if float(protection_coverage_gap_seconds) > 0.0:

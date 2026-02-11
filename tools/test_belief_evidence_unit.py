@@ -105,6 +105,31 @@ class BeliefEvidenceTests(unittest.TestCase):
         self.assertGreaterEqual(int(out3.get("evidence_contradiction_count", 0)), int(out2.get("evidence_contradiction_count", 0)))
         self.assertGreater(float(out3.get("evidence_contradiction_burn_rate", 0.0)), 0.0)
 
+    def test_healthy_sources_disagreement_emits_contradiction_tags(self):
+        bot = self._bot()
+        now = time.time()
+        cfg = types.SimpleNamespace(
+            BELIEF_CONTRADICTION_FRESH_GATE=0.2,
+            BELIEF_CONTRADICTION_WS_REST_DELTA=0.2,
+            BELIEF_WS_WARN_SEC=20.0,
+            BELIEF_WS_CRIT_SEC=240.0,
+            BELIEF_REST_WARN_SEC=20.0,
+            BELIEF_REST_CRIT_SEC=240.0,
+            BELIEF_FILL_WARN_SEC=20.0,
+            BELIEF_FILL_CRIT_SEC=240.0,
+        )
+        # WS is very fresh, REST is moderately stale but still healthy enough to disagree.
+        bot.state.run_context["ws_last_event_ts"] = now - 1.0
+        bot.state.run_context["rest_last_ok_ts"] = now - 120.0
+        bot.state.run_context["fills_last_ts"] = now - 2.0
+        out = belief_evidence.compute_belief_evidence(bot, cfg, now=now)
+        self.assertGreater(float(out.get("evidence_contradiction_score", 0.0)), 0.0)
+        tags = str(out.get("evidence_contradiction_tags", "") or "")
+        self.assertIn("ws_vs_rest", tags)
+        self.assertIn("evidence_ws_confidence", out)
+        self.assertIn("evidence_rest_confidence", out)
+        self.assertIn("evidence_fill_confidence", out)
+
 
 if __name__ == "__main__":
     unittest.main()

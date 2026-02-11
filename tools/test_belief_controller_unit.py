@@ -952,6 +952,84 @@ class BeliefControllerTests(unittest.TestCase):
         self.assertGreaterEqual(float(contrad_burn.min_entry_conf), float(stale_only.min_entry_conf))
         self.assertIn(str(contrad_burn.mode), ("YELLOW", "ORANGE", "RED"))
 
+    def test_contradiction_recovery_is_staged_not_instant_green(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_SYMBOL_WEIGHT=0.0,
+            BELIEF_STREAK_WEIGHT=0.0,
+            BELIEF_YELLOW_SCORE=0.6,
+            BELIEF_ORANGE_SCORE=0.9,
+            BELIEF_RED_SCORE=5.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=99.0,
+            BELIEF_RED_GROWTH=99.0,
+            BELIEF_MODE_PERSIST_SEC=0.0,
+            BELIEF_MODE_RECOVER_SEC=20.0,
+            BELIEF_DOWN_HYST=0.8,
+            BELIEF_EVIDENCE_WEIGHT=0.2,
+            BELIEF_EVIDENCE_SOURCE_WEIGHT=0.05,
+            BELIEF_EVIDENCE_CONTRADICTION_WEIGHT=1.0,
+            BELIEF_EVIDENCE_CONTRADICTION_STREAK_WEIGHT=0.2,
+            BELIEF_EVIDENCE_CONTRADICTION_BURN_WEIGHT=0.2,
+            BELIEF_EVIDENCE_SOURCE_DISAGREE_WEIGHT=0.8,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+        )
+        clock = _Clock(1.0)
+        ctl = BeliefController(clock=clock.now)
+
+        k1 = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "evidence_confidence": 0.80,
+                "evidence_contradiction_score": 0.9,
+                "evidence_contradiction_streak": 2,
+                "evidence_contradiction_burn_rate": 3.0,
+                "evidence_ws_confidence": 1.0,
+                "evidence_rest_confidence": 0.3,
+                "evidence_fill_confidence": 1.0,
+                "evidence_contradiction_tags": "ws_vs_rest",
+            },
+            cfg,
+        )
+        self.assertIn(str(k1.mode), ("ORANGE", "RED"))
+
+        clock.tick(1.0)
+        k2 = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "evidence_confidence": 1.0,
+                "evidence_contradiction_score": 0.0,
+                "evidence_contradiction_streak": 0,
+                "evidence_contradiction_burn_rate": 0.0,
+                "evidence_ws_confidence": 1.0,
+                "evidence_rest_confidence": 1.0,
+                "evidence_fill_confidence": 1.0,
+                "evidence_contradiction_tags": "",
+            },
+            cfg,
+        )
+        # Recovery should not instantly jump to GREEN without recover window.
+        self.assertIn(str(k2.mode), ("YELLOW", "ORANGE", "RED"))
+
+        clock.tick(25.0)
+        k3 = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "evidence_confidence": 1.0,
+                "evidence_contradiction_score": 0.0,
+                "evidence_contradiction_streak": 0,
+                "evidence_contradiction_burn_rate": 0.0,
+                "evidence_ws_confidence": 1.0,
+                "evidence_rest_confidence": 1.0,
+                "evidence_fill_confidence": 1.0,
+                "evidence_contradiction_tags": "",
+            },
+            cfg,
+        )
+        self.assertIn(str(k3.mode), ("GREEN", "YELLOW"))
+
 
 if __name__ == "__main__":
     unittest.main()
