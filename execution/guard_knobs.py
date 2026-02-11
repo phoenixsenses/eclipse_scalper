@@ -27,6 +27,8 @@ class GuardKnobs:
     recovery_stage: str = ""
     unlock_conditions: str = ""
     next_unlock_sec: float = 0.0
+    protection_refresh_budget_blocked_level: float = 0.0
+    protection_refresh_budget_force_level: float = 0.0
     per_symbol: Dict[str, Dict[str, Any]] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -61,6 +63,12 @@ class GuardKnobs:
                 recovery_stage=str(value.get("recovery_stage", "") or ""),
                 unlock_conditions=str(value.get("unlock_conditions", "") or ""),
                 next_unlock_sec=float(value.get("next_unlock_sec", 0.0) or 0.0),
+                protection_refresh_budget_blocked_level=float(
+                    value.get("protection_refresh_budget_blocked_level", 0.0) or 0.0
+                ),
+                protection_refresh_budget_force_level=float(
+                    value.get("protection_refresh_budget_force_level", 0.0) or 0.0
+                ),
                 per_symbol=dict(value.get("per_symbol") or {}),
             )
         return cls()
