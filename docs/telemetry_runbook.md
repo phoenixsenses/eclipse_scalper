@@ -19,6 +19,12 @@ gh run list -R phoenixsenses/eclipse_scalper --workflow .github/workflows/teleme
 gh run watch -R phoenixsenses/eclipse_scalper <run_id>
 ```
 
+For a single-run chained smoke (escalation + reset with built-in assertions), trigger:
+
+```bash
+gh workflow run .github/workflows/telemetry-smoke.yml -R phoenixsenses/eclipse_scalper
+```
+
 ## RED_LOCK Escalation Smoke
 
 Use this to validate that notifier state escalates to `critical` when the RED_LOCK streak reaches threshold.
