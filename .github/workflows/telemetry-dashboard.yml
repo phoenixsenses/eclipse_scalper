@@ -151,11 +151,15 @@ jobs:
             --output logs/telemetry_alert_summary.txt
       - name: Build latest replay summary
         run: |
-          python tools/replay_latest_summary.py \
-            --telemetry logs/telemetry.jsonl \
-            --journal logs/execution_journal.jsonl \
-            --output logs/replay_latest.txt \
-            --limit 10
+          if [ -f tools/replay_latest_summary.py ]; then
+            python tools/replay_latest_summary.py \
+              --telemetry logs/telemetry.jsonl \
+              --journal logs/execution_journal.jsonl \
+              --output logs/replay_latest.txt \
+              --limit 10
+          else
+            echo "replay_latest_summary.py not present; skipping replay summary" > logs/replay_latest.txt
+          fi
       - name: Upload telemetry artifacts
         uses: actions/upload-artifact@v4
         with:
