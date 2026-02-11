@@ -102,10 +102,11 @@ jobs:
             echo "recovery-stage smoke skipped"
             exit 0
           fi
+          export STAGE
           python - <<'PY'
-          import json, time
+          import json, os, time
           from pathlib import Path
-          stage = "${STAGE}"
+          stage = str(os.getenv("STAGE") or "").strip() or "RED_LOCK"
           p = Path("logs/telemetry.jsonl")
           payload = {
             "event": "execution.belief_state",
