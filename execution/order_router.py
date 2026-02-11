@@ -2196,6 +2196,7 @@ async def create_order(
     max_delay = float(_safe_float(_cfg_env(bot, "ROUTER_RETRY_MAX_DELAY_SEC", 5.0), 5.0))
     jitter_pct = float(_safe_float(_cfg_env(bot, "ROUTER_RETRY_JITTER_PCT", 0.25), 0.25))
     max_elapsed = float(_safe_float(_cfg_env(bot, "ROUTER_RETRY_MAX_ELAPSED_SEC", 30.0), 30.0))
+    max_total_tries = int(_safe_float(_cfg_env(bot, "ROUTER_RETRY_MAX_TOTAL_TRIES", 0), 0))
     if retries is not None:
         max_attempts = max(1, int(retries))
 
@@ -2271,10 +2272,16 @@ async def create_order(
     tries = 0
     attempt = 0
     abort_retries = False
+    if max_total_tries <= 0:
+        # Keep retry storms bounded even if retry variants expand on repeated errors.
+        max_total_tries = max(1, (max_attempts * max(1, len(variants)) * 2))
     while attempt < max_attempts:
         if max_elapsed > 0 and (time.monotonic() - start_ts) >= max_elapsed:
             break
         for (raw_sym, amt_try, px_try, p_try) in list(variants):
+            if tries >= max_total_tries:
+                abort_retries = True
+                break
             tries += 1
             try:
                 _journal_intent_transition(
