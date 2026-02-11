@@ -185,6 +185,8 @@ class OrderRouterCancelTests(unittest.TestCase):
 
 
 class OrderRouterCreateTests(unittest.TestCase):
+    """Create-order reliability tests grouped by replace, classifier, and idempotency sections."""
+
     def test_retry_max_elapsed_caps_attempts(self):
         sym_raw = "BTC/USDT:USDT"
         sym = "BTC/USDT"
@@ -245,6 +247,7 @@ class OrderRouterCreateTests(unittest.TestCase):
         self.assertIsNone(res)
         self.assertLess(len(ex.create_calls), 10)
 
+    # --- Replace / cancel-replace reliability section ---
     def test_cancel_replace_is_bounded_when_cancel_fails(self):
         bot = DummyBot(DummyEx({}), DummyData({"BTCUSDT": "BTC/USDT:USDT"}))
         calls = {"cancel": 0, "create": 0}
@@ -391,6 +394,7 @@ class OrderRouterCreateTests(unittest.TestCase):
         events = [e for e, _ in captured]
         self.assertIn("order.replace_envelope_block", events)
 
+    # --- Error classifier / retry-policy reliability section ---
     def test_non_retryable_error_aborts_immediately(self):
         sym_raw = "BTC/USDT:USDT"
         sym = "BTC/USDT"
@@ -614,6 +618,7 @@ class OrderRouterCreateTests(unittest.TestCase):
             self.assertEqual((res or {}).get("id"), "OID-EXISTING")
             self.assertEqual(len(ex.create_calls), 0)
 
+    # --- Error classifier / retry-policy reliability section ---
     def test_classify_order_error(self):
         margin = order_router._classify_order_error(Exception("Margin is insufficient"))
         timeout = order_router._classify_order_error(Exception("Request timed out"))
@@ -787,6 +792,7 @@ class OrderRouterCreateTests(unittest.TestCase):
         )
         self.assertIsNone(res)
 
+    # --- Idempotency / clientOrderId reliability section ---
     def test_duplicate_client_order_id_freshens(self):
         sym_raw = "BTC/USDT:USDT"
         sym = "BTC/USDT"
@@ -891,6 +897,7 @@ class OrderRouterCreateTests(unittest.TestCase):
         self.assertNotEqual(s1, s3)
         self.assertLessEqual(len(s1), 35)
 
+    # --- Error classifier / retry-policy reliability section ---
     def test_error_class_policy(self):
         p1 = order_router._classify_order_error_policy(Exception("Request timed out"))
         self.assertIn(p1["error_class"], ("retryable", "retryable_with_modification"))
