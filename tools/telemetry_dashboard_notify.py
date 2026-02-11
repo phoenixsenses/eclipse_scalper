@@ -594,7 +594,7 @@ def main(argv=None) -> int:
         return rc
 
     notifier = _build_notifier()
-    if notifier and stdout:
+    if stdout:
         header = f"Telemetry snapshot: {telemetry_path.name}"
         belief = _belief_state_snippet(telemetry_path)
         recovery_stage, recovery_latest = _recovery_stage_snippet(telemetry_path)
@@ -695,7 +695,7 @@ def main(argv=None) -> int:
             f"prev={str(prev_state.get('level') or 'none')} "
             f"curr={str(current_state.get('level') or 'none')}"
         )
-        if should_send:
+        if should_send and notifier:
             _send_alert(notifier, f"{header}\n{body}", level=str(current_state["level"]))
         _save_notify_state(state_path, current_state)
     return rc
