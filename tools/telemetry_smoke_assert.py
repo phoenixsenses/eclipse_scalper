@@ -35,12 +35,47 @@ def main(argv: list[str] | None = None) -> int:
         default="",
         help="Expected recovery_red_lock_streak integer value",
     )
+    p.add_argument(
+        "--min-refresh-budget-blocked",
+        default="",
+        help="Optional minimum protection_refresh_budget_blocked_count expected in state",
+    )
+    p.add_argument(
+        "--require-entry-clamped-on-refresh-budget",
+        action="store_true",
+        help="When min refresh budget is met, require belief_allow_entries_latest=false",
+    )
+    p.add_argument(
+        "--require-refresh-consistency",
+        action="store_true",
+        help=(
+            "Fail if refresh budget is elevated while entries are allowed and stage is not "
+            "PROTECTION_REFRESH_WARMUP/GREEN."
+        ),
+    )
+    p.add_argument(
+        "--require-unlock-fields",
+        action="store_true",
+        help=(
+            "Require unlock-condition numeric fields to exist in state "
+            "(healthy ticks/journal coverage/contradiction clear/protection gap)."
+        ),
+    )
     args = p.parse_args(argv)
 
     exp_level = _norm(args.expected_level).lower()
     exp_stage = _norm_upper(args.expected_stage)
     exp_streak_raw = _norm(args.expected_red_lock_streak)
-    has_expectation = bool(exp_level or exp_stage or exp_streak_raw)
+    exp_refresh_blocked_raw = _norm(args.min_refresh_budget_blocked)
+    has_expectation = bool(
+        exp_level
+        or exp_stage
+        or exp_streak_raw
+        or exp_refresh_blocked_raw
+        or bool(args.require_entry_clamped_on_refresh_budget)
+        or bool(args.require_refresh_consistency)
+        or bool(args.require_unlock_fields)
+    )
     if not has_expectation:
         print("smoke_assert: no expectations provided; skipping")
         return 0
@@ -74,6 +109,62 @@ def main(argv: list[str] | None = None) -> int:
         if actual_streak != exp_streak:
             mismatches.append(f"recovery_red_lock_streak expected={exp_streak} actual={actual_streak}")
 
+    actual_refresh_blocked = int(state.get("protection_refresh_budget_blocked_count") or 0)
+    if exp_refresh_blocked_raw:
+        try:
+            exp_refresh_blocked = int(exp_refresh_blocked_raw)
+        except Exception:
+            print(f"smoke_assert: invalid min-refresh-budget-blocked={exp_refresh_blocked_raw}")
+            return 2
+        if actual_refresh_blocked < exp_refresh_blocked:
+            mismatches.append(
+                "protection_refresh_budget_blocked_count "
+                f"expected>={exp_refresh_blocked} actual={actual_refresh_blocked}"
+            )
+
+    if args.require_entry_clamped_on_refresh_budget:
+        threshold = 1
+        if exp_refresh_blocked_raw:
+            try:
+                threshold = int(exp_refresh_blocked_raw)
+            except Exception:
+                threshold = 1
+        if int(actual_refresh_blocked) >= int(max(1, threshold)):
+            allow_entries = bool(state.get("belief_allow_entries_latest", True))
+            if allow_entries:
+                mismatches.append(
+                    "belief_allow_entries_latest expected=false when refresh budget is elevated"
+                )
+
+    if args.require_refresh_consistency:
+        allow_entries = bool(state.get("belief_allow_entries_latest", True))
+        stage = _norm_upper(state.get("recovery_stage_latest"))
+        if int(actual_refresh_blocked) > 0 and allow_entries and stage not in ("PROTECTION_REFRESH_WARMUP", "GREEN"):
+            mismatches.append(
+                "refresh consistency violated: blocked>0 with allow_entries=true outside warmup/green "
+                f"(stage={stage or 'n/a'})"
+            )
+
+    if args.require_unlock_fields:
+        required_keys = (
+            "unlock_next_sec",
+            "unlock_healthy_ticks_current",
+            "unlock_healthy_ticks_required",
+            "unlock_healthy_ticks_remaining",
+            "unlock_journal_coverage_current",
+            "unlock_journal_coverage_required",
+            "unlock_journal_coverage_remaining",
+            "unlock_contradiction_clear_current_sec",
+            "unlock_contradiction_clear_required_sec",
+            "unlock_contradiction_clear_remaining_sec",
+            "unlock_protection_gap_current_sec",
+            "unlock_protection_gap_max_sec",
+            "unlock_protection_gap_remaining_sec",
+        )
+        missing = [k for k in required_keys if k not in state]
+        if missing:
+            mismatches.append("unlock fields missing: " + ", ".join(missing))
+
     if mismatches:
         print("smoke_assert: FAIL")
         for line in mismatches:
@@ -87,6 +178,14 @@ def main(argv: list[str] | None = None) -> int:
         print(f"- recovery_stage_latest={exp_stage}")
     if exp_streak_raw:
         print(f"- recovery_red_lock_streak={int(exp_streak_raw)}")
+    if exp_refresh_blocked_raw:
+        print(f"- protection_refresh_budget_blocked_count>={int(exp_refresh_blocked_raw)}")
+    if args.require_entry_clamped_on_refresh_budget:
+        print("- belief_allow_entries_latest=false when refresh budget elevated")
+    if args.require_refresh_consistency:
+        print("- refresh consistency check passed")
+    if args.require_unlock_fields:
+        print("- unlock fields present")
     return 0
 
 

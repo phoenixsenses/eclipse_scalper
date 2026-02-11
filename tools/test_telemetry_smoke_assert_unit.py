@@ -87,6 +87,40 @@ class TelemetrySmokeAssertUnitTests(unittest.TestCase):
             )
             self.assertEqual(rc, 0)
 
+    def test_require_unlock_fields_fails_when_missing(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "state.json"
+            p.write_text(json.dumps({"level": "normal"}) + "\n", encoding="utf-8")
+            rc = tsa.main(["--state", str(p), "--require-unlock-fields"])
+            self.assertEqual(rc, 1)
+
+    def test_require_unlock_fields_passes_when_present(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "state.json"
+            p.write_text(
+                json.dumps(
+                    {
+                        "unlock_next_sec": 10.0,
+                        "unlock_healthy_ticks_current": 1.0,
+                        "unlock_healthy_ticks_required": 3.0,
+                        "unlock_healthy_ticks_remaining": 2.0,
+                        "unlock_journal_coverage_current": 0.9,
+                        "unlock_journal_coverage_required": 0.95,
+                        "unlock_journal_coverage_remaining": 0.05,
+                        "unlock_contradiction_clear_current_sec": 10.0,
+                        "unlock_contradiction_clear_required_sec": 60.0,
+                        "unlock_contradiction_clear_remaining_sec": 50.0,
+                        "unlock_protection_gap_current_sec": 0.0,
+                        "unlock_protection_gap_max_sec": 30.0,
+                        "unlock_protection_gap_remaining_sec": 0.0,
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            rc = tsa.main(["--state", str(p), "--require-unlock-fields"])
+            self.assertEqual(rc, 0)
+
 
 if __name__ == "__main__":
     unittest.main()

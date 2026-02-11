@@ -18,6 +18,18 @@ from tools import telemetry_dashboard_notify as tdn  # noqa: E402
 
 
 class TelemetryDashboardNotifyTests(unittest.TestCase):
+    def test_extract_unlock_metrics_parses_expected_values(self):
+        out = tdn._extract_unlock_metrics(
+            "healthy_ticks 1/3; journal_coverage 0.900/0.950; "
+            "contradiction_clear 10s/60s; protection_gap 5.0s/30.0s",
+            42.0,
+        )
+        self.assertAlmostEqual(float(out.get("unlock_next_sec", 0.0)), 42.0, places=6)
+        self.assertEqual(float(out.get("unlock_healthy_ticks_remaining", 0.0)), 2.0)
+        self.assertAlmostEqual(float(out.get("unlock_journal_coverage_remaining", 0.0)), 0.05, places=6)
+        self.assertEqual(float(out.get("unlock_contradiction_clear_remaining_sec", 0.0)), 50.0)
+        self.assertEqual(float(out.get("unlock_protection_gap_remaining_sec", 0.0)), 0.0)
+
     def test_decide_notify_reasons(self):
         send, reason = tdn._decide_notify({}, {"level": "normal"})
         self.assertTrue(send)
@@ -163,6 +175,27 @@ class TelemetryDashboardNotifyTests(unittest.TestCase):
             self.assertIn("Replace envelope blocks: events=2", snippet)
             self.assertIn("replace_envelope_block: 1", snippet)
             self.assertEqual(total, 2)
+
+    def test_protection_refresh_budget_snippet(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "telemetry.jsonl"
+            p.write_text(
+                "\n".join(
+                    [
+                        '{"event":"reconcile.summary","data":{"protection_refresh_budget_blocked_count":1,"protection_refresh_budget_force_override_count":0}}',
+                        '{"event":"reconcile.summary","data":{"protection_refresh_budget_blocked_count":3,"protection_refresh_budget_force_override_count":2,"protection_refresh_stop_budget_blocked_count":2,"protection_refresh_tp_budget_blocked_count":1,"protection_refresh_stop_force_override_count":1,"protection_refresh_tp_force_override_count":1}}',
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            snippet, blocked, forced = tdn._protection_refresh_budget_snippet(p)
+            self.assertIn("Protection refresh budget:", snippet)
+            self.assertIn("latest blocked=3", snippet)
+            self.assertIn("latest force_override=2", snippet)
+            self.assertIn("peak blocked=3 force_override=2", snippet)
+            self.assertEqual(blocked, 3)
+            self.assertEqual(forced, 2)
 
     def test_reliability_gate_snippet_ok_with_relaxed_thresholds(self):
         with tempfile.TemporaryDirectory() as td:
@@ -507,6 +540,101 @@ class TelemetryDashboardNotifyTests(unittest.TestCase):
                 self.assertIn("Replace envelope blocks:", str(args[1]))
                 self.assertEqual(kwargs.get("level"), "critical")
 
+    def test_main_sends_critical_on_refresh_budget_spike(self):
+        with tempfile.TemporaryDirectory() as td:
+            tele = Path(td) / "telemetry.jsonl"
+            gate = Path(td) / "reliability_gate.txt"
+            state = Path(td) / "notify_state.json"
+            tele.write_text(
+                "\n".join(
+                    [
+                        '{"event":"reconcile.summary","data":{"protection_refresh_budget_blocked_count":2,"protection_refresh_budget_force_override_count":0,"protection_refresh_stop_budget_blocked_count":2}}',
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            gate.write_text(
+                "\n".join(
+                    [
+                        "Execution Reliability Gate",
+                        "replay_mismatch_count=0",
+                        "journal_coverage_ratio=1.000",
+                        "invalid_transition_count=0",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            with mock.patch.object(tdn, "_run_dashboard", return_value=("dashboard-ok", 0)), \
+                mock.patch.object(tdn, "_build_notifier", return_value=object()), \
+                mock.patch.object(tdn, "_send_alert") as send_alert:
+                rc = tdn.main(
+                    [
+                        "--path",
+                        str(tele),
+                        "--reliability-gate",
+                        str(gate),
+                        "--state-path",
+                        str(state),
+                        "--protection-refresh-budget-blocked-critical-threshold",
+                        "2",
+                    ]
+                )
+                self.assertEqual(rc, 0)
+                self.assertTrue(send_alert.called)
+                args, kwargs = send_alert.call_args
+                self.assertIn("Protection refresh budget:", str(args[1]))
+                self.assertEqual(kwargs.get("level"), "critical")
+
+    def test_main_refresh_budget_release_uses_latest_not_peak(self):
+        with tempfile.TemporaryDirectory() as td:
+            tele = Path(td) / "telemetry.jsonl"
+            gate = Path(td) / "reliability_gate.txt"
+            state = Path(td) / "notify_state.json"
+            tele.write_text(
+                "\n".join(
+                    [
+                        '{"event":"reconcile.summary","data":{"protection_refresh_budget_blocked_count":2,"protection_refresh_budget_force_override_count":1}}',
+                        '{"event":"reconcile.summary","data":{"protection_refresh_budget_blocked_count":0,"protection_refresh_budget_force_override_count":0}}',
+                        '{"event":"execution.belief_state","data":{"allow_entries":true,"guard_recovery_stage":"GREEN","trace":{"reason":"stable"}}}',
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            gate.write_text(
+                "\n".join(
+                    [
+                        "Execution Reliability Gate",
+                        "replay_mismatch_count=0",
+                        "journal_coverage_ratio=1.000",
+                        "invalid_transition_count=0",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            with mock.patch.object(tdn, "_run_dashboard", return_value=("dashboard-ok", 0)), \
+                mock.patch.object(tdn, "_build_notifier", return_value=object()), \
+                mock.patch.object(tdn, "_send_alert") as send_alert:
+                rc = tdn.main(
+                    [
+                        "--path",
+                        str(tele),
+                        "--reliability-gate",
+                        str(gate),
+                        "--state-path",
+                        str(state),
+                        "--protection-refresh-budget-blocked-critical-threshold",
+                        "2",
+                    ]
+                )
+                self.assertEqual(rc, 0)
+                self.assertTrue(send_alert.called)
+                _, kwargs = send_alert.call_args
+                self.assertEqual(kwargs.get("level"), "normal")
+
     def test_main_dedups_unchanged_critical_state(self):
         with tempfile.TemporaryDirectory() as td:
             tele = Path(td) / "telemetry.jsonl"
@@ -837,6 +965,52 @@ class TelemetryDashboardNotifyTests(unittest.TestCase):
                 saved2 = json.loads(state.read_text(encoding="utf-8"))
                 self.assertEqual(saved2.get("recovery_red_lock_streak"), 0)
                 self.assertEqual(saved2.get("recovery_stage_latest"), "POST_RED_WARMUP")
+
+    def test_main_persists_unlock_condition_fields(self):
+        with tempfile.TemporaryDirectory() as td:
+            tele = Path(td) / "telemetry.jsonl"
+            gate = Path(td) / "reliability_gate.txt"
+            state = Path(td) / "notify_state.json"
+            tele.write_text(
+                (
+                    '{"event":"execution.belief_state","data":{"guard_recovery_stage":"YELLOW_WATCH",'
+                    '"guard_unlock_conditions":"healthy_ticks 1/3; journal_coverage 0.900/0.950; '
+                    'contradiction_clear 10s/60s; protection_gap 5.0s/30.0s",'
+                    '"guard_next_unlock_sec":42.0}}\n'
+                ),
+                encoding="utf-8",
+            )
+            gate.write_text(
+                "\n".join(
+                    [
+                        "Execution Reliability Gate",
+                        "replay_mismatch_count=0",
+                        "journal_coverage_ratio=1.000",
+                        "invalid_transition_count=0",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            with mock.patch.object(tdn, "_run_dashboard", return_value=("dashboard-ok", 0)), \
+                mock.patch.object(tdn, "_build_notifier", return_value=None), \
+                mock.patch.object(tdn, "_send_alert"):
+                rc = tdn.main(
+                    [
+                        "--path",
+                        str(tele),
+                        "--reliability-gate",
+                        str(gate),
+                        "--state-path",
+                        str(state),
+                    ]
+                )
+                self.assertEqual(rc, 0)
+            saved = json.loads(state.read_text(encoding="utf-8"))
+            self.assertAlmostEqual(float(saved.get("unlock_next_sec", 0.0)), 42.0, places=6)
+            self.assertEqual(float(saved.get("unlock_healthy_ticks_remaining", 0.0)), 2.0)
+            self.assertAlmostEqual(float(saved.get("unlock_journal_coverage_remaining", 0.0)), 0.05, places=6)
+            self.assertEqual(float(saved.get("unlock_contradiction_clear_remaining_sec", 0.0)), 50.0)
 
 
 if __name__ == "__main__":

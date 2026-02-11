@@ -67,7 +67,8 @@ jobs:
             --state logs/telemetry_dashboard_notify_state.json \
             --expected-level critical \
             --expected-stage RED_LOCK \
-            --expected-red-lock-streak 2
+            --expected-red-lock-streak 2 \
+            --require-unlock-fields
 
           echo "phase1=PASS escalation" >> logs/telemetry_smoke_result.txt
 
@@ -99,7 +100,8 @@ jobs:
             --state logs/telemetry_dashboard_notify_state.json \
             --expected-level normal \
             --expected-stage POST_RED_WARMUP \
-            --expected-red-lock-streak 0
+            --expected-red-lock-streak 0 \
+            --require-unlock-fields
 
           python - <<'PY'
           import json, time
@@ -146,7 +148,8 @@ jobs:
             --state logs/telemetry_dashboard_notify_state.json \
             --min-refresh-budget-blocked 2 \
             --require-entry-clamped-on-refresh-budget \
-            --require-refresh-consistency
+            --require-refresh-consistency \
+            --require-unlock-fields
 
           python - <<'PY'
           import json, time
@@ -202,7 +205,8 @@ jobs:
           python tools/telemetry_smoke_assert.py \
             --state logs/telemetry_dashboard_notify_state.json \
             --expected-level normal \
-            --expected-stage GREEN
+            --expected-stage GREEN \
+            --require-unlock-fields
 
           echo "phase2=PASS reset" >> logs/telemetry_smoke_result.txt
           python - <<'PY'

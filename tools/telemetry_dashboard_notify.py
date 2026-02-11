@@ -13,6 +13,7 @@ import argparse
 import asyncio
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -91,6 +92,61 @@ def _safe_float(x: Any, default: float = 0.0) -> float:
         return v
     except Exception:
         return float(default)
+
+
+def _extract_unlock_metrics(unlock: str, next_unlock_sec: float) -> dict[str, float]:
+    text = str(unlock or "").strip()
+    out: dict[str, float] = {
+        "unlock_next_sec": float(max(0.0, _safe_float(next_unlock_sec, 0.0))),
+        "unlock_healthy_ticks_current": 0.0,
+        "unlock_healthy_ticks_required": 0.0,
+        "unlock_healthy_ticks_remaining": 0.0,
+        "unlock_journal_coverage_current": 0.0,
+        "unlock_journal_coverage_required": 0.0,
+        "unlock_journal_coverage_remaining": 0.0,
+        "unlock_contradiction_clear_current_sec": 0.0,
+        "unlock_contradiction_clear_required_sec": 0.0,
+        "unlock_contradiction_clear_remaining_sec": 0.0,
+        "unlock_protection_gap_current_sec": 0.0,
+        "unlock_protection_gap_max_sec": 0.0,
+        "unlock_protection_gap_remaining_sec": 0.0,
+    }
+    if not text:
+        return out
+
+    m = re.search(r"healthy_ticks\s+([0-9]+)\s*/\s*([0-9]+)", text, flags=re.IGNORECASE)
+    if m:
+        cur = _safe_float(m.group(1), 0.0)
+        req = _safe_float(m.group(2), 0.0)
+        out["unlock_healthy_ticks_current"] = cur
+        out["unlock_healthy_ticks_required"] = req
+        out["unlock_healthy_ticks_remaining"] = float(max(0.0, req - cur))
+
+    m = re.search(r"journal_coverage\s+([0-9]*\.?[0-9]+)\s*/\s*([0-9]*\.?[0-9]+)", text, flags=re.IGNORECASE)
+    if m:
+        cur = _safe_float(m.group(1), 0.0)
+        req = _safe_float(m.group(2), 0.0)
+        out["unlock_journal_coverage_current"] = cur
+        out["unlock_journal_coverage_required"] = req
+        out["unlock_journal_coverage_remaining"] = float(max(0.0, req - cur))
+
+    m = re.search(r"contradiction_clear\s+([0-9]*\.?[0-9]+)s\s*/\s*([0-9]*\.?[0-9]+)s", text, flags=re.IGNORECASE)
+    if m:
+        cur = _safe_float(m.group(1), 0.0)
+        req = _safe_float(m.group(2), 0.0)
+        out["unlock_contradiction_clear_current_sec"] = cur
+        out["unlock_contradiction_clear_required_sec"] = req
+        out["unlock_contradiction_clear_remaining_sec"] = float(max(0.0, req - cur))
+
+    m = re.search(r"protection_gap\s+([0-9]*\.?[0-9]+)s\s*/\s*([0-9]*\.?[0-9]+)s", text, flags=re.IGNORECASE)
+    if m:
+        cur = _safe_float(m.group(1), 0.0)
+        req = _safe_float(m.group(2), 0.0)
+        out["unlock_protection_gap_current_sec"] = cur
+        out["unlock_protection_gap_max_sec"] = req
+        out["unlock_protection_gap_remaining_sec"] = float(max(0.0, cur - req))
+
+    return out
 
 
 def _parse_kv_lines(lines: list[str]) -> dict[str, str]:
@@ -227,7 +283,7 @@ def _reliability_gate_snippet(
     }
 
 
-def _belief_state_snippet(path: Path) -> str:
+def _belief_state_snippet(path: Path) -> tuple[str, dict[str, Any]]:
     events = _load_jsonl(path)
     rows = []
     for ev in events:
@@ -242,22 +298,30 @@ def _belief_state_snippet(path: Path) -> str:
                 "streak": int(data.get("mismatch_streak") or 0),
                 "guard_mode": str(data.get("guard_mode") or ""),
                 "allow_entries": bool(data.get("allow_entries", True)),
+                "reason": str((data.get("trace") or {}).get("reason") if isinstance(data.get("trace"), dict) else ""),
+                "refresh_blocked_level": float(data.get("guard_refresh_blocked_level") or 0.0),
+                "refresh_force_level": float(data.get("guard_refresh_force_level") or 0.0),
                 "recovery_stage": str(data.get("guard_recovery_stage") or ""),
                 "unlock": str(data.get("guard_unlock_conditions") or ""),
                 "next_unlock_sec": float(data.get("guard_next_unlock_sec") or 0.0),
             }
         )
     if not rows:
-        return ""
+        return "", {}
     latest = rows[-1]
-    return (
+    msg = (
         "Execution belief state:\n"
         f"- debt={latest['debt']:.1f}s symbols={latest['symbols']} "
         f"confidence={latest['conf']:.2f} streak={latest['streak']}\n"
         f"- guard_mode={latest['guard_mode'] or 'n/a'} allow_entries={bool(latest['allow_entries'])} "
         f"recovery_stage={latest['recovery_stage'] or 'n/a'} next_unlock_sec={float(latest['next_unlock_sec']):.1f}\n"
+        f"- refresh_levels blocked={float(latest['refresh_blocked_level']):.2f} "
+        f"force={float(latest['refresh_force_level']):.2f}\n"
         f"- unlock_conditions={latest['unlock'] or 'stable'}"
     )
+    if "protection_refresh_budget_hard_block" in str(latest.get("reason") or ""):
+        msg += "\n- mitigation: protection_refresh_budget_hard_block active (entries clamped)"
+    return msg, latest
 
 
 def _recovery_stage_snippet(path: Path, *, limit: int = 3) -> tuple[str, str]:
@@ -407,6 +471,60 @@ def _replace_envelope_snippet(path: Path, *, limit: int = 3) -> tuple[str, int]:
     return "\n".join(lines), int(total)
 
 
+def _protection_refresh_budget_snippet(path: Path) -> tuple[str, int, int]:
+    events = _load_jsonl(path)
+    blocked_total = 0
+    force_total = 0
+    stop_blocked_total = 0
+    tp_blocked_total = 0
+    stop_force_total = 0
+    tp_force_total = 0
+    latest_blocked = 0
+    latest_force = 0
+    latest_stop_blocked = 0
+    latest_tp_blocked = 0
+    latest_stop_force = 0
+    latest_tp_force = 0
+    prev_blocked = 0
+    prev_force = 0
+    for ev in events:
+        if str(ev.get("event") or "") != "reconcile.summary":
+            continue
+        data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+        b = _safe_int(data.get("protection_refresh_budget_blocked_count"), 0)
+        f = _safe_int(data.get("protection_refresh_budget_force_override_count"), 0)
+        sb = _safe_int(data.get("protection_refresh_stop_budget_blocked_count"), 0)
+        tb = _safe_int(data.get("protection_refresh_tp_budget_blocked_count"), 0)
+        sf = _safe_int(data.get("protection_refresh_stop_force_override_count"), 0)
+        tf = _safe_int(data.get("protection_refresh_tp_force_override_count"), 0)
+        prev_blocked = latest_blocked
+        prev_force = latest_force
+        latest_blocked, latest_force = b, f
+        latest_stop_blocked, latest_tp_blocked = sb, tb
+        latest_stop_force, latest_tp_force = sf, tf
+        blocked_total = max(blocked_total, b)
+        force_total = max(force_total, f)
+        stop_blocked_total = max(stop_blocked_total, sb)
+        tp_blocked_total = max(tp_blocked_total, tb)
+        stop_force_total = max(stop_force_total, sf)
+        tp_force_total = max(tp_force_total, tf)
+    if blocked_total <= 0 and force_total <= 0 and latest_blocked <= 0 and latest_force <= 0:
+        return "", 0, 0
+    lines = [
+        "Protection refresh budget:",
+        (
+            f"- latest blocked={int(latest_blocked)} (prev {int(prev_blocked)}) "
+            f"(stop={int(latest_stop_blocked)} tp={int(latest_tp_blocked)})"
+        ),
+        (
+            f"- latest force_override={int(latest_force)} (prev {int(prev_force)}) "
+            f"(stop={int(latest_stop_force)} tp={int(latest_tp_force)})"
+        ),
+        f"- peak blocked={int(blocked_total)} force_override={int(force_total)}",
+    ]
+    return "\n".join(lines), int(latest_blocked), int(latest_force)
+
+
 def _latest_corr_or_symbol(events: list[dict]) -> tuple[str, str]:
     corr = ""
     sym = ""
@@ -526,6 +644,8 @@ def _is_worsened(prev: dict[str, Any], curr: dict[str, Any]) -> bool:
         "recovery_red_lock_streak",
         "entry_budget_depleted",
         "replace_envelope_count",
+        "protection_refresh_budget_blocked_count",
+        "protection_refresh_budget_force_override_count",
     )
     for key in keys_higher_is_worse:
         if float(curr.get(key, 0.0) or 0.0) > float(prev.get(key, 0.0) or 0.0):
@@ -570,6 +690,8 @@ def _attach_prev_snapshot(curr: dict[str, Any], prev: dict[str, Any]) -> dict[st
         "reconcile_gate_max_streak",
         "entry_budget_depleted",
         "replace_envelope_count",
+        "protection_refresh_budget_blocked_count",
+        "protection_refresh_budget_force_override_count",
     )
     for key in tracked:
         if key in prev:
@@ -603,6 +725,16 @@ def main(argv=None) -> int:
     )
     parser.add_argument("--entry-budget-depleted-critical-threshold", type=int, default=1)
     parser.add_argument("--replace-envelope-critical-threshold", type=int, default=1)
+    parser.add_argument(
+        "--protection-refresh-budget-blocked-critical-threshold",
+        type=int,
+        default=int(os.getenv("PROTECTION_REFRESH_BUDGET_BLOCKED_CRITICAL_THRESHOLD", "2")),
+    )
+    parser.add_argument(
+        "--protection-refresh-force-override-critical-threshold",
+        type=int,
+        default=int(os.getenv("PROTECTION_REFRESH_FORCE_OVERRIDE_CRITICAL_THRESHOLD", "2")),
+    )
     parser.add_argument(
         "--recovery-red-lock-critical-streak",
         type=int,
@@ -638,7 +770,7 @@ def main(argv=None) -> int:
     notifier = None if args.no_notify else _build_notifier()
     if stdout:
         header = f"Telemetry snapshot: {telemetry_path.name}"
-        belief = _belief_state_snippet(telemetry_path)
+        belief, belief_latest = _belief_state_snippet(telemetry_path)
         recovery_stage, recovery_latest = _recovery_stage_snippet(telemetry_path)
         reconcile_gate, reconcile_gate_count, reconcile_gate_max_severity, reconcile_gate_max_streak = _reconcile_first_gate_snippet(
             telemetry_path,
@@ -646,6 +778,9 @@ def main(argv=None) -> int:
         )
         entry_budget, entry_budget_depleted = _entry_budget_pressure_snippet(telemetry_path)
         replace_envelope, replace_envelope_count = _replace_envelope_snippet(telemetry_path)
+        refresh_budget, refresh_budget_blocked_count, refresh_budget_force_count = _protection_refresh_budget_snippet(
+            telemetry_path
+        )
         replay = _replay_snippet(telemetry_path, journal_path)
         reliability, reliability_degraded, reliability_metrics = _reliability_gate_snippet(
             reliability_gate_path,
@@ -668,6 +803,14 @@ def main(argv=None) -> int:
         replace_envelope_degraded = bool(
             replace_envelope_count >= max(1, int(args.replace_envelope_critical_threshold))
         )
+        refresh_budget_blocked_degraded = bool(
+            int(refresh_budget_blocked_count)
+            >= max(1, int(args.protection_refresh_budget_blocked_critical_threshold))
+        )
+        refresh_budget_force_degraded = bool(
+            int(refresh_budget_force_count)
+            >= max(1, int(args.protection_refresh_force_override_critical_threshold))
+        )
         merged = stdout
         if belief:
             merged = f"{merged}\n\n{belief}"
@@ -679,6 +822,8 @@ def main(argv=None) -> int:
             merged = f"{merged}\n\n{entry_budget}"
         if replace_envelope:
             merged = f"{merged}\n\n{replace_envelope}"
+        if refresh_budget:
+            merged = f"{merged}\n\n{refresh_budget}"
         if replay:
             merged = f"{merged}\n\n{replay}"
         if reliability:
@@ -695,6 +840,8 @@ def main(argv=None) -> int:
                     or reconcile_gate_streak_degraded
                     or entry_budget_degraded
                     or replace_envelope_degraded
+                    or refresh_budget_blocked_degraded
+                    or refresh_budget_force_degraded
                 )
                 else "normal"
             ),
@@ -722,7 +869,18 @@ def main(argv=None) -> int:
             "recovery_stage_latest": str(recovery_latest or ""),
             "entry_budget_depleted": int(entry_budget_depleted),
             "replace_envelope_count": int(replace_envelope_count),
+            "protection_refresh_budget_blocked_count": int(refresh_budget_blocked_count),
+            "protection_refresh_budget_force_override_count": int(refresh_budget_force_count),
+            "belief_allow_entries_latest": bool(belief_latest.get("allow_entries", True)),
+            "belief_guard_mode_latest": str(belief_latest.get("guard_mode") or ""),
+            "belief_reason_latest": str(belief_latest.get("reason") or ""),
         }
+        current_state.update(
+            _extract_unlock_metrics(
+                str(belief_latest.get("unlock") or ""),
+                _safe_float(belief_latest.get("next_unlock_sec"), 0.0),
+            )
+        )
         state_path = Path(args.state_path)
         prev_state = _load_notify_state(state_path)
         prev_red_streak = int(_safe_float(prev_state.get("recovery_red_lock_streak", 0), 0.0)) if isinstance(prev_state, dict) else 0
