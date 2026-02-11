@@ -870,6 +870,8 @@ python tools/telemetry_dashboard.py --path logs/telemetry.jsonl --guard-events -
 
 The workflow `.github/workflows/telemetry-dashboard.yml` runs the dashboard helper every six hours (plus whenever you trigger `workflow_dispatch`). It checks out the repo, sets up Python 3.12, installs the notifier runtime dependency (`python-telegram-bot==22.5`), and executes:
 
+For operational procedures (manual trigger/watch, RED_LOCK smoke, reset smoke, and incident triage), see `docs/telemetry_runbook.md`.
+
 ```bash
 python eclipse_scalper/tools/telemetry_dashboard_notify.py --path logs/telemetry.jsonl --codes-per-symbol --codes-top 4
 ```
