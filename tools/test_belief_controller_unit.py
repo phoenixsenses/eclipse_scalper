@@ -523,6 +523,56 @@ class BeliefControllerTests(unittest.TestCase):
         self.assertLessEqual(float(pressured.max_notional_usdt), float(base.max_notional_usdt))
         self.assertLessEqual(int(pressured.max_leverage), int(base.max_leverage))
 
+    def test_runtime_gate_critical_categories_tighten_more_than_unknown(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_SYMBOL_WEIGHT=0.0,
+            BELIEF_STREAK_WEIGHT=0.0,
+            BELIEF_YELLOW_SCORE=99.0,
+            BELIEF_ORANGE_SCORE=199.0,
+            BELIEF_RED_SCORE=299.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=199.0,
+            BELIEF_RED_GROWTH=299.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_RUNTIME_GATE_WEIGHT=0.2,
+            BELIEF_RUNTIME_GATE_CRITICAL_WEIGHT=0.5,
+            BELIEF_RUNTIME_GATE_CAT_POSITION_WEIGHT=1.0,
+            BELIEF_RUNTIME_GATE_CAT_ORPHAN_WEIGHT=1.0,
+            BELIEF_RUNTIME_GATE_CAT_REPLACE_RACE_WEIGHT=1.0,
+            BELIEF_RUNTIME_GATE_CAT_CONTRADICTION_WEIGHT=1.0,
+            BELIEF_RUNTIME_GATE_CAT_UNKNOWN_WEIGHT=1.0,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+
+        unknown_only = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "runtime_gate_degraded": False,
+                "runtime_gate_cat_unknown": 2,
+            },
+            cfg,
+        )
+        clock.tick(1.0)
+        critical_mix = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "runtime_gate_degraded": False,
+                "runtime_gate_cat_position": 1,
+                "runtime_gate_cat_orphan": 1,
+            },
+            cfg,
+        )
+        self.assertLessEqual(float(critical_mix.max_notional_usdt), float(unknown_only.max_notional_usdt))
+        self.assertGreaterEqual(float(critical_mix.min_entry_conf), float(unknown_only.min_entry_conf))
+
     def test_post_red_recovery_ladder_applies_warmup_caps(self):
         cfg = types.SimpleNamespace(
             BELIEF_DEBT_REF_SEC=100.0,

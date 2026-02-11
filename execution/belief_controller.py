@@ -178,6 +178,7 @@ class BeliefController:
             self._cfg(cfg, "BELIEF_RUNTIME_GATE_CAT_CONTRADICTION_WEIGHT", 0.7), 0.0, 3.0
         )
         gate_cat_unknown_weight = _clamp(self._cfg(cfg, "BELIEF_RUNTIME_GATE_CAT_UNKNOWN_WEIGHT", 0.2), 0.0, 3.0)
+        gate_critical_weight = _clamp(self._cfg(cfg, "BELIEF_RUNTIME_GATE_CRITICAL_WEIGHT", 0.35), 0.0, 3.0)
         reconcile_first_gate_weight = _clamp(
             self._cfg(cfg, "BELIEF_RECONCILE_FIRST_GATE_WEIGHT", 0.25), 0.0, 3.0
         )
@@ -202,6 +203,14 @@ class BeliefController:
             + (runtime_gate_cat_contradiction * gate_cat_contradiction_weight)
             + (runtime_gate_cat_unknown * gate_cat_unknown_weight)
         )
+        critical_cat_base = (
+            (runtime_gate_cat_position * gate_cat_position_weight)
+            + (runtime_gate_cat_orphan * gate_cat_orphan_weight)
+            + (runtime_gate_cat_coverage_gap * gate_cat_coverage_gap_weight)
+            + (runtime_gate_cat_replace_race * gate_cat_replace_race_weight)
+            + (runtime_gate_cat_contradiction * gate_cat_contradiction_weight)
+        )
+        gate_debt += (critical_cat_base * gate_critical_weight)
         gate_contributors = [
             ("mismatch", (runtime_gate_mismatch_count / gate_mismatch_ref)),
             ("invalid", (runtime_gate_invalid_count / gate_invalid_ref)),
@@ -216,6 +225,7 @@ class BeliefController:
             ("replace_race", (runtime_gate_cat_replace_race * gate_cat_replace_race_weight)),
             ("contradiction", (runtime_gate_cat_contradiction * gate_cat_contradiction_weight)),
             ("unknown", (runtime_gate_cat_unknown * gate_cat_unknown_weight)),
+            ("critical", (critical_cat_base * gate_critical_weight)),
         ]
         gate_contributors = [x for x in gate_contributors if float(x[1]) > 0.0]
         gate_contributors.sort(key=lambda kv: float(kv[1]), reverse=True)
@@ -465,6 +475,9 @@ class BeliefController:
         elif gate_debt > 0:
             # Non-zero runtime gate pressure should tighten posture before a full degraded trip.
             soft_scale = _clamp(1.0 - (gate_weight * gate_debt * 0.15), 0.25, 1.0)
+            if critical_cat_base > 0.0:
+                crit_scale = _clamp(1.0 - (critical_cat_base * 0.12), 0.20, 1.0)
+                soft_scale = min(soft_scale, crit_scale)
             max_notional = float(max_notional * soft_scale)
             max_lev = max(1, int(max_lev * soft_scale))
             min_conf = _clamp(min_conf + ((1.0 - soft_scale) * gate_min_conf_extra), 0.0, 1.0)
