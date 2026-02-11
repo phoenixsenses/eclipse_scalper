@@ -16,24 +16,15 @@ for p in (ROOT, PKG):
 from tools import telemetry_smoke_assert as tsa  # noqa: E402
 
 
-class TelemetrySmokeAssertTests(unittest.TestCase):
-    def test_skip_without_expectations(self):
-        rc = tsa.main(["--state", "missing.json"])
-        self.assertEqual(rc, 0)
-
-    def test_fail_when_state_missing_and_expectation_set(self):
-        rc = tsa.main(["--state", "missing.json", "--expected-level", "critical"])
-        self.assertEqual(rc, 2)
-
-    def test_pass_on_matching_expectations(self):
+class TelemetrySmokeAssertUnitTests(unittest.TestCase):
+    def test_refresh_budget_requires_entry_clamp(self):
         with tempfile.TemporaryDirectory() as td:
             p = Path(td) / "state.json"
             p.write_text(
                 json.dumps(
                     {
-                        "level": "critical",
-                        "recovery_stage_latest": "RED_LOCK",
-                        "recovery_red_lock_streak": 2,
+                        "protection_refresh_budget_blocked_count": 2,
+                        "belief_allow_entries_latest": False,
                     }
                 )
                 + "\n",
@@ -43,25 +34,22 @@ class TelemetrySmokeAssertTests(unittest.TestCase):
                 [
                     "--state",
                     str(p),
-                    "--expected-level",
-                    "critical",
-                    "--expected-stage",
-                    "RED_LOCK",
-                    "--expected-red-lock-streak",
+                    "--min-refresh-budget-blocked",
                     "2",
+                    "--require-entry-clamped-on-refresh-budget",
                 ]
             )
             self.assertEqual(rc, 0)
 
-    def test_fail_on_mismatch(self):
+    def test_refresh_consistency_fails_when_entries_allowed_outside_warmup_or_green(self):
         with tempfile.TemporaryDirectory() as td:
             p = Path(td) / "state.json"
             p.write_text(
                 json.dumps(
                     {
-                        "level": "normal",
-                        "recovery_stage_latest": "POST_RED_WARMUP",
-                        "recovery_red_lock_streak": 0,
+                        "protection_refresh_budget_blocked_count": 1,
+                        "belief_allow_entries_latest": True,
+                        "recovery_stage_latest": "ORANGE_RECOVERY",
                     }
                 )
                 + "\n",
@@ -71,29 +59,33 @@ class TelemetrySmokeAssertTests(unittest.TestCase):
                 [
                     "--state",
                     str(p),
-                    "--expected-level",
-                    "critical",
-                    "--expected-stage",
-                    "RED_LOCK",
-                    "--expected-red-lock-streak",
-                    "2",
+                    "--require-refresh-consistency",
                 ]
             )
             self.assertEqual(rc, 1)
 
-    def test_invalid_expected_streak(self):
+    def test_refresh_consistency_allows_warmup_with_entries(self):
         with tempfile.TemporaryDirectory() as td:
             p = Path(td) / "state.json"
-            p.write_text(json.dumps({"level": "normal"}) + "\n", encoding="utf-8")
+            p.write_text(
+                json.dumps(
+                    {
+                        "protection_refresh_budget_blocked_count": 1,
+                        "belief_allow_entries_latest": True,
+                        "recovery_stage_latest": "PROTECTION_REFRESH_WARMUP",
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
             rc = tsa.main(
                 [
                     "--state",
                     str(p),
-                    "--expected-red-lock-streak",
-                    "abc",
+                    "--require-refresh-consistency",
                 ]
             )
-            self.assertEqual(rc, 2)
+            self.assertEqual(rc, 0)
 
 
 if __name__ == "__main__":

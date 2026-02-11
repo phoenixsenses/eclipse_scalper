@@ -25,6 +25,24 @@ For a single-run chained smoke (escalation + reset with built-in assertions), tr
 gh workflow run .github/workflows/telemetry-smoke.yml -R phoenixsenses/eclipse_scalper
 ```
 
+## Local Safe Profile Preflight
+
+Use the safe launcher preflight before any live run:
+
+```powershell
+$env:RUN_PREFLIGHT_ONLY = "1"
+.\run-bot-ps2.ps1
+```
+
+Optional local smoke assertion before startup:
+
+```powershell
+$env:RUN_SMOKE = "1"
+.\run-bot-ps2.ps1
+```
+
+Preflight blocks startup when key constraints are unsafe (symbol list, leverage/notional caps, margin mode, loss limits, correlation config, reliability coupling thresholds).
+
 ## RED_LOCK Escalation Smoke
 
 Use this to validate that notifier state escalates to `critical` when the RED_LOCK streak reaches threshold.
@@ -107,6 +125,37 @@ From artifacts:
 - `logs/reliability_gate.txt`
 - `logs/telemetry_alert_summary.txt`
 - `logs/telemetry_dashboard_page.html`
+
+## Dashboard Threshold Tuning
+
+The top strip in `telemetry_dashboard_page.html` now color-codes reliability counters using env thresholds.
+
+- Debt: `TELEMETRY_DASHBOARD_DEBT_WARN_SEC`, `TELEMETRY_DASHBOARD_DEBT_CRIT_SEC`
+- Mismatch streak: `TELEMETRY_DASHBOARD_MISMATCH_STREAK_WARN`, `TELEMETRY_DASHBOARD_MISMATCH_STREAK_CRIT`
+- Coverage gap: `TELEMETRY_DASHBOARD_COVERAGE_GAP_WARN_SEC`, `TELEMETRY_DASHBOARD_COVERAGE_GAP_CRIT_SEC`
+- Refresh budget blocked: `TELEMETRY_DASHBOARD_REFRESH_BLOCKED_WARN`, `TELEMETRY_DASHBOARD_REFRESH_BLOCKED_CRIT`
+- Force override count: `TELEMETRY_DASHBOARD_FORCE_OVERRIDE_WARN`, `TELEMETRY_DASHBOARD_FORCE_OVERRIDE_CRIT`
+
+Related refresh-budget controls (runtime):
+
+- `RECONCILE_STOP_REFRESH_BUDGET_WINDOW_SEC`, `RECONCILE_STOP_REFRESH_MAX_PER_WINDOW`
+- `RECONCILE_TP_REFRESH_BUDGET_WINDOW_SEC`, `RECONCILE_TP_REFRESH_MAX_PER_WINDOW`
+- Notifier escalation thresholds:
+  - `PROTECTION_REFRESH_BUDGET_BLOCKED_CRITICAL_THRESHOLD`
+  - `PROTECTION_REFRESH_FORCE_OVERRIDE_CRITICAL_THRESHOLD`
+- Controller decay/warmup controls:
+  - `BELIEF_PROTECTION_REFRESH_DECAY_SEC`
+  - `BELIEF_PROTECTION_REFRESH_RECOVER_SEC`
+  - `BELIEF_PROTECTION_REFRESH_WARMUP_NOTIONAL_SCALE`
+  - `BELIEF_PROTECTION_REFRESH_WARMUP_LEVERAGE_SCALE`
+  - `BELIEF_PROTECTION_REFRESH_WARMUP_MIN_CONF_EXTRA`
+  - `BELIEF_PROTECTION_REFRESH_WARMUP_COOLDOWN_EXTRA_SEC`
+
+Recommended approach:
+
+1. Keep defaults for one full day of live telemetry.
+2. Tighten WARN first (not CRIT) if you need earlier visibility.
+3. Lower CRIT only when you have repeated incidents requiring faster clamp triage.
 
 ## Escalation Rules
 

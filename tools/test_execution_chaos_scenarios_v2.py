@@ -17,6 +17,7 @@ for p in (ROOT, PKG):
         sys.path.insert(0, str(p))
 
 from eclipse_scalper.execution import rebuild, reconcile, replace_manager, order_router  # noqa: E402
+from eclipse_scalper.execution.belief_controller import BeliefController  # noqa: E402
 from tools import replay_trade  # noqa: E402
 
 
@@ -618,6 +619,174 @@ class ChaosScenariosV2Tests(unittest.TestCase):
         rm = dict(getattr(bot.state, "reconcile_metrics", {}) or {})
         self.assertGreater(float(rm.get("protection_coverage_gap_seconds", 0.0) or 0.0), 0.0)
         self.assertGreaterEqual(int(rm.get("protection_coverage_ttl_breaches", 0) or 0), 1)
+
+    def test_dribble_fill_budget_saturation_with_ttl_breach_forces_refresh_and_clamps_entries(self):
+        ex = _RestartExchange(
+            positions=[{"symbol": "BTC/USDT:USDT", "contracts": 1.0, "side": "long", "entryPrice": 100.0}],
+            orders=[],
+            trades=[],
+        )
+        bot = _DummyBot(ex)
+        bot.state.positions = {
+            "BTCUSDT": types.SimpleNamespace(side="long", size=1.0, entry_price=100.0, atr=0.0, stop_order_id="old-stop")
+        }
+        bot.state.run_context = {
+            "protection_gap_state": {"BTCUSDT": {"ttl_breached": True}},
+            "protection_refresh": {
+                "BTCUSDT": {
+                    "qty": 1.0,
+                    "ts": reconcile._now(),
+                    "refresh_events": [reconcile._now() - 1.0, reconcile._now() - 2.0, reconcile._now() - 3.0],
+                }
+            },
+        }
+        bot.state.reconcile_metrics = {"protection_refresh_budget_blocked_count": 4}
+        bot.cfg.RECONCILE_STOP_REFRESH_MAX_PER_WINDOW = 1
+        bot.cfg.RECONCILE_STOP_REFRESH_BUDGET_WINDOW_SEC = 60.0
+        bot.cfg.RECONCILE_STOP_REFRESH_FORCE_COVERAGE_RATIO = 0.80
+        bot.cfg.BELIEF_PROTECTION_REFRESH_ENTRY_BLOCK_THRESHOLD = 3
+        bot.cfg.FIXED_NOTIONAL_USDT = 100.0
+        bot.cfg.LEVERAGE = 20
+        bot.cfg.ENTRY_MIN_CONFIDENCE = 0.2
+        bot.cfg.RECONCILE_ALERT_COOLDOWN_SEC = 0.0
+
+        async def _fake_fetch_open_orders_best_effort(_bot, _sym_raw):
+            return []
+
+        def _fake_assess_stop_coverage(_orders, **_kwargs):
+            return {
+                "covered": False,
+                "needs_refresh": True,
+                "order_id": "old-stop",
+                "existing_qty": 1.0,
+                "coverage_ratio": 1.0,
+                "reason": "qty_under_covered",
+            }
+
+        async def _fake_cancel_replace_order(*_args, **_kwargs):
+            return {"id": "new-stop"}
+
+        orig_fetch = reconcile._fetch_open_orders_best_effort
+        orig_assess = reconcile._assess_stop_coverage
+        orig_cancel_replace = reconcile.cancel_replace_order
+        orig_should_refresh = reconcile._should_refresh_protection
+        orig_tp = reconcile._ensure_protective_tp
+        reconcile._fetch_open_orders_best_effort = _fake_fetch_open_orders_best_effort
+        reconcile._assess_stop_coverage = _fake_assess_stop_coverage
+        reconcile.cancel_replace_order = _fake_cancel_replace_order
+        reconcile._should_refresh_protection = lambda **_kwargs: True
+        reconcile._ensure_protective_tp = lambda *_a, **_k: asyncio.sleep(0, result="tp_disabled")
+        try:
+            asyncio.run(reconcile.reconcile_tick(bot))
+        finally:
+            reconcile._fetch_open_orders_best_effort = orig_fetch
+            reconcile._assess_stop_coverage = orig_assess
+            reconcile.cancel_replace_order = orig_cancel_replace
+            reconcile._should_refresh_protection = orig_should_refresh
+            reconcile._ensure_protective_tp = orig_tp
+
+        knobs = dict(getattr(bot.state, "guard_knobs", {}) or {})
+        self.assertTrue(bool(knobs))
+        self.assertFalse(bool(knobs.get("allow_entries", True)))
+        self.assertIn("protection_refresh_budget_hard_block", str(knobs.get("reason") or ""))
+
+        pos = bot.state.positions.get("BTCUSDT")
+        self.assertIsNotNone(pos)
+        self.assertEqual(str(getattr(pos, "stop_order_id", "")), "new-stop")
+        rm = dict(getattr(bot.state, "reconcile_metrics", {}) or {})
+        self.assertGreaterEqual(int(rm.get("protection_refresh_budget_force_override_count", 0) or 0), 1)
+
+    def test_refresh_hard_block_release_path_progresses_warmup_then_release(self):
+        class _Clock:
+            def __init__(self, start: float = 0.0):
+                self.t = float(start)
+
+            def now(self) -> float:
+                return float(self.t)
+
+            def tick(self, sec: float) -> None:
+                self.t += float(sec)
+
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_YELLOW_SCORE=99.0,
+            BELIEF_ORANGE_SCORE=199.0,
+            BELIEF_RED_SCORE=299.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=99.0,
+            BELIEF_RED_GROWTH=99.0,
+            BELIEF_MODE_PERSIST_SEC=0.0,
+            BELIEF_MODE_RECOVER_SEC=1.0,
+            BELIEF_DOWN_HYST=0.99,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_PROTECTION_REFRESH_ENTRY_BLOCK_THRESHOLD=2,
+            BELIEF_PROTECTION_REFRESH_DECAY_SEC=2.0,
+            BELIEF_PROTECTION_REFRESH_RECOVER_SEC=10.0,
+            BELIEF_PROTECTION_REFRESH_WARMUP_NOTIONAL_SCALE=0.8,
+            BELIEF_PROTECTION_REFRESH_WARMUP_LEVERAGE_SCALE=0.8,
+            BELIEF_PROTECTION_REFRESH_BLOCKED_WEIGHT=0.0,
+            BELIEF_PROTECTION_REFRESH_FORCE_WEIGHT=0.0,
+        )
+        clock = _Clock(1.0)
+        ctl = BeliefController(clock=clock.now)
+
+        hard_block = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "protection_refresh_budget_blocked_count": 3,
+            },
+            cfg,
+        )
+        self.assertFalse(hard_block.allow_entries)
+        self.assertIn(str(getattr(hard_block, "recovery_stage", "")), ("ORANGE_RECOVERY", "YELLOW_WATCH", "GREEN"))
+        self.assertIn("protection_refresh_budget_hard_block", str(hard_block.reason))
+
+        clock.tick(3.0)
+        warmup = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "protection_refresh_budget_blocked_count": 0,
+            },
+            cfg,
+        )
+        self.assertTrue(warmup.allow_entries)
+        self.assertEqual(str(getattr(warmup, "recovery_stage", "")), "PROTECTION_REFRESH_WARMUP")
+        self.assertIn("protection_refresh_budget_warmup", str(warmup.reason))
+        self.assertLess(float(warmup.max_notional_usdt), 100.0)
+
+        clock.tick(15.0)
+        green = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "protection_refresh_budget_blocked_count": 0,
+            },
+            cfg,
+        )
+        self.assertTrue(green.allow_entries)
+        self.assertIn(str(getattr(green, "recovery_stage", "")), ("YELLOW_WATCH", "GREEN"))
+        self.assertNotIn("protection_refresh_budget_warmup", str(green.reason))
+
+        clock.tick(120.0)
+        full_clear = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "protection_refresh_budget_blocked_count": 0,
+            },
+            cfg,
+        )
+        self.assertTrue(full_clear.allow_entries)
+        self.assertIn(str(getattr(full_clear, "recovery_stage", "")), ("YELLOW_WATCH", "GREEN"))
+        self.assertNotIn("protection_refresh_budget_warmup", str(full_clear.reason))
 
 
 if __name__ == "__main__":
