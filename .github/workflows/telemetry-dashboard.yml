@@ -19,6 +19,18 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v4
 
+      - name: Ensure logs directory
+        run: mkdir -p logs
+
+      - name: Restore notifier state cache
+        id: notify_state_restore
+        uses: actions/cache/restore@v4
+        with:
+          path: logs/telemetry_dashboard_notify_state.json
+          key: telemetry-notify-state-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: |
+            telemetry-notify-state-${{ github.ref_name }}-
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -160,6 +172,30 @@ jobs:
           else
             echo "replay_latest_summary.py not present; skipping replay summary" > logs/replay_latest.txt
           fi
+
+      - name: Inspect notifier state
+        run: |
+          if [ -f logs/telemetry_dashboard_notify_state.json ]; then
+            python - <<'PY'
+            import json
+            from pathlib import Path
+            p = Path("logs/telemetry_dashboard_notify_state.json")
+            d = json.loads(p.read_text(encoding="utf-8"))
+            print("notifier_state:")
+            for k in ("level", "recovery_stage_latest", "recovery_red_lock_streak", "last_decision_reason", "last_decision_sent"):
+              print(f"- {k}={d.get(k)}")
+            PY
+          else
+            echo "notifier_state: missing"
+          fi
+
+      - name: Save notifier state cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: logs/telemetry_dashboard_notify_state.json
+          key: telemetry-notify-state-${{ github.ref_name }}-${{ github.run_id }}
+
       - name: Upload telemetry artifacts
         uses: actions/upload-artifact@v4
         with:

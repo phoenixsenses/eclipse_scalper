@@ -17,10 +17,17 @@ class TelemetryWorkflowFlagsTests(unittest.TestCase):
         wf = PKG / ".github" / "workflows" / "telemetry-dashboard.yml"
         text = wf.read_text(encoding="utf-8")
         required = [
+            "RECOVERY_RED_LOCK_CRITICAL_STREAK",
             "--reconcile-first-gate-critical-threshold",
             "--reconcile-first-gate-severity-threshold",
             "--reconcile-first-gate-severity-streak-threshold",
             "--recovery-red-lock-critical-streak",
+            "Restore notifier state cache",
+            "actions/cache/restore@v4",
+            "Save notifier state cache",
+            "actions/cache/save@v4",
+            "Inspect notifier state",
+            "recovery_red_lock_streak",
         ]
         for flag in required:
             self.assertIn(flag, text, f"missing required workflow flag: {flag}")
