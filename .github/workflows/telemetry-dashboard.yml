@@ -30,7 +30,17 @@ jobs:
           python - <<'PY'
           from pathlib import Path
 
-          src = Path("requirements.txt").read_text(encoding="utf-8").splitlines()
+          raw = Path("requirements.txt").read_bytes()
+          text = None
+          for enc in ("utf-8-sig", "utf-16", "latin-1"):
+              try:
+                  text = raw.decode(enc)
+                  break
+              except Exception:
+                  continue
+          if text is None:
+              raise RuntimeError("unable to decode requirements.txt")
+          src = text.splitlines()
           skip_names = {"pywin32", "pypiwin32", "comtypes"}
           out = []
           for line in src:
