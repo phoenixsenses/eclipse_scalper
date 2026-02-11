@@ -10,6 +10,10 @@ on:
         description: "Inject a synthetic RED_LOCK belief-state event for notifier smoke testing"
         required: false
         default: "false"
+      simulate_recovery_stage_override:
+        description: "Inject this guard_recovery_stage value (e.g. POST_RED_WARMUP) for reset-path smoke tests"
+        required: false
+        default: ""
       simulate_red_lock_seed_streak:
         description: "Optional prior RED_LOCK streak seed (e.g. 1 with threshold=2 to force critical)"
         required: false
@@ -40,9 +44,19 @@ jobs:
           restore-keys: |
             telemetry-notify-state-${{ github.ref_name }}-
 
-      - name: Seed notifier state for RED_LOCK smoke
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.simulate_red_lock_event == 'true' && github.event.inputs.simulate_red_lock_seed_streak != '0' }}
+      - name: Seed notifier state for recovery smoke
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
+          SHOULD_SEED=false
+          if [ "${{ github.event.inputs.simulate_red_lock_seed_streak }}" != "0" ]; then
+            if [ "${{ github.event.inputs.simulate_red_lock_event }}" = "true" ] || [ -n "${{ github.event.inputs.simulate_recovery_stage_override }}" ]; then
+              SHOULD_SEED=true
+            fi
+          fi
+          if [ "$SHOULD_SEED" != "true" ]; then
+            echo "seed skipped"
+            exit 0
+          fi
           python - <<'PY'
           import json
           from pathlib import Path
@@ -77,26 +91,35 @@ jobs:
             --output logs/reliability_gate.txt \
             --allow-missing
 
-      - name: Inject RED_LOCK belief-state smoke event
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.simulate_red_lock_event == 'true' }}
+      - name: Inject recovery-stage smoke event
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
+          STAGE="${{ github.event.inputs.simulate_recovery_stage_override }}"
+          if [ -z "$STAGE" ] && [ "${{ github.event.inputs.simulate_red_lock_event }}" = "true" ]; then
+            STAGE="RED_LOCK"
+          fi
+          if [ -z "$STAGE" ]; then
+            echo "recovery-stage smoke skipped"
+            exit 0
+          fi
           python - <<'PY'
           import json, time
           from pathlib import Path
+          stage = "${STAGE}"
           p = Path("logs/telemetry.jsonl")
           payload = {
             "event": "execution.belief_state",
             "ts": float(time.time()),
             "data": {
-              "guard_recovery_stage": "RED_LOCK",
-              "guard_unlock_conditions": "smoke: injected RED_LOCK event",
+              "guard_recovery_stage": stage,
+              "guard_unlock_conditions": f"smoke: injected {stage} event",
               "guard_next_unlock_sec": 300.0,
             },
           }
           p.parent.mkdir(parents=True, exist_ok=True)
           with p.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps(payload, ensure_ascii=True) + "\n")
-          print("injected RED_LOCK belief-state smoke event")
+          print(f"injected {stage} belief-state smoke event")
           PY
 
       - name: Run telemetry dashboard notifier
