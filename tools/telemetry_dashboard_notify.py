@@ -225,6 +225,32 @@ def _belief_state_snippet(path: Path) -> str:
     )
 
 
+def _recovery_stage_snippet(path: Path, *, limit: int = 3) -> tuple[str, str]:
+    events = _load_jsonl(path)
+    stage_counts: dict[str, int] = {}
+    latest_stage = ""
+    latest_unlock = ""
+    for ev in events:
+        if str(ev.get("event") or "") != "execution.belief_state":
+            continue
+        data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+        stage = str(data.get("guard_recovery_stage") or "").strip().upper()
+        if stage:
+            stage_counts[stage] = int(stage_counts.get(stage, 0)) + 1
+            latest_stage = stage
+            latest_unlock = str(data.get("guard_unlock_conditions") or "").strip()
+    if not stage_counts:
+        return "", ""
+    top = sorted(stage_counts.items(), key=lambda kv: kv[1], reverse=True)[: max(1, int(limit))]
+    parts = [f"{k}:{v}" for k, v in top]
+    line = "Recovery stages: " + ", ".join(parts)
+    if latest_stage:
+        line += f" (latest={latest_stage})"
+    if latest_unlock:
+        line += f"\n- unlock={latest_unlock}"
+    return line, latest_stage
+
+
 def _reconcile_first_gate_snippet(
     path: Path, *, limit: int = 3, severity_threshold: float = 1.01
 ) -> tuple[str, int, float, int]:
@@ -564,6 +590,7 @@ def main(argv=None) -> int:
     if notifier and stdout:
         header = f"Telemetry snapshot: {telemetry_path.name}"
         belief = _belief_state_snippet(telemetry_path)
+        recovery_stage, recovery_latest = _recovery_stage_snippet(telemetry_path)
         reconcile_gate, reconcile_gate_count, reconcile_gate_max_severity, reconcile_gate_max_streak = _reconcile_first_gate_snippet(
             telemetry_path,
             severity_threshold=max(0.0, float(args.reconcile_first_gate_severity_threshold)),
@@ -595,6 +622,8 @@ def main(argv=None) -> int:
         merged = stdout
         if belief:
             merged = f"{merged}\n\n{belief}"
+        if recovery_stage:
+            merged = f"{merged}\n\n{recovery_stage}"
         if reconcile_gate:
             merged = f"{merged}\n\n{reconcile_gate}"
         if entry_budget:
@@ -630,6 +659,7 @@ def main(argv=None) -> int:
             "reconcile_gate_count": int(reconcile_gate_count),
             "reconcile_gate_max_severity": float(reconcile_gate_max_severity),
             "reconcile_gate_max_streak": int(reconcile_gate_max_streak),
+            "recovery_stage_latest": str(recovery_latest or ""),
             "entry_budget_depleted": int(entry_budget_depleted),
             "replace_envelope_count": int(replace_envelope_count),
         }

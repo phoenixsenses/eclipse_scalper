@@ -105,6 +105,26 @@ class TelemetryDashboardNotifyTests(unittest.TestCase):
             self.assertIn("top severity symbols:", snippet)
             self.assertIn("ETHUSDT: 0.85", snippet)
 
+    def test_recovery_stage_snippet(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "telemetry.jsonl"
+            p.write_text(
+                "\n".join(
+                    [
+                        '{"event":"execution.belief_state","data":{"guard_recovery_stage":"RED_LOCK","guard_unlock_conditions":"wait stability window"}}',
+                        '{"event":"execution.belief_state","data":{"guard_recovery_stage":"POST_RED_WARMUP","guard_unlock_conditions":"post-red warmup remaining 120s"}}',
+                        '{"event":"execution.belief_state","data":{"guard_recovery_stage":"POST_RED_WARMUP","guard_unlock_conditions":"post-red warmup remaining 90s"}}',
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            snippet, latest = tdn._recovery_stage_snippet(p)
+            self.assertIn("Recovery stages:", snippet)
+            self.assertIn("POST_RED_WARMUP:2", snippet)
+            self.assertIn("latest=POST_RED_WARMUP", snippet)
+            self.assertEqual(latest, "POST_RED_WARMUP")
+
     def test_entry_budget_pressure_snippet(self):
         with tempfile.TemporaryDirectory() as td:
             p = Path(td) / "telemetry.jsonl"
