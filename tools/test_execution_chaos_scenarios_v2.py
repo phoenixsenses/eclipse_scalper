@@ -499,6 +499,32 @@ class ChaosScenariosV2Tests(unittest.TestCase):
             self.assertTrue(bool(k2.get("allow_entries", False)))
             self.assertIn("runtime_gate_warmup", str(k2.get("reason") or ""))
 
+    def test_reconcile_emits_posture_transition_audit_event(self):
+        with tempfile.TemporaryDirectory() as td:
+            tele_path = Path(td) / "telemetry.jsonl"
+            ex = _RestartExchange(positions=[], orders=[], trades=[])
+            bot = _DummyBot(ex)
+            bot.cfg.TELEMETRY_PATH = str(tele_path)
+            bot.cfg.BELIEF_RED_SCORE = 0.01
+            bot.cfg.BELIEF_ORANGE_SCORE = 0.005
+            bot.cfg.BELIEF_YELLOW_SCORE = 0.001
+            bot.cfg.BELIEF_RED_GROWTH = 99.0
+            bot.cfg.BELIEF_ORANGE_GROWTH = 99.0
+            bot.cfg.BELIEF_YELLOW_GROWTH = 99.0
+            bot.cfg.BELIEF_MODE_PERSIST_SEC = 0.0
+            bot.state.positions = {
+                "BTCUSDT": types.SimpleNamespace(side="long", size=1.0, entry_price=100.0, atr=0.0),
+            }
+
+            asyncio.run(reconcile.reconcile_tick(bot))
+            self.assertTrue(tele_path.exists())
+            events = [json.loads(line) for line in tele_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            transitions = [ev for ev in events if str(ev.get("event") or "") == "execution.posture_transition"]
+            self.assertTrue(transitions)
+            data = dict((transitions[-1].get("data") or {}))
+            self.assertTrue(str(data.get("transition") or "").strip())
+            self.assertTrue(str(data.get("new_mode") or "").strip())
+
 
 if __name__ == "__main__":
     unittest.main()

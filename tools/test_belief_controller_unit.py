@@ -795,6 +795,74 @@ class BeliefControllerTests(unittest.TestCase):
         self.assertEqual(str(getattr(k2, "recovery_stage", "")), "RUNTIME_GATE_WARMUP")
         self.assertLessEqual(float(k2.max_notional_usdt), 50.0)
 
+    def test_transition_trace_includes_dominant_cause_tags(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=100.0,
+            BELIEF_SYMBOL_WEIGHT=0.0,
+            BELIEF_STREAK_WEIGHT=0.0,
+            BELIEF_YELLOW_SCORE=0.2,
+            BELIEF_ORANGE_SCORE=0.4,
+            BELIEF_RED_SCORE=0.6,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=99.0,
+            BELIEF_RED_GROWTH=99.0,
+            BELIEF_MODE_PERSIST_SEC=0.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_RUNTIME_GATE_WEIGHT=0.2,
+            BELIEF_RUNTIME_GATE_CAT_POSITION_WEIGHT=1.0,
+            BELIEF_RUNTIME_GATE_CAT_REPLACE_RACE_WEIGHT=1.0,
+            BELIEF_RUNTIME_GATE_CRITICAL_WEIGHT=0.5,
+        )
+        clock = _Clock(1.0)
+        ctl = BeliefController(clock=clock.now)
+        ctl.update(
+            {
+                "belief_debt_sec": 100.0,
+                "runtime_gate_cat_position": 2,
+                "runtime_gate_cat_replace_race": 1,
+            },
+            cfg,
+        )
+        trace = ctl.explain().to_dict()
+        self.assertIn("mode_transition", str(trace.get("cause_tags", "")))
+        self.assertIn("position", str(trace.get("dominant_contributors", "")))
+
+    def test_unlock_conditions_snapshot_contains_tick_coverage_and_contradiction(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_SYMBOL_WEIGHT=0.0,
+            BELIEF_STREAK_WEIGHT=0.0,
+            BELIEF_YELLOW_SCORE=99.0,
+            BELIEF_ORANGE_SCORE=199.0,
+            BELIEF_RED_SCORE=299.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=99.0,
+            BELIEF_RED_GROWTH=99.0,
+            BELIEF_UNLOCK_HEALTHY_TICKS_REQUIRED=3,
+            BELIEF_UNLOCK_MIN_JOURNAL_COVERAGE=0.95,
+            BELIEF_UNLOCK_CONTRADICTION_CLEAR_SEC=60,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+        k = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "runtime_gate_journal_coverage_ratio": 0.80,
+                "runtime_gate_cat_contradiction": 1,
+                "evidence_contradiction_score": 1.0,
+            },
+            cfg,
+        )
+        msg = str(getattr(k, "unlock_conditions", ""))
+        self.assertIn("healthy_ticks", msg)
+        self.assertIn("journal_coverage", msg)
+        self.assertIn("contradiction_clear", msg)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -6,6 +6,7 @@
 # - ✅ Keeps: orphan adoption, hedge-aware ex_map, optional imports, router-integrated stop ladder
 
 import asyncio
+import os
 import time
 from types import SimpleNamespace
 from typing import Dict, Any, Optional, Tuple, List
@@ -112,6 +113,18 @@ def _truthy(x) -> bool:
     if isinstance(x, str) and x.strip().lower() in ("true", "1", "yes", "y", "t", "on"):
         return True
     return False
+
+
+def _runtime_reliability_coupling_enabled(bot) -> bool:
+    # Default-on so existing safety posture remains unchanged unless explicitly disabled.
+    env_raw = str(os.getenv("RUNTIME_RELIABILITY_COUPLING", "") or "").strip().lower()
+    if env_raw:
+        return env_raw in ("1", "true", "yes", "on")
+    try:
+        raw = str(getattr(getattr(bot, "cfg", None), "RUNTIME_RELIABILITY_COUPLING", "1") or "").strip().lower()
+    except Exception:
+        raw = "1"
+    return raw in ("1", "true", "yes", "on")
 
 
 def _cfg(bot, name: str, default):
@@ -1573,13 +1586,15 @@ async def reconcile_tick(bot):
         "journal_coverage_ratio": 1.0,
         "path": "",
     }
-    if callable(_runtime_reliability_gate):
+    if _runtime_reliability_coupling_enabled(bot) and callable(_runtime_reliability_gate):
         try:
             got_gate = _runtime_reliability_gate(getattr(bot, "cfg", None))
             if isinstance(got_gate, dict):
                 gate.update(got_gate)
         except Exception:
             pass
+    elif not _runtime_reliability_coupling_enabled(bot):
+        gate["reason"] = "runtime_reliability_coupling_disabled"
     metrics["runtime_gate_available"] = bool(gate.get("available", False))
     metrics["runtime_gate_degraded"] = bool(gate.get("degraded", False))
     metrics["runtime_gate_reason"] = str(gate.get("reason", "") or "")
@@ -1661,6 +1676,13 @@ async def reconcile_tick(bot):
 
     belief_trace = {}
     guard_knobs = None
+    prev_guard_mode = ""
+    try:
+        prev_guard = getattr(getattr(bot, "state", None), "guard_knobs", None)
+        if isinstance(prev_guard, dict):
+            prev_guard_mode = str(prev_guard.get("mode", "") or "").upper()
+    except Exception:
+        prev_guard_mode = ""
     ctl = _ensure_belief_controller(bot)
     if ctl is not None:
         try:
@@ -1731,6 +1753,34 @@ async def reconcile_tick(bot):
             )
             trace = ctl.explain()
             belief_trace = trace.to_dict() if hasattr(trace, "to_dict") else {"mode": str(getattr(trace, "mode", ""))}
+            transition_label = str(belief_trace.get("transition", "") or "").strip()
+            if transition_label and callable(_tel_emit):
+                try:
+                    new_mode = str(getattr(guard_knobs, "mode", "") or "").upper()
+                    from_mode = prev_guard_mode
+                    if "->" in transition_label:
+                        from_mode = str(transition_label.split("->", 1)[0] or "").strip().upper() or from_mode
+                        new_mode = str(transition_label.split("->", 1)[1] or "").strip().upper() or new_mode
+                    await _tel_emit(
+                        bot,
+                        "execution.posture_transition",
+                        data={
+                            "previous_mode": str(from_mode),
+                            "new_mode": str(new_mode),
+                            "transition": str(transition_label),
+                            "cause_tags": str(belief_trace.get("cause_tags", "") or ""),
+                            "dominant_contributors": str(
+                                belief_trace.get("dominant_contributors", "") or ""
+                            ),
+                            "unlock_requirements": str(
+                                belief_trace.get("unlock_requirements", "") or ""
+                            ),
+                            "reason": str(belief_trace.get("reason", "") or ""),
+                        },
+                        level="warning",
+                    )
+                except Exception:
+                    pass
             try:
                 if hasattr(bot, "state"):
                     bot.state.guard_knobs = (guard_knobs.to_dict() if hasattr(guard_knobs, "to_dict") else dict(guard_knobs))

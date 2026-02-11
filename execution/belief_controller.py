@@ -38,6 +38,9 @@ class DecisionTrace:
     debt_growth_per_min: float
     reason: str
     transition: str = ""
+    cause_tags: str = ""
+    dominant_contributors: str = ""
+    unlock_requirements: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -46,6 +49,9 @@ class DecisionTrace:
             "debt_growth_per_min": float(self.debt_growth_per_min),
             "reason": self.reason,
             "transition": self.transition,
+            "cause_tags": self.cause_tags,
+            "dominant_contributors": self.dominant_contributors,
+            "unlock_requirements": self.unlock_requirements,
         }
 
 
@@ -68,6 +74,80 @@ class BeliefController:
         self._runtime_gate_recover_until = 0.0
         self._runtime_gate_critical_hold_until = 0.0
         self._post_red_warmup_until = 0.0
+        self._healthy_ticks = 0
+        self._last_contradiction_ts = 0.0
+
+    def _compute_mode_target(
+        self,
+        *,
+        debt_score: float,
+        debt_growth_per_min: float,
+        yellow_t: float,
+        orange_t: float,
+        red_t: float,
+        yellow_g: float,
+        orange_g: float,
+        red_g: float,
+    ) -> tuple[str, str]:
+        if debt_score >= red_t or debt_growth_per_min >= red_g:
+            return "RED", "red threshold"
+        if debt_score >= orange_t or debt_growth_per_min >= orange_g:
+            return "ORANGE", "orange threshold"
+        if debt_score >= yellow_t or debt_growth_per_min >= yellow_g:
+            return "YELLOW", "yellow threshold"
+        return "GREEN", "stable"
+
+    def _apply_mode_transition(
+        self,
+        *,
+        now: float,
+        target: str,
+        debt_score: float,
+        yellow_t: float,
+        orange_t: float,
+        red_t: float,
+        persist_sec: float,
+        recover_sec: float,
+        down_hyst: float,
+        post_red_warmup_sec: float,
+    ) -> str:
+        transition = ""
+        current_idx = self._MODES.index(self.mode)
+        target_idx = self._MODES.index(target)
+        if target_idx > current_idx:
+            key = f"up:{target}"
+            since = self._up_since.get(key, now)
+            if key not in self._up_since:
+                self._up_since[key] = now
+            if target == "RED" or (now - since) >= persist_sec:
+                self.mode = target
+                self.mode_since = now
+                self._up_since.clear()
+                self._down_since.clear()
+                transition = f"{self._MODES[current_idx]}->{self.mode}"
+        elif target_idx < current_idx:
+            down_target = self._MODES[current_idx - 1]
+            threshold = {
+                "YELLOW": yellow_t * down_hyst,
+                "ORANGE": orange_t * down_hyst,
+                "RED": red_t * down_hyst,
+            }.get(self.mode, yellow_t * down_hyst)
+            if debt_score <= threshold:
+                key = f"down:{down_target}"
+                since = self._down_since.get(key, now)
+                if key not in self._down_since:
+                    self._down_since[key] = now
+                if (now - since) >= recover_sec:
+                    prev = self.mode
+                    self.mode = down_target
+                    self.mode_since = now
+                    self._down_since.clear()
+                    transition = f"{prev}->{self.mode}"
+                    if prev == "RED":
+                        self._post_red_warmup_until = float(now + post_red_warmup_sec)
+            else:
+                self._down_since.clear()
+        return transition
 
     def explain(self) -> DecisionTrace:
         if self._last_trace is not None:
@@ -267,59 +347,29 @@ class BeliefController:
         recover_sec = self._cfg(cfg, "BELIEF_MODE_RECOVER_SEC", 90.0)
         down_hyst = _clamp(self._cfg(cfg, "BELIEF_DOWN_HYST", 0.75), 0.4, 0.99)
 
-        target = "GREEN"
-        reason = "stable"
-        if debt_score >= red_t or debt_growth_per_min >= red_g:
-            target = "RED"
-            reason = "red threshold"
-        elif debt_score >= orange_t or debt_growth_per_min >= orange_g:
-            target = "ORANGE"
-            reason = "orange threshold"
-        elif debt_score >= yellow_t or debt_growth_per_min >= yellow_g:
-            target = "YELLOW"
-            reason = "yellow threshold"
-
-        transition = ""
-        current_idx = self._MODES.index(self.mode)
-        target_idx = self._MODES.index(target)
-        if target_idx > current_idx:
-            key = f"up:{target}"
-            since = self._up_since.get(key, now)
-            if key not in self._up_since:
-                self._up_since[key] = now
-            # RED moves immediately on threshold breach; others require persistence.
-            if target == "RED" or (now - since) >= persist_sec:
-                self.mode = target
-                self.mode_since = now
-                self._up_since.clear()
-                self._down_since.clear()
-                transition = f"{self._MODES[current_idx]}->{self.mode}"
-        elif target_idx < current_idx:
-            # Downgrade only after sustained stability below hysteresis thresholds.
-            down_target = self._MODES[current_idx - 1]
-            threshold = {
-                "YELLOW": yellow_t * down_hyst,
-                "ORANGE": orange_t * down_hyst,
-                "RED": red_t * down_hyst,
-            }.get(self.mode, yellow_t * down_hyst)
-            if debt_score <= threshold:
-                key = f"down:{down_target}"
-                since = self._down_since.get(key, now)
-                if key not in self._down_since:
-                    self._down_since[key] = now
-                if (now - since) >= recover_sec:
-                    prev = self.mode
-                    self.mode = down_target
-                    self.mode_since = now
-                    self._down_since.clear()
-                    transition = f"{prev}->{self.mode}"
-                    if prev == "RED":
-                        post_red_warmup_sec = max(
-                            0.0, self._cfg(cfg, "BELIEF_POST_RED_WARMUP_SEC", 180.0)
-                        )
-                        self._post_red_warmup_until = float(now + post_red_warmup_sec)
-            else:
-                self._down_since.clear()
+        target, reason = self._compute_mode_target(
+            debt_score=debt_score,
+            debt_growth_per_min=debt_growth_per_min,
+            yellow_t=yellow_t,
+            orange_t=orange_t,
+            red_t=red_t,
+            yellow_g=yellow_g,
+            orange_g=orange_g,
+            red_g=red_g,
+        )
+        post_red_warmup_sec = max(0.0, self._cfg(cfg, "BELIEF_POST_RED_WARMUP_SEC", 180.0))
+        transition = self._apply_mode_transition(
+            now=now,
+            target=target,
+            debt_score=debt_score,
+            yellow_t=yellow_t,
+            orange_t=orange_t,
+            red_t=red_t,
+            persist_sec=persist_sec,
+            recover_sec=recover_sec,
+            down_hyst=down_hyst,
+            post_red_warmup_sec=post_red_warmup_sec,
+        )
 
         # Monotone risk mapping.
         slope = _clamp(self._cfg(cfg, "BELIEF_RISK_SLOPE", 0.35), 0.05, 1.5)
@@ -563,6 +613,53 @@ class BeliefController:
                 ).strip()
             reason = f"{reason} | post_red_warmup={rem:.0f}s"
 
+        contradiction_active = bool(
+            float(runtime_gate_cat_contradiction) > 0.0
+            or float(evidence_contradiction_score) > 0.0
+            or float(evidence_contradiction_streak) > 0.0
+        )
+        if contradiction_active:
+            self._last_contradiction_ts = float(now)
+        unlock_min_cov = _clamp(self._cfg(cfg, "BELIEF_UNLOCK_MIN_JOURNAL_COVERAGE", 0.90), 0.0, 1.0)
+        unlock_contrad_sec = max(0.0, self._cfg(cfg, "BELIEF_UNLOCK_CONTRADICTION_CLEAR_SEC", 60.0))
+        unlock_healthy_ticks_required = max(1, int(self._cfg(cfg, "BELIEF_UNLOCK_HEALTHY_TICKS_REQUIRED", 3.0)))
+        is_healthy_tick = bool(
+            (not runtime_gate_effective_degraded)
+            and (not reconcile_first_spike_degraded)
+            and (float(runtime_gate_cov) >= float(unlock_min_cov))
+            and (not contradiction_active)
+        )
+        if is_healthy_tick:
+            self._healthy_ticks += 1
+        else:
+            self._healthy_ticks = 0
+        contradiction_clear_sec = (
+            float(now - self._last_contradiction_ts) if float(self._last_contradiction_ts) > 0.0 else float(unlock_contrad_sec)
+        )
+        unlock_needs: list[str] = []
+        if int(self._healthy_ticks) < int(unlock_healthy_ticks_required):
+            unlock_needs.append(f"healthy_ticks {int(self._healthy_ticks)}/{int(unlock_healthy_ticks_required)}")
+        if float(runtime_gate_cov) < float(unlock_min_cov):
+            unlock_needs.append(f"journal_coverage {float(runtime_gate_cov):.3f}/{float(unlock_min_cov):.3f}")
+        if float(contradiction_clear_sec) < float(unlock_contrad_sec):
+            unlock_needs.append(
+                f"contradiction_clear {float(contradiction_clear_sec):.0f}s/{float(unlock_contrad_sec):.0f}s"
+            )
+        unlock_requirements = "; ".join(unlock_needs) if unlock_needs else "stable"
+        cause_tags: list[str] = []
+        if runtime_gate_effective_degraded:
+            cause_tags.append("runtime_gate")
+        if critical_trip or critical_hold_active:
+            cause_tags.append("runtime_gate_critical")
+        if reconcile_first_spike_degraded:
+            cause_tags.append("reconcile_first_spike")
+        if contradiction_active:
+            cause_tags.append("evidence_contradiction")
+        if float(runtime_gate_mismatch_count) > 0.0:
+            cause_tags.append("replay_mismatch")
+        if transition:
+            cause_tags.append("mode_transition")
+
         recovery_stage = ""
         unlock_conditions = "stable"
         next_unlock_sec = 0.0
@@ -604,6 +701,11 @@ class BeliefController:
             unlock_conditions = "maintain low debt and stable evidence to return GREEN"
         else:
             recovery_stage = "GREEN"
+        if unlock_requirements != "stable":
+            if unlock_conditions == "stable":
+                unlock_conditions = unlock_requirements
+            elif unlock_requirements not in unlock_conditions:
+                unlock_conditions = f"{unlock_conditions}; {unlock_requirements}"
 
         trace = DecisionTrace(
             mode=self.mode,
@@ -611,6 +713,9 @@ class BeliefController:
             debt_growth_per_min=float(debt_growth_per_min),
             reason=reason,
             transition=transition,
+            cause_tags=",".join(cause_tags),
+            dominant_contributors=str(gate_top),
+            unlock_requirements=str(unlock_requirements),
         )
         self._last_trace = trace
         return GuardKnobs(
