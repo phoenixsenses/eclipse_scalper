@@ -264,7 +264,18 @@ def _ensure_reconcile_metrics(bot) -> Dict[str, Any]:
     rm.setdefault("evidence_ws_score", 1.0)
     rm.setdefault("evidence_rest_score", 1.0)
     rm.setdefault("evidence_fill_score", 1.0)
+    rm.setdefault("evidence_ws_last_seen_ts", 0.0)
+    rm.setdefault("evidence_rest_last_seen_ts", 0.0)
+    rm.setdefault("evidence_fill_last_seen_ts", 0.0)
+    rm.setdefault("evidence_ws_gap_rate", 0.0)
+    rm.setdefault("evidence_rest_gap_rate", 0.0)
+    rm.setdefault("evidence_fill_gap_rate", 0.0)
+    rm.setdefault("evidence_ws_error_rate", 0.0)
+    rm.setdefault("evidence_rest_error_rate", 0.0)
+    rm.setdefault("evidence_fill_error_rate", 0.0)
+    rm.setdefault("evidence_contradiction_count", 0)
     rm.setdefault("evidence_degraded_sources", 0)
+    rm.setdefault("evidence_contradiction_burn_rate", 0.0)
     rm.setdefault("intent_unknown_count", 0)
     rm.setdefault("intent_unknown_oldest_sec", 0.0)
     rm.setdefault("intent_unknown_mean_resolve_sec", 0.0)
@@ -1542,8 +1553,19 @@ async def reconcile_tick(bot):
         "evidence_ws_score": 1.0,
         "evidence_rest_score": 1.0,
         "evidence_fill_score": 1.0,
+        "evidence_ws_last_seen_ts": 0.0,
+        "evidence_rest_last_seen_ts": 0.0,
+        "evidence_fill_last_seen_ts": 0.0,
+        "evidence_ws_gap_rate": 0.0,
+        "evidence_rest_gap_rate": 0.0,
+        "evidence_fill_gap_rate": 0.0,
+        "evidence_ws_error_rate": 0.0,
+        "evidence_rest_error_rate": 0.0,
+        "evidence_fill_error_rate": 0.0,
         "evidence_contradiction_score": 0.0,
+        "evidence_contradiction_count": 0,
         "evidence_contradiction_streak": 0,
+        "evidence_contradiction_burn_rate": 0.0,
         "evidence_degraded_sources": 0,
     }
     if callable(_compute_belief_evidence):
@@ -1557,8 +1579,21 @@ async def reconcile_tick(bot):
     metrics["evidence_ws_score"] = float(_safe_float(evidence.get("evidence_ws_score", 1.0), 1.0))
     metrics["evidence_rest_score"] = float(_safe_float(evidence.get("evidence_rest_score", 1.0), 1.0))
     metrics["evidence_fill_score"] = float(_safe_float(evidence.get("evidence_fill_score", 1.0), 1.0))
+    metrics["evidence_ws_last_seen_ts"] = float(_safe_float(evidence.get("evidence_ws_last_seen_ts", 0.0), 0.0))
+    metrics["evidence_rest_last_seen_ts"] = float(_safe_float(evidence.get("evidence_rest_last_seen_ts", 0.0), 0.0))
+    metrics["evidence_fill_last_seen_ts"] = float(_safe_float(evidence.get("evidence_fill_last_seen_ts", 0.0), 0.0))
+    metrics["evidence_ws_gap_rate"] = float(_safe_float(evidence.get("evidence_ws_gap_rate", 0.0), 0.0))
+    metrics["evidence_rest_gap_rate"] = float(_safe_float(evidence.get("evidence_rest_gap_rate", 0.0), 0.0))
+    metrics["evidence_fill_gap_rate"] = float(_safe_float(evidence.get("evidence_fill_gap_rate", 0.0), 0.0))
+    metrics["evidence_ws_error_rate"] = float(_safe_float(evidence.get("evidence_ws_error_rate", 0.0), 0.0))
+    metrics["evidence_rest_error_rate"] = float(_safe_float(evidence.get("evidence_rest_error_rate", 0.0), 0.0))
+    metrics["evidence_fill_error_rate"] = float(_safe_float(evidence.get("evidence_fill_error_rate", 0.0), 0.0))
     metrics["evidence_contradiction_score"] = float(_safe_float(evidence.get("evidence_contradiction_score", 0.0), 0.0))
+    metrics["evidence_contradiction_count"] = int(_safe_float(evidence.get("evidence_contradiction_count", 0), 0.0))
     metrics["evidence_contradiction_streak"] = int(_safe_float(evidence.get("evidence_contradiction_streak", 0), 0.0))
+    metrics["evidence_contradiction_burn_rate"] = float(
+        _safe_float(evidence.get("evidence_contradiction_burn_rate", 0.0), 0.0)
+    )
     metrics["evidence_degraded_sources"] = int(_safe_float(evidence.get("evidence_degraded_sources", 0), 0.0))
     intent_stats = {
         "intent_unknown_count": 0,
@@ -1658,7 +1693,11 @@ async def reconcile_tick(bot):
     metrics["last_summary"]["belief_confidence"] = float(conf)
     metrics["last_summary"]["evidence_confidence"] = float(metrics["evidence_confidence"])
     metrics["last_summary"]["evidence_contradiction_score"] = float(metrics["evidence_contradiction_score"])
+    metrics["last_summary"]["evidence_contradiction_count"] = int(metrics["evidence_contradiction_count"])
     metrics["last_summary"]["evidence_contradiction_streak"] = int(metrics["evidence_contradiction_streak"])
+    metrics["last_summary"]["evidence_contradiction_burn_rate"] = float(
+        metrics["evidence_contradiction_burn_rate"]
+    )
     metrics["last_summary"]["evidence_degraded_sources"] = int(metrics["evidence_degraded_sources"])
     metrics["last_summary"]["intent_unknown_count"] = int(metrics["intent_unknown_count"])
     km = getattr(getattr(bot, "state", None), "kill_metrics", None)
@@ -1694,6 +1733,21 @@ async def reconcile_tick(bot):
                     "mismatch_streak": int(metrics.get("mismatch_streak", 0) or 0),
                     "evidence_confidence": float(metrics.get("evidence_confidence", 1.0) or 1.0),
                     "evidence_degraded_sources": int(metrics.get("evidence_degraded_sources", 0) or 0),
+                    "evidence_ws_score": float(metrics.get("evidence_ws_score", 1.0) or 1.0),
+                    "evidence_rest_score": float(metrics.get("evidence_rest_score", 1.0) or 1.0),
+                    "evidence_fill_score": float(metrics.get("evidence_fill_score", 1.0) or 1.0),
+                    "evidence_ws_gap_rate": float(metrics.get("evidence_ws_gap_rate", 0.0) or 0.0),
+                    "evidence_rest_gap_rate": float(metrics.get("evidence_rest_gap_rate", 0.0) or 0.0),
+                    "evidence_fill_gap_rate": float(metrics.get("evidence_fill_gap_rate", 0.0) or 0.0),
+                    "evidence_ws_error_rate": float(metrics.get("evidence_ws_error_rate", 0.0) or 0.0),
+                    "evidence_rest_error_rate": float(metrics.get("evidence_rest_error_rate", 0.0) or 0.0),
+                    "evidence_fill_error_rate": float(metrics.get("evidence_fill_error_rate", 0.0) or 0.0),
+                    "evidence_contradiction_score": float(metrics.get("evidence_contradiction_score", 0.0) or 0.0),
+                    "evidence_contradiction_count": int(metrics.get("evidence_contradiction_count", 0) or 0),
+                    "evidence_contradiction_streak": int(metrics.get("evidence_contradiction_streak", 0) or 0),
+                    "evidence_contradiction_burn_rate": float(
+                        metrics.get("evidence_contradiction_burn_rate", 0.0) or 0.0
+                    ),
                     "runtime_gate_degraded": bool(metrics.get("runtime_gate_degraded", False)),
                     "runtime_gate_reason": str(metrics.get("runtime_gate_reason", "") or ""),
                     "runtime_gate_replay_mismatch_count": int(metrics.get("runtime_gate_replay_mismatch_count", 0) or 0),
@@ -1817,7 +1871,20 @@ async def reconcile_tick(bot):
                     "evidence_ws_score": float(metrics.get("evidence_ws_score", 1.0) or 1.0),
                     "evidence_rest_score": float(metrics.get("evidence_rest_score", 1.0) or 1.0),
                     "evidence_fill_score": float(metrics.get("evidence_fill_score", 1.0) or 1.0),
+                    "evidence_ws_last_seen_ts": float(metrics.get("evidence_ws_last_seen_ts", 0.0) or 0.0),
+                    "evidence_rest_last_seen_ts": float(metrics.get("evidence_rest_last_seen_ts", 0.0) or 0.0),
+                    "evidence_fill_last_seen_ts": float(metrics.get("evidence_fill_last_seen_ts", 0.0) or 0.0),
+                    "evidence_ws_gap_rate": float(metrics.get("evidence_ws_gap_rate", 0.0) or 0.0),
+                    "evidence_rest_gap_rate": float(metrics.get("evidence_rest_gap_rate", 0.0) or 0.0),
+                    "evidence_fill_gap_rate": float(metrics.get("evidence_fill_gap_rate", 0.0) or 0.0),
+                    "evidence_ws_error_rate": float(metrics.get("evidence_ws_error_rate", 0.0) or 0.0),
+                    "evidence_rest_error_rate": float(metrics.get("evidence_rest_error_rate", 0.0) or 0.0),
+                    "evidence_fill_error_rate": float(metrics.get("evidence_fill_error_rate", 0.0) or 0.0),
+                    "evidence_contradiction_count": int(metrics.get("evidence_contradiction_count", 0) or 0),
                     "evidence_degraded_sources": int(metrics.get("evidence_degraded_sources", 0) or 0),
+                    "evidence_contradiction_burn_rate": float(
+                        metrics.get("evidence_contradiction_burn_rate", 0.0) or 0.0
+                    ),
                     "runtime_gate_available": bool(metrics.get("runtime_gate_available", False)),
                     "runtime_gate_degraded": bool(metrics.get("runtime_gate_degraded", False)),
                     "runtime_gate_reason": str(metrics.get("runtime_gate_reason", "") or ""),
@@ -1909,7 +1976,20 @@ async def reconcile_tick(bot):
                     "evidence_ws_score": float(metrics.get("evidence_ws_score", 1.0) or 1.0),
                     "evidence_rest_score": float(metrics.get("evidence_rest_score", 1.0) or 1.0),
                     "evidence_fill_score": float(metrics.get("evidence_fill_score", 1.0) or 1.0),
+                    "evidence_ws_last_seen_ts": float(metrics.get("evidence_ws_last_seen_ts", 0.0) or 0.0),
+                    "evidence_rest_last_seen_ts": float(metrics.get("evidence_rest_last_seen_ts", 0.0) or 0.0),
+                    "evidence_fill_last_seen_ts": float(metrics.get("evidence_fill_last_seen_ts", 0.0) or 0.0),
+                    "evidence_ws_gap_rate": float(metrics.get("evidence_ws_gap_rate", 0.0) or 0.0),
+                    "evidence_rest_gap_rate": float(metrics.get("evidence_rest_gap_rate", 0.0) or 0.0),
+                    "evidence_fill_gap_rate": float(metrics.get("evidence_fill_gap_rate", 0.0) or 0.0),
+                    "evidence_ws_error_rate": float(metrics.get("evidence_ws_error_rate", 0.0) or 0.0),
+                    "evidence_rest_error_rate": float(metrics.get("evidence_rest_error_rate", 0.0) or 0.0),
+                    "evidence_fill_error_rate": float(metrics.get("evidence_fill_error_rate", 0.0) or 0.0),
+                    "evidence_contradiction_count": int(metrics.get("evidence_contradiction_count", 0) or 0),
                     "evidence_degraded_sources": int(metrics.get("evidence_degraded_sources", 0) or 0),
+                    "evidence_contradiction_burn_rate": float(
+                        metrics.get("evidence_contradiction_burn_rate", 0.0) or 0.0
+                    ),
                     "runtime_gate_degraded": bool(metrics.get("runtime_gate_degraded", False)),
                     "runtime_gate_reason": str(metrics.get("runtime_gate_reason", "") or ""),
                     "runtime_gate_replay_mismatch_count": int(metrics.get("runtime_gate_replay_mismatch_count", 0) or 0),

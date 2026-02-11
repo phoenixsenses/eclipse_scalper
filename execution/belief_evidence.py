@@ -86,7 +86,9 @@ def compute_belief_evidence(bot, cfg: Any = None, *, now: Optional[float] = None
     fill_weight = max(0.0, _cfg(cfg, "BELIEF_FILL_WEIGHT", 0.20))
     contradiction_weight = max(0.0, _cfg(cfg, "BELIEF_CONTRADICTION_WEIGHT", 0.45))
     contradiction_streak_weight = max(0.0, _cfg(cfg, "BELIEF_CONTRADICTION_STREAK_WEIGHT", 0.12))
+    contradiction_burn_weight = max(0.0, _cfg(cfg, "BELIEF_CONTRADICTION_BURN_WEIGHT", 0.08))
     contradiction_severe_delta = max(0.0, _cfg(cfg, "BELIEF_CONTRADICTION_SEVERE_DELTA", 0.6))
+    contradiction_burn_ref = max(1.0, _cfg(cfg, "BELIEF_CONTRADICTION_BURN_REF", 3.0))
 
     ws_ts = _max_ts(
         [
@@ -139,17 +141,38 @@ def compute_belief_evidence(bot, cfg: Any = None, *, now: Optional[float] = None
         0.0,
     )
     contradiction_streak = max(0, int(_safe_float(rc.get("evidence_contradiction_streak"), 0.0)))
+    contradiction_count = max(0, int(_safe_float(rc.get("evidence_contradiction_count"), 0.0)))
+    contradiction_last_ts = _safe_float(rc.get("evidence_contradiction_last_ts"), 0.0)
+    contradiction_prev_ts = _safe_float(rc.get("evidence_contradiction_prev_ts"), 0.0)
+    contradiction_burn_rate = _safe_float(rc.get("evidence_contradiction_burn_rate"), 0.0)
     if contradiction_score >= contradiction_severe_delta:
         contradiction_streak += 1
+        contradiction_count += 1
+        contradiction_prev_ts = contradiction_last_ts
+        contradiction_last_ts = now_ts
+        if contradiction_prev_ts > 0.0 and contradiction_last_ts > contradiction_prev_ts:
+            dt = max(1e-6, contradiction_last_ts - contradiction_prev_ts)
+            contradiction_burn_rate = (60.0 / dt)
+        else:
+            contradiction_burn_rate = max(contradiction_burn_rate, 1.0)
     else:
         contradiction_streak = max(0, contradiction_streak - 1)
+        contradiction_burn_rate = max(0.0, contradiction_burn_rate * 0.6)
     try:
         rc["evidence_contradiction_score"] = float(contradiction_score)
         rc["evidence_contradiction_streak"] = int(contradiction_streak)
+        rc["evidence_contradiction_count"] = int(contradiction_count)
+        rc["evidence_contradiction_last_ts"] = float(contradiction_last_ts)
+        rc["evidence_contradiction_prev_ts"] = float(contradiction_prev_ts)
+        rc["evidence_contradiction_burn_rate"] = float(contradiction_burn_rate)
         rc["evidence_last_compute_ts"] = float(now_ts)
     except Exception:
         pass
-    confidence -= (contradiction_score * contradiction_weight) + (float(contradiction_streak) * contradiction_streak_weight)
+    confidence -= (
+        (contradiction_score * contradiction_weight)
+        + (float(contradiction_streak) * contradiction_streak_weight)
+        + ((min(1.0, contradiction_burn_rate / contradiction_burn_ref)) * contradiction_burn_weight)
+    )
     confidence = max(0.0, min(1.0, confidence))
 
     degraded = 0
@@ -164,13 +187,24 @@ def compute_belief_evidence(bot, cfg: Any = None, *, now: Optional[float] = None
 
     return {
         "evidence_confidence": float(confidence),
+        "evidence_ws_last_seen_ts": float(ws_ts),
+        "evidence_rest_last_seen_ts": float(rest_ts),
+        "evidence_fill_last_seen_ts": float(fill_ts),
         "evidence_ws_score": float(ws_score),
         "evidence_rest_score": float(rest_score),
         "evidence_fill_score": float(fill_score),
         "evidence_ws_age_sec": float(ws_age),
         "evidence_rest_age_sec": float(rest_age),
         "evidence_fill_age_sec": float(fill_age),
+        "evidence_ws_gap_rate": float(max(0.0, _safe_float(rc.get("ws_gap_rate"), 0.0))),
+        "evidence_rest_gap_rate": float(max(0.0, _safe_float(rc.get("rest_gap_rate"), 0.0))),
+        "evidence_fill_gap_rate": float(max(0.0, _safe_float(rc.get("fill_gap_rate"), 0.0))),
+        "evidence_ws_error_rate": float(max(0.0, _safe_float(rc.get("ws_error_rate"), 0.0))),
+        "evidence_rest_error_rate": float(max(0.0, _safe_float(rc.get("rest_error_rate"), 0.0))),
+        "evidence_fill_error_rate": float(max(0.0, _safe_float(rc.get("fill_error_rate"), 0.0))),
         "evidence_contradiction_score": float(contradiction_score),
+        "evidence_contradiction_count": int(contradiction_count),
         "evidence_contradiction_streak": int(contradiction_streak),
+        "evidence_contradiction_burn_rate": float(contradiction_burn_rate),
         "evidence_degraded_sources": int(degraded),
     }

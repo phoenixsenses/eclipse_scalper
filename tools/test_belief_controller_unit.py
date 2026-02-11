@@ -863,6 +863,63 @@ class BeliefControllerTests(unittest.TestCase):
         self.assertIn("journal_coverage", msg)
         self.assertIn("contradiction_clear", msg)
 
+    def test_contradiction_burn_rate_escalates_faster_than_staleness(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_SYMBOL_WEIGHT=0.0,
+            BELIEF_STREAK_WEIGHT=0.0,
+            BELIEF_YELLOW_SCORE=0.6,
+            BELIEF_ORANGE_SCORE=1.0,
+            BELIEF_RED_SCORE=2.5,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=99.0,
+            BELIEF_RED_GROWTH=99.0,
+            BELIEF_MODE_PERSIST_SEC=0.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_EVIDENCE_WEIGHT=0.2,
+            BELIEF_EVIDENCE_SOURCE_WEIGHT=0.05,
+            BELIEF_EVIDENCE_CONTRADICTION_WEIGHT=0.4,
+            BELIEF_EVIDENCE_CONTRADICTION_STREAK_WEIGHT=0.05,
+            BELIEF_EVIDENCE_CONTRADICTION_BURN_WEIGHT=0.4,
+            BELIEF_EVIDENCE_CONTRADICTION_BURN_REF=3.0,
+        )
+        clock = _Clock(1.0)
+        ctl = BeliefController(clock=clock.now)
+
+        stale_only = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "evidence_confidence": 0.75,
+                "evidence_degraded_sources": 1,
+                "evidence_contradiction_score": 0.0,
+                "evidence_contradiction_streak": 0,
+                "evidence_contradiction_burn_rate": 0.0,
+            },
+            cfg,
+        )
+
+        clock.tick(1.0)
+        contrad_burn = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "evidence_confidence": 0.75,
+                "evidence_degraded_sources": 1,
+                "evidence_contradiction_score": 0.7,
+                "evidence_contradiction_streak": 2,
+                "evidence_contradiction_burn_rate": 4.0,
+            },
+            cfg,
+        )
+        self.assertLessEqual(float(contrad_burn.max_notional_usdt), float(stale_only.max_notional_usdt))
+        self.assertGreaterEqual(float(contrad_burn.min_entry_conf), float(stale_only.min_entry_conf))
+        self.assertIn(str(contrad_burn.mode), ("YELLOW", "ORANGE", "RED"))
+
 
 if __name__ == "__main__":
     unittest.main()

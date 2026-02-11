@@ -70,6 +70,41 @@ class BeliefEvidenceTests(unittest.TestCase):
         self.assertLess(float(contrad["evidence_confidence"]), float(baseline["evidence_confidence"]))
         self.assertGreaterEqual(int(contrad.get("evidence_contradiction_streak", 0)), 1)
 
+    def test_source_health_fields_are_emitted(self):
+        bot = self._bot()
+        now = time.time()
+        bot.state.run_context["ws_last_event_ts"] = now - 30.0
+        bot.state.run_context["rest_last_ok_ts"] = now - 10.0
+        bot.state.run_context["fills_last_ts"] = now - 5.0
+        bot.state.run_context["ws_gap_rate"] = 0.2
+        bot.state.run_context["rest_gap_rate"] = 0.1
+        bot.state.run_context["fill_gap_rate"] = 0.3
+        bot.state.run_context["ws_error_rate"] = 0.05
+        bot.state.run_context["rest_error_rate"] = 0.01
+        bot.state.run_context["fill_error_rate"] = 0.02
+        out = belief_evidence.compute_belief_evidence(bot, types.SimpleNamespace(), now=now)
+        self.assertIn("evidence_ws_last_seen_ts", out)
+        self.assertIn("evidence_rest_last_seen_ts", out)
+        self.assertIn("evidence_fill_last_seen_ts", out)
+        self.assertAlmostEqual(float(out.get("evidence_ws_gap_rate", 0.0)), 0.2, places=6)
+        self.assertAlmostEqual(float(out.get("evidence_rest_gap_rate", 0.0)), 0.1, places=6)
+        self.assertAlmostEqual(float(out.get("evidence_fill_gap_rate", 0.0)), 0.3, places=6)
+        self.assertAlmostEqual(float(out.get("evidence_ws_error_rate", 0.0)), 0.05, places=6)
+
+    def test_contradiction_burn_rate_increases_on_repeated_severe_disagreement(self):
+        bot = self._bot()
+        cfg = types.SimpleNamespace(BELIEF_CONTRADICTION_SEVERE_DELTA=0.3)
+        out1 = belief_evidence.compute_belief_evidence(bot, cfg, now=1000.0)
+        self.assertGreaterEqual(float(out1.get("evidence_contradiction_burn_rate", 0.0)), 0.0)
+        # Force severe contradiction on consecutive calls.
+        bot.state.run_context["ws_last_event_ts"] = 1010.0
+        bot.state.run_context["rest_last_ok_ts"] = 870.0
+        bot.state.run_context["fills_last_ts"] = 1010.0
+        out2 = belief_evidence.compute_belief_evidence(bot, cfg, now=1010.0)
+        out3 = belief_evidence.compute_belief_evidence(bot, cfg, now=1011.0)
+        self.assertGreaterEqual(int(out3.get("evidence_contradiction_count", 0)), int(out2.get("evidence_contradiction_count", 0)))
+        self.assertGreater(float(out3.get("evidence_contradiction_burn_rate", 0.0)), 0.0)
+
 
 if __name__ == "__main__":
     unittest.main()
