@@ -189,6 +189,68 @@ class ReplaceManagerTests(unittest.TestCase):
         self.assertEqual(int(out.create_attempts), 0)
         self.assertEqual(int(out.ambiguity_count), 3)
 
+    def test_verify_cancel_status_blocks_create_when_still_open(self):
+        calls = {"cancel": 0, "create": 0, "status": 0}
+
+        async def _cancel(_oid, _sym):
+            calls["cancel"] += 1
+            return True
+
+        async def _create():
+            calls["create"] += 1
+            return {"id": "new-1"}
+
+        async def _status(_oid, _sym):
+            calls["status"] += 1
+            return "open"
+
+        out = asyncio.run(
+            rm.run_cancel_replace(
+                cancel_order_id="old-1",
+                symbol="BTC/USDT",
+                max_attempts=2,
+                cancel_fn=_cancel,
+                create_fn=_create,
+                status_fn=_status,
+                verify_cancel_with_status=True,
+                max_ambiguity_attempts=1,
+            )
+        )
+        self.assertFalse(out.success)
+        self.assertEqual(out.reason, "replace_ambiguity_cap")
+        self.assertEqual(calls["create"], 0)
+        self.assertGreaterEqual(calls["status"], 1)
+
+    def test_verify_cancel_status_allows_create_when_canceled(self):
+        calls = {"cancel": 0, "create": 0, "status": 0}
+
+        async def _cancel(_oid, _sym):
+            calls["cancel"] += 1
+            return True
+
+        async def _create():
+            calls["create"] += 1
+            return {"id": "new-2", "status": "open"}
+
+        async def _status(_oid, _sym):
+            calls["status"] += 1
+            return "canceled"
+
+        out = asyncio.run(
+            rm.run_cancel_replace(
+                cancel_order_id="old-1",
+                symbol="BTC/USDT",
+                max_attempts=2,
+                cancel_fn=_cancel,
+                create_fn=_create,
+                status_fn=_status,
+                verify_cancel_with_status=True,
+            )
+        )
+        self.assertTrue(out.success)
+        self.assertEqual(out.reason, "replace_success")
+        self.assertEqual(calls["create"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

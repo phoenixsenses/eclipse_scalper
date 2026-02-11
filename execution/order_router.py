@@ -896,7 +896,7 @@ def _replace_budget_state(bot) -> tuple[dict, dict]:
         rc = st.run_context
     budget = rc.get("replace_budget")
     if not isinstance(budget, dict):
-        budget = {"global": [], "by_symbol": {}}
+        budget = {"global": [], "by_symbol": {}, "ambiguity_by_symbol": {}}
         rc["replace_budget"] = budget
     by_symbol = budget.get("by_symbol")
     if not isinstance(by_symbol, dict):
@@ -909,6 +909,9 @@ def _replace_budget_over_limit(bot, *, symbol: str) -> tuple[bool, dict]:
     window_sec = max(10.0, _safe_float(_cfg_env(bot, "ROUTER_REPLACE_BUDGET_WINDOW_SEC", 300), 300.0))
     max_global = max(1, int(_safe_float(_cfg_env(bot, "ROUTER_REPLACE_BUDGET_MAX_GLOBAL", 20), 20.0)))
     max_symbol = max(1, int(_safe_float(_cfg_env(bot, "ROUTER_REPLACE_BUDGET_MAX_PER_SYMBOL", 6), 6.0)))
+    max_ambiguity_symbol = max(
+        1, int(_safe_float(_cfg_env(bot, "ROUTER_REPLACE_BUDGET_MAX_AMBIGUITY_PER_SYMBOL", 3), 3.0))
+    )
     now_ts = float(time.time())
     cutoff = now_ts - window_sec
     budget, by_symbol = _replace_budget_state(bot)
@@ -923,16 +926,29 @@ def _replace_budget_over_limit(bot, *, symbol: str) -> tuple[bool, dict]:
         sym_list = []
         by_symbol[k] = sym_list
     sym_list[:] = [float(ts) for ts in sym_list if _safe_float(ts, 0.0) >= cutoff]
+    amb_map = budget.get("ambiguity_by_symbol")
+    if not isinstance(amb_map, dict):
+        amb_map = {}
+        budget["ambiguity_by_symbol"] = amb_map
+    amb_list = amb_map.get(k)
+    if not isinstance(amb_list, list):
+        amb_list = []
+        amb_map[k] = amb_list
+    amb_list[:] = [float(ts) for ts in amb_list if _safe_float(ts, 0.0) >= cutoff]
     over_global = len(glob) >= max_global
     over_symbol = len(sym_list) >= max_symbol
-    return bool(over_global or over_symbol), {
+    over_ambiguity = len(amb_list) >= max_ambiguity_symbol
+    return bool(over_global or over_symbol or over_ambiguity), {
         "window_sec": float(window_sec),
         "max_global": int(max_global),
         "max_symbol": int(max_symbol),
+        "max_ambiguity_symbol": int(max_ambiguity_symbol),
         "count_global": int(len(glob)),
         "count_symbol": int(len(sym_list)),
+        "count_ambiguity_symbol": int(len(amb_list)),
         "over_global": bool(over_global),
         "over_symbol": bool(over_symbol),
+        "over_ambiguity_symbol": bool(over_ambiguity),
         "symbol": str(k),
     }
 
@@ -951,6 +967,31 @@ def _replace_budget_mark(bot, *, symbol: str) -> None:
         sym_list = []
         by_symbol[k] = sym_list
     sym_list.append(now_ts)
+
+
+def _replace_budget_mark_ambiguity(bot, *, symbol: str) -> None:
+    now_ts = float(time.time())
+    st = getattr(bot, "state", None)
+    if st is None:
+        return
+    rc = getattr(st, "run_context", None)
+    if not isinstance(rc, dict):
+        st.run_context = {}
+        rc = st.run_context
+    budget = rc.get("replace_budget")
+    if not isinstance(budget, dict):
+        budget = {"global": [], "by_symbol": {}, "ambiguity_by_symbol": {}}
+        rc["replace_budget"] = budget
+    amb_map = budget.get("ambiguity_by_symbol")
+    if not isinstance(amb_map, dict):
+        amb_map = {}
+        budget["ambiguity_by_symbol"] = amb_map
+    k = _symkey(symbol)
+    amb_list = amb_map.get(k)
+    if not isinstance(amb_list, list):
+        amb_list = []
+        amb_map[k] = amb_list
+    amb_list.append(now_ts)
 
 
 def _intent_ledger_record(
@@ -2769,6 +2810,7 @@ async def cancel_replace_order(
     cur_notional = _estimate_symbol_exposure_notional(_symkey(symbol))
     max_worst_case_notional = max(0.0, float(_safe_float(_cfg_env(bot, "ROUTER_REPLACE_MAX_WORST_CASE_NOTIONAL", 0.0), 0.0)))
     max_ambiguity_attempts = max(0, int(_safe_float(_cfg_env(bot, "ROUTER_REPLACE_MAX_AMBIGUITY_ATTEMPTS", 0), 0.0)))
+    verify_cancel_with_status = _truthy(_cfg_env(bot, "ROUTER_REPLACE_VERIFY_CANCEL_STATUS", True))
     if _replace_manager is not None:
         async def _cancel_fn(order_id: str, sym: str) -> bool:
             return bool(await cancel_order(bot, order_id, sym, correlation_id=corr))
@@ -2811,6 +2853,7 @@ async def cancel_replace_order(
                 new_order_notional=float(new_notional),
                 max_worst_case_notional=float(max_worst_case_notional),
                 max_ambiguity_attempts=int(max_ambiguity_attempts),
+                verify_cancel_with_status=bool(verify_cancel_with_status),
             )
         except Exception as exc:
             exc_name = str(getattr(getattr(exc, "__class__", None), "__name__", "Exception") or "Exception")
@@ -2867,6 +2910,7 @@ async def cancel_replace_order(
         outcome_reason = str(getattr(outcome, "reason", "") or "")
         if outcome_reason in ("replace_envelope_block", "replace_ambiguity_cap", "replace_reconcile_required"):
             if outcome_reason in ("replace_ambiguity_cap", "replace_reconcile_required"):
+                _replace_budget_mark_ambiguity(bot, symbol=symbol)
                 race_base = _safe_float(_cfg_env(bot, "ROUTER_REPLACE_RACE_GATE_SEVERITY", 0.90), 0.90)
                 ambiguity_bump = _safe_float(getattr(outcome, "ambiguity_count", 0), 0.0) * 0.05
                 attempt_bump = _safe_float(getattr(outcome, "attempts", 0), 0.0) * 0.02

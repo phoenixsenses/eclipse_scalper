@@ -76,12 +76,18 @@ class OrderRouterReplaceTests(unittest.TestCase):
 
     def test_cancel_replace_uses_strict_transitions_by_default(self):
         bot = DummyBot(DummyEx(), DummyData({"BTCUSDT": "BTC/USDT:USDT"}))
-        seen = {"strict": None, "max_worst_case_notional": None, "max_ambiguity_attempts": None}
+        seen = {
+            "strict": None,
+            "max_worst_case_notional": None,
+            "max_ambiguity_attempts": None,
+            "verify_cancel_with_status": None,
+        }
 
         async def _fake_run_cancel_replace(**kwargs):
             seen["strict"] = bool(kwargs.get("strict_transitions"))
             seen["max_worst_case_notional"] = float(kwargs.get("max_worst_case_notional") or 0.0)
             seen["max_ambiguity_attempts"] = int(kwargs.get("max_ambiguity_attempts") or 0)
+            seen["verify_cancel_with_status"] = bool(kwargs.get("verify_cancel_with_status"))
             return types.SimpleNamespace(success=False, state="REPLACE_RACE", reason="replace_giveup", attempts=1, last_status="")
 
         orig_replace = order_router._replace_manager
@@ -111,6 +117,7 @@ class OrderRouterReplaceTests(unittest.TestCase):
         self.assertTrue(bool(seen["strict"]))
         self.assertAlmostEqual(float(seen["max_worst_case_notional"] or 0.0), 200.0, places=6)
         self.assertEqual(int(seen["max_ambiguity_attempts"] or 0), 2)
+        self.assertTrue(bool(seen["verify_cancel_with_status"]))
 
     def test_cancel_replace_transition_error_requests_reconcile_hint(self):
         bot = DummyBot(DummyEx(), DummyData({"BTCUSDT": "BTC/USDT:USDT"}))
@@ -264,6 +271,53 @@ class OrderRouterReplaceTests(unittest.TestCase):
         hints = bot.state.run_context.get("reconcile_hints") or {}
         self.assertIn("BTCUSDT", hints)
         self.assertIn("replace_budget_exceeded", str((hints.get("BTCUSDT") or {}).get("reason") or ""))
+
+    def test_cancel_replace_budget_block_on_symbol_ambiguity_rate(self):
+        bot = DummyBot(DummyEx(), DummyData({"BTCUSDT": "BTC/USDT:USDT"}))
+        now = time.time()
+        bot.state.run_context = {
+            "replace_budget": {
+                "global": [],
+                "by_symbol": {"BTCUSDT": []},
+                "ambiguity_by_symbol": {"BTCUSDT": [now, now - 1.0]},
+            }
+        }
+        os.environ["ROUTER_REPLACE_BUDGET_WINDOW_SEC"] = "300"
+        os.environ["ROUTER_REPLACE_BUDGET_MAX_GLOBAL"] = "10"
+        os.environ["ROUTER_REPLACE_BUDGET_MAX_PER_SYMBOL"] = "10"
+        os.environ["ROUTER_REPLACE_BUDGET_MAX_AMBIGUITY_PER_SYMBOL"] = "2"
+        captured = []
+
+        async def _fake_emit(_bot, event, data=None, **_kwargs):
+            captured.append((str(event), dict(data or {})))
+
+        orig_emit = order_router.emit
+        order_router.emit = _fake_emit
+        try:
+            res = asyncio.run(
+                order_router.cancel_replace_order(
+                    bot,
+                    cancel_order_id="oid-1",
+                    symbol="BTC/USDT",
+                    type="LIMIT",
+                    side="buy",
+                    amount=1.0,
+                    price=100.0,
+                    retries=1,
+                )
+            )
+        finally:
+            order_router.emit = orig_emit
+            os.environ.pop("ROUTER_REPLACE_BUDGET_WINDOW_SEC", None)
+            os.environ.pop("ROUTER_REPLACE_BUDGET_MAX_GLOBAL", None)
+            os.environ.pop("ROUTER_REPLACE_BUDGET_MAX_PER_SYMBOL", None)
+            os.environ.pop("ROUTER_REPLACE_BUDGET_MAX_AMBIGUITY_PER_SYMBOL", None)
+
+        self.assertIsNone(res)
+        self.assertTrue(any(ev == "order.replace_budget_block" for ev, _ in captured))
+        payloads = [d for ev, d in captured if ev == "order.replace_budget_block"]
+        self.assertTrue(payloads)
+        self.assertTrue(bool(payloads[0].get("over_ambiguity_symbol")))
 
 
 if __name__ == "__main__":
