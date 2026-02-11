@@ -4,6 +4,7 @@ from __future__ import annotations
 import types
 import unittest
 import sys
+import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -672,6 +673,45 @@ class BeliefControllerTests(unittest.TestCase):
         self.assertIn("post_red_warmup", str(k_orange.reason))
         self.assertEqual(str(getattr(k_orange, "recovery_stage", "")), "POST_RED_WARMUP")
         self.assertGreater(float(getattr(k_orange, "next_unlock_sec", 0.0) or 0.0), 0.0)
+
+    def test_fixture_runtime_gate_snapshot_freeze_then_warmup(self):
+        fixture_path = Path(__file__).resolve().parent / "fixtures" / "belief_runtime_gate_snapshot.json"
+        payload = json.loads(fixture_path.read_text(encoding="utf-8"))
+        degraded_state = dict(payload.get("degraded_state") or {})
+        recovered_state = dict(payload.get("recovered_state") or {})
+
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_SYMBOL_WEIGHT=0.0,
+            BELIEF_STREAK_WEIGHT=0.0,
+            BELIEF_YELLOW_SCORE=99.0,
+            BELIEF_ORANGE_SCORE=199.0,
+            BELIEF_RED_SCORE=299.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=199.0,
+            BELIEF_RED_GROWTH=299.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_RUNTIME_GATE_RECOVER_SEC=120.0,
+            BELIEF_RUNTIME_GATE_WARMUP_NOTIONAL_SCALE=0.5,
+            BELIEF_RUNTIME_GATE_WARMUP_LEVERAGE_SCALE=0.6,
+        )
+        clock = _Clock(100.0)
+        ctl = BeliefController(clock=clock.now)
+
+        k1 = ctl.update(degraded_state, cfg)
+        self.assertFalse(k1.allow_entries)
+        self.assertEqual(float(k1.max_notional_usdt), 0.0)
+        self.assertTrue(bool(getattr(k1, "runtime_gate_degraded", False)))
+        self.assertIn("runtime_gate_degraded", str(k1.reason))
+
+        clock.tick(1.0)
+        k2 = ctl.update(recovered_state, cfg)
+        self.assertTrue(k2.allow_entries)
+        self.assertIn("runtime_gate_warmup", str(k2.reason))
+        self.assertEqual(str(getattr(k2, "recovery_stage", "")), "RUNTIME_GATE_WARMUP")
+        self.assertLessEqual(float(k2.max_notional_usdt), 50.0)
 
 
 if __name__ == "__main__":
