@@ -118,6 +118,17 @@ class BeliefController:
             0.0, _safe_float(belief_state.get("runtime_gate_cat_transition", 0), 0.0)
         )
         runtime_gate_cat_belief = max(0.0, _safe_float(belief_state.get("runtime_gate_cat_belief", 0), 0.0))
+        runtime_gate_cat_position = max(0.0, _safe_float(belief_state.get("runtime_gate_cat_position", 0), 0.0))
+        runtime_gate_cat_orphan = max(0.0, _safe_float(belief_state.get("runtime_gate_cat_orphan", 0), 0.0))
+        runtime_gate_cat_coverage_gap = max(
+            0.0, _safe_float(belief_state.get("runtime_gate_cat_coverage_gap", 0), 0.0)
+        )
+        runtime_gate_cat_replace_race = max(
+            0.0, _safe_float(belief_state.get("runtime_gate_cat_replace_race", 0), 0.0)
+        )
+        runtime_gate_cat_contradiction = max(
+            0.0, _safe_float(belief_state.get("runtime_gate_cat_contradiction", 0), 0.0)
+        )
         runtime_gate_cat_unknown = max(0.0, _safe_float(belief_state.get("runtime_gate_cat_unknown", 0), 0.0))
         reconcile_first_gate_count = max(
             0.0, _safe_float(belief_state.get("reconcile_first_gate_count", 0), 0.0)
@@ -155,6 +166,17 @@ class BeliefController:
             self._cfg(cfg, "BELIEF_RUNTIME_GATE_CAT_TRANSITION_WEIGHT", 0.7), 0.0, 3.0
         )
         gate_cat_belief_weight = _clamp(self._cfg(cfg, "BELIEF_RUNTIME_GATE_CAT_BELIEF_WEIGHT", 0.4), 0.0, 3.0)
+        gate_cat_position_weight = _clamp(self._cfg(cfg, "BELIEF_RUNTIME_GATE_CAT_POSITION_WEIGHT", 0.5), 0.0, 3.0)
+        gate_cat_orphan_weight = _clamp(self._cfg(cfg, "BELIEF_RUNTIME_GATE_CAT_ORPHAN_WEIGHT", 0.9), 0.0, 3.0)
+        gate_cat_coverage_gap_weight = _clamp(
+            self._cfg(cfg, "BELIEF_RUNTIME_GATE_CAT_COVERAGE_GAP_WEIGHT", 0.8), 0.0, 3.0
+        )
+        gate_cat_replace_race_weight = _clamp(
+            self._cfg(cfg, "BELIEF_RUNTIME_GATE_CAT_REPLACE_RACE_WEIGHT", 0.6), 0.0, 3.0
+        )
+        gate_cat_contradiction_weight = _clamp(
+            self._cfg(cfg, "BELIEF_RUNTIME_GATE_CAT_CONTRADICTION_WEIGHT", 0.7), 0.0, 3.0
+        )
         gate_cat_unknown_weight = _clamp(self._cfg(cfg, "BELIEF_RUNTIME_GATE_CAT_UNKNOWN_WEIGHT", 0.2), 0.0, 3.0)
         reconcile_first_gate_weight = _clamp(
             self._cfg(cfg, "BELIEF_RECONCILE_FIRST_GATE_WEIGHT", 0.25), 0.0, 3.0
@@ -173,8 +195,31 @@ class BeliefController:
             + (runtime_gate_cat_ledger * gate_cat_ledger_weight)
             + (runtime_gate_cat_transition * gate_cat_transition_weight)
             + (runtime_gate_cat_belief * gate_cat_belief_weight)
+            + (runtime_gate_cat_position * gate_cat_position_weight)
+            + (runtime_gate_cat_orphan * gate_cat_orphan_weight)
+            + (runtime_gate_cat_coverage_gap * gate_cat_coverage_gap_weight)
+            + (runtime_gate_cat_replace_race * gate_cat_replace_race_weight)
+            + (runtime_gate_cat_contradiction * gate_cat_contradiction_weight)
             + (runtime_gate_cat_unknown * gate_cat_unknown_weight)
         )
+        gate_contributors = [
+            ("mismatch", (runtime_gate_mismatch_count / gate_mismatch_ref)),
+            ("invalid", (runtime_gate_invalid_count / gate_invalid_ref)),
+            ("coverage", ((1.0 - runtime_gate_cov) * gate_cov_weight)),
+            ("score", (runtime_gate_degrade_score * gate_score_weight)),
+            ("ledger", (runtime_gate_cat_ledger * gate_cat_ledger_weight)),
+            ("transition", (runtime_gate_cat_transition * gate_cat_transition_weight)),
+            ("belief", (runtime_gate_cat_belief * gate_cat_belief_weight)),
+            ("position", (runtime_gate_cat_position * gate_cat_position_weight)),
+            ("orphan", (runtime_gate_cat_orphan * gate_cat_orphan_weight)),
+            ("coverage_gap", (runtime_gate_cat_coverage_gap * gate_cat_coverage_gap_weight)),
+            ("replace_race", (runtime_gate_cat_replace_race * gate_cat_replace_race_weight)),
+            ("contradiction", (runtime_gate_cat_contradiction * gate_cat_contradiction_weight)),
+            ("unknown", (runtime_gate_cat_unknown * gate_cat_unknown_weight)),
+        ]
+        gate_contributors = [x for x in gate_contributors if float(x[1]) > 0.0]
+        gate_contributors.sort(key=lambda kv: float(kv[1]), reverse=True)
+        gate_top = ",".join(f"{str(k)}={float(v):.2f}" for (k, v) in gate_contributors[:3])
         reconcile_first_gate_debt = (
             (reconcile_first_gate_count / reconcile_first_gate_count_ref)
             + float(reconcile_first_gate_max_severity)
@@ -432,7 +477,10 @@ class BeliefController:
                     1,
                     int(_safe_float(per_symbol[sym].get("max_leverage", 1), 1.0) * soft_scale),
                 )
-            reason = f"{reason} | runtime_gate_soft_scale={soft_scale:.2f}"
+            if gate_top:
+                reason = f"{reason} | runtime_gate_soft_scale={soft_scale:.2f} top={gate_top}"
+            else:
+                reason = f"{reason} | runtime_gate_soft_scale={soft_scale:.2f}"
 
         if post_red_recovering:
             rem = max(0.0, float(self._post_red_warmup_until - now))

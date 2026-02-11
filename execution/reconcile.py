@@ -268,7 +268,17 @@ def _ensure_reconcile_metrics(bot) -> Dict[str, Any]:
     rm.setdefault("runtime_gate_cat_ledger", 0)
     rm.setdefault("runtime_gate_cat_transition", 0)
     rm.setdefault("runtime_gate_cat_belief", 0)
+    rm.setdefault("runtime_gate_cat_position", 0)
+    rm.setdefault("runtime_gate_cat_orphan", 0)
+    rm.setdefault("runtime_gate_cat_coverage_gap", 0)
+    rm.setdefault("runtime_gate_cat_replace_race", 0)
+    rm.setdefault("runtime_gate_cat_contradiction", 0)
     rm.setdefault("runtime_gate_cat_unknown", 0)
+    rm.setdefault("runtime_gate_position_mismatch_count", 0)
+    rm.setdefault("runtime_gate_orphan_count", 0)
+    rm.setdefault("runtime_gate_protection_coverage_gap_seconds", 0.0)
+    rm.setdefault("runtime_gate_replace_race_count", 0)
+    rm.setdefault("runtime_gate_evidence_contradiction_count", 0)
     rm.setdefault("runtime_gate_degrade_score", 0.0)
     rm.setdefault("runtime_gate_replay_mismatch_ids", [])
     rm.setdefault("reconcile_first_gate_count", 0)
@@ -1587,12 +1597,31 @@ async def reconcile_tick(bot):
         metrics["runtime_gate_cat_ledger"] = int(_safe_float(cats.get("ledger", 0), 0.0))
         metrics["runtime_gate_cat_transition"] = int(_safe_float(cats.get("transition", 0), 0.0))
         metrics["runtime_gate_cat_belief"] = int(_safe_float(cats.get("belief", 0), 0.0))
+        metrics["runtime_gate_cat_position"] = int(_safe_float(cats.get("position", 0), 0.0))
+        metrics["runtime_gate_cat_orphan"] = int(_safe_float(cats.get("orphan", 0), 0.0))
+        metrics["runtime_gate_cat_coverage_gap"] = int(_safe_float(cats.get("coverage_gap", 0), 0.0))
+        metrics["runtime_gate_cat_replace_race"] = int(_safe_float(cats.get("replace_race", 0), 0.0))
+        metrics["runtime_gate_cat_contradiction"] = int(_safe_float(cats.get("contradiction", 0), 0.0))
         metrics["runtime_gate_cat_unknown"] = int(_safe_float(cats.get("unknown", 0), 0.0))
     else:
         metrics["runtime_gate_cat_ledger"] = 0
         metrics["runtime_gate_cat_transition"] = 0
         metrics["runtime_gate_cat_belief"] = 0
+        metrics["runtime_gate_cat_position"] = 0
+        metrics["runtime_gate_cat_orphan"] = 0
+        metrics["runtime_gate_cat_coverage_gap"] = 0
+        metrics["runtime_gate_cat_replace_race"] = 0
+        metrics["runtime_gate_cat_contradiction"] = 0
         metrics["runtime_gate_cat_unknown"] = 0
+    metrics["runtime_gate_position_mismatch_count"] = int(_safe_float(gate.get("position_mismatch_count", 0), 0.0))
+    metrics["runtime_gate_orphan_count"] = int(_safe_float(gate.get("orphan_count", 0), 0.0))
+    metrics["runtime_gate_protection_coverage_gap_seconds"] = float(
+        _safe_float(gate.get("protection_coverage_gap_seconds", 0.0), 0.0)
+    )
+    metrics["runtime_gate_replace_race_count"] = int(_safe_float(gate.get("replace_race_count", 0), 0.0))
+    metrics["runtime_gate_evidence_contradiction_count"] = int(
+        _safe_float(gate.get("evidence_contradiction_count", 0), 0.0)
+    )
     metrics["runtime_gate_degrade_score"] = float(_safe_float(gate.get("degrade_score", 0.0), 0.0))
     gate_ids = gate.get("replay_mismatch_ids")
     metrics["runtime_gate_replay_mismatch_ids"] = list(gate_ids) if isinstance(gate_ids, list) else []
@@ -1667,7 +1696,23 @@ async def reconcile_tick(bot):
                     "runtime_gate_cat_ledger": int(metrics.get("runtime_gate_cat_ledger", 0) or 0),
                     "runtime_gate_cat_transition": int(metrics.get("runtime_gate_cat_transition", 0) or 0),
                     "runtime_gate_cat_belief": int(metrics.get("runtime_gate_cat_belief", 0) or 0),
+                    "runtime_gate_cat_position": int(metrics.get("runtime_gate_cat_position", 0) or 0),
+                    "runtime_gate_cat_orphan": int(metrics.get("runtime_gate_cat_orphan", 0) or 0),
+                    "runtime_gate_cat_coverage_gap": int(metrics.get("runtime_gate_cat_coverage_gap", 0) or 0),
+                    "runtime_gate_cat_replace_race": int(metrics.get("runtime_gate_cat_replace_race", 0) or 0),
+                    "runtime_gate_cat_contradiction": int(metrics.get("runtime_gate_cat_contradiction", 0) or 0),
                     "runtime_gate_cat_unknown": int(metrics.get("runtime_gate_cat_unknown", 0) or 0),
+                    "runtime_gate_position_mismatch_count": int(
+                        metrics.get("runtime_gate_position_mismatch_count", 0) or 0
+                    ),
+                    "runtime_gate_orphan_count": int(metrics.get("runtime_gate_orphan_count", 0) or 0),
+                    "runtime_gate_protection_coverage_gap_seconds": float(
+                        metrics.get("runtime_gate_protection_coverage_gap_seconds", 0.0) or 0.0
+                    ),
+                    "runtime_gate_replace_race_count": int(metrics.get("runtime_gate_replace_race_count", 0) or 0),
+                    "runtime_gate_evidence_contradiction_count": int(
+                        metrics.get("runtime_gate_evidence_contradiction_count", 0) or 0
+                    ),
                     "runtime_gate_replay_mismatch_ids": list(
                         metrics.get("runtime_gate_replay_mismatch_ids", []) or []
                     )[:5],
@@ -1745,6 +1790,26 @@ async def reconcile_tick(bot):
                     "runtime_gate_degrade_score": float(
                         metrics.get("runtime_gate_degrade_score", 0.0) or 0.0
                     ),
+                    "runtime_gate_cat_ledger": int(metrics.get("runtime_gate_cat_ledger", 0) or 0),
+                    "runtime_gate_cat_transition": int(metrics.get("runtime_gate_cat_transition", 0) or 0),
+                    "runtime_gate_cat_belief": int(metrics.get("runtime_gate_cat_belief", 0) or 0),
+                    "runtime_gate_cat_position": int(metrics.get("runtime_gate_cat_position", 0) or 0),
+                    "runtime_gate_cat_orphan": int(metrics.get("runtime_gate_cat_orphan", 0) or 0),
+                    "runtime_gate_cat_coverage_gap": int(metrics.get("runtime_gate_cat_coverage_gap", 0) or 0),
+                    "runtime_gate_cat_replace_race": int(metrics.get("runtime_gate_cat_replace_race", 0) or 0),
+                    "runtime_gate_cat_contradiction": int(metrics.get("runtime_gate_cat_contradiction", 0) or 0),
+                    "runtime_gate_cat_unknown": int(metrics.get("runtime_gate_cat_unknown", 0) or 0),
+                    "runtime_gate_position_mismatch_count": int(
+                        metrics.get("runtime_gate_position_mismatch_count", 0) or 0
+                    ),
+                    "runtime_gate_orphan_count": int(metrics.get("runtime_gate_orphan_count", 0) or 0),
+                    "runtime_gate_protection_coverage_gap_seconds": float(
+                        metrics.get("runtime_gate_protection_coverage_gap_seconds", 0.0) or 0.0
+                    ),
+                    "runtime_gate_replace_race_count": int(metrics.get("runtime_gate_replace_race_count", 0) or 0),
+                    "runtime_gate_evidence_contradiction_count": int(
+                        metrics.get("runtime_gate_evidence_contradiction_count", 0) or 0
+                    ),
                     "runtime_gate_replay_mismatch_ids": list(
                         metrics.get("runtime_gate_replay_mismatch_ids", []) or []
                     )[:5],
@@ -1815,6 +1880,26 @@ async def reconcile_tick(bot):
                     ),
                     "runtime_gate_degrade_score": float(
                         metrics.get("runtime_gate_degrade_score", 0.0) or 0.0
+                    ),
+                    "runtime_gate_cat_ledger": int(metrics.get("runtime_gate_cat_ledger", 0) or 0),
+                    "runtime_gate_cat_transition": int(metrics.get("runtime_gate_cat_transition", 0) or 0),
+                    "runtime_gate_cat_belief": int(metrics.get("runtime_gate_cat_belief", 0) or 0),
+                    "runtime_gate_cat_position": int(metrics.get("runtime_gate_cat_position", 0) or 0),
+                    "runtime_gate_cat_orphan": int(metrics.get("runtime_gate_cat_orphan", 0) or 0),
+                    "runtime_gate_cat_coverage_gap": int(metrics.get("runtime_gate_cat_coverage_gap", 0) or 0),
+                    "runtime_gate_cat_replace_race": int(metrics.get("runtime_gate_cat_replace_race", 0) or 0),
+                    "runtime_gate_cat_contradiction": int(metrics.get("runtime_gate_cat_contradiction", 0) or 0),
+                    "runtime_gate_cat_unknown": int(metrics.get("runtime_gate_cat_unknown", 0) or 0),
+                    "runtime_gate_position_mismatch_count": int(
+                        metrics.get("runtime_gate_position_mismatch_count", 0) or 0
+                    ),
+                    "runtime_gate_orphan_count": int(metrics.get("runtime_gate_orphan_count", 0) or 0),
+                    "runtime_gate_protection_coverage_gap_seconds": float(
+                        metrics.get("runtime_gate_protection_coverage_gap_seconds", 0.0) or 0.0
+                    ),
+                    "runtime_gate_replace_race_count": int(metrics.get("runtime_gate_replace_race_count", 0) or 0),
+                    "runtime_gate_evidence_contradiction_count": int(
+                        metrics.get("runtime_gate_evidence_contradiction_count", 0) or 0
                     ),
                     "runtime_gate_replay_mismatch_ids": list(
                         metrics.get("runtime_gate_replay_mismatch_ids", []) or []

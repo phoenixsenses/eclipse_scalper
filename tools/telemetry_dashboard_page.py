@@ -108,7 +108,17 @@ def _read_reliability_gate_section(path: Path) -> str:
     mismatch = int(float(kv.get("replay_mismatch_count", "0") or 0))
     invalid = int(float(kv.get("invalid_transition_count", "0") or 0))
     coverage = float(kv.get("journal_coverage_ratio", "0") or 0.0)
-    categories = {"ledger": 0, "transition": 0, "belief": 0, "unknown": 0}
+    categories = {
+        "ledger": 0,
+        "transition": 0,
+        "belief": 0,
+        "position": 0,
+        "orphan": 0,
+        "coverage_gap": 0,
+        "replace_race": 0,
+        "contradiction": 0,
+        "unknown": 0,
+    }
     raw_cats = str(kv.get("replay_mismatch_categories", "") or "").strip()
     if raw_cats:
         try:
@@ -125,14 +135,26 @@ def _read_reliability_gate_section(path: Path) -> str:
         f"invalid_transition_count: {invalid}",
         f"journal_coverage_ratio: {coverage:.3f}",
     ]
-    if any(int(categories.get(k, 0)) > 0 for k in ("ledger", "transition", "belief", "unknown")):
+    if any(int(categories.get(k, 0)) > 0 for k in categories.keys()):
         lines.append(
             "mismatch_categories: "
             f"ledger={int(categories['ledger'])} "
             f"transition={int(categories['transition'])} "
             f"belief={int(categories['belief'])} "
+            f"position={int(categories['position'])} "
+            f"orphan={int(categories['orphan'])} "
+            f"coverage_gap={int(categories['coverage_gap'])} "
+            f"replace_race={int(categories['replace_race'])} "
+            f"contradiction={int(categories['contradiction'])} "
             f"unknown={int(categories['unknown'])}"
         )
+        ranked = sorted(
+            [(str(k), int(v)) for (k, v) in categories.items() if int(v) > 0],
+            key=lambda kv: int(kv[1]),
+            reverse=True,
+        )[:3]
+        if ranked:
+            lines.append("top_contributors: " + ", ".join(f"{k}={v}" for (k, v) in ranked))
     if mismatch_ids:
         lines.append("top_missing_ids: " + ", ".join(mismatch_ids[:5]))
     return f"<h2>Reliability Gate</h2><pre>{'\n'.join(lines)}</pre>"
@@ -641,6 +663,16 @@ def _notify_state_summary(path: Path) -> str:
     prev_cat_transition = int(float(payload.get("previous_reliability_cat_transition") or 0.0))
     cat_belief = int(float(payload.get("reliability_cat_belief") or 0.0))
     prev_cat_belief = int(float(payload.get("previous_reliability_cat_belief") or 0.0))
+    cat_position = int(float(payload.get("reliability_cat_position") or 0.0))
+    prev_cat_position = int(float(payload.get("previous_reliability_cat_position") or 0.0))
+    cat_orphan = int(float(payload.get("reliability_cat_orphan") or 0.0))
+    prev_cat_orphan = int(float(payload.get("previous_reliability_cat_orphan") or 0.0))
+    cat_cov_gap = int(float(payload.get("reliability_cat_coverage_gap") or 0.0))
+    prev_cat_cov_gap = int(float(payload.get("previous_reliability_cat_coverage_gap") or 0.0))
+    cat_replace = int(float(payload.get("reliability_cat_replace_race") or 0.0))
+    prev_cat_replace = int(float(payload.get("previous_reliability_cat_replace_race") or 0.0))
+    cat_contrad = int(float(payload.get("reliability_cat_contradiction") or 0.0))
+    prev_cat_contrad = int(float(payload.get("previous_reliability_cat_contradiction") or 0.0))
     cat_unknown = int(float(payload.get("reliability_cat_unknown") or 0.0))
     prev_cat_unknown = int(float(payload.get("previous_reliability_cat_unknown") or 0.0))
     sev = float(payload.get("reconcile_gate_max_severity") or 0.0)
@@ -659,6 +691,11 @@ def _notify_state_summary(path: Path) -> str:
             f"ledger={cat_ledger} (prev {prev_cat_ledger}) "
             f"transition={cat_transition} (prev {prev_cat_transition}) "
             f"belief={cat_belief} (prev {prev_cat_belief}) "
+            f"position={cat_position} (prev {prev_cat_position}) "
+            f"orphan={cat_orphan} (prev {prev_cat_orphan}) "
+            f"coverage_gap={cat_cov_gap} (prev {prev_cat_cov_gap}) "
+            f"replace_race={cat_replace} (prev {prev_cat_replace}) "
+            f"contradiction={cat_contrad} (prev {prev_cat_contrad}) "
             f"unknown={cat_unknown} (prev {prev_cat_unknown})"
         ),
         f"reconcile_max_severity: {sev:.2f} (prev {prev_sev:.2f})",

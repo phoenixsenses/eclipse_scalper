@@ -48,6 +48,8 @@ class TelemetryDashboardPageTests(unittest.TestCase):
             self.assertIn("replay_mismatch: 2 (prev 0)", html)
             self.assertIn("journal_coverage: 0.750 (prev 1.000)", html)
             self.assertIn("mismatch_categories: ledger=0 (prev 0) transition=0 (prev 0)", html)
+            self.assertIn("position=0 (prev 0)", html)
+            self.assertIn("orphan=0 (prev 0)", html)
             self.assertIn("reconcile_max_streak: 3 (prev 0)", html)
 
     def test_reliability_gate_section_renders_category_breakdown(self):
@@ -59,7 +61,7 @@ class TelemetryDashboardPageTests(unittest.TestCase):
                         "replay_mismatch_count=2",
                         "invalid_transition_count=0",
                         "journal_coverage_ratio=0.95",
-                        'replay_mismatch_categories={"ledger":1,"transition":1,"belief":0,"unknown":0}',
+                        'replay_mismatch_categories={"ledger":1,"transition":1,"belief":0,"position":0,"orphan":0,"coverage_gap":0,"replace_race":0,"contradiction":0,"unknown":0}',
                         "replay_mismatch_ids:",
                         "- CID-1",
                     ]
@@ -68,7 +70,10 @@ class TelemetryDashboardPageTests(unittest.TestCase):
                 encoding="utf-8",
             )
             html = tdp._read_reliability_gate_section(p)
-            self.assertIn("mismatch_categories: ledger=1 transition=1 belief=0 unknown=0", html)
+            self.assertIn(
+                "mismatch_categories: ledger=1 transition=1 belief=0 position=0 orphan=0 coverage_gap=0 replace_race=0 contradiction=0 unknown=0",
+                html,
+            )
             self.assertIn("top_missing_ids: CID-1", html)
 
 

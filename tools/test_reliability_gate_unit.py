@@ -67,6 +67,22 @@ class ReliabilityGateTests(unittest.TestCase):
             )
         )
 
+    def test_build_report_emits_extended_category_counts(self):
+        telemetry = [
+            {"event": "rebuild.orphan_decision", "data": {"symbol": "DOGEUSDT", "action": "FREEZE"}},
+            {"event": "order.replace_envelope_block", "data": {"reason": "replace_envelope_block"}},
+            {
+                "event": "execution.belief_state",
+                "data": {"mismatch_streak": 2, "belief_debt_symbols": 1, "evidence_contradiction_score": 0.8},
+            },
+        ]
+        journal = []
+        out = rg.build_report(telemetry, journal)
+        self.assertGreaterEqual(int(out.get("position_mismatch_count", 0) or 0), 1)
+        self.assertGreaterEqual(int(out.get("orphan_count", 0) or 0), 1)
+        self.assertGreaterEqual(int(out.get("replace_race_count", 0) or 0), 1)
+        self.assertGreaterEqual(int(out.get("evidence_contradiction_count", 0) or 0), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
