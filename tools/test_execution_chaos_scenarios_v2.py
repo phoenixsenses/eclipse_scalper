@@ -303,6 +303,40 @@ class ChaosScenariosV2Tests(unittest.TestCase):
             self.assertTrue(bool(knobs.get("runtime_gate_degraded", False)))
             self.assertIn("runtime_gate_degraded", str(knobs.get("reason") or ""))
 
+    def test_contradiction_spike_in_runtime_gate_freezes_entries(self):
+        with tempfile.TemporaryDirectory() as td:
+            gate_path = Path(td) / "reliability_gate.txt"
+            gate_path.write_text(
+                "\n".join(
+                    [
+                        "Execution Reliability Gate",
+                        "replay_mismatch_count=0",
+                        "invalid_transition_count=0",
+                        "journal_coverage_ratio=1.000",
+                        "evidence_contradiction_count=3",
+                        "replay_mismatch_categories={\"contradiction\":3}",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            ex = _RestartExchange(positions=[], orders=[], trades=[])
+            bot = _DummyBot(ex)
+            bot.cfg.RELIABILITY_GATE_PATH = str(gate_path)
+            bot.cfg.RELIABILITY_GATE_MAX_REPLAY_MISMATCH = 0
+            bot.cfg.RELIABILITY_GATE_MAX_INVALID_TRANSITIONS = 0
+            bot.cfg.RELIABILITY_GATE_MIN_JOURNAL_COVERAGE = 0.90
+            bot.cfg.RELIABILITY_GATE_MAX_EVIDENCE_CONTRADICTION_COUNT = 1
+
+            asyncio.run(reconcile.reconcile_tick(bot))
+            knobs = dict(getattr(bot.state, "guard_knobs", {}) or {})
+            self.assertTrue(bool(knobs))
+            self.assertFalse(bool(knobs.get("allow_entries", True)))
+            self.assertTrue(bool(knobs.get("runtime_gate_degraded", False)))
+            self.assertIn("contradiction", str(knobs.get("runtime_gate_reason") or "").lower())
+            # Exit safety invariant remains separate from entry freeze logic.
+            self.assertIn(str(knobs.get("recovery_stage") or ""), ("RUNTIME_GATE_DEGRADED", "ORANGE_RECOVERY"))
+
 
 if __name__ == "__main__":
     unittest.main()
