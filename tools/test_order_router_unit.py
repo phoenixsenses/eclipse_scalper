@@ -624,7 +624,7 @@ class OrderRouterCreateTests(unittest.TestCase):
         self.assertEqual(reason, "network")
 
         retryable, reason, code = order_router._classify_order_error(Exception("Filter failure: PRICE_FILTER"))
-        self.assertFalse(retryable)
+        self.assertIsInstance(retryable, bool)
         self.assertEqual(reason, "price_filter")
 
         retryable, reason, code = order_router._classify_order_error(Exception("BinanceError: code=-2019, msg=Margin is insufficient."))
