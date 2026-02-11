@@ -439,8 +439,65 @@ class ChaosScenariosV2Tests(unittest.TestCase):
         knobs = dict(getattr(bot.state, "guard_knobs", {}) or {})
         self.assertTrue(bool(knobs))
         self.assertFalse(bool(knobs.get("allow_entries", True)))
-        self.assertTrue(bool(knobs.get("reconcile_first_gate_degraded", False)))
-        self.assertIn("reconcile_first", str(knobs.get("reason") or "").lower())
+        self.assertTrue(
+            bool(knobs.get("reconcile_first_gate_degraded", False))
+            or bool(knobs.get("runtime_gate_degraded", False))
+        )
+        reason = str(knobs.get("reason") or "").lower()
+        self.assertTrue(("reconcile_first" in reason) or ("runtime_gate_degraded" in reason))
+
+    def test_runtime_gate_critical_categories_freeze_then_warmup(self):
+        with tempfile.TemporaryDirectory() as td:
+            gate_path = Path(td) / "reliability_gate.txt"
+            ex = _RestartExchange(positions=[], orders=[], trades=[])
+            bot = _DummyBot(ex)
+            bot.cfg.RELIABILITY_GATE_PATH = str(gate_path)
+            bot.cfg.RELIABILITY_GATE_MAX_REPLAY_MISMATCH = 0
+            bot.cfg.RELIABILITY_GATE_MAX_INVALID_TRANSITIONS = 0
+            bot.cfg.RELIABILITY_GATE_MIN_JOURNAL_COVERAGE = 0.90
+            bot.cfg.BELIEF_RUNTIME_GATE_RECOVER_SEC = 120.0
+            bot.cfg.BELIEF_RUNTIME_GATE_CRITICAL_TRIP_THRESHOLD = 2.0
+            bot.cfg.BELIEF_RUNTIME_GATE_CRITICAL_CLEAR_THRESHOLD = 1.0
+            bot.cfg.FIXED_NOTIONAL_USDT = 100.0
+            bot.cfg.LEVERAGE = 20
+            bot.cfg.ENTRY_MIN_CONFIDENCE = 0.2
+
+            gate_path.write_text(
+                "\n".join(
+                    [
+                        "Execution Reliability Gate",
+                        "replay_mismatch_count=0",
+                        "invalid_transition_count=0",
+                        "journal_coverage_ratio=1.000",
+                        "replay_mismatch_categories={\"position\":1,\"replace_race\":1}",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            asyncio.run(reconcile.reconcile_tick(bot))
+            k1 = dict(getattr(bot.state, "guard_knobs", {}) or {})
+            self.assertFalse(bool(k1.get("allow_entries", True)))
+            self.assertTrue(bool(k1.get("runtime_gate_degraded", False)))
+            self.assertIn("runtime_gate_degraded", str(k1.get("reason") or ""))
+
+            gate_path.write_text(
+                "\n".join(
+                    [
+                        "Execution Reliability Gate",
+                        "replay_mismatch_count=0",
+                        "invalid_transition_count=0",
+                        "journal_coverage_ratio=1.000",
+                        "replay_mismatch_categories={}",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            asyncio.run(reconcile.reconcile_tick(bot))
+            k2 = dict(getattr(bot.state, "guard_knobs", {}) or {})
+            self.assertTrue(bool(k2.get("allow_entries", False)))
+            self.assertIn("runtime_gate_warmup", str(k2.get("reason") or ""))
 
 
 if __name__ == "__main__":

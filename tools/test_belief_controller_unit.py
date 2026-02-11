@@ -573,6 +573,60 @@ class BeliefControllerTests(unittest.TestCase):
         self.assertLessEqual(float(critical_mix.max_notional_usdt), float(unknown_only.max_notional_usdt))
         self.assertGreaterEqual(float(critical_mix.min_entry_conf), float(unknown_only.min_entry_conf))
 
+    def test_runtime_gate_critical_trip_freezes_then_warms_up(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_SYMBOL_WEIGHT=0.0,
+            BELIEF_STREAK_WEIGHT=0.0,
+            BELIEF_YELLOW_SCORE=99.0,
+            BELIEF_ORANGE_SCORE=199.0,
+            BELIEF_RED_SCORE=299.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=199.0,
+            BELIEF_RED_GROWTH=299.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_RUNTIME_GATE_RECOVER_SEC=60.0,
+            BELIEF_RUNTIME_GATE_CRITICAL_TRIP_THRESHOLD=2.0,
+            BELIEF_RUNTIME_GATE_CRITICAL_CLEAR_THRESHOLD=1.0,
+            BELIEF_RUNTIME_GATE_WARMUP_NOTIONAL_SCALE=0.5,
+            BELIEF_RUNTIME_GATE_WARMUP_LEVERAGE_SCALE=0.5,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+        tripped = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "runtime_gate_degraded": False,
+                "runtime_gate_cat_position": 1,
+                "runtime_gate_cat_replace_race": 1,
+            },
+            cfg,
+        )
+        self.assertFalse(tripped.allow_entries)
+        self.assertEqual(float(tripped.max_notional_usdt), 0.0)
+        self.assertTrue(bool(getattr(tripped, "runtime_gate_degraded", False)))
+        self.assertIn("runtime_gate_degraded", str(tripped.reason))
+
+        clock.tick(1.0)
+        warm = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "runtime_gate_degraded": False,
+                "runtime_gate_cat_position": 0,
+                "runtime_gate_cat_replace_race": 0,
+            },
+            cfg,
+        )
+        self.assertTrue(warm.allow_entries)
+        self.assertIn("runtime_gate_warmup", str(warm.reason))
+        self.assertLessEqual(float(warm.max_notional_usdt), 50.0)
+
     def test_post_red_recovery_ladder_applies_warmup_caps(self):
         cfg = types.SimpleNamespace(
             BELIEF_DEBT_REF_SEC=100.0,

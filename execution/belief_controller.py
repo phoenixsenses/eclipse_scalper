@@ -66,6 +66,7 @@ class BeliefController:
         self._down_since: Dict[str, float] = {}
         self._last_trace: Optional[DecisionTrace] = None
         self._runtime_gate_recover_until = 0.0
+        self._runtime_gate_critical_hold_until = 0.0
         self._post_red_warmup_until = 0.0
 
     def explain(self) -> DecisionTrace:
@@ -382,6 +383,17 @@ class BeliefController:
         gate_warmup_notional_scale = _clamp(self._cfg(cfg, "BELIEF_RUNTIME_GATE_WARMUP_NOTIONAL_SCALE", 0.5), 0.0, 1.0)
         gate_warmup_lev_scale = _clamp(self._cfg(cfg, "BELIEF_RUNTIME_GATE_WARMUP_LEVERAGE_SCALE", 0.6), 0.1, 1.0)
         gate_trip_kill = bool(self._cfg(cfg, "BELIEF_RUNTIME_GATE_TRIP_KILL", False))
+        gate_critical_trip_threshold = max(
+            0.0, self._cfg(cfg, "BELIEF_RUNTIME_GATE_CRITICAL_TRIP_THRESHOLD", 3.0)
+        )
+        gate_critical_clear_threshold = max(
+            0.0,
+            self._cfg(
+                cfg,
+                "BELIEF_RUNTIME_GATE_CRITICAL_CLEAR_THRESHOLD",
+                (gate_critical_trip_threshold * 0.5),
+            ),
+        )
         reconcile_first_gate_count_threshold = max(
             1, int(self._cfg(cfg, "BELIEF_RECONCILE_FIRST_GATE_COUNT_THRESHOLD", 2.0))
         )
@@ -398,7 +410,29 @@ class BeliefController:
         )
         runtime_recovering = bool(now < float(self._runtime_gate_recover_until))
         post_red_recovering = bool(now < float(self._post_red_warmup_until))
-        if runtime_gate_degraded:
+        critical_total = (
+            float(runtime_gate_cat_position)
+            + float(runtime_gate_cat_orphan)
+            + float(runtime_gate_cat_coverage_gap)
+            + float(runtime_gate_cat_replace_race)
+            + float(runtime_gate_cat_contradiction)
+        )
+        critical_trip = bool(critical_total >= gate_critical_trip_threshold)
+        if critical_trip:
+            self._runtime_gate_critical_hold_until = float(now + gate_recover_sec)
+        critical_hold_active = bool(
+            (now < float(self._runtime_gate_critical_hold_until))
+            and (critical_total >= gate_critical_clear_threshold)
+        )
+        runtime_gate_effective_degraded = bool(runtime_gate_degraded or critical_trip or critical_hold_active)
+        runtime_gate_effective_reason = str(runtime_gate_reason or "")
+        if (critical_trip or critical_hold_active) and not runtime_gate_reason:
+            runtime_gate_effective_reason = (
+                f"runtime_gate_critical(total={critical_total:.0f},"
+                f"clear={gate_critical_clear_threshold:.0f},trip={gate_critical_trip_threshold:.0f})"
+            )
+
+        if runtime_gate_effective_degraded:
             self._runtime_gate_recover_until = float(now + gate_recover_sec)
             allow_entries = False
             max_notional = 0.0
@@ -414,8 +448,8 @@ class BeliefController:
             if self._MODES.index(self.mode) < self._MODES.index("ORANGE"):
                 self.mode = "ORANGE"
             kill_trip = bool(kill_trip or gate_trip_kill)
-            if runtime_gate_reason:
-                reason = f"{reason} | runtime_gate_degraded:{runtime_gate_reason}"
+            if runtime_gate_effective_reason:
+                reason = f"{reason} | runtime_gate_degraded:{runtime_gate_effective_reason}"
             else:
                 reason = f"{reason} | runtime_gate_degraded"
         elif reconcile_first_spike_degraded:
@@ -532,11 +566,11 @@ class BeliefController:
         recovery_stage = ""
         unlock_conditions = "stable"
         next_unlock_sec = 0.0
-        if runtime_gate_degraded:
+        if runtime_gate_effective_degraded:
             recovery_stage = "RUNTIME_GATE_DEGRADED"
             unlock_conditions = (
-                f"runtime gate clear required ({runtime_gate_reason})"
-                if runtime_gate_reason
+                f"runtime gate clear required ({runtime_gate_effective_reason})"
+                if runtime_gate_effective_reason
                 else "runtime gate clear required"
             )
         elif reconcile_first_spike_degraded:
@@ -591,8 +625,8 @@ class BeliefController:
             reason=f"{reason}{(' | ' + transition) if transition else ''}",
             debt_score=float(debt_score),
             debt_growth_per_min=float(debt_growth_per_min),
-            runtime_gate_degraded=bool(runtime_gate_degraded),
-            runtime_gate_reason=str(runtime_gate_reason),
+            runtime_gate_degraded=bool(runtime_gate_effective_degraded),
+            runtime_gate_reason=str(runtime_gate_effective_reason),
             runtime_gate_degrade_score=float(runtime_gate_degrade_score),
             reconcile_first_gate_degraded=bool(reconcile_first_spike_degraded),
             reconcile_first_gate_count=int(reconcile_first_gate_count),
