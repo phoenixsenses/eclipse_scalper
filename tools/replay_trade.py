@@ -24,17 +24,40 @@ def _load(path: Path) -> List[dict]:
     return out
 
 
+def _symkey(sym: str) -> str:
+    s = (sym or "").upper().strip()
+    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
+    s = s.replace(":USDT", "USDT").replace(":", "")
+    s = s.replace("/", "")
+    if s.endswith("USDTUSDT"):
+        s = s[:-4]
+    return s
+
+
 def _matches(ev: dict, correlation_id: str, symbol: str) -> bool:
     data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
     corr = str(data.get("correlation_id") or ev.get("correlation_id") or "")
     entity = str(data.get("entity") or "")
-    sym = str(data.get("k") or data.get("symbol") or "")
+    ev_sym = str(
+        data.get("k")
+        or data.get("symbol")
+        or data.get("symbol_key")
+        or data.get("sym")
+        or ev.get("symbol")
+        or ev.get("symbol_key")
+        or ""
+    )
     if correlation_id:
         if correlation_id == corr or correlation_id == entity:
             return True
     if symbol:
-        s = symbol.upper()
-        if s in (str(sym).upper(), str(entity).upper()):
+        want = _symkey(symbol)
+        got = _symkey(ev_sym)
+        ent = _symkey(entity)
+        if want and want in (got, ent):
+            return True
+        # Fallback for entity strings like "POSITION:BTCUSDT"
+        if want and want in str(entity).upper():
             return True
     if not correlation_id and not symbol:
         return True
