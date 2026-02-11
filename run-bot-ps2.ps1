@@ -240,9 +240,22 @@ $env:RECONCILE_TP_FALLBACK_PCT = "0.0050"
 # ----------------------------
 # Preflight + smoke controls
 # ----------------------------
+function Parse-InvariantDouble([string]$raw, [double]$defaultValue = 0.0) {
+  if (-not $raw) { return $defaultValue }
+  $value = 0.0
+  $ok = [double]::TryParse(
+    $raw,
+    [System.Globalization.NumberStyles]::Float,
+    [System.Globalization.CultureInfo]::InvariantCulture,
+    [ref]$value
+  )
+  if ($ok) { return $value }
+  return $defaultValue
+}
+
 $safeProfileMaxLeverage = 1.0
 if ($env:SAFE_PROFILE_MAX_LEVERAGE -and $env:SAFE_PROFILE_MAX_LEVERAGE.Trim() -ne "") {
-  [void][double]::TryParse($env:SAFE_PROFILE_MAX_LEVERAGE, [ref]$safeProfileMaxLeverage)
+  $safeProfileMaxLeverage = Parse-InvariantDouble -raw $env:SAFE_PROFILE_MAX_LEVERAGE -defaultValue 1.0
 }
 $runPreflightOnly = ($env:RUN_PREFLIGHT_ONLY -eq "1")
 $runSmoke = ($env:RUN_SMOKE -eq "1")
@@ -282,11 +295,11 @@ function Invoke-Preflight {
   [double]$firstLiveCap = 0.0
   [double]$dailyLoss = 0.0
   [double]$drawdown = 0.0
-  [void][double]::TryParse(($env:FIXED_NOTIONAL_USDT + ""), [ref]$notional)
-  [void][double]::TryParse(($env:LEVERAGE + ""), [ref]$lev)
-  [void][double]::TryParse(($env:FIRST_LIVE_MAX_NOTIONAL_USDT + ""), [ref]$firstLiveCap)
-  [void][double]::TryParse(($env:MAX_DAILY_LOSS_PCT + ""), [ref]$dailyLoss)
-  [void][double]::TryParse(($env:MAX_DRAWDOWN_PCT + ""), [ref]$drawdown)
+  $notional = Parse-InvariantDouble -raw ($env:FIXED_NOTIONAL_USDT + "")
+  $lev = Parse-InvariantDouble -raw ($env:LEVERAGE + "")
+  $firstLiveCap = Parse-InvariantDouble -raw ($env:FIRST_LIVE_MAX_NOTIONAL_USDT + "")
+  $dailyLoss = Parse-InvariantDouble -raw ($env:MAX_DAILY_LOSS_PCT + "")
+  $drawdown = Parse-InvariantDouble -raw ($env:MAX_DRAWDOWN_PCT + "")
 
   if ($notional -le 0) {
     $errorList.Add("FIXED_NOTIONAL_USDT must be > 0.")
@@ -319,13 +332,15 @@ function Invoke-Preflight {
   }
 
   $preflightJson = "logs/preflight_check.json"
-  python tools/preflight_check.py --max-leverage $safeProfileMaxLeverage --json-out $preflightJson
+  $preflightOutput = python tools/preflight_check.py --max-leverage $safeProfileMaxLeverage --json-out $preflightJson 2>&1
   if ($LASTEXITCODE -ne 0) {
+    if ($preflightOutput) { Write-Host $preflightOutput }
     $errorList.Add("tools/preflight_check.py failed. Review $preflightJson for details.")
   }
 
-  python tools/corr_group_check.py
+  $corrOutput = python tools/corr_group_check.py 2>&1
   if ($LASTEXITCODE -ne 0) {
+    if ($corrOutput) { Write-Host $corrOutput }
     $errorList.Add("tools/corr_group_check.py failed. Fix CORR_GROUP* settings.")
   }
 
@@ -360,7 +375,11 @@ function Invoke-Preflight {
   return $true
 }
 
-if (-not (Invoke-Preflight)) {
+$preflightOk = Invoke-Preflight
+if ($preflightOk -is [System.Array]) {
+  $preflightOk = $preflightOk[-1]
+}
+if (-not [bool]$preflightOk) {
   exit 2
 }
 
