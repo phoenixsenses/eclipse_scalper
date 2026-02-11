@@ -95,6 +95,9 @@ jobs:
           pytest -q tools/test_state_machine_unit.py
           pytest -q tools/test_belief_controller_unit.py
           pytest -q tools/test_order_router_unit.py
+          pytest -q tools/test_order_router_replace_unit.py
+          pytest -q tools/test_order_router_classifier_unit.py
+          pytest -q tools/test_order_router_idempotency_unit.py
           pytest -q tools/test_replace_manager_unit.py
           pytest -q tools/test_intent_ledger_unit.py
           pytest -q tools/test_protection_manager_unit.py
