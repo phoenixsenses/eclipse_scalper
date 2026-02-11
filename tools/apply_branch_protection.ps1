@@ -38,17 +38,17 @@ Write-Host "Checking gh authentication..."
 & $GhExe auth status | Out-Null
 
 $checks = @(
-    @{ context = "Chaos Required - ack-after-fill-recovery" },
-    @{ context = "Chaos Required - cancel-unknown-idempotent" },
-    @{ context = "Chaos Required - replace-race-single-exposure" },
-    @{ context = "Execution Invariants and Gate" }
+    "Chaos Required - ack-after-fill-recovery",
+    "Chaos Required - cancel-unknown-idempotent",
+    "Chaos Required - replace-race-single-exposure",
+    "Execution Invariants and Gate"
 )
 
 if (-not $VerifyOnly) {
     $payload = @{
         required_status_checks = @{
             strict = $true
-            checks = $checks
+            contexts = $checks
         }
         enforce_admins = $true
         required_pull_request_reviews = @{
@@ -68,8 +68,8 @@ if (-not $VerifyOnly) {
 
     $tmp = New-TemporaryFile
     try {
-        Set-Content -Path $tmp -Value ($payload | ConvertTo-Json -Depth 10) -Encoding UTF8
-        Write-Host "Applying branch protection to $Owner/$Repo:$Branch ..."
+        Set-Content -Path $tmp -Value ($payload | ConvertTo-Json -Depth 10) -Encoding Ascii
+        Write-Host "Applying branch protection to $Owner/${Repo}:$Branch ..."
         Invoke-GhJson -Exe $GhExe -Method "PUT" -Endpoint "/repos/$Owner/$Repo/branches/$Branch/protection" -InputPath $tmp
     }
     finally {
@@ -80,14 +80,26 @@ if (-not $VerifyOnly) {
 }
 
 Write-Host "Verifying required check contexts..."
-$contexts = & $GhExe api "/repos/$Owner/$Repo/branches/$Branch/protection" --jq ".required_status_checks.checks[].context"
-$contextsText = ($contexts | Out-String)
+$rawProtection = & $GhExe api "/repos/$Owner/$Repo/branches/$Branch/protection"
+$contextsText = ""
+try {
+    $payload = $rawProtection | ConvertFrom-Json
+    if ($null -ne $payload.required_status_checks.contexts) {
+        $contextsText = (($payload.required_status_checks.contexts | ForEach-Object { [string]$_ }) -join "`n")
+    }
+    elseif ($null -ne $payload.required_status_checks.checks) {
+        $contextsText = (($payload.required_status_checks.checks | ForEach-Object { [string]$_.context }) -join "`n")
+    }
+}
+catch {
+    $contextsText = [string]($rawProtection | Out-String)
+}
 
 foreach ($check in $checks) {
-    $ctx = [string]$check.context
+    $ctx = [string]$check
     if ($contextsText -notmatch [Regex]::Escape($ctx)) {
         throw "Missing required check context: $ctx"
     }
 }
 
-Write-Host "Branch protection is configured correctly for $Owner/$Repo:$Branch"
+Write-Host "Branch protection is configured correctly for $Owner/${Repo}:$Branch"

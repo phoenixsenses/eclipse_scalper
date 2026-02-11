@@ -40,11 +40,11 @@ $branch = "main"
 {
   "required_status_checks": {
     "strict": true,
-    "checks": [
-      { "context": "Chaos Required - ack-after-fill-recovery" },
-      { "context": "Chaos Required - cancel-unknown-idempotent" },
-      { "context": "Chaos Required - replace-race-single-exposure" },
-      { "context": "Execution Invariants and Gate" }
+    "contexts": [
+      "Chaos Required - ack-after-fill-recovery",
+      "Chaos Required - cancel-unknown-idempotent",
+      "Chaos Required - replace-race-single-exposure",
+      "Execution Invariants and Gate"
     ]
   },
   "enforce_admins": true,
@@ -84,11 +84,11 @@ $branch="main"
 $body = @{
   required_status_checks = @{
     strict = $true
-    checks = @(
-      @{ context = "Chaos Required - ack-after-fill-recovery"; app_id = -1 }
-      @{ context = "Chaos Required - cancel-unknown-idempotent"; app_id = -1 }
-      @{ context = "Chaos Required - replace-race-single-exposure"; app_id = -1 }
-      @{ context = "Execution Invariants and Gate"; app_id = -1 }
+    contexts = @(
+      "Chaos Required - ack-after-fill-recovery"
+      "Chaos Required - cancel-unknown-idempotent"
+      "Chaos Required - replace-race-single-exposure"
+      "Execution Invariants and Gate"
     )
   }
   enforce_admins = $true
@@ -124,7 +124,7 @@ Invoke-RestMethod `
 ```powershell
 & "C:\Program Files\GitHub CLI\gh.exe" api `
   "/repos/phoenixsenses/eclipse_scalper/branches/main/protection" `
-  --jq ".required_status_checks.checks[].context"
+  --jq ".required_status_checks.contexts[]"
 ```
 
 ## Verify (REST API)

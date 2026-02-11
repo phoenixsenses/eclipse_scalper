@@ -158,6 +158,89 @@ jobs:
             logs/telemetry_gate_missing_fixture.jsonl
             logs/journal_gate_missing_fixture.jsonl
 
+      - name: Build PR reliability summary
+        if: always()
+        run: |
+          mkdir -p logs
+          {
+            echo "## Execution Reliability Gate Summary"
+            echo ""
+            echo "Required chaos scenarios:"
+            echo "- Chaos Required - ack-after-fill-recovery"
+            echo "- Chaos Required - cancel-unknown-idempotent"
+            echo "- Chaos Required - replace-race-single-exposure"
+            echo ""
+            echo "Invariant gate metrics:"
+            if [ -f logs/reliability_gate_ci.txt ]; then
+              sed 's/^/- /' logs/reliability_gate_ci.txt
+            else
+              echo "- reliability_gate_ci.txt missing"
+            fi
+          } > logs/reliability_pr_summary.md
+
+      - name: Upload PR reliability summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: execution-reliability-pr-summary
+          path: logs/reliability_pr_summary.md
+
+  pr-reliability-comment:
+    name: PR Reliability Comment
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    needs: execution-invariants
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Download PR reliability summary
+        uses: actions/download-artifact@v4
+        with:
+          name: execution-reliability-pr-summary
+          path: logs
+
+      - name: Post sticky PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+            const marker = "<!-- execution-reliability-summary -->";
+            const summaryPath = "logs/reliability_pr_summary.md";
+            let body = "Execution reliability summary artifact missing.";
+            if (fs.existsSync(summaryPath)) {
+              body = fs.readFileSync(summaryPath, "utf8");
+            }
+            body = `${marker}\n${body}`;
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            });
+            const existing = comments.find(
+              (c) => c.user && c.user.type === "Bot" && c.body && c.body.includes(marker)
+            );
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body,
+              });
+            }
+
   chaos-nightly:
     name: Chaos Full Suites (Nightly)
     runs-on: ubuntu-latest
@@ -177,7 +260,92 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Restore nightly chaos drift baseline
+        uses: actions/cache/restore@v4
+        with:
+          path: logs/chaos_nightly_prev.json
+          key: chaos-nightly-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: |
+            chaos-nightly-${{ github.ref_name }}-
+
       - name: Run full chaos suites
         run: |
-          pytest -q tools/test_execution_chaos_scenarios.py
-          pytest -q tools/test_execution_chaos_scenarios_v2.py
+          mkdir -p logs
+          pytest -q tools/test_execution_chaos_scenarios.py --junitxml=logs/chaos_suite_1.xml
+          pytest -q tools/test_execution_chaos_scenarios_v2.py --junitxml=logs/chaos_suite_2.xml
+
+      - name: Compare nightly chaos drift
+        env:
+          CHAOS_NIGHTLY_MAX_INVARIANT_DRIFT: "0"
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          def _suite_failures(path: Path) -> int:
+              if not path.exists():
+                  return 0
+              root = ET.parse(path).getroot()
+              if root.tag == "testsuite":
+                  return int(root.attrib.get("failures", 0) or 0) + int(root.attrib.get("errors", 0) or 0)
+              total = 0
+              for ts in root.findall(".//testsuite"):
+                  total += int(ts.attrib.get("failures", 0) or 0) + int(ts.attrib.get("errors", 0) or 0)
+              return total
+
+          logs = Path("logs")
+          logs.mkdir(parents=True, exist_ok=True)
+          current = {
+              "suite1_invariant_failures": _suite_failures(logs / "chaos_suite_1.xml"),
+              "suite2_invariant_failures": _suite_failures(logs / "chaos_suite_2.xml"),
+          }
+          current["total_invariant_failures"] = int(current["suite1_invariant_failures"] + current["suite2_invariant_failures"])
+
+          prev_path = logs / "chaos_nightly_prev.json"
+          previous = {}
+          if prev_path.exists():
+              try:
+                  previous = json.loads(prev_path.read_text(encoding="utf-8"))
+              except Exception:
+                  previous = {}
+          prev_total = int(previous.get("total_invariant_failures", 0) or 0)
+          curr_total = int(current["total_invariant_failures"])
+          delta = int(curr_total - prev_total)
+          threshold = int(os.getenv("CHAOS_NIGHTLY_MAX_INVARIANT_DRIFT", "0") or 0)
+
+          report = [
+              "Chaos Nightly Drift",
+              "===================",
+              f"previous_total_invariant_failures={prev_total}",
+              f"current_total_invariant_failures={curr_total}",
+              f"delta_invariant_failures={delta}",
+              f"threshold={threshold}",
+          ]
+          (logs / "chaos_nightly_report.txt").write_text("\n".join(report) + "\n", encoding="utf-8")
+          (logs / "chaos_nightly_current.json").write_text(json.dumps(current, indent=2) + "\n", encoding="utf-8")
+          (logs / "chaos_nightly_prev.json").write_text(json.dumps(current, indent=2) + "\n", encoding="utf-8")
+
+          print("\n".join(report))
+          if delta > threshold:
+              raise SystemExit(2)
+          PY
+
+      - name: Save nightly chaos drift baseline
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: logs/chaos_nightly_prev.json
+          key: chaos-nightly-${{ github.ref_name }}-${{ github.run_id }}
+
+      - name: Upload nightly chaos artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chaos-nightly-artifacts
+          path: |
+            logs/chaos_suite_1.xml
+            logs/chaos_suite_2.xml
+            logs/chaos_nightly_report.txt
+            logs/chaos_nightly_current.json
