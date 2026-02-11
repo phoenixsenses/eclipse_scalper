@@ -18,11 +18,15 @@ class TelemetryWorkflowFlagsTests(unittest.TestCase):
         text = wf.read_text(encoding="utf-8")
         required = [
             "RECOVERY_RED_LOCK_CRITICAL_STREAK",
+            "simulate_red_lock_event",
+            "simulate_red_lock_seed_streak",
             "--reconcile-first-gate-critical-threshold",
             "--reconcile-first-gate-severity-threshold",
             "--reconcile-first-gate-severity-streak-threshold",
             "--recovery-red-lock-critical-streak",
             "Restore notifier state cache",
+            "Seed notifier state for RED_LOCK smoke",
+            "Inject RED_LOCK belief-state smoke event",
             "actions/cache/restore@v4",
             "Save notifier state cache",
             "actions/cache/save@v4",

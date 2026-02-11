@@ -5,6 +5,15 @@ on:
     # every 6 hours to keep the snapshot fresh
     - cron: '0 */6 * * *'
   workflow_dispatch:
+    inputs:
+      simulate_red_lock_event:
+        description: "Inject a synthetic RED_LOCK belief-state event for notifier smoke testing"
+        required: false
+        default: "false"
+      simulate_red_lock_seed_streak:
+        description: "Optional prior RED_LOCK streak seed (e.g. 1 with threshold=2 to force critical)"
+        required: false
+        default: "0"
 
 jobs:
   snapshot:
@@ -31,6 +40,25 @@ jobs:
           restore-keys: |
             telemetry-notify-state-${{ github.ref_name }}-
 
+      - name: Seed notifier state for RED_LOCK smoke
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.simulate_red_lock_event == 'true' && github.event.inputs.simulate_red_lock_seed_streak != '0' }}
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("logs/telemetry_dashboard_notify_state.json")
+          data = {}
+          if p.exists():
+            try:
+              data = json.loads(p.read_text(encoding="utf-8"))
+            except Exception:
+              data = {}
+          seed = int("${{ github.event.inputs.simulate_red_lock_seed_streak }}")
+          data["recovery_red_lock_streak"] = max(int(data.get("recovery_red_lock_streak", 0) or 0), seed)
+          p.write_text(json.dumps(data, ensure_ascii=True, indent=2) + "\n", encoding="utf-8")
+          print(f"seeded notifier state recovery_red_lock_streak={data['recovery_red_lock_streak']}")
+          PY
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -48,6 +76,28 @@ jobs:
             --journal logs/execution_journal.jsonl \
             --output logs/reliability_gate.txt \
             --allow-missing
+
+      - name: Inject RED_LOCK belief-state smoke event
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.simulate_red_lock_event == 'true' }}
+        run: |
+          python - <<'PY'
+          import json, time
+          from pathlib import Path
+          p = Path("logs/telemetry.jsonl")
+          payload = {
+            "event": "execution.belief_state",
+            "ts": float(time.time()),
+            "data": {
+              "guard_recovery_stage": "RED_LOCK",
+              "guard_unlock_conditions": "smoke: injected RED_LOCK event",
+              "guard_next_unlock_sec": 300.0,
+            },
+          }
+          p.parent.mkdir(parents=True, exist_ok=True)
+          with p.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(payload, ensure_ascii=True) + "\n")
+          print("injected RED_LOCK belief-state smoke event")
+          PY
 
       - name: Run telemetry dashboard notifier
         run: >
