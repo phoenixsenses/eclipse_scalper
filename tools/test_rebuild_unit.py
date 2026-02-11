@@ -93,6 +93,7 @@ class RebuildUnitTests(unittest.TestCase):
             rows = [json.loads(x) for x in ledger_path.read_text(encoding="utf-8").splitlines() if x.strip()]
             self.assertTrue(any(str(r.get("client_order_id") or "") == "ENTRY_DOGE_1" for r in rows))
             self.assertTrue(any(str(r.get("reason") or "") == "rebuild_orphan_canceled" for r in rows))
+            self.assertTrue(any(str(r.get("reason") or "") == "rebuild_position_seen" for r in rows))
 
     def test_rebuild_can_freeze_on_orphans(self):
         with tempfile.TemporaryDirectory() as td:
@@ -141,11 +142,15 @@ class RebuildUnitTests(unittest.TestCase):
             out = asyncio.run(rebuild.rebuild_local_state(bot, freeze_on_orphans=False, adopt_orphans=True))
             self.assertTrue(out.get("ok"))
             self.assertEqual(int(out.get("orphans", 0)), 0)
+            self.assertEqual(int(out.get("orphan_decisions_total", 0)), 1)
+            decisions = list(out.get("orphan_decisions_list") or [])
+            self.assertEqual(str((decisions[0] if decisions else {}).get("action") or ""), "ADOPT")
             self.assertEqual(len(ex.cancel_calls), 0)
             ledger_path = Path(td) / "intent_ledger.jsonl"
             rows = [json.loads(x) for x in ledger_path.read_text(encoding="utf-8").splitlines() if x.strip()]
             self.assertTrue(any(str(r.get("client_order_id") or "") == "SL_BTC_1" for r in rows))
             self.assertTrue(any(str(r.get("reason") or "") == "rebuild_open_order_seen" for r in rows))
+            self.assertTrue(any(str(r.get("reason") or "") == "rebuild_orphan_adopted" for r in rows))
 
     def test_rebuild_orphan_policy_override_applies_deterministically(self):
         with tempfile.TemporaryDirectory() as td:

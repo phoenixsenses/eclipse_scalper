@@ -267,6 +267,13 @@ def _rebuild_intent_id(*, symbol: str, order_id: str, client_order_id: str) -> s
     return f"REBUILD-{sym}-{digest}"
 
 
+def _rebuild_position_intent_id(*, symbol: str, side: str, entry_ts: float) -> str:
+    base = f"{symbol}|{side}|{int(float(entry_ts or 0.0))}"
+    digest = hashlib.sha1(base.encode("utf-8")).hexdigest()[:12]
+    sym = _symkey(symbol)[:8] or "UNK"
+    return f"REBUILD-POS-{sym}-{digest}"
+
+
 async def _fetch_positions(ex, symbols: Optional[List[str]] = None) -> List[dict]:
     fp = getattr(ex, "fetch_positions", None)
     if not callable(fp):
@@ -381,6 +388,25 @@ async def rebuild_local_state(
         entry_price = _extract_entry_price(p)
         entry_ts = fill_ts.get(k, _now())
         rebuilt[k] = _build_position(symbol=k, side=side, size=float(size), entry_price=float(entry_price), entry_ts=float(entry_ts))
+        if _intent_ledger is not None:
+            try:
+                pos_intent_id = _rebuild_position_intent_id(symbol=k, side=side, entry_ts=entry_ts)
+                _intent_ledger.record(
+                    bot,
+                    intent_id=pos_intent_id,
+                    stage="OPEN",
+                    symbol=k,
+                    side=side,
+                    order_type="POSITION",
+                    is_exit=False,
+                    client_order_id="",
+                    order_id="",
+                    status="open",
+                    reason="rebuild_position_seen",
+                    meta={"size": float(size), "entry_price": float(entry_price)},
+                )
+            except Exception:
+                pass
 
     orphan_decisions: List[dict] = []
     orphan_policy = _orphan_policy_map(bot)
@@ -448,8 +474,6 @@ async def rebuild_local_state(
                 )
             except Exception:
                 pass
-        if action == "ADOPT":
-            continue
         ent = {
             "symbol": k,
             "order_id": order_id,
@@ -464,7 +488,26 @@ async def rebuild_local_state(
             "cancel_ok": False,
             "policy_source": str(policy_source),
         }
-        if action == "CANCEL":
+        if action == "ADOPT":
+            if _intent_ledger is not None:
+                try:
+                    _intent_ledger.record(
+                        bot,
+                        intent_id=intent_id,
+                        stage="OPEN",
+                        symbol=k,
+                        side=str(o.get("side") or "").lower().strip(),
+                        order_type=_order_type(o),
+                        is_exit=bool(reduce_only),
+                        client_order_id=client_order_id,
+                        order_id=order_id,
+                        status=(status or "open"),
+                        reason="rebuild_orphan_adopted",
+                        meta={"class": klass, "action": action, "policy_source": policy_source},
+                    )
+                except Exception:
+                    pass
+        elif action == "CANCEL":
             ent["cancel_ok"] = bool(await _cancel_order_best_effort(ex, str(ent["order_id"]), str(o.get("symbol") or k)))
             if _intent_ledger is not None:
                 try:
@@ -532,9 +575,19 @@ async def rebuild_local_state(
             if prev is not None:
                 rebuilt[k] = prev
 
+    orphan_decisions = sorted(
+        list(orphan_decisions),
+        key=lambda d: (
+            str(d.get("symbol") or ""),
+            str(d.get("action") or ""),
+            str(d.get("order_id") or ""),
+        ),
+    )
+
     st.positions = rebuilt
 
     rc = _ensure_run_context(bot)
+    actionable_orphans = [x for x in orphan_decisions if str(x.get("action") or "").upper() != "ADOPT"]
     summary = {
         "ok": True,
         "ts": _now(),
@@ -542,8 +595,10 @@ async def rebuild_local_state(
         "positions_prev": int(len(old_positions)),
         "open_orders": int(len(open_orders)),
         "fills_seen": int(len(fills)),
-        "orphans": int(len(orphan_decisions)),
-        "orphans_list": orphan_decisions[:50],
+        "orphans": int(len(actionable_orphans)),
+        "orphans_list": actionable_orphans[:50],
+        "orphan_decisions_total": int(len(orphan_decisions)),
+        "orphan_decisions_list": orphan_decisions[:50],
         "orphan_action_counts": {
             "ADOPT": int(sum(1 for x in orphan_decisions if str(x.get("action") or "").upper() == "ADOPT")),
             "CANCEL": int(sum(1 for x in orphan_decisions if str(x.get("action") or "").upper() == "CANCEL")),
