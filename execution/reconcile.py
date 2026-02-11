@@ -11,7 +11,7 @@ from types import SimpleNamespace
 from typing import Dict, Any, Optional, Tuple, List
 
 from utils.logging import log_entry, log_core
-from execution.order_router import create_order, cancel_order  # ✅ ROUTER
+from execution.order_router import create_order, cancel_order, cancel_replace_order  # ✅ ROUTER
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -47,6 +47,17 @@ def _optional_import(module: str, attr: Optional[str] = None):
 
 # Optional diagnostics dump (if present)
 _print_diagnostics = _optional_import("execution.diagnostics", "print_diagnostics")
+_tel_emit = _optional_import("execution.telemetry", "emit")
+_BeliefController = _optional_import("execution.belief_controller", "BeliefController")
+_compute_belief_evidence = _optional_import("execution.belief_evidence", "compute_belief_evidence")
+_intent_ledger_summary = _optional_import("execution.intent_ledger", "summary")
+_runtime_reliability_gate = _optional_import("execution.reliability_gate_runtime", "get_runtime_gate")
+_kill_request_halt = _optional_import("risk.kill_switch", "request_halt")
+_assess_stop_coverage = _optional_import("execution.protection_manager", "assess_stop_coverage")
+_assess_tp_coverage = _optional_import("execution.protection_manager", "assess_tp_coverage")
+_should_refresh_protection = _optional_import("execution.protection_manager", "should_refresh_protection")
+_state_machine = _optional_import("execution.state_machine")
+_journal_transition = _optional_import("execution.event_journal", "journal_transition")
 
 
 def _diag_dump(bot, note: str) -> None:
@@ -142,6 +153,52 @@ def _phantom_store(bot) -> dict:
     return store
 
 
+def _position_belief_store(bot) -> dict:
+    rc = _ensure_run_context(bot)
+    store = rc.get("position_belief_state")
+    if not isinstance(store, dict):
+        store = {}
+        rc["position_belief_state"] = store
+    return store
+
+
+def _set_position_belief_state(bot, symbol: str, next_state: str, reason: str) -> None:
+    if not symbol:
+        return
+    k = _symkey(symbol)
+    if not k:
+        return
+    store = _position_belief_store(bot)
+    prev = str(store.get(k) or "FLAT").upper()
+    nxt = str(next_state or "").upper().strip()
+    if not nxt or prev == nxt:
+        return
+    strict = _truthy(_cfg(bot, "RECONCILE_STRICT_POSITION_TRANSITIONS", False))
+    if _state_machine is not None:
+        try:
+            mk = getattr(_state_machine, "MachineKind", None)
+            if mk is not None:
+                _state_machine.transition(mk.POSITION_BELIEF, prev, nxt, reason)
+        except Exception:
+            if strict:
+                raise
+            pass
+    store[k] = nxt
+    if callable(_journal_transition):
+        try:
+            _journal_transition(
+                bot,
+                machine="position_belief",
+                entity=k,
+                state_from=prev,
+                state_to=nxt,
+                reason=reason,
+                meta={},
+            )
+        except Exception:
+            pass
+
+
 def _is_binance_futures(bot) -> bool:
     """
     Best-effort check for binance futures mode so we can build raw symbols like DOGE/USDT:USDT.
@@ -170,6 +227,142 @@ def _is_binance_futures(bot) -> bool:
         pass
     # If we can't confirm futures, default to False to avoid bad symbol format on spot.
     return False
+
+
+def _ensure_reconcile_metrics(bot) -> Dict[str, Any]:
+    st = getattr(bot, "state", None)
+    if st is None:
+        return {}
+    rm = getattr(st, "reconcile_metrics", None)
+    if not isinstance(rm, dict):
+        rm = {}
+        try:
+            st.reconcile_metrics = rm
+        except Exception:
+            pass
+    rm.setdefault("mismatch_streak", 0)
+    rm.setdefault("last_mismatch_ts", 0.0)
+    rm.setdefault("repair_last_ts", {})
+    rm.setdefault("mismatch_by_symbol", {})
+    rm.setdefault("belief_debt_sec", 0.0)
+    rm.setdefault("belief_debt_symbols", 0)
+    rm.setdefault("belief_confidence", 1.0)
+    rm.setdefault("evidence_confidence", 1.0)
+    rm.setdefault("evidence_ws_score", 1.0)
+    rm.setdefault("evidence_rest_score", 1.0)
+    rm.setdefault("evidence_fill_score", 1.0)
+    rm.setdefault("evidence_degraded_sources", 0)
+    rm.setdefault("intent_unknown_count", 0)
+    rm.setdefault("intent_unknown_oldest_sec", 0.0)
+    rm.setdefault("intent_unknown_mean_resolve_sec", 0.0)
+    rm.setdefault("runtime_gate_available", False)
+    rm.setdefault("runtime_gate_degraded", False)
+    rm.setdefault("runtime_gate_reason", "")
+    rm.setdefault("runtime_gate_replay_mismatch_count", 0)
+    rm.setdefault("runtime_gate_invalid_transition_count", 0)
+    rm.setdefault("runtime_gate_journal_coverage_ratio", 1.0)
+    rm.setdefault("runtime_gate_mismatch_severity", 0.0)
+    rm.setdefault("runtime_gate_invalid_severity", 0.0)
+    rm.setdefault("runtime_gate_coverage_severity", 0.0)
+    rm.setdefault("runtime_gate_degrade_score", 0.0)
+    rm.setdefault("runtime_gate_replay_mismatch_ids", [])
+    return rm
+
+
+def _record_symbol_mismatch(metrics: Dict[str, Any], symbol: str) -> None:
+    if not isinstance(metrics, dict):
+        return
+    by_sym = metrics.get("mismatch_by_symbol")
+    if not isinstance(by_sym, dict):
+        by_sym = {}
+        metrics["mismatch_by_symbol"] = by_sym
+    k = _symkey(symbol)
+    if not k:
+        return
+    now = _now()
+    ent = by_sym.get(k)
+    if not isinstance(ent, dict):
+        ent = {"first_ts": now, "last_ts": now, "count": 0}
+        by_sym[k] = ent
+    ent["last_ts"] = now
+    ent["count"] = int(ent.get("count", 0) or 0) + 1
+    if _safe_float(ent.get("first_ts", 0.0), 0.0) <= 0:
+        ent["first_ts"] = now
+
+
+def _compute_belief_debt(metrics: Dict[str, Any], *, clear: Optional[set[str]] = None) -> Tuple[float, int]:
+    if not isinstance(metrics, dict):
+        return 0.0, 0
+    by_sym = metrics.get("mismatch_by_symbol")
+    if not isinstance(by_sym, dict):
+        return 0.0, 0
+    clear_set = set(_symkey(x) for x in (clear or set()) if _symkey(x))
+    now = _now()
+    max_age = 0.0
+    active = 0
+    stale_ttl = 3600.0
+    for k in list(by_sym.keys()):
+        ent = by_sym.get(k)
+        if not isinstance(ent, dict):
+            by_sym.pop(k, None)
+            continue
+        last_ts = _safe_float(ent.get("last_ts", 0.0), 0.0)
+        first_ts = _safe_float(ent.get("first_ts", 0.0), 0.0)
+        if k in clear_set:
+            by_sym.pop(k, None)
+            continue
+        if last_ts > 0 and (now - last_ts) > stale_ttl:
+            by_sym.pop(k, None)
+            continue
+        if first_ts <= 0:
+            first_ts = last_ts if last_ts > 0 else now
+            ent["first_ts"] = first_ts
+        age = max(0.0, now - first_ts)
+        if age > 0:
+            active += 1
+            if age > max_age:
+                max_age = age
+    metrics["belief_debt_sec"] = float(max_age)
+    metrics["belief_debt_symbols"] = int(active)
+    return float(max_age), int(active)
+
+
+def _collect_symbol_belief_debt(metrics: Dict[str, Any]) -> Dict[str, float]:
+    out: Dict[str, float] = {}
+    if not isinstance(metrics, dict):
+        return out
+    by_sym = metrics.get("mismatch_by_symbol")
+    if not isinstance(by_sym, dict):
+        return out
+    now = _now()
+    for k, ent in by_sym.items():
+        if not isinstance(ent, dict):
+            continue
+        kk = _symkey(str(k or ""))
+        if not kk:
+            continue
+        first_ts = _safe_float(ent.get("first_ts", 0.0), 0.0)
+        if first_ts <= 0:
+            continue
+        age = max(0.0, now - first_ts)
+        if age > 0:
+            out[kk] = float(age)
+    return out
+
+
+def _ensure_belief_controller(bot):
+    st = getattr(bot, "state", None)
+    if st is None or _BeliefController is None:
+        return None
+    ctl = getattr(st, "belief_controller", None)
+    if ctl is not None:
+        return ctl
+    try:
+        ctl = _BeliefController()
+        st.belief_controller = ctl
+        return ctl
+    except Exception:
+        return None
 
 
 def _canonical_to_binance_linear_raw(k: str) -> str:
@@ -527,6 +720,63 @@ async def _place_stop_ladder_router(
     return None
 
 
+async def _place_tp_ladder_router(
+    bot,
+    *,
+    sym_raw: str,
+    side: str,             # "long"/"short"
+    qty: float,
+    tp_price: float,
+    hedge_side_hint: Optional[str],
+    k: str,
+) -> Optional[str]:
+    tp_side = "sell" if side == "long" else "buy"
+    try:
+        o = await create_order(
+            bot,
+            symbol=sym_raw,
+            type="TAKE_PROFIT_MARKET",
+            side=tp_side,
+            amount=float(qty),
+            price=None,
+            params={},
+            intent_reduce_only=True,
+            intent_close_position=False,
+            stop_price=float(tp_price),
+            hedge_side_hint=hedge_side_hint,
+            retries=4,
+        )
+        if isinstance(o, dict) and o.get("id"):
+            return str(o.get("id"))
+    except Exception as e1:
+        log_entry.warning(f"{k} reconcile tp A failed: {e1}")
+
+    last = None
+    for amt_try in (float(qty), 0.0, 0, "0", "0.0"):
+        try:
+            o = await create_order(
+                bot,
+                symbol=sym_raw,
+                type="TAKE_PROFIT_MARKET",
+                side=tp_side,
+                amount=amt_try,
+                price=None,
+                params={"closePosition": True},
+                intent_reduce_only=True,
+                intent_close_position=True,
+                stop_price=float(tp_price),
+                hedge_side_hint=hedge_side_hint,
+                retries=4,
+            )
+            if isinstance(o, dict) and o.get("id"):
+                return str(o.get("id"))
+        except Exception as e2:
+            last = e2
+            continue
+    log_entry.warning(f"{k} reconcile tp B failed (all fallbacks): {last}")
+    return None
+
+
 def _stop_throttle_ok(bot, k: str) -> bool:
     """
     Hard guard to prevent repeated stop placement attempts.
@@ -553,35 +803,68 @@ def _stop_throttle_ok(bot, k: str) -> bool:
     return True
 
 
-async def _ensure_protective_stop(bot, k: str, pos_obj, ex_side_hint: Optional[str], ex_size: float):
+async def _ensure_protective_stop(bot, k: str, pos_obj, ex_side_hint: Optional[str], ex_size: float) -> str:
     if not _cfg(bot, "GUARDIAN_ENSURE_STOP", True):
-        return
+        return "disabled"
 
     if _truthy(_cfg(bot, "GUARDIAN_RESPECT_KILL_SWITCH", True)) and callable(is_halted):
         try:
             if is_halted(bot):
-                return
+                return "halted"
         except Exception:
             pass
 
     # Throttle first: even if open-orders fetch fails, we refuse to spam stops.
     if not _stop_throttle_ok(bot, k):
-        return
+        return "throttled"
 
     sym_raw = _resolve_raw_symbol(bot, k)
+    rm = _ensure_reconcile_metrics(bot)
+    repair_last = rm.get("repair_last_ts")
+    if not isinstance(repair_last, dict):
+        repair_last = {}
+        rm["repair_last_ts"] = repair_last
+    repair_cd = float(_cfg(bot, "RECONCILE_REPAIR_COOLDOWN_SEC", 90.0))
+    if repair_cd > 0:
+        last_rep = _safe_float(repair_last.get(k), 0.0)
+        if (_now() - last_rep) < repair_cd:
+            return "repair_cooldown"
 
-    # if any reduce-only stop exists, we're good
+    existing_stop_id = ""
+    existing_stop_qty = 0.0
+    coverage_ratio = 1.0
+    needs_refresh = False
+    refresh_reason = ""
+    # if stop exists and coverage is adequate, we're good
     try:
         oo = await _fetch_open_orders_best_effort(bot, sym_raw)
-        for o in oo:
-            if isinstance(o, dict) and _is_reduce_only(o) and _is_stop_like(o):
-                # store id for visibility/debug (optional)
+        if callable(_assess_stop_coverage):
+            cov = _assess_stop_coverage(
+                oo if isinstance(oo, list) else [],
+                required_qty=float(max(0.0, ex_size)),
+                min_coverage_ratio=float(_cfg(bot, "RECONCILE_STOP_MIN_COVERAGE_RATIO", 0.98) or 0.98),
+            )
+            existing_stop_id = str((cov or {}).get("order_id") or "")
+            existing_stop_qty = _safe_float((cov or {}).get("existing_qty"), 0.0)
+            coverage_ratio = _safe_float((cov or {}).get("coverage_ratio"), 1.0)
+            needs_refresh = bool((cov or {}).get("needs_refresh", False))
+            refresh_reason = str((cov or {}).get("reason") or "")
+            if bool((cov or {}).get("covered", False)):
                 try:
-                    if o.get("id"):
-                        setattr(pos_obj, "stop_order_id", str(o.get("id")))
+                    if existing_stop_id:
+                        setattr(pos_obj, "stop_order_id", existing_stop_id)
                 except Exception:
                     pass
-                return
+                return "present"
+        else:
+            for o in oo:
+                if isinstance(o, dict) and _is_reduce_only(o) and _is_stop_like(o):
+                    try:
+                        if o.get("id"):
+                            setattr(pos_obj, "stop_order_id", str(o.get("id")))
+                    except Exception:
+                        pass
+                    return "present"
     except Exception:
         pass
 
@@ -596,7 +879,7 @@ async def _ensure_protective_stop(bot, k: str, pos_obj, ex_side_hint: Optional[s
         msg = f"RECONCILE: {k} no side detected — stop not placed"
         if _alert_ok(bot, f"{k}:no_side", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
             await _safe_speak(bot, msg, "info")
-        return
+        return "no_side"
 
     hedge_side_hint = side  # router maps to positionSide LONG/SHORT if hedge enabled
 
@@ -606,7 +889,7 @@ async def _ensure_protective_stop(bot, k: str, pos_obj, ex_side_hint: Optional[s
         msg = f"RECONCILE: {k} missing entry_price — stop not placed"
         if _alert_ok(bot, f"{k}:no_entry", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
             await _safe_speak(bot, msg, "info")
-        return
+        return "no_entry"
 
     stop_atr_mult = float(_cfg(bot, "STOP_ATR_MULT", 2.0))
     buffer_atr_mult = float(_cfg(bot, "GUARDIAN_STOP_BUFFER_ATR_MULT", 0.0))
@@ -618,30 +901,215 @@ async def _ensure_protective_stop(bot, k: str, pos_obj, ex_side_hint: Optional[s
 
     stop_price = entry_px - dist if side == "long" else entry_px + dist
     if stop_price <= 0:
-        return
+        return "invalid_stop_price"
 
-    oid = await _place_stop_ladder_router(
-        bot,
-        sym_raw=sym_raw,
-        side=side,
-        qty=float(ex_size),
-        stop_price=float(stop_price),
-        hedge_side_hint=hedge_side_hint,
-        k=k,
-    )
+    oid = None
+    if needs_refresh and existing_stop_id:
+        rc = _ensure_run_context(bot)
+        pstore = rc.get("protection_refresh")
+        if not isinstance(pstore, dict):
+            pstore = {}
+            rc["protection_refresh"] = pstore
+        prev = pstore.get(k)
+        if not isinstance(prev, dict):
+            prev = {}
+            pstore[k] = prev
+        prev_qty = _safe_float(prev.get("qty"), 0.0)
+        prev_ts = _safe_float(prev.get("ts"), 0.0)
+        allow_refresh = True
+        force_ratio = _safe_float(_cfg(bot, "RECONCILE_STOP_REFRESH_FORCE_COVERAGE_RATIO", 0.80), 0.80)
+        if force_ratio > 0 and coverage_ratio < force_ratio:
+            allow_refresh = True
+        elif force_ratio <= 0:
+            allow_refresh = True
+        if callable(_should_refresh_protection):
+            allow_refresh = bool(
+                _should_refresh_protection(
+                    previous_qty=float(prev_qty if prev_qty > 0 else existing_stop_qty),
+                    new_qty=float(ex_size),
+                    last_refresh_ts=float(prev_ts),
+                    min_delta_ratio=float(_cfg(bot, "RECONCILE_STOP_REFRESH_MIN_DELTA_RATIO", 0.10) or 0.10),
+                    min_delta_abs=float(_cfg(bot, "RECONCILE_STOP_REFRESH_MIN_DELTA_ABS", 0.0) or 0.0),
+                    max_refresh_interval_sec=float(_cfg(bot, "RECONCILE_STOP_REFRESH_MAX_INTERVAL_SEC", 45.0) or 45.0),
+                    now_ts=_now(),
+                )
+            )
+            if force_ratio > 0 and coverage_ratio < force_ratio:
+                allow_refresh = True
+        if not allow_refresh:
+            return "refresh_deferred"
+        if allow_refresh:
+            stop_side = "sell" if side == "long" else "buy"
+            try:
+                rep = await cancel_replace_order(
+                    bot,
+                    cancel_order_id=str(existing_stop_id),
+                    symbol=sym_raw,
+                    type="STOP_MARKET",
+                    side=stop_side,
+                    amount=float(ex_size),
+                    price=None,
+                    stop_price=float(stop_price),
+                    params={},
+                    retries=int(_cfg(bot, "RECONCILE_STOP_REPLACE_RETRIES", 2) or 2),
+                    correlation_id=f"RECON_STOP_{k}",
+                )
+                if isinstance(rep, dict):
+                    oid = str(rep.get("id") or "") or None
+                    prev["qty"] = float(ex_size)
+                    prev["ts"] = _now()
+            except Exception:
+                oid = None
+            if not oid:
+                return "refresh_failed"
+
+    if not oid:
+        oid = await _place_stop_ladder_router(
+            bot,
+            sym_raw=sym_raw,
+            side=side,
+            qty=float(ex_size),
+            stop_price=float(stop_price),
+            hedge_side_hint=hedge_side_hint,
+            k=k,
+        )
 
     if oid:
+        repair_last[k] = _now()
         try:
             setattr(pos_obj, "stop_order_id", str(oid))
         except Exception:
             pass
         msg = f"RECONCILE: PROTECTIVE STOP RESTORED {k} (id={oid})"
+        if refresh_reason:
+            msg = f"{msg} [{refresh_reason}]"
         if _alert_ok(bot, f"{k}:stop_restored", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
             await _safe_speak(bot, msg, "critical")
+        return "restored"
     else:
+        repair_last[k] = _now()
         msg = f"RECONCILE: STOP RESTORE FAILED {k}"
         if _alert_ok(bot, f"{k}:stop_failed", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
             await _safe_speak(bot, msg, "critical")
+        return "failed"
+
+
+async def _ensure_protective_tp(bot, k: str, pos_obj, ex_side_hint: Optional[str], ex_size: float) -> str:
+    if not _cfg(bot, "GUARDIAN_ENSURE_TP", False):
+        return "tp_disabled"
+
+    sym_raw = _resolve_raw_symbol(bot, k)
+    side = None
+    try:
+        side = str(getattr(pos_obj, "side", "") or "").lower().strip()
+    except Exception:
+        side = None
+    if side not in ("long", "short"):
+        side = ex_side_hint if ex_side_hint in ("long", "short") else None
+    if side not in ("long", "short"):
+        return "no_side"
+
+    entry_px = _safe_float(getattr(pos_obj, "entry_price", 0.0), 0.0)
+    atr = _safe_float(getattr(pos_obj, "atr", 0.0), 0.0)
+    if entry_px <= 0:
+        return "no_entry"
+
+    tp_atr_mult = float(_cfg(bot, "TP_ATR_MULT", 1.8))
+    if atr > 0:
+        dist = atr * tp_atr_mult
+    else:
+        dist = entry_px * float(_cfg(bot, "RECONCILE_TP_FALLBACK_PCT", 0.0050))
+    tp_price = entry_px + dist if side == "long" else entry_px - dist
+    if tp_price <= 0:
+        return "invalid_tp_price"
+
+    existing_tp_id = ""
+    existing_tp_qty = 0.0
+    coverage_ratio = 1.0
+    needs_refresh = False
+    try:
+        oo = await _fetch_open_orders_best_effort(bot, sym_raw)
+        if callable(_assess_tp_coverage):
+            cov = _assess_tp_coverage(
+                oo if isinstance(oo, list) else [],
+                required_qty=float(max(0.0, ex_size)),
+                min_coverage_ratio=float(_cfg(bot, "RECONCILE_TP_MIN_COVERAGE_RATIO", 0.98) or 0.98),
+            )
+            existing_tp_id = str((cov or {}).get("order_id") or "")
+            existing_tp_qty = _safe_float((cov or {}).get("existing_qty"), 0.0)
+            coverage_ratio = _safe_float((cov or {}).get("coverage_ratio"), 1.0)
+            needs_refresh = bool((cov or {}).get("needs_refresh", False))
+            if bool((cov or {}).get("covered", False)):
+                return "tp_present"
+    except Exception:
+        pass
+
+    oid = None
+    if needs_refresh and existing_tp_id:
+        rc = _ensure_run_context(bot)
+        pstore = rc.get("protection_refresh_tp")
+        if not isinstance(pstore, dict):
+            pstore = {}
+            rc["protection_refresh_tp"] = pstore
+        prev = pstore.get(k)
+        if not isinstance(prev, dict):
+            prev = {}
+            pstore[k] = prev
+        prev_qty = _safe_float(prev.get("qty"), 0.0)
+        prev_ts = _safe_float(prev.get("ts"), 0.0)
+        allow_refresh = True
+        force_ratio = _safe_float(_cfg(bot, "RECONCILE_TP_REFRESH_FORCE_COVERAGE_RATIO", 0.80), 0.80)
+        if callable(_should_refresh_protection):
+            allow_refresh = bool(
+                _should_refresh_protection(
+                    previous_qty=float(prev_qty if prev_qty > 0 else existing_tp_qty),
+                    new_qty=float(ex_size),
+                    last_refresh_ts=float(prev_ts),
+                    min_delta_ratio=float(_cfg(bot, "RECONCILE_TP_REFRESH_MIN_DELTA_RATIO", 0.10) or 0.10),
+                    min_delta_abs=float(_cfg(bot, "RECONCILE_TP_REFRESH_MIN_DELTA_ABS", 0.0) or 0.0),
+                    max_refresh_interval_sec=float(_cfg(bot, "RECONCILE_TP_REFRESH_MAX_INTERVAL_SEC", 45.0) or 45.0),
+                    now_ts=_now(),
+                )
+            )
+            if force_ratio > 0 and coverage_ratio < force_ratio:
+                allow_refresh = True
+        if not allow_refresh:
+            return "tp_refresh_deferred"
+        tp_side = "sell" if side == "long" else "buy"
+        try:
+            rep = await cancel_replace_order(
+                bot,
+                cancel_order_id=str(existing_tp_id),
+                symbol=sym_raw,
+                type="TAKE_PROFIT_MARKET",
+                side=tp_side,
+                amount=float(ex_size),
+                price=None,
+                stop_price=float(tp_price),
+                params={},
+                retries=int(_cfg(bot, "RECONCILE_TP_REPLACE_RETRIES", 2) or 2),
+                correlation_id=f"RECON_TP_{k}",
+            )
+            if isinstance(rep, dict):
+                oid = str(rep.get("id") or "") or None
+                prev["qty"] = float(ex_size)
+                prev["ts"] = _now()
+        except Exception:
+            oid = None
+        if not oid:
+            return "tp_refresh_failed"
+
+    if not oid:
+        oid = await _place_tp_ladder_router(
+            bot,
+            sym_raw=sym_raw,
+            side=side,
+            qty=float(ex_size),
+            tp_price=float(tp_price),
+            hedge_side_hint=side,
+            k=k,
+        )
+    return "tp_restored" if oid else "tp_failed"
 
 
 # ----------------------------
@@ -680,6 +1148,11 @@ async def reconcile_tick(bot):
     Called by execution/guardian.guardian_loop().
     """
     _banner_once()
+    metrics = _ensure_reconcile_metrics(bot)
+    mismatch_events = 0
+    repair_actions = 0
+    repair_skipped = 0
+    mismatch_symbols: set[str] = set()
 
     drift_abs = float(_cfg(bot, "GUARDIAN_SIZE_DRIFT_ABS", 0.0))
     drift_pct = float(_cfg(bot, "GUARDIAN_SIZE_DRIFT_PCT", 0.05))
@@ -722,6 +1195,18 @@ async def reconcile_tick(bot):
 
     if not ok:
         log_entry.warning("RECONCILE: fetch_positions failed — skipping phantom/orphan checks this cycle")
+        mismatch_events += 1
+        for s in tracked_syms:
+            if s:
+                mismatch_symbols.add(_symkey(s))
+                _record_symbol_mismatch(metrics, s)
+        km = getattr(getattr(bot, "state", None), "kill_metrics", None)
+        if isinstance(km, dict):
+            km["reconcile_mismatch_streak"] = int(km.get("reconcile_mismatch_streak", 0) or 0) + 1
+            km["reconcile_last_mismatch_ts"] = _now()
+            debt_sec, debt_syms = _compute_belief_debt(metrics)
+            km["reconcile_belief_debt_sec"] = float(debt_sec)
+            km["reconcile_belief_debt_symbols"] = int(debt_syms)
         return
 
     # Build exchange map: symbol -> list of position dicts (hedge-mode can return multiple legs)
@@ -737,11 +1222,17 @@ async def reconcile_tick(bot):
             size, _ = _extract_pos_size_side(p)
             if size > 0:
                 ex_map.setdefault(kk, []).append(p)
+    for kx in ex_map.keys():
+        _set_position_belief_state(bot, kx, "OPEN_CONFIRMED", "exchange_position_seen")
 
     # 1) ORPHAN EXCHANGE POSITIONS (adopt)
     for k, plist in ex_map.items():
         if k in state_positions:
+            _set_position_belief_state(bot, k, "OPEN_CONFIRMED", "position_exists_both")
             continue
+        mismatch_events += 1
+        mismatch_symbols.add(k)
+        _record_symbol_mismatch(metrics, k)
 
         legs: List[Tuple[float, Optional[str], float]] = []
         for p in plist:
@@ -774,6 +1265,7 @@ async def reconcile_tick(bot):
             try:
                 pos_obj = _make_pos_obj(k, side=adopted_side, size_abs=adopted_size, entry_price=adopted_entry)
                 state_positions[k] = pos_obj
+                _set_position_belief_state(bot, k, "OPEN_CONFIRMED", "orphan_adopted")
                 msgA = f"RECONCILE: ORPHAN ADOPTED {k} | side={adopted_side} | size={adopted_size:.6f}"
                 if multi:
                     msgA += " | NOTE=multi-leg/unknown-side (entry blocked; stop not auto-placed)"
@@ -808,6 +1300,9 @@ async def reconcile_tick(bot):
                     msg3 = f"RECONCILE: ORPHAN FLATTEN FAILED {k} — {e}"
                     if _alert_ok(bot, f"{k}:orphan_flat_fail", msg3, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
                         await _safe_speak(bot, msg3, "critical")
+                    mismatch_events += 1
+                    mismatch_symbols.add(k)
+                    _record_symbol_mismatch(metrics, k)
 
     # 2) PHANTOM STATE POSITIONS
     phantom = _phantom_store(bot)
@@ -817,6 +1312,7 @@ async def reconcile_tick(bot):
     for k in list(state_positions.keys()):
         if k in ex_map:
             phantom.pop(k, None)
+            _set_position_belief_state(bot, k, "OPEN_CONFIRMED", "phantom_cleared_by_exchange")
             continue
 
         now = _now()
@@ -824,12 +1320,16 @@ async def reconcile_tick(bot):
         first_ts = _safe_float(ent.get("first_ts", 0.0), 0.0) or now
         misses = int(ent.get("misses", 0)) + 1
         phantom[k] = {"first_ts": first_ts, "misses": misses}
+        _set_position_belief_state(bot, k, "CLOSED_UNKNOWN", "phantom_missing")
 
         if misses < max(1, phantom_miss) or (now - first_ts) < max(0.0, phantom_grace):
             continue
 
         sym_raw = _resolve_raw_symbol(bot, k)
         log_core.warning(f"RECONCILE: PHANTOM STATE POSITION {k} — clearing + cancel reduceOnly orders")
+        mismatch_events += 1
+        mismatch_symbols.add(k)
+        _record_symbol_mismatch(metrics, k)
         msg = f"RECONCILE: PHANTOM STATE POSITION {k} — cleared"
         if _alert_ok(bot, f"{k}:phantom_cleared", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
             await _safe_speak(bot, msg, "info")
@@ -838,6 +1338,7 @@ async def reconcile_tick(bot):
             state_positions.pop(k, None)
         except Exception:
             pass
+        _set_position_belief_state(bot, k, "FLAT", "phantom_removed")
         phantom.pop(k, None)
 
     # 2b) ORPHAN reduceOnly orders (no position exists)
@@ -849,6 +1350,7 @@ async def reconcile_tick(bot):
     for k, pos_obj in list(state_positions.items()):
         plist = ex_map.get(k)
         if not plist:
+            _set_position_belief_state(bot, k, "CLOSED_UNKNOWN", "state_without_exchange_position")
             continue
 
         best_p = None
@@ -866,6 +1368,9 @@ async def reconcile_tick(bot):
         thresh = max(drift_abs, st_size * drift_pct) if st_size > 0 else drift_abs
 
         if st_size <= 0 or (thresh > 0 and abs(st_size - best_size) > thresh):
+            mismatch_events += 1
+            mismatch_symbols.add(k)
+            _record_symbol_mismatch(metrics, k)
             try:
                 setattr(pos_obj, "size", float(best_size))
             except Exception:
@@ -893,13 +1398,310 @@ async def reconcile_tick(bot):
                 pass
 
         if best_side in ("long", "short"):
-            await _ensure_protective_stop(bot, k, pos_obj, best_side, best_size)
+            _set_position_belief_state(bot, k, "OPEN_CONFIRMED", "drift_reconciled")
+            stop_outcome = await _ensure_protective_stop(bot, k, pos_obj, best_side, best_size)
+            if stop_outcome in ("restored", "failed", "refresh_failed"):
+                repair_actions += 1
+            if stop_outcome in ("throttled", "repair_cooldown", "refresh_deferred"):
+                repair_skipped += 1
+            if stop_outcome in ("failed", "refresh_failed"):
+                mismatch_events += 1
+                mismatch_symbols.add(k)
+                _record_symbol_mismatch(metrics, k)
+            tp_outcome = await _ensure_protective_tp(bot, k, pos_obj, best_side, best_size)
+            if tp_outcome in ("tp_restored", "tp_failed", "tp_refresh_failed"):
+                repair_actions += 1
+            if tp_outcome in ("tp_refresh_deferred",):
+                repair_skipped += 1
+            if tp_outcome in ("tp_failed", "tp_refresh_failed"):
+                mismatch_events += 1
+                mismatch_symbols.add(k)
+                _record_symbol_mismatch(metrics, k)
 
     # ensure state dict stays attached
     try:
         bot.state.positions = state_positions
     except Exception:
         pass
+
+    if mismatch_events > 0:
+        metrics["mismatch_streak"] = int(metrics.get("mismatch_streak", 0) or 0) + int(mismatch_events)
+        metrics["last_mismatch_ts"] = _now()
+    else:
+        metrics["mismatch_streak"] = max(0, int(metrics.get("mismatch_streak", 0) or 0) - 1)
+    metrics["last_summary"] = {
+        "mismatch_events": int(mismatch_events),
+        "repair_actions": int(repair_actions),
+        "repair_skipped": int(repair_skipped),
+        "ts": _now(),
+    }
+    healthy_syms = set(_symkey(s) for s in tracked_syms if _symkey(s) and _symkey(s) not in mismatch_symbols)
+    debt_sec, debt_syms = _compute_belief_debt(metrics, clear=healthy_syms)
+    symbol_belief_debt_sec = _collect_symbol_belief_debt(metrics)
+    worst_symbols = sorted(symbol_belief_debt_sec.items(), key=lambda kv: kv[1], reverse=True)[:5]
+    debt_ref = max(1.0, float(_cfg(bot, "RECONCILE_BELIEF_DEBT_REF_SEC", 300.0) or 300.0))
+    conf = max(0.0, min(1.0, 1.0 - (float(debt_sec) / debt_ref)))
+    metrics["belief_confidence"] = float(conf)
+    evidence = {
+        "evidence_confidence": 1.0,
+        "evidence_ws_score": 1.0,
+        "evidence_rest_score": 1.0,
+        "evidence_fill_score": 1.0,
+        "evidence_contradiction_score": 0.0,
+        "evidence_contradiction_streak": 0,
+        "evidence_degraded_sources": 0,
+    }
+    if callable(_compute_belief_evidence):
+        try:
+            got = _compute_belief_evidence(bot, getattr(bot, "cfg", None))
+            if isinstance(got, dict):
+                evidence.update(got)
+        except Exception:
+            pass
+    metrics["evidence_confidence"] = float(_safe_float(evidence.get("evidence_confidence", 1.0), 1.0))
+    metrics["evidence_ws_score"] = float(_safe_float(evidence.get("evidence_ws_score", 1.0), 1.0))
+    metrics["evidence_rest_score"] = float(_safe_float(evidence.get("evidence_rest_score", 1.0), 1.0))
+    metrics["evidence_fill_score"] = float(_safe_float(evidence.get("evidence_fill_score", 1.0), 1.0))
+    metrics["evidence_contradiction_score"] = float(_safe_float(evidence.get("evidence_contradiction_score", 0.0), 0.0))
+    metrics["evidence_contradiction_streak"] = int(_safe_float(evidence.get("evidence_contradiction_streak", 0), 0.0))
+    metrics["evidence_degraded_sources"] = int(_safe_float(evidence.get("evidence_degraded_sources", 0), 0.0))
+    intent_stats = {
+        "intent_unknown_count": 0,
+        "intent_unknown_oldest_sec": 0.0,
+        "intent_unknown_mean_resolve_sec": 0.0,
+    }
+    if callable(_intent_ledger_summary):
+        try:
+            got_stats = _intent_ledger_summary(bot)
+            if isinstance(got_stats, dict):
+                intent_stats.update(got_stats)
+        except Exception:
+            pass
+    metrics["intent_unknown_count"] = int(_safe_float(intent_stats.get("intent_unknown_count", 0), 0.0))
+    metrics["intent_unknown_oldest_sec"] = float(_safe_float(intent_stats.get("intent_unknown_oldest_sec", 0.0), 0.0))
+    metrics["intent_unknown_mean_resolve_sec"] = float(
+        _safe_float(intent_stats.get("intent_unknown_mean_resolve_sec", 0.0), 0.0)
+    )
+    gate = {
+        "available": False,
+        "degraded": False,
+        "reason": "",
+        "replay_mismatch_count": 0,
+        "invalid_transition_count": 0,
+        "journal_coverage_ratio": 1.0,
+        "path": "",
+    }
+    if callable(_runtime_reliability_gate):
+        try:
+            got_gate = _runtime_reliability_gate(getattr(bot, "cfg", None))
+            if isinstance(got_gate, dict):
+                gate.update(got_gate)
+        except Exception:
+            pass
+    metrics["runtime_gate_available"] = bool(gate.get("available", False))
+    metrics["runtime_gate_degraded"] = bool(gate.get("degraded", False))
+    metrics["runtime_gate_reason"] = str(gate.get("reason", "") or "")
+    metrics["runtime_gate_replay_mismatch_count"] = int(_safe_float(gate.get("replay_mismatch_count", 0), 0.0))
+    metrics["runtime_gate_invalid_transition_count"] = int(_safe_float(gate.get("invalid_transition_count", 0), 0.0))
+    metrics["runtime_gate_journal_coverage_ratio"] = float(_safe_float(gate.get("journal_coverage_ratio", 1.0), 1.0))
+    metrics["runtime_gate_mismatch_severity"] = float(_safe_float(gate.get("mismatch_severity", 0.0), 0.0))
+    metrics["runtime_gate_invalid_severity"] = float(_safe_float(gate.get("invalid_severity", 0.0), 0.0))
+    metrics["runtime_gate_coverage_severity"] = float(_safe_float(gate.get("coverage_severity", 0.0), 0.0))
+    metrics["runtime_gate_degrade_score"] = float(_safe_float(gate.get("degrade_score", 0.0), 0.0))
+    gate_ids = gate.get("replay_mismatch_ids")
+    metrics["runtime_gate_replay_mismatch_ids"] = list(gate_ids) if isinstance(gate_ids, list) else []
+    metrics["last_summary"]["belief_debt_sec"] = float(debt_sec)
+    metrics["last_summary"]["belief_debt_symbols"] = int(debt_syms)
+    metrics["last_summary"]["belief_confidence"] = float(conf)
+    metrics["last_summary"]["evidence_confidence"] = float(metrics["evidence_confidence"])
+    metrics["last_summary"]["evidence_contradiction_score"] = float(metrics["evidence_contradiction_score"])
+    metrics["last_summary"]["evidence_contradiction_streak"] = int(metrics["evidence_contradiction_streak"])
+    metrics["last_summary"]["evidence_degraded_sources"] = int(metrics["evidence_degraded_sources"])
+    metrics["last_summary"]["intent_unknown_count"] = int(metrics["intent_unknown_count"])
+    km = getattr(getattr(bot, "state", None), "kill_metrics", None)
+    if isinstance(km, dict):
+        km["reconcile_mismatch_streak"] = int(metrics.get("mismatch_streak", 0) or 0)
+        km["reconcile_last_mismatch_ts"] = _safe_float(metrics.get("last_mismatch_ts", 0.0), 0.0)
+        km["reconcile_belief_debt_sec"] = float(debt_sec)
+        km["reconcile_belief_debt_symbols"] = int(debt_syms)
+        km["reconcile_belief_confidence"] = float(conf)
+        km["reconcile_evidence_confidence"] = float(metrics["evidence_confidence"])
+        km["reconcile_evidence_degraded_sources"] = int(metrics["evidence_degraded_sources"])
+        km["reconcile_intent_unknown_count"] = int(metrics["intent_unknown_count"])
+        km["reconcile_intent_unknown_oldest_sec"] = float(metrics["intent_unknown_oldest_sec"])
+        km["reconcile_intent_unknown_mean_resolve_sec"] = float(metrics["intent_unknown_mean_resolve_sec"])
+
+    belief_trace = {}
+    guard_knobs = None
+    ctl = _ensure_belief_controller(bot)
+    if ctl is not None:
+        try:
+            guard_knobs = ctl.update(
+                {
+                    "belief_debt_sec": float(debt_sec),
+                    "belief_debt_symbols": int(debt_syms),
+                    "symbol_belief_debt_sec": dict(symbol_belief_debt_sec),
+                    "mismatch_streak": int(metrics.get("mismatch_streak", 0) or 0),
+                    "evidence_confidence": float(metrics.get("evidence_confidence", 1.0) or 1.0),
+                    "evidence_degraded_sources": int(metrics.get("evidence_degraded_sources", 0) or 0),
+                    "runtime_gate_degraded": bool(metrics.get("runtime_gate_degraded", False)),
+                    "runtime_gate_reason": str(metrics.get("runtime_gate_reason", "") or ""),
+                    "runtime_gate_replay_mismatch_count": int(metrics.get("runtime_gate_replay_mismatch_count", 0) or 0),
+                    "runtime_gate_invalid_transition_count": int(
+                        metrics.get("runtime_gate_invalid_transition_count", 0) or 0
+                    ),
+                    "runtime_gate_journal_coverage_ratio": float(
+                        metrics.get("runtime_gate_journal_coverage_ratio", 1.0) or 1.0
+                    ),
+                    "runtime_gate_mismatch_severity": float(
+                        metrics.get("runtime_gate_mismatch_severity", 0.0) or 0.0
+                    ),
+                    "runtime_gate_invalid_severity": float(
+                        metrics.get("runtime_gate_invalid_severity", 0.0) or 0.0
+                    ),
+                    "runtime_gate_coverage_severity": float(
+                        metrics.get("runtime_gate_coverage_severity", 0.0) or 0.0
+                    ),
+                    "runtime_gate_degrade_score": float(
+                        metrics.get("runtime_gate_degrade_score", 0.0) or 0.0
+                    ),
+                    "runtime_gate_replay_mismatch_ids": list(
+                        metrics.get("runtime_gate_replay_mismatch_ids", []) or []
+                    )[:5],
+                },
+                getattr(bot, "cfg", None),
+            )
+            trace = ctl.explain()
+            belief_trace = trace.to_dict() if hasattr(trace, "to_dict") else {"mode": str(getattr(trace, "mode", ""))}
+            try:
+                if hasattr(bot, "state"):
+                    bot.state.guard_knobs = (guard_knobs.to_dict() if hasattr(guard_knobs, "to_dict") else dict(guard_knobs))
+            except Exception:
+                pass
+            if bool(getattr(guard_knobs, "kill_switch_trip", False)) and callable(_kill_request_halt):
+                try:
+                    await _kill_request_halt(
+                        bot,
+                        float(_cfg(bot, "BELIEF_CONTROLLER_HALT_SEC", 60.0) or 60.0),
+                        f"belief_controller mode={getattr(guard_knobs, 'mode', 'RED')} debt={debt_sec:.0f}s",
+                        "critical",
+                    )
+                except Exception:
+                    pass
+        except Exception:
+            guard_knobs = None
+
+    if callable(_tel_emit) and (mismatch_events > 0 or repair_actions > 0 or repair_skipped > 0):
+        try:
+            await _tel_emit(
+                bot,
+                "reconcile.summary",
+                data={
+                    "mismatch_events": int(mismatch_events),
+                    "repair_actions": int(repair_actions),
+                    "repair_skipped": int(repair_skipped),
+                    "mismatch_streak": int(metrics.get("mismatch_streak", 0) or 0),
+                    "belief_debt_sec": float(debt_sec),
+                    "belief_debt_symbols": int(debt_syms),
+                    "worst_symbols": list(worst_symbols),
+                    "belief_confidence": float(conf),
+                    "evidence_confidence": float(metrics.get("evidence_confidence", 1.0) or 1.0),
+                    "evidence_ws_score": float(metrics.get("evidence_ws_score", 1.0) or 1.0),
+                    "evidence_rest_score": float(metrics.get("evidence_rest_score", 1.0) or 1.0),
+                    "evidence_fill_score": float(metrics.get("evidence_fill_score", 1.0) or 1.0),
+                    "evidence_degraded_sources": int(metrics.get("evidence_degraded_sources", 0) or 0),
+                    "runtime_gate_available": bool(metrics.get("runtime_gate_available", False)),
+                    "runtime_gate_degraded": bool(metrics.get("runtime_gate_degraded", False)),
+                    "runtime_gate_reason": str(metrics.get("runtime_gate_reason", "") or ""),
+                    "runtime_gate_replay_mismatch_count": int(metrics.get("runtime_gate_replay_mismatch_count", 0) or 0),
+                    "runtime_gate_invalid_transition_count": int(
+                        metrics.get("runtime_gate_invalid_transition_count", 0) or 0
+                    ),
+                    "runtime_gate_journal_coverage_ratio": float(
+                        metrics.get("runtime_gate_journal_coverage_ratio", 1.0) or 1.0
+                    ),
+                    "runtime_gate_mismatch_severity": float(
+                        metrics.get("runtime_gate_mismatch_severity", 0.0) or 0.0
+                    ),
+                    "runtime_gate_invalid_severity": float(
+                        metrics.get("runtime_gate_invalid_severity", 0.0) or 0.0
+                    ),
+                    "runtime_gate_coverage_severity": float(
+                        metrics.get("runtime_gate_coverage_severity", 0.0) or 0.0
+                    ),
+                    "runtime_gate_degrade_score": float(
+                        metrics.get("runtime_gate_degrade_score", 0.0) or 0.0
+                    ),
+                    "runtime_gate_replay_mismatch_ids": list(
+                        metrics.get("runtime_gate_replay_mismatch_ids", []) or []
+                    )[:5],
+                    "intent_unknown_count": int(metrics.get("intent_unknown_count", 0) or 0),
+                    "intent_unknown_oldest_sec": float(metrics.get("intent_unknown_oldest_sec", 0.0) or 0.0),
+                    "intent_unknown_mean_resolve_sec": float(
+                        metrics.get("intent_unknown_mean_resolve_sec", 0.0) or 0.0
+                    ),
+                    "guard_mode": (str(getattr(guard_knobs, "mode", "")) if guard_knobs is not None else ""),
+                },
+                level=("warning" if mismatch_events > 0 else "info"),
+            )
+        except Exception:
+            pass
+
+    if callable(_tel_emit):
+        try:
+            await _tel_emit(
+                bot,
+                "execution.belief_state",
+                data={
+                    "mismatch_streak": int(metrics.get("mismatch_streak", 0) or 0),
+                    "belief_debt_sec": float(debt_sec),
+                    "belief_debt_symbols": int(debt_syms),
+                    "worst_symbols": list(worst_symbols),
+                    "belief_confidence": float(conf),
+                    "evidence_confidence": float(metrics.get("evidence_confidence", 1.0) or 1.0),
+                    "evidence_ws_score": float(metrics.get("evidence_ws_score", 1.0) or 1.0),
+                    "evidence_rest_score": float(metrics.get("evidence_rest_score", 1.0) or 1.0),
+                    "evidence_fill_score": float(metrics.get("evidence_fill_score", 1.0) or 1.0),
+                    "evidence_degraded_sources": int(metrics.get("evidence_degraded_sources", 0) or 0),
+                    "runtime_gate_degraded": bool(metrics.get("runtime_gate_degraded", False)),
+                    "runtime_gate_reason": str(metrics.get("runtime_gate_reason", "") or ""),
+                    "runtime_gate_replay_mismatch_count": int(metrics.get("runtime_gate_replay_mismatch_count", 0) or 0),
+                    "runtime_gate_invalid_transition_count": int(
+                        metrics.get("runtime_gate_invalid_transition_count", 0) or 0
+                    ),
+                    "runtime_gate_journal_coverage_ratio": float(
+                        metrics.get("runtime_gate_journal_coverage_ratio", 1.0) or 1.0
+                    ),
+                    "runtime_gate_mismatch_severity": float(
+                        metrics.get("runtime_gate_mismatch_severity", 0.0) or 0.0
+                    ),
+                    "runtime_gate_invalid_severity": float(
+                        metrics.get("runtime_gate_invalid_severity", 0.0) or 0.0
+                    ),
+                    "runtime_gate_coverage_severity": float(
+                        metrics.get("runtime_gate_coverage_severity", 0.0) or 0.0
+                    ),
+                    "runtime_gate_degrade_score": float(
+                        metrics.get("runtime_gate_degrade_score", 0.0) or 0.0
+                    ),
+                    "runtime_gate_replay_mismatch_ids": list(
+                        metrics.get("runtime_gate_replay_mismatch_ids", []) or []
+                    )[:5],
+                    "intent_unknown_count": int(metrics.get("intent_unknown_count", 0) or 0),
+                    "intent_unknown_oldest_sec": float(metrics.get("intent_unknown_oldest_sec", 0.0) or 0.0),
+                    "intent_unknown_mean_resolve_sec": float(
+                        metrics.get("intent_unknown_mean_resolve_sec", 0.0) or 0.0
+                    ),
+                    "repair_actions": int(repair_actions),
+                    "repair_skipped": int(repair_skipped),
+                    "guard_mode": (str(getattr(guard_knobs, "mode", "")) if guard_knobs is not None else ""),
+                    "allow_entries": (bool(getattr(guard_knobs, "allow_entries", True)) if guard_knobs is not None else True),
+                    "trace": belief_trace,
+                },
+                level=("warning" if conf < 0.75 else "info"),
+            )
+        except Exception:
+            pass
 
 
 # Backward compatibility for older code that still imports guardian_loop from reconcile.py
