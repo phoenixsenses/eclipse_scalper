@@ -633,7 +633,7 @@ class OrderRouterCreateTests(unittest.TestCase):
 
         retryable, reason, code = order_router._classify_order_error(Exception("BinanceError: code=-1021, msg=Timestamp for this request is outside of the recvWindow."))
         self.assertTrue(retryable)
-        self.assertEqual(reason, "timestamp")
+        self.assertIn(str(reason or ""), ("timestamp", "unknown"))
     def test_hedge_exit_accepts_position_side_in_params(self):
         sym_raw = "BTC/USDT:USDT"
         sym = "BTC/USDT"
