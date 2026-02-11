@@ -60,6 +60,36 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest
 
+      - name: Run syntax/import compatibility smoke
+        run: |
+          python - <<'PY'
+          import py_compile
+
+          files = [
+              "tools/telemetry_dashboard_page.py",
+              "tools/telemetry_alert_summary.py",
+              "tools/telemetry_dashboard_notify.py",
+              "tools/reliability_gate.py",
+              "execution/reliability_gate_runtime.py",
+              "execution/reconcile.py",
+          ]
+          for f in files:
+              py_compile.compile(f, doraise=True)
+              print(f"py_compile ok: {f}")
+          PY
+          python - <<'PY'
+          import importlib
+          modules = [
+              "eclipse_scalper.tools.telemetry_dashboard_page",
+              "eclipse_scalper.tools.telemetry_alert_summary",
+              "eclipse_scalper.tools.telemetry_dashboard_notify",
+              "eclipse_scalper.execution.reliability_gate_runtime",
+          ]
+          for m in modules:
+              importlib.import_module(m)
+              print(f"import ok: {m}")
+          PY
+
       - name: Run execution invariant suite
         run: |
           pytest -q tools/test_state_machine_unit.py
