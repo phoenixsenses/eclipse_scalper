@@ -1928,11 +1928,21 @@ async def reconcile_tick(bot):
                     bot.state.guard_knobs = (guard_knobs.to_dict() if hasattr(guard_knobs, "to_dict") else dict(guard_knobs))
             except Exception:
                 pass
-            if bool(getattr(guard_knobs, "kill_switch_trip", False)) and callable(_kill_request_halt):
+            # Read halt duration from cfg first, then env fallback, then default.
+            # This keeps run-profile env overrides effective even when cfg omits the field.
+            _belief_halt_raw = _cfg(bot, "BELIEF_CONTROLLER_HALT_SEC", None)
+            if _belief_halt_raw in (None, ""):
+                _belief_halt_raw = os.getenv("BELIEF_CONTROLLER_HALT_SEC", "60")
+            belief_halt_sec = _safe_float(_belief_halt_raw, 60.0)
+            if (
+                bool(getattr(guard_knobs, "kill_switch_trip", False))
+                and callable(_kill_request_halt)
+                and belief_halt_sec > 0.0
+            ):
                 try:
                     await _kill_request_halt(
                         bot,
-                        float(_cfg(bot, "BELIEF_CONTROLLER_HALT_SEC", 60.0) or 60.0),
+                        float(belief_halt_sec),
                         f"belief_controller mode={getattr(guard_knobs, 'mode', 'RED')} debt={debt_sec:.0f}s",
                         "critical",
                     )
