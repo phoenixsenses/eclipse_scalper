@@ -2302,15 +2302,27 @@ async def create_order(
                 else:
                     _journal_intent_transition("ACKED", "exchange_ack", meta={"status": status})
                 if callable(emit_order_create):
-                    _telemetry_task(
-                        emit_order_create(
-                            bot,
-                            k,
-                            res,
-                            intent=f"{type_u}:{side_l}",
-                            correlation_id=corr_id,
+                    try:
+                        _telemetry_task(
+                            emit_order_create(
+                                bot,
+                                k,
+                                res,
+                                intent=f"{type_u}:{side_l}",
+                                correlation_id=corr_id,
+                            )
                         )
-                    )
+                    except TypeError:
+                        # Backward compatibility for older telemetry helpers that
+                        # do not accept correlation_id yet.
+                        _telemetry_task(
+                            emit_order_create(
+                                bot,
+                                k,
+                                res,
+                                intent=f"{type_u}:{side_l}",
+                            )
+                        )
                 return res
             except Exception as e:
                 last_err = e
