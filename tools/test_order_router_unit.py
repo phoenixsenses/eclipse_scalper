@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import tempfile
 import types
 import unittest
 
@@ -43,6 +44,7 @@ class DummyEx:
         amount_prec_fn=None,
         ticker=None,
         order_book=None,
+        fetch_order_behavior=None,
     ):
         self._behavior = behavior
         self.markets = markets or {}
@@ -53,7 +55,9 @@ class DummyEx:
         self._amount_prec_fn = amount_prec_fn
         self._ticker = ticker
         self._order_book = order_book
+        self._fetch_order_behavior = fetch_order_behavior or {}
         self.create_calls = []
+        self.id = "binance"
 
     async def cancel_order(self, order_id, symbol):
         # behavior is a dict symbol -> exception or None
@@ -76,6 +80,14 @@ class DummyEx:
 
     async def fetch_order_book(self, _sym):
         return self._order_book or {}
+
+    async def fetch_order(self, order_id, symbol):
+        action = self._fetch_order_behavior.get((str(order_id), str(symbol)))
+        if isinstance(action, Exception):
+            raise action
+        if isinstance(action, dict):
+            return action
+        return {"id": order_id, "symbol": symbol, "status": "closed"}
 
     def market(self, sym):
         return self._market_meta
@@ -114,8 +126,7 @@ class DummyBot:
 
 
 class OrderRouterCancelTests(unittest.TestCase):
-    def test_unknown_then_other_error_is_not_success(self):
-        # Unknown on raw symbol, but non-unknown on fallback -> should be False
+    def test_unknown_then_other_error_is_still_success(self):
         sym_key = "BTCUSDT"
         raw_symbol = "BTC/USDT:USDT"
         symbol = "BTC/USDT"
@@ -126,7 +137,7 @@ class OrderRouterCancelTests(unittest.TestCase):
         }
         bot = DummyBot(DummyEx(behavior), DummyData({sym_key: raw_symbol}))
         ok = asyncio.run(order_router.cancel_order(bot, "abc123", symbol))
-        self.assertFalse(ok)
+        self.assertTrue(ok)
 
     def test_all_unknown_is_success(self):
         sym_key = "ETHUSDT"
@@ -140,6 +151,22 @@ class OrderRouterCancelTests(unittest.TestCase):
         bot = DummyBot(DummyEx(behavior), DummyData({sym_key: raw_symbol}))
         ok = asyncio.run(order_router.cancel_order(bot, "zzz", symbol))
         self.assertTrue(ok)
+
+    def test_unknown_cancel_with_open_fetch_order_is_not_success(self):
+        sym_key = "ETHUSDT"
+        raw_symbol = "ETH/USDT:USDT"
+        symbol = "ETH/USDT"
+        behavior = {
+            raw_symbol: Exception("Order does not exist"),
+            symbol: Exception("Unknown order"),
+            sym_key: Exception("Order not found"),
+        }
+        fetch_behavior = {
+            ("zzz", raw_symbol): {"id": "zzz", "status": "open"},
+        }
+        bot = DummyBot(DummyEx(behavior, fetch_order_behavior=fetch_behavior), DummyData({sym_key: raw_symbol}))
+        ok = asyncio.run(order_router.cancel_order(bot, "zzz", symbol))
+        self.assertFalse(ok)
 
     def test_unknown_order_detection_ignores_symbol_not_found(self):
         self.assertFalse(order_router._looks_like_unknown_order(Exception("Symbol not found")))
@@ -218,6 +245,229 @@ class OrderRouterCreateTests(unittest.TestCase):
         self.assertIsNone(res)
         self.assertLess(len(ex.create_calls), 10)
 
+    def test_cancel_replace_is_bounded_when_cancel_fails(self):
+        bot = DummyBot(DummyEx({}), DummyData({"BTCUSDT": "BTC/USDT:USDT"}))
+        calls = {"cancel": 0, "create": 0}
+
+        async def _fake_cancel(*_args, **_kwargs):
+            calls["cancel"] += 1
+            return False
+
+        async def _fake_create(*_args, **_kwargs):
+            calls["create"] += 1
+            return {"id": "ok"}
+
+        orig_cancel = order_router.cancel_order
+        orig_create = order_router.create_order
+        order_router.cancel_order = _fake_cancel
+        order_router.create_order = _fake_create
+        try:
+            res = asyncio.run(
+                order_router.cancel_replace_order(
+                    bot,
+                    cancel_order_id="oid-1",
+                    symbol="BTC/USDT",
+                    type="LIMIT",
+                    side="buy",
+                    amount=1.0,
+                    price=100.0,
+                    retries=3,
+                )
+            )
+        finally:
+            order_router.cancel_order = orig_cancel
+            order_router.create_order = orig_create
+
+        self.assertIsNone(res)
+        self.assertEqual(calls["cancel"], 3)
+        self.assertEqual(calls["create"], 0)
+
+    def test_cancel_replace_uses_strict_transitions_by_default(self):
+        bot = DummyBot(DummyEx({}), DummyData({"BTCUSDT": "BTC/USDT:USDT"}))
+        seen = {"strict": None, "max_worst_case_notional": None, "max_ambiguity_attempts": None}
+
+        async def _fake_run_cancel_replace(**kwargs):
+            seen["strict"] = bool(kwargs.get("strict_transitions"))
+            seen["max_worst_case_notional"] = float(kwargs.get("max_worst_case_notional") or 0.0)
+            seen["max_ambiguity_attempts"] = int(kwargs.get("max_ambiguity_attempts") or 0)
+            return types.SimpleNamespace(success=False, state="REPLACE_RACE", reason="replace_giveup", attempts=1, last_status="")
+
+        orig_replace = order_router._replace_manager
+        env = dict(os.environ)
+        os.environ["ROUTER_REPLACE_MAX_WORST_CASE_NOTIONAL"] = "200"
+        os.environ["ROUTER_REPLACE_MAX_AMBIGUITY_ATTEMPTS"] = "2"
+        order_router._replace_manager = types.SimpleNamespace(run_cancel_replace=_fake_run_cancel_replace)
+        try:
+            res = asyncio.run(
+                order_router.cancel_replace_order(
+                    bot,
+                    cancel_order_id="oid-1",
+                    symbol="BTC/USDT",
+                    type="LIMIT",
+                    side="buy",
+                    amount=1.0,
+                    price=100.0,
+                    retries=1,
+                )
+            )
+        finally:
+            order_router._replace_manager = orig_replace
+            os.environ.clear()
+            os.environ.update(env)
+
+        self.assertIsNone(res)
+        self.assertTrue(bool(seen["strict"]))
+        self.assertAlmostEqual(float(seen["max_worst_case_notional"] or 0.0), 200.0, places=6)
+        self.assertEqual(int(seen["max_ambiguity_attempts"] or 0), 2)
+
+    def test_cancel_replace_transition_error_requests_reconcile_hint(self):
+        bot = DummyBot(DummyEx({}), DummyData({"BTCUSDT": "BTC/USDT:USDT"}))
+        bot.state.run_context = {}
+
+        async def _raise_run_cancel_replace(**_kwargs):
+            raise RuntimeError("invalid order_intent transition")
+
+        orig_replace = order_router._replace_manager
+        order_router._replace_manager = types.SimpleNamespace(run_cancel_replace=_raise_run_cancel_replace)
+        try:
+            res = asyncio.run(
+                order_router.cancel_replace_order(
+                    bot,
+                    cancel_order_id="oid-1",
+                    symbol="BTC/USDT",
+                    type="LIMIT",
+                    side="buy",
+                    amount=1.0,
+                    price=100.0,
+                    retries=1,
+                )
+            )
+        finally:
+            order_router._replace_manager = orig_replace
+
+        self.assertIsNone(res)
+        hints = bot.state.run_context.get("reconcile_hints") or {}
+        self.assertIn("BTCUSDT", hints)
+        self.assertIn("replace_transition_error", str((hints.get("BTCUSDT") or {}).get("reason") or ""))
+
+    def test_cancel_replace_emits_replace_envelope_block_event(self):
+        bot = DummyBot(DummyEx({}), DummyData({"BTCUSDT": "BTC/USDT:USDT"}))
+        captured = []
+
+        async def _fake_emit(_bot, event, data=None, **_kwargs):
+            captured.append((str(event), dict(data or {})))
+
+        async def _fake_run_cancel_replace(**_kwargs):
+            return types.SimpleNamespace(
+                success=False,
+                state="INTENT_CREATED",
+                reason="replace_envelope_block",
+                attempts=0,
+                last_status="",
+            )
+
+        orig_replace = order_router._replace_manager
+        orig_emit = order_router.emit
+        order_router._replace_manager = types.SimpleNamespace(run_cancel_replace=_fake_run_cancel_replace)
+        order_router.emit = _fake_emit
+        try:
+            res = asyncio.run(
+                order_router.cancel_replace_order(
+                    bot,
+                    cancel_order_id="oid-1",
+                    symbol="BTC/USDT",
+                    type="LIMIT",
+                    side="buy",
+                    amount=1.0,
+                    price=100.0,
+                    retries=1,
+                )
+            )
+        finally:
+            order_router._replace_manager = orig_replace
+            order_router.emit = orig_emit
+
+        self.assertIsNone(res)
+        events = [e for e, _ in captured]
+        self.assertIn("order.replace_envelope_block", events)
+
+    def test_non_retryable_error_aborts_immediately(self):
+        sym_raw = "BTC/USDT:USDT"
+        sym = "BTC/USDT"
+        market = {"contract": True}
+
+        def behavior(_kwargs):
+            raise Exception("invalid symbol")
+
+        ex = DummyEx(
+            {},
+            markets={sym_raw: market},
+            market_meta=market,
+            dual_side=True,
+            create_behavior=behavior,
+        )
+        bot = DummyBot(ex, DummyData({"BTCUSDT": sym_raw}))
+        bot.cfg.ROUTER_RETRY_BASE_SEC = 0.01
+        bot.cfg.ROUTER_RETRY_MAX_DELAY_SEC = 0.01
+        bot.cfg.ROUTER_RETRY_JITTER_PCT = 0.0
+
+        orig_validate = order_router._validate_and_normalize_order
+        orig_sleep = order_router.asyncio.sleep
+
+        async def _ok_validate(*_args, **_kwargs):
+            return True, 1.0, None, "ok"
+
+        async def _noop_sleep(_delay):
+            return None
+
+        order_router._validate_and_normalize_order = _ok_validate
+        order_router.asyncio.sleep = _noop_sleep
+        try:
+            res = asyncio.run(
+                order_router.create_order(
+                    bot,
+                    symbol=sym,
+                    type="MARKET",
+                    side="buy",
+                    amount=1.0,
+                    params={},
+                    retries=6,
+                )
+            )
+        finally:
+            order_router._validate_and_normalize_order = orig_validate
+            order_router.asyncio.sleep = orig_sleep
+
+        self.assertIsNone(res)
+        self.assertEqual(len(ex.create_calls), 1)
+
+    def test_coinbase_error_classification(self):
+        ex = types.SimpleNamespace(id="coinbase")
+        retryable, reason, _code = order_router._classify_order_error(
+            Exception("rate limit exceeded"), ex=ex, sym_raw="BTC/USD"
+        )
+        self.assertTrue(retryable)
+        self.assertEqual(reason, "exchange_busy")
+
+        retryable2, reason2, _code2 = order_router._classify_order_error(
+            Exception("insufficient funds"), ex=ex, sym_raw="BTC/USD"
+        )
+        self.assertFalse(retryable2)
+        self.assertEqual(reason2, "margin_insufficient")
+
+    def test_exchange_retry_policy_override(self):
+        env = dict(os.environ)
+        try:
+            os.environ["ROUTER_RETRY_POLICY_COINBASE"] = "exchange_busy=9:0.9:9:3"
+            bot = DummyBot(DummyEx({}), DummyData({}))
+            bot.ex.id = "coinbase"
+            pol = order_router._build_retry_policies(bot)
+            self.assertEqual(int(pol["exchange_busy"].get("max_attempts", 0)), 9)
+            self.assertAlmostEqual(float(pol["exchange_busy"].get("base_delay", 0.0)), 0.9, places=3)
+        finally:
+            os.environ.clear()
+            os.environ.update(env)
+
     def test_resolve_leverage_overrides_and_caps(self):
         env = dict(os.environ)
         try:
@@ -291,6 +541,75 @@ class OrderRouterCreateTests(unittest.TestCase):
         finally:
             os.environ.clear()
             os.environ.update(env)
+
+    def test_resolve_leverage_applies_belief_guard_cap_for_entries_only(self):
+        env = dict(os.environ)
+        try:
+            os.environ["LEVERAGE"] = "20"
+            bot = DummyBot(DummyEx({}), DummyData({"BTCUSDT": "BTC/USDT:USDT"}))
+            bot.state.guard_knobs = {"max_leverage": 7}
+            lev_entry = order_router._resolve_leverage(bot, "BTCUSDT", "BTC/USDT:USDT", is_exit=False)
+            lev_exit = order_router._resolve_leverage(bot, "BTCUSDT", "BTC/USDT:USDT", is_exit=True)
+            self.assertEqual(lev_entry, 7)
+            self.assertEqual(lev_exit, 20)
+        finally:
+            os.environ.clear()
+            os.environ.update(env)
+
+    def test_create_order_reuses_recent_intent_and_skips_duplicate_submit(self):
+        sym_raw = "BTC/USDT:USDT"
+        sym = "BTC/USDT"
+        market = {"contract": True}
+        ex = DummyEx({}, markets={sym_raw: market}, market_meta=market, dual_side=True)
+        bot = DummyBot(ex, DummyData({"BTCUSDT": sym_raw}))
+
+        with tempfile.TemporaryDirectory() as td:
+            bot.cfg.INTENT_LEDGER_ENABLED = True
+            bot.cfg.INTENT_LEDGER_REUSE_ENABLED = True
+            bot.cfg.INTENT_LEDGER_PATH = str(Path(td) / "intent_ledger.jsonl")
+            bot.cfg.INTENT_LEDGER_REUSE_MAX_AGE_SEC = 3600.0
+
+            corr = "ENTRY-BTC-ABC123"
+            coid = "ENTRY_BTC_ABC123"
+            from eclipse_scalper.execution import intent_ledger  # noqa: E402
+
+            intent_ledger.record(
+                bot,
+                intent_id=corr,
+                stage="OPEN",
+                symbol="BTCUSDT",
+                side="buy",
+                order_type="MARKET",
+                client_order_id=coid,
+                order_id="OID-EXISTING",
+                status="open",
+            )
+
+            orig_validate = order_router._validate_and_normalize_order
+
+            async def _ok_validate(*_args, **_kwargs):
+                return True, 1.0, None, "ok"
+
+            order_router._validate_and_normalize_order = _ok_validate
+            try:
+                res = asyncio.run(
+                    order_router.create_order(
+                        bot,
+                        symbol=sym,
+                        type="MARKET",
+                        side="buy",
+                        amount=1.0,
+                        params={"clientOrderId": coid},
+                        retries=1,
+                        correlation_id=corr,
+                    )
+                )
+            finally:
+                order_router._validate_and_normalize_order = orig_validate
+
+            self.assertIsNotNone(res)
+            self.assertEqual((res or {}).get("id"), "OID-EXISTING")
+            self.assertEqual(len(ex.create_calls), 0)
 
     def test_classify_order_error(self):
         retryable, reason, code = order_router._classify_order_error(Exception("Margin is insufficient"))
@@ -527,13 +846,58 @@ class OrderRouterCreateTests(unittest.TestCase):
 
     def test_freshen_client_order_id_length_and_diff(self):
         base = "SE_DUPLICATE_TEST_0123456789_ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        s1 = order_router._freshen_client_order_id(base)
-        s2 = order_router._freshen_client_order_id(base)
+        s1 = order_router._freshen_client_order_id(base, salt="a")
+        s2 = order_router._freshen_client_order_id(base, salt="b")
         self.assertTrue(len(s1) <= 35)
         self.assertTrue(len(s2) <= 35)
         self.assertNotEqual(s1, s2)
         for ch in s1:
             self.assertTrue(ch.isalnum() or ch in ("_", "-"))
+
+    def test_make_client_order_id_deterministic_and_length_safe(self):
+        s1 = order_router._make_client_order_id(
+            prefix="ENTRY",
+            sym_raw="BTC/USDT:USDT",
+            type_norm="market",
+            side_l="buy",
+            amount=1.2,
+            price=100.0,
+            stop_price=None,
+            bucket=12345,
+        )
+        s2 = order_router._make_client_order_id(
+            prefix="ENTRY",
+            sym_raw="BTC/USDT:USDT",
+            type_norm="market",
+            side_l="buy",
+            amount=1.2,
+            price=100.0,
+            stop_price=None,
+            bucket=12345,
+        )
+        s3 = order_router._make_client_order_id(
+            prefix="ENTRY",
+            sym_raw="BTC/USDT:USDT",
+            type_norm="market",
+            side_l="buy",
+            amount=1.2,
+            price=100.0,
+            stop_price=None,
+            bucket=12346,
+        )
+        self.assertEqual(s1, s2)
+        self.assertNotEqual(s1, s3)
+        self.assertLessEqual(len(s1), 35)
+
+    def test_error_class_policy(self):
+        p1 = order_router._classify_order_error_policy(Exception("Request timed out"))
+        self.assertEqual(p1["error_class"], "retryable")
+        p2 = order_router._classify_order_error_policy(Exception("invalid symbol"))
+        self.assertEqual(p2["error_class"], "fatal")
+        p3 = order_router._classify_order_error_policy(Exception("clientOrderId is duplicated -4116"))
+        self.assertEqual(p3["error_class"], "retryable_with_modification")
+        p4 = order_router._classify_order_error_policy(Exception("Unknown order -2011"))
+        self.assertEqual(p4["error_class"], "idempotent_safe")
 
     def test_push_variant_bounded_and_deduped(self):
         variants = []
