@@ -18,6 +18,11 @@ from typing import Any, Dict, Optional, Callable, Tuple
 from utils.logging import log_entry, log_core
 from execution.order_router import create_order, cancel_order
 from execution.anomaly_guard import should_pause as anomaly_should_pause
+from execution.entry_decision import (
+    EntryDecisionRecord,
+    compute_entry_decision,
+    commit_entry_intent,
+)
 
 # Optional telemetry (never fatal)
 try:
@@ -1304,6 +1309,36 @@ async def _emit_entry_blocked(
         pass
 
 
+async def _emit_entry_decision(bot, rec: EntryDecisionRecord, *, level: str = "info", throttle_sec: float = 0.0) -> None:
+    data = rec.to_dict()
+    symbol = str(data.get("symbol") or "")
+    if throttle_sec > 0 and callable(emit_throttled):
+        try:
+            await emit_throttled(
+                bot,
+                "entry.decision",
+                key=f"{symbol}:{rec.stage}:{rec.action}:{rec.reason_primary or 'ok'}",
+                cooldown_sec=float(throttle_sec),
+                data=data,
+                symbol=symbol or None,
+                level=level,
+            )
+        except Exception:
+            pass
+        return
+    if callable(emit):
+        try:
+            await emit(
+                bot,
+                "entry.decision",
+                data=data,
+                symbol=symbol or None,
+                level=level,
+            )
+        except Exception:
+            pass
+
+
 async def _report_signal_feedback(bot) -> None:
     events = _collect_signal_feedback_events()
     if not events:
@@ -1858,26 +1893,39 @@ async def entry_loop(bot) -> None:
                         continue
 
                     action = _parse_action(sig)
-                    if action not in ("buy", "sell"):
-                        await _emit_entry_blocked(bot, k, "signal_action", throttle_sec=30.0)
-                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
-                        continue
-
-                    # confidence gate
+                    # confidence snapshot used by EDR + notional scaling
                     try:
                         conf = float(sig.get("confidence", sig.get("conf", 0.0)) or 0.0)
                     except Exception:
                         conf = 0.0
-                    if current_min_conf > 0 and conf < current_min_conf:
-                        await _emit_entry_blocked(bot, k, "confidence_low", throttle_sec=30.0)
-                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
-                        continue
 
                     otype = _parse_order_type(sig)
                     price = _parse_price(sig) if otype == "limit" else None
                     amt = _parse_amount(sig)
                     if amt is None:
                         amt = _sizing_fallback_amount(bot, k)
+
+                    propose_rec = compute_entry_decision(
+                        symbol=k,
+                        signal=sig if isinstance(sig, dict) else None,
+                        guard_knobs=guard_knobs,
+                        min_confidence=float(current_min_conf),
+                        amount=amt,
+                        order_type=otype,
+                        price=price,
+                        planned_notional=0.0,
+                        stage="propose",
+                        meta={
+                            "runtime_gate_degraded": runtime_gate_degraded,
+                            "reconcile_first_gate_degraded": reconcile_first_gate_degraded,
+                        },
+                    )
+                    if propose_rec.action in ("DENY", "DEFER"):
+                        reason = propose_rec.reason_primary or "signal_missing"
+                        await _emit_entry_decision(bot, propose_rec, level="warning", throttle_sec=15.0)
+                        await _emit_entry_blocked(bot, k, reason, throttle_sec=30.0)
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
 
                     if amt is None or amt <= 0:
                         if sizing_warn_every > 0 and (_now() - last_sizing_warn_ts) >= sizing_warn_every:
@@ -1896,7 +1944,7 @@ async def entry_loop(bot) -> None:
                     if hedge_hint_mode:
                         hedge_side_hint = "long" if action == "buy" else "short"
 
-                    conf_scale, conf_reason = _confidence_notional_scale(bot, float(confidence or 0.0))
+                    conf_scale, conf_reason = _confidence_notional_scale(bot, float(conf or 0.0))
                     if conf_scale and conf_scale < 1.0 and amt is not None and amt > 0:
                         try:
                             base_amt = float(amt)
@@ -1914,7 +1962,7 @@ async def entry_loop(bot) -> None:
                                             "scaled_qty": amt,
                                             "scale": conf_scale,
                                             "reason": conf_reason or "confidence",
-                                            "confidence": float(confidence or 0.0),
+                                            "confidence": float(conf or 0.0),
                                         },
                                         symbol=k,
                                         level="info",
@@ -2077,9 +2125,32 @@ async def entry_loop(bot) -> None:
                                             symbol=k,
                                             level="warning",
                                         )
-                                    )
+                                )
                             except Exception:
                                 pass
+
+                    propose_rec = compute_entry_decision(
+                        symbol=k,
+                        signal=sig if isinstance(sig, dict) else None,
+                        guard_knobs=guard_knobs,
+                        min_confidence=float(current_min_conf),
+                        amount=amt,
+                        order_type=otype,
+                        price=price,
+                        planned_notional=float(planned_notional),
+                        stage="propose",
+                        meta={
+                            "runtime_gate_degraded": runtime_gate_degraded,
+                            "reconcile_first_gate_degraded": reconcile_first_gate_degraded,
+                            "budget_enabled": bool(budget_enabled),
+                        },
+                    )
+                    if propose_rec.action in ("DENY", "DEFER"):
+                        reason = propose_rec.reason_primary or "signal_missing"
+                        await _emit_entry_decision(bot, propose_rec, level="warning", throttle_sec=15.0)
+                        await _emit_entry_blocked(bot, k, reason, throttle_sec=30.0)
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
 
                     # Safety: block entries after recent router blocks
                     if _cfg_env_bool(bot, "ENTRY_BLOCK_ON_ROUTER_BLOCK", True):
@@ -2129,6 +2200,24 @@ async def entry_loop(bot) -> None:
                                 _set_pending(k, sec=max(3.0, err_backoff))
                                 await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                                 continue
+
+                    # Commit phase: re-check fast-moving constraints before submit.
+                    commit_ok, commit_rec = commit_entry_intent(
+                        propose_rec,
+                        current_guard_knobs=_resolve_symbol_guard(_get_guard_knobs(bot), k),
+                        in_position_fn=lambda: _in_position_brain(bot, k),
+                        pending_fn=lambda: _pending_active(k),
+                    )
+                    await _emit_entry_decision(
+                        bot,
+                        commit_rec,
+                        level=("warning" if not commit_ok else "info"),
+                        throttle_sec=(10.0 if not commit_ok else 0.0),
+                    )
+                    if not commit_ok:
+                        await _emit_entry_blocked(bot, k, commit_rec.reason_primary or "posture_changed", throttle_sec=20.0)
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
 
                     # Submit order
                     order_start = _now()

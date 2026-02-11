@@ -12,6 +12,7 @@ from typing import Any, Dict
 
 from utils.logging import log_core, log_entry
 from execution.entry import try_enter
+from execution.entry_decision import compute_entry_decision, commit_entry_intent
 
 try:
     from risk.kill_switch import trade_allowed  # type: ignore
@@ -190,6 +191,33 @@ async def entry_loop_full(bot) -> None:
 
                 if diag:
                     log_entry.info(f"ENTRY_LOOP_FULL scan {k}")
+
+                # Full mode now follows the same propose/commit protocol surface.
+                side_probe = "buy"
+                if not spawn_both:
+                    side_probe = "buy" if (hash(k) ^ int(_now() // max(1.0, local_cooldown_sec))) % 2 == 0 else "sell"
+                propose = compute_entry_decision(
+                    symbol=k,
+                    signal={"action": side_probe, "confidence": 1.0, "type": "market", "amount": 1.0},
+                    guard_knobs=dict(getattr(getattr(bot, "state", None), "guard_knobs", {}) or {}),
+                    min_confidence=0.0,
+                    amount=1.0,
+                    order_type="market",
+                    price=None,
+                    stage="propose_full",
+                )
+                commit_ok, commit_rec = commit_entry_intent(
+                    propose,
+                    current_guard_knobs=dict(getattr(getattr(bot, "state", None), "guard_knobs", {}) or {}),
+                    in_position_fn=lambda: False,
+                    pending_fn=lambda: False,
+                )
+                if not commit_ok:
+                    if diag:
+                        log_entry.info(
+                            f"ENTRY_LOOP_FULL deferred {k}: {commit_rec.reason_primary or 'posture_changed'}"
+                        )
+                    continue
 
                 if spawn_both:
                     await try_enter(bot, k, "long")
