@@ -58,6 +58,8 @@ class _DummyBot:
             run_context={},
             kill_metrics={},
             reconcile_metrics={},
+            guard_knobs={},
+            belief_controller=BeliefController(),
             halt=False,
         )
         self.data = types.SimpleNamespace(raw_symbol={"BTCUSDT": "BTC/USDT:USDT"})
