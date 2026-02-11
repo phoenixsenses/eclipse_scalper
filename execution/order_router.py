@@ -1448,6 +1448,50 @@ async def cancel_order(bot, order_id: str, symbol: str, *, correlation_id: Optio
     saw_unknown = False
     unknown_conflict = False
     unknown_status: Optional[str] = None
+    def _emit_cancel_compat(ok_flag: bool, why_text: str, status_text: Optional[str] = None) -> None:
+        if not callable(emit_order_cancel):
+            return
+        try:
+            _telemetry_task(
+                emit_order_cancel(
+                    bot,
+                    k,
+                    order_id,
+                    bool(ok_flag),
+                    why=str(why_text),
+                    correlation_id=corr_id,
+                    status=status_text,
+                )
+            )
+            return
+        except TypeError:
+            pass
+        try:
+            _telemetry_task(
+                emit_order_cancel(
+                    bot,
+                    k,
+                    order_id,
+                    bool(ok_flag),
+                    why=str(why_text),
+                    status=status_text,
+                )
+            )
+            return
+        except TypeError:
+            pass
+        try:
+            _telemetry_task(
+                emit_order_cancel(
+                    bot,
+                    k,
+                    order_id,
+                    bool(ok_flag),
+                    why=str(why_text),
+                )
+            )
+        except Exception:
+            pass
     _intent_ledger_record(
         bot,
         intent_id=(corr_id or f"CANCEL-{order_id}"),
@@ -1460,17 +1504,7 @@ async def cancel_order(bot, order_id: str, symbol: str, *, correlation_id: Optio
     for sym_try in candidates:
         ok, err = await _cancel_order_raw(ex, order_id, sym_try)
         if ok:
-            if callable(emit_order_cancel):
-                _telemetry_task(
-                    emit_order_cancel(
-                        bot,
-                        k,
-                        order_id,
-                        True,
-                        why="router",
-                        correlation_id=corr_id,
-                    )
-                )
+            _emit_cancel_compat(True, "router")
             _intent_ledger_record(
                 bot,
                 intent_id=(corr_id or f"CANCEL-{order_id}"),
@@ -1496,18 +1530,7 @@ async def cancel_order(bot, order_id: str, symbol: str, *, correlation_id: Optio
     if saw_unknown and (not unknown_conflict):
         # ✅ idempotent success after exhausting symbol candidates
         log_entry.info(f"[router] cancel idempotent success (already gone) | k={k} id={order_id} st={unknown_status or 'na'}")
-        if callable(emit_order_cancel):
-            _telemetry_task(
-                emit_order_cancel(
-                    bot,
-                    k,
-                    order_id,
-                    True,
-                    why="already_gone",
-                    correlation_id=corr_id,
-                    status=unknown_status,
-                )
-            )
+        _emit_cancel_compat(True, "already_gone", status_text=unknown_status)
         _intent_ledger_record(
             bot,
             intent_id=(corr_id or f"CANCEL-{order_id}"),
@@ -1519,18 +1542,7 @@ async def cancel_order(bot, order_id: str, symbol: str, *, correlation_id: Optio
         )
         return True
 
-    if callable(emit_order_cancel):
-        _telemetry_task(
-            emit_order_cancel(
-                bot,
-                k,
-                order_id,
-                False,
-                why=(repr(last_err)[:120] if last_err else "unknown"),
-                correlation_id=corr_id,
-                status=unknown_status,
-            )
-        )
+    _emit_cancel_compat(False, (repr(last_err)[:120] if last_err else "unknown"), status_text=unknown_status)
     _intent_ledger_record(
         bot,
         intent_id=(corr_id or f"CANCEL-{order_id}"),
