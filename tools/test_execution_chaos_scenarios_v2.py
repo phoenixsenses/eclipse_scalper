@@ -337,6 +337,66 @@ class ChaosScenariosV2Tests(unittest.TestCase):
             # Exit safety invariant remains separate from entry freeze logic.
             self.assertIn(str(knobs.get("recovery_stage") or ""), ("RUNTIME_GATE_DEGRADED", "ORANGE_RECOVERY"))
 
+    def test_runtime_gate_freeze_then_warmup_reenable_is_constrained(self):
+        with tempfile.TemporaryDirectory() as td:
+            gate_path = Path(td) / "reliability_gate.txt"
+            ex = _RestartExchange(positions=[], orders=[], trades=[])
+            bot = _DummyBot(ex)
+            bot.cfg.RELIABILITY_GATE_PATH = str(gate_path)
+            bot.cfg.RELIABILITY_GATE_MAX_REPLAY_MISMATCH = 0
+            bot.cfg.RELIABILITY_GATE_MAX_INVALID_TRANSITIONS = 0
+            bot.cfg.RELIABILITY_GATE_MIN_JOURNAL_COVERAGE = 0.90
+            bot.cfg.BELIEF_RUNTIME_GATE_RECOVER_SEC = 120.0
+            bot.cfg.BELIEF_RUNTIME_GATE_WARMUP_NOTIONAL_SCALE = 0.5
+            bot.cfg.BELIEF_RUNTIME_GATE_WARMUP_LEVERAGE_SCALE = 0.5
+            bot.cfg.FIXED_NOTIONAL_USDT = 100.0
+            bot.cfg.LEVERAGE = 20
+            bot.cfg.ENTRY_MIN_CONFIDENCE = 0.2
+
+            # Tick 1: degraded runtime gate should freeze entries.
+            gate_path.write_text(
+                "\n".join(
+                    [
+                        "Execution Reliability Gate",
+                        "replay_mismatch_count=1",
+                        "invalid_transition_count=0",
+                        "journal_coverage_ratio=1.000",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            asyncio.run(reconcile.reconcile_tick(bot))
+            k1 = dict(getattr(bot.state, "guard_knobs", {}) or {})
+            self.assertTrue(bool(k1))
+            self.assertFalse(bool(k1.get("allow_entries", True)))
+            self.assertTrue(bool(k1.get("runtime_gate_degraded", False)))
+            if "max_notional_usdt" in k1:
+                self.assertEqual(float(k1.get("max_notional_usdt", 0.0)), 0.0)
+
+            # Tick 2: gate clears; controller should move to runtime warmup, not full unlock.
+            gate_path.write_text(
+                "\n".join(
+                    [
+                        "Execution Reliability Gate",
+                        "replay_mismatch_count=0",
+                        "invalid_transition_count=0",
+                        "journal_coverage_ratio=1.000",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            asyncio.run(reconcile.reconcile_tick(bot))
+            k2 = dict(getattr(bot.state, "guard_knobs", {}) or {})
+            self.assertTrue(bool(k2.get("allow_entries", False)))
+            self.assertIn("runtime_gate_warmup", str(k2.get("reason") or ""))
+            self.assertEqual(str(k2.get("recovery_stage") or ""), "RUNTIME_GATE_WARMUP")
+            if "max_notional_usdt" in k2:
+                self.assertLessEqual(float(k2.get("max_notional_usdt", 999.0)), 50.0)
+            if "max_leverage" in k2:
+                self.assertLessEqual(int(k2.get("max_leverage", 999)), 10)
+
 
 if __name__ == "__main__":
     unittest.main()
