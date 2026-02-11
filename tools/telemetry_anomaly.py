@@ -50,6 +50,14 @@ def _persist_state(path: Path, state: dict[str, Any]) -> None:
         pass
 
 
+def _write_actions(path: Path, data: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    except Exception:
+        pass
+
+
 def _build_notifier():
     token = os.getenv("TELEGRAM_TOKEN", "").strip()
     chat_id = os.getenv("TELEGRAM_CHAT_ID", "").strip()
@@ -138,6 +146,23 @@ def main(argv=None) -> int:
     parser.add_argument("--confidence-drop", type=float, default=0.15, help="Absolute drop fraction")
     parser.add_argument("--risk-thresh", type=int, default=3, help="Risk event count threshold")
     parser.add_argument("--pause-sec", type=int, default=300, help="Seconds to pause entries when anomalies fire")
+    parser.add_argument(
+        "--actions-path",
+        default="logs/telemetry_anomaly_actions.json",
+        help="Path to write anomaly action metadata",
+    )
+    parser.add_argument(
+        "--classifier-exit-mult",
+        type=float,
+        default=1.1,
+        help="Multiplier to bump exit threshold when anomalies fire",
+    )
+    parser.add_argument(
+        "--classifier-confidence-mult",
+        type=float,
+        default=1.1,
+        help="Multiplier to bump confidence drop pct when anomalies fire",
+    )
     parser.add_argument("--no-notify", action="store_true", help="Skip Telegram notification")
     parser.add_argument("--output", default="logs/telemetry_anomaly.txt", help="Report file")
 
@@ -171,6 +196,10 @@ def main(argv=None) -> int:
     if new_codes:
         anomalies.append(f"New exit codes: {', '.join(sorted(new_codes))}")
 
+    pause_until = 0.0
+    if anomalies:
+        pause_until = time.time() + max(1, args.pause_sec)
+
     report = [
         f"Telemetry anomaly report ({len(events)} events, last {args.since_min} min)",
         f"- exposures: {curr_exposures:.0f}",
@@ -194,10 +223,6 @@ def main(argv=None) -> int:
         notifier = _build_notifier()
         _send_alert(notifier, "\n".join(report))
 
-    pause_until = 0.0
-    if anomalies:
-        pause_until = time.time() + max(1, args.pause_sec)
-
     new_state = {
         "exposures": curr_exposures,
         "avg_confidence": curr_conf,
@@ -207,6 +232,21 @@ def main(argv=None) -> int:
         "pause_until": pause_until,
     }
     _persist_state(state_path, new_state)
+    actions = {
+        "timestamp": int(time.time()),
+        "pause_until": pause_until,
+        "anomaly_count": len(anomalies),
+        "anomaly_messages": anomalies,
+        "auto_pause": bool(anomalies),
+        "pause_reason": anomalies[0] if anomalies else "",
+        "classifier_exit_multiplier": args.classifier_exit_mult if anomalies else 1.0,
+        "classifier_confidence_multiplier": args.classifier_confidence_mult if anomalies else 1.0,
+        "exposures": curr_exposures,
+        "avg_confidence": curr_conf,
+        "risk_total": metrics["risk_total"],
+        "exit_events": metrics["exit_events"],
+    }
+    _write_actions(Path(args.actions_path), actions)
     for line in report:
         print(line)
     return 0

@@ -14,17 +14,30 @@ import random
 import time
 import hashlib
 import os
+import re
 from typing import Any, Dict, Optional, Tuple, List
 
 from utils.logging import log_entry
 
 # Optional telemetry (never fatal)
 try:
-    from execution.telemetry import emit_order_create, emit_order_cancel, emit  # type: ignore
+    from execution.telemetry import emit_order_create, emit_order_cancel, emit, emit_throttled, bump  # type: ignore
 except Exception:
     emit_order_create = None
     emit_order_cancel = None
     emit = None
+    emit_throttled = None
+    bump = None
+
+try:
+    from execution.adaptive_guard import get_leverage_scale as get_adaptive_leverage_scale  # type: ignore
+except Exception:
+    get_adaptive_leverage_scale = None
+
+try:
+    from execution.error_codes import map_reason  # type: ignore
+except Exception:
+    map_reason = None
 
 
 # ----------------------------
@@ -74,6 +87,298 @@ def _symkey(sym: str) -> str:
     return s
 
 
+def _parse_symbol_overrides(raw: Any) -> dict:
+    """
+    Parse "BTCUSDT=0.2,ETHUSDT=0.3" into { "BTCUSDT": 0.2, ... }.
+    Accepts ; or , separators.
+    """
+    if raw is None:
+        return {}
+    s = str(raw).strip()
+    if not s:
+        return {}
+    out: dict = {}
+    parts = [p.strip() for p in s.replace(";", ",").split(",") if p.strip()]
+    for p in parts:
+        if "=" not in p:
+            continue
+        k, v = p.split("=", 1)
+        k = _symkey(k)
+        if not k:
+            continue
+        out[k] = _safe_float(v, 0.0)
+    return out
+
+
+def _parse_group_kv(raw: Any) -> dict:
+    """
+    Parse "MEME=5,MAJOR=10" into {"MEME": 5, "MAJOR": 10}.
+    """
+    if raw is None:
+        return {}
+    s = str(raw).strip()
+    if not s:
+        return {}
+    out: dict = {}
+    parts = [p.strip() for p in s.replace(";", ",").split(",") if p.strip()]
+    for p in parts:
+        if "=" not in p:
+            continue
+        k, v = p.split("=", 1)
+        k = str(k).strip()
+        if not k:
+            continue
+        out[k] = _safe_float(v, 0.0)
+    return out
+
+
+_DEFAULT_RETRY_POLICIES: dict[str, dict[str, Any]] = {
+    "network": {"extra_attempts": 2, "base_delay": 0.35, "max_delay": 3.0},
+    "exchange_busy": {"extra_attempts": 2, "base_delay": 0.45, "max_delay": 4.0},
+    "timestamp": {"extra_attempts": 1, "base_delay": 0.3, "max_delay": 2.5},
+}
+
+
+def _parse_retry_policy_entry(value: str) -> dict[str, Any]:
+    out: dict[str, Any] = {}
+    parts = [p.strip() for p in value.split(":") if p.strip()]
+    if not parts:
+        return out
+    try:
+        out["max_attempts"] = max(1, int(float(parts[0])))
+    except Exception:
+        pass
+    if len(parts) >= 2:
+        try:
+            out["base_delay"] = float(parts[1])
+        except Exception:
+            pass
+    if len(parts) >= 3:
+        try:
+            out["max_delay"] = float(parts[2])
+        except Exception:
+            pass
+    if len(parts) >= 4:
+        try:
+            out["extra_attempts"] = max(0, int(float(parts[3])))
+        except Exception:
+            pass
+    return out
+
+
+def _collect_retry_policy_overrides(bot) -> dict[str, dict[str, Any]]:
+    raw = str(_cfg_env(bot, "ROUTER_RETRY_POLICY", "") or "")
+    if not raw:
+        return {}
+    out: dict[str, dict[str, Any]] = {}
+    entries = [e.strip() for e in raw.replace(";", ",").split(",") if e.strip()]
+    for entry in entries:
+        if "=" not in entry:
+            continue
+        name, value = entry.split("=", 1)
+        key = str(name).strip().lower()
+        if not key:
+            continue
+        parsed = _parse_retry_policy_entry(value)
+        if parsed:
+            out[key] = parsed
+    return out
+
+
+def _build_retry_policies(bot) -> dict[str, dict[str, Any]]:
+    policies: dict[str, dict[str, Any]] = {k: dict(v) for k, v in _DEFAULT_RETRY_POLICIES.items()}
+    overrides = _collect_retry_policy_overrides(bot)
+    for key, data in overrides.items():
+        existing = policies.get(key, {})
+        merged = dict(existing)
+        merged.update(data)
+        policies[key] = merged
+    policies.setdefault("default", {})
+    return policies
+
+
+def _parse_groups(raw: Any) -> dict:
+    """
+    Parse "MEME:BTCUSDT,SHIBUSDT;MAJOR:BTCUSDT,ETHUSDT" into dict.
+    """
+    if raw is None:
+        return {}
+    s = str(raw).strip()
+    if not s:
+        return {}
+    out: dict = {}
+    blocks = [b.strip() for b in s.split(";") if b.strip()]
+    for b in blocks:
+        if ":" not in b:
+            continue
+        g, syms = b.split(":", 1)
+        g = str(g).strip()
+        if not g:
+            continue
+        items = [x.strip() for x in syms.split(",") if x.strip()]
+        out[g] = [_symkey(x) for x in items if _symkey(x)]
+    return out
+
+
+def _groups_for_symbol(k: str, groups: dict) -> list[str]:
+    out: list[str] = []
+    if not groups:
+        return out
+    for g, syms in groups.items():
+        try:
+            if k in syms:
+                out.append(g)
+        except Exception:
+            continue
+    return out
+
+
+def _group_open_count(bot, groups: dict, group_name: str, *, exclude: Optional[str] = None) -> int:
+    try:
+        st = getattr(bot, "state", None)
+        pos_map = getattr(st, "positions", None) if st is not None else None
+        if not isinstance(pos_map, dict):
+            return 0
+        syms = groups.get(group_name) or []
+        if not syms:
+            return 0
+        count = 0
+        excl = _symkey(exclude) if exclude else None
+        for s in syms:
+            if excl and _symkey(s) == excl:
+                continue
+            if s in pos_map and getattr(pos_map.get(s), "size", 0.0) not in (0, None):
+                count += 1
+        return count
+    except Exception:
+        return 0
+
+
+def _group_notional(bot, groups: dict, group_name: str, *, exclude: Optional[str] = None) -> float:
+    try:
+        st = getattr(bot, "state", None)
+        pos_map = getattr(st, "positions", None) if st is not None else None
+        if not isinstance(pos_map, dict):
+            return 0.0
+        syms = groups.get(group_name) or []
+        if not syms:
+            return 0.0
+        total = 0.0
+        excl = _symkey(exclude) if exclude else None
+        for s in syms:
+            if excl and _symkey(s) == excl:
+                continue
+            pos = pos_map.get(s)
+            if pos is None:
+                continue
+            size = _safe_float(getattr(pos, "size", 0.0), 0.0)
+            entry_px = _safe_float(getattr(pos, "entry_price", 0.0), 0.0)
+            if size and entry_px > 0:
+                total += abs(size) * entry_px
+        return float(total)
+    except Exception:
+        return 0.0
+
+
+def _resolve_leverage(bot, k: str, sym_raw: str, *, is_exit: bool = False) -> int:
+    base = _safe_float(_cfg_env(bot, "LEVERAGE", _cfg(bot, "LEVERAGE", 1)), 1)
+    lev = base
+
+    sym_key = _symkey(k or sym_raw)
+    try:
+        ev = os.getenv(f"LEVERAGE_{sym_key}", None)
+        if ev is not None and str(ev).strip() != "":
+            lev = _safe_float(ev, lev)
+    except Exception:
+        pass
+
+    per_sym = _parse_symbol_overrides(_cfg_env(bot, "LEVERAGE_BY_SYMBOL", None))
+    if sym_key in per_sym:
+        lev = _safe_float(per_sym.get(sym_key), lev)
+
+    groups = _parse_groups(_cfg_env(bot, "CORR_GROUPS", ""))
+    group_lev = _parse_group_kv(_cfg_env(bot, "LEVERAGE_BY_GROUP", ""))
+    if groups and group_lev:
+        hits = _groups_for_symbol(sym_key, groups)
+        if hits:
+            vals = [group_lev.get(h) for h in hits if group_lev.get(h) is not None]
+            if vals:
+                lev = min(float(lev), float(min(vals)))
+
+    # Dynamic group scaling (reduce leverage as group exposure grows)
+    if (not is_exit) and _truthy(_cfg_env(bot, "LEVERAGE_GROUP_DYNAMIC", True)):
+        scale = _safe_float(_cfg_env(bot, "LEVERAGE_GROUP_SCALE", 0.7), 0.7)
+        scale_min = _safe_float(_cfg_env(bot, "LEVERAGE_GROUP_SCALE_MIN", 1), 1.0)
+        if groups and scale > 0 and scale < 1.0:
+            hits = _groups_for_symbol(sym_key, groups)
+            if hits:
+                exclude_self = _truthy(_cfg_env(bot, "LEVERAGE_GROUP_EXCLUDE_SELF", True))
+                use_exposure = _truthy(_cfg_env(bot, "LEVERAGE_GROUP_EXPOSURE", False))
+                if use_exposure:
+                    ref_pct = _safe_float(_cfg_env(bot, "LEVERAGE_GROUP_EXPOSURE_REF_PCT", 0.10), 0.10)
+                    equity = _safe_float(getattr(getattr(bot, "state", None), "current_equity", 0.0), 0.0)
+                    if equity > 0 and ref_pct > 0:
+                        notional_vals = [
+                            _group_notional(bot, groups, h, exclude=(sym_key if exclude_self else None))
+                            for h in hits
+                        ]
+                        if notional_vals:
+                            exposure_pct = max(0.0, max(notional_vals) / equity)
+                            step = exposure_pct / float(ref_pct)
+                            lev = max(float(scale_min), float(lev) * (float(scale) ** float(step)))
+                else:
+                    counts = [
+                        _group_open_count(bot, groups, h, exclude=(sym_key if exclude_self else None))
+                        for h in hits
+                    ]
+                    if counts:
+                        exponent = max(0, min(counts))
+                        lev = max(float(scale_min), float(lev) * (float(scale) ** float(exponent)))
+
+    if (not is_exit) and callable(get_adaptive_leverage_scale) and _truthy(
+        _cfg_env(bot, "ADAPTIVE_GUARD_LEVERAGE_SCALE", True)
+    ):
+        try:
+            scale, reason = get_adaptive_leverage_scale(sym_key)
+            if scale and scale < 1.0:
+                lev = float(lev) * float(scale)
+                if callable(emit_throttled):
+                    try:
+                        emit_throttled(
+                            bot,
+                            "order.leverage_scaled",
+                            key=f"{sym_key}:{reason or 'guard_history'}",
+                            cooldown_sec=120.0,
+                            data={
+                                "symbol": sym_key,
+                                "base_leverage": base,
+                                "scaled_leverage": lev,
+                                "scale": scale,
+                                "reason": reason or "guard_history",
+                            },
+                            symbol=sym_key,
+                            level="warning",
+                        )
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+
+    lev_min = _safe_float(_cfg_env(bot, "LEVERAGE_MIN", 1), 1)
+    lev_max = _safe_float(_cfg_env(bot, "LEVERAGE_MAX", 125), 125)
+    lev = _clamp(float(lev), float(lev_min), float(lev_max))
+    return max(1, int(round(lev)))
+
+
+def _symbol_override_pct(bot, name: str, k: str, default: float) -> float:
+    raw = _cfg_env(bot, name, None)
+    if raw is not None:
+        mp = _parse_symbol_overrides(raw)
+        if k in mp:
+            return _normalize_pct(mp[k], default)
+    return _normalize_pct(_cfg_env(bot, name.replace("_BY_SYMBOL", ""), default), default)
+
+
 def _safe_float(x, default=0.0) -> float:
     try:
         v = float(x)
@@ -82,6 +387,94 @@ def _safe_float(x, default=0.0) -> float:
         return v
     except Exception:
         return default
+
+
+def _error_text(err: Exception) -> str:
+    try:
+        return f"{repr(err)} {str(err)}".lower()
+    except Exception:
+        return str(err or "").lower()
+
+
+def _extract_binance_code(msg: str) -> Optional[int]:
+    try:
+        hits = re.findall(r"-\d{4,5}", msg)
+        if not hits:
+            return None
+        return int(hits[0])
+    except Exception:
+        return None
+
+
+def _binance_filter_reason(msg: str) -> Optional[str]:
+    if "filter failure" not in msg:
+        return None
+    if "price_filter" in msg:
+        return "price_filter"
+    if "min_notional" in msg or "notional" in msg:
+        return "min_notional"
+    if "lot_size" in msg:
+        return "lot_size"
+    if "market_lot_size" in msg:
+        return "market_lot_size"
+    return "filter_failure"
+
+
+def _classify_order_error(err: Exception, *, ex=None, sym_raw: Optional[str] = None) -> tuple[bool, str, str]:
+    """
+    Returns (retryable, reason, code).
+    """
+    msg = _error_text(err)
+    is_futures = False
+    try:
+        if ex is not None and sym_raw:
+            is_futures = _is_futures_symbol_ex(ex, sym_raw)
+    except Exception:
+        is_futures = False
+
+    # Binance-specific patterns (spot + futures)
+    bin_filter = _binance_filter_reason(msg)
+    if bin_filter:
+        return False, bin_filter, (map_reason(bin_filter) if callable(map_reason) else "ERR_ROUTER_BLOCK")
+
+    if "position side" in msg or "dual side position" in msg or "hedge mode" in msg:
+        return False, "position_side", (map_reason("position_side") if callable(map_reason) else "ERR_ROUTER_BLOCK")
+    if "reduceonly" in msg and ("rejected" in msg or "not required" in msg):
+        return False, "reduceonly", (map_reason("reduceonly") if callable(map_reason) else "ERR_ROUTER_BLOCK")
+
+    bin_code = _extract_binance_code(msg)
+    if bin_code is not None:
+        if bin_code in (-1000, -1001, -1003, -1006, -1007, -1008):
+            return True, "exchange_busy", (map_reason("exchange_busy") if callable(map_reason) else "ERR_UNKNOWN")
+        if bin_code in (-1021,):
+            return True, "timestamp", (map_reason("timestamp") if callable(map_reason) else "ERR_UNKNOWN")
+        if bin_code in (-1022,):
+            return False, "auth", (map_reason("auth") if callable(map_reason) else "ERR_ROUTER_BLOCK")
+        if bin_code in (-1100, -1101, -1102, -1103):
+            return False, "invalid_params", (map_reason("invalid_params") if callable(map_reason) else "ERR_ROUTER_BLOCK")
+        if bin_code in (-1111, -1112):
+            return False, "price_filter", (map_reason("price") if callable(map_reason) else "ERR_ROUTER_BLOCK")
+        if bin_code in (-1121,):
+            return False, "invalid_symbol", (map_reason("symbol") if callable(map_reason) else "ERR_ROUTER_BLOCK")
+        if bin_code in (-2019,):
+            return False, "margin_insufficient", (map_reason("margin") if callable(map_reason) else "ERR_MARGIN")
+        if bin_code in (-2021,):
+            return False, "stop_price_invalid", (map_reason("stop") if callable(map_reason) else "ERR_ROUTER_BLOCK")
+        if bin_code in (-2011,) and (not is_futures):
+            return False, "unknown_order", (map_reason("unknown_order") if callable(map_reason) else "ERR_ROUTER_BLOCK")
+    if any(x in msg for x in ("insufficient", "margin", "balance")):
+        return False, "margin_insufficient", (map_reason("margin") if callable(map_reason) else "ERR_MARGIN")
+    if any(x in msg for x in ("invalid symbol", "symbol not found", "unknown symbol")):
+        return False, "invalid_symbol", (map_reason("symbol") if callable(map_reason) else "ERR_ROUTER_BLOCK")
+    if any(x in msg for x in ("min notional", "min amount", "notional", "lot size")):
+        return False, "min_notional", (map_reason("min_notional") if callable(map_reason) else "ERR_MIN_NOTIONAL")
+    if any(x in msg for x in ("price filter", "precision", "invalid price", "bad price")):
+        return False, "price_filter", (map_reason("price") if callable(map_reason) else "ERR_ROUTER_BLOCK")
+    if any(x in msg for x in ("order would trigger immediately", "stop price")):
+        return False, "stop_price_invalid", (map_reason("stop") if callable(map_reason) else "ERR_ROUTER_BLOCK")
+    if any(x in msg for x in ("timeout", "timed out", "temporarily unavailable", "connection", "econnreset", "network")):
+        return True, "network", (map_reason("network") if callable(map_reason) else "ERR_UNKNOWN")
+    return True, "unknown", (map_reason(msg) if callable(map_reason) else "ERR_UNKNOWN")
 
 
 def _truthy(x) -> bool:
@@ -113,6 +506,19 @@ def _normalize_callback_rate(val: Any) -> float:
 
 def _get_ex(bot):
     return getattr(bot, "ex", None)
+
+
+def _normalize_pct(val: Any, default: float) -> float:
+    """
+    Accept percent as 0.5 or 0.5% (0.5) or 0.005.
+    If value > 1, assume it's a percent (e.g., 0.5 => 0.5%, 2 => 2%).
+    """
+    v = _safe_float(val, default)
+    if v <= 0:
+        return 0.0
+    if v > 1.0:
+        return v / 100.0
+    return v
 
 
 def _resolve_raw_symbol(bot, k: str, fallback: str) -> str:
@@ -577,6 +983,71 @@ async def _fetch_last_price(ex, sym_raw: str) -> Optional[float]:
     return None
 
 
+async def _fetch_ticker_bid_ask_mid(ex, sym_raw: str) -> Tuple[Optional[float], Optional[float], Optional[float]]:
+    try:
+        fn = getattr(ex, "fetch_ticker", None)
+        if not callable(fn):
+            return None, None, None
+        t = await fn(sym_raw)
+        bid = _safe_float(t.get("bid"), 0.0)
+        ask = _safe_float(t.get("ask"), 0.0)
+        if bid <= 0 or ask <= 0:
+            return None, None, None
+        mid = (bid + ask) / 2.0
+        return bid, ask, mid if mid > 0 else None
+    except Exception:
+        return None, None, None
+
+
+async def _estimate_market_impact_pct(ex, sym_raw: str, side_l: str, amount: float) -> Optional[float]:
+    """
+    Best-effort impact estimate using top-of-book depth.
+    Returns impact percentage vs mid, or None if insufficient data.
+    """
+    try:
+        fn = getattr(ex, "fetch_order_book", None)
+        if not callable(fn):
+            return None
+        ob = await fn(sym_raw)
+        bids = (ob or {}).get("bids") or []
+        asks = (ob or {}).get("asks") or []
+        if not bids or not asks:
+            return None
+        bid = _safe_float(bids[0][0], 0.0)
+        ask = _safe_float(asks[0][0], 0.0)
+        if bid <= 0 or ask <= 0:
+            return None
+        mid = (bid + ask) / 2.0
+        if mid <= 0:
+            return None
+
+        remaining = float(amount)
+        vwap = 0.0
+        notional = 0.0
+        book = asks if side_l == "buy" else bids
+        for price, size in book:
+            p = _safe_float(price, 0.0)
+            s = _safe_float(size, 0.0)
+            if p <= 0 or s <= 0:
+                continue
+            take = min(remaining, s)
+            notional += take * p
+            vwap += take
+            remaining -= take
+            if remaining <= 0:
+                break
+
+        if remaining > 0 or vwap <= 0:
+            return None
+
+        avg = notional / vwap
+        if side_l == "buy":
+            return max(0.0, (avg - mid) / mid)
+        return max(0.0, (mid - avg) / mid)
+    except Exception:
+        return None
+
+
 async def _validate_and_normalize_order(
     ex,
     *,
@@ -738,6 +1209,8 @@ async def cancel_order(bot, order_id: str, symbol: str) -> bool:
         candidates.append(k)
 
     last_err: Optional[Exception] = None
+    last_err_code: str = "ERR_UNKNOWN"
+    last_err_reason: str = "unknown"
     saw_unknown = False
 
     for sym_try in candidates:
@@ -890,7 +1363,12 @@ async def create_order(
                         emit(
                             bot,
                             "order.blocked",
-                            data={"k": k, "why": "missing_stopPrice", "type": type_u},
+                            data={
+                                "k": k,
+                                "why": "missing_stopPrice",
+                                "type": type_u,
+                                "code": (map_reason("missing_stopPrice") if callable(map_reason) else "ERR_ROUTER_BLOCK"),
+                            },
                             symbol=k,
                             level="critical",
                         )
@@ -904,7 +1382,12 @@ async def create_order(
                         emit(
                             bot,
                             "order.blocked",
-                            data={"k": k, "why": "missing_activationPrice", "type": type_u},
+                            data={
+                                "k": k,
+                                "why": "missing_activationPrice",
+                                "type": type_u,
+                                "code": (map_reason("missing_activationPrice") if callable(map_reason) else "ERR_ROUTER_BLOCK"),
+                            },
                             symbol=k,
                             level="critical",
                         )
@@ -917,12 +1400,48 @@ async def create_order(
                         emit(
                             bot,
                             "order.blocked",
-                            data={"k": k, "why": "missing_callbackRate", "type": type_u},
+                            data={
+                                "k": k,
+                                "why": "missing_callbackRate",
+                                "type": type_u,
+                                "code": (map_reason("missing_callbackRate") if callable(map_reason) else "ERR_ROUTER_BLOCK"),
+                            },
                             symbol=k,
                             level="critical",
                         )
                     )
                 return None
+
+    # ----------------------------
+    # Entry safety: spread guard (best-effort)
+    # ----------------------------
+    if not is_exit:
+        max_spread = _symbol_override_pct(bot, "MAX_SPREAD_PCT_BY_SYMBOL", k, 0.5)
+        if max_spread > 0:
+            bid, ask, mid = await _fetch_ticker_bid_ask_mid(ex, sym_raw)
+            if bid and ask and mid:
+                spread_pct = max(0.0, (ask - bid) / mid)
+                if spread_pct > max_spread:
+                    log_entry.critical(
+                        f"ROUTER BLOCKED → spread too wide | k={k} raw={sym_raw} spread={spread_pct:.4f} max={max_spread:.4f}"
+                    )
+                    if callable(emit):
+                        _telemetry_task(
+                            emit(
+                                bot,
+                                "order.blocked",
+                                data={
+                                    "k": k,
+                                    "why": "spread_too_wide",
+                                    "spread": spread_pct,
+                                    "max": max_spread,
+                                    "code": (map_reason("spread_too_wide") if callable(map_reason) else "ERR_SPREAD"),
+                                },
+                                symbol=k,
+                                level="critical",
+                            )
+                        )
+                    return None
 
     # FIRST LIVE SAFE allowlist applies to ENTRIES only
     if _first_live_safe_enabled(bot) and (not is_exit):
@@ -931,7 +1450,17 @@ async def create_order(
             log_entry.critical(f"FIRST_LIVE_SAFE BLOCKED → symbol not allowlisted: k={k} allow={sorted(list(allow))}")
             if callable(emit):
                 _telemetry_task(
-                    emit(bot, "order.blocked", data={"k": k, "why": "first_live_symbol_not_allowed"}, symbol=k, level="critical")
+                    emit(
+                        bot,
+                        "order.blocked",
+                        data={
+                            "k": k,
+                            "why": "first_live_symbol_not_allowed",
+                            "code": (map_reason("first_live_symbol_not_allowed") if callable(map_reason) else "ERR_ROUTER_BLOCK"),
+                        },
+                        symbol=k,
+                        level="critical",
+                    )
                 )
             return None
 
@@ -957,7 +1486,17 @@ async def create_order(
                 )
                 if callable(emit):
                     _telemetry_task(
-                        emit(bot, "order.blocked", data={"k": k, "why": "missing_hedge_side_hint_for_exit"}, symbol=k, level="critical")
+                        emit(
+                            bot,
+                            "order.blocked",
+                            data={
+                                "k": k,
+                                "why": "missing_hedge_side_hint_for_exit",
+                                "code": (map_reason("missing_hedge_side_hint_for_exit") if callable(map_reason) else "ERR_ROUTER_BLOCK"),
+                            },
+                            symbol=k,
+                            level="critical",
+                        )
                     )
                 return None
 
@@ -1056,7 +1595,7 @@ async def create_order(
 
     # futures settings (best effort)
     margin_mode = str(_cfg_env(bot, "MARGIN_MODE", _cfg(bot, "MARGIN_MODE", "cross"))).strip().lower()
-    leverage = int(_safe_float(_cfg_env(bot, "LEVERAGE", _cfg(bot, "LEVERAGE", 1)), 1))
+    leverage = _resolve_leverage(bot, k, sym_raw, is_exit=is_exit)
 
     if _first_live_safe_enabled(bot):
         leverage = 1
@@ -1100,12 +1639,50 @@ async def create_order(
                 emit(
                     bot,
                     "order.blocked",
-                    data={"k": k, "raw": sym_raw, "type": type_u, "side": side_l, "amount": amount_for_validation, "price": price, "why": why},
+                    data={
+                        "k": k,
+                        "raw": sym_raw,
+                        "type": type_u,
+                        "side": side_l,
+                        "amount": amount_for_validation,
+                        "price": price,
+                        "why": why,
+                        "code": (map_reason(why) if callable(map_reason) else "ERR_ROUTER_BLOCK"),
+                    },
                     symbol=k,
                     level="critical",
                 )
             )
         return None
+
+    # ----------------------------
+    # Entry safety: market impact guard (best-effort)
+    # ----------------------------
+    if (not is_exit) and type_norm == "market":
+        max_impact = _symbol_override_pct(bot, "MAX_IMPACT_PCT_BY_SYMBOL", k, 1.0)
+        if max_impact > 0 and amt_norm is not None:
+            impact = await _estimate_market_impact_pct(ex, sym_raw, side_l, _safe_float(amt_norm, 0.0))
+            if impact is not None and impact > max_impact:
+                log_entry.critical(
+                    f"ROUTER BLOCKED → market impact too high | k={k} raw={sym_raw} impact={impact:.4f} max={max_impact:.4f}"
+                )
+                if callable(emit):
+                    _telemetry_task(
+                        emit(
+                            bot,
+                            "order.blocked",
+                            data={
+                                "k": k,
+                                "why": "market_impact_too_high",
+                                "impact": impact,
+                                "max": max_impact,
+                                "code": (map_reason("market_impact_too_high") if callable(map_reason) else "ERR_ROUTER_BLOCK"),
+                            },
+                            symbol=k,
+                            level="critical",
+                        )
+                    )
+                return None
 
     amt_prec: Any = amt_norm
     px_prec: Any = px_norm
@@ -1115,6 +1692,42 @@ async def create_order(
         amt_prec = 0.0
         # and *absolute* strip reduceOnly
         p.pop("reduceOnly", None)
+
+    # Router notional cap (entries only)
+    route_cap = _safe_float(_cfg_env(bot, "ROUTER_MAX_NOTIONAL_USDT", "ROUTER_NOTIONAL_CAP"), 0.0)
+    if route_cap > 0 and (not is_exit):
+        try:
+            px_for_cap: Optional[float] = None
+            if px_prec is not None and _is_number_like(px_prec):
+                px_for_cap = _safe_float(px_prec, 0.0) or None
+            if px_for_cap is None:
+                px_for_cap = await _fetch_last_price(ex, sym_raw)
+
+            if amt_prec is not None and px_for_cap and px_for_cap > 0:
+                notion = _safe_float(amt_prec, 0.0) * float(px_for_cap)
+                if notion > route_cap:
+                    log_entry.warning(
+                        f"ROUTER NOTIONAL BLOCK → cap exceeded: k={k} raw={sym_raw} notional={notion:.4f} cap={route_cap}"
+                    )
+                    if callable(emit):
+                        _telemetry_task(
+                            emit(
+                                bot,
+                                "order.blocked",
+                                data={
+                                    "k": k,
+                                    "why": "router_notional_cap",
+                                    "notional": notion,
+                                    "cap": route_cap,
+                                    "code": (map_reason("router_notional_cap") if callable(map_reason) else "ERR_ROUTER_BLOCK"),
+                                },
+                                symbol=k,
+                                level="warning",
+                            )
+                        )
+                    return None
+        except Exception:
+            pass
 
     # FIRST LIVE SAFE cap (entries only)
     if _first_live_safe_enabled(bot) and (not is_exit):
@@ -1137,7 +1750,13 @@ async def create_order(
                             emit(
                                 bot,
                                 "order.blocked",
-                                data={"k": k, "why": "first_live_notional_cap", "notional": notion, "cap": cap},
+                                data={
+                                    "k": k,
+                                    "why": "first_live_notional_cap",
+                                    "notional": notion,
+                                    "cap": cap,
+                                    "code": (map_reason("first_live_notional_cap") if callable(map_reason) else "ERR_ROUTER_BLOCK"),
+                                },
                                 symbol=k,
                                 level="critical",
                             )
@@ -1146,11 +1765,19 @@ async def create_order(
         except Exception:
             pass
 
-    max_attempts, base_delay, jitter = 6, 0.25, 0.20
+    max_attempts = 6
+    base_delay = float(_safe_float(_cfg_env(bot, "ROUTER_RETRY_BASE_SEC", 0.25), 0.25))
+    max_delay = float(_safe_float(_cfg_env(bot, "ROUTER_RETRY_MAX_DELAY_SEC", 5.0), 5.0))
+    jitter_pct = float(_safe_float(_cfg_env(bot, "ROUTER_RETRY_JITTER_PCT", 0.25), 0.25))
+    max_elapsed = float(_safe_float(_cfg_env(bot, "ROUTER_RETRY_MAX_ELAPSED_SEC", 30.0), 30.0))
     if retries is not None:
         max_attempts = max(1, int(retries))
 
     last_err: Optional[Exception] = None
+    last_err_code: str = "ERR_UNKNOWN"
+    last_err_reason: str = "unknown"
+    retry_alert_tries = int(_safe_float(_cfg_env(bot, "ROUTER_RETRY_ALERT_TRIES", 6), 6))
+    retry_alert_cd = float(_safe_float(_cfg_env(bot, "ROUTER_RETRY_ALERT_COOLDOWN_SEC", 60.0), 60.0))
 
     async def _attempt(raw_symbol: str, amt_try: Any, px_try: Any, p_try: dict) -> dict:
         fn = getattr(ex, "create_order", None)
@@ -1210,8 +1837,15 @@ async def create_order(
     if sym_raw != symbol:
         _push_variant(variants, seen, symbol, amt_prec, px_prec, dict(p))
 
+    retry_policies = _build_retry_policies(bot)
+    policy_delay_override: Optional[float] = None
+    policy_max_delay_override: Optional[float] = None
+    start_ts = time.monotonic()
     tries = 0
-    for attempt in range(max_attempts):
+    attempt = 0
+    while attempt < max_attempts:
+        if max_elapsed > 0 and (time.monotonic() - start_ts) >= max_elapsed:
+            break
         for (raw_sym, amt_try, px_try, p_try) in list(variants):
             tries += 1
             try:
@@ -1221,15 +1855,56 @@ async def create_order(
                 return res
             except Exception as e:
                 last_err = e
+                retryable, reason, code = _classify_order_error(e, ex=ex, sym_raw=sym_raw)
+                last_err_code = code
+                last_err_reason = reason
+                if bump is not None:
+                    bump(bot, "order.create.retry", 1)
+                if callable(emit_throttled) and tries >= retry_alert_tries:
+                    _telemetry_task(
+                        emit_throttled(
+                            bot,
+                            "order.create.retry_alert",
+                            key=f"{k}:{type_u}:{side_l}",
+                            cooldown_sec=retry_alert_cd,
+                            data={
+                                "k": k,
+                                "tries": tries,
+                                "variants": len(variants),
+                                "type": type_u,
+                                "side": side_l,
+                                "err": (repr(e)[:200] if e else "unknown"),
+                                "reason": reason,
+                                "code": code,
+                            },
+                            level="warning",
+                            symbol=k,
+                        )
+                    )
 
-                # -1106 reduceOnly not required → add stripped variant
+                policy = retry_policies.get(str(reason).strip().lower()) or retry_policies.get("default")
+                if policy:
+                    max_val = policy.get("max_attempts")
+                    if max_val is not None:
+                        max_attempts = max(max_attempts, int(max_val))
+                    extra = int(_safe_float(policy.get("extra_attempts", 0), 0))
+                    if extra > 0:
+                        max_attempts = max(max_attempts, attempt + 1 + extra)
+                    bd = policy.get("base_delay")
+                    if isinstance(bd, (int, float)):
+                        policy_delay_override = float(bd)
+                    md = policy.get("max_delay")
+                    if isinstance(md, (int, float)):
+                        policy_max_delay_override = float(md)
+
+                # -1106 reduceOnly not required -> add stripped variant
                 if _looks_like_binance_reduceonly_not_required(e):
                     if "reduceOnly" in p_try:
                         p3 = dict(p_try)
                         p3.pop("reduceOnly", None)
                         _push_variant(variants, seen, raw_sym, amt_try, px_try, p3)
 
-                # -4015 id too long → sanitize again (hash/compact) and retry
+                # -4015 id too long -> sanitize again (hash/compact) and retry
                 if _looks_like_binance_client_id_too_long(e):
                     coid = (p_try or {}).get("clientOrderId")
                     if coid:
@@ -1237,10 +1912,10 @@ async def create_order(
                         p5["clientOrderId"] = _sanitize_client_order_id(coid)
                         _push_variant(variants, seen, raw_sym, amt_try, px_try, p5)
                         log_entry.warning(
-                            f"[router] BINANCE CLIENT_ID TOO LONG → sanitized clientOrderId {coid} -> {p5.get('clientOrderId')} | k={k}"
+                            f"[router] BINANCE CLIENT_ID TOO LONG -> sanitized clientOrderId {coid} -> {p5.get('clientOrderId')} | k={k}"
                         )
 
-                # ✅ -4116 clientOrderId duplicated → add fresh clientOrderId variant (ALWAYS short)
+                # -4116 clientOrderId duplicated -> add fresh clientOrderId variant (ALWAYS short)
                 if _looks_like_binance_client_id_duplicate(e):
                     coid = (p_try or {}).get("clientOrderId")
                     if coid:
@@ -1248,11 +1923,30 @@ async def create_order(
                         p4["clientOrderId"] = _freshen_client_order_id(coid)
                         _push_variant(variants, seen, raw_sym, amt_try, px_try, p4)
                         log_entry.warning(
-                            f"[router] BINANCE DUP CLIENT_ID → freshened clientOrderId {coid} -> {p4.get('clientOrderId')} | k={k}"
+                            f"[router] BINANCE DUP CLIENT_ID -> freshened clientOrderId {coid} -> {p4.get('clientOrderId')} | k={k}"
                         )
 
-        delay = base_delay * (2 ** attempt) + random.uniform(0.0, jitter)
+                if not retryable:
+                    break
+
+        delay_base = policy_delay_override if policy_delay_override is not None else base_delay
+        delay_max = policy_max_delay_override if policy_max_delay_override is not None else max_delay
+        policy_delay_override = None
+        policy_max_delay_override = None
+        delay = delay_base * (2 ** attempt)
+        if delay_max > 0:
+            delay = min(delay, delay_max)
+        if jitter_pct and jitter_pct > 0:
+            jitter_pct = abs(jitter_pct)
+            delay = random.uniform(delay * (1.0 - jitter_pct), delay * (1.0 + jitter_pct))
+        delay = max(0.0, delay)
+        if max_elapsed > 0:
+            remaining = max_elapsed - (time.monotonic() - start_ts)
+            if remaining <= 0:
+                break
+            delay = min(delay, remaining)
         await asyncio.sleep(delay)
+        attempt += 1
 
     if callable(emit):
         _telemetry_task(
@@ -1270,6 +1964,8 @@ async def create_order(
                     "variants": len(variants),
                     "params": p,
                     "err": (repr(last_err)[:300] if last_err else "unknown"),
+                    "reason": last_err_reason,
+                    "code": last_err_code,
                 },
                 symbol=k,
                 level="critical",

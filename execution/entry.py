@@ -6,9 +6,12 @@
 # - ✅ Keeps: TP hedge-safe hints, router v2.2 closePosition behavior, safety flatten, skip throttling
 
 import asyncio
+import json
+import os
 import time
 import numpy as np
-from typing import Optional
+from pathlib import Path
+from typing import Any, Optional
 
 from utils.logging import log_entry, log, log_risk
 from strategies.eclipse_scalper import scalper_signal as generate_signal
@@ -21,15 +24,38 @@ from execution.order_router import create_order, cancel_order
 from risk.kill_switch import trade_allowed
 
 try:
+    from execution.telemetry_recovery import get_active_state  # type: ignore
+except Exception:
+    get_active_state = None
+
+try:
     from execution.entry_watch import register_entry_watch  # type: ignore
 except Exception:
     register_entry_watch = None
+
+# Optional telemetry (never fatal)
+try:
+    from execution.telemetry import emit_throttled, bump  # type: ignore
+except Exception:
+    emit_throttled = None
+    bump = None
+
+try:
+    from execution.error_codes import map_reason  # type: ignore
+except Exception:
+    map_reason = None
 
 
 _SYMBOL_LOCKS: dict[str, asyncio.Lock] = {}
 
 # Skip logging throttle (prevents spam)
 _SKIP_LAST: dict[str, float] = {}
+
+_ANOMALY_ACTIONS_PATH = Path(
+    os.getenv("TELEMETRY_ANOMALY_ACTIONS", "logs/telemetry_anomaly_actions.json")
+)
+_ANOMALY_ACTIONS_CACHE: dict[str, Any] = {"ts": 0.0, "data": {}}
+_ANOMALY_CACHE_TTL = 5.0
 
 
 def _symkey(sym: str) -> str:
@@ -40,6 +66,30 @@ def _symkey(sym: str) -> str:
     if s.endswith("USDTUSDT"):
         s = s[:-4]
     return s
+
+
+def _load_anomaly_actions() -> dict[str, Any]:
+    now = time.time()
+    cache = _ANOMALY_ACTIONS_CACHE
+    if now - float(cache.get("ts", 0.0) or 0.0) < _ANOMALY_CACHE_TTL:
+        return cache.get("data") or {}
+
+    data: dict[str, Any] = {}
+    try:
+        text = _ANOMALY_ACTIONS_PATH.read_text(encoding="utf-8")
+        data = json.loads(text)
+    except Exception:
+        data = {}
+    cache["ts"] = now
+    cache["data"] = data
+    return data
+
+
+def _telemetry_entry_paused() -> tuple[bool, str, float]:
+    actions = _load_anomaly_actions()
+    pause_until = float(actions.get("pause_until") or 0.0)
+    reason = str(actions.get("pause_reason") or "").strip()
+    return (pause_until > time.time(), reason, pause_until)
 
 
 def _get_symbol_lock(k: str) -> asyncio.Lock:
@@ -62,6 +112,295 @@ def _safe_float(x, default=0.0) -> float:
         return v
     except Exception:
         return default
+
+
+def _format_ts(ts: float) -> str:
+    if ts <= 0:
+        return "unknown"
+    try:
+        return time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime(ts))
+    except Exception:
+        return str(ts)
+
+
+def _parse_group_kv(raw: str) -> dict:
+    """
+    Parse "MEME=1,MAJOR=2" into dict.
+    """
+    out: dict = {}
+    try:
+        s = str(raw or "").strip()
+        if not s:
+            return out
+        parts = [p.strip() for p in s.replace(";", ",").split(",") if p.strip()]
+        for p in parts:
+            if "=" not in p:
+                continue
+            k, v = p.split("=", 1)
+            kk = str(k or "").strip().upper()
+            if not kk:
+                continue
+            out[kk] = _safe_float(v, 0.0)
+    except Exception:
+        return out
+    return out
+
+
+def _parse_symbol_kv(raw: str) -> dict:
+    """
+    Parse "BTCUSDT=10,ETHUSDT=5" into { "BTCUSDT": 10, ... }.
+    """
+    if raw is None:
+        return {}
+    s = str(raw).strip()
+    if not s:
+        return {}
+    out: dict = {}
+    parts = [p.strip() for p in s.replace(";", ",").split(",") if p.strip()]
+    for p in parts:
+        if "=" not in p:
+            continue
+        k, v = p.split("=", 1)
+        k = _symkey(k)
+        if not k:
+            continue
+        out[k] = _safe_float(v, 0.0)
+    return out
+
+
+def _group_open_count(bot, groups: dict, group_name: str, *, exclude: str | None = None) -> int:
+    try:
+        st = getattr(bot, "state", None)
+        pos_map = getattr(st, "positions", None) if st is not None else None
+        if not isinstance(pos_map, dict):
+            return 0
+        syms = groups.get(group_name) or []
+        if not syms:
+            return 0
+        count = 0
+        excl = _symkey(exclude) if exclude else None
+        for s in syms:
+            if excl and _symkey(s) == excl:
+                continue
+            if s in pos_map and getattr(pos_map.get(s), "size", 0.0) not in (0, None):
+                count += 1
+        return count
+    except Exception:
+        return 0
+
+
+def _group_notional(bot, groups: dict, group_name: str, *, exclude: str | None = None) -> float:
+    try:
+        st = getattr(bot, "state", None)
+        pos_map = getattr(st, "positions", None) if st is not None else None
+        if not isinstance(pos_map, dict):
+            return 0.0
+        syms = groups.get(group_name) or []
+        if not syms:
+            return 0.0
+        total = 0.0
+        excl = _symkey(exclude) if exclude else None
+        for s in syms:
+            if excl and _symkey(s) == excl:
+                continue
+            pos = pos_map.get(s)
+            if pos is None:
+                continue
+            size = _safe_float(getattr(pos, "size", 0.0), 0.0)
+            entry_px = _safe_float(getattr(pos, "entry_price", 0.0), 0.0)
+            if size and entry_px > 0:
+                total += abs(size) * entry_px
+        return float(total)
+    except Exception:
+        return 0.0
+
+
+def _resolve_leverage_for_symbol(bot, k: str, cfg) -> int:
+    base = _safe_float(os.getenv("LEVERAGE", getattr(cfg, "LEVERAGE", 1)), 1.0)
+    lev = base
+    sym_key = _symkey(k)
+
+    try:
+        ev = os.getenv(f"LEVERAGE_{sym_key}", "").strip()
+        if ev:
+            lev = _safe_float(ev, lev)
+    except Exception:
+        pass
+
+    per_sym = _parse_symbol_kv(os.getenv("LEVERAGE_BY_SYMBOL", ""))
+    if sym_key in per_sym:
+        lev = _safe_float(per_sym.get(sym_key), lev)
+
+    try:
+        groups = _get_corr_groups(bot)
+        group_lev = _parse_group_kv(os.getenv("LEVERAGE_BY_GROUP", ""))
+        if groups and group_lev:
+            hits = [g for g, syms in groups.items() if sym_key in syms]
+            if hits:
+                vals = [group_lev.get(h) for h in hits if group_lev.get(h) is not None]
+                if vals:
+                    lev = min(float(lev), float(min(vals)))
+
+        if os.getenv("LEVERAGE_GROUP_DYNAMIC", "1").strip().lower() in ("1", "true", "yes", "y", "on"):
+            scale = _safe_float(os.getenv("LEVERAGE_GROUP_SCALE", 0.7), 0.7)
+            scale_min = _safe_float(os.getenv("LEVERAGE_GROUP_SCALE_MIN", 1), 1.0)
+            if groups and scale > 0 and scale < 1.0:
+                hits = [g for g, syms in groups.items() if sym_key in syms]
+                if hits:
+                    exclude_self = os.getenv("LEVERAGE_GROUP_EXCLUDE_SELF", "1").strip().lower() in ("1", "true", "yes", "y", "on")
+                    use_exposure = os.getenv("LEVERAGE_GROUP_EXPOSURE", "0").strip().lower() in ("1", "true", "yes", "y", "on")
+                    if use_exposure:
+                        ref_pct = _safe_float(os.getenv("LEVERAGE_GROUP_EXPOSURE_REF_PCT", 0.10), 0.10)
+                        equity = _safe_float(getattr(getattr(bot, "state", None), "current_equity", 0.0), 0.0)
+                        if equity > 0 and ref_pct > 0:
+                            notional_vals = [
+                                _group_notional(bot, groups, h, exclude=(sym_key if exclude_self else None))
+                                for h in hits
+                            ]
+                            if notional_vals:
+                                exposure_pct = max(0.0, max(notional_vals) / equity)
+                                step = exposure_pct / float(ref_pct)
+                                lev = max(float(scale_min), float(lev) * (float(scale) ** float(step)))
+                    else:
+                        counts = [
+                            _group_open_count(bot, groups, h, exclude=(sym_key if exclude_self else None))
+                            for h in hits
+                        ]
+                        if counts:
+                            exponent = max(0, min(counts))
+                            lev = max(float(scale_min), float(lev) * (float(scale) ** float(exponent)))
+    except Exception:
+        pass
+
+    lev_min = _safe_float(os.getenv("LEVERAGE_MIN", 1), 1.0)
+    lev_max = _safe_float(os.getenv("LEVERAGE_MAX", 125), 125.0)
+    lev = max(float(lev_min), min(float(lev_max), float(lev)))
+    return max(1, int(round(lev)))
+
+
+def _parse_groups(raw: str) -> dict:
+    """
+    Parse "MEME:DOGEUSDT,SHIBUSDT;MAJOR:BTCUSDT,ETHUSDT" into dict.
+    """
+    out: dict = {}
+    try:
+        s = str(raw or "").strip()
+        if not s:
+            return out
+        groups = [g.strip() for g in s.split(";") if g.strip()]
+        for g in groups:
+            if ":" not in g:
+                continue
+            name, syms = g.split(":", 1)
+            gn = str(name or "").strip().upper()
+            if not gn:
+                continue
+            members = []
+            for p in syms.replace(" ", "").split(","):
+                if not p:
+                    continue
+                members.append(_symkey(p))
+            if members:
+                out[gn] = members
+    except Exception:
+        return out
+    return out
+
+
+def _get_corr_groups(bot) -> dict:
+    """
+    Resolve correlation groups from cfg/env/bot/core.
+    """
+    try:
+        cfg = getattr(bot, "cfg", None)
+        g = getattr(cfg, "CORRELATION_GROUPS", None)
+        if isinstance(g, dict) and g:
+            return {str(k).upper(): [_symkey(x) for x in v] for k, v in g.items()}
+    except Exception:
+        pass
+
+    try:
+        g2 = getattr(bot, "CORRELATION_GROUPS", None)
+        if isinstance(g2, dict) and g2:
+            return {str(k).upper(): [_symkey(x) for x in v] for k, v in g2.items()}
+    except Exception:
+        pass
+
+    # Optional env override
+    try:
+        raw = os.getenv("CORR_GROUPS", "").strip()
+        g3 = _parse_groups(raw)
+        if g3:
+            return g3
+    except Exception:
+        pass
+
+    # Fallback to core default if available
+    try:
+        from bot.core import CORRELATION_GROUPS as CG  # type: ignore
+        if isinstance(CG, dict) and CG:
+            return {str(k).upper(): [_symkey(x) for x in v] for k, v in CG.items()}
+    except Exception:
+        pass
+
+    return {}
+
+
+def _check_corr_group(bot, k: str) -> tuple[Optional[str], str, float, float]:
+    """
+    Returns (reason, group_name, group_notional, group_max_notional).
+    """
+    group_name = ""
+    group_syms = []
+    group_count = 0
+    group_notional = 0.0
+    group_max_pos = 0
+    group_max_notional = 0.0
+    try:
+        groups = _get_corr_groups(bot)
+        for gname, members in (groups or {}).items():
+            if k in members:
+                group_name = str(gname).upper()
+                group_syms = [_symkey(x) for x in members]
+                break
+
+        if group_name:
+            pos_map = getattr(bot.state, "positions", None)
+            if isinstance(pos_map, dict):
+                for pk, pos in pos_map.items():
+                    if _symkey(pk) not in group_syms:
+                        continue
+                    try:
+                        sz = float(getattr(pos, "size", 0.0) or 0.0)
+                        if abs(sz) <= 0:
+                            continue
+                        group_count += 1
+                        group_notional += abs(sz) * float(getattr(pos, "entry_price", 0.0) or 0.0)
+                    except Exception:
+                        continue
+
+            # limits: global + per-group
+            group_max_pos = int(_safe_float(os.getenv("CORR_GROUP_MAX_POSITIONS", 0), 0))
+            group_max_notional = _safe_float(os.getenv("CORR_GROUP_MAX_NOTIONAL_USDT", 0.0), 0.0)
+            if group_max_pos <= 0:
+                group_max_pos = int(_safe_float(getattr(bot.cfg, "CORR_GROUP_MAX_POSITIONS", 0), 0))
+            if group_max_notional <= 0:
+                group_max_notional = _safe_float(getattr(bot.cfg, "CORR_GROUP_MAX_NOTIONAL_USDT", 0.0), 0.0)
+
+            per_group_pos = _parse_group_kv(os.getenv("CORR_GROUP_LIMITS", ""))
+            if group_name in per_group_pos:
+                group_max_pos = int(_safe_float(per_group_pos.get(group_name), group_max_pos))
+
+            per_group_not = _parse_group_kv(os.getenv("CORR_GROUP_NOTIONAL", ""))
+            if group_name in per_group_not:
+                group_max_notional = _safe_float(per_group_not.get(group_name), group_max_notional)
+
+            if group_max_pos > 0 and group_count >= group_max_pos:
+                return (f"group {group_name} max positions {group_max_pos} reached", group_name, group_notional, group_max_notional)
+    except Exception:
+        return (None, group_name, group_notional, group_max_notional)
+
+    return (None, group_name, group_notional, group_max_notional)
 
 
 async def _safe_speak(bot, text: str, priority: str = "critical"):
@@ -205,6 +544,32 @@ def _skip(bot, k: str, side: str, reason: str):
     except Exception:
         throttle = 12.0
 
+    # Telemetry for entry blocks (throttled)
+    try:
+        if emit_throttled is not None:
+            cd = float(getattr(getattr(bot, "cfg", None), "SKIP_TELEMETRY_COOLDOWN_SEC", 30.0) or 30.0)
+            key = f"{k}:{side}:{reason}"
+            code = map_reason(reason) if callable(map_reason) else "ERR_UNKNOWN"
+            data = {"k": k, "side": side, "reason": reason, "code": code}
+            try:
+                asyncio.create_task(
+                    emit_throttled(
+                        bot,
+                        "entry.blocked",
+                        key=key,
+                        cooldown_sec=cd,
+                        data=data,
+                        level="info",
+                        symbol=k,
+                    )
+                )
+            except Exception:
+                pass
+        if bump is not None:
+            bump(bot, "entry.blocked")
+    except Exception:
+        pass
+
     now = time.time()
     key = f"{k}|{side}|{reason}"
     last = float(_SKIP_LAST.get(key, 0.0) or 0.0)
@@ -243,6 +608,34 @@ def _record_last_entry_attempt(bot, k: str) -> None:
             m = {}
             rc["last_entry_attempt"] = m
         m[k] = float(time.time())
+    except Exception:
+        pass
+
+
+def _remember_entry_signal(
+    bot,
+    k: str,
+    side: str,
+    confidence: float,
+    extra: Optional[dict[str, Any]] = None,
+) -> None:
+    try:
+        rc = getattr(bot.state, "run_context", None)
+        if not isinstance(rc, dict):
+            bot.state.run_context = {}
+            rc = bot.state.run_context
+        signals = rc.get("last_entry_signal")
+        if not isinstance(signals, dict):
+            signals = {}
+            rc["last_entry_signal"] = signals
+        payload = {
+            "confidence": float(confidence or 0.0),
+            "side": str(side or "").lower().strip(),
+            "ts": time.time(),
+        }
+        if isinstance(extra, dict) and extra:
+            payload.update(extra)
+        signals[k] = payload
     except Exception:
         pass
 
@@ -588,6 +981,15 @@ async def try_enter(bot, sym: str, side: str):
         except Exception as e:
             log_entry.warning(f"{k} trade_allowed() error — allowing by exception: {e}")
 
+        paused, pause_reason, pause_until = _telemetry_entry_paused()
+        if paused:
+            ts = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime(pause_until))
+            detail = f"telemetry pause until {ts}"
+            if pause_reason:
+                detail += f" ({pause_reason})"
+            _skip(bot, k, side, detail)
+            return
+
         _record_last_entry_attempt(bot, k)
 
         if bot.state.blacklist.get(k, 0) > time.time():
@@ -622,6 +1024,12 @@ async def try_enter(bot, sym: str, side: str):
             _skip(bot, k, side, f"portfolio heat {current_heat:.1%} > {cfg.MAX_PORTFOLIO_HEAT:.1%}")
             return
 
+        # Correlation group guard (count + notional)
+        reason, group_name, group_notional, group_max_notional = _check_corr_group(bot, k)
+        if reason:
+            _skip(bot, k, side, reason)
+            return
+
         session_peak = float(getattr(bot, "session_peak_equity", 0.0) or 0.0)
         session_dd = (session_peak - equity) / session_peak if session_peak > 0 else 0.0
         if session_dd > cfg.SESSION_EQUITY_PEAK_PROTECTION_PCT:
@@ -635,9 +1043,22 @@ async def try_enter(bot, sym: str, side: str):
 
         long_sig, short_sig, confidence = generate_signal(sym_raw, data=bot.data, cfg=cfg)
         confidence = float(confidence or 0.0)
-
-        if confidence < cfg.MIN_CONFIDENCE:
-            _skip(bot, k, side, f"confidence {confidence:.2f} < {cfg.MIN_CONFIDENCE:.2f}")
+        min_confidence_base = float(getattr(cfg, "MIN_CONFIDENCE", 0.0) or 0.0)
+        override_conf = 0.0
+        override_reason = ""
+        override_expires = 0.0
+        if callable(get_active_state):
+            state = get_active_state()
+            if isinstance(state, dict):
+                override_conf = float(state.get("min_confidence_override") or 0.0)
+                override_reason = str(state.get("reason") or "")
+                override_expires = float(state.get("expires_at") or 0.0)
+        effective_min_conf = max(min_confidence_base, override_conf)
+        skip_reason = f"confidence {confidence:.2f} < {effective_min_conf:.2f}"
+        if override_conf > min_confidence_base and override_expires > time.time():
+            skip_reason += f" (recovery until {_format_ts(override_expires)} reason={override_reason or 'telemetry'})"
+        if confidence < effective_min_conf:
+            _skip(bot, k, side, skip_reason)
             return
 
         if (side == "long" and not long_sig) or (side == "short" and not short_sig):
@@ -660,6 +1081,43 @@ async def try_enter(bot, sym: str, side: str):
         except Exception:
             _skip(bot, k, side, "missing OHLC columns")
             return
+
+        # Optional follow-through gate (confirm last bar continues in signal direction)
+        try:
+            ft_env = str(os.getenv("ENTRY_FOLLOW_THROUGH", "")).strip().lower()
+            if ft_env != "":
+                follow_on = ft_env in ("1", "true", "yes", "y", "on")
+            else:
+                follow_on = bool(getattr(cfg, "ENTRY_FOLLOW_THROUGH", False))
+        except Exception:
+            follow_on = False
+
+        try:
+            ft_min_env = str(os.getenv("ENTRY_FOLLOW_THROUGH_MIN_MOVE_PCT", "")).strip()
+            if ft_min_env != "":
+                follow_min = float(ft_min_env)
+            else:
+                follow_min = float(getattr(cfg, "ENTRY_FOLLOW_THROUGH_MIN_MOVE_PCT", 0.0) or 0.0)
+        except Exception:
+            follow_min = 0.0
+
+        if follow_on:
+            if len(close_series) < 2:
+                _skip(bot, k, side, "follow-through requires 2 bars")
+                return
+            prev_close = _safe_float(close_series.iloc[-2], default=0.0)
+            if prev_close <= 0:
+                _skip(bot, k, side, "follow-through prev_close <= 0")
+                return
+            last_close = _safe_float(close_series.iloc[-1], default=0.0)
+            if side == "long":
+                if last_close <= prev_close * (1.0 + max(0.0, follow_min)):
+                    _skip(bot, k, side, f"follow-through not confirmed (min {follow_min:.3%})")
+                    return
+            else:
+                if last_close >= prev_close * (1.0 - max(0.0, follow_min)):
+                    _skip(bot, k, side, f"follow-through not confirmed (min {follow_min:.3%})")
+                    return
 
         close_df = _safe_float(close_series.iloc[-1], default=0.0)
         if close_df <= 0:
@@ -726,6 +1184,20 @@ async def try_enter(bot, sym: str, side: str):
             return
 
         notional = risk_amount / stop_pct
+
+        # Correlation group notional cap (existing + new)
+        try:
+            if group_name and group_max_notional > 0:
+                if (group_notional + notional) > group_max_notional:
+                    _skip(
+                        bot,
+                        k,
+                        side,
+                        f"group {group_name} notional {(group_notional + notional):.2f} > {group_max_notional:.2f}",
+                    )
+                    return
+        except Exception:
+            pass
         amount = notional / ref_px
 
         min_notional = float(getattr(cfg, "MIN_NOTIONAL_USDT", 0.0) or 0.0)
@@ -733,11 +1205,13 @@ async def try_enter(bot, sym: str, side: str):
             notional = min_notional
             amount = notional / ref_px
 
+        lev_sym = _resolve_leverage_for_symbol(bot, k, cfg)
+
         min_margin = float(getattr(cfg, "MIN_MARGIN_USDT", 0.0) or 0.0)
         if min_margin > 0:
-            est_margin = notional / float(cfg.LEVERAGE)
+            est_margin = notional / float(lev_sym)
             if est_margin < min_margin:
-                notional = min_margin * float(cfg.LEVERAGE)
+                notional = min_margin * float(lev_sym)
                 amount = notional / ref_px
 
         min_amount_val = float(await _get_min_amount(bot, sym_raw, k) or 0.0)
@@ -875,11 +1349,30 @@ async def try_enter(bot, sym: str, side: str):
                 size=abs(float(filled)),
                 entry_price=float(entry_price),
                 atr=float(atr),
-                leverage=int(cfg.LEVERAGE),
+                leverage=int(lev_sym),
                 entry_ts=time.time(),
                 confidence=float(confidence),
             )
             bot.state.positions[k] = pos
+
+            entry_meta = {
+                "entry_price": float(entry_price),
+                "entry_qty": float(filled),
+                "entry_notional": float(entry_price) * float(filled),
+                "entry_leverage": int(lev_sym),
+                "entry_atr": float(atr),
+                "entry_atr_pct": (float(atr) / float(entry_price)) if entry_price > 0 else 0.0,
+                "entry_stop_pct": float(stop_pct),
+                "entry_slippage_pct": float(slippage_pct),
+                "entry_funding_rate": float(funding_rate),
+                "entry_ref_px": float(ref_px),
+            }
+            try:
+                if isinstance(order, dict) and order.get("id"):
+                    entry_meta["entry_order_id"] = str(order.get("id"))
+            except Exception:
+                pass
+            _remember_entry_signal(bot, k, side, confidence, extra=entry_meta)
 
             stop_price = entry_price * (1.0 - stop_pct) if side == "long" else entry_price * (1.0 + stop_pct)
 
@@ -983,7 +1476,7 @@ async def try_enter(bot, sym: str, side: str):
             await _safe_speak(
                 bot,
                 f"SCALPER {side.upper()} {k}\n"
-                f"Risk ${risk_amount:.2f} | Conf {confidence:.2f} | {cfg.LEVERAGE}x\n"
+                f"Risk ${risk_amount:.2f} | Conf {confidence:.2f} | {lev_sym}x\n"
                 f"Notional ${notional:.2f} | Qty {filled:.6f}\n"
                 f"STOP OK | THE BLADE STRIKES",
                 "critical",

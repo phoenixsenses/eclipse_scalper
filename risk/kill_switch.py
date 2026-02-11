@@ -23,6 +23,18 @@ def _now() -> float:
     return time.time()
 
 
+def _seconds_until_utc_midnight() -> float:
+    try:
+        now = _now()
+        # next UTC midnight
+        t = time.gmtime(now)
+        # seconds since midnight
+        sec_since = t.tm_hour * 3600 + t.tm_min * 60 + t.tm_sec
+        return max(0.0, 86400.0 - sec_since)
+    except Exception:
+        return 0.0
+
+
 def _safe_float(x, default: float = 0.0) -> float:
     try:
         v = float(x)
@@ -107,9 +119,23 @@ async def _telemetry(bot, event: str, *, data: Optional[dict] = None, level: str
     if not callable(emit):
         return
     try:
-        await emit(bot, event, data=(data or {}), symbol=None, level=level)
+        payload = dict(data or {})
+        payload.setdefault("adapter", _adapter_name(bot))
+        await emit(bot, event, data=payload, symbol=None, level=level)
     except Exception:
         pass
+
+
+def _adapter_name(bot) -> str:
+    try:
+        ex = getattr(bot, "ex", None)
+        if ex is not None:
+            name = getattr(ex, "name", None)
+            if isinstance(name, str) and name:
+                return name
+    except Exception:
+        pass
+    return getattr(bot, "adapter_override", "unknown")
 
 
 def _record_shutdown_reason(bot, reason: str, source: str) -> None:
@@ -539,6 +565,9 @@ async def evaluate(bot) -> Tuple[bool, Optional[str]]:
 
         max_daily_loss_pct = float(_cfg(bot, "MAX_DAILY_LOSS_PCT", 0.0) or 0.0)
         max_drawdown_pct = float(_cfg(bot, "MAX_DRAWDOWN_PCT", 0.0) or 0.0)
+        daily_halt_sec = float(_cfg(bot, "KILL_DAILY_HALT_SEC", cooldown) or cooldown)
+        dd_halt_sec = float(_cfg(bot, "KILL_DRAWDOWN_HALT_SEC", cooldown) or cooldown)
+        daily_halt_until_utc = _truthy(_cfg(bot, "KILL_DAILY_HALT_UNTIL_UTC", False))
 
         max_data_stale = float(_cfg(bot, "KILL_MAX_DATA_STALENESS_SEC", 150.0))
         max_error_rate = float(_cfg(bot, "KILL_MAX_API_ERROR_RATE", 0.35))
@@ -561,7 +590,10 @@ async def evaluate(bot) -> Tuple[bool, Optional[str]]:
         if max_daily_loss_pct > 0 and sod > 0:
             if dpnl < -max_daily_loss_pct * sod:
                 reason = f"DAILY LOSS LIMIT — PnL ${dpnl:,.0f} (limit {max_daily_loss_pct:.1%})"
-                await request_halt(bot, cooldown, reason, "critical")
+                sec = daily_halt_sec
+                if daily_halt_until_utc:
+                    sec = max(sec, _seconds_until_utc_midnight())
+                await request_halt(bot, sec, reason, "critical")
                 km["last_check_ts"] = now
                 return False, reason
 
@@ -571,7 +603,7 @@ async def evaluate(bot) -> Tuple[bool, Optional[str]]:
             dd = (peak - eq) / peak
             if dd > max_drawdown_pct:
                 reason = f"DRAWDOWN LIMIT — DD {dd:.1%} (limit {max_drawdown_pct:.1%})"
-                await request_halt(bot, cooldown, reason, "critical")
+                await request_halt(bot, dd_halt_sec, reason, "critical")
                 km["last_check_ts"] = now
                 return False, reason
 

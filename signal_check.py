@@ -37,7 +37,7 @@ except:
 
 from strategies.eclipse_scalper import scalper_signal
 from data.cache import GodEmperorDataOracle
-from exchanges.binance import get_exchange
+from exchanges import get_exchange
 from brain.state import PsycheState
 from notifications.telegram import Notifier
 

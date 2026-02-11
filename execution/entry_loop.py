@@ -9,8 +9,10 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import os
 import time
+from pathlib import Path
 from typing import Any, Dict, Optional, Callable, Tuple
 
 from utils.logging import log_entry, log_core
@@ -56,6 +58,17 @@ try:
     from risk.kill_switch import trade_allowed  # type: ignore
 except Exception:
     trade_allowed = None
+
+try:
+    from execution.adaptive_guard import refresh_state as refresh_adaptive_guard, get_override as get_adaptive_override  # type: ignore
+except Exception:
+    refresh_adaptive_guard = None
+    get_adaptive_override = None
+
+try:
+    from execution.adaptive_guard import get_notional_scale as get_adaptive_notional_scale  # type: ignore
+except Exception:
+    get_adaptive_notional_scale = None
 
 
 # ----------------------------
@@ -125,6 +138,283 @@ def _symkey(sym: str) -> str:
     if s.endswith("USDTUSDT"):
         s = s[:-4]
     return s
+
+
+def _parse_group_kv(raw: str) -> dict:
+    """
+    Parse "MEME=1,MAJOR=2" into dict.
+    """
+    out: dict = {}
+    try:
+        s = str(raw or "").strip()
+        if not s:
+            return out
+        parts = [p.strip() for p in s.replace(";", ",").split(",") if p.strip()]
+        for p in parts:
+            if "=" not in p:
+                continue
+            k, v = p.split("=", 1)
+            kk = str(k or "").strip().upper()
+            if not kk:
+                continue
+            try:
+                out[kk] = float(v)
+            except Exception:
+                continue
+    except Exception:
+        return out
+    return out
+
+
+def _parse_groups(raw: str) -> dict:
+    """
+    Parse "MEME:BTCUSDT,SHIBUSDT;MAJOR:BTCUSDT,ETHUSDT" into dict.
+    """
+    out: dict = {}
+    try:
+        s = str(raw or "").strip()
+        if not s:
+            return out
+        groups = [g.strip() for g in s.split(";") if g.strip()]
+        for g in groups:
+            if ":" not in g:
+                continue
+            name, syms = g.split(":", 1)
+            gn = str(name or "").strip().upper()
+            if not gn:
+                continue
+            members = []
+            for p in syms.replace(" ", "").split(","):
+                if not p:
+                    continue
+                members.append(_symkey(p))
+            if members:
+                out[gn] = members
+    except Exception:
+        return out
+    return out
+
+
+def _get_corr_groups(bot) -> dict:
+    try:
+        cfg = getattr(bot, "cfg", None)
+        g = getattr(cfg, "CORRELATION_GROUPS", None)
+        if isinstance(g, dict) and g:
+            return {str(k).upper(): [_symkey(x) for x in v] for k, v in g.items()}
+    except Exception:
+        pass
+    try:
+        g2 = getattr(bot, "CORRELATION_GROUPS", None)
+        if isinstance(g2, dict) and g2:
+            return {str(k).upper(): [_symkey(x) for x in v] for k, v in g2.items()}
+    except Exception:
+        pass
+    try:
+        raw = os.getenv("CORR_GROUPS", "").strip()
+        g3 = _parse_groups(raw)
+        if g3:
+            return g3
+    except Exception:
+        pass
+    return {}
+
+
+def _check_corr_group(bot, k: str, planned_notional: float) -> tuple[Optional[str], dict]:
+    """
+    Returns reason string if blocked, else None.
+    """
+    group_name = ""
+    group_syms = []
+    group_count = 0
+    group_notional = 0.0
+    try:
+        groups = _get_corr_groups(bot)
+        for gname, members in (groups or {}).items():
+            if k in members:
+                group_name = str(gname).upper()
+                group_syms = [_symkey(x) for x in members]
+                break
+        if not group_name:
+            return None, {}
+        pos_map = getattr(getattr(bot, "state", None), "positions", None)
+        if isinstance(pos_map, dict):
+            for pk, pos in pos_map.items():
+                if _symkey(pk) not in group_syms:
+                    continue
+                try:
+                    sz = float(getattr(pos, "size", 0.0) or 0.0)
+                    if abs(sz) <= 0:
+                        continue
+                    group_count += 1
+                    group_notional += abs(sz) * float(getattr(pos, "entry_price", 0.0) or 0.0)
+                except Exception:
+                    continue
+        group_max_pos = int(_cfg_env_float(bot, "CORR_GROUP_MAX_POSITIONS", 0) or 0)
+        group_max_notional = float(_cfg_env_float(bot, "CORR_GROUP_MAX_NOTIONAL_USDT", 0.0) or 0.0)
+        per_group_pos = _parse_group_kv(os.getenv("CORR_GROUP_LIMITS", ""))
+        per_group_not = _parse_group_kv(os.getenv("CORR_GROUP_NOTIONAL", ""))
+        if group_name in per_group_pos:
+            group_max_pos = int(per_group_pos.get(group_name) or group_max_pos)
+        if group_name in per_group_not:
+            group_max_notional = float(per_group_not.get(group_name) or group_max_notional)
+        meta = {
+            "group": group_name,
+            "group_count": group_count,
+            "group_max_positions": group_max_pos,
+            "group_notional": group_notional,
+            "group_max_notional": group_max_notional,
+        }
+        if group_max_pos > 0 and group_count >= group_max_pos:
+            return f"group {group_name} max positions {group_max_pos} reached", meta
+        if group_max_notional > 0 and planned_notional > 0:
+            if (group_notional + planned_notional) > group_max_notional:
+                meta.update(
+                    {
+                        "planned_notional": planned_notional,
+                        "group_projected_notional": group_notional + planned_notional,
+                    }
+                )
+                return (
+                    f"group {group_name} notional {(group_notional + planned_notional):.2f} > {group_max_notional:.2f}",
+                    meta,
+                )
+        if planned_notional > 0:
+            meta.update(
+                {
+                    "planned_notional": planned_notional,
+                    "group_projected_notional": group_notional + planned_notional,
+                }
+            )
+        return None, meta
+    except Exception:
+        return None, {}
+    return None, {}
+
+
+def _corr_group_scale(bot, meta: dict) -> tuple[float, str]:
+    """
+    Returns (scale, reason). Scale=1.0 means no scaling.
+    """
+    try:
+        if not meta or not meta.get("group"):
+            return 1.0, ""
+        enabled = _cfg_env_bool(bot, "CORR_GROUP_SCALE_ENABLED", True)
+        if not enabled:
+            return 1.0, ""
+        group = str(meta.get("group") or "").upper()
+        count = int(meta.get("group_count") or 0)
+        if count <= 0:
+            return 1.0, ""
+        scale_base = float(_cfg_env_float(bot, "CORR_GROUP_SCALE", 0.7) or 0.7)
+        scale_min = float(_cfg_env_float(bot, "CORR_GROUP_SCALE_MIN", 0.25) or 0.25)
+        per_group = _parse_group_kv(os.getenv("CORR_GROUP_SCALE_BY_GROUP", ""))
+        if group in per_group:
+            try:
+                scale_base = float(per_group.get(group) or scale_base)
+            except Exception:
+                pass
+        if scale_base <= 0 or scale_base >= 1.0:
+            return 1.0, ""
+        scale = max(scale_min, float(scale_base) ** float(count))
+        return float(scale), f"corr_group_scale {group} count={count}"
+    except Exception:
+        return 1.0, ""
+
+
+def _corr_group_exposure_scale(bot, meta: dict, planned_notional: float) -> tuple[float, str]:
+    """
+    Scale notional as group exposure grows.
+    Scale <= 1.0. If disabled or missing data, returns 1.0.
+    """
+    try:
+        if not meta or not meta.get("group"):
+            return 1.0, ""
+        enabled = _cfg_env_bool(bot, "CORR_GROUP_EXPOSURE_SCALE_ENABLED", False)
+        if not enabled:
+            return 1.0, ""
+        group = str(meta.get("group") or "").upper()
+        group_notional = float(meta.get("group_notional") or 0.0)
+        if planned_notional <= 0 and group_notional <= 0:
+            return 1.0, ""
+
+        base_scale = float(_cfg_env_float(bot, "CORR_GROUP_EXPOSURE_SCALE", 0.7) or 0.7)
+        min_scale = float(_cfg_env_float(bot, "CORR_GROUP_EXPOSURE_SCALE_MIN", 0.25) or 0.25)
+        ref_notional = float(_cfg_env_float(bot, "CORR_GROUP_EXPOSURE_REF_NOTIONAL", 0.0) or 0.0)
+        per_group_scale = _parse_group_kv(os.getenv("CORR_GROUP_EXPOSURE_SCALE_BY_GROUP", ""))
+        per_group_min = _parse_group_kv(os.getenv("CORR_GROUP_EXPOSURE_SCALE_MIN_BY_GROUP", ""))
+        per_group_ref = _parse_group_kv(os.getenv("CORR_GROUP_EXPOSURE_REF_NOTIONAL_BY_GROUP", ""))
+        if group in per_group_scale:
+            base_scale = float(per_group_scale.get(group) or base_scale)
+        if group in per_group_min:
+            min_scale = float(per_group_min.get(group) or min_scale)
+        if group in per_group_ref:
+            ref_notional = float(per_group_ref.get(group) or ref_notional)
+
+        total = group_notional + max(0.0, planned_notional)
+        if ref_notional <= 0:
+            ref_notional = float(_cfg_env_float(bot, "CORR_GROUP_MAX_NOTIONAL_USDT", 0.0) or 0.0)
+        if ref_notional <= 0:
+            return 1.0, ""
+
+        if base_scale <= 0 or base_scale >= 1.0:
+            return 1.0, ""
+
+        factor = total / max(1e-9, ref_notional)
+        scale = max(min_scale, base_scale ** max(1.0, factor))
+        return float(scale), f"corr_group_exposure {group} notional={total:.2f}"
+    except Exception:
+        return 1.0, ""
+
+
+_SIGNAL_FEEDBACK_STATE: Dict[str, float] = {"offset": 0.0, "last_ts": 0.0}
+_SIGNAL_FEEDBACK_LOG_THROTTLE_SEC = 120.0
+
+
+def _signal_feedback_path() -> Path:
+    path_str = _env_get("TELEMETRY_PATH")
+    if not path_str:
+        path_str = "logs/telemetry.jsonl"
+    return Path(path_str)
+
+
+def _collect_signal_feedback_events() -> list[dict[str, Any]]:
+    path = _signal_feedback_path()
+    if not path.exists():
+        return []
+
+    state = _SIGNAL_FEEDBACK_STATE
+    try:
+        size = path.stat().st_size
+    except Exception:
+        return []
+
+    if size < float(state.get("offset") or 0.0):
+        state["offset"] = 0.0
+
+    out: list[dict[str, Any]] = []
+    try:
+        with path.open("r", encoding="utf-8") as fh:
+            fh.seek(float(state.get("offset") or 0.0))
+            for line in fh:
+                state["offset"] = fh.tell()
+                raw = line.strip()
+                if not raw:
+                    continue
+                try:
+                    ev = json.loads(raw)
+                except Exception:
+                    continue
+                if str(ev.get("event")) != "exit.signal_issue":
+                    continue
+                ts = float(ev.get("ts") or 0.0)
+                if ts <= 0 or ts <= float(state.get("last_ts") or 0.0):
+                    continue
+                state["last_ts"] = ts
+                data = ev.get("data") or {}
+                out.append({"ts": ts, "data": data})
+    except Exception:
+        return out
+    return out
 
 
 def _ensure_shutdown_event(bot) -> asyncio.Event:
@@ -328,6 +618,34 @@ def _resolve_sizing(bot) -> tuple[float, float]:
     return float(fixed_qty), float(fixed_notional)
 
 
+def _resolve_symbol_sizing(bot, symbol: str) -> tuple[float, float]:
+    """
+    Per-symbol overrides:
+      FIXED_QTY_<SYM>, FIXED_NOTIONAL_USDT_<SYM>
+    Falls back to global sizing if not set.
+    """
+    base_qty, base_notional = _resolve_sizing(bot)
+    sym = _symkey(symbol)
+    if not sym:
+        return base_qty, base_notional
+    base = sym[:-4] if sym.endswith("USDT") and len(sym) > 4 else sym
+
+    fixed_qty = _env_float(f"FIXED_QTY_{base}", f"FIXED_QTY_{sym}", default=0.0)
+    fixed_notional = _env_float(
+        f"FIXED_NOTIONAL_USDT_{base}",
+        f"FIXED_NOTIONAL_USDT_{sym}",
+        f"FIXED_NOTIONAL_{base}",
+        f"FIXED_NOTIONAL_{sym}",
+        default=0.0,
+    )
+
+    if fixed_qty <= 0:
+        fixed_qty = base_qty
+    if fixed_notional <= 0:
+        fixed_notional = base_notional
+    return float(fixed_qty), float(fixed_notional)
+
+
 # ----------------------------
 # Throttled logging (no-trade spam killer)
 # ----------------------------
@@ -501,6 +819,29 @@ def _parse_price(sig: Dict[str, Any]) -> Optional[float]:
     return None
 
 
+def _confidence_notional_scale(bot, confidence: float) -> tuple[float, str]:
+    try:
+        enabled = _cfg_env_bool(bot, "ENTRY_CONF_SCALE_ENABLED", False)
+        if not enabled:
+            return 1.0, ""
+        min_conf = float(_cfg_env_float(bot, "ENTRY_CONF_SCALE_MIN_CONF", 0.0) or 0.0)
+        max_conf = float(_cfg_env_float(bot, "ENTRY_CONF_SCALE_MAX_CONF", 1.0) or 1.0)
+        min_scale = float(_cfg_env_float(bot, "ENTRY_CONF_SCALE_MIN", 0.5) or 0.5)
+        max_scale = float(_cfg_env_float(bot, "ENTRY_CONF_SCALE_MAX", 1.0) or 1.0)
+        conf = float(confidence or 0.0)
+        if max_conf <= min_conf:
+            return max_scale, ""
+        if conf <= min_conf:
+            return max(0.0, min_scale), f"confidence<{min_conf:.2f}"
+        if conf >= max_conf:
+            return max_scale, ""
+        ratio = (conf - min_conf) / (max_conf - min_conf)
+        scale = min_scale + ratio * (max_scale - min_scale)
+        return float(scale), f"confidence={conf:.2f}"
+    except Exception:
+        return 1.0, ""
+
+
 def _get_price(bot, symbol: str) -> float:
     """
     Best-effort last price getter for qty-from-notional conversion.
@@ -536,9 +877,71 @@ def _sizing_fallback_amount(bot, symbol: str) -> Optional[float]:
     - Else if (ENV/CFG) FIXED_NOTIONAL_USDT and we can get price => qty = notional/price
     - Else None (skip)
     """
-    fixed_qty, notional = _resolve_sizing(bot)
+    fixed_qty, notional = _resolve_symbol_sizing(bot, symbol)
+    base_notional = notional
+    base_qty = fixed_qty
+    if notional > 0 and callable(get_adaptive_notional_scale) and _cfg_env_bool(
+        bot, "ADAPTIVE_GUARD_NOTIONAL_SCALE", True
+    ):
+        try:
+            scale, reason = get_adaptive_notional_scale(symbol)
+            if scale and scale < 1.0:
+                notional = float(notional) * float(scale)
+                if callable(emit_throttled):
+                    try:
+                        asyncio.create_task(
+                            emit_throttled(
+                                bot,
+                                "entry.notional_scaled",
+                                key=f"{_symkey(symbol)}:{reason or 'guard_history'}",
+                                cooldown_sec=120.0,
+                                data={
+                                    "symbol": _symkey(symbol),
+                                    "base_notional": base_notional,
+                                    "scaled_notional": notional,
+                                    "scale": scale,
+                                    "reason": reason or "guard_history",
+                                },
+                                symbol=_symkey(symbol),
+                                level="warning",
+                            )
+                        )
+                    except Exception:
+                        pass
+        except Exception:
+            pass
 
     try:
+        if fixed_qty > 0 and callable(get_adaptive_notional_scale) and _cfg_env_bool(
+            bot, "ADAPTIVE_GUARD_QTY_SCALE", True
+        ):
+            try:
+                scale, reason = get_adaptive_notional_scale(symbol)
+                if scale and scale < 1.0:
+                    fixed_qty = float(fixed_qty) * float(scale)
+                    if callable(emit_throttled):
+                        try:
+                            asyncio.create_task(
+                                emit_throttled(
+                                    bot,
+                                    "entry.qty_scaled",
+                                    key=f"{_symkey(symbol)}:{reason or 'guard_history'}",
+                                    cooldown_sec=120.0,
+                                    data={
+                                        "symbol": _symkey(symbol),
+                                        "base_qty": base_qty,
+                                        "scaled_qty": fixed_qty,
+                                        "scale": scale,
+                                        "reason": reason or "guard_history",
+                                    },
+                                    symbol=_symkey(symbol),
+                                    level="warning",
+                                )
+                            )
+                        except Exception:
+                            pass
+            except Exception:
+                pass
         if fixed_qty > 0:
             return float(fixed_qty)
     except Exception:
@@ -572,6 +975,27 @@ _PENDING_UNTIL: Dict[str, float] = {}          # k -> ts until which entries are
 _PENDING_ORDER_ID: Dict[str, str] = {}         # k -> last submitted order id (best-effort)
 _QUALITY_LOW_START: Dict[str, float] = {}
 _QUALITY_LOW_LAST: Dict[str, float] = {}
+_PARTIAL_FILL_STREAK: Dict[str, dict[str, float]] = {}
+
+
+def _record_partial_fill_hit(bot, symbol: str) -> float:
+    window = max(1.0, float(_cfg_env_float(bot, "ENTRY_PARTIAL_ESCALATE_WINDOW_SEC", 600.0) or 600.0))
+    threshold = max(1, int(_cfg_env_float(bot, "ENTRY_PARTIAL_ESCALATE_COUNT", 3) or 3))
+    penalty = float(_cfg_env_float(bot, "ENTRY_PARTIAL_ESCALATE_BACKOFF_SEC", 120.0) or 120.0)
+    entry = _PARTIAL_FILL_STREAK.setdefault(symbol, {"count": 0, "last_ts": 0.0})
+    now = _now()
+    if (now - float(entry.get("last_ts") or 0.0)) > window:
+        entry["count"] = 0
+    entry["count"] = int(entry.get("count", 0) or 0) + 1
+    entry["last_ts"] = now
+    if threshold > 0 and int(entry.get("count", 0) or 0) >= threshold:
+        entry["count"] = 0
+        return penalty
+    return 0.0
+
+
+def _reset_partial_fill_hits(symbol: str) -> None:
+    _PARTIAL_FILL_STREAK.pop(symbol, None)
 
 
 async def _emit_latency(
@@ -635,6 +1059,38 @@ async def _emit_entry_blocked(
             await emit(bot, "entry.blocked", data=data_payload, symbol=symbol, level=level)
     except Exception:
         pass
+
+
+async def _report_signal_feedback(bot) -> None:
+    events = _collect_signal_feedback_events()
+    if not events:
+        return
+    for ev in events:
+        data = ev.get("data") or {}
+        ratio = float(data.get("low_confidence_ratio") or 0.0)
+        count = int(data.get("low_confidence_exits") or 0)
+        guard_hits = int(data.get("guard_hits") or 0)
+        severity = str(data.get("severity") or "warning")
+        min_conf = float(data.get("min_confidence_threshold") or 0.0)
+        reason = str(data.get("reason") or "telemetry_signal_feedback")
+        msg = (
+            f"Telemetry signal feedback: ratio={ratio:.1%}, count={count}, "
+            f"guard_hits={guard_hits}, min_conf={min_conf:.2f}, reason={reason}"
+        )
+        _throttled_log("signal_feedback", _SIGNAL_FEEDBACK_LOG_THROTTLE_SEC, log_entry.warning, msg)
+        await _emit_entry_blocked(
+            bot,
+            "exit_signal_feedback",
+            "signal_feedback",
+            data={
+                "ratio": ratio,
+                "low_confidence_count": count,
+                "guard_hits": guard_hits,
+                "min_confidence_threshold": min_conf,
+            },
+            level=severity,
+            throttle_sec=60.0,
+        )
 
 
 def _get_entry_lock(k: str) -> asyncio.Lock:
@@ -849,6 +1305,15 @@ async def entry_loop(bot) -> None:
                 await asyncio.sleep(max(poll_sec, wait))
                 continue
 
+            if _cfg_env_bool(bot, "ENTRY_SIGNAL_FEEDBACK_ENABLED", True):
+                await _report_signal_feedback(bot)
+
+            if callable(refresh_adaptive_guard):
+                try:
+                    refresh_adaptive_guard()
+                except Exception:
+                    pass
+
             # avoid super tight spin if poll_sec tiny
             if poll_sec > 0 and (now - last_symbol_tick) < poll_sec:
                 await asyncio.sleep(max(0.05, poll_sec - (now - last_symbol_tick)))
@@ -866,6 +1331,22 @@ async def entry_loop(bot) -> None:
                 k = _symkey(sym)
                 if not k:
                     continue
+
+                current_min_conf = min_conf
+                guard_reason = ""
+                if callable(get_adaptive_override):
+                    try:
+                        current_min_conf, guard_reason = get_adaptive_override(k, min_conf)
+                    except Exception:
+                        current_min_conf = min_conf
+                        guard_reason = ""
+                if guard_reason and diag:
+                    _throttled_log(
+                        key=f"adaptive_guard:{k}:{guard_reason}",
+                        every_sec=60.0,
+                        fn=log_entry.info,
+                        msg=f"ENTRY_LOOP adaptive guard {k} raised min_conf to {current_min_conf:.2f} ({guard_reason})",
+                    )
 
                 # margin-insufficient backoff gate
                 bo = float(backoff_until_by_sym.get(k, 0.0) or 0.0)
@@ -1045,7 +1526,7 @@ async def entry_loop(bot) -> None:
                         conf = float(sig.get("confidence", sig.get("conf", 0.0)) or 0.0)
                     except Exception:
                         conf = 0.0
-                    if min_conf > 0 and conf < min_conf:
+                    if current_min_conf > 0 and conf < current_min_conf:
                         await _emit_entry_blocked(bot, k, "confidence_low", throttle_sec=30.0)
                         await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                         continue
@@ -1059,7 +1540,7 @@ async def entry_loop(bot) -> None:
                     if amt is None or amt <= 0:
                         if sizing_warn_every > 0 and (_now() - last_sizing_warn_ts) >= sizing_warn_every:
                             last_sizing_warn_ts = _now()
-                            fixed_qty, fixed_notional = _resolve_sizing(bot)
+                            fixed_qty, fixed_notional = _resolve_symbol_sizing(bot, k)
                             log_entry.warning(
                                 "ENTRY_LOOP: sizing missing; set FIXED_QTY or FIXED_NOTIONAL_USDT. "
                                 f"(FIXED_QTY={fixed_qty}, FIXED_NOTIONAL_USDT={fixed_notional})"
@@ -1072,6 +1553,108 @@ async def entry_loop(bot) -> None:
                     hedge_side_hint = None
                     if hedge_hint_mode:
                         hedge_side_hint = "long" if action == "buy" else "short"
+
+                    conf_scale, conf_reason = _confidence_notional_scale(bot, float(confidence or 0.0))
+                    if conf_scale and conf_scale < 1.0 and amt is not None and amt > 0:
+                        try:
+                            base_amt = float(amt)
+                            amt = float(amt) * float(conf_scale)
+                            if callable(emit_throttled):
+                                asyncio.create_task(
+                                    emit_throttled(
+                                        bot,
+                                        "entry.notional_scaled",
+                                        key=f"{k}:{conf_reason or 'confidence'}",
+                                        cooldown_sec=120.0,
+                                        data={
+                                            "symbol": k,
+                                            "base_qty": base_amt,
+                                            "scaled_qty": amt,
+                                            "scale": conf_scale,
+                                            "reason": conf_reason or "confidence",
+                                            "confidence": float(confidence or 0.0),
+                                        },
+                                        symbol=k,
+                                        level="info",
+                                    )
+                                )
+                        except Exception:
+                            pass
+
+                    planned_notional = 0.0
+                    try:
+                        ref_px = float(price or 0.0)
+                        if ref_px <= 0:
+                            ref_px = float(_get_price(bot, k) or 0.0)
+                        if ref_px > 0:
+                            planned_notional = float(amt) * ref_px
+                    except Exception:
+                        planned_notional = 0.0
+                    corr_reason, corr_meta = _check_corr_group(bot, k, planned_notional)
+                    scale, scale_reason = _corr_group_scale(bot, corr_meta or {})
+                    if scale and scale < 1.0 and planned_notional > 0:
+                        try:
+                            amt = float(amt) * float(scale)
+                            planned_notional = float(planned_notional) * float(scale)
+                            if callable(emit_throttled):
+                                asyncio.create_task(
+                                    emit_throttled(
+                                        bot,
+                                        "entry.notional_scaled",
+                                        key=f"{k}:{scale_reason or 'corr_group'}",
+                                        cooldown_sec=120.0,
+                                        data={
+                                            "symbol": k,
+                                            "planned_notional": planned_notional,
+                                            "scale": scale,
+                                            "reason": scale_reason or "corr_group",
+                                            **(corr_meta or {}),
+                                        },
+                                        symbol=k,
+                                        level="warning",
+                                    )
+                                )
+                        except Exception:
+                            pass
+                    exp_scale, exp_reason = _corr_group_exposure_scale(bot, corr_meta or {}, planned_notional)
+                    if exp_scale and exp_scale < 1.0 and planned_notional > 0:
+                        try:
+                            amt = float(amt) * float(exp_scale)
+                            planned_notional = float(planned_notional) * float(exp_scale)
+                            if callable(emit_throttled):
+                                asyncio.create_task(
+                                    emit_throttled(
+                                        bot,
+                                        "entry.notional_scaled",
+                                        key=f"{k}:{exp_reason or 'corr_group_exposure'}",
+                                        cooldown_sec=120.0,
+                                        data={
+                                            "symbol": k,
+                                            "planned_notional": planned_notional,
+                                            "scale": exp_scale,
+                                            "reason": exp_reason or "corr_group_exposure",
+                                            **(corr_meta or {}),
+                                        },
+                                        symbol=k,
+                                        level="warning",
+                                    )
+                                )
+                        except Exception:
+                            pass
+                    if corr_reason:
+                        await _emit_entry_blocked(
+                            bot,
+                            k,
+                            "corr_group_cap",
+                            data={
+                                "reason": corr_reason,
+                                "planned_notional": planned_notional,
+                                **(corr_meta or {}),
+                            },
+                            throttle_sec=30.0,
+                        )
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
 
                     # Safety: block entries after recent router blocks
                     if _cfg_env_bool(bot, "ENTRY_BLOCK_ON_ROUTER_BLOCK", True):
@@ -1229,7 +1812,30 @@ async def entry_loop(bot) -> None:
                                         },
                                         throttle_sec=20.0,
                                     )
-                                    _set_pending(k, sec=max(3.0, float(_cfg_env_float(bot, "ENTRY_PARTIAL_BACKOFF_SEC", 10.0) or 10.0)))
+                                    base_backoff = max(3.0, float(_cfg_env_float(bot, "ENTRY_PARTIAL_BACKOFF_SEC", 10.0) or 10.0))
+                                    extra_backoff = _record_partial_fill_hit(bot, k)
+                                    total_backoff = base_backoff if extra_backoff <= 0 else max(base_backoff, extra_backoff)
+                                    _set_pending(k, sec=total_backoff)
+                                    if extra_backoff > 0 and callable(emit_throttled):
+                                        try:
+                                            cooldown = max(30.0, float(_cfg_env_float(bot, "ENTRY_PARTIAL_ESCALATE_TELEM_CD_SEC", 300.0) or 300.0))
+                                            await emit_throttled(
+                                                bot,
+                                                "entry.partial_fill_escalation",
+                                                key=f"{k}:partial_fill",
+                                                cooldown_sec=cooldown,
+                                                data={
+                                                    "ratio": ratio,
+                                                    "requested": req_amt,
+                                                    "filled": filled,
+                                                    "backoff": extra_backoff,
+                                                    "min_ratio": min_ratio,
+                                                },
+                                                symbol=k,
+                                                level="warning",
+                                            )
+                                        except Exception:
+                                            pass
                                     await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                                     continue
 
@@ -1255,6 +1861,7 @@ async def entry_loop(bot) -> None:
                         _set_pending(k, sec=max(5.0, pending_block_sec), order_id=str(oid) if oid else None)
 
                         log_core.critical(f"ENTRY_LOOP: ORDER SUBMITTED {k} {action.upper()} type={otype} amt={amt} id={oid}")
+                        _reset_partial_fill_hits(k)
 
                         # Register watch for limit/pending orders (optional)
                         if otype == "limit" and callable(register_entry_watch) and oid:

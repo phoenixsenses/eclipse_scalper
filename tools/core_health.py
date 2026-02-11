@@ -11,9 +11,10 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import statistics
 import time
-from collections import Counter, defaultdict
+from collections import defaultdict, Counter
 from pathlib import Path
 from typing import Any
 
@@ -92,6 +93,16 @@ def _fmt_rows(rows, headers):
     return "\n".join(lines)
 
 
+def _load_anomaly_state(path: Path):
+    if not path.exists():
+        return {}
+    try:
+        with path.open("r", encoding="utf-8") as fh:
+            return json.load(fh)
+    except Exception:
+        return {}
+
+
 def main():
     parser = argparse.ArgumentParser(description="Core health (risk/sizing/signal)")
     parser.add_argument("--path", default="logs/telemetry.jsonl", help="telemetry JSONL path")
@@ -109,6 +120,8 @@ def main():
         exit_codes,
         net_orders,
     ) = _summarize(events)
+    equity = float(os.getenv("CORE_HEALTH_EQUITY", "100000"))
+    anomaly_state = _load_anomaly_state(Path("logs/telemetry_anomaly_state.json"))
 
     print(f"Core health dashboard (last {args.since_min} min, {len(events)} events)")
 
@@ -124,6 +137,8 @@ def main():
         )[:8]
         print("\nTop exposures (notional). Format: symbol, notional, avg confidence, net orders")
         print(_fmt_rows(rows, ("Symbol", "Notional", "Avg Conf", "Net Ord")))
+        ratio = sum(exposures.values()) / max(1.0, equity)
+        print(f"\nTotal exposure / equity: {ratio:.2%} (equity base {equity:,.0f})")
     else:
         print("\nNo exposure events found.")
 
@@ -145,6 +160,17 @@ def main():
             print("\nExit codes summary:")
             for code, count in exit_codes.most_common(6):
                 print(f"- {code}: {count}")
+    if anomaly_state:
+        pause_until = float(anomaly_state.get("pause_until") or 0.0)
+        if pause_until and pause_until > time.time():
+            ts = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime(pause_until))
+            print(f"\nAnomaly pause in effect until {ts}")
+        codes = anomaly_state.get("exit_codes") or []
+        print(
+            f"\nLast anomaly state: exposures={anomaly_state.get('exposures',0):.0f}, "
+            f"avg_conf={anomaly_state.get('avg_confidence',0.0):.2f}, "
+            f"risk={anomaly_state.get('risk_total',0)}, codes={','.join(codes) or 'none'}"
+        )
     return 0
 
 

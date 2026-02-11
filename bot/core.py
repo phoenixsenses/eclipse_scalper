@@ -15,7 +15,7 @@ from brain.state import PsycheState
 from brain.persistence import save_brain, load_brain
 from data.cache import GodEmperorDataOracle as DataCache
 from notifications.telegram import Notifier
-from exchanges.binance import get_exchange
+from exchanges import get_exchange
 
 from execution.entry import try_enter
 from execution.emergency import emergency_flat

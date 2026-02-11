@@ -91,6 +91,89 @@ class ExitTests(unittest.TestCase):
         asyncio.run(exit_mod.handle_exit(bot, order))
         self.assertEqual(bot.state.positions.get("BTCUSDT"), None)
 
+    def test_momentum_exit_signal_long(self):
+        import pandas as pd
+
+        class DummyData:
+            def __init__(self, df_5m, df_15m):
+                self._df_5m = df_5m
+                self._df_15m = df_15m
+                self.raw_symbol = {}
+
+            def get_df(self, _sym, tf="1m"):
+                if tf == "5m":
+                    return self._df_5m
+                if tf == "15m":
+                    return self._df_15m
+                return None
+
+        bot = DummyBot()
+        df_5m = pd.DataFrame(
+            [
+                [1, 100, 100, 100, 100, 1],
+                [2, 100, 100, 100, 100, 1],
+                [3, 100, 100, 100, 95, 1],
+            ],
+            columns=["ts", "o", "h", "l", "c", "v"],
+        )
+        df_15m = pd.DataFrame(
+            [
+                [1, 100, 100, 100, 100, 1],
+                [2, 100, 100, 100, 100, 1],
+                [3, 100, 100, 100, 94, 1],
+            ],
+            columns=["ts", "o", "h", "l", "c", "v"],
+        )
+        bot.data = DummyData(df_5m, df_15m)
+
+        hit, mom5, mom15 = exit_mod._momentum_exit_signal(
+            bot,
+            "BTCUSDT",
+            "BTCUSDT",
+            "long",
+            min_mom=0.001,
+            require_both=True,
+            tf_fast="5m",
+            tf_slow="15m",
+        )
+        self.assertTrue(hit)
+        self.assertLess(mom5, 0.0)
+        self.assertLess(mom15, 0.0)
+
+    def test_vwap_cross_exit_signal_long(self):
+        import pandas as pd
+
+        class DummyData:
+            def __init__(self, df_5m):
+                self._df_5m = df_5m
+                self.raw_symbol = {}
+
+            def get_df(self, _sym, tf="1m"):
+                if tf == "5m":
+                    return self._df_5m
+                return None
+
+        bot = DummyBot()
+        rows = []
+        for i in range(10):
+            rows.append([i + 1, 110, 111, 109, 110, 10])
+        rows.append([11, 90, 91, 89, 90, 10])
+        df_5m = pd.DataFrame(rows, columns=["ts", "o", "h", "l", "c", "v"])
+        bot.data = DummyData(df_5m)
+
+        hit, vwap, px = exit_mod._vwap_cross_exit_signal(
+            bot,
+            "BTCUSDT",
+            "BTCUSDT",
+            "long",
+            tf="5m",
+            window=10,
+            require_cross=True,
+        )
+        self.assertTrue(hit)
+        self.assertGreater(vwap, 0.0)
+        self.assertGreater(px, 0.0)
+
 
 if __name__ == "__main__":
     unittest.main()

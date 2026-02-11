@@ -87,6 +87,18 @@ def _ensure_shutdown_event(bot) -> asyncio.Event:
     return ev
 
 
+def _ensure_data_ready_event(bot) -> asyncio.Event:
+    ev = getattr(bot, "data_ready", None)
+    if isinstance(ev, asyncio.Event):
+        return ev
+    ev = asyncio.Event()
+    try:
+        bot.data_ready = ev  # type: ignore[attr-defined]
+    except Exception:
+        pass
+    return ev
+
+
 def _pick_symbols(bot) -> list[str]:
     try:
         s = getattr(bot, "active_symbols", None)
@@ -112,10 +124,12 @@ async def entry_loop_full(bot) -> None:
     Bootstrap entry loop that invokes execution.entry.try_enter().
     """
     shutdown_ev = _ensure_shutdown_event(bot)
+    data_ready_ev = _ensure_data_ready_event(bot)
 
     poll_sec = _cfg_env_float(bot, "ENTRY_POLL_SEC", 1.0)
     per_symbol_gap_sec = _cfg_env_float(bot, "ENTRY_PER_SYMBOL_GAP_SEC", 2.5)
     local_cooldown_sec = _cfg_env_float(bot, "ENTRY_LOCAL_COOLDOWN_SEC", 8.0)
+    wait_data_sec = _cfg_env_float(bot, "ENTRY_WAIT_FOR_DATA_READY_SEC", 8.0)
 
     spawn_both = _cfg_env_bool(bot, "SPAWN_BOTH_SIDES", False)
     respect_kill = _cfg_env_bool(bot, "ENTRY_RESPECT_KILL_SWITCH", True)
@@ -126,12 +140,23 @@ async def entry_loop_full(bot) -> None:
 
     log_core.info("ENTRY_LOOP_FULL ONLINE — using execution.entry.try_enter()")
 
+    # initial data-ready wait (best-effort)
+    if wait_data_sec > 0 and not data_ready_ev.is_set():
+        try:
+            await asyncio.wait_for(data_ready_ev.wait(), timeout=wait_data_sec)
+        except Exception:
+            pass
+
     while not shutdown_ev.is_set():
         try:
             now = _now()
             if poll_sec > 0 and (now - last_tick) < poll_sec:
                 await asyncio.sleep(max(0.05, poll_sec - (now - last_tick)))
             last_tick = _now()
+
+            if wait_data_sec > 0 and not data_ready_ev.is_set():
+                await asyncio.sleep(max(0.25, poll_sec))
+                continue
 
             # optional kill-switch gate (mirror basic entry loop behavior)
             if respect_kill and callable(trade_allowed):

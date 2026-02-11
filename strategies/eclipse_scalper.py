@@ -1007,6 +1007,8 @@ def scalper_signal(sym: str, data=None, cfg=None, *args, **kwargs) -> tuple[bool
 
         # Multi-timeframe momentum (5m)
         df_5m = None
+        df_15m = None
+        df_1h = None
         ha_mom_5m_ok = True
         mom_5m = 0.0
         if not FAST_BACKTEST:
@@ -1385,17 +1387,40 @@ def scalper_signal(sym: str, data=None, cfg=None, *args, **kwargs) -> tuple[bool
                 blockers.append("chop")
             if not distance_ok:
                 blockers.append(f"vwapD<{dist_th:.4f}")
+            if not confirm_move:
+                blockers.append("confirm_move")
+            if not (trig_long or trig_short):
+                trig_bits = []
+                if pattern_long or pattern_short:
+                    trig_bits.append("pattern")
+                if bullish_div or bearish_div or hidden_bullish or hidden_bearish:
+                    trig_bits.append("div")
+                if (rsi_oversold and stoch_long) or (rsi_overbought and stoch_short):
+                    trig_bits.append("rsi_stoch")
+                blockers.append(f"trigger:{'|'.join(trig_bits) or 'none'}")
             if ENHANCED and (not DEBUG_LOOSE):
                 if range_atr and range_atr < RANGE_ATR_MIN:
                     blockers.append(f"rangeATR<{RANGE_ATR_MIN:.2f}")
                 if not vol_floor_ok:
                     blockers.append(f"vol<{VOL_MIN_MULT:.2f}x")
+            if not quality_ok:
+                blockers.append("quality")
             if long_mom and not above_vwap:
                 blockers.append("below_vwap")
             if short_mom and above_vwap:
                 blockers.append("above_vwap")
             if not ha_mom_5m_ok:
                 blockers.append("5m_mom")
+            if micro_profile:
+                if long_mom and not base_long:
+                    blockers.append("base_long")
+                if short_mom and not base_short:
+                    blockers.append("base_short")
+            else:
+                if long_mom and not base_long:
+                    blockers.append("base_long")
+                if short_mom and not base_short:
+                    blockers.append("base_short")
             if not micro_profile:
                 if long_mom and not persistence_long and not vol_spike_hard and not impulse_soft:
                     blockers.append("persist/impulse")

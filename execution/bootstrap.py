@@ -144,6 +144,25 @@ def _apply_env_symbols_to_cfg(cfg: Any) -> list[str]:
     return syms
 
 
+def _apply_env_overrides_to_cfg(cfg: Any) -> None:
+    def _env_float(name: str) -> Optional[float]:
+        try:
+            v = os.getenv(name, "")
+            if v is not None and str(v).strip() != "":
+                return float(v)
+        except Exception:
+            return None
+        return None
+
+    for key in ("MIN_CONFIDENCE", "ENTRY_MIN_CONFIDENCE"):
+        val = _env_float(key)
+        if val is not None:
+            try:
+                setattr(cfg, key, val)
+            except Exception:
+                pass
+
+
 def _apply_env_symbols_to_bot(bot: Any) -> list[str]:
     """
     Also expose as bot.active_symbols (entry_loop/data_loop prefer this if present).
@@ -668,6 +687,7 @@ async def main() -> None:
         pass
 
     cfg = _load_cfg()
+    _apply_env_overrides_to_cfg(cfg)
 
     # ENV -> cfg bridge BEFORE bot is built
     env_syms_cfg = _apply_env_symbols_to_cfg(cfg)

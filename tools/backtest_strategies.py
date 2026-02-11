@@ -41,6 +41,58 @@ class DataShim:
         self.ohlcv: Dict[str, List[list]] = {}
         self.raw_symbol: Dict[str, str] = {}
         self.funding: Dict[str, float] = {}
+        self._df_cache: Dict[Tuple[str, str], Tuple[int, pd.DataFrame]] = {}
+
+    def get_df(self, sym: str, tf: str = "1m") -> Optional[pd.DataFrame]:
+        k = eclipse_scalper._symkey(sym)
+        rows = self.ohlcv.get(k) or self.ohlcv.get(sym) or []
+        if not rows or len(rows) < 10:
+            return None
+
+        tf = str(tf or "1m").lower().strip()
+        cache_key = (k, tf)
+        cached = self._df_cache.get(cache_key)
+        if cached and cached[0] == len(rows):
+            return cached[1]
+
+        # Build base 1m df once and resample for higher TFs
+        if tf in ("1m", "1min", "1"):
+            df = pd.DataFrame(rows, columns=["ts", "o", "h", "l", "c", "v"])
+            for col in ("o", "h", "l", "c", "v"):
+                df[col] = pd.to_numeric(df[col], errors="coerce")
+            df = df.dropna(subset=["o", "h", "l", "c", "v"])
+            if df.empty:
+                return None
+            df["dt"] = pd.to_datetime(df["ts"], unit="ms", utc=True)
+            df = df.set_index("dt").sort_index()
+            out = df[["o", "h", "l", "c", "v"]].copy()
+            self._df_cache[cache_key] = (len(rows), out)
+            return out
+
+        base = self.get_df(sym, "1m")
+        if base is None or base.empty:
+            return None
+
+        rule = None
+        if tf in ("5m", "5min", "5"):
+            rule = "5min"
+        elif tf in ("15m", "15min", "15"):
+            rule = "15min"
+        elif tf in ("30m", "30min", "30"):
+            rule = "30min"
+        elif tf in ("1h", "60m", "60"):
+            rule = "1h"
+
+        if rule is None:
+            return base
+
+        ohlc = base.resample(rule).agg(
+            {"o": "first", "h": "max", "l": "min", "c": "last", "v": "sum"}
+        ).dropna()
+        out = ohlc if not ohlc.empty else None
+        if out is not None:
+            self._df_cache[cache_key] = (len(rows), out)
+        return out
 
 
 def load_csv(path: str) -> pd.DataFrame:
@@ -93,6 +145,10 @@ def backtest_symbol(
     # set env for enhanced gates
     os.environ["SCALPER_ENHANCED"] = "1" if enhanced else "0"
 
+    # Evaluate signal only every `stride` bars to reduce cost
+    last_signal = (False, False, 0.0)
+    last_signal_i = -1
+
     for i in range(len(df)):
         row = df.iloc[i]
         ts = int(row["ts"])
@@ -106,7 +162,13 @@ def backtest_symbol(
 
         long_sig = short_sig = False
         if stride <= 1 or (i % stride) == 0:
-            long_sig, short_sig, _conf = eclipse_scalper.scalper_signal(k, data=data, cfg=None)
+            last_signal = eclipse_scalper.scalper_signal(k, data=data, cfg=None)
+            last_signal_i = i
+        # reuse last signal between strides
+        if last_signal_i == i:
+            long_sig, short_sig, _conf = last_signal
+        elif last_signal_i >= 0:
+            long_sig, short_sig, _conf = last_signal
 
         # manage open trade
         if open_trade is not None:
@@ -211,6 +273,11 @@ def run():
     max_bars = int(os.getenv("BT_MAX_BARS", "0"))
     stride = int(os.getenv("BT_STRIDE", "5"))
     window = int(os.getenv("BT_WINDOW", "800"))
+    fast = os.getenv("BT_FAST", "").strip().lower() in ("1", "true", "yes", "y", "on")
+
+    if fast:
+        # Reduce heavy multi-timeframe + divergence in strategy for speed
+        os.environ["SCALPER_FAST_BACKTEST"] = "1"
 
     for fname in symbols:
         path = os.path.join(data_dir, fname)

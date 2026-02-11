@@ -96,6 +96,29 @@ def _get_df(bot, k: str, tf: str):
         return None
 
 
+def _df_last_ts(df) -> float:
+    try:
+        if df is None or len(df) <= 0:
+            return 0.0
+        if "ts" in df.columns:
+            ts = float(df["ts"].iloc[-1])
+            if ts > 1e12:
+                return ts / 1000.0
+            if ts > 1e9:
+                return ts
+            return ts
+        idx = getattr(df, "index", None)
+        if idx is not None and len(idx) > 0:
+            last = idx[-1]
+            try:
+                return float(getattr(last, "timestamp")())
+            except Exception:
+                pass
+    except Exception:
+        return 0.0
+    return 0.0
+
+
 def _ohlcv_last_ts(bot, k: str) -> int:
     try:
         data = getattr(bot, "data", None)
@@ -103,6 +126,15 @@ def _ohlcv_last_ts(bot, k: str) -> int:
         if not isinstance(ohlcv, dict):
             return 0
         rows = ohlcv.get(k) or ohlcv.get(_symkey(k)) or []
+        if not rows and data is not None:
+            raw_map = getattr(data, "raw_symbol", {}) if data is not None else {}
+            raw = None
+            try:
+                raw = raw_map.get(k) or raw_map.get(_symkey(k))
+            except Exception:
+                raw = None
+            if raw:
+                rows = ohlcv.get(raw) or []
         if not rows:
             return 0
         last = rows[-1]
@@ -133,6 +165,8 @@ def staleness_check(
         if data is not None and hasattr(data, "get_cache_age"):
             try:
                 age = _safe_float(data.get_cache_age(k, tf), None)
+                if age == float("inf"):
+                    age = None
                 source = "cache_age"
             except Exception:
                 age = None
@@ -141,6 +175,12 @@ def staleness_check(
             if ts > 0:
                 age = max(0.0, _now() - (ts / 1000.0))
                 source = "ohlcv"
+        if age is None:
+            df = _get_df(bot, k, tf)
+            ts_sec = _df_last_ts(df)
+            if ts_sec > 0:
+                age = max(0.0, _now() - ts_sec)
+                source = "df"
         if age is None:
             return False, float("inf"), "missing"
         ok = age <= float(max_sec)

@@ -57,6 +57,15 @@ def _persist_state(path: Path, state: dict[str, Any]) -> None:
         pass
 
 
+def _load_actions(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
 def _append_health_row(path: Path, row: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fieldnames = [
@@ -254,7 +263,15 @@ def main(argv=None) -> int:
         default=0.4,
         help="Minimum adaptive multiplier (0-1)",
     )
+    parser.add_argument(
+        "--actions-path",
+        default="logs/telemetry_anomaly_actions.json",
+        help="Path to anomaly mitigation actions",
+    )
     args = parser.parse_args(argv)
+    actions = _load_actions(Path(args.actions_path))
+    exit_override_mult = max(0.0, float(actions.get("classifier_exit_multiplier", 1.0)))
+    confidence_override_mult = max(0.0, float(actions.get("classifier_confidence_multiplier", 1.0)))
 
     telemetry_path = Path(args.path)
     state_path = Path(args.state_path)
@@ -270,8 +287,12 @@ def main(argv=None) -> int:
         multiplier = 1.0
         adaptive_counts = Counter()
 
-    adjusted_exit_threshold = max(1, math.ceil(args.exit_threshold * multiplier))
-    adjusted_drop_pct = max(0.01, args.confidence_drop_pct * multiplier)
+    adjusted_exit_threshold = max(
+        1, math.ceil(args.exit_threshold * multiplier * exit_override_mult)
+    )
+    adjusted_drop_pct = max(
+        0.01, args.confidence_drop_pct * multiplier * confidence_override_mult
+    )
 
     lines, new_state, triggers, metrics = _classify(
         events,
@@ -288,6 +309,22 @@ def main(argv=None) -> int:
         + f", conf-drop={adjusted_drop_pct:.2%}"
     )
     lines.insert(0, adaptive_summary)
+    now = time.time()
+    action_notes: list[str] = []
+    pause_until = float(actions.get("pause_until", 0) or 0)
+    if pause_until > now:
+        action_notes.append(
+            f"pause until {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime(pause_until))}"
+        )
+    pause_reason = str(actions.get("pause_reason") or "").strip()
+    if pause_reason:
+        action_notes.append(f"reason: {pause_reason}")
+    if exit_override_mult != 1.0:
+        action_notes.append(f"exit mult x{exit_override_mult:.2f}")
+    if confidence_override_mult != 1.0:
+        action_notes.append(f"confidence mult x{confidence_override_mult:.2f}")
+    if action_notes:
+        lines.append("Auto mitigation: " + "; ".join(action_notes))
 
     summary = "Telemetry alert classifier summary:\n" + "\n".join("  " + l for l in lines)
     print(summary)

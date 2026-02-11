@@ -17,6 +17,9 @@ for p in (ROOT, PKG):
     if str(p) not in sys.path:
         sys.path.insert(0, str(p))
 
+import logging
+logging.disable(logging.CRITICAL)
+
 from eclipse_scalper.execution import exit as exit_mod  # noqa: E402
 
 
@@ -76,6 +79,29 @@ class ExitTelemetryHelperTests(unittest.TestCase):
         row = self._log[0]
         self.assertEqual(row[0], "emit")
         self.assertEqual(row[1], "exit.blocked")
+
+    def test_exit_signal_data_includes_entry_meta(self):
+        state = SimpleNamespace(
+            run_context={
+                "last_entry_signal": {
+                    "BTCUSDT": {
+                        "confidence": 0.7,
+                        "side": "long",
+                        "ts": 100.0,
+                        "entry_price": 100.0,
+                        "entry_notional": 50.0,
+                        "entry_leverage": 2,
+                    }
+                }
+            }
+        )
+        bot = SimpleNamespace(state=state)
+        data = exit_mod._exit_signal_data(bot, "BTCUSDT")
+        self.assertAlmostEqual(float(data.get("entry_confidence", 0.0)), 0.7, places=3)
+        self.assertEqual(data.get("entry_signal_side"), "long")
+        self.assertEqual(data.get("entry_price"), 100.0)
+        self.assertEqual(data.get("entry_notional"), 50.0)
+        self.assertEqual(data.get("entry_leverage"), 2)
 
 
 if __name__ == "__main__":

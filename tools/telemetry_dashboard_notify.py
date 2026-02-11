@@ -53,7 +53,15 @@ def _truncate(text: str, max_len: int = 3800) -> str:
     return text[: max_len - len(suffix)] + suffix
 
 
-def _run_dashboard(path: Path, limit: int, codes_per_symbol: bool, codes_top: int) -> tuple[str, int]:
+def _run_dashboard(
+    path: Path,
+    limit: int,
+    codes_per_symbol: bool,
+    codes_top: int,
+    guard_events: bool,
+    guard_history: bool,
+    guard_history_path: Path,
+) -> tuple[str, int]:
     cmd = [
         sys.executable or "python",
         str(TELEMETRY_SCRIPT),
@@ -65,6 +73,11 @@ def _run_dashboard(path: Path, limit: int, codes_per_symbol: bool, codes_top: in
     if codes_per_symbol:
         cmd.append("--codes-per-symbol")
         cmd.extend(["--codes-top", str(codes_top)])
+    if guard_events:
+        cmd.append("--guard-events")
+    if guard_history:
+        cmd.append("--guard-history")
+        cmd.extend(["--guard-history-path", str(guard_history_path)])
 
     result = subprocess.run(cmd, capture_output=True, text=True)
     stdout = result.stdout.strip()
@@ -82,11 +95,27 @@ def main(argv=None) -> int:
     parser.add_argument("--limit", type=int, default=100, help="Max events to load")
     parser.add_argument("--codes-per-symbol", action="store_true", help="Include per-symbol code summary")
     parser.add_argument("--codes-top", type=int, default=4, help="Top per-symbol codes when enabled")
+    parser.add_argument("--guard-events", action="store_true", help="Include guard telemetry counts")
+    parser.add_argument("--guard-history", action="store_true", help="Include guard history rows")
+    parser.add_argument(
+        "--guard-history-path",
+        default=os.getenv("TELEMETRY_GUARD_HISTORY_PATH", "logs/telemetry_guard_history.csv"),
+        help="CSV path used when --guard-history is set",
+    )
     parser.add_argument("--no-notify", action="store_true", help="Skip sending the Telegram notification")
     args = parser.parse_args(argv)
 
     telemetry_path = Path(args.path)
-    stdout, rc = _run_dashboard(telemetry_path, max(1, args.limit), args.codes_per_symbol, max(1, args.codes_top))
+    guard_history_path = Path(args.guard_history_path)
+    stdout, rc = _run_dashboard(
+        telemetry_path,
+        max(1, args.limit),
+        args.codes_per_symbol,
+        max(1, args.codes_top),
+        args.guard_events,
+        args.guard_history,
+        guard_history_path,
+    )
     if args.no_notify:
         return rc
 

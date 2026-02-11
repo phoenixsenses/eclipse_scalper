@@ -50,6 +50,34 @@ def _safe_float(x, default: float = 0.0) -> float:
         return default
 
 
+def _mark_cache_success(data_obj, key: str) -> None:
+    try:
+        fn = getattr(data_obj, "_mark_success", None)
+        if callable(fn):
+            fn(key)
+            return
+    except Exception:
+        pass
+    try:
+        last_poll = getattr(data_obj, "last_poll", None)
+        if isinstance(last_poll, dict):
+            last_poll[key] = _now()
+    except Exception:
+        pass
+    try:
+        last_poll_ts = getattr(data_obj, "last_poll_ts", None)
+        if isinstance(last_poll_ts, dict):
+            last_poll_ts[key] = _now()
+    except Exception:
+        pass
+    try:
+        last_poll_mono = getattr(data_obj, "_last_poll_mono", None)
+        if isinstance(last_poll_mono, dict):
+            last_poll_mono[key] = time.monotonic()
+    except Exception:
+        pass
+
+
 def _symkey(sym: str) -> str:
     s = (sym or "").upper().strip()
     s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
@@ -472,12 +500,14 @@ async def data_loop(bot) -> None:
                                 d.price[k] = float(px)
                                 d.price[used] = float(px)
                                 d.last_poll_ts[k] = _now()
+                                _mark_cache_success(d, k)
                                 # only set raw_symbol if it WORKED
                                 d.raw_symbol[k] = used
                         except Exception:
                             try:
                                 d.price[k] = float(px)
                                 d.last_poll_ts[k] = _now()
+                                _mark_cache_success(d, k)
                                 d.raw_symbol[k] = used
                             except Exception:
                                 pass
@@ -517,6 +547,7 @@ async def data_loop(bot) -> None:
                                 d.ohlcv[k] = merged
                                 d.ohlcv[used] = merged
                                 d.last_poll_ts[f"{k}_{timeframe}"] = _now()
+                                _mark_cache_success(d, f"{k}_{timeframe}")
                                 # only set raw_symbol if it WORKED
                                 d.raw_symbol[k] = used
                         except Exception:
@@ -524,6 +555,7 @@ async def data_loop(bot) -> None:
                                 prev = d.ohlcv.get(k) or []
                                 d.ohlcv[k] = _merge_ohlcv(prev, rows, max_keep=ohlcv_keep)
                                 d.last_poll_ts[f"{k}_{timeframe}"] = _now()
+                                _mark_cache_success(d, f"{k}_{timeframe}")
                                 d.raw_symbol[k] = used
                             except Exception:
                                 pass

@@ -496,6 +496,10 @@ If an entry fills below a minimum ratio, cancel the remainder (limit orders) and
 \- `ENTRY\_PARTIAL\_MIN\_FILL\_RATIO` (default `0.5`)
 \- `ENTRY\_PARTIAL\_CANCEL` (default `1`)
 \- `ENTRY\_PARTIAL\_BACKOFF\_SEC` (default `10`)
+\- `ENTRY\_PARTIAL\_ESCALATE\_WINDOW\_SEC` (default `600`)
+\- `ENTRY\_PARTIAL\_ESCALATE\_COUNT` (default `3`)
+\- `ENTRY\_PARTIAL\_ESCALATE\_BACKOFF\_SEC` (default `120`)
+\- `ENTRY\_PARTIAL\_ESCALATE\_TELEM\_CD\_SEC` (default `300`)
 
 Example:
 ```env
@@ -503,6 +507,14 @@ ENTRY\_PARTIAL\_MIN\_FILL\_RATIO=0.6
 ENTRY\_PARTIAL\_CANCEL=1
 ENTRY\_PARTIAL\_BACKOFF\_SEC=15
 ```
+
+
+When `ratio < ENTRY_PARTIAL_MIN_FILL_RATIO` keeps firing, the entry loop records each hit per symbol. After `ENTRY_PARTIAL_ESCALATE_COUNT` hits within `ENTRY_PARTIAL_ESCALATE_WINDOW_SEC` the guard extends the pending block to at least `ENTRY_PARTIAL_ESCALATE_BACKOFF_SEC`, resets the hit counter, and emits `entry.partial_fill_escalation` (throttled via `ENTRY_PARTIAL_ESCALATE_TELEM_CD_SEC`). Include this event in your dashboards/notifications (telemetry dashboard, guard history alerts, etc.) so you can spot when partial fills are straining the execution path before you tweak `ENTRY_PARTIAL_MIN_FILL_RATIO` or leverage.
+
+The adaptive guard already listens for `entry.partial_fill_escalation` and (by default) raises `ENTRY_MIN_CONFIDENCE` by `ADAPTIVE_GUARD_PARTIAL_ESCALATE_DELTA` for `ADAPTIVE_GUARD_PARTIAL_ESCALATE_DURATION_SEC` seconds. Use those knobs to tune how aggressively the guard pauses entries/leverage when repeated partial fills keep triggering the escalation event.
+### Router notional guard (optional)
+
+Set `ROUTER_MAX_NOTIONAL_USDT` (or the legacy alias `ROUTER_NOTIONAL_CAP`) to a per-order cap in USD. The router blocks any new entry whose notional would exceed your configured limit and emits `order.blocked` telemetry (`why=router_notional_cap`), giving you an extra sizing gate without touching the FIRST_LIVE_SAFE guard.
 
 ---
 
@@ -534,7 +546,7 @@ ENTRY\_DATA\_QUALITY\_ROLL\_MIN=70
 ENTRY\_DATA\_QUALITY\_KILL\_SEC=120
 ```
 
-\### Signal data health report
+### Signal data health report
 
 Read the telemetry JSONL (or `TELEMETRY_PATH`) to summarize per-symbol `data.quality` scores,
 `data.stale` counts, and missing-data hits:
@@ -547,7 +559,23 @@ This prints the worst average/full-score symbols, staleness counts with max age,
 `data.ticker_missing`/`data.ohlcv_missing` rows in the window so you can pause the entry loop or
 refresh tickers before the next live run.
 
-+You can override CORE_HEALTH_EQUITY (default 100000) so the dashboard reports exposure as a percent of your preferred capital base, and it now surfaces the anomaly pause window/payload directly when the guard is active.
+### Signal -> exit health report
+
+Cross-check the exit.* telemetry with the signal metadata the bot now records (`entry_confidence`, `entry_signal_age_sec`, guard/exposure context) so you can spot low-confidence handoffs or guard-forced closes before the dashboard triggers a pause.
+
+```bash
+python eclipse_scalper/tools/signal_exit_health.py --path logs/telemetry.jsonl --since-min 60
+```
+
+The helper ranks exit reasons, the worst-hit symbols, flags low-confidence/missing exits, and lists telemetry guard exits (with exposures + timestamps) so tuning can happen before the next live session.
+
+Run the companion feedback helper to append an `exit.signal_issue` record whenever the low-confidence exit ratio crosses your tolerance. Use `--emit-event` plus `--issue-ratio`/`--issue-count` to tune the threshold that informs the telemetry classifier and guards. Add `--recovery-min-confidence`/`--recovery-duration` so the helper also writes `logs/telemetry_recovery_state.json`, temporarily raising the entry minimum confidence until the low-confidence run cools off.
+
+The entry loop now monitors `logs/telemetry_recovery_state.json` (or `TELEMETRY_RECOVERY_STATE`) and raises `MIN_CONFIDENCE` whenever the state is active, so the recovery autopilot stays in force until the file expires.
+
+Additionally, `entry_loop` now scans the telemetry log for new `exit.signal_issue` events before every poll and logs a summary + emits `entry.blocked` when feedback triggers; disable this behavior with `ENTRY_SIGNAL_FEEDBACK_ENABLED=0` if the extra logging isn’t wanted.
+
+You can override CORE_HEALTH_EQUITY (default 100000) so the dashboard reports exposure as a percent of your preferred capital base, and it now surfaces the anomaly pause window/payload directly when the guard is active.
 
 ### Core health (risk/sizing/signal) summary
 
@@ -735,6 +763,12 @@ python tools/telemetry_dashboard.py --path logs/telemetry.jsonl --codes-per-symb
 Point the helper at `logs/telemetry.jsonl` (or whichever file `TELEMETRY_PATH` points to) to ensure the combined snapshot (top events, codes, recent entries, and symbol-code breakdown) stays readable, even when the log grows.
 When exit.* events exist, the dashboard also prints an exit-events summary (counts + codes) so you can spot new exit reasons right in the same snapshot.
 
+Use `--guard-events` when you want the dashboard to highlight `entry.partial_fill_escalation` + `order.create.retry_alert` counts (plus retry reasons) so you know when the guard is already throttling entries. Add `--guard-history` (plus `--guard-history-path` if you store it elsewhere) to dump the latest rows from `logs/telemetry_guard_history.csv` so you can visually align the guard history spikes with the telemetry alarms.
+
+```bash
+python tools/telemetry_dashboard.py --path logs/telemetry.jsonl --guard-events --guard-history
+```
+
 ## Scheduled telemetry snapshots
 
 The workflow `.github/workflows/telemetry-dashboard.yml` runs the dashboard helper every six hours (plus whenever you trigger `workflow_dispatch`). It checks out the repo, sets up Python 3.10, installs `eclipse_scalper/requirements.txt`, and executes:
@@ -757,7 +791,101 @@ The scheduled job now also runs `python eclipse_scalper/tools/telemetry_anomaly.
 The Telegram alert now includes the anomaly pause expiration when one was triggered, so you immediately know not only that trading paused but also when the guard will re-open (and why).
 The workflow also runs `telemetry_dashboard_page.py` to render those text reports as a single HTML dashboard and runs `telemetry_alert_summary.py` to summarize all artifacts; the summary script pings Telegram whenever anomalies were found so the artifact download + alert channel stay in sync.
 
+Add the signal/exit telemetry notifier step described above, then immediately generate the recovery dashboard:
+
+```bash
+python eclipse_scalper/tools/telemetry_recovery_dashboard.py \
+  --path logs/telemetry.jsonl \
+  --state logs/telemetry_recovery_state.json \
+  --since-min 60
+```
+
+This writes `logs/telemetry_recovery_dashboard.html` plus `logs/telemetry_recovery_report.txt`, giving you an HTML snapshot of the recovery override, recent `exit.signal_issue` rows, and telemetry guard events; upload those artifacts with the dashboard snapshot so the team can inspect them without rerunning the scripts.
+
+Replay the guard timeline occasionally (e.g., after the notifier step) with:
+
+```bash
+python eclipse_scalper/tools/telemetry_guard_timeline.py \
+  --path logs/telemetry.jsonl \
+  --state logs/telemetry_recovery_state.json \
+  --since-min 120
+```
+
+The helper saves `logs/telemetry_guard_timeline.html` + `logs/telemetry_guard_timeline.txt` and highlights the most recent entry-blocked / exit feedback / recovery override hits so you can visually scan when guards have been active. Include these files in the telemetry artifact bundle for quick reference.
+
+### Confidence drift detection
+
+Add drift detection to the telemetry pipeline to catch sudden shifts in entry confidences:
+
+```bash
+python eclipse_scalper/tools/telemetry_drift_detection.py \
+  --path logs/telemetry.jsonl \
+  --since-min 60 \
+  --min-count 6 \
+  --zscore 2.5 \
+  --emit-event \
+  --event-path logs/telemetry_drift.jsonl
+```
+
+The tool writes `logs/telemetry_drift_summary.txt` and, when a symbol’s current-half mean deviates from the baseline half by more than `zscore × stdev`, it emits `telemetry.confidence_drift` events that you can feed into your dashboards/alerts; drop `--emit-event` if you only need the report.
+
+The scheduled job now runs `python eclipse_scalper/tools/telemetry_signal_exit_notify.py --path logs/telemetry.jsonl --since-min 60 --emit-event --recovery-min-confidence 0.7 --recovery-duration 600 --issue-ratio 0.2 --issue-count 2`. This wrapper calls both `signal_exit_health.py` and `signal_exit_feedback.py`, stores the combined text plus the low-confidence ratio/count/symbol context in `logs/signal_exit_notify.txt`, and posts the same summary to Telegram whenever low-confidence exits or telemetry guards trigger.
+
+Add a workflow step (after the dashboard/alert summary step) such as:
+
+```yaml
+    - name: Signal/exit telemetry report
+      run: |
+        python eclipse_scalper/tools/telemetry_signal_exit_notify.py \
+          --path logs/telemetry.jsonl \
+          --since-min 60 \
+          --emit-event \
+          --recovery-min-confidence 0.7 \
+          --recovery-duration 600 \
+          --issue-ratio 0.2 \
+          --issue-count 2
+```
+
+The notifier reuses `TELEGRAM_TOKEN` / `TELEGRAM_CHAT_ID` so the same channel receives the health + feedback story. Remove `--emit-event` if you only care about the summary text. `telemetry_alert_summary.py` now reads the same `logs/signal_exit_notify.txt` report (`--signal-exit`) so the Telegram alert highlights the low-confidence ratio, guard hits, and low-confidence symbols that caused the recovery override.
+
 The detector also writes `logs/telemetry_anomaly_state.json`, and `execution/entry_loop.py` consults `execution/anomaly_guard.py` before every poll. When `pause_until` is still in the future, entries are blocked with `anomaly_pause` (plus the reasons show in the report) so the guard automatically mitigates the spike instead of letting the bot continue.
+
+The same anomaly pipeline now feeds `execution/exit.py` via `logs/telemetry_anomaly_actions.json`. When exposures climb above `EXIT_TELEMETRY_HIGH_EXPOSURE_USDT`, the exit loop temporarily lowers its cooldown (`EXIT_TELEMETRY_COOLDOWN_MULT`), logs an `exit.telemetry_guard` event, and once positions surpass `EXIT_TELEMETRY_FORCE_HOLD_SEC` it forces a market exit with telemetry context (signals + exposures) so you can see why the guard engaged in the dashboard artifact.
+
+The adaptive guard now also listens for `entry.blocked` events where `reason=partial_fill` and for `order.create.retry_alert` events emitted when the router exhausts retries. Both raise `ENTRY_MIN_CONFIDENCE` via `execution/adaptive_guard.py` (delta/duration controlled by `ADAPTIVE_GUARD_PARTIAL_*` and `ADAPTIVE_GUARD_RETRY_*`), so partial fills or retry storms throttle new entries until the spike cools. The guard timeline/history artifacts note the ratio/tries so you can trace which event triggered the override.
+
+### Adaptive entry guard
+
+`execution/adaptive_guard.py` now refreshes its state before each scan, reads `telemetry.confidence_drift`, `exit.signal_issue`, and `exit.telemetry_guard`, and raises `ENTRY_MIN_CONFIDENCE` by a small delta whenever one of those telemetry shifts fires. The guard reads both `logs/telemetry.jsonl` and `logs/telemetry_drift.jsonl` (`TELEMETRY_DRIFT_PATH`), stores per-symbol overrides in `logs/telemetry_adaptive_guard.json` (`ADAPTIVE_GUARD_STATE`), and keeps overrides active for the durations configured in `ADAPTIVE_GUARD_DURATION_SEC`, `ADAPTIVE_GUARD_DRIFT_DURATION_SEC`, `ADAPTIVE_GUARD_EXIT_DURATION_SEC`, and `ADAPTIVE_GUARD_TELEMETRY_DURATION_SEC`. With `SCALPER_SIGNAL_DIAG=1` you will see the loop log the guard reason and the temporary `min_conf` increase before skipping new entries.
+
+Use `tools/telemetry_guard_timeline.py` to generate an HTML/text narrative of the most recent guard activity combined with the recovery override (the script already understands the logs + guard state so the summary matches what the guard enforces):
+
+```bash
+python eclipse_scalper/tools/telemetry_guard_timeline.py \
+  --path logs/telemetry.jsonl \
+  --state logs/telemetry_adaptive_guard.json \
+  --since-min 180
+```
+
+The HTML/text outputs make great additions to the dashboard/job that already publishes `logs/core_health.txt` and `logs/signal_data_health.txt`. `run-bot-ps2.ps1` now mirrors the same telemetry + guard defaults so the scheduled helpers, dashboards, and Telegram alerts all look at the same artifacts.
+
+The telemetry workflow has also been expanded so every scheduled snapshot:
+
+1. Runs `tools/telemetry_drift_detection.py --emit-event --event-path logs/telemetry_drift.jsonl` so the adaptive guard picks up `telemetry.confidence_drift` signals within that run window.
+2. Runs `tools/telemetry_signal_exit_notify.py --emit-event --summary logs/signal_exit_notify.txt --issue-ratio 0.25 --issue-count 2 --recovery-min-confidence 0.7 --recovery-duration 600` so low-confidence exits/feedback emit `exit.signal_issue` events, write a summary, and post the combined status to Telegram.
+3. Runs `tools/telemetry_guard_timeline.py --state logs/telemetry_adaptive_guard.json --since-min 180 --notify`, which rebuilds the HTML/text timeline, uploads it, and pushes the timeline summary into Telegram so the guard story closes the loop.
+
+Because these steps append events and update `logs/telemetry_anomaly_actions.json`, the guard can automatically throttle new entries or raise `min_confidence` when anomalies or exit-quality issues spike. The workflow now also uploads `logs/telemetry_drift_summary.txt`, `logs/signal_exit_notify.txt`, and the generated timeline artifacts so you can inspect them any time.
+
+The same workflow also runs `tools/telemetry_guard_history.py` to append a row with the drift count, low-confidence ratio, guard hits, override state, and anomaly notes into `logs/telemetry_guard_history.csv` and render the latest window as `logs/telemetry_guard_history.html`. Those artifacts show how the guard and drift signals have evolved across each scheduled snapshot, making long-term comparisons and visual postmortems faster.
+
+Immediately after building the guard history table, the job now executes `tools/telemetry_dashboard.py --path logs/telemetry.jsonl --guard-events --guard-history` so the dashboard log notes the latest guard telemetry counts and history rows alongside the core summary; that output is also uploaded as part of the snapshot artifacts so you can align the partial-fill/retry alerts with the guard history before reviewing the Telegram notifications.
+
+Every scheduled snapshot now runs `tools/telemetry_guard_history_alerts.py --path logs/telemetry_guard_history.csv --window 8 --threshold 3 --hit-rate 0.25 --notify`. The helper checks the partial/retry hits rate plus the raw count within the recent rows, prints the summary, and only posts to Telegram when either the hit count or hit ratio is too high—this keeps you alerted when spikes persist even if the raw count is modest.
+
+The generated `logs/telemetry_guard_history.html` now shows a tiny sparkline above the history table that tracks the `partial_retry_hits` column so you can scan the hit trend visually before diving into the rows or alerts.
+
+The workflow also runs `tools/defense_system.py --history logs/telemetry_guard_history.csv --rows 16 --actions logs/telemetry_anomaly_actions.json --timeline logs/telemetry_guard_timeline.txt --notify`. That helper prints a defense severity score, outlines levered tuning suggestions (confidence, notional, leverage), and notifies Telegram when severity ≥ 2 so you can adjust your strategy before the guard has to ratchet `ENTRY_MIN_CONFIDENCE` again.
 
 ### Alert classification
 
@@ -811,6 +939,10 @@ python tools/telemetry_exit_thresholds.py --path logs/telemetry.jsonl
 ```
 Add `--since-min` or other `telemetry_threshold_alerts` args to the helper, e.g. `python tools/telemetry_exit_thresholds.py --since-min 60 --thresholds exit.blocked=2`.
 Set `TELEGRAM_TOKEN` and `TELEGRAM_CHAT_ID` in `.env` to enable auto-notification when exit alerts trigger; the helper wraps the thresholds scan and posts the summary if anything fires.
+
+### Router retry tuning
+
+`ROUTER_RETRY_POLICY` lets you sway the router's retry loop for known transient classes (network blips, exchange busy, timestamp skew). Each entry in the comma-separated list has the form `reason=max:delay:max_delay:extra` and overrides the base `ROUTER_RETRY_BASE_SEC`/`ROUTER_RETRY_MAX_DELAY_SEC` for that reason before stopping. The defaults keep `network=8:0.35:3:2`, `exchange_busy=7:0.45:4:2`, and `timestamp=4:0.3:2:1`, and the router still emits `order.create.retry_alert` (with `tries`, `reason`, and `code`) whenever the throttle limit passes so your dashboards or adaptive guard know when retries are still in flight.
 
 ---
 

@@ -31,6 +31,9 @@ jobs:
           --path logs/telemetry.jsonl
           --codes-per-symbol
           --codes-top 4
+          --guard-events
+          --guard-history
+          --guard-history-path logs/telemetry_guard_history.csv
 
       - name: Run telemetry classifier
         run: >
@@ -46,6 +49,67 @@ jobs:
       - name: Run telemetry anomaly detector
         run: |
           python eclipse_scalper/tools/telemetry_anomaly.py --path logs/telemetry.jsonl --since-min 60 --output logs/telemetry_anomaly.txt
+      - name: Run telemetry drift detection
+        run: |
+          python eclipse_scalper/tools/telemetry_drift_detection.py \
+            --path logs/telemetry.jsonl \
+            --since-min 60 \
+            --min-count 6 \
+            --zscore 2.5 \
+            --emit-event \
+            --event-path logs/telemetry_drift.jsonl \
+            --summary logs/telemetry_drift_summary.txt
+      - name: Run signal exit telemetry notifier
+        run: |
+          python eclipse_scalper/tools/telemetry_signal_exit_notify.py \
+            --path logs/telemetry.jsonl \
+            --since-min 60 \
+            --emit-event \
+            --summary logs/signal_exit_notify.txt \
+            --issue-ratio 0.25 \
+            --issue-count 2 \
+            --recovery-min-confidence 0.7 \
+            --recovery-duration 600
+      - name: Run telemetry guard timeline
+        run: |
+          python eclipse_scalper/tools/telemetry_guard_timeline.py \
+            --path logs/telemetry.jsonl \
+            --state logs/telemetry_adaptive_guard.json \
+            --since-min 180 \
+            --notify
+      - name: Build guard history table
+        run: |
+          python eclipse_scalper/tools/telemetry_guard_history.py \
+            --drift-summary logs/telemetry_drift_summary.txt \
+            --signal-exit logs/signal_exit_notify.txt \
+            --guard-timeline logs/telemetry_guard_timeline.txt \
+            --output-csv logs/telemetry_guard_history.csv \
+            --output-html logs/telemetry_guard_history.html \
+            --limit 48
+      - name: Run telemetry dashboard summary
+        run: |
+          python eclipse_scalper/tools/telemetry_dashboard.py \
+            --path logs/telemetry.jsonl \
+            --limit 1000 \
+            --guard-events \
+            --guard-history \
+            --guard-history-path logs/telemetry_guard_history.csv
+      - name: Guard history alerts
+        run: |
+          python eclipse_scalper/tools/telemetry_guard_history_alerts.py \
+            --path logs/telemetry_guard_history.csv \
+            --window 8 \
+            --threshold 3 \
+            --hit-rate 0.25 \
+            --notify
+      - name: Defense posture summary
+        run: |
+          python eclipse_scalper/tools/defense_system.py \
+            --history logs/telemetry_guard_history.csv \
+            --rows 16 \
+            --actions logs/telemetry_anomaly_actions.json \
+            --timeline logs/telemetry_guard_timeline.txt \
+            --notify
       - name: Generate telemetry dashboard page
         run: |
           python eclipse_scalper/tools/telemetry_dashboard_page.py
@@ -59,6 +123,7 @@ jobs:
           --signal logs/signal_data_health.txt
           --core logs/core_health.txt
           --anomaly logs/telemetry_anomaly.txt
+          --signal-exit logs/signal_exit_notify.txt
           --output logs/telemetry_alert_summary.txt
       - name: Upload telemetry artifacts
         uses: actions/upload-artifact@v4
@@ -72,3 +137,9 @@ jobs:
             logs/telemetry_dashboard_page.html
             logs/telemetry_alert_summary.txt
             logs/telemetry_anomaly.txt
+            logs/telemetry_guard_timeline.html
+            logs/telemetry_guard_timeline.txt
+            logs/telemetry_guard_history.csv
+            logs/telemetry_guard_history.html
+            logs/telemetry_drift_summary.txt
+            logs/signal_exit_notify.txt

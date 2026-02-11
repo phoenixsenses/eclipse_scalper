@@ -364,6 +364,55 @@ def get_stats(bot, top_n: int = 12) -> Dict[str, Any]:
         return {"counters_top": [], "recent": [], "path": _default_path()}
 
 
+def recent_events(
+    bot,
+    *,
+    event: Optional[str] = None,
+    symbol: Optional[str] = None,
+    window_sec: Optional[float] = None,
+    limit: int = 50,
+) -> List[Dict[str, Any]]:
+    """
+    Return recent events filtered by event/symbol/time window.
+    """
+    try:
+        t = _ensure_telemetry_state(bot)
+        now = _now()
+        out: List[Dict[str, Any]] = []
+        for ev in list(t.recent)[-max(1, int(limit)) * 3:]:
+            if event and str(ev.get("event")) != str(event):
+                continue
+            sym = _symkey(ev.get("symbol") or ev.get("data", {}).get("k") or "")
+            if symbol and _symkey(symbol) != sym:
+                continue
+            if window_sec is not None:
+                ts = float(ev.get("ts") or 0.0)
+                if ts <= 0 or (now - ts) > float(window_sec):
+                    continue
+            out.append(ev)
+            if len(out) >= int(limit):
+                break
+        return out
+    except Exception:
+        return []
+
+
+def count_recent(
+    bot,
+    *,
+    event: Optional[str] = None,
+    symbol: Optional[str] = None,
+    window_sec: Optional[float] = None,
+) -> int:
+    """
+    Count recent events filtered by event/symbol/time window.
+    """
+    try:
+        return len(recent_events(bot, event=event, symbol=symbol, window_sec=window_sec, limit=9999))
+    except Exception:
+        return 0
+
+
 # ----------------------------
 # Convenience helpers (optional)
 # ----------------------------

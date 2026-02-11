@@ -18,6 +18,8 @@ from typing import Dict, Optional, Any, Tuple
 
 from utils.logging import log_core
 
+from .base import ExchangeAdapter
+
 load_dotenv()
 
 
@@ -39,11 +41,12 @@ def _symkey(sym: str) -> str:
     return s
 
 
-class CosmicExchangeOracle:
+class BinanceCosmicAdapter(ExchangeAdapter):
     TICKER_TTL = 2.0
     FUNDING_TTL = 30.0
 
     def __init__(self):
+        super().__init__()
         self.api_keys = [{"key": os.getenv("BINANCE_API_KEY"), "secret": os.getenv("BINANCE_API_SECRET")}]
         self.current_account_idx = 0
         self.proxy = os.getenv("HTTPS_PROXY") or os.getenv("HTTP_PROXY")
@@ -470,5 +473,5 @@ class CosmicExchangeOracle:
         log_core.info("COSMIC WEBSOCKET COMMUNION — READY FOR ASCENSION (placeholder)")
 
 
-def get_exchange() -> CosmicExchangeOracle:
-    return CosmicExchangeOracle()
+def get_exchange() -> BinanceCosmicAdapter:
+    return BinanceCosmicAdapter()

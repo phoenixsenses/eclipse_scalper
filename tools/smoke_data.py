@@ -1,5 +1,5 @@
 import asyncio
-from exchanges.binance import get_exchange
+from exchanges import get_exchange
 from data.cache import GodEmperorDataOracle
 
 class DummyState:
