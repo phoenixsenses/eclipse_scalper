@@ -13,7 +13,8 @@ except Exception:
 
 
 _REUSABLE_STAGES = {"ACKED", "OPEN", "PARTIAL", "FILLED", "DONE"}
-_UNKNOWN_STAGES = {"SUBMITTED_UNKNOWN", "CANCEL_SENT_UNKNOWN", "REPLACE_RACE", "OPEN_UNKNOWN"}
+_UNKNOWN_STAGES = {"SUBMITTED", "SUBMITTED_UNKNOWN", "CANCEL_SENT_UNKNOWN", "REPLACE_RACE", "OPEN_UNKNOWN"}
+_INFLIGHT_STAGES = {"PROPOSED", "SENT", "SUBMITTED", "ACKED", "OPEN", "PARTIAL", "CANCEL_SENT", "REPLACE_RACE"}
 
 
 def _safe_float(x: Any, default: float = 0.0) -> float:
@@ -62,6 +63,17 @@ def _enabled(bot) -> bool:
     except Exception:
         pass
     return _truthy(os.getenv("INTENT_LEDGER_ENABLED", "1"))
+
+
+def _may_send_enabled(bot) -> bool:
+    try:
+        cfg = getattr(bot, "cfg", None)
+        raw = getattr(cfg, "INTENT_LEDGER_MAY_SEND_ENABLED", None)
+        if raw is not None:
+            return _truthy(raw)
+    except Exception:
+        pass
+    return _truthy(os.getenv("INTENT_LEDGER_MAY_SEND_ENABLED", "1"))
 
 
 def _path_from_bot(bot) -> Path:
@@ -329,6 +341,63 @@ def resolve_intent_id(bot, *, intent_id: str = "", client_order_id: str = "", or
         if got:
             return got
     return ""
+
+
+def may_send(
+    bot,
+    *,
+    intent_id: str = "",
+    client_order_id: str = "",
+    order_id: str = "",
+    is_exit: bool = False,
+) -> Dict[str, Any]:
+    """
+    Strict write-ahead gate for outbound sends.
+    Returns:
+      {allowed: bool, reason: str, intent_id: str, stage: str, status: str}
+    """
+    out = {
+        "enabled": bool(_may_send_enabled(bot)),
+        "allowed": True,
+        "reason": "ok",
+        "intent_id": "",
+        "stage": "",
+        "status": "",
+    }
+    if not out["enabled"]:
+        return out
+    store = _ensure_store(bot)
+    if store is None:
+        return out
+    iid = resolve_intent_id(bot, intent_id=intent_id, client_order_id=client_order_id, order_id=order_id)
+    out["intent_id"] = str(iid or "")
+    if not iid:
+        return out
+    rec = (store.get("intents") or {}).get(iid)
+    if not isinstance(rec, dict):
+        return out
+    stage = str(rec.get("stage") or "").upper().strip()
+    status = str(rec.get("status") or "").lower().strip()
+    out["stage"] = stage
+    out["status"] = status
+
+    # No duplicate risk-increasing side effects per intent id.
+    if stage in _UNKNOWN_STAGES:
+        out["allowed"] = False
+        out["reason"] = "pending_unknown"
+        return out
+    if stage in _REUSABLE_STAGES:
+        if is_exit and stage in ("DONE", "FILLED"):
+            # keep protective/exit safety path permissive only once an intent is finalized.
+            return out
+        out["allowed"] = False
+        out["reason"] = "reused_duplicate"
+        return out
+    if stage in _INFLIGHT_STAGES:
+        out["allowed"] = False
+        out["reason"] = "inflight_duplicate"
+        return out
+    return out
 
 
 def find_reusable_intent(
