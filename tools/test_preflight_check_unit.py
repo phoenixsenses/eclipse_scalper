@@ -97,6 +97,12 @@ class PreflightCheckTests(unittest.TestCase):
             self.assertTrue(any("appears stale" in w for w in warnings))
             self.assertGreater(float(summary.get("reliability_gate_age_seconds", -1.0)), 900.0)
 
+    def test_stage1_fail_threshold_must_be_non_negative(self):
+        env = _base_env()
+        env["RELIABILITY_GATE_MAX_STAGE1_PROTECTION_FAIL_COUNT"] = "-1"
+        errors, _, _ = pc.validate_env(env)
+        self.assertTrue(any("RELIABILITY_GATE_MAX_STAGE1_PROTECTION_FAIL_COUNT" in e for e in errors))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -80,6 +80,7 @@ $env:INTENT_COLLISION_CRITICAL_THRESHOLD = "1"
 $env:INTENT_COLLISION_CRITICAL_STREAK = "2"
 $env:RELIABILITY_GATE_MAX_COVERAGE_GAP_SECONDS = "0"
 $env:RELIABILITY_GATE_MAX_COVERAGE_GAP_SECONDS_PEAK = "30"
+$env:RELIABILITY_GATE_MAX_STAGE1_PROTECTION_FAIL_COUNT = "0"
 $env:RELIABILITY_GATE_MAX_REPLACE_RACE_COUNT = "1"
 $env:RELIABILITY_GATE_MAX_EVIDENCE_CONTRADICTION_COUNT = "2"
 $env:CORR_STRESS_THRESHOLD = "1"
@@ -306,11 +307,13 @@ function Invoke-Preflight {
   [double]$firstLiveCap = 0.0
   [double]$dailyLoss = 0.0
   [double]$drawdown = 0.0
+  [double]$stage1FailMax = 0.0
   $notional = Parse-InvariantDouble -raw ($env:FIXED_NOTIONAL_USDT + "")
   $lev = Parse-InvariantDouble -raw ($env:LEVERAGE + "")
   $firstLiveCap = Parse-InvariantDouble -raw ($env:FIRST_LIVE_MAX_NOTIONAL_USDT + "")
   $dailyLoss = Parse-InvariantDouble -raw ($env:MAX_DAILY_LOSS_PCT + "")
   $drawdown = Parse-InvariantDouble -raw ($env:MAX_DRAWDOWN_PCT + "")
+  $stage1FailMax = Parse-InvariantDouble -raw ($env:RELIABILITY_GATE_MAX_STAGE1_PROTECTION_FAIL_COUNT + "")
 
   if ($notional -le 0) {
     $errorList.Add("FIXED_NOTIONAL_USDT must be > 0.")
@@ -341,6 +344,9 @@ function Invoke-Preflight {
   if ($drawdown -gt 0 -and $dailyLoss -gt 0 -and $drawdown -lt $dailyLoss) {
     $errorList.Add("MAX_DRAWDOWN_PCT must be >= MAX_DAILY_LOSS_PCT.")
   }
+  if ($stage1FailMax -lt 0) {
+    $errorList.Add("RELIABILITY_GATE_MAX_STAGE1_PROTECTION_FAIL_COUNT must be >= 0.")
+  }
 
   $preflightJson = "logs/preflight_check.json"
   $preflightOutput = python tools/preflight_check.py --max-leverage $safeProfileMaxLeverage --json-out $preflightJson 2>&1
@@ -365,6 +371,7 @@ function Invoke-Preflight {
   Write-Host ("Correlation caps: groups={0} max_positions={1} max_notional={2}" -f $env:CORR_GROUPS, $env:CORR_GROUP_MAX_POSITIONS, $env:CORR_GROUP_MAX_NOTIONAL_USDT)
   Write-Host ("Reliability gate: coupling={0} mismatch_max={1} invalid_max={2} coverage_min={3}" -f $env:RUNTIME_RELIABILITY_COUPLING, $env:RELIABILITY_GATE_MAX_REPLAY_MISMATCH, $env:RELIABILITY_GATE_MAX_INVALID_TRANSITIONS, $env:RELIABILITY_GATE_MIN_JOURNAL_COVERAGE)
   Write-Host ("Reliability gate peaks: position_peak_max={0} coverage_gap_peak_sec_max={1}" -f $env:RELIABILITY_GATE_MAX_POSITION_MISMATCH_PEAK, $env:RELIABILITY_GATE_MAX_COVERAGE_GAP_SECONDS_PEAK)
+  Write-Host ("Reliability gate stage1: stage1_protection_fail_max={0}" -f $env:RELIABILITY_GATE_MAX_STAGE1_PROTECTION_FAIL_COUNT)
   Write-Host ("Reliability gate restart safety: orphan_max={0} intent_collision_max={1}" -f $env:RELIABILITY_GATE_MAX_ORPHAN_COUNT, $env:RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT)
   Write-Host ("Intent-collision notifier: threshold={0} streak={1}" -f $env:INTENT_COLLISION_CRITICAL_THRESHOLD, $env:INTENT_COLLISION_CRITICAL_STREAK)
   Write-Host ("Reliability gate window/stale: window_sec={0} stale_sec={1}" -f $env:RELIABILITY_GATE_WINDOW_SECONDS, $env:RELIABILITY_GATE_STALE_SECONDS)

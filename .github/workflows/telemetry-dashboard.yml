@@ -60,6 +60,7 @@ jobs:
       RELIABILITY_GATE_MAX_INVALID_TRANSITIONS: "0"
       RELIABILITY_GATE_MIN_JOURNAL_COVERAGE: "0.90"
       RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT: "0"
+      RELIABILITY_GATE_MAX_STAGE1_PROTECTION_FAIL_COUNT: "0"
       INTENT_COLLISION_CRITICAL_THRESHOLD: "1"
       INTENT_COLLISION_CRITICAL_STREAK: "2"
     steps:
@@ -137,6 +138,7 @@ jobs:
               --max-replay-mismatch ${RELIABILITY_GATE_MAX_REPLAY_MISMATCH} \
               --max-invalid-transitions ${RELIABILITY_GATE_MAX_INVALID_TRANSITIONS} \
               --max-intent-collision-count ${RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT} \
+              --max-stage1-protection-fail-count ${RELIABILITY_GATE_MAX_STAGE1_PROTECTION_FAIL_COUNT} \
               --min-journal-coverage ${RELIABILITY_GATE_MIN_JOURNAL_COVERAGE} \
               --enforce
           else

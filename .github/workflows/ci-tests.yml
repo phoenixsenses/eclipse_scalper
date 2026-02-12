@@ -154,6 +154,7 @@ jobs:
             --max-replay-mismatch 0 \
             --max-invalid-transitions 0 \
             --max-intent-collision-count 0 \
+            --max-stage1-protection-fail-count 0 \
             --min-journal-coverage 1.0 \
             --enforce
 
@@ -185,6 +186,7 @@ jobs:
             --max-replay-mismatch 0 \
             --max-invalid-transitions 0 \
             --max-intent-collision-count 0 \
+            --max-stage1-protection-fail-count 0 \
             --min-journal-coverage 1.0 \
             --enforce
           rc=$?

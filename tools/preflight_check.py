@@ -136,6 +136,9 @@ def validate_env(
     reliability_path = str(env.get("RELIABILITY_GATE_PATH", "logs/reliability_gate.txt") or "logs/reliability_gate.txt").strip()
     reliability_window_seconds = _safe_float(env.get("RELIABILITY_GATE_WINDOW_SECONDS", "14400"), 14400.0)
     reliability_stale_seconds = _safe_float(env.get("RELIABILITY_GATE_STALE_SECONDS", "900"), 900.0)
+    reliability_stage1_fail_max = _safe_float(env.get("RELIABILITY_GATE_MAX_STAGE1_PROTECTION_FAIL_COUNT", "0"), 0.0)
+    if reliability_stage1_fail_max < 0:
+        errors.append("RELIABILITY_GATE_MAX_STAGE1_PROTECTION_FAIL_COUNT must be >= 0.")
     journal_path = str(env.get("EVENT_JOURNAL_PATH", "logs/execution_journal.jsonl") or "logs/execution_journal.jsonl").strip()
     reliability_age_seconds = -1.0
     try:
@@ -174,6 +177,7 @@ def validate_env(
         "reliability_gate_path": reliability_path,
         "reliability_gate_window_seconds": float(reliability_window_seconds if reliability_window_seconds > 0 else 0.0),
         "reliability_gate_stale_seconds": float(reliability_stale_seconds if reliability_stale_seconds > 0 else 0.0),
+        "reliability_gate_max_stage1_protection_fail_count": float(max(0.0, reliability_stage1_fail_max)),
         "reliability_gate_age_seconds": float(reliability_age_seconds if reliability_age_seconds >= 0 else -1.0),
         "event_journal_path": journal_path,
     }
@@ -200,6 +204,7 @@ def _format_summary(summary: Mapping[str, Any], errors: list[str], warnings: lis
         f"reliability_gate_path={str(summary.get('reliability_gate_path') or '')}",
         f"reliability_gate_window_seconds={float(summary.get('reliability_gate_window_seconds', 0.0) or 0.0):.0f}",
         f"reliability_gate_stale_seconds={float(summary.get('reliability_gate_stale_seconds', 0.0) or 0.0):.0f}",
+        f"reliability_gate_max_stage1_protection_fail_count={float(summary.get('reliability_gate_max_stage1_protection_fail_count', 0.0) or 0.0):.0f}",
         f"reliability_gate_age_seconds={float(summary.get('reliability_gate_age_seconds', -1.0) or -1.0):.0f}",
         f"event_journal_path={str(summary.get('event_journal_path') or '')}",
         f"errors={len(errors)} warnings={len(warnings)}",

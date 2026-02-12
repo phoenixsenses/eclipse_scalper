@@ -92,6 +92,7 @@ class ReliabilityGateTests(unittest.TestCase):
                 max_invalid_transitions=0,
                 min_journal_coverage=0.9,
                 max_intent_collision_count=0,
+                max_stage1_protection_fail_count=0,
             )
         )
         self.assertTrue(
@@ -101,6 +102,7 @@ class ReliabilityGateTests(unittest.TestCase):
                 max_invalid_transitions=0,
                 min_journal_coverage=0.5,
                 max_intent_collision_count=0,
+                max_stage1_protection_fail_count=0,
             )
         )
 
@@ -118,6 +120,7 @@ class ReliabilityGateTests(unittest.TestCase):
                 max_invalid_transitions=0,
                 min_journal_coverage=1.0,
                 max_intent_collision_count=0,
+                max_stage1_protection_fail_count=0,
             )
         )
         self.assertTrue(
@@ -127,6 +130,36 @@ class ReliabilityGateTests(unittest.TestCase):
                 max_invalid_transitions=0,
                 min_journal_coverage=1.0,
                 max_intent_collision_count=2,
+                max_stage1_protection_fail_count=0,
+            )
+        )
+
+    def test_threshold_eval_stage1_protection_fail_count(self):
+        report = {
+            "replay_mismatch_count": 0,
+            "invalid_transition_count": 0,
+            "journal_coverage_ratio": 1.0,
+            "intent_collision_count": 0,
+            "stage1_protection_fail_count": 1,
+        }
+        self.assertFalse(
+            rg._passes(
+                report,
+                max_replay_mismatch=0,
+                max_invalid_transitions=0,
+                min_journal_coverage=1.0,
+                max_intent_collision_count=0,
+                max_stage1_protection_fail_count=0,
+            )
+        )
+        self.assertTrue(
+            rg._passes(
+                report,
+                max_replay_mismatch=0,
+                max_invalid_transitions=0,
+                min_journal_coverage=1.0,
+                max_intent_collision_count=0,
+                max_stage1_protection_fail_count=1,
             )
         )
 
@@ -135,6 +168,7 @@ class ReliabilityGateTests(unittest.TestCase):
             {"event": "rebuild.orphan_decision", "data": {"symbol": "DOGEUSDT", "action": "FREEZE"}},
             {"event": "rebuild.summary", "data": {"intent_collision_count": 2}},
             {"event": "order.replace_envelope_block", "data": {"reason": "replace_envelope_block"}},
+            {"event": "entry.stage1_gap_assertion", "data": {"symbol": "DOGEUSDT", "placed": False, "gap_active": True}},
             {"event": "reconcile.summary", "data": {"protection_coverage_gap_seconds": 9.0}},
             {"event": "reconcile.summary", "data": {"protection_coverage_gap_seconds": 2.0}},
             {
@@ -147,6 +181,7 @@ class ReliabilityGateTests(unittest.TestCase):
         self.assertGreaterEqual(int(out.get("position_mismatch_count", 0) or 0), 1)
         self.assertGreaterEqual(int(out.get("orphan_count", 0) or 0), 1)
         self.assertGreaterEqual(int(out.get("intent_collision_count", 0) or 0), 2)
+        self.assertGreaterEqual(int(out.get("stage1_protection_fail_count", 0) or 0), 1)
         self.assertGreaterEqual(int(out.get("replace_race_count", 0) or 0), 1)
         self.assertGreaterEqual(int(out.get("evidence_contradiction_count", 0) or 0), 1)
         self.assertAlmostEqual(float(out.get("protection_coverage_gap_seconds", 0.0) or 0.0), 2.0, places=6)
@@ -181,6 +216,7 @@ class ReliabilityGateTests(unittest.TestCase):
             "orphan_count": 1,
             "intent_collision_count": 3,
             "protection_coverage_gap_seconds": 9.0,
+            "stage1_protection_fail_count": 1,
             "replace_race_count": 3,
             "evidence_contradiction_count": 4,
             "replay_mismatch_ids": ["CID-X"],
@@ -191,6 +227,7 @@ class ReliabilityGateTests(unittest.TestCase):
                 "position": 2,
                 "orphan": 1,
                 "coverage_gap": 1,
+                "stage1_protection_fail": 1,
                 "replace_race": 3,
                 "contradiction": 4,
                 "unknown": 0,
@@ -204,6 +241,7 @@ class ReliabilityGateTests(unittest.TestCase):
         self.assertIn("top_contributors=contradiction:4,replace_race:3,position:2", text)
         self.assertIn("critical_contributors=contradiction:4,replace_race:3,position:2", text)
         self.assertIn("intent_collision_count=3", text)
+        self.assertIn("stage1_protection_fail_count=1", text)
 
     def test_build_report_window_filters_stale_events(self):
         telemetry = [

@@ -129,6 +129,7 @@ def _categorize_mismatch_ids(ids: list[str]) -> Dict[str, int]:
         "position": 0,
         "orphan": 0,
         "coverage_gap": 0,
+        "stage1_protection_fail": 0,
         "replace_race": 0,
         "contradiction": 0,
         "unknown": 0,
@@ -190,6 +191,7 @@ def _telemetry_category_counts(telemetry_events: list[dict]) -> Dict[str, float]
         "orphan": 0.0,
         "intent_collision": 0.0,
         "coverage_gap": 0.0,
+        "stage1_protection_fail": 0.0,
         "replace_race": 0.0,
         "contradiction": 0.0,
         "coverage_gap_seconds_latest": 0.0,
@@ -227,6 +229,13 @@ def _telemetry_category_counts(telemetry_events: list[dict]) -> Dict[str, float]
                 out["position_peak"] = pos_now
             if contradiction_score >= 0.60 or contradiction_streak > 0.0:
                 out["contradiction"] += 1.0
+
+        if name == "entry.stage1_gap_assertion":
+            placed = bool(data.get("placed", False))
+            gap_active = bool(data.get("gap_active", False))
+            ttl_breached = bool(data.get("ttl_breached", False))
+            if (not placed) or gap_active or ttl_breached:
+                out["stage1_protection_fail"] += 1.0
 
         has_cov_field = any(
             key in data for key in ("coverage_gap_seconds", "coverage_gap_sec", "protection_coverage_gap_seconds")
@@ -310,6 +319,10 @@ def build_report(
     categories["coverage_gap"] = int(
         categories.get("coverage_gap", 0) + int(_safe_float(telemetry_cats.get("coverage_gap"), 0.0))
     )
+    categories["stage1_protection_fail"] = int(
+        categories.get("stage1_protection_fail", 0)
+        + int(_safe_float(telemetry_cats.get("stage1_protection_fail"), 0.0))
+    )
     categories["replace_race"] = int(
         categories.get("replace_race", 0) + int(_safe_float(telemetry_cats.get("replace_race"), 0.0))
     )
@@ -336,6 +349,7 @@ def build_report(
         "intent_collision_count": int(max(0.0, _safe_float(telemetry_cats.get("intent_collision"), 0.0))),
         "protection_coverage_gap_seconds": float(_safe_float(telemetry_cats.get("coverage_gap_seconds_latest"), 0.0)),
         "protection_coverage_gap_seconds_peak": float(_safe_float(telemetry_cats.get("coverage_gap_seconds_peak"), 0.0)),
+        "stage1_protection_fail_count": int(categories.get("stage1_protection_fail", 0) or 0),
         "replace_race_count": int(categories.get("replace_race", 0) or 0),
         "evidence_contradiction_count": int(categories.get("contradiction", 0) or 0),
     }
@@ -365,6 +379,7 @@ def _render(report: Dict[str, Any], *, telemetry_path: Path, journal_path: Path)
         f"intent_collision_count={int(report.get('intent_collision_count', 0) or 0)}",
         f"protection_coverage_gap_seconds={float(report.get('protection_coverage_gap_seconds', 0.0) or 0.0):.1f}",
         f"protection_coverage_gap_seconds_peak={float(report.get('protection_coverage_gap_seconds_peak', 0.0) or 0.0):.1f}",
+        f"stage1_protection_fail_count={int(report.get('stage1_protection_fail_count', 0) or 0)}",
         f"replace_race_count={int(report.get('replace_race_count', 0) or 0)}",
         f"evidence_contradiction_count={int(report.get('evidence_contradiction_count', 0) or 0)}",
     ]
@@ -377,6 +392,7 @@ def _render(report: Dict[str, Any], *, telemetry_path: Path, journal_path: Path)
             "position": int(categories.get("position", 0) or 0),
             "orphan": int(categories.get("orphan", 0) or 0),
             "coverage_gap": int(categories.get("coverage_gap", 0) or 0),
+            "stage1_protection_fail": int(categories.get("stage1_protection_fail", 0) or 0),
             "replace_race": int(categories.get("replace_race", 0) or 0),
             "contradiction": int(categories.get("contradiction", 0) or 0),
             "unknown": int(categories.get("unknown", 0) or 0),
@@ -396,7 +412,7 @@ def _render(report: Dict[str, Any], *, telemetry_path: Path, journal_path: Path)
         )[:3]
         if ranked:
             lines.append("top_contributors=" + ",".join(f"{k}:{v}" for (k, v) in ranked))
-        critical_keys = ("position", "orphan", "coverage_gap", "replace_race", "contradiction")
+        critical_keys = ("position", "orphan", "coverage_gap", "stage1_protection_fail", "replace_race", "contradiction")
         critical_ranked = sorted(
             [(str(k), int(normalized.get(k, 0))) for k in critical_keys if int(normalized.get(k, 0)) > 0],
             key=lambda kv: int(kv[1]),
@@ -419,6 +435,7 @@ def _passes(
     max_invalid_transitions: int,
     min_journal_coverage: float,
     max_intent_collision_count: int,
+    max_stage1_protection_fail_count: int,
 ) -> bool:
     if int(report.get("replay_mismatch_count", 0) or 0) > int(max_replay_mismatch):
         return False
@@ -428,11 +445,14 @@ def _passes(
         return False
     if int(report.get("intent_collision_count", 0) or 0) > int(max_intent_collision_count):
         return False
+    if int(report.get("stage1_protection_fail_count", 0) or 0) > int(max_stage1_protection_fail_count):
+        return False
     return True
 
 
 def main(argv: Optional[list[str]] = None) -> int:
     env_max_intent_collision = int(max(0, int(os.getenv("RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT", "0") or 0)))
+    env_max_stage1_fail = int(max(0, int(os.getenv("RELIABILITY_GATE_MAX_STAGE1_PROTECTION_FAIL_COUNT", "0") or 0)))
     ap = argparse.ArgumentParser(description="Compute execution replay mismatch / invariant gate metrics")
     ap.add_argument("--telemetry", default="logs/telemetry.jsonl")
     ap.add_argument("--journal", default="logs/execution_journal.jsonl")
@@ -441,6 +461,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap.add_argument("--max-invalid-transitions", type=int, default=0)
     ap.add_argument("--min-journal-coverage", type=float, default=0.90)
     ap.add_argument("--max-intent-collision-count", type=int, default=env_max_intent_collision)
+    ap.add_argument("--max-stage1-protection-fail-count", type=int, default=env_max_stage1_fail)
     ap.add_argument(
         "--window-seconds",
         type=float,
@@ -494,6 +515,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             max_invalid_transitions=max(0, int(args.max_invalid_transitions)),
             min_journal_coverage=max(0.0, min(1.0, float(args.min_journal_coverage))),
             max_intent_collision_count=max(0, int(args.max_intent_collision_count)),
+            max_stage1_protection_fail_count=max(0, int(args.max_stage1_protection_fail_count)),
         )
         return 0 if ok else 2
     return 0
