@@ -20,6 +20,11 @@ try:
 except Exception:
     _intent_ledger = None
 
+try:
+    from execution import intent_allocator as _intent_allocator  # type: ignore
+except Exception:
+    _intent_allocator = None
+
 
 def _now() -> float:
     return time.time()
@@ -274,6 +279,33 @@ def _rebuild_position_intent_id(*, symbol: str, side: str, entry_ts: float) -> s
     return f"REBUILD-POS-{sym}-{digest}"
 
 
+def _rebuild_allocate_intent_id(
+    bot,
+    *,
+    symbol: str,
+    intent_kind: str,
+    fallback: str,
+    is_exit: bool = False,
+) -> str:
+    if _intent_allocator is not None:
+        try:
+            out = str(
+                _intent_allocator.allocate_intent_id(
+                    bot,
+                    component="rebuild",
+                    intent_kind=str(intent_kind or "REBUILD"),
+                    symbol=str(symbol or ""),
+                    is_exit=bool(is_exit),
+                )
+                or ""
+            ).strip()
+            if out:
+                return out
+        except Exception:
+            pass
+    return str(fallback or "").strip()
+
+
 async def _fetch_positions(ex, symbols: Optional[List[str]] = None) -> List[dict]:
     fp = getattr(ex, "fetch_positions", None)
     if not callable(fp):
@@ -391,6 +423,13 @@ async def rebuild_local_state(
         if _intent_ledger is not None:
             try:
                 pos_intent_id = _rebuild_position_intent_id(symbol=k, side=side, entry_ts=entry_ts)
+                pos_intent_id = _rebuild_allocate_intent_id(
+                    bot,
+                    symbol=k,
+                    intent_kind="REBUILD_POSITION",
+                    fallback=pos_intent_id,
+                    is_exit=False,
+                )
                 _intent_ledger.record(
                     bot,
                     intent_id=pos_intent_id,
@@ -410,6 +449,10 @@ async def rebuild_local_state(
 
     orphan_decisions: List[dict] = []
     orphan_policy = _orphan_policy_map(bot)
+    duplicate_open_orders_skipped = 0
+    intent_collision_count = 0
+    intent_collision_components: Dict[str, int] = {}
+    seen_open_order_keys: set[str] = set()
     for o in open_orders:
         if not isinstance(o, dict):
             continue
@@ -419,6 +462,16 @@ async def rebuild_local_state(
         k = _symkey(str(o.get("symbol") or ""))
         if not k:
             continue
+        order_id = str(o.get("id") or "").strip()
+        client_order_id = _order_client_order_id(o)
+        if order_id:
+            dedupe_key = f"oid:{order_id}"
+        else:
+            dedupe_key = f"coid:{k}:{client_order_id}:{str(o.get('side') or '').lower().strip()}:{_order_type(o)}"
+        if dedupe_key in seen_open_order_keys:
+            duplicate_open_orders_skipped += 1
+            continue
+        seen_open_order_keys.add(dedupe_key)
         has_pos = k in rebuilt
         reduce_only = _is_reduce_only_order(o)
         protective = _order_is_protective(o)
@@ -439,9 +492,11 @@ async def rebuild_local_state(
                 reason = f"{reason}|policy:forced_freeze"
             action = "FREEZE"
             policy_source = "forced_freeze"
-        order_id = str(o.get("id") or "")
-        client_order_id = _order_client_order_id(o)
         intent_id = ""
+        current_intent_collision = False
+        collision_existing_intent_id = ""
+        collision_existing_order_id = ""
+        collision_component = ""
         if _intent_ledger is not None:
             try:
                 intent_id = str(
@@ -454,8 +509,30 @@ async def rebuild_local_state(
                 ).strip()
             except Exception:
                 intent_id = ""
+        if intent_id and _intent_ledger is not None and order_id:
+            try:
+                existing = _intent_ledger.get_intent(bot, intent_id)
+            except Exception:
+                existing = None
+            if isinstance(existing, dict):
+                existing_oid = str(existing.get("order_id") or "").strip()
+                if existing_oid and existing_oid != order_id:
+                    intent_collision_count += 1
+                    current_intent_collision = True
+                    collision_existing_intent_id = str(intent_id or "")
+                    collision_existing_order_id = str(existing_oid or "")
+                    collision_component = str((existing.get("meta") or {}).get("component") or "unknown")
+                    key = collision_component or "unknown"
+                    intent_collision_components[key] = int(intent_collision_components.get(key, 0) or 0) + 1
+                    intent_id = ""
         if not intent_id:
-            intent_id = _rebuild_intent_id(symbol=k, order_id=order_id, client_order_id=client_order_id)
+            intent_id = _rebuild_allocate_intent_id(
+                bot,
+                symbol=k,
+                intent_kind="REBUILD_ORDER",
+                fallback=_rebuild_intent_id(symbol=k, order_id=order_id, client_order_id=client_order_id),
+                is_exit=bool(reduce_only),
+            )
         if _intent_ledger is not None:
             try:
                 _intent_ledger.record(
@@ -470,7 +547,12 @@ async def rebuild_local_state(
                     order_id=order_id,
                     status=(status or "open"),
                     reason="rebuild_open_order_seen",
-                    meta={"class": klass, "action": action, "protective": bool(protective)},
+                    meta={
+                        "class": klass,
+                        "action": action,
+                        "protective": bool(protective),
+                        "component": "rebuild",
+                    },
                 )
             except Exception:
                 pass
@@ -487,6 +569,10 @@ async def rebuild_local_state(
             "protective": bool(protective),
             "cancel_ok": False,
             "policy_source": str(policy_source),
+            "intent_collision": bool(current_intent_collision),
+            "intent_collision_component": str(collision_component or ""),
+            "intent_collision_existing_intent_id": str(collision_existing_intent_id or ""),
+            "intent_collision_existing_order_id": str(collision_existing_order_id or ""),
         }
         if action == "ADOPT":
             if _intent_ledger is not None:
@@ -561,6 +647,10 @@ async def rebuild_local_state(
                         "protective": bool(ent.get("protective", False)),
                         "cancel_ok": bool(ent.get("cancel_ok", False)),
                         "policy_source": str(ent.get("policy_source") or "default"),
+                        "intent_collision": bool(ent.get("intent_collision", False)),
+                        "intent_collision_component": str(ent.get("intent_collision_component") or ""),
+                        "intent_collision_existing_intent_id": str(ent.get("intent_collision_existing_intent_id") or ""),
+                        "intent_collision_existing_order_id": str(ent.get("intent_collision_existing_order_id") or ""),
                     },
                 )
             except Exception:
@@ -604,6 +694,9 @@ async def rebuild_local_state(
             "CANCEL": int(sum(1 for x in orphan_decisions if str(x.get("action") or "").upper() == "CANCEL")),
             "FREEZE": int(sum(1 for x in orphan_decisions if str(x.get("action") or "").upper() == "FREEZE")),
         },
+        "duplicate_open_orders_skipped": int(duplicate_open_orders_skipped),
+        "intent_collision_count": int(intent_collision_count),
+        "intent_collision_components": dict(intent_collision_components),
         "orphan_policy": dict(orphan_policy),
     }
     rc["rebuild"] = summary
@@ -635,6 +728,9 @@ async def rebuild_local_state(
                     "positions_prev": int(summary.get("positions_prev", 0) or 0),
                     "orphans": int(summary.get("orphans", 0) or 0),
                     "orphan_action_counts": dict(summary.get("orphan_action_counts", {}) or {}),
+                    "duplicate_open_orders_skipped": int(summary.get("duplicate_open_orders_skipped", 0) or 0),
+                    "intent_collision_count": int(summary.get("intent_collision_count", 0) or 0),
+                    "intent_collision_components": dict(summary.get("intent_collision_components", {}) or {}),
                     "halted": bool(summary.get("halted", False)),
                 },
             )

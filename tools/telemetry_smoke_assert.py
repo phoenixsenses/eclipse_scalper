@@ -36,6 +36,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Expected recovery_red_lock_streak integer value",
     )
     p.add_argument(
+        "--expected-intent-collision-streak",
+        default="",
+        help="Expected intent_collision_streak integer value",
+    )
+    p.add_argument(
         "--min-refresh-budget-blocked",
         default="",
         help="Optional minimum protection_refresh_budget_blocked_count expected in state",
@@ -66,11 +71,13 @@ def main(argv: list[str] | None = None) -> int:
     exp_level = _norm(args.expected_level).lower()
     exp_stage = _norm_upper(args.expected_stage)
     exp_streak_raw = _norm(args.expected_red_lock_streak)
+    exp_intent_collision_streak_raw = _norm(args.expected_intent_collision_streak)
     exp_refresh_blocked_raw = _norm(args.min_refresh_budget_blocked)
     has_expectation = bool(
         exp_level
         or exp_stage
         or exp_streak_raw
+        or exp_intent_collision_streak_raw
         or exp_refresh_blocked_raw
         or bool(args.require_entry_clamped_on_refresh_budget)
         or bool(args.require_refresh_consistency)
@@ -108,6 +115,25 @@ def main(argv: list[str] | None = None) -> int:
             actual_streak = 0
         if actual_streak != exp_streak:
             mismatches.append(f"recovery_red_lock_streak expected={exp_streak} actual={actual_streak}")
+
+    if exp_intent_collision_streak_raw:
+        try:
+            exp_collision_streak = int(exp_intent_collision_streak_raw)
+        except Exception:
+            print(
+                "smoke_assert: invalid expected-intent-collision-streak="
+                f"{exp_intent_collision_streak_raw}"
+            )
+            return 2
+        try:
+            actual_collision_streak = int(state.get("intent_collision_streak") or 0)
+        except Exception:
+            actual_collision_streak = 0
+        if actual_collision_streak != exp_collision_streak:
+            mismatches.append(
+                "intent_collision_streak "
+                f"expected={exp_collision_streak} actual={actual_collision_streak}"
+            )
 
     actual_refresh_blocked = int(state.get("protection_refresh_budget_blocked_count") or 0)
     if exp_refresh_blocked_raw:
@@ -178,6 +204,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"- recovery_stage_latest={exp_stage}")
     if exp_streak_raw:
         print(f"- recovery_red_lock_streak={int(exp_streak_raw)}")
+    if exp_intent_collision_streak_raw:
+        print(f"- intent_collision_streak={int(exp_intent_collision_streak_raw)}")
     if exp_refresh_blocked_raw:
         print(f"- protection_refresh_budget_blocked_count>={int(exp_refresh_blocked_raw)}")
     if args.require_entry_clamped_on_refresh_budget:

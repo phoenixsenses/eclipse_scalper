@@ -52,7 +52,7 @@ class EntryQtyScaleTests(unittest.TestCase):
 
         bot = SimpleNamespace(cfg=None)
         try:
-        qty = el._sizing_fallback_amount(bot, "BTCUSDT")
+            qty = el._sizing_fallback_amount(bot, "BTCUSDT")
         finally:
             el.emit_throttled = orig_emit
             el.asyncio.create_task = orig_task

@@ -24,6 +24,7 @@ class IntentLedgerTests(unittest.TestCase):
         return types.SimpleNamespace(
             cfg=types.SimpleNamespace(
                 INTENT_LEDGER_ENABLED=True,
+                INTENT_LEDGER_MAY_SEND_ENABLED=True,
                 INTENT_LEDGER_PATH=str(path),
                 INTENT_LEDGER_REUSE_MAX_AGE_SEC=3600.0,
                 EVENT_JOURNAL_PATH=str(journal_path),
@@ -157,6 +158,51 @@ class IntentLedgerTests(unittest.TestCase):
                 self.assertIsNone(expired)
             finally:
                 intent_ledger.time.time = orig_now
+
+    def test_find_pending_unknown_intent_includes_submitted_stage(self):
+        with tempfile.TemporaryDirectory() as td:
+            ledger_path = Path(td) / "intent_ledger.jsonl"
+            bot = self._bot(ledger_path)
+            intent_ledger.record(
+                bot,
+                intent_id="CID-SUB-1",
+                stage="SUBMITTED",
+                symbol="BTCUSDT",
+                client_order_id="ENTRY_BTC_SUB",
+                status="submitted",
+            )
+            pending = intent_ledger.find_pending_unknown_intent(bot, client_order_id="ENTRY_BTC_SUB")
+            self.assertIsNotNone(pending)
+            self.assertEqual(str((pending or {}).get("stage") or ""), "SUBMITTED")
+
+    def test_may_send_blocks_inflight_and_allows_unknown_intent(self):
+        with tempfile.TemporaryDirectory() as td:
+            ledger_path = Path(td) / "intent_ledger.jsonl"
+            bot = self._bot(ledger_path)
+            out0 = intent_ledger.may_send(bot, intent_id="NEW-IID-1", client_order_id="COID-1")
+            self.assertTrue(bool(out0.get("allowed", False)))
+
+            intent_ledger.record(
+                bot,
+                intent_id="IID-1",
+                stage="PROPOSED",
+                symbol="BTCUSDT",
+                client_order_id="COID-2",
+            )
+            out1 = intent_ledger.may_send(bot, intent_id="IID-1", client_order_id="COID-2")
+            self.assertFalse(bool(out1.get("allowed", True)))
+            self.assertEqual(str(out1.get("reason") or ""), "inflight_duplicate")
+
+            intent_ledger.record(
+                bot,
+                intent_id="IID-1",
+                stage="DONE",
+                symbol="BTCUSDT",
+                client_order_id="COID-2",
+            )
+            out2 = intent_ledger.may_send(bot, intent_id="IID-1", client_order_id="COID-2")
+            self.assertFalse(bool(out2.get("allowed", True)))
+            self.assertEqual(str(out2.get("reason") or ""), "reused_duplicate")
 
     def test_load_from_journal_orders_by_ts_for_deterministic_stage(self):
         with tempfile.TemporaryDirectory() as td:

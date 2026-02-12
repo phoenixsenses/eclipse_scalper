@@ -123,6 +123,32 @@ class ProtectionManagerTests(unittest.TestCase):
         self.assertEqual(float(out["gap_seconds"]), 0.0)
         self.assertEqual(int(out["breach_count"]), 2)
 
+    def test_refresh_budget_blocks_when_limit_reached(self):
+        state = {"refresh_events": [100.0, 120.0, 130.0]}
+        out = pm.should_allow_refresh_budget(
+            state,
+            now_ts=140.0,
+            window_sec=60.0,
+            max_refresh_per_window=3,
+            force=False,
+        )
+        self.assertFalse(out["allowed"])
+        self.assertEqual(int(out["count"]), 3)
+        self.assertEqual(int(out["limit"]), 3)
+
+    def test_refresh_budget_force_override_and_record(self):
+        state = {"refresh_events": [100.0, 120.0, 130.0]}
+        out = pm.should_allow_refresh_budget(
+            state,
+            now_ts=140.0,
+            window_sec=60.0,
+            max_refresh_per_window=3,
+            force=True,
+        )
+        self.assertTrue(out["allowed"])
+        pm.record_refresh_budget_event(state, now_ts=140.0)
+        self.assertEqual(len(state.get("refresh_events", [])), 4)
+
 
 if __name__ == "__main__":
     unittest.main()

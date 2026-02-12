@@ -16,6 +16,7 @@ for p in (ROOT, PKG):
         sys.path.insert(0, str(p))
 
 from eclipse_scalper.execution import rebuild  # noqa: E402
+from eclipse_scalper.execution import intent_ledger  # noqa: E402
 
 
 class _DummyEx:
@@ -203,6 +204,75 @@ class RebuildUnitTests(unittest.TestCase):
             self.assertEqual(str(orphan.get("class") or ""), "unknown_position_exposure")
             self.assertEqual(str(orphan.get("action") or ""), "FREEZE")
             self.assertEqual(str(orphan.get("policy_source") or ""), "forced_freeze")
+
+    def test_rebuild_dedupes_duplicate_open_orders(self):
+        with tempfile.TemporaryDirectory() as td:
+            ex = _DummyEx(
+                positions=[],
+                orders=[
+                    {
+                        "id": "dup-1",
+                        "symbol": "DOGE/USDT:USDT",
+                        "status": "open",
+                        "type": "LIMIT",
+                        "clientOrderId": "ENTRY_DOGE_DUP",
+                        "params": {},
+                    },
+                    {
+                        "id": "dup-1",
+                        "symbol": "DOGE/USDT:USDT",
+                        "status": "open",
+                        "type": "LIMIT",
+                        "clientOrderId": "ENTRY_DOGE_DUP",
+                        "params": {},
+                    },
+                ],
+                trades=[],
+            )
+            bot = self._bot(ex, td)
+            out = asyncio.run(rebuild.rebuild_local_state(bot, freeze_on_orphans=False, adopt_orphans=False))
+            self.assertTrue(out.get("ok"))
+            self.assertEqual(int(out.get("duplicate_open_orders_skipped", 0) or 0), 1)
+            self.assertEqual(int((out.get("orphan_action_counts") or {}).get("CANCEL", 0) or 0), 1)
+            self.assertEqual(len(ex.cancel_calls), 1)
+
+    def test_rebuild_avoids_intent_collision_for_new_order_id_same_client_id(self):
+        with tempfile.TemporaryDirectory() as td:
+            ex = _DummyEx(
+                positions=[],
+                orders=[
+                    {
+                        "id": "new-oid-2",
+                        "symbol": "DOGE/USDT:USDT",
+                        "status": "open",
+                        "type": "LIMIT",
+                        "clientOrderId": "ENTRY_DOGE_COLLIDE",
+                        "params": {},
+                    }
+                ],
+                trades=[],
+            )
+            bot = self._bot(ex, td)
+            intent_ledger.record(
+                bot,
+                intent_id="INTENT-OLD-1",
+                stage="OPEN",
+                symbol="DOGEUSDT",
+                side="buy",
+                order_type="LIMIT",
+                is_exit=False,
+                client_order_id="ENTRY_DOGE_COLLIDE",
+                order_id="old-oid-1",
+                status="open",
+                reason="seed_existing_open",
+            )
+
+            out = asyncio.run(rebuild.rebuild_local_state(bot, freeze_on_orphans=False, adopt_orphans=False))
+            self.assertTrue(out.get("ok"))
+            self.assertEqual(int(out.get("intent_collision_count", 0) or 0), 1)
+            orphan = dict((out.get("orphans_list") or [{}])[0] or {})
+            self.assertTrue(bool(orphan.get("intent_collision")))
+            self.assertNotEqual(str(orphan.get("intent_id") or ""), "INTENT-OLD-1")
 
 
 if __name__ == "__main__":

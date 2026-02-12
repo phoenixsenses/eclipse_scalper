@@ -57,9 +57,13 @@ _kill_request_halt = _optional_import("risk.kill_switch", "request_halt")
 _assess_stop_coverage = _optional_import("execution.protection_manager", "assess_stop_coverage")
 _assess_tp_coverage = _optional_import("execution.protection_manager", "assess_tp_coverage")
 _should_refresh_protection = _optional_import("execution.protection_manager", "should_refresh_protection")
+_should_allow_refresh_budget = _optional_import("execution.protection_manager", "should_allow_refresh_budget")
+_record_refresh_budget_event = _optional_import("execution.protection_manager", "record_refresh_budget_event")
 _update_coverage_gap_state = _optional_import("execution.protection_manager", "update_coverage_gap_state")
 _state_machine = _optional_import("execution.state_machine")
 _journal_transition = _optional_import("execution.event_journal", "journal_transition")
+_compute_correlation_risk = _optional_import("execution.correlation_risk", "compute_correlation_risk")
+_intent_allocator = _optional_import("execution.intent_allocator")
 
 
 def _diag_dump(bot, note: str) -> None:
@@ -156,6 +160,26 @@ def _ensure_run_context(bot) -> dict:
             pass
         rc = getattr(getattr(bot, "state", None), "run_context", None)
     return rc if isinstance(rc, dict) else {}
+
+
+def _reconcile_correlation_id(bot, *, component: str, intent_kind: str, symbol: str, fallback: str) -> str:
+    if _intent_allocator is not None:
+        try:
+            cid = str(
+                _intent_allocator.allocate_intent_id(
+                    bot,
+                    component=str(component or "reconcile"),
+                    intent_kind=str(intent_kind or "REPAIR"),
+                    symbol=str(symbol or ""),
+                    is_exit=True,
+                )
+                or ""
+            ).strip()
+            if cid:
+                return cid
+        except Exception:
+            pass
+    return str(fallback or "").strip()
 
 
 def _phantom_store(bot) -> dict:
@@ -261,6 +285,12 @@ def _ensure_reconcile_metrics(bot) -> Dict[str, Any]:
     rm.setdefault("belief_debt_sec", 0.0)
     rm.setdefault("belief_debt_symbols", 0)
     rm.setdefault("belief_confidence", 1.0)
+    rm.setdefault("belief_envelope_symbols", 0)
+    rm.setdefault("belief_envelope_ambiguous_symbols", 0)
+    rm.setdefault("belief_position_interval_width_sum", 0.0)
+    rm.setdefault("belief_position_interval_width_max", 0.0)
+    rm.setdefault("belief_live_unknown_symbols", 0)
+    rm.setdefault("belief_envelope_worst_symbol", "")
     rm.setdefault("evidence_confidence", 1.0)
     rm.setdefault("evidence_ws_score", 1.0)
     rm.setdefault("evidence_rest_score", 1.0)
@@ -268,6 +298,10 @@ def _ensure_reconcile_metrics(bot) -> Dict[str, Any]:
     rm.setdefault("evidence_ws_confidence", 1.0)
     rm.setdefault("evidence_rest_confidence", 1.0)
     rm.setdefault("evidence_fill_confidence", 1.0)
+    rm.setdefault("evidence_ws_coverage_ratio", 1.0)
+    rm.setdefault("evidence_rest_coverage_ratio", 1.0)
+    rm.setdefault("evidence_fill_coverage_ratio", 1.0)
+    rm.setdefault("evidence_coverage_ratio", 1.0)
     rm.setdefault("evidence_ws_last_seen_ts", 0.0)
     rm.setdefault("evidence_rest_last_seen_ts", 0.0)
     rm.setdefault("evidence_fill_last_seen_ts", 0.0)
@@ -287,6 +321,7 @@ def _ensure_reconcile_metrics(bot) -> Dict[str, Any]:
     rm.setdefault("runtime_gate_available", False)
     rm.setdefault("runtime_gate_degraded", False)
     rm.setdefault("runtime_gate_reason", "")
+    rm.setdefault("runtime_gate_cause_summary", "stable")
     rm.setdefault("runtime_gate_replay_mismatch_count", 0)
     rm.setdefault("runtime_gate_invalid_transition_count", 0)
     rm.setdefault("runtime_gate_journal_coverage_ratio", 1.0)
@@ -304,8 +339,11 @@ def _ensure_reconcile_metrics(bot) -> Dict[str, Any]:
     rm.setdefault("runtime_gate_cat_contradiction", 0)
     rm.setdefault("runtime_gate_cat_unknown", 0)
     rm.setdefault("runtime_gate_position_mismatch_count", 0)
+    rm.setdefault("runtime_gate_position_mismatch_count_peak", 0)
     rm.setdefault("runtime_gate_orphan_count", 0)
+    rm.setdefault("runtime_gate_intent_collision_count", 0)
     rm.setdefault("runtime_gate_protection_coverage_gap_seconds", 0.0)
+    rm.setdefault("runtime_gate_protection_coverage_gap_seconds_peak", 0.0)
     rm.setdefault("runtime_gate_replace_race_count", 0)
     rm.setdefault("runtime_gate_evidence_contradiction_count", 0)
     rm.setdefault("runtime_gate_degrade_score", 0.0)
@@ -313,10 +351,30 @@ def _ensure_reconcile_metrics(bot) -> Dict[str, Any]:
     rm.setdefault("protection_coverage_gap_seconds", 0.0)
     rm.setdefault("protection_coverage_gap_symbols", 0)
     rm.setdefault("protection_coverage_ttl_breaches", 0)
+    rm.setdefault("protection_refresh_budget_blocked_count", 0)
+    rm.setdefault("protection_refresh_budget_force_override_count", 0)
+    rm.setdefault("protection_refresh_stop_budget_blocked_count", 0)
+    rm.setdefault("protection_refresh_tp_budget_blocked_count", 0)
+    rm.setdefault("protection_refresh_stop_force_override_count", 0)
+    rm.setdefault("protection_refresh_tp_force_override_count", 0)
     rm.setdefault("reconcile_first_gate_count", 0)
     rm.setdefault("reconcile_first_gate_max_severity", 0.0)
     rm.setdefault("reconcile_first_gate_max_streak", 0)
     rm.setdefault("reconcile_first_gate_last_reason", "")
+    rm.setdefault("corr_pressure", 0.0)
+    rm.setdefault("corr_regime", "NORMAL")
+    rm.setdefault("corr_confidence", 1.0)
+    rm.setdefault("corr_roll", 0.0)
+    rm.setdefault("corr_downside", 0.0)
+    rm.setdefault("corr_tail_coupling", 0.0)
+    rm.setdefault("corr_eff_roll", 0.0)
+    rm.setdefault("corr_eff_downside", 0.0)
+    rm.setdefault("corr_eff_tail_coupling", 0.0)
+    rm.setdefault("corr_uncertainty_uplift", 0.0)
+    rm.setdefault("corr_group_drift_debt", 0.0)
+    rm.setdefault("corr_hidden_exposure_risk", 0.0)
+    rm.setdefault("corr_worst_group", "")
+    rm.setdefault("corr_reason_tags", "stable")
     return rm
 
 
@@ -462,6 +520,172 @@ def _collect_symbol_belief_debt(metrics: Dict[str, Any]) -> Dict[str, float]:
         if age > 0:
             out[kk] = float(age)
     return out
+
+
+def _position_envelope_store(bot) -> Dict[str, Dict[str, Any]]:
+    rc = _ensure_run_context(bot)
+    store = rc.get("position_envelopes")
+    if not isinstance(store, dict):
+        store = {}
+        rc["position_envelopes"] = store
+    return store
+
+
+def _state_pos_size_abs(pos_obj: Any) -> float:
+    try:
+        return abs(_safe_float(getattr(pos_obj, "size", 0.0), 0.0))
+    except Exception:
+        return 0.0
+
+
+def _exchange_pos_size_abs(plist: Any) -> float:
+    best = 0.0
+    if not isinstance(plist, list):
+        return best
+    for p in plist:
+        if not isinstance(p, dict):
+            continue
+        sz, _sd = _extract_pos_size_side(p)
+        if sz > best:
+            best = float(sz)
+    return float(best)
+
+
+def _merge_live_state_set(*parts: str) -> str:
+    vals = {x.strip().upper() for x in parts if str(x or "").strip()}
+    if not vals:
+        vals = {"UNKNOWN"}
+    return ",".join(sorted(vals))
+
+
+def _update_position_envelopes(
+    bot,
+    *,
+    state_positions: Dict[str, Any],
+    ex_map: Dict[str, List[Dict[str, Any]]],
+    tracked_syms: set[str],
+    mismatch_symbols: set[str],
+) -> Dict[str, Any]:
+    """
+    Maintain minimal belief envelope per symbol:
+      - position interval [min, max]
+      - live state set (UNKNOWN/LIVE/PARTIAL/FILLED/CANCELED)
+      - filled/live qty intervals
+    Widen immediately on ambiguity; narrow only on consistent dual evidence.
+    """
+    store = _position_envelope_store(bot)
+    symbols = set(_symkey(s) for s in tracked_syms if _symkey(s))
+    symbols |= set(_symkey(s) for s in ex_map.keys() if _symkey(s))
+    symbols |= set(_symkey(s) for s in state_positions.keys() if _symkey(s))
+    symbols |= set(_symkey(s) for s in mismatch_symbols if _symkey(s))
+    now_ts = _now()
+
+    ambiguous_count = 0
+    unknown_count = 0
+    width_sum = 0.0
+    width_max = 0.0
+    worst_symbol = ""
+
+    for sym in sorted(symbols):
+        has_state = sym in state_positions
+        has_ex = sym in ex_map
+        st_size = _state_pos_size_abs(state_positions.get(sym))
+        ex_size = _exchange_pos_size_abs(ex_map.get(sym, []))
+        prev = store.get(sym)
+        if not isinstance(prev, dict):
+            prev = {}
+        prev_min = max(0.0, _safe_float(prev.get("position_interval_min", 0.0), 0.0))
+        prev_max = max(prev_min, _safe_float(prev.get("position_interval_max", 0.0), prev_min))
+        prev_state = str(prev.get("live_state_set", "") or "")
+
+        ambiguous = bool((sym in mismatch_symbols) or (has_state != has_ex) or (not has_state and not has_ex))
+        if ambiguous:
+            ambiguous_count += 1
+
+        if has_state and has_ex and (not ambiguous):
+            # Consistent dual evidence: narrow to authoritative current size.
+            pos_lo = max(0.0, ex_size)
+            pos_hi = max(0.0, ex_size)
+            filled_lo = pos_lo
+            filled_hi = pos_hi
+            live_lo = pos_lo
+            live_hi = pos_hi
+            live_state = "LIVE" if ex_size > 0.0 else "CANCELED"
+        else:
+            # Ambiguous evidence: widen immediately and include UNKNOWN.
+            hi_candidate = max(st_size, ex_size, prev_max)
+            pos_lo = 0.0 if hi_candidate > 0.0 else prev_min
+            pos_hi = max(0.0, hi_candidate)
+            filled_lo = 0.0
+            filled_hi = pos_hi
+            live_lo = 0.0
+            live_hi = pos_hi
+            known_state = "LIVE" if (st_size > 0.0 or ex_size > 0.0) else "CANCELED"
+            live_state = _merge_live_state_set(prev_state, known_state, "UNKNOWN")
+
+        width = max(0.0, pos_hi - pos_lo)
+        width_sum += width
+        if width > width_max:
+            width_max = width
+            worst_symbol = sym
+        if "UNKNOWN" in str(live_state):
+            unknown_count += 1
+
+        store[sym] = {
+            "symbol": sym,
+            "position_interval_min": float(pos_lo),
+            "position_interval_max": float(pos_hi),
+            "filled_qty_min": float(filled_lo),
+            "filled_qty_max": float(filled_hi),
+            "live_qty_min": float(live_lo),
+            "live_qty_max": float(live_hi),
+            "live_state_set": str(live_state),
+            "ambiguous": bool(ambiguous),
+            "updated_ts": float(now_ts),
+        }
+
+    # Trim stale symbols no longer tracked anywhere.
+    for sym in list(store.keys()):
+        if _symkey(sym) not in symbols:
+            store.pop(sym, None)
+
+    return {
+        "belief_envelope_symbols": int(len(symbols)),
+        "belief_envelope_ambiguous_symbols": int(ambiguous_count),
+        "belief_position_interval_width_sum": float(width_sum),
+        "belief_position_interval_width_max": float(width_max),
+        "belief_live_unknown_symbols": int(unknown_count),
+        "belief_envelope_worst_symbol": str(worst_symbol),
+    }
+
+
+def _runtime_gate_cause_summary(metrics: Dict[str, Any]) -> str:
+    if not isinstance(metrics, dict):
+        return "stable"
+    degraded = bool(metrics.get("runtime_gate_degraded", False))
+    reason = str(metrics.get("runtime_gate_reason", "") or "").strip()
+    pos_cur = int(_safe_float(metrics.get("runtime_gate_position_mismatch_count", 0), 0.0))
+    pos_peak = int(_safe_float(metrics.get("runtime_gate_position_mismatch_count_peak", pos_cur), 0.0))
+    gap_cur = float(_safe_float(metrics.get("runtime_gate_protection_coverage_gap_seconds", 0.0), 0.0))
+    gap_peak = float(
+        _safe_float(
+            metrics.get("runtime_gate_protection_coverage_gap_seconds_peak", gap_cur),
+            gap_cur,
+        )
+    )
+    intent_collision_count = int(_safe_float(metrics.get("runtime_gate_intent_collision_count", 0), 0.0))
+    parts: list[str] = []
+    if reason and reason != "ok":
+        parts.append(reason)
+    if "position_peak>" in reason:
+        parts.append(f"position_peak={pos_peak} current={pos_cur}")
+    if "coverage_gap_sec_peak>" in reason:
+        parts.append(f"coverage_gap_peak={gap_peak:.1f}s current={gap_cur:.1f}s")
+    if "intent_collision>" in reason or intent_collision_count > 0:
+        parts.append(f"intent_collision={intent_collision_count}")
+    if not parts and degraded:
+        parts.append(f"degraded(score={float(_safe_float(metrics.get('runtime_gate_degrade_score', 0.0), 0.0)):.2f})")
+    return "; ".join(parts) if parts else "stable"
 
 
 def _stop_outcome_is_covered(outcome: str) -> bool:
@@ -1028,14 +1252,20 @@ async def _ensure_protective_stop(bot, k: str, pos_obj, ex_side_hint: Optional[s
         if not isinstance(pstore, dict):
             pstore = {}
             rc["protection_refresh"] = pstore
+        gap_store = rc.get("protection_gap_state")
+        if not isinstance(gap_store, dict):
+            gap_store = {}
         prev = pstore.get(k)
         if not isinstance(prev, dict):
             prev = {}
             pstore[k] = prev
         prev_qty = _safe_float(prev.get("qty"), 0.0)
         prev_ts = _safe_float(prev.get("ts"), 0.0)
+        gap_state = gap_store.get(k)
+        gap_ttl_breached = bool((gap_state or {}).get("ttl_breached", False)) if isinstance(gap_state, dict) else False
         allow_refresh = True
         force_ratio = _safe_float(_cfg(bot, "RECONCILE_STOP_REFRESH_FORCE_COVERAGE_RATIO", 0.80), 0.80)
+        force_refresh = bool(gap_ttl_breached or (force_ratio > 0 and coverage_ratio < force_ratio))
         if force_ratio > 0 and coverage_ratio < force_ratio:
             allow_refresh = True
         elif force_ratio <= 0:
@@ -1052,8 +1282,31 @@ async def _ensure_protective_stop(bot, k: str, pos_obj, ex_side_hint: Optional[s
                     now_ts=_now(),
                 )
             )
-            if force_ratio > 0 and coverage_ratio < force_ratio:
+            if force_refresh:
                 allow_refresh = True
+        if allow_refresh and callable(_should_allow_refresh_budget):
+            budget = _should_allow_refresh_budget(
+                prev,
+                now_ts=_now(),
+                window_sec=float(_cfg(bot, "RECONCILE_STOP_REFRESH_BUDGET_WINDOW_SEC", 60.0) or 60.0),
+                max_refresh_per_window=int(_cfg(bot, "RECONCILE_STOP_REFRESH_MAX_PER_WINDOW", 3) or 3),
+                force=bool(force_refresh),
+            )
+            if bool(force_refresh):
+                rm["protection_refresh_force_override_count"] = int(
+                    _safe_float(rm.get("protection_refresh_force_override_count", 0), 0.0)
+                ) + 1
+                rm["protection_refresh_stop_force_override_count"] = int(
+                    _safe_float(rm.get("protection_refresh_stop_force_override_count", 0), 0.0)
+                ) + 1
+            allow_refresh = bool((budget or {}).get("allowed", False))
+            if not allow_refresh:
+                rm["protection_refresh_budget_blocked_count"] = int(
+                    _safe_float(rm.get("protection_refresh_budget_blocked_count", 0), 0.0)
+                ) + 1
+                rm["protection_refresh_stop_budget_blocked_count"] = int(
+                    _safe_float(rm.get("protection_refresh_stop_budget_blocked_count", 0), 0.0)
+                ) + 1
         if not allow_refresh:
             return "refresh_deferred"
         if allow_refresh:
@@ -1070,12 +1323,22 @@ async def _ensure_protective_stop(bot, k: str, pos_obj, ex_side_hint: Optional[s
                     stop_price=float(stop_price),
                     params={},
                     retries=int(_cfg(bot, "RECONCILE_STOP_REPLACE_RETRIES", 2) or 2),
-                    correlation_id=f"RECON_STOP_{k}",
+                    correlation_id=_reconcile_correlation_id(
+                        bot,
+                        component="reconcile_stop_repair",
+                        intent_kind="STOP_REPLACE",
+                        symbol=str(k),
+                        fallback=f"RECON_STOP_{k}",
+                    ),
+                    intent_component="reconcile_stop_repair",
+                    intent_kind="STOP_REPLACE",
                 )
                 if isinstance(rep, dict):
                     oid = str(rep.get("id") or "") or None
                     prev["qty"] = float(ex_size)
                     prev["ts"] = _now()
+                    if callable(_record_refresh_budget_event):
+                        _record_refresh_budget_event(prev, now_ts=_now())
             except Exception:
                 oid = None
             if not oid:
@@ -1164,19 +1427,26 @@ async def _ensure_protective_tp(bot, k: str, pos_obj, ex_side_hint: Optional[str
 
     oid = None
     if needs_refresh and existing_tp_id:
+        rm = _ensure_reconcile_metrics(bot)
         rc = _ensure_run_context(bot)
         pstore = rc.get("protection_refresh_tp")
         if not isinstance(pstore, dict):
             pstore = {}
             rc["protection_refresh_tp"] = pstore
+        gap_store = rc.get("protection_gap_state")
+        if not isinstance(gap_store, dict):
+            gap_store = {}
         prev = pstore.get(k)
         if not isinstance(prev, dict):
             prev = {}
             pstore[k] = prev
         prev_qty = _safe_float(prev.get("qty"), 0.0)
         prev_ts = _safe_float(prev.get("ts"), 0.0)
+        gap_state = gap_store.get(k)
+        gap_ttl_breached = bool((gap_state or {}).get("ttl_breached", False)) if isinstance(gap_state, dict) else False
         allow_refresh = True
         force_ratio = _safe_float(_cfg(bot, "RECONCILE_TP_REFRESH_FORCE_COVERAGE_RATIO", 0.80), 0.80)
+        force_refresh = bool(gap_ttl_breached or (force_ratio > 0 and coverage_ratio < force_ratio))
         if callable(_should_refresh_protection):
             allow_refresh = bool(
                 _should_refresh_protection(
@@ -1189,8 +1459,31 @@ async def _ensure_protective_tp(bot, k: str, pos_obj, ex_side_hint: Optional[str
                     now_ts=_now(),
                 )
             )
-            if force_ratio > 0 and coverage_ratio < force_ratio:
+            if force_refresh:
                 allow_refresh = True
+        if allow_refresh and callable(_should_allow_refresh_budget):
+            budget = _should_allow_refresh_budget(
+                prev,
+                now_ts=_now(),
+                window_sec=float(_cfg(bot, "RECONCILE_TP_REFRESH_BUDGET_WINDOW_SEC", 60.0) or 60.0),
+                max_refresh_per_window=int(_cfg(bot, "RECONCILE_TP_REFRESH_MAX_PER_WINDOW", 3) or 3),
+                force=bool(force_refresh),
+            )
+            if bool(force_refresh):
+                rm["protection_refresh_force_override_count"] = int(
+                    _safe_float(rm.get("protection_refresh_force_override_count", 0), 0.0)
+                ) + 1
+                rm["protection_refresh_tp_force_override_count"] = int(
+                    _safe_float(rm.get("protection_refresh_tp_force_override_count", 0), 0.0)
+                ) + 1
+            allow_refresh = bool((budget or {}).get("allowed", False))
+            if not allow_refresh:
+                rm["protection_refresh_budget_blocked_count"] = int(
+                    _safe_float(rm.get("protection_refresh_budget_blocked_count", 0), 0.0)
+                ) + 1
+                rm["protection_refresh_tp_budget_blocked_count"] = int(
+                    _safe_float(rm.get("protection_refresh_tp_budget_blocked_count", 0), 0.0)
+                ) + 1
         if not allow_refresh:
             return "tp_refresh_deferred"
         tp_side = "sell" if side == "long" else "buy"
@@ -1206,12 +1499,22 @@ async def _ensure_protective_tp(bot, k: str, pos_obj, ex_side_hint: Optional[str
                 stop_price=float(tp_price),
                 params={},
                 retries=int(_cfg(bot, "RECONCILE_TP_REPLACE_RETRIES", 2) or 2),
-                correlation_id=f"RECON_TP_{k}",
+                correlation_id=_reconcile_correlation_id(
+                    bot,
+                    component="reconcile_tp_repair",
+                    intent_kind="TP_REPLACE",
+                    symbol=str(k),
+                    fallback=f"RECON_TP_{k}",
+                ),
+                intent_component="reconcile_tp_repair",
+                intent_kind="TP_REPLACE",
             )
             if isinstance(rep, dict):
                 oid = str(rep.get("id") or "") or None
                 prev["qty"] = float(ex_size)
                 prev["ts"] = _now()
+                if callable(_record_refresh_budget_event):
+                    _record_refresh_budget_event(prev, now_ts=_now())
         except Exception:
             oid = None
         if not oid:
@@ -1600,6 +1903,43 @@ async def reconcile_tick(bot):
     metrics["protection_coverage_gap_seconds"] = float(protection_gap_seconds)
     metrics["protection_coverage_gap_symbols"] = int(protection_gap_symbols)
     metrics["protection_coverage_ttl_breaches"] = int(coverage_ttl_breaches)
+    env_metrics = _update_position_envelopes(
+        bot,
+        state_positions=state_positions,
+        ex_map=ex_map,
+        tracked_syms=tracked_syms,
+        mismatch_symbols=mismatch_symbols,
+    )
+    metrics["belief_envelope_symbols"] = int(env_metrics.get("belief_envelope_symbols", 0) or 0)
+    metrics["belief_envelope_ambiguous_symbols"] = int(
+        env_metrics.get("belief_envelope_ambiguous_symbols", 0) or 0
+    )
+    metrics["belief_position_interval_width_sum"] = float(
+        env_metrics.get("belief_position_interval_width_sum", 0.0) or 0.0
+    )
+    metrics["belief_position_interval_width_max"] = float(
+        env_metrics.get("belief_position_interval_width_max", 0.0) or 0.0
+    )
+    metrics["belief_live_unknown_symbols"] = int(env_metrics.get("belief_live_unknown_symbols", 0) or 0)
+    metrics["belief_envelope_worst_symbol"] = str(env_metrics.get("belief_envelope_worst_symbol", "") or "")
+    metrics["protection_refresh_budget_blocked_count"] = int(
+        _safe_float(metrics.get("protection_refresh_budget_blocked_count", 0), 0.0)
+    )
+    metrics["protection_refresh_budget_force_override_count"] = int(
+        _safe_float(metrics.get("protection_refresh_force_override_count", 0), 0.0)
+    )
+    metrics["protection_refresh_stop_budget_blocked_count"] = int(
+        _safe_float(metrics.get("protection_refresh_stop_budget_blocked_count", 0), 0.0)
+    )
+    metrics["protection_refresh_tp_budget_blocked_count"] = int(
+        _safe_float(metrics.get("protection_refresh_tp_budget_blocked_count", 0), 0.0)
+    )
+    metrics["protection_refresh_stop_force_override_count"] = int(
+        _safe_float(metrics.get("protection_refresh_stop_force_override_count", 0), 0.0)
+    )
+    metrics["protection_refresh_tp_force_override_count"] = int(
+        _safe_float(metrics.get("protection_refresh_tp_force_override_count", 0), 0.0)
+    )
 
     if mismatch_events > 0:
         metrics["mismatch_streak"] = int(metrics.get("mismatch_streak", 0) or 0) + int(mismatch_events)
@@ -1613,6 +1953,10 @@ async def reconcile_tick(bot):
         "protection_coverage_gap_seconds": float(protection_gap_seconds),
         "protection_coverage_gap_symbols": int(protection_gap_symbols),
         "protection_coverage_ttl_breaches": int(coverage_ttl_breaches),
+        "protection_refresh_budget_blocked_count": int(metrics.get("protection_refresh_budget_blocked_count", 0) or 0),
+        "protection_refresh_budget_force_override_count": int(
+            metrics.get("protection_refresh_budget_force_override_count", 0) or 0
+        ),
         "ts": _now(),
     }
     healthy_syms = set(_symkey(s) for s in tracked_syms if _symkey(s) and _symkey(s) not in mismatch_symbols)
@@ -1630,6 +1974,10 @@ async def reconcile_tick(bot):
         "evidence_ws_confidence": 1.0,
         "evidence_rest_confidence": 1.0,
         "evidence_fill_confidence": 1.0,
+        "evidence_ws_coverage_ratio": 1.0,
+        "evidence_rest_coverage_ratio": 1.0,
+        "evidence_fill_coverage_ratio": 1.0,
+        "evidence_coverage_ratio": 1.0,
         "evidence_ws_last_seen_ts": 0.0,
         "evidence_rest_last_seen_ts": 0.0,
         "evidence_fill_last_seen_ts": 0.0,
@@ -1660,6 +2008,10 @@ async def reconcile_tick(bot):
     metrics["evidence_ws_confidence"] = float(_safe_float(evidence.get("evidence_ws_confidence", 1.0), 1.0))
     metrics["evidence_rest_confidence"] = float(_safe_float(evidence.get("evidence_rest_confidence", 1.0), 1.0))
     metrics["evidence_fill_confidence"] = float(_safe_float(evidence.get("evidence_fill_confidence", 1.0), 1.0))
+    metrics["evidence_ws_coverage_ratio"] = float(_safe_float(evidence.get("evidence_ws_coverage_ratio", 1.0), 1.0))
+    metrics["evidence_rest_coverage_ratio"] = float(_safe_float(evidence.get("evidence_rest_coverage_ratio", 1.0), 1.0))
+    metrics["evidence_fill_coverage_ratio"] = float(_safe_float(evidence.get("evidence_fill_coverage_ratio", 1.0), 1.0))
+    metrics["evidence_coverage_ratio"] = float(_safe_float(evidence.get("evidence_coverage_ratio", 1.0), 1.0))
     metrics["evidence_ws_last_seen_ts"] = float(_safe_float(evidence.get("evidence_ws_last_seen_ts", 0.0), 0.0))
     metrics["evidence_rest_last_seen_ts"] = float(_safe_float(evidence.get("evidence_rest_last_seen_ts", 0.0), 0.0))
     metrics["evidence_fill_last_seen_ts"] = float(_safe_float(evidence.get("evidence_fill_last_seen_ts", 0.0), 0.0))
@@ -1746,9 +2098,19 @@ async def reconcile_tick(bot):
         metrics["runtime_gate_cat_contradiction"] = 0
         metrics["runtime_gate_cat_unknown"] = 0
     metrics["runtime_gate_position_mismatch_count"] = int(_safe_float(gate.get("position_mismatch_count", 0), 0.0))
+    metrics["runtime_gate_position_mismatch_count_peak"] = int(
+        _safe_float(gate.get("position_mismatch_count_peak", gate.get("position_mismatch_count", 0)), 0.0)
+    )
     metrics["runtime_gate_orphan_count"] = int(_safe_float(gate.get("orphan_count", 0), 0.0))
+    metrics["runtime_gate_intent_collision_count"] = int(_safe_float(gate.get("intent_collision_count", 0), 0.0))
     metrics["runtime_gate_protection_coverage_gap_seconds"] = float(
         _safe_float(gate.get("protection_coverage_gap_seconds", 0.0), 0.0)
+    )
+    metrics["runtime_gate_protection_coverage_gap_seconds_peak"] = float(
+        _safe_float(
+            gate.get("protection_coverage_gap_seconds_peak", gate.get("protection_coverage_gap_seconds", 0.0)),
+            0.0,
+        )
     )
     metrics["runtime_gate_replace_race_count"] = int(_safe_float(gate.get("replace_race_count", 0), 0.0))
     metrics["runtime_gate_evidence_contradiction_count"] = int(
@@ -1757,6 +2119,7 @@ async def reconcile_tick(bot):
     metrics["runtime_gate_degrade_score"] = float(_safe_float(gate.get("degrade_score", 0.0), 0.0))
     gate_ids = gate.get("replay_mismatch_ids")
     metrics["runtime_gate_replay_mismatch_ids"] = list(gate_ids) if isinstance(gate_ids, list) else []
+    metrics["runtime_gate_cause_summary"] = _runtime_gate_cause_summary(metrics)
     reconcile_gate_recent = _recent_reconcile_first_gate_metrics(bot)
     metrics["reconcile_first_gate_count"] = int(
         _safe_float(reconcile_gate_recent.get("count", 0), 0.0)
@@ -1770,13 +2133,87 @@ async def reconcile_tick(bot):
     metrics["reconcile_first_gate_last_reason"] = str(
         reconcile_gate_recent.get("last_reason", "") or ""
     )
+    corr_state = {
+        "corr_pressure": float(metrics.get("corr_pressure", 0.0) or 0.0),
+        "corr_regime": str(metrics.get("corr_regime", "NORMAL") or "NORMAL"),
+        "corr_confidence": float(metrics.get("corr_confidence", 1.0) or 1.0),
+        "corr_roll": float(metrics.get("corr_roll", 0.0) or 0.0),
+        "corr_downside": float(metrics.get("corr_downside", 0.0) or 0.0),
+        "corr_tail_coupling": float(metrics.get("corr_tail_coupling", 0.0) or 0.0),
+        "corr_eff_roll": float(metrics.get("corr_eff_roll", 0.0) or 0.0),
+        "corr_eff_downside": float(metrics.get("corr_eff_downside", 0.0) or 0.0),
+        "corr_eff_tail_coupling": float(metrics.get("corr_eff_tail_coupling", 0.0) or 0.0),
+        "corr_uncertainty_uplift": float(metrics.get("corr_uncertainty_uplift", 0.0) or 0.0),
+        "corr_group_drift_debt": float(metrics.get("corr_group_drift_debt", 0.0) or 0.0),
+        "corr_hidden_exposure_risk": float(metrics.get("corr_hidden_exposure_risk", 0.0) or 0.0),
+        "corr_worst_group": str(metrics.get("corr_worst_group", "") or ""),
+        "corr_reason_tags": str(metrics.get("corr_reason_tags", "stable") or "stable"),
+    }
+    if callable(_compute_correlation_risk):
+        try:
+            got_corr = _compute_correlation_risk(bot, metrics, getattr(bot, "cfg", None))
+            if isinstance(got_corr, dict):
+                corr_state.update(got_corr)
+        except Exception:
+            pass
+    for key, value in corr_state.items():
+        metrics[key] = value
+    if callable(_tel_emit):
+        try:
+            await _tel_emit(
+                bot,
+                "execution.correlation_state",
+                data={
+                    "corr_pressure": float(corr_state.get("corr_pressure", 0.0) or 0.0),
+                    "corr_regime": str(corr_state.get("corr_regime", "NORMAL") or "NORMAL"),
+                    "corr_confidence": float(corr_state.get("corr_confidence", 1.0) or 1.0),
+                    "corr_roll": float(corr_state.get("corr_roll", 0.0) or 0.0),
+                    "corr_downside": float(corr_state.get("corr_downside", 0.0) or 0.0),
+                    "corr_tail_coupling": float(corr_state.get("corr_tail_coupling", 0.0) or 0.0),
+                    "corr_eff_roll": float(corr_state.get("corr_eff_roll", 0.0) or 0.0),
+                    "corr_eff_downside": float(corr_state.get("corr_eff_downside", 0.0) or 0.0),
+                    "corr_eff_tail_coupling": float(corr_state.get("corr_eff_tail_coupling", 0.0) or 0.0),
+                    "corr_uncertainty_uplift": float(corr_state.get("corr_uncertainty_uplift", 0.0) or 0.0),
+                    "corr_group_drift_debt": float(corr_state.get("corr_group_drift_debt", 0.0) or 0.0),
+                    "corr_hidden_exposure_risk": float(corr_state.get("corr_hidden_exposure_risk", 0.0) or 0.0),
+                    "corr_worst_group": str(corr_state.get("corr_worst_group", "") or ""),
+                    "corr_reason_tags": str(corr_state.get("corr_reason_tags", "stable") or "stable"),
+                },
+                level=("warning" if str(corr_state.get("corr_regime", "NORMAL")).upper() != "NORMAL" else "info"),
+            )
+        except Exception:
+            pass
     metrics["last_summary"]["belief_debt_sec"] = float(debt_sec)
     metrics["last_summary"]["belief_debt_symbols"] = int(debt_syms)
     metrics["last_summary"]["belief_confidence"] = float(conf)
+    metrics["last_summary"]["belief_envelope_symbols"] = int(metrics.get("belief_envelope_symbols", 0) or 0)
+    metrics["last_summary"]["belief_envelope_ambiguous_symbols"] = int(
+        metrics.get("belief_envelope_ambiguous_symbols", 0) or 0
+    )
+    metrics["last_summary"]["belief_position_interval_width_sum"] = float(
+        metrics.get("belief_position_interval_width_sum", 0.0) or 0.0
+    )
+    metrics["last_summary"]["belief_position_interval_width_max"] = float(
+        metrics.get("belief_position_interval_width_max", 0.0) or 0.0
+    )
+    metrics["last_summary"]["belief_live_unknown_symbols"] = int(
+        metrics.get("belief_live_unknown_symbols", 0) or 0
+    )
+    metrics["last_summary"]["belief_envelope_worst_symbol"] = str(
+        metrics.get("belief_envelope_worst_symbol", "") or ""
+    )
+    metrics["last_summary"]["corr_pressure"] = float(metrics.get("corr_pressure", 0.0) or 0.0)
+    metrics["last_summary"]["corr_regime"] = str(metrics.get("corr_regime", "NORMAL") or "NORMAL")
+    metrics["last_summary"]["corr_confidence"] = float(metrics.get("corr_confidence", 1.0) or 1.0)
+    metrics["last_summary"]["corr_reason_tags"] = str(metrics.get("corr_reason_tags", "stable") or "stable")
     metrics["last_summary"]["evidence_confidence"] = float(metrics["evidence_confidence"])
     metrics["last_summary"]["evidence_ws_confidence"] = float(metrics["evidence_ws_confidence"])
     metrics["last_summary"]["evidence_rest_confidence"] = float(metrics["evidence_rest_confidence"])
     metrics["last_summary"]["evidence_fill_confidence"] = float(metrics["evidence_fill_confidence"])
+    metrics["last_summary"]["evidence_ws_coverage_ratio"] = float(metrics.get("evidence_ws_coverage_ratio", 1.0) or 1.0)
+    metrics["last_summary"]["evidence_rest_coverage_ratio"] = float(metrics.get("evidence_rest_coverage_ratio", 1.0) or 1.0)
+    metrics["last_summary"]["evidence_fill_coverage_ratio"] = float(metrics.get("evidence_fill_coverage_ratio", 1.0) or 1.0)
+    metrics["last_summary"]["evidence_coverage_ratio"] = float(metrics.get("evidence_coverage_ratio", 1.0) or 1.0)
     metrics["last_summary"]["evidence_contradiction_score"] = float(metrics["evidence_contradiction_score"])
     metrics["last_summary"]["evidence_contradiction_count"] = int(metrics["evidence_contradiction_count"])
     metrics["last_summary"]["evidence_contradiction_streak"] = int(metrics["evidence_contradiction_streak"])
@@ -1807,6 +2244,12 @@ async def reconcile_tick(bot):
         km["reconcile_protection_coverage_ttl_breaches"] = int(
             metrics.get("protection_coverage_ttl_breaches", 0) or 0
         )
+        km["reconcile_protection_refresh_budget_blocked_count"] = int(
+            metrics.get("protection_refresh_budget_blocked_count", 0) or 0
+        )
+        km["reconcile_protection_refresh_budget_force_override_count"] = int(
+            metrics.get("protection_refresh_budget_force_override_count", 0) or 0
+        )
 
     belief_trace = {}
     guard_knobs = None
@@ -1835,6 +2278,24 @@ async def reconcile_tick(bot):
                     "protection_coverage_ttl_breaches": int(
                         metrics.get("protection_coverage_ttl_breaches", 0) or 0
                     ),
+                    "protection_refresh_budget_blocked_count": int(
+                        metrics.get("protection_refresh_budget_blocked_count", 0) or 0
+                    ),
+                    "protection_refresh_budget_force_override_count": int(
+                        metrics.get("protection_refresh_budget_force_override_count", 0) or 0
+                    ),
+                    "protection_refresh_stop_budget_blocked_count": int(
+                        metrics.get("protection_refresh_stop_budget_blocked_count", 0) or 0
+                    ),
+                    "protection_refresh_tp_budget_blocked_count": int(
+                        metrics.get("protection_refresh_tp_budget_blocked_count", 0) or 0
+                    ),
+                    "protection_refresh_stop_force_override_count": int(
+                        metrics.get("protection_refresh_stop_force_override_count", 0) or 0
+                    ),
+                    "protection_refresh_tp_force_override_count": int(
+                        metrics.get("protection_refresh_tp_force_override_count", 0) or 0
+                    ),
                     "evidence_confidence": float(metrics.get("evidence_confidence", 1.0) or 1.0),
                     "evidence_degraded_sources": int(metrics.get("evidence_degraded_sources", 0) or 0),
                     "evidence_ws_score": float(metrics.get("evidence_ws_score", 1.0) or 1.0),
@@ -1843,6 +2304,10 @@ async def reconcile_tick(bot):
                     "evidence_ws_confidence": float(metrics.get("evidence_ws_confidence", 1.0) or 1.0),
                     "evidence_rest_confidence": float(metrics.get("evidence_rest_confidence", 1.0) or 1.0),
                     "evidence_fill_confidence": float(metrics.get("evidence_fill_confidence", 1.0) or 1.0),
+                    "evidence_ws_coverage_ratio": float(metrics.get("evidence_ws_coverage_ratio", 1.0) or 1.0),
+                    "evidence_rest_coverage_ratio": float(metrics.get("evidence_rest_coverage_ratio", 1.0) or 1.0),
+                    "evidence_fill_coverage_ratio": float(metrics.get("evidence_fill_coverage_ratio", 1.0) or 1.0),
+                    "evidence_coverage_ratio": float(metrics.get("evidence_coverage_ratio", 1.0) or 1.0),
                     "evidence_ws_gap_rate": float(metrics.get("evidence_ws_gap_rate", 0.0) or 0.0),
                     "evidence_rest_gap_rate": float(metrics.get("evidence_rest_gap_rate", 0.0) or 0.0),
                     "evidence_fill_gap_rate": float(metrics.get("evidence_fill_gap_rate", 0.0) or 0.0),
@@ -1858,6 +2323,7 @@ async def reconcile_tick(bot):
                     "evidence_contradiction_tags": str(metrics.get("evidence_contradiction_tags", "") or ""),
                     "runtime_gate_degraded": bool(metrics.get("runtime_gate_degraded", False)),
                     "runtime_gate_reason": str(metrics.get("runtime_gate_reason", "") or ""),
+                    "runtime_gate_cause_summary": str(metrics.get("runtime_gate_cause_summary", "stable") or "stable"),
                     "runtime_gate_replay_mismatch_count": int(metrics.get("runtime_gate_replay_mismatch_count", 0) or 0),
                     "runtime_gate_invalid_transition_count": int(
                         metrics.get("runtime_gate_invalid_transition_count", 0) or 0
@@ -1889,9 +2355,18 @@ async def reconcile_tick(bot):
                     "runtime_gate_position_mismatch_count": int(
                         metrics.get("runtime_gate_position_mismatch_count", 0) or 0
                     ),
+                    "runtime_gate_position_mismatch_count_peak": int(
+                        metrics.get("runtime_gate_position_mismatch_count_peak", 0) or 0
+                    ),
                     "runtime_gate_orphan_count": int(metrics.get("runtime_gate_orphan_count", 0) or 0),
+                    "runtime_gate_intent_collision_count": int(
+                        metrics.get("runtime_gate_intent_collision_count", 0) or 0
+                    ),
                     "runtime_gate_protection_coverage_gap_seconds": float(
                         metrics.get("runtime_gate_protection_coverage_gap_seconds", 0.0) or 0.0
+                    ),
+                    "runtime_gate_protection_coverage_gap_seconds_peak": float(
+                        metrics.get("runtime_gate_protection_coverage_gap_seconds_peak", 0.0) or 0.0
                     ),
                     "runtime_gate_replace_race_count": int(metrics.get("runtime_gate_replace_race_count", 0) or 0),
                     "runtime_gate_evidence_contradiction_count": int(
@@ -1920,15 +2395,21 @@ async def reconcile_tick(bot):
                 try:
                     new_mode = str(getattr(guard_knobs, "mode", "") or "").upper()
                     from_mode = prev_guard_mode
+                    trace_prev_mode = str(belief_trace.get("previous_mode", "") or "").strip().upper()
+                    trace_target_mode = str(belief_trace.get("target_mode", "") or "").strip().upper()
                     if "->" in transition_label:
                         from_mode = str(transition_label.split("->", 1)[0] or "").strip().upper() or from_mode
                         new_mode = str(transition_label.split("->", 1)[1] or "").strip().upper() or new_mode
+                    elif trace_prev_mode and trace_target_mode:
+                        from_mode = trace_prev_mode or from_mode
+                        new_mode = trace_target_mode or new_mode
                     await _tel_emit(
                         bot,
                         "execution.posture_transition",
                         data={
                             "previous_mode": str(from_mode),
                             "new_mode": str(new_mode),
+                            "target_mode": str(trace_target_mode or new_mode),
                             "transition": str(transition_label),
                             "cause_tags": str(belief_trace.get("cause_tags", "") or ""),
                             "dominant_contributors": str(
@@ -1936,6 +2417,14 @@ async def reconcile_tick(bot):
                             ),
                             "unlock_requirements": str(
                                 belief_trace.get("unlock_requirements", "") or ""
+                            ),
+                            "recovery_stage": str(belief_trace.get("recovery_stage", "") or ""),
+                            "unlock_conditions": str(belief_trace.get("unlock_conditions", "") or ""),
+                            "next_unlock_sec": float(_safe_float(belief_trace.get("next_unlock_sec", 0.0), 0.0)),
+                            "unlock_snapshot": (
+                                dict(belief_trace.get("unlock_snapshot") or {})
+                                if isinstance(belief_trace.get("unlock_snapshot"), dict)
+                                else {}
                             ),
                             "reason": str(belief_trace.get("reason", "") or ""),
                         },
@@ -1989,11 +2478,41 @@ async def reconcile_tick(bot):
                     "protection_coverage_ttl_breaches": int(
                         metrics.get("protection_coverage_ttl_breaches", 0) or 0
                     ),
+                    "protection_refresh_budget_blocked_count": int(
+                        metrics.get("protection_refresh_budget_blocked_count", 0) or 0
+                    ),
+                    "protection_refresh_budget_force_override_count": int(
+                        metrics.get("protection_refresh_budget_force_override_count", 0) or 0
+                    ),
+                    "protection_refresh_stop_budget_blocked_count": int(
+                        metrics.get("protection_refresh_stop_budget_blocked_count", 0) or 0
+                    ),
+                    "protection_refresh_tp_budget_blocked_count": int(
+                        metrics.get("protection_refresh_tp_budget_blocked_count", 0) or 0
+                    ),
+                    "protection_refresh_stop_force_override_count": int(
+                        metrics.get("protection_refresh_stop_force_override_count", 0) or 0
+                    ),
+                    "protection_refresh_tp_force_override_count": int(
+                        metrics.get("protection_refresh_tp_force_override_count", 0) or 0
+                    ),
                     "mismatch_streak": int(metrics.get("mismatch_streak", 0) or 0),
                     "belief_debt_sec": float(debt_sec),
                     "belief_debt_symbols": int(debt_syms),
                     "worst_symbols": list(worst_symbols),
                     "belief_confidence": float(conf),
+                    "belief_envelope_symbols": int(metrics.get("belief_envelope_symbols", 0) or 0),
+                    "belief_envelope_ambiguous_symbols": int(
+                        metrics.get("belief_envelope_ambiguous_symbols", 0) or 0
+                    ),
+                    "belief_position_interval_width_sum": float(
+                        metrics.get("belief_position_interval_width_sum", 0.0) or 0.0
+                    ),
+                    "belief_position_interval_width_max": float(
+                        metrics.get("belief_position_interval_width_max", 0.0) or 0.0
+                    ),
+                    "belief_live_unknown_symbols": int(metrics.get("belief_live_unknown_symbols", 0) or 0),
+                    "belief_envelope_worst_symbol": str(metrics.get("belief_envelope_worst_symbol", "") or ""),
                     "evidence_confidence": float(metrics.get("evidence_confidence", 1.0) or 1.0),
                     "evidence_ws_score": float(metrics.get("evidence_ws_score", 1.0) or 1.0),
                     "evidence_rest_score": float(metrics.get("evidence_rest_score", 1.0) or 1.0),
@@ -2001,6 +2520,10 @@ async def reconcile_tick(bot):
                     "evidence_ws_confidence": float(metrics.get("evidence_ws_confidence", 1.0) or 1.0),
                     "evidence_rest_confidence": float(metrics.get("evidence_rest_confidence", 1.0) or 1.0),
                     "evidence_fill_confidence": float(metrics.get("evidence_fill_confidence", 1.0) or 1.0),
+                    "evidence_ws_coverage_ratio": float(metrics.get("evidence_ws_coverage_ratio", 1.0) or 1.0),
+                    "evidence_rest_coverage_ratio": float(metrics.get("evidence_rest_coverage_ratio", 1.0) or 1.0),
+                    "evidence_fill_coverage_ratio": float(metrics.get("evidence_fill_coverage_ratio", 1.0) or 1.0),
+                    "evidence_coverage_ratio": float(metrics.get("evidence_coverage_ratio", 1.0) or 1.0),
                     "evidence_ws_last_seen_ts": float(metrics.get("evidence_ws_last_seen_ts", 0.0) or 0.0),
                     "evidence_rest_last_seen_ts": float(metrics.get("evidence_rest_last_seen_ts", 0.0) or 0.0),
                     "evidence_fill_last_seen_ts": float(metrics.get("evidence_fill_last_seen_ts", 0.0) or 0.0),
@@ -2016,9 +2539,21 @@ async def reconcile_tick(bot):
                         metrics.get("evidence_contradiction_burn_rate", 0.0) or 0.0
                     ),
                     "evidence_contradiction_tags": str(metrics.get("evidence_contradiction_tags", "") or ""),
+                    "corr_pressure": float(metrics.get("corr_pressure", 0.0) or 0.0),
+                    "corr_regime": str(metrics.get("corr_regime", "NORMAL") or "NORMAL"),
+                    "corr_confidence": float(metrics.get("corr_confidence", 1.0) or 1.0),
+                    "corr_roll": float(metrics.get("corr_roll", 0.0) or 0.0),
+                    "corr_downside": float(metrics.get("corr_downside", 0.0) or 0.0),
+                    "corr_tail_coupling": float(metrics.get("corr_tail_coupling", 0.0) or 0.0),
+                    "corr_uncertainty_uplift": float(metrics.get("corr_uncertainty_uplift", 0.0) or 0.0),
+                    "corr_group_drift_debt": float(metrics.get("corr_group_drift_debt", 0.0) or 0.0),
+                    "corr_hidden_exposure_risk": float(metrics.get("corr_hidden_exposure_risk", 0.0) or 0.0),
+                    "corr_worst_group": str(metrics.get("corr_worst_group", "") or ""),
+                    "corr_reason_tags": str(metrics.get("corr_reason_tags", "stable") or "stable"),
                     "runtime_gate_available": bool(metrics.get("runtime_gate_available", False)),
                     "runtime_gate_degraded": bool(metrics.get("runtime_gate_degraded", False)),
                     "runtime_gate_reason": str(metrics.get("runtime_gate_reason", "") or ""),
+                    "runtime_gate_cause_summary": str(metrics.get("runtime_gate_cause_summary", "stable") or "stable"),
                     "runtime_gate_replay_mismatch_count": int(metrics.get("runtime_gate_replay_mismatch_count", 0) or 0),
                     "runtime_gate_invalid_transition_count": int(
                         metrics.get("runtime_gate_invalid_transition_count", 0) or 0
@@ -2050,9 +2585,18 @@ async def reconcile_tick(bot):
                     "runtime_gate_position_mismatch_count": int(
                         metrics.get("runtime_gate_position_mismatch_count", 0) or 0
                     ),
+                    "runtime_gate_position_mismatch_count_peak": int(
+                        metrics.get("runtime_gate_position_mismatch_count_peak", 0) or 0
+                    ),
                     "runtime_gate_orphan_count": int(metrics.get("runtime_gate_orphan_count", 0) or 0),
+                    "runtime_gate_intent_collision_count": int(
+                        metrics.get("runtime_gate_intent_collision_count", 0) or 0
+                    ),
                     "runtime_gate_protection_coverage_gap_seconds": float(
                         metrics.get("runtime_gate_protection_coverage_gap_seconds", 0.0) or 0.0
+                    ),
+                    "runtime_gate_protection_coverage_gap_seconds_peak": float(
+                        metrics.get("runtime_gate_protection_coverage_gap_seconds_peak", 0.0) or 0.0
                     ),
                     "runtime_gate_replace_race_count": int(metrics.get("runtime_gate_replace_race_count", 0) or 0),
                     "runtime_gate_evidence_contradiction_count": int(
@@ -2086,6 +2630,33 @@ async def reconcile_tick(bot):
                     "guard_next_unlock_sec": (
                         float(getattr(guard_knobs, "next_unlock_sec", 0.0) or 0.0) if guard_knobs is not None else 0.0
                     ),
+                    "guard_transition": (
+                        str(getattr(guard_knobs, "transition", "") or "") if guard_knobs is not None else ""
+                    ),
+                    "guard_previous_mode": (
+                        str(getattr(guard_knobs, "previous_mode", "") or "") if guard_knobs is not None else ""
+                    ),
+                    "guard_target_mode": (
+                        str(getattr(guard_knobs, "target_mode", "") or "") if guard_knobs is not None else ""
+                    ),
+                    "guard_cause_tags": (
+                        str(getattr(guard_knobs, "cause_tags", "") or "") if guard_knobs is not None else ""
+                    ),
+                    "guard_dominant_contributors": (
+                        str(getattr(guard_knobs, "dominant_contributors", "") or "")
+                        if guard_knobs is not None
+                        else ""
+                    ),
+                    "guard_unlock_requirements": (
+                        str(getattr(guard_knobs, "unlock_requirements", "") or "")
+                        if guard_knobs is not None
+                        else ""
+                    ),
+                    "guard_unlock_snapshot": (
+                        dict(getattr(guard_knobs, "unlock_snapshot", {}) or {})
+                        if guard_knobs is not None
+                        else {}
+                    ),
                 },
                 level=("warning" if mismatch_events > 0 else "info"),
             )
@@ -2103,6 +2674,18 @@ async def reconcile_tick(bot):
                     "belief_debt_symbols": int(debt_syms),
                     "worst_symbols": list(worst_symbols),
                     "belief_confidence": float(conf),
+                    "belief_envelope_symbols": int(metrics.get("belief_envelope_symbols", 0) or 0),
+                    "belief_envelope_ambiguous_symbols": int(
+                        metrics.get("belief_envelope_ambiguous_symbols", 0) or 0
+                    ),
+                    "belief_position_interval_width_sum": float(
+                        metrics.get("belief_position_interval_width_sum", 0.0) or 0.0
+                    ),
+                    "belief_position_interval_width_max": float(
+                        metrics.get("belief_position_interval_width_max", 0.0) or 0.0
+                    ),
+                    "belief_live_unknown_symbols": int(metrics.get("belief_live_unknown_symbols", 0) or 0),
+                    "belief_envelope_worst_symbol": str(metrics.get("belief_envelope_worst_symbol", "") or ""),
                     "evidence_confidence": float(metrics.get("evidence_confidence", 1.0) or 1.0),
                     "evidence_ws_score": float(metrics.get("evidence_ws_score", 1.0) or 1.0),
                     "evidence_rest_score": float(metrics.get("evidence_rest_score", 1.0) or 1.0),
@@ -2110,6 +2693,10 @@ async def reconcile_tick(bot):
                     "evidence_ws_confidence": float(metrics.get("evidence_ws_confidence", 1.0) or 1.0),
                     "evidence_rest_confidence": float(metrics.get("evidence_rest_confidence", 1.0) or 1.0),
                     "evidence_fill_confidence": float(metrics.get("evidence_fill_confidence", 1.0) or 1.0),
+                    "evidence_ws_coverage_ratio": float(metrics.get("evidence_ws_coverage_ratio", 1.0) or 1.0),
+                    "evidence_rest_coverage_ratio": float(metrics.get("evidence_rest_coverage_ratio", 1.0) or 1.0),
+                    "evidence_fill_coverage_ratio": float(metrics.get("evidence_fill_coverage_ratio", 1.0) or 1.0),
+                    "evidence_coverage_ratio": float(metrics.get("evidence_coverage_ratio", 1.0) or 1.0),
                     "evidence_ws_last_seen_ts": float(metrics.get("evidence_ws_last_seen_ts", 0.0) or 0.0),
                     "evidence_rest_last_seen_ts": float(metrics.get("evidence_rest_last_seen_ts", 0.0) or 0.0),
                     "evidence_fill_last_seen_ts": float(metrics.get("evidence_fill_last_seen_ts", 0.0) or 0.0),
@@ -2125,8 +2712,20 @@ async def reconcile_tick(bot):
                         metrics.get("evidence_contradiction_burn_rate", 0.0) or 0.0
                     ),
                     "evidence_contradiction_tags": str(metrics.get("evidence_contradiction_tags", "") or ""),
+                    "corr_pressure": float(metrics.get("corr_pressure", 0.0) or 0.0),
+                    "corr_regime": str(metrics.get("corr_regime", "NORMAL") or "NORMAL"),
+                    "corr_confidence": float(metrics.get("corr_confidence", 1.0) or 1.0),
+                    "corr_roll": float(metrics.get("corr_roll", 0.0) or 0.0),
+                    "corr_downside": float(metrics.get("corr_downside", 0.0) or 0.0),
+                    "corr_tail_coupling": float(metrics.get("corr_tail_coupling", 0.0) or 0.0),
+                    "corr_uncertainty_uplift": float(metrics.get("corr_uncertainty_uplift", 0.0) or 0.0),
+                    "corr_group_drift_debt": float(metrics.get("corr_group_drift_debt", 0.0) or 0.0),
+                    "corr_hidden_exposure_risk": float(metrics.get("corr_hidden_exposure_risk", 0.0) or 0.0),
+                    "corr_worst_group": str(metrics.get("corr_worst_group", "") or ""),
+                    "corr_reason_tags": str(metrics.get("corr_reason_tags", "stable") or "stable"),
                     "runtime_gate_degraded": bool(metrics.get("runtime_gate_degraded", False)),
                     "runtime_gate_reason": str(metrics.get("runtime_gate_reason", "") or ""),
+                    "runtime_gate_cause_summary": str(metrics.get("runtime_gate_cause_summary", "stable") or "stable"),
                     "runtime_gate_replay_mismatch_count": int(metrics.get("runtime_gate_replay_mismatch_count", 0) or 0),
                     "runtime_gate_invalid_transition_count": int(
                         metrics.get("runtime_gate_invalid_transition_count", 0) or 0
@@ -2158,9 +2757,18 @@ async def reconcile_tick(bot):
                     "runtime_gate_position_mismatch_count": int(
                         metrics.get("runtime_gate_position_mismatch_count", 0) or 0
                     ),
+                    "runtime_gate_position_mismatch_count_peak": int(
+                        metrics.get("runtime_gate_position_mismatch_count_peak", 0) or 0
+                    ),
                     "runtime_gate_orphan_count": int(metrics.get("runtime_gate_orphan_count", 0) or 0),
+                    "runtime_gate_intent_collision_count": int(
+                        metrics.get("runtime_gate_intent_collision_count", 0) or 0
+                    ),
                     "runtime_gate_protection_coverage_gap_seconds": float(
                         metrics.get("runtime_gate_protection_coverage_gap_seconds", 0.0) or 0.0
+                    ),
+                    "runtime_gate_protection_coverage_gap_seconds_peak": float(
+                        metrics.get("runtime_gate_protection_coverage_gap_seconds_peak", 0.0) or 0.0
                     ),
                     "runtime_gate_replace_race_count": int(metrics.get("runtime_gate_replace_race_count", 0) or 0),
                     "runtime_gate_evidence_contradiction_count": int(
@@ -2195,6 +2803,24 @@ async def reconcile_tick(bot):
                     "protection_coverage_ttl_breaches": int(
                         metrics.get("protection_coverage_ttl_breaches", 0) or 0
                     ),
+                    "protection_refresh_budget_blocked_count": int(
+                        metrics.get("protection_refresh_budget_blocked_count", 0) or 0
+                    ),
+                    "protection_refresh_budget_force_override_count": int(
+                        metrics.get("protection_refresh_budget_force_override_count", 0) or 0
+                    ),
+                    "protection_refresh_stop_budget_blocked_count": int(
+                        metrics.get("protection_refresh_stop_budget_blocked_count", 0) or 0
+                    ),
+                    "protection_refresh_tp_budget_blocked_count": int(
+                        metrics.get("protection_refresh_tp_budget_blocked_count", 0) or 0
+                    ),
+                    "protection_refresh_stop_force_override_count": int(
+                        metrics.get("protection_refresh_stop_force_override_count", 0) or 0
+                    ),
+                    "protection_refresh_tp_force_override_count": int(
+                        metrics.get("protection_refresh_tp_force_override_count", 0) or 0
+                    ),
                     "guard_mode": (str(getattr(guard_knobs, "mode", "")) if guard_knobs is not None else ""),
                     "allow_entries": (bool(getattr(guard_knobs, "allow_entries", True)) if guard_knobs is not None else True),
                     "guard_recovery_stage": (
@@ -2205,6 +2831,43 @@ async def reconcile_tick(bot):
                     ),
                     "guard_next_unlock_sec": (
                         float(getattr(guard_knobs, "next_unlock_sec", 0.0) or 0.0) if guard_knobs is not None else 0.0
+                    ),
+                    "guard_transition": (
+                        str(getattr(guard_knobs, "transition", "") or "") if guard_knobs is not None else ""
+                    ),
+                    "guard_previous_mode": (
+                        str(getattr(guard_knobs, "previous_mode", "") or "") if guard_knobs is not None else ""
+                    ),
+                    "guard_target_mode": (
+                        str(getattr(guard_knobs, "target_mode", "") or "") if guard_knobs is not None else ""
+                    ),
+                    "guard_cause_tags": (
+                        str(getattr(guard_knobs, "cause_tags", "") or "") if guard_knobs is not None else ""
+                    ),
+                    "guard_dominant_contributors": (
+                        str(getattr(guard_knobs, "dominant_contributors", "") or "")
+                        if guard_knobs is not None
+                        else ""
+                    ),
+                    "guard_unlock_requirements": (
+                        str(getattr(guard_knobs, "unlock_requirements", "") or "")
+                        if guard_knobs is not None
+                        else ""
+                    ),
+                    "guard_unlock_snapshot": (
+                        dict(getattr(guard_knobs, "unlock_snapshot", {}) or {})
+                        if guard_knobs is not None
+                        else {}
+                    ),
+                    "guard_refresh_blocked_level": (
+                        float(getattr(guard_knobs, "protection_refresh_budget_blocked_level", 0.0) or 0.0)
+                        if guard_knobs is not None
+                        else 0.0
+                    ),
+                    "guard_refresh_force_level": (
+                        float(getattr(guard_knobs, "protection_refresh_budget_force_level", 0.0) or 0.0)
+                        if guard_knobs is not None
+                        else 0.0
                     ),
                     "trace": belief_trace,
                 },

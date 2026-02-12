@@ -67,20 +67,31 @@ $env:ADAPTIVE_GUARD_STATE = "logs/telemetry_adaptive_guard.json"
 $env:RECONCILE_FIRST_GATE_SEVERITY_THRESHOLD = "0.85"
 $env:RECONCILE_FIRST_GATE_SEVERITY_STREAK_THRESHOLD = "2"
 $env:RELIABILITY_GATE_PATH = "logs/reliability_gate.txt"
+$env:RELIABILITY_GATE_WINDOW_SECONDS = "14400"
+$env:RELIABILITY_GATE_STALE_SECONDS = "900"
 $env:RELIABILITY_GATE_MAX_REPLAY_MISMATCH = "0"
 $env:RELIABILITY_GATE_MAX_INVALID_TRANSITIONS = "0"
 $env:RELIABILITY_GATE_MIN_JOURNAL_COVERAGE = "0.90"
 $env:RELIABILITY_GATE_MAX_POSITION_MISMATCH = "1"
+$env:RELIABILITY_GATE_MAX_POSITION_MISMATCH_PEAK = "2"
 $env:RELIABILITY_GATE_MAX_ORPHAN_COUNT = "0"
+$env:RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT = "0"
+$env:INTENT_COLLISION_CRITICAL_THRESHOLD = "1"
+$env:INTENT_COLLISION_CRITICAL_STREAK = "2"
 $env:RELIABILITY_GATE_MAX_COVERAGE_GAP_SECONDS = "0"
+$env:RELIABILITY_GATE_MAX_COVERAGE_GAP_SECONDS_PEAK = "30"
 $env:RELIABILITY_GATE_MAX_REPLACE_RACE_COUNT = "1"
 $env:RELIABILITY_GATE_MAX_EVIDENCE_CONTRADICTION_COUNT = "2"
+$env:CORR_STRESS_THRESHOLD = "1"
+$env:CORR_PRESSURE_THRESHOLD = "0.90"
+$env:CORR_EXIT_PNL_DROP_THRESHOLD = "0.10"
 $env:RUNTIME_RELIABILITY_COUPLING = "1"
 $env:BELIEF_RUNTIME_GATE_RECOVER_SEC = "120"
 $env:BELIEF_RUNTIME_GATE_WARMUP_NOTIONAL_SCALE = "0.50"
 $env:BELIEF_RUNTIME_GATE_WARMUP_LEVERAGE_SCALE = "0.60"
 $env:BELIEF_RUNTIME_GATE_CRITICAL_TRIP_THRESHOLD = "4.0"
 $env:BELIEF_RUNTIME_GATE_CRITICAL_CLEAR_THRESHOLD = "2.0"
+$env:BELIEF_CONTROLLER_HALT_SEC = "0"
 $env:BELIEF_RECONCILE_FIRST_GATE_COUNT_THRESHOLD = "2"
 $env:BELIEF_RECONCILE_FIRST_GATE_SEVERITY_THRESHOLD = "0.85"
 $env:BELIEF_RECONCILE_FIRST_GATE_STREAK_THRESHOLD = "2"
@@ -353,6 +364,11 @@ function Invoke-Preflight {
   Write-Host ("Risk limits: MAX_DAILY_LOSS_PCT={0} MAX_DRAWDOWN_PCT={1}" -f $env:MAX_DAILY_LOSS_PCT, $env:MAX_DRAWDOWN_PCT)
   Write-Host ("Correlation caps: groups={0} max_positions={1} max_notional={2}" -f $env:CORR_GROUPS, $env:CORR_GROUP_MAX_POSITIONS, $env:CORR_GROUP_MAX_NOTIONAL_USDT)
   Write-Host ("Reliability gate: coupling={0} mismatch_max={1} invalid_max={2} coverage_min={3}" -f $env:RUNTIME_RELIABILITY_COUPLING, $env:RELIABILITY_GATE_MAX_REPLAY_MISMATCH, $env:RELIABILITY_GATE_MAX_INVALID_TRANSITIONS, $env:RELIABILITY_GATE_MIN_JOURNAL_COVERAGE)
+  Write-Host ("Reliability gate peaks: position_peak_max={0} coverage_gap_peak_sec_max={1}" -f $env:RELIABILITY_GATE_MAX_POSITION_MISMATCH_PEAK, $env:RELIABILITY_GATE_MAX_COVERAGE_GAP_SECONDS_PEAK)
+  Write-Host ("Reliability gate restart safety: orphan_max={0} intent_collision_max={1}" -f $env:RELIABILITY_GATE_MAX_ORPHAN_COUNT, $env:RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT)
+  Write-Host ("Intent-collision notifier: threshold={0} streak={1}" -f $env:INTENT_COLLISION_CRITICAL_THRESHOLD, $env:INTENT_COLLISION_CRITICAL_STREAK)
+  Write-Host ("Reliability gate window/stale: window_sec={0} stale_sec={1}" -f $env:RELIABILITY_GATE_WINDOW_SECONDS, $env:RELIABILITY_GATE_STALE_SECONDS)
+  Write-Host ("Correlation thresholds: stress={0} pressure={1} exit_pnl_drop={2}" -f $env:CORR_STRESS_THRESHOLD, $env:CORR_PRESSURE_THRESHOLD, $env:CORR_EXIT_PNL_DROP_THRESHOLD)
   Write-Host ("Runtime critical trip: threshold={0} clear={1}" -f $env:BELIEF_RUNTIME_GATE_CRITICAL_TRIP_THRESHOLD, $env:BELIEF_RUNTIME_GATE_CRITICAL_CLEAR_THRESHOLD)
   Write-Host ("Reconcile-first gate: count={0} severity={1} streak={2}" -f $env:BELIEF_RECONCILE_FIRST_GATE_COUNT_THRESHOLD, $env:BELIEF_RECONCILE_FIRST_GATE_SEVERITY_THRESHOLD, $env:BELIEF_RECONCILE_FIRST_GATE_STREAK_THRESHOLD)
   Write-Host ("Recovery staging: runtime_warmup_sec={0} post_red_warmup_sec={1}" -f $env:BELIEF_RUNTIME_GATE_RECOVER_SEC, $env:BELIEF_POST_RED_WARMUP_SEC)
@@ -406,6 +422,13 @@ if ($runSmoke) {
     Write-Host "Smoke assertion failed. Refusing launch."
     exit 3
   }
+}
+
+Write-Host "Refreshing reliability gate snapshot..."
+python tools/reliability_gate_refresh.py --window-seconds $env:RELIABILITY_GATE_WINDOW_SECONDS --allow-missing
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "Reliability gate refresh failed. Refusing launch."
+  exit 4
 }
 
 Write-Host "Environment configured. Starting bot..."

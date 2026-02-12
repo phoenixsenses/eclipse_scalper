@@ -136,6 +136,28 @@ The top strip in `telemetry_dashboard_page.html` now color-codes reliability cou
 - Refresh budget blocked: `TELEMETRY_DASHBOARD_REFRESH_BLOCKED_WARN`, `TELEMETRY_DASHBOARD_REFRESH_BLOCKED_CRIT`
 - Force override count: `TELEMETRY_DASHBOARD_FORCE_OVERRIDE_WARN`, `TELEMETRY_DASHBOARD_FORCE_OVERRIDE_CRIT`
 
+Runtime reliability gate current/peak thresholds:
+
+- `RELIABILITY_GATE_MAX_POSITION_MISMATCH`:
+  - Current position mismatch cap used for immediate posture degrade.
+- `RELIABILITY_GATE_MAX_POSITION_MISMATCH_PEAK`:
+  - Peak position mismatch cap over the gate window (degrades even if current recovers).
+- `RELIABILITY_GATE_MAX_ORPHAN_COUNT`:
+  - Current orphan action cap from rebuild decisions.
+- `RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT`:
+  - Current cap for restart `intent_id` collisions detected during rebuild/orphan classification.
+- `RELIABILITY_GATE_MAX_COVERAGE_GAP_SECONDS`:
+  - Current protection coverage gap cap (seconds).
+- `RELIABILITY_GATE_MAX_COVERAGE_GAP_SECONDS_PEAK`:
+  - Peak coverage gap cap over the gate window.
+
+Operational intent:
+
+- `current` thresholds enforce live, immediate safety posture.
+- `peak` thresholds prevent instant re-open after recent instability and support recover-slow behavior.
+- Runtime coupling remains entry-only; exits are not blocked by gate thresholds.
+- Non-zero `intent_collision_count` should be treated as restart-state ambiguity and investigated before expecting entry recovery.
+
 Related refresh-budget controls (runtime):
 
 - `RECONCILE_STOP_REFRESH_BUDGET_WINDOW_SEC`, `RECONCILE_STOP_REFRESH_MAX_PER_WINDOW`
@@ -151,11 +173,106 @@ Related refresh-budget controls (runtime):
   - `BELIEF_PROTECTION_REFRESH_WARMUP_MIN_CONF_EXTRA`
   - `BELIEF_PROTECTION_REFRESH_WARMUP_COOLDOWN_EXTRA_SEC`
 
+Correlation threshold semantics (shared across summary + notifier):
+
+- `CORR_STRESS_THRESHOLD`:
+  - Trigger count for stress-regime correlation pressure events.
+  - Used by `tools/telemetry_alert_summary.py --corr-stress-threshold`.
+  - Used by `tools/telemetry_dashboard_notify.py --corr-stress-threshold`.
+- `CORR_PRESSURE_THRESHOLD`:
+  - Absolute latest `corr_pressure` trigger.
+  - Used by `tools/telemetry_alert_summary.py --corr-pressure-threshold`.
+  - Used by `tools/telemetry_dashboard_notify.py --corr-pressure-threshold`.
+- `CORR_EXIT_PNL_DROP_THRESHOLD`:
+  - Absolute `avg_pnl` delta trigger where stress regime underperforms normal regime.
+  - Used by `tools/telemetry_alert_summary.py --corr-exit-pnl-drop-threshold`.
+  - Used by `tools/telemetry_dashboard_notify.py --corr-exit-pnl-drop-threshold`.
+- Backward compatibility:
+  - `CORR_STRESS_CRITICAL_THRESHOLD` and `CORR_PRESSURE_CRITICAL_THRESHOLD` are still accepted as fallback/default input.
+  - `CORR_EXIT_PNL_DROP_CRITICAL_THRESHOLD` is still accepted as fallback/default input.
+  - `--corr-stress-critical-threshold`, `--corr-pressure-critical-threshold`, and `--corr-exit-pnl-drop-critical-threshold` remain as legacy aliases in notifier.
+
 Recommended approach:
 
 1. Keep defaults for one full day of live telemetry.
 2. Tighten WARN first (not CRIT) if you need earlier visibility.
 3. Lower CRIT only when you have repeated incidents requiring faster clamp triage.
+
+## Incident Playbook: Intent Collision Spike
+
+Use this when `intent_collision_count` appears in reliability gate output or notifier escalates due to collision signals.
+
+Primary controls:
+
+- Runtime gate threshold:
+  - `RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT`
+- Notifier immediate escalation:
+  - `INTENT_COLLISION_CRITICAL_THRESHOLD`
+  - CLI: `--intent-collision-critical-threshold`
+- Notifier streak escalation:
+  - `INTENT_COLLISION_CRITICAL_STREAK`
+  - CLI: `--intent-collision-critical-streak`
+
+Expected behavior:
+
+- Entry posture clamps quickly (`allow_entries=false` via runtime gate / belief controller).
+- Exits remain unaffected (entry-only safety coupling invariant).
+- Notifier state persists:
+  - `reliability_intent_collision_count`
+  - `intent_collision_streak`
+  - `level=critical` when threshold or streak condition is met.
+
+Immediate checks:
+
+1. Confirm reliability gate signal:
+   - `intent_collision_count` in `logs/reliability_gate.txt`
+2. Confirm runtime posture:
+   - latest `execution.belief_state` includes `guard_cause_tags` with `runtime_gate_intent_collision`
+3. Confirm notifier state:
+   - `logs/telemetry_dashboard_notify_state.json` shows `intent_collision_streak` and current `level`
+
+Recovery/unlock checks before expecting entry re-enable:
+
+1. `intent_collision_count` returns to zero for fresh gate windows.
+2. Runtime gate cause summary no longer includes collision contributors.
+3. Standard unlock conditions continue to pass:
+   - healthy ticks
+   - journal coverage target
+   - contradiction clear window
+   - protection gap target
+
+## Workflow Dispatch Presets: Collision Escalate Then Clear
+
+Use these presets for one-click smoke validation of collision escalation and reset behavior.
+
+Escalate (expect critical + streak=1):
+
+```bash
+gh workflow run .github/workflows/telemetry-dashboard.yml \
+  -R phoenixsenses/eclipse_scalper \
+  -f simulate_intent_collision_count=1 \
+  -f expected_notifier_level=critical \
+  -f expected_intent_collision_streak=1
+```
+
+Clear/reset (expect streak reset to 0; level may remain critical only if other independent signals are active):
+
+```bash
+gh workflow run .github/workflows/telemetry-dashboard.yml \
+  -R phoenixsenses/eclipse_scalper \
+  -f simulate_intent_collision_clear=true \
+  -f expected_intent_collision_streak=0
+```
+
+Optional strict clear check (only when you expect no other critical contributors):
+
+```bash
+gh workflow run .github/workflows/telemetry-dashboard.yml \
+  -R phoenixsenses/eclipse_scalper \
+  -f simulate_intent_collision_clear=true \
+  -f expected_notifier_level=normal \
+  -f expected_intent_collision_streak=0
+```
 
 ## Escalation Rules
 

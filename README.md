@@ -902,9 +902,34 @@ gh workflow run .github/workflows/telemetry-dashboard.yml \
 
 This injects a non-RED recovery stage and should reset `recovery_red_lock_streak` to `0` (de-escalation path). Confirm values in the workflow's **Inspect notifier state** step.
 
+Collision escalate/clear smoke presets:
+
+```bash
+gh workflow run .github/workflows/telemetry-dashboard.yml \
+  -R phoenixsenses/eclipse_scalper \
+  -f simulate_intent_collision_count=1 \
+  -f expected_notifier_level=critical \
+  -f expected_intent_collision_streak=1
+```
+
+```bash
+gh workflow run .github/workflows/telemetry-dashboard.yml \
+  -R phoenixsenses/eclipse_scalper \
+  -f simulate_intent_collision_clear=true \
+  -f expected_intent_collision_streak=0
+```
+
+Use `-f expected_notifier_level=normal` on the clear run only when you expect no other active critical contributors.
+
 ### Notifications
 
 The scheduled job now runs `python eclipse_scalper/tools/telemetry_dashboard_notify.py --path logs/telemetry.jsonl --codes-per-symbol --codes-top 4`. This wrapper prints the dashboard snapshot to the workflow log and posts the same summary to Telegram when `TELEGRAM_TOKEN` and `TELEGRAM_CHAT_ID` are configured as [repository secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets). The notifier reuses `eclipse_scalper.notifications.telegram.Notifier`, so you get the same `speak` behavior already used elsewhere.
+
+Correlation thresholds are now shared across tools (use these canonical names for new configs):
+- `CORR_STRESS_THRESHOLD` / `--corr-stress-threshold`
+- `CORR_PRESSURE_THRESHOLD` / `--corr-pressure-threshold`
+- `CORR_EXIT_PNL_DROP_THRESHOLD` / `--corr-exit-pnl-drop-threshold`
+for both `telemetry_alert_summary.py` and `telemetry_dashboard_notify.py`. Legacy `*_CRITICAL_THRESHOLD` env vars plus notifier aliases (`--corr-stress-critical-threshold`, `--corr-pressure-critical-threshold`, `--corr-exit-pnl-drop-critical-threshold`) remain supported for compatibility.
 
 Leave the secrets empty if you only need GitHub Actions visibility; the job still succeeds and simply skips the Telegram send. If you do set those secrets, keep an eye on Telegram so you know when the latest snapshot hits critical topics like `exit.*` events or repeated `ERR_*` codes.
 

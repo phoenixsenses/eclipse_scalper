@@ -68,21 +68,28 @@ def replay(path: Path, *, correlation_id: str = "", symbol: str = "") -> Dict[st
     events = _load(path)
     flt = [e for e in events if _matches(e, correlation_id, symbol)]
     transitions = []
+    position_transitions = []
     for e in flt:
         if str(e.get("event") or "") != "state.transition":
             continue
         data = e.get("data") if isinstance(e.get("data"), dict) else {}
-        transitions.append(
-            {
-                "ts": e.get("ts"),
-                "machine": data.get("machine"),
-                "entity": data.get("entity"),
-                "from": data.get("state_from"),
-                "to": data.get("state_to"),
-                "reason": data.get("reason"),
-            }
-        )
-    last_state = transitions[-1]["to"] if transitions else ""
+        row = {
+            "ts": e.get("ts"),
+            "machine": data.get("machine"),
+            "entity": data.get("entity"),
+            "from": data.get("state_from"),
+            "to": data.get("state_to"),
+            "reason": data.get("reason"),
+        }
+        transitions.append(row)
+        if str(data.get("machine") or "").strip().lower() == "position_belief":
+            position_transitions.append(row)
+    # For symbol-scoped replay, prefer the authoritative position-belief lifecycle
+    # when present to avoid unrelated order-intent noise dominating last_state.
+    if symbol and (not correlation_id) and position_transitions:
+        last_state = position_transitions[-1]["to"] if position_transitions else ""
+    else:
+        last_state = transitions[-1]["to"] if transitions else ""
     return {
         "count": len(flt),
         "transitions": transitions,

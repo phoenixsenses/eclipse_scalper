@@ -5,6 +5,7 @@ Unit-style tests for entry_loop helpers.
 
 from __future__ import annotations
 
+import asyncio
 import sys
 import unittest
 from pathlib import Path
@@ -120,14 +121,30 @@ class EntryLoopTelemetryTests(unittest.TestCase):
         bot = SimpleNamespace()
         bot.cfg = SimpleNamespace()
         bot.state = SimpleNamespace(kill_metrics={})
-        entry_loop._record_reconcile_first_gate(bot, "BTCUSDT", 0.9, "runtime_gate")
-        entry_loop._record_reconcile_first_gate(bot, "BTCUSDT", 0.95, "runtime_gate")
+        entry_loop._record_reconcile_first_gate(
+            bot,
+            "BTCUSDT",
+            0.9,
+            "runtime_gate",
+            corr={"corr_pressure": 0.88, "corr_regime": "STRESS", "corr_reason_tags": "tail_coupling"},
+        )
+        entry_loop._record_reconcile_first_gate(
+            bot,
+            "BTCUSDT",
+            0.95,
+            "runtime_gate",
+            corr={"corr_pressure": 0.91, "corr_regime": "STRESS", "corr_reason_tags": "tail_coupling"},
+        )
         km = dict(getattr(bot.state, "kill_metrics", {}) or {})
         self.assertGreaterEqual(int(km.get("reconcile_first_gate_count", 0)), 2)
         self.assertGreaterEqual(int(km.get("reconcile_first_gate_current_streak", 0)), 2)
         self.assertGreaterEqual(int(km.get("reconcile_first_gate_max_streak", 0)), 2)
+        self.assertEqual(str(km.get("reconcile_first_gate_last_corr_regime", "")), "STRESS")
+        self.assertGreater(float(km.get("reconcile_first_gate_last_corr_pressure", 0.0) or 0.0), 0.0)
         events = list(km.get("reconcile_first_gate_events", []) or [])
         self.assertGreaterEqual(len(events), 2)
+        self.assertEqual(str((events[-1] or {}).get("corr_regime", "")), "STRESS")
+        self.assertGreater(float((events[-1] or {}).get("corr_pressure", 0.0) or 0.0), 0.0)
 
     def test_resolve_symbol_guard_applies_override(self):
         knobs = {
@@ -173,6 +190,63 @@ class EntryLoopTelemetryTests(unittest.TestCase):
         self.assertGreaterEqual(low, 10.0)
         self.assertLessEqual(high, 60.0)
         self.assertGreater(high, low)
+
+    def test_corr_snapshot_reads_reconcile_metrics(self):
+        bot = SimpleNamespace()
+        bot.state = SimpleNamespace(
+            reconcile_metrics={
+                "corr_pressure": 0.82,
+                "corr_regime": "STRESS",
+                "corr_confidence": 0.61,
+                "corr_reason_tags": "tail_coupling,belief_uplift",
+                "corr_worst_group": "MAJOR",
+            }
+        )
+        snap = entry_loop._corr_snapshot(bot, None)
+        self.assertAlmostEqual(float(snap.get("corr_pressure", 0.0)), 0.82, places=6)
+        self.assertEqual(str(snap.get("corr_regime", "")), "STRESS")
+        self.assertEqual(str(snap.get("corr_worst_group", "")), "MAJOR")
+
+    def test_emit_entry_decision_includes_corr_context(self):
+        bot = SimpleNamespace()
+        bot.state = SimpleNamespace(
+            reconcile_metrics={
+                "corr_pressure": 0.77,
+                "corr_regime": "TIGHTENING",
+                "corr_confidence": 0.72,
+                "corr_reason_tags": "downside_corr",
+            }
+        )
+        emitted: list[dict] = []
+        prev_emit = entry_loop.emit
+        prev_emit_throttled = entry_loop.emit_throttled
+
+        async def _fake_emit(_bot, event, data=None, symbol=None, level="info"):
+            emitted.append({"event": event, "data": dict(data or {}), "symbol": symbol, "level": level})
+
+        try:
+            entry_loop.emit = _fake_emit
+            entry_loop.emit_throttled = None
+            rec = entry_loop.compute_entry_decision(
+                symbol="BTCUSDT",
+                signal={"action": "buy", "confidence": 0.8},
+                guard_knobs={"allow_entries": True, "min_entry_conf": 0.2},
+                min_confidence=0.2,
+                amount=1.0,
+                order_type="market",
+                price=None,
+                planned_notional=10.0,
+                stage="propose",
+            )
+            asyncio.run(entry_loop._emit_entry_decision(bot, rec))
+        finally:
+            entry_loop.emit = prev_emit
+            entry_loop.emit_throttled = prev_emit_throttled
+
+        self.assertTrue(emitted)
+        payload = emitted[-1]["data"]
+        self.assertAlmostEqual(float(payload.get("corr_pressure", 0.0)), 0.77, places=6)
+        self.assertEqual(str(payload.get("corr_regime", "")), "TIGHTENING")
 
 
 if __name__ == "__main__":

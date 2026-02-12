@@ -218,6 +218,59 @@ def should_refresh_protection(
     return False
 
 
+def should_allow_refresh_budget(
+    state: dict[str, Any],
+    *,
+    now_ts: Optional[float] = None,
+    window_sec: float = 60.0,
+    max_refresh_per_window: int = 3,
+    force: bool = False,
+) -> dict[str, Any]:
+    """
+    Gate protection refresh churn by limiting refresh count per window.
+
+    The caller can set force=True to bypass the budget for safety-critical cases
+    (for example, severe under-coverage or a TTL-breached protection gap).
+    """
+    now = float(now_ts if now_ts is not None else time.time())
+    if not isinstance(state, dict):
+        state = {}
+    win = max(0.0, _safe_float(window_sec, 0.0))
+    limit = int(max(0, int(_safe_float(max_refresh_per_window, 0.0))))
+    if force or limit <= 0 or win <= 0.0:
+        return {"allowed": True, "count": 0, "limit": int(limit), "force": bool(force)}
+
+    entries = state.get("refresh_events")
+    if not isinstance(entries, list):
+        entries = []
+    cutoff = float(now - win)
+    kept: list[float] = []
+    for ts in entries:
+        t = _safe_float(ts, -1.0)
+        if t >= cutoff:
+            kept.append(float(t))
+    state["refresh_events"] = kept
+    count = len(kept)
+    if count >= limit:
+        return {"allowed": False, "count": int(count), "limit": int(limit), "force": False}
+    return {"allowed": True, "count": int(count), "limit": int(limit), "force": False}
+
+
+def record_refresh_budget_event(
+    state: dict[str, Any],
+    *,
+    now_ts: Optional[float] = None,
+) -> None:
+    now = float(now_ts if now_ts is not None else time.time())
+    if not isinstance(state, dict):
+        return
+    entries = state.get("refresh_events")
+    if not isinstance(entries, list):
+        entries = []
+        state["refresh_events"] = entries
+    entries.append(float(now))
+
+
 def update_coverage_gap_state(
     state: dict[str, Any],
     *,

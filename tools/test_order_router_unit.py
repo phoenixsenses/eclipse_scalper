@@ -258,13 +258,79 @@ class OrderRouterCreateTests(unittest.TestCase):
             os.environ["CORR_GROUPS"] = "MAJOR:BTCUSDT,ETHUSDT"
             os.environ["LEVERAGE_BY_GROUP"] = "MAJOR=12"
             os.environ["LEVERAGE_BTCUSDT"] = "18"
-
             bot = DummyBot(DummyEx({}), DummyData({"BTCUSDT": "BTC/USDT:USDT"}))
             lev = order_router._resolve_leverage(bot, "BTCUSDT", "BTC/USDT:USDT")
             self.assertEqual(lev, 12)
         finally:
             os.environ.clear()
             os.environ.update(env)
+
+    def test_router_send_retries_skip_submitted_to_submitted_transition(self):
+        sym_raw = "BTC/USDT:USDT"
+        sym = "BTC/USDT"
+        market = {"contract": True}
+        calls = {"n": 0}
+        transitions = []
+
+        def behavior(_kwargs):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                raise TimeoutError("timed out")
+            return {"id": "ok", "status": "open", "params": _kwargs}
+
+        class _Journal:
+            @staticmethod
+            def journal_transition(_bot, **kw):
+                transitions.append((str(kw.get("state_from") or ""), str(kw.get("state_to") or ""), str(kw.get("reason") or "")))
+
+            @staticmethod
+            def append_event(_bot, _event, _data):
+                return None
+
+        ex = DummyEx(
+            {},
+            markets={sym_raw: market},
+            market_meta=market,
+            dual_side=True,
+            create_behavior=behavior,
+        )
+        bot = DummyBot(ex, DummyData({"BTCUSDT": sym_raw}))
+        bot.cfg.ROUTER_RETRY_BASE_SEC = 0.0
+        bot.cfg.ROUTER_RETRY_MAX_DELAY_SEC = 0.0
+        bot.cfg.ROUTER_RETRY_JITTER_PCT = 0.0
+
+        orig_validate = order_router._validate_and_normalize_order
+        orig_sleep = order_router.asyncio.sleep
+        orig_journal = order_router._event_journal
+
+        async def _ok_validate(*_args, **_kwargs):
+            return True, 1.0, None, "ok"
+
+        async def _noop_sleep(_delay):
+            return None
+
+        order_router._validate_and_normalize_order = _ok_validate
+        order_router.asyncio.sleep = _noop_sleep
+        order_router._event_journal = _Journal
+        try:
+            res = asyncio.run(
+                order_router.create_order(
+                    bot,
+                    symbol=sym,
+                    type="MARKET",
+                    side="buy",
+                    amount=1.0,
+                    params={},
+                    retries=2,
+                )
+            )
+        finally:
+            order_router._validate_and_normalize_order = orig_validate
+            order_router.asyncio.sleep = orig_sleep
+            order_router._event_journal = orig_journal
+
+        self.assertIsNotNone(res)
+        self.assertFalse(any(a == "SUBMITTED" and b == "SUBMITTED" for (a, b, _r) in transitions))
 
     def test_resolve_leverage_group_dynamic_scaling(self):
         env = dict(os.environ)

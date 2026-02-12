@@ -72,3 +72,33 @@ def journal_transition(
             "age_ms": int(_safe_float((meta or {}).get("age_ms"), 0.0)),
         },
     )
+
+
+def journal_intent_lifecycle(
+    bot,
+    *,
+    intent_id: str,
+    state: str,
+    symbol: str = "",
+    reason: str = "",
+    is_exit: bool = False,
+    client_order_id: str = "",
+    order_id: str = "",
+    correlation_id: str = "",
+    meta: Optional[Dict[str, Any]] = None,
+) -> bool:
+    return append_event(
+        bot,
+        "intent.lifecycle",
+        {
+            "intent_id": str(intent_id or "").strip(),
+            "state": str(state or "").strip().upper(),
+            "symbol": str(symbol or "").strip().upper(),
+            "is_exit": bool(is_exit),
+            "reason": str(reason or ""),
+            "client_order_id": str(client_order_id or "").strip(),
+            "order_id": str(order_id or "").strip(),
+            "correlation_id": str(correlation_id or "").strip(),
+            "meta": dict(meta or {}),
+        },
+    )

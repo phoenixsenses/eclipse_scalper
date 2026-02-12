@@ -319,6 +319,113 @@ class OrderRouterReplaceTests(unittest.TestCase):
         self.assertTrue(payloads)
         self.assertTrue(bool(payloads[0].get("over_ambiguity_symbol")))
 
+    def test_cancel_replace_envelope_block_records_reconcile_pressure_and_hint(self):
+        bot = DummyBot(DummyEx(), DummyData({"BTCUSDT": "BTC/USDT:USDT"}))
+        bot.state.kill_metrics = {}
+        bot.state.run_context = {}
+
+        async def _fake_run_cancel_replace(**_kwargs):
+            return types.SimpleNamespace(
+                success=False,
+                state="INTENT_CREATED",
+                reason="replace_envelope_block",
+                attempts=0,
+                ambiguity_count=0,
+                last_status="",
+            )
+
+        orig_replace = order_router._replace_manager
+        order_router._replace_manager = types.SimpleNamespace(run_cancel_replace=_fake_run_cancel_replace)
+        try:
+            res = asyncio.run(
+                order_router.cancel_replace_order(
+                    bot,
+                    cancel_order_id="oid-1",
+                    symbol="BTC/USDT",
+                    type="LIMIT",
+                    side="buy",
+                    amount=1.0,
+                    price=100.0,
+                    retries=1,
+                )
+            )
+        finally:
+            order_router._replace_manager = orig_replace
+
+        self.assertIsNone(res)
+        km = dict(getattr(bot.state, "kill_metrics", {}) or {})
+        self.assertGreaterEqual(int(km.get("reconcile_first_gate_count", 0) or 0), 1)
+        self.assertIn("replace_envelope_block", str(km.get("reconcile_first_gate_last_reason", "") or ""))
+        hints = bot.state.run_context.get("reconcile_hints") or {}
+        self.assertIn("BTCUSDT", hints)
+        self.assertIn("replace_envelope_block", str((hints.get("BTCUSDT") or {}).get("reason") or ""))
+
+    def test_cancel_replace_ambiguity_marks_budget_and_next_call_blocks(self):
+        bot = DummyBot(DummyEx(), DummyData({"BTCUSDT": "BTC/USDT:USDT"}))
+        bot.state.run_context = {}
+        call_count = {"manager": 0}
+        captured = []
+        env = dict(os.environ)
+        os.environ["ROUTER_REPLACE_BUDGET_WINDOW_SEC"] = "300"
+        os.environ["ROUTER_REPLACE_BUDGET_MAX_GLOBAL"] = "10"
+        os.environ["ROUTER_REPLACE_BUDGET_MAX_PER_SYMBOL"] = "10"
+        os.environ["ROUTER_REPLACE_BUDGET_MAX_AMBIGUITY_PER_SYMBOL"] = "1"
+
+        async def _fake_emit(_bot, event, data=None, **_kwargs):
+            captured.append((str(event), dict(data or {})))
+
+        async def _fake_run_cancel_replace(**_kwargs):
+            call_count["manager"] += 1
+            return types.SimpleNamespace(
+                success=False,
+                state="REPLACE_RACE",
+                reason="replace_ambiguity_cap",
+                attempts=1,
+                ambiguity_count=1,
+                last_status="unknown",
+            )
+
+        orig_replace = order_router._replace_manager
+        orig_emit = order_router.emit
+        order_router._replace_manager = types.SimpleNamespace(run_cancel_replace=_fake_run_cancel_replace)
+        order_router.emit = _fake_emit
+        try:
+            res1 = asyncio.run(
+                order_router.cancel_replace_order(
+                    bot,
+                    cancel_order_id="oid-1",
+                    symbol="BTC/USDT",
+                    type="LIMIT",
+                    side="buy",
+                    amount=1.0,
+                    price=100.0,
+                    retries=1,
+                )
+            )
+            res2 = asyncio.run(
+                order_router.cancel_replace_order(
+                    bot,
+                    cancel_order_id="oid-2",
+                    symbol="BTC/USDT",
+                    type="LIMIT",
+                    side="buy",
+                    amount=1.0,
+                    price=100.0,
+                    retries=1,
+                )
+            )
+        finally:
+            order_router._replace_manager = orig_replace
+            order_router.emit = orig_emit
+            os.environ.clear()
+            os.environ.update(env)
+
+        self.assertIsNone(res1)
+        self.assertIsNone(res2)
+        # First call hits manager and marks ambiguity; second call should budget-block before manager.
+        self.assertEqual(int(call_count["manager"]), 1)
+        self.assertTrue(any(ev == "order.replace_budget_block" for ev, _ in captured))
+
 
 if __name__ == "__main__":
     unittest.main()

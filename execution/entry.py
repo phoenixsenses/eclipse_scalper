@@ -794,6 +794,8 @@ async def _emergency_flatten(bot, sym_raw: str, side: str, qty: float, why: str,
                 intent_reduce_only=True,
                 hedge_side_hint=pos_side,
                 retries=6,
+                intent_component="entry",
+                intent_kind="ENTRY_EMERGENCY_FLATTEN",
             )
             return True
         except Exception as e:
@@ -850,6 +852,8 @@ async def _place_stop_ladder(
             hedge_side_hint=pos_side,
             client_order_id=cid_a,  # ✅ stable id
             retries=6,
+            intent_component="entry",
+            intent_kind="STOP_RESTORE",
         )
         if isinstance(order, dict) and order.get("id"):
             return order.get("id")
@@ -881,6 +885,8 @@ async def _place_stop_ladder(
             hedge_side_hint=pos_side,
             client_order_id=cid_b,  # ✅ stable id, different from A
             retries=6,
+            intent_component="entry",
+            intent_kind="STOP_RESTORE",
         )
         if isinstance(order, dict) and order.get("id"):
             return order.get("id")
@@ -929,6 +935,8 @@ async def _place_trailing_ladder(
             callback_rate=float(cb),
             hedge_side_hint=pos_side,
             retries=6,
+            intent_component="entry",
+            intent_kind="TRAILING_RESTORE",
         )
         return bool(order)
     except Exception as e1:
@@ -948,6 +956,8 @@ async def _place_trailing_ladder(
             activation_price=float(activation_price),
             hedge_side_hint=pos_side,
             retries=6,
+            intent_component="entry",
+            intent_kind="TRAILING_RESTORE",
         )
         return bool(order)
     except Exception as e2:
@@ -1268,6 +1278,8 @@ async def try_enter(bot, sym: str, side: str):
                     params=p,
                     intent_reduce_only=False,
                     retries=6,
+                    intent_component="entry",
+                    intent_kind="ENTRY",
                 )
 
                 oid = (order or {}).get("id") if isinstance(order, dict) else None
@@ -1318,6 +1330,8 @@ async def try_enter(bot, sym: str, side: str):
                 params=p_entry,
                 intent_reduce_only=False,
                 retries=6,
+                intent_component="entry",
+                intent_kind="ENTRY",
             )
 
             filled = _order_filled(order)
@@ -1425,6 +1439,8 @@ async def try_enter(bot, sym: str, side: str):
                     intent_reduce_only=True,
                     hedge_side_hint=pos_side,
                     retries=6,
+                    intent_component="entry",
+                    intent_kind="ENTRY_TP",
                 )
             else:
                 log_entry.warning(f"{k} TP1 skipped (amount {tp1_amount:.6f} < min {min_amt:.6f})")
@@ -1441,6 +1457,8 @@ async def try_enter(bot, sym: str, side: str):
                     intent_reduce_only=True,
                     hedge_side_hint=pos_side,
                     retries=6,
+                    intent_component="entry",
+                    intent_kind="ENTRY_TP",
                 )
             else:
                 log_entry.warning(f"{k} TP2 skipped (amount {tp2_amount:.6f} < min {min_amt:.6f})")

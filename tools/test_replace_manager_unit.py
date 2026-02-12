@@ -251,6 +251,71 @@ class ReplaceManagerTests(unittest.TestCase):
         self.assertEqual(out.reason, "replace_success")
         self.assertEqual(calls["create"], 1)
 
+    def test_verify_cancel_status_filled_after_ack_treated_as_filled_after_cancel(self):
+        calls = {"cancel": 0, "status": 0, "create": 0}
+
+        async def _cancel(_oid, _sym):
+            calls["cancel"] += 1
+            return True
+
+        async def _create():
+            calls["create"] += 1
+            return {"id": "new-should-not-send"}
+
+        async def _status(_oid, _sym):
+            calls["status"] += 1
+            return "filled"
+
+        out = asyncio.run(
+            rm.run_cancel_replace(
+                cancel_order_id="old-1",
+                symbol="BTC/USDT",
+                max_attempts=2,
+                cancel_fn=_cancel,
+                create_fn=_create,
+                status_fn=_status,
+                verify_cancel_with_status=True,
+            )
+        )
+        self.assertFalse(out.success)
+        self.assertEqual(out.reason, "filled_after_cancel")
+        self.assertEqual(out.state, rm.STATE_FILLED_AFTER_CANCEL)
+        self.assertEqual(calls["create"], 0)
+
+    def test_verify_cancel_status_open_then_canceled_succeeds_on_next_attempt(self):
+        calls = {"cancel": 0, "status": 0, "create": 0}
+
+        async def _cancel(_oid, _sym):
+            calls["cancel"] += 1
+            return True
+
+        async def _create():
+            calls["create"] += 1
+            return {"id": "new-ok", "status": "open"}
+
+        seq = ["open", "canceled"]
+
+        async def _status(_oid, _sym):
+            calls["status"] += 1
+            return seq.pop(0) if seq else "canceled"
+
+        out = asyncio.run(
+            rm.run_cancel_replace(
+                cancel_order_id="old-1",
+                symbol="BTC/USDT",
+                max_attempts=2,
+                cancel_fn=_cancel,
+                create_fn=_create,
+                status_fn=_status,
+                verify_cancel_with_status=True,
+                max_ambiguity_attempts=3,
+            )
+        )
+        self.assertTrue(out.success)
+        self.assertEqual(out.reason, "replace_success")
+        self.assertGreaterEqual(calls["cancel"], 2)
+        self.assertEqual(calls["create"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

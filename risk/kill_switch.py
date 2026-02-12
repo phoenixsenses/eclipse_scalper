@@ -631,6 +631,42 @@ async def evaluate(bot) -> Tuple[bool, Optional[str]]:
             km["last_check_ts"] = now
             return False, reason
 
+        reconcile_streak_max = int(_cfg(bot, "KILL_RECONCILE_MISMATCH_STREAK_MAX", 0) or 0)
+        reconcile_streak = int(km.get("reconcile_mismatch_streak", 0) or 0)
+        if reconcile_streak_max > 0 and reconcile_streak >= reconcile_streak_max:
+            rec_halt_sec = float(_cfg(bot, "KILL_RECONCILE_MISMATCH_HALT_SEC", min(cooldown, 180.0)) or min(cooldown, 180.0))
+            reason = f"RECONCILE MISMATCH STORM — streak {reconcile_streak} >= {reconcile_streak_max}"
+            await request_halt(bot, max(30.0, rec_halt_sec), reason, "critical")
+            km["last_check_ts"] = now
+            return False, reason
+
+        debt_sec = float(_safe_float(km.get("reconcile_belief_debt_sec", 0.0), 0.0))
+        debt_syms = int(km.get("reconcile_belief_debt_symbols", 0) or 0)
+        debt_max = float(_cfg(bot, "KILL_RECONCILE_BELIEF_DEBT_SEC_MAX", 0.0) or 0.0)
+        debt_min_syms = int(_cfg(bot, "KILL_RECONCILE_BELIEF_DEBT_MIN_SYMBOLS", 1) or 1)
+        if debt_max > 0 and debt_sec >= debt_max and debt_syms >= max(1, debt_min_syms):
+            rec_halt_sec = float(_cfg(bot, "KILL_RECONCILE_BELIEF_DEBT_HALT_SEC", min(cooldown, 180.0)) or min(cooldown, 180.0))
+            reason = f"RECONCILE BELIEF DEBT LIMIT — debt {debt_sec:.0f}s symbols={debt_syms}"
+            await request_halt(bot, max(30.0, rec_halt_sec), reason, "critical")
+            km["last_check_ts"] = now
+            return False, reason
+
+        last_debt = float(_safe_float(km.get("reconcile_belief_debt_prev_sec", 0.0), 0.0))
+        growth = max(0.0, debt_sec - last_debt)
+        growth_min = float(_cfg(bot, "KILL_RECONCILE_BELIEF_DEBT_GROWTH_MIN_SEC", 0.0) or 0.0)
+        growth_burst = int(_cfg(bot, "KILL_RECONCILE_BELIEF_DEBT_GROWTH_BURST", 0) or 0)
+        if growth_min > 0 and growth >= growth_min:
+            km["reconcile_belief_debt_growth_hits"] = int(km.get("reconcile_belief_debt_growth_hits", 0) or 0) + 1
+        else:
+            km["reconcile_belief_debt_growth_hits"] = 0
+        km["reconcile_belief_debt_prev_sec"] = float(debt_sec)
+        if growth_burst > 0 and int(km.get("reconcile_belief_debt_growth_hits", 0) or 0) >= growth_burst:
+            rec_halt_sec = float(_cfg(bot, "KILL_RECONCILE_BELIEF_DEBT_HALT_SEC", min(cooldown, 180.0)) or min(cooldown, 180.0))
+            reason = f"RECONCILE BELIEF DEBT GROWTH — +{growth:.0f}s burst={growth_burst}"
+            await request_halt(bot, max(30.0, rec_halt_sec), reason, "critical")
+            km["last_check_ts"] = now
+            return False, reason
+
         # ---------- API error spiral (rate + burst) ----------
         req, err = _ex_counts(bot)
 

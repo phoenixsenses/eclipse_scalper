@@ -655,6 +655,20 @@ async def _gated_entry_loop(bot: Any, entry_fn: Callable[..., Awaitable[None]]) 
     await entry_fn(bot)
 
 
+async def _run_maintenance_oneshot(bot: Any) -> None:
+    """Run a single reconcile maintenance tick and return."""
+    reconcile_mod = _opt_import("execution.reconcile")
+    reconcile_tick = _callable(reconcile_mod, "reconcile_tick") if reconcile_mod else None
+    if not callable(reconcile_tick):
+        log_core.warning("[bootstrap] maintenance oneshot: reconcile_tick unavailable")
+        return
+    try:
+        await reconcile_tick(bot)
+        log_core.info("[bootstrap] maintenance oneshot: reconcile_tick complete")
+    except Exception as e:
+        log_core.warning(f"[bootstrap] maintenance oneshot reconcile failed: {e}")
+
+
 # ----------------------------
 # Signal handlers (installed inside running loop)
 # ----------------------------
@@ -760,6 +774,34 @@ async def main() -> None:
         f"[bootstrap] bot.data={type(getattr(bot,'data',None)).__name__} data_valid={_data_is_valid(getattr(bot,'data',None))}"
     )
 
+    # Optional startup rebuild: reconstruct local execution state from exchange state.
+    try:
+        do_rebuild = os.getenv("BOOT_REBUILD_ON_START", "1").strip().lower() not in ("0", "false", "no", "off")
+        if do_rebuild:
+            rebuild_mod = _opt_import("execution.rebuild")
+            rebuild_fn = _callable(rebuild_mod, "rebuild_local_state") if rebuild_mod else None
+            if callable(rebuild_fn):
+                freeze_on_orphans = os.getenv("BOOT_REBUILD_FREEZE_ON_ORPHANS", "0").strip().lower() in ("1", "true", "yes", "on")
+                fill_window_sec = float(os.getenv("BOOT_REBUILD_FILL_WINDOW_SEC", "3600") or 3600.0)
+                summary = await rebuild_fn(
+                    bot,
+                    fill_window_sec=fill_window_sec,
+                    adopt_orphans=True,
+                    freeze_on_orphans=freeze_on_orphans,
+                )
+                if isinstance(summary, dict):
+                    log_core.info(
+                        "[bootstrap] rebuild positions=%s prev=%s orphans=%s halted=%s"
+                        % (
+                            int(summary.get("positions_rebuilt", 0) or 0),
+                            int(summary.get("positions_prev", 0) or 0),
+                            int(summary.get("orphans", 0) or 0),
+                            bool(summary.get("halted", False)),
+                        )
+                    )
+    except Exception as e:
+        log_core.warning(f"[bootstrap] rebuild failed: {e}")
+
     try:
         syms = getattr(bot, "active_symbols", None) or getattr(getattr(bot, "cfg", None), "ACTIVE_SYMBOLS", None)
         if isinstance(syms, (list, tuple, set)):
@@ -769,6 +811,25 @@ async def main() -> None:
         pass
 
     _run_diagnostics_best_effort(bot)
+
+    maintenance_oneshot = os.getenv("BOOT_MAINTENANCE_ONESHOT", "0").strip().lower() in ("1", "true", "yes", "on")
+    if maintenance_oneshot:
+        log_core.warning("[bootstrap] BOOT_MAINTENANCE_ONESHOT=1 -> rebuild + single reconcile tick, then exit")
+        try:
+            await _run_maintenance_oneshot(bot)
+        finally:
+            try:
+                await _save_state_best_effort(bot.state)
+            except Exception:
+                pass
+            try:
+                ex = getattr(bot, "ex", None)
+                if ex is not None and hasattr(ex, "close"):
+                    await ex.close()
+            except Exception:
+                pass
+        log_core.critical("[bootstrap] OFFLINE (maintenance oneshot)")
+        return
 
     # ------------------------------------------------------------
     # Required loops

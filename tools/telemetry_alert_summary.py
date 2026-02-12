@@ -44,6 +44,16 @@ def _load_actions(path: Path) -> dict[str, Any]:
         return {}
 
 
+def _load_json(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
 def _load_exit_quality_json(path: Path) -> dict[str, Any] | None:
     if not path.exists():
         return None
@@ -336,25 +346,82 @@ def _belief_state_lines(events: list[dict]) -> list[str]:
                 "belief_debt_sec": float(data.get("belief_debt_sec") or 0.0),
                 "belief_debt_symbols": int(data.get("belief_debt_symbols") or 0),
                 "belief_confidence": float(data.get("belief_confidence") or 0.0),
+                "evidence_coverage_ratio": float(data.get("evidence_coverage_ratio") or 0.0),
+                "evidence_ws_coverage_ratio": float(data.get("evidence_ws_coverage_ratio") or 0.0),
+                "evidence_rest_coverage_ratio": float(data.get("evidence_rest_coverage_ratio") or 0.0),
+                "evidence_fill_coverage_ratio": float(data.get("evidence_fill_coverage_ratio") or 0.0),
+                "belief_envelope_symbols": int(data.get("belief_envelope_symbols") or 0),
+                "belief_envelope_ambiguous_symbols": int(data.get("belief_envelope_ambiguous_symbols") or 0),
+                "belief_position_interval_width_sum": float(data.get("belief_position_interval_width_sum") or 0.0),
+                "belief_position_interval_width_max": float(data.get("belief_position_interval_width_max") or 0.0),
+                "belief_live_unknown_symbols": int(data.get("belief_live_unknown_symbols") or 0),
+                "belief_envelope_worst_symbol": str(data.get("belief_envelope_worst_symbol") or ""),
                 "mismatch_streak": int(data.get("mismatch_streak") or 0),
                 "repair_actions": int(data.get("repair_actions") or 0),
                 "repair_skipped": int(data.get("repair_skipped") or 0),
+                "runtime_gate_cause_summary": str(data.get("runtime_gate_cause_summary") or ""),
+                "guard_unlock_conditions": str(data.get("guard_unlock_conditions") or ""),
+                "guard_next_unlock_sec": float(data.get("guard_next_unlock_sec") or 0.0),
+                "guard_unlock_snapshot": (
+                    dict(data.get("guard_unlock_snapshot") or {})
+                    if isinstance(data.get("guard_unlock_snapshot"), dict)
+                    else {}
+                ),
             }
         )
     if not rows:
         return []
     latest = rows[-1]
     avg_conf = sum(float(r["belief_confidence"]) for r in rows) / float(len(rows))
-    return [
+    lines = [
         (
             f"- latest debt={latest['belief_debt_sec']:.1f}s symbols={latest['belief_debt_symbols']} "
             f"confidence={latest['belief_confidence']:.2f} streak={latest['mismatch_streak']}"
         ),
         (
+            f"- evidence_coverage={latest['evidence_coverage_ratio']:.3f} "
+            f"(ws={latest['evidence_ws_coverage_ratio']:.3f} "
+            f"rest={latest['evidence_rest_coverage_ratio']:.3f} "
+            f"fill={latest['evidence_fill_coverage_ratio']:.3f})"
+        ),
+        (
+            f"- envelope symbols={latest['belief_envelope_symbols']} "
+            f"ambiguous={latest['belief_envelope_ambiguous_symbols']} "
+            f"width_sum={latest['belief_position_interval_width_sum']:.3f} "
+            f"width_max={latest['belief_position_interval_width_max']:.3f} "
+            f"unknown={latest['belief_live_unknown_symbols']} "
+            f"worst={latest['belief_envelope_worst_symbol'] or 'n/a'}"
+        ),
+        (
             f"- latest repairs actions={latest['repair_actions']} "
             f"skipped={latest['repair_skipped']} avg_confidence={avg_conf:.2f}"
         ),
+        f"- runtime_gate_cause_summary={str(latest.get('runtime_gate_cause_summary') or 'stable')}",
     ]
+    unlock_snapshot = latest.get("guard_unlock_snapshot")
+    if isinstance(unlock_snapshot, dict) and unlock_snapshot:
+        ht_cur = int(_safe_float(unlock_snapshot.get("healthy_ticks_current"), 0.0))
+        ht_req = int(_safe_float(unlock_snapshot.get("healthy_ticks_required"), 0.0))
+        cov_cur = _safe_float(unlock_snapshot.get("journal_coverage_current"), 0.0)
+        cov_req = _safe_float(unlock_snapshot.get("journal_coverage_required"), 0.0)
+        cc_cur = _safe_float(unlock_snapshot.get("contradiction_clear_current_sec"), 0.0)
+        cc_req = _safe_float(unlock_snapshot.get("contradiction_clear_required_sec"), 0.0)
+        pg_cur = _safe_float(unlock_snapshot.get("protection_gap_current_sec"), 0.0)
+        pg_req = _safe_float(unlock_snapshot.get("protection_gap_max_sec"), 0.0)
+        lines.append(
+            "- unlock_snapshot "
+            f"healthy_ticks={ht_cur}/{ht_req} "
+            f"journal_coverage={cov_cur:.3f}/{cov_req:.3f} "
+            f"contradiction_clear={cc_cur:.0f}s/{cc_req:.0f}s"
+        )
+        lines.append(
+            "- unlock_remaining "
+            f"healthy_ticks={max(0, ht_req - ht_cur)} "
+            f"journal_coverage={max(0.0, cov_req - cov_cur):.3f} "
+            f"contradiction_clear={max(0.0, cc_req - cc_cur):.0f}s "
+            f"protection_gap={max(0.0, pg_cur - pg_req):.1f}s"
+        )
+    return lines
 
 
 def _latest_belief_state(events: list[dict]) -> dict[str, Any] | None:
@@ -372,6 +439,71 @@ def _latest_belief_state(events: list[dict]) -> dict[str, Any] | None:
     return latest
 
 
+def _correlation_lines(events: list[dict], limit: int = 6) -> tuple[list[str], dict[str, int | float | str]]:
+    by_reason: Counter[str] = Counter()
+    by_symbol: Counter[str] = Counter()
+    blocked = 0
+    scaled = 0
+    stress = 0
+    tightening = 0
+    latest_regime = ""
+    latest_pressure = 0.0
+    latest_tags = ""
+    for ev in events:
+        name = str(ev.get("event") or "")
+        data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+        if name in ("entry.decision", "entry.blocked"):
+            corr_pressure = _safe_float(data.get("corr_pressure"), 0.0)
+            corr_regime = str(data.get("corr_regime") or "").strip().upper()
+            if corr_pressure <= 0.0 and not corr_regime:
+                continue
+            symbol = str(ev.get("symbol") or data.get("symbol") or "UNKNOWN").strip().upper() or "UNKNOWN"
+            by_symbol[symbol] += 1
+            reason = str(data.get("corr_reason_tags") or "stable").strip().lower() or "stable"
+            by_reason[reason] += 1
+            if name == "entry.blocked":
+                blocked += 1
+            else:
+                action = str(data.get("action") or "").strip().upper()
+                if action == "SCALE":
+                    scaled += 1
+                elif action in ("DENY", "DEFER"):
+                    blocked += 1
+            if corr_regime == "STRESS":
+                stress += 1
+            elif corr_regime == "TIGHTENING":
+                tightening += 1
+        elif name == "execution.correlation_state":
+            latest_regime = str(data.get("corr_regime") or latest_regime)
+            latest_pressure = _safe_float(data.get("corr_pressure"), latest_pressure)
+            latest_tags = str(data.get("corr_reason_tags") or latest_tags)
+    total = blocked + scaled
+    if total <= 0 and not latest_regime:
+        return [], {"blocked": 0, "scaled": 0, "stress": 0, "tightening": 0}
+    lines = [
+        f"- entry impact blocked={blocked} scaled={scaled}",
+        f"- regime pressure stress={stress} tightening={tightening}",
+    ]
+    if latest_regime:
+        lines.append(f"- latest regime={latest_regime} pressure={latest_pressure:.2f} tags={latest_tags}")
+    if by_reason:
+        lines.append("- top reason tags:")
+        for reason, cnt in by_reason.most_common(limit):
+            lines.append(f"- {reason}: {cnt}")
+    if by_symbol:
+        lines.append("- top symbols:")
+        for symbol, cnt in by_symbol.most_common(limit):
+            lines.append(f"- {symbol}: {cnt}")
+    return lines, {
+        "blocked": int(blocked),
+        "scaled": int(scaled),
+        "stress": int(stress),
+        "tightening": int(tightening),
+        "latest_regime": str(latest_regime),
+        "latest_pressure": float(latest_pressure),
+    }
+
+
 def _latest_corr_or_symbol(events: list[dict]) -> tuple[str, str]:
     corr = ""
     sym = ""
@@ -384,6 +516,87 @@ def _latest_corr_or_symbol(events: list[dict]) -> tuple[str, str]:
         if corr and sym:
             break
     return corr, sym
+
+
+def _corr_vs_exit_quality_lines(
+    events: list[dict], *, limit: int = 4
+) -> tuple[list[str], dict[str, float | int]]:
+    corr_rows: list[tuple[float, str, float]] = []
+    closes: list[dict[str, float | str]] = []
+    for ev in events:
+        name = str(ev.get("event") or "")
+        data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+        ts = _safe_float(ev.get("ts"), 0.0)
+        if name == "execution.correlation_state":
+            regime = str(data.get("corr_regime") or "NORMAL").strip().upper() or "NORMAL"
+            pressure = _safe_float(data.get("corr_pressure"), 0.0)
+            corr_rows.append((ts, regime, pressure))
+        elif name == "position.closed":
+            closes.append(
+                {
+                    "ts": ts,
+                    "symbol": str(ev.get("symbol") or data.get("symbol") or "UNKNOWN").strip().upper() or "UNKNOWN",
+                    "pnl": _safe_float(data.get("pnl_usdt"), 0.0),
+                    "duration": _safe_float(data.get("duration_sec"), 0.0),
+                }
+            )
+    if not closes:
+        return [], {}
+    corr_rows.sort(key=lambda x: x[0])
+    by_regime: dict[str, dict[str, float]] = {}
+    for row in closes:
+        ts = _safe_float(row.get("ts"), 0.0)
+        regime = "UNKNOWN"
+        pressure = 0.0
+        for cts, cregime, cpressure in corr_rows:
+            if cts <= ts:
+                regime = str(cregime)
+                pressure = float(cpressure)
+            else:
+                break
+        agg = by_regime.get(regime)
+        if agg is None:
+            agg = {"count": 0.0, "wins": 0.0, "pnl_sum": 0.0, "dur_sum": 0.0, "pressure_sum": 0.0}
+            by_regime[regime] = agg
+        pnl = _safe_float(row.get("pnl"), 0.0)
+        agg["count"] += 1.0
+        if pnl > 0:
+            agg["wins"] += 1.0
+        agg["pnl_sum"] += pnl
+        agg["dur_sum"] += _safe_float(row.get("duration"), 0.0)
+        agg["pressure_sum"] += pressure
+    ranked = sorted(by_regime.items(), key=lambda kv: kv[1].get("count", 0.0), reverse=True)[: max(1, int(limit))]
+    lines = ["- regimes:"]
+    for regime, agg in ranked:
+        n = max(1.0, _safe_float(agg.get("count"), 1.0))
+        win_rate = _safe_float(agg.get("wins"), 0.0) / n
+        avg_pnl = _safe_float(agg.get("pnl_sum"), 0.0) / n
+        avg_dur = _safe_float(agg.get("dur_sum"), 0.0) / n
+        avg_corr = _safe_float(agg.get("pressure_sum"), 0.0) / n
+        lines.append(
+            f"- {regime}: n={int(n)} win={win_rate:.0%} avg_pnl={avg_pnl:+.3f} avg_dur={avg_dur:.0f}s avg_corr={avg_corr:.2f}"
+        )
+    out: dict[str, float | int] = {}
+    stress = by_regime.get("STRESS")
+    normal = by_regime.get("NORMAL")
+    if isinstance(stress, dict):
+        sn = max(1.0, _safe_float(stress.get("count"), 1.0))
+        out["stress_count"] = int(sn)
+        out["stress_avg_pnl"] = _safe_float(stress.get("pnl_sum"), 0.0) / sn
+    else:
+        out["stress_count"] = 0
+        out["stress_avg_pnl"] = 0.0
+    if isinstance(normal, dict):
+        nn = max(1.0, _safe_float(normal.get("count"), 1.0))
+        out["normal_count"] = int(nn)
+        out["normal_avg_pnl"] = _safe_float(normal.get("pnl_sum"), 0.0) / nn
+    else:
+        out["normal_count"] = 0
+        out["normal_avg_pnl"] = 0.0
+    out["stress_vs_normal_pnl_delta"] = _safe_float(out.get("normal_avg_pnl"), 0.0) - _safe_float(
+        out.get("stress_avg_pnl"), 0.0
+    )
+    return lines, out
 
 
 def _journal_replay_lines(events: list[dict], journal_path: Path, limit: int = 6) -> list[str]:
@@ -420,8 +633,11 @@ def _reliability_gate_lines(path: Path) -> tuple[list[str], dict[str, Any]]:
     invalid_transitions = _safe_int(kv.get("invalid_transition_count"), 0)
     coverage_ratio = _safe_float(kv.get("journal_coverage_ratio"), 0.0)
     position_mismatch = _safe_int(kv.get("position_mismatch_count"), 0)
+    position_mismatch_peak = _safe_int(kv.get("position_mismatch_count_peak"), position_mismatch)
     orphan_count = _safe_int(kv.get("orphan_count"), 0)
+    intent_collision_count = _safe_int(kv.get("intent_collision_count"), 0)
     coverage_gap_seconds = _safe_float(kv.get("protection_coverage_gap_seconds"), 0.0)
+    coverage_gap_seconds_peak = _safe_float(kv.get("protection_coverage_gap_seconds_peak"), coverage_gap_seconds)
     replace_race_count = _safe_int(kv.get("replace_race_count"), 0)
     contradiction_count = _safe_int(kv.get("evidence_contradiction_count"), 0)
     cats = {
@@ -448,9 +664,10 @@ def _reliability_gate_lines(path: Path) -> tuple[list[str], dict[str, Any]]:
         f"- replay_mismatch_count: {replay_mismatch}",
         f"- invalid_transition_count: {invalid_transitions}",
         f"- journal_coverage_ratio: {coverage_ratio:.3f}",
-        f"- position_mismatch_count: {position_mismatch}",
+        f"- position_mismatch_count: {position_mismatch} (peak {position_mismatch_peak})",
         f"- orphan_count: {orphan_count}",
-        f"- protection_coverage_gap_seconds: {coverage_gap_seconds:.1f}",
+        f"- intent_collision_count: {intent_collision_count}",
+        f"- protection_coverage_gap_seconds: {coverage_gap_seconds:.1f} (peak {coverage_gap_seconds_peak:.1f})",
         f"- replace_race_count: {replace_race_count}",
         f"- evidence_contradiction_count: {contradiction_count}",
     ]
@@ -483,12 +700,45 @@ def _reliability_gate_lines(path: Path) -> tuple[list[str], dict[str, Any]]:
         "invalid_transition_count": invalid_transitions,
         "journal_coverage_ratio": coverage_ratio,
         "position_mismatch_count": position_mismatch,
+        "position_mismatch_count_peak": position_mismatch_peak,
         "orphan_count": orphan_count,
+        "intent_collision_count": intent_collision_count,
         "protection_coverage_gap_seconds": coverage_gap_seconds,
+        "protection_coverage_gap_seconds_peak": coverage_gap_seconds_peak,
         "replace_race_count": replace_race_count,
         "evidence_contradiction_count": contradiction_count,
         "replay_mismatch_categories": cats,
     }
+
+
+def _intent_collision_policy_lines(
+    *,
+    reliability_metrics: dict[str, Any],
+    notify_state_path: Path,
+    reliability_max_intent_collision_count: int,
+    intent_collision_critical_threshold: int,
+    intent_collision_critical_streak: int,
+) -> tuple[list[str], dict[str, Any]]:
+    state = _load_json(notify_state_path)
+    current_count = int(_safe_int(reliability_metrics.get("intent_collision_count"), 0))
+    streak = int(_safe_int(state.get("intent_collision_streak"), 0))
+    state_level = str(state.get("level") or "").strip().lower()
+    lines = [
+        f"- current_count: {current_count}",
+        (
+            f"- thresholds: reliability_max={max(0, int(reliability_max_intent_collision_count))} "
+            f"critical={max(1, int(intent_collision_critical_threshold))} "
+            f"critical_streak={max(1, int(intent_collision_critical_streak))}"
+        ),
+        f"- notifier_streak: {streak}",
+        f"- notifier_level: {state_level or 'n/a'}",
+    ]
+    metrics = {
+        "intent_collision_count": current_count,
+        "intent_collision_streak": streak,
+        "notify_level": state_level or "",
+    }
+    return lines, metrics
 
 
 def _build_message(signal_lines, core_lines, anomaly_lines, signal_exit_lines) -> tuple[str, bool]:
@@ -561,10 +811,56 @@ def main(argv=None) -> int:
     parser.add_argument("--entry-budget-depleted-threshold", type=int, default=1)
     parser.add_argument("--replace-envelope-threshold", type=int, default=1)
     parser.add_argument("--rebuild-orphan-freeze-threshold", type=int, default=1)
+    parser.add_argument(
+        "--corr-stress-threshold",
+        type=int,
+        default=int(os.getenv("CORR_STRESS_THRESHOLD", os.getenv("CORR_STRESS_CRITICAL_THRESHOLD", "1"))),
+    )
+    parser.add_argument(
+        "--corr-pressure-threshold",
+        type=float,
+        default=float(os.getenv("CORR_PRESSURE_THRESHOLD", os.getenv("CORR_PRESSURE_CRITICAL_THRESHOLD", "0.90"))),
+    )
+    parser.add_argument(
+        "--corr-symbol-limit",
+        type=int,
+        default=6,
+        help="Rows to show in correlation contribution section",
+    )
+    parser.add_argument(
+        "--corr-exit-pnl-drop-threshold",
+        type=float,
+        default=float(
+            os.getenv(
+                "CORR_EXIT_PNL_DROP_THRESHOLD",
+                os.getenv("CORR_EXIT_PNL_DROP_CRITICAL_THRESHOLD", "0.10"),
+            )
+        ),
+        help="Warn when stress avg pnl is worse than normal avg pnl by this absolute amount",
+    )
     parser.add_argument("--reliability-gate", default="logs/reliability_gate.txt")
     parser.add_argument("--reliability-max-replay-mismatch", type=int, default=0)
     parser.add_argument("--reliability-max-invalid-transitions", type=int, default=0)
     parser.add_argument("--reliability-min-journal-coverage", type=float, default=0.90)
+    parser.add_argument(
+        "--reliability-max-intent-collision-count",
+        type=int,
+        default=int(os.getenv("RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT", "0")),
+    )
+    parser.add_argument(
+        "--intent-collision-critical-threshold",
+        type=int,
+        default=int(os.getenv("INTENT_COLLISION_CRITICAL_THRESHOLD", "1")),
+    )
+    parser.add_argument(
+        "--intent-collision-critical-streak",
+        type=int,
+        default=int(os.getenv("INTENT_COLLISION_CRITICAL_STREAK", "2")),
+    )
+    parser.add_argument(
+        "--notify-state",
+        default=os.getenv("TELEMETRY_DASHBOARD_NOTIFY_STATE_PATH", "logs/telemetry_dashboard_notify_state.json"),
+    )
     parser.add_argument("--output", default="logs/telemetry_alert_summary.txt")
     parser.add_argument(
         "--actions-path",
@@ -657,6 +953,21 @@ def main(argv=None) -> int:
     belief_lines = _belief_state_lines(telemetry_events)
     if belief_lines:
         message += "\n\nExecution belief state:\n" + "\n".join(belief_lines)
+    corr_lines, corr_stats = _correlation_lines(telemetry_events, max(1, int(args.corr_symbol_limit)))
+    if corr_lines:
+        message += "\n\nCorrelation contribution:\n" + "\n".join(corr_lines)
+        if int(corr_stats.get("stress", 0)) >= max(1, int(args.corr_stress_threshold)):
+            warn = True
+        if float(_safe_float(corr_stats.get("latest_pressure"), 0.0)) >= max(0.0, float(args.corr_pressure_threshold)):
+            warn = True
+    corr_exit_lines, corr_exit_stats = _corr_vs_exit_quality_lines(telemetry_events, limit=max(1, int(args.corr_symbol_limit)))
+    if corr_exit_lines:
+        message += "\n\nCorr vs exit quality:\n" + "\n".join(corr_exit_lines)
+        stress_n = int(_safe_int(corr_exit_stats.get("stress_count"), 0))
+        normal_n = int(_safe_int(corr_exit_stats.get("normal_count"), 0))
+        pnl_delta = _safe_float(corr_exit_stats.get("stress_vs_normal_pnl_delta"), 0.0)
+        if stress_n > 0 and normal_n > 0 and pnl_delta >= max(0.0, float(args.corr_exit_pnl_drop_threshold)):
+            warn = True
     belief_latest = _latest_belief_state(telemetry_events)
     if belief_latest is not None:
         if float(belief_latest.get("belief_confidence") or 0.0) < 0.75:
@@ -675,6 +986,23 @@ def main(argv=None) -> int:
             warn = True
         if float(reliability_metrics.get("journal_coverage_ratio") or 0.0) < max(0.0, min(1.0, float(args.reliability_min_journal_coverage))):
             warn = True
+        intent_collision_count = int(_safe_int(reliability_metrics.get("intent_collision_count"), 0))
+        if intent_collision_count > max(0, int(args.reliability_max_intent_collision_count)):
+            warn = True
+        if intent_collision_count >= max(1, int(args.intent_collision_critical_threshold)):
+            warn = True
+        collision_policy_lines, collision_metrics = _intent_collision_policy_lines(
+            reliability_metrics=reliability_metrics,
+            notify_state_path=Path(args.notify_state),
+            reliability_max_intent_collision_count=max(0, int(args.reliability_max_intent_collision_count)),
+            intent_collision_critical_threshold=max(1, int(args.intent_collision_critical_threshold)),
+            intent_collision_critical_streak=max(1, int(args.intent_collision_critical_streak)),
+        )
+        if int(_safe_int(collision_metrics.get("intent_collision_streak"), 0)) >= max(
+            1, int(args.intent_collision_critical_streak)
+        ):
+            warn = True
+        message += "\n\nIntent collision policy:\n" + "\n".join(collision_policy_lines)
     action_notes = []
     now = time.time()
     pause_until = float(actions.get("pause_until", 0) or 0)

@@ -162,6 +162,7 @@ class ReliabilityGateRuntimeTests(unittest.TestCase):
                         "journal_coverage_ratio=1.00",
                         "position_mismatch_count=2",
                         "orphan_count=1",
+                        "intent_collision_count=2",
                         "protection_coverage_gap_seconds=15.0",
                         "replace_race_count=2",
                         "evidence_contradiction_count=3",
@@ -180,6 +181,7 @@ class ReliabilityGateRuntimeTests(unittest.TestCase):
                     "RELIABILITY_GATE_MIN_JOURNAL_COVERAGE": 0.90,
                     "RELIABILITY_GATE_MAX_POSITION_MISMATCH": 1,
                     "RELIABILITY_GATE_MAX_ORPHAN_COUNT": 0,
+                    "RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT": 1,
                     "RELIABILITY_GATE_MAX_COVERAGE_GAP_SECONDS": 0.0,
                     "RELIABILITY_GATE_MAX_REPLACE_RACE_COUNT": 1,
                     "RELIABILITY_GATE_MAX_EVIDENCE_CONTRADICTION_COUNT": 2,
@@ -189,8 +191,55 @@ class ReliabilityGateRuntimeTests(unittest.TestCase):
             self.assertTrue(bool(out.get("degraded")))
             self.assertGreaterEqual(int(out.get("position_mismatch_count", 0) or 0), 2)
             self.assertGreaterEqual(int(out.get("orphan_count", 0) or 0), 1)
+            self.assertGreaterEqual(int(out.get("intent_collision_count", 0) or 0), 2)
             self.assertGreaterEqual(int(out.get("replace_race_count", 0) or 0), 2)
             self.assertGreaterEqual(int(out.get("evidence_contradiction_count", 0) or 0), 3)
+            self.assertIn("intent_collision>1", str(out.get("reason") or ""))
+
+    def test_peak_thresholds_can_degrade_even_when_current_is_within_limits(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "reliability_gate.txt"
+            p.write_text(
+                "\n".join(
+                    [
+                        "replay_mismatch_count=0",
+                        "invalid_transition_count=0",
+                        "journal_coverage_ratio=1.00",
+                        "position_mismatch_count=0",
+                        "position_mismatch_count_peak=2",
+                        "protection_coverage_gap_seconds=0.0",
+                        "protection_coverage_gap_seconds_peak=12.0",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            cfg = type(
+                "Cfg",
+                (),
+                {
+                    "RELIABILITY_GATE_PATH": str(p),
+                    "RELIABILITY_GATE_MAX_REPLAY_MISMATCH": 0,
+                    "RELIABILITY_GATE_MAX_INVALID_TRANSITIONS": 0,
+                    "RELIABILITY_GATE_MIN_JOURNAL_COVERAGE": 0.90,
+                    "RELIABILITY_GATE_MAX_POSITION_MISMATCH": 1,
+                    "RELIABILITY_GATE_MAX_POSITION_MISMATCH_PEAK": 1,
+                    "RELIABILITY_GATE_MAX_COVERAGE_GAP_SECONDS": 1.0,
+                    "RELIABILITY_GATE_MAX_COVERAGE_GAP_SECONDS_PEAK": 5.0,
+                },
+            )()
+            out = rgr.get_runtime_gate(cfg)
+            self.assertTrue(bool(out.get("degraded")))
+            self.assertEqual(int(out.get("position_mismatch_count", 0) or 0), 0)
+            self.assertEqual(int(out.get("position_mismatch_count_peak", 0) or 0), 2)
+            self.assertAlmostEqual(float(out.get("protection_coverage_gap_seconds", 0.0) or 0.0), 0.0, places=6)
+            self.assertAlmostEqual(
+                float(out.get("protection_coverage_gap_seconds_peak", 0.0) or 0.0),
+                12.0,
+                places=6,
+            )
+            self.assertIn("position_peak>1", str(out.get("reason") or ""))
+            self.assertIn("coverage_gap_sec_peak>5.0", str(out.get("reason") or ""))
 
 
 if __name__ == "__main__":

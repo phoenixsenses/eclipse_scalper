@@ -29,6 +29,8 @@ jobs:
             cmd: pytest -q tools/test_execution_chaos_scenarios_v2.py -k protection_gap_ttl_breach_freezes_entries_in_runtime_loop
           - name: runtime-warmup-staged-recovery
             cmd: pytest -q tools/test_execution_chaos_scenarios_v2.py -k runtime_gate_freeze_then_warmup_reenable_is_constrained
+          - name: intent-collision-spike-freezes-entry
+            cmd: pytest -q tools/test_execution_chaos_scenarios_v2.py -k intent_collision_spike_in_runtime_gate_freezes_entries_with_cause_tags
 
     steps:
       - name: Check out repo
@@ -109,6 +111,7 @@ jobs:
           pytest -q tools/test_protection_manager_unit.py
           pytest -q tools/test_reliability_gate_unit.py
           pytest -q tools/test_reliability_gate_runtime_unit.py
+          pytest -q tools/test_policy_alignment_check_unit.py
           pytest -q tools/test_telemetry_alert_summary_unit.py
           pytest -q tools/test_telemetry_dashboard_notify_unit.py
           pytest -q tools/test_telemetry_belief_state_unit.py
@@ -147,8 +150,10 @@ jobs:
             --telemetry logs/telemetry_gate_fixture.jsonl \
             --journal logs/journal_gate_fixture.jsonl \
             --output logs/reliability_gate_ci.txt \
+            --window-seconds 0 \
             --max-replay-mismatch 0 \
             --max-invalid-transitions 0 \
+            --max-intent-collision-count 0 \
             --min-journal-coverage 1.0 \
             --enforce
 
@@ -176,8 +181,10 @@ jobs:
             --telemetry logs/telemetry_gate_missing_fixture.jsonl \
             --journal logs/journal_gate_missing_fixture.jsonl \
             --output logs/reliability_gate_ci_missing.txt \
+            --window-seconds 0 \
             --max-replay-mismatch 0 \
             --max-invalid-transitions 0 \
+            --max-intent-collision-count 0 \
             --min-journal-coverage 1.0 \
             --enforce
           rc=$?
@@ -204,6 +211,9 @@ jobs:
           {
             echo "## Execution Reliability Gate Summary"
             echo ""
+            echo "Chaos status:"
+            echo "- required_chaos_matrix=PASS (all required chaos scenarios completed)"
+            echo ""
             echo "Required chaos scenarios:"
             echo "- Chaos Required - ack-after-fill-recovery"
             echo "- Chaos Required - cancel-unknown-idempotent"
@@ -211,6 +221,7 @@ jobs:
             echo "- Chaos Required - contradiction-burst-freezes-entry"
             echo "- Chaos Required - coverage-gap-ttl-freezes-entry"
             echo "- Chaos Required - runtime-warmup-staged-recovery"
+            echo "- Chaos Required - intent-collision-spike-freezes-entry"
             echo ""
             echo "Invariant gate metrics:"
             if [ -f logs/reliability_gate_ci.txt ]; then
@@ -315,6 +326,7 @@ jobs:
           mkdir -p logs
           pytest -q tools/test_execution_chaos_scenarios.py --junitxml=logs/chaos_suite_1.xml
           pytest -q tools/test_execution_chaos_scenarios_v2.py --junitxml=logs/chaos_suite_2.xml
+          pytest -q tools/test_execution_chaos_scenarios_v2.py -k intent_collision_spike_in_runtime_gate_freezes_entries_with_cause_tags --junitxml=logs/chaos_focus_intent_collision.xml
 
       - name: Compare nightly chaos drift
         env:
@@ -342,8 +354,13 @@ jobs:
           current = {
               "suite1_invariant_failures": _suite_failures(logs / "chaos_suite_1.xml"),
               "suite2_invariant_failures": _suite_failures(logs / "chaos_suite_2.xml"),
+              "intent_collision_focus_failures": _suite_failures(logs / "chaos_focus_intent_collision.xml"),
           }
-          current["total_invariant_failures"] = int(current["suite1_invariant_failures"] + current["suite2_invariant_failures"])
+          current["total_invariant_failures"] = int(
+              current["suite1_invariant_failures"]
+              + current["suite2_invariant_failures"]
+              + current["intent_collision_focus_failures"]
+          )
 
           prev_path = logs / "chaos_nightly_prev.json"
           previous = {}
@@ -364,8 +381,29 @@ jobs:
               f"current_total_invariant_failures={curr_total}",
               f"delta_invariant_failures={delta}",
               f"threshold={threshold}",
+              f"intent_collision_focus_failures={int(current['intent_collision_focus_failures'])}",
           ]
           (logs / "chaos_nightly_report.txt").write_text("\n".join(report) + "\n", encoding="utf-8")
+          summary_lines = [
+              "## Chaos Nightly Summary",
+              "",
+              f"- `tools/test_execution_chaos_scenarios.py`: failures={int(current['suite1_invariant_failures'])}",
+              f"- `tools/test_execution_chaos_scenarios_v2.py`: failures={int(current['suite2_invariant_failures'])}",
+              "- `intent_collision_spike_in_runtime_gate_freezes_entries_with_cause_tags`: "
+              + f"failures={int(current['intent_collision_focus_failures'])}",
+              "",
+              f"- total_invariant_failures={curr_total}",
+              f"- delta_vs_previous={delta}",
+              f"- threshold={threshold}",
+              "",
+              "Status:",
+              (
+                  "- PASS"
+                  if delta <= threshold
+                  else f"- FAIL (delta_invariant_failures={delta} exceeded threshold={threshold})"
+              ),
+          ]
+          (logs / "chaos_nightly_summary.md").write_text("\n".join(summary_lines) + "\n", encoding="utf-8")
           (logs / "chaos_nightly_current.json").write_text(json.dumps(current, indent=2) + "\n", encoding="utf-8")
           (logs / "chaos_nightly_prev.json").write_text(json.dumps(current, indent=2) + "\n", encoding="utf-8")
 
@@ -381,6 +419,19 @@ jobs:
           path: logs/chaos_nightly_prev.json
           key: chaos-nightly-${{ github.ref_name }}-${{ github.run_id }}
 
+      - name: Publish chaos summary to run summary
+        if: always()
+        run: |
+          if [ -f logs/chaos_nightly_summary.md ]; then
+            cat logs/chaos_nightly_summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "## Chaos Nightly Summary"
+              echo ""
+              echo "- summary artifact missing"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Upload nightly chaos artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -389,5 +440,7 @@ jobs:
           path: |
             logs/chaos_suite_1.xml
             logs/chaos_suite_2.xml
+            logs/chaos_focus_intent_collision.xml
             logs/chaos_nightly_report.txt
+            logs/chaos_nightly_summary.md
             logs/chaos_nightly_current.json

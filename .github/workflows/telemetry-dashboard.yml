@@ -26,10 +26,22 @@ on:
         description: "Optional smoke assertion: expected recovery_red_lock_streak value"
         required: false
         default: ""
+      expected_intent_collision_streak:
+        description: "Optional smoke assertion: expected intent_collision_streak value"
+        required: false
+        default: ""
       simulate_red_lock_seed_streak:
         description: "Optional prior RED_LOCK streak seed (e.g. 1 with threshold=2 to force critical)"
         required: false
         default: "0"
+      simulate_intent_collision_count:
+        description: "Optional reliability gate override for intent_collision_count (e.g. 1)"
+        required: false
+        default: ""
+      simulate_intent_collision_clear:
+        description: "Set intent_collision_count=0 in reliability gate (reset-path smoke)"
+        required: false
+        default: "false"
 
 jobs:
   snapshot:
@@ -40,6 +52,16 @@ jobs:
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       TELEMETRY_DASHBOARD_NOTIFY_STATE_PATH: logs/telemetry_dashboard_notify_state.json
       RECOVERY_RED_LOCK_CRITICAL_STREAK: "2"
+      CORR_STRESS_THRESHOLD: "1"
+      CORR_PRESSURE_THRESHOLD: "0.90"
+      CORR_EXIT_PNL_DROP_THRESHOLD: "0.10"
+      RELIABILITY_GATE_WINDOW_SECONDS: "14400"
+      RELIABILITY_GATE_MAX_REPLAY_MISMATCH: "0"
+      RELIABILITY_GATE_MAX_INVALID_TRANSITIONS: "0"
+      RELIABILITY_GATE_MIN_JOURNAL_COVERAGE: "0.90"
+      RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT: "0"
+      INTENT_COLLISION_CRITICAL_THRESHOLD: "1"
+      INTENT_COLLISION_CRITICAL_STREAK: "2"
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -101,7 +123,74 @@ jobs:
             --telemetry logs/telemetry.jsonl \
             --journal logs/execution_journal.jsonl \
             --output logs/reliability_gate.txt \
+            --window-seconds ${RELIABILITY_GATE_WINDOW_SECONDS} \
             --allow-missing
+
+      - name: Enforce reliability gate thresholds when inputs exist
+        run: |
+          if [ -f logs/telemetry.jsonl ] && [ -f logs/execution_journal.jsonl ]; then
+            python tools/reliability_gate.py \
+              --telemetry logs/telemetry.jsonl \
+              --journal logs/execution_journal.jsonl \
+              --output logs/reliability_gate_enforced.txt \
+              --window-seconds ${RELIABILITY_GATE_WINDOW_SECONDS} \
+              --max-replay-mismatch ${RELIABILITY_GATE_MAX_REPLAY_MISMATCH} \
+              --max-invalid-transitions ${RELIABILITY_GATE_MAX_INVALID_TRANSITIONS} \
+              --max-intent-collision-count ${RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT} \
+              --min-journal-coverage ${RELIABILITY_GATE_MIN_JOURNAL_COVERAGE} \
+              --enforce
+          else
+            echo "reliability gate enforce skipped (missing telemetry or journal input)" | tee logs/reliability_gate_enforced.txt
+          fi
+
+      - name: Inject intent collision smoke gate override
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.simulate_intent_collision_count != '' }}
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path("logs/reliability_gate.txt")
+          val = "${{ github.event.inputs.simulate_intent_collision_count }}".strip()
+          if not p.exists():
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text("Execution Reliability Gate\n", encoding="utf-8")
+          lines = p.read_text(encoding="utf-8").splitlines()
+          out = []
+          seen = False
+          for line in lines:
+            if line.startswith("intent_collision_count="):
+              out.append(f"intent_collision_count={val}")
+              seen = True
+            else:
+              out.append(line)
+          if not seen:
+            out.append(f"intent_collision_count={val}")
+          p.write_text("\n".join(out) + "\n", encoding="utf-8")
+          print(f"injected intent_collision_count={val} into {p}")
+          PY
+
+      - name: Inject intent collision clear smoke gate override
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.simulate_intent_collision_clear == 'true' }}
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path("logs/reliability_gate.txt")
+          if not p.exists():
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text("Execution Reliability Gate\n", encoding="utf-8")
+          lines = p.read_text(encoding="utf-8").splitlines()
+          out = []
+          seen = False
+          for line in lines:
+            if line.startswith("intent_collision_count="):
+              out.append("intent_collision_count=0")
+              seen = True
+            else:
+              out.append(line)
+          if not seen:
+            out.append("intent_collision_count=0")
+          p.write_text("\n".join(out) + "\n", encoding="utf-8")
+          print(f"cleared intent_collision_count in {p}")
+          PY
 
       - name: Inject recovery-stage smoke event
         if: ${{ github.event_name == 'workflow_dispatch' }}
@@ -147,13 +236,19 @@ jobs:
           --reliability-gate logs/reliability_gate.txt
           --reliability-max-replay-mismatch 0
           --reliability-max-invalid-transitions 0
+          --reliability-max-intent-collision-count ${RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT}
           --reliability-min-journal-coverage 0.90
+          --intent-collision-critical-threshold ${INTENT_COLLISION_CRITICAL_THRESHOLD}
+          --intent-collision-critical-streak ${INTENT_COLLISION_CRITICAL_STREAK}
           --reconcile-first-gate-critical-threshold 2
           --reconcile-first-gate-severity-threshold 0.85
           --reconcile-first-gate-severity-streak-threshold 2
           --recovery-red-lock-critical-streak ${RECOVERY_RED_LOCK_CRITICAL_STREAK}
           --entry-budget-depleted-critical-threshold 2
           --replace-envelope-critical-threshold 2
+          --corr-stress-threshold ${CORR_STRESS_THRESHOLD}
+          --corr-pressure-threshold ${CORR_PRESSURE_THRESHOLD}
+          --corr-exit-pnl-drop-threshold ${CORR_EXIT_PNL_DROP_THRESHOLD}
 
       - name: Run telemetry classifier
         run: >
@@ -246,7 +341,17 @@ jobs:
             --anomaly logs/telemetry_anomaly.txt \
             --signal-exit logs/signal_exit_notify.txt \
             --telemetry logs/telemetry.jsonl \
+            --notify-state logs/telemetry_dashboard_notify_state.json \
+            --reliability-max-intent-collision-count ${RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT} \
+            --intent-collision-critical-threshold ${INTENT_COLLISION_CRITICAL_THRESHOLD} \
+            --intent-collision-critical-streak ${INTENT_COLLISION_CRITICAL_STREAK} \
+            --corr-stress-threshold ${CORR_STRESS_THRESHOLD} \
+            --corr-pressure-threshold ${CORR_PRESSURE_THRESHOLD} \
+            --corr-exit-pnl-drop-threshold ${CORR_EXIT_PNL_DROP_THRESHOLD} \
             --output logs/telemetry_alert_summary.txt
+      - name: Assert alert summary includes intent collision policy
+        run: |
+          grep -q "Intent collision policy:" logs/telemetry_alert_summary.txt
       - name: Build latest replay summary
         run: |
           if [ -f tools/replay_latest_summary.py ]; then
@@ -267,14 +372,164 @@ jobs:
             echo "notifier_state: missing"
           fi
 
+      - name: Assert notifier state includes intent collision fields
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("logs/telemetry_dashboard_notify_state.json")
+          if not p.exists():
+            raise SystemExit("notifier state missing")
+          d = json.loads(p.read_text(encoding="utf-8"))
+          missing = [k for k in ("intent_collision_streak", "reliability_intent_collision_count") if k not in d]
+          if missing:
+            raise SystemExit(f"missing notifier keys: {missing}")
+          print("notifier intent-collision keys present")
+          PY
+
+      - name: Build policy alignment snapshot
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          gate = Path("logs/reliability_gate.txt")
+          state = Path("logs/telemetry_dashboard_notify_state.json")
+          gate_kv = {}
+          if gate.exists():
+            for raw in gate.read_text(encoding="utf-8").splitlines():
+              s = raw.strip()
+              if "=" in s:
+                k, v = s.split("=", 1)
+                gate_kv[k.strip()] = v.strip()
+          state_obj = {}
+          if state.exists():
+            state_obj = json.loads(state.read_text(encoding="utf-8"))
+          lines = [
+            "Policy Alignment Snapshot",
+            "=========================",
+            f"RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT={os.getenv('RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT','')}",
+            f"INTENT_COLLISION_CRITICAL_THRESHOLD={os.getenv('INTENT_COLLISION_CRITICAL_THRESHOLD','')}",
+            f"INTENT_COLLISION_CRITICAL_STREAK={os.getenv('INTENT_COLLISION_CRITICAL_STREAK','')}",
+            f"summary.arg.reliability_max_intent_collision_count={os.getenv('RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT','')}",
+            f"summary.arg.intent_collision_critical_threshold={os.getenv('INTENT_COLLISION_CRITICAL_THRESHOLD','')}",
+            f"summary.arg.intent_collision_critical_streak={os.getenv('INTENT_COLLISION_CRITICAL_STREAK','')}",
+            f"gate.intent_collision_count={gate_kv.get('intent_collision_count','')}",
+            f"notify.reliability_intent_collision_count={state_obj.get('reliability_intent_collision_count','')}",
+            f"notify.intent_collision_streak={state_obj.get('intent_collision_streak','')}",
+            f"notify.level={state_obj.get('level','')}",
+          ]
+          out = Path("logs/policy_alignment.txt")
+          out.write_text("\n".join(lines) + "\n", encoding="utf-8")
+          print(out.read_text(encoding="utf-8"))
+          PY
+
+      - name: Assert policy alignment consistency
+        run: |
+          python tools/policy_alignment_check.py --path logs/policy_alignment.txt
+
+      - name: Build intent collision timeline
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          tele = Path("logs/telemetry.jsonl")
+          state = Path("logs/telemetry_dashboard_notify_state.json")
+          rows = []
+          if tele.exists():
+            for raw in tele.read_text(encoding="utf-8").splitlines():
+              s = raw.strip()
+              if not s:
+                continue
+              try:
+                ev = json.loads(s)
+              except Exception:
+                continue
+              name = str(ev.get("event") or "")
+              data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+              ts = ev.get("ts", data.get("ts", ""))
+              if name == "rebuild.summary":
+                ic = data.get("intent_collision_count", 0)
+                rows.append(f"- ts={ts} source=rebuild.summary intent_collision_count={ic}")
+              elif name == "execution.belief_state":
+                ic = data.get("runtime_gate_intent_collision_count", "")
+                if str(ic) != "":
+                  rows.append(f"- ts={ts} source=belief_state runtime_gate_intent_collision_count={ic}")
+          state_obj = {}
+          if state.exists():
+            try:
+              state_obj = json.loads(state.read_text(encoding="utf-8"))
+            except Exception:
+              state_obj = {}
+          rows = rows[-20:]
+          lines = [
+            "Intent Collision Timeline",
+            "=========================",
+            f"- notify.level={state_obj.get('level','')}",
+            f"- notify.intent_collision_streak={state_obj.get('intent_collision_streak','')}",
+            f"- notify.reliability_intent_collision_count={state_obj.get('reliability_intent_collision_count','')}",
+            "",
+            "Recent telemetry rows:",
+          ]
+          lines.extend(rows if rows else ["- none"])
+          out = Path("logs/intent_collision_timeline.txt")
+          out.write_text("\\n".join(lines) + "\\n", encoding="utf-8")
+          print(out.read_text(encoding="utf-8"))
+          PY
+
+      - name: Assert intent collision clear reset (second pass)
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.simulate_intent_collision_clear == 'true' }}
+        run: |
+          python tools/telemetry_dashboard_notify.py \
+            --path logs/telemetry.jsonl \
+            --codes-per-symbol \
+            --codes-top 4 \
+            --guard-events \
+            --guard-history \
+            --guard-history-path logs/telemetry_guard_history.csv \
+            --reliability-gate logs/reliability_gate.txt \
+            --reliability-max-replay-mismatch 0 \
+            --reliability-max-invalid-transitions 0 \
+            --reliability-max-intent-collision-count ${RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT} \
+            --reliability-min-journal-coverage 0.90 \
+            --intent-collision-critical-threshold ${INTENT_COLLISION_CRITICAL_THRESHOLD} \
+            --intent-collision-critical-streak ${INTENT_COLLISION_CRITICAL_STREAK} \
+            --reconcile-first-gate-critical-threshold 2 \
+            --reconcile-first-gate-severity-threshold 0.85 \
+            --reconcile-first-gate-severity-streak-threshold 2 \
+            --recovery-red-lock-critical-streak ${RECOVERY_RED_LOCK_CRITICAL_STREAK} \
+            --entry-budget-depleted-critical-threshold 2 \
+            --replace-envelope-critical-threshold 2 \
+            --corr-stress-threshold ${CORR_STRESS_THRESHOLD} \
+            --corr-pressure-threshold ${CORR_PRESSURE_THRESHOLD} \
+            --corr-exit-pnl-drop-threshold ${CORR_EXIT_PNL_DROP_THRESHOLD} \
+            --state-path logs/telemetry_dashboard_notify_state.json \
+            --no-notify
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("logs/telemetry_dashboard_notify_state.json")
+          if not p.exists():
+            raise SystemExit("notifier state missing")
+          d = json.loads(p.read_text(encoding="utf-8"))
+          streak = int(d.get("intent_collision_streak") or 0)
+          count = int(d.get("reliability_intent_collision_count") or 0)
+          if streak != 0 or count != 0:
+            raise SystemExit(
+              f"intent collision reset failed: streak={streak} reliability_intent_collision_count={count}"
+            )
+          print("intent collision clear reset verified (streak=0, reliability_intent_collision_count=0)")
+          PY
+
       - name: Assert smoke notifier expectations
-        if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.expected_notifier_level != '' || github.event.inputs.expected_recovery_stage != '' || github.event.inputs.expected_red_lock_streak != '') }}
+        if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.expected_notifier_level != '' || github.event.inputs.expected_recovery_stage != '' || github.event.inputs.expected_red_lock_streak != '' || github.event.inputs.expected_intent_collision_streak != '') }}
         run: |
           python tools/telemetry_smoke_assert.py \
             --state logs/telemetry_dashboard_notify_state.json \
             --expected-level "${{ github.event.inputs.expected_notifier_level }}" \
             --expected-stage "${{ github.event.inputs.expected_recovery_stage }}" \
-            --expected-red-lock-streak "${{ github.event.inputs.expected_red_lock_streak }}"
+            --expected-red-lock-streak "${{ github.event.inputs.expected_red_lock_streak }}" \
+            --expected-intent-collision-streak "${{ github.event.inputs.expected_intent_collision_streak }}"
 
       - name: Save notifier state cache
         if: always()
@@ -303,4 +558,7 @@ jobs:
             logs/signal_exit_notify.txt
             logs/replay_latest.txt
             logs/reliability_gate.txt
+            logs/reliability_gate_enforced.txt
+            logs/policy_alignment.txt
+            logs/intent_collision_timeline.txt
             logs/telemetry_dashboard_notify_state.json

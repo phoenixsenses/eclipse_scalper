@@ -139,6 +139,16 @@ def _cfg_env_bool(bot, name: str, default: Any = False) -> bool:
     return _truthy(_cfg(bot, name, default))
 
 
+def _safe_float(value: Any, default: float = 0.0) -> float:
+    try:
+        out = float(value)
+        if out != out:
+            return float(default)
+        return float(out)
+    except Exception:
+        return float(default)
+
+
 def _symkey(sym: str) -> str:
     s = (sym or "").upper().strip()
     s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
@@ -555,6 +565,38 @@ def _recent_router_blocks(bot, k: str, window_sec: float, *, now_ts: Optional[fl
         return 0
 
 
+def _corr_snapshot(bot, guard_knobs: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Correlation context for entry decision/blocked telemetry.
+    Prefer guard-level values when present; fallback to reconcile metrics.
+    """
+    out: Dict[str, Any] = {}
+    try:
+        src = dict(guard_knobs or {})
+    except Exception:
+        src = {}
+    if not src:
+        try:
+            st = getattr(bot, "state", None)
+            rm = getattr(st, "reconcile_metrics", None) if st is not None else None
+            if isinstance(rm, dict):
+                src = rm
+        except Exception:
+            src = {}
+    try:
+        out["corr_pressure"] = float(src.get("corr_pressure", 0.0) or 0.0)
+    except Exception:
+        out["corr_pressure"] = 0.0
+    out["corr_regime"] = str(src.get("corr_regime", "NORMAL") or "NORMAL")
+    try:
+        out["corr_confidence"] = float(src.get("corr_confidence", 1.0) or 1.0)
+    except Exception:
+        out["corr_confidence"] = 1.0
+    out["corr_reason_tags"] = str(src.get("corr_reason_tags", "stable") or "stable")
+    out["corr_worst_group"] = str(src.get("corr_worst_group", "") or "")
+    return out
+
+
 
 
 # ----------------------------
@@ -702,7 +744,13 @@ def _resolve_symbol_guard(guard_knobs: dict[str, Any], symbol: str) -> dict[str,
     return merged
 
 
-def _record_reconcile_first_gate(bot, symbol: str, severity: float, reason: str = "") -> None:
+def _record_reconcile_first_gate(
+    bot,
+    symbol: str,
+    severity: float,
+    reason: str = "",
+    corr: Optional[Dict[str, Any]] = None,
+) -> None:
     """
     Track reconcile-first pressure in state.kill_metrics so reconcile/belief_controller
     can consume recent spike pressure as runtime policy input.
@@ -728,6 +776,10 @@ def _record_reconcile_first_gate(bot, symbol: str, severity: float, reason: str 
                 "severity": float(sev),
                 "symbol": _symkey(symbol),
                 "reason": str(reason or ""),
+                "corr_pressure": float(_safe_float((corr or {}).get("corr_pressure", 0.0), 0.0)),
+                "corr_regime": str((corr or {}).get("corr_regime", "") or ""),
+                "corr_reason_tags": str((corr or {}).get("corr_reason_tags", "") or ""),
+                "corr_worst_group": str((corr or {}).get("corr_worst_group", "") or ""),
             }
         )
         max_events = int(_cfg_env_float(bot, "ENTRY_RECONCILE_FIRST_EVENTS_MAX", 160.0) or 160)
@@ -749,6 +801,10 @@ def _record_reconcile_first_gate(bot, symbol: str, severity: float, reason: str 
         km["reconcile_first_gate_last_ts"] = float(now_ts)
         km["reconcile_first_gate_last_severity"] = float(sev)
         km["reconcile_first_gate_last_reason"] = str(reason or "")
+        km["reconcile_first_gate_last_corr_pressure"] = float(
+            _safe_float((corr or {}).get("corr_pressure", 0.0), 0.0)
+        )
+        km["reconcile_first_gate_last_corr_regime"] = str((corr or {}).get("corr_regime", "") or "")
     except Exception:
         return
 
@@ -1222,6 +1278,8 @@ async def _resolve_partial_fill_state(
                     intent_close_position=False,
                     hedge_side_hint=hedge_side_hint,
                     retries=int(_cfg_env_float(bot, "ENTRY_ROUTER_RETRIES", 4) or 4),
+                    intent_component="entry_loop_partial_flatten",
+                    intent_kind="ENTRY_PARTIAL_FLATTEN",
                 )
                 if isinstance(res, dict):
                     if res.get("id") or _order_filled(res) > 0:
@@ -1285,6 +1343,8 @@ async def _emit_entry_blocked(
     data_payload: Dict[str, Any] = dict(data or {})
     data_payload.setdefault("symbol", symbol)
     data_payload.setdefault("reason", reason)
+    for ck, cv in _corr_snapshot(bot).items():
+        data_payload.setdefault(ck, cv)
     if "code" not in data_payload:
         try:
             code = map_reason(reason) if callable(map_reason) else ERR_UNKNOWN
@@ -1311,6 +1371,13 @@ async def _emit_entry_blocked(
 
 async def _emit_entry_decision(bot, rec: EntryDecisionRecord, *, level: str = "info", throttle_sec: float = 0.0) -> None:
     data = rec.to_dict()
+    try:
+        guard_meta = data.get("guard_knobs")
+        guard_knobs = guard_meta if isinstance(guard_meta, dict) else None
+    except Exception:
+        guard_knobs = None
+    for ck, cv in _corr_snapshot(bot, guard_knobs=guard_knobs).items():
+        data.setdefault(ck, cv)
     symbol = str(data.get("symbol") or "")
     if throttle_sec > 0 and callable(emit_throttled):
         try:
@@ -1635,11 +1702,13 @@ async def entry_loop(bot) -> None:
 
                 if not allow_entries:
                     block_reason, block_code = _guard_block_reason_code(guard_knobs)
+                    corr_ctx = _corr_snapshot(bot, guard_knobs)
                     _record_reconcile_first_gate(
                         bot,
                         k,
                         reconcile_first_severity,
                         runtime_gate_reason or str(guard_knobs.get("reason") or ""),
+                        corr=corr_ctx,
                     )
                     await _emit_entry_blocked(
                         bot,
@@ -1656,6 +1725,7 @@ async def entry_loop(bot) -> None:
                             "symbol_debt_score": symbol_debt_score,
                             "symbol_severity": symbol_severity,
                             "reconcile_first_severity": reconcile_first_severity,
+                            **corr_ctx,
                             "code": block_code,
                         },
                         throttle_sec=15.0,
@@ -1685,6 +1755,7 @@ async def entry_loop(bot) -> None:
                                     "symbol_debt_score": symbol_debt_score,
                                     "symbol_severity": symbol_severity,
                                     "reconcile_first_severity": reconcile_first_severity,
+                                    **corr_ctx,
                                     "code": ERR_RELIABILITY_GATE,
                                 },
                                 symbol=k,
@@ -1918,6 +1989,7 @@ async def entry_loop(bot) -> None:
                         meta={
                             "runtime_gate_degraded": runtime_gate_degraded,
                             "reconcile_first_gate_degraded": reconcile_first_gate_degraded,
+                            **_corr_snapshot(bot, guard_knobs),
                         },
                     )
                     if propose_rec.action in ("DENY", "DEFER"):
@@ -2143,6 +2215,7 @@ async def entry_loop(bot) -> None:
                             "runtime_gate_degraded": runtime_gate_degraded,
                             "reconcile_first_gate_degraded": reconcile_first_gate_degraded,
                             "budget_enabled": bool(budget_enabled),
+                            **_corr_snapshot(bot, guard_knobs),
                         },
                     )
                     if propose_rec.action in ("DENY", "DEFER"):
@@ -2242,6 +2315,8 @@ async def entry_loop(bot) -> None:
                                 intent_close_position=False,
                                 hedge_side_hint=hedge_side_hint,
                                 retries=int(_cfg_env_float(bot, "ENTRY_ROUTER_RETRIES", 6) or 6),
+                                intent_component="entry_loop",
+                                intent_kind="ENTRY",
                             )
                         else:
                             res = await create_order(
@@ -2256,6 +2331,8 @@ async def entry_loop(bot) -> None:
                                 intent_close_position=False,
                                 hedge_side_hint=hedge_side_hint,
                                 retries=int(_cfg_env_float(bot, "ENTRY_ROUTER_RETRIES", 4) or 4),
+                                intent_component="entry_loop",
+                                intent_kind="ENTRY",
                             )
                     except asyncio.CancelledError:
                         raise

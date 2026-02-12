@@ -9,6 +9,10 @@ jobs:
   smoke:
     name: Notifier smoke chain
     runs-on: ubuntu-latest
+    env:
+      CORR_STRESS_THRESHOLD: "1"
+      CORR_PRESSURE_THRESHOLD: "0.90"
+      CORR_EXIT_PNL_DROP_THRESHOLD: "0.10"
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -61,6 +65,9 @@ jobs:
             --path logs/telemetry.jsonl \
             --state-path logs/telemetry_dashboard_notify_state.json \
             --recovery-red-lock-critical-streak 2 \
+            --corr-stress-threshold ${CORR_STRESS_THRESHOLD} \
+            --corr-pressure-threshold ${CORR_PRESSURE_THRESHOLD} \
+            --corr-exit-pnl-drop-threshold ${CORR_EXIT_PNL_DROP_THRESHOLD} \
             --no-notify
 
           python tools/telemetry_smoke_assert.py \
@@ -94,6 +101,9 @@ jobs:
             --path logs/telemetry.jsonl \
             --state-path logs/telemetry_dashboard_notify_state.json \
             --recovery-red-lock-critical-streak 2 \
+            --corr-stress-threshold ${CORR_STRESS_THRESHOLD} \
+            --corr-pressure-threshold ${CORR_PRESSURE_THRESHOLD} \
+            --corr-exit-pnl-drop-threshold ${CORR_EXIT_PNL_DROP_THRESHOLD} \
             --no-notify
 
           python tools/telemetry_smoke_assert.py \
@@ -140,6 +150,9 @@ jobs:
             --path logs/telemetry.jsonl \
             --state-path logs/telemetry_dashboard_notify_state.json \
             --recovery-red-lock-critical-streak 2 \
+            --corr-stress-threshold ${CORR_STRESS_THRESHOLD} \
+            --corr-pressure-threshold ${CORR_PRESSURE_THRESHOLD} \
+            --corr-exit-pnl-drop-threshold ${CORR_EXIT_PNL_DROP_THRESHOLD} \
             --protection-refresh-budget-blocked-critical-threshold 2 \
             --protection-refresh-force-override-critical-threshold 2 \
             --no-notify
@@ -198,6 +211,9 @@ jobs:
             --path logs/telemetry.jsonl \
             --state-path logs/telemetry_dashboard_notify_state.json \
             --recovery-red-lock-critical-streak 2 \
+            --corr-stress-threshold ${CORR_STRESS_THRESHOLD} \
+            --corr-pressure-threshold ${CORR_PRESSURE_THRESHOLD} \
+            --corr-exit-pnl-drop-threshold ${CORR_EXIT_PNL_DROP_THRESHOLD} \
             --protection-refresh-budget-blocked-critical-threshold 2 \
             --protection-refresh-force-override-critical-threshold 2 \
             --no-notify

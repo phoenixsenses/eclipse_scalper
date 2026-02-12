@@ -439,6 +439,8 @@ async def _place_stop_ladder_router(
             hedge_side_hint=hedge_side_hint,
             client_order_id=cid_a,
             retries=6,
+            intent_component="position_manager",
+            intent_kind="STOP_RESTORE",
         )
         if isinstance(o, dict) and o.get("id"):
             return str(o.get("id"))
@@ -466,6 +468,8 @@ async def _place_stop_ladder_router(
             hedge_side_hint=hedge_side_hint,
             client_order_id=cid_b,
             retries=6,
+            intent_component="position_manager",
+            intent_kind="STOP_RESTORE",
         )
         if isinstance(o, dict) and o.get("id"):
             return str(o.get("id"))
@@ -508,6 +512,8 @@ async def _place_trailing_router(
             callback_rate=float(cb),
             hedge_side_hint=hedge_side_hint,
             retries=6,
+            intent_component="position_manager",
+            intent_kind="TRAILING_RESTORE",
         )
         if isinstance(o, dict) and o.get("id"):
             return str(o.get("id"))
