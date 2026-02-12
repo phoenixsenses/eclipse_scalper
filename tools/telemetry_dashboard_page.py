@@ -116,6 +116,7 @@ def _read_reliability_gate_section(path: Path) -> str:
     coverage_gap_seconds_peak = float(
         kv.get("protection_coverage_gap_seconds_peak", str(coverage_gap_seconds)) or coverage_gap_seconds
     )
+    stage1_protection_fail_count = int(float(kv.get("stage1_protection_fail_count", "0") or 0))
     replace_race_count = int(float(kv.get("replace_race_count", "0") or 0))
     contradiction_count = int(float(kv.get("evidence_contradiction_count", "0") or 0))
     categories = {
@@ -125,6 +126,7 @@ def _read_reliability_gate_section(path: Path) -> str:
         "position": 0,
         "orphan": 0,
         "coverage_gap": 0,
+        "stage1_protection_fail": 0,
         "replace_race": 0,
         "contradiction": 0,
         "unknown": 0,
@@ -148,6 +150,7 @@ def _read_reliability_gate_section(path: Path) -> str:
         f"orphan_count: {orphan_count}",
         f"intent_collision_count: {intent_collision_count}",
         f"protection_coverage_gap_seconds: {coverage_gap_seconds:.1f} (peak {coverage_gap_seconds_peak:.1f})",
+        f"stage1_protection_fail_count: {stage1_protection_fail_count}",
         f"replace_race_count: {replace_race_count}",
         f"evidence_contradiction_count: {contradiction_count}",
     ]
@@ -160,6 +163,7 @@ def _read_reliability_gate_section(path: Path) -> str:
             f"position={int(categories['position'])} "
             f"orphan={int(categories['orphan'])} "
             f"coverage_gap={int(categories['coverage_gap'])} "
+            f"stage1_protection_fail={int(categories['stage1_protection_fail'])} "
             f"replace_race={int(categories['replace_race'])} "
             f"contradiction={int(categories['contradiction'])} "
             f"unknown={int(categories['unknown'])}"
@@ -171,7 +175,7 @@ def _read_reliability_gate_section(path: Path) -> str:
         )[:3]
         if ranked:
             lines.append("top_contributors: " + ", ".join(f"{k}={v}" for (k, v) in ranked))
-        critical_keys = ("position", "orphan", "coverage_gap", "replace_race", "contradiction")
+        critical_keys = ("position", "orphan", "coverage_gap", "stage1_protection_fail", "replace_race", "contradiction")
         critical_ranked = sorted(
             [(str(k), int(categories.get(k, 0))) for k in critical_keys if int(categories.get(k, 0)) > 0],
             key=lambda kv: int(kv[1]),
@@ -1171,6 +1175,8 @@ def _notify_state_summary(path: Path) -> str:
     prev_intent_collision = int(float(payload.get("previous_reliability_intent_collision_count") or 0.0))
     cat_cov_gap = int(float(payload.get("reliability_cat_coverage_gap") or 0.0))
     prev_cat_cov_gap = int(float(payload.get("previous_reliability_cat_coverage_gap") or 0.0))
+    cat_stage1_fail = int(float(payload.get("reliability_cat_stage1_protection_fail") or 0.0))
+    prev_cat_stage1_fail = int(float(payload.get("previous_reliability_cat_stage1_protection_fail") or 0.0))
     cat_replace = int(float(payload.get("reliability_cat_replace_race") or 0.0))
     prev_cat_replace = int(float(payload.get("previous_reliability_cat_replace_race") or 0.0))
     cat_contrad = int(float(payload.get("reliability_cat_contradiction") or 0.0))
@@ -1202,6 +1208,7 @@ def _notify_state_summary(path: Path) -> str:
             f"orphan={cat_orphan} (prev {prev_cat_orphan}) "
             f"intent_collision={intent_collision} (prev {prev_intent_collision}) "
             f"coverage_gap={cat_cov_gap} (prev {prev_cat_cov_gap}) "
+            f"stage1_protection_fail={cat_stage1_fail} (prev {prev_cat_stage1_fail}) "
             f"replace_race={cat_replace} (prev {prev_cat_replace}) "
             f"contradiction={cat_contrad} (prev {prev_cat_contrad}) "
             f"unknown={cat_unknown} (prev {prev_cat_unknown})"

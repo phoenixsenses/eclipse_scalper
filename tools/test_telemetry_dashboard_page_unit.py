@@ -87,7 +87,7 @@ class TelemetryDashboardPageTests(unittest.TestCase):
             )
             html = tdp._read_reliability_gate_section(p)
             self.assertIn(
-                "mismatch_categories: ledger=1 transition=1 belief=0 position=0 orphan=0 coverage_gap=0 replace_race=0 contradiction=2 unknown=0",
+                "mismatch_categories: ledger=1 transition=1 belief=0 position=0 orphan=0 coverage_gap=0 stage1_protection_fail=0 replace_race=0 contradiction=2 unknown=0",
                 html,
             )
             self.assertIn("position_mismatch_count: 1 (peak 4)", html)

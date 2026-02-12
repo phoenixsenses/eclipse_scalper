@@ -234,6 +234,7 @@ def _reliability_gate_snippet(
         "position": 0,
         "orphan": 0,
         "coverage_gap": 0,
+        "stage1_protection_fail": 0,
         "replace_race": 0,
         "contradiction": 0,
         "unknown": 0,
@@ -256,6 +257,7 @@ def _reliability_gate_snippet(
     intent_collision_count = _safe_int(kv.get("intent_collision_count"), 0)
     coverage_gap_seconds = _safe_float(kv.get("protection_coverage_gap_seconds"), 0.0)
     coverage_gap_seconds_peak = _safe_float(kv.get("protection_coverage_gap_seconds_peak"), coverage_gap_seconds)
+    stage1_protection_fail_count = _safe_int(kv.get("stage1_protection_fail_count"), 0)
     replace_race_count = _safe_int(kv.get("replace_race_count"), 0)
     contradiction_count = _safe_int(kv.get("evidence_contradiction_count"), 0)
     degraded = not (
@@ -277,6 +279,7 @@ def _reliability_gate_snippet(
     msg += (
         "\n- coverage_gap_sec="
         f"{coverage_gap_seconds:.1f} (peak={coverage_gap_seconds_peak:.1f}) "
+        f"stage1_protection_fail={stage1_protection_fail_count} "
         f"replace_race={replace_race_count} contradiction={contradiction_count}"
     )
     if any(int(categories.get(k, 0)) > 0 for k in categories.keys()):
@@ -286,11 +289,12 @@ def _reliability_gate_snippet(
             f"transition={int(categories['transition'])} "
             f"belief={int(categories['belief'])} "
             f"position={int(categories['position'])} "
-            f"orphan={int(categories['orphan'])} "
-            f"coverage_gap={int(categories['coverage_gap'])} "
-            f"replace_race={int(categories['replace_race'])} "
-            f"contradiction={int(categories['contradiction'])} "
-            f"unknown={int(categories['unknown'])}"
+                f"orphan={int(categories['orphan'])} "
+                f"coverage_gap={int(categories['coverage_gap'])} "
+                f"stage1_protection_fail={int(categories['stage1_protection_fail'])} "
+                f"replace_race={int(categories['replace_race'])} "
+                f"contradiction={int(categories['contradiction'])} "
+                f"unknown={int(categories['unknown'])}"
         )
         ranked = sorted(
             [(str(k), int(v)) for (k, v) in categories.items() if int(v) > 0],
@@ -299,7 +303,7 @@ def _reliability_gate_snippet(
         )[:3]
         if ranked:
             msg += "\n- top_contributors: " + ", ".join(f"{k}={v}" for (k, v) in ranked)
-        critical_keys = ("position", "orphan", "coverage_gap", "replace_race", "contradiction")
+        critical_keys = ("position", "orphan", "coverage_gap", "stage1_protection_fail", "replace_race", "contradiction")
         critical_ranked = sorted(
             [(str(k), int(categories.get(k, 0))) for k in critical_keys if int(categories.get(k, 0)) > 0],
             key=lambda kv: int(kv[1]),
@@ -319,6 +323,7 @@ def _reliability_gate_snippet(
         "intent_collision_count": float(intent_collision_count),
         "protection_coverage_gap_seconds": float(coverage_gap_seconds),
         "protection_coverage_gap_seconds_peak": float(coverage_gap_seconds_peak),
+        "stage1_protection_fail_count": float(stage1_protection_fail_count),
         "replace_race_count": float(replace_race_count),
         "evidence_contradiction_count": float(contradiction_count),
         "replay_mismatch_cat_ledger": float(categories["ledger"]),
@@ -327,6 +332,7 @@ def _reliability_gate_snippet(
         "replay_mismatch_cat_position": float(categories["position"]),
         "replay_mismatch_cat_orphan": float(categories["orphan"]),
         "replay_mismatch_cat_coverage_gap": float(categories["coverage_gap"]),
+        "replay_mismatch_cat_stage1_protection_fail": float(categories["stage1_protection_fail"]),
         "replay_mismatch_cat_replace_race": float(categories["replace_race"]),
         "replay_mismatch_cat_contradiction": float(categories["contradiction"]),
         "replay_mismatch_cat_unknown": float(categories["unknown"]),
@@ -887,6 +893,7 @@ def _is_worsened(prev: dict[str, Any], curr: dict[str, Any]) -> bool:
         "reliability_cat_position",
         "reliability_cat_orphan",
         "reliability_cat_coverage_gap",
+        "reliability_cat_stage1_protection_fail",
         "reliability_cat_replace_race",
         "reliability_cat_contradiction",
         "reliability_cat_unknown",
@@ -955,6 +962,7 @@ def _attach_prev_snapshot(curr: dict[str, Any], prev: dict[str, Any]) -> dict[st
         "reliability_cat_position",
         "reliability_cat_orphan",
         "reliability_cat_coverage_gap",
+        "reliability_cat_stage1_protection_fail",
         "reliability_cat_replace_race",
         "reliability_cat_contradiction",
         "reliability_cat_unknown",
@@ -1262,6 +1270,9 @@ def main(argv=None) -> int:
             "reliability_cat_orphan": int(_safe_float(reliability_metrics.get("replay_mismatch_cat_orphan"), 0.0)),
             "reliability_cat_coverage_gap": int(
                 _safe_float(reliability_metrics.get("replay_mismatch_cat_coverage_gap"), 0.0)
+            ),
+            "reliability_cat_stage1_protection_fail": int(
+                _safe_float(reliability_metrics.get("replay_mismatch_cat_stage1_protection_fail"), 0.0)
             ),
             "reliability_cat_replace_race": int(
                 _safe_float(reliability_metrics.get("replay_mismatch_cat_replace_race"), 0.0)

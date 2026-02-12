@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import os
 import time
@@ -17,6 +18,13 @@ from typing import Any, Dict, Optional, Callable, Tuple
 
 from utils.logging import log_entry, log_core
 from execution.order_router import create_order, cancel_order
+from execution.entry_primitives import (
+    symkey as _shared_symkey,
+    resolve_raw_symbol as _shared_resolve_raw_symbol,
+    order_filled as _shared_order_filled,
+    order_avg_price as _shared_order_avg_price,
+    build_staged_protection_plan as _build_staged_protection_plan,
+)
 from execution.anomaly_guard import should_pause as anomaly_should_pause
 from execution.entry_decision import (
     EntryDecisionRecord,
@@ -79,6 +87,19 @@ try:
 except Exception:
     get_adaptive_notional_scale = None
 
+try:
+    from execution.protection_manager import record_entry_stage_hint as _record_entry_stage_hint_pm  # type: ignore
+except Exception:
+    _record_entry_stage_hint_pm = None
+try:
+    from execution.protection_manager import place_stop_ladder_router as _pm_place_stop_ladder_router  # type: ignore
+except Exception:
+    _pm_place_stop_ladder_router = None
+try:
+    from execution.protection_manager import update_coverage_gap_state as _update_coverage_gap_state_pm  # type: ignore
+except Exception:
+    _update_coverage_gap_state_pm = None
+
 
 # ----------------------------
 # Helpers
@@ -110,6 +131,152 @@ def _env_get(name: str) -> str:
         return str(os.getenv(name, "")).strip()
     except Exception:
         return ""
+
+
+def _ensure_run_context(bot) -> dict:
+    try:
+        st = getattr(bot, "state", None)
+        rc = getattr(st, "run_context", None) if st is not None else None
+        if isinstance(rc, dict):
+            return rc
+        if st is not None:
+            st.run_context = {}
+            return st.run_context
+    except Exception:
+        pass
+    return {}
+
+
+def _stage1_stop_client_id_base(symbol: str, hedge_side_hint: Optional[str], order_id: Optional[str]) -> str:
+    sym = _symkey(symbol)
+    hs = str(hedge_side_hint or "ONEWAY").upper()
+    seed = f"{sym}|{hs}|{order_id or ''}"
+    digest = hashlib.sha1(seed.encode("utf-8")).hexdigest()[:10]
+    return f"S1_{sym}_{hs}_{digest}"
+
+
+def _stage1_stop_pct(signal: Optional[Dict[str, Any]], default_pct: float) -> float:
+    sig = signal if isinstance(signal, dict) else {}
+    for key in ("entry_stop_pct", "stop_pct", "stopPct"):
+        if key in sig:
+            v = _safe_float(sig.get(key), default_pct)
+            if v > 0:
+                return float(v)
+    return float(default_pct)
+
+
+async def _maybe_place_stage1_emergency_stop(
+    bot,
+    *,
+    symbol: str,
+    sym_raw: str,
+    action: str,
+    filled_qty: float,
+    order: Dict[str, Any],
+    signal: Optional[Dict[str, Any]],
+    hedge_side_hint: Optional[str],
+    order_id: Optional[str],
+    fallback_price: Optional[float],
+) -> Dict[str, Any]:
+    enabled = _cfg_env_bool(bot, "ENTRY_STAGE1_EMERGENCY_ENABLED", False)
+    if not enabled or not callable(_pm_place_stop_ladder_router):
+        return {"attempted": False, "placed": False, "reason": "disabled"}
+
+    qty = abs(_safe_float(filled_qty, 0.0))
+    if qty <= 0:
+        return {"attempted": False, "placed": False, "reason": "no_fill"}
+
+    entry_px = _shared_order_avg_price(order or {}, float(fallback_price or 0.0))
+    if entry_px <= 0:
+        return {"attempted": False, "placed": False, "reason": "no_entry_price"}
+
+    base_pct = float(_cfg_env_float(bot, "ENTRY_STAGE1_STOP_PCT", 0.004) or 0.004)
+    stop_pct = max(1e-5, min(0.25, _stage1_stop_pct(signal, base_pct)))
+    side = "long" if str(action).lower().strip() == "buy" else "short"
+    stop_price = entry_px * (1.0 - stop_pct) if side == "long" else entry_px * (1.0 + stop_pct)
+    if stop_price <= 0:
+        return {"attempted": False, "placed": False, "reason": "invalid_stop_price"}
+
+    stop_client_base = _stage1_stop_client_id_base(symbol, hedge_side_hint, order_id)
+    try:
+        stop_id = await _pm_place_stop_ladder_router(
+            bot,
+            sym_raw=sym_raw,
+            side=side,
+            qty=float(qty),
+            stop_price=float(stop_price),
+            hedge_side_hint=hedge_side_hint,
+            stop_client_id_base=stop_client_base,
+            intent_component="entry_loop",
+            intent_kind="ENTRY_STAGE1_STOP",
+        )
+        placed = bool(stop_id)
+        return {
+            "attempted": True,
+            "placed": placed,
+            "stop_order_id": str(stop_id or ""),
+            "stop_price": float(stop_price),
+            "stop_pct": float(stop_pct),
+            "entry_price": float(entry_px),
+            "reason": ("ok" if placed else "router_none"),
+        }
+    except Exception as e:
+        return {"attempted": True, "placed": False, "reason": "exception", "err": repr(e)[:200]}
+
+
+async def _record_stage1_gap_assertion(
+    bot,
+    *,
+    symbol: str,
+    required_qty: float,
+    placed: bool,
+    reason: str,
+    stage1_payload: Optional[Dict[str, Any]] = None,
+) -> None:
+    if not callable(_update_coverage_gap_state_pm):
+        return
+    rc = _ensure_run_context(bot)
+    gap_store = rc.get("protection_gap_state")
+    if not isinstance(gap_store, dict):
+        gap_store = {}
+        rc["protection_gap_state"] = gap_store
+    s = gap_store.get(symbol)
+    if not isinstance(s, dict):
+        s = {}
+        gap_store[symbol] = s
+    ttl = float(_cfg_env_float(bot, "ENTRY_STAGE1_GAP_TTL_SEC", 90.0) or 90.0)
+    req = 0.0 if placed else float(abs(_safe_float(required_qty, 0.0)))
+    cov = _update_coverage_gap_state_pm(
+        s,
+        required_qty=req,
+        covered=bool(placed),
+        ttl_sec=ttl,
+        now_ts=_now(),
+        reason=str(reason or ("stage1_ok" if placed else "stage1_failed")),
+        coverage_ratio=(1.0 if placed else 0.0),
+    )
+    if callable(emit):
+        try:
+            payload = {
+                "symbol": symbol,
+                "placed": bool(placed),
+                "required_qty": float(req if req > 0 else abs(_safe_float(required_qty, 0.0))),
+                "reason": str(reason or ""),
+                "ttl_sec": float(ttl),
+                **(stage1_payload or {}),
+                "gap_active": bool((cov or {}).get("active", False)),
+                "gap_seconds": float((cov or {}).get("gap_seconds", 0.0) or 0.0),
+                "ttl_breached": bool((cov or {}).get("ttl_breached", False)),
+            }
+            await emit(
+                bot,
+                "entry.stage1_gap_assertion",
+                data=payload,
+                symbol=symbol,
+                level=("info" if placed else "warning"),
+            )
+        except Exception:
+            pass
 
 
 def _cfg_env_float(bot, name: str, default: float) -> float:
@@ -150,13 +317,7 @@ def _safe_float(value: Any, default: float = 0.0) -> float:
 
 
 def _symkey(sym: str) -> str:
-    s = (sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
+    return _shared_symkey(sym)
 
 
 def _parse_group_kv(raw: str) -> dict:
@@ -516,26 +677,11 @@ def _in_position_brain(bot, k: str) -> bool:
 
 
 def _resolve_raw_symbol(bot, k: str, fallback: str) -> str:
-    try:
-        data = getattr(bot, "data", None)
-        raw_map = getattr(data, "raw_symbol", {}) if data is not None else {}
-        if isinstance(raw_map, dict) and raw_map.get(k):
-            return str(raw_map[k])
-    except Exception:
-        pass
-    return fallback
+    return _shared_resolve_raw_symbol(bot, k, fallback)
 
 
 def _order_filled(order: dict) -> float:
-    try:
-        if order is None:
-            return 0.0
-        if "filled" in order:
-            return float(order.get("filled") or 0.0)
-        info = order.get("info") or {}
-        return float(info.get("executedQty") or 0.0)
-    except Exception:
-        return 0.0
+    return _shared_order_filled(order)
 
 
 def _recent_router_blocks(bot, k: str, window_sec: float, *, now_ts: Optional[float] = None) -> int:
@@ -2384,6 +2530,79 @@ async def entry_loop(bot) -> None:
                                 filled = _order_filled(res)
                                 req_amt = float(amt or 0.0)
                                 ratio = (filled / req_amt) if (req_amt > 0 and filled > 0) else 0.0
+                                plan = _build_staged_protection_plan(
+                                    requested_qty=req_amt,
+                                    filled_qty=filled,
+                                    min_fill_ratio=min_ratio,
+                                    trailing_enabled=bool(
+                                        _cfg_env_bool(bot, "DYNAMIC_TRAILING_FULL", False)
+                                        or _cfg_env_bool(bot, "DUAL_TRAILING", False)
+                                    ),
+                                )
+                                if callable(emit):
+                                    try:
+                                        await emit(
+                                            bot,
+                                            "entry.protection_plan",
+                                            data={
+                                                "symbol": k,
+                                                "order_id": str(oid) if oid else "",
+                                                **plan,
+                                            },
+                                            symbol=k,
+                                            level=("warning" if plan.get("flatten_required") else "info"),
+                                        )
+                                    except Exception:
+                                        pass
+                                if callable(_record_entry_stage_hint_pm):
+                                    try:
+                                        rc = _ensure_run_context(bot)
+                                        _record_entry_stage_hint_pm(
+                                            rc,
+                                            symbol=k,
+                                            plan=plan,
+                                            requested_qty=req_amt,
+                                            filled_qty=filled,
+                                            ttl_sec=float(_cfg_env_float(bot, "ENTRY_STAGE_HINT_TTL_SEC", 120.0) or 120.0),
+                                        )
+                                    except Exception:
+                                        pass
+                                if bool(plan.get("stage1_required")) and not bool(plan.get("flatten_required")):
+                                    stage1_out = await _maybe_place_stage1_emergency_stop(
+                                        bot,
+                                        symbol=k,
+                                        sym_raw=sym_raw,
+                                        action=action,
+                                        filled_qty=filled,
+                                        order=res if isinstance(res, dict) else {},
+                                        signal=sig if isinstance(sig, dict) else None,
+                                        hedge_side_hint=hedge_side_hint,
+                                        order_id=str(oid) if oid else None,
+                                        fallback_price=price if otype == "limit" else _get_price(bot, k),
+                                    )
+                                    if callable(emit):
+                                        try:
+                                            await emit(
+                                                bot,
+                                                "entry.stage1_protection",
+                                                data={
+                                                    "symbol": k,
+                                                    "order_id": str(oid) if oid else "",
+                                                    **stage1_out,
+                                                },
+                                                symbol=k,
+                                                level=("info" if stage1_out.get("placed") else "warning"),
+                                            )
+                                        except Exception:
+                                            pass
+                                    await _record_stage1_gap_assertion(
+                                        bot,
+                                        symbol=k,
+                                        required_qty=float(filled),
+                                        placed=bool(stage1_out.get("placed")),
+                                        reason=str(stage1_out.get("reason") or ""),
+                                        stage1_payload=stage1_out,
+                                    )
                                 if ratio > 0 and ratio < min_ratio:
                                     pf = await _resolve_partial_fill_state(
                                         bot,

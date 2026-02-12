@@ -335,6 +335,7 @@ def _ensure_reconcile_metrics(bot) -> Dict[str, Any]:
     rm.setdefault("runtime_gate_cat_position", 0)
     rm.setdefault("runtime_gate_cat_orphan", 0)
     rm.setdefault("runtime_gate_cat_coverage_gap", 0)
+    rm.setdefault("runtime_gate_cat_stage1_protection_fail", 0)
     rm.setdefault("runtime_gate_cat_replace_race", 0)
     rm.setdefault("runtime_gate_cat_contradiction", 0)
     rm.setdefault("runtime_gate_cat_unknown", 0)
@@ -344,6 +345,7 @@ def _ensure_reconcile_metrics(bot) -> Dict[str, Any]:
     rm.setdefault("runtime_gate_intent_collision_count", 0)
     rm.setdefault("runtime_gate_protection_coverage_gap_seconds", 0.0)
     rm.setdefault("runtime_gate_protection_coverage_gap_seconds_peak", 0.0)
+    rm.setdefault("runtime_gate_stage1_protection_fail_count", 0)
     rm.setdefault("runtime_gate_replace_race_count", 0)
     rm.setdefault("runtime_gate_evidence_contradiction_count", 0)
     rm.setdefault("runtime_gate_degrade_score", 0.0)
@@ -674,6 +676,7 @@ def _runtime_gate_cause_summary(metrics: Dict[str, Any]) -> str:
         )
     )
     intent_collision_count = int(_safe_float(metrics.get("runtime_gate_intent_collision_count", 0), 0.0))
+    stage1_fail_count = int(_safe_float(metrics.get("runtime_gate_stage1_protection_fail_count", 0), 0.0))
     parts: list[str] = []
     if reason and reason != "ok":
         parts.append(reason)
@@ -681,6 +684,8 @@ def _runtime_gate_cause_summary(metrics: Dict[str, Any]) -> str:
         parts.append(f"position_peak={pos_peak} current={pos_cur}")
     if "coverage_gap_sec_peak>" in reason:
         parts.append(f"coverage_gap_peak={gap_peak:.1f}s current={gap_cur:.1f}s")
+    if "stage1_protection_fail>" in reason or stage1_fail_count > 0:
+        parts.append(f"stage1_protection_fail={stage1_fail_count}")
     if "intent_collision>" in reason or intent_collision_count > 0:
         parts.append(f"intent_collision={intent_collision_count}")
     if not parts and degraded:
@@ -2084,6 +2089,9 @@ async def reconcile_tick(bot):
         metrics["runtime_gate_cat_position"] = int(_safe_float(cats.get("position", 0), 0.0))
         metrics["runtime_gate_cat_orphan"] = int(_safe_float(cats.get("orphan", 0), 0.0))
         metrics["runtime_gate_cat_coverage_gap"] = int(_safe_float(cats.get("coverage_gap", 0), 0.0))
+        metrics["runtime_gate_cat_stage1_protection_fail"] = int(
+            _safe_float(cats.get("stage1_protection_fail", 0), 0.0)
+        )
         metrics["runtime_gate_cat_replace_race"] = int(_safe_float(cats.get("replace_race", 0), 0.0))
         metrics["runtime_gate_cat_contradiction"] = int(_safe_float(cats.get("contradiction", 0), 0.0))
         metrics["runtime_gate_cat_unknown"] = int(_safe_float(cats.get("unknown", 0), 0.0))
@@ -2094,6 +2102,7 @@ async def reconcile_tick(bot):
         metrics["runtime_gate_cat_position"] = 0
         metrics["runtime_gate_cat_orphan"] = 0
         metrics["runtime_gate_cat_coverage_gap"] = 0
+        metrics["runtime_gate_cat_stage1_protection_fail"] = 0
         metrics["runtime_gate_cat_replace_race"] = 0
         metrics["runtime_gate_cat_contradiction"] = 0
         metrics["runtime_gate_cat_unknown"] = 0
@@ -2111,6 +2120,9 @@ async def reconcile_tick(bot):
             gate.get("protection_coverage_gap_seconds_peak", gate.get("protection_coverage_gap_seconds", 0.0)),
             0.0,
         )
+    )
+    metrics["runtime_gate_stage1_protection_fail_count"] = int(
+        _safe_float(gate.get("stage1_protection_fail_count", 0), 0.0)
     )
     metrics["runtime_gate_replace_race_count"] = int(_safe_float(gate.get("replace_race_count", 0), 0.0))
     metrics["runtime_gate_evidence_contradiction_count"] = int(
@@ -2349,6 +2361,9 @@ async def reconcile_tick(bot):
                     "runtime_gate_cat_position": int(metrics.get("runtime_gate_cat_position", 0) or 0),
                     "runtime_gate_cat_orphan": int(metrics.get("runtime_gate_cat_orphan", 0) or 0),
                     "runtime_gate_cat_coverage_gap": int(metrics.get("runtime_gate_cat_coverage_gap", 0) or 0),
+                    "runtime_gate_cat_stage1_protection_fail": int(
+                        metrics.get("runtime_gate_cat_stage1_protection_fail", 0) or 0
+                    ),
                     "runtime_gate_cat_replace_race": int(metrics.get("runtime_gate_cat_replace_race", 0) or 0),
                     "runtime_gate_cat_contradiction": int(metrics.get("runtime_gate_cat_contradiction", 0) or 0),
                     "runtime_gate_cat_unknown": int(metrics.get("runtime_gate_cat_unknown", 0) or 0),
@@ -2367,6 +2382,9 @@ async def reconcile_tick(bot):
                     ),
                     "runtime_gate_protection_coverage_gap_seconds_peak": float(
                         metrics.get("runtime_gate_protection_coverage_gap_seconds_peak", 0.0) or 0.0
+                    ),
+                    "runtime_gate_stage1_protection_fail_count": int(
+                        metrics.get("runtime_gate_stage1_protection_fail_count", 0) or 0
                     ),
                     "runtime_gate_replace_race_count": int(metrics.get("runtime_gate_replace_race_count", 0) or 0),
                     "runtime_gate_evidence_contradiction_count": int(
@@ -2579,6 +2597,9 @@ async def reconcile_tick(bot):
                     "runtime_gate_cat_position": int(metrics.get("runtime_gate_cat_position", 0) or 0),
                     "runtime_gate_cat_orphan": int(metrics.get("runtime_gate_cat_orphan", 0) or 0),
                     "runtime_gate_cat_coverage_gap": int(metrics.get("runtime_gate_cat_coverage_gap", 0) or 0),
+                    "runtime_gate_cat_stage1_protection_fail": int(
+                        metrics.get("runtime_gate_cat_stage1_protection_fail", 0) or 0
+                    ),
                     "runtime_gate_cat_replace_race": int(metrics.get("runtime_gate_cat_replace_race", 0) or 0),
                     "runtime_gate_cat_contradiction": int(metrics.get("runtime_gate_cat_contradiction", 0) or 0),
                     "runtime_gate_cat_unknown": int(metrics.get("runtime_gate_cat_unknown", 0) or 0),
@@ -2597,6 +2618,9 @@ async def reconcile_tick(bot):
                     ),
                     "runtime_gate_protection_coverage_gap_seconds_peak": float(
                         metrics.get("runtime_gate_protection_coverage_gap_seconds_peak", 0.0) or 0.0
+                    ),
+                    "runtime_gate_stage1_protection_fail_count": int(
+                        metrics.get("runtime_gate_stage1_protection_fail_count", 0) or 0
                     ),
                     "runtime_gate_replace_race_count": int(metrics.get("runtime_gate_replace_race_count", 0) or 0),
                     "runtime_gate_evidence_contradiction_count": int(
@@ -2751,6 +2775,9 @@ async def reconcile_tick(bot):
                     "runtime_gate_cat_position": int(metrics.get("runtime_gate_cat_position", 0) or 0),
                     "runtime_gate_cat_orphan": int(metrics.get("runtime_gate_cat_orphan", 0) or 0),
                     "runtime_gate_cat_coverage_gap": int(metrics.get("runtime_gate_cat_coverage_gap", 0) or 0),
+                    "runtime_gate_cat_stage1_protection_fail": int(
+                        metrics.get("runtime_gate_cat_stage1_protection_fail", 0) or 0
+                    ),
                     "runtime_gate_cat_replace_race": int(metrics.get("runtime_gate_cat_replace_race", 0) or 0),
                     "runtime_gate_cat_contradiction": int(metrics.get("runtime_gate_cat_contradiction", 0) or 0),
                     "runtime_gate_cat_unknown": int(metrics.get("runtime_gate_cat_unknown", 0) or 0),
@@ -2769,6 +2796,9 @@ async def reconcile_tick(bot):
                     ),
                     "runtime_gate_protection_coverage_gap_seconds_peak": float(
                         metrics.get("runtime_gate_protection_coverage_gap_seconds_peak", 0.0) or 0.0
+                    ),
+                    "runtime_gate_stage1_protection_fail_count": int(
+                        metrics.get("runtime_gate_stage1_protection_fail_count", 0) or 0
                     ),
                     "runtime_gate_replace_race_count": int(metrics.get("runtime_gate_replace_race_count", 0) or 0),
                     "runtime_gate_evidence_contradiction_count": int(

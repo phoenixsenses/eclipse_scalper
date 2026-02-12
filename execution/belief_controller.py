@@ -315,6 +315,9 @@ class BeliefController:
         runtime_gate_cat_coverage_gap = max(
             0.0, _safe_float(belief_state.get("runtime_gate_cat_coverage_gap", 0), 0.0)
         )
+        runtime_gate_cat_stage1_protection_fail = max(
+            0.0, _safe_float(belief_state.get("runtime_gate_cat_stage1_protection_fail", 0), 0.0)
+        )
         runtime_gate_cat_replace_race = max(
             0.0, _safe_float(belief_state.get("runtime_gate_cat_replace_race", 0), 0.0)
         )
@@ -451,6 +454,9 @@ class BeliefController:
         gate_cat_coverage_gap_weight = _clamp(
             self._cfg(cfg, "BELIEF_RUNTIME_GATE_CAT_COVERAGE_GAP_WEIGHT", 0.8), 0.0, 3.0
         )
+        gate_cat_stage1_fail_weight = _clamp(
+            self._cfg(cfg, "BELIEF_RUNTIME_GATE_CAT_STAGE1_PROTECTION_FAIL_WEIGHT", 1.0), 0.0, 3.0
+        )
         gate_cat_replace_race_weight = _clamp(
             self._cfg(cfg, "BELIEF_RUNTIME_GATE_CAT_REPLACE_RACE_WEIGHT", 0.6), 0.0, 3.0
         )
@@ -533,6 +539,7 @@ class BeliefController:
             + (runtime_gate_cat_position * gate_cat_position_weight)
             + (runtime_gate_cat_orphan * gate_cat_orphan_weight)
             + (runtime_gate_cat_coverage_gap * gate_cat_coverage_gap_weight)
+            + (runtime_gate_cat_stage1_protection_fail * gate_cat_stage1_fail_weight)
             + (runtime_gate_cat_replace_race * gate_cat_replace_race_weight)
             + (runtime_gate_cat_contradiction * gate_cat_contradiction_weight)
             + (runtime_gate_cat_unknown * gate_cat_unknown_weight)
@@ -542,6 +549,7 @@ class BeliefController:
             (runtime_gate_cat_position * gate_cat_position_weight)
             + (runtime_gate_cat_orphan * gate_cat_orphan_weight)
             + (runtime_gate_cat_coverage_gap * gate_cat_coverage_gap_weight)
+            + (runtime_gate_cat_stage1_protection_fail * gate_cat_stage1_fail_weight)
             + (runtime_gate_cat_replace_race * gate_cat_replace_race_weight)
             + (runtime_gate_cat_contradiction * gate_cat_contradiction_weight)
             + (runtime_gate_intent_collision_count * gate_intent_collision_weight)
@@ -558,6 +566,7 @@ class BeliefController:
             ("position", (runtime_gate_cat_position * gate_cat_position_weight)),
             ("orphan", (runtime_gate_cat_orphan * gate_cat_orphan_weight)),
             ("coverage_gap", (runtime_gate_cat_coverage_gap * gate_cat_coverage_gap_weight)),
+            ("stage1_protection_fail", (runtime_gate_cat_stage1_protection_fail * gate_cat_stage1_fail_weight)),
             ("replace_race", (runtime_gate_cat_replace_race * gate_cat_replace_race_weight)),
             ("contradiction", (runtime_gate_cat_contradiction * gate_cat_contradiction_weight)),
             ("unknown", (runtime_gate_cat_unknown * gate_cat_unknown_weight)),
@@ -917,6 +926,7 @@ class BeliefController:
             float(runtime_gate_cat_position)
             + float(runtime_gate_cat_orphan)
             + float(runtime_gate_cat_coverage_gap)
+            + float(runtime_gate_cat_stage1_protection_fail)
             + float(runtime_gate_cat_replace_race)
             + float(runtime_gate_cat_contradiction)
             + float(runtime_gate_intent_collision_count)

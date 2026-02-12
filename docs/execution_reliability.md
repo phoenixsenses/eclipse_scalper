@@ -116,6 +116,11 @@
 - Protective entry safeguards (`FIRST_LIVE_SAFE`) remain entry-only (protective exits are not blocked by those caps).
 - Entry-only leverage caps can be tightened by guard posture without affecting reduce-only/protective exit routing.
 - Belief-controller posture transitions are bounded with persistence + recovery hysteresis.
+- Entry orchestration authority is `execution.entry_loop.entry_loop`; bootstrap forces this path.
+- Legacy `execution.entry.try_enter` is runtime-blocked by default via `ENTRY_ENABLE_LEGACY_TRY_ENTER=0` (set `1` only for controlled back-compat/debug use).
+- Entry fill handling now emits staged protection hints into run-context (`entry_stage_hints`) so `position_manager` can prioritize urgent Stage-1 stop restoration without waiting for normal polling cadence.
+- Stop/trailing placement is now routed through shared `execution.protection_manager` placement helpers, reducing divergence between `entry` and `position_manager` restore paths.
+- Stage-1 emergency protection in `entry_loop` can assert into `run_context["protection_gap_state"]` (`entry.stage1_gap_assertion`) so reconcile/runtime gating can react when immediate post-fill protection placement fails.
 
 ## Assumptions
 - Exchange adapter `fetch_order` may be unavailable; status conflict checks are best-effort.

@@ -701,6 +701,47 @@ class BeliefControllerTests(unittest.TestCase):
         self.assertLessEqual(float(pressured.max_notional_usdt), float(base.max_notional_usdt))
         self.assertLessEqual(int(pressured.max_leverage), int(base.max_leverage))
 
+    def test_runtime_gate_stage1_category_contributes_to_dominant(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_SYMBOL_WEIGHT=0.0,
+            BELIEF_STREAK_WEIGHT=0.0,
+            BELIEF_YELLOW_SCORE=99.0,
+            BELIEF_ORANGE_SCORE=199.0,
+            BELIEF_RED_SCORE=299.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=199.0,
+            BELIEF_RED_GROWTH=299.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_RUNTIME_GATE_WEIGHT=0.2,
+            BELIEF_RUNTIME_GATE_CAT_STAGE1_PROTECTION_FAIL_WEIGHT=1.5,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+        _ = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+            },
+            cfg,
+        )
+        clock.tick(1.0)
+        _ = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "runtime_gate_degraded": False,
+                "runtime_gate_cat_stage1_protection_fail": 1,
+            },
+            cfg,
+        )
+        trace = ctl.explain().to_dict()
+        self.assertIn("stage1_protection_fail", str(trace.get("dominant_contributors", "")))
+
     def test_runtime_gate_critical_categories_tighten_more_than_unknown(self):
         cfg = types.SimpleNamespace(
             BELIEF_DEBT_REF_SEC=300.0,

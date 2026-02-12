@@ -111,7 +111,10 @@ class TelemetryDashboardNotifyTests(unittest.TestCase):
             self.assertIn("invalid_transitions=1", snippet)
             self.assertIn("journal_coverage=0.750", snippet)
             self.assertIn("position_mismatch=1 (peak=3) orphan=2 intent_collision=2", snippet)
-            self.assertIn("coverage_gap_sec=4.0 (peak=9.5) replace_race=2 contradiction=1", snippet)
+            self.assertIn(
+                "coverage_gap_sec=4.0 (peak=9.5) stage1_protection_fail=0 replace_race=2 contradiction=1",
+                snippet,
+            )
             self.assertIn("mismatch_categories: ledger=1 transition=1 belief=0 position=2 orphan=0", snippet)
             self.assertIn("critical_contributors: position=2", snippet)
             self.assertIn("missing_ids: CID-A, CID-B", snippet)

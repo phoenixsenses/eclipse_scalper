@@ -578,6 +578,34 @@ class PositionManagerTests(unittest.TestCase):
         self.assertGreater(float(rm.get("protection_coverage_gap_seconds", 0.0) or 0.0), 0.0)
         self.assertGreaterEqual(int(rm.get("protection_coverage_ttl_breaches", 0) or 0), 1)
 
+    def test_posmgr_stop_ladder_delegates_to_protection_manager(self):
+        calls = {"n": 0}
+
+        async def _fake_pm(*_args, **_kwargs):
+            calls["n"] += 1
+            return "oid-stop-posmgr"
+
+        orig_pm = position_manager._pm_place_stop_ladder_router
+        position_manager._pm_place_stop_ladder_router = _fake_pm
+        try:
+            out = asyncio.run(
+                position_manager._place_stop_ladder_router(
+                    SimpleNamespace(),
+                    sym_raw="DOGE/USDT:USDT",
+                    side="long",
+                    qty=10.0,
+                    stop_price=0.09,
+                    hedge_side_hint="LONG",
+                    k="DOGEUSDT",
+                    stop_client_id_base="SE_STOP_DOGEUSDT_LONG_1",
+                )
+            )
+        finally:
+            position_manager._pm_place_stop_ladder_router = orig_pm
+
+        self.assertEqual(out, "oid-stop-posmgr")
+        self.assertEqual(calls["n"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

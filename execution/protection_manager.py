@@ -346,3 +346,270 @@ def update_coverage_gap_state(
         "coverage_ratio": float(ratio),
         "reason": str(state["reason"]),
     }
+
+
+def _looks_like_dup_client_order_id(err: Exception) -> bool:
+    s = repr(err)
+    return ("-4116" in s) or ("ClientOrderId is duplicated" in s) or ("clientorderid is duplicated" in s.lower())
+
+
+def _extract_order_id(order: dict[str, Any]) -> str:
+    if not isinstance(order, dict):
+        return ""
+    for k in ("id", "orderId", "order_id"):
+        v = order.get(k)
+        if v:
+            return str(v)
+    info = order.get("info") or {}
+    for k in ("orderId", "id"):
+        v = info.get(k)
+        if v:
+            return str(v)
+    return ""
+
+
+def _order_client_id_any(order: dict[str, Any]) -> str:
+    if not isinstance(order, dict):
+        return ""
+    info = order.get("info") or {}
+    for kk in ("clientOrderId", "clientOrderID", "origClientOrderId", "origClientOrderID"):
+        v = order.get(kk) or info.get(kk)
+        if v:
+            return str(v)
+    return ""
+
+
+async def _fetch_open_orders_safe(bot, sym_raw: str) -> list[dict[str, Any]]:
+    try:
+        ex = getattr(bot, "ex", None)
+        if ex is None:
+            return []
+        fn = getattr(ex, "fetch_open_orders", None)
+        if not callable(fn):
+            return []
+        res = await fn(sym_raw)
+        return res if isinstance(res, list) else []
+    except Exception:
+        return []
+
+
+async def _adopt_open_order_id_by_client_id(bot, sym_raw: str, client_id: str) -> Optional[str]:
+    if not client_id or not sym_raw:
+        return None
+    oo = await _fetch_open_orders_safe(bot, sym_raw)
+    for order in oo:
+        try:
+            if _order_client_id_any(order) == str(client_id):
+                oid = _extract_order_id(order)
+                if oid:
+                    return oid
+        except Exception:
+            continue
+    return None
+
+
+async def place_stop_ladder_router(
+    bot,
+    *,
+    sym_raw: str,
+    side: str,
+    qty: float,
+    stop_price: float,
+    hedge_side_hint: Optional[str],
+    stop_client_id_base: str,
+    intent_component: str = "entry",
+    intent_kind: str = "STOP_RESTORE",
+) -> Optional[str]:
+    from execution.order_router import create_order  # local import to keep dependency surface narrow
+
+    stop_side = "sell" if str(side).lower().strip() == "long" else "buy"
+    cid_a = f"{stop_client_id_base}_A"
+    cid_b = f"{stop_client_id_base}_B"
+
+    try:
+        order = await create_order(
+            bot,
+            symbol=sym_raw,
+            type="STOP_MARKET",
+            side=stop_side,
+            amount=float(abs(_safe_float(qty, 0.0))),
+            price=None,
+            params={},
+            intent_reduce_only=True,
+            intent_close_position=False,
+            stop_price=float(stop_price),
+            hedge_side_hint=hedge_side_hint,
+            client_order_id=cid_a,
+            retries=6,
+            intent_component=intent_component,
+            intent_kind=intent_kind,
+        )
+        oid = _extract_order_id(order if isinstance(order, dict) else {})
+        if oid:
+            return oid
+    except Exception as e1:
+        if _looks_like_dup_client_order_id(e1):
+            adopted = await _adopt_open_order_id_by_client_id(bot, sym_raw, cid_a)
+            if adopted:
+                return adopted
+
+    try:
+        order = await create_order(
+            bot,
+            symbol=sym_raw,
+            type="STOP_MARKET",
+            side=stop_side,
+            amount=None,
+            price=None,
+            params={"closePosition": True},
+            intent_reduce_only=False,
+            intent_close_position=True,
+            stop_price=float(stop_price),
+            hedge_side_hint=hedge_side_hint,
+            client_order_id=cid_b,
+            retries=6,
+            intent_component=intent_component,
+            intent_kind=intent_kind,
+        )
+        oid = _extract_order_id(order if isinstance(order, dict) else {})
+        if oid:
+            return oid
+    except Exception as e2:
+        if _looks_like_dup_client_order_id(e2):
+            adopted = await _adopt_open_order_id_by_client_id(bot, sym_raw, cid_b)
+            if adopted:
+                return adopted
+    return None
+
+
+async def place_trailing_router(
+    bot,
+    *,
+    sym_raw: str,
+    side: str,
+    qty: float,
+    activation_price: float,
+    callback_rate: float,
+    hedge_side_hint: Optional[str],
+    intent_component: str = "entry",
+    intent_kind: str = "TRAILING_RESTORE",
+) -> Optional[str]:
+    from execution.order_router import create_order  # local import to keep dependency surface narrow
+
+    close_side = "sell" if str(side).lower().strip() == "long" else "buy"
+    cb = max(0.1, min(5.0, float(_safe_float(callback_rate, 1.0))))
+    qty_abs = float(abs(_safe_float(qty, 0.0)))
+
+    try:
+        order = await create_order(
+            bot,
+            symbol=sym_raw,
+            type="TRAILING_STOP_MARKET",
+            side=close_side,
+            amount=qty_abs,
+            price=None,
+            params={},
+            intent_reduce_only=True,
+            activation_price=float(activation_price),
+            callback_rate=float(cb),
+            hedge_side_hint=hedge_side_hint,
+            retries=6,
+            intent_component=intent_component,
+            intent_kind=intent_kind,
+        )
+        oid = _extract_order_id(order if isinstance(order, dict) else {})
+        if oid:
+            return oid
+    except Exception:
+        pass
+
+    try:
+        order = await create_order(
+            bot,
+            symbol=sym_raw,
+            type="TRAILING_STOP_MARKET",
+            side=close_side,
+            amount=qty_abs,
+            price=None,
+            params={},
+            intent_reduce_only=True,
+            activation_price=float(activation_price),
+            hedge_side_hint=hedge_side_hint,
+            retries=6,
+            intent_component=intent_component,
+            intent_kind=intent_kind,
+        )
+        oid = _extract_order_id(order if isinstance(order, dict) else {})
+        if oid:
+            return oid
+    except Exception:
+        pass
+    return None
+
+
+def record_entry_stage_hint(
+    run_context: dict[str, Any],
+    *,
+    symbol: str,
+    plan: dict[str, Any],
+    requested_qty: float,
+    filled_qty: float,
+    ttl_sec: float = 120.0,
+    now_ts: Optional[float] = None,
+) -> dict[str, Any]:
+    """
+    Persist a short-lived staged-protection hint emitted by entry execution.
+    Position manager can consume this to prioritize immediate protection checks.
+    """
+    now = float(now_ts if now_ts is not None else time.time())
+    if not isinstance(run_context, dict):
+        return {}
+    store = run_context.get("entry_stage_hints")
+    if not isinstance(store, dict):
+        store = {}
+        run_context["entry_stage_hints"] = store
+    sym = str(symbol or "").upper().strip()
+    if not sym:
+        return {}
+    entry = {
+        "ts": float(now),
+        "expires_at": float(now + max(1.0, _safe_float(ttl_sec, 120.0))),
+        "stage": str((plan or {}).get("stage") or ""),
+        "stage1_required": bool((plan or {}).get("stage1_required", False)),
+        "stage2_required": bool((plan or {}).get("stage2_required", False)),
+        "stage3_required": bool((plan or {}).get("stage3_required", False)),
+        "flatten_required": bool((plan or {}).get("flatten_required", False)),
+        "requested_qty": float(abs(_safe_float(requested_qty, 0.0))),
+        "filled_qty": float(abs(_safe_float(filled_qty, 0.0))),
+        "fill_ratio": float(_safe_float((plan or {}).get("fill_ratio", 0.0), 0.0)),
+    }
+    store[sym] = entry
+    return dict(entry)
+
+
+def get_entry_stage_hint(
+    run_context: dict[str, Any],
+    *,
+    symbol: str,
+    now_ts: Optional[float] = None,
+    consume: bool = False,
+) -> Optional[dict[str, Any]]:
+    if not isinstance(run_context, dict):
+        return None
+    store = run_context.get("entry_stage_hints")
+    if not isinstance(store, dict):
+        return None
+    sym = str(symbol or "").upper().strip()
+    if not sym:
+        return None
+    hint = store.get(sym)
+    if not isinstance(hint, dict):
+        return None
+    now = float(now_ts if now_ts is not None else time.time())
+    expires_at = _safe_float(hint.get("expires_at", 0.0), 0.0)
+    if expires_at > 0 and now > expires_at:
+        store.pop(sym, None)
+        return None
+    if consume:
+        store.pop(sym, None)
+    return dict(hint)

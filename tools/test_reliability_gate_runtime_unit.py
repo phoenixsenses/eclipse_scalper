@@ -241,6 +241,37 @@ class ReliabilityGateRuntimeTests(unittest.TestCase):
             self.assertIn("position_peak>1", str(out.get("reason") or ""))
             self.assertIn("coverage_gap_sec_peak>5.0", str(out.get("reason") or ""))
 
+    def test_stage1_protection_fail_threshold_can_degrade(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "reliability_gate.txt"
+            p.write_text(
+                "\n".join(
+                    [
+                        "replay_mismatch_count=0",
+                        "invalid_transition_count=0",
+                        "journal_coverage_ratio=1.00",
+                        "stage1_protection_fail_count=2",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            cfg = type(
+                "Cfg",
+                (),
+                {
+                    "RELIABILITY_GATE_PATH": str(p),
+                    "RELIABILITY_GATE_MAX_REPLAY_MISMATCH": 0,
+                    "RELIABILITY_GATE_MAX_INVALID_TRANSITIONS": 0,
+                    "RELIABILITY_GATE_MIN_JOURNAL_COVERAGE": 0.90,
+                    "RELIABILITY_GATE_MAX_STAGE1_PROTECTION_FAIL_COUNT": 0,
+                },
+            )()
+            out = rgr.get_runtime_gate(cfg)
+            self.assertTrue(bool(out.get("degraded")))
+            self.assertEqual(int(out.get("stage1_protection_fail_count", 0) or 0), 2)
+            self.assertIn("stage1_protection_fail>0", str(out.get("reason") or ""))
+
 
 if __name__ == "__main__":
     unittest.main()

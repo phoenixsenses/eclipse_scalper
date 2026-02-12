@@ -6,6 +6,7 @@ Unit-style tests for entry_loop helpers.
 from __future__ import annotations
 
 import asyncio
+import os
 import sys
 import unittest
 from pathlib import Path
@@ -247,6 +248,115 @@ class EntryLoopTelemetryTests(unittest.TestCase):
         payload = emitted[-1]["data"]
         self.assertAlmostEqual(float(payload.get("corr_pressure", 0.0)), 0.77, places=6)
         self.assertEqual(str(payload.get("corr_regime", "")), "TIGHTENING")
+
+    def test_stage1_emergency_stop_disabled(self):
+        bot = SimpleNamespace(cfg=SimpleNamespace())
+        prev = entry_loop._pm_place_stop_ladder_router
+        entry_loop._pm_place_stop_ladder_router = lambda *_a, **_k: None
+        try:
+            out = asyncio.run(
+                entry_loop._maybe_place_stage1_emergency_stop(
+                    bot,
+                    symbol="DOGEUSDT",
+                    sym_raw="DOGE/USDT:USDT",
+                    action="buy",
+                    filled_qty=10.0,
+                    order={"average": 0.1},
+                    signal={},
+                    hedge_side_hint="LONG",
+                    order_id="oid-1",
+                    fallback_price=0.1,
+                )
+            )
+        finally:
+            entry_loop._pm_place_stop_ladder_router = prev
+        self.assertFalse(out.get("attempted"))
+
+    def test_stage1_emergency_stop_places_when_enabled(self):
+        os.environ["ENTRY_STAGE1_EMERGENCY_ENABLED"] = "1"
+        bot = SimpleNamespace(cfg=SimpleNamespace())
+        calls = {"n": 0}
+
+        async def _fake_pm(*_args, **_kwargs):
+            calls["n"] += 1
+            return "stop-123"
+
+        prev = entry_loop._pm_place_stop_ladder_router
+        entry_loop._pm_place_stop_ladder_router = _fake_pm
+        try:
+            out = asyncio.run(
+                entry_loop._maybe_place_stage1_emergency_stop(
+                    bot,
+                    symbol="DOGEUSDT",
+                    sym_raw="DOGE/USDT:USDT",
+                    action="buy",
+                    filled_qty=10.0,
+                    order={"average": 0.1},
+                    signal={},
+                    hedge_side_hint="LONG",
+                    order_id="oid-2",
+                    fallback_price=0.1,
+                )
+            )
+        finally:
+            entry_loop._pm_place_stop_ladder_router = prev
+            os.environ.pop("ENTRY_STAGE1_EMERGENCY_ENABLED", None)
+
+        self.assertTrue(out.get("attempted"))
+        self.assertTrue(out.get("placed"))
+        self.assertEqual(out.get("stop_order_id"), "stop-123")
+        self.assertEqual(calls["n"], 1)
+
+    def test_stage1_gap_assertion_marks_active_on_failure(self):
+        bot = SimpleNamespace(cfg=SimpleNamespace(), state=SimpleNamespace(run_context={}))
+        events = []
+
+        async def _fake_emit(_bot, event, data=None, symbol=None, level="info"):
+            events.append({"event": event, "data": dict(data or {}), "symbol": symbol, "level": level})
+
+        prev_emit = entry_loop.emit
+        try:
+            entry_loop.emit = _fake_emit
+            asyncio.run(
+                entry_loop._record_stage1_gap_assertion(
+                    bot,
+                    symbol="DOGEUSDT",
+                    required_qty=10.0,
+                    placed=False,
+                    reason="router_none",
+                    stage1_payload={"attempted": True},
+                )
+            )
+        finally:
+            entry_loop.emit = prev_emit
+
+        store = bot.state.run_context.get("protection_gap_state", {})
+        self.assertIn("DOGEUSDT", store)
+        self.assertTrue(bool(store["DOGEUSDT"].get("active", False)))
+        self.assertTrue(any(e.get("event") == "entry.stage1_gap_assertion" for e in events))
+
+    def test_stage1_gap_assertion_clears_on_success(self):
+        bot = SimpleNamespace(cfg=SimpleNamespace(), state=SimpleNamespace(run_context={}))
+        asyncio.run(
+            entry_loop._record_stage1_gap_assertion(
+                bot,
+                symbol="DOGEUSDT",
+                required_qty=10.0,
+                placed=False,
+                reason="router_none",
+            )
+        )
+        asyncio.run(
+            entry_loop._record_stage1_gap_assertion(
+                bot,
+                symbol="DOGEUSDT",
+                required_qty=10.0,
+                placed=True,
+                reason="ok",
+            )
+        )
+        ent = bot.state.run_context.get("protection_gap_state", {}).get("DOGEUSDT", {})
+        self.assertFalse(bool(ent.get("active", False)))
 
 
 if __name__ == "__main__":

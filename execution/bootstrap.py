@@ -839,29 +839,22 @@ async def main() -> None:
     if not callable(guardian_loop):
         raise RuntimeError("execution.guardian.guardian_loop is required but missing")
 
-    # Entry loop selection:
-    # ENTRY_LOOP_MODE=full|basic (default: full if available, else basic)
+    # Entry loop selection (authoritative):
+    # execution.entry_loop.entry_loop is the only supported runtime orchestrator.
     entry_mode = os.getenv("ENTRY_LOOP_MODE", "").strip().lower()
-    prefer_basic = entry_mode in ("basic", "simple", "lite")
-    prefer_full = entry_mode in ("full", "risk", "advanced")
-
-    # Prefer full-risk entry loop if present, fallback to basic entry_loop
-    entry_loop_mod = None
-    if prefer_basic:
-        entry_loop_mod = _opt_import("execution.entry_loop")
-    elif prefer_full:
-        entry_loop_mod = _opt_import("execution.entry_loop_full") or _opt_import("execution.entry_loop")
+    if entry_mode in ("full", "risk", "advanced", "basic", "simple", "lite"):
+        log_core.warning(
+            f"[bootstrap] ENTRY_LOOP_MODE={entry_mode} is deprecated; forcing execution.entry_loop.entry_loop"
+        )
+    # Guard legacy direct try_enter paths at runtime unless explicitly re-enabled.
+    if os.getenv("ENTRY_ENABLE_LEGACY_TRY_ENTER", "").strip() == "":
+        os.environ["ENTRY_ENABLE_LEGACY_TRY_ENTER"] = "0"
+    entry_loop_mod = _opt_import("execution.entry_loop")
+    entry_loop = _callable(entry_loop_mod, "entry_loop") if entry_loop_mod else None
+    if entry_loop:
+        log_core.info("[bootstrap] entry loop: AUTHORITATIVE (execution.entry_loop.entry_loop)")
     else:
-        entry_loop_mod = _opt_import("execution.entry_loop_full") or _opt_import("execution.entry_loop")
-    entry_loop = None
-    if entry_loop_mod:
-        entry_loop = _callable(entry_loop_mod, "entry_loop_full") or _callable(entry_loop_mod, "entry_loop")
-        if entry_loop and entry_loop.__name__ == "entry_loop_full":
-            log_core.info("[bootstrap] entry loop: FULL (execution.entry_loop_full.entry_loop_full)")
-        elif entry_loop:
-            log_core.info("[bootstrap] entry loop: BASIC (execution.entry_loop.entry_loop)")
-        else:
-            log_core.warning("[bootstrap] entry loop: NONE (no callable found)")
+        log_core.warning("[bootstrap] entry loop: NONE (execution.entry_loop.entry_loop missing)")
 
     data_loop_mod = _opt_import("execution.data_loop")
     data_loop = _callable(data_loop_mod, "data_loop") if data_loop_mod else None

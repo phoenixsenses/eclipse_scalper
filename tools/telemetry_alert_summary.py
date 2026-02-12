@@ -647,6 +647,7 @@ def _reliability_gate_lines(path: Path) -> tuple[list[str], dict[str, Any]]:
         "position": 0,
         "orphan": 0,
         "coverage_gap": 0,
+        "stage1_protection_fail": 0,
         "replace_race": 0,
         "contradiction": 0,
         "unknown": 0,
@@ -677,6 +678,7 @@ def _reliability_gate_lines(path: Path) -> tuple[list[str], dict[str, Any]]:
             f"ledger={int(cats['ledger'])} transition={int(cats['transition'])} "
             f"belief={int(cats['belief'])} position={int(cats['position'])} "
             f"orphan={int(cats['orphan'])} coverage_gap={int(cats['coverage_gap'])} "
+            f"stage1_protection_fail={int(cats['stage1_protection_fail'])} "
             f"replace_race={int(cats['replace_race'])} contradiction={int(cats['contradiction'])} "
             f"unknown={int(cats['unknown'])}"
         )
@@ -687,7 +689,7 @@ def _reliability_gate_lines(path: Path) -> tuple[list[str], dict[str, Any]]:
         )[:3]
         if ranked:
             rows.append("- top_contributors: " + ", ".join(f"{k}={v}" for (k, v) in ranked))
-        critical_keys = ("position", "orphan", "coverage_gap", "replace_race", "contradiction")
+        critical_keys = ("position", "orphan", "coverage_gap", "stage1_protection_fail", "replace_race", "contradiction")
         critical_ranked = sorted(
             [(str(k), int(cats.get(k, 0))) for k in critical_keys if int(cats.get(k, 0)) > 0],
             key=lambda kv: int(kv[1]),
