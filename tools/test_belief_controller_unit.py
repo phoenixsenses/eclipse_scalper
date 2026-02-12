@@ -1006,6 +1006,156 @@ class BeliefControllerTests(unittest.TestCase):
         self.assertIn("mode_transition", str(trace.get("cause_tags", "")))
         self.assertIn("position", str(trace.get("dominant_contributors", "")))
 
+    def test_runtime_gate_peak_reasons_are_exposed_in_cause_tags(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_SYMBOL_WEIGHT=0.0,
+            BELIEF_STREAK_WEIGHT=0.0,
+            BELIEF_YELLOW_SCORE=99.0,
+            BELIEF_ORANGE_SCORE=199.0,
+            BELIEF_RED_SCORE=299.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=199.0,
+            BELIEF_RED_GROWTH=299.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+        k = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "runtime_gate_degraded": True,
+                "runtime_gate_reason": "position_peak>1,coverage_gap_sec_peak>5.0",
+            },
+            cfg,
+        )
+        cause_tags = str(getattr(k, "cause_tags", "") or "")
+        self.assertIn("runtime_gate_position_peak", cause_tags)
+        self.assertIn("runtime_gate_coverage_gap_peak", cause_tags)
+
+    def test_runtime_gate_intent_collision_escalates_and_is_tagged(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_SYMBOL_WEIGHT=0.0,
+            BELIEF_STREAK_WEIGHT=0.0,
+            BELIEF_YELLOW_SCORE=99.0,
+            BELIEF_ORANGE_SCORE=199.0,
+            BELIEF_RED_SCORE=299.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=199.0,
+            BELIEF_RED_GROWTH=299.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_RUNTIME_GATE_INTENT_COLLISION_WEIGHT=1.2,
+            BELIEF_RUNTIME_GATE_CRITICAL_TRIP_THRESHOLD=1.0,
+            BELIEF_RUNTIME_GATE_CRITICAL_CLEAR_THRESHOLD=1.0,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+        k = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "runtime_gate_intent_collision_count": 1,
+                "runtime_gate_reason": "intent_collision>0",
+            },
+            cfg,
+        )
+        self.assertFalse(bool(k.allow_entries))
+        self.assertIn("runtime_gate_intent_collision", str(getattr(k, "cause_tags", "")))
+        self.assertIn("intent_collision", str(k.reason))
+
+    def test_runtime_gate_cause_summary_position_peak_tightens_notional_and_leverage(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_SYMBOL_WEIGHT=0.0,
+            BELIEF_STREAK_WEIGHT=0.0,
+            BELIEF_YELLOW_SCORE=99.0,
+            BELIEF_ORANGE_SCORE=199.0,
+            BELIEF_RED_SCORE=299.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=199.0,
+            BELIEF_RED_GROWTH=299.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_RUNTIME_GATE_POSITION_PEAK_NOTIONAL_SCALE=0.75,
+            BELIEF_RUNTIME_GATE_POSITION_PEAK_LEVERAGE_SCALE=0.85,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+        base = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+            },
+            cfg,
+        )
+        clock.tick(1.0)
+        peaked = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "runtime_gate_cause_summary": "position_peak=2 current=0",
+            },
+            cfg,
+        )
+        self.assertLess(float(peaked.max_notional_usdt), float(base.max_notional_usdt))
+        self.assertLessEqual(int(peaked.max_leverage), int(base.max_leverage))
+        self.assertIn("runtime_gate_position_peak_action", str(getattr(peaked, "cause_tags", "")))
+        self.assertIn("runtime_gate_position_peak_action", str(peaked.reason))
+
+    def test_runtime_gate_cause_summary_coverage_gap_peak_raises_conf_and_cooldown(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_SYMBOL_WEIGHT=0.0,
+            BELIEF_STREAK_WEIGHT=0.0,
+            BELIEF_YELLOW_SCORE=99.0,
+            BELIEF_ORANGE_SCORE=199.0,
+            BELIEF_RED_SCORE=299.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=199.0,
+            BELIEF_RED_GROWTH=299.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            ENTRY_COOLDOWN_SEC=5.0,
+            BELIEF_RUNTIME_GATE_COVERAGE_GAP_PEAK_MIN_CONF_EXTRA=0.05,
+            BELIEF_RUNTIME_GATE_COVERAGE_GAP_PEAK_COOLDOWN_EXTRA_SEC=12.0,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+        base = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+            },
+            cfg,
+        )
+        clock.tick(1.0)
+        peaked = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "runtime_gate_cause_summary": "coverage_gap_peak=12.0s current=0.0s",
+            },
+            cfg,
+        )
+        self.assertGreaterEqual(float(peaked.min_entry_conf), float(base.min_entry_conf))
+        self.assertGreater(float(peaked.entry_cooldown_seconds), float(base.entry_cooldown_seconds))
+        self.assertIn("runtime_gate_coverage_gap_peak_action", str(getattr(peaked, "cause_tags", "")))
+        self.assertIn("runtime_gate_coverage_gap_peak_action", str(peaked.reason))
+
     def test_unlock_conditions_snapshot_contains_tick_coverage_and_contradiction(self):
         cfg = types.SimpleNamespace(
             BELIEF_DEBT_REF_SEC=300.0,
@@ -1039,6 +1189,91 @@ class BeliefControllerTests(unittest.TestCase):
         self.assertIn("healthy_ticks", msg)
         self.assertIn("journal_coverage", msg)
         self.assertIn("contradiction_clear", msg)
+        snap = getattr(k, "unlock_snapshot", {}) or {}
+        self.assertIn("healthy_ticks_current", snap)
+        self.assertIn("journal_coverage_current", snap)
+        self.assertIn("contradiction_clear_current_sec", snap)
+        self.assertIn("protection_gap_current_sec", snap)
+
+    def test_transition_audit_populated_when_runtime_escalates_mode(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_SYMBOL_WEIGHT=0.0,
+            BELIEF_STREAK_WEIGHT=0.0,
+            BELIEF_YELLOW_SCORE=99.0,
+            BELIEF_ORANGE_SCORE=199.0,
+            BELIEF_RED_SCORE=299.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=199.0,
+            BELIEF_RED_GROWTH=299.0,
+            BELIEF_MODE_PERSIST_SEC=0.0,
+            BELIEF_MODE_RECOVER_SEC=1.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_RUNTIME_GATE_RECOVER_SEC=60.0,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+        k = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "runtime_gate_degraded": True,
+                "runtime_gate_reason": "mismatch>0",
+            },
+            cfg,
+        )
+        self.assertEqual(str(getattr(k, "previous_mode", "")), "GREEN")
+        self.assertEqual(str(getattr(k, "target_mode", "")), "GREEN")
+        self.assertEqual(str(getattr(k, "transition", "")), "GREEN->ORANGE")
+        self.assertIn("mode_transition", str(getattr(k, "cause_tags", "")))
+
+    def test_transition_trace_order_is_deterministic_for_multi_cause_escalation(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=100.0,
+            BELIEF_SYMBOL_WEIGHT=0.0,
+            BELIEF_STREAK_WEIGHT=0.0,
+            BELIEF_YELLOW_SCORE=0.1,
+            BELIEF_ORANGE_SCORE=9.0,
+            BELIEF_RED_SCORE=19.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=99.0,
+            BELIEF_RED_GROWTH=99.0,
+            BELIEF_MODE_PERSIST_SEC=0.0,
+            BELIEF_MODE_RECOVER_SEC=1.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=5,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_CORR_WEIGHT=0.0,
+            BELIEF_CORR_REGIME_STRESS_WEIGHT=0.0,
+            BELIEF_CORR_REGIME_TIGHTEN_WEIGHT=0.0,
+            BELIEF_CORR_TAIL_WEIGHT=0.0,
+            BELIEF_CORR_DOWNSIDE_WEIGHT=0.0,
+            BELIEF_CORR_UPLIFT_WEIGHT=0.0,
+            BELIEF_CORR_DRIFT_WEIGHT=0.0,
+            BELIEF_CORR_HIDDEN_WEIGHT=0.0,
+            BELIEF_CORR_LOW_CONF_WEIGHT=0.0,
+            BELIEF_CORR_ORANGE_PRESSURE=0.90,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+        k = ctl.update(
+            {
+                "belief_debt_sec": 20.0,  # score=0.2 -> base target YELLOW
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "corr_pressure": 0.95,    # independent ORANGE floor escalation
+                "corr_regime": "NORMAL",
+            },
+            cfg,
+        )
+        self.assertEqual(str(getattr(k, "previous_mode", "")), "GREEN")
+        self.assertEqual(str(getattr(k, "target_mode", "")), "YELLOW")
+        self.assertEqual(str(getattr(k, "transition", "")), "GREEN->YELLOW|YELLOW->ORANGE")
+        self.assertEqual(str(getattr(k, "mode", "")), "ORANGE")
+        self.assertIn("mode_transition", str(getattr(k, "cause_tags", "")))
 
     def test_contradiction_burn_rate_escalates_faster_than_staleness(self):
         cfg = types.SimpleNamespace(
@@ -1174,6 +1409,144 @@ class BeliefControllerTests(unittest.TestCase):
             cfg,
         )
         self.assertIn(str(k3.mode), ("GREEN", "YELLOW"))
+
+    def test_correlation_pressure_tightens_entry_posture(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_SYMBOL_WEIGHT=0.0,
+            BELIEF_STREAK_WEIGHT=0.0,
+            BELIEF_YELLOW_SCORE=99.0,
+            BELIEF_ORANGE_SCORE=199.0,
+            BELIEF_RED_SCORE=299.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=199.0,
+            BELIEF_RED_GROWTH=299.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_CORR_WEIGHT=0.5,
+            BELIEF_CORR_STRESS_ENTER=0.72,
+            BELIEF_CORR_TIGHTEN_ENTER=0.48,
+            BELIEF_CORR_NOTIONAL_SCALE_MIN=0.2,
+            BELIEF_CORR_LEVERAGE_SCALE_MIN=0.3,
+            BELIEF_CORR_MIN_CONF_EXTRA_MAX=0.12,
+            BELIEF_CORR_COOLDOWN_EXTRA_SEC_MAX=12.0,
+            BELIEF_CORR_HARD_FREEZE_STRESS=False,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+        base = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "corr_pressure": 0.10,
+                "corr_regime": "NORMAL",
+                "corr_confidence": 1.0,
+            },
+            cfg,
+        )
+        clock.tick(1.0)
+        tight = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "corr_pressure": 0.85,
+                "corr_regime": "STRESS",
+                "corr_confidence": 0.5,
+                "corr_tail_coupling": 0.9,
+                "corr_downside": 0.8,
+            },
+            cfg,
+        )
+        self.assertLessEqual(float(tight.max_notional_usdt), float(base.max_notional_usdt))
+        self.assertLessEqual(int(tight.max_leverage), int(base.max_leverage))
+        self.assertGreaterEqual(float(tight.min_entry_conf), float(base.min_entry_conf))
+        self.assertIn("corr_scale=", str(tight.reason))
+
+    def test_correlation_stress_hard_freeze_blocks_entries(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_SYMBOL_WEIGHT=0.0,
+            BELIEF_STREAK_WEIGHT=0.0,
+            BELIEF_YELLOW_SCORE=99.0,
+            BELIEF_ORANGE_SCORE=199.0,
+            BELIEF_RED_SCORE=299.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=199.0,
+            BELIEF_RED_GROWTH=299.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_CORR_HARD_FREEZE_STRESS=True,
+            BELIEF_CORR_HARD_FREEZE_PRESSURE=0.9,
+            BELIEF_CORR_STRESS_ENTER=0.72,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+        k = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "corr_pressure": 0.92,
+                "corr_regime": "STRESS",
+                "corr_confidence": 0.6,
+            },
+            cfg,
+        )
+        self.assertFalse(k.allow_entries)
+        self.assertEqual(float(k.max_notional_usdt), 0.0)
+        self.assertIn("corr_hard_freeze", str(k.reason))
+        self.assertTrue(ctl.allows_intent("exit"))
+
+    def test_envelope_ambiguity_and_width_tighten_entry_posture(self):
+        cfg = types.SimpleNamespace(
+            BELIEF_DEBT_REF_SEC=300.0,
+            BELIEF_SYMBOL_WEIGHT=0.0,
+            BELIEF_STREAK_WEIGHT=0.0,
+            BELIEF_YELLOW_SCORE=99.0,
+            BELIEF_ORANGE_SCORE=199.0,
+            BELIEF_RED_SCORE=299.0,
+            BELIEF_YELLOW_GROWTH=99.0,
+            BELIEF_ORANGE_GROWTH=199.0,
+            BELIEF_RED_GROWTH=299.0,
+            FIXED_NOTIONAL_USDT=100.0,
+            LEVERAGE=20,
+            ENTRY_MIN_CONFIDENCE=0.2,
+            BELIEF_ENVELOPE_AMBIGUOUS_SYMBOL_WEIGHT=0.30,
+            BELIEF_ENVELOPE_WIDTH_WEIGHT=0.30,
+            BELIEF_ENVELOPE_WIDTH_SUM_WEIGHT=0.10,
+            BELIEF_ENVELOPE_UNKNOWN_SYMBOL_WEIGHT=0.20,
+            BELIEF_ENVELOPE_WIDTH_REF=1.0,
+            BELIEF_ENVELOPE_WIDTH_SUM_REF=2.0,
+            BELIEF_ENVELOPE_SYMBOL_REF=2.0,
+        )
+        clock = _Clock(10.0)
+        ctl = BeliefController(clock=clock.now)
+        base = ctl.update(
+            {"belief_debt_sec": 0.0, "belief_debt_symbols": 0, "mismatch_streak": 0},
+            cfg,
+        )
+        clock.tick(1.0)
+        tight = ctl.update(
+            {
+                "belief_debt_sec": 0.0,
+                "belief_debt_symbols": 0,
+                "mismatch_streak": 0,
+                "belief_envelope_symbols": 2,
+                "belief_envelope_ambiguous_symbols": 1,
+                "belief_position_interval_width_sum": 1.5,
+                "belief_position_interval_width_max": 1.5,
+                "belief_live_unknown_symbols": 1,
+            },
+            cfg,
+        )
+        self.assertLessEqual(float(tight.max_notional_usdt), float(base.max_notional_usdt))
+        self.assertLessEqual(int(tight.max_leverage), int(base.max_leverage))
+        self.assertIn("belief_envelope_ambiguous", str(getattr(tight, "cause_tags", "")))
+        self.assertIn("belief_envelope_width", str(getattr(tight, "cause_tags", "")))
 
 
 if __name__ == "__main__":

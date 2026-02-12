@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+from collections import deque
 import json
 import os
 import re
@@ -60,7 +61,7 @@ def _truncate(text: str, max_len: int = 3800) -> str:
 def _load_jsonl(path: Path, limit: int = 5000) -> list[dict]:
     if not path.exists():
         return []
-    out: list[dict] = []
+    out: deque[dict] = deque(maxlen=max(1, int(limit)))
     try:
         for line in path.read_text(encoding="utf-8").splitlines():
             s = line.strip()
@@ -70,11 +71,9 @@ def _load_jsonl(path: Path, limit: int = 5000) -> list[dict]:
                 out.append(json.loads(s))
             except Exception:
                 continue
-            if len(out) >= max(1, int(limit)):
-                break
     except Exception:
-        return out
-    return out
+        return list(out)
+    return list(out)
 
 
 def _safe_int(x: Any, default: int = 0) -> int:
@@ -94,7 +93,9 @@ def _safe_float(x: Any, default: float = 0.0) -> float:
         return float(default)
 
 
-def _extract_unlock_metrics(unlock: str, next_unlock_sec: float) -> dict[str, float]:
+def _extract_unlock_metrics(
+    unlock: str, next_unlock_sec: float, unlock_snapshot: dict[str, Any] | None = None
+) -> dict[str, float]:
     text = str(unlock or "").strip()
     out: dict[str, float] = {
         "unlock_next_sec": float(max(0.0, _safe_float(next_unlock_sec, 0.0))),
@@ -111,6 +112,28 @@ def _extract_unlock_metrics(unlock: str, next_unlock_sec: float) -> dict[str, fl
         "unlock_protection_gap_max_sec": 0.0,
         "unlock_protection_gap_remaining_sec": 0.0,
     }
+    snap = unlock_snapshot if isinstance(unlock_snapshot, dict) else {}
+    if snap:
+        ht_cur = _safe_float(snap.get("healthy_ticks_current"), 0.0)
+        ht_req = _safe_float(snap.get("healthy_ticks_required"), 0.0)
+        cov_cur = _safe_float(snap.get("journal_coverage_current"), 0.0)
+        cov_req = _safe_float(snap.get("journal_coverage_required"), 0.0)
+        cc_cur = _safe_float(snap.get("contradiction_clear_current_sec"), 0.0)
+        cc_req = _safe_float(snap.get("contradiction_clear_required_sec"), 0.0)
+        pg_cur = _safe_float(snap.get("protection_gap_current_sec"), 0.0)
+        pg_req = _safe_float(snap.get("protection_gap_max_sec"), 0.0)
+        out["unlock_healthy_ticks_current"] = ht_cur
+        out["unlock_healthy_ticks_required"] = ht_req
+        out["unlock_healthy_ticks_remaining"] = float(max(0.0, ht_req - ht_cur))
+        out["unlock_journal_coverage_current"] = cov_cur
+        out["unlock_journal_coverage_required"] = cov_req
+        out["unlock_journal_coverage_remaining"] = float(max(0.0, cov_req - cov_cur))
+        out["unlock_contradiction_clear_current_sec"] = cc_cur
+        out["unlock_contradiction_clear_required_sec"] = cc_req
+        out["unlock_contradiction_clear_remaining_sec"] = float(max(0.0, cc_req - cc_cur))
+        out["unlock_protection_gap_current_sec"] = pg_cur
+        out["unlock_protection_gap_max_sec"] = pg_req
+        out["unlock_protection_gap_remaining_sec"] = float(max(0.0, pg_cur - pg_req))
     if not text:
         return out
 
@@ -192,6 +215,7 @@ def _reliability_gate_snippet(
     max_replay_mismatch: int = 0,
     max_invalid_transitions: int = 0,
     min_journal_coverage: float = 0.90,
+    max_intent_collision_count: int = 0,
 ) -> tuple[str, bool, dict[str, float]]:
     if not path.exists():
         return "", False, {}
@@ -226,16 +250,34 @@ def _reliability_gate_snippet(
     mismatch = _safe_int(kv.get("replay_mismatch_count"), 0)
     invalid = _safe_int(kv.get("invalid_transition_count"), 0)
     coverage = _safe_float(kv.get("journal_coverage_ratio"), 0.0)
+    position_mismatch = _safe_int(kv.get("position_mismatch_count"), 0)
+    position_mismatch_peak = _safe_int(kv.get("position_mismatch_count_peak"), position_mismatch)
+    orphan_count = _safe_int(kv.get("orphan_count"), 0)
+    intent_collision_count = _safe_int(kv.get("intent_collision_count"), 0)
+    coverage_gap_seconds = _safe_float(kv.get("protection_coverage_gap_seconds"), 0.0)
+    coverage_gap_seconds_peak = _safe_float(kv.get("protection_coverage_gap_seconds_peak"), coverage_gap_seconds)
+    replace_race_count = _safe_int(kv.get("replace_race_count"), 0)
+    contradiction_count = _safe_int(kv.get("evidence_contradiction_count"), 0)
     degraded = not (
         mismatch <= max(0, int(max_replay_mismatch))
         and invalid <= max(0, int(max_invalid_transitions))
         and coverage >= max(0.0, min(1.0, float(min_journal_coverage)))
+        and intent_collision_count <= max(0, int(max_intent_collision_count))
     )
     status = "DEGRADED" if degraded else "OK"
     msg = (
         "Execution reliability gate:\n"
         f"- status={status} replay_mismatch={mismatch} invalid_transitions={invalid} "
         f"journal_coverage={coverage:.3f}"
+    )
+    msg += (
+        "\n- position_mismatch="
+        f"{position_mismatch} (peak={position_mismatch_peak}) orphan={orphan_count} intent_collision={intent_collision_count}"
+    )
+    msg += (
+        "\n- coverage_gap_sec="
+        f"{coverage_gap_seconds:.1f} (peak={coverage_gap_seconds_peak:.1f}) "
+        f"replace_race={replace_race_count} contradiction={contradiction_count}"
     )
     if any(int(categories.get(k, 0)) > 0 for k in categories.keys()):
         msg += (
@@ -271,6 +313,14 @@ def _reliability_gate_snippet(
         "replay_mismatch_count": float(mismatch),
         "invalid_transition_count": float(invalid),
         "journal_coverage_ratio": float(coverage),
+        "position_mismatch_count": float(position_mismatch),
+        "position_mismatch_count_peak": float(position_mismatch_peak),
+        "orphan_count": float(orphan_count),
+        "intent_collision_count": float(intent_collision_count),
+        "protection_coverage_gap_seconds": float(coverage_gap_seconds),
+        "protection_coverage_gap_seconds_peak": float(coverage_gap_seconds_peak),
+        "replace_race_count": float(replace_race_count),
+        "evidence_contradiction_count": float(contradiction_count),
         "replay_mismatch_cat_ledger": float(categories["ledger"]),
         "replay_mismatch_cat_transition": float(categories["transition"]),
         "replay_mismatch_cat_belief": float(categories["belief"]),
@@ -299,11 +349,19 @@ def _belief_state_snippet(path: Path) -> tuple[str, dict[str, Any]]:
                 "guard_mode": str(data.get("guard_mode") or ""),
                 "allow_entries": bool(data.get("allow_entries", True)),
                 "reason": str((data.get("trace") or {}).get("reason") if isinstance(data.get("trace"), dict) else ""),
+                "runtime_gate_cause_summary": str(data.get("runtime_gate_cause_summary") or ""),
+                "cause_tags": str(data.get("guard_cause_tags") or ""),
+                "dominant_contributors": str(data.get("guard_dominant_contributors") or ""),
                 "refresh_blocked_level": float(data.get("guard_refresh_blocked_level") or 0.0),
                 "refresh_force_level": float(data.get("guard_refresh_force_level") or 0.0),
                 "recovery_stage": str(data.get("guard_recovery_stage") or ""),
                 "unlock": str(data.get("guard_unlock_conditions") or ""),
                 "next_unlock_sec": float(data.get("guard_next_unlock_sec") or 0.0),
+                "unlock_snapshot": (
+                    dict(data.get("guard_unlock_snapshot") or {})
+                    if isinstance(data.get("guard_unlock_snapshot"), dict)
+                    else {}
+                ),
             }
         )
     if not rows:
@@ -319,8 +377,51 @@ def _belief_state_snippet(path: Path) -> tuple[str, dict[str, Any]]:
         f"force={float(latest['refresh_force_level']):.2f}\n"
         f"- unlock_conditions={latest['unlock'] or 'stable'}"
     )
+    unlock_metrics = _extract_unlock_metrics(
+        str(latest.get("unlock") or ""),
+        _safe_float(latest.get("next_unlock_sec"), 0.0),
+        latest.get("unlock_snapshot") if isinstance(latest.get("unlock_snapshot"), dict) else None,
+    )
+    has_unlock_snapshot = bool(
+        isinstance(latest.get("unlock_snapshot"), dict) and latest.get("unlock_snapshot")
+    )
+    if has_unlock_snapshot or any(
+        _safe_float(unlock_metrics.get(k), 0.0) > 0.0
+        for k in (
+            "unlock_healthy_ticks_required",
+            "unlock_journal_coverage_required",
+            "unlock_contradiction_clear_required_sec",
+            "unlock_protection_gap_max_sec",
+        )
+    ):
+        msg += (
+            "\n- unlock_snapshot "
+            f"healthy_ticks={int(_safe_float(unlock_metrics.get('unlock_healthy_ticks_current'), 0.0))}/"
+            f"{int(_safe_float(unlock_metrics.get('unlock_healthy_ticks_required'), 0.0))} "
+            f"journal_coverage={_safe_float(unlock_metrics.get('unlock_journal_coverage_current'), 0.0):.3f}/"
+            f"{_safe_float(unlock_metrics.get('unlock_journal_coverage_required'), 0.0):.3f} "
+            f"contradiction_clear={_safe_float(unlock_metrics.get('unlock_contradiction_clear_current_sec'), 0.0):.0f}s/"
+            f"{_safe_float(unlock_metrics.get('unlock_contradiction_clear_required_sec'), 0.0):.0f}s"
+        )
+        msg += (
+            "\n- unlock_remaining "
+            f"healthy_ticks={int(_safe_float(unlock_metrics.get('unlock_healthy_ticks_remaining'), 0.0))} "
+            f"journal_coverage={_safe_float(unlock_metrics.get('unlock_journal_coverage_remaining'), 0.0):.3f} "
+            f"contradiction_clear={_safe_float(unlock_metrics.get('unlock_contradiction_clear_remaining_sec'), 0.0):.0f}s "
+            f"protection_gap={_safe_float(unlock_metrics.get('unlock_protection_gap_remaining_sec'), 0.0):.1f}s"
+        )
     if "protection_refresh_budget_hard_block" in str(latest.get("reason") or ""):
         msg += "\n- mitigation: protection_refresh_budget_hard_block active (entries clamped)"
+    cause_tags = str(latest.get("cause_tags") or "").strip()
+    dominant = str(latest.get("dominant_contributors") or "").strip()
+    gate_cause_summary = str(latest.get("runtime_gate_cause_summary") or "").strip()
+    if gate_cause_summary:
+        msg += f"\n- gate_cause_summary={gate_cause_summary}"
+    if cause_tags:
+        msg += f"\n- cause_tags={cause_tags}"
+    if dominant:
+        msg += f"\n- dominant_contributors={dominant}"
+        msg += f"\n- top_contributors={dominant}"
     return msg, latest
 
 
@@ -469,6 +570,144 @@ def _replace_envelope_snippet(path: Path, *, limit: int = 3) -> tuple[str, int]:
     for sym, cnt in symbol_sorted:
         lines.append(f"- {sym}: {cnt}")
     return "\n".join(lines), int(total)
+
+
+def _correlation_contribution_snippet(path: Path, *, limit: int = 3) -> tuple[str, dict[str, float]]:
+    events = _load_jsonl(path)
+    by_reason: dict[str, int] = {}
+    by_symbol: dict[str, int] = {}
+    blocked = 0
+    scaled = 0
+    stress = 0
+    tightening = 0
+    latest_regime = ""
+    latest_pressure = 0.0
+    latest_tags = ""
+    for ev in events:
+        name = str(ev.get("event") or "")
+        data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+        if name in ("entry.decision", "entry.blocked"):
+            pressure = _safe_float(data.get("corr_pressure"), 0.0)
+            regime = str(data.get("corr_regime") or "").strip().upper()
+            if pressure <= 0.0 and not regime:
+                continue
+            symbol = str(ev.get("symbol") or data.get("symbol") or "UNKNOWN").strip().upper() or "UNKNOWN"
+            reason = str(data.get("corr_reason_tags") or "stable").strip().lower() or "stable"
+            by_symbol[symbol] = int(by_symbol.get(symbol, 0)) + 1
+            by_reason[reason] = int(by_reason.get(reason, 0)) + 1
+            if name == "entry.blocked":
+                blocked += 1
+            else:
+                action = str(data.get("action") or "").strip().upper()
+                if action == "SCALE":
+                    scaled += 1
+                elif action in ("DENY", "DEFER"):
+                    blocked += 1
+            if regime == "STRESS":
+                stress += 1
+            elif regime == "TIGHTENING":
+                tightening += 1
+        elif name == "execution.correlation_state":
+            latest_regime = str(data.get("corr_regime") or latest_regime)
+            latest_pressure = _safe_float(data.get("corr_pressure"), latest_pressure)
+            latest_tags = str(data.get("corr_reason_tags") or latest_tags)
+    total = blocked + scaled
+    if total <= 0 and not latest_regime:
+        return "", {}
+    reason_sorted = sorted(by_reason.items(), key=lambda kv: kv[1], reverse=True)[: max(1, int(limit))]
+    symbol_sorted = sorted(by_symbol.items(), key=lambda kv: kv[1], reverse=True)[: max(1, int(limit))]
+    lines = [
+        f"Correlation contribution: blocked={blocked} scaled={scaled} stress={stress} tightening={tightening}"
+    ]
+    if latest_regime:
+        lines.append(f"- latest regime={latest_regime} pressure={latest_pressure:.2f} tags={latest_tags}")
+    if reason_sorted:
+        lines.append("- top reason tags:")
+        for reason, cnt in reason_sorted:
+            lines.append(f"- {reason}: {cnt}")
+    if symbol_sorted:
+        lines.append("- top symbols:")
+        for sym, cnt in symbol_sorted:
+            lines.append(f"- {sym}: {cnt}")
+    return "\n".join(lines), {
+        "corr_blocked": float(blocked),
+        "corr_scaled": float(scaled),
+        "corr_stress": float(stress),
+        "corr_tightening": float(tightening),
+        "corr_latest_pressure": float(latest_pressure),
+        "corr_latest_regime_stress": float(1.0 if str(latest_regime).upper() == "STRESS" else 0.0),
+    }
+
+
+def _corr_vs_exit_quality_snippet(path: Path, *, limit: int = 3) -> tuple[str, dict[str, float]]:
+    events = _load_jsonl(path)
+    corr_rows: list[tuple[float, str, float]] = []
+    closes: list[dict[str, float | str]] = []
+    for ev in events:
+        name = str(ev.get("event") or "")
+        data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+        ts = _safe_float(ev.get("ts"), 0.0)
+        if name == "execution.correlation_state":
+            regime = str(data.get("corr_regime") or "NORMAL").strip().upper() or "NORMAL"
+            pressure = _safe_float(data.get("corr_pressure"), 0.0)
+            corr_rows.append((ts, regime, pressure))
+        elif name == "position.closed":
+            closes.append(
+                {
+                    "ts": ts,
+                    "pnl": _safe_float(data.get("pnl_usdt"), 0.0),
+                    "duration": _safe_float(data.get("duration_sec"), 0.0),
+                }
+            )
+    if not closes:
+        return "", {}
+    corr_rows.sort(key=lambda x: x[0])
+    by_regime: dict[str, dict[str, float]] = {}
+    for row in closes:
+        ts = _safe_float(row.get("ts"), 0.0)
+        regime = "UNKNOWN"
+        pressure = 0.0
+        for cts, cregime, cpressure in corr_rows:
+            if cts <= ts:
+                regime = str(cregime)
+                pressure = float(cpressure)
+            else:
+                break
+        agg = by_regime.get(regime)
+        if agg is None:
+            agg = {"count": 0.0, "wins": 0.0, "pnl_sum": 0.0, "dur_sum": 0.0, "pressure_sum": 0.0}
+            by_regime[regime] = agg
+        pnl = _safe_float(row.get("pnl"), 0.0)
+        agg["count"] += 1.0
+        if pnl > 0:
+            agg["wins"] += 1.0
+        agg["pnl_sum"] += pnl
+        agg["dur_sum"] += _safe_float(row.get("duration"), 0.0)
+        agg["pressure_sum"] += pressure
+    ranked = sorted(by_regime.items(), key=lambda kv: kv[1].get("count", 0.0), reverse=True)[: max(1, int(limit))]
+    lines = ["Corr vs exit quality:"]
+    for regime, agg in ranked:
+        n = max(1.0, _safe_float(agg.get("count"), 1.0))
+        win_rate = _safe_float(agg.get("wins"), 0.0) / n
+        avg_pnl = _safe_float(agg.get("pnl_sum"), 0.0) / n
+        avg_dur = _safe_float(agg.get("dur_sum"), 0.0) / n
+        avg_corr = _safe_float(agg.get("pressure_sum"), 0.0) / n
+        lines.append(
+            f"- {regime}: n={int(n)} win={win_rate:.0%} avg_pnl={avg_pnl:+.3f} avg_dur={avg_dur:.0f}s avg_corr={avg_corr:.2f}"
+        )
+    stress = by_regime.get("STRESS", {})
+    normal = by_regime.get("NORMAL", {})
+    sn = max(1.0, _safe_float(stress.get("count"), 0.0)) if stress else 0.0
+    nn = max(1.0, _safe_float(normal.get("count"), 0.0)) if normal else 0.0
+    stress_avg = (_safe_float(stress.get("pnl_sum"), 0.0) / sn) if sn > 0 else 0.0
+    normal_avg = (_safe_float(normal.get("pnl_sum"), 0.0) / nn) if nn > 0 else 0.0
+    return "\n".join(lines), {
+        "corr_exit_stress_count": float(int(sn)),
+        "corr_exit_normal_count": float(int(nn)),
+        "corr_exit_stress_avg_pnl": float(stress_avg),
+        "corr_exit_normal_avg_pnl": float(normal_avg),
+        "corr_exit_stress_vs_normal_pnl_delta": float(normal_avg - stress_avg),
+    }
 
 
 def _protection_refresh_budget_snippet(path: Path) -> tuple[str, int, int]:
@@ -626,9 +865,22 @@ def _save_notify_state(path: Path, state: dict[str, Any]) -> None:
 def _is_worsened(prev: dict[str, Any], curr: dict[str, Any]) -> bool:
     if float(curr.get("reliability_coverage", 1.0) or 1.0) < float(prev.get("reliability_coverage", 1.0) or 1.0):
         return True
+    prev_gate_cause = str(prev.get("runtime_gate_cause_summary") or "").strip().lower()
+    curr_gate_cause = str(curr.get("runtime_gate_cause_summary") or "").strip().lower()
+    if curr_gate_cause and curr_gate_cause != "stable":
+        if (not prev_gate_cause) or prev_gate_cause == "stable" or curr_gate_cause != prev_gate_cause:
+            return True
     keys_higher_is_worse = (
         "reliability_mismatch",
         "reliability_invalid",
+        "reliability_position_mismatch_count",
+        "reliability_position_mismatch_peak",
+        "reliability_orphan_count",
+        "reliability_intent_collision_count",
+        "reliability_coverage_gap_seconds",
+        "reliability_coverage_gap_seconds_peak",
+        "reliability_replace_race_count",
+        "reliability_contradiction_count",
         "reliability_cat_ledger",
         "reliability_cat_transition",
         "reliability_cat_belief",
@@ -642,8 +894,20 @@ def _is_worsened(prev: dict[str, Any], curr: dict[str, Any]) -> bool:
         "reconcile_gate_max_severity",
         "reconcile_gate_max_streak",
         "recovery_red_lock_streak",
+        "intent_collision_streak",
         "entry_budget_depleted",
         "replace_envelope_count",
+        "corr_blocked",
+        "corr_scaled",
+        "corr_stress",
+        "corr_tightening",
+        "corr_latest_pressure",
+        "corr_latest_regime_stress",
+        "corr_exit_stress_count",
+        "corr_exit_normal_count",
+        "corr_exit_stress_avg_pnl",
+        "corr_exit_normal_avg_pnl",
+        "corr_exit_stress_vs_normal_pnl_delta",
         "protection_refresh_budget_blocked_count",
         "protection_refresh_budget_force_override_count",
     )
@@ -673,9 +937,18 @@ def _attach_prev_snapshot(curr: dict[str, Any], prev: dict[str, Any]) -> dict[st
         return out
     tracked = (
         "level",
+        "runtime_gate_cause_summary",
         "reliability_mismatch",
         "reliability_invalid",
         "reliability_coverage",
+        "reliability_position_mismatch_count",
+        "reliability_position_mismatch_peak",
+        "reliability_orphan_count",
+        "reliability_intent_collision_count",
+        "reliability_coverage_gap_seconds",
+        "reliability_coverage_gap_seconds_peak",
+        "reliability_replace_race_count",
+        "reliability_contradiction_count",
         "reliability_cat_ledger",
         "reliability_cat_transition",
         "reliability_cat_belief",
@@ -688,8 +961,20 @@ def _attach_prev_snapshot(curr: dict[str, Any], prev: dict[str, Any]) -> dict[st
         "reconcile_gate_count",
         "reconcile_gate_max_severity",
         "reconcile_gate_max_streak",
+        "intent_collision_streak",
         "entry_budget_depleted",
         "replace_envelope_count",
+        "corr_blocked",
+        "corr_scaled",
+        "corr_stress",
+        "corr_tightening",
+        "corr_latest_pressure",
+        "corr_latest_regime_stress",
+        "corr_exit_stress_count",
+        "corr_exit_normal_count",
+        "corr_exit_stress_avg_pnl",
+        "corr_exit_normal_avg_pnl",
+        "corr_exit_stress_vs_normal_pnl_delta",
         "protection_refresh_budget_blocked_count",
         "protection_refresh_budget_force_override_count",
     )
@@ -712,6 +997,11 @@ def main(argv=None) -> int:
     parser.add_argument("--reliability-max-replay-mismatch", type=int, default=0)
     parser.add_argument("--reliability-max-invalid-transitions", type=int, default=0)
     parser.add_argument("--reliability-min-journal-coverage", type=float, default=0.90)
+    parser.add_argument(
+        "--reliability-max-intent-collision-count",
+        type=int,
+        default=int(os.getenv("RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT", "0")),
+    )
     parser.add_argument("--reconcile-first-gate-critical-threshold", type=int, default=1)
     parser.add_argument(
         "--reconcile-first-gate-severity-threshold",
@@ -725,6 +1015,49 @@ def main(argv=None) -> int:
     )
     parser.add_argument("--entry-budget-depleted-critical-threshold", type=int, default=1)
     parser.add_argument("--replace-envelope-critical-threshold", type=int, default=1)
+    parser.add_argument(
+        "--corr-stress-threshold",
+        dest="corr_stress_threshold",
+        type=int,
+        default=int(os.getenv("CORR_STRESS_THRESHOLD", os.getenv("CORR_STRESS_CRITICAL_THRESHOLD", "1"))),
+    )
+    parser.add_argument(
+        "--corr-stress-critical-threshold",
+        dest="corr_stress_threshold",
+        type=int,
+        help=argparse.SUPPRESS,
+    )
+    parser.add_argument(
+        "--corr-pressure-threshold",
+        dest="corr_pressure_threshold",
+        type=float,
+        default=float(
+            os.getenv("CORR_PRESSURE_THRESHOLD", os.getenv("CORR_PRESSURE_CRITICAL_THRESHOLD", "0.90"))
+        ),
+    )
+    parser.add_argument(
+        "--corr-pressure-critical-threshold",
+        dest="corr_pressure_threshold",
+        type=float,
+        help=argparse.SUPPRESS,
+    )
+    parser.add_argument(
+        "--corr-exit-pnl-drop-threshold",
+        dest="corr_exit_pnl_drop_threshold",
+        type=float,
+        default=float(
+            os.getenv(
+                "CORR_EXIT_PNL_DROP_THRESHOLD",
+                os.getenv("CORR_EXIT_PNL_DROP_CRITICAL_THRESHOLD", "0.10"),
+            )
+        ),
+    )
+    parser.add_argument(
+        "--corr-exit-pnl-drop-critical-threshold",
+        dest="corr_exit_pnl_drop_threshold",
+        type=float,
+        help=argparse.SUPPRESS,
+    )
     parser.add_argument(
         "--protection-refresh-budget-blocked-critical-threshold",
         type=int,
@@ -740,6 +1073,18 @@ def main(argv=None) -> int:
         type=int,
         default=int(os.getenv("RECOVERY_RED_LOCK_CRITICAL_STREAK", "2")),
         help="Force critical level when latest recovery stage is RED_LOCK for this many consecutive runs",
+    )
+    parser.add_argument(
+        "--intent-collision-critical-threshold",
+        type=int,
+        default=int(os.getenv("INTENT_COLLISION_CRITICAL_THRESHOLD", "1")),
+        help="Force critical level when reliability intent collision count reaches this threshold in a run",
+    )
+    parser.add_argument(
+        "--intent-collision-critical-streak",
+        type=int,
+        default=int(os.getenv("INTENT_COLLISION_CRITICAL_STREAK", "2")),
+        help="Force critical level when intent-collision threshold is hit for this many consecutive runs",
     )
     parser.add_argument(
         "--guard-history-path",
@@ -778,6 +1123,8 @@ def main(argv=None) -> int:
         )
         entry_budget, entry_budget_depleted = _entry_budget_pressure_snippet(telemetry_path)
         replace_envelope, replace_envelope_count = _replace_envelope_snippet(telemetry_path)
+        corr_contrib, corr_metrics = _correlation_contribution_snippet(telemetry_path)
+        corr_exit_quality, corr_exit_metrics = _corr_vs_exit_quality_snippet(telemetry_path)
         refresh_budget, refresh_budget_blocked_count, refresh_budget_force_count = _protection_refresh_budget_snippet(
             telemetry_path
         )
@@ -787,6 +1134,13 @@ def main(argv=None) -> int:
             max_replay_mismatch=max(0, int(args.reliability_max_replay_mismatch)),
             max_invalid_transitions=max(0, int(args.reliability_max_invalid_transitions)),
             min_journal_coverage=max(0.0, min(1.0, float(args.reliability_min_journal_coverage))),
+            max_intent_collision_count=max(0, int(args.reliability_max_intent_collision_count)),
+        )
+        reliability_intent_collision_count = int(
+            _safe_float(reliability_metrics.get("intent_collision_count"), 0.0)
+        )
+        intent_collision_degraded = bool(
+            reliability_intent_collision_count >= max(1, int(args.intent_collision_critical_threshold))
         )
         reconcile_gate_degraded = bool(
             reconcile_gate_count >= max(1, int(args.reconcile_first_gate_critical_threshold))
@@ -811,7 +1165,30 @@ def main(argv=None) -> int:
             int(refresh_budget_force_count)
             >= max(1, int(args.protection_refresh_force_override_critical_threshold))
         )
+        corr_stress_degraded = bool(
+            int(_safe_float(corr_metrics.get("corr_stress"), 0.0))
+            >= max(1, int(args.corr_stress_threshold))
+        )
+        corr_pressure_degraded = bool(
+            float(_safe_float(corr_metrics.get("corr_latest_pressure"), 0.0))
+            >= max(0.0, float(args.corr_pressure_threshold))
+        )
+        corr_exit_stress_count = int(_safe_float(corr_exit_metrics.get("corr_exit_stress_count"), 0.0))
+        corr_exit_normal_count = int(_safe_float(corr_exit_metrics.get("corr_exit_normal_count"), 0.0))
+        corr_exit_pnl_delta = float(_safe_float(corr_exit_metrics.get("corr_exit_stress_vs_normal_pnl_delta"), 0.0))
+        corr_exit_quality_degraded = bool(
+            corr_exit_stress_count > 0
+            and corr_exit_normal_count > 0
+            and corr_exit_pnl_delta >= max(0.0, float(args.corr_exit_pnl_drop_threshold))
+        )
+        runtime_gate_cause_summary = str(
+            belief_latest.get("runtime_gate_cause_summary")
+            or reliability_metrics.get("runtime_gate_reason")
+            or "stable"
+        ).strip()
         merged = stdout
+        if runtime_gate_cause_summary and runtime_gate_cause_summary.lower() != "stable":
+            merged = f"Runtime gate cause summary:\n- {runtime_gate_cause_summary}\n\n{merged}"
         if belief:
             merged = f"{merged}\n\n{belief}"
         if recovery_stage:
@@ -822,6 +1199,10 @@ def main(argv=None) -> int:
             merged = f"{merged}\n\n{entry_budget}"
         if replace_envelope:
             merged = f"{merged}\n\n{replace_envelope}"
+        if corr_contrib:
+            merged = f"{merged}\n\n{corr_contrib}"
+        if corr_exit_quality:
+            merged = f"{merged}\n\n{corr_exit_quality}"
         if refresh_budget:
             merged = f"{merged}\n\n{refresh_budget}"
         if replay:
@@ -838,8 +1219,12 @@ def main(argv=None) -> int:
                     or reconcile_gate_degraded
                     or reconcile_gate_severity_degraded
                     or reconcile_gate_streak_degraded
+                    or intent_collision_degraded
                     or entry_budget_degraded
                     or replace_envelope_degraded
+                    or corr_stress_degraded
+                    or corr_pressure_degraded
+                    or corr_exit_quality_degraded
                     or refresh_budget_blocked_degraded
                     or refresh_budget_force_degraded
                 )
@@ -848,6 +1233,28 @@ def main(argv=None) -> int:
             "reliability_mismatch": int(_safe_float(reliability_metrics.get("replay_mismatch_count"), 0.0)),
             "reliability_invalid": int(_safe_float(reliability_metrics.get("invalid_transition_count"), 0.0)),
             "reliability_coverage": float(_safe_float(reliability_metrics.get("journal_coverage_ratio"), 1.0)),
+            "reliability_position_mismatch_count": int(
+                _safe_float(reliability_metrics.get("position_mismatch_count"), 0.0)
+            ),
+            "reliability_position_mismatch_peak": int(
+                _safe_float(reliability_metrics.get("position_mismatch_count_peak"), 0.0)
+            ),
+            "reliability_orphan_count": int(_safe_float(reliability_metrics.get("orphan_count"), 0.0)),
+            "reliability_intent_collision_count": int(
+                _safe_float(reliability_metrics.get("intent_collision_count"), 0.0)
+            ),
+            "reliability_coverage_gap_seconds": float(
+                _safe_float(reliability_metrics.get("protection_coverage_gap_seconds"), 0.0)
+            ),
+            "reliability_coverage_gap_seconds_peak": float(
+                _safe_float(reliability_metrics.get("protection_coverage_gap_seconds_peak"), 0.0)
+            ),
+            "reliability_replace_race_count": int(
+                _safe_float(reliability_metrics.get("replace_race_count"), 0.0)
+            ),
+            "reliability_contradiction_count": int(
+                _safe_float(reliability_metrics.get("evidence_contradiction_count"), 0.0)
+            ),
             "reliability_cat_ledger": int(_safe_float(reliability_metrics.get("replay_mismatch_cat_ledger"), 0.0)),
             "reliability_cat_transition": int(_safe_float(reliability_metrics.get("replay_mismatch_cat_transition"), 0.0)),
             "reliability_cat_belief": int(_safe_float(reliability_metrics.get("replay_mismatch_cat_belief"), 0.0)),
@@ -863,12 +1270,27 @@ def main(argv=None) -> int:
                 _safe_float(reliability_metrics.get("replay_mismatch_cat_contradiction"), 0.0)
             ),
             "reliability_cat_unknown": int(_safe_float(reliability_metrics.get("replay_mismatch_cat_unknown"), 0.0)),
+            "runtime_gate_cause_summary": str(runtime_gate_cause_summary or "stable"),
             "reconcile_gate_count": int(reconcile_gate_count),
             "reconcile_gate_max_severity": float(reconcile_gate_max_severity),
             "reconcile_gate_max_streak": int(reconcile_gate_max_streak),
             "recovery_stage_latest": str(recovery_latest or ""),
+            "intent_collision_streak": 0,
             "entry_budget_depleted": int(entry_budget_depleted),
             "replace_envelope_count": int(replace_envelope_count),
+            "corr_blocked": int(_safe_float(corr_metrics.get("corr_blocked"), 0.0)),
+            "corr_scaled": int(_safe_float(corr_metrics.get("corr_scaled"), 0.0)),
+            "corr_stress": int(_safe_float(corr_metrics.get("corr_stress"), 0.0)),
+            "corr_tightening": int(_safe_float(corr_metrics.get("corr_tightening"), 0.0)),
+            "corr_latest_pressure": float(_safe_float(corr_metrics.get("corr_latest_pressure"), 0.0)),
+            "corr_latest_regime_stress": int(_safe_float(corr_metrics.get("corr_latest_regime_stress"), 0.0)),
+            "corr_exit_stress_count": int(_safe_float(corr_exit_metrics.get("corr_exit_stress_count"), 0.0)),
+            "corr_exit_normal_count": int(_safe_float(corr_exit_metrics.get("corr_exit_normal_count"), 0.0)),
+            "corr_exit_stress_avg_pnl": float(_safe_float(corr_exit_metrics.get("corr_exit_stress_avg_pnl"), 0.0)),
+            "corr_exit_normal_avg_pnl": float(_safe_float(corr_exit_metrics.get("corr_exit_normal_avg_pnl"), 0.0)),
+            "corr_exit_stress_vs_normal_pnl_delta": float(
+                _safe_float(corr_exit_metrics.get("corr_exit_stress_vs_normal_pnl_delta"), 0.0)
+            ),
             "protection_refresh_budget_blocked_count": int(refresh_budget_blocked_count),
             "protection_refresh_budget_force_override_count": int(refresh_budget_force_count),
             "belief_allow_entries_latest": bool(belief_latest.get("allow_entries", True)),
@@ -879,6 +1301,11 @@ def main(argv=None) -> int:
             _extract_unlock_metrics(
                 str(belief_latest.get("unlock") or ""),
                 _safe_float(belief_latest.get("next_unlock_sec"), 0.0),
+                (
+                    belief_latest.get("unlock_snapshot")
+                    if isinstance(belief_latest.get("unlock_snapshot"), dict)
+                    else None
+                ),
             )
         )
         state_path = Path(args.state_path)
@@ -889,10 +1316,23 @@ def main(argv=None) -> int:
         else:
             red_lock_streak = 0
         current_state["recovery_red_lock_streak"] = int(red_lock_streak)
+        prev_collision_streak = (
+            int(_safe_float(prev_state.get("intent_collision_streak", 0), 0.0))
+            if isinstance(prev_state, dict)
+            else 0
+        )
+        if intent_collision_degraded:
+            intent_collision_streak = prev_collision_streak + 1
+        else:
+            intent_collision_streak = 0
+        current_state["intent_collision_streak"] = int(intent_collision_streak)
         recovery_red_lock_degraded = bool(
             int(red_lock_streak) >= max(1, int(args.recovery_red_lock_critical_streak))
         )
-        if recovery_red_lock_degraded:
+        intent_collision_streak_degraded = bool(
+            int(intent_collision_streak) >= max(1, int(args.intent_collision_critical_streak))
+        )
+        if recovery_red_lock_degraded or intent_collision_streak_degraded:
             current_state["level"] = "critical"
         should_send, decision_reason = _decide_notify(prev_state, current_state)
         current_state = _attach_prev_snapshot(current_state, prev_state)

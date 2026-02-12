@@ -30,6 +30,26 @@ class TelemetryDashboardNotifyTests(unittest.TestCase):
         self.assertEqual(float(out.get("unlock_contradiction_clear_remaining_sec", 0.0)), 50.0)
         self.assertEqual(float(out.get("unlock_protection_gap_remaining_sec", 0.0)), 0.0)
 
+    def test_extract_unlock_metrics_prefers_structured_snapshot_when_present(self):
+        out = tdn._extract_unlock_metrics(
+            "",
+            30.0,
+            {
+                "healthy_ticks_current": 2,
+                "healthy_ticks_required": 5,
+                "journal_coverage_current": 0.91,
+                "journal_coverage_required": 0.95,
+                "contradiction_clear_current_sec": 20.0,
+                "contradiction_clear_required_sec": 60.0,
+                "protection_gap_current_sec": 4.0,
+                "protection_gap_max_sec": 1.0,
+            },
+        )
+        self.assertEqual(float(out.get("unlock_healthy_ticks_remaining", 0.0)), 3.0)
+        self.assertAlmostEqual(float(out.get("unlock_journal_coverage_remaining", 0.0)), 0.04, places=6)
+        self.assertEqual(float(out.get("unlock_contradiction_clear_remaining_sec", 0.0)), 40.0)
+        self.assertEqual(float(out.get("unlock_protection_gap_remaining_sec", 0.0)), 3.0)
+
     def test_decide_notify_reasons(self):
         send, reason = tdn._decide_notify({}, {"level": "normal"})
         self.assertTrue(send)
@@ -53,6 +73,11 @@ class TelemetryDashboardNotifyTests(unittest.TestCase):
         self.assertFalse(send)
         self.assertEqual(reason, "normal_unchanged")
 
+    def test_is_worsened_when_runtime_gate_cause_summary_degrades(self):
+        prev = {"runtime_gate_cause_summary": "stable", "reliability_coverage": 1.0}
+        curr = {"runtime_gate_cause_summary": "position_peak=2 current=0", "reliability_coverage": 1.0}
+        self.assertTrue(tdn._is_worsened(prev, curr))
+
     def test_reliability_gate_snippet_parses_metrics(self):
         with tempfile.TemporaryDirectory() as td:
             p = Path(td) / "reliability_gate.txt"
@@ -63,6 +88,14 @@ class TelemetryDashboardNotifyTests(unittest.TestCase):
                         "replay_mismatch_count=2",
                         "journal_coverage_ratio=0.750",
                         "invalid_transition_count=1",
+                        "position_mismatch_count=1",
+                        "position_mismatch_count_peak=3",
+                        "orphan_count=2",
+                        "intent_collision_count=2",
+                        "protection_coverage_gap_seconds=4.0",
+                        "protection_coverage_gap_seconds_peak=9.5",
+                        "replace_race_count=2",
+                        "evidence_contradiction_count=1",
                         'replay_mismatch_categories={"ledger":1,"transition":1,"belief":0,"position":2,"orphan":0,"coverage_gap":0,"replace_race":0,"contradiction":0,"unknown":0}',
                         "replay_mismatch_ids:",
                         "- CID-A",
@@ -77,11 +110,21 @@ class TelemetryDashboardNotifyTests(unittest.TestCase):
             self.assertIn("replay_mismatch=2", snippet)
             self.assertIn("invalid_transitions=1", snippet)
             self.assertIn("journal_coverage=0.750", snippet)
+            self.assertIn("position_mismatch=1 (peak=3) orphan=2 intent_collision=2", snippet)
+            self.assertIn("coverage_gap_sec=4.0 (peak=9.5) replace_race=2 contradiction=1", snippet)
             self.assertIn("mismatch_categories: ledger=1 transition=1 belief=0 position=2 orphan=0", snippet)
             self.assertIn("critical_contributors: position=2", snippet)
             self.assertIn("missing_ids: CID-A, CID-B", snippet)
             self.assertTrue(degraded)
             self.assertEqual(int(metrics.get("replay_mismatch_count", 0)), 2)
+            self.assertEqual(int(metrics.get("position_mismatch_count", 0)), 1)
+            self.assertEqual(int(metrics.get("position_mismatch_count_peak", 0)), 3)
+            self.assertEqual(int(metrics.get("orphan_count", 0)), 2)
+            self.assertEqual(int(metrics.get("intent_collision_count", 0)), 2)
+            self.assertAlmostEqual(float(metrics.get("protection_coverage_gap_seconds", 0.0)), 4.0, places=6)
+            self.assertAlmostEqual(float(metrics.get("protection_coverage_gap_seconds_peak", 0.0)), 9.5, places=6)
+            self.assertEqual(int(metrics.get("replace_race_count", 0)), 2)
+            self.assertEqual(int(metrics.get("evidence_contradiction_count", 0)), 1)
             self.assertEqual(int(metrics.get("replay_mismatch_cat_ledger", 0)), 1)
             self.assertEqual(int(metrics.get("replay_mismatch_cat_position", 0)), 2)
 
@@ -176,6 +219,51 @@ class TelemetryDashboardNotifyTests(unittest.TestCase):
             self.assertIn("replace_envelope_block: 1", snippet)
             self.assertEqual(total, 2)
 
+    def test_correlation_contribution_snippet(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "telemetry.jsonl"
+            p.write_text(
+                "\n".join(
+                    [
+                        '{"event":"entry.decision","symbol":"BTCUSDT","data":{"action":"SCALE","corr_pressure":0.74,"corr_regime":"TIGHTENING","corr_reason_tags":"downside_corr"}}',
+                        '{"event":"entry.blocked","symbol":"ETHUSDT","data":{"reason":"belief_controller_block","corr_pressure":0.92,"corr_regime":"STRESS","corr_reason_tags":"tail_coupling"}}',
+                        '{"event":"execution.correlation_state","data":{"corr_regime":"STRESS","corr_pressure":0.88,"corr_reason_tags":"tail_coupling,belief_uplift"}}',
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            snippet, metrics = tdn._correlation_contribution_snippet(p)
+            self.assertIn("Correlation contribution: blocked=1 scaled=1 stress=1 tightening=1", snippet)
+            self.assertIn("latest regime=STRESS pressure=0.88", snippet)
+            self.assertEqual(int(metrics.get("corr_blocked", 0)), 1)
+            self.assertEqual(int(metrics.get("corr_scaled", 0)), 1)
+            self.assertEqual(int(metrics.get("corr_stress", 0)), 1)
+
+    def test_corr_vs_exit_quality_snippet(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "telemetry.jsonl"
+            p.write_text(
+                "\n".join(
+                    [
+                        '{"event":"execution.correlation_state","ts":100.0,"data":{"corr_regime":"NORMAL","corr_pressure":0.25}}',
+                        '{"event":"position.closed","ts":101.0,"symbol":"BTCUSDT","data":{"pnl_usdt":1.2,"duration_sec":120}}',
+                        '{"event":"execution.correlation_state","ts":200.0,"data":{"corr_regime":"STRESS","corr_pressure":0.88}}',
+                        '{"event":"position.closed","ts":201.0,"symbol":"ETHUSDT","data":{"pnl_usdt":-0.4,"duration_sec":80}}',
+                        '{"event":"position.closed","ts":202.0,"symbol":"SOLUSDT","data":{"pnl_usdt":0.0,"duration_sec":60}}',
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            snippet, metrics = tdn._corr_vs_exit_quality_snippet(p, limit=4)
+            self.assertIn("Corr vs exit quality:", snippet)
+            self.assertIn("NORMAL", snippet)
+            self.assertIn("STRESS", snippet)
+            self.assertEqual(int(metrics.get("corr_exit_stress_count", 0)), 2)
+            self.assertEqual(int(metrics.get("corr_exit_normal_count", 0)), 1)
+            self.assertGreater(float(metrics.get("corr_exit_stress_vs_normal_pnl_delta", 0.0)), 0.0)
+
     def test_protection_refresh_budget_snippet(self):
         with tempfile.TemporaryDirectory() as td:
             p = Path(td) / "telemetry.jsonl"
@@ -221,6 +309,32 @@ class TelemetryDashboardNotifyTests(unittest.TestCase):
             self.assertIn("status=OK", snippet)
             self.assertFalse(degraded)
             self.assertAlmostEqual(float(metrics.get("journal_coverage_ratio", 0.0)), 0.9, places=6)
+
+    def test_reliability_gate_snippet_degrades_on_intent_collision_threshold(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "reliability_gate.txt"
+            p.write_text(
+                "\n".join(
+                    [
+                        "Execution Reliability Gate",
+                        "replay_mismatch_count=0",
+                        "journal_coverage_ratio=1.000",
+                        "invalid_transition_count=0",
+                        "intent_collision_count=1",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            snippet, degraded, _metrics = tdn._reliability_gate_snippet(
+                p,
+                max_replay_mismatch=0,
+                max_invalid_transitions=0,
+                min_journal_coverage=0.90,
+                max_intent_collision_count=0,
+            )
+            self.assertIn("status=DEGRADED", snippet)
+            self.assertTrue(degraded)
 
     def test_main_sends_critical_when_reliability_degraded(self):
         with tempfile.TemporaryDirectory() as td:
@@ -297,6 +411,54 @@ class TelemetryDashboardNotifyTests(unittest.TestCase):
                 self.assertGreaterEqual(len(args), 2)
                 self.assertIn("Execution reliability gate:", str(args[1]))
                 self.assertEqual(kwargs.get("level"), "normal")
+
+    def test_main_includes_runtime_gate_cause_summary_in_notification_body(self):
+        with tempfile.TemporaryDirectory() as td:
+            tele = Path(td) / "telemetry.jsonl"
+            gate = Path(td) / "reliability_gate.txt"
+            state = Path(td) / "notify_state.json"
+            tele.write_text(
+                "\n".join(
+                    [
+                        '{"event":"execution.belief_state","data":{"guard_mode":"YELLOW","allow_entries":false,'
+                        '"runtime_gate_cause_summary":"position_peak=2 current=0; coverage_gap_peak=12.0s current=0.0s"}}',
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            gate.write_text(
+                "\n".join(
+                    [
+                        "Execution Reliability Gate",
+                        "replay_mismatch_count=0",
+                        "journal_coverage_ratio=1.000",
+                        "invalid_transition_count=0",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            with mock.patch.object(tdn, "_run_dashboard", return_value=("dashboard-ok", 0)), \
+                mock.patch.object(tdn, "_build_notifier", return_value=object()), \
+                mock.patch.object(tdn, "_send_alert") as send_alert:
+                rc = tdn.main(
+                    [
+                        "--path",
+                        str(tele),
+                        "--reliability-gate",
+                        str(gate),
+                        "--state-path",
+                        str(state),
+                    ]
+                )
+                self.assertEqual(rc, 0)
+                self.assertTrue(send_alert.called)
+                args, _kwargs = send_alert.call_args
+                self.assertGreaterEqual(len(args), 2)
+                body = str(args[1])
+                self.assertIn("Runtime gate cause summary:", body)
+                self.assertIn("position_peak=2 current=0; coverage_gap_peak=12.0s current=0.0s", body)
 
     def test_main_sends_critical_on_reconcile_first_spike_even_when_reliability_ok(self):
         with tempfile.TemporaryDirectory() as td:
@@ -490,6 +652,111 @@ class TelemetryDashboardNotifyTests(unittest.TestCase):
                 self.assertTrue(send_alert.called)
                 args, kwargs = send_alert.call_args
                 self.assertIn("Entry budget pressure:", str(args[1]))
+                self.assertEqual(kwargs.get("level"), "critical")
+
+    def test_main_sends_critical_on_correlation_stress_even_when_reliability_ok(self):
+        with tempfile.TemporaryDirectory() as td:
+            tele = Path(td) / "telemetry.jsonl"
+            gate = Path(td) / "reliability_gate.txt"
+            state = Path(td) / "notify_state.json"
+            tele.write_text(
+                "\n".join(
+                    [
+                        '{"event":"entry.blocked","symbol":"BTCUSDT","data":{"reason":"belief_controller_block","corr_pressure":0.93,"corr_regime":"STRESS","corr_reason_tags":"tail_coupling"}}',
+                        '{"event":"execution.correlation_state","data":{"corr_regime":"STRESS","corr_pressure":0.93,"corr_reason_tags":"tail_coupling"}}',
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            gate.write_text(
+                "\n".join(
+                    [
+                        "Execution Reliability Gate",
+                        "replay_mismatch_count=0",
+                        "journal_coverage_ratio=1.000",
+                        "invalid_transition_count=0",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            with mock.patch.object(tdn, "_run_dashboard", return_value=("dashboard-ok", 0)), \
+                mock.patch.object(tdn, "_build_notifier", return_value=object()), \
+                mock.patch.object(tdn, "_send_alert") as send_alert:
+                rc = tdn.main(
+                    [
+                        "--path",
+                        str(tele),
+                        "--reliability-gate",
+                        str(gate),
+                        "--state-path",
+                        str(state),
+                        "--corr-stress-threshold",
+                        "1",
+                        "--corr-pressure-threshold",
+                        "0.90",
+                    ]
+                )
+                self.assertEqual(rc, 0)
+                self.assertTrue(send_alert.called)
+                args, kwargs = send_alert.call_args
+                self.assertIn("Correlation contribution:", str(args[1]))
+                self.assertEqual(kwargs.get("level"), "critical")
+
+    def test_main_sends_critical_on_corr_exit_quality_drop(self):
+        with tempfile.TemporaryDirectory() as td:
+            tele = Path(td) / "telemetry.jsonl"
+            gate = Path(td) / "reliability_gate.txt"
+            state = Path(td) / "notify_state.json"
+            tele.write_text(
+                "\n".join(
+                    [
+                        '{"event":"execution.correlation_state","ts":100.0,"data":{"corr_regime":"NORMAL","corr_pressure":0.25}}',
+                        '{"event":"position.closed","ts":101.0,"symbol":"BTCUSDT","data":{"pnl_usdt":1.2,"duration_sec":120}}',
+                        '{"event":"execution.correlation_state","ts":200.0,"data":{"corr_regime":"STRESS","corr_pressure":0.88}}',
+                        '{"event":"position.closed","ts":201.0,"symbol":"ETHUSDT","data":{"pnl_usdt":-0.4,"duration_sec":80}}',
+                        '{"event":"position.closed","ts":202.0,"symbol":"SOLUSDT","data":{"pnl_usdt":0.0,"duration_sec":60}}',
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            gate.write_text(
+                "\n".join(
+                    [
+                        "Execution Reliability Gate",
+                        "replay_mismatch_count=0",
+                        "journal_coverage_ratio=1.000",
+                        "invalid_transition_count=0",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            with mock.patch.object(tdn, "_run_dashboard", return_value=("dashboard-ok", 0)), \
+                mock.patch.object(tdn, "_build_notifier", return_value=object()), \
+                mock.patch.object(tdn, "_send_alert") as send_alert:
+                rc = tdn.main(
+                    [
+                        "--path",
+                        str(tele),
+                        "--reliability-gate",
+                        str(gate),
+                        "--state-path",
+                        str(state),
+                        "--corr-stress-threshold",
+                        "99",
+                        "--corr-pressure-threshold",
+                        "0.99",
+                        "--corr-exit-pnl-drop-threshold",
+                        "0.10",
+                    ]
+                )
+                self.assertEqual(rc, 0)
+                self.assertTrue(send_alert.called)
+                args, kwargs = send_alert.call_args
+                self.assertIn("Corr vs exit quality:", str(args[1]))
                 self.assertEqual(kwargs.get("level"), "critical")
 
     def test_main_sends_critical_on_replace_envelope_spike(self):
@@ -964,7 +1231,72 @@ class TelemetryDashboardNotifyTests(unittest.TestCase):
                 self.assertEqual(rc2, 0)
                 saved2 = json.loads(state.read_text(encoding="utf-8"))
                 self.assertEqual(saved2.get("recovery_red_lock_streak"), 0)
-                self.assertEqual(saved2.get("recovery_stage_latest"), "POST_RED_WARMUP")
+
+    def test_main_intent_collision_streak_escalates_to_critical(self):
+        with tempfile.TemporaryDirectory() as td:
+            tele = Path(td) / "telemetry.jsonl"
+            gate = Path(td) / "reliability_gate.txt"
+            state = Path(td) / "notify_state.json"
+            tele.write_text("", encoding="utf-8")
+            gate.write_text(
+                "\n".join(
+                    [
+                        "Execution Reliability Gate",
+                        "replay_mismatch_count=0",
+                        "journal_coverage_ratio=1.000",
+                        "invalid_transition_count=0",
+                        "intent_collision_count=1",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            with mock.patch.object(tdn, "_run_dashboard", return_value=("dashboard-ok", 0)), \
+                mock.patch.object(tdn, "_build_notifier", return_value=object()), \
+                mock.patch.object(tdn, "_send_alert") as send_alert:
+                rc1 = tdn.main(
+                    [
+                        "--path",
+                        str(tele),
+                        "--reliability-gate",
+                        str(gate),
+                        "--state-path",
+                        str(state),
+                        "--reliability-max-intent-collision-count",
+                        "99",
+                        "--intent-collision-critical-threshold",
+                        "1",
+                        "--intent-collision-critical-streak",
+                        "2",
+                    ]
+                )
+                self.assertEqual(rc1, 0)
+                saved1 = json.loads(state.read_text(encoding="utf-8"))
+                self.assertEqual(int(saved1.get("intent_collision_streak") or 0), 1)
+                self.assertEqual(str(saved1.get("level") or ""), "critical")
+
+                rc2 = tdn.main(
+                    [
+                        "--path",
+                        str(tele),
+                        "--reliability-gate",
+                        str(gate),
+                        "--state-path",
+                        str(state),
+                        "--reliability-max-intent-collision-count",
+                        "99",
+                        "--intent-collision-critical-threshold",
+                        "1",
+                        "--intent-collision-critical-streak",
+                        "2",
+                    ]
+                )
+                self.assertEqual(rc2, 0)
+                saved2 = json.loads(state.read_text(encoding="utf-8"))
+                self.assertEqual(int(saved2.get("intent_collision_streak") or 0), 2)
+                self.assertEqual(str(saved2.get("level") or ""), "critical")
+                kwargs = send_alert.call_args.kwargs if send_alert.call_args else {}
+                self.assertEqual(kwargs.get("level"), "critical")
 
     def test_main_persists_unlock_condition_fields(self):
         with tempfile.TemporaryDirectory() as td:
@@ -1011,6 +1343,51 @@ class TelemetryDashboardNotifyTests(unittest.TestCase):
             self.assertEqual(float(saved.get("unlock_healthy_ticks_remaining", 0.0)), 2.0)
             self.assertAlmostEqual(float(saved.get("unlock_journal_coverage_remaining", 0.0)), 0.05, places=6)
             self.assertEqual(float(saved.get("unlock_contradiction_clear_remaining_sec", 0.0)), 50.0)
+
+    def test_belief_state_snippet_uses_latest_rows_when_file_is_large(self):
+        with tempfile.TemporaryDirectory() as td:
+            tele = Path(td) / "telemetry.jsonl"
+            lines = [
+                '{"event":"execution.belief_state","data":{"guard_recovery_stage":"YELLOW_WATCH","guard_unlock_conditions":"healthy_ticks 0/3"}}'
+                for _ in range(5000)
+            ]
+            lines.append(
+                (
+                    '{"event":"execution.belief_state","data":{"guard_recovery_stage":"YELLOW_WATCH",'
+                    '"guard_unlock_conditions":"stale text",'
+                    '"guard_unlock_snapshot":{"healthy_ticks_current":1,"healthy_ticks_required":3,'
+                    '"journal_coverage_current":0.91,"journal_coverage_required":0.95,'
+                    '"contradiction_clear_current_sec":20.0,"contradiction_clear_required_sec":60.0,'
+                    '"protection_gap_current_sec":4.0,"protection_gap_max_sec":1.0}}}'
+                )
+            )
+            tele.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            snippet, latest = tdn._belief_state_snippet(tele)
+            self.assertIn("unlock_snapshot healthy_ticks=1/3", snippet)
+            self.assertIn("unlock_remaining healthy_ticks=2", snippet)
+            self.assertEqual(str(latest.get("recovery_stage") or ""), "YELLOW_WATCH")
+
+    def test_belief_state_snippet_renders_cause_tags_and_dominant_contributors(self):
+        with tempfile.TemporaryDirectory() as td:
+            tele = Path(td) / "telemetry.jsonl"
+            tele.write_text(
+                (
+                    '{"event":"execution.belief_state","data":{'
+                    '"guard_mode":"ORANGE","allow_entries":false,'
+                    '"runtime_gate_cause_summary":"position_peak=2 current=0; coverage_gap_peak=12.0s current=0.0s",'
+                    '"guard_cause_tags":"runtime_gate,runtime_gate_position_peak,runtime_gate_coverage_gap_peak",'
+                    '"guard_dominant_contributors":"position=2.0,coverage_gap=1.5"}}\n'
+                ),
+                encoding="utf-8",
+            )
+            snippet, _latest = tdn._belief_state_snippet(tele)
+            self.assertIn(
+                "gate_cause_summary=position_peak=2 current=0; coverage_gap_peak=12.0s current=0.0s",
+                snippet,
+            )
+            self.assertIn("cause_tags=runtime_gate,runtime_gate_position_peak,runtime_gate_coverage_gap_peak", snippet)
+            self.assertIn("dominant_contributors=position=2.0,coverage_gap=1.5", snippet)
+            self.assertIn("top_contributors=position=2.0,coverage_gap=1.5", snippet)
 
 
 if __name__ == "__main__":

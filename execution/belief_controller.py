@@ -39,9 +39,15 @@ class DecisionTrace:
     debt_growth_per_min: float
     reason: str
     transition: str = ""
+    previous_mode: str = ""
+    target_mode: str = ""
     cause_tags: str = ""
     dominant_contributors: str = ""
     unlock_requirements: str = ""
+    recovery_stage: str = ""
+    unlock_conditions: str = ""
+    next_unlock_sec: float = 0.0
+    unlock_snapshot: Dict[str, Any] | None = None
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -50,9 +56,15 @@ class DecisionTrace:
             "debt_growth_per_min": float(self.debt_growth_per_min),
             "reason": self.reason,
             "transition": self.transition,
+            "previous_mode": self.previous_mode,
+            "target_mode": self.target_mode,
             "cause_tags": self.cause_tags,
             "dominant_contributors": self.dominant_contributors,
             "unlock_requirements": self.unlock_requirements,
+            "recovery_stage": self.recovery_stage,
+            "unlock_conditions": self.unlock_conditions,
+            "next_unlock_sec": float(self.next_unlock_sec),
+            "unlock_snapshot": dict(self.unlock_snapshot or {}),
         }
 
 
@@ -154,6 +166,25 @@ class BeliefController:
             else:
                 self._down_since.clear()
         return transition
+
+    def _set_mode(self, target: str, *, now: float) -> str:
+        nxt = str(target or "").strip().upper()
+        if nxt not in self._MODES:
+            return ""
+        prev = str(self.mode)
+        if prev == nxt:
+            return ""
+        self.mode = nxt
+        self.mode_since = float(now)
+        return f"{prev}->{nxt}"
+
+    def _escalate_mode_floor(self, floor_mode: str, *, now: float) -> str:
+        floor = str(floor_mode or "").strip().upper()
+        if floor not in self._MODES:
+            return ""
+        if self._MODES.index(self.mode) >= self._MODES.index(floor):
+            return ""
+        return self._set_mode(floor, now=now)
 
     def explain(self) -> DecisionTrace:
         if self._last_trace is not None:
@@ -261,6 +292,7 @@ class BeliefController:
         evidence_contradiction_tags = str(belief_state.get("evidence_contradiction_tags", "") or "").strip()
         runtime_gate_degraded = bool(belief_state.get("runtime_gate_degraded", False))
         runtime_gate_reason = str(belief_state.get("runtime_gate_reason", "") or "").strip()
+        runtime_gate_cause_summary = str(belief_state.get("runtime_gate_cause_summary", "") or "").strip().lower()
         runtime_gate_mismatch_count = max(
             0.0, _safe_float(belief_state.get("runtime_gate_replay_mismatch_count", 0), 0.0)
         )
@@ -290,6 +322,9 @@ class BeliefController:
             0.0, _safe_float(belief_state.get("runtime_gate_cat_contradiction", 0), 0.0)
         )
         runtime_gate_cat_unknown = max(0.0, _safe_float(belief_state.get("runtime_gate_cat_unknown", 0), 0.0))
+        runtime_gate_intent_collision_count = max(
+            0.0, _safe_float(belief_state.get("runtime_gate_intent_collision_count", 0), 0.0)
+        )
         reconcile_first_gate_count = max(
             0.0, _safe_float(belief_state.get("reconcile_first_gate_count", 0), 0.0)
         )
@@ -302,6 +337,32 @@ class BeliefController:
         reconcile_first_gate_last_reason = str(
             belief_state.get("reconcile_first_gate_last_reason", "") or ""
         ).strip()
+        corr_pressure = _clamp(_safe_float(belief_state.get("corr_pressure", 0.0), 0.0), 0.0, 1.0)
+        corr_regime = str(belief_state.get("corr_regime", "NORMAL") or "NORMAL").upper().strip()
+        corr_confidence = _clamp(_safe_float(belief_state.get("corr_confidence", 1.0), 1.0), 0.0, 1.0)
+        corr_roll = _clamp(_safe_float(belief_state.get("corr_roll", 0.0), 0.0), 0.0, 1.0)
+        corr_downside = _clamp(_safe_float(belief_state.get("corr_downside", 0.0), 0.0), 0.0, 1.0)
+        corr_tail_coupling = _clamp(_safe_float(belief_state.get("corr_tail_coupling", 0.0), 0.0), 0.0, 1.0)
+        corr_uncertainty_uplift = _clamp(
+            _safe_float(belief_state.get("corr_uncertainty_uplift", 0.0), 0.0), 0.0, 1.0
+        )
+        corr_group_drift_debt = _clamp(_safe_float(belief_state.get("corr_group_drift_debt", 0.0), 0.0), 0.0, 1.0)
+        corr_hidden_exposure_risk = _clamp(
+            _safe_float(belief_state.get("corr_hidden_exposure_risk", 0.0), 0.0), 0.0, 1.0
+        )
+        envelope_symbols = max(0.0, _safe_float(belief_state.get("belief_envelope_symbols", 0), 0.0))
+        envelope_ambiguous_symbols = max(
+            0.0, _safe_float(belief_state.get("belief_envelope_ambiguous_symbols", 0), 0.0)
+        )
+        envelope_width_sum = max(
+            0.0, _safe_float(belief_state.get("belief_position_interval_width_sum", 0.0), 0.0)
+        )
+        envelope_width_max = max(
+            0.0, _safe_float(belief_state.get("belief_position_interval_width_max", 0.0), 0.0)
+        )
+        envelope_unknown_symbols = max(
+            0.0, _safe_float(belief_state.get("belief_live_unknown_symbols", 0), 0.0)
+        )
 
         debt_ref = max(1.0, self._cfg(cfg, "BELIEF_DEBT_REF_SEC", 300.0))
         growth_ref = max(1.0, self._cfg(cfg, "BELIEF_GROWTH_REF_PER_MIN", 120.0))
@@ -397,6 +458,9 @@ class BeliefController:
             self._cfg(cfg, "BELIEF_RUNTIME_GATE_CAT_CONTRADICTION_WEIGHT", 0.7), 0.0, 3.0
         )
         gate_cat_unknown_weight = _clamp(self._cfg(cfg, "BELIEF_RUNTIME_GATE_CAT_UNKNOWN_WEIGHT", 0.2), 0.0, 3.0)
+        gate_intent_collision_weight = _clamp(
+            self._cfg(cfg, "BELIEF_RUNTIME_GATE_INTENT_COLLISION_WEIGHT", 1.0), 0.0, 3.0
+        )
         gate_critical_weight = _clamp(self._cfg(cfg, "BELIEF_RUNTIME_GATE_CRITICAL_WEIGHT", 0.35), 0.0, 3.0)
         reconcile_first_gate_weight = _clamp(
             self._cfg(cfg, "BELIEF_RECONCILE_FIRST_GATE_WEIGHT", 0.25), 0.0, 3.0
@@ -406,6 +470,57 @@ class BeliefController:
         )
         reconcile_first_gate_streak_ref = max(
             1.0, self._cfg(cfg, "BELIEF_RECONCILE_FIRST_GATE_STREAK_REF", 2.0)
+        )
+        envelope_ambiguous_weight = _clamp(
+            self._cfg(cfg, "BELIEF_ENVELOPE_AMBIGUOUS_SYMBOL_WEIGHT", 0.12), 0.0, 2.0
+        )
+        envelope_width_weight = _clamp(self._cfg(cfg, "BELIEF_ENVELOPE_WIDTH_WEIGHT", 0.20), 0.0, 2.0)
+        envelope_width_sum_weight = _clamp(
+            self._cfg(cfg, "BELIEF_ENVELOPE_WIDTH_SUM_WEIGHT", 0.05), 0.0, 2.0
+        )
+        envelope_unknown_weight = _clamp(
+            self._cfg(cfg, "BELIEF_ENVELOPE_UNKNOWN_SYMBOL_WEIGHT", 0.08), 0.0, 2.0
+        )
+        envelope_width_ref = max(0.01, self._cfg(cfg, "BELIEF_ENVELOPE_WIDTH_REF", 1.0))
+        envelope_width_sum_ref = max(0.01, self._cfg(cfg, "BELIEF_ENVELOPE_WIDTH_SUM_REF", 3.0))
+        envelope_symbol_ref = max(1.0, self._cfg(cfg, "BELIEF_ENVELOPE_SYMBOL_REF", 3.0))
+        envelope_debt = (
+            ((float(envelope_ambiguous_symbols) / envelope_symbol_ref) * envelope_ambiguous_weight)
+            + ((float(envelope_width_max) / envelope_width_ref) * envelope_width_weight)
+            + ((float(envelope_width_sum) / envelope_width_sum_ref) * envelope_width_sum_weight)
+            + ((float(envelope_unknown_symbols) / envelope_symbol_ref) * envelope_unknown_weight)
+        )
+        corr_weight = _clamp(self._cfg(cfg, "BELIEF_CORR_WEIGHT", 0.30), 0.0, 3.0)
+        corr_regime_stress_weight = _clamp(self._cfg(cfg, "BELIEF_CORR_REGIME_STRESS_WEIGHT", 0.40), 0.0, 3.0)
+        corr_regime_tight_weight = _clamp(self._cfg(cfg, "BELIEF_CORR_REGIME_TIGHTEN_WEIGHT", 0.20), 0.0, 3.0)
+        corr_tail_weight = _clamp(self._cfg(cfg, "BELIEF_CORR_TAIL_WEIGHT", 0.20), 0.0, 3.0)
+        corr_downside_weight = _clamp(self._cfg(cfg, "BELIEF_CORR_DOWNSIDE_WEIGHT", 0.15), 0.0, 3.0)
+        corr_uplift_weight = _clamp(self._cfg(cfg, "BELIEF_CORR_UPLIFT_WEIGHT", 0.20), 0.0, 3.0)
+        corr_drift_weight = _clamp(self._cfg(cfg, "BELIEF_CORR_DRIFT_WEIGHT", 0.15), 0.0, 3.0)
+        corr_hidden_weight = _clamp(self._cfg(cfg, "BELIEF_CORR_HIDDEN_WEIGHT", 0.15), 0.0, 3.0)
+        corr_low_conf_weight = _clamp(self._cfg(cfg, "BELIEF_CORR_LOW_CONF_WEIGHT", 0.20), 0.0, 3.0)
+        corr_stress_enter = _clamp(self._cfg(cfg, "BELIEF_CORR_STRESS_ENTER", 0.72), 0.0, 1.0)
+        corr_tighten_enter = _clamp(self._cfg(cfg, "BELIEF_CORR_TIGHTEN_ENTER", 0.48), 0.0, 1.0)
+        corr_notional_scale_min = _clamp(self._cfg(cfg, "BELIEF_CORR_NOTIONAL_SCALE_MIN", 0.25), 0.0, 1.0)
+        corr_lev_scale_min = _clamp(self._cfg(cfg, "BELIEF_CORR_LEVERAGE_SCALE_MIN", 0.35), 0.1, 1.0)
+        corr_min_conf_extra_max = _clamp(self._cfg(cfg, "BELIEF_CORR_MIN_CONF_EXTRA_MAX", 0.10), 0.0, 1.0)
+        corr_cd_extra_max = max(0.0, self._cfg(cfg, "BELIEF_CORR_COOLDOWN_EXTRA_SEC_MAX", 15.0))
+        corr_hard_freeze_stress = bool(self._cfg(cfg, "BELIEF_CORR_HARD_FREEZE_STRESS", 0.0) >= 1.0)
+        corr_hard_freeze_pressure = _clamp(self._cfg(cfg, "BELIEF_CORR_HARD_FREEZE_PRESSURE", 0.95), 0.0, 1.0)
+        corr_orange_pressure = _clamp(self._cfg(cfg, "BELIEF_CORR_ORANGE_PRESSURE", 0.88), 0.0, 1.0)
+        corr_regime_stress = 1.0 if corr_regime == "STRESS" else 0.0
+        corr_regime_tight = 1.0 if corr_regime == "TIGHTENING" else 0.0
+        corr_low_conf = max(0.0, 1.0 - float(corr_confidence))
+        corr_debt = (
+            (float(corr_pressure) * corr_weight)
+            + (float(corr_regime_stress) * corr_regime_stress_weight)
+            + (float(corr_regime_tight) * corr_regime_tight_weight)
+            + (float(corr_tail_coupling) * corr_tail_weight)
+            + (float(corr_downside) * corr_downside_weight)
+            + (float(corr_uncertainty_uplift) * corr_uplift_weight)
+            + (float(corr_group_drift_debt) * corr_drift_weight)
+            + (float(corr_hidden_exposure_risk) * corr_hidden_weight)
+            + (float(corr_low_conf) * corr_low_conf_weight)
         )
         gate_debt = (
             (runtime_gate_mismatch_count / gate_mismatch_ref)
@@ -421,6 +536,7 @@ class BeliefController:
             + (runtime_gate_cat_replace_race * gate_cat_replace_race_weight)
             + (runtime_gate_cat_contradiction * gate_cat_contradiction_weight)
             + (runtime_gate_cat_unknown * gate_cat_unknown_weight)
+            + (runtime_gate_intent_collision_count * gate_intent_collision_weight)
         )
         critical_cat_base = (
             (runtime_gate_cat_position * gate_cat_position_weight)
@@ -428,6 +544,7 @@ class BeliefController:
             + (runtime_gate_cat_coverage_gap * gate_cat_coverage_gap_weight)
             + (runtime_gate_cat_replace_race * gate_cat_replace_race_weight)
             + (runtime_gate_cat_contradiction * gate_cat_contradiction_weight)
+            + (runtime_gate_intent_collision_count * gate_intent_collision_weight)
         )
         gate_debt += (critical_cat_base * gate_critical_weight)
         gate_contributors = [
@@ -444,7 +561,9 @@ class BeliefController:
             ("replace_race", (runtime_gate_cat_replace_race * gate_cat_replace_race_weight)),
             ("contradiction", (runtime_gate_cat_contradiction * gate_cat_contradiction_weight)),
             ("unknown", (runtime_gate_cat_unknown * gate_cat_unknown_weight)),
+            ("intent_collision", (runtime_gate_intent_collision_count * gate_intent_collision_weight)),
             ("critical", (critical_cat_base * gate_critical_weight)),
+            ("corr", float(corr_debt)),
         ]
         gate_contributors = [x for x in gate_contributors if float(x[1]) > 0.0]
         gate_contributors.sort(key=lambda kv: float(kv[1]), reverse=True)
@@ -477,7 +596,9 @@ class BeliefController:
             + (float(evidence_contradiction_burn_norm) * evidence_contradiction_burn_weight)
             + (float(evidence_source_disagree) * evidence_source_disagree_weight)
             + (float(evidence_tag_debt) * evidence_contradiction_tag_weight)
+            + float(envelope_debt)
             + (gate_debt * gate_weight)
+            + float(corr_debt)
             + (reconcile_first_gate_debt * reconcile_first_gate_weight)
         )
         if self.last_update > 0:
@@ -499,6 +620,7 @@ class BeliefController:
         recover_sec = self._cfg(cfg, "BELIEF_MODE_RECOVER_SEC", 90.0)
         down_hyst = _clamp(self._cfg(cfg, "BELIEF_DOWN_HYST", 0.75), 0.4, 0.99)
 
+        previous_mode = str(self.mode)
         target, reason = self._compute_mode_target(
             debt_score=debt_score,
             debt_growth_per_min=debt_growth_per_min,
@@ -522,6 +644,7 @@ class BeliefController:
             down_hyst=down_hyst,
             post_red_warmup_sec=post_red_warmup_sec,
         )
+        mode_events: list[str] = []
 
         # Monotone risk mapping.
         slope = _clamp(self._cfg(cfg, "BELIEF_RISK_SLOPE", 0.35), 0.05, 1.5)
@@ -579,6 +702,55 @@ class BeliefController:
         if not allow_entries:
             max_notional = 0.0
 
+        corr_scale = _clamp(1.0 - float(corr_pressure), float(corr_notional_scale_min), 1.0)
+        corr_lev_scale = _clamp(1.0 - (float(corr_pressure) * 0.9), float(corr_lev_scale_min), 1.0)
+        corr_conf_extra = _clamp(float(corr_pressure) * float(corr_min_conf_extra_max), 0.0, float(corr_min_conf_extra_max))
+        corr_cd_extra = float(corr_pressure) * float(corr_cd_extra_max)
+        corr_pressure_tight = bool((corr_pressure >= corr_tighten_enter) or corr_regime in ("TIGHTENING", "STRESS"))
+        corr_pressure_stress = bool((corr_pressure >= corr_stress_enter) or (corr_regime == "STRESS"))
+        if corr_pressure_tight:
+            max_notional = float(max_notional * corr_scale)
+            max_lev = max(1, int(max_lev * corr_lev_scale))
+            min_conf = _clamp(min_conf + corr_conf_extra, 0.0, 1.0)
+            cooldown = float(cooldown + corr_cd_extra)
+            for sym in list(per_symbol.keys()):
+                per_symbol[sym]["max_notional_usdt"] = float(
+                    _safe_float(per_symbol[sym].get("max_notional_usdt", 0.0), 0.0) * corr_scale
+                )
+                per_symbol[sym]["max_leverage"] = max(
+                    1,
+                    int(_safe_float(per_symbol[sym].get("max_leverage", 1), 1.0) * corr_lev_scale),
+                )
+                per_symbol[sym]["min_entry_conf"] = _clamp(
+                    _safe_float(per_symbol[sym].get("min_entry_conf", base_conf), base_conf) + corr_conf_extra,
+                    0.0,
+                    1.0,
+                )
+                per_symbol[sym]["entry_cooldown_seconds"] = float(
+                    _safe_float(per_symbol[sym].get("entry_cooldown_seconds", base_cd), base_cd) + corr_cd_extra
+                )
+                per_symbol[sym]["reason"] = (
+                    str(per_symbol[sym].get("reason") or "") + f" | corr={corr_pressure:.2f}:{corr_regime.lower()}"
+                ).strip()
+            reason = f"{reason} | corr_scale={corr_scale:.2f} regime={corr_regime}"
+        if corr_pressure >= corr_orange_pressure and self._MODES.index(self.mode) < self._MODES.index("ORANGE"):
+            t = self._escalate_mode_floor("ORANGE", now=now)
+            if t:
+                mode_events.append(t)
+            allow_entries = False
+            max_notional = 0.0
+            reason = f"{reason} | corr_mode_escalated=ORANGE"
+            for sym in list(per_symbol.keys()):
+                per_symbol[sym]["allow_entries"] = False
+                per_symbol[sym]["max_notional_usdt"] = 0.0
+        if corr_hard_freeze_stress and (corr_pressure_stress or corr_pressure >= corr_hard_freeze_pressure):
+            allow_entries = False
+            max_notional = 0.0
+            reason = f"{reason} | corr_hard_freeze"
+            for sym in list(per_symbol.keys()):
+                per_symbol[sym]["allow_entries"] = False
+                per_symbol[sym]["max_notional_usdt"] = 0.0
+
         protection_gap_trip_sec = max(1.0, self._cfg(cfg, "BELIEF_PROTECTION_GAP_TRIP_SEC", 90.0))
         protection_gap_cd_extra = max(0.0, self._cfg(cfg, "BELIEF_PROTECTION_GAP_COOLDOWN_EXTRA_SEC", 20.0))
         protection_gap_min_conf_extra = _clamp(
@@ -601,7 +773,9 @@ class BeliefController:
                     str(per_symbol[sym].get("reason") or "") + " | protection_gap_degraded"
                 ).strip()
             if self._MODES.index(self.mode) < self._MODES.index("ORANGE"):
-                self.mode = "ORANGE"
+                t = self._escalate_mode_floor("ORANGE", now=now)
+                if t:
+                    mode_events.append(t)
             reason = (
                 f"{reason} | protection_gap_degraded:"
                 f"gap={float(protection_coverage_gap_seconds):.1f}s"
@@ -697,7 +871,9 @@ class BeliefController:
                         str(per_symbol[sym].get("reason") or "") + " | protection_refresh_budget_hard_block"
                     ).strip()
                 if self._MODES.index(self.mode) < self._MODES.index("ORANGE"):
-                    self.mode = "ORANGE"
+                    t = self._escalate_mode_floor("ORANGE", now=now)
+                    if t:
+                        mode_events.append(t)
                 reason = (
                     f"{reason} | protection_refresh_budget_hard_block:"
                     f"blocked={int(protection_refresh_budget_blocked_count)}"
@@ -743,6 +919,7 @@ class BeliefController:
             + float(runtime_gate_cat_coverage_gap)
             + float(runtime_gate_cat_replace_race)
             + float(runtime_gate_cat_contradiction)
+            + float(runtime_gate_intent_collision_count)
         )
         critical_trip = bool(critical_total >= gate_critical_trip_threshold)
         if critical_trip:
@@ -773,7 +950,9 @@ class BeliefController:
                     str(per_symbol[sym].get("reason") or "") + " | runtime_gate_degraded"
                 ).strip()
             if self._MODES.index(self.mode) < self._MODES.index("ORANGE"):
-                self.mode = "ORANGE"
+                t = self._escalate_mode_floor("ORANGE", now=now)
+                if t:
+                    mode_events.append(t)
             kill_trip = bool(kill_trip or gate_trip_kill)
             if runtime_gate_effective_reason:
                 reason = f"{reason} | runtime_gate_degraded:{runtime_gate_effective_reason}"
@@ -793,7 +972,9 @@ class BeliefController:
                     str(per_symbol[sym].get("reason") or "") + " | reconcile_first_spike"
                 ).strip()
             if self._MODES.index(self.mode) < self._MODES.index("ORANGE"):
-                self.mode = "ORANGE"
+                t = self._escalate_mode_floor("ORANGE", now=now)
+                if t:
+                    mode_events.append(t)
             spike_reason = (
                 f"count={int(reconcile_first_gate_count)} "
                 f"sev={float(reconcile_first_gate_max_severity):.2f} "
@@ -804,10 +985,9 @@ class BeliefController:
             reason = f"{reason} | reconcile_first_spike:{spike_reason}"
         elif runtime_recovering:
             # staged warm-up after degraded gate clears
-            if self._MODES.index(self.mode) < self._MODES.index("YELLOW"):
-                self.mode = "YELLOW"
-            else:
-                self.mode = "YELLOW"
+            t = self._set_mode("YELLOW", now=now)
+            if t:
+                mode_events.append(t)
             allow_entries = True
             if base_notional > 0 and max_notional <= 0:
                 max_notional = float(base_notional)
@@ -855,6 +1035,53 @@ class BeliefController:
                 reason = f"{reason} | runtime_gate_soft_scale={soft_scale:.2f} top={gate_top}"
             else:
                 reason = f"{reason} | runtime_gate_soft_scale={soft_scale:.2f}"
+
+        runtime_gate_position_peak_action = "position_peak" in runtime_gate_cause_summary
+        runtime_gate_coverage_gap_peak_action = "coverage_gap_peak" in runtime_gate_cause_summary
+        if runtime_gate_position_peak_action:
+            pos_peak_notional_scale = _clamp(
+                self._cfg(cfg, "BELIEF_RUNTIME_GATE_POSITION_PEAK_NOTIONAL_SCALE", 0.80), 0.0, 1.0
+            )
+            pos_peak_leverage_scale = _clamp(
+                self._cfg(cfg, "BELIEF_RUNTIME_GATE_POSITION_PEAK_LEVERAGE_SCALE", 0.90), 0.1, 1.0
+            )
+            max_notional = float(max_notional * pos_peak_notional_scale)
+            max_lev = max(1, int(max_lev * pos_peak_leverage_scale))
+            for sym in list(per_symbol.keys()):
+                per_symbol[sym]["max_notional_usdt"] = float(
+                    _safe_float(per_symbol[sym].get("max_notional_usdt", 0.0), 0.0) * pos_peak_notional_scale
+                )
+                per_symbol[sym]["max_leverage"] = max(
+                    1,
+                    int(_safe_float(per_symbol[sym].get("max_leverage", 1), 1.0) * pos_peak_leverage_scale),
+                )
+                per_symbol[sym]["reason"] = (
+                    str(per_symbol[sym].get("reason") or "") + " | runtime_gate_position_peak_action"
+                ).strip()
+            reason = f"{reason} | runtime_gate_position_peak_action={pos_peak_notional_scale:.2f}"
+        if runtime_gate_coverage_gap_peak_action:
+            gap_peak_min_conf_extra = _clamp(
+                self._cfg(cfg, "BELIEF_RUNTIME_GATE_COVERAGE_GAP_PEAK_MIN_CONF_EXTRA", 0.03), 0.0, 1.0
+            )
+            gap_peak_cooldown_extra = max(
+                0.0, self._cfg(cfg, "BELIEF_RUNTIME_GATE_COVERAGE_GAP_PEAK_COOLDOWN_EXTRA_SEC", 8.0)
+            )
+            min_conf = _clamp(min_conf + gap_peak_min_conf_extra, 0.0, 1.0)
+            cooldown = float(cooldown + gap_peak_cooldown_extra)
+            for sym in list(per_symbol.keys()):
+                per_symbol[sym]["min_entry_conf"] = _clamp(
+                    _safe_float(per_symbol[sym].get("min_entry_conf", min_conf), min_conf) + gap_peak_min_conf_extra,
+                    0.0,
+                    1.0,
+                )
+                per_symbol[sym]["entry_cooldown_seconds"] = float(
+                    _safe_float(per_symbol[sym].get("entry_cooldown_seconds", base_cd), base_cd)
+                    + gap_peak_cooldown_extra
+                )
+                per_symbol[sym]["reason"] = (
+                    str(per_symbol[sym].get("reason") or "") + " | runtime_gate_coverage_gap_peak_action"
+                ).strip()
+            reason = f"{reason} | runtime_gate_coverage_gap_peak_action={gap_peak_cooldown_extra:.0f}s"
 
         refresh_warmup_active = bool(
             (not runtime_gate_effective_degraded)
@@ -980,9 +1207,32 @@ class BeliefController:
                 f"{float(unlock_max_protection_gap_sec):.1f}s"
             )
         unlock_requirements = "; ".join(unlock_needs) if unlock_needs else "stable"
+        unlock_snapshot = {
+            "healthy_ticks_current": int(self._healthy_ticks),
+            "healthy_ticks_required": int(unlock_healthy_ticks_required),
+            "journal_coverage_current": float(runtime_gate_cov),
+            "journal_coverage_required": float(unlock_min_cov),
+            "contradiction_clear_current_sec": float(max(0.0, contradiction_clear_sec)),
+            "contradiction_clear_required_sec": float(unlock_contrad_sec),
+            "protection_gap_current_sec": float(max(0.0, protection_coverage_gap_seconds)),
+            "protection_gap_max_sec": float(unlock_max_protection_gap_sec),
+            "is_healthy_tick": bool(is_healthy_tick),
+        }
         cause_tags: list[str] = []
+        runtime_gate_position_peak_hit = "position_peak>" in str(runtime_gate_effective_reason or "")
+        runtime_gate_coverage_gap_peak_hit = "coverage_gap_sec_peak>" in str(runtime_gate_effective_reason or "")
         if runtime_gate_effective_degraded:
             cause_tags.append("runtime_gate")
+        if runtime_gate_position_peak_hit:
+            cause_tags.append("runtime_gate_position_peak")
+        if runtime_gate_coverage_gap_peak_hit:
+            cause_tags.append("runtime_gate_coverage_gap_peak")
+        if runtime_gate_position_peak_action:
+            cause_tags.append("runtime_gate_position_peak_action")
+        if runtime_gate_coverage_gap_peak_action:
+            cause_tags.append("runtime_gate_coverage_gap_peak_action")
+        if float(runtime_gate_intent_collision_count) > 0.0:
+            cause_tags.append("runtime_gate_intent_collision")
         if refresh_budget_pressure:
             cause_tags.append("protection_refresh_budget")
         if refresh_budget_hard_blocked:
@@ -995,14 +1245,32 @@ class BeliefController:
             cause_tags.append("reconcile_first_spike")
         if contradiction_active:
             cause_tags.append("evidence_contradiction")
+        if corr_pressure_tight:
+            cause_tags.append("corr_pressure")
+        if corr_regime == "STRESS":
+            cause_tags.append("corr_stress")
+        elif corr_regime == "TIGHTENING":
+            cause_tags.append("corr_tightening")
         if float(evidence_source_disagree) > 0.0:
             cause_tags.append("evidence_source_disagreement")
         if float(evidence_contradiction_burn_norm) > 0.0:
             cause_tags.append("evidence_contradiction_burn")
         if float(protection_coverage_gap_seconds) > 0.0:
             cause_tags.append("protection_gap")
+        if float(envelope_ambiguous_symbols) > 0.0:
+            cause_tags.append("belief_envelope_ambiguous")
+        if float(envelope_width_max) > 0.0:
+            cause_tags.append("belief_envelope_width")
         if float(runtime_gate_mismatch_count) > 0.0:
             cause_tags.append("replay_mismatch")
+        if not transition and str(self.mode) != str(previous_mode):
+            transition = f"{str(previous_mode)}->{str(self.mode)}"
+        if mode_events:
+            joined = "|".join(mode_events)
+            if not transition:
+                transition = joined
+            elif joined not in transition:
+                transition = f"{transition}|{joined}"
         if transition:
             cause_tags.append("mode_transition")
 
@@ -1074,9 +1342,15 @@ class BeliefController:
             debt_growth_per_min=float(debt_growth_per_min),
             reason=reason,
             transition=transition,
+            previous_mode=str(previous_mode),
+            target_mode=str(target),
             cause_tags=",".join(cause_tags),
             dominant_contributors=str(gate_top),
             unlock_requirements=str(unlock_requirements),
+            recovery_stage=str(recovery_stage),
+            unlock_conditions=str(unlock_conditions),
+            next_unlock_sec=float(next_unlock_sec),
+            unlock_snapshot=dict(unlock_snapshot),
         )
         self._last_trace = trace
         return GuardKnobs(
@@ -1101,6 +1375,13 @@ class BeliefController:
             recovery_stage=str(recovery_stage),
             unlock_conditions=str(unlock_conditions),
             next_unlock_sec=float(next_unlock_sec),
+            transition=str(transition),
+            previous_mode=str(previous_mode),
+            target_mode=str(target),
+            cause_tags=",".join(cause_tags),
+            dominant_contributors=str(gate_top),
+            unlock_requirements=str(unlock_requirements),
+            unlock_snapshot=dict(unlock_snapshot),
             protection_refresh_budget_blocked_level=float(self._refresh_budget_blocked_level),
             protection_refresh_budget_force_level=float(self._refresh_budget_force_level),
             per_symbol=per_symbol,

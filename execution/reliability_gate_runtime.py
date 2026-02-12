@@ -11,6 +11,7 @@ _CACHE: Dict[str, Any] = {
     "mtime": -1.0,
     "result": {},
 }
+_UNSET = object()
 
 
 def _safe_int(x: Any, default: int = 0) -> int:
@@ -41,10 +42,26 @@ def _cfg(cfg: Any, name: str, default: Any) -> Any:
         return default
 
 
+def _cfg_opt(cfg: Any, name: str) -> Any:
+    try:
+        return getattr(cfg, name, _UNSET)
+    except Exception:
+        return _UNSET
+
+
+def _pick(cfg: Any, cfg_name: str, env_name: str, default: Any) -> Any:
+    # Prefer explicit runtime config in tests/bootstrap, then env, then default.
+    v = _cfg_opt(cfg, cfg_name)
+    if v is not _UNSET:
+        return v
+    ev = os.getenv(env_name, None)
+    if ev is None:
+        return default
+    return ev
+
+
 def _resolve_path(cfg: Any = None) -> Path:
-    p = str(os.getenv("RELIABILITY_GATE_PATH", "")).strip()
-    if not p:
-        p = str(_cfg(cfg, "RELIABILITY_GATE_PATH", "") or "").strip()
+    p = str(_pick(cfg, "RELIABILITY_GATE_PATH", "RELIABILITY_GATE_PATH", "") or "").strip()
     if not p:
         p = "logs/reliability_gate.txt"
     return Path(p)
@@ -160,11 +177,21 @@ def _parse_categories(raw: Any) -> Dict[str, int]:
 
 def get_runtime_gate(cfg: Any = None) -> Dict[str, Any]:
     path = _resolve_path(cfg)
-    max_mismatch = max(0, _safe_int(os.getenv("RELIABILITY_GATE_MAX_REPLAY_MISMATCH", _cfg(cfg, "RELIABILITY_GATE_MAX_REPLAY_MISMATCH", 0)), 0))
-    max_invalid = max(0, _safe_int(os.getenv("RELIABILITY_GATE_MAX_INVALID_TRANSITIONS", _cfg(cfg, "RELIABILITY_GATE_MAX_INVALID_TRANSITIONS", 0)), 0))
-    min_cov = max(0.0, min(1.0, _safe_float(os.getenv("RELIABILITY_GATE_MIN_JOURNAL_COVERAGE", _cfg(cfg, "RELIABILITY_GATE_MIN_JOURNAL_COVERAGE", 0.90)), 0.90)))
+    max_mismatch = max(
+        0, _safe_int(_pick(cfg, "RELIABILITY_GATE_MAX_REPLAY_MISMATCH", "RELIABILITY_GATE_MAX_REPLAY_MISMATCH", 0), 0)
+    )
+    max_invalid = max(
+        0, _safe_int(_pick(cfg, "RELIABILITY_GATE_MAX_INVALID_TRANSITIONS", "RELIABILITY_GATE_MAX_INVALID_TRANSITIONS", 0), 0)
+    )
+    min_cov = max(
+        0.0,
+        min(
+            1.0,
+            _safe_float(_pick(cfg, "RELIABILITY_GATE_MIN_JOURNAL_COVERAGE", "RELIABILITY_GATE_MIN_JOURNAL_COVERAGE", 0.90), 0.90),
+        ),
+    )
     cat_score_threshold = _clamp01(
-        _safe_float(os.getenv("RELIABILITY_GATE_CATEGORY_DEGRADE_SCORE", _cfg(cfg, "RELIABILITY_GATE_CATEGORY_DEGRADE_SCORE", 0.80)), 0.80)
+        _safe_float(_pick(cfg, "RELIABILITY_GATE_CATEGORY_DEGRADE_SCORE", "RELIABILITY_GATE_CATEGORY_DEGRADE_SCORE", 0.80), 0.80)
     )
 
     if not path.exists():
@@ -193,8 +220,11 @@ def get_runtime_gate(cfg: Any = None) -> Dict[str, Any]:
                 "unknown": 0,
             },
             "position_mismatch_count": 0,
+            "position_mismatch_count_peak": 0,
             "orphan_count": 0,
+            "intent_collision_count": 0,
             "protection_coverage_gap_seconds": 0.0,
+            "protection_coverage_gap_seconds_peak": 0.0,
             "replace_race_count": 0,
             "evidence_contradiction_count": 0,
             "path": str(path),
@@ -224,8 +254,11 @@ def get_runtime_gate(cfg: Any = None) -> Dict[str, Any]:
     invalid = max(0, _safe_int(kv.get("invalid_transition_count"), 0))
     coverage = max(0.0, min(1.0, _safe_float(kv.get("journal_coverage_ratio"), 0.0)))
     position_mismatch = max(0, _safe_int(kv.get("position_mismatch_count"), _safe_int(mismatch_categories.get("position"), 0)))
+    position_mismatch_peak = max(0, _safe_int(kv.get("position_mismatch_count_peak"), position_mismatch))
     orphan_count = max(0, _safe_int(kv.get("orphan_count"), _safe_int(mismatch_categories.get("orphan"), 0)))
+    intent_collision_count = max(0, _safe_int(kv.get("intent_collision_count"), 0))
     coverage_gap_seconds = max(0.0, _safe_float(kv.get("protection_coverage_gap_seconds"), 0.0))
+    coverage_gap_seconds_peak = max(0.0, _safe_float(kv.get("protection_coverage_gap_seconds_peak"), coverage_gap_seconds))
     replace_race_count = max(0, _safe_int(kv.get("replace_race_count"), _safe_int(mismatch_categories.get("replace_race"), 0)))
     contradiction_count = max(
         0, _safe_int(kv.get("evidence_contradiction_count"), _safe_int(mismatch_categories.get("contradiction"), 0))
@@ -273,22 +306,60 @@ def get_runtime_gate(cfg: Any = None) -> Dict[str, Any]:
         min(1.0, float(cat_unknown) / 4.0),
     )
     degrade_score = max(mismatch_severity, invalid_severity, coverage_severity, mismatch_category_score)
-    max_position = max(0, _safe_int(os.getenv("RELIABILITY_GATE_MAX_POSITION_MISMATCH", _cfg(cfg, "RELIABILITY_GATE_MAX_POSITION_MISMATCH", 1)), 1))
-    max_orphan = max(0, _safe_int(os.getenv("RELIABILITY_GATE_MAX_ORPHAN_COUNT", _cfg(cfg, "RELIABILITY_GATE_MAX_ORPHAN_COUNT", 0)), 0))
+    max_position = max(
+        0, _safe_int(_pick(cfg, "RELIABILITY_GATE_MAX_POSITION_MISMATCH", "RELIABILITY_GATE_MAX_POSITION_MISMATCH", 1), 1)
+    )
+    max_position_peak = max(
+        0,
+        _safe_int(
+            _pick(
+                cfg,
+                "RELIABILITY_GATE_MAX_POSITION_MISMATCH_PEAK",
+                "RELIABILITY_GATE_MAX_POSITION_MISMATCH_PEAK",
+                max_position,
+            ),
+            max_position,
+        ),
+    )
+    max_orphan = max(0, _safe_int(_pick(cfg, "RELIABILITY_GATE_MAX_ORPHAN_COUNT", "RELIABILITY_GATE_MAX_ORPHAN_COUNT", 0), 0))
+    max_intent_collision = max(
+        0,
+        _safe_int(
+            _pick(cfg, "RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT", "RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT", 0),
+            0,
+        ),
+    )
     max_cov_gap_sec = max(
         0.0,
         _safe_float(
-            os.getenv("RELIABILITY_GATE_MAX_COVERAGE_GAP_SECONDS", _cfg(cfg, "RELIABILITY_GATE_MAX_COVERAGE_GAP_SECONDS", 0.0)),
+            _pick(cfg, "RELIABILITY_GATE_MAX_COVERAGE_GAP_SECONDS", "RELIABILITY_GATE_MAX_COVERAGE_GAP_SECONDS", 0.0),
             0.0,
         ),
     )
+    max_cov_gap_sec_peak = max(
+        0.0,
+        _safe_float(
+            _pick(
+                cfg,
+                "RELIABILITY_GATE_MAX_COVERAGE_GAP_SECONDS_PEAK",
+                "RELIABILITY_GATE_MAX_COVERAGE_GAP_SECONDS_PEAK",
+                max_cov_gap_sec,
+            ),
+            max_cov_gap_sec,
+        ),
+    )
     max_replace = max(
-        0, _safe_int(os.getenv("RELIABILITY_GATE_MAX_REPLACE_RACE_COUNT", _cfg(cfg, "RELIABILITY_GATE_MAX_REPLACE_RACE_COUNT", 1)), 1)
+        0, _safe_int(_pick(cfg, "RELIABILITY_GATE_MAX_REPLACE_RACE_COUNT", "RELIABILITY_GATE_MAX_REPLACE_RACE_COUNT", 1), 1)
     )
     max_contradiction = max(
         0,
         _safe_int(
-            os.getenv("RELIABILITY_GATE_MAX_EVIDENCE_CONTRADICTION_COUNT", _cfg(cfg, "RELIABILITY_GATE_MAX_EVIDENCE_CONTRADICTION_COUNT", 2)),
+            _pick(
+                cfg,
+                "RELIABILITY_GATE_MAX_EVIDENCE_CONTRADICTION_COUNT",
+                "RELIABILITY_GATE_MAX_EVIDENCE_CONTRADICTION_COUNT",
+                2,
+            ),
             2,
         ),
     )
@@ -298,8 +369,11 @@ def get_runtime_gate(cfg: Any = None) -> Dict[str, Any]:
         or invalid > max_invalid
         or coverage < min_cov
         or position_mismatch > max_position
+        or position_mismatch_peak > max_position_peak
         or orphan_count > max_orphan
+        or intent_collision_count > max_intent_collision
         or (coverage_gap_seconds > max_cov_gap_sec)
+        or (coverage_gap_seconds_peak > max_cov_gap_sec_peak)
         or replace_race_count > max_replace
         or contradiction_count > max_contradiction
         or mismatch_category_score >= cat_score_threshold
@@ -313,10 +387,16 @@ def get_runtime_gate(cfg: Any = None) -> Dict[str, Any]:
         reason_parts.append(f"coverage<{min_cov:.2f}")
     if position_mismatch > max_position:
         reason_parts.append(f"position>{max_position}")
+    if position_mismatch_peak > max_position_peak:
+        reason_parts.append(f"position_peak>{max_position_peak}")
     if orphan_count > max_orphan:
         reason_parts.append(f"orphan>{max_orphan}")
+    if intent_collision_count > max_intent_collision:
+        reason_parts.append(f"intent_collision>{max_intent_collision}")
     if coverage_gap_seconds > max_cov_gap_sec:
         reason_parts.append(f"coverage_gap_sec>{max_cov_gap_sec:.1f}")
+    if coverage_gap_seconds_peak > max_cov_gap_sec_peak:
+        reason_parts.append(f"coverage_gap_sec_peak>{max_cov_gap_sec_peak:.1f}")
     if replace_race_count > max_replace:
         reason_parts.append(f"replace_race>{max_replace}")
     if contradiction_count > max_contradiction:
@@ -331,6 +411,8 @@ def get_runtime_gate(cfg: Any = None) -> Dict[str, Any]:
         reason_parts.append(f"position={cat_position}")
     if cat_orphan > 0:
         reason_parts.append(f"orphan={cat_orphan}")
+    if intent_collision_count > 0:
+        reason_parts.append(f"intent_collision={intent_collision_count}")
     if cat_cov_gap > 0 or coverage_gap_seconds > 0.0:
         reason_parts.append(f"coverage_gap={max(cat_cov_gap, 1 if coverage_gap_seconds > 0.0 else 0)}")
     if cat_replace > 0:
@@ -357,8 +439,11 @@ def get_runtime_gate(cfg: Any = None) -> Dict[str, Any]:
         "replay_mismatch_ids": list(mismatch_ids),
         "replay_mismatch_categories": dict(mismatch_categories),
         "position_mismatch_count": int(position_mismatch),
+        "position_mismatch_count_peak": int(position_mismatch_peak),
         "orphan_count": int(orphan_count),
+        "intent_collision_count": int(intent_collision_count),
         "protection_coverage_gap_seconds": float(coverage_gap_seconds),
+        "protection_coverage_gap_seconds_peak": float(coverage_gap_seconds_peak),
         "replace_race_count": int(replace_race_count),
         "evidence_contradiction_count": int(contradiction_count),
         "path": cache_path,
