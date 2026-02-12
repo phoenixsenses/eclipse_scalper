@@ -7,6 +7,7 @@ import os
 import tempfile
 import types
 import unittest
+from unittest import mock
 import sys
 from pathlib import Path
 
@@ -19,6 +20,7 @@ for p in (ROOT, PKG):
 from eclipse_scalper.execution import rebuild, reconcile, replace_manager, order_router  # noqa: E402
 from eclipse_scalper.execution.belief_controller import BeliefController  # noqa: E402
 from tools import replay_trade  # noqa: E402
+from tools import telemetry_dashboard_notify as tdn  # noqa: E402
 
 # CI-import hardening: ensure reconcile always has a usable belief controller class.
 if getattr(reconcile, "_BeliefController", None) is None:
@@ -54,6 +56,37 @@ class _RestartExchange:
         return [t for t in self._trades if str(t.get("symbol") or "") == str(symbol)]
 
 
+class _RouterChaosExchange:
+    id = "binance"
+
+    def __init__(self):
+        self.markets = {"BTC/USDT:USDT": {"contract": True}}
+        self.create_calls: list[dict] = []
+
+    async def create_order(self, **kwargs):
+        self.create_calls.append(dict(kwargs))
+        return {
+            "id": "OID-CHAOS-1",
+            "status": "open",
+            "info": {"orderId": "OID-CHAOS-1"},
+        }
+
+    async def load_markets(self, _reload=True):
+        return dict(self.markets)
+
+    async def set_margin_mode(self, *_args, **_kwargs):
+        return None
+
+    async def set_leverage(self, *_args, **_kwargs):
+        return None
+
+    async def fapiPrivateGetPositionSideDual(self):
+        return {"dualSidePosition": True}
+
+    def market(self, _sym):
+        return {"contract": True}
+
+
 class _DummyBot:
     def __init__(self, ex):
         self.ex = ex
@@ -87,6 +120,187 @@ class ChaosScenariosV2Tests(unittest.TestCase):
                 bot.state.belief_controller = ctl
         knobs = ctl.update(payload, getattr(bot, "cfg", None))
         return knobs.to_dict() if hasattr(knobs, "to_dict") else dict(knobs)
+
+    def test_restart_window_wal_to_send_allows_single_side_effect_per_intent(self):
+        ex = _RouterChaosExchange()
+        bot = _DummyBot(ex)
+        sym = "BTC/USDT"
+        corr = "I2.PHX01.1739318400.entry_loop.ENTRY.BTCUSDT.00000099"
+        coid = "ENTRY_BTC_RESTART_WAL_99"
+        with tempfile.TemporaryDirectory() as td:
+            bot.cfg.INTENT_LEDGER_ENABLED = True
+            bot.cfg.INTENT_LEDGER_MAY_SEND_ENABLED = True
+            bot.cfg.INTENT_LEDGER_REUSE_ENABLED = True
+            bot.cfg.INTENT_LEDGER_PATH = str(Path(td) / "intent_ledger.jsonl")
+            bot.cfg.EVENT_JOURNAL_PATH = str(Path(td) / "execution_journal.jsonl")
+            bot.cfg.INTENT_ALLOCATOR_REQUIRED = False
+            bot.cfg.INTENT_LEDGER_STRICT_MAY_SEND = False
+
+            from eclipse_scalper.execution import intent_ledger  # noqa: E402
+
+            # Crash between WAL and send: intent exists at PROPOSED but no remote side effect yet.
+            intent_ledger.record(
+                bot,
+                intent_id=corr,
+                stage="PROPOSED",
+                symbol="BTCUSDT",
+                side="buy",
+                order_type="MARKET",
+                client_order_id=coid,
+                status="pending",
+                reason="wal_written_pre_send_crash",
+            )
+            orig_validate = order_router._validate_and_normalize_order
+
+            async def _ok_validate(*_args, **_kwargs):
+                return True, 1.0, None, "ok"
+
+            order_router._validate_and_normalize_order = _ok_validate
+            try:
+                r1 = asyncio.run(
+                    order_router.create_order(
+                        bot,
+                        symbol=sym,
+                        type="MARKET",
+                        side="buy",
+                        amount=1.0,
+                        params={"clientOrderId": coid},
+                        retries=1,
+                        correlation_id=corr,
+                    )
+                )
+                r2 = asyncio.run(
+                    order_router.create_order(
+                        bot,
+                        symbol=sym,
+                        type="MARKET",
+                        side="buy",
+                        amount=1.0,
+                        params={"clientOrderId": coid},
+                        retries=1,
+                        correlation_id=corr,
+                    )
+                )
+            finally:
+                order_router._validate_and_normalize_order = orig_validate
+
+            self.assertEqual(len(ex.create_calls), 0, "WAL->send crash should fail closed until reconcile clears intent")
+            self.assertIsNotNone(r1)
+            self.assertIsNotNone(r2)
+            info1 = dict((r1 or {}).get("info") or {})
+            info2 = dict((r2 or {}).get("info") or {})
+            self.assertTrue(bool(info1.get("intent_pending_unknown", False)))
+            self.assertTrue(bool(info2.get("intent_pending_unknown", False)))
+
+    def test_restart_window_send_to_ack_blocks_duplicate_submit(self):
+        ex = _RouterChaosExchange()
+        bot = _DummyBot(ex)
+        sym = "BTC/USDT"
+        corr = "I2.PHX01.1739318400.entry_loop.ENTRY.BTCUSDT.00000100"
+        coid = "ENTRY_BTC_RESTART_SEND_ACK_100"
+        with tempfile.TemporaryDirectory() as td:
+            bot.cfg.INTENT_LEDGER_ENABLED = True
+            bot.cfg.INTENT_LEDGER_MAY_SEND_ENABLED = True
+            bot.cfg.INTENT_LEDGER_REUSE_ENABLED = True
+            bot.cfg.INTENT_LEDGER_PATH = str(Path(td) / "intent_ledger.jsonl")
+            bot.cfg.EVENT_JOURNAL_PATH = str(Path(td) / "execution_journal.jsonl")
+            bot.cfg.INTENT_ALLOCATOR_REQUIRED = False
+            bot.cfg.INTENT_LEDGER_STRICT_MAY_SEND = False
+
+            from eclipse_scalper.execution import intent_ledger  # noqa: E402
+
+            # Crash after send before ack/reconcile: must block duplicate risk-increasing retry.
+            intent_ledger.record(
+                bot,
+                intent_id=corr,
+                stage="SUBMITTED_UNKNOWN",
+                symbol="BTCUSDT",
+                side="buy",
+                order_type="MARKET",
+                client_order_id=coid,
+                status="unknown",
+                reason="send_no_ack_crash",
+            )
+            orig_validate = order_router._validate_and_normalize_order
+
+            async def _ok_validate(*_args, **_kwargs):
+                return True, 1.0, None, "ok"
+
+            order_router._validate_and_normalize_order = _ok_validate
+            try:
+                r = asyncio.run(
+                    order_router.create_order(
+                        bot,
+                        symbol=sym,
+                        type="MARKET",
+                        side="buy",
+                        amount=1.0,
+                        params={"clientOrderId": coid},
+                        retries=1,
+                        correlation_id=corr,
+                    )
+                )
+            finally:
+                order_router._validate_and_normalize_order = orig_validate
+
+            self.assertEqual(len(ex.create_calls), 0, "no duplicate side effect allowed while intent is unknown")
+            info = dict((r or {}).get("info") or {})
+            self.assertTrue(bool(info.get("intent_pending_unknown", False)))
+
+    def test_restart_window_ack_to_reconcile_reuses_existing_without_resend(self):
+        ex = _RouterChaosExchange()
+        bot = _DummyBot(ex)
+        sym = "BTC/USDT"
+        corr = "I2.PHX01.1739318400.entry_loop.ENTRY.BTCUSDT.00000101"
+        coid = "ENTRY_BTC_RESTART_ACK_REC_101"
+        with tempfile.TemporaryDirectory() as td:
+            bot.cfg.INTENT_LEDGER_ENABLED = True
+            bot.cfg.INTENT_LEDGER_MAY_SEND_ENABLED = True
+            bot.cfg.INTENT_LEDGER_REUSE_ENABLED = True
+            bot.cfg.INTENT_LEDGER_PATH = str(Path(td) / "intent_ledger.jsonl")
+            bot.cfg.EVENT_JOURNAL_PATH = str(Path(td) / "execution_journal.jsonl")
+            bot.cfg.INTENT_ALLOCATOR_REQUIRED = False
+            bot.cfg.INTENT_LEDGER_STRICT_MAY_SEND = False
+
+            from eclipse_scalper.execution import intent_ledger  # noqa: E402
+
+            # Crash after ack/open before reconcile: retry must reuse known open intent, not resend.
+            intent_ledger.record(
+                bot,
+                intent_id=corr,
+                stage="OPEN",
+                symbol="BTCUSDT",
+                side="buy",
+                order_type="MARKET",
+                client_order_id=coid,
+                order_id="OID-CHAOS-ACK-1",
+                status="open",
+                reason="acked_pre_reconcile_crash",
+            )
+            orig_validate = order_router._validate_and_normalize_order
+
+            async def _ok_validate(*_args, **_kwargs):
+                return True, 1.0, None, "ok"
+
+            order_router._validate_and_normalize_order = _ok_validate
+            try:
+                r = asyncio.run(
+                    order_router.create_order(
+                        bot,
+                        symbol=sym,
+                        type="MARKET",
+                        side="buy",
+                        amount=1.0,
+                        params={"clientOrderId": coid},
+                        retries=1,
+                        correlation_id=corr,
+                    )
+                )
+            finally:
+                order_router._validate_and_normalize_order = orig_validate
+
+            self.assertEqual(len(ex.create_calls), 0, "restarted retry should reuse open intent without resend")
+            self.assertEqual(str((r or {}).get("id") or ""), "OID-CHAOS-ACK-1")
 
     def test_restart_rebuild_adopts_live_position_and_reconcile_keeps_it_consistent(self):
         ex = _RestartExchange(
@@ -374,6 +588,54 @@ class ChaosScenariosV2Tests(unittest.TestCase):
             # Exit safety invariant remains separate from entry freeze logic.
             self.assertIn(str(knobs.get("recovery_stage") or ""), ("RUNTIME_GATE_DEGRADED", "ORANGE_RECOVERY"))
 
+    def test_intent_collision_spike_in_runtime_gate_freezes_entries_with_cause_tags(self):
+        with tempfile.TemporaryDirectory() as td:
+            gate_path = Path(td) / "reliability_gate.txt"
+            gate_path.write_text(
+                "\n".join(
+                    [
+                        "Execution Reliability Gate",
+                        "replay_mismatch_count=0",
+                        "invalid_transition_count=0",
+                        "journal_coverage_ratio=1.000",
+                        "intent_collision_count=2",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            ex = _RestartExchange(positions=[], orders=[], trades=[])
+            bot = _DummyBot(ex)
+            bot.cfg.RELIABILITY_GATE_PATH = str(gate_path)
+            bot.cfg.RELIABILITY_GATE_MAX_REPLAY_MISMATCH = 0
+            bot.cfg.RELIABILITY_GATE_MAX_INVALID_TRANSITIONS = 0
+            bot.cfg.RELIABILITY_GATE_MIN_JOURNAL_COVERAGE = 0.90
+            bot.cfg.RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT = 0
+
+            asyncio.run(reconcile.reconcile_tick(bot))
+            knobs = dict(getattr(bot.state, "guard_knobs", {}) or {})
+            if not knobs:
+                asyncio.run(reconcile.reconcile_tick(bot))
+                knobs = dict(getattr(bot.state, "guard_knobs", {}) or {})
+            if not knobs:
+                knobs = self._fallback_guard_knobs(
+                    bot,
+                    {
+                        "belief_debt_sec": 0.0,
+                        "belief_debt_symbols": 0,
+                        "mismatch_streak": 0,
+                        "runtime_gate_degraded": True,
+                        "runtime_gate_reason": "intent_collision>0,intent_collision=2",
+                        "runtime_gate_intent_collision_count": 2,
+                    },
+                )
+            self.assertTrue(bool(knobs))
+            self.assertFalse(bool(knobs.get("allow_entries", True)))
+            self.assertTrue(bool(knobs.get("runtime_gate_degraded", False)))
+            self.assertIn("intent_collision", str(knobs.get("runtime_gate_reason") or "").lower())
+            self.assertIn("runtime_gate_intent_collision", str(knobs.get("cause_tags") or ""))
+            self.assertIn("intent_collision", str(knobs.get("dominant_contributors") or "").lower())
+
     def test_runtime_gate_freeze_then_warmup_reenable_is_constrained(self):
         with tempfile.TemporaryDirectory() as td:
             gate_path = Path(td) / "reliability_gate.txt"
@@ -561,6 +823,70 @@ class ChaosScenariosV2Tests(unittest.TestCase):
             k2 = dict(getattr(bot.state, "guard_knobs", {}) or {})
             self.assertTrue(bool(k2.get("allow_entries", False)))
             self.assertIn("runtime_gate_warmup", str(k2.get("reason") or ""))
+
+    def test_e2e_intent_collision_signal_chain_reconcile_to_notifier(self):
+        with tempfile.TemporaryDirectory() as td:
+            tele_path = Path(td) / "telemetry.jsonl"
+            gate_path = Path(td) / "reliability_gate.txt"
+            state_path = Path(td) / "notify_state.json"
+            tele_path.write_text(
+                json.dumps(
+                    {
+                        "event": "rebuild.summary",
+                        "ts": 1700000000.0,
+                        "data": {"intent_collision_count": 1},
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            gate_path.write_text(
+                "\n".join(
+                    [
+                        "Execution Reliability Gate",
+                        "replay_mismatch_count=0",
+                        "invalid_transition_count=0",
+                        "journal_coverage_ratio=1.000",
+                        "intent_collision_count=1",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            ex = _RestartExchange(positions=[], orders=[], trades=[])
+            bot = _DummyBot(ex)
+            bot.cfg.TELEMETRY_PATH = str(tele_path)
+            bot.cfg.RELIABILITY_GATE_PATH = str(gate_path)
+            bot.cfg.RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT = 0
+            asyncio.run(reconcile.reconcile_tick(bot))
+
+            with mock.patch.object(tdn, "_run_dashboard", return_value=("dashboard-ok", 0)), \
+                mock.patch.object(tdn, "_build_notifier", return_value=object()), \
+                mock.patch.object(tdn, "_send_alert") as send_alert:
+                rc = tdn.main(
+                    [
+                        "--path",
+                        str(tele_path),
+                        "--reliability-gate",
+                        str(gate_path),
+                        "--state-path",
+                        str(state_path),
+                        "--reliability-max-intent-collision-count",
+                        "0",
+                        "--intent-collision-critical-threshold",
+                        "1",
+                        "--intent-collision-critical-streak",
+                        "1",
+                    ]
+                )
+                self.assertEqual(rc, 0)
+                saved = json.loads(state_path.read_text(encoding="utf-8"))
+                self.assertEqual(str(saved.get("level") or ""), "critical")
+                self.assertEqual(int(saved.get("reliability_intent_collision_count") or 0), 1)
+                self.assertEqual(int(saved.get("intent_collision_streak") or 0), 1)
+                kwargs = send_alert.call_args.kwargs if send_alert.call_args else {}
+                self.assertEqual(kwargs.get("level"), "critical")
 
     def test_reconcile_emits_posture_transition_audit_event(self):
         with tempfile.TemporaryDirectory() as td:
