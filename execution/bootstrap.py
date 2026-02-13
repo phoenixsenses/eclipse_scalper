@@ -812,6 +812,15 @@ async def main() -> None:
 
     _run_diagnostics_best_effort(bot)
 
+    # Check for incomplete flatten intents from previous crash
+    try:
+        from execution.flatten_intent import check_incomplete_flatten_on_startup
+        pending_flatten = await check_incomplete_flatten_on_startup()
+        if pending_flatten is not None:
+            log_core.warning(f"[bootstrap] incomplete flatten intent found: {pending_flatten}")
+    except Exception as e:
+        log_core.info(f"[bootstrap] flatten_intent check skipped: {e}")
+
     maintenance_oneshot = os.getenv("BOOT_MAINTENANCE_ONESHOT", "0").strip().lower() in ("1", "true", "yes", "on")
     if maintenance_oneshot:
         log_core.warning("[bootstrap] BOOT_MAINTENANCE_ONESHOT=1 -> rebuild + single reconcile tick, then exit")

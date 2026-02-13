@@ -670,6 +670,28 @@ async def guardian_loop(bot):
             except Exception as e:
                 we_dont_have_this("execution.emergency.on_halt (runtime)", e)
 
+        # 4) Health monitor, metrics, order verification, system status ticks
+        try:
+            from execution.health_monitor import health_tick as _health_tick
+            await _safe_call("health_monitor.health_tick", _health_tick, bot)
+        except Exception:
+            pass
+        try:
+            from execution.metrics_collector import metrics_tick as _metrics_tick
+            await _safe_call("metrics_collector.metrics_tick", _metrics_tick, bot)
+        except Exception:
+            pass
+        try:
+            from execution.order_verifier import verify_tick as _verify_tick
+            await _safe_call("order_verifier.verify_tick", _verify_tick, bot)
+        except Exception:
+            pass
+        try:
+            from execution.system_status import status_tick as _status_tick
+            await _safe_call("system_status.status_tick", _status_tick, bot)
+        except Exception:
+            pass
+
     async def _run_cycle_with_timeout() -> None:
         if not cycle_timeout or cycle_timeout <= 0:
             await _one_cycle()
