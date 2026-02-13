@@ -21,6 +21,7 @@ from execution.entry import try_enter
 from execution.emergency import emergency_flat
 from execution.exit import handle_exit
 from strategies.risk import portfolio_heat
+from execution.flatten_intent import check_incomplete_flatten_on_startup  # ✅ CRASH RECOVERY
 
 # Kill switch
 from risk.kill_switch import evaluate as ks_evaluate, trade_allowed as ks_trade_allowed, is_halted as ks_is_halted
@@ -434,6 +435,39 @@ class EclipseEternal:
             log_brain.critical(f"BRAIN RESURRECTED — {len(self.state.positions)} positions reborn")
         else:
             log_brain.info("Fresh consciousness")
+
+        # ✅ CRASH RECOVERY: Check for incomplete flatten from previous crash
+        try:
+            incomplete_flatten = await check_incomplete_flatten_on_startup()
+            if incomplete_flatten:
+                log_core.critical(
+                    f"INCOMPLETE FLATTEN DETECTED: {len(incomplete_flatten.remaining_symbols)} symbols remaining | "
+                    f"reason={incomplete_flatten.reason} | attempt={incomplete_flatten.attempt_count}/{incomplete_flatten.max_attempts}"
+                )
+                if incomplete_flatten.attempt_count < incomplete_flatten.max_attempts:
+                    log_core.critical("AUTO-RESUMING FLATTEN — RECOVERY MODE ENGAGED")
+                    await self.speak(
+                        f"⚠️ INCOMPLETE FLATTEN DETECTED — AUTO-RESUMING\n"
+                        f"Symbols: {len(incomplete_flatten.remaining_symbols)} remaining\n"
+                        f"Reason: {incomplete_flatten.reason}",
+                        "critical",
+                    )
+                    # Resume flatten with remaining symbols
+                    await emergency_flat(
+                        self,
+                        reason=f"RESUME:{incomplete_flatten.reason}",
+                        forced=incomplete_flatten.forced,
+                    )
+                else:
+                    log_core.critical("FLATTEN MAX ATTEMPTS EXCEEDED — MANUAL INTERVENTION REQUIRED")
+                    await self.speak(
+                        f"🚨 FLATTEN MAX ATTEMPTS EXCEEDED — MANUAL INTERVENTION REQUIRED\n"
+                        f"Symbols: {incomplete_flatten.remaining_symbols[:5]}...\n"
+                        f"Check ~/.blade_flatten_intent.json",
+                        "critical",
+                    )
+        except Exception as e:
+            log_core.error(f"INCOMPLETE FLATTEN CHECK FAILED: {e}")
 
         # ✅ Respect symbols pre-set by bootstrap/env
         if not self.active_symbols:

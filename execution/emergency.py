@@ -15,6 +15,7 @@ from typing import List, Dict, Any, Tuple, Optional, Set
 from utils.logging import log_core, log
 from brain.persistence import save_brain
 from execution.order_router import create_order, cancel_order  # ✅ ROUTER
+from execution.flatten_intent import get_flatten_intent_manager, FlattenIntent  # ✅ CRASH RECOVERY
 
 # ─────────────────────────────────────────────────────────────────────
 # Diagnostics wiring (never fatal, no behavior change)
@@ -407,6 +408,18 @@ async def emergency_flat(bot, reason: str = "COSMIC_CHAOS", forced: bool = False
     targeted = len(target_symbols_norm)
     failed_symbols: List[str] = []
 
+    # ✅ CRASH RECOVERY: Persist flatten intent BEFORE any close operations
+    _flatten_intent_mgr = get_flatten_intent_manager()
+    _flatten_intent: Optional[FlattenIntent] = None
+    try:
+        _flatten_intent = await _flatten_intent_mgr.begin_flatten(
+            reason=reason,
+            forced=forced,
+            target_symbols=target_symbols_norm,
+        )
+    except Exception as e:
+        log_core.error(f"FLATTEN INTENT PERSIST FAILED: {e} — proceeding anyway")
+
     _ensure_state_dict(bot.state, "last_exit_time")
 
     # Cancel open orders first
@@ -501,6 +514,19 @@ async def emergency_flat(bot, reason: str = "COSMIC_CHAOS", forced: bool = False
             ok = await purify_symbol(sym_norm, state_hint.get(sym_norm))
             if not ok:
                 failed_symbols.append(sym_norm)
+                # ✅ CRASH RECOVERY: Track failed symbol
+                if _flatten_intent:
+                    try:
+                        await _flatten_intent_mgr.mark_symbol_failed(_flatten_intent, sym_norm)
+                    except Exception:
+                        pass
+            else:
+                # ✅ CRASH RECOVERY: Track completed symbol
+                if _flatten_intent:
+                    try:
+                        await _flatten_intent_mgr.mark_symbol_completed(_flatten_intent, sym_norm)
+                    except Exception:
+                        pass
             return ok
 
     if target_symbols_norm:
@@ -653,3 +679,11 @@ async def emergency_flat(bot, reason: str = "COSMIC_CHAOS", forced: bool = False
         await save_brain(bot.state, force=True)
     except Exception as pe:
         log_core.error(f"Brain save failed after emergency: {pe}")
+
+    # ✅ CRASH RECOVERY: Clear flatten intent only on full success (no remaining exposure)
+    if not remaining and _flatten_intent:
+        try:
+            await _flatten_intent_mgr.complete_flatten()
+            log_core.info("FLATTEN INTENT CLEARED — all positions verified flat")
+        except Exception as e:
+            log_core.error(f"FLATTEN INTENT CLEAR FAILED: {e}")

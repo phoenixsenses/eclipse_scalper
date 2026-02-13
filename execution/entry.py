@@ -21,6 +21,7 @@ from brain.persistence import save_brain
 from ta.volatility import AverageTrueRange
 
 from execution.order_router import create_order, cancel_order
+from execution.position_lock import atomic_position_insert, atomic_position_remove
 from risk.kill_switch import trade_allowed
 
 try:
@@ -44,6 +45,19 @@ try:
     from execution.error_codes import map_reason  # type: ignore
 except Exception:
     map_reason = None
+
+# Enhanced position sizing (optional)
+try:
+    from strategies.position_sizing import (
+        PositionSizer,
+        SizingMode,
+        TradeStats,
+        get_position_sizer,
+    )
+    POSITION_SIZER_AVAILABLE = True
+except Exception:
+    POSITION_SIZER_AVAILABLE = False
+    get_position_sizer = None
 
 
 _SYMBOL_LOCKS: dict[str, asyncio.Lock] = {}
@@ -1152,27 +1166,7 @@ async def try_enter(bot, sym: str, side: str):
         if confidence > 0.9:
             max_stop_pct *= 1.2
 
-        base_risk = float(cfg.MAX_RISK_PER_TRADE)
-
-        if cfg.ADAPTIVE_RISK_SCALING:
-            streak_factor = 1.0 + (bot.state.win_streak * 0.05) if bot.state.win_streak > 0 else 1.0
-            dd_factor = 1.0 - (session_dd * 2.0) if session_dd > 0 else 1.0
-            scaled_risk = base_risk * streak_factor * dd_factor
-        else:
-            scaled_risk = base_risk
-
-        if cfg.CONFIDENCE_SCALING:
-            confidence_multiplier = 0.8 + float(confidence) * 0.4
-            scaled_risk *= confidence_multiplier
-
-        risk_amount = equity * scaled_risk
-        available_risk = equity * max(0.0, (cfg.MAX_PORTFOLIO_HEAT - current_heat))
-        risk_amount = min(risk_amount, available_risk)
-
-        if risk_amount < cfg.MIN_RISK_DOLLARS:
-            _skip(bot, k, side, f"risk_amount ${risk_amount:.2f} < MIN_RISK_DOLLARS ${cfg.MIN_RISK_DOLLARS:.2f}")
-            return
-
+        # Calculate stop price first (needed for both legacy and enhanced sizing)
         stop_distance = atr * float(cfg.STOP_ATR_MULT)
         stop_pct = stop_distance / close_df
 
@@ -1183,7 +1177,89 @@ async def try_enter(bot, sym: str, side: str):
             _skip(bot, k, side, f"stop_pct {stop_pct:.2%} > max_stop_pct {max_stop_pct:.2%}")
             return
 
-        notional = risk_amount / stop_pct
+        stop_price = ref_px * (1 - stop_pct) if side == "long" else ref_px * (1 + stop_pct)
+
+        # Enhanced position sizing (optional)
+        USE_POSITION_SIZER = os.getenv("SCALPER_USE_POSITION_SIZER", "").strip().lower() in ("1", "true", "yes", "y", "on")
+
+        if USE_POSITION_SIZER and POSITION_SIZER_AVAILABLE and callable(get_position_sizer):
+            try:
+                sizer = get_position_sizer(
+                    mode=SizingMode.ADAPTIVE,
+                    base_risk_pct=float(cfg.MAX_RISK_PER_TRADE),
+                    max_risk_pct=float(cfg.MAX_RISK_PER_TRADE) * 1.5,
+                    max_position_pct=float(cfg.MAX_PORTFOLIO_HEAT),
+                )
+
+                # Build trade stats from bot state
+                stats = None
+                try:
+                    st = getattr(bot, "state", None)
+                    if st is not None:
+                        stats = TradeStats(
+                            total_trades=int(getattr(st, "total_trades", 0) or 0),
+                            winning_trades=int(getattr(st, "winning_trades", 0) or 0),
+                            losing_trades=int(getattr(st, "losing_trades", 0) or 0),
+                            total_profit=float(getattr(st, "total_profit", 0.0) or 0.0),
+                            total_loss=float(getattr(st, "total_loss", 0.0) or 0.0),
+                            current_streak=int(getattr(st, "win_streak", 0) or 0),
+                        )
+                except Exception:
+                    stats = None
+
+                sizing_result = sizer.calculate(
+                    equity=equity,
+                    entry_price=ref_px,
+                    stop_price=stop_price,
+                    confidence=confidence,
+                    atr=atr,
+                    stats=stats,
+                    current_exposure=current_heat * equity,
+                )
+
+                if sizing_result.position_size > 0:
+                    amount = sizing_result.position_size
+                    notional = sizing_result.position_value
+                    risk_amount = sizing_result.risk_amount
+                    scaled_risk = sizing_result.risk_pct
+
+                    log_entry.info(
+                        f"{k} ENHANCED SIZING: amount={amount:.6f} notional=${notional:.2f} "
+                        f"risk=${risk_amount:.2f} ({scaled_risk:.2%}) adj={sizing_result.adjustments}"
+                    )
+                else:
+                    _skip(bot, k, side, f"position_sizer returned zero size: {sizing_result.adjustments}")
+                    return
+
+            except Exception as e:
+                log_entry.warning(f"{k} position sizer error, falling back to legacy: {e}")
+                # Fall through to legacy sizing
+                USE_POSITION_SIZER = False
+
+        if not USE_POSITION_SIZER or not POSITION_SIZER_AVAILABLE:
+            # Legacy position sizing
+            base_risk = float(cfg.MAX_RISK_PER_TRADE)
+
+            if cfg.ADAPTIVE_RISK_SCALING:
+                streak_factor = 1.0 + (bot.state.win_streak * 0.05) if bot.state.win_streak > 0 else 1.0
+                dd_factor = 1.0 - (session_dd * 2.0) if session_dd > 0 else 1.0
+                scaled_risk = base_risk * streak_factor * dd_factor
+            else:
+                scaled_risk = base_risk
+
+            if cfg.CONFIDENCE_SCALING:
+                confidence_multiplier = 0.8 + float(confidence) * 0.4
+                scaled_risk *= confidence_multiplier
+
+            risk_amount = equity * scaled_risk
+            available_risk = equity * max(0.0, (cfg.MAX_PORTFOLIO_HEAT - current_heat))
+            risk_amount = min(risk_amount, available_risk)
+
+            if risk_amount < cfg.MIN_RISK_DOLLARS:
+                _skip(bot, k, side, f"risk_amount ${risk_amount:.2f} < MIN_RISK_DOLLARS ${cfg.MIN_RISK_DOLLARS:.2f}")
+                return
+
+            notional = risk_amount / stop_pct
 
         # Correlation group notional cap (existing + new)
         try:
@@ -1353,7 +1429,12 @@ async def try_enter(bot, sym: str, side: str):
                 entry_ts=time.time(),
                 confidence=float(confidence),
             )
-            bot.state.positions[k] = pos
+            # Atomic position insert (prevents race with reconcile/position_manager)
+            inserted = await atomic_position_insert(bot, k, pos)
+            if not inserted:
+                _skip(bot, k, side, "position_lock_failed_or_already_exists")
+                await _emergency_flatten(bot, sym_raw, side, float(filled), "Position lock failed", k, pos_side=pos_side)
+                return
 
             entry_meta = {
                 "entry_price": float(entry_price),
@@ -1393,7 +1474,7 @@ async def try_enter(bot, sym: str, side: str):
             pos.hard_stop_order_id = stop_id
 
             if stop_id is None:
-                bot.state.positions.pop(k, None)
+                await atomic_position_remove(bot, k)
                 await _emergency_flatten(bot, sym_raw, side, float(filled), "STOP placement failed", k, pos_side=pos_side)
                 return
 
@@ -1493,6 +1574,6 @@ async def try_enter(bot, sym: str, side: str):
             log_entry.critical(f"SCALPER FAILED {k} {side.upper()}: {e}")
             log.error(f"Full error: {repr(e)}")
             try:
-                bot.state.positions.pop(k, None)
+                await atomic_position_remove(bot, k)
             except Exception:
                 pass

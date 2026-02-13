@@ -64,6 +64,21 @@ try:
 except Exception:
     _intent_ledger = None
 
+# ✅ Phase 2: Reliability modules
+try:
+    from execution.circuit_breaker import circuit_allow_request, circuit_record_success, circuit_record_failure
+except Exception:
+    circuit_allow_request = None
+    circuit_record_success = None
+    circuit_record_failure = None
+
+try:
+    from execution.rate_limiter import rate_limit_acquire, rate_limit_hit, rate_limit_success
+except Exception:
+    rate_limit_acquire = None
+    rate_limit_hit = None
+    rate_limit_success = None
+
 
 # ----------------------------
 # Helpers
@@ -1618,6 +1633,29 @@ async def create_order(
         except Exception:
             pass
 
+    # ✅ Phase 2: Determine if this is an exit order early (for fail-open logic)
+    _is_exit_early = intent_reduce_only or intent_close_position
+
+    # ✅ Phase 2: Circuit breaker check (fail-open for exits)
+    if callable(circuit_allow_request):
+        try:
+            if not circuit_allow_request(bot, "exchange", is_exit=_is_exit_early):
+                log_entry.warning(f"ORDER ROUTER BLOCKED BY CIRCUIT_BREAKER | sym={symbol} is_exit={_is_exit_early}")
+                return None
+        except Exception:
+            pass
+
+    # ✅ Phase 2: Rate limiter check (fail-open for exits)
+    if callable(rate_limit_acquire):
+        try:
+            import asyncio
+            acquired = await rate_limit_acquire(bot, "exchange", weight=1, is_exit=_is_exit_early, timeout=5.0)
+            if not acquired:
+                log_entry.warning(f"ORDER ROUTER BLOCKED BY RATE_LIMITER | sym={symbol} is_exit={_is_exit_early}")
+                return None
+        except Exception:
+            pass
+
     type_u = str(type or "").upper().strip()
     type_norm = _normalize_type_for_ccxt(type_u)
     side_l = str(side or "").lower().strip()
@@ -2304,6 +2342,17 @@ async def create_order(
                             correlation_id=corr_id,
                         )
                     )
+                # ✅ Phase 2: Record success for circuit breaker & rate limiter
+                if callable(circuit_record_success):
+                    try:
+                        circuit_record_success(bot, "exchange")
+                    except Exception:
+                        pass
+                if callable(rate_limit_success):
+                    try:
+                        rate_limit_success(bot, "exchange")
+                    except Exception:
+                        pass
                 return res
             except Exception as e:
                 last_err = e
@@ -2312,6 +2361,29 @@ async def create_order(
                 reason = str(policy_meta.get("reason") or "unknown")
                 code = str(policy_meta.get("code") or "ERR_UNKNOWN")
                 err_class = str(policy_meta.get("error_class") or _ERROR_CLASS_FATAL)
+
+                # ✅ Phase 2: Record failure for circuit breaker
+                if callable(circuit_record_failure):
+                    try:
+                        circuit_record_failure(bot, "exchange", e)
+                    except Exception:
+                        pass
+
+                # ✅ Phase 2: Handle rate limit (429) errors
+                if "429" in str(e) or "rate limit" in str(e).lower() or "-1015" in str(e):
+                    if callable(rate_limit_hit):
+                        try:
+                            # Try to extract retry-after from error
+                            retry_after = None
+                            err_str = str(e)
+                            if "retry after" in err_str.lower():
+                                import re
+                                match = re.search(r'retry after (\d+)', err_str, re.IGNORECASE)
+                                if match:
+                                    retry_after = float(match.group(1))
+                            rate_limit_hit(bot, "exchange", retry_after)
+                        except Exception:
+                            pass
                 if reason in ("unknown_order", "unknown"):
                     unknown_state = "SUBMITTED_UNKNOWN"
                     try:

@@ -14,6 +14,7 @@ from typing import Optional, List, Tuple, Dict, Any
 
 from utils.logging import log_entry, log_core
 from execution.order_router import create_order, cancel_order
+from execution.position_lock import PositionLockManager  # ✅ ATOMIC POSITION OPS
 
 
 _POSMGR_LOCKS: dict[str, asyncio.Lock] = {}
@@ -545,6 +546,9 @@ async def position_manager_tick(bot) -> None:
         if not isinstance(positions, dict) or not positions:
             return
 
+        # ✅ ATOMIC: Get position lock manager for atomic operations
+        _pos_lock_mgr = PositionLockManager.get(bot) if PositionLockManager.is_enabled(bot) else None
+
         rr_be = float(_cfg_env(bot, "BREAKEVEN_RR_TRIGGER", 1.0))
         rr_trail = float(_cfg_env(bot, "TRAILING_ACTIVATION_RR", 0.0))
         trail_debounce = float(_cfg_env(bot, "TRAILING_REBUILD_DEBOUNCE_SEC", 15.0))
@@ -566,7 +570,11 @@ async def position_manager_tick(bot) -> None:
         cb_loose = float(_cfg_env(bot, "TRAILING_LOOSE_PCT", 1.5))
         min_trail_qty = float(_cfg_env(bot, "POSMGR_MIN_TRAIL_QTY", 0.0))
 
-        items = list(positions.items())
+        # ✅ ATOMIC: Get position items snapshot atomically if lock manager enabled
+        if _pos_lock_mgr:
+            items = await _pos_lock_mgr.atomic_items_snapshot(st, timeout=2.0)
+        else:
+            items = list(positions.items())
 
         for k, pos in items:
             try:

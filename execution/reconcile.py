@@ -12,6 +12,7 @@ from typing import Dict, Any, Optional, Tuple, List
 
 from utils.logging import log_entry, log_core
 from execution.order_router import create_order, cancel_order, cancel_replace_order  # ✅ ROUTER
+from execution.position_lock import atomic_position_insert, atomic_position_remove  # ✅ ATOMIC POSITION OPS
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -1269,7 +1270,10 @@ async def reconcile_tick(bot):
         if adopt_orphans and adopted_size > 0:
             try:
                 pos_obj = _make_pos_obj(k, side=adopted_side, size_abs=adopted_size, entry_price=adopted_entry)
-                state_positions[k] = pos_obj
+                # ✅ ATOMIC: Use position lock for orphan adoption
+                if not await atomic_position_insert(bot, k, pos_obj, overwrite=True):
+                    log_entry.error(f"RECONCILE: orphan adoption failed (lock timeout) {k}")
+                    continue
                 _set_position_belief_state(bot, k, "OPEN_CONFIRMED", "orphan_adopted")
                 msgA = f"RECONCILE: ORPHAN ADOPTED {k} | side={adopted_side} | size={adopted_size:.6f}"
                 if multi:
@@ -1339,10 +1343,8 @@ async def reconcile_tick(bot):
         if _alert_ok(bot, f"{k}:phantom_cleared", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
             await _safe_speak(bot, msg, "info")
         await _cancel_reduce_only_open_orders(bot, sym_raw)
-        try:
-            state_positions.pop(k, None)
-        except Exception:
-            pass
+        # ✅ ATOMIC: Use position lock for phantom clearing (fail-open for exits)
+        await atomic_position_remove(bot, k)
         _set_position_belief_state(bot, k, "FLAT", "phantom_removed")
         phantom.pop(k, None)
 

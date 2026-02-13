@@ -82,6 +82,34 @@ except Exception as e:
     handle_exit = None
     we_dont_have_this("execution.exit.handle_exit", e)
 
+# ✅ Phase 2: Order verification
+try:
+    from execution.order_verifier import verification_tick  # type: ignore
+except Exception as e:
+    verification_tick = None
+    we_dont_have_this("execution.order_verifier.verification_tick", e)
+
+# ✅ Phase 3: Health monitoring
+try:
+    from execution.health_monitor import health_check_tick  # type: ignore
+except Exception as e:
+    health_check_tick = None
+    we_dont_have_this("execution.health_monitor.health_check_tick", e)
+
+# ✅ Phase 3: Metrics collection
+try:
+    from execution.metrics_collector import collect_bot_metrics  # type: ignore
+except Exception as e:
+    collect_bot_metrics = None
+    we_dont_have_this("execution.metrics_collector.collect_bot_metrics", e)
+
+# ✅ Phase 3: System status
+try:
+    from execution.system_status import status_tick  # type: ignore
+except Exception as e:
+    status_tick = None
+    we_dont_have_this("execution.system_status.status_tick", e)
+
 
 # ─────────────────────────────────────────────────────────────────────
 # Helpers
@@ -660,6 +688,23 @@ async def guardian_loop(bot):
 
         # 3) Emergency checks
         await _emergency_tick(bot, legacy_brief_sec)
+
+        # ✅ Phase 2 & 3: Reliability & Observability ticks
+        # 4) Order verification (unknown order state resolution)
+        if callable(verification_tick):
+            await _safe_call("order_verifier.verification_tick", verification_tick, bot)
+
+        # 5) Health monitoring
+        if callable(health_check_tick):
+            await _safe_call("health_monitor.health_check_tick", health_check_tick, bot)
+
+        # 6) Metrics collection
+        if callable(collect_bot_metrics):
+            await _safe_call("metrics_collector.collect_bot_metrics", collect_bot_metrics, bot)
+
+        # 7) System status reporting
+        if callable(status_tick):
+            await _safe_call("system_status.status_tick", status_tick, bot)
 
         # optional emergency halt hook
         if halted and emergency_mod is not None:

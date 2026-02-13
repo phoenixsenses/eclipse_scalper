@@ -19,6 +19,7 @@ from utils.logging import log_entry, log
 from brain.persistence import save_brain
 
 from execution.order_router import create_order, cancel_order  # ✅ ROUTER
+from execution.position_lock import atomic_position_remove  # ✅ ATOMIC LOCK
 from ta.volatility import AverageTrueRange
 
 
@@ -37,6 +38,24 @@ except Exception:
     EXIT_VWAP = 'EXIT_VWAP'
     EXIT_TIME = 'EXIT_TIME'
     EXIT_STAGNATION = 'EXIT_STAGNATION'
+
+# Enhanced exit strategy (optional)
+try:
+    from strategies.exit_strategy import (
+        ExitStrategy,
+        ExitPlan,
+        ExitSignal,
+        ExitType,
+        TrailMode,
+        get_exit_strategy,
+    )
+    EXIT_STRATEGY_AVAILABLE = True
+except Exception:
+    EXIT_STRATEGY_AVAILABLE = False
+    get_exit_strategy = None
+
+# Enhanced exit plan cache (per position)
+_EXIT_PLANS: dict[str, ExitPlan] = {}
 
 _EXIT_LOCKS: dict[str, asyncio.Lock] = {}
 
@@ -487,6 +506,80 @@ def _ha_momentum(df) -> float:
         return _safe_float(mom, 0.0)
     except Exception:
         return 0.0
+
+
+def _get_or_create_exit_plan(
+    k: str,
+    entry_price: float,
+    direction: str,
+    stop_loss: float,
+    atr: float,
+) -> Optional["ExitPlan"]:
+    """Get existing exit plan or create a new one."""
+    if not EXIT_STRATEGY_AVAILABLE or not callable(get_exit_strategy):
+        return None
+
+    try:
+        # Check for existing plan
+        if k in _EXIT_PLANS:
+            plan = _EXIT_PLANS[k]
+            # Validate plan is still for same position
+            if abs(plan.entry_price - entry_price) < entry_price * 0.001:
+                return plan
+            # Different position, create new plan
+            del _EXIT_PLANS[k]
+
+        # Create new plan
+        exit_mgr = get_exit_strategy()
+        plan = exit_mgr.create_plan(
+            symbol=k,
+            entry_price=entry_price,
+            direction=direction.upper(),
+            stop_loss=stop_loss,
+            atr=atr,
+        )
+        _EXIT_PLANS[k] = plan
+        return plan
+
+    except Exception as e:
+        log.warning(f"[exit] Failed to create exit plan for {k}: {e}")
+        return None
+
+
+def _check_enhanced_exit(
+    bot,
+    k: str,
+    sym_any: str,
+    current_price: float,
+    plan: "ExitPlan",
+) -> Optional["ExitSignal"]:
+    """Check for enhanced exit signals."""
+    if not EXIT_STRATEGY_AVAILABLE or not callable(get_exit_strategy):
+        return None
+
+    try:
+        exit_mgr = get_exit_strategy()
+
+        # Get 1m DataFrame for momentum analysis
+        df = _get_df_any(bot, k, sym_any, "1m")
+
+        signal = exit_mgr.check_exit(
+            plan=plan,
+            current_price=current_price,
+            df=df,
+        )
+
+        return signal
+
+    except Exception as e:
+        log.warning(f"[exit] Enhanced exit check failed for {k}: {e}")
+        return None
+
+
+def _clear_exit_plan(k: str) -> None:
+    """Clear exit plan when position is closed."""
+    if k in _EXIT_PLANS:
+        del _EXIT_PLANS[k]
 
 
 def _momentum_exit_signal(
@@ -1118,10 +1211,8 @@ async def handle_exit(bot, order: dict):
                 "critical",
             )
 
-            try:
-                bot.state.positions.pop(k, None)
-            except Exception:
-                pass
+            # Atomic position remove (prevents race with reconcile/position_manager)
+            await atomic_position_remove(bot, k)
 
             perf["pos_realized_pnl"] = 0.0
             perf["entry_size_abs"] = 0.0

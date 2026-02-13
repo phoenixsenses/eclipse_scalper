@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 import time
@@ -10,6 +11,15 @@ try:
     from execution import event_journal as _event_journal  # type: ignore
 except Exception:
     _event_journal = None
+
+try:
+    from execution.intent_ledger_persistence import IntentLedgerPersistence  # ✅ CRASH-SAFE PERSISTENCE
+except ImportError:
+    IntentLedgerPersistence = None  # type: ignore
+
+# Module-level persistence instance (lazy init)
+_persistence: Optional['IntentLedgerPersistence'] = None
+_persistence_lock = asyncio.Lock() if asyncio else None  # type: ignore
 
 
 _REUSABLE_STAGES = {"ACKED", "OPEN", "PARTIAL", "FILLED", "DONE"}
@@ -90,6 +100,54 @@ def _journal_path_from_bot(bot) -> Path:
     if not p:
         p = "logs/execution_journal.jsonl"
     return Path(p)
+
+
+def _get_persistence(path: Path) -> Optional['IntentLedgerPersistence']:
+    """Get or create the persistence instance (lazy init)."""
+    global _persistence
+    if IntentLedgerPersistence is None:
+        return None
+    if _persistence is None:
+        try:
+            _persistence = IntentLedgerPersistence(path)
+        except Exception:
+            return None
+    return _persistence
+
+
+async def _append_safe(bot, path: Path, payload: dict) -> bool:
+    """
+    Append record using crash-safe persistence layer.
+
+    Returns True if write succeeded, False on failure.
+    Falls back to sync write if persistence unavailable.
+    """
+    persistence = _get_persistence(path)
+    if persistence is not None:
+        try:
+            success = await persistence.append_record(payload)
+            # Check for periodic checkpoint
+            if success and persistence.should_checkpoint():
+                store = _ensure_store(bot)
+                if store is not None:
+                    await persistence.checkpoint(store)
+            return success
+        except Exception:
+            pass
+
+    # Fallback to sync write
+    try:
+        _append(path, payload)
+        return True
+    except Exception:
+        return False
+
+
+def get_persistence_stats() -> Dict[str, Any]:
+    """Get persistence layer statistics for monitoring."""
+    if _persistence is not None:
+        return _persistence.stats
+    return {"available": False}
 
 
 def _reuse_max_age_sec(bot) -> float:
@@ -253,6 +311,12 @@ def record(
     reason: str = "",
     meta: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
+    """
+    Record intent state change (sync version).
+
+    Uses fire-and-forget async persistence when event loop is running,
+    falls back to sync write otherwise.
+    """
     store = _ensure_store(bot)
     if store is None:
         return {}
@@ -273,10 +337,74 @@ def record(
     if not payload["intent_id"]:
         return {}
     rec = _apply(store, payload)
+    path = Path(str(store.get("path") or "logs/intent_ledger.jsonl"))
+
+    # Try fire-and-forget async persistence if event loop is running
     try:
-        _append(Path(str(store.get("path") or "logs/intent_ledger.jsonl")), payload)
-    except Exception:
-        pass
+        loop = asyncio.get_running_loop()
+        # Schedule async persistence (fire-and-forget)
+        asyncio.create_task(_append_safe(bot, path, payload))
+    except RuntimeError:
+        # No event loop - use sync fallback
+        try:
+            _append(path, payload)
+        except Exception:
+            pass
+
+    if _event_journal is not None:
+        try:
+            _event_journal.append_event(bot, "intent.ledger", payload)
+        except Exception:
+            pass
+    return dict(rec)
+
+
+async def record_async(
+    bot,
+    *,
+    intent_id: str,
+    stage: str,
+    symbol: str = "",
+    side: str = "",
+    order_type: str = "",
+    is_exit: bool = False,
+    client_order_id: str = "",
+    order_id: str = "",
+    status: str = "",
+    reason: str = "",
+    meta: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """
+    Record intent state change (async version with crash-safe persistence).
+
+    Prefer this over record() when in async context for proper error handling
+    and checkpoint triggering.
+    """
+    store = _ensure_store(bot)
+    if store is None:
+        return {}
+    payload = {
+        "ts": time.time(),
+        "intent_id": str(intent_id or "").strip(),
+        "stage": str(stage or "").upper().strip(),
+        "symbol": str(symbol or "").upper().strip(),
+        "side": str(side or "").lower().strip(),
+        "type": str(order_type or "").upper().strip(),
+        "is_exit": bool(is_exit),
+        "client_order_id": str(client_order_id or "").strip(),
+        "order_id": str(order_id or "").strip(),
+        "status": str(status or "").lower().strip(),
+        "reason": str(reason or ""),
+        "meta": dict(meta or {}),
+    }
+    if not payload["intent_id"]:
+        return {}
+    rec = _apply(store, payload)
+    path = Path(str(store.get("path") or "logs/intent_ledger.jsonl"))
+
+    # Use crash-safe persistence
+    await _append_safe(bot, path, payload)
+
     if _event_journal is not None:
         try:
             _event_journal.append_event(bot, "intent.ledger", payload)

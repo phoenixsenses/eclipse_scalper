@@ -35,6 +35,15 @@ try:
 except Exception:
     find_peaks = None
 
+# Enhanced signal (optional)
+try:
+    from strategies.enhanced_signal import enhanced_signal_check, get_enhanced_signal
+    ENHANCED_SIGNAL_AVAILABLE = True
+except Exception:
+    ENHANCED_SIGNAL_AVAILABLE = False
+    enhanced_signal_check = None
+    get_enhanced_signal = None
+
 
 # ----------------------------
 # Throttled diagnostics
@@ -673,6 +682,55 @@ def scalper_signal(sym: str, data=None, cfg=None, *args, **kwargs) -> tuple[bool
     QUALITY_DIST_MULT = _env_float_sym("SCALPER_QUALITY_DIST_MULT", QUALITY_DIST_MULT, sym_suffix)
     QUALITY_MOM_MULT = _env_float_sym("SCALPER_QUALITY_MOM_MULT", QUALITY_MOM_MULT, sym_suffix)
     QUALITY_ADX_BONUS = _env_float_sym("SCALPER_QUALITY_ADX_BONUS", QUALITY_ADX_BONUS, sym_suffix)
+
+    # ----------------------------
+    # Enhanced signal mode (new modular system)
+    # ----------------------------
+    USE_ENHANCED = os.getenv("SCALPER_USE_ENHANCED", "").strip().lower() in ("1", "true", "yes", "y", "on")
+    ENHANCED_BLEND = os.getenv("SCALPER_ENHANCED_BLEND", "").strip().lower() in ("1", "true", "yes", "y", "on")
+    ENHANCED_MIN_CONF = _env_float("SCALPER_ENHANCED_MIN_CONF", 0.50)
+
+    if USE_ENHANCED and ENHANCED_SIGNAL_AVAILABLE and callable(enhanced_signal_check):
+        try:
+            # Get DataFrames for all timeframes
+            df_1m, _ = _get_df_flexible(data, sym, "1m")
+            df_5m, _ = _get_df_flexible(data, sym, "5m")
+            df_15m, _ = _get_df_flexible(data, sym, "15m")
+            df_1h, _ = _get_df_flexible(data, sym, "1h")
+
+            if df_1m is not None and len(df_1m) >= 50:
+                enh_long, enh_short, enh_conf = enhanced_signal_check(
+                    df_1m=df_1m,
+                    df_5m=df_5m,
+                    df_15m=df_15m,
+                    df_1h=df_1h,
+                    symbol=k,
+                )
+
+                if enh_conf >= ENHANCED_MIN_CONF and (enh_long or enh_short):
+                    direction = "LONG" if enh_long else "SHORT"
+                    log.critical(
+                        f"ENHANCED SIGNAL {direction} {k} | conf={enh_conf:.2f} | "
+                        f"micro={micro_profile}"
+                    )
+
+                    if not ENHANCED_BLEND:
+                        # Pure enhanced mode - return directly
+                        return bool(enh_long), bool(enh_short), float(enh_conf)
+                    # Blend mode continues to legacy for additional validation
+
+                elif not ENHANCED_BLEND:
+                    # Pure enhanced mode with no signal
+                    _diag_throttled(
+                        f"{k}:enhanced_nosig",
+                        f"SIGNAL DIAG {k}: enhanced no signal conf={enh_conf:.2f}",
+                        every_sec=8.0,
+                    )
+                    return False, False, 0.0
+
+        except Exception as e:
+            log.warning(f"[scalper_signal] Enhanced signal error {k}: {e}")
+            # Fall through to legacy
 
     # ----------------------------
     # DEBUG_LOOSE relax (new)
