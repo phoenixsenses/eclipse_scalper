@@ -2060,7 +2060,7 @@ async def entry_loop(bot) -> None:
                     continue
 
                 # hard pending gate (prevents stacking during adopt/reconcile lag)
-                if _pending_active(k):
+                if _pending_active(bot, k):
                     continue
 
                 # skip if already in position (brain-state)
@@ -2084,7 +2084,7 @@ async def entry_loop(bot) -> None:
                 # best-effort exchange probes (optional)
                 try:
                     if await _has_open_entry_order(bot, k, sym_raw, max_open=max(1, guard_max_open)):
-                        _set_pending(k, sec=max(5.0, pending_block_sec * 0.5))
+                        _set_pending(bot, k, sec=max(5.0, pending_block_sec * 0.5))
                         await _emit_entry_blocked(bot, k, "router_open_order", throttle_sec=15.0)
                         continue
                 except Exception:
@@ -2092,7 +2092,7 @@ async def entry_loop(bot) -> None:
 
                 try:
                     if await _has_open_position_exchange(bot, k, sym_raw):
-                        _set_pending(k, sec=max(5.0, pending_block_sec * 0.5))
+                        _set_pending(bot, k, sec=max(5.0, pending_block_sec * 0.5))
                         await _emit_entry_blocked(bot, k, "risk_exchange_position", throttle_sec=15.0)
                         continue
                 except Exception:
@@ -2107,7 +2107,7 @@ async def entry_loop(bot) -> None:
                     # re-check gates after lock (race-safe)
                     if shutdown_ev.is_set():
                         break
-                    if _pending_active(k):
+                    if _pending_active(bot, k):
                         await _emit_entry_blocked(bot, k, "cooldown_pending", throttle_sec=10.0)
                         continue
                     if _in_position_brain(bot, k):
@@ -2506,7 +2506,7 @@ async def entry_loop(bot) -> None:
                                     data={"count": blocked, "window_sec": window_sec},
                                     throttle_sec=5.0,
                                 )
-                                _set_pending(k, sec=max(3.0, backoff_sec))
+                                _set_pending(bot, k, sec=max(3.0, backoff_sec))
                                 await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                                 continue
 
@@ -2528,7 +2528,7 @@ async def entry_loop(bot) -> None:
                                     data={"count": err_count, "window_sec": err_window},
                                     throttle_sec=30.0,
                                 )
-                                _set_pending(k, sec=max(3.0, err_backoff))
+                                _set_pending(bot, k, sec=max(3.0, err_backoff))
                                 await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                                 continue
 
@@ -2537,7 +2537,7 @@ async def entry_loop(bot) -> None:
                         propose_rec,
                         current_guard_knobs=_resolve_symbol_guard(_get_guard_knobs(bot), k),
                         in_position_fn=lambda: _in_position_brain(bot, k),
-                        pending_fn=lambda: _pending_active(k),
+                        pending_fn=lambda: _pending_active(bot, k),
                     )
                     await _emit_entry_decision(
                         bot,
@@ -2550,7 +2550,17 @@ async def entry_loop(bot) -> None:
                         await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                         continue
 
-                    # Submit order
+                    # Submit order — write intent to run_context before exchange call
+                    # so reconcile can detect orphan entries on restart
+                    try:
+                        rc = _ensure_run_context(bot)
+                        rc.setdefault("entry_wal", {})[k] = {
+                            "ts": _now(), "side": action, "amount": float(amt),
+                            "type": otype, "symbol": sym_raw,
+                        }
+                    except Exception:
+                        pass
+
                     order_start = _now()
                     order_result = "success"
                     try:
@@ -2576,6 +2586,7 @@ async def entry_loop(bot) -> None:
                                 client_order_id=_entry_idempotency_key(k, action),
                                 intent_component="entry_loop",
                                 intent_kind="ENTRY",
+                                respect_kill_switch=True,
                             )
                         else:
                             res = await create_order(
@@ -2593,6 +2604,7 @@ async def entry_loop(bot) -> None:
                                 client_order_id=_entry_idempotency_key(k, action),
                                 intent_component="entry_loop",
                                 intent_kind="ENTRY",
+                                respect_kill_switch=True,
                             )
                     except asyncio.CancelledError:
                         raise
@@ -2611,10 +2623,10 @@ async def entry_loop(bot) -> None:
                                 level="critical",
                                 throttle_sec=30.0,
                             )
-                            _set_pending(k, sec=max(10.0, pending_block_sec * 0.5))
+                            _set_pending(bot, k, sec=max(10.0, pending_block_sec * 0.5))
                         else:
                             log_entry.error(f"ENTRY_LOOP: order submit failed {k}: {e}")
-                            _set_pending(k, sec=max(3.0, pending_block_sec * 0.25))
+                            _set_pending(bot, k, sec=max(3.0, pending_block_sec * 0.25))
 
                         if callable(emit):
                             try:
@@ -2730,6 +2742,23 @@ async def entry_loop(bot) -> None:
                                         min_ratio=min_ratio,
                                         hedge_side_hint=hedge_side_hint,
                                     )
+                                    # Fix #10: if flatten failed, place emergency stop so position isn't naked
+                                    if not pf.get("flatten_ok") and filled > 0:
+                                        try:
+                                            await _maybe_place_stage1_emergency_stop(
+                                                bot,
+                                                symbol=k,
+                                                sym_raw=sym_raw,
+                                                action=action,
+                                                filled_qty=filled,
+                                                order=res if isinstance(res, dict) else {},
+                                                signal=sig if isinstance(sig, dict) else None,
+                                                hedge_side_hint=hedge_side_hint,
+                                                order_id=str(oid) if oid else None,
+                                                fallback_price=price if otype == "limit" else _get_price(bot, k),
+                                            )
+                                        except Exception:
+                                            pass
                                     await _emit_entry_blocked(
                                         bot,
                                         k,
@@ -2752,7 +2781,7 @@ async def entry_loop(bot) -> None:
                                     total_backoff = base_backoff if extra_backoff <= 0 else max(base_backoff, extra_backoff)
                                     if str(pf.get("outcome")) == "partial_stuck":
                                         total_backoff = max(total_backoff, base_backoff * 2.0)
-                                    _set_pending(k, sec=total_backoff)
+                                    _set_pending(bot, k, sec=total_backoff)
                                     if extra_backoff > 0 and callable(emit_throttled):
                                         try:
                                             cooldown = max(30.0, float(_cfg_env_float(bot, "ENTRY_PARTIAL_ESCALATE_TELEM_CD_SEC", 300.0) or 300.0))
@@ -2790,7 +2819,7 @@ async def entry_loop(bot) -> None:
                                 except Exception:
                                     pass
                             # even if failed, block briefly to prevent rapid spam while exchange is angry
-                            _set_pending(k, sec=max(3.0, pending_block_sec * 0.25))
+                            _set_pending(bot, k, sec=max(3.0, pending_block_sec * 0.25))
                             await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                             continue
 
@@ -2798,10 +2827,24 @@ async def entry_loop(bot) -> None:
                             budget_spent += max(0.0, float(planned_notional))
 
                         # ✅ key anti-stack: once we submitted ANY entry, block more entries for a while
-                        _set_pending(k, sec=max(5.0, pending_block_sec), order_id=str(oid) if oid else None)
+                        _set_pending(bot, k, sec=max(5.0, pending_block_sec), order_id=str(oid) if oid else None)
 
                         log_core.critical(f"ENTRY_LOOP: ORDER SUBMITTED {k} {action.upper()} type={otype} amt={amt} id={oid}")
                         _reset_partial_fill_hits(k)
+
+                        # Clear entry WAL now that order is confirmed submitted
+                        try:
+                            rc = _ensure_run_context(bot)
+                            rc.get("entry_wal", {}).pop(k, None)
+                        except Exception:
+                            pass
+
+                        # Force brain save after critical mutation to minimise crash-window
+                        try:
+                            from brain.persistence import save_brain as _save_brain
+                            await _save_brain(bot.state, force=True)
+                        except Exception:
+                            pass
 
                         # Register watch for limit/pending orders (optional)
                         if otype == "limit" and callable(register_entry_watch) and oid:

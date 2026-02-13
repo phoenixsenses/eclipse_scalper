@@ -1843,6 +1843,19 @@ async def create_order(
         except Exception:
             pass
 
+    # Circuit breaker — block non-exit orders when exchange is hammered
+    if not intent_reduce_only:
+        try:
+            _cb_cfg = getattr(getattr(bot, "cfg", None), "CIRCUIT_BREAKER_ENABLED", None)
+            if _cb_cfg is not None and str(_cb_cfg).lower() in ("1", "true", "yes", "on"):
+                from execution.circuit_breaker import CircuitBreaker
+                _cb = CircuitBreaker.get(bot, "binance")
+                if not _cb.allow_request(is_exit=False):
+                    log_entry.warning(f"ORDER ROUTER BLOCKED BY CIRCUIT_BREAKER (state={_cb.current_state.name})")
+                    return None
+        except Exception:
+            pass
+
     type_u = str(type or "").upper().strip()
     type_norm = _normalize_type_for_ccxt(type_u)
     side_l = str(side or "").lower().strip()
@@ -2848,8 +2861,22 @@ async def create_order(
                                 intent=f"{type_u}:{side_l}",
                             )
                         )
+                # Record success for circuit breaker
+                try:
+                    from execution.circuit_breaker import CircuitBreaker as _CB
+                    if "binance" in _CB._instances:
+                        _CB._instances["binance"].record_success()
+                except Exception:
+                    pass
                 return res
             except Exception as e:
+                # Record failure for circuit breaker
+                try:
+                    from execution.circuit_breaker import CircuitBreaker as _CB
+                    if "binance" in _CB._instances:
+                        _CB._instances["binance"].record_failure(e)
+                except Exception:
+                    pass
                 last_err = e
                 policy_meta = _classify_order_error_policy(e, ex=ex, sym_raw=sym_raw)
                 retryable = bool(policy_meta.get("retryable"))

@@ -1029,6 +1029,8 @@ async def _place_stop_ladder_router(
             stop_price=float(stop_price),
             hedge_side_hint=hedge_side_hint,
             retries=6,
+            intent_component="reconcile",
+            intent_kind="STOP_RESTORE",
         )
         if isinstance(o, dict) and o.get("id"):
             return str(o.get("id"))
@@ -1051,6 +1053,8 @@ async def _place_stop_ladder_router(
                 stop_price=float(stop_price),
                 hedge_side_hint=hedge_side_hint,
                 retries=6,
+                intent_component="reconcile",
+                intent_kind="STOP_RESTORE",
             )
             if isinstance(o, dict) and o.get("id"):
                 return str(o.get("id"))
@@ -1087,6 +1091,8 @@ async def _place_tp_ladder_router(
             stop_price=float(tp_price),
             hedge_side_hint=hedge_side_hint,
             retries=4,
+            intent_component="reconcile",
+            intent_kind="TP_RESTORE",
         )
         if isinstance(o, dict) and o.get("id"):
             return str(o.get("id"))
@@ -1109,6 +1115,8 @@ async def _place_tp_ladder_router(
                 stop_price=float(tp_price),
                 hedge_side_hint=hedge_side_hint,
                 retries=4,
+                intent_component="reconcile",
+                intent_kind="TP_RESTORE",
             )
             if isinstance(o, dict) and o.get("id"):
                 return str(o.get("id"))
@@ -1722,6 +1730,8 @@ async def reconcile_tick(bot):
                         intent_reduce_only=True,
                         hedge_side_hint=side,
                         retries=6,
+                        intent_component="reconcile",
+                        intent_kind="ORPHAN_FLATTEN",
                     )
                     msg2 = f"RECONCILE: ORPHAN FLATTENED {k}"
                     if _alert_ok(bot, f"{k}:orphan_flat", msg2, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
@@ -1755,6 +1765,33 @@ async def reconcile_tick(bot):
 
         if misses < max(1, phantom_miss) or (now - first_ts) < max(0.0, phantom_grace):
             continue
+
+        # Guard: don't clear phantoms if exchange was recently unreachable
+        _km = getattr(getattr(bot, "state", None), "kill_metrics", None)
+        _ms = int((_km or {}).get("reconcile_mismatch_streak", 0) or 0)
+        if _ms > 0:
+            log_core.warning(f"RECONCILE: PHANTOM {k} — deferring clear due to mismatch_streak={_ms}")
+            continue
+
+        # Verify with explicit single-symbol position fetch before clearing
+        try:
+            _vpos, _vok = await _fetch_positions_best_effort(bot, [k])
+            if _vok:
+                for _vp in (_vpos or []):
+                    _vk = _symkey(_vp.get("symbol", ""))
+                    _vs, _ = _extract_pos_size_side(_vp)
+                    if _vk == k and _vs > 0:
+                        phantom.pop(k, None)
+                        _set_position_belief_state(bot, k, "OPEN_CONFIRMED", "phantom_verify_found")
+                        break
+                else:
+                    pass  # verified absent — proceed to clear
+                if k not in phantom:
+                    continue
+            else:
+                continue  # fetch failed — don't clear on verification failure
+        except Exception:
+            continue  # don't clear on verification error
 
         sym_raw = _resolve_raw_symbol(bot, k)
         log_core.warning(f"RECONCILE: PHANTOM STATE POSITION {k} — clearing + cancel reduceOnly orders")
