@@ -100,11 +100,11 @@ class StrategyBacktester:
             current_low = float(bar["l"])
 
             # ATR
-            high = df_1m["h"].iloc[i - atr_period:i]
-            low = df_1m["l"].iloc[i - atr_period:i]
-            close_prev = df_1m["c"].iloc[i - atr_period - 1:i - 1]
-            tr = pd.concat([high - low, (high - close_prev).abs(), (low - close_prev).abs()], axis=1).max(axis=1)
-            atr = float(tr.mean()) if len(tr) > 0 else 0.0
+            high = df_1m["h"].iloc[i - atr_period:i].values
+            low = df_1m["l"].iloc[i - atr_period:i].values
+            close_prev = df_1m["c"].iloc[i - atr_period - 1:i - 1].values
+            tr = np.maximum(high - low, np.maximum(np.abs(high - close_prev), np.abs(low - close_prev)))
+            atr = float(np.mean(tr)) if len(tr) > 0 else 0.0
 
             # Exit check
             if position is not None:
