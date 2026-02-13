@@ -13,6 +13,8 @@ from typing import Dict, Any, Optional, Tuple, List
 
 from utils.logging import log_entry, log_core
 from execution.order_router import create_order, cancel_order, cancel_replace_order  # ✅ ROUTER
+from execution.entry_primitives import symkey as _symkey  # single source of truth
+from execution.shared_locks import get_symbol_lock as _get_symbol_lock  # cross-module stop/TP serialization
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -90,14 +92,7 @@ def _now() -> float:
     return time.time()
 
 
-def _symkey(sym: str) -> str:
-    s = (sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
+# _symkey imported from execution.entry_primitives above
 
 
 def _safe_float(x, default=0.0) -> float:
@@ -1250,134 +1245,136 @@ async def _ensure_protective_stop(bot, k: str, pos_obj, ex_side_hint: Optional[s
     if stop_price <= 0:
         return "invalid_stop_price"
 
-    oid = None
-    if needs_refresh and existing_stop_id:
-        rc = _ensure_run_context(bot)
-        pstore = rc.get("protection_refresh")
-        if not isinstance(pstore, dict):
-            pstore = {}
-            rc["protection_refresh"] = pstore
-        gap_store = rc.get("protection_gap_state")
-        if not isinstance(gap_store, dict):
-            gap_store = {}
-        prev = pstore.get(k)
-        if not isinstance(prev, dict):
-            prev = {}
-            pstore[k] = prev
-        prev_qty = _safe_float(prev.get("qty"), 0.0)
-        prev_ts = _safe_float(prev.get("ts"), 0.0)
-        gap_state = gap_store.get(k)
-        gap_ttl_breached = bool((gap_state or {}).get("ttl_breached", False)) if isinstance(gap_state, dict) else False
-        allow_refresh = True
-        force_ratio = _safe_float(_cfg(bot, "RECONCILE_STOP_REFRESH_FORCE_COVERAGE_RATIO", 0.80), 0.80)
-        force_refresh = bool(gap_ttl_breached or (force_ratio > 0 and coverage_ratio < force_ratio))
-        if force_ratio > 0 and coverage_ratio < force_ratio:
+    # Acquire shared symbol lock to serialize stop placement with position_manager.
+    async with _get_symbol_lock(k):
+        oid = None
+        if needs_refresh and existing_stop_id:
+            rc = _ensure_run_context(bot)
+            pstore = rc.get("protection_refresh")
+            if not isinstance(pstore, dict):
+                pstore = {}
+                rc["protection_refresh"] = pstore
+            gap_store = rc.get("protection_gap_state")
+            if not isinstance(gap_store, dict):
+                gap_store = {}
+            prev = pstore.get(k)
+            if not isinstance(prev, dict):
+                prev = {}
+                pstore[k] = prev
+            prev_qty = _safe_float(prev.get("qty"), 0.0)
+            prev_ts = _safe_float(prev.get("ts"), 0.0)
+            gap_state = gap_store.get(k)
+            gap_ttl_breached = bool((gap_state or {}).get("ttl_breached", False)) if isinstance(gap_state, dict) else False
             allow_refresh = True
-        elif force_ratio <= 0:
-            allow_refresh = True
-        if callable(_should_refresh_protection):
-            allow_refresh = bool(
-                _should_refresh_protection(
-                    previous_qty=float(prev_qty if prev_qty > 0 else existing_stop_qty),
-                    new_qty=float(ex_size),
-                    last_refresh_ts=float(prev_ts),
-                    min_delta_ratio=float(_cfg(bot, "RECONCILE_STOP_REFRESH_MIN_DELTA_RATIO", 0.10) or 0.10),
-                    min_delta_abs=float(_cfg(bot, "RECONCILE_STOP_REFRESH_MIN_DELTA_ABS", 0.0) or 0.0),
-                    max_refresh_interval_sec=float(_cfg(bot, "RECONCILE_STOP_REFRESH_MAX_INTERVAL_SEC", 45.0) or 45.0),
-                    now_ts=_now(),
-                )
-            )
-            if force_refresh:
+            force_ratio = _safe_float(_cfg(bot, "RECONCILE_STOP_REFRESH_FORCE_COVERAGE_RATIO", 0.80), 0.80)
+            force_refresh = bool(gap_ttl_breached or (force_ratio > 0 and coverage_ratio < force_ratio))
+            if force_ratio > 0 and coverage_ratio < force_ratio:
                 allow_refresh = True
-        if allow_refresh and callable(_should_allow_refresh_budget):
-            budget = _should_allow_refresh_budget(
-                prev,
-                now_ts=_now(),
-                window_sec=float(_cfg(bot, "RECONCILE_STOP_REFRESH_BUDGET_WINDOW_SEC", 60.0) or 60.0),
-                max_refresh_per_window=int(_cfg(bot, "RECONCILE_STOP_REFRESH_MAX_PER_WINDOW", 3) or 3),
-                force=bool(force_refresh),
-            )
-            if bool(force_refresh):
-                rm["protection_refresh_force_override_count"] = int(
-                    _safe_float(rm.get("protection_refresh_force_override_count", 0), 0.0)
-                ) + 1
-                rm["protection_refresh_stop_force_override_count"] = int(
-                    _safe_float(rm.get("protection_refresh_stop_force_override_count", 0), 0.0)
-                ) + 1
-            allow_refresh = bool((budget or {}).get("allowed", False))
-            if not allow_refresh:
-                rm["protection_refresh_budget_blocked_count"] = int(
-                    _safe_float(rm.get("protection_refresh_budget_blocked_count", 0), 0.0)
-                ) + 1
-                rm["protection_refresh_stop_budget_blocked_count"] = int(
-                    _safe_float(rm.get("protection_refresh_stop_budget_blocked_count", 0), 0.0)
-                ) + 1
-        if not allow_refresh:
-            return "refresh_deferred"
-        if allow_refresh:
-            stop_side = "sell" if side == "long" else "buy"
-            try:
-                rep = await cancel_replace_order(
-                    bot,
-                    cancel_order_id=str(existing_stop_id),
-                    symbol=sym_raw,
-                    type="STOP_MARKET",
-                    side=stop_side,
-                    amount=float(ex_size),
-                    price=None,
-                    stop_price=float(stop_price),
-                    params={},
-                    retries=int(_cfg(bot, "RECONCILE_STOP_REPLACE_RETRIES", 2) or 2),
-                    correlation_id=_reconcile_correlation_id(
-                        bot,
-                        component="reconcile_stop_repair",
-                        intent_kind="STOP_REPLACE",
-                        symbol=str(k),
-                        fallback=f"RECON_STOP_{k}",
-                    ),
-                    intent_component="reconcile_stop_repair",
-                    intent_kind="STOP_REPLACE",
+            elif force_ratio <= 0:
+                allow_refresh = True
+            if callable(_should_refresh_protection):
+                allow_refresh = bool(
+                    _should_refresh_protection(
+                        previous_qty=float(prev_qty if prev_qty > 0 else existing_stop_qty),
+                        new_qty=float(ex_size),
+                        last_refresh_ts=float(prev_ts),
+                        min_delta_ratio=float(_cfg(bot, "RECONCILE_STOP_REFRESH_MIN_DELTA_RATIO", 0.10) or 0.10),
+                        min_delta_abs=float(_cfg(bot, "RECONCILE_STOP_REFRESH_MIN_DELTA_ABS", 0.0) or 0.0),
+                        max_refresh_interval_sec=float(_cfg(bot, "RECONCILE_STOP_REFRESH_MAX_INTERVAL_SEC", 45.0) or 45.0),
+                        now_ts=_now(),
+                    )
                 )
-                if isinstance(rep, dict):
-                    oid = str(rep.get("id") or "") or None
-                    prev["qty"] = float(ex_size)
-                    prev["ts"] = _now()
-                    if callable(_record_refresh_budget_event):
-                        _record_refresh_budget_event(prev, now_ts=_now())
+                if force_refresh:
+                    allow_refresh = True
+            if allow_refresh and callable(_should_allow_refresh_budget):
+                budget = _should_allow_refresh_budget(
+                    prev,
+                    now_ts=_now(),
+                    window_sec=float(_cfg(bot, "RECONCILE_STOP_REFRESH_BUDGET_WINDOW_SEC", 60.0) or 60.0),
+                    max_refresh_per_window=int(_cfg(bot, "RECONCILE_STOP_REFRESH_MAX_PER_WINDOW", 3) or 3),
+                    force=bool(force_refresh),
+                )
+                if bool(force_refresh):
+                    rm["protection_refresh_force_override_count"] = int(
+                        _safe_float(rm.get("protection_refresh_force_override_count", 0), 0.0)
+                    ) + 1
+                    rm["protection_refresh_stop_force_override_count"] = int(
+                        _safe_float(rm.get("protection_refresh_stop_force_override_count", 0), 0.0)
+                    ) + 1
+                allow_refresh = bool((budget or {}).get("allowed", False))
+                if not allow_refresh:
+                    rm["protection_refresh_budget_blocked_count"] = int(
+                        _safe_float(rm.get("protection_refresh_budget_blocked_count", 0), 0.0)
+                    ) + 1
+                    rm["protection_refresh_stop_budget_blocked_count"] = int(
+                        _safe_float(rm.get("protection_refresh_stop_budget_blocked_count", 0), 0.0)
+                    ) + 1
+            if not allow_refresh:
+                return "refresh_deferred"
+            if allow_refresh:
+                stop_side = "sell" if side == "long" else "buy"
+                try:
+                    rep = await cancel_replace_order(
+                        bot,
+                        cancel_order_id=str(existing_stop_id),
+                        symbol=sym_raw,
+                        type="STOP_MARKET",
+                        side=stop_side,
+                        amount=float(ex_size),
+                        price=None,
+                        stop_price=float(stop_price),
+                        params={},
+                        retries=int(_cfg(bot, "RECONCILE_STOP_REPLACE_RETRIES", 2) or 2),
+                        correlation_id=_reconcile_correlation_id(
+                            bot,
+                            component="reconcile_stop_repair",
+                            intent_kind="STOP_REPLACE",
+                            symbol=str(k),
+                            fallback=f"RECON_STOP_{k}",
+                        ),
+                        intent_component="reconcile_stop_repair",
+                        intent_kind="STOP_REPLACE",
+                    )
+                    if isinstance(rep, dict):
+                        oid = str(rep.get("id") or "") or None
+                        prev["qty"] = float(ex_size)
+                        prev["ts"] = _now()
+                        if callable(_record_refresh_budget_event):
+                            _record_refresh_budget_event(prev, now_ts=_now())
+                except Exception:
+                    oid = None
+                if not oid:
+                    return "refresh_failed"
+
+        if not oid:
+            oid = await _place_stop_ladder_router(
+                bot,
+                sym_raw=sym_raw,
+                side=side,
+                qty=float(ex_size),
+                stop_price=float(stop_price),
+                hedge_side_hint=hedge_side_hint,
+                k=k,
+            )
+
+        if oid:
+            repair_last[k] = _now()
+            try:
+                setattr(pos_obj, "stop_order_id", str(oid))
             except Exception:
-                oid = None
-            if not oid:
-                return "refresh_failed"
-
-    if not oid:
-        oid = await _place_stop_ladder_router(
-            bot,
-            sym_raw=sym_raw,
-            side=side,
-            qty=float(ex_size),
-            stop_price=float(stop_price),
-            hedge_side_hint=hedge_side_hint,
-            k=k,
-        )
-
-    if oid:
-        repair_last[k] = _now()
-        try:
-            setattr(pos_obj, "stop_order_id", str(oid))
-        except Exception:
-            pass
-        msg = f"RECONCILE: PROTECTIVE STOP RESTORED {k} (id={oid})"
-        if refresh_reason:
-            msg = f"{msg} [{refresh_reason}]"
-        if _alert_ok(bot, f"{k}:stop_restored", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
-            await _safe_speak(bot, msg, "critical")
-        return "restored"
-    else:
-        repair_last[k] = _now()
-        msg = f"RECONCILE: STOP RESTORE FAILED {k}"
-        if _alert_ok(bot, f"{k}:stop_failed", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
-            await _safe_speak(bot, msg, "critical")
-        return "failed"
+                pass
+            msg = f"RECONCILE: PROTECTIVE STOP RESTORED {k} (id={oid})"
+            if refresh_reason:
+                msg = f"{msg} [{refresh_reason}]"
+            if _alert_ok(bot, f"{k}:stop_restored", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
+                await _safe_speak(bot, msg, "critical")
+            return "restored"
+        else:
+            repair_last[k] = _now()
+            msg = f"RECONCILE: STOP RESTORE FAILED {k}"
+            if _alert_ok(bot, f"{k}:stop_failed", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
+                await _safe_speak(bot, msg, "critical")
+            return "failed"
 
 
 async def _ensure_protective_tp(bot, k: str, pos_obj, ex_side_hint: Optional[str], ex_size: float) -> str:
@@ -1430,112 +1427,114 @@ async def _ensure_protective_tp(bot, k: str, pos_obj, ex_side_hint: Optional[str
     except Exception:
         pass
 
-    oid = None
-    if needs_refresh and existing_tp_id:
-        rm = _ensure_reconcile_metrics(bot)
-        rc = _ensure_run_context(bot)
-        pstore = rc.get("protection_refresh_tp")
-        if not isinstance(pstore, dict):
-            pstore = {}
-            rc["protection_refresh_tp"] = pstore
-        gap_store = rc.get("protection_gap_state")
-        if not isinstance(gap_store, dict):
-            gap_store = {}
-        prev = pstore.get(k)
-        if not isinstance(prev, dict):
-            prev = {}
-            pstore[k] = prev
-        prev_qty = _safe_float(prev.get("qty"), 0.0)
-        prev_ts = _safe_float(prev.get("ts"), 0.0)
-        gap_state = gap_store.get(k)
-        gap_ttl_breached = bool((gap_state or {}).get("ttl_breached", False)) if isinstance(gap_state, dict) else False
-        allow_refresh = True
-        force_ratio = _safe_float(_cfg(bot, "RECONCILE_TP_REFRESH_FORCE_COVERAGE_RATIO", 0.80), 0.80)
-        force_refresh = bool(gap_ttl_breached or (force_ratio > 0 and coverage_ratio < force_ratio))
-        if callable(_should_refresh_protection):
-            allow_refresh = bool(
-                _should_refresh_protection(
-                    previous_qty=float(prev_qty if prev_qty > 0 else existing_tp_qty),
-                    new_qty=float(ex_size),
-                    last_refresh_ts=float(prev_ts),
-                    min_delta_ratio=float(_cfg(bot, "RECONCILE_TP_REFRESH_MIN_DELTA_RATIO", 0.10) or 0.10),
-                    min_delta_abs=float(_cfg(bot, "RECONCILE_TP_REFRESH_MIN_DELTA_ABS", 0.0) or 0.0),
-                    max_refresh_interval_sec=float(_cfg(bot, "RECONCILE_TP_REFRESH_MAX_INTERVAL_SEC", 45.0) or 45.0),
-                    now_ts=_now(),
+    # Acquire shared symbol lock to serialize TP placement with position_manager.
+    async with _get_symbol_lock(k):
+        oid = None
+        if needs_refresh and existing_tp_id:
+            rm = _ensure_reconcile_metrics(bot)
+            rc = _ensure_run_context(bot)
+            pstore = rc.get("protection_refresh_tp")
+            if not isinstance(pstore, dict):
+                pstore = {}
+                rc["protection_refresh_tp"] = pstore
+            gap_store = rc.get("protection_gap_state")
+            if not isinstance(gap_store, dict):
+                gap_store = {}
+            prev = pstore.get(k)
+            if not isinstance(prev, dict):
+                prev = {}
+                pstore[k] = prev
+            prev_qty = _safe_float(prev.get("qty"), 0.0)
+            prev_ts = _safe_float(prev.get("ts"), 0.0)
+            gap_state = gap_store.get(k)
+            gap_ttl_breached = bool((gap_state or {}).get("ttl_breached", False)) if isinstance(gap_state, dict) else False
+            allow_refresh = True
+            force_ratio = _safe_float(_cfg(bot, "RECONCILE_TP_REFRESH_FORCE_COVERAGE_RATIO", 0.80), 0.80)
+            force_refresh = bool(gap_ttl_breached or (force_ratio > 0 and coverage_ratio < force_ratio))
+            if callable(_should_refresh_protection):
+                allow_refresh = bool(
+                    _should_refresh_protection(
+                        previous_qty=float(prev_qty if prev_qty > 0 else existing_tp_qty),
+                        new_qty=float(ex_size),
+                        last_refresh_ts=float(prev_ts),
+                        min_delta_ratio=float(_cfg(bot, "RECONCILE_TP_REFRESH_MIN_DELTA_RATIO", 0.10) or 0.10),
+                        min_delta_abs=float(_cfg(bot, "RECONCILE_TP_REFRESH_MIN_DELTA_ABS", 0.0) or 0.0),
+                        max_refresh_interval_sec=float(_cfg(bot, "RECONCILE_TP_REFRESH_MAX_INTERVAL_SEC", 45.0) or 45.0),
+                        now_ts=_now(),
+                    )
                 )
-            )
-            if force_refresh:
-                allow_refresh = True
-        if allow_refresh and callable(_should_allow_refresh_budget):
-            budget = _should_allow_refresh_budget(
-                prev,
-                now_ts=_now(),
-                window_sec=float(_cfg(bot, "RECONCILE_TP_REFRESH_BUDGET_WINDOW_SEC", 60.0) or 60.0),
-                max_refresh_per_window=int(_cfg(bot, "RECONCILE_TP_REFRESH_MAX_PER_WINDOW", 3) or 3),
-                force=bool(force_refresh),
-            )
-            if bool(force_refresh):
-                rm["protection_refresh_force_override_count"] = int(
-                    _safe_float(rm.get("protection_refresh_force_override_count", 0), 0.0)
-                ) + 1
-                rm["protection_refresh_tp_force_override_count"] = int(
-                    _safe_float(rm.get("protection_refresh_tp_force_override_count", 0), 0.0)
-                ) + 1
-            allow_refresh = bool((budget or {}).get("allowed", False))
+                if force_refresh:
+                    allow_refresh = True
+            if allow_refresh and callable(_should_allow_refresh_budget):
+                budget = _should_allow_refresh_budget(
+                    prev,
+                    now_ts=_now(),
+                    window_sec=float(_cfg(bot, "RECONCILE_TP_REFRESH_BUDGET_WINDOW_SEC", 60.0) or 60.0),
+                    max_refresh_per_window=int(_cfg(bot, "RECONCILE_TP_REFRESH_MAX_PER_WINDOW", 3) or 3),
+                    force=bool(force_refresh),
+                )
+                if bool(force_refresh):
+                    rm["protection_refresh_force_override_count"] = int(
+                        _safe_float(rm.get("protection_refresh_force_override_count", 0), 0.0)
+                    ) + 1
+                    rm["protection_refresh_tp_force_override_count"] = int(
+                        _safe_float(rm.get("protection_refresh_tp_force_override_count", 0), 0.0)
+                    ) + 1
+                allow_refresh = bool((budget or {}).get("allowed", False))
+                if not allow_refresh:
+                    rm["protection_refresh_budget_blocked_count"] = int(
+                        _safe_float(rm.get("protection_refresh_budget_blocked_count", 0), 0.0)
+                    ) + 1
+                    rm["protection_refresh_tp_budget_blocked_count"] = int(
+                        _safe_float(rm.get("protection_refresh_tp_budget_blocked_count", 0), 0.0)
+                    ) + 1
             if not allow_refresh:
-                rm["protection_refresh_budget_blocked_count"] = int(
-                    _safe_float(rm.get("protection_refresh_budget_blocked_count", 0), 0.0)
-                ) + 1
-                rm["protection_refresh_tp_budget_blocked_count"] = int(
-                    _safe_float(rm.get("protection_refresh_tp_budget_blocked_count", 0), 0.0)
-                ) + 1
-        if not allow_refresh:
-            return "tp_refresh_deferred"
-        tp_side = "sell" if side == "long" else "buy"
-        try:
-            rep = await cancel_replace_order(
-                bot,
-                cancel_order_id=str(existing_tp_id),
-                symbol=sym_raw,
-                type="TAKE_PROFIT_MARKET",
-                side=tp_side,
-                amount=float(ex_size),
-                price=None,
-                stop_price=float(tp_price),
-                params={},
-                retries=int(_cfg(bot, "RECONCILE_TP_REPLACE_RETRIES", 2) or 2),
-                correlation_id=_reconcile_correlation_id(
+                return "tp_refresh_deferred"
+            tp_side = "sell" if side == "long" else "buy"
+            try:
+                rep = await cancel_replace_order(
                     bot,
-                    component="reconcile_tp_repair",
+                    cancel_order_id=str(existing_tp_id),
+                    symbol=sym_raw,
+                    type="TAKE_PROFIT_MARKET",
+                    side=tp_side,
+                    amount=float(ex_size),
+                    price=None,
+                    stop_price=float(tp_price),
+                    params={},
+                    retries=int(_cfg(bot, "RECONCILE_TP_REPLACE_RETRIES", 2) or 2),
+                    correlation_id=_reconcile_correlation_id(
+                        bot,
+                        component="reconcile_tp_repair",
+                        intent_kind="TP_REPLACE",
+                        symbol=str(k),
+                        fallback=f"RECON_TP_{k}",
+                    ),
+                    intent_component="reconcile_tp_repair",
                     intent_kind="TP_REPLACE",
-                    symbol=str(k),
-                    fallback=f"RECON_TP_{k}",
-                ),
-                intent_component="reconcile_tp_repair",
-                intent_kind="TP_REPLACE",
-            )
-            if isinstance(rep, dict):
-                oid = str(rep.get("id") or "") or None
-                prev["qty"] = float(ex_size)
-                prev["ts"] = _now()
-                if callable(_record_refresh_budget_event):
-                    _record_refresh_budget_event(prev, now_ts=_now())
-        except Exception:
-            oid = None
-        if not oid:
-            return "tp_refresh_failed"
+                )
+                if isinstance(rep, dict):
+                    oid = str(rep.get("id") or "") or None
+                    prev["qty"] = float(ex_size)
+                    prev["ts"] = _now()
+                    if callable(_record_refresh_budget_event):
+                        _record_refresh_budget_event(prev, now_ts=_now())
+            except Exception:
+                oid = None
+            if not oid:
+                return "tp_refresh_failed"
 
-    if not oid:
-        oid = await _place_tp_ladder_router(
-            bot,
-            sym_raw=sym_raw,
-            side=side,
-            qty=float(ex_size),
-            tp_price=float(tp_price),
-            hedge_side_hint=side,
-            k=k,
-        )
-    return "tp_restored" if oid else "tp_failed"
+        if not oid:
+            oid = await _place_tp_ladder_router(
+                bot,
+                sym_raw=sym_raw,
+                side=side,
+                qty=float(ex_size),
+                tp_price=float(tp_price),
+                hedge_side_hint=side,
+                k=k,
+            )
+        return "tp_restored" if oid else "tp_failed"
 
 
 # ----------------------------

@@ -320,6 +320,25 @@ def _symkey(sym: str) -> str:
     return _shared_symkey(sym)
 
 
+def _entry_idempotency_key(k: str, action: str, candle_sec: int = 60) -> str:
+    """
+    Deterministic clientOrderId for entry orders.
+
+    Uses candle-rounded timestamp so retries within the same candle produce the
+    identical ID, giving Binance -4116 duplicate rejection instead of a second
+    fill.  Format: SE_E_<symkey>_<hash10>  (always < 36 chars).
+    """
+    bucket = int(time.time() // max(1, candle_sec)) * max(1, candle_sec)
+    seed = f"ENTRY|{k}|{action}|{bucket}"
+    digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()[:10]
+    coid = f"SE_E_{k}_{digest}"
+    # Binance hard limit: clientOrderId < 36 chars
+    if len(coid) > 35:
+        short_k = hashlib.sha1(k.encode("utf-8")).hexdigest()[:6]
+        coid = f"SE_E_{short_k}_{digest}"
+    return coid[:35]
+
+
 def _parse_group_kv(raw: str) -> dict:
     """
     Parse "MEME=1,MAJOR=2" into dict.
@@ -1593,21 +1612,114 @@ def _get_entry_lock(k: str) -> asyncio.Lock:
     return lk
 
 
-def _set_pending(k: str, *, sec: float, order_id: Optional[str] = None) -> None:
+def _set_pending(k_or_bot, k_or_sec=None, *, sec: float = 0.0, order_id: Optional[str] = None, bot=None) -> None:
+    """
+    Persist entry pending-block to bot.state.run_context so it survives restarts.
+
+    Accepts both new signature  _set_pending(bot, k, sec=…)
+    and legacy in-memory fallback _set_pending(k, sec=…).
+    """
+    # Resolve overloaded args: (bot, k, sec=…) vs (k, sec=…)
+    if bot is not None or (k_or_sec is not None and isinstance(k_or_sec, str)):
+        _bot = k_or_sec if bot is None and hasattr(k_or_sec, "state") else bot
+        _k = k_or_sec if isinstance(k_or_sec, str) else str(k_or_bot)
+        if _bot is None or not hasattr(_bot, "state"):
+            _bot = k_or_bot if hasattr(k_or_bot, "state") else None
+            _k = k_or_sec if isinstance(k_or_sec, str) else str(k_or_bot)
+    elif hasattr(k_or_bot, "state"):
+        _bot = k_or_bot
+        _k = str(k_or_sec or "")
+    else:
+        _bot = None
+        _k = str(k_or_bot)
+
+    until_ts = _now() + max(0.0, float(sec))
+
+    # Always update in-memory (fast path for same-process checks)
     try:
-        _PENDING_UNTIL[k] = _now() + max(0.0, float(sec))
+        _PENDING_UNTIL[_k] = until_ts
         if order_id:
-            _PENDING_ORDER_ID[k] = str(order_id)
+            _PENDING_ORDER_ID[_k] = str(order_id)
     except Exception:
         pass
 
+    # Persist to run_context so pending survives process restart
+    if _bot is not None:
+        try:
+            rc = _ensure_run_context(_bot)
+            store = rc.setdefault("entry_pending", {})
+            store[_k] = until_ts
+        except Exception:
+            pass
 
-def _pending_active(k: str) -> bool:
+
+def _pending_active(k_or_bot, k_or_none=None) -> bool:
+    """
+    Check if entry pending-block is active.
+
+    Accepts both new signature  _pending_active(bot, k)
+    and legacy in-memory fallback _pending_active(k).
+    """
+    if k_or_none is not None and isinstance(k_or_none, str):
+        _bot = k_or_bot
+        _k = k_or_none
+    elif hasattr(k_or_bot, "state"):
+        _bot = k_or_bot
+        _k = str(k_or_none or "")
+    else:
+        _bot = None
+        _k = str(k_or_bot)
+
+    now = _now()
+
+    # Check in-memory first (fast path)
     try:
-        until = float(_PENDING_UNTIL.get(k, 0.0) or 0.0)
-        return _now() < until
+        until = float(_PENDING_UNTIL.get(_k, 0.0) or 0.0)
+        if now < until:
+            return True
     except Exception:
-        return False
+        pass
+
+    # Check persisted state (survives restart)
+    if _bot is not None:
+        try:
+            rc = _ensure_run_context(_bot)
+            store = rc.get("entry_pending")
+            if isinstance(store, dict):
+                until = float(store.get(_k, 0.0) or 0.0)
+                if now < until:
+                    # Hydrate in-memory cache
+                    _PENDING_UNTIL[_k] = until
+                    return True
+        except Exception:
+            pass
+
+    return False
+
+
+def _clear_pending(k_or_bot, k_or_none=None) -> None:
+    """Clear pending-block for a symbol (both in-memory and persisted)."""
+    if k_or_none is not None and isinstance(k_or_none, str):
+        _bot = k_or_bot
+        _k = k_or_none
+    elif hasattr(k_or_bot, "state"):
+        _bot = k_or_bot
+        _k = str(k_or_none or "")
+    else:
+        _bot = None
+        _k = str(k_or_bot)
+
+    _PENDING_UNTIL.pop(_k, None)
+    _PENDING_ORDER_ID.pop(_k, None)
+
+    if _bot is not None:
+        try:
+            rc = _ensure_run_context(_bot)
+            store = rc.get("entry_pending")
+            if isinstance(store, dict):
+                store.pop(_k, None)
+        except Exception:
+            pass
 
 
 async def _has_open_entry_order(bot, k: str, sym_raw: str, *, max_open: int = 1) -> bool:
@@ -2461,6 +2573,7 @@ async def entry_loop(bot) -> None:
                                 intent_close_position=False,
                                 hedge_side_hint=hedge_side_hint,
                                 retries=int(_cfg_env_float(bot, "ENTRY_ROUTER_RETRIES", 6) or 6),
+                                client_order_id=_entry_idempotency_key(k, action),
                                 intent_component="entry_loop",
                                 intent_kind="ENTRY",
                             )
@@ -2477,6 +2590,7 @@ async def entry_loop(bot) -> None:
                                 intent_close_position=False,
                                 hedge_side_hint=hedge_side_hint,
                                 retries=int(_cfg_env_float(bot, "ENTRY_ROUTER_RETRIES", 4) or 4),
+                                client_order_id=_entry_idempotency_key(k, action),
                                 intent_component="entry_loop",
                                 intent_kind="ENTRY",
                             )

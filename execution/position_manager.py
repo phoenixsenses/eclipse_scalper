@@ -14,6 +14,8 @@ from typing import Optional, List, Tuple, Dict, Any
 
 from utils.logging import log_entry, log_core
 from execution.order_router import cancel_order
+from execution.entry_primitives import symkey as _symkey  # single source of truth
+from execution.shared_locks import get_symbol_lock as _get_symbol_lock  # cross-module stop/TP serialization
 try:
     from execution.protection_manager import get_entry_stage_hint as _get_entry_stage_hint  # type: ignore
 except Exception:
@@ -26,9 +28,6 @@ try:
 except Exception:
     _pm_place_stop_ladder_router = None
     _pm_place_trailing_router = None
-
-
-_POSMGR_LOCKS: dict[str, asyncio.Lock] = {}
 
 # Per-symbol open-orders throttle cache
 _OPEN_ORDERS_CACHE: dict[str, Dict[str, Any]] = {}
@@ -113,22 +112,12 @@ def _ensure_run_context(bot) -> dict:
     return {}
 
 
-def _symkey(sym: str) -> str:
-    s = (sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
+# _symkey imported from execution.entry_primitives above
 
 
 def _get_lock(k: str) -> asyncio.Lock:
-    lk = _POSMGR_LOCKS.get(k)
-    if lk is None:
-        lk = asyncio.Lock()
-        _POSMGR_LOCKS[k] = lk
-    return lk
+    """Per-symbol lock — delegates to shared_locks for cross-module serialization."""
+    return _get_symbol_lock(k)
 
 
 def _resolve_raw_symbol(bot, k: str, fallback: str) -> str:

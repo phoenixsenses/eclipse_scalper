@@ -18,6 +18,7 @@ import re
 from typing import Any, Dict, Optional, Tuple, List
 
 from utils.logging import log_entry
+from execution.entry_primitives import symkey as _symkey  # single source of truth
 
 # Optional telemetry (never fatal)
 try:
@@ -107,14 +108,7 @@ def _cfg_env(bot, name: str, default: Any) -> Any:
     return default
 
 
-def _symkey(sym: str) -> str:
-    s = (sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
+# _symkey imported from execution.entry_primitives above
 
 
 def _parse_symbol_overrides(raw: Any) -> dict:
