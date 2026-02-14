@@ -5,11 +5,32 @@ on:
   push:
     branches:
       - "**"
+  workflow_dispatch:
+  schedule:
+    - cron: "20 3 * * *"
 
 jobs:
-  execution-reliability:
-    name: Execution reliability tests
+  chaos-required:
+    name: Chaos Required - ${{ matrix.name }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: ack-after-fill-recovery
+            cmd: pytest -q tools/test_execution_chaos_scenarios.py -k router_recovers_timeout_and_duplicate_then_returns_partial_fill
+          - name: cancel-unknown-idempotent
+            cmd: pytest -q tools/test_execution_chaos_scenarios.py -k cancel_after_fill_unknown_order_is_idempotent_success
+          - name: replace-race-single-exposure
+            cmd: pytest -q tools/test_execution_chaos_scenarios_v2.py -k crash_mid_replace_filled_after_cancel_rebuild_reconcile_stays_single_exposure
+          - name: contradiction-burst-freezes-entry
+            cmd: pytest -q tools/test_execution_chaos_scenarios_v2.py -k contradiction_spike_in_runtime_gate_freezes_entries
+          - name: coverage-gap-ttl-freezes-entry
+            cmd: pytest -q tools/test_execution_chaos_scenarios_v2.py -k protection_gap_ttl_breach_freezes_entries_in_runtime_loop
+          - name: runtime-warmup-staged-recovery
+            cmd: pytest -q tools/test_execution_chaos_scenarios_v2.py -k runtime_gate_freeze_then_warmup_reenable_is_constrained
+          - name: intent-collision-spike-freezes-entry
+            cmd: pytest -q tools/test_execution_chaos_scenarios_v2.py -k intent_collision_spike_in_runtime_gate_freezes_entries_with_cause_tags
 
     steps:
       - name: Check out repo
@@ -23,32 +44,74 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install pytest
 
-      - name: Run execution chaos baseline suites
-        run: |
-          pytest -q tools/test_execution_chaos_scenarios.py
-          pytest -q tools/test_execution_chaos_scenarios_v2.py
+      - name: Run required chaos scenario
+        run: ${{ matrix.cmd }}
 
-      - name: Run required chaos gate scenarios
+  execution-invariants:
+    name: Execution Invariants and Gate
+    runs-on: ubuntu-latest
+    needs: chaos-required
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
         run: |
-          pytest -q tools/test_execution_chaos_scenarios.py -k router_recovers_timeout_and_duplicate_then_returns_partial_fill
-          pytest -q tools/test_execution_chaos_scenarios.py -k cancel_after_fill_unknown_order_is_idempotent_success
-          pytest -q tools/test_execution_chaos_scenarios_v2.py -k crash_mid_replace_filled_after_cancel_rebuild_reconcile_stays_single_exposure
-          pytest -q tools/test_execution_chaos_scenarios.py -k ws_down_rest_healthy_degrades_without_collapsing_confidence
-          pytest -q tools/test_execution_chaos_scenarios.py -k rest_stale_and_ws_lag_drive_high_degradation
-          pytest -q tools/test_execution_chaos_scenarios.py -k retry_storm_pressure_is_bounded_by_router_attempts
+          python -m pip install --upgrade pip
+          pip install pytest
+
+      - name: Run syntax/import compatibility smoke
+        run: |
+          python - <<'PY'
+          import py_compile
+
+          files = [
+              "tools/telemetry_dashboard_page.py",
+              "tools/telemetry_alert_summary.py",
+              "tools/telemetry_dashboard_notify.py",
+              "tools/reliability_gate.py",
+              "execution/reliability_gate_runtime.py",
+              "execution/reconcile.py",
+          ]
+          for f in files:
+              py_compile.compile(f, doraise=True)
+              print(f"py_compile ok: {f}")
+          PY
+          python - <<'PY'
+          import importlib
+          modules = [
+              "tools.telemetry_dashboard_page",
+              "tools.telemetry_alert_summary",
+              "tools.telemetry_dashboard_notify",
+              "execution.reliability_gate_runtime",
+          ]
+          for m in modules:
+              importlib.import_module(m)
+              print(f"import ok: {m}")
+          PY
 
       - name: Run execution invariant suite
         run: |
           pytest -q tools/test_state_machine_unit.py
           pytest -q tools/test_belief_controller_unit.py
           pytest -q tools/test_order_router_unit.py
+          pytest -q tools/test_order_router_replace_unit.py
+          pytest -q tools/test_order_router_classifier_unit.py
+          pytest -q tools/test_order_router_idempotency_unit.py
           pytest -q tools/test_replace_manager_unit.py
           pytest -q tools/test_intent_ledger_unit.py
           pytest -q tools/test_protection_manager_unit.py
           pytest -q tools/test_reliability_gate_unit.py
           pytest -q tools/test_reliability_gate_runtime_unit.py
+          pytest -q tools/test_policy_alignment_check_unit.py
           pytest -q tools/test_telemetry_alert_summary_unit.py
           pytest -q tools/test_telemetry_dashboard_notify_unit.py
           pytest -q tools/test_telemetry_belief_state_unit.py
@@ -87,8 +150,11 @@ jobs:
             --telemetry logs/telemetry_gate_fixture.jsonl \
             --journal logs/journal_gate_fixture.jsonl \
             --output logs/reliability_gate_ci.txt \
+            --window-seconds 0 \
             --max-replay-mismatch 0 \
             --max-invalid-transitions 0 \
+            --max-intent-collision-count 0 \
+            --max-stage1-protection-fail-count 0 \
             --min-journal-coverage 1.0 \
             --enforce
 
@@ -116,10 +182,267 @@ jobs:
             --telemetry logs/telemetry_gate_missing_fixture.jsonl \
             --journal logs/journal_gate_missing_fixture.jsonl \
             --output logs/reliability_gate_ci_missing.txt \
+            --window-seconds 0 \
             --max-replay-mismatch 0 \
             --max-invalid-transitions 0 \
+            --max-intent-collision-count 0 \
+            --max-stage1-protection-fail-count 0 \
             --min-journal-coverage 1.0 \
             --enforce
           rc=$?
           set -e
           test "$rc" -ne 0
+
+      - name: Upload gate artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: execution-reliability-gate-artifacts
+          path: |
+            logs/reliability_gate_ci.txt
+            logs/reliability_gate_ci_missing.txt
+            logs/telemetry_gate_fixture.jsonl
+            logs/journal_gate_fixture.jsonl
+            logs/telemetry_gate_missing_fixture.jsonl
+            logs/journal_gate_missing_fixture.jsonl
+
+      - name: Build PR reliability summary
+        if: always()
+        run: |
+          mkdir -p logs
+          {
+            echo "## Execution Reliability Gate Summary"
+            echo ""
+            echo "Chaos status:"
+            echo "- required_chaos_matrix=PASS (all required chaos scenarios completed)"
+            echo ""
+            echo "Required chaos scenarios:"
+            echo "- Chaos Required - ack-after-fill-recovery"
+            echo "- Chaos Required - cancel-unknown-idempotent"
+            echo "- Chaos Required - replace-race-single-exposure"
+            echo "- Chaos Required - contradiction-burst-freezes-entry"
+            echo "- Chaos Required - coverage-gap-ttl-freezes-entry"
+            echo "- Chaos Required - runtime-warmup-staged-recovery"
+            echo "- Chaos Required - intent-collision-spike-freezes-entry"
+            echo ""
+            echo "Invariant gate metrics:"
+            if [ -f logs/reliability_gate_ci.txt ]; then
+              sed 's/^/- /' logs/reliability_gate_ci.txt
+            else
+              echo "- reliability_gate_ci.txt missing"
+            fi
+          } > logs/reliability_pr_summary.md
+
+      - name: Upload PR reliability summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: execution-reliability-pr-summary
+          path: logs/reliability_pr_summary.md
+
+  pr-reliability-comment:
+    name: PR Reliability Comment
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    needs: execution-invariants
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Download PR reliability summary
+        uses: actions/download-artifact@v4
+        with:
+          name: execution-reliability-pr-summary
+          path: logs
+
+      - name: Post sticky PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+            const marker = "<!-- execution-reliability-summary -->";
+            const summaryPath = "logs/reliability_pr_summary.md";
+            let body = "Execution reliability summary artifact missing.";
+            if (fs.existsSync(summaryPath)) {
+              body = fs.readFileSync(summaryPath, "utf8");
+            }
+            body = `${marker}\n${body}`;
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            });
+            const existing = comments.find(
+              (c) => c.user && c.user.type === "Bot" && c.body && c.body.includes(marker)
+            );
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body,
+              });
+            }
+
+  chaos-nightly:
+    name: Chaos Full Suites (Nightly)
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+
+      - name: Restore nightly chaos drift baseline
+        uses: actions/cache/restore@v4
+        with:
+          path: logs/chaos_nightly_prev.json
+          key: chaos-nightly-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: |
+            chaos-nightly-${{ github.ref_name }}-
+
+      - name: Run full chaos suites
+        run: |
+          mkdir -p logs
+          pytest -q tools/test_execution_chaos_scenarios.py --junitxml=logs/chaos_suite_1.xml
+          pytest -q tools/test_execution_chaos_scenarios_v2.py --junitxml=logs/chaos_suite_2.xml
+          pytest -q tools/test_execution_chaos_scenarios_v2.py -k intent_collision_spike_in_runtime_gate_freezes_entries_with_cause_tags --junitxml=logs/chaos_focus_intent_collision.xml
+
+      - name: Compare nightly chaos drift
+        env:
+          CHAOS_NIGHTLY_MAX_INVARIANT_DRIFT: "0"
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          def _suite_failures(path: Path) -> int:
+              if not path.exists():
+                  return 0
+              root = ET.parse(path).getroot()
+              if root.tag == "testsuite":
+                  return int(root.attrib.get("failures", 0) or 0) + int(root.attrib.get("errors", 0) or 0)
+              total = 0
+              for ts in root.findall(".//testsuite"):
+                  total += int(ts.attrib.get("failures", 0) or 0) + int(ts.attrib.get("errors", 0) or 0)
+              return total
+
+          logs = Path("logs")
+          logs.mkdir(parents=True, exist_ok=True)
+          current = {
+              "suite1_invariant_failures": _suite_failures(logs / "chaos_suite_1.xml"),
+              "suite2_invariant_failures": _suite_failures(logs / "chaos_suite_2.xml"),
+              "intent_collision_focus_failures": _suite_failures(logs / "chaos_focus_intent_collision.xml"),
+          }
+          current["total_invariant_failures"] = int(
+              current["suite1_invariant_failures"]
+              + current["suite2_invariant_failures"]
+              + current["intent_collision_focus_failures"]
+          )
+
+          prev_path = logs / "chaos_nightly_prev.json"
+          previous = {}
+          if prev_path.exists():
+              try:
+                  previous = json.loads(prev_path.read_text(encoding="utf-8"))
+              except Exception:
+                  previous = {}
+          prev_total = int(previous.get("total_invariant_failures", 0) or 0)
+          curr_total = int(current["total_invariant_failures"])
+          delta = int(curr_total - prev_total)
+          threshold = int(os.getenv("CHAOS_NIGHTLY_MAX_INVARIANT_DRIFT", "0") or 0)
+
+          report = [
+              "Chaos Nightly Drift",
+              "===================",
+              f"previous_total_invariant_failures={prev_total}",
+              f"current_total_invariant_failures={curr_total}",
+              f"delta_invariant_failures={delta}",
+              f"threshold={threshold}",
+              f"intent_collision_focus_failures={int(current['intent_collision_focus_failures'])}",
+          ]
+          (logs / "chaos_nightly_report.txt").write_text("\n".join(report) + "\n", encoding="utf-8")
+          summary_lines = [
+              "## Chaos Nightly Summary",
+              "",
+              f"- `tools/test_execution_chaos_scenarios.py`: failures={int(current['suite1_invariant_failures'])}",
+              f"- `tools/test_execution_chaos_scenarios_v2.py`: failures={int(current['suite2_invariant_failures'])}",
+              "- `intent_collision_spike_in_runtime_gate_freezes_entries_with_cause_tags`: "
+              + f"failures={int(current['intent_collision_focus_failures'])}",
+              "",
+              f"- total_invariant_failures={curr_total}",
+              f"- delta_vs_previous={delta}",
+              f"- threshold={threshold}",
+              "",
+              "Status:",
+              (
+                  "- PASS"
+                  if delta <= threshold
+                  else f"- FAIL (delta_invariant_failures={delta} exceeded threshold={threshold})"
+              ),
+          ]
+          (logs / "chaos_nightly_summary.md").write_text("\n".join(summary_lines) + "\n", encoding="utf-8")
+          (logs / "chaos_nightly_current.json").write_text(json.dumps(current, indent=2) + "\n", encoding="utf-8")
+          (logs / "chaos_nightly_prev.json").write_text(json.dumps(current, indent=2) + "\n", encoding="utf-8")
+
+          print("\n".join(report))
+          if delta > threshold:
+              raise SystemExit(2)
+          PY
+
+      - name: Save nightly chaos drift baseline
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: logs/chaos_nightly_prev.json
+          key: chaos-nightly-${{ github.ref_name }}-${{ github.run_id }}
+
+      - name: Publish chaos summary to run summary
+        if: always()
+        run: |
+          if [ -f logs/chaos_nightly_summary.md ]; then
+            cat logs/chaos_nightly_summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "## Chaos Nightly Summary"
+              echo ""
+              echo "- summary artifact missing"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload nightly chaos artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chaos-nightly-artifacts
+          path: |
+            logs/chaos_suite_1.xml
+            logs/chaos_suite_2.xml
+            logs/chaos_focus_intent_collision.xml
+            logs/chaos_nightly_report.txt
+            logs/chaos_nightly_summary.md
+            logs/chaos_nightly_current.json

@@ -655,6 +655,20 @@ async def _gated_entry_loop(bot: Any, entry_fn: Callable[..., Awaitable[None]]) 
     await entry_fn(bot)
 
 
+async def _run_maintenance_oneshot(bot: Any) -> None:
+    """Run a single reconcile maintenance tick and return."""
+    reconcile_mod = _opt_import("execution.reconcile")
+    reconcile_tick = _callable(reconcile_mod, "reconcile_tick") if reconcile_mod else None
+    if not callable(reconcile_tick):
+        log_core.warning("[bootstrap] maintenance oneshot: reconcile_tick unavailable")
+        return
+    try:
+        await reconcile_tick(bot)
+        log_core.info("[bootstrap] maintenance oneshot: reconcile_tick complete")
+    except Exception as e:
+        log_core.warning(f"[bootstrap] maintenance oneshot reconcile failed: {e}")
+
+
 # ----------------------------
 # Signal handlers (installed inside running loop)
 # ----------------------------
@@ -760,6 +774,34 @@ async def main() -> None:
         f"[bootstrap] bot.data={type(getattr(bot,'data',None)).__name__} data_valid={_data_is_valid(getattr(bot,'data',None))}"
     )
 
+    # Optional startup rebuild: reconstruct local execution state from exchange state.
+    try:
+        do_rebuild = os.getenv("BOOT_REBUILD_ON_START", "1").strip().lower() not in ("0", "false", "no", "off")
+        if do_rebuild:
+            rebuild_mod = _opt_import("execution.rebuild")
+            rebuild_fn = _callable(rebuild_mod, "rebuild_local_state") if rebuild_mod else None
+            if callable(rebuild_fn):
+                freeze_on_orphans = os.getenv("BOOT_REBUILD_FREEZE_ON_ORPHANS", "0").strip().lower() in ("1", "true", "yes", "on")
+                fill_window_sec = float(os.getenv("BOOT_REBUILD_FILL_WINDOW_SEC", "3600") or 3600.0)
+                summary = await rebuild_fn(
+                    bot,
+                    fill_window_sec=fill_window_sec,
+                    adopt_orphans=True,
+                    freeze_on_orphans=freeze_on_orphans,
+                )
+                if isinstance(summary, dict):
+                    log_core.info(
+                        "[bootstrap] rebuild positions=%s prev=%s orphans=%s halted=%s"
+                        % (
+                            int(summary.get("positions_rebuilt", 0) or 0),
+                            int(summary.get("positions_prev", 0) or 0),
+                            int(summary.get("orphans", 0) or 0),
+                            bool(summary.get("halted", False)),
+                        )
+                    )
+    except Exception as e:
+        log_core.warning(f"[bootstrap] rebuild failed: {e}")
+
     try:
         syms = getattr(bot, "active_symbols", None) or getattr(getattr(bot, "cfg", None), "ACTIVE_SYMBOLS", None)
         if isinstance(syms, (list, tuple, set)):
@@ -770,6 +812,34 @@ async def main() -> None:
 
     _run_diagnostics_best_effort(bot)
 
+    # Check for incomplete flatten intents from previous crash
+    try:
+        from execution.flatten_intent import check_incomplete_flatten_on_startup
+        pending_flatten = await check_incomplete_flatten_on_startup()
+        if pending_flatten is not None:
+            log_core.warning(f"[bootstrap] incomplete flatten intent found: {pending_flatten}")
+    except Exception as e:
+        log_core.info(f"[bootstrap] flatten_intent check skipped: {e}")
+
+    maintenance_oneshot = os.getenv("BOOT_MAINTENANCE_ONESHOT", "0").strip().lower() in ("1", "true", "yes", "on")
+    if maintenance_oneshot:
+        log_core.warning("[bootstrap] BOOT_MAINTENANCE_ONESHOT=1 -> rebuild + single reconcile tick, then exit")
+        try:
+            await _run_maintenance_oneshot(bot)
+        finally:
+            try:
+                await _save_state_best_effort(bot.state)
+            except Exception:
+                pass
+            try:
+                ex = getattr(bot, "ex", None)
+                if ex is not None and hasattr(ex, "close"):
+                    await ex.close()
+            except Exception:
+                pass
+        log_core.critical("[bootstrap] OFFLINE (maintenance oneshot)")
+        return
+
     # ------------------------------------------------------------
     # Required loops
     # ------------------------------------------------------------
@@ -778,29 +848,22 @@ async def main() -> None:
     if not callable(guardian_loop):
         raise RuntimeError("execution.guardian.guardian_loop is required but missing")
 
-    # Entry loop selection:
-    # ENTRY_LOOP_MODE=full|basic (default: full if available, else basic)
+    # Entry loop selection (authoritative):
+    # execution.entry_loop.entry_loop is the only supported runtime orchestrator.
     entry_mode = os.getenv("ENTRY_LOOP_MODE", "").strip().lower()
-    prefer_basic = entry_mode in ("basic", "simple", "lite")
-    prefer_full = entry_mode in ("full", "risk", "advanced")
-
-    # Prefer full-risk entry loop if present, fallback to basic entry_loop
-    entry_loop_mod = None
-    if prefer_basic:
-        entry_loop_mod = _opt_import("execution.entry_loop")
-    elif prefer_full:
-        entry_loop_mod = _opt_import("execution.entry_loop_full") or _opt_import("execution.entry_loop")
+    if entry_mode in ("full", "risk", "advanced", "basic", "simple", "lite"):
+        log_core.warning(
+            f"[bootstrap] ENTRY_LOOP_MODE={entry_mode} is deprecated; forcing execution.entry_loop.entry_loop"
+        )
+    # Guard legacy direct try_enter paths at runtime unless explicitly re-enabled.
+    if os.getenv("ENTRY_ENABLE_LEGACY_TRY_ENTER", "").strip() == "":
+        os.environ["ENTRY_ENABLE_LEGACY_TRY_ENTER"] = "0"
+    entry_loop_mod = _opt_import("execution.entry_loop")
+    entry_loop = _callable(entry_loop_mod, "entry_loop") if entry_loop_mod else None
+    if entry_loop:
+        log_core.info("[bootstrap] entry loop: AUTHORITATIVE (execution.entry_loop.entry_loop)")
     else:
-        entry_loop_mod = _opt_import("execution.entry_loop_full") or _opt_import("execution.entry_loop")
-    entry_loop = None
-    if entry_loop_mod:
-        entry_loop = _callable(entry_loop_mod, "entry_loop_full") or _callable(entry_loop_mod, "entry_loop")
-        if entry_loop and entry_loop.__name__ == "entry_loop_full":
-            log_core.info("[bootstrap] entry loop: FULL (execution.entry_loop_full.entry_loop_full)")
-        elif entry_loop:
-            log_core.info("[bootstrap] entry loop: BASIC (execution.entry_loop.entry_loop)")
-        else:
-            log_core.warning("[bootstrap] entry loop: NONE (no callable found)")
+        log_core.warning("[bootstrap] entry loop: NONE (execution.entry_loop.entry_loop missing)")
 
     data_loop_mod = _opt_import("execution.data_loop")
     data_loop = _callable(data_loop_mod, "data_loop") if data_loop_mod else None

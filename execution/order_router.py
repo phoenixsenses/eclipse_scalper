@@ -18,6 +18,7 @@ import re
 from typing import Any, Dict, Optional, Tuple, List
 
 from utils.logging import log_entry
+from execution.entry_primitives import symkey as _symkey  # single source of truth
 
 # Optional telemetry (never fatal)
 try:
@@ -64,6 +65,11 @@ try:
 except Exception:
     _intent_ledger = None
 
+try:
+    from execution import intent_allocator as _intent_allocator  # type: ignore
+except Exception:
+    _intent_allocator = None
+
 
 # ----------------------------
 # Helpers
@@ -102,14 +108,7 @@ def _cfg_env(bot, name: str, default: Any) -> Any:
     return default
 
 
-def _symkey(sym: str) -> str:
-    s = (sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
+# _symkey imported from execution.entry_primitives above
 
 
 def _parse_symbol_overrides(raw: Any) -> dict:
@@ -852,6 +851,173 @@ def _request_reconcile_hint(bot, *, symbol: str, reason: str, correlation_id: st
         pass
 
 
+def _record_reconcile_first_pressure(bot, *, symbol: str, severity: float, reason: str = "") -> None:
+    """
+    Router-side escalation hook for ambiguity storms (e.g., replace-race loops).
+    Reconcile and belief-controller consume this via kill_metrics to clamp entries.
+    """
+    try:
+        st = getattr(bot, "state", None)
+        if st is None:
+            return
+        km = getattr(st, "kill_metrics", None)
+        if not isinstance(km, dict):
+            st.kill_metrics = {}
+            km = st.kill_metrics
+        events = km.get("reconcile_first_gate_events")
+        if not isinstance(events, list):
+            events = []
+            km["reconcile_first_gate_events"] = events
+        now_ts = float(time.time())
+        max_events = max(20, int(_safe_float(_cfg_env(bot, "BELIEF_RECONCILE_FIRST_EVENTS_MAX", 160), 160.0)))
+        window_sec = max(10.0, _safe_float(_cfg_env(bot, "BELIEF_RECONCILE_FIRST_WINDOW_SEC", 120), 120.0))
+        cutoff = now_ts - window_sec
+        events[:] = [ev for ev in events if isinstance(ev, dict) and _safe_float(ev.get("ts"), 0.0) >= cutoff]
+        sev = max(0.0, min(1.0, float(severity or 0.0)))
+        events.append({"ts": now_ts, "symbol": _symkey(symbol), "severity": sev, "reason": str(reason or "")})
+        if len(events) > max_events:
+            del events[:-max_events]
+        km["reconcile_first_gate_count"] = int(km.get("reconcile_first_gate_count", 0) or 0) + 1
+        km["reconcile_first_gate_last_ts"] = float(now_ts)
+        km["reconcile_first_gate_last_severity"] = float(sev)
+        km["reconcile_first_gate_last_reason"] = str(reason or "")
+    except Exception:
+        pass
+
+
+def _allocate_intent_id(
+    bot,
+    *,
+    component: str,
+    intent_kind: str,
+    symbol: str,
+    is_exit: bool,
+) -> str:
+    if _intent_allocator is None:
+        return ""
+    try:
+        return str(
+            _intent_allocator.allocate_intent_id(
+                bot,
+                component=str(component or "order_router"),
+                intent_kind=str(intent_kind or "ENTRY"),
+                symbol=str(symbol or ""),
+                is_exit=bool(is_exit),
+            )
+            or ""
+        ).strip()
+    except Exception:
+        return ""
+
+
+def _replace_budget_state(bot) -> tuple[dict, dict]:
+    st = getattr(bot, "state", None)
+    if st is None:
+        return {}, {}
+    rc = getattr(st, "run_context", None)
+    if not isinstance(rc, dict):
+        st.run_context = {}
+        rc = st.run_context
+    budget = rc.get("replace_budget")
+    if not isinstance(budget, dict):
+        budget = {"global": [], "by_symbol": {}, "ambiguity_by_symbol": {}}
+        rc["replace_budget"] = budget
+    by_symbol = budget.get("by_symbol")
+    if not isinstance(by_symbol, dict):
+        by_symbol = {}
+        budget["by_symbol"] = by_symbol
+    return budget, by_symbol
+
+
+def _replace_budget_over_limit(bot, *, symbol: str) -> tuple[bool, dict]:
+    window_sec = max(10.0, _safe_float(_cfg_env(bot, "ROUTER_REPLACE_BUDGET_WINDOW_SEC", 300), 300.0))
+    max_global = max(1, int(_safe_float(_cfg_env(bot, "ROUTER_REPLACE_BUDGET_MAX_GLOBAL", 20), 20.0)))
+    max_symbol = max(1, int(_safe_float(_cfg_env(bot, "ROUTER_REPLACE_BUDGET_MAX_PER_SYMBOL", 6), 6.0)))
+    max_ambiguity_symbol = max(
+        1, int(_safe_float(_cfg_env(bot, "ROUTER_REPLACE_BUDGET_MAX_AMBIGUITY_PER_SYMBOL", 3), 3.0))
+    )
+    now_ts = float(time.time())
+    cutoff = now_ts - window_sec
+    budget, by_symbol = _replace_budget_state(bot)
+    glob = budget.get("global")
+    if not isinstance(glob, list):
+        glob = []
+        budget["global"] = glob
+    glob[:] = [float(ts) for ts in glob if _safe_float(ts, 0.0) >= cutoff]
+    k = _symkey(symbol)
+    sym_list = by_symbol.get(k)
+    if not isinstance(sym_list, list):
+        sym_list = []
+        by_symbol[k] = sym_list
+    sym_list[:] = [float(ts) for ts in sym_list if _safe_float(ts, 0.0) >= cutoff]
+    amb_map = budget.get("ambiguity_by_symbol")
+    if not isinstance(amb_map, dict):
+        amb_map = {}
+        budget["ambiguity_by_symbol"] = amb_map
+    amb_list = amb_map.get(k)
+    if not isinstance(amb_list, list):
+        amb_list = []
+        amb_map[k] = amb_list
+    amb_list[:] = [float(ts) for ts in amb_list if _safe_float(ts, 0.0) >= cutoff]
+    over_global = len(glob) >= max_global
+    over_symbol = len(sym_list) >= max_symbol
+    over_ambiguity = len(amb_list) >= max_ambiguity_symbol
+    return bool(over_global or over_symbol or over_ambiguity), {
+        "window_sec": float(window_sec),
+        "max_global": int(max_global),
+        "max_symbol": int(max_symbol),
+        "max_ambiguity_symbol": int(max_ambiguity_symbol),
+        "count_global": int(len(glob)),
+        "count_symbol": int(len(sym_list)),
+        "count_ambiguity_symbol": int(len(amb_list)),
+        "over_global": bool(over_global),
+        "over_symbol": bool(over_symbol),
+        "over_ambiguity_symbol": bool(over_ambiguity),
+        "symbol": str(k),
+    }
+
+
+def _replace_budget_mark(bot, *, symbol: str) -> None:
+    now_ts = float(time.time())
+    budget, by_symbol = _replace_budget_state(bot)
+    glob = budget.get("global")
+    if not isinstance(glob, list):
+        glob = []
+        budget["global"] = glob
+    glob.append(now_ts)
+    k = _symkey(symbol)
+    sym_list = by_symbol.get(k)
+    if not isinstance(sym_list, list):
+        sym_list = []
+        by_symbol[k] = sym_list
+    sym_list.append(now_ts)
+
+
+def _replace_budget_mark_ambiguity(bot, *, symbol: str) -> None:
+    now_ts = float(time.time())
+    st = getattr(bot, "state", None)
+    if st is None:
+        return
+    rc = getattr(st, "run_context", None)
+    if not isinstance(rc, dict):
+        st.run_context = {}
+        rc = st.run_context
+    budget = rc.get("replace_budget")
+    if not isinstance(budget, dict):
+        budget = {"global": [], "by_symbol": {}, "ambiguity_by_symbol": {}}
+        rc["replace_budget"] = budget
+    amb_map = budget.get("ambiguity_by_symbol")
+    if not isinstance(amb_map, dict):
+        amb_map = {}
+        budget["ambiguity_by_symbol"] = amb_map
+    k = _symkey(symbol)
+    amb_list = amb_map.get(k)
+    if not isinstance(amb_list, list):
+        amb_list = []
+        amb_map[k] = amb_list
+    amb_list.append(now_ts)
+
+
 def _intent_ledger_record(
     bot,
     *,
@@ -886,6 +1052,41 @@ def _intent_ledger_record(
         )
     except Exception:
         pass
+
+
+def _intent_may_send(
+    bot,
+    *,
+    intent_id: str = "",
+    client_order_id: str = "",
+    order_id: str = "",
+    is_exit: bool = False,
+) -> dict:
+    if _intent_ledger is None:
+        return {"enabled": False, "allowed": True, "reason": "no_ledger"}
+    try:
+        out = _intent_ledger.may_send(
+            bot,
+            intent_id=str(intent_id or ""),
+            client_order_id=str(client_order_id or ""),
+            order_id=str(order_id or ""),
+            is_exit=bool(is_exit),
+        )
+        return out if isinstance(out, dict) else {"enabled": False, "allowed": True, "reason": "invalid_gate"}
+    except Exception:
+        return {"enabled": False, "allowed": True, "reason": "gate_error"}
+
+
+def _strict_may_send_required(bot, *, is_exit: bool) -> bool:
+    if bool(is_exit):
+        return False
+    return bool(_truthy(_cfg_env(bot, "INTENT_LEDGER_STRICT_MAY_SEND", False)))
+
+
+def _allocator_required(bot, *, is_exit: bool) -> bool:
+    if bool(is_exit):
+        return False
+    return bool(_truthy(_cfg_env(bot, "INTENT_ALLOCATOR_REQUIRED", False)))
 
 
 def _is_futures_symbol(sym_raw: str) -> bool:
@@ -1436,6 +1637,16 @@ async def cancel_order(bot, order_id: str, symbol: str, *, correlation_id: Optio
             corr_id = str(_intent_ledger.resolve_intent_id(bot, order_id=str(order_id or "")) or "").strip()
         except Exception:
             corr_id = ""
+    if not corr_id:
+        corr_id = _allocate_intent_id(
+            bot,
+            component="order_router_cancel",
+            intent_kind="CANCEL",
+            symbol=symbol,
+            is_exit=True,
+        )
+    if not corr_id:
+        corr_id = f"CANCEL-{order_id}"
     sym_raw = _resolve_raw_symbol(bot, k, symbol)
 
     candidates = [sym_raw]
@@ -1448,9 +1659,53 @@ async def cancel_order(bot, order_id: str, symbol: str, *, correlation_id: Optio
     saw_unknown = False
     unknown_conflict = False
     unknown_status: Optional[str] = None
+    def _emit_cancel_compat(ok_flag: bool, why_text: str, status_text: Optional[str] = None) -> None:
+        if not callable(emit_order_cancel):
+            return
+        try:
+            _telemetry_task(
+                emit_order_cancel(
+                    bot,
+                    k,
+                    order_id,
+                    bool(ok_flag),
+                    why=str(why_text),
+                    correlation_id=corr_id,
+                    status=status_text,
+                )
+            )
+            return
+        except TypeError:
+            pass
+        try:
+            _telemetry_task(
+                emit_order_cancel(
+                    bot,
+                    k,
+                    order_id,
+                    bool(ok_flag),
+                    why=str(why_text),
+                    status=status_text,
+                )
+            )
+            return
+        except TypeError:
+            pass
+        try:
+            _telemetry_task(
+                emit_order_cancel(
+                    bot,
+                    k,
+                    order_id,
+                    bool(ok_flag),
+                    why=str(why_text),
+                )
+            )
+        except Exception:
+            pass
     _intent_ledger_record(
         bot,
-        intent_id=(corr_id or f"CANCEL-{order_id}"),
+        intent_id=str(corr_id or f"CANCEL-{order_id}"),
         stage="CANCEL_SENT",
         symbol=k,
         order_id=str(order_id or ""),
@@ -1460,20 +1715,10 @@ async def cancel_order(bot, order_id: str, symbol: str, *, correlation_id: Optio
     for sym_try in candidates:
         ok, err = await _cancel_order_raw(ex, order_id, sym_try)
         if ok:
-            if callable(emit_order_cancel):
-                _telemetry_task(
-                    emit_order_cancel(
-                        bot,
-                        k,
-                        order_id,
-                        True,
-                        why="router",
-                        correlation_id=corr_id,
-                    )
-                )
+            _emit_cancel_compat(True, "router")
             _intent_ledger_record(
                 bot,
-                intent_id=(corr_id or f"CANCEL-{order_id}"),
+                intent_id=str(corr_id or f"CANCEL-{order_id}"),
                 stage="DONE",
                 symbol=k,
                 order_id=str(order_id or ""),
@@ -1496,21 +1741,10 @@ async def cancel_order(bot, order_id: str, symbol: str, *, correlation_id: Optio
     if saw_unknown and (not unknown_conflict):
         # ✅ idempotent success after exhausting symbol candidates
         log_entry.info(f"[router] cancel idempotent success (already gone) | k={k} id={order_id} st={unknown_status or 'na'}")
-        if callable(emit_order_cancel):
-            _telemetry_task(
-                emit_order_cancel(
-                    bot,
-                    k,
-                    order_id,
-                    True,
-                    why="already_gone",
-                    correlation_id=corr_id,
-                    status=unknown_status,
-                )
-            )
+        _emit_cancel_compat(True, "already_gone", status_text=unknown_status)
         _intent_ledger_record(
             bot,
-            intent_id=(corr_id or f"CANCEL-{order_id}"),
+            intent_id=str(corr_id or f"CANCEL-{order_id}"),
             stage="DONE",
             symbol=k,
             order_id=str(order_id or ""),
@@ -1519,21 +1753,10 @@ async def cancel_order(bot, order_id: str, symbol: str, *, correlation_id: Optio
         )
         return True
 
-    if callable(emit_order_cancel):
-        _telemetry_task(
-            emit_order_cancel(
-                bot,
-                k,
-                order_id,
-                False,
-                why=(repr(last_err)[:120] if last_err else "unknown"),
-                correlation_id=corr_id,
-                status=unknown_status,
-            )
-        )
+    _emit_cancel_compat(False, (repr(last_err)[:120] if last_err else "unknown"), status_text=unknown_status)
     _intent_ledger_record(
         bot,
-        intent_id=(corr_id or f"CANCEL-{order_id}"),
+        intent_id=str(corr_id or f"CANCEL-{order_id}"),
         stage="CANCEL_FAILED",
         symbol=k,
         order_id=str(order_id or ""),
@@ -1604,6 +1827,8 @@ async def create_order(
     respect_kill_switch: bool = False,
     retries: Optional[int] = None,
     correlation_id: Optional[str] = None,
+    intent_component: Optional[str] = None,
+    intent_kind: Optional[str] = None,
 ) -> Optional[dict]:
     ex = _get_ex(bot)
     if ex is None:
@@ -1615,6 +1840,19 @@ async def create_order(
             if callable(is_halted) and is_halted(bot):
                 log_entry.critical("ORDER ROUTER BLOCKED BY KILL_SWITCH (respect_kill_switch=True)")
                 return None
+        except Exception:
+            pass
+
+    # Circuit breaker — block non-exit orders when exchange is hammered
+    if not intent_reduce_only:
+        try:
+            _cb_cfg = getattr(getattr(bot, "cfg", None), "CIRCUIT_BREAKER_ENABLED", None)
+            if _cb_cfg is not None and str(_cb_cfg).lower() in ("1", "true", "yes", "on"):
+                from execution.circuit_breaker import CircuitBreaker
+                _cb = CircuitBreaker.get(bot, "binance")
+                if not _cb.allow_request(is_exit=False):
+                    log_entry.warning(f"ORDER ROUTER BLOCKED BY CIRCUIT_BREAKER (state={_cb.current_state.name})")
+                    return None
         except Exception:
             pass
 
@@ -1630,12 +1868,6 @@ async def create_order(
         return None
 
     k = _symkey(symbol)
-    corr_id = str(correlation_id or "").strip()
-    if (not corr_id) and (_intent_ledger is not None):
-        try:
-            corr_id = str(_intent_ledger.resolve_intent_id(bot, order_id=str(order_id or "")) or "").strip()
-        except Exception:
-            corr_id = ""
     sym_raw = _resolve_raw_symbol(bot, k, symbol)
     coid_bucket_sec = max(1, int(_safe_float(_cfg_env(bot, "ROUTER_CLIENT_ID_BUCKET_SEC", 30), 30)))
     coid_bucket = int(time.time() // coid_bucket_sec)
@@ -1862,7 +2094,100 @@ async def create_order(
         intent_close_position=intent_close_position,
     )
     intent_prefix = _intent_client_order_prefix(type_u=type_u, is_exit=is_exit, fallback=client_order_id_prefix)
+    component_tag = str(intent_component or ("order_router_exit" if is_exit else "order_router_create")).strip()
+    kind_tag = str(intent_kind or ("EXIT" if is_exit else "ENTRY")).strip().upper()
     corr_id = str(correlation_id or "").strip()
+    if (not corr_id) and (_intent_ledger is not None):
+        try:
+            corr_id = str(
+                _intent_ledger.resolve_intent_id(
+                    bot,
+                    client_order_id=str(p.get("clientOrderId") or ""),
+                )
+                or ""
+            ).strip()
+        except Exception:
+            corr_id = ""
+    if not corr_id:
+        corr_id = _allocate_intent_id(
+            bot,
+            component=component_tag,
+            intent_kind=kind_tag,
+            symbol=sym_raw,
+            is_exit=bool(is_exit),
+        )
+    allocator_required = _allocator_required(bot, is_exit=bool(is_exit))
+    allocator_available = bool(_intent_allocator is not None)
+    if allocator_required and (not allocator_available):
+        if callable(emit):
+            _telemetry_task(
+                emit(
+                    bot,
+                    "order.intent_blocked",
+                    data={
+                        "k": k,
+                        "correlation_id": "",
+                        "client_order_id": str(p.get("clientOrderId") or ""),
+                        "reason": "allocator_unavailable",
+                        "stage": "INTENT_CREATED",
+                        "status": "",
+                    },
+                    symbol=k,
+                    level="critical",
+                )
+            )
+        return {
+            "id": None,
+            "symbol": sym_raw,
+            "type": type_norm,
+            "side": side_l,
+            "amount": _safe_float(amount, 0.0),
+            "filled": 0.0,
+            "status": "blocked",
+            "info": {
+                "intent_blocked": True,
+                "reason": "allocator_unavailable",
+                "stage": "INTENT_CREATED",
+                "status": "",
+                "correlation_id": "",
+                "clientOrderId": str(p.get("clientOrderId") or ""),
+            },
+        }
+    if allocator_required and (not corr_id):
+        if callable(emit):
+            _telemetry_task(
+                emit(
+                    bot,
+                    "order.intent_blocked",
+                    data={
+                        "k": k,
+                        "correlation_id": "",
+                        "client_order_id": str(p.get("clientOrderId") or ""),
+                        "reason": "allocator_failed",
+                        "stage": "INTENT_CREATED",
+                        "status": "",
+                    },
+                    symbol=k,
+                    level="critical",
+                )
+            )
+        return {
+            "id": None,
+            "symbol": sym_raw,
+            "type": type_norm,
+            "side": side_l,
+            "amount": _safe_float(amount, 0.0),
+            "filled": 0.0,
+            "status": "blocked",
+            "info": {
+                "intent_blocked": True,
+                "reason": "allocator_failed",
+                "stage": "INTENT_CREATED",
+                "status": "",
+                "correlation_id": "",
+                "clientOrderId": str(p.get("clientOrderId") or ""),
+            },
+        }
     if not corr_id:
         corr_id = _make_correlation_id(
             intent_prefix=intent_prefix,
@@ -1882,12 +2207,19 @@ async def create_order(
         if not nxt:
             return
         prev = intent_state
+        if str(prev or "").strip().upper() == nxt:
+            return
         try:
             if _state_machine is not None:
                 _state_machine.transition(_state_machine.MachineKind.ORDER_INTENT, prev, nxt, reason)
             intent_state = nxt
         except Exception:
-            intent_state = nxt
+            # Retry sends can revisit SUBMITTED while intent is already SUBMITTED
+            # or SUBMITTED_UNKNOWN; treat as no-op instead of emitting invalid edges.
+            if str(reason or "").strip().lower() == "router_send" and nxt == "SUBMITTED":
+                if str(prev or "").strip().upper() in ("SUBMITTED", "SUBMITTED_UNKNOWN"):
+                    return
+            return
         _intent_ledger_record(
             bot,
             intent_id=str(corr_id or ""),
@@ -1933,21 +2265,227 @@ async def create_order(
 
         if want_auto and ("clientOrderId" not in p):
             stop_for_id = p.get("stopPrice")
-            s = _make_client_order_id(
-                prefix=intent_prefix,
-                sym_raw=sym_raw,
-                type_norm=type_norm,
-                side_l=side_l,
-                amount=amount,
-                price=price,
-                stop_price=stop_for_id,
-                bucket=coid_bucket,
-            )
+            s = ""
+            if _intent_allocator is not None and corr_id:
+                try:
+                    s = str(
+                        _intent_allocator.derive_client_order_id(
+                            intent_id=str(corr_id or ""),
+                            prefix=intent_prefix,
+                            symbol=sym_raw,
+                            max_len=_BINANCE_CLIENT_ID_MAX,
+                        )
+                        or ""
+                    ).strip()
+                except Exception:
+                    s = ""
+            if allocator_required and (not s):
+                if callable(emit):
+                    _telemetry_task(
+                        emit(
+                            bot,
+                            "order.intent_blocked",
+                            data={
+                                "k": k,
+                                "correlation_id": str(corr_id or ""),
+                                "client_order_id": "",
+                                "reason": "allocator_client_order_id_failed",
+                                "stage": "INTENT_CREATED",
+                                "status": "",
+                            },
+                            symbol=k,
+                            level="critical",
+                        )
+                    )
+                return {
+                    "id": None,
+                    "symbol": sym_raw,
+                    "type": type_norm,
+                    "side": side_l,
+                    "amount": _safe_float(amount, 0.0),
+                    "filled": 0.0,
+                    "status": "blocked",
+                    "info": {
+                        "intent_blocked": True,
+                        "reason": "allocator_client_order_id_failed",
+                        "stage": "INTENT_CREATED",
+                        "status": "",
+                        "correlation_id": str(corr_id or ""),
+                        "clientOrderId": "",
+                    },
+                }
+            if not s:
+                s = _make_client_order_id(
+                    prefix=intent_prefix,
+                    sym_raw=sym_raw,
+                    type_norm=type_norm,
+                    side_l=side_l,
+                    amount=amount,
+                    price=price,
+                    stop_price=stop_for_id,
+                    bucket=coid_bucket,
+                )
             p["clientOrderId"] = _sanitize_client_order_id(s) or "SE"
 
     # final hard sanitize (fail-safe)
     p = _sanitize_client_id_fields(p)
     client_order_id_live = str(p.get("clientOrderId") or "").strip()
+    may_send = _intent_may_send(
+        bot,
+        intent_id=str(corr_id or ""),
+        client_order_id=client_order_id_live,
+        is_exit=bool(is_exit),
+    )
+    if _strict_may_send_required(bot, is_exit=bool(is_exit)) and (not bool(may_send.get("enabled", False))):
+        reason_ms = str(may_send.get("reason") or "may_send_disabled")
+        _journal_intent_transition("SUBMITTED_UNKNOWN", "may_send_disabled")
+        if callable(emit):
+            _telemetry_task(
+                emit(
+                    bot,
+                    "order.intent_blocked",
+                    data={
+                        "k": k,
+                        "correlation_id": str(corr_id or ""),
+                        "client_order_id": client_order_id_live,
+                        "reason": "may_send_disabled",
+                        "stage": "SUBMITTED_UNKNOWN",
+                        "status": reason_ms,
+                    },
+                    symbol=k,
+                    level="critical",
+                )
+            )
+        return {
+            "id": None,
+            "symbol": sym_raw,
+            "type": type_norm,
+            "side": side_l,
+            "amount": _safe_float(amount, 0.0),
+            "filled": 0.0,
+            "status": "blocked",
+            "info": {
+                "intent_blocked": True,
+                "reason": "may_send_disabled",
+                "stage": "SUBMITTED_UNKNOWN",
+                "status": reason_ms,
+                "correlation_id": str(corr_id or ""),
+                "clientOrderId": client_order_id_live,
+            },
+        }
+    may_send_reason = str(may_send.get("reason") or "may_send_blocked")
+    reuse_enabled = bool(_truthy(_cfg_env(bot, "INTENT_LEDGER_REUSE_ENABLED", False)))
+    skip_reused_block = bool(may_send_reason == "reused_duplicate" and reuse_enabled)
+    if bool(may_send.get("enabled", False)) and (not bool(may_send.get("allowed", True))) and (not skip_reused_block):
+        reason_ms = str(may_send.get("reason") or "may_send_blocked")
+        stage_ms = str(may_send.get("stage") or "")
+        status_ms = str(may_send.get("status") or "")
+        _journal_intent_transition("SUBMITTED_UNKNOWN", "may_send_block")
+        if _event_journal is not None:
+            try:
+                _event_journal.journal_intent_lifecycle(
+                    bot,
+                    intent_id=str(corr_id or ""),
+                    state="PROPOSED",
+                    symbol=k,
+                    reason=f"may_send_block:{reason_ms}",
+                    is_exit=bool(is_exit),
+                    client_order_id=client_order_id_live,
+                    order_id="",
+                    correlation_id=str(corr_id or ""),
+                    meta={"stage": stage_ms, "status": status_ms},
+                )
+            except Exception:
+                pass
+        if callable(emit):
+            _telemetry_task(
+                emit(
+                    bot,
+                    "order.intent_blocked",
+                    data={
+                        "k": k,
+                        "correlation_id": str(corr_id or ""),
+                        "client_order_id": client_order_id_live,
+                        "reason": reason_ms,
+                        "stage": stage_ms,
+                        "status": status_ms,
+                    },
+                    symbol=k,
+                    level="warning",
+                )
+            )
+        return {
+            "id": None,
+            "symbol": sym_raw,
+            "type": type_norm,
+            "side": side_l,
+            "amount": _safe_float(amount, 0.0),
+            "filled": 0.0,
+            "status": "blocked",
+            "info": {
+                "intent_blocked": True,
+                "intent_pending_unknown": bool(reason_ms in ("pending_unknown", "inflight_duplicate")),
+                "reason": reason_ms,
+                "stage": stage_ms,
+                "status": status_ms,
+                "correlation_id": str(corr_id or ""),
+                "clientOrderId": client_order_id_live,
+            },
+        }
+    if _intent_ledger is not None and _truthy(_cfg_env(bot, "INTENT_LEDGER_REUSE_ENABLED", False)):
+        try:
+            pending_unknown = _intent_ledger.find_pending_unknown_intent(
+                bot,
+                intent_id=str(corr_id or ""),
+                client_order_id=client_order_id_live,
+            )
+        except Exception:
+            pending_unknown = None
+        if isinstance(pending_unknown, dict):
+            stage_unknown = str(pending_unknown.get("stage") or "SUBMITTED_UNKNOWN")
+            status_unknown = str(pending_unknown.get("status") or "unknown").lower().strip() or "unknown"
+            oid_unknown = str(pending_unknown.get("order_id") or "").strip()
+            log_entry.warning(
+                f"[router] pending unknown intent -> block duplicate submit | k={k} corr={corr_id} coid={client_order_id_live} stage={stage_unknown}"
+            )
+            _request_reconcile_hint(
+                bot,
+                symbol=k,
+                reason=f"intent_pending_unknown:{stage_unknown}",
+                correlation_id=str(corr_id or ""),
+            )
+            if callable(emit):
+                _telemetry_task(
+                    emit(
+                        bot,
+                        "order.intent_pending_unknown",
+                        data={
+                            "k": k,
+                            "correlation_id": corr_id,
+                            "client_order_id": client_order_id_live,
+                            "order_id": oid_unknown,
+                            "stage": stage_unknown,
+                            "status": status_unknown,
+                        },
+                        symbol=k,
+                        level="warning",
+                    )
+                )
+            return {
+                "id": (oid_unknown or None),
+                "symbol": sym_raw,
+                "type": type_norm,
+                "side": side_l,
+                "amount": _safe_float(amount, 0.0),
+                "filled": 0.0,
+                "status": status_unknown,
+                "info": {
+                    "intent_pending_unknown": True,
+                    "correlation_id": corr_id,
+                    "clientOrderId": client_order_id_live,
+                    "stage": stage_unknown,
+                },
+            }
     if _intent_ledger is not None and _truthy(_cfg_env(bot, "INTENT_LEDGER_REUSE_ENABLED", False)):
         try:
             seen = _intent_ledger.find_reusable_intent(
@@ -2196,6 +2734,7 @@ async def create_order(
     max_delay = float(_safe_float(_cfg_env(bot, "ROUTER_RETRY_MAX_DELAY_SEC", 5.0), 5.0))
     jitter_pct = float(_safe_float(_cfg_env(bot, "ROUTER_RETRY_JITTER_PCT", 0.25), 0.25))
     max_elapsed = float(_safe_float(_cfg_env(bot, "ROUTER_RETRY_MAX_ELAPSED_SEC", 30.0), 30.0))
+    max_total_tries = int(_safe_float(_cfg_env(bot, "ROUTER_RETRY_MAX_TOTAL_TRIES", 0), 0))
     if retries is not None:
         max_attempts = max(1, int(retries))
 
@@ -2271,10 +2810,16 @@ async def create_order(
     tries = 0
     attempt = 0
     abort_retries = False
+    if max_total_tries <= 0:
+        # Keep retry storms bounded even if retry variants expand on repeated errors.
+        max_total_tries = max(1, (max_attempts * max(1, len(variants)) * 2))
     while attempt < max_attempts:
         if max_elapsed > 0 and (time.monotonic() - start_ts) >= max_elapsed:
             break
         for (raw_sym, amt_try, px_try, p_try) in list(variants):
+            if tries >= max_total_tries:
+                abort_retries = True
+                break
             tries += 1
             try:
                 _journal_intent_transition(
@@ -2295,17 +2840,43 @@ async def create_order(
                 else:
                     _journal_intent_transition("ACKED", "exchange_ack", meta={"status": status})
                 if callable(emit_order_create):
-                    _telemetry_task(
-                        emit_order_create(
-                            bot,
-                            k,
-                            res,
-                            intent=f"{type_u}:{side_l}",
-                            correlation_id=corr_id,
+                    try:
+                        _telemetry_task(
+                            emit_order_create(
+                                bot,
+                                k,
+                                res,
+                                intent=f"{type_u}:{side_l}",
+                                correlation_id=corr_id,
+                            )
                         )
-                    )
+                    except TypeError:
+                        # Backward compatibility for older telemetry helpers that
+                        # do not accept correlation_id yet.
+                        _telemetry_task(
+                            emit_order_create(
+                                bot,
+                                k,
+                                res,
+                                intent=f"{type_u}:{side_l}",
+                            )
+                        )
+                # Record success for circuit breaker
+                try:
+                    from execution.circuit_breaker import CircuitBreaker as _CB
+                    if "binance" in _CB._instances:
+                        _CB._instances["binance"].record_success()
+                except Exception:
+                    pass
                 return res
             except Exception as e:
+                # Record failure for circuit breaker
+                try:
+                    from execution.circuit_breaker import CircuitBreaker as _CB
+                    if "binance" in _CB._instances:
+                        _CB._instances["binance"].record_failure(e)
+                except Exception:
+                    pass
                 last_err = e
                 policy_meta = _classify_order_error_policy(e, ex=ex, sym_raw=sym_raw)
                 retryable = bool(policy_meta.get("retryable"))
@@ -2499,7 +3070,41 @@ async def cancel_replace_order(
     params: Optional[Dict[str, Any]] = None,
     retries: int = 3,
     correlation_id: Optional[str] = None,
+    intent_component: Optional[str] = None,
+    intent_kind: Optional[str] = None,
 ) -> Optional[dict]:
+    over_budget, budget_meta = _replace_budget_over_limit(bot, symbol=symbol)
+    if over_budget:
+        _record_reconcile_first_pressure(
+            bot,
+            symbol=_symkey(symbol),
+            severity=_safe_float(_cfg_env(bot, "ROUTER_REPLACE_BUDGET_GATE_SEVERITY", 0.95), 0.95),
+            reason="replace_budget_exceeded",
+        )
+        if callable(emit):
+            _telemetry_task(
+                emit(
+                    bot,
+                    "order.replace_budget_block",
+                    data={
+                        "k": _symkey(symbol),
+                        "cancel_order_id": str(cancel_order_id),
+                        "reason": "replace_budget_exceeded",
+                        "correlation_id": str(correlation_id or ""),
+                        **dict(budget_meta),
+                    },
+                    symbol=_symkey(symbol),
+                    level="critical",
+                )
+            )
+        _request_reconcile_hint(
+            bot,
+            symbol=str(symbol),
+            reason="replace_budget_exceeded",
+            correlation_id=str(correlation_id or ""),
+        )
+        return None
+
     def _estimate_symbol_exposure_notional(sym_key: str) -> float:
         total = 0.0
         try:
@@ -2521,7 +3126,22 @@ async def cancel_replace_order(
         return float(max(0.0, total))
 
     max_attempts = max(1, int(retries or 1))
+    component_tag = str(intent_component or "order_router_replace").strip()
+    kind_tag = str(intent_kind or "REPLACE").strip().upper()
     corr = str(correlation_id or "").strip()
+    if (not corr) and (_intent_ledger is not None):
+        try:
+            corr = str(_intent_ledger.resolve_intent_id(bot, order_id=str(cancel_order_id or "")) or "").strip()
+        except Exception:
+            corr = ""
+    if not corr:
+        corr = _allocate_intent_id(
+            bot,
+            component=component_tag,
+            intent_kind=kind_tag,
+            symbol=symbol,
+            is_exit=False,
+        )
     if not corr:
         corr = _make_correlation_id(
             intent_prefix="REPLACE",
@@ -2551,6 +3171,7 @@ async def cancel_replace_order(
     cur_notional = _estimate_symbol_exposure_notional(_symkey(symbol))
     max_worst_case_notional = max(0.0, float(_safe_float(_cfg_env(bot, "ROUTER_REPLACE_MAX_WORST_CASE_NOTIONAL", 0.0), 0.0)))
     max_ambiguity_attempts = max(0, int(_safe_float(_cfg_env(bot, "ROUTER_REPLACE_MAX_AMBIGUITY_ATTEMPTS", 0), 0.0)))
+    verify_cancel_with_status = _truthy(_cfg_env(bot, "ROUTER_REPLACE_VERIFY_CANCEL_STATUS", True))
     if _replace_manager is not None:
         async def _cancel_fn(order_id: str, sym: str) -> bool:
             return bool(await cancel_order(bot, order_id, sym, correlation_id=corr))
@@ -2567,6 +3188,8 @@ async def cancel_replace_order(
                 params=params or {},
                 retries=1,
                 correlation_id=corr,
+                intent_component=component_tag,
+                intent_kind=kind_tag,
             )
 
         status_cb = None
@@ -2579,6 +3202,7 @@ async def cancel_replace_order(
             status_cb = _status_fn
 
         strict_replace = _truthy(_cfg_env(bot, "ROUTER_REPLACE_STRICT_TRANSITIONS", True))
+        _replace_budget_mark(bot, symbol=symbol)
         try:
             outcome = await _replace_manager.run_cancel_replace(
                 cancel_order_id=str(cancel_order_id),
@@ -2592,6 +3216,7 @@ async def cancel_replace_order(
                 new_order_notional=float(new_notional),
                 max_worst_case_notional=float(max_worst_case_notional),
                 max_ambiguity_attempts=int(max_ambiguity_attempts),
+                verify_cancel_with_status=bool(verify_cancel_with_status),
             )
         except Exception as exc:
             exc_name = str(getattr(getattr(exc, "__class__", None), "__name__", "Exception") or "Exception")
@@ -2647,6 +3272,32 @@ async def cancel_replace_order(
             return getattr(outcome, "order", None)
         outcome_reason = str(getattr(outcome, "reason", "") or "")
         if outcome_reason in ("replace_envelope_block", "replace_ambiguity_cap", "replace_reconcile_required"):
+            if outcome_reason == "replace_envelope_block":
+                env_sev = _safe_float(_cfg_env(bot, "ROUTER_REPLACE_ENVELOPE_GATE_SEVERITY", 0.88), 0.88)
+                _record_reconcile_first_pressure(
+                    bot,
+                    symbol=_symkey(symbol),
+                    severity=max(0.0, min(1.0, float(env_sev))),
+                    reason="replace_envelope_block",
+                )
+            if outcome_reason in ("replace_ambiguity_cap", "replace_reconcile_required"):
+                _replace_budget_mark_ambiguity(bot, symbol=symbol)
+                race_base = _safe_float(_cfg_env(bot, "ROUTER_REPLACE_RACE_GATE_SEVERITY", 0.90), 0.90)
+                ambiguity_bump = _safe_float(getattr(outcome, "ambiguity_count", 0), 0.0) * 0.05
+                attempt_bump = _safe_float(getattr(outcome, "attempts", 0), 0.0) * 0.02
+                race_sev = max(0.0, min(1.0, float(race_base + ambiguity_bump + attempt_bump)))
+                _record_reconcile_first_pressure(
+                    bot,
+                    symbol=_symkey(symbol),
+                    severity=race_sev,
+                    reason=f"replace_race:{outcome_reason}",
+                )
+            _request_reconcile_hint(
+                bot,
+                symbol=str(symbol),
+                reason=str(outcome_reason),
+                correlation_id=corr,
+            )
             if callable(emit):
                 _telemetry_task(
                     emit(
@@ -2758,6 +3409,8 @@ async def cancel_replace_order(
             params=params or {},
             retries=1,
             correlation_id=corr,
+            intent_component=component_tag,
+            intent_kind=kind_tag,
         )
         if res is not None:
             oid = str((res or {}).get("id") or "").strip() if isinstance(res, dict) else ""

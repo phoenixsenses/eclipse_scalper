@@ -123,6 +123,78 @@ def _position_closed_summary(events: list[dict[str, object]]) -> dict:
     return out
 
 
+def _protection_refresh_budget_summary(events: list[dict[str, object]]) -> dict[str, int]:
+    keys = (
+        "protection_refresh_budget_blocked_count",
+        "protection_refresh_budget_force_override_count",
+        "protection_refresh_stop_budget_blocked_count",
+        "protection_refresh_tp_budget_blocked_count",
+        "protection_refresh_stop_force_override_count",
+        "protection_refresh_tp_force_override_count",
+    )
+    out: dict[str, int] = {k: 0 for k in keys}
+    for ev in events:
+        data = ev.get("data")
+        if not isinstance(data, dict):
+            continue
+        if str(ev.get("event") or "") != "reconcile.summary":
+            continue
+        for k in keys:
+            out[k] = max(int(out.get(k, 0)), int(_safe_float(data.get(k), 0.0)))
+    return out
+
+
+def _correlation_contribution_summary(events: list[dict[str, object]]) -> dict[str, object]:
+    out: dict[str, object] = {
+        "blocked": 0,
+        "scaled": 0,
+        "stress": 0,
+        "tightening": 0,
+        "top_reasons": [],
+        "top_symbols": [],
+        "latest_regime": "",
+        "latest_pressure": 0.0,
+        "latest_reason_tags": "",
+    }
+    reason_counts: Counter[str] = Counter()
+    symbol_counts: Counter[str] = Counter()
+    latest_state: dict[str, object] = {}
+    for ev in events:
+        name = str(ev.get("event") or "")
+        data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+        if name in ("entry.decision", "entry.blocked"):
+            corr_pressure = _safe_float(data.get("corr_pressure"), 0.0)
+            corr_regime = str(data.get("corr_regime") or "").strip().upper()
+            if corr_pressure <= 0.0 and not corr_regime:
+                continue
+            if name == "entry.blocked":
+                out["blocked"] = int(out.get("blocked", 0) or 0) + 1
+            else:
+                action = str(data.get("action") or "").strip().upper()
+                if action == "SCALE":
+                    out["scaled"] = int(out.get("scaled", 0) or 0) + 1
+                elif action in ("DENY", "DEFER"):
+                    out["blocked"] = int(out.get("blocked", 0) or 0) + 1
+            if corr_regime == "STRESS":
+                out["stress"] = int(out.get("stress", 0) or 0) + 1
+            elif corr_regime == "TIGHTENING":
+                out["tightening"] = int(out.get("tightening", 0) or 0) + 1
+            reason = str(data.get("corr_reason_tags") or "stable").strip().lower()
+            reason_counts[reason or "stable"] += 1
+            symbol = str(ev.get("symbol") or data.get("symbol") or "").strip().upper()
+            if symbol:
+                symbol_counts[symbol] += 1
+        elif name == "execution.correlation_state":
+            latest_state = data
+    if latest_state:
+        out["latest_regime"] = str(latest_state.get("corr_regime") or "")
+        out["latest_pressure"] = float(_safe_float(latest_state.get("corr_pressure"), 0.0))
+        out["latest_reason_tags"] = str(latest_state.get("corr_reason_tags") or "")
+    out["top_reasons"] = reason_counts.most_common(3)
+    out["top_symbols"] = symbol_counts.most_common(3)
+    return out
+
+
 def _safe_float(value, default: float = 0.0) -> float:
     try:
         v = float(value)
@@ -231,6 +303,52 @@ def main() -> int:
             print("  top exit reasons:")
             for reason, count in pos_summary["by_reason"].most_common(5):
                 print(f"    {reason}: {count}")
+
+    refresh_budget = _protection_refresh_budget_summary(events)
+    if any(int(v) > 0 for v in refresh_budget.values()):
+        print("- Protection refresh budget:")
+        print(
+            "  blocked total: "
+            f"{int(refresh_budget.get('protection_refresh_budget_blocked_count', 0))} "
+            f"(stop={int(refresh_budget.get('protection_refresh_stop_budget_blocked_count', 0))}, "
+            f"tp={int(refresh_budget.get('protection_refresh_tp_budget_blocked_count', 0))})"
+        )
+        print(
+            "  force override total: "
+            f"{int(refresh_budget.get('protection_refresh_budget_force_override_count', 0))} "
+            f"(stop={int(refresh_budget.get('protection_refresh_stop_force_override_count', 0))}, "
+            f"tp={int(refresh_budget.get('protection_refresh_tp_force_override_count', 0))})"
+        )
+
+    corr_summary = _correlation_contribution_summary(events)
+    corr_hits = int(corr_summary.get("blocked", 0) or 0) + int(corr_summary.get("scaled", 0) or 0)
+    if corr_hits > 0 or str(corr_summary.get("latest_regime") or ""):
+        print("- Correlation contribution:")
+        print(
+            "  entry impact: "
+            f"blocked={int(corr_summary.get('blocked', 0) or 0)} "
+            f"scaled={int(corr_summary.get('scaled', 0) or 0)} "
+            f"stress={int(corr_summary.get('stress', 0) or 0)} "
+            f"tightening={int(corr_summary.get('tightening', 0) or 0)}"
+        )
+        latest_regime = str(corr_summary.get("latest_regime") or "")
+        if latest_regime:
+            print(
+                "  latest state: "
+                f"regime={latest_regime} "
+                f"pressure={float(corr_summary.get('latest_pressure', 0.0) or 0.0):.2f} "
+                f"tags={str(corr_summary.get('latest_reason_tags') or '')}"
+            )
+        top_reasons = list(corr_summary.get("top_reasons") or [])
+        if top_reasons:
+            print("  top reason tags:")
+            for reason, count in top_reasons:
+                print(f"    {reason}: {count}")
+        top_symbols = list(corr_summary.get("top_symbols") or [])
+        if top_symbols:
+            print("  top symbols:")
+            for symbol, count in top_symbols:
+                print(f"    {symbol}: {count}")
 
     recent = events[-20:]
     print("- Recent (last 20):")

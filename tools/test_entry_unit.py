@@ -214,6 +214,34 @@ class EntryCorrelationGuardTests(unittest.TestCase):
 
         self.assertTrue(any("group MEME notional" in r for r in reasons))
 
+    def test_entry_stop_ladder_delegates_to_protection_manager(self):
+        calls = {"n": 0}
+
+        async def _fake_pm(*_args, **_kwargs):
+            calls["n"] += 1
+            return "oid-stop-1"
+
+        orig_pm = entry._pm_place_stop_ladder_router
+        entry._pm_place_stop_ladder_router = _fake_pm
+        try:
+            out = asyncio.run(
+                entry._place_stop_ladder(
+                    SimpleNamespace(),
+                    sym_raw="DOGE/USDT:USDT",
+                    side="long",
+                    qty=10.0,
+                    stop_price=0.09,
+                    k="DOGEUSDT",
+                    pos_side="LONG",
+                    stop_client_id_base="SE_STOP_DOGEUSDT_LONG_1",
+                )
+            )
+        finally:
+            entry._pm_place_stop_ladder_router = orig_pm
+
+        self.assertEqual(out, "oid-stop-1")
+        self.assertEqual(calls["n"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

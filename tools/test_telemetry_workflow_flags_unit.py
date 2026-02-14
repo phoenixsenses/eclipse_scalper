@@ -42,6 +42,12 @@ class TelemetryWorkflowFlagsTests(unittest.TestCase):
         for flag in required:
             self.assertIn(flag, text, f"missing required workflow flag: {flag}")
 
+    def test_telemetry_dashboard_workflow_wires_reliability_gate_window(self):
+        wf = PKG / ".github" / "workflows" / "telemetry-dashboard.yml"
+        text = wf.read_text(encoding="utf-8")
+        self.assertIn("RELIABILITY_GATE_WINDOW_SECONDS", text)
+        self.assertIn("--window-seconds ${RELIABILITY_GATE_WINDOW_SECONDS}", text)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -6,12 +6,15 @@
 # - ✅ Keeps: orphan adoption, hedge-aware ex_map, optional imports, router-integrated stop ladder
 
 import asyncio
+import os
 import time
 from types import SimpleNamespace
 from typing import Dict, Any, Optional, Tuple, List
 
 from utils.logging import log_entry, log_core
 from execution.order_router import create_order, cancel_order, cancel_replace_order  # ✅ ROUTER
+from execution.entry_primitives import symkey as _symkey  # single source of truth
+from execution.shared_locks import get_symbol_lock as _get_symbol_lock  # cross-module stop/TP serialization
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -56,8 +59,13 @@ _kill_request_halt = _optional_import("risk.kill_switch", "request_halt")
 _assess_stop_coverage = _optional_import("execution.protection_manager", "assess_stop_coverage")
 _assess_tp_coverage = _optional_import("execution.protection_manager", "assess_tp_coverage")
 _should_refresh_protection = _optional_import("execution.protection_manager", "should_refresh_protection")
+_should_allow_refresh_budget = _optional_import("execution.protection_manager", "should_allow_refresh_budget")
+_record_refresh_budget_event = _optional_import("execution.protection_manager", "record_refresh_budget_event")
+_update_coverage_gap_state = _optional_import("execution.protection_manager", "update_coverage_gap_state")
 _state_machine = _optional_import("execution.state_machine")
 _journal_transition = _optional_import("execution.event_journal", "journal_transition")
+_compute_correlation_risk = _optional_import("execution.correlation_risk", "compute_correlation_risk")
+_intent_allocator = _optional_import("execution.intent_allocator")
 
 
 def _diag_dump(bot, note: str) -> None:
@@ -84,14 +92,7 @@ def _now() -> float:
     return time.time()
 
 
-def _symkey(sym: str) -> str:
-    s = (sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
+# _symkey imported from execution.entry_primitives above
 
 
 def _safe_float(x, default=0.0) -> float:
@@ -112,6 +113,18 @@ def _truthy(x) -> bool:
     if isinstance(x, str) and x.strip().lower() in ("true", "1", "yes", "y", "t", "on"):
         return True
     return False
+
+
+def _runtime_reliability_coupling_enabled(bot) -> bool:
+    # Default-on so existing safety posture remains unchanged unless explicitly disabled.
+    env_raw = str(os.getenv("RUNTIME_RELIABILITY_COUPLING", "") or "").strip().lower()
+    if env_raw:
+        return env_raw in ("1", "true", "yes", "on")
+    try:
+        raw = str(getattr(getattr(bot, "cfg", None), "RUNTIME_RELIABILITY_COUPLING", "1") or "").strip().lower()
+    except Exception:
+        raw = "1"
+    return raw in ("1", "true", "yes", "on")
 
 
 def _cfg(bot, name: str, default):
@@ -142,6 +155,26 @@ def _ensure_run_context(bot) -> dict:
             pass
         rc = getattr(getattr(bot, "state", None), "run_context", None)
     return rc if isinstance(rc, dict) else {}
+
+
+def _reconcile_correlation_id(bot, *, component: str, intent_kind: str, symbol: str, fallback: str) -> str:
+    if _intent_allocator is not None:
+        try:
+            cid = str(
+                _intent_allocator.allocate_intent_id(
+                    bot,
+                    component=str(component or "reconcile"),
+                    intent_kind=str(intent_kind or "REPAIR"),
+                    symbol=str(symbol or ""),
+                    is_exit=True,
+                )
+                or ""
+            ).strip()
+            if cid:
+                return cid
+        except Exception:
+            pass
+    return str(fallback or "").strip()
 
 
 def _phantom_store(bot) -> dict:
@@ -247,17 +280,43 @@ def _ensure_reconcile_metrics(bot) -> Dict[str, Any]:
     rm.setdefault("belief_debt_sec", 0.0)
     rm.setdefault("belief_debt_symbols", 0)
     rm.setdefault("belief_confidence", 1.0)
+    rm.setdefault("belief_envelope_symbols", 0)
+    rm.setdefault("belief_envelope_ambiguous_symbols", 0)
+    rm.setdefault("belief_position_interval_width_sum", 0.0)
+    rm.setdefault("belief_position_interval_width_max", 0.0)
+    rm.setdefault("belief_live_unknown_symbols", 0)
+    rm.setdefault("belief_envelope_worst_symbol", "")
     rm.setdefault("evidence_confidence", 1.0)
     rm.setdefault("evidence_ws_score", 1.0)
     rm.setdefault("evidence_rest_score", 1.0)
     rm.setdefault("evidence_fill_score", 1.0)
+    rm.setdefault("evidence_ws_confidence", 1.0)
+    rm.setdefault("evidence_rest_confidence", 1.0)
+    rm.setdefault("evidence_fill_confidence", 1.0)
+    rm.setdefault("evidence_ws_coverage_ratio", 1.0)
+    rm.setdefault("evidence_rest_coverage_ratio", 1.0)
+    rm.setdefault("evidence_fill_coverage_ratio", 1.0)
+    rm.setdefault("evidence_coverage_ratio", 1.0)
+    rm.setdefault("evidence_ws_last_seen_ts", 0.0)
+    rm.setdefault("evidence_rest_last_seen_ts", 0.0)
+    rm.setdefault("evidence_fill_last_seen_ts", 0.0)
+    rm.setdefault("evidence_ws_gap_rate", 0.0)
+    rm.setdefault("evidence_rest_gap_rate", 0.0)
+    rm.setdefault("evidence_fill_gap_rate", 0.0)
+    rm.setdefault("evidence_ws_error_rate", 0.0)
+    rm.setdefault("evidence_rest_error_rate", 0.0)
+    rm.setdefault("evidence_fill_error_rate", 0.0)
+    rm.setdefault("evidence_contradiction_count", 0)
+    rm.setdefault("evidence_contradiction_tags", "")
     rm.setdefault("evidence_degraded_sources", 0)
+    rm.setdefault("evidence_contradiction_burn_rate", 0.0)
     rm.setdefault("intent_unknown_count", 0)
     rm.setdefault("intent_unknown_oldest_sec", 0.0)
     rm.setdefault("intent_unknown_mean_resolve_sec", 0.0)
     rm.setdefault("runtime_gate_available", False)
     rm.setdefault("runtime_gate_degraded", False)
     rm.setdefault("runtime_gate_reason", "")
+    rm.setdefault("runtime_gate_cause_summary", "stable")
     rm.setdefault("runtime_gate_replay_mismatch_count", 0)
     rm.setdefault("runtime_gate_invalid_transition_count", 0)
     rm.setdefault("runtime_gate_journal_coverage_ratio", 1.0)
@@ -268,10 +327,115 @@ def _ensure_reconcile_metrics(bot) -> Dict[str, Any]:
     rm.setdefault("runtime_gate_cat_ledger", 0)
     rm.setdefault("runtime_gate_cat_transition", 0)
     rm.setdefault("runtime_gate_cat_belief", 0)
+    rm.setdefault("runtime_gate_cat_position", 0)
+    rm.setdefault("runtime_gate_cat_orphan", 0)
+    rm.setdefault("runtime_gate_cat_coverage_gap", 0)
+    rm.setdefault("runtime_gate_cat_stage1_protection_fail", 0)
+    rm.setdefault("runtime_gate_cat_replace_race", 0)
+    rm.setdefault("runtime_gate_cat_contradiction", 0)
     rm.setdefault("runtime_gate_cat_unknown", 0)
+    rm.setdefault("runtime_gate_position_mismatch_count", 0)
+    rm.setdefault("runtime_gate_position_mismatch_count_peak", 0)
+    rm.setdefault("runtime_gate_orphan_count", 0)
+    rm.setdefault("runtime_gate_intent_collision_count", 0)
+    rm.setdefault("runtime_gate_protection_coverage_gap_seconds", 0.0)
+    rm.setdefault("runtime_gate_protection_coverage_gap_seconds_peak", 0.0)
+    rm.setdefault("runtime_gate_stage1_protection_fail_count", 0)
+    rm.setdefault("runtime_gate_replace_race_count", 0)
+    rm.setdefault("runtime_gate_evidence_contradiction_count", 0)
     rm.setdefault("runtime_gate_degrade_score", 0.0)
     rm.setdefault("runtime_gate_replay_mismatch_ids", [])
+    rm.setdefault("protection_coverage_gap_seconds", 0.0)
+    rm.setdefault("protection_coverage_gap_symbols", 0)
+    rm.setdefault("protection_coverage_ttl_breaches", 0)
+    rm.setdefault("protection_refresh_budget_blocked_count", 0)
+    rm.setdefault("protection_refresh_budget_force_override_count", 0)
+    rm.setdefault("protection_refresh_stop_budget_blocked_count", 0)
+    rm.setdefault("protection_refresh_tp_budget_blocked_count", 0)
+    rm.setdefault("protection_refresh_stop_force_override_count", 0)
+    rm.setdefault("protection_refresh_tp_force_override_count", 0)
+    rm.setdefault("reconcile_first_gate_count", 0)
+    rm.setdefault("reconcile_first_gate_max_severity", 0.0)
+    rm.setdefault("reconcile_first_gate_max_streak", 0)
+    rm.setdefault("reconcile_first_gate_last_reason", "")
+    rm.setdefault("corr_pressure", 0.0)
+    rm.setdefault("corr_regime", "NORMAL")
+    rm.setdefault("corr_confidence", 1.0)
+    rm.setdefault("corr_roll", 0.0)
+    rm.setdefault("corr_downside", 0.0)
+    rm.setdefault("corr_tail_coupling", 0.0)
+    rm.setdefault("corr_eff_roll", 0.0)
+    rm.setdefault("corr_eff_downside", 0.0)
+    rm.setdefault("corr_eff_tail_coupling", 0.0)
+    rm.setdefault("corr_uncertainty_uplift", 0.0)
+    rm.setdefault("corr_group_drift_debt", 0.0)
+    rm.setdefault("corr_hidden_exposure_risk", 0.0)
+    rm.setdefault("corr_worst_group", "")
+    rm.setdefault("corr_reason_tags", "stable")
     return rm
+
+
+def _recent_reconcile_first_gate_metrics(bot) -> Dict[str, Any]:
+    out = {
+        "count": 0,
+        "max_severity": 0.0,
+        "max_streak": 0,
+        "last_reason": "",
+    }
+    try:
+        st = getattr(bot, "state", None)
+        km = getattr(st, "kill_metrics", None) if st is not None else None
+        if not isinstance(km, dict):
+            return out
+        events = km.get("reconcile_first_gate_events")
+        if not isinstance(events, list):
+            return out
+        now_ts = _now()
+        window_sec = max(10.0, float(_cfg(bot, "BELIEF_RECONCILE_FIRST_WINDOW_SEC", 120.0) or 120.0))
+        severity_threshold = max(
+            0.0, float(_cfg(bot, "BELIEF_RECONCILE_FIRST_SEVERITY_THRESHOLD", 0.85) or 0.85)
+        )
+        max_events = int(_cfg(bot, "BELIEF_RECONCILE_FIRST_EVENTS_MAX", 160) or 160)
+        if max_events < 20:
+            max_events = 20
+        recent: list[dict] = []
+        for ev in events:
+            if not isinstance(ev, dict):
+                continue
+            ts = _safe_float(ev.get("ts", 0.0), 0.0)
+            if ts <= 0 or (now_ts - ts) > window_sec:
+                continue
+            recent.append(ev)
+        if len(recent) > max_events:
+            recent = recent[-max_events:]
+        # Trim stored list to avoid unbounded growth.
+        km["reconcile_first_gate_events"] = recent
+        if not recent:
+            km["reconcile_first_gate_current_streak"] = 0
+            return out
+        out["count"] = int(len(recent))
+        out["max_severity"] = float(
+            max(_safe_float(ev.get("severity", 0.0), 0.0) for ev in recent)
+        )
+        out["last_reason"] = str((recent[-1] or {}).get("reason", "") or "")
+        streak = 0
+        max_streak = 0
+        for ev in recent:
+            sev = _safe_float(ev.get("severity", 0.0), 0.0)
+            if sev >= severity_threshold:
+                streak += 1
+                if streak > max_streak:
+                    max_streak = streak
+            else:
+                streak = 0
+        out["max_streak"] = int(max_streak)
+        km["reconcile_first_gate_current_streak"] = int(streak)
+        km["reconcile_first_gate_max_streak"] = int(
+            max(int(km.get("reconcile_first_gate_max_streak", 0) or 0), int(max_streak))
+        )
+    except Exception:
+        return out
+    return out
 
 
 def _record_symbol_mismatch(metrics: Dict[str, Any], symbol: str) -> None:
@@ -353,6 +517,179 @@ def _collect_symbol_belief_debt(metrics: Dict[str, Any]) -> Dict[str, float]:
         if age > 0:
             out[kk] = float(age)
     return out
+
+
+def _position_envelope_store(bot) -> Dict[str, Dict[str, Any]]:
+    rc = _ensure_run_context(bot)
+    store = rc.get("position_envelopes")
+    if not isinstance(store, dict):
+        store = {}
+        rc["position_envelopes"] = store
+    return store
+
+
+def _state_pos_size_abs(pos_obj: Any) -> float:
+    try:
+        return abs(_safe_float(getattr(pos_obj, "size", 0.0), 0.0))
+    except Exception:
+        return 0.0
+
+
+def _exchange_pos_size_abs(plist: Any) -> float:
+    best = 0.0
+    if not isinstance(plist, list):
+        return best
+    for p in plist:
+        if not isinstance(p, dict):
+            continue
+        sz, _sd = _extract_pos_size_side(p)
+        if sz > best:
+            best = float(sz)
+    return float(best)
+
+
+def _merge_live_state_set(*parts: str) -> str:
+    vals = {x.strip().upper() for x in parts if str(x or "").strip()}
+    if not vals:
+        vals = {"UNKNOWN"}
+    return ",".join(sorted(vals))
+
+
+def _update_position_envelopes(
+    bot,
+    *,
+    state_positions: Dict[str, Any],
+    ex_map: Dict[str, List[Dict[str, Any]]],
+    tracked_syms: set[str],
+    mismatch_symbols: set[str],
+) -> Dict[str, Any]:
+    """
+    Maintain minimal belief envelope per symbol:
+      - position interval [min, max]
+      - live state set (UNKNOWN/LIVE/PARTIAL/FILLED/CANCELED)
+      - filled/live qty intervals
+    Widen immediately on ambiguity; narrow only on consistent dual evidence.
+    """
+    store = _position_envelope_store(bot)
+    symbols = set(_symkey(s) for s in tracked_syms if _symkey(s))
+    symbols |= set(_symkey(s) for s in ex_map.keys() if _symkey(s))
+    symbols |= set(_symkey(s) for s in state_positions.keys() if _symkey(s))
+    symbols |= set(_symkey(s) for s in mismatch_symbols if _symkey(s))
+    now_ts = _now()
+
+    ambiguous_count = 0
+    unknown_count = 0
+    width_sum = 0.0
+    width_max = 0.0
+    worst_symbol = ""
+
+    for sym in sorted(symbols):
+        has_state = sym in state_positions
+        has_ex = sym in ex_map
+        st_size = _state_pos_size_abs(state_positions.get(sym))
+        ex_size = _exchange_pos_size_abs(ex_map.get(sym, []))
+        prev = store.get(sym)
+        if not isinstance(prev, dict):
+            prev = {}
+        prev_min = max(0.0, _safe_float(prev.get("position_interval_min", 0.0), 0.0))
+        prev_max = max(prev_min, _safe_float(prev.get("position_interval_max", 0.0), prev_min))
+        prev_state = str(prev.get("live_state_set", "") or "")
+
+        ambiguous = bool((sym in mismatch_symbols) or (has_state != has_ex) or (not has_state and not has_ex))
+        if ambiguous:
+            ambiguous_count += 1
+
+        if has_state and has_ex and (not ambiguous):
+            # Consistent dual evidence: narrow to authoritative current size.
+            pos_lo = max(0.0, ex_size)
+            pos_hi = max(0.0, ex_size)
+            filled_lo = pos_lo
+            filled_hi = pos_hi
+            live_lo = pos_lo
+            live_hi = pos_hi
+            live_state = "LIVE" if ex_size > 0.0 else "CANCELED"
+        else:
+            # Ambiguous evidence: widen immediately and include UNKNOWN.
+            hi_candidate = max(st_size, ex_size, prev_max)
+            pos_lo = 0.0 if hi_candidate > 0.0 else prev_min
+            pos_hi = max(0.0, hi_candidate)
+            filled_lo = 0.0
+            filled_hi = pos_hi
+            live_lo = 0.0
+            live_hi = pos_hi
+            known_state = "LIVE" if (st_size > 0.0 or ex_size > 0.0) else "CANCELED"
+            live_state = _merge_live_state_set(prev_state, known_state, "UNKNOWN")
+
+        width = max(0.0, pos_hi - pos_lo)
+        width_sum += width
+        if width > width_max:
+            width_max = width
+            worst_symbol = sym
+        if "UNKNOWN" in str(live_state):
+            unknown_count += 1
+
+        store[sym] = {
+            "symbol": sym,
+            "position_interval_min": float(pos_lo),
+            "position_interval_max": float(pos_hi),
+            "filled_qty_min": float(filled_lo),
+            "filled_qty_max": float(filled_hi),
+            "live_qty_min": float(live_lo),
+            "live_qty_max": float(live_hi),
+            "live_state_set": str(live_state),
+            "ambiguous": bool(ambiguous),
+            "updated_ts": float(now_ts),
+        }
+
+    # Trim stale symbols no longer tracked anywhere.
+    for sym in list(store.keys()):
+        if _symkey(sym) not in symbols:
+            store.pop(sym, None)
+
+    return {
+        "belief_envelope_symbols": int(len(symbols)),
+        "belief_envelope_ambiguous_symbols": int(ambiguous_count),
+        "belief_position_interval_width_sum": float(width_sum),
+        "belief_position_interval_width_max": float(width_max),
+        "belief_live_unknown_symbols": int(unknown_count),
+        "belief_envelope_worst_symbol": str(worst_symbol),
+    }
+
+
+def _runtime_gate_cause_summary(metrics: Dict[str, Any]) -> str:
+    if not isinstance(metrics, dict):
+        return "stable"
+    degraded = bool(metrics.get("runtime_gate_degraded", False))
+    reason = str(metrics.get("runtime_gate_reason", "") or "").strip()
+    pos_cur = int(_safe_float(metrics.get("runtime_gate_position_mismatch_count", 0), 0.0))
+    pos_peak = int(_safe_float(metrics.get("runtime_gate_position_mismatch_count_peak", pos_cur), 0.0))
+    gap_cur = float(_safe_float(metrics.get("runtime_gate_protection_coverage_gap_seconds", 0.0), 0.0))
+    gap_peak = float(
+        _safe_float(
+            metrics.get("runtime_gate_protection_coverage_gap_seconds_peak", gap_cur),
+            gap_cur,
+        )
+    )
+    intent_collision_count = int(_safe_float(metrics.get("runtime_gate_intent_collision_count", 0), 0.0))
+    stage1_fail_count = int(_safe_float(metrics.get("runtime_gate_stage1_protection_fail_count", 0), 0.0))
+    parts: list[str] = []
+    if reason and reason != "ok":
+        parts.append(reason)
+    if "position_peak>" in reason:
+        parts.append(f"position_peak={pos_peak} current={pos_cur}")
+    if "coverage_gap_sec_peak>" in reason:
+        parts.append(f"coverage_gap_peak={gap_peak:.1f}s current={gap_cur:.1f}s")
+    if "stage1_protection_fail>" in reason or stage1_fail_count > 0:
+        parts.append(f"stage1_protection_fail={stage1_fail_count}")
+    if "intent_collision>" in reason or intent_collision_count > 0:
+        parts.append(f"intent_collision={intent_collision_count}")
+    if not parts and degraded:
+        parts.append(f"degraded(score={float(_safe_float(metrics.get('runtime_gate_degrade_score', 0.0), 0.0)):.2f})")
+    return "; ".join(parts) if parts else "stable"
+
+
+def _stop_outcome_is_covered(outcome: str) -> bool:
+    return str(outcome or "").strip().lower() in ("present", "restored")
 
 
 def _ensure_belief_controller(bot):
@@ -692,6 +1029,8 @@ async def _place_stop_ladder_router(
             stop_price=float(stop_price),
             hedge_side_hint=hedge_side_hint,
             retries=6,
+            intent_component="reconcile",
+            intent_kind="STOP_RESTORE",
         )
         if isinstance(o, dict) and o.get("id"):
             return str(o.get("id"))
@@ -714,6 +1053,8 @@ async def _place_stop_ladder_router(
                 stop_price=float(stop_price),
                 hedge_side_hint=hedge_side_hint,
                 retries=6,
+                intent_component="reconcile",
+                intent_kind="STOP_RESTORE",
             )
             if isinstance(o, dict) and o.get("id"):
                 return str(o.get("id"))
@@ -750,6 +1091,8 @@ async def _place_tp_ladder_router(
             stop_price=float(tp_price),
             hedge_side_hint=hedge_side_hint,
             retries=4,
+            intent_component="reconcile",
+            intent_kind="TP_RESTORE",
         )
         if isinstance(o, dict) and o.get("id"):
             return str(o.get("id"))
@@ -772,6 +1115,8 @@ async def _place_tp_ladder_router(
                 stop_price=float(tp_price),
                 hedge_side_hint=hedge_side_hint,
                 retries=4,
+                intent_component="reconcile",
+                intent_kind="TP_RESTORE",
             )
             if isinstance(o, dict) and o.get("id"):
                 return str(o.get("id"))
@@ -908,95 +1253,136 @@ async def _ensure_protective_stop(bot, k: str, pos_obj, ex_side_hint: Optional[s
     if stop_price <= 0:
         return "invalid_stop_price"
 
-    oid = None
-    if needs_refresh and existing_stop_id:
-        rc = _ensure_run_context(bot)
-        pstore = rc.get("protection_refresh")
-        if not isinstance(pstore, dict):
-            pstore = {}
-            rc["protection_refresh"] = pstore
-        prev = pstore.get(k)
-        if not isinstance(prev, dict):
-            prev = {}
-            pstore[k] = prev
-        prev_qty = _safe_float(prev.get("qty"), 0.0)
-        prev_ts = _safe_float(prev.get("ts"), 0.0)
-        allow_refresh = True
-        force_ratio = _safe_float(_cfg(bot, "RECONCILE_STOP_REFRESH_FORCE_COVERAGE_RATIO", 0.80), 0.80)
-        if force_ratio > 0 and coverage_ratio < force_ratio:
+    # Acquire shared symbol lock to serialize stop placement with position_manager.
+    async with _get_symbol_lock(k):
+        oid = None
+        if needs_refresh and existing_stop_id:
+            rc = _ensure_run_context(bot)
+            pstore = rc.get("protection_refresh")
+            if not isinstance(pstore, dict):
+                pstore = {}
+                rc["protection_refresh"] = pstore
+            gap_store = rc.get("protection_gap_state")
+            if not isinstance(gap_store, dict):
+                gap_store = {}
+            prev = pstore.get(k)
+            if not isinstance(prev, dict):
+                prev = {}
+                pstore[k] = prev
+            prev_qty = _safe_float(prev.get("qty"), 0.0)
+            prev_ts = _safe_float(prev.get("ts"), 0.0)
+            gap_state = gap_store.get(k)
+            gap_ttl_breached = bool((gap_state or {}).get("ttl_breached", False)) if isinstance(gap_state, dict) else False
             allow_refresh = True
-        elif force_ratio <= 0:
-            allow_refresh = True
-        if callable(_should_refresh_protection):
-            allow_refresh = bool(
-                _should_refresh_protection(
-                    previous_qty=float(prev_qty if prev_qty > 0 else existing_stop_qty),
-                    new_qty=float(ex_size),
-                    last_refresh_ts=float(prev_ts),
-                    min_delta_ratio=float(_cfg(bot, "RECONCILE_STOP_REFRESH_MIN_DELTA_RATIO", 0.10) or 0.10),
-                    min_delta_abs=float(_cfg(bot, "RECONCILE_STOP_REFRESH_MIN_DELTA_ABS", 0.0) or 0.0),
-                    max_refresh_interval_sec=float(_cfg(bot, "RECONCILE_STOP_REFRESH_MAX_INTERVAL_SEC", 45.0) or 45.0),
-                    now_ts=_now(),
-                )
-            )
+            force_ratio = _safe_float(_cfg(bot, "RECONCILE_STOP_REFRESH_FORCE_COVERAGE_RATIO", 0.80), 0.80)
+            force_refresh = bool(gap_ttl_breached or (force_ratio > 0 and coverage_ratio < force_ratio))
             if force_ratio > 0 and coverage_ratio < force_ratio:
                 allow_refresh = True
-        if not allow_refresh:
-            return "refresh_deferred"
-        if allow_refresh:
-            stop_side = "sell" if side == "long" else "buy"
-            try:
-                rep = await cancel_replace_order(
-                    bot,
-                    cancel_order_id=str(existing_stop_id),
-                    symbol=sym_raw,
-                    type="STOP_MARKET",
-                    side=stop_side,
-                    amount=float(ex_size),
-                    price=None,
-                    stop_price=float(stop_price),
-                    params={},
-                    retries=int(_cfg(bot, "RECONCILE_STOP_REPLACE_RETRIES", 2) or 2),
-                    correlation_id=f"RECON_STOP_{k}",
+            elif force_ratio <= 0:
+                allow_refresh = True
+            if callable(_should_refresh_protection):
+                allow_refresh = bool(
+                    _should_refresh_protection(
+                        previous_qty=float(prev_qty if prev_qty > 0 else existing_stop_qty),
+                        new_qty=float(ex_size),
+                        last_refresh_ts=float(prev_ts),
+                        min_delta_ratio=float(_cfg(bot, "RECONCILE_STOP_REFRESH_MIN_DELTA_RATIO", 0.10) or 0.10),
+                        min_delta_abs=float(_cfg(bot, "RECONCILE_STOP_REFRESH_MIN_DELTA_ABS", 0.0) or 0.0),
+                        max_refresh_interval_sec=float(_cfg(bot, "RECONCILE_STOP_REFRESH_MAX_INTERVAL_SEC", 45.0) or 45.0),
+                        now_ts=_now(),
+                    )
                 )
-                if isinstance(rep, dict):
-                    oid = str(rep.get("id") or "") or None
-                    prev["qty"] = float(ex_size)
-                    prev["ts"] = _now()
+                if force_refresh:
+                    allow_refresh = True
+            if allow_refresh and callable(_should_allow_refresh_budget):
+                budget = _should_allow_refresh_budget(
+                    prev,
+                    now_ts=_now(),
+                    window_sec=float(_cfg(bot, "RECONCILE_STOP_REFRESH_BUDGET_WINDOW_SEC", 60.0) or 60.0),
+                    max_refresh_per_window=int(_cfg(bot, "RECONCILE_STOP_REFRESH_MAX_PER_WINDOW", 3) or 3),
+                    force=bool(force_refresh),
+                )
+                if bool(force_refresh):
+                    rm["protection_refresh_force_override_count"] = int(
+                        _safe_float(rm.get("protection_refresh_force_override_count", 0), 0.0)
+                    ) + 1
+                    rm["protection_refresh_stop_force_override_count"] = int(
+                        _safe_float(rm.get("protection_refresh_stop_force_override_count", 0), 0.0)
+                    ) + 1
+                allow_refresh = bool((budget or {}).get("allowed", False))
+                if not allow_refresh:
+                    rm["protection_refresh_budget_blocked_count"] = int(
+                        _safe_float(rm.get("protection_refresh_budget_blocked_count", 0), 0.0)
+                    ) + 1
+                    rm["protection_refresh_stop_budget_blocked_count"] = int(
+                        _safe_float(rm.get("protection_refresh_stop_budget_blocked_count", 0), 0.0)
+                    ) + 1
+            if not allow_refresh:
+                return "refresh_deferred"
+            if allow_refresh:
+                stop_side = "sell" if side == "long" else "buy"
+                try:
+                    rep = await cancel_replace_order(
+                        bot,
+                        cancel_order_id=str(existing_stop_id),
+                        symbol=sym_raw,
+                        type="STOP_MARKET",
+                        side=stop_side,
+                        amount=float(ex_size),
+                        price=None,
+                        stop_price=float(stop_price),
+                        params={},
+                        retries=int(_cfg(bot, "RECONCILE_STOP_REPLACE_RETRIES", 2) or 2),
+                        correlation_id=_reconcile_correlation_id(
+                            bot,
+                            component="reconcile_stop_repair",
+                            intent_kind="STOP_REPLACE",
+                            symbol=str(k),
+                            fallback=f"RECON_STOP_{k}",
+                        ),
+                        intent_component="reconcile_stop_repair",
+                        intent_kind="STOP_REPLACE",
+                    )
+                    if isinstance(rep, dict):
+                        oid = str(rep.get("id") or "") or None
+                        prev["qty"] = float(ex_size)
+                        prev["ts"] = _now()
+                        if callable(_record_refresh_budget_event):
+                            _record_refresh_budget_event(prev, now_ts=_now())
+                except Exception:
+                    oid = None
+                if not oid:
+                    return "refresh_failed"
+
+        if not oid:
+            oid = await _place_stop_ladder_router(
+                bot,
+                sym_raw=sym_raw,
+                side=side,
+                qty=float(ex_size),
+                stop_price=float(stop_price),
+                hedge_side_hint=hedge_side_hint,
+                k=k,
+            )
+
+        if oid:
+            repair_last[k] = _now()
+            try:
+                setattr(pos_obj, "stop_order_id", str(oid))
             except Exception:
-                oid = None
-            if not oid:
-                return "refresh_failed"
-
-    if not oid:
-        oid = await _place_stop_ladder_router(
-            bot,
-            sym_raw=sym_raw,
-            side=side,
-            qty=float(ex_size),
-            stop_price=float(stop_price),
-            hedge_side_hint=hedge_side_hint,
-            k=k,
-        )
-
-    if oid:
-        repair_last[k] = _now()
-        try:
-            setattr(pos_obj, "stop_order_id", str(oid))
-        except Exception:
-            pass
-        msg = f"RECONCILE: PROTECTIVE STOP RESTORED {k} (id={oid})"
-        if refresh_reason:
-            msg = f"{msg} [{refresh_reason}]"
-        if _alert_ok(bot, f"{k}:stop_restored", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
-            await _safe_speak(bot, msg, "critical")
-        return "restored"
-    else:
-        repair_last[k] = _now()
-        msg = f"RECONCILE: STOP RESTORE FAILED {k}"
-        if _alert_ok(bot, f"{k}:stop_failed", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
-            await _safe_speak(bot, msg, "critical")
-        return "failed"
+                pass
+            msg = f"RECONCILE: PROTECTIVE STOP RESTORED {k} (id={oid})"
+            if refresh_reason:
+                msg = f"{msg} [{refresh_reason}]"
+            if _alert_ok(bot, f"{k}:stop_restored", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
+                await _safe_speak(bot, msg, "critical")
+            return "restored"
+        else:
+            repair_last[k] = _now()
+            msg = f"RECONCILE: STOP RESTORE FAILED {k}"
+            if _alert_ok(bot, f"{k}:stop_failed", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
+                await _safe_speak(bot, msg, "critical")
+            return "failed"
 
 
 async def _ensure_protective_tp(bot, k: str, pos_obj, ex_side_hint: Optional[str], ex_size: float) -> str:
@@ -1049,72 +1435,114 @@ async def _ensure_protective_tp(bot, k: str, pos_obj, ex_side_hint: Optional[str
     except Exception:
         pass
 
-    oid = None
-    if needs_refresh and existing_tp_id:
-        rc = _ensure_run_context(bot)
-        pstore = rc.get("protection_refresh_tp")
-        if not isinstance(pstore, dict):
-            pstore = {}
-            rc["protection_refresh_tp"] = pstore
-        prev = pstore.get(k)
-        if not isinstance(prev, dict):
-            prev = {}
-            pstore[k] = prev
-        prev_qty = _safe_float(prev.get("qty"), 0.0)
-        prev_ts = _safe_float(prev.get("ts"), 0.0)
-        allow_refresh = True
-        force_ratio = _safe_float(_cfg(bot, "RECONCILE_TP_REFRESH_FORCE_COVERAGE_RATIO", 0.80), 0.80)
-        if callable(_should_refresh_protection):
-            allow_refresh = bool(
-                _should_refresh_protection(
-                    previous_qty=float(prev_qty if prev_qty > 0 else existing_tp_qty),
-                    new_qty=float(ex_size),
-                    last_refresh_ts=float(prev_ts),
-                    min_delta_ratio=float(_cfg(bot, "RECONCILE_TP_REFRESH_MIN_DELTA_RATIO", 0.10) or 0.10),
-                    min_delta_abs=float(_cfg(bot, "RECONCILE_TP_REFRESH_MIN_DELTA_ABS", 0.0) or 0.0),
-                    max_refresh_interval_sec=float(_cfg(bot, "RECONCILE_TP_REFRESH_MAX_INTERVAL_SEC", 45.0) or 45.0),
-                    now_ts=_now(),
+    # Acquire shared symbol lock to serialize TP placement with position_manager.
+    async with _get_symbol_lock(k):
+        oid = None
+        if needs_refresh and existing_tp_id:
+            rm = _ensure_reconcile_metrics(bot)
+            rc = _ensure_run_context(bot)
+            pstore = rc.get("protection_refresh_tp")
+            if not isinstance(pstore, dict):
+                pstore = {}
+                rc["protection_refresh_tp"] = pstore
+            gap_store = rc.get("protection_gap_state")
+            if not isinstance(gap_store, dict):
+                gap_store = {}
+            prev = pstore.get(k)
+            if not isinstance(prev, dict):
+                prev = {}
+                pstore[k] = prev
+            prev_qty = _safe_float(prev.get("qty"), 0.0)
+            prev_ts = _safe_float(prev.get("ts"), 0.0)
+            gap_state = gap_store.get(k)
+            gap_ttl_breached = bool((gap_state or {}).get("ttl_breached", False)) if isinstance(gap_state, dict) else False
+            allow_refresh = True
+            force_ratio = _safe_float(_cfg(bot, "RECONCILE_TP_REFRESH_FORCE_COVERAGE_RATIO", 0.80), 0.80)
+            force_refresh = bool(gap_ttl_breached or (force_ratio > 0 and coverage_ratio < force_ratio))
+            if callable(_should_refresh_protection):
+                allow_refresh = bool(
+                    _should_refresh_protection(
+                        previous_qty=float(prev_qty if prev_qty > 0 else existing_tp_qty),
+                        new_qty=float(ex_size),
+                        last_refresh_ts=float(prev_ts),
+                        min_delta_ratio=float(_cfg(bot, "RECONCILE_TP_REFRESH_MIN_DELTA_RATIO", 0.10) or 0.10),
+                        min_delta_abs=float(_cfg(bot, "RECONCILE_TP_REFRESH_MIN_DELTA_ABS", 0.0) or 0.0),
+                        max_refresh_interval_sec=float(_cfg(bot, "RECONCILE_TP_REFRESH_MAX_INTERVAL_SEC", 45.0) or 45.0),
+                        now_ts=_now(),
+                    )
                 )
-            )
-            if force_ratio > 0 and coverage_ratio < force_ratio:
-                allow_refresh = True
-        if not allow_refresh:
-            return "tp_refresh_deferred"
-        tp_side = "sell" if side == "long" else "buy"
-        try:
-            rep = await cancel_replace_order(
-                bot,
-                cancel_order_id=str(existing_tp_id),
-                symbol=sym_raw,
-                type="TAKE_PROFIT_MARKET",
-                side=tp_side,
-                amount=float(ex_size),
-                price=None,
-                stop_price=float(tp_price),
-                params={},
-                retries=int(_cfg(bot, "RECONCILE_TP_REPLACE_RETRIES", 2) or 2),
-                correlation_id=f"RECON_TP_{k}",
-            )
-            if isinstance(rep, dict):
-                oid = str(rep.get("id") or "") or None
-                prev["qty"] = float(ex_size)
-                prev["ts"] = _now()
-        except Exception:
-            oid = None
-        if not oid:
-            return "tp_refresh_failed"
+                if force_refresh:
+                    allow_refresh = True
+            if allow_refresh and callable(_should_allow_refresh_budget):
+                budget = _should_allow_refresh_budget(
+                    prev,
+                    now_ts=_now(),
+                    window_sec=float(_cfg(bot, "RECONCILE_TP_REFRESH_BUDGET_WINDOW_SEC", 60.0) or 60.0),
+                    max_refresh_per_window=int(_cfg(bot, "RECONCILE_TP_REFRESH_MAX_PER_WINDOW", 3) or 3),
+                    force=bool(force_refresh),
+                )
+                if bool(force_refresh):
+                    rm["protection_refresh_force_override_count"] = int(
+                        _safe_float(rm.get("protection_refresh_force_override_count", 0), 0.0)
+                    ) + 1
+                    rm["protection_refresh_tp_force_override_count"] = int(
+                        _safe_float(rm.get("protection_refresh_tp_force_override_count", 0), 0.0)
+                    ) + 1
+                allow_refresh = bool((budget or {}).get("allowed", False))
+                if not allow_refresh:
+                    rm["protection_refresh_budget_blocked_count"] = int(
+                        _safe_float(rm.get("protection_refresh_budget_blocked_count", 0), 0.0)
+                    ) + 1
+                    rm["protection_refresh_tp_budget_blocked_count"] = int(
+                        _safe_float(rm.get("protection_refresh_tp_budget_blocked_count", 0), 0.0)
+                    ) + 1
+            if not allow_refresh:
+                return "tp_refresh_deferred"
+            tp_side = "sell" if side == "long" else "buy"
+            try:
+                rep = await cancel_replace_order(
+                    bot,
+                    cancel_order_id=str(existing_tp_id),
+                    symbol=sym_raw,
+                    type="TAKE_PROFIT_MARKET",
+                    side=tp_side,
+                    amount=float(ex_size),
+                    price=None,
+                    stop_price=float(tp_price),
+                    params={},
+                    retries=int(_cfg(bot, "RECONCILE_TP_REPLACE_RETRIES", 2) or 2),
+                    correlation_id=_reconcile_correlation_id(
+                        bot,
+                        component="reconcile_tp_repair",
+                        intent_kind="TP_REPLACE",
+                        symbol=str(k),
+                        fallback=f"RECON_TP_{k}",
+                    ),
+                    intent_component="reconcile_tp_repair",
+                    intent_kind="TP_REPLACE",
+                )
+                if isinstance(rep, dict):
+                    oid = str(rep.get("id") or "") or None
+                    prev["qty"] = float(ex_size)
+                    prev["ts"] = _now()
+                    if callable(_record_refresh_budget_event):
+                        _record_refresh_budget_event(prev, now_ts=_now())
+            except Exception:
+                oid = None
+            if not oid:
+                return "tp_refresh_failed"
 
-    if not oid:
-        oid = await _place_tp_ladder_router(
-            bot,
-            sym_raw=sym_raw,
-            side=side,
-            qty=float(ex_size),
-            tp_price=float(tp_price),
-            hedge_side_hint=side,
-            k=k,
-        )
-    return "tp_restored" if oid else "tp_failed"
+        if not oid:
+            oid = await _place_tp_ladder_router(
+                bot,
+                sym_raw=sym_raw,
+                side=side,
+                qty=float(ex_size),
+                tp_price=float(tp_price),
+                hedge_side_hint=side,
+                k=k,
+            )
+        return "tp_restored" if oid else "tp_failed"
 
 
 # ----------------------------
@@ -1158,6 +1586,7 @@ async def reconcile_tick(bot):
     repair_actions = 0
     repair_skipped = 0
     mismatch_symbols: set[str] = set()
+    coverage_ttl_breaches = 0
 
     drift_abs = float(_cfg(bot, "GUARDIAN_SIZE_DRIFT_ABS", 0.0))
     drift_pct = float(_cfg(bot, "GUARDIAN_SIZE_DRIFT_PCT", 0.05))
@@ -1167,6 +1596,11 @@ async def reconcile_tick(bot):
     adopt_orphans = _truthy(_cfg(bot, "RECONCILE_ADOPT_ORPHANS", True))
 
     _ensure_shutdown_event(bot)
+    rc = _ensure_run_context(bot)
+    protection_gap_state = rc.get("protection_gap_state")
+    if not isinstance(protection_gap_state, dict):
+        protection_gap_state = {}
+        rc["protection_gap_state"] = protection_gap_state
 
     # Ensure a persistent dict reference lives on bot.state
     try:
@@ -1296,6 +1730,8 @@ async def reconcile_tick(bot):
                         intent_reduce_only=True,
                         hedge_side_hint=side,
                         retries=6,
+                        intent_component="reconcile",
+                        intent_kind="ORPHAN_FLATTEN",
                     )
                     msg2 = f"RECONCILE: ORPHAN FLATTENED {k}"
                     if _alert_ok(bot, f"{k}:orphan_flat", msg2, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
@@ -1329,6 +1765,33 @@ async def reconcile_tick(bot):
 
         if misses < max(1, phantom_miss) or (now - first_ts) < max(0.0, phantom_grace):
             continue
+
+        # Guard: don't clear phantoms if exchange was recently unreachable
+        _km = getattr(getattr(bot, "state", None), "kill_metrics", None)
+        _ms = int((_km or {}).get("reconcile_mismatch_streak", 0) or 0)
+        if _ms > 0:
+            log_core.warning(f"RECONCILE: PHANTOM {k} — deferring clear due to mismatch_streak={_ms}")
+            continue
+
+        # Verify with explicit single-symbol position fetch before clearing
+        try:
+            _vpos, _vok = await _fetch_positions_best_effort(bot, [k])
+            if _vok:
+                for _vp in (_vpos or []):
+                    _vk = _symkey(_vp.get("symbol", ""))
+                    _vs, _ = _extract_pos_size_side(_vp)
+                    if _vk == k and _vs > 0:
+                        phantom.pop(k, None)
+                        _set_position_belief_state(bot, k, "OPEN_CONFIRMED", "phantom_verify_found")
+                        break
+                else:
+                    pass  # verified absent — proceed to clear
+                if k not in phantom:
+                    continue
+            else:
+                continue  # fetch failed — don't clear on verification failure
+        except Exception:
+            continue  # don't clear on verification error
 
         sym_raw = _resolve_raw_symbol(bot, k)
         log_core.warning(f"RECONCILE: PHANTOM STATE POSITION {k} — clearing + cancel reduceOnly orders")
@@ -1423,11 +1886,101 @@ async def reconcile_tick(bot):
                 mismatch_symbols.add(k)
                 _record_symbol_mismatch(metrics, k)
 
+            if callable(_update_coverage_gap_state):
+                s = protection_gap_state.get(k)
+                if not isinstance(s, dict):
+                    s = {}
+                    protection_gap_state[k] = s
+                cov = _update_coverage_gap_state(
+                    s,
+                    required_qty=float(best_size),
+                    covered=bool(_stop_outcome_is_covered(stop_outcome)),
+                    ttl_sec=float(_cfg(bot, "RECONCILE_PROTECTION_GAP_TTL_SEC", 90.0) or 90.0),
+                    now_ts=_now(),
+                    reason=str(stop_outcome),
+                    coverage_ratio=(1.0 if _stop_outcome_is_covered(stop_outcome) else 0.0),
+                )
+                if bool((cov or {}).get("new_ttl_breach", False)):
+                    coverage_ttl_breaches += 1
+                    mismatch_events += 1
+                    mismatch_symbols.add(k)
+                    _record_symbol_mismatch(metrics, k)
+                    gap_sec = float(_safe_float((cov or {}).get("gap_seconds", 0.0), 0.0))
+                    msg = (
+                        f"RECONCILE: PROTECTION COVERAGE GAP TTL BREACH {k} "
+                        f"gap={gap_sec:.1f}s outcome={stop_outcome}"
+                    )
+                    if _alert_ok(
+                        bot,
+                        f"{k}:protection_gap_ttl",
+                        msg,
+                        float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0)),
+                    ):
+                        await _safe_speak(bot, msg, "critical")
+
     # ensure state dict stays attached
     try:
         bot.state.positions = state_positions
     except Exception:
         pass
+
+    protection_gap_seconds = 0.0
+    protection_gap_symbols = 0
+    if isinstance(protection_gap_state, dict):
+        for key in list(protection_gap_state.keys()):
+            ent = protection_gap_state.get(key)
+            if not isinstance(ent, dict):
+                protection_gap_state.pop(key, None)
+                continue
+            active_gap = bool(ent.get("active", False))
+            gap_sec = max(0.0, _safe_float(ent.get("gap_seconds", 0.0), 0.0))
+            req_qty = max(0.0, _safe_float(ent.get("required_qty", 0.0), 0.0))
+            if active_gap and req_qty > 0.0 and gap_sec > 0.0:
+                protection_gap_symbols += 1
+                if gap_sec > protection_gap_seconds:
+                    protection_gap_seconds = gap_sec
+            elif (not active_gap) and req_qty <= 0.0:
+                protection_gap_state.pop(key, None)
+    metrics["protection_coverage_gap_seconds"] = float(protection_gap_seconds)
+    metrics["protection_coverage_gap_symbols"] = int(protection_gap_symbols)
+    metrics["protection_coverage_ttl_breaches"] = int(coverage_ttl_breaches)
+    env_metrics = _update_position_envelopes(
+        bot,
+        state_positions=state_positions,
+        ex_map=ex_map,
+        tracked_syms=tracked_syms,
+        mismatch_symbols=mismatch_symbols,
+    )
+    metrics["belief_envelope_symbols"] = int(env_metrics.get("belief_envelope_symbols", 0) or 0)
+    metrics["belief_envelope_ambiguous_symbols"] = int(
+        env_metrics.get("belief_envelope_ambiguous_symbols", 0) or 0
+    )
+    metrics["belief_position_interval_width_sum"] = float(
+        env_metrics.get("belief_position_interval_width_sum", 0.0) or 0.0
+    )
+    metrics["belief_position_interval_width_max"] = float(
+        env_metrics.get("belief_position_interval_width_max", 0.0) or 0.0
+    )
+    metrics["belief_live_unknown_symbols"] = int(env_metrics.get("belief_live_unknown_symbols", 0) or 0)
+    metrics["belief_envelope_worst_symbol"] = str(env_metrics.get("belief_envelope_worst_symbol", "") or "")
+    metrics["protection_refresh_budget_blocked_count"] = int(
+        _safe_float(metrics.get("protection_refresh_budget_blocked_count", 0), 0.0)
+    )
+    metrics["protection_refresh_budget_force_override_count"] = int(
+        _safe_float(metrics.get("protection_refresh_force_override_count", 0), 0.0)
+    )
+    metrics["protection_refresh_stop_budget_blocked_count"] = int(
+        _safe_float(metrics.get("protection_refresh_stop_budget_blocked_count", 0), 0.0)
+    )
+    metrics["protection_refresh_tp_budget_blocked_count"] = int(
+        _safe_float(metrics.get("protection_refresh_tp_budget_blocked_count", 0), 0.0)
+    )
+    metrics["protection_refresh_stop_force_override_count"] = int(
+        _safe_float(metrics.get("protection_refresh_stop_force_override_count", 0), 0.0)
+    )
+    metrics["protection_refresh_tp_force_override_count"] = int(
+        _safe_float(metrics.get("protection_refresh_tp_force_override_count", 0), 0.0)
+    )
 
     if mismatch_events > 0:
         metrics["mismatch_streak"] = int(metrics.get("mismatch_streak", 0) or 0) + int(mismatch_events)
@@ -1438,6 +1991,13 @@ async def reconcile_tick(bot):
         "mismatch_events": int(mismatch_events),
         "repair_actions": int(repair_actions),
         "repair_skipped": int(repair_skipped),
+        "protection_coverage_gap_seconds": float(protection_gap_seconds),
+        "protection_coverage_gap_symbols": int(protection_gap_symbols),
+        "protection_coverage_ttl_breaches": int(coverage_ttl_breaches),
+        "protection_refresh_budget_blocked_count": int(metrics.get("protection_refresh_budget_blocked_count", 0) or 0),
+        "protection_refresh_budget_force_override_count": int(
+            metrics.get("protection_refresh_budget_force_override_count", 0) or 0
+        ),
         "ts": _now(),
     }
     healthy_syms = set(_symkey(s) for s in tracked_syms if _symkey(s) and _symkey(s) not in mismatch_symbols)
@@ -1452,8 +2012,27 @@ async def reconcile_tick(bot):
         "evidence_ws_score": 1.0,
         "evidence_rest_score": 1.0,
         "evidence_fill_score": 1.0,
+        "evidence_ws_confidence": 1.0,
+        "evidence_rest_confidence": 1.0,
+        "evidence_fill_confidence": 1.0,
+        "evidence_ws_coverage_ratio": 1.0,
+        "evidence_rest_coverage_ratio": 1.0,
+        "evidence_fill_coverage_ratio": 1.0,
+        "evidence_coverage_ratio": 1.0,
+        "evidence_ws_last_seen_ts": 0.0,
+        "evidence_rest_last_seen_ts": 0.0,
+        "evidence_fill_last_seen_ts": 0.0,
+        "evidence_ws_gap_rate": 0.0,
+        "evidence_rest_gap_rate": 0.0,
+        "evidence_fill_gap_rate": 0.0,
+        "evidence_ws_error_rate": 0.0,
+        "evidence_rest_error_rate": 0.0,
+        "evidence_fill_error_rate": 0.0,
         "evidence_contradiction_score": 0.0,
+        "evidence_contradiction_count": 0,
         "evidence_contradiction_streak": 0,
+        "evidence_contradiction_burn_rate": 0.0,
+        "evidence_contradiction_tags": "",
         "evidence_degraded_sources": 0,
     }
     if callable(_compute_belief_evidence):
@@ -1467,8 +2046,29 @@ async def reconcile_tick(bot):
     metrics["evidence_ws_score"] = float(_safe_float(evidence.get("evidence_ws_score", 1.0), 1.0))
     metrics["evidence_rest_score"] = float(_safe_float(evidence.get("evidence_rest_score", 1.0), 1.0))
     metrics["evidence_fill_score"] = float(_safe_float(evidence.get("evidence_fill_score", 1.0), 1.0))
+    metrics["evidence_ws_confidence"] = float(_safe_float(evidence.get("evidence_ws_confidence", 1.0), 1.0))
+    metrics["evidence_rest_confidence"] = float(_safe_float(evidence.get("evidence_rest_confidence", 1.0), 1.0))
+    metrics["evidence_fill_confidence"] = float(_safe_float(evidence.get("evidence_fill_confidence", 1.0), 1.0))
+    metrics["evidence_ws_coverage_ratio"] = float(_safe_float(evidence.get("evidence_ws_coverage_ratio", 1.0), 1.0))
+    metrics["evidence_rest_coverage_ratio"] = float(_safe_float(evidence.get("evidence_rest_coverage_ratio", 1.0), 1.0))
+    metrics["evidence_fill_coverage_ratio"] = float(_safe_float(evidence.get("evidence_fill_coverage_ratio", 1.0), 1.0))
+    metrics["evidence_coverage_ratio"] = float(_safe_float(evidence.get("evidence_coverage_ratio", 1.0), 1.0))
+    metrics["evidence_ws_last_seen_ts"] = float(_safe_float(evidence.get("evidence_ws_last_seen_ts", 0.0), 0.0))
+    metrics["evidence_rest_last_seen_ts"] = float(_safe_float(evidence.get("evidence_rest_last_seen_ts", 0.0), 0.0))
+    metrics["evidence_fill_last_seen_ts"] = float(_safe_float(evidence.get("evidence_fill_last_seen_ts", 0.0), 0.0))
+    metrics["evidence_ws_gap_rate"] = float(_safe_float(evidence.get("evidence_ws_gap_rate", 0.0), 0.0))
+    metrics["evidence_rest_gap_rate"] = float(_safe_float(evidence.get("evidence_rest_gap_rate", 0.0), 0.0))
+    metrics["evidence_fill_gap_rate"] = float(_safe_float(evidence.get("evidence_fill_gap_rate", 0.0), 0.0))
+    metrics["evidence_ws_error_rate"] = float(_safe_float(evidence.get("evidence_ws_error_rate", 0.0), 0.0))
+    metrics["evidence_rest_error_rate"] = float(_safe_float(evidence.get("evidence_rest_error_rate", 0.0), 0.0))
+    metrics["evidence_fill_error_rate"] = float(_safe_float(evidence.get("evidence_fill_error_rate", 0.0), 0.0))
     metrics["evidence_contradiction_score"] = float(_safe_float(evidence.get("evidence_contradiction_score", 0.0), 0.0))
+    metrics["evidence_contradiction_count"] = int(_safe_float(evidence.get("evidence_contradiction_count", 0), 0.0))
     metrics["evidence_contradiction_streak"] = int(_safe_float(evidence.get("evidence_contradiction_streak", 0), 0.0))
+    metrics["evidence_contradiction_burn_rate"] = float(
+        _safe_float(evidence.get("evidence_contradiction_burn_rate", 0.0), 0.0)
+    )
+    metrics["evidence_contradiction_tags"] = str(evidence.get("evidence_contradiction_tags", "") or "")
     metrics["evidence_degraded_sources"] = int(_safe_float(evidence.get("evidence_degraded_sources", 0), 0.0))
     intent_stats = {
         "intent_unknown_count": 0,
@@ -1496,13 +2096,15 @@ async def reconcile_tick(bot):
         "journal_coverage_ratio": 1.0,
         "path": "",
     }
-    if callable(_runtime_reliability_gate):
+    if _runtime_reliability_coupling_enabled(bot) and callable(_runtime_reliability_gate):
         try:
             got_gate = _runtime_reliability_gate(getattr(bot, "cfg", None))
             if isinstance(got_gate, dict):
                 gate.update(got_gate)
         except Exception:
             pass
+    elif not _runtime_reliability_coupling_enabled(bot):
+        gate["reason"] = "runtime_reliability_coupling_disabled"
     metrics["runtime_gate_available"] = bool(gate.get("available", False))
     metrics["runtime_gate_degraded"] = bool(gate.get("degraded", False))
     metrics["runtime_gate_reason"] = str(gate.get("reason", "") or "")
@@ -1520,21 +2122,153 @@ async def reconcile_tick(bot):
         metrics["runtime_gate_cat_ledger"] = int(_safe_float(cats.get("ledger", 0), 0.0))
         metrics["runtime_gate_cat_transition"] = int(_safe_float(cats.get("transition", 0), 0.0))
         metrics["runtime_gate_cat_belief"] = int(_safe_float(cats.get("belief", 0), 0.0))
+        metrics["runtime_gate_cat_position"] = int(_safe_float(cats.get("position", 0), 0.0))
+        metrics["runtime_gate_cat_orphan"] = int(_safe_float(cats.get("orphan", 0), 0.0))
+        metrics["runtime_gate_cat_coverage_gap"] = int(_safe_float(cats.get("coverage_gap", 0), 0.0))
+        metrics["runtime_gate_cat_stage1_protection_fail"] = int(
+            _safe_float(cats.get("stage1_protection_fail", 0), 0.0)
+        )
+        metrics["runtime_gate_cat_replace_race"] = int(_safe_float(cats.get("replace_race", 0), 0.0))
+        metrics["runtime_gate_cat_contradiction"] = int(_safe_float(cats.get("contradiction", 0), 0.0))
         metrics["runtime_gate_cat_unknown"] = int(_safe_float(cats.get("unknown", 0), 0.0))
     else:
         metrics["runtime_gate_cat_ledger"] = 0
         metrics["runtime_gate_cat_transition"] = 0
         metrics["runtime_gate_cat_belief"] = 0
+        metrics["runtime_gate_cat_position"] = 0
+        metrics["runtime_gate_cat_orphan"] = 0
+        metrics["runtime_gate_cat_coverage_gap"] = 0
+        metrics["runtime_gate_cat_stage1_protection_fail"] = 0
+        metrics["runtime_gate_cat_replace_race"] = 0
+        metrics["runtime_gate_cat_contradiction"] = 0
         metrics["runtime_gate_cat_unknown"] = 0
+    metrics["runtime_gate_position_mismatch_count"] = int(_safe_float(gate.get("position_mismatch_count", 0), 0.0))
+    metrics["runtime_gate_position_mismatch_count_peak"] = int(
+        _safe_float(gate.get("position_mismatch_count_peak", gate.get("position_mismatch_count", 0)), 0.0)
+    )
+    metrics["runtime_gate_orphan_count"] = int(_safe_float(gate.get("orphan_count", 0), 0.0))
+    metrics["runtime_gate_intent_collision_count"] = int(_safe_float(gate.get("intent_collision_count", 0), 0.0))
+    metrics["runtime_gate_protection_coverage_gap_seconds"] = float(
+        _safe_float(gate.get("protection_coverage_gap_seconds", 0.0), 0.0)
+    )
+    metrics["runtime_gate_protection_coverage_gap_seconds_peak"] = float(
+        _safe_float(
+            gate.get("protection_coverage_gap_seconds_peak", gate.get("protection_coverage_gap_seconds", 0.0)),
+            0.0,
+        )
+    )
+    metrics["runtime_gate_stage1_protection_fail_count"] = int(
+        _safe_float(gate.get("stage1_protection_fail_count", 0), 0.0)
+    )
+    metrics["runtime_gate_replace_race_count"] = int(_safe_float(gate.get("replace_race_count", 0), 0.0))
+    metrics["runtime_gate_evidence_contradiction_count"] = int(
+        _safe_float(gate.get("evidence_contradiction_count", 0), 0.0)
+    )
     metrics["runtime_gate_degrade_score"] = float(_safe_float(gate.get("degrade_score", 0.0), 0.0))
     gate_ids = gate.get("replay_mismatch_ids")
     metrics["runtime_gate_replay_mismatch_ids"] = list(gate_ids) if isinstance(gate_ids, list) else []
+    metrics["runtime_gate_cause_summary"] = _runtime_gate_cause_summary(metrics)
+    reconcile_gate_recent = _recent_reconcile_first_gate_metrics(bot)
+    metrics["reconcile_first_gate_count"] = int(
+        _safe_float(reconcile_gate_recent.get("count", 0), 0.0)
+    )
+    metrics["reconcile_first_gate_max_severity"] = float(
+        _safe_float(reconcile_gate_recent.get("max_severity", 0.0), 0.0)
+    )
+    metrics["reconcile_first_gate_max_streak"] = int(
+        _safe_float(reconcile_gate_recent.get("max_streak", 0), 0.0)
+    )
+    metrics["reconcile_first_gate_last_reason"] = str(
+        reconcile_gate_recent.get("last_reason", "") or ""
+    )
+    corr_state = {
+        "corr_pressure": float(metrics.get("corr_pressure", 0.0) or 0.0),
+        "corr_regime": str(metrics.get("corr_regime", "NORMAL") or "NORMAL"),
+        "corr_confidence": float(metrics.get("corr_confidence", 1.0) or 1.0),
+        "corr_roll": float(metrics.get("corr_roll", 0.0) or 0.0),
+        "corr_downside": float(metrics.get("corr_downside", 0.0) or 0.0),
+        "corr_tail_coupling": float(metrics.get("corr_tail_coupling", 0.0) or 0.0),
+        "corr_eff_roll": float(metrics.get("corr_eff_roll", 0.0) or 0.0),
+        "corr_eff_downside": float(metrics.get("corr_eff_downside", 0.0) or 0.0),
+        "corr_eff_tail_coupling": float(metrics.get("corr_eff_tail_coupling", 0.0) or 0.0),
+        "corr_uncertainty_uplift": float(metrics.get("corr_uncertainty_uplift", 0.0) or 0.0),
+        "corr_group_drift_debt": float(metrics.get("corr_group_drift_debt", 0.0) or 0.0),
+        "corr_hidden_exposure_risk": float(metrics.get("corr_hidden_exposure_risk", 0.0) or 0.0),
+        "corr_worst_group": str(metrics.get("corr_worst_group", "") or ""),
+        "corr_reason_tags": str(metrics.get("corr_reason_tags", "stable") or "stable"),
+    }
+    if callable(_compute_correlation_risk):
+        try:
+            got_corr = _compute_correlation_risk(bot, metrics, getattr(bot, "cfg", None))
+            if isinstance(got_corr, dict):
+                corr_state.update(got_corr)
+        except Exception:
+            pass
+    for key, value in corr_state.items():
+        metrics[key] = value
+    if callable(_tel_emit):
+        try:
+            await _tel_emit(
+                bot,
+                "execution.correlation_state",
+                data={
+                    "corr_pressure": float(corr_state.get("corr_pressure", 0.0) or 0.0),
+                    "corr_regime": str(corr_state.get("corr_regime", "NORMAL") or "NORMAL"),
+                    "corr_confidence": float(corr_state.get("corr_confidence", 1.0) or 1.0),
+                    "corr_roll": float(corr_state.get("corr_roll", 0.0) or 0.0),
+                    "corr_downside": float(corr_state.get("corr_downside", 0.0) or 0.0),
+                    "corr_tail_coupling": float(corr_state.get("corr_tail_coupling", 0.0) or 0.0),
+                    "corr_eff_roll": float(corr_state.get("corr_eff_roll", 0.0) or 0.0),
+                    "corr_eff_downside": float(corr_state.get("corr_eff_downside", 0.0) or 0.0),
+                    "corr_eff_tail_coupling": float(corr_state.get("corr_eff_tail_coupling", 0.0) or 0.0),
+                    "corr_uncertainty_uplift": float(corr_state.get("corr_uncertainty_uplift", 0.0) or 0.0),
+                    "corr_group_drift_debt": float(corr_state.get("corr_group_drift_debt", 0.0) or 0.0),
+                    "corr_hidden_exposure_risk": float(corr_state.get("corr_hidden_exposure_risk", 0.0) or 0.0),
+                    "corr_worst_group": str(corr_state.get("corr_worst_group", "") or ""),
+                    "corr_reason_tags": str(corr_state.get("corr_reason_tags", "stable") or "stable"),
+                },
+                level=("warning" if str(corr_state.get("corr_regime", "NORMAL")).upper() != "NORMAL" else "info"),
+            )
+        except Exception:
+            pass
     metrics["last_summary"]["belief_debt_sec"] = float(debt_sec)
     metrics["last_summary"]["belief_debt_symbols"] = int(debt_syms)
     metrics["last_summary"]["belief_confidence"] = float(conf)
+    metrics["last_summary"]["belief_envelope_symbols"] = int(metrics.get("belief_envelope_symbols", 0) or 0)
+    metrics["last_summary"]["belief_envelope_ambiguous_symbols"] = int(
+        metrics.get("belief_envelope_ambiguous_symbols", 0) or 0
+    )
+    metrics["last_summary"]["belief_position_interval_width_sum"] = float(
+        metrics.get("belief_position_interval_width_sum", 0.0) or 0.0
+    )
+    metrics["last_summary"]["belief_position_interval_width_max"] = float(
+        metrics.get("belief_position_interval_width_max", 0.0) or 0.0
+    )
+    metrics["last_summary"]["belief_live_unknown_symbols"] = int(
+        metrics.get("belief_live_unknown_symbols", 0) or 0
+    )
+    metrics["last_summary"]["belief_envelope_worst_symbol"] = str(
+        metrics.get("belief_envelope_worst_symbol", "") or ""
+    )
+    metrics["last_summary"]["corr_pressure"] = float(metrics.get("corr_pressure", 0.0) or 0.0)
+    metrics["last_summary"]["corr_regime"] = str(metrics.get("corr_regime", "NORMAL") or "NORMAL")
+    metrics["last_summary"]["corr_confidence"] = float(metrics.get("corr_confidence", 1.0) or 1.0)
+    metrics["last_summary"]["corr_reason_tags"] = str(metrics.get("corr_reason_tags", "stable") or "stable")
     metrics["last_summary"]["evidence_confidence"] = float(metrics["evidence_confidence"])
+    metrics["last_summary"]["evidence_ws_confidence"] = float(metrics["evidence_ws_confidence"])
+    metrics["last_summary"]["evidence_rest_confidence"] = float(metrics["evidence_rest_confidence"])
+    metrics["last_summary"]["evidence_fill_confidence"] = float(metrics["evidence_fill_confidence"])
+    metrics["last_summary"]["evidence_ws_coverage_ratio"] = float(metrics.get("evidence_ws_coverage_ratio", 1.0) or 1.0)
+    metrics["last_summary"]["evidence_rest_coverage_ratio"] = float(metrics.get("evidence_rest_coverage_ratio", 1.0) or 1.0)
+    metrics["last_summary"]["evidence_fill_coverage_ratio"] = float(metrics.get("evidence_fill_coverage_ratio", 1.0) or 1.0)
+    metrics["last_summary"]["evidence_coverage_ratio"] = float(metrics.get("evidence_coverage_ratio", 1.0) or 1.0)
     metrics["last_summary"]["evidence_contradiction_score"] = float(metrics["evidence_contradiction_score"])
+    metrics["last_summary"]["evidence_contradiction_count"] = int(metrics["evidence_contradiction_count"])
     metrics["last_summary"]["evidence_contradiction_streak"] = int(metrics["evidence_contradiction_streak"])
+    metrics["last_summary"]["evidence_contradiction_burn_rate"] = float(
+        metrics["evidence_contradiction_burn_rate"]
+    )
+    metrics["last_summary"]["evidence_contradiction_tags"] = str(metrics.get("evidence_contradiction_tags", "") or "")
     metrics["last_summary"]["evidence_degraded_sources"] = int(metrics["evidence_degraded_sources"])
     metrics["last_summary"]["intent_unknown_count"] = int(metrics["intent_unknown_count"])
     km = getattr(getattr(bot, "state", None), "kill_metrics", None)
@@ -1549,9 +2283,31 @@ async def reconcile_tick(bot):
         km["reconcile_intent_unknown_count"] = int(metrics["intent_unknown_count"])
         km["reconcile_intent_unknown_oldest_sec"] = float(metrics["intent_unknown_oldest_sec"])
         km["reconcile_intent_unknown_mean_resolve_sec"] = float(metrics["intent_unknown_mean_resolve_sec"])
+        km["reconcile_protection_coverage_gap_seconds"] = float(
+            metrics.get("protection_coverage_gap_seconds", 0.0) or 0.0
+        )
+        km["reconcile_protection_coverage_gap_symbols"] = int(
+            metrics.get("protection_coverage_gap_symbols", 0) or 0
+        )
+        km["reconcile_protection_coverage_ttl_breaches"] = int(
+            metrics.get("protection_coverage_ttl_breaches", 0) or 0
+        )
+        km["reconcile_protection_refresh_budget_blocked_count"] = int(
+            metrics.get("protection_refresh_budget_blocked_count", 0) or 0
+        )
+        km["reconcile_protection_refresh_budget_force_override_count"] = int(
+            metrics.get("protection_refresh_budget_force_override_count", 0) or 0
+        )
 
     belief_trace = {}
     guard_knobs = None
+    prev_guard_mode = ""
+    try:
+        prev_guard = getattr(getattr(bot, "state", None), "guard_knobs", None)
+        if isinstance(prev_guard, dict):
+            prev_guard_mode = str(prev_guard.get("mode", "") or "").upper()
+    except Exception:
+        prev_guard_mode = ""
     ctl = _ensure_belief_controller(bot)
     if ctl is not None:
         try:
@@ -1561,10 +2317,61 @@ async def reconcile_tick(bot):
                     "belief_debt_symbols": int(debt_syms),
                     "symbol_belief_debt_sec": dict(symbol_belief_debt_sec),
                     "mismatch_streak": int(metrics.get("mismatch_streak", 0) or 0),
+                    "protection_coverage_gap_seconds": float(
+                        metrics.get("protection_coverage_gap_seconds", 0.0) or 0.0
+                    ),
+                    "protection_coverage_gap_symbols": int(
+                        metrics.get("protection_coverage_gap_symbols", 0) or 0
+                    ),
+                    "protection_coverage_ttl_breaches": int(
+                        metrics.get("protection_coverage_ttl_breaches", 0) or 0
+                    ),
+                    "protection_refresh_budget_blocked_count": int(
+                        metrics.get("protection_refresh_budget_blocked_count", 0) or 0
+                    ),
+                    "protection_refresh_budget_force_override_count": int(
+                        metrics.get("protection_refresh_budget_force_override_count", 0) or 0
+                    ),
+                    "protection_refresh_stop_budget_blocked_count": int(
+                        metrics.get("protection_refresh_stop_budget_blocked_count", 0) or 0
+                    ),
+                    "protection_refresh_tp_budget_blocked_count": int(
+                        metrics.get("protection_refresh_tp_budget_blocked_count", 0) or 0
+                    ),
+                    "protection_refresh_stop_force_override_count": int(
+                        metrics.get("protection_refresh_stop_force_override_count", 0) or 0
+                    ),
+                    "protection_refresh_tp_force_override_count": int(
+                        metrics.get("protection_refresh_tp_force_override_count", 0) or 0
+                    ),
                     "evidence_confidence": float(metrics.get("evidence_confidence", 1.0) or 1.0),
                     "evidence_degraded_sources": int(metrics.get("evidence_degraded_sources", 0) or 0),
+                    "evidence_ws_score": float(metrics.get("evidence_ws_score", 1.0) or 1.0),
+                    "evidence_rest_score": float(metrics.get("evidence_rest_score", 1.0) or 1.0),
+                    "evidence_fill_score": float(metrics.get("evidence_fill_score", 1.0) or 1.0),
+                    "evidence_ws_confidence": float(metrics.get("evidence_ws_confidence", 1.0) or 1.0),
+                    "evidence_rest_confidence": float(metrics.get("evidence_rest_confidence", 1.0) or 1.0),
+                    "evidence_fill_confidence": float(metrics.get("evidence_fill_confidence", 1.0) or 1.0),
+                    "evidence_ws_coverage_ratio": float(metrics.get("evidence_ws_coverage_ratio", 1.0) or 1.0),
+                    "evidence_rest_coverage_ratio": float(metrics.get("evidence_rest_coverage_ratio", 1.0) or 1.0),
+                    "evidence_fill_coverage_ratio": float(metrics.get("evidence_fill_coverage_ratio", 1.0) or 1.0),
+                    "evidence_coverage_ratio": float(metrics.get("evidence_coverage_ratio", 1.0) or 1.0),
+                    "evidence_ws_gap_rate": float(metrics.get("evidence_ws_gap_rate", 0.0) or 0.0),
+                    "evidence_rest_gap_rate": float(metrics.get("evidence_rest_gap_rate", 0.0) or 0.0),
+                    "evidence_fill_gap_rate": float(metrics.get("evidence_fill_gap_rate", 0.0) or 0.0),
+                    "evidence_ws_error_rate": float(metrics.get("evidence_ws_error_rate", 0.0) or 0.0),
+                    "evidence_rest_error_rate": float(metrics.get("evidence_rest_error_rate", 0.0) or 0.0),
+                    "evidence_fill_error_rate": float(metrics.get("evidence_fill_error_rate", 0.0) or 0.0),
+                    "evidence_contradiction_score": float(metrics.get("evidence_contradiction_score", 0.0) or 0.0),
+                    "evidence_contradiction_count": int(metrics.get("evidence_contradiction_count", 0) or 0),
+                    "evidence_contradiction_streak": int(metrics.get("evidence_contradiction_streak", 0) or 0),
+                    "evidence_contradiction_burn_rate": float(
+                        metrics.get("evidence_contradiction_burn_rate", 0.0) or 0.0
+                    ),
+                    "evidence_contradiction_tags": str(metrics.get("evidence_contradiction_tags", "") or ""),
                     "runtime_gate_degraded": bool(metrics.get("runtime_gate_degraded", False)),
                     "runtime_gate_reason": str(metrics.get("runtime_gate_reason", "") or ""),
+                    "runtime_gate_cause_summary": str(metrics.get("runtime_gate_cause_summary", "stable") or "stable"),
                     "runtime_gate_replay_mismatch_count": int(metrics.get("runtime_gate_replay_mismatch_count", 0) or 0),
                     "runtime_gate_invalid_transition_count": int(
                         metrics.get("runtime_gate_invalid_transition_count", 0) or 0
@@ -1587,25 +2394,118 @@ async def reconcile_tick(bot):
                     "runtime_gate_cat_ledger": int(metrics.get("runtime_gate_cat_ledger", 0) or 0),
                     "runtime_gate_cat_transition": int(metrics.get("runtime_gate_cat_transition", 0) or 0),
                     "runtime_gate_cat_belief": int(metrics.get("runtime_gate_cat_belief", 0) or 0),
+                    "runtime_gate_cat_position": int(metrics.get("runtime_gate_cat_position", 0) or 0),
+                    "runtime_gate_cat_orphan": int(metrics.get("runtime_gate_cat_orphan", 0) or 0),
+                    "runtime_gate_cat_coverage_gap": int(metrics.get("runtime_gate_cat_coverage_gap", 0) or 0),
+                    "runtime_gate_cat_stage1_protection_fail": int(
+                        metrics.get("runtime_gate_cat_stage1_protection_fail", 0) or 0
+                    ),
+                    "runtime_gate_cat_replace_race": int(metrics.get("runtime_gate_cat_replace_race", 0) or 0),
+                    "runtime_gate_cat_contradiction": int(metrics.get("runtime_gate_cat_contradiction", 0) or 0),
                     "runtime_gate_cat_unknown": int(metrics.get("runtime_gate_cat_unknown", 0) or 0),
+                    "runtime_gate_position_mismatch_count": int(
+                        metrics.get("runtime_gate_position_mismatch_count", 0) or 0
+                    ),
+                    "runtime_gate_position_mismatch_count_peak": int(
+                        metrics.get("runtime_gate_position_mismatch_count_peak", 0) or 0
+                    ),
+                    "runtime_gate_orphan_count": int(metrics.get("runtime_gate_orphan_count", 0) or 0),
+                    "runtime_gate_intent_collision_count": int(
+                        metrics.get("runtime_gate_intent_collision_count", 0) or 0
+                    ),
+                    "runtime_gate_protection_coverage_gap_seconds": float(
+                        metrics.get("runtime_gate_protection_coverage_gap_seconds", 0.0) or 0.0
+                    ),
+                    "runtime_gate_protection_coverage_gap_seconds_peak": float(
+                        metrics.get("runtime_gate_protection_coverage_gap_seconds_peak", 0.0) or 0.0
+                    ),
+                    "runtime_gate_stage1_protection_fail_count": int(
+                        metrics.get("runtime_gate_stage1_protection_fail_count", 0) or 0
+                    ),
+                    "runtime_gate_replace_race_count": int(metrics.get("runtime_gate_replace_race_count", 0) or 0),
+                    "runtime_gate_evidence_contradiction_count": int(
+                        metrics.get("runtime_gate_evidence_contradiction_count", 0) or 0
+                    ),
                     "runtime_gate_replay_mismatch_ids": list(
                         metrics.get("runtime_gate_replay_mismatch_ids", []) or []
                     )[:5],
+                    "reconcile_first_gate_count": int(metrics.get("reconcile_first_gate_count", 0) or 0),
+                    "reconcile_first_gate_max_severity": float(
+                        metrics.get("reconcile_first_gate_max_severity", 0.0) or 0.0
+                    ),
+                    "reconcile_first_gate_max_streak": int(
+                        metrics.get("reconcile_first_gate_max_streak", 0) or 0
+                    ),
+                    "reconcile_first_gate_last_reason": str(
+                        metrics.get("reconcile_first_gate_last_reason", "") or ""
+                    ),
                 },
                 getattr(bot, "cfg", None),
             )
             trace = ctl.explain()
             belief_trace = trace.to_dict() if hasattr(trace, "to_dict") else {"mode": str(getattr(trace, "mode", ""))}
+            transition_label = str(belief_trace.get("transition", "") or "").strip()
+            if transition_label and callable(_tel_emit):
+                try:
+                    new_mode = str(getattr(guard_knobs, "mode", "") or "").upper()
+                    from_mode = prev_guard_mode
+                    trace_prev_mode = str(belief_trace.get("previous_mode", "") or "").strip().upper()
+                    trace_target_mode = str(belief_trace.get("target_mode", "") or "").strip().upper()
+                    if "->" in transition_label:
+                        from_mode = str(transition_label.split("->", 1)[0] or "").strip().upper() or from_mode
+                        new_mode = str(transition_label.split("->", 1)[1] or "").strip().upper() or new_mode
+                    elif trace_prev_mode and trace_target_mode:
+                        from_mode = trace_prev_mode or from_mode
+                        new_mode = trace_target_mode or new_mode
+                    await _tel_emit(
+                        bot,
+                        "execution.posture_transition",
+                        data={
+                            "previous_mode": str(from_mode),
+                            "new_mode": str(new_mode),
+                            "target_mode": str(trace_target_mode or new_mode),
+                            "transition": str(transition_label),
+                            "cause_tags": str(belief_trace.get("cause_tags", "") or ""),
+                            "dominant_contributors": str(
+                                belief_trace.get("dominant_contributors", "") or ""
+                            ),
+                            "unlock_requirements": str(
+                                belief_trace.get("unlock_requirements", "") or ""
+                            ),
+                            "recovery_stage": str(belief_trace.get("recovery_stage", "") or ""),
+                            "unlock_conditions": str(belief_trace.get("unlock_conditions", "") or ""),
+                            "next_unlock_sec": float(_safe_float(belief_trace.get("next_unlock_sec", 0.0), 0.0)),
+                            "unlock_snapshot": (
+                                dict(belief_trace.get("unlock_snapshot") or {})
+                                if isinstance(belief_trace.get("unlock_snapshot"), dict)
+                                else {}
+                            ),
+                            "reason": str(belief_trace.get("reason", "") or ""),
+                        },
+                        level="warning",
+                    )
+                except Exception:
+                    pass
             try:
                 if hasattr(bot, "state"):
                     bot.state.guard_knobs = (guard_knobs.to_dict() if hasattr(guard_knobs, "to_dict") else dict(guard_knobs))
             except Exception:
                 pass
-            if bool(getattr(guard_knobs, "kill_switch_trip", False)) and callable(_kill_request_halt):
+            # Read halt duration from cfg first, then env fallback, then default.
+            # This keeps run-profile env overrides effective even when cfg omits the field.
+            _belief_halt_raw = _cfg(bot, "BELIEF_CONTROLLER_HALT_SEC", None)
+            if _belief_halt_raw in (None, ""):
+                _belief_halt_raw = os.getenv("BELIEF_CONTROLLER_HALT_SEC", "60")
+            belief_halt_sec = _safe_float(_belief_halt_raw, 60.0)
+            if (
+                bool(getattr(guard_knobs, "kill_switch_trip", False))
+                and callable(_kill_request_halt)
+                and belief_halt_sec > 0.0
+            ):
                 try:
                     await _kill_request_halt(
                         bot,
-                        float(_cfg(bot, "BELIEF_CONTROLLER_HALT_SEC", 60.0) or 60.0),
+                        float(belief_halt_sec),
                         f"belief_controller mode={getattr(guard_knobs, 'mode', 'RED')} debt={debt_sec:.0f}s",
                         "critical",
                     )
@@ -1623,19 +2523,91 @@ async def reconcile_tick(bot):
                     "mismatch_events": int(mismatch_events),
                     "repair_actions": int(repair_actions),
                     "repair_skipped": int(repair_skipped),
+                    "protection_coverage_gap_seconds": float(
+                        metrics.get("protection_coverage_gap_seconds", 0.0) or 0.0
+                    ),
+                    "protection_coverage_gap_symbols": int(
+                        metrics.get("protection_coverage_gap_symbols", 0) or 0
+                    ),
+                    "protection_coverage_ttl_breaches": int(
+                        metrics.get("protection_coverage_ttl_breaches", 0) or 0
+                    ),
+                    "protection_refresh_budget_blocked_count": int(
+                        metrics.get("protection_refresh_budget_blocked_count", 0) or 0
+                    ),
+                    "protection_refresh_budget_force_override_count": int(
+                        metrics.get("protection_refresh_budget_force_override_count", 0) or 0
+                    ),
+                    "protection_refresh_stop_budget_blocked_count": int(
+                        metrics.get("protection_refresh_stop_budget_blocked_count", 0) or 0
+                    ),
+                    "protection_refresh_tp_budget_blocked_count": int(
+                        metrics.get("protection_refresh_tp_budget_blocked_count", 0) or 0
+                    ),
+                    "protection_refresh_stop_force_override_count": int(
+                        metrics.get("protection_refresh_stop_force_override_count", 0) or 0
+                    ),
+                    "protection_refresh_tp_force_override_count": int(
+                        metrics.get("protection_refresh_tp_force_override_count", 0) or 0
+                    ),
                     "mismatch_streak": int(metrics.get("mismatch_streak", 0) or 0),
                     "belief_debt_sec": float(debt_sec),
                     "belief_debt_symbols": int(debt_syms),
                     "worst_symbols": list(worst_symbols),
                     "belief_confidence": float(conf),
+                    "belief_envelope_symbols": int(metrics.get("belief_envelope_symbols", 0) or 0),
+                    "belief_envelope_ambiguous_symbols": int(
+                        metrics.get("belief_envelope_ambiguous_symbols", 0) or 0
+                    ),
+                    "belief_position_interval_width_sum": float(
+                        metrics.get("belief_position_interval_width_sum", 0.0) or 0.0
+                    ),
+                    "belief_position_interval_width_max": float(
+                        metrics.get("belief_position_interval_width_max", 0.0) or 0.0
+                    ),
+                    "belief_live_unknown_symbols": int(metrics.get("belief_live_unknown_symbols", 0) or 0),
+                    "belief_envelope_worst_symbol": str(metrics.get("belief_envelope_worst_symbol", "") or ""),
                     "evidence_confidence": float(metrics.get("evidence_confidence", 1.0) or 1.0),
                     "evidence_ws_score": float(metrics.get("evidence_ws_score", 1.0) or 1.0),
                     "evidence_rest_score": float(metrics.get("evidence_rest_score", 1.0) or 1.0),
                     "evidence_fill_score": float(metrics.get("evidence_fill_score", 1.0) or 1.0),
+                    "evidence_ws_confidence": float(metrics.get("evidence_ws_confidence", 1.0) or 1.0),
+                    "evidence_rest_confidence": float(metrics.get("evidence_rest_confidence", 1.0) or 1.0),
+                    "evidence_fill_confidence": float(metrics.get("evidence_fill_confidence", 1.0) or 1.0),
+                    "evidence_ws_coverage_ratio": float(metrics.get("evidence_ws_coverage_ratio", 1.0) or 1.0),
+                    "evidence_rest_coverage_ratio": float(metrics.get("evidence_rest_coverage_ratio", 1.0) or 1.0),
+                    "evidence_fill_coverage_ratio": float(metrics.get("evidence_fill_coverage_ratio", 1.0) or 1.0),
+                    "evidence_coverage_ratio": float(metrics.get("evidence_coverage_ratio", 1.0) or 1.0),
+                    "evidence_ws_last_seen_ts": float(metrics.get("evidence_ws_last_seen_ts", 0.0) or 0.0),
+                    "evidence_rest_last_seen_ts": float(metrics.get("evidence_rest_last_seen_ts", 0.0) or 0.0),
+                    "evidence_fill_last_seen_ts": float(metrics.get("evidence_fill_last_seen_ts", 0.0) or 0.0),
+                    "evidence_ws_gap_rate": float(metrics.get("evidence_ws_gap_rate", 0.0) or 0.0),
+                    "evidence_rest_gap_rate": float(metrics.get("evidence_rest_gap_rate", 0.0) or 0.0),
+                    "evidence_fill_gap_rate": float(metrics.get("evidence_fill_gap_rate", 0.0) or 0.0),
+                    "evidence_ws_error_rate": float(metrics.get("evidence_ws_error_rate", 0.0) or 0.0),
+                    "evidence_rest_error_rate": float(metrics.get("evidence_rest_error_rate", 0.0) or 0.0),
+                    "evidence_fill_error_rate": float(metrics.get("evidence_fill_error_rate", 0.0) or 0.0),
+                    "evidence_contradiction_count": int(metrics.get("evidence_contradiction_count", 0) or 0),
                     "evidence_degraded_sources": int(metrics.get("evidence_degraded_sources", 0) or 0),
+                    "evidence_contradiction_burn_rate": float(
+                        metrics.get("evidence_contradiction_burn_rate", 0.0) or 0.0
+                    ),
+                    "evidence_contradiction_tags": str(metrics.get("evidence_contradiction_tags", "") or ""),
+                    "corr_pressure": float(metrics.get("corr_pressure", 0.0) or 0.0),
+                    "corr_regime": str(metrics.get("corr_regime", "NORMAL") or "NORMAL"),
+                    "corr_confidence": float(metrics.get("corr_confidence", 1.0) or 1.0),
+                    "corr_roll": float(metrics.get("corr_roll", 0.0) or 0.0),
+                    "corr_downside": float(metrics.get("corr_downside", 0.0) or 0.0),
+                    "corr_tail_coupling": float(metrics.get("corr_tail_coupling", 0.0) or 0.0),
+                    "corr_uncertainty_uplift": float(metrics.get("corr_uncertainty_uplift", 0.0) or 0.0),
+                    "corr_group_drift_debt": float(metrics.get("corr_group_drift_debt", 0.0) or 0.0),
+                    "corr_hidden_exposure_risk": float(metrics.get("corr_hidden_exposure_risk", 0.0) or 0.0),
+                    "corr_worst_group": str(metrics.get("corr_worst_group", "") or ""),
+                    "corr_reason_tags": str(metrics.get("corr_reason_tags", "stable") or "stable"),
                     "runtime_gate_available": bool(metrics.get("runtime_gate_available", False)),
                     "runtime_gate_degraded": bool(metrics.get("runtime_gate_degraded", False)),
                     "runtime_gate_reason": str(metrics.get("runtime_gate_reason", "") or ""),
+                    "runtime_gate_cause_summary": str(metrics.get("runtime_gate_cause_summary", "stable") or "stable"),
                     "runtime_gate_replay_mismatch_count": int(metrics.get("runtime_gate_replay_mismatch_count", 0) or 0),
                     "runtime_gate_invalid_transition_count": int(
                         metrics.get("runtime_gate_invalid_transition_count", 0) or 0
@@ -1655,9 +2627,54 @@ async def reconcile_tick(bot):
                     "runtime_gate_degrade_score": float(
                         metrics.get("runtime_gate_degrade_score", 0.0) or 0.0
                     ),
+                    "runtime_gate_cat_ledger": int(metrics.get("runtime_gate_cat_ledger", 0) or 0),
+                    "runtime_gate_cat_transition": int(metrics.get("runtime_gate_cat_transition", 0) or 0),
+                    "runtime_gate_cat_belief": int(metrics.get("runtime_gate_cat_belief", 0) or 0),
+                    "runtime_gate_cat_position": int(metrics.get("runtime_gate_cat_position", 0) or 0),
+                    "runtime_gate_cat_orphan": int(metrics.get("runtime_gate_cat_orphan", 0) or 0),
+                    "runtime_gate_cat_coverage_gap": int(metrics.get("runtime_gate_cat_coverage_gap", 0) or 0),
+                    "runtime_gate_cat_stage1_protection_fail": int(
+                        metrics.get("runtime_gate_cat_stage1_protection_fail", 0) or 0
+                    ),
+                    "runtime_gate_cat_replace_race": int(metrics.get("runtime_gate_cat_replace_race", 0) or 0),
+                    "runtime_gate_cat_contradiction": int(metrics.get("runtime_gate_cat_contradiction", 0) or 0),
+                    "runtime_gate_cat_unknown": int(metrics.get("runtime_gate_cat_unknown", 0) or 0),
+                    "runtime_gate_position_mismatch_count": int(
+                        metrics.get("runtime_gate_position_mismatch_count", 0) or 0
+                    ),
+                    "runtime_gate_position_mismatch_count_peak": int(
+                        metrics.get("runtime_gate_position_mismatch_count_peak", 0) or 0
+                    ),
+                    "runtime_gate_orphan_count": int(metrics.get("runtime_gate_orphan_count", 0) or 0),
+                    "runtime_gate_intent_collision_count": int(
+                        metrics.get("runtime_gate_intent_collision_count", 0) or 0
+                    ),
+                    "runtime_gate_protection_coverage_gap_seconds": float(
+                        metrics.get("runtime_gate_protection_coverage_gap_seconds", 0.0) or 0.0
+                    ),
+                    "runtime_gate_protection_coverage_gap_seconds_peak": float(
+                        metrics.get("runtime_gate_protection_coverage_gap_seconds_peak", 0.0) or 0.0
+                    ),
+                    "runtime_gate_stage1_protection_fail_count": int(
+                        metrics.get("runtime_gate_stage1_protection_fail_count", 0) or 0
+                    ),
+                    "runtime_gate_replace_race_count": int(metrics.get("runtime_gate_replace_race_count", 0) or 0),
+                    "runtime_gate_evidence_contradiction_count": int(
+                        metrics.get("runtime_gate_evidence_contradiction_count", 0) or 0
+                    ),
                     "runtime_gate_replay_mismatch_ids": list(
                         metrics.get("runtime_gate_replay_mismatch_ids", []) or []
                     )[:5],
+                    "reconcile_first_gate_count": int(metrics.get("reconcile_first_gate_count", 0) or 0),
+                    "reconcile_first_gate_max_severity": float(
+                        metrics.get("reconcile_first_gate_max_severity", 0.0) or 0.0
+                    ),
+                    "reconcile_first_gate_max_streak": int(
+                        metrics.get("reconcile_first_gate_max_streak", 0) or 0
+                    ),
+                    "reconcile_first_gate_last_reason": str(
+                        metrics.get("reconcile_first_gate_last_reason", "") or ""
+                    ),
                     "intent_unknown_count": int(metrics.get("intent_unknown_count", 0) or 0),
                     "intent_unknown_oldest_sec": float(metrics.get("intent_unknown_oldest_sec", 0.0) or 0.0),
                     "intent_unknown_mean_resolve_sec": float(
@@ -1672,6 +2689,33 @@ async def reconcile_tick(bot):
                     ),
                     "guard_next_unlock_sec": (
                         float(getattr(guard_knobs, "next_unlock_sec", 0.0) or 0.0) if guard_knobs is not None else 0.0
+                    ),
+                    "guard_transition": (
+                        str(getattr(guard_knobs, "transition", "") or "") if guard_knobs is not None else ""
+                    ),
+                    "guard_previous_mode": (
+                        str(getattr(guard_knobs, "previous_mode", "") or "") if guard_knobs is not None else ""
+                    ),
+                    "guard_target_mode": (
+                        str(getattr(guard_knobs, "target_mode", "") or "") if guard_knobs is not None else ""
+                    ),
+                    "guard_cause_tags": (
+                        str(getattr(guard_knobs, "cause_tags", "") or "") if guard_knobs is not None else ""
+                    ),
+                    "guard_dominant_contributors": (
+                        str(getattr(guard_knobs, "dominant_contributors", "") or "")
+                        if guard_knobs is not None
+                        else ""
+                    ),
+                    "guard_unlock_requirements": (
+                        str(getattr(guard_knobs, "unlock_requirements", "") or "")
+                        if guard_knobs is not None
+                        else ""
+                    ),
+                    "guard_unlock_snapshot": (
+                        dict(getattr(guard_knobs, "unlock_snapshot", {}) or {})
+                        if guard_knobs is not None
+                        else {}
                     ),
                 },
                 level=("warning" if mismatch_events > 0 else "info"),
@@ -1690,13 +2734,58 @@ async def reconcile_tick(bot):
                     "belief_debt_symbols": int(debt_syms),
                     "worst_symbols": list(worst_symbols),
                     "belief_confidence": float(conf),
+                    "belief_envelope_symbols": int(metrics.get("belief_envelope_symbols", 0) or 0),
+                    "belief_envelope_ambiguous_symbols": int(
+                        metrics.get("belief_envelope_ambiguous_symbols", 0) or 0
+                    ),
+                    "belief_position_interval_width_sum": float(
+                        metrics.get("belief_position_interval_width_sum", 0.0) or 0.0
+                    ),
+                    "belief_position_interval_width_max": float(
+                        metrics.get("belief_position_interval_width_max", 0.0) or 0.0
+                    ),
+                    "belief_live_unknown_symbols": int(metrics.get("belief_live_unknown_symbols", 0) or 0),
+                    "belief_envelope_worst_symbol": str(metrics.get("belief_envelope_worst_symbol", "") or ""),
                     "evidence_confidence": float(metrics.get("evidence_confidence", 1.0) or 1.0),
                     "evidence_ws_score": float(metrics.get("evidence_ws_score", 1.0) or 1.0),
                     "evidence_rest_score": float(metrics.get("evidence_rest_score", 1.0) or 1.0),
                     "evidence_fill_score": float(metrics.get("evidence_fill_score", 1.0) or 1.0),
+                    "evidence_ws_confidence": float(metrics.get("evidence_ws_confidence", 1.0) or 1.0),
+                    "evidence_rest_confidence": float(metrics.get("evidence_rest_confidence", 1.0) or 1.0),
+                    "evidence_fill_confidence": float(metrics.get("evidence_fill_confidence", 1.0) or 1.0),
+                    "evidence_ws_coverage_ratio": float(metrics.get("evidence_ws_coverage_ratio", 1.0) or 1.0),
+                    "evidence_rest_coverage_ratio": float(metrics.get("evidence_rest_coverage_ratio", 1.0) or 1.0),
+                    "evidence_fill_coverage_ratio": float(metrics.get("evidence_fill_coverage_ratio", 1.0) or 1.0),
+                    "evidence_coverage_ratio": float(metrics.get("evidence_coverage_ratio", 1.0) or 1.0),
+                    "evidence_ws_last_seen_ts": float(metrics.get("evidence_ws_last_seen_ts", 0.0) or 0.0),
+                    "evidence_rest_last_seen_ts": float(metrics.get("evidence_rest_last_seen_ts", 0.0) or 0.0),
+                    "evidence_fill_last_seen_ts": float(metrics.get("evidence_fill_last_seen_ts", 0.0) or 0.0),
+                    "evidence_ws_gap_rate": float(metrics.get("evidence_ws_gap_rate", 0.0) or 0.0),
+                    "evidence_rest_gap_rate": float(metrics.get("evidence_rest_gap_rate", 0.0) or 0.0),
+                    "evidence_fill_gap_rate": float(metrics.get("evidence_fill_gap_rate", 0.0) or 0.0),
+                    "evidence_ws_error_rate": float(metrics.get("evidence_ws_error_rate", 0.0) or 0.0),
+                    "evidence_rest_error_rate": float(metrics.get("evidence_rest_error_rate", 0.0) or 0.0),
+                    "evidence_fill_error_rate": float(metrics.get("evidence_fill_error_rate", 0.0) or 0.0),
+                    "evidence_contradiction_count": int(metrics.get("evidence_contradiction_count", 0) or 0),
                     "evidence_degraded_sources": int(metrics.get("evidence_degraded_sources", 0) or 0),
+                    "evidence_contradiction_burn_rate": float(
+                        metrics.get("evidence_contradiction_burn_rate", 0.0) or 0.0
+                    ),
+                    "evidence_contradiction_tags": str(metrics.get("evidence_contradiction_tags", "") or ""),
+                    "corr_pressure": float(metrics.get("corr_pressure", 0.0) or 0.0),
+                    "corr_regime": str(metrics.get("corr_regime", "NORMAL") or "NORMAL"),
+                    "corr_confidence": float(metrics.get("corr_confidence", 1.0) or 1.0),
+                    "corr_roll": float(metrics.get("corr_roll", 0.0) or 0.0),
+                    "corr_downside": float(metrics.get("corr_downside", 0.0) or 0.0),
+                    "corr_tail_coupling": float(metrics.get("corr_tail_coupling", 0.0) or 0.0),
+                    "corr_uncertainty_uplift": float(metrics.get("corr_uncertainty_uplift", 0.0) or 0.0),
+                    "corr_group_drift_debt": float(metrics.get("corr_group_drift_debt", 0.0) or 0.0),
+                    "corr_hidden_exposure_risk": float(metrics.get("corr_hidden_exposure_risk", 0.0) or 0.0),
+                    "corr_worst_group": str(metrics.get("corr_worst_group", "") or ""),
+                    "corr_reason_tags": str(metrics.get("corr_reason_tags", "stable") or "stable"),
                     "runtime_gate_degraded": bool(metrics.get("runtime_gate_degraded", False)),
                     "runtime_gate_reason": str(metrics.get("runtime_gate_reason", "") or ""),
+                    "runtime_gate_cause_summary": str(metrics.get("runtime_gate_cause_summary", "stable") or "stable"),
                     "runtime_gate_replay_mismatch_count": int(metrics.get("runtime_gate_replay_mismatch_count", 0) or 0),
                     "runtime_gate_invalid_transition_count": int(
                         metrics.get("runtime_gate_invalid_transition_count", 0) or 0
@@ -1716,9 +2805,54 @@ async def reconcile_tick(bot):
                     "runtime_gate_degrade_score": float(
                         metrics.get("runtime_gate_degrade_score", 0.0) or 0.0
                     ),
+                    "runtime_gate_cat_ledger": int(metrics.get("runtime_gate_cat_ledger", 0) or 0),
+                    "runtime_gate_cat_transition": int(metrics.get("runtime_gate_cat_transition", 0) or 0),
+                    "runtime_gate_cat_belief": int(metrics.get("runtime_gate_cat_belief", 0) or 0),
+                    "runtime_gate_cat_position": int(metrics.get("runtime_gate_cat_position", 0) or 0),
+                    "runtime_gate_cat_orphan": int(metrics.get("runtime_gate_cat_orphan", 0) or 0),
+                    "runtime_gate_cat_coverage_gap": int(metrics.get("runtime_gate_cat_coverage_gap", 0) or 0),
+                    "runtime_gate_cat_stage1_protection_fail": int(
+                        metrics.get("runtime_gate_cat_stage1_protection_fail", 0) or 0
+                    ),
+                    "runtime_gate_cat_replace_race": int(metrics.get("runtime_gate_cat_replace_race", 0) or 0),
+                    "runtime_gate_cat_contradiction": int(metrics.get("runtime_gate_cat_contradiction", 0) or 0),
+                    "runtime_gate_cat_unknown": int(metrics.get("runtime_gate_cat_unknown", 0) or 0),
+                    "runtime_gate_position_mismatch_count": int(
+                        metrics.get("runtime_gate_position_mismatch_count", 0) or 0
+                    ),
+                    "runtime_gate_position_mismatch_count_peak": int(
+                        metrics.get("runtime_gate_position_mismatch_count_peak", 0) or 0
+                    ),
+                    "runtime_gate_orphan_count": int(metrics.get("runtime_gate_orphan_count", 0) or 0),
+                    "runtime_gate_intent_collision_count": int(
+                        metrics.get("runtime_gate_intent_collision_count", 0) or 0
+                    ),
+                    "runtime_gate_protection_coverage_gap_seconds": float(
+                        metrics.get("runtime_gate_protection_coverage_gap_seconds", 0.0) or 0.0
+                    ),
+                    "runtime_gate_protection_coverage_gap_seconds_peak": float(
+                        metrics.get("runtime_gate_protection_coverage_gap_seconds_peak", 0.0) or 0.0
+                    ),
+                    "runtime_gate_stage1_protection_fail_count": int(
+                        metrics.get("runtime_gate_stage1_protection_fail_count", 0) or 0
+                    ),
+                    "runtime_gate_replace_race_count": int(metrics.get("runtime_gate_replace_race_count", 0) or 0),
+                    "runtime_gate_evidence_contradiction_count": int(
+                        metrics.get("runtime_gate_evidence_contradiction_count", 0) or 0
+                    ),
                     "runtime_gate_replay_mismatch_ids": list(
                         metrics.get("runtime_gate_replay_mismatch_ids", []) or []
                     )[:5],
+                    "reconcile_first_gate_count": int(metrics.get("reconcile_first_gate_count", 0) or 0),
+                    "reconcile_first_gate_max_severity": float(
+                        metrics.get("reconcile_first_gate_max_severity", 0.0) or 0.0
+                    ),
+                    "reconcile_first_gate_max_streak": int(
+                        metrics.get("reconcile_first_gate_max_streak", 0) or 0
+                    ),
+                    "reconcile_first_gate_last_reason": str(
+                        metrics.get("reconcile_first_gate_last_reason", "") or ""
+                    ),
                     "intent_unknown_count": int(metrics.get("intent_unknown_count", 0) or 0),
                     "intent_unknown_oldest_sec": float(metrics.get("intent_unknown_oldest_sec", 0.0) or 0.0),
                     "intent_unknown_mean_resolve_sec": float(
@@ -1726,6 +2860,33 @@ async def reconcile_tick(bot):
                     ),
                     "repair_actions": int(repair_actions),
                     "repair_skipped": int(repair_skipped),
+                    "protection_coverage_gap_seconds": float(
+                        metrics.get("protection_coverage_gap_seconds", 0.0) or 0.0
+                    ),
+                    "protection_coverage_gap_symbols": int(
+                        metrics.get("protection_coverage_gap_symbols", 0) or 0
+                    ),
+                    "protection_coverage_ttl_breaches": int(
+                        metrics.get("protection_coverage_ttl_breaches", 0) or 0
+                    ),
+                    "protection_refresh_budget_blocked_count": int(
+                        metrics.get("protection_refresh_budget_blocked_count", 0) or 0
+                    ),
+                    "protection_refresh_budget_force_override_count": int(
+                        metrics.get("protection_refresh_budget_force_override_count", 0) or 0
+                    ),
+                    "protection_refresh_stop_budget_blocked_count": int(
+                        metrics.get("protection_refresh_stop_budget_blocked_count", 0) or 0
+                    ),
+                    "protection_refresh_tp_budget_blocked_count": int(
+                        metrics.get("protection_refresh_tp_budget_blocked_count", 0) or 0
+                    ),
+                    "protection_refresh_stop_force_override_count": int(
+                        metrics.get("protection_refresh_stop_force_override_count", 0) or 0
+                    ),
+                    "protection_refresh_tp_force_override_count": int(
+                        metrics.get("protection_refresh_tp_force_override_count", 0) or 0
+                    ),
                     "guard_mode": (str(getattr(guard_knobs, "mode", "")) if guard_knobs is not None else ""),
                     "allow_entries": (bool(getattr(guard_knobs, "allow_entries", True)) if guard_knobs is not None else True),
                     "guard_recovery_stage": (
@@ -1736,6 +2897,43 @@ async def reconcile_tick(bot):
                     ),
                     "guard_next_unlock_sec": (
                         float(getattr(guard_knobs, "next_unlock_sec", 0.0) or 0.0) if guard_knobs is not None else 0.0
+                    ),
+                    "guard_transition": (
+                        str(getattr(guard_knobs, "transition", "") or "") if guard_knobs is not None else ""
+                    ),
+                    "guard_previous_mode": (
+                        str(getattr(guard_knobs, "previous_mode", "") or "") if guard_knobs is not None else ""
+                    ),
+                    "guard_target_mode": (
+                        str(getattr(guard_knobs, "target_mode", "") or "") if guard_knobs is not None else ""
+                    ),
+                    "guard_cause_tags": (
+                        str(getattr(guard_knobs, "cause_tags", "") or "") if guard_knobs is not None else ""
+                    ),
+                    "guard_dominant_contributors": (
+                        str(getattr(guard_knobs, "dominant_contributors", "") or "")
+                        if guard_knobs is not None
+                        else ""
+                    ),
+                    "guard_unlock_requirements": (
+                        str(getattr(guard_knobs, "unlock_requirements", "") or "")
+                        if guard_knobs is not None
+                        else ""
+                    ),
+                    "guard_unlock_snapshot": (
+                        dict(getattr(guard_knobs, "unlock_snapshot", {}) or {})
+                        if guard_knobs is not None
+                        else {}
+                    ),
+                    "guard_refresh_blocked_level": (
+                        float(getattr(guard_knobs, "protection_refresh_budget_blocked_level", 0.0) or 0.0)
+                        if guard_knobs is not None
+                        else 0.0
+                    ),
+                    "guard_refresh_force_level": (
+                        float(getattr(guard_knobs, "protection_refresh_budget_force_level", 0.0) or 0.0)
+                        if guard_knobs is not None
+                        else 0.0
                     ),
                     "trace": belief_trace,
                 },

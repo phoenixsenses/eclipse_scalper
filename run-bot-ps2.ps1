@@ -64,6 +64,43 @@ $env:TELEMETRY_ANOMALY_ACTIONS = "logs/telemetry_anomaly_actions.json"
 $env:TELEMETRY_DRIFT_PATH = "logs/telemetry_drift.jsonl"
 $env:TELEMETRY_GUARD_HISTORY_EVENTS = "logs/telemetry_guard_history_events.jsonl"
 $env:ADAPTIVE_GUARD_STATE = "logs/telemetry_adaptive_guard.json"
+$env:RECONCILE_FIRST_GATE_SEVERITY_THRESHOLD = "0.85"
+$env:RECONCILE_FIRST_GATE_SEVERITY_STREAK_THRESHOLD = "2"
+$env:RELIABILITY_GATE_PATH = "logs/reliability_gate.txt"
+$env:RELIABILITY_GATE_WINDOW_SECONDS = "14400"
+$env:RELIABILITY_GATE_STALE_SECONDS = "900"
+$env:RELIABILITY_GATE_MAX_REPLAY_MISMATCH = "0"
+$env:RELIABILITY_GATE_MAX_INVALID_TRANSITIONS = "0"
+$env:RELIABILITY_GATE_MIN_JOURNAL_COVERAGE = "0.90"
+$env:RELIABILITY_GATE_MAX_POSITION_MISMATCH = "1"
+$env:RELIABILITY_GATE_MAX_POSITION_MISMATCH_PEAK = "2"
+$env:RELIABILITY_GATE_MAX_ORPHAN_COUNT = "0"
+$env:RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT = "0"
+$env:INTENT_COLLISION_CRITICAL_THRESHOLD = "1"
+$env:INTENT_COLLISION_CRITICAL_STREAK = "2"
+$env:RELIABILITY_GATE_MAX_COVERAGE_GAP_SECONDS = "0"
+$env:RELIABILITY_GATE_MAX_COVERAGE_GAP_SECONDS_PEAK = "30"
+$env:RELIABILITY_GATE_MAX_STAGE1_PROTECTION_FAIL_COUNT = "0"
+$env:RELIABILITY_GATE_MAX_REPLACE_RACE_COUNT = "1"
+$env:RELIABILITY_GATE_MAX_EVIDENCE_CONTRADICTION_COUNT = "2"
+$env:CORR_STRESS_THRESHOLD = "1"
+$env:CORR_PRESSURE_THRESHOLD = "0.90"
+$env:CORR_EXIT_PNL_DROP_THRESHOLD = "0.10"
+$env:RUNTIME_RELIABILITY_COUPLING = "1"
+$env:BELIEF_RUNTIME_GATE_RECOVER_SEC = "120"
+$env:BELIEF_RUNTIME_GATE_WARMUP_NOTIONAL_SCALE = "0.50"
+$env:BELIEF_RUNTIME_GATE_WARMUP_LEVERAGE_SCALE = "0.60"
+$env:BELIEF_RUNTIME_GATE_CRITICAL_TRIP_THRESHOLD = "4.0"
+$env:BELIEF_RUNTIME_GATE_CRITICAL_CLEAR_THRESHOLD = "2.0"
+$env:BELIEF_CONTROLLER_HALT_SEC = "0"
+$env:BELIEF_RECONCILE_FIRST_GATE_COUNT_THRESHOLD = "2"
+$env:BELIEF_RECONCILE_FIRST_GATE_SEVERITY_THRESHOLD = "0.85"
+$env:BELIEF_RECONCILE_FIRST_GATE_STREAK_THRESHOLD = "2"
+$env:BELIEF_POST_RED_WARMUP_SEC = "180"
+$env:BELIEF_POST_RED_WARMUP_NOTIONAL_SCALE = "0.60"
+$env:BELIEF_POST_RED_WARMUP_LEVERAGE_SCALE = "0.70"
+$env:BELIEF_POST_RED_WARMUP_MIN_CONF_EXTRA = "0.06"
+$env:BELIEF_POST_RED_WARMUP_COOLDOWN_EXTRA_SEC = "20"
 $env:ADAPTIVE_GUARD_DURATION_SEC = "900"
 $env:ADAPTIVE_GUARD_DRIFT_DURATION_SEC = "900"
 $env:ADAPTIVE_GUARD_EXIT_DURATION_SEC = "600"
@@ -211,6 +248,195 @@ $env:RECONCILE_TP_REFRESH_MAX_INTERVAL_SEC = "45"
 $env:RECONCILE_TP_REFRESH_FORCE_COVERAGE_RATIO = "0.80"
 $env:RECONCILE_TP_REPLACE_RETRIES = "2"
 $env:RECONCILE_TP_FALLBACK_PCT = "0.0050"
+
+# ----------------------------
+# Preflight + smoke controls
+# ----------------------------
+function Parse-InvariantDouble([string]$raw, [double]$defaultValue = 0.0) {
+  if (-not $raw) { return $defaultValue }
+  $value = 0.0
+  $ok = [double]::TryParse(
+    $raw,
+    [System.Globalization.NumberStyles]::Float,
+    [System.Globalization.CultureInfo]::InvariantCulture,
+    [ref]$value
+  )
+  if ($ok) { return $value }
+  return $defaultValue
+}
+
+$safeProfileMaxLeverage = 1.0
+if ($env:SAFE_PROFILE_MAX_LEVERAGE -and $env:SAFE_PROFILE_MAX_LEVERAGE.Trim() -ne "") {
+  $safeProfileMaxLeverage = Parse-InvariantDouble -raw $env:SAFE_PROFILE_MAX_LEVERAGE -defaultValue 1.0
+}
+$runPreflightOnly = ($env:RUN_PREFLIGHT_ONLY -eq "1")
+$runSmoke = ($env:RUN_SMOKE -eq "1")
+
+function Ensure-ParentDir([string]$pathValue) {
+  if (-not $pathValue) { return }
+  $parent = Split-Path -Parent $pathValue
+  if (-not $parent) { return }
+  New-Item -ItemType Directory -Force -Path $parent | Out-Null
+}
+
+function Invoke-Preflight {
+  Write-Host "Running safe profile preflight..."
+  $errorList = New-Object System.Collections.Generic.List[string]
+  $warnList = New-Object System.Collections.Generic.List[string]
+
+  New-Item -ItemType Directory -Force -Path "logs" | Out-Null
+  Ensure-ParentDir -pathValue $env:TELEMETRY_PATH
+  Ensure-ParentDir -pathValue $env:TELEMETRY_DRIFT_PATH
+  Ensure-ParentDir -pathValue $env:TELEMETRY_GUARD_HISTORY_EVENTS
+  Ensure-ParentDir -pathValue $env:ADAPTIVE_GUARD_STATE
+  Ensure-ParentDir -pathValue $env:RELIABILITY_GATE_PATH
+  if ($env:EVENT_JOURNAL_PATH) { Ensure-ParentDir -pathValue $env:EVENT_JOURNAL_PATH }
+
+  if ($env:SCALPER_DRY_RUN -notin @("0","1")) {
+    $errorList.Add("SCALPER_DRY_RUN must be 0 or 1. Set `$env:SCALPER_DRY_RUN='1' for testing or '0' for live.")
+  }
+  if (-not $env:ACTIVE_SYMBOLS -or $env:ACTIVE_SYMBOLS.Trim() -eq "") {
+    $errorList.Add("ACTIVE_SYMBOLS cannot be empty.")
+  }
+  if ((($env:MARGIN_MODE) + "").ToLowerInvariant() -ne "isolated") {
+    $errorList.Add("MARGIN_MODE must be 'isolated' for this safe profile.")
+  }
+
+  [double]$notional = 0.0
+  [double]$lev = 0.0
+  [double]$firstLiveCap = 0.0
+  [double]$dailyLoss = 0.0
+  [double]$drawdown = 0.0
+  [double]$stage1FailMax = 0.0
+  $notional = Parse-InvariantDouble -raw ($env:FIXED_NOTIONAL_USDT + "")
+  $lev = Parse-InvariantDouble -raw ($env:LEVERAGE + "")
+  $firstLiveCap = Parse-InvariantDouble -raw ($env:FIRST_LIVE_MAX_NOTIONAL_USDT + "")
+  $dailyLoss = Parse-InvariantDouble -raw ($env:MAX_DAILY_LOSS_PCT + "")
+  $drawdown = Parse-InvariantDouble -raw ($env:MAX_DRAWDOWN_PCT + "")
+  $stage1FailMax = Parse-InvariantDouble -raw ($env:RELIABILITY_GATE_MAX_STAGE1_PROTECTION_FAIL_COUNT + "")
+
+  if ($notional -le 0) {
+    $errorList.Add("FIXED_NOTIONAL_USDT must be > 0.")
+  }
+  if ($lev -le 0) {
+    $errorList.Add("LEVERAGE must be > 0.")
+  } elseif ($lev -gt $safeProfileMaxLeverage) {
+    $errorList.Add("LEVERAGE=$lev exceeds SAFE_PROFILE_MAX_LEVERAGE=$safeProfileMaxLeverage.")
+  }
+
+  if ($env:FIRST_LIVE_SAFE -eq "1") {
+    if (-not $env:FIRST_LIVE_SYMBOLS -or $env:FIRST_LIVE_SYMBOLS.Trim() -eq "") {
+      $errorList.Add("FIRST_LIVE_SAFE=1 requires FIRST_LIVE_SYMBOLS.")
+    }
+    if ($firstLiveCap -le 0) {
+      $errorList.Add("FIRST_LIVE_SAFE=1 requires FIRST_LIVE_MAX_NOTIONAL_USDT > 0.")
+    } elseif ($notional -gt $firstLiveCap) {
+      $errorList.Add("FIXED_NOTIONAL_USDT ($notional) must be <= FIRST_LIVE_MAX_NOTIONAL_USDT ($firstLiveCap).")
+    }
+  }
+
+  if ($dailyLoss -le 0 -or $dailyLoss -gt 0.05) {
+    $errorList.Add("MAX_DAILY_LOSS_PCT must be within (0, 0.05]. Current=$dailyLoss.")
+  }
+  if ($drawdown -le 0 -or $drawdown -gt 0.20) {
+    $errorList.Add("MAX_DRAWDOWN_PCT must be within (0, 0.20]. Current=$drawdown.")
+  }
+  if ($drawdown -gt 0 -and $dailyLoss -gt 0 -and $drawdown -lt $dailyLoss) {
+    $errorList.Add("MAX_DRAWDOWN_PCT must be >= MAX_DAILY_LOSS_PCT.")
+  }
+  if ($stage1FailMax -lt 0) {
+    $errorList.Add("RELIABILITY_GATE_MAX_STAGE1_PROTECTION_FAIL_COUNT must be >= 0.")
+  }
+
+  $preflightJson = "logs/preflight_check.json"
+  $preflightOutput = python tools/preflight_check.py --max-leverage $safeProfileMaxLeverage --json-out $preflightJson 2>&1
+  if ($LASTEXITCODE -ne 0) {
+    if ($preflightOutput) { Write-Host $preflightOutput }
+    $errorList.Add("tools/preflight_check.py failed. Review $preflightJson for details.")
+  }
+
+  $corrOutput = python tools/corr_group_check.py 2>&1
+  if ($LASTEXITCODE -ne 0) {
+    if ($corrOutput) { Write-Host $corrOutput }
+    $errorList.Add("tools/corr_group_check.py failed. Fix CORR_GROUP* settings.")
+  }
+
+  Write-Host ""
+  Write-Host "===== Safe Live Profile Summary ====="
+  Write-Host ("Mode: {0}" -f ($(if ($env:SCALPER_DRY_RUN -eq "1") { "DRY-RUN" } else { "LIVE" })))
+  Write-Host ("Symbols: {0}" -f $env:ACTIVE_SYMBOLS)
+  Write-Host ("Sizing: FIXED_NOTIONAL_USDT={0} LEVERAGE={1} MARGIN_MODE={2}" -f $env:FIXED_NOTIONAL_USDT, $env:LEVERAGE, $env:MARGIN_MODE)
+  Write-Host ("First-live-safe: enabled={0} allowlist={1} cap={2}" -f $env:FIRST_LIVE_SAFE, $env:FIRST_LIVE_SYMBOLS, $env:FIRST_LIVE_MAX_NOTIONAL_USDT)
+  Write-Host ("Risk limits: MAX_DAILY_LOSS_PCT={0} MAX_DRAWDOWN_PCT={1}" -f $env:MAX_DAILY_LOSS_PCT, $env:MAX_DRAWDOWN_PCT)
+  Write-Host ("Correlation caps: groups={0} max_positions={1} max_notional={2}" -f $env:CORR_GROUPS, $env:CORR_GROUP_MAX_POSITIONS, $env:CORR_GROUP_MAX_NOTIONAL_USDT)
+  Write-Host ("Reliability gate: coupling={0} mismatch_max={1} invalid_max={2} coverage_min={3}" -f $env:RUNTIME_RELIABILITY_COUPLING, $env:RELIABILITY_GATE_MAX_REPLAY_MISMATCH, $env:RELIABILITY_GATE_MAX_INVALID_TRANSITIONS, $env:RELIABILITY_GATE_MIN_JOURNAL_COVERAGE)
+  Write-Host ("Reliability gate peaks: position_peak_max={0} coverage_gap_peak_sec_max={1}" -f $env:RELIABILITY_GATE_MAX_POSITION_MISMATCH_PEAK, $env:RELIABILITY_GATE_MAX_COVERAGE_GAP_SECONDS_PEAK)
+  Write-Host ("Reliability gate stage1: stage1_protection_fail_max={0}" -f $env:RELIABILITY_GATE_MAX_STAGE1_PROTECTION_FAIL_COUNT)
+  Write-Host ("Reliability gate restart safety: orphan_max={0} intent_collision_max={1}" -f $env:RELIABILITY_GATE_MAX_ORPHAN_COUNT, $env:RELIABILITY_GATE_MAX_INTENT_COLLISION_COUNT)
+  Write-Host ("Intent-collision notifier: threshold={0} streak={1}" -f $env:INTENT_COLLISION_CRITICAL_THRESHOLD, $env:INTENT_COLLISION_CRITICAL_STREAK)
+  Write-Host ("Reliability gate window/stale: window_sec={0} stale_sec={1}" -f $env:RELIABILITY_GATE_WINDOW_SECONDS, $env:RELIABILITY_GATE_STALE_SECONDS)
+  Write-Host ("Correlation thresholds: stress={0} pressure={1} exit_pnl_drop={2}" -f $env:CORR_STRESS_THRESHOLD, $env:CORR_PRESSURE_THRESHOLD, $env:CORR_EXIT_PNL_DROP_THRESHOLD)
+  Write-Host ("Runtime critical trip: threshold={0} clear={1}" -f $env:BELIEF_RUNTIME_GATE_CRITICAL_TRIP_THRESHOLD, $env:BELIEF_RUNTIME_GATE_CRITICAL_CLEAR_THRESHOLD)
+  Write-Host ("Reconcile-first gate: count={0} severity={1} streak={2}" -f $env:BELIEF_RECONCILE_FIRST_GATE_COUNT_THRESHOLD, $env:BELIEF_RECONCILE_FIRST_GATE_SEVERITY_THRESHOLD, $env:BELIEF_RECONCILE_FIRST_GATE_STREAK_THRESHOLD)
+  Write-Host ("Recovery staging: runtime_warmup_sec={0} post_red_warmup_sec={1}" -f $env:BELIEF_RUNTIME_GATE_RECOVER_SEC, $env:BELIEF_POST_RED_WARMUP_SEC)
+  Write-Host "Entry blocks may come from: runtime reliability gate, reconcile-first pressure, per-symbol debt, correlation budget."
+  Write-Host "Recovery guidance: clear gate causes (replay/coverage/contradiction), then wait for warmup timers to expire."
+
+  if ($warnList.Count -gt 0) {
+    Write-Host ""
+    Write-Host "Warnings:"
+    foreach ($w in $warnList) { Write-Host (" - {0}" -f $w) }
+  }
+  if ($errorList.Count -gt 0) {
+    Write-Host ""
+    Write-Host "Preflight FAILED:"
+    foreach ($e in $errorList) { Write-Host (" - {0}" -f $e) }
+    return $false
+  }
+
+  Write-Host "Preflight PASSED."
+  return $true
+}
+
+$preflightOk = Invoke-Preflight
+if ($preflightOk -is [System.Array]) {
+  $preflightOk = $preflightOk[-1]
+}
+if (-not [bool]$preflightOk) {
+  exit 2
+}
+
+if ($runPreflightOnly) {
+  Write-Host "RUN_PREFLIGHT_ONLY=1 set, exiting after successful preflight."
+  exit 0
+}
+
+if ($runSmoke) {
+  Write-Host "RUN_SMOKE=1 set, running telemetry smoke assertion..."
+  $smokeStatePath = "logs/telemetry_dashboard_notify_state.smoke.json"
+  @{
+    level = "normal"
+    recovery_stage_latest = "GREEN"
+    recovery_red_lock_streak = 0
+  } | ConvertTo-Json -Depth 4 | Set-Content -Encoding UTF8 $smokeStatePath
+
+  python tools/telemetry_smoke_assert.py `
+    --state $smokeStatePath `
+    --expected-level normal `
+    --expected-stage GREEN `
+    --expected-red-lock-streak 0
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "Smoke assertion failed. Refusing launch."
+    exit 3
+  }
+}
+
+Write-Host "Refreshing reliability gate snapshot..."
+python tools/reliability_gate_refresh.py --window-seconds $env:RELIABILITY_GATE_WINDOW_SECONDS --allow-missing
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "Reliability gate refresh failed. Refusing launch."
+  exit 4
+}
 
 Write-Host "Environment configured. Starting bot..."
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path

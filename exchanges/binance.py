@@ -20,6 +20,19 @@ from utils.logging import log_core
 
 from .base import ExchangeAdapter
 
+# Canonical symkey — single source of truth (never fatal if missing at import)
+try:
+    from execution.entry_primitives import symkey as _symkey  # type: ignore
+except Exception:
+    def _symkey(sym: str) -> str:
+        s = str(sym or "").upper().strip()
+        s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
+        s = s.replace(":USDT", "USDT").replace(":", "")
+        s = s.replace("/", "")
+        if s.endswith("USDTUSDT"):
+            s = s[:-4]
+        return s
+
 load_dotenv()
 
 
@@ -30,15 +43,7 @@ def _env_truthy(name: str) -> bool:
     return v.strip().lower() in {"1", "true", "yes", "y", "on"}
 
 
-def _symkey(sym: str) -> str:
-    """
-    Canonical key normalizer: 'BTC/USDT:USDT' -> 'BTCUSDT', 'BTC/USDT' -> 'BTCUSDT', 'BTCUSDT' -> 'BTCUSDT'
-    """
-    s = str(sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    return s
+# _symkey imported from execution.entry_primitives above (with inline fallback)
 
 
 class BinanceCosmicAdapter(ExchangeAdapter):

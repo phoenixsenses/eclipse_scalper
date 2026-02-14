@@ -417,7 +417,14 @@ def count_recent(
 # Convenience helpers (optional)
 # ----------------------------
 
-async def emit_order_create(bot, symbol: str, order: Dict[str, Any], intent: str = "") -> None:
+async def emit_order_create(
+    bot,
+    symbol: str,
+    order: Dict[str, Any],
+    intent: str = "",
+    *,
+    correlation_id: Optional[str] = None,
+) -> None:
     oid = None
     try:
         oid = order.get("id") or (order.get("info") or {}).get("orderId")
@@ -426,16 +433,38 @@ async def emit_order_create(bot, symbol: str, order: Dict[str, Any], intent: str
     await emit(
         bot,
         "order.create",
-        data={"symbol": _symkey(symbol), "order_id": oid, "intent": intent, "order": order},
+        data={
+            "symbol": _symkey(symbol),
+            "order_id": oid,
+            "intent": intent,
+            "order": order,
+            "correlation_id": (str(correlation_id)[:96] if correlation_id else ""),
+        },
         symbol=symbol,
     )
 
 
-async def emit_order_cancel(bot, symbol: str, order_id: str, ok: bool, why: str = "") -> None:
+async def emit_order_cancel(
+    bot,
+    symbol: str,
+    order_id: str,
+    ok: bool,
+    why: str = "",
+    *,
+    correlation_id: Optional[str] = None,
+    status: Optional[str] = None,
+) -> None:
     await emit(
         bot,
         "order.cancel",
-        data={"symbol": _symkey(symbol), "order_id": str(order_id), "ok": bool(ok), "why": str(why)[:180]},
+        data={
+            "symbol": _symkey(symbol),
+            "order_id": str(order_id),
+            "ok": bool(ok),
+            "why": str(why)[:180],
+            "status": (str(status)[:40] if status else ""),
+            "correlation_id": (str(correlation_id)[:96] if correlation_id else ""),
+        },
         symbol=symbol,
     )
 

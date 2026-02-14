@@ -13,10 +13,21 @@ import hashlib
 from typing import Optional, List, Tuple, Dict, Any
 
 from utils.logging import log_entry, log_core
-from execution.order_router import create_order, cancel_order
-
-
-_POSMGR_LOCKS: dict[str, asyncio.Lock] = {}
+from execution.order_router import cancel_order
+from execution.entry_primitives import symkey as _symkey  # single source of truth
+from execution.shared_locks import get_symbol_lock as _get_symbol_lock  # cross-module stop/TP serialization
+try:
+    from execution.protection_manager import get_entry_stage_hint as _get_entry_stage_hint  # type: ignore
+except Exception:
+    _get_entry_stage_hint = None
+try:
+    from execution.protection_manager import (
+        place_stop_ladder_router as _pm_place_stop_ladder_router,
+        place_trailing_router as _pm_place_trailing_router,
+    )  # type: ignore
+except Exception:
+    _pm_place_stop_ladder_router = None
+    _pm_place_trailing_router = None
 
 # Per-symbol open-orders throttle cache
 _OPEN_ORDERS_CACHE: dict[str, Dict[str, Any]] = {}
@@ -87,22 +98,26 @@ def _cfg_env(bot, name: str, default):
     return default
 
 
-def _symkey(sym: str) -> str:
-    s = (sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
+def _ensure_run_context(bot) -> dict:
+    try:
+        st = getattr(bot, "state", None)
+        rc = getattr(st, "run_context", None) if st is not None else None
+        if isinstance(rc, dict):
+            return rc
+        if st is not None:
+            st.run_context = {}
+            return st.run_context
+    except Exception:
+        pass
+    return {}
+
+
+# _symkey imported from execution.entry_primitives above
 
 
 def _get_lock(k: str) -> asyncio.Lock:
-    lk = _POSMGR_LOCKS.get(k)
-    if lk is None:
-        lk = asyncio.Lock()
-        _POSMGR_LOCKS[k] = lk
-    return lk
+    """Per-symbol lock — delegates to shared_locks for cross-module serialization."""
+    return _get_symbol_lock(k)
 
 
 def _resolve_raw_symbol(bot, k: str, fallback: str) -> str:
@@ -309,22 +324,6 @@ def _find_existing_stop(open_orders: List[dict], pos_side: str) -> Tuple[Optiona
     return None, 0.0
 
 
-def _looks_like_dup_client_order_id(err: Exception) -> bool:
-    s = repr(err)
-    return ("-4116" in s) or ("ClientOrderId is duplicated" in s) or ("clientorderid is duplicated" in s.lower())
-
-
-def _order_client_id_any(order: dict) -> str:
-    if not isinstance(order, dict):
-        return ""
-    info = order.get("info") or {}
-    for kk in ("clientOrderId", "clientOrderID", "origClientOrderId", "origClientOrderID"):
-        v = order.get(kk) or info.get(kk)
-        if v:
-            return str(v)
-    return ""
-
-
 async def _cancel_best_effort(bot, order_id: str, sym_raw: str, *, why: str = "") -> bool:
     if not order_id or not sym_raw:
         return False
@@ -385,100 +384,35 @@ async def _fetch_open_orders_best_effort(
         return []
 
 
-async def _adopt_open_order_id_by_client_id(
-    bot,
-    sym_raw: str,
-    client_id: str,
-    *,
-    min_interval_sec: float = 2.0,
-    cache_key: Optional[str] = None,
-) -> Optional[str]:
-    if not client_id or not sym_raw:
-        return None
-    oo = await _fetch_open_orders_best_effort(bot, sym_raw, min_interval_sec=min_interval_sec, cache_key=cache_key)
-    for o in oo:
-        try:
-            if _order_client_id_any(o) == str(client_id):
-                oid = _extract_order_id(o)
-                if oid:
-                    return str(oid)
-        except Exception:
-            continue
-    return None
-
-
+# Shared protection-manager wrappers (authoritative placement path).
 async def _place_stop_ladder_router(
     bot,
     *,
     sym_raw: str,
-    side: str,          # "long"/"short"
+    side: str,
     qty: float,
     stop_price: float,
-    hedge_side_hint: str,   # "LONG"/"SHORT"
+    hedge_side_hint: str,
     k: str,
     stop_client_id_base: str,
 ) -> Optional[str]:
-    stop_side = "sell" if side == "long" else "buy"
-
-    cid_a = f"{stop_client_id_base}_A"
-    cid_b = f"{stop_client_id_base}_B"
-
-    # A) amount + reduceOnly
+    if not callable(_pm_place_stop_ladder_router):
+        return None
     try:
-        o = await create_order(
+        return await _pm_place_stop_ladder_router(
             bot,
-            symbol=sym_raw,
-            type="STOP_MARKET",
-            side=stop_side,
-            amount=float(qty),
-            price=None,
-            params={},
-            intent_reduce_only=True,
-            intent_close_position=False,
+            sym_raw=sym_raw,
+            side=side,
+            qty=float(qty),
             stop_price=float(stop_price),
             hedge_side_hint=hedge_side_hint,
-            client_order_id=cid_a,
-            retries=6,
+            stop_client_id_base=stop_client_id_base,
+            intent_component="position_manager",
+            intent_kind="STOP_RESTORE",
         )
-        if isinstance(o, dict) and o.get("id"):
-            return str(o.get("id"))
-    except Exception as e1:
-        if _looks_like_dup_client_order_id(e1):
-            adopted = await _adopt_open_order_id_by_client_id(bot, sym_raw, cid_a, cache_key=k)
-            if adopted:
-                log_entry.warning(f"{k} posmgr stop A duplicate → ADOPTED id={adopted}")
-                return adopted
-        log_entry.warning(f"{k} posmgr stop A failed: {e1}")
-
-    # B) closePosition ladder (IMPORTANT: intent_reduce_only=False)
-    try:
-        o = await create_order(
-            bot,
-            symbol=sym_raw,
-            type="STOP_MARKET",
-            side=stop_side,
-            amount=None,
-            price=None,
-            params={"closePosition": True},
-            intent_reduce_only=False,       # ✅ FIX
-            intent_close_position=True,
-            stop_price=float(stop_price),
-            hedge_side_hint=hedge_side_hint,
-            client_order_id=cid_b,
-            retries=6,
-        )
-        if isinstance(o, dict) and o.get("id"):
-            return str(o.get("id"))
-    except Exception as e2:
-        if _looks_like_dup_client_order_id(e2):
-            adopted = await _adopt_open_order_id_by_client_id(bot, sym_raw, cid_b, cache_key=k)
-            if adopted:
-                log_entry.warning(f"{k} posmgr stop B duplicate → ADOPTED id={adopted}")
-                return adopted
-        log_entry.warning(f"{k} posmgr stop B failed: {e2}")
-
-    log_entry.critical(f"{k} posmgr stop failed (all fallbacks exhausted)")
-    return None
+    except Exception as e:
+        log_entry.warning(f"{k} posmgr stop failed: {e}")
+        return None
 
 
 async def _place_trailing_router(
@@ -489,31 +423,26 @@ async def _place_trailing_router(
     qty: float,
     activation_price: float,
     callback_rate: float,
-    hedge_side_hint: str,   # "LONG"/"SHORT"
+    hedge_side_hint: str,
     k: str,
 ) -> Optional[str]:
-    close_side = "sell" if side == "long" else "buy"
-    cb = _clamp(float(callback_rate), 0.1, 5.0)
+    if not callable(_pm_place_trailing_router):
+        return None
     try:
-        o = await create_order(
+        return await _pm_place_trailing_router(
             bot,
-            symbol=sym_raw,
-            type="TRAILING_STOP_MARKET",
-            side=close_side,
-            amount=float(qty),
-            price=None,
-            params={},
-            intent_reduce_only=True,
+            sym_raw=sym_raw,
+            side=side,
+            qty=float(qty),
             activation_price=float(activation_price),
-            callback_rate=float(cb),
+            callback_rate=float(callback_rate),
             hedge_side_hint=hedge_side_hint,
-            retries=6,
+            intent_component="position_manager",
+            intent_kind="TRAILING_RESTORE",
         )
-        if isinstance(o, dict) and o.get("id"):
-            return str(o.get("id"))
     except Exception as e:
         log_entry.warning(f"{k} posmgr trailing failed: {e}")
-    return None
+        return None
 
 
 # ----------------------------
@@ -634,8 +563,20 @@ async def position_manager_tick(bot) -> None:
                     # 1) Ensure protective STOP exists
                     # ------------------------
                     if ensure_stop and isinstance(perf, dict):
+                        stage_hint = None
+                        if callable(_get_entry_stage_hint):
+                            try:
+                                rc = _ensure_run_context(bot)
+                                stage_hint = _get_entry_stage_hint(rc, symbol=k, consume=False)
+                            except Exception:
+                                stage_hint = None
                         last_chk = _safe_float(perf.get("posmgr_last_stop_check_ts", 0.0), 0.0)
-                        if (_now() - last_chk) >= max(5.0, stop_check_sec):
+                        urgent_stage1 = bool(
+                            isinstance(stage_hint, dict)
+                            and stage_hint.get("stage1_required")
+                            and not stage_hint.get("flatten_required")
+                        )
+                        if urgent_stage1 or (_now() - last_chk) >= max(5.0, stop_check_sec):
                             perf["posmgr_last_stop_check_ts"] = _now()
 
                             last_place = _safe_float(perf.get("posmgr_last_stop_place_ts", 0.0), 0.0)
@@ -682,6 +623,12 @@ async def position_manager_tick(bot) -> None:
                                         perf["posmgr_last_stop_place_ts"] = _now()
                                         perf["posmgr_last_stop_id"] = str(oid)
                                         perf["posmgr_last_stop_id_ts"] = _now()
+                                        if isinstance(stage_hint, dict):
+                                            try:
+                                                rc = _ensure_run_context(bot)
+                                                _ = _get_entry_stage_hint(rc, symbol=k, consume=True)
+                                            except Exception:
+                                                pass
                                         try:
                                             pos.hard_stop_order_id = str(oid)
                                             pos.hard_stop_order_ts = _now()

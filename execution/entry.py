@@ -20,7 +20,22 @@ from brain.state import Position
 from brain.persistence import save_brain
 from ta.volatility import AverageTrueRange
 
-from execution.order_router import create_order, cancel_order
+from execution.order_router import create_order
+from execution.entry_primitives import (
+    symkey as _shared_symkey,
+    resolve_raw_symbol as _shared_resolve_raw_symbol,
+    order_filled as _shared_order_filled,
+    order_avg_price as _shared_order_avg_price,
+    build_staged_protection_plan as _build_staged_protection_plan,
+)
+try:
+    from execution.protection_manager import (
+        place_stop_ladder_router as _pm_place_stop_ladder_router,
+        place_trailing_router as _pm_place_trailing_router,
+    )  # type: ignore
+except Exception:
+    _pm_place_stop_ladder_router = None
+    _pm_place_trailing_router = None
 from risk.kill_switch import trade_allowed
 
 try:
@@ -47,6 +62,7 @@ except Exception:
 
 
 _SYMBOL_LOCKS: dict[str, asyncio.Lock] = {}
+_LEGACY_ENTRY_WARNED = False
 
 # Skip logging throttle (prevents spam)
 _SKIP_LAST: dict[str, float] = {}
@@ -58,14 +74,18 @@ _ANOMALY_ACTIONS_CACHE: dict[str, Any] = {"ts": 0.0, "data": {}}
 _ANOMALY_CACHE_TTL = 5.0
 
 
+def _env_truthy(name: str, default: bool) -> bool:
+    try:
+        raw = os.getenv(name, "")
+        if raw is None or str(raw).strip() == "":
+            return bool(default)
+        return str(raw).strip().lower() in ("1", "true", "yes", "y", "on")
+    except Exception:
+        return bool(default)
+
+
 def _symkey(sym: str) -> str:
-    s = str(sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
+    return _shared_symkey(sym)
 
 
 def _load_anomaly_actions() -> dict[str, Any]:
@@ -414,16 +434,7 @@ async def _safe_speak(bot, text: str, priority: str = "critical"):
 
 
 def _resolve_raw_symbol(bot, k: str, sym_fallback: str) -> str:
-    try:
-        data = getattr(bot, "data", None)
-        raw_map = getattr(data, "raw_symbol", {}) if data is not None else {}
-        if isinstance(raw_map, dict):
-            v = raw_map.get(k)
-            if v:
-                return str(v)
-    except Exception:
-        pass
-    return sym_fallback
+    return _shared_resolve_raw_symbol(bot, k, sym_fallback)
 
 
 def _hedge_enabled(bot) -> bool:
@@ -496,44 +507,11 @@ async def _get_min_amount(bot, sym_raw: str, k: str) -> float:
 
 
 def _order_filled(order: dict) -> float:
-    if not isinstance(order, dict):
-        return 0.0
-
-    filled = _safe_float(order.get("filled", None), default=0.0)
-    if filled > 0:
-        return filled
-
-    info = order.get("info") or {}
-    filled2 = _safe_float(info.get("executedQty", None), default=0.0)
-    if filled2 > 0:
-        return filled2
-
-    return 0.0
+    return _shared_order_filled(order)
 
 
 def _order_avg_price(order: dict, fallback: float) -> float:
-    if not isinstance(order, dict):
-        return fallback
-
-    avg = _safe_float(order.get("average", None), default=0.0)
-    if avg > 0:
-        return avg
-
-    price = _safe_float(order.get("price", None), default=0.0)
-    if price > 0:
-        return price
-
-    info = order.get("info") or {}
-    avg2 = _safe_float(info.get("avgPrice", None), default=0.0)
-    if avg2 > 0:
-        return avg2
-
-    quote = _safe_float(info.get("cummulativeQuoteQty", None), default=0.0)
-    qty = _safe_float(info.get("executedQty", None), default=0.0)
-    if quote > 0 and qty > 0:
-        return quote / qty
-
-    return fallback
+    return _shared_order_avg_price(order, fallback)
 
 
 def _skip(bot, k: str, side: str, reason: str):
@@ -738,48 +716,6 @@ async def _get_funding_rate_safely(bot, k: str, sym_raw: str) -> float:
     return cached
 
 
-def _looks_like_dup_client_order_id(err: Exception) -> bool:
-    s = repr(err)
-    # Binance futures duplicate clientOrderId => code -4116
-    return ("-4116" in s) or ("ClientOrderId is duplicated" in s) or ("clientorderid is duplicated" in s.lower())
-
-
-async def _fetch_open_orders_safe(bot, sym_raw: str) -> list:
-    try:
-        fn = getattr(bot.ex, "fetch_open_orders", None)
-        if callable(fn):
-            res = await fn(sym_raw)
-            return res if isinstance(res, list) else []
-    except Exception:
-        pass
-    return []
-
-
-def _order_client_id_any(order: dict) -> str:
-    if not isinstance(order, dict):
-        return ""
-    info = order.get("info") or {}
-    for k in ("clientOrderId", "clientOrderID", "origClientOrderId", "origClientOrderID"):
-        v = order.get(k) or info.get(k)
-        if v:
-            return str(v)
-    return ""
-
-
-async def _adopt_open_order_id_by_client_id(bot, sym_raw: str, client_id: str) -> Optional[str]:
-    if not client_id:
-        return None
-    oo = await _fetch_open_orders_safe(bot, sym_raw)
-    for o in oo:
-        try:
-            if _order_client_id_any(o) == str(client_id):
-                oid = (o or {}).get("id") or ((o or {}).get("info") or {}).get("orderId")
-                return str(oid) if oid else None
-        except Exception:
-            continue
-    return None
-
-
 async def _emergency_flatten(bot, sym_raw: str, side: str, qty: float, why: str, k: str, pos_side: Optional[str] = None):
     for attempt in range(2):
         try:
@@ -794,6 +730,8 @@ async def _emergency_flatten(bot, sym_raw: str, side: str, qty: float, why: str,
                 intent_reduce_only=True,
                 hedge_side_hint=pos_side,
                 retries=6,
+                intent_component="entry",
+                intent_kind="ENTRY_EMERGENCY_FLATTEN",
             )
             return True
         except Exception as e:
@@ -824,74 +762,23 @@ async def _place_stop_ladder(
     pos_side: Optional[str],
     stop_client_id_base: str,
 ):
-    stop_side = "sell" if side == "long" else "buy"
-
-    base_params = {}
-    if pos_side:
-        base_params["positionSide"] = pos_side
-
-    # Make client IDs stable per position, different for A/B
-    cid_a = f"{stop_client_id_base}_A"
-    cid_b = f"{stop_client_id_base}_B"
-
-    # A) amount + reduceOnly (standard protective stop)
-    try:
-        order = await create_order(
-            bot,
-            symbol=sym_raw,
-            type="STOP_MARKET",
-            side=stop_side,
-            amount=float(qty),
-            price=None,
-            params=dict(base_params),
-            intent_reduce_only=True,
-            intent_close_position=False,
-            stop_price=float(stop_price),
-            hedge_side_hint=pos_side,
-            client_order_id=cid_a,  # ✅ stable id
-            retries=6,
-        )
-        if isinstance(order, dict) and order.get("id"):
-            return order.get("id")
-    except Exception as e1:
-        # ✅ If duplicate clientOrderId, adopt existing open order id
-        if _looks_like_dup_client_order_id(e1):
-            adopted = await _adopt_open_order_id_by_client_id(bot, sym_raw, cid_a)
-            if adopted:
-                log_entry.warning(f"{k} stop A duplicate → ADOPTED open order id={adopted}")
-                return adopted
-        log_entry.warning(f"{k} stop A failed: {e1}")
-
-    # B) closePosition stop (router will force amount=0.0 anyway)
-    try:
-        p = dict(base_params)
-        p["closePosition"] = True
-
-        order = await create_order(
-            bot,
-            symbol=sym_raw,
-            type="STOP_MARKET",
-            side=stop_side,
-            amount=None,
-            price=None,
-            params=p,
-            intent_reduce_only=False,
-            intent_close_position=True,
-            stop_price=float(stop_price),
-            hedge_side_hint=pos_side,
-            client_order_id=cid_b,  # ✅ stable id, different from A
-            retries=6,
-        )
-        if isinstance(order, dict) and order.get("id"):
-            return order.get("id")
-    except Exception as e2:
-        if _looks_like_dup_client_order_id(e2):
-            adopted = await _adopt_open_order_id_by_client_id(bot, sym_raw, cid_b)
-            if adopted:
-                log_entry.warning(f"{k} stop B duplicate → ADOPTED open order id={adopted}")
-                return adopted
-        log_entry.warning(f"{k} stop B failed: {e2}")
-
+    if callable(_pm_place_stop_ladder_router):
+        try:
+            oid = await _pm_place_stop_ladder_router(
+                bot,
+                sym_raw=sym_raw,
+                side=side,
+                qty=float(qty),
+                stop_price=float(stop_price),
+                hedge_side_hint=pos_side,
+                stop_client_id_base=stop_client_id_base,
+                intent_component="entry",
+                intent_kind="STOP_RESTORE",
+            )
+            if oid:
+                return oid
+        except Exception as e:
+            log_entry.warning(f"{k} stop placement via protection_manager failed: {e}")
     log_entry.critical(f"{k} stop failed (all fallbacks exhausted)")
     return None
 
@@ -907,56 +794,37 @@ async def _place_trailing_ladder(
     k: str,
     pos_side: Optional[str],
 ):
-    tside = "sell" if side == "long" else "buy"
-    cb = _clamp(float(callback_rate), 0.1, 5.0)
-
-    base_params = {}
-    if pos_side:
-        base_params["positionSide"] = pos_side
-
-    # A) activation + callback + reduceOnly
+    if not callable(_pm_place_trailing_router):
+        return False
     try:
-        order = await create_order(
+        oid = await _pm_place_trailing_router(
             bot,
-            symbol=sym_raw,
-            type="TRAILING_STOP_MARKET",
-            side=tside,
-            amount=float(qty),
-            price=None,
-            params=dict(base_params),
-            intent_reduce_only=True,
+            sym_raw=sym_raw,
+            side=side,
+            qty=float(qty),
             activation_price=float(activation_price),
-            callback_rate=float(cb),
+            callback_rate=float(callback_rate),
             hedge_side_hint=pos_side,
-            retries=6,
+            intent_component="entry",
+            intent_kind="TRAILING_RESTORE",
         )
-        return bool(order)
-    except Exception as e1:
-        log_entry.warning(f"{k} trailing A failed: {e1}")
-
-    # B) drop callbackRate
-    try:
-        order = await create_order(
-            bot,
-            symbol=sym_raw,
-            type="TRAILING_STOP_MARKET",
-            side=tside,
-            amount=float(qty),
-            price=None,
-            params=dict(base_params),
-            intent_reduce_only=True,
-            activation_price=float(activation_price),
-            hedge_side_hint=pos_side,
-            retries=6,
-        )
-        return bool(order)
-    except Exception as e2:
-        log_entry.warning(f"{k} trailing B failed: {e2}")
-
-    return False
+        return bool(oid)
+    except Exception as e:
+        log_entry.warning(f"{k} trailing placement via protection_manager failed: {e}")
+        return False
 
 
 async def try_enter(bot, sym: str, side: str):
+    global _LEGACY_ENTRY_WARNED
+    if not _env_truthy("ENTRY_ENABLE_LEGACY_TRY_ENTER", True):
+        if not _LEGACY_ENTRY_WARNED:
+            log_entry.critical(
+                "LEGACY try_enter blocked: ENTRY_ENABLE_LEGACY_TRY_ENTER=0 "
+                "(authoritative path is execution.entry_loop.entry_loop)"
+            )
+            _LEGACY_ENTRY_WARNED = True
+        return
+
     cfg = bot.cfg
 
     k = _symkey(sym)
@@ -1268,6 +1136,8 @@ async def try_enter(bot, sym: str, side: str):
                     params=p,
                     intent_reduce_only=False,
                     retries=6,
+                    intent_component="entry",
+                    intent_kind="ENTRY",
                 )
 
                 oid = (order or {}).get("id") if isinstance(order, dict) else None
@@ -1318,6 +1188,8 @@ async def try_enter(bot, sym: str, side: str):
                 params=p_entry,
                 intent_reduce_only=False,
                 retries=6,
+                intent_component="entry",
+                intent_kind="ENTRY",
             )
 
             filled = _order_filled(order)
@@ -1326,6 +1198,12 @@ async def try_enter(bot, sym: str, side: str):
                 return
 
             req_amt = max(float(amount), 1e-12)
+            staged_plan = _build_staged_protection_plan(
+                requested_qty=req_amt,
+                filled_qty=float(filled),
+                min_fill_ratio=float(getattr(cfg, "MIN_FILL_RATIO", 0.5) or 0.5),
+                trailing_enabled=bool(getattr(cfg, "DYNAMIC_TRAILING_FULL", False) or getattr(cfg, "DUAL_TRAILING", False)),
+            )
             if (filled / req_amt) < cfg.MIN_FILL_RATIO:
                 _skip(bot, k, side, f"partial fill {filled/req_amt:.1%} < {cfg.MIN_FILL_RATIO:.1%} — flatten")
                 ok = await _emergency_flatten(
@@ -1337,6 +1215,10 @@ async def try_enter(bot, sym: str, side: str):
 
             entry_price = _order_avg_price(order, ref_px)
             log_entry.info(f"FILLED: {filled:.6f} @ {entry_price:.6f}")
+            log_entry.info(
+                f"{k} protection plan stage={staged_plan.get('stage')} "
+                f"fill_ratio={staged_plan.get('fill_ratio', 0.0):.2f}"
+            )
 
             slippage_pct = abs(entry_price - ref_px) / ref_px if ref_px > 0 else 0.0
             if slippage_pct > cfg.SLIPPAGE_MAX_PCT:
@@ -1425,6 +1307,8 @@ async def try_enter(bot, sym: str, side: str):
                     intent_reduce_only=True,
                     hedge_side_hint=pos_side,
                     retries=6,
+                    intent_component="entry",
+                    intent_kind="ENTRY_TP",
                 )
             else:
                 log_entry.warning(f"{k} TP1 skipped (amount {tp1_amount:.6f} < min {min_amt:.6f})")
@@ -1441,6 +1325,8 @@ async def try_enter(bot, sym: str, side: str):
                     intent_reduce_only=True,
                     hedge_side_hint=pos_side,
                     retries=6,
+                    intent_component="entry",
+                    intent_kind="ENTRY_TP",
                 )
             else:
                 log_entry.warning(f"{k} TP2 skipped (amount {tp2_amount:.6f} < min {min_amt:.6f})")

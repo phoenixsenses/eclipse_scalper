@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import os
 import time
@@ -17,7 +18,19 @@ from typing import Any, Dict, Optional, Callable, Tuple
 
 from utils.logging import log_entry, log_core
 from execution.order_router import create_order, cancel_order
+from execution.entry_primitives import (
+    symkey as _shared_symkey,
+    resolve_raw_symbol as _shared_resolve_raw_symbol,
+    order_filled as _shared_order_filled,
+    order_avg_price as _shared_order_avg_price,
+    build_staged_protection_plan as _build_staged_protection_plan,
+)
 from execution.anomaly_guard import should_pause as anomaly_should_pause
+from execution.entry_decision import (
+    EntryDecisionRecord,
+    compute_entry_decision,
+    commit_entry_intent,
+)
 
 # Optional telemetry (never fatal)
 try:
@@ -33,6 +46,8 @@ try:
         ERR_STALE_DATA,
         ERR_DATA_QUALITY,
         ERR_ROUTER_BLOCK,
+        ERR_RISK,
+        ERR_RELIABILITY_GATE,
         ERR_PARTIAL_FILL,
         ERR_UNKNOWN,
         map_reason,
@@ -43,6 +58,8 @@ except Exception:
     ERR_STALE_DATA = "ERR_STALE_DATA"
     ERR_DATA_QUALITY = "ERR_DATA_QUALITY"
     ERR_ROUTER_BLOCK = "ERR_ROUTER_BLOCK"
+    ERR_RISK = "ERR_RISK"
+    ERR_RELIABILITY_GATE = "ERR_RELIABILITY_GATE"
     ERR_PARTIAL_FILL = "ERR_PARTIAL_FILL"
     ERR_UNKNOWN = "ERR_UNKNOWN"
     map_reason = None
@@ -69,6 +86,19 @@ try:
     from execution.adaptive_guard import get_notional_scale as get_adaptive_notional_scale  # type: ignore
 except Exception:
     get_adaptive_notional_scale = None
+
+try:
+    from execution.protection_manager import record_entry_stage_hint as _record_entry_stage_hint_pm  # type: ignore
+except Exception:
+    _record_entry_stage_hint_pm = None
+try:
+    from execution.protection_manager import place_stop_ladder_router as _pm_place_stop_ladder_router  # type: ignore
+except Exception:
+    _pm_place_stop_ladder_router = None
+try:
+    from execution.protection_manager import update_coverage_gap_state as _update_coverage_gap_state_pm  # type: ignore
+except Exception:
+    _update_coverage_gap_state_pm = None
 
 
 # ----------------------------
@@ -103,6 +133,152 @@ def _env_get(name: str) -> str:
         return ""
 
 
+def _ensure_run_context(bot) -> dict:
+    try:
+        st = getattr(bot, "state", None)
+        rc = getattr(st, "run_context", None) if st is not None else None
+        if isinstance(rc, dict):
+            return rc
+        if st is not None:
+            st.run_context = {}
+            return st.run_context
+    except Exception:
+        pass
+    return {}
+
+
+def _stage1_stop_client_id_base(symbol: str, hedge_side_hint: Optional[str], order_id: Optional[str]) -> str:
+    sym = _symkey(symbol)
+    hs = str(hedge_side_hint or "ONEWAY").upper()
+    seed = f"{sym}|{hs}|{order_id or ''}"
+    digest = hashlib.sha1(seed.encode("utf-8")).hexdigest()[:10]
+    return f"S1_{sym}_{hs}_{digest}"
+
+
+def _stage1_stop_pct(signal: Optional[Dict[str, Any]], default_pct: float) -> float:
+    sig = signal if isinstance(signal, dict) else {}
+    for key in ("entry_stop_pct", "stop_pct", "stopPct"):
+        if key in sig:
+            v = _safe_float(sig.get(key), default_pct)
+            if v > 0:
+                return float(v)
+    return float(default_pct)
+
+
+async def _maybe_place_stage1_emergency_stop(
+    bot,
+    *,
+    symbol: str,
+    sym_raw: str,
+    action: str,
+    filled_qty: float,
+    order: Dict[str, Any],
+    signal: Optional[Dict[str, Any]],
+    hedge_side_hint: Optional[str],
+    order_id: Optional[str],
+    fallback_price: Optional[float],
+) -> Dict[str, Any]:
+    enabled = _cfg_env_bool(bot, "ENTRY_STAGE1_EMERGENCY_ENABLED", False)
+    if not enabled or not callable(_pm_place_stop_ladder_router):
+        return {"attempted": False, "placed": False, "reason": "disabled"}
+
+    qty = abs(_safe_float(filled_qty, 0.0))
+    if qty <= 0:
+        return {"attempted": False, "placed": False, "reason": "no_fill"}
+
+    entry_px = _shared_order_avg_price(order or {}, float(fallback_price or 0.0))
+    if entry_px <= 0:
+        return {"attempted": False, "placed": False, "reason": "no_entry_price"}
+
+    base_pct = float(_cfg_env_float(bot, "ENTRY_STAGE1_STOP_PCT", 0.004) or 0.004)
+    stop_pct = max(1e-5, min(0.25, _stage1_stop_pct(signal, base_pct)))
+    side = "long" if str(action).lower().strip() == "buy" else "short"
+    stop_price = entry_px * (1.0 - stop_pct) if side == "long" else entry_px * (1.0 + stop_pct)
+    if stop_price <= 0:
+        return {"attempted": False, "placed": False, "reason": "invalid_stop_price"}
+
+    stop_client_base = _stage1_stop_client_id_base(symbol, hedge_side_hint, order_id)
+    try:
+        stop_id = await _pm_place_stop_ladder_router(
+            bot,
+            sym_raw=sym_raw,
+            side=side,
+            qty=float(qty),
+            stop_price=float(stop_price),
+            hedge_side_hint=hedge_side_hint,
+            stop_client_id_base=stop_client_base,
+            intent_component="entry_loop",
+            intent_kind="ENTRY_STAGE1_STOP",
+        )
+        placed = bool(stop_id)
+        return {
+            "attempted": True,
+            "placed": placed,
+            "stop_order_id": str(stop_id or ""),
+            "stop_price": float(stop_price),
+            "stop_pct": float(stop_pct),
+            "entry_price": float(entry_px),
+            "reason": ("ok" if placed else "router_none"),
+        }
+    except Exception as e:
+        return {"attempted": True, "placed": False, "reason": "exception", "err": repr(e)[:200]}
+
+
+async def _record_stage1_gap_assertion(
+    bot,
+    *,
+    symbol: str,
+    required_qty: float,
+    placed: bool,
+    reason: str,
+    stage1_payload: Optional[Dict[str, Any]] = None,
+) -> None:
+    if not callable(_update_coverage_gap_state_pm):
+        return
+    rc = _ensure_run_context(bot)
+    gap_store = rc.get("protection_gap_state")
+    if not isinstance(gap_store, dict):
+        gap_store = {}
+        rc["protection_gap_state"] = gap_store
+    s = gap_store.get(symbol)
+    if not isinstance(s, dict):
+        s = {}
+        gap_store[symbol] = s
+    ttl = float(_cfg_env_float(bot, "ENTRY_STAGE1_GAP_TTL_SEC", 90.0) or 90.0)
+    req = 0.0 if placed else float(abs(_safe_float(required_qty, 0.0)))
+    cov = _update_coverage_gap_state_pm(
+        s,
+        required_qty=req,
+        covered=bool(placed),
+        ttl_sec=ttl,
+        now_ts=_now(),
+        reason=str(reason or ("stage1_ok" if placed else "stage1_failed")),
+        coverage_ratio=(1.0 if placed else 0.0),
+    )
+    if callable(emit):
+        try:
+            payload = {
+                "symbol": symbol,
+                "placed": bool(placed),
+                "required_qty": float(req if req > 0 else abs(_safe_float(required_qty, 0.0))),
+                "reason": str(reason or ""),
+                "ttl_sec": float(ttl),
+                **(stage1_payload or {}),
+                "gap_active": bool((cov or {}).get("active", False)),
+                "gap_seconds": float((cov or {}).get("gap_seconds", 0.0) or 0.0),
+                "ttl_breached": bool((cov or {}).get("ttl_breached", False)),
+            }
+            await emit(
+                bot,
+                "entry.stage1_gap_assertion",
+                data=payload,
+                symbol=symbol,
+                level=("info" if placed else "warning"),
+            )
+        except Exception:
+            pass
+
+
 def _cfg_env_float(bot, name: str, default: float) -> float:
     """
     ENV wins, then cfg, then default.
@@ -130,14 +306,37 @@ def _cfg_env_bool(bot, name: str, default: Any = False) -> bool:
     return _truthy(_cfg(bot, name, default))
 
 
+def _safe_float(value: Any, default: float = 0.0) -> float:
+    try:
+        out = float(value)
+        if out != out:
+            return float(default)
+        return float(out)
+    except Exception:
+        return float(default)
+
+
 def _symkey(sym: str) -> str:
-    s = (sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
+    return _shared_symkey(sym)
+
+
+def _entry_idempotency_key(k: str, action: str, candle_sec: int = 60) -> str:
+    """
+    Deterministic clientOrderId for entry orders.
+
+    Uses candle-rounded timestamp so retries within the same candle produce the
+    identical ID, giving Binance -4116 duplicate rejection instead of a second
+    fill.  Format: SE_E_<symkey>_<hash10>  (always < 36 chars).
+    """
+    bucket = int(time.time() // max(1, candle_sec)) * max(1, candle_sec)
+    seed = f"ENTRY|{k}|{action}|{bucket}"
+    digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()[:10]
+    coid = f"SE_E_{k}_{digest}"
+    # Binance hard limit: clientOrderId < 36 chars
+    if len(coid) > 35:
+        short_k = hashlib.sha1(k.encode("utf-8")).hexdigest()[:6]
+        coid = f"SE_E_{short_k}_{digest}"
+    return coid[:35]
 
 
 def _parse_group_kv(raw: str) -> dict:
@@ -497,26 +696,11 @@ def _in_position_brain(bot, k: str) -> bool:
 
 
 def _resolve_raw_symbol(bot, k: str, fallback: str) -> str:
-    try:
-        data = getattr(bot, "data", None)
-        raw_map = getattr(data, "raw_symbol", {}) if data is not None else {}
-        if isinstance(raw_map, dict) and raw_map.get(k):
-            return str(raw_map[k])
-    except Exception:
-        pass
-    return fallback
+    return _shared_resolve_raw_symbol(bot, k, fallback)
 
 
 def _order_filled(order: dict) -> float:
-    try:
-        if order is None:
-            return 0.0
-        if "filled" in order:
-            return float(order.get("filled") or 0.0)
-        info = order.get("info") or {}
-        return float(info.get("executedQty") or 0.0)
-    except Exception:
-        return 0.0
+    return _shared_order_filled(order)
 
 
 def _recent_router_blocks(bot, k: str, window_sec: float, *, now_ts: Optional[float] = None) -> int:
@@ -544,6 +728,38 @@ def _recent_router_blocks(bot, k: str, window_sec: float, *, now_ts: Optional[fl
         return count
     except Exception:
         return 0
+
+
+def _corr_snapshot(bot, guard_knobs: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Correlation context for entry decision/blocked telemetry.
+    Prefer guard-level values when present; fallback to reconcile metrics.
+    """
+    out: Dict[str, Any] = {}
+    try:
+        src = dict(guard_knobs or {})
+    except Exception:
+        src = {}
+    if not src:
+        try:
+            st = getattr(bot, "state", None)
+            rm = getattr(st, "reconcile_metrics", None) if st is not None else None
+            if isinstance(rm, dict):
+                src = rm
+        except Exception:
+            src = {}
+    try:
+        out["corr_pressure"] = float(src.get("corr_pressure", 0.0) or 0.0)
+    except Exception:
+        out["corr_pressure"] = 0.0
+    out["corr_regime"] = str(src.get("corr_regime", "NORMAL") or "NORMAL")
+    try:
+        out["corr_confidence"] = float(src.get("corr_confidence", 1.0) or 1.0)
+    except Exception:
+        out["corr_confidence"] = 1.0
+    out["corr_reason_tags"] = str(src.get("corr_reason_tags", "stable") or "stable")
+    out["corr_worst_group"] = str(src.get("corr_worst_group", "") or "")
+    return out
 
 
 
@@ -644,6 +860,168 @@ def _resolve_symbol_sizing(bot, symbol: str) -> tuple[float, float]:
     if fixed_notional <= 0:
         fixed_notional = base_notional
     return float(fixed_qty), float(fixed_notional)
+
+
+def _get_guard_knobs(bot) -> dict[str, Any]:
+    st = getattr(bot, "state", None)
+    if st is None:
+        return {}
+    raw = getattr(st, "guard_knobs", None)
+    if isinstance(raw, dict):
+        return raw
+    if hasattr(raw, "to_dict") and callable(getattr(raw, "to_dict", None)):
+        try:
+            data = raw.to_dict()
+            if isinstance(data, dict):
+                return data
+        except Exception:
+            return {}
+    return {}
+
+
+def _guard_block_reason_code(guard_knobs: dict[str, Any]) -> tuple[str, str]:
+    reason = str(guard_knobs.get("reason") or "")
+    runtime_gate_degraded = bool(guard_knobs.get("runtime_gate_degraded", False))
+    reconcile_first_gate_degraded = bool(guard_knobs.get("reconcile_first_gate_degraded", False))
+    if (not runtime_gate_degraded) and ("runtime_gate_degraded" in reason.lower()):
+        runtime_gate_degraded = True
+    if runtime_gate_degraded:
+        return "runtime_gate_reconcile_first", ERR_RELIABILITY_GATE
+    if reconcile_first_gate_degraded:
+        return "reconcile_first_pressure", ERR_RELIABILITY_GATE
+    return "belief_controller_block", ERR_ROUTER_BLOCK
+
+
+def _resolve_symbol_guard(guard_knobs: dict[str, Any], symbol: str) -> dict[str, Any]:
+    base = dict(guard_knobs or {})
+    per_symbol = base.get("per_symbol")
+    if not isinstance(per_symbol, dict):
+        return base
+    sym = _symkey(symbol)
+    if not sym:
+        return base
+    override = per_symbol.get(sym)
+    if not isinstance(override, dict):
+        return base
+    merged = dict(base)
+    for k, v in override.items():
+        merged[k] = v
+    return merged
+
+
+def _record_reconcile_first_gate(
+    bot,
+    symbol: str,
+    severity: float,
+    reason: str = "",
+    corr: Optional[Dict[str, Any]] = None,
+) -> None:
+    """
+    Track reconcile-first pressure in state.kill_metrics so reconcile/belief_controller
+    can consume recent spike pressure as runtime policy input.
+    """
+    try:
+        st = getattr(bot, "state", None)
+        if st is None:
+            return
+        km = getattr(st, "kill_metrics", None)
+        if not isinstance(km, dict):
+            km = {}
+            st.kill_metrics = km
+        now_ts = _now()
+        sev = max(0.0, min(1.0, float(severity or 0.0)))
+        threshold = float(_cfg_env_float(bot, "ENTRY_RECONCILE_FIRST_SEVERITY_THRESHOLD", 0.85) or 0.85)
+        events = km.get("reconcile_first_gate_events")
+        if not isinstance(events, list):
+            events = []
+            km["reconcile_first_gate_events"] = events
+        events.append(
+            {
+                "ts": float(now_ts),
+                "severity": float(sev),
+                "symbol": _symkey(symbol),
+                "reason": str(reason or ""),
+                "corr_pressure": float(_safe_float((corr or {}).get("corr_pressure", 0.0), 0.0)),
+                "corr_regime": str((corr or {}).get("corr_regime", "") or ""),
+                "corr_reason_tags": str((corr or {}).get("corr_reason_tags", "") or ""),
+                "corr_worst_group": str((corr or {}).get("corr_worst_group", "") or ""),
+            }
+        )
+        max_events = int(_cfg_env_float(bot, "ENTRY_RECONCILE_FIRST_EVENTS_MAX", 160.0) or 160)
+        if max_events < 20:
+            max_events = 20
+        if len(events) > max_events:
+            del events[:-max_events]
+        current_streak = int(km.get("reconcile_first_gate_current_streak", 0) or 0)
+        if sev >= threshold:
+            current_streak += 1
+        else:
+            current_streak = 0
+        km["reconcile_first_gate_current_streak"] = int(current_streak)
+        km["reconcile_first_gate_max_streak"] = max(
+            int(km.get("reconcile_first_gate_max_streak", 0) or 0),
+            int(current_streak),
+        )
+        km["reconcile_first_gate_count"] = int(km.get("reconcile_first_gate_count", 0) or 0) + 1
+        km["reconcile_first_gate_last_ts"] = float(now_ts)
+        km["reconcile_first_gate_last_severity"] = float(sev)
+        km["reconcile_first_gate_last_reason"] = str(reason or "")
+        km["reconcile_first_gate_last_corr_pressure"] = float(
+            _safe_float((corr or {}).get("corr_pressure", 0.0), 0.0)
+        )
+        km["reconcile_first_gate_last_corr_regime"] = str((corr or {}).get("corr_regime", "") or "")
+    except Exception:
+        return
+
+
+def _estimate_open_exposure_usdt(bot) -> float:
+    total = 0.0
+    try:
+        pos_map = getattr(getattr(bot, "state", None), "positions", None)
+        if not isinstance(pos_map, dict):
+            return 0.0
+        for _k, pos in pos_map.items():
+            try:
+                sz = abs(float(getattr(pos, "size", 0.0) or 0.0))
+                px = float(getattr(pos, "entry_price", 0.0) or 0.0)
+                if sz > 0 and px > 0:
+                    total += (sz * px)
+            except Exception:
+                continue
+    except Exception:
+        return 0.0
+    return float(max(0.0, total))
+
+
+def _entry_budget_snapshot(bot, guard_knobs: dict[str, Any]) -> tuple[bool, float, float, str]:
+    enabled = _cfg_env_bool(bot, "ENTRY_BUDGET_ENABLED", True)
+    if not enabled:
+        return False, 0.0, 0.0, ""
+    total = float(_cfg_env_float(bot, "ENTRY_GLOBAL_BUDGET_USDT", 0.0) or 0.0)
+    if total <= 0:
+        total = float(_cfg(bot, "ENTRY_GLOBAL_BUDGET_USDT", 0.0) or 0.0)
+    if total <= 0:
+        total = float(guard_knobs.get("global_entry_budget_usdt", 0.0) or 0.0)
+    if total <= 0:
+        return False, 0.0, 0.0, ""
+    include_open = _cfg_env_bool(bot, "ENTRY_BUDGET_INCLUDE_OPEN_EXPOSURE", True)
+    open_exposure = _estimate_open_exposure_usdt(bot) if include_open else 0.0
+    remaining = max(0.0, total - open_exposure)
+    return True, float(total), float(remaining), f"entry_budget total={total:.2f} open={open_exposure:.2f}"
+
+
+def _entry_budget_symbol_cap(bot, confidence: float, min_conf: float, remaining: float) -> float:
+    rem = max(0.0, float(remaining or 0.0))
+    if rem <= 0:
+        return 0.0
+    conf = max(0.0, min(1.0, float(confidence or 0.0)))
+    mn = max(0.0, min(1.0, float(min_conf or 0.0)))
+    span = max(1e-6, 1.0 - mn)
+    score = max(0.0, min(1.0, (conf - mn) / span))
+    min_share = max(0.01, min(1.0, float(_cfg_env_float(bot, "ENTRY_BUDGET_MIN_SHARE", 0.10) or 0.10)))
+    max_share = max(min_share, min(1.0, float(_cfg_env_float(bot, "ENTRY_BUDGET_MAX_SHARE", 0.60) or 0.60)))
+    share = min_share + ((max_share - min_share) * score)
+    return float(max(0.0, rem * share))
 
 
 # ----------------------------
@@ -998,6 +1376,99 @@ def _reset_partial_fill_hits(symbol: str) -> None:
     _PARTIAL_FILL_STREAK.pop(symbol, None)
 
 
+async def _resolve_partial_fill_state(
+    bot,
+    *,
+    symbol: str,
+    sym_raw: str,
+    action: str,
+    otype: str,
+    order_id: Optional[str],
+    requested: float,
+    filled: float,
+    min_ratio: float,
+    hedge_side_hint: Optional[str],
+) -> Dict[str, Any]:
+    """
+    Resolve a below-threshold partial fill.
+    Returns metadata with a concrete outcome:
+      - partial_forced_flatten
+      - partial_stuck
+    """
+    ratio = (filled / requested) if (requested > 0 and filled > 0) else 0.0
+    out: Dict[str, Any] = {
+        "requested": float(requested),
+        "filled": float(filled),
+        "ratio": float(ratio),
+        "min_ratio": float(min_ratio),
+        "cancel_attempted": False,
+        "cancel_ok": False,
+        "flatten_attempted": False,
+        "flatten_ok": False,
+        "outcome": "partial_stuck",
+    }
+
+    cancel_enabled = _cfg_env_bool(bot, "ENTRY_PARTIAL_CANCEL", True)
+    if cancel_enabled and order_id and str(otype).lower().strip() == "limit":
+        out["cancel_attempted"] = True
+        cancel_retries = max(1, int(_cfg_env_float(bot, "ENTRY_PARTIAL_CANCEL_RETRIES", 2) or 2))
+        cancel_delay = max(0.0, float(_cfg_env_float(bot, "ENTRY_PARTIAL_CANCEL_DELAY_SEC", 0.25) or 0.25))
+        for _ in range(cancel_retries):
+            try:
+                ok = await cancel_order(bot, str(order_id), sym_raw)
+                if ok is not False:
+                    out["cancel_ok"] = True
+                    break
+            except Exception:
+                pass
+            if cancel_delay > 0:
+                await asyncio.sleep(cancel_delay)
+
+    force_flatten = _cfg_env_bool(bot, "ENTRY_PARTIAL_FORCE_FLATTEN", True)
+    if force_flatten and filled > 0:
+        out["flatten_attempted"] = True
+        flatten_side = "sell" if str(action).lower().strip() == "buy" else "buy"
+        flatten_retries = max(1, int(_cfg_env_float(bot, "ENTRY_PARTIAL_FLATTEN_RETRIES", 2) or 2))
+        for _ in range(flatten_retries):
+            try:
+                res = await create_order(
+                    bot,
+                    symbol=sym_raw,
+                    type="MARKET",
+                    side=flatten_side,
+                    amount=float(filled),
+                    price=None,
+                    params={},
+                    intent_reduce_only=True,
+                    intent_close_position=False,
+                    hedge_side_hint=hedge_side_hint,
+                    retries=int(_cfg_env_float(bot, "ENTRY_ROUTER_RETRIES", 4) or 4),
+                    intent_component="entry_loop_partial_flatten",
+                    intent_kind="ENTRY_PARTIAL_FLATTEN",
+                )
+                if isinstance(res, dict):
+                    if res.get("id") or _order_filled(res) > 0:
+                        out["flatten_ok"] = True
+                        break
+            except Exception:
+                pass
+        if out["flatten_ok"]:
+            out["outcome"] = "partial_forced_flatten"
+
+    if callable(emit):
+        try:
+            await emit(
+                bot,
+                "entry.partial_fill_state",
+                data={"symbol": symbol, **out, "code": ERR_PARTIAL_FILL},
+                symbol=symbol,
+                level=("warning" if out.get("flatten_ok") else "critical"),
+            )
+        except Exception:
+            pass
+    return out
+
+
 async def _emit_latency(
     bot,
     *,
@@ -1037,6 +1508,8 @@ async def _emit_entry_blocked(
     data_payload: Dict[str, Any] = dict(data or {})
     data_payload.setdefault("symbol", symbol)
     data_payload.setdefault("reason", reason)
+    for ck, cv in _corr_snapshot(bot).items():
+        data_payload.setdefault(ck, cv)
     if "code" not in data_payload:
         try:
             code = map_reason(reason) if callable(map_reason) else ERR_UNKNOWN
@@ -1059,6 +1532,43 @@ async def _emit_entry_blocked(
             await emit(bot, "entry.blocked", data=data_payload, symbol=symbol, level=level)
     except Exception:
         pass
+
+
+async def _emit_entry_decision(bot, rec: EntryDecisionRecord, *, level: str = "info", throttle_sec: float = 0.0) -> None:
+    data = rec.to_dict()
+    try:
+        guard_meta = data.get("guard_knobs")
+        guard_knobs = guard_meta if isinstance(guard_meta, dict) else None
+    except Exception:
+        guard_knobs = None
+    for ck, cv in _corr_snapshot(bot, guard_knobs=guard_knobs).items():
+        data.setdefault(ck, cv)
+    symbol = str(data.get("symbol") or "")
+    if throttle_sec > 0 and callable(emit_throttled):
+        try:
+            await emit_throttled(
+                bot,
+                "entry.decision",
+                key=f"{symbol}:{rec.stage}:{rec.action}:{rec.reason_primary or 'ok'}",
+                cooldown_sec=float(throttle_sec),
+                data=data,
+                symbol=symbol or None,
+                level=level,
+            )
+        except Exception:
+            pass
+        return
+    if callable(emit):
+        try:
+            await emit(
+                bot,
+                "entry.decision",
+                data=data,
+                symbol=symbol or None,
+                level=level,
+            )
+        except Exception:
+            pass
 
 
 async def _report_signal_feedback(bot) -> None:
@@ -1102,24 +1612,117 @@ def _get_entry_lock(k: str) -> asyncio.Lock:
     return lk
 
 
-def _set_pending(k: str, *, sec: float, order_id: Optional[str] = None) -> None:
+def _set_pending(k_or_bot, k_or_sec=None, *, sec: float = 0.0, order_id: Optional[str] = None, bot=None) -> None:
+    """
+    Persist entry pending-block to bot.state.run_context so it survives restarts.
+
+    Accepts both new signature  _set_pending(bot, k, sec=…)
+    and legacy in-memory fallback _set_pending(k, sec=…).
+    """
+    # Resolve overloaded args: (bot, k, sec=…) vs (k, sec=…)
+    if bot is not None or (k_or_sec is not None and isinstance(k_or_sec, str)):
+        _bot = k_or_sec if bot is None and hasattr(k_or_sec, "state") else bot
+        _k = k_or_sec if isinstance(k_or_sec, str) else str(k_or_bot)
+        if _bot is None or not hasattr(_bot, "state"):
+            _bot = k_or_bot if hasattr(k_or_bot, "state") else None
+            _k = k_or_sec if isinstance(k_or_sec, str) else str(k_or_bot)
+    elif hasattr(k_or_bot, "state"):
+        _bot = k_or_bot
+        _k = str(k_or_sec or "")
+    else:
+        _bot = None
+        _k = str(k_or_bot)
+
+    until_ts = _now() + max(0.0, float(sec))
+
+    # Always update in-memory (fast path for same-process checks)
     try:
-        _PENDING_UNTIL[k] = _now() + max(0.0, float(sec))
+        _PENDING_UNTIL[_k] = until_ts
         if order_id:
-            _PENDING_ORDER_ID[k] = str(order_id)
+            _PENDING_ORDER_ID[_k] = str(order_id)
     except Exception:
         pass
 
+    # Persist to run_context so pending survives process restart
+    if _bot is not None:
+        try:
+            rc = _ensure_run_context(_bot)
+            store = rc.setdefault("entry_pending", {})
+            store[_k] = until_ts
+        except Exception:
+            pass
 
-def _pending_active(k: str) -> bool:
+
+def _pending_active(k_or_bot, k_or_none=None) -> bool:
+    """
+    Check if entry pending-block is active.
+
+    Accepts both new signature  _pending_active(bot, k)
+    and legacy in-memory fallback _pending_active(k).
+    """
+    if k_or_none is not None and isinstance(k_or_none, str):
+        _bot = k_or_bot
+        _k = k_or_none
+    elif hasattr(k_or_bot, "state"):
+        _bot = k_or_bot
+        _k = str(k_or_none or "")
+    else:
+        _bot = None
+        _k = str(k_or_bot)
+
+    now = _now()
+
+    # Check in-memory first (fast path)
     try:
-        until = float(_PENDING_UNTIL.get(k, 0.0) or 0.0)
-        return _now() < until
+        until = float(_PENDING_UNTIL.get(_k, 0.0) or 0.0)
+        if now < until:
+            return True
     except Exception:
-        return False
+        pass
+
+    # Check persisted state (survives restart)
+    if _bot is not None:
+        try:
+            rc = _ensure_run_context(_bot)
+            store = rc.get("entry_pending")
+            if isinstance(store, dict):
+                until = float(store.get(_k, 0.0) or 0.0)
+                if now < until:
+                    # Hydrate in-memory cache
+                    _PENDING_UNTIL[_k] = until
+                    return True
+        except Exception:
+            pass
+
+    return False
 
 
-async def _has_open_entry_order(bot, k: str, sym_raw: str) -> bool:
+def _clear_pending(k_or_bot, k_or_none=None) -> None:
+    """Clear pending-block for a symbol (both in-memory and persisted)."""
+    if k_or_none is not None and isinstance(k_or_none, str):
+        _bot = k_or_bot
+        _k = k_or_none
+    elif hasattr(k_or_bot, "state"):
+        _bot = k_or_bot
+        _k = str(k_or_none or "")
+    else:
+        _bot = None
+        _k = str(k_or_bot)
+
+    _PENDING_UNTIL.pop(_k, None)
+    _PENDING_ORDER_ID.pop(_k, None)
+
+    if _bot is not None:
+        try:
+            rc = _ensure_run_context(_bot)
+            store = rc.get("entry_pending")
+            if isinstance(store, dict):
+                store.pop(_k, None)
+        except Exception:
+            pass
+
+
+async def _has_open_entry_order(bot, k: str, sym_raw: str, *, max_open: int = 1) -> bool:
     """
     Best-effort: detect open orders from exchange to avoid stacking while reconcile lags.
     This is intentionally conservative and never fatal.
@@ -1149,7 +1752,8 @@ async def _has_open_entry_order(bot, k: str, sym_raw: str) -> bool:
         if not isinstance(orders, (list, tuple)) or not orders:
             return False
 
-        # If we can, ignore reduceOnly/closePosition orders (exits); entry loop should only care about entry-ish orders.
+        # Ignore reduceOnly/closePosition orders (exits); entry loop only cares about entry-ish orders.
+        open_count = 0
         for o in orders:
             if not isinstance(o, dict):
                 continue
@@ -1163,7 +1767,9 @@ async def _has_open_entry_order(bot, k: str, sym_raw: str) -> bool:
 
             status = str(o.get("status") or "").lower()
             if status in ("open", "new", "partially_filled", ""):
-                return True
+                open_count += 1
+                if open_count >= max(1, int(max_open or 1)):
+                    return True
 
         return False
     except Exception:
@@ -1237,8 +1843,8 @@ async def entry_loop(bot) -> None:
     poll_sec = _cfg_env_float(bot, "ENTRY_POLL_SEC", 1.0)
     wait_data_sec = _cfg_env_float(bot, "ENTRY_WAIT_FOR_DATA_READY_SEC", 8.0)
     per_symbol_gap_sec = _cfg_env_float(bot, "ENTRY_PER_SYMBOL_GAP_SEC", 2.5)
-    local_cooldown_sec = _cfg_env_float(bot, "ENTRY_LOCAL_COOLDOWN_SEC", 8.0)
-    min_conf = _cfg_env_float(bot, "ENTRY_MIN_CONFIDENCE", 0.0)
+    base_local_cooldown_sec = _cfg_env_float(bot, "ENTRY_LOCAL_COOLDOWN_SEC", 8.0)
+    base_min_conf = _cfg_env_float(bot, "ENTRY_MIN_CONFIDENCE", 0.0)
 
     # NEW: pending-block window after submit to stop stacking while reconcile adopts
     pending_block_sec = _cfg_env_float(bot, "ENTRY_PENDING_BLOCK_SEC", 30.0)
@@ -1323,6 +1929,9 @@ async def entry_loop(bot) -> None:
             if not syms:
                 await asyncio.sleep(max(0.25, poll_sec))
                 continue
+            global_guard_knobs = _get_guard_knobs(bot)
+            budget_enabled, budget_total, budget_remaining, budget_reason = _entry_budget_snapshot(bot, global_guard_knobs)
+            budget_spent = 0.0
 
             for sym in syms:
                 if shutdown_ev.is_set():
@@ -1332,13 +1941,110 @@ async def entry_loop(bot) -> None:
                 if not k:
                     continue
 
-                current_min_conf = min_conf
+                guard_knobs = _resolve_symbol_guard(global_guard_knobs, k)
+                guard_mode = str(guard_knobs.get("mode") or "").upper()
+                allow_entries = bool(guard_knobs.get("allow_entries", True))
+                guard_min_conf = float(guard_knobs.get("min_entry_conf", 0.0) or 0.0)
+                guard_cooldown = float(guard_knobs.get("entry_cooldown_seconds", 0.0) or 0.0)
+                guard_max_notional = float(guard_knobs.get("max_notional_usdt", 0.0) or 0.0)
+                guard_max_open = int(guard_knobs.get("max_open_orders_per_symbol", 1) or 1)
+                runtime_gate_degraded = bool(guard_knobs.get("runtime_gate_degraded", False))
+                reconcile_first_gate_degraded = bool(guard_knobs.get("reconcile_first_gate_degraded", False))
+                runtime_gate_reason = str(guard_knobs.get("runtime_gate_reason") or "")
+                runtime_gate_degrade_score = float(guard_knobs.get("runtime_gate_degrade_score", 0.0) or 0.0)
+                symbol_debt_score = float(guard_knobs.get("debt_score", 0.0) or 0.0)
+                symbol_severity = max(0.0, min(1.0, symbol_debt_score))
+                reconcile_first_severity = max(float(runtime_gate_degrade_score), float(symbol_severity))
+                local_cooldown_sec = max(float(base_local_cooldown_sec), max(0.0, guard_cooldown))
+                current_min_conf = max(float(base_min_conf), max(0.0, guard_min_conf))
+
+                if not allow_entries:
+                    block_reason, block_code = _guard_block_reason_code(guard_knobs)
+                    corr_ctx = _corr_snapshot(bot, guard_knobs)
+                    _record_reconcile_first_gate(
+                        bot,
+                        k,
+                        reconcile_first_severity,
+                        runtime_gate_reason or str(guard_knobs.get("reason") or ""),
+                        corr=corr_ctx,
+                    )
+                    await _emit_entry_blocked(
+                        bot,
+                        k,
+                        block_reason,
+                        data={
+                            "mode": guard_mode or "UNKNOWN",
+                            "reason": str(guard_knobs.get("reason") or ""),
+                            "debt_score": float(guard_knobs.get("debt_score", 0.0) or 0.0),
+                            "debt_growth_per_min": float(guard_knobs.get("debt_growth_per_min", 0.0) or 0.0),
+                            "runtime_gate_degraded": runtime_gate_degraded,
+                            "runtime_gate_reason": runtime_gate_reason,
+                            "runtime_gate_degrade_score": runtime_gate_degrade_score,
+                            "symbol_debt_score": symbol_debt_score,
+                            "symbol_severity": symbol_severity,
+                            "reconcile_first_severity": reconcile_first_severity,
+                            **corr_ctx,
+                            "code": block_code,
+                        },
+                        throttle_sec=15.0,
+                    )
+                    if (runtime_gate_degraded or reconcile_first_gate_degraded) and callable(emit_throttled):
+                        try:
+                            await emit_throttled(
+                                bot,
+                                "entry.reconcile_first_gate",
+                                key=f"{k}:reconcile_first_gate",
+                                cooldown_sec=15.0,
+                                data={
+                                    "symbol": k,
+                                    "mode": guard_mode or "UNKNOWN",
+                                    "reason": runtime_gate_reason or str(guard_knobs.get("reason") or ""),
+                                    "runtime_gate_degrade_score": runtime_gate_degrade_score,
+                                    "reconcile_first_gate_degraded": reconcile_first_gate_degraded,
+                                    "reconcile_first_gate_count": int(
+                                        guard_knobs.get("reconcile_first_gate_count", 0) or 0
+                                    ),
+                                    "reconcile_first_gate_max_severity": float(
+                                        guard_knobs.get("reconcile_first_gate_max_severity", 0.0) or 0.0
+                                    ),
+                                    "reconcile_first_gate_max_streak": int(
+                                        guard_knobs.get("reconcile_first_gate_max_streak", 0) or 0
+                                    ),
+                                    "symbol_debt_score": symbol_debt_score,
+                                    "symbol_severity": symbol_severity,
+                                    "reconcile_first_severity": reconcile_first_severity,
+                                    **corr_ctx,
+                                    "code": ERR_RELIABILITY_GATE,
+                                },
+                                symbol=k,
+                                level="warning",
+                            )
+                        except Exception:
+                            pass
+                    continue
+                if budget_enabled:
+                    rem = max(0.0, float(budget_remaining) - float(budget_spent))
+                    if rem <= 0:
+                        await _emit_entry_blocked(
+                            bot,
+                            k,
+                            "entry_budget_depleted",
+                            data={
+                                "reason": budget_reason,
+                                "budget_total_usdt": float(budget_total),
+                                "budget_remaining_usdt": float(rem),
+                                "code": ERR_RISK,
+                            },
+                            throttle_sec=15.0,
+                        )
+                        continue
+
                 guard_reason = ""
                 if callable(get_adaptive_override):
                     try:
-                        current_min_conf, guard_reason = get_adaptive_override(k, min_conf)
+                        current_min_conf, guard_reason = get_adaptive_override(k, current_min_conf)
                     except Exception:
-                        current_min_conf = min_conf
+                        current_min_conf = current_min_conf
                         guard_reason = ""
                 if guard_reason and diag:
                     _throttled_log(
@@ -1354,7 +2060,7 @@ async def entry_loop(bot) -> None:
                     continue
 
                 # hard pending gate (prevents stacking during adopt/reconcile lag)
-                if _pending_active(k):
+                if _pending_active(bot, k):
                     continue
 
                 # skip if already in position (brain-state)
@@ -1377,8 +2083,8 @@ async def entry_loop(bot) -> None:
 
                 # best-effort exchange probes (optional)
                 try:
-                    if await _has_open_entry_order(bot, k, sym_raw):
-                        _set_pending(k, sec=max(5.0, pending_block_sec * 0.5))
+                    if await _has_open_entry_order(bot, k, sym_raw, max_open=max(1, guard_max_open)):
+                        _set_pending(bot, k, sec=max(5.0, pending_block_sec * 0.5))
                         await _emit_entry_blocked(bot, k, "router_open_order", throttle_sec=15.0)
                         continue
                 except Exception:
@@ -1386,7 +2092,7 @@ async def entry_loop(bot) -> None:
 
                 try:
                     if await _has_open_position_exchange(bot, k, sym_raw):
-                        _set_pending(k, sec=max(5.0, pending_block_sec * 0.5))
+                        _set_pending(bot, k, sec=max(5.0, pending_block_sec * 0.5))
                         await _emit_entry_blocked(bot, k, "risk_exchange_position", throttle_sec=15.0)
                         continue
                 except Exception:
@@ -1401,7 +2107,7 @@ async def entry_loop(bot) -> None:
                     # re-check gates after lock (race-safe)
                     if shutdown_ev.is_set():
                         break
-                    if _pending_active(k):
+                    if _pending_active(bot, k):
                         await _emit_entry_blocked(bot, k, "cooldown_pending", throttle_sec=10.0)
                         continue
                     if _in_position_brain(bot, k):
@@ -1516,26 +2222,40 @@ async def entry_loop(bot) -> None:
                         continue
 
                     action = _parse_action(sig)
-                    if action not in ("buy", "sell"):
-                        await _emit_entry_blocked(bot, k, "signal_action", throttle_sec=30.0)
-                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
-                        continue
-
-                    # confidence gate
+                    # confidence snapshot used by EDR + notional scaling
                     try:
                         conf = float(sig.get("confidence", sig.get("conf", 0.0)) or 0.0)
                     except Exception:
                         conf = 0.0
-                    if current_min_conf > 0 and conf < current_min_conf:
-                        await _emit_entry_blocked(bot, k, "confidence_low", throttle_sec=30.0)
-                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
-                        continue
 
                     otype = _parse_order_type(sig)
                     price = _parse_price(sig) if otype == "limit" else None
                     amt = _parse_amount(sig)
                     if amt is None:
                         amt = _sizing_fallback_amount(bot, k)
+
+                    propose_rec = compute_entry_decision(
+                        symbol=k,
+                        signal=sig if isinstance(sig, dict) else None,
+                        guard_knobs=guard_knobs,
+                        min_confidence=float(current_min_conf),
+                        amount=amt,
+                        order_type=otype,
+                        price=price,
+                        planned_notional=0.0,
+                        stage="propose",
+                        meta={
+                            "runtime_gate_degraded": runtime_gate_degraded,
+                            "reconcile_first_gate_degraded": reconcile_first_gate_degraded,
+                            **_corr_snapshot(bot, guard_knobs),
+                        },
+                    )
+                    if propose_rec.action in ("DENY", "DEFER"):
+                        reason = propose_rec.reason_primary or "signal_missing"
+                        await _emit_entry_decision(bot, propose_rec, level="warning", throttle_sec=15.0)
+                        await _emit_entry_blocked(bot, k, reason, throttle_sec=30.0)
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
 
                     if amt is None or amt <= 0:
                         if sizing_warn_every > 0 and (_now() - last_sizing_warn_ts) >= sizing_warn_every:
@@ -1554,7 +2274,7 @@ async def entry_loop(bot) -> None:
                     if hedge_hint_mode:
                         hedge_side_hint = "long" if action == "buy" else "short"
 
-                    conf_scale, conf_reason = _confidence_notional_scale(bot, float(confidence or 0.0))
+                    conf_scale, conf_reason = _confidence_notional_scale(bot, float(conf or 0.0))
                     if conf_scale and conf_scale < 1.0 and amt is not None and amt > 0:
                         try:
                             base_amt = float(amt)
@@ -1572,7 +2292,7 @@ async def entry_loop(bot) -> None:
                                             "scaled_qty": amt,
                                             "scale": conf_scale,
                                             "reason": conf_reason or "confidence",
-                                            "confidence": float(confidence or 0.0),
+                                            "confidence": float(conf or 0.0),
                                         },
                                         symbol=k,
                                         level="info",
@@ -1656,6 +2376,113 @@ async def entry_loop(bot) -> None:
                         await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                         continue
 
+                    if guard_max_notional > 0 and planned_notional > guard_max_notional:
+                        try:
+                            scale = float(guard_max_notional) / max(1e-9, float(planned_notional))
+                            if scale <= 0:
+                                await _emit_entry_blocked(
+                                    bot,
+                                    k,
+                                    "belief_notional_cap",
+                                    data={"cap": guard_max_notional, "planned_notional": planned_notional, "mode": guard_mode},
+                                    throttle_sec=15.0,
+                                )
+                                await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                                continue
+                            amt = float(amt) * float(scale)
+                            planned_notional = float(planned_notional) * float(scale)
+                            if callable(emit_throttled):
+                                asyncio.create_task(
+                                    emit_throttled(
+                                        bot,
+                                        "entry.notional_scaled",
+                                        key=f"{k}:belief_cap",
+                                        cooldown_sec=60.0,
+                                        data={
+                                            "symbol": k,
+                                            "scale": scale,
+                                            "planned_notional": planned_notional,
+                                            "cap": guard_max_notional,
+                                            "reason": "belief_controller_cap",
+                                            "mode": guard_mode,
+                                        },
+                                        symbol=k,
+                                        level="warning",
+                                    )
+                                )
+                        except Exception:
+                            pass
+
+                    if budget_enabled and planned_notional > 0:
+                        rem_budget = max(0.0, float(budget_remaining) - float(budget_spent))
+                        sym_budget_cap = _entry_budget_symbol_cap(bot, conf, current_min_conf, rem_budget)
+                        if sym_budget_cap <= 0:
+                            await _emit_entry_blocked(
+                                bot,
+                                k,
+                                "entry_budget_symbol_cap",
+                                data={
+                                    "budget_total_usdt": float(budget_total),
+                                    "budget_remaining_usdt": float(rem_budget),
+                                    "planned_notional": float(planned_notional),
+                                    "code": ERR_RISK,
+                                },
+                                throttle_sec=15.0,
+                            )
+                            await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                            continue
+                        if planned_notional > sym_budget_cap:
+                            try:
+                                bscale = float(sym_budget_cap) / max(1e-9, float(planned_notional))
+                                amt = float(amt) * float(bscale)
+                                planned_notional = float(planned_notional) * float(bscale)
+                                if callable(emit_throttled):
+                                    asyncio.create_task(
+                                        emit_throttled(
+                                            bot,
+                                            "entry.notional_scaled",
+                                            key=f"{k}:entry_budget_allocator",
+                                            cooldown_sec=60.0,
+                                            data={
+                                                "symbol": k,
+                                                "scale": bscale,
+                                                "planned_notional": planned_notional,
+                                                "cap": sym_budget_cap,
+                                                "budget_total_usdt": float(budget_total),
+                                                "budget_remaining_usdt": float(rem_budget),
+                                                "reason": "entry_budget_allocator",
+                                            },
+                                            symbol=k,
+                                            level="warning",
+                                        )
+                                )
+                            except Exception:
+                                pass
+
+                    propose_rec = compute_entry_decision(
+                        symbol=k,
+                        signal=sig if isinstance(sig, dict) else None,
+                        guard_knobs=guard_knobs,
+                        min_confidence=float(current_min_conf),
+                        amount=amt,
+                        order_type=otype,
+                        price=price,
+                        planned_notional=float(planned_notional),
+                        stage="propose",
+                        meta={
+                            "runtime_gate_degraded": runtime_gate_degraded,
+                            "reconcile_first_gate_degraded": reconcile_first_gate_degraded,
+                            "budget_enabled": bool(budget_enabled),
+                            **_corr_snapshot(bot, guard_knobs),
+                        },
+                    )
+                    if propose_rec.action in ("DENY", "DEFER"):
+                        reason = propose_rec.reason_primary or "signal_missing"
+                        await _emit_entry_decision(bot, propose_rec, level="warning", throttle_sec=15.0)
+                        await _emit_entry_blocked(bot, k, reason, throttle_sec=30.0)
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
+
                     # Safety: block entries after recent router blocks
                     if _cfg_env_bool(bot, "ENTRY_BLOCK_ON_ROUTER_BLOCK", True):
                         window_sec = float(_cfg_env_float(bot, "ENTRY_BLOCK_ROUTER_WINDOW_SEC", 60.0) or 60.0)
@@ -1679,7 +2506,7 @@ async def entry_loop(bot) -> None:
                                     data={"count": blocked, "window_sec": window_sec},
                                     throttle_sec=5.0,
                                 )
-                                _set_pending(k, sec=max(3.0, backoff_sec))
+                                _set_pending(bot, k, sec=max(3.0, backoff_sec))
                                 await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                                 continue
 
@@ -1701,11 +2528,39 @@ async def entry_loop(bot) -> None:
                                     data={"count": err_count, "window_sec": err_window},
                                     throttle_sec=30.0,
                                 )
-                                _set_pending(k, sec=max(3.0, err_backoff))
+                                _set_pending(bot, k, sec=max(3.0, err_backoff))
                                 await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                                 continue
 
-                    # Submit order
+                    # Commit phase: re-check fast-moving constraints before submit.
+                    commit_ok, commit_rec = commit_entry_intent(
+                        propose_rec,
+                        current_guard_knobs=_resolve_symbol_guard(_get_guard_knobs(bot), k),
+                        in_position_fn=lambda: _in_position_brain(bot, k),
+                        pending_fn=lambda: _pending_active(bot, k),
+                    )
+                    await _emit_entry_decision(
+                        bot,
+                        commit_rec,
+                        level=("warning" if not commit_ok else "info"),
+                        throttle_sec=(10.0 if not commit_ok else 0.0),
+                    )
+                    if not commit_ok:
+                        await _emit_entry_blocked(bot, k, commit_rec.reason_primary or "posture_changed", throttle_sec=20.0)
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
+
+                    # Submit order — write intent to run_context before exchange call
+                    # so reconcile can detect orphan entries on restart
+                    try:
+                        rc = _ensure_run_context(bot)
+                        rc.setdefault("entry_wal", {})[k] = {
+                            "ts": _now(), "side": action, "amount": float(amt),
+                            "type": otype, "symbol": sym_raw,
+                        }
+                    except Exception:
+                        pass
+
                     order_start = _now()
                     order_result = "success"
                     try:
@@ -1728,6 +2583,10 @@ async def entry_loop(bot) -> None:
                                 intent_close_position=False,
                                 hedge_side_hint=hedge_side_hint,
                                 retries=int(_cfg_env_float(bot, "ENTRY_ROUTER_RETRIES", 6) or 6),
+                                client_order_id=_entry_idempotency_key(k, action),
+                                intent_component="entry_loop",
+                                intent_kind="ENTRY",
+                                respect_kill_switch=True,
                             )
                         else:
                             res = await create_order(
@@ -1742,6 +2601,10 @@ async def entry_loop(bot) -> None:
                                 intent_close_position=False,
                                 hedge_side_hint=hedge_side_hint,
                                 retries=int(_cfg_env_float(bot, "ENTRY_ROUTER_RETRIES", 4) or 4),
+                                client_order_id=_entry_idempotency_key(k, action),
+                                intent_component="entry_loop",
+                                intent_kind="ENTRY",
+                                respect_kill_switch=True,
                             )
                     except asyncio.CancelledError:
                         raise
@@ -1760,10 +2623,10 @@ async def entry_loop(bot) -> None:
                                 level="critical",
                                 throttle_sec=30.0,
                             )
-                            _set_pending(k, sec=max(10.0, pending_block_sec * 0.5))
+                            _set_pending(bot, k, sec=max(10.0, pending_block_sec * 0.5))
                         else:
                             log_entry.error(f"ENTRY_LOOP: order submit failed {k}: {e}")
-                            _set_pending(k, sec=max(3.0, pending_block_sec * 0.25))
+                            _set_pending(bot, k, sec=max(3.0, pending_block_sec * 0.25))
 
                         if callable(emit):
                             try:
@@ -1793,10 +2656,107 @@ async def entry_loop(bot) -> None:
                                 filled = _order_filled(res)
                                 req_amt = float(amt or 0.0)
                                 ratio = (filled / req_amt) if (req_amt > 0 and filled > 0) else 0.0
-                                if ratio > 0 and ratio < min_ratio:
-                                    if _cfg_env_bool(bot, "ENTRY_PARTIAL_CANCEL", True) and oid and otype == "limit":
+                                plan = _build_staged_protection_plan(
+                                    requested_qty=req_amt,
+                                    filled_qty=filled,
+                                    min_fill_ratio=min_ratio,
+                                    trailing_enabled=bool(
+                                        _cfg_env_bool(bot, "DYNAMIC_TRAILING_FULL", False)
+                                        or _cfg_env_bool(bot, "DUAL_TRAILING", False)
+                                    ),
+                                )
+                                if callable(emit):
+                                    try:
+                                        await emit(
+                                            bot,
+                                            "entry.protection_plan",
+                                            data={
+                                                "symbol": k,
+                                                "order_id": str(oid) if oid else "",
+                                                **plan,
+                                            },
+                                            symbol=k,
+                                            level=("warning" if plan.get("flatten_required") else "info"),
+                                        )
+                                    except Exception:
+                                        pass
+                                if callable(_record_entry_stage_hint_pm):
+                                    try:
+                                        rc = _ensure_run_context(bot)
+                                        _record_entry_stage_hint_pm(
+                                            rc,
+                                            symbol=k,
+                                            plan=plan,
+                                            requested_qty=req_amt,
+                                            filled_qty=filled,
+                                            ttl_sec=float(_cfg_env_float(bot, "ENTRY_STAGE_HINT_TTL_SEC", 120.0) or 120.0),
+                                        )
+                                    except Exception:
+                                        pass
+                                if bool(plan.get("stage1_required")) and not bool(plan.get("flatten_required")):
+                                    stage1_out = await _maybe_place_stage1_emergency_stop(
+                                        bot,
+                                        symbol=k,
+                                        sym_raw=sym_raw,
+                                        action=action,
+                                        filled_qty=filled,
+                                        order=res if isinstance(res, dict) else {},
+                                        signal=sig if isinstance(sig, dict) else None,
+                                        hedge_side_hint=hedge_side_hint,
+                                        order_id=str(oid) if oid else None,
+                                        fallback_price=price if otype == "limit" else _get_price(bot, k),
+                                    )
+                                    if callable(emit):
                                         try:
-                                            await cancel_order(bot, str(oid), sym_raw)
+                                            await emit(
+                                                bot,
+                                                "entry.stage1_protection",
+                                                data={
+                                                    "symbol": k,
+                                                    "order_id": str(oid) if oid else "",
+                                                    **stage1_out,
+                                                },
+                                                symbol=k,
+                                                level=("info" if stage1_out.get("placed") else "warning"),
+                                            )
+                                        except Exception:
+                                            pass
+                                    await _record_stage1_gap_assertion(
+                                        bot,
+                                        symbol=k,
+                                        required_qty=float(filled),
+                                        placed=bool(stage1_out.get("placed")),
+                                        reason=str(stage1_out.get("reason") or ""),
+                                        stage1_payload=stage1_out,
+                                    )
+                                if ratio > 0 and ratio < min_ratio:
+                                    pf = await _resolve_partial_fill_state(
+                                        bot,
+                                        symbol=k,
+                                        sym_raw=sym_raw,
+                                        action=action,
+                                        otype=otype,
+                                        order_id=str(oid) if oid else None,
+                                        requested=req_amt,
+                                        filled=filled,
+                                        min_ratio=min_ratio,
+                                        hedge_side_hint=hedge_side_hint,
+                                    )
+                                    # Fix #10: if flatten failed, place emergency stop so position isn't naked
+                                    if not pf.get("flatten_ok") and filled > 0:
+                                        try:
+                                            await _maybe_place_stage1_emergency_stop(
+                                                bot,
+                                                symbol=k,
+                                                sym_raw=sym_raw,
+                                                action=action,
+                                                filled_qty=filled,
+                                                order=res if isinstance(res, dict) else {},
+                                                signal=sig if isinstance(sig, dict) else None,
+                                                hedge_side_hint=hedge_side_hint,
+                                                order_id=str(oid) if oid else None,
+                                                fallback_price=price if otype == "limit" else _get_price(bot, k),
+                                            )
                                         except Exception:
                                             pass
                                     await _emit_entry_blocked(
@@ -1808,14 +2768,20 @@ async def entry_loop(bot) -> None:
                                             "requested": req_amt,
                                             "ratio": ratio,
                                             "min_ratio": min_ratio,
+                                            "outcome": pf.get("outcome"),
+                                            "cancel_ok": bool(pf.get("cancel_ok")),
+                                            "flatten_ok": bool(pf.get("flatten_ok")),
                                             "code": ERR_PARTIAL_FILL,
                                         },
+                                        level=("warning" if str(pf.get("outcome")) == "partial_forced_flatten" else "critical"),
                                         throttle_sec=20.0,
                                     )
                                     base_backoff = max(3.0, float(_cfg_env_float(bot, "ENTRY_PARTIAL_BACKOFF_SEC", 10.0) or 10.0))
                                     extra_backoff = _record_partial_fill_hit(bot, k)
                                     total_backoff = base_backoff if extra_backoff <= 0 else max(base_backoff, extra_backoff)
-                                    _set_pending(k, sec=total_backoff)
+                                    if str(pf.get("outcome")) == "partial_stuck":
+                                        total_backoff = max(total_backoff, base_backoff * 2.0)
+                                    _set_pending(bot, k, sec=total_backoff)
                                     if extra_backoff > 0 and callable(emit_throttled):
                                         try:
                                             cooldown = max(30.0, float(_cfg_env_float(bot, "ENTRY_PARTIAL_ESCALATE_TELEM_CD_SEC", 300.0) or 300.0))
@@ -1853,15 +2819,32 @@ async def entry_loop(bot) -> None:
                                 except Exception:
                                     pass
                             # even if failed, block briefly to prevent rapid spam while exchange is angry
-                            _set_pending(k, sec=max(3.0, pending_block_sec * 0.25))
+                            _set_pending(bot, k, sec=max(3.0, pending_block_sec * 0.25))
                             await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                             continue
 
+                        if budget_enabled and planned_notional > 0:
+                            budget_spent += max(0.0, float(planned_notional))
+
                         # ✅ key anti-stack: once we submitted ANY entry, block more entries for a while
-                        _set_pending(k, sec=max(5.0, pending_block_sec), order_id=str(oid) if oid else None)
+                        _set_pending(bot, k, sec=max(5.0, pending_block_sec), order_id=str(oid) if oid else None)
 
                         log_core.critical(f"ENTRY_LOOP: ORDER SUBMITTED {k} {action.upper()} type={otype} amt={amt} id={oid}")
                         _reset_partial_fill_hits(k)
+
+                        # Clear entry WAL now that order is confirmed submitted
+                        try:
+                            rc = _ensure_run_context(bot)
+                            rc.get("entry_wal", {}).pop(k, None)
+                        except Exception:
+                            pass
+
+                        # Force brain save after critical mutation to minimise crash-window
+                        try:
+                            from brain.persistence import save_brain as _save_brain
+                            await _save_brain(bot.state, force=True)
+                        except Exception:
+                            pass
 
                         # Register watch for limit/pending orders (optional)
                         if otype == "limit" and callable(register_entry_watch) and oid:

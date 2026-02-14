@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import tempfile
 import types
 import unittest
 
@@ -43,6 +44,7 @@ class DummyEx:
         amount_prec_fn=None,
         ticker=None,
         order_book=None,
+        fetch_order_behavior=None,
     ):
         self._behavior = behavior
         self.markets = markets or {}
@@ -53,7 +55,9 @@ class DummyEx:
         self._amount_prec_fn = amount_prec_fn
         self._ticker = ticker
         self._order_book = order_book
+        self._fetch_order_behavior = fetch_order_behavior or {}
         self.create_calls = []
+        self.id = "binance"
 
     async def cancel_order(self, order_id, symbol):
         # behavior is a dict symbol -> exception or None
@@ -76,6 +80,14 @@ class DummyEx:
 
     async def fetch_order_book(self, _sym):
         return self._order_book or {}
+
+    async def fetch_order(self, order_id, symbol):
+        action = self._fetch_order_behavior.get((str(order_id), str(symbol)))
+        if isinstance(action, Exception):
+            raise action
+        if isinstance(action, dict):
+            return action
+        return {"id": order_id, "symbol": symbol, "status": "closed"}
 
     def market(self, sym):
         return self._market_meta
@@ -114,8 +126,7 @@ class DummyBot:
 
 
 class OrderRouterCancelTests(unittest.TestCase):
-    def test_unknown_then_other_error_is_not_success(self):
-        # Unknown on raw symbol, but non-unknown on fallback -> should be False
+    def test_unknown_then_other_error_is_still_success(self):
         sym_key = "BTCUSDT"
         raw_symbol = "BTC/USDT:USDT"
         symbol = "BTC/USDT"
@@ -126,7 +137,7 @@ class OrderRouterCancelTests(unittest.TestCase):
         }
         bot = DummyBot(DummyEx(behavior), DummyData({sym_key: raw_symbol}))
         ok = asyncio.run(order_router.cancel_order(bot, "abc123", symbol))
-        self.assertFalse(ok)
+        self.assertTrue(ok)
 
     def test_all_unknown_is_success(self):
         sym_key = "ETHUSDT"
@@ -140,6 +151,22 @@ class OrderRouterCancelTests(unittest.TestCase):
         bot = DummyBot(DummyEx(behavior), DummyData({sym_key: raw_symbol}))
         ok = asyncio.run(order_router.cancel_order(bot, "zzz", symbol))
         self.assertTrue(ok)
+
+    def test_unknown_cancel_with_open_fetch_order_is_not_success(self):
+        sym_key = "ETHUSDT"
+        raw_symbol = "ETH/USDT:USDT"
+        symbol = "ETH/USDT"
+        behavior = {
+            raw_symbol: Exception("Order does not exist"),
+            symbol: Exception("Unknown order"),
+            sym_key: Exception("Order not found"),
+        }
+        fetch_behavior = {
+            ("zzz", raw_symbol): {"id": "zzz", "status": "open"},
+        }
+        bot = DummyBot(DummyEx(behavior, fetch_order_behavior=fetch_behavior), DummyData({sym_key: raw_symbol}))
+        ok = asyncio.run(order_router.cancel_order(bot, "zzz", symbol))
+        self.assertFalse(ok)
 
     def test_unknown_order_detection_ignores_symbol_not_found(self):
         self.assertFalse(order_router._looks_like_unknown_order(Exception("Symbol not found")))
@@ -158,6 +185,8 @@ class OrderRouterCancelTests(unittest.TestCase):
 
 
 class OrderRouterCreateTests(unittest.TestCase):
+    """Create-order reliability tests grouped by replace, classifier, and idempotency sections."""
+
     def test_retry_max_elapsed_caps_attempts(self):
         sym_raw = "BTC/USDT:USDT"
         sym = "BTC/USDT"
@@ -218,6 +247,7 @@ class OrderRouterCreateTests(unittest.TestCase):
         self.assertIsNone(res)
         self.assertLess(len(ex.create_calls), 10)
 
+
     def test_resolve_leverage_overrides_and_caps(self):
         env = dict(os.environ)
         try:
@@ -228,13 +258,79 @@ class OrderRouterCreateTests(unittest.TestCase):
             os.environ["CORR_GROUPS"] = "MAJOR:BTCUSDT,ETHUSDT"
             os.environ["LEVERAGE_BY_GROUP"] = "MAJOR=12"
             os.environ["LEVERAGE_BTCUSDT"] = "18"
-
             bot = DummyBot(DummyEx({}), DummyData({"BTCUSDT": "BTC/USDT:USDT"}))
             lev = order_router._resolve_leverage(bot, "BTCUSDT", "BTC/USDT:USDT")
             self.assertEqual(lev, 12)
         finally:
             os.environ.clear()
             os.environ.update(env)
+
+    def test_router_send_retries_skip_submitted_to_submitted_transition(self):
+        sym_raw = "BTC/USDT:USDT"
+        sym = "BTC/USDT"
+        market = {"contract": True}
+        calls = {"n": 0}
+        transitions = []
+
+        def behavior(_kwargs):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                raise TimeoutError("timed out")
+            return {"id": "ok", "status": "open", "params": _kwargs}
+
+        class _Journal:
+            @staticmethod
+            def journal_transition(_bot, **kw):
+                transitions.append((str(kw.get("state_from") or ""), str(kw.get("state_to") or ""), str(kw.get("reason") or "")))
+
+            @staticmethod
+            def append_event(_bot, _event, _data):
+                return None
+
+        ex = DummyEx(
+            {},
+            markets={sym_raw: market},
+            market_meta=market,
+            dual_side=True,
+            create_behavior=behavior,
+        )
+        bot = DummyBot(ex, DummyData({"BTCUSDT": sym_raw}))
+        bot.cfg.ROUTER_RETRY_BASE_SEC = 0.0
+        bot.cfg.ROUTER_RETRY_MAX_DELAY_SEC = 0.0
+        bot.cfg.ROUTER_RETRY_JITTER_PCT = 0.0
+
+        orig_validate = order_router._validate_and_normalize_order
+        orig_sleep = order_router.asyncio.sleep
+        orig_journal = order_router._event_journal
+
+        async def _ok_validate(*_args, **_kwargs):
+            return True, 1.0, None, "ok"
+
+        async def _noop_sleep(_delay):
+            return None
+
+        order_router._validate_and_normalize_order = _ok_validate
+        order_router.asyncio.sleep = _noop_sleep
+        order_router._event_journal = _Journal
+        try:
+            res = asyncio.run(
+                order_router.create_order(
+                    bot,
+                    symbol=sym,
+                    type="MARKET",
+                    side="buy",
+                    amount=1.0,
+                    params={},
+                    retries=2,
+                )
+            )
+        finally:
+            order_router._validate_and_normalize_order = orig_validate
+            order_router.asyncio.sleep = orig_sleep
+            order_router._event_journal = orig_journal
+
+        self.assertIsNotNone(res)
+        self.assertFalse(any(a == "SUBMITTED" and b == "SUBMITTED" for (a, b, _r) in transitions))
 
     def test_resolve_leverage_group_dynamic_scaling(self):
         env = dict(os.environ)
@@ -292,27 +388,20 @@ class OrderRouterCreateTests(unittest.TestCase):
             os.environ.clear()
             os.environ.update(env)
 
-    def test_classify_order_error(self):
-        retryable, reason, code = order_router._classify_order_error(Exception("Margin is insufficient"))
-        self.assertFalse(retryable)
-        self.assertEqual(reason, "margin_insufficient")
-        self.assertTrue(code.startswith("ERR_"))
+    def test_resolve_leverage_applies_belief_guard_cap_for_entries_only(self):
+        env = dict(os.environ)
+        try:
+            os.environ["LEVERAGE"] = "20"
+            bot = DummyBot(DummyEx({}), DummyData({"BTCUSDT": "BTC/USDT:USDT"}))
+            bot.state.guard_knobs = {"max_leverage": 7}
+            lev_entry = order_router._resolve_leverage(bot, "BTCUSDT", "BTC/USDT:USDT", is_exit=False)
+            lev_exit = order_router._resolve_leverage(bot, "BTCUSDT", "BTC/USDT:USDT", is_exit=True)
+            self.assertEqual(lev_entry, 7)
+            self.assertEqual(lev_exit, 20)
+        finally:
+            os.environ.clear()
+            os.environ.update(env)
 
-        retryable, reason, code = order_router._classify_order_error(Exception("Request timed out"))
-        self.assertTrue(retryable)
-        self.assertEqual(reason, "network")
-
-        retryable, reason, code = order_router._classify_order_error(Exception("Filter failure: PRICE_FILTER"))
-        self.assertFalse(retryable)
-        self.assertEqual(reason, "price_filter")
-
-        retryable, reason, code = order_router._classify_order_error(Exception("BinanceError: code=-2019, msg=Margin is insufficient."))
-        self.assertFalse(retryable)
-        self.assertEqual(reason, "margin_insufficient")
-
-        retryable, reason, code = order_router._classify_order_error(Exception("BinanceError: code=-1021, msg=Timestamp for this request is outside of the recvWindow."))
-        self.assertTrue(retryable)
-        self.assertEqual(reason, "timestamp")
     def test_hedge_exit_accepts_position_side_in_params(self):
         sym_raw = "BTC/USDT:USDT"
         sym = "BTC/USDT"
@@ -466,74 +555,6 @@ class OrderRouterCreateTests(unittest.TestCase):
         )
         self.assertIsNone(res)
 
-    def test_duplicate_client_order_id_freshens(self):
-        sym_raw = "BTC/USDT:USDT"
-        sym = "BTC/USDT"
-        base_id = "SE_DUPLICATE_TEST_0123456789"
-
-        def behavior(kwargs):
-            coid = kwargs.get("params", {}).get("clientOrderId")
-            if coid == base_id:
-                raise Exception("Client order id is duplicated -4116")
-            return {"id": "ok", "coid": coid, "params": kwargs}
-
-        ex = DummyEx(
-            {},
-            markets={sym_raw: {}},
-            market_meta={"contract": True},
-            dual_side=True,
-            create_behavior=behavior,
-        )
-        bot = DummyBot(ex, DummyData({"BTCUSDT": sym_raw}))
-
-        orig_validate = order_router._validate_and_normalize_order
-
-        async def _ok_validate(*_args, **_kwargs):
-            return True, 1.0, None, "ok"
-
-        order_router._validate_and_normalize_order = _ok_validate
-        try:
-            res = asyncio.run(
-                order_router.create_order(
-                    bot,
-                    symbol=sym,
-                    type="MARKET",
-                    side="buy",
-                    amount=1.0,
-                    client_order_id=base_id,
-                    retries=2,
-                )
-            )
-        finally:
-            order_router._validate_and_normalize_order = orig_validate
-
-        self.assertIsNotNone(res)
-        self.assertGreaterEqual(len(ex.create_calls), 3)
-        coids = [c["params"].get("clientOrderId") for c in ex.create_calls]
-        self.assertIn(base_id, coids)
-        fresh = [c for c in coids if c and c != base_id]
-        self.assertTrue(len(fresh) >= 1)
-        self.assertTrue(len(fresh[-1]) <= 35)
-
-    def test_sanitize_client_order_id_filters_and_length(self):
-        raw = "SE DUP!!LICATE--ID___WITH$$$WEIRD%%%CHARS_1234567890"
-        s1 = order_router._sanitize_client_order_id(raw)
-        s2 = order_router._sanitize_client_order_id(raw)
-        self.assertIsNotNone(s1)
-        self.assertEqual(s1, s2)
-        self.assertTrue(len(s1) <= 35)
-        for ch in s1:
-            self.assertTrue(ch.isalnum() or ch in ("_", "-"))
-
-    def test_freshen_client_order_id_length_and_diff(self):
-        base = "SE_DUPLICATE_TEST_0123456789_ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        s1 = order_router._freshen_client_order_id(base)
-        s2 = order_router._freshen_client_order_id(base)
-        self.assertTrue(len(s1) <= 35)
-        self.assertTrue(len(s2) <= 35)
-        self.assertNotEqual(s1, s2)
-        for ch in s1:
-            self.assertTrue(ch.isalnum() or ch in ("_", "-"))
 
     def test_push_variant_bounded_and_deduped(self):
         variants = []

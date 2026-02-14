@@ -20,9 +20,22 @@ class GuardKnobs:
     runtime_gate_degraded: bool = False
     runtime_gate_reason: str = ""
     runtime_gate_degrade_score: float = 0.0
+    reconcile_first_gate_degraded: bool = False
+    reconcile_first_gate_count: int = 0
+    reconcile_first_gate_max_severity: float = 0.0
+    reconcile_first_gate_max_streak: int = 0
     recovery_stage: str = ""
     unlock_conditions: str = ""
     next_unlock_sec: float = 0.0
+    transition: str = ""
+    previous_mode: str = ""
+    target_mode: str = ""
+    cause_tags: str = ""
+    dominant_contributors: str = ""
+    unlock_requirements: str = ""
+    unlock_snapshot: Dict[str, Any] = field(default_factory=dict)
+    protection_refresh_budget_blocked_level: float = 0.0
+    protection_refresh_budget_force_level: float = 0.0
     per_symbol: Dict[str, Dict[str, Any]] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -48,9 +61,28 @@ class GuardKnobs:
                 runtime_gate_degraded=bool(value.get("runtime_gate_degraded", False)),
                 runtime_gate_reason=str(value.get("runtime_gate_reason", "") or ""),
                 runtime_gate_degrade_score=float(value.get("runtime_gate_degrade_score", 0.0) or 0.0),
+                reconcile_first_gate_degraded=bool(value.get("reconcile_first_gate_degraded", False)),
+                reconcile_first_gate_count=int(value.get("reconcile_first_gate_count", 0) or 0),
+                reconcile_first_gate_max_severity=float(
+                    value.get("reconcile_first_gate_max_severity", 0.0) or 0.0
+                ),
+                reconcile_first_gate_max_streak=int(value.get("reconcile_first_gate_max_streak", 0) or 0),
                 recovery_stage=str(value.get("recovery_stage", "") or ""),
                 unlock_conditions=str(value.get("unlock_conditions", "") or ""),
                 next_unlock_sec=float(value.get("next_unlock_sec", 0.0) or 0.0),
+                transition=str(value.get("transition", "") or ""),
+                previous_mode=str(value.get("previous_mode", "") or ""),
+                target_mode=str(value.get("target_mode", "") or ""),
+                cause_tags=str(value.get("cause_tags", "") or ""),
+                dominant_contributors=str(value.get("dominant_contributors", "") or ""),
+                unlock_requirements=str(value.get("unlock_requirements", "") or ""),
+                unlock_snapshot=dict(value.get("unlock_snapshot") or {}),
+                protection_refresh_budget_blocked_level=float(
+                    value.get("protection_refresh_budget_blocked_level", 0.0) or 0.0
+                ),
+                protection_refresh_budget_force_level=float(
+                    value.get("protection_refresh_budget_force_level", 0.0) or 0.0
+                ),
                 per_symbol=dict(value.get("per_symbol") or {}),
             )
         return cls()

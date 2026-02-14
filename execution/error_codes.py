@@ -14,6 +14,7 @@ ERR_COOLDOWN = "ERR_COOLDOWN"
 ERR_SESSION = "ERR_SESSION"
 ERR_UNKNOWN = "ERR_UNKNOWN"
 ERR_PARTIAL_FILL = "ERR_PARTIAL_FILL"
+ERR_RELIABILITY_GATE = "ERR_RELIABILITY_GATE"
 EXIT_MOM = "EXIT_MOM"
 EXIT_VWAP = "EXIT_VWAP"
 EXIT_TIME = "EXIT_TIME"
@@ -44,6 +45,8 @@ def map_reason(reason: str) -> str:
         return ERR_SESSION
     if "partial fill" in r or "partial" in r:
         return ERR_PARTIAL_FILL
+    if "runtime_gate" in r or "reconcile_first" in r or "reliability_gate" in r:
+        return ERR_RELIABILITY_GATE
     if "router" in r or "blocked" in r:
         return ERR_ROUTER_BLOCK
     return ERR_UNKNOWN

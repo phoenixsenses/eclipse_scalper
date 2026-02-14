@@ -60,6 +60,7 @@ async def run_cancel_replace(
     new_order_notional: float = 0.0,
     max_worst_case_notional: float = 0.0,
     max_ambiguity_attempts: int = 0,
+    verify_cancel_with_status: bool = False,
 ) -> ReplaceOutcome:
     attempts = max(1, int(max_attempts or 1))
     state = STATE_INTENT_CREATED
@@ -140,6 +141,43 @@ async def run_cancel_replace(
                     )
             else:
                 _advance(STATE_CANCEL_SENT_UNKNOWN, "cancel_unknown")
+                ambiguity_count += 1
+
+        # Even when cancel API returns success, optionally verify status to
+        # avoid cancel-ack races creating a second live order.
+        if cancel_ok and bool(verify_cancel_with_status) and callable(status_fn):
+            status = ""
+            try:
+                status_checks += 1
+                status = str((await status_fn(cancel_order_id, symbol)) or "").strip().lower()
+            except Exception:
+                status = ""
+            last_status = status
+            if status in ("open", "new", "partially_filled", "partiallyfilled"):
+                _advance(STATE_CANCEL_SENT_UNKNOWN, "cancel_verify_open")
+                cancel_ok = False
+                ambiguity_count += 1
+            elif status in ("closed", "filled"):
+                _advance(STATE_FILLED_AFTER_CANCEL, "cancel_verify_filled")
+                return ReplaceOutcome(
+                    success=False,
+                    state=STATE_FILLED_AFTER_CANCEL,
+                    attempts=idx + 1,
+                    reason="filled_after_cancel",
+                    cancel_ok=True,
+                    create_ok=False,
+                    last_status=last_status,
+                    order=None,
+                    ambiguity_count=int(ambiguity_count),
+                    cancel_attempts=int(cancel_attempts),
+                    create_attempts=int(create_attempts),
+                    status_checks=int(status_checks),
+                )
+            elif status in ("canceled", "cancelled"):
+                cancel_ok = True
+            else:
+                _advance(STATE_CANCEL_SENT_UNKNOWN, "cancel_verify_unknown")
+                cancel_ok = False
                 ambiguity_count += 1
 
         if not cancel_ok:

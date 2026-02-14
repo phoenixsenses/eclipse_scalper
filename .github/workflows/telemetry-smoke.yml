@@ -9,6 +9,10 @@ jobs:
   smoke:
     name: Notifier smoke chain
     runs-on: ubuntu-latest
+    env:
+      CORR_STRESS_THRESHOLD: "1"
+      CORR_PRESSURE_THRESHOLD: "0.90"
+      CORR_EXIT_PNL_DROP_THRESHOLD: "0.10"
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -61,13 +65,17 @@ jobs:
             --path logs/telemetry.jsonl \
             --state-path logs/telemetry_dashboard_notify_state.json \
             --recovery-red-lock-critical-streak 2 \
+            --corr-stress-threshold ${CORR_STRESS_THRESHOLD} \
+            --corr-pressure-threshold ${CORR_PRESSURE_THRESHOLD} \
+            --corr-exit-pnl-drop-threshold ${CORR_EXIT_PNL_DROP_THRESHOLD} \
             --no-notify
 
           python tools/telemetry_smoke_assert.py \
             --state logs/telemetry_dashboard_notify_state.json \
             --expected-level critical \
             --expected-stage RED_LOCK \
-            --expected-red-lock-streak 2
+            --expected-red-lock-streak 2 \
+            --require-unlock-fields
 
           echo "phase1=PASS escalation" >> logs/telemetry_smoke_result.txt
 
@@ -93,13 +101,128 @@ jobs:
             --path logs/telemetry.jsonl \
             --state-path logs/telemetry_dashboard_notify_state.json \
             --recovery-red-lock-critical-streak 2 \
+            --corr-stress-threshold ${CORR_STRESS_THRESHOLD} \
+            --corr-pressure-threshold ${CORR_PRESSURE_THRESHOLD} \
+            --corr-exit-pnl-drop-threshold ${CORR_EXIT_PNL_DROP_THRESHOLD} \
             --no-notify
 
           python tools/telemetry_smoke_assert.py \
             --state logs/telemetry_dashboard_notify_state.json \
             --expected-level normal \
             --expected-stage POST_RED_WARMUP \
-            --expected-red-lock-streak 0
+            --expected-red-lock-streak 0 \
+            --require-unlock-fields
+
+          python - <<'PY'
+          import json, time
+          from pathlib import Path
+          p = Path("logs/telemetry.jsonl")
+          now = float(time.time())
+          rows = [
+              {
+                  "event": "reconcile.summary",
+                  "ts": now,
+                  "data": {
+                      "protection_refresh_budget_blocked_count": 2,
+                      "protection_refresh_budget_force_override_count": 1,
+                      "protection_refresh_stop_budget_blocked_count": 2,
+                  },
+              },
+              {
+                  "event": "execution.belief_state",
+                  "ts": now + 0.1,
+                  "data": {
+                      "guard_recovery_stage": "RUNTIME_GATE_DEGRADED",
+                      "allow_entries": False,
+                      "trace": {
+                          "reason": "runtime_gate_degraded | protection_refresh_budget_hard_block",
+                      },
+                  },
+              },
+          ]
+          with p.open("a", encoding="utf-8") as fh:
+              for ev in rows:
+                  fh.write(json.dumps(ev, ensure_ascii=True) + "\n")
+          print("injected refresh-budget clamp events")
+          PY
+
+          python tools/telemetry_dashboard_notify.py \
+            --path logs/telemetry.jsonl \
+            --state-path logs/telemetry_dashboard_notify_state.json \
+            --recovery-red-lock-critical-streak 2 \
+            --corr-stress-threshold ${CORR_STRESS_THRESHOLD} \
+            --corr-pressure-threshold ${CORR_PRESSURE_THRESHOLD} \
+            --corr-exit-pnl-drop-threshold ${CORR_EXIT_PNL_DROP_THRESHOLD} \
+            --protection-refresh-budget-blocked-critical-threshold 2 \
+            --protection-refresh-force-override-critical-threshold 2 \
+            --no-notify
+
+          python tools/telemetry_smoke_assert.py \
+            --state logs/telemetry_dashboard_notify_state.json \
+            --min-refresh-budget-blocked 2 \
+            --require-entry-clamped-on-refresh-budget \
+            --require-refresh-consistency \
+            --require-unlock-fields
+
+          python - <<'PY'
+          import json, time
+          from pathlib import Path
+          p = Path("logs/telemetry.jsonl")
+          now = float(time.time())
+          rows = [
+              {
+                  "event": "reconcile.summary",
+                  "ts": now,
+                  "data": {
+                      "protection_refresh_budget_blocked_count": 0,
+                      "protection_refresh_budget_force_override_count": 0,
+                  },
+              },
+              {
+                  "event": "execution.belief_state",
+                  "ts": now + 0.1,
+                  "data": {
+                      "guard_recovery_stage": "PROTECTION_REFRESH_WARMUP",
+                      "allow_entries": True,
+                      "trace": {
+                          "reason": "protection_refresh_budget_warmup",
+                      },
+                  },
+              },
+              {
+                  "event": "execution.belief_state",
+                  "ts": now + 0.2,
+                  "data": {
+                      "guard_recovery_stage": "GREEN",
+                      "allow_entries": True,
+                      "trace": {
+                          "reason": "stable",
+                      },
+                  },
+              },
+          ]
+          with p.open("a", encoding="utf-8") as fh:
+              for ev in rows:
+                  fh.write(json.dumps(ev, ensure_ascii=True) + "\n")
+          print("injected refresh-budget release events")
+          PY
+
+          python tools/telemetry_dashboard_notify.py \
+            --path logs/telemetry.jsonl \
+            --state-path logs/telemetry_dashboard_notify_state.json \
+            --recovery-red-lock-critical-streak 2 \
+            --corr-stress-threshold ${CORR_STRESS_THRESHOLD} \
+            --corr-pressure-threshold ${CORR_PRESSURE_THRESHOLD} \
+            --corr-exit-pnl-drop-threshold ${CORR_EXIT_PNL_DROP_THRESHOLD} \
+            --protection-refresh-budget-blocked-critical-threshold 2 \
+            --protection-refresh-force-override-critical-threshold 2 \
+            --no-notify
+
+          python tools/telemetry_smoke_assert.py \
+            --state logs/telemetry_dashboard_notify_state.json \
+            --expected-level normal \
+            --expected-stage GREEN \
+            --require-unlock-fields
 
           echo "phase2=PASS reset" >> logs/telemetry_smoke_result.txt
           python - <<'PY'

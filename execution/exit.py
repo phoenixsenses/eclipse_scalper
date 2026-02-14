@@ -713,6 +713,8 @@ async def _place_stop_ladder(
             stop_price=float(stop_price),
             hedge_side_hint=pos_side,  # ✅ router hedge exit requirement
             retries=6,
+            intent_component="exit",
+            intent_kind="EXIT_STOP",
         )
     except Exception as e1:
         log_entry.warning(f"BE stop A failed {k}: {e1}")
@@ -734,6 +736,8 @@ async def _place_stop_ladder(
             stop_price=float(stop_price),
             hedge_side_hint=pos_side,     # ✅ router hedge exit requirement
             retries=6,
+            intent_component="exit",
+            intent_kind="EXIT_STOP",
         )
     except Exception as e2:
         log_entry.error(f"BE stop B failed {k}: {e2}")
@@ -774,6 +778,8 @@ async def _place_trailing_ladder(
             callback_rate=float(cb),
             hedge_side_hint=pos_side,  # ✅
             retries=6,
+            intent_component="exit",
+            intent_kind="EXIT_TRAILING",
         )
     except Exception as e1:
         log_entry.warning(f"Trailing A failed {k}: {e1}")
@@ -792,6 +798,8 @@ async def _place_trailing_ladder(
             activation_price=float(activation_price),
             hedge_side_hint=pos_side,  # ✅
             retries=6,
+            intent_component="exit",
+            intent_kind="EXIT_TRAILING",
         )
     except Exception as e2:
         log_entry.error(f"Trailing B failed {k}: {e2}")
@@ -1473,6 +1481,8 @@ async def exit_loop(bot) -> None:
                                         intent_reduce_only=True,
                                         hedge_side_hint=pos_side,
                                         retries=4,
+                                        intent_component="exit_loop",
+                                        intent_kind="EXIT_MOMENTUM",
                                     )
                                     log_entry.info(
                                         f"MOMENTUM EXIT ??? {k} mom5m={mom5:+.4f} mom15m={mom15:+.4f} qty={qty:.6f}"
@@ -1516,6 +1526,8 @@ async def exit_loop(bot) -> None:
                                         intent_reduce_only=True,
                                         hedge_side_hint=pos_side,
                                         retries=4,
+                                        intent_component="exit_loop",
+                                        intent_kind="EXIT_VWAP",
                                     )
                                     log_entry.info(
                                         f"VWAP EXIT ??? {k} px={px:.6f} vwap={vwap:.6f} tf={exit_vwap_tf} qty={qty:.6f}"
@@ -1550,6 +1562,8 @@ async def exit_loop(bot) -> None:
                                         intent_reduce_only=True,
                                         hedge_side_hint=pos_side,
                                         retries=4,
+                                        intent_component="exit_loop",
+                                        intent_kind="EXIT_TIME",
                                     )
                                     log_entry.info(f"TIME EXIT ??? {k} age={age:.0f}s qty={qty:.6f}")
                                     _schedule_exit_event(
@@ -1620,6 +1634,8 @@ async def exit_loop(bot) -> None:
                                     intent_reduce_only=True,
                                     hedge_side_hint=pos_side,
                                     retries=4,
+                                    intent_component="exit_loop",
+                                    intent_kind="EXIT_STAGNATION",
                                 )
                                 log_entry.info(
                                     f"STAGNATION EXIT ??? {k} age={age:.0f}s move={move:.6f} atr={atr:.6f} qty={qty:.6f}"
@@ -1656,6 +1672,8 @@ async def exit_loop(bot) -> None:
                                     intent_reduce_only=True,
                                     hedge_side_hint=pos_side,
                                     retries=4,
+                                    intent_component="exit_loop",
+                                    intent_kind="EXIT_TELEMETRY_FORCE",
                                 )
                                 _schedule_exit_event(
                                     bot,
@@ -1714,3 +1732,5 @@ async def exit_loop(bot) -> None:
 
 async def run(bot) -> None:
     return await exit_loop(bot)
+
+

@@ -1,0 +1,11 @@
+# Execution and risk-critical paths
+/execution/ @phoenixsenses
+/risk/ @phoenixsenses
+
+# CI / policy surfaces
+/.github/workflows/ @phoenixsenses
+/tools/apply_branch_protection.ps1 @phoenixsenses
+
+# Reliability docs
+/docs/execution_*.md @phoenixsenses
+/docs/branch_protection.md @phoenixsenses
