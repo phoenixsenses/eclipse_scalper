@@ -238,6 +238,147 @@ class StrategyBacktester:
         )
 
 
+class TimeExitBacktester(StrategyBacktester):
+    """Backtest using time-based exits only (no SL/TP). Tests pure directional edge."""
+
+    def __init__(self, symbol="BTCUSDT", initial_capital=10000.0, exit_bars=30,
+                 risk_per_trade=0.01, fee_rate=0.0004, emergency_sl_mult=5.0):
+        super().__init__(symbol=symbol, initial_capital=initial_capital,
+                         sl_mult=emergency_sl_mult, tp_mult=999.0,
+                         risk_per_trade=risk_per_trade, fee_rate=fee_rate,
+                         max_hold_bars=exit_bars)
+
+
+class TrailingExitBacktester(StrategyBacktester):
+    """Time exit + trailing stop once in profit. Captures winning runs, limits losers."""
+
+    def __init__(self, symbol="BTCUSDT", initial_capital=10000.0, exit_bars=30,
+                 risk_per_trade=0.01, fee_rate=0.0004, trail_atr_mult=2.0,
+                 emergency_sl_mult=4.0):
+        super().__init__(symbol=symbol, initial_capital=initial_capital,
+                         sl_mult=emergency_sl_mult, tp_mult=999.0,
+                         risk_per_trade=risk_per_trade, fee_rate=fee_rate,
+                         max_hold_bars=exit_bars)
+        self.trail_atr_mult = trail_atr_mult
+
+    def run(self, name, df_1m, df_5m, signal_func, min_confidence=0.4):
+        trades = []
+        trade_id = 0
+        equity = self.initial_capital
+        peak_equity = equity
+        max_drawdown_pct = 0.0
+        position = None
+        atr_period = 14
+        lookback = 100
+
+        for i in range(lookback, len(df_1m)):
+            bar = df_1m.iloc[i]
+            current_time = bar.name if hasattr(bar.name, 'strftime') else datetime.now(timezone.utc)
+            current_price = float(bar["c"])
+            current_high = float(bar["h"])
+            current_low = float(bar["l"])
+
+            high = df_1m["h"].iloc[i - atr_period:i]
+            low = df_1m["l"].iloc[i - atr_period:i]
+            close_prev = df_1m["c"].iloc[i - atr_period - 1:i - 1]
+            tr = pd.concat([high - low, (high - close_prev).abs(), (low - close_prev).abs()], axis=1).max(axis=1)
+            atr = float(tr.mean()) if len(tr) > 0 else 0.0
+
+            if position is not None:
+                exit_price = None
+                exit_reason = ""
+
+                # Update trailing stop if in profit
+                if position["direction"] == TradeDirection.LONG:
+                    new_trail = current_price - atr * self.trail_atr_mult
+                    if current_price > position["entry_price"]:
+                        position["stop_loss"] = max(position["stop_loss"], new_trail)
+                    if current_low <= position["stop_loss"]:
+                        exit_price = position["stop_loss"]
+                        exit_reason = "TRAIL" if position["stop_loss"] > position["entry_price"] - atr * self.sl_mult else "SL"
+                else:
+                    new_trail = current_price + atr * self.trail_atr_mult
+                    if current_price < position["entry_price"]:
+                        position["stop_loss"] = min(position["stop_loss"], new_trail)
+                    if current_high >= position["stop_loss"]:
+                        exit_price = position["stop_loss"]
+                        exit_reason = "TRAIL" if position["stop_loss"] < position["entry_price"] + atr * self.sl_mult else "SL"
+
+                if exit_price is None and (i - position["entry_bar"]) >= self.max_hold_bars:
+                    exit_price = current_price
+                    exit_reason = "TIME"
+
+                if exit_price is not None:
+                    if position["direction"] == TradeDirection.LONG:
+                        pnl = (exit_price - position["entry_price"]) * position["size"]
+                    else:
+                        pnl = (position["entry_price"] - exit_price) * position["size"]
+                    fees = (position["entry_price"] + exit_price) * position["size"] * self.fee_rate
+                    pnl -= fees
+
+                    trade = Trade(
+                        id=trade_id, symbol=self.symbol, direction=position["direction"],
+                        entry_price=position["entry_price"], entry_time=position["entry_time"],
+                        exit_price=exit_price, exit_time=current_time, size=position["size"],
+                        stop_loss=position["stop_loss"], take_profit=position.get("take_profit", 0),
+                        pnl=pnl, pnl_pct=pnl / (position["entry_price"] * position["size"]),
+                        exit_reason=exit_reason, strategy=name,
+                    )
+                    trades.append(trade)
+                    trade_id += 1
+                    equity += pnl
+                    peak_equity = max(peak_equity, equity)
+                    dd = (peak_equity - equity) / peak_equity if peak_equity > 0 else 0
+                    max_drawdown_pct = max(max_drawdown_pct, dd)
+                    position = None
+
+            if position is None and atr > 0 and equity > 0:
+                df_1m_window = df_1m.iloc[max(0, i - 300):i + 1]
+                df_5m_window = df_5m.loc[:df_1m.index[i]]
+                try:
+                    is_long, is_short, confidence = signal_func(df_1m_window, df_5m_window, i)
+                except Exception:
+                    is_long, is_short, confidence = False, False, 0.0
+
+                if (is_long or is_short) and confidence >= min_confidence:
+                    slippage = current_price * 0.0001
+                    entry_price = current_price + slippage if is_long else current_price - slippage
+                    stop_loss = entry_price - (atr * self.sl_mult) if is_long else entry_price + (atr * self.sl_mult)
+                    risk_amount = equity * self.risk_per_trade
+                    stop_distance = abs(entry_price - stop_loss)
+                    size = risk_amount / stop_distance if stop_distance > 0 else 0
+                    max_size = (equity * 5) / entry_price
+                    size = min(size, max_size)
+                    if size > 0:
+                        position = {
+                            "direction": TradeDirection.LONG if is_long else TradeDirection.SHORT,
+                            "entry_price": entry_price, "entry_time": current_time,
+                            "entry_bar": i, "size": size, "stop_loss": stop_loss,
+                        }
+
+        total = len(trades)
+        wins = [t for t in trades if t.is_winner]
+        losses = [t for t in trades if not t.is_winner]
+        win_rate = len(wins) / total if total > 0 else 0.0
+        gross_profit = sum(t.pnl for t in wins) if wins else 0.0
+        gross_loss = abs(sum(t.pnl for t in losses)) if losses else 0.0
+        pf = gross_profit / gross_loss if gross_loss > 0 else (float('inf') if gross_profit > 0 else 0.0)
+        total_return = (equity - self.initial_capital) / self.initial_capital
+        if trades:
+            returns = [t.pnl_pct for t in trades]
+            mean_ret = np.mean(returns)
+            std_ret = np.std(returns) if len(returns) > 1 else 0.0
+            sharpe = (mean_ret / std_ret) * np.sqrt(252) if std_ret > 0 else 0.0
+        else:
+            sharpe = 0.0
+        return StrategyResult(
+            name=name, total_trades=total, winning_trades=len(wins),
+            losing_trades=len(losses), win_rate=win_rate, profit_factor=pf,
+            total_return_pct=total_return, max_drawdown_pct=max_drawdown_pct,
+            sharpe_ratio=sharpe, final_equity=equity,
+        )
+
+
 def create_legacy_signal(df_1m: pd.DataFrame, df_5m: pd.DataFrame, i: int) -> Tuple[bool, bool, float]:
     """Legacy EMA crossover signal."""
     if len(df_1m) < 60:
@@ -289,6 +430,47 @@ def create_combined_signal(
     return signal_func
 
 
+def create_enhanced_strict_signal(enhanced):
+    """Create enhanced signal function with strict MTF filtering."""
+    agg = {"o": "first", "h": "max", "l": "min", "c": "last", "v": "sum"}
+
+    def signal_func(df_1m: pd.DataFrame, df_5m: pd.DataFrame, i: int) -> Tuple[bool, bool, float]:
+        if len(df_1m) < 50:
+            return False, False, 0.0
+        _5m = df_1m.resample("5min").agg(agg).dropna() if len(df_1m) >= 10 else None
+        _15m = df_1m.resample("15min").agg(agg).dropna() if len(df_1m) >= 30 else None
+        _1h = df_1m.resample("1h").agg(agg).dropna() if len(df_1m) >= 120 else None
+        result = enhanced.analyze(df_1m=df_1m, df_5m=_5m, df_15m=_15m, df_1h=_1h)
+        return result.long_signal, result.short_signal, result.confidence
+    return signal_func
+
+
+def create_regime_filtered_signal(
+    enhanced,
+    detector: RegimeDetector,
+    allowed_regimes: Tuple[str, ...] = ("TRENDING", "TRANSITIONING"),
+):
+    """Create enhanced signal filtered by regime — only trade when regime matches."""
+    agg = {"o": "first", "h": "max", "l": "min", "c": "last", "v": "sum"}
+
+    def signal_func(df_1m: pd.DataFrame, df_5m: pd.DataFrame, i: int) -> Tuple[bool, bool, float]:
+        if len(df_1m) < 50:
+            return False, False, 0.0
+        # Check regime first (cheap)
+        regime = detector.detect(df_1m)
+        if regime.regime not in allowed_regimes:
+            return False, False, 0.0
+        # Run full enhanced analysis
+        _5m = df_1m.resample("5min").agg(agg).dropna() if len(df_1m) >= 10 else None
+        _15m = df_1m.resample("15min").agg(agg).dropna() if len(df_1m) >= 30 else None
+        _1h = df_1m.resample("1h").agg(agg).dropna() if len(df_1m) >= 120 else None
+        result = enhanced.analyze(df_1m=df_1m, df_5m=_5m, df_15m=_15m, df_1h=_1h)
+        # Boost confidence by regime confidence
+        conf = result.confidence * (0.8 + 0.2 * regime.confidence)
+        return result.long_signal, result.short_signal, conf
+    return signal_func
+
+
 def run_comprehensive_backtest(symbol: str, days: int) -> Dict[str, StrategyResult]:
     """Run backtest on all strategies and compare."""
     print(f"\nLoading {days} days of {symbol} data...")
@@ -314,26 +496,53 @@ def run_comprehensive_backtest(symbol: str, days: int) -> Dict[str, StrategyResu
         "o": "first", "h": "max", "l": "min", "c": "last", "v": "sum"
     }).dropna()
 
+    # Aggregate higher timeframes
+    df_15m = df_1m.resample("15min").agg({
+        "o": "first", "h": "max", "l": "min", "c": "last", "v": "sum"
+    }).dropna()
+    df_1h = df_1m.resample("1h").agg({
+        "o": "first", "h": "max", "l": "min", "c": "last", "v": "sum"
+    }).dropna()
+
     # Initialize strategies
     detector = RegimeDetector()
     trend_strategy = TrendFollowingStrategy()
     reversion_strategy = MeanReversionStrategy()
 
+    from strategies.enhanced_signal import EnhancedSignal
+    enhanced_strict = EnhancedSignal(
+        min_confluence=0.3,
+        min_mtf_alignment=0.3,
+        require_mtf_trade=True,
+    )
+
     backtester = StrategyBacktester(symbol=symbol)
+    # Wider stops to let directional edge play out
+    backtester_wide = StrategyBacktester(symbol=symbol, sl_mult=3.0, tp_mult=2.0, max_hold_bars=90)
+    # Time-based exit (30 bars) — tests pure directional edge
+    bt_time30 = TimeExitBacktester(symbol=symbol, exit_bars=30)
+    bt_time60 = TimeExitBacktester(symbol=symbol, exit_bars=60)
+    # Trailing stop + time exit
+    bt_trail30 = TrailingExitBacktester(symbol=symbol, exit_bars=30, trail_atr_mult=2.0)
+    bt_trail60 = TrailingExitBacktester(symbol=symbol, exit_bars=60, trail_atr_mult=2.0)
 
     results = {}
 
-    # Test each strategy
+    # Test each strategy — focused on most promising configurations
     strategies = [
-        ("Legacy", create_legacy_signal, 0.3),
-        ("Trend-Following", create_trend_signal(trend_strategy), 0.4),
-        ("Mean-Reversion", create_reversion_signal(reversion_strategy), 0.4),
-        ("Combined", create_combined_signal(detector, trend_strategy, reversion_strategy), 0.4),
+        ("Legacy", create_legacy_signal, 0.3, backtester),
+        ("Enhanced-Strict", create_enhanced_strict_signal(enhanced_strict), 0.2, backtester),
+        ("Reg+Time30", create_regime_filtered_signal(enhanced_strict, detector), 0.2, bt_time30),
+        ("Reg+Time60", create_regime_filtered_signal(enhanced_strict, detector), 0.2, bt_time60),
+        ("Reg+Trail30", create_regime_filtered_signal(enhanced_strict, detector), 0.2, bt_trail30),
+        ("Reg+Trail60", create_regime_filtered_signal(enhanced_strict, detector), 0.2, bt_trail60),
+        ("Reg+Time30hi", create_regime_filtered_signal(enhanced_strict, detector), 0.3, bt_time30),
+        ("Reg+Trail30hi", create_regime_filtered_signal(enhanced_strict, detector), 0.3, bt_trail30),
     ]
 
-    for name, signal_func, min_conf in strategies:
+    for name, signal_func, min_conf, bt in strategies:
         print(f"\nTesting {name}...")
-        result = backtester.run(name, df_1m, df_5m, signal_func, min_confidence=min_conf)
+        result = bt.run(name, df_1m, df_5m, signal_func, min_confidence=min_conf)
         results[name] = result
         print(f"  Trades: {result.total_trades}, WR: {result.win_rate * 100:.1f}%, PF: {result.profit_factor:.2f}")
 

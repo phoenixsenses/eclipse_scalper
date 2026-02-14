@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 
 
-RegimeType = Literal["TRENDING", "RANGING", "VOLATILE", "UNKNOWN"]
+RegimeType = Literal["TRENDING", "RANGING", "VOLATILE", "TRANSITIONING", "UNKNOWN"]
 
 
 @dataclass
@@ -32,6 +32,8 @@ class RegimeResult:
     bb_width: float
     trend_direction: Literal["UP", "DOWN", "NEUTRAL"]
     details: str
+    adx_slope: float = 0.0  # positive = strengthening trend
+    ema_slope: float = 0.0  # normalized EMA slope
 
 
 class RegimeDetector:
@@ -50,9 +52,10 @@ class RegimeDetector:
         ema_period: int = 20,
         bb_period: int = 20,
         atr_period: int = 14,
-        trend_threshold: float = 25.0,
-        range_threshold: float = 20.0,
+        trend_threshold: float = 20.0,  # lowered from 25 for 1m data
+        range_threshold: float = 15.0,  # lowered from 20
         volatility_mult: float = 1.5,
+        adx_slope_lookback: int = 5,    # bars to measure ADX slope
     ):
         self.adx_period = adx_period
         self.ema_period = ema_period
@@ -61,16 +64,18 @@ class RegimeDetector:
         self.trend_threshold = trend_threshold
         self.range_threshold = range_threshold
         self.volatility_mult = volatility_mult
+        self.adx_slope_lookback = adx_slope_lookback
 
-    def calculate_adx(self, df: pd.DataFrame) -> Tuple[float, float, float]:
+    def calculate_adx(self, df: pd.DataFrame) -> Tuple[float, float, float, float]:
         """
-        Calculate ADX, +DI, -DI.
+        Calculate ADX, +DI, -DI, and ADX slope.
 
         Returns:
-            Tuple of (ADX, +DI, -DI)
+            Tuple of (ADX, +DI, -DI, ADX_slope)
+            ADX_slope: positive = trend strengthening
         """
         if len(df) < self.adx_period + 5:
-            return 0.0, 50.0, 50.0
+            return 0.0, 50.0, 50.0, 0.0
 
         high = df["h"]
         low = df["l"]
@@ -91,18 +96,51 @@ class RegimeDetector:
 
         # Smoothed averages
         atr = tr.rolling(self.adx_period).mean()
-        plus_di = 100 * pd.Series(plus_dm).rolling(self.adx_period).mean() / atr
-        minus_di = 100 * pd.Series(minus_dm).rolling(self.adx_period).mean() / atr
+        plus_di = 100 * pd.Series(plus_dm, index=df.index).rolling(self.adx_period).mean() / atr
+        minus_di = 100 * pd.Series(minus_dm, index=df.index).rolling(self.adx_period).mean() / atr
 
         # DX and ADX
         dx = 100 * abs(plus_di - minus_di) / (plus_di + minus_di + 1e-10)
         adx = dx.rolling(self.adx_period).mean()
 
+        # ADX slope: current vs N bars ago
+        adx_now = float(adx.iloc[-1]) if not np.isnan(adx.iloc[-1]) else 0.0
+        lb = self.adx_slope_lookback
+        adx_prev = float(adx.iloc[-lb - 1]) if len(adx) > lb and not np.isnan(adx.iloc[-lb - 1]) else adx_now
+        adx_slope = adx_now - adx_prev
+
         return (
-            float(adx.iloc[-1]) if not np.isnan(adx.iloc[-1]) else 0.0,
+            adx_now,
             float(plus_di.iloc[-1]) if not np.isnan(plus_di.iloc[-1]) else 50.0,
             float(minus_di.iloc[-1]) if not np.isnan(minus_di.iloc[-1]) else 50.0,
+            adx_slope,
         )
+
+    def calculate_ema_slope(self, df: pd.DataFrame) -> float:
+        """
+        Calculate normalized EMA slope (EMA20 slope / ATR).
+
+        Returns:
+            Positive = upward momentum, negative = downward
+        """
+        if len(df) < self.ema_period + 5:
+            return 0.0
+
+        close = df["c"]
+        ema = close.ewm(span=self.ema_period).mean()
+
+        # Slope over last 5 bars, normalized by ATR
+        high = df["h"]
+        low = df["l"]
+        tr = pd.concat([high - low, (high - close.shift(1)).abs(), (low - close.shift(1)).abs()], axis=1).max(axis=1)
+        atr = float(tr.iloc[-self.atr_period:].mean())
+
+        if atr <= 0:
+            return 0.0
+
+        ema_now = float(ema.iloc[-1])
+        ema_prev = float(ema.iloc[-6]) if len(ema) > 5 else ema_now
+        return (ema_now - ema_prev) / atr
 
     def calculate_atr_ratio(self, df: pd.DataFrame) -> float:
         """
@@ -200,15 +238,21 @@ class RegimeDetector:
             )
 
         # Calculate indicators
-        adx, plus_di, minus_di = self.calculate_adx(df)
+        adx, plus_di, minus_di, adx_slope = self.calculate_adx(df)
         atr_ratio = self.calculate_atr_ratio(df)
         bb_width = self.calculate_bb_width(df)
         trend_dir = self.get_trend_direction(df)
+        ema_slope = self.calculate_ema_slope(df)
 
         # Regime detection logic
         regime: RegimeType = "UNKNOWN"
         confidence = 0.0
         details = ""
+
+        # ADX slope is rising = trend strengthening
+        adx_rising = adx_slope > 0
+        # Strong EMA slope indicates directional movement
+        strong_ema_slope = abs(ema_slope) > 0.3
 
         # Check VOLATILE first (highest priority safety check)
         if atr_ratio > self.volatility_mult:
@@ -216,30 +260,47 @@ class RegimeDetector:
             confidence = min(1.0, (atr_ratio - 1.0) / 0.5)
             details = f"High volatility: ATR ratio {atr_ratio:.2f}x"
 
-        # Check TRENDING
-        elif adx >= self.trend_threshold:
+        # Check TRENDING — two ways to qualify:
+        # 1) ADX above threshold (classic)
+        # 2) ADX rising + above lower threshold + EMA slope confirms direction
+        elif adx >= self.trend_threshold and (adx_rising or strong_ema_slope):
             regime = "TRENDING"
-            # Confidence based on ADX strength
-            confidence = min(1.0, (adx - 25) / 25)  # 25-50 ADX -> 0-1 confidence
+            confidence = min(1.0, (adx - self.trend_threshold) / 20)
+            # Boost confidence for rising ADX
+            if adx_rising:
+                confidence = min(1.0, confidence + 0.15)
+            if strong_ema_slope:
+                confidence = min(1.0, confidence + 0.1)
             if plus_di > minus_di:
-                details = f"Uptrend: ADX={adx:.1f}, +DI={plus_di:.1f}>{minus_di:.1f}"
+                details = f"Uptrend: ADX={adx:.1f}(slope={adx_slope:+.1f}), +DI={plus_di:.1f}>{minus_di:.1f}, EMA_slope={ema_slope:+.2f}"
             else:
-                details = f"Downtrend: ADX={adx:.1f}, -DI={minus_di:.1f}>{plus_di:.1f}"
+                details = f"Downtrend: ADX={adx:.1f}(slope={adx_slope:+.1f}), -DI={minus_di:.1f}>{plus_di:.1f}, EMA_slope={ema_slope:+.2f}"
+
+        elif adx >= self.trend_threshold:
+            # ADX above threshold but no slope/EMA confirmation — weaker trend
+            regime = "TRENDING"
+            confidence = min(0.5, (adx - self.trend_threshold) / 30)
+            details = f"Weak trend: ADX={adx:.1f}(slope={adx_slope:+.1f}), no slope confirmation"
+
+        # Check TRANSITIONING — ADX between range and trend thresholds with rising slope
+        elif adx >= self.range_threshold and adx_rising and strong_ema_slope:
+            regime = "TRANSITIONING"
+            confidence = min(0.7, (adx - self.range_threshold) / 10)
+            details = f"Transitioning: ADX={adx:.1f}(slope={adx_slope:+.1f}), EMA_slope={ema_slope:+.2f}"
 
         # Check RANGING
-        elif adx < self.range_threshold and bb_width < 0.02:
+        elif adx < self.range_threshold:
             regime = "RANGING"
-            # Confidence based on how low ADX is and how tight bands are
             adx_factor = (self.range_threshold - adx) / self.range_threshold
-            bb_factor = (0.02 - bb_width) / 0.02 if bb_width < 0.02 else 0.0
+            bb_factor = max(0.0, (0.02 - bb_width) / 0.02) if bb_width < 0.02 else 0.0
             confidence = (adx_factor + bb_factor) / 2
             details = f"Range-bound: ADX={adx:.1f}, BB width={bb_width * 100:.2f}%"
 
-        # Default to RANGING with low confidence
+        # Between range and trend thresholds, not transitioning
         else:
             regime = "RANGING"
             confidence = 0.3
-            details = f"Unclear regime: ADX={adx:.1f}, BB width={bb_width * 100:.2f}%"
+            details = f"Unclear: ADX={adx:.1f}(slope={adx_slope:+.1f}), EMA_slope={ema_slope:+.2f}"
 
         return RegimeResult(
             regime=regime,
@@ -249,6 +310,8 @@ class RegimeDetector:
             bb_width=bb_width,
             trend_direction=trend_dir,
             details=details,
+            adx_slope=adx_slope,
+            ema_slope=ema_slope,
         )
 
 
@@ -276,7 +339,7 @@ def main():
     detector = RegimeDetector()
 
     # Analyze regime distribution
-    regimes = {"TRENDING": 0, "RANGING": 0, "VOLATILE": 0, "UNKNOWN": 0}
+    regimes = {"TRENDING": 0, "RANGING": 0, "VOLATILE": 0, "TRANSITIONING": 0, "UNKNOWN": 0}
     window = 100
 
     print("\nAnalyzing regime distribution...")
