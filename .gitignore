@@ -13,8 +13,13 @@ runlog.txt
 *.csv
 
 # Brain / state / data
-
-data/
+data/**/*.db
+data/**/*.db-shm
+data/**/*.db-wal
+data/**/*.csv
+data/**/*.parquet
+data/canonical/
+data/backtest_cache/
 
 # IDE
 .vscode/
