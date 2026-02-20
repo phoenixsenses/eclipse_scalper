@@ -13,7 +13,7 @@ runlog.txt
 *.csv
 
 # Brain / state / data
-brain/
+
 data/
 
 # IDE
