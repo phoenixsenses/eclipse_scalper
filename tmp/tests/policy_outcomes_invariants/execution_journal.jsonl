@@ -1,0 +1,2 @@
+{"ts": 10.0, "event": "alpha_gate_check", "data": {"symbol": "BTCUSDT", "side": "sell", "decision": "PASS", "candidate_id": "C1", "policy_mode": "override"}}
+{"ts": 20.0, "event": "policy.outcome", "data": {"symbol": "BTCUSDT", "side": "SHORT", "candidate_id": "C1", "realized_pnl_pct": -0.01, "policy_mode": "override"}}

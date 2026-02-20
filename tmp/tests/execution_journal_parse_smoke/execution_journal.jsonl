@@ -1,0 +1,3 @@
+{"ts": 1770000000.0, "event": "state.transition", "data": {"machine": "order_intent", "entity": "ENTRY-BTCUSD-a1", "state_to": "SUBMITTED", "reason": "router_send", "meta": {"k": "BTCUSDT"}}}
+{"timestamp": "2026-02-02T00:00:01Z", "event": "state.transition", "data": {"machine": "order_intent", "entity": "ENTRY-BTCUSD-a1", "state_to": "ACKED", "reason": "exchange_ack", "meta": {"k": "BTCUSDT"}}}
+{"time": "2026-02-02T00:00:02Z", "event": "state.transition", "data": {"machine": "order_intent", "entity": "EXIT-BTCUSD-a1", "state_to": "SUBMITTED", "reason": "router_send", "meta": {"k": "BTCUSDT"}}}

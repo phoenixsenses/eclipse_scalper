@@ -1,0 +1,325 @@
+{
+  "count": 8,
+  "ranking": [
+    {
+      "symbol": "ETHUSDT",
+      "horizon_sec": 120,
+      "min_imbalance": 0.5,
+      "min_trade_intensity": 2500.0,
+      "max_spread": 0.0005,
+      "rule": "micro_edge_v2_passive_alpha",
+      "score": 0.0,
+      "stability_std_bps": 0.5937683236597489,
+      "insufficient_fill_rate": 0.0,
+      "robust_core": false,
+      "robust_stress": false,
+      "best_fee_survive": 0.5,
+      "evals": {
+        "fee=0.500|adv=1.000": {
+          "pass_rate": 0.45,
+          "median_filled_avg_net": -1.532176671451068e-05,
+          "worst_split_avg_net": -0.00013323533401943596,
+          "worst_split_p90_net": 0.0013246043970369535,
+          "stability_std": 5.937683236597489e-05,
+          "rows": 20,
+          "rows_total": 20,
+          "pass_count": 9,
+          "pass_rate_raw": 0.45,
+          "insufficient_fill_rate": 0.0
+        },
+        "fee=1.000|adv=1.000": {
+          "pass_rate": 0.0,
+          "median_filled_avg_net": -0.00011532176671451069,
+          "worst_split_avg_net": -0.00023323533401943598,
+          "worst_split_p90_net": 0.0012246043970369535,
+          "stability_std": 5.937683236597488e-05,
+          "rows": 20,
+          "rows_total": 20,
+          "pass_count": 0,
+          "pass_rate_raw": 0.0,
+          "insufficient_fill_rate": 0.0
+        }
+      }
+    },
+    {
+      "symbol": "ETHUSDT",
+      "horizon_sec": 120,
+      "min_imbalance": 0.4,
+      "min_trade_intensity": 2500.0,
+      "max_spread": 0.0005,
+      "rule": "micro_edge_v2_passive_alpha",
+      "score": 0.0,
+      "stability_std_bps": 0.4604283516388139,
+      "insufficient_fill_rate": 0.0,
+      "robust_core": false,
+      "robust_stress": false,
+      "best_fee_survive": 1.0,
+      "evals": {
+        "fee=0.500|adv=1.000": {
+          "pass_rate": 0.4,
+          "median_filled_avg_net": -2.525757957188049e-05,
+          "worst_split_avg_net": -0.00010078533592751404,
+          "worst_split_p90_net": 0.0012850705324879046,
+          "stability_std": 4.604283516388138e-05,
+          "rows": 20,
+          "rows_total": 20,
+          "pass_count": 8,
+          "pass_rate_raw": 0.4,
+          "insufficient_fill_rate": 0.0
+        },
+        "fee=1.000|adv=1.000": {
+          "pass_rate": 0.05,
+          "median_filled_avg_net": -0.0001252575795718805,
+          "worst_split_avg_net": -0.00020078533592751406,
+          "worst_split_p90_net": 0.0011850705324879048,
+          "stability_std": 4.604283516388139e-05,
+          "rows": 20,
+          "rows_total": 20,
+          "pass_count": 1,
+          "pass_rate_raw": 0.05,
+          "insufficient_fill_rate": 0.0
+        }
+      }
+    },
+    {
+      "symbol": "ETHUSDT",
+      "horizon_sec": 120,
+      "min_imbalance": 0.3,
+      "min_trade_intensity": 2500.0,
+      "max_spread": 0.0005,
+      "rule": "micro_edge_v2_passive_alpha",
+      "score": 0.0,
+      "stability_std_bps": 0.4746843977721659,
+      "insufficient_fill_rate": 0.0,
+      "robust_core": false,
+      "robust_stress": false,
+      "best_fee_survive": 0.5,
+      "evals": {
+        "fee=0.500|adv=1.000": {
+          "pass_rate": 0.35,
+          "median_filled_avg_net": -2.3467096744034588e-05,
+          "worst_split_avg_net": -0.00011283443061365054,
+          "worst_split_p90_net": 0.001228771771976995,
+          "stability_std": 4.746843977721659e-05,
+          "rows": 20,
+          "rows_total": 20,
+          "pass_count": 8,
+          "pass_rate_raw": 0.4,
+          "insufficient_fill_rate": 0.0
+        },
+        "fee=1.000|adv=1.000": {
+          "pass_rate": 0.0,
+          "median_filled_avg_net": -0.0001234670967440346,
+          "worst_split_avg_net": -0.00021283443061365052,
+          "worst_split_p90_net": 0.0011287717719769951,
+          "stability_std": 4.746843977721659e-05,
+          "rows": 20,
+          "rows_total": 20,
+          "pass_count": 1,
+          "pass_rate_raw": 0.05,
+          "insufficient_fill_rate": 0.0
+        }
+      }
+    },
+    {
+      "symbol": "ETHUSDT",
+      "horizon_sec": 120,
+      "min_imbalance": 0.2,
+      "min_trade_intensity": 2500.0,
+      "max_spread": 0.0005,
+      "rule": "micro_edge_v2_passive_alpha",
+      "score": 0.0,
+      "stability_std_bps": 0.49757563947867545,
+      "insufficient_fill_rate": 0.0,
+      "robust_core": false,
+      "robust_stress": false,
+      "best_fee_survive": 1.0,
+      "evals": {
+        "fee=0.500|adv=1.000": {
+          "pass_rate": 0.35,
+          "median_filled_avg_net": -1.0834381350014258e-05,
+          "worst_split_avg_net": -9.041244729852348e-05,
+          "worst_split_p90_net": 0.0012220946527170188,
+          "stability_std": 4.975756394786754e-05,
+          "rows": 20,
+          "rows_total": 20,
+          "pass_count": 9,
+          "pass_rate_raw": 0.45,
+          "insufficient_fill_rate": 0.0
+        },
+        "fee=1.000|adv=1.000": {
+          "pass_rate": 0.05,
+          "median_filled_avg_net": -0.00011083438135001426,
+          "worst_split_avg_net": -0.0001904124472985235,
+          "worst_split_p90_net": 0.001122094652717019,
+          "stability_std": 4.975756394786754e-05,
+          "rows": 20,
+          "rows_total": 20,
+          "pass_count": 1,
+          "pass_rate_raw": 0.05,
+          "insufficient_fill_rate": 0.0
+        }
+      }
+    },
+    {
+      "symbol": "ETHUSDT",
+      "horizon_sec": 120,
+      "min_imbalance": 0.4,
+      "min_trade_intensity": 2500.0,
+      "max_spread": 0.0003,
+      "rule": "micro_edge_v2_passive_alpha",
+      "score": 0.0,
+      "stability_std_bps": 0.6439765664751091,
+      "insufficient_fill_rate": 0.0,
+      "robust_core": false,
+      "robust_stress": false,
+      "best_fee_survive": 0.5,
+      "evals": {
+        "fee=0.500|adv=1.000": {
+          "pass_rate": 0.4,
+          "median_filled_avg_net": -5.1222087579862855e-05,
+          "worst_split_avg_net": -0.00010731806277538922,
+          "worst_split_p90_net": 0.001303775870289782,
+          "stability_std": 6.439765664751092e-05,
+          "rows": 20,
+          "rows_total": 20,
+          "pass_count": 8,
+          "pass_rate_raw": 0.4,
+          "insufficient_fill_rate": 0.0
+        },
+        "fee=1.000|adv=1.000": {
+          "pass_rate": 0.0,
+          "median_filled_avg_net": -0.00015122208757986286,
+          "worst_split_avg_net": -0.00020731806277538925,
+          "worst_split_p90_net": 0.0012037758702897819,
+          "stability_std": 6.439765664751092e-05,
+          "rows": 20,
+          "rows_total": 20,
+          "pass_count": 1,
+          "pass_rate_raw": 0.05,
+          "insufficient_fill_rate": 0.0
+        }
+      }
+    },
+    {
+      "symbol": "ETHUSDT",
+      "horizon_sec": 120,
+      "min_imbalance": 0.5,
+      "min_trade_intensity": 1500.0,
+      "max_spread": 0.0005,
+      "rule": "micro_edge_v2_passive_alpha",
+      "score": 0.0,
+      "stability_std_bps": 0.5284189438220281,
+      "insufficient_fill_rate": 0.0,
+      "robust_core": false,
+      "robust_stress": false,
+      "best_fee_survive": 1.0,
+      "evals": {
+        "fee=0.500|adv=1.000": {
+          "pass_rate": 0.25,
+          "median_filled_avg_net": -3.4747952891083196e-05,
+          "worst_split_avg_net": -6.477373309971078e-05,
+          "worst_split_p90_net": 0.001217790603260243,
+          "stability_std": 5.2841894382202804e-05,
+          "rows": 20,
+          "rows_total": 20,
+          "pass_count": 6,
+          "pass_rate_raw": 0.3,
+          "insufficient_fill_rate": 0.0
+        },
+        "fee=1.000|adv=1.000": {
+          "pass_rate": 0.05,
+          "median_filled_avg_net": -0.0001347479528910832,
+          "worst_split_avg_net": -0.00016477373309971077,
+          "worst_split_p90_net": 0.001117790603260243,
+          "stability_std": 5.284189438220281e-05,
+          "rows": 20,
+          "rows_total": 20,
+          "pass_count": 1,
+          "pass_rate_raw": 0.05,
+          "insufficient_fill_rate": 0.0
+        }
+      }
+    },
+    {
+      "symbol": "ETHUSDT",
+      "horizon_sec": 120,
+      "min_imbalance": 0.4,
+      "min_trade_intensity": 1500.0,
+      "max_spread": 0.0005,
+      "rule": "micro_edge_v2_passive_alpha",
+      "score": 0.0,
+      "stability_std_bps": 0.5784719595628616,
+      "insufficient_fill_rate": 0.0,
+      "robust_core": false,
+      "robust_stress": false,
+      "best_fee_survive": 1.0,
+      "evals": {
+        "fee=0.500|adv=1.000": {
+          "pass_rate": 0.25,
+          "median_filled_avg_net": -2.218144228798813e-05,
+          "worst_split_avg_net": -5.105266680509497e-05,
+          "worst_split_p90_net": 0.0011440042157260279,
+          "stability_std": 5.7847195956286154e-05,
+          "rows": 20,
+          "rows_total": 20,
+          "pass_count": 5,
+          "pass_rate_raw": 0.25,
+          "insufficient_fill_rate": 0.0
+        },
+        "fee=1.000|adv=1.000": {
+          "pass_rate": 0.05,
+          "median_filled_avg_net": -0.00012218144228798815,
+          "worst_split_avg_net": -0.00015105266680509496,
+          "worst_split_p90_net": 0.0010440042157260278,
+          "stability_std": 5.7847195956286154e-05,
+          "rows": 20,
+          "rows_total": 20,
+          "pass_count": 2,
+          "pass_rate_raw": 0.1,
+          "insufficient_fill_rate": 0.0
+        }
+      }
+    },
+    {
+      "symbol": "ETHUSDT",
+      "horizon_sec": 120,
+      "min_imbalance": 0.5,
+      "min_trade_intensity": 2500.0,
+      "max_spread": 0.0003,
+      "rule": "micro_edge_v2_passive_alpha",
+      "score": 0.0,
+      "stability_std_bps": 0.6879036719213818,
+      "insufficient_fill_rate": 0.0,
+      "robust_core": false,
+      "robust_stress": false,
+      "best_fee_survive": 0.5,
+      "evals": {
+        "fee=0.500|adv=1.000": {
+          "pass_rate": 0.35,
+          "median_filled_avg_net": -1.7472573195881538e-05,
+          "worst_split_avg_net": -0.0001457758386848131,
+          "worst_split_p90_net": 0.0012999706155316496,
+          "stability_std": 6.879036719213818e-05,
+          "rows": 20,
+          "rows_total": 20,
+          "pass_count": 8,
+          "pass_rate_raw": 0.4,
+          "insufficient_fill_rate": 0.0
+        },
+        "fee=1.000|adv=1.000": {
+          "pass_rate": 0.0,
+          "median_filled_avg_net": -0.00011747257319588155,
+          "worst_split_avg_net": -0.0002457758386848131,
+          "worst_split_p90_net": 0.0011999706155316496,
+          "stability_std": 6.879036719213818e-05,
+          "rows": 20,
+          "rows_total": 20,
+          "pass_count": 0,
+          "pass_rate_raw": 0.0,
+          "insufficient_fill_rate": 0.0
+        }
+      }
+    }
+  ]
+}

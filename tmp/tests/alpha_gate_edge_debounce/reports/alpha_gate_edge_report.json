@@ -1,0 +1,316 @@
+{
+  "meta": {
+    "build_time_utc": "2026-02-19T03:31:44.074893+00:00",
+    "mode": "offline_replay",
+    "input_path": "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\tmp\\tests\\alpha_gate_edge_debounce\\data\\canonical\\canonical_merged.parquet",
+    "regime_input_path": "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\tmp\\tests\\alpha_gate_edge_debounce\\data\\canonical\\canonical_regimes.parquet",
+    "journal_path": "logs\\execution_journal.jsonl",
+    "symbols": [
+      "ETHUSDT"
+    ],
+    "horizons": [
+      5,
+      15
+    ],
+    "bps_costs": [
+      0.0,
+      2.0,
+      5.0
+    ],
+    "bootstrap": 0,
+    "min_events_warning": 30,
+    "event_col": "signal_state",
+    "event_mode": "change",
+    "event_mode_resolved": "change",
+    "min_gap_sec": 60,
+    "events_total_before_filter": 2,
+    "events_total_after_filter": 2,
+    "events_dropped": 0,
+    "allowed_events_total": 2,
+    "group_include_regex": null,
+    "group_exclude_regex": null,
+    "groups_total": 1,
+    "groups_kept": 1,
+    "groups_dropped": 0
+  },
+  "by_symbol": {
+    "ETHUSDT": {
+      "events": 2,
+      "events_matched_canonical": 2,
+      "events_unmatched_canonical": 0,
+      "horizons": {
+        "5m": {
+          "events": 2,
+          "events_matched": 2,
+          "average_return": 0.0002400374461526411,
+          "win_rate": 1.0,
+          "sharpe_proxy": 27773.44439862207,
+          "p05": 0.00024002966772593837,
+          "p01": 0.00024002897631023146,
+          "ci_low": null,
+          "ci_high": null
+        },
+        "15m": {
+          "events": 2,
+          "events_matched": 2,
+          "average_return": 0.0007201123384581454,
+          "win_rate": 1.0,
+          "sharpe_proxy": 27773.444398630632,
+          "p05": 0.0007200890031780372,
+          "p01": 0.0007200869289309164,
+          "ci_low": null,
+          "ci_high": null
+        }
+      },
+      "by_rule_id": {
+        "ETH_VOL_LIQ_SHORT_LIQ_LONG": {
+          "events": 2,
+          "horizons": {
+            "5m": {
+              "events": 2,
+              "events_matched": 2,
+              "average_return": 0.0002400374461526411,
+              "win_rate": 1.0,
+              "sharpe_proxy": 27773.44439862207,
+              "p05": 0.00024002966772593837,
+              "p01": 0.00024002897631023146,
+              "ci_low": null,
+              "ci_high": null
+            },
+            "15m": {
+              "events": 2,
+              "events_matched": 2,
+              "average_return": 0.0007201123384581454,
+              "win_rate": 1.0,
+              "sharpe_proxy": 27773.444398630632,
+              "p05": 0.0007200890031780372,
+              "p01": 0.0007200869289309164,
+              "ci_low": null,
+              "ci_high": null
+            }
+          }
+        }
+      }
+    }
+  },
+  "by_rule_id": {
+    "ETH_VOL_LIQ_SHORT_LIQ_LONG": {
+      "events": 2,
+      "symbols": [
+        "ETHUSDT"
+      ],
+      "horizons": {
+        "5m": {
+          "events": 2,
+          "events_matched": 2,
+          "average_return": 0.0002400374461526411,
+          "win_rate": 1.0,
+          "sharpe_proxy": 27773.44439862207,
+          "p05": 0.00024002966772593837,
+          "p01": 0.00024002897631023146,
+          "ci_low": null,
+          "ci_high": null
+        },
+        "15m": {
+          "events": 2,
+          "events_matched": 2,
+          "average_return": 0.0007201123384581454,
+          "win_rate": 1.0,
+          "sharpe_proxy": 27773.444398630632,
+          "p05": 0.0007200890031780372,
+          "p01": 0.0007200869289309164,
+          "ci_low": null,
+          "ci_high": null
+        }
+      }
+    }
+  },
+  "allowed_by_rule_id": {
+    "ETH_VOL_LIQ_SHORT_LIQ_LONG": 2
+  },
+  "top_rules_by_avg_return_15m": [
+    {
+      "rule_id": "ETH_VOL_LIQ_SHORT_LIQ_LONG",
+      "symbol": "ETHUSDT",
+      "events": 2,
+      "avg_return_15m": 0.0007201123384581454,
+      "avg_return_60m": null,
+      "average_return": 0.0007201123384581454,
+      "win_rate": 1.0,
+      "sharpe_proxy": 27773.444398630632,
+      "p05": 0.0007200890031780372,
+      "p01": 0.0007200869289309164,
+      "net_avg_return_15m_bps_0": 0.0007201123384581454,
+      "net_avg_return_15m_bps_2": 0.0005201123384581454,
+      "net_avg_return_15m_bps_5": 0.00022011233845814536
+    }
+  ],
+  "top_rules_by_avg_return_60m": [],
+  "stability_slices": {
+    "top_k": 20,
+    "regime_column": "regime",
+    "by_rule_symbol": [
+      {
+        "rule_id": "ETH_VOL_LIQ_SHORT_LIQ_LONG",
+        "symbol": "ETHUSDT",
+        "events": 2,
+        "events_matched_5m": 2,
+        "avg_return_5m": 0.0002400374461526411,
+        "win_rate_5m": 1.0,
+        "sharpe_proxy_5m": 27773.44439862207,
+        "p05_5m": 0.00024002966772593837,
+        "p01_5m": 0.00024002897631023146,
+        "net_avg_return_5m_bps_0": 0.0002400374461526411,
+        "net_avg_return_5m_bps_2": 4.00374461526411e-05,
+        "net_avg_return_5m_bps_5": -0.0002599625538473589,
+        "events_matched_15m": 2,
+        "avg_return_15m": 0.0007201123384581454,
+        "win_rate_15m": 1.0,
+        "sharpe_proxy_15m": 27773.444398630632,
+        "p05_15m": 0.0007200890031780372,
+        "p01_15m": 0.0007200869289309164,
+        "net_avg_return_15m_bps_0": 0.0007201123384581454,
+        "net_avg_return_15m_bps_2": 0.0005201123384581454,
+        "net_avg_return_15m_bps_5": 0.00022011233845814536
+      }
+    ],
+    "by_rule_regime_label": [
+      {
+        "rule_id": "ETH_VOL_LIQ_SHORT_LIQ_LONG",
+        "events": 2,
+        "events_matched_5m": 2,
+        "avg_return_5m": 0.0002400374461526411,
+        "win_rate_5m": 1.0,
+        "sharpe_proxy_5m": 27773.44439862207,
+        "p05_5m": 0.00024002966772593837,
+        "p01_5m": 0.00024002897631023146,
+        "net_avg_return_5m_bps_0": 0.0002400374461526411,
+        "net_avg_return_5m_bps_2": 4.00374461526411e-05,
+        "net_avg_return_5m_bps_5": -0.0002599625538473589,
+        "events_matched_15m": 2,
+        "avg_return_15m": 0.0007201123384581454,
+        "win_rate_15m": 1.0,
+        "sharpe_proxy_15m": 27773.444398630632,
+        "p05_15m": 0.0007200890031780372,
+        "p01_15m": 0.0007200869289309164,
+        "net_avg_return_15m_bps_0": 0.0007201123384581454,
+        "net_avg_return_15m_bps_2": 0.0005201123384581454,
+        "net_avg_return_15m_bps_5": 0.00022011233845814536,
+        "regime_label": "VOLATILE"
+      }
+    ],
+    "top_by_rule_symbol": {
+      "15m": [
+        {
+          "rule_id": "ETH_VOL_LIQ_SHORT_LIQ_LONG",
+          "symbol": "ETHUSDT",
+          "events": 2,
+          "events_matched_5m": 2,
+          "avg_return_5m": 0.0002400374461526411,
+          "win_rate_5m": 1.0,
+          "sharpe_proxy_5m": 27773.44439862207,
+          "p05_5m": 0.00024002966772593837,
+          "p01_5m": 0.00024002897631023146,
+          "net_avg_return_5m_bps_0": 0.0002400374461526411,
+          "net_avg_return_5m_bps_2": 4.00374461526411e-05,
+          "net_avg_return_5m_bps_5": -0.0002599625538473589,
+          "events_matched_15m": 2,
+          "avg_return_15m": 0.0007201123384581454,
+          "win_rate_15m": 1.0,
+          "sharpe_proxy_15m": 27773.444398630632,
+          "p05_15m": 0.0007200890031780372,
+          "p01_15m": 0.0007200869289309164,
+          "net_avg_return_15m_bps_0": 0.0007201123384581454,
+          "net_avg_return_15m_bps_2": 0.0005201123384581454,
+          "net_avg_return_15m_bps_5": 0.00022011233845814536
+        }
+      ],
+      "60m": []
+    },
+    "top_by_rule_regime_label": {
+      "15m": [
+        {
+          "rule_id": "ETH_VOL_LIQ_SHORT_LIQ_LONG",
+          "events": 2,
+          "events_matched_5m": 2,
+          "avg_return_5m": 0.0002400374461526411,
+          "win_rate_5m": 1.0,
+          "sharpe_proxy_5m": 27773.44439862207,
+          "p05_5m": 0.00024002966772593837,
+          "p01_5m": 0.00024002897631023146,
+          "net_avg_return_5m_bps_0": 0.0002400374461526411,
+          "net_avg_return_5m_bps_2": 4.00374461526411e-05,
+          "net_avg_return_5m_bps_5": -0.0002599625538473589,
+          "events_matched_15m": 2,
+          "avg_return_15m": 0.0007201123384581454,
+          "win_rate_15m": 1.0,
+          "sharpe_proxy_15m": 27773.444398630632,
+          "p05_15m": 0.0007200890031780372,
+          "p01_15m": 0.0007200869289309164,
+          "net_avg_return_15m_bps_0": 0.0007201123384581454,
+          "net_avg_return_15m_bps_2": 0.0005201123384581454,
+          "net_avg_return_15m_bps_5": 0.00022011233845814536,
+          "regime_label": "VOLATILE"
+        }
+      ],
+      "60m": []
+    }
+  },
+  "walkforward_stability": {
+    "config": {
+      "walkforward_days": 7,
+      "folds": 0
+    },
+    "by_rule_symbol": [],
+    "unstable_rules": []
+  },
+  "join_diagnostics": {
+    "overall": {
+      "events_total": 2,
+      "events_matched_canonical": 2,
+      "events_unmatched_canonical": 0,
+      "match_rate": 1.0,
+      "by_horizon": {
+        "5m": {
+          "events_matched_canonical": 2,
+          "events_with_horizon": 2,
+          "events_dropped_horizon": 0,
+          "availability_rate": 1.0,
+          "drop_rate": 0.0
+        },
+        "15m": {
+          "events_matched_canonical": 2,
+          "events_with_horizon": 2,
+          "events_dropped_horizon": 0,
+          "availability_rate": 1.0,
+          "drop_rate": 0.0
+        }
+      }
+    },
+    "by_symbol": {
+      "ETHUSDT": {
+        "events_total": 2,
+        "events_matched_canonical": 2,
+        "events_unmatched_canonical": 0,
+        "match_rate": 1.0,
+        "by_horizon": {
+          "5m": {
+            "events_matched_canonical": 2,
+            "events_with_horizon": 2,
+            "events_dropped_horizon": 0,
+            "availability_rate": 1.0,
+            "drop_rate": 0.0
+          },
+          "15m": {
+            "events_matched_canonical": 2,
+            "events_with_horizon": 2,
+            "events_dropped_horizon": 0,
+            "availability_rate": 1.0,
+            "drop_rate": 0.0
+          }
+        }
+      }
+    }
+  },
+  "warnings": []
+}

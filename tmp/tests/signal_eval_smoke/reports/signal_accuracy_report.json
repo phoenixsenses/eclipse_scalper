@@ -1,0 +1,132 @@
+{
+  "meta": {
+    "build_time_utc": "2026-02-19T03:29:51.992146+00:00",
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "rows_total": 130,
+    "events_total": 1,
+    "events_per_symbol": {
+      "BTCUSDT": 1
+    },
+    "event_col": "entry_candidate",
+    "event_mode": "auto",
+    "min_gap_sec": 60,
+    "dropped_duplicates": 0,
+    "horizon_match_stats": {
+      "BTCUSDT:ALL:1m": {
+        "exact": 1,
+        "nearest_forward": 0,
+        "missing": 0
+      },
+      "BTCUSDT:ALL:3m": {
+        "exact": 0,
+        "nearest_forward": 0,
+        "missing": 1
+      },
+      "BTCUSDT:ALL:5m": {
+        "exact": 0,
+        "nearest_forward": 0,
+        "missing": 1
+      },
+      "BTCUSDT:alpha:1m": {
+        "exact": 1,
+        "nearest_forward": 0,
+        "missing": 0
+      },
+      "BTCUSDT:alpha:3m": {
+        "exact": 0,
+        "nearest_forward": 0,
+        "missing": 1
+      },
+      "BTCUSDT:alpha:5m": {
+        "exact": 0,
+        "nearest_forward": 0,
+        "missing": 1
+      }
+    },
+    "group_include_regex": null,
+    "group_exclude_regex": null,
+    "groups_total": 2,
+    "groups_kept": 2,
+    "groups_dropped": 0,
+    "events_total_before_filter": 1,
+    "events_total_after_filter": 1,
+    "events_dropped": 0,
+    "event_mode_resolved": "bool",
+    "input_path": "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\tmp\\tests\\signal_eval_smoke\\data\\canonical\\canonical_merged.parquet"
+  },
+  "by_symbol": {
+    "BTCUSDT": {
+      "events": 1,
+      "by_group": {
+        "ALL": {
+          "events": 1,
+          "horizons": {
+            "1m": {
+              "events_matched": 1,
+              "accuracy": 1.0,
+              "win_rate": 1.0,
+              "average_return": 0.10000000000000009,
+              "sharpe_ratio": null,
+              "mae_mean": 0.0,
+              "mfe_mean": 0.10000000000000009
+            },
+            "3m": {
+              "events_matched": 0,
+              "accuracy": null,
+              "win_rate": null,
+              "average_return": null,
+              "sharpe_ratio": null,
+              "mae_mean": null,
+              "mfe_mean": null
+            },
+            "5m": {
+              "events_matched": 0,
+              "accuracy": null,
+              "win_rate": null,
+              "average_return": null,
+              "sharpe_ratio": null,
+              "mae_mean": null,
+              "mfe_mean": null
+            }
+          }
+        },
+        "alpha": {
+          "events": 1,
+          "horizons": {
+            "1m": {
+              "events_matched": 1,
+              "accuracy": 1.0,
+              "win_rate": 1.0,
+              "average_return": 0.10000000000000009,
+              "sharpe_ratio": null,
+              "mae_mean": 0.0,
+              "mfe_mean": 0.10000000000000009
+            },
+            "3m": {
+              "events_matched": 0,
+              "accuracy": null,
+              "win_rate": null,
+              "average_return": null,
+              "sharpe_ratio": null,
+              "mae_mean": null,
+              "mfe_mean": null
+            },
+            "5m": {
+              "events_matched": 0,
+              "accuracy": null,
+              "win_rate": null,
+              "average_return": null,
+              "sharpe_ratio": null,
+              "mae_mean": null,
+              "mfe_mean": null
+            }
+          }
+        }
+      }
+    }
+  },
+  "warnings": [],
+  "top_groups": []
+}
