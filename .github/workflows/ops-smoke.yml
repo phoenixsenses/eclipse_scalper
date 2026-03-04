@@ -1,0 +1,90 @@
+name: Ops Smoke
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "**"
+  workflow_dispatch:
+
+jobs:
+  ops-smoke:
+    name: Offline bootstrap + ops tools smoke
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Seed temporary sqlite fixtures
+        run: |
+          mkdir -p data reports logs reports/daily
+          python - <<'PY'
+          import sqlite3, time
+          from pathlib import Path
+
+          data = Path("data")
+          data.mkdir(parents=True, exist_ok=True)
+
+          # microstructure db fixture for maintenance smoke
+          micro = data / "microstructure.db"
+          conn = sqlite3.connect(str(micro))
+          conn.execute("CREATE TABLE IF NOT EXISTS mark_prices (ts INTEGER, symbol TEXT, mark_price REAL)")
+          conn.execute("INSERT INTO mark_prices(ts,symbol,mark_price) VALUES (?,?,?)", (int(time.time() * 1000), "ETHUSDT", 2500.0))
+          conn.commit()
+          conn.close()
+
+          # paper trades fixture for daily report smoke
+          paper = data / "paper_trades.db"
+          conn = sqlite3.connect(str(paper))
+          conn.execute("CREATE TABLE IF NOT EXISTS trades (exit_time REAL, pnl_bps REAL)")
+          now = time.time()
+          conn.executemany(
+              "INSERT INTO trades(exit_time,pnl_bps) VALUES (?,?)",
+              [(now - 60, 5.0), (now - 30, -2.0), (now - 10, 3.0)],
+          )
+          conn.commit()
+          conn.close()
+          PY
+
+      - name: Bootstrap offline smoke mode
+        env:
+          BOOTSTRAP_SMOKE_ONLY: "1"
+          BOOTSTRAP_SKIP_EXCHANGE_INIT: "1"
+          BOOTSTRAP_SMOKE_SEC: "1"
+          SCALPER_DRY_RUN: "1"
+        run: |
+          python -m execution.bootstrap
+
+      - name: Daily report smoke
+        run: |
+          python -m tools.daily_report --db data/paper_trades.db --out-dir reports/daily
+          test -n "$(ls -1 reports/daily/*.md 2>/dev/null)"
+
+      - name: DB maintenance smoke
+        run: |
+          python -m tools.db_maintenance --db data/microstructure.db --trade-db data/paper_trades.db --backup-dir data/backups --keep 2 --min-free-gb 0
+
+      - name: Sweep CLI smoke
+        run: |
+          python -m tools.run_full_sweep --help
+
+      - name: Upload smoke artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ops-smoke-artifacts
+          path: |
+            reports/daily
+            data/backups
+            logs
