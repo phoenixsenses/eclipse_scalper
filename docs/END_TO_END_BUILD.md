@@ -47,6 +47,11 @@ python -m tools.daily_report
 python -m tools.risk_attribution --live-root data/live --out-md reports/risk_attribution.md
 ```
 
+### Execution quality audit (Track 1 KPI)
+```powershell
+python -m tools.execution_quality_audit --in-parquet data/live/papertrades_live.parquet --out-md reports/execution_quality_audit.md --out-json reports/execution_quality_audit.json
+```
+
 ### Preflight gate (startup hard checks)
 ```powershell
 python -m tools.preflight_check
