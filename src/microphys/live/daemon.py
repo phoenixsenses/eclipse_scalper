@@ -283,6 +283,27 @@ def _events_to_frames(
     return pd.DataFrame(trades), pd.DataFrame(book), pd.DataFrame(liq)
 
 
+def _source_max_ts_ms(*frames: pd.DataFrame) -> int:
+    max_ms = 0
+    for df in frames:
+        if df is None or df.empty:
+            continue
+        for col in ("ts_ms", "ts"):
+            if col not in df.columns:
+                continue
+            vals = pd.to_numeric(df.get(col), errors="coerce").dropna()
+            if vals.empty:
+                continue
+            cur = float(vals.max())
+            if cur <= 0:
+                continue
+            # Canonical reader may expose seconds; normalize to ms.
+            cur_ms = int(cur * 1000.0) if cur < 10_000_000_000 else int(cur)
+            if cur_ms > max_ms:
+                max_ms = cur_ms
+    return int(max_ms)
+
+
 def run_live_cycle(cfg: LiveSettings, *, artifact_snapshot: Dict[str, Any] | None = None) -> Dict[str, Any]:
     symbol = canonical_symbol(cfg.symbol)
     out_root = Path(str(cfg.out_root))
@@ -323,6 +344,10 @@ def run_live_cycle(cfg: LiveSettings, *, artifact_snapshot: Dict[str, Any] | Non
         state = _state_from_bars(bars, int(cfg.interval_ms))
         physics = compute_physics_signals_frame(state, horizons=[1, 5, 10, 20], rolling=500)
         physics = physics.sort_values("ts_ms").reset_index(drop=True)
+        source_ts_max = _source_max_ts_ms(trades_df, book_df, liq_df)
+        if source_ts_max > 0:
+            state = state[pd.to_numeric(state.get("ts_ms"), errors="coerce").fillna(0).astype("int64") <= int(source_ts_max)].copy()
+            physics = physics[pd.to_numeric(physics.get("ts_ms"), errors="coerce").fillna(0).astype("int64") <= int(source_ts_max)].copy()
         if "regime_id" not in physics.columns:
             physics["regime_id"] = (pd.to_numeric(physics.get("F_ofi_z"), errors="coerce").fillna(0.0) >= 0.0).astype(int)
         if physics.empty:
@@ -619,7 +644,9 @@ def run_live_cycle(cfg: LiveSettings, *, artifact_snapshot: Dict[str, Any] | Non
                 )
             _append_parquet(positions_live_path, pd.DataFrame(pos_rows), subset_cols=["ts_ms", "symbol"])
 
-        tmax = int(pd.to_numeric(physics.get("ts_ms"), errors="coerce").max() or 0)
+        tmax_calc = int(pd.to_numeric(physics.get("ts_ms"), errors="coerce").max() or 0)
+        tmax_source = int(source_ts_max)
+        tmax = int(tmax_source if tmax_source > 0 else tmax_calc)
         _write_json(watermark_path, {"last_ts_ms": tmax, "updated_utc": _utc_now()})
 
         _, db_last = reader.get_ts_range("trades", symbol)

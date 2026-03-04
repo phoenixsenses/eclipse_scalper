@@ -5,6 +5,7 @@
 #   .\scripts\start_paper_trading.ps1
 #   .\scripts\start_paper_trading.ps1 -EnvFile .env.paper.dual
 #   .\scripts\start_paper_trading.ps1 -EnvFile .env.paper -SkipValidation
+#   .\scripts\start_paper_trading.ps1 -SmokeOffline
 #
 # What this does:
 #   1. Loads .env.paper into the current process environment
@@ -23,7 +24,8 @@ param(
     [string]$EnvFile = ".env.paper",
     [switch]$SkipValidation,
     [switch]$NoWatchdog,
-    [switch]$ForceRestart
+    [switch]$ForceRestart,
+    [switch]$SmokeOffline
 )
 
 $ErrorActionPreference = "Stop"
@@ -265,6 +267,17 @@ if (-not $NoWatchdog) {
 Write-Host ""
 Write-Host "Starting paper trading (CTRL+C to stop)..." -ForegroundColor Cyan
 Write-Host ""
+$prevSmokeOnly = [System.Environment]::GetEnvironmentVariable("BOOTSTRAP_SMOKE_ONLY", "Process")
+$prevSkipInit = [System.Environment]::GetEnvironmentVariable("BOOTSTRAP_SKIP_EXCHANGE_INIT", "Process")
+$prevSmokeSec = [System.Environment]::GetEnvironmentVariable("BOOTSTRAP_SMOKE_SEC", "Process")
+if ($SmokeOffline) {
+    [System.Environment]::SetEnvironmentVariable("BOOTSTRAP_SMOKE_ONLY", "1", "Process")
+    [System.Environment]::SetEnvironmentVariable("BOOTSTRAP_SKIP_EXCHANGE_INIT", "1", "Process")
+    if (-not [System.Environment]::GetEnvironmentVariable("BOOTSTRAP_SMOKE_SEC", "Process")) {
+        [System.Environment]::SetEnvironmentVariable("BOOTSTRAP_SMOKE_SEC", "5", "Process")
+    }
+    Write-Host "  SmokeOffline enabled: bootstrap will skip exchange init and loops." -ForegroundColor Yellow
+}
 $sessionStartUtc = (Get-Date).ToUniversalTime()
 $lastShutdown = Join-Path $script:RepoRoot "logs\\last_shutdown.json"
 if (Test-Path $lastShutdown) {
@@ -280,6 +293,11 @@ try {
     Write-Host "Bot exited with exception: $_" -ForegroundColor Red
     $exitCode = 1
 } finally {
+    if ($SmokeOffline) {
+        [System.Environment]::SetEnvironmentVariable("BOOTSTRAP_SMOKE_ONLY", $prevSmokeOnly, "Process")
+        [System.Environment]::SetEnvironmentVariable("BOOTSTRAP_SKIP_EXCHANGE_INIT", $prevSkipInit, "Process")
+        [System.Environment]::SetEnvironmentVariable("BOOTSTRAP_SMOKE_SEC", $prevSmokeSec, "Process")
+    }
     Write-Host ""
     Write-Host "=================================================" -ForegroundColor Cyan
     Write-Host "  Eclipse Scalper - Session Ended" -ForegroundColor Cyan
