@@ -1,0 +1,14 @@
+{
+  "live_parquet": "data/live/papertrades_live.parquet",
+  "live_summary": {
+    "buckets": {},
+    "notes": "no_rows",
+    "rows": 0
+  },
+  "status": "ok",
+  "trade_db": "data/paper_trades.db",
+  "trade_db_summary": {
+    "notes": "no_rows",
+    "rows": 0
+  }
+}

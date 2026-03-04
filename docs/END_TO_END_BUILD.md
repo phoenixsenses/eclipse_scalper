@@ -75,7 +75,13 @@ python -m tools.prepare_release_tag --tag vYYYY.MM.DD-stable
 
 ### Scratch calibration reports
 ```powershell
-python -m tools.run_scratch_calibration --symbol ETHUSDT --db data/microstructure.db
+python -m tools.run_scratch_calibration --symbol ETHUSDT --db data/microstructure.db --adverse-sweep 2.0:10.0 --trail-sweep 2.0,3.0,4.0,5.0 --fee-bps 0.5 --exec-model passive_realistic
+python -m tools.compare_scratch_live_vs_backtest --trade-db data/paper_trades.db --backtest-sell-json reports/SCRATCH_CALIBRATION_SELL_UP.json --backtest-buy-json reports/SCRATCH_CALIBRATION_BUY_UP.json --out-md reports/SCRATCH_LIVE_VS_BACKTEST.md
+```
+
+### Fill timing analysis (5s/10s/30s buckets)
+```powershell
+python -m tools.analyze_fill_timing --live-parquet data/live/papertrades_live.parquet --trade-db data/paper_trades.db --out-md reports/FILL_TIMING_ANALYSIS.md
 ```
 
 ### Feature distribution analysis (+plots)
@@ -117,6 +123,11 @@ For runtime token resolution:
 Chat id fallback chain:
 1. `TELEGRAM_CHAT_ID`
 2. `ECLIPSE_TG_CHAT_ID`
+
+Order placement (limit-only path):
+- `MICRO_SIGNAL_ORDER_PLACEMENT_MODE` = `best | inside_spread | adaptive`
+- `MICRO_SIGNAL_QUEUE_DEPTH_THRESHOLD` (adaptive switch threshold)
+- `MICRO_SIGNAL_TICK_SIZE` (fallback tick if exchange metadata unavailable)
 
 ## 4) Acceptance Checklist
 Observable startup checks (first 60 lines):

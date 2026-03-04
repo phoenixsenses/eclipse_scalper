@@ -1,0 +1,26 @@
+{
+  "backtest_buy": {
+    "best_adverse_bps": 2.0,
+    "best_trailing_bps": 2.0,
+    "exists": true,
+    "n": 0,
+    "scratch_frac": 0.0
+  },
+  "backtest_sell": {
+    "best_adverse_bps": 2.0,
+    "best_trailing_bps": 2.0,
+    "exists": true,
+    "n": 0,
+    "scratch_frac": 0.0
+  },
+  "delta_buy_abs": 0.0,
+  "delta_sell_abs": 0.0,
+  "live": {
+    "by_side": {},
+    "rows": 0,
+    "scratch_frac": 0.0
+  },
+  "needs_recalibration_buy": false,
+  "needs_recalibration_sell": false,
+  "status": "ok"
+}
