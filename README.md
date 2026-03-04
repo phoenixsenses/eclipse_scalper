@@ -874,6 +874,51 @@ The workflow `.github/workflows/telemetry-dashboard.yml` runs the dashboard help
 
 For operational procedures (manual trigger/watch, RED_LOCK smoke, reset smoke, and incident triage), see `docs/telemetry_runbook.md`.
 
+## Operational Runbook
+
+### Paper trading (normal)
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start_paper_trading.ps1
+```
+
+### Bootstrap smoke (network-safe, no exchange init)
+```powershell
+$env:BOOTSTRAP_SMOKE_ONLY='1'
+$env:BOOTSTRAP_SKIP_EXCHANGE_INIT='1'
+$env:BOOTSTRAP_SMOKE_SEC='2'
+python -m execution.bootstrap 2>&1 | Select-Object -First 60
+$env:BOOTSTRAP_SMOKE_ONLY=$null
+$env:BOOTSTRAP_SKIP_EXCHANGE_INIT=$null
+$env:BOOTSTRAP_SMOKE_SEC=$null
+```
+
+### Supervisor (auto-restart)
+```powershell
+python scripts\supervisor.py
+```
+
+### DB maintenance
+```powershell
+python -m tools.db_maintenance
+```
+
+### Telegram command bot
+```powershell
+python -m tools.telegram_bot
+```
+
+### Daily report
+```powershell
+python -m tools.daily_report
+```
+
+### Day-60 sweep pipeline
+```powershell
+python -m tools.run_full_sweep --candidates-md reports/FILTER_SWEEP_PASSIVE_REALISTIC_ETH.md --workers 2 --output-dir runs/day60_latest
+python -m tools.aggregate_sweep_results --run-dir runs/day60_latest --out reports/DAY60_MASTER_RESULTS.md
+python -m tools.evaluate_go_nogo --manifest runs/day60_latest/manifest.json --out reports/GO_NOGO_FRAMEWORK.md
+```
+
 ```bash
 python eclipse_scalper/tools/telemetry_dashboard_notify.py --path logs/telemetry.jsonl --codes-per-symbol --codes-top 4
 ```
@@ -1132,6 +1177,57 @@ Run a single test:
 python tools/test_diagnostics_unit.py
 ```
 
+## Microstructure Physics Layer (Phase 1)
+
+Build the research layer on top of the existing `data/microstructure.db` collector output.
+
+```bash
+# 0) Inspect current sqlite schema
+python -m tools.db_introspect --db data/microstructure.db --out-md reports/db_schema.md --out-json reports/db_tables.json
+
+# 1) Build canonical micro bars (partitioned parquet)
+python -m tools.build_micro_features --db data/microstructure.db --symbol ETHUSDT --interval-ms 100 --out data/derived/micro_bars
+
+# 2) Build state vectors from micro bars
+python -m tools.build_state --in data/derived/micro_bars --symbol ETHUSDT --interval-ms 100 --out data/derived/state
+
+# 3) Generate sanity report + plots
+python -m tools.report_state_sanity --state data/derived/state --symbol ETHUSDT --interval-ms 100 --out reports/state_sanity_ETHUSDT_100ms.md
+```
+
+## Microstructure Physics Layer (Phase 2)
+
+Build empirical physics datasets and reports from Phase 1 state outputs.
+
+```bash
+# 1) Build physics signals
+python -m tools.build_physics_signals --state data/derived/state --symbol ETHUSDT --interval-ms 100 --rolling 500 --horizons 1,5,10,20 --out data/derived/physics
+
+# 2) Estimate impact laws (linear vs sqrt)
+python -m tools.estimate_impact --physics data/derived/physics --symbol ETHUSDT --interval-ms 100 --out data/derived/impact --out-report reports/impact_ETHUSDT_100ms.md
+
+# 3) Estimate propagator response kernel
+python -m tools.estimate_propagator --physics data/derived/physics --symbol ETHUSDT --interval-ms 100 --max-lag 200 --out data/derived/propagator --out-report reports/propagator_ETHUSDT_100ms.md
+
+# 4) Run validation harness
+python -m tools.physics_validation --physics data/derived/physics --impact data/derived/impact --propagator data/derived/propagator --symbol ETHUSDT --interval-ms 100 --out reports/physics_validation_ETHUSDT_100ms.md
+```
+
+## Microstructure Physics Layer (Phase 3)
+
+Regime slicing + regime-stability metrics + execution-coupled fast eval.
+
+```bash
+# 1) Build regimes from physics features
+python -m tools.build_regimes --physics data/derived/physics --symbol ETHUSDT --interval-ms 100 --method hmm --n-regimes 4 --rolling 2000 --out data/derived/regimes
+
+# 2) Compute physics metrics by regime
+python -m tools.physics_by_regime --physics data/derived/physics --regimes data/derived/regimes --symbol ETHUSDT --interval-ms 100 --tau-max 200 --out data/derived/physics_regime_metrics --report reports/physics_by_regime_ETHUSDT_100ms.md
+
+# 3) Execution-coupled evaluation (fees/spread/adverse/latency)
+python -m tools.execution_coupled_eval --physics data/derived/physics --regimes data/derived/regimes --symbol ETHUSDT --interval-ms 100 --horizon 10 --fee-bps 0.5 --latency-bars 2 --mode taker --out reports/execution_coupled_eval_ETHUSDT_100ms.md
+```
+
 ---
 
 ## Strategy Audit (Signals & Near-Misses)
@@ -1248,5 +1344,370 @@ Used carelessly, it teaches you faster.
 
 
 Proceed deliberately.
+
+## Phase 4 Commands
+
+```bash
+# 1) built-in signal catalog
+python -m tools.list_signals
+
+# 2) candidate generation
+python -m tools.generate_alpha_candidates --symbol ETHUSDT --interval-ms 100
+
+# 3) walk-forward evaluation
+python -m tools.eval_alpha_walkforward \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --candidates data/derived/alpha_candidates/symbol=ETHUSDT/interval_ms=100/candidates.jsonl \
+  --symbol ETHUSDT --interval-ms 100 --splits 3 --mode taker --fee-bps 0.5 --latency-bars 2
+
+# 4) robust selection + ensemble
+python -m tools.select_alpha \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --eval data/derived/alpha_eval/interval_ms=100/symbol=ETHUSDT/eval.parquet \
+  --candidates data/derived/alpha_candidates/symbol=ETHUSDT/interval_ms=100/candidates.jsonl \
+  --symbol ETHUSDT --interval-ms 100
+
+# 5) papertrade log from ensemble
+python -m tools.generate_papertrades \
+  --physics data/derived/physics \
+  --ensemble data/derived/alpha_eval/interval_ms=100/symbol=ETHUSDT/ensemble.parquet \
+  --symbol ETHUSDT --interval-ms 100 --mode taker --fee-bps 0.5
+```
+
+## Phase 4.4 One-Command Runner
+
+```bash
+python -m tools.run_alpha_pipeline \
+  --symbol ETHUSDT \
+  --interval-ms 100 \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --out-root data/runs/alpha \
+  --days-calibration 14 \
+  --limit 600 \
+  --target-triggers-per-day 200 \
+  --jaccard-thr 0.9 \
+  --splits 3 \
+  --mode taker \
+  --fee-bps 0.5 \
+  --latency-bars 2 \
+  --horizons 5,10,20 \
+  --max-trades-per-day 500
+```
+
+Artifacts are written under a per-run folder:
+
+- `manifest.json` (step status / resume state)
+- `params.json` (resolved run params)
+- `pointers.json` (paths to candidates/eval/ensemble/papertrades artifacts)
+- `logs.jsonl` (step events)
+- `reports/*.md`
+- Optional execution realism artifacts:
+  - `artifacts/execution/params.json`
+  - `reports/execution_realism.md`
+
+Zero-config handoff:
+- If `run_alpha_pipeline` is executed with `--calibrate-execution`, it writes `execution_params_json` into `pointers.json`.
+- `run_live_papertrade` auto-loads this from the latest completed run when `--execution-params` is not provided.
+
+## Phase 5 Live Papertrade (Research Mode)
+
+```bash
+# run daemon
+python -m tools.run_live_papertrade \
+  --db data/microstructure.db \
+  --symbol ETHUSDT \
+  --interval-ms 100 \
+  --lookback-hours 24 \
+  --refresh-sec 30 \
+  --mode taker \
+  --fee-bps 0.5 \
+  --latency-bars 2 \
+  --out-root data/live
+
+# render status markdown from live snapshots
+python -m tools.report_live_status --live data/live --out reports/live_status.md
+
+# write daily/weekly run plan hints
+python -m tools.schedule_alpha_runs --out data/runs/alpha/run_plan.json
+```
+
+## Phase 6 Execution Realism
+
+```bash
+# 1) build execution features
+python -m tools.build_execution_features \
+  --micro-bars data/derived/micro_bars \
+  --symbol ETHUSDT --interval-ms 100 \
+  --out data/derived/execution_sim
+
+# 2) calibrate execution params
+python -m tools.calibrate_execution_models \
+  --physics data/derived/physics \
+  --symbol ETHUSDT --interval-ms 100 \
+  --out data/derived/execution_calibration
+
+# 3) simulate maker fills
+python -m tools.simulate_maker_fills \
+  --physics data/derived/physics \
+  --exec-features data/derived/execution_sim \
+  --symbol ETHUSDT --interval-ms 100 \
+  --model maker_queue \
+  --params data/derived/execution_calibration/interval_ms=100/symbol=ETHUSDT/params.json
+
+# 4) run eval with realistic execution
+python -m tools.eval_alpha_walkforward \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --candidates data/derived/alpha_candidates/symbol=ETHUSDT/interval_ms=100/candidates_deduped.jsonl \
+  --symbol ETHUSDT --interval-ms 100 --splits 3 \
+  --execution-model maker_queue \
+  --execution-params data/derived/execution_calibration/interval_ms=100/symbol=ETHUSDT/params.json
+```
+
+## Phase 7 Online Calibration + Activation
+
+```bash
+# 1) one-command build + validate + activate
+python -m tools.activate_online_artifacts \
+  --live-root data/live \
+  --build-calibration \
+  --build-execution \
+  --physics data/derived/physics \
+  --symbol ETHUSDT --interval-ms 100 \
+  --sanity-days 1 --days 14
+
+# 2) (optional) explicit validate-only
+python -m tools.validate_artifacts \
+  --calibration data/live/artifacts/calibration/calibration_YYYYMMDD.json \
+  --execution data/live/artifacts/execution/params_YYYYMMDD.json \
+  --physics data/derived/physics --symbol ETHUSDT --interval-ms 100 \
+  --sanity-days 1 \
+  --out-json data/live/artifacts/validate_report.json \
+  --out-report reports/validate_artifacts_ETHUSDT.md
+
+# rollback (if needed)
+python -m tools.activate_online_artifacts --rollback calibration --live-root data/live
+python -m tools.activate_online_artifacts --rollback execution --live-root data/live
+
+# optional rollup report
+python -m tools.report_calibration_rollups --live-root data/live --out reports/calibration_rollups.md
+```
+
+Live daemon flags for active artifact behavior:
+- `--use-active-artifacts` / `--no-use-active-artifacts`
+- `--disable-online-reload`
+
+## Phase 8 Multi-Symbol Generalization
+
+```bash
+# 1) one-command multi run + auto reports (Phase 8.1)
+python -m tools.run_alpha_multi \
+  --symbols ETHUSDT,BTCUSDT \
+  --interval-ms 100 \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --out-root data/runs/alpha_multi \
+  --with-reports \
+  --reports-out reports/multi_symbol \
+  --metrics-out data/derived/multi_symbol_metrics
+
+# writes pointer: data/runs/alpha_multi/LATEST.json
+
+# 2) run per-symbol alpha pipelines under one multi manifest
+python -m tools.run_alpha_multi \
+  --symbols ETHUSDT,BTCUSDT \
+  --interval-ms 100 \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --out-root data/runs/alpha_multi \
+  --seed 42 --splits 3 \
+  --mode taker --fee-bps 0.5 --latency-bars 2 \
+  --target-triggers-per-day 200 \
+  --jaccard-thr 0.9
+
+# 3) comparative rollup
+python -m tools.report_multi_symbol_rollup \
+  --multi-manifest data/runs/alpha_multi/<multi_run_id>/manifest.json \
+  --out-md reports/multi_symbol/rollup.md \
+  --out-parquet data/derived/multi_symbol_metrics/rollup.parquet
+
+# 4) generalization by signal families
+python -m tools.report_generalization \
+  --multi-manifest data/runs/alpha_multi/<multi_run_id>/manifest.json \
+  --out-md reports/multi_symbol/generalization.md \
+  --out-parquet data/derived/multi_symbol_metrics/generalization.parquet
+
+# optional: per-symbol online refresh plans
+python -m tools.schedule_online_calibration_multi \
+  --symbols ETHUSDT,BTCUSDT \
+  --out-root data/live \
+  --physics data/derived/physics \
+  --interval-ms 100
+```
+
+## Phase 9 Cross-Asset Transfer (No Refit)
+
+```bash
+# 1) export source specs from a completed run
+python -m tools.export_selected_specs \
+  --run-dir data/runs/alpha/<run_id> \
+  --from selected \
+  --k 20 \
+  --source-symbol ETHUSDT \
+  --out data/derived/transfer
+
+# 2) evaluate strict transfer on target (source calibration)
+python -m tools.eval_transfer \
+  --exported data/derived/transfer/source=ETHUSDT/run=<run_id>/exported_specs.jsonl \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --source-symbol ETHUSDT \
+  --target-symbol BTCUSDT \
+  --interval-ms 100 \
+  --splits 3 --seed 42 \
+  --mode taker --fee-bps 0.5 --latency-bars 2 \
+  --execution-model simple \
+  --calibration-mode source \
+  --out data/derived/transfer \
+  --report reports/transfer/transfer_ETH_to_BTC.md
+```
+
+## Phase 9.1 Transfer Matrix (ETH↔BTC)
+
+```bash
+python -m tools.run_transfer_matrix \
+  --symbols ETHUSDT,BTCUSDT \
+  --interval-ms 100 \
+  --splits 3 --seed 42 \
+  --mode taker --fee-bps 0.5 --latency-bars 2 \
+  --execution-model maker_hazard \
+  --calibration-mode source \
+  --k 20 \
+  --from topk \
+  --score-col test_sharpe \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --out data/derived/transfer_matrix \
+  --reports-out reports/transfer
+```
+
+## Phase 10 Regime Alignment + Transfer-by-Regime
+
+```bash
+# 1) Build aligned regimes across symbols
+python -m tools.build_regime_alignment \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --symbols ETHUSDT,BTCUSDT \
+  --interval-ms 100 \
+  --method kmeans_global \
+  --k 6 \
+  --sample-rows 500000 \
+  --out data/derived/regime_alignment \
+  --report reports/transfer/regime_alignment.md
+
+# 2) Slice transfer results by aligned regimes
+python -m tools.report_transfer_by_aligned_regime \
+  --matrix-manifest data/derived/transfer_matrix/<matrix_run>/manifest.json \
+  --aligned-regimes data/derived/regime_alignment/interval_ms=100/aligned_regimes.parquet \
+  --out-parquet data/derived/regime_alignment/transfer_by_regime.parquet \
+  --out-md reports/transfer/transfer_by_aligned_regime.md
+
+# 3) Optional one-command matrix + alignment
+python -m tools.run_transfer_matrix \
+  --symbols ETHUSDT,BTCUSDT \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --with-regime-alignment \
+  --reports-out reports/transfer
+```
+
+## Phase 11 Regime Experts + Gating
+
+```bash
+# 1) Build regime-specialized experts (+ penalties from transfer-by-regime)
+python -m tools.build_ensemble_regime_experts \
+  --eval data/derived/alpha_eval/interval_ms=100/symbol=ETHUSDT/eval.parquet \
+  --trades data/derived/alpha_eval/interval_ms=100/symbol=ETHUSDT/trades.parquet \
+  --aligned-regimes data/derived/regime_alignment/interval_ms=100/aligned_regimes.parquet \
+  --transfer-by-regime data/derived/regime_alignment/transfer_by_regime.parquet \
+  --symbol ETHUSDT \
+  --interval-ms 100 \
+  --out data/derived/alpha_eval \
+  --report reports/ensemble_regime_experts.md
+
+# 2) Gating diagnostics report
+python -m tools.report_ensemble_gating \
+  --gating data/derived/alpha_eval/interval_ms=100/symbol=ETHUSDT/ensemble_gating.parquet \
+  --out reports/ensemble_gating.md
+
+# 3) Optional live usage
+python -m tools.run_live_papertrade \
+  --symbol ETHUSDT \
+  --use-regime-experts \
+  --experts-path data/derived/alpha_eval/interval_ms=100/symbol=ETHUSDT/ensemble_regime_experts.parquet
+```
+
+## Phase 11.1 Auto-Wired Regime Experts (run -> pointers -> live)
+
+```bash
+# build full run and emit regime experts inside run folder
+python -m tools.run_alpha_pipeline \
+  --symbol ETHUSDT \
+  --interval-ms 100 \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --build-regime-experts
+
+# live daemon auto-resolves latest run pointers (no manual experts path)
+python -m tools.run_live_papertrade \
+  --symbol ETHUSDT \
+  --use-regime-experts
+```
+
+New run pointers (when experts are built):
+- `ensemble_regime_experts_parquet`
+- `ensemble_gating_parquet`
+- `ensemble_regime_experts_manifest_json`
+- `ensemble_regime_experts_report_md`
+- `ensemble_gating_report_md`
+- `aligned_regimes_path`
+- `transfer_by_regime_path`
+
+## Phase 12 Risk Engine (Paper Only)
+
+```bash
+# optional: write a baseline risk policy doc/json
+python -m tools.write_risk_policy_doc \
+  --out-md reports/risk_policy.md \
+  --out-json data/live/risk_policy.json \
+  --starting-equity 10000
+
+# live daemon with risk sizing + portfolio + kill switch
+python -m tools.run_live_papertrade \
+  --symbol ETHUSDT \
+  --use-regime-experts \
+  --enable-risk-engine \
+  --risk-policy data/live/risk_policy.json \
+  --starting-equity 10000
+
+# diagnostics from live artifacts
+python -m tools.report_risk_diagnostics \
+  --live-root data/live \
+  --out reports/risk_diagnostics.md
+```
+
+Risk outputs:
+- `data/live/risk_snapshot.json`
+- `data/live/positions_live.parquet`
+- `logs/risk_events.jsonl`
+
+Bootstrap symbol resolution chain (highest precedence first):
+1. `ACTIVE_SYMBOLS` from environment (`.env.paper`/process env)
+2. `bot.active_symbols` (after factory build, env bridge re-applied)
+3. `cfg.ACTIVE_SYMBOLS`
 
 
