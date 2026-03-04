@@ -1,3 +1,40 @@
+#requires -version 5.1
+<#
+.SYNOPSIS
+Starts Eclipse Scalper in paper mode with optional watchdog and validation.
+
+.DESCRIPTION
+Loads an env file into process scope, validates config, optionally starts the
+collection watchdog, then runs `python -m execution.bootstrap`.
+
+.PARAMETER EnvFile
+Environment file to load (default: .env.paper).
+
+.PARAMETER SkipValidation
+Skips `python -m tools.validate_env`.
+
+.PARAMETER NoWatchdog
+Disables watchdog startup for this session.
+
+.PARAMETER ForceRestart
+If a watchdog is already running, stop and restart it safely.
+
+.PARAMETER SmokeOffline
+Runs bootstrap in offline smoke mode by setting:
+  BOOTSTRAP_SMOKE_ONLY=1
+  BOOTSTRAP_SKIP_EXCHANGE_INIT=1
+  BOOTSTRAP_SMOKE_SEC=5 (if unset)
+
+.EXAMPLE
+.\scripts\start_paper_trading.ps1
+
+.EXAMPLE
+.\scripts\start_paper_trading.ps1 -SmokeOffline
+
+.EXAMPLE
+.\scripts\start_paper_trading.ps1 -EnvFile .env.paper -NoWatchdog -SkipValidation
+#>
+
 # =============================================================================
 # Eclipse Scalper - Paper Trading Startup Script (PowerShell)
 #
