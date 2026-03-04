@@ -411,7 +411,24 @@ def _cfg(cfg: Any, name: str, default: Any) -> Any:
 # Exchange init (ccxt async)
 # ----------------------------
 
+class _OfflineExchangeStub:
+    def __init__(self) -> None:
+        self.options: dict[str, Any] = {"defaultType": "stub", "fetchCurrencies": False}
+
+    async def close(self) -> None:  # pragma: no cover - trivial
+        return None
+
+
 async def _init_exchange(cfg: Any) -> Any:
+    smoke_only = _env_bool("BOOTSTRAP_SMOKE_ONLY", False)
+    skip_exchange_init = _env_bool("BOOTSTRAP_SKIP_EXCHANGE_INIT", smoke_only)
+    if skip_exchange_init:
+        log_core.warning(
+            "[bootstrap] exchange init skipped by env "
+            "(BOOTSTRAP_SKIP_EXCHANGE_INIT=1 or BOOTSTRAP_SMOKE_ONLY=1); using OfflineExchangeStub"
+        )
+        return _OfflineExchangeStub()
+
     try:
         import ccxt.async_support as ccxt  # type: ignore
     except Exception as e:
@@ -1144,93 +1161,98 @@ async def main() -> None:
 
     _run_diagnostics_best_effort(bot)
 
-    # ------------------------------------------------------------
-    # Required loops
-    # ------------------------------------------------------------
-    guardian_mod = _opt_import("execution.guardian")
-    guardian_loop = _callable(guardian_mod, "guardian_loop") if guardian_mod else None
-    if not callable(guardian_loop):
-        raise RuntimeError("execution.guardian.guardian_loop is required but missing")
-
-    # Entry loop selection:
-    # ENTRY_LOOP_MODE=full|basic (default: full if available, else basic)
-    entry_mode = os.getenv("ENTRY_LOOP_MODE", "").strip().lower()
-    prefer_basic = entry_mode in ("basic", "simple", "lite")
-    prefer_full = entry_mode in ("full", "risk", "advanced")
-
-    # Prefer full-risk entry loop if present, fallback to basic entry_loop
-    entry_loop_mod = None
-    if prefer_basic:
-        entry_loop_mod = _opt_import("execution.entry_loop")
-    elif prefer_full:
-        entry_loop_mod = _opt_import("execution.entry_loop_full") or _opt_import("execution.entry_loop")
-    else:
-        entry_loop_mod = _opt_import("execution.entry_loop_full") or _opt_import("execution.entry_loop")
-    entry_loop = None
-    if entry_loop_mod:
-        entry_loop = _callable(entry_loop_mod, "entry_loop_full") or _callable(entry_loop_mod, "entry_loop")
-        if entry_loop and entry_loop.__name__ == "entry_loop_full":
-            log_core.info("[bootstrap] entry loop: FULL (execution.entry_loop_full.entry_loop_full)")
-        elif entry_loop:
-            log_core.info("[bootstrap] entry loop: BASIC (execution.entry_loop.entry_loop)")
-        else:
-            log_core.warning("[bootstrap] entry loop: NONE (no callable found)")
-
-    data_loop_mod = _opt_import("execution.data_loop")
-    data_loop = _callable(data_loop_mod, "data_loop") if data_loop_mod else None
-
-    # ------------------------------------------------------------
-    # Optional loops (best effort)
-    # ------------------------------------------------------------
-    pm_mod = _opt_import("execution.position_manager")
-    position_manager_loop = None
-    if pm_mod:
-        position_manager_loop = (
-            _callable(pm_mod, "position_manager_loop")
-            or _callable(pm_mod, "position_manager")
-            or _callable(pm_mod, "run")
-        )
-
-    exit_mod = _opt_import("execution.exit")
-    exit_loop = None
-    if exit_mod:
-        exit_loop = (
-            _callable(exit_mod, "exit_loop")
-            or _callable(exit_mod, "exit")
-            or _callable(exit_mod, "run")
-        )
-
-    _opt_import("execution.telemetry")
-
     tasks: List[asyncio.Task] = []
-
-    # Start guardian + data first
-    _maybe_start_task(tasks, "guardian.guardian_loop", guardian_loop, bot)
-    _maybe_start_task(tasks, "data_loop.data_loop", data_loop, bot)
-
-    # Start protection loops BEFORE entry (so management is online first)
-    if callable(position_manager_loop):
-        _maybe_start_task(tasks, "position_manager.loop", position_manager_loop, bot)
+    smoke_only = _env_bool("BOOTSTRAP_SMOKE_ONLY", False)
+    smoke_sec = max(0.0, _env_float("BOOTSTRAP_SMOKE_SEC", 5.0))
+    if smoke_only:
+        log_core.warning(f"[bootstrap] smoke-only mode enabled; loops are skipped, sleeping {smoke_sec:.1f}s")
+        tasks.append(asyncio.create_task(asyncio.sleep(smoke_sec)))
     else:
-        log_core.warning("[bootstrap] optional loop missing: execution.position_manager.(position_manager_loop/run)")
-        if os.getenv("BOOT_REQUIRE_POSMGR", "1").strip().lower() not in ("0", "false", "no", "off"):
-            raise RuntimeError("bootstrap requires execution.position_manager (set BOOT_REQUIRE_POSMGR=0 to bypass)")
+        # ------------------------------------------------------------
+        # Required loops
+        # ------------------------------------------------------------
+        guardian_mod = _opt_import("execution.guardian")
+        guardian_loop = _callable(guardian_mod, "guardian_loop") if guardian_mod else None
+        if not callable(guardian_loop):
+            raise RuntimeError("execution.guardian.guardian_loop is required but missing")
 
-    if callable(exit_loop):
-        _maybe_start_task(tasks, "exit.loop", exit_loop, bot)
-    else:
-        log_core.warning("[bootstrap] optional loop missing: execution.exit.(exit_loop/run)")
-        if os.getenv("BOOT_REQUIRE_EXIT", "1").strip().lower() not in ("0", "false", "no", "off"):
-            raise RuntimeError("bootstrap requires execution.exit (set BOOT_REQUIRE_EXIT=0 to bypass)")
+        # Entry loop selection:
+        # ENTRY_LOOP_MODE=full|basic (default: full if available, else basic)
+        entry_mode = os.getenv("ENTRY_LOOP_MODE", "").strip().lower()
+        prefer_basic = entry_mode in ("basic", "simple", "lite")
+        prefer_full = entry_mode in ("full", "risk", "advanced")
 
-    # Start entry with gating wrapper
-    if callable(entry_loop):
-        try:
-            t = asyncio.create_task(_safe_task("entry_loop.entry_loop", _gated_entry_loop(bot, entry_loop)))
-            tasks.append(t)
-            log_core.info("[bootstrap] started: entry_loop.entry_loop (gated)")
-        except Exception as e:
-            log_core.warning(f"[bootstrap] failed to start entry_loop.entry_loop (gated): {e}")
+        # Prefer full-risk entry loop if present, fallback to basic entry_loop
+        entry_loop_mod = None
+        if prefer_basic:
+            entry_loop_mod = _opt_import("execution.entry_loop")
+        elif prefer_full:
+            entry_loop_mod = _opt_import("execution.entry_loop_full") or _opt_import("execution.entry_loop")
+        else:
+            entry_loop_mod = _opt_import("execution.entry_loop_full") or _opt_import("execution.entry_loop")
+        entry_loop = None
+        if entry_loop_mod:
+            entry_loop = _callable(entry_loop_mod, "entry_loop_full") or _callable(entry_loop_mod, "entry_loop")
+            if entry_loop and entry_loop.__name__ == "entry_loop_full":
+                log_core.info("[bootstrap] entry loop: FULL (execution.entry_loop_full.entry_loop_full)")
+            elif entry_loop:
+                log_core.info("[bootstrap] entry loop: BASIC (execution.entry_loop.entry_loop)")
+            else:
+                log_core.warning("[bootstrap] entry loop: NONE (no callable found)")
+
+        data_loop_mod = _opt_import("execution.data_loop")
+        data_loop = _callable(data_loop_mod, "data_loop") if data_loop_mod else None
+
+        # ------------------------------------------------------------
+        # Optional loops (best effort)
+        # ------------------------------------------------------------
+        pm_mod = _opt_import("execution.position_manager")
+        position_manager_loop = None
+        if pm_mod:
+            position_manager_loop = (
+                _callable(pm_mod, "position_manager_loop")
+                or _callable(pm_mod, "position_manager")
+                or _callable(pm_mod, "run")
+            )
+
+        exit_mod = _opt_import("execution.exit")
+        exit_loop = None
+        if exit_mod:
+            exit_loop = (
+                _callable(exit_mod, "exit_loop")
+                or _callable(exit_mod, "exit")
+                or _callable(exit_mod, "run")
+            )
+
+        _opt_import("execution.telemetry")
+
+        # Start guardian + data first
+        _maybe_start_task(tasks, "guardian.guardian_loop", guardian_loop, bot)
+        _maybe_start_task(tasks, "data_loop.data_loop", data_loop, bot)
+
+        # Start protection loops BEFORE entry (so management is online first)
+        if callable(position_manager_loop):
+            _maybe_start_task(tasks, "position_manager.loop", position_manager_loop, bot)
+        else:
+            log_core.warning("[bootstrap] optional loop missing: execution.position_manager.(position_manager_loop/run)")
+            if os.getenv("BOOT_REQUIRE_POSMGR", "1").strip().lower() not in ("0", "false", "no", "off"):
+                raise RuntimeError("bootstrap requires execution.position_manager (set BOOT_REQUIRE_POSMGR=0 to bypass)")
+
+        if callable(exit_loop):
+            _maybe_start_task(tasks, "exit.loop", exit_loop, bot)
+        else:
+            log_core.warning("[bootstrap] optional loop missing: execution.exit.(exit_loop/run)")
+            if os.getenv("BOOT_REQUIRE_EXIT", "1").strip().lower() not in ("0", "false", "no", "off"):
+                raise RuntimeError("bootstrap requires execution.exit (set BOOT_REQUIRE_EXIT=0 to bypass)")
+
+        # Start entry with gating wrapper
+        if callable(entry_loop):
+            try:
+                t = asyncio.create_task(_safe_task("entry_loop.entry_loop", _gated_entry_loop(bot, entry_loop)))
+                tasks.append(t)
+                log_core.info("[bootstrap] started: entry_loop.entry_loop (gated)")
+            except Exception as e:
+                log_core.warning(f"[bootstrap] failed to start entry_loop.entry_loop (gated): {e}")
 
     log_core.critical(f"[bootstrap] ONLINE | tasks={len(tasks)} | exchange={type(bot.ex).__name__}")
 

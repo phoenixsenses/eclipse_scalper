@@ -156,6 +156,15 @@ pytest -q --tb=short
 # 3) Boot smoke (first lines)
 python -m execution.bootstrap 2>&1 | Select-Object -First 60
 
+# 3b) Offline network-safe smoke (no exchange init, no loops)
+$env:BOOTSTRAP_SMOKE_ONLY='1'
+$env:BOOTSTRAP_SKIP_EXCHANGE_INIT='1'
+$env:BOOTSTRAP_SMOKE_SEC='2'
+python -m execution.bootstrap 2>&1 | Select-Object -First 60
+$env:BOOTSTRAP_SMOKE_ONLY=$null
+$env:BOOTSTRAP_SKIP_EXCHANGE_INIT=$null
+$env:BOOTSTRAP_SMOKE_SEC=$null
+
 # 4) Push one-shot status
 python -m tools.push_status
 
