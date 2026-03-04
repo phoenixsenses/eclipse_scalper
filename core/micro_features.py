@@ -228,6 +228,7 @@ class MicroFeatureEngine:
                 "[MICRO_HEARTBEAT] "
                 f"{s} ready={int(bool(d.get('ready')))} reason={d.get('reason')} "
                 f"features={int(d.get('feature_count') or 0)} age_sec={d.get('age_sec')} "
+                f"db_age_sec={d.get('last_db_age_sec')} "
                 f"trades_30s={int(counts.get('trades_30s', 0) or 0)} marks_30s={int(counts.get('marks_30s', 0) or 0)}"
             )
 

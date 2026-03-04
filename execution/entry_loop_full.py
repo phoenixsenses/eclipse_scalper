@@ -12,6 +12,10 @@ from typing import Any, Dict
 from execution.entry import try_enter
 from execution.shutdown_control import ensure_traced_shutdown_event
 from utils.logging import log_core, log_entry
+try:
+    from core.latency_profiler import LatencyProfiler  # type: ignore
+except Exception:
+    LatencyProfiler = None  # type: ignore
 
 try:
     from risk.kill_switch import trade_allowed  # type: ignore
@@ -69,6 +73,16 @@ def _cfg_env_bool(bot, name: str, default: Any = False) -> bool:
     except Exception:
         pass
     return _truthy(_cfg(bot, name, default))
+
+
+def _safe_float(v: Any, default: float = 0.0) -> float:
+    try:
+        x = float(v)
+        if x != x:
+            return float(default)
+        return x
+    except Exception:
+        return float(default)
 
 
 def _symkey(sym: str) -> str:
@@ -410,6 +424,15 @@ def _write_last_shutdown_json(payload: Dict[str, Any]) -> None:
         pass
 
 
+def _append_jsonl(path: Path, payload: Dict[str, Any]) -> None:
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(payload, ensure_ascii=True, sort_keys=True) + "\n")
+    except Exception:
+        pass
+
+
 def _tripwire_shutdown_bypass(bot) -> tuple[str, str, int, float]:
     rs = str(getattr(bot, "_shutdown_reason", "") or "")
     src = str(getattr(bot, "_shutdown_source", "") or "")
@@ -478,6 +501,10 @@ async def entry_loop_full(bot) -> None:
     last_tick = 0.0
     micro_engine = None
     micro_provider = None
+    latency = LatencyProfiler() if LatencyProfiler is not None else None
+    latency_last_log = 0.0
+    latency_log_sec = float(_cfg_env_float(bot, "ENTRY_LATENCY_LOG_SEC", 60.0) or 60.0)
+    latency_jsonl = Path(str(os.getenv("ENTRY_LATENCY_LOG_PATH", "logs/latency_profile.jsonl") or "logs/latency_profile.jsonl"))
 
     log_core.info("ENTRY_LOOP_FULL ONLINE - using execution.entry.try_enter()")
 
@@ -527,6 +554,7 @@ async def entry_loop_full(bot) -> None:
     try:
         while not shutdown_ev.is_set():
             try:
+                t_loop0 = time.perf_counter()
                 now = _now()
                 if poll_sec > 0 and (now - last_tick) < poll_sec:
                     await asyncio.sleep(max(0.05, poll_sec - (now - last_tick)))
@@ -537,12 +565,17 @@ async def entry_loop_full(bot) -> None:
                     continue
 
                 if respect_kill and callable(trade_allowed):
+                    t_risk0 = time.perf_counter()
                     try:
                         ok = await trade_allowed(bot)
+                        if latency is not None:
+                            latency.add("risk_ms", (time.perf_counter() - t_risk0) * 1000.0)
                         if not ok:
                             await asyncio.sleep(max(0.25, poll_sec))
                             continue
                     except Exception:
+                        if latency is not None:
+                            latency.add("risk_ms", (time.perf_counter() - t_risk0) * 1000.0)
                         await asyncio.sleep(max(0.25, poll_sec))
                         continue
 
@@ -559,7 +592,11 @@ async def entry_loop_full(bot) -> None:
                     if not k:
                         continue
 
+                    t_feature0 = time.perf_counter()
                     px_now, px_src = _resolve_regime_price(bot, k, micro_engine if micro_enabled else None)
+                    feature_ms = (time.perf_counter() - t_feature0) * 1000.0
+                    if latency is not None:
+                        latency.add("feature_ms", feature_ms)
                     _throttled_log(
                         key=f"price_diag_full:{k}",
                         every_sec=5.0,
@@ -573,7 +610,11 @@ async def entry_loop_full(bot) -> None:
                             fn=log_core.info,
                             msg=f"[REGIME_PRICE_FALLBACK] {k} using micro mark_price={px_now}",
                         )
+                    t_regime0 = time.perf_counter()
                     regime_state = regime_runtime.update(k, _now(), px_now) if px_now > 0 else None
+                    regime_ms = (time.perf_counter() - t_regime0) * 1000.0
+                    if latency is not None:
+                        latency.add("regime_ms", regime_ms)
                     if isinstance(regime_state, dict):
                         _throttled_log(
                             key=f"regime_full:{k}",
@@ -599,11 +640,15 @@ async def entry_loop_full(bot) -> None:
                         sym_match = (not micro_symbol) or (_symkey(k) == _symkey(micro_symbol))
                         if sym_match:
                             try:
+                                t_signal0 = time.perf_counter()
                                 eval_res = micro_provider.evaluate(
                                     regime_override=regime_state if isinstance(regime_state, dict) else None
                                 )
                                 if asyncio.iscoroutine(eval_res) or hasattr(eval_res, "__await__"):
                                     eval_res = await eval_res
+                                signal_ms = (time.perf_counter() - t_signal0) * 1000.0
+                                if latency is not None:
+                                    latency.add("signal_ms", signal_ms)
                                 present, action, conf, reason = _parse_micro_eval_result(eval_res)
                                 _throttled_log(
                                     key=f"entry_decision_full_micro:{k}:{reason}:{action or 'none'}",
@@ -613,7 +658,14 @@ async def entry_loop_full(bot) -> None:
                                 )
                                 if present and conf >= 1.0 and action in ("buy", "sell"):
                                     m_side = "long" if action == "buy" else "short"
+                                    t_submit0 = time.perf_counter()
                                     await try_enter(bot, k, m_side)
+                                    submit_ms = (time.perf_counter() - t_submit0) * 1000.0
+                                    if latency is not None:
+                                        latency.add("submit_ms", submit_ms)
+                                        rec = getattr(bot, "_last_entry_latency", {}) if hasattr(bot, "_last_entry_latency") else {}
+                                        fill_ack_ms = _safe_float((rec.get(k) or {}).get("fill_ack_ms"), submit_ms) if isinstance(rec, dict) else submit_ms
+                                        latency.add("fill_ack_ms", fill_ack_ms)
                                     micro_taken = True
                             except Exception as e:
                                 _throttled_log(
@@ -627,13 +679,47 @@ async def entry_loop_full(bot) -> None:
                         continue
 
                     if spawn_both:
+                        t_submit0 = time.perf_counter()
                         await try_enter(bot, k, "long")
                         await try_enter(bot, k, "short")
+                        submit_ms = (time.perf_counter() - t_submit0) * 1000.0
+                        if latency is not None:
+                            latency.add("submit_ms", submit_ms)
+                            latency.add("fill_ack_ms", submit_ms)
                     else:
                         side = "long" if (hash(k) ^ int(_now() // max(1.0, local_cooldown_sec))) % 2 == 0 else "short"
+                        t_submit0 = time.perf_counter()
                         await try_enter(bot, k, side)
+                        submit_ms = (time.perf_counter() - t_submit0) * 1000.0
+                        if latency is not None:
+                            latency.add("submit_ms", submit_ms)
+                            rec = getattr(bot, "_last_entry_latency", {}) if hasattr(bot, "_last_entry_latency") else {}
+                            fill_ack_ms = _safe_float((rec.get(k) or {}).get("fill_ack_ms"), submit_ms) if isinstance(rec, dict) else submit_ms
+                            latency.add("fill_ack_ms", fill_ack_ms)
 
                     await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                if latency is not None:
+                    latency.add("e2e_ms", (time.perf_counter() - t_loop0) * 1000.0)
+                    if (_now() - latency_last_log) >= max(5.0, latency_log_sec):
+                        latency_last_log = _now()
+                        snap = latency.snapshot()
+                        def _m(k: str) -> float:
+                            return float((snap.get(k) or {}).get("mean_ms", 0.0))
+                        msg = (
+                            f"[LATENCY] e2e={_m('e2e_ms'):.0f}ms feature={_m('feature_ms'):.0f}ms "
+                            f"signal={_m('signal_ms'):.0f}ms regime={_m('regime_ms'):.0f}ms risk={_m('risk_ms'):.0f}ms "
+                            f"submit={_m('submit_ms'):.0f}ms fill_ack={_m('fill_ack_ms'):.0f}ms"
+                        )
+                        log_core.info(msg)
+                        _append_jsonl(
+                            latency_jsonl,
+                            {
+                                "ts": float(_now()),
+                                "loop": "entry_loop_full",
+                                "metrics": snap,
+                            },
+                        )
+                        latency.reset()
 
             except asyncio.CancelledError:
                 raise

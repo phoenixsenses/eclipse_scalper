@@ -167,6 +167,17 @@ def _resolve_tick_size(bot, sym_raw: str) -> float:
     return 0.01
 
 
+def _record_entry_latency(bot, symbol: str, payload: dict[str, Any]) -> None:
+    try:
+        m = getattr(bot, "_last_entry_latency", None)
+        if not isinstance(m, dict):
+            m = {}
+            setattr(bot, "_last_entry_latency", m)
+        m[str(symbol)] = dict(payload)
+    except Exception:
+        pass
+
+
 def _format_ts(ts: float) -> str:
     if ts <= 0:
         return "unknown"
@@ -1752,6 +1763,7 @@ async def try_enter(bot, sym: str, side: str):
                 if pos_side:
                     p["positionSide"] = pos_side
 
+                t_submit_limit = time.perf_counter()
                 order = await create_order(
                     bot,
                     symbol=sym_raw,
@@ -1762,6 +1774,16 @@ async def try_enter(bot, sym: str, side: str):
                     params=p,
                     intent_reduce_only=False,
                     retries=6,
+                )
+                _record_entry_latency(
+                    bot,
+                    k,
+                    {
+                        "mode": "limit",
+                        "submit_ms": float((time.perf_counter() - t_submit_limit) * 1000.0),
+                        "fill_ack_ms": 0.0,
+                        "ts": float(time.time()),
+                    },
                 )
 
                 oid = (order or {}).get("id") if isinstance(order, dict) else None
@@ -1806,6 +1828,7 @@ async def try_enter(bot, sym: str, side: str):
             if pos_side:
                 p_entry["positionSide"] = pos_side
 
+            t_submit = time.perf_counter()
             order = await create_order(
                 bot,
                 symbol=sym_raw,
@@ -1817,9 +1840,21 @@ async def try_enter(bot, sym: str, side: str):
                 intent_reduce_only=False,
                 retries=6,
             )
+            submit_ms = float((time.perf_counter() - t_submit) * 1000.0)
 
             filled = _order_filled(order)
             if filled <= 0:
+                _record_entry_latency(
+                    bot,
+                    k,
+                    {
+                        "mode": "market",
+                        "submit_ms": submit_ms,
+                        "fill_ack_ms": submit_ms,
+                        "filled": 0.0,
+                        "ts": float(time.time()),
+                    },
+                )
                 _skip(bot, k, side, "order not filled")
                 return
 
@@ -1834,6 +1869,18 @@ async def try_enter(bot, sym: str, side: str):
                 return
 
             entry_price = _order_avg_price(order, ref_px)
+            _record_entry_latency(
+                bot,
+                k,
+                {
+                    "mode": "market",
+                    "submit_ms": submit_ms,
+                    "fill_ack_ms": submit_ms,
+                    "filled": float(filled),
+                    "entry_price": float(entry_price),
+                    "ts": float(time.time()),
+                },
+            )
             log_entry.info(f"FILLED: {filled:.6f} @ {entry_price:.6f}")
 
             slippage_pct = abs(entry_price - ref_px) / ref_px if ref_px > 0 else 0.0

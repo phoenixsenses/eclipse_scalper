@@ -89,6 +89,14 @@ python -m tools.analyze_fill_timing --live-parquet data/live/papertrades_live.pa
 python -m tools.feature_distribution_analysis --db data/microstructure.db --symbol ETHUSDT --lookback-hours 24 --out reports/FEATURE_STATIONARITY.md --plots-dir reports/plots
 ```
 
+### Latency profiling / staleness audit
+```powershell
+# Entry loop periodic latency logs -> logs/latency_profile.jsonl
+# (configure period with ENTRY_LATENCY_LOG_SEC, default 60s)
+python -m tools.build_latency_baseline --in-jsonl logs/latency_profile.jsonl --out-md reports/LATENCY_BASELINE.md
+python -m tools.prototype_ws_vs_db_latency --db data/microstructure.db --symbol ETHUSDT --collector-heartbeat logs/collector_heartbeat.json --out-md reports/WS_VS_DB_LATENCY_PROTOTYPE.md
+```
+
 ### Paper/backtest reconciliation
 ```powershell
 python -m tools.reconcile_paper_vs_backtest --paper-db data/paper_trades.db --rank-json reports/PASSIVE_POCKET_RANKING.json --out reports/RECONCILIATION.md
