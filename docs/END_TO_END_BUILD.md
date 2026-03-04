@@ -42,6 +42,28 @@ python -m tools.telegram_bot
 python -m tools.daily_report
 ```
 
+### Scratch calibration reports
+```powershell
+python -m tools.run_scratch_calibration --symbol ETHUSDT --db data/microstructure.db
+```
+
+### Feature distribution analysis (+plots)
+```powershell
+python -m tools.feature_distribution_analysis --db data/microstructure.db --symbol ETHUSDT --lookback-hours 24 --out reports/FEATURE_STATIONARITY.md --plots-dir reports/plots
+```
+
+### Paper/backtest reconciliation
+```powershell
+python -m tools.reconcile_paper_vs_backtest --paper-db data/paper_trades.db --rank-json reports/PASSIVE_POCKET_RANKING.json --out reports/RECONCILIATION.md
+```
+
+### Day-60 sweep + aggregate + go/no-go
+```powershell
+python -m tools.run_full_sweep --candidates-md reports/FILTER_SWEEP_PASSIVE_REALISTIC_ETH.md --workers 2 --output-dir runs/day60_latest
+python -m tools.aggregate_sweep_results --run-dir runs/day60_latest --out reports/DAY60_MASTER_RESULTS.md
+python -m tools.evaluate_go_nogo --manifest runs/day60_latest/manifest.json --out reports/GO_NOGO_FRAMEWORK.md
+```
+
 ## 3) Environment Variables and Resolution Rules
 ### Dotenv auto-load
 - Loader order: `.env.paper` -> `.env` -> ambient env.
