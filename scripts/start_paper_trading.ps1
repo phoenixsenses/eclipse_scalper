@@ -19,6 +19,9 @@ Disables watchdog startup for this session.
 .PARAMETER ForceRestart
 If a watchdog is already running, stop and restart it safely.
 
+.PARAMETER SkipPreflight
+Skips `python -m tools.preflight_check`.
+
 .PARAMETER SmokeOffline
 Runs bootstrap in offline smoke mode by setting:
   BOOTSTRAP_SMOKE_ONLY=1
@@ -42,6 +45,7 @@ Runs bootstrap in offline smoke mode by setting:
 #   .\scripts\start_paper_trading.ps1
 #   .\scripts\start_paper_trading.ps1 -EnvFile .env.paper.dual
 #   .\scripts\start_paper_trading.ps1 -EnvFile .env.paper -SkipValidation
+#   .\scripts\start_paper_trading.ps1 -SkipPreflight
 #   .\scripts\start_paper_trading.ps1 -SmokeOffline
 #
 # What this does:
@@ -60,6 +64,7 @@ Runs bootstrap in offline smoke mode by setting:
 param(
     [string]$EnvFile = ".env.paper",
     [switch]$SkipValidation,
+    [switch]$SkipPreflight,
     [switch]$NoWatchdog,
     [switch]$ForceRestart,
     [switch]$SmokeOffline
@@ -244,6 +249,20 @@ if (-not $SkipValidation) {
     }
 } else {
     Write-Host "  Validation skipped (-SkipValidation)" -ForegroundColor Yellow
+}
+
+# -- Preflight gate ------------------------------------------------------------
+if (-not $SkipPreflight) {
+    Write-Host ""
+    Write-Host "Running preflight checks..." -ForegroundColor Gray
+    python -m tools.preflight_check
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host ""
+        Write-Host "Preflight failed. Resolve FAIL items in reports/PREFLIGHT_CHECK.md before starting." -ForegroundColor Red
+        exit 1
+    }
+} else {
+    Write-Host "  Preflight skipped (-SkipPreflight)" -ForegroundColor Yellow
 }
 
 # -- Start data collection watchdog (background process) -----------------------

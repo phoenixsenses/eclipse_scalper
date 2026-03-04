@@ -1900,7 +1900,7 @@ async def entry_loop(bot) -> None:
     # Local cooldown memory
     last_attempt_by_sym: Dict[str, float] = {}
     last_symbol_tick = 0.0
-    last_risk_day = _dt.datetime.utcnow().strftime("%Y-%m-%d")
+    last_risk_day = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%d")
 
     sig_fn = _load_signal_fn()
     micro_engine = None
@@ -2052,7 +2052,7 @@ async def entry_loop(bot) -> None:
                 except Exception:
                     pass
             if risk_mgr is not None:
-                day_now = _dt.datetime.utcnow().strftime("%Y-%m-%d")
+                day_now = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%d")
                 if day_now != last_risk_day:
                     try:
                         risk_mgr.reset_daily()

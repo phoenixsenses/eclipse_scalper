@@ -42,6 +42,27 @@ python -m tools.telegram_bot
 python -m tools.daily_report
 ```
 
+### Preflight gate (startup hard checks)
+```powershell
+python -m tools.preflight_check
+```
+
+### Runtime profile lock (freeze/enforce)
+```powershell
+python -m tools.freeze_runtime_profile --write-lock
+python -m tools.freeze_runtime_profile --enforce
+```
+
+### Incident bundle (forensics snapshot)
+```powershell
+python -m tools.incident_bundle
+```
+
+### Release tag prep (local safety gate)
+```powershell
+python -m tools.prepare_release_tag --tag vYYYY.MM.DD-stable
+```
+
 ### Scratch calibration reports
 ```powershell
 python -m tools.run_scratch_calibration --symbol ETHUSDT --db data/microstructure.db
@@ -138,6 +159,16 @@ $env:PYTHONUTF8='1'; $env:PYTHONIOENCODING='utf-8'
 - Run `python -m tools.db_maintenance`.
 - Verify `wal_checkpoint(TRUNCATE)` success.
 - Check backup retention and disk free-space alerts.
+
+### H) Startup blocked by preflight
+- Open `reports/PREFLIGHT_CHECK.md` and fix `FAIL` rows first.
+- Typical issues: stale DB, missing `SCALPER_DRY_RUN=1`, unwritable `logs/`/`reports/`, low free disk.
+
+### I) Runtime drift between sessions
+- Freeze and compare runtime profile:
+  - `python -m tools.freeze_runtime_profile --write-lock`
+  - `python -m tools.freeze_runtime_profile --enforce`
+- If mismatch, align env and rerun startup.
 
 ## 6) Do Not Change During 60-Day Run
 - Do not change validated pocket filters:
