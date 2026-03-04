@@ -3,10 +3,12 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import random
 from pathlib import Path
 from statistics import median, pstdev
 from typing import Any, Dict, List, Tuple
 
+from config.costs import DEFAULT_MAKER_FEE_BPS
 from tools.validate_passive_pocket_forward import validate_pocket_forward
 
 
@@ -25,6 +27,22 @@ def _parse_float_list(raw: str) -> List[float]:
 
 def _parse_seed_list(raw: str) -> str:
     return ",".join(_parse_list(raw))
+
+
+def _pocket_id(
+    cand: Dict[str, Any],
+    *,
+    rule: str,
+    side: str,
+    horizon_override: int = 0,
+) -> str:
+    horizon = int(horizon_override) if int(horizon_override) > 0 else int(cand.get("horizon_sec", 0) or 0)
+    return (
+        f"{str(cand.get('symbol', ''))} rule={str(rule)} side={str(side)} "
+        f"h={horizon} imb>={float(cand.get('min_imbalance', 0.0)):.2f} "
+        f"int>={float(cand.get('min_trade_intensity', 0.0)):.0f} "
+        f"spr<={float(cand.get('max_spread', 0.0)):.6f}"
+    )
 
 
 _FIELD_ALIASES: Dict[str, List[str]] = {
@@ -221,6 +239,19 @@ def _aggregate_eval(res: Dict[str, Any], min_n: int) -> Dict[str, Any]:
             "attempt_fill_rate_median": 0.0,
             "attempts_per_min_median": 0.0,
             "rows": 0,
+            "gate_reject_ratio": 0.0,
+            "fill_rate_after_gate": 0.0,
+            "avg_adverse_bps_on_fills": 0.0,
+            "avg_fee_bps": 0.0,
+            "avg_scratch_bps_on_fills": 0.0,
+            "avg_raw_return_bps_on_fills": 0.0,
+            "avg_net_return_bps_on_fills": 0.0,
+            "reject_vol_quantile_reject": 0,
+            "reject_spread_too_wide": 0,
+            "reject_imbalance_too_low": 0,
+            "reject_intensity_too_low": 0,
+            "reject_other_gate": 0,
+            "per_combo": [],
         }
     flags = [_combo_pass(r, min_n=min_n) for r in per_combo]
     pass_rate = sum(1 for f in flags if f) / len(flags)
@@ -234,6 +265,23 @@ def _aggregate_eval(res: Dict[str, Any], min_n: int) -> Dict[str, Any]:
     for grp in by_split.values():
         split_avg.append(sum(float(x.get("filled_avg_net", 0.0)) for x in grp) / len(grp))
         split_p90.append(sum(float(x.get("filled_p90_net", 0.0)) for x in grp) / len(grp))
+    total_events = sum(int(r.get("n_events_total", 0) or 0) for r in per_combo)
+    total_gate_reject = sum(int(r.get("n_rejected_attempt_gate", 0) or 0) for r in per_combo)
+    total_attempts_after_gate = sum(int(r.get("n_attempts_after_gate", r.get("val_attempts_after_gate", r.get("val_attempts", 0))) or 0) for r in per_combo)
+    total_filled = sum(int(r.get("n_filled", r.get("filled_n", 0)) or 0) for r in per_combo)
+    rej_vol = sum(int(r.get("reject_vol_quantile_reject", 0) or 0) for r in per_combo)
+    rej_spread = sum(int(r.get("reject_spread_too_wide", 0) or 0) for r in per_combo)
+    rej_imb = sum(int(r.get("reject_imbalance_too_low", 0) or 0) for r in per_combo)
+    rej_int = sum(int(r.get("reject_intensity_too_low", 0) or 0) for r in per_combo)
+    rej_other = sum(int(r.get("reject_other_gate", 0) or 0) for r in per_combo)
+    filled_weights = [max(0, int(r.get("n_filled", r.get("filled_n", 0)) or 0)) for r in per_combo]
+    wsum = sum(filled_weights)
+
+    def _wavg(key: str) -> float:
+        if wsum <= 0:
+            return 0.0
+        return sum(float(r.get(key, 0.0) or 0.0) * w for r, w in zip(per_combo, filled_weights)) / wsum
+
     return {
         "pass_rate": pass_rate,
         "median_filled_avg_net": med_avg,
@@ -245,6 +293,19 @@ def _aggregate_eval(res: Dict[str, Any], min_n: int) -> Dict[str, Any]:
         "attempts_per_min_median": float(median(float(r.get("attempts_per_min", 0.0)) for r in per_combo)),
         "median_effective_min_n": int(median(int(r.get("effective_min_n", 0) or 0) for r in per_combo)),
         "rows": len(per_combo),
+        "gate_reject_ratio": (float(total_gate_reject) / float(total_events)) if total_events > 0 else 0.0,
+        "fill_rate_after_gate": (float(total_filled) / float(total_attempts_after_gate)) if total_attempts_after_gate > 0 else 0.0,
+        "avg_adverse_bps_on_fills": _wavg("avg_adverse_bps_on_fills"),
+        "avg_fee_bps": _wavg("avg_fee_bps"),
+        "avg_scratch_bps_on_fills": _wavg("avg_scratch_bps_on_fills"),
+        "avg_raw_return_bps_on_fills": _wavg("avg_raw_return_bps_on_fills"),
+        "avg_net_return_bps_on_fills": _wavg("avg_net_return_bps_on_fills"),
+        "reject_vol_quantile_reject": int(rej_vol),
+        "reject_spread_too_wide": int(rej_spread),
+        "reject_imbalance_too_low": int(rej_imb),
+        "reject_intensity_too_low": int(rej_int),
+        "reject_other_gate": int(rej_other),
+        "per_combo": per_combo,
     }
 
 
@@ -255,20 +316,115 @@ def _fee_score(agg: Dict[str, Any]) -> float:
     return pass_rate * med_bps * worst_bps
 
 
+def _safe_float(v: Any, default: float = 0.0) -> float:
+    try:
+        if v is None:
+            return float(default)
+        return float(v)
+    except Exception:
+        return float(default)
+
+
+def _safe_ratio(num: Any, den: Any) -> float | None:
+    n = _safe_float(num, default=0.0)
+    d = _safe_float(den, default=0.0)
+    if d <= 0.0:
+        return None
+    return n / d
+
+
+def _failure_reason_top(agg: Dict[str, Any]) -> str:
+    gate_reject_ratio = _safe_float(agg.get("gate_reject_ratio", 0.0), default=0.0)
+    fill_rate_after_gate = _safe_float(agg.get("fill_rate_after_gate", 0.0), default=0.0)
+    avg_net_bps = _safe_float(agg.get("avg_net_return_bps_on_fills", 0.0), default=0.0)
+    avg_adv_bps = abs(_safe_float(agg.get("avg_adverse_bps_on_fills", 0.0), default=0.0))
+    avg_fee_bps = abs(_safe_float(agg.get("avg_fee_bps", 0.0), default=0.0))
+    if gate_reject_ratio > 0.5:
+        return "gate_reject"
+    if fill_rate_after_gate < 0.1:
+        return "no_fills"
+    if avg_net_bps < 0.0:
+        if avg_adv_bps >= avg_fee_bps:
+            return "adverse_dominates"
+        return "fees_dominate"
+    return "mixed"
+
+
+def _npa_decomposition_from_eval(eval_row: Dict[str, Any]) -> Dict[str, Any]:
+    fill_after = _safe_float(eval_row.get("fill_rate_after_gate", 0.0), 0.0)
+    gross_npa = (_safe_float(eval_row.get("avg_raw_return_bps_on_fills", 0.0), 0.0) / 10000.0) * fill_after
+    fee_cost_npa = (_safe_float(eval_row.get("avg_fee_bps", 0.0), 0.0) / 10000.0) * fill_after
+    adverse_cost_npa = (_safe_float(eval_row.get("avg_adverse_bps_on_fills", 0.0), 0.0) / 10000.0) * fill_after
+    scratch_cost_npa = (_safe_float(eval_row.get("avg_scratch_bps_on_fills", 0.0), 0.0) / 10000.0) * fill_after
+    net_npa = gross_npa - fee_cost_npa - adverse_cost_npa - scratch_cost_npa
+    observed_npa = _safe_float(eval_row.get("median_net_per_attempt", 0.0), 0.0)
+    residual = observed_npa - net_npa
+    return {
+        "gross_edge_npa": float(gross_npa),
+        "fee_cost_npa": float(fee_cost_npa),
+        "adverse_cost_npa": float(adverse_cost_npa),
+        "scratch_cost_npa": float(scratch_cost_npa),
+        "net_npa": float(net_npa),
+        "observed_net_npa": float(observed_npa),
+        "residual_npa": float(residual),
+    }
+
+
+def _bootstrap_mean_ci(values: List[float], *, samples: int, seed: int) -> Tuple[float, float, float]:
+    clean = [float(v) for v in values if v is not None]
+    if not clean:
+        return 0.0, 0.0, 1.0
+    if len(clean) == 1:
+        mu = float(clean[0])
+        p = 0.0 if mu > 0.0 else 1.0
+        return mu, mu, p
+    rng = random.Random(int(seed))
+    n = len(clean)
+    means: List[float] = []
+    for _ in range(max(10, int(samples))):
+        s = 0.0
+        for _ in range(n):
+            s += clean[rng.randrange(0, n)]
+        means.append(s / float(n))
+    means.sort()
+    lo = means[int(0.025 * (len(means) - 1))]
+    hi = means[int(0.975 * (len(means) - 1))]
+    nonpos = sum(1 for m in means if m <= 0.0)
+    p_one = nonpos / float(len(means))
+    return float(lo), float(hi), float(max(0.0, min(1.0, p_one)))
+
+
+def _bh_adjust(items: List[Tuple[int, float]]) -> Dict[int, float]:
+    if not items:
+        return {}
+    ordered = sorted(((idx, float(max(0.0, min(1.0, p)))) for idx, p in items), key=lambda x: x[1])
+    m = len(ordered)
+    raw = [0.0] * m
+    for i, (_, p) in enumerate(ordered, start=1):
+        raw[i - 1] = min(1.0, p * m / float(i))
+    adj = [0.0] * m
+    running = 1.0
+    for i in range(m - 1, -1, -1):
+        running = min(running, raw[i])
+        adj[i] = running
+    return {ordered[i][0]: float(adj[i]) for i in range(m)}
+
+
 def _args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Rank passive pockets by forward robustness.")
     p.add_argument("--candidates-md", required=True)
     p.add_argument("--db", default="data/microstructure.db")
     p.add_argument("--lookback-min", type=int, default=1440)
     p.add_argument("--bucket-sec", type=int, default=1)
+    p.add_argument("--horizon-sec", type=int, default=0, help="Optional override for candidate horizon_sec. 0 keeps per-candidate horizon.")
     p.add_argument("--rule", default="intensity_spike_imbalance_cont")
     p.add_argument("--rules", default="", help="Optional comma list to compare rules on identical pockets.")
     p.add_argument("--side", default="auto")
-    p.add_argument("--splits", type=int, default=4)
+    p.add_argument("--splits", type=int, default=3)
     p.add_argument("--seeds", default="11,22,33,44,55")
     p.add_argument("--min-n", type=int, default=50)
     p.add_argument("--min-n-frac", type=float, default=0.0)
-    p.add_argument("--maker-fee-bps-grid", default="0.5,1.0,1.5")
+    p.add_argument("--maker-fee-bps-grid", default=f"{float(DEFAULT_MAKER_FEE_BPS)}")
     p.add_argument("--passive-adverse-mult-grid", default="0.8,1.0,1.2")
     p.add_argument("--v2-min-score", type=float, default=0.0)
     p.add_argument("--v2-min-persistence", type=float, default=0.0)
@@ -277,6 +433,8 @@ def _args() -> argparse.Namespace:
     p.add_argument("--out-md", default="reports/PASSIVE_POCKET_RANKING.md")
     p.add_argument("--out-json", default="reports/PASSIVE_POCKET_RANKING.json")
     p.add_argument("--debug-parse", action="store_true")
+    p.add_argument("--only-pocket", default="", help="Filter pockets by exact substring match against pocket identifier.")
+    p.add_argument("--only-pocket-regex", default="", help="Filter pockets by regex (re.search) against pocket identifier.")
     p.add_argument("--min-attempt-fill-rate", type=float, default=0.10,
                    help="Skip pockets whose core-eval attempt_fill_rate_median is below this threshold.")
     p.add_argument("--max-insufficient-fill-rate", type=float, default=0.50,
@@ -284,12 +442,53 @@ def _args() -> argparse.Namespace:
     p.add_argument("--min-intensity-strong", type=float, default=0.0, help="Pre-attempt gate: skip when trade_intensity < this.")
     p.add_argument("--min-imbalance-strong", type=float, default=0.0, help="Pre-attempt gate: skip when |imbalance| < this.")
     p.add_argument("--max-spread-tight", type=float, default=0.0, help="Pre-attempt gate: skip when spread > this.")
+    p.add_argument("--max-volatility-extreme", type=float, default=None, help="Pre-attempt gate: skip when volatility proxy > this. For anti_adverse_v2, this overrides default 0.0020.")
+    p.add_argument("--vol-quantile-reject", type=float, default=0.01, help="For anti_adverse_v3: reject top X fraction of volatility via train-slice quantile (e.g. 0.01).")
+    p.add_argument("--scratch-bps", type=float, default=0.0, help="Optional post-fill adverse move threshold (bps) for early scratch exit; 0 disables.")
+    p.add_argument("--scratch-window-sec", type=int, default=0, help="Optional scratch window in seconds; 0 disables.")
+    p.add_argument("--scratch-taker-fee-bps", type=float, default=0.0, help="Extra one-way taker fee bps when scratch triggers.")
+    p.add_argument("--scratch-slippage-bps", type=float, default=0.0, help="Extra one-way slippage bps when scratch triggers.")
+    p.add_argument("--diagnostic-breakdown", action="store_true", help="Print top-pocket cost/decomposition diagnostics and bps->fraction checks.")
+    p.add_argument("--emit-fee-cliff-summary", action="store_true", help="Emit sidecar fee-cliff/decomposition summary JSON next to --out-json.")
+    p.add_argument("--bootstrap-ci", action="store_true", help="Compute bootstrap confidence intervals/p-values on core net_per_attempt.")
+    p.add_argument("--bootstrap-samples", type=int, default=1000, help="Bootstrap sample count for --bootstrap-ci.")
+    p.add_argument("--bootstrap-seed", type=int, default=42, help="Deterministic RNG seed for --bootstrap-ci.")
+    p.add_argument("--bh-correction", action="store_true", help="Apply Benjamini-Hochberg correction to bootstrap p-values.")
+    p.add_argument("--alpha", type=float, default=0.05, help="Significance threshold for bootstrap/BH gating.")
     p.add_argument("--pass-threshold", type=float, default=0.5, help="Minimum pass_rate required for robust_core/stress flags.")
+    p.add_argument("--research-mode", action="store_true", help="Set a softer robustness gate for exploration (default pass-threshold=0.33 unless overridden).")
+    p.add_argument(
+        "--regime",
+        default="none",
+        choices=["none", "up", "down"],
+        help=(
+            "Regime filter: 'up' keeps only signals where rolling 1h log-return >= 0; "
+            "'down' keeps only DOWN-regime signals; 'none' disables filter (default)."
+        ),
+    )
+    p.add_argument(
+        "--mitigation-profile",
+        default="baseline",
+        choices=["baseline", "anti_adverse_v1", "anti_adverse_v2", "anti_adverse_v3", "anti_adverse_v4"],
+        help=(
+            "Signal filter profile to reduce adverse selection. "
+            "'baseline' = no change. "
+            "'anti_adverse_v1' = require stronger imbalance (×1.25) and tighter spread (×0.75), "
+            "trading fill-rate for lower adverse selection. "
+            "'anti_adverse_v2' = light-touch fixed volatility-extreme guard. "
+            "'anti_adverse_v3' = quantile-based volatility-extreme guard. "
+            "'anti_adverse_v4' = anti_adverse_v3 + conservative scratch/escape defaults."
+        ),
+    )
     return p.parse_args()
 
 
 def main() -> int:
     args = _args()
+    if bool(args.research_mode) and float(args.pass_threshold) == 0.5:
+        args.pass_threshold = 0.33
+    if bool(args.research_mode):
+        print(f"RESEARCH MODE enabled: pass_threshold={float(args.pass_threshold):.2f}")
     md_paths = [Path(x) for x in _parse_list(args.candidates_md)]
     candidates: List[Dict[str, Any]] = []
     parse_stats_all: List[Dict[str, Any]] = []
@@ -330,43 +529,184 @@ def main() -> int:
     rules = _parse_list(args.rules) if str(args.rules).strip() else [str(args.rule)]
     seed_str = _parse_seed_list(args.seeds)
 
+    # Optional pocket filtering prior to any validation work.
+    only_sub = str(args.only_pocket or "").strip()
+    only_rx_raw = str(args.only_pocket_regex or "").strip()
+    only_rx = None
+    if only_rx_raw:
+        try:
+            only_rx = re.compile(only_rx_raw)
+        except re.error as exc:
+            print(f"ERROR invalid --only-pocket-regex: {exc}")
+            return 2
+    if only_sub or only_rx is not None:
+        filtered_candidates: List[Dict[str, Any]] = []
+        for c in candidates:
+            ids = [
+                _pocket_id(
+                    c,
+                    rule=r,
+                    side=str(args.side),
+                    horizon_override=int(args.horizon_sec),
+                )
+                for r in rules
+            ]
+            matched = False
+            for pid in ids:
+                if only_sub and only_sub in pid:
+                    matched = True
+                    break
+                if only_rx is not None and only_rx.search(pid):
+                    matched = True
+                    break
+            if matched:
+                filtered_candidates.append(c)
+        candidates = filtered_candidates
+        print(
+            f"pocket_filter candidates_after={len(candidates)} "
+            f"only_pocket={only_sub or '-'} only_pocket_regex={only_rx_raw or '-'}"
+        )
+        if not candidates:
+            print(
+                "ERROR pocket filter matched 0 candidates. "
+                "Adjust --only-pocket/--only-pocket-regex."
+            )
+            return 2
+
+    mitigation_profile = str(args.mitigation_profile)
+    if mitigation_profile != "baseline":
+        print(f"MITIGATION PROFILE: {mitigation_profile}")
+    eff_scratch_bps = float(args.scratch_bps)
+    eff_scratch_window_sec = int(args.scratch_window_sec)
+    eff_scratch_taker_fee_bps = float(args.scratch_taker_fee_bps)
+    eff_scratch_slippage_bps = float(args.scratch_slippage_bps)
+    if mitigation_profile == "anti_adverse_v4":
+        if eff_scratch_bps <= 0.0:
+            eff_scratch_bps = 4.0
+        if eff_scratch_window_sec <= 0:
+            eff_scratch_window_sec = 10
+        if eff_scratch_taker_fee_bps <= 0.0:
+            eff_scratch_taker_fee_bps = 1.0
+        if eff_scratch_slippage_bps <= 0.0:
+            eff_scratch_slippage_bps = 0.5
+
+    def _mitigation_overrides(c: Dict[str, Any]) -> Dict[str, float]:
+        """Return extra kwargs for validate_pocket_forward based on mitigation profile."""
+        if mitigation_profile == "anti_adverse_v1":
+            # Require stronger imbalance confirmation + tighter spread
+            # to trade fill-rate for lower adverse selection exposure.
+            return {
+                "min_imbalance_strong": float(c["min_imbalance"]) * 1.25,
+                "max_spread_tight": float(c["max_spread"]) * 0.75,
+            }
+        if mitigation_profile == "anti_adverse_v2":
+            # Light-touch: do not tighten spread/intensity beyond candidate.
+            # Only suppress volatility extremes likely tied to adverse bursts.
+            return {
+                "max_volatility_extreme": float(args.max_volatility_extreme) if args.max_volatility_extreme is not None else 0.0020,
+            }
+        if mitigation_profile == "anti_adverse_v3":
+            # Adaptive light-touch: reject only top-X volatility events, threshold per split from train slice.
+            return {
+                "vol_quantile_reject": max(0.0, min(0.50, float(args.vol_quantile_reject))),
+            }
+        if mitigation_profile == "anti_adverse_v4":
+            # anti_adverse_v3 + conservative post-fill scratch.
+            return {
+                "vol_quantile_reject": max(0.0, min(0.50, float(args.vol_quantile_reject))),
+                "scratch_bps": (float(args.scratch_bps) if float(args.scratch_bps) > 0.0 else 4.0),
+                "scratch_window_sec": (int(args.scratch_window_sec) if int(args.scratch_window_sec) > 0 else 10),
+                "scratch_taker_fee_bps": (float(args.scratch_taker_fee_bps) if float(args.scratch_taker_fee_bps) > 0.0 else 1.0),
+                "scratch_slippage_bps": (float(args.scratch_slippage_bps) if float(args.scratch_slippage_bps) > 0.0 else 0.5),
+            }
+        return {}  # baseline: honour the args values directly
+
     scored: List[Dict[str, Any]] = []
     for c in candidates:
         for rule_name in rules:
-            pocket_evals: Dict[str, Any] = {}
-            for fee in fee_grid:
-                for adv in adverse_grid:
-                    key = f"fee={fee:.3f}|adv={adv:.3f}"
-                    res = validate_pocket_forward(
-                        db=str(args.db),
-                        symbol=str(c["symbol"]),
-                        lookback_min=int(args.lookback_min),
-                        bucket_sec=int(args.bucket_sec),
-                        horizon_sec=int(c["horizon_sec"]),
-                        rule=str(rule_name),
-                        side=str(args.side),
-                        min_imbalance=float(c["min_imbalance"]),
-                        min_trade_intensity=float(c["min_trade_intensity"]),
-                        max_spread=float(c["max_spread"]),
-                        splits=int(args.splits),
-                        seeds=seed_str,
-                        min_n=int(args.min_n),
-                        min_n_frac=float(args.min_n_frac),
-                        maker_fee_bps=float(fee),
-                        passive_profile_in=str(args.passive_profile_in),
-                        passive_adverse_mult=float(adv),
-                        v2_min_score=float(args.v2_min_score),
-                        v2_min_persistence=float(args.v2_min_persistence),
-                        v2_min_confidence=float(args.v2_min_confidence),
-                        min_intensity_strong=float(args.min_intensity_strong),
-                        min_imbalance_strong=float(args.min_imbalance_strong),
-                        max_spread_tight=float(args.max_spread_tight),
-                    )
-                    pocket_evals[key] = _aggregate_eval(res, min_n=int(args.min_n))
-                    pocket_evals[key]["rows_total"] = int(res.get("rows_total", 0))
-                    pocket_evals[key]["pass_count"] = int(res.get("pass_count", 0))
-                    pocket_evals[key]["pass_rate_raw"] = float(res.get("pass_rate", 0.0))
-                    pocket_evals[key]["insufficient_fill_rate"] = float(res.get("insufficient_fill_rate", 0.0))
+            mit_overrides = _mitigation_overrides(c)
+
+            def _evaluate_grid(profile_overrides: Dict[str, float]) -> Dict[str, Any]:
+                out: Dict[str, Any] = {}
+                for fee in fee_grid:
+                    for adv in adverse_grid:
+                        key = f"fee={fee:.3f}|adv={adv:.3f}"
+                        res = validate_pocket_forward(
+                            db=str(args.db),
+                            symbol=str(c["symbol"]),
+                            lookback_min=int(args.lookback_min),
+                            bucket_sec=int(args.bucket_sec),
+                            horizon_sec=(int(args.horizon_sec) if int(args.horizon_sec) > 0 else int(c["horizon_sec"])),
+                            rule=str(rule_name),
+                            side=str(args.side),
+                            min_imbalance=float(c["min_imbalance"]),
+                            min_trade_intensity=float(c["min_trade_intensity"]),
+                            max_spread=float(c["max_spread"]),
+                            splits=int(args.splits),
+                            seeds=seed_str,
+                            min_n=int(args.min_n),
+                            min_n_frac=float(args.min_n_frac),
+                            maker_fee_bps=float(fee),
+                            passive_profile_in=str(args.passive_profile_in),
+                            passive_adverse_mult=float(adv),
+                            v2_min_score=float(args.v2_min_score),
+                            v2_min_persistence=float(args.v2_min_persistence),
+                            v2_min_confidence=float(args.v2_min_confidence),
+                            min_intensity_strong=float(profile_overrides.get("min_intensity_strong", args.min_intensity_strong)),
+                            min_imbalance_strong=float(profile_overrides.get("min_imbalance_strong", args.min_imbalance_strong)),
+                            max_spread_tight=float(profile_overrides.get("max_spread_tight", args.max_spread_tight)),
+                            max_volatility_extreme=float(profile_overrides.get("max_volatility_extreme", args.max_volatility_extreme if args.max_volatility_extreme is not None else 0.0)),
+                            vol_quantile_reject=float(profile_overrides.get("vol_quantile_reject", 0.0)),
+                            scratch_bps=float(profile_overrides.get("scratch_bps", args.scratch_bps)),
+                            scratch_window_sec=int(profile_overrides.get("scratch_window_sec", args.scratch_window_sec)),
+                            scratch_taker_fee_bps=float(profile_overrides.get("scratch_taker_fee_bps", args.scratch_taker_fee_bps)),
+                            scratch_slippage_bps=float(profile_overrides.get("scratch_slippage_bps", args.scratch_slippage_bps)),
+                            regime_filter=str(args.regime).upper() if str(args.regime).lower() not in ("none", "") else "",
+                        )
+                        agg = _aggregate_eval(res, min_n=int(args.min_n))
+                        attr = res.get("failure_attribution_median") or {}
+                        agg["rows_total"] = int(res.get("rows_total", 0))
+                        agg["pass_count"] = int(res.get("pass_count", 0))
+                        agg["pass_rate_raw"] = float(res.get("pass_rate", 0.0))
+                        agg["insufficient_fill_rate"] = float(res.get("insufficient_fill_rate", 0.0))
+                        # Prefer explicit validator median attribution when present.
+                        for k in [
+                            "n_events_total",
+                            "n_rejected_attempt_gate",
+                            "n_attempts_after_gate",
+                            "n_filled",
+                            "n_unfilled",
+                            "avg_fill_prob",
+                            "avg_adverse_bps_on_fills",
+                            "avg_fee_bps",
+                            "avg_scratch_bps_on_fills",
+                            "avg_raw_return_bps_on_fills",
+                            "avg_net_return_bps_on_fills",
+                            "net_return_bps_p10",
+                            "net_return_bps_p50",
+                            "net_return_bps_p90",
+                            "reject_vol_quantile_reject",
+                            "reject_spread_too_wide",
+                            "reject_imbalance_too_low",
+                            "reject_intensity_too_low",
+                            "reject_other_gate",
+                        ]:
+                            if k in attr and attr.get(k) is not None:
+                                agg[k] = attr.get(k)
+                        # Recompute derived ratios from enriched fields.
+                        agg["gate_reject_ratio"] = _safe_ratio(
+                            agg.get("n_rejected_attempt_gate"),
+                            agg.get("n_events_total"),
+                        )
+                        agg["fill_rate_after_gate"] = _safe_ratio(
+                            agg.get("n_filled"),
+                            agg.get("n_attempts_after_gate"),
+                        )
+                        out[key] = agg
+                return out
+
+            pocket_evals: Dict[str, Any] = _evaluate_grid(mit_overrides)
+            baseline_evals: Dict[str, Any] = _evaluate_grid({}) if mitigation_profile != "baseline" else pocket_evals
 
             def get_eval(fee: float, adv: float) -> Dict[str, Any]:
                 return pocket_evals.get(f"fee={fee:.3f}|adv={adv:.3f}", {})
@@ -379,6 +719,11 @@ def main() -> int:
 
             core_eval = get_eval(fee_one, adv_one)
             stress_eval = get_eval(fee_one, adv_max)
+            base_core_eval = baseline_evals.get(f"fee={fee_one:.3f}|adv={adv_one:.3f}", {})
+            base_stress_eval = baseline_evals.get(f"fee={fee_one:.3f}|adv={adv_max:.3f}", {})
+            failure_reason_top = _failure_reason_top(core_eval)
+            core_decomp = _npa_decomposition_from_eval(core_eval)
+            stress_decomp = _npa_decomposition_from_eval(stress_eval)
 
             # NPA-based scoring (net_per_attempt; capacity-honest metric)
             core_npa = float(core_eval.get("median_net_per_attempt", 0.0))
@@ -403,6 +748,11 @@ def main() -> int:
                 (float(e.get("median_filled_avg_net", 0.0)) for e in pocket_evals.values()),
                 default=0.0,
             )
+            base_score_raw_core = float(baseline_evals.get(f"fee={fee_min:.3f}|adv={adv_one:.3f}", {}).get("median_filled_avg_net", 0.0))
+            base_pass_rate_core = float(base_core_eval.get("pass_rate", 0.0))
+            base_pass_rate_stress = float(base_stress_eval.get("pass_rate", 0.0))
+            base_npa_core = float(base_core_eval.get("median_net_per_attempt", 0.0))
+            base_npa_stress = float(base_stress_eval.get("median_net_per_attempt", 0.0))
 
             # Capacity filter: skip pockets that cannot generate meaningful flow
             core_afr = float(core_eval.get("attempt_fill_rate_median", 0.0))
@@ -415,11 +765,16 @@ def main() -> int:
                 )
                 continue
             if insufficient_fill_rate > float(args.max_insufficient_fill_rate):
+                cur_frac = float(args.min_n_frac)
+                suggest_frac = max(0.00001, cur_frac * 0.5)
+                suggest_splits = max(2, int(args.splits) - 1)
+                suggest_min_n = max(10, int(args.min_n * 0.8))
                 print(
                     f"[cap_filter] skip symbol={c['symbol']} rule={rule_name} h={c['horizon_sec']} "
                     f"insufficient_fill_rate={insufficient_fill_rate:.4f} > threshold={args.max_insufficient_fill_rate:.4f} "
                     f"effective_min_n_median={core_eff_min}. "
-                    "Hint: Consider lowering --min-n-frac (e.g. 0.0005) or increasing lookback/splitting."
+                    f"Hint: current min_n_frac={cur_frac:.6f}, min_n={int(args.min_n)}, splits={int(args.splits)}. "
+                    f"Try lower --min-n-frac (e.g. {suggest_frac:.6f}), lower --min-n (e.g. {suggest_min_n}), or fewer --splits (e.g. {suggest_splits})."
                 )
                 continue
 
@@ -440,8 +795,55 @@ def main() -> int:
                     "npa_stress": stress_npa,
                     "pass_rate_core": pass_rate_core,
                     "pass_rate_stress": pass_rate_stress,
+                    "baseline_score_raw_core": base_score_raw_core,
+                    "baseline_npa_core": base_npa_core,
+                    "baseline_npa_stress": base_npa_stress,
+                    "baseline_pass_rate_core": base_pass_rate_core,
+                    "baseline_pass_rate_stress": base_pass_rate_stress,
+                    "delta_score_raw_core": score_raw_core - base_score_raw_core,
+                    "delta_npa_core": core_npa - base_npa_core,
+                    "delta_npa_stress": stress_npa - base_npa_stress,
+                    "delta_pass_rate_core": pass_rate_core - base_pass_rate_core,
+                    "delta_pass_rate_stress": pass_rate_stress - base_pass_rate_stress,
+                    "failure_reason_top": failure_reason_top,
+                    "n_events_total": core_eval.get("n_events_total"),
+                    "n_rejected_attempt_gate": core_eval.get("n_rejected_attempt_gate"),
+                    "n_attempts_after_gate": core_eval.get("n_attempts_after_gate"),
+                    "n_filled": core_eval.get("n_filled"),
+                    "n_unfilled": core_eval.get("n_unfilled"),
+                    "avg_fill_prob": core_eval.get("avg_fill_prob"),
+                    "avg_adverse_bps_on_fills": core_eval.get("avg_adverse_bps_on_fills"),
+                    "avg_fee_bps": core_eval.get("avg_fee_bps"),
+                    "avg_scratch_bps_on_fills": core_eval.get("avg_scratch_bps_on_fills"),
+                    "avg_raw_return_bps_on_fills": core_eval.get("avg_raw_return_bps_on_fills"),
+                    "avg_net_return_bps_on_fills": core_eval.get("avg_net_return_bps_on_fills"),
+                    "net_return_bps_p10": core_eval.get("net_return_bps_p10"),
+                    "net_return_bps_p50": core_eval.get("net_return_bps_p50"),
+                    "net_return_bps_p90": core_eval.get("net_return_bps_p90"),
+                    "reject_breakdown": {
+                        "vol_quantile_reject": int(_safe_float(core_eval.get("reject_vol_quantile_reject", 0), 0.0)),
+                        "spread_too_wide": int(_safe_float(core_eval.get("reject_spread_too_wide", 0), 0.0)),
+                        "imbalance_too_low": int(_safe_float(core_eval.get("reject_imbalance_too_low", 0), 0.0)),
+                        "intensity_too_low": int(_safe_float(core_eval.get("reject_intensity_too_low", 0), 0.0)),
+                        "other_gate": int(_safe_float(core_eval.get("reject_other_gate", 0), 0.0)),
+                    },
+                    "effective_trade_count_core": {
+                        "n_events_total": int(_safe_float(core_eval.get("n_events_total", 0), 0.0)),
+                        "n_attempts_after_gate": int(_safe_float(core_eval.get("n_attempts_after_gate", 0), 0.0)),
+                        "n_filled": int(_safe_float(core_eval.get("n_filled", 0), 0.0)),
+                    },
+                    "effective_trade_count_stress": {
+                        "n_events_total": int(_safe_float(stress_eval.get("n_events_total", 0), 0.0)),
+                        "n_attempts_after_gate": int(_safe_float(stress_eval.get("n_attempts_after_gate", 0), 0.0)),
+                        "n_filled": int(_safe_float(stress_eval.get("n_filled", 0), 0.0)),
+                    },
+                    "decomposition_core": core_decomp,
+                    "decomposition_stress": stress_decomp,
+                    "gate_reject_ratio": core_eval.get("gate_reject_ratio"),
+                    "fill_rate_after_gate": core_eval.get("fill_rate_after_gate"),
                     "attempt_fill_rate": core_afr,
                     "attempts_per_min": float(core_eval.get("attempts_per_min_median", 0.0)),
+                    "per_combo": list(core_eval.get("per_combo", [])),
                     "best_fee_survive": max(
                         [f for f in fee_grid if float(get_eval(f, adv_one).get("pass_rate", 0.0)) > 0.0] or [0.0]
                     ),
@@ -460,6 +862,31 @@ def main() -> int:
         reverse=True,
     )
 
+    if bool(args.bootstrap_ci):
+        pvals: List[Tuple[int, float]] = []
+        for i, row in enumerate(scored):
+            per_combo = list(row.get("per_combo", []))
+            npa_vals = [float(x.get("net_per_attempt", 0.0) or 0.0) for x in per_combo]
+            lo, hi, p_one = _bootstrap_mean_ci(
+                npa_vals,
+                samples=int(args.bootstrap_samples),
+                seed=int(args.bootstrap_seed) + i,
+            )
+            row["bootstrap_ci_low"] = float(lo)
+            row["bootstrap_ci_high"] = float(hi)
+            row["bootstrap_p_value"] = float(p_one)
+            pvals.append((i, p_one))
+        qvals = _bh_adjust(pvals) if bool(args.bh_correction) else {}
+        for i, row in enumerate(scored):
+            qv = float(qvals.get(i, row.get("bootstrap_p_value", 1.0)))
+            row["bootstrap_q_value"] = qv
+            sig = qv <= float(args.alpha)
+            row["significant"] = bool(sig)
+            if not bool(sig):
+                row["robust_core"] = False
+                row["robust_stress"] = False
+                row["score"] = 0.0
+
     top10 = scored[:10]
     print("top 10 pockets overall")
     for i, r in enumerate(top10, start=1):
@@ -469,7 +896,8 @@ def main() -> int:
             f"score={r['score']:.6e} npa={r.get('net_per_attempt', 0.0):.6e} "
             f"pass_core={r.get('pass_rate_core', 0.0):.2%} pass_stress={r.get('pass_rate_stress', 0.0):.2%} "
             f"afr={r.get('attempt_fill_rate', 0.0):.2%} "
-            f"score_raw_core={r.get('score_raw_core', 0.0):.6e}"
+            f"score_raw_core={r.get('score_raw_core', 0.0):.6e} "
+            f"failure_reason_top={r.get('failure_reason_top', 'mixed')}"
         )
     for sym in sorted(set(r["symbol"] for r in scored)):
         print(f"top 5 {sym}")
@@ -481,17 +909,82 @@ def main() -> int:
                 f" - rule={r['rule']} h={r['horizon_sec']} imb>={r['min_imbalance']:.2f} int>={r['min_trade_intensity']:.0f} "
                 f"spr<={r['max_spread']:.6f} score={r['score']:.6e} npa={r.get('net_per_attempt', 0.0):.6e} "
                 f"pass_core={r.get('pass_rate_core', 0.0):.2%} pass_stress={r.get('pass_rate_stress', 0.0):.2%} "
-                f"score_raw_core={r.get('score_raw_core', 0.0):.6e}"
+                f"score_raw_core={r.get('score_raw_core', 0.0):.6e} "
+                f"failure_reason_top={r.get('failure_reason_top', 'mixed')}"
             )
             cnt += 1
             if cnt >= 5:
                 break
     survive = sum(1 for r in scored if float(r["evals"].get("fee=1.000|adv=1.000", {}).get("pass_rate", 0.0)) >= 0.5)
     print(f"pockets survive fee>=1.0 with pass_rate>=0.5: {survive}")
+    if bool(args.diagnostic_breakdown) and scored:
+        top = scored[0]
+        maker_bps = float(top.get("avg_fee_bps", 0.0) or 0.0)
+        maker_frac = maker_bps / 10000.0
+        scratch_bps = float(top.get("avg_scratch_bps_on_fills", 0.0) or 0.0)
+        scratch_frac = scratch_bps / 10000.0
+        print("[diagnostic_breakdown] top pocket:", f"{top.get('symbol')} rule={top.get('rule')} h={top.get('horizon_sec')}")
+        print(
+            "[diagnostic_breakdown] bps_to_fraction",
+            f"maker_fee_bps={maker_bps:.6f} -> {maker_frac:.8f}",
+            f"scratch_bps={scratch_bps:.6f} -> {scratch_frac:.8f}",
+            f"scratch_taker_fee_bps={float(eff_scratch_taker_fee_bps):.6f} -> {float(eff_scratch_taker_fee_bps)/10000.0:.8f}",
+            f"scratch_slippage_bps={float(eff_scratch_slippage_bps):.6f} -> {float(eff_scratch_slippage_bps)/10000.0:.8f}",
+        )
+        if abs(maker_bps) > 0.0 and abs(maker_frac / maker_bps - 0.0001) > 1e-12:
+            print("WARNING fee conversion sanity check failed for maker fee bps.")
+        if abs(scratch_bps) > 0.0 and abs(scratch_frac / scratch_bps - 0.0001) > 1e-12:
+            print("WARNING fee conversion sanity check failed for scratch bps.")
 
     out_json = Path(str(args.out_json))
     out_json.parent.mkdir(parents=True, exist_ok=True)
-    out_json.write_text(json.dumps({"count": len(scored), "ranking": scored}, indent=2), encoding="utf-8")
+    out_json.write_text(
+        json.dumps(
+            {
+                "count": len(scored),
+                "mitigation_profile": mitigation_profile,
+                "gate_config": {
+                    "min_intensity_strong": float(args.min_intensity_strong),
+                    "min_imbalance_strong": float(args.min_imbalance_strong),
+                    "max_spread_tight": float(args.max_spread_tight),
+                    "max_volatility_extreme": None if args.max_volatility_extreme is None else float(args.max_volatility_extreme),
+                    "vol_quantile_reject": float(args.vol_quantile_reject),
+                    "scratch_bps": float(eff_scratch_bps),
+                    "scratch_window_sec": int(eff_scratch_window_sec),
+                    "scratch_taker_fee_bps": float(eff_scratch_taker_fee_bps),
+                    "scratch_slippage_bps": float(eff_scratch_slippage_bps),
+                    "horizon_sec_override": int(args.horizon_sec),
+                },
+                "decomposition": [
+                    {
+                        "pocket": _pocket_id(
+                            r,
+                            rule=str(r.get("rule", "")),
+                            side=str(args.side),
+                            horizon_override=(int(args.horizon_sec) if int(args.horizon_sec) > 0 else 0),
+                        ),
+                        "n_samples": int(_safe_float(r.get("n_events_total", 0), 0.0)),
+                        "score_raw_core": float(r.get("score_raw_core", 0.0)),
+                        "gross_edge_npa": float((r.get("decomposition_core") or {}).get("gross_edge_npa", 0.0)),
+                        "fee_cost_npa": float((r.get("decomposition_core") or {}).get("fee_cost_npa", 0.0)),
+                        "adverse_cost_npa": float((r.get("decomposition_core") or {}).get("adverse_cost_npa", 0.0)),
+                        "scratch_cost_npa": float((r.get("decomposition_core") or {}).get("scratch_cost_npa", 0.0)),
+                        "net_npa": float((r.get("decomposition_core") or {}).get("net_npa", 0.0)),
+                        "residual_npa": float((r.get("decomposition_core") or {}).get("residual_npa", 0.0)),
+                        "pass_core": float(r.get("pass_rate_core", 0.0)),
+                        "pass_stress": float(r.get("pass_rate_stress", 0.0)),
+                        "reject_breakdown": dict(r.get("reject_breakdown", {})),
+                        "effective_trade_count_core": dict(r.get("effective_trade_count_core", {})),
+                        "effective_trade_count_stress": dict(r.get("effective_trade_count_stress", {})),
+                    }
+                    for r in scored
+                ],
+                "ranking": scored,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
 
     out_md = Path(str(args.out_md))
     lines = [
@@ -501,9 +994,20 @@ def main() -> int:
         f"candidate_parse total_rows_seen={total_rows_seen} table_rows_seen={table_rows_seen} rows_with_pass_yes={rows_with_pass_yes} candidates_parsed={candidates_parsed} candidates_unique={len(candidates)} rows_skipped_missing_fields={rows_skipped_missing}",
         f"fee_grid={fee_grid} adverse_mult_grid={adverse_grid}",
         f"pass_threshold={float(args.pass_threshold):.3f}",
+        (
+            f"mitigation_profile={mitigation_profile} gate_config "
+            f"min_intensity_strong={float(args.min_intensity_strong):.6f} "
+            f"min_imbalance_strong={float(args.min_imbalance_strong):.6f} "
+            f"max_spread_tight={float(args.max_spread_tight):.6f} "
+            f"max_volatility_extreme={args.max_volatility_extreme} "
+            f"vol_quantile_reject={float(args.vol_quantile_reject):.6f} "
+            f"scratch_bps={float(eff_scratch_bps):.4f} scratch_window_sec={int(eff_scratch_window_sec)} "
+            f"scratch_taker_fee_bps={float(eff_scratch_taker_fee_bps):.4f} scratch_slippage_bps={float(eff_scratch_slippage_bps):.4f} "
+            f"horizon_sec_override={int(args.horizon_sec)}"
+        ),
         "",
-        "| rank | symbol | rule | horizon | min_imb | min_int | max_spread | score | robust_core | robust_stress | pass_rate_core | pass_rate_stress | npa_core | npa_stress | attempt_fill_rate | attempts_per_min | score_raw_core | score_raw_stress | score_raw_min | stability_std_bps | best_fee_survive | insufficient_fill_rate |",
-        "|---:|---|---|---:|---:|---:|---:|---:|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| rank | symbol | rule | horizon | min_imb | min_int | max_spread | score | robust_core | robust_stress | pass_rate_core | pass_rate_stress | npa_core | npa_stress | attempt_fill_rate | attempts_per_min | score_raw_core | score_raw_stress | score_raw_min | baseline_pass_rate_core | baseline_pass_rate_stress | baseline_npa_core | baseline_score_raw_core | delta_pass_rate_core | delta_npa_core | delta_score_raw_core | failure_reason_top | gate_reject_ratio | fill_rate_after_gate | avg_fee_bps | avg_adverse_bps_on_fills | avg_raw_return_bps_on_fills | avg_net_return_bps_on_fills | stability_std_bps | best_fee_survive | insufficient_fill_rate |",
+        "|---:|---|---|---:|---:|---:|---:|---:|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for idx, r in enumerate(scored, start=1):
         lines.append(
@@ -512,15 +1016,95 @@ def main() -> int:
             f"{r.get('pass_rate_core', 0.0):.2%} | {r.get('pass_rate_stress', 0.0):.2%} | {r.get('npa_core', 0.0):+.6e} | {r.get('npa_stress', 0.0):+.6e} | "
             f"{r.get('attempt_fill_rate', 0.0):.2%} | {r.get('attempts_per_min', 0.0):.2f} | "
             f"{r.get('score_raw_core', 0.0):+.8f} | {r.get('score_raw_stress', 0.0):+.8f} | {r.get('score_raw_min', 0.0):+.8f} | "
+            f"{r.get('baseline_pass_rate_core', 0.0):.2%} | {r.get('baseline_pass_rate_stress', 0.0):.2%} | "
+            f"{r.get('baseline_npa_core', 0.0):+.6e} | {r.get('baseline_score_raw_core', 0.0):+.8f} | "
+            f"{r.get('delta_pass_rate_core', 0.0):+.2%} | {r.get('delta_npa_core', 0.0):+.6e} | {r.get('delta_score_raw_core', 0.0):+.8f} | "
+            f"{r.get('failure_reason_top', 'mixed')} | "
+            f"{(r.get('gate_reject_ratio') if r.get('gate_reject_ratio') is not None else 0.0):.2%} | "
+            f"{(r.get('fill_rate_after_gate') if r.get('fill_rate_after_gate') is not None else 0.0):.2%} | "
+            f"{_safe_float(r.get('avg_fee_bps'), 0.0):.3f} | {_safe_float(r.get('avg_adverse_bps_on_fills'), 0.0):.3f} | "
+            f"{_safe_float(r.get('avg_raw_return_bps_on_fills'), 0.0):+.3f} | {_safe_float(r.get('avg_net_return_bps_on_fills'), 0.0):+.3f} | "
             f"{r['stability_std_bps']:.3f} | {r['best_fee_survive']:.2f} | {float(r.get('insufficient_fill_rate', 0.0)):.2%} |"
         )
     lines += [
         "",
         f"survive_fee1_passrate_ge_0.5={survive}",
+        "",
+        "## Decomposition",
+        "",
+        "| rank | symbol | rule | h | gross_edge_npa | fee_cost_npa | adverse_cost_npa | scratch_cost_npa | net_npa | observed_npa | residual_npa | reject_rate | n_events | n_after_gate | n_filled |",
+        "|---:|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
+    for idx, r in enumerate(scored, start=1):
+        dc = r.get("decomposition_core") or {}
+        ec = r.get("effective_trade_count_core") or {}
+        lines.append(
+            f"| {idx} | {r.get('symbol')} | {r.get('rule')} | {int(_safe_float(r.get('horizon_sec', 0), 0.0))} | "
+            f"{_safe_float(dc.get('gross_edge_npa', 0.0), 0.0):+.6e} | "
+            f"{_safe_float(dc.get('fee_cost_npa', 0.0), 0.0):+.6e} | "
+            f"{_safe_float(dc.get('adverse_cost_npa', 0.0), 0.0):+.6e} | "
+            f"{_safe_float(dc.get('scratch_cost_npa', 0.0), 0.0):+.6e} | "
+            f"{_safe_float(dc.get('net_npa', 0.0), 0.0):+.6e} | "
+            f"{_safe_float(dc.get('observed_net_npa', 0.0), 0.0):+.6e} | "
+            f"{_safe_float(dc.get('residual_npa', 0.0), 0.0):+.6e} | "
+            f"{(_safe_float(r.get('gate_reject_ratio', 0.0), 0.0)):.2%} | "
+            f"{int(_safe_float(ec.get('n_events_total', 0), 0.0))} | "
+            f"{int(_safe_float(ec.get('n_attempts_after_gate', 0), 0.0))} | "
+            f"{int(_safe_float(ec.get('n_filled', 0), 0.0))} |"
+        )
     out_md.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"wrote {out_md}")
     print(f"wrote {out_json}")
+    if bool(args.emit_fee_cliff_summary):
+        fee_out = out_json.with_name(f"{out_json.stem}.fee_cliff.json")
+        fee_rows: List[Dict[str, Any]] = []
+        for r in scored:
+            fee_rows.append(
+                {
+                    "pocket": _pocket_id(
+                        r,
+                        rule=str(r.get("rule", "")),
+                        side=str(args.side),
+                        horizon_override=(int(args.horizon_sec) if int(args.horizon_sec) > 0 else 0),
+                    ),
+                    "symbol": r.get("symbol"),
+                    "rule": r.get("rule"),
+                    "horizon_sec": int(_safe_float(r.get("horizon_sec", 0), 0.0)),
+                    "score_raw_core": float(r.get("score_raw_core", 0.0)),
+                    "npa_core": float(r.get("npa_core", 0.0)),
+                    "pass_rate_core": float(r.get("pass_rate_core", 0.0)),
+                    "decomposition_core": dict(r.get("decomposition_core") or {}),
+                }
+            )
+        fee_out.write_text(
+            json.dumps(
+                {
+                    "maker_fee_bps_grid": fee_grid,
+                    "passive_adverse_mult_grid": adverse_grid,
+                    "rows": fee_rows,
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+        print(f"wrote {fee_out}")
+    if str(args.regime).lower() not in ("none", ""):
+        min_attempts = min(
+            (
+                int(row.get("val_attempts", 999))
+                for s in scored
+                for row in s.get("per_combo", [])
+                if row.get("val_attempts") is not None
+            ),
+            default=999,
+        )
+        if min_attempts < 50:
+            print(
+                f"WARN regime_filter={args.regime}: minimum val_attempts per fold = {min_attempts} < 50. "
+                "Results may be noisy. Consider collecting more data or relaxing the pocket filter."
+            )
+        else:
+            print(f"regime_filter={args.regime}: minimum val_attempts per fold = {min_attempts} (OK)")
     return 0
 
 
