@@ -25,6 +25,7 @@ class NotificationConfig:
     daily_summary_utc_minute: int = 5
     max_messages_per_minute: int = 20
     silent_heartbeat: bool = True
+    send_timeout_sec: float = 2.0
 
 
 def load_config_from_env() -> NotificationConfig:
@@ -53,6 +54,7 @@ def load_config_from_env() -> NotificationConfig:
         heartbeat_interval_sec=f("NOTIFY_HEARTBEAT_INTERVAL_SEC", 14400.0),
         max_messages_per_minute=i("NOTIFY_MAX_MSG_PER_MIN", 20),
         silent_heartbeat=b("NOTIFY_HEARTBEAT_SILENT", True),
+        send_timeout_sec=f("NOTIFY_SEND_TIMEOUT_SEC", 2.0),
     )
 
 
@@ -97,11 +99,16 @@ class NotificationManager:
 
     async def _send_now(self, event: NotificationEvent, now: float) -> bool:
         try:
-            sent_ok = await self.notifier.speak(
+            coro = self.notifier.speak(
                 event.render(),
                 priority=("critical" if event.category in ("crash", "drawdown_limit", "data_stale") else "normal"),
                 silent=bool(event.silent),
             )
+            timeout_sec = float(max(0.0, self.config.send_timeout_sec))
+            if timeout_sec > 0.0:
+                sent_ok = await asyncio.wait_for(coro, timeout=timeout_sec)
+            else:
+                sent_ok = await coro
             # Accept None as success for in-memory/dummy notifier implementations in tests.
             if sent_ok is False:
                 return False
@@ -109,6 +116,8 @@ class NotificationManager:
             if event.throttle_key:
                 self._last_by_key[event.throttle_key] = now
             return True
+        except asyncio.TimeoutError:
+            return False
         except Exception:
             return False
 
@@ -174,7 +183,7 @@ class NotificationManager:
 
 
 def build_notifier_from_env() -> Optional[Notifier]:
-    token = os.getenv("TELEGRAM_TOKEN") or os.getenv("ECLIPSE_TG_BOT_TOKEN")
+    token = os.getenv("TELEGRAM_BOT_TOKEN") or os.getenv("TELEGRAM_TOKEN") or os.getenv("ECLIPSE_TG_BOT_TOKEN")
     chat_id = os.getenv("TELEGRAM_CHAT_ID") or os.getenv("ECLIPSE_TG_CHAT_ID")
     if not token or not chat_id:
         return None
