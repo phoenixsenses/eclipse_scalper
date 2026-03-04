@@ -42,6 +42,11 @@ python -m tools.telegram_bot
 python -m tools.daily_report
 ```
 
+### Risk attribution (live papertrade PnL decomposition)
+```powershell
+python -m tools.risk_attribution --live-root data/live --out-md reports/risk_attribution.md
+```
+
 ### Preflight gate (startup hard checks)
 ```powershell
 python -m tools.preflight_check
