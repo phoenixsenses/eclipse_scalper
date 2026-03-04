@@ -1,10 +1,10 @@
-# execution/entry_loop.py — SCALPER ETERNAL — ENTRY LOOP — 2026 v1.6 (PENDING-LOCK + COOLDOWN + OPEN-ORDERS ADOPT)
+﻿# execution/entry_loop.py â€” SCALPER ETERNAL â€” ENTRY LOOP â€” 2026 v1.6 (PENDING-LOCK + COOLDOWN + OPEN-ORDERS ADOPT)
 # Patch vs v1.5:
-# - ✅ FIX: Per-symbol "pending entry" lock so you cannot machine-gun entries (even if reconcile is lagging)
-# - ✅ FIX: Cooldown after ANY submitted entry attempt (success OR fail) to avoid rapid re-fire loops
-# - ✅ HARDEN: Optional open-orders / open-position probe (best-effort) to detect real exposure even if brain-state is stale
-# - ✅ SAFETY: backoff on margin-insufficient (-2019) retained
-# - ✅ Keeps: ENV-first overrides, sizing resolver, tuple adapter, throttled logs, guardian-safe (never raises)
+# - âœ… FIX: Per-symbol "pending entry" lock so you cannot machine-gun entries (even if reconcile is lagging)
+# - âœ… FIX: Cooldown after ANY submitted entry attempt (success OR fail) to avoid rapid re-fire loops
+# - âœ… HARDEN: Optional open-orders / open-position probe (best-effort) to detect real exposure even if brain-state is stale
+# - âœ… SAFETY: backoff on margin-insufficient (-2019) retained
+# - âœ… Keeps: ENV-first overrides, sizing resolver, tuple adapter, throttled logs, guardian-safe (never raises)
 
 from __future__ import annotations
 
@@ -12,12 +12,62 @@ import asyncio
 import json
 import os
 import time
+import datetime as _dt
 from pathlib import Path
 from typing import Any, Dict, Optional, Callable, Tuple
 
 from utils.logging import log_entry, log_core
+from execution.shutdown_control import ensure_traced_shutdown_event
 from execution.order_router import create_order, cancel_order
 from execution.anomaly_guard import should_pause as anomaly_should_pause
+try:
+    from core.regime import RegimeClassifier  # type: ignore
+except Exception:  # pragma: no cover - optional wiring
+    RegimeClassifier = None  # type: ignore
+try:
+    from core.regime_risk import RegimeRiskConfig, RegimeRiskManager  # type: ignore
+except Exception:  # pragma: no cover
+    RegimeRiskConfig = None  # type: ignore
+    RegimeRiskManager = None  # type: ignore
+try:
+    from core.trade_logger import TradeLogger  # type: ignore
+except Exception:  # pragma: no cover
+    TradeLogger = None  # type: ignore
+try:
+    from notifications.manager import get_notification_manager_from_bot  # type: ignore
+    from notifications.health_alerts import build_startup_event, build_crash_event  # type: ignore
+    from notifications.risk_alerts import build_entry_blocked_event, build_regime_change_event  # type: ignore
+    from notifications.trade_alerts import build_entry_event  # type: ignore
+except Exception:  # pragma: no cover
+    get_notification_manager_from_bot = None  # type: ignore
+    build_startup_event = None  # type: ignore
+    build_crash_event = None  # type: ignore
+    build_entry_blocked_event = None  # type: ignore
+    build_regime_change_event = None  # type: ignore
+    build_entry_event = None  # type: ignore
+try:
+    from execution.health_gate import GateState, evaluate_health_gate, load_overall_health, write_paper_trader_health  # type: ignore
+except Exception:  # pragma: no cover
+    GateState = None  # type: ignore
+    evaluate_health_gate = None  # type: ignore
+    load_overall_health = None  # type: ignore
+    write_paper_trader_health = None  # type: ignore
+try:
+    from execution.alpha_gate import evaluate_alpha_gate_from_env  # type: ignore
+except Exception:  # pragma: no cover
+    evaluate_alpha_gate_from_env = None  # type: ignore
+try:
+    from core.micro_features import MicroFeatureEngine  # type: ignore
+    from core.micro_signal import MicroSignalConfig, MicroSignalProvider, PocketFilter  # type: ignore
+except Exception:  # pragma: no cover
+    MicroFeatureEngine = None  # type: ignore
+    MicroSignalConfig = None  # type: ignore
+    MicroSignalProvider = None  # type: ignore
+    PocketFilter = None  # type: ignore
+try:
+    from tools.ingestion_check import run_ingestion_check as _run_ingestion_check  # type: ignore
+except Exception:  # pragma: no cover
+    _run_ingestion_check = None  # type: ignore
 
 # Optional telemetry (never fatal)
 try:
@@ -132,6 +182,16 @@ def _cfg_env_bool(bot, name: str, default: Any = False) -> bool:
     if v != "":
         return _truthy(v)
     return _truthy(_cfg(bot, name, default))
+
+
+def _adaptive_guard_enabled(bot) -> bool:
+    return _cfg_env_bool(bot, "ENTRY_ADAPTIVE_GUARD_ENABLED", True)
+
+
+def _effective_min_conf(base_min_conf: float, guard_min_conf: float, adaptive_enabled: bool) -> float:
+    if not bool(adaptive_enabled):
+        return float(max(0.0, float(base_min_conf)))
+    return float(max(float(base_min_conf), max(0.0, float(guard_min_conf))))
 
 
 def _symkey(sym: str) -> str:
@@ -425,7 +485,7 @@ def _ensure_shutdown_event(bot) -> asyncio.Event:
     ev = getattr(bot, "_shutdown", None)
     if isinstance(ev, asyncio.Event):
         return ev
-    ev = asyncio.Event()
+    ev = ensure_traced_shutdown_event(bot)
     try:
         bot._shutdown = ev  # type: ignore[attr-defined]
     except Exception:
@@ -451,6 +511,21 @@ async def _safe_speak(bot, text: str, priority: str = "info") -> None:
         return
     try:
         await notify.speak(text, priority)
+    except Exception:
+        pass
+
+
+async def _safe_notify_event(bot, event) -> None:
+    if event is None or not callable(get_notification_manager_from_bot):
+        return
+    try:
+        nm = get_notification_manager_from_bot(bot)
+        if nm is None:
+            return
+        if str(getattr(event, "category", "")).startswith("trade_"):
+            await nm.send_trade_event(event)
+        else:
+            await nm.send(event)
     except Exception:
         pass
 
@@ -805,6 +880,146 @@ def _entry_budget_symbol_cap(bot, confidence: float, min_conf: float, remaining:
 _LAST_LOG_TS: Dict[str, float] = {}
 
 
+def _parse_regime_mode(raw: Any) -> str:
+    v = str(raw or "").strip().lower()
+    if v in ("up", "down", "none"):
+        return v
+    return "none"
+
+
+def _should_block_regime(
+    *,
+    mode: str,
+    current_regime: str,
+    block_transition: bool,
+    block_unknown: bool,
+    allow_unknown: bool = False,
+    warmup_active: bool = False,
+) -> tuple[bool, str]:
+    m = _parse_regime_mode(mode)
+    cur = str(current_regime or "").strip().upper()
+    unknown_allowed = bool(allow_unknown) or bool(warmup_active)
+    if m == "none":
+        if block_transition and cur == "TRANSITION":
+            return True, "regime_transition"
+        if block_unknown and cur == "UNKNOWN" and not unknown_allowed:
+            return True, "regime_unknown"
+        return False, ""
+    if block_transition and cur == "TRANSITION":
+        return True, "regime_transition"
+    if block_unknown and cur == "UNKNOWN" and not unknown_allowed:
+        return True, "regime_unknown"
+    if cur == "UNKNOWN" and unknown_allowed:
+        return False, ""
+    if m == "up" and cur != "UP":
+        return True, "regime_mismatch"
+    if m == "down" and cur != "DOWN":
+        return True, "regime_mismatch"
+    return False, ""
+
+
+class _RegimeRuntime:
+    def __init__(self, lookback_sec: int, debounce_sec: int):
+        self.lookback_sec = int(max(1, lookback_sec))
+        self.debounce_sec = int(max(0, debounce_sec))
+        self._by_symbol: Dict[str, Any] = {}
+        self._last_confirmed: Dict[str, str] = {}
+
+    def update(self, symbol: str, ts: float, price: float) -> Dict[str, Any]:
+        k = _symkey(symbol)
+        cls = self._by_symbol.get(k)
+        if cls is None and callable(RegimeClassifier):
+            cls = RegimeClassifier(lookback_sec=self.lookback_sec, debounce_sec=self.debounce_sec)
+            self._by_symbol[k] = cls
+        if cls is None:
+            return {
+                "current_regime": "UNKNOWN",
+                "rolling_return": 0.0,
+                "regime_age_sec": 0.0,
+                "regime_changed": False,
+                "old_regime": "",
+            }
+        try:
+            old_regime = str(self._last_confirmed.get(k, ""))
+            cls.update(float(ts), float(price))
+            cur_regime = str(cls.current_regime)
+            changed = False
+            if cur_regime in ("UP", "DOWN") and old_regime and cur_regime != old_regime:
+                changed = True
+            if cur_regime in ("UP", "DOWN"):
+                self._last_confirmed[k] = cur_regime
+            return {
+                "current_regime": cur_regime,
+                "rolling_return": float(cls.rolling_return),
+                "regime_age_sec": float(cls.regime_age_sec),
+                "regime_changed": bool(changed),
+                "old_regime": old_regime,
+            }
+        except Exception:
+            return {
+                "current_regime": "UNKNOWN",
+                "rolling_return": 0.0,
+                "regime_age_sec": 0.0,
+                "regime_changed": False,
+                "old_regime": "",
+            }
+
+
+def _get_regime_risk_manager(bot):
+    if not callable(RegimeRiskManager) or not callable(RegimeRiskConfig):
+        return None
+    try:
+        st = getattr(bot, "state", None)
+        rc = getattr(st, "run_context", None) if st is not None else None
+        if not isinstance(rc, dict):
+            if st is None:
+                return None
+            st.run_context = {}
+            rc = st.run_context
+        mgr = rc.get("regime_risk_manager")
+        if mgr is not None:
+            return mgr
+        cfg = RegimeRiskConfig(
+            max_concurrent_positions=int(_cfg_env_float(bot, "RISK_MAX_CONCURRENT_POSITIONS", 1) or 1),
+            max_daily_loss_bps=float(_cfg_env_float(bot, "RISK_MAX_DAILY_LOSS_BPS", 50.0) or 50.0),
+            max_daily_trades=int(_cfg_env_float(bot, "RISK_MAX_DAILY_TRADES", 100) or 100),
+            regime_change_policy=str((_env_get("RISK_REGIME_CHANGE_POLICY") or "hold")).strip().lower() or "hold",
+            cooldown_after_regime_change_sec=float(_cfg_env_float(bot, "RISK_REGIME_COOLDOWN_SEC", 300.0) or 300.0),
+            max_consecutive_scratches=int(_cfg_env_float(bot, "RISK_MAX_CONSECUTIVE_SCRATCHES", 3) or 3),
+            scratch_pause_sec=float(_cfg_env_float(bot, "RISK_SCRATCH_PAUSE_SEC", 600.0) or 600.0),
+            max_drawdown_bps=float(_cfg_env_float(bot, "RISK_MAX_DRAWDOWN_BPS", 100.0) or 100.0),
+        )
+        mgr = RegimeRiskManager(cfg)
+        rc["regime_risk_manager"] = mgr
+        return mgr
+    except Exception:
+        return None
+
+
+def _get_trade_logger(bot):
+    if TradeLogger is None:
+        return None
+    try:
+        if not _cfg_env_bool(bot, "ENTRY_TRADE_LOGGER_ENABLED", False):
+            return None
+        st = getattr(bot, "state", None)
+        rc = getattr(st, "run_context", None) if st is not None else None
+        if not isinstance(rc, dict):
+            if st is None:
+                return None
+            st.run_context = {}
+            rc = st.run_context
+        lg = rc.get("trade_logger")
+        if lg is not None:
+            return lg
+        db_path = str(_env_get("ENTRY_TRADE_LOG_DB") or "data/paper_trades.db")
+        lg = TradeLogger(db_path=db_path)
+        rc["trade_logger"] = lg
+        return lg
+    except Exception:
+        return None
+
+
 def _throttled_log(key: str, every_sec: float, fn: Callable[[str], None], msg: str) -> None:
     """
     Log msg at most once per `every_sec` per key.
@@ -840,6 +1055,108 @@ def _load_signal_fn() -> Optional[Callable]:
     except Exception:
         pass
     return None
+
+
+def _parse_micro_pockets(raw: str) -> list:
+    out = []
+    if not callable(PocketFilter):
+        return out
+    for chunk in str(raw or "").split(";"):
+        part = str(chunk or "").strip()
+        if not part:
+            continue
+        vals = [x.strip() for x in part.split(",")]
+        if len(vals) < 3:
+            continue
+        try:
+            out.append(
+                PocketFilter(
+                    min_imbalance=float(vals[0]),
+                    min_intensity=float(vals[1]),
+                    max_spread=float(vals[2]),
+                    priority=len(out),
+                )
+            )
+        except Exception:
+            continue
+    return out
+
+
+def _build_micro_signal_provider(bot):
+    if not callable(MicroFeatureEngine) or not callable(MicroSignalProvider) or not callable(MicroSignalConfig):
+        return None, None
+    if not _cfg_env_bool(bot, "ENTRY_MICRO_SIGNAL_ENABLED", False):
+        return None, None
+    env_sym = _symkey(_env_get("MICRO_SIGNAL_SYMBOL") or "")
+    pick = _pick_symbols(bot)
+    symbol = env_sym or (_symkey(pick[0]) if pick else "BTCUSDT")
+    db_path = _env_get("MICRO_SIGNAL_DB") or "data/microstructure.db"
+    lookback_sec = int(_cfg_env_float(bot, "MICRO_SIGNAL_LOOKBACK_SEC", 60.0) or 60.0)
+    update_interval = float(_cfg_env_float(bot, "MICRO_SIGNAL_UPDATE_INTERVAL_SEC", 1.0) or 1.0)
+    max_age = float(_cfg_env_float(bot, "MICRO_SIGNAL_MAX_FEATURE_AGE_SEC", 5.0) or 5.0)
+    cooldown_sec = float(_cfg_env_float(bot, "MICRO_SIGNAL_COOLDOWN_SEC", 120.0) or 120.0)
+    req_regime = str(_env_get("MICRO_SIGNAL_REQUIRED_REGIME") or "up").strip().lower()
+    sides = [s.strip().lower() for s in str(_env_get("MICRO_SIGNAL_SIDES") or "sell,buy").split(",") if s.strip()]
+    pockets = _parse_micro_pockets(
+        _env_get("MICRO_SIGNAL_POCKETS") or "0.50,3500,0.000300;0.40,2500,0.000500;0.40,2500,0.000300"
+    )
+    if not pockets:
+        return None, None
+    engine = MicroFeatureEngine(
+        db_path=str(db_path),
+        symbol=symbol,
+        lookback_sec=max(10, lookback_sec),
+        update_interval_sec=max(0.1, update_interval),
+        bucket_sec=int(_cfg_env_float(bot, "MICRO_SIGNAL_BUCKET_SEC", 5.0) or 5.0),
+    )
+    cfg = MicroSignalConfig(
+        pockets=pockets,
+        active_sides=sides,
+        required_regime=req_regime,
+        max_feature_age_sec=max(0.1, max_age),
+        signal_cooldown_sec=max(0.0, cooldown_sec),
+        order_type=str(_env_get("MICRO_SIGNAL_ORDER_TYPE") or "limit").strip().lower() or "limit",
+        fill_timeout_sec=float(_cfg_env_float(bot, "MICRO_SIGNAL_FILL_TIMEOUT_SEC", 10.0) or 10.0),
+    )
+    provider = MicroSignalProvider(engine, None, cfg)
+    return engine, provider
+
+
+def _micro_signal_to_entry_sig(msig) -> Optional[Dict[str, Any]]:
+    if msig is None:
+        return None
+    try:
+        if hasattr(msig, "present") and hasattr(msig, "reason"):
+            if not bool(getattr(msig, "present", False)):
+                return None
+            meta = dict(getattr(msig, "meta", {}) or {})
+            inner = meta.get("signal")
+            if inner is not None:
+                msig = inner
+        side = str(getattr(msig, "side", "")).strip().lower()
+        if side not in ("buy", "sell"):
+            return None
+        feat = getattr(msig, "features", None)
+        mark_px = float(getattr(feat, "mark_price", 0.0) or 0.0)
+        otype = str(getattr(msig, "order_type", "limit") or "limit").strip().lower()
+        sig: Dict[str, Any] = {
+            "action": side,
+            "confidence": float(getattr(msig, "confidence", 0.0) or 0.0),
+            "type": ("limit" if otype == "limit" else "market"),
+            "price": (mark_px if otype == "limit" and mark_px > 0 else None),
+            "symbol": str(getattr(msig, "symbol", "") or ""),
+            "pocket_name": str(getattr(msig, "pocket_name", "") or ""),
+            "min_imbalance": float(getattr(feat, "imbalance", 0.0) or 0.0),
+            "min_trade_intensity": float(getattr(feat, "trade_intensity", 0.0) or 0.0),
+            "max_spread": float(getattr(feat, "spread", 0.0) or 0.0),
+            "source": "micro_signal",
+            "regime": str(getattr(msig, "regime", "UNKNOWN") or "UNKNOWN"),
+            "regime_age_sec": float(getattr(msig, "regime_age_sec", 0.0) or 0.0),
+            "fill_timeout_sec": float(getattr(msig, "fill_timeout_sec", 10.0) or 10.0),
+        }
+        return sig
+    except Exception:
+        return None
 
 
 def _tuple_to_sig_dict(
@@ -1336,6 +1653,27 @@ async def _report_signal_feedback(bot) -> None:
         )
 
 
+def _schedule_micro_timeout_cancel(bot, *, symbol: str, order_id: Optional[str], timeout_sec: float) -> None:
+    if not order_id:
+        return
+    to_sec = float(timeout_sec or 0.0)
+    if to_sec <= 0:
+        return
+
+    async def _cancel_later() -> None:
+        await asyncio.sleep(max(0.1, to_sec))
+        try:
+            await cancel_order(bot, str(order_id), str(symbol))
+            log_entry.info(f"ENTRY_LOOP: micro timeout cancel attempted symbol={symbol} order_id={order_id}")
+        except Exception:
+            return
+
+    try:
+        asyncio.create_task(_cancel_later())
+    except Exception:
+        pass
+
+
 def _get_entry_lock(k: str) -> asyncio.Lock:
     lk = _ENTRY_LOCKS.get(k)
     if isinstance(lk, asyncio.Lock):
@@ -1484,7 +1822,12 @@ async def entry_loop(bot) -> None:
     wait_data_sec = _cfg_env_float(bot, "ENTRY_WAIT_FOR_DATA_READY_SEC", 8.0)
     per_symbol_gap_sec = _cfg_env_float(bot, "ENTRY_PER_SYMBOL_GAP_SEC", 2.5)
     base_local_cooldown_sec = _cfg_env_float(bot, "ENTRY_LOCAL_COOLDOWN_SEC", 8.0)
+    # MIN_CONF resolution order:
+    # 1) process env ENTRY_MIN_CONFIDENCE (dotenv-loaded .env.paper/.env if not pre-set)
+    # 2) cfg ENTRY_MIN_CONFIDENCE / settings MIN_CONFIDENCE
+    # 3) fallback default (0.0 here)
     base_min_conf = _cfg_env_float(bot, "ENTRY_MIN_CONFIDENCE", 0.0)
+    adaptive_guard_enabled = _adaptive_guard_enabled(bot)
 
     # NEW: pending-block window after submit to stop stacking while reconcile adopts
     pending_block_sec = _cfg_env_float(bot, "ENTRY_PENDING_BLOCK_SEC", 30.0)
@@ -1500,6 +1843,52 @@ async def entry_loop(bot) -> None:
 
     # diag can be controlled via ENV, else cfg
     diag = _cfg_env_bool(bot, "SCALPER_SIGNAL_DIAG", _cfg(bot, "SCALPER_SIGNAL_DIAG", "0"))
+    health_gate_enabled = _cfg_env_bool(bot, "ENTRY_HEALTH_GATE_ENABLED", True)
+    health_path = _env_get("HEALTH_OVERALL_PATH") or "logs/health/overall.json"
+    health_max_stale = int(_cfg_env_float(bot, "ENTRY_HEALTH_MAX_STALENESS_SEC", 15.0) or 15.0)
+    health_max_lag = int(_cfg_env_float(bot, "ENTRY_HEALTH_MAX_LAG_SEC", 30.0) or 30.0)
+    health_max_reconnects = int(_cfg_env_float(bot, "ENTRY_HEALTH_MAX_RECONNECTS_5M", 10.0) or 10.0)
+    health_max_errors = int(_cfg_env_float(bot, "ENTRY_HEALTH_MAX_ERRORS_5M", 10.0) or 10.0)
+    health_max_degraded = int(_cfg_env_float(bot, "ENTRY_HEALTH_MAX_DEGRADED_SEC", 120.0) or 120.0)
+    health_halt_cooldown = int(_cfg_env_float(bot, "GATE_HALT_COOLDOWN_SEC", 60.0) or 60.0)
+    health_block_sleep = float(_cfg_env_float(bot, "ENTRY_HEALTH_BLOCK_SLEEP_SEC", 1.0) or 1.0)
+    gate_use_ingestion = _cfg_env_bool(bot, "GATE_USE_INGESTION_CHECK", False)
+    gate_ingestion_window = int(_cfg_env_float(bot, "GATE_INGESTION_WINDOW_SEC", 10.0) or 10.0)
+    gate_ingestion_lag = int(_cfg_env_float(bot, "GATE_INGESTION_MAX_LAG_SEC", 5.0) or 5.0)
+    gate_ingestion_cooldown = int(_cfg_env_float(bot, "GATE_INGESTION_CHECK_COOLDOWN_SEC", 10.0) or 10.0)
+    gate_ingestion_db = _env_get("GATE_INGESTION_DB_PATH") or "data/microstructure.db"
+    alpha_gate_enabled = _cfg_env_bool(bot, "ALPHA_GATE_ENABLED", False)
+    alpha_block_sleep = float(_cfg_env_float(bot, "ENTRY_ALPHA_BLOCK_SLEEP_SEC", health_block_sleep) or health_block_sleep)
+    gate_state = GateState() if callable(evaluate_health_gate) and GateState is not None else None
+    gate_blocked_prev = False
+    gate_last_reason = ""
+    gate_last_cooldown_until = 0.0
+    alpha_blocked_prev = False
+    alpha_last_reason = ""
+    regime_mode = _parse_regime_mode(_env_get("ENTRY_REGIME") or _cfg(bot, "ENTRY_REGIME", "none"))
+    regime_lookback_sec = int(_cfg_env_float(bot, "ENTRY_REGIME_LOOKBACK_SEC", 3600) or 3600)
+    regime_debounce_sec = int(_cfg_env_float(bot, "ENTRY_REGIME_DEBOUNCE_SEC", 60) or 60)
+    regime_block_transition = _cfg_env_bool(bot, "ENTRY_REGIME_BLOCK_TRANSITION", True)
+    regime_block_unknown = _cfg_env_bool(bot, "ENTRY_REGIME_BLOCK_UNKNOWN", True)
+    regime_allow_unknown = _cfg_env_bool(bot, "ENTRY_ALLOW_UNKNOWN_REGIME", False)
+    regime_warmup_sec = max(0.0, _cfg_env_float(bot, "ENTRY_REGIME_WARMUP_SEC", 0.0))
+    regime_runtime = None
+    risk_mgr_enabled = _cfg_env_bool(bot, "ENTRY_REGIME_RISK_ENABLED", False)
+    risk_mgr = _get_regime_risk_manager(bot) if risk_mgr_enabled else None
+    trade_logger = _get_trade_logger(bot)
+    notify_started_ts = _now()
+    bot_start_ts = float(getattr(bot, "_start_ts", 0.0) or 0.0)
+    if bot_start_ts <= 0.0:
+        bot_start_ts = _now()
+        try:
+            bot._start_ts = bot_start_ts  # type: ignore[attr-defined]
+        except Exception:
+            pass
+    notify_startup_sent = False
+    if regime_mode != "none" and not callable(RegimeClassifier):
+        log_entry.warning("ENTRY_LOOP: ENTRY_REGIME enabled but core.regime.RegimeClassifier unavailable; continuing without regime gate.")
+    elif callable(RegimeClassifier):
+        regime_runtime = _RegimeRuntime(lookback_sec=regime_lookback_sec, debounce_sec=regime_debounce_sec)
 
     sizing_warn_every = _cfg_env_float(bot, "ENTRY_SIZING_WARN_EVERY_SEC", 30.0)
     last_sizing_warn_ts = 0.0
@@ -1511,12 +1900,31 @@ async def entry_loop(bot) -> None:
     # Local cooldown memory
     last_attempt_by_sym: Dict[str, float] = {}
     last_symbol_tick = 0.0
+    last_risk_day = _dt.datetime.utcnow().strftime("%Y-%m-%d")
 
     sig_fn = _load_signal_fn()
+    micro_engine = None
+    micro_provider = None
+    micro_enabled = _cfg_env_bool(bot, "ENTRY_MICRO_SIGNAL_ENABLED", False)
+    _picked = _pick_symbols(bot)
+    micro_symbol = _symkey(_env_get("MICRO_SIGNAL_SYMBOL") or (_picked[0] if _picked else "BTCUSDT"))
+    if micro_enabled:
+        try:
+            micro_engine, micro_provider = _build_micro_signal_provider(bot)
+            if micro_engine is not None:
+                await micro_engine.start()
+                log_core.info(f"ENTRY_LOOP: micro signal provider enabled symbol={micro_symbol}")
+        except Exception as e:
+            micro_engine = None
+            micro_provider = None
+            log_entry.warning(f"ENTRY_LOOP: micro signal init failed: {type(e).__name__}: {e}")
     if not callable(sig_fn):
-        log_core.warning("ENTRY_LOOP: strategy signal missing (strategies.eclipse_scalper.scalper_signal). Loop will idle.")
+        if micro_provider is None:
+            log_core.warning("ENTRY_LOOP: strategy signal missing (strategies.eclipse_scalper.scalper_signal). Loop will idle.")
+        else:
+            log_core.info("ENTRY_LOOP: strategy signal missing; using micro signal path only.")
 
-    log_core.info("ENTRY_LOOP ONLINE — scanning for new entries")
+    log_core.info("ENTRY_LOOP ONLINE â€” scanning for new entries")
 
     # initial data-ready wait (best-effort)
     if wait_data_sec > 0 and not data_ready_ev.is_set():
@@ -1528,6 +1936,129 @@ async def entry_loop(bot) -> None:
     while not shutdown_ev.is_set():
         try:
             now = _now()
+            if health_gate_enabled and gate_state is not None and callable(evaluate_health_gate):
+                health_obj = load_overall_health(health_path) if callable(load_overall_health) else None
+                syms_for_ing = _pick_symbols(bot)
+                def _ing_probe() -> tuple[bool, str]:
+                    if not callable(_run_ingestion_check):
+                        return True, "probe_unavailable"
+                    try:
+                        res = _run_ingestion_check(
+                            db=Path(str(gate_ingestion_db)),
+                            symbols=[_symkey(x) for x in syms_for_ing if _symkey(x)],
+                            window_sec=max(1, int(gate_ingestion_window)),
+                            max_lag_sec=max(0, int(gate_ingestion_lag)),
+                        )
+                        ok = str(res.verdict).upper() == "OK"
+                        return ok, ("" if ok else str(res.reason or "ingestion_stalled"))
+                    except Exception as e:
+                        return False, f"probe_error:{type(e).__name__}"
+                dec = evaluate_health_gate(
+                    health_obj,
+                    gate_state,
+                    now_ts=now,
+                    max_health_staleness_sec=health_max_stale,
+                    max_collector_lag_sec=health_max_lag,
+                    max_reconnects_5m=health_max_reconnects,
+                    max_errors_5m=health_max_errors,
+                    max_degraded_sec=health_max_degraded,
+                    halt_cooldown_sec=health_halt_cooldown,
+                    use_ingestion_check=bool(gate_use_ingestion),
+                    ingestion_probe=_ing_probe if gate_use_ingestion else None,
+                    ingestion_check_cooldown_sec=gate_ingestion_cooldown,
+                )
+                if not dec.allow:
+                    reason = dec.reason or "health_gate"
+                    if (not gate_blocked_prev) or (reason != gate_last_reason):
+                        log_core.critical(
+                            f"[GATE] paper_trader halted reason={reason} lag_sec={dec.collector_lag_sec} "
+                            f"reconnects_5m={dec.reconnects_last_5m} errors_5m={dec.errors_last_5m}"
+                        )
+                    if reason == "reconnect_escalation" and float(dec.halt_until_ts or 0.0) > 0:
+                        hu = _dt.datetime.utcfromtimestamp(float(dec.halt_until_ts)).strftime("%Y-%m-%d %H:%M:%S UTC")
+                        if abs(float(dec.halt_until_ts) - float(gate_last_cooldown_until)) > 0.1:
+                            log_core.critical(f"[GATE] reconnect escalation cooldown until={hu}")
+                            gate_last_cooldown_until = float(dec.halt_until_ts)
+                    if reason == "reconnect_escalation_cooldown" and gate_last_reason != "reconnect_escalation_cooldown":
+                        hu = _dt.datetime.utcfromtimestamp(float(dec.halt_until_ts or 0.0)).strftime("%Y-%m-%d %H:%M:%S UTC")
+                        log_core.warning(f"[GATE] cooldown active until={hu}")
+                    gate_blocked_prev = True
+                    gate_last_reason = reason
+                    if callable(write_paper_trader_health):
+                        write_paper_trader_health(dec, reason)
+                    await asyncio.sleep(max(0.01, health_block_sleep))
+                    continue
+                if gate_blocked_prev:
+                    if gate_last_reason == "reconnect_escalation_cooldown":
+                        log_core.info("[GATE] cooldown expired; re-evaluating health")
+                    log_core.info("[GATE] paper_trader resumed")
+                    gate_blocked_prev = False
+                    gate_last_reason = ""
+                    gate_last_cooldown_until = 0.0
+                if callable(write_paper_trader_health):
+                    write_paper_trader_health(dec, "")
+            if alpha_gate_enabled and callable(evaluate_alpha_gate_from_env):
+                alpha_dec = evaluate_alpha_gate_from_env(now_ts=now)
+                if alpha_dec.blocked:
+                    reason = str(alpha_dec.reason or "alpha_gate")
+                    if (not alpha_blocked_prev) or (reason != alpha_last_reason):
+                        d = alpha_dec.details if isinstance(alpha_dec.details, dict) else {}
+                        log_core.critical(
+                            f"[GATE] alpha halted reason={reason} "
+                            f"pnl_net_per_fill={float(d.get('pnl_net_per_fill', 0.0)):.6e} "
+                            f"fill_rate={float(d.get('decision_to_fill_rate', 0.0)):.4f}"
+                        )
+                    alpha_blocked_prev = True
+                    alpha_last_reason = reason
+                    if callable(write_paper_trader_health):
+                        try:
+                            write_paper_trader_health(
+                                type(
+                                    "_D",
+                                    (),
+                                    {
+                                        "allow": False,
+                                        "state": "degraded",
+                                        "collector_lag_sec": None,
+                                        "reconnects_last_5m": 0,
+                                        "errors_last_5m": 0,
+                                    },
+                                )(),
+                                reason,
+                            )
+                        except Exception:
+                            pass
+                    await asyncio.sleep(max(0.01, alpha_block_sleep))
+                    continue
+                if alpha_blocked_prev:
+                    log_core.info("[GATE] alpha resumed")
+                    alpha_blocked_prev = False
+                    alpha_last_reason = ""
+            if callable(get_notification_manager_from_bot):
+                try:
+                    nm = get_notification_manager_from_bot(bot)
+                    if nm is not None:
+                        if (not notify_startup_sent) and callable(build_startup_event):
+                            await nm.send(
+                                build_startup_event(
+                                    symbols=",".join(_pick_symbols(bot)),
+                                    horizon_sec=int(_cfg_env_float(bot, "EXIT_HARD_HORIZON_SEC", 120.0) or 120.0),
+                                    scratch_enabled=bool(_cfg_env_bool(bot, "EXIT_SCRATCH_ENABLED", False)),
+                                    watchdog_active=not bool(_cfg_env_bool(bot, "ENTRY_NO_WATCHDOG", False)),
+                                )
+                            )
+                            notify_startup_sent = True
+                        await nm.maybe_emit_periodics(bot, started_ts=notify_started_ts)
+                except Exception:
+                    pass
+            if risk_mgr is not None:
+                day_now = _dt.datetime.utcnow().strftime("%Y-%m-%d")
+                if day_now != last_risk_day:
+                    try:
+                        risk_mgr.reset_daily()
+                    except Exception:
+                        pass
+                    last_risk_day = day_now
 
             if wait_data_sec > 0 and not data_ready_ev.is_set():
                 await asyncio.sleep(max(0.25, poll_sec))
@@ -1580,6 +2111,103 @@ async def entry_loop(bot) -> None:
                 k = _symkey(sym)
                 if not k:
                     continue
+                regime_state = None
+                if regime_runtime is not None:
+                    px_now = _get_price(bot, k)
+                    if px_now and px_now > 0.0:
+                        regime_state = regime_runtime.update(k, _now(), float(px_now))
+                        _throttled_log(
+                            key=f"regime_status:{k}",
+                            every_sec=60.0,
+                            fn=log_core.info,
+                            msg=(
+                                f"[REGIME] {k} regime={str(regime_state.get('current_regime') or 'UNKNOWN')} "
+                                f"return_1h={float(regime_state.get('rolling_return') or 0.0)*100.0:+.2f}% "
+                                f"age={int(float(regime_state.get('regime_age_sec') or 0.0))}s"
+                            ),
+                        )
+                        if risk_mgr is not None and bool(regime_state.get("regime_changed")):
+                            try:
+                                if callable(build_regime_change_event):
+                                    await _safe_notify_event(
+                                        bot,
+                                        build_regime_change_event(
+                                            str(regime_state.get("old_regime") or ""),
+                                            str(regime_state.get("current_regime") or ""),
+                                            float((risk_mgr.state_dict().get("config") or {}).get("cooldown_after_regime_change_sec", 0.0) or 0.0),
+                                            len(list((getattr(getattr(bot, "state", None), "positions", {}) or {}).values())),
+                                        ),
+                                    )
+                                actions = risk_mgr.on_regime_change(
+                                    str(regime_state.get("old_regime") or ""),
+                                    str(regime_state.get("current_regime") or ""),
+                                    list((getattr(getattr(bot, "state", None), "positions", {}) or {}).values()),
+                                )
+                                for act in list(actions or []):
+                                    await _emit_entry_blocked(
+                                        bot,
+                                        k,
+                                        "risk_regime_action",
+                                        data={
+                                            "action": str(getattr(act, "action", "") or ""),
+                                            "target_position_id": str(getattr(act, "target_position_id", "") or ""),
+                                            "reason": str(getattr(act, "reason", "") or ""),
+                                        },
+                                        throttle_sec=5.0,
+                                    )
+                                    if trade_logger is not None:
+                                        try:
+                                            trade_logger.log_risk_event(
+                                                {
+                                                    "event_id": f"entry:{k}:risk_regime_action:{int(_now()*1000)}",
+                                                    "timestamp": float(_now()),
+                                                    "event_type": "regime_change",
+                                                    "details": {
+                                                        "symbol": k,
+                                                        "action": str(getattr(act, "action", "") or ""),
+                                                        "target_position_id": str(getattr(act, "target_position_id", "") or ""),
+                                                        "reason": str(getattr(act, "reason", "") or ""),
+                                                    },
+                                                    "risk_state": (risk_mgr.state_dict() if risk_mgr is not None else {}),
+                                                }
+                                            )
+                                        except Exception:
+                                            pass
+                            except Exception:
+                                pass
+                        blocked, block_reason = _should_block_regime(
+                            mode=regime_mode,
+                            current_regime=str(regime_state.get("current_regime") or "UNKNOWN"),
+                            block_transition=bool(regime_block_transition),
+                            block_unknown=bool(regime_block_unknown),
+                            allow_unknown=bool(regime_allow_unknown),
+                            warmup_active=((_now() - bot_start_ts) < regime_warmup_sec if regime_warmup_sec > 0 else False),
+                        )
+                        cur_regime = str(regime_state.get("current_regime") or "UNKNOWN").strip().upper()
+                        if not blocked and cur_regime == "UNKNOWN" and (regime_allow_unknown or regime_warmup_sec > 0):
+                            warmup_active = (_now() - bot_start_ts) < regime_warmup_sec if regime_warmup_sec > 0 else False
+                            if regime_allow_unknown or warmup_active:
+                                why = "allow_unknown" if regime_allow_unknown else "warmup"
+                                _throttled_log(
+                                    key=f"regime_unknown_allowed:{k}:{why}",
+                                    every_sec=60.0,
+                                    fn=log_entry.info,
+                                    msg=f"[REGIME_GATE] allowing UNKNOWN due to {why} {k}",
+                                )
+                        if blocked:
+                            await _emit_entry_blocked(
+                                bot,
+                                k,
+                                block_reason,
+                                data={
+                                    "regime_mode": regime_mode,
+                                    "current_regime": str(regime_state.get("current_regime") or "UNKNOWN"),
+                                    "regime_age_sec": float(regime_state.get("regime_age_sec") or 0.0),
+                                    "rolling_return": float(regime_state.get("rolling_return") or 0.0),
+                                },
+                                throttle_sec=5.0,
+                            )
+                            continue
 
                 guard_knobs = _resolve_symbol_guard(global_guard_knobs, k)
                 guard_mode = str(guard_knobs.get("mode") or "").upper()
@@ -1596,7 +2224,7 @@ async def entry_loop(bot) -> None:
                 symbol_severity = max(0.0, min(1.0, symbol_debt_score))
                 reconcile_first_severity = max(float(runtime_gate_degrade_score), float(symbol_severity))
                 local_cooldown_sec = max(float(base_local_cooldown_sec), max(0.0, guard_cooldown))
-                current_min_conf = max(float(base_min_conf), max(0.0, guard_min_conf))
+                current_min_conf = _effective_min_conf(base_min_conf, guard_min_conf, adaptive_guard_enabled)
 
                 if not allow_entries:
                     block_reason, block_code = _guard_block_reason_code(guard_knobs)
@@ -1676,7 +2304,7 @@ async def entry_loop(bot) -> None:
                         continue
 
                 guard_reason = ""
-                if callable(get_adaptive_override):
+                if adaptive_guard_enabled and callable(get_adaptive_override):
                     try:
                         current_min_conf, guard_reason = get_adaptive_override(k, current_min_conf)
                     except Exception:
@@ -1709,8 +2337,8 @@ async def entry_loop(bot) -> None:
                     await _emit_entry_blocked(bot, k, "cooldown_local", throttle_sec=5.0)
                     continue
 
-                # must have signal function to do anything
-                if not callable(sig_fn):
+                # must have at least one signal source enabled
+                if (not callable(sig_fn)) and micro_provider is None:
                     await _emit_entry_blocked(bot, k, "signal_missing", throttle_sec=60.0)
                     continue
 
@@ -1849,7 +2477,22 @@ async def entry_loop(bot) -> None:
                             await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                             continue
                     sig_start = _now()
-                    sig = await _maybe_call_signal(sig_fn, bot, k, diag=diag)
+                    sig = None
+                    if micro_provider is not None and _symkey(k) == _symkey(micro_symbol):
+                        try:
+                            msig = micro_provider.evaluate(regime_override=regime_state if isinstance(regime_state, dict) else None)
+                            sig = _micro_signal_to_entry_sig(msig)
+                        except Exception:
+                            sig = None
+                    if sig is None and callable(sig_fn):
+                        sig = await _maybe_call_signal(sig_fn, bot, k, diag=diag)
+                    if isinstance(sig, dict) and isinstance(regime_state, dict):
+                        try:
+                            sig.setdefault("regime", str(regime_state.get("current_regime") or "UNKNOWN"))
+                            sig.setdefault("regime_age_sec", float(regime_state.get("regime_age_sec") or 0.0))
+                            sig.setdefault("rolling_return", float(regime_state.get("rolling_return") or 0.0))
+                        except Exception:
+                            pass
                     sig_duration_ms = (_now() - sig_start) * 1000.0
                     await _emit_latency(bot, symbol=k, stage="signal", duration_ms=sig_duration_ms, result="success" if sig else "no_signal")
                     if not isinstance(sig, dict) or not sig:
@@ -1862,6 +2505,52 @@ async def entry_loop(bot) -> None:
                         await _emit_entry_blocked(bot, k, "signal_action", throttle_sec=30.0)
                         await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                         continue
+                    if risk_mgr is not None:
+                        try:
+                            rd = risk_mgr.check_entry(
+                                side=action,
+                                regime=str((regime_state or {}).get("current_regime") or "UNKNOWN"),
+                                current_positions=list((getattr(getattr(bot, "state", None), "positions", {}) or {}).values()),
+                            )
+                            if not bool(getattr(rd, "allowed", False)):
+                                if callable(build_entry_blocked_event):
+                                    await _safe_notify_event(
+                                        bot,
+                                        build_entry_blocked_event(
+                                            str(getattr(rd, "reason", "") or "risk_block"),
+                                            dict(getattr(rd, "risk_state", {}) or {}),
+                                        ),
+                                    )
+                                await _emit_entry_blocked(
+                                    bot,
+                                    k,
+                                    "risk_regime_block",
+                                    data={
+                                        "risk_reason": str(getattr(rd, "reason", "") or ""),
+                                        "risk_state": dict(getattr(rd, "risk_state", {}) or {}),
+                                    },
+                                    throttle_sec=5.0,
+                                )
+                                if trade_logger is not None:
+                                    try:
+                                        trade_logger.log_risk_event(
+                                            {
+                                                "event_id": f"entry:{k}:risk_regime_block:{int(_now()*1000)}",
+                                                "timestamp": float(_now()),
+                                                "event_type": "entry_blocked",
+                                                "details": {
+                                                    "symbol": k,
+                                                    "risk_reason": str(getattr(rd, "reason", "") or ""),
+                                                },
+                                                "risk_state": dict(getattr(rd, "risk_state", {}) or {}),
+                                            }
+                                        )
+                                    except Exception:
+                                        pass
+                                await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                                continue
+                        except Exception:
+                            pass
 
                     # confidence gate
                     try:
@@ -1896,7 +2585,7 @@ async def entry_loop(bot) -> None:
                     if hedge_hint_mode:
                         hedge_side_hint = "long" if action == "buy" else "short"
 
-                    conf_scale, conf_reason = _confidence_notional_scale(bot, float(confidence or 0.0))
+                    conf_scale, conf_reason = _confidence_notional_scale(bot, float(conf or 0.0))
                     if conf_scale and conf_scale < 1.0 and amt is not None and amt > 0:
                         try:
                             base_amt = float(amt)
@@ -1914,7 +2603,7 @@ async def entry_loop(bot) -> None:
                                             "scaled_qty": amt,
                                             "scale": conf_scale,
                                             "reason": conf_reason or "confidence",
-                                            "confidence": float(confidence or 0.0),
+                                            "confidence": float(conf or 0.0),
                                         },
                                         symbol=k,
                                         level="info",
@@ -2095,7 +2784,7 @@ async def entry_loop(bot) -> None:
                                 blocked = _recent_router_blocks(bot, k, window_sec)
                             if blocked >= threshold:
                                 log_entry.warning(
-                                    f"ENTRY_LOOP: router blocks={blocked} within {window_sec:.0f}s → backoff {k}"
+                                    f"ENTRY_LOOP: router blocks={blocked} within {window_sec:.0f}s â†’ backoff {k}"
                                 )
                                 await _emit_entry_blocked(
                                     bot,
@@ -2117,7 +2806,7 @@ async def entry_loop(bot) -> None:
                             err_count = int(count_recent(bot, event="entry.blocked", symbol=k, window_sec=err_window))
                             if err_count >= err_thresh:
                                 log_entry.warning(
-                                    f"ENTRY_LOOP: entry.blocked={err_count} within {err_window:.0f}s → backoff {k}"
+                                    f"ENTRY_LOOP: entry.blocked={err_count} within {err_window:.0f}s â†’ backoff {k}"
                                 )
                                 await _emit_entry_blocked(
                                     bot,
@@ -2177,7 +2866,7 @@ async def entry_loop(bot) -> None:
                         if "Margin is insufficient" in msg or '"code":-2019' in msg or "code': -2019" in msg:
                             until = _now() + max(60.0, float(margin_backoff_sec))
                             backoff_until_by_sym[k] = until
-                            log_entry.critical(f"ENTRY_LOOP: margin insufficient → backing off {k} for {int(margin_backoff_sec)}s")
+                            log_entry.critical(f"ENTRY_LOOP: margin insufficient â†’ backing off {k} for {int(margin_backoff_sec)}s")
                             await _emit_entry_blocked(
                                 bot,
                                 k,
@@ -2298,10 +2987,54 @@ async def entry_loop(bot) -> None:
                         if budget_enabled and planned_notional > 0:
                             budget_spent += max(0.0, float(planned_notional))
 
-                        # ✅ key anti-stack: once we submitted ANY entry, block more entries for a while
+                        # âœ… key anti-stack: once we submitted ANY entry, block more entries for a while
                         _set_pending(k, sec=max(5.0, pending_block_sec), order_id=str(oid) if oid else None)
+                        if (
+                            isinstance(sig, dict)
+                            and str(sig.get("source") or "") == "micro_signal"
+                            and str(otype).lower().strip() == "limit"
+                            and oid
+                        ):
+                            _schedule_micro_timeout_cancel(
+                                bot,
+                                symbol=sym_raw,
+                                order_id=str(oid),
+                                timeout_sec=float(sig.get("fill_timeout_sec", 10.0) or 10.0),
+                            )
 
                         log_core.critical(f"ENTRY_LOOP: ORDER SUBMITTED {k} {action.upper()} type={otype} amt={amt} id={oid}")
+                        if risk_mgr is not None:
+                            try:
+                                risk_mgr.on_entry_submitted()
+                            except Exception:
+                                pass
+                        if callable(build_entry_event):
+                            try:
+                                rs = (risk_mgr.state_dict() if risk_mgr is not None else {})
+                            except Exception:
+                                rs = {}
+                            try:
+                                rs = dict(rs or {})
+                                rs["open_positions"] = len(list((getattr(getattr(bot, "state", None), "positions", {}) or {}).values()))
+                            except Exception:
+                                pass
+                            await _safe_notify_event(
+                                bot,
+                                build_entry_event(
+                                    symbol=k,
+                                    side=action,
+                                    entry_price=float(price or _get_price(bot, k) or 0.0),
+                                    regime=str((regime_state or {}).get("current_regime") or "UNKNOWN"),
+                                    regime_age_sec=float((regime_state or {}).get("regime_age_sec") or 0.0),
+                                    rolling_return=float((regime_state or {}).get("rolling_return") or 0.0),
+                                    pocket={
+                                        "min_imbalance": float(sig.get("min_imbalance", 0.0) or 0.0) if isinstance(sig, dict) else 0.0,
+                                        "min_trade_intensity": float(sig.get("min_trade_intensity", 0.0) or 0.0) if isinstance(sig, dict) else 0.0,
+                                        "max_spread": float(sig.get("max_spread", 0.0) or 0.0) if isinstance(sig, dict) else 0.0,
+                                    },
+                                    risk_state=rs,
+                                ),
+                            )
                         _reset_partial_fill_hits(k)
 
                         # Register watch for limit/pending orders (optional)
@@ -2350,6 +3083,16 @@ async def entry_loop(bot) -> None:
             raise
         except Exception as e:
             log_entry.error(f"ENTRY_LOOP outer error: {e}")
+            if callable(build_crash_event):
+                await _safe_notify_event(bot, build_crash_event(str(e), max(0.0, _now() - float(notify_started_ts))))
             await asyncio.sleep(1.0)
-
+    if micro_engine is not None:
+        try:
+            await micro_engine.stop()
+        except Exception:
+            pass
     log_core.critical("ENTRY_LOOP OFFLINE — shutdown flag set")
+
+
+
+
