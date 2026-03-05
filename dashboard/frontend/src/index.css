@@ -170,3 +170,114 @@ body.dense .stat-value {
 body.dense .card-title {
   margin-bottom: 6px;
 }
+
+.recovery-panel {
+  margin-top: 8px;
+  border: 1px solid #5a2a2a;
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(15, 18, 24, 0.35);
+}
+
+.recovery-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.recovery-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.recovery-cmd-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 8px;
+}
+
+.recovery-cmd-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.recovery-cmd-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.recovery-code {
+  display: block;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px;
+  background: #0f1218;
+  color: #c9d1d9;
+  font-size: 11px;
+}
+
+.recovery-copy-hint {
+  margin-top: 6px;
+  color: var(--green);
+  font-size: 11px;
+}
+
+.recovery-next {
+  margin-top: 8px;
+  border-top: 1px dashed var(--border);
+  padding-top: 8px;
+}
+
+.recovery-next-title {
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.recovery-ready-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(63, 185, 80, 0.65);
+  background: rgba(63, 185, 80, 0.2);
+  color: #d5f7dd;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  appearance: none;
+  outline: none;
+}
+
+.recovery-next-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.recovery-next-btn.ready {
+  border-color: rgba(63, 185, 80, 0.65);
+  color: #d5f7dd;
+  background: rgba(63, 185, 80, 0.18);
+  box-shadow: 0 0 0 1px rgba(63, 185, 80, 0.25);
+}

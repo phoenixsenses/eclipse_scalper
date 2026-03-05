@@ -61,6 +61,7 @@ export default function Layout() {
   const [glossaryOpen, setGlossaryOpen] = useState(false);
   const [opsOpen, setOpsOpen] = useState(false);
   const [apiPanelOpen, setApiPanelOpen] = useState(false);
+  const [copyHint, setCopyHint] = useState<string>("");
   const { events: apiEvents, clear: clearApiEvents } = useApiErrors();
   const [denseMode, setDenseMode] = useState<boolean>(() => {
     try {
@@ -81,6 +82,27 @@ export default function Layout() {
   const backendUp = !backendPoll.error && !backendPoll.isStale;
   const backendBadge = backendUp ? "UP" : "DOWN";
   const backendMessage = backendPoll.error?.message ?? (backendPoll.isStale ? "stale" : "ok");
+  const backendCommands = useMemo(
+    () => [
+      {
+        label: "Start backend supervisor",
+        tr: "Backend supervisor baslat",
+        command:
+          "powershell -NoProfile -ExecutionPolicy Bypass -File .\\tools\\run_dashboard_backend_supervisor.ps1",
+      },
+      {
+        label: "Start full dashboard",
+        tr: "Tum dashboard stacki baslat",
+        command: "powershell -NoProfile -ExecutionPolicy Bypass -File .\\tools\\run_dashboard.ps1",
+      },
+      {
+        label: "Check backend health",
+        tr: "Backend health kontrol et",
+        command: "Invoke-WebRequest http://127.0.0.1:8765/api/health -UseBasicParsing",
+      },
+    ],
+    [],
+  );
   const secPoll = usePoll<SecurityAuditEvent[]>({
     fetcher: (signal) => api.debugSecurityAudit(30, signal),
     pollKey: "api:/debug/security-audit",
@@ -115,6 +137,21 @@ export default function Layout() {
       // best effort
     }
   }, [denseMode]);
+
+  useEffect(() => {
+    if (!copyHint) return;
+    const t = window.setTimeout(() => setCopyHint(""), 2000);
+    return () => window.clearTimeout(t);
+  }, [copyHint]);
+
+  async function copyCommand(value: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopyHint("Command copied");
+    } catch {
+      setCopyHint("Copy failed");
+    }
+  }
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
@@ -246,6 +283,72 @@ export default function Layout() {
         >
           API degraded: backend unreachable ({backendMessage}). Auto-retry in {Math.max(1, Math.ceil(backendPoll.nextRetryInMs / 1000))}s.
           {backendPoll.lastSuccessAt ? ` Last success: ${new Date(backendPoll.lastSuccessAt).toLocaleTimeString()}` : " No successful poll yet."}
+          <div className="recovery-panel">
+            <div className="recovery-title">Quick Recovery / Hizli Kurtarma</div>
+            <div className="recovery-steps">
+              <div>1. Open a new PowerShell window in repo root.</div>
+              <div>2. Run one command below (copy button).</div>
+              <div>3. Wait until top-right API badge turns UP.</div>
+            </div>
+            <div className="recovery-cmd-grid">
+              {backendCommands.map((c) => (
+                <div key={c.command} className="recovery-cmd-card">
+                  <div className="recovery-cmd-head">
+                    <span>{c.label}</span>
+                    <span style={{ color: "var(--muted)", fontSize: 10 }}>{c.tr}</span>
+                  </div>
+                  <code className="recovery-code">{c.command}</code>
+                  <button className="guide-toggle" onClick={() => copyCommand(c.command)}>
+                    Copy
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="recovery-next">
+              <div className="recovery-next-title">After Backend Is UP / Backend UP olduktan sonra</div>
+              <div className="recovery-next-actions">
+                <button
+                  className={`guide-toggle recovery-next-btn${backendUp ? " ready" : ""}`}
+                  onClick={() => navigate("/tower")}
+                  title={backendUp ? "Backend is up: proceed" : "Wait for API UP, then proceed"}
+                >
+                  Open Control Tower
+                </button>
+                <button
+                  className={`guide-toggle recovery-next-btn${backendUp ? " ready" : ""}`}
+                  onClick={() => navigate("/logs")}
+                  title={backendUp ? "Backend is up: proceed" : "Wait for API UP, then proceed"}
+                >
+                  Open Logs
+                </button>
+                <button
+                  className={`guide-toggle recovery-next-btn${backendUp ? " ready" : ""}`}
+                  onClick={() => navigate("/debug?auto=triage")}
+                  title={backendUp ? "Backend is up: proceed" : "Wait for API UP, then proceed"}
+                >
+                  Run Debug Triage
+                </button>
+              </div>
+            </div>
+            {copyHint ? <div className="recovery-copy-hint">{copyHint}</div> : null}
+          </div>
+        </div>
+      )}
+      {backendUp && (
+        <div
+          style={{
+            padding: "6px 16px",
+            borderBottom: "1px solid var(--border)",
+            background: "rgba(20, 52, 31, 0.55)",
+          }}
+        >
+          <button
+            className="recovery-ready-badge"
+            title="Backend reachable and polling healthy. Open Control Tower."
+            onClick={() => navigate("/tower")}
+          >
+            API UP - safe to continue
+          </button>
         </div>
       )}
       <BackendStatusProvider
