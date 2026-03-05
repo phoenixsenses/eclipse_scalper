@@ -1710,4 +1710,142 @@ Bootstrap symbol resolution chain (highest precedence first):
 2. `bot.active_symbols` (after factory build, env bridge re-applied)
 3. `cfg.ACTIVE_SYMBOLS`
 
+## Network Troubleshooting (Operational Resilience)
 
+- WebSocket reconnect behavior: collector uses exponential backoff + jitter and emits heartbeat fields (`connected`, `current_backoff_seconds`, `last_error`).
+- Quick audit command:
+```bash
+python -m tools.reconnection_audit --heartbeat logs/collector_heartbeat.json --out reports/RECONNECTION_AUDIT.md
+```
+- If Binance WS is intermittently blocked by ISP path:
+1. Validate DNS and TLS first (`run_connect_test` mode in collector).
+2. Route traffic through stable VPN or SOCKS5 proxy path.
+3. Re-run connect test and confirm heartbeat `connected=1`.
+- Rate-limit telemetry: bootstrap logs `[RATE_LIMIT] used_1m=... usage_pct=...` and warns near threshold (`RATE_LIMIT_WARN_PCT`, default 80).
+
+## Monitoring & Analytics (Track 3)
+
+```bash
+# Telegram command bot (/status /chart /regime /health)
+python -m tools.telegram_bot
+
+# Daily report once
+python -m tools.daily_report --push --weekly
+
+# Daily scheduled report at 00:05 UTC
+python -m tools.daily_report --schedule --at-utc 00:05 --push --weekly
+
+# Feature stationarity + time-of-day reports
+python -m tools.feature_distribution_analysis \
+  --db data/microstructure.db \
+  --trades-db data/paper_trades.db \
+  --symbol ETHUSDT \
+  --lookback-hours 168 \
+  --out reports/FEATURE_STATIONARITY.md \
+  --tod-out reports/TIME_OF_DAY_ANALYSIS.md
+```
+
+## Backtest Tooling Improvements (Track 4)
+
+```bash
+# statistically robust pocket ranking with bootstrap + MTC
+python -m tools.rank_passive_pockets_forward \
+  --candidates-md reports/PASSIVE_POCKET_RANKING.md \
+  --bootstrap-ci --bootstrap-samples 2000 \
+  --mtc-method bh --alpha 0.05 --splits 5
+
+# scratch calibration with explicit scratch slippage
+python -m tools.backtest_scratch \
+  --symbol ETHUSDT --side SELL --regime UP \
+  --scratch-slippage-bps 0.5 --scratch-taker-fee-bps 1.0
+
+# funding exposure summary
+python -m tools.funding_rate_analysis \
+  --trades-db data/paper_trades.db \
+  --micro-db data/microstructure.db \
+  --symbol ETHUSDT
+
+# paper-vs-backtest reconciliation
+python -m tools.reconcile_paper_vs_backtest \
+  --paper-db data/paper_trades.db \
+  --rank-json reports/PASSIVE_POCKET_RANKING.json \
+  --out reports/RECONCILIATION.md
+```
+
+Methodology reference: `reports/METHODOLOGY.md`
+
+## Frontend CI Local Smoke
+
+```powershell
+cd "C:\Users\Windows 11\.vscode\CryptoLion\eclipse_scalper\dashboard\frontend"
+cmd /c npm install
+cmd /c npm run typecheck
+cmd /c npm test
+```
+
+If npm cache/permission errors (`EACCES`) occur on Windows, rerun in Administrator PowerShell:
+
+```powershell
+cd "C:\Users\Windows 11\.vscode\CryptoLion\eclipse_scalper\dashboard\frontend"
+cmd /c npm cache verify
+cmd /c npm install
+cmd /c npm run typecheck
+cmd /c npm test
+```
+
+## Dashboard Full Smoke Checklist
+
+One-command smoke (optionally starts services):
+```powershell
+cd "C:\Users\Windows 11\.vscode\CryptoLion\eclipse_scalper"
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\dashboard_smoke.ps1
+# or auto-start backend+frontend before checks:
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\dashboard_smoke.ps1 -StartServices
+```
+
+1. Start backend:
+```powershell
+cd "C:\Users\Windows 11\.vscode\CryptoLion\eclipse_scalper"
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\run_dashboard_backend.ps1
+```
+
+2. Start frontend (separate terminal):
+```powershell
+cd "C:\Users\Windows 11\.vscode\CryptoLion\eclipse_scalper"
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\run_dashboard_frontend.ps1
+```
+
+3. API quick checks:
+- `http://127.0.0.1:8765/api/health`
+- `http://127.0.0.1:8765/api/logs`
+- `http://127.0.0.1:8765/api/debug/actions`
+
+4. UI quick checks (`http://localhost:5173`):
+- `Overview` loads and shows runtime cards.
+- `Logs` file selection loads lines; preset filters work.
+- `Debug` guided session runs and shows pass/fail steps.
+
+
+
+## Network Troubleshooting (Operational Resilience)
+
+If websocket connectivity to Binance is unstable (common under ISP routing issues):
+
+1. Verify collector reconnect behavior:
+   - Run `python -m tools.reconnection_audit`
+   - Check `reports/RECONNECTION_AUDIT.md`
+
+2. Enable supervisor and auto-start on boot:
+   - `python scripts/supervisor.py`
+   - `powershell -ExecutionPolicy Bypass -File .\\scripts\\install_task_scheduler.ps1`
+
+3. Rate-limit monitoring:
+   - Bootstrap logs `[RATE_LIMIT] used_1m=... usage_pct=...`
+   - Warning threshold defaults to `80%` (`RATE_LIMIT_WARN_PCT`)
+   - Telegram alerts can be enabled via:
+     - `RATE_LIMIT_ALERT_ENABLED=1`
+     - `RATE_LIMIT_ALERT_COOLDOWN_SEC=300`
+
+4. Optional proxy/VPN fallback (if regional WS blocking is suspected):
+   - Route websocket traffic through a stable SOCKS5/VPN endpoint.
+   - Validate with long-run collector uptime and reconnect count in health reports.

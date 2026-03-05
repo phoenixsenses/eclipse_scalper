@@ -1,0 +1,44 @@
+{
+  "created_utc": "2026-03-02T11:26:33Z",
+  "status": "completed",
+  "steps": {
+    "dedup": {
+      "finished_utc": "2026-03-02T11:26:34Z",
+      "started_utc": "2026-03-02T11:26:34Z",
+      "status": "completed"
+    },
+    "eval": {
+      "finished_utc": "2026-03-02T11:26:34Z",
+      "started_utc": "2026-03-02T11:26:34Z",
+      "status": "completed"
+    },
+    "execution_calibration": {
+      "error": "AttributeError:'numpy.float64' object has no attribute 'fillna'",
+      "finished_utc": "2026-03-02T11:26:33Z",
+      "started_utc": "2026-03-02T11:26:33Z",
+      "status": "failed"
+    },
+    "generate": {
+      "finished_utc": "2026-03-02T11:26:34Z",
+      "started_utc": "2026-03-02T11:26:33Z",
+      "status": "completed"
+    },
+    "overlap": {
+      "finished_utc": "2026-03-02T11:26:34Z",
+      "started_utc": "2026-03-02T11:26:34Z",
+      "status": "completed"
+    },
+    "papertrades": {
+      "finished_utc": "2026-03-02T11:26:34Z",
+      "started_utc": "2026-03-02T11:26:34Z",
+      "status": "completed"
+    },
+    "select": {
+      "finished_utc": "2026-03-02T11:26:34Z",
+      "selected_count": 0,
+      "started_utc": "2026-03-02T11:26:34Z",
+      "status": "completed"
+    }
+  },
+  "updated_utc": "2026-03-02T11:26:34Z"
+}

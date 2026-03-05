@@ -339,6 +339,31 @@ async def _compute_server_drift_ms(exchange: Any) -> Optional[int]:
         return None
 
 
+_LAST_RATE_LIMIT_ALERT_TS: float = 0.0
+
+
+async def _send_rate_limit_alert_best_effort(message: str) -> None:
+    """
+    Best-effort Telegram alert sender used by rate-limit monitor.
+    Never raises.
+    """
+    enabled = _env_bool("RATE_LIMIT_ALERT_ENABLED", True)
+    if not enabled:
+        return
+    token = _env_any(["TELEGRAM_BOT_TOKEN", "TELEGRAM_TOKEN", "ECLIPSE_TG_BOT_TOKEN"], "")
+    chat_id = _env_any(["TELEGRAM_CHAT_ID", "ECLIPSE_TG_CHAT_ID"], "")
+    if not token or not chat_id:
+        return
+    try:
+        from notifications.telegram import Notifier  # type: ignore
+    except Exception:
+        return
+    try:
+        await Notifier(token=token, chat_id=chat_id).speak(message, priority="high")
+    except Exception:
+        return
+
+
 async def _assert_private_auth_or_fail(exchange: Any, *, diag: dict[str, Any]) -> None:
     endpoint_hint = "unknown"
     try:
@@ -935,6 +960,60 @@ async def _wait_for_data_ready(bot: Any, timeout_sec: float = 8.0, poll: float =
     return _data_is_valid(d) and _data_has_any_market_data(d)
 
 
+def _as_int(value: Any) -> int | None:
+    try:
+        if value is None:
+            return None
+        return int(str(value).strip())
+    except Exception:
+        return None
+
+
+async def _rate_limit_monitor_loop(bot: Any) -> None:
+    """
+    Best-effort Binance request-weight monitor.
+    Logs current used-weight and warns above threshold.
+    """
+    interval_sec = max(10.0, _env_float("RATE_LIMIT_LOG_SEC", 60.0))
+    warn_pct = max(1.0, min(100.0, _env_float("RATE_LIMIT_WARN_PCT", 80.0)))
+    alert_cooldown_sec = max(30.0, _env_float("RATE_LIMIT_ALERT_COOLDOWN_SEC", 300.0))
+    cap_1m = max(1, _env_int("RATE_LIMIT_CAP_1M", 1200))
+    ex = getattr(bot, "ex", None)
+    if ex is None:
+        return
+    while True:
+        await asyncio.sleep(interval_sec)
+        try:
+            headers = getattr(ex, "last_response_headers", None)
+            if not isinstance(headers, dict):
+                continue
+            used = (
+                _as_int(headers.get("x-mbx-used-weight-1m"))
+                or _as_int(headers.get("X-MBX-USED-WEIGHT-1M"))
+                or _as_int(headers.get("x-mbx-order-count-1m"))
+                or _as_int(headers.get("X-MBX-ORDER-COUNT-1M"))
+            )
+            if used is None:
+                continue
+            pct = (float(used) / float(cap_1m)) * 100.0
+            log_core.info(f"[RATE_LIMIT] used_1m={used} cap_1m={cap_1m} usage_pct={pct:.1f}")
+            if pct >= warn_pct:
+                log_core.warning(
+                    f"[RATE_LIMIT] high usage: used_1m={used} cap_1m={cap_1m} usage_pct={pct:.1f} threshold={warn_pct:.1f}"
+                )
+                global _LAST_RATE_LIMIT_ALERT_TS
+                now = time.time()
+                if (now - float(_LAST_RATE_LIMIT_ALERT_TS or 0.0)) >= alert_cooldown_sec:
+                    _LAST_RATE_LIMIT_ALERT_TS = now
+                    await _send_rate_limit_alert_best_effort(
+                        f"RATE_LIMIT ALERT: used_1m={used} cap_1m={cap_1m} usage={pct:.1f}% threshold={warn_pct:.1f}%"
+                    )
+        except asyncio.CancelledError:
+            raise
+        except Exception as e:
+            log_core.warning(f"[RATE_LIMIT] monitor error: {type(e).__name__}: {e}")
+
+
 # ----------------------------
 # Task runner helpers
 # ----------------------------
@@ -1229,6 +1308,8 @@ async def main() -> None:
         # Start guardian + data first
         _maybe_start_task(tasks, "guardian.guardian_loop", guardian_loop, bot)
         _maybe_start_task(tasks, "data_loop.data_loop", data_loop, bot)
+        if _env_bool("RATE_LIMIT_TRACKING_ENABLED", True):
+            _maybe_start_task(tasks, "bootstrap.rate_limit_monitor", _rate_limit_monitor_loop, bot)
 
         # Start protection loops BEFORE entry (so management is online first)
         if callable(position_manager_loop):
@@ -1309,6 +1390,19 @@ async def main() -> None:
         try:
             if micro_engine is not None:
                 await micro_engine.stop()
+        except Exception:
+            pass
+
+        try:
+            st = getattr(bot, "state", None)
+            positions = getattr(st, "positions", {}) if st is not None else {}
+            open_pos = len(positions) if isinstance(positions, dict) else 0
+            log_core.critical(
+                f"[SHUTDOWN] reason={str(getattr(bot, '_shutdown_reason', '') or '')} "
+                f"source={str(getattr(bot, '_shutdown_source', '') or '')} "
+                f"fatal={int(bool(getattr(bot, '_shutdown_fatal', False)))} "
+                f"open_positions={open_pos}"
+            )
         except Exception:
             pass
 

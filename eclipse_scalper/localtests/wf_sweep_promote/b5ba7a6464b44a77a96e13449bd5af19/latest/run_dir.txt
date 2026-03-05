@@ -1,0 +1,1 @@
+eclipse_scalper\localtests\wf_sweep_promote\b5ba7a6464b44a77a96e13449bd5af19\out\combos\c8b4a18ead18\walkforward

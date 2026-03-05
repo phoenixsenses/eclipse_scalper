@@ -1,0 +1,10 @@
+# Incident Bundle
+
+- created_utc: `2026-03-05T03:50:26Z`
+- bundle_dir: `reports\incidents\incident_20260305_035026`
+
+## Files
+- `logs\microstructure_collector.log` -> `reports\incidents\incident_20260305_035026\latest_runtime_tail.log`
+
+## Run Artifacts
+- none

@@ -8,6 +8,7 @@ from pathlib import Path
 from statistics import median
 from typing import Any, Dict, List
 
+from config.costs import DEFAULT_MAKER_FEE_BPS
 from execution.passive_execution_simulator import calibrate_passive_model
 from tools.micro_edge_backtest import (
     build_passive_calibration_samples,
@@ -57,7 +58,7 @@ def _args() -> argparse.Namespace:
     p.add_argument("--min-trade-intensity-grid", default="1500,2500,3500")
     p.add_argument("--max-spread-grid", default="0.0003,0.0005")
     p.add_argument("--passive-seed", type=int, default=42)
-    p.add_argument("--maker-fee-bps", type=float, default=0.5)
+    p.add_argument("--maker-fee-bps", type=float, default=float(DEFAULT_MAKER_FEE_BPS))
     p.add_argument("--passive-max-wait-buckets", type=int, default=0)
     p.add_argument("--passive-adverse-mult", type=float, default=1.0)
     p.add_argument("--v2-min-score-grid", default="0.0")

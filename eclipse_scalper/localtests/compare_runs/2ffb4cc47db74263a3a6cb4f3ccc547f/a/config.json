@@ -1,0 +1,6 @@
+{
+  "execution_sim": {
+    "spread_bps": 0.0
+  },
+  "strategy": "baseline"
+}

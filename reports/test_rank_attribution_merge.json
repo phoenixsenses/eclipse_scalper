@@ -1,0 +1,283 @@
+{
+  "count": 1,
+  "mitigation_profile": "baseline",
+  "gate_config": {
+    "min_intensity_strong": 0.0,
+    "min_imbalance_strong": 0.0,
+    "max_spread_tight": 0.0,
+    "max_volatility_extreme": null,
+    "vol_quantile_reject": 0.01,
+    "scratch_bps": 0.0,
+    "scratch_window_sec": 0,
+    "scratch_taker_fee_bps": 0.0,
+    "scratch_slippage_bps": 0.0,
+    "horizon_sec_override": 0
+  },
+  "statistical": {
+    "bootstrap_ci": false,
+    "bootstrap_samples": 1000,
+    "bootstrap_seed": 42,
+    "alpha": 0.05,
+    "multiple_testing_method": "none",
+    "splits": 3
+  },
+  "decomposition": [
+    {
+      "pocket": "ETHUSDT rule=intensity_spike_imbalance_cont side=auto h=60 imb>=0.50 int>=2500 spr<=0.000250",
+      "n_samples": 1000,
+      "score_raw_core": -1e-05,
+      "gross_edge_npa": -2.5e-05,
+      "fee_cost_npa": 0.0001,
+      "adverse_cost_npa": 5.9999999999999995e-05,
+      "scratch_cost_npa": 2.5e-05,
+      "net_npa": -0.00021,
+      "residual_npa": 0.000205,
+      "pass_core": 0.0,
+      "pass_stress": 0.0,
+      "reject_breakdown": {
+        "vol_quantile_reject": 12,
+        "spread_too_wide": 8,
+        "imbalance_too_low": 6,
+        "intensity_too_low": 4,
+        "other_gate": 2
+      },
+      "effective_trade_count_core": {
+        "n_events_total": 1000,
+        "n_attempts_after_gate": 900,
+        "n_filled": 450
+      },
+      "effective_trade_count_stress": {
+        "n_events_total": 1000,
+        "n_attempts_after_gate": 900,
+        "n_filled": 450
+      }
+    }
+  ],
+  "ranking": [
+    {
+      "symbol": "ETHUSDT",
+      "horizon_sec": 60,
+      "min_imbalance": 0.5,
+      "min_trade_intensity": 2500.0,
+      "max_spread": 0.00025,
+      "rule": "intensity_spike_imbalance_cont",
+      "score": 0.0,
+      "stability_std_bps": 0.0,
+      "insufficient_fill_rate": 0.0,
+      "robust_core": false,
+      "robust_stress": false,
+      "score_raw_core": -1e-05,
+      "score_raw_stress": -1e-05,
+      "score_raw_min": -1e-05,
+      "net_per_attempt": -5e-06,
+      "npa_core": -5e-06,
+      "npa_stress": -5e-06,
+      "pass_rate_core": 0.0,
+      "pass_rate_stress": 0.0,
+      "baseline_score_raw_core": -1e-05,
+      "baseline_npa_core": -5e-06,
+      "baseline_npa_stress": -5e-06,
+      "baseline_pass_rate_core": 0.0,
+      "baseline_pass_rate_stress": 0.0,
+      "delta_score_raw_core": 0.0,
+      "delta_npa_core": 0.0,
+      "delta_npa_stress": 0.0,
+      "delta_pass_rate_core": 0.0,
+      "delta_pass_rate_stress": 0.0,
+      "failure_reason_top": "fees_dominate",
+      "n_events_total": 1000,
+      "n_rejected_attempt_gate": 100,
+      "n_attempts_after_gate": 900,
+      "n_filled": 450,
+      "n_unfilled": 450,
+      "avg_fill_prob": 0.55,
+      "avg_adverse_bps_on_fills": 1.2,
+      "avg_fee_bps": 2.0,
+      "avg_scratch_bps_on_fills": 0.5,
+      "avg_raw_return_bps_on_fills": -0.5,
+      "avg_net_return_bps_on_fills": -2.5,
+      "net_return_bps_p10": -6.0,
+      "net_return_bps_p50": -2.0,
+      "net_return_bps_p90": 1.0,
+      "reject_breakdown": {
+        "vol_quantile_reject": 12,
+        "spread_too_wide": 8,
+        "imbalance_too_low": 6,
+        "intensity_too_low": 4,
+        "other_gate": 2
+      },
+      "effective_trade_count_core": {
+        "n_events_total": 1000,
+        "n_attempts_after_gate": 900,
+        "n_filled": 450
+      },
+      "effective_trade_count_stress": {
+        "n_events_total": 1000,
+        "n_attempts_after_gate": 900,
+        "n_filled": 450
+      },
+      "decomposition_core": {
+        "gross_edge_npa": -2.5e-05,
+        "fee_cost_npa": 0.0001,
+        "adverse_cost_npa": 5.9999999999999995e-05,
+        "scratch_cost_npa": 2.5e-05,
+        "net_npa": -0.00021,
+        "observed_net_npa": -5e-06,
+        "residual_npa": 0.000205
+      },
+      "decomposition_stress": {
+        "gross_edge_npa": -2.5e-05,
+        "fee_cost_npa": 0.0001,
+        "adverse_cost_npa": 5.9999999999999995e-05,
+        "scratch_cost_npa": 2.5e-05,
+        "net_npa": -0.00021,
+        "observed_net_npa": -5e-06,
+        "residual_npa": 0.000205
+      },
+      "gate_reject_ratio": 0.1,
+      "fill_rate_after_gate": 0.5,
+      "attempt_fill_rate": 0.6,
+      "attempts_per_min": 1.2,
+      "per_combo": [
+        {
+          "seed": 11,
+          "split": 1,
+          "filled_n": 90,
+          "filled_avg_net": -1e-05,
+          "filled_p90_net": 1e-05,
+          "attempt_fill_rate": 0.6,
+          "net_per_attempt": -5e-06,
+          "attempts_per_min": 1.2,
+          "effective_min_n": 20,
+          "pass": false
+        },
+        {
+          "seed": 22,
+          "split": 1,
+          "filled_n": 90,
+          "filled_avg_net": -1e-05,
+          "filled_p90_net": 1e-05,
+          "attempt_fill_rate": 0.6,
+          "net_per_attempt": -5e-06,
+          "attempts_per_min": 1.2,
+          "effective_min_n": 20,
+          "pass": false
+        },
+        {
+          "seed": 11,
+          "split": 2,
+          "filled_n": 90,
+          "filled_avg_net": -1e-05,
+          "filled_p90_net": 1e-05,
+          "attempt_fill_rate": 0.6,
+          "net_per_attempt": -5e-06,
+          "attempts_per_min": 1.2,
+          "effective_min_n": 20,
+          "pass": false
+        },
+        {
+          "seed": 22,
+          "split": 2,
+          "filled_n": 90,
+          "filled_avg_net": -1e-05,
+          "filled_p90_net": 1e-05,
+          "attempt_fill_rate": 0.6,
+          "net_per_attempt": -5e-06,
+          "attempts_per_min": 1.2,
+          "effective_min_n": 20,
+          "pass": false
+        }
+      ],
+      "best_fee_survive": 0.0,
+      "evals": {
+        "fee=1.000|adv=1.200": {
+          "pass_rate": 0.0,
+          "median_filled_avg_net": -1e-05,
+          "worst_split_avg_net": -1e-05,
+          "worst_split_p90_net": 1e-05,
+          "stability_std": 0.0,
+          "median_net_per_attempt": -5e-06,
+          "attempt_fill_rate_median": 0.6,
+          "attempts_per_min_median": 1.2,
+          "median_effective_min_n": 20,
+          "rows": 4,
+          "gate_reject_ratio": 0.1,
+          "fill_rate_after_gate": 0.5,
+          "avg_adverse_bps_on_fills": 1.2,
+          "avg_fee_bps": 2.0,
+          "avg_scratch_bps_on_fills": 0.5,
+          "avg_raw_return_bps_on_fills": -0.5,
+          "avg_net_return_bps_on_fills": -2.5,
+          "reject_vol_quantile_reject": 12,
+          "reject_spread_too_wide": 8,
+          "reject_imbalance_too_low": 6,
+          "reject_intensity_too_low": 4,
+          "reject_other_gate": 2,
+          "per_combo": [
+            {
+              "seed": 11,
+              "split": 1,
+              "filled_n": 90,
+              "filled_avg_net": -1e-05,
+              "filled_p90_net": 1e-05,
+              "attempt_fill_rate": 0.6,
+              "net_per_attempt": -5e-06,
+              "attempts_per_min": 1.2,
+              "effective_min_n": 20,
+              "pass": false
+            },
+            {
+              "seed": 22,
+              "split": 1,
+              "filled_n": 90,
+              "filled_avg_net": -1e-05,
+              "filled_p90_net": 1e-05,
+              "attempt_fill_rate": 0.6,
+              "net_per_attempt": -5e-06,
+              "attempts_per_min": 1.2,
+              "effective_min_n": 20,
+              "pass": false
+            },
+            {
+              "seed": 11,
+              "split": 2,
+              "filled_n": 90,
+              "filled_avg_net": -1e-05,
+              "filled_p90_net": 1e-05,
+              "attempt_fill_rate": 0.6,
+              "net_per_attempt": -5e-06,
+              "attempts_per_min": 1.2,
+              "effective_min_n": 20,
+              "pass": false
+            },
+            {
+              "seed": 22,
+              "split": 2,
+              "filled_n": 90,
+              "filled_avg_net": -1e-05,
+              "filled_p90_net": 1e-05,
+              "attempt_fill_rate": 0.6,
+              "net_per_attempt": -5e-06,
+              "attempts_per_min": 1.2,
+              "effective_min_n": 20,
+              "pass": false
+            }
+          ],
+          "rows_total": 4,
+          "pass_count": 0,
+          "pass_rate_raw": 0.0,
+          "insufficient_fill_rate": 0.0,
+          "n_events_total": 1000,
+          "n_rejected_attempt_gate": 100,
+          "n_attempts_after_gate": 900,
+          "n_filled": 450,
+          "n_unfilled": 450,
+          "avg_fill_prob": 0.55,
+          "net_return_bps_p10": -6.0,
+          "net_return_bps_p50": -2.0,
+          "net_return_bps_p90": 1.0
+        }
+      }
+    }
+  ]
+}

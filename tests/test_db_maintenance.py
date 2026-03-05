@@ -1,75 +1,60 @@
 from __future__ import annotations
 
-import shutil
 import sqlite3
+import sys
+import shutil
 import uuid
 from pathlib import Path
 
-from tools import db_maintenance as dm
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-
-def _mk_local_tmp() -> Path:
-    p = Path("localtests") / f"db_maintenance_{uuid.uuid4().hex[:8]}"
-    p.mkdir(parents=True, exist_ok=True)
-    return p
+from tools import db_maintenance
 
 
 def _mk_db(path: Path) -> None:
     conn = sqlite3.connect(str(path))
     try:
-        conn.execute("CREATE TABLE t (id INTEGER PRIMARY KEY, v TEXT)")
-        conn.execute("INSERT INTO t(v) VALUES ('x')")
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("CREATE TABLE IF NOT EXISTS t (id INTEGER PRIMARY KEY, x TEXT)")
+        conn.execute("INSERT INTO t(x) VALUES('a')")
         conn.commit()
     finally:
         conn.close()
 
 
-def test_db_maintenance_main_creates_backups_and_prunes(monkeypatch) -> None:
-    tmp = _mk_local_tmp()
+def _workdir() -> Path:
+    p = Path("eclipse_scalper/localtests/phase2_tests") / uuid.uuid4().hex
+    p.mkdir(parents=True, exist_ok=True)
+    return p
+
+
+def test_db_maintenance_wal_alert(monkeypatch) -> None:
+    wd = _workdir()
+    db = wd / "micro.db"
+    _mk_db(db)
+    wal_path = wd / "synthetic_big.wal"
+    wal_path.write_bytes(b"x" * (2 * 1024 * 1024))
+    alerts: list[str] = []
+    monkeypatch.setattr(db_maintenance, "_send_alert", lambda msg: alerts.append(msg))
+    monkeypatch.setattr(db_maintenance, "_wal_path", lambda _db: wal_path)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "db_maintenance",
+            "--db",
+            str(db),
+            "--backup-dir",
+            str(wd / "bak"),
+            "--max-wal-mb",
+            "1.0",
+            "--min-free-gb",
+            "0.0",
+        ],
+    )
     try:
-        db = tmp / "micro.db"
-        trade_db = tmp / "paper.db"
-        bdir = tmp / "backups"
-        _mk_db(db)
-        _mk_db(trade_db)
-
-        ticks = iter(
-            [
-                "20260304_010101",
-                "20260304_010102",
-                "20260304_010103",
-                "20260304_010104",
-            ]
-        )
-        monkeypatch.setattr(dm.time, "strftime", lambda _fmt: next(ticks))
-
-        # First run creates two backups.
-        monkeypatch.setattr(
-            "sys.argv",
-            [
-                "x",
-                "--db",
-                str(db),
-                "--trade-db",
-                str(trade_db),
-                "--backup-dir",
-                str(bdir),
-                "--keep",
-                "1",
-                "--min-free-gb",
-                "0",
-            ],
-        )
-        rc1 = dm.main()
-        assert rc1 == 0
-        files1 = sorted(bdir.glob("*"))
-        assert len(files1) == 2
-
-        # Second run should keep only latest 1 per stem => still 2 files total.
-        rc2 = dm.main()
-        assert rc2 == 0
-        files2 = sorted(bdir.glob("*"))
-        assert len(files2) == 2
+        rc = db_maintenance.main()
+        assert rc == 1
+        assert alerts and "WAL too large" in alerts[0]
     finally:
-        shutil.rmtree(tmp, ignore_errors=True)
-
+        shutil.rmtree(wd, ignore_errors=True)

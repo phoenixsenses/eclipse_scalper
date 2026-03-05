@@ -1,0 +1,44 @@
+{
+  "status": "pass",
+  "run_id": "279d749e444f",
+  "source": "reports\\test_validate_canonical\\pass_clean.csv",
+  "config_version": "canonical_validate_v1",
+  "violations": [],
+  "column_stats": {
+    "mid": {
+      "dtype": "float64",
+      "numeric_convertible": true,
+      "bad_ratio_on_convert": 0.0,
+      "nan_ratio": 0.0,
+      "inf_count": 0
+    },
+    "spread": {
+      "dtype": "float64",
+      "numeric_convertible": true,
+      "bad_ratio_on_convert": 0.0,
+      "nan_ratio": 0.0,
+      "inf_count": 0
+    },
+    "volume": {
+      "dtype": "float64",
+      "numeric_convertible": true,
+      "bad_ratio_on_convert": 0.0,
+      "nan_ratio": 0.0,
+      "inf_count": 0
+    },
+    "timestamp": {
+      "dtype": "int64",
+      "timestamp_convertible_nan_ratio": 0.0
+    }
+  },
+  "invariant_summary": {
+    "duplicate_timestamps_per_symbol": 0,
+    "backward_time_jumps": 0,
+    "negative_spread_count": 0,
+    "negative_volume_count": 0,
+    "non_positive_mid_count": 0,
+    "rows": 4,
+    "violations": 0
+  },
+  "notes": []
+}

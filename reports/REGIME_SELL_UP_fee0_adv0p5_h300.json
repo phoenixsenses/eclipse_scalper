@@ -1,0 +1,18 @@
+{
+  "count": 0,
+  "mitigation_profile": "anti_adverse_v3",
+  "gate_config": {
+    "min_intensity_strong": 0.0,
+    "min_imbalance_strong": 0.0,
+    "max_spread_tight": 0.0,
+    "max_volatility_extreme": null,
+    "vol_quantile_reject": 0.01,
+    "scratch_bps": 0.0,
+    "scratch_window_sec": 0,
+    "scratch_taker_fee_bps": 0.0,
+    "scratch_slippage_bps": 0.0,
+    "horizon_sec_override": 300
+  },
+  "decomposition": [],
+  "ranking": []
+}

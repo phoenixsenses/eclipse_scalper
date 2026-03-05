@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import pandas as pd
 
 from utils.logging import log_entry, log_core
+from execution.shutdown_control import ensure_traced_shutdown_event
 
 # Optional telemetry (never fatal)
 try:
@@ -112,7 +113,7 @@ def _ensure_shutdown_event(bot) -> asyncio.Event:
     ev = getattr(bot, "_shutdown", None)
     if isinstance(ev, asyncio.Event):
         return ev
-    ev = asyncio.Event()
+    ev = ensure_traced_shutdown_event(bot)
     try:
         bot._shutdown = ev  # type: ignore[attr-defined]
     except Exception:

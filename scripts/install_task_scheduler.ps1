@@ -31,12 +31,14 @@ param(
 
 $ErrorActionPreference = "Stop"
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$python = "python"
+$venvPython = Join-Path $repoRoot ".venv\\Scripts\\python.exe"
+$python = if (Test-Path $venvPython) { $venvPython } else { "python" }
 $script = Join-Path $repoRoot "scripts\\supervisor.py"
 $arg = "`"$script`" --cwd `"$repoRoot`""
 
 Write-Host "Installing scheduled task: $TaskName"
 Write-Host "Repo: $repoRoot"
+Write-Host "Python: $python"
 
 $delayIso = "PT${DelaySeconds}S"
 

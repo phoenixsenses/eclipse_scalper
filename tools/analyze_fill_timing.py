@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 import json
@@ -16,6 +16,8 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--out-md", default="reports/FILL_TIMING_ANALYSIS.md")
     p.add_argument("--out-json", default="reports/FILL_TIMING_ANALYSIS.json")
     p.add_argument("--last-n", type=int, default=20000)
+    p.add_argument("--bar-sec", type=float, default=1.0, help="Seconds per bar for fill_delay_bars conversion.")
+    p.add_argument("--timeout-candidates", default="5,10,30", help="Comma-separated timeout seconds to evaluate.")
     return p.parse_args()
 
 
@@ -27,6 +29,21 @@ def _safe_float(v: Any, default: float = 0.0) -> float:
         return x
     except Exception:
         return float(default)
+
+
+def _parse_timeout_candidates(raw: str) -> list[float]:
+    out: list[float] = []
+    for part in str(raw or "").split(","):
+        part = part.strip()
+        if not part:
+            continue
+        try:
+            x = float(part)
+            if x > 0:
+                out.append(x)
+        except Exception:
+            continue
+    return sorted(list(set(out))) or [5.0, 10.0, 30.0]
 
 
 def _load_live(path: Path) -> pd.DataFrame:
@@ -67,13 +84,12 @@ def _bucket_fill_delay(delay_sec: float) -> str:
     return ">30s"
 
 
-def _summary(df: pd.DataFrame) -> dict[str, Any]:
+def _summary(df: pd.DataFrame, *, bar_sec: float, timeout_candidates: list[float]) -> dict[str, Any]:
     if df.empty:
         return {"rows": 0, "buckets": {}, "notes": "no_rows"}
     d = df.copy()
-    delay_sec = pd.to_numeric(d.get("fill_delay_bars"), errors="coerce").fillna(0.0)
-    # In live output delay is in bars; use 1s as conservative conversion if interval unknown.
-    delay_sec = delay_sec.astype(float)
+    delay_bars = pd.to_numeric(d.get("fill_delay_bars"), errors="coerce").fillna(0.0)
+    delay_sec = delay_bars.astype(float) * float(max(0.001, bar_sec))
     d["_fill_delay_sec"] = delay_sec
     d["_fill_bucket"] = d["_fill_delay_sec"].map(_bucket_fill_delay)
     d["_filled"] = pd.to_numeric(d.get("filled"), errors="coerce").fillna(1).astype(int)
@@ -95,6 +111,36 @@ def _summary(df: pd.DataFrame) -> dict[str, Any]:
     out["within_5s_frac"] = float((d["_fill_delay_sec"] <= 5.0).mean())
     out["within_10s_frac"] = float((d["_fill_delay_sec"] <= 10.0).mean())
     out["within_30s_frac"] = float((d["_fill_delay_sec"] <= 30.0).mean())
+
+    timeout_eval: list[dict[str, Any]] = []
+    for t in timeout_candidates:
+        mask = d["_fill_delay_sec"] <= float(t)
+        eligible = d[mask]
+        eligible_filled = eligible[eligible["_filled"] > 0]
+        timeout_eval.append(
+            {
+                "timeout_sec": float(t),
+                "eligible_frac": float(mask.mean()),
+                "fill_rate_within_timeout": float((eligible["_filled"].mean()) if len(eligible) > 0 else 0.0),
+                "filled_rows": int(len(eligible_filled)),
+                "filled_pnl_mean": float(eligible_filled["_pnl"].mean()) if len(eligible_filled) else 0.0,
+                "filled_adverse_proxy_mean": float(eligible_filled["_adverse_proxy"].mean()) if len(eligible_filled) else 0.0,
+            }
+        )
+    out["timeout_eval"] = timeout_eval
+    if timeout_eval:
+        best = sorted(
+            timeout_eval,
+            key=lambda r: (
+                float(r.get("filled_pnl_mean", 0.0)),
+                -float(r.get("filled_adverse_proxy_mean", 0.0)),
+                float(r.get("eligible_frac", 0.0)),
+            ),
+            reverse=True,
+        )[0]
+        out["recommended_timeout_sec"] = float(best.get("timeout_sec", 10.0))
+    else:
+        out["recommended_timeout_sec"] = 10.0
     return out
 
 
@@ -131,11 +177,15 @@ def main() -> int:
     if int(args.last_n) > 0 and len(db_df) > int(args.last_n):
         db_df = db_df.tail(int(args.last_n)).reset_index(drop=True)
 
+    timeout_candidates = _parse_timeout_candidates(str(args.timeout_candidates))
+    bar_sec = float(max(0.001, float(args.bar_sec)))
     payload = {
         "status": "ok",
         "live_parquet": str(args.live_parquet),
         "trade_db": str(args.trade_db),
-        "live_summary": _summary(live_df),
+        "bar_sec": bar_sec,
+        "timeout_candidates": timeout_candidates,
+        "live_summary": _summary(live_df, bar_sec=bar_sec, timeout_candidates=timeout_candidates),
         "trade_db_summary": _summary_from_trade_db(db_df),
     }
     out_json.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True, indent=2) + "\n", encoding="utf-8")
@@ -153,9 +203,12 @@ def main() -> int:
             [
                 "## Live (papertrades_live.parquet)",
                 "",
+                f"- bar_sec: `{float(payload.get('bar_sec', 1.0)):.3f}`",
                 f"- <=5s: `{float(ls.get('within_5s_frac', 0.0)):.2%}`",
                 f"- <=10s: `{float(ls.get('within_10s_frac', 0.0)):.2%}`",
                 f"- <=30s: `{float(ls.get('within_30s_frac', 0.0)):.2%}`",
+                f"- recommended_timeout_sec: `{float(ls.get('recommended_timeout_sec', 10.0)):.1f}`",
+                f"- suggested_env: `ENTRY_WATCH_MAX_AGE_SEC={int(round(float(ls.get('recommended_timeout_sec', 10.0))))}`",
                 "",
                 "| bucket | rows | frac | fill_rate | ttl_expired | pnl_mean | adverse_proxy_mean |",
                 "|---|---:|---:|---:|---:|---:|---:|",
@@ -166,6 +219,21 @@ def main() -> int:
             lines.append(
                 f"| {k} | {int(r['rows'])} | {float(r['frac']):.2%} | {float(r['fill_rate']):.2%} | "
                 f"{float(r['ttl_expired_rate']):.2%} | {float(r['pnl_mean']):+.8f} | {float(r['adverse_proxy_mean']):.8f} |"
+            )
+        lines.append("")
+        lines.extend(
+            [
+                "### Timeout Sweep",
+                "",
+                "| timeout_sec | eligible_frac | fill_rate_within_timeout | filled_rows | filled_pnl_mean | filled_adverse_proxy_mean |",
+                "|---:|---:|---:|---:|---:|---:|",
+            ]
+        )
+        for r in ls.get("timeout_eval", []) or []:
+            lines.append(
+                f"| {float(r.get('timeout_sec', 0.0)):.1f} | {float(r.get('eligible_frac', 0.0)):.2%} | "
+                f"{float(r.get('fill_rate_within_timeout', 0.0)):.2%} | {int(r.get('filled_rows', 0))} | "
+                f"{float(r.get('filled_pnl_mean', 0.0)):+.8f} | {float(r.get('filled_adverse_proxy_mean', 0.0)):.8f} |"
             )
         lines.append("")
 
@@ -184,6 +252,24 @@ def main() -> int:
             lines.append(
                 f"| {k} | {int(r['rows'])} | {float(r['frac']):.2%} | {float(r['pnl_bps_mean']):+.6f} | {float(r['max_adverse_bps_mean']):.6f} |"
             )
+    lines.append("")
+    if int(ls.get("rows", 0) or 0) <= 0:
+        lines.extend(
+            [
+                "## Suggested Runtime Setting",
+                "",
+                "- No live rows available yet; keep conservative default.",
+                "- suggested_env: `ENTRY_WATCH_MAX_AGE_SEC=10`",
+            ]
+        )
+    else:
+        lines.extend(
+            [
+                "## Suggested Runtime Setting",
+                "",
+                f"- suggested_env: `ENTRY_WATCH_MAX_AGE_SEC={int(round(float(ls.get('recommended_timeout_sec', 10.0))))}`",
+            ]
+        )
     out_md.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     print(f"analyze_fill_timing: wrote {out_md}")
     return 0
@@ -191,4 +277,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

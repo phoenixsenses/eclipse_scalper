@@ -1,0 +1,14 @@
+{
+  "calibration_json": "localtests\\run_alpha_pipeline_8812560d\\runD\\artifacts\\interval_ms=100\\symbol=ETHUSDT\\calibration.json",
+  "candidates_deduped_jsonl": "localtests\\run_alpha_pipeline_8812560d\\runD\\artifacts\\interval_ms=100\\symbol=ETHUSDT\\candidates_deduped.jsonl",
+  "candidates_jsonl": "localtests\\run_alpha_pipeline_8812560d\\runD\\artifacts\\interval_ms=100\\symbol=ETHUSDT\\candidates.jsonl",
+  "ensemble_parquet": "localtests\\run_alpha_pipeline_8812560d\\runD\\artifacts\\interval_ms=100\\symbol=ETHUSDT\\ensemble.parquet",
+  "eval_parquet": "localtests\\run_alpha_pipeline_8812560d\\runD\\artifacts\\interval_ms=100\\symbol=ETHUSDT\\eval.parquet",
+  "execution_params_json": "",
+  "execution_realism_report_md": "",
+  "overlap_pairs_parquet": "localtests\\run_alpha_pipeline_8812560d\\runD\\artifacts\\interval_ms=100\\symbol=ETHUSDT\\overlap_pairs.parquet",
+  "selected_parquet": "localtests\\run_alpha_pipeline_8812560d\\runD\\artifacts\\interval_ms=100\\symbol=ETHUSDT\\selected.parquet",
+  "selection_summary_parquet": "localtests\\run_alpha_pipeline_8812560d\\runD\\artifacts\\interval_ms=100\\symbol=ETHUSDT\\selection_summary.parquet",
+  "selectivity_parquet": "localtests\\run_alpha_pipeline_8812560d\\runD\\artifacts\\interval_ms=100\\symbol=ETHUSDT\\selectivity.parquet",
+  "trades_parquet": "localtests\\run_alpha_pipeline_8812560d\\runD\\artifacts\\interval_ms=100\\symbol=ETHUSDT\\trades.parquet"
+}

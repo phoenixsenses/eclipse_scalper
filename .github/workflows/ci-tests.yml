@@ -10,6 +10,54 @@ on:
     - cron: "20 3 * * *"
 
 jobs:
+  dashboard-frontend:
+    name: Dashboard Frontend Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install frontend deps
+        run: |
+          cd dashboard/frontend
+          npm install
+
+      - name: Frontend typecheck
+        run: |
+          cd dashboard/frontend
+          npm run typecheck
+
+      - name: Frontend smoke tests
+        run: |
+          cd dashboard/frontend
+          npm test
+
+  dashboard-backend-smoke:
+    name: Dashboard Backend Smoke
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Dashboard backend smoke tests
+        run: |
+          pytest -q tests/test_dashboard_debug_api.py tests/test_dashboard_overview_api.py
+
   chaos-required:
     name: Chaos Required - ${{ matrix.name }}
     runs-on: ubuntu-latest

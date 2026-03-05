@@ -14,6 +14,7 @@ Examples:
 
 import argparse
 import json
+import os
 import sqlite3
 import time
 from pathlib import Path
@@ -21,6 +22,8 @@ from statistics import median
 from typing import Any, Dict, List, Optional, Tuple
 
 from execution.passive_execution_simulator import calibrate_passive_model, simulate_passive_fill
+from config.costs import DEFAULT_MAKER_FEE_BPS
+from src.microphys.execution.engine import ExecutionRequest, build_default_engines
 from tools.micro_edge_lib import (
     append_jsonl,
     build_bucket_features,
@@ -53,6 +56,11 @@ def compute_gross_return(entry_price: float, exit_price: float, side: str) -> fl
 def compute_trade_cost(fee_bps: float, slip_bps: float) -> float:
     cost_bps = 2.0 * (float(fee_bps) + float(slip_bps))
     return cost_bps / 10000.0
+
+
+def _exec_engine_unified_enabled() -> bool:
+    v = str(os.getenv("EXEC_ENGINE_UNIFIED", "0")).strip().lower()
+    return v in {"1", "true", "yes", "on"}
 
 
 def compute_net_return(entry_price: float, exit_price: float, side: str, fee_bps: float, slip_bps: float) -> tuple[float, float]:
@@ -290,27 +298,37 @@ def event_passes_feature_bounds(
     return True
 
 
-def _passes_attempt_gate(r: Dict[str, Any], gate: Dict[str, float]) -> bool:
-    """Return True if the row meets pre-attempt strength thresholds.
+def _attempt_gate_reject_reason(r: Dict[str, Any], gate: Dict[str, float]) -> Optional[str]:
+    """Return rejection reason for pre-attempt strength thresholds (or None if pass).
 
     Uses only features available at signal time (no lookahead). DAT-01 safe.
-    gate keys: min_trade_intensity_strong, min_imbalance_strong, max_spread_tight
+    gate keys: min_trade_intensity_strong, min_imbalance_strong, max_spread_tight, max_volatility_extreme
     """
     if not gate:
-        return True
+        return None
     ti = float(r.get("trade_intensity") or 0.0)
     imb = abs(float(r.get("imbalance") or 0.0))
     spr = float(r.get("spread") or 0.0)
     min_int = float(gate.get("min_trade_intensity_strong", 0.0))
     min_imb = float(gate.get("min_imbalance_strong", 0.0))
     max_spr = float(gate.get("max_spread_tight", 0.0))
+    max_vol = float(gate.get("max_volatility_extreme", 0.0))
+    vol = r.get("micro_volatility")
+    if vol is None:
+        vol = abs(float(r.get("ret_1") or 0.0))
     if min_int > 0.0 and ti < min_int:
-        return False
+        return "intensity_too_low"
     if min_imb > 0.0 and imb < min_imb:
-        return False
+        return "imbalance_too_low"
     if max_spr > 0.0 and spr > max_spr:
-        return False
-    return True
+        return "spread_too_wide"
+    if max_vol > 0.0 and float(vol or 0.0) > max_vol:
+        return "vol_quantile_reject"
+    return None
+
+
+def _passes_attempt_gate(r: Dict[str, Any], gate: Dict[str, float]) -> bool:
+    return _attempt_gate_reject_reason(r, gate) is None
 
 
 def resolve_and_emit_debug(
@@ -580,8 +598,16 @@ def simulate_rule_trades(
     toxicity_cfg: Optional[Dict[str, Any]] = None,
     regime_edges: Optional[Dict[str, Tuple[Optional[float], Optional[float], Optional[float]]]] = None,
     attempt_gate_bounds: Optional[Dict[str, float]] = None,
+    regime_filter: str = "",
+    bucket_sec: int = 1,
+    scratch_bps: float = 0.0,
+    scratch_window_sec: int = 0,
+    scratch_taker_fee_bps: float = 0.0,
+    scratch_slippage_bps: float = 0.0,
     debug_meta: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
+    use_unified_engine = _exec_engine_unified_enabled()
+    engines = build_default_engines() if use_unified_engine else {}
     mids = [r.get("mid") for r in rows]
     n = len(rows)
     next_allowed = 0
@@ -607,6 +633,11 @@ def simulate_rule_trades(
         "toxicity_blocked": 0,
         "toxicity_block_vol_intensity": 0,
         "attempt_gate_blocked": 0,
+        "attempt_gate_block_intensity_too_low": 0,
+        "attempt_gate_block_imbalance_too_low": 0,
+        "attempt_gate_block_spread_too_wide": 0,
+        "attempt_gate_block_vol_quantile_reject": 0,
+        "attempt_gate_block_other": 0,
     }
     n_pre_gate_signals = 0
     debug_limit = int(debug_samples)
@@ -646,6 +677,11 @@ def simulate_rule_trades(
         ):
             i += 1
             continue
+        if regime_filter:
+            _rlabel = str(r.get("_regime_label") or "")
+            if _rlabel != str(regime_filter).upper():
+                i += 1
+                continue
         entry_idx = i + 1
         exit_idx = entry_idx + max(1, int(hold_buckets))
         if exit_idx >= n:
@@ -669,8 +705,14 @@ def simulate_rule_trades(
             i += 1
             continue
         n_pre_gate_signals += 1
-        if attempt_gate_bounds and not _passes_attempt_gate(r, attempt_gate_bounds):
+        reject_reason = _attempt_gate_reject_reason(r, attempt_gate_bounds or {})
+        if attempt_gate_bounds and reject_reason is not None:
             debug_stats["attempt_gate_blocked"] += 1
+            key = f"attempt_gate_block_{reject_reason}"
+            if key in debug_stats:
+                debug_stats[key] = int(debug_stats.get(key, 0)) + 1
+            else:
+                debug_stats["attempt_gate_block_other"] = int(debug_stats.get("attempt_gate_block_other", 0)) + 1
             i += 1
             continue
         # Attempt-level row starts here (post-signal, post-feature-filter, side resolved)
@@ -736,6 +778,9 @@ def simulate_rule_trades(
         cost_spread_ratio = 0.0
         cost_adverse_ratio = 0.0
         cost_total_ratio = 0.0
+        scratch_triggered = False
+        scratch_extra_cost_ratio = 0.0
+        scratch_exit_idx = None
         queue_competition_score = 0.0
         toxicity_score = 0.0
         if str(exec_model).lower() == "passive_realistic":
@@ -785,11 +830,11 @@ def simulate_rule_trades(
             if entry_px is None or exit_px is None or entry_px <= 0 or exit_px <= 0:
                 i += 1
                 continue
-            cost_fee_ratio = max(0.0, (2.0 * float((passive_params or {}).get("maker_fee_bps", maker_fee_bps))) / 10000.0)
+            cost_fee_ratio = (2.0 * float((passive_params or {}).get("maker_fee_bps", maker_fee_bps))) / 10000.0
             cost_adverse_ratio = max(0.0, float(adverse_bps) / 10000.0)
             # Spread is modeled via execution price adjustment (price improvement/slippage path), not direct additive cost.
             cost_spread_ratio = 0.0
-            cost_total_ratio = max(0.0, cost_fee_ratio + cost_spread_ratio + cost_adverse_ratio)
+            cost_total_ratio = cost_fee_ratio + cost_spread_ratio + cost_adverse_ratio
             event_cost = cost_total_ratio
         else:
             event_cost = compute_exec_cost(
@@ -816,8 +861,59 @@ def simulate_rule_trades(
         if label_used in (-1, 1):
             direction_match = int(label_used) == int(predicted_sign)
         exec_entry_px = float(entry_px) * (1.0 + float(exec_price_adj))
+        # Optional post-fill scratch/escape:
+        # if adverse move exceeds threshold within scratch window, force early taker-like exit.
+        if (
+            str(exec_model).lower() == "passive_realistic"
+            and float(scratch_bps) > 0.0
+            and int(scratch_window_sec) > 0
+            and float(exec_entry_px) > 0.0
+        ):
+            sw_buckets = max(1, int(round(float(scratch_window_sec) / max(1, int(bucket_sec)))))
+            sw_end = min(int(exit_idx), int(entry_idx) + sw_buckets)
+            trigger_px_long = float(exec_entry_px) * (1.0 - float(scratch_bps) / 10000.0)
+            trigger_px_short = float(exec_entry_px) * (1.0 + float(scratch_bps) / 10000.0)
+            for j in range(int(entry_idx) + 1, int(sw_end) + 1):
+                px_j = mids[j]
+                if px_j is None or float(px_j) <= 0.0:
+                    continue
+                if trade_side == "LONG" and float(px_j) <= trigger_px_long:
+                    scratch_triggered = True
+                    scratch_exit_idx = int(j)
+                    break
+                if trade_side == "SHORT" and float(px_j) >= trigger_px_short:
+                    scratch_triggered = True
+                    scratch_exit_idx = int(j)
+                    break
+            if scratch_triggered and scratch_exit_idx is not None:
+                exit_idx = int(scratch_exit_idx)
+                exit_px = mids[exit_idx]
+                if exit_px is None or float(exit_px) <= 0.0:
+                    i += 1
+                    continue
+                scratch_extra_cost_ratio = (
+                    max(0.0, float(scratch_taker_fee_bps)) + max(0.0, float(scratch_slippage_bps))
+                ) / 10000.0
+                event_cost = float(event_cost) + scratch_extra_cost_ratio
+                cost_total_ratio = float(cost_total_ratio) + scratch_extra_cost_ratio
         raw_ret = compute_gross_return(float(exec_entry_px), float(exit_px), side=trade_side)
-        net_ret = raw_ret - float(event_cost)
+        if use_unified_engine:
+            req = ExecutionRequest(
+                symbol=str(debug_symbol),
+                side=("buy" if trade_side == "LONG" else "sell"),
+                entry_price=float(exec_entry_px),
+                exit_price=float(exit_px),
+                notional=1.0,
+                fee_bps=0.0,
+                slippage_bps=max(0.0, float(event_cost) * 10000.0),
+                ts_ms=int(rows[i].get("ts_ms") or 0),
+                order_id=str(event_id),
+            )
+            eres = engines["backtest"].execute(req)
+            raw_ret = float(eres.gross_return)
+            net_ret = float(eres.net_return)
+        else:
+            net_ret = raw_ret - float(event_cost)
         hold = int(exit_idx - entry_idx)
         rets.append(net_ret)
         holds.append(hold)
@@ -852,6 +948,10 @@ def simulate_rule_trades(
                 "cost_total_bps": float(cost_total_ratio * 10000.0),
                 "queue_competition_score": float(queue_competition_score),
                 "toxicity_score": float(toxicity_score),
+                "scratch_triggered": bool(scratch_triggered),
+                "scratch_exit_idx": (int(scratch_exit_idx) if scratch_exit_idx is not None else None),
+                "scratch_extra_cost_ratio": float(scratch_extra_cost_ratio),
+                "scratch_extra_cost_bps": float(scratch_extra_cost_ratio * 10000.0),
             }
         )
         attempted["filled"] = bool(filled_flag)
@@ -894,6 +994,10 @@ def simulate_rule_trades(
                 "cost_total_bps": float(cost_total_ratio * 10000.0),
                 "queue_competition_score": float(queue_competition_score),
                 "toxicity_score": float(toxicity_score),
+                "scratch_triggered": bool(scratch_triggered),
+                "scratch_exit_idx": (int(scratch_exit_idx) if scratch_exit_idx is not None else None),
+                "scratch_extra_cost_ratio": float(scratch_extra_cost_ratio),
+                "scratch_extra_cost_bps": float(scratch_extra_cost_ratio * 10000.0),
                 "label_used": label_used,
                 "label_used_text": label_value_to_text(label_used),
                 "direction_match": direction_match,
@@ -1006,11 +1110,22 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--min-feature", action="append", default=[], help="Repeatable: name=value gate, event feature must be >= value.")
     p.add_argument("--max-feature", action="append", default=[], help="Repeatable: name=value gate, event feature must be <= value.")
     p.add_argument("--exec-model", choices=["taker", "maker", "mid", "halfspread", "passive_realistic"], default="taker")
-    p.add_argument("--maker-fee-bps", type=float, default=0.5)
+    p.add_argument("--maker-fee-bps", type=float, default=float(DEFAULT_MAKER_FEE_BPS))
     p.add_argument("--maker-penalty-bps", type=float, default=0.5)
     p.add_argument("--passive-seed", type=int, default=42)
     p.add_argument("--passive-max-wait-buckets", type=int, default=0, help="0 uses hold_buckets.")
     p.add_argument("--passive-adverse-mult", type=float, default=1.0)
+    p.add_argument("--passive-latency-enabled", action="store_true", default=False, help="Enable latency-aware passive fill model.")
+    p.add_argument("--passive-latency-decision-ms", type=float, default=0.0, help="Decision->ack latency mean (ms).")
+    p.add_argument("--passive-latency-queue-ms", type=float, default=0.0, help="Ack->queue-entry latency mean (ms).")
+    p.add_argument("--passive-latency-feed-ms", type=float, default=0.0, help="Feed lag latency mean (ms).")
+    p.add_argument("--passive-latency-jitter-ms", type=float, default=0.0, help="+/- jitter applied to each latency component (ms).")
+    p.add_argument("--passive-latency-touch-penalty-per-bar", type=float, default=0.06, help="Touch probability penalty per latency bar.")
+    p.add_argument("--passive-latency-adverse-bps-per-sec", type=float, default=0.0, help="Additional adverse bps per second of total latency.")
+    p.add_argument("--scratch-bps", type=float, default=0.0, help="Post-fill adverse move threshold (bps) for early scratch exit; 0 disables.")
+    p.add_argument("--scratch-window-sec", type=int, default=0, help="Post-fill scratch window in seconds; 0 disables.")
+    p.add_argument("--scratch-taker-fee-bps", type=float, default=0.0, help="Extra one-way taker fee bps applied when scratch exit triggers.")
+    p.add_argument("--scratch-slippage-bps", type=float, default=0.0, help="Extra one-way slippage bps applied when scratch exit triggers.")
     p.add_argument("--v2-min-score", type=float, default=0.0, help="Optional override threshold for |v2_score|.")
     p.add_argument("--v2-min-persistence", type=float, default=0.0, help="Optional override threshold for |v2_imbalance_persist|.")
     p.add_argument("--v2-min-confidence", type=float, default=0.0, help="Optional override threshold for v2_confidence.")
@@ -1118,11 +1233,22 @@ def main() -> int:
                 passive_over = sym_profile.get("passive", {}) if isinstance(sym_profile.get("passive", {}), dict) else {}
                 passive_params.update(passive_over)
                 passive_params["passive_adverse_mult"] = float(args.passive_adverse_mult)
+                passive_params["latency_enabled"] = bool(args.passive_latency_enabled)
+                passive_params["latency_decision_to_ack_ms"] = float(args.passive_latency_decision_ms)
+                passive_params["latency_queue_entry_ms"] = float(args.passive_latency_queue_ms)
+                passive_params["latency_feed_lag_ms"] = float(args.passive_latency_feed_ms)
+                passive_params["latency_decision_to_ack_jitter_ms"] = float(args.passive_latency_jitter_ms)
+                passive_params["latency_queue_entry_jitter_ms"] = float(args.passive_latency_jitter_ms)
+                passive_params["latency_feed_lag_jitter_ms"] = float(args.passive_latency_jitter_ms)
+                passive_params["latency_bucket_sec"] = float(args.bucket_sec)
+                passive_params["latency_touch_penalty_per_bar"] = float(args.passive_latency_touch_penalty_per_bar)
+                passive_params["latency_adverse_bps_per_sec"] = float(args.passive_latency_adverse_bps_per_sec)
                 print(
                     f"[{sym}] passive_calibration samples={len(samples)} "
                     f"base_touch={float(passive_params.get('base_touch', 0.0)):.3f} "
                     f"base_full={float(passive_params.get('base_full_cond_touch', 0.0)):.3f} "
-                    f"base_adverse_bps={float(passive_params.get('base_adverse_bps', 0.0)):.3f}"
+                    f"base_adverse_bps={float(passive_params.get('base_adverse_bps', 0.0)):.3f} "
+                    f"latency_enabled={int(bool(passive_params.get('latency_enabled', False)))}"
                 )
                 tox_cfg = sym_profile.get("toxicity_gate", {}) if isinstance(sym_profile.get("toxicity_gate", {}), dict) else {}
                 if "vol_high_threshold" not in tox_cfg:
@@ -1158,6 +1284,11 @@ def main() -> int:
                 passive_max_wait_buckets=int(args.passive_max_wait_buckets),
                 toxicity_cfg=tox_cfg,
                 regime_edges=regime_edges,
+                bucket_sec=int(args.bucket_sec),
+                scratch_bps=float(args.scratch_bps),
+                scratch_window_sec=int(args.scratch_window_sec),
+                scratch_taker_fee_bps=float(args.scratch_taker_fee_bps),
+                scratch_slippage_bps=float(args.scratch_slippage_bps),
                 debug_meta={
                     "exec_model": str(args.exec_model),
                     "horizon_sec": int(args.horizon_sec),

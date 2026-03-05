@@ -11,6 +11,15 @@ Eclipse Scalper pipeline:
 - Logging/Audit: `core/trade_logger.py`, `data/paper_trades.db`, structured logs under `logs/`.
 - Monitoring: Telegram bot/status tools, watchdog, health/maintenance scripts.
 
+### Debug Operations Reference
+- Detailed operator runbook: `docs/DEBUG_OPERATIONS.md`
+- Scope:
+  - Guided debug session
+  - Incident-driven runbook execution
+  - Session tagging/notes
+  - Session compare + exports/share link
+  - Session timeline analysis
+
 ## 2) Run Commands
 ### Paper trading boot (recommended)
 ```powershell
@@ -68,6 +77,11 @@ python -m tools.freeze_runtime_profile --enforce
 python -m tools.incident_bundle
 ```
 
+### Dashboard security smoke
+```powershell
+python -m tools.smoke_dashboard_security --base http://127.0.0.1:8000 --api-key "<dashboard_api_key>"
+```
+
 ### Release tag prep (local safety gate)
 ```powershell
 python -m tools.prepare_release_tag --tag vYYYY.MM.DD-stable
@@ -75,13 +89,15 @@ python -m tools.prepare_release_tag --tag vYYYY.MM.DD-stable
 
 ### Scratch calibration reports
 ```powershell
-python -m tools.run_scratch_calibration --symbol ETHUSDT --db data/microstructure.db --adverse-sweep 2.0:10.0 --trail-sweep 2.0,3.0,4.0,5.0 --fee-bps 0.5 --exec-model passive_realistic
+python -m tools.run_scratch_calibration --symbol ETHUSDT --db data/microstructure.db --regime UP --min-trades 30 --fallback-regime NONE --fallback-lookback-min 43200 --adverse-sweep 2.0:10.0 --trail-sweep 2.0,3.0,4.0,5.0 --fee-bps 0.5 --exec-model passive_realistic
 python -m tools.compare_scratch_live_vs_backtest --trade-db data/paper_trades.db --backtest-sell-json reports/SCRATCH_CALIBRATION_SELL_UP.json --backtest-buy-json reports/SCRATCH_CALIBRATION_BUY_UP.json --out-md reports/SCRATCH_LIVE_VS_BACKTEST.md
 ```
 
 ### Fill timing analysis (5s/10s/30s buckets)
 ```powershell
-python -m tools.analyze_fill_timing --live-parquet data/live/papertrades_live.parquet --trade-db data/paper_trades.db --out-md reports/FILL_TIMING_ANALYSIS.md
+python -m tools.analyze_fill_timing --live-parquet data/live/papertrades_live.parquet --trade-db data/paper_trades.db --bar-sec 1.0 --timeout-candidates 5,10,30 --out-md reports/FILL_TIMING_ANALYSIS.md
+# Apply suggested timeout from report:
+#   ENTRY_WATCH_MAX_AGE_SEC=<recommended_timeout_sec>
 ```
 
 ### Feature distribution analysis (+plots)
@@ -136,6 +152,19 @@ Order placement (limit-only path):
 - `MICRO_SIGNAL_ORDER_PLACEMENT_MODE` = `best | inside_spread | adaptive`
 - `MICRO_SIGNAL_QUEUE_DEPTH_THRESHOLD` (adaptive switch threshold)
 - `MICRO_SIGNAL_TICK_SIZE` (fallback tick if exchange metadata unavailable)
+- `MICRO_SIGNAL_FILL_TIMEOUT_SEC` (fill probability window used by adaptive queue model)
+- `MICRO_SIGNAL_MIN_FILL_PROB` (adaptive inside-spread trigger if predicted fill probability is too low)
+- `MICRO_SIGNAL_FLOW_LOOKBACK_SEC` (lookback window for trade-flow based queue depletion estimate)
+
+Dashboard security:
+- `DASHBOARD_API_KEY` (if set, write endpoints require `X-Api-Key`)
+- `DASHBOARD_CONTROL_ROLE` (`viewer|operator|admin`)
+- `DASHBOARD_STRICT_HEADER_ROLE` (`1` => effective role = min(env, header))
+- `DASHBOARD_CORS_ORIGINS` (comma-separated whitelist)
+- `DASHBOARD_RATE_LIMIT_ENABLED`
+- `DASHBOARD_RATE_LIMIT_WINDOW_SEC`
+- `DASHBOARD_IDEMPOTENCY_ENABLED`
+- `DASHBOARD_IDEMPOTENCY_TTL_SEC`
 
 ## 4) Acceptance Checklist
 Observable startup checks (first 60 lines):

@@ -1,0 +1,172 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f1218;
+  --surface: #161b22;
+  --surface-2: #1a2029;
+  --border: #2a313c;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --accent: #58a6ff;
+  --green: #3fb950;
+  --red: #f85149;
+  --yellow: #d29922;
+  --font: "Segoe UI", "Inter", "Tahoma", sans-serif;
+  --font-mono: "Consolas", "Menlo", monospace;
+  --info: #58d0ff;
+  --ok-bg: #183024;
+  --warn-bg: #352c12;
+  --danger-bg: #351f22;
+  --blue-bg: #182a3e;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+pre, code { font-family: var(--font-mono); font-size: 12px; }
+
+.badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-green { background: var(--ok-bg); color: var(--green); }
+.badge-red   { background: var(--danger-bg); color: var(--red); }
+.badge-yellow{ background: var(--warn-bg); color: var(--yellow); }
+.badge-blue  { background: var(--blue-bg); color: var(--accent); }
+.badge-gray  { background: #202d42; color: var(--muted); }
+
+table { border-collapse: collapse; width: 100%; }
+th, td { padding: 4px 8px; border-bottom: 1px solid var(--border); text-align: left; }
+th { color: var(--muted); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface);
+}
+tbody tr:hover { background: rgba(88, 166, 255, 0.06); }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: none;
+}
+
+.card-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.stat-value { font-size: 20px; font-weight: 700; }
+.stat-label { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+.page-guide {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.page-guide-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.page-guide-sub {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.signpost-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px;
+}
+
+.signpost-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+  padding: 8px;
+}
+
+.signpost-title {
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.signpost-desc {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.legend-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.legend-chip {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 10px;
+  color: var(--muted);
+  background: var(--surface-2);
+}
+
+.guide-toggle {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 10px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+body.dense {
+  font-size: 11px;
+}
+
+body.dense .card {
+  padding: 10px;
+}
+
+body.dense th,
+body.dense td {
+  padding: 3px 6px;
+  font-size: 10px;
+}
+
+body.dense .stat-value {
+  font-size: 17px;
+}
+
+body.dense .card-title {
+  margin-bottom: 6px;
+}

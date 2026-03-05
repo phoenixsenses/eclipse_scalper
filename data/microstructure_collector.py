@@ -25,11 +25,13 @@ import time
 import traceback
 import getpass
 import socket
+import random
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from urllib.parse import urlparse
+from tools.health_state import write_component_health, write_overall_health, utc_now_iso
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -393,7 +395,14 @@ class MicrostructureCollector:
         flush_interval: float = 5.0,
         stats_interval: float = 60.0,
         flush_fail_threshold: int = 5,
+        checkpoint_interval_sec: float = 300.0,
+        wal_alert_mb: float = 2048.0,
         heartbeat_path: str = "logs/collector_heartbeat.json",
+        stall_timeout_sec: float = 45.0,
+        simulate_connection: bool = False,
+        simulate_cycle_sec: float = 20.0,
+        simulate_down_sec: float = 6.0,
+        simulate_max_seconds: float = 0.0,
     ):
         self.symbols = [s.lower() for s in symbols]
         self.db_path = db_path
@@ -407,7 +416,12 @@ class MicrostructureCollector:
         self._running = False
         self._start_time = 0.0
         self._reconnect_delay = 1.0
+        self._reconnect_base = 1.0
+        self._reconnect_factor = 2.0
         self._max_reconnect_delay = 60.0
+        self._reconnect_jitter_pct = 0.20
+        self._stable_reset_sec = 30.0
+        self._connected_since_ts = 0.0
         self._backend = "websockets"
         self._ssl_context = ssl.create_default_context()
         self._connected = False
@@ -416,7 +430,22 @@ class MicrostructureCollector:
         self._last_error = ""
         self._exit_code = 0
         self.flush_fail_threshold = max(1, int(flush_fail_threshold))
+        self.checkpoint_interval_sec = max(30.0, float(checkpoint_interval_sec))
+        self.wal_alert_mb = max(0.0, float(wal_alert_mb))
         self.heartbeat_path = Path(heartbeat_path)
+        self.stall_timeout_sec = max(10.0, float(stall_timeout_sec))
+        self._reconnect_attempt = 0
+        self._recent_reconnect_ts: List[float] = []
+        self._reconnect_alert_threshold_5m = max(
+            1,
+            int(float(os.getenv("COLLECTOR_RECONNECT_ALERT_THRESHOLD_5M", "20") or 20)),
+        )
+        self._last_checkpoint_ts = 0.0
+        self._last_checkpoint_ts_utc: Optional[str] = None
+        self.simulate_connection = bool(simulate_connection)
+        self.simulate_cycle_sec = max(6.0, float(simulate_cycle_sec))
+        self.simulate_down_sec = min(max(1.0, float(simulate_down_sec)), self.simulate_cycle_sec - 1.0)
+        self.simulate_max_seconds = max(0.0, float(simulate_max_seconds))
 
     def _build_stream_url(self) -> str:
         """Build combined stream URL for all symbols."""
@@ -453,6 +482,7 @@ class MicrostructureCollector:
         print(f"  Symbols: {symbols_upper}")
         print(f"  Database: {self.db_path}")
         print(f"  Flush interval: {self.flush_interval}s")
+        print(f"  Checkpoint interval: {self.checkpoint_interval_sec}s")
         print(f"  Stats interval: {self.stats_interval}s")
         print(f"  Streams: forceOrder, aggTrade, markPrice@1s")
         print(f"{'=' * 80}")
@@ -462,30 +492,44 @@ class MicrostructureCollector:
         stats_task = asyncio.create_task(self._stats_loop())
 
         try:
-            while self._running:
-                try:
-                    await self._connect_and_listen()
-                except FlushFailureFatal as e:
-                    self._last_error = f"fatal_flush:{e}"
-                    print(f"  [FATAL] {self._last_error}", flush=True)
-                    self._exit_code = 2
-                    self._running = False
-                    break
-                except Exception as e:
-                    if not self._running:
+            if self.simulate_connection:
+                await self._run_simulated_connection()
+            else:
+                while self._running:
+                    try:
+                        await self._connect_and_listen()
+                    except FlushFailureFatal as e:
+                        self._last_error = f"fatal_flush:{e}"
+                        print(f"  [FATAL] {self._last_error}", flush=True)
+                        self._exit_code = 2
+                        self._running = False
                         break
-                    print(f"  [WARN] Connection error: {e}", flush=True)
-                    self._last_error = f"connection_error:{type(e).__name__}: {e}"
-                    self._log_connection_diagnostics(e, self._build_stream_url())
-                    if self._is_winerror5(e) and self._backend == "websockets" and AIOHTTP_AVAILABLE:
-                        self._backend = "aiohttp"
-                        print("  [INFO] Switching websocket backend to aiohttp fallback after WinError 5", flush=True)
-                    self._write_heartbeat()
-                    print(f"  Reconnecting in {self._reconnect_delay:.0f}s...", flush=True)
-                    await asyncio.sleep(self._reconnect_delay)
-                    self._reconnect_delay = min(
-                        self._reconnect_delay * 2, self._max_reconnect_delay
-                    )
+                    except Exception as e:
+                        if not self._running:
+                            break
+                        print(f"  [WARN] Connection error: {e}", flush=True)
+                        self._last_error = f"connection_error:{type(e).__name__}: {e}"
+                        self._reconnect_attempt += 1
+                        self._recent_reconnect_ts.append(time.time())
+                        self._recent_reconnect_ts = [x for x in self._recent_reconnect_ts if (time.time() - x) <= 300.0]
+                        reconnects_5m = len(self._recent_reconnect_ts)
+                        self._log_connection_diagnostics(e, self._build_stream_url())
+                        if self._is_winerror5(e) and self._backend == "websockets" and AIOHTTP_AVAILABLE:
+                            self._backend = "aiohttp"
+                            print("  [INFO] Switching websocket backend to aiohttp fallback after WinError 5", flush=True)
+                        if reconnects_5m >= self._reconnect_alert_threshold_5m:
+                            print(
+                                f"  [ALERT] reconnect storm: reconnects_last_5m={reconnects_5m} "
+                                f"threshold={self._reconnect_alert_threshold_5m}",
+                                flush=True,
+                            )
+                        self._write_heartbeat()
+                        sleep_s = self._next_reconnect_sleep()
+                        print(
+                            f"  [RECONNECT] attempt={self._reconnect_attempt} next_sleep_sec={sleep_s:.2f} backend={self._backend}",
+                            flush=True,
+                        )
+                        await asyncio.sleep(sleep_s)
         finally:
             stats_task.cancel()
             try:
@@ -523,7 +567,7 @@ class MicrostructureCollector:
                 ssl=self._ssl_context,
             ) as ws:
                 self._connected = True
-                self._reconnect_delay = 1.0  # reset on successful connect
+                self._connected_since_ts = time.time()
                 now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
                 peer = None
                 try:
@@ -531,7 +575,11 @@ class MicrostructureCollector:
                 except Exception:
                     peer = None
                 print(f"  [{now}] Connected. Receiving data... peer={peer}", flush=True)
-                async for message in ws:
+                while True:
+                    try:
+                        message = await asyncio.wait_for(ws.recv(), timeout=self.stall_timeout_sec)
+                    except asyncio.TimeoutError:
+                        raise RuntimeError(f"stall_timeout_no_messages>{self.stall_timeout_sec:.0f}s")
                     msg_count += 1
                     self._last_message_ts_utc = datetime.now(timezone.utc).isoformat()
                     if parse_messages and self.parser:
@@ -542,9 +590,56 @@ class MicrostructureCollector:
                         break
                     if not self._running and parse_messages:
                         break
+                if (time.time() - self._connected_since_ts) >= self._stable_reset_sec:
+                    self._reconnect_delay = self._reconnect_base
+                    self._reconnect_attempt = 0
         finally:
             self._connected = False
         return msg_count
+
+    async def _run_simulated_connection(self):
+        print(
+            f"  [SIM] simulate_connection enabled cycle_sec={self.simulate_cycle_sec:.1f} "
+            f"down_sec={self.simulate_down_sec:.1f} max_seconds={self.simulate_max_seconds:.1f}",
+            flush=True,
+        )
+        start = time.time()
+        prev_connected = None
+        up_sec = max(1.0, self.simulate_cycle_sec - self.simulate_down_sec)
+        while self._running:
+            elapsed = time.time() - start
+            if self.simulate_max_seconds > 0 and elapsed >= self.simulate_max_seconds:
+                break
+            phase = elapsed % self.simulate_cycle_sec
+            connected_now = phase < up_sec
+            if prev_connected is None or connected_now != prev_connected:
+                if connected_now:
+                    self._connected_since_ts = time.time()
+                    self._last_error = ""
+                    print(f"  [SIM] state=connected elapsed={elapsed:.1f}s", flush=True)
+                else:
+                    self._reconnect_attempt += 1
+                    self._recent_reconnect_ts.append(time.time())
+                    self._recent_reconnect_ts = [x for x in self._recent_reconnect_ts if (time.time() - x) <= 300.0]
+                    reconnects_5m = len(self._recent_reconnect_ts)
+                    self._last_error = "simulated_disconnect"
+                    print(f"  [SIM] state=disconnected elapsed={elapsed:.1f}s", flush=True)
+                    if reconnects_5m >= self._reconnect_alert_threshold_5m:
+                        print(
+                            f"  [ALERT] reconnect storm: reconnects_last_5m={reconnects_5m} "
+                            f"threshold={self._reconnect_alert_threshold_5m}",
+                            flush=True,
+                        )
+            self._connected = connected_now
+            if connected_now:
+                self._last_message_ts_utc = datetime.now(timezone.utc).isoformat()
+                if (time.time() - self._connected_since_ts) >= self._stable_reset_sec:
+                    self._reconnect_delay = self._reconnect_base
+                    self._reconnect_attempt = 0
+            self._write_heartbeat()
+            prev_connected = connected_now
+            await asyncio.sleep(1.0)
+        self._connected = False
 
     async def _connect_and_listen_aiohttp(
         self,
@@ -562,7 +657,7 @@ class MicrostructureCollector:
             async with aiohttp.ClientSession(timeout=timeout) as session:
                 async with session.ws_connect(url, heartbeat=20, ssl=self._ssl_context) as ws:
                     self._connected = True
-                    self._reconnect_delay = 1.0
+                    self._connected_since_ts = time.time()
                     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
                     peer = None
                     try:
@@ -574,7 +669,8 @@ class MicrostructureCollector:
                     except Exception:
                         peer = None
                     print(f"  [{now}] Connected (aiohttp). Receiving data... peer={peer}", flush=True)
-                    async for msg in ws:
+                    while True:
+                        msg = await ws.receive(timeout=self.stall_timeout_sec)
                         if msg.type == aiohttp.WSMsgType.TEXT:
                             msg_count += 1
                             self._last_message_ts_utc = datetime.now(timezone.utc).isoformat()
@@ -590,9 +686,20 @@ class MicrostructureCollector:
                             break
                         if not self._running and parse_messages:
                             break
+                    if (time.time() - self._connected_since_ts) >= self._stable_reset_sec:
+                        self._reconnect_delay = self._reconnect_base
+                        self._reconnect_attempt = 0
         finally:
             self._connected = False
         return msg_count
+
+    def _next_reconnect_sleep(self) -> float:
+        base = max(self._reconnect_base, float(self._reconnect_delay))
+        j = max(0.0, min(0.5, float(self._reconnect_jitter_pct)))
+        factor = random.uniform(1.0 - j, 1.0 + j)
+        sleep_s = max(0.1, base * factor)
+        self._reconnect_delay = min(self._max_reconnect_delay, max(self._reconnect_base, base * self._reconnect_factor))
+        return sleep_s
 
     def _is_winerror5(self, exc: BaseException) -> bool:
         text = f"{exc!r} {exc}"
@@ -686,6 +793,7 @@ class MicrostructureCollector:
                 if not self._running:
                     break
                 self._print_stats()
+                self._maybe_checkpoint()
                 self._write_heartbeat()
         except asyncio.CancelledError:
             pass
@@ -710,14 +818,21 @@ class MicrostructureCollector:
             db_size_mb = os.path.getsize(self.db_path) / (1024 * 1024)
         except OSError:
             db_size_mb = 0
+        wal_size_mb = self._wal_size_mb()
 
         now = datetime.now(timezone.utc).strftime("%H:%M:%S")
         print(f"  [{now}] Uptime: {hours:.1f}h | "
               f"DB: {db_size_mb:.1f}MB | "
+              f"WAL: {wal_size_mb:.1f}MB | "
               f"Trades: {rates.get('agg_trades', 0):.0f}/s ({totals.get('agg_trades', 0):,} total) | "
               f"Mark: {rates.get('mark_prices', 0):.0f}/s ({totals.get('mark_prices', 0):,} total) | "
               f"Liqs: {rates.get('liquidations', 0):.1f}/s ({totals.get('liquidations', 0):,} total)",
               flush=True)
+        if self.wal_alert_mb > 0 and wal_size_mb > self.wal_alert_mb:
+            print(
+                f"  [WARN] WAL size high: {wal_size_mb:.1f}MB threshold={self.wal_alert_mb:.1f}MB",
+                flush=True,
+            )
 
     def _shutdown(self):
         """Flush remaining data and close database."""
@@ -733,6 +848,10 @@ class MicrostructureCollector:
                   f"trades={totals.get('agg_trades', 0):,}, "
                   f"mark_prices={totals.get('mark_prices', 0):,}, "
                   f"liquidations={totals.get('liquidations', 0):,}")
+        try:
+            self._maybe_checkpoint()
+        except Exception:
+            pass
         if self.conn:
             self.conn.close()
             print(f"  Database closed: {self.db_path}")
@@ -758,16 +877,21 @@ class MicrostructureCollector:
                 "mark_prices": int(self.buffer.total_flushed.get("mark_prices", 0)),
                 "liquidations": int(self.buffer.total_flushed.get("liquidations", 0)),
             }
+        wal_size_mb = self._wal_size_mb()
         return {
             "ts_utc": datetime.now(timezone.utc).isoformat(),
             "connected": bool(self._connected),
             "last_message_ts_utc": self._last_message_ts_utc,
             "last_flush_ts_utc": self._last_flush_ts_utc,
+            "last_checkpoint_ts_utc": self._last_checkpoint_ts_utc,
             "rows_written_since_start": rows,
             "last_error": self._last_error,
             "current_backoff_seconds": float(self._reconnect_delay),
             "backend": self._backend,
             "db_path": self.db_path,
+            "wal_size_mb": float(wal_size_mb),
+            "wal_alert_threshold_mb": float(self.wal_alert_mb),
+            "wal_alert": bool(wal_size_mb > self.wal_alert_mb),
         }
 
     def _write_heartbeat(self):
@@ -775,8 +899,65 @@ class MicrostructureCollector:
             self.heartbeat_path.parent.mkdir(parents=True, exist_ok=True)
             payload = self._heartbeat_payload()
             self.heartbeat_path.write_text(json.dumps(payload, ensure_ascii=True), encoding="utf-8")
+            now = time.time()
+            last_msg = None
+            if self._last_message_ts_utc:
+                try:
+                    last_msg = datetime.fromisoformat(self._last_message_ts_utc).timestamp()
+                except Exception:
+                    last_msg = None
+            lag = None if last_msg is None else max(0.0, now - float(last_msg))
+            reconnects5m = len([x for x in self._recent_reconnect_ts if (now - x) <= 300.0])
+            component = {
+                "status": ("ok" if self._connected else "degraded"),
+                "connected": bool(self._connected),
+                "last_progress_ts_utc": self._last_message_ts_utc,
+                "progress_lag_sec": (None if lag is None else int(lag)),
+                "reconnects_last_5m": int(reconnects5m),
+                "errors_last_5m": int(reconnects5m if self._last_error else 0),
+                "backend": self._backend,
+            }
+            write_component_health("collector", component)
+            overall = {
+                "ts_utc": utc_now_iso(),
+                "mode": "paper",
+                "state": ("ok" if self._connected and (lag is None or lag <= self.stall_timeout_sec) else "degraded"),
+                "reason": ("" if self._connected else "collector_disconnected"),
+                "components": {
+                    "collector": component,
+                    "watchdog": {"status": "unknown", "connected": None, "last_progress_ts_utc": None, "progress_lag_sec": None, "reconnects_last_5m": 0, "errors_last_5m": 0},
+                    "paper_trader": {"status": "unknown", "connected": None, "last_progress_ts_utc": None, "progress_lag_sec": None, "reconnects_last_5m": 0, "errors_last_5m": 0},
+                    "notifier": {"status": "unknown", "connected": None, "last_progress_ts_utc": None, "progress_lag_sec": None, "reconnects_last_5m": 0, "errors_last_5m": 0},
+                },
+            }
+            write_overall_health(overall)
         except Exception:
             pass
+
+    def _wal_size_mb(self) -> float:
+        try:
+            wal_path = Path(str(self.db_path) + "-wal")
+            if not wal_path.exists():
+                return 0.0
+            return float(wal_path.stat().st_size) / (1024.0 * 1024.0)
+        except Exception:
+            return 0.0
+
+    def _maybe_checkpoint(self) -> None:
+        if self.conn is None:
+            return
+        now = time.time()
+        if (now - float(self._last_checkpoint_ts or 0.0)) < self.checkpoint_interval_sec:
+            return
+        try:
+            row = self.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone()
+            self.conn.commit()
+            self._last_checkpoint_ts = now
+            self._last_checkpoint_ts_utc = datetime.now(timezone.utc).isoformat()
+            print(f"  [CHECKPOINT] wal_checkpoint(TRUNCATE)={row}", flush=True)
+        except Exception as e:
+            self._last_error = f"checkpoint_error:{type(e).__name__}: {e}"
+            print(f"  [WARN] {self._last_error}", flush=True)
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -799,8 +980,22 @@ def main():
                         help="Max seconds for connect test (default: 15).")
     parser.add_argument("--flush-fail-threshold", type=int, default=5,
                         help="Exit after N consecutive flush failures (default: 5).")
+    parser.add_argument("--checkpoint-interval-sec", type=float, default=300.0,
+                        help="Run WAL checkpoint this often in seconds (default: 300).")
+    parser.add_argument("--wal-alert-mb", type=float, default=2048.0,
+                        help="Warn when WAL file exceeds this size in MB (default: 2048).")
     parser.add_argument("--heartbeat-path", type=str, default="logs/collector_heartbeat.json",
                         help="Heartbeat JSON path (default: logs/collector_heartbeat.json).")
+    parser.add_argument("--stall-timeout-sec", type=float, default=45.0,
+                        help="Force reconnect if no message received for this many seconds (default: 45).")
+    parser.add_argument("--simulate-connection", action="store_true",
+                        help="Run deterministic local connection simulation (no network).")
+    parser.add_argument("--simulate-cycle-sec", type=float, default=20.0,
+                        help="Simulation cycle length seconds (default: 20).")
+    parser.add_argument("--simulate-down-sec", type=float, default=6.0,
+                        help="Simulation disconnected duration per cycle seconds (default: 6).")
+    parser.add_argument("--simulate-max-seconds", type=float, default=0.0,
+                        help="Stop simulation after this many seconds (default: 0=no auto-stop).")
     args = parser.parse_args()
 
     symbols = [s.strip() for s in args.symbols.split(",") if s.strip()]
@@ -814,7 +1009,14 @@ def main():
         flush_interval=args.flush_interval,
         stats_interval=args.stats_interval,
         flush_fail_threshold=int(args.flush_fail_threshold),
+        checkpoint_interval_sec=float(args.checkpoint_interval_sec),
+        wal_alert_mb=float(args.wal_alert_mb),
         heartbeat_path=args.heartbeat_path,
+        stall_timeout_sec=float(args.stall_timeout_sec),
+        simulate_connection=bool(args.simulate_connection),
+        simulate_cycle_sec=float(args.simulate_cycle_sec),
+        simulate_down_sec=float(args.simulate_down_sec),
+        simulate_max_seconds=float(args.simulate_max_seconds),
     )
 
     if args.connect_test:

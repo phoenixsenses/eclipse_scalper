@@ -1,0 +1,14 @@
+{
+  "date": "2026-03-02",
+  "input": "data\\derived\\physics\\interval_ms=100\\symbol=ETHUSDT\\date=2026-03-02\\physics.parquet",
+  "interval_ms": 100,
+  "output": "data\\derived\\regimes\\interval_ms=100\\symbol=ETHUSDT\\date=2026-03-02\\regimes.parquet",
+  "regime_counts": {
+    "0": 59,
+    "1": 129,
+    "2": 263,
+    "3": 35550
+  },
+  "rows": 36001,
+  "symbol": "ETHUSDT"
+}

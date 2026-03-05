@@ -56,11 +56,35 @@ def _read_max_ts(db: Path) -> int:
         return 0
     conn = sqlite3.connect(str(db), check_same_thread=False)
     try:
-        cur = conn.execute("SELECT MAX(ts) FROM mark_prices")
+        cols = conn.execute("PRAGMA table_info(mark_prices)").fetchall()
+        names = {str(r[1]).lower(): str(r[1]) for r in cols if len(r) > 1}
+        ts_col = (
+            names.get("ts_ms")
+            or names.get("timestamp_ms")
+            or names.get("ts_utc")
+            or names.get("ts")
+            or names.get("timestamp")
+            or names.get("event_ts")
+            or names.get("time")
+        )
+        if not ts_col:
+            return 0
+        cur = conn.execute(f"SELECT MAX({ts_col}) FROM mark_prices")
         row = cur.fetchone()
         if not row or row[0] is None:
             return 0
-        v = float(row[0])
+        raw = row[0]
+        try:
+            v = float(raw)
+        except Exception:
+            try:
+                # Text timestamp fallback.
+                from datetime import datetime
+
+                s = str(raw).replace("Z", "+00:00")
+                v = float(datetime.fromisoformat(s).timestamp())
+            except Exception:
+                return 0
         if v < 10_000_000_000:
             return int(v * 1000.0)
         return int(v)
@@ -163,4 +187,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

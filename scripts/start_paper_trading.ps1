@@ -73,9 +73,18 @@ param(
 $ErrorActionPreference = "Stop"
 $script:RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 Set-Location -LiteralPath $script:RepoRoot
+$venvPythonLocal = Join-Path $script:RepoRoot ".venv\Scripts\python.exe"
+$venvPythonParent = Join-Path (Split-Path -Parent $script:RepoRoot) ".venv\Scripts\python.exe"
+$pythonExe = if (Test-Path $venvPythonLocal) {
+    $venvPythonLocal
+} elseif (Test-Path $venvPythonParent) {
+    $venvPythonParent
+} else {
+    "python"
+}
 $watchdogPidFile = Join-Path $script:RepoRoot "logs\\pids\\paper_watchdog.pid"
 $watchdogMetaFile = Join-Path $script:RepoRoot "logs\\pids\\paper_watchdog.json"
-$watchdogCmdSig = "python -m tools.collection_watchdog"
+$watchdogCmdSig = "$pythonExe -m tools.collection_watchdog"
 
 function Get-WatchdogPythonProcesses {
     $procs = @(Get-CimInstance Win32_Process -Filter "Name='python.exe'" -ErrorAction SilentlyContinue)
@@ -196,6 +205,7 @@ Write-Host "  Config  : $EnvFile"
 Write-Host "  Date    : $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 Write-Host "=================================================" -ForegroundColor Cyan
 Write-Host ""
+Write-Host "  Python  : $pythonExe"
 
 # -- Load .env file into process environment -----------------------------------
 $resolvedEnv = $EnvFile
@@ -241,7 +251,7 @@ Write-Host "  Paper mode confirmed: SCALPER_DRY_RUN=1" -ForegroundColor Green
 if (-not $SkipValidation) {
     Write-Host ""
     Write-Host "Running environment validation..." -ForegroundColor Gray
-    python -m tools.validate_env --env $resolvedEnv
+    & $pythonExe -m tools.validate_env --env $resolvedEnv
     if ($LASTEXITCODE -ne 0) {
         Write-Host ""
         Write-Host "Validation failed. Fix the FAIL items above before starting." -ForegroundColor Red
@@ -255,7 +265,7 @@ if (-not $SkipValidation) {
 if (-not $SkipPreflight) {
     Write-Host ""
     Write-Host "Running preflight checks..." -ForegroundColor Gray
-    python -m tools.preflight_check
+    & $pythonExe -m tools.preflight_check
     if ($LASTEXITCODE -ne 0) {
         Write-Host ""
         Write-Host "Preflight failed. Resolve FAIL items in reports/PREFLIGHT_CHECK.md before starting." -ForegroundColor Red
@@ -289,7 +299,7 @@ if (-not $NoWatchdog) {
     }
     if ($null -eq $watchdog) {
         $watchdog = Start-Process `
-            -FilePath "python" `
+            -FilePath $pythonExe `
             -ArgumentList @("-u", "-m", "tools.collection_watchdog") `
             -WorkingDirectory $script:RepoRoot `
             -WindowStyle Hidden `
@@ -308,7 +318,7 @@ if (-not $NoWatchdog) {
         pid = [int]$recordPid
         start_ts_utc = (Get-Date).ToUniversalTime().ToString("s") + "Z"
         cmdline_sig = $watchdogCmdSig
-        exe_path = "python"
+        exe_path = $pythonExe
         parent_pid = $PID
         started_here = [bool]$watchdogStartedHere
         repo_root = $script:RepoRoot
@@ -343,7 +353,7 @@ if (Test-Path $lastShutdown) {
 try {
     # Use execution.bootstrap directly - NOT python main.py
     # (main.py removes SCALPER_DRY_RUN unless --dry-run is passed)
-    python -m execution.bootstrap
+    & $pythonExe -m execution.bootstrap
     $exitCode = $LASTEXITCODE
 } catch {
     Write-Host "Bot exited with exception: $_" -ForegroundColor Red

@@ -1,0 +1,12 @@
+{
+  "generated_utc": "2026-03-02T04:36:22.079196+00:00",
+  "interval_ms": 100,
+  "max_lag": 200,
+  "rows": 200,
+  "summary": {
+    "final_cumulative": -Infinity,
+    "max_response": -Infinity,
+    "min_response": -Infinity
+  },
+  "symbol": "ETHUSDT"
+}

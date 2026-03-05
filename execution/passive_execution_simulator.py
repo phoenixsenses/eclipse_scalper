@@ -11,6 +11,14 @@ import hashlib
 import math
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
+from config.costs import DEFAULT_MAKER_FEE_BPS
+from src.microphys.execution.latency import (
+    build_latency_timeline,
+    latency_bars as _latency_bars,
+    parse_latency_profile,
+    sample_stage_latency,
+    stage_to_legacy_components,
+)
 
 def _to_float(v: Any) -> Optional[float]:
     try:
@@ -234,7 +242,65 @@ def _tertile_score(features: Dict[str, Any], edges: Dict[str, List[Optional[floa
     return float(bi) / 2.0
 
 
-def simulate_passive_fill(event: Dict[str, Any], horizon_sec: int, features: Dict[str, Any], params: Dict[str, Any]) -> Dict[str, Any]:
+def load_adverse_model(path: str) -> Dict[str, Any]:
+    """Load calibrated adverse model produced by tools/fit_adverse_model.py.
+
+    Returns the parsed JSON dict.  Raises on missing/invalid file so callers
+    can decide whether to fall back gracefully.
+    """
+    import json as _json
+
+    with open(str(path), "r", encoding="utf-8") as fh:
+        return _json.load(fh)
+
+
+def get_conditional_adverse_bps(
+    features: Dict[str, Any],
+    model: Dict[str, Any],
+    symbol: Optional[str] = None,
+) -> float:
+    """Return expected adverse_bps from a calibrated model given current features.
+
+    Looks up by spread quartile (primary dimension) inside per_symbol data.
+    Falls back to global mean when the bucket cannot be resolved.
+
+    Args:
+        features: bucket feature dict with at least 'spread', 'trade_intensity',
+                  'imbalance' keys (same format as simulate_passive_fill input).
+        model:    output of fit_adverse_model.run() / load_adverse_model().
+        symbol:   trading symbol (e.g. "ETHUSDT"); picks first symbol if None.
+
+    Returns:
+        Estimated adverse_bps ≥ 0.0.
+    """
+    per_sym: Dict[str, Any] = model.get("per_symbol", {})
+    sym_key = str(symbol or "").upper()
+    sym_data: Dict[str, Any] = (
+        per_sym.get(sym_key)
+        or (next(iter(per_sym.values()), {}) if per_sym else {})
+    )
+    if not sym_data or "error" in sym_data:
+        return 0.0
+
+    stats = sym_data.get("statistics", {})
+    global_mean = float(stats.get("global_mean_adverse_bps", 0.0))
+
+    # Try spread-quartile lookup using stored quantile edges
+    edges = sym_data.get("quantile_edges", {}).get("spread", [])
+    spread = _to_float(features.get("spread"))
+    cond_spread = sym_data.get("conditional", {}).get("by_spread_quartile", {})
+
+    if spread is not None and len(edges) == 3 and all(e is not None for e in edges):
+        bi = _bin_idx(spread, edges)
+        label = ("Q1", "Q2", "Q3", "Q4")[bi if bi is not None else 1]
+        bucket_mean = cond_spread.get(label, {}).get("mean")
+        if bucket_mean is not None and float(bucket_mean) > 0.0:
+            return float(bucket_mean)
+
+    return max(0.0, global_mean)
+
+
+def simulate_passive_fill(event: Dict[str, Any], horizon_sec: int, features: Dict[str, Any], params: Dict[str, Any], *, adverse_model: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
     Deterministic passive fill simulator.
     """
@@ -245,6 +311,13 @@ def simulate_passive_fill(event: Dict[str, Any], horizon_sec: int, features: Dic
     future_mids = [float(x) for x in future_mids_raw if _to_float(x) is not None]
     event_id = str(event.get("event_id") or f"{event.get('symbol','')}|{event.get('signal_idx','')}")
     seed = int(params.get("seed", 42))
+    latency_profile = parse_latency_profile(params)
+    stage_latency = sample_stage_latency(latency_profile, seed=seed, event_id=event_id)
+    latency = stage_to_legacy_components(stage_latency)
+    bucket_sec = max(1e-6, float(_to_float(params.get("latency_bucket_sec")) or _to_float(event.get("bucket_sec")) or 5.0))
+    latency_bars = _latency_bars(float(latency["total_ms"]), bucket_sec)
+    decision_ts_ms = int(_to_float(event.get("decision_ts_ms")) or 0.0)
+    latency_timeline = build_latency_timeline(decision_ts_ms=decision_ts_ms, stage=stage_latency)
 
     touched_by_path, depth, touch_idx = _event_touch_and_depth(
         side=side,
@@ -266,6 +339,10 @@ def simulate_passive_fill(event: Dict[str, Any], horizon_sec: int, features: Dic
     qc_strength = float(params.get("queue_competition_strength", 0.30))
     competition = max(0.0, (0.6 * intensity_score) + (0.4 * spread_score))
     p_touch *= max(0.05, 1.0 - (qc_strength * competition))
+    _lat_touch_pen = _to_float(params.get("latency_touch_penalty_per_bar"))
+    latency_touch_penalty_per_bar = max(0.0, float(0.06 if _lat_touch_pen is None else _lat_touch_pen))
+    if latency_bars > 0:
+        p_touch *= max(0.01, 1.0 - min(0.90, latency_touch_penalty_per_bar * latency_bars))
     if not touched_by_path:
         p_touch *= float(params.get("touch_without_cross_factor", 0.05))
 
@@ -283,6 +360,12 @@ def simulate_passive_fill(event: Dict[str, Any], horizon_sec: int, features: Dic
             "p_full_cond_touch": 0.0,
             "queue_competition_score": float(competition),
             "toxicity_score": float((0.5 * intensity_score) + (0.5 * vol_score)),
+            "latency_ms_total": float(latency["total_ms"]),
+            "latency_bars": int(latency_bars),
+            "latency_decision_to_ack_ms": float(latency["decision_to_ack_ms"]),
+            "latency_queue_entry_ms": float(latency["queue_entry_ms"]),
+            "latency_feed_lag_ms": float(latency["feed_lag_ms"]),
+            "latency_timeline": latency_timeline,
         }
 
     p_full = _blend_metric(
@@ -302,21 +385,38 @@ def simulate_passive_fill(event: Dict[str, Any], horizon_sec: int, features: Dic
     full_fill = bool(u_full < p_full)
     fill_fraction = 1.0 if full_fill else float(params.get("partial_fill_fraction", 0.5))
 
-    adverse_bps = _blend_bps_metric(
-        features=features,
-        base_bps=float(params.get("base_adverse_bps", 0.0)),
-        table_bps=params.get("adverse_means", {}) if isinstance(params.get("adverse_means"), dict) else {},
-        edges=params.get("edges", {}) if isinstance(params.get("edges"), dict) else {},
-    )
+    # If a calibrated adverse model is supplied, use its conditional estimate
+    # instead of the simulator's internal blend.  Backward compatible: model=None
+    # preserves the original behaviour exactly.
+    if adverse_model is not None:
+        calibrated = get_conditional_adverse_bps(
+            features, adverse_model, event.get("symbol")
+        )
+        adverse_bps = calibrated if calibrated > 0.0 else _blend_bps_metric(
+            features=features,
+            base_bps=float(params.get("base_adverse_bps", 0.0)),
+            table_bps=params.get("adverse_means", {}) if isinstance(params.get("adverse_means"), dict) else {},
+            edges=params.get("edges", {}) if isinstance(params.get("edges"), dict) else {},
+        )
+    else:
+        adverse_bps = _blend_bps_metric(
+            features=features,
+            base_bps=float(params.get("base_adverse_bps", 0.0)),
+            table_bps=params.get("adverse_means", {}) if isinstance(params.get("adverse_means"), dict) else {},
+            edges=params.get("edges", {}) if isinstance(params.get("edges"), dict) else {},
+        )
     adverse_toxicity_strength = float(params.get("adverse_toxicity_strength", 0.60))
     toxicity = max(0.0, (0.5 * intensity_score) + (0.5 * vol_score))
     adverse_bps *= max(0.5, 1.0 + (adverse_toxicity_strength * toxicity))
     adverse_mult = max(0.0, float(params.get("passive_adverse_mult", 1.0)))
     adverse_bps *= adverse_mult
+    adverse_latency_bps_per_sec = max(0.0, float(_to_float(params.get("latency_adverse_bps_per_sec")) or 0.0))
+    if adverse_latency_bps_per_sec > 0.0 and float(latency["total_ms"]) > 0.0:
+        adverse_bps += adverse_latency_bps_per_sec * (float(latency["total_ms"]) / 1000.0)
 
-    maker_fee_bps = float(params.get("maker_fee_bps", 0.5))
+    maker_fee_bps = float(params.get("maker_fee_bps", float(DEFAULT_MAKER_FEE_BPS)))
     fee_bps_total = 2.0 * maker_fee_bps
-    effective_cost_bps = max(0.0, fee_bps_total + max(0.0, adverse_bps))
+    effective_cost_bps = fee_bps_total + max(0.0, adverse_bps)
 
     sp = float(spread_ratio or 0.0)
     half_sp = 0.5 * sp * fill_fraction
@@ -325,15 +425,45 @@ def simulate_passive_fill(event: Dict[str, Any], horizon_sec: int, features: Dic
     else:
         execution_price_adjustment = -half_sp
 
+    fill_index_offset = int(touch_idx)
+    if fill_index_offset >= 0 and latency_bars > 0:
+        fill_index_offset = fill_index_offset + latency_bars
+    if fill_index_offset < 0 or fill_index_offset >= len(future_mids):
+        return {
+            "filled": False,
+            "fill_fraction": 0.0,
+            "effective_cost_bps": 0.0,
+            "adverse_selection_bps": 0.0,
+            "execution_price_adjustment": 0.0,
+            "fill_index_offset": -1,
+            "p_touch": float(p_touch),
+            "p_full_cond_touch": float(p_full),
+            "queue_competition_score": float(competition),
+            "toxicity_score": float(toxicity),
+            "latency_ms_total": float(latency["total_ms"]),
+            "latency_bars": int(latency_bars),
+            "latency_decision_to_ack_ms": float(latency["decision_to_ack_ms"]),
+            "latency_queue_entry_ms": float(latency["queue_entry_ms"]),
+            "latency_feed_lag_ms": float(latency["feed_lag_ms"]),
+            "ttl_expired_by_latency": True,
+            "latency_timeline": latency_timeline,
+        }
+
     return {
         "filled": True,
         "fill_fraction": float(fill_fraction),
         "effective_cost_bps": float(effective_cost_bps),
         "adverse_selection_bps": float(max(0.0, adverse_bps)),
         "execution_price_adjustment": float(execution_price_adjustment),
-        "fill_index_offset": int(touch_idx),
+        "fill_index_offset": int(fill_index_offset),
         "p_touch": float(p_touch),
         "p_full_cond_touch": float(p_full),
         "queue_competition_score": float(competition),
         "toxicity_score": float(toxicity),
+        "latency_ms_total": float(latency["total_ms"]),
+        "latency_bars": int(latency_bars),
+        "latency_decision_to_ack_ms": float(latency["decision_to_ack_ms"]),
+        "latency_queue_entry_ms": float(latency["queue_entry_ms"]),
+        "latency_feed_lag_ms": float(latency["feed_lag_ms"]),
+        "latency_timeline": latency_timeline,
     }

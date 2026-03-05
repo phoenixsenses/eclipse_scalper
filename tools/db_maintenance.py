@@ -48,6 +48,7 @@ def _args() -> argparse.Namespace:
     p.add_argument("--backup-dir", default="data/backups")
     p.add_argument("--keep", type=int, default=7)
     p.add_argument("--min-free-gb", type=float, default=10.0)
+    p.add_argument("--max-wal-mb", type=float, default=2048.0)
     return p.parse_args()
 
 
@@ -81,6 +82,10 @@ def _prune_backups(dst_dir: Path, stem: str, keep: int) -> int:
     return removed
 
 
+def _wal_path(db: Path) -> Path:
+    return Path(str(db) + "-wal")
+
+
 def main() -> int:
     args = _args()
     db = Path(args.db)
@@ -93,15 +98,27 @@ def main() -> int:
 
     ck = _checkpoint(db)
     print(f"[db_maintenance] checkpoint {db}: {ck}")
-    b1 = _backup_file(db, bdir)
-    print(f"[db_maintenance] backup: {b1}")
+    try:
+        b1 = _backup_file(db, bdir)
+        print(f"[db_maintenance] backup: {b1}")
+    except Exception as e:
+        msg = f"DB MAINTENANCE ALERT: backup failed db={db} err={type(e).__name__}: {e}"
+        print(msg)
+        _send_alert(msg)
+        return 2
     removed = _prune_backups(bdir, db.stem, int(args.keep))
     if removed:
         print(f"[db_maintenance] pruned {removed} old backups for {db.stem}")
 
     if trade_db.exists():
-        b2 = _backup_file(trade_db, bdir)
-        print(f"[db_maintenance] backup: {b2}")
+        try:
+            b2 = _backup_file(trade_db, bdir)
+            print(f"[db_maintenance] backup: {b2}")
+        except Exception as e:
+            msg = f"DB MAINTENANCE ALERT: backup failed db={trade_db} err={type(e).__name__}: {e}"
+            print(msg)
+            _send_alert(msg)
+            return 2
         removed2 = _prune_backups(bdir, trade_db.stem, int(args.keep))
         if removed2:
             print(f"[db_maintenance] pruned {removed2} old backups for {trade_db.stem}")
@@ -114,9 +131,20 @@ def main() -> int:
         print(msg)
         _send_alert(msg)
         return 1
+
+    wal = _wal_path(db)
+    wal_mb = (float(wal.stat().st_size) / (1024.0 ** 2)) if wal.exists() else 0.0
+    print(f"[db_maintenance] wal_size_mb={wal_mb:.2f}")
+    if wal_mb > float(args.max_wal_mb):
+        msg = (
+            "DB MAINTENANCE ALERT: WAL too large "
+            f"path={wal} size_mb={wal_mb:.2f} threshold_mb={float(args.max_wal_mb):.2f}"
+        )
+        print(msg)
+        _send_alert(msg)
+        return 1
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

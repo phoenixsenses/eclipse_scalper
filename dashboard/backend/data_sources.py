@@ -1,0 +1,1066 @@
+"""Data sources for Eclipse Scalper Dashboard.
+
+Reads from repo structure: logs/, state/, data/.
+All reads are graceful — missing files return empty/default values.
+"""
+from __future__ import annotations
+
+import json
+import os
+import platform
+import re
+import shutil
+import sqlite3
+import sys
+import time
+from collections import deque
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Optional
+
+
+# ─────────────────────────────────────────────
+# Repo root — portable: always resolves relative to this file
+# ─────────────────────────────────────────────
+
+REPO_ROOT = Path(__file__).parent.parent.parent.resolve()
+
+
+def _env_path(env_var: str, default: Path) -> Path:
+    """Return Path from env var (absolute or REPO_ROOT-relative), else default."""
+    raw = os.environ.get(env_var, "").strip()
+    if not raw:
+        return default
+    p = Path(raw)
+    return p if p.is_absolute() else (REPO_ROOT / p).resolve()
+
+
+# Standard dirs.  LOG_DIR env var may override LOGS_DIR.
+LOGS_DIR  = _env_path("LOG_DIR", REPO_ROOT / "logs")
+STATE_DIR = REPO_ROOT / "state"
+DATA_DIR  = REPO_ROOT / "data"
+
+_SENSITIVE_KEYWORDS = {"API_KEY", "API_SECRET", "SECRET", "TOKEN", "PASSWORD", "PASS", "PRIVATE"}
+
+
+# ─────────────────────────────────────────────
+# Runtime status — constants
+# ─────────────────────────────────────────────
+
+_COLLECTOR_ALIVE_MAX_AGE = 120   # seconds: 2 missed 60 s stat intervals → dead
+_FRESHNESS_DEGRADED      = 30    # seconds since last trade → DEGRADED
+_FRESHNESS_STALE         = 120   # seconds since last trade → STALE
+_RUNTIME_CACHE_TTL       = 1.0   # seconds
+
+# Collector log stats-line regex (matches the real format written by microstructure_collector.py):
+#   [HH:MM:SS] Uptime: X.Xh | DB: X.XMB | Trades: X/s (...) | Mark: X/s (...) | Liqs: X.X/s (...)
+_STATS_RE = re.compile(
+    r"\[(\d{2}:\d{2}:\d{2})\]\s+Uptime:\s*([\d.]+)h"
+    r".*?Trades:\s*([\d.,]+)/s"
+    r".*?Mark:\s*([\d.,]+)/s"
+    r".*?Liqs:\s*([\d.,]+)/s",
+)
+
+# agg_trades timestamp column candidates, in priority order.
+# ts_ms  → integer epoch milliseconds
+# ts_utc / ts / timestamp → ISO 8601 string
+_TS_COL_PRIORITY: list[str] = ["ts_ms", "ts_utc", "ts", "timestamp"]
+
+# Module-level runtime cache
+_runtime_cache: dict[str, Any] = {}
+_runtime_cache_ts: float = 0.0
+
+# DB size history for 5-minute growth: deque of (monotonic_ts, size_bytes)
+_db_size_history: deque[tuple[float, int]] = deque(maxlen=360)  # 1 s × 360 s > 5 min
+
+
+# ─────────────────────────────────────────────
+# Runtime path accessors (read env vars at call time for late-binding)
+# ─────────────────────────────────────────────
+
+def _get_db_path() -> Path:
+    """Effective path to microstructure.db — overridable via MICROSTRUCTURE_DB_PATH."""
+    return _env_path("MICROSTRUCTURE_DB_PATH", DATA_DIR / "microstructure.db")
+
+
+def _get_collector_log() -> Path:
+    """Effective path to collector log — overridable via COLLECTOR_LOG_PATH."""
+    return _env_path("COLLECTOR_LOG_PATH", LOGS_DIR / "microstructure_collector.log")
+
+
+# ─────────────────────────────────────────────
+# Internal utilities
+# ─────────────────────────────────────────────
+
+def _safe_json(path: Path) -> dict[str, Any]:
+    """Load JSON file; return {} on any error."""
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def _tail_lines(path: Path, n: int = 200) -> list[str]:
+    """Return last n lines of a text file efficiently."""
+    try:
+        buf: deque[str] = deque(maxlen=n)
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            for line in f:
+                buf.append(line.rstrip("\n"))
+        return list(buf)
+    except Exception:
+        return []
+
+
+def _read_jsonl_tail(
+    path: Path,
+    limit: int = 100,
+    symbol_filter: Optional[str] = None,
+) -> list[dict]:
+    """Read last `limit` valid JSON lines from a JSONL file, with optional symbol filter."""
+    buf: deque[dict] = deque(maxlen=max(limit * 5, 500))
+    try:
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                    if symbol_filter:
+                        sym = (obj.get("symbol") or obj.get("sym") or "")
+                        if sym.upper() != symbol_filter.upper():
+                            continue
+                    buf.append(obj)
+                except (json.JSONDecodeError, UnicodeDecodeError):
+                    pass
+    except Exception:
+        pass
+    return list(buf)[-limit:]
+
+
+def _is_sensitive(key: str) -> bool:
+    ku = key.upper()
+    return any(kw in ku for kw in _SENSITIVE_KEYWORDS)
+
+
+def _mask(value: str) -> str:
+    if len(value) <= 4:
+        return "***"
+    return value[:4] + "***"
+
+
+def _safe_path(filename: str, base_dir: Path) -> Optional[Path]:
+    """Resolve a basename-only filename safely; reject path traversal."""
+    safe_name = Path(filename).name
+    candidate = (base_dir / safe_name).resolve()
+    try:
+        candidate.relative_to(base_dir.resolve())
+        return candidate
+    except ValueError:
+        return None
+
+
+# ─────────────────────────────────────────────
+# State readers
+# ─────────────────────────────────────────────
+
+def read_scoreboard() -> dict[str, Any]:
+    return _safe_json(STATE_DIR / "paper_scoreboard.json")
+
+
+def read_micro_edge_gates() -> dict[str, Any]:
+    return _safe_json(STATE_DIR / "micro_edge_gates.json")
+
+
+def read_passive_profiles() -> dict[str, Any]:
+    return _safe_json(STATE_DIR / "passive_realistic_profiles.json")
+
+
+# ─────────────────────────────────────────────
+# Log readers (JSON snapshots)
+# ─────────────────────────────────────────────
+
+def read_exit_quality() -> dict[str, Any]:
+    return _safe_json(LOGS_DIR / "exit_quality_summary.json")
+
+
+def read_preflight() -> dict[str, Any]:
+    return _safe_json(LOGS_DIR / "preflight_check.json")
+
+
+def read_reliability() -> dict[str, Any]:
+    """Parse reliability_gate.txt key=value pairs into a dict."""
+    path = LOGS_DIR / "reliability_gate.txt"
+    result: dict[str, Any] = {}
+    try:
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                for sep in ("=", ":"):
+                    if sep in line:
+                        k, _, v = line.partition(sep)
+                        result[k.strip()] = v.strip()
+                        break
+    except Exception:
+        pass
+    return result
+
+
+# ─────────────────────────────────────────────
+# JSONL event readers
+# ─────────────────────────────────────────────
+
+def read_regime_events(limit: int = 100, symbol: Optional[str] = None) -> list[dict]:
+    events = _read_jsonl_tail(LOGS_DIR / "regime_transitions.jsonl", limit=limit, symbol_filter=symbol)
+    normalized: list[dict] = []
+    for event in events:
+        item = dict(event)
+        ts = item.get("ts")
+        if isinstance(ts, (int, float)):
+            # Normalize epoch seconds/milliseconds into an ISO-8601 UTC string
+            # so FastAPI response validation remains stable.
+            epoch = float(ts)
+            if epoch > 1_000_000_000_000:
+                epoch /= 1000.0
+            try:
+                item["ts"] = datetime.fromtimestamp(epoch, tz=timezone.utc).isoformat()
+            except Exception:
+                item["ts"] = str(ts)
+        normalized.append(item)
+    return normalized
+
+
+def read_signal_events(limit: int = 100, symbol: Optional[str] = None) -> list[dict]:
+    return _read_jsonl_tail(LOGS_DIR / "alpha_gate.jsonl", limit=limit, symbol_filter=symbol)
+
+
+def read_stability_events(limit: int = 100, symbol: Optional[str] = None) -> list[dict]:
+    return _read_jsonl_tail(LOGS_DIR / "signal_stability.jsonl", limit=limit, symbol_filter=symbol)
+
+
+def read_quality_events(limit: int = 100, symbol: Optional[str] = None) -> list[dict]:
+    return _read_jsonl_tail(LOGS_DIR / "data_quality.jsonl", limit=limit, symbol_filter=symbol)
+
+
+# ─────────────────────────────────────────────
+# Log file listing & tail
+# ─────────────────────────────────────────────
+
+_EXCLUDE_DIRS = {"archive", "test_tmp", "pids", "__pycache__"}
+_ALLOWED_EXTS = {".log", ".jsonl", ".txt", ".json"}
+_LOG_LIST_CACHE_TTL_SEC = float(os.environ.get("DASHBOARD_LOG_LIST_CACHE_TTL_SEC", "8") or "8")
+_LOG_LIST_MAX_FILES = int(os.environ.get("DASHBOARD_LOG_LIST_MAX_FILES", "500") or "500")
+_LOG_TAIL_MAX_BYTES = int(os.environ.get("DASHBOARD_LOG_TAIL_MAX_BYTES", str(2 * 1024 * 1024)) or str(2 * 1024 * 1024))
+_log_list_cache: tuple[float, list[dict[str, Any]]] = (0.0, [])
+_log_list_cache_last_hit: bool = False
+_tail_last_source: str = "init"
+_RATE_LIMIT_RE = re.compile(r"\[RATE_LIMIT\]\s+used_1m=(\d+)\s+cap_1m=(\d+)\s+usage_pct=([\d.]+)", re.IGNORECASE)
+_OPS_HEALTH_HISTORY_PATH = LOGS_DIR / "ops_health_history.jsonl"
+_OPS_HEALTH_HISTORY_APPEND_SEC = float(os.environ.get("OPS_HEALTH_HISTORY_APPEND_SEC", "60") or "60")
+_ops_health_last_append_ts: float = 0.0
+
+
+def _tail_lines_fast(path: Path, n: int = 200, max_bytes: int = _LOG_TAIL_MAX_BYTES) -> list[str]:
+    """Efficient reverse-tail reader bounded by max_bytes."""
+    global _tail_last_source
+    if n <= 0:
+        _tail_last_source = "fast_empty"
+        return []
+    try:
+        file_size = path.stat().st_size
+        if file_size <= 0:
+            _tail_last_source = "fast_empty"
+            return []
+        window = min(file_size, max(4096, max_bytes))
+        with open(path, "rb") as f:
+            f.seek(file_size - window)
+            chunk = f.read(window)
+        text = chunk.decode("utf-8", errors="replace")
+        lines = text.splitlines()
+        if len(lines) > n:
+            lines = lines[-n:]
+        _tail_last_source = "fast"
+        return lines
+    except Exception:
+        _tail_last_source = "fallback"
+        return _tail_lines(path, n=n)
+
+
+def list_log_files() -> list[dict[str, Any]]:
+    """List available log/jsonl files in logs/ (excluding archive/test dirs)."""
+    global _log_list_cache, _log_list_cache_last_hit
+    now = time.time()
+    cache_ts, cache_rows = _log_list_cache
+    if cache_rows and (now - cache_ts) <= max(0.5, _LOG_LIST_CACHE_TTL_SEC):
+        _log_list_cache_last_hit = True
+        return cache_rows
+    _log_list_cache_last_hit = False
+
+    files: list[dict[str, Any]] = []
+    try:
+        for p in LOGS_DIR.iterdir():
+            if p.is_dir() and p.name in _EXCLUDE_DIRS:
+                continue
+            if p.is_file() and p.suffix in _ALLOWED_EXTS:
+                try:
+                    stat = p.stat()
+                    files.append({
+                        "name": p.name,
+                        "path": str(p.relative_to(REPO_ROOT)),
+                        "size_bytes": stat.st_size,
+                        "mtime": stat.st_mtime,
+                    })
+                    if len(files) >= max(10, _LOG_LIST_MAX_FILES):
+                        break
+                except Exception:
+                    pass
+    except Exception:
+        pass
+    out = sorted(files, key=lambda x: x["mtime"], reverse=True)
+    _log_list_cache = (now, out)
+    return out
+
+
+def tail_log_file(filename: str, limit: int = 200) -> list[str]:
+    """Return last `limit` lines from a file in logs/."""
+    global _tail_last_source
+    path = _safe_path(filename, LOGS_DIR)
+    if path is None or not path.exists():
+        _tail_last_source = "missing"
+        return []
+    return _tail_lines_fast(path, n=limit)
+
+
+def log_list_last_cache_hit() -> bool:
+    return _log_list_cache_last_hit
+
+
+def log_tail_last_source() -> str:
+    return _tail_last_source
+
+
+# ─────────────────────────────────────────────
+# Config reader (masked)
+# ─────────────────────────────────────────────
+
+def read_config_entries() -> list[dict[str, Any]]:
+    """Read .env + runtime env vars; mask sensitive values."""
+    entries: list[dict[str, Any]] = []
+
+    env_path = REPO_ROOT / ".env"
+    try:
+        with open(env_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if "=" in line:
+                    k, _, v = line.partition("=")
+                    k, v = k.strip(), v.strip()
+                    sensitive = _is_sensitive(k)
+                    entries.append({
+                        "key": k,
+                        "value": _mask(v) if sensitive else v,
+                        "sensitive": sensitive,
+                        "source": "env_file",
+                    })
+    except Exception:
+        pass
+
+    SHOW_ENV = [
+        "SCALPER_DRY_RUN", "ACTIVE_SYMBOLS", "SCALPER_SIGNAL_PROFILE",
+        "SCALPER_ENHANCED", "SCALPER_QUALITY_MODE", "SCALPER_QUALITY_CONF_MIN",
+        "FIRST_LIVE_SAFE", "FIRST_LIVE_SYMBOLS", "FIRST_LIVE_MAX_NOTIONAL_USDT",
+    ]
+    for k in SHOW_ENV:
+        v = os.environ.get(k)
+        if v is not None:
+            entries.append({
+                "key": k,
+                "value": v,
+                "sensitive": False,
+                "source": "runtime_env",
+            })
+
+    return entries
+
+
+# ─────────────────────────────────────────────
+# Runtime status helpers
+# ─────────────────────────────────────────────
+
+def _parse_collector_log() -> dict[str, Any]:
+    """
+    Tail collector log and extract the most recent stats line.
+
+    Resilience guarantees:
+    - alive + last_log_ts are always derived from the file's mtime when the
+      file exists, independent of whether the regex matches.
+    - Rates are None (not 0.0) when the regex doesn't match — the frontend
+      can distinguish "no data" from "genuinely zero".
+    - A file-read or parse error leaves alive/last_log_ts intact and rates
+      as None; it never propagates.
+    """
+    result: dict[str, Any] = {
+        "alive": False,
+        "last_log_ts": None,
+        "uptime_sec": None,
+        "trades_per_sec_60s": None,
+        "mark_per_sec_60s": None,
+        "liquidations_per_sec_60s": None,
+    }
+    try:
+        path = _get_collector_log()
+        if not path.exists():
+            return result
+
+        stat = path.stat()
+        age_sec = time.time() - stat.st_mtime
+        result["last_log_ts"] = datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat()
+        result["alive"] = age_sec < _COLLECTOR_ALIVE_MAX_AGE
+
+        # Read only the last 6 KB — sufficient for multiple recent stat lines.
+        file_size = stat.st_size
+        read_from = max(0, file_size - 6144)
+        last_match: re.Match | None = None
+
+        try:
+            with open(path, "r", encoding="utf-8", errors="replace") as fh:
+                if read_from > 0:
+                    fh.seek(read_from)
+                    fh.readline()  # discard potentially partial first line
+                for line in fh:
+                    m = _STATS_RE.search(line)
+                    if m:
+                        last_match = m
+        except Exception:
+            # File-read error: alive/last_log_ts already set; rates stay None.
+            return result
+
+        if last_match:
+            try:
+                result["uptime_sec"] = round(float(last_match.group(2)) * 3600)
+                result["trades_per_sec_60s"] = float(last_match.group(3).replace(",", ""))
+                result["mark_per_sec_60s"] = float(last_match.group(4).replace(",", ""))
+                result["liquidations_per_sec_60s"] = float(last_match.group(5).replace(",", ""))
+            except (ValueError, IndexError):
+                pass  # partial parse: rates stay None
+
+    except Exception:
+        pass
+
+    return result
+
+
+def _pick_ts_column(conn: sqlite3.Connection) -> tuple[str | None, str]:
+    """
+    Discover the best timestamp column in agg_trades via PRAGMA table_info.
+
+    Priority: ts_ms (epoch-ms int) > ts_utc (ISO str) > ts (ISO str) > timestamp (ISO str)
+
+    Returns (column_name, kind) where kind is 'epoch_ms' or 'iso_str'.
+    Returns (None, '') when the table is absent or no recognised column exists.
+    PRAGMA table_info returns zero rows for a non-existent table (no exception).
+    """
+    try:
+        rows = conn.execute("PRAGMA table_info(agg_trades)").fetchall()
+    except Exception:
+        return None, ""
+
+    if not rows:
+        # Zero rows → table does not exist in this DB file.
+        return None, ""
+
+    # PRAGMA table_info row layout: (cid, name, type, notnull, dflt_value, pk)
+    col_names = {row[1].lower() for row in rows}
+
+    for candidate in _TS_COL_PRIORITY:
+        if candidate in col_names:
+            kind = "epoch_ms" if candidate == "ts_ms" else "iso_str"
+            return candidate, kind
+
+    return None, ""
+
+
+def _parse_iso_ts(raw: str) -> datetime | None:
+    """
+    Safely parse an ISO 8601 timestamp string to an aware datetime (UTC).
+
+    Handles:
+    - Trailing 'Z' (not accepted by fromisoformat before Python 3.11)
+    - Naive timestamps (assumed UTC)
+    - Fractional seconds
+
+    Returns None on any parse failure instead of raising.
+    """
+    try:
+        s = str(raw).strip().replace("Z", "+00:00")
+        dt = datetime.fromisoformat(s)
+        return dt if dt.tzinfo is not None else dt.replace(tzinfo=timezone.utc)
+    except Exception:
+        return None
+
+
+def _query_db_freshness() -> dict[str, Any]:
+    """
+    Query the DB for the most recent trade timestamp.
+
+    Schema-resilience guarantees:
+    - PRAGMA table_info(agg_trades) selects the timestamp column; no hardcoded
+      column name ever appears in a SELECT.
+    - Missing table → STALE (no exception).
+    - Missing recognised column → STALE (no exception).
+    - epoch-ms integer parse failure → DEGRADED.
+    - ISO 8601 string parse failure → DEGRADED.
+    - Any unexpected exception → STALE (outer try/except, never 500).
+    """
+    result: dict[str, Any] = {
+        "last_trade_ts": None,
+        "seconds_since_last_trade": None,
+        "status": "STALE",
+    }
+    db_path = _get_db_path()
+    try:
+        if not db_path.exists():
+            return result
+
+        # as_posix() converts Windows backslashes for the SQLite URI.
+        uri = f"file:{db_path.as_posix()}?mode=ro"
+        conn = sqlite3.connect(uri, uri=True, timeout=2.0, check_same_thread=False)
+        try:
+            # Explicit table-existence check via sqlite_master (readable in mode=ro).
+            tbl = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='agg_trades'"
+            ).fetchone()
+            if tbl is None:
+                return result
+
+            col, kind = _pick_ts_column(conn)
+            if col is None:
+                return result
+
+            # col is one of the hardcoded _TS_COL_PRIORITY identifiers — not user input.
+            row = conn.execute(f'SELECT MAX("{col}") FROM agg_trades').fetchone()
+        finally:
+            conn.close()
+
+        if not row or row[0] is None:
+            return result
+
+        raw_ts = row[0]
+
+        if kind == "epoch_ms":
+            try:
+                dt: datetime | None = datetime.fromtimestamp(int(raw_ts) / 1000.0, tz=timezone.utc)
+            except Exception:
+                result["status"] = "DEGRADED"
+                return result
+        else:
+            dt = _parse_iso_ts(str(raw_ts))
+            if dt is None:
+                result["status"] = "DEGRADED"
+                return result
+
+        result["last_trade_ts"] = dt.isoformat()
+        age = (datetime.now(tz=timezone.utc) - dt).total_seconds()
+        result["seconds_since_last_trade"] = round(age, 1)
+
+        if age < _FRESHNESS_DEGRADED:
+            result["status"] = "LIVE"
+        elif age < _FRESHNESS_STALE:
+            result["status"] = "DEGRADED"
+        else:
+            result["status"] = "STALE"
+
+    except Exception:
+        pass
+
+    return result
+
+
+def _db_file_stats() -> dict[str, Any]:
+    """Return DB file size, last-write timestamp, and 5-minute byte growth."""
+    db_path = _get_db_path()
+    result: dict[str, Any] = {
+        "path": str(db_path),
+        "size_bytes": 0,
+        "last_write_ts": None,
+        "growth_bytes_5min": 0,
+    }
+    try:
+        if not db_path.exists():
+            return result
+
+        stat = db_path.stat()
+        size_now = stat.st_size
+        now_mono = time.monotonic()
+
+        result["size_bytes"] = size_now
+        result["last_write_ts"] = datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat()
+
+        _db_size_history.append((now_mono, size_now))
+
+        # Walk deque (oldest-first) and keep updating old_size for every sample
+        # that is still >= 5 minutes old — this gives us the most-recent such sample.
+        cutoff = now_mono - 300.0
+        old_size: int | None = None
+        for ts, sz in _db_size_history:
+            if ts <= cutoff:
+                old_size = sz
+        if old_size is not None:
+            result["growth_bytes_5min"] = max(0, size_now - old_size)
+
+    except Exception:
+        pass
+
+    return result
+
+
+def read_runtime_status() -> dict[str, Any]:
+    """Assemble collector + DB + freshness + system status. Cached for 1 s."""
+    global _runtime_cache, _runtime_cache_ts
+
+    now = time.monotonic()
+    if now - _runtime_cache_ts < _RUNTIME_CACHE_TTL and _runtime_cache:
+        return _runtime_cache
+
+    _runtime_cache = {
+        "collector":      _parse_collector_log(),
+        "database":       _db_file_stats(),
+        "data_freshness": _query_db_freshness(),
+        "system": {
+            "server_time":    datetime.now(tz=timezone.utc).isoformat(),
+            "python_version": sys.version.split()[0],
+            "platform":       platform.platform(terse=True),
+        },
+    }
+    _runtime_cache_ts = now
+    return _runtime_cache
+
+
+def _safe_iso_from_mtime(path: Path) -> str | None:
+    try:
+        return datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc).isoformat()
+    except Exception:
+        return None
+
+
+def _backup_stats() -> dict[str, Any]:
+    backup_dir = _env_path("DB_BACKUP_DIR", DATA_DIR / "backups")
+    out = {
+        "backup_dir": str(backup_dir),
+        "backup_count": 0,
+        "last_backup_ts": None,
+        "backup_age_sec": None,
+    }
+    try:
+        if not backup_dir.exists():
+            return out
+        files = [p for p in backup_dir.glob("*.db") if p.is_file()]
+        if not files:
+            return out
+        files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+        last = files[0]
+        out["backup_count"] = len(files)
+        last_ts = _safe_iso_from_mtime(last)
+        out["last_backup_ts"] = last_ts
+        out["backup_age_sec"] = round(max(0.0, time.time() - last.stat().st_mtime), 1)
+    except Exception:
+        pass
+    return out
+
+
+def _maintenance_stats() -> dict[str, Any]:
+    # best-effort; if dedicated maintenance log exists, use mtime as checkpoint activity marker
+    log_path = LOGS_DIR / "db_maintenance.log"
+    out = {"last_maintenance_ts": None, "maintenance_age_sec": None}
+    try:
+        if not log_path.exists():
+            return out
+        out["last_maintenance_ts"] = _safe_iso_from_mtime(log_path)
+        out["maintenance_age_sec"] = round(max(0.0, time.time() - log_path.stat().st_mtime), 1)
+    except Exception:
+        pass
+    return out
+
+
+def _disk_and_wal_stats() -> dict[str, Any]:
+    db_path = _get_db_path()
+    wal_path = Path(str(db_path) + "-wal")
+    out = {
+        "db_path": str(db_path),
+        "db_size_bytes": 0,
+        "wal_path": str(wal_path),
+        "wal_size_bytes": 0,
+        "wal_ratio": 0.0,
+        "disk_free_gb": None,
+        "disk_total_gb": None,
+    }
+    try:
+        if db_path.exists():
+            out["db_size_bytes"] = int(db_path.stat().st_size)
+        if wal_path.exists():
+            out["wal_size_bytes"] = int(wal_path.stat().st_size)
+        db_size = float(out["db_size_bytes"] or 0)
+        wal_size = float(out["wal_size_bytes"] or 0)
+        out["wal_ratio"] = round((wal_size / db_size), 4) if db_size > 0 else 0.0
+        du = shutil.disk_usage(str(REPO_ROOT))
+        out["disk_free_gb"] = round(float(du.free) / (1024.0 ** 3), 2)
+        out["disk_total_gb"] = round(float(du.total) / (1024.0 ** 3), 2)
+    except Exception:
+        pass
+    return out
+
+
+def _health_overall_stats() -> dict[str, Any]:
+    out = {
+        "collector_connected": None,
+        "reconnects_last_5m": 0,
+        "errors_last_5m": 0,
+    }
+    path = LOGS_DIR / "health" / "overall.json"
+    try:
+        if not path.exists():
+            return out
+        payload = _safe_json(path)
+        comps = payload.get("components") if isinstance(payload.get("components"), dict) else {}
+        collector = comps.get("collector") if isinstance(comps.get("collector"), dict) else {}
+        out["collector_connected"] = collector.get("connected")
+        out["reconnects_last_5m"] = int(collector.get("reconnects_last_5m", 0) or 0)
+        out["errors_last_5m"] = int(collector.get("errors_last_5m", 0) or 0)
+    except Exception:
+        pass
+    return out
+
+
+def _rate_limit_stats() -> dict[str, Any]:
+    out: dict[str, Any] = {
+        "used_1m": None,
+        "cap_1m": None,
+        "usage_pct": None,
+        "samples": [],
+    }
+    path = LOGS_DIR / "paper_trading.log"
+    try:
+        lines = _tail_lines(path, n=1200)
+        samples: list[dict[str, Any]] = []
+        for line in lines:
+            m = _RATE_LIMIT_RE.search(line)
+            if not m:
+                continue
+            sample = {
+                "used_1m": int(m.group(1)),
+                "cap_1m": int(m.group(2)),
+                "usage_pct": float(m.group(3)),
+            }
+            samples.append(sample)
+        if samples:
+            out["samples"] = samples[-30:]
+            last = samples[-1]
+            out["used_1m"] = last["used_1m"]
+            out["cap_1m"] = last["cap_1m"]
+            out["usage_pct"] = last["usage_pct"]
+    except Exception:
+        pass
+    return out
+
+
+def read_ops_health() -> dict[str, Any]:
+    disk = _disk_and_wal_stats()
+    backup = _backup_stats()
+    maint = _maintenance_stats()
+    health = _health_overall_stats()
+    rate = _rate_limit_stats()
+
+    disk_free_min = float(os.environ.get("OPS_DISK_FREE_MIN_GB", "10") or "10")
+    wal_warn_mb = float(os.environ.get("OPS_WAL_WARN_MB", "2048") or "2048")
+    backup_warn_sec = float(os.environ.get("OPS_BACKUP_WARN_SEC", str(24 * 3600)) or str(24 * 3600))
+    reconnect_warn_5m = int(os.environ.get("OPS_RECONNECT_WARN_5M", "10") or "10")
+    rate_warn_pct = float(os.environ.get("OPS_RATE_WARN_PCT", "80") or "80")
+
+    wal_mb = float(disk.get("wal_size_bytes") or 0) / (1024.0 ** 2)
+    disk_free_gb = float(disk.get("disk_free_gb") or 0.0)
+    backup_age = float(backup.get("backup_age_sec") or 1e18)
+    reconnects_5m = int(health.get("reconnects_last_5m", 0) or 0)
+    usage_pct = float(rate.get("usage_pct") or 0.0)
+
+    data_status = "ok"
+    net_status = "ok"
+    if disk.get("disk_free_gb") is not None and disk_free_gb < disk_free_min:
+        data_status = "critical"
+    elif wal_mb > wal_warn_mb or backup_age > backup_warn_sec:
+        data_status = "warning"
+
+    if reconnects_5m >= reconnect_warn_5m:
+        net_status = "warning"
+    if usage_pct >= rate_warn_pct:
+        net_status = "warning" if net_status == "ok" else net_status
+
+    payload = {
+        "ts_utc": datetime.now(tz=timezone.utc).isoformat(),
+        "status": {
+            "data_integrity": data_status,
+            "network": net_status,
+        },
+        "thresholds": {
+            "disk_free_min_gb": disk_free_min,
+            "wal_warn_mb": wal_warn_mb,
+            "backup_warn_sec": backup_warn_sec,
+            "reconnect_warn_5m": reconnect_warn_5m,
+            "rate_warn_pct": rate_warn_pct,
+        },
+        "data_integrity": {
+            **disk,
+            **backup,
+            **maint,
+        },
+        "network": {
+            **health,
+            **rate,
+        },
+    }
+    _append_ops_health_history(payload)
+    payload["history"] = _read_ops_health_history(limit=int(os.environ.get("OPS_HEALTH_HISTORY_LIMIT", "120") or "120"))
+    return payload
+
+
+def read_connectivity_diag() -> dict[str, Any]:
+    """Best-effort connectivity diagnostics for dashboard troubleshooting."""
+    now = time.time()
+    db_path = _get_db_path()
+    collector_log = _get_collector_log()
+    overall_health = LOGS_DIR / "health" / "overall.json"
+    paper_log = LOGS_DIR / "paper_trading.log"
+
+    def _path_diag(path: Path) -> dict[str, Any]:
+        exists = path.exists()
+        out: dict[str, Any] = {
+            "path": str(path),
+            "exists": exists,
+            "is_file": path.is_file() if exists else False,
+            "readable": False,
+            "size_bytes": None,
+            "age_sec": None,
+        }
+        if not exists:
+            return out
+        try:
+            stat = path.stat()
+            out["size_bytes"] = int(stat.st_size)
+            out["age_sec"] = round(max(0.0, now - stat.st_mtime), 1)
+        except Exception:
+            pass
+        try:
+            with open(path, "rb") as f:
+                _ = f.read(1)
+            out["readable"] = True
+        except Exception:
+            out["readable"] = False
+        return out
+
+    logs_dir_diag: dict[str, Any] = {
+        "path": str(LOGS_DIR),
+        "exists": LOGS_DIR.exists(),
+        "writable": False,
+    }
+    if LOGS_DIR.exists():
+        try:
+            probe = LOGS_DIR / ".dashboard_write_probe"
+            probe.write_text("ok", encoding="utf-8")
+            probe.unlink(missing_ok=True)
+            logs_dir_diag["writable"] = True
+        except Exception:
+            logs_dir_diag["writable"] = False
+
+    items = {
+        "db": _path_diag(db_path),
+        "collector_log": _path_diag(collector_log),
+        "paper_log": _path_diag(paper_log),
+        "overall_health": _path_diag(overall_health),
+    }
+
+    hints: list[str] = []
+    if not bool(logs_dir_diag.get("exists")):
+        hints.append("logs directory missing")
+    if bool(logs_dir_diag.get("exists")) and not bool(logs_dir_diag.get("writable")):
+        hints.append("logs directory not writable")
+    if not bool(items["db"].get("exists")):
+        hints.append("microstructure db missing")
+    if bool(items["collector_log"].get("exists")) and (items["collector_log"].get("age_sec") or 0) > 120:
+        hints.append("collector log stale >120s")
+    if bool(items["paper_log"].get("exists")) and (items["paper_log"].get("age_sec") or 0) > 120:
+        hints.append("paper_trading log stale >120s")
+    if not bool(items["overall_health"].get("exists")):
+        hints.append("overall health file missing")
+
+    status = "ok" if not hints else "degraded"
+    return {
+        "ts_utc": datetime.now(tz=timezone.utc).isoformat(),
+        "status": status,
+        "logs_dir": logs_dir_diag,
+        "items": items,
+        "hints": hints,
+    }
+
+
+def _append_ops_health_history(payload: dict[str, Any]) -> None:
+    global _ops_health_last_append_ts
+    now = time.time()
+    if (now - float(_ops_health_last_append_ts or 0.0)) < max(5.0, _OPS_HEALTH_HISTORY_APPEND_SEC):
+        return
+    row = {
+        "ts_utc": payload.get("ts_utc"),
+        "data_integrity": {
+            "status": ((payload.get("status") or {}).get("data_integrity") if isinstance(payload.get("status"), dict) else None),
+            "disk_free_gb": ((payload.get("data_integrity") or {}).get("disk_free_gb") if isinstance(payload.get("data_integrity"), dict) else None),
+            "wal_size_bytes": ((payload.get("data_integrity") or {}).get("wal_size_bytes") if isinstance(payload.get("data_integrity"), dict) else None),
+        },
+        "network": {
+            "status": ((payload.get("status") or {}).get("network") if isinstance(payload.get("status"), dict) else None),
+            "reconnects_last_5m": ((payload.get("network") or {}).get("reconnects_last_5m") if isinstance(payload.get("network"), dict) else None),
+            "usage_pct": ((payload.get("network") or {}).get("usage_pct") if isinstance(payload.get("network"), dict) else None),
+        },
+    }
+    try:
+        _OPS_HEALTH_HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(_OPS_HEALTH_HISTORY_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
+        _ops_health_last_append_ts = now
+    except Exception:
+        pass
+
+
+def _read_ops_health_history(limit: int = 120) -> list[dict[str, Any]]:
+    if limit <= 0:
+        return []
+    rows: list[dict[str, Any]] = []
+    try:
+        with open(_OPS_HEALTH_HISTORY_PATH, "r", encoding="utf-8", errors="replace") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                    if isinstance(obj, dict):
+                        rows.append(obj)
+                except Exception:
+                    continue
+    except Exception:
+        return []
+    return rows[-limit:]
+
+
+def read_supervisor_status() -> dict[str, Any]:
+    """Read dashboard backend supervisor status from runtime/log artifacts."""
+    now = time.time()
+    runtime_path = REPO_ROOT / "runtime" / "dashboard_backend.json"
+    lock_path = REPO_ROOT / "runtime" / "dashboard_launcher.lock"
+    sup_log = LOGS_DIR / "dashboard_backend_supervisor.log"
+
+    out: dict[str, Any] = {
+        "ts_utc": datetime.now(tz=timezone.utc).isoformat(),
+        "supervisor_log_path": str(sup_log),
+        "supervisor_running": False,
+        "backend_runtime_present": False,
+        "backend_pid": None,
+        "backend_host": None,
+        "backend_port": None,
+        "backend_runtime_age_sec": None,
+        "last_event": None,
+        "last_event_age_sec": None,
+        "restarts_last_1h": 0,
+    }
+
+    if runtime_path.exists():
+        try:
+            payload = _safe_json(runtime_path)
+            out["backend_runtime_present"] = True
+            out["backend_pid"] = payload.get("pid")
+            out["backend_host"] = payload.get("host") or os.environ.get("DASHBOARD_HOST", "127.0.0.1")
+            out["backend_port"] = payload.get("port") or int(os.environ.get("DASHBOARD_PORT", "8765") or "8765")
+            out["backend_runtime_age_sec"] = round(max(0.0, now - runtime_path.stat().st_mtime), 1)
+        except Exception:
+            pass
+
+    # Heuristic: lock file exists if launcher active. Supervisor can also run without launcher.
+    if lock_path.exists():
+        out["supervisor_running"] = True
+
+    if sup_log.exists():
+        lines = _tail_lines(sup_log, n=400)
+        if lines:
+            # Last non-empty line as current state event
+            for i in range(len(lines) - 1, -1, -1):
+                line = lines[i].strip()
+                if line:
+                    out["last_event"] = line
+                    break
+            try:
+                out["last_event_age_sec"] = round(max(0.0, now - sup_log.stat().st_mtime), 1)
+            except Exception:
+                pass
+            last_started_idx = -1
+            last_stopped_idx = -1
+            cutoff = now - 3600.0
+            count = 0
+            for idx, line in enumerate(lines):
+                low = line.lower()
+                if "started backend pid=" in low:
+                    last_started_idx = idx
+                if "supervisor stopped" in low:
+                    last_stopped_idx = idx
+                if "restarted backend pid=" not in line:
+                    continue
+                # format: [YYYY-mm-dd HH:MM:SS] ...
+                if line.startswith("[") and "]" in line:
+                    stamp = line[1:line.find("]")]
+                    try:
+                        dt = datetime.strptime(stamp, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+                        if dt.timestamp() >= cutoff:
+                            count += 1
+                        continue
+                    except Exception:
+                        pass
+                count += 1
+            out["restarts_last_1h"] = count
+            # Running iff latest lifecycle event is a "started" after any "stopped".
+            out["supervisor_running"] = last_started_idx > last_stopped_idx
+
+    return out
+
+
+# ─────────────────────────────────────────────
+# Overview aggregation
+# ─────────────────────────────────────────────
+
+def build_overview() -> dict[str, Any]:
+    raw_gates = read_micro_edge_gates()
+    symbols: list[dict] = []
+    for sym, data in raw_gates.get("symbols", {}).items():
+        rule = data.get("rule_name", "")
+        rule_data = data.get("rules_filtered", {}).get(rule, {})
+        symbols.append({
+            "symbol": sym,
+            "rule_name": rule,
+            "hit_rate": rule_data.get("hit_rate"),
+            "delta_vs_baseline": data.get("delta_vs_baseline"),
+            "thresholds": data.get("thresholds", {}),
+        })
+
+    return {
+        "scoreboard": read_scoreboard(),
+        "gates": {
+            "generated_utc": raw_gates.get("generated_utc"),
+            "lookback_min": raw_gates.get("lookback_min"),
+            "symbols": symbols,
+        },
+        "recent_regimes": read_regime_events(limit=10),
+        "exit_quality": read_exit_quality(),
+        "preflight": read_preflight(),
+        "reliability": read_reliability(),
+    }

@@ -57,13 +57,19 @@ def test_analyze_fill_timing_outputs(monkeypatch) -> None:
                 str(out_md),
                 "--out-json",
                 str(out_json),
+                "--bar-sec",
+                "2.0",
+                "--timeout-candidates",
+                "5,10,30",
             ],
         )
         assert aft.main() == 0
         payload = json.loads(out_json.read_text(encoding="utf-8"))
         assert payload["status"] == "ok"
         assert int(payload["live_summary"]["rows"]) == 2
+        assert float(payload["bar_sec"]) == 2.0
+        assert "recommended_timeout_sec" in payload["live_summary"]
+        assert len(payload["live_summary"].get("timeout_eval", [])) == 3
         assert out_md.exists()
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
-

@@ -5,10 +5,13 @@
 # Python
 __pycache__/
 *.pyc
+**/__pycache__/
+**/*.pyc
 
 # Runtime & logs
 logs/
 *.log
+**/*.log
 runlog.txt
 *.csv
 
@@ -27,3 +30,11 @@ data/backtest_cache/
 # OS
 Thumbs.db
 .DS_Store
+**/.DS_Store
+
+# Node / frontend artifacts
+**/node_modules/
+**/dist/
+**/.vite/
+dashboard/**/node_modules/
+dashboard/**/dist/

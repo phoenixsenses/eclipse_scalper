@@ -731,6 +731,20 @@ async def save_brain(state: PsycheState, force: bool = False):
             log_brain.critical(f"BRAIN SAVE FAILED: {e} — FALLING BACK TO MEMORY")
 
 
+async def _post_load_force_save_best_effort(state: PsycheState, timeout_sec: float = 2.0) -> None:
+    """
+    Never block bootstrap on persistence IO.
+    If _IO_LOCK is already held, skip immediately (asyncio.Lock is non-reentrant).
+    """
+    try:
+        if _IO_LOCK.locked():
+            log_brain.warning("load_brain: skip save_brain(force=True) because _IO_LOCK is already held")
+            return
+        await asyncio.wait_for(save_brain(state, force=True), timeout=max(0.1, float(timeout_sec)))
+    except Exception as e:
+        log_brain.warning(f"load_brain: post-load save_brain failed (ignored): {e!r}")
+
+
 async def load_brain(state: PsycheState) -> bool:
     """LOAD — RESURRECTION"""
     global _memory_fallback_payload, _disk_failed
@@ -800,12 +814,9 @@ async def load_brain(state: PsycheState) -> bool:
                     f"BRAIN RESURRECTED FROM {path} — {len(getattr(state, 'positions', {}) or {})} positions"
                 )
 
-                # Heal forward: if loaded from backup, re-save main
-                try:
-                    if i != 0:
-                        await save_brain(state, force=True)
-                except Exception:
-                    pass
+                # Heal forward: if loaded from backup, re-save main (best effort; never block bootstrap)
+                if i != 0:
+                    await _post_load_force_save_best_effort(state)
 
                 return True
 

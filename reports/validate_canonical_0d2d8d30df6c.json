@@ -1,0 +1,53 @@
+{
+  "status": "fail",
+  "run_id": "0d2d8d30df6c",
+  "source": "reports\\test_validate_canonical\\fail_nan.csv",
+  "config_version": "canonical_validate_v1",
+  "violations": [
+    {
+      "type": "nan",
+      "code": "nan_ratio_above_threshold",
+      "column": "mid",
+      "severity": "critical",
+      "nan_ratio": 0.5,
+      "threshold": 0.25
+    }
+  ],
+  "column_stats": {
+    "mid": {
+      "dtype": "float64",
+      "numeric_convertible": true,
+      "bad_ratio_on_convert": 0.0,
+      "nan_ratio": 0.5,
+      "inf_count": 0
+    },
+    "spread": {
+      "dtype": "float64",
+      "numeric_convertible": true,
+      "bad_ratio_on_convert": 0.0,
+      "nan_ratio": 0.0,
+      "inf_count": 0
+    },
+    "volume": {
+      "dtype": "float64",
+      "numeric_convertible": true,
+      "bad_ratio_on_convert": 0.0,
+      "nan_ratio": 0.0,
+      "inf_count": 0
+    },
+    "timestamp": {
+      "dtype": "int64",
+      "timestamp_convertible_nan_ratio": 0.0
+    }
+  },
+  "invariant_summary": {
+    "duplicate_timestamps_per_symbol": 0,
+    "backward_time_jumps": 0,
+    "negative_spread_count": 0,
+    "negative_volume_count": 0,
+    "non_positive_mid_count": 0,
+    "rows": 4,
+    "violations": 1
+  },
+  "notes": []
+}

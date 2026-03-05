@@ -14,6 +14,12 @@ import sys
 
 from bot.runner import run_bot
 
+try:
+    from dotenv import load_dotenv  # type: ignore
+    load_dotenv(override=False)  # load .env if present; never overrides already-set env vars
+except Exception:
+    pass
+
 
 def _set_windows_asyncio_policy() -> None:
     """

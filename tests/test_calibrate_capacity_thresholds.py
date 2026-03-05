@@ -56,6 +56,8 @@ def test_calibrate_capacity_thresholds_outputs(monkeypatch) -> None:
     assert rc == 0
     txt = out_md.read_text(encoding="utf-8")
     assert "capacity_pass_pct" in txt
+    assert "median_effective_min_n" in txt
+    assert "dominance_mode" in txt
     data = json.loads(out_json.read_text(encoding="utf-8"))
     assert len(data["rows"]) == 2
     assert float(data["rows"][0]["median_net_per_attempt"]) > float(data["rows"][1]["median_net_per_attempt"])

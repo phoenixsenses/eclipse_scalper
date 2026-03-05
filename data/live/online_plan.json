@@ -1,0 +1,26 @@
+{
+  "daily_canary_expansion_gate": {
+    "command": "python -m tools.evaluate_canary_expansion_gate --report-dir reports/daily --window-days 7 --max-top-score 0.5",
+    "schedule": "daily"
+  },
+  "daily_canary_gate_wrapper": {
+    "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\tools\\run_daily_canary_gate.ps1 -Symbol ETHUSDT -Days 14 -WindowDays 7 -MaxTopScore 0.5",
+    "schedule": "daily"
+  },
+  "daily_live_fill_root_cause": {
+    "command": "python -m tools.live_fill_drift_root_cause --run-pipeline",
+    "schedule": "daily"
+  },
+  "daily_online_calibration": {
+    "command": "python -m tools.daily_execution_calibration --physics data/derived/physics --symbol ETHUSDT --interval-ms 100 --days 14 --run-root-cause 1",
+    "schedule": "daily"
+  },
+  "monthly_full_pipeline": {
+    "command": "python -m tools.run_alpha_pipeline --symbol ETHUSDT --interval-ms 100 --physics data/derived/physics --regimes data/derived/regimes --out-root data/runs/alpha",
+    "schedule": "monthly"
+  },
+  "weekly_execution_calibration": {
+    "command": "python -m tools.activate_online_artifacts --live-root data/live --build-calibration --build-execution --physics data/derived/physics --symbol ETHUSDT --interval-ms 100 --sanity-days 1 --days 14",
+    "schedule": "weekly"
+  }
+}

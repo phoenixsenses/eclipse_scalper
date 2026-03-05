@@ -9,6 +9,7 @@ import sqlite3
 import time
 from typing import Any, Dict, List
 
+from config.costs import DEFAULT_MAKER_FEE_BPS
 from execution.passive_execution_simulator import calibrate_passive_model
 from tools.micro_edge_backtest import build_passive_calibration_samples, compute_rule_thresholds, simulate_rule_trades
 from tools.micro_edge_lib import build_bucket_features
@@ -97,7 +98,7 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--side", default="auto")
     p.add_argument("--fee-bps", type=float, default=4.0)
     p.add_argument("--slip-bps", type=float, default=2.0)
-    p.add_argument("--maker-fee-bps", type=float, default=0.5)
+    p.add_argument("--maker-fee-bps", type=float, default=float(DEFAULT_MAKER_FEE_BPS))
     p.add_argument("--maker-penalty-bps", type=float, default=0.5)
     p.add_argument("--passive-seed", type=int, default=42)
     p.add_argument("--passive-max-wait-buckets", type=int, default=0)

@@ -505,6 +505,9 @@ async def entry_loop_full(bot) -> None:
     latency_last_log = 0.0
     latency_log_sec = float(_cfg_env_float(bot, "ENTRY_LATENCY_LOG_SEC", 60.0) or 60.0)
     latency_jsonl = Path(str(os.getenv("ENTRY_LATENCY_LOG_PATH", "logs/latency_profile.jsonl") or "logs/latency_profile.jsonl"))
+    staleness_count = 0
+    staleness_age_sum = 0.0
+    staleness_db_age_sum = 0.0
 
     log_core.info("ENTRY_LOOP_FULL ONLINE - using execution.entry.try_enter()")
 
@@ -610,6 +613,20 @@ async def entry_loop_full(bot) -> None:
                             fn=log_core.info,
                             msg=f"[REGIME_PRICE_FALLBACK] {k} using micro mark_price={px_now}",
                         )
+                    if micro_engine is not None:
+                        try:
+                            diag_fn = getattr(micro_engine, "diagnostics", None)
+                            diag = diag_fn(k) if callable(diag_fn) else None
+                            if isinstance(diag, dict):
+                                age_sec = _safe_float(diag.get("age_sec"), -1.0)
+                                db_age_sec = _safe_float(diag.get("last_db_age_sec"), -1.0)
+                                if age_sec >= 0:
+                                    staleness_count += 1
+                                    staleness_age_sum += float(age_sec)
+                                if db_age_sec >= 0:
+                                    staleness_db_age_sum += float(db_age_sec)
+                        except Exception:
+                            pass
                     t_regime0 = time.perf_counter()
                     regime_state = regime_runtime.update(k, _now(), px_now) if px_now > 0 else None
                     regime_ms = (time.perf_counter() - t_regime0) * 1000.0
@@ -656,6 +673,27 @@ async def entry_loop_full(bot) -> None:
                                     fn=log_core.info,
                                     msg=f"ENTRY_DECISION {k}: conf={conf:.2f} gates={{'micro': 1}} reason={reason}",
                                 )
+                                if str(reason).strip().lower() == "no_match":
+                                    try:
+                                        meta = dict(getattr(eval_res, "meta", {}) or {})
+                                        if meta:
+                                            _throttled_log(
+                                                key=f"entry_decision_full_micro_detail:{k}",
+                                                every_sec=5.0,
+                                                fn=log_core.info,
+                                                msg=(
+                                                    "[MICRO_SIGNAL] no_match_detail "
+                                                    f"{k} target_side={meta.get('target_side')} pocket={meta.get('pocket')} "
+                                                    f"imb_ok={int(bool(meta.get('imb_ok', False)))} "
+                                                    f"int_ok={int(bool(meta.get('int_ok', False)))} spr_ok={int(bool(meta.get('spr_ok', False)))} "
+                                                    f"missing={meta.get('missing')} "
+                                                    f"imb={_safe_float(meta.get('imbalance_signed'), 0.0):+.4f}/{_safe_float(meta.get('min_imbalance'), 0.0):.4f} "
+                                                    f"int={_safe_float(meta.get('trade_intensity'), 0.0):.0f}/{_safe_float(meta.get('min_intensity'), 0.0):.0f} "
+                                                    f"spr={_safe_float(meta.get('spread'), 0.0):.6f}/{_safe_float(meta.get('max_spread'), 0.0):.6f}"
+                                                ),
+                                            )
+                                    except Exception:
+                                        pass
                                 if present and conf >= 1.0 and action in ("buy", "sell"):
                                     m_side = "long" if action == "buy" else "short"
                                     t_submit0 = time.perf_counter()
@@ -705,10 +743,13 @@ async def entry_loop_full(bot) -> None:
                         snap = latency.snapshot()
                         def _m(k: str) -> float:
                             return float((snap.get(k) or {}).get("mean_ms", 0.0))
+                        avg_feature_age = (staleness_age_sum / staleness_count) if staleness_count > 0 else 0.0
+                        avg_db_age = (staleness_db_age_sum / staleness_count) if staleness_count > 0 else 0.0
                         msg = (
                             f"[LATENCY] e2e={_m('e2e_ms'):.0f}ms feature={_m('feature_ms'):.0f}ms "
                             f"signal={_m('signal_ms'):.0f}ms regime={_m('regime_ms'):.0f}ms risk={_m('risk_ms'):.0f}ms "
-                            f"submit={_m('submit_ms'):.0f}ms fill_ack={_m('fill_ack_ms'):.0f}ms"
+                            f"submit={_m('submit_ms'):.0f}ms fill_ack={_m('fill_ack_ms'):.0f}ms "
+                            f"feature_age={avg_feature_age:.2f}s db_lag={avg_db_age:.2f}s"
                         )
                         log_core.info(msg)
                         _append_jsonl(
@@ -717,9 +758,14 @@ async def entry_loop_full(bot) -> None:
                                 "ts": float(_now()),
                                 "loop": "entry_loop_full",
                                 "metrics": snap,
+                                "feature_age_sec_avg": float(avg_feature_age),
+                                "db_lag_sec_avg": float(avg_db_age),
                             },
                         )
                         latency.reset()
+                        staleness_count = 0
+                        staleness_age_sum = 0.0
+                        staleness_db_age_sum = 0.0
 
             except asyncio.CancelledError:
                 raise

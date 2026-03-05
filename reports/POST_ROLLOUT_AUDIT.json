@@ -1,0 +1,15 @@
+{
+  "ts_utc": "2026-03-05T14:24:09Z",
+  "flags": {
+    "EXEC_LATENCY_V2": false,
+    "QUEUE_MODEL_V2": false,
+    "EXEC_ENGINE_UNIFIED": false
+  },
+  "checks": {
+    "diag_rows_ok": false,
+    "tox_rows_ok": false,
+    "latency_p95_ok": true,
+    "fill_rate_ok": false
+  },
+  "overall_ok": false
+}

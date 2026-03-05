@@ -1,0 +1,24 @@
+{
+  "adverse_sum": -2.04258755,
+  "avg_pnl": 0.216485360515,
+  "decisions_count": 429,
+  "events_replayed": 2147,
+  "fee_sum": 0.587204596572,
+  "fills_count": 61,
+  "per_symbol_decisions": {
+    "ETHUSDT": 429
+  },
+  "per_symbol_fills": {
+    "ETHUSDT": 61
+  },
+  "per_symbol_metrics": {
+    "ETHUSDT": {
+      "adverse_sum": -2.04258755,
+      "fee_sum": 0.587204596572,
+      "fills_count": 61,
+      "pnl_sum": 13.205606991428
+    }
+  },
+  "pnl_sum": 13.205606991428,
+  "win_rate": 1.0
+}

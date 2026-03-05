@@ -410,6 +410,17 @@ def _bh_adjust(items: List[Tuple[int, float]]) -> Dict[int, float]:
     return {ordered[i][0]: float(adj[i]) for i in range(m)}
 
 
+def _bonferroni_adjust(items: List[Tuple[int, float]]) -> Dict[int, float]:
+    if not items:
+        return {}
+    m = max(1, len(items))
+    out: Dict[int, float] = {}
+    for idx, p in items:
+        pv = float(max(0.0, min(1.0, p)))
+        out[int(idx)] = float(min(1.0, pv * float(m)))
+    return out
+
+
 def _args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Rank passive pockets by forward robustness.")
     p.add_argument("--candidates-md", required=True)
@@ -454,6 +465,7 @@ def _args() -> argparse.Namespace:
     p.add_argument("--bootstrap-samples", type=int, default=1000, help="Bootstrap sample count for --bootstrap-ci.")
     p.add_argument("--bootstrap-seed", type=int, default=42, help="Deterministic RNG seed for --bootstrap-ci.")
     p.add_argument("--bh-correction", action="store_true", help="Apply Benjamini-Hochberg correction to bootstrap p-values.")
+    p.add_argument("--mtc-method", default="none", choices=["none", "bh", "bonferroni"], help="Multiple testing correction method for bootstrap p-values.")
     p.add_argument("--alpha", type=float, default=0.05, help="Significance threshold for bootstrap/BH gating.")
     p.add_argument("--pass-threshold", type=float, default=0.5, help="Minimum pass_rate required for robust_core/stress flags.")
     p.add_argument("--research-mode", action="store_true", help="Set a softer robustness gate for exploration (default pass-threshold=0.33 unless overridden).")
@@ -876,11 +888,20 @@ def main() -> int:
             row["bootstrap_ci_high"] = float(hi)
             row["bootstrap_p_value"] = float(p_one)
             pvals.append((i, p_one))
-        qvals = _bh_adjust(pvals) if bool(args.bh_correction) else {}
+        mtc = str(args.mtc_method).strip().lower()
+        if bool(args.bh_correction) and mtc == "none":
+            mtc = "bh"
+        if mtc == "bh":
+            qvals = _bh_adjust(pvals)
+        elif mtc == "bonferroni":
+            qvals = _bonferroni_adjust(pvals)
+        else:
+            qvals = {}
         for i, row in enumerate(scored):
             qv = float(qvals.get(i, row.get("bootstrap_p_value", 1.0)))
             row["bootstrap_q_value"] = qv
             sig = qv <= float(args.alpha)
+            row["multiple_testing_method"] = str(mtc)
             row["significant"] = bool(sig)
             if not bool(sig):
                 row["robust_core"] = False
@@ -955,6 +976,18 @@ def main() -> int:
                     "scratch_slippage_bps": float(eff_scratch_slippage_bps),
                     "horizon_sec_override": int(args.horizon_sec),
                 },
+                "statistical": {
+                    "bootstrap_ci": bool(args.bootstrap_ci),
+                    "bootstrap_samples": int(args.bootstrap_samples),
+                    "bootstrap_seed": int(args.bootstrap_seed),
+                    "alpha": float(args.alpha),
+                    "multiple_testing_method": (
+                        ("bh" if bool(args.bh_correction) and str(args.mtc_method).strip().lower() == "none" else str(args.mtc_method).strip().lower())
+                        if bool(args.bootstrap_ci)
+                        else "none"
+                    ),
+                    "splits": int(args.splits),
+                },
                 "decomposition": [
                     {
                         "pocket": _pocket_id(
@@ -991,6 +1024,12 @@ def main() -> int:
         "# PASSIVE_POCKET_RANKING",
         "",
         f"candidates={len(candidates)} ranked={len(scored)}",
+        (
+            f"statistical bootstrap_ci={bool(args.bootstrap_ci)} bootstrap_samples={int(args.bootstrap_samples)} "
+            f"alpha={float(args.alpha):.4f} mtc_method="
+            f"{('bh' if bool(args.bh_correction) and str(args.mtc_method).strip().lower() == 'none' else str(args.mtc_method).strip().lower()) if bool(args.bootstrap_ci) else 'none'} "
+            f"splits={int(args.splits)} (recommended=5 for 60-day retest)"
+        ),
         f"candidate_parse total_rows_seen={total_rows_seen} table_rows_seen={table_rows_seen} rows_with_pass_yes={rows_with_pass_yes} candidates_parsed={candidates_parsed} candidates_unique={len(candidates)} rows_skipped_missing_fields={rows_skipped_missing}",
         f"fee_grid={fee_grid} adverse_mult_grid={adverse_grid}",
         f"pass_threshold={float(args.pass_threshold):.3f}",

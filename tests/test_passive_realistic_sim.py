@@ -182,3 +182,70 @@ def test_attempt_gate_reduces_n_attempts(monkeypatch) -> None:
     assert n_gated < n_no_gate, f"Gate must reduce attempts: {n_gated} < {n_no_gate}"
     assert n_before >= n_gated, "n_signals_before_gate must be >= n_attempts_after_gate"
     assert int(sim_gated["debug_stats"]["attempt_gate_blocked"]) > 0
+
+
+def test_passive_latency_model_shifts_fill_offset() -> None:
+    params = {
+        "seed": 11,
+        "base_touch": 1.0,
+        "base_full_cond_touch": 1.0,
+        "base_adverse_bps": 0.1,
+        "maker_fee_bps": 0.5,
+        "edges": {"spread": [0.00005, 0.00010], "trade_intensity": [2000.0, 4000.0], "vol_proxy": [0.00005, 0.00010], "imbalance_for_fill": [0.4, 0.8]},
+        "touch_rates": {"spread": [1, 1, 1], "trade_intensity": [1, 1, 1], "vol_proxy": [1, 1, 1], "imbalance_for_fill": [1, 1, 1]},
+        "full_rates": {"spread": [1, 1, 1], "trade_intensity": [1, 1, 1], "vol_proxy": [1, 1, 1], "imbalance_for_fill": [1, 1, 1]},
+        "adverse_means": {"spread": [0.1, 0.1, 0.1], "trade_intensity": [0.1, 0.1, 0.1], "vol_proxy": [0.1, 0.1, 0.1], "imbalance_for_fill": [0.1, 0.1, 0.1]},
+        "queue_competition_strength": 0.0,
+        "adverse_toxicity_strength": 0.0,
+    }
+    event = {"event_id": "LAT1", "symbol": "ETHUSDT", "side": "LONG", "entry_price": 100.0, "future_mids": [99.9, 99.8, 99.7], "bucket_sec": 1.0}
+    features = {"spread": 0.00005, "trade_intensity": 1000.0, "vol_proxy": 0.00003, "imbalance_for_fill": 0.5}
+    baseline = simulate_passive_fill(event, horizon_sec=60, features=features, params=params)
+    with_latency = simulate_passive_fill(
+        event,
+        horizon_sec=60,
+        features=features,
+        params={
+            **params,
+            "latency_enabled": True,
+            "latency_bucket_sec": 1.0,
+            "latency_decision_to_ack_ms": 1000.0,
+            "latency_queue_entry_ms": 1000.0,
+            "latency_feed_lag_ms": 0.0,
+            "latency_touch_penalty_per_bar": 0.0,
+        },
+    )
+    assert bool(baseline["filled"]) is True
+    assert bool(with_latency["filled"]) is True
+    assert int(with_latency["fill_index_offset"]) == int(baseline["fill_index_offset"]) + 2
+    assert int(with_latency["latency_bars"]) == 2
+
+
+def test_passive_latency_can_expire_fill_window() -> None:
+    params = {
+        "seed": 9,
+        "base_touch": 1.0,
+        "base_full_cond_touch": 1.0,
+        "base_adverse_bps": 0.1,
+        "maker_fee_bps": 0.5,
+        "edges": {"spread": [0.00005, 0.00010], "trade_intensity": [2000.0, 4000.0], "vol_proxy": [0.00005, 0.00010], "imbalance_for_fill": [0.4, 0.8]},
+        "touch_rates": {"spread": [1, 1, 1], "trade_intensity": [1, 1, 1], "vol_proxy": [1, 1, 1], "imbalance_for_fill": [1, 1, 1]},
+        "full_rates": {"spread": [1, 1, 1], "trade_intensity": [1, 1, 1], "vol_proxy": [1, 1, 1], "imbalance_for_fill": [1, 1, 1]},
+        "adverse_means": {"spread": [0.1, 0.1, 0.1], "trade_intensity": [0.1, 0.1, 0.1], "vol_proxy": [0.1, 0.1, 0.1], "imbalance_for_fill": [0.1, 0.1, 0.1]},
+        "queue_competition_strength": 0.0,
+        "adverse_toxicity_strength": 0.0,
+        "latency_enabled": True,
+        "latency_bucket_sec": 1.0,
+        "latency_decision_to_ack_ms": 4000.0,
+        "latency_queue_entry_ms": 0.0,
+        "latency_feed_lag_ms": 0.0,
+        "latency_touch_penalty_per_bar": 0.0,
+    }
+    out = simulate_passive_fill(
+        {"event_id": "LAT2", "symbol": "ETHUSDT", "side": "LONG", "entry_price": 100.0, "future_mids": [99.9, 99.8], "bucket_sec": 1.0},
+        horizon_sec=60,
+        features={"spread": 0.00005, "trade_intensity": 1000.0, "vol_proxy": 0.00003, "imbalance_for_fill": 0.5},
+        params=params,
+    )
+    assert bool(out["filled"]) is False
+    assert bool(out.get("ttl_expired_by_latency")) is True

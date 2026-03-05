@@ -9,6 +9,7 @@ from statistics import mean, median
 from typing import Any, Dict, List, Tuple
 
 from execution.passive_execution_simulator import calibrate_passive_model
+from config.costs import DEFAULT_MAKER_FEE_BPS
 from tools.micro_edge_backtest import (
     build_passive_calibration_samples,
     compute_regime_bins,
@@ -73,6 +74,128 @@ def _aggregate_per_split(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return out
 
 
+def _percentile(vals: List[float], q: float) -> float:
+    if not vals:
+        return 0.0
+    xs = sorted(float(v) for v in vals)
+    qq = max(0.0, min(1.0, float(q)))
+    idx = int(round((len(xs) - 1) * qq))
+    idx = max(0, min(len(xs) - 1, idx))
+    return float(xs[idx])
+
+
+def _safe_mean(vals: List[float]) -> float:
+    return float(sum(vals) / len(vals)) if vals else 0.0
+
+
+def _aggregate_failure_attribution_per_split(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    by: Dict[int, List[Dict[str, Any]]] = {}
+    for r in rows:
+        sid = int(r.get("split", 0) or 0)
+        by.setdefault(sid, []).append(r)
+    out: List[Dict[str, Any]] = []
+    for sid in sorted(by):
+        grp = by[sid]
+        n_events_total = int(sum(int(x.get("n_events_total", 0) or 0) for x in grp))
+        n_rejected_attempt_gate = int(sum(int(x.get("n_rejected_attempt_gate", 0) or 0) for x in grp))
+        n_attempts_after_gate = int(sum(int(x.get("n_attempts_after_gate", 0) or 0) for x in grp))
+        n_filled = int(sum(int(x.get("n_filled", 0) or 0) for x in grp))
+        n_unfilled = int(sum(int(x.get("n_unfilled", 0) or 0) for x in grp))
+        fill_probs = [float(x["avg_fill_prob"]) for x in grp if x.get("avg_fill_prob") is not None]
+        adv = [float(x.get("avg_adverse_bps_on_fills", 0.0) or 0.0) for x in grp]
+        fee = [float(x.get("avg_fee_bps", 0.0) or 0.0) for x in grp]
+        raw = [float(x.get("avg_raw_return_bps_on_fills", 0.0) or 0.0) for x in grp]
+        net = [float(x.get("avg_net_return_bps_on_fills", 0.0) or 0.0) for x in grp]
+        p10 = [float(x.get("net_return_bps_p10", 0.0) or 0.0) for x in grp]
+        p50 = [float(x.get("net_return_bps_p50", 0.0) or 0.0) for x in grp]
+        p90 = [float(x.get("net_return_bps_p90", 0.0) or 0.0) for x in grp]
+        scratch = [float(x.get("avg_scratch_bps_on_fills", 0.0) or 0.0) for x in grp]
+        rej_vol = int(sum(int(x.get("reject_vol_quantile_reject", 0) or 0) for x in grp))
+        rej_spread = int(sum(int(x.get("reject_spread_too_wide", 0) or 0) for x in grp))
+        rej_imb = int(sum(int(x.get("reject_imbalance_too_low", 0) or 0) for x in grp))
+        rej_int = int(sum(int(x.get("reject_intensity_too_low", 0) or 0) for x in grp))
+        rej_other = int(sum(int(x.get("reject_other_gate", 0) or 0) for x in grp))
+        out.append(
+            {
+                "split": sid,
+                "n_rows": len(grp),
+                "n_events_total": n_events_total,
+                "n_rejected_attempt_gate": n_rejected_attempt_gate,
+                "n_attempts_after_gate": n_attempts_after_gate,
+                "n_filled": n_filled,
+                "n_unfilled": n_unfilled,
+                "avg_fill_prob": (_safe_mean(fill_probs) if fill_probs else None),
+                "avg_adverse_bps_on_fills": _safe_mean(adv),
+                "avg_fee_bps": _safe_mean(fee),
+                "avg_raw_return_bps_on_fills": _safe_mean(raw),
+                "avg_net_return_bps_on_fills": _safe_mean(net),
+                "avg_scratch_bps_on_fills": _safe_mean(scratch),
+                "net_return_bps_p10": _safe_mean(p10),
+                "net_return_bps_p50": _safe_mean(p50),
+                "net_return_bps_p90": _safe_mean(p90),
+                "reject_vol_quantile_reject": rej_vol,
+                "reject_spread_too_wide": rej_spread,
+                "reject_imbalance_too_low": rej_imb,
+                "reject_intensity_too_low": rej_int,
+                "reject_other_gate": rej_other,
+            }
+        )
+    return out
+
+
+def _median_failure_attribution(per_split: List[Dict[str, Any]]) -> Dict[str, Any]:
+    if not per_split:
+        return {
+            "n_events_total": 0,
+            "n_rejected_attempt_gate": 0,
+            "n_attempts_after_gate": 0,
+            "n_filled": 0,
+            "n_unfilled": 0,
+            "avg_fill_prob": None,
+            "avg_adverse_bps_on_fills": 0.0,
+            "avg_fee_bps": 0.0,
+            "avg_raw_return_bps_on_fills": 0.0,
+            "avg_net_return_bps_on_fills": 0.0,
+            "avg_scratch_bps_on_fills": 0.0,
+            "net_return_bps_p10": 0.0,
+            "net_return_bps_p50": 0.0,
+            "net_return_bps_p90": 0.0,
+            "reject_vol_quantile_reject": 0,
+            "reject_spread_too_wide": 0,
+            "reject_imbalance_too_low": 0,
+            "reject_intensity_too_low": 0,
+            "reject_other_gate": 0,
+        }
+    def _med_num(key: str) -> float:
+        vals = [float(r.get(key, 0.0) or 0.0) for r in per_split]
+        return float(median(vals)) if vals else 0.0
+    def _med_int(key: str) -> int:
+        vals = [int(r.get(key, 0) or 0) for r in per_split]
+        return int(median(vals)) if vals else 0
+    fill_vals = [float(r["avg_fill_prob"]) for r in per_split if r.get("avg_fill_prob") is not None]
+    return {
+        "n_events_total": _med_int("n_events_total"),
+        "n_rejected_attempt_gate": _med_int("n_rejected_attempt_gate"),
+        "n_attempts_after_gate": _med_int("n_attempts_after_gate"),
+        "n_filled": _med_int("n_filled"),
+        "n_unfilled": _med_int("n_unfilled"),
+        "avg_fill_prob": (float(median(fill_vals)) if fill_vals else None),
+        "avg_adverse_bps_on_fills": _med_num("avg_adverse_bps_on_fills"),
+        "avg_fee_bps": _med_num("avg_fee_bps"),
+        "avg_raw_return_bps_on_fills": _med_num("avg_raw_return_bps_on_fills"),
+        "avg_net_return_bps_on_fills": _med_num("avg_net_return_bps_on_fills"),
+        "avg_scratch_bps_on_fills": _med_num("avg_scratch_bps_on_fills"),
+        "net_return_bps_p10": _med_num("net_return_bps_p10"),
+        "net_return_bps_p50": _med_num("net_return_bps_p50"),
+        "net_return_bps_p90": _med_num("net_return_bps_p90"),
+        "reject_vol_quantile_reject": _med_int("reject_vol_quantile_reject"),
+        "reject_spread_too_wide": _med_int("reject_spread_too_wide"),
+        "reject_imbalance_too_low": _med_int("reject_imbalance_too_low"),
+        "reject_intensity_too_low": _med_int("reject_intensity_too_low"),
+        "reject_other_gate": _med_int("reject_other_gate"),
+    }
+
+
 def _q_edges(vals: List[float]) -> Tuple[float, float, float]:
     if not vals:
         return (0.0, 0.0, 0.0)
@@ -111,6 +234,44 @@ def _regime_value(row: Dict[str, Any], mode: str) -> float:
     return 0.0
 
 
+def _vol_proxy(row: Dict[str, Any]) -> float:
+    v = row.get("micro_volatility")
+    if v is not None:
+        return float(v)
+    return abs(float(row.get("ret_1") or 0.0))
+
+
+def _add_regime_labels(rows: List[Dict[str, Any]], window_sec: int = 3600) -> None:
+    """Annotate rows in-place with _regime_label ('UP', 'DOWN', or '') from rolling 1h log-return."""
+    import math as _math
+    mids = [r.get("mid") for r in rows]
+    n = len(rows)
+    for i in range(n):
+        m_now = mids[i]
+        m_prev = mids[i - window_sec] if i >= window_sec else None
+        try:
+            if (
+                m_now is not None and m_prev is not None
+                and float(m_prev) > 0.0 and float(m_now) > 0.0
+            ):
+                ret = _math.log(float(m_now) / float(m_prev))
+                rows[i]["_regime_label"] = "UP" if ret >= 0.0 else "DOWN"
+            else:
+                rows[i]["_regime_label"] = ""
+        except Exception:
+            rows[i]["_regime_label"] = ""
+
+
+def _quantile(values: List[float], q: float) -> float:
+    if not values:
+        return 0.0
+    qq = max(0.0, min(1.0, float(q)))
+    xs = sorted(float(v) for v in values)
+    idx = int(round((len(xs) - 1) * qq))
+    idx = max(0, min(len(xs) - 1, idx))
+    return float(xs[idx])
+
+
 def validate_pocket_forward(
     db: str,
     symbol: str,
@@ -136,7 +297,14 @@ def validate_pocket_forward(
     min_intensity_strong: float = 0.0,
     min_imbalance_strong: float = 0.0,
     max_spread_tight: float = 0.0,
+    max_volatility_extreme: float = 0.0,
+    vol_quantile_reject: float = 0.0,
     regime_bucket: str = "",
+    regime_filter: str = "",
+    scratch_bps: float = 0.0,
+    scratch_window_sec: int = 0,
+    scratch_taker_fee_bps: float = 0.0,
+    scratch_slippage_bps: float = 0.0,
 ) -> Dict[str, Any]:
     seed_list = _parse_seed_list(seeds)
     conn = sqlite3.connect(str(db), check_same_thread=False)
@@ -163,6 +331,8 @@ def validate_pocket_forward(
             sym_profile = resolve_symbol_profile(load_passive_profiles(str(passive_profile_in or "")), str(symbol))
             regime_edges = compute_regime_bins(rows)
             _ROWS_CACHE[cache_key] = (rows, regime_edges, sym_profile)
+        if rows and "_regime_label" not in rows[0]:
+            _add_regime_labels(rows)
         if len(rows) < 500:
             return {
                 "symbol": str(symbol),
@@ -182,19 +352,25 @@ def validate_pocket_forward(
         max_b = {"spread": float(max_spread)}
         hold = max(1, int(round(float(horizon_sec) / max(1, int(bucket_sec)))))
         ranges = _split_ranges(len(rows), int(splits))
-        _attempt_gate: Dict[str, float] = {}
-        if float(min_intensity_strong) > 0.0:
-            _attempt_gate["min_trade_intensity_strong"] = float(min_intensity_strong)
-        if float(min_imbalance_strong) > 0.0:
-            _attempt_gate["min_imbalance_strong"] = float(min_imbalance_strong)
-        if float(max_spread_tight) > 0.0:
-            _attempt_gate["max_spread_tight"] = float(max_spread_tight)
         results: List[Dict[str, Any]] = []
         by_regime: Dict[str, Dict[str, float]] = {}
         for seed in seed_list:
             for split_id, (a, b) in enumerate(ranges, start=1):
                 train_rows = rows[:a]
                 val_rows = rows[a:b]
+                _attempt_gate: Dict[str, float] = {}
+                if float(min_intensity_strong) > 0.0:
+                    _attempt_gate["min_trade_intensity_strong"] = float(min_intensity_strong)
+                if float(min_imbalance_strong) > 0.0:
+                    _attempt_gate["min_imbalance_strong"] = float(min_imbalance_strong)
+                if float(max_spread_tight) > 0.0:
+                    _attempt_gate["max_spread_tight"] = float(max_spread_tight)
+                vol_thr = float(max_volatility_extreme)
+                if float(vol_quantile_reject) > 0.0 and len(train_rows) > 0:
+                    q_keep = 1.0 - float(vol_quantile_reject)
+                    vol_thr = _quantile([_vol_proxy(r) for r in train_rows], q_keep)
+                if vol_thr > 0.0:
+                    _attempt_gate["max_volatility_extreme"] = float(vol_thr)
                 reg_mode = str(regime_bucket or "").strip().lower()
                 reg_edges = (0.0, 0.0, 0.0)
                 if reg_mode:
@@ -245,9 +421,18 @@ def validate_pocket_forward(
                     toxicity_cfg=tox_cfg,
                     regime_edges=regime_edges,
                     attempt_gate_bounds=_attempt_gate or None,
+                    regime_filter=str(regime_filter or ""),
+                    bucket_sec=int(bucket_sec),
+                    scratch_bps=float(scratch_bps),
+                    scratch_window_sec=int(scratch_window_sec),
+                    scratch_taker_fee_bps=float(scratch_taker_fee_bps),
+                    scratch_slippage_bps=float(scratch_slippage_bps),
                 )
                 fo = sim.get("filled_only_metrics", {})
                 al = sim.get("attempt_level_metrics", {})
+                dbg = sim.get("debug_stats", {}) if isinstance(sim, dict) else {}
+                attempt_rows = list(sim.get("attempt_rows", [])) if isinstance(sim, dict) else []
+                trades = list(sim.get("trades", [])) if isinstance(sim, dict) else []
                 n = int(fo.get("n", 0) or 0)
                 val_rows_n = int(b - a)
                 frac_component = int(math.ceil(float(min_n_frac) * float(val_rows_n)))
@@ -260,6 +445,31 @@ def validate_pocket_forward(
                 _duration_min = max(1e-9, val_rows_n * int(bucket_sec) / 60.0)
                 _attempts_per_min = _val_attempts / _duration_min
                 _pre_gate_n = int(al.get("n_signals_before_gate", _val_attempts))
+                n_events_total = int(_pre_gate_n)
+                n_rejected_attempt_gate = int(dbg.get("attempt_gate_blocked", 0) or 0)
+                n_attempts_after_gate = int(_val_attempts)
+                n_filled = int(n)
+                n_unfilled = max(0, n_attempts_after_gate - n_filled)
+                fill_probs = [float(x.get("fill_prob")) for x in attempt_rows if x.get("fill_prob") is not None]
+                avg_fill_prob = (_safe_mean(fill_probs) if fill_probs else None)
+                adv_vals = [float(t.get("adverse_selection_bps", 0.0) or 0.0) for t in trades]
+                fee_vals = [float(t.get("cost_fee_bps", 0.0) or 0.0) for t in trades]
+                raw_bps = [float(t.get("raw_return", 0.0) or 0.0) * 10000.0 for t in trades]
+                net_bps = [float(t.get("net_return", 0.0) or 0.0) * 10000.0 for t in trades]
+                avg_adverse_bps_on_fills = _safe_mean(adv_vals)
+                avg_fee_bps = _safe_mean(fee_vals)
+                avg_raw_return_bps_on_fills = _safe_mean(raw_bps)
+                avg_net_return_bps_on_fills = _safe_mean(net_bps)
+                scratch_vals = [float(t.get("scratch_extra_cost_bps", 0.0) or 0.0) for t in trades]
+                avg_scratch_bps_on_fills = _safe_mean(scratch_vals)
+                net_return_bps_p10 = _percentile(net_bps, 0.10) if net_bps else 0.0
+                net_return_bps_p50 = _percentile(net_bps, 0.50) if net_bps else 0.0
+                net_return_bps_p90 = _percentile(net_bps, 0.90) if net_bps else 0.0
+                reject_vol = int(dbg.get("attempt_gate_block_vol_quantile_reject", 0) or 0)
+                reject_spread = int(dbg.get("attempt_gate_block_spread_too_wide", 0) or 0)
+                reject_imb = int(dbg.get("attempt_gate_block_imbalance_too_low", 0) or 0)
+                reject_int = int(dbg.get("attempt_gate_block_intensity_too_low", 0) or 0)
+                reject_other = int(dbg.get("attempt_gate_block_other", 0) or 0)
                 if reg_mode:
                     for ar in list(sim.get("attempt_rows", [])):
                         try:
@@ -304,6 +514,25 @@ def validate_pocket_forward(
                         "val_attempts_after_gate": _val_attempts,
                         "val_filled_after_gate": n,
                         "net_per_attempt_after_gate": _net_per_attempt,
+                        "n_events_total": n_events_total,
+                        "n_rejected_attempt_gate": n_rejected_attempt_gate,
+                        "n_attempts_after_gate": n_attempts_after_gate,
+                        "n_filled": n_filled,
+                        "n_unfilled": n_unfilled,
+                        "avg_fill_prob": avg_fill_prob,
+                        "avg_adverse_bps_on_fills": avg_adverse_bps_on_fills,
+                        "avg_fee_bps": avg_fee_bps,
+                        "avg_raw_return_bps_on_fills": avg_raw_return_bps_on_fills,
+                        "avg_net_return_bps_on_fills": avg_net_return_bps_on_fills,
+                        "avg_scratch_bps_on_fills": avg_scratch_bps_on_fills,
+                        "net_return_bps_p10": net_return_bps_p10,
+                        "net_return_bps_p50": net_return_bps_p50,
+                        "net_return_bps_p90": net_return_bps_p90,
+                        "reject_vol_quantile_reject": reject_vol,
+                        "reject_spread_too_wide": reject_spread,
+                        "reject_imbalance_too_low": reject_imb,
+                        "reject_intensity_too_low": reject_int,
+                        "reject_other_gate": reject_other,
                         "fail_reason": str(fail_reason),
                         "pass": pass_flag,
                     }
@@ -328,6 +557,8 @@ def validate_pocket_forward(
                     "net_per_attempt": (net_sum / attempts) if attempts > 0 else 0.0,
                 }
             )
+        failure_attribution_per_split = _aggregate_failure_attribution_per_split(results)
+        failure_attribution_median = _median_failure_attribution(failure_attribution_per_split)
         return {
             "symbol": str(symbol),
             "horizon_sec": int(horizon_sec),
@@ -345,6 +576,8 @@ def validate_pocket_forward(
             "min_n_frac_dominance_rate": (sum(frac_dom) / total) if total > 0 else 0.0,
             "per_combo": results,
             "per_split": _aggregate_per_split(results),
+            "failure_attribution_per_split": failure_attribution_per_split,
+            "failure_attribution_median": failure_attribution_median,
             "regime_bucket": str(regime_bucket or ""),
             "per_regime": per_regime,
             "insufficient_data": False,
@@ -369,7 +602,7 @@ def _args() -> argparse.Namespace:
     p.add_argument("--seeds", default="11,22,33,44,55")
     p.add_argument("--min-n", type=int, default=30)
     p.add_argument("--min-n-frac", type=float, default=0.0, help="Dynamic min fills: effective_min_n=max(min_n, ceil(min_n_frac*val_rows)).")
-    p.add_argument("--maker-fee-bps", type=float, default=0.5)
+    p.add_argument("--maker-fee-bps", type=float, default=float(DEFAULT_MAKER_FEE_BPS))
     p.add_argument("--passive-adverse-mult", type=float, default=1.0)
     p.add_argument("--passive-max-wait-buckets", type=int, default=0)
     p.add_argument("--v2-min-score", type=float, default=0.0)
@@ -380,6 +613,12 @@ def _args() -> argparse.Namespace:
     p.add_argument("--min-intensity-strong", type=float, default=0.0, help="Pre-attempt gate: skip when trade_intensity < this.")
     p.add_argument("--min-imbalance-strong", type=float, default=0.0, help="Pre-attempt gate: skip when |imbalance| < this.")
     p.add_argument("--max-spread-tight", type=float, default=0.0, help="Pre-attempt gate: skip when spread > this.")
+    p.add_argument("--max-volatility-extreme", type=float, default=0.0, help="Pre-attempt gate: skip when volatility proxy > this.")
+    p.add_argument("--vol-quantile-reject", type=float, default=0.0, help="Quantile-based vol filter: reject top X fraction of volatility by train-slice distribution (e.g. 0.01).")
+    p.add_argument("--scratch-bps", type=float, default=0.0, help="Optional post-fill adverse move threshold (bps) for scratch exit; 0 disables.")
+    p.add_argument("--scratch-window-sec", type=int, default=0, help="Optional post-fill scratch window in seconds; 0 disables.")
+    p.add_argument("--scratch-taker-fee-bps", type=float, default=0.0, help="Extra one-way taker fee bps when scratch triggers.")
+    p.add_argument("--scratch-slippage-bps", type=float, default=0.0, help="Extra one-way slippage bps when scratch triggers.")
     p.add_argument("--regime-bucket", default="", choices=["", "spread_q", "intensity_q", "vol_q"], help="Optional per-regime robustness breakdown.")
     return p.parse_args()
 
@@ -411,7 +650,13 @@ def main() -> int:
         min_intensity_strong=float(args.min_intensity_strong),
         min_imbalance_strong=float(args.min_imbalance_strong),
         max_spread_tight=float(args.max_spread_tight),
+        max_volatility_extreme=float(args.max_volatility_extreme),
+        vol_quantile_reject=float(args.vol_quantile_reject),
         regime_bucket=str(args.regime_bucket),
+        scratch_bps=float(args.scratch_bps),
+        scratch_window_sec=int(args.scratch_window_sec),
+        scratch_taker_fee_bps=float(args.scratch_taker_fee_bps),
+        scratch_slippage_bps=float(args.scratch_slippage_bps),
     )
     total = int(res.get("rows_total", 0))
     passes = int(res.get("pass_count", 0))
@@ -435,7 +680,8 @@ def main() -> int:
         f"symbol={args.symbol} horizon_sec={args.horizon_sec} min_imbalance={args.min_imbalance} min_trade_intensity={args.min_trade_intensity} max_spread={args.max_spread}",
         f"seeds={_parse_seed_list(args.seeds)} splits={len(res.get('per_split', []))} min_n={args.min_n} min_n_frac={args.min_n_frac} maker_fee_bps={args.maker_fee_bps} passive_adverse_mult={args.passive_adverse_mult} v2_min_score={args.v2_min_score} v2_min_persistence={args.v2_min_persistence} v2_min_confidence={args.v2_min_confidence}",
         f"effective_min_n_formula=max(min_n={int(args.min_n)}, ceil(min_n_frac*val_rows)=ceil({float(args.min_n_frac)}*val_rows)); median_frac_component={int(res.get('frac_min_component_median', 0))} median_effective_min_n={int(res.get('effective_min_n_median', 0))}",
-        f"gate: min_intensity_strong={args.min_intensity_strong} min_imbalance_strong={args.min_imbalance_strong} max_spread_tight={args.max_spread_tight}",
+        f"gate: min_intensity_strong={args.min_intensity_strong} min_imbalance_strong={args.min_imbalance_strong} max_spread_tight={args.max_spread_tight} max_volatility_extreme={args.max_volatility_extreme} vol_quantile_reject={args.vol_quantile_reject}",
+        f"scratch: scratch_bps={args.scratch_bps} scratch_window_sec={args.scratch_window_sec} scratch_taker_fee_bps={args.scratch_taker_fee_bps} scratch_slippage_bps={args.scratch_slippage_bps}",
         f"regime_bucket={args.regime_bucket or 'none'}",
         "",
         "| seed | split | train_n | val_rows | effective_min_n | filled_n | filled_avg_net | filled_p90_net | filled_win_rate | attempt_fill_rate | net_per_attempt | attempts_per_min | val_before_gate | val_after_gate | fail_reason | pass |",

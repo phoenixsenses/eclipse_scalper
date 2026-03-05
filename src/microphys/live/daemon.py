@@ -14,12 +14,16 @@ from src.microphys.alpha.calibration import CalibrationContext, load_calibration
 from src.microphys.alpha.ensemble import build_ensemble_scores
 from src.microphys.alpha.gating import build_gated_ensemble_scores
 from src.microphys.alpha.spec import SignalSpec, signal_from_dict
+from src.microphys.contracts.events import event_from_dict, validate_event
 from src.microphys.execution.calibration import load_execution_params
 from src.microphys.io.sqlite_reader import SQLiteMicroReader
 from src.microphys.live.alerts import append_alerts, evaluate_alerts
 from src.microphys.live.config import LiveSettings
 from src.microphys.live.metrics import compute_live_metrics, write_status
 from src.microphys.live.registry import get_active_artifacts, rollback_to_previous
+from src.microphys.runtime.event_bus import EventBus
+from src.microphys.runtime.order_fsm import OrderFSM, OrderStateError
+from src.microphys.runtime.supervisor import RuntimeSupervisor
 from src.microphys.risk.guards import check_kill_switch
 from src.microphys.risk.policy import load_risk_policy
 from src.microphys.risk.portfolio import apply_fill, init_portfolio_state, mark_to_market
@@ -46,6 +50,147 @@ def _safe_float(x: Any, default: float = 0.0) -> float:
         return v
     except Exception:
         return float(default)
+
+
+def _flag_on(name: str, default: bool = False) -> bool:
+    v = str(os.getenv(name, "1" if default else "0")).strip().lower()
+    return v in {"1", "true", "yes", "on"}
+
+
+def _parse_ts_ms(ts_utc: str, default_ts: int) -> int:
+    try:
+        t = pd.to_datetime(pd.Series([str(ts_utc)]), utc=True, errors="coerce").astype("int64").iloc[0] // 10**6
+        return int(t) if int(t) > 0 else int(default_ts)
+    except Exception:
+        return int(default_ts)
+
+
+def _init_lifecycle_bus(log_path: Path) -> EventBus:
+    bus = EventBus(max_seen_per_handler=8192)
+
+    def _writer(topic: str, payload: Dict[str, Any]) -> None:
+        try:
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            with log_path.open("a", encoding="utf-8") as f:
+                f.write(json.dumps({"topic": topic, **dict(payload)}, ensure_ascii=True, sort_keys=True) + "\n")
+        except Exception:
+            return
+
+    bus.subscribe("execution.lifecycle", _writer, handler_id="lifecycle_writer", idempotent=True)
+    return bus
+
+
+def _publish_lifecycle_for_trades(
+    *,
+    bus: EventBus,
+    symbol: str,
+    trades: pd.DataFrame,
+    base_ts_ms: int,
+) -> tuple[int, list[str]]:
+    violations: list[str] = []
+    published = 0
+    if trades.empty:
+        return 0, violations
+    for idx, tr in trades.iterrows():
+        side = str(tr.get("side", "buy")).lower()
+        norm_side = "BUY" if side == "buy" else "SELL"
+        ts_ms = _parse_ts_ms(str(tr.get("entry_ts_utc", "")), base_ts_ms + int(idx))
+        order_id = str(tr.get("order_id", "")).strip() or f"live_{symbol}_{ts_ms}_{int(idx)}"
+        fsm = OrderFSM(order_id=order_id)
+        intent_evt = {
+            "event_type": "order_intent",
+            "schema_version": 1,
+            "event_id": f"{order_id}:intent",
+            "ts_ms": int(ts_ms),
+            "source": "live.daemon",
+            "symbol": str(symbol),
+            "order_id": order_id,
+            "client_order_id": order_id,
+            "side": norm_side,
+            "order_type": "LIMIT",
+            "tif": "GTC",
+            "qty": 1.0,
+            "limit_price": float(_safe_float(tr.get("entry_price"), 0.0)),
+        }
+        ack_evt = {
+            "event_type": "order_ack",
+            "schema_version": 1,
+            "event_id": f"{order_id}:ack",
+            "ts_ms": int(ts_ms + 1),
+            "source": "live.daemon",
+            "symbol": str(symbol),
+            "order_id": order_id,
+            "client_order_id": order_id,
+            "side": norm_side,
+            "status": "ACKED",
+        }
+        try:
+            ev = event_from_dict(intent_evt)
+            errs = validate_event(ev)
+            if errs:
+                violations.append(f"{order_id}:intent:{','.join(errs)}")
+            fsm.on_intent(qty=1.0, ts_ms=int(ts_ms))
+            bus.publish("execution.lifecycle", intent_evt)
+            published += 1
+
+            ev = event_from_dict(ack_evt)
+            errs = validate_event(ev)
+            if errs:
+                violations.append(f"{order_id}:ack:{','.join(errs)}")
+            fsm.on_ack(ts_ms=int(ts_ms + 1))
+            bus.publish("execution.lifecycle", ack_evt)
+            published += 1
+
+            if bool(tr.get("filled", True)):
+                fill_evt = {
+                    "event_type": "fill",
+                    "schema_version": 1,
+                    "event_id": f"{order_id}:fill",
+                    "ts_ms": int(ts_ms + 2),
+                    "source": "live.daemon",
+                    "symbol": str(symbol),
+                    "order_id": order_id,
+                    "client_order_id": order_id,
+                    "side": norm_side,
+                    "fill_qty": 1.0,
+                    "fill_price": float(_safe_float(tr.get("fill_price", tr.get("entry_price")), 0.0)),
+                    "cumulative_qty": 1.0,
+                    "remaining_qty": 0.0,
+                    "liquidity": "maker",
+                    "fee_bps": 0.0,
+                    "effective_cost_bps": float(_safe_float(tr.get("fee"), 0.0) * 10000.0),
+                }
+                ev = event_from_dict(fill_evt)
+                errs = validate_event(ev)
+                if errs:
+                    violations.append(f"{order_id}:fill:{','.join(errs)}")
+                fsm.on_fill(fill_qty=1.0, cumulative_qty=1.0, remaining_qty=0.0, ts_ms=int(ts_ms + 2))
+                bus.publish("execution.lifecycle", fill_evt)
+                published += 1
+            else:
+                rej_evt = {
+                    "event_type": "reject",
+                    "schema_version": 1,
+                    "event_id": f"{order_id}:reject",
+                    "ts_ms": int(ts_ms + 2),
+                    "source": "live.daemon",
+                    "symbol": str(symbol),
+                    "order_id": order_id,
+                    "client_order_id": order_id,
+                    "side": norm_side,
+                    "reason_code": "TTL_EXPIRED",
+                    "reason_text": "unfilled_or_ttl_expired",
+                }
+                ev = event_from_dict(rej_evt)
+                errs = validate_event(ev)
+                if errs:
+                    violations.append(f"{order_id}:reject:{','.join(errs)}")
+                fsm.on_reject(ts_ms=int(ts_ms + 2))
+                bus.publish("execution.lifecycle", rej_evt)
+                published += 1
+        except (OrderStateError, ValueError) as e:
+            violations.append(f"{order_id}:fsm:{type(e).__name__}:{e}")
+    return published, violations
 
 
 def _state_from_bars(df: pd.DataFrame, interval_ms: int) -> pd.DataFrame:
@@ -84,7 +229,16 @@ def _write_json(path: Path, payload: Dict[str, Any]) -> None:
 def _append_jsonl(path: Path, payload: Dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(payload, ensure_ascii=True, sort_keys=True) + "\n")
+            f.write(json.dumps(payload, ensure_ascii=True, sort_keys=True) + "\n")
+
+
+def _load_json_best_effort(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
 
 
 def _calibration_health(live_density_1h: float, baseline_probe_density: float | None) -> tuple[bool, str]:
@@ -318,6 +472,7 @@ def run_live_cycle(cfg: LiveSettings, *, artifact_snapshot: Dict[str, Any] | Non
     alerts_path = Path("logs/live_alerts.jsonl")
     cal_events_path = Path("logs/calibration_events.jsonl")
     risk_events_path = Path("logs/risk_events.jsonl")
+    lifecycle_events_path = Path("logs/live_execution_events.jsonl")
     lock_path = out_root / "watermark.lock"
 
     with _with_lock(lock_path):
@@ -474,6 +629,7 @@ def run_live_cycle(cfg: LiveSettings, *, artifact_snapshot: Dict[str, Any] | Non
         effective_exec_model = str(cfg.execution_model)
         if effective_exec_model != "simple" and not exec_loaded:
             effective_exec_model = "simple"
+        use_exec_engine_unified = bool(getattr(cfg, "exec_engine_unified", False) or _flag_on("EXEC_ENGINE_UNIFIED", False))
         trades = generate_papertrades(
             frame,
             horizon_bars=horizon,
@@ -483,6 +639,7 @@ def run_live_cycle(cfg: LiveSettings, *, artifact_snapshot: Dict[str, Any] | Non
                 execution_model=effective_exec_model,
                 execution_params=exec_params,
                 ttl_bars=int(cfg.maker_ttl_bars),
+                use_unified_engine=bool(use_exec_engine_unified),
             ),
         )
         if not trades.empty:
@@ -494,6 +651,32 @@ def run_live_cycle(cfg: LiveSettings, *, artifact_snapshot: Dict[str, Any] | Non
             trades["_entry_ts_ms"] = entry_ms
             if last_ts_ms > 0:
                 trades = trades[trades["_entry_ts_ms"] > int(last_ts_ms)]
+
+        lifecycle_enabled = bool(getattr(cfg, "exec_event_bus_enabled", False) or _flag_on("EXEC_EVENT_BUS_ENABLED", False))
+        kill_on_violation = bool(
+            getattr(cfg, "exec_kill_on_contract_violation", False) or _flag_on("EXEC_KILL_ON_CONTRACT_VIOLATION", False)
+        )
+        lifecycle_events_published = 0
+        lifecycle_violations: list[str] = []
+        if lifecycle_enabled and not trades.empty:
+            bus = _init_lifecycle_bus(lifecycle_events_path)
+            lifecycle_events_published, lifecycle_violations = _publish_lifecycle_for_trades(
+                bus=bus,
+                symbol=symbol,
+                trades=trades,
+                base_ts_ms=int(_safe_float(pd.to_numeric(physics.get("ts_ms"), errors="coerce").max(), 0.0)),
+            )
+            if lifecycle_violations:
+                _append_jsonl(
+                    risk_events_path,
+                    {
+                        "ts_utc": _utc_now(),
+                        "event": "contract_violation",
+                        "symbol": symbol,
+                        "violations": list(lifecycle_violations),
+                        "count": int(len(lifecycle_violations)),
+                    },
+                )
 
         risk_state = _load_json(risk_snapshot_path, {})
         if not risk_state:
@@ -509,6 +692,9 @@ def run_live_cycle(cfg: LiveSettings, *, artifact_snapshot: Dict[str, Any] | Non
         kill_reason = "OK"
         policy = None
         risk_skips = 0
+        if kill_on_violation and lifecycle_violations:
+            kill_active = True
+            kill_reason = f"contract_violation:{len(lifecycle_violations)}"
         if bool(cfg.enable_risk_engine):
             policy = load_risk_policy(str(cfg.risk_policy_path), starting_equity_override=float(cfg.starting_equity))
             kill_active, kill_reason = check_kill_switch(risk_state, mtm_before, policy, now_ts_ms)
@@ -693,6 +879,20 @@ def run_live_cycle(cfg: LiveSettings, *, artifact_snapshot: Dict[str, Any] | Non
         metrics["risk_kill_active"] = bool(kill_active) if bool(cfg.enable_risk_engine) else False
         metrics["risk_kill_reason"] = str(kill_reason) if bool(cfg.enable_risk_engine) else ""
         metrics["risk_skips_count"] = int(risk_skips) if bool(cfg.enable_risk_engine) else 0
+        metrics["exec_engine_unified"] = bool(use_exec_engine_unified)
+        metrics["exec_event_bus_enabled"] = bool(lifecycle_enabled)
+        metrics["exec_lifecycle_events_published"] = int(lifecycle_events_published)
+        metrics["exec_contract_violations"] = int(len(lifecycle_violations))
+        metrics["exec_kill_on_contract_violation"] = bool(kill_on_violation)
+        # Sprint 2 drift metrics from latest diagnostics artifacts (best-effort).
+        replay = _load_json_best_effort(Path("reports/REPLAY_PARITY_REPORT.json"))
+        diag = _load_json_best_effort(Path("reports/EXECUTION_HEALTH.json"))
+        tox = _load_json_best_effort(Path("reports/TOXICITY_REPORT.json"))
+        metrics["replay_match_rate_vs_sim"] = float(replay.get("match_rate_vs_sim", 0.0) or 0.0)
+        metrics["replay_fill_rate_delta"] = float(replay.get("fill_rate_delta", 0.0) or 0.0)
+        metrics["replay_adverse_bps_delta"] = float(replay.get("mean_adverse_bps_delta", 0.0) or 0.0)
+        metrics["diag_toxicity_score"] = float(diag.get("toxicity_score", tox.get("toxicity_score", 0.0)) or 0.0)
+        metrics["diag_latency_fill_delay_sec_p95"] = float(diag.get("latency_fill_delay_sec_p95", 0.0) or 0.0)
         write_status(status_path, metrics)
         alerts = evaluate_alerts(metrics, cfg)
         if not cal_ok:
@@ -763,18 +963,65 @@ def run_live_cycle(cfg: LiveSettings, *, artifact_snapshot: Dict[str, Any] | Non
             "aligned_regimes_loaded": bool(aligned_regimes_loaded),
             "risk_engine_enabled": bool(cfg.enable_risk_engine),
             "risk_skips_count": int(risk_skips) if bool(cfg.enable_risk_engine) else 0,
+            "exec_lifecycle_events_published": int(lifecycle_events_published),
+            "exec_contract_violations": int(len(lifecycle_violations)),
         }
 
 
 def run_daemon(cfg: LiveSettings, *, max_cycles: int | None = None) -> int:
     cycles = 0
     backoff = 1.0
+    loop_error_count = 0
+    last_feed_ts = _epoch_now()
+    last_order_update_ts = _epoch_now()
+    supervisor_enabled = bool(getattr(cfg, "exec_runtime_supervisor_enabled", False) or _flag_on("EXEC_RUNTIME_SUPERVISOR_ENABLED", False))
+    supervisor = RuntimeSupervisor(
+        max_feed_age_sec=float(getattr(cfg, "supervisor_max_feed_age_sec", 120.0)),
+        max_order_age_sec=float(getattr(cfg, "supervisor_max_order_age_sec", 600.0)),
+        max_loop_errors=int(getattr(cfg, "supervisor_max_loop_errors", 3)),
+    )
     sticky_artifacts: Dict[str, Any] | None = None
     if bool(cfg.use_active_artifacts) and bool(cfg.disable_online_reload):
         sticky_artifacts = get_active_artifacts(Path(str(cfg.out_root)))
     while True:
         try:
             res = run_live_cycle(cfg, artifact_snapshot=sticky_artifacts)
+            loop_error_count = 0
+            st = dict(res.get("status", {}) or {})
+            freshness = float(_safe_float(st.get("data_freshness_sec"), 0.0))
+            now_ts = _epoch_now()
+            last_feed_ts = now_ts - max(0.0, freshness)
+            if int(res.get("new_trades", 0) or 0) > 0:
+                last_order_update_ts = now_ts
+            if supervisor_enabled:
+                snap = supervisor.evaluate(
+                    now_ts=now_ts,
+                    last_feed_ts=last_feed_ts,
+                    last_order_update_ts=last_order_update_ts,
+                    loop_error_count=loop_error_count,
+                )
+                Path("logs").mkdir(parents=True, exist_ok=True)
+                (Path("logs") / "live_supervisor.json").write_text(
+                    json.dumps(
+                        {
+                            "ts_utc": _utc_now(),
+                            "status": snap.status,
+                            "feed_age_sec": snap.feed_age_sec,
+                            "order_age_sec": snap.order_age_sec,
+                            "loop_error_count": snap.loop_error_count,
+                            "reasons": list(snap.reasons),
+                        },
+                        ensure_ascii=True,
+                        indent=2,
+                    ),
+                    encoding="utf-8",
+                )
+                if snap.should_halt:
+                    print(
+                        f"[live][SUPERVISOR] FAIL status={snap.status} feed_age={snap.feed_age_sec:.1f}s "
+                        f"order_age={snap.order_age_sec:.1f}s reasons={list(snap.reasons)}"
+                    )
+                    return 2
             print(
                 f"[live] cycle ok symbol={canonical_symbol(cfg.symbol)} new_trades={int(res.get('new_trades', 0))} "
                 f"state={res.get('status', {}).get('state', 'na')} "
@@ -785,6 +1032,7 @@ def run_daemon(cfg: LiveSettings, *, max_cycles: int | None = None) -> int:
             print("[live] shutdown requested")
             return 0
         except Exception as e:
+            loop_error_count += 1
             print(f"[live] cycle error {type(e).__name__}:{e}; retry in {backoff:.1f}s")
             time.sleep(backoff)
             backoff = min(60.0, backoff * 2.0)

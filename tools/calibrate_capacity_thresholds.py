@@ -6,6 +6,7 @@ from pathlib import Path
 from statistics import median
 from typing import Any, Dict, List
 
+from config.costs import DEFAULT_MAKER_FEE_BPS
 from tools.rank_passive_pockets_forward import _parse_candidates_from_md
 from tools.validate_passive_pocket_forward import validate_pocket_forward
 
@@ -40,7 +41,7 @@ def _args() -> argparse.Namespace:
     p.add_argument("--seeds", default="7,11,22,33,44,55,66,77,88")
     p.add_argument("--min-n", type=int, default=50)
     p.add_argument("--min-n-frac-grid", default="0.0001,0.00025,0.0005,0.00075,0.001,0.002,0.003")
-    p.add_argument("--maker-fee-bps", type=float, default=1.0)
+    p.add_argument("--maker-fee-bps", type=float, default=float(DEFAULT_MAKER_FEE_BPS))
     p.add_argument("--passive-adverse-mult", type=float, default=1.2)
     p.add_argument("--passive-profile-in", default="state/passive_realistic_profiles.json")
     p.add_argument("--out-md", default="reports/CAPACITY_THRESHOLD_CALIBRATION.md")
@@ -110,6 +111,8 @@ def main() -> int:
                     "attempts_per_min": med_attempts_per_min,
                     "attempt_fill_rate": med_attempt_fill,
                     "net_per_attempt": med_npa,
+                    "effective_min_n_median": int(res.get("effective_min_n_median", 0) or 0),
+                    "frac_min_component_median": int(res.get("frac_min_component_median", 0) or 0),
                 }
             )
         if candidate_stats:
@@ -117,6 +120,9 @@ def main() -> int:
             med_apm = float(median(float(s["attempts_per_min"]) for s in candidate_stats))
             med_afr = float(median(float(s["attempt_fill_rate"]) for s in candidate_stats))
             med_npa = float(median(float(s["net_per_attempt"]) for s in candidate_stats))
+            med_eff_min = int(median(int(s["effective_min_n_median"]) for s in candidate_stats))
+            med_frac_comp = int(median(int(s["frac_min_component_median"]) for s in candidate_stats))
+            dominance_mode = "frac_component" if med_frac_comp > int(args.min_n) else "min_n"
             pass_rates = sorted(float(s["pass_rate"]) for s in candidate_stats)
             n = len(pass_rates)
             p25 = pass_rates[int(max(0, round((n - 1) * 0.25)))]
@@ -124,6 +130,8 @@ def main() -> int:
             p75 = pass_rates[int(max(0, round((n - 1) * 0.75)))]
         else:
             cap_pass_pct = med_apm = med_afr = med_npa = p25 = p50 = p75 = 0.0
+            med_eff_min = med_frac_comp = 0
+            dominance_mode = "none"
         summary_rows.append(
             {
                 "min_n_frac": float(frac),
@@ -132,6 +140,8 @@ def main() -> int:
                 "median_attempts_per_min": float(med_apm),
                 "median_attempt_fill_rate": float(med_afr),
                 "median_net_per_attempt": float(med_npa),
+                "median_effective_min_n": int(med_eff_min),
+                "dominance_mode": str(dominance_mode),
                 "forward_pass_rate_p25": float(p25),
                 "forward_pass_rate_p50": float(p50),
                 "forward_pass_rate_p75": float(p75),
@@ -167,14 +177,19 @@ def main() -> int:
         "",
         f"candidates={len(candidates)} rule={args.rule} fee={args.maker_fee_bps} adverse={args.passive_adverse_mult}",
         "",
-        "| min_n_frac | candidate_count | capacity_pass_pct | median_attempts_per_min | median_attempt_fill_rate | median_net_per_attempt | pass_rate_p25 | pass_rate_p50 | pass_rate_p75 |",
-        "|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| min_n_frac | candidate_count | capacity_pass_pct | median_attempts_per_min | median_attempt_fill_rate | median_net_per_attempt | median_effective_min_n | dominance_mode | pass_rate_p25 | pass_rate_p50 | pass_rate_p75 | note |",
+        "|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|---|",
     ]
     for r in summary_rows:
+        note = (
+            "rows may look identical while min_n dominates effective_min_n"
+            if str(r.get("dominance_mode")) == "min_n"
+            else "frac component influences effective_min_n"
+        )
         lines.append(
             f"| {r['min_n_frac']:.6f} | {r['candidate_count']} | {r['capacity_pass_pct']:.2%} | {r['median_attempts_per_min']:.2f} | "
-            f"{r['median_attempt_fill_rate']:.2%} | {r['median_net_per_attempt']:+.6e} | "
-            f"{r['forward_pass_rate_p25']:.2%} | {r['forward_pass_rate_p50']:.2%} | {r['forward_pass_rate_p75']:.2%} |"
+            f"{r['median_attempt_fill_rate']:.2%} | {r['median_net_per_attempt']:+.6e} | {r['median_effective_min_n']} | {r['dominance_mode']} | "
+            f"{r['forward_pass_rate_p25']:.2%} | {r['forward_pass_rate_p50']:.2%} | {r['forward_pass_rate_p75']:.2%} | {note} |"
         )
     out_md.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"wrote {out_md}")

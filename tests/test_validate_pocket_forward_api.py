@@ -75,6 +75,26 @@ def test_validate_pocket_forward_deterministic(monkeypatch) -> None:
     assert a["rows_total"] == b["rows_total"]
     assert a["pass_count"] == b["pass_count"]
     assert a["per_combo"] == b["per_combo"]
+    assert "failure_attribution_median" in a
+    assert "failure_attribution_per_split" in a
+    assert isinstance(a["failure_attribution_per_split"], list)
+    if a["per_combo"]:
+        row0 = a["per_combo"][0]
+        for k in [
+            "n_events_total",
+            "n_rejected_attempt_gate",
+            "n_attempts_after_gate",
+            "n_filled",
+            "n_unfilled",
+            "avg_adverse_bps_on_fills",
+            "avg_fee_bps",
+            "avg_raw_return_bps_on_fills",
+            "avg_net_return_bps_on_fills",
+            "net_return_bps_p10",
+            "net_return_bps_p50",
+            "net_return_bps_p90",
+        ]:
+            assert k in row0
 
 
 def test_effective_min_n_with_fraction(monkeypatch) -> None:
@@ -381,3 +401,63 @@ def test_regime_bucket_is_deterministic(monkeypatch) -> None:
     )
     assert a["per_regime"] == b["per_regime"]
     assert len(a["per_regime"]) >= 1
+
+
+def test_validate_pocket_forward_scratch_deterministic(monkeypatch) -> None:
+    vf._ROWS_CACHE.clear()
+    monkeypatch.setattr(vf.time, "time", lambda: 1700000000.0)
+    monkeypatch.setattr(vf, "_load_symbol_trades_and_marks", lambda *args, **kwargs: ([], []))
+    monkeypatch.setattr(
+        vf,
+        "build_bucket_features",
+        lambda *args, **kwargs: [
+            {"ts_ms": float(i), "mid": 100.0 + i * 0.001, "spread": 0.0001, "trade_intensity": 3200.0, "micro_volatility": 0.001, "imbalance": 0.6, "ret_1": 0.0}
+            for i in range(1200)
+        ],
+    )
+    monkeypatch.setattr(vf, "compute_regime_bins", lambda rows: {"vol": (0.0, 0.0, 0.001), "intensity": (0.0, 0.0, 2500.0)})
+    monkeypatch.setattr(vf, "compute_rule_thresholds", lambda rows: {})
+    monkeypatch.setattr(vf, "build_passive_calibration_samples", lambda **kwargs: [])
+    monkeypatch.setattr(vf, "calibrate_passive_model", lambda samples, maker_fee_bps, seed: {"seed": int(seed)})
+    monkeypatch.setattr(vf, "load_passive_profiles", lambda path: {})
+    monkeypatch.setattr(vf, "resolve_symbol_profile", lambda profiles, symbol: {})
+
+    def _sim(**kwargs):
+        sb = float(kwargs.get("scratch_bps", 0.0))
+        sw = int(kwargs.get("scratch_window_sec", 0))
+        val = 0.0002 - (sb / 1000000.0) - (sw / 10000000.0)
+        return {
+            "filled_only_metrics": {"n": 60, "avg_net": val, "p90_net": val + 0.0001, "win_rate": 0.55},
+            "attempt_level_metrics": {"fill_rate": 0.5, "n_attempts": 120, "net_per_attempt": val * 0.5, "n_signals_before_gate": 130},
+            "attempt_rows": [{"signal_idx": 1, "filled": True, "fill_prob": 0.6, "net_return": val}],
+            "trades": [{"adverse_selection_bps": 0.5, "cost_fee_bps": 1.0, "raw_return": 0.0003, "net_return": val}],
+            "debug_stats": {"attempt_gate_blocked": 0},
+        }
+
+    monkeypatch.setattr(vf, "simulate_rule_trades", _sim)
+    kwargs = dict(
+        db="data/microstructure.db",
+        symbol="ETHUSDT",
+        lookback_min=100,
+        bucket_sec=1,
+        horizon_sec=60,
+        rule="r",
+        side="auto",
+        min_imbalance=0.5,
+        min_trade_intensity=2500,
+        max_spread=0.00025,
+        splits=4,
+        seeds="11,22",
+        min_n=30,
+        min_n_frac=0.0,
+        maker_fee_bps=1.0,
+        scratch_bps=4.0,
+        scratch_window_sec=10,
+        scratch_taker_fee_bps=1.0,
+        scratch_slippage_bps=0.5,
+    )
+    a = vf.validate_pocket_forward(**kwargs)
+    vf._ROWS_CACHE.clear()
+    b = vf.validate_pocket_forward(**kwargs)
+    assert a["per_combo"] == b["per_combo"]
+    assert a["failure_attribution_median"] == b["failure_attribution_median"]

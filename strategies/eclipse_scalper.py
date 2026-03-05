@@ -48,6 +48,7 @@ _FORCE_FIRED: set[str] = set()
 # Strategy audit (CSV)
 _AUDIT_LAST: dict[str, float] = {}
 _AUDIT_HEADER_WRITTEN: bool = False
+_LAST_SIGNAL_DIAG: dict[str, dict] = {}
 
 
 def _diag_on() -> bool:
@@ -239,6 +240,30 @@ def _symkey(sym: str) -> str:
     if s.endswith("USDTUSDT"):
         s = s[:-4]
     return s
+
+
+def _set_last_signal_diag(symbol: str, reason: str, **extra) -> None:
+    try:
+        k = _symkey(symbol)
+        payload = {
+            "ts": float(time.time()),
+            "symbol": k,
+            "reason": str(reason or "score_none"),
+        }
+        if extra:
+            payload.update(extra)
+        _LAST_SIGNAL_DIAG[k] = payload
+    except Exception:
+        pass
+
+
+def get_last_signal_diag(symbol: str) -> dict:
+    try:
+        k = _symkey(symbol)
+        d = _LAST_SIGNAL_DIAG.get(k)
+        return dict(d) if isinstance(d, dict) else {}
+    except Exception:
+        return {}
 
 
 def _base_from_usdt(k: str) -> str | None:
@@ -537,6 +562,7 @@ def scalper_signal(sym: str, data=None, cfg=None, *args, **kwargs) -> tuple[bool
     micro_profile = (profile == "micro") or (getattr(cfg, "CONFIG_VERSION", "").startswith("micro"))
 
     k = _symkey(sym)
+    _set_last_signal_diag(k, "score_none")
 
     # ----------------------------
     # Freshness guard (1m data staleness)
@@ -1447,6 +1473,19 @@ def scalper_signal(sym: str, data=None, cfg=None, *args, **kwargs) -> tuple[bool
         else:
             blockers = []
 
+        decision_reason = "signal_present" if (long_signal or short_signal) else "signal_not_present"
+        _set_last_signal_diag(
+            k,
+            decision_reason,
+            long=bool(long_signal),
+            short=bool(short_signal),
+            confidence=float(confidence),
+            conf_raw=float(conf_raw),
+            conf_powered=float(conf_powered),
+            conf_clamped=float(conf_clamped),
+            micro=bool(micro_profile),
+        )
+
         if long_signal or short_signal:
             direction = "LONG" if long_signal else "SHORT"
             div_flag = (bullish_div or bearish_div or hidden_bullish or hidden_bearish)
@@ -1491,5 +1530,6 @@ def scalper_signal(sym: str, data=None, cfg=None, *args, **kwargs) -> tuple[bool
         return bool(long_signal), bool(short_signal), float(confidence)
 
     except Exception as e:
+        _set_last_signal_diag(k, "scorer_exception", error=f"{type(e).__name__}: {e}")
         log.error(f"SIGNAL ERROR {k}: {e}")
         return False, False, 0.0

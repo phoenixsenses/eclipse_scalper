@@ -1,9 +1,9 @@
-# execution/reconcile.py — SCALPER ETERNAL — REALITY RECONCILER — 2026 v1.8 (STOP SPAM FIX + RAW SYMBOL FALLBACK + THROTTLE)
+﻿# execution/reconcile.py â€” SCALPER ETERNAL â€” REALITY RECONCILER â€” 2026 v1.8 (STOP SPAM FIX + RAW SYMBOL FALLBACK + THROTTLE)
 # Patch vs v1.7:
-# - ✅ FIX: Prevents "STOP_MARKET placed 30x" by ensuring open-orders fetch uses correct raw futures symbol (DOGE/USDT:USDT)
-# - ✅ HARDEN: Adds per-symbol stop placement throttle (default 60s) even if open-orders fetch fails
-# - ✅ HARDEN: Ensures bot.state.positions dict is persistent and written back after orphan adoption
-# - ✅ Keeps: orphan adoption, hedge-aware ex_map, optional imports, router-integrated stop ladder
+# - âœ… FIX: Prevents "STOP_MARKET placed 30x" by ensuring open-orders fetch uses correct raw futures symbol (DOGE/USDT:USDT)
+# - âœ… HARDEN: Adds per-symbol stop placement throttle (default 60s) even if open-orders fetch fails
+# - âœ… HARDEN: Ensures bot.state.positions dict is persistent and written back after orphan adoption
+# - âœ… Keeps: orphan adoption, hedge-aware ex_map, optional imports, router-integrated stop ladder
 
 import asyncio
 import time
@@ -11,14 +11,16 @@ from types import SimpleNamespace
 from typing import Dict, Any, Optional, Tuple, List
 
 from utils.logging import log_entry, log_core
-from execution.order_router import create_order, cancel_order, cancel_replace_order  # ✅ ROUTER
+from execution.order_router import create_order, cancel_order, cancel_replace_order  # âœ… ROUTER
+from execution.shutdown_control import ensure_traced_shutdown_event
 
 
-# ─────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Diagnostics wiring (never fatal)
-# ─────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 _RECONCILE_ONCE = False
+_LAST_FETCH_POS_ERR_LOG_TS = 0.0
 
 
 def _banner_once() -> None:
@@ -26,7 +28,7 @@ def _banner_once() -> None:
     if _RECONCILE_ONCE:
         return
     _RECONCILE_ONCE = True
-    log_core.info("RECONCILE ONLINE — reality reconciling is armed")
+    log_core.info("RECONCILE ONLINE â€” reality reconciling is armed")
 
 
 def _optional_import(module: str, attr: Optional[str] = None):
@@ -41,7 +43,7 @@ def _optional_import(module: str, attr: Optional[str] = None):
         return getattr(mod, attr)
     except Exception:
         what = f"{module}.{attr}" if attr else module
-        log_core.warning(f"OPTIONAL MISSING — {what}")
+        log_core.warning(f"OPTIONAL MISSING â€” {what}")
         return None
 
 
@@ -63,7 +65,7 @@ _journal_transition = _optional_import("execution.event_journal", "journal_trans
 def _diag_dump(bot, note: str) -> None:
     try:
         if callable(_print_diagnostics):
-            log_core.warning(f"DIAG DUMP — {note}")
+            log_core.warning(f"DIAG DUMP â€” {note}")
             _print_diagnostics(bot)
     except Exception:
         pass
@@ -125,7 +127,7 @@ def _ensure_shutdown_event(bot) -> asyncio.Event:
     ev = getattr(bot, "_shutdown", None)
     if isinstance(ev, asyncio.Event):
         return ev
-    ev = asyncio.Event()
+    ev = ensure_traced_shutdown_event(bot)
     try:
         bot._shutdown = ev  # type: ignore[attr-defined]
     except Exception:
@@ -676,24 +678,44 @@ async def _fetch_positions_best_effort(bot, symbols: Optional[List[str]] = None)
     If symbols is None -> fetch all positions (for orphan scan).
     """
     ex = getattr(bot, "ex", None)
+    try:
+        setattr(bot, "_reconcile_last_fetch_positions_error", "")
+    except Exception:
+        pass
     if ex is None:
+        try:
+            setattr(bot, "_reconcile_last_fetch_positions_error", "exchange_missing")
+        except Exception:
+            pass
         return [], False
     fp = getattr(ex, "fetch_positions", None)
     if not callable(fp):
+        try:
+            setattr(bot, "_reconcile_last_fetch_positions_error", "fetch_positions_not_supported")
+        except Exception:
+            pass
         return [], False
 
     if symbols is None:
         try:
             res = await ex.fetch_positions()
             return (res if isinstance(res, list) else []), True
-        except Exception:
+        except Exception as e:
+            try:
+                setattr(bot, "_reconcile_last_fetch_positions_error", f"{type(e).__name__}: {e}")
+            except Exception:
+                pass
             return [], False
 
     try:
         res = await ex.fetch_positions(symbols)
         if isinstance(res, list):
             return res, True
-    except Exception:
+    except Exception as e:
+        try:
+            setattr(bot, "_reconcile_last_fetch_positions_error", f"{type(e).__name__}: {e}")
+        except Exception:
+            pass
         pass
 
     try:
@@ -707,6 +729,11 @@ async def _fetch_positions_best_effort(bot, symbols: Optional[List[str]] = None)
                 out.append(p)
         return out, True
     except Exception:
+        try:
+            if not getattr(bot, "_reconcile_last_fetch_positions_error", ""):
+                setattr(bot, "_reconcile_last_fetch_positions_error", "fetch_positions_fallback_failed")
+        except Exception:
+            pass
         return [], False
 
 
@@ -958,7 +985,7 @@ async def _ensure_protective_stop(bot, k: str, pos_obj, ex_side_hint: Optional[s
     if side not in ("long", "short"):
         side = ex_side_hint if ex_side_hint in ("long", "short") else None
     if side not in ("long", "short"):
-        msg = f"RECONCILE: {k} no side detected — stop not placed"
+        msg = f"RECONCILE: {k} no side detected â€” stop not placed"
         if _alert_ok(bot, f"{k}:no_side", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
             await _safe_speak(bot, msg, "info")
         return "no_side"
@@ -968,7 +995,7 @@ async def _ensure_protective_stop(bot, k: str, pos_obj, ex_side_hint: Optional[s
     entry_px = _safe_float(getattr(pos_obj, "entry_price", 0.0), 0.0)
     atr = _safe_float(getattr(pos_obj, "atr", 0.0), 0.0)
     if entry_px <= 0:
-        msg = f"RECONCILE: {k} missing entry_price — stop not placed"
+        msg = f"RECONCILE: {k} missing entry_price â€” stop not placed"
         if _alert_ok(bot, f"{k}:no_entry", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
             await _safe_speak(bot, msg, "info")
         return "no_entry"
@@ -1276,7 +1303,15 @@ async def reconcile_tick(bot):
         ex_positions, ok = await _fetch_positions_best_effort(bot, list(tracked_syms))
 
     if not ok:
-        log_entry.warning("RECONCILE: fetch_positions failed — skipping phantom/orphan checks this cycle")
+        global _LAST_FETCH_POS_ERR_LOG_TS
+        now_ts = _now()
+        last_msg = str(getattr(bot, "_reconcile_last_fetch_positions_error", "") or "unknown_error")
+        cooldown = float(_cfg(bot, "RECONCILE_FETCH_POS_ERR_LOG_COOLDOWN_SEC", 30.0) or 30.0)
+        if (now_ts - float(_LAST_FETCH_POS_ERR_LOG_TS or 0.0)) >= max(1.0, cooldown):
+            _LAST_FETCH_POS_ERR_LOG_TS = now_ts
+            log_entry.warning(
+                f"RECONCILE: fetch_positions failed - skipping phantom/orphan checks this cycle | err={last_msg}"
+            )
         mismatch_events += 1
         for s in tracked_syms:
             if s:
@@ -1379,7 +1414,7 @@ async def reconcile_tick(bot):
                         await _safe_speak(bot, msg2, "critical")
                 except Exception as e:
                     log_entry.error(f"Reconcile orphan flatten failed {k}: {e}")
-                    msg3 = f"RECONCILE: ORPHAN FLATTEN FAILED {k} — {e}"
+                    msg3 = f"RECONCILE: ORPHAN FLATTEN FAILED {k} â€” {e}"
                     if _alert_ok(bot, f"{k}:orphan_flat_fail", msg3, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
                         await _safe_speak(bot, msg3, "critical")
                     mismatch_events += 1
@@ -1408,11 +1443,11 @@ async def reconcile_tick(bot):
             continue
 
         sym_raw = _resolve_raw_symbol(bot, k)
-        log_core.warning(f"RECONCILE: PHANTOM STATE POSITION {k} — clearing + cancel reduceOnly orders")
+        log_core.warning(f"RECONCILE: PHANTOM STATE POSITION {k} â€” clearing + cancel reduceOnly orders")
         mismatch_events += 1
         mismatch_symbols.add(k)
         _record_symbol_mismatch(metrics, k)
-        msg = f"RECONCILE: PHANTOM STATE POSITION {k} — cleared"
+        msg = f"RECONCILE: PHANTOM STATE POSITION {k} â€” cleared"
         if _alert_ok(bot, f"{k}:phantom_cleared", msg, float(_cfg(bot, "RECONCILE_ALERT_COOLDOWN_SEC", 120.0))):
             await _safe_speak(bot, msg, "info")
         await _cancel_reduce_only_open_orders(bot, sym_raw)
@@ -1945,7 +1980,7 @@ async def guardian_loop(bot):
     poll_sec = float(_cfg(bot, "GUARDIAN_POLL_SEC", 15.0))
     shutdown_ev = _ensure_shutdown_event(bot)
 
-    log_core.critical("RECONCILE LEGACY LOOP ONLINE — (guardian.py should own the loop)")
+    log_core.critical("RECONCILE LEGACY LOOP ONLINE â€” (guardian.py should own the loop)")
 
     while not shutdown_ev.is_set():
         try:

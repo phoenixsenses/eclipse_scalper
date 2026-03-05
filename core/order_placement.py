@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import sqlite3
+import math
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional
@@ -49,6 +50,9 @@ class PlacementDecision:
     mode: str
     limit_price: float
     queue_ahead: float
+    queue_flow_rate: float
+    fill_prob_timeout: float
+    expected_wait_sec: float
     source: str
     reason: str
     best_bid: float = 0.0
@@ -68,6 +72,9 @@ class OrderPlacementEngine:
         mode: str = "best",
         queue_depth_threshold: float = 500.0,
         default_tick_size: float = 0.01,
+        fill_timeout_sec: float = 10.0,
+        min_fill_prob: float = 0.35,
+        flow_lookback_sec: int = 30,
     ):
         self.db_path = str(db_path)
         m = str(mode or "best").strip().lower()
@@ -76,6 +83,9 @@ class OrderPlacementEngine:
         self.mode = m
         self.queue_depth_threshold = max(0.0, float(queue_depth_threshold))
         self.default_tick_size = max(1e-8, float(default_tick_size))
+        self.fill_timeout_sec = max(0.1, float(fill_timeout_sec))
+        self.min_fill_prob = max(0.0, min(1.0, float(min_fill_prob)))
+        self.flow_lookback_sec = max(3, int(flow_lookback_sec))
 
     @staticmethod
     def from_env() -> "OrderPlacementEngine":
@@ -84,7 +94,88 @@ class OrderPlacementEngine:
             mode=str(os.getenv("MICRO_SIGNAL_ORDER_PLACEMENT_MODE", "best") or "best"),
             queue_depth_threshold=float(os.getenv("MICRO_SIGNAL_QUEUE_DEPTH_THRESHOLD", "500") or 500.0),
             default_tick_size=float(os.getenv("MICRO_SIGNAL_TICK_SIZE", "0.01") or 0.01),
+            fill_timeout_sec=float(os.getenv("MICRO_SIGNAL_FILL_TIMEOUT_SEC", "10") or 10.0),
+            min_fill_prob=float(os.getenv("MICRO_SIGNAL_MIN_FILL_PROB", "0.35") or 0.35),
+            flow_lookback_sec=int(float(os.getenv("MICRO_SIGNAL_FLOW_LOOKBACK_SEC", "30") or 30)),
         )
+
+    def _latest_trade_flow(self, symbol: str, lookback_sec: Optional[int] = None) -> tuple[float, float, str]:
+        db = Path(self.db_path)
+        if not db.exists():
+            return 0.0, 0.0, "db_missing"
+        lookback = int(lookback_sec or self.flow_lookback_sec)
+        conn = sqlite3.connect(str(db), check_same_thread=False)
+        conn.row_factory = sqlite3.Row
+        try:
+            now_sec = _safe_float(conn.execute("SELECT CAST(strftime('%s','now') AS REAL)").fetchone()[0], 0.0)
+            if now_sec <= 0:
+                return 0.0, 0.0, "no_now"
+            cutoff_sec = now_sec - float(max(3, lookback))
+            for table in ("agg_trades", "trades", "trade_events"):
+                if not _table_exists(conn, table):
+                    continue
+                cols = _table_cols(conn, table)
+                sym_col = _pick(cols, "symbol", "s", "pair", "instrument")
+                ts_col = _pick(cols, "ts_ms", "timestamp_ms", "ts", "timestamp", "event_ts", "time", "t")
+                qty_col = _pick(cols, "qty", "quantity", "size", "q")
+                side_col = _pick(cols, "side", "taker_side", "aggressor_side")
+                buyer_maker_col = _pick(cols, "is_buyer_maker", "buyer_maker", "m")
+                if not (sym_col and ts_col and qty_col):
+                    continue
+                # We only use this estimate when side can be inferred.
+                if not side_col and not buyer_maker_col:
+                    continue
+                query = (
+                    f"SELECT {ts_col} AS tsv, {qty_col} AS qv, "
+                    f"{(side_col or 'NULL')} AS sv, {(buyer_maker_col or 'NULL')} AS mv "
+                    f"FROM {table} WHERE {sym_col}=? ORDER BY {ts_col} DESC LIMIT 30000"
+                )
+                rows = conn.execute(query, (canonical_symbol(symbol),)).fetchall()
+                if not rows:
+                    continue
+                buy_qty = 0.0
+                sell_qty = 0.0
+                for r in rows:
+                    tsv = _safe_float(r["tsv"], 0.0)
+                    ts_sec = (tsv / 1000.0) if tsv > 1e12 else tsv
+                    if ts_sec <= 0 or ts_sec < cutoff_sec:
+                        break
+                    qty = max(0.0, _safe_float(r["qv"], 0.0))
+                    if qty <= 0:
+                        continue
+                    side_raw = str(r["sv"] or "").strip().lower()
+                    if side_raw in ("buy", "b", "long"):
+                        buy_qty += qty
+                        continue
+                    if side_raw in ("sell", "s", "short"):
+                        sell_qty += qty
+                        continue
+                    if buyer_maker_col:
+                        mv = str(r["mv"] or "").strip().lower()
+                        # Binance: is_buyer_maker=True means buyer passive => seller aggressed => sell-side taker flow.
+                        if mv in ("1", "true", "t", "yes"):
+                            sell_qty += qty
+                        elif mv in ("0", "false", "f", "no"):
+                            buy_qty += qty
+                span = float(max(1, lookback))
+                return buy_qty / span, sell_qty / span, f"flow:{table}"
+            return 0.0, 0.0, "no_trade_rows"
+        finally:
+            conn.close()
+
+    def _estimate_fill_stats(self, *, queue_ahead: float, flow_rate: float, timeout_sec: Optional[float] = None) -> tuple[float, float]:
+        q = max(0.0, float(queue_ahead))
+        r = max(0.0, float(flow_rate))
+        t = max(0.1, float(timeout_sec or self.fill_timeout_sec))
+        if q <= 0:
+            return 1.0, 0.0
+        if r <= 0:
+            return 0.0, 1e9
+        # Poisson-style approximation: progress rate ~= r / q.
+        lam = r / max(1e-9, q)
+        prob = 1.0 - math.exp(-lam * t)
+        expected_wait = q / max(1e-9, r)
+        return max(0.0, min(1.0, prob)), max(0.0, expected_wait)
 
     def _latest_top_of_book(self, symbol: str) -> tuple[float, float, float, float, str]:
         db = Path(self.db_path)
@@ -144,6 +235,9 @@ class OrderPlacementEngine:
                 mode=mode,
                 limit_price=float(max(0.0, fallback_px)),
                 queue_ahead=0.0,
+                queue_flow_rate=0.0,
+                fill_prob_timeout=0.0,
+                expected_wait_sec=1e9,
                 source=src,
                 reason="fallback_no_book",
                 best_bid=bid_px,
@@ -154,10 +248,15 @@ class OrderPlacementEngine:
         best_px = bid_px if is_long else ask_px
         queue_ahead = bid_qty if is_long else ask_qty
         spread = max(0.0, ask_px - bid_px)
+        buy_flow, sell_flow, flow_src = self._latest_trade_flow(symbol)
+        hit_flow = sell_flow if is_long else buy_flow
+        fill_prob, expected_wait = self._estimate_fill_stats(queue_ahead=queue_ahead, flow_rate=hit_flow)
 
         chosen_mode = mode
         if mode == "adaptive":
-            if queue_ahead > self.queue_depth_threshold and spread >= (2.0 * tick):
+            queue_is_deep = queue_ahead > self.queue_depth_threshold
+            fill_is_poor = fill_prob < self.min_fill_prob
+            if (queue_is_deep or fill_is_poor) and spread >= (2.0 * tick):
                 chosen_mode = "inside_spread"
             else:
                 chosen_mode = "best"
@@ -178,7 +277,10 @@ class OrderPlacementEngine:
                 mode=chosen_mode,
                 limit_price=float(max(0.0, px)),
                 queue_ahead=float(queue_ahead),
-                source=src,
+                queue_flow_rate=float(hit_flow),
+                fill_prob_timeout=float(fill_prob),
+                expected_wait_sec=float(expected_wait),
+                source=f"{src}|{flow_src}",
                 reason="fallback_invalid_px",
                 best_bid=bid_px,
                 best_ask=ask_px,
@@ -188,9 +290,11 @@ class OrderPlacementEngine:
             mode=chosen_mode,
             limit_price=float(px),
             queue_ahead=float(queue_ahead),
-            source=src,
+            queue_flow_rate=float(hit_flow),
+            fill_prob_timeout=float(fill_prob),
+            expected_wait_sec=float(expected_wait),
+            source=f"{src}|{flow_src}",
             reason="ok",
             best_bid=bid_px,
             best_ask=ask_px,
         )
-

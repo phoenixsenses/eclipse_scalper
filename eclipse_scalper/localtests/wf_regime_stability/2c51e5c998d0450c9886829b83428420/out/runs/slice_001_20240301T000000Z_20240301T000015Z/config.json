@@ -1,0 +1,21 @@
+{
+  "db": "eclipse_scalper\\localtests\\wf_regime_stability\\2c51e5c998d0450c9886829b83428420\\db.sqlite",
+  "end": "2024-03-01T00:00:15Z",
+  "execution_sim": {
+    "fee_bps": 0.0,
+    "fill_or_before_enabled": false,
+    "horizon_or_before_enabled": true,
+    "horizon_sec": 3,
+    "mode": "min_exec_sim",
+    "qty": 1.0,
+    "spread_bps": 0.0
+  },
+  "start": "2024-03-01T00:00:00Z",
+  "strategy": "baseline",
+  "strategy_config": {
+    "period": 2
+  },
+  "symbols": [
+    "ETHUSDT"
+  ]
+}

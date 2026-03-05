@@ -1,0 +1,11 @@
+{
+  "status": "skip",
+  "run_id": "40b8f7f96ded",
+  "source": "reports\\test_validate_canonical\\does_not_exist.csv",
+  "notes": [
+    "skipped_missing_data"
+  ],
+  "violations": [],
+  "column_stats": {},
+  "invariant_summary": {}
+}

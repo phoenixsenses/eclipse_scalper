@@ -1,0 +1,8 @@
+{
+  "generated_utc": "2026-03-02T04:43:56.508259+00:00",
+  "interval_ms": 100,
+  "rows_kernel": 800,
+  "rows_metrics": 4,
+  "symbol": "ETHUSDT",
+  "tau_max": 200
+}

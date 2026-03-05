@@ -1,0 +1,30 @@
+{
+  "maker_fee_bps_grid": [
+    0.8,
+    1.0
+  ],
+  "passive_adverse_mult_grid": [
+    1.0,
+    1.2
+  ],
+  "rows": [
+    {
+      "pocket": "ETHUSDT rule=intensity_spike_imbalance_cont side=auto h=120 imb>=0.50 int>=2500 spr<=0.000300",
+      "symbol": "ETHUSDT",
+      "rule": "intensity_spike_imbalance_cont",
+      "horizon_sec": 120,
+      "score_raw_core": 2e-05,
+      "npa_core": 1e-05,
+      "pass_rate_core": 1.0,
+      "decomposition_core": {
+        "gross_edge_npa": 7.5e-05,
+        "fee_cost_npa": 4e-05,
+        "adverse_cost_npa": 5e-05,
+        "scratch_cost_npa": 1e-05,
+        "net_npa": -2.500000000000001e-05,
+        "observed_net_npa": 1e-05,
+        "residual_npa": 3.500000000000001e-05
+      }
+    }
+  ]
+}

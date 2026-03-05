@@ -1,0 +1,43 @@
+{
+  "adverse_dominates_count": 0,
+  "adverse_samples_zero_count": 0,
+  "adverse_sum": 0.0,
+  "avg_adverse_samples": 4.875,
+  "avg_pnl": 0.187681,
+  "decision_to_fill_rate": 1.0,
+  "decisions_count": 8,
+  "events_replayed": 16,
+  "fee_dominates_count": 1,
+  "fee_sum": 0.048552,
+  "fills_count": 8,
+  "horizon_price_source_counts": {
+    "after": 5,
+    "before": 3
+  },
+  "per_symbol_decisions": {
+    "ETHUSDT": 8
+  },
+  "per_symbol_fills": {
+    "ETHUSDT": 8
+  },
+  "per_symbol_metrics": {
+    "ETHUSDT": {
+      "adverse_samples_zero_count": 0,
+      "adverse_sum": 0.0,
+      "avg_adverse_samples": 4.875,
+      "fee_sum": 0.048552,
+      "fills_count": 8,
+      "pnl_gross_sum": 1.55,
+      "pnl_sum": 1.501448,
+      "spread_cost_est_sum": 0.0
+    }
+  },
+  "pnl_gross_sum": 1.55,
+  "pnl_net_sum": 1.501448,
+  "pnl_sum": 1.501448,
+  "skipped_count": 0,
+  "skipped_reasons": {},
+  "spread_cost_est_sum": 0.0,
+  "state_vectors_count": 16,
+  "win_rate": 0.875
+}

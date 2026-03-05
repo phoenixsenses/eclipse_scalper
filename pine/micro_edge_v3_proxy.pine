@@ -1,0 +1,233 @@
+//@version=5
+strategy(
+     title       = "MicroEdge V3 — Capacity Aware Passive Alpha (Proxy)",
+     shorttitle  = "MEv3",
+     overlay     = true,
+     margin_long = 0,
+     margin_short= 0,
+     default_qty_type  = strategy.percent_of_equity,
+     default_qty_value = 10,
+     commission_type   = strategy.commission.percent,
+     commission_value  = 0.02,
+     slippage    = 1
+     )
+
+// ─────────────────────────────────────────────
+// INPUTS
+// ─────────────────────────────────────────────
+grp_score = "V3 Score"
+spread_len      = input.int(14,   "Spread MA Length",          group=grp_score, tooltip="Lookback for spread compression baseline")
+intensity_len   = input.int(5,    "Intensity Slope Length",    group=grp_score, tooltip="Bars to measure volume intensity slope")
+followthru_len  = input.int(3,    "Follow-through Bars",       group=grp_score, tooltip="Past N bars checked for price follow-through — no lookahead")
+score_threshold = input.float(0.5,"Min V3 Score to Signal",    group=grp_score, minval=0.0, maxval=1.0, step=0.05)
+
+grp_tox = "Toxicity Filter"
+tox_len     = input.int(10,   "Toxicity Lookback",        group=grp_tox, tooltip="Window for adverse selection detection")
+tox_penalty = input.float(0.3,"Toxicity Penalty Weight",  group=grp_tox, minval=0.0, maxval=1.0, step=0.05)
+
+grp_gate = "Attempt Gate"
+gate_min_signals = input.int(20,    "Min Signals Before Gate Evaluates", group=grp_gate, tooltip="Warmup: collect this many signals before gate activates")
+gate_min_fill    = input.float(0.50,"Min Fill Rate to Keep Gate Open",   group=grp_gate, minval=0.0, maxval=1.0, step=0.05)
+
+grp_fill = "Fill Proxy"
+fill_wait_bars  = input.int(3,   "Max Bars to Wait for Fill",         group=grp_fill, tooltip="Limit order filled if price touches limit within N bars")
+limit_offset_bp = input.float(2.0,"Limit Offset (bps from close)",    group=grp_fill, tooltip="Passive entry offset in basis points — long buys below, short sells above")
+
+grp_risk = "Risk / Exit"
+atr_len       = input.int(14,   "ATR Length",    group=grp_risk)
+sl_atr        = input.float(1.5,"SL (ATR mult)", group=grp_risk, minval=0.1, step=0.1)
+tp_atr        = input.float(2.5,"TP (ATR mult)", group=grp_risk, minval=0.1, step=0.1)
+max_bars_hold = input.int(20,   "Max Hold Bars", group=grp_risk, tooltip="Time-based exit if neither SL nor TP is hit")
+
+grp_regime = "Regime"
+regime_len     = input.int(50,    "Regime Lookback (bars)",        group=grp_regime, tooltip="Past-window only — no lookahead")
+regime_vol_pct = input.float(75.0,"High-Vol Regime Percentile",   group=grp_regime, minval=50.0, maxval=99.0)
+
+// ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
+f_normalize(src, len) =>
+    lo    = ta.lowest(src,  len)
+    hi    = ta.highest(src, len)
+    denom = hi - lo
+    denom == 0 ? 0.5 : (src - lo) / denom
+
+// ─────────────────────────────────────────────
+// V3 SCORE COMPONENTS
+// ─────────────────────────────────────────────
+
+// 1) Spread compression: bar range shrinking vs baseline
+hl_spread    = high - low
+spread_ma    = ta.sma(hl_spread, spread_len)
+spread_shrink = spread_ma > 0 ? 1.0 - (hl_spread / spread_ma) : 0.0
+spread_score  = math.max(0.0, math.min(1.0, spread_shrink + 0.5))
+
+// 2) Intensity acceleration: fast vol SMA vs slow vol SMA slope
+vol_slope       = ta.sma(volume, intensity_len) - ta.sma(volume, intensity_len * 2)
+intensity_score = f_normalize(vol_slope, spread_len)
+
+// 3) Follow-through: did price follow the bar N bars ago? (past data only — no lookahead)
+close_dir_ago    = math.sign(close[followthru_len] - open[followthru_len])
+ret_since        = close[followthru_len] != 0.0 ? (close - close[followthru_len]) / close[followthru_len] : 0.0
+followthru_ok    = (close_dir_ago > 0 and ret_since > 0) or (close_dir_ago < 0 and ret_since < 0)
+followthru_score = followthru_ok ? 1.0 : 0.0
+
+// Raw V3 score (equal weight)
+v3_raw = (spread_score + intensity_score + followthru_score) / 3.0
+
+// ─────────────────────────────────────────────
+// TOXICITY PENALTY
+// ─────────────────────────────────────────────
+// Balanced up/down bars = noisy/toxic; directional = clean
+up_bars   = ta.sum(close > open ? 1 : 0, tox_len)
+down_bars = ta.sum(close < open ? 1 : 0, tox_len)
+tox_ratio = math.abs(up_bars - down_bars) / tox_len   // 0=balanced(toxic), 1=directional(clean)
+tox_score = tox_ratio
+
+v3_score = v3_raw * (1.0 - tox_penalty) + tox_score * tox_penalty
+
+// ─────────────────────────────────────────────
+// REGIME FILTER (past-window quantile — no lookahead)
+// ─────────────────────────────────────────────
+atr             = ta.atr(atr_len)
+vol_threshold   = ta.percentile_nearest_rank(atr, regime_len, regime_vol_pct)
+high_vol_regime = atr >= vol_threshold
+regime_ok       = not high_vol_regime    // only trade in normal vol regime
+
+// ─────────────────────────────────────────────
+// SIGNAL GENERATION (barstate.isconfirmed — no lookahead)
+// ─────────────────────────────────────────────
+sma_close    = ta.sma(close, spread_len)
+long_signal  = barstate.isconfirmed and v3_score >= score_threshold and regime_ok and ta.crossover(close,  sma_close)
+short_signal = barstate.isconfirmed and v3_score >= score_threshold and regime_ok and ta.crossunder(close, sma_close)
+
+// ─────────────────────────────────────────────
+// FILL PROXY + ATTEMPT GATE
+// ─────────────────────────────────────────────
+// Fill proxy: tracks whether a passive limit would have filled within fill_wait_bars.
+// n_filled is incremented only on a hit; unfilled attempts contribute 0 (DAT-04).
+// fill_rate drives the gate — gate blocks signals if passive fill rate is too low.
+
+var int   n_signals    = 0
+var int   n_attempts   = 0
+var int   n_filled     = 0          // FIX B1: properly incremented below in fill-proxy check
+var bool  gate_open    = false
+
+// Fill proxy state for pending attempt
+var float pending_limit = na
+var int   pending_dir   = 0         // 1=long, -1=short, 0=none
+var int   pending_bar   = 0
+
+// Check fill proxy each bar BEFORE processing new signals
+// FIX B4: limit_long/limit_short now actually used here
+if pending_dir != 0
+    bars_waiting = bar_index - pending_bar
+    if bars_waiting <= fill_wait_bars
+        // FIX B1: increment n_filled when limit is touched
+        was_filled = (pending_dir ==  1 and low  <= pending_limit) or
+                     (pending_dir == -1 and high >= pending_limit)
+        if was_filled
+            n_filled    += 1
+            pending_dir := 0        // clear pending
+    else
+        pending_dir := 0            // expired unfilled — n_filled unchanged
+
+// Count raw signals
+if long_signal or short_signal
+    n_signals += 1
+
+// FIX B2: float division (was int/int = always 0)
+fill_rate = n_attempts > 0 ? float(n_filled) / float(n_attempts) : 1.0
+
+// Gate logic
+gate_open    := n_signals >= gate_min_signals and fill_rate >= gate_min_fill
+gate_blocked  = (n_signals >= gate_min_signals) and not gate_open
+can_trade     = gate_open or n_signals < gate_min_signals
+
+// ─────────────────────────────────────────────
+// ENTRIES
+// ─────────────────────────────────────────────
+// FIX B5: SL/TP locked at entry price — not recalculated per bar
+var float trade_sl = na
+var float trade_tp = na
+
+go_long  = long_signal  and can_trade and strategy.position_size == 0
+go_short = short_signal and can_trade and strategy.position_size == 0
+
+if go_long
+    n_attempts    += 1
+    pending_limit := close * (1.0 - limit_offset_bp / 10000.0)   // passive long limit = below close
+    pending_dir   := 1
+    pending_bar   := bar_index
+    trade_sl      := close - atr * sl_atr                         // fixed at entry bar
+    trade_tp      := close + atr * tp_atr
+    strategy.entry("Long", strategy.long)
+
+if go_short
+    n_attempts    += 1
+    pending_limit := close * (1.0 + limit_offset_bp / 10000.0)   // passive short limit = above close
+    pending_dir   := -1
+    pending_bar   := bar_index
+    trade_sl      := close + atr * sl_atr
+    trade_tp      := close - atr * tp_atr
+    strategy.entry("Short", strategy.short)
+
+// ─────────────────────────────────────────────
+// EXITS (fixed SL/TP + time-based)
+// ─────────────────────────────────────────────
+if strategy.position_size > 0 and not na(trade_sl)
+    strategy.exit("Long Exit", "Long", stop=trade_sl, limit=trade_tp)
+    // FIX B3: correct bars-held calculation (was ta.barssince() misuse)
+    if bar_index - strategy.opentrades.entry_bar_index(0) >= max_bars_hold
+        strategy.close("Long", comment="timeout")
+
+if strategy.position_size < 0 and not na(trade_sl)
+    strategy.exit("Short Exit", "Short", stop=trade_sl, limit=trade_tp)
+    // FIX B3: correct bars-held calculation
+    if bar_index - strategy.opentrades.entry_bar_index(0) >= max_bars_hold
+        strategy.close("Short", comment="timeout")
+
+// ─────────────────────────────────────────────
+// VISUALIZATION
+// ─────────────────────────────────────────────
+// FIX B6: replaced invisible plot(v3_score)/hline on overlay with barcolor
+// Score level shown as bar color intensity (overlay-safe)
+barcolor(v3_score >= score_threshold and regime_ok ? color.new(color.blue, 60) : na, title="Score Above Threshold")
+bgcolor(high_vol_regime ? color.new(color.red, 92) : na, title="High Vol Regime")
+
+plotshape(go_long,      title="Long Entry",   style=shape.triangleup,   location=location.belowbar, color=color.green,  size=size.small)
+plotshape(go_short,     title="Short Entry",  style=shape.triangledown, location=location.abovebar, color=color.red,    size=size.small)
+plotshape(gate_blocked, title="Gate Blocked", style=shape.xcross,       location=location.belowbar, color=color.orange, size=size.tiny)
+
+// Dashboard table (7 rows)
+var table dash = table.new(position.top_right, 2, 7,
+     border_width=1, border_color=color.gray,
+     bgcolor=color.new(color.black, 80))
+
+if barstate.islast
+    table.cell(dash, 0, 0, "MicroEdge V3",  text_color=color.white,  bgcolor=color.new(color.blue, 50))
+    table.cell(dash, 1, 0, "Value",          text_color=color.white,  bgcolor=color.new(color.blue, 50))
+    table.cell(dash, 0, 1, "V3 Score",       text_color=color.silver)
+    table.cell(dash, 1, 1, str.tostring(v3_score, "#.##"),
+         text_color=v3_score >= score_threshold ? color.green : color.red)
+    table.cell(dash, 0, 2, "Regime",         text_color=color.silver)
+    table.cell(dash, 1, 2, high_vol_regime ? "HIGH VOL" : "Normal",
+         text_color=high_vol_regime ? color.red : color.green)
+    table.cell(dash, 0, 3, "Signals",        text_color=color.silver)
+    table.cell(dash, 1, 3, str.tostring(n_signals),  text_color=color.white)
+    table.cell(dash, 0, 4, "Attempts",       text_color=color.silver)
+    table.cell(dash, 1, 4, str.tostring(n_attempts), text_color=color.white)
+    table.cell(dash, 0, 5, "Fill Rate",      text_color=color.silver)
+    table.cell(dash, 1, 5, str.tostring(fill_rate * 100, "#.#") + "%",
+         text_color=fill_rate >= gate_min_fill ? color.green : color.red)
+    table.cell(dash, 0, 6, "Gate",           text_color=color.silver)
+    table.cell(dash, 1, 6,
+         gate_open ? "OPEN" : (gate_blocked ? "BLOCKED" : "WARMUP"),
+         text_color=gate_open ? color.green : color.orange)
+
+// ─────────────────────────────────────────────
+// ALERTS
+// ─────────────────────────────────────────────
+alertcondition(go_long,      "MEv3 Long",         "MicroEdge V3: Long signal fired")
+alertcondition(go_short,     "MEv3 Short",        "MicroEdge V3: Short signal fired")
+alertcondition(gate_blocked, "MEv3 Gate Blocked", "MicroEdge V3: Gate is blocking signals")

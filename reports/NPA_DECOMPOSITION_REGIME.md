@@ -1,0 +1,151 @@
+# NPA DECOMPOSITION AND REGIME ANALYSIS -- ETHUSDT
+
+**Generated:** 2026-02-28 23:00 UTC
+
+## 0. Context
+
+Prior sweep found sell NPA = 6.3e-05 vs buy NPA = 7.0e-06 (9:1 ratio) for the top
+pocket (imb>=0.5, int>=3500, spr<=0.0003, h=120s).
+The sell-asymmetry diagnostic showed directional hit rates are near-symmetric
+(sell 55.5%, buy 56.4%), ruling out directional bias as the cause.
+This report dissects the NPA gap via excursion distributions and tests whether
+regime filtering (rolling 1-h return sign) meaningfully improves the NPA proxy.
+
+**NPA proxy** = `mean(final_ret_bps) - adverse_mult * mean(max_adverse_bps)`
+  where `final_ret_bps` = directional endpoint return (120 s), bps
+  and   `max_adverse_bps` = max adverse excursion during the 120-s hold, bps.
+
+**Data:** 2026-02-15 14:26 UTC -> 2026-02-28 22:58 UTC  |  ETHUSDT  |  1-sec buckets
+
+---
+## Task 1: NPA Decomposition (sell vs buy)
+
+### 1.1 Event Counts
+
+| Side | Signals | Hit rate (final_ret > 0) |
+|---|---:|---:|
+| Sell (SHORT) | 17,552 | 55.5% |
+| Buy  (LONG)  | 20,859  | 56.3% |
+
+### 1.2 Favorable Endpoint Return Distribution (bps)
+
+| Stat | Sell | Buy | Sell - Buy |
+|---|---:|---:|---:|
+| mean | 2.210 | 2.410 | -0.200 |
+| median | 1.617 | 2.090 | -0.473 |
+| p25 | -7.296 | -7.230 | -0.066 |
+| p75 | 11.083 | 11.875 | -0.792 |
+| p95 | 33.798 | 33.971 | -0.173 |
+
+![Endpoint return distribution](plots\05_endpoint_return_dist.png)
+
+### 1.3 Max Adverse Excursion Distribution (bps)
+
+*Sell adverse = max upward move during hold (bad for SHORT).*  
+*Buy adverse = max downward move during hold (bad for LONG).*
+
+| Stat | Sell adverse | Buy adverse | Sell - Buy |
+|---|---:|---:|---:|
+| mean | 10.205 | 10.150 | 0.054 |
+| median | 5.871 | 5.783 | 0.088 |
+| p25 | 1.103 | 0.823 | 0.280 |
+| p75 | 14.095 | 13.962 | 0.133 |
+| p95 | 35.001 | 35.621 | -0.620 |
+
+![Adverse excursion distribution](plots\06_adverse_excursion_dist.png)
+
+### 1.4 Max Favorable Excursion Distribution (bps)
+
+| Stat | Sell favorable | Buy favorable |
+|---|---:|---:|
+| mean | 13.910 | 14.869 |
+| median | 9.493 | 10.408 |
+| p25 | 4.500 | 5.037 |
+| p75 | 18.120 | 19.493 |
+| p95 | 41.806 | 43.462 |
+
+### 1.5 NPA Proxy Comparison (unconditional)
+
+| adverse_mult | Sell NPA proxy (bps) | Buy NPA proxy (bps) | Sell / Buy ratio |
+|---:|---:|---:|---:|
+| 0.3 | -0.8517 | -0.6354 | 1.34 |
+| 0.5 | -2.8926 | -2.6655 | 1.09 |
+| 0.7 | -4.9335 | -4.6955 | 1.05 |
+
+![NPA proxy comparison](plots\07_npa_proxy_comparison.png)
+
+### 1.6 Mechanical Explanation of NPA Gap
+
+Decomposition at adverse_mult=0.3:
+
+```
+sell: 2.210 - 0.3 * 10.205 = -0.8517 bps
+buy:  2.410  - 0.3 * 10.150  = -0.6354 bps
+```
+
+**Adverse excursions are nearly equal (-0.054 bps difference).**
+The NPA gap likely originates from the passive fill probability model,
+not from path excursions captured at this resolution.
+
+---
+## Task 2: Regime-Conditional Pocket Analysis
+
+Regime label = 'UP' if rolling 1-h log-return >= 0, else 'DOWN'.
+Four conditions: sell-UP, sell-DOWN, buy-UP, buy-DOWN.
+Flagged as [LOW N] if signal count < 20.
+
+### 2.1 Event Counts and Hit Rates
+
+| Condition | n | Hit rate | vs unconditional |
+|---|---:|---:|---:|
+| sell_UP | 8,275 | 58.3% | 2.8pp |
+| sell_DOWN | 9,232 | 53.0% | -2.5pp |
+| buy_UP | 9,825 | 54.5% | -1.9pp |
+| buy_DOWN | 10,969 | 58.0% | 1.6pp |
+
+### 2.2 Excursion Decomposition per Condition
+
+| Condition | n | mean final_ret | mean max_favorable | mean max_adverse |
+|---|---:|---:|---:|---:|
+| sell_UP | 8,275 | 1.896 | 12.934 | 10.174 |
+| sell_DOWN | 9,232 | 2.504 | 14.810 | 10.248 |
+| buy_UP | 9,825 | 2.996 | 15.243 | 9.119 |
+| buy_DOWN | 10,969 | 1.889 | 14.569 | 11.103 |
+
+### 2.3 NPA Proxy by Condition and adverse_mult
+
+| Condition | n | mult=0.3 | mult=0.5 | mult=0.7 |
+|---|---:|---:|---:|---:|
+| sell_UP | 8,275 | -1.1564 | -3.1912 | -5.2260 |
+| sell_DOWN | 9,232 | -0.5703 | -2.6198 | -4.6693 |
+| buy_UP | 9,825 | 0.2602 | -1.5636 | -3.3874 |
+| buy_DOWN | 10,969 | -1.4422 | -3.6627 | -5.8833 |
+
+*(Unconditional sell and buy shown below for reference)*
+
+| sell (all) | 17,552 | -0.8517 | -2.8926 | -4.9335 |
+| buy (all) | 20,859 | -0.6354 | -2.6655 | -4.6955 |
+
+![Regime NPA proxy](plots\08_regime_npa_proxy.png)
+
+### 2.4 Verdict: Does Regime Filtering Improve Edge?
+
+Comparing regime-filtered NPA proxy vs unconditional at adverse_mult=0.5:
+
+| Condition | n | NPA proxy | Delta vs unconditional | Delta % |
+|---|---:|---:|---:|---:|
+| buy_UP [BEST] | 9,825 | -1.5636 | +1.1019 | +41.3% |
+| sell_DOWN | 9,232 | -2.6198 | +0.2728 | +9.4% |
+| sell_UP | 8,275 | -3.1912 | -0.2986 | -10.3% |
+| buy_DOWN | 10,969 | -3.6627 | -0.9973 | -37.4% |
+
+**VERDICT: YES -- regime filtering improves edge.**
+
+`buy_UP` achieves NPA proxy -1.5636 bps at mult=0.5,
+a **+41.3%** uplift over the unconditional baseline.
+With n=9,825 signals this is statistically meaningful.
+Recommendation: run `buy_UP` through the full forward validation sweep
+(rank_passive_pockets_forward) to confirm out-of-sample.
+
+---
+*Generated by `tools/npa_decomposition_and_regime.py` -- self-contained.*

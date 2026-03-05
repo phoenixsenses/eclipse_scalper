@@ -232,6 +232,57 @@ class MicroSignalProvider:
                         sym,
                         {"matched_pocket": sig.pocket_name, "age_sec": age_sec, "signal": sig},
                     )
-            return MicroSignalResult(False, 0.0, "no_match", "", sym, {"age_sec": age_sec})
+            meta: dict[str, Any] = {"age_sec": age_sec}
+            try:
+                signed = float(feat.imbalance_signed)
+                ti = float(feat.trade_intensity)
+                spr = float(feat.spread)
+                target_side = "sell" if signed >= 0.0 else "buy"
+                if "sell" not in sides and "buy" in sides:
+                    target_side = "buy"
+                elif "buy" not in sides and "sell" in sides:
+                    target_side = "sell"
+
+                best = None
+                best_missing = 10
+                for p in pockets:
+                    if target_side == "sell":
+                        imb_ok = signed >= float(p.min_imbalance)
+                    else:
+                        imb_ok = signed <= -float(p.min_imbalance)
+                    int_ok = ti >= float(p.min_intensity)
+                    spr_ok = spr <= float(p.max_spread)
+                    missing_count = int(not imb_ok) + int(not int_ok) + int(not spr_ok)
+                    if best is None or missing_count < best_missing:
+                        best = (p, imb_ok, int_ok, spr_ok, missing_count)
+                        best_missing = missing_count
+                if best is not None:
+                    p, imb_ok, int_ok, spr_ok, _ = best
+                    missing: list[str] = []
+                    if not imb_ok:
+                        missing.append("imb")
+                    if not int_ok:
+                        missing.append("int")
+                    if not spr_ok:
+                        missing.append("spr")
+                    meta.update(
+                        {
+                            "target_side": str(target_side),
+                            "pocket": _pocket_name(p),
+                            "imb_ok": bool(imb_ok),
+                            "int_ok": bool(int_ok),
+                            "spr_ok": bool(spr_ok),
+                            "imbalance_signed": float(signed),
+                            "trade_intensity": float(ti),
+                            "spread": float(spr),
+                            "min_imbalance": float(p.min_imbalance),
+                            "min_intensity": float(p.min_intensity),
+                            "max_spread": float(p.max_spread),
+                            "missing": missing,
+                        }
+                    )
+            except Exception:
+                pass
+            return MicroSignalResult(False, 0.0, "no_match", "", sym, meta)
         except Exception as e:
             return MicroSignalResult(False, 0.0, "error", "", "", {"error": f"{type(e).__name__}: {e}"})

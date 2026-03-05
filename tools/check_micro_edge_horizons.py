@@ -11,6 +11,7 @@ import sqlite3
 import time
 from typing import Any, Dict, List
 
+from config.costs import DEFAULT_MAKER_FEE_BPS
 from tools.micro_edge_backtest import compute_rule_thresholds, simulate_rule_trades
 from tools.micro_edge_lib import build_bucket_features
 from tools.micro_edge_smoke import _load_symbol_trades_and_marks, _parse_symbols
@@ -38,7 +39,7 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--exec-models", default="taker")
     p.add_argument("--fee-bps", type=float, default=4.0)
     p.add_argument("--slip-bps", type=float, default=2.0)
-    p.add_argument("--maker-fee-bps", type=float, default=0.5)
+    p.add_argument("--maker-fee-bps", type=float, default=float(DEFAULT_MAKER_FEE_BPS))
     p.add_argument("--maker-penalty-bps", type=float, default=0.5)
     p.add_argument("--max-feature", action="append", default=["spread=0.0003"])
     p.add_argument("--min-feature", action="append", default=["trade_intensity=2500", "imbalance=0.3"])

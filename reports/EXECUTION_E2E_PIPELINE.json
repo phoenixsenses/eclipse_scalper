@@ -1,0 +1,53 @@
+{
+  "ok": true,
+  "steps": [
+    {
+      "cmd": [
+        "C:\\Users\\Windows 11\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-m",
+        "tools.replay_parity_report",
+        "--sim",
+        "logs/micro_edge_debug_trades.jsonl",
+        "--live-db",
+        "data/paper_trades.db"
+      ],
+      "rc": 0,
+      "stdout": "replay_parity_report sim=0 live=0 matched=0 match_rate=0.00% out_md=reports\\REPLAY_PARITY_REPORT.md out_json=reports\\REPLAY_PARITY_REPORT.json\n",
+      "stderr": ""
+    },
+    {
+      "cmd": [
+        "C:\\Users\\Windows 11\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-m",
+        "tools.execution_diagnostics",
+        "--in",
+        "data/live/papertrades_live.parquet"
+      ],
+      "rc": 0,
+      "stdout": "execution_diagnostics: rows=0 out_md=reports\\EXECUTION_HEALTH.md out_json=reports\\EXECUTION_HEALTH.json\n",
+      "stderr": ""
+    },
+    {
+      "cmd": [
+        "C:\\Users\\Windows 11\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-m",
+        "tools.toxicity_report",
+        "--in",
+        "data/live/papertrades_live.parquet"
+      ],
+      "rc": 0,
+      "stdout": "toxicity_report: rows=0 out_md=reports\\TOXICITY_REPORT.md out_json=reports\\TOXICITY_REPORT.json\n",
+      "stderr": ""
+    },
+    {
+      "cmd": [
+        "C:\\Users\\Windows 11\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-m",
+        "tools.post_rollout_audit"
+      ],
+      "rc": 0,
+      "stdout": "post_rollout_audit: overall_ok=0 out_md=reports\\POST_ROLLOUT_AUDIT.md out_json=reports\\POST_ROLLOUT_AUDIT.json\n",
+      "stderr": ""
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+{
+  "count": 1,
+  "mitigation_profile": "baseline",
+  "gate_config": {
+    "min_intensity_strong": 0.0,
+    "min_imbalance_strong": 0.0,
+    "max_spread_tight": 0.0,
+    "max_volatility_extreme": null,
+    "vol_quantile_reject": 0.01,
+    "scratch_bps": 0.0,
+    "scratch_window_sec": 0,
+    "scratch_taker_fee_bps": 0.0,
+    "scratch_slippage_bps": 0.0,
+    "horizon_sec_override": 0
+  },
+  "statistical": {
+    "bootstrap_ci": false,
+    "bootstrap_samples": 1000,
+    "bootstrap_seed": 42,
+    "alpha": 0.05,
+    "multiple_testing_method": "none",
+    "splits": 3
+  },
+  "decomposition": [
+    {
+      "pocket": "ETHUSDT rule=intensity_spike_imbalance_cont side=auto h=120 imb>=0.50 int>=2500 spr<=0.000300",
+      "n_samples": 0,
+      "score_raw_core": 2e-05,
+      "gross_edge_npa": 0.0,
+      "fee_cost_npa": 0.0,
+      "adverse_cost_npa": 0.0,
+      "scratch_cost_npa": 0.0,
+      "net_npa": 0.0,
+      "residual_npa": 1e-05,
+      "pass_core": 1.0,
+      "pass_stress": 1.0,
+      "reject_breakdown": {
+        "vol_quantile_reject": 0,
+        "spread_too_wide": 0,
+        "imbalance_too_low": 0,
+        "intensity_too_low": 0,
+        "other_gate": 0
+      },
+      "effective_trade_count_core": {
+        "n_events_total": 0,
+        "n_attempts_after_gate": 0,
+        "n_filled": 0
+      },
+      "effective_trade_count_stress": {
+        "n_events_total": 0,
+        "n_attempts_after_gate": 0,
+        "n_filled": 0
+      }
+    }
+  ],
+  "ranking": [
+    {
+      "symbol": "ETHUSDT",
+      "horizon_sec": 120,
+      "min_imbalance": 0.5,
+      "min_trade_intensity": 2500.0,
+      "max_spread": 0.0003,
+      "rule": "intensity_spike_imbalance_cont",
+      "score": 0.1,
+      "stability_std_bps": 0.0,
+      "insufficient_fill_rate": 0.0,
+      "robust_core": true,
+      "robust_stress": true,
+      "score_raw_core": 2e-05,
+      "score_raw_stress": 2e-05,
+      "score_raw_min": 2e-05,
+      "net_per_attempt": 1e-05,
+      "npa_core": 1e-05,
+      "npa_stress": 1e-05,
+      "pass_rate_core": 1.0,
+      "pass_rate_stress": 1.0,
+      "baseline_score_raw_core": 2e-05,
+      "baseline_npa_core": 1e-05,
+      "baseline_npa_stress": 1e-05,
+      "baseline_pass_rate_core": 1.0,
+      "baseline_pass_rate_stress": 1.0,
+      "delta_score_raw_core": 0.0,
+      "delta_npa_core": 0.0,
+      "delta_npa_stress": 0.0,
+      "delta_pass_rate_core": 0.0,
+      "delta_pass_rate_stress": 0.0,
+      "failure_reason_top": "no_fills",
+      "n_events_total": null,
+      "n_rejected_attempt_gate": null,
+      "n_attempts_after_gate": null,
+      "n_filled": null,
+      "n_unfilled": null,
+      "avg_fill_prob": null,
+      "avg_adverse_bps_on_fills": 0.0,
+      "avg_fee_bps": 0.0,
+      "avg_scratch_bps_on_fills": 0.0,
+      "avg_raw_return_bps_on_fills": 0.0,
+      "avg_net_return_bps_on_fills": 0.0,
+      "net_return_bps_p10": null,
+      "net_return_bps_p50": null,
+      "net_return_bps_p90": null,
+      "reject_breakdown": {
+        "vol_quantile_reject": 0,
+        "spread_too_wide": 0,
+        "imbalance_too_low": 0,
+        "intensity_too_low": 0,
+        "other_gate": 0
+      },
+      "effective_trade_count_core": {
+        "n_events_total": 0,
+        "n_attempts_after_gate": 0,
+        "n_filled": 0
+      },
+      "effective_trade_count_stress": {
+        "n_events_total": 0,
+        "n_attempts_after_gate": 0,
+        "n_filled": 0
+      },
+      "decomposition_core": {
+        "gross_edge_npa": 0.0,
+        "fee_cost_npa": 0.0,
+        "adverse_cost_npa": 0.0,
+        "scratch_cost_npa": 0.0,
+        "net_npa": 0.0,
+        "observed_net_npa": 1e-05,
+        "residual_npa": 1e-05
+      },
+      "decomposition_stress": {
+        "gross_edge_npa": 0.0,
+        "fee_cost_npa": 0.0,
+        "adverse_cost_npa": 0.0,
+        "scratch_cost_npa": 0.0,
+        "net_npa": 0.0,
+        "observed_net_npa": 1e-05,
+        "residual_npa": 1e-05
+      },
+      "gate_reject_ratio": null,
+      "fill_rate_after_gate": null,
+      "attempt_fill_rate": 0.45,
+      "attempts_per_min": 80.0,
+      "per_combo": [
+        {
+          "seed": 11,
+          "split": 1,
+          "filled_n": 60,
+          "filled_avg_net": 2e-05,
+          "filled_p90_net": 0.0001,
+          "attempt_fill_rate": 0.45,
+          "net_per_attempt": 1e-05,
+          "attempts_per_min": 80.0,
+          "effective_min_n": 20,
+          "pass": true
+        }
+      ],
+      "best_fee_survive": 1.0,
+      "evals": {
+        "fee=1.000|adv=1.000": {
+          "pass_rate": 1.0,
+          "median_filled_avg_net": 2e-05,
+          "worst_split_avg_net": 2e-05,
+          "worst_split_p90_net": 0.0001,
+          "stability_std": 0.0,
+          "median_net_per_attempt": 1e-05,
+          "attempt_fill_rate_median": 0.45,
+          "attempts_per_min_median": 80.0,
+          "median_effective_min_n": 20,
+          "rows": 1,
+          "gate_reject_ratio": null,
+          "fill_rate_after_gate": null,
+          "avg_adverse_bps_on_fills": 0.0,
+          "avg_fee_bps": 0.0,
+          "avg_scratch_bps_on_fills": 0.0,
+          "avg_raw_return_bps_on_fills": 0.0,
+          "avg_net_return_bps_on_fills": 0.0,
+          "reject_vol_quantile_reject": 0,
+          "reject_spread_too_wide": 0,
+          "reject_imbalance_too_low": 0,
+          "reject_intensity_too_low": 0,
+          "reject_other_gate": 0,
+          "per_combo": [
+            {
+              "seed": 11,
+              "split": 1,
+              "filled_n": 60,
+              "filled_avg_net": 2e-05,
+              "filled_p90_net": 0.0001,
+              "attempt_fill_rate": 0.45,
+              "net_per_attempt": 1e-05,
+              "attempts_per_min": 80.0,
+              "effective_min_n": 20,
+              "pass": true
+            }
+          ],
+          "rows_total": 1,
+          "pass_count": 1,
+          "pass_rate_raw": 1.0,
+          "insufficient_fill_rate": 0.0
+        }
+      }
+    }
+  ]
+}

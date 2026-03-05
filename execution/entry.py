@@ -864,6 +864,22 @@ async def _micro_fallback_signal(bot, k: str, side: str) -> Optional[dict[str, A
             f"[MICRO_SIGNAL] {str(res.get('symbol') or k_norm)} side={side} conf={float(res.get('confidence', 0.0)):.2f} "
             f"present={int(bool(res.get('present', False)))} reason={str(res.get('reason') or 'unknown')}",
         )
+        if str(res.get("reason") or "").strip().lower() == "no_match":
+            try:
+                meta = dict(res.get("meta") or {})
+                if meta:
+                    _micro_log(
+                        bot,
+                        "[MICRO_SIGNAL] no_match_detail "
+                        f"target_side={meta.get('target_side')} pocket={meta.get('pocket')} "
+                        f"imb_ok={int(bool(meta.get('imb_ok', False)))} int_ok={int(bool(meta.get('int_ok', False)))} "
+                        f"spr_ok={int(bool(meta.get('spr_ok', False)))} missing={meta.get('missing')} "
+                        f"imb={_safe_float(meta.get('imbalance_signed'), 0.0):+.4f}/{_safe_float(meta.get('min_imbalance'), 0.0):.4f} "
+                        f"int={_safe_float(meta.get('trade_intensity'), 0.0):.0f}/{_safe_float(meta.get('min_intensity'), 0.0):.0f} "
+                        f"spr={_safe_float(meta.get('spread'), 0.0):.6f}/{_safe_float(meta.get('max_spread'), 0.0):.6f}",
+                    )
+            except Exception:
+                pass
         if not bool(res.get("present", False)):
             return None
         msig_side = str(res.get("side") or "").strip().lower()
@@ -1735,6 +1751,9 @@ async def try_enter(bot, sym: str, side: str):
                 placement_reason = "legacy_limit_offset"
                 placement_mode = "legacy"
                 placement_queue = 0.0
+                placement_flow = 0.0
+                placement_fill_prob = 0.0
+                placement_wait = 0.0
                 placement_source = "none"
                 try:
                     eng = _get_order_placement_engine(bot)
@@ -1751,10 +1770,15 @@ async def try_enter(bot, sym: str, side: str):
                         placement_reason = str(decision.reason)
                         placement_mode = str(decision.mode)
                         placement_queue = float(decision.queue_ahead)
+                        placement_flow = float(getattr(decision, "queue_flow_rate", 0.0) or 0.0)
+                        placement_fill_prob = float(getattr(decision, "fill_prob_timeout", 0.0) or 0.0)
+                        placement_wait = float(getattr(decision, "expected_wait_sec", 0.0) or 0.0)
                         placement_source = str(decision.source)
                         log_entry.info(
                             f"[ORDER_PLACEMENT] {k} {side.upper()} mode={placement_mode} "
-                            f"px={limit_px:.6f} queue_ahead={placement_queue:.2f} reason={placement_reason} src={placement_source}"
+                            f"px={limit_px:.6f} queue_ahead={placement_queue:.2f} "
+                            f"queue_flow={placement_flow:.2f}/s fill_prob={placement_fill_prob:.2%} wait_est={placement_wait:.1f}s "
+                            f"reason={placement_reason} src={placement_source}"
                         )
                 except Exception as _ope:
                     log_entry.warning(f"[ORDER_PLACEMENT] {k} fallback legacy due to {type(_ope).__name__}")
@@ -1800,6 +1824,9 @@ async def try_enter(bot, sym: str, side: str):
                         "placement_mode": str(placement_mode),
                         "placement_reason": str(placement_reason),
                         "placement_queue_ahead": float(placement_queue),
+                        "placement_queue_flow": float(placement_flow),
+                        "placement_fill_prob": float(placement_fill_prob),
+                        "placement_wait_est_sec": float(placement_wait),
                         "placement_source": str(placement_source),
                         "created_ts": float(time.time()),
                         "positionSide": pos_side,

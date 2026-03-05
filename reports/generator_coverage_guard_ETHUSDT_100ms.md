@@ -1,0 +1,112 @@
+# Generator Coverage Guard - ETHUSDT (100ms)
+
+- candidates: `300`
+- min_triggered target: `50`
+- calibration window days: `14`
+
+| signal | calibration_triggered | relax_steps |
+|---|---:|---:|
+| cand_fallback_buy_895c2ec044 | 2163 | 99 |
+| cand_fallback_buy_895c2ec044_v019 | 2163 | 99 |
+| cand_fallback_buy_895c2ec044_v019_v043 | 2163 | 99 |
+| cand_fallback_buy_895c2ec044_v019_v043_v067 | 2163 | 99 |
+| cand_fallback_buy_895c2ec044_v019_v043_v067_v091 | 2163 | 99 |
+| cand_fallback_buy_895c2ec044_v019_v043_v067_v091_v115 | 2163 | 99 |
+| cand_fallback_buy_895c2ec044_v019_v043_v067_v091_v115_v139 | 2163 | 99 |
+| cand_fallback_buy_895c2ec044_v019_v043_v067_v091_v115_v139_v163 | 2163 | 99 |
+| cand_fallback_buy_895c2ec044_v019_v043_v067_v091_v115_v139_v163_v187 | 2163 | 99 |
+| cand_fallback_buy_895c2ec044_v019_v043_v067_v091_v115_v139_v163_v187_v211 | 2163 | 99 |
+| cand_fallback_buy_895c2ec044_v019_v043_v067_v091_v115_v139_v163_v187_v211_v235 | 2163 | 99 |
+| cand_fallback_buy_895c2ec044_v019_v043_v067_v091_v115_v139_v163_v187_v211_v235_v259 | 2163 | 99 |
+| cand_fallback_buy_ad23fc258c | 2163 | 99 |
+| cand_fallback_buy_ad23fc258c_v018 | 2163 | 99 |
+| cand_fallback_buy_ad23fc258c_v018_v042 | 2163 | 99 |
+| cand_fallback_buy_ad23fc258c_v018_v042_v066 | 2163 | 99 |
+| cand_fallback_buy_ad23fc258c_v018_v042_v066_v090 | 2163 | 99 |
+| cand_fallback_buy_ad23fc258c_v018_v042_v066_v090_v114 | 2163 | 99 |
+| cand_fallback_buy_ad23fc258c_v018_v042_v066_v090_v114_v138 | 2163 | 99 |
+| cand_fallback_buy_ad23fc258c_v018_v042_v066_v090_v114_v138_v162 | 2163 | 99 |
+| cand_fallback_buy_ad23fc258c_v018_v042_v066_v090_v114_v138_v162_v186 | 2163 | 99 |
+| cand_fallback_buy_ad23fc258c_v018_v042_v066_v090_v114_v138_v162_v186_v210 | 2163 | 99 |
+| cand_fallback_buy_ad23fc258c_v018_v042_v066_v090_v114_v138_v162_v186_v210_v234 | 2163 | 99 |
+| cand_fallback_buy_ad23fc258c_v018_v042_v066_v090_v114_v138_v162_v186_v210_v234_v258 | 2163 | 99 |
+| cand_fallback_buy_d0c167c82d | 2163 | 99 |
+| cand_fallback_buy_d0c167c82d_v017 | 2163 | 99 |
+| cand_fallback_buy_d0c167c82d_v017_v041 | 2163 | 99 |
+| cand_fallback_buy_d0c167c82d_v017_v041_v065 | 2163 | 99 |
+| cand_fallback_buy_d0c167c82d_v017_v041_v065_v089 | 2163 | 99 |
+| cand_fallback_buy_d0c167c82d_v017_v041_v065_v089_v113 | 2163 | 99 |
+| cand_fallback_buy_d0c167c82d_v017_v041_v065_v089_v113_v137 | 2163 | 99 |
+| cand_fallback_buy_d0c167c82d_v017_v041_v065_v089_v113_v137_v161 | 2163 | 99 |
+| cand_fallback_buy_d0c167c82d_v017_v041_v065_v089_v113_v137_v161_v185 | 2163 | 99 |
+| cand_fallback_buy_d0c167c82d_v017_v041_v065_v089_v113_v137_v161_v185_v209 | 2163 | 99 |
+| cand_fallback_buy_d0c167c82d_v017_v041_v065_v089_v113_v137_v161_v185_v209_v233 | 2163 | 99 |
+| cand_fallback_buy_d0c167c82d_v017_v041_v065_v089_v113_v137_v161_v185_v209_v233_v257 | 2163 | 99 |
+| cand_fallback_buy_d38082cb21 | 2163 | 99 |
+| cand_fallback_buy_d38082cb21_v020 | 2163 | 99 |
+| cand_fallback_buy_d38082cb21_v020_v044 | 2163 | 99 |
+| cand_fallback_buy_d38082cb21_v020_v044_v068 | 2163 | 99 |
+| cand_fallback_buy_d38082cb21_v020_v044_v068_v092 | 2163 | 99 |
+| cand_fallback_buy_d38082cb21_v020_v044_v068_v092_v116 | 2163 | 99 |
+| cand_fallback_buy_d38082cb21_v020_v044_v068_v092_v116_v140 | 2163 | 99 |
+| cand_fallback_buy_d38082cb21_v020_v044_v068_v092_v116_v140_v164 | 2163 | 99 |
+| cand_fallback_buy_d38082cb21_v020_v044_v068_v092_v116_v140_v164_v188 | 2163 | 99 |
+| cand_fallback_buy_d38082cb21_v020_v044_v068_v092_v116_v140_v164_v188_v212 | 2163 | 99 |
+| cand_fallback_buy_d38082cb21_v020_v044_v068_v092_v116_v140_v164_v188_v212_v236 | 2163 | 99 |
+| cand_fallback_buy_d38082cb21_v020_v044_v068_v092_v116_v140_v164_v188_v212_v236_v260 | 2163 | 99 |
+| cand_fallback_sell_02f48d9bb5 | 2163 | 99 |
+| cand_fallback_sell_02f48d9bb5_v021 | 2163 | 99 |
+| cand_fallback_sell_02f48d9bb5_v021_v045 | 2163 | 99 |
+| cand_fallback_sell_02f48d9bb5_v021_v045_v069 | 2163 | 99 |
+| cand_fallback_sell_02f48d9bb5_v021_v045_v069_v093 | 2163 | 99 |
+| cand_fallback_sell_02f48d9bb5_v021_v045_v069_v093_v117 | 2163 | 99 |
+| cand_fallback_sell_02f48d9bb5_v021_v045_v069_v093_v117_v141 | 2163 | 99 |
+| cand_fallback_sell_02f48d9bb5_v021_v045_v069_v093_v117_v141_v165 | 2163 | 99 |
+| cand_fallback_sell_02f48d9bb5_v021_v045_v069_v093_v117_v141_v165_v189 | 2163 | 99 |
+| cand_fallback_sell_02f48d9bb5_v021_v045_v069_v093_v117_v141_v165_v189_v213 | 2163 | 99 |
+| cand_fallback_sell_02f48d9bb5_v021_v045_v069_v093_v117_v141_v165_v189_v213_v237 | 2163 | 99 |
+| cand_fallback_sell_02f48d9bb5_v021_v045_v069_v093_v117_v141_v165_v189_v213_v237_v261 | 2163 | 99 |
+| cand_fallback_sell_7f0359227d | 2163 | 99 |
+| cand_fallback_sell_7f0359227d_v023 | 2163 | 99 |
+| cand_fallback_sell_7f0359227d_v023_v047 | 2163 | 99 |
+| cand_fallback_sell_7f0359227d_v023_v047_v071 | 2163 | 99 |
+| cand_fallback_sell_7f0359227d_v023_v047_v071_v095 | 2163 | 99 |
+| cand_fallback_sell_7f0359227d_v023_v047_v071_v095_v119 | 2163 | 99 |
+| cand_fallback_sell_7f0359227d_v023_v047_v071_v095_v119_v143 | 2163 | 99 |
+| cand_fallback_sell_7f0359227d_v023_v047_v071_v095_v119_v143_v167 | 2163 | 99 |
+| cand_fallback_sell_7f0359227d_v023_v047_v071_v095_v119_v143_v167_v191 | 2163 | 99 |
+| cand_fallback_sell_7f0359227d_v023_v047_v071_v095_v119_v143_v167_v191_v215 | 2163 | 99 |
+| cand_fallback_sell_7f0359227d_v023_v047_v071_v095_v119_v143_v167_v191_v215_v239 | 2163 | 99 |
+| cand_fallback_sell_7f0359227d_v023_v047_v071_v095_v119_v143_v167_v191_v215_v239_v263 | 2163 | 99 |
+| cand_fallback_sell_816f9a6cf3 | 2163 | 99 |
+| cand_fallback_sell_816f9a6cf3_v022 | 2163 | 99 |
+| cand_fallback_sell_816f9a6cf3_v022_v046 | 2163 | 99 |
+| cand_fallback_sell_816f9a6cf3_v022_v046_v070 | 2163 | 99 |
+| cand_fallback_sell_816f9a6cf3_v022_v046_v070_v094 | 2163 | 99 |
+| cand_fallback_sell_816f9a6cf3_v022_v046_v070_v094_v118 | 2163 | 99 |
+| cand_fallback_sell_816f9a6cf3_v022_v046_v070_v094_v118_v142 | 2163 | 99 |
+| cand_fallback_sell_816f9a6cf3_v022_v046_v070_v094_v118_v142_v166 | 2163 | 99 |
+| cand_fallback_sell_816f9a6cf3_v022_v046_v070_v094_v118_v142_v166_v190 | 2163 | 99 |
+| cand_fallback_sell_816f9a6cf3_v022_v046_v070_v094_v118_v142_v166_v190_v214 | 2163 | 99 |
+| cand_fallback_sell_816f9a6cf3_v022_v046_v070_v094_v118_v142_v166_v190_v214_v238 | 2163 | 99 |
+| cand_fallback_sell_816f9a6cf3_v022_v046_v070_v094_v118_v142_v166_v190_v214_v238_v262 | 2163 | 99 |
+| cand_fallback_sell_acb033ebfe | 2163 | 99 |
+| cand_fallback_sell_acb033ebfe_v024 | 2163 | 99 |
+| cand_fallback_sell_acb033ebfe_v024_v048 | 2163 | 99 |
+| cand_fallback_sell_acb033ebfe_v024_v048_v072 | 2163 | 99 |
+| cand_fallback_sell_acb033ebfe_v024_v048_v072_v096 | 2163 | 99 |
+| cand_fallback_sell_acb033ebfe_v024_v048_v072_v096_v120 | 2163 | 99 |
+| cand_fallback_sell_acb033ebfe_v024_v048_v072_v096_v120_v144 | 2163 | 99 |
+| cand_fallback_sell_acb033ebfe_v024_v048_v072_v096_v120_v144_v168 | 2163 | 99 |
+| cand_fallback_sell_acb033ebfe_v024_v048_v072_v096_v120_v144_v168_v192 | 2163 | 99 |
+| cand_fallback_sell_acb033ebfe_v024_v048_v072_v096_v120_v144_v168_v192_v216 | 2163 | 99 |
+| cand_fallback_sell_acb033ebfe_v024_v048_v072_v096_v120_v144_v168_v192_v216_v240 | 2163 | 99 |
+| cand_fallback_sell_acb033ebfe_v024_v048_v072_v096_v120_v144_v168_v192_v216_v240_v264 | 2163 | 99 |
+| cand_fallback_buy_065793b630 | 4319 | 99 |
+| cand_fallback_buy_065793b630_v012 | 4319 | 99 |
+| cand_fallback_buy_065793b630_v012_v036 | 4319 | 99 |
+| cand_fallback_buy_065793b630_v012_v036_v060 | 4319 | 99 |
+
+- min_triggered_observed: `2163`
+- median_triggered_observed: `4319`
+- max_triggered_observed: `10794`

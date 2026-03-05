@@ -1,0 +1,17 @@
+{
+  "checks": {
+    "ACTIVE_SYMBOLS": "ETHUSDT",
+    "SCALPER_DRY_RUN": "1",
+    "db_age_sec": 0.51853173828125,
+    "db_exists": true,
+    "disk_free_gb": 199.84344482421875,
+    "telegram_chat_present": true,
+    "telegram_token_present": true,
+    "writable_data": true,
+    "writable_logs": true,
+    "writable_reports": true
+  },
+  "failures": [],
+  "ok": true,
+  "warnings": []
+}

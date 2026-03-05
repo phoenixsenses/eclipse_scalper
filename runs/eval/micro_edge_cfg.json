@@ -1,0 +1,12 @@
+{
+  "rule": "micro_edge_v3_passive_alpha",
+  "side": "buy",
+  "symbol_whitelist": ["ETHUSDT"],
+  "event_source_table": "agg_trades",
+  "cooldown_ms": 250,
+  "filters": {
+    "imbalance_gte": 0.4,
+    "intensity_gte": 2500,
+    "spread_lte": 0.0003
+  }
+}

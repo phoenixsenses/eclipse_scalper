@@ -1,6 +1,7 @@
 # SCRATCH_ANALYSIS
 
-symbol=ETHUSDT side=BUY regime=UP lookback_min=18720 bucket_sec=1 horizon_sec=120 exec_model=passive_realistic
+symbol=ETHUSDT side=BUY regime=UP lookback_min=43200 bucket_sec=1 horizon_sec=120 exec_model=passive_realistic
+scratch_taker_fee_bps=0.000 scratch_slippage_bps=0.000
 pocket: imb>=0.500 int>=3500 spr<=0.000300
 
 ## Baseline

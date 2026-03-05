@@ -13,6 +13,8 @@ import random
 from typing import Any, Awaitable, Callable, Optional, Dict, List
 
 from utils.logging import log_core, log_entry
+from execution.shutdown_control import request_shutdown
+from execution.shutdown_control import ensure_traced_shutdown_event
 
 # ─────────────────────────────────────────────────────────────────────
 # Diagnostics helper (best-effort; never fatal)
@@ -112,7 +114,7 @@ def _ensure_shutdown_event(bot) -> asyncio.Event:
     ev = getattr(bot, "_shutdown", None)
     if isinstance(ev, asyncio.Event):
         return ev
-    ev = asyncio.Event()
+    ev = ensure_traced_shutdown_event(bot)
     try:
         bot._shutdown = ev  # type: ignore[attr-defined]
     except Exception:
@@ -723,11 +725,13 @@ async def guardian_loop(bot):
                 log_entry.error(f"GUARDIAN: cycle timeout streak={timeout_streak} timeout={cycle_timeout:.2f}s")
 
             if shutdown_on_timeout and timeout_streak >= max_timeout_streak:
-                log_core.critical("GUARDIAN: timeout streak exceeded — setting shutdown (opt-in)")
-                try:
-                    shutdown_ev.set()
-                except Exception:
-                    pass
+                log_core.critical("GUARDIAN: timeout streak exceeded — requesting shutdown (opt-in)")
+                request_shutdown(
+                    bot,
+                    reason=f"GUARDIAN timeout streak exceeded: {timeout_streak} (max={max_timeout_streak})",
+                    source="execution.guardian",
+                    fatal=False,
+                )
 
         except asyncio.CancelledError:
             raise
@@ -739,11 +743,14 @@ async def guardian_loop(bot):
                 log_entry.error(f"GUARDIAN: cycle failed streak={fail_streak}: {e}")
 
             if shutdown_on_timeout and fail_streak >= max_fail_streak:
-                log_core.critical("GUARDIAN: fail streak exceeded — setting shutdown (opt-in)")
-                try:
-                    shutdown_ev.set()
-                except Exception:
-                    pass
+                log_core.critical("GUARDIAN: fail streak exceeded — requesting shutdown (opt-in)")
+                request_shutdown(
+                    bot,
+                    reason=f"GUARDIAN fail streak exceeded: {fail_streak} (max={max_fail_streak})",
+                    source="execution.guardian",
+                    fatal=False,
+                    exc=e,
+                )
 
     # Shutdown detected: print forensic info
     try:

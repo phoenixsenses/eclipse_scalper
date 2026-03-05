@@ -1,0 +1,10 @@
+{
+  "eval_rows": 1800,
+  "fee_bps": 0.5,
+  "interval_ms": 100,
+  "latency_bars": 2,
+  "mode": "taker",
+  "splits": 3,
+  "symbol": "ETHUSDT",
+  "trade_rows": 132756
+}

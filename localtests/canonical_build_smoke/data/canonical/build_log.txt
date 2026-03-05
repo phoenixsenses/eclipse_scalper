@@ -1,0 +1,9 @@
+2026-02-18T22:40:33.573091+00:00 [build] discovering + loading sources
+2026-02-18T22:40:33.573285+00:00 [discover] excluded output dir: C:\Users\Windows 11\.vscode\CryptoLion\eclipse_scalper\localtests\canonical_build_smoke\data\canonical
+2026-02-18T22:40:33.618994+00:00 [discover] excluded path: C:\Users\Windows 11\.vscode\CryptoLion\eclipse_scalper\localtests\canonical_build_smoke\data\canonical\ohlcv_leak.csv
+2026-02-18T22:40:33.639311+00:00 [infer] C:\Users\Windows 11\.vscode\CryptoLion\eclipse_scalper\localtests\canonical_build_smoke\data\ohlcv_test.csv: timestamp column -> timestamp
+2026-02-18T22:40:33.823576+00:00 [build] creating 1s base grid
+2026-02-18T22:40:33.825590+00:00 [build] aligning microstructure
+2026-02-18T22:40:33.829515+00:00 [build] aligning events
+2026-02-18T22:40:33.838725+00:00 [build] computing ATR20 volatility from OHLCV
+2026-02-18T22:40:33.846568+00:00 [build] writing parquet outputs

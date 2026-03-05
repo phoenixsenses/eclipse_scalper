@@ -1,0 +1,41 @@
+{
+  "adverse_dominates_count": 263,
+  "adverse_samples_zero_count": 0,
+  "adverse_sum": -570.666936270001,
+  "avg_adverse_samples": 1082.934731934732,
+  "avg_pnl": -0.000440298872,
+  "decision_to_fill_rate": 1.0,
+  "decisions_count": 429,
+  "events_replayed": 2147,
+  "fee_dominates_count": 33,
+  "fee_sum": 4.962609957424,
+  "fills_count": 429,
+  "horizon_price_source_counts": {
+    "before": 429
+  },
+  "per_symbol_decisions": {
+    "ETHUSDT": 429
+  },
+  "per_symbol_fills": {
+    "ETHUSDT": 429
+  },
+  "per_symbol_metrics": {
+    "ETHUSDT": {
+      "adverse_samples_zero_count": 0,
+      "adverse_sum": -570.666936270001,
+      "avg_adverse_samples": 1082.934731934732,
+      "fee_sum": 4.962609957424,
+      "fills_count": 429,
+      "pnl_gross_sum": 4.773721741251,
+      "pnl_sum": -0.188888216172,
+      "spread_cost_est_sum": 16.542510776749
+    }
+  },
+  "pnl_gross_sum": 4.773721741251,
+  "pnl_net_sum": -0.188888216172,
+  "pnl_sum": -0.188888216172,
+  "skipped_count": 0,
+  "skipped_reasons": {},
+  "spread_cost_est_sum": 16.542510776749,
+  "win_rate": 0.482517482517
+}
