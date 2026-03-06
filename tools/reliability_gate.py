@@ -76,6 +76,11 @@ def _categorize_mismatch_ids(ids: list[str]) -> Dict[str, int]:
         "ledger": 0,
         "transition": 0,
         "belief": 0,
+        "position": 0,
+        "orphan": 0,
+        "coverage_gap": 0,
+        "replace_race": 0,
+        "contradiction": 0,
         "unknown": 0,
     }
     for raw in ids:
@@ -88,8 +93,58 @@ def _categorize_mismatch_ids(ids: list[str]) -> Dict[str, int]:
             out["transition"] += 1
         elif cid.startswith("blf-") or "belief" in cid:
             out["belief"] += 1
+        elif cid.startswith("pos-") or "position" in cid:
+            out["position"] += 1
+        elif "orphan" in cid:
+            out["orphan"] += 1
+        elif "coverage" in cid or "protect" in cid:
+            out["coverage_gap"] += 1
+        elif "replace" in cid:
+            out["replace_race"] += 1
+        elif "contrad" in cid:
+            out["contradiction"] += 1
         else:
             out["unknown"] += 1
+    return out
+
+
+def _telemetry_category_counts(telemetry_events: list[dict]) -> Dict[str, float]:
+    out: Dict[str, float] = {
+        "position": 0.0,
+        "orphan": 0.0,
+        "coverage_gap": 0.0,
+        "replace_race": 0.0,
+        "contradiction": 0.0,
+        "coverage_gap_seconds": 0.0,
+    }
+    for ev in telemetry_events:
+        name = str(ev.get("event") or "").strip().lower()
+        data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+
+        if name == "rebuild.orphan_decision":
+            out["orphan"] += 1.0
+
+        if name in ("order.replace_envelope_block", "order.replace_reconcile_required"):
+            out["replace_race"] += 1.0
+
+        if name == "execution.belief_state":
+            mismatch_streak = _safe_float(data.get("mismatch_streak"), 0.0)
+            debt_symbols = _safe_float(data.get("belief_debt_symbols"), 0.0)
+            contradiction_score = _safe_float(data.get("evidence_contradiction_score"), 0.0)
+            contradiction_streak = _safe_float(data.get("evidence_contradiction_streak"), 0.0)
+            if mismatch_streak > 0.0 and debt_symbols > 0.0:
+                out["position"] += 1.0
+            if contradiction_score >= 0.60 or contradiction_streak > 0.0:
+                out["contradiction"] += 1.0
+
+        coverage_gap_sec = max(
+            _safe_float(data.get("coverage_gap_seconds"), 0.0),
+            _safe_float(data.get("coverage_gap_sec"), 0.0),
+            _safe_float(data.get("protection_coverage_gap_seconds"), 0.0),
+        )
+        if coverage_gap_sec > 0.0:
+            out["coverage_gap"] += 1.0
+            out["coverage_gap_seconds"] += coverage_gap_sec
     return out
 
 
@@ -136,6 +191,18 @@ def build_report(telemetry_events: list[dict], journal_events: list[dict]) -> Di
     journ_corr = _journal_corr_ids(journal_events)
     missing = sorted([c for c in tele_corr if c not in journ_corr])
     categories = _categorize_mismatch_ids(missing)
+    telemetry_cats = _telemetry_category_counts(telemetry_events)
+    categories["position"] = int(categories.get("position", 0) + int(_safe_float(telemetry_cats.get("position"), 0.0)))
+    categories["orphan"] = int(categories.get("orphan", 0) + int(_safe_float(telemetry_cats.get("orphan"), 0.0)))
+    categories["coverage_gap"] = int(
+        categories.get("coverage_gap", 0) + int(_safe_float(telemetry_cats.get("coverage_gap"), 0.0))
+    )
+    categories["replace_race"] = int(
+        categories.get("replace_race", 0) + int(_safe_float(telemetry_cats.get("replace_race"), 0.0))
+    )
+    categories["contradiction"] = int(
+        categories.get("contradiction", 0) + int(_safe_float(telemetry_cats.get("contradiction"), 0.0))
+    )
     cov = 1.0
     if tele_corr:
         cov = 1.0 - (float(len(missing)) / float(len(tele_corr)))
@@ -148,6 +215,11 @@ def build_report(telemetry_events: list[dict], journal_events: list[dict]) -> Di
         "invalid_transition_count": int(invalid),
         "replay_mismatch_ids": missing[:20],
         "replay_mismatch_categories": categories,
+        "position_mismatch_count": int(categories.get("position", 0) or 0),
+        "orphan_count": int(categories.get("orphan", 0) or 0),
+        "protection_coverage_gap_seconds": float(_safe_float(telemetry_cats.get("coverage_gap_seconds"), 0.0)),
+        "replace_race_count": int(categories.get("replace_race", 0) or 0),
+        "evidence_contradiction_count": int(categories.get("contradiction", 0) or 0),
     }
 
 
@@ -162,6 +234,11 @@ def _render(report: Dict[str, Any], *, telemetry_path: Path, journal_path: Path)
         f"replay_mismatch_count={int(report.get('replay_mismatch_count', 0) or 0)}",
         f"journal_coverage_ratio={float(report.get('journal_coverage_ratio', 0.0) or 0.0):.3f}",
         f"invalid_transition_count={int(report.get('invalid_transition_count', 0) or 0)}",
+        f"position_mismatch_count={int(report.get('position_mismatch_count', 0) or 0)}",
+        f"orphan_count={int(report.get('orphan_count', 0) or 0)}",
+        f"protection_coverage_gap_seconds={float(report.get('protection_coverage_gap_seconds', 0.0) or 0.0):.1f}",
+        f"replace_race_count={int(report.get('replace_race_count', 0) or 0)}",
+        f"evidence_contradiction_count={int(report.get('evidence_contradiction_count', 0) or 0)}",
     ]
     categories = report.get("replay_mismatch_categories")
     if isinstance(categories, dict) and categories:
@@ -172,6 +249,11 @@ def _render(report: Dict[str, Any], *, telemetry_path: Path, journal_path: Path)
                     "ledger": int(categories.get("ledger", 0) or 0),
                     "transition": int(categories.get("transition", 0) or 0),
                     "belief": int(categories.get("belief", 0) or 0),
+                    "position": int(categories.get("position", 0) or 0),
+                    "orphan": int(categories.get("orphan", 0) or 0),
+                    "coverage_gap": int(categories.get("coverage_gap", 0) or 0),
+                    "replace_race": int(categories.get("replace_race", 0) or 0),
+                    "contradiction": int(categories.get("contradiction", 0) or 0),
                     "unknown": int(categories.get("unknown", 0) or 0),
                 },
                 ensure_ascii=True,

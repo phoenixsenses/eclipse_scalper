@@ -1,0 +1,19 @@
+{
+  "days_calibration": 7,
+  "fee_bps": 0.5,
+  "horizons": "5,10,20",
+  "interval_ms": 100,
+  "jaccard_thr": 0.9,
+  "latency_bars": 2,
+  "limit": 100,
+  "max_trades_per_day": 500,
+  "mode": "taker",
+  "physics": "localtests\\run_alpha_pipeline_4facec72\\physics",
+  "quick": true,
+  "regimes": "localtests\\run_alpha_pipeline_4facec72\\regimes",
+  "resume": true,
+  "splits": 3,
+  "symbol": "ETHUSDT",
+  "target_trigger_band": 0.5,
+  "target_triggers_per_day": 200.0
+}

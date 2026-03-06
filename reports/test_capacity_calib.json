@@ -1,0 +1,63 @@
+{
+  "inputs": {
+    "db": "data/microstructure.db",
+    "lookback_min": 10080,
+    "bucket_sec": 1,
+    "rule": "micro_edge_v3_passive_alpha",
+    "side": "auto",
+    "splits": 6,
+    "seeds": "7,11,22,33,44,55,66,77,88",
+    "min_n": 50,
+    "maker_fee_bps": 1.0,
+    "passive_adverse_mult": 1.2
+  },
+  "rows": [
+    {
+      "min_n_frac": 0.0005,
+      "candidate_count": 2,
+      "capacity_pass_pct": 1.0,
+      "median_attempts_per_min": 1.75,
+      "median_attempt_fill_rate": 0.475,
+      "median_net_per_attempt": 2e-05,
+      "median_effective_min_n": 0,
+      "dominance_mode": "min_n",
+      "forward_pass_rate_p25": 0.5,
+      "forward_pass_rate_p50": 0.5,
+      "forward_pass_rate_p75": 0.5
+    },
+    {
+      "min_n_frac": 0.003,
+      "candidate_count": 2,
+      "capacity_pass_pct": 0.0,
+      "median_attempts_per_min": 1.75,
+      "median_attempt_fill_rate": 0.475,
+      "median_net_per_attempt": -1e-05,
+      "median_effective_min_n": 0,
+      "dominance_mode": "min_n",
+      "forward_pass_rate_p25": 0.0,
+      "forward_pass_rate_p50": 0.0,
+      "forward_pass_rate_p75": 0.0
+    }
+  ],
+  "run_summary": {
+    "version": "v1",
+    "run_type": "calibrate_capacity_thresholds",
+    "inputs": {
+      "candidates_md": "reports/dummy.md",
+      "db": "data/microstructure.db",
+      "min_n": 50,
+      "grid": [
+        0.0005,
+        0.003
+      ]
+    },
+    "metrics": {
+      "candidate_count": 2,
+      "row_count": 2
+    },
+    "artifacts": {
+      "json": "reports\\test_capacity_calib.json",
+      "md": "reports\\test_capacity_calib.md"
+    }
+  }
+}

@@ -147,7 +147,17 @@ def _reliability_gate_snippet(
     if not kv:
         return "", False, {}
     mismatch_ids = _parse_replay_mismatch_ids(lines, limit=5)
-    categories = {"ledger": 0, "transition": 0, "belief": 0, "unknown": 0}
+    categories = {
+        "ledger": 0,
+        "transition": 0,
+        "belief": 0,
+        "position": 0,
+        "orphan": 0,
+        "coverage_gap": 0,
+        "replace_race": 0,
+        "contradiction": 0,
+        "unknown": 0,
+    }
     raw_cats = str(kv.get("replay_mismatch_categories") or "").strip()
     if raw_cats:
         try:
@@ -171,14 +181,26 @@ def _reliability_gate_snippet(
         f"- status={status} replay_mismatch={mismatch} invalid_transitions={invalid} "
         f"journal_coverage={coverage:.3f}"
     )
-    if any(int(categories.get(k, 0)) > 0 for k in ("ledger", "transition", "belief", "unknown")):
+    if any(int(categories.get(k, 0)) > 0 for k in categories.keys()):
         msg += (
             "\n- mismatch_categories: "
             f"ledger={int(categories['ledger'])} "
             f"transition={int(categories['transition'])} "
             f"belief={int(categories['belief'])} "
+            f"position={int(categories['position'])} "
+            f"orphan={int(categories['orphan'])} "
+            f"coverage_gap={int(categories['coverage_gap'])} "
+            f"replace_race={int(categories['replace_race'])} "
+            f"contradiction={int(categories['contradiction'])} "
             f"unknown={int(categories['unknown'])}"
         )
+        ranked = sorted(
+            [(str(k), int(v)) for (k, v) in categories.items() if int(v) > 0],
+            key=lambda kv: int(kv[1]),
+            reverse=True,
+        )[:3]
+        if ranked:
+            msg += "\n- top_contributors: " + ", ".join(f"{k}={v}" for (k, v) in ranked)
     if mismatch_ids:
         msg += "\n- missing_ids: " + ", ".join(mismatch_ids)
     return msg, degraded, {
@@ -188,6 +210,11 @@ def _reliability_gate_snippet(
         "replay_mismatch_cat_ledger": float(categories["ledger"]),
         "replay_mismatch_cat_transition": float(categories["transition"]),
         "replay_mismatch_cat_belief": float(categories["belief"]),
+        "replay_mismatch_cat_position": float(categories["position"]),
+        "replay_mismatch_cat_orphan": float(categories["orphan"]),
+        "replay_mismatch_cat_coverage_gap": float(categories["coverage_gap"]),
+        "replay_mismatch_cat_replace_race": float(categories["replace_race"]),
+        "replay_mismatch_cat_contradiction": float(categories["contradiction"]),
         "replay_mismatch_cat_unknown": float(categories["unknown"]),
     }
 
@@ -479,6 +506,11 @@ def _is_worsened(prev: dict[str, Any], curr: dict[str, Any]) -> bool:
         "reliability_cat_ledger",
         "reliability_cat_transition",
         "reliability_cat_belief",
+        "reliability_cat_position",
+        "reliability_cat_orphan",
+        "reliability_cat_coverage_gap",
+        "reliability_cat_replace_race",
+        "reliability_cat_contradiction",
         "reliability_cat_unknown",
         "reconcile_gate_count",
         "reconcile_gate_max_severity",
@@ -519,6 +551,11 @@ def _attach_prev_snapshot(curr: dict[str, Any], prev: dict[str, Any]) -> dict[st
         "reliability_cat_ledger",
         "reliability_cat_transition",
         "reliability_cat_belief",
+        "reliability_cat_position",
+        "reliability_cat_orphan",
+        "reliability_cat_coverage_gap",
+        "reliability_cat_replace_race",
+        "reliability_cat_contradiction",
         "reliability_cat_unknown",
         "reconcile_gate_count",
         "reconcile_gate_max_severity",
@@ -659,6 +696,17 @@ def main(argv=None) -> int:
             "reliability_cat_ledger": int(_safe_float(reliability_metrics.get("replay_mismatch_cat_ledger"), 0.0)),
             "reliability_cat_transition": int(_safe_float(reliability_metrics.get("replay_mismatch_cat_transition"), 0.0)),
             "reliability_cat_belief": int(_safe_float(reliability_metrics.get("replay_mismatch_cat_belief"), 0.0)),
+            "reliability_cat_position": int(_safe_float(reliability_metrics.get("replay_mismatch_cat_position"), 0.0)),
+            "reliability_cat_orphan": int(_safe_float(reliability_metrics.get("replay_mismatch_cat_orphan"), 0.0)),
+            "reliability_cat_coverage_gap": int(
+                _safe_float(reliability_metrics.get("replay_mismatch_cat_coverage_gap"), 0.0)
+            ),
+            "reliability_cat_replace_race": int(
+                _safe_float(reliability_metrics.get("replay_mismatch_cat_replace_race"), 0.0)
+            ),
+            "reliability_cat_contradiction": int(
+                _safe_float(reliability_metrics.get("replay_mismatch_cat_contradiction"), 0.0)
+            ),
             "reliability_cat_unknown": int(_safe_float(reliability_metrics.get("replay_mismatch_cat_unknown"), 0.0)),
             "reconcile_gate_count": int(reconcile_gate_count),
             "reconcile_gate_max_severity": float(reconcile_gate_max_severity),

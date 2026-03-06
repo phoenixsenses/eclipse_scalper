@@ -1,0 +1,25 @@
+{
+  "db": "eclipse_scalper\\localtests\\wf_grid_strategy\\8897a119d2914f179f878535acb989f4\\db.sqlite",
+  "end": "2024-03-01T00:00:20Z",
+  "execution_sim": {
+    "fee_bps": 0.0,
+    "fill_or_before_enabled": false,
+    "horizon_or_before_enabled": true,
+    "horizon_sec": 5,
+    "mode": "min_exec_sim",
+    "qty": 1.0,
+    "spread_bps": 0.0
+  },
+  "start": "2024-03-01T00:00:00Z",
+  "strategy": "micro_edge_pocket",
+  "strategy_config": {
+    "cooldown_ms": 0,
+    "filters": {
+      "imbalance_gte": 0.4
+    },
+    "side": "buy"
+  },
+  "symbols": [
+    "ETHUSDT"
+  ]
+}

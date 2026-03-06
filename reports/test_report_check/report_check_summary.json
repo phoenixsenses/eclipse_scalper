@@ -1,0 +1,32 @@
+{
+  "results": [
+    {
+      "path": "reports\\test_report_check\\validate_canonical.json",
+      "ok": true,
+      "schema": "validate_canonical",
+      "errors": []
+    }
+  ],
+  "summary": {
+    "checked": 1,
+    "ok_count": 1,
+    "fail_count": 0
+  },
+  "run_summary": {
+    "version": "v1",
+    "run_type": "report_check",
+    "inputs": {
+      "inputs": [
+        "reports\\test_report_check\\validate_canonical.json"
+      ]
+    },
+    "metrics": {
+      "checked": 1,
+      "ok_count": 1,
+      "fail_count": 0
+    },
+    "artifacts": {
+      "json": "reports\\test_report_check\\report_check_summary.json"
+    }
+  }
+}

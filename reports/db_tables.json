@@ -1,0 +1,257 @@
+{
+  "db": "data\\microstructure.db",
+  "likely_core_tables": {
+    "book": "mark_prices",
+    "liquidations": "liquidations",
+    "trades": "agg_trades"
+  },
+  "tables": [
+    {
+      "columns": [
+        {
+          "default": null,
+          "name": "id",
+          "notnull": 0,
+          "pk": 1,
+          "type": "INTEGER"
+        },
+        {
+          "default": null,
+          "name": "ts_ms",
+          "notnull": 1,
+          "pk": 0,
+          "type": "INTEGER"
+        },
+        {
+          "default": null,
+          "name": "symbol",
+          "notnull": 1,
+          "pk": 0,
+          "type": "TEXT"
+        },
+        {
+          "default": null,
+          "name": "price",
+          "notnull": 1,
+          "pk": 0,
+          "type": "REAL"
+        },
+        {
+          "default": null,
+          "name": "quantity",
+          "notnull": 1,
+          "pk": 0,
+          "type": "REAL"
+        },
+        {
+          "default": null,
+          "name": "notional",
+          "notnull": 1,
+          "pk": 0,
+          "type": "REAL"
+        },
+        {
+          "default": null,
+          "name": "is_buyer_maker",
+          "notnull": 1,
+          "pk": 0,
+          "type": "INTEGER"
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "symbol",
+            "ts_ms"
+          ],
+          "name": "idx_trade_symbol_ts",
+          "origin": "c",
+          "partial": 0,
+          "unique": 0
+        },
+        {
+          "columns": [
+            "ts_ms"
+          ],
+          "name": "idx_trade_ts",
+          "origin": "c",
+          "partial": 0,
+          "unique": 0
+        }
+      ],
+      "max_ts": 1772425617.354,
+      "min_ts": 1771165587.967,
+      "name": "agg_trades",
+      "row_count": 56344284,
+      "timestamp_candidates": [
+        "ts_ms"
+      ],
+      "timestamp_column": "ts_ms"
+    },
+    {
+      "columns": [
+        {
+          "default": null,
+          "name": "id",
+          "notnull": 0,
+          "pk": 1,
+          "type": "INTEGER"
+        },
+        {
+          "default": null,
+          "name": "ts_ms",
+          "notnull": 1,
+          "pk": 0,
+          "type": "INTEGER"
+        },
+        {
+          "default": null,
+          "name": "symbol",
+          "notnull": 1,
+          "pk": 0,
+          "type": "TEXT"
+        },
+        {
+          "default": null,
+          "name": "side",
+          "notnull": 1,
+          "pk": 0,
+          "type": "TEXT"
+        },
+        {
+          "default": null,
+          "name": "price",
+          "notnull": 1,
+          "pk": 0,
+          "type": "REAL"
+        },
+        {
+          "default": null,
+          "name": "quantity",
+          "notnull": 1,
+          "pk": 0,
+          "type": "REAL"
+        },
+        {
+          "default": null,
+          "name": "notional",
+          "notnull": 1,
+          "pk": 0,
+          "type": "REAL"
+        },
+        {
+          "default": null,
+          "name": "trade_time_ms",
+          "notnull": 1,
+          "pk": 0,
+          "type": "INTEGER"
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "symbol",
+            "ts_ms"
+          ],
+          "name": "idx_liq_symbol_ts",
+          "origin": "c",
+          "partial": 0,
+          "unique": 0
+        },
+        {
+          "columns": [
+            "ts_ms"
+          ],
+          "name": "idx_liq_ts",
+          "origin": "c",
+          "partial": 0,
+          "unique": 0
+        }
+      ],
+      "max_ts": 1772425615.115,
+      "min_ts": 1771165818.195,
+      "name": "liquidations",
+      "row_count": 39235,
+      "timestamp_candidates": [
+        "ts_ms",
+        "trade_time_ms"
+      ],
+      "timestamp_column": "ts_ms"
+    },
+    {
+      "columns": [
+        {
+          "default": null,
+          "name": "id",
+          "notnull": 0,
+          "pk": 1,
+          "type": "INTEGER"
+        },
+        {
+          "default": null,
+          "name": "ts_ms",
+          "notnull": 1,
+          "pk": 0,
+          "type": "INTEGER"
+        },
+        {
+          "default": null,
+          "name": "symbol",
+          "notnull": 1,
+          "pk": 0,
+          "type": "TEXT"
+        },
+        {
+          "default": null,
+          "name": "mark_price",
+          "notnull": 1,
+          "pk": 0,
+          "type": "REAL"
+        },
+        {
+          "default": null,
+          "name": "funding_rate",
+          "notnull": 0,
+          "pk": 0,
+          "type": "REAL"
+        },
+        {
+          "default": null,
+          "name": "next_funding_time_ms",
+          "notnull": 0,
+          "pk": 0,
+          "type": "INTEGER"
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "symbol",
+            "ts_ms"
+          ],
+          "name": "idx_mark_symbol_ts",
+          "origin": "c",
+          "partial": 0,
+          "unique": 0
+        },
+        {
+          "columns": [
+            "ts_ms"
+          ],
+          "name": "idx_mark_ts",
+          "origin": "c",
+          "partial": 0,
+          "unique": 0
+        }
+      ],
+      "max_ts": 1772425617.001,
+      "min_ts": 1771165588.0,
+      "name": "mark_prices",
+      "row_count": 2514044,
+      "timestamp_candidates": [
+        "ts_ms"
+      ],
+      "timestamp_column": "ts_ms"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{"action":"signal","decision_id":"e4b74c07c7805aa4","params":{"event_index":2,"period":2,"source_table":"agg_trades","symbol_count":2},"symbol":"ETHUSDT","ts_utc":"2024-03-01T00:00:21Z"}
+{"action":"signal","decision_id":"0e43deb4ca99493c","params":{"event_index":4,"period":2,"source_table":"agg_trades","symbol_count":4},"symbol":"ETHUSDT","ts_utc":"2024-03-01T00:00:23Z"}
+{"action":"signal","decision_id":"08ab0353ccbe8df8","params":{"event_index":6,"period":2,"source_table":"agg_trades","symbol_count":6},"symbol":"ETHUSDT","ts_utc":"2024-03-01T00:00:25Z"}
+{"action":"signal","decision_id":"0e1b26ecee6e80db","params":{"event_index":8,"period":2,"source_table":"agg_trades","symbol_count":8},"symbol":"ETHUSDT","ts_utc":"2024-03-01T00:00:27Z"}
+{"action":"signal","decision_id":"c1da3294e570d221","params":{"event_index":10,"period":2,"source_table":"agg_trades","symbol_count":10},"symbol":"ETHUSDT","ts_utc":"2024-03-01T00:00:29Z"}
+{"action":"signal","decision_id":"956a5e207066a270","params":{"event_index":12,"period":2,"source_table":"agg_trades","symbol_count":12},"symbol":"ETHUSDT","ts_utc":"2024-03-01T00:00:31Z"}
+{"action":"signal","decision_id":"8d6cca8e06e52785","params":{"event_index":14,"period":2,"source_table":"agg_trades","symbol_count":14},"symbol":"ETHUSDT","ts_utc":"2024-03-01T00:00:33Z"}
+{"action":"signal","decision_id":"d421a174d17fad4d","params":{"event_index":16,"period":2,"source_table":"agg_trades","symbol_count":16},"symbol":"ETHUSDT","ts_utc":"2024-03-01T00:00:35Z"}

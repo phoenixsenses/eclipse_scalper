@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "policy_version": 1771471904,
+    "generated_utc": "2026-02-19T03:31:44.133801+00:00",
+    "generator_commit": "184bcf734251940b688bc98394d482a80fa1e13d",
+    "source_reports": {
+      "offline": {
+        "path": "reports\\alpha_gate_edge.offline.json",
+        "sha1": "442b73ac5eaa951b48d81c6a79319c030ea978da"
+      },
+      "runtime": {
+        "path": "reports\\alpha_gate_edge.runtime.json",
+        "sha1": "eb102386d9956c59c334eddf3e578dc93d5774c3"
+      },
+      "compare": {
+        "path": "reports\\alpha_gate_edge.compare.json",
+        "sha1": ""
+      },
+      "recommend_source": {
+        "path": "reports\\alpha_gate_edge.offline.json",
+        "sha1": "442b73ac5eaa951b48d81c6a79319c030ea978da"
+      }
+    },
+    "thresholds": {
+      "min_events": 30,
+      "min_avg_return_60m": 0.0,
+      "min_p01": -0.02,
+      "bps_costs": [
+        0.0,
+        2.0,
+        5.0
+      ],
+      "walkforward_days": 7,
+      "folds": 0
+    }
+  },
+  "rules": [
+    {
+      "rule_id": "R_DISABLE",
+      "enabled": false
+    },
+    {
+      "rule_id": "R_KEEP",
+      "enabled": true
+    }
+  ]
+}

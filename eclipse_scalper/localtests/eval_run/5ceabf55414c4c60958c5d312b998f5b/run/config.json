@@ -1,0 +1,15 @@
+{
+  "db": "eclipse_scalper\\localtests\\eval_run\\5ceabf55414c4c60958c5d312b998f5b\\db.sqlite",
+  "end": "2024-03-01T00:01:00Z",
+  "execution_sim": {
+    "mode": "placeholder"
+  },
+  "start": "2024-03-01T00:00:00Z",
+  "strategy": "baseline",
+  "strategy_config": {
+    "period": 2
+  },
+  "symbols": [
+    "ETHUSDT"
+  ]
+}

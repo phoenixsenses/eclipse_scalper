@@ -1,0 +1,23 @@
+{
+  "combo_id": "79fefef57d4d",
+  "execution": {
+    "fee_bps": 0.6,
+    "horizon_sec": 5,
+    "qty": 1.0,
+    "spread_bps": 0.0
+  },
+  "slices": [
+    [
+      "2024-03-01T00:00:00Z",
+      "2024-03-01T00:00:15Z"
+    ],
+    [
+      "2024-03-01T00:00:15Z",
+      "2024-03-01T00:00:30Z"
+    ]
+  ],
+  "strategy": "baseline",
+  "strategy_config": {
+    "period": 2
+  }
+}

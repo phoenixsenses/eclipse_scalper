@@ -1,0 +1,32 @@
+{
+  "db": "eclipse_scalper\\localtests\\eval_run_micro_edge\\418a0dbc1c6247a1a6c73d153dc72644\\db.sqlite",
+  "end": "2024-03-01T00:01:00Z",
+  "execution_sim": {
+    "fee_bps": 0.0,
+    "fill_or_before_enabled": false,
+    "horizon_or_before_enabled": true,
+    "horizon_sec": 1,
+    "mode": "min_exec_sim",
+    "qty": 1.0,
+    "spread_bps": 0.0
+  },
+  "start": "2024-03-01T00:00:00Z",
+  "strategy": "micro_edge_pocket",
+  "strategy_config": {
+    "cooldown_ms": 0,
+    "event_source_table": "agg_trades",
+    "filters": {
+      "imbalance_gte": 0.4,
+      "intensity_gte": 2500,
+      "spread_lte": 0.0003
+    },
+    "rule": "micro_edge_v3_passive_alpha",
+    "side": "buy",
+    "symbol_whitelist": [
+      "ETHUSDT"
+    ]
+  },
+  "symbols": [
+    "ETHUSDT"
+  ]
+}

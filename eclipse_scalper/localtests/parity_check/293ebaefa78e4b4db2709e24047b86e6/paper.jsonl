@@ -1,0 +1,2 @@
+{"action":"signal","decision_id":"BROKEN_ID","params":{"event_index":2,"period":2,"source_table":"agg_trades","symbol_count":2},"symbol":"ETHUSDT","ts_utc":"2024-03-01T00:00:01Z"}
+{"action":"signal","decision_id":"da787cacef4911b1","params":{"event_index":4,"period":2,"source_table":"agg_trades","symbol_count":4},"symbol":"ETHUSDT","ts_utc":"2024-03-01T00:00:03Z"}

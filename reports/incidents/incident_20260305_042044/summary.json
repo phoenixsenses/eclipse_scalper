@@ -1,0 +1,8 @@
+{
+  "created_utc": "2026-03-05T04:20:44Z",
+  "bundle_dir": "reports\\incidents\\incident_20260305_042044",
+  "copied_files": {
+    "logs\\microstructure_collector.log": "reports\\incidents\\incident_20260305_042044\\latest_runtime_tail.log"
+  },
+  "run_files": []
+}

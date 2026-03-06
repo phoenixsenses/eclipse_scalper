@@ -1,0 +1,26 @@
+{
+  "count": 1,
+  "rows": [
+    {
+      "adverse_dominates_count": 0,
+      "avg_adverse_samples": 5.25,
+      "decision_to_fill_rate": 1.0,
+      "decisions_count": 20,
+      "events_replayed": 20,
+      "fee_bps": 0.0,
+      "fee_dominates_count": 0,
+      "fee_sum": 0.0,
+      "fills_count": 20,
+      "horizon_sec": 5,
+      "pnl_gross_sum": 8.5,
+      "pnl_net_per_fill": 0.425,
+      "pnl_net_sum": 8.5,
+      "qty": 1.0,
+      "run_dir": "runs/micro_edge_pocket_77df8f87f6",
+      "skipped_count": 0,
+      "spread_bps": 0.0,
+      "spread_cost_est_sum": 0.0,
+      "strategy": "micro_edge_pocket"
+    }
+  ]
+}

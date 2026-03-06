@@ -1,0 +1,7 @@
+{"error": "AttributeError:'numpy.float64' object has no attribute 'fillna'", "event": "step_failed", "step": "execution_calibration", "ts_utc": "2026-03-02T11:25:18Z"}
+{"count": 100, "event": "step_completed", "step": "generate", "ts_utc": "2026-03-02T11:25:19Z"}
+{"event": "step_completed", "pair_rows": 4950, "step": "overlap", "ts_utc": "2026-03-02T11:25:19Z"}
+{"dropped": 98, "event": "step_completed", "selected": 2, "step": "dedup", "ts_utc": "2026-03-02T11:25:19Z"}
+{"eval_rows": 6, "event": "step_completed", "step": "eval", "trade_rows": 18, "ts_utc": "2026-03-02T11:25:19Z"}
+{"ensemble_rows": 500, "event": "step_completed", "selected": 0, "step": "select", "ts_utc": "2026-03-02T11:25:19Z"}
+{"event": "step_completed", "rows": 0, "step": "papertrades", "ts_utc": "2026-03-02T11:25:19Z"}

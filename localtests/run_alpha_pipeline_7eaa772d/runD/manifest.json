@@ -1,0 +1,44 @@
+{
+  "created_utc": "2026-03-02T11:27:47Z",
+  "status": "completed",
+  "steps": {
+    "dedup": {
+      "finished_utc": "2026-03-02T11:27:49Z",
+      "started_utc": "2026-03-02T11:27:48Z",
+      "status": "completed"
+    },
+    "eval": {
+      "finished_utc": "2026-03-02T11:27:49Z",
+      "started_utc": "2026-03-02T11:27:49Z",
+      "status": "completed"
+    },
+    "execution_calibration": {
+      "error": "FileNotFoundError:[Errno 2] No such file or directory: 'localtests\\\\run_alpha_pipeline_7eaa772d\\\\runD\\\\reports\\\\execution_realism.md'",
+      "finished_utc": "2026-03-02T11:27:47Z",
+      "started_utc": "2026-03-02T11:27:47Z",
+      "status": "failed"
+    },
+    "generate": {
+      "finished_utc": "2026-03-02T11:27:48Z",
+      "started_utc": "2026-03-02T11:27:47Z",
+      "status": "completed"
+    },
+    "overlap": {
+      "finished_utc": "2026-03-02T11:27:48Z",
+      "started_utc": "2026-03-02T11:27:48Z",
+      "status": "completed"
+    },
+    "papertrades": {
+      "finished_utc": "2026-03-02T11:27:49Z",
+      "started_utc": "2026-03-02T11:27:49Z",
+      "status": "completed"
+    },
+    "select": {
+      "finished_utc": "2026-03-02T11:27:49Z",
+      "selected_count": 0,
+      "started_utc": "2026-03-02T11:27:49Z",
+      "status": "completed"
+    }
+  },
+  "updated_utc": "2026-03-02T11:27:49Z"
+}

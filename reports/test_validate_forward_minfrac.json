@@ -1,0 +1,70 @@
+{
+  "symbol": "ETHUSDT",
+  "horizon_sec": 60,
+  "rows_total": 2,
+  "pass_count": 0,
+  "pass_rate": 0.0,
+  "insufficient_fill_rate": 1.0,
+  "min_n_frac_dominance_rate": 1.0,
+  "frac_min_component_median": 212,
+  "effective_min_n_median": 212,
+  "per_split": [],
+  "failure_attribution_median": {},
+  "per_combo": [
+    {
+      "seed": 11,
+      "split": 1,
+      "train_n": 100,
+      "val_n_rows": 70632,
+      "frac_min_component": 212,
+      "effective_min_n": 212,
+      "filled_n": 35,
+      "filled_avg_net": -0.0001,
+      "filled_p90_net": -5e-05,
+      "filled_win_rate": 0.4,
+      "attempt_fill_rate": 0.45,
+      "net_per_attempt": -0.0001,
+      "attempts_per_min": 2.0,
+      "val_attempts": 1000,
+      "val_attempts_before_gate": 1200,
+      "val_attempts_after_gate": 1000,
+      "fail_reason": "insufficient_fills",
+      "pass": false
+    },
+    {
+      "seed": 22,
+      "split": 1,
+      "train_n": 100,
+      "val_n_rows": 70632,
+      "frac_min_component": 212,
+      "effective_min_n": 212,
+      "filled_n": 50,
+      "filled_avg_net": -0.0001,
+      "filled_p90_net": -5e-05,
+      "filled_win_rate": 0.4,
+      "attempt_fill_rate": 0.45,
+      "net_per_attempt": -0.0001,
+      "attempts_per_min": 2.0,
+      "val_attempts": 1000,
+      "val_attempts_before_gate": 1200,
+      "val_attempts_after_gate": 1000,
+      "fail_reason": "insufficient_fills",
+      "pass": false
+    }
+  ],
+  "run_summary": {
+    "version": "v1",
+    "run_type": "validate_passive_pocket_forward",
+    "inputs": {},
+    "metrics": {
+      "rows_total": 2,
+      "pass_count": 0,
+      "pass_rate": 0.0,
+      "insufficient_fill_rate": 1.0
+    },
+    "artifacts": {
+      "md": "reports\\test_validate_forward_minfrac.md",
+      "json": "reports\\test_validate_forward_minfrac.json"
+    }
+  }
+}

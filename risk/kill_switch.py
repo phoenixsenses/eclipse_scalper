@@ -11,6 +11,7 @@ import time
 from typing import Tuple, Optional, Any
 
 from utils.logging import log_core
+from execution.shutdown_control import request_shutdown
 
 # Optional telemetry (never fatal)
 try:
@@ -168,10 +169,13 @@ def _set_shutdown_flag(bot) -> None:
     If not present, we set state.halt_until_ts huge (best-effort fallback).
     """
     try:
-        ev = getattr(bot, "_shutdown", None)
-        if ev is not None and hasattr(ev, "set"):
-            ev.set()
-            return
+        request_shutdown(
+            bot,
+            reason="kill_switch direct shutdown flag request",
+            source="risk.kill_switch._set_shutdown_flag",
+            fatal=True,
+        )
+        return
     except Exception:
         pass
 
@@ -364,7 +368,12 @@ async def request_halt(bot, seconds: float, reason: str, severity: str = "critic
                 },
             )
 
-            _set_shutdown_flag(bot)
+            request_shutdown(
+                bot,
+                reason=shutdown_reason,
+                source="risk.kill_switch",
+                fatal=True,
+            )
 
     except Exception:
         pass

@@ -1,0 +1,8 @@
+{"ts": 1.0, "event": "run.config", "data": {"run_id": "R-OFF", "policy_mode": "off"}}
+{"ts": 1771459200.0, "event": "alpha_gate_check", "data": {"run_id": "R-OFF", "symbol": "ETHUSDT", "side": "buy", "decision": "PASS", "rule_id": "RULE_A", "candidate_id": "CID_A", "policy_mode": "off"}}
+{"ts": 1771459200.5, "event": "entry.submitted", "data": {"run_id": "R-OFF", "symbol": "ETHUSDT", "action": "buy"}}
+{"ts": 1771459201.0, "event": "policy.outcome_open", "data": {"run_id": "R-OFF", "symbol": "ETHUSDT", "side": "LONG", "candidate_id": "CID_A", "ts_entry": 1771459200.0}}
+{"ts": 1771459320.0, "event": "policy.outcome", "data": {"run_id": "R-OFF", "symbol": "ETHUSDT", "side": "LONG", "candidate_id": "CID_A", "realized_pnl_pct": 0.01, "policy_mode": "off"}}
+{"ts": 2.0, "event": "run.config", "data": {"run_id": "R-ON", "policy_mode": "override"}}
+{"ts": 1771459800.0, "event": "alpha_gate_check", "data": {"run_id": "R-ON", "symbol": "ETHUSDT", "side": "buy", "decision": "PASS", "rule_id": "RULE_A", "candidate_id": "CID_B", "policy_mode": "override"}}
+{"ts": 1771459801.0, "event": "policy.outcome_open", "data": {"run_id": "R-ON", "symbol": "ETHUSDT", "side": "LONG", "candidate_id": "CID_B", "ts_entry": 1771459800.0}}

@@ -1,0 +1,68 @@
+{
+  "generated_utc": "2026-02-19T21:54:13.032460+00:00",
+  "lookback_min": 240,
+  "symbols": {
+    "BTCUSDT": {
+      "bucket_sec": 1,
+      "horizon_sec": 30,
+      "rule_name": "intensity_spike_imbalance_cont",
+      "thresholds": {
+        "imb_q10": -1.0,
+        "imb_q90": 1.0,
+        "int_q90": 3480.0,
+        "spr_q90": 0.00017379246525990664
+      },
+      "min_rule_n": 150,
+      "cooldown_buckets": 0,
+      "delta_vs_baseline": 0.18638798970694093,
+      "rules_filtered": {
+        "intensity_spike_imbalance_cont": {
+          "n": 805,
+          "hit_rate": 0.7018633540372671,
+          "baseline": 0.5154753643303261,
+          "delta_vs_baseline": 0.18638798970694093
+        },
+        "spread_spike_reversal": {
+          "n": 658,
+          "hit_rate": 0.38753799392097266,
+          "baseline": 0.5154753643303261,
+          "delta_vs_baseline": -0.1279373704093535
+        }
+      }
+    },
+    "ETHUSDT": {
+      "bucket_sec": 1,
+      "horizon_sec": 30,
+      "rule_name": "intensity_spike_imbalance_cont",
+      "thresholds": {
+        "imb_q10": -0.9960241983974085,
+        "imb_q90": 1.0,
+        "int_q90": 2760.0,
+        "spr_q90": 0.00021827782689781624
+      },
+      "min_rule_n": 150,
+      "cooldown_buckets": 0,
+      "delta_vs_baseline": 0.17803349020439851,
+      "rules_filtered": {
+        "imbalance_lt_q10_down": {
+          "n": 672,
+          "hit_rate": 0.5163690476190477,
+          "baseline": 0.514183490927677,
+          "delta_vs_baseline": 0.0021855566913706603
+        },
+        "intensity_spike_imbalance_cont": {
+          "n": 848,
+          "hit_rate": 0.6922169811320755,
+          "baseline": 0.514183490927677,
+          "delta_vs_baseline": 0.17803349020439851
+        },
+        "spread_spike_reversal": {
+          "n": 742,
+          "hit_rate": 0.3867924528301887,
+          "baseline": 0.514183490927677,
+          "delta_vs_baseline": -0.1273910380974883
+        }
+      }
+    }
+  }
+}

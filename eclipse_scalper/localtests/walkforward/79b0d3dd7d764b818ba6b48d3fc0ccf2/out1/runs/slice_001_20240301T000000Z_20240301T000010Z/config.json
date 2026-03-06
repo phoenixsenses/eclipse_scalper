@@ -1,0 +1,21 @@
+{
+  "db": "eclipse_scalper\\localtests\\walkforward\\79b0d3dd7d764b818ba6b48d3fc0ccf2\\db.sqlite",
+  "end": "2024-03-01T00:00:10Z",
+  "execution_sim": {
+    "fee_bps": 0.0,
+    "fill_or_before_enabled": false,
+    "horizon_or_before_enabled": true,
+    "horizon_sec": 3,
+    "mode": "min_exec_sim",
+    "qty": 1.0,
+    "spread_bps": 0.0
+  },
+  "start": "2024-03-01T00:00:00Z",
+  "strategy": "baseline",
+  "strategy_config": {
+    "period": 2
+  },
+  "symbols": [
+    "ETHUSDT"
+  ]
+}

@@ -17,6 +17,14 @@ from pathlib import Path
 from typing import Any
 from collections import Counter
 
+try:
+    from eclipse_scalper.tools import replay_trade as _replay_trade  # type: ignore
+except Exception:
+    try:
+        from tools import replay_trade as _replay_trade  # type: ignore
+    except Exception:
+        _replay_trade = None
+
 
 def _read_lines(path: Path) -> list[str]:
     if not path.exists():
@@ -43,6 +51,37 @@ def _load_exit_quality_json(path: Path) -> dict[str, Any] | None:
         return json.loads(path.read_text(encoding="utf-8"))
     except Exception:
         return None
+
+
+def _safe_int(x: Any, default: int = 0) -> int:
+    try:
+        return int(x)
+    except Exception:
+        return int(default)
+
+
+def _safe_float(x: Any, default: float = 0.0) -> float:
+    try:
+        v = float(x)
+        if v != v:
+            return float(default)
+        return v
+    except Exception:
+        return float(default)
+
+
+def _parse_kv_lines(lines: list[str]) -> dict[str, str]:
+    out: dict[str, str] = {}
+    for line in lines:
+        s = str(line or "").strip()
+        if not s or "=" not in s:
+            continue
+        k, v = s.split("=", 1)
+        key = str(k or "").strip()
+        if not key:
+            continue
+        out[key] = str(v or "").strip()
+    return out
 
 
 def _load_jsonl(path: Path) -> list[dict]:
@@ -106,6 +145,344 @@ def _guard_symbol_lines(events: list[dict], limit: int = 6) -> list[str]:
     return [f"- {symbol}: {cnt}" for symbol, cnt in counts.most_common(limit)]
 
 
+def _partial_fill_state_lines(events: list[dict], limit: int = 6) -> list[str]:
+    outcome_counts: Counter[str] = Counter()
+    symbol_counts: Counter[str] = Counter()
+    cancel_ok = 0
+    flatten_ok = 0
+    total = 0
+    for ev in events:
+        if str(ev.get("event") or "") != "entry.partial_fill_state":
+            continue
+        data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+        outcome = str(data.get("outcome") or "unknown").strip().lower()
+        symbol = str(ev.get("symbol") or data.get("symbol") or "UNKNOWN").strip().upper() or "UNKNOWN"
+        outcome_counts[outcome] += 1
+        symbol_counts[symbol] += 1
+        total += 1
+        if bool(data.get("cancel_ok")):
+            cancel_ok += 1
+        if bool(data.get("flatten_ok")):
+            flatten_ok += 1
+    if total <= 0:
+        return []
+    lines = [f"- events: {total} cancel_ok={cancel_ok}/{total} flatten_ok={flatten_ok}/{total}", "- outcomes:"]
+    for outcome, cnt in outcome_counts.most_common(limit):
+        lines.append(f"- {outcome}: {cnt}")
+    lines.append("- top symbols:")
+    for symbol, cnt in symbol_counts.most_common(limit):
+        lines.append(f"- {symbol}: {cnt}")
+    return lines
+
+
+def _reconcile_first_gate_lines(events: list[dict], limit: int = 6) -> list[str]:
+    by_symbol: Counter[str] = Counter()
+    by_reason: Counter[str] = Counter()
+    by_symbol_severity: dict[str, float] = {}
+    total = 0
+    for ev in events:
+        if str(ev.get("event") or "") != "entry.reconcile_first_gate":
+            continue
+        data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+        symbol = str(ev.get("symbol") or data.get("symbol") or "UNKNOWN").strip().upper() or "UNKNOWN"
+        reason = str(data.get("reason") or "runtime_gate").strip().lower() or "runtime_gate"
+        sev = _safe_float(data.get("reconcile_first_severity"), _safe_float(data.get("runtime_gate_degrade_score"), 0.0))
+        by_symbol[symbol] += 1
+        by_reason[reason] += 1
+        if sev > float(by_symbol_severity.get(symbol, 0.0)):
+            by_symbol_severity[symbol] = float(sev)
+        total += 1
+    if total <= 0:
+        return []
+    lines = [f"- events: {total}", "- reasons:"]
+    for reason, cnt in by_reason.most_common(limit):
+        lines.append(f"- {reason}: {cnt}")
+    lines.append("- top symbols:")
+    for symbol, cnt in by_symbol.most_common(limit):
+        lines.append(f"- {symbol}: {cnt}")
+    sev_sorted = sorted(by_symbol_severity.items(), key=lambda kv: kv[1], reverse=True)[: max(1, int(limit))]
+    if sev_sorted:
+        lines.append("- top severity symbols:")
+        for symbol, sev in sev_sorted:
+            lines.append(f"- {symbol}: {sev:.2f}")
+    return lines
+
+
+def _reconcile_first_gate_max_severity(events: list[dict]) -> float:
+    mx = 0.0
+    for ev in events:
+        if str(ev.get("event") or "") != "entry.reconcile_first_gate":
+            continue
+        data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+        sev = _safe_float(data.get("runtime_gate_degrade_score"), 0.0)
+        if sev > mx:
+            mx = sev
+    return float(mx)
+
+
+def _reconcile_first_gate_max_streak(events: list[dict], severity_threshold: float) -> int:
+    cur = 0
+    mx = 0
+    th = max(0.0, float(severity_threshold))
+    for ev in events:
+        if str(ev.get("event") or "") != "entry.reconcile_first_gate":
+            continue
+        data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+        sev = _safe_float(data.get("reconcile_first_severity"), _safe_float(data.get("runtime_gate_degrade_score"), 0.0))
+        if sev >= th:
+            cur += 1
+            if cur > mx:
+                mx = cur
+        else:
+            cur = 0
+    return int(mx)
+
+
+def _entry_budget_lines(events: list[dict], limit: int = 6) -> tuple[list[str], dict[str, int]]:
+    depleted_by_symbol: Counter[str] = Counter()
+    scaled_by_symbol: Counter[str] = Counter()
+    depleted_total = 0
+    scaled_total = 0
+    for ev in events:
+        name = str(ev.get("event") or "")
+        data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+        symbol = str(ev.get("symbol") or data.get("symbol") or "UNKNOWN").strip().upper() or "UNKNOWN"
+        if name == "entry.blocked":
+            reason = str(data.get("reason") or "").strip().lower()
+            if reason == "entry_budget_depleted":
+                depleted_total += 1
+                depleted_by_symbol[symbol] += 1
+        elif name == "entry.notional_scaled":
+            reason = str(data.get("reason") or "").strip().lower()
+            if reason == "entry_budget_allocator":
+                scaled_total += 1
+                scaled_by_symbol[symbol] += 1
+    if depleted_total <= 0 and scaled_total <= 0:
+        return [], {"depleted_total": 0, "scaled_total": 0}
+    lines = [
+        f"- depleted_total: {depleted_total}",
+        f"- scaled_total: {scaled_total}",
+    ]
+    if depleted_total > 0:
+        lines.append("- depleted top symbols:")
+        for symbol, cnt in depleted_by_symbol.most_common(limit):
+            lines.append(f"- {symbol}: {cnt}")
+    if scaled_total > 0:
+        lines.append("- scaled top symbols:")
+        for symbol, cnt in scaled_by_symbol.most_common(limit):
+            lines.append(f"- {symbol}: {cnt}")
+    return lines, {"depleted_total": int(depleted_total), "scaled_total": int(scaled_total)}
+
+
+def _replace_envelope_lines(events: list[dict], limit: int = 6) -> tuple[list[str], int]:
+    by_reason: Counter[str] = Counter()
+    by_symbol: Counter[str] = Counter()
+    total = 0
+    for ev in events:
+        if str(ev.get("event") or "") != "order.replace_envelope_block":
+            continue
+        data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+        reason = str(data.get("reason") or "replace_envelope_block").strip().lower() or "replace_envelope_block"
+        symbol = str(ev.get("symbol") or data.get("k") or data.get("symbol") or "UNKNOWN").strip().upper() or "UNKNOWN"
+        by_reason[reason] += 1
+        by_symbol[symbol] += 1
+        total += 1
+    if total <= 0:
+        return [], 0
+    lines = [f"- events: {total}", "- reasons:"]
+    for reason, cnt in by_reason.most_common(limit):
+        lines.append(f"- {reason}: {cnt}")
+    lines.append("- top symbols:")
+    for symbol, cnt in by_symbol.most_common(limit):
+        lines.append(f"- {symbol}: {cnt}")
+    return lines, int(total)
+
+
+def _rebuild_orphan_lines(events: list[dict], limit: int = 6) -> tuple[list[str], dict[str, int]]:
+    by_action: Counter[str] = Counter()
+    by_class: Counter[str] = Counter()
+    total = 0
+    freeze_count = 0
+    for ev in events:
+        if str(ev.get("event") or "") != "rebuild.orphan_decision":
+            continue
+        data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+        action = str(data.get("action") or "UNKNOWN").strip().upper() or "UNKNOWN"
+        klass = str(data.get("class") or "unknown").strip().lower() or "unknown"
+        by_action[action] += 1
+        by_class[klass] += 1
+        total += 1
+        if action == "FREEZE":
+            freeze_count += 1
+    if total <= 0:
+        return [], {"total": 0, "freeze_count": 0}
+    lines = [f"- events: {total}", "- actions:"]
+    for action, cnt in by_action.most_common(limit):
+        lines.append(f"- {action}: {cnt}")
+    lines.append("- classes:")
+    for klass, cnt in by_class.most_common(limit):
+        lines.append(f"- {klass}: {cnt}")
+    return lines, {"total": int(total), "freeze_count": int(freeze_count)}
+
+
+def _belief_state_lines(events: list[dict]) -> list[str]:
+    rows: list[dict[str, Any]] = []
+    for ev in events:
+        if str(ev.get("event") or "") != "execution.belief_state":
+            continue
+        data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+        rows.append(
+            {
+                "belief_debt_sec": float(data.get("belief_debt_sec") or 0.0),
+                "belief_debt_symbols": int(data.get("belief_debt_symbols") or 0),
+                "belief_confidence": float(data.get("belief_confidence") or 0.0),
+                "mismatch_streak": int(data.get("mismatch_streak") or 0),
+                "repair_actions": int(data.get("repair_actions") or 0),
+                "repair_skipped": int(data.get("repair_skipped") or 0),
+            }
+        )
+    if not rows:
+        return []
+    latest = rows[-1]
+    avg_conf = sum(float(r["belief_confidence"]) for r in rows) / float(len(rows))
+    return [
+        (
+            f"- latest debt={latest['belief_debt_sec']:.1f}s symbols={latest['belief_debt_symbols']} "
+            f"confidence={latest['belief_confidence']:.2f} streak={latest['mismatch_streak']}"
+        ),
+        (
+            f"- latest repairs actions={latest['repair_actions']} "
+            f"skipped={latest['repair_skipped']} avg_confidence={avg_conf:.2f}"
+        ),
+    ]
+
+
+def _latest_belief_state(events: list[dict]) -> dict[str, Any] | None:
+    latest = None
+    for ev in events:
+        if str(ev.get("event") or "") != "execution.belief_state":
+            continue
+        data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+        latest = {
+            "belief_debt_sec": float(data.get("belief_debt_sec") or 0.0),
+            "belief_debt_symbols": int(data.get("belief_debt_symbols") or 0),
+            "belief_confidence": float(data.get("belief_confidence") or 0.0),
+            "mismatch_streak": int(data.get("mismatch_streak") or 0),
+        }
+    return latest
+
+
+def _latest_corr_or_symbol(events: list[dict]) -> tuple[str, str]:
+    corr = ""
+    sym = ""
+    for ev in reversed(events):
+        data = ev.get("data") if isinstance(ev.get("data"), dict) else {}
+        if not corr:
+            corr = str(data.get("correlation_id") or ev.get("correlation_id") or "").strip()
+        if not sym:
+            sym = str(ev.get("symbol") or data.get("symbol") or data.get("k") or "").strip().upper()
+        if corr and sym:
+            break
+    return corr, sym
+
+
+def _journal_replay_lines(events: list[dict], journal_path: Path, limit: int = 6) -> list[str]:
+    if _replay_trade is None or not journal_path.exists():
+        return []
+    corr, sym = _latest_corr_or_symbol(events)
+    try:
+        out = _replay_trade.replay(journal_path, correlation_id=corr, symbol=("" if corr else sym))
+    except Exception:
+        return []
+    transitions = out.get("transitions", []) if isinstance(out, dict) else []
+    if not transitions:
+        return []
+    rows = [
+        f"- filter correlation_id={corr or 'n/a'} symbol={sym or 'n/a'}",
+        f"- last_state={str(out.get('last_state') or '')} events={int(out.get('count', 0) or 0)}",
+    ]
+    for tr in transitions[-max(1, int(limit)):]:
+        rows.append(
+            f"- {tr.get('machine')} {tr.get('entity')} "
+            f"{tr.get('from')}->{tr.get('to')} ({tr.get('reason')})"
+        )
+    return rows
+
+
+def _reliability_gate_lines(path: Path) -> tuple[list[str], dict[str, Any]]:
+    lines = _read_lines(path)
+    if not lines:
+        return [], {}
+    kv = _parse_kv_lines(lines)
+    if not kv:
+        return [], {}
+    replay_mismatch = _safe_int(kv.get("replay_mismatch_count"), 0)
+    invalid_transitions = _safe_int(kv.get("invalid_transition_count"), 0)
+    coverage_ratio = _safe_float(kv.get("journal_coverage_ratio"), 0.0)
+    position_mismatch = _safe_int(kv.get("position_mismatch_count"), 0)
+    orphan_count = _safe_int(kv.get("orphan_count"), 0)
+    coverage_gap_seconds = _safe_float(kv.get("protection_coverage_gap_seconds"), 0.0)
+    replace_race_count = _safe_int(kv.get("replace_race_count"), 0)
+    contradiction_count = _safe_int(kv.get("evidence_contradiction_count"), 0)
+    cats = {
+        "ledger": 0,
+        "transition": 0,
+        "belief": 0,
+        "position": 0,
+        "orphan": 0,
+        "coverage_gap": 0,
+        "replace_race": 0,
+        "contradiction": 0,
+        "unknown": 0,
+    }
+    raw_cats = str(kv.get("replay_mismatch_categories") or "").strip()
+    if raw_cats:
+        try:
+            payload = json.loads(raw_cats)
+            if isinstance(payload, dict):
+                for k in cats.keys():
+                    cats[k] = _safe_int(payload.get(k), 0)
+        except Exception:
+            pass
+    rows = [
+        f"- replay_mismatch_count: {replay_mismatch}",
+        f"- invalid_transition_count: {invalid_transitions}",
+        f"- journal_coverage_ratio: {coverage_ratio:.3f}",
+        f"- position_mismatch_count: {position_mismatch}",
+        f"- orphan_count: {orphan_count}",
+        f"- protection_coverage_gap_seconds: {coverage_gap_seconds:.1f}",
+        f"- replace_race_count: {replace_race_count}",
+        f"- evidence_contradiction_count: {contradiction_count}",
+    ]
+    if any(int(cats.get(k, 0)) > 0 for k in cats.keys()):
+        rows.append(
+            "- mismatch_categories: "
+            f"ledger={int(cats['ledger'])} transition={int(cats['transition'])} "
+            f"belief={int(cats['belief'])} position={int(cats['position'])} "
+            f"orphan={int(cats['orphan'])} coverage_gap={int(cats['coverage_gap'])} "
+            f"replace_race={int(cats['replace_race'])} contradiction={int(cats['contradiction'])} "
+            f"unknown={int(cats['unknown'])}"
+        )
+        ranked = sorted(
+            [(str(k), int(v)) for (k, v) in cats.items() if int(v) > 0],
+            key=lambda kv: int(kv[1]),
+            reverse=True,
+        )[:3]
+        if ranked:
+            rows.append("- top_contributors: " + ", ".join(f"{k}={v}" for (k, v) in ranked))
+    return rows, {
+        "replay_mismatch_count": replay_mismatch,
+        "invalid_transition_count": invalid_transitions,
+        "journal_coverage_ratio": coverage_ratio,
+        "position_mismatch_count": position_mismatch,
+        "orphan_count": orphan_count,
+        "protection_coverage_gap_seconds": coverage_gap_seconds,
+        "replace_race_count": replace_race_count,
+        "evidence_contradiction_count": contradiction_count,
+        "replay_mismatch_categories": cats,
+    }
+
+
 def _build_message(signal_lines, core_lines, anomaly_lines, signal_exit_lines) -> tuple[str, bool]:
     warn = False
     parts = []
@@ -162,6 +539,24 @@ def main(argv=None) -> int:
     parser.add_argument("--telemetry", default="logs/telemetry.jsonl")
     parser.add_argument("--guard-reasons-top", type=int, default=6)
     parser.add_argument("--guard-symbols-top", type=int, default=6)
+    parser.add_argument("--reconcile-first-gate-threshold", type=int, default=1)
+    parser.add_argument(
+        "--reconcile-first-gate-severity-threshold",
+        type=float,
+        default=float(os.getenv("RECONCILE_FIRST_GATE_SEVERITY_THRESHOLD", "1.01")),
+    )
+    parser.add_argument(
+        "--reconcile-first-gate-severity-streak-threshold",
+        type=int,
+        default=int(os.getenv("RECONCILE_FIRST_GATE_SEVERITY_STREAK_THRESHOLD", "2")),
+    )
+    parser.add_argument("--entry-budget-depleted-threshold", type=int, default=1)
+    parser.add_argument("--replace-envelope-threshold", type=int, default=1)
+    parser.add_argument("--rebuild-orphan-freeze-threshold", type=int, default=1)
+    parser.add_argument("--reliability-gate", default="logs/reliability_gate.txt")
+    parser.add_argument("--reliability-max-replay-mismatch", type=int, default=0)
+    parser.add_argument("--reliability-max-invalid-transitions", type=int, default=0)
+    parser.add_argument("--reliability-min-journal-coverage", type=float, default=0.90)
     parser.add_argument("--output", default="logs/telemetry_alert_summary.txt")
     parser.add_argument(
         "--actions-path",
@@ -170,6 +565,7 @@ def main(argv=None) -> int:
     )
     parser.add_argument("--no-notify", action="store_true")
     parser.add_argument("--signal-exit", default="logs/signal_exit_notify.txt")
+    parser.add_argument("--journal", default="logs/execution_journal.jsonl")
     args = parser.parse_args(argv)
 
     signal_lines = _read_lines(Path(args.signal))
@@ -208,6 +604,69 @@ def main(argv=None) -> int:
     guard_symbol_lines = _guard_symbol_lines(telemetry_events, max(1, args.guard_symbols_top))
     if guard_symbol_lines:
         message += "\n\nGuard hits by symbol:\n" + "\n".join(guard_symbol_lines)
+    partial_lines = _partial_fill_state_lines(telemetry_events, max(1, args.guard_symbols_top))
+    if partial_lines:
+        message += "\n\nPartial fill states:\n" + "\n".join(partial_lines)
+    reconcile_gate_lines = _reconcile_first_gate_lines(telemetry_events, max(1, args.guard_symbols_top))
+    reconcile_gate_max_sev = _reconcile_first_gate_max_severity(telemetry_events)
+    reconcile_gate_max_streak = _reconcile_first_gate_max_streak(
+        telemetry_events, max(0.0, float(args.reconcile_first_gate_severity_threshold))
+    )
+    if reconcile_gate_lines:
+        message += "\n\nReconcile-first gate:\n" + "\n".join(reconcile_gate_lines)
+        message += f"\n- max_severity: {reconcile_gate_max_sev:.2f}"
+        message += f"\n- max_severity_streak: {reconcile_gate_max_streak}"
+        gate_events = 0
+        try:
+            gate_events = int(str(reconcile_gate_lines[0]).split(":", 1)[1].strip())
+        except Exception:
+            gate_events = 0
+        if gate_events >= max(1, int(args.reconcile_first_gate_threshold)):
+            warn = True
+        if reconcile_gate_max_sev >= max(0.0, float(args.reconcile_first_gate_severity_threshold)):
+            warn = True
+        if reconcile_gate_max_streak >= max(1, int(args.reconcile_first_gate_severity_streak_threshold)):
+            warn = True
+    entry_budget_lines, entry_budget_stats = _entry_budget_lines(telemetry_events, max(1, args.guard_symbols_top))
+    if entry_budget_lines:
+        message += "\n\nEntry budget pressure:\n" + "\n".join(entry_budget_lines)
+        if int(entry_budget_stats.get("depleted_total", 0)) >= max(1, int(args.entry_budget_depleted_threshold)):
+            warn = True
+    replace_envelope_lines, replace_envelope_total = _replace_envelope_lines(
+        telemetry_events, max(1, args.guard_symbols_top)
+    )
+    if replace_envelope_lines:
+        message += "\n\nReplace envelope blocks:\n" + "\n".join(replace_envelope_lines)
+        if int(replace_envelope_total) >= max(1, int(args.replace_envelope_threshold)):
+            warn = True
+    rebuild_orphan_lines, rebuild_orphan_stats = _rebuild_orphan_lines(
+        telemetry_events, max(1, args.guard_symbols_top)
+    )
+    if rebuild_orphan_lines:
+        message += "\n\nRebuild orphan decisions:\n" + "\n".join(rebuild_orphan_lines)
+        if int(rebuild_orphan_stats.get("freeze_count", 0)) >= max(1, int(args.rebuild_orphan_freeze_threshold)):
+            warn = True
+    belief_lines = _belief_state_lines(telemetry_events)
+    if belief_lines:
+        message += "\n\nExecution belief state:\n" + "\n".join(belief_lines)
+    belief_latest = _latest_belief_state(telemetry_events)
+    if belief_latest is not None:
+        if float(belief_latest.get("belief_confidence") or 0.0) < 0.75:
+            warn = True
+        if float(belief_latest.get("belief_debt_sec") or 0.0) >= 300.0:
+            warn = True
+    replay_lines = _journal_replay_lines(telemetry_events, Path(args.journal))
+    if replay_lines:
+        message += "\n\nExecution replay:\n" + "\n".join(replay_lines[:8])
+    reliability_lines, reliability_metrics = _reliability_gate_lines(Path(args.reliability_gate))
+    if reliability_lines:
+        message += "\n\nReliability gate:\n" + "\n".join(reliability_lines)
+        if int(reliability_metrics.get("replay_mismatch_count") or 0) > max(0, int(args.reliability_max_replay_mismatch)):
+            warn = True
+        if int(reliability_metrics.get("invalid_transition_count") or 0) > max(0, int(args.reliability_max_invalid_transitions)):
+            warn = True
+        if float(reliability_metrics.get("journal_coverage_ratio") or 0.0) < max(0.0, min(1.0, float(args.reliability_min_journal_coverage))):
+            warn = True
     action_notes = []
     now = time.time()
     pause_until = float(actions.get("pause_until", 0) or 0)

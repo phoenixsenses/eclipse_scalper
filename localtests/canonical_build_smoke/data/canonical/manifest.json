@@ -1,0 +1,146 @@
+{
+  "git_commit": "184bcf734251940b688bc98394d482a80fa1e13d",
+  "build_time_utc": "2026-02-18T22:40:33.929622+00:00",
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "start": "2026-02-02 00:00:00+00:00",
+  "end": "2026-02-02 00:00:03+00:00",
+  "discovered_input_files": [
+    "C:\\Users\\Windows 11\\.blade_cosmic_cache.json",
+    "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data\\event_diary.csv",
+    "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data\\microstructure.db",
+    "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data\\ohlcv_test.csv",
+    "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\logs\\execution_journal.jsonl"
+  ],
+  "excluded_paths": [
+    "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data\\canonical\\ohlcv_leak.csv"
+  ],
+  "row_counts": {
+    "canonical_microstructure": 0,
+    "canonical_events": 3,
+    "canonical_ohlcv": 2,
+    "canonical_merged": 4
+  },
+  "timestamp_ranges": {
+    "canonical_microstructure": {
+      "min": null,
+      "max": null
+    },
+    "canonical_events": {
+      "min": "2026-02-02 00:00:01+00:00",
+      "max": "2026-02-02 00:00:03+00:00"
+    },
+    "canonical_ohlcv": {
+      "min": "2026-02-02 00:00:00+00:00",
+      "max": "2026-02-02 00:01:00+00:00"
+    },
+    "canonical_merged": {
+      "min": "2026-02-02 00:00:00+00:00",
+      "max": "2026-02-02 00:00:03+00:00"
+    }
+  },
+  "column_dtypes": {
+    "canonical_microstructure": {},
+    "canonical_events": {
+      "timestamp": "datetime64[ns, UTC]",
+      "symbol": "object",
+      "signal_state": "object",
+      "entry_candidate": "bool",
+      "entry_executed": "bool",
+      "exit_candidate": "bool",
+      "position_state": "object"
+    },
+    "canonical_ohlcv": {
+      "timestamp": "datetime64[ns, UTC]",
+      "symbol": "object",
+      "open": "float64",
+      "high": "float64",
+      "low": "float64",
+      "close": "float64",
+      "volume": "float64"
+    },
+    "canonical_merged": {
+      "timestamp": "datetime64[ns, UTC]",
+      "symbol": "object",
+      "price": "float64",
+      "bid": "float64",
+      "ask": "float64",
+      "spread": "float64",
+      "volume": "float64",
+      "volatility": "float64",
+      "signal_state": "object",
+      "entry_candidate": "bool",
+      "entry_executed": "bool",
+      "exit_candidate": "bool",
+      "position_state": "object"
+    }
+  },
+  "missing_source_warnings": [],
+  "searched_patterns": {
+    "microstructure": [
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data:*microstructure*.db",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data:*microstructure*.jsonl",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data:*microstructure*.csv",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data:*microstructure*.parquet",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\logs:*microstructure*.db",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\logs:*microstructure*.jsonl",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\logs:*microstructure*.csv",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\logs:*microstructure*.parquet"
+    ],
+    "events": [
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data:event_diary*.csv",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data:event_diary*.jsonl",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data:execution_journal*.jsonl",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data:signal_stability*.jsonl",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\logs:event_diary*.csv",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\logs:event_diary*.jsonl",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\logs:execution_journal*.jsonl",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\logs:signal_stability*.jsonl"
+    ],
+    "ohlcv": [
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data:*ohlcv*.csv",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data:*ohlcv*.json",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data:*ohlcv*.parquet",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data:*candles*.csv",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data:*candles*.json",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data:*candles*.parquet",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data:*kline*.csv",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data:*kline*.json",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\data:*kline*.parquet",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\logs:*ohlcv*.csv",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\logs:*ohlcv*.json",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\logs:*ohlcv*.parquet",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\logs:*candles*.csv",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\logs:*candles*.json",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\logs:*candles*.parquet",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\logs:*kline*.csv",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\logs:*kline*.json",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\logs:*kline*.parquet",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\state:*ohlcv*.csv",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\state:*ohlcv*.json",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\state:*ohlcv*.parquet",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\state:*candles*.csv",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\state:*candles*.json",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\state:*candles*.parquet",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\state:*kline*.csv",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\state:*kline*.json",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke\\state:*kline*.parquet",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke:*ohlcv*.csv",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke:*ohlcv*.json",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke:*ohlcv*.parquet",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke:*candles*.csv",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke:*candles*.json",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke:*candles*.parquet",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke:*kline*.csv",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke:*kline*.json",
+      "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\localtests\\canonical_build_smoke:*kline*.parquet"
+    ]
+  },
+  "parquet_engines": {
+    "microstructure": "pyarrow",
+    "events": "pyarrow",
+    "ohlcv": "pyarrow",
+    "merged": "pyarrow"
+  }
+}

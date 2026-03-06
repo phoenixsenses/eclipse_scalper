@@ -1,0 +1,97 @@
+{
+  "inputs": {
+    "candidates_md": "reports/FILTER_SWEEP_V3_21D_ETH_h120_ADV1p2.md",
+    "db": "data/microstructure.db",
+    "lookback_min": 30240,
+    "bucket_sec": 1,
+    "rule": "micro_edge_v3_passive_alpha",
+    "side": "auto",
+    "splits": 6,
+    "seeds": "7,11,22,33,44,55",
+    "min_n": 30,
+    "min_n_frac": 0.00025,
+    "maker_fee_bps": 1.0,
+    "passive_adverse_mult": 1.2,
+    "passive_profile_in": "state/passive_realistic_profiles.json",
+    "out_json": "reports/TRIAGE_V3_cap.json"
+  },
+  "rows": [
+    {
+      "symbol": "ETHUSDT",
+      "horizon_sec": 120,
+      "min_imbalance": 0.2,
+      "min_trade_intensity": 2500.0,
+      "max_spread": 0.0005,
+      "attempts_per_min": 0.10070424931106045,
+      "effective_min_n_median": 30,
+      "expected_fills_per_split": 78.5,
+      "prob_fail_insufficient_fills": 0.03333333333333333
+    },
+    {
+      "symbol": "ETHUSDT",
+      "horizon_sec": 120,
+      "min_imbalance": 0.3,
+      "min_trade_intensity": 2500.0,
+      "max_spread": 0.0005,
+      "attempts_per_min": 0.09253903990746096,
+      "effective_min_n_median": 30,
+      "expected_fills_per_split": 78.0,
+      "prob_fail_insufficient_fills": 0.13333333333333333
+    },
+    {
+      "symbol": "ETHUSDT",
+      "horizon_sec": 120,
+      "min_imbalance": 0.4,
+      "min_trade_intensity": 2500.0,
+      "max_spread": 0.0005,
+      "attempts_per_min": 0.08845643520566121,
+      "effective_min_n_median": 30,
+      "expected_fills_per_split": 73.0,
+      "prob_fail_insufficient_fills": 0.16666666666666666
+    },
+    {
+      "symbol": "ETHUSDT",
+      "horizon_sec": 120,
+      "min_imbalance": 0.5,
+      "min_trade_intensity": 2500.0,
+      "max_spread": 0.0005,
+      "attempts_per_min": 0.07824992345116184,
+      "effective_min_n_median": 30,
+      "expected_fills_per_split": 65.0,
+      "prob_fail_insufficient_fills": 0.2
+    },
+    {
+      "symbol": "ETHUSDT",
+      "horizon_sec": 120,
+      "min_imbalance": 0.4,
+      "min_trade_intensity": 2500.0,
+      "max_spread": 0.0003,
+      "attempts_per_min": 0.07042493110604564,
+      "effective_min_n_median": 30,
+      "expected_fills_per_split": 65.5,
+      "prob_fail_insufficient_fills": 0.2
+    },
+    {
+      "symbol": "ETHUSDT",
+      "horizon_sec": 120,
+      "min_imbalance": 0.5,
+      "min_trade_intensity": 2500.0,
+      "max_spread": 0.0003,
+      "attempts_per_min": 0.06464124111182934,
+      "effective_min_n_median": 30,
+      "expected_fills_per_split": 58.5,
+      "prob_fail_insufficient_fills": 0.2
+    },
+    {
+      "symbol": "ETHUSDT",
+      "horizon_sec": 120,
+      "min_imbalance": 0.5,
+      "min_trade_intensity": 3500.0,
+      "max_spread": 0.0003,
+      "attempts_per_min": 0.03095975232198142,
+      "effective_min_n_median": 30,
+      "expected_fills_per_split": 30.5,
+      "prob_fail_insufficient_fills": 0.43333333333333335
+    }
+  ]
+}

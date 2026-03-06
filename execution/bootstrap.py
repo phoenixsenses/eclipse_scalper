@@ -12,11 +12,47 @@ import asyncio
 import importlib
 import inspect
 import os
+import random
 import signal
 import sys
 import time
 from types import SimpleNamespace
 from typing import Any, Optional, Callable, Awaitable, List
+
+def _load_dotenv_best_effort() -> str:
+    """
+    Load env before any project imports.
+    Priority: .env.paper (if exists) -> .env.
+    """
+    try:
+        from dotenv import load_dotenv  # type: ignore
+    except Exception:
+        return ""
+    try:
+        here = os.getcwd()
+        env_paper = os.path.join(here, ".env.paper")
+        env_default = os.path.join(here, ".env")
+        if os.path.exists(env_paper):
+            load_dotenv(dotenv_path=env_paper, override=False)
+            return ".env.paper"
+        if os.path.exists(env_default):
+            load_dotenv(dotenv_path=env_default, override=False)
+            return ".env"
+        load_dotenv(override=False)
+    except Exception:
+        return ""
+    return ""
+
+
+_DOTENV_SOURCE = _load_dotenv_best_effort()
+from execution.shutdown_control import request_shutdown
+from execution.shutdown_control import ensure_traced_shutdown_event
+from utils.symbols import canonical_symbol
+
+try:
+    from core.micro_features import MicroFeatureEngine  # type: ignore
+except Exception:  # pragma: no cover
+    MicroFeatureEngine = None  # type: ignore
 
 # ----------------------------
 # UTF-8 hardening (Windows / piping)
@@ -47,20 +83,6 @@ def _force_utf8_io_best_effort() -> None:
 
 
 _force_utf8_io_best_effort()
-
-# ----------------------------
-# Load .env (critical for your BINANCE_API_* keys)
-# ----------------------------
-
-def _load_dotenv_best_effort() -> None:
-    try:
-        from dotenv import load_dotenv  # type: ignore
-        load_dotenv()
-    except Exception:
-        pass
-
-
-_load_dotenv_best_effort()
 
 # ----------------------------
 # Logging helpers (best effort)
@@ -178,6 +200,35 @@ def _apply_env_symbols_to_bot(bot: Any) -> list[str]:
     return syms
 
 
+def _resolve_active_symbols_for_boot(bot: Any) -> list[str]:
+    out: list[str] = []
+    try:
+        s = getattr(bot, "active_symbols", None)
+        if isinstance(s, set):
+            out = [canonical_symbol(str(x)) for x in sorted(list(s)) if str(x).strip()]
+        elif isinstance(s, (list, tuple)):
+            out = [canonical_symbol(str(x)) for x in s if str(x).strip()]
+    except Exception:
+        out = []
+    if out:
+        return list(dict.fromkeys(out))
+    try:
+        s2 = getattr(getattr(bot, "cfg", None), "ACTIVE_SYMBOLS", None)
+        if isinstance(s2, (list, tuple)):
+            out = [canonical_symbol(str(x)) for x in s2 if str(x).strip()]
+    except Exception:
+        out = []
+    if out:
+        return list(dict.fromkeys(out))
+    try:
+        ms = os.getenv("MICRO_SIGNAL_SYMBOL", "").strip()
+        if ms:
+            return [canonical_symbol(ms)]
+    except Exception:
+        pass
+    return []
+
+
 def _env_any(keys: list[str], default: str = "") -> str:
     """
     Return first non-empty environment variable among keys.
@@ -187,6 +238,166 @@ def _env_any(keys: list[str], default: str = "") -> str:
         if isinstance(v, str) and v.strip():
             return v.strip()
     return default
+
+
+def _env_first_present(keys: list[str]) -> tuple[str, str]:
+    """
+    Return first env var that is non-empty after strip(), preserving raw value.
+    """
+    for k in keys:
+        v = os.getenv(k)
+        if v is None:
+            continue
+        if str(v).strip():
+            return k, str(v)
+    return "", ""
+
+
+def _sanitize_credential(raw: Any) -> str:
+    try:
+        s = str(raw or "")
+    except Exception:
+        return ""
+    s = s.strip()
+    if not s:
+        return ""
+    if " #" in s:
+        s = s.split(" #", 1)[0].strip()
+    if len(s) >= 2 and ((s[0] == "'" and s[-1] == "'") or (s[0] == '"' and s[-1] == '"')):
+        s = s[1:-1].strip()
+    return s
+
+
+def _is_quoted_like(raw: Any) -> bool:
+    try:
+        s = str(raw or "").strip()
+    except Exception:
+        return False
+    return len(s) >= 2 and ((s[0] == "'" and s[-1] == "'") or (s[0] == '"' and s[-1] == '"'))
+
+
+def _has_trailing_ws(raw: Any) -> bool:
+    try:
+        s = str(raw or "")
+    except Exception:
+        return False
+    return s != s.strip()
+
+
+def _looks_auth_signature_error(exc: Exception) -> bool:
+    m = str(exc or "").lower()
+    return (
+        ("-1022" in m)
+        or ("signature for this request is not valid" in m)
+        or ("invalid api-key" in m)
+        or ("api-key format invalid" in m)
+        or ("authenticationerror" in m)
+    )
+
+
+def _env_bool(name: str, default: bool = False) -> bool:
+    try:
+        v = str(os.getenv(name, "") or "").strip().lower()
+        if not v:
+            return bool(default)
+        return v in ("1", "true", "yes", "on", "y")
+    except Exception:
+        return bool(default)
+
+
+def _env_int(name: str, default: int) -> int:
+    try:
+        v = str(os.getenv(name, "") or "").strip()
+        if v:
+            return int(float(v))
+    except Exception:
+        pass
+    return int(default)
+
+
+def _env_float(name: str, default: float) -> float:
+    try:
+        v = str(os.getenv(name, "") or "").strip()
+        if v:
+            return float(v)
+    except Exception:
+        pass
+    return float(default)
+
+
+async def _compute_server_drift_ms(exchange: Any) -> Optional[int]:
+    try:
+        fn = getattr(exchange, "fetch_time", None)
+        if not callable(fn):
+            return None
+        t0 = int(time.time() * 1000)
+        server_ms = int(await fn())
+        t1 = int(time.time() * 1000)
+        local_mid = int((t0 + t1) / 2)
+        return int(server_ms - local_mid)
+    except Exception:
+        return None
+
+
+_LAST_RATE_LIMIT_ALERT_TS: float = 0.0
+
+
+async def _send_rate_limit_alert_best_effort(message: str) -> None:
+    """
+    Best-effort Telegram alert sender used by rate-limit monitor.
+    Never raises.
+    """
+    enabled = _env_bool("RATE_LIMIT_ALERT_ENABLED", True)
+    if not enabled:
+        return
+    token = _env_any(["TELEGRAM_BOT_TOKEN", "TELEGRAM_TOKEN", "ECLIPSE_TG_BOT_TOKEN"], "")
+    chat_id = _env_any(["TELEGRAM_CHAT_ID", "ECLIPSE_TG_CHAT_ID"], "")
+    if not token or not chat_id:
+        return
+    try:
+        from notifications.telegram import Notifier  # type: ignore
+    except Exception:
+        return
+    try:
+        await Notifier(token=token, chat_id=chat_id).speak(message, priority="high")
+    except Exception:
+        return
+
+
+async def _assert_private_auth_or_fail(exchange: Any, *, diag: dict[str, Any]) -> None:
+    endpoint_hint = "unknown"
+    try:
+        opts = getattr(exchange, "options", {}) or {}
+        dt = str(opts.get("defaultType") or "").strip().lower()
+        endpoint_hint = ("futures" if dt in ("future", "swap", "usdm") else (dt or "spot"))
+    except Exception:
+        endpoint_hint = "unknown"
+
+    try:
+        fp = getattr(exchange, "fetch_positions", None)
+        if callable(fp):
+            endpoint_hint = "futures_positions"
+            await fp()
+            return
+        fb = getattr(exchange, "fetch_balance", None)
+        if callable(fb):
+            endpoint_hint = "balance"
+            await fb()
+            return
+        raise RuntimeError("no_private_probe_method")
+    except Exception as e:
+        d = (
+            f"key_len={diag.get('key_len', 0)} secret_len={diag.get('secret_len', 0)} "
+            f"key_quoted={diag.get('key_quoted', False)} secret_quoted={diag.get('secret_quoted', False)} "
+            f"key_trail_ws={diag.get('key_trail_ws', False)} secret_trail_ws={diag.get('secret_trail_ws', False)} "
+            f"key_src={diag.get('key_source', '')} secret_src={diag.get('secret_source', '')} "
+            f"testnet={diag.get('testnet', False)} endpoint={endpoint_hint} "
+            f"defaultType={diag.get('default_type', '')} recvWindow={diag.get('recv_window', 0)} "
+            f"server_drift_ms={diag.get('server_drift_ms', 'n/a')}"
+        )
+        if _looks_auth_signature_error(e):
+            raise RuntimeError(f"bootstrap private auth failed (signature/auth): {e}; {d}") from e
+        raise RuntimeError(f"bootstrap private auth failed: {e}; {d}") from e
 
 
 # ----------------------------
@@ -225,7 +436,24 @@ def _cfg(cfg: Any, name: str, default: Any) -> Any:
 # Exchange init (ccxt async)
 # ----------------------------
 
+class _OfflineExchangeStub:
+    def __init__(self) -> None:
+        self.options: dict[str, Any] = {"defaultType": "stub", "fetchCurrencies": False}
+
+    async def close(self) -> None:  # pragma: no cover - trivial
+        return None
+
+
 async def _init_exchange(cfg: Any) -> Any:
+    smoke_only = _env_bool("BOOTSTRAP_SMOKE_ONLY", False)
+    skip_exchange_init = _env_bool("BOOTSTRAP_SKIP_EXCHANGE_INIT", smoke_only)
+    if skip_exchange_init:
+        log_core.warning(
+            "[bootstrap] exchange init skipped by env "
+            "(BOOTSTRAP_SKIP_EXCHANGE_INIT=1 or BOOTSTRAP_SMOKE_ONLY=1); using OfflineExchangeStub"
+        )
+        return _OfflineExchangeStub()
+
     try:
         import ccxt.async_support as ccxt  # type: ignore
     except Exception as e:
@@ -237,50 +465,171 @@ async def _init_exchange(cfg: Any) -> Any:
         raise RuntimeError(f"Unknown ccxt exchange: {ex_name}")
 
     # ✅ IMPORTANT: Support BOTH your framework keys and the common .env keys you tested
-    api_key = (
-        str(_cfg(cfg, "API_KEY", "")).strip()
-        or _env_any(["BINANCE_API_KEY", "API_KEY"])
-    )
-    api_secret = (
-        str(_cfg(cfg, "API_SECRET", "")).strip()
-        or _env_any(["BINANCE_API_SECRET", "API_SECRET"])
-    )
-    api_password = (
-        str(_cfg(cfg, "API_PASSWORD", "")).strip()
-        or _env_any(["BINANCE_API_PASSWORD", "API_PASSWORD"])
-    )
+    key_source = "CFG.API_KEY"
+    secret_source = "CFG.API_SECRET"
+    password_source = "CFG.API_PASSWORD"
+    raw_api_key = str(_cfg(cfg, "API_KEY", ""))
+    raw_api_secret = str(_cfg(cfg, "API_SECRET", ""))
+    raw_api_password = str(_cfg(cfg, "API_PASSWORD", ""))
+    if not str(raw_api_key).strip():
+        key_source, raw_api_key = _env_first_present(
+            ["BINANCE_API_KEY", "BINANCE_KEY", "API_KEY"]
+        )
+    if not str(raw_api_secret).strip():
+        secret_source, raw_api_secret = _env_first_present(
+            ["BINANCE_API_SECRET", "BINANCE_SECRET", "API_SECRET"]
+        )
+    if not str(raw_api_password).strip():
+        password_source, raw_api_password = _env_first_present(
+            ["BINANCE_API_PASSWORD", "API_PASSWORD"]
+        )
+    key_source = key_source or "MISSING"
+    secret_source = secret_source or "MISSING"
+    password_source = password_source or "MISSING"
+    api_key = _sanitize_credential(raw_api_key)
+    api_secret = _sanitize_credential(raw_api_secret)
+    api_password = _sanitize_credential(raw_api_password)
 
     params: dict[str, Any] = {
         "apiKey": api_key,
         "secret": api_secret,
         "password": api_password,
         "enableRateLimit": True,
-        "options": {},
+        "options": {"adjustForTimeDifference": True},
     }
 
     default_type = str(_cfg(cfg, "DEFAULT_TYPE", os.getenv("DEFAULT_TYPE", "future"))).strip()
     if default_type:
         params["options"]["defaultType"] = default_type  # "spot" or "future"
+    recv_window = int(float(os.getenv("BINANCE_RECV_WINDOW", "10000") or 10000))
+    params["options"]["recvWindow"] = max(1000, min(60000, recv_window))
 
     headers = _cfg(cfg, "EXCHANGE_HEADERS", None)
     if isinstance(headers, dict) and headers:
         params["headers"] = headers
 
     exchange = ex_cls(params)
+    dry_run = _env_bool("SCALPER_DRY_RUN", False)
+    fetch_currencies_default = False if dry_run else True
+    init_fetch_currencies = _env_bool("EXCHANGE_INIT_FETCH_CURRENCIES", fetch_currencies_default)
+    try:
+        opts = getattr(exchange, "options", None)
+        if not isinstance(opts, dict):
+            opts = {}
+            exchange.options = opts  # type: ignore[attr-defined]
+        opts["fetchCurrencies"] = bool(init_fetch_currencies)
+    except Exception:
+        pass
+    try:
+        testnet_on = str(os.getenv("BINANCE_TESTNET", "")).strip().lower() in ("1", "true", "yes", "on")
+        if testnet_on and hasattr(exchange, "set_sandbox_mode"):
+            exchange.set_sandbox_mode(True)
+    except Exception:
+        pass
 
     # quick visibility
+    diag = {
+        "key_len": len(api_key),
+        "secret_len": len(api_secret),
+        "key_quoted": _is_quoted_like(raw_api_key),
+        "secret_quoted": _is_quoted_like(raw_api_secret),
+        "key_trail_ws": _has_trailing_ws(raw_api_key),
+        "secret_trail_ws": _has_trailing_ws(raw_api_secret),
+        "key_source": key_source,
+        "secret_source": secret_source,
+        "password_source": password_source,
+        "testnet": str(os.getenv("BINANCE_TESTNET", "")).strip().lower() in ("1", "true", "yes", "on"),
+        "default_type": params["options"].get("defaultType"),
+        "recv_window": params["options"].get("recvWindow"),
+        "server_drift_ms": None,
+    }
     try:
         log_core.info(
             f"[bootstrap] exchange={ex_name} defaultType={params['options'].get('defaultType')} "
-            f"apiKey={'YES' if bool(api_key) else 'NO'} secret={'YES' if bool(api_secret) else 'NO'}"
+            f"apiKey={'YES' if bool(api_key) else 'NO'} secret={'YES' if bool(api_secret) else 'NO'} "
+            f"testnet={'YES' if diag['testnet'] else 'NO'} recvWindow={diag['recv_window']} "
+            f"key_src={diag['key_source']} secret_src={diag['secret_source']} "
+            f"fetchCurrencies={int(bool(init_fetch_currencies))}"
         )
     except Exception:
         pass
 
+    failfast_auth = str(os.getenv("BOOT_FAILFAST_PRIVATE_AUTH", "1")).strip().lower() in ("1", "true", "yes", "on")
+    if failfast_auth and (not api_key or not api_secret):
+        raise RuntimeError(
+            "bootstrap private auth failed: missing api credentials; "
+            f"key_len={diag['key_len']} secret_len={diag['secret_len']} "
+            f"key_src={diag['key_source']} secret_src={diag['secret_source']}"
+        )
+
+    init_fail_fast = _env_bool("EXCHANGE_INIT_TIMEOUT_FAIL_FAST", False)
+    init_retries = max(1, _env_int("EXCHANGE_INIT_RETRIES", 5))
+    init_backoff = max(0.0, _env_float("EXCHANGE_INIT_BACKOFF_SEC", 1.0))
+    init_backoff_mult = max(1.0, _env_float("EXCHANGE_INIT_BACKOFF_MULT", 1.7))
+    init_max_backoff = max(init_backoff, _env_float("EXCHANGE_INIT_MAX_BACKOFF_SEC", 10.0))
+    init_jitter = max(0.0, _env_float("EXCHANGE_INIT_JITTER_SEC", 0.25))
+    if init_fail_fast:
+        init_retries = 1
+
+    retryable_exceptions = tuple(
+        x
+        for x in (
+            getattr(ccxt, "RequestTimeout", None),
+            getattr(ccxt, "NetworkError", None),
+            getattr(ccxt, "ExchangeNotAvailable", None),
+            getattr(ccxt, "DDoSProtection", None),
+            asyncio.TimeoutError,
+        )
+        if isinstance(x, type)
+    )
+
+    async def _run_with_retries(op_name: str, coro_factory) -> Any:
+        attempt = 0
+        delay = float(init_backoff)
+        last_exc: Exception | None = None
+        while attempt < init_retries:
+            attempt += 1
+            try:
+                out = await coro_factory()
+                if attempt > 1:
+                    log_core.info(f"[bootstrap] {op_name} succeeded on retry attempt={attempt}/{init_retries}")
+                return out
+            except Exception as e:
+                last_exc = e
+                retryable = isinstance(e, retryable_exceptions) if retryable_exceptions else False
+                if (not retryable) or attempt >= init_retries:
+                    raise
+                sleep_for = min(float(delay), float(init_max_backoff))
+                if init_jitter > 0:
+                    sleep_for += random.uniform(0.0, init_jitter)
+                log_core.warning(
+                    f"[bootstrap] {op_name} retry {attempt}/{init_retries} failed: {type(e).__name__}: {e}; "
+                    f"sleep={sleep_for:.2f}s"
+                )
+                await asyncio.sleep(max(0.0, sleep_for))
+                delay = min(float(init_max_backoff), max(float(init_backoff), float(delay) * float(init_backoff_mult)))
+        if last_exc is not None:
+            raise last_exc
+        raise RuntimeError(f"{op_name} failed unexpectedly")
+
     try:
-        await exchange.load_markets()
+        await _run_with_retries("exchange.load_markets", lambda: exchange.load_markets())
+        diag["server_drift_ms"] = await _run_with_retries("exchange.fetch_time", lambda: _compute_server_drift_ms(exchange))
+        if failfast_auth:
+            await _run_with_retries("exchange.private_auth_probe", lambda: _assert_private_auth_or_fail(exchange, diag=diag))
+        else:
+            log_core.warning("[bootstrap] private auth fail-fast disabled (BOOT_FAILFAST_PRIVATE_AUTH=0)")
     except Exception as e:
-        log_core.warning(f"[bootstrap] load_markets failed (continuing): {e}")
+        log_core.critical(
+            f"[bootstrap] exchange init failed after retries op=load_markets/private_probe: {type(e).__name__}: {e}. "
+            "Tune EXCHANGE_INIT_RETRIES/BACKOFF or check connectivity."
+        )
+        try:
+            if hasattr(exchange, "close"):
+                await exchange.close()
+        except Exception:
+            pass
+        raise
 
     return exchange
 
@@ -611,6 +960,60 @@ async def _wait_for_data_ready(bot: Any, timeout_sec: float = 8.0, poll: float =
     return _data_is_valid(d) and _data_has_any_market_data(d)
 
 
+def _as_int(value: Any) -> int | None:
+    try:
+        if value is None:
+            return None
+        return int(str(value).strip())
+    except Exception:
+        return None
+
+
+async def _rate_limit_monitor_loop(bot: Any) -> None:
+    """
+    Best-effort Binance request-weight monitor.
+    Logs current used-weight and warns above threshold.
+    """
+    interval_sec = max(10.0, _env_float("RATE_LIMIT_LOG_SEC", 60.0))
+    warn_pct = max(1.0, min(100.0, _env_float("RATE_LIMIT_WARN_PCT", 80.0)))
+    alert_cooldown_sec = max(30.0, _env_float("RATE_LIMIT_ALERT_COOLDOWN_SEC", 300.0))
+    cap_1m = max(1, _env_int("RATE_LIMIT_CAP_1M", 1200))
+    ex = getattr(bot, "ex", None)
+    if ex is None:
+        return
+    while True:
+        await asyncio.sleep(interval_sec)
+        try:
+            headers = getattr(ex, "last_response_headers", None)
+            if not isinstance(headers, dict):
+                continue
+            used = (
+                _as_int(headers.get("x-mbx-used-weight-1m"))
+                or _as_int(headers.get("X-MBX-USED-WEIGHT-1M"))
+                or _as_int(headers.get("x-mbx-order-count-1m"))
+                or _as_int(headers.get("X-MBX-ORDER-COUNT-1M"))
+            )
+            if used is None:
+                continue
+            pct = (float(used) / float(cap_1m)) * 100.0
+            log_core.info(f"[RATE_LIMIT] used_1m={used} cap_1m={cap_1m} usage_pct={pct:.1f}")
+            if pct >= warn_pct:
+                log_core.warning(
+                    f"[RATE_LIMIT] high usage: used_1m={used} cap_1m={cap_1m} usage_pct={pct:.1f} threshold={warn_pct:.1f}"
+                )
+                global _LAST_RATE_LIMIT_ALERT_TS
+                now = time.time()
+                if (now - float(_LAST_RATE_LIMIT_ALERT_TS or 0.0)) >= alert_cooldown_sec:
+                    _LAST_RATE_LIMIT_ALERT_TS = now
+                    await _send_rate_limit_alert_best_effort(
+                        f"RATE_LIMIT ALERT: used_1m={used} cap_1m={cap_1m} usage={pct:.1f}% threshold={warn_pct:.1f}%"
+                    )
+        except asyncio.CancelledError:
+            raise
+        except Exception as e:
+            log_core.warning(f"[RATE_LIMIT] monitor error: {type(e).__name__}: {e}")
+
+
 # ----------------------------
 # Task runner helpers
 # ----------------------------
@@ -688,18 +1091,55 @@ async def main() -> None:
 
     cfg = _load_cfg()
     _apply_env_overrides_to_cfg(cfg)
+    if _DOTENV_SOURCE:
+        log_core.info(f"[bootstrap] dotenv loaded: {_DOTENV_SOURCE} (override=0)")
+    else:
+        log_core.info("[bootstrap] dotenv loaded: none (using process env only)")
+    try:
+        # Env var should be explicit/authoritative. If only .env is loaded and ACTIVE_SYMBOLS
+        # is absent in process env, stale symbol sets can silently persist.
+        if _DOTENV_SOURCE == ".env" and not str(os.getenv("ACTIVE_SYMBOLS", "")).strip():
+            log_core.warning(
+                "[bootstrap] .env loaded without explicit ACTIVE_SYMBOLS; "
+                "set ACTIVE_SYMBOLS explicitly (or remove conflicting key from .env)."
+            )
+    except Exception:
+        pass
+
+    tg_token = (
+        os.getenv("TELEGRAM_BOT_TOKEN")
+        or os.getenv("TELEGRAM_TOKEN")
+        or os.getenv("ECLIPSE_TG_BOT_TOKEN")
+        or ""
+    ).strip()
+    tg_chat_id = (
+        os.getenv("TELEGRAM_CHAT_ID")
+        or os.getenv("ECLIPSE_TG_CHAT_ID")
+        or ""
+    ).strip()
+    if not tg_token:
+        log_core.warning("[bootstrap] telegram token missing (checked: TELEGRAM_BOT_TOKEN, TELEGRAM_TOKEN, ECLIPSE_TG_BOT_TOKEN)")
+    if not tg_chat_id:
+        log_core.warning("[bootstrap] telegram chat id missing (checked: TELEGRAM_CHAT_ID, ECLIPSE_TG_CHAT_ID)")
 
     # ENV -> cfg bridge BEFORE bot is built
     env_syms_cfg = _apply_env_symbols_to_cfg(cfg)
     if env_syms_cfg:
         log_core.info(f"[bootstrap] ENV ACTIVE_SYMBOLS -> cfg.ACTIVE_SYMBOLS ({len(env_syms_cfg)}): {env_syms_cfg[:12]}")
+    else:
+        try:
+            cfg_syms = getattr(cfg, "ACTIVE_SYMBOLS", None)
+            log_core.info(f"[bootstrap] ACTIVE_SYMBOLS resolution: env -> bot.active_symbols -> cfg.ACTIVE_SYMBOLS, using cfg={cfg_syms}")
+        except Exception:
+            pass
 
     bot = SimpleNamespace()
     bot.cfg = cfg
+    bot._start_ts = time.time()
     bot.state = await _load_state_best_effort()
 
     # common coordination events
-    bot._shutdown = asyncio.Event()
+    bot._shutdown = ensure_traced_shutdown_event(bot)
     bot.data_ready = asyncio.Event()
 
     bot.ex = await _init_exchange(cfg)
@@ -729,7 +1169,7 @@ async def main() -> None:
 
     # ensure events still exist even if factory swapped bot
     if not isinstance(getattr(bot, "_shutdown", None), asyncio.Event):
-        bot._shutdown = asyncio.Event()
+        bot._shutdown = ensure_traced_shutdown_event(bot)
     if not isinstance(getattr(bot, "data_ready", None), asyncio.Event):
         bot.data_ready = asyncio.Event()
 
@@ -767,96 +1207,133 @@ async def main() -> None:
             log_core.info(f"[bootstrap] symbols={syms_list[:12]}{'...' if len(syms_list) > 12 else ''}")
     except Exception:
         pass
+    try:
+        if str(os.getenv("ENTRY_MICRO_SIGNAL_ENABLED", "0")).strip().lower() in ("1", "true", "yes", "on"):
+            syms = _resolve_active_symbols_for_boot(bot)
+            if syms:
+                log_core.info(f"[BOOT] Microstructure signal provider: ENABLED for {','.join(syms)}")
+            else:
+                log_core.warning("[BOOT] Microstructure signal provider: ENABLED but no active symbols resolved")
+    except Exception:
+        pass
+
+    micro_engine = None
+    try:
+        if (
+            str(os.getenv("ENTRY_MICRO_SIGNAL_ENABLED", "0")).strip().lower() in ("1", "true", "yes", "on")
+            and callable(MicroFeatureEngine)
+        ):
+            ms_db = str(os.getenv("MICRO_SIGNAL_DB", "data/microstructure.db") or "data/microstructure.db").strip()
+            syms = _resolve_active_symbols_for_boot(bot)
+            if syms:
+                micro_engine = MicroFeatureEngine(
+                    db_path=ms_db,
+                    symbol=syms,
+                    lookback_sec=int(float(os.getenv("MICRO_SIGNAL_LOOKBACK_SEC", "120") or 120)),
+                    update_interval_sec=float(os.getenv("MICRO_SIGNAL_UPDATE_INTERVAL_SEC", "1.0") or 1.0),
+                    bucket_sec=int(float(os.getenv("MICRO_SIGNAL_BUCKET_SEC", "5") or 5)),
+                )
+                await micro_engine.start()
+                bot.micro_feature_engine = micro_engine
+    except Exception as e:
+        log_core.warning(f"[BOOT] micro feature engine start failed: {type(e).__name__}: {e}")
 
     _run_diagnostics_best_effort(bot)
 
-    # ------------------------------------------------------------
-    # Required loops
-    # ------------------------------------------------------------
-    guardian_mod = _opt_import("execution.guardian")
-    guardian_loop = _callable(guardian_mod, "guardian_loop") if guardian_mod else None
-    if not callable(guardian_loop):
-        raise RuntimeError("execution.guardian.guardian_loop is required but missing")
-
-    # Entry loop selection:
-    # ENTRY_LOOP_MODE=full|basic (default: full if available, else basic)
-    entry_mode = os.getenv("ENTRY_LOOP_MODE", "").strip().lower()
-    prefer_basic = entry_mode in ("basic", "simple", "lite")
-    prefer_full = entry_mode in ("full", "risk", "advanced")
-
-    # Prefer full-risk entry loop if present, fallback to basic entry_loop
-    entry_loop_mod = None
-    if prefer_basic:
-        entry_loop_mod = _opt_import("execution.entry_loop")
-    elif prefer_full:
-        entry_loop_mod = _opt_import("execution.entry_loop_full") or _opt_import("execution.entry_loop")
-    else:
-        entry_loop_mod = _opt_import("execution.entry_loop_full") or _opt_import("execution.entry_loop")
-    entry_loop = None
-    if entry_loop_mod:
-        entry_loop = _callable(entry_loop_mod, "entry_loop_full") or _callable(entry_loop_mod, "entry_loop")
-        if entry_loop and entry_loop.__name__ == "entry_loop_full":
-            log_core.info("[bootstrap] entry loop: FULL (execution.entry_loop_full.entry_loop_full)")
-        elif entry_loop:
-            log_core.info("[bootstrap] entry loop: BASIC (execution.entry_loop.entry_loop)")
-        else:
-            log_core.warning("[bootstrap] entry loop: NONE (no callable found)")
-
-    data_loop_mod = _opt_import("execution.data_loop")
-    data_loop = _callable(data_loop_mod, "data_loop") if data_loop_mod else None
-
-    # ------------------------------------------------------------
-    # Optional loops (best effort)
-    # ------------------------------------------------------------
-    pm_mod = _opt_import("execution.position_manager")
-    position_manager_loop = None
-    if pm_mod:
-        position_manager_loop = (
-            _callable(pm_mod, "position_manager_loop")
-            or _callable(pm_mod, "position_manager")
-            or _callable(pm_mod, "run")
-        )
-
-    exit_mod = _opt_import("execution.exit")
-    exit_loop = None
-    if exit_mod:
-        exit_loop = (
-            _callable(exit_mod, "exit_loop")
-            or _callable(exit_mod, "exit")
-            or _callable(exit_mod, "run")
-        )
-
-    _opt_import("execution.telemetry")
-
     tasks: List[asyncio.Task] = []
-
-    # Start guardian + data first
-    _maybe_start_task(tasks, "guardian.guardian_loop", guardian_loop, bot)
-    _maybe_start_task(tasks, "data_loop.data_loop", data_loop, bot)
-
-    # Start protection loops BEFORE entry (so management is online first)
-    if callable(position_manager_loop):
-        _maybe_start_task(tasks, "position_manager.loop", position_manager_loop, bot)
+    smoke_only = _env_bool("BOOTSTRAP_SMOKE_ONLY", False)
+    smoke_sec = max(0.0, _env_float("BOOTSTRAP_SMOKE_SEC", 5.0))
+    if smoke_only:
+        log_core.warning(f"[bootstrap] smoke-only mode enabled; loops are skipped, sleeping {smoke_sec:.1f}s")
+        tasks.append(asyncio.create_task(asyncio.sleep(smoke_sec)))
     else:
-        log_core.warning("[bootstrap] optional loop missing: execution.position_manager.(position_manager_loop/run)")
-        if os.getenv("BOOT_REQUIRE_POSMGR", "1").strip().lower() not in ("0", "false", "no", "off"):
-            raise RuntimeError("bootstrap requires execution.position_manager (set BOOT_REQUIRE_POSMGR=0 to bypass)")
+        # ------------------------------------------------------------
+        # Required loops
+        # ------------------------------------------------------------
+        guardian_mod = _opt_import("execution.guardian")
+        guardian_loop = _callable(guardian_mod, "guardian_loop") if guardian_mod else None
+        if not callable(guardian_loop):
+            raise RuntimeError("execution.guardian.guardian_loop is required but missing")
 
-    if callable(exit_loop):
-        _maybe_start_task(tasks, "exit.loop", exit_loop, bot)
-    else:
-        log_core.warning("[bootstrap] optional loop missing: execution.exit.(exit_loop/run)")
-        if os.getenv("BOOT_REQUIRE_EXIT", "1").strip().lower() not in ("0", "false", "no", "off"):
-            raise RuntimeError("bootstrap requires execution.exit (set BOOT_REQUIRE_EXIT=0 to bypass)")
+        # Entry loop selection:
+        # ENTRY_LOOP_MODE=full|basic (default: full if available, else basic)
+        entry_mode = os.getenv("ENTRY_LOOP_MODE", "").strip().lower()
+        prefer_basic = entry_mode in ("basic", "simple", "lite")
+        prefer_full = entry_mode in ("full", "risk", "advanced")
 
-    # Start entry with gating wrapper
-    if callable(entry_loop):
-        try:
-            t = asyncio.create_task(_safe_task("entry_loop.entry_loop", _gated_entry_loop(bot, entry_loop)))
-            tasks.append(t)
-            log_core.info("[bootstrap] started: entry_loop.entry_loop (gated)")
-        except Exception as e:
-            log_core.warning(f"[bootstrap] failed to start entry_loop.entry_loop (gated): {e}")
+        # Prefer full-risk entry loop if present, fallback to basic entry_loop
+        entry_loop_mod = None
+        if prefer_basic:
+            entry_loop_mod = _opt_import("execution.entry_loop")
+        elif prefer_full:
+            entry_loop_mod = _opt_import("execution.entry_loop_full") or _opt_import("execution.entry_loop")
+        else:
+            entry_loop_mod = _opt_import("execution.entry_loop_full") or _opt_import("execution.entry_loop")
+        entry_loop = None
+        if entry_loop_mod:
+            entry_loop = _callable(entry_loop_mod, "entry_loop_full") or _callable(entry_loop_mod, "entry_loop")
+            if entry_loop and entry_loop.__name__ == "entry_loop_full":
+                log_core.info("[bootstrap] entry loop: FULL (execution.entry_loop_full.entry_loop_full)")
+            elif entry_loop:
+                log_core.info("[bootstrap] entry loop: BASIC (execution.entry_loop.entry_loop)")
+            else:
+                log_core.warning("[bootstrap] entry loop: NONE (no callable found)")
+
+        data_loop_mod = _opt_import("execution.data_loop")
+        data_loop = _callable(data_loop_mod, "data_loop") if data_loop_mod else None
+
+        # ------------------------------------------------------------
+        # Optional loops (best effort)
+        # ------------------------------------------------------------
+        pm_mod = _opt_import("execution.position_manager")
+        position_manager_loop = None
+        if pm_mod:
+            position_manager_loop = (
+                _callable(pm_mod, "position_manager_loop")
+                or _callable(pm_mod, "position_manager")
+                or _callable(pm_mod, "run")
+            )
+
+        exit_mod = _opt_import("execution.exit")
+        exit_loop = None
+        if exit_mod:
+            exit_loop = (
+                _callable(exit_mod, "exit_loop")
+                or _callable(exit_mod, "exit")
+                or _callable(exit_mod, "run")
+            )
+
+        _opt_import("execution.telemetry")
+
+        # Start guardian + data first
+        _maybe_start_task(tasks, "guardian.guardian_loop", guardian_loop, bot)
+        _maybe_start_task(tasks, "data_loop.data_loop", data_loop, bot)
+        if _env_bool("RATE_LIMIT_TRACKING_ENABLED", True):
+            _maybe_start_task(tasks, "bootstrap.rate_limit_monitor", _rate_limit_monitor_loop, bot)
+
+        # Start protection loops BEFORE entry (so management is online first)
+        if callable(position_manager_loop):
+            _maybe_start_task(tasks, "position_manager.loop", position_manager_loop, bot)
+        else:
+            log_core.warning("[bootstrap] optional loop missing: execution.position_manager.(position_manager_loop/run)")
+            if os.getenv("BOOT_REQUIRE_POSMGR", "1").strip().lower() not in ("0", "false", "no", "off"):
+                raise RuntimeError("bootstrap requires execution.position_manager (set BOOT_REQUIRE_POSMGR=0 to bypass)")
+
+        if callable(exit_loop):
+            _maybe_start_task(tasks, "exit.loop", exit_loop, bot)
+        else:
+            log_core.warning("[bootstrap] optional loop missing: execution.exit.(exit_loop/run)")
+            if os.getenv("BOOT_REQUIRE_EXIT", "1").strip().lower() not in ("0", "false", "no", "off"):
+                raise RuntimeError("bootstrap requires execution.exit (set BOOT_REQUIRE_EXIT=0 to bypass)")
+
+        # Start entry with gating wrapper
+        if callable(entry_loop):
+            try:
+                t = asyncio.create_task(_safe_task("entry_loop.entry_loop", _gated_entry_loop(bot, entry_loop)))
+                tasks.append(t)
+                log_core.info("[bootstrap] started: entry_loop.entry_loop (gated)")
+            except Exception as e:
+                log_core.warning(f"[bootstrap] failed to start entry_loop.entry_loop (gated): {e}")
 
     log_core.critical(f"[bootstrap] ONLINE | tasks={len(tasks)} | exchange={type(bot.ex).__name__}")
 
@@ -865,10 +1342,25 @@ async def main() -> None:
         for t in done:
             exc = t.exception()
             if exc:
+                try:
+                    tname = str(getattr(t, "get_name", lambda: "task")() or "task")
+                except Exception:
+                    tname = "task"
+                request_shutdown(
+                    bot,
+                    reason=f"bootstrap task crashed: {tname}: {type(exc).__name__}: {exc}",
+                    source="execution.bootstrap",
+                    fatal=True,
+                    exc=exc,
+                )
                 raise exc
     finally:
         # cooperative shutdown flag
         try:
+            try:
+                bot._teardown_in_progress = True  # type: ignore[attr-defined]
+            except Exception:
+                pass
             ev = getattr(bot, "_shutdown", None)
             if isinstance(ev, asyncio.Event):
                 ev.set()
@@ -892,6 +1384,25 @@ async def main() -> None:
             ex = getattr(bot, "ex", None)
             if ex is not None and hasattr(ex, "close"):
                 await ex.close()
+        except Exception:
+            pass
+
+        try:
+            if micro_engine is not None:
+                await micro_engine.stop()
+        except Exception:
+            pass
+
+        try:
+            st = getattr(bot, "state", None)
+            positions = getattr(st, "positions", {}) if st is not None else {}
+            open_pos = len(positions) if isinstance(positions, dict) else 0
+            log_core.critical(
+                f"[SHUTDOWN] reason={str(getattr(bot, '_shutdown_reason', '') or '')} "
+                f"source={str(getattr(bot, '_shutdown_source', '') or '')} "
+                f"fatal={int(bool(getattr(bot, '_shutdown_fatal', False)))} "
+                f"open_positions={open_pos}"
+            )
         except Exception:
             pass
 

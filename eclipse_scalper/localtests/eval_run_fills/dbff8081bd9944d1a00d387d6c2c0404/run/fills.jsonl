@@ -1,0 +1,2 @@
+{"adverse_move":0.0,"decision_id":"775c6012543f4e93","fee":0.01004,"fill_px":100.4,"fill_ts_utc":"2024-03-01T00:00:01Z","horizon_px":101.2,"horizon_ts_utc":"2024-03-01T00:00:03Z","pnl":0.78996,"qty":1.0,"side":"buy","status":"filled","symbol":"ETHUSDT"}
+{"adverse_move":0.0,"decision_id":"da787cacef4911b1","fee":0.01012,"fill_px":101.2,"fill_ts_utc":"2024-03-01T00:00:03Z","horizon_px":102.0,"horizon_ts_utc":"2024-03-01T00:00:05Z","pnl":0.78988,"qty":1.0,"side":"buy","status":"filled","symbol":"ETHUSDT"}

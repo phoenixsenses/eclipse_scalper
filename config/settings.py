@@ -8,6 +8,7 @@
 # - execution/entry_loop.py reads ENTRY_MIN_CONFIDENCE / ENTRY_POLL_SEC / ACTIVE_SYMBOLS / FIXED_NOTIONAL_USDT
 # - Without these, you’ll default to BTCUSDT only + sizing None + silent starvation
 
+import os
 from dataclasses import dataclass, field
 from typing import List
 
@@ -67,12 +68,12 @@ class Config:
     MIN_FUNDING_SHORT: float = -0.0004
 
     # === SIGNAL THRESHOLD ===
-    MIN_CONFIDENCE: float = 0.72
+    MIN_CONFIDENCE: float = float(os.environ.get("ENTRY_MIN_CONFIDENCE", "0.72"))
     MIN_CONFIDENCE_HIGH_VOL: float = 0.65
 
     # === ENTRY LOOP COMPATIBILITY (NEW) ===
     # entry_loop.py uses these keys (kept separate from strategy MIN_CONFIDENCE)
-    ENTRY_MIN_CONFIDENCE: float = 0.72
+    ENTRY_MIN_CONFIDENCE: float = float(os.environ.get("ENTRY_MIN_CONFIDENCE", "0.72"))
     ENTRY_POLL_SEC: float = 1.0
     ENTRY_PER_SYMBOL_GAP_SEC: float = 2.5
     ENTRY_LOCAL_COOLDOWN_SEC: float = 8.0
@@ -148,8 +149,8 @@ class Config:
             raise ValueError("LEVERAGE must be >= 1.")
         if not (0.0 < self.MIN_FILL_RATIO <= 1.0):
             raise ValueError("MIN_FILL_RATIO must be in (0, 1].")
-        if not (0.0 < self.MIN_CONFIDENCE <= 1.0):
-            raise ValueError("MIN_CONFIDENCE must be in (0, 1].")
+        if not (0.0 <= self.MIN_CONFIDENCE <= 1.0):
+            raise ValueError("MIN_CONFIDENCE must be in [0, 1].")
         if not (0.0 <= self.MAX_DAILY_LOSS_PCT <= 1.0):
             raise ValueError("MAX_DAILY_LOSS_PCT must be in [0, 1].")
         if not (0.0 < self.CORRELATION_HEAT_CAP <= 1.0):

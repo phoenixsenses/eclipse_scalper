@@ -1,0 +1,33 @@
+# Eval Run Summary
+
+- slice: `2026-03-01T22:41:00Z` -> `2026-03-01T22:41:20Z`
+- symbols: `ETHUSDT`
+- strategy: `baseline`
+
+## Counts
+- events_replayed: 2147
+- decisions_count: 429
+- fills_count: 429
+- skipped_count: 0
+- decision_to_fill_rate: 1.0
+- horizon_price_source_counts: {'after': 3, 'before': 426}
+- pnl_gross_sum: -24.199846073407
+- pnl_net_sum: -29.163200347892
+- pnl_sum: -29.163200347892
+- avg_pnl: -0.06797948799
+- fee_sum: 4.963354274485
+- spread_cost_est_sum: 41.355236731407
+- adverse_sum: -570.666936270001
+- avg_adverse_samples: 982.727272727273
+- adverse_samples_zero_count: 0
+- fee_dominates_count: 23
+- adverse_dominates_count: 246
+- win_rate: 0.347319347319
+
+## Artifacts
+- `config.json`
+- `health.json`
+- `decisions.jsonl`
+- `fills.jsonl`
+- `skipped.jsonl`
+- `metrics.json`

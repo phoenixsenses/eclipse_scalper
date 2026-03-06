@@ -1,0 +1,4 @@
+{"action":"signal","decision_id":"2f8d751741730b82","params":{"event_index":5,"period":5,"source_table":"agg_trades","symbol_count":5},"symbol":"ETHUSDT","ts_utc":"2024-03-01T00:00:04Z"}
+{"action":"signal","decision_id":"865fb0222599e8b6","params":{"event_index":10,"period":5,"source_table":"agg_trades","symbol_count":10},"symbol":"ETHUSDT","ts_utc":"2024-03-01T00:00:09Z"}
+{"action":"signal","decision_id":"3adf4d8255efdbe2","params":{"event_index":15,"period":5,"source_table":"agg_trades","symbol_count":15},"symbol":"ETHUSDT","ts_utc":"2024-03-01T00:00:14Z"}
+{"action":"signal","decision_id":"0f8d77276ba182b1","params":{"event_index":20,"period":5,"source_table":"agg_trades","symbol_count":20},"symbol":"ETHUSDT","ts_utc":"2024-03-01T00:00:19Z"}

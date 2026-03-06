@@ -1,0 +1,22 @@
+{
+  "generated_utc": "2026-03-02T04:36:10.120992+00:00",
+  "horizons": [
+    1,
+    5,
+    10,
+    20
+  ],
+  "interval_ms": 100,
+  "partitions": [
+    {
+      "date": "2026-03-02",
+      "interval_ms": 100,
+      "rows": 36001,
+      "symbol": "ETHUSDT",
+      "ts_max": 1772425611997,
+      "ts_min": 1772422012000
+    }
+  ],
+  "rolling": 500,
+  "symbol": "ETHUSDT"
+}

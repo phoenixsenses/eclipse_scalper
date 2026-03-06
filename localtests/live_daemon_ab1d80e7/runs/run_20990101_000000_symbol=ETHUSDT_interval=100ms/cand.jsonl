@@ -1,0 +1,1 @@
+{"condition":{"left":"F_ofi_z","op":"gt","right":-999.0,"type":"gt"},"cooldown_bars":3,"entry":"market","entry_mode_preference":"both","horizon_bars":5,"meta":{},"name":"always_buy","regime_filter":[],"side":"buy"}

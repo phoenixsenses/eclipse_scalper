@@ -1,0 +1,30 @@
+{
+  "compression": [
+    false,
+    true
+  ],
+  "count": 300,
+  "coverage_guarantee": true,
+  "hash": "bbf1caf71e36",
+  "horizons": [
+    5,
+    10,
+    20
+  ],
+  "interval_ms": 100,
+  "limit": 600,
+  "max_nan_ratio": 0.98,
+  "max_tries": 30,
+  "min_triggered": 50,
+  "missing_columns": [],
+  "referenced_columns": [
+    "F_ofi_z"
+  ],
+  "regimes": [],
+  "symbol": "ETHUSDT",
+  "use_calibration": true,
+  "vacuum": [
+    false,
+    true
+  ]
+}

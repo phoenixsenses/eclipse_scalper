@@ -1,0 +1,10 @@
+{
+  "rows": 0,
+  "fill_rate": 0.0,
+  "queue_competition_score": 0.0,
+  "toxicity_score": 0.0,
+  "adverse_selection_bps_mean": 0.0,
+  "latency_fill_delay_sec_p50": 0.0,
+  "latency_fill_delay_sec_p95": 0.0,
+  "latency_impact_vs_net_corr": 0.0
+}

@@ -1,0 +1,105 @@
+{
+  "meta": {
+    "build_time_utc": "2026-02-19T03:29:52.033006+00:00",
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "rows_total": 180,
+    "events_total": 2,
+    "events_per_symbol": {
+      "BTCUSDT": 2
+    },
+    "event_col": "entry_candidate",
+    "event_mode": "auto",
+    "min_gap_sec": 60,
+    "group_by": "signal_state",
+    "group_include_regex": null,
+    "group_exclude_regex": null,
+    "groups_total": 2,
+    "groups_kept": 2,
+    "groups_dropped": 0,
+    "events_total_before_filter": 2,
+    "events_total_after_filter": 2,
+    "events_dropped": 0,
+    "event_mode_resolved": "bool",
+    "input_path": "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\tmp\\tests\\signal_eval_regime_smoke\\data\\canonical\\canonical_merged.parquet",
+    "regime_input_path": "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\tmp\\tests\\signal_eval_regime_smoke\\data\\canonical\\canonical_regimes.parquet"
+  },
+  "by_symbol": {
+    "BTCUSDT": {
+      "events": 2,
+      "by_regime": {
+        "QUIET": {
+          "events": 2,
+          "by_group": {
+            "ALL": {
+              "events": 2,
+              "horizons": {
+                "1m": {
+                  "events_matched": 2,
+                  "accuracy": 0.5,
+                  "win_rate": 0.5,
+                  "average_return": 0.025000000000000022,
+                  "sharpe_ratio": 1.0,
+                  "mae_mean": 0.0,
+                  "mfe_mean": 0.025000000000000022
+                },
+                "3m": {
+                  "events_matched": 0,
+                  "accuracy": null,
+                  "win_rate": null,
+                  "average_return": null,
+                  "sharpe_ratio": null,
+                  "mae_mean": null,
+                  "mfe_mean": null
+                },
+                "5m": {
+                  "events_matched": 0,
+                  "accuracy": null,
+                  "win_rate": null,
+                  "average_return": null,
+                  "sharpe_ratio": null,
+                  "mae_mean": null,
+                  "mfe_mean": null
+                }
+              }
+            },
+            "alpha": {
+              "events": 2,
+              "horizons": {
+                "1m": {
+                  "events_matched": 2,
+                  "accuracy": 0.5,
+                  "win_rate": 0.5,
+                  "average_return": 0.025000000000000022,
+                  "sharpe_ratio": 1.0,
+                  "mae_mean": 0.0,
+                  "mfe_mean": 0.025000000000000022
+                },
+                "3m": {
+                  "events_matched": 0,
+                  "accuracy": null,
+                  "win_rate": null,
+                  "average_return": null,
+                  "sharpe_ratio": null,
+                  "mae_mean": null,
+                  "mfe_mean": null
+                },
+                "5m": {
+                  "events_matched": 0,
+                  "accuracy": null,
+                  "win_rate": null,
+                  "average_return": null,
+                  "sharpe_ratio": null,
+                  "mae_mean": null,
+                  "mfe_mean": null
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "warnings": []
+}

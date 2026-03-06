@@ -20,6 +20,10 @@ class GuardKnobs:
     runtime_gate_degraded: bool = False
     runtime_gate_reason: str = ""
     runtime_gate_degrade_score: float = 0.0
+    reconcile_first_gate_degraded: bool = False
+    reconcile_first_gate_count: int = 0
+    reconcile_first_gate_max_severity: float = 0.0
+    reconcile_first_gate_max_streak: int = 0
     recovery_stage: str = ""
     unlock_conditions: str = ""
     next_unlock_sec: float = 0.0
@@ -48,6 +52,12 @@ class GuardKnobs:
                 runtime_gate_degraded=bool(value.get("runtime_gate_degraded", False)),
                 runtime_gate_reason=str(value.get("runtime_gate_reason", "") or ""),
                 runtime_gate_degrade_score=float(value.get("runtime_gate_degrade_score", 0.0) or 0.0),
+                reconcile_first_gate_degraded=bool(value.get("reconcile_first_gate_degraded", False)),
+                reconcile_first_gate_count=int(value.get("reconcile_first_gate_count", 0) or 0),
+                reconcile_first_gate_max_severity=float(
+                    value.get("reconcile_first_gate_max_severity", 0.0) or 0.0
+                ),
+                reconcile_first_gate_max_streak=int(value.get("reconcile_first_gate_max_streak", 0) or 0),
                 recovery_stage=str(value.get("recovery_stage", "") or ""),
                 unlock_conditions=str(value.get("unlock_conditions", "") or ""),
                 next_unlock_sec=float(value.get("next_unlock_sec", 0.0) or 0.0),

@@ -1,0 +1,17 @@
+{
+  "date": "2026-03-02",
+  "horizons": [
+    1,
+    5,
+    10,
+    20
+  ],
+  "input": "data\\derived\\state\\interval_ms=100\\symbol=ETHUSDT\\date=2026-03-02\\state.parquet",
+  "interval_ms": 100,
+  "output": "data\\derived\\physics\\interval_ms=100\\symbol=ETHUSDT\\date=2026-03-02\\physics.parquet",
+  "rolling": 500,
+  "rows": 36001,
+  "symbol": "ETHUSDT",
+  "ts_max": 1772425611997,
+  "ts_min": 1772422012000
+}

@@ -1,0 +1,19 @@
+{
+  "ts_utc": "2026-03-05T14:24:09Z",
+  "passed": false,
+  "gate": {
+    "window_days": 7,
+    "required_max_top_score": 0.5,
+    "coverage_ok": false,
+    "score_ok": false,
+    "days_observed": 1,
+    "days": [
+      {
+        "date": "2026-03-05",
+        "top_name": "Insufficient/Noisy Evidence",
+        "top_score": 1.8000000000000003,
+        "path": "reports\\daily\\2026-03-05_LIVE_FILL_DRIFT_ROOT_CAUSE.json"
+      }
+    ]
+  }
+}

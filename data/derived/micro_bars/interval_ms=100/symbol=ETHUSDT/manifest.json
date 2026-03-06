@@ -1,0 +1,29 @@
+{
+  "dates": [
+    {
+      "date": "2026-03-02",
+      "interval_ms": 100,
+      "params": {
+        "db": "data\\microstructure.db",
+        "rv_window_sec": 5.0,
+        "window_sec": 3600
+      },
+      "rows": 36001,
+      "symbol": "ETHUSDT",
+      "ts_max": 1772425611997,
+      "ts_min": 1772422012000
+    }
+  ],
+  "end_ts": 1772425612.0,
+  "generated_utc": "2026-03-02T04:27:11.796573+00:00",
+  "interval_ms": 100,
+  "start_ts": 1772422012.0,
+  "symbol": "ETHUSDT",
+  "windows": [
+    {
+      "end_ts": 1772425612.0,
+      "rows": 36001,
+      "start_ts": 1772422012.0
+    }
+  ]
+}

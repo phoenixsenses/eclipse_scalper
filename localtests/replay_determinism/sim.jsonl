@@ -1,0 +1,2 @@
+{"event_id": "evt1", "symbol": "ETHUSDT", "side": "BUY", "entry_time": 1700001000.0, "filled": true, "fill_delay_sec": 3.0, "pnl_bps": 0.5, "max_adverse_bps": 0.8}
+{"event_id": "evt2", "symbol": "ETHUSDT", "side": "SELL", "entry_time": 1700001010.0, "filled": true, "fill_delay_sec": 8.0, "pnl_bps": -0.2, "max_adverse_bps": 1.6}

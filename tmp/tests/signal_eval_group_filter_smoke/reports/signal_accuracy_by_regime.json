@@ -1,0 +1,105 @@
+{
+  "meta": {
+    "build_time_utc": "2026-02-19T03:29:52.056487+00:00",
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "rows_total": 220,
+    "events_total": 3,
+    "events_per_symbol": {
+      "BTCUSDT": 3
+    },
+    "event_col": "signal_state",
+    "event_mode": "change",
+    "min_gap_sec": 0,
+    "group_by": "signal_state",
+    "group_include_regex": null,
+    "group_exclude_regex": "intent\\.ledger",
+    "groups_total": 3,
+    "groups_kept": 2,
+    "groups_dropped": 1,
+    "events_total_before_filter": 3,
+    "events_total_after_filter": 3,
+    "events_dropped": 0,
+    "event_mode_resolved": "change",
+    "input_path": "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\tmp\\tests\\signal_eval_group_filter_smoke\\data\\canonical\\canonical_merged.parquet",
+    "regime_input_path": "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\tmp\\tests\\signal_eval_group_filter_smoke\\data\\canonical\\canonical_regimes.parquet"
+  },
+  "by_symbol": {
+    "BTCUSDT": {
+      "events": 3,
+      "by_regime": {
+        "QUIET": {
+          "events": 3,
+          "by_group": {
+            "ALL": {
+              "events": 3,
+              "horizons": {
+                "1m": {
+                  "events_matched": 2,
+                  "accuracy": 1.0,
+                  "win_rate": 1.0,
+                  "average_return": 0.002732249502322426,
+                  "sharpe_ratio": 549.0000000034354,
+                  "mae_mean": 0.0,
+                  "mfe_mean": 0.002732249502322426
+                },
+                "3m": {
+                  "events_matched": 1,
+                  "accuracy": 1.0,
+                  "win_rate": 1.0,
+                  "average_return": 0.008211678832116709,
+                  "sharpe_ratio": null,
+                  "mae_mean": 0.0,
+                  "mfe_mean": 0.008211678832116709
+                },
+                "5m": {
+                  "events_matched": 0,
+                  "accuracy": null,
+                  "win_rate": null,
+                  "average_return": null,
+                  "sharpe_ratio": null,
+                  "mae_mean": null,
+                  "mfe_mean": null
+                }
+              }
+            },
+            "event=LIQ_CASCADE;dir=SHORT_LIQ": {
+              "events": 1,
+              "horizons": {
+                "1m": {
+                  "events_matched": 1,
+                  "accuracy": 1.0,
+                  "win_rate": 1.0,
+                  "average_return": 0.0027272727272726893,
+                  "sharpe_ratio": null,
+                  "mae_mean": 0.0,
+                  "mfe_mean": 0.0027272727272726893
+                },
+                "3m": {
+                  "events_matched": 0,
+                  "accuracy": null,
+                  "win_rate": null,
+                  "average_return": null,
+                  "sharpe_ratio": null,
+                  "mae_mean": null,
+                  "mfe_mean": null
+                },
+                "5m": {
+                  "events_matched": 0,
+                  "accuracy": null,
+                  "win_rate": null,
+                  "average_return": null,
+                  "sharpe_ratio": null,
+                  "mae_mean": null,
+                  "mfe_mean": null
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "warnings": []
+}

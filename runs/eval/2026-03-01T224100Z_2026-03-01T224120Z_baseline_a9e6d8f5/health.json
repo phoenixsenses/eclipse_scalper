@@ -1,0 +1,9 @@
+{
+  "decisions_emitted": 429,
+  "events_replayed": 2147,
+  "fills_emitted": 61,
+  "reason": "",
+  "state": "ok",
+  "ts_end_utc": "2026-03-01T22:41:20Z",
+  "ts_start_utc": "2026-03-01T22:41:00Z"
+}

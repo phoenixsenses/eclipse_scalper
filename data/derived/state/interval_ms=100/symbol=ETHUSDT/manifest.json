@@ -1,0 +1,17 @@
+{
+  "generated_utc": "2026-03-02T04:27:17.829861+00:00",
+  "interval_ms": 100,
+  "partitions": [
+    {
+      "date": "2026-03-02",
+      "input": "data\\derived\\micro_bars\\interval_ms=100\\symbol=ETHUSDT\\date=2026-03-02\\bars.parquet",
+      "interval_ms": 100,
+      "output": "data\\derived\\state\\interval_ms=100\\symbol=ETHUSDT\\date=2026-03-02\\state.parquet",
+      "rows": 36001,
+      "symbol": "ETHUSDT",
+      "ts_max": 1772425611997,
+      "ts_min": 1772422012000
+    }
+  ],
+  "symbol": "ETHUSDT"
+}

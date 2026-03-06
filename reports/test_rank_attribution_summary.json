@@ -1,0 +1,27 @@
+{
+  "source": "reports\\test_rank_attribution_input_out.json",
+  "rows_total": 2,
+  "top_n": 1,
+  "reason_share": {
+    "fees_dominate": 0.5,
+    "mixed": 0.5
+  },
+  "gate_high_share": 0.5,
+  "next_action": "Next action: mixed causes. Iterate jointly on costs, adverse filters, and signal quality.",
+  "run_summary": {
+    "version": "v1",
+    "run_type": "summarize_rank_attribution",
+    "inputs": {
+      "source": "reports\\test_rank_attribution_input_out.json",
+      "top_n": 1
+    },
+    "metrics": {
+      "rows_total": 2,
+      "top_n": 1,
+      "gate_high_share": 0.5
+    },
+    "artifacts": {
+      "json": "reports\\test_rank_attribution_summary.json"
+    }
+  }
+}

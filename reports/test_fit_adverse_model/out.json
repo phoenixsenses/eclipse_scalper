@@ -1,0 +1,53 @@
+{
+  "version": "1.0",
+  "tool": "fit_adverse_model",
+  "generated_utc": "2026-03-05T00:00:00Z",
+  "git_hash": "abc1234",
+  "inputs": {
+    "db": "data/microstructure.db",
+    "symbols": [
+      "ETHUSDT"
+    ],
+    "lookback_min": 1440,
+    "bucket_sec": 1,
+    "rule": "micro_edge_v3_passive_alpha",
+    "horizon_sec": 120,
+    "side": "LONG"
+  },
+  "per_symbol": {
+    "ETHUSDT": {
+      "n_total_buckets": 10,
+      "n_signal_buckets": 5,
+      "statistics": {
+        "global_mean_adverse_bps": 1.5,
+        "global_std_adverse_bps": 0.4,
+        "percentiles": {}
+      },
+      "conditional": {},
+      "implied_adverse_mult_vs_1bps": 1.5
+    }
+  },
+  "run_summary": {
+    "version": "v1",
+    "run_type": "fit_adverse_model",
+    "inputs": {
+      "db": "data/microstructure.db",
+      "symbols": [
+        "ETHUSDT"
+      ],
+      "lookback_min": 1440,
+      "bucket_sec": 1,
+      "rule": "micro_edge_v3_passive_alpha",
+      "horizon_sec": 120,
+      "side": "LONG"
+    },
+    "metrics": {
+      "symbol_count": 1,
+      "error_count": 0
+    },
+    "artifacts": {
+      "json": "reports\\test_fit_adverse_model\\out.json",
+      "md": "reports\\test_fit_adverse_model\\out.md"
+    }
+  }
+}

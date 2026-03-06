@@ -1,0 +1,19 @@
+{
+  "adverse": {
+    "buy_mean": 0.0,
+    "sell_mean": 0.0
+  },
+  "maker_hazard": {
+    "a": 1.22,
+    "b": -0.7,
+    "c": 0.5501002004008017,
+    "d": -0.5,
+    "fill_threshold": 0.5,
+    "ttl_bars": 8
+  },
+  "maker_queue": {
+    "min_depth": 1.0,
+    "queue_frac": 0.2,
+    "ttl_bars": 8
+  }
+}

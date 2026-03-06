@@ -874,6 +874,51 @@ The workflow `.github/workflows/telemetry-dashboard.yml` runs the dashboard help
 
 For operational procedures (manual trigger/watch, RED_LOCK smoke, reset smoke, and incident triage), see `docs/telemetry_runbook.md`.
 
+## Operational Runbook
+
+### Paper trading (normal)
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start_paper_trading.ps1
+```
+
+### Bootstrap smoke (network-safe, no exchange init)
+```powershell
+$env:BOOTSTRAP_SMOKE_ONLY='1'
+$env:BOOTSTRAP_SKIP_EXCHANGE_INIT='1'
+$env:BOOTSTRAP_SMOKE_SEC='2'
+python -m execution.bootstrap 2>&1 | Select-Object -First 60
+$env:BOOTSTRAP_SMOKE_ONLY=$null
+$env:BOOTSTRAP_SKIP_EXCHANGE_INIT=$null
+$env:BOOTSTRAP_SMOKE_SEC=$null
+```
+
+### Supervisor (auto-restart)
+```powershell
+python scripts\supervisor.py
+```
+
+### DB maintenance
+```powershell
+python -m tools.db_maintenance
+```
+
+### Telegram command bot
+```powershell
+python -m tools.telegram_bot
+```
+
+### Daily report
+```powershell
+python -m tools.daily_report
+```
+
+### Day-60 sweep pipeline
+```powershell
+python -m tools.run_full_sweep --candidates-md reports/FILTER_SWEEP_PASSIVE_REALISTIC_ETH.md --workers 2 --output-dir runs/day60_latest
+python -m tools.aggregate_sweep_results --run-dir runs/day60_latest --out reports/DAY60_MASTER_RESULTS.md
+python -m tools.evaluate_go_nogo --manifest runs/day60_latest/manifest.json --out reports/GO_NOGO_FRAMEWORK.md
+```
+
 ```bash
 python eclipse_scalper/tools/telemetry_dashboard_notify.py --path logs/telemetry.jsonl --codes-per-symbol --codes-top 4
 ```
@@ -1095,7 +1140,28 @@ It explains how alpha decisions, sizing/leverage controls, correlation caps, and
 - Incident review template:
   - `.github/ISSUE_TEMPLATE/reliability_incident_review.md`
 
-The new chaos scenario test suite (`tools/test_execution_chaos_scenarios.py`) is wired into CI so timeout/duplicate/partial-fill and reconcile contradiction paths are checked on each push/PR.
+The new chaos scenario test suite (`tests/legacy_tools/test_execution_chaos_scenarios.py`) is wired into CI so timeout/duplicate/partial-fill and reconcile contradiction paths are checked on each push/PR.
+
+---
+
+## Tooling Contract
+
+Research and runtime report producers now follow a shared JSON contract:
+
+- JSON-producing tools should emit `run_summary`
+- `run_summary` contains `version`, `run_type`, `inputs`, `metrics`, and `artifacts`
+- bulk validation is available through `python -m tools.report_check`
+- inventory/audit is available through `python -m tools.tooling_audit`
+
+Useful commands:
+
+```bash
+python -m tools.report_check --inputs reports/*.json --out-json reports/REPORT_CHECK.json
+python -m tools.tooling_audit --out-json reports/TOOL_MANIFEST.json --out-md docs/TOOLING_AUDIT.md
+python -m tools.smoke_all --db data/definitely_missing_for_smoke.db
+```
+
+The active audit snapshot is kept in `docs/TOOLING_AUDIT.md`.
 
 ---
 
@@ -1110,26 +1176,77 @@ python tools/run_unit_tests.py
 Run the new exit-telemetry helper test directly when you touch `execution.exit`:
 
 ```bash
-python tools/test_exit_telemetry_helper_unit.py
+python tests/legacy_tools/test_exit_telemetry_helper_unit.py
 ```
 
 Recent targeted tests added for telemetry/sizing/exit behavior:
 
 ```bash
-python tools/test_adaptive_guard_unit.py
-python tools/test_entry_qty_scale_unit.py
-python tools/test_entry_conf_scale_unit.py
-python tools/test_entry_symbol_sizing_unit.py
-python tools/test_corr_group_exposure_scale_unit.py
-python tools/test_exit_atr_scale_unit.py
-python tools/test_exit_symbol_overrides_unit.py
-python tools/test_exit_quality_dashboard_unit.py
-python tools/test_position_closed_unit.py
+python tests/legacy_tools/test_adaptive_guard_unit.py
+python tests/legacy_tools/test_entry_qty_scale_unit.py
+python tests/legacy_tools/test_entry_conf_scale_unit.py
+python tests/legacy_tools/test_entry_symbol_sizing_unit.py
+python tests/legacy_tools/test_corr_group_exposure_scale_unit.py
+python tests/legacy_tools/test_exit_atr_scale_unit.py
+python tests/legacy_tools/test_exit_symbol_overrides_unit.py
+python tests/legacy_tools/test_exit_quality_dashboard_unit.py
+python tests/legacy_tools/test_position_closed_unit.py
 ```
 Run a single test:
 
 ```bash
-python tools/test_diagnostics_unit.py
+python tests/legacy_tools/test_diagnostics_unit.py
+```
+
+## Microstructure Physics Layer (Phase 1)
+
+Build the research layer on top of the existing `data/microstructure.db` collector output.
+
+```bash
+# 0) Inspect current sqlite schema
+python -m tools.db_introspect --db data/microstructure.db --out-md reports/db_schema.md --out-json reports/db_tables.json
+
+# 1) Build canonical micro bars (partitioned parquet)
+python -m tools.build_micro_features --db data/microstructure.db --symbol ETHUSDT --interval-ms 100 --out data/derived/micro_bars
+
+# 2) Build state vectors from micro bars
+python -m tools.build_state --in data/derived/micro_bars --symbol ETHUSDT --interval-ms 100 --out data/derived/state
+
+# 3) Generate sanity report + plots
+python -m tools.report_state_sanity --state data/derived/state --symbol ETHUSDT --interval-ms 100 --out reports/state_sanity_ETHUSDT_100ms.md
+```
+
+## Microstructure Physics Layer (Phase 2)
+
+Build empirical physics datasets and reports from Phase 1 state outputs.
+
+```bash
+# 1) Build physics signals
+python -m tools.build_physics_signals --state data/derived/state --symbol ETHUSDT --interval-ms 100 --rolling 500 --horizons 1,5,10,20 --out data/derived/physics
+
+# 2) Estimate impact laws (linear vs sqrt)
+python -m tools.estimate_impact --physics data/derived/physics --symbol ETHUSDT --interval-ms 100 --out data/derived/impact --out-report reports/impact_ETHUSDT_100ms.md
+
+# 3) Estimate propagator response kernel
+python -m tools.estimate_propagator --physics data/derived/physics --symbol ETHUSDT --interval-ms 100 --max-lag 200 --out data/derived/propagator --out-report reports/propagator_ETHUSDT_100ms.md
+
+# 4) Run validation harness
+python -m tools.physics_validation --physics data/derived/physics --impact data/derived/impact --propagator data/derived/propagator --symbol ETHUSDT --interval-ms 100 --out reports/physics_validation_ETHUSDT_100ms.md
+```
+
+## Microstructure Physics Layer (Phase 3)
+
+Regime slicing + regime-stability metrics + execution-coupled fast eval.
+
+```bash
+# 1) Build regimes from physics features
+python -m tools.build_regimes --physics data/derived/physics --symbol ETHUSDT --interval-ms 100 --method hmm --n-regimes 4 --rolling 2000 --out data/derived/regimes
+
+# 2) Compute physics metrics by regime
+python -m tools.physics_by_regime --physics data/derived/physics --regimes data/derived/regimes --symbol ETHUSDT --interval-ms 100 --tau-max 200 --out data/derived/physics_regime_metrics --report reports/physics_by_regime_ETHUSDT_100ms.md
+
+# 3) Execution-coupled evaluation (fees/spread/adverse/latency)
+python -m tools.execution_coupled_eval --physics data/derived/physics --regimes data/derived/regimes --symbol ETHUSDT --interval-ms 100 --horizon 10 --fee-bps 0.5 --latency-bars 2 --mode taker --out reports/execution_coupled_eval_ETHUSDT_100ms.md
 ```
 
 ---
@@ -1249,4 +1366,537 @@ Used carelessly, it teaches you faster.
 
 Proceed deliberately.
 
+## Phase 4 Commands
+
+```bash
+# 1) built-in signal catalog
+python -m tools.list_signals
+
+# 2) candidate generation
+python -m tools.generate_alpha_candidates --symbol ETHUSDT --interval-ms 100
+
+# 3) walk-forward evaluation
+python -m tools.eval_alpha_walkforward \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --candidates data/derived/alpha_candidates/symbol=ETHUSDT/interval_ms=100/candidates.jsonl \
+  --symbol ETHUSDT --interval-ms 100 --splits 3 --mode taker --fee-bps 0.5 --latency-bars 2
+
+# 4) robust selection + ensemble
+python -m tools.select_alpha \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --eval data/derived/alpha_eval/interval_ms=100/symbol=ETHUSDT/eval.parquet \
+  --candidates data/derived/alpha_candidates/symbol=ETHUSDT/interval_ms=100/candidates.jsonl \
+  --symbol ETHUSDT --interval-ms 100
+
+# 5) papertrade log from ensemble
+python -m tools.generate_papertrades \
+  --physics data/derived/physics \
+  --ensemble data/derived/alpha_eval/interval_ms=100/symbol=ETHUSDT/ensemble.parquet \
+  --symbol ETHUSDT --interval-ms 100 --mode taker --fee-bps 0.5
+```
+
+## Phase 4.4 One-Command Runner
+
+```bash
+python -m tools.run_alpha_pipeline \
+  --symbol ETHUSDT \
+  --interval-ms 100 \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --out-root data/runs/alpha \
+  --days-calibration 14 \
+  --limit 600 \
+  --target-triggers-per-day 200 \
+  --jaccard-thr 0.9 \
+  --splits 3 \
+  --mode taker \
+  --fee-bps 0.5 \
+  --latency-bars 2 \
+  --horizons 5,10,20 \
+  --max-trades-per-day 500
+```
+
+Artifacts are written under a per-run folder:
+
+- `manifest.json` (step status / resume state)
+- `params.json` (resolved run params)
+- `pointers.json` (paths to candidates/eval/ensemble/papertrades artifacts)
+- `logs.jsonl` (step events)
+- `reports/*.md`
+- Optional execution realism artifacts:
+  - `artifacts/execution/params.json`
+  - `reports/execution_realism.md`
+
+Zero-config handoff:
+- If `run_alpha_pipeline` is executed with `--calibrate-execution`, it writes `execution_params_json` into `pointers.json`.
+- `run_live_papertrade` auto-loads this from the latest completed run when `--execution-params` is not provided.
+
+## Phase 5 Live Papertrade (Research Mode)
+
+```bash
+# run daemon
+python -m tools.run_live_papertrade \
+  --db data/microstructure.db \
+  --symbol ETHUSDT \
+  --interval-ms 100 \
+  --lookback-hours 24 \
+  --refresh-sec 30 \
+  --mode taker \
+  --fee-bps 0.5 \
+  --latency-bars 2 \
+  --out-root data/live
+
+# render status markdown from live snapshots
+python -m tools.report_live_status --live data/live --out reports/live_status.md
+
+# write daily/weekly run plan hints
+python -m tools.schedule_alpha_runs --out data/runs/alpha/run_plan.json
+```
+
+## Phase 6 Execution Realism
+
+```bash
+# 1) build execution features
+python -m tools.build_execution_features \
+  --micro-bars data/derived/micro_bars \
+  --symbol ETHUSDT --interval-ms 100 \
+  --out data/derived/execution_sim
+
+# 2) calibrate execution params
+python -m tools.calibrate_execution_models \
+  --physics data/derived/physics \
+  --symbol ETHUSDT --interval-ms 100 \
+  --out data/derived/execution_calibration
+
+# 3) simulate maker fills
+python -m tools.simulate_maker_fills \
+  --physics data/derived/physics \
+  --exec-features data/derived/execution_sim \
+  --symbol ETHUSDT --interval-ms 100 \
+  --model maker_queue \
+  --params data/derived/execution_calibration/interval_ms=100/symbol=ETHUSDT/params.json
+
+# 4) run eval with realistic execution
+python -m tools.eval_alpha_walkforward \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --candidates data/derived/alpha_candidates/symbol=ETHUSDT/interval_ms=100/candidates_deduped.jsonl \
+  --symbol ETHUSDT --interval-ms 100 --splits 3 \
+  --execution-model maker_queue \
+  --execution-params data/derived/execution_calibration/interval_ms=100/symbol=ETHUSDT/params.json
+```
+
+## Phase 7 Online Calibration + Activation
+
+```bash
+# 1) one-command build + validate + activate
+python -m tools.activate_online_artifacts \
+  --live-root data/live \
+  --build-calibration \
+  --build-execution \
+  --physics data/derived/physics \
+  --symbol ETHUSDT --interval-ms 100 \
+  --sanity-days 1 --days 14
+
+# 2) (optional) explicit validate-only
+python -m tools.validate_artifacts \
+  --calibration data/live/artifacts/calibration/calibration_YYYYMMDD.json \
+  --execution data/live/artifacts/execution/params_YYYYMMDD.json \
+  --physics data/derived/physics --symbol ETHUSDT --interval-ms 100 \
+  --sanity-days 1 \
+  --out-json data/live/artifacts/validate_report.json \
+  --out-report reports/validate_artifacts_ETHUSDT.md
+
+# rollback (if needed)
+python -m tools.activate_online_artifacts --rollback calibration --live-root data/live
+python -m tools.activate_online_artifacts --rollback execution --live-root data/live
+
+# optional rollup report
+python -m tools.report_calibration_rollups --live-root data/live --out reports/calibration_rollups.md
+```
+
+Live daemon flags for active artifact behavior:
+- `--use-active-artifacts` / `--no-use-active-artifacts`
+- `--disable-online-reload`
+
+## Phase 8 Multi-Symbol Generalization
+
+```bash
+# 1) one-command multi run + auto reports (Phase 8.1)
+python -m tools.run_alpha_multi \
+  --symbols ETHUSDT,BTCUSDT \
+  --interval-ms 100 \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --out-root data/runs/alpha_multi \
+  --with-reports \
+  --reports-out reports/multi_symbol \
+  --metrics-out data/derived/multi_symbol_metrics
+
+# writes pointer: data/runs/alpha_multi/LATEST.json
+
+# 2) run per-symbol alpha pipelines under one multi manifest
+python -m tools.run_alpha_multi \
+  --symbols ETHUSDT,BTCUSDT \
+  --interval-ms 100 \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --out-root data/runs/alpha_multi \
+  --seed 42 --splits 3 \
+  --mode taker --fee-bps 0.5 --latency-bars 2 \
+  --target-triggers-per-day 200 \
+  --jaccard-thr 0.9
+
+# 3) comparative rollup
+python -m tools.report_multi_symbol_rollup \
+  --multi-manifest data/runs/alpha_multi/<multi_run_id>/manifest.json \
+  --out-md reports/multi_symbol/rollup.md \
+  --out-parquet data/derived/multi_symbol_metrics/rollup.parquet
+
+# 4) generalization by signal families
+python -m tools.report_generalization \
+  --multi-manifest data/runs/alpha_multi/<multi_run_id>/manifest.json \
+  --out-md reports/multi_symbol/generalization.md \
+  --out-parquet data/derived/multi_symbol_metrics/generalization.parquet
+
+# optional: per-symbol online refresh plans
+python -m tools.schedule_online_calibration_multi \
+  --symbols ETHUSDT,BTCUSDT \
+  --out-root data/live \
+  --physics data/derived/physics \
+  --interval-ms 100
+```
+
+## Phase 9 Cross-Asset Transfer (No Refit)
+
+```bash
+# 1) export source specs from a completed run
+python -m tools.export_selected_specs \
+  --run-dir data/runs/alpha/<run_id> \
+  --from selected \
+  --k 20 \
+  --source-symbol ETHUSDT \
+  --out data/derived/transfer
+
+# 2) evaluate strict transfer on target (source calibration)
+python -m tools.eval_transfer \
+  --exported data/derived/transfer/source=ETHUSDT/run=<run_id>/exported_specs.jsonl \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --source-symbol ETHUSDT \
+  --target-symbol BTCUSDT \
+  --interval-ms 100 \
+  --splits 3 --seed 42 \
+  --mode taker --fee-bps 0.5 --latency-bars 2 \
+  --execution-model simple \
+  --calibration-mode source \
+  --out data/derived/transfer \
+  --report reports/transfer/transfer_ETH_to_BTC.md
+```
+
+## Phase 9.1 Transfer Matrix (ETH↔BTC)
+
+```bash
+python -m tools.run_transfer_matrix \
+  --symbols ETHUSDT,BTCUSDT \
+  --interval-ms 100 \
+  --splits 3 --seed 42 \
+  --mode taker --fee-bps 0.5 --latency-bars 2 \
+  --execution-model maker_hazard \
+  --calibration-mode source \
+  --k 20 \
+  --from topk \
+  --score-col test_sharpe \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --out data/derived/transfer_matrix \
+  --reports-out reports/transfer
+```
+
+## Phase 10 Regime Alignment + Transfer-by-Regime
+
+```bash
+# 1) Build aligned regimes across symbols
+python -m tools.build_regime_alignment \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --symbols ETHUSDT,BTCUSDT \
+  --interval-ms 100 \
+  --method kmeans_global \
+  --k 6 \
+  --sample-rows 500000 \
+  --out data/derived/regime_alignment \
+  --report reports/transfer/regime_alignment.md
+
+# 2) Slice transfer results by aligned regimes
+python -m tools.report_transfer_by_aligned_regime \
+  --matrix-manifest data/derived/transfer_matrix/<matrix_run>/manifest.json \
+  --aligned-regimes data/derived/regime_alignment/interval_ms=100/aligned_regimes.parquet \
+  --out-parquet data/derived/regime_alignment/transfer_by_regime.parquet \
+  --out-md reports/transfer/transfer_by_aligned_regime.md
+
+# 3) Optional one-command matrix + alignment
+python -m tools.run_transfer_matrix \
+  --symbols ETHUSDT,BTCUSDT \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --with-regime-alignment \
+  --reports-out reports/transfer
+```
+
+## Phase 11 Regime Experts + Gating
+
+```bash
+# 1) Build regime-specialized experts (+ penalties from transfer-by-regime)
+python -m tools.build_ensemble_regime_experts \
+  --eval data/derived/alpha_eval/interval_ms=100/symbol=ETHUSDT/eval.parquet \
+  --trades data/derived/alpha_eval/interval_ms=100/symbol=ETHUSDT/trades.parquet \
+  --aligned-regimes data/derived/regime_alignment/interval_ms=100/aligned_regimes.parquet \
+  --transfer-by-regime data/derived/regime_alignment/transfer_by_regime.parquet \
+  --symbol ETHUSDT \
+  --interval-ms 100 \
+  --out data/derived/alpha_eval \
+  --report reports/ensemble_regime_experts.md
+
+# 2) Gating diagnostics report
+python -m tools.report_ensemble_gating \
+  --gating data/derived/alpha_eval/interval_ms=100/symbol=ETHUSDT/ensemble_gating.parquet \
+  --out reports/ensemble_gating.md
+
+# 3) Optional live usage
+python -m tools.run_live_papertrade \
+  --symbol ETHUSDT \
+  --use-regime-experts \
+  --experts-path data/derived/alpha_eval/interval_ms=100/symbol=ETHUSDT/ensemble_regime_experts.parquet
+```
+
+## Phase 11.1 Auto-Wired Regime Experts (run -> pointers -> live)
+
+```bash
+# build full run and emit regime experts inside run folder
+python -m tools.run_alpha_pipeline \
+  --symbol ETHUSDT \
+  --interval-ms 100 \
+  --physics data/derived/physics \
+  --regimes data/derived/regimes \
+  --build-regime-experts
+
+# live daemon auto-resolves latest run pointers (no manual experts path)
+python -m tools.run_live_papertrade \
+  --symbol ETHUSDT \
+  --use-regime-experts
+```
+
+New run pointers (when experts are built):
+- `ensemble_regime_experts_parquet`
+- `ensemble_gating_parquet`
+- `ensemble_regime_experts_manifest_json`
+- `ensemble_regime_experts_report_md`
+- `ensemble_gating_report_md`
+- `aligned_regimes_path`
+- `transfer_by_regime_path`
+
+## Phase 12 Risk Engine (Paper Only)
+
+```bash
+# optional: write a baseline risk policy doc/json
+python -m tools.write_risk_policy_doc \
+  --out-md reports/risk_policy.md \
+  --out-json data/live/risk_policy.json \
+  --starting-equity 10000
+
+# live daemon with risk sizing + portfolio + kill switch
+python -m tools.run_live_papertrade \
+  --symbol ETHUSDT \
+  --use-regime-experts \
+  --enable-risk-engine \
+  --risk-policy data/live/risk_policy.json \
+  --starting-equity 10000
+
+# diagnostics from live artifacts
+python -m tools.report_risk_diagnostics \
+  --live-root data/live \
+  --out reports/risk_diagnostics.md
+```
+
+Risk outputs:
+- `data/live/risk_snapshot.json`
+- `data/live/positions_live.parquet`
+- `logs/risk_events.jsonl`
+
+Bootstrap symbol resolution chain (highest precedence first):
+1. `ACTIVE_SYMBOLS` from environment (`.env.paper`/process env)
+2. `bot.active_symbols` (after factory build, env bridge re-applied)
+3. `cfg.ACTIVE_SYMBOLS`
+
+## Network Troubleshooting (Operational Resilience)
+
+- WebSocket reconnect behavior: collector uses exponential backoff + jitter and emits heartbeat fields (`connected`, `current_backoff_seconds`, `last_error`).
+- Quick audit command:
+```bash
+python -m tools.reconnection_audit --heartbeat logs/collector_heartbeat.json --out reports/RECONNECTION_AUDIT.md
+```
+- If Binance WS is intermittently blocked by ISP path:
+1. Validate DNS and TLS first (`run_connect_test` mode in collector).
+2. Route traffic through stable VPN or SOCKS5 proxy path.
+3. Re-run connect test and confirm heartbeat `connected=1`.
+- Rate-limit telemetry: bootstrap logs `[RATE_LIMIT] used_1m=... usage_pct=...` and warns near threshold (`RATE_LIMIT_WARN_PCT`, default 80).
+
+## Monitoring & Analytics (Track 3)
+
+```bash
+# Telegram command bot (/status /chart /regime /health)
+python -m tools.telegram_bot
+
+# Daily report once
+python -m tools.daily_report --push --weekly
+
+# Daily scheduled report at 00:05 UTC
+python -m tools.daily_report --schedule --at-utc 00:05 --push --weekly
+
+# Feature stationarity + time-of-day reports
+python -m tools.feature_distribution_analysis \
+  --db data/microstructure.db \
+  --trades-db data/paper_trades.db \
+  --symbol ETHUSDT \
+  --lookback-hours 168 \
+  --out reports/FEATURE_STATIONARITY.md \
+  --tod-out reports/TIME_OF_DAY_ANALYSIS.md
+```
+
+## Backtest Tooling Improvements (Track 4)
+
+```bash
+# statistically robust pocket ranking with bootstrap + MTC
+python -m tools.rank_passive_pockets_forward \
+  --candidates-md reports/PASSIVE_POCKET_RANKING.md \
+  --bootstrap-ci --bootstrap-samples 2000 \
+  --mtc-method bh --alpha 0.05 --splits 5
+
+# scratch calibration with explicit scratch slippage
+python -m tools.backtest_scratch \
+  --symbol ETHUSDT --side SELL --regime UP \
+  --scratch-slippage-bps 0.5 --scratch-taker-fee-bps 1.0
+
+# funding exposure summary
+python -m tools.funding_rate_analysis \
+  --trades-db data/paper_trades.db \
+  --micro-db data/microstructure.db \
+  --symbol ETHUSDT
+
+# paper-vs-backtest reconciliation
+python -m tools.reconcile_paper_vs_backtest \
+  --paper-db data/paper_trades.db \
+  --rank-json reports/PASSIVE_POCKET_RANKING.json \
+  --out reports/RECONCILIATION.md
+```
+
+Methodology reference: `reports/METHODOLOGY.md`
+
+## Frontend CI Local Smoke
+
+```powershell
+cd "C:\Users\Windows 11\.vscode\CryptoLion\eclipse_scalper\dashboard\frontend"
+cmd /c npm install
+cmd /c npm run typecheck
+cmd /c npm test
+```
+
+If npm cache/permission errors (`EACCES`) occur on Windows, rerun in Administrator PowerShell:
+
+```powershell
+cd "C:\Users\Windows 11\.vscode\CryptoLion\eclipse_scalper\dashboard\frontend"
+cmd /c npm cache verify
+cmd /c npm install
+cmd /c npm run typecheck
+cmd /c npm test
+```
+
+## Dashboard Full Smoke Checklist
+
+One-command smoke (optionally starts services):
+```powershell
+cd "C:\Users\Windows 11\.vscode\CryptoLion\eclipse_scalper"
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\dashboard_smoke.ps1
+# or auto-start backend+frontend before checks:
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\dashboard_smoke.ps1 -StartServices
+```
+
+1. Start backend:
+```powershell
+cd "C:\Users\Windows 11\.vscode\CryptoLion\eclipse_scalper"
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\run_dashboard_backend.ps1
+```
+
+2. Start frontend (separate terminal):
+```powershell
+cd "C:\Users\Windows 11\.vscode\CryptoLion\eclipse_scalper"
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\run_dashboard_frontend.ps1
+```
+
+3. API quick checks:
+- `http://127.0.0.1:8765/api/health`
+- `http://127.0.0.1:8765/api/logs`
+- `http://127.0.0.1:8765/api/debug/actions`
+
+4. UI quick checks (`http://localhost:5173`):
+- `Overview` loads and shows runtime cards.
+- `Logs` file selection loads lines; preset filters work.
+- `Debug` guided session runs and shows pass/fail steps.
+
+## Team Workflow
+
+Two-person parallel work is now standardized in-repo.
+
+Core docs:
+
+- `docs/GITHUB_COLLAB_SYSTEM.md`
+- `docs/TEAM_OWNERSHIP.md`
+- `docs/WORKTREE_SETUP.md`
+- `docs/RUNBOOK_PARALLEL_WORK.md`
+
+Lane split:
+
+- `research`: `data/`, `features/`, `strategies/`, `tools/`, `tests/`
+- `runtime`: `execution/`, `risk/`, `bot/`, `exchanges/`, `notifications/`, `dashboard/`, `monitoring/`
+- `shared`: `config/`, `docs/`, `README.md`, `.github/`, `scripts/`
+
+Recommended local branches:
+
+- `codex/research-mainline`
+- `codex/runtime-mainline`
+- `codex/shared-mainline`
+
+Helper setup:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup_parallel_worktrees.ps1 -CreateShared
+```
+
+
+
+## Network Troubleshooting (Operational Resilience)
+
+If websocket connectivity to Binance is unstable (common under ISP routing issues):
+
+1. Verify collector reconnect behavior:
+   - Run `python -m tools.reconnection_audit`
+   - Check `reports/RECONNECTION_AUDIT.md`
+
+2. Enable supervisor and auto-start on boot:
+   - `python scripts/supervisor.py`
+   - `powershell -ExecutionPolicy Bypass -File .\\scripts\\install_task_scheduler.ps1`
+
+3. Rate-limit monitoring:
+   - Bootstrap logs `[RATE_LIMIT] used_1m=... usage_pct=...`
+   - Warning threshold defaults to `80%` (`RATE_LIMIT_WARN_PCT`)
+   - Telegram alerts can be enabled via:
+     - `RATE_LIMIT_ALERT_ENABLED=1`
+     - `RATE_LIMIT_ALERT_COOLDOWN_SEC=300`
+
+4. Optional proxy/VPN fallback (if regional WS blocking is suspected):
+   - Route websocket traffic through a stable SOCKS5/VPN endpoint.
+   - Validate with long-run collector uptime and reconnect count in health reports.
 

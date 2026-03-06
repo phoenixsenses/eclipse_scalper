@@ -12,16 +12,32 @@ import time
 import numpy as np
 from pathlib import Path
 from typing import Any, Optional
+import inspect
 
 from utils.logging import log_entry, log, log_risk
+from utils.symbols import canonical_symbol
 from strategies.eclipse_scalper import scalper_signal as generate_signal
+try:
+    from strategies.eclipse_scalper import get_last_signal_diag as _get_last_signal_diag  # type: ignore
+except Exception:
+    _get_last_signal_diag = None  # type: ignore
 from strategies.risk import portfolio_heat
 from brain.state import Position
 from brain.persistence import save_brain
 from ta.volatility import AverageTrueRange
 
 from execution.order_router import create_order, cancel_order
+from execution.runtime_helpers import (
+    parse_group_kv as _parse_group_kv,
+    parse_symbol_kv as _parse_symbol_kv,
+    safe_float as _safe_float,
+    symkey as _symkey,
+)
 from risk.kill_switch import trade_allowed
+try:
+    from core.order_placement import OrderPlacementEngine  # type: ignore
+except Exception:
+    OrderPlacementEngine = None  # type: ignore
 
 try:
     from execution.telemetry_recovery import get_active_state  # type: ignore
@@ -50,22 +66,16 @@ _SYMBOL_LOCKS: dict[str, asyncio.Lock] = {}
 
 # Skip logging throttle (prevents spam)
 _SKIP_LAST: dict[str, float] = {}
+_ENTRY_TRACE_LAST: dict[str, float] = {}
+_ENTRY_CONF_WINDOW: dict[str, list[float]] = {}
+_ENTRY_CONF_WARN_LAST: dict[str, float] = {}
+_ENTRY_CFG_LOGGED: set[str] = set()
 
 _ANOMALY_ACTIONS_PATH = Path(
     os.getenv("TELEMETRY_ANOMALY_ACTIONS", "logs/telemetry_anomaly_actions.json")
 )
 _ANOMALY_ACTIONS_CACHE: dict[str, Any] = {"ts": 0.0, "data": {}}
 _ANOMALY_CACHE_TTL = 5.0
-
-
-def _symkey(sym: str) -> str:
-    s = str(sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
 
 
 def _load_anomaly_actions() -> dict[str, Any]:
@@ -104,14 +114,54 @@ def _clamp(x: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, x))
 
 
-def _safe_float(x, default=0.0) -> float:
+def _get_order_placement_engine(bot):
+    if OrderPlacementEngine is None:
+        return None
+    eng = getattr(bot, "_order_placement_engine", None)
+    if eng is not None:
+        return eng
     try:
-        v = float(x)
-        if v != v:
-            return default
-        return v
+        eng = OrderPlacementEngine.from_env()
+        setattr(bot, "_order_placement_engine", eng)
+        return eng
     except Exception:
-        return default
+        return None
+
+
+def _resolve_tick_size(bot, sym_raw: str) -> float:
+    env_tick = _safe_float(os.getenv("MICRO_SIGNAL_TICK_SIZE", ""), 0.0)
+    if env_tick > 0:
+        return env_tick
+    try:
+        markets = getattr(getattr(bot, "exchange", None), "markets", None) or {}
+        m = markets.get(sym_raw) if isinstance(markets, dict) else None
+        if isinstance(m, dict):
+            limits = m.get("limits") or {}
+            p_lim = (limits.get("price") or {}) if isinstance(limits, dict) else {}
+            min_tick = _safe_float(p_lim.get("min"), 0.0) if isinstance(p_lim, dict) else 0.0
+            if min_tick > 0:
+                return min_tick
+            precision = m.get("precision") or {}
+            p = _safe_float((precision.get("price") if isinstance(precision, dict) else 0), 0.0)
+            if p > 0:
+                # ccxt precision can be decimals; 2 -> 0.01
+                if p >= 1 and int(p) == p:
+                    return float(10.0 ** (-int(p)))
+                return p
+    except Exception:
+        pass
+    return 0.01
+
+
+def _record_entry_latency(bot, symbol: str, payload: dict[str, Any]) -> None:
+    try:
+        m = getattr(bot, "_last_entry_latency", None)
+        if not isinstance(m, dict):
+            m = {}
+            setattr(bot, "_last_entry_latency", m)
+        m[str(symbol)] = dict(payload)
+    except Exception:
+        pass
 
 
 def _format_ts(ts: float) -> str:
@@ -121,51 +171,6 @@ def _format_ts(ts: float) -> str:
         return time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime(ts))
     except Exception:
         return str(ts)
-
-
-def _parse_group_kv(raw: str) -> dict:
-    """
-    Parse "MEME=1,MAJOR=2" into dict.
-    """
-    out: dict = {}
-    try:
-        s = str(raw or "").strip()
-        if not s:
-            return out
-        parts = [p.strip() for p in s.replace(";", ",").split(",") if p.strip()]
-        for p in parts:
-            if "=" not in p:
-                continue
-            k, v = p.split("=", 1)
-            kk = str(k or "").strip().upper()
-            if not kk:
-                continue
-            out[kk] = _safe_float(v, 0.0)
-    except Exception:
-        return out
-    return out
-
-
-def _parse_symbol_kv(raw: str) -> dict:
-    """
-    Parse "BTCUSDT=10,ETHUSDT=5" into { "BTCUSDT": 10, ... }.
-    """
-    if raw is None:
-        return {}
-    s = str(raw).strip()
-    if not s:
-        return {}
-    out: dict = {}
-    parts = [p.strip() for p in s.replace(";", ",").split(",") if p.strip()]
-    for p in parts:
-        if "=" not in p:
-            continue
-        k, v = p.split("=", 1)
-        k = _symkey(k)
-        if not k:
-            continue
-        out[k] = _safe_float(v, 0.0)
-    return out
 
 
 def _group_open_count(bot, groups: dict, group_name: str, *, exclude: str | None = None) -> int:
@@ -577,6 +582,353 @@ def _skip(bot, k: str, side: str, reason: str):
     if throttle == 0.0 or (now - last) >= throttle:
         _SKIP_LAST[key] = now
         log_entry.info(f"SKIP {k} {side.upper()} — {reason}")
+
+
+def _trace_throttle_ok(key: str, every_sec: float) -> bool:
+    now = time.time()
+    last = float(_ENTRY_TRACE_LAST.get(key, 0.0) or 0.0)
+    if (now - last) < max(0.1, float(every_sec)):
+        return False
+    _ENTRY_TRACE_LAST[key] = now
+    return True
+
+
+def _entry_decision_trace(
+    k: str,
+    side: str,
+    confidence: float,
+    threshold: float,
+    raw_score: Any,
+    gates: dict[str, int],
+    reason: str,
+    detail: str = "",
+) -> None:
+    cd = float(_safe_float(os.getenv("ENTRY_DECISION_TRACE_COOLDOWN_SEC", 15), 15.0))
+    if not _trace_throttle_ok(f"{k}:{side}:{reason}", cd):
+        return
+    try:
+        log_entry.info(
+            f"ENTRY_DECISION {k} {side.upper()}: conf={float(confidence):.2f} thr={float(threshold):.2f} "
+            f"raw={raw_score} gates={gates} reason={reason}{(' detail=' + detail) if detail else ''}"
+        )
+    except Exception:
+        pass
+
+
+def _signal_tuple_or_none(raw: Any) -> tuple[bool, bool, float] | None:
+    if raw is None:
+        return None
+    if isinstance(raw, (tuple, list)) and len(raw) >= 3:
+        try:
+            return bool(raw[0]), bool(raw[1]), float(raw[2] or 0.0)
+        except Exception:
+            return None
+    return None
+
+
+def _infer_data_ready(bot, k: str, cfg) -> bool:
+    try:
+        tf = str(getattr(cfg, "TIMEFRAME", "1m") or "1m")
+        if hasattr(getattr(bot, "data", None), "get_df"):
+            df = bot.data.get_df(k, tf)
+            if df is not None and not getattr(df, "empty", True):
+                return True
+    except Exception:
+        pass
+    try:
+        ohlcv = getattr(getattr(bot, "data", None), "ohlcv", None)
+        return isinstance(ohlcv, dict) and (len(ohlcv) > 0)
+    except Exception:
+        return False
+
+
+def _infer_micro_readiness(bot, k: str) -> tuple[bool, str]:
+    enabled = str(os.getenv("ENTRY_MICRO_SIGNAL_ENABLED", "0")).strip().lower() in ("1", "true", "yes", "y", "on")
+    if not enabled:
+        return True, "micro_disabled"
+    try:
+        mfe = getattr(bot, "micro_feature_engine", None)
+        kk = canonical_symbol(k)
+        if mfe is None:
+            return False, "no_engine"
+        get_ready = getattr(mfe, "get_readiness", None)
+        if callable(get_ready):
+            ready, reason, detail = get_ready(kk)
+            if not bool(ready):
+                return False, f"{reason}:{detail}"
+        get_feat = getattr(mfe, "get_features", None)
+        if callable(get_feat):
+            feat = get_feat(kk)
+        else:
+            feat = getattr(mfe, "current_features", None)
+        if feat is None:
+            return False, "no_features"
+        fsym = _symkey(getattr(feat, "symbol", "") or "")
+        age = float(getattr(feat, "age_sec", 1e9) or 1e9)
+        max_age = float(_safe_float(os.getenv("MICRO_SIGNAL_MAX_FEATURE_AGE_SEC", "5"), 5.0))
+        if fsym and fsym != kk:
+            return False, f"symbol_mismatch:{fsym}"
+        if age > max(0.1, max_age):
+            return False, f"stale age={age:.1f}s>{max_age:.1f}s"
+        return True, f"age={age:.1f}s"
+    except Exception as e:
+        return False, f"micro_exc:{type(e).__name__}"
+
+
+def _infer_regime_ok(bot) -> bool:
+    req = str(os.getenv("MICRO_SIGNAL_REQUIRED_REGIME", "none")).strip().lower()
+    if req in ("", "none"):
+        return True
+    try:
+        rc = getattr(bot, "regime_classifier", None)
+        cur = str(getattr(rc, "current_regime", "") or "").strip().lower()
+        return cur == req
+    except Exception:
+        return True
+
+
+def _micro_confidence_mvp(bot, k: str) -> float:
+    try:
+        mfe = getattr(bot, "micro_feature_engine", None)
+        if mfe is None:
+            return 0.0
+        get_feat = getattr(mfe, "get_features", None)
+        feat = get_feat(canonical_symbol(k)) if callable(get_feat) else getattr(mfe, "current_features", None)
+        if feat is None:
+            return 0.0
+        # Deterministic bounded heuristic for paper mode observability.
+        ti = float(getattr(feat, "trade_intensity", 0.0) or 0.0)
+        spr = float(getattr(feat, "spread", 0.0) or 0.0)
+        imb = abs(float(getattr(feat, "imbalance_signed", 0.0) or 0.0))
+        score = 0.0
+        score += min(0.30, ti / 120.0)  # up to 0.30
+        score += min(0.15, imb * 0.20)  # up to 0.15
+        score += max(0.0, 0.10 - min(0.10, spr * 100.0))  # tighter spread helps
+        return max(0.0, min(0.50, float(score)))
+    except Exception:
+        return 0.0
+
+
+def _micro_log(bot, msg: str) -> None:
+    try:
+        lg = getattr(bot, "log", None)
+        if lg is not None and callable(getattr(lg, "info", None)):
+            lg.info(msg)
+            return
+    except Exception:
+        pass
+    try:
+        log_entry.info(msg)
+    except Exception:
+        pass
+
+
+def _norm_sym_for_micro(s: str) -> str:
+    t = str(s or "").upper().strip()
+    t = t.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
+    t = t.replace(":USDT", "USDT").replace("/", "").replace("-", "").replace("_", "")
+    return t
+
+
+async def _micro_fallback_signal(bot, k: str, side: str) -> Optional[dict[str, Any]]:
+    """
+    Conservative fallback for FULL entry path:
+    - Uses micro provider only when ENTRY_MICRO_SIGNAL_ENABLED=1
+    - Treats signal as present only for binary confidence >= 1.0
+    """
+    enabled_raw = str(os.getenv("ENTRY_MICRO_SIGNAL_ENABLED", "") or "").strip()
+    enabled = enabled_raw.lower() in ("1", "true", "yes", "y", "on")
+    env_sym = _norm_sym_for_micro(os.getenv("MICRO_SIGNAL_SYMBOL") or "")
+    k_norm = _norm_sym_for_micro(str(k))
+    _micro_log(bot, f"[MICRO_SIGNAL] probe sym: k={k} k_norm={k_norm} env_sym={env_sym} side={side}")
+    _micro_log(bot, f"[MICRO_SIGNAL] enabled_flag={enabled_raw!r}")
+    if not enabled:
+        _micro_log(bot, "[MICRO_SIGNAL] disabled by env")
+        return None
+    if env_sym and k_norm != env_sym:
+        _micro_log(bot, f"[MICRO_SIGNAL] symbol mismatch -> skip micro: k_norm={k_norm} env_sym={env_sym}")
+        return None
+    wanted_action = "buy" if str(side).lower().strip() == "long" else "sell"
+    try:
+        provider = getattr(bot, "_micro_signal_provider", None)
+        engine = getattr(bot, "_micro_signal_engine", None)
+        if provider is None:
+            # Local import to avoid module-level circular import risk.
+            from execution.entry_loop import _build_micro_signal_provider  # type: ignore
+
+            built = _build_micro_signal_provider(bot)
+            if isinstance(built, tuple):
+                engine, provider = built
+            else:
+                provider = built
+                engine = None
+            setattr(bot, "_micro_signal_provider", provider)
+            setattr(bot, "_micro_signal_engine", engine)
+        if engine is not None and (not bool(getattr(bot, "_micro_signal_engine_started", False))):
+            start_fn = getattr(engine, "start", None)
+            if callable(start_fn):
+                await start_fn()
+                setattr(bot, "_micro_signal_engine_started", True)
+        if provider is None:
+            _micro_log(bot, "[MICRO_SIGNAL] provider missing after build")
+            return None
+        eval_fn = getattr(provider, "evaluate", None)
+        if not callable(eval_fn):
+            _micro_log(bot, "[MICRO_SIGNAL] provider has no evaluate()")
+            return None
+        raw = eval_fn(regime_override=None)
+        if inspect.isawaitable(raw):
+            raw = await raw
+        if raw is None:
+            res = {"present": False, "confidence": 0.0, "reason": "provider_returned_none", "side": "", "symbol": k_norm, "meta": None}
+        elif hasattr(raw, "present") and hasattr(raw, "reason"):
+            res = {
+                "present": bool(getattr(raw, "present", False)),
+                "confidence": float(getattr(raw, "confidence", 0.0) or 0.0),
+                "reason": str(getattr(raw, "reason", "unknown") or "unknown"),
+                "side": str(getattr(raw, "side", "") or ""),
+                "symbol": str(getattr(raw, "symbol", k_norm) or k_norm),
+                "meta": dict(getattr(raw, "meta", {}) or {}),
+            }
+        else:
+            # Legacy contract: provider returned raw signal object.
+            res = {
+                "present": True,
+                "confidence": float(getattr(raw, "confidence", 0.0) or 0.0),
+                "reason": "legacy_signal",
+                "side": str(getattr(raw, "side", "") or ""),
+                "symbol": str(getattr(raw, "symbol", k_norm) or k_norm),
+                "meta": {"signal": raw},
+            }
+        _micro_log(
+            bot,
+            f"[MICRO_SIGNAL] {str(res.get('symbol') or k_norm)} side={side} conf={float(res.get('confidence', 0.0)):.2f} "
+            f"present={int(bool(res.get('present', False)))} reason={str(res.get('reason') or 'unknown')}",
+        )
+        if str(res.get("reason") or "").strip().lower() == "no_match":
+            try:
+                meta = dict(res.get("meta") or {})
+                if meta:
+                    _micro_log(
+                        bot,
+                        "[MICRO_SIGNAL] no_match_detail "
+                        f"target_side={meta.get('target_side')} pocket={meta.get('pocket')} "
+                        f"imb_ok={int(bool(meta.get('imb_ok', False)))} int_ok={int(bool(meta.get('int_ok', False)))} "
+                        f"spr_ok={int(bool(meta.get('spr_ok', False)))} missing={meta.get('missing')} "
+                        f"imb={_safe_float(meta.get('imbalance_signed'), 0.0):+.4f}/{_safe_float(meta.get('min_imbalance'), 0.0):.4f} "
+                        f"int={_safe_float(meta.get('trade_intensity'), 0.0):.0f}/{_safe_float(meta.get('min_intensity'), 0.0):.0f} "
+                        f"spr={_safe_float(meta.get('spread'), 0.0):.6f}/{_safe_float(meta.get('max_spread'), 0.0):.6f}",
+                    )
+            except Exception:
+                pass
+        if not bool(res.get("present", False)):
+            return None
+        msig_side = str(res.get("side") or "").strip().lower()
+        conf = float(res.get("confidence", 0.0) or 0.0)
+        if msig_side != wanted_action:
+            _micro_log(bot, f"[MICRO_SIGNAL] side mismatch provider={msig_side} wanted={wanted_action}")
+            return None
+        if conf >= 1.0:
+            return {
+                "source": "micro",
+                "symbol": k,
+                "side": side,
+                "action": wanted_action,
+                "confidence": 1.0,
+                "reason": str(res.get("reason") or "match"),
+            }
+    except Exception as e:
+        _micro_log(bot, f"[MICRO_SIGNAL] {k_norm} side={str(side).upper()} failed: {type(e).__name__}: {e}")
+    return None
+
+
+async def _apply_micro_fallback_if_missing(bot, k: str, side: str, long_sig: bool, short_sig: bool, confidence: float) -> tuple[bool, bool, float]:
+    if (side == "long" and long_sig) or (side == "short" and short_sig):
+        return long_sig, short_sig, confidence
+    _micro_log(
+        bot,
+        f"[MICRO_PROBE] about to handle missing signal: {k} side={side} "
+        f"ENTRY_MICRO_SIGNAL_ENABLED={os.environ.get('ENTRY_MICRO_SIGNAL_ENABLED')} "
+        f"MICRO_SIGNAL_SYMBOL={os.environ.get('MICRO_SIGNAL_SYMBOL')} "
+        f"has_provider={hasattr(bot, '_micro_signal_provider')} has_engine={hasattr(bot, '_micro_signal_engine')}",
+    )
+    _micro_log(bot, f"[MICRO_PROBE] trying micro fallback: {k} side={side}")
+    micro_sig = await _micro_fallback_signal(bot, k, side)
+    _micro_log(bot, f"[MICRO_PROBE] micro fallback result: {'HIT' if isinstance(micro_sig, dict) else 'MISS'}")
+    if isinstance(micro_sig, dict):
+        action_fb = str(micro_sig.get("action", "")).strip().lower()
+        if action_fb == "buy":
+            long_sig, short_sig = True, False
+        elif action_fb == "sell":
+            long_sig, short_sig = False, True
+        confidence = float(micro_sig.get("confidence", confidence) or confidence)
+    return long_sig, short_sig, confidence
+
+
+def _log_entry_cfg_once(k: str, threshold: float) -> None:
+    if k in _ENTRY_CFG_LOGGED:
+        return
+    _ENTRY_CFG_LOGGED.add(k)
+    try:
+        micro_enabled = str(os.getenv("ENTRY_MICRO_SIGNAL_ENABLED", "0")).strip().lower() in ("1", "true", "yes", "y", "on")
+        req_regime = str(os.getenv("MICRO_SIGNAL_REQUIRED_REGIME", "none")).strip().lower()
+        log_entry.info(
+            f"ENTRY_CFG {k}: min_conf={float(threshold):.2f} source=cfg.MIN_CONFIDENCE "
+            f"micro_enabled={int(micro_enabled)} required_regime={req_regime}"
+        )
+    except Exception:
+        pass
+
+
+def _update_conf_window_and_warn(k: str, confidence: float, threshold: float) -> None:
+    try:
+        win = _ENTRY_CONF_WINDOW.get(k)
+        if not isinstance(win, list):
+            win = []
+            _ENTRY_CONF_WINDOW[k] = win
+        win.append(float(confidence))
+        max_n = int(_safe_float(os.getenv("ENTRY_CONF_WINDOW_N", "120"), 120))
+        if len(win) > max(10, max_n):
+            del win[: len(win) - max_n]
+        if not win:
+            return
+        wmin = min(win)
+        wmax = max(win)
+        now = time.time()
+        last = float(_ENTRY_CONF_WARN_LAST.get(k, 0.0) or 0.0)
+        if wmax > 0 and wmax < float(threshold) and (now - last) >= 60.0:
+            _ENTRY_CONF_WARN_LAST[k] = now
+            log_entry.warning(
+                f"ENTRY_CONF_RANGE {k}: min={wmin:.2f} max={wmax:.2f} below_threshold={float(threshold):.2f}"
+            )
+    except Exception:
+        pass
+
+
+def _resolve_confidence_reason(
+    *,
+    scorer_reason: str,
+    confidence: float,
+    parsed_ok: bool,
+    micro_enabled: bool,
+    micro_ready: bool,
+    data_ready: bool,
+    regime_ok: bool,
+) -> str:
+    reason = str(scorer_reason or "score_none")
+    if float(confidence or 0.0) > 0.0:
+        return reason
+    if reason == "scorer_exception":
+        return reason
+    if micro_enabled and not micro_ready:
+        return "micro_not_ready"
+    if not data_ready:
+        return "market_data_not_ready"
+    if not regime_ok:
+        return "regime_blocked"
+    if not parsed_ok:
+        return "score_none"
+    return reason or "score_none"
 
 
 def _parse_funding_rate_any(x) -> float:
@@ -1041,7 +1393,30 @@ async def try_enter(bot, sym: str, side: str):
             _skip(bot, k, side, "daily loss limit exceeded")
             return
 
-        long_sig, short_sig, confidence = generate_signal(sym_raw, data=bot.data, cfg=cfg)
+        scorer_reason = "score_none"
+        scorer_detail = ""
+        scorer_raw: Any = None
+        long_sig = False
+        short_sig = False
+        confidence = 0.0
+        try:
+            raw_sig = generate_signal(sym_raw, data=bot.data, cfg=cfg)
+            scorer_raw = raw_sig
+        except Exception as e:
+            raw_sig = None
+            scorer_reason = "scorer_exception"
+            scorer_detail = f"{type(e).__name__}: {e}"
+            log_entry.warning(f"{k} signal scorer exception: {scorer_detail}")
+
+        parsed = _signal_tuple_or_none(raw_sig)
+        if parsed is None:
+            long_sig, short_sig, confidence = False, False, 0.0
+            if scorer_reason != "scorer_exception":
+                scorer_reason = "score_none"
+                scorer_detail = "signal tuple/list missing or malformed"
+        else:
+            long_sig, short_sig, confidence = parsed
+
         confidence = float(confidence or 0.0)
         min_confidence_base = float(getattr(cfg, "MIN_CONFIDENCE", 0.0) or 0.0)
         override_conf = 0.0
@@ -1054,13 +1429,74 @@ async def try_enter(bot, sym: str, side: str):
                 override_reason = str(state.get("reason") or "")
                 override_expires = float(state.get("expires_at") or 0.0)
         effective_min_conf = max(min_confidence_base, override_conf)
+        _log_entry_cfg_once(k, effective_min_conf)
+        _update_conf_window_and_warn(k, confidence, effective_min_conf)
+
+        sig_diag = {}
+        if callable(_get_last_signal_diag):
+            try:
+                sig_diag = _get_last_signal_diag(sym_raw) or {}
+            except Exception:
+                sig_diag = {}
+        if scorer_reason != "scorer_exception":
+            scorer_reason = str(sig_diag.get("reason") or scorer_reason or "score_none")
+        if not scorer_detail and isinstance(sig_diag, dict):
+            scorer_detail = str(sig_diag.get("error") or "")
+
+        micro_enabled = str(os.getenv("ENTRY_MICRO_SIGNAL_ENABLED", "0")).strip().lower() in ("1", "true", "yes", "y", "on")
+        micro_ready, micro_detail = _infer_micro_readiness(bot, k)
+        data_ready = _infer_data_ready(bot, k, cfg)
+        regime_ok = _infer_regime_ok(bot)
+        if micro_enabled and micro_ready and confidence <= 0.0:
+            mvp_conf = _micro_confidence_mvp(bot, k)
+            if mvp_conf > 0.0:
+                confidence = float(mvp_conf)
+                if not scorer_reason or scorer_reason == "score_none":
+                    scorer_reason = "micro_mvp_heuristic"
+        gates = {
+            "data": 1 if data_ready else 0,
+            "micro": 1 if micro_enabled else 0,
+            "micro_ready": 1 if micro_ready else 0,
+            "regime": 1 if regime_ok else 0,
+            "cooldown": 1,
+            "position": 1,
+            "risk": 1,
+        }
+
+        scorer_reason = _resolve_confidence_reason(
+            scorer_reason=scorer_reason,
+            confidence=confidence,
+            parsed_ok=(parsed is not None),
+            micro_enabled=micro_enabled,
+            micro_ready=micro_ready,
+            data_ready=data_ready,
+            regime_ok=regime_ok,
+        )
+        if scorer_reason == "micro_not_ready" and not scorer_detail:
+            scorer_detail = micro_detail
+
         skip_reason = f"confidence {confidence:.2f} < {effective_min_conf:.2f}"
         if override_conf > min_confidence_base and override_expires > time.time():
             skip_reason += f" (recovery until {_format_ts(override_expires)} reason={override_reason or 'telemetry'})"
         if confidence < effective_min_conf:
+            _entry_decision_trace(
+                k=k,
+                side=side,
+                confidence=confidence,
+                threshold=effective_min_conf,
+                raw_score=sig_diag.get("conf_raw", scorer_raw),
+                gates=gates,
+                reason=scorer_reason or "score_none",
+                detail=scorer_detail,
+            )
             _skip(bot, k, side, skip_reason)
             return
 
+        if (side == "long" and not long_sig) or (side == "short" and not short_sig):
+            # IMPORTANT: this updates long_sig/short_sig, which are the variables checked by the skip branch below.
+            long_sig, short_sig, confidence = await _apply_micro_fallback_if_missing(
+                bot, k, side, bool(long_sig), bool(short_sig), float(confidence)
+            )
         if (side == "long" and not long_sig) or (side == "short" and not short_sig):
             _skip(bot, k, side, "signal not present")
             return
@@ -1253,11 +1689,46 @@ async def try_enter(bot, sym: str, side: str):
             if entry_type == "LIMIT":
                 off = float(getattr(cfg, "ENTRY_LIMIT_OFFSET_PCT", 0.0) or 0.0)
                 limit_px = ref_px * (1.0 - off) if side == "long" else ref_px * (1.0 + off)
+                placement_reason = "legacy_limit_offset"
+                placement_mode = "legacy"
+                placement_queue = 0.0
+                placement_flow = 0.0
+                placement_fill_prob = 0.0
+                placement_wait = 0.0
+                placement_source = "none"
+                try:
+                    eng = _get_order_placement_engine(bot)
+                    if eng is not None:
+                        decision = eng.decide(
+                            symbol=k,
+                            side=side,
+                            ref_price=float(ref_px),
+                            tick_size=_resolve_tick_size(bot, sym_raw),
+                            fallback_limit=float(limit_px),
+                        )
+                        if float(decision.limit_price) > 0:
+                            limit_px = float(decision.limit_price)
+                        placement_reason = str(decision.reason)
+                        placement_mode = str(decision.mode)
+                        placement_queue = float(decision.queue_ahead)
+                        placement_flow = float(getattr(decision, "queue_flow_rate", 0.0) or 0.0)
+                        placement_fill_prob = float(getattr(decision, "fill_prob_timeout", 0.0) or 0.0)
+                        placement_wait = float(getattr(decision, "expected_wait_sec", 0.0) or 0.0)
+                        placement_source = str(decision.source)
+                        log_entry.info(
+                            f"[ORDER_PLACEMENT] {k} {side.upper()} mode={placement_mode} "
+                            f"px={limit_px:.6f} queue_ahead={placement_queue:.2f} "
+                            f"queue_flow={placement_flow:.2f}/s fill_prob={placement_fill_prob:.2%} wait_est={placement_wait:.1f}s "
+                            f"reason={placement_reason} src={placement_source}"
+                        )
+                except Exception as _ope:
+                    log_entry.warning(f"[ORDER_PLACEMENT] {k} fallback legacy due to {type(_ope).__name__}")
 
                 p = {"timeInForce": "GTC"}
                 if pos_side:
                     p["positionSide"] = pos_side
 
+                t_submit_limit = time.perf_counter()
                 order = await create_order(
                     bot,
                     symbol=sym_raw,
@@ -1268,6 +1739,16 @@ async def try_enter(bot, sym: str, side: str):
                     params=p,
                     intent_reduce_only=False,
                     retries=6,
+                )
+                _record_entry_latency(
+                    bot,
+                    k,
+                    {
+                        "mode": "limit",
+                        "submit_ms": float((time.perf_counter() - t_submit_limit) * 1000.0),
+                        "fill_ack_ms": 0.0,
+                        "ts": float(time.time()),
+                    },
                 )
 
                 oid = (order or {}).get("id") if isinstance(order, dict) else None
@@ -1281,6 +1762,13 @@ async def try_enter(bot, sym: str, side: str):
                         "side": side,
                         "requested_qty": float(amount),
                         "limit_px": float(limit_px),
+                        "placement_mode": str(placement_mode),
+                        "placement_reason": str(placement_reason),
+                        "placement_queue_ahead": float(placement_queue),
+                        "placement_queue_flow": float(placement_flow),
+                        "placement_fill_prob": float(placement_fill_prob),
+                        "placement_wait_est_sec": float(placement_wait),
+                        "placement_source": str(placement_source),
                         "created_ts": float(time.time()),
                         "positionSide": pos_side,
                     },
@@ -1308,6 +1796,7 @@ async def try_enter(bot, sym: str, side: str):
             if pos_side:
                 p_entry["positionSide"] = pos_side
 
+            t_submit = time.perf_counter()
             order = await create_order(
                 bot,
                 symbol=sym_raw,
@@ -1319,9 +1808,21 @@ async def try_enter(bot, sym: str, side: str):
                 intent_reduce_only=False,
                 retries=6,
             )
+            submit_ms = float((time.perf_counter() - t_submit) * 1000.0)
 
             filled = _order_filled(order)
             if filled <= 0:
+                _record_entry_latency(
+                    bot,
+                    k,
+                    {
+                        "mode": "market",
+                        "submit_ms": submit_ms,
+                        "fill_ack_ms": submit_ms,
+                        "filled": 0.0,
+                        "ts": float(time.time()),
+                    },
+                )
                 _skip(bot, k, side, "order not filled")
                 return
 
@@ -1336,6 +1837,18 @@ async def try_enter(bot, sym: str, side: str):
                 return
 
             entry_price = _order_avg_price(order, ref_px)
+            _record_entry_latency(
+                bot,
+                k,
+                {
+                    "mode": "market",
+                    "submit_ms": submit_ms,
+                    "fill_ack_ms": submit_ms,
+                    "filled": float(filled),
+                    "entry_price": float(entry_price),
+                    "ts": float(time.time()),
+                },
+            )
             log_entry.info(f"FILLED: {filled:.6f} @ {entry_price:.6f}")
 
             slippage_pct = abs(entry_price - ref_px) / ref_px if ref_px > 0 else 0.0

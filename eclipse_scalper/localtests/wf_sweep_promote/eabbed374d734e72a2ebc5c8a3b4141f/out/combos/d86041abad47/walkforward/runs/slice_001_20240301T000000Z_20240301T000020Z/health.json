@@ -1,0 +1,10 @@
+{
+  "decisions_emitted": 10,
+  "events_replayed": 21,
+  "fills_emitted": 10,
+  "reason": "",
+  "skipped_emitted": 0,
+  "state": "ok",
+  "ts_end_utc": "2024-03-01T00:00:20Z",
+  "ts_start_utc": "2024-03-01T00:00:00Z"
+}

@@ -1,0 +1,29 @@
+{
+  "adverse_sum": 0.0,
+  "avg_pnl": 0.78992,
+  "decision_to_fill_rate": 0.666666666667,
+  "decisions_count": 3,
+  "events_replayed": 6,
+  "fee_sum": 0.02016,
+  "fills_count": 2,
+  "per_symbol_decisions": {
+    "ETHUSDT": 3
+  },
+  "per_symbol_fills": {
+    "ETHUSDT": 2
+  },
+  "per_symbol_metrics": {
+    "ETHUSDT": {
+      "adverse_sum": 0.0,
+      "fee_sum": 0.02016,
+      "fills_count": 2,
+      "pnl_sum": 1.57984
+    }
+  },
+  "pnl_sum": 1.57984,
+  "skipped_count": 1,
+  "skipped_reasons": {
+    "missing_horizon_price": 1
+  },
+  "win_rate": 1.0
+}

@@ -1,0 +1,12 @@
+{
+  "collector_connected": true,
+  "collector_heartbeat_path": "logs/collector_heartbeat.json",
+  "collector_progress_lag_sec": null,
+  "db_lag_sec": 2.91,
+  "db_latest_ts_ms": 1772623577194,
+  "db_path": "data/microstructure.db",
+  "estimated_ws_bypass_gain_sec": null,
+  "notes": "Estimated gain is approximate. A true WS path requires in-process feature computation directly from stream callbacks.",
+  "status": "ok",
+  "symbol": "ETHUSDT"
+}

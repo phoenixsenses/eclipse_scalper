@@ -1,0 +1,169 @@
+{
+  "symbol": "ETHUSDT",
+  "side": "SELL",
+  "regime": "UP",
+  "lookback_min": 30240,
+  "bucket_sec": 1,
+  "horizon_sec": 120,
+  "min_imbalance": 0.5,
+  "min_trade_intensity": 3500.0,
+  "max_spread": 0.0003,
+  "exec_model": "taker",
+  "baseline": {
+    "n": 2529.0,
+    "mean_net": 0.00021985097631010002,
+    "scratch_frac": 0.0,
+    "horizon_frac": 1.0
+  },
+  "adverse_sweep": [
+    {
+      "max_adverse_bps": 3.0,
+      "n": 2529,
+      "mean_net": 0.00021985097631010002,
+      "scratch_frac": 0.0,
+      "delta_vs_baseline": 0.0
+    },
+    {
+      "max_adverse_bps": 3.5,
+      "n": 2529,
+      "mean_net": 0.00021985097631010002,
+      "scratch_frac": 0.0,
+      "delta_vs_baseline": 0.0
+    },
+    {
+      "max_adverse_bps": 4.0,
+      "n": 2529,
+      "mean_net": 0.00021985097631010002,
+      "scratch_frac": 0.0,
+      "delta_vs_baseline": 0.0
+    },
+    {
+      "max_adverse_bps": 4.5,
+      "n": 2529,
+      "mean_net": 0.00021985097631010002,
+      "scratch_frac": 0.0,
+      "delta_vs_baseline": 0.0
+    },
+    {
+      "max_adverse_bps": 5.0,
+      "n": 2529,
+      "mean_net": 0.00021985097631010002,
+      "scratch_frac": 0.0,
+      "delta_vs_baseline": 0.0
+    },
+    {
+      "max_adverse_bps": 5.5,
+      "n": 2529,
+      "mean_net": 0.00021985097631010002,
+      "scratch_frac": 0.0,
+      "delta_vs_baseline": 0.0
+    },
+    {
+      "max_adverse_bps": 6.0,
+      "n": 2529,
+      "mean_net": 0.00021985097631010002,
+      "scratch_frac": 0.0,
+      "delta_vs_baseline": 0.0
+    },
+    {
+      "max_adverse_bps": 6.5,
+      "n": 2529,
+      "mean_net": 0.00021985097631010002,
+      "scratch_frac": 0.0,
+      "delta_vs_baseline": 0.0
+    },
+    {
+      "max_adverse_bps": 7.0,
+      "n": 2529,
+      "mean_net": 0.00021985097631010002,
+      "scratch_frac": 0.0,
+      "delta_vs_baseline": 0.0
+    },
+    {
+      "max_adverse_bps": 7.5,
+      "n": 2529,
+      "mean_net": 0.00021985097631010002,
+      "scratch_frac": 0.0,
+      "delta_vs_baseline": 0.0
+    },
+    {
+      "max_adverse_bps": 8.0,
+      "n": 2529,
+      "mean_net": 0.00021985097631010002,
+      "scratch_frac": 0.0,
+      "delta_vs_baseline": 0.0
+    },
+    {
+      "max_adverse_bps": 8.5,
+      "n": 2529,
+      "mean_net": 0.00021985097631010002,
+      "scratch_frac": 0.0,
+      "delta_vs_baseline": 0.0
+    },
+    {
+      "max_adverse_bps": 9.0,
+      "n": 2529,
+      "mean_net": 0.00021985097631010002,
+      "scratch_frac": 0.0,
+      "delta_vs_baseline": 0.0
+    },
+    {
+      "max_adverse_bps": 9.5,
+      "n": 2529,
+      "mean_net": 0.00021985097631010002,
+      "scratch_frac": 0.0,
+      "delta_vs_baseline": 0.0
+    },
+    {
+      "max_adverse_bps": 10.0,
+      "n": 2529,
+      "mean_net": 0.00021985097631010002,
+      "scratch_frac": 0.0,
+      "delta_vs_baseline": 0.0
+    }
+  ],
+  "trailing_sweep": [
+    {
+      "trailing_stop_bps_proxy": 2.0,
+      "n": 2529,
+      "mean_net": 0.00021985097631010002,
+      "scratch_frac": 0.0,
+      "delta_vs_baseline": 0.0
+    },
+    {
+      "trailing_stop_bps_proxy": 3.0,
+      "n": 2529,
+      "mean_net": 0.00021985097631010002,
+      "scratch_frac": 0.0,
+      "delta_vs_baseline": 0.0
+    },
+    {
+      "trailing_stop_bps_proxy": 4.0,
+      "n": 2529,
+      "mean_net": 0.00021985097631010002,
+      "scratch_frac": 0.0,
+      "delta_vs_baseline": 0.0
+    },
+    {
+      "trailing_stop_bps_proxy": 5.0,
+      "n": 2529,
+      "mean_net": 0.00021985097631010002,
+      "scratch_frac": 0.0,
+      "delta_vs_baseline": 0.0
+    }
+  ],
+  "best_adverse": {
+    "max_adverse_bps": 3.0,
+    "n": 2529,
+    "mean_net": 0.00021985097631010002,
+    "scratch_frac": 0.0,
+    "delta_vs_baseline": 0.0
+  },
+  "best_trailing": {
+    "trailing_stop_bps_proxy": 2.0,
+    "n": 2529,
+    "mean_net": 0.00021985097631010002,
+    "scratch_frac": 0.0,
+    "delta_vs_baseline": 0.0
+  }
+}

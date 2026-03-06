@@ -1,0 +1,1 @@
+{"metadata": {"generated_utc": "2026-02-19T00:00:00Z", "source_reports": ["reports/alpha_gate_edge.offline.json"], "thresholds": {"min_events": 30, "min_avg_return_60m": 0.0, "min_p01": -0.02}}, "rules": [{"rule_id": "ETH_VOL_LIQ_SHORT_LIQ_LONG", "enabled": false}]}

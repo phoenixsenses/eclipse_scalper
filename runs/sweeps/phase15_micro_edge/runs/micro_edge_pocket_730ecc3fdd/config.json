@@ -1,0 +1,32 @@
+{
+  "db": "data\\microstructure.db",
+  "end": "2026-03-01T22:41:20Z",
+  "execution_sim": {
+    "fee_bps": 0.0,
+    "fill_or_before_enabled": false,
+    "horizon_or_before_enabled": true,
+    "horizon_sec": 10,
+    "mode": "min_exec_sim",
+    "qty": 0.1,
+    "spread_bps": 2.0
+  },
+  "start": "2026-03-01T22:41:00Z",
+  "strategy": "micro_edge_pocket",
+  "strategy_config": {
+    "cooldown_ms": 250,
+    "event_source_table": "agg_trades",
+    "filters": {
+      "imbalance_gte": 0.4,
+      "intensity_gte": 2500,
+      "spread_lte": 0.0003
+    },
+    "rule": "micro_edge_v3_passive_alpha",
+    "side": "buy",
+    "symbol_whitelist": [
+      "ETHUSDT"
+    ]
+  },
+  "symbols": [
+    "ETHUSDT"
+  ]
+}

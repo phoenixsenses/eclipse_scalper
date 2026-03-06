@@ -1,0 +1,9 @@
+{
+  "decisions_count": 3,
+  "events_replayed": 6,
+  "fills_count": 0,
+  "per_symbol_decisions": {
+    "ETHUSDT": 3
+  },
+  "per_symbol_fills": {}
+}

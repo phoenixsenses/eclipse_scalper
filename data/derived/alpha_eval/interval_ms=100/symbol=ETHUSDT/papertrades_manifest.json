@@ -1,0 +1,8 @@
+{
+  "fee_bps": 0.5,
+  "horizon_bars": 10,
+  "interval_ms": 100,
+  "mode": "taker",
+  "rows": 0,
+  "symbol": "ETHUSDT"
+}

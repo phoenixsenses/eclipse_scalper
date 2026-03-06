@@ -1,0 +1,424 @@
+{
+  "meta": {
+    "build_time_utc": "2026-02-19T03:31:43.584700+00:00",
+    "journal": "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\tmp\\tests\\policy_outcomes_smoke\\execution_journal.jsonl",
+    "policy_path": "",
+    "group_by": "run_id",
+    "horizons": [
+      5,
+      15,
+      60
+    ],
+    "use_mtm": true,
+    "canonical_in": "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\tmp\\tests\\policy_outcomes_smoke\\canonical_merged.parquet",
+    "price_col": "auto",
+    "bootstrap": 0,
+    "min_events_warning": 30,
+    "bps_costs": [
+      0.0,
+      2.0,
+      5.0
+    ]
+  },
+  "overall": {
+    "alpha_gate_checks_total": 2,
+    "alpha_gate_pass_total": 2,
+    "alpha_gate_block_total": 0,
+    "pass_rate": 1.0,
+    "block_rate": 0.0,
+    "trade_rate_after_pass": 0.5,
+    "scored_events_total": 2,
+    "by_horizon": {
+      "5m": {
+        "count": 2,
+        "avg_return": 0.006490905476592808,
+        "win_rate": 1.0,
+        "sharpe_proxy": 1.849737997450805,
+        "p05": 0.0033327204055263347,
+        "p01": 0.003051992843653759,
+        "ci_low": null,
+        "ci_high": null
+      },
+      "15m": {
+        "count": 2,
+        "avg_return": 0.009472716429778424,
+        "win_rate": 1.0,
+        "sharpe_proxy": 17.96512723845683,
+        "p05": 0.008998161216579004,
+        "p01": 0.008955978530961277,
+        "ci_low": null,
+        "ci_high": null
+      },
+      "60m": {
+        "count": 1,
+        "avg_return": 0.01,
+        "win_rate": 1.0,
+        "sharpe_proxy": null,
+        "p05": 0.01,
+        "p01": 0.01,
+        "ci_low": null,
+        "ci_high": null
+      }
+    },
+    "by_horizon_outcome_type": {
+      "5m": {
+        "mtm_5m": {
+          "count": 1,
+          "avg_return": 0.002981810953185615,
+          "win_rate": 1.0,
+          "sharpe_proxy": null,
+          "p05": 0.002981810953185615,
+          "p01": 0.002981810953185615,
+          "ci_low": null,
+          "ci_high": null
+        },
+        "realized_close": {
+          "count": 1,
+          "avg_return": 0.01,
+          "win_rate": 1.0,
+          "sharpe_proxy": null,
+          "p05": 0.01,
+          "p01": 0.01,
+          "ci_low": null,
+          "ci_high": null
+        }
+      },
+      "15m": {
+        "mtm_15m": {
+          "count": 1,
+          "avg_return": 0.008945432859556846,
+          "win_rate": 1.0,
+          "sharpe_proxy": null,
+          "p05": 0.008945432859556846,
+          "p01": 0.008945432859556846,
+          "ci_low": null,
+          "ci_high": null
+        },
+        "realized_close": {
+          "count": 1,
+          "avg_return": 0.01,
+          "win_rate": 1.0,
+          "sharpe_proxy": null,
+          "p05": 0.01,
+          "p01": 0.01,
+          "ci_low": null,
+          "ci_high": null
+        }
+      },
+      "60m": {
+        "none": {
+          "count": 0,
+          "avg_return": null,
+          "win_rate": null,
+          "sharpe_proxy": null,
+          "p05": null,
+          "p01": null,
+          "ci_low": null,
+          "ci_high": null
+        },
+        "realized_close": {
+          "count": 1,
+          "avg_return": 0.01,
+          "win_rate": 1.0,
+          "sharpe_proxy": null,
+          "p05": 0.01,
+          "p01": 0.01,
+          "ci_low": null,
+          "ci_high": null
+        }
+      }
+    },
+    "net_by_bps": {
+      "5m": {
+        "0.0": {
+          "count": 2,
+          "avg_return": 0.006490905476592808,
+          "win_rate": 1.0,
+          "sharpe_proxy": 1.849737997450805,
+          "p05": 0.0033327204055263347,
+          "p01": 0.003051992843653759,
+          "ci_low": null,
+          "ci_high": null
+        },
+        "2.0": {
+          "count": 2,
+          "avg_return": 0.006290905476592807,
+          "win_rate": 1.0,
+          "sharpe_proxy": 1.792743237501789,
+          "p05": 0.003132720405526334,
+          "p01": 0.002851992843653759,
+          "ci_low": null,
+          "ci_high": null
+        },
+        "5.0": {
+          "count": 2,
+          "avg_return": 0.005990905476592807,
+          "win_rate": 1.0,
+          "sharpe_proxy": 1.7072510975782649,
+          "p05": 0.0028327204055263342,
+          "p01": 0.002551992843653759,
+          "ci_low": null,
+          "ci_high": null
+        }
+      },
+      "15m": {
+        "0.0": {
+          "count": 2,
+          "avg_return": 0.009472716429778424,
+          "win_rate": 1.0,
+          "sharpe_proxy": 17.96512723845683,
+          "p05": 0.008998161216579004,
+          "p01": 0.008955978530961277,
+          "ci_low": null,
+          "ci_high": null
+        },
+        "2.0": {
+          "count": 2,
+          "avg_return": 0.009272716429778421,
+          "win_rate": 1.0,
+          "sharpe_proxy": 17.58582469368769,
+          "p05": 0.008798161216579004,
+          "p01": 0.008755978530961276,
+          "ci_low": null,
+          "ci_high": null
+        },
+        "5.0": {
+          "count": 2,
+          "avg_return": 0.008972716429778423,
+          "win_rate": 1.0,
+          "sharpe_proxy": 17.01687087653399,
+          "p05": 0.008498161216579004,
+          "p01": 0.008455978530961276,
+          "ci_low": null,
+          "ci_high": null
+        }
+      },
+      "60m": {
+        "0.0": {
+          "count": 1,
+          "avg_return": 0.01,
+          "win_rate": 1.0,
+          "sharpe_proxy": null,
+          "p05": 0.01,
+          "p01": 0.01,
+          "ci_low": null,
+          "ci_high": null
+        },
+        "2.0": {
+          "count": 1,
+          "avg_return": 0.0098,
+          "win_rate": 1.0,
+          "sharpe_proxy": null,
+          "p05": 0.0098,
+          "p01": 0.0098,
+          "ci_low": null,
+          "ci_high": null
+        },
+        "5.0": {
+          "count": 1,
+          "avg_return": 0.0095,
+          "win_rate": 1.0,
+          "sharpe_proxy": null,
+          "p05": 0.0095,
+          "p01": 0.0095,
+          "ci_low": null,
+          "ci_high": null
+        }
+      }
+    },
+    "spread_adjusted": {
+      "5m": {
+        "count": 1,
+        "avg_return": 0.0027833190484236703,
+        "win_rate": 1.0,
+        "sharpe_proxy": null,
+        "p05": 0.0027833190484236703,
+        "p01": 0.0027833190484236703,
+        "ci_low": null,
+        "ci_high": null
+      },
+      "15m": {
+        "count": 1,
+        "avg_return": 0.008747526699290945,
+        "win_rate": 1.0,
+        "sharpe_proxy": null,
+        "p05": 0.008747526699290945,
+        "p01": 0.008747526699290945,
+        "ci_low": null,
+        "ci_high": null
+      },
+      "60m": {
+        "count": 0,
+        "avg_return": null,
+        "win_rate": null,
+        "sharpe_proxy": null,
+        "p05": null,
+        "p01": null,
+        "ci_low": null,
+        "ci_high": null
+      }
+    }
+  },
+  "invariants": {
+    "open_without_candidate_id": 0,
+    "open_without_matching_alpha_check": 0,
+    "close_without_open": 0,
+    "outcome_without_prior_open": 0
+  },
+  "join_diagnostics": {
+    "mtm_price_available": true,
+    "price_meta": {
+      "available": true,
+      "rows": 3700,
+      "price_source": "mid"
+    },
+    "start_match_total": 2,
+    "start_match_hits": 2,
+    "start_match_rate": 1.0,
+    "horizon_availability": {
+      "5m": 1.0,
+      "15m": 1.0,
+      "60m": 0.5
+    }
+  },
+  "by_policy_mode": {
+    "off": {
+      "checks": 1,
+      "pass": 1,
+      "block": 0,
+      "pass_rate": 1.0,
+      "block_rate": 0.0
+    },
+    "override": {
+      "checks": 1,
+      "pass": 1,
+      "block": 0,
+      "pass_rate": 1.0,
+      "block_rate": 0.0
+    }
+  },
+  "by_rule_id": [
+    {
+      "rule_id": "RULE_A",
+      "count": 1,
+      "avg_return": 0.01,
+      "win_rate": 1.0,
+      "sharpe_proxy": null,
+      "p05": 0.01,
+      "p01": 0.01,
+      "ci_low": null,
+      "ci_high": null
+    }
+  ],
+  "by_regime": [
+    {
+      "regime": "",
+      "count": 1,
+      "avg_return": 0.01,
+      "win_rate": 1.0,
+      "sharpe_proxy": null,
+      "p05": 0.01,
+      "p01": 0.01,
+      "ci_low": null,
+      "ci_high": null
+    }
+  ],
+  "by_symbol": [
+    {
+      "symbol": "ETHUSDT",
+      "count": 1,
+      "avg_return": 0.01,
+      "win_rate": 1.0,
+      "sharpe_proxy": null,
+      "p05": 0.01,
+      "p01": 0.01,
+      "ci_low": null,
+      "ci_high": null
+    }
+  ],
+  "by_run_id": [
+    {
+      "run_id": "R-OFF",
+      "policy_mode": "off",
+      "checks": 1,
+      "pass": 1,
+      "by_horizon": {
+        "5m": {
+          "count": 1,
+          "avg_return": 0.01,
+          "win_rate": 1.0,
+          "sharpe_proxy": null,
+          "p05": 0.01,
+          "p01": 0.01,
+          "ci_low": null,
+          "ci_high": null
+        },
+        "15m": {
+          "count": 1,
+          "avg_return": 0.01,
+          "win_rate": 1.0,
+          "sharpe_proxy": null,
+          "p05": 0.01,
+          "p01": 0.01,
+          "ci_low": null,
+          "ci_high": null
+        },
+        "60m": {
+          "count": 1,
+          "avg_return": 0.01,
+          "win_rate": 1.0,
+          "sharpe_proxy": null,
+          "p05": 0.01,
+          "p01": 0.01,
+          "ci_low": null,
+          "ci_high": null
+        }
+      }
+    },
+    {
+      "run_id": "R-ON",
+      "policy_mode": "override",
+      "checks": 1,
+      "pass": 1,
+      "by_horizon": {
+        "5m": {
+          "count": 1,
+          "avg_return": 0.002981810953185615,
+          "win_rate": 1.0,
+          "sharpe_proxy": null,
+          "p05": 0.002981810953185615,
+          "p01": 0.002981810953185615,
+          "ci_low": null,
+          "ci_high": null
+        },
+        "15m": {
+          "count": 1,
+          "avg_return": 0.008945432859556846,
+          "win_rate": 1.0,
+          "sharpe_proxy": null,
+          "p05": 0.008945432859556846,
+          "p01": 0.008945432859556846,
+          "ci_low": null,
+          "ci_high": null
+        },
+        "60m": {
+          "count": 0,
+          "avg_return": null,
+          "win_rate": null,
+          "sharpe_proxy": null,
+          "p05": null,
+          "p01": null,
+          "ci_low": null,
+          "ci_high": null
+        }
+      }
+    }
+  ],
+  "ab_compare": {},
+  "warnings": [
+    "small_sample:5m:events=2<min_events_warning=30",
+    "small_sample:15m:events=2<min_events_warning=30",
+    "small_sample:60m:events=1<min_events_warning=30",
+    "horizon_availability_low:60m:0.500000<0.90"
+  ]
+}

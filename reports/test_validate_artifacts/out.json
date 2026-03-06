@@ -1,0 +1,35 @@
+{
+  "calibration": {
+    "errors": [],
+    "ok": true,
+    "path": "reports\\test_validate_artifacts\\cal.json"
+  },
+  "execution": {
+    "errors": [],
+    "ok": true,
+    "path": "reports\\test_validate_artifacts\\exe.json"
+  },
+  "ok": true,
+  "run_summary": {
+    "artifacts": {
+      "json": "reports\\test_validate_artifacts\\out.json",
+      "report": "reports\\test_validate_artifacts\\out.md"
+    },
+    "inputs": {
+      "calibration": "reports\\test_validate_artifacts\\cal.json",
+      "directional_sanity": false,
+      "execution": "reports\\test_validate_artifacts\\exe.json",
+      "interval_ms": 100,
+      "physics": "",
+      "sanity_days": 1,
+      "symbol": ""
+    },
+    "metrics": {
+      "calibration_ok": true,
+      "execution_ok": true,
+      "ok": true
+    },
+    "run_type": "validate_artifacts",
+    "version": "v1"
+  }
+}

@@ -1,0 +1,1 @@
+{"thresholds": {"min_events": 30, "min_avg_return_60m": 0.0, "min_p01": -0.02}, "source_report_path": "reports/alpha_gate_edge.offline.json", "candidate_keep": [{"rule_id": "R_KEEP", "symbol": "ETHUSDT"}], "candidate_disable": [{"rule_id": "R_DISABLE", "symbol": "BTCUSDT"}]}

@@ -1,0 +1,179 @@
+{
+  "meta": {
+    "build_time_utc": "2026-02-19T03:29:52.007369+00:00",
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "rows_total": 500,
+    "events_total": 3,
+    "events_per_symbol": {
+      "BTCUSDT": 3
+    },
+    "event_col": "signal_state",
+    "event_mode": "change",
+    "min_gap_sec": 0,
+    "dropped_duplicates": 0,
+    "horizon_match_stats": {
+      "BTCUSDT:ALL:1m": {
+        "exact": 3,
+        "nearest_forward": 0,
+        "missing": 0
+      },
+      "BTCUSDT:ALL:3m": {
+        "exact": 2,
+        "nearest_forward": 0,
+        "missing": 1
+      },
+      "BTCUSDT:ALL:5m": {
+        "exact": 1,
+        "nearest_forward": 0,
+        "missing": 2
+      },
+      "BTCUSDT:alpha:1m": {
+        "exact": 2,
+        "nearest_forward": 0,
+        "missing": 0
+      },
+      "BTCUSDT:alpha:3m": {
+        "exact": 1,
+        "nearest_forward": 0,
+        "missing": 1
+      },
+      "BTCUSDT:alpha:5m": {
+        "exact": 1,
+        "nearest_forward": 0,
+        "missing": 1
+      },
+      "BTCUSDT:beta:1m": {
+        "exact": 1,
+        "nearest_forward": 0,
+        "missing": 0
+      },
+      "BTCUSDT:beta:3m": {
+        "exact": 1,
+        "nearest_forward": 0,
+        "missing": 0
+      },
+      "BTCUSDT:beta:5m": {
+        "exact": 0,
+        "nearest_forward": 0,
+        "missing": 1
+      }
+    },
+    "group_include_regex": null,
+    "group_exclude_regex": null,
+    "groups_total": 3,
+    "groups_kept": 3,
+    "groups_dropped": 0,
+    "events_total_before_filter": 3,
+    "events_total_after_filter": 3,
+    "events_dropped": 0,
+    "event_mode_resolved": "change",
+    "input_path": "C:\\Users\\Windows 11\\.vscode\\CryptoLion\\eclipse_scalper\\tmp\\tests\\signal_eval_change_smoke\\data\\canonical\\canonical_merged.parquet"
+  },
+  "by_symbol": {
+    "BTCUSDT": {
+      "events": 3,
+      "by_group": {
+        "ALL": {
+          "events": 3,
+          "horizons": {
+            "1m": {
+              "events_matched": 3,
+              "accuracy": 1.0,
+              "win_rate": 1.0,
+              "average_return": 0.011598882899266139,
+              "sharpe_ratio": 37.04686431116055,
+              "mae_mean": 0.0,
+              "mfe_mean": 0.011598882899266139
+            },
+            "3m": {
+              "events_matched": 2,
+              "accuracy": 1.0,
+              "win_rate": 1.0,
+              "average_return": 0.03534104046242781,
+              "sharpe_ratio": 53.631578947371025,
+              "mae_mean": 0.0,
+              "mfe_mean": 0.03534104046242781
+            },
+            "5m": {
+              "events_matched": 1,
+              "accuracy": 1.0,
+              "win_rate": 1.0,
+              "average_return": 0.06000000000000005,
+              "sharpe_ratio": null,
+              "mae_mean": 0.0,
+              "mfe_mean": 0.06000000000000005
+            }
+          }
+        },
+        "alpha": {
+          "events": 2,
+          "horizons": {
+            "1m": {
+              "events_matched": 2,
+              "accuracy": 1.0,
+              "win_rate": 1.0,
+              "average_return": 0.011617977528089907,
+              "sharpe_ratio": 30.411764705883073,
+              "mae_mean": 0.0,
+              "mfe_mean": 0.011617977528089907
+            },
+            "3m": {
+              "events_matched": 1,
+              "accuracy": 1.0,
+              "win_rate": 1.0,
+              "average_return": 0.03600000000000003,
+              "sharpe_ratio": null,
+              "mae_mean": 0.0,
+              "mfe_mean": 0.03600000000000003
+            },
+            "5m": {
+              "events_matched": 1,
+              "accuracy": 1.0,
+              "win_rate": 1.0,
+              "average_return": 0.06000000000000005,
+              "sharpe_ratio": null,
+              "mae_mean": 0.0,
+              "mfe_mean": 0.06000000000000005
+            }
+          }
+        },
+        "beta": {
+          "events": 1,
+          "horizons": {
+            "1m": {
+              "events_matched": 1,
+              "accuracy": 1.0,
+              "win_rate": 1.0,
+              "average_return": 0.011560693641618602,
+              "sharpe_ratio": null,
+              "mae_mean": 0.0,
+              "mfe_mean": 0.011560693641618602
+            },
+            "3m": {
+              "events_matched": 1,
+              "accuracy": 1.0,
+              "win_rate": 1.0,
+              "average_return": 0.034682080924855585,
+              "sharpe_ratio": null,
+              "mae_mean": 0.0,
+              "mfe_mean": 0.034682080924855585
+            },
+            "5m": {
+              "events_matched": 0,
+              "accuracy": null,
+              "win_rate": null,
+              "average_return": null,
+              "sharpe_ratio": null,
+              "mae_mean": null,
+              "mfe_mean": null
+            }
+          }
+        }
+      }
+    }
+  },
+  "warnings": [],
+  "top_groups": []
+}

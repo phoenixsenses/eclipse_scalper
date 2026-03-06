@@ -1,0 +1,55 @@
+{
+  "inputs": {
+    "candidates_md": "reports/dummy.md",
+    "db": "data/microstructure.db",
+    "lookback_min": 10080,
+    "bucket_sec": 1,
+    "rule": "micro_edge_v3_passive_alpha",
+    "side": "auto",
+    "splits": 6,
+    "seeds": "7,11,22,33,44,55,66,77,88",
+    "min_n": 50,
+    "min_n_frac": 0.0005,
+    "maker_fee_bps": 1.0,
+    "passive_adverse_mult": 1.2,
+    "mitigation_profile": "baseline",
+    "max_volatility_extreme": null,
+    "vol_quantile_reject": null,
+    "passive_profile_in": "state/passive_realistic_profiles.json",
+    "out_json": "reports\\test_triage_capacity.json"
+  },
+  "gate_config": {
+    "mitigation_profile": "baseline",
+    "max_volatility_extreme": null,
+    "vol_quantile_reject": null
+  },
+  "rows": [
+    {
+      "symbol": "ETHUSDT",
+      "horizon_sec": 120,
+      "min_imbalance": 0.5,
+      "min_trade_intensity": 2500.0,
+      "max_spread": 0.00025,
+      "attempts_per_min": 0.09,
+      "effective_min_n_median": 61,
+      "expected_fills_per_split": 42.5,
+      "prob_fail_insufficient_fills": 0.5
+    }
+  ],
+  "run_summary": {
+    "version": "v1",
+    "run_type": "triage_capacity",
+    "inputs": {
+      "candidates_md": "reports/dummy.md",
+      "db": "data/microstructure.db",
+      "mitigation_profile": "baseline"
+    },
+    "metrics": {
+      "candidate_count": 1,
+      "row_count": 1
+    },
+    "artifacts": {
+      "json": "reports\\test_triage_capacity.json"
+    }
+  }
+}

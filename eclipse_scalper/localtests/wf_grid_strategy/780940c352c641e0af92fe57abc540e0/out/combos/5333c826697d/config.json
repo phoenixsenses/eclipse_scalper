@@ -1,0 +1,32 @@
+{
+  "combo_id": "5333c826697d",
+  "execution": {
+    "fee_bps": 0.0,
+    "horizon_sec": 5,
+    "qty": 1.0,
+    "spread_bps": 0.0
+  },
+  "slices": [
+    [
+      "2024-03-01T00:00:00Z",
+      "2024-03-01T00:00:20Z"
+    ],
+    [
+      "2024-03-01T00:00:20Z",
+      "2024-03-01T00:00:40Z"
+    ]
+  ],
+  "strategy": "micro_edge_pocket",
+  "strategy_config_base_hash": "2a9ba20c8f88",
+  "strategy_config_effective": {
+    "cooldown_ms": 250,
+    "filters": {
+      "imbalance_gte": 0.3
+    },
+    "side": "buy"
+  },
+  "strategy_overrides": {
+    "cooldown_ms": 250,
+    "filters.imbalance_gte": 0.3
+  }
+}

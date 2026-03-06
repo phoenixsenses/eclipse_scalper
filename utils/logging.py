@@ -175,7 +175,12 @@ def _clear_handlers(logger: logging.Logger):
 
 
 def _make_console_handler() -> logging.Handler:
-    h = logging.StreamHandler(sys.stdout)
+    stream = sys.stdout
+    try:
+        stream = open(sys.stdout.fileno(), mode="w", encoding="utf-8", closefd=False)
+    except Exception:
+        stream = sys.stdout
+    h = logging.StreamHandler(stream)
     if LOG_JSON:
         h.setFormatter(JsonFormatter(utc=LOG_UTC))
     else:

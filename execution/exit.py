@@ -20,6 +20,29 @@ from brain.persistence import save_brain
 
 from execution.order_router import create_order, cancel_order  # ✅ ROUTER
 from ta.volatility import AverageTrueRange
+try:
+    from core.scratch import ScratchConfig, ScratchEngine  # type: ignore
+except Exception:
+    ScratchConfig = None  # type: ignore
+    ScratchEngine = None  # type: ignore
+try:
+    from core.regime_risk import RegimeRiskManager  # type: ignore
+except Exception:
+    RegimeRiskManager = None  # type: ignore
+try:
+    from core.trade_logger import TradeLogger  # type: ignore
+except Exception:
+    TradeLogger = None  # type: ignore
+try:
+    from notifications.manager import get_notification_manager_from_bot  # type: ignore
+    from notifications.trade_alerts import build_exit_event, build_scratch_event  # type: ignore
+    from notifications.risk_alerts import build_scratch_pause_event, build_drawdown_event  # type: ignore
+except Exception:
+    get_notification_manager_from_bot = None  # type: ignore
+    build_exit_event = None  # type: ignore
+    build_scratch_event = None  # type: ignore
+    build_scratch_pause_event = None  # type: ignore
+    build_drawdown_event = None  # type: ignore
 
 
 try:
@@ -237,6 +260,21 @@ async def _safe_speak(bot, text: str, priority: str = "critical"):
         return
     try:
         await notify.speak(text, priority)
+    except Exception:
+        pass
+
+
+async def _safe_notify_event(bot, event) -> None:
+    if event is None or not callable(get_notification_manager_from_bot):
+        return
+    try:
+        nm = get_notification_manager_from_bot(bot)
+        if nm is None:
+            return
+        if str(getattr(event, "category", "")).startswith("trade_"):
+            await nm.send_trade_event(event)
+        else:
+            await nm.send(event)
     except Exception:
         pass
 
@@ -580,6 +618,69 @@ def _position_side_for_trade(side: str) -> str:
     if s == "short":
         return "SHORT"
     return ""
+
+
+def _get_regime_risk_manager_from_bot(bot):
+    if RegimeRiskManager is None:
+        return None
+
+
+def _get_trade_logger(bot):
+    if TradeLogger is None:
+        return None
+    try:
+        if not _truthy(_cfg_env(bot, "EXIT_TRADE_LOGGER_ENABLED", False)):
+            return None
+        st = getattr(bot, "state", None)
+        rc = getattr(st, "run_context", None) if st is not None else None
+        if not isinstance(rc, dict):
+            return None
+        lg = rc.get("trade_logger")
+        if lg is not None:
+            return lg
+        db_path = str(_cfg_env(bot, "EXIT_TRADE_LOG_DB", "data/paper_trades.db") or "data/paper_trades.db")
+        lg = TradeLogger(db_path=db_path)
+        rc["trade_logger"] = lg
+        return lg
+    except Exception:
+        return None
+    try:
+        st = getattr(bot, "state", None)
+        rc = getattr(st, "run_context", None) if st is not None else None
+        if not isinstance(rc, dict):
+            return None
+        mgr = rc.get("regime_risk_manager")
+        return mgr
+    except Exception:
+        return None
+
+
+def _scratch_signature(entry_ts: float, entry_price: float, side: str) -> str:
+    return f"{float(entry_ts):.3f}|{float(entry_price):.8f}|{str(side).lower().strip()}"
+
+
+def _get_or_reset_scratch_engine(
+    runtime_map: Dict[str, Any],
+    *,
+    k: str,
+    entry_ts: float,
+    entry_price: float,
+    side: str,
+    cfg: Any,
+):
+    if not callable(ScratchEngine):
+        return None
+    sig = _scratch_signature(entry_ts, entry_price, side)
+    cur = runtime_map.get(k) if isinstance(runtime_map, dict) else None
+    eng = None
+    if isinstance(cur, dict) and cur.get("sig") == sig:
+        eng = cur.get("engine")
+    if eng is None:
+        eng = ScratchEngine(cfg)  # type: ignore[misc]
+        entry_side = "buy" if str(side).lower().strip() == "long" else "sell"
+        eng.reset(entry_price=float(entry_price), side=entry_side, entry_time=float(entry_ts))
+        runtime_map[k] = {"sig": sig, "engine": eng}
+    return eng
 
 
 # ----------------------------
@@ -1103,6 +1204,119 @@ async def handle_exit(bot, order: dict):
                     },
                 ),
             )
+            tlog = _get_trade_logger(bot)
+            if tlog is not None:
+                try:
+                    trade_id = f"{k}|{float(getattr(pos, 'entry_ts', 0.0) or 0.0):.3f}|{float(exit_ts):.3f}|{str(oid)}"
+                    tlog.log_trade(
+                        {
+                            "trade_id": trade_id,
+                            "entry_time": float(getattr(pos, "entry_ts", 0.0) or 0.0),
+                            "exit_time": float(exit_ts),
+                            "side": str(getattr(pos, "side", "") or ""),
+                            "regime": str(getattr(pos, "regime", "") or ""),
+                            "regime_age_sec": float(getattr(pos, "regime_age_sec", 0.0) or 0.0),
+                            "rolling_return": float(getattr(pos, "rolling_return", 0.0) or 0.0),
+                            "entry_price": float(entry_px),
+                            "exit_price": float(exit_price),
+                            "pnl_bps": float(pnl_pct * 10000.0),
+                            "exit_type": str(exit_type),
+                            "exit_reason": str(exit_reason),
+                            "peak_favorable_bps": float(mfe_pct * 100.0),
+                            "max_adverse_bps": float(getattr(pos, "max_adverse_bps", 0.0) or 0.0),
+                            "elapsed_sec": float(duration_seconds),
+                            "pocket_filters": {"symbol": k},
+                            "scratch_config": {},
+                        }
+                    )
+                    tlog.update_daily_summary()
+                except Exception:
+                    pass
+            if callable(build_exit_event):
+                try:
+                    st = getattr(bot, "state", None)
+                    await _safe_notify_event(
+                        bot,
+                        build_exit_event(
+                            symbol=k,
+                            side=str(getattr(pos, "side", "") or ""),
+                            pnl_bps=float(pnl_pct * 10000.0),
+                            exit_type=str(exit_type or ""),
+                            hold_sec=float(duration_seconds),
+                            peak_bps=float(mfe_pct * 100.0),
+                            adverse_bps=float(getattr(pos, "max_adverse_bps", 0.0) or 0.0),
+                            session_trades=int(getattr(st, "total_trades", 0) or 0),
+                            session_pnl_bps=float(getattr(st, "daily_pnl_bps", 0.0) or 0.0),
+                            session_win_rate=float(getattr(st, "win_rate", 0.0) or 0.0),
+                        ),
+                    )
+                except Exception:
+                    pass
+            if callable(build_scratch_event) and ("scratch" in str(exit_reason or "").lower()):
+                try:
+                    st = getattr(bot, "state", None)
+                    await _safe_notify_event(
+                        bot,
+                        build_scratch_event(
+                            symbol=k,
+                            side=str(getattr(pos, "side", "") or ""),
+                            pnl_bps=float(pnl_pct * 10000.0),
+                            adverse_limit_bps=float(_cfg_env(bot, "EXIT_MAX_ADVERSE_BPS", 0.0) or 0.0),
+                            elapsed_sec=float(duration_seconds),
+                            session_trades=int(getattr(st, "total_trades", 0) or 0),
+                            session_pnl_bps=float(getattr(st, "daily_pnl_bps", 0.0) or 0.0),
+                            scratches=int(getattr(st, "scratch_count", 0) or 0),
+                        ),
+                    )
+                except Exception:
+                    pass
+            mgr = _get_regime_risk_manager_from_bot(bot)
+            if mgr is not None:
+                try:
+                    actions = mgr.on_trade_exit(
+                        {"reason": str(exit_reason or ""), "action": str(exit_type or "")},
+                        float(pnl_pct * 10000.0),
+                    )
+                    for act in list(actions or []):
+                        _schedule_exit_event(
+                            bot,
+                            "exit.risk_action",
+                            symbol=k,
+                            reason=str(getattr(act, "reason", "") or "risk_action"),
+                            level="warning",
+                            data={
+                                "action": str(getattr(act, "action", "") or ""),
+                                "target_position_id": str(getattr(act, "target_position_id", "") or ""),
+                                "risk_state": getattr(mgr, "state_dict", lambda: {})(),
+                            },
+                            throttle_sec=10.0,
+                            key=f"{k}:exit_risk_action",
+                        )
+                        if callable(build_scratch_pause_event) and str(getattr(act, "action", "") or "") == "pause_trading":
+                            rs = getattr(mgr, "state_dict", lambda: {})()
+                            await _safe_notify_event(
+                                bot,
+                                build_scratch_pause_event(
+                                    int(rs.get("consecutive_scratches", 0) or 0),
+                                    float((rs.get("config") or {}).get("scratch_pause_sec", 0.0) or 0.0),
+                                    [],
+                                ),
+                            )
+                    if callable(build_drawdown_event):
+                        rs = getattr(mgr, "state_dict", lambda: {})()
+                        dd = float(rs.get("peak_pnl_bps", 0.0) or 0.0) - float(rs.get("current_pnl_bps", 0.0) or 0.0)
+                        max_dd = float((rs.get("config") or {}).get("max_drawdown_bps", 0.0) or 0.0)
+                        if max_dd > 0 and dd > max_dd:
+                            await _safe_notify_event(
+                                bot,
+                                build_drawdown_event(
+                                    max_dd,
+                                    float(rs.get("peak_pnl_bps", 0.0) or 0.0),
+                                    float(rs.get("current_pnl_bps", 0.0) or 0.0),
+                                ),
+                            )
+                except Exception:
+                    pass
             log_entry.info(
                 f"FINAL EXIT {pos.side.upper()} {k} | Total PnL ${full_pnl:+,.0f} | "
                 f"Duration {time.strftime('%Hh%Mm%Ss', time.gmtime(duration_seconds))} | "
@@ -1279,6 +1493,19 @@ async def exit_loop(bot) -> None:
     exit_signal_feedback_count = int(_safe_float(_cfg_env(bot, "EXIT_SIGNAL_FEEDBACK_MIN_COUNT", 3), 3))
     exit_signal_feedback_hold_scale = _safe_float(_cfg_env(bot, "EXIT_SIGNAL_FEEDBACK_HOLD_SCALE", 0.7), 0.7)
     exit_signal_feedback_stagnation_scale = _safe_float(_cfg_env(bot, "EXIT_SIGNAL_FEEDBACK_STAGNATION_SCALE", 0.7), 0.7)
+    exit_scratch_enabled = _truthy(_cfg_env(bot, "EXIT_SCRATCH_ENABLED", False))
+    exit_scratch_cfg = None
+    if exit_scratch_enabled and callable(ScratchConfig):
+        try:
+            exit_scratch_cfg = ScratchConfig(
+                max_adverse_bps=_safe_float(_cfg_env(bot, "EXIT_SCRATCH_ADVERSE_BPS", 0.0), 0.0),
+                scratch_cooldown_sec=_safe_float(_cfg_env(bot, "EXIT_SCRATCH_COOLDOWN_SEC", 10.0), 10.0),
+                trailing_stop_bps=_safe_float(_cfg_env(bot, "EXIT_SCRATCH_TRAILING_BPS", 0.0), 0.0),
+                take_profit_bps=_safe_float(_cfg_env(bot, "EXIT_SCRATCH_TAKE_PROFIT_BPS", 0.0), 0.0),
+                hard_horizon_sec=_safe_float(_cfg_env(bot, "EXIT_SCRATCH_HARD_HORIZON_SEC", max_hold_sec), max_hold_sec),
+            )
+        except Exception:
+            exit_scratch_cfg = None
 
     log.info(f"EXIT LOOP ONLINE — tick_sec={tick_sec}")
 
@@ -1307,6 +1534,19 @@ async def exit_loop(bot) -> None:
                 if not isinstance(last_mom_ts, dict):
                     last_mom_ts = {}
                     rc["exit_momentum_last_ts"] = last_mom_ts
+                scratch_runtime = rc.get("exit_scratch_runtime")
+                if not isinstance(scratch_runtime, dict):
+                    scratch_runtime = {}
+                    rc["exit_scratch_runtime"] = scratch_runtime
+                # cleanup stale scratch engines for symbols no longer in positions
+                try:
+                    if isinstance(pos_map, dict):
+                        active_syms = {str(x) for x in pos_map.keys()}
+                        for sk in list(scratch_runtime.keys()):
+                            if sk not in active_syms:
+                                scratch_runtime.pop(sk, None)
+                except Exception:
+                    pass
 
                 actions = _load_telemetry_actions()
                 telemetry_exposures = float(actions.get("exposures") or 0.0)
@@ -1410,6 +1650,68 @@ async def exit_loop(bot) -> None:
                         if qty <= 0:
                             continue
                         exit_sent = False
+                        # Optional scratch exit layer (feature-flagged, default off).
+                        if (not exit_sent) and exit_scratch_enabled and exit_scratch_cfg is not None:
+                            try:
+                                px_now = _get_current_price(bot, k, sym_any)
+                                entry_px = _safe_float(getattr(pos, "entry_price", 0.0), 0.0)
+                                if px_now > 0 and entry_px > 0:
+                                    eng = _get_or_reset_scratch_engine(
+                                        scratch_runtime,
+                                        k=k,
+                                        entry_ts=entry_ts,
+                                        entry_price=entry_px,
+                                        side=str(getattr(pos, "side", "")),
+                                        cfg=exit_scratch_cfg,
+                                    )
+                                    if eng is not None:
+                                        dec = eng.evaluate(current_price=float(px_now), current_time=float(now))
+                                        if str(dec.action) in ("SCRATCH", "TAKE_PROFIT", "HORIZON_EXIT"):
+                                            await create_order(
+                                                bot,
+                                                symbol=sym_any,
+                                                type="MARKET",
+                                                side=close_side,
+                                                amount=float(qty),
+                                                price=None,
+                                                params=({"positionSide": pos_side} if pos_side else {}),
+                                                intent_reduce_only=True,
+                                                hedge_side_hint=pos_side,
+                                                retries=4,
+                                            )
+                                            _schedule_exit_event(
+                                                bot,
+                                                "exit.success",
+                                                symbol=k,
+                                                reason=f"scratch_{str(dec.reason)}",
+                                                level="info",
+                                                throttle_sec=5.0,
+                                                key=f"{k}:exit_scratch",
+                                                data=_exit_signal_data(
+                                                    bot,
+                                                    k,
+                                                    extra={
+                                                        "scratch_action": str(dec.action),
+                                                        "scratch_reason": str(dec.reason),
+                                                        "unrealized_bps": float(dec.unrealized_bps),
+                                                        "elapsed_sec": float(dec.elapsed_sec),
+                                                        "peak_favorable_bps": float(dec.peak_favorable_bps),
+                                                        "max_adverse_bps": float(dec.max_adverse_bps),
+                                                    },
+                                                ),
+                                            )
+                                            exit_sent = True
+                            except Exception as exc:
+                                _schedule_exit_event(
+                                    bot,
+                                    "exit.blocked",
+                                    symbol=k,
+                                    reason="scratch_eval_failed",
+                                    data={"err": repr(exc)[:200]},
+                                    level="warning",
+                                    throttle_sec=30.0,
+                                    key=f"{k}:scratch_eval",
+                                )
 
                         if exit_atr_scale_enabled and (max_hold_current > 0 or stagnation_current > 0):
                             entry_px = _safe_float(getattr(pos, "entry_price", 0.0), 0.0)

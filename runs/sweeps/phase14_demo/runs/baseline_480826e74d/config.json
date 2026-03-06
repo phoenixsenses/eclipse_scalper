@@ -1,0 +1,19 @@
+{
+  "db": "data\\microstructure.db",
+  "end": "2026-03-01T22:41:20Z",
+  "execution_sim": {
+    "fee_bps": 0.0,
+    "fill_or_before_enabled": false,
+    "horizon_or_before_enabled": true,
+    "horizon_sec": 5,
+    "mode": "min_exec_sim",
+    "qty": 0.1,
+    "spread_bps": 0.0
+  },
+  "start": "2026-03-01T22:41:00Z",
+  "strategy": "baseline",
+  "strategy_config": {},
+  "symbols": [
+    "ETHUSDT"
+  ]
+}

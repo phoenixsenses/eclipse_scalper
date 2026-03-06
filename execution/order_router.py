@@ -549,8 +549,18 @@ def _binance_filter_reason(msg: str) -> Optional[str]:
 def _classify_order_error(err: Exception, *, ex=None, sym_raw: Optional[str] = None) -> tuple[bool, str, str]:
     if _error_policy is None:
         msg = _error_text(err)
+        binance_code = _extract_binance_code(msg)
+        filter_reason = _binance_filter_reason(msg)
+        if filter_reason is not None:
+            return False, filter_reason, (map_reason(filter_reason) if callable(map_reason) else "ERR_UNKNOWN")
+        if binance_code == -2019 or any(x in msg for x in ("margin is insufficient", "insufficient margin", "insufficient balance")):
+            return False, "margin_insufficient", (map_reason("margin_insufficient") if callable(map_reason) else "ERR_UNKNOWN")
+        if binance_code == -1021 or "recvwindow" in msg or "timestamp for this request is outside" in msg:
+            return True, "timestamp", (map_reason("timestamp") if callable(map_reason) else "ERR_UNKNOWN")
         if any(x in msg for x in ("timeout", "timed out", "temporarily unavailable", "connection", "econnreset", "network")):
             return True, "network", (map_reason("network") if callable(map_reason) else "ERR_UNKNOWN")
+        if "symbol not found" in msg or "invalid symbol" in msg:
+            return False, "invalid_symbol", (map_reason("invalid_symbol") if callable(map_reason) else "ERR_UNKNOWN")
         return True, "unknown", (map_reason(msg) if callable(map_reason) else "ERR_UNKNOWN")
     return _error_policy.classify_order_error(err, ex=ex, sym_raw=sym_raw, map_reason=map_reason)
 
@@ -1493,7 +1503,7 @@ async def cancel_order(bot, order_id: str, symbol: str, *, correlation_id: Optio
             continue
         last_err = err
 
-    if saw_unknown and (not unknown_conflict):
+    if saw_unknown and (not unknown_conflict) and last_err is None:
         # ✅ idempotent success after exhausting symbol candidates
         log_entry.info(f"[router] cancel idempotent success (already gone) | k={k} id={order_id} st={unknown_status or 'na'}")
         if callable(emit_order_cancel):
@@ -2196,6 +2206,7 @@ async def create_order(
     max_delay = float(_safe_float(_cfg_env(bot, "ROUTER_RETRY_MAX_DELAY_SEC", 5.0), 5.0))
     jitter_pct = float(_safe_float(_cfg_env(bot, "ROUTER_RETRY_JITTER_PCT", 0.25), 0.25))
     max_elapsed = float(_safe_float(_cfg_env(bot, "ROUTER_RETRY_MAX_ELAPSED_SEC", 30.0), 30.0))
+    max_total_tries = int(_safe_float(_cfg_env(bot, "ROUTER_RETRY_MAX_TOTAL_TRIES", 0), 0))
     if retries is not None:
         max_attempts = max(1, int(retries))
 
@@ -2271,10 +2282,16 @@ async def create_order(
     tries = 0
     attempt = 0
     abort_retries = False
+    if max_total_tries <= 0:
+        # Keep retry storms bounded even if retry variants expand on repeated errors.
+        max_total_tries = max(1, (max_attempts * max(1, len(variants)) * 2))
     while attempt < max_attempts:
         if max_elapsed > 0 and (time.monotonic() - start_ts) >= max_elapsed:
             break
         for (raw_sym, amt_try, px_try, p_try) in list(variants):
+            if tries >= max_total_tries:
+                abort_retries = True
+                break
             tries += 1
             try:
                 _journal_intent_transition(

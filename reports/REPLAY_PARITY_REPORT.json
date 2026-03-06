@@ -1,0 +1,17 @@
+{
+  "sim_count": 0,
+  "live_count": 0,
+  "matched_count": 0,
+  "unmatched_sim_count": 0,
+  "unmatched_live_count": 0,
+  "match_rate_vs_sim": 0.0,
+  "sim_fill_rate": 0.0,
+  "live_fill_rate": 0.0,
+  "fill_rate_delta": 0.0,
+  "mean_dt_sec": 0.0,
+  "mean_abs_dt_sec": 0.0,
+  "mean_fill_delay_delta_sec": 0.0,
+  "mean_pnl_bps_delta": 0.0,
+  "mean_adverse_bps_delta": 0.0,
+  "matches": []
+}

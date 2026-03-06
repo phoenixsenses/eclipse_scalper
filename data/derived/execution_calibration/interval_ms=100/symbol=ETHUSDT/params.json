@@ -1,0 +1,28 @@
+{
+  "adverse": {
+    "buy_mean": 0.0,
+    "sell_mean": 0.0
+  },
+  "maker_hazard": {
+    "a": 1.0,
+    "b": -0.7,
+    "c": 0.5,
+    "d": -0.5,
+    "fill_threshold": 0.5,
+    "ttl_bars": 5
+  },
+  "maker_queue": {
+    "min_depth": 1.0,
+    "queue_frac": 0.15,
+    "ttl_bars": 5
+  },
+  "maker_queue_v2": {
+    "initial_queue_frac": 0.2,
+    "min_depth": 1.0,
+    "opposite_flow_scale": 0.8,
+    "pressure_floor": 0.09,
+    "same_side_cancel_rate": 0.060000000000000005,
+    "same_side_join_rate": 0.06,
+    "ttl_bars": 6
+  }
+}
