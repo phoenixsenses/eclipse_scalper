@@ -1,0 +1,28 @@
+{
+  "lane": "fill_toxicity_regime",
+  "purpose": "execution_quality_monitoring",
+  "single_symbol_state": {
+    "required": [
+      "source",
+      "rows",
+      "top_side",
+      "state.level",
+      "state.reasons",
+      "dashboard_summary",
+      "notification_text",
+      "recommended_action",
+      "card.headline",
+      "card.operator_note",
+      "card.top_side",
+      "card.rows",
+      "card.toxicity_score",
+      "card.adverse_bps_mean",
+      "card.pnl_bps_mean"
+    ]
+  },
+  "runtime_rules": [
+    "Treat recommended_action as operator guidance only.",
+    "If rows == 0, render as quiet/no-data rather than as an active incident.",
+    "Do not auto-wire this payload into execution logic without separate validation."
+  ]
+}
