@@ -34,6 +34,7 @@ Interpretation:
 Person 2 should consume this as:
 
 1. dashboard alert feed
+2. dashboard state/card payload
 2. monitoring annotation
 3. optional execution caution context
 
@@ -52,6 +53,7 @@ Tool:
 Primary real artifact:
 
 - `reports/LIQUIDATION_REGIME_ALERTS_REAL.json`
+- `reports/LIQUIDATION_ALERT_STATE_REAL.json`
 
 ## Minimal Contract
 
@@ -97,10 +99,15 @@ Top-level fields:
 Show:
 
 - last 20 alerts
+- current state card: `quiet / elevated / severe`
 - side bias distribution
 - severity distribution
 - max liquidation rate in window
 - tagged rate in current window
+
+Suggested card source:
+
+- `python -m tools.liquidation_alert_state --alerts-json reports/LIQUIDATION_REGIME_ALERTS_REAL.json --out-json reports/LIQUIDATION_ALERT_STATE_REAL.json`
 
 ### Monitoring
 

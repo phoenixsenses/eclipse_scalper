@@ -317,6 +317,63 @@ def _validate_liquidation_regime_alerts(payload: Dict[str, Any]) -> List[str]:
     return errors
 
 
+def _validate_liquidation_alert_state(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source_json": str,
+        "symbol": str,
+        "rule": str,
+        "state": dict,
+        "card": dict,
+        "summary_snapshot": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    state = payload.get("state")
+    if isinstance(state, dict):
+        for key in ("level", "reasons", "primary_side_bias", "dominant_severity"):
+            if key not in state:
+                errors.append(f"missing:state.{key}")
+        if "reasons" in state and not isinstance(state["reasons"], list):
+            errors.append("bad_type:state.reasons")
+    card = payload.get("card")
+    if isinstance(card, dict):
+        for key in (
+            "headline",
+            "operator_note",
+            "recent_alert_count",
+            "tagged_rate",
+            "max_consecutive_tagged",
+            "max_liq_rate_recent",
+            "primary_side_bias",
+            "dominant_severity",
+            "latest_alert_ts_ms",
+        ):
+            if key not in card:
+                errors.append(f"missing:card.{key}")
+    summary = payload.get("summary_snapshot")
+    if isinstance(summary, dict):
+        for key in (
+            "rows_total",
+            "tagged_count",
+            "tagged_rate",
+            "recent_alert_count",
+            "max_consecutive_tagged",
+            "max_liq_rate_recent",
+            "side_bias_counts",
+            "severity_counts",
+        ):
+            if key not in summary:
+                errors.append(f"missing:summary_snapshot.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 def _validate_validate_artifacts(payload: Dict[str, Any]) -> List[str]:
     errors: List[str] = []
     required_top = {
@@ -950,6 +1007,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "summarize_liq_regime_tag_impact": _validate_summarize_liq_regime_tag_impact,
     "summarize_liq_tag_signal_behavior": _validate_summarize_liq_tag_signal_behavior,
     "liquidation_regime_alerts": _validate_liquidation_regime_alerts,
+    "liquidation_alert_state": _validate_liquidation_alert_state,
     "validate_artifacts": _validate_validate_artifacts,
     "report_check": _validate_report_check,
     "validate_micro_edge_forward": _validate_validate_micro_edge_forward,
@@ -1003,6 +1061,8 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "summarize_liq_tag_signal_behavior"
     if {"symbol", "rule", "recent_limit", "min_liq_rate", "alerts"}.issubset(keys):
         return "liquidation_regime_alerts"
+    if {"source_json", "state", "card", "summary_snapshot"}.issubset(keys):
+        return "liquidation_alert_state"
     if {"ok", "calibration", "execution"}.issubset(keys):
         return "validate_artifacts"
     if {"results", "summary"}.issubset(keys):

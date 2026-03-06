@@ -267,6 +267,50 @@ def test_validate_liquidation_regime_alerts_payload() -> None:
     assert rsv.validate_payload(payload, "liquidation_regime_alerts") == []
 
 
+def test_validate_liquidation_alert_state_payload() -> None:
+    payload = {
+        "source_json": "reports/LIQUIDATION_REGIME_ALERTS_REAL.json",
+        "symbol": "ETHUSDT",
+        "rule": "high_liq_reversal_regime",
+        "state": {
+            "level": "elevated",
+            "reasons": ["recent_alert_cluster"],
+            "primary_side_bias": "LONG",
+            "dominant_severity": "medium",
+        },
+        "card": {
+            "headline": "ETHUSDT liquidation regime elevated",
+            "operator_note": "Show on dashboard.",
+            "recent_alert_count": 3,
+            "tagged_rate": 0.04,
+            "max_consecutive_tagged": 2,
+            "max_liq_rate_recent": 5.2,
+            "primary_side_bias": "LONG",
+            "dominant_severity": "medium",
+            "latest_alert_ts_ms": 456,
+        },
+        "summary_snapshot": {
+            "rows_total": 50,
+            "tagged_count": 2,
+            "tagged_rate": 0.04,
+            "recent_alert_count": 3,
+            "max_consecutive_tagged": 2,
+            "max_liq_rate_recent": 5.2,
+            "side_bias_counts": {"LONG": 2},
+            "severity_counts": {"medium": 2},
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "liquidation_alert_state",
+            "inputs": {"source_json": "reports/LIQUIDATION_REGIME_ALERTS_REAL.json"},
+            "metrics": {"state_level": "elevated"},
+            "artifacts": {"json": "reports/LIQUIDATION_ALERT_STATE.json", "md": "reports/LIQUIDATION_ALERT_STATE.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "liquidation_alert_state"
+    assert rsv.validate_payload(payload, "liquidation_alert_state") == []
+
+
 def test_validate_artifacts_payload() -> None:
     payload = {
         "ok": True,
