@@ -588,6 +588,137 @@ def test_validate_return_shock_watchlist_payload() -> None:
     assert rsv.validate_payload(payload, "return_shock_watchlist") == []
 
 
+def test_validate_volume_vacuum_alerts_payload() -> None:
+    payload = {
+        "lane": "volume_vacuum",
+        "symbol": "ETHUSDT",
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "summary": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 3,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_trade_intensity_tagged": 20.0,
+            "avg_spread_tagged": 0.0002,
+        },
+        "alerts": [
+            {"ts_ms": 1, "severity": "high", "trade_intensity": 10.0, "spread": 0.0002, "ret_1": 0.0}
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "volume_vacuum_alerts",
+            "inputs": {"symbol": "ETHUSDT"},
+            "metrics": {"rows_total": 100, "tagged_count": 5},
+            "artifacts": {"json": "reports/VOLUME_VACUUM_ALERTS.json", "md": "reports/VOLUME_VACUUM_ALERTS.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "volume_vacuum_alerts"
+    assert rsv.validate_payload(payload, "volume_vacuum_alerts") == []
+
+
+def test_validate_volume_vacuum_state_payload() -> None:
+    payload = {
+        "lane": "volume_vacuum",
+        "source_json": "reports/VOLUME_VACUUM_ALERTS_REAL.json",
+        "symbol": "ETHUSDT",
+        "state": {
+            "level": "elevated",
+            "reasons": ["recent_volume_vacuum_cluster"],
+            "freshness": {"status": "fresh", "age_sec": 4.0, "stale_after_sec": 60},
+        },
+        "dashboard_summary": "ETHUSDT elevated volume vacuum, 3 recent alerts, freshness fresh.",
+        "notification_text": "[volume-vacuum] symbol=ETHUSDT level=elevated freshness=fresh recent_alerts=3 avg_trade_intensity=20.00 avg_spread=0.000200 action=monitor_only",
+        "recommended_action": "monitor_only",
+        "card": {
+            "headline": "ETHUSDT volume vacuum elevated",
+            "operator_note": "Thin/quiet market context; use as passive execution caution, not directional signal.",
+            "recent_alert_count": 3,
+            "tagged_rate": 0.05,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_trade_intensity_tagged": 20.0,
+            "avg_spread_tagged": 0.0002,
+            "latest_alert_ts_ms": 1,
+            "freshness_status": "fresh",
+            "age_sec": 4.0,
+        },
+        "summary_snapshot": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 3,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_trade_intensity_tagged": 20.0,
+            "avg_spread_tagged": 0.0002,
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "volume_vacuum_state",
+            "inputs": {"source_json": "reports/VOLUME_VACUUM_ALERTS_REAL.json"},
+            "metrics": {"state_level": "elevated", "recommended_action": "monitor_only"},
+            "artifacts": {"json": "reports/VOLUME_VACUUM_STATE.json", "md": "reports/VOLUME_VACUUM_STATE.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "volume_vacuum_state"
+    assert rsv.validate_payload(payload, "volume_vacuum_state") == []
+
+
+def test_validate_volume_vacuum_watchlist_payload() -> None:
+    payload = {
+        "lane": "volume_vacuum",
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "recent_limit": 20,
+        "summary": {"symbol_count": 2, "top_n": 2, "state_counts": {"severe": 1, "elevated": 1}, "top_symbol": "ETHUSDT"},
+        "top_summary": {
+            "symbol": "ETHUSDT",
+            "state_level": "severe",
+            "freshness_status": "fresh",
+            "recommended_action": "show_caution",
+            "dashboard_summary": "ETH severe volume vacuum",
+        },
+        "banner": {
+            "headline": "Volume vacuum watchlist top=ETHUSDT level=severe freshness=fresh action=show_caution",
+            "recommended_action": "show_caution",
+            "top_symbol": "ETHUSDT",
+            "top_state_level": "severe",
+            "top_freshness_status": "fresh",
+            "severe_count": 1,
+            "elevated_count": 1,
+            "quiet_count": 0,
+        },
+        "rows": [
+            {
+                "symbol": "ETHUSDT",
+                "state_level": "severe",
+                "freshness_status": "fresh",
+                "recommended_action": "show_caution",
+                "recent_alert_count": 6,
+                "high_count": 2,
+                "medium_count": 4,
+                "avg_trade_intensity_tagged": 20.0,
+                "avg_spread_tagged": 0.00021,
+                "age_sec": 3.0,
+                "dashboard_summary": "ETH severe volume vacuum",
+                "priority_score": 227.0,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "volume_vacuum_watchlist",
+            "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"]},
+            "metrics": {"symbol_count": 2, "severe_count": 1, "elevated_count": 1, "quiet_count": 0},
+            "artifacts": {"json": "reports/VOLUME_VACUUM_WATCHLIST.json", "md": "reports/VOLUME_VACUUM_WATCHLIST.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "volume_vacuum_watchlist"
+    assert rsv.validate_payload(payload, "volume_vacuum_watchlist") == []
+
+
 def test_validate_spread_stress_watchlist_payload() -> None:
     payload = {
         "lookback_min": 240,

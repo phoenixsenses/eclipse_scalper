@@ -11,6 +11,7 @@ from tools.liquidation_watchlist import build_watchlist_payload as build_liquida
 from tools.return_shock_watchlist import build_watchlist_payload as build_return_shock_watchlist
 from tools.run_summary import build_run_summary
 from tools.spread_stress_watchlist import build_watchlist_payload as build_spread_stress_watchlist
+from tools.volume_vacuum_watchlist import build_watchlist_payload as build_volume_vacuum_watchlist
 from tools.toxicity_report import build_toxicity_report, _load as load_toxicity_rows
 from tools.execution_diagnostics import compute_execution_diagnostics, _load_rows as load_execution_rows
 
@@ -65,6 +66,20 @@ def _return_shock_entry(payload: Dict[str, Any]) -> Dict[str, Any]:
     banner = dict(payload.get("banner") or {})
     return {
         "lane": "return_shock",
+        "level": str(top.get("state_level") or "quiet"),
+        "freshness_status": str(top.get("freshness_status") or "stale"),
+        "recommended_action": str(top.get("recommended_action") or "monitor_only"),
+        "headline": str(banner.get("headline") or ""),
+        "detail": str(top.get("dashboard_summary") or ""),
+        "priority_score": _severity_score(top.get("state_level")) + _freshness_bonus(top.get("freshness_status")),
+    }
+
+
+def _volume_vacuum_entry(payload: Dict[str, Any]) -> Dict[str, Any]:
+    top = dict(payload.get("top_summary") or {})
+    banner = dict(payload.get("banner") or {})
+    return {
+        "lane": "volume_vacuum",
         "level": str(top.get("state_level") or "quiet"),
         "freshness_status": str(top.get("freshness_status") or "stale"),
         "recommended_action": str(top.get("recommended_action") or "monitor_only"),
@@ -131,6 +146,16 @@ def build_watchboard_payload(
         out_json="reports/RETURN_SHOCK_WATCHLIST.json",
         out_md="reports/RETURN_SHOCK_WATCHLIST.md",
     )
+    volume_vacuum = build_volume_vacuum_watchlist(
+        db=micro_db,
+        symbols=symbols,
+        lookback_min=lookback_min,
+        bucket_sec=bucket_sec,
+        recent_limit=recent_limit,
+        top_n=top_n,
+        out_json="reports/VOLUME_VACUUM_WATCHLIST.json",
+        out_md="reports/VOLUME_VACUUM_WATCHLIST.md",
+    )
     fill = build_fill_toxicity_state(
         source=trade_source,
         report_payload=build_toxicity_report(load_toxicity_rows(Path(trade_source))),
@@ -148,6 +173,7 @@ def build_watchboard_payload(
         _liquidation_entry(liq),
         _spread_entry(spread),
         _return_shock_entry(return_shock),
+        _volume_vacuum_entry(volume_vacuum),
         _state_entry("fill_toxicity", fill),
         _state_entry("latency_stress", latency),
     ]

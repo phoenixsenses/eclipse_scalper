@@ -9,6 +9,7 @@ Current lanes:
 - liquidation
 - spread stress
 - return shock
+- volume vacuum
 - fill toxicity
 - latency stress
 
@@ -42,6 +43,8 @@ Short term:
 
 - dashboard header / overview card
 - operator priority ranking across research event lanes
+- freshness-aware top event banner
+- multi-lane severity table
 
 Not yet:
 
