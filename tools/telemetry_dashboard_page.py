@@ -157,7 +157,8 @@ def _read_reliability_gate_section(path: Path) -> str:
             lines.append("top_contributors: " + ", ".join(f"{k}={v}" for (k, v) in ranked))
     if mismatch_ids:
         lines.append("top_missing_ids: " + ", ".join(mismatch_ids[:5]))
-    return f"<h2>Reliability Gate</h2><pre>{'\n'.join(lines)}</pre>"
+    body = "\n".join(lines)
+    return f"<h2>Reliability Gate</h2><pre>{body}</pre>"
 
 
 def _load_jsonl(path: Path) -> list[dict]:
