@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from tools.analyze_micro_edge_regimes import group_key, group_stats, load_debug_rows, summarize
+from tools.analyze_micro_edge_regimes import enrich_liq_regime_tags, group_key, group_stats, load_debug_rows, summarize
 from tools.run_summary import build_run_summary
 
 
@@ -104,6 +104,27 @@ def _liquidation_impact(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
             "n": int(inactive_sm.get("n", 0) or 0),
             "avg_net": float(inactive_sm.get("avg_net", 0.0) or 0.0),
             "p90_net": float(inactive_sm.get("p90_net", 0.0) or 0.0),
+        },
+    }
+
+
+def _liq_regime_tag_impact(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
+    enrich_liq_regime_tags(rows, rule_name="high_liq_reversal_regime")
+    tagged = [r for r in rows if str(r.get("liq_regime_tag", "")) == "high_liq_reversal"]
+    normal = [r for r in rows if str(r.get("liq_regime_tag", "")) != "high_liq_reversal"]
+    tagged_sm = summarize(tagged)
+    normal_sm = summarize(normal)
+    return {
+        "available": bool(rows),
+        "tagged": {
+            "n": int(tagged_sm.get("n", 0) or 0),
+            "avg_net": float(tagged_sm.get("avg_net", 0.0) or 0.0),
+            "p90_net": float(tagged_sm.get("p90_net", 0.0) or 0.0),
+        },
+        "normal": {
+            "n": int(normal_sm.get("n", 0) or 0),
+            "avg_net": float(normal_sm.get("avg_net", 0.0) or 0.0),
+            "p90_net": float(normal_sm.get("p90_net", 0.0) or 0.0),
         },
     }
 
@@ -230,6 +251,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     )
     disc_liq = _liquidation_impact(disc_sel)
     valid_liq = _liquidation_impact(valid_sel)
+    disc_liq_tag = _liq_regime_tag_impact(disc_sel)
+    valid_liq_tag = _liq_regime_tag_impact(valid_sel)
 
     print(
         f"validate_micro_edge_forward debug={path} total={n_total} discover={len(disc)} valid={len(valid)} "
@@ -351,6 +374,10 @@ def main(argv: Optional[List[str]] = None) -> int:
         "liquidation_impact": {
             "discovery": disc_liq,
             "validation": valid_liq,
+        },
+        "liquidation_regime_tag_impact": {
+            "discovery": disc_liq_tag,
+            "validation": valid_liq_tag,
         },
         "run_summary": build_run_summary(
             run_type="validate_micro_edge_forward",

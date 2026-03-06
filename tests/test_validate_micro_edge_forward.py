@@ -220,6 +220,8 @@ def test_forward_validation_writes_json_with_liquidation_impact():
         assert payload["run_summary"]["run_type"] == "validate_micro_edge_forward"
         assert payload["liquidation_impact"]["discovery"]["available"] is True
         assert payload["liquidation_impact"]["validation"]["available"] is True
+        assert payload["liquidation_regime_tag_impact"]["discovery"]["available"] is True
+        assert "tagged" in payload["liquidation_regime_tag_impact"]["validation"]
     finally:
         path.unlink(missing_ok=True)
         out_json.unlink(missing_ok=True)

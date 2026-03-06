@@ -249,6 +249,7 @@ def _validate_validate_micro_edge_forward(payload: Dict[str, Any]) -> List[str]:
         "validation": dict,
         "collapse": dict,
         "liquidation_impact": dict,
+        "liquidation_regime_tag_impact": dict,
         "run_summary": dict,
     }
     for key, expected in required_top.items():

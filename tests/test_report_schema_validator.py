@@ -54,6 +54,10 @@ def test_validate_micro_edge_forward_payload() -> None:
             "discovery": {"available": True, "count": 3, "threshold_q75": 0.4, "active": {"n": 1, "avg_net": 0.0012, "p90_net": 0.0012}, "inactive": {"n": 2, "avg_net": 0.0008, "p90_net": 0.0010}},
             "validation": {"available": False, "count": 0},
         },
+        "liquidation_regime_tag_impact": {
+            "discovery": {"available": True, "tagged": {"n": 1, "avg_net": 0.0012, "p90_net": 0.0012}, "normal": {"n": 2, "avg_net": 0.0008, "p90_net": 0.0010}},
+            "validation": {"available": True, "tagged": {"n": 0, "avg_net": 0.0, "p90_net": 0.0}, "normal": {"n": 2, "avg_net": 0.0005, "p90_net": 0.0010}},
+        },
         "run_summary": {
             "version": "1",
             "run_type": "validate_micro_edge_forward",
