@@ -357,6 +357,30 @@ def evaluate_naive_rules(
         _build("liquidation_spike_reversal", pred, act)
 
     pred, act = [], []
+    if q90_liq_rate is not None and q90_spr is not None:
+        for i, r in enumerate(rows):
+            lbl = labels[i] if i < len(labels) else None
+            lr = r.get("liq_rate_per_sec")
+            li = r.get("liq_imbalance")
+            r1 = r.get("ret_1")
+            sp = r.get("spread")
+            if lbl in (None, 0) or lr is None or li is None or r1 is None or sp is None:
+                continue
+            li_f = float(li)
+            r1_f = float(r1)
+            sp_f = float(sp)
+            if float(lr) > float(q90_liq_rate) and abs(li_f) >= 0.60 and sp_f <= float(q90_spr):
+                # Forced move followed by opposite-signed short-horizon return is the special reversal regime.
+                if (li_f > 0.0 and r1_f < 0.0) or (li_f < 0.0 and r1_f > 0.0):
+                    side = rule_predicted_side("high_liq_reversal_regime", r, default_side="LONG")
+                    if side is None:
+                        continue
+                    pred.append(1 if side == "LONG" else -1)
+                    act.append(int(lbl))
+    if pred:
+        _build("high_liq_reversal_regime", pred, act)
+
+    pred, act = [], []
     thr = compute_rule_thresholds(rows)
     for i, r in enumerate(rows):
         lbl = labels[i] if i < len(labels) else None
@@ -464,6 +488,11 @@ def rule_predicted_side(
         if li is None or float(li) == 0.0:
             return None
         return "LONG" if float(li) > 0 else "SHORT"
+    if rn == "high_liq_reversal_regime":
+        li = row.get("liq_imbalance")
+        if li is None or float(li) == 0.0:
+            return None
+        return "LONG" if float(li) > 0 else "SHORT"
     if rn == "micro_edge_v2_passive_alpha":
         ss = row.get("v2_side_signal")
         if ss is None or float(ss) == 0.0:
@@ -504,6 +533,23 @@ def rule_fires(
         li = row.get("liq_imbalance")
         q = thresholds.get("liq_rate_q90")
         return lr is not None and li is not None and q is not None and float(lr) > float(q) and abs(float(li)) > 0.10
+    if rn == "high_liq_reversal_regime":
+        lr = row.get("liq_rate_per_sec")
+        li = row.get("liq_imbalance")
+        r1 = row.get("ret_1")
+        sp = row.get("spread")
+        q_liq = thresholds.get("liq_rate_q90")
+        q_spr = thresholds.get("spr_q90")
+        if lr is None or li is None or r1 is None or sp is None or q_liq is None or q_spr is None:
+            return False
+        li_f = float(li)
+        r1_f = float(r1)
+        return (
+            float(lr) > float(q_liq)
+            and abs(li_f) >= 0.60
+            and float(sp) <= float(q_spr)
+            and ((li_f > 0.0 and r1_f < 0.0) or (li_f < 0.0 and r1_f > 0.0))
+        )
     if rn == "micro_edge_v2_passive_alpha":
         score = row.get("v2_score")
         persist = row.get("v2_imbalance_persist")

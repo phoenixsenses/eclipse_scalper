@@ -129,14 +129,16 @@ def test_v2_liquidation_signal_changes_scores() -> None:
     for i in range(12, 20):
         liq_rows[i]["liq_imbalance"] = 0.9
         liq_rows[i]["liq_rate_per_sec"] = 12.0
+        liq_rows[i]["spread"] = 0.00030 - ((i - 12) * 0.00001)
 
     base = enrich_rows_with_v2(base_rows, bucket_sec=1, cache_key=None)
     liq = enrich_rows_with_v2(liq_rows, bucket_sec=1, cache_key=None)
 
     assert float(liq[-1]["v2_liq_spike"]) > 0.0
+    assert float(liq[-1]["v2_liq_gate_strength"]) > 0.0
     assert float(liq[-1]["v2_liq_reversal_signal"]) > 0.0
     assert float(liq[-1]["v2_score"]) != float(base[-1]["v2_score"])
-    assert float(liq[-1]["v3_score"]) != float(base[-1]["v3_score"])
+    assert float(liq[-1]["v3_imbalance_persist"]) != float(base[-1]["v3_imbalance_persist"])
 
 
 def test_v3_no_lookahead_stability() -> None:

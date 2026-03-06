@@ -66,6 +66,33 @@ def test_validate_micro_edge_forward_payload() -> None:
     assert rsv.validate_payload(payload, "validate_micro_edge_forward") == []
 
 
+def test_validate_liquidation_rule_coverage_payload() -> None:
+    payload = {
+        "symbol": "ETHUSDT",
+        "rule": "high_liq_reversal_regime",
+        "bucket_sec": 5,
+        "results": [
+            {
+                "lookback_min": 60,
+                "bucket_rows": 100,
+                "liq_rows": 10,
+                "rule_fire_count": 2,
+                "rule_fire_rate": 0.02,
+                "rule_given_liq_rate": 0.2,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "liquidation_rule_coverage",
+            "inputs": {"symbol": "ETHUSDT"},
+            "metrics": {"windows": 1},
+            "artifacts": {"json": "reports/out.json", "md": "reports/out.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "liquidation_rule_coverage"
+    assert rsv.validate_payload(payload, "liquidation_rule_coverage") == []
+
+
 def test_validate_canonical_payload() -> None:
     payload = {
         "status": "pass",
@@ -686,6 +713,42 @@ def test_validate_microstructure_contract_payload() -> None:
     }
     assert rsv.infer_schema_name(payload) == "validate_microstructure_contract"
     assert rsv.validate_payload(payload, "validate_microstructure_contract") == []
+
+
+def test_validate_generate_liq_reversal_candidates_payload() -> None:
+    payload = {
+        "rule": "high_liq_reversal_regime",
+        "regime": "liq_reversal_research",
+        "symbols": ["ETHUSDT"],
+        "grid": {
+            "horizons": [30, 60],
+            "min_imbalances": [0.3, 0.5],
+            "min_trade_intensities": [200.0, 400.0],
+            "max_spreads": [0.00025],
+        },
+        "count": 8,
+        "rows": [
+            {
+                "symbol": "ETHUSDT",
+                "rule": "high_liq_reversal_regime",
+                "regime": "liq_reversal_research",
+                "horizon_sec": 30,
+                "min_imbalance": 0.3,
+                "min_trade_intensity": 200.0,
+                "max_spread": 0.00025,
+                "pass": "YES",
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "generate_liq_reversal_candidates",
+            "inputs": {"rule": "high_liq_reversal_regime", "regime": "liq_reversal_research", "symbols": ["ETHUSDT"]},
+            "metrics": {"count": 8},
+            "artifacts": {"json": "reports/LIQ_REVERSAL_CANDIDATES.json", "md": "reports/LIQ_REVERSAL_CANDIDATES.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "generate_liq_reversal_candidates"
+    assert rsv.validate_payload(payload, "generate_liq_reversal_candidates") == []
 
 
 def test_rejects_bad_micro_edge_rule_shape() -> None:

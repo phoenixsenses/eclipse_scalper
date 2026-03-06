@@ -48,3 +48,17 @@ def test_evaluate_naive_rules_non_empty():
     assert rules
     assert any((v.get("n") or 0) > 0 for v in rules.values())
     assert "liquidation_spike_reversal" in rules
+
+
+def test_high_liq_reversal_regime_rule_present() -> None:
+    rows = [
+        {"imbalance": 0.2, "trade_intensity": 6.0, "spread": 0.010, "ret_1": -0.003, "liq_imbalance": 0.85, "liq_rate_per_sec": 30.0},
+        {"imbalance": 0.1, "trade_intensity": 5.0, "spread": 0.011, "ret_1": -0.002, "liq_imbalance": 0.80, "liq_rate_per_sec": 28.0},
+        {"imbalance": -0.1, "trade_intensity": 4.5, "spread": 0.012, "ret_1": 0.002, "liq_imbalance": -0.82, "liq_rate_per_sec": 27.0},
+        {"imbalance": 0.0, "trade_intensity": 1.0, "spread": 0.030, "ret_1": 0.0, "liq_imbalance": 0.0, "liq_rate_per_sec": 0.0},
+        {"imbalance": 0.0, "trade_intensity": 1.0, "spread": 0.040, "ret_1": 0.0, "liq_imbalance": 0.0, "liq_rate_per_sec": 0.0},
+    ]
+    labels = [1, 1, -1, 0, 0]
+    rules = evaluate_naive_rules(rows, labels, baseline_hit_rate=0.5)
+    assert "high_liq_reversal_regime" in rules
+    assert int(rules["high_liq_reversal_regime"]["n"] or 0) >= 1

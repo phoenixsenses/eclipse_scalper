@@ -45,6 +45,7 @@ def test_micro_edge_pipeline_from_shared_fixture() -> None:
         assert rules
         assert "liquidation_spike_reversal" in rules
         assert (rules["liquidation_spike_reversal"].get("n") or 0) > 0
+        assert "high_liq_reversal_regime" in rules
         assert "imb_q90" in thresholds
         assert "int_q90" in thresholds
         assert "liq_rate_q90" in thresholds

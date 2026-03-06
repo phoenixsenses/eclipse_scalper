@@ -142,13 +142,17 @@ def enrich_rows_with_v2(
 
         # liquidation reversal proxy: sell-liquidation spikes support long fade, buy-liquidation spikes support short fade
         liq_spike = min(1.0, liq_rate_f / max(1.0, intensity_f))
-        liq_reversal_signal = liq_imb_f * liq_spike
+        liq_spike_active = max(0.0, liq_spike - 0.35)
+        liq_gate_strength = 0.0
+        if liq_spike_active > 0.0 and abs(liq_imb_f) >= 0.60 and spread_recompress > 0.0:
+            liq_gate_strength = liq_spike_active * (0.5 + 0.5 * meanrev_prob)
+        liq_reversal_signal = liq_imb_f * liq_gate_strength
 
         # score for extractable passive alpha
-        side_signal = (0.80 * imb_persist) + (0.20 * liq_reversal_signal)
+        side_signal = (0.96 * imb_persist) + (0.04 * liq_reversal_signal)
         fill_quality = (0.45 * spread_recompress) + (0.35 * intensity_decay) + (0.20 * vol_stabilize)
-        fill_quality += 0.10 * max(0.0, liq_spike) * max(0.0, spread_recompress)
-        toxicity = max(0.0, d_intensity) + max(0.0, vol_change) + (0.25 * meanrev_prob) + (0.10 * max(0.0, liq_spike - 0.5))
+        fill_quality += 0.01 * liq_gate_strength * max(0.0, spread_recompress)
+        toxicity = max(0.0, d_intensity) + max(0.0, vol_change) + (0.25 * meanrev_prob)
         core = (abs(side_signal) * fill_quality) - (0.50 * toxicity)
         v2_score_signed = (1.0 if side_signal >= 0 else -1.0) * core
         v2_conf = _sigmoid(abs(core) * 40.0)
@@ -161,7 +165,7 @@ def enrich_rows_with_v2(
         follow_agree = 1.0 if (imb_dir != 0.0 and imb_dir == ret_dir) else (0.0 if ret_dir == 0.0 else -1.0)
         follow_mult = 1.0 if follow_agree > 0.0 else (0.35 if follow_agree < 0.0 else 0.60)
         liq_follow = 1.0 if (liq_reversal_signal != 0.0 and (1.0 if liq_reversal_signal > 0.0 else -1.0) == imb_dir) else 0.0
-        v3_persist = (0.85 * imb_persist) + (0.15 * liq_reversal_signal)
+        v3_persist = (0.97 * imb_persist) + (0.03 * liq_reversal_signal)
         v3_quality = (
             abs(imb_persist)
             * max(0.0, intensity_slope)
@@ -169,10 +173,9 @@ def enrich_rows_with_v2(
             * follow_mult
             + 0.20 * max(0.0, spread_recompress)
             + 0.10 * max(0.0, intensity_decay)
-            + 0.10 * max(0.0, liq_spike) * (0.5 + 0.5 * liq_follow)
+            + 0.01 * liq_gate_strength * (0.5 + 0.5 * liq_follow)
         )
         v3_toxic = (0.45 * max(0.0, vol_change)) + (0.35 * max(0.0, intensity_accel)) + (0.20 * meanrev_prob)
-        v3_toxic += 0.05 * max(0.0, liq_spike - 0.5)
         v3_core = v3_quality - v3_toxic
         v3_side_signal = v3_persist if follow_agree >= 0.0 else (0.5 * imb_persist)
         v3_score_signed = (1.0 if v3_side_signal >= 0.0 else -1.0) * max(0.0, v3_core)
@@ -190,6 +193,8 @@ def enrich_rows_with_v2(
         r["v2_flip_rate"] = float(flip_rate)
         r["v2_meanrev_prob"] = float(meanrev_prob)
         r["v2_liq_spike"] = float(liq_spike)
+        r["v2_liq_spike_active"] = float(liq_spike_active)
+        r["v2_liq_gate_strength"] = float(liq_gate_strength)
         r["v2_liq_reversal_signal"] = float(liq_reversal_signal)
         r["v2_side_signal"] = float(side_signal)
         r["v2_score"] = float(v2_score_signed)

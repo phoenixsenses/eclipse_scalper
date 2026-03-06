@@ -278,6 +278,35 @@ def _validate_validate_micro_edge_forward(payload: Dict[str, Any]) -> List[str]:
     return errors
 
 
+def _validate_liquidation_rule_coverage(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "symbol": str,
+        "rule": str,
+        "bucket_sec": int,
+        "results": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    if isinstance(payload.get("results"), list):
+        for idx, row in enumerate(payload["results"]):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:results[{idx}]")
+                continue
+            for key in ("lookback_min", "bucket_rows", "liq_rows", "rule_fire_count"):
+                if key not in row:
+                    errors.append(f"missing:results[{idx}].{key}")
+                elif not isinstance(row[key], int):
+                    errors.append(f"bad_type:results[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 def _validate_analyze_cost_breakdown(payload: Dict[str, Any]) -> List[str]:
     errors: List[str] = []
     required_top = {
@@ -724,6 +753,27 @@ def _validate_microstructure_contract(payload: Dict[str, Any]) -> List[str]:
     return errors
 
 
+def _validate_generate_liq_reversal_candidates(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "rule": str,
+        "regime": str,
+        "symbols": list,
+        "grid": dict,
+        "count": int,
+        "rows": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "micro_edge_smoke": _validate_micro_edge_record,
     "validate_canonical": _validate_validate_canonical,
@@ -732,6 +782,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "validate_artifacts": _validate_validate_artifacts,
     "report_check": _validate_report_check,
     "validate_micro_edge_forward": _validate_validate_micro_edge_forward,
+    "liquidation_rule_coverage": _validate_liquidation_rule_coverage,
     "analyze_cost_breakdown": _validate_analyze_cost_breakdown,
     "analyze_fill_timing": _validate_analyze_fill_timing,
     "daily_execution_calibration": _validate_daily_execution_calibration,
@@ -759,6 +810,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "prototype_ws_vs_db_latency": _validate_prototype_ws_vs_db_latency,
     "freeze_runtime_profile": _validate_freeze_runtime_profile,
     "validate_microstructure_contract": _validate_microstructure_contract,
+    "generate_liq_reversal_candidates": _validate_generate_liq_reversal_candidates,
 }
 
 
@@ -778,6 +830,8 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "report_check"
     if {"debug", "group_by", "counts", "collapse", "liquidation_impact"}.issubset(keys):
         return "validate_micro_edge_forward"
+    if {"symbol", "rule", "bucket_sec", "results"}.issubset(keys):
+        return "liquidation_rule_coverage"
     if {"tool", "source_json", "n_pockets", "pockets"}.issubset(keys):
         return "analyze_cost_breakdown"
     if {"live_parquet", "trade_db", "timeout_candidates", "live_summary"}.issubset(keys):
@@ -832,6 +886,8 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "freeze_runtime_profile"
     if {"table_contracts", "symbol_coverage", "feature_capability", "required_tables"}.issubset(keys):
         return "validate_microstructure_contract"
+    if {"rule", "regime", "symbols", "grid", "rows"}.issubset(keys):
+        return "generate_liq_reversal_candidates"
     return None
 
 
