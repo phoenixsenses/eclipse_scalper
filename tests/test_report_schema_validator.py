@@ -240,11 +240,14 @@ def test_validate_liquidation_regime_alerts_payload() -> None:
             "recent_alert_count": 2,
             "max_consecutive_tagged": 2,
             "max_liq_rate_recent": 5.0,
+            "side_bias_counts": {"LONG": 1, "SHORT": 1},
+            "severity_counts": {"high": 1, "medium": 1},
         },
         "alerts": [
             {
                 "ts_ms": 1,
                 "side_bias": "LONG",
+                "severity": "high",
                 "liq_rate_per_sec": 5.0,
                 "liq_imbalance": 0.8,
                 "spread": 0.01,

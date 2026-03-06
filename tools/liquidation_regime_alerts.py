@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from collections import Counter
 from typing import Any, Dict, List, Optional
 
 from tools.liquidation_regime_tagger import _load_rows, _tag_rows
@@ -25,15 +26,24 @@ def _recent_alerts(tags: List[Dict[str, Any]], recent_limit: int, min_liq_rate: 
     for row in fired[: max(1, int(recent_limit))]:
         liq_imb = _safe_float(row.get("liq_imbalance"))
         side_bias = "LONG" if liq_imb > 0.0 else "SHORT"
+        liq_rate = _safe_float(row.get("liq_rate_per_sec"))
+        intensity = _safe_float(row.get("trade_intensity"))
+        if liq_rate >= 5.0 or intensity >= 5000.0:
+            severity = "high"
+        elif liq_rate >= 2.0 or intensity >= 2000.0:
+            severity = "medium"
+        else:
+            severity = "low"
         alerts.append(
             {
                 "ts_ms": int(row.get("ts_ms", 0) or 0),
                 "tag": str(row.get("tag") or ""),
                 "side_bias": side_bias,
-                "liq_rate_per_sec": _safe_float(row.get("liq_rate_per_sec")),
+                "severity": severity,
+                "liq_rate_per_sec": liq_rate,
                 "liq_imbalance": liq_imb,
                 "spread": _safe_float(row.get("spread")),
-                "trade_intensity": _safe_float(row.get("trade_intensity")),
+                "trade_intensity": intensity,
                 "ret_1": _safe_float(row.get("ret_1")),
             }
         )
@@ -69,6 +79,8 @@ def build_alert_payload(
     tags = _tag_rows(rows, rule)
     alerts = _recent_alerts(tags, recent_limit=recent_limit, min_liq_rate=min_liq_rate)
     tagged_count = sum(1 for row in tags if bool(row.get("rule_fired")))
+    side_bias_counts = Counter(str(a.get("side_bias") or "UNKNOWN") for a in alerts)
+    severity_counts = Counter(str(a.get("severity") or "unknown") for a in alerts)
     summary = {
         "rows_total": int(len(tags)),
         "tagged_count": int(tagged_count),
@@ -76,6 +88,8 @@ def build_alert_payload(
         "recent_alert_count": int(len(alerts)),
         "max_consecutive_tagged": _max_consecutive_tagged(tags),
         "max_liq_rate_recent": max((_safe_float(a.get("liq_rate_per_sec")) for a in alerts), default=0.0),
+        "side_bias_counts": dict(side_bias_counts),
+        "severity_counts": dict(severity_counts),
     }
     payload = {
         "symbol": str(symbol).upper(),
@@ -144,13 +158,15 @@ def main(argv: Optional[List[str]] = None) -> int:
         f"symbol={payload['symbol']} rule={payload['rule']} lookback_min={payload['lookback_min']} bucket_sec={payload['bucket_sec']}",
         f"rows_total={summary['rows_total']} tagged_count={summary['tagged_count']} tagged_rate={float(summary['tagged_rate']):.2%}",
         f"recent_alert_count={summary['recent_alert_count']} max_consecutive_tagged={summary['max_consecutive_tagged']}",
+        f"side_bias_counts={json.dumps(summary['side_bias_counts'], ensure_ascii=True, sort_keys=True)}",
+        f"severity_counts={json.dumps(summary['severity_counts'], ensure_ascii=True, sort_keys=True)}",
         "",
-        "| ts_ms | side_bias | liq_rate_per_sec | liq_imbalance | spread | trade_intensity | ret_1 |",
-        "|---:|---|---:|---:|---:|---:|---:|",
+        "| ts_ms | side_bias | severity | liq_rate_per_sec | liq_imbalance | spread | trade_intensity | ret_1 |",
+        "|---:|---|---|---:|---:|---:|---:|---:|",
     ]
     for alert in payload["alerts"]:
         lines.append(
-            f"| {int(alert['ts_ms'])} | {alert['side_bias']} | {float(alert['liq_rate_per_sec']):.4f} | "
+            f"| {int(alert['ts_ms'])} | {alert['side_bias']} | {alert['severity']} | {float(alert['liq_rate_per_sec']):.4f} | "
             f"{float(alert['liq_imbalance']):+.4f} | {float(alert['spread']):.6f} | {float(alert['trade_intensity']):.2f} | "
             f"{float(alert['ret_1']):+.6f} |"
         )

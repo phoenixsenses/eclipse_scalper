@@ -301,7 +301,7 @@ def _validate_liquidation_regime_alerts(payload: Dict[str, Any]) -> List[str]:
             errors.append(f"bad_type:{key}")
     summary = payload.get("summary")
     if isinstance(summary, dict):
-        for key in ("rows_total", "tagged_count", "tagged_rate", "recent_alert_count", "max_consecutive_tagged", "max_liq_rate_recent"):
+        for key in ("rows_total", "tagged_count", "tagged_rate", "recent_alert_count", "max_consecutive_tagged", "max_liq_rate_recent", "side_bias_counts", "severity_counts"):
             if key not in summary:
                 errors.append(f"missing:summary.{key}")
     alerts = payload.get("alerts")
@@ -310,7 +310,7 @@ def _validate_liquidation_regime_alerts(payload: Dict[str, Any]) -> List[str]:
             if not isinstance(item, dict):
                 errors.append(f"bad_type:alerts[{idx}]")
                 continue
-            for key in ("ts_ms", "side_bias", "liq_rate_per_sec", "liq_imbalance", "spread", "trade_intensity", "ret_1"):
+            for key in ("ts_ms", "side_bias", "severity", "liq_rate_per_sec", "liq_imbalance", "spread", "trade_intensity", "ret_1"):
                 if key not in item:
                     errors.append(f"missing:alerts[{idx}].{key}")
     errors.extend(_validate_run_summary(payload.get("run_summary")))

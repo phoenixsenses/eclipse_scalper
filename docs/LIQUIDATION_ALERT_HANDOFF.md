@@ -75,12 +75,15 @@ Top-level fields:
 - `recent_alert_count`
 - `max_consecutive_tagged`
 - `max_liq_rate_recent`
+- `side_bias_counts`
+- `severity_counts`
 
 ### Alert row
 
 - `ts_ms`
 - `tag`
 - `side_bias`
+- `severity`
 - `liq_rate_per_sec`
 - `liq_imbalance`
 - `spread`
@@ -95,6 +98,7 @@ Show:
 
 - last 20 alerts
 - side bias distribution
+- severity distribution
 - max liquidation rate in window
 - tagged rate in current window
 

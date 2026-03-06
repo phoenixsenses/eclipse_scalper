@@ -11,13 +11,23 @@
     "tagged_rate": 0.03939500527611678,
     "recent_alert_count": 20,
     "max_consecutive_tagged": 3,
-    "max_liq_rate_recent": 11.4712
+    "max_liq_rate_recent": 11.4712,
+    "side_bias_counts": {
+      "LONG": 12,
+      "SHORT": 8
+    },
+    "severity_counts": {
+      "low": 5,
+      "medium": 13,
+      "high": 2
+    }
   },
   "alerts": [
     {
       "ts_ms": 1772826385000,
       "tag": "high_liq_reversal",
       "side_bias": "LONG",
+      "severity": "low",
       "liq_rate_per_sec": 0.8754,
       "liq_imbalance": 1.0,
       "spread": 6.724831577864952e-05,

@@ -38,6 +38,9 @@ def test_build_alert_payload_filters_recent_rows(monkeypatch) -> None:
     assert payload["summary"]["tagged_count"] == 2
     assert payload["summary"]["recent_alert_count"] == 1
     assert payload["alerts"][0]["side_bias"] == "LONG"
+    assert payload["alerts"][0]["severity"] == "medium"
+    assert payload["summary"]["side_bias_counts"]["LONG"] == 1
+    assert payload["summary"]["severity_counts"]["medium"] == 1
 
 
 def test_main_writes_json_and_md(monkeypatch) -> None:
@@ -58,9 +61,11 @@ def test_main_writes_json_and_md(monkeypatch) -> None:
                 "recent_alert_count": 2,
                 "max_consecutive_tagged": 2,
                 "max_liq_rate_recent": 5.0,
+                "side_bias_counts": {"LONG": 2},
+                "severity_counts": {"high": 1, "medium": 1},
             },
             "alerts": [
-                {"ts_ms": 1, "side_bias": "LONG", "liq_rate_per_sec": 5.0, "liq_imbalance": 0.8, "spread": 0.01, "trade_intensity": 10.0, "ret_1": -0.002}
+                {"ts_ms": 1, "side_bias": "LONG", "severity": "high", "liq_rate_per_sec": 5.0, "liq_imbalance": 0.8, "spread": 0.01, "trade_intensity": 10.0, "ret_1": -0.002}
             ],
             "run_summary": {
                 "version": "v1",
@@ -79,4 +84,3 @@ def test_main_writes_json_and_md(monkeypatch) -> None:
     payload = json.loads(out_json.read_text(encoding="utf-8"))
     assert payload["run_summary"]["run_type"] == "liquidation_regime_alerts"
     assert out_md.exists()
-
