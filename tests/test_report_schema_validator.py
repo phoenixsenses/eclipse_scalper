@@ -317,6 +317,42 @@ def test_validate_liquidation_alert_state_payload() -> None:
     assert rsv.validate_payload(payload, "liquidation_alert_state") == []
 
 
+def test_validate_liquidation_watchlist_payload() -> None:
+    payload = {
+        "rule": "high_liq_reversal_regime",
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "recent_limit": 20,
+        "min_liq_rate": 0.0,
+        "summary": {"symbol_count": 2, "top_n": 2, "state_counts": {"elevated": 1, "quiet": 1}, "top_symbol": "ETHUSDT"},
+        "rows": [
+            {
+                "symbol": "ETHUSDT",
+                "state_level": "elevated",
+                "freshness_status": "fresh",
+                "recommended_action": "show_caution",
+                "primary_side_bias": "LONG",
+                "dominant_severity": "medium",
+                "recent_alert_count": 3,
+                "max_liq_rate_recent": 5.2,
+                "tagged_rate": 0.04,
+                "age_sec": 4.0,
+                "dashboard_summary": "ETH summary",
+                "priority_score": 120.0,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "liquidation_watchlist",
+            "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"]},
+            "metrics": {"symbol_count": 2, "elevated_count": 1, "severe_count": 0, "quiet_count": 1},
+            "artifacts": {"json": "reports/LIQUIDATION_WATCHLIST.json", "md": "reports/LIQUIDATION_WATCHLIST.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "liquidation_watchlist"
+    assert rsv.validate_payload(payload, "liquidation_watchlist") == []
+
+
 def test_validate_artifacts_payload() -> None:
     payload = {
         "ok": True,

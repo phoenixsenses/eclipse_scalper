@@ -386,6 +386,55 @@ def _validate_liquidation_alert_state(payload: Dict[str, Any]) -> List[str]:
     return errors
 
 
+def _validate_liquidation_watchlist(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "rule": str,
+        "lookback_min": int,
+        "bucket_sec": int,
+        "recent_limit": int,
+        "min_liq_rate": (int, float),
+        "summary": dict,
+        "rows": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("symbol_count", "top_n", "state_counts", "top_symbol"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    rows = payload.get("rows")
+    if isinstance(rows, list):
+        for idx, row in enumerate(rows):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:rows[{idx}]")
+                continue
+            for key in (
+                "symbol",
+                "state_level",
+                "freshness_status",
+                "recommended_action",
+                "primary_side_bias",
+                "dominant_severity",
+                "recent_alert_count",
+                "max_liq_rate_recent",
+                "tagged_rate",
+                "age_sec",
+                "dashboard_summary",
+                "priority_score",
+            ):
+                if key not in row:
+                    errors.append(f"missing:rows[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 def _validate_validate_artifacts(payload: Dict[str, Any]) -> List[str]:
     errors: List[str] = []
     required_top = {
@@ -1020,6 +1069,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "summarize_liq_tag_signal_behavior": _validate_summarize_liq_tag_signal_behavior,
     "liquidation_regime_alerts": _validate_liquidation_regime_alerts,
     "liquidation_alert_state": _validate_liquidation_alert_state,
+    "liquidation_watchlist": _validate_liquidation_watchlist,
     "validate_artifacts": _validate_validate_artifacts,
     "report_check": _validate_report_check,
     "validate_micro_edge_forward": _validate_validate_micro_edge_forward,
@@ -1075,6 +1125,8 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "liquidation_regime_alerts"
     if {"source_json", "state", "card", "summary_snapshot"}.issubset(keys):
         return "liquidation_alert_state"
+    if {"rule", "summary", "rows"}.issubset(keys) and "source_json" not in keys:
+        return "liquidation_watchlist"
     if {"ok", "calibration", "execution"}.issubset(keys):
         return "validate_artifacts"
     if {"results", "summary"}.issubset(keys):

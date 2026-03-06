@@ -54,6 +54,7 @@ Primary real artifact:
 
 - `reports/LIQUIDATION_REGIME_ALERTS_REAL.json`
 - `reports/LIQUIDATION_ALERT_STATE_REAL.json`
+- `reports/LIQUIDATION_WATCHLIST_REAL.json`
 
 ## Minimal Contract
 
@@ -114,6 +115,11 @@ Suggested card source:
   - `dashboard_summary`
   - `notification_text`
   - `recommended_action`
+
+Suggested watchlist source:
+
+- `python -m tools.liquidation_watchlist --symbols ETHUSDT,BTCUSDT --out-json reports/LIQUIDATION_WATCHLIST_REAL.json`
+- use this for multi-symbol ranking / watch tables
 
 ### Monitoring
 
