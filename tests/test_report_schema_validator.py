@@ -33,6 +33,39 @@ def test_validate_micro_edge_smoke_payload() -> None:
     assert rsv.validate_payload(payload, "micro_edge_smoke") == []
 
 
+def test_validate_micro_edge_forward_payload() -> None:
+    payload = {
+        "debug": "localtests/forward.jsonl",
+        "group_by": ["regime_spread_bin"],
+        "discover_frac": 0.6,
+        "counts": {
+            "total": 10,
+            "discovery": 6,
+            "validation": 4,
+            "selected_discovery": 3,
+            "selected_validation": 2,
+            "top_groups": 1,
+        },
+        "thresholds": {"min_n_discovery": 2, "min_n_validation": 2, "min_select_frac": 0.01},
+        "discovery": {"n": 3, "avg_net": 0.001, "p90_net": 0.002, "p90_net_negative": False},
+        "validation": {"n": 2, "avg_net": 0.0005, "p90_net": 0.001, "p90_net_negative": False},
+        "collapse": {"detected": False, "flags": {"p90_sign_flip": False}, "values": {}},
+        "liquidation_impact": {
+            "discovery": {"available": True, "count": 3, "threshold_q75": 0.4, "active": {"n": 1, "avg_net": 0.0012, "p90_net": 0.0012}, "inactive": {"n": 2, "avg_net": 0.0008, "p90_net": 0.0010}},
+            "validation": {"available": False, "count": 0},
+        },
+        "run_summary": {
+            "version": "1",
+            "run_type": "validate_micro_edge_forward",
+            "inputs": {"debug": "localtests/forward.jsonl"},
+            "metrics": {"total": 10, "collapse_detected": 0},
+            "artifacts": {"json": "localtests/forward.json"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "validate_micro_edge_forward"
+    assert rsv.validate_payload(payload, "validate_micro_edge_forward") == []
+
+
 def test_validate_canonical_payload() -> None:
     payload = {
         "status": "pass",
@@ -617,6 +650,44 @@ def test_validate_freeze_runtime_profile_payload() -> None:
     assert rsv.validate_payload(payload, "freeze_runtime_profile") == []
 
 
+def test_validate_microstructure_contract_payload() -> None:
+    payload = {
+        "db": "data/microstructure.db",
+        "symbols": ["ETHUSDT", "BTCUSDT"],
+        "required_tables": ["agg_trades", "mark_prices", "liquidations"],
+        "status": "warn",
+        "table_contracts": {
+            "agg_trades": {"present": True, "row_count": 1, "timestamp_column": "ts_ms", "symbol_column": "symbol", "required_columns_missing": [], "available_book_fields": []},
+            "mark_prices": {"present": True, "row_count": 1, "timestamp_column": "ts_ms", "symbol_column": "symbol", "required_columns_missing": [], "available_book_fields": []},
+            "liquidations": {"present": True, "row_count": 1, "timestamp_column": "ts_ms", "symbol_column": "symbol", "required_columns_missing": [], "available_book_fields": []},
+        },
+        "symbol_coverage": {
+            "ETHUSDT": {"agg_trades": True, "mark_prices": True, "liquidations": True},
+            "BTCUSDT": {"agg_trades": True, "mark_prices": True, "liquidations": False},
+        },
+        "feature_capability": {
+            "tier": "trade_plus_liq_mark_proxy",
+            "mark_only": True,
+            "trade_flow": True,
+            "trade_plus_liq": True,
+            "requires_book": False,
+            "book_source_table": "mark_prices",
+            "reason": "true_top_of_book_missing_mark_prices_or_proxy_used",
+        },
+        "warnings": ["true_top_of_book_missing"],
+        "failures": [],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "validate_microstructure_contract",
+            "inputs": {"db": "data/microstructure.db", "symbols": ["ETHUSDT", "BTCUSDT"], "require_true_book": False},
+            "metrics": {"status": "warn", "table_count": 3, "warning_count": 1, "failure_count": 0, "requires_book": False},
+            "artifacts": {"json": "reports/MICROSTRUCTURE_CONTRACT.json", "md": "reports/MICROSTRUCTURE_CONTRACT.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "validate_microstructure_contract"
+    assert rsv.validate_payload(payload, "validate_microstructure_contract") == []
+
+
 def test_rejects_bad_micro_edge_rule_shape() -> None:
     payload = {
         "ts_utc": "2026-03-05T00:00:00Z",
@@ -666,7 +737,7 @@ def test_main_validates_jsonl_with_auto_schema(monkeypatch) -> None:
         horizon_sec=30,
         min_rule_n=5,
     )
-    path = Path("reports/test_report_schema_validator/micro_edge.jsonl")
+    path = Path("localtests/test_report_schema_validator/micro_edge.jsonl")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(record) + "\n", encoding="utf-8")
     monkeypatch.setattr(sys, "argv", ["x", "--in", str(path), "--schema", "auto"])

@@ -21,6 +21,7 @@ KEY_MODULES = [
     "tools.run_summary",
     "tools.report_check",
     "tools.tooling_audit",
+    "tools.validate_microstructure_contract",
 ]
 
 KEY_FILES = [
@@ -35,6 +36,7 @@ KEY_FILES = [
     "tools/run_summary.py",
     "tools/report_check.py",
     "tools/tooling_audit.py",
+    "tools/validate_microstructure_contract.py",
 ]
 
 
@@ -98,6 +100,49 @@ def run_synthetic_checks() -> List[Tuple[str, bool, str]]:
             out.append(("synthetic_validate_canonical", False, f"status={res.status}"))
     except Exception as exc:
         out.append(("synthetic_validate_canonical", False, f"{type(exc).__name__}: {exc}"))
+    try:
+        import json
+        import shutil
+        import sqlite3
+        import uuid
+        from pathlib import Path
+
+        from tools.validate_microstructure_contract import analyze_contract
+        from tools.report_schema_validator import validate_payload
+
+        tmp = Path("localtests") / f"smoke_micro_contract_{uuid.uuid4().hex[:8]}"
+        tmp.mkdir(parents=True, exist_ok=True)
+        db = tmp / "micro.db"
+        conn = sqlite3.connect(str(db))
+        try:
+            conn.execute(
+                "CREATE TABLE agg_trades (ts_ms INTEGER, symbol TEXT, price REAL, quantity REAL, notional REAL, is_buyer_maker INTEGER)"
+            )
+            conn.execute("CREATE TABLE mark_prices (ts_ms INTEGER, symbol TEXT, mark_price REAL)")
+            conn.execute(
+                "CREATE TABLE liquidations (ts_ms INTEGER, symbol TEXT, side TEXT, price REAL, quantity REAL, notional REAL)"
+            )
+            conn.execute("INSERT INTO agg_trades VALUES (1700000000000, 'ETHUSDT', 100.0, 1.0, 100.0, 0)")
+            conn.execute("INSERT INTO mark_prices VALUES (1700000000000, 'ETHUSDT', 100.1)")
+            conn.execute("INSERT INTO liquidations VALUES (1700000000500, 'ETHUSDT', 'SELL', 99.9, 2.0, 199.8)")
+            conn.commit()
+        finally:
+            conn.close()
+        payload = analyze_contract(db, ["ETHUSDT"])
+        schema_errors = validate_payload(payload, "validate_microstructure_contract")
+        if payload.get("status") == "warn" and not schema_errors:
+            out.append(("synthetic_validate_microstructure_contract", True, "ok"))
+        else:
+            out.append(
+                (
+                    "synthetic_validate_microstructure_contract",
+                    False,
+                    f"status={payload.get('status')} schema_errors={json.dumps(schema_errors)}",
+                )
+            )
+        shutil.rmtree(tmp, ignore_errors=True)
+    except Exception as exc:
+        out.append(("synthetic_validate_microstructure_contract", False, f"{type(exc).__name__}: {exc}"))
     return out
 
 

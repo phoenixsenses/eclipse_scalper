@@ -22,6 +22,10 @@
     "splits": 3
   },
   "decomposition": [],
+  "liquidation_scoring_impact": {
+    "available": false,
+    "count": 0
+  },
   "ranking": [],
   "run_summary": {
     "version": "v1",

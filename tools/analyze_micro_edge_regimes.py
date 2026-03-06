@@ -50,6 +50,7 @@ def load_debug_rows(path: Path) -> List[Dict[str, Any]]:
         cost = _to_float(o.get("cost"))
         if net is None or gross is None or cost is None:
             continue
+        feature = o.get("feature") if isinstance(o.get("feature"), dict) else {}
         rows.append(
             {
                 "ts_bucket": _to_float(o.get("ts_bucket")),
@@ -58,11 +59,14 @@ def load_debug_rows(path: Path) -> List[Dict[str, Any]]:
                 "cost": float(cost),
                 "exec_model": str(o.get("exec_model", "")),
                 "horizon_sec": o.get("horizon_sec"),
-                "spread": _to_float((o.get("feature") or {}).get("spread") if isinstance(o.get("feature"), dict) else None),
-                "trade_intensity": _to_float((o.get("feature") or {}).get("trade_intensity") if isinstance(o.get("feature"), dict) else None),
-                "micro_volatility": _to_float((o.get("feature") or {}).get("micro_volatility") if isinstance(o.get("feature"), dict) else None),
-                "ret_1": _to_float((o.get("feature") or {}).get("ret_1") if isinstance(o.get("feature"), dict) else None),
-                "imbalance": _to_float((o.get("feature") or {}).get("imbalance") if isinstance(o.get("feature"), dict) else None),
+                "spread": _to_float(feature.get("spread", o.get("spread"))),
+                "trade_intensity": _to_float(feature.get("trade_intensity", o.get("trade_intensity"))),
+                "micro_volatility": _to_float(feature.get("micro_volatility", o.get("micro_volatility"))),
+                "ret_1": _to_float(feature.get("ret_1", o.get("ret_1"))),
+                "imbalance": _to_float(feature.get("imbalance", o.get("imbalance"))),
+                "liq_imbalance": _to_float(feature.get("liq_imbalance", o.get("liq_imbalance"))),
+                "liq_rate_per_sec": _to_float(feature.get("liq_rate_per_sec", o.get("liq_rate_per_sec"))),
+                "v2_liq_reversal_signal": _to_float(feature.get("v2_liq_reversal_signal", o.get("v2_liq_reversal_signal"))),
                 "regime_spread_bin": str(o.get("regime_spread_bin", "")),
                 "regime_intensity_bin": str(o.get("regime_intensity_bin", "")),
                 "regime_vol_bin": str(o.get("regime_vol_bin", "")),

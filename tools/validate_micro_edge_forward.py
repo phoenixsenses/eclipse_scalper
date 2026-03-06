@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from tools.analyze_micro_edge_regimes import group_key, group_stats, load_debug_rows, summarize
+from tools.run_summary import build_run_summary
 
 
 def _parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
@@ -28,6 +30,7 @@ def _parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     p.add_argument("--collapse-select-ratio", type=float, default=0.5)
     p.add_argument("--collapse-n-ratio", type=float, default=0.5)
     p.add_argument("--collapse-mode", choices=["strict", "balanced"], default="balanced")
+    p.add_argument("--out-json", default=None)
     return p.parse_args(argv)
 
 
@@ -40,6 +43,69 @@ def _fmt_num(x: Any) -> str:
 
 def _selection(rows: List[Dict[str, Any]], keys: set[str], fields: List[str]) -> List[Dict[str, Any]]:
     return [r for r in rows if group_key(r, fields) in keys]
+
+
+def _quantile(vals: List[float], q: float) -> Optional[float]:
+    if not vals:
+        return None
+    q = max(0.0, min(1.0, float(q)))
+    ordered = sorted(float(v) for v in vals)
+    if len(ordered) == 1:
+        return ordered[0]
+    pos = q * (len(ordered) - 1)
+    lo = int(pos)
+    hi = min(lo + 1, len(ordered) - 1)
+    if hi == lo:
+        return ordered[lo]
+    w = pos - lo
+    return ordered[lo] * (1.0 - w) + ordered[hi] * w
+
+
+def _liq_signal_score(row: Dict[str, Any]) -> Optional[float]:
+    try:
+        if row.get("v2_liq_reversal_signal") is not None:
+            return abs(float(row.get("v2_liq_reversal_signal")))
+        li = row.get("liq_imbalance")
+        lr = row.get("liq_rate_per_sec")
+        if li is None or lr is None:
+            return None
+        return abs(float(li)) * max(0.0, float(lr))
+    except Exception:
+        return None
+
+
+def _liquidation_impact(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
+    scored: List[tuple[float, Dict[str, Any]]] = []
+    for row in rows:
+        score = _liq_signal_score(row)
+        if score is None:
+            continue
+        scored.append((float(score), row))
+    if not scored:
+        return {"available": False, "count": 0}
+    vals = [s for s, _ in scored]
+    threshold = _quantile(vals, 0.75)
+    if threshold is None:
+        return {"available": False, "count": len(scored)}
+    active = [row for score, row in scored if float(score) >= float(threshold) and float(score) > 0.0]
+    inactive = [row for score, row in scored if not (float(score) >= float(threshold) and float(score) > 0.0)]
+    active_sm = summarize(active)
+    inactive_sm = summarize(inactive)
+    return {
+        "available": True,
+        "count": len(scored),
+        "threshold_q75": float(threshold),
+        "active": {
+            "n": int(active_sm.get("n", 0) or 0),
+            "avg_net": float(active_sm.get("avg_net", 0.0) or 0.0),
+            "p90_net": float(active_sm.get("p90_net", 0.0) or 0.0),
+        },
+        "inactive": {
+            "n": int(inactive_sm.get("n", 0) or 0),
+            "avg_net": float(inactive_sm.get("avg_net", 0.0) or 0.0),
+            "p90_net": float(inactive_sm.get("p90_net", 0.0) or 0.0),
+        },
+    }
 
 
 def _relax_threshold(groups: List[Dict[str, Any]], start_min_n: int, floor: int, no_relax: bool) -> tuple[int, bool]:
@@ -162,6 +228,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         n_ratio=float(args.collapse_n_ratio),
         mode=str(args.collapse_mode),
     )
+    disc_liq = _liquidation_impact(disc_sel)
+    valid_liq = _liquidation_impact(valid_sel)
 
     print(
         f"validate_micro_edge_forward debug={path} total={n_total} discover={len(disc)} valid={len(valid)} "
@@ -241,6 +309,70 @@ def main(argv: Optional[List[str]] = None) -> int:
             f"group={g['group']} n={int(g['n'])} avg_net={_fmt_num(g['avg_net'])} "
             f"p90_net={_fmt_num(g['p90_net'])} p90<0={'YES' if bool(g['p90_net_negative']) else 'NO'}"
         )
+    if bool(disc_liq.get("available")) or bool(valid_liq.get("available")):
+        print("LIQUIDATION_IMPACT")
+        for name, section in (("discovery", disc_liq), ("validation", valid_liq)):
+            if not bool(section.get("available")):
+                print(f"{name}: unavailable")
+                continue
+            active = section.get("active", {})
+            inactive = section.get("inactive", {})
+            print(
+                f"{name}: threshold_q75={float(section.get('threshold_q75', 0.0)):.6f} "
+                f"active_n={int(active.get('n', 0) or 0)} active_avg_net={_fmt_num(active.get('avg_net'))} "
+                f"active_p90_net={_fmt_num(active.get('p90_net'))} inactive_n={int(inactive.get('n', 0) or 0)} "
+                f"inactive_avg_net={_fmt_num(inactive.get('avg_net'))} inactive_p90_net={_fmt_num(inactive.get('p90_net'))}"
+            )
+
+    payload = {
+        "debug": str(path),
+        "group_by": fields,
+        "discover_frac": float(args.discover_frac),
+        "counts": {
+            "total": int(n_total),
+            "discovery": int(len(disc)),
+            "validation": int(len(valid)),
+            "selected_discovery": int(len(disc_sel)),
+            "selected_validation": int(len(valid_sel)),
+            "top_groups": int(len(top_keys)),
+        },
+        "thresholds": {
+            "min_n_discovery": int(min_disc_eff),
+            "min_n_validation": int(min_val_eff),
+            "min_select_frac": float(args.min_select_frac),
+        },
+        "discovery": disc_sm,
+        "validation": valid_sm,
+        "collapse": {
+            "detected": bool(collapse),
+            "flags": collapse_flags,
+            "values": collapse_vals,
+        },
+        "liquidation_impact": {
+            "discovery": disc_liq,
+            "validation": valid_liq,
+        },
+        "run_summary": build_run_summary(
+            run_type="validate_micro_edge_forward",
+            inputs={
+                "debug": str(path),
+                "group_by": fields,
+                "discover_frac": float(args.discover_frac),
+                "top_k": int(args.top_k),
+            },
+            metrics={
+                "total": int(n_total),
+                "selected_discovery": int(len(disc_sel)),
+                "selected_validation": int(len(valid_sel)),
+                "collapse_detected": int(bool(collapse)),
+            },
+            artifacts={"json": str(args.out_json)} if args.out_json else {},
+        ),
+    }
+    if args.out_json:
+        out_path = Path(str(args.out_json))
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(json.dumps(payload, ensure_ascii=True, indent=2) + "\n", encoding="utf-8")
     return 0
 
 

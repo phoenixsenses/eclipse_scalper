@@ -422,6 +422,44 @@ def _bonferroni_adjust(items: List[Tuple[int, float]]) -> Dict[int, float]:
     return out
 
 
+def _summarize_liquidation_scoring_impact(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
+    impacted = [
+        r
+        for r in rows
+        if str(r.get("rule", "")).startswith("micro_edge_v")
+    ]
+    if not impacted:
+        return {"available": False, "count": 0}
+    avg_delta_score = sum(float(r.get("delta_score_raw_core", 0.0) or 0.0) for r in impacted) / float(len(impacted))
+    avg_delta_npa = sum(float(r.get("delta_npa_core", 0.0) or 0.0) for r in impacted) / float(len(impacted))
+    avg_delta_pass = sum(float(r.get("delta_pass_rate_core", 0.0) or 0.0) for r in impacted) / float(len(impacted))
+    positive = sum(1 for r in impacted if float(r.get("delta_score_raw_core", 0.0) or 0.0) > 0.0)
+    improved = max(impacted, key=lambda r: float(r.get("delta_score_raw_core", 0.0) or 0.0))
+    degraded = min(impacted, key=lambda r: float(r.get("delta_score_raw_core", 0.0) or 0.0))
+    return {
+        "available": True,
+        "count": int(len(impacted)),
+        "positive_delta_score_count": int(positive),
+        "avg_delta_score_raw_core": float(avg_delta_score),
+        "avg_delta_npa_core": float(avg_delta_npa),
+        "avg_delta_pass_rate_core": float(avg_delta_pass),
+        "top_improved": {
+            "symbol": improved.get("symbol"),
+            "rule": improved.get("rule"),
+            "delta_score_raw_core": float(improved.get("delta_score_raw_core", 0.0) or 0.0),
+            "delta_npa_core": float(improved.get("delta_npa_core", 0.0) or 0.0),
+            "delta_pass_rate_core": float(improved.get("delta_pass_rate_core", 0.0) or 0.0),
+        },
+        "top_degraded": {
+            "symbol": degraded.get("symbol"),
+            "rule": degraded.get("rule"),
+            "delta_score_raw_core": float(degraded.get("delta_score_raw_core", 0.0) or 0.0),
+            "delta_npa_core": float(degraded.get("delta_npa_core", 0.0) or 0.0),
+            "delta_pass_rate_core": float(degraded.get("delta_pass_rate_core", 0.0) or 0.0),
+        },
+    }
+
+
 def _args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Rank passive pockets by forward robustness.")
     p.add_argument("--candidates-md", required=True)
@@ -938,7 +976,17 @@ def main() -> int:
             if cnt >= 5:
                 break
     survive = sum(1 for r in scored if float(r["evals"].get("fee=1.000|adv=1.000", {}).get("pass_rate", 0.0)) >= 0.5)
+    liq_impact = _summarize_liquidation_scoring_impact(scored)
     print(f"pockets survive fee>=1.0 with pass_rate>=0.5: {survive}")
+    if bool(liq_impact.get("available")):
+        print(
+            "liquidation_scoring_impact "
+            f"count={int(liq_impact.get('count', 0))} "
+            f"positive_delta_score_count={int(liq_impact.get('positive_delta_score_count', 0))} "
+            f"avg_delta_score_raw_core={float(liq_impact.get('avg_delta_score_raw_core', 0.0)):+.6e} "
+            f"avg_delta_npa_core={float(liq_impact.get('avg_delta_npa_core', 0.0)):+.6e} "
+            f"avg_delta_pass_rate_core={float(liq_impact.get('avg_delta_pass_rate_core', 0.0)):+.2%}"
+        )
     if bool(args.diagnostic_breakdown) and scored:
         top = scored[0]
         maker_bps = float(top.get("avg_fee_bps", 0.0) or 0.0)
@@ -1010,6 +1058,7 @@ def main() -> int:
             }
             for r in scored
         ],
+        "liquidation_scoring_impact": liq_impact,
         "ranking": scored,
     }
     payload["run_summary"] = build_run_summary(
@@ -1035,6 +1084,14 @@ def main() -> int:
         f"candidate_parse total_rows_seen={total_rows_seen} table_rows_seen={table_rows_seen} rows_with_pass_yes={rows_with_pass_yes} candidates_parsed={candidates_parsed} candidates_unique={len(candidates)} rows_skipped_missing_fields={rows_skipped_missing}",
         f"fee_grid={fee_grid} adverse_mult_grid={adverse_grid}",
         f"pass_threshold={float(args.pass_threshold):.3f}",
+        (
+            f"liquidation_scoring_impact available={bool(liq_impact.get('available'))} "
+            f"count={int(liq_impact.get('count', 0))} "
+            f"positive_delta_score_count={int(liq_impact.get('positive_delta_score_count', 0))} "
+            f"avg_delta_score_raw_core={float(liq_impact.get('avg_delta_score_raw_core', 0.0)):+.6e} "
+            f"avg_delta_npa_core={float(liq_impact.get('avg_delta_npa_core', 0.0)):+.6e} "
+            f"avg_delta_pass_rate_core={float(liq_impact.get('avg_delta_pass_rate_core', 0.0)):+.2%}"
+        ),
         (
             f"mitigation_profile={mitigation_profile} gate_config "
             f"min_intensity_strong={float(args.min_intensity_strong):.6f} "

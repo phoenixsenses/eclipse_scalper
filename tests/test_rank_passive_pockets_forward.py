@@ -100,6 +100,90 @@ def test_ranking_fee_priority_and_stability(monkeypatch) -> None:
     data = json.loads(out_json.read_text(encoding="utf-8"))
     assert data["run_summary"]["run_type"] == "rank_passive_pockets_forward"
     assert data["ranking"][0]["symbol"] == "ETHUSDT"
+    assert "liquidation_scoring_impact" in data
+    assert data["liquidation_scoring_impact"]["available"] is False
+
+
+def test_liquidation_scoring_impact_summary(monkeypatch) -> None:
+    monkeypatch.setattr(
+        rp,
+        "_parse_candidates_from_md",
+        lambda path, debug=False: (
+            [
+                {"symbol": "ETHUSDT", "horizon_sec": 60, "min_imbalance": 0.5, "min_trade_intensity": 2500.0, "max_spread": 0.00025},
+            ],
+            {"total_rows_seen": 1, "table_rows_seen": 1, "rows_with_pass_yes": 1, "candidates_parsed": 1, "candidates_unique": 1, "rows_skipped_missing_fields": 0},
+        ),
+    )
+
+    def _fake_validate(**kwargs):
+        fee = float(kwargs["maker_fee_bps"])
+        rule = str(kwargs["rule"])
+        vol_quantile_reject = float(kwargs.get("vol_quantile_reject", 0.0) or 0.0)
+        rows = []
+        for split in [1, 2]:
+            for seed in [11, 22]:
+                base = 0.00001
+                if rule == "micro_edge_v3_passive_alpha":
+                    base = 0.00003 if fee <= 1.0 else 0.000015
+                    if vol_quantile_reject > 0.0:
+                        base += 0.00001
+                rows.append(
+                    {
+                        "seed": seed,
+                        "split": split,
+                        "train_n": 100,
+                        "val_n_rows": 100,
+                        "effective_min_n": 20,
+                        "filled_n": 60,
+                        "filled_avg_net": base,
+                        "filled_p90_net": 0.00010,
+                        "filled_win_rate": 0.5,
+                        "attempt_fill_rate": 0.4,
+                        "net_per_attempt": base * 0.4,
+                        "val_attempts": 150,
+                        "val_filled": 60,
+                        "attempts_per_min": 90.0,
+                        "pass": True,
+                    }
+                )
+        return {"rows_total": len(rows), "pass_count": len(rows), "pass_rate": 1.0, "insufficient_fill_rate": 0.0, "per_combo": rows}
+
+    monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
+    out_json = Path("reports/test_rank_liq_impact.json")
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "x",
+            "--candidates-md",
+            "reports/dummy.md",
+            "--db",
+            "data/microstructure.db",
+            "--rule",
+            "micro_edge_v3_passive_alpha",
+            "--maker-fee-bps-grid",
+            "1.0,1.5",
+            "--passive-adverse-mult-grid",
+            "1.0",
+            "--min-attempt-fill-rate",
+            "0.0",
+            "--mitigation-profile",
+            "anti_adverse_v3",
+            "--out-md",
+            "reports/test_rank_liq_impact.md",
+            "--out-json",
+            str(out_json),
+        ],
+    )
+    rc = rp.main()
+    assert rc == 0
+    data = json.loads(out_json.read_text(encoding="utf-8"))
+    impact = data["liquidation_scoring_impact"]
+    assert impact["available"] is True
+    assert impact["count"] == 1
+    assert impact["positive_delta_score_count"] == 1
+    assert float(impact["avg_delta_score_raw_core"]) > 0.0
 
 
 def test_parse_candidates_md_v2_style() -> None:

@@ -237,6 +237,47 @@ def _validate_report_check(payload: Dict[str, Any]) -> List[str]:
     return errors
 
 
+def _validate_validate_micro_edge_forward(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "debug": str,
+        "group_by": list,
+        "discover_frac": (int, float),
+        "counts": dict,
+        "thresholds": dict,
+        "discovery": dict,
+        "validation": dict,
+        "collapse": dict,
+        "liquidation_impact": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    counts = payload.get("counts")
+    if isinstance(counts, dict):
+        for key in ("total", "discovery", "validation", "selected_discovery", "selected_validation", "top_groups"):
+            if key not in counts:
+                errors.append(f"missing:counts.{key}")
+            elif not isinstance(counts[key], int):
+                errors.append(f"bad_type:counts.{key}")
+    collapse = payload.get("collapse")
+    if isinstance(collapse, dict):
+        if "detected" not in collapse:
+            errors.append("missing:collapse.detected")
+        elif not isinstance(collapse["detected"], bool):
+            errors.append("bad_type:collapse.detected")
+        if "flags" not in collapse:
+            errors.append("missing:collapse.flags")
+        elif not isinstance(collapse["flags"], dict):
+            errors.append("bad_type:collapse.flags")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 def _validate_analyze_cost_breakdown(payload: Dict[str, Any]) -> List[str]:
     errors: List[str] = []
     required_top = {
@@ -657,6 +698,32 @@ def _validate_freeze_runtime_profile(payload: Dict[str, Any]) -> List[str]:
     return errors
 
 
+def _validate_microstructure_contract(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "db": str,
+        "symbols": list,
+        "required_tables": list,
+        "status": str,
+        "table_contracts": dict,
+        "symbol_coverage": dict,
+        "feature_capability": dict,
+        "warnings": list,
+        "failures": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    if "status" in payload and payload["status"] not in {"pass", "warn", "fail"}:
+        errors.append("bad_value:status")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "micro_edge_smoke": _validate_micro_edge_record,
     "validate_canonical": _validate_validate_canonical,
@@ -664,6 +731,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "summarize_rank_attribution": _validate_summarize_rank_attribution,
     "validate_artifacts": _validate_validate_artifacts,
     "report_check": _validate_report_check,
+    "validate_micro_edge_forward": _validate_validate_micro_edge_forward,
     "analyze_cost_breakdown": _validate_analyze_cost_breakdown,
     "analyze_fill_timing": _validate_analyze_fill_timing,
     "daily_execution_calibration": _validate_daily_execution_calibration,
@@ -690,6 +758,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "funding_rate_analysis": _validate_funding_rate_analysis,
     "prototype_ws_vs_db_latency": _validate_prototype_ws_vs_db_latency,
     "freeze_runtime_profile": _validate_freeze_runtime_profile,
+    "validate_microstructure_contract": _validate_microstructure_contract,
 }
 
 
@@ -707,6 +776,8 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "validate_artifacts"
     if {"results", "summary"}.issubset(keys):
         return "report_check"
+    if {"debug", "group_by", "counts", "collapse", "liquidation_impact"}.issubset(keys):
+        return "validate_micro_edge_forward"
     if {"tool", "source_json", "n_pockets", "pockets"}.issubset(keys):
         return "analyze_cost_breakdown"
     if {"live_parquet", "trade_db", "timeout_candidates", "live_summary"}.issubset(keys):
@@ -759,6 +830,8 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "prototype_ws_vs_db_latency"
     if {"hash", "profile"}.issubset(keys):
         return "freeze_runtime_profile"
+    if {"table_contracts", "symbol_coverage", "feature_capability", "required_tables"}.issubset(keys):
+        return "validate_microstructure_contract"
     return None
 
 
