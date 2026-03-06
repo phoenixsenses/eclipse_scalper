@@ -1331,7 +1331,9 @@ async def try_enter(bot, sym: str, side: str):
                 _skip(bot, k, side, "kill_switch halted")
                 return
         except Exception as e:
-            log_entry.warning(f"{k} trade_allowed() error — allowing by exception: {e}")
+            log_entry.critical(f"{k} trade_allowed() error — BLOCKING entry (fail-closed): {e}")
+            _skip(bot, k, side, "kill_switch check failed (fail-closed)")
+            return
 
         paused, pause_reason, pause_until = _telemetry_entry_paused()
         if paused:
