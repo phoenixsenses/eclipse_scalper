@@ -579,3 +579,102 @@ export interface LiqAlertState {
     ret_1?: number;
   }>;
 }
+
+export type StressLevel = "quiet" | "elevated" | "severe";
+
+export interface SpreadStressState {
+  available: boolean;
+  stale?: boolean;
+  age_sec?: number;
+  symbol?: string;
+  state: {
+    level: StressLevel;
+    reasons: string[];
+    freshness_status?: string;
+  };
+  card: {
+    headline?: string;
+    operator_note?: string;
+    recent_alert_count?: number;
+    high_count?: number;
+    medium_count?: number;
+    avg_spread_tagged?: number;
+    avg_trade_intensity_tagged?: number;
+    freshness_status?: string;
+    age_sec?: number;
+  };
+  dashboard_summary?: string;
+  recommended_action?: string;
+  watchlist?: {
+    summary?: Record<string, unknown>;
+    top_summary?: {
+      symbol?: string;
+      state_level?: string;
+      freshness_status?: string;
+      recommended_action?: string;
+      dashboard_summary?: string;
+    };
+    banner?: {
+      headline?: string;
+      recommended_action?: string;
+    };
+    rows?: Array<{
+      symbol?: string;
+      state_level?: string;
+      freshness_status?: string;
+      recommended_action?: string;
+      recent_alert_count?: number;
+      high_count?: number;
+      medium_count?: number;
+      avg_spread_tagged?: number;
+      priority_score?: number;
+      dashboard_summary?: string;
+    }>;
+  } | null;
+}
+
+export interface FillToxicityState {
+  available: boolean;
+  stale?: boolean;
+  age_sec?: number;
+  source?: string;
+  rows?: number;
+  top_side?: string;
+  state: {
+    level: StressLevel;
+    reasons: string[];
+  };
+  card: {
+    headline?: string;
+    operator_note?: string;
+    top_side?: string;
+    rows?: number;
+    toxicity_score?: number;
+    adverse_bps_mean?: number;
+    pnl_bps_mean?: number;
+  };
+  dashboard_summary?: string;
+  recommended_action?: string;
+}
+
+export interface LatencyStressState {
+  available: boolean;
+  stale?: boolean;
+  age_sec?: number;
+  source?: string;
+  state: {
+    level: StressLevel;
+    reasons: string[];
+  };
+  card: {
+    headline?: string;
+    operator_note?: string;
+    rows?: number;
+    fill_rate?: number;
+    latency_fill_delay_sec_p50?: number;
+    latency_fill_delay_sec_p95?: number;
+    latency_impact_vs_net_corr?: number;
+  };
+  dashboard_summary?: string;
+  recommended_action?: string;
+}

@@ -29,6 +29,9 @@ from .data_sources import (
     read_ops_health,
     read_connectivity_diag,
     read_liq_alert_state,
+    read_spread_stress_state,
+    read_fill_toxicity_state,
+    read_latency_stress_state,
     read_supervisor_status,
     read_scoreboard,
     read_signal_events,
@@ -502,6 +505,21 @@ async def get_diag_connectivity():
 @app.get("/api/liq-alert-state", response_model=dict)
 async def get_liq_alert_state():
     return read_liq_alert_state()
+
+
+@app.get("/api/spread-stress-state", response_model=dict)
+async def get_spread_stress_state():
+    return read_spread_stress_state()
+
+
+@app.get("/api/fill-toxicity-state", response_model=dict)
+async def get_fill_toxicity_state():
+    return read_fill_toxicity_state()
+
+
+@app.get("/api/latency-stress-state", response_model=dict)
+async def get_latency_stress_state():
+    return read_latency_stress_state()
 
 
 @app.get("/api/ops/supervisor", response_model=dict)

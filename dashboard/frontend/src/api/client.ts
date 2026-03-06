@@ -37,6 +37,9 @@ import type {
   SignalEvent,
   StabilityEvent,
   LiqAlertState,
+  SpreadStressState,
+  FillToxicityState,
+  LatencyStressState,
 } from "./types";
 
 const BASE = "/api";
@@ -363,6 +366,12 @@ export const api = {
     get<DiagConnectivityResponse>("/diag/connectivity", undefined, signal),
   liqAlertState: (signal?: AbortSignal): Promise<LiqAlertState> =>
     get<LiqAlertState>("/liq-alert-state", undefined, signal),
+  spreadStressState: (signal?: AbortSignal): Promise<SpreadStressState> =>
+    get<SpreadStressState>("/spread-stress-state", undefined, signal),
+  fillToxicityState: (signal?: AbortSignal): Promise<FillToxicityState> =>
+    get<FillToxicityState>("/fill-toxicity-state", undefined, signal),
+  latencyStressState: (signal?: AbortSignal): Promise<LatencyStressState> =>
+    get<LatencyStressState>("/latency-stress-state", undefined, signal),
   supervisorStatus: (signal?: AbortSignal): Promise<SupervisorStatusResponse> =>
     get<SupervisorStatusResponse>("/ops/supervisor", undefined, signal),
   debugActions: (signal?: AbortSignal): Promise<ControlActionInfo[]> =>
