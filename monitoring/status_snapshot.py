@@ -155,11 +155,37 @@ def collect_diag(micro_db: str = "data/microstructure.db") -> Dict[str, Any]:
     }
 
 
+def collect_kill_switch_status() -> Dict[str, Any]:
+    ks_path = Path("state/kill_switch.json")
+    if not ks_path.exists():
+        return {"active": False, "source": "no_file"}
+    try:
+        obj = json.loads(ks_path.read_text(encoding="utf-8", errors="replace"))
+        return {
+            "active": bool(obj.get("halted", False)),
+            "reason": str(obj.get("reason") or ""),
+            "ts": float(obj.get("ts") or 0),
+            "source": "state_file",
+        }
+    except Exception:
+        return {"active": False, "source": "read_error"}
+
+
 def collect_status() -> Dict[str, Any]:
     pnl = collect_pnl()
     diag = collect_diag()
     cfg = collect_config_flags()
-    return {"pnl": pnl, "diag": diag, "config": cfg}
+    positions = collect_open_positions()
+    decisions = collect_last_decisions(limit=5)
+    kill_switch = collect_kill_switch_status()
+    return {
+        "pnl": pnl,
+        "diag": diag,
+        "config": cfg,
+        "positions": positions,
+        "last_decisions": decisions,
+        "kill_switch": kill_switch,
+    }
 
 
 def render_status_text() -> str:
@@ -167,7 +193,27 @@ def render_status_text() -> str:
     pnl = s["pnl"]
     diag = s["diag"]
     cfg = s["config"]
-    lines = ["Eclipse Scalper - Paper Run", "==========================="]
+    positions = s["positions"]
+    decisions = s["last_decisions"]
+    ks = s["kill_switch"]
+
+    lines = ["Eclipse Scalper - Health Check", "============================="]
+
+    # Kill switch
+    if ks.get("active"):
+        lines.append(f"KILL SWITCH: ACTIVE — {ks.get('reason', 'unknown')}")
+    else:
+        lines.append("Kill switch: inactive")
+
+    # Data feed
+    if diag.get("ok"):
+        age = int(diag.get("feed_age_sec", 0))
+        freshness = "FRESH" if age < 30 else ("DEGRADED" if age < 120 else "STALE")
+        lines.append(f"Data feed: {freshness} | Last tick: {diag.get('last_tick_utc')} | age={age}s")
+    else:
+        lines.append("Data feed: UNAVAILABLE")
+
+    # PnL
     if pnl.get("ok"):
         lines.append(
             f"PnL today: {float(pnl.get('today_pnl_bps', 0.0)):+.2f} bps | Trades: {int(pnl.get('today_trades', 0))} | Win: {float(pnl.get('today_win_rate', 0.0))*100.0:.1f}%"
@@ -176,11 +222,28 @@ def render_status_text() -> str:
             f"Total: {float(pnl.get('total_pnl_bps', 0.0)):+.2f} bps | Trades: {int(pnl.get('total_trades', 0))} | DD: -{float(pnl.get('max_drawdown_bps', 0.0)):.2f} bps"
         )
     else:
-        lines.append("PnL: unavailable (paper_trades.db missing)")
-    if diag.get("ok"):
-        lines.append(f"Data feed: fresh | Last tick: {diag.get('last_tick_utc')} | age={int(diag.get('feed_age_sec', 0))}s")
+        lines.append("PnL: unavailable")
+
+    # Positions
+    pos_count = int(positions.get("count", 0))
+    if pos_count > 0:
+        lines.append(f"Open positions: {pos_count}")
+        for p in positions.get("positions", [])[:5]:
+            lines.append(f"  {p.get('symbol')} {p.get('side')} qty={p.get('qty')} entry={p.get('entry_price')}")
     else:
-        lines.append("Data feed: unavailable")
+        lines.append("Open positions: 0")
+
+    # Last decisions
+    if decisions:
+        lines.append("Recent decisions:")
+        for d in decisions[:3]:
+            lines.append(f"  [{d.get('event')}] {d.get('symbol')} — {d.get('reason', '')}"[:80])
+
+    # Config flags
     lines.append("Flags: regime={ENTRY_REGIME} risk={ENTRY_REGIME_RISK_ENABLED} scratch={EXIT_SCRATCH_ENABLED} notify={NOTIFY_ENABLED}".format(**cfg))
     return "\n".join(lines)
+
+
+if __name__ == "__main__":
+    print(render_status_text())
 
