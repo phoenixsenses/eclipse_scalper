@@ -17,6 +17,9 @@ Branch: `codex/runtime/ops-foundation`
 | `975507f` | Tech | Remove dead code: management.py, management_omega.py, guardian.py (-482 lines) |
 | `236b852` | P2 | Fix potential OOM: dashboard ops_health_history -> tail 512KB |
 | `55aada3` | Test | Add runtime safety test suite: 31 tests covering all ops fixes |
+| `3558b67` | P2 | Enhance status_snapshot: kill switch, positions, decisions, feed freshness |
+| `3a3ac31` | P1 | Fix HTML injection in telegram_bot replies + add /kill command |
+| `d32cfb6` | P2 | Fix OOM: tail-based reading in tailer, performance_monitor, telegram_bot |
 
 ## Full Audit Status
 
@@ -136,3 +139,6 @@ Branch: `codex/runtime/ops-foundation`
 | Dead code (management.py, management_omega.py, guardian.py) | DONE — deleted (-482 lines) | `975507f` |
 | Dashboard ops_health_history.jsonl OOM risk | DONE — tail 512KB read | `236b852` |
 | Runtime safety test coverage | DONE — 31 tests added | `55aada3` |
+| Telegram bot HTML injection | DONE — html.escape + /kill command | `3a3ac31` |
+| OOM: tailer, perf_monitor, tg_bot | DONE — tail 256-512KB reads | `d32cfb6` |
+| Status snapshot enhancement | DONE — kill switch, positions, decisions | `3558b67` |
