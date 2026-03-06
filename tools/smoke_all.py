@@ -38,6 +38,7 @@ KEY_MODULES = [
     "tools.research_event_watchboard",
     "tools.event_watchboard_trend",
     "tools.event_watchboard_snapshot_append",
+    "tools.event_watchboard_trend_from_history",
 ]
 
 KEY_FILES = [
@@ -69,6 +70,7 @@ KEY_FILES = [
     "tools/research_event_watchboard.py",
     "tools/event_watchboard_trend.py",
     "tools/event_watchboard_snapshot_append.py",
+    "tools/event_watchboard_trend_from_history.py",
 ]
 
 

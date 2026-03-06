@@ -806,6 +806,30 @@ def _validate_event_watchboard_snapshot_append(payload: Dict[str, Any]) -> List[
     return errors
 
 
+def _validate_event_watchboard_trend_from_history(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "summary": dict,
+        "latest": dict,
+        "points": list,
+        "history": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    history = payload.get("history")
+    if isinstance(history, dict):
+        for key in ("history_path", "last_n", "available_rows", "used_rows"):
+            if key not in history:
+                errors.append(f"missing:history.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 def _validate_validate_artifacts(payload: Dict[str, Any]) -> List[str]:
     errors: List[str] = []
     required_top = {
@@ -1449,6 +1473,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "research_event_watchboard": _validate_research_event_watchboard,
     "event_watchboard_trend": _validate_event_watchboard_trend,
     "event_watchboard_snapshot_append": _validate_event_watchboard_snapshot_append,
+    "event_watchboard_trend_from_history": _validate_event_watchboard_trend_from_history,
     "validate_artifacts": _validate_validate_artifacts,
     "report_check": _validate_report_check,
     "validate_micro_edge_forward": _validate_validate_micro_edge_forward,
@@ -1514,10 +1539,12 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "latency_stress_state"
     if {"summary", "top_event", "banner", "lanes"}.issubset(keys) and "top_summary" not in keys:
         return "research_event_watchboard"
-    if {"summary", "latest", "points"}.issubset(keys) and "top_event" not in keys:
-        return "event_watchboard_trend"
     if {"history_path", "appended"}.issubset(keys):
         return "event_watchboard_snapshot_append"
+    if {"summary", "latest", "points", "history"}.issubset(keys):
+        return "event_watchboard_trend_from_history"
+    if {"summary", "latest", "points"}.issubset(keys) and "top_event" not in keys:
+        return "event_watchboard_trend"
     if {"source_json", "state", "card", "summary_snapshot"}.issubset(keys) and "rule" not in keys:
         return "spread_stress_state"
     if {"source_json", "state", "card", "summary_snapshot"}.issubset(keys):

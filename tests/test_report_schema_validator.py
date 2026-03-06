@@ -687,6 +687,59 @@ def test_validate_event_watchboard_snapshot_append_payload() -> None:
     }
     assert rsv.infer_schema_name(payload) == "event_watchboard_snapshot_append"
     assert rsv.validate_payload(payload, "event_watchboard_snapshot_append") == []
+
+
+def test_validate_event_watchboard_trend_from_history_payload() -> None:
+    payload = {
+        "summary": {
+            "snapshot_count": 2,
+            "start_top_lane": "spread_stress",
+            "end_top_lane": "liquidation",
+            "delta_priority_score": 100.0,
+            "trend": "rising_fast",
+        },
+        "latest": {
+            "index": 1,
+            "source": "b.json",
+            "top_lane": "liquidation",
+            "top_level": "severe",
+            "top_recommended_action": "monitor_only",
+            "priority_score": 200.0,
+        },
+        "points": [
+            {
+                "index": 0,
+                "source": "a.json",
+                "top_lane": "spread_stress",
+                "top_level": "elevated",
+                "top_recommended_action": "show_caution",
+                "priority_score": 100.0,
+            },
+            {
+                "index": 1,
+                "source": "b.json",
+                "top_lane": "liquidation",
+                "top_level": "severe",
+                "top_recommended_action": "monitor_only",
+                "priority_score": 200.0,
+            },
+        ],
+        "history": {
+            "history_path": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl",
+            "last_n": 2,
+            "available_rows": 5,
+            "used_rows": 2,
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "event_watchboard_trend_from_history",
+            "inputs": {"history_path": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl", "last_n": 2},
+            "metrics": {"available_rows": 5, "used_rows": 2, "delta_priority_score": 100.0, "trend": "rising_fast"},
+            "artifacts": {"json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json", "md": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "event_watchboard_trend_from_history"
+    assert rsv.validate_payload(payload, "event_watchboard_trend_from_history") == []
 def test_validate_artifacts_payload() -> None:
     payload = {
         "ok": True,
