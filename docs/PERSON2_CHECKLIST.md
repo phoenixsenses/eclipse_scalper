@@ -142,3 +142,7 @@ Branch: `codex/runtime/ops-foundation`
 | Telegram bot HTML injection | DONE — html.escape + /kill command | `3a3ac31` |
 | OOM: tailer, perf_monitor, tg_bot | DONE — tail 256-512KB reads | `d32cfb6` |
 | Status snapshot enhancement | DONE — kill switch, positions, decisions | `3558b67` |
+| Dashboard: liq alert card (issue #3) | DONE — cherry-picked from branch | `c39ecfd` |
+| Dashboard: spread-stress card (issue #4) | DONE — card + watchlist | `7371805` |
+| Dashboard: fill-toxicity card (issue #5) | DONE — toxicity metrics | `7371805` |
+| Dashboard: latency-stress card (issue #6) | DONE — latency metrics | `7371805` |
