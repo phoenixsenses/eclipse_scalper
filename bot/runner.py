@@ -243,6 +243,21 @@ async def run_bot(
         log_core.warning("TELEGRAM DISABLED — no divine messenger")
         bot.notify = None
 
+    # ---- Ensure critical directories exist ----
+    for d in (Path("logs"), Path("logs/health"), Path("state")):
+        try:
+            d.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            pass
+
+    # ---- Load persisted kill switch state early ----
+    try:
+        from risk.kill_switch import _ensure_state_fields  # type: ignore
+        if hasattr(bot, "state"):
+            _ensure_state_fields(bot.state)
+    except Exception:
+        pass
+
     # ---- Brain path + directory write check ----
     brain_path = Path.home() / ".blade_eternal.brain.lz4"
     try:

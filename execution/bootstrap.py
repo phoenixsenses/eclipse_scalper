@@ -1089,6 +1089,14 @@ async def main() -> None:
     except Exception:
         pass
 
+    # Ensure critical directories exist before anything writes to them
+    from pathlib import Path as _Path
+    for _d in (_Path("logs"), _Path("logs/health"), _Path("state")):
+        try:
+            _d.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            pass
+
     cfg = _load_cfg()
     _apply_env_overrides_to_cfg(cfg)
     if _DOTENV_SOURCE:
