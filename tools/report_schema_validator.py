@@ -611,6 +611,45 @@ def _validate_spread_stress_watchlist(payload: Dict[str, Any]) -> List[str]:
     return errors
 
 
+def _validate_fill_toxicity_state(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source": str,
+        "rows": int,
+        "top_side": str,
+        "state": dict,
+        "dashboard_summary": str,
+        "notification_text": str,
+        "recommended_action": str,
+        "card": dict,
+        "summary_snapshot": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    state = payload.get("state")
+    if isinstance(state, dict):
+        for key in ("level", "reasons"):
+            if key not in state:
+                errors.append(f"missing:state.{key}")
+    card = payload.get("card")
+    if isinstance(card, dict):
+        for key in ("headline", "operator_note", "top_side", "rows", "toxicity_score", "adverse_bps_mean", "pnl_bps_mean"):
+            if key not in card:
+                errors.append(f"missing:card.{key}")
+    summary = payload.get("summary_snapshot")
+    if isinstance(summary, dict):
+        for key in ("rows", "sides"):
+            if key not in summary:
+                errors.append(f"missing:summary_snapshot.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 def _validate_validate_artifacts(payload: Dict[str, Any]) -> List[str]:
     errors: List[str] = []
     required_top = {
@@ -1249,6 +1288,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "spread_stress_alerts": _validate_spread_stress_alerts,
     "spread_stress_state": _validate_spread_stress_state,
     "spread_stress_watchlist": _validate_spread_stress_watchlist,
+    "fill_toxicity_state": _validate_fill_toxicity_state,
     "validate_artifacts": _validate_validate_artifacts,
     "report_check": _validate_report_check,
     "validate_micro_edge_forward": _validate_validate_micro_edge_forward,
@@ -1308,6 +1348,8 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "spread_stress_alerts"
     if {"lookback_min", "bucket_sec", "top_summary", "banner", "rows"}.issubset(keys) and "rule" not in keys and "source_json" not in keys:
         return "spread_stress_watchlist"
+    if {"source", "top_side", "notification_text", "summary_snapshot"}.issubset(keys):
+        return "fill_toxicity_state"
     if {"source_json", "state", "card", "summary_snapshot"}.issubset(keys) and "rule" not in keys:
         return "spread_stress_state"
     if {"source_json", "state", "card", "summary_snapshot"}.issubset(keys):

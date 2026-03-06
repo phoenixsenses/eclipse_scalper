@@ -496,6 +496,40 @@ def test_validate_spread_stress_watchlist_payload() -> None:
     }
     assert rsv.infer_schema_name(payload) == "spread_stress_watchlist"
     assert rsv.validate_payload(payload, "spread_stress_watchlist") == []
+
+
+def test_validate_fill_toxicity_state_payload() -> None:
+    payload = {
+        "source": "data/live/papertrades_live.parquet",
+        "rows": 10,
+        "top_side": "buy",
+        "state": {"level": "severe", "reasons": ["extreme_toxicity_score"]},
+        "dashboard_summary": "fill toxicity severe, top_side buy, toxicity=1.700, adverse=2.200bps.",
+        "notification_text": "[fill-toxicity] level=severe top_side=buy toxicity=1.7000 adverse_bps=2.2000 pnl_bps=-0.5000 action=reduce_passive_aggression",
+        "recommended_action": "reduce_passive_aggression",
+        "card": {
+            "headline": "Fill toxicity severe",
+            "operator_note": "Escalate monitoring and consider reducing passive aggression.",
+            "top_side": "buy",
+            "rows": 10,
+            "toxicity_score": 1.7,
+            "adverse_bps_mean": 2.2,
+            "pnl_bps_mean": -0.5,
+        },
+        "summary_snapshot": {
+            "rows": 10,
+            "sides": {"buy": {"rows": 5, "adverse_bps_mean": 2.2, "pnl_bps_mean": -0.5, "toxicity_score": 1.7}},
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "fill_toxicity_state",
+            "inputs": {"source": "data/live/papertrades_live.parquet"},
+            "metrics": {"rows": 10, "side_count": 1, "state_level": "severe", "top_side": "buy", "top_toxicity_score": 1.7},
+            "artifacts": {"json": "reports/FILL_TOXICITY_STATE.json", "md": "reports/FILL_TOXICITY_STATE.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "fill_toxicity_state"
+    assert rsv.validate_payload(payload, "fill_toxicity_state") == []
 def test_validate_artifacts_payload() -> None:
     payload = {
         "ok": True,

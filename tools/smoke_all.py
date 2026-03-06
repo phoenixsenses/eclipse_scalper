@@ -33,6 +33,7 @@ KEY_MODULES = [
     "tools.spread_stress_alerts",
     "tools.spread_stress_state",
     "tools.spread_stress_watchlist",
+    "tools.fill_toxicity_state",
 ]
 
 KEY_FILES = [
@@ -59,6 +60,7 @@ KEY_FILES = [
     "tools/spread_stress_alerts.py",
     "tools/spread_stress_state.py",
     "tools/spread_stress_watchlist.py",
+    "tools/fill_toxicity_state.py",
 ]
 
 
