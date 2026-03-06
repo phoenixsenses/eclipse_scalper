@@ -23,6 +23,7 @@ KEY_MODULES = [
     "tools.tooling_audit",
     "tools.validate_microstructure_contract",
     "tools.generate_liq_reversal_candidates",
+    "tools.run_liq_reversal_e2e",
 ]
 
 KEY_FILES = [
@@ -39,6 +40,7 @@ KEY_FILES = [
     "tools/tooling_audit.py",
     "tools/validate_microstructure_contract.py",
     "tools/generate_liq_reversal_candidates.py",
+    "tools/run_liq_reversal_e2e.py",
 ]
 
 

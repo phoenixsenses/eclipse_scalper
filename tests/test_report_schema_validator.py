@@ -751,6 +751,35 @@ def test_validate_generate_liq_reversal_candidates_payload() -> None:
     assert rsv.validate_payload(payload, "generate_liq_reversal_candidates") == []
 
 
+def test_validate_run_liq_reversal_e2e_payload() -> None:
+    payload = {
+        "symbol": "ETHUSDT",
+        "rule": "high_liq_reversal_regime",
+        "lookback_min": 1440,
+        "bucket_sec": 5,
+        "coverage_json": "reports/LIQ_REVERSAL_E2E_COVERAGE.json",
+        "candidates_json": "reports/LIQ_REVERSAL_E2E_CANDIDATES.json",
+        "rank_baseline_json": "reports/LIQ_REVERSAL_E2E_RANK_BASELINE.json",
+        "rank_v5_json": "reports/LIQ_REVERSAL_E2E_RANK_V5.json",
+        "summary": {
+            "coverage": {"windows": 3, "max_rule_fire_count": 12, "max_rule_given_liq_rate": 0.5},
+            "candidate_surface": {"count": 8},
+            "rank_baseline": {"count": 0, "top": None},
+            "rank_v5": {"count": 1, "top": {"symbol": "ETHUSDT"}},
+            "decision": {"baseline_tradeable": False, "v5_tradeable": True, "next_step": "inspect_ranked_pockets"},
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "run_liq_reversal_e2e",
+            "inputs": {"db": "data/microstructure.db", "symbol": "ETHUSDT"},
+            "metrics": {"coverage_windows": 3, "candidate_count": 8, "baseline_rank_count": 0, "v5_rank_count": 1},
+            "artifacts": {"json": "reports/LIQ_REVERSAL_E2E.json", "md": "reports/LIQ_REVERSAL_E2E.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "run_liq_reversal_e2e"
+    assert rsv.validate_payload(payload, "run_liq_reversal_e2e") == []
+
+
 def test_rejects_bad_micro_edge_rule_shape() -> None:
     payload = {
         "ts_utc": "2026-03-05T00:00:00Z",
