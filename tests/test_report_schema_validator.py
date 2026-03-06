@@ -201,6 +201,30 @@ def test_validate_summarize_liq_regime_tag_impact_payload() -> None:
     assert rsv.validate_payload(payload, "summarize_liq_regime_tag_impact") == []
 
 
+def test_validate_summarize_liq_tag_signal_behavior_payload() -> None:
+    payload = {
+        "debug": "localtests/debug.jsonl",
+        "rule": "high_liq_reversal_regime",
+        "overall": {
+            "rows_total": 10,
+            "tagged": {"n": 2, "avg_net": 0.0009, "p90_net": 0.0012, "break_even_bps_total": 9.0},
+            "normal": {"n": 8, "avg_net": 0.0001, "p90_net": 0.0005, "break_even_bps_total": 1.0},
+            "delta_avg_net": 0.0008,
+            "delta_p90_net": 0.0007,
+        },
+        "recommendation": "Next action: tagged signals look stronger. Use liquidation regime as a downstream filter candidate.",
+        "run_summary": {
+            "version": "v1",
+            "run_type": "summarize_liq_tag_signal_behavior",
+            "inputs": {"debug": "localtests/debug.jsonl", "rule": "high_liq_reversal_regime"},
+            "metrics": {"rows_total": 10, "tagged_n": 2, "normal_n": 8, "delta_avg_net": 0.0008, "delta_p90_net": 0.0007},
+            "artifacts": {"json": "reports/liq_tag_signal_behavior.json"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "summarize_liq_tag_signal_behavior"
+    assert rsv.validate_payload(payload, "summarize_liq_tag_signal_behavior") == []
+
+
 def test_validate_artifacts_payload() -> None:
     payload = {
         "ok": True,

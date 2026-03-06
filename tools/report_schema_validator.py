@@ -241,6 +241,45 @@ def _validate_summarize_liq_regime_tag_impact(payload: Dict[str, Any]) -> List[s
     return errors
 
 
+def _validate_summarize_liq_tag_signal_behavior(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "debug": str,
+        "rule": str,
+        "overall": dict,
+        "recommendation": str,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    overall = payload.get("overall")
+    if isinstance(overall, dict):
+        for key in ("rows_total", "tagged", "normal", "delta_avg_net", "delta_p90_net"):
+            if key not in overall:
+                errors.append(f"missing:overall.{key}")
+        if "rows_total" in overall and not isinstance(overall["rows_total"], int):
+            errors.append("bad_type:overall.rows_total")
+        for group in ("tagged", "normal"):
+            block = overall.get(group)
+            if not isinstance(block, dict):
+                errors.append(f"bad_type:overall.{group}")
+                continue
+            for key in ("n", "avg_net", "p90_net", "break_even_bps_total"):
+                if key not in block:
+                    errors.append(f"missing:overall.{group}.{key}")
+            if "n" in block and not isinstance(block["n"], int):
+                errors.append(f"bad_type:overall.{group}.n")
+        for key in ("delta_avg_net", "delta_p90_net"):
+            if key in overall and not _is_number(overall[key]):
+                errors.append(f"bad_type:overall.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 def _validate_validate_artifacts(payload: Dict[str, Any]) -> List[str]:
     errors: List[str] = []
     required_top = {
@@ -872,6 +911,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "validate_passive_pocket_forward": _validate_validate_passive_pocket_forward,
     "summarize_rank_attribution": _validate_summarize_rank_attribution,
     "summarize_liq_regime_tag_impact": _validate_summarize_liq_regime_tag_impact,
+    "summarize_liq_tag_signal_behavior": _validate_summarize_liq_tag_signal_behavior,
     "validate_artifacts": _validate_validate_artifacts,
     "report_check": _validate_report_check,
     "validate_micro_edge_forward": _validate_validate_micro_edge_forward,
@@ -921,6 +961,8 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "summarize_rank_attribution"
     if {"source", "discovery", "validation", "recommendation"}.issubset(keys):
         return "summarize_liq_regime_tag_impact"
+    if {"debug", "rule", "overall", "recommendation"}.issubset(keys):
+        return "summarize_liq_tag_signal_behavior"
     if {"ok", "calibration", "execution"}.issubset(keys):
         return "validate_artifacts"
     if {"results", "summary"}.issubset(keys):
