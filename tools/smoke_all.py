@@ -37,6 +37,7 @@ KEY_MODULES = [
     "tools.latency_stress_state",
     "tools.research_event_watchboard",
     "tools.event_watchboard_trend",
+    "tools.event_watchboard_snapshot_append",
 ]
 
 KEY_FILES = [
@@ -67,6 +68,7 @@ KEY_FILES = [
     "tools/latency_stress_state.py",
     "tools/research_event_watchboard.py",
     "tools/event_watchboard_trend.py",
+    "tools/event_watchboard_snapshot_append.py",
 ]
 
 

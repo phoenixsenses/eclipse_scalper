@@ -784,6 +784,28 @@ def _validate_event_watchboard_trend(payload: Dict[str, Any]) -> List[str]:
     return errors
 
 
+def _validate_event_watchboard_snapshot_append(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "history_path": str,
+        "appended": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    appended = payload.get("appended")
+    if isinstance(appended, dict):
+        for key in ("source", "top_lane", "state_counts", "top_event", "banner", "upstream_run_type"):
+            if key not in appended:
+                errors.append(f"missing:appended.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 def _validate_validate_artifacts(payload: Dict[str, Any]) -> List[str]:
     errors: List[str] = []
     required_top = {
@@ -1426,6 +1448,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "latency_stress_state": _validate_latency_stress_state,
     "research_event_watchboard": _validate_research_event_watchboard,
     "event_watchboard_trend": _validate_event_watchboard_trend,
+    "event_watchboard_snapshot_append": _validate_event_watchboard_snapshot_append,
     "validate_artifacts": _validate_validate_artifacts,
     "report_check": _validate_report_check,
     "validate_micro_edge_forward": _validate_validate_micro_edge_forward,
@@ -1493,6 +1516,8 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "research_event_watchboard"
     if {"summary", "latest", "points"}.issubset(keys) and "top_event" not in keys:
         return "event_watchboard_trend"
+    if {"history_path", "appended"}.issubset(keys):
+        return "event_watchboard_snapshot_append"
     if {"source_json", "state", "card", "summary_snapshot"}.issubset(keys) and "rule" not in keys:
         return "spread_stress_state"
     if {"source_json", "state", "card", "summary_snapshot"}.issubset(keys):

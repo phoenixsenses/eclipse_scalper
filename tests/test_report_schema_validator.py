@@ -654,6 +654,39 @@ def test_validate_event_watchboard_trend_payload() -> None:
     }
     assert rsv.infer_schema_name(payload) == "event_watchboard_trend"
     assert rsv.validate_payload(payload, "event_watchboard_trend") == []
+
+
+def test_validate_event_watchboard_snapshot_append_payload() -> None:
+    payload = {
+        "history_path": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl",
+        "appended": {
+            "source": "reports/RESEARCH_EVENT_WATCHBOARD_REAL.json",
+            "top_lane": "liquidation",
+            "state_counts": {"severe": 2},
+            "top_event": {
+                "lane": "liquidation",
+                "level": "severe",
+                "recommended_action": "monitor_only",
+                "headline": "Liq top ETH",
+            },
+            "banner": {
+                "headline": "Liq top ETH",
+                "recommended_action": "monitor_only",
+                "top_lane": "liquidation",
+                "top_level": "severe",
+            },
+            "upstream_run_type": "research_event_watchboard",
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "event_watchboard_snapshot_append",
+            "inputs": {"source": "reports/RESEARCH_EVENT_WATCHBOARD_REAL.json", "history_path": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl"},
+            "metrics": {"top_lane": "liquidation", "severe_count": 2},
+            "artifacts": {"json": "reports/RESEARCH_EVENT_WATCHBOARD_SNAPSHOT_APPEND.json", "history_jsonl": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "event_watchboard_snapshot_append"
+    assert rsv.validate_payload(payload, "event_watchboard_snapshot_append") == []
 def test_validate_artifacts_payload() -> None:
     payload = {
         "ok": True,
