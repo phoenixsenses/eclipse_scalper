@@ -704,6 +704,49 @@ def _validate_latency_stress_state(payload: Dict[str, Any]) -> List[str]:
     return errors
 
 
+def _validate_research_event_watchboard(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "summary": dict,
+        "top_event": dict,
+        "banner": dict,
+        "lanes": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("lane_count", "state_counts", "top_lane"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    top_event = payload.get("top_event")
+    if isinstance(top_event, dict):
+        for key in ("lane", "level", "recommended_action", "headline", "detail"):
+            if key not in top_event:
+                errors.append(f"missing:top_event.{key}")
+    banner = payload.get("banner")
+    if isinstance(banner, dict):
+        for key in ("headline", "recommended_action", "top_lane", "top_level"):
+            if key not in banner:
+                errors.append(f"missing:banner.{key}")
+    lanes = payload.get("lanes")
+    if isinstance(lanes, list):
+        for idx, lane in enumerate(lanes):
+            if not isinstance(lane, dict):
+                errors.append(f"bad_type:lanes[{idx}]")
+                continue
+            for key in ("lane", "level", "freshness_status", "recommended_action", "headline", "detail", "priority_score"):
+                if key not in lane:
+                    errors.append(f"missing:lanes[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 def _validate_validate_artifacts(payload: Dict[str, Any]) -> List[str]:
     errors: List[str] = []
     required_top = {
@@ -1344,6 +1387,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "spread_stress_watchlist": _validate_spread_stress_watchlist,
     "fill_toxicity_state": _validate_fill_toxicity_state,
     "latency_stress_state": _validate_latency_stress_state,
+    "research_event_watchboard": _validate_research_event_watchboard,
     "validate_artifacts": _validate_validate_artifacts,
     "report_check": _validate_report_check,
     "validate_micro_edge_forward": _validate_validate_micro_edge_forward,
@@ -1407,6 +1451,8 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "fill_toxicity_state"
     if {"source", "notification_text", "summary_snapshot"}.issubset(keys) and "top_side" not in keys:
         return "latency_stress_state"
+    if {"summary", "top_event", "banner", "lanes"}.issubset(keys) and "top_summary" not in keys:
+        return "research_event_watchboard"
     if {"source_json", "state", "card", "summary_snapshot"}.issubset(keys) and "rule" not in keys:
         return "spread_stress_state"
     if {"source_json", "state", "card", "summary_snapshot"}.issubset(keys):

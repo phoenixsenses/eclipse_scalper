@@ -568,6 +568,45 @@ def test_validate_latency_stress_state_payload() -> None:
     }
     assert rsv.infer_schema_name(payload) == "latency_stress_state"
     assert rsv.validate_payload(payload, "latency_stress_state") == []
+
+
+def test_validate_research_event_watchboard_payload() -> None:
+    payload = {
+        "summary": {"lane_count": 4, "state_counts": {"severe": 1, "quiet": 3}, "top_lane": "liquidation"},
+        "top_event": {
+            "lane": "liquidation",
+            "level": "severe",
+            "recommended_action": "escalate_monitoring",
+            "headline": "Liq top ETH",
+            "detail": "ETH severe liq",
+        },
+        "banner": {
+            "headline": "Liq top ETH",
+            "recommended_action": "escalate_monitoring",
+            "top_lane": "liquidation",
+            "top_level": "severe",
+        },
+        "lanes": [
+            {
+                "lane": "liquidation",
+                "level": "severe",
+                "freshness_status": "fresh",
+                "recommended_action": "escalate_monitoring",
+                "headline": "Liq top ETH",
+                "detail": "ETH severe liq",
+                "priority_score": 225.0,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "research_event_watchboard",
+            "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"]},
+            "metrics": {"lane_count": 4, "severe_count": 1, "elevated_count": 0, "quiet_count": 3},
+            "artifacts": {"json": "reports/RESEARCH_EVENT_WATCHBOARD.json", "md": "reports/RESEARCH_EVENT_WATCHBOARD.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "research_event_watchboard"
+    assert rsv.validate_payload(payload, "research_event_watchboard") == []
 def test_validate_artifacts_payload() -> None:
     payload = {
         "ok": True,
