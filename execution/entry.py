@@ -27,6 +27,12 @@ from brain.persistence import save_brain
 from ta.volatility import AverageTrueRange
 
 from execution.order_router import create_order, cancel_order
+from execution.runtime_helpers import (
+    parse_group_kv as _parse_group_kv,
+    parse_symbol_kv as _parse_symbol_kv,
+    safe_float as _safe_float,
+    symkey as _symkey,
+)
 from risk.kill_switch import trade_allowed
 try:
     from core.order_placement import OrderPlacementEngine  # type: ignore
@@ -72,16 +78,6 @@ _ANOMALY_ACTIONS_CACHE: dict[str, Any] = {"ts": 0.0, "data": {}}
 _ANOMALY_CACHE_TTL = 5.0
 
 
-def _symkey(sym: str) -> str:
-    s = str(sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
-
-
 def _load_anomaly_actions() -> dict[str, Any]:
     now = time.time()
     cache = _ANOMALY_ACTIONS_CACHE
@@ -116,16 +112,6 @@ def _get_symbol_lock(k: str) -> asyncio.Lock:
 
 def _clamp(x: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, x))
-
-
-def _safe_float(x, default=0.0) -> float:
-    try:
-        v = float(x)
-        if v != v:
-            return default
-        return v
-    except Exception:
-        return default
 
 
 def _get_order_placement_engine(bot):
@@ -185,51 +171,6 @@ def _format_ts(ts: float) -> str:
         return time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime(ts))
     except Exception:
         return str(ts)
-
-
-def _parse_group_kv(raw: str) -> dict:
-    """
-    Parse "MEME=1,MAJOR=2" into dict.
-    """
-    out: dict = {}
-    try:
-        s = str(raw or "").strip()
-        if not s:
-            return out
-        parts = [p.strip() for p in s.replace(";", ",").split(",") if p.strip()]
-        for p in parts:
-            if "=" not in p:
-                continue
-            k, v = p.split("=", 1)
-            kk = str(k or "").strip().upper()
-            if not kk:
-                continue
-            out[kk] = _safe_float(v, 0.0)
-    except Exception:
-        return out
-    return out
-
-
-def _parse_symbol_kv(raw: str) -> dict:
-    """
-    Parse "BTCUSDT=10,ETHUSDT=5" into { "BTCUSDT": 10, ... }.
-    """
-    if raw is None:
-        return {}
-    s = str(raw).strip()
-    if not s:
-        return {}
-    out: dict = {}
-    parts = [p.strip() for p in s.replace(";", ",").split(",") if p.strip()]
-    for p in parts:
-        if "=" not in p:
-            continue
-        k, v = p.split("=", 1)
-        k = _symkey(k)
-        if not k:
-            continue
-        out[k] = _safe_float(v, 0.0)
-    return out
 
 
 def _group_open_count(bot, groups: dict, group_name: str, *, exclude: str | None = None) -> int:

@@ -11,7 +11,9 @@ import { useApiErrors } from "../context/ApiErrorContext";
 
 const NAV: { to: string; label: string }[] = [
   { to: "/",         label: "Genel Bakis / Overview"  },
+  { to: "/live",     label: "Canli Veri / Live"       },
   { to: "/tower",    label: "Kontrol Kulesi / Tower"  },
+  { to: "/recovery", label: "Kurtarma / Recovery"     },
   { to: "/logs",     label: "Loglar / Logs"           },
   { to: "/trades",   label: "Islemler / Trades"       },
   { to: "/debug",    label: "Hata Ayikla / Debug"     },
@@ -37,10 +39,21 @@ const logoStyle: React.CSSProperties = {
 };
 
 function NavItem({ to, label }: { to: string; label: string }) {
+  const tip =
+    to === "/" ? "Overview: quick status summary." :
+    to === "/live" ? "Live Monitor: microstructure flow + collector log tail." :
+    to === "/tower" ? "Control Tower: live health and incident center." :
+    to === "/recovery" ? "Recovery Wizard: guided backend fix." :
+    to === "/logs" ? "Logs: inspect runtime logs with quick filters." :
+    to === "/trades" ? "Trades: latest trade results and signals." :
+    to === "/debug" ? "Debug: advanced operator tools." :
+    "Settings: runtime and configuration checks.";
   return (
     <NavLink
       to={to}
       end={to === "/"}
+      className="self-help"
+      data-help={tip}
       style={({ isActive }) => ({
         padding: "4px 10px",
         borderRadius: 4,
@@ -61,6 +74,14 @@ export default function Layout() {
   const [glossaryOpen, setGlossaryOpen] = useState(false);
   const [opsOpen, setOpsOpen] = useState(false);
   const [apiPanelOpen, setApiPanelOpen] = useState(false);
+  const [easyGuideOpen, setEasyGuideOpen] = useState<boolean>(() => {
+    try {
+      const raw = localStorage.getItem("eclipse.ui.easy_guide_open");
+      return raw !== "0";
+    } catch {
+      return true;
+    }
+  });
   const [copyHint, setCopyHint] = useState<string>("");
   const { events: apiEvents, clear: clearApiEvents } = useApiErrors();
   const [denseMode, setDenseMode] = useState<boolean>(() => {
@@ -119,6 +140,8 @@ export default function Layout() {
   }, [secPoll.data]);
   const helpText = useMemo(() => {
     const p = location.pathname;
+    if (p.startsWith("/live")) return "Live Monitor: watch trades/sec, mark/sec, freshness, and collector logs in real-time.";
+    if (p.startsWith("/recovery")) return "Recovery: guided backend bring-up and verification flow.";
     if (p.startsWith("/tower")) return "Control Tower: one-screen runtime health, incidents, rate-limit, and quick operations.";
     if (p.startsWith("/logs")) return "Logs: select file, then filter by level/search to isolate issues fast.";
     if (p.startsWith("/trades")) return "Trades: inspect signal/stability/quality decisions and blockers.";
@@ -137,6 +160,14 @@ export default function Layout() {
       // best effort
     }
   }, [denseMode]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("eclipse.ui.easy_guide_open", easyGuideOpen ? "1" : "0");
+    } catch {
+      // best effort
+    }
+  }, [easyGuideOpen]);
 
   useEffect(() => {
     if (!copyHint) return;
@@ -159,6 +190,8 @@ export default function Layout() {
         <span style={logoStyle}>ECLIPSE SCALPER</span>
         {NAV.map((n) => <NavItem key={n.to} {...n} />)}
         <span
+          className="self-help"
+          data-help="API badge: UP means backend reachable, DOWN means recovery needed."
           style={{
             marginLeft: "auto",
             padding: "4px 8px",
@@ -175,6 +208,8 @@ export default function Layout() {
         </span>
         <button
           onClick={() => setDenseMode((v) => !v)}
+          className="self-help"
+          data-help="Dense mode: compact rows, more data on screen."
           style={{
             marginLeft: 8,
             padding: "4px 8px",
@@ -191,6 +226,8 @@ export default function Layout() {
         </button>
         <button
           onClick={() => setOpsOpen(true)}
+          className="self-help"
+          data-help="Ops palette: quick shortcuts for logs, triage, and incident actions."
           style={{
             marginLeft: 8,
             padding: "4px 8px",
@@ -207,6 +244,8 @@ export default function Layout() {
         </button>
         <button
           onClick={() => setGlossaryOpen(true)}
+          className="self-help"
+          data-help="Glossary: definitions for trading and dashboard terms."
           style={{
             marginLeft: 8,
             padding: "4px 8px",
@@ -222,6 +261,8 @@ export default function Layout() {
         </button>
         <button
           onClick={() => setApiPanelOpen((v) => !v)}
+          className="self-help"
+          data-help="API ERR: recent request failures and retry status."
           style={{
             marginLeft: 8,
             padding: "4px 8px",
@@ -238,6 +279,8 @@ export default function Layout() {
         </button>
         <button
           onClick={() => setAuth((p) => ({ ...p, role: p.role === "viewer" ? "admin" : "viewer" }))}
+          className="self-help"
+          data-help="SEC role toggle: viewer/admin permissions for write actions."
           title={`operator=${auth.operator} role=${auth.role}`}
           style={{
             marginLeft: 8,
@@ -270,6 +313,42 @@ export default function Layout() {
           <span className="legend-chip">Paper Mode</span>
           <span className="legend-chip">Regime</span>
         </div>
+      </div>
+      <div className="easy-guide-wrap">
+        <div className="easy-guide-head">
+          <div className="easy-guide-title">Start Here / Nereden Baslayayim?</div>
+          <button className="guide-toggle" onClick={() => setEasyGuideOpen((v) => !v)}>
+            {easyGuideOpen ? "Hide" : "Show"}
+          </button>
+        </div>
+        {easyGuideOpen && (
+          <div className="easy-guide-grid">
+            <div className="easy-guide-card">
+              <div className="easy-guide-card-title">1) Is system ready? / Sistem hazir mi?</div>
+              <div className="easy-guide-card-text">
+                Recovery page checks backend health and tells you exactly what to run.
+              </div>
+              <div className="easy-guide-card-status">
+                Current API: <span className={`badge ${backendUp ? "badge-green" : "badge-red"}`}>{backendUp ? "UP" : "DOWN"}</span>
+              </div>
+              <button className="guide-toggle self-help" data-help="Go to guided recovery checklist." onClick={() => navigate("/recovery")}>Open Recovery</button>
+            </div>
+            <div className="easy-guide-card">
+              <div className="easy-guide-card-title">2) Monitor runtime / Sistemi izle</div>
+              <div className="easy-guide-card-text">
+                Control Tower is your main screen for live health, incidents, and supervisor.
+              </div>
+              <button className="guide-toggle self-help" data-help="Open live runtime health dashboard." onClick={() => navigate("/tower")}>Open Tower</button>
+            </div>
+            <div className="easy-guide-card">
+              <div className="easy-guide-card-title">3) Find root cause / Sorun nedenini bul</div>
+              <div className="easy-guide-card-text">
+                Logs page has quick packs (Regime / Shutdown / Timeout) to filter noise fast.
+              </div>
+              <button className="guide-toggle self-help" data-help="Open logs with quick packs for root-cause." onClick={() => navigate("/logs")}>Open Logs</button>
+            </div>
+          </div>
+        )}
       </div>
       {!backendUp && (
         <div

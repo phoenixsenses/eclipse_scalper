@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import json
 import shutil
+import sys
 import uuid
 from pathlib import Path
 
 import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from tools import execution_quality_audit as eqa
 
@@ -28,6 +31,7 @@ def test_execution_quality_audit_skip_missing(monkeypatch) -> None:
         assert eqa.main() == 0
         payload = json.loads(out_json.read_text(encoding="utf-8"))
         assert payload["status"] == "skip"
+        assert payload["run_summary"]["run_type"] == "execution_quality_audit"
         assert out_md.exists()
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
@@ -80,9 +84,9 @@ def test_execution_quality_audit_builds_metrics(monkeypatch) -> None:
         payload = json.loads(out_json.read_text(encoding="utf-8"))
         assert payload["status"] == "ok"
         assert int(payload["rows"]) == 2
+        assert payload["run_summary"]["run_type"] == "execution_quality_audit"
         assert "buy" in payload["by_side"]
         assert "maker_hazard" in payload["by_execution_model"]
         assert out_md.exists()
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
-

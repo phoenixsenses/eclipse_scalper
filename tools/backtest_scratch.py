@@ -11,6 +11,7 @@ from core.fee_model import estimate_fee_bps_for_daily_volume
 from tools.micro_edge_backtest import compute_rule_thresholds, simulate_rule_trades
 from tools.micro_edge_lib import build_bucket_features
 from tools.micro_edge_smoke import _load_symbol_trades_and_marks
+from tools.run_summary import build_run_summary
 
 
 def _parse_range(raw: str, step: float = 0.5) -> List[float]:
@@ -255,6 +256,8 @@ def _write_md(path: Path, report: Dict[str, Any]) -> None:
             f"best_trailing_stop_bps_proxy={float(bt['trailing_stop_bps_proxy']):.2f} "
             f"mean_net={float(bt['mean_net']):+.6e}"
         )
+    if isinstance(report.get("run_summary"), dict):
+        lines.extend(["", "## Run Summary", f"- `{report['run_summary']}`"])
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -319,6 +322,12 @@ def main() -> int:
     )
     out_md = Path(str(args.out_md))
     out_json = Path(str(args.out_json))
+    rep["run_summary"] = build_run_summary(
+        run_type="backtest_scratch",
+        inputs={"db": str(args.db), "symbol": str(args.symbol), "side": str(args.side), "regime": str(args.regime)},
+        metrics={"baseline_n": int(rep["baseline"]["n"]), "baseline_mean_net": float(rep["baseline"]["mean_net"])},
+        artifacts={"json": str(out_json), "md": str(out_md)},
+    )
     _write_md(out_md, rep)
     out_json.parent.mkdir(parents=True, exist_ok=True)
     out_json.write_text(json.dumps(rep, ensure_ascii=True, indent=2), encoding="utf-8")

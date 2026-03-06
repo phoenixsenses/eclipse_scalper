@@ -10,6 +10,14 @@ from pathlib import Path
 from typing import Any, Dict
 
 from execution.entry import try_enter
+from execution.runtime_helpers import (
+    cfg_env_bool as _cfg_env_bool,
+    cfg_env_float as _cfg_env_float,
+    cfg_value as _cfg,
+    safe_float as _safe_float,
+    symkey as _symkey,
+    truthy as _truthy,
+)
 from execution.shutdown_control import ensure_traced_shutdown_event
 from utils.logging import log_core, log_entry
 try:
@@ -33,66 +41,6 @@ except Exception:
 
 def _now() -> float:
     return time.time()
-
-
-def _cfg(bot, name: str, default: Any) -> Any:
-    try:
-        return getattr(getattr(bot, "cfg", None), name, default)
-    except Exception:
-        return default
-
-
-def _truthy(x) -> bool:
-    if x is True:
-        return True
-    if isinstance(x, (int, float)) and x != 0:
-        return True
-    if isinstance(x, str) and x.strip().lower() in ("true", "1", "yes", "y", "on"):
-        return True
-    return False
-
-
-def _cfg_env_float(bot, name: str, default: float) -> float:
-    try:
-        v = str((__import__("os").environ.get(name, "") or "")).strip()
-        if v != "":
-            return float(v)
-    except Exception:
-        pass
-    try:
-        return float(_cfg(bot, name, default) or default)
-    except Exception:
-        return float(default)
-
-
-def _cfg_env_bool(bot, name: str, default: Any = False) -> bool:
-    try:
-        v = str((__import__("os").environ.get(name, "") or "")).strip()
-        if v != "":
-            return _truthy(v)
-    except Exception:
-        pass
-    return _truthy(_cfg(bot, name, default))
-
-
-def _safe_float(v: Any, default: float = 0.0) -> float:
-    try:
-        x = float(v)
-        if x != x:
-            return float(default)
-        return x
-    except Exception:
-        return float(default)
-
-
-def _symkey(sym: str) -> str:
-    s = (sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
 
 
 _THROTTLE_LAST: Dict[str, float] = {}

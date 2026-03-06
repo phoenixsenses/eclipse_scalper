@@ -1,0 +1,69 @@
+{
+  "ok": true,
+  "steps": [
+    {
+      "cmd": [
+        "C:\\Users\\Windows 11\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-m",
+        "tools.replay_parity_report",
+        "--sim",
+        "logs/x.jsonl",
+        "--live-db",
+        "data/paper_trades.db"
+      ],
+      "rc": 0,
+      "stdout": "ok",
+      "stderr": ""
+    },
+    {
+      "cmd": [
+        "C:\\Users\\Windows 11\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-m",
+        "tools.execution_diagnostics",
+        "--in",
+        "data/live/papertrades_live.parquet"
+      ],
+      "rc": 0,
+      "stdout": "ok",
+      "stderr": ""
+    },
+    {
+      "cmd": [
+        "C:\\Users\\Windows 11\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-m",
+        "tools.toxicity_report",
+        "--in",
+        "data/live/papertrades_live.parquet"
+      ],
+      "rc": 0,
+      "stdout": "ok",
+      "stderr": ""
+    },
+    {
+      "cmd": [
+        "C:\\Users\\Windows 11\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-m",
+        "tools.post_rollout_audit"
+      ],
+      "rc": 0,
+      "stdout": "ok",
+      "stderr": ""
+    }
+  ],
+  "run_summary": {
+    "version": "v1",
+    "run_type": "execution_e2e_pipeline",
+    "inputs": {
+      "sim": "logs/x.jsonl",
+      "live_db": "data/paper_trades.db",
+      "live_parquet": "data/live/papertrades_live.parquet"
+    },
+    "metrics": {
+      "ok": true,
+      "step_count": 4
+    },
+    "artifacts": {
+      "json": "reports\\test_execution_e2e_pipeline\\out.json"
+    }
+  }
+}

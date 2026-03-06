@@ -2,6 +2,7 @@
 
 import json
 import shutil
+import sys
 import uuid
 from pathlib import Path
 
@@ -98,5 +99,29 @@ def test_run_with_fallback_skipped_when_sample_enough(monkeypatch) -> None:
         assert n_primary == 55
         assert n_final == 55
         assert len(calls) == 1
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_main_writes_run_summary(monkeypatch) -> None:
+    tmp = _mk_local_tmp()
+    try:
+        out_sell = tmp / "SELL.md"
+        out_buy = tmp / "BUY.md"
+
+        def _fake_run_with_fallback(*args, **kwargs):
+            out_md = kwargs["out_md"]
+            _write_report(out_md, 25)
+            return (0, 10, 25)
+
+        monkeypatch.setattr(rsc, "_run_with_fallback", _fake_run_with_fallback)
+        monkeypatch.setattr(
+            sys,
+            "argv",
+            ["x", "--symbol", "ETHUSDT", "--out-sell", str(out_sell), "--out-buy", str(out_buy)],
+        )
+        assert rsc.main() == 0
+        summary = json.loads((tmp / "SCRATCH_CALIBRATION_RUN_SUMMARY.json").read_text(encoding="utf-8"))
+        assert summary["run_summary"]["run_type"] == "run_scratch_calibration"
     finally:
         shutil.rmtree(tmp, ignore_errors=True)

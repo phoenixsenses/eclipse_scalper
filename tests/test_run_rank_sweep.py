@@ -97,6 +97,10 @@ def test_run_rank_sweep_writes_registry_and_run_folders(monkeypatch) -> None:
     assert "run_id" in rec
     assert rec["outputs"]["json"].endswith("rank.json")
     assert rec["summary"]["count"] == 1
+    assert rec["run_summary"]["version"] == "v1"
+    assert rec["run_summary"]["run_type"] == "run_rank_sweep"
+    assert rec["run_summary"]["metrics"]["ranking_count"] == 1
+    assert rec["run_summary"]["artifacts"]["registry"].endswith("RUN_RANK_SWEEP_REGISTRY.jsonl")
     run_dir = reports / "_runs" / rec["run_id"]
     assert (run_dir / "rank.json").exists()
     assert (run_dir / "rank.md").exists()

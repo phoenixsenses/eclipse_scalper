@@ -6,3 +6,6 @@ candidates=2 rule=micro_edge_v3_passive_alpha fee=1.0 adverse=1.2
 |---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|---|
 | 0.000500 | 2 | 100.00% | 1.75 | 47.50% | +2.000000e-05 | 0 | min_n | 50.00% | 50.00% | 50.00% | rows may look identical while min_n dominates effective_min_n |
 | 0.003000 | 2 | 0.00% | 1.75 | 47.50% | -1.000000e-05 | 0 | min_n | 0.00% | 0.00% | 0.00% | rows may look identical while min_n dominates effective_min_n |
+
+## Run Summary
+- `{'version': 'v1', 'run_type': 'calibrate_capacity_thresholds', 'inputs': {'candidates_md': 'reports/dummy.md', 'db': 'data/microstructure.db', 'min_n': 50, 'grid': [0.0005, 0.003]}, 'metrics': {'candidate_count': 2, 'row_count': 2}, 'artifacts': {'json': 'reports\\test_capacity_calib.json', 'md': 'reports\\test_capacity_calib.md'}}`

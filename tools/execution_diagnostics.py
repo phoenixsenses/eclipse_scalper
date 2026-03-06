@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Dict
 
 import pandas as pd
+from tools.run_summary import build_run_summary
 
 
 def _load_rows(path: Path) -> pd.DataFrame:
@@ -106,12 +107,18 @@ def main() -> int:
     out_json = Path(str(args.out_json))
     out_md.parent.mkdir(parents=True, exist_ok=True)
     out_json.parent.mkdir(parents=True, exist_ok=True)
-    out_md.write_text(_render_md(d), encoding="utf-8")
-    out_json.write_text(json.dumps(d, ensure_ascii=True, indent=2), encoding="utf-8")
+    payload = dict(d)
+    payload["run_summary"] = build_run_summary(
+        run_type="execution_diagnostics",
+        inputs={"source": str(inp)},
+        metrics={"rows": int(payload.get("rows", 0)), "fill_rate": float(payload.get("fill_rate", 0.0))},
+        artifacts={"json": str(out_json), "md": str(out_md)},
+    )
+    out_md.write_text(_render_md(payload) + "\n## Run Summary\n\n- " + str(payload.get("run_summary", {})) + "\n", encoding="utf-8")
+    out_json.write_text(json.dumps(payload, ensure_ascii=True, indent=2), encoding="utf-8")
     print(f"execution_diagnostics: rows={int(d.get('rows',0))} out_md={out_md} out_json={out_json}")
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

@@ -318,7 +318,7 @@ export default function Overview() {
             borderLeft: `3px solid ${lastTriage.ok ? "var(--green)" : "var(--yellow)"}`,
           }}
         >
-          <div className="card-title">Last Triage</div>
+          <div className="card-title self-help" data-help="Last Triage: en son otomatik tanilama sonucunun PASS/FAIL ozeti.">Last Triage</div>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
             <span className={`badge ${lastTriage.ok ? "badge-green" : "badge-yellow"}`}>
               {lastTriage.ok ? "PASS" : "FAIL"}
@@ -326,6 +326,8 @@ export default function Overview() {
             <span style={{ color: "var(--muted)" }}>{lastTriage.ts}</span>
             {lastTriage.failedAction && <span>failed={lastTriage.failedAction}</span>}
             <button
+              className="self-help"
+              data-help="Debug sayfasina gidip adim adim root-cause tanisi calistir."
               onClick={() => navigate("/debug")}
               style={{
                 marginLeft: "auto",
@@ -350,7 +352,7 @@ export default function Overview() {
         {runtimePoll.data && <RuntimePanel rt={runtimePoll.data} stale={runtimePoll.isStale} />}
 
         <div className="card">
-          <div className="card-title">Incident Ribbon (Last 15m)</div>
+          <div className="card-title self-help" data-help="Son 15 dakikadaki olaylar. Tiklayinca ilgili log paketine yonlendirir.">Incident Ribbon (Last 15m)</div>
           {recentIncidentRibbon.length === 0 ? (
             <div style={{ color: "var(--muted)" }}>No recent incidents in last 15m.</div>
           ) : (
@@ -385,7 +387,7 @@ export default function Overview() {
         </div>
 
         <div className="card" style={{ borderLeft: "3px solid var(--yellow)" }}>
-          <div className="card-title">Entry Blocker Snapshot / Giris Engeli Ozeti</div>
+          <div className="card-title self-help" data-help="En cok gorulen blokaj nedenini ve siradaki aksiyonu ozetler.">Entry Blocker Snapshot / Giris Engeli Ozeti</div>
           {!topBlocker ? (
             <div style={{ color: "var(--muted)" }}>
               Son pencerede blocker kaydi yok. Bu iyi bir isaret; gate akisi acik olabilir.
@@ -402,6 +404,8 @@ export default function Overview() {
                 <div style={{ color: "var(--muted)", fontSize: 11 }}>{topBlockerGuide?.detail}</div>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
                   <button
+                    className="self-help"
+                    data-help="No Match log paketini ac ve esik fail nedenlerini incele."
                     onClick={() => openLogPack("No Match")}
                     style={{
                       padding: "3px 8px",
@@ -416,6 +420,8 @@ export default function Overview() {
                     Open Logs: No Match
                   </button>
                   <button
+                    className="self-help"
+                    data-help="Regime log paketini ac ve rejim uyumsuzlugunu kontrol et."
                     onClick={() => openLogPack("Regime")}
                     style={{
                       padding: "3px 8px",
@@ -430,6 +436,8 @@ export default function Overview() {
                     Open Logs: Regime
                   </button>
                   <button
+                    className="self-help"
+                    data-help="Guided debug akisini ac ve otomatik triage adimlarini calistir."
                     onClick={() => navigate("/debug")}
                     style={{
                       padding: "3px 8px",
@@ -467,7 +475,7 @@ export default function Overview() {
         </div>
 
         <div className="card">
-          <div className="card-title">Alpha Gates</div>
+          <div className="card-title self-help" data-help="Sembol bazli gate performansi: hit-rate ve baseline farki.">Alpha Gates</div>
           <AsyncState loading={false} error={null} isEmpty={symbols.length === 0} emptyText="No gate data">
             <table>
               <thead>
@@ -514,7 +522,7 @@ export default function Overview() {
         </div>
 
         <div className="card">
-          <div className="card-title">Recent Regime Transitions</div>
+          <div className="card-title self-help" data-help="Son rejim gecisleri: market modundaki degisimleri gosterir.">Recent Regime Transitions</div>
           <AsyncState loading={false} error={null} isEmpty={regimes.length === 0} emptyText="No recent transitions">
             <table>
               <thead>
@@ -543,7 +551,7 @@ export default function Overview() {
 
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           <div className="card" style={{ flex: 1, minWidth: 260 }}>
-            <div className="card-title">Preflight Check</div>
+            <div className="card-title self-help" data-help="Preflight kontrollerinin son degerleri (env/db/runtime).">Preflight Check</div>
             <AsyncState
               loading={false}
               error={null}
@@ -563,7 +571,7 @@ export default function Overview() {
             </AsyncState>
           </div>
           <div className="card" style={{ flex: 1, minWidth: 260 }}>
-            <div className="card-title">Reliability Gate</div>
+            <div className="card-title self-help" data-help="Sistem guvenilirlik gate metrikleri ve durum alanlari.">Reliability Gate</div>
             <AsyncState
               loading={false}
               error={null}
@@ -583,7 +591,7 @@ export default function Overview() {
             </AsyncState>
           </div>
           <div className="card" style={{ flex: 1, minWidth: 260 }}>
-            <div className="card-title">Top Blockers (reason)</div>
+            <div className="card-title self-help" data-help="Entry kararlarinda en cok gorulen blocker reason listesi.">Top Blockers (reason)</div>
             <AsyncState
               loading={false}
               error={null}

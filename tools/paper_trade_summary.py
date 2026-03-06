@@ -8,6 +8,7 @@ from pathlib import Path
 from statistics import mean
 from typing import Any, Dict, List
 
+from tools.run_summary import build_run_summary
 
 def _load_dotenv_best_effort() -> None:
     try:
@@ -172,6 +173,10 @@ def _write_md(path: Path, s: Dict[str, Any], compare_backtest: str = "") -> None
     lines.append("")
     if compare_backtest:
         lines.append(f"compare_backtest={compare_backtest}")
+    if isinstance(s.get("run_summary"), dict):
+        lines.append("")
+        lines.append("## Run Summary")
+        lines.append(f"- `{s['run_summary']}`")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -195,6 +200,20 @@ def main() -> int:
     s = generate_summary(str(db_path), days=int(args.days))
     out_md = Path(str(args.out_md))
     out_json = Path(str(args.out_json))
+    s["run_summary"] = build_run_summary(
+        run_type="paper_trade_summary",
+        inputs={
+            "db": str(args.db),
+            "days": int(args.days),
+            "compare_backtest": str(args.compare_backtest or ""),
+        },
+        metrics={
+            "total_trades": int(s.get("total_trades", 0)),
+            "win_rate": float(s.get("win_rate", 0.0)),
+            "total_pnl_bps": float(s.get("total_pnl_bps", 0.0)),
+        },
+        artifacts={"json": str(out_json), "md": str(out_md)},
+    )
     _write_md(out_md, s, compare_backtest=str(args.compare_backtest or ""))
     out_json.parent.mkdir(parents=True, exist_ok=True)
     out_json.write_text(json.dumps(s, ensure_ascii=True, indent=2), encoding="utf-8")

@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict
 
+from tools.run_summary import build_run_summary
 
 def _utc() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -61,6 +62,8 @@ def _render_md(d: Dict[str, Any]) -> str:
     lines.append("## Checks")
     for k, v in dict(d.get("checks", {})).items():
         lines.append(f"- {k}: {int(bool(v))}")
+    if isinstance(d.get("run_summary"), dict):
+        lines.extend(["", "## Run Summary", f"- `{d['run_summary']}`"])
     lines.append("")
     return "\n".join(lines)
 
@@ -81,6 +84,12 @@ def main() -> int:
     out_json = Path(str(args.out_json))
     out_md.parent.mkdir(parents=True, exist_ok=True)
     out_json.parent.mkdir(parents=True, exist_ok=True)
+    d["run_summary"] = build_run_summary(
+        run_type="post_rollout_audit",
+        inputs={"diag_json": str(args.diag_json), "tox_json": str(args.tox_json)},
+        metrics={"overall_ok": bool(d.get("overall_ok", False)), "check_count": len(d.get("checks", {}))},
+        artifacts={"json": str(out_json), "md": str(out_md)},
+    )
     out_md.write_text(_render_md(d), encoding="utf-8")
     out_json.write_text(json.dumps(d, ensure_ascii=True, indent=2), encoding="utf-8")
     print(f"post_rollout_audit: overall_ok={int(bool(d.get('overall_ok', False)))} out_md={out_md} out_json={out_json}")
@@ -89,4 +98,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

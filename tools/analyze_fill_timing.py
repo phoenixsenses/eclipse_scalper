@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
+from tools.run_summary import build_run_summary
 
 
 def _parse_args() -> argparse.Namespace:
@@ -188,6 +189,21 @@ def main() -> int:
         "live_summary": _summary(live_df, bar_sec=bar_sec, timeout_candidates=timeout_candidates),
         "trade_db_summary": _summary_from_trade_db(db_df),
     }
+    payload["run_summary"] = build_run_summary(
+        run_type="analyze_fill_timing",
+        inputs={
+            "live_parquet": str(args.live_parquet),
+            "trade_db": str(args.trade_db),
+            "bar_sec": bar_sec,
+            "timeout_candidates": timeout_candidates,
+        },
+        metrics={
+            "live_rows": int(payload["live_summary"].get("rows", 0)),
+            "trade_db_rows": int(payload["trade_db_summary"].get("rows", 0)),
+            "recommended_timeout_sec": float(payload["live_summary"].get("recommended_timeout_sec", 10.0) or 10.0),
+        },
+        artifacts={"json": str(out_json), "md": str(out_md)},
+    )
     out_json.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True, indent=2) + "\n", encoding="utf-8")
 
     lines = [
@@ -252,6 +268,7 @@ def main() -> int:
             lines.append(
                 f"| {k} | {int(r['rows'])} | {float(r['frac']):.2%} | {float(r['pnl_bps_mean']):+.6f} | {float(r['max_adverse_bps_mean']):.6f} |"
             )
+    lines += ["", "## Run Summary", f"- {payload.get('run_summary', {})}"]
     lines.append("")
     if int(ls.get("rows", 0) or 0) <= 0:
         lines.extend(

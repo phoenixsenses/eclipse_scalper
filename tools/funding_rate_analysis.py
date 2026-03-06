@@ -6,6 +6,7 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
+from tools.run_summary import build_run_summary
 
 def _args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Estimate cumulative funding impact from paper trades.")
@@ -126,8 +127,16 @@ def main() -> int:
     out_json = Path(args.out_json)
     out_md.parent.mkdir(parents=True, exist_ok=True)
     out_json.parent.mkdir(parents=True, exist_ok=True)
+    payload = {"summary": out, "sample": per_trade[:20]}
+    payload["run_summary"] = build_run_summary(
+        run_type="funding_rate_analysis",
+        inputs={"trades_db": str(args.trades_db), "micro_db": str(args.micro_db), "symbol": str(args.symbol)},
+        metrics={"trades": int(out["trades"]), "total_funding_bps": float(out["total_funding_bps"])},
+        artifacts={"json": str(out_json), "md": str(out_md)},
+    )
+    md = md + "## Run Summary\n- `" + str(payload["run_summary"]) + "`\n"
     out_md.write_text(md, encoding="utf-8")
-    out_json.write_text(json.dumps({"summary": out, "sample": per_trade[:20]}, ensure_ascii=True, indent=2), encoding="utf-8")
+    out_json.write_text(json.dumps(payload, ensure_ascii=True, indent=2), encoding="utf-8")
     print(f"funding_rate_analysis: wrote {out_md}")
     print(f"funding_rate_analysis: wrote {out_json}")
     return 0
@@ -135,4 +144,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

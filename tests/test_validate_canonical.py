@@ -35,6 +35,8 @@ def test_pass_clean_synthetic(monkeypatch) -> None:
     out = Path(f"reports/validate_canonical_{run_id}.json")
     payload = json.loads(out.read_text(encoding="utf-8"))
     assert payload["status"] == "pass"
+    assert payload["run_summary"]["run_type"] == "validate_canonical"
+    assert payload["run_summary"]["metrics"]["row_count"] == 4
 
 
 def test_fail_duplicate_timestamp(monkeypatch) -> None:
@@ -104,3 +106,37 @@ def test_skip_missing_source(monkeypatch) -> None:
     assert payload["status"] == "skip"
     assert "skipped_missing_data" in payload.get("notes", [])
 
+
+
+def test_fail_blank_symbol(monkeypatch) -> None:
+    src = Path("reports/test_validate_canonical/fail_blank_symbol.csv")
+    df = pd.DataFrame(
+        {
+            "timestamp": [1, 2, 3],
+            "symbol": ["BTCUSDT", " ", None],
+            "mid": [100.0, 100.1, 100.2],
+            "spread": [0.1, 0.1, 0.1],
+            "volume": [1.0, 1.0, 1.0],
+        }
+    )
+    _write_csv(src, df)
+    monkeypatch.setattr(sys, "argv", ["x", "--in", str(src), "--reports-dir", "reports"])
+    rc = vc.main()
+    assert rc == 3
+    run_id = vc._stable_run_id(str(src), vc.DEFAULT_NAN_THRESHOLD)
+    payload = json.loads(Path(f"reports/validate_canonical_{run_id}.json").read_text(encoding="utf-8"))
+    assert any(v.get("code") == "blank_symbol" for v in payload["violations"])
+    assert payload["invariant_summary"]["blank_symbol_count"] == 2
+
+
+def test_fail_empty_dataframe(monkeypatch) -> None:
+    src = Path("reports/test_validate_canonical/fail_empty.csv")
+    df = pd.DataFrame(columns=["timestamp", "symbol", "mid", "spread", "volume"])
+    _write_csv(src, df)
+    monkeypatch.setattr(sys, "argv", ["x", "--in", str(src), "--reports-dir", "reports"])
+    rc = vc.main()
+    assert rc == 3
+    run_id = vc._stable_run_id(str(src), vc.DEFAULT_NAN_THRESHOLD)
+    payload = json.loads(Path(f"reports/validate_canonical_{run_id}.json").read_text(encoding="utf-8"))
+    assert any(v.get("code") == "empty_dataframe" for v in payload["violations"])
+    assert "empty_dataframe" in payload.get("notes", [])

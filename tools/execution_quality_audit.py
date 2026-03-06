@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Dict
 
 import pandas as pd
+from tools.run_summary import build_run_summary
 
 
 def _utc_now() -> str:
@@ -99,8 +100,19 @@ def main() -> int:
 
     if not in_path.exists() or not in_path.is_file():
         payload = {"status": "skip", "reason": "missing_input", "input": str(in_path), "timestamp_utc": _utc_now()}
+        payload["run_summary"] = build_run_summary(
+            run_type="execution_quality_audit",
+            inputs={"in_parquet": str(in_path), "last_n": int(args.last_n)},
+            metrics={"status": "skip", "rows": 0},
+            artifacts={"json": str(out_json), "md": str(out_md)},
+        )
         out_json.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True, indent=2) + "\n", encoding="utf-8")
-        out_md.write_text("# Execution Quality Audit\n\n- status: `skip`\n- reason: `missing_input`\n", encoding="utf-8")
+        out_md.write_text(
+            "# Execution Quality Audit\n\n- status: `skip`\n- reason: `missing_input`\n\n## Run Summary\n- `"
+            + str(payload["run_summary"])
+            + "`\n",
+            encoding="utf-8",
+        )
         print(f"execution_quality_audit: skip missing input {in_path}")
         return 0
 
@@ -126,6 +138,12 @@ def main() -> int:
         "by_execution_model": by_model,
         "by_risk_reason": by_reason,
     }
+    payload["run_summary"] = build_run_summary(
+        run_type="execution_quality_audit",
+        inputs={"in_parquet": str(in_path), "last_n": int(args.last_n)},
+        metrics={"status": "ok", "rows": int(len(df)), "fill_rate": float(overall.get("fill_rate", 0.0))},
+        artifacts={"json": str(out_json), "md": str(out_md)},
+    )
     out_json.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True, indent=2) + "\n", encoding="utf-8")
 
     lines = [
@@ -155,6 +173,9 @@ def main() -> int:
         "## By Risk Reason",
         "",
         *_render_table(by_reason),
+        "",
+        "## Run Summary",
+        f"- `{payload['run_summary']}`",
     ]
     out_md.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     print(f"execution_quality_audit: ok out={out_md}")
@@ -163,4 +184,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

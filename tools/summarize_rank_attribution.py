@@ -6,6 +6,8 @@ from collections import Counter
 from pathlib import Path
 from typing import Any, Dict, List
 
+from tools.run_summary import build_run_summary
+
 
 def _safe_float(v: Any, default: float = 0.0) -> float:
     try:
@@ -36,6 +38,7 @@ def _args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Summarize failure attribution from rank_passive_pockets_forward JSON.")
     p.add_argument("--in", dest="in_path", required=True, help="Path to rank JSON (contains key 'ranking').")
     p.add_argument("--top-n", type=int, default=20)
+    p.add_argument("--out-json", default="")
     return p.parse_args()
 
 
@@ -88,10 +91,33 @@ def main() -> int:
 
     gate_high_share = sum(1 for r in ranking if _safe_float(r.get("gate_reject_ratio", 0.0)) > 0.5) / float(total)
     print()
-    print(_reason_action(reason_share, gate_high_share))
+    next_action = _reason_action(reason_share, gate_high_share)
+    print(next_action)
+
+    if str(args.out_json).strip():
+        out_json = Path(str(args.out_json))
+        out_json.parent.mkdir(parents=True, exist_ok=True)
+        out_payload = {
+            "source": str(in_path),
+            "rows_total": int(len(ranking)),
+            "top_n": int(len(rows)),
+            "reason_share": reason_share,
+            "gate_high_share": float(gate_high_share),
+            "next_action": next_action,
+        }
+        out_payload["run_summary"] = build_run_summary(
+            run_type="summarize_rank_attribution",
+            inputs={"source": str(in_path), "top_n": int(top_n)},
+            metrics={
+                "rows_total": int(len(ranking)),
+                "top_n": int(len(rows)),
+                "gate_high_share": float(gate_high_share),
+            },
+            artifacts={"json": str(out_json)},
+        )
+        out_json.write_text(json.dumps(out_payload, indent=2), encoding="utf-8")
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

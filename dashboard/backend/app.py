@@ -1,9 +1,10 @@
-"""FastAPI backend for Eclipse Scalper Dashboard."""
+﻿"""FastAPI backend for Eclipse Scalper Dashboard."""
 from __future__ import annotations
 
 import os
 import time
 import json
+import subprocess
 from pathlib import Path
 from typing import Optional
 
@@ -23,6 +24,8 @@ from .data_sources import (
     read_quality_events,
     read_regime_events,
     read_runtime_status,
+    read_live_metrics,
+    read_live_monitor_tests_status,
     read_ops_health,
     read_connectivity_diag,
     read_supervisor_status,
@@ -89,6 +92,8 @@ from .models import (
     PassiveProfilesResponse,
     RegimeEvent,
     RuntimeResponse,
+    LiveMetricsResponse,
+    LiveMonitorTestsStatusResponse,
     Scoreboard,
     SignalEvent,
     StabilityEvent,
@@ -98,6 +103,9 @@ from .models import (
 _SECURITY_AUDIT_PATH = LOGS_DIR / "dashboard_security_audit.jsonl"
 _RATE_STATE: dict[str, list[float]] = {}
 _IDEMPOTENCY_STATE: dict[str, tuple[float, object]] = {}
+_APP_REPO_ROOT = Path(__file__).resolve().parents[2]
+_LIVE_TEST_SCRIPT = _APP_REPO_ROOT / "tools" / "run_live_monitor_tests.ps1"
+_LIVE_TEST_RUNNER_LOG = _APP_REPO_ROOT / "logs" / "live_monitor_tests_runner.log"
 
 
 def _cors_origins() -> list[str]:
@@ -273,27 +281,27 @@ def _idempotency_store(req: Request, scope: str, payload: object) -> None:
     _IDEMPOTENCY_STATE[f"{scope}:{key}"] = (time.time(), payload)
 
 
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Overview
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @app.get("/api/overview", response_model=OverviewResponse)
 async def get_overview():
     return build_overview()
 
 
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Scoreboard
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @app.get("/api/scoreboard", response_model=Scoreboard)
 async def get_scoreboard():
     return read_scoreboard()
 
 
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Gates & profiles
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @app.get("/api/gates", response_model=MicroEdgeGatesResponse)
 async def get_gates():
@@ -305,9 +313,9 @@ async def get_passive_profiles():
     return read_passive_profiles()
 
 
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Events / log streams
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @app.get("/api/events/regimes", response_model=list[RegimeEvent])
 async def get_regime_events(
@@ -341,9 +349,9 @@ async def get_quality_events(
     return read_quality_events(limit=limit, symbol=symbol)
 
 
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Logs
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @app.get("/api/logs", response_model=list[LogFile])
 async def get_log_files(response: Response):
@@ -396,27 +404,72 @@ async def stream_log(
     )
 
 
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Config
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @app.get("/api/config", response_model=list[ConfigEntry])
 async def get_config():
     return read_config_entries()
 
 
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Runtime status
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @app.get("/api/runtime", response_model=RuntimeResponse)
 async def get_runtime():
     return read_runtime_status()
 
 
-# ─────────────────────────────────────────────
+@app.get("/api/live/metrics", response_model=LiveMetricsResponse)
+async def get_live_metrics():
+    return read_live_metrics()
+
+@app.get("/api/live/tests/status", response_model=LiveMonitorTestsStatusResponse)
+async def get_live_tests_status(limit: int = Query(80, ge=10, le=400)):
+    return read_live_monitor_tests_status(limit=limit)
+
+
+@app.post("/api/live/tests/run", response_model=dict)
+async def post_live_tests_run(request: Request):
+    _guard_write(request, "operator", "live_tests_run", 12)
+    if not _LIVE_TEST_SCRIPT.exists():
+        raise HTTPException(status_code=404, detail=f"Missing script: {_LIVE_TEST_SCRIPT}")
+
+    _LIVE_TEST_RUNNER_LOG.parent.mkdir(parents=True, exist_ok=True)
+    cmd = [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        str(_LIVE_TEST_SCRIPT),
+    ]
+    try:
+        with open(_LIVE_TEST_RUNNER_LOG, "a", encoding="utf-8", errors="replace") as fh:
+            proc = subprocess.Popen(
+                cmd,
+                cwd=str(_APP_REPO_ROOT),
+                stdout=fh,
+                stderr=fh,
+            )
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Failed to start live tests: {exc}")
+
+    out = {
+        "ok": True,
+        "started": True,
+        "pid": proc.pid,
+        "script": str(_LIVE_TEST_SCRIPT),
+        "runner_log": str(_LIVE_TEST_RUNNER_LOG),
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\tools\\run_live_monitor_tests.ps1",
+    }
+    append_incident_audit({"kind": "live_tests_run", "action": "run_live_monitor_tests", **_request_audit_meta(request)})
+    return out
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Health
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @app.get("/api/health", response_model=HealthResponse)
 async def health():
@@ -443,9 +496,9 @@ async def get_ops_supervisor_alias():
     return read_supervisor_status()
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 # Debug control
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 @app.get("/api/debug/actions", response_model=list[ControlActionInfo])
 async def get_debug_actions():
@@ -682,3 +735,4 @@ async def patch_debug_macro_preset(req: MacroPresetConfig, request: Request):
 @app.get("/api/debug/security-audit", response_model=list[SecurityAuditEvent])
 async def get_debug_security_audit(limit: int = Query(100, ge=1, le=500)):
     return _read_security_audit(limit=limit)
+

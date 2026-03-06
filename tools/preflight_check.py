@@ -10,6 +10,7 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List
 
+from tools.run_summary import build_run_summary
 
 def _load_dotenv_best_effort() -> None:
     try:
@@ -156,6 +157,21 @@ def main() -> int:
         "warnings": warnings,
         "checks": checks,
     }
+    payload["run_summary"] = build_run_summary(
+        run_type="preflight_check",
+        inputs={
+            "db": str(args.db),
+            "trade_db": str(args.trade_db),
+            "max_db_stale_sec": float(args.max_db_stale_sec),
+            "min_free_gb": float(args.min_free_gb),
+        },
+        metrics={
+            "ok": bool(payload["ok"]),
+            "failure_count": len(failures),
+            "warning_count": len(warnings),
+        },
+        artifacts={"json": str(out_json), "md": str(out_md)},
+    )
     out_json.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True, indent=2) + "\n", encoding="utf-8")
 
     md = ["# Preflight Check", ""]
@@ -172,6 +188,7 @@ def main() -> int:
     md.append("## Checks")
     for k in sorted(checks.keys()):
         md.append(f"- `{k}`: `{checks[k]}`")
+    md.extend(["", "## Run Summary", f"- `{payload.get('run_summary', {})}`"])
     out_md.write_text("\n".join(md) + "\n", encoding="utf-8")
 
     print(f"preflight_check: wrote {out_md}")

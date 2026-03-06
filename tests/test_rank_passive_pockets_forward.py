@@ -98,6 +98,7 @@ def test_ranking_fee_priority_and_stability(monkeypatch) -> None:
     rc = rp.main()
     assert rc == 0
     data = json.loads(out_json.read_text(encoding="utf-8"))
+    assert data["run_summary"]["run_type"] == "rank_passive_pockets_forward"
     assert data["ranking"][0]["symbol"] == "ETHUSDT"
 
 

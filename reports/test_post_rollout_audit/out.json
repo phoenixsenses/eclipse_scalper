@@ -1,0 +1,31 @@
+{
+  "ts_utc": "2026-03-05T19:12:34Z",
+  "flags": {
+    "EXEC_LATENCY_V2": false,
+    "QUEUE_MODEL_V2": false,
+    "EXEC_ENGINE_UNIFIED": false
+  },
+  "checks": {
+    "diag_rows_ok": true,
+    "tox_rows_ok": true,
+    "latency_p95_ok": true,
+    "fill_rate_ok": true
+  },
+  "overall_ok": true,
+  "run_summary": {
+    "version": "v1",
+    "run_type": "post_rollout_audit",
+    "inputs": {
+      "diag_json": "reports\\test_post_rollout_audit\\diag.json",
+      "tox_json": "reports\\test_post_rollout_audit\\tox.json"
+    },
+    "metrics": {
+      "overall_ok": true,
+      "check_count": 4
+    },
+    "artifacts": {
+      "json": "reports\\test_post_rollout_audit\\out.json",
+      "md": "reports\\test_post_rollout_audit\\out.md"
+    }
+  }
+}

@@ -2,15 +2,15 @@
 from __future__ import annotations
 
 import json
-import sqlite3
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import pytest
 
+from tools import fit_adverse_model as fam
 from tools.fit_adverse_model import (
     _adverse_bps,
     _conditional_stats,
@@ -242,3 +242,52 @@ def test_render_md_with_data():
     assert "Q1" in md
     assert "Q4" in md
     assert "1.0000" in md
+
+
+def test_main_writes_run_summary(monkeypatch) -> None:
+    out_json = Path("reports/test_fit_adverse_model/out.json")
+    out_md = Path("reports/test_fit_adverse_model/out.md")
+    out_json.parent.mkdir(parents=True, exist_ok=True)
+
+    monkeypatch.setattr(
+        fam,
+        "run",
+        lambda **kwargs: {
+            "version": "1.0",
+            "tool": "fit_adverse_model",
+            "generated_utc": "2026-03-05T00:00:00Z",
+            "git_hash": "abc1234",
+            "inputs": kwargs,
+            "per_symbol": {
+                "ETHUSDT": {
+                    "n_total_buckets": 10,
+                    "n_signal_buckets": 5,
+                    "statistics": {
+                        "global_mean_adverse_bps": 1.5,
+                        "global_std_adverse_bps": 0.4,
+                        "percentiles": {},
+                    },
+                    "conditional": {},
+                    "implied_adverse_mult_vs_1bps": 1.5,
+                }
+            },
+        },
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "x",
+            "--db",
+            "data/microstructure.db",
+            "--symbol",
+            "ETHUSDT",
+            "--out-json",
+            str(out_json),
+            "--out-md",
+            str(out_md),
+        ],
+    )
+    assert fam.main() == 0
+    payload = json.loads(out_json.read_text(encoding="utf-8"))
+    assert payload["run_summary"]["run_type"] == "fit_adverse_model"

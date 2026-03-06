@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict
 
+from tools.run_summary import build_run_summary
 
 PROFILE_KEYS = [
     "SCALPER_DRY_RUN",
@@ -88,6 +89,13 @@ def main() -> int:
         print(f"runtime_profile_lock: mismatch old={old_hash} new={prof_hash}")
         return 1
 
+    payload["run_summary"] = build_run_summary(
+        run_type="freeze_runtime_profile",
+        inputs={"enforce": bool(args.enforce), "write_lock": bool(args.write_lock)},
+        metrics={"profile_key_count": len(profile), "hash_changed": bool(old_hash and old_hash != prof_hash)},
+        artifacts={"json": str(out_json), "md": str(out_md)},
+    )
+
     if bool(args.write_lock) or (not out_json.exists()):
         out_json.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True, indent=2) + "\n", encoding="utf-8")
 
@@ -102,6 +110,7 @@ def main() -> int:
     ]
     for k in PROFILE_KEYS:
         md.append(f"- `{k}` = `{profile.get(k, '')}`")
+    md.extend(["", "## Run Summary", f"- `{payload['run_summary']}`"])
     out_md.write_text("\n".join(md) + "\n", encoding="utf-8")
     print(f"runtime_profile_lock: hash={prof_hash}")
     print(f"runtime_profile_lock: wrote {out_md}")
@@ -110,4 +119,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

@@ -1,4 +1,4 @@
-# Execution Upgrade Task Board
+﻿# Execution Upgrade Task Board
 
 ## Scope
 This board implements:
@@ -122,7 +122,7 @@ All changes stay behind `EXEC_*` flags until canary completion.
 
 ### Ticket S3-3 - Chaos tests
 - Files:
-  - `tools/test_execution_chaos_scenarios.py` (extend)
+  - `tests/legacy_tools/test_execution_chaos_scenarios.py` (extend)
 - Target:
   - feed lag spike, DB partial outage, exchange timeout bursts.
 
@@ -138,3 +138,4 @@ All changes stay behind `EXEC_*` flags until canary completion.
 2. No side effects outside adapters when `EXEC_ENGINE_UNIFIED=0`.
 3. New behavior stays behind flags until canary complete.
 4. Every incident leaves replay artifact/log.
+

@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
 
+from tools.run_summary import build_run_summary
 
 def _utc_day() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -114,6 +115,17 @@ def main() -> int:
         "ok": bool(ok),
         "steps": steps,
     }
+    payload["run_summary"] = build_run_summary(
+        run_type="daily_execution_calibration",
+        inputs={
+            "symbol": str(args.symbol),
+            "interval_ms": int(args.interval_ms),
+            "days": int(args.days),
+            "run_root_cause": int(args.run_root_cause),
+        },
+        metrics={"ok": bool(ok), "step_count": len(steps)},
+        artifacts={"json": str(out_json), "md": str(out_md)},
+    )
     out_json.write_text(json.dumps(payload, ensure_ascii=True, indent=2), encoding="utf-8")
 
     lines = [
@@ -135,6 +147,7 @@ def main() -> int:
         lines.append(f"- `{root_md}`")
         lines.append(f"- `{root_json}`")
         lines.append("")
+    lines += ["## Run Summary", "", f"- `{payload.get('run_summary', {})}`"]
     out_md.write_text("\n".join(lines), encoding="utf-8")
     print(f"daily_execution_calibration: ok={int(ok)} out_json={out_json} out_md={out_md}")
     return 0 if ok else 1

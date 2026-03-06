@@ -1,6 +1,12 @@
-# Parallel Layers Roadmap (Sweep-Independent)
+﻿# Parallel Layers Roadmap (Sweep-Independent)
 
 This roadmap is designed to run in parallel with long-running ranking sweeps. It avoids coupling to `reports/_runs/*` and focuses on durable improvements that are valuable regardless of final attribution mix.
+
+Operational workflow docs for the two-person setup:
+
+- `docs/GITHUB_COLLAB_SYSTEM.md`
+- `docs/TEAM_OWNERSHIP.md`
+- `docs/WORKTREE_SETUP.md`
 
 ## Phase 0: Baseline Safety and Repeatability
 ### Objective
@@ -177,14 +183,14 @@ Even perfect research signals require operational risk containment. This phase d
 - Risk event schema is explicit and versioned.
 - No change to live execution behavior (research-only path).
 ### Tests To Add
-- `tools/test_adaptive_guard_unit.py`
-- `tools/test_belief_controller_unit.py`
-- `tools/test_belief_evidence_unit.py`
+- `tests/legacy_tools/test_adaptive_guard_unit.py`
+- `tests/legacy_tools/test_belief_controller_unit.py`
+- `tests/legacy_tools/test_belief_evidence_unit.py`
 - `tests/test_risk_interface_contracts.py` (new): schema fields and transition rules.
 ### CLI Validation
 ```powershell
 python -m tools.risk_checklist
-pytest -q tools/test_adaptive_guard_unit.py tools/test_belief_controller_unit.py tools/test_belief_evidence_unit.py
+pytest -q tests/legacy_tools/test_adaptive_guard_unit.py tests/legacy_tools/test_belief_controller_unit.py tests/legacy_tools/test_belief_evidence_unit.py
 ```
 ### Expected Artifacts
 - `reports/RISK_INTERFACE_CONTRACTS.md`
@@ -261,3 +267,4 @@ pytest -q tests/test_smoke_all.py
 | Attribution post-processing heuristics | me | requires sweep results | Tune using completed run outputs |
 | Pocket promotion decisions | me | requires sweep results | Final gating thresholds only after sweep |
 | Canonical dataset rebuild | friend | requires data rebuild | Separate from running sweeps |
+

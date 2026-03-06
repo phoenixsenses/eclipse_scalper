@@ -9,6 +9,7 @@ from statistics import median, pstdev
 from typing import Any, Dict, List, Tuple
 
 from config.costs import DEFAULT_MAKER_FEE_BPS
+from tools.run_summary import build_run_summary
 from tools.validate_passive_pocket_forward import validate_pocket_forward
 
 
@@ -958,66 +959,67 @@ def main() -> int:
             print("WARNING fee conversion sanity check failed for scratch bps.")
 
     out_json = Path(str(args.out_json))
-    out_json.parent.mkdir(parents=True, exist_ok=True)
-    out_json.write_text(
-        json.dumps(
+    payload = {
+        "count": len(scored),
+        "mitigation_profile": mitigation_profile,
+        "gate_config": {
+            "min_intensity_strong": float(args.min_intensity_strong),
+            "min_imbalance_strong": float(args.min_imbalance_strong),
+            "max_spread_tight": float(args.max_spread_tight),
+            "max_volatility_extreme": None if args.max_volatility_extreme is None else float(args.max_volatility_extreme),
+            "vol_quantile_reject": float(args.vol_quantile_reject),
+            "scratch_bps": float(eff_scratch_bps),
+            "scratch_window_sec": int(eff_scratch_window_sec),
+            "scratch_taker_fee_bps": float(eff_scratch_taker_fee_bps),
+            "scratch_slippage_bps": float(eff_scratch_slippage_bps),
+            "horizon_sec_override": int(args.horizon_sec),
+        },
+        "statistical": {
+            "bootstrap_ci": bool(args.bootstrap_ci),
+            "bootstrap_samples": int(args.bootstrap_samples),
+            "bootstrap_seed": int(args.bootstrap_seed),
+            "alpha": float(args.alpha),
+            "multiple_testing_method": (
+                ("bh" if bool(args.bh_correction) and str(args.mtc_method).strip().lower() == "none" else str(args.mtc_method).strip().lower())
+                if bool(args.bootstrap_ci)
+                else "none"
+            ),
+            "splits": int(args.splits),
+        },
+        "decomposition": [
             {
-                "count": len(scored),
-                "mitigation_profile": mitigation_profile,
-                "gate_config": {
-                    "min_intensity_strong": float(args.min_intensity_strong),
-                    "min_imbalance_strong": float(args.min_imbalance_strong),
-                    "max_spread_tight": float(args.max_spread_tight),
-                    "max_volatility_extreme": None if args.max_volatility_extreme is None else float(args.max_volatility_extreme),
-                    "vol_quantile_reject": float(args.vol_quantile_reject),
-                    "scratch_bps": float(eff_scratch_bps),
-                    "scratch_window_sec": int(eff_scratch_window_sec),
-                    "scratch_taker_fee_bps": float(eff_scratch_taker_fee_bps),
-                    "scratch_slippage_bps": float(eff_scratch_slippage_bps),
-                    "horizon_sec_override": int(args.horizon_sec),
-                },
-                "statistical": {
-                    "bootstrap_ci": bool(args.bootstrap_ci),
-                    "bootstrap_samples": int(args.bootstrap_samples),
-                    "bootstrap_seed": int(args.bootstrap_seed),
-                    "alpha": float(args.alpha),
-                    "multiple_testing_method": (
-                        ("bh" if bool(args.bh_correction) and str(args.mtc_method).strip().lower() == "none" else str(args.mtc_method).strip().lower())
-                        if bool(args.bootstrap_ci)
-                        else "none"
-                    ),
-                    "splits": int(args.splits),
-                },
-                "decomposition": [
-                    {
-                        "pocket": _pocket_id(
-                            r,
-                            rule=str(r.get("rule", "")),
-                            side=str(args.side),
-                            horizon_override=(int(args.horizon_sec) if int(args.horizon_sec) > 0 else 0),
-                        ),
-                        "n_samples": int(_safe_float(r.get("n_events_total", 0), 0.0)),
-                        "score_raw_core": float(r.get("score_raw_core", 0.0)),
-                        "gross_edge_npa": float((r.get("decomposition_core") or {}).get("gross_edge_npa", 0.0)),
-                        "fee_cost_npa": float((r.get("decomposition_core") or {}).get("fee_cost_npa", 0.0)),
-                        "adverse_cost_npa": float((r.get("decomposition_core") or {}).get("adverse_cost_npa", 0.0)),
-                        "scratch_cost_npa": float((r.get("decomposition_core") or {}).get("scratch_cost_npa", 0.0)),
-                        "net_npa": float((r.get("decomposition_core") or {}).get("net_npa", 0.0)),
-                        "residual_npa": float((r.get("decomposition_core") or {}).get("residual_npa", 0.0)),
-                        "pass_core": float(r.get("pass_rate_core", 0.0)),
-                        "pass_stress": float(r.get("pass_rate_stress", 0.0)),
-                        "reject_breakdown": dict(r.get("reject_breakdown", {})),
-                        "effective_trade_count_core": dict(r.get("effective_trade_count_core", {})),
-                        "effective_trade_count_stress": dict(r.get("effective_trade_count_stress", {})),
-                    }
-                    for r in scored
-                ],
-                "ranking": scored,
-            },
-            indent=2,
-        ),
-        encoding="utf-8",
+                "pocket": _pocket_id(
+                    r,
+                    rule=str(r.get("rule", "")),
+                    side=str(args.side),
+                    horizon_override=(int(args.horizon_sec) if int(args.horizon_sec) > 0 else 0),
+                ),
+                "n_samples": int(_safe_float(r.get("n_events_total", 0), 0.0)),
+                "score_raw_core": float(r.get("score_raw_core", 0.0)),
+                "gross_edge_npa": float((r.get("decomposition_core") or {}).get("gross_edge_npa", 0.0)),
+                "fee_cost_npa": float((r.get("decomposition_core") or {}).get("fee_cost_npa", 0.0)),
+                "adverse_cost_npa": float((r.get("decomposition_core") or {}).get("adverse_cost_npa", 0.0)),
+                "scratch_cost_npa": float((r.get("decomposition_core") or {}).get("scratch_cost_npa", 0.0)),
+                "net_npa": float((r.get("decomposition_core") or {}).get("net_npa", 0.0)),
+                "residual_npa": float((r.get("decomposition_core") or {}).get("residual_npa", 0.0)),
+                "pass_core": float(r.get("pass_rate_core", 0.0)),
+                "pass_stress": float(r.get("pass_rate_stress", 0.0)),
+                "reject_breakdown": dict(r.get("reject_breakdown", {})),
+                "effective_trade_count_core": dict(r.get("effective_trade_count_core", {})),
+                "effective_trade_count_stress": dict(r.get("effective_trade_count_stress", {})),
+            }
+            for r in scored
+        ],
+        "ranking": scored,
+    }
+    payload["run_summary"] = build_run_summary(
+        run_type="rank_passive_pockets_forward",
+        inputs={"candidates_md": str(args.candidates_md), "db": str(args.db), "rules": rules, "min_n_frac": float(args.min_n_frac)},
+        metrics={"count": len(scored), "candidate_count": len(candidates), "survive_fee1_passrate_ge_0_5": int(survive)},
+        artifacts={"json": str(out_json), "md": str(args.out_md)},
     )
+    out_json.parent.mkdir(parents=True, exist_ok=True)
+    out_json.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
     out_md = Path(str(args.out_md))
     lines = [

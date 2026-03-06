@@ -30,6 +30,9 @@ import type {
   PassiveProfilesResponse,
   RegimeEvent,
   RuntimeStatus,
+  LiveMetricsResponse,
+  LiveMonitorTestsStatusResponse,
+  LiveMonitorTestsRunResponse,
   Scoreboard,
   SignalEvent,
   StabilityEvent,
@@ -305,6 +308,12 @@ export const api = {
     normalizeOverview(await get<unknown>("/overview", undefined, signal)),
   runtime: async (signal?: AbortSignal): Promise<RuntimeStatus> =>
     normalizeRuntime(await get<unknown>("/runtime", undefined, signal)),
+  liveMetrics: (signal?: AbortSignal): Promise<LiveMetricsResponse> =>
+    get<LiveMetricsResponse>("/live/metrics", undefined, signal),
+  liveTestsStatus: (limit = 80, signal?: AbortSignal): Promise<LiveMonitorTestsStatusResponse> =>
+    get<LiveMonitorTestsStatusResponse>("/live/tests/status", { limit }, signal),
+  liveTestsRun: (signal?: AbortSignal): Promise<LiveMonitorTestsRunResponse> =>
+    post<LiveMonitorTestsRunResponse>("/live/tests/run", {}, signal),
   scoreboard: (signal?: AbortSignal): Promise<Scoreboard> => get<Scoreboard>("/scoreboard", undefined, signal),
   gates: (signal?: AbortSignal): Promise<MicroEdgeGatesResponse> =>
     get<MicroEdgeGatesResponse>("/gates", undefined, signal),

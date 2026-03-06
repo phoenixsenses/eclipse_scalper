@@ -4,6 +4,7 @@ import shutil
 import sqlite3
 import time
 import uuid
+import json
 from pathlib import Path
 
 from tools import funding_rate_analysis as fra
@@ -67,6 +68,7 @@ def test_funding_rate_analysis_smoke(monkeypatch) -> None:
         assert rc == 0
         assert out_md.exists()
         assert out_json.exists()
+        payload = json.loads(out_json.read_text(encoding="utf-8"))
+        assert payload["run_summary"]["run_type"] == "funding_rate_analysis"
     finally:
         shutil.rmtree(wd, ignore_errors=True)
-

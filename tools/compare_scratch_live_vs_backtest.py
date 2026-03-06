@@ -6,6 +6,7 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
+from tools.run_summary import build_run_summary
 
 def _parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Compare live scratch behavior vs backtest scratch calibration.")
@@ -99,6 +100,12 @@ def main() -> int:
         "needs_recalibration_sell": bool(delta_sell is not None and delta_sell > 0.20),
         "needs_recalibration_buy": bool(delta_buy is not None and delta_buy > 0.20),
     }
+    payload["run_summary"] = build_run_summary(
+        run_type="compare_scratch_live_vs_backtest",
+        inputs={"trade_db": str(args.trade_db), "backtest_sell_json": str(args.backtest_sell_json), "backtest_buy_json": str(args.backtest_buy_json)},
+        metrics={"live_rows": int(live.get("rows", 0)), "needs_recalibration_sell": bool(payload["needs_recalibration_sell"]), "needs_recalibration_buy": bool(payload["needs_recalibration_buy"])},
+        artifacts={"json": str(out_json), "md": str(out_md)},
+    )
     out_json.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True, indent=2) + "\n", encoding="utf-8")
 
     lines = [
@@ -115,6 +122,9 @@ def main() -> int:
         f"- delta_buy_abs: `{(float(delta_buy) if delta_buy is not None else 0.0):.2%}`",
         f"- needs_recalibration_sell: `{int(payload['needs_recalibration_sell'])}`",
         f"- needs_recalibration_buy: `{int(payload['needs_recalibration_buy'])}`",
+        "",
+        "## Run Summary",
+        f"- `{payload['run_summary']}`",
     ]
     out_md.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     print(f"compare_scratch_live_vs_backtest: wrote {out_md}")
@@ -123,4 +133,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

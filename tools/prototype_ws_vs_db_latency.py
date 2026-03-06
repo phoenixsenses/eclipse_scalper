@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from tools.run_summary import build_run_summary
 
 def _parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Prototype audit of websocket path vs DB-read path latency.")
@@ -85,6 +86,12 @@ def main() -> int:
             "A true WS path requires in-process feature computation directly from stream callbacks."
         ),
     }
+    payload["run_summary"] = build_run_summary(
+        run_type="prototype_ws_vs_db_latency",
+        inputs={"db": str(args.db), "symbol": str(args.symbol), "collector_heartbeat": str(args.collector_heartbeat)},
+        metrics={"collector_connected": bool(ws_connected), "db_lag_sec": float(db_lag_sec) if db_lag_sec is not None else None},
+        artifacts={"json": str(out_json), "md": str(out_md)},
+    )
     out_json.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True, indent=2) + "\n", encoding="utf-8")
 
     lines = [
@@ -99,6 +106,9 @@ def main() -> int:
         "## Interpretation",
         "- If `db_lag_sec` is consistently > 2s, feature staleness is materially high for microstructure triggers.",
         "- If estimated gain is large, prioritize direct-WS feature pipeline prototype.",
+        "",
+        "## Run Summary",
+        f"- `{payload['run_summary']}`",
     ]
     out_md.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     print(f"prototype_ws_vs_db_latency: wrote {out_md}")
@@ -107,4 +117,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

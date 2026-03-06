@@ -48,6 +48,7 @@ def test_triage_capacity_outputs(monkeypatch) -> None:
     assert rc == 0
     data = json.loads(out_json.read_text(encoding="utf-8"))
     assert len(data["rows"]) == 1
+    assert data["run_summary"]["run_type"] == "triage_capacity"
     row = data["rows"][0]
     assert "effective_min_n_median" in row
     assert "prob_fail_insufficient_fills" in row

@@ -66,6 +66,7 @@ def test_analyze_fill_timing_outputs(monkeypatch) -> None:
         assert aft.main() == 0
         payload = json.loads(out_json.read_text(encoding="utf-8"))
         assert payload["status"] == "ok"
+        assert payload["run_summary"]["run_type"] == "analyze_fill_timing"
         assert int(payload["live_summary"]["rows"]) == 2
         assert float(payload["bar_sec"]) == 2.0
         assert "recommended_timeout_sec" in payload["live_summary"]

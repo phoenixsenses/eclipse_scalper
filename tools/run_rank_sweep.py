@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Tuple
 
 from config.costs import DEFAULT_MAKER_FEE_BPS
+from tools.run_summary import build_run_summary
 
 def _parse_list(raw: str) -> List[str]:
     out: List[str] = []
@@ -260,6 +261,15 @@ def main() -> int:
             "summary": summary,
             "returncode": int(rank_rc),
         }
+        reg["run_summary"] = build_run_summary(
+            run_type="run_rank_sweep",
+            inputs=run_args,
+            metrics={
+                "returncode": int(rank_rc),
+                "ranking_count": int(summary.get("count", 0) or 0),
+            },
+            artifacts={"registry": str(registry_path), "md": str(out_md), "json": str(out_json)},
+        )
         with registry_path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(reg, ensure_ascii=True) + "\n")
 

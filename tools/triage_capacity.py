@@ -8,6 +8,7 @@ from typing import Any, Dict, List
 
 from config.costs import DEFAULT_MAKER_FEE_BPS
 from tools.rank_passive_pockets_forward import _parse_candidates_from_md
+from tools.run_summary import build_run_summary
 from tools.validate_passive_pocket_forward import validate_pocket_forward
 
 
@@ -146,6 +147,12 @@ def main() -> int:
                     "vol_quantile_reject": vol_quantile_reject,
                 },
                 "rows": rows,
+                "run_summary": build_run_summary(
+                    run_type="triage_capacity",
+                    inputs={"candidates_md": str(args.candidates_md), "db": str(args.db), "mitigation_profile": str(args.mitigation_profile)},
+                    metrics={"candidate_count": len(candidates), "row_count": len(rows)},
+                    artifacts={"json": str(out)},
+                ),
             },
             indent=2,
         ),

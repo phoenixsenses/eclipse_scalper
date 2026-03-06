@@ -198,5 +198,26 @@
         }
       }
     }
-  ]
+  ],
+  "run_summary": {
+    "version": "v1",
+    "run_type": "rank_passive_pockets_forward",
+    "inputs": {
+      "candidates_md": "reports/dummy.md",
+      "db": "data/microstructure.db",
+      "rules": [
+        "intensity_spike_imbalance_cont"
+      ],
+      "min_n_frac": 0.0
+    },
+    "metrics": {
+      "count": 1,
+      "candidate_count": 1,
+      "survive_fee1_passrate_ge_0_5": 1
+    },
+    "artifacts": {
+      "json": "reports\\test_rank_v4_defaults.json",
+      "md": "reports/test_rank_v4_defaults.md"
+    }
+  }
 }

@@ -73,6 +73,7 @@ def test_generate_summary_and_main(monkeypatch) -> None:
         assert out_json.exists()
         payload = json.loads(out_json.read_text(encoding="utf-8"))
         assert int(payload["total_trades"]) == 2
+        assert payload["run_summary"]["run_type"] == "paper_trade_summary"
     finally:
         db.unlink(missing_ok=True)
         out_md.unlink(missing_ok=True)

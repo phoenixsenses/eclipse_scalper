@@ -1,7 +1,7 @@
 # PASSIVE_POCKET_FORWARD_VALIDATION
 
 symbol=ETHUSDT horizon_sec=60 min_imbalance=0.5 min_trade_intensity=2500.0 max_spread=0.00025
-seeds=[11, 22, 33, 44, 55] splits=0 min_n=50 min_n_frac=0.003 maker_fee_bps=-0.75 passive_adverse_mult=1.0 v2_min_score=0.0 v2_min_persistence=0.0 v2_min_confidence=0.0
+seeds=[11, 22, 33, 44, 55] splits=0 min_n=50 min_n_frac=0.003 maker_fee_bps=1.0 passive_adverse_mult=1.0 v2_min_score=0.0 v2_min_persistence=0.0 v2_min_confidence=0.0
 effective_min_n_formula=max(min_n=50, ceil(min_n_frac*val_rows)=ceil(0.003*val_rows)); median_frac_component=212 median_effective_min_n=212
 gate: min_intensity_strong=0.0 min_imbalance_strong=0.0 max_spread_tight=0.0 max_volatility_extreme=0.0 vol_quantile_reject=0.0
 scratch: scratch_bps=0.0 scratch_window_sec=0 scratch_taker_fee_bps=0.0 scratch_slippage_bps=0.0
@@ -27,3 +27,6 @@ min_n_frac_dominance_rate=100.00%
 CAPACITY_WARNING: >50% rows failed due to insufficient fills.
 
 MIN_N_FRAC_WARNING: ceil(min_n_frac*val_rows) exceeded min_n for at least one split/seed row.
+
+## Run Summary
+- {'version': 'v1', 'run_type': 'validate_passive_pocket_forward', 'inputs': {}, 'metrics': {'rows_total': 2, 'pass_count': 0, 'pass_rate': 0.0, 'insufficient_fill_rate': 1.0}, 'artifacts': {'md': 'reports\\test_validate_forward_minfrac.md', 'json': 'reports\\test_validate_forward_minfrac.json'}}

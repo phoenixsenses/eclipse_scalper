@@ -147,6 +147,97 @@ class RuntimeResponse(BaseModel):
     system: SystemStatus = Field(default_factory=SystemStatus)
 
 
+class LiveAlertConfig(BaseModel):
+    trade_age_alert_sec: int = 10
+    fill_flatline_alert_min: int = 15
+
+
+class LiveAlertState(BaseModel):
+    any_alert: bool = False
+    trade_age_alert: bool = False
+    fill_flatline_alert: bool = False
+    trade_age_sec: Optional[float] = None
+    fill_age_min: Optional[float] = None
+    config: LiveAlertConfig = Field(default_factory=LiveAlertConfig)
+
+
+class LivePnlStrip(BaseModel):
+    today: float = 0.0
+    h24: float = 0.0
+    d7: float = 0.0
+    sample: int = 0
+
+
+class LiveFillQuality(BaseModel):
+    avg_delay_ms: Optional[float] = None
+    avg_adverse_bps: Optional[float] = None
+    with_delay: int = 0
+    with_adverse: int = 0
+
+
+class LiveTailKpis(BaseModel):
+    window_lines: int = 0
+    order_count: int = 0
+    fill_count: int = 0
+    blocked_count: int = 0
+    fill_per_order_pct: Optional[float] = None
+
+
+class LiveFillRow(BaseModel):
+    ts: Optional[str] = None
+    symbol: Optional[str] = None
+    side: Optional[str] = None
+    price: Optional[str] = None
+    qty: Optional[str] = None
+    pnl: Optional[str] = None
+    ts_ms: Optional[int] = None
+    pnl_num: Optional[float] = None
+    delay_ms: Optional[float] = None
+    adverse_bps: Optional[float] = None
+
+
+class LiveReasonRow(BaseModel):
+    reason: str
+    count: int
+
+
+class LiveTrendSeries(BaseModel):
+    trades_per_sec: list[float] = Field(default_factory=list)
+    fills_tail: list[float] = Field(default_factory=list)
+
+
+class LiveMetricsResponse(BaseModel):
+    ts_utc: str
+    runtime: RuntimeResponse = Field(default_factory=RuntimeResponse)
+    scoreboard: Scoreboard = Field(default_factory=Scoreboard)
+    pnl_strip: LivePnlStrip = Field(default_factory=LivePnlStrip)
+    fill_quality: LiveFillQuality = Field(default_factory=LiveFillQuality)
+    tail_kpis: LiveTailKpis = Field(default_factory=LiveTailKpis)
+    blocked_reasons: list[LiveReasonRow] = Field(default_factory=list)
+    last_fills: list[LiveFillRow] = Field(default_factory=list)
+    alerts: LiveAlertState = Field(default_factory=LiveAlertState)
+    trends: LiveTrendSeries = Field(default_factory=LiveTrendSeries)
+    paper_file: Optional[str] = None
+
+
+class LiveMonitorTestsStatusResponse(BaseModel):
+    ts_utc: str
+    state: str = "unknown"
+    stage: str = "unknown"
+    message: str = ""
+    strict_mode: bool = False
+    backend_ok: bool = False
+    frontend_typecheck_ok: bool = False
+    frontend_smoke_ok: bool = False
+    frontend_smoke_skipped: bool = False
+    pid: Optional[int] = None
+    run_command: str = "powershell -NoProfile -ExecutionPolicy Bypass -File .\\tools\\run_live_monitor_tests.ps1"
+    log_path: Optional[str] = None
+    status_path: Optional[str] = None
+    status_age_sec: Optional[float] = None
+    log_tail: list[str] = Field(default_factory=list)
+
+
 class OverviewResponse(BaseModel):
     scoreboard: Scoreboard = Field(default_factory=Scoreboard)
     gates: GatesSummaryResponse = Field(default_factory=GatesSummaryResponse)

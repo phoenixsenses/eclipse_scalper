@@ -8,6 +8,7 @@ from typing import Any, Dict, List
 
 from config.costs import DEFAULT_MAKER_FEE_BPS
 from tools.rank_passive_pockets_forward import _parse_candidates_from_md
+from tools.run_summary import build_run_summary
 from tools.validate_passive_pocket_forward import validate_pocket_forward
 
 
@@ -149,28 +150,29 @@ def main() -> int:
         )
 
     out_json = Path(str(args.out_json))
-    out_json.parent.mkdir(parents=True, exist_ok=True)
-    out_json.write_text(
-        json.dumps(
-            {
-                "inputs": {
-                    "db": args.db,
-                    "lookback_min": int(args.lookback_min),
-                    "bucket_sec": int(args.bucket_sec),
-                    "rule": args.rule,
-                    "side": args.side,
-                    "splits": int(args.splits),
-                    "seeds": str(args.seeds),
-                    "min_n": int(args.min_n),
-                    "maker_fee_bps": float(args.maker_fee_bps),
-                    "passive_adverse_mult": float(args.passive_adverse_mult),
-                },
-                "rows": summary_rows,
-            },
-            indent=2,
-        ),
-        encoding="utf-8",
+    payload = {
+        "inputs": {
+            "db": args.db,
+            "lookback_min": int(args.lookback_min),
+            "bucket_sec": int(args.bucket_sec),
+            "rule": args.rule,
+            "side": args.side,
+            "splits": int(args.splits),
+            "seeds": str(args.seeds),
+            "min_n": int(args.min_n),
+            "maker_fee_bps": float(args.maker_fee_bps),
+            "passive_adverse_mult": float(args.passive_adverse_mult),
+        },
+        "rows": summary_rows,
+    }
+    payload["run_summary"] = build_run_summary(
+        run_type="calibrate_capacity_thresholds",
+        inputs={"candidates_md": str(args.candidates_md), "db": str(args.db), "min_n": int(args.min_n), "grid": grid},
+        metrics={"candidate_count": len(candidates), "row_count": len(summary_rows)},
+        artifacts={"json": str(out_json), "md": str(args.out_md)},
     )
+    out_json.parent.mkdir(parents=True, exist_ok=True)
+    out_json.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     out_md = Path(str(args.out_md))
     lines = [
         "# CAPACITY_THRESHOLD_CALIBRATION",
@@ -191,6 +193,7 @@ def main() -> int:
             f"{r['median_attempt_fill_rate']:.2%} | {r['median_net_per_attempt']:+.6e} | {r['median_effective_min_n']} | {r['dominance_mode']} | "
             f"{r['forward_pass_rate_p25']:.2%} | {r['forward_pass_rate_p50']:.2%} | {r['forward_pass_rate_p75']:.2%} | {note} |"
         )
+    lines.extend(["", "## Run Summary", f"- `{payload['run_summary']}`"])
     out_md.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"wrote {out_md}")
     print(f"wrote {out_json}")

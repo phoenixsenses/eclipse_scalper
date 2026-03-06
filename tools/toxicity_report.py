@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Dict
 
 import pandas as pd
+from tools.run_summary import build_run_summary
 
 
 def _load(path: Path) -> pd.DataFrame:
@@ -65,6 +66,8 @@ def _render_md(d: Dict[str, Any]) -> str:
             f"| {side} | {int(r.get('rows',0))} | {float(r.get('adverse_bps_mean',0.0)):.4f} | "
             f"{float(r.get('pnl_bps_mean',0.0)):+.4f} | {float(r.get('toxicity_score',0.0)):.4f} |"
         )
+    if isinstance(d.get("run_summary"), dict):
+        lines.extend(["", "## Run Summary", f"- `{d['run_summary']}`"])
     lines.append("")
     return "\n".join(lines)
 
@@ -85,6 +88,12 @@ def main() -> int:
     out_json = Path(str(args.out_json))
     out_md.parent.mkdir(parents=True, exist_ok=True)
     out_json.parent.mkdir(parents=True, exist_ok=True)
+    d["run_summary"] = build_run_summary(
+        run_type="toxicity_report",
+        inputs={"source": str(args.in_path)},
+        metrics={"rows": int(d.get("rows", 0)), "side_count": len(d.get("sides", {}))},
+        artifacts={"json": str(out_json), "md": str(out_md)},
+    )
     out_md.write_text(_render_md(d), encoding="utf-8")
     out_json.write_text(json.dumps(d, ensure_ascii=True, indent=2), encoding="utf-8")
     print(f"toxicity_report: rows={int(d.get('rows',0))} out_md={out_md} out_json={out_json}")
@@ -93,4 +102,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

@@ -262,6 +262,11 @@ _RATE_LIMIT_RE = re.compile(r"\[RATE_LIMIT\]\s+used_1m=(\d+)\s+cap_1m=(\d+)\s+us
 _OPS_HEALTH_HISTORY_PATH = LOGS_DIR / "ops_health_history.jsonl"
 _OPS_HEALTH_HISTORY_APPEND_SEC = float(os.environ.get("OPS_HEALTH_HISTORY_APPEND_SEC", "60") or "60")
 _ops_health_last_append_ts: float = 0.0
+_LIVE_METRICS_CACHE_TTL = float(os.environ.get("LIVE_METRICS_CACHE_TTL_SEC", "2") or "2")
+_live_metrics_cache: dict[str, Any] = {}
+_live_metrics_cache_ts: float = 0.0
+_live_trades_series: deque[float] = deque(maxlen=30)
+_live_fills_series: deque[float] = deque(maxlen=30)
 
 
 def _tail_lines_fast(path: Path, n: int = 200, max_bytes: int = _LOG_TAIL_MAX_BYTES) -> list[str]:
@@ -1037,6 +1042,329 @@ def read_supervisor_status() -> dict[str, Any]:
 # ─────────────────────────────────────────────
 # Overview aggregation
 # ─────────────────────────────────────────────
+
+def read_live_monitor_tests_status(limit: int = 80) -> dict[str, Any]:
+    """Read last run status for tools/run_live_monitor_tests.ps1."""
+    now = time.time()
+    status_path = REPO_ROOT / "runtime" / "live_monitor_tests_status.json"
+    default_log = LOGS_DIR / "live_monitor_tests.log"
+    out: dict[str, Any] = {
+        "ts_utc": datetime.now(tz=timezone.utc).isoformat(),
+        "state": "unknown",
+        "stage": "unknown",
+        "message": "no test run status yet",
+        "strict_mode": False,
+        "backend_ok": False,
+        "frontend_typecheck_ok": False,
+        "frontend_smoke_ok": False,
+        "frontend_smoke_skipped": False,
+        "pid": None,
+        "run_command": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\tools\\run_live_monitor_tests.ps1",
+        "log_path": str(default_log),
+        "status_path": str(status_path),
+        "status_age_sec": None,
+        "log_tail": _tail_lines(default_log, n=limit),
+    }
+    if not status_path.exists():
+        return out
+    payload = _safe_json(status_path)
+    if not isinstance(payload, dict) or not payload:
+        out["message"] = "status file exists but unreadable"
+        return out
+
+    out["ts_utc"] = str(payload.get("ts_utc") or out["ts_utc"])
+    out["state"] = str(payload.get("state") or out["state"])
+    out["stage"] = str(payload.get("stage") or out["stage"])
+    out["message"] = str(payload.get("message") or out["message"])
+    out["strict_mode"] = bool(payload.get("strict_mode"))
+    out["backend_ok"] = bool(payload.get("backend_ok"))
+    out["frontend_typecheck_ok"] = bool(payload.get("frontend_typecheck_ok"))
+    out["frontend_smoke_ok"] = bool(payload.get("frontend_smoke_ok"))
+    out["frontend_smoke_skipped"] = bool(payload.get("frontend_smoke_skipped"))
+
+    pid_raw = payload.get("pid")
+    if isinstance(pid_raw, (int, float)):
+        out["pid"] = int(pid_raw)
+
+    run_command = payload.get("run_command")
+    if isinstance(run_command, str) and run_command.strip():
+        out["run_command"] = run_command.strip()
+
+    custom_log_path: Path | None = None
+    log_raw = payload.get("log_path")
+    if isinstance(log_raw, str) and log_raw.strip():
+        custom_log_path = Path(log_raw.strip())
+        out["log_path"] = str(custom_log_path)
+
+    status_raw = payload.get("status_path")
+    if isinstance(status_raw, str) and status_raw.strip():
+        out["status_path"] = status_raw.strip()
+
+    ts_obj = _parse_iso_ts(out["ts_utc"])
+    if ts_obj is not None:
+        out["status_age_sec"] = round(max(0.0, now - ts_obj.timestamp()), 1)
+
+    if custom_log_path is not None:
+        out["log_tail"] = _tail_lines(custom_log_path, n=limit)
+    return out
+
+
+def _pick_paper_file() -> str:
+    files = list_log_files()
+    names = [str(x.get("name", "")) for x in files]
+    for preferred in ("paper_trades.jsonl", "paper_start_e2e.log", "run-bot-output.log"):
+        if preferred in names:
+            return preferred
+    for n in names:
+        low = n.lower()
+        if "paper" in low and (low.endswith(".log") or low.endswith(".jsonl")):
+            return n
+    return "paper_trades.jsonl"
+
+
+def _parse_num(v: Any) -> float | None:
+    try:
+        if v is None:
+            return None
+        if isinstance(v, (int, float)):
+            return float(v)
+        s = str(v).strip()
+        if not s:
+            return None
+        return float(s)
+    except Exception:
+        return None
+
+
+def _parse_ts_ms(v: Any) -> int | None:
+    try:
+        if v is None:
+            return None
+        if isinstance(v, (int, float)):
+            n = float(v)
+            if n <= 0:
+                return None
+            return int(n if n > 10_000_000_000 else n * 1000.0)
+        s = str(v).strip()
+        if not s:
+            return None
+        n = float(s)
+        if n > 0:
+            return int(n if n > 10_000_000_000 else n * 1000.0)
+    except Exception:
+        pass
+    try:
+        dt = _parse_iso_ts(str(v))
+        if dt is None:
+            return None
+        return int(dt.timestamp() * 1000.0)
+    except Exception:
+        return None
+
+
+def _parse_fill_from_json_obj(obj: dict[str, Any]) -> dict[str, Any] | None:
+    typ = str(obj.get("type") or obj.get("event") or obj.get("action") or obj.get("status") or "").lower()
+    is_fill = (
+        "fill" in typ
+        or "filled" in typ
+        or obj.get("fill_price") is not None
+        or obj.get("avg_fill_price") is not None
+    )
+    if not is_fill:
+        return None
+    ts_raw = obj.get("ts") or obj.get("ts_utc") or obj.get("time") or obj.get("timestamp") or obj.get("ts_ms")
+    ts_ms = _parse_ts_ms(ts_raw)
+    ts = datetime.fromtimestamp(ts_ms / 1000.0, tz=timezone.utc).isoformat() if ts_ms else str(ts_raw or "-")
+    pnl_num = _parse_num(obj.get("pnl") or obj.get("pnl_bps") or obj.get("net_pnl_bps"))
+    delay_ms = _parse_num(obj.get("fill_delay_ms") or obj.get("latency_ms") or obj.get("delay_ms") or obj.get("time_to_fill_ms"))
+    adverse_bps = _parse_num(obj.get("adverse_bps") or obj.get("mae_bps") or obj.get("adverse_selection_bps"))
+    return {
+        "ts": ts,
+        "symbol": str(obj.get("symbol") or obj.get("sym") or "-"),
+        "side": str(obj.get("side") or obj.get("direction") or "-"),
+        "price": str(obj.get("fill_price") or obj.get("avg_fill_price") or obj.get("price") or obj.get("entry_price") or obj.get("exit_price") or "-"),
+        "qty": str(obj.get("qty") or obj.get("size") or obj.get("filled_qty") or obj.get("amount") or "-"),
+        "pnl": str(obj.get("pnl") or obj.get("pnl_bps") or obj.get("net_pnl_bps") or "-"),
+        "ts_ms": ts_ms,
+        "pnl_num": pnl_num,
+        "delay_ms": delay_ms,
+        "adverse_bps": adverse_bps,
+    }
+
+
+def _parse_fill_from_text(line: str) -> dict[str, Any] | None:
+    low = line.lower()
+    if "fill" not in low:
+        return None
+
+    def pick1(rx: str) -> str:
+        m = re.search(rx, line, re.IGNORECASE)
+        return m.group(1) if m else "-"
+
+    def pick2(rx: str) -> str:
+        m = re.search(rx, line, re.IGNORECASE)
+        return m.group(2) if m else "-"
+
+    ts_guess = line[:24]
+    ts_ms = _parse_ts_ms(ts_guess)
+    return {
+        "ts": line[:19] if line else "-",
+        "symbol": pick1(r"\b([A-Z]{3,}USDT)\b"),
+        "side": pick2(r"\b(side|direction)=([a-zA-Z]+)"),
+        "price": pick2(r"\b(price|fill_price|avg_fill_price)=([0-9.]+)"),
+        "qty": pick2(r"\b(qty|size|amount|filled_qty)=([0-9.]+)"),
+        "pnl": pick2(r"\b(pnl_bps|pnl|net_pnl_bps)=([\-0-9.]+)"),
+        "ts_ms": ts_ms,
+        "pnl_num": _parse_num(pick2(r"\b(pnl_bps|pnl|net_pnl_bps)=([\-0-9.]+)")),
+        "delay_ms": _parse_num(pick2(r"\b(fill_delay_ms|latency_ms|delay_ms|time_to_fill_ms)=([\-0-9.]+)")),
+        "adverse_bps": _parse_num(pick2(r"\b(adverse_bps|mae_bps|adverse_selection_bps)=([\-0-9.]+)")),
+    }
+
+
+def _extract_fill_rows(lines: list[str]) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for line in lines:
+        s = line.strip()
+        if not s:
+            continue
+        obj: dict[str, Any] | None = None
+        if s.startswith("{") and s.endswith("}"):
+            try:
+                maybe = json.loads(s)
+                if isinstance(maybe, dict):
+                    obj = maybe
+            except Exception:
+                obj = None
+        row = _parse_fill_from_json_obj(obj) if obj is not None else _parse_fill_from_text(line)
+        if row is not None:
+            out.append(row)
+    return out
+
+
+def read_live_metrics() -> dict[str, Any]:
+    global _live_metrics_cache, _live_metrics_cache_ts
+    now_mono = time.monotonic()
+    if (now_mono - _live_metrics_cache_ts) < _LIVE_METRICS_CACHE_TTL and _live_metrics_cache:
+        return _live_metrics_cache
+
+    runtime = read_runtime_status()
+    scoreboard = read_scoreboard()
+    collector = runtime.get("collector") if isinstance(runtime.get("collector"), dict) else {}
+    freshness = runtime.get("data_freshness") if isinstance(runtime.get("data_freshness"), dict) else {}
+
+    paper_file = _pick_paper_file()
+    short_lines = tail_log_file(paper_file, limit=80)
+    long_lines = tail_log_file(paper_file, limit=2000)
+
+    order_count = 0
+    fill_count = 0
+    blocked_count = 0
+    for ln in short_lines:
+        low = ln.lower()
+        if "order" in low:
+            order_count += 1
+        if "fill" in low:
+            fill_count += 1
+        if "blocked" in low or "regime_mismatch" in low or "no_match" in low:
+            blocked_count += 1
+    fill_per_order = (fill_count / order_count * 100.0) if order_count > 0 else None
+
+    fill_rows = _extract_fill_rows(long_lines)
+    last5 = list(reversed(fill_rows[-5:]))
+
+    now_ms = int(time.time() * 1000)
+    start_day = datetime.now(tz=timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    start_day_ms = int(start_day.timestamp() * 1000)
+    h24_ms = 24 * 3600 * 1000
+    d7_ms = 7 * 24 * 3600 * 1000
+
+    def _sum_pnl(window_ms: int | None = None, from_ms: int | None = None) -> float:
+        total = 0.0
+        for r in fill_rows:
+            ts_ms = r.get("ts_ms")
+            pnl_num = r.get("pnl_num")
+            if not isinstance(pnl_num, (int, float)):
+                continue
+            if isinstance(from_ms, int):
+                if not isinstance(ts_ms, int) or ts_ms < from_ms:
+                    continue
+            if isinstance(window_ms, int):
+                if not isinstance(ts_ms, int) or (now_ms - ts_ms) > window_ms:
+                    continue
+            total += float(pnl_num)
+        return round(total, 6)
+
+    pnl_strip = {
+        "today": _sum_pnl(from_ms=start_day_ms),
+        "h24": _sum_pnl(window_ms=h24_ms),
+        "d7": _sum_pnl(window_ms=d7_ms),
+        "sample": len(fill_rows),
+    }
+
+    delays = [float(r["delay_ms"]) for r in fill_rows if isinstance(r.get("delay_ms"), (int, float))]
+    adverse = [float(r["adverse_bps"]) for r in fill_rows if isinstance(r.get("adverse_bps"), (int, float))]
+    fill_quality = {
+        "avg_delay_ms": round(sum(delays) / len(delays), 3) if delays else None,
+        "avg_adverse_bps": round(sum(adverse) / len(adverse), 4) if adverse else None,
+        "with_delay": len(delays),
+        "with_adverse": len(adverse),
+    }
+
+    blocked_raw = scoreboard.get("blocked_by_reason") if isinstance(scoreboard.get("blocked_by_reason"), dict) else {}
+    blocked_reasons = sorted(
+        [{"reason": str(k), "count": int(v) if isinstance(v, (int, float)) else int(float(v)) if str(v).strip() else 0} for k, v in blocked_raw.items()],
+        key=lambda x: x["count"],
+        reverse=True,
+    )[:10]
+
+    trade_age_alert_sec = int(os.environ.get("LIVE_TRADE_AGE_ALERT_SEC", "10") or "10")
+    fill_flatline_alert_min = int(os.environ.get("LIVE_FILL_FLATLINE_ALERT_MIN", "15") or "15")
+    trade_age = float(freshness.get("seconds_since_last_trade") or 99999.0)
+    last_fill_ts_raw = scoreboard.get("last_fill_ts")
+    last_fill_ms = _parse_ts_ms(last_fill_ts_raw)
+    fill_age_min = ((now_ms - last_fill_ms) / 60000.0) if isinstance(last_fill_ms, int) and last_fill_ms > 0 else None
+    trade_age_alert = trade_age > trade_age_alert_sec
+    fill_flatline_alert = (fill_age_min if fill_age_min is not None else 99999.0) > fill_flatline_alert_min
+
+    trade_rate = float(collector.get("trades_per_sec_60s") or 0.0)
+    _live_trades_series.append(trade_rate)
+    _live_fills_series.append(float(fill_count))
+
+    _live_metrics_cache = {
+        "ts_utc": datetime.now(tz=timezone.utc).isoformat(),
+        "runtime": runtime,
+        "scoreboard": scoreboard,
+        "pnl_strip": pnl_strip,
+        "fill_quality": fill_quality,
+        "tail_kpis": {
+            "window_lines": len(short_lines),
+            "order_count": order_count,
+            "fill_count": fill_count,
+            "blocked_count": blocked_count,
+            "fill_per_order_pct": round(fill_per_order, 3) if isinstance(fill_per_order, float) else None,
+        },
+        "blocked_reasons": blocked_reasons,
+        "last_fills": last5,
+        "alerts": {
+            "any_alert": bool(trade_age_alert or fill_flatline_alert),
+            "trade_age_alert": bool(trade_age_alert),
+            "fill_flatline_alert": bool(fill_flatline_alert),
+            "trade_age_sec": round(trade_age, 3),
+            "fill_age_min": round(fill_age_min, 3) if isinstance(fill_age_min, float) else None,
+            "config": {
+                "trade_age_alert_sec": trade_age_alert_sec,
+                "fill_flatline_alert_min": fill_flatline_alert_min,
+            },
+        },
+        "trends": {
+            "trades_per_sec": list(_live_trades_series),
+            "fills_tail": list(_live_fills_series),
+        },
+        "paper_file": paper_file,
+    }
+    _live_metrics_cache_ts = now_mono
+    return _live_metrics_cache
+
 
 def build_overview() -> dict[str, Any]:
     raw_gates = read_micro_edge_gates()

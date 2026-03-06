@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 from src.microphys.replay import compute_replay_parity, load_live_fill_rows, load_simulated_fill_rows
+from tools.run_summary import build_run_summary
 
 
 def _args() -> argparse.Namespace:
@@ -46,6 +47,8 @@ def _render_md(d: dict) -> str:
             f"{float(m.get('pnl_bps_delta',0.0)):+.4f} | {float(m.get('sim_max_adverse_bps',0.0)):+.4f} | "
             f"{float(m.get('live_max_adverse_bps',0.0)):+.4f} | {float(m.get('adverse_bps_delta',0.0)):+.4f} |"
         )
+    if isinstance(d.get("run_summary"), dict):
+        lines.extend(["", "## Run Summary", f"- `{d['run_summary']}`"])
     lines.append("")
     return "\n".join(lines) + "\n"
 
@@ -61,6 +64,22 @@ def main() -> int:
     out_md = Path(str(args.out_md))
     out_json.parent.mkdir(parents=True, exist_ok=True)
     out_md.parent.mkdir(parents=True, exist_ok=True)
+    d["run_summary"] = build_run_summary(
+        run_type="replay_parity_report",
+        inputs={
+            "sim": str(args.sim),
+            "live_db": str(args.live_db),
+            "live_table": str(args.live_table),
+            "match_window_sec": float(args.match_window_sec),
+        },
+        metrics={
+            "sim_count": int(d.get("sim_count", 0)),
+            "live_count": int(d.get("live_count", 0)),
+            "matched_count": int(d.get("matched_count", 0)),
+            "match_rate_vs_sim": float(d.get("match_rate_vs_sim", 0.0)),
+        },
+        artifacts={"json": str(out_json), "md": str(out_md)},
+    )
     out_json.write_text(json.dumps(d, ensure_ascii=True, indent=2), encoding="utf-8")
     out_md.write_text(_render_md(d), encoding="utf-8")
 
@@ -74,4 +93,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

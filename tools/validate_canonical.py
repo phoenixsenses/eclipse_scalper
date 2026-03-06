@@ -10,6 +10,8 @@ from typing import Any, Dict, List, Optional, Tuple
 import pandas as pd
 from pandas.api.types import is_datetime64_any_dtype, is_numeric_dtype
 
+from tools.run_summary import build_run_summary
+
 
 CONFIG_VERSION = "canonical_validate_v1"
 DEFAULT_NAN_THRESHOLD = 0.05
@@ -89,6 +91,9 @@ def validate_dataframe(df: pd.DataFrame, *, nan_threshold: float = DEFAULT_NAN_T
         violations.append({"type": "schema", "code": "missing_symbol_col", "severity": "critical"})
     if px_col is None:
         violations.append({"type": "schema", "code": "missing_price_col", "severity": "critical"})
+    if df.empty:
+        notes.append("empty_dataframe")
+        violations.append({"type": "schema", "code": "empty_dataframe", "severity": "critical"})
 
     for col in NUMERIC_VALIDATION_COLS:
         if col not in df.columns:
@@ -119,6 +124,9 @@ def validate_dataframe(df: pd.DataFrame, *, nan_threshold: float = DEFAULT_NAN_T
             "dtype": str(df[ts_col].dtype),
             "timestamp_convertible_nan_ratio": ts_nan_ratio,
         }
+        if not ts.dropna().empty:
+            invariant_summary["timestamp_min_utc"] = ts.dropna().min().isoformat()
+            invariant_summary["timestamp_max_utc"] = ts.dropna().max().isoformat()
         if ts_nan_ratio > float(nan_threshold):
             violations.append(
                 {
@@ -131,8 +139,24 @@ def validate_dataframe(df: pd.DataFrame, *, nan_threshold: float = DEFAULT_NAN_T
             )
 
         if sym_col is not None:
-            work = pd.DataFrame({"symbol": df[sym_col], "ts": ts})
+            sym_raw = df[sym_col]
+            blank_symbol_count = int(sym_raw.isna().sum())
+            if not sym_raw.empty:
+                blank_symbol_count += int((sym_raw.astype(str).str.strip() == "").sum())
+            invariant_summary["blank_symbol_count"] = blank_symbol_count
+            if blank_symbol_count > 0:
+                violations.append(
+                    {
+                        "type": "schema",
+                        "code": "blank_symbol",
+                        "severity": "critical",
+                        "count": blank_symbol_count,
+                    }
+                )
+
+            work = pd.DataFrame({"symbol": sym_raw.astype("string").str.strip(), "ts": ts})
             work = work.dropna(subset=["symbol", "ts"])
+            work = work[work["symbol"] != ""]
             if not work.empty:
                 dup_count = int(work.duplicated(subset=["symbol", "ts"]).sum())
                 backward_total = 0
@@ -252,6 +276,8 @@ def _write_reports(report_json: Path, report_md: Path, payload: Dict[str, Any]) 
     for v in payload.get("violations", []):
         lines.append(f"- {v}")
     lines += ["", "## Invariant Summary", f"- {payload.get('invariant_summary', {})}"]
+    if isinstance(payload.get("run_summary"), dict):
+        lines += ["", "## Run Summary", f"- {payload.get('run_summary', {})}"]
     report_md.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -283,6 +309,12 @@ def main() -> int:
                 "violations": [],
                 "column_stats": {},
                 "invariant_summary": {},
+                "run_summary": build_run_summary(
+                    run_type="validate_canonical",
+                    inputs={"source": str(in_path), "nan_threshold": float(args.nan_threshold), "db": str(db_path)},
+                    metrics={"status": "skip", "violation_count": 0, "row_count": 0},
+                    artifacts={"json": str(out_json), "md": str(out_md)},
+                ),
             }
             _write_reports(out_json, out_md, payload)
             print("validate_canonical status=skip reason=skipped_missing_db")
@@ -297,6 +329,12 @@ def main() -> int:
             "violations": [],
             "column_stats": {},
             "invariant_summary": {},
+            "run_summary": build_run_summary(
+                run_type="validate_canonical",
+                inputs={"source": str(in_path), "nan_threshold": float(args.nan_threshold), "db": str(args.db or "")},
+                metrics={"status": "skip", "violation_count": 0, "row_count": 0},
+                artifacts={"json": str(out_json), "md": str(out_md)},
+            ),
         }
         _write_reports(out_json, out_md, payload)
         print("validate_canonical status=skip reason=skipped_missing_data")
@@ -313,6 +351,12 @@ def main() -> int:
             "violations": [{"type": "load", "code": "read_failure", "severity": "critical"}],
             "column_stats": {},
             "invariant_summary": {},
+            "run_summary": build_run_summary(
+                run_type="validate_canonical",
+                inputs={"source": str(in_path), "nan_threshold": float(args.nan_threshold), "db": str(args.db or "")},
+                metrics={"status": "fail", "violation_count": 1, "row_count": 0},
+                artifacts={"json": str(out_json), "md": str(out_md)},
+            ),
         }
         _write_reports(out_json, out_md, payload)
         print(f"validate_canonical status=fail reason=read_failure err={exc}")
@@ -328,6 +372,16 @@ def main() -> int:
         "column_stats": res.column_stats,
         "invariant_summary": res.invariant_summary,
         "notes": res.notes,
+        "run_summary": build_run_summary(
+            run_type="validate_canonical",
+            inputs={"source": str(in_path), "nan_threshold": float(args.nan_threshold), "db": str(args.db or "")},
+            metrics={
+                "status": res.status,
+                "violation_count": len(res.violations),
+                "row_count": int(res.invariant_summary.get("rows", 0) or 0),
+            },
+            artifacts={"json": str(out_json), "md": str(out_md)},
+        ),
     }
     _write_reports(out_json, out_md, payload)
     print(f"validate_canonical status={res.status} run_id={run_id} violations={len(res.violations)}")

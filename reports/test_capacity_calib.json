@@ -38,5 +38,26 @@
       "forward_pass_rate_p50": 0.0,
       "forward_pass_rate_p75": 0.0
     }
-  ]
+  ],
+  "run_summary": {
+    "version": "v1",
+    "run_type": "calibrate_capacity_thresholds",
+    "inputs": {
+      "candidates_md": "reports/dummy.md",
+      "db": "data/microstructure.db",
+      "min_n": 50,
+      "grid": [
+        0.0005,
+        0.003
+      ]
+    },
+    "metrics": {
+      "candidate_count": 2,
+      "row_count": 2
+    },
+    "artifacts": {
+      "json": "reports\\test_capacity_calib.json",
+      "md": "reports\\test_capacity_calib.md"
+    }
+  }
 }

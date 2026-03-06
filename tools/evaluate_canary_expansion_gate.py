@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
+from tools.run_summary import build_run_summary
 
 @dataclass
 class DailyScore:
@@ -91,6 +92,8 @@ def _render_md(payload: Dict[str, Any]) -> str:
     lines.append("## Policy")
     lines.append("- GO only if all observed days in window have top_score below threshold and coverage is full.")
     lines.append("- HOLD otherwise; keep canary only and continue daily calibration.")
+    if isinstance(payload.get("run_summary"), dict):
+        lines.extend(["", "## Run Summary", f"- `{payload['run_summary']}`"])
     lines.append("")
     return "\n".join(lines)
 
@@ -118,6 +121,12 @@ def main() -> int:
     out_md = Path(str(args.out_md))
     out_json.parent.mkdir(parents=True, exist_ok=True)
     out_md.parent.mkdir(parents=True, exist_ok=True)
+    payload["run_summary"] = build_run_summary(
+        run_type="evaluate_canary_expansion_gate",
+        inputs={"report_dir": str(args.report_dir), "window_days": int(args.window_days), "max_top_score": float(args.max_top_score)},
+        metrics={"passed": bool(passed), "days_observed": int(gate.get("days_observed", 0))},
+        artifacts={"json": str(out_json), "md": str(out_md)},
+    )
     out_json.write_text(json.dumps(payload, ensure_ascii=True, indent=2), encoding="utf-8")
     out_md.write_text(_render_md(payload), encoding="utf-8")
     print(
@@ -130,4 +139,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

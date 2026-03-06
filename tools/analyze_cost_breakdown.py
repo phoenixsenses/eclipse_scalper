@@ -31,6 +31,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+from tools.run_summary import build_run_summary
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger(__name__)
@@ -345,13 +346,18 @@ def main() -> int:
         "closest_to_breakeven_fee": _top5_gap("gap_to_breakeven_fee_bps", "break_even_fee_bps"),
         "closest_to_breakeven_adv": _top5_gap("gap_to_breakeven_adv_mult", "break_even_adv_mult"),
     }
-
     out_json = Path(args.out_json)
+    out_md = Path(args.out_md)
+    out["run_summary"] = build_run_summary(
+        run_type="analyze_cost_breakdown",
+        inputs={"source_json": str(rank_path)},
+        metrics={"n_pockets": len(analyzed)},
+        artifacts={"json": str(out_json), "md": str(out_md)},
+    )
     out_json.parent.mkdir(parents=True, exist_ok=True)
     out_json.write_text(json.dumps(out, indent=2), encoding="utf-8")
     log.info("wrote %s", out_json)
 
-    out_md = Path(args.out_md)
     out_md.parent.mkdir(parents=True, exist_ok=True)
     out_md.write_text(_render_md(analyzed, str(rank_path)), encoding="utf-8")
     log.info("wrote %s", out_md)

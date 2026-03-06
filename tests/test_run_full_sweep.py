@@ -57,9 +57,9 @@ def test_run_full_sweep_builds_rank_command_and_manifest(monkeypatch) -> None:
         mf = out_dir / "manifest.json"
         assert mf.exists()
         obj = json.loads(mf.read_text(encoding="utf-8"))
+        assert obj["run_summary"]["run_type"] == "run_full_sweep"
         jobs = obj.get("jobs", [])
         assert len(jobs) == 1
         assert int(jobs[0].get("rc", 1)) == 0
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
-

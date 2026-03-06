@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sys
 import math
 from pathlib import Path
@@ -75,6 +76,8 @@ def test_validate_pocket_forward_deterministic(monkeypatch) -> None:
     assert a["rows_total"] == b["rows_total"]
     assert a["pass_count"] == b["pass_count"]
     assert a["per_combo"] == b["per_combo"]
+    assert a["run_summary"]["run_type"] == "validate_passive_pocket_forward"
+    assert a["run_summary"]["metrics"]["rows_total"] == a["rows_total"]
     assert "failure_attribution_median" in a
     assert "failure_attribution_per_split" in a
     assert isinstance(a["failure_attribution_per_split"], list)
@@ -251,6 +254,8 @@ def test_effective_min_n_without_fraction(monkeypatch) -> None:
 
 def test_main_prints_min_n_frac_dominance_warning(monkeypatch, capsys) -> None:
     fake = {
+        "symbol": "ETHUSDT",
+        "horizon_sec": 60,
         "rows_total": 2,
         "pass_count": 0,
         "pass_rate": 0.0,
@@ -259,6 +264,7 @@ def test_main_prints_min_n_frac_dominance_warning(monkeypatch, capsys) -> None:
         "frac_min_component_median": 212,
         "effective_min_n_median": 212,
         "per_split": [],
+        "failure_attribution_median": {},
         "per_combo": [
             {
                 "seed": 11,
@@ -301,6 +307,13 @@ def test_main_prints_min_n_frac_dominance_warning(monkeypatch, capsys) -> None:
                 "pass": False,
             },
         ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "validate_passive_pocket_forward",
+            "inputs": {},
+            "metrics": {"rows_total": 2, "pass_count": 0, "pass_rate": 0.0, "insufficient_fill_rate": 1.0},
+            "artifacts": {},
+        },
     }
     monkeypatch.setattr(vf, "validate_pocket_forward", lambda **kwargs: fake)
     monkeypatch.setattr(
@@ -310,6 +323,8 @@ def test_main_prints_min_n_frac_dominance_warning(monkeypatch, capsys) -> None:
             "x",
             "--out-md",
             "reports/test_validate_forward_minfrac.md",
+            "--out-json",
+            "reports/test_validate_forward_minfrac.json",
             "--min-n",
             "50",
             "--min-n-frac",
@@ -319,6 +334,9 @@ def test_main_prints_min_n_frac_dominance_warning(monkeypatch, capsys) -> None:
     rc = vf.main()
     out = capsys.readouterr().out
     assert rc == 0
+    payload = json.loads(Path("reports/test_validate_forward_minfrac.json").read_text(encoding="utf-8"))
+    assert payload["run_summary"]["artifacts"]["json"].endswith("test_validate_forward_minfrac.json")
+    assert payload["run_summary"]["artifacts"]["md"].endswith("test_validate_forward_minfrac.md")
     assert "effective_min_n formula" in out
     assert "WARNING min_n_frac dominates" in out
 

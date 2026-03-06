@@ -1,0 +1,45 @@
+{
+  "hash": "24bf14c0f389677e9e79ab041fe70472a6da31c9e37d89ffae1e2f30fa636fe6",
+  "profile": {
+    "ACTIVE_SYMBOLS": "",
+    "BINANCE_RECV_WINDOW": "",
+    "DEFAULT_TYPE": "",
+    "ENTRY_ADAPTIVE_GUARD_ENABLED": "",
+    "ENTRY_ALLOW_UNKNOWN_REGIME": "",
+    "ENTRY_LOOP_MODE": "",
+    "ENTRY_MICRO_SIGNAL_ENABLED": "",
+    "ENTRY_MIN_CONFIDENCE": "",
+    "ENTRY_REGIME": "",
+    "ENTRY_REGIME_RISK_ENABLED": "",
+    "ENTRY_REGIME_WARMUP_SEC": "",
+    "EXCHANGE": "",
+    "MICRO_SIGNAL_ALLOW_UNKNOWN_REGIME": "",
+    "MICRO_SIGNAL_BUCKET_SEC": "",
+    "MICRO_SIGNAL_DB": "",
+    "MICRO_SIGNAL_LOOKBACK_SEC": "",
+    "MICRO_SIGNAL_REGIME_WARMUP_SEC": "",
+    "MICRO_SIGNAL_REQUIRE_REGIME": "",
+    "MICRO_SIGNAL_SYMBOL": "",
+    "NOTIFY_ENABLED": "",
+    "NOTIFY_HEARTBEAT": "",
+    "NOTIFY_SEND_TIMEOUT_SEC": "",
+    "SCALPER_DRY_RUN": "1"
+  },
+  "run_summary": {
+    "artifacts": {
+      "json": "reports\\test_freeze_runtime_profile\\out.json",
+      "md": "reports\\test_freeze_runtime_profile\\out.md"
+    },
+    "inputs": {
+      "enforce": false,
+      "write_lock": true
+    },
+    "metrics": {
+      "hash_changed": false,
+      "profile_key_count": 23
+    },
+    "run_type": "freeze_runtime_profile",
+    "version": "v1"
+  },
+  "ts_utc": "2026-03-06T13:43:36Z"
+}

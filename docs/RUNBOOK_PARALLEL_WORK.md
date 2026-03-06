@@ -3,6 +3,12 @@
 ## Scope
 This runbook covers safe development while `tools.rank_passive_pockets_forward` sweeps are running. It is additive-only and avoids corrupting active experiment outputs.
 
+Related workflow docs:
+
+- `docs/GITHUB_COLLAB_SYSTEM.md`
+- `docs/TEAM_OWNERSHIP.md`
+- `docs/WORKTREE_SETUP.md`
+
 ## Safety Rules
 - Do not mutate `reports/_runs/` outputs produced by active sweeps.
 - Do not overwrite `reports/RUN_RANK_SWEEP_REGISTRY.jsonl` from another branch/worktree.
@@ -10,17 +16,21 @@ This runbook covers safe development while `tools.rank_passive_pockets_forward` 
 - Keep research outputs branch-local when possible (new filenames or new run folder).
 
 ## Branch Strategy
-- Create one feature branch per layer:
-  - `feat/data-integrity-*`
-  - `feat/signal-guards-*`
-  - `feat/passive-diagnostics-*`
-  - `feat/reporting-schema-*`
+- Use lane branches first:
+  - `codex/research-mainline`
+  - `codex/runtime-mainline`
+  - `codex/shared-mainline`
+- Create one task branch per change:
+  - `codex/research/<topic>`
+  - `codex/runtime/<topic>`
+  - `codex/shared/<topic>`
 - Rebase frequently on main branch tip.
 - Never force-push shared branches used by multiple contributors.
 
 PowerShell:
 ```powershell
-git checkout -b feat/passive-diagnostics-v2
+git checkout codex/research-mainline
+git checkout -b codex/research/passive-diagnostics-v2
 git status
 ```
 

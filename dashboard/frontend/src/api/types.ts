@@ -133,6 +133,106 @@ export interface RuntimeStatus {
   system?: Record<string, unknown>;
 }
 
+export interface LiveAlertConfig {
+  trade_age_alert_sec?: number;
+  fill_flatline_alert_min?: number;
+}
+
+export interface LiveAlertState {
+  any_alert?: boolean;
+  trade_age_alert?: boolean;
+  fill_flatline_alert?: boolean;
+  trade_age_sec?: number | null;
+  fill_age_min?: number | null;
+  config?: LiveAlertConfig;
+}
+
+export interface LivePnlStrip {
+  today?: number;
+  h24?: number;
+  d7?: number;
+  sample?: number;
+}
+
+export interface LiveFillQuality {
+  avg_delay_ms?: number | null;
+  avg_adverse_bps?: number | null;
+  with_delay?: number;
+  with_adverse?: number;
+}
+
+export interface LiveTailKpis {
+  window_lines?: number;
+  order_count?: number;
+  fill_count?: number;
+  blocked_count?: number;
+  fill_per_order_pct?: number | null;
+}
+
+export interface LiveFillRow {
+  ts?: string | null;
+  symbol?: string | null;
+  side?: string | null;
+  price?: string | null;
+  qty?: string | null;
+  pnl?: string | null;
+  ts_ms?: number | null;
+  pnl_num?: number | null;
+  delay_ms?: number | null;
+  adverse_bps?: number | null;
+}
+
+export interface LiveReasonRow {
+  reason: string;
+  count: number;
+}
+
+export interface LiveTrendSeries {
+  trades_per_sec?: number[];
+  fills_tail?: number[];
+}
+
+export interface LiveMetricsResponse {
+  ts_utc?: string;
+  runtime?: RuntimeStatus;
+  scoreboard?: Scoreboard;
+  pnl_strip?: LivePnlStrip;
+  fill_quality?: LiveFillQuality;
+  tail_kpis?: LiveTailKpis;
+  blocked_reasons?: LiveReasonRow[];
+  last_fills?: LiveFillRow[];
+  alerts?: LiveAlertState;
+  trends?: LiveTrendSeries;
+  paper_file?: string | null;
+}
+
+export interface LiveMonitorTestsStatusResponse {
+  ts_utc?: string;
+  state?: string;
+  stage?: string;
+  message?: string;
+  strict_mode?: boolean;
+  backend_ok?: boolean;
+  frontend_typecheck_ok?: boolean;
+  frontend_smoke_ok?: boolean;
+  frontend_smoke_skipped?: boolean;
+  pid?: number | null;
+  run_command?: string;
+  log_path?: string | null;
+  status_path?: string | null;
+  status_age_sec?: number | null;
+  log_tail?: string[];
+}
+
+export interface LiveMonitorTestsRunResponse {
+  ok?: boolean;
+  started?: boolean;
+  pid?: number | null;
+  script?: string;
+  runner_log?: string;
+  command?: string;
+}
+
 export interface OverviewResponse {
   scoreboard?: Scoreboard;
   gates?: GatesSummaryResponse;

@@ -1140,7 +1140,28 @@ It explains how alpha decisions, sizing/leverage controls, correlation caps, and
 - Incident review template:
   - `.github/ISSUE_TEMPLATE/reliability_incident_review.md`
 
-The new chaos scenario test suite (`tools/test_execution_chaos_scenarios.py`) is wired into CI so timeout/duplicate/partial-fill and reconcile contradiction paths are checked on each push/PR.
+The new chaos scenario test suite (`tests/legacy_tools/test_execution_chaos_scenarios.py`) is wired into CI so timeout/duplicate/partial-fill and reconcile contradiction paths are checked on each push/PR.
+
+---
+
+## Tooling Contract
+
+Research and runtime report producers now follow a shared JSON contract:
+
+- JSON-producing tools should emit `run_summary`
+- `run_summary` contains `version`, `run_type`, `inputs`, `metrics`, and `artifacts`
+- bulk validation is available through `python -m tools.report_check`
+- inventory/audit is available through `python -m tools.tooling_audit`
+
+Useful commands:
+
+```bash
+python -m tools.report_check --inputs reports/*.json --out-json reports/REPORT_CHECK.json
+python -m tools.tooling_audit --out-json reports/TOOL_MANIFEST.json --out-md docs/TOOLING_AUDIT.md
+python -m tools.smoke_all --db data/definitely_missing_for_smoke.db
+```
+
+The active audit snapshot is kept in `docs/TOOLING_AUDIT.md`.
 
 ---
 
@@ -1155,26 +1176,26 @@ python tools/run_unit_tests.py
 Run the new exit-telemetry helper test directly when you touch `execution.exit`:
 
 ```bash
-python tools/test_exit_telemetry_helper_unit.py
+python tests/legacy_tools/test_exit_telemetry_helper_unit.py
 ```
 
 Recent targeted tests added for telemetry/sizing/exit behavior:
 
 ```bash
-python tools/test_adaptive_guard_unit.py
-python tools/test_entry_qty_scale_unit.py
-python tools/test_entry_conf_scale_unit.py
-python tools/test_entry_symbol_sizing_unit.py
-python tools/test_corr_group_exposure_scale_unit.py
-python tools/test_exit_atr_scale_unit.py
-python tools/test_exit_symbol_overrides_unit.py
-python tools/test_exit_quality_dashboard_unit.py
-python tools/test_position_closed_unit.py
+python tests/legacy_tools/test_adaptive_guard_unit.py
+python tests/legacy_tools/test_entry_qty_scale_unit.py
+python tests/legacy_tools/test_entry_conf_scale_unit.py
+python tests/legacy_tools/test_entry_symbol_sizing_unit.py
+python tests/legacy_tools/test_corr_group_exposure_scale_unit.py
+python tests/legacy_tools/test_exit_atr_scale_unit.py
+python tests/legacy_tools/test_exit_symbol_overrides_unit.py
+python tests/legacy_tools/test_exit_quality_dashboard_unit.py
+python tests/legacy_tools/test_position_closed_unit.py
 ```
 Run a single test:
 
 ```bash
-python tools/test_diagnostics_unit.py
+python tests/legacy_tools/test_diagnostics_unit.py
 ```
 
 ## Microstructure Physics Layer (Phase 1)
@@ -1825,6 +1846,35 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\run_dashboard_fronte
 - `Logs` file selection loads lines; preset filters work.
 - `Debug` guided session runs and shows pass/fail steps.
 
+## Team Workflow
+
+Two-person parallel work is now standardized in-repo.
+
+Core docs:
+
+- `docs/GITHUB_COLLAB_SYSTEM.md`
+- `docs/TEAM_OWNERSHIP.md`
+- `docs/WORKTREE_SETUP.md`
+- `docs/RUNBOOK_PARALLEL_WORK.md`
+
+Lane split:
+
+- `research`: `data/`, `features/`, `strategies/`, `tools/`, `tests/`
+- `runtime`: `execution/`, `risk/`, `bot/`, `exchanges/`, `notifications/`, `dashboard/`, `monitoring/`
+- `shared`: `config/`, `docs/`, `README.md`, `.github/`, `scripts/`
+
+Recommended local branches:
+
+- `codex/research-mainline`
+- `codex/runtime-mainline`
+- `codex/shared-mainline`
+
+Helper setup:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup_parallel_worktrees.ps1 -CreateShared
+```
+
 
 
 ## Network Troubleshooting (Operational Resilience)
@@ -1849,3 +1899,4 @@ If websocket connectivity to Binance is unstable (common under ISP routing issue
 4. Optional proxy/VPN fallback (if regional WS blocking is suspected):
    - Route websocket traffic through a stable SOCKS5/VPN endpoint.
    - Validate with long-run collector uptime and reconnect count in health reports.
+

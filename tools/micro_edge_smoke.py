@@ -15,6 +15,26 @@ from tools.micro_edge_lib import (
     signal_aligned_labels,
     utc_now_iso,
 )
+from tools.run_summary import build_run_summary
+
+
+def _normalize_rule_summary(rules: Dict[str, Any]) -> Dict[str, Dict[str, Optional[float] | int]]:
+    out: Dict[str, Dict[str, Optional[float] | int]] = {}
+    for key, value in (rules or {}).items():
+        if not isinstance(value, dict):
+            continue
+        try:
+            n = int(value.get("n", 0) or 0)
+        except Exception:
+            n = 0
+        hit_rate = value.get("hit_rate")
+        delta = value.get("delta_vs_baseline")
+        out[str(key)] = {
+            "hit_rate": (None if hit_rate is None else float(hit_rate)),
+            "n": n,
+            "delta_vs_baseline": (None if delta is None else float(delta)),
+        }
+    return out
 
 
 def _parse_symbols(raw: str) -> List[str]:
@@ -158,7 +178,21 @@ def build_json_record(
     horizon_sec: int,
     min_rule_n: int = 100,
 ) -> Dict[str, Any]:
-    return {
+    label_definition = dict(rep.get("label_definition") or {})
+    label_definition.setdefault("timing", "signal at t, entry at t+1 mark, exit at t+1+h mark")
+    label_definition.setdefault("label", "sign((mark[t+1+h]/mark[t+1])-1) with threshold")
+    label_definition.setdefault("horizon_steps", int(max(1, round(float(horizon_sec) / max(1, bucket_sec)))))
+    label_definition.setdefault("threshold", 0.0002)
+    label_definition.setdefault("label_values", {"up": 1, "flat": 0, "down": -1})
+    label_definition.setdefault(
+        "hit_definition",
+        "rule hit_rate = predicted directional sign matches label sign on non-flat labels",
+    )
+    label_definition.setdefault(
+        "baseline_definition",
+        "majority directional class accuracy over non-flat labels",
+    )
+    record = {
         "ts_utc": utc_now_iso(),
         "symbol": rep.get("symbol"),
         "lookback_min": int(lookback_min),
@@ -174,16 +208,27 @@ def build_json_record(
         "baseline_hit_rate": rep.get("baseline_hit_rate"),
         "min_rule_n": int(min_rule_n),
         "correlations": rep.get("feature_corr", {}),
-        "naive_rules": {
-            k: {
-                "hit_rate": (v.get("hit_rate") if isinstance(v, dict) else None),
-                "n": (v.get("n") if isinstance(v, dict) else None),
-                "delta_vs_baseline": (v.get("delta_vs_baseline") if isinstance(v, dict) else None),
-            }
-            for k, v in (rep.get("rules", {}) or {}).items()
-        },
-        "label_definition": rep.get("label_definition"),
+        "naive_rules": _normalize_rule_summary(rep.get("rules", {})),
+        "label_definition": label_definition,
     }
+    record["run_summary"] = build_run_summary(
+        run_type="micro_edge_smoke",
+        inputs={
+            "symbol": record["symbol"],
+            "lookback_min": int(lookback_min),
+            "bucket_sec": int(bucket_sec),
+            "horizon_sec": int(horizon_sec),
+            "min_rule_n": int(min_rule_n),
+        },
+        metrics={
+            "raw_rows": record["raw_rows"],
+            "bucket_rows": record["bucket_rows"],
+            "baseline_hit_rate": record["baseline_hit_rate"],
+            "rule_count": len(record["naive_rules"]),
+        },
+        artifacts={},
+    )
+    return record
 
 
 def _parse_args() -> argparse.Namespace:

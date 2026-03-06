@@ -1,7 +1,7 @@
 ﻿# Execution Reliability System Summary
 
 This document explains the current execution reliability architecture as implemented in the repo.  
-Primary anchors: `docs/execution_reliability.md`, `docs/execution_principles.md`, `execution/reconcile.py`, `execution/order_router.py`, `tools/test_belief_controller_unit.py`, `tools/test_order_router_unit.py`.
+Primary anchors: `docs/execution_reliability.md`, `docs/execution_principles.md`, `execution/reconcile.py`, `execution/order_router.py`, `tests/legacy_tools/test_belief_controller_unit.py`, `tests/legacy_tools/test_order_router_unit.py`.
 
 ## Why this exists
 
@@ -30,18 +30,18 @@ The following invariants are the system contract under stress.
 
 - Entry safety rails are scoped to entry paths; router leverage clamps use `is_exit=False` gating (`execution/order_router.py`).
 - Exit-like intents (reduce-only, stop, TP) are modeled as always allowed in controller intent logic (`execution/belief_controller.py`).
-- Tests: exit paths bypass entry caps in `tools/test_order_router_unit.py` (`test_first_live_safe_caps_not_applied_to_exits`, `test_resolve_leverage_applies_belief_guard_cap_for_entries_only`).
+- Tests: exit paths bypass entry caps in `tests/legacy_tools/test_order_router_unit.py` (`test_first_live_safe_caps_not_applied_to_exits`, `test_resolve_leverage_applies_belief_guard_cap_for_entries_only`).
 
 ### Cancel is idempotent
 
 - `cancel_order` treats unknown/already-gone as success, with a best-effort status conflict check to reject false positives when order is still open (`execution/order_router.py`).
-- Tests: `test_all_unknown_is_success`, `test_unknown_cancel_with_open_fetch_order_is_not_success` in `tools/test_order_router_unit.py`.
+- Tests: `test_all_unknown_is_success`, `test_unknown_cancel_with_open_fetch_order_is_not_success` in `tests/legacy_tools/test_order_router_unit.py`.
 
 ### No infinite loops
 
 - Router retries are bounded by attempt count and elapsed-time ceiling (`ROUTER_RETRY_MAX_ELAPSED_SEC`) in `execution/order_router.py`.
 - Cancel/replace attempts are bounded and emit a terminal give-up event.
-- Tests: `test_retry_max_elapsed_caps_attempts`, `test_cancel_replace_is_bounded_when_cancel_fails` in `tools/test_order_router_unit.py`.
+- Tests: `test_retry_max_elapsed_caps_attempts`, `test_cancel_replace_is_bounded_when_cancel_fails` in `tests/legacy_tools/test_order_router_unit.py`.
 
 ### Local state can be rebuilt from exchange state
 
@@ -51,7 +51,7 @@ The following invariants are the system contract under stress.
 ### Risk exposure decreases monotonically as belief degrades
 
 - Belief controller maps debt score to lower notional/leverage and higher confidence/cooldown constraints (`execution/belief_controller.py`).
-- Test proof: `test_monotone_risk_mapping` in `tools/test_belief_controller_unit.py`.
+- Test proof: `test_monotone_risk_mapping` in `tests/legacy_tools/test_belief_controller_unit.py`.
 
 ## 3) Belief state and belief debt
 
@@ -80,13 +80,13 @@ In controller:
 - `debt_score = debt_sec / BELIEF_DEBT_REF_SEC + debt_symbols * BELIEF_SYMBOL_WEIGHT + mismatch_streak * BELIEF_STREAK_WEIGHT`
 - `debt_growth_per_min` is computed from score slope between updates
 
-Growth rate captures bursts that should trigger protective posture before absolute debt fully accumulates (`execution/belief_controller.py`, `tools/test_belief_controller_unit.py` `test_growth_burst_trips_red`).
+Growth rate captures bursts that should trigger protective posture before absolute debt fully accumulates (`execution/belief_controller.py`, `tests/legacy_tools/test_belief_controller_unit.py` `test_growth_burst_trips_red`).
 
 ### How debt is surfaced
 
 - Raw telemetry events: `execution.belief_state`, `reconcile.summary` (`execution/reconcile.py`)
 - Dashboard and summary tooling consume these events: `tools/telemetry_dashboard_page.py`, `tools/telemetry_alert_summary.py`, `tools/telemetry_dashboard_notify.py`
-- Unit coverage for telemetry parsing exists in `tools/test_telemetry_belief_state_unit.py`
+- Unit coverage for telemetry parsing exists in `tests/legacy_tools/test_telemetry_belief_state_unit.py`
 
 ## 4) Reconcile mechanics
 
@@ -148,14 +148,14 @@ Controller outputs `GuardKnobs` with:
 - Downward transitions require lower hysteresis threshold and sustained recovery window.
 - Growth bursts can force RED even before high absolute debt.
 
-Tests: `test_hysteresis_prevents_flapping`, `test_growth_burst_trips_red` in `tools/test_belief_controller_unit.py`.
+Tests: `test_hysteresis_prevents_flapping`, `test_growth_burst_trips_red` in `tests/legacy_tools/test_belief_controller_unit.py`.
 
 ### Critical scope rule: entry-only application
 
 Guard knobs constrain exposure expansion. Exit/protection flows remain exempt:
 
 - Router applies belief leverage cap only when `is_exit=False` (`execution/order_router.py`).
-- Exit invariant is verified by tests in `tools/test_order_router_unit.py`.
+- Exit invariant is verified by tests in `tests/legacy_tools/test_order_router_unit.py`.
 
 ## 6) Router hardening
 
@@ -183,7 +183,7 @@ Router telemetry scheduling includes safe coroutine cleanup when no active loop 
 
 ### Belief controller tests
 
-`tools/test_belief_controller_unit.py` verifies:
+`tests/legacy_tools/test_belief_controller_unit.py` verifies:
 
 - monotonic risk mapping as debt rises
 - hysteresis behavior to avoid mode flapping
@@ -192,7 +192,7 @@ Router telemetry scheduling includes safe coroutine cleanup when no active loop 
 
 ### Router tests
 
-`tools/test_order_router_unit.py` verifies:
+`tests/legacy_tools/test_order_router_unit.py` verifies:
 
 - idempotent cancel semantics for unknown/already-gone orders
 - open-status conflict rejection on unknown cancel responses
@@ -204,8 +204,8 @@ Router telemetry scheduling includes safe coroutine cleanup when no active loop 
 
 Core commands used for this reliability slice:
 
-- `pytest -q tools/test_belief_controller_unit.py`
-- `pytest -q tools/test_order_router_unit.py`
+- `pytest -q tests/legacy_tools/test_belief_controller_unit.py`
+- `pytest -q tests/legacy_tools/test_order_router_unit.py`
 - `pytest -q` (full suite)
 
 Passing means these invariants are executable checks, not doctrine-only statements.
@@ -247,11 +247,12 @@ If these are consistent, the system is handling uncertainty as designed; if not,
 - Debt computation and reconcile telemetry: `execution/reconcile.py`
 - Policy transformation and hysteresis: `execution/belief_controller.py`
 - Entry-only router clamps and idempotent cancel behavior: `execution/order_router.py`
-- Controller invariant tests: `tools/test_belief_controller_unit.py`
-- Router idempotency/retry/exit-scope tests: `tools/test_order_router_unit.py`
+- Controller invariant tests: `tests/legacy_tools/test_belief_controller_unit.py`
+- Router idempotency/retry/exit-scope tests: `tests/legacy_tools/test_order_router_unit.py`
 
 ## 11) Known boundaries and explicit inferences
 
 - The controller currently consumes aggregate debt metrics, not a direct per-symbol "worst symbols" vector.
 - Current reconcile implementation is primarily REST-snapshot driven; this summary does not claim a dedicated weighted multi-sensor fusion module because none is present in the referenced anchors.
 - Where behavior is inferred (for example, how downstream loops consume knobs beyond router scope), inference is based on available callsites and tests, not undocumented assumptions.
+

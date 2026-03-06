@@ -101,5 +101,7 @@ def test_optimize_fill_timeout_roundtrip() -> None:
         assert "ENTRY_WATCH_MAX_AGE_SEC=20" in env.read_text(encoding="utf-8")
         assert out_md.exists()
         assert out_json.exists()
+        payload = json.loads(out_json.read_text(encoding="utf-8"))
+        assert payload["run_summary"]["run_type"] == "optimize_fill_timeout"
     finally:
         shutil.rmtree(tmp, ignore_errors=True)

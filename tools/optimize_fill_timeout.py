@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
+from tools.run_summary import build_run_summary
 
 def _safe_float(v: Any, default: float = 0.0) -> float:
     try:
@@ -201,6 +202,12 @@ def main() -> int:
         "reason": str(rec.reason),
         "applied": bool(applied),
     }
+    report["run_summary"] = build_run_summary(
+        run_type="optimize_fill_timeout",
+        inputs={"analysis_json": str(analysis_path), "env_file": str(env_path), "apply": bool(args.apply)},
+        metrics={"recommended": int(rec.recommended), "current": int(current) if current is not None else None, "applied": bool(applied)},
+        artifacts={"json": str(out_json), "md": str(out_md)},
+    )
     out_md.parent.mkdir(parents=True, exist_ok=True)
     out_json.parent.mkdir(parents=True, exist_ok=True)
     out_json.write_text(json.dumps(report, ensure_ascii=True, sort_keys=True, indent=2) + "\n", encoding="utf-8")

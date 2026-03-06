@@ -66,3 +66,24 @@ def test_summarize_rank_attribution_output(capsys, monkeypatch) -> None:
     assert "fees_dominate: 2/3" in out
     assert "Next action: fees dominate" in out
 
+
+def test_summarize_rank_attribution_writes_json(monkeypatch) -> None:
+    p = Path("reports/test_rank_attribution_input_out.json")
+    out_json = Path("reports/test_rank_attribution_summary.json")
+    p.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "count": 2,
+        "ranking": [
+            {"symbol": "ETHUSDT", "failure_reason_top": "fees_dominate", "gate_reject_ratio": 0.1},
+            {"symbol": "BTCUSDT", "failure_reason_top": "mixed", "gate_reject_ratio": 0.7},
+        ],
+    }
+    p.write_text(json.dumps(payload), encoding="utf-8")
+    monkeypatch.setattr(sys, "argv", ["x", "--in", str(p), "--top-n", "1", "--out-json", str(out_json)])
+    rc = sra.main()
+    assert rc == 0
+    summary = json.loads(out_json.read_text(encoding="utf-8"))
+    assert summary["rows_total"] == 2
+    assert summary["top_n"] == 1
+    assert summary["run_summary"]["run_type"] == "summarize_rank_attribution"
+    assert summary["run_summary"]["artifacts"]["json"].endswith("test_rank_attribution_summary.json")

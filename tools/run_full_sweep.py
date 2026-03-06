@@ -9,6 +9,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
+from tools.run_summary import build_run_summary
 
 def _args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Day-60 full sweep orchestrator.")
@@ -115,6 +116,12 @@ def main() -> int:
                 print(f"[sweep] done {j['id']} rc={rc}")
                 results.append({"id": j["id"], "rc": int(rc), "out_json": j["out_json"], "out_md": j["out_md"]})
     manifest = {"generated_ts": int(time.time()), "jobs": results}
+    manifest["run_summary"] = build_run_summary(
+        run_type="run_full_sweep",
+        inputs={"candidates_md": str(args.candidates_md), "symbols": str(args.symbols), "workers": int(args.workers)},
+        metrics={"job_count": len(results), "success_count": sum(1 for r in results if int(r["rc"]) == 0)},
+        artifacts={"json": str(out_dir / "manifest.json")},
+    )
     mf = out_dir / "manifest.json"
     mf.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     print(f"[sweep] wrote {mf}")

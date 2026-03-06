@@ -35,5 +35,21 @@
       "expected_fills_per_split": 42.5,
       "prob_fail_insufficient_fills": 0.5
     }
-  ]
+  ],
+  "run_summary": {
+    "version": "v1",
+    "run_type": "triage_capacity",
+    "inputs": {
+      "candidates_md": "reports/dummy.md",
+      "db": "data/microstructure.db",
+      "mitigation_profile": "anti_adverse_v3"
+    },
+    "metrics": {
+      "candidate_count": 1,
+      "row_count": 1
+    },
+    "artifacts": {
+      "json": "reports\\test_triage_capacity_gate_a.json"
+    }
+  }
 }

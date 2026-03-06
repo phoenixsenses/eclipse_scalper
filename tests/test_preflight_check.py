@@ -60,6 +60,7 @@ def test_preflight_passes_with_fresh_db(monkeypatch) -> None:
         assert pf.main() == 0
         payload = json.loads(out_json.read_text(encoding="utf-8"))
         assert payload["ok"] is True
+        assert payload["run_summary"]["run_type"] == "preflight_check"
         assert out_md.exists()
     finally:
         monkeypatch.chdir(cwd)

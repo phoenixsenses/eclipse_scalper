@@ -34,6 +34,7 @@ from typing import Any, Dict, List, Optional, Tuple
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from tools.micro_edge_lib import build_bucket_features, compute_rule_thresholds, rule_fires
+from tools.run_summary import build_run_summary
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger(__name__)
@@ -437,6 +438,8 @@ def _render_md(result: Dict[str, Any]) -> str:
                 )
         lines.append("")
 
+    if isinstance(result.get("run_summary"), dict):
+        lines += ["## Run Summary", f"- `{result['run_summary']}`", ""]
     return "\n".join(lines) + "\n"
 
 
@@ -482,13 +485,26 @@ def main() -> int:
         horizon_sec=int(args.horizon_sec),
         side=str(args.side),
     )
-
     out_json = Path(args.out_json)
+    out_md = Path(args.out_md)
+    result["run_summary"] = build_run_summary(
+        run_type="fit_adverse_model",
+        inputs={
+            "db": str(args.db),
+            "symbols": symbols,
+            "lookback_min": int(args.lookback_min),
+            "bucket_sec": int(args.bucket_sec),
+            "rule": str(args.rule),
+            "horizon_sec": int(args.horizon_sec),
+            "side": str(args.side),
+        },
+        metrics={"symbol_count": len(symbols), "error_count": sum(1 for v in result.get("per_symbol", {}).values() if isinstance(v, dict) and "error" in v)},
+        artifacts={"json": str(out_json), "md": str(out_md)},
+    )
     out_json.parent.mkdir(parents=True, exist_ok=True)
     out_json.write_text(json.dumps(result, indent=2), encoding="utf-8")
     log.info("wrote %s", out_json)
 
-    out_md = Path(args.out_md)
     out_md.parent.mkdir(parents=True, exist_ok=True)
     out_md.write_text(_render_md(result), encoding="utf-8")
     log.info("wrote %s", out_md)

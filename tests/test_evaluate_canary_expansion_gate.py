@@ -47,3 +47,21 @@ def test_gate_hold_when_any_day_above_threshold() -> None:
     passed, detail = evaluate_gate(rows, window_days=7, max_top_score=0.5)
     assert passed is False
     assert bool(detail["score_ok"]) is False
+
+
+def test_main_writes_run_summary(monkeypatch) -> None:
+    tmp_path = _mk_tmp_dir()
+    for i in range(1, 8):
+        _write_daily(tmp_path / f"2026-03-0{i}_LIVE_FILL_DRIFT_ROOT_CAUSE.json", score=0.42)
+    out_json = tmp_path / "gate.json"
+    out_md = tmp_path / "gate.md"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["x", "--report-dir", str(tmp_path), "--window-days", "7", "--max-top-score", "0.5", "--out-json", str(out_json), "--out-md", str(out_md)],
+    )
+    from tools import evaluate_canary_expansion_gate as ecg
+
+    assert ecg.main() == 0
+    payload = json.loads(out_json.read_text(encoding="utf-8"))
+    assert payload["run_summary"]["run_type"] == "evaluate_canary_expansion_gate"

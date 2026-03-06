@@ -217,6 +217,11 @@ export default function Logs() {
   }, [filesPoll.error, filesPoll.isStale, logApiDegraded, forceFallback, sse.error, sse.isStale, sse.status, streaming]);
 
   async function openFile(name: string) {
+    if (!backend.backendUp) {
+      setSelected(name);
+      setTailError("Backend unavailable. Wait for API UP, then reload.");
+      return;
+    }
     const reqId = ++reqSeqRef.current;
     setStreaming(false);
     setSelected(name);
@@ -336,7 +341,7 @@ export default function Logs() {
   }, [level, lines, query]);
 
   useEffect(() => {
-    if (!compareMode || !selected) return undefined;
+    if (!backend.backendUp || !compareMode || !selected) return undefined;
     const panelFiles = [selected, ...multiFiles].filter(Boolean);
     let active = true;
 
@@ -366,7 +371,7 @@ export default function Logs() {
       active = false;
       window.clearInterval(id);
     };
-  }, [compareMode, selected, multiFiles, logApiDegraded, forceFallback]);
+  }, [backend.backendUp, compareMode, selected, multiFiles, logApiDegraded, forceFallback]);
 
   function applyLineFilter(source: string[]): string[] {
     const q = multiQuery.trim().toLowerCase();
@@ -675,13 +680,15 @@ export default function Logs() {
       )}
 
       <div className="card" style={{ padding: 8 }}>
-        <div className="card-title">Incident Session Registry</div>
+        <div className="card-title self-help" data-help="Incident kayit oturumu: triage adimlarini zaman cizelgesiyle kaydeder.">Incident Session Registry</div>
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           <span className={`badge ${incidentSessionId ? "badge-yellow" : "badge-gray"}`}>
             {incidentSessionId || "no active incident"}
           </span>
           {!incidentSessionId ? (
             <button
+              className="self-help"
+              data-help="Yeni incident oturumu baslatir."
               onClick={startIncidentSession}
               style={{
                 padding: "3px 8px",
@@ -696,6 +703,8 @@ export default function Logs() {
             </button>
           ) : (
             <button
+              className="self-help"
+              data-help="Aktif incident oturumunu kapatir."
               onClick={stopIncidentSession}
               style={{
                 padding: "3px 8px",
@@ -710,6 +719,8 @@ export default function Logs() {
             </button>
           )}
           <button
+            className="self-help"
+            data-help="Timeline listesini sifirlar."
             onClick={() => persistIncidentTimeline([])}
             style={{
               padding: "3px 8px",
@@ -749,7 +760,7 @@ export default function Logs() {
 
       <div style={{ display: "flex", gap: 16, height: "calc(100vh - 140px)" }}>
         <div className="card" style={{ width: 240, overflowY: "auto", flexShrink: 0 }}>
-          <div className="card-title">Log Files</div>
+          <div className="card-title self-help" data-help="Analiz etmek istedigin log dosyasini soldan sec.">Log Files</div>
           <AsyncState
             loading={filesPoll.isLoading}
             error={filesPoll.error}
@@ -782,6 +793,8 @@ export default function Logs() {
               <div style={{ display: "flex", gap: 8 }}>
                 {streaming ? (
                   <button
+                    className="self-help"
+                    data-help="Canli akis modunu durdurur ve ekrani dondurur."
                     onClick={stopStream}
                     style={{
                       padding: "2px 10px",
@@ -796,6 +809,8 @@ export default function Logs() {
                   </button>
                 ) : (
                   <button
+                    className="self-help"
+                    data-help="Canli log akisina gecer (tail)."
                     onClick={() => startStream(selected)}
                     style={{
                       padding: "2px 10px",
@@ -810,6 +825,8 @@ export default function Logs() {
                   </button>
                 )}
                 <button
+                className="self-help"
+                data-help="Tek seferlik yenileme: son satirlari tekrar ceker."
                 onClick={() => {
                   if (streaming) {
                     stopStream();
@@ -896,6 +913,8 @@ export default function Logs() {
                 />
               </span>
               <input
+                className="self-help"
+                data-help="Satirlarda serbest metin aramasi yapar."
                 value={query}
                 onChange={(e) => {
                   const v = e.target.value;
@@ -915,6 +934,8 @@ export default function Logs() {
                 }}
               />
               <select
+                className="self-help"
+                data-help="Log seviyesi filtresi (INFO/WARNING/ERROR/CRITICAL)."
                 value={level}
                 onChange={(e) => {
                   const v = e.target.value as Level;
@@ -938,6 +959,8 @@ export default function Logs() {
                 <option value="CRITICAL">CRITICAL</option>
               </select>
               <button
+                className="self-help"
+                data-help="Iki veya daha fazla log dosyasini yanyana karsilastirma modunu acar."
                 onClick={() => setCompareMode((v) => !v)}
                 style={{
                   padding: "4px 8px",
@@ -957,6 +980,8 @@ export default function Logs() {
                 </span>
               )}
               <button
+                className="self-help"
+                data-help="Degrade skorunu temizleyip normal polling moduna dondurur."
                 onClick={forceRecoverNow}
                 style={{
                   padding: "4px 8px",
@@ -971,6 +996,8 @@ export default function Logs() {
                 Force Recover
               </button>
               <button
+                className="self-help"
+                data-help="Fallback modunu manuel ac/kapat."
                 onClick={() => setForceFallback((v) => !v)}
                 style={{
                   padding: "4px 8px",
@@ -985,6 +1012,8 @@ export default function Logs() {
                 {forceFallback ? "Keep Fallback ON" : "Keep Fallback OFF"}
               </button>
               <button
+                className="self-help"
+                data-help="Log API gecikme/tail istatistiklerini gosterir."
                 onClick={() => setShowDiag((v) => !v)}
                 style={{
                   padding: "4px 8px",
@@ -1035,6 +1064,8 @@ export default function Logs() {
                 }}
               />
               <button
+                className="self-help"
+                data-help="Mevcut filtre ayarlarini profile kaydeder."
                 onClick={saveCurrentProfile}
                 style={{
                   padding: "4px 8px",
@@ -1049,6 +1080,8 @@ export default function Logs() {
                 Save Profile
               </button>
               <button
+                className="self-help"
+                data-help="Secili profile kaydini siler."
                 onClick={() => selectedProfileId && deleteProfile(selectedProfileId)}
                 disabled={!selectedProfileId}
                 style={{
@@ -1064,6 +1097,8 @@ export default function Logs() {
                 Delete Profile
               </button>
               <button
+                className="self-help"
+                data-help="Current triage context'i JSON bundle olarak export eder."
                 onClick={exportIncidentBundle}
                 style={{
                   padding: "4px 8px",
@@ -1078,6 +1113,8 @@ export default function Logs() {
                 Export Bundle (JSON)
               </button>
               <button
+                className="self-help"
+                data-help="Kisa triage ozetini panoya kopyalar."
                 onClick={() => void copyTriageSummary()}
                 style={{
                   padding: "4px 8px",
@@ -1092,6 +1129,8 @@ export default function Logs() {
                 {bundleCopied ? "Summary Copied" : "Copy Triage Summary"}
               </button>
               <button
+                className="self-help"
+                data-help="Query/level filtrelerini temizler."
                 onClick={() => {
                   setQuery("");
                   setLevel("ALL");
@@ -1129,6 +1168,8 @@ export default function Logs() {
                 </button>
               ))}
               <button
+                className="self-help"
+                data-help="Bu gorunume dogrudan donebilmek icin linki kopyalar."
                 onClick={() => void copyCurrentLink()}
                 style={{
                   padding: "4px 8px",
@@ -1189,6 +1230,8 @@ export default function Logs() {
                 }}
               />
               <button
+                className="self-help"
+                data-help="Query+level ayarini yeni preset olarak kaydeder."
                 onClick={saveCurrentPreset}
                 style={{
                   padding: "4px 8px",

@@ -200,6 +200,8 @@ def test_main_smoke():
         result = json.loads(out_json.read_text(encoding="utf-8"))
         assert result["tool"] == "analyze_cost_breakdown"
         assert result["n_pockets"] == 1
+        assert result["run_summary"]["run_type"] == "analyze_cost_breakdown"
+        assert result["run_summary"]["metrics"]["n_pockets"] == 1
         assert "pockets" in result
         assert "closest_to_breakeven_fee" in result
         assert "closest_to_breakeven_adv" in result

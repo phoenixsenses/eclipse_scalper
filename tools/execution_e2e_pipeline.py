@@ -7,6 +7,8 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List
 
+from tools.run_summary import build_run_summary
+
 
 def _run(cmd: List[str]) -> Dict[str, Any]:
     p = subprocess.run(cmd, capture_output=True, text=True)
@@ -34,6 +36,7 @@ def _args() -> argparse.Namespace:
 
 def main() -> int:
     args = _args()
+    out_json = Path(str(args.out_json))
     steps = []
     steps.append(
         _run(
@@ -77,11 +80,16 @@ def main() -> int:
         "ok": bool(ok),
         "steps": steps,
     }
-    _write(Path(str(args.out_json)), out)
+    out["run_summary"] = build_run_summary(
+        run_type="execution_e2e_pipeline",
+        inputs={"sim": str(args.sim), "live_db": str(args.live_db), "live_parquet": str(args.live_parquet)},
+        metrics={"ok": bool(ok), "step_count": len(steps)},
+        artifacts={"json": str(out_json)},
+    )
+    _write(out_json, out)
     print(f"execution_e2e_pipeline: ok={int(ok)} out={args.out_json}")
     return 0 if ok else 1
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

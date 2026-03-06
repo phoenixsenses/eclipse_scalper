@@ -17,6 +17,10 @@ KEY_MODULES = [
     "tools.run_rank_sweep",
     "tools.summarize_rank_attribution",
     "tools.validate_canonical",
+    "tools.report_schema_validator",
+    "tools.run_summary",
+    "tools.report_check",
+    "tools.tooling_audit",
 ]
 
 KEY_FILES = [
@@ -27,6 +31,10 @@ KEY_FILES = [
     "tools/run_rank_sweep.py",
     "tools/summarize_rank_attribution.py",
     "tools/validate_canonical.py",
+    "tools/report_schema_validator.py",
+    "tools/run_summary.py",
+    "tools/report_check.py",
+    "tools/tooling_audit.py",
 ]
 
 

@@ -16,7 +16,10 @@ def _safe(v: Any, default: float = 0.0) -> float:
     try:
         if v is None:
             return float(default)
-        return float(v)
+        out = float(v)
+        if not math.isfinite(out):
+            return float(default)
+        return out
     except Exception:
         return float(default)
 
@@ -46,12 +49,12 @@ def enrich_rows_with_v2(
     if cache_key is not None and cache_key in _V2_CACHE:
         cached = _V2_CACHE[cache_key]
         if _ts_hint(cached) == _ts_hint(rows):
-            return cached
+            return _copy_rows(cached)
 
     out = _copy_rows(rows)
     if not out:
         if cache_key is not None:
-            _V2_CACHE[cache_key] = out
+            _V2_CACHE[cache_key] = _copy_rows(out)
         return out
 
     alpha_ema = 0.2
@@ -186,5 +189,5 @@ def enrich_rows_with_v2(
         r["v3_confidence"] = float(v3_conf)
 
     if cache_key is not None:
-        _V2_CACHE[cache_key] = out
+        _V2_CACHE[cache_key] = _copy_rows(out)
     return out

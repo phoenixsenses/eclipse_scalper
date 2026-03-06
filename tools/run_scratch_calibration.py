@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from tools.run_summary import build_run_summary
 
 def _args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Run scratch calibration sweeps and write markdown summaries.")
@@ -208,6 +209,20 @@ def main() -> int:
         out_sell.write_text("# SCRATCH CALIBRATION SELL_UP\n\nbacktest_scratch execution failed.\n", encoding="utf-8")
     if rc2 != 0 and not out_buy.exists():
         out_buy.write_text("# SCRATCH CALIBRATION BUY_UP\n\nbacktest_scratch execution failed.\n", encoding="utf-8")
+
+    summary_path = out_sell.parent / "SCRATCH_CALIBRATION_RUN_SUMMARY.json"
+    summary_payload = {
+        "symbol": str(args.symbol),
+        "sell": {"rc": int(rc1), "baseline_n_primary": int(n1_primary), "baseline_n_final": int(n1_final), "out_md": str(out_sell)},
+        "buy": {"rc": int(rc2), "baseline_n_primary": int(n2_primary), "baseline_n_final": int(n2_final), "out_md": str(out_buy)},
+    }
+    summary_payload["run_summary"] = build_run_summary(
+        run_type="run_scratch_calibration",
+        inputs={"symbol": str(args.symbol), "db": str(args.db), "exec_model": str(args.exec_model)},
+        metrics={"sell_rc": int(rc1), "buy_rc": int(rc2), "sell_n_final": int(n1_final), "buy_n_final": int(n2_final)},
+        artifacts={"json": str(summary_path), "sell_md": str(out_sell), "buy_md": str(out_buy)},
+    )
+    summary_path.write_text(json.dumps(summary_payload, ensure_ascii=True, indent=2), encoding="utf-8")
 
     print(
         "run_scratch_calibration: "

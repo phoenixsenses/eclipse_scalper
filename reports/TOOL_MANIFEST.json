@@ -1,0 +1,2596 @@
+{
+  "tools": [
+    {
+      "path": "tools/activate_online_artifacts.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/aggregate_sweep_results.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/analyze_cost_breakdown.py",
+      "family": "research",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/analyze_fill_timing.py",
+      "family": "research",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/analyze_micro_edge_debug.py",
+      "family": "research",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/analyze_micro_edge_regimes.py",
+      "family": "research",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/audit_fill_calibration.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/backtest_scratch.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/backtest_strategies.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/build_ensemble_regime_experts.py",
+      "family": "builder",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/build_execution_features.py",
+      "family": "builder",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/build_latency_baseline.py",
+      "family": "builder",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": true,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/build_micro_features.py",
+      "family": "builder",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/build_online_calibration.py",
+      "family": "builder",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/build_online_execution_params.py",
+      "family": "builder",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/build_physics_signals.py",
+      "family": "builder",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/build_presentation.py",
+      "family": "builder",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/build_regime_alignment.py",
+      "family": "builder",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/build_regimes.py",
+      "family": "builder",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/build_state.py",
+      "family": "builder",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/calibrate_capacity_thresholds.py",
+      "family": "research",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/calibrate_execution_models.py",
+      "family": "research",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/calibrate_generator.py",
+      "family": "research",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/check_data_ready.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/check_futures_mode.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/check_micro_edge_horizons.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/collection_health.py",
+      "family": "ops",
+      "scope": "ops",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": true,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/collection_watchdog.py",
+      "family": "ops",
+      "scope": "ops",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/compare_rank_runs.py",
+      "family": "research",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": true,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/compare_runs.py",
+      "family": "research",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/compare_scratch_live_vs_backtest.py",
+      "family": "research",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/core_health.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/corr_group_check.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/daily_execution_calibration.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/daily_report.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/dashboard_backend_restart_once.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/dashboard_backend_supervisor.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/dashboard_logs_bundle.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/data/__init__.py",
+      "family": "dev",
+      "scope": "dev",
+      "status": "legacy",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/data/build_canonical_dataset.py",
+      "family": "builder",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/data/test_build_canonical_dataset_smoke.py",
+      "family": "dev",
+      "scope": "dev",
+      "status": "dev-only",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/data/test_execution_journal_parse_smoke.py",
+      "family": "dev",
+      "scope": "dev",
+      "status": "dev-only",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/data_layer_probe.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/db_introspect.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/db_maintenance.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/debug_env.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/dedup_candidates.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/defense_system.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/dev/_inspect_forward_json.py",
+      "family": "dev",
+      "scope": "dev",
+      "status": "dev-only",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/dev/_inspect_rank_evals.py",
+      "family": "dev",
+      "scope": "dev",
+      "status": "dev-only",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/dev/_inspect_rank_evals2.py",
+      "family": "dev",
+      "scope": "dev",
+      "status": "dev-only",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/dev/_inspect_rank_json.py",
+      "family": "dev",
+      "scope": "dev",
+      "status": "dev-only",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/dev/_inspect_rank_net2.py",
+      "family": "dev",
+      "scope": "dev",
+      "status": "dev-only",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/dev/_inspect_rank_scores2.py",
+      "family": "dev",
+      "scope": "dev",
+      "status": "dev-only",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/dev/_print_adv_sweep.py",
+      "family": "dev",
+      "scope": "dev",
+      "status": "dev-only",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/dev/_print_fee_sweep.py",
+      "family": "dev",
+      "scope": "dev",
+      "status": "dev-only",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/dev/_print_fee_sweep_newmetrics.py",
+      "family": "dev",
+      "scope": "dev",
+      "status": "dev-only",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/dev/_summarize_gate_md.py",
+      "family": "dev",
+      "scope": "dev",
+      "status": "dev-only",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/diagnose_sell_asymmetry.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/estimate_impact.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": true,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/estimate_propagator.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": true,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/eval_alpha_walkforward.py",
+      "family": "research",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/eval_run.py",
+      "family": "research",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/eval_transfer.py",
+      "family": "research",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/evaluate_canary_expansion_gate.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/evaluate_go_nogo.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/execution_coupled_eval.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/execution_diagnostics.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/execution_e2e_pipeline.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": false,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/execution_quality_audit.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/exit_quality_dashboard.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/export_selected_specs.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/feature_distribution_analysis.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/filter_sensitivity.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/fit_adverse_model.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/freeze_runtime_profile.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/funding_rate_analysis.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/generate_alpha_candidates.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/generate_papertrades.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/health_check.py",
+      "family": "ops",
+      "scope": "ops",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/health_cycle_smoke.py",
+      "family": "ops",
+      "scope": "ops",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/health_state.py",
+      "family": "ops",
+      "scope": "ops",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/hedge_params_demo.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/horizon_scan.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/incident_bundle.py",
+      "family": "ops",
+      "scope": "ops",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/ingestion_check.py",
+      "family": "ops",
+      "scope": "ops",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/inspect_physics_columns.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/list_signals.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/live_fill_drift_root_cause.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/micro_collector_watchdog.py",
+      "family": "misc",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/micro_diag.py",
+      "family": "misc",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/micro_edge_backtest.py",
+      "family": "misc",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/micro_edge_gate_export.py",
+      "family": "misc",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/micro_edge_lib.py",
+      "family": "misc",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/micro_edge_report.py",
+      "family": "misc",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/micro_edge_signal_v2.py",
+      "family": "misc",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/micro_edge_smoke.py",
+      "family": "misc",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/micro_edge_sweep.py",
+      "family": "misc",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/npa_decomposition_and_regime.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/ops_smoke.py",
+      "family": "ops",
+      "scope": "ops",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/optimize_fill_timeout.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/paper_trade_status.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/paper_trade_summary.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/parity_check.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/peek_cache.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/physics_by_regime.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/physics_validation.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/pid_registry.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/post_rollout_audit.py",
+      "family": "misc",
+      "scope": "ops",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/preflight_check.py",
+      "family": "ops",
+      "scope": "ops",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/prepare_release_tag.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/print_market_min.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/prototype_ws_vs_db_latency.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/push_status.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/rank_passive_pockets_forward.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/reconcile_paper_vs_backtest.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/reconnection_audit.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/reliability_gate.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/replay_parity_report.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/replay_slice.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/replay_strategy.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/report_calibration_rollups.py",
+      "family": "reporting",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/report_candidate_coverage.py",
+      "family": "reporting",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/report_candidate_overlap.py",
+      "family": "reporting",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/report_check.py",
+      "family": "reporting",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": false,
+        "has_run_summary": true,
+        "uses_report_validator": true
+      }
+    },
+    {
+      "path": "tools/report_cost_decomposition.py",
+      "family": "reporting",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/report_ensemble_gating.py",
+      "family": "reporting",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/report_execution_realism.py",
+      "family": "reporting",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/report_generalization.py",
+      "family": "reporting",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": true,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/report_live_status.py",
+      "family": "reporting",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/report_multi_symbol_rollup.py",
+      "family": "reporting",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": true,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/report_risk_diagnostics.py",
+      "family": "reporting",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/report_schema_validator.py",
+      "family": "reporting",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": true
+      }
+    },
+    {
+      "path": "tools/report_state_sanity.py",
+      "family": "reporting",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/report_transfer_by_aligned_regime.py",
+      "family": "reporting",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": true,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/report_transfer_matrix.py",
+      "family": "reporting",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": true,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/risk_attribution.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": true,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/risk_checklist.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/run_alpha_multi.py",
+      "family": "runner",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": true,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/run_alpha_pipeline.py",
+      "family": "runner",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/run_execution_canary.py",
+      "family": "runner",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/run_full_sweep.py",
+      "family": "runner",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/run_live_papertrade.py",
+      "family": "runner",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/run_rank_sweep.py",
+      "family": "runner",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/run_scratch_calibration.py",
+      "family": "runner",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/run_summary.py",
+      "family": "runner",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/run_transfer_matrix.py",
+      "family": "runner",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": true,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/run_unit_tests.py",
+      "family": "runner",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/schedule_alpha_runs.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/schedule_online_calibration.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/schedule_online_calibration_multi.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/select_alpha.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/set_latest_run.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/signal_data_health.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/signal_exit_feedback.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/signal_exit_health.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/simulate_maker_fills.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/smoke_all.py",
+      "family": "ops",
+      "scope": "mixed",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": true
+      }
+    },
+    {
+      "path": "tools/smoke_dashboard_security.py",
+      "family": "ops",
+      "scope": "mixed",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/smoke_data.py",
+      "family": "ops",
+      "scope": "mixed",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/smoke_exchange.py",
+      "family": "ops",
+      "scope": "mixed",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/start_data_layer_guard.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/state_reconstruct.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/strategies/__init__.py",
+      "family": "dev",
+      "scope": "dev",
+      "status": "legacy",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/strategies/baseline.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/strategies/micro_edge_pocket.py",
+      "family": "misc",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/strategy_audit_report.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/summarize_rank_attribution.py",
+      "family": "reporting",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": false,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/sweep_eval.py",
+      "family": "research",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/sweep_micro_edge_costs.py",
+      "family": "research",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/sweep_micro_edge_exec_models.py",
+      "family": "research",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/sweep_micro_edge_gates.py",
+      "family": "research",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/sweep_passive_realistic_filters.py",
+      "family": "research",
+      "scope": "research",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": true,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telegram_bot.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_adapter_alerts.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_alert_summary.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_anomaly.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_classifier.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_codes_by_symbol.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_corr_group_dashboard.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_dashboard.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_dashboard_notify.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_dashboard_page.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_drift_detection.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_error_classes.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_exit_thresholds.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_guard_history.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_guard_history_alerts.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_guard_timeline.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_health.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_latency_summary.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_recovery_dashboard.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_report.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_roll_alerts.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_signal_exit_notify.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_smoke_assert.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/telemetry_threshold_alerts.py",
+      "family": "runtime",
+      "scope": "runtime",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/tooling_audit.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": true
+      }
+    },
+    {
+      "path": "tools/toxicity_report.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/triage_capacity.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": false,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/validate_artifacts.py",
+      "family": "validation",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/validate_canonical.py",
+      "family": "validation",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/validate_env.py",
+      "family": "validation",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/validate_micro_edge_debug_split.py",
+      "family": "validation",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/validate_micro_edge_forward.py",
+      "family": "validation",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/validate_passive_pocket_forward.py",
+      "family": "validation",
+      "scope": "research",
+      "status": "core",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": true,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/verify_data_layer.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/verify_regime_consistency.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/walkforward_eval.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/walkforward_sweep.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": false,
+        "has_out_md": false,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    },
+    {
+      "path": "tools/write_risk_policy_doc.py",
+      "family": "misc",
+      "scope": "mixed",
+      "status": "support",
+      "contracts": {
+        "has_out_json": true,
+        "has_out_md": true,
+        "has_run_summary": false,
+        "uses_report_validator": false
+      }
+    }
+  ],
+  "scripts": [
+    {
+      "path": "scripts/__pycache__/supervisor.cpython-313.pyc",
+      "kind": "python"
+    },
+    {
+      "path": "scripts/install_task_scheduler.ps1",
+      "kind": "launcher"
+    },
+    {
+      "path": "scripts/start_paper_trading.ps1",
+      "kind": "launcher"
+    },
+    {
+      "path": "scripts/start_paper_trading.sh",
+      "kind": "launcher"
+    },
+    {
+      "path": "scripts/supervisor.py",
+      "kind": "python"
+    }
+  ],
+  "summary": {
+    "tool_count": 211,
+    "script_count": 5,
+    "family_counts": {
+      "builder": 12,
+      "dev": 14,
+      "misc": 96,
+      "ops": 13,
+      "reporting": 16,
+      "research": 18,
+      "runner": 10,
+      "runtime": 26,
+      "validation": 6
+    },
+    "status_counts": {
+      "core": 35,
+      "dev-only": 12,
+      "legacy": 2,
+      "support": 162
+    },
+    "run_summary_gap_count": 0,
+    "dev_only_count": 12
+  },
+  "cut_candidates": [
+    "tools/data/test_build_canonical_dataset_smoke.py",
+    "tools/data/test_execution_journal_parse_smoke.py",
+    "tools/dev/_inspect_forward_json.py",
+    "tools/dev/_inspect_rank_evals.py",
+    "tools/dev/_inspect_rank_evals2.py",
+    "tools/dev/_inspect_rank_json.py",
+    "tools/dev/_inspect_rank_net2.py",
+    "tools/dev/_inspect_rank_scores2.py",
+    "tools/dev/_print_adv_sweep.py",
+    "tools/dev/_print_fee_sweep.py",
+    "tools/dev/_print_fee_sweep_newmetrics.py",
+    "tools/dev/_summarize_gate_md.py"
+  ],
+  "run_summary_gaps": []
+}

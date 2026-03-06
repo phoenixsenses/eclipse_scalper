@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import json
+import sys
+from pathlib import Path
+
 import pandas as pd
 
 from tools.execution_diagnostics import compute_execution_diagnostics
 from tools.post_rollout_audit import build_audit
 from tools.toxicity_report import build_toxicity_report
+from tools import execution_diagnostics as ed
 
 
 def test_execution_diagnostics_core_metrics() -> None:
@@ -36,3 +41,15 @@ def test_toxicity_and_post_rollout_audit() -> None:
     assert "flags" in audit and "checks" in audit
     assert isinstance(bool(audit["overall_ok"]), bool)
 
+
+def test_execution_diagnostics_writes_run_summary(monkeypatch) -> None:
+    path = Path("reports/test_execution_diagnostics/input.csv")
+    out_md = Path("reports/test_execution_diagnostics/out.md")
+    out_json = Path("reports/test_execution_diagnostics/out.json")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame([{"filled": 1, "fill_delay_sec": 2.0, "pnl_bps": 0.8, "max_adverse_bps": 1.2}]).to_csv(path, index=False)
+    monkeypatch.setattr(sys, "argv", ["x", "--in", str(path), "--out-md", str(out_md), "--out-json", str(out_json)])
+    assert ed.main() == 0
+    payload = json.loads(out_json.read_text(encoding="utf-8"))
+    assert payload["run_summary"]["run_type"] == "execution_diagnostics"
+    assert payload["run_summary"]["artifacts"]["json"].endswith("out.json")

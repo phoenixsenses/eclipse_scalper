@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from tools.run_summary import build_run_summary
 TS_CANDIDATES = [
     "ts",
     "ts_ms",
@@ -224,6 +225,12 @@ def introspect(db_path: Path) -> dict[str, Any]:
         ],
         "likely_core_tables": core,
     }
+    payload["run_summary"] = build_run_summary(
+        run_type="db_introspect",
+        inputs={"db": str(db_path)},
+        metrics={"table_count": len(tables)},
+        artifacts={"json": "reports/db_tables.json", "md": "reports/db_schema.md"},
+    )
     return payload
 
 

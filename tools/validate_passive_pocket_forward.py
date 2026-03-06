@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import math
 import sqlite3
 import time
@@ -21,6 +22,7 @@ from tools.micro_edge_backtest import (
 from tools.micro_edge_lib import build_bucket_features
 from tools.micro_edge_signal_v2 import enrich_rows_with_v2
 from tools.micro_edge_smoke import _load_symbol_trades_and_marks
+from tools.run_summary import build_run_summary
 
 _ROWS_CACHE: Dict[Tuple[str, str, int, int, str], Tuple[List[Dict[str, Any]], Dict[str, Any], Dict[str, Any]]] = {}
 
@@ -559,7 +561,7 @@ def validate_pocket_forward(
             )
         failure_attribution_per_split = _aggregate_failure_attribution_per_split(results)
         failure_attribution_median = _median_failure_attribution(failure_attribution_per_split)
-        return {
+        res = {
             "symbol": str(symbol),
             "horizon_sec": int(horizon_sec),
             "min_imbalance": float(min_imbalance),
@@ -582,6 +584,35 @@ def validate_pocket_forward(
             "per_regime": per_regime,
             "insufficient_data": False,
         }
+        res["run_summary"] = build_run_summary(
+            run_type="validate_passive_pocket_forward",
+            inputs={
+                "db": str(db),
+                "symbol": str(symbol),
+                "lookback_min": int(lookback_min),
+                "bucket_sec": int(bucket_sec),
+                "horizon_sec": int(horizon_sec),
+                "rule": str(rule),
+                "side": str(side),
+                "min_imbalance": float(min_imbalance),
+                "min_trade_intensity": float(min_trade_intensity),
+                "max_spread": float(max_spread),
+                "splits": int(splits),
+                "seeds": list(seed_list),
+                "min_n": int(min_n),
+                "min_n_frac": float(min_n_frac),
+                "maker_fee_bps": float(maker_fee_bps),
+                "passive_adverse_mult": float(passive_adverse_mult),
+            },
+            metrics={
+                "rows_total": int(total),
+                "pass_count": int(passes),
+                "pass_rate": (passes / total) if total > 0 else 0.0,
+                "insufficient_fill_rate": res["insufficient_fill_rate"],
+            },
+            artifacts={},
+        )
+        return res
     finally:
         conn.close()
 
@@ -610,6 +641,7 @@ def _args() -> argparse.Namespace:
     p.add_argument("--v2-min-confidence", type=float, default=0.0)
     p.add_argument("--passive-profile-in", default="state/passive_realistic_profiles.json")
     p.add_argument("--out-md", default="reports/PASSIVE_POCKET_FORWARD_VALIDATION.md")
+    p.add_argument("--out-json", default="reports/PASSIVE_POCKET_FORWARD_VALIDATION.json")
     p.add_argument("--min-intensity-strong", type=float, default=0.0, help="Pre-attempt gate: skip when trade_intensity < this.")
     p.add_argument("--min-imbalance-strong", type=float, default=0.0, help="Pre-attempt gate: skip when |imbalance| < this.")
     p.add_argument("--max-spread-tight", type=float, default=0.0, help="Pre-attempt gate: skip when spread > this.")
@@ -674,6 +706,13 @@ def main() -> int:
         )
     md = Path(str(args.out_md))
     md.parent.mkdir(parents=True, exist_ok=True)
+    out_json = Path(str(args.out_json))
+    out_json.parent.mkdir(parents=True, exist_ok=True)
+    if isinstance(res.get("run_summary"), dict):
+        res["run_summary"]["artifacts"] = {
+            "md": str(md),
+            "json": str(out_json),
+        }
     lines = [
         "# PASSIVE_POCKET_FORWARD_VALIDATION",
         "",
@@ -739,7 +778,11 @@ def main() -> int:
             lines.append(
                 f"| {r['bucket']} | {r['attempts']} | {r['filled']} | {float(r['attempt_fill_rate']):.2%} | {float(r['net_per_attempt']):+.6e} |"
             )
+    if isinstance(res.get("run_summary"), dict):
+        lines += ["", "## Run Summary", f"- {res.get('run_summary', {})}"]
+    out_json.write_text(json.dumps(res, indent=2), encoding="utf-8")
     md.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"wrote {out_json}")
     print(f"wrote {md}")
     return 0
 

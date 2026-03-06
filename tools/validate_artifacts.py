@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from tools.run_summary import build_run_summary
 from src.microphys.live.guardrails import (
     evaluate_probe_directional_sanity,
     evaluate_probe_trigger_sanity,
@@ -152,12 +153,36 @@ def main() -> int:
             report["execution"] = {"path": str(ep), "ok": bool(ok), "errors": errs}
             report["ok"] = bool(report["ok"] and ok)
             lines += ["", f"## Execution `{ep}`", "", f"- ok: `{int(bool(ok))}`", f"- errors: `{';'.join(errs) if errs else 'none'}`"]
-        if str(args.out_json).strip():
-            out = Path(str(args.out_json))
+        out_json_path = Path(str(args.out_json)) if str(args.out_json).strip() else None
+        out_report_path = Path(str(args.out_report)) if str(args.out_report).strip() else None
+        report["run_summary"] = build_run_summary(
+            run_type="validate_artifacts",
+            inputs={
+                "calibration": str(args.calibration or ""),
+                "execution": str(args.execution or ""),
+                "physics": str(args.physics or ""),
+                "symbol": str(args.symbol or ""),
+                "interval_ms": int(args.interval_ms),
+                "sanity_days": int(args.sanity_days),
+                "directional_sanity": bool(args.directional_sanity),
+            },
+            metrics={
+                "ok": bool(report["ok"]),
+                "calibration_ok": bool((report.get("calibration") or {}).get("ok", False)),
+                "execution_ok": bool((report.get("execution") or {}).get("ok", False)),
+            },
+            artifacts={
+                "json": (str(out_json_path) if out_json_path is not None else ""),
+                "report": (str(out_report_path) if out_report_path is not None else ""),
+            },
+        )
+        lines += ["", "## Run Summary", f"- {report.get('run_summary', {})}"]
+        if out_json_path is not None:
+            out = out_json_path
             out.parent.mkdir(parents=True, exist_ok=True)
             out.write_text(json.dumps(report, ensure_ascii=True, sort_keys=True, indent=2) + "\n", encoding="utf-8")
-        if str(args.out_report).strip():
-            out = Path(str(args.out_report))
+        if out_report_path is not None:
+            out = out_report_path
             out.parent.mkdir(parents=True, exist_ok=True)
             out.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
         print(f"validate_artifacts ok={int(bool(report['ok']))}")

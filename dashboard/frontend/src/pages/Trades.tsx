@@ -8,10 +8,23 @@ import TermTip from "../components/TermTip";
 import { usePoll } from "../hooks/usePoll";
 import { useSearchParams } from "react-router-dom";
 
-function TabBtn({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+function TabBtn({
+  label,
+  active,
+  onClick,
+  tip,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+  tip: string;
+}) {
   return (
     <button
       onClick={onClick}
+      className="self-help"
+      data-help={tip}
+      title={tip}
       style={{
         padding: "4px 14px",
         borderRadius: 4,
@@ -163,6 +176,7 @@ export default function Trades() {
         <TabBtn
           label="Signals"
           active={tab === "signals"}
+          tip="Signals: giris sinyali ve confidence kararlarini gosterir."
           onClick={() => {
             setTab("signals");
             const next = new URLSearchParams(searchParams);
@@ -173,6 +187,7 @@ export default function Trades() {
         <TabBtn
           label="Stability"
           active={tab === "stability"}
+          tip="Stability: cooldown ve streak gibi koruma kontrollerini gosterir."
           onClick={() => {
             setTab("stability");
             const next = new URLSearchParams(searchParams);
@@ -183,6 +198,7 @@ export default function Trades() {
         <TabBtn
           label="Quality"
           active={tab === "quality"}
+          tip="Quality: veri anomali ve kalite sorunlarini gosterir."
           onClick={() => {
             setTab("quality");
             const next = new URLSearchParams(searchParams);
@@ -191,6 +207,8 @@ export default function Trades() {
           }}
         />
         <input
+          className="self-help"
+          data-help="Symbol filtresi: sadece bir sembol satirlarini getirir (orn. ETHUSDT)."
           placeholder="Filter symbol (e.g. ETHUSDT)"
           value={symbol}
           onChange={(e) => {
@@ -211,6 +229,8 @@ export default function Trades() {
           }}
         />
         <input
+          className="self-help"
+          data-help="Metin filtresi: reason, regime, error gibi metinlere gore satir ara."
           placeholder="Find reason/text"
           value={query}
           onChange={(e) => {

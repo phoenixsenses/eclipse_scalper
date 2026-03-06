@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import math
 import sys
 from pathlib import Path
 
@@ -82,6 +83,31 @@ def test_v2_enrich_deterministic() -> None:
         assert float(a[i]["v2_confidence"]) == float(b[i]["v2_confidence"])
         assert float(a[i]["v3_score"]) == float(b[i]["v3_score"])
         assert float(a[i]["v3_confidence"]) == float(b[i]["v3_confidence"])
+
+
+def test_v2_cache_returns_isolated_copies() -> None:
+    rows = [
+        {"ts_ms": float(i), "mid": 100.0 + i * 0.01, "spread": 0.0004, "trade_intensity": 2000.0, "imbalance": 0.2, "ret_1": 0.0001, "micro_volatility": 0.001}
+        for i in range(20)
+    ]
+    cache_key = ("db", "SYM", 10, 1, "micro_edge_v2_passive_alpha")
+    first = enrich_rows_with_v2(rows, bucket_sec=1, cache_key=cache_key)
+    original_score = float(first[5]["v2_score"])
+    first[5]["v2_score"] = 999.0
+    second = enrich_rows_with_v2(rows, bucket_sec=1, cache_key=cache_key)
+    assert float(second[5]["v2_score"]) == original_score
+    assert float(first[5]["v2_score"]) == 999.0
+
+
+def test_v2_enrich_sanitizes_non_finite_inputs() -> None:
+    rows = [
+        {"ts_ms": 1.0, "mid": 100.0, "spread": 0.0005, "trade_intensity": 2000.0, "imbalance": 0.4, "ret_1": 0.0001, "micro_volatility": 0.001},
+        {"ts_ms": 2.0, "mid": 100.1, "spread": float("nan"), "trade_intensity": float("inf"), "imbalance": -0.4, "ret_1": float("-inf"), "micro_volatility": float("nan")},
+        {"ts_ms": 3.0, "mid": 100.2, "spread": 0.0004, "trade_intensity": 2100.0, "imbalance": 0.3, "ret_1": 0.0002, "micro_volatility": 0.0012},
+    ]
+    out = enrich_rows_with_v2(rows, bucket_sec=1, cache_key=None)
+    for key in ("v2_score", "v2_confidence", "v3_score", "v3_confidence", "v3_toxicity"):
+        assert math.isfinite(float(out[1][key]))
 
 
 def test_v3_no_lookahead_stability() -> None:

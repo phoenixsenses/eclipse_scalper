@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
 
+from tools.run_summary import build_run_summary
 
 @dataclass
 class CauseScore:
@@ -223,6 +224,8 @@ def _render_md(payload: Dict[str, Any]) -> str:
         for ac in list(c.get("actions") or []):
             lines.append(f"- {ac}")
         lines.append("")
+    if isinstance(payload.get("run_summary"), dict):
+        lines.extend(["## Run Summary", f"- `{payload['run_summary']}`", ""])
     return "\n".join(lines).rstrip() + "\n"
 
 
@@ -268,6 +271,22 @@ def main() -> int:
         "causes": cause_dicts,
         "pipeline": pipeline,
     }
+    payload["run_summary"] = build_run_summary(
+        run_type="live_fill_drift_root_cause",
+        inputs={
+            "parity_json": str(args.parity_json),
+            "diag_json": str(args.diag_json),
+            "tox_json": str(args.tox_json),
+            "audit_json": str(args.audit_json),
+            "run_pipeline": bool(args.run_pipeline),
+        },
+        metrics={
+            "overall_status": str(overall),
+            "cause_count": len(cause_dicts),
+            "top_score": float(cause_dicts[0].get("score", 0.0)) if cause_dicts else 0.0,
+        },
+        artifacts={"json": str(args.out_json), "md": str(args.out_md)},
+    )
 
     out_json = Path(str(args.out_json))
     out_md = Path(str(args.out_md))
@@ -285,4 +304,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

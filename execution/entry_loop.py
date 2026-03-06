@@ -20,6 +20,16 @@ from utils.logging import log_entry, log_core
 from execution.shutdown_control import ensure_traced_shutdown_event
 from execution.order_router import create_order, cancel_order
 from execution.anomaly_guard import should_pause as anomaly_should_pause
+from execution.runtime_helpers import (
+    cfg_env_bool as _cfg_env_bool,
+    cfg_env_float as _cfg_env_float,
+    cfg_value as _cfg,
+    env_get as _env_get,
+    parse_group_kv as _parse_group_kv,
+    safe_float as _safe_float,
+    symkey as _symkey,
+    truthy as _truthy,
+)
 try:
     from core.regime import RegimeClassifier  # type: ignore
 except Exception:  # pragma: no cover - optional wiring
@@ -133,57 +143,6 @@ def _now() -> float:
     return time.time()
 
 
-def _cfg(bot, name: str, default: Any) -> Any:
-    try:
-        return getattr(getattr(bot, "cfg", None), name, default)
-    except Exception:
-        return default
-
-
-def _truthy(x) -> bool:
-    if x is True:
-        return True
-    if isinstance(x, (int, float)) and x != 0:
-        return True
-    if isinstance(x, str) and x.strip().lower() in ("true", "1", "yes", "y", "on"):
-        return True
-    return False
-
-
-def _env_get(name: str) -> str:
-    try:
-        return str(os.getenv(name, "")).strip()
-    except Exception:
-        return ""
-
-
-def _cfg_env_float(bot, name: str, default: float) -> float:
-    """
-    ENV wins, then cfg, then default.
-    """
-    v = _env_get(name)
-    if v != "":
-        try:
-            return float(v)
-        except Exception:
-            pass
-    try:
-        return float(_cfg(bot, name, default) or default)
-    except Exception:
-        return float(default)
-
-
-def _cfg_env_bool(bot, name: str, default: Any = False) -> bool:
-    """
-    ENV wins, then cfg.
-    Accepts strings like "1/true/on".
-    """
-    v = _env_get(name)
-    if v != "":
-        return _truthy(v)
-    return _truthy(_cfg(bot, name, default))
-
-
 def _adaptive_guard_enabled(bot) -> bool:
     return _cfg_env_bool(bot, "ENTRY_ADAPTIVE_GUARD_ENABLED", True)
 
@@ -192,42 +151,6 @@ def _effective_min_conf(base_min_conf: float, guard_min_conf: float, adaptive_en
     if not bool(adaptive_enabled):
         return float(max(0.0, float(base_min_conf)))
     return float(max(float(base_min_conf), max(0.0, float(guard_min_conf))))
-
-
-def _symkey(sym: str) -> str:
-    s = (sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
-
-
-def _parse_group_kv(raw: str) -> dict:
-    """
-    Parse "MEME=1,MAJOR=2" into dict.
-    """
-    out: dict = {}
-    try:
-        s = str(raw or "").strip()
-        if not s:
-            return out
-        parts = [p.strip() for p in s.replace(";", ",").split(",") if p.strip()]
-        for p in parts:
-            if "=" not in p:
-                continue
-            k, v = p.split("=", 1)
-            kk = str(k or "").strip().upper()
-            if not kk:
-                continue
-            try:
-                out[kk] = float(v)
-            except Exception:
-                continue
-    except Exception:
-        return out
-    return out
 
 
 def _parse_groups(raw: str) -> dict:

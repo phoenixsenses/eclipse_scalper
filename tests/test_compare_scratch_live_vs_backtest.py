@@ -57,8 +57,8 @@ def test_compare_scratch_live_vs_backtest_outputs(monkeypatch) -> None:
         assert cmp.main() == 0
         payload = json.loads(out_json.read_text(encoding="utf-8"))
         assert payload["status"] == "ok"
+        assert payload["run_summary"]["run_type"] == "compare_scratch_live_vs_backtest"
         assert "delta_sell_abs" in payload
         assert out_md.exists()
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
-

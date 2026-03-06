@@ -22,5 +22,26 @@
     "splits": 3
   },
   "decomposition": [],
-  "ranking": []
+  "ranking": [],
+  "run_summary": {
+    "version": "v1",
+    "run_type": "rank_passive_pockets_forward",
+    "inputs": {
+      "candidates_md": "reports/dummy.md",
+      "db": "data/microstructure.db",
+      "rules": [
+        "intensity_spike_imbalance_cont"
+      ],
+      "min_n_frac": 0.00025
+    },
+    "metrics": {
+      "count": 0,
+      "candidate_count": 1,
+      "survive_fee1_passrate_ge_0_5": 0
+    },
+    "artifacts": {
+      "json": "reports\\test_rank_skip_hint.json",
+      "md": "reports/test_rank_skip_hint.md"
+    }
+  }
 }

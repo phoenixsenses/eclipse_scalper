@@ -50,7 +50,7 @@ def test_prototype_ws_vs_db_latency_outputs(monkeypatch) -> None:
         assert p.main() == 0
         payload = json.loads(out_json.read_text(encoding="utf-8"))
         assert payload["status"] == "ok"
+        assert payload["run_summary"]["run_type"] == "prototype_ws_vs_db_latency"
         assert out_md.exists()
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
-

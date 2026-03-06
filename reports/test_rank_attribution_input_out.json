@@ -1,0 +1,1 @@
+{"count": 2, "ranking": [{"symbol": "ETHUSDT", "failure_reason_top": "fees_dominate", "gate_reject_ratio": 0.1}, {"symbol": "BTCUSDT", "failure_reason_top": "mixed", "gate_reject_ratio": 0.7}]}
