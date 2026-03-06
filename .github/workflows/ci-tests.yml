@@ -65,6 +65,7 @@ jobs:
           PY
           pip install -r requirements-ci.txt
           pip install -r dashboard/backend/requirements.txt
+          pip install pytest
 
       - name: Dashboard backend smoke tests
         run: |
@@ -103,6 +104,7 @@ jobs:
           Path("requirements-ci.txt").write_text("\n".join(filtered) + "\n", encoding="utf-8")
           PY
           pip install -r requirements-ci.txt
+          pip install pytest
 
       - name: Run required chaos scenario
         run: ${{ matrix.cmd }}
@@ -131,6 +133,7 @@ jobs:
           Path("requirements-ci.txt").write_text("\n".join(filtered) + "\n", encoding="utf-8")
           PY
           pip install -r requirements-ci.txt
+          pip install pytest
 
       - name: Run execution invariant suite
         run: |
@@ -335,6 +338,7 @@ jobs:
           Path("requirements-ci.txt").write_text("\n".join(filtered) + "\n", encoding="utf-8")
           PY
           pip install -r requirements-ci.txt
+          pip install pytest
 
       - name: Restore nightly chaos drift baseline
         uses: actions/cache/restore@v4
