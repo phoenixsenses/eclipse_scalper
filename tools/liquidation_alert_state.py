@@ -93,6 +93,16 @@ def _compute_freshness(*, latest_alert_ts_ms: int, now_ts_ms: int, bucket_sec: i
     }
 
 
+def _recommended_action(*, state: str, freshness_status: str) -> str:
+    if freshness_status != "fresh":
+        return "monitor_only"
+    if state == "severe":
+        return "escalate_monitoring"
+    if state == "elevated":
+        return "show_caution"
+    return "monitor_only"
+
+
 def build_state_payload(
     *,
     alert_payload: Dict[str, Any],
@@ -116,6 +126,7 @@ def build_state_payload(
         now_ts_ms=effective_now_ts_ms,
         bucket_sec=_safe_int(alert_payload.get("bucket_sec"), 5),
     )
+    recommended_action = _recommended_action(state=state, freshness_status=str(freshness["status"]))
     headline = (
         f"{str(alert_payload.get('symbol') or '').upper()} liquidation regime {state}: "
         f"{_safe_int(summary.get('recent_alert_count'))} recent alerts, "
@@ -126,6 +137,18 @@ def build_state_payload(
         "elevated": "Show on dashboard and raise soft caution for runtime operators.",
         "severe": "Escalate on dashboard and monitoring. Use as caution context, not auto-trade.",
     }[state]
+    dashboard_summary = (
+        f"{str(alert_payload.get('symbol') or '').upper()} {state} liquidation regime, "
+        f"bias {primary_side_bias}, {int(_safe_int(summary.get('recent_alert_count')))} recent alerts, "
+        f"freshness {str(freshness['status'])}."
+    )
+    notification_text = (
+        f"[liq-regime] symbol={str(alert_payload.get('symbol') or '').upper()} "
+        f"level={state} freshness={str(freshness['status'])} bias={primary_side_bias} "
+        f"recent_alerts={int(_safe_int(summary.get('recent_alert_count')))} "
+        f"max_liq_rate={_safe_float(summary.get('max_liq_rate_recent')):.4f} "
+        f"action={recommended_action}"
+    )
     payload = {
         "source_json": str(source_json),
         "symbol": str(alert_payload.get("symbol") or "").upper(),
@@ -137,6 +160,9 @@ def build_state_payload(
             "dominant_severity": dominant_severity,
             "freshness": dict(freshness),
         },
+        "dashboard_summary": dashboard_summary,
+        "notification_text": notification_text,
+        "recommended_action": recommended_action,
         "card": {
             "headline": headline,
             "operator_note": operator_note,
@@ -170,6 +196,7 @@ def build_state_payload(
             "tagged_rate": _safe_float(summary.get("tagged_rate")),
             "max_liq_rate_recent": _safe_float(summary.get("max_liq_rate_recent")),
             "freshness_status": str(freshness["status"]),
+            "recommended_action": recommended_action,
         },
         artifacts={"json": str(out_json), "md": str(out_md)},
     )
@@ -205,6 +232,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         f"symbol={payload['symbol']} rule={payload['rule']}",
         f"state={payload['state']['level']} reasons={json.dumps(payload['state']['reasons'], ensure_ascii=True)}",
         f"headline={payload['card']['headline']}",
+        f"dashboard_summary={payload['dashboard_summary']}",
+        f"notification_text={payload['notification_text']}",
+        f"recommended_action={payload['recommended_action']}",
         f"operator_note={payload['card']['operator_note']}",
         f"recent_alert_count={payload['card']['recent_alert_count']} tagged_rate={payload['card']['tagged_rate']:.2%}",
         f"max_consecutive_tagged={payload['card']['max_consecutive_tagged']} max_liq_rate_recent={payload['card']['max_liq_rate_recent']:.4f}",

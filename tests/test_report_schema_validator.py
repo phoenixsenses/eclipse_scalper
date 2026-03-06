@@ -272,6 +272,9 @@ def test_validate_liquidation_alert_state_payload() -> None:
         "source_json": "reports/LIQUIDATION_REGIME_ALERTS_REAL.json",
         "symbol": "ETHUSDT",
         "rule": "high_liq_reversal_regime",
+        "dashboard_summary": "ETHUSDT elevated liquidation regime, bias LONG, 3 recent alerts, freshness fresh.",
+        "notification_text": "[liq-regime] symbol=ETHUSDT level=elevated freshness=fresh bias=LONG recent_alerts=3 max_liq_rate=5.2000 action=show_caution",
+        "recommended_action": "show_caution",
         "state": {
             "level": "elevated",
             "reasons": ["recent_alert_cluster"],
@@ -306,7 +309,7 @@ def test_validate_liquidation_alert_state_payload() -> None:
             "version": "v1",
             "run_type": "liquidation_alert_state",
             "inputs": {"source_json": "reports/LIQUIDATION_REGIME_ALERTS_REAL.json"},
-            "metrics": {"state_level": "elevated"},
+            "metrics": {"state_level": "elevated", "recommended_action": "show_caution"},
             "artifacts": {"json": "reports/LIQUIDATION_ALERT_STATE.json", "md": "reports/LIQUIDATION_ALERT_STATE.md"},
         },
     }

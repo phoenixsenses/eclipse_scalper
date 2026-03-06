@@ -110,6 +110,10 @@ Suggested card source:
 
 - `python -m tools.liquidation_alert_state --alerts-json reports/LIQUIDATION_REGIME_ALERTS_REAL.json --out-json reports/LIQUIDATION_ALERT_STATE_REAL.json`
 - stale payload should be rendered as stale, not active
+- runtime can directly use:
+  - `dashboard_summary`
+  - `notification_text`
+  - `recommended_action`
 
 ### Monitoring
 

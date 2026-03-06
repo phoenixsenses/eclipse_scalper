@@ -35,6 +35,9 @@ def test_build_state_payload_marks_severe_when_alerts_are_dense() -> None:
     assert payload["state"]["dominant_severity"] == "medium"
     assert payload["card"]["latest_alert_ts_ms"] == 123
     assert payload["state"]["freshness"]["status"] == "stale"
+    assert payload["recommended_action"] == "monitor_only"
+    assert "ETHUSDT severe liquidation regime" in payload["dashboard_summary"]
+    assert "action=monitor_only" in payload["notification_text"]
 
 
 def test_main_writes_json_and_md() -> None:
@@ -69,5 +72,6 @@ def test_main_writes_json_and_md() -> None:
     assert payload["state"]["level"] == "elevated"
     assert payload["state"]["freshness"]["status"] == "fresh"
     assert payload["card"]["freshness_status"] == "fresh"
+    assert payload["recommended_action"] == "show_caution"
     assert payload["run_summary"]["run_type"] == "liquidation_alert_state"
     assert out_md.exists()

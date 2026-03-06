@@ -39,6 +39,9 @@
     "source_json": "reports/LIQUIDATION_REGIME_ALERTS_REAL.json",
     "symbol": "ETHUSDT",
     "rule": "high_liq_reversal_regime",
+    "dashboard_summary": "ETHUSDT severe liquidation regime, bias LONG, 20 recent alerts, freshness fresh.",
+    "notification_text": "[liq-regime] symbol=ETHUSDT level=severe freshness=fresh bias=LONG recent_alerts=20 max_liq_rate=11.4712 action=escalate_monitoring",
+    "recommended_action": "escalate_monitoring",
     "state": {
       "level": "severe",
       "reasons": [
