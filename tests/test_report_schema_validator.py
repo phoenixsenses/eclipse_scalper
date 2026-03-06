@@ -530,6 +530,44 @@ def test_validate_fill_toxicity_state_payload() -> None:
     }
     assert rsv.infer_schema_name(payload) == "fill_toxicity_state"
     assert rsv.validate_payload(payload, "fill_toxicity_state") == []
+
+
+def test_validate_latency_stress_state_payload() -> None:
+    payload = {
+        "source": "data/live/papertrades_live.parquet",
+        "state": {"level": "severe", "reasons": ["very_high_p95_fill_delay"]},
+        "dashboard_summary": "latency stress severe, p95=12.00s, p50=4.50s, fill_rate=18.00%.",
+        "notification_text": "[latency-stress] level=severe p95=12.00s p50=4.50s fill_rate=0.1800 corr=-0.3000 action=escalate_monitoring",
+        "recommended_action": "escalate_monitoring",
+        "card": {
+            "headline": "Latency stress severe",
+            "operator_note": "Escalate latency monitoring and inspect runtime execution path.",
+            "rows": 20,
+            "fill_rate": 0.18,
+            "latency_fill_delay_sec_p50": 4.5,
+            "latency_fill_delay_sec_p95": 12.0,
+            "latency_impact_vs_net_corr": -0.3,
+        },
+        "summary_snapshot": {
+            "rows": 20,
+            "fill_rate": 0.18,
+            "queue_competition_score": 0.5,
+            "toxicity_score": 0.8,
+            "adverse_selection_bps_mean": 1.2,
+            "latency_fill_delay_sec_p50": 4.5,
+            "latency_fill_delay_sec_p95": 12.0,
+            "latency_impact_vs_net_corr": -0.3,
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "latency_stress_state",
+            "inputs": {"source": "data/live/papertrades_live.parquet"},
+            "metrics": {"rows": 20, "state_level": "severe", "fill_rate": 0.18, "latency_fill_delay_sec_p95": 12.0},
+            "artifacts": {"json": "reports/LATENCY_STRESS_STATE.json", "md": "reports/LATENCY_STRESS_STATE.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "latency_stress_state"
+    assert rsv.validate_payload(payload, "latency_stress_state") == []
 def test_validate_artifacts_payload() -> None:
     payload = {
         "ok": True,
