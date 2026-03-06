@@ -395,6 +395,7 @@ def _validate_liquidation_watchlist(payload: Dict[str, Any]) -> List[str]:
         "recent_limit": int,
         "min_liq_rate": (int, float),
         "summary": dict,
+        "top_summary": dict,
         "rows": list,
         "run_summary": dict,
     }
@@ -409,6 +410,11 @@ def _validate_liquidation_watchlist(payload: Dict[str, Any]) -> List[str]:
         for key in ("symbol_count", "top_n", "state_counts", "top_symbol"):
             if key not in summary:
                 errors.append(f"missing:summary.{key}")
+    top_summary = payload.get("top_summary")
+    if isinstance(top_summary, dict):
+        for key in ("symbol", "state_level", "freshness_status", "recommended_action", "dashboard_summary"):
+            if key not in top_summary:
+                errors.append(f"missing:top_summary.{key}")
     rows = payload.get("rows")
     if isinstance(rows, list):
         for idx, row in enumerate(rows):

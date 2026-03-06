@@ -98,6 +98,8 @@ def test_build_watchlist_payload_ranks_symbols(monkeypatch) -> None:
     )
     assert payload["summary"]["symbol_count"] == 2
     assert payload["summary"]["top_symbol"] == "ETHUSDT"
+    assert payload["top_summary"]["symbol"] == "ETHUSDT"
+    assert payload["top_summary"]["recommended_action"] == "show_caution"
     assert payload["rows"][0]["symbol"] == "ETHUSDT"
     assert payload["rows"][0]["recommended_action"] == "show_caution"
 
@@ -113,6 +115,13 @@ def test_main_writes_watchlist_files(monkeypatch) -> None:
             "recent_limit": 20,
             "min_liq_rate": 0.0,
             "summary": {"symbol_count": 1, "top_n": 1, "state_counts": {"elevated": 1}, "top_symbol": "ETHUSDT"},
+            "top_summary": {
+                "symbol": "ETHUSDT",
+                "state_level": "elevated",
+                "freshness_status": "fresh",
+                "recommended_action": "show_caution",
+                "dashboard_summary": "ETH summary",
+            },
             "rows": [
                 {
                     "symbol": "ETHUSDT",

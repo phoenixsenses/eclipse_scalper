@@ -325,6 +325,13 @@ def test_validate_liquidation_watchlist_payload() -> None:
         "recent_limit": 20,
         "min_liq_rate": 0.0,
         "summary": {"symbol_count": 2, "top_n": 2, "state_counts": {"elevated": 1, "quiet": 1}, "top_symbol": "ETHUSDT"},
+        "top_summary": {
+            "symbol": "ETHUSDT",
+            "state_level": "elevated",
+            "freshness_status": "fresh",
+            "recommended_action": "show_caution",
+            "dashboard_summary": "ETH summary",
+        },
         "rows": [
             {
                 "symbol": "ETHUSDT",

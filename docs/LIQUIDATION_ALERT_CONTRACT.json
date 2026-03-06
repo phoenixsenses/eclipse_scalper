@@ -103,6 +103,13 @@
       },
       "top_symbol": "ETHUSDT"
     },
+    "top_summary": {
+      "symbol": "ETHUSDT",
+      "state_level": "severe",
+      "freshness_status": "stale",
+      "recommended_action": "monitor_only",
+      "dashboard_summary": "ETHUSDT severe liquidation regime, bias LONG, 20 recent alerts, freshness stale."
+    },
     "rows": [
       {
         "symbol": "ETHUSDT",
