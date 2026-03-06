@@ -1375,6 +1375,83 @@ def test_validate_liquidation_regime_tagger_payload() -> None:
     assert rsv.validate_payload(payload, "liquidation_regime_tagger") == []
 
 
+def test_validate_run_research_event_watchboard_cycle_payload() -> None:
+    payload = {
+        "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
+        "append_json": "reports/RESEARCH_EVENT_WATCHBOARD_SNAPSHOT_APPEND.json",
+        "trend_json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json",
+        "brief_json": "reports/RESEARCH_EVENT_OPERATOR_BRIEF.json",
+        "history_jsonl": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl",
+        "summary": {
+            "top_lane": "liquidation",
+            "top_action": "monitor_only",
+            "history_rows": 3,
+            "trend": "rising",
+            "trimmed_rows": 1,
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "run_research_event_watchboard_cycle",
+            "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"], "lookback_min": 240},
+            "metrics": {"top_lane": "liquidation", "history_rows": 3, "trend": "rising", "trimmed_rows": 1},
+            "artifacts": {
+                "json": "reports/RESEARCH_EVENT_WATCHBOARD_CYCLE.json",
+                "md": "reports/RESEARCH_EVENT_WATCHBOARD_CYCLE.md",
+                "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
+                "append_json": "reports/RESEARCH_EVENT_WATCHBOARD_SNAPSHOT_APPEND.json",
+                "trend_json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json",
+                "history_jsonl": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl",
+            },
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "run_research_event_watchboard_cycle"
+    assert rsv.validate_payload(payload, "run_research_event_watchboard_cycle") == []
+
+
+def test_validate_research_event_operator_brief_payload() -> None:
+    payload = {
+        "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
+        "trend_json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json",
+        "summary": {
+            "top_lane": "liquidation",
+            "top_action": "monitor_only",
+            "trend": "flat",
+            "severe_lane_count": 1,
+            "stale_lane_count": 2,
+        },
+        "brief": {
+            "headline": "Research events top=liquidation action=monitor_only trend=flat",
+            "operator_note": "top lane liquidation, action monitor_only, trend flat. severe lanes: liquidation. stale lanes: liquidation, spread_stress.",
+            "top_event": {"lane": "liquidation", "action": "monitor_only", "headline": "top headline"},
+            "severe_lanes": ["liquidation"],
+            "stale_lanes": ["liquidation", "spread_stress"],
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "research_event_operator_brief",
+            "inputs": {
+                "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
+                "trend_json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json",
+            },
+            "metrics": {
+                "top_lane": "liquidation",
+                "top_action": "monitor_only",
+                "trend": "flat",
+                "severe_lane_count": 1,
+                "stale_lane_count": 2,
+            },
+            "artifacts": {
+                "json": "reports/RESEARCH_EVENT_OPERATOR_BRIEF.json",
+                "md": "reports/RESEARCH_EVENT_OPERATOR_BRIEF.md",
+                "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
+                "trend_json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json",
+            },
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "research_event_operator_brief"
+    assert rsv.validate_payload(payload, "research_event_operator_brief") == []
+
+
 def test_rejects_bad_micro_edge_rule_shape() -> None:
     payload = {
         "ts_utc": "2026-03-05T00:00:00Z",

@@ -830,6 +830,65 @@ def _validate_event_watchboard_trend_from_history(payload: Dict[str, Any]) -> Li
     return errors
 
 
+def _validate_run_research_event_watchboard_cycle(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "watchboard_json": str,
+        "append_json": str,
+        "trend_json": str,
+        "brief_json": str,
+        "history_jsonl": str,
+        "summary": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("top_lane", "top_action", "history_rows", "trend", "trimmed_rows"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+        if "history_rows" in summary and not isinstance(summary["history_rows"], int):
+            errors.append("bad_type:summary.history_rows")
+        if "trimmed_rows" in summary and not isinstance(summary["trimmed_rows"], int):
+            errors.append("bad_type:summary.trimmed_rows")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_research_event_operator_brief(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "watchboard_json": str,
+        "trend_json": str,
+        "summary": dict,
+        "brief": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("top_lane", "top_action", "trend", "severe_lane_count", "stale_lane_count"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    brief = payload.get("brief")
+    if isinstance(brief, dict):
+        for key in ("headline", "operator_note", "top_event", "severe_lanes", "stale_lanes"):
+            if key not in brief:
+                errors.append(f"missing:brief.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 def _validate_validate_artifacts(payload: Dict[str, Any]) -> List[str]:
     errors: List[str] = []
     required_top = {
@@ -1474,6 +1533,8 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "event_watchboard_trend": _validate_event_watchboard_trend,
     "event_watchboard_snapshot_append": _validate_event_watchboard_snapshot_append,
     "event_watchboard_trend_from_history": _validate_event_watchboard_trend_from_history,
+    "run_research_event_watchboard_cycle": _validate_run_research_event_watchboard_cycle,
+    "research_event_operator_brief": _validate_research_event_operator_brief,
     "validate_artifacts": _validate_validate_artifacts,
     "report_check": _validate_report_check,
     "validate_micro_edge_forward": _validate_validate_micro_edge_forward,
@@ -1541,6 +1602,10 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "research_event_watchboard"
     if {"history_path", "appended"}.issubset(keys):
         return "event_watchboard_snapshot_append"
+    if {"watchboard_json", "append_json", "trend_json", "brief_json", "history_jsonl", "summary"}.issubset(keys):
+        return "run_research_event_watchboard_cycle"
+    if {"watchboard_json", "trend_json", "summary", "brief"}.issubset(keys):
+        return "research_event_operator_brief"
     if {"summary", "latest", "points", "history"}.issubset(keys):
         return "event_watchboard_trend_from_history"
     if {"summary", "latest", "points"}.issubset(keys) and "top_event" not in keys:

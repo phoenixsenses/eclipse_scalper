@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import sys
 from pathlib import Path
 
@@ -37,6 +38,7 @@ def test_build_append_payload() -> None:
 
 def test_main_appends_history(monkeypatch) -> None:
     out_dir = Path("localtests/test_event_watchboard_snapshot_append")
+    shutil.rmtree(out_dir, ignore_errors=True)
     out_dir.mkdir(parents=True, exist_ok=True)
     source = out_dir / "watchboard.json"
     source.write_text(
@@ -69,3 +71,21 @@ def test_main_appends_history(monkeypatch) -> None:
     assert lines[0]["top_lane"] == "liquidation"
     payload = json.loads(out_json.read_text(encoding="utf-8"))
     assert payload["run_summary"]["run_type"] == "event_watchboard_snapshot_append"
+
+
+def test_append_history_record_trims() -> None:
+    out_dir = Path("localtests/test_event_watchboard_snapshot_append_trim")
+    shutil.rmtree(out_dir, ignore_errors=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    history = out_dir / "history.jsonl"
+    for idx in range(3):
+        stats = ewsa.append_history_record(
+            history_path=history,
+            record={"top_lane": f"lane{idx}"},
+            max_history=2,
+        )
+    rows = [json.loads(line) for line in history.read_text(encoding="utf-8").splitlines() if line.strip()]
+    assert len(rows) == 2
+    assert rows[0]["top_lane"] == "lane1"
+    assert rows[1]["top_lane"] == "lane2"
+    assert stats["trimmed_rows"] == 1
