@@ -7,6 +7,8 @@ from statistics import median
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
+from tools.micro_edge_lib import compute_rule_thresholds, rule_fires
+
 
 def _to_float(v: Any) -> Optional[float]:
     try:
@@ -147,6 +149,13 @@ def enrich_bins(rows: List[Dict[str, Any]], bins: str) -> None:
                 r["regime_imb_bin"] = ("+" if x > 0 else "-") + ">=0.9"
 
 
+def enrich_liq_regime_tags(rows: List[Dict[str, Any]], rule_name: str) -> None:
+    thresholds = compute_rule_thresholds(rows)
+    for r in rows:
+        fired = bool(rule_fires(rule_name, r, thresholds))
+        r["liq_regime_tag"] = "high_liq_reversal" if fired else "normal"
+
+
 def group_key(row: Dict[str, Any], fields: List[str]) -> str:
     return "|".join(f"{f}={row.get(f, '')}" for f in fields)
 
@@ -225,6 +234,7 @@ def _parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     p.add_argument("--min-n", type=int, default=30)
     p.add_argument("--top-k", type=int, default=20)
     p.add_argument("--bins", choices=["tertiles", "quartiles"], default="tertiles")
+    p.add_argument("--liq-rule", default="high_liq_reversal_regime")
     return p.parse_args(argv)
 
 
@@ -237,16 +247,19 @@ def main(argv: Optional[List[str]] = None) -> int:
     fields = [x.strip() for x in str(args.group_by).split(",") if x.strip()]
     rows = load_debug_rows(path)
     enrich_bins(rows, bins=str(args.bins))
+    enrich_liq_regime_tags(rows, rule_name=str(args.liq_rule))
     all_groups = group_stats(rows, group_fields=fields)
     scored = [g for g in all_groups if int(g["n"]) >= int(args.min_n)]
     by_avg = sorted(scored, key=lambda r: float(r.get("avg_net", 0.0)), reverse=True)[: int(args.top_k)]
     by_p90 = sorted(scored, key=lambda r: float(r.get("p90_net", 0.0)), reverse=True)[: int(args.top_k)]
+    tagged_count = sum(1 for r in rows if str(r.get("liq_regime_tag", "")) == "high_liq_reversal")
 
     small = sum(1 for g in all_groups if int(g["n"]) < int(args.min_n))
     ge = sum(1 for g in all_groups if int(g["n"]) >= int(args.min_n))
     print(
         f"analyze_micro_edge_regimes debug={path} rows={len(rows)} bins={args.bins} "
-        f"groups_total={len(all_groups)} groups_n_lt_min={small} groups_n_ge_min={ge} min_n={args.min_n}"
+        f"groups_total={len(all_groups)} groups_n_lt_min={small} groups_n_ge_min={ge} min_n={args.min_n} "
+        f"liq_rule={args.liq_rule} tagged_count={tagged_count}"
     )
     print("TOP_BY_AVG_NET")
     print(
