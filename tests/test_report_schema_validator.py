@@ -719,6 +719,142 @@ def test_validate_volume_vacuum_watchlist_payload() -> None:
     assert rsv.validate_payload(payload, "volume_vacuum_watchlist") == []
 
 
+def test_validate_volatility_burst_alerts_payload() -> None:
+    payload = {
+        "lane": "volatility_burst",
+        "symbol": "ETHUSDT",
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "summary": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 3,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_abs_ret_1_tagged": 0.001,
+            "avg_trade_intensity_tagged": 400.0,
+            "direction_counts": {"UP": 2, "DOWN": 1, "FLAT": 0},
+        },
+        "alerts": [
+            {"ts_ms": 1, "severity": "high", "direction": "UP", "ret_1": 0.002, "abs_ret_1": 0.002, "trade_intensity": 500.0, "spread": 0.0002}
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "volatility_burst_alerts",
+            "inputs": {"symbol": "ETHUSDT"},
+            "metrics": {"rows_total": 100, "tagged_count": 5},
+            "artifacts": {"json": "reports/VOLATILITY_BURST_ALERTS.json", "md": "reports/VOLATILITY_BURST_ALERTS.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "volatility_burst_alerts"
+    assert rsv.validate_payload(payload, "volatility_burst_alerts") == []
+
+
+def test_validate_volatility_burst_state_payload() -> None:
+    payload = {
+        "lane": "volatility_burst",
+        "source_json": "reports/VOLATILITY_BURST_ALERTS_REAL.json",
+        "symbol": "ETHUSDT",
+        "state": {
+            "level": "elevated",
+            "reasons": ["recent_volatility_burst_cluster"],
+            "dominant_direction": "UP",
+            "freshness": {"status": "fresh", "age_sec": 4.0, "stale_after_sec": 60},
+        },
+        "dashboard_summary": "ETHUSDT elevated volatility burst, 3 recent alerts, freshness fresh.",
+        "notification_text": "[volatility-burst] symbol=ETHUSDT level=elevated freshness=fresh direction=UP recent_alerts=3 avg_abs_ret=0.001000 action=show_caution",
+        "recommended_action": "show_caution",
+        "card": {
+            "headline": "ETHUSDT volatility burst elevated",
+            "operator_note": "Use as expansion context; do not map directly to execution or trade direction.",
+            "recent_alert_count": 3,
+            "tagged_rate": 0.05,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_abs_ret_1_tagged": 0.001,
+            "avg_trade_intensity_tagged": 400.0,
+            "dominant_direction": "UP",
+            "latest_alert_ts_ms": 1,
+            "freshness_status": "fresh",
+            "age_sec": 4.0,
+        },
+        "summary_snapshot": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 3,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_abs_ret_1_tagged": 0.001,
+            "avg_trade_intensity_tagged": 400.0,
+            "direction_counts": {"UP": 2, "DOWN": 1, "FLAT": 0},
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "volatility_burst_state",
+            "inputs": {"source_json": "reports/VOLATILITY_BURST_ALERTS_REAL.json"},
+            "metrics": {"state_level": "elevated", "recommended_action": "show_caution"},
+            "artifacts": {"json": "reports/VOLATILITY_BURST_STATE.json", "md": "reports/VOLATILITY_BURST_STATE.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "volatility_burst_state"
+    assert rsv.validate_payload(payload, "volatility_burst_state") == []
+
+
+def test_validate_volatility_burst_watchlist_payload() -> None:
+    payload = {
+        "lane": "volatility_burst",
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "recent_limit": 20,
+        "summary": {"symbol_count": 2, "top_n": 2, "state_counts": {"severe": 1, "elevated": 1}, "top_symbol": "ETHUSDT"},
+        "top_summary": {
+            "symbol": "ETHUSDT",
+            "state_level": "severe",
+            "freshness_status": "fresh",
+            "recommended_action": "escalate_monitoring",
+            "dashboard_summary": "ETH severe volatility burst",
+        },
+        "banner": {
+            "headline": "Volatility burst watchlist top=ETHUSDT level=severe freshness=fresh action=escalate_monitoring",
+            "recommended_action": "escalate_monitoring",
+            "top_symbol": "ETHUSDT",
+            "top_state_level": "severe",
+            "top_freshness_status": "fresh",
+            "severe_count": 1,
+            "elevated_count": 1,
+            "quiet_count": 0,
+        },
+        "rows": [
+            {
+                "symbol": "ETHUSDT",
+                "state_level": "severe",
+                "freshness_status": "fresh",
+                "recommended_action": "escalate_monitoring",
+                "dominant_direction": "UP",
+                "recent_alert_count": 6,
+                "high_count": 2,
+                "medium_count": 4,
+                "avg_abs_ret_1_tagged": 0.0021,
+                "avg_trade_intensity_tagged": 400.0,
+                "age_sec": 3.0,
+                "dashboard_summary": "ETH severe volatility burst",
+                "priority_score": 247.0,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "volatility_burst_watchlist",
+            "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"]},
+            "metrics": {"symbol_count": 2, "severe_count": 1, "elevated_count": 1, "quiet_count": 0},
+            "artifacts": {"json": "reports/VOLATILITY_BURST_WATCHLIST.json", "md": "reports/VOLATILITY_BURST_WATCHLIST.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "volatility_burst_watchlist"
+    assert rsv.validate_payload(payload, "volatility_burst_watchlist") == []
+
+
 def test_validate_spread_stress_watchlist_payload() -> None:
     payload = {
         "lookback_min": 240,

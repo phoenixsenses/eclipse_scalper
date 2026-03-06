@@ -10,6 +10,7 @@ Current lanes:
 - spread stress
 - return shock
 - volume vacuum
+- volatility burst
 - fill toxicity
 - latency stress
 
