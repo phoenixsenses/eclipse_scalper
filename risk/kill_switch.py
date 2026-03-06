@@ -7,7 +7,9 @@
 # - ✅ Never fatal if telemetry missing
 # - ✅ No logic changes to halt conditions / escalation behavior
 
+import json
 import time
+from pathlib import Path
 from typing import Tuple, Optional, Any
 
 from utils.logging import log_core
@@ -68,6 +70,86 @@ def _is_finite(x: Any) -> bool:
         return False
 
 
+_HALT_STATE_PATH = Path("logs/kill_switch_state.json")
+_HALT_STATE_LOADED = set()  # tracks which state object id has been loaded
+
+
+def _save_halt_state(state) -> None:
+    """Persist halt state to disk so it survives restarts."""
+    try:
+        data = {
+            "halt_until_ts": float(getattr(state, "halt_until_ts", 0.0) or 0.0),
+            "halt_reason": str(getattr(state, "halt_reason", "") or ""),
+            "halt_count": int(getattr(state, "halt_count", 0) or 0),
+            "saved_at": _now(),
+        }
+        km = getattr(state, "kill_metrics", None)
+        if isinstance(km, dict):
+            data["trip_streak"] = int(km.get("trip_streak", 0) or 0)
+            data["last_trip_ts"] = float(km.get("last_trip_ts", 0.0) or 0.0)
+            hist = km.get("trip_history")
+            if isinstance(hist, list):
+                data["trip_history"] = hist[-12:]
+        _HALT_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        _HALT_STATE_PATH.write_text(
+            json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+    except Exception:
+        pass
+
+
+def _load_halt_state(state) -> None:
+    """Load persisted halt state on first boot. Also applies post-crash cooldown."""
+    sid = id(state)
+    if sid in _HALT_STATE_LOADED:
+        return
+    _HALT_STATE_LOADED.add(sid)
+
+    now = _now()
+
+    # --- Restore persisted halt ---
+    try:
+        if _HALT_STATE_PATH.exists():
+            raw = json.loads(_HALT_STATE_PATH.read_text(encoding="utf-8"))
+            persisted_until = float(raw.get("halt_until_ts", 0.0) or 0.0)
+            if persisted_until > now:
+                state.halt_until_ts = persisted_until
+                state.halt_reason = str(raw.get("halt_reason", "") or "")
+                state.halt_count = int(raw.get("halt_count", 0) or 0)
+                km = getattr(state, "kill_metrics", {})
+                if isinstance(km, dict):
+                    km["trip_streak"] = int(raw.get("trip_streak", 0) or 0)
+                    km["last_trip_ts"] = float(raw.get("last_trip_ts", 0.0) or 0.0)
+                    hist = raw.get("trip_history")
+                    if isinstance(hist, list):
+                        km["trip_history"] = hist
+                log_core.warning(
+                    f"KILL SWITCH: restored persisted halt — "
+                    f"remaining {persisted_until - now:.0f}s | reason={state.halt_reason}"
+                )
+    except Exception:
+        pass
+
+    # --- Post-crash cooldown ---
+    try:
+        last_shutdown_path = Path("logs/last_shutdown.json")
+        if last_shutdown_path.exists():
+            sd = json.loads(last_shutdown_path.read_text(encoding="utf-8"))
+            sd_ts = float(sd.get("ts", 0.0) or 0.0)
+            sd_fatal = bool(sd.get("fatal", False))
+            age = now - sd_ts
+            if sd_fatal and 0 < age < 300:
+                cooldown_end = now + max(60.0, 300.0 - age)
+                if cooldown_end > float(getattr(state, "halt_until_ts", 0.0) or 0.0):
+                    state.halt_until_ts = cooldown_end
+                    reason = f"POST-CRASH COOLDOWN — last fatal shutdown {age:.0f}s ago"
+                    if not str(getattr(state, "halt_reason", "") or ""):
+                        state.halt_reason = reason
+                    log_core.critical(reason)
+    except Exception:
+        pass
+
+
 def _ensure_state_fields(state) -> None:
     # Halt / quarantine
     if not hasattr(state, "halt_until_ts"):
@@ -99,6 +181,9 @@ def _ensure_state_fields(state) -> None:
 
     # Trip history (ring buffer)
     km.setdefault("trip_history", [])  # list of dicts
+
+    # Load persisted halt state on first access
+    _load_halt_state(state)
 
 
 def _cfg(bot, name: str, default):
@@ -288,6 +373,7 @@ async def request_halt(bot, seconds: float, reason: str, severity: str = "critic
         km["last_eval_reason"] = str(reason or "").strip()[:500]
 
         _push_trip_history(bot, reason=str(reason or ""), seconds_eff=float(seconds_eff))
+        _save_halt_state(bot.state)
 
         msg = f"KILL SWITCH HALT — {int(seconds_eff)}s | {str(reason or '')[:220]}"
         log_core.critical(msg)
@@ -388,6 +474,8 @@ async def clear_halt(bot, note: str = "") -> None:
         km = bot.state.kill_metrics
         km["last_eval_ok"] = True
         km["last_eval_reason"] = ""
+
+        _save_halt_state(bot.state)
 
         if note:
             log_core.info(f"KILL SWITCH CLEAR — {note}")
@@ -622,7 +710,15 @@ async def evaluate(bot) -> Tuple[bool, Optional[str]]:
         if _is_finite(age) and age < 999998.0:
             km["data_samples_ok"] = int(km.get("data_samples_ok", 0) or 0) + 1
 
+        # During boot grace: allow time for data to arrive, BUT if data
+        # exists and is already very stale (>max threshold), block immediately.
+        # This prevents trading on inherited stale data after a long outage.
         if data_boot_grace > 0 and uptime < data_boot_grace:
+            if int(km.get("data_samples_ok", 0) or 0) >= 1 and max_data_stale > 0 and age > max_data_stale:
+                reason = f"STARTUP DATA STALE — age {age:.0f}s > {max_data_stale:.0f}s (boot validation)"
+                await request_halt(bot, min(cooldown, 120.0), reason, "critical")
+                km["last_check_ts"] = now
+                return False, reason
             km["last_check_ts"] = now
         else:
             if int(km.get("data_samples_ok", 0) or 0) >= max(1, min_data_samples):
