@@ -780,6 +780,26 @@ def test_validate_run_liq_reversal_e2e_payload() -> None:
     assert rsv.validate_payload(payload, "run_liq_reversal_e2e") == []
 
 
+def test_validate_liquidation_regime_tagger_payload() -> None:
+    payload = {
+        "symbol": "ETHUSDT",
+        "rule": "high_liq_reversal_regime",
+        "lookback_min": 1440,
+        "bucket_sec": 5,
+        "summary": {"rows_total": 10, "tagged_count": 2, "tagged_rate": 0.2},
+        "tags": [{"ts_ms": 1, "tag": "high_liq_reversal", "rule_fired": True}],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "liquidation_regime_tagger",
+            "inputs": {"db": "data/microstructure.db", "symbol": "ETHUSDT"},
+            "metrics": {"rows_total": 10, "tagged_count": 2, "tagged_rate": 0.2},
+            "artifacts": {"json": "reports/LIQUIDATION_REGIME_TAGGER.json", "md": "reports/LIQUIDATION_REGIME_TAGGER.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "liquidation_regime_tagger"
+    assert rsv.validate_payload(payload, "liquidation_regime_tagger") == []
+
+
 def test_rejects_bad_micro_edge_rule_shape() -> None:
     payload = {
         "ts_utc": "2026-03-05T00:00:00Z",

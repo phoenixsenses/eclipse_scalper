@@ -798,6 +798,27 @@ def _validate_run_liq_reversal_e2e(payload: Dict[str, Any]) -> List[str]:
     return errors
 
 
+def _validate_liquidation_regime_tagger(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "symbol": str,
+        "rule": str,
+        "lookback_min": int,
+        "bucket_sec": int,
+        "summary": dict,
+        "tags": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "micro_edge_smoke": _validate_micro_edge_record,
     "validate_canonical": _validate_validate_canonical,
@@ -836,6 +857,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "validate_microstructure_contract": _validate_microstructure_contract,
     "generate_liq_reversal_candidates": _validate_generate_liq_reversal_candidates,
     "run_liq_reversal_e2e": _validate_run_liq_reversal_e2e,
+    "liquidation_regime_tagger": _validate_liquidation_regime_tagger,
 }
 
 
@@ -915,6 +937,8 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "generate_liq_reversal_candidates"
     if {"coverage_json", "candidates_json", "rank_baseline_json", "rank_v5_json", "summary"}.issubset(keys):
         return "run_liq_reversal_e2e"
+    if {"symbol", "rule", "lookback_min", "bucket_sec", "summary", "tags"}.issubset(keys):
+        return "liquidation_regime_tagger"
     return None
 
 
