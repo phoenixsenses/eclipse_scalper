@@ -129,6 +129,13 @@ app.add_middleware(
 )
 
 
+@app.on_event("startup")
+def _ensure_dirs() -> None:
+    """Create required directories on dashboard boot."""
+    for d in (LOGS_DIR, LOGS_DIR / "health"):
+        d.mkdir(parents=True, exist_ok=True)
+
+
 def _role_rank(role: str) -> int:
     return {"viewer": 1, "operator": 2, "admin": 3}.get((role or "viewer").strip().lower(), 1)
 
