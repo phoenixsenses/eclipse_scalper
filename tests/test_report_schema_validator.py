@@ -1961,6 +1961,7 @@ def test_validate_run_research_event_watchboard_cycle_payload() -> None:
     payload = {
         "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
         "append_json": "reports/RESEARCH_EVENT_WATCHBOARD_SNAPSHOT_APPEND.json",
+        "overlap_json": "reports/EVENT_LANE_OVERLAP.json",
         "trend_json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json",
         "brief_json": "reports/RESEARCH_EVENT_OPERATOR_BRIEF.json",
         "history_jsonl": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl",
@@ -1970,17 +1971,19 @@ def test_validate_run_research_event_watchboard_cycle_payload() -> None:
             "history_rows": 3,
             "trend": "rising",
             "trimmed_rows": 1,
+            "top_overlap_pair": "liquidation::spread_stress",
         },
         "run_summary": {
             "version": "v1",
             "run_type": "run_research_event_watchboard_cycle",
             "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"], "lookback_min": 240},
-            "metrics": {"top_lane": "liquidation", "history_rows": 3, "trend": "rising", "trimmed_rows": 1},
+            "metrics": {"top_lane": "liquidation", "history_rows": 3, "trend": "rising", "trimmed_rows": 1, "top_overlap_pair": "liquidation::spread_stress"},
             "artifacts": {
                 "json": "reports/RESEARCH_EVENT_WATCHBOARD_CYCLE.json",
                 "md": "reports/RESEARCH_EVENT_WATCHBOARD_CYCLE.md",
                 "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
                 "append_json": "reports/RESEARCH_EVENT_WATCHBOARD_SNAPSHOT_APPEND.json",
+                "overlap_json": "reports/EVENT_LANE_OVERLAP.json",
                 "trend_json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json",
                 "history_jsonl": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl",
             },
@@ -1990,10 +1993,65 @@ def test_validate_run_research_event_watchboard_cycle_payload() -> None:
     assert rsv.validate_payload(payload, "run_research_event_watchboard_cycle") == []
 
 
+def test_validate_event_lane_overlap_payload() -> None:
+    payload = {
+        "history_jsonl": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl",
+        "summary": {
+            "available_rows": 3,
+            "used_rows": 3,
+            "lane_count": 4,
+            "active_lane_count": 3,
+            "active_snapshot_count": 3,
+            "min_level": "elevated",
+            "top_overlap_pair": "spread_stress::liquidation",
+        },
+        "lane_stats": [
+            {
+                "lane": "liquidation",
+                "active_count": 2,
+                "active_rate": 0.6667,
+                "fresh_active_count": 1,
+                "top_count": 1,
+            }
+        ],
+        "pairwise": [
+            {
+                "lane_a": "spread_stress",
+                "lane_b": "liquidation",
+                "coactive_count": 2,
+                "coactive_rate": 0.6667,
+                "jaccard": 1.0,
+            }
+        ],
+        "strongest_overlaps": [
+            {
+                "lane_a": "spread_stress",
+                "lane_b": "liquidation",
+                "coactive_count": 2,
+                "coactive_rate": 0.6667,
+                "jaccard": 1.0,
+            }
+        ],
+        "redundancy_notes": [
+            "spread_stress and liquidation co-activate frequently (jaccard=1.00, coactive_count=2)."
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "event_lane_overlap",
+            "inputs": {"history_jsonl": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl", "min_level": "elevated", "top_n": 5},
+            "metrics": {"available_rows": 3, "lane_count": 4, "active_snapshot_count": 3, "top_overlap_pair": "spread_stress::liquidation"},
+            "artifacts": {"json": "reports/EVENT_LANE_OVERLAP.json", "md": "reports/EVENT_LANE_OVERLAP.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "event_lane_overlap"
+    assert rsv.validate_payload(payload, "event_lane_overlap") == []
+
+
 def test_validate_research_event_operator_brief_payload() -> None:
     payload = {
         "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
         "trend_json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json",
+        "overlap_json": "reports/EVENT_LANE_OVERLAP.json",
         "summary": {
             "top_lane": "liquidation",
             "top_action": "monitor_only",
@@ -2002,12 +2060,14 @@ def test_validate_research_event_operator_brief_payload() -> None:
             "stale_lane_count": 2,
             "strongest_delta_lane": "return_shock",
             "strongest_delta_trend": "rising_fast",
+            "strongest_overlap_pair": "liquidation::spread_stress",
         },
         "brief": {
             "headline": "Research events top=liquidation action=monitor_only trend=flat",
-            "operator_note": "top lane liquidation, action monitor_only, trend flat. strongest lane delta: return_shock rising_fast (+125.00). severe lanes: liquidation. stale lanes: liquidation, spread_stress.",
+            "operator_note": "top lane liquidation, action monitor_only, trend flat. strongest lane delta: return_shock rising_fast (+125.00). strongest overlap: liquidation + spread_stress (jaccard=0.75, coactive_count=3). severe lanes: liquidation. stale lanes: liquidation, spread_stress.",
             "top_event": {"lane": "liquidation", "action": "monitor_only", "headline": "top headline"},
             "strongest_delta": {"lane": "return_shock", "trend": "rising_fast", "delta_priority_score": 125.0},
+            "strongest_overlap": {"lane_a": "liquidation", "lane_b": "spread_stress", "jaccard": 0.75, "coactive_count": 3},
             "severe_lanes": ["liquidation"],
             "stale_lanes": ["liquidation", "spread_stress"],
         },
@@ -2017,6 +2077,7 @@ def test_validate_research_event_operator_brief_payload() -> None:
             "inputs": {
                 "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
                 "trend_json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json",
+                "overlap_json": "reports/EVENT_LANE_OVERLAP.json",
             },
             "metrics": {
                 "top_lane": "liquidation",
@@ -2026,12 +2087,14 @@ def test_validate_research_event_operator_brief_payload() -> None:
                 "stale_lane_count": 2,
                 "strongest_delta_lane": "return_shock",
                 "strongest_delta_trend": "rising_fast",
+                "strongest_overlap_pair": "liquidation::spread_stress",
             },
             "artifacts": {
                 "json": "reports/RESEARCH_EVENT_OPERATOR_BRIEF.json",
                 "md": "reports/RESEARCH_EVENT_OPERATOR_BRIEF.md",
                 "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
                 "trend_json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json",
+                "overlap_json": "reports/EVENT_LANE_OVERLAP.json",
             },
         },
     }

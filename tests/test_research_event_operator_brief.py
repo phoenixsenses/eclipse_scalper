@@ -16,6 +16,7 @@ def test_build_operator_brief_payload() -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     watchboard_path = out_dir / "watchboard.json"
     trend_path = out_dir / "trend.json"
+    overlap_path = out_dir / "overlap.json"
     watchboard_path.write_text(
         json.dumps(
             {
@@ -38,10 +39,22 @@ def test_build_operator_brief_payload() -> None:
         ),
         encoding="utf-8",
     )
+    overlap_path.write_text(
+        json.dumps(
+            {
+                "summary": {"top_overlap_pair": "liquidation::spread_stress"},
+                "strongest_overlaps": [
+                    {"lane_a": "liquidation", "lane_b": "spread_stress", "jaccard": 0.75, "coactive_count": 3}
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
 
     payload = reob.build_operator_brief_payload(
         watchboard_json=str(watchboard_path),
         trend_json=str(trend_path),
+        overlap_json=str(overlap_path),
         out_json=str(out_dir / "out.json"),
         out_md=str(out_dir / "out.md"),
     )
@@ -49,8 +62,40 @@ def test_build_operator_brief_payload() -> None:
     assert payload["summary"]["stale_lane_count"] == 1
     assert payload["summary"]["trend"] == "rising"
     assert payload["summary"]["strongest_delta_lane"] == "return_shock"
+    assert payload["summary"]["strongest_overlap_pair"] == "liquidation::spread_stress"
     assert payload["brief"]["strongest_delta"]["trend"] == "rising_fast"
+    assert payload["brief"]["strongest_overlap"]["jaccard"] == 0.75
     assert payload["run_summary"]["run_type"] == "research_event_operator_brief"
+
+
+def test_build_operator_brief_payload_accepts_watchboard_level_field() -> None:
+    out_dir = Path("localtests/test_research_event_operator_brief_level")
+    shutil.rmtree(out_dir, ignore_errors=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    watchboard_path = out_dir / "watchboard.json"
+    trend_path = out_dir / "trend.json"
+    overlap_path = out_dir / "overlap.json"
+    watchboard_path.write_text(
+        json.dumps(
+            {
+                "summary": {"top_lane": "spread_stress"},
+                "top_event": {"recommended_action": "reduce_passive_aggression", "headline": "top headline"},
+                "lanes": [{"lane": "spread_stress", "level": "severe", "freshness_status": "fresh"}],
+            }
+        ),
+        encoding="utf-8",
+    )
+    trend_path.write_text(json.dumps({"summary": {"trend": "flat"}, "lane_deltas": []}), encoding="utf-8")
+    overlap_path.write_text(json.dumps({"summary": {"top_overlap_pair": ""}, "strongest_overlaps": []}), encoding="utf-8")
+    payload = reob.build_operator_brief_payload(
+        watchboard_json=str(watchboard_path),
+        trend_json=str(trend_path),
+        overlap_json=str(overlap_path),
+        out_json=str(out_dir / "out.json"),
+        out_md=str(out_dir / "out.md"),
+    )
+    assert payload["summary"]["severe_lane_count"] == 1
+    assert payload["brief"]["severe_lanes"] == ["spread_stress"]
 
 
 def test_main_writes_files(monkeypatch) -> None:
@@ -59,8 +104,10 @@ def test_main_writes_files(monkeypatch) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     watchboard_path = out_dir / "watchboard.json"
     trend_path = out_dir / "trend.json"
+    overlap_path = out_dir / "overlap.json"
     watchboard_path.write_text(json.dumps({"summary": {"top_lane": "liquidation"}, "top_event": {}, "lanes": []}), encoding="utf-8")
     trend_path.write_text(json.dumps({"summary": {"trend": "flat"}, "lane_deltas": []}), encoding="utf-8")
+    overlap_path.write_text(json.dumps({"summary": {"top_overlap_pair": ""}, "strongest_overlaps": []}), encoding="utf-8")
 
     out_json = out_dir / "brief.json"
     out_md = out_dir / "brief.md"
@@ -73,6 +120,8 @@ def test_main_writes_files(monkeypatch) -> None:
             str(watchboard_path),
             "--trend-json",
             str(trend_path),
+            "--overlap-json",
+            str(overlap_path),
             "--out-json",
             str(out_json),
             "--out-md",
