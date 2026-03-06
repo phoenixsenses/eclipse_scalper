@@ -59,12 +59,23 @@ def collect_last_decisions(journal_path: str = "logs/execution_journal.jsonl", l
     p = Path(str(journal_path))
     if not p.exists():
         return []
-    lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
+    # Read only the tail of the file to avoid loading GBs into memory.
+    _TAIL_BYTES = 256 * 1024  # 256 KB is enough for recent decisions
+    try:
+        file_size = p.stat().st_size
+        with open(p, "r", encoding="utf-8", errors="replace") as fh:
+            if file_size > _TAIL_BYTES:
+                fh.seek(file_size - _TAIL_BYTES)
+                fh.readline()  # skip partial first line
+            tail_lines = fh.readlines()
+    except Exception:
+        return []
     out: List[Dict[str, Any]] = []
-    for raw in reversed(lines):
+    for raw in reversed(tail_lines):
         if len(out) >= int(limit):
             break
-        if not raw.strip():
+        raw = raw.strip()
+        if not raw:
             continue
         try:
             obj = json.loads(raw)

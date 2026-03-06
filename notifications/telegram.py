@@ -1,3 +1,5 @@
+from html import escape as _html_escape
+
 from telegram import Bot
 import time
 
@@ -19,9 +21,10 @@ class Notifier:
             return False
         sent_ok = False
         try:
+            safe_text = _html_escape(str(text or ""), quote=False)
             await self.bot.send_message(
                 chat_id=self.chat_id,
-                text=f"<pre>{text}</pre>",
+                text=f"<pre>{safe_text}</pre>",
                 parse_mode='HTML',
                 disable_notification=bool(silent),
             )

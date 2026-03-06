@@ -235,7 +235,7 @@ def _require_api_key(req: Request) -> None:
 
 
 def _rate_limit_enabled() -> bool:
-    raw = (os.environ.get("DASHBOARD_RATE_LIMIT_ENABLED", "0") or "0").strip().lower()
+    raw = (os.environ.get("DASHBOARD_RATE_LIMIT_ENABLED", "1") or "1").strip().lower()
     return raw in {"1", "true", "yes", "on"}
 
 
@@ -252,6 +252,11 @@ def _check_rate_limit(req: Request, bucket: str, max_ops: int) -> None:
         raise HTTPException(status_code=429, detail="Rate limit exceeded")
     arr.append(now)
     _RATE_STATE[key] = arr
+    # Prevent unbounded growth of stale keys
+    if len(_RATE_STATE) > 500:
+        stale = [k for k, v in _RATE_STATE.items() if not v or now - v[-1] > window_sec * 2]
+        for k in stale:
+            _RATE_STATE.pop(k, None)
 
 
 def _idempotency_enabled() -> bool:
