@@ -35,6 +35,27 @@ def _priority(state_level: str, freshness_status: str, recent_alert_count: int, 
     return base + min(50.0, float(recent_alert_count)) + min(50.0, float(max_liq_rate_recent))
 
 
+def _build_banner(summary: Dict[str, Any], top_summary: Dict[str, Any]) -> Dict[str, Any]:
+    symbol = str(top_summary.get("symbol") or "")
+    level = str(top_summary.get("state_level") or "quiet")
+    freshness = str(top_summary.get("freshness_status") or "stale")
+    action = str(top_summary.get("recommended_action") or "monitor_only")
+    headline = (
+        f"Liquidation watchlist top={symbol or 'none'} "
+        f"level={level} freshness={freshness} action={action}"
+    )
+    return {
+        "headline": headline,
+        "recommended_action": action,
+        "top_symbol": symbol,
+        "top_state_level": level,
+        "top_freshness_status": freshness,
+        "severe_count": int((summary.get("state_counts") or {}).get("severe", 0)),
+        "elevated_count": int((summary.get("state_counts") or {}).get("elevated", 0)),
+        "quiet_count": int((summary.get("state_counts") or {}).get("quiet", 0)),
+    }
+
+
 def build_watchlist_payload(
     *,
     db: str,
@@ -105,6 +126,13 @@ def build_watchlist_payload(
         "top_symbol": str(top_rows[0]["symbol"]) if top_rows else "",
     }
     top_row = top_rows[0] if top_rows else {}
+    top_summary = {
+        "symbol": str(top_row.get("symbol") or ""),
+        "state_level": str(top_row.get("state_level") or "quiet"),
+        "freshness_status": str(top_row.get("freshness_status") or "stale"),
+        "recommended_action": str(top_row.get("recommended_action") or "monitor_only"),
+        "dashboard_summary": str(top_row.get("dashboard_summary") or ""),
+    }
     payload = {
         "rule": str(rule),
         "lookback_min": int(lookback_min),
@@ -112,13 +140,8 @@ def build_watchlist_payload(
         "recent_limit": int(recent_limit),
         "min_liq_rate": float(min_liq_rate),
         "summary": summary,
-        "top_summary": {
-            "symbol": str(top_row.get("symbol") or ""),
-            "state_level": str(top_row.get("state_level") or "quiet"),
-            "freshness_status": str(top_row.get("freshness_status") or "stale"),
-            "recommended_action": str(top_row.get("recommended_action") or "monitor_only"),
-            "dashboard_summary": str(top_row.get("dashboard_summary") or ""),
-        },
+        "top_summary": top_summary,
+        "banner": _build_banner(summary, top_summary),
         "rows": top_rows,
     }
     payload["run_summary"] = build_run_summary(
@@ -186,6 +209,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         f"symbols={payload['summary']['symbol_count']} top_n={payload['summary']['top_n']} top_symbol={payload['summary']['top_symbol']}",
         f"state_counts={json.dumps(payload['summary']['state_counts'], ensure_ascii=True, sort_keys=True)}",
         f"top_summary={json.dumps(payload['top_summary'], ensure_ascii=True, sort_keys=True)}",
+        f"banner={json.dumps(payload['banner'], ensure_ascii=True, sort_keys=True)}",
         "",
         "| symbol | state_level | freshness_status | recommended_action | primary_side_bias | dominant_severity | recent_alert_count | max_liq_rate_recent | priority_score |",
         "|---|---|---|---|---|---|---:|---:|---:|",

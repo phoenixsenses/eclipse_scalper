@@ -100,6 +100,8 @@ def test_build_watchlist_payload_ranks_symbols(monkeypatch) -> None:
     assert payload["summary"]["top_symbol"] == "ETHUSDT"
     assert payload["top_summary"]["symbol"] == "ETHUSDT"
     assert payload["top_summary"]["recommended_action"] == "show_caution"
+    assert payload["banner"]["top_symbol"] == "ETHUSDT"
+    assert payload["banner"]["recommended_action"] == "show_caution"
     assert payload["rows"][0]["symbol"] == "ETHUSDT"
     assert payload["rows"][0]["recommended_action"] == "show_caution"
 
@@ -121,6 +123,16 @@ def test_main_writes_watchlist_files(monkeypatch) -> None:
                 "freshness_status": "fresh",
                 "recommended_action": "show_caution",
                 "dashboard_summary": "ETH summary",
+            },
+            "banner": {
+                "headline": "Liquidation watchlist top=ETHUSDT level=elevated freshness=fresh action=show_caution",
+                "recommended_action": "show_caution",
+                "top_symbol": "ETHUSDT",
+                "top_state_level": "elevated",
+                "top_freshness_status": "fresh",
+                "severe_count": 0,
+                "elevated_count": 1,
+                "quiet_count": 0,
             },
             "rows": [
                 {

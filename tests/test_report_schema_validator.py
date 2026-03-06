@@ -332,6 +332,16 @@ def test_validate_liquidation_watchlist_payload() -> None:
             "recommended_action": "show_caution",
             "dashboard_summary": "ETH summary",
         },
+        "banner": {
+            "headline": "Liquidation watchlist top=ETHUSDT level=elevated freshness=fresh action=show_caution",
+            "recommended_action": "show_caution",
+            "top_symbol": "ETHUSDT",
+            "top_state_level": "elevated",
+            "top_freshness_status": "fresh",
+            "severe_count": 0,
+            "elevated_count": 1,
+            "quiet_count": 1,
+        },
         "rows": [
             {
                 "symbol": "ETHUSDT",

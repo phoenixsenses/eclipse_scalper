@@ -121,6 +121,7 @@ Suggested watchlist source:
 - `python -m tools.liquidation_watchlist --symbols ETHUSDT,BTCUSDT --out-json reports/LIQUIDATION_WATCHLIST_REAL.json`
 - use this for multi-symbol ranking / watch tables
 - `top_summary` can be used for a single top-watch badge without parsing the full rows list
+- `banner` can be used for a single dashboard header / top-of-page strip
 
 ### Monitoring
 
