@@ -280,6 +280,43 @@ def _validate_summarize_liq_tag_signal_behavior(payload: Dict[str, Any]) -> List
     return errors
 
 
+def _validate_liquidation_regime_alerts(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "symbol": str,
+        "rule": str,
+        "lookback_min": int,
+        "bucket_sec": int,
+        "recent_limit": int,
+        "min_liq_rate": (int, float),
+        "summary": dict,
+        "alerts": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("rows_total", "tagged_count", "tagged_rate", "recent_alert_count", "max_consecutive_tagged", "max_liq_rate_recent"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    alerts = payload.get("alerts")
+    if isinstance(alerts, list):
+        for idx, item in enumerate(alerts):
+            if not isinstance(item, dict):
+                errors.append(f"bad_type:alerts[{idx}]")
+                continue
+            for key in ("ts_ms", "side_bias", "liq_rate_per_sec", "liq_imbalance", "spread", "trade_intensity", "ret_1"):
+                if key not in item:
+                    errors.append(f"missing:alerts[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 def _validate_validate_artifacts(payload: Dict[str, Any]) -> List[str]:
     errors: List[str] = []
     required_top = {
@@ -912,6 +949,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "summarize_rank_attribution": _validate_summarize_rank_attribution,
     "summarize_liq_regime_tag_impact": _validate_summarize_liq_regime_tag_impact,
     "summarize_liq_tag_signal_behavior": _validate_summarize_liq_tag_signal_behavior,
+    "liquidation_regime_alerts": _validate_liquidation_regime_alerts,
     "validate_artifacts": _validate_validate_artifacts,
     "report_check": _validate_report_check,
     "validate_micro_edge_forward": _validate_validate_micro_edge_forward,
@@ -963,6 +1001,8 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "summarize_liq_regime_tag_impact"
     if {"debug", "rule", "overall", "recommendation"}.issubset(keys):
         return "summarize_liq_tag_signal_behavior"
+    if {"symbol", "rule", "recent_limit", "min_liq_rate", "alerts"}.issubset(keys):
+        return "liquidation_regime_alerts"
     if {"ok", "calibration", "execution"}.issubset(keys):
         return "validate_artifacts"
     if {"results", "summary"}.issubset(keys):

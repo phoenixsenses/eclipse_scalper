@@ -27,6 +27,7 @@ KEY_MODULES = [
     "tools.generate_liq_reversal_candidates",
     "tools.run_liq_reversal_e2e",
     "tools.liquidation_regime_tagger",
+    "tools.liquidation_regime_alerts",
 ]
 
 KEY_FILES = [
@@ -47,6 +48,7 @@ KEY_FILES = [
     "tools/generate_liq_reversal_candidates.py",
     "tools/run_liq_reversal_e2e.py",
     "tools/liquidation_regime_tagger.py",
+    "tools/liquidation_regime_alerts.py",
 ]
 
 

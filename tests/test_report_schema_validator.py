@@ -225,6 +225,45 @@ def test_validate_summarize_liq_tag_signal_behavior_payload() -> None:
     assert rsv.validate_payload(payload, "summarize_liq_tag_signal_behavior") == []
 
 
+def test_validate_liquidation_regime_alerts_payload() -> None:
+    payload = {
+        "symbol": "ETHUSDT",
+        "rule": "high_liq_reversal_regime",
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "recent_limit": 20,
+        "min_liq_rate": 2.0,
+        "summary": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 2,
+            "max_consecutive_tagged": 2,
+            "max_liq_rate_recent": 5.0,
+        },
+        "alerts": [
+            {
+                "ts_ms": 1,
+                "side_bias": "LONG",
+                "liq_rate_per_sec": 5.0,
+                "liq_imbalance": 0.8,
+                "spread": 0.01,
+                "trade_intensity": 10.0,
+                "ret_1": -0.002,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "liquidation_regime_alerts",
+            "inputs": {"symbol": "ETHUSDT"},
+            "metrics": {"rows_total": 100},
+            "artifacts": {"json": "reports/liq_alerts.json", "md": "reports/liq_alerts.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "liquidation_regime_alerts"
+    assert rsv.validate_payload(payload, "liquidation_regime_alerts") == []
+
+
 def test_validate_artifacts_payload() -> None:
     payload = {
         "ok": True,
