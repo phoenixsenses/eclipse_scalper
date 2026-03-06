@@ -499,6 +499,50 @@ def _validate_spread_stress_alerts(payload: Dict[str, Any]) -> List[str]:
     return errors
 
 
+def _validate_spread_stress_state(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source_json": str,
+        "symbol": str,
+        "state": dict,
+        "dashboard_summary": str,
+        "notification_text": str,
+        "recommended_action": str,
+        "card": dict,
+        "summary_snapshot": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    state = payload.get("state")
+    if isinstance(state, dict):
+        for key in ("level", "reasons", "freshness"):
+            if key not in state:
+                errors.append(f"missing:state.{key}")
+    card = payload.get("card")
+    if isinstance(card, dict):
+        for key in (
+            "headline",
+            "recent_alert_count",
+            "tagged_rate",
+            "high_count",
+            "medium_count",
+            "avg_spread_tagged",
+            "avg_trade_intensity_tagged",
+            "latest_alert_ts_ms",
+            "freshness_status",
+            "age_sec",
+        ):
+            if key not in card:
+                errors.append(f"missing:card.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 def _validate_validate_artifacts(payload: Dict[str, Any]) -> List[str]:
     errors: List[str] = []
     required_top = {
@@ -1135,6 +1179,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "liquidation_alert_state": _validate_liquidation_alert_state,
     "liquidation_watchlist": _validate_liquidation_watchlist,
     "spread_stress_alerts": _validate_spread_stress_alerts,
+    "spread_stress_state": _validate_spread_stress_state,
     "validate_artifacts": _validate_validate_artifacts,
     "report_check": _validate_report_check,
     "validate_micro_edge_forward": _validate_validate_micro_edge_forward,
@@ -1188,12 +1233,14 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "summarize_liq_tag_signal_behavior"
     if {"symbol", "rule", "recent_limit", "min_liq_rate", "alerts"}.issubset(keys):
         return "liquidation_regime_alerts"
-    if {"source_json", "state", "card", "summary_snapshot"}.issubset(keys):
-        return "liquidation_alert_state"
     if {"rule", "summary", "rows"}.issubset(keys) and "source_json" not in keys:
         return "liquidation_watchlist"
     if {"symbol", "lookback_min", "bucket_sec", "alerts"}.issubset(keys) and "rule" not in keys:
         return "spread_stress_alerts"
+    if {"source_json", "state", "card", "summary_snapshot"}.issubset(keys) and "rule" not in keys:
+        return "spread_stress_state"
+    if {"source_json", "state", "card", "summary_snapshot"}.issubset(keys):
+        return "liquidation_alert_state"
     if {"ok", "calibration", "execution"}.issubset(keys):
         return "validate_artifacts"
     if {"results", "summary"}.issubset(keys):

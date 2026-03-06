@@ -27,11 +27,13 @@ should be treated as execution stress context first, not as immediate alpha.
 Tool:
 
 - `python -m tools.spread_stress_alerts`
+- `python -m tools.spread_stress_state`
 
 This first version is intentionally narrow:
 
 - detects spread stress buckets
 - emits recent alerts
+- emits runtime-ready state/card payload
 - produces JSON/MD + `run_summary`
 
 ## Expected Use

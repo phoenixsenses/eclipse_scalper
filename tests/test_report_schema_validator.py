@@ -399,6 +399,52 @@ def test_validate_spread_stress_alerts_payload() -> None:
     assert rsv.infer_schema_name(payload) == "spread_stress_alerts"
     assert rsv.validate_payload(payload, "spread_stress_alerts") == []
 
+
+def test_validate_spread_stress_state_payload() -> None:
+    payload = {
+        "source_json": "reports/SPREAD_STRESS_ALERTS_REAL.json",
+        "symbol": "ETHUSDT",
+        "state": {
+            "level": "elevated",
+            "reasons": ["recent_spread_stress_cluster"],
+            "freshness": {"status": "fresh", "age_sec": 4.0, "stale_after_sec": 60},
+        },
+        "dashboard_summary": "ETHUSDT elevated spread stress, 4 recent alerts, freshness fresh.",
+        "notification_text": "[spread-stress] symbol=ETHUSDT level=elevated freshness=fresh recent_alerts=4 avg_spread=0.000150 action=show_caution",
+        "recommended_action": "show_caution",
+        "card": {
+            "headline": "ETHUSDT spread stress elevated: 4 recent alerts",
+            "operator_note": "Show caution for passive execution quality.",
+            "recent_alert_count": 4,
+            "tagged_rate": 0.05,
+            "high_count": 0,
+            "medium_count": 4,
+            "avg_spread_tagged": 0.00015,
+            "avg_trade_intensity_tagged": 500.0,
+            "latest_alert_ts_ms": 1,
+            "freshness_status": "fresh",
+            "age_sec": 4.0,
+        },
+        "summary_snapshot": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 4,
+            "high_count": 0,
+            "medium_count": 4,
+            "avg_spread_tagged": 0.00015,
+            "avg_trade_intensity_tagged": 500.0,
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "spread_stress_state",
+            "inputs": {"source_json": "reports/SPREAD_STRESS_ALERTS_REAL.json"},
+            "metrics": {"state_level": "elevated", "recommended_action": "show_caution"},
+            "artifacts": {"json": "reports/SPREAD_STRESS_STATE.json", "md": "reports/SPREAD_STRESS_STATE.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "spread_stress_state"
+    assert rsv.validate_payload(payload, "spread_stress_state") == []
 def test_validate_artifacts_payload() -> None:
     payload = {
         "ok": True,
