@@ -1,0 +1,53 @@
+{
+  "symbol": "ETHUSDT",
+  "rule": "high_liq_reversal_regime",
+  "lookback_min": 240,
+  "bucket_sec": 5,
+  "recent_limit": 20,
+  "min_liq_rate": 0.5,
+  "summary": {
+    "rows_total": 2843,
+    "tagged_count": 112,
+    "tagged_rate": 0.03939500527611678,
+    "recent_alert_count": 20,
+    "max_consecutive_tagged": 3,
+    "max_liq_rate_recent": 11.4712
+  },
+  "alerts": [
+    {
+      "ts_ms": 1772826385000,
+      "tag": "high_liq_reversal",
+      "side_bias": "LONG",
+      "liq_rate_per_sec": 0.8754,
+      "liq_imbalance": 1.0,
+      "spread": 6.724831577864952e-05,
+      "trade_intensity": 1152.0,
+      "ret_1": -0.00025849609380979526
+    }
+  ],
+  "run_summary": {
+    "version": "v1",
+    "run_type": "liquidation_regime_alerts",
+    "inputs": {
+      "db": "data/microstructure.db",
+      "symbol": "ETHUSDT",
+      "lookback_min": 240,
+      "bucket_sec": 5,
+      "rule": "high_liq_reversal_regime",
+      "recent_limit": 20,
+      "min_liq_rate": 0.5
+    },
+    "metrics": {
+      "rows_total": 2843,
+      "tagged_count": 112,
+      "tagged_rate": 0.03939500527611678,
+      "recent_alert_count": 20,
+      "max_consecutive_tagged": 3,
+      "max_liq_rate_recent": 11.4712
+    },
+    "artifacts": {
+      "json": "reports/LIQUIDATION_REGIME_ALERTS_REAL.json",
+      "md": "reports/LIQUIDATION_REGIME_ALERTS_REAL.md"
+    }
+  }
+}
