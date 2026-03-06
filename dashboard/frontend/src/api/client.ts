@@ -36,6 +36,7 @@ import type {
   Scoreboard,
   SignalEvent,
   StabilityEvent,
+  LiqAlertState,
 } from "./types";
 
 const BASE = "/api";
@@ -360,6 +361,8 @@ export const api = {
   opsHealth: (signal?: AbortSignal): Promise<OpsHealthResponse> => get<OpsHealthResponse>("/ops/health", undefined, signal),
   diagConnectivity: (signal?: AbortSignal): Promise<DiagConnectivityResponse> =>
     get<DiagConnectivityResponse>("/diag/connectivity", undefined, signal),
+  liqAlertState: (signal?: AbortSignal): Promise<LiqAlertState> =>
+    get<LiqAlertState>("/liq-alert-state", undefined, signal),
   supervisorStatus: (signal?: AbortSignal): Promise<SupervisorStatusResponse> =>
     get<SupervisorStatusResponse>("/ops/supervisor", undefined, signal),
   debugActions: (signal?: AbortSignal): Promise<ControlActionInfo[]> =>

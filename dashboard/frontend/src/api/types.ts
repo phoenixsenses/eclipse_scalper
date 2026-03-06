@@ -533,3 +533,49 @@ export type LogsStreamLine = string;
 export interface LogsStreamEvent {
   data: LogsStreamLine;
 }
+
+export interface LiqAlertState {
+  available: boolean;
+  stale?: boolean;
+  age_sec?: number;
+  symbol?: string;
+  rule?: string;
+  state: {
+    level: "quiet" | "elevated" | "severe";
+    reasons: string[];
+    primary_side_bias: string;
+    dominant_severity: string;
+  };
+  card: {
+    headline?: string;
+    operator_note?: string;
+    recent_alert_count?: number;
+    tagged_rate?: number;
+    max_consecutive_tagged?: number;
+    max_liq_rate_recent?: number;
+    primary_side_bias?: string;
+    dominant_severity?: string;
+    latest_alert_ts_ms?: number;
+  };
+  summary_snapshot: {
+    rows_total?: number;
+    tagged_count?: number;
+    tagged_rate?: number;
+    recent_alert_count?: number;
+    max_consecutive_tagged?: number;
+    max_liq_rate_recent?: number;
+    side_bias_counts?: Record<string, number>;
+    severity_counts?: Record<string, number>;
+  };
+  alerts?: Array<{
+    ts_ms?: number;
+    tag?: string;
+    side_bias?: string;
+    severity?: string;
+    liq_rate_per_sec?: number;
+    liq_imbalance?: number;
+    spread?: number;
+    trade_intensity?: number;
+    ret_1?: number;
+  }>;
+}

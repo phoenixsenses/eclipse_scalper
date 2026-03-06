@@ -259,6 +259,7 @@ _log_list_cache: tuple[float, list[dict[str, Any]]] = (0.0, [])
 _log_list_cache_last_hit: bool = False
 _tail_last_source: str = "init"
 _RATE_LIMIT_RE = re.compile(r"\[RATE_LIMIT\]\s+used_1m=(\d+)\s+cap_1m=(\d+)\s+usage_pct=([\d.]+)", re.IGNORECASE)
+_LIQ_ALERT_STATE_PATH = _env_path("LIQ_ALERT_STATE_JSON", REPO_ROOT / "reports" / "LIQUIDATION_ALERT_STATE_REAL.json")
 _OPS_HEALTH_HISTORY_PATH = LOGS_DIR / "ops_health_history.jsonl"
 _OPS_HEALTH_HISTORY_APPEND_SEC = float(os.environ.get("OPS_HEALTH_HISTORY_APPEND_SEC", "60") or "60")
 _ops_health_last_append_ts: float = 0.0
@@ -1397,3 +1398,64 @@ def build_overview() -> dict[str, Any]:
         "preflight": read_preflight(),
         "reliability": read_reliability(),
     }
+
+
+# ---------------------------------------------------------------------------
+# Liquidation alert state (monitoring/annotation card)
+# ---------------------------------------------------------------------------
+
+def read_liq_alert_state() -> dict[str, Any]:
+    """Read the liquidation alert state payload produced by research tools.
+
+    Returns a safe dict even if the file is missing or malformed.
+    """
+    empty: dict[str, Any] = {
+        "available": False,
+        "symbol": "",
+        "state": {"level": "quiet", "reasons": [], "primary_side_bias": "NEUTRAL", "dominant_severity": "none"},
+        "card": {},
+        "summary_snapshot": {},
+        "alerts": [],
+    }
+    try:
+        if not _LIQ_ALERT_STATE_PATH.exists():
+            return empty
+        payload = json.loads(_LIQ_ALERT_STATE_PATH.read_text(encoding="utf-8", errors="replace"))
+        if not isinstance(payload, dict):
+            return empty
+        state = payload.get("state") or {}
+        card = payload.get("card") or {}
+        summary = payload.get("summary_snapshot") or {}
+        # Also try to load raw alerts for the table
+        alerts: list[dict[str, Any]] = []
+        source = str(payload.get("source_json") or "")
+        if source:
+            source_path = Path(source)
+            if not source_path.is_absolute():
+                source_path = REPO_ROOT / source_path
+            if source_path.exists():
+                try:
+                    raw = json.loads(source_path.read_text(encoding="utf-8", errors="replace"))
+                    alerts = list(raw.get("alerts") or [])[:50]
+                except Exception:
+                    pass
+        # File age for staleness detection
+        age_sec = max(0.0, time.time() - _LIQ_ALERT_STATE_PATH.stat().st_mtime)
+        return {
+            "available": True,
+            "stale": age_sec > 600,  # >10 min = stale
+            "age_sec": round(age_sec, 1),
+            "symbol": str(payload.get("symbol") or ""),
+            "rule": str(payload.get("rule") or ""),
+            "state": {
+                "level": str(state.get("level") or "quiet"),
+                "reasons": list(state.get("reasons") or []),
+                "primary_side_bias": str(state.get("primary_side_bias") or "NEUTRAL"),
+                "dominant_severity": str(state.get("dominant_severity") or "none"),
+            },
+            "card": dict(card),
+            "summary_snapshot": dict(summary),
+            "alerts": alerts,
+        }
+    except Exception:
+        return empty

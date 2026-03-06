@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/client";
-import type { LiveMetricsResponse, LiveMonitorTestsStatusResponse, LogFile, LogTailResponse, OpsHealthResponse, RuntimeStatus, Scoreboard } from "../api/types";
+import type { LiveMetricsResponse, LiveMonitorTestsStatusResponse, LogFile, LogTailResponse, OpsHealthResponse, RuntimeStatus, Scoreboard, LiqAlertState } from "../api/types";
 import AsyncState from "../components/AsyncState";
 import DegradedBanner, { type DegradedMode } from "../components/DegradedBanner";
+import LiqAlertCard from "../components/LiqAlertCard";
 import PageGuide from "../components/PageGuide";
 import { usePoll } from "../hooks/usePoll";
 
@@ -194,6 +195,12 @@ export default function LiveMonitor() {
     pollKey: "api:/ops/health:live-monitor",
     intervalMs: 5000,
     staleAfterMs: 15000,
+  });
+  const liqAlertPoll = usePoll<LiqAlertState>({
+    fetcher: (signal) => api.liqAlertState(signal),
+    pollKey: "api:/liq-alert-state:live-monitor",
+    intervalMs: 10000,
+    staleAfterMs: 30000,
   });
   const filesPoll = usePoll<LogFile[]>({
     fetcher: (signal) => api.logFiles(signal),
@@ -546,6 +553,8 @@ export default function LiveMonitor() {
       />
 
       <DegradedBanner mode={mode} message={liveMetricsPoll.error?.message ?? runtimePoll.error?.message ?? tailPoll.error?.message ?? paperTailPoll.error?.message ?? scoreboardPoll.error?.message ?? paperTailLongPoll.error?.message} />
+
+      <LiqAlertCard data={liqAlertPoll.data ?? null} />
 
       <div className="card">
         <div className="card-title self-help" data-help="Hizli gecis: detayli log/tower/recovery ekranlarina tek tik.">

@@ -28,6 +28,7 @@ from .data_sources import (
     read_live_monitor_tests_status,
     read_ops_health,
     read_connectivity_diag,
+    read_liq_alert_state,
     read_supervisor_status,
     read_scoreboard,
     read_signal_events,
@@ -496,6 +497,11 @@ async def get_ops_health():
 @app.get("/api/diag/connectivity", response_model=DiagConnectivityResponse)
 async def get_diag_connectivity():
     return read_connectivity_diag()
+
+
+@app.get("/api/liq-alert-state", response_model=dict)
+async def get_liq_alert_state():
+    return read_liq_alert_state()
 
 
 @app.get("/api/ops/supervisor", response_model=dict)
