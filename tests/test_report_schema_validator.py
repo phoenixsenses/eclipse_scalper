@@ -277,6 +277,7 @@ def test_validate_liquidation_alert_state_payload() -> None:
             "reasons": ["recent_alert_cluster"],
             "primary_side_bias": "LONG",
             "dominant_severity": "medium",
+            "freshness": {"status": "fresh", "age_sec": 4.0, "stale_after_sec": 60},
         },
         "card": {
             "headline": "ETHUSDT liquidation regime elevated",
@@ -288,6 +289,8 @@ def test_validate_liquidation_alert_state_payload() -> None:
             "primary_side_bias": "LONG",
             "dominant_severity": "medium",
             "latest_alert_ts_ms": 456,
+            "freshness_status": "fresh",
+            "age_sec": 4.0,
         },
         "summary_snapshot": {
             "rows_total": 50,

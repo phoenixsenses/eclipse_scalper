@@ -100,6 +100,7 @@ Show:
 
 - last 20 alerts
 - current state card: `quiet / elevated / severe`
+- freshness: `fresh / stale`
 - side bias distribution
 - severity distribution
 - max liquidation rate in window
@@ -108,6 +109,7 @@ Show:
 Suggested card source:
 
 - `python -m tools.liquidation_alert_state --alerts-json reports/LIQUIDATION_REGIME_ALERTS_REAL.json --out-json reports/LIQUIDATION_ALERT_STATE_REAL.json`
+- stale payload should be rendered as stale, not active
 
 ### Monitoring
 

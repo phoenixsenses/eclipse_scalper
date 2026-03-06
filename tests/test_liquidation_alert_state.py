@@ -34,6 +34,7 @@ def test_build_state_payload_marks_severe_when_alerts_are_dense() -> None:
     assert payload["state"]["primary_side_bias"] == "LONG"
     assert payload["state"]["dominant_severity"] == "medium"
     assert payload["card"]["latest_alert_ts_ms"] == 123
+    assert payload["state"]["freshness"]["status"] == "stale"
 
 
 def test_main_writes_json_and_md() -> None:
@@ -62,9 +63,11 @@ def test_main_writes_json_and_md() -> None:
     )
     out_json = out_dir / "state.json"
     out_md = out_dir / "state.md"
-    rc = las.main(["--alerts-json", str(alerts_json), "--out-json", str(out_json), "--out-md", str(out_md)])
+    rc = las.main(["--alerts-json", str(alerts_json), "--out-json", str(out_json), "--out-md", str(out_md), "--now-ts-ms", "40456"])
     assert rc == 0
     payload = json.loads(out_json.read_text(encoding="utf-8"))
     assert payload["state"]["level"] == "elevated"
+    assert payload["state"]["freshness"]["status"] == "fresh"
+    assert payload["card"]["freshness_status"] == "fresh"
     assert payload["run_summary"]["run_type"] == "liquidation_alert_state"
     assert out_md.exists()

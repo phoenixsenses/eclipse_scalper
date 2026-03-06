@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import time
 from typing import Any, Dict, List, Optional, Tuple
 
 from tools.run_summary import build_run_summary
@@ -80,7 +81,26 @@ def _compute_state(summary: Dict[str, Any]) -> Tuple[str, List[str]]:
     return ("quiet", ["no_runtime_threshold_hit"])
 
 
-def build_state_payload(*, alert_payload: Dict[str, Any], source_json: str, out_json: str, out_md: str) -> Dict[str, Any]:
+def _compute_freshness(*, latest_alert_ts_ms: int, now_ts_ms: int, bucket_sec: int) -> Dict[str, Any]:
+    if latest_alert_ts_ms <= 0:
+        return {"status": "stale", "age_sec": None, "stale_after_sec": max(60, int(bucket_sec) * 6)}
+    age_sec = max(0.0, (float(now_ts_ms) - float(latest_alert_ts_ms)) / 1000.0)
+    stale_after_sec = max(60, int(bucket_sec) * 6)
+    return {
+        "status": "fresh" if age_sec <= float(stale_after_sec) else "stale",
+        "age_sec": age_sec,
+        "stale_after_sec": int(stale_after_sec),
+    }
+
+
+def build_state_payload(
+    *,
+    alert_payload: Dict[str, Any],
+    source_json: str,
+    out_json: str,
+    out_md: str,
+    now_ts_ms: Optional[int] = None,
+) -> Dict[str, Any]:
     summary = dict(alert_payload.get("summary") or {})
     alerts = list(alert_payload.get("alerts") or [])
     side_bias_counts = summary.get("side_bias_counts") or {}
@@ -89,6 +109,13 @@ def build_state_payload(*, alert_payload: Dict[str, Any], source_json: str, out_
     primary_side_bias = _argmax_count(side_bias_counts, "NEUTRAL")
     dominant_severity = _argmax_count(severity_counts, "none")
     recent_top = alerts[0] if alerts else {}
+    latest_alert_ts_ms = _safe_int(recent_top.get("ts_ms"))
+    effective_now_ts_ms = _safe_int(now_ts_ms, int(time.time() * 1000.0))
+    freshness = _compute_freshness(
+        latest_alert_ts_ms=latest_alert_ts_ms,
+        now_ts_ms=effective_now_ts_ms,
+        bucket_sec=_safe_int(alert_payload.get("bucket_sec"), 5),
+    )
     headline = (
         f"{str(alert_payload.get('symbol') or '').upper()} liquidation regime {state}: "
         f"{_safe_int(summary.get('recent_alert_count'))} recent alerts, "
@@ -108,6 +135,7 @@ def build_state_payload(*, alert_payload: Dict[str, Any], source_json: str, out_
             "reasons": reasons,
             "primary_side_bias": primary_side_bias,
             "dominant_severity": dominant_severity,
+            "freshness": dict(freshness),
         },
         "card": {
             "headline": headline,
@@ -118,7 +146,9 @@ def build_state_payload(*, alert_payload: Dict[str, Any], source_json: str, out_
             "max_liq_rate_recent": _safe_float(summary.get("max_liq_rate_recent")),
             "primary_side_bias": primary_side_bias,
             "dominant_severity": dominant_severity,
-            "latest_alert_ts_ms": _safe_int(recent_top.get("ts_ms")),
+            "latest_alert_ts_ms": latest_alert_ts_ms,
+            "freshness_status": str(freshness["status"]),
+            "age_sec": freshness["age_sec"],
         },
         "summary_snapshot": {
             "rows_total": _safe_int(summary.get("rows_total")),
@@ -139,6 +169,7 @@ def build_state_payload(*, alert_payload: Dict[str, Any], source_json: str, out_
             "recent_alert_count": _safe_int(summary.get("recent_alert_count")),
             "tagged_rate": _safe_float(summary.get("tagged_rate")),
             "max_liq_rate_recent": _safe_float(summary.get("max_liq_rate_recent")),
+            "freshness_status": str(freshness["status"]),
         },
         artifacts={"json": str(out_json), "md": str(out_md)},
     )
@@ -150,6 +181,7 @@ def _parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     p.add_argument("--alerts-json", default="reports/LIQUIDATION_REGIME_ALERTS.json")
     p.add_argument("--out-json", default="reports/LIQUIDATION_ALERT_STATE.json")
     p.add_argument("--out-md", default="reports/LIQUIDATION_ALERT_STATE.md")
+    p.add_argument("--now-ts-ms", type=int, default=None)
     return p.parse_args(argv)
 
 
@@ -160,6 +192,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         source_json=str(args.alerts_json),
         out_json=str(args.out_json),
         out_md=str(args.out_md),
+        now_ts_ms=args.now_ts_ms,
     )
     out_json = Path(str(args.out_json))
     out_md = Path(str(args.out_md))
@@ -176,6 +209,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         f"recent_alert_count={payload['card']['recent_alert_count']} tagged_rate={payload['card']['tagged_rate']:.2%}",
         f"max_consecutive_tagged={payload['card']['max_consecutive_tagged']} max_liq_rate_recent={payload['card']['max_liq_rate_recent']:.4f}",
         f"primary_side_bias={payload['card']['primary_side_bias']} dominant_severity={payload['card']['dominant_severity']}",
+        f"freshness_status={payload['card']['freshness_status']} age_sec={payload['card']['age_sec']}",
     ]
     out_md.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"wrote {out_md}")

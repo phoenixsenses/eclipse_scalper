@@ -47,7 +47,12 @@
         "persistent_regime"
       ],
       "primary_side_bias": "LONG",
-      "dominant_severity": "medium"
+      "dominant_severity": "medium",
+      "freshness": {
+        "status": "fresh",
+        "age_sec": 4.0,
+        "stale_after_sec": 60
+      }
     },
     "card": {
       "headline": "ETHUSDT liquidation regime severe: 20 recent alerts, bias=LONG, top_severity=medium",
@@ -58,7 +63,9 @@
       "max_liq_rate_recent": 11.4712,
       "primary_side_bias": "LONG",
       "dominant_severity": "medium",
-      "latest_alert_ts_ms": 1772826385000
+      "latest_alert_ts_ms": 1772826385000,
+      "freshness_status": "fresh",
+      "age_sec": 4.0
     },
     "summary_snapshot": {
       "rows_total": 2843,

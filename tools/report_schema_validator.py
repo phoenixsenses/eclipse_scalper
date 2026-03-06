@@ -336,11 +336,18 @@ def _validate_liquidation_alert_state(payload: Dict[str, Any]) -> List[str]:
             errors.append(f"bad_type:{key}")
     state = payload.get("state")
     if isinstance(state, dict):
-        for key in ("level", "reasons", "primary_side_bias", "dominant_severity"):
+        for key in ("level", "reasons", "primary_side_bias", "dominant_severity", "freshness"):
             if key not in state:
                 errors.append(f"missing:state.{key}")
         if "reasons" in state and not isinstance(state["reasons"], list):
             errors.append("bad_type:state.reasons")
+        freshness = state.get("freshness")
+        if not isinstance(freshness, dict):
+            errors.append("bad_type:state.freshness")
+        else:
+            for key in ("status", "age_sec", "stale_after_sec"):
+                if key not in freshness:
+                    errors.append(f"missing:state.freshness.{key}")
     card = payload.get("card")
     if isinstance(card, dict):
         for key in (
@@ -353,6 +360,8 @@ def _validate_liquidation_alert_state(payload: Dict[str, Any]) -> List[str]:
             "primary_side_bias",
             "dominant_severity",
             "latest_alert_ts_ms",
+            "freshness_status",
+            "age_sec",
         ):
             if key not in card:
                 errors.append(f"missing:card.{key}")
