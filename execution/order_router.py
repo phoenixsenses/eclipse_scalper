@@ -64,6 +64,16 @@ try:
 except Exception:
     _intent_ledger = None
 
+try:
+    from execution.runtime_helpers import symkey as _symkey  # type: ignore
+except Exception:
+    def _symkey(sym: str) -> str:
+        s = (sym or "").upper().strip()
+        s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
+        s = s.replace(":USDT", "USDT").replace(":", "").replace("/", "")
+        if s.endswith("USDTUSDT"): s = s[:-4]
+        return s
+
 
 # ----------------------------
 # Helpers
@@ -100,16 +110,6 @@ def _cfg_env(bot, name: str, default: Any) -> Any:
     except Exception:
         pass
     return default
-
-
-def _symkey(sym: str) -> str:
-    s = (sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
 
 
 def _parse_symbol_overrides(raw: Any) -> dict:

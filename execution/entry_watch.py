@@ -12,6 +12,16 @@ from typing import Optional, Any
 from utils.logging import log_entry
 from execution.order_router import create_order, cancel_order
 
+try:
+    from execution.runtime_helpers import symkey as _symkey  # type: ignore
+except Exception:
+    def _symkey(sym: str) -> str:
+        s = (sym or "").upper().strip()
+        s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
+        s = s.replace(":USDT", "USDT").replace(":", "").replace("/", "")
+        if s.endswith("USDTUSDT"): s = s[:-4]
+        return s
+
 # ─────────────────────────────────────────────────────────────────────
 # Diagnostics wiring (never fatal, never changes behavior)
 # ─────────────────────────────────────────────────────────────────────
@@ -74,16 +84,6 @@ def _banner_once() -> None:
 
 def _now() -> float:
     return time.time()
-
-
-def _symkey(sym: str) -> str:
-    s = (sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
 
 
 def _safe_float(x, default=0.0) -> float:

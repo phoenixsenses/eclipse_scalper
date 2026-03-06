@@ -14,6 +14,16 @@ from utils.logging import log_entry, log_core
 from execution.order_router import create_order, cancel_order, cancel_replace_order  # âœ… ROUTER
 from execution.shutdown_control import ensure_traced_shutdown_event
 
+try:
+    from execution.runtime_helpers import symkey as _symkey  # type: ignore
+except Exception:
+    def _symkey(sym: str) -> str:
+        s = (sym or "").upper().strip()
+        s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
+        s = s.replace(":USDT", "USDT").replace(":", "").replace("/", "")
+        if s.endswith("USDTUSDT"): s = s[:-4]
+        return s
+
 
 # â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 # Diagnostics wiring (never fatal)
@@ -84,16 +94,6 @@ Position = _optional_import("brain.state", "Position")
 
 def _now() -> float:
     return time.time()
-
-
-def _symkey(sym: str) -> str:
-    s = (sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
 
 
 def _safe_float(x, default=0.0) -> float:

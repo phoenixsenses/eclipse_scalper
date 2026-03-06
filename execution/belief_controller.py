@@ -6,6 +6,16 @@ from typing import Any, Dict, Optional
 
 from execution.guard_knobs import GuardKnobs
 
+try:
+    from execution.runtime_helpers import symkey as _symkey  # type: ignore
+except Exception:
+    def _symkey(sym: str) -> str:
+        s = str(sym or "").upper().strip()
+        s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
+        s = s.replace(":USDT", "USDT").replace(":", "").replace("/", "")
+        if s.endswith("USDTUSDT"): s = s[:-4]
+        return s
+
 
 def _safe_float(value: Any, default: float = 0.0) -> float:
     try:
@@ -19,16 +29,6 @@ def _safe_float(value: Any, default: float = 0.0) -> float:
 
 def _clamp(value: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, value))
-
-
-def _symkey(sym: str) -> str:
-    s = str(sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
 
 
 @dataclass

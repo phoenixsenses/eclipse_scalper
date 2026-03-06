@@ -16,6 +16,16 @@ from utils.logging import log_core, log
 from brain.persistence import save_brain
 from execution.order_router import create_order, cancel_order  # ✅ ROUTER
 
+try:
+    from execution.runtime_helpers import symkey as _normalize_symbol  # type: ignore
+except Exception:
+    def _normalize_symbol(sym: str) -> str:
+        s = str(sym or "").upper().strip()
+        s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
+        s = s.replace(":USDT", "USDT").replace(":", "").replace("/", "")
+        if s.endswith("USDTUSDT"): s = s[:-4]
+        return s
+
 # ─────────────────────────────────────────────────────────────────────
 # Diagnostics wiring (never fatal, no behavior change)
 # ─────────────────────────────────────────────────────────────────────
@@ -71,16 +81,6 @@ request_halt = _optional_import("risk.kill_switch", "request_halt")
 # ----------------------------
 # Helpers
 # ----------------------------
-
-def _normalize_symbol(sym: str) -> str:
-    s = str(sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
-
 
 def _safe_float(x, default=0.0) -> float:
     try:

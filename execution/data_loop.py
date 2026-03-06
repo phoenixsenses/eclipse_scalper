@@ -79,14 +79,12 @@ def _mark_cache_success(data_obj, key: str) -> None:
         pass
 
 
-def _symkey(sym: str) -> str:
-    s = (sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
+try:
+    from execution.runtime_helpers import symkey as _symkey
+except Exception:
+    def _symkey(sym) -> str:
+        s = str(sym or "").upper().strip()
+        return s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT").replace(":USDT", "USDT").replace(":", "")
 
 
 def _pick_symbols(bot) -> list[str]:
