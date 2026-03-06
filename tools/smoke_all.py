@@ -36,6 +36,7 @@ KEY_MODULES = [
     "tools.fill_toxicity_state",
     "tools.latency_stress_state",
     "tools.research_event_watchboard",
+    "tools.event_watchboard_trend",
 ]
 
 KEY_FILES = [
@@ -65,6 +66,7 @@ KEY_FILES = [
     "tools/fill_toxicity_state.py",
     "tools/latency_stress_state.py",
     "tools/research_event_watchboard.py",
+    "tools/event_watchboard_trend.py",
 ]
 
 

@@ -607,6 +607,53 @@ def test_validate_research_event_watchboard_payload() -> None:
     }
     assert rsv.infer_schema_name(payload) == "research_event_watchboard"
     assert rsv.validate_payload(payload, "research_event_watchboard") == []
+
+
+def test_validate_event_watchboard_trend_payload() -> None:
+    payload = {
+        "summary": {
+            "snapshot_count": 2,
+            "start_top_lane": "spread_stress",
+            "end_top_lane": "liquidation",
+            "delta_priority_score": 100.0,
+            "trend": "rising_fast",
+        },
+        "latest": {
+            "index": 1,
+            "source": "b.json",
+            "top_lane": "liquidation",
+            "top_level": "severe",
+            "top_recommended_action": "escalate_monitoring",
+            "priority_score": 225.0,
+        },
+        "points": [
+            {
+                "index": 0,
+                "source": "a.json",
+                "top_lane": "spread_stress",
+                "top_level": "elevated",
+                "top_recommended_action": "show_caution",
+                "priority_score": 125.0,
+            },
+            {
+                "index": 1,
+                "source": "b.json",
+                "top_lane": "liquidation",
+                "top_level": "severe",
+                "top_recommended_action": "escalate_monitoring",
+                "priority_score": 225.0,
+            },
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "event_watchboard_trend",
+            "inputs": {"sources": ["a.json", "b.json"]},
+            "metrics": {"snapshot_count": 2, "delta_priority_score": 100.0, "trend": "rising_fast"},
+            "artifacts": {"json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND.json", "md": "reports/RESEARCH_EVENT_WATCHBOARD_TREND.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "event_watchboard_trend"
+    assert rsv.validate_payload(payload, "event_watchboard_trend") == []
 def test_validate_artifacts_payload() -> None:
     payload = {
         "ok": True,

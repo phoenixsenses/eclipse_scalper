@@ -747,6 +747,43 @@ def _validate_research_event_watchboard(payload: Dict[str, Any]) -> List[str]:
     return errors
 
 
+def _validate_event_watchboard_trend(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "summary": dict,
+        "latest": dict,
+        "points": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("snapshot_count", "start_top_lane", "end_top_lane", "delta_priority_score", "trend"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    latest = payload.get("latest")
+    if isinstance(latest, dict):
+        for key in ("index", "top_lane", "top_level", "top_recommended_action", "priority_score"):
+            if key not in latest:
+                errors.append(f"missing:latest.{key}")
+    points = payload.get("points")
+    if isinstance(points, list):
+        for idx, point in enumerate(points):
+            if not isinstance(point, dict):
+                errors.append(f"bad_type:points[{idx}]")
+                continue
+            for key in ("index", "source", "top_lane", "top_level", "top_recommended_action", "priority_score"):
+                if key not in point:
+                    errors.append(f"missing:points[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 def _validate_validate_artifacts(payload: Dict[str, Any]) -> List[str]:
     errors: List[str] = []
     required_top = {
@@ -1388,6 +1425,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "fill_toxicity_state": _validate_fill_toxicity_state,
     "latency_stress_state": _validate_latency_stress_state,
     "research_event_watchboard": _validate_research_event_watchboard,
+    "event_watchboard_trend": _validate_event_watchboard_trend,
     "validate_artifacts": _validate_validate_artifacts,
     "report_check": _validate_report_check,
     "validate_micro_edge_forward": _validate_validate_micro_edge_forward,
@@ -1453,6 +1491,8 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "latency_stress_state"
     if {"summary", "top_event", "banner", "lanes"}.issubset(keys) and "top_summary" not in keys:
         return "research_event_watchboard"
+    if {"summary", "latest", "points"}.issubset(keys) and "top_event" not in keys:
+        return "event_watchboard_trend"
     if {"source_json", "state", "card", "summary_snapshot"}.issubset(keys) and "rule" not in keys:
         return "spread_stress_state"
     if {"source_json", "state", "card", "summary_snapshot"}.issubset(keys):
