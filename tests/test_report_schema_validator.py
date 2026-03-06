@@ -445,6 +445,57 @@ def test_validate_spread_stress_state_payload() -> None:
     }
     assert rsv.infer_schema_name(payload) == "spread_stress_state"
     assert rsv.validate_payload(payload, "spread_stress_state") == []
+
+
+def test_validate_spread_stress_watchlist_payload() -> None:
+    payload = {
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "recent_limit": 20,
+        "summary": {"symbol_count": 2, "top_n": 2, "state_counts": {"severe": 1, "elevated": 1}, "top_symbol": "ETHUSDT"},
+        "top_summary": {
+            "symbol": "ETHUSDT",
+            "state_level": "severe",
+            "freshness_status": "fresh",
+            "recommended_action": "reduce_passive_aggression",
+            "dashboard_summary": "ETH severe spread stress",
+        },
+        "banner": {
+            "headline": "Spread stress watchlist top=ETHUSDT level=severe freshness=fresh action=reduce_passive_aggression",
+            "recommended_action": "reduce_passive_aggression",
+            "top_symbol": "ETHUSDT",
+            "top_state_level": "severe",
+            "top_freshness_status": "fresh",
+            "severe_count": 1,
+            "elevated_count": 1,
+            "quiet_count": 0,
+        },
+        "rows": [
+            {
+                "symbol": "ETHUSDT",
+                "state_level": "severe",
+                "freshness_status": "fresh",
+                "recommended_action": "reduce_passive_aggression",
+                "recent_alert_count": 6,
+                "high_count": 2,
+                "medium_count": 4,
+                "avg_spread_tagged": 0.00021,
+                "avg_trade_intensity_tagged": 400.0,
+                "age_sec": 3.0,
+                "dashboard_summary": "ETH severe spread stress",
+                "priority_score": 227.0,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "spread_stress_watchlist",
+            "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"]},
+            "metrics": {"symbol_count": 2, "severe_count": 1, "elevated_count": 1, "quiet_count": 0},
+            "artifacts": {"json": "reports/SPREAD_STRESS_WATCHLIST.json", "md": "reports/SPREAD_STRESS_WATCHLIST.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "spread_stress_watchlist"
+    assert rsv.validate_payload(payload, "spread_stress_watchlist") == []
 def test_validate_artifacts_payload() -> None:
     payload = {
         "ok": True,

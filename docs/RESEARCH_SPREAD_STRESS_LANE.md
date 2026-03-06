@@ -28,12 +28,14 @@ Tool:
 
 - `python -m tools.spread_stress_alerts`
 - `python -m tools.spread_stress_state`
+- `python -m tools.spread_stress_watchlist`
 
 This first version is intentionally narrow:
 
 - detects spread stress buckets
 - emits recent alerts
 - emits runtime-ready state/card payload
+- emits multi-symbol watchlist/top-summary/banner payload
 - produces JSON/MD + `run_summary`
 
 ## Expected Use

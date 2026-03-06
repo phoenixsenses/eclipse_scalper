@@ -1,0 +1,58 @@
+{
+  "lane": "spread_stress_regime",
+  "purpose": "execution_quality_monitoring",
+  "single_symbol_state": {
+    "required": [
+      "symbol",
+      "state.level",
+      "state.reasons",
+      "state.freshness.status",
+      "dashboard_summary",
+      "notification_text",
+      "recommended_action",
+      "card.headline",
+      "card.operator_note",
+      "card.recent_alert_count",
+      "card.high_count",
+      "card.medium_count",
+      "card.avg_spread_tagged",
+      "card.avg_trade_intensity_tagged",
+      "card.freshness_status",
+      "card.age_sec"
+    ]
+  },
+  "watchlist": {
+    "required": [
+      "summary.symbol_count",
+      "summary.state_counts",
+      "summary.top_symbol",
+      "top_summary.symbol",
+      "top_summary.state_level",
+      "top_summary.freshness_status",
+      "top_summary.recommended_action",
+      "top_summary.dashboard_summary",
+      "banner.headline",
+      "banner.recommended_action",
+      "rows"
+    ],
+    "row_required": [
+      "symbol",
+      "state_level",
+      "freshness_status",
+      "recommended_action",
+      "recent_alert_count",
+      "high_count",
+      "medium_count",
+      "avg_spread_tagged",
+      "avg_trade_intensity_tagged",
+      "age_sec",
+      "dashboard_summary",
+      "priority_score"
+    ]
+  },
+  "runtime_rules": [
+    "Render severity together with freshness.",
+    "Treat recommended_action as UI/operator guidance only.",
+    "Do not auto-wire this payload into execution logic without separate validation."
+  ]
+}

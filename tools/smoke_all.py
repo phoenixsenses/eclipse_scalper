@@ -32,6 +32,7 @@ KEY_MODULES = [
     "tools.liquidation_watchlist",
     "tools.spread_stress_alerts",
     "tools.spread_stress_state",
+    "tools.spread_stress_watchlist",
 ]
 
 KEY_FILES = [
@@ -57,6 +58,7 @@ KEY_FILES = [
     "tools/liquidation_watchlist.py",
     "tools/spread_stress_alerts.py",
     "tools/spread_stress_state.py",
+    "tools/spread_stress_watchlist.py",
 ]
 
 
