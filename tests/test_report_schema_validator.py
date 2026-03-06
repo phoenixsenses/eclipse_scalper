@@ -370,6 +370,35 @@ def test_validate_liquidation_watchlist_payload() -> None:
     assert rsv.validate_payload(payload, "liquidation_watchlist") == []
 
 
+def test_validate_spread_stress_alerts_payload() -> None:
+    payload = {
+        "symbol": "ETHUSDT",
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "summary": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 3,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_spread_tagged": 0.01,
+            "avg_trade_intensity_tagged": 5.0,
+        },
+        "alerts": [
+            {"ts_ms": 1, "severity": "high", "spread": 0.02, "trade_intensity": 1.0, "ret_1": -0.001}
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "spread_stress_alerts",
+            "inputs": {"symbol": "ETHUSDT"},
+            "metrics": {"rows_total": 100, "tagged_count": 5},
+            "artifacts": {"json": "reports/SPREAD_STRESS_ALERTS.json", "md": "reports/SPREAD_STRESS_ALERTS.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "spread_stress_alerts"
+    assert rsv.validate_payload(payload, "spread_stress_alerts") == []
+
 def test_validate_artifacts_payload() -> None:
     payload = {
         "ok": True,
