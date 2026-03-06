@@ -549,8 +549,18 @@ def _binance_filter_reason(msg: str) -> Optional[str]:
 def _classify_order_error(err: Exception, *, ex=None, sym_raw: Optional[str] = None) -> tuple[bool, str, str]:
     if _error_policy is None:
         msg = _error_text(err)
+        binance_code = _extract_binance_code(msg)
+        filter_reason = _binance_filter_reason(msg)
+        if filter_reason is not None:
+            return False, filter_reason, (map_reason(filter_reason) if callable(map_reason) else "ERR_UNKNOWN")
+        if binance_code == -2019 or any(x in msg for x in ("margin is insufficient", "insufficient margin", "insufficient balance")):
+            return False, "margin_insufficient", (map_reason("margin_insufficient") if callable(map_reason) else "ERR_UNKNOWN")
+        if binance_code == -1021 or "recvwindow" in msg or "timestamp for this request is outside" in msg:
+            return True, "timestamp", (map_reason("timestamp") if callable(map_reason) else "ERR_UNKNOWN")
         if any(x in msg for x in ("timeout", "timed out", "temporarily unavailable", "connection", "econnreset", "network")):
             return True, "network", (map_reason("network") if callable(map_reason) else "ERR_UNKNOWN")
+        if "symbol not found" in msg or "invalid symbol" in msg:
+            return False, "invalid_symbol", (map_reason("invalid_symbol") if callable(map_reason) else "ERR_UNKNOWN")
         return True, "unknown", (map_reason(msg) if callable(map_reason) else "ERR_UNKNOWN")
     return _error_policy.classify_order_error(err, ex=ex, sym_raw=sym_raw, map_reason=map_reason)
 
@@ -1493,7 +1503,7 @@ async def cancel_order(bot, order_id: str, symbol: str, *, correlation_id: Optio
             continue
         last_err = err
 
-    if saw_unknown and (not unknown_conflict):
+    if saw_unknown and (not unknown_conflict) and last_err is None:
         # ✅ idempotent success after exhausting symbol candidates
         log_entry.info(f"[router] cancel idempotent success (already gone) | k={k} id={order_id} st={unknown_status or 'na'}")
         if callable(emit_order_cancel):

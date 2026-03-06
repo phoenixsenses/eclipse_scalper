@@ -25,6 +25,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install -r dashboard/backend/requirements.txt
 
       - name: Seed temporary sqlite fixtures
         run: |
@@ -38,6 +39,8 @@ jobs:
 
           # microstructure db fixture for maintenance smoke
           micro = data / "microstructure.db"
+          if micro.exists():
+              micro.unlink()
           conn = sqlite3.connect(str(micro))
           conn.execute("CREATE TABLE IF NOT EXISTS mark_prices (ts INTEGER, symbol TEXT, mark_price REAL)")
           conn.execute("INSERT INTO mark_prices(ts,symbol,mark_price) VALUES (?,?,?)", (int(time.time() * 1000), "ETHUSDT", 2500.0))
@@ -46,6 +49,8 @@ jobs:
 
           # paper trades fixture for daily report smoke
           paper = data / "paper_trades.db"
+          if paper.exists():
+              paper.unlink()
           conn = sqlite3.connect(str(paper))
           conn.execute("CREATE TABLE IF NOT EXISTS trades (exit_time REAL, pnl_bps REAL)")
           now = time.time()

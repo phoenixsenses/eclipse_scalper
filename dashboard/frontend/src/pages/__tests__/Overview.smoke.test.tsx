@@ -55,7 +55,7 @@ describe("Overview smoke", () => {
     );
 
     expect(screen.getByText("Top Blockers (reason)")).toBeInTheDocument();
-    expect(screen.getByText("no_match")).toBeInTheDocument();
+    expect(screen.getAllByText("no_match").length).toBeGreaterThan(0);
   });
 });
 

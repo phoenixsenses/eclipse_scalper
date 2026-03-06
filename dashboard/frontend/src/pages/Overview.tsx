@@ -267,7 +267,7 @@ export default function Overview() {
   const topBlocker = topBlockers.length > 0 ? topBlockers[0] : null;
   const topBlockerGuide = topBlocker ? blockerRecommendation(topBlocker.reason) : null;
   const recentIncidentRibbon = useMemo(() => {
-    const rows = incidentPoll.data ?? [];
+    const rows = Array.isArray(incidentPoll.data) ? incidentPoll.data : [];
     const cutoff = Date.now() / 1000 - 15 * 60;
     return rows
       .filter((x) => (x.ts ?? 0) >= cutoff)

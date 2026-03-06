@@ -10,31 +10,37 @@ vi.mock("../../hooks/useSSE", () => ({
 
 vi.mock("../../hooks/usePoll", () => {
   return {
-    usePoll: vi
-      .fn()
-      // files poll
-      .mockImplementationOnce(() => ({
-        data: [{ name: "paper_trading.log", path: "logs/paper_trading.log", size_bytes: 100, mtime: 1 }],
-        error: null,
-        isLoading: false,
-        isFetching: false,
-        isStale: false,
-        refresh: vi.fn(),
-      }))
-      // tail poll
-      .mockImplementation(() => ({
+    usePoll: vi.fn((cfg: { pollKey?: string }) => {
+      const key = cfg?.pollKey ?? "";
+      if (key.includes("api:/logs") && !key.includes("/tail")) {
+        return {
+          data: [{ name: "paper_trading.log", path: "logs/paper_trading.log", size_bytes: 100, mtime: 1 }],
+          error: null,
+          isLoading: false,
+          isFetching: false,
+          isStale: false,
+          refresh: vi.fn(),
+        };
+      }
+      return {
         data: null,
         error: null,
         isLoading: false,
         isFetching: false,
         isStale: false,
         refresh: vi.fn(),
-      })),
+      };
+    }),
   };
 });
 
 vi.mock("../../api/client", () => ({
   api: {
+    logTailMeta: vi.fn().mockResolvedValue({
+      tail: { file: "paper_trading.log", lines: ["line a", "line b"] },
+      tailMs: 5,
+      source: "tail",
+    }),
     logTail: vi.fn().mockResolvedValue({ file: "paper_trading.log", lines: ["line a", "line b"] }),
   },
   streamLog: vi.fn(),

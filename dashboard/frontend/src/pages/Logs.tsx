@@ -206,7 +206,10 @@ export default function Logs() {
   });
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = bottomRef.current;
+    if (el && typeof el.scrollIntoView === "function") {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
   }, [lines]);
 
   const mode: DegradedMode = useMemo(() => {

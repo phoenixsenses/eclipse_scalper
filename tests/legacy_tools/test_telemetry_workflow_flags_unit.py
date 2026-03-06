@@ -14,7 +14,7 @@ for p in (ROOT, PKG):
 
 class TelemetryWorkflowFlagsTests(unittest.TestCase):
     def test_telemetry_dashboard_workflow_has_required_reconcile_flags(self):
-        wf = PKG / ".github" / "workflows" / "telemetry-dashboard.yml"
+        wf = ROOT / ".github" / "workflows" / "telemetry-dashboard.yml"
         text = wf.read_text(encoding="utf-8")
         required = [
             "RECOVERY_RED_LOCK_CRITICAL_STREAK",

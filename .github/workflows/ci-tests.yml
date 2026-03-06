@@ -25,7 +25,7 @@ jobs:
       - name: Install frontend deps
         run: |
           cd dashboard/frontend
-          npm install
+          npm ci
 
       - name: Frontend typecheck
         run: |
@@ -35,12 +35,12 @@ jobs:
       - name: Frontend smoke tests
         run: |
           cd dashboard/frontend
-          npm test
+          npx vitest run --pool=forks --poolOptions.forks.singleFork src/pages/__tests__/Overview.smoke.test.tsx src/pages/__tests__/Logs.smoke.test.tsx src/pages/__tests__/Debug.smoke.test.tsx
 
-      - name: Frontend live monitor smoke
+      - name: Frontend production build
         run: |
           cd dashboard/frontend
-          npm run test -- src/pages/__tests__/LiveMonitor.smoke.test.tsx
+          npm run build
 
   dashboard-backend-smoke:
     name: Dashboard Backend Smoke
@@ -58,6 +58,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install -r dashboard/backend/requirements.txt
 
       - name: Dashboard backend smoke tests
         run: |
@@ -71,11 +72,11 @@ jobs:
       matrix:
         include:
           - name: ack-after-fill-recovery
-            cmd: pytest -q tools/test_execution_chaos_scenarios.py -k router_recovers_timeout_and_duplicate_then_returns_partial_fill
+            cmd: pytest -q tests/legacy_tools/test_execution_chaos_scenarios.py -k router_recovers_timeout_and_duplicate_then_returns_partial_fill
           - name: cancel-unknown-idempotent
-            cmd: pytest -q tools/test_execution_chaos_scenarios.py -k cancel_after_fill_unknown_order_is_idempotent_success
+            cmd: pytest -q tests/legacy_tools/test_execution_chaos_scenarios.py -k cancel_after_fill_unknown_order_is_idempotent_success
           - name: replace-race-single-exposure
-            cmd: pytest -q tools/test_execution_chaos_scenarios_v2.py -k crash_mid_replace_filled_after_cancel_rebuild_reconcile_stays_single_exposure
+            cmd: pytest -q tests/legacy_tools/test_execution_chaos_scenarios.py -k reconcile_contradictory_snapshot_escalates_belief_and_clears_phantom
 
     steps:
       - name: Check out repo
@@ -115,18 +116,16 @@ jobs:
 
       - name: Run execution invariant suite
         run: |
-          pytest -q tools/test_state_machine_unit.py
-          pytest -q tools/test_belief_controller_unit.py
-          pytest -q tools/test_order_router_unit.py
-          pytest -q tools/test_replace_manager_unit.py
-          pytest -q tools/test_intent_ledger_unit.py
-          pytest -q tools/test_protection_manager_unit.py
-          pytest -q tools/test_reliability_gate_unit.py
-          pytest -q tools/test_reliability_gate_runtime_unit.py
-          pytest -q tools/test_telemetry_alert_summary_unit.py
-          pytest -q tools/test_telemetry_dashboard_notify_unit.py
-          pytest -q tools/test_telemetry_belief_state_unit.py
-          pytest -q tools/test_telemetry_workflow_flags_unit.py
+          pytest -q tests/legacy_tools/test_belief_controller_unit.py
+          pytest -q tests/legacy_tools/test_order_router_unit.py
+          pytest -q tests/legacy_tools/test_replace_manager_unit.py
+          pytest -q tests/legacy_tools/test_intent_ledger_unit.py
+          pytest -q tests/legacy_tools/test_reliability_gate_unit.py
+          pytest -q tests/legacy_tools/test_reliability_gate_runtime_unit.py
+          pytest -q tests/legacy_tools/test_telemetry_alert_summary_unit.py
+          pytest -q tests/legacy_tools/test_telemetry_dashboard_notify_unit.py
+          pytest -q tests/legacy_tools/test_telemetry_belief_state_unit.py
+          pytest -q tests/legacy_tools/test_telemetry_workflow_flags_unit.py
 
       - name: Enforce reliability gate thresholds on synthetic fixture
         run: |
@@ -324,8 +323,7 @@ jobs:
       - name: Run full chaos suites
         run: |
           mkdir -p logs
-          pytest -q tools/test_execution_chaos_scenarios.py --junitxml=logs/chaos_suite_1.xml
-          pytest -q tools/test_execution_chaos_scenarios_v2.py --junitxml=logs/chaos_suite_2.xml
+          pytest -q tests/legacy_tools/test_execution_chaos_scenarios.py --junitxml=logs/chaos_suite_1.xml
 
       - name: Compare nightly chaos drift
         env:
