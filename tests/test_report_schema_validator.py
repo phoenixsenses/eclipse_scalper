@@ -785,6 +785,22 @@ def test_validate_event_watchboard_trend_payload() -> None:
                 "priority_score": 225.0,
             },
         ],
+        "lane_deltas": [
+            {
+                "lane": "liquidation",
+                "start_priority_score": 0.0,
+                "end_priority_score": 225.0,
+                "delta_priority_score": 225.0,
+                "trend": "rising_fast",
+            },
+            {
+                "lane": "spread_stress",
+                "start_priority_score": 125.0,
+                "end_priority_score": 50.0,
+                "delta_priority_score": -75.0,
+                "trend": "falling_fast",
+            },
+        ],
         "run_summary": {
             "version": "v1",
             "run_type": "event_watchboard_trend",
@@ -804,6 +820,15 @@ def test_validate_event_watchboard_snapshot_append_payload() -> None:
             "source": "reports/RESEARCH_EVENT_WATCHBOARD_REAL.json",
             "top_lane": "liquidation",
             "state_counts": {"severe": 2},
+            "lanes": [
+                {
+                    "lane": "liquidation",
+                    "priority_score": 225.0,
+                    "level": "severe",
+                    "freshness_status": "fresh",
+                    "recommended_action": "escalate_monitoring",
+                }
+            ],
             "top_event": {
                 "lane": "liquidation",
                 "level": "severe",
@@ -864,6 +889,15 @@ def test_validate_event_watchboard_trend_from_history_payload() -> None:
                 "top_recommended_action": "monitor_only",
                 "priority_score": 200.0,
             },
+        ],
+        "lane_deltas": [
+            {
+                "lane": "liquidation",
+                "start_priority_score": 0.0,
+                "end_priority_score": 200.0,
+                "delta_priority_score": 200.0,
+                "trend": "rising_fast",
+            }
         ],
         "history": {
             "history_path": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl",
@@ -1559,11 +1593,14 @@ def test_validate_research_event_operator_brief_payload() -> None:
             "trend": "flat",
             "severe_lane_count": 1,
             "stale_lane_count": 2,
+            "strongest_delta_lane": "return_shock",
+            "strongest_delta_trend": "rising_fast",
         },
         "brief": {
             "headline": "Research events top=liquidation action=monitor_only trend=flat",
-            "operator_note": "top lane liquidation, action monitor_only, trend flat. severe lanes: liquidation. stale lanes: liquidation, spread_stress.",
+            "operator_note": "top lane liquidation, action monitor_only, trend flat. strongest lane delta: return_shock rising_fast (+125.00). severe lanes: liquidation. stale lanes: liquidation, spread_stress.",
             "top_event": {"lane": "liquidation", "action": "monitor_only", "headline": "top headline"},
+            "strongest_delta": {"lane": "return_shock", "trend": "rising_fast", "delta_priority_score": 125.0},
             "severe_lanes": ["liquidation"],
             "stale_lanes": ["liquidation", "spread_stress"],
         },
@@ -1580,6 +1617,8 @@ def test_validate_research_event_operator_brief_payload() -> None:
                 "trend": "flat",
                 "severe_lane_count": 1,
                 "stale_lane_count": 2,
+                "strongest_delta_lane": "return_shock",
+                "strongest_delta_trend": "rising_fast",
             },
             "artifacts": {
                 "json": "reports/RESEARCH_EVENT_OPERATOR_BRIEF.json",

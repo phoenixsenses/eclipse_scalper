@@ -14,6 +14,10 @@ def test_build_append_payload() -> None:
     payload = ewsa.build_append_payload(
         payload={
             "summary": {"top_lane": "liquidation", "state_counts": {"severe": 2}},
+            "lanes": [
+                {"lane": "liquidation", "priority_score": 225.0, "level": "severe", "freshness_status": "fresh", "recommended_action": "escalate_monitoring"},
+                {"lane": "spread_stress", "priority_score": 50.0, "level": "elevated", "freshness_status": "stale", "recommended_action": "show_caution"},
+            ],
             "top_event": {
                 "lane": "liquidation",
                 "level": "severe",
@@ -33,6 +37,7 @@ def test_build_append_payload() -> None:
         out_json="reports/APPEND.json",
     )
     assert payload["appended"]["top_lane"] == "liquidation"
+    assert len(payload["appended"]["lanes"]) == 2
     assert payload["run_summary"]["run_type"] == "event_watchboard_snapshot_append"
 
 
@@ -45,6 +50,9 @@ def test_main_appends_history(monkeypatch) -> None:
         json.dumps(
             {
                 "summary": {"top_lane": "liquidation", "state_counts": {"severe": 2}},
+                "lanes": [
+                    {"lane": "liquidation", "priority_score": 225.0, "level": "severe", "freshness_status": "fresh", "recommended_action": "escalate_monitoring"}
+                ],
                 "top_event": {
                     "lane": "liquidation",
                     "level": "severe",
@@ -69,6 +77,7 @@ def test_main_appends_history(monkeypatch) -> None:
     lines = [json.loads(line) for line in history.read_text(encoding="utf-8").splitlines() if line.strip()]
     assert len(lines) == 1
     assert lines[0]["top_lane"] == "liquidation"
+    assert lines[0]["lanes"][0]["lane"] == "liquidation"
     payload = json.loads(out_json.read_text(encoding="utf-8"))
     assert payload["run_summary"]["run_type"] == "event_watchboard_snapshot_append"
 

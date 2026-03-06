@@ -29,7 +29,15 @@ def test_build_operator_brief_payload() -> None:
         ),
         encoding="utf-8",
     )
-    trend_path.write_text(json.dumps({"summary": {"trend": "rising"}}), encoding="utf-8")
+    trend_path.write_text(
+        json.dumps(
+            {
+                "summary": {"trend": "rising"},
+                "lane_deltas": [{"lane": "return_shock", "trend": "rising_fast", "delta_priority_score": 125.0}],
+            }
+        ),
+        encoding="utf-8",
+    )
 
     payload = reob.build_operator_brief_payload(
         watchboard_json=str(watchboard_path),
@@ -40,6 +48,8 @@ def test_build_operator_brief_payload() -> None:
     assert payload["summary"]["top_lane"] == "liquidation"
     assert payload["summary"]["stale_lane_count"] == 1
     assert payload["summary"]["trend"] == "rising"
+    assert payload["summary"]["strongest_delta_lane"] == "return_shock"
+    assert payload["brief"]["strongest_delta"]["trend"] == "rising_fast"
     assert payload["run_summary"]["run_type"] == "research_event_operator_brief"
 
 
@@ -50,7 +60,7 @@ def test_main_writes_files(monkeypatch) -> None:
     watchboard_path = out_dir / "watchboard.json"
     trend_path = out_dir / "trend.json"
     watchboard_path.write_text(json.dumps({"summary": {"top_lane": "liquidation"}, "top_event": {}, "lanes": []}), encoding="utf-8")
-    trend_path.write_text(json.dumps({"summary": {"trend": "flat"}}), encoding="utf-8")
+    trend_path.write_text(json.dumps({"summary": {"trend": "flat"}, "lane_deltas": []}), encoding="utf-8")
 
     out_json = out_dir / "brief.json"
     out_md = out_dir / "brief.md"

@@ -19,3 +19,4 @@ Short term:
 
 - operator trend card from real accumulated history
 - quick last-N trend checks without passing snapshot file lists manually
+- lane-level delta view from persisted snapshots

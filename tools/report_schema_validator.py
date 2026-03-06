@@ -927,6 +927,7 @@ def _validate_event_watchboard_trend(payload: Dict[str, Any]) -> List[str]:
         "summary": dict,
         "latest": dict,
         "points": list,
+        "lane_deltas": list,
         "run_summary": dict,
     }
     for key, expected in required_top.items():
@@ -973,7 +974,7 @@ def _validate_event_watchboard_snapshot_append(payload: Dict[str, Any]) -> List[
             errors.append(f"bad_type:{key}")
     appended = payload.get("appended")
     if isinstance(appended, dict):
-        for key in ("source", "top_lane", "state_counts", "top_event", "banner", "upstream_run_type"):
+        for key in ("source", "top_lane", "state_counts", "lanes", "top_event", "banner", "upstream_run_type"):
             if key not in appended:
                 errors.append(f"missing:appended.{key}")
     errors.extend(_validate_run_summary(payload.get("run_summary")))
@@ -1000,6 +1001,8 @@ def _validate_event_watchboard_trend_from_history(payload: Dict[str, Any]) -> Li
         for key in ("history_path", "last_n", "available_rows", "used_rows"):
             if key not in history:
                 errors.append(f"missing:history.{key}")
+    if "lane_deltas" not in payload:
+        errors.append("missing:lane_deltas")
     errors.extend(_validate_run_summary(payload.get("run_summary")))
     return errors
 
@@ -1051,12 +1054,12 @@ def _validate_research_event_operator_brief(payload: Dict[str, Any]) -> List[str
             errors.append(f"bad_type:{key}")
     summary = payload.get("summary")
     if isinstance(summary, dict):
-        for key in ("top_lane", "top_action", "trend", "severe_lane_count", "stale_lane_count"):
+        for key in ("top_lane", "top_action", "trend", "severe_lane_count", "stale_lane_count", "strongest_delta_lane", "strongest_delta_trend"):
             if key not in summary:
                 errors.append(f"missing:summary.{key}")
     brief = payload.get("brief")
     if isinstance(brief, dict):
-        for key in ("headline", "operator_note", "top_event", "severe_lanes", "stale_lanes"):
+        for key in ("headline", "operator_note", "top_event", "strongest_delta", "severe_lanes", "stale_lanes"):
             if key not in brief:
                 errors.append(f"missing:brief.{key}")
     errors.extend(_validate_run_summary(payload.get("run_summary")))

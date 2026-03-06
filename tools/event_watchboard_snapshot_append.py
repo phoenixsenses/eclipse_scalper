@@ -34,11 +34,23 @@ def _snapshot_record(payload: Dict[str, Any], source: str) -> Dict[str, Any]:
     summary = dict(payload.get("summary") or {})
     top_event = dict(payload.get("top_event") or {})
     banner = dict(payload.get("banner") or {})
+    lanes = list(payload.get("lanes") or [])
     run_summary = dict(payload.get("run_summary") or {})
     return {
         "source": str(source),
         "top_lane": str(summary.get("top_lane") or top_event.get("lane") or ""),
         "state_counts": dict(summary.get("state_counts") or {}),
+        "lanes": [
+            {
+                "lane": str(lane.get("lane") or ""),
+                "priority_score": float(lane.get("priority_score") or 0.0),
+                "level": str(lane.get("level") or "quiet"),
+                "freshness_status": str(lane.get("freshness_status") or "stale"),
+                "recommended_action": str(lane.get("recommended_action") or "monitor_only"),
+            }
+            for lane in lanes
+            if str(lane.get("lane") or "")
+        ],
         "top_event": {
             "lane": str(top_event.get("lane") or ""),
             "level": str(top_event.get("level") or "quiet"),

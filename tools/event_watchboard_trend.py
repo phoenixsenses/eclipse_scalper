@@ -54,6 +54,16 @@ def _trend_label(delta: float) -> str:
     return "flat"
 
 
+def _lane_scores(payload: Dict[str, Any]) -> Dict[str, float]:
+    scores: Dict[str, float] = {}
+    for lane in list(payload.get("lanes") or []):
+        lane_name = str(lane.get("lane") or "")
+        if not lane_name:
+            continue
+        scores[lane_name] = _safe_float(lane.get("priority_score"))
+    return scores
+
+
 def build_trend_payload(*, snapshots: List[Dict[str, Any]], source_paths: List[str], out_json: str, out_md: str) -> Dict[str, Any]:
     points: List[Dict[str, Any]] = []
     for idx, payload in enumerate(snapshots):
@@ -73,6 +83,25 @@ def build_trend_payload(*, snapshots: List[Dict[str, Any]], source_paths: List[s
     first = points[0] if points else {}
     last = points[-1] if points else {}
     delta = _safe_float(last.get("priority_score")) - _safe_float(first.get("priority_score"))
+    lane_deltas: List[Dict[str, Any]] = []
+    if snapshots:
+        start_scores = _lane_scores(snapshots[0])
+        end_scores = _lane_scores(snapshots[-1])
+        lane_names = sorted(set(start_scores) | set(end_scores))
+        for lane_name in lane_names:
+            start_score = _safe_float(start_scores.get(lane_name))
+            end_score = _safe_float(end_scores.get(lane_name))
+            lane_delta = end_score - start_score
+            lane_deltas.append(
+                {
+                    "lane": lane_name,
+                    "start_priority_score": start_score,
+                    "end_priority_score": end_score,
+                    "delta_priority_score": lane_delta,
+                    "trend": _trend_label(lane_delta),
+                }
+            )
+        lane_deltas.sort(key=lambda row: abs(_safe_float(row.get("delta_priority_score"))), reverse=True)
     payload = {
         "summary": {
             "snapshot_count": len(points),
@@ -83,6 +112,7 @@ def build_trend_payload(*, snapshots: List[Dict[str, Any]], source_paths: List[s
         },
         "latest": dict(last),
         "points": points,
+        "lane_deltas": lane_deltas,
     }
     payload["run_summary"] = build_run_summary(
         run_type="event_watchboard_trend",
@@ -136,6 +166,19 @@ def main(argv: Optional[List[str]] = None) -> int:
         lines.append(
             f"| {int(row['index'])} | {row['top_lane']} | {row['top_level']} | {row['top_recommended_action']} | {float(row['priority_score']):.2f} |"
         )
+    if payload["lane_deltas"]:
+        lines.extend(
+            [
+                "",
+                "| lane | start_priority_score | end_priority_score | delta_priority_score | trend |",
+                "|---|---:|---:|---:|---|",
+            ]
+        )
+        for row in payload["lane_deltas"]:
+            lines.append(
+                f"| {row['lane']} | {float(row['start_priority_score']):.2f} | {float(row['end_priority_score']):.2f} | "
+                f"{float(row['delta_priority_score']):.2f} | {row['trend']} |"
+            )
     out_md.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"wrote {out_md}")
     print(f"wrote {out_json}")

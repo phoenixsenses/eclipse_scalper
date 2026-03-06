@@ -21,6 +21,7 @@ It emits:
 - `summary`
 - `latest`
 - `points`
+- `lane_deltas`
 - `run_summary`
 
 ## Expected Use

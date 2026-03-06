@@ -16,6 +16,10 @@ def test_build_trend_from_history_payload() -> None:
                 "source": "a.json",
                 "top_lane": "spread_stress",
                 "state_counts": {"elevated": 1},
+                "lanes": [
+                    {"lane": "spread_stress", "priority_score": 125.0},
+                    {"lane": "liquidation", "priority_score": 0.0},
+                ],
                 "top_event": {"lane": "spread_stress", "level": "elevated", "recommended_action": "show_caution", "headline": "Spread top"},
                 "banner": {"headline": "Spread top", "recommended_action": "show_caution", "top_lane": "spread_stress", "top_level": "elevated"},
             },
@@ -23,6 +27,10 @@ def test_build_trend_from_history_payload() -> None:
                 "source": "b.json",
                 "top_lane": "liquidation",
                 "state_counts": {"severe": 1},
+                "lanes": [
+                    {"lane": "spread_stress", "priority_score": 50.0},
+                    {"lane": "liquidation", "priority_score": 225.0},
+                ],
                 "top_event": {"lane": "liquidation", "level": "severe", "recommended_action": "monitor_only", "headline": "Liq top"},
                 "banner": {"headline": "Liq top", "recommended_action": "monitor_only", "top_lane": "liquidation", "top_level": "severe"},
             },
@@ -35,6 +43,7 @@ def test_build_trend_from_history_payload() -> None:
     assert payload["run_summary"]["run_type"] == "event_watchboard_trend_from_history"
     assert payload["history"]["used_rows"] == 2
     assert payload["summary"]["end_top_lane"] == "liquidation"
+    assert payload["lane_deltas"][0]["lane"] == "liquidation"
 
 
 def test_main_writes_files(monkeypatch) -> None:
@@ -47,6 +56,7 @@ def test_main_writes_files(monkeypatch) -> None:
                 "source": "a.json",
                 "top_lane": "spread_stress",
                 "state_counts": {"elevated": 1},
+                "lanes": [{"lane": "spread_stress", "priority_score": 125.0}, {"lane": "liquidation", "priority_score": 0.0}],
                 "top_event": {"lane": "spread_stress", "level": "elevated", "recommended_action": "show_caution", "headline": "Spread top"},
                 "banner": {"headline": "Spread top", "recommended_action": "show_caution", "top_lane": "spread_stress", "top_level": "elevated"},
             }
@@ -57,6 +67,7 @@ def test_main_writes_files(monkeypatch) -> None:
                 "source": "b.json",
                 "top_lane": "liquidation",
                 "state_counts": {"severe": 1},
+                "lanes": [{"lane": "spread_stress", "priority_score": 50.0}, {"lane": "liquidation", "priority_score": 225.0}],
                 "top_event": {"lane": "liquidation", "level": "severe", "recommended_action": "monitor_only", "headline": "Liq top"},
                 "banner": {"headline": "Liq top", "recommended_action": "monitor_only", "top_lane": "liquidation", "top_level": "severe"},
             }
@@ -70,4 +81,5 @@ def test_main_writes_files(monkeypatch) -> None:
     assert ewth.main() == 0
     payload = json.loads(out_json.read_text(encoding="utf-8"))
     assert payload["run_summary"]["run_type"] == "event_watchboard_trend_from_history"
+    assert payload["lane_deltas"][0]["lane"] == "liquidation"
     assert out_md.exists()

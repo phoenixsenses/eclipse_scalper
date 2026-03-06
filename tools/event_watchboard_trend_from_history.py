@@ -37,7 +37,10 @@ def _snapshot_from_history(row: Dict[str, Any]) -> Dict[str, Any]:
     top_level = str(top_event.get("level") or banner.get("top_level") or "quiet")
     recommended_action = str(top_event.get("recommended_action") or banner.get("recommended_action") or "monitor_only")
     headline = str(top_event.get("headline") or banner.get("headline") or "")
-    severity_score = {"quiet": 0.0, "elevated": 100.0, "severe": 200.0}.get(top_level, 0.0)
+    lanes = list(row.get("lanes") or [])
+    if not lanes:
+        severity_score = {"quiet": 0.0, "elevated": 100.0, "severe": 200.0}.get(top_level, 0.0)
+        lanes = [{"lane": top_lane, "priority_score": severity_score}]
     return {
         "summary": {"top_lane": top_lane, "state_counts": state_counts},
         "top_event": {
@@ -47,12 +50,7 @@ def _snapshot_from_history(row: Dict[str, Any]) -> Dict[str, Any]:
             "headline": headline,
             "freshness_status": "unknown",
         },
-        "lanes": [
-            {
-                "lane": top_lane,
-                "priority_score": severity_score,
-            }
-        ],
+        "lanes": lanes,
     }
 
 

@@ -11,6 +11,7 @@ The watchboard and trend payloads are structured for downstream systems. The ope
 - one headline
 - one operator note
 - explicit severe/stale lane lists
+- strongest lane delta summary
 
 ## Tool
 
