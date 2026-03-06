@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from tools.event_watchboard_snapshot_append import append_history_record, build_append_payload
+from tools.event_lane_consolidation import build_consolidation_payload
 from tools.event_lane_overlap import build_overlap_payload
 from tools.event_watchboard_trend_from_history import build_trend_from_history_payload, _load_history
 from tools.research_event_operator_brief import build_operator_brief_payload
@@ -46,6 +47,8 @@ def build_cycle_payload(
     overlap_json: str,
     overlap_md: str,
     overlap_top_n: int,
+    consolidation_json: str,
+    consolidation_md: str,
     trend_json: str,
     trend_md: str,
     brief_json: str,
@@ -108,6 +111,13 @@ def build_cycle_payload(
         out_json=overlap_json,
         out_md=overlap_md,
     )
+    consolidation_payload = build_consolidation_payload(
+        watchboard_json=watchboard_json,
+        overlap_json=overlap_json,
+        top_n=overlap_top_n,
+        out_json=consolidation_json,
+        out_md=consolidation_md,
+    )
     _write_json(overlap_json, overlap_payload)
     _write_lines(
         overlap_md,
@@ -116,6 +126,16 @@ def build_cycle_payload(
             "",
             f"top_overlap_pair={str((overlap_payload.get('summary') or {}).get('top_overlap_pair') or '')}",
             f"active_snapshot_count={int((overlap_payload.get('summary') or {}).get('active_snapshot_count') or 0)}",
+        ],
+    )
+    _write_json(consolidation_json, consolidation_payload)
+    _write_lines(
+        consolidation_md,
+        [
+            "# EVENT LANE CONSOLIDATION",
+            "",
+            f"decision_count={int((consolidation_payload.get('summary') or {}).get('decision_count') or 0)}",
+            f"recommendation_counts={json.dumps((consolidation_payload.get('summary') or {}).get('recommendation_counts') or {}, ensure_ascii=True, sort_keys=True)}",
         ],
     )
     _write_json(trend_json, trend_payload)
@@ -132,6 +152,7 @@ def build_cycle_payload(
         watchboard_json=watchboard_json,
         trend_json=trend_json,
         overlap_json=overlap_json,
+        consolidation_json=consolidation_json,
         out_json=brief_json,
         out_md=brief_md,
     )
@@ -152,6 +173,7 @@ def build_cycle_payload(
         "append_json": str(append_json),
         "trend_json": str(trend_json),
         "overlap_json": str(overlap_json),
+        "consolidation_json": str(consolidation_json),
         "brief_json": str(brief_json),
         "history_jsonl": str(history_jsonl),
         "summary": {
@@ -161,6 +183,11 @@ def build_cycle_payload(
             "trend": str((trend_payload.get("summary") or {}).get("trend") or "flat"),
             "trimmed_rows": int(history_stats.get("trimmed_rows", 0)),
             "top_overlap_pair": str((overlap_payload.get("summary") or {}).get("top_overlap_pair") or ""),
+            "suppression_candidate_count": int(
+                ((consolidation_payload.get("summary") or {}).get("recommendation_counts") or {}).get(
+                    "candidate_suppress_secondary", 0
+                )
+            ),
         },
     }
     payload["run_summary"] = build_run_summary(
@@ -181,6 +208,7 @@ def build_cycle_payload(
             "trend": payload["summary"]["trend"],
             "trimmed_rows": payload["summary"]["trimmed_rows"],
             "top_overlap_pair": payload["summary"]["top_overlap_pair"],
+            "suppression_candidate_count": payload["summary"]["suppression_candidate_count"],
         },
         artifacts={
             "json": out_json,
@@ -188,6 +216,7 @@ def build_cycle_payload(
             "watchboard_json": watchboard_json,
             "append_json": append_json,
             "overlap_json": overlap_json,
+            "consolidation_json": consolidation_json,
             "trend_json": trend_json,
             "brief_json": brief_json,
             "history_jsonl": history_jsonl,
@@ -213,6 +242,8 @@ def _parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     p.add_argument("--overlap-json", default="reports/EVENT_LANE_OVERLAP.json")
     p.add_argument("--overlap-md", default="reports/EVENT_LANE_OVERLAP.md")
     p.add_argument("--overlap-top-n", type=int, default=5)
+    p.add_argument("--consolidation-json", default="reports/EVENT_LANE_CONSOLIDATION.json")
+    p.add_argument("--consolidation-md", default="reports/EVENT_LANE_CONSOLIDATION.md")
     p.add_argument("--trend-json", default="reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json")
     p.add_argument("--trend-md", default="reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.md")
     p.add_argument("--brief-json", default="reports/RESEARCH_EVENT_OPERATOR_BRIEF.json")
@@ -240,6 +271,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         overlap_json=str(args.overlap_json),
         overlap_md=str(args.overlap_md),
         overlap_top_n=int(args.overlap_top_n),
+        consolidation_json=str(args.consolidation_json),
+        consolidation_md=str(args.consolidation_md),
         trend_json=str(args.trend_json),
         trend_md=str(args.trend_md),
         brief_json=str(args.brief_json),
@@ -260,6 +293,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         f"history_rows={payload['summary']['history_rows']}",
         f"trend={payload['summary']['trend']}",
         f"top_overlap_pair={payload['summary']['top_overlap_pair']}",
+        f"suppression_candidate_count={payload['summary']['suppression_candidate_count']}",
     ]
     out_md.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"wrote {out_md}")

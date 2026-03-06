@@ -1544,6 +1544,7 @@ def _validate_run_research_event_watchboard_cycle(payload: Dict[str, Any]) -> Li
         "watchboard_json": str,
         "append_json": str,
         "overlap_json": str,
+        "consolidation_json": str,
         "trend_json": str,
         "brief_json": str,
         "history_jsonl": str,
@@ -1558,7 +1559,7 @@ def _validate_run_research_event_watchboard_cycle(payload: Dict[str, Any]) -> Li
             errors.append(f"bad_type:{key}")
     summary = payload.get("summary")
     if isinstance(summary, dict):
-        for key in ("top_lane", "top_action", "history_rows", "trend", "trimmed_rows", "top_overlap_pair"):
+        for key in ("top_lane", "top_action", "history_rows", "trend", "trimmed_rows", "top_overlap_pair", "suppression_candidate_count"):
             if key not in summary:
                 errors.append(f"missing:summary.{key}")
         if "history_rows" in summary and not isinstance(summary["history_rows"], int):
@@ -1575,6 +1576,7 @@ def _validate_research_event_operator_brief(payload: Dict[str, Any]) -> List[str
         "watchboard_json": str,
         "trend_json": str,
         "overlap_json": str,
+        "consolidation_json": str,
         "summary": dict,
         "brief": dict,
         "run_summary": dict,
@@ -1587,12 +1589,12 @@ def _validate_research_event_operator_brief(payload: Dict[str, Any]) -> List[str
             errors.append(f"bad_type:{key}")
     summary = payload.get("summary")
     if isinstance(summary, dict):
-        for key in ("top_lane", "top_action", "trend", "severe_lane_count", "stale_lane_count", "strongest_delta_lane", "strongest_delta_trend", "strongest_overlap_pair"):
+        for key in ("top_lane", "top_action", "trend", "severe_lane_count", "stale_lane_count", "strongest_delta_lane", "strongest_delta_trend", "strongest_overlap_pair", "suppression_candidate_count", "primary_suppression_lane"):
             if key not in summary:
                 errors.append(f"missing:summary.{key}")
     brief = payload.get("brief")
     if isinstance(brief, dict):
-        for key in ("headline", "operator_note", "top_event", "strongest_delta", "strongest_overlap", "severe_lanes", "stale_lanes"):
+        for key in ("headline", "operator_note", "top_event", "strongest_delta", "strongest_overlap", "primary_suppression", "severe_lanes", "stale_lanes"):
             if key not in brief:
                 errors.append(f"missing:brief.{key}")
     errors.extend(_validate_run_summary(payload.get("run_summary")))
@@ -2268,6 +2270,72 @@ def _validate_event_lane_overlap(payload: Dict[str, Any]) -> List[str]:
     return errors
 
 
+def _validate_event_lane_consolidation(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "watchboard_json": str,
+        "overlap_json": str,
+        "summary": dict,
+        "decisions": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("top_lane", "top_overlap_pair", "decision_count", "recommendation_counts"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    decisions = payload.get("decisions")
+    if isinstance(decisions, list):
+        for idx, row in enumerate(decisions):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:decisions[{idx}]")
+                continue
+            for key in ("lane_a", "lane_b", "jaccard", "coactive_count", "secondary_lane", "recommendation", "reason"):
+                if key not in row:
+                    errors.append(f"missing:decisions[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_event_lane_suppression_policy(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "watchboard_json": str,
+        "consolidation_json": str,
+        "summary": dict,
+        "rules": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("top_lane", "rule_count", "suppressed_lanes"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    rules = payload.get("rules")
+    if isinstance(rules, list):
+        for idx, row in enumerate(rules):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:rules[{idx}]")
+                continue
+            for key in ("secondary_lane", "when_lane_a", "when_lane_b", "display_mode", "reason", "secondary_level", "secondary_action"):
+                if key not in row:
+                    errors.append(f"missing:rules[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "micro_edge_smoke": _validate_micro_edge_record,
     "validate_canonical": _validate_validate_canonical,
@@ -2336,6 +2404,8 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "run_liq_reversal_e2e": _validate_run_liq_reversal_e2e,
     "liquidation_regime_tagger": _validate_liquidation_regime_tagger,
     "event_lane_overlap": _validate_event_lane_overlap,
+    "event_lane_consolidation": _validate_event_lane_consolidation,
+    "event_lane_suppression_policy": _validate_event_lane_suppression_policy,
 }
 
 
@@ -2397,6 +2467,10 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "event_watchboard_snapshot_append"
     if {"history_jsonl", "summary", "lane_stats", "pairwise", "strongest_overlaps"}.issubset(keys):
         return "event_lane_overlap"
+    if {"watchboard_json", "overlap_json", "summary", "decisions"}.issubset(keys):
+        return "event_lane_consolidation"
+    if {"watchboard_json", "consolidation_json", "summary", "rules"}.issubset(keys):
+        return "event_lane_suppression_policy"
     if {"watchboard_json", "append_json", "trend_json", "brief_json", "history_jsonl", "summary"}.issubset(keys):
         return "run_research_event_watchboard_cycle"
     if {"watchboard_json", "trend_json", "summary", "brief"}.issubset(keys):

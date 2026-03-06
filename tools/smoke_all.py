@@ -52,6 +52,8 @@ KEY_MODULES = [
     "tools.event_watchboard_snapshot_append",
     "tools.event_watchboard_trend_from_history",
     "tools.event_lane_overlap",
+    "tools.event_lane_consolidation",
+    "tools.event_lane_suppression_policy",
     "tools.run_research_event_watchboard_cycle",
     "tools.research_event_operator_brief",
 ]
@@ -99,6 +101,8 @@ KEY_FILES = [
     "tools/event_watchboard_snapshot_append.py",
     "tools/event_watchboard_trend_from_history.py",
     "tools/event_lane_overlap.py",
+    "tools/event_lane_consolidation.py",
+    "tools/event_lane_suppression_policy.py",
     "tools/run_research_event_watchboard_cycle.py",
     "tools/research_event_operator_brief.py",
 ]

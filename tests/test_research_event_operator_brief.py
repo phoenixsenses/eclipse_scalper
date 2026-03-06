@@ -17,6 +17,7 @@ def test_build_operator_brief_payload() -> None:
     watchboard_path = out_dir / "watchboard.json"
     trend_path = out_dir / "trend.json"
     overlap_path = out_dir / "overlap.json"
+    consolidation_path = out_dir / "consolidation.json"
     watchboard_path.write_text(
         json.dumps(
             {
@@ -50,11 +51,27 @@ def test_build_operator_brief_payload() -> None:
         ),
         encoding="utf-8",
     )
+    consolidation_path.write_text(
+        json.dumps(
+            {
+                "decisions": [
+                    {
+                        "lane_a": "liquidation",
+                        "lane_b": "spread_stress",
+                        "secondary_lane": "spread_stress",
+                        "recommendation": "candidate_suppress_secondary",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
 
     payload = reob.build_operator_brief_payload(
         watchboard_json=str(watchboard_path),
         trend_json=str(trend_path),
         overlap_json=str(overlap_path),
+        consolidation_json=str(consolidation_path),
         out_json=str(out_dir / "out.json"),
         out_md=str(out_dir / "out.md"),
     )
@@ -63,8 +80,11 @@ def test_build_operator_brief_payload() -> None:
     assert payload["summary"]["trend"] == "rising"
     assert payload["summary"]["strongest_delta_lane"] == "return_shock"
     assert payload["summary"]["strongest_overlap_pair"] == "liquidation::spread_stress"
+    assert payload["summary"]["suppression_candidate_count"] == 1
+    assert payload["summary"]["primary_suppression_lane"] == "spread_stress"
     assert payload["brief"]["strongest_delta"]["trend"] == "rising_fast"
     assert payload["brief"]["strongest_overlap"]["jaccard"] == 0.75
+    assert payload["brief"]["primary_suppression"]["secondary_lane"] == "spread_stress"
     assert payload["run_summary"]["run_type"] == "research_event_operator_brief"
 
 
@@ -75,6 +95,7 @@ def test_build_operator_brief_payload_accepts_watchboard_level_field() -> None:
     watchboard_path = out_dir / "watchboard.json"
     trend_path = out_dir / "trend.json"
     overlap_path = out_dir / "overlap.json"
+    consolidation_path = out_dir / "consolidation.json"
     watchboard_path.write_text(
         json.dumps(
             {
@@ -87,10 +108,12 @@ def test_build_operator_brief_payload_accepts_watchboard_level_field() -> None:
     )
     trend_path.write_text(json.dumps({"summary": {"trend": "flat"}, "lane_deltas": []}), encoding="utf-8")
     overlap_path.write_text(json.dumps({"summary": {"top_overlap_pair": ""}, "strongest_overlaps": []}), encoding="utf-8")
+    consolidation_path.write_text(json.dumps({"decisions": []}), encoding="utf-8")
     payload = reob.build_operator_brief_payload(
         watchboard_json=str(watchboard_path),
         trend_json=str(trend_path),
         overlap_json=str(overlap_path),
+        consolidation_json=str(consolidation_path),
         out_json=str(out_dir / "out.json"),
         out_md=str(out_dir / "out.md"),
     )
@@ -105,9 +128,11 @@ def test_main_writes_files(monkeypatch) -> None:
     watchboard_path = out_dir / "watchboard.json"
     trend_path = out_dir / "trend.json"
     overlap_path = out_dir / "overlap.json"
+    consolidation_path = out_dir / "consolidation.json"
     watchboard_path.write_text(json.dumps({"summary": {"top_lane": "liquidation"}, "top_event": {}, "lanes": []}), encoding="utf-8")
     trend_path.write_text(json.dumps({"summary": {"trend": "flat"}, "lane_deltas": []}), encoding="utf-8")
     overlap_path.write_text(json.dumps({"summary": {"top_overlap_pair": ""}, "strongest_overlaps": []}), encoding="utf-8")
+    consolidation_path.write_text(json.dumps({"decisions": []}), encoding="utf-8")
 
     out_json = out_dir / "brief.json"
     out_md = out_dir / "brief.md"
@@ -122,6 +147,8 @@ def test_main_writes_files(monkeypatch) -> None:
             str(trend_path),
             "--overlap-json",
             str(overlap_path),
+            "--consolidation-json",
+            str(consolidation_path),
             "--out-json",
             str(out_json),
             "--out-md",

@@ -41,6 +41,11 @@ def test_build_cycle_payload(monkeypatch) -> None:
     )
     monkeypatch.setattr(
         rwc,
+        "build_consolidation_payload",
+        lambda **kwargs: {"summary": {"recommendation_counts": {"candidate_suppress_secondary": 1}, "decision_count": 1}},
+    )
+    monkeypatch.setattr(
+        rwc,
         "build_operator_brief_payload",
         lambda **kwargs: {"brief": {"headline": "brief", "operator_note": "note"}},
     )
@@ -62,6 +67,8 @@ def test_build_cycle_payload(monkeypatch) -> None:
         overlap_json=str(out_dir / "overlap.json"),
         overlap_md=str(out_dir / "overlap.md"),
         overlap_top_n=5,
+        consolidation_json=str(out_dir / "consolidation.json"),
+        consolidation_md=str(out_dir / "consolidation.md"),
         trend_json=str(out_dir / "trend.json"),
         trend_md=str(out_dir / "trend.md"),
         brief_json=str(out_dir / "brief.json"),
@@ -73,10 +80,12 @@ def test_build_cycle_payload(monkeypatch) -> None:
     assert payload["summary"]["trend"] == "flat"
     assert payload["summary"]["trimmed_rows"] == 0
     assert payload["summary"]["top_overlap_pair"] == "liquidation::spread_stress"
+    assert payload["summary"]["suppression_candidate_count"] == 1
     assert payload["run_summary"]["run_type"] == "run_research_event_watchboard_cycle"
     assert (out_dir / "watchboard.json").exists()
     assert (out_dir / "append.json").exists()
     assert (out_dir / "overlap.json").exists()
+    assert (out_dir / "consolidation.json").exists()
     assert (out_dir / "trend.json").exists()
     assert (out_dir / "brief.json").exists()
 
@@ -89,15 +98,16 @@ def test_main_writes_files(monkeypatch) -> None:
             "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
             "append_json": "reports/RESEARCH_EVENT_WATCHBOARD_SNAPSHOT_APPEND.json",
             "overlap_json": "reports/EVENT_LANE_OVERLAP.json",
+            "consolidation_json": "reports/EVENT_LANE_CONSOLIDATION.json",
             "trend_json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json",
             "brief_json": "reports/RESEARCH_EVENT_OPERATOR_BRIEF.json",
             "history_jsonl": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl",
-            "summary": {"top_lane": "liquidation", "top_action": "monitor_only", "history_rows": 1, "trend": "flat", "trimmed_rows": 0, "top_overlap_pair": "liquidation::spread_stress"},
+            "summary": {"top_lane": "liquidation", "top_action": "monitor_only", "history_rows": 1, "trend": "flat", "trimmed_rows": 0, "top_overlap_pair": "liquidation::spread_stress", "suppression_candidate_count": 1},
             "run_summary": {
                 "version": "v1",
                 "run_type": "run_research_event_watchboard_cycle",
                 "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"]},
-                "metrics": {"top_lane": "liquidation", "history_rows": 1, "trend": "flat", "trimmed_rows": 0, "top_overlap_pair": "liquidation::spread_stress"},
+                "metrics": {"top_lane": "liquidation", "history_rows": 1, "trend": "flat", "trimmed_rows": 0, "top_overlap_pair": "liquidation::spread_stress", "suppression_candidate_count": 1},
                 "artifacts": {"json": "reports/x.json", "md": "reports/x.md"},
             },
         },
