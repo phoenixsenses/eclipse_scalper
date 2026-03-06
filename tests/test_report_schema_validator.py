@@ -169,6 +169,38 @@ def test_validate_summarize_rank_attribution_payload() -> None:
     assert rsv.validate_payload(payload, "summarize_rank_attribution") == []
 
 
+def test_validate_summarize_liq_regime_tag_impact_payload() -> None:
+    payload = {
+        "source": "reports/forward.json",
+        "discovery": {
+            "available": True,
+            "tagged": {"n": 3, "avg_net": 0.0010, "p90_net": 0.0015},
+            "normal": {"n": 7, "avg_net": 0.0004, "p90_net": 0.0008},
+            "delta_avg_net": 0.0006,
+            "delta_p90_net": 0.0007,
+            "sample_warning": False,
+        },
+        "validation": {
+            "available": True,
+            "tagged": {"n": 2, "avg_net": -0.0001, "p90_net": 0.0002},
+            "normal": {"n": 8, "avg_net": 0.0002, "p90_net": 0.0006},
+            "delta_avg_net": -0.0003,
+            "delta_p90_net": -0.0004,
+            "sample_warning": False,
+        },
+        "recommendation": "Next action: discovery edge does not survive validation. Keep as annotation, not as a trading gate.",
+        "run_summary": {
+            "version": "v1",
+            "run_type": "summarize_liq_regime_tag_impact",
+            "inputs": {"source": "reports/forward.json"},
+            "metrics": {"discovery_delta_avg_net": 0.0006, "validation_delta_avg_net": -0.0003},
+            "artifacts": {"json": "reports/liq_regime_tag_summary.json"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "summarize_liq_regime_tag_impact"
+    assert rsv.validate_payload(payload, "summarize_liq_regime_tag_impact") == []
+
+
 def test_validate_artifacts_payload() -> None:
     payload = {
         "ok": True,

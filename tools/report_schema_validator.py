@@ -195,6 +195,52 @@ def _validate_summarize_rank_attribution(payload: Dict[str, Any]) -> List[str]:
     return errors
 
 
+def _validate_summarize_liq_regime_tag_impact(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source": str,
+        "discovery": dict,
+        "validation": dict,
+        "recommendation": str,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    for section in ("discovery", "validation"):
+        block = payload.get(section)
+        if not isinstance(block, dict):
+            continue
+        for key in ("available", "tagged", "normal", "delta_avg_net", "delta_p90_net", "sample_warning"):
+            if key not in block:
+                errors.append(f"missing:{section}.{key}")
+        if "available" in block and not isinstance(block["available"], bool):
+            errors.append(f"bad_type:{section}.available")
+        if "sample_warning" in block and not isinstance(block["sample_warning"], bool):
+            errors.append(f"bad_type:{section}.sample_warning")
+        for sub in ("tagged", "normal"):
+            sub_block = block.get(sub)
+            if not isinstance(sub_block, dict):
+                errors.append(f"bad_type:{section}.{sub}")
+                continue
+            for key in ("n", "avg_net", "p90_net"):
+                if key not in sub_block:
+                    errors.append(f"missing:{section}.{sub}.{key}")
+            if "n" in sub_block and not isinstance(sub_block["n"], int):
+                errors.append(f"bad_type:{section}.{sub}.n")
+            for key in ("avg_net", "p90_net"):
+                if key in sub_block and not _is_number(sub_block[key]):
+                    errors.append(f"bad_type:{section}.{sub}.{key}")
+        for key in ("delta_avg_net", "delta_p90_net"):
+            if key in block and not _is_number(block[key]):
+                errors.append(f"bad_type:{section}.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 def _validate_validate_artifacts(payload: Dict[str, Any]) -> List[str]:
     errors: List[str] = []
     required_top = {
@@ -825,6 +871,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "validate_canonical": _validate_validate_canonical,
     "validate_passive_pocket_forward": _validate_validate_passive_pocket_forward,
     "summarize_rank_attribution": _validate_summarize_rank_attribution,
+    "summarize_liq_regime_tag_impact": _validate_summarize_liq_regime_tag_impact,
     "validate_artifacts": _validate_validate_artifacts,
     "report_check": _validate_report_check,
     "validate_micro_edge_forward": _validate_validate_micro_edge_forward,
@@ -872,6 +919,8 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "validate_passive_pocket_forward"
     if {"reason_share", "gate_high_share", "next_action", "source"}.issubset(keys):
         return "summarize_rank_attribution"
+    if {"source", "discovery", "validation", "recommendation"}.issubset(keys):
+        return "summarize_liq_regime_tag_impact"
     if {"ok", "calibration", "execution"}.issubset(keys):
         return "validate_artifacts"
     if {"results", "summary"}.issubset(keys):
