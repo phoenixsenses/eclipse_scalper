@@ -1,16 +1,38 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import os
 import time
 from collections import deque
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Deque, Dict, Optional, Tuple
 
 from notifications.daily_summary import compose_daily_summary
 from notifications.events import NotificationEvent
 from notifications.health_alerts import build_heartbeat_event
 from notifications.telegram import Notifier
+
+_FALLBACK_LOG = Path(os.environ.get("NOTIFY_FALLBACK_LOG", "logs/notifications_fallback.jsonl"))
+
+
+def _fallback_log_event(event: NotificationEvent, reason: str) -> None:
+    """Write notification to file when Telegram is unavailable."""
+    try:
+        _FALLBACK_LOG.parent.mkdir(parents=True, exist_ok=True)
+        row = {
+            "ts": time.time(),
+            "category": str(event.category or ""),
+            "severity": str(event.severity.value if hasattr(event.severity, "value") else event.severity),
+            "title": str(event.title or ""),
+            "body": str(event.body or "")[:500],
+            "reason": str(reason or ""),
+        }
+        with open(_FALLBACK_LOG, "a", encoding="utf-8") as f:
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
+    except Exception:
+        pass
 
 
 @dataclass(frozen=True)
@@ -24,7 +46,7 @@ class NotificationConfig:
     daily_summary_utc_hour: int = 0
     daily_summary_utc_minute: int = 5
     max_messages_per_minute: int = 20
-    silent_heartbeat: bool = True
+    silent_heartbeat: bool = False
     send_timeout_sec: float = 2.0
 
 
@@ -74,6 +96,9 @@ class NotificationManager:
     async def send(self, event: NotificationEvent) -> bool:
         if not self.config.enabled:
             return False
+        if self.notifier is None:
+            _fallback_log_event(event, "no_notifier")
+            return False
         cat = str(event.category or "")
         if cat.startswith("trade_") and not self.config.trade_alerts:
             return False
@@ -111,14 +136,17 @@ class NotificationManager:
                 sent_ok = await coro
             # Accept None as success for in-memory/dummy notifier implementations in tests.
             if sent_ok is False:
+                _fallback_log_event(event, "telegram_returned_false")
                 return False
             self._sent_ts.append(now)
             if event.throttle_key:
                 self._last_by_key[event.throttle_key] = now
             return True
         except asyncio.TimeoutError:
+            _fallback_log_event(event, "telegram_timeout")
             return False
-        except Exception:
+        except Exception as exc:
+            _fallback_log_event(event, f"telegram_error:{type(exc).__name__}")
             return False
 
     async def send_trade_event(self, event: NotificationEvent) -> bool:
