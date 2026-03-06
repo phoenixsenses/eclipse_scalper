@@ -942,9 +942,14 @@ def _append_ops_health_history(payload: dict[str, Any]) -> None:
 def _read_ops_health_history(limit: int = 120) -> list[dict[str, Any]]:
     if limit <= 0:
         return []
+    _TAIL_BYTES = 512 * 1024  # 512 KB — enough for ~120 recent entries
     rows: list[dict[str, Any]] = []
     try:
+        file_size = _OPS_HEALTH_HISTORY_PATH.stat().st_size
         with open(_OPS_HEALTH_HISTORY_PATH, "r", encoding="utf-8", errors="replace") as f:
+            if file_size > _TAIL_BYTES:
+                f.seek(file_size - _TAIL_BYTES)
+                f.readline()  # skip partial first line
             for line in f:
                 line = line.strip()
                 if not line:
