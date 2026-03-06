@@ -59,6 +59,8 @@ def test_main_builds_end_to_end_payload(monkeypatch) -> None:
             )
         elif module == "tools.rank_passive_pockets_forward" and "baseline" in args:
             out_json.write_text(json.dumps({"count": 0, "ranking": []}), encoding="utf-8")
+        elif module == "tools.rank_passive_pockets_forward" and "anti_adverse_v5" in args:
+            out_json.write_text(json.dumps({"count": 0, "ranking": []}), encoding="utf-8")
         elif module == "tools.rank_passive_pockets_forward":
             out_json.write_text(
                 json.dumps(
@@ -104,6 +106,7 @@ def test_main_builds_end_to_end_payload(monkeypatch) -> None:
     assert payload["summary"]["coverage"]["max_rule_fire_count"] == 12
     assert payload["summary"]["candidate_surface"]["count"] == 8
     assert payload["summary"]["rank_baseline"]["count"] == 0
-    assert payload["summary"]["rank_v5"]["count"] == 1
+    assert payload["summary"]["rank_v5"]["count"] == 0
+    assert payload["summary"]["rank_v6"]["count"] == 1
     assert payload["summary"]["decision"]["next_step"] == "inspect_ranked_pockets"
     assert payload["run_summary"]["run_type"] == "run_liq_reversal_e2e"

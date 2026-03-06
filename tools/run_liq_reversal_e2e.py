@@ -82,6 +82,8 @@ def main() -> int:
     rank_baseline_md = prefix.with_name(prefix.name + "_RANK_BASELINE.md")
     rank_v5_json = prefix.with_name(prefix.name + "_RANK_V5.json")
     rank_v5_md = prefix.with_name(prefix.name + "_RANK_V5.md")
+    rank_v6_json = prefix.with_name(prefix.name + "_RANK_V6.json")
+    rank_v6_md = prefix.with_name(prefix.name + "_RANK_V6.md")
     out_json = prefix.with_suffix(".json")
     out_md = prefix.with_suffix(".md")
 
@@ -186,10 +188,26 @@ def main() -> int:
     if rc != 0:
         return rc
 
+    rc = _run_tool(
+        "tools.rank_passive_pockets_forward",
+        [
+            *common_rank_args,
+            "--mitigation-profile",
+            "anti_adverse_v6",
+            "--out-json",
+            str(rank_v6_json),
+            "--out-md",
+            str(rank_v6_md),
+        ],
+    )
+    if rc != 0:
+        return rc
+
     coverage = _load_json(coverage_json)
     candidates = _load_json(candidates_json)
     rank_baseline = _load_json(rank_baseline_json)
     rank_v5 = _load_json(rank_v5_json)
+    rank_v6 = _load_json(rank_v6_json)
 
     summary = {
         "symbol": str(args.symbol).upper(),
@@ -204,12 +222,14 @@ def main() -> int:
         },
         "rank_baseline": _rank_summary(rank_baseline),
         "rank_v5": _rank_summary(rank_v5),
+        "rank_v6": _rank_summary(rank_v6),
         "decision": {
             "baseline_tradeable": bool(int(rank_baseline.get("count", 0) or 0) > 0),
             "v5_tradeable": bool(int(rank_v5.get("count", 0) or 0) > 0),
+            "v6_tradeable": bool(int(rank_v6.get("count", 0) or 0) > 0),
             "next_step": (
                 "change_execution_style"
-                if int(rank_baseline.get("count", 0) or 0) == 0 and int(rank_v5.get("count", 0) or 0) == 0
+                if int(rank_baseline.get("count", 0) or 0) == 0 and int(rank_v5.get("count", 0) or 0) == 0 and int(rank_v6.get("count", 0) or 0) == 0
                 else "inspect_ranked_pockets"
             ),
         },
@@ -224,6 +244,7 @@ def main() -> int:
         "candidates_json": str(candidates_json),
         "rank_baseline_json": str(rank_baseline_json),
         "rank_v5_json": str(rank_v5_json),
+        "rank_v6_json": str(rank_v6_json),
         "summary": summary,
     }
     payload["run_summary"] = build_run_summary(
@@ -249,6 +270,7 @@ def main() -> int:
             "candidate_count": int(summary["candidate_surface"]["count"]),
             "baseline_rank_count": int(summary["rank_baseline"]["count"]),
             "v5_rank_count": int(summary["rank_v5"]["count"]),
+            "v6_rank_count": int(summary["rank_v6"]["count"]),
         },
         artifacts={
             "json": str(out_json),
@@ -257,6 +279,7 @@ def main() -> int:
             "candidates_json": str(candidates_json),
             "rank_baseline_json": str(rank_baseline_json),
             "rank_v5_json": str(rank_v5_json),
+            "rank_v6_json": str(rank_v6_json),
         },
     )
 
@@ -270,18 +293,21 @@ def main() -> int:
         f"candidate_count={summary['candidate_surface']['count']}",
         f"baseline_rank_count={summary['rank_baseline']['count']}",
         f"v5_rank_count={summary['rank_v5']['count']}",
+        f"v6_rank_count={summary['rank_v6']['count']}",
         f"next_step={summary['decision']['next_step']}",
         "",
         "## Top Results",
         "",
         f"- baseline_top={summary['rank_baseline']['top']}",
         f"- v5_top={summary['rank_v5']['top']}",
+        f"- v6_top={summary['rank_v6']['top']}",
         "",
         "## Artifacts",
         f"- coverage_json={coverage_json}",
         f"- candidates_json={candidates_json}",
         f"- rank_baseline_json={rank_baseline_json}",
         f"- rank_v5_json={rank_v5_json}",
+        f"- rank_v6_json={rank_v6_json}",
     ]
     out_md.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"wrote {out_md}")

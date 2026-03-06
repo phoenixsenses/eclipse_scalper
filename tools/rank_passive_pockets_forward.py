@@ -521,7 +521,7 @@ def _args() -> argparse.Namespace:
     p.add_argument(
         "--mitigation-profile",
         default="baseline",
-        choices=["baseline", "anti_adverse_v1", "anti_adverse_v2", "anti_adverse_v3", "anti_adverse_v4", "anti_adverse_v5"],
+        choices=["baseline", "anti_adverse_v1", "anti_adverse_v2", "anti_adverse_v3", "anti_adverse_v4", "anti_adverse_v5", "anti_adverse_v6"],
         help=(
             "Signal filter profile to reduce adverse selection. "
             "'baseline' = no change. "
@@ -530,7 +530,8 @@ def _args() -> argparse.Namespace:
             "'anti_adverse_v2' = light-touch fixed volatility-extreme guard. "
             "'anti_adverse_v3' = quantile-based volatility-extreme guard. "
             "'anti_adverse_v4' = anti_adverse_v3 + conservative scratch/escape defaults. "
-            "'anti_adverse_v5' = anti_adverse_v4 + extra passive wait for event-driven fills."
+            "'anti_adverse_v5' = anti_adverse_v4 + extra passive wait for event-driven fills. "
+            "'anti_adverse_v6' = anti_adverse_v5 + taker fallback after passive miss."
         ),
     )
     return p.parse_args()
@@ -634,7 +635,7 @@ def main() -> int:
     eff_scratch_taker_fee_bps = float(args.scratch_taker_fee_bps)
     eff_scratch_slippage_bps = float(args.scratch_slippage_bps)
     eff_passive_max_wait_buckets = int(args.passive_max_wait_buckets)
-    if mitigation_profile in {"anti_adverse_v4", "anti_adverse_v5"}:
+    if mitigation_profile in {"anti_adverse_v4", "anti_adverse_v5", "anti_adverse_v6"}:
         if eff_scratch_bps <= 0.0:
             eff_scratch_bps = 4.0
         if eff_scratch_window_sec <= 0:
@@ -643,7 +644,7 @@ def main() -> int:
             eff_scratch_taker_fee_bps = 1.0
         if eff_scratch_slippage_bps <= 0.0:
             eff_scratch_slippage_bps = 0.5
-    if mitigation_profile == "anti_adverse_v5" and eff_passive_max_wait_buckets <= 0:
+    if mitigation_profile in {"anti_adverse_v5", "anti_adverse_v6"} and eff_passive_max_wait_buckets <= 0:
         eff_passive_max_wait_buckets = 2
 
     def _mitigation_overrides(c: Dict[str, Any]) -> Dict[str, float]:
@@ -683,6 +684,16 @@ def main() -> int:
                 "scratch_taker_fee_bps": (float(args.scratch_taker_fee_bps) if float(args.scratch_taker_fee_bps) > 0.0 else 1.0),
                 "scratch_slippage_bps": (float(args.scratch_slippage_bps) if float(args.scratch_slippage_bps) > 0.0 else 0.5),
                 "passive_max_wait_buckets": (int(args.passive_max_wait_buckets) if int(args.passive_max_wait_buckets) > 0 else 2),
+            }
+        if mitigation_profile == "anti_adverse_v6":
+            return {
+                "vol_quantile_reject": max(0.0, min(0.50, float(args.vol_quantile_reject))),
+                "scratch_bps": (float(args.scratch_bps) if float(args.scratch_bps) > 0.0 else 4.0),
+                "scratch_window_sec": (int(args.scratch_window_sec) if int(args.scratch_window_sec) > 0 else 10),
+                "scratch_taker_fee_bps": (float(args.scratch_taker_fee_bps) if float(args.scratch_taker_fee_bps) > 0.0 else 1.0),
+                "scratch_slippage_bps": (float(args.scratch_slippage_bps) if float(args.scratch_slippage_bps) > 0.0 else 0.5),
+                "passive_max_wait_buckets": (int(args.passive_max_wait_buckets) if int(args.passive_max_wait_buckets) > 0 else 2),
+                "exec_model": "passive_then_taker",
             }
         return {}  # baseline: honour the args values directly
 
@@ -727,6 +738,7 @@ def main() -> int:
                             scratch_window_sec=int(profile_overrides.get("scratch_window_sec", args.scratch_window_sec)),
                             scratch_taker_fee_bps=float(profile_overrides.get("scratch_taker_fee_bps", args.scratch_taker_fee_bps)),
                             scratch_slippage_bps=float(profile_overrides.get("scratch_slippage_bps", args.scratch_slippage_bps)),
+                            exec_model=str(profile_overrides.get("exec_model", "passive_realistic")),
                             regime_filter=str(args.regime).upper() if str(args.regime).lower() not in ("none", "") else "",
                         )
                         agg = _aggregate_eval(res, min_n=int(args.min_n))

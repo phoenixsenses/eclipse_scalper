@@ -47,6 +47,15 @@ This also failed with:
 - `insufficient_fill_rate = 1.0`
 - `survive_fee>=1.0 with pass_rate>=0.5 = 0`
 
+4. `anti_adverse_v6`
+   - keeps `anti_adverse_v5`
+   - adds `passive_then_taker` fallback after passive miss
+
+This also failed with:
+
+- `insufficient_fill_rate = 1.0`
+- `survive_fee>=1.0 with pass_rate>=0.5 = 0`
+
 ## Interpretation
 
 This is different from low raw rule coverage.
@@ -63,6 +72,7 @@ So the current bottleneck is:
 - passive execution realism
 - current horizon / spread / intensity shape
 - likely the execution style itself, not just parameter severity
+- even passive-then-taker rescue did not unlock tradeable pockets
 
 not raw event scarcity.
 

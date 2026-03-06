@@ -270,6 +270,80 @@ def test_anti_adverse_v5_passes_wait_and_scratch_overrides(monkeypatch) -> None:
     assert data["gate_config"]["passive_max_wait_buckets"] == 2
 
 
+def test_anti_adverse_v6_passes_exec_model_override(monkeypatch) -> None:
+    monkeypatch.setattr(
+        rp,
+        "_parse_candidates_from_md",
+        lambda path, debug=False: (
+            [
+                {"symbol": "ETHUSDT", "horizon_sec": 60, "min_imbalance": 0.35, "min_trade_intensity": 200.0, "max_spread": 0.00035},
+            ],
+            {"total_rows_seen": 1, "table_rows_seen": 1, "rows_with_pass_yes": 1, "candidates_parsed": 1, "candidates_unique": 1, "rows_skipped_missing_fields": 0},
+        ),
+    )
+    seen_exec_models: list[str] = []
+
+    def _fake_validate(**kwargs):
+        seen_exec_models.append(str(kwargs.get("exec_model", "")))
+        return {
+            "rows_total": 1,
+            "pass_count": 1,
+            "pass_rate": 1.0,
+            "insufficient_fill_rate": 0.0,
+            "per_combo": [
+                {
+                    "seed": 11,
+                    "split": 1,
+                    "train_n": 100,
+                    "val_n_rows": 100,
+                    "effective_min_n": 20,
+                    "filled_n": 30,
+                    "filled_avg_net": 0.00005,
+                    "filled_p90_net": 0.00010,
+                    "filled_win_rate": 0.5,
+                    "attempt_fill_rate": 0.5,
+                    "net_per_attempt": 0.000025,
+                    "val_attempts": 60,
+                    "val_filled": 30,
+                    "attempts_per_min": 20.0,
+                    "pass": True,
+                    "fail_reason": "ok",
+                }
+            ],
+            "failure_attribution_median": {},
+        }
+
+    monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "x",
+            "--candidates-md",
+            "reports/dummy.md",
+            "--db",
+            "data/microstructure.db",
+            "--rule",
+            "high_liq_reversal_regime",
+            "--maker-fee-bps-grid",
+            "1.0",
+            "--passive-adverse-mult-grid",
+            "1.0",
+            "--min-attempt-fill-rate",
+            "0.0",
+            "--mitigation-profile",
+            "anti_adverse_v6",
+            "--out-md",
+            "reports/test_rank_anti_adverse_v6.md",
+            "--out-json",
+            "reports/test_rank_anti_adverse_v6.json",
+        ],
+    )
+    rc = rp.main()
+    assert rc == 0
+    assert "passive_then_taker" in seen_exec_models
+
+
 def test_parse_candidates_md_v2_style() -> None:
     p = Path("reports/test_rank_candidates_v2_style.md")
     p.parent.mkdir(parents=True, exist_ok=True)

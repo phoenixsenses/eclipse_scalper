@@ -90,6 +90,7 @@ Current evidence says:
 - coverage exists
 - passive pocket count is zero
 - event-driven passive wait profile is also zero
+- passive-then-taker fallback profile is also zero
 
 So the active next step is:
 

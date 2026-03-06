@@ -307,6 +307,7 @@ def validate_pocket_forward(
     scratch_window_sec: int = 0,
     scratch_taker_fee_bps: float = 0.0,
     scratch_slippage_bps: float = 0.0,
+    exec_model: str = "passive_realistic",
 ) -> Dict[str, Any]:
     seed_list = _parse_seed_list(seeds)
     conn = sqlite3.connect(str(db), check_same_thread=False)
@@ -415,7 +416,7 @@ def validate_pocket_forward(
                     slip_bps=0.0,
                     min_feature_bounds=min_b,
                     max_feature_bounds=max_b,
-                    exec_model="passive_realistic",
+                    exec_model=str(exec_model),
                     maker_fee_bps=float(maker_fee_bps),
                     maker_penalty_bps=0.0,
                     passive_params=pparams,
@@ -651,6 +652,7 @@ def _args() -> argparse.Namespace:
     p.add_argument("--scratch-window-sec", type=int, default=0, help="Optional post-fill scratch window in seconds; 0 disables.")
     p.add_argument("--scratch-taker-fee-bps", type=float, default=0.0, help="Extra one-way taker fee bps when scratch triggers.")
     p.add_argument("--scratch-slippage-bps", type=float, default=0.0, help="Extra one-way slippage bps when scratch triggers.")
+    p.add_argument("--exec-model", choices=["passive_realistic", "passive_then_taker"], default="passive_realistic")
     p.add_argument("--regime-bucket", default="", choices=["", "spread_q", "intensity_q", "vol_q"], help="Optional per-regime robustness breakdown.")
     return p.parse_args()
 
@@ -689,6 +691,7 @@ def main() -> int:
         scratch_window_sec=int(args.scratch_window_sec),
         scratch_taker_fee_bps=float(args.scratch_taker_fee_bps),
         scratch_slippage_bps=float(args.scratch_slippage_bps),
+        exec_model=str(args.exec_model),
     )
     total = int(res.get("rows_total", 0))
     passes = int(res.get("pass_count", 0))
@@ -720,7 +723,7 @@ def main() -> int:
         f"seeds={_parse_seed_list(args.seeds)} splits={len(res.get('per_split', []))} min_n={args.min_n} min_n_frac={args.min_n_frac} maker_fee_bps={args.maker_fee_bps} passive_adverse_mult={args.passive_adverse_mult} v2_min_score={args.v2_min_score} v2_min_persistence={args.v2_min_persistence} v2_min_confidence={args.v2_min_confidence}",
         f"effective_min_n_formula=max(min_n={int(args.min_n)}, ceil(min_n_frac*val_rows)=ceil({float(args.min_n_frac)}*val_rows)); median_frac_component={int(res.get('frac_min_component_median', 0))} median_effective_min_n={int(res.get('effective_min_n_median', 0))}",
         f"gate: min_intensity_strong={args.min_intensity_strong} min_imbalance_strong={args.min_imbalance_strong} max_spread_tight={args.max_spread_tight} max_volatility_extreme={args.max_volatility_extreme} vol_quantile_reject={args.vol_quantile_reject}",
-        f"scratch: scratch_bps={args.scratch_bps} scratch_window_sec={args.scratch_window_sec} scratch_taker_fee_bps={args.scratch_taker_fee_bps} scratch_slippage_bps={args.scratch_slippage_bps}",
+        f"scratch: scratch_bps={args.scratch_bps} scratch_window_sec={args.scratch_window_sec} scratch_taker_fee_bps={args.scratch_taker_fee_bps} scratch_slippage_bps={args.scratch_slippage_bps} exec_model={args.exec_model}",
         f"regime_bucket={args.regime_bucket or 'none'}",
         "",
         "| seed | split | train_n | val_rows | effective_min_n | filled_n | filled_avg_net | filled_p90_net | filled_win_rate | attempt_fill_rate | net_per_attempt | attempts_per_min | val_before_gate | val_after_gate | fail_reason | pass |",
