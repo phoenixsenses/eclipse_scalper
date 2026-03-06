@@ -480,6 +480,7 @@ def _args() -> argparse.Namespace:
     p.add_argument("--v2-min-persistence", type=float, default=0.0)
     p.add_argument("--v2-min-confidence", type=float, default=0.0)
     p.add_argument("--passive-profile-in", default="state/passive_realistic_profiles.json")
+    p.add_argument("--passive-max-wait-buckets", type=int, default=0, help="Optional extra passive wait buckets before considering the order unfilled.")
     p.add_argument("--out-md", default="reports/PASSIVE_POCKET_RANKING.md")
     p.add_argument("--out-json", default="reports/PASSIVE_POCKET_RANKING.json")
     p.add_argument("--debug-parse", action="store_true")
@@ -520,7 +521,7 @@ def _args() -> argparse.Namespace:
     p.add_argument(
         "--mitigation-profile",
         default="baseline",
-        choices=["baseline", "anti_adverse_v1", "anti_adverse_v2", "anti_adverse_v3", "anti_adverse_v4"],
+        choices=["baseline", "anti_adverse_v1", "anti_adverse_v2", "anti_adverse_v3", "anti_adverse_v4", "anti_adverse_v5"],
         help=(
             "Signal filter profile to reduce adverse selection. "
             "'baseline' = no change. "
@@ -528,7 +529,8 @@ def _args() -> argparse.Namespace:
             "trading fill-rate for lower adverse selection. "
             "'anti_adverse_v2' = light-touch fixed volatility-extreme guard. "
             "'anti_adverse_v3' = quantile-based volatility-extreme guard. "
-            "'anti_adverse_v4' = anti_adverse_v3 + conservative scratch/escape defaults."
+            "'anti_adverse_v4' = anti_adverse_v3 + conservative scratch/escape defaults. "
+            "'anti_adverse_v5' = anti_adverse_v4 + extra passive wait for event-driven fills."
         ),
     )
     return p.parse_args()
@@ -631,7 +633,8 @@ def main() -> int:
     eff_scratch_window_sec = int(args.scratch_window_sec)
     eff_scratch_taker_fee_bps = float(args.scratch_taker_fee_bps)
     eff_scratch_slippage_bps = float(args.scratch_slippage_bps)
-    if mitigation_profile == "anti_adverse_v4":
+    eff_passive_max_wait_buckets = int(args.passive_max_wait_buckets)
+    if mitigation_profile in {"anti_adverse_v4", "anti_adverse_v5"}:
         if eff_scratch_bps <= 0.0:
             eff_scratch_bps = 4.0
         if eff_scratch_window_sec <= 0:
@@ -640,6 +643,8 @@ def main() -> int:
             eff_scratch_taker_fee_bps = 1.0
         if eff_scratch_slippage_bps <= 0.0:
             eff_scratch_slippage_bps = 0.5
+    if mitigation_profile == "anti_adverse_v5" and eff_passive_max_wait_buckets <= 0:
+        eff_passive_max_wait_buckets = 2
 
     def _mitigation_overrides(c: Dict[str, Any]) -> Dict[str, float]:
         """Return extra kwargs for validate_pocket_forward based on mitigation profile."""
@@ -670,6 +675,15 @@ def main() -> int:
                 "scratch_taker_fee_bps": (float(args.scratch_taker_fee_bps) if float(args.scratch_taker_fee_bps) > 0.0 else 1.0),
                 "scratch_slippage_bps": (float(args.scratch_slippage_bps) if float(args.scratch_slippage_bps) > 0.0 else 0.5),
             }
+        if mitigation_profile == "anti_adverse_v5":
+            return {
+                "vol_quantile_reject": max(0.0, min(0.50, float(args.vol_quantile_reject))),
+                "scratch_bps": (float(args.scratch_bps) if float(args.scratch_bps) > 0.0 else 4.0),
+                "scratch_window_sec": (int(args.scratch_window_sec) if int(args.scratch_window_sec) > 0 else 10),
+                "scratch_taker_fee_bps": (float(args.scratch_taker_fee_bps) if float(args.scratch_taker_fee_bps) > 0.0 else 1.0),
+                "scratch_slippage_bps": (float(args.scratch_slippage_bps) if float(args.scratch_slippage_bps) > 0.0 else 0.5),
+                "passive_max_wait_buckets": (int(args.passive_max_wait_buckets) if int(args.passive_max_wait_buckets) > 0 else 2),
+            }
         return {}  # baseline: honour the args values directly
 
     scored: List[Dict[str, Any]] = []
@@ -699,6 +713,7 @@ def main() -> int:
                             min_n_frac=float(args.min_n_frac),
                             maker_fee_bps=float(fee),
                             passive_profile_in=str(args.passive_profile_in),
+                            passive_max_wait_buckets=int(profile_overrides.get("passive_max_wait_buckets", eff_passive_max_wait_buckets)),
                             passive_adverse_mult=float(adv),
                             v2_min_score=float(args.v2_min_score),
                             v2_min_persistence=float(args.v2_min_persistence),
@@ -1020,6 +1035,7 @@ def main() -> int:
             "scratch_window_sec": int(eff_scratch_window_sec),
             "scratch_taker_fee_bps": float(eff_scratch_taker_fee_bps),
             "scratch_slippage_bps": float(eff_scratch_slippage_bps),
+            "passive_max_wait_buckets": int(eff_passive_max_wait_buckets),
             "horizon_sec_override": int(args.horizon_sec),
         },
         "statistical": {
@@ -1101,6 +1117,7 @@ def main() -> int:
             f"vol_quantile_reject={float(args.vol_quantile_reject):.6f} "
             f"scratch_bps={float(eff_scratch_bps):.4f} scratch_window_sec={int(eff_scratch_window_sec)} "
             f"scratch_taker_fee_bps={float(eff_scratch_taker_fee_bps):.4f} scratch_slippage_bps={float(eff_scratch_slippage_bps):.4f} "
+            f"passive_max_wait_buckets={int(eff_passive_max_wait_buckets)} "
             f"horizon_sec_override={int(args.horizon_sec)}"
         ),
         "",

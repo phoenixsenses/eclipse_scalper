@@ -36,6 +36,17 @@ Both still failed with:
 - `insufficient_fill_rate = 1.0`
 - `survive_fee>=1.0 with pass_rate>=0.5 = 0`
 
+Additional execution-shape retry:
+
+3. `anti_adverse_v5`
+   - adds conservative scratch defaults
+   - adds `passive_max_wait_buckets=2`
+
+This also failed with:
+
+- `insufficient_fill_rate = 1.0`
+- `survive_fee>=1.0 with pass_rate>=0.5 = 0`
+
 ## Interpretation
 
 This is different from low raw rule coverage.
@@ -51,6 +62,7 @@ So the current bottleneck is:
 - fillability
 - passive execution realism
 - current horizon / spread / intensity shape
+- likely the execution style itself, not just parameter severity
 
 not raw event scarcity.
 
