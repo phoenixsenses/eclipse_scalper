@@ -31,12 +31,14 @@ def _load_dotenv_best_effort() -> None:
 
 
 _load_dotenv_best_effort()
+from html import escape as _html_escape
 from telegram import Bot
 from core.chart_generator import build_equity_curve_png
 
 from monitoring.status_snapshot import (
     collect_config_flags,
     collect_diag,
+    collect_kill_switch_status,
     collect_last_decisions,
     collect_open_positions,
     collect_pnl,
@@ -94,6 +96,13 @@ def _render_open() -> str:
             f"- {row.get('symbol')} {str(row.get('side','')).upper()} qty={float(row.get('qty',0.0)):.6f} entry={float(row.get('entry_price',0.0)):.4f}"
         )
     return "\n".join(lines)
+
+
+def _render_kill() -> str:
+    ks = collect_kill_switch_status()
+    if ks.get("active"):
+        return f"KILL SWITCH: ACTIVE\nReason: {ks.get('reason', 'unknown')}\nSource: {ks.get('source', '')}"
+    return f"Kill switch: inactive (source={ks.get('source', '')})"
 
 
 def _render_config() -> str:
@@ -332,8 +341,10 @@ def _dispatch(cmd: str) -> str:
         return _render_regime()
     if c.startswith("/health"):
         return _render_health()
+    if c.startswith("/kill"):
+        return _render_kill()
     if c.startswith("/help"):
-        return "Commands: /status /pnl /last /open /config /diag /regime /health /chart /help"
+        return "Commands: /status /pnl /last /open /config /diag /regime /health /kill /chart /help"
     return "Unknown command. Use /help."
 
 
@@ -373,7 +384,8 @@ async def run_bot(poll_sec: float = 2.0) -> int:
                             await bot.send_photo(chat_id=chat_id, photo=fh, caption="Paper equity chart")
                     continue
                 reply = _dispatch(text)
-                await bot.send_message(chat_id=chat_id, text=f"<pre>{reply}</pre>", parse_mode="HTML")
+                safe_reply = _html_escape(str(reply), quote=False)
+                await bot.send_message(chat_id=chat_id, text=f"<pre>{safe_reply}</pre>", parse_mode="HTML")
         except asyncio.CancelledError:
             raise
         except KeyboardInterrupt:
