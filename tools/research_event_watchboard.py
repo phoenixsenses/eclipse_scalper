@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from tools.fill_toxicity_state import build_state_payload as build_fill_toxicity_state
+from tools.book_proxy_pressure_watchlist import build_watchlist_payload as build_book_proxy_pressure_watchlist
 from tools.latency_stress_state import build_state_payload as build_latency_stress_state
 from tools.liquidation_watchlist import build_watchlist_payload as build_liquidation_watchlist
 from tools.return_shock_watchlist import build_watchlist_payload as build_return_shock_watchlist
@@ -104,6 +105,20 @@ def _volatility_burst_entry(payload: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def _book_proxy_pressure_entry(payload: Dict[str, Any]) -> Dict[str, Any]:
+    top = dict(payload.get("top_summary") or {})
+    banner = dict(payload.get("banner") or {})
+    return {
+        "lane": "book_proxy_pressure",
+        "level": str(top.get("state_level") or "quiet"),
+        "freshness_status": str(top.get("freshness_status") or "stale"),
+        "recommended_action": str(top.get("recommended_action") or "monitor_only"),
+        "headline": str(banner.get("headline") or ""),
+        "detail": str(top.get("dashboard_summary") or ""),
+        "priority_score": _severity_score(top.get("state_level")) + _freshness_bonus(top.get("freshness_status")),
+    }
+
+
 def _state_entry(lane: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     state = dict(payload.get("state") or {})
     return {
@@ -181,6 +196,16 @@ def build_watchboard_payload(
         out_json="reports/VOLATILITY_BURST_WATCHLIST.json",
         out_md="reports/VOLATILITY_BURST_WATCHLIST.md",
     )
+    book_proxy_pressure = build_book_proxy_pressure_watchlist(
+        db=micro_db,
+        symbols=symbols,
+        lookback_min=lookback_min,
+        bucket_sec=bucket_sec,
+        recent_limit=recent_limit,
+        top_n=top_n,
+        out_json="reports/BOOK_PROXY_PRESSURE_WATCHLIST.json",
+        out_md="reports/BOOK_PROXY_PRESSURE_WATCHLIST.md",
+    )
     fill = build_fill_toxicity_state(
         source=trade_source,
         report_payload=build_toxicity_report(load_toxicity_rows(Path(trade_source))),
@@ -200,6 +225,7 @@ def build_watchboard_payload(
         _return_shock_entry(return_shock),
         _volume_vacuum_entry(volume_vacuum),
         _volatility_burst_entry(volatility_burst),
+        _book_proxy_pressure_entry(book_proxy_pressure),
         _state_entry("fill_toxicity", fill),
         _state_entry("latency_stress", latency),
     ]

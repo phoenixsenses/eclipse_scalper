@@ -82,6 +82,20 @@ def test_build_watchboard_payload_ranks_lanes(monkeypatch) -> None:
     )
     monkeypatch.setattr(
         rew,
+        "build_book_proxy_pressure_watchlist",
+        lambda **kwargs: {
+            "top_summary": {
+                "symbol": "ETHUSDT",
+                "state_level": "elevated",
+                "freshness_status": "fresh",
+                "recommended_action": "show_caution",
+                "dashboard_summary": "ETH elevated book proxy pressure",
+            },
+            "banner": {"headline": "Book proxy pressure top ETH"},
+        },
+    )
+    monkeypatch.setattr(
+        rew,
         "build_fill_toxicity_state",
         lambda **kwargs: {
             "rows": 0,
@@ -120,7 +134,7 @@ def test_build_watchboard_payload_ranks_lanes(monkeypatch) -> None:
     assert payload["summary"]["top_lane"] == "liquidation"
     assert payload["top_event"]["recommended_action"] == "escalate_monitoring"
     assert payload["banner"]["top_lane"] == "liquidation"
-    assert payload["summary"]["lane_count"] == 7
+    assert payload["summary"]["lane_count"] == 8
 
 
 def test_main_writes_watchboard_files(monkeypatch) -> None:
@@ -128,7 +142,7 @@ def test_main_writes_watchboard_files(monkeypatch) -> None:
         rew,
         "build_watchboard_payload",
         lambda **kwargs: {
-            "summary": {"lane_count": 7, "state_counts": {"severe": 3, "quiet": 2, "elevated": 2}, "top_lane": "liquidation"},
+            "summary": {"lane_count": 8, "state_counts": {"severe": 3, "quiet": 2, "elevated": 3}, "top_lane": "liquidation"},
             "top_event": {
                 "lane": "liquidation",
                 "level": "severe",
@@ -157,7 +171,7 @@ def test_main_writes_watchboard_files(monkeypatch) -> None:
                 "version": "v1",
                 "run_type": "research_event_watchboard",
                 "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"]},
-                "metrics": {"lane_count": 7},
+                "metrics": {"lane_count": 8},
                 "artifacts": {"json": "reports/x.json", "md": "reports/x.md"},
             },
         },

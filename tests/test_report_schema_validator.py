@@ -855,6 +855,146 @@ def test_validate_volatility_burst_watchlist_payload() -> None:
     assert rsv.validate_payload(payload, "volatility_burst_watchlist") == []
 
 
+def test_validate_book_proxy_pressure_alerts_payload() -> None:
+    payload = {
+        "lane": "book_proxy_pressure",
+        "symbol": "ETHUSDT",
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "summary": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 3,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_abs_imbalance_tagged": 0.8,
+            "avg_trade_intensity_tagged": 400.0,
+            "avg_spread_tagged": 0.0008,
+            "side_bias_counts": {"LONG": 2, "SHORT": 1, "NEUTRAL": 0},
+        },
+        "alerts": [
+            {"ts_ms": 1, "severity": "high", "side_bias": "LONG", "imbalance": 0.9, "abs_imbalance": 0.9, "trade_intensity": 500.0, "spread": 0.0008, "ret_1": 0.0}
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "book_proxy_pressure_alerts",
+            "inputs": {"symbol": "ETHUSDT"},
+            "metrics": {"rows_total": 100, "tagged_count": 5},
+            "artifacts": {"json": "reports/BOOK_PROXY_PRESSURE_ALERTS.json", "md": "reports/BOOK_PROXY_PRESSURE_ALERTS.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "book_proxy_pressure_alerts"
+    assert rsv.validate_payload(payload, "book_proxy_pressure_alerts") == []
+
+
+def test_validate_book_proxy_pressure_state_payload() -> None:
+    payload = {
+        "lane": "book_proxy_pressure",
+        "source_json": "reports/BOOK_PROXY_PRESSURE_ALERTS_REAL.json",
+        "symbol": "ETHUSDT",
+        "state": {
+            "level": "elevated",
+            "reasons": ["recent_proxy_pressure_cluster"],
+            "primary_side_bias": "LONG",
+            "freshness": {"status": "fresh", "age_sec": 4.0, "stale_after_sec": 60},
+        },
+        "dashboard_summary": "ETHUSDT elevated book proxy pressure, 3 recent alerts, freshness fresh.",
+        "notification_text": "[book-proxy-pressure] symbol=ETHUSDT level=elevated freshness=fresh side_bias=LONG recent_alerts=3 avg_abs_imbalance=0.8000 action=monitor_only",
+        "recommended_action": "monitor_only",
+        "card": {
+            "headline": "ETHUSDT book proxy pressure elevated",
+            "operator_note": "Proxy lane built from spread, trade intensity and imbalance; not true order-book depth.",
+            "recent_alert_count": 3,
+            "tagged_rate": 0.05,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_abs_imbalance_tagged": 0.8,
+            "avg_trade_intensity_tagged": 400.0,
+            "avg_spread_tagged": 0.0008,
+            "primary_side_bias": "LONG",
+            "latest_alert_ts_ms": 1,
+            "freshness_status": "fresh",
+            "age_sec": 4.0,
+        },
+        "summary_snapshot": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 3,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_abs_imbalance_tagged": 0.8,
+            "avg_trade_intensity_tagged": 400.0,
+            "avg_spread_tagged": 0.0008,
+            "side_bias_counts": {"LONG": 2, "SHORT": 1, "NEUTRAL": 0},
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "book_proxy_pressure_state",
+            "inputs": {"source_json": "reports/BOOK_PROXY_PRESSURE_ALERTS_REAL.json"},
+            "metrics": {"state_level": "elevated", "recommended_action": "monitor_only"},
+            "artifacts": {"json": "reports/BOOK_PROXY_PRESSURE_STATE.json", "md": "reports/BOOK_PROXY_PRESSURE_STATE.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "book_proxy_pressure_state"
+    assert rsv.validate_payload(payload, "book_proxy_pressure_state") == []
+
+
+def test_validate_book_proxy_pressure_watchlist_payload() -> None:
+    payload = {
+        "lane": "book_proxy_pressure",
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "recent_limit": 20,
+        "summary": {"symbol_count": 2, "top_n": 2, "state_counts": {"severe": 1, "elevated": 1}, "top_symbol": "ETHUSDT"},
+        "top_summary": {
+            "symbol": "ETHUSDT",
+            "state_level": "severe",
+            "freshness_status": "fresh",
+            "recommended_action": "show_caution",
+            "dashboard_summary": "ETH severe book proxy pressure",
+        },
+        "banner": {
+            "headline": "Book proxy pressure watchlist top=ETHUSDT level=severe freshness=fresh action=show_caution",
+            "recommended_action": "show_caution",
+            "top_symbol": "ETHUSDT",
+            "top_state_level": "severe",
+            "top_freshness_status": "fresh",
+            "severe_count": 1,
+            "elevated_count": 1,
+            "quiet_count": 0,
+        },
+        "rows": [
+            {
+                "symbol": "ETHUSDT",
+                "state_level": "severe",
+                "freshness_status": "fresh",
+                "recommended_action": "show_caution",
+                "primary_side_bias": "SHORT",
+                "recent_alert_count": 6,
+                "high_count": 2,
+                "medium_count": 4,
+                "avg_abs_imbalance_tagged": 0.95,
+                "avg_trade_intensity_tagged": 400.0,
+                "avg_spread_tagged": 0.0008,
+                "age_sec": 3.0,
+                "dashboard_summary": "ETH severe book proxy pressure",
+                "priority_score": 247.0,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "book_proxy_pressure_watchlist",
+            "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"]},
+            "metrics": {"symbol_count": 2, "severe_count": 1, "elevated_count": 1, "quiet_count": 0},
+            "artifacts": {"json": "reports/BOOK_PROXY_PRESSURE_WATCHLIST.json", "md": "reports/BOOK_PROXY_PRESSURE_WATCHLIST.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "book_proxy_pressure_watchlist"
+    assert rsv.validate_payload(payload, "book_proxy_pressure_watchlist") == []
+
+
 def test_validate_spread_stress_watchlist_payload() -> None:
     payload = {
         "lookback_min": 240,

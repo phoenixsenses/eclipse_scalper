@@ -1067,6 +1067,187 @@ def _validate_volatility_burst_watchlist(payload: Dict[str, Any]) -> List[str]:
     return errors
 
 
+def _validate_book_proxy_pressure_alerts(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "lane": str,
+        "symbol": str,
+        "lookback_min": int,
+        "bucket_sec": int,
+        "summary": dict,
+        "alerts": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in (
+            "rows_total",
+            "tagged_count",
+            "tagged_rate",
+            "recent_alert_count",
+            "high_count",
+            "medium_count",
+            "avg_abs_imbalance_tagged",
+            "avg_trade_intensity_tagged",
+            "avg_spread_tagged",
+            "side_bias_counts",
+        ):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    alerts = payload.get("alerts")
+    if isinstance(alerts, list):
+        for idx, row in enumerate(alerts):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:alerts[{idx}]")
+                continue
+            for key in ("ts_ms", "severity", "side_bias", "imbalance", "abs_imbalance", "trade_intensity", "spread", "ret_1"):
+                if key not in row:
+                    errors.append(f"missing:alerts[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_book_proxy_pressure_state(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "lane": str,
+        "source_json": str,
+        "symbol": str,
+        "state": dict,
+        "dashboard_summary": str,
+        "notification_text": str,
+        "recommended_action": str,
+        "card": dict,
+        "summary_snapshot": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    state = payload.get("state")
+    if isinstance(state, dict):
+        for key in ("level", "reasons", "primary_side_bias", "freshness"):
+            if key not in state:
+                errors.append(f"missing:state.{key}")
+    card = payload.get("card")
+    if isinstance(card, dict):
+        for key in (
+            "headline",
+            "operator_note",
+            "recent_alert_count",
+            "tagged_rate",
+            "high_count",
+            "medium_count",
+            "avg_abs_imbalance_tagged",
+            "avg_trade_intensity_tagged",
+            "avg_spread_tagged",
+            "primary_side_bias",
+            "latest_alert_ts_ms",
+            "freshness_status",
+            "age_sec",
+        ):
+            if key not in card:
+                errors.append(f"missing:card.{key}")
+    summary = payload.get("summary_snapshot")
+    if isinstance(summary, dict):
+        for key in (
+            "rows_total",
+            "tagged_count",
+            "tagged_rate",
+            "recent_alert_count",
+            "high_count",
+            "medium_count",
+            "avg_abs_imbalance_tagged",
+            "avg_trade_intensity_tagged",
+            "avg_spread_tagged",
+            "side_bias_counts",
+        ):
+            if key not in summary:
+                errors.append(f"missing:summary_snapshot.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_book_proxy_pressure_watchlist(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "lane": str,
+        "lookback_min": int,
+        "bucket_sec": int,
+        "recent_limit": int,
+        "summary": dict,
+        "top_summary": dict,
+        "banner": dict,
+        "rows": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("symbol_count", "top_n", "state_counts", "top_symbol"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    top_summary = payload.get("top_summary")
+    if isinstance(top_summary, dict):
+        for key in ("symbol", "state_level", "freshness_status", "recommended_action", "dashboard_summary"):
+            if key not in top_summary:
+                errors.append(f"missing:top_summary.{key}")
+    banner = payload.get("banner")
+    if isinstance(banner, dict):
+        for key in (
+            "headline",
+            "recommended_action",
+            "top_symbol",
+            "top_state_level",
+            "top_freshness_status",
+            "severe_count",
+            "elevated_count",
+            "quiet_count",
+        ):
+            if key not in banner:
+                errors.append(f"missing:banner.{key}")
+    rows = payload.get("rows")
+    if isinstance(rows, list):
+        for idx, row in enumerate(rows):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:rows[{idx}]")
+                continue
+            for key in (
+                "symbol",
+                "state_level",
+                "freshness_status",
+                "recommended_action",
+                "primary_side_bias",
+                "recent_alert_count",
+                "high_count",
+                "medium_count",
+                "avg_abs_imbalance_tagged",
+                "avg_trade_intensity_tagged",
+                "avg_spread_tagged",
+                "age_sec",
+                "dashboard_summary",
+                "priority_score",
+            ):
+                if key not in row:
+                    errors.append(f"missing:rows[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 def _validate_spread_stress_watchlist(payload: Dict[str, Any]) -> List[str]:
     errors: List[str] = []
     required_top = {
@@ -2062,6 +2243,9 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "volatility_burst_alerts": _validate_volatility_burst_alerts,
     "volatility_burst_state": _validate_volatility_burst_state,
     "volatility_burst_watchlist": _validate_volatility_burst_watchlist,
+    "book_proxy_pressure_alerts": _validate_book_proxy_pressure_alerts,
+    "book_proxy_pressure_state": _validate_book_proxy_pressure_state,
+    "book_proxy_pressure_watchlist": _validate_book_proxy_pressure_watchlist,
     "spread_stress_watchlist": _validate_spread_stress_watchlist,
     "fill_toxicity_state": _validate_fill_toxicity_state,
     "latency_stress_state": _validate_latency_stress_state,
@@ -2123,6 +2307,12 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "volatility_burst_state"
     if lane == "volatility_burst" and {"summary", "top_summary", "banner", "rows"}.issubset(keys):
         return "volatility_burst_watchlist"
+    if lane == "book_proxy_pressure" and {"symbol", "lookback_min", "bucket_sec", "summary", "alerts"}.issubset(keys):
+        return "book_proxy_pressure_alerts"
+    if lane == "book_proxy_pressure" and {"source_json", "state", "card", "summary_snapshot"}.issubset(keys):
+        return "book_proxy_pressure_state"
+    if lane == "book_proxy_pressure" and {"summary", "top_summary", "banner", "rows"}.issubset(keys):
+        return "book_proxy_pressure_watchlist"
     if {"naive_rules", "label_definition", "label_counts", "baseline_hit_rate"}.issubset(keys):
         return "micro_edge_smoke"
     if {"status", "run_id", "violations", "column_stats", "invariant_summary"}.issubset(keys):
