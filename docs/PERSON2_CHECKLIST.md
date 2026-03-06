@@ -13,6 +13,10 @@ Branch: `codex/runtime/ops-foundation`
 | `37e2367` | P1 | Harden dashboard rate limit (default ON), fix OOM in status_snapshot, fix Telegram HTML injection |
 | `88ee636` | **P0** | Kill switch exception handler was fail-open -> fail-closed (`entry.py:1333`) |
 | `daacdc4` | P1 | Fix OOM: intent_ledger journal fallback read entire file -> tail 512KB |
+| `583790f` | Tech | Consolidate `_symkey()`: 15 duplicate defs -> single import from runtime_helpers |
+| `975507f` | Tech | Remove dead code: management.py, management_omega.py, guardian.py (-482 lines) |
+| `236b852` | P2 | Fix potential OOM: dashboard ops_health_history -> tail 512KB |
+| `55aada3` | Test | Add runtime safety test suite: 31 tests covering all ops fixes |
 
 ## Full Audit Status
 
@@ -124,19 +128,11 @@ Branch: `codex/runtime/ops-foundation`
 | signal_check.py | N/A | Standalone analysis tool |
 | settings.py | Clean | 5-line bridge |
 
-## Known Tech Debt (not safety-critical)
+## Resolved Tech Debt
 
-### _symkey() duplication (~20 copies)
-Many execution files define their own `_symkey()` / `_normalize_symbol()` locally.
-`execution/runtime_helpers.py:symkey()` is the canonical one; `entry_loop_full.py` already imports it.
-Other files still have local copies. Not a bug (all implementations match) but adds maintenance burden.
-
-### Dead code: management.py, management_omega.py, guardian.py (top-level)
-These files call `bot.ex.create_order()` directly, bypassing the order router safety checks.
-They are NOT imported anywhere in production. Safe to delete or move to an `archive/` dir.
-
-### Dashboard ops_health_history.jsonl growth
-`data_sources.py:_read_ops_health_history()` reads the entire file into memory.
-At ~1.7MB/day this could become an issue after several months.
-Low priority since it's a dashboard endpoint, not on the trading critical path.
-Could add tail-based reading or periodic log rotation.
+| Item | Status | Commit |
+|------|--------|--------|
+| `_symkey()` duplication (~20 copies) | DONE — 15 files consolidated to single import | `583790f` |
+| Dead code (management.py, management_omega.py, guardian.py) | DONE — deleted (-482 lines) | `975507f` |
+| Dashboard ops_health_history.jsonl OOM risk | DONE — tail 512KB read | `236b852` |
+| Runtime safety test coverage | DONE — 31 tests added | `55aada3` |
