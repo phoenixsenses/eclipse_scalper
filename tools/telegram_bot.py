@@ -189,7 +189,14 @@ def _regime_history_stats(path: Path = Path("logs/health/history.jsonl")) -> Dic
     start = now - 86400.0
     entries: list[tuple[float, str]] = []
     try:
-        for raw in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        _TAIL = 512 * 1024  # 512 KB tail to avoid OOM
+        _sz = path.stat().st_size
+        with open(path, "r", encoding="utf-8", errors="replace") as _fh:
+            if _sz > _TAIL:
+                _fh.seek(_sz - _TAIL)
+                _fh.readline()  # skip partial first line
+            _history_lines = _fh.read().splitlines()
+        for raw in _history_lines:
             if not raw.strip():
                 continue
             obj = json.loads(raw)
