@@ -8,6 +8,7 @@ Current lanes:
 
 - liquidation
 - spread stress
+- return shock
 - fill toxicity
 - latency stress
 

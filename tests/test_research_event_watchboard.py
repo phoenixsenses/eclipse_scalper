@@ -40,6 +40,20 @@ def test_build_watchboard_payload_ranks_lanes(monkeypatch) -> None:
     )
     monkeypatch.setattr(
         rew,
+        "build_return_shock_watchlist",
+        lambda **kwargs: {
+            "top_summary": {
+                "symbol": "BTCUSDT",
+                "state_level": "severe",
+                "freshness_status": "stale",
+                "recommended_action": "monitor_only",
+                "dashboard_summary": "BTC severe return shock",
+            },
+            "banner": {"headline": "Return shock top BTC"},
+        },
+    )
+    monkeypatch.setattr(
+        rew,
         "build_fill_toxicity_state",
         lambda **kwargs: {
             "rows": 0,
@@ -78,6 +92,7 @@ def test_build_watchboard_payload_ranks_lanes(monkeypatch) -> None:
     assert payload["summary"]["top_lane"] == "liquidation"
     assert payload["top_event"]["recommended_action"] == "escalate_monitoring"
     assert payload["banner"]["top_lane"] == "liquidation"
+    assert payload["summary"]["lane_count"] == 5
 
 
 def test_main_writes_watchboard_files(monkeypatch) -> None:
@@ -85,7 +100,7 @@ def test_main_writes_watchboard_files(monkeypatch) -> None:
         rew,
         "build_watchboard_payload",
         lambda **kwargs: {
-            "summary": {"lane_count": 2, "state_counts": {"severe": 1, "quiet": 1}, "top_lane": "liquidation"},
+            "summary": {"lane_count": 5, "state_counts": {"severe": 2, "quiet": 2, "elevated": 1}, "top_lane": "liquidation"},
             "top_event": {
                 "lane": "liquidation",
                 "level": "severe",
@@ -114,7 +129,7 @@ def test_main_writes_watchboard_files(monkeypatch) -> None:
                 "version": "v1",
                 "run_type": "research_event_watchboard",
                 "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"]},
-                "metrics": {"lane_count": 2},
+                "metrics": {"lane_count": 5},
                 "artifacts": {"json": "reports/x.json", "md": "reports/x.md"},
             },
         },

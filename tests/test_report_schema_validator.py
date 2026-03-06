@@ -447,6 +447,147 @@ def test_validate_spread_stress_state_payload() -> None:
     assert rsv.validate_payload(payload, "spread_stress_state") == []
 
 
+def test_validate_return_shock_alerts_payload() -> None:
+    payload = {
+        "symbol": "ETHUSDT",
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "summary": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 3,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_abs_ret_1_tagged": 0.0012,
+            "avg_trade_intensity_tagged": 450.0,
+            "direction_counts": {"UP": 1, "DOWN": 2, "FLAT": 0},
+        },
+        "alerts": [
+            {
+                "ts_ms": 1,
+                "severity": "high",
+                "direction": "DOWN",
+                "ret_1": -0.003,
+                "abs_ret_1": 0.003,
+                "spread": 0.0001,
+                "trade_intensity": 500.0,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "return_shock_alerts",
+            "inputs": {"symbol": "ETHUSDT"},
+            "metrics": {"rows_total": 100, "tagged_count": 5},
+            "artifacts": {"json": "reports/RETURN_SHOCK_ALERTS.json", "md": "reports/RETURN_SHOCK_ALERTS.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "return_shock_alerts"
+    assert rsv.validate_payload(payload, "return_shock_alerts") == []
+
+
+def test_validate_return_shock_state_payload() -> None:
+    payload = {
+        "source_json": "reports/RETURN_SHOCK_ALERTS_REAL.json",
+        "symbol": "ETHUSDT",
+        "state": {
+            "level": "elevated",
+            "reasons": ["recent_return_shock_cluster"],
+            "dominant_direction": "DOWN",
+            "freshness": {"status": "fresh", "age_sec": 4.0, "stale_after_sec": 60},
+        },
+        "dashboard_summary": "ETHUSDT elevated return shock, 3 recent alerts, freshness fresh.",
+        "notification_text": "[return-shock] symbol=ETHUSDT level=elevated freshness=fresh direction=DOWN recent_alerts=3 avg_abs_ret=0.001200 action=show_caution",
+        "recommended_action": "show_caution",
+        "card": {
+            "headline": "ETHUSDT return shock elevated",
+            "operator_note": "Use as event context; do not map directly to trade direction.",
+            "recent_alert_count": 3,
+            "tagged_rate": 0.05,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_abs_ret_1_tagged": 0.0012,
+            "avg_trade_intensity_tagged": 450.0,
+            "dominant_direction": "DOWN",
+            "latest_alert_ts_ms": 1,
+            "freshness_status": "fresh",
+            "age_sec": 4.0,
+        },
+        "summary_snapshot": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 3,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_abs_ret_1_tagged": 0.0012,
+            "avg_trade_intensity_tagged": 450.0,
+            "direction_counts": {"UP": 1, "DOWN": 2, "FLAT": 0},
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "return_shock_state",
+            "inputs": {"source_json": "reports/RETURN_SHOCK_ALERTS_REAL.json"},
+            "metrics": {"state_level": "elevated", "recommended_action": "show_caution"},
+            "artifacts": {"json": "reports/RETURN_SHOCK_STATE.json", "md": "reports/RETURN_SHOCK_STATE.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "return_shock_state"
+    assert rsv.validate_payload(payload, "return_shock_state") == []
+
+
+def test_validate_return_shock_watchlist_payload() -> None:
+    payload = {
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "recent_limit": 20,
+        "summary": {"symbol_count": 2, "top_n": 2, "state_counts": {"severe": 1, "elevated": 1}, "top_symbol": "ETHUSDT"},
+        "top_summary": {
+            "symbol": "ETHUSDT",
+            "state_level": "severe",
+            "freshness_status": "fresh",
+            "recommended_action": "escalate_monitoring",
+            "dashboard_summary": "ETH severe return shock",
+        },
+        "banner": {
+            "headline": "Return shock watchlist top=ETHUSDT level=severe freshness=fresh action=escalate_monitoring",
+            "recommended_action": "escalate_monitoring",
+            "top_symbol": "ETHUSDT",
+            "top_state_level": "severe",
+            "top_freshness_status": "fresh",
+            "severe_count": 1,
+            "elevated_count": 1,
+            "quiet_count": 0,
+        },
+        "rows": [
+            {
+                "symbol": "ETHUSDT",
+                "state_level": "severe",
+                "freshness_status": "fresh",
+                "recommended_action": "escalate_monitoring",
+                "dominant_direction": "DOWN",
+                "recent_alert_count": 6,
+                "high_count": 2,
+                "medium_count": 4,
+                "avg_abs_ret_1_tagged": 0.0021,
+                "avg_trade_intensity_tagged": 400.0,
+                "age_sec": 3.0,
+                "dashboard_summary": "ETH severe return shock",
+                "priority_score": 227.0,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "return_shock_watchlist",
+            "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"]},
+            "metrics": {"symbol_count": 2},
+            "artifacts": {"json": "reports/RETURN_SHOCK_WATCHLIST.json", "md": "reports/RETURN_SHOCK_WATCHLIST.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "return_shock_watchlist"
+    assert rsv.validate_payload(payload, "return_shock_watchlist") == []
+
+
 def test_validate_spread_stress_watchlist_payload() -> None:
     payload = {
         "lookback_min": 240,
