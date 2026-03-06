@@ -57,7 +57,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python - <<'PY'
+          from pathlib import Path
+          lines = Path("requirements.txt").read_text(encoding="utf-8").splitlines()
+          filtered = [line for line in lines if not line.startswith("pandas-ta==")]
+          Path("requirements-ci.txt").write_text("\n".join(filtered) + "\n", encoding="utf-8")
+          PY
+          pip install -r requirements-ci.txt
           pip install -r dashboard/backend/requirements.txt
 
       - name: Dashboard backend smoke tests
@@ -90,7 +96,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python - <<'PY'
+          from pathlib import Path
+          lines = Path("requirements.txt").read_text(encoding="utf-8").splitlines()
+          filtered = [line for line in lines if not line.startswith("pandas-ta==")]
+          Path("requirements-ci.txt").write_text("\n".join(filtered) + "\n", encoding="utf-8")
+          PY
+          pip install -r requirements-ci.txt
 
       - name: Run required chaos scenario
         run: ${{ matrix.cmd }}
@@ -112,7 +124,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python - <<'PY'
+          from pathlib import Path
+          lines = Path("requirements.txt").read_text(encoding="utf-8").splitlines()
+          filtered = [line for line in lines if not line.startswith("pandas-ta==")]
+          Path("requirements-ci.txt").write_text("\n".join(filtered) + "\n", encoding="utf-8")
+          PY
+          pip install -r requirements-ci.txt
 
       - name: Run execution invariant suite
         run: |
@@ -310,7 +328,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python - <<'PY'
+          from pathlib import Path
+          lines = Path("requirements.txt").read_text(encoding="utf-8").splitlines()
+          filtered = [line for line in lines if not line.startswith("pandas-ta==")]
+          Path("requirements-ci.txt").write_text("\n".join(filtered) + "\n", encoding="utf-8")
+          PY
+          pip install -r requirements-ci.txt
 
       - name: Restore nightly chaos drift baseline
         uses: actions/cache/restore@v4

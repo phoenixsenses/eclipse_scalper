@@ -24,7 +24,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python - <<'PY'
+          from pathlib import Path
+          lines = Path("requirements.txt").read_text(encoding="utf-8").splitlines()
+          filtered = [line for line in lines if not line.startswith("pandas-ta==")]
+          Path("requirements-ci.txt").write_text("\n".join(filtered) + "\n", encoding="utf-8")
+          PY
+          pip install -r requirements-ci.txt
           pip install -r dashboard/backend/requirements.txt
 
       - name: Seed temporary sqlite fixtures
