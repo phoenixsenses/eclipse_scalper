@@ -2,7 +2,7 @@
 # Patch vs v1.1:
 # - ✅ Wires diagnostics helper into optional imports (logs what's missing instead of silent None)
 # - ✅ Adds tiny helper we_dont_have_this() (per your request) + optional diag dump hook
-# - ✅ Adds one-time “ENTRY_WATCH ONLINE” banner (no spam)
+# - ✅ Adds one-time "ENTRY_WATCH ONLINE" banner (no spam)
 # - ✅ Zero behavior change to watch logic (only observability)
 
 import time

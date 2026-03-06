@@ -1,6 +1,6 @@
 # execution/data_loop.py — SCALPER ETERNAL — DATA LOOP — 2026 v1.5 (RAW-SYMBOL AUTO-FALLBACK)
 # Patch vs v1.4:
-# - ✅ FIX: Do NOT “lock in” a bad raw symbol. Try multiple ccxt symbol formats until one works.
+# - ✅ FIX: Do NOT "lock in" a bad raw symbol. Try multiple ccxt symbol formats until one works.
 # - ✅ FIX: Prefer what the exchange *actually* lists (ex.markets) — e.g. MATICUSDT on Binance futures.
 # - ✅ Keeps: MiniDataCache, resample rules ('min'/'h'), speed knobs, guardian-safe never-raise behavior.
 # - ✅ Result: MATIC-style symbols stop showing df=None; cache fills reliably.

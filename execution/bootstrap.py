@@ -2,7 +2,7 @@
 # Patch vs v1.7:
 # - ✅ NEW: Starts optional exit/position manager loops as tasks (single bot/ex/state — no double-brain)
 # - ✅ NEW: Starts protection loops BEFORE entry (so stops/management are online first)
-# - ✅ NEW: Clear warnings when optional loops are missing (no silent “why no exits?”)
+# - ✅ NEW: Clear warnings when optional loops are missing (no silent "why no exits?")
 # - ✅ KEEP: .env load, UTF-8 hardening, ACTIVE_SYMBOLS bridge, data_ready gating, robust cache support
 # - ✅ Guardian-safe: never raises from shutdown paths
 
@@ -865,7 +865,7 @@ def _build_notify_best_effort(bot: Any) -> None:
 
 def _data_is_valid(obj: Any) -> bool:
     """
-    Accept multiple DataCache “shapes”, because different versions exist.
+    Accept multiple DataCache "shapes", because different versions exist.
 
     Valid if ANY of these:
       - get_df(sym, tf) callable
@@ -1074,7 +1074,7 @@ def _install_signal_handlers_running_loop(loop: asyncio.AbstractEventLoop) -> No
         try:
             loop.add_signal_handler(sig, _stop)
         except Exception:
-            # Windows / some environments won’t support this.
+            # Windows / some environments won't support this.
             pass
 
 
