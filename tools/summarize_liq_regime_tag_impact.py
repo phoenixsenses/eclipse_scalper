@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from tools.analyze_micro_edge_regimes import enrich_liq_regime_tags, load_debug_rows, summarize
 from tools.run_summary import build_run_summary
 
 
@@ -50,6 +51,43 @@ def _impact_summary(block: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def _impact_from_rows(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
+    enrich_liq_regime_tags(rows, rule_name="high_liq_reversal_regime")
+    tagged = [r for r in rows if str(r.get("liq_regime_tag", "")) == "high_liq_reversal"]
+    normal = [r for r in rows if str(r.get("liq_regime_tag", "")) != "high_liq_reversal"]
+    block = {
+        "available": bool(rows),
+        "tagged": summarize(tagged),
+        "normal": summarize(normal),
+    }
+    return _impact_summary(block)
+
+
+def _fallback_from_debug(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    debug_path_raw = str(payload.get("debug") or "").strip()
+    if not debug_path_raw:
+        return None
+    debug_path = Path(debug_path_raw)
+    if not debug_path.exists():
+        return None
+    rows = load_debug_rows(debug_path)
+    rows = sorted(rows, key=lambda r: float(r.get("ts_bucket") or 0.0))
+    if not rows:
+        return None
+    discover_frac = _safe_float(payload.get("discover_frac"), 0.60)
+    if len(rows) <= 1:
+        disc = rows
+        valid: List[Dict[str, Any]] = []
+    else:
+        cut = max(1, min(len(rows) - 1, int(len(rows) * discover_frac)))
+        disc = rows[:cut]
+        valid = rows[cut:]
+    return {
+        "discovery": _impact_from_rows(disc),
+        "validation": _impact_from_rows(valid),
+    }
+
+
 def _recommendation(discovery: Dict[str, Any], validation: Dict[str, Any]) -> str:
     if not discovery.get("available") or not validation.get("available"):
         return "Next action: missing tagged-vs-normal data. Re-run forward validation with liquidation regime tags."
@@ -92,6 +130,11 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     discovery = _impact_summary(impact.get("discovery") if isinstance(impact.get("discovery"), dict) else {})
     validation = _impact_summary(impact.get("validation") if isinstance(impact.get("validation"), dict) else {})
+    if (not discovery.get("available")) and (not validation.get("available")):
+        fallback = _fallback_from_debug(payload)
+        if fallback is not None:
+            discovery = fallback["discovery"]
+            validation = fallback["validation"]
     recommendation = _recommendation(discovery, validation)
 
     print(f"source={in_path}")
