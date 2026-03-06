@@ -2742,6 +2742,15 @@ async def entry_loop(bot) -> None:
                                 await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                                 continue
 
+                    # Post-scaling size validation: multiple scaling factors
+                    # (confidence, correlation, exposure, notional, budget) can
+                    # reduce amt to near-zero. Block before hitting the exchange.
+                    if amt is None or amt <= 0:
+                        log_entry.warning(f"ENTRY_LOOP: size scaled to zero for {k} after adjustments")
+                        await _emit_entry_blocked(bot, k, "size_scaled_to_zero", throttle_sec=30.0)
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
+
                     # Submit order
                     order_start = _now()
                     order_result = "success"
