@@ -309,6 +309,7 @@ Profile name:
 - `event_block_eth_micro_v1`
 - `event_block_book_proxy_v1` (tested; single lane only; NO-GO on ETH micro-edge surface)
 - `event_block_volatility_v1` (tested; single lane only; MIXED — 50/50, positive median; weaker than two-lane)
+- `event_block_eth_micro_imb05_v1` (tested; ETH + micro_edge_v3_passive_alpha + min_imbalance>=0.5; BEST result — 7/8 improved)
 
 Blocked lanes:
 - `book_proxy_pressure`
@@ -333,12 +334,133 @@ Single-lane decomposition lesson:
 
 ## Next Step
 
+### Imbalance-scoped profile: event_block_eth_micro_imb05_v1
+
+Source:
+- `reports/EVENT_BLOCK_BASELINE_IMB05_7D.json` (narrowed set, 5 candidates)
+- `reports/EVENT_BLOCK_V1_IMB05_7D.json` (narrowed set filtered)
+- `reports/RANK_EVENT_FILTER_SET_SUMMARY_V1_IMB05_7D.json`
+- `reports/EVENT_BLOCK_IMB05_V1_7D.json` (full TOP8 set with imb05 scoping)
+- `reports/RANK_EVENT_FILTER_SET_SUMMARY_IMB05_V1_7D.json`
+
+Result on narrowed imb>=0.5 set (5 candidates):
+- `common_count = 5`
+- `improved_count = 5`
+- `degraded_count = 0`
+- `median_delta_npa_core = +6.387e-04`
+
+Result on full ETH TOP8 set (8 candidates, imb05 profile scoping):
+- `common_count = 8`
+- `improved_count = 7`
+- `degraded_count = 1`
+- `median_delta_npa_core = +2.501e-04`
+- `median_filtered_kept_ratio = 76.29%`
+
+Profile comparison on full ETH TOP8 set:
+
+| Profile | Improved | Degraded | Median ΔNPA | Kept |
+|---|---|---|---|---|
+| event_block_v1 (all) | 6/8 | 2/8 | +3.698e-04 | 76.24% |
+| event_block_eth_micro_imb05_v1 | 7/8 | 1/8 | +2.501e-04 | 76.29% |
+
+Interpretation:
+- `event_block_eth_micro_imb05_v1` improves one more candidate than `event_block_v1`
+- the one remaining degraded pocket (h=60, imb=0.85, int=4000) was already deeply negative NPA in
+  baseline; filtering makes it slightly worse but it would be excluded on quality grounds anyway
+- imb=0.3 passthrough behavior preserves the two best baseline pockets (h=60, imb=0.3)
+- imb>=0.5 filtered pockets show strong improvement: 4/5 turn from negative NPA to positive
+- `event_block_eth_micro_imb05_v1` is now the strongest validated profile in this research phase
+
+## Decision
+
+Current research decision:
+
+- ETH:
+  - Primary experimental profile: `event_block_eth_micro_imb05_v1`
+    - scoped to: ETHUSDT + micro_edge_v3_passive_alpha + min_imbalance >= 0.5
+    - result: 7/8 improved, 1 degraded, median ΔNPA = +2.501e-04 on full ETH TOP8
+    - strictly better than `event_block_v1` (6/8) on the same candidate set
+  - Legacy profile: `event_block_eth_micro_v1` (6/8, kept for reference; superseded by imb05)
+  - rationale:
+    - positive on ETH 7D
+    - positive again on ETH 1D repeated-window retest
+    - broad ETH retest showed symbol-only scoping is too loose
+    - 21D micro-edge retest currently lacks common tradeable coverage, even after relaxed validation gates
+    - single-lane decomposition confirmed the two lanes are synergistic
+    - imbalance scoping (imb>=0.5) eliminates the only remaining degraded pockets
+- BTC:
+  - `event_block_v1 = observe_only`
+  - rationale:
+    - not harmful on BTC 1D
+    - but not strong enough to claim clear broad benefit
+
+This is not ready to become:
+- a default global mitigation profile across all symbols
+- or a blanket ETH-wide profile across all rules
+
+Current positioning:
+- `event_block_eth_micro_imb05_v1` = best current ETH experimental profile
+- `event_block_eth_micro_v1` = still valid but superseded by imb05 variant
+- not long-window production candidates
+- 21D long-window retests remain non-actionable until tradeable coverage improves
+
+## Rollout Rule
+
+Use this order:
+
+1. ETH broader candidate sets
+2. BTC repeated retests
+3. symbol-aware profile trial
+4. only then consider general defaulting
+
+## Technical Notes
+
+Implementation points:
+- `tools/validate_passive_pocket_forward.py`
+- `tools/rank_passive_pockets_forward.py`
+- `tools/summarize_rank_event_filter.py`
+- `tools/summarize_rank_event_filter_set.py`
+
+Profile name:
+- `event_block_v1`
+- `event_block_eth_v1`
+- `event_block_eth_micro_v1`
+- `event_block_eth_micro_imb05_v1` (RECOMMENDED — best result; ETH + micro_edge + imb>=0.5)
+- `event_block_book_proxy_v1` (tested; single lane only; NO-GO on ETH micro-edge surface)
+- `event_block_volatility_v1` (tested; single lane only; MIXED — 50/50, positive median; weaker than two-lane)
+
+Blocked lanes:
+- `book_proxy_pressure`
+- `volatility_burst`
+
+## Teaching Note
+
+This is a good example of a usable research result:
+
+- not every event becomes a positive signal
+- often the first real gain comes from removing bad context
+- that is usually safer than forcing trades only in rare "good" context
+
+In short:
+- negative filters often productionize earlier than positive filters
+
+Single-lane decomposition lesson:
+- always decompose multi-lane results before crediting any single lane
+- `book_proxy_pressure` alone is harmful; `volatility_burst` alone is mixed
+- the two lanes are SYNERGISTIC — each rescues pockets the other cannot
+- do not conclude the improvement comes from one lane when the effect is interactive
+
+Candidate scoping lesson:
+- even a good two-lane block can degrade some pockets
+- identifying which pockets lose and finding their common feature (here: imb=0.3) enables scoping
+- scoping the profile to excluded degraded candidates gives a strictly better result
+
+## Next Step
+
 Next research step:
-1. Narrow candidate focus to imb>=0.5 pockets: the two degraded pockets (imb=0.3, h=60) are the
-   only losers with event_block_v1; restricting to imb>=0.5 candidates should give clean
-   improvement across all remaining pockets with no degraded rows
-2. Keep testing `event_block_eth_micro_v1` on ETH short windows where common tradeable coverage exists
-3. Repeat BTC on more windows
-4. Then decide whether `event_block_v1` should become:
-   - a rule-aware ETH experimental profile in ranking scoped to imb>=0.5
-   - or a symbol/rule-aware profile family such as `event_block_eth_micro_v1`
+1. Validate `event_block_eth_micro_imb05_v1` on a fresh out-of-sample window (different date range
+   or different lookback start) to test whether the improvement holds
+2. Investigate whether the h=60, imb=0.85 degradation is structural (short-horizon + extreme imbalance
+   in volatile markets = good entry) or noise
+3. Repeat BTC on more windows with the two-lane profile
+4. Then decide whether to promote `event_block_eth_micro_imb05_v1` to the primary ranking profile
