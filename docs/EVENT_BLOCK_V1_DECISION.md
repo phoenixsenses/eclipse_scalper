@@ -193,11 +193,152 @@ This is a good example of a usable research result:
 In short:
 - negative filters often productionize earlier than positive filters
 
+### Single-lane decomposition: book_proxy_pressure vs volatility_burst
+
+Source:
+- `reports/EVENT_BLOCK_BASELINE_REAL_7D_PROBE.json`
+- `reports/EVENT_BLOCK_BOOK_PROXY_V1_7D_PROBE.json`
+- `reports/EVENT_BLOCK_V1_7D_PROBE.json`
+- `reports/RANK_EVENT_FILTER_SET_SUMMARY_BOOK_PROXY_V1_7D.json`
+- `reports/RANK_EVENT_FILTER_SET_SUMMARY_V1_7D.json`
+
+Run settings: ETH TOP8 candidates, 7D lookback, splits=3, min_n=5, relaxed gates, fee=1.0.
+
+Result — `event_block_book_proxy_v1` (block book_proxy_pressure only):
+- `common_count = 8`
+- `improved_count = 4`
+- `degraded_count = 4`
+- `median_delta_npa_core = -1.020e-05`
+- `median_filtered_kept_ratio = 94.82%`
+
+Result — `event_block_v1` (block book_proxy_pressure + volatility_burst):
+- `common_count = 8`
+- `improved_count = 6`
+- `degraded_count = 2`
+- `median_delta_npa_core = +3.698e-04`
+- `median_filtered_kept_ratio = 76.24%`
+
+Interpretation:
+- `event_block_book_proxy_v1` is a NO-GO: 50/50 improved/degraded, negative median delta NPA
+- `event_block_v1` is positive: 6/8 improved, strongly positive median delta NPA
+- the improvement in `event_block_v1` is NOT driven solely by `volatility_burst`; the lanes are synergistic
+- see volatility-only decomposition below
+
+### Volatility-burst-only decomposition: event_block_volatility_v1
+
+Source:
+- `reports/EVENT_BLOCK_VOLATILITY_V1_7D_PROBE.json`
+- `reports/RANK_EVENT_FILTER_SET_SUMMARY_VOLATILITY_V1_7D.json`
+
+Result — `event_block_volatility_v1` (block volatility_burst only):
+- `common_count = 8`
+- `improved_count = 4`
+- `degraded_count = 4`
+- `median_delta_npa_core = +1.414e-04`
+- `median_filtered_kept_ratio = 80.16%`
+
+Three-way comparison summary (same baseline, same run settings):
+
+| Profile | Improved | Degraded | Median ΔNPA | Kept Ratio |
+|---|---|---|---|---|
+| book_proxy_pressure only | 4/8 | 4/8 | -1.020e-05 | 94.82% |
+| volatility_burst only | 4/8 | 4/8 | +1.414e-04 | 80.16% |
+| both (event_block_v1) | 6/8 | 2/8 | +3.698e-04 | 76.24% |
+
+Interpretation:
+- `event_block_book_proxy_v1` is a NO-GO: mildly harmful, 50/50, negative median
+- `event_block_volatility_v1` is MIXED: positive median but still 50/50 improved/degraded
+- the two lanes are SYNERGISTIC: the combination (6/8, +3.698e-04) is strictly better than either alone
+- `book_proxy_pressure` on its own degrades quality; it only becomes net-positive when combined with `volatility_burst`
+- `volatility_burst` blocking specifically helps h=120 (long-horizon) pockets and high-imbalance (>=0.5) pockets
+- `volatility_burst` blocking hurts h=60 imb=0.3 signals (short-horizon, low-imbalance)
+- together the two lanes reach 6/8 improved because each lane fixes different pockets the other misses
+- two most improved by v1: h=120 imb=0.85 (+1.200e-03), h=120 imb=0.5 (+1.102e-03)
+- two most degraded by v1: h=60 imb=0.3 spr=0.0002 (-1.740e-03), h=60 imb=0.3 spr=0.00025 (-1.013e-03)
+
+## Decision
+
+Current research decision:
+
+- ETH:
+  - `event_block_v1 = experimental_on` only on the validated `micro_edge_v3_passive_alpha` surface
+  - ranking profile candidate:
+    - `event_block_eth_micro_v1`
+  - rationale:
+    - positive on ETH 7D
+    - positive again on ETH 1D repeated-window retest
+    - broad ETH retest showed symbol-only scoping is too loose
+    - 21D micro-edge retest currently lacks common tradeable coverage, even after relaxed validation gates
+    - single-lane decomposition confirms `volatility_burst` is the active driver of improvement
+    - `book_proxy_pressure` alone is NOT a valid single-lane negative filter on this surface
+- BTC:
+  - `event_block_v1 = observe_only`
+  - rationale:
+    - not harmful on BTC 1D
+    - but not strong enough to claim clear broad benefit
+
+This is not ready to become:
+- a default global mitigation profile across all symbols
+- or a blanket ETH-wide profile across all rules
+
+Current positioning:
+- `event_block_eth_micro_v1` = ETH short-window experimental profile
+- not a long-window production candidate
+- 21D long-window retests should be considered non-actionable until tradeable coverage improves
+
+## Rollout Rule
+
+Use this order:
+
+1. ETH broader candidate sets
+2. BTC repeated retests
+3. symbol-aware profile trial
+4. only then consider general defaulting
+
+## Technical Notes
+
+Implementation points:
+- `tools/validate_passive_pocket_forward.py`
+- `tools/rank_passive_pockets_forward.py`
+- `tools/summarize_rank_event_filter.py`
+- `tools/summarize_rank_event_filter_set.py`
+
+Profile name:
+- `event_block_v1`
+- `event_block_eth_v1`
+- `event_block_eth_micro_v1`
+- `event_block_book_proxy_v1` (tested; single lane only; NO-GO on ETH micro-edge surface)
+- `event_block_volatility_v1` (tested; single lane only; MIXED — 50/50, positive median; weaker than two-lane)
+
+Blocked lanes:
+- `book_proxy_pressure`
+- `volatility_burst`
+
+## Teaching Note
+
+This is a good example of a usable research result:
+
+- not every event becomes a positive signal
+- often the first real gain comes from removing bad context
+- that is usually safer than forcing trades only in rare "good" context
+
+In short:
+- negative filters often productionize earlier than positive filters
+
+Single-lane decomposition lesson:
+- always decompose multi-lane results before crediting any single lane
+- `book_proxy_pressure` alone is harmful; `volatility_burst` alone is mixed
+- the two lanes are SYNERGISTIC — each rescues pockets the other cannot
+- do not conclude the improvement comes from one lane when the effect is interactive
+
 ## Next Step
 
 Next research step:
-- keep testing `event_block_eth_micro_v1` on ETH short windows where common tradeable coverage exists
-- repeat BTC on more windows
-- then decide whether `event_block_v1` should become:
-  - a rule-aware ETH experimental profile in ranking
-  - or a symbol/rule-aware profile family such as `event_block_eth_micro_v1`
+1. Narrow candidate focus to imb>=0.5 pockets: the two degraded pockets (imb=0.3, h=60) are the
+   only losers with event_block_v1; restricting to imb>=0.5 candidates should give clean
+   improvement across all remaining pockets with no degraded rows
+2. Keep testing `event_block_eth_micro_v1` on ETH short windows where common tradeable coverage exists
+3. Repeat BTC on more windows
+4. Then decide whether `event_block_v1` should become:
+   - a rule-aware ETH experimental profile in ranking scoped to imb>=0.5
+   - or a symbol/rule-aware profile family such as `event_block_eth_micro_v1`

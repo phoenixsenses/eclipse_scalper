@@ -521,7 +521,7 @@ def _args() -> argparse.Namespace:
     p.add_argument(
         "--mitigation-profile",
         default="baseline",
-        choices=["baseline", "anti_adverse_v1", "anti_adverse_v2", "anti_adverse_v3", "anti_adverse_v4", "anti_adverse_v5", "anti_adverse_v6", "event_block_v1", "event_block_book_proxy_v1", "event_block_eth_v1", "event_block_eth_micro_v1"],
+        choices=["baseline", "anti_adverse_v1", "anti_adverse_v2", "anti_adverse_v3", "anti_adverse_v4", "anti_adverse_v5", "anti_adverse_v6", "event_block_v1", "event_block_book_proxy_v1", "event_block_volatility_v1", "event_block_eth_v1", "event_block_eth_micro_v1"],
         help=(
             "Signal filter profile to reduce adverse selection. "
             "'baseline' = no change. "
@@ -534,6 +534,7 @@ def _args() -> argparse.Namespace:
             "'anti_adverse_v6' = anti_adverse_v5 + taker fallback after passive miss. "
             "'event_block_v1' = block negative event lanes book_proxy_pressure and volatility_burst. "
             "'event_block_book_proxy_v1' = block only book_proxy_pressure. "
+            "'event_block_volatility_v1' = block only volatility_burst. "
             "'event_block_eth_v1' = same block rule, but only for ETH symbol candidates. "
             "'event_block_eth_micro_v1' = same block rule, but only for ETH + micro_edge_v3_passive_alpha candidates."
         ),
@@ -706,6 +707,10 @@ def main() -> int:
         if mitigation_profile == "event_block_book_proxy_v1":
             return {
                 "event_block_lanes": "book_proxy_pressure",
+            }
+        if mitigation_profile == "event_block_volatility_v1":
+            return {
+                "event_block_lanes": "volatility_burst",
             }
         if mitigation_profile == "event_block_eth_v1":
             if str(c.get("symbol", "")).upper() != "ETHUSDT":
@@ -1086,18 +1091,26 @@ def main() -> int:
                 ["book_proxy_pressure"]
                 if mitigation_profile == "event_block_book_proxy_v1"
                 else (
-                    ["book_proxy_pressure", "volatility_burst"]
-                    if mitigation_profile in {"event_block_v1", "event_block_eth_v1", "event_block_eth_micro_v1"}
-                    else []
+                    ["volatility_burst"]
+                    if mitigation_profile == "event_block_volatility_v1"
+                    else (
+                        ["book_proxy_pressure", "volatility_burst"]
+                        if mitigation_profile in {"event_block_v1", "event_block_eth_v1", "event_block_eth_micro_v1"}
+                        else []
+                    )
                 )
             ),
             "event_profile_lane_scope": (
                 ["book_proxy_pressure"]
                 if mitigation_profile == "event_block_book_proxy_v1"
                 else (
-                    ["book_proxy_pressure", "volatility_burst"]
-                    if mitigation_profile in {"event_block_v1", "event_block_eth_v1", "event_block_eth_micro_v1"}
-                    else []
+                    ["volatility_burst"]
+                    if mitigation_profile == "event_block_volatility_v1"
+                    else (
+                        ["book_proxy_pressure", "volatility_burst"]
+                        if mitigation_profile in {"event_block_v1", "event_block_eth_v1", "event_block_eth_micro_v1"}
+                        else []
+                    )
                 )
             ),
             "event_profile_symbol_scope": ("ETHUSDT" if mitigation_profile in {"event_block_eth_v1", "event_block_eth_micro_v1"} else None),
