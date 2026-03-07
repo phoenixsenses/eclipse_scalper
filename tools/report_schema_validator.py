@@ -2458,6 +2458,72 @@ def _validate_event_lane_persistence_policy(payload: Dict[str, Any]) -> List[str
     return errors
 
 
+def _validate_event_merged_banner_policy(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "effective_json": str,
+        "summary": dict,
+        "banner": dict,
+        "focus_rows": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key, expected in {
+            "banner_mode": str,
+            "focus_lane_count": int,
+            "focus_lanes": list,
+            "top_lane": str,
+            "top_action": str,
+        }.items():
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+            elif not isinstance(summary[key], expected):
+                errors.append(f"bad_type:summary.{key}")
+    banner = payload.get("banner")
+    if isinstance(banner, dict):
+        for key, expected in {
+            "headline": str,
+            "recommended_action": str,
+            "top_lane": str,
+            "banner_mode": str,
+            "focus_lanes": list,
+            "reasons": list,
+            "operator_note": str,
+        }.items():
+            if key not in banner:
+                errors.append(f"missing:banner.{key}")
+            elif not isinstance(banner[key], expected):
+                errors.append(f"bad_type:banner.{key}")
+    focus_rows = payload.get("focus_rows")
+    if isinstance(focus_rows, list):
+        for idx, row in enumerate(focus_rows):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:focus_rows[{idx}]")
+                continue
+            for key, expected in {
+                "lane": str,
+                "level": str,
+                "freshness_status": str,
+                "recommended_action": str,
+                "effective_display_mode": str,
+                "effective_priority_score": (int, float),
+                "headline": str,
+            }.items():
+                if key not in row:
+                    errors.append(f"missing:focus_rows[{idx}].{key}")
+                elif not isinstance(row[key], expected):
+                    errors.append(f"bad_type:focus_rows[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "micro_edge_smoke": _validate_micro_edge_record,
     "validate_canonical": _validate_validate_canonical,
@@ -2530,6 +2596,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "event_lane_suppression_policy": _validate_event_lane_suppression_policy,
     "event_watchboard_effective": _validate_event_watchboard_effective,
     "event_lane_persistence_policy": _validate_event_lane_persistence_policy,
+    "event_merged_banner_policy": _validate_event_merged_banner_policy,
 }
 
 
@@ -2601,6 +2668,8 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         summary = payload.get("summary") or {}
         if "flip_count" in summary and "noisy_lane_count" in summary:
             return "event_lane_persistence_policy"
+    if {"effective_json", "summary", "banner", "focus_rows"}.issubset(keys):
+        return "event_merged_banner_policy"
     if {"watchboard_json", "append_json", "trend_json", "brief_json", "history_jsonl", "summary"}.issubset(keys):
         return "run_research_event_watchboard_cycle"
     if {"watchboard_json", "trend_json", "summary", "brief"}.issubset(keys):

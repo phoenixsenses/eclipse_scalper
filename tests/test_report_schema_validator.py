@@ -409,6 +409,48 @@ def test_validate_event_lane_persistence_policy_payload() -> None:
     assert rsv.validate_payload(payload, "event_lane_persistence_policy") == []
 
 
+def test_validate_event_merged_banner_policy_payload() -> None:
+    payload = {
+        "effective_json": "reports/EVENT_WATCHBOARD_EFFECTIVE.json",
+        "summary": {
+            "banner_mode": "merged",
+            "focus_lane_count": 2,
+            "focus_lanes": ["return_shock", "book_proxy_pressure"],
+            "top_lane": "return_shock",
+            "top_action": "escalate_monitoring",
+        },
+        "banner": {
+            "headline": "Research events merged=return_shock + book_proxy_pressure action=escalate_monitoring",
+            "recommended_action": "escalate_monitoring",
+            "top_lane": "return_shock",
+            "banner_mode": "merged",
+            "focus_lanes": ["return_shock", "book_proxy_pressure"],
+            "reasons": ["multiple_fresh_high_priority_lanes"],
+            "operator_note": "Show one combined banner for the current high-priority lanes.",
+        },
+        "focus_rows": [
+            {
+                "lane": "return_shock",
+                "level": "severe",
+                "freshness_status": "fresh",
+                "recommended_action": "escalate_monitoring",
+                "effective_display_mode": "keep",
+                "effective_priority_score": 225.0,
+                "headline": "Return shock",
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "event_merged_banner_policy",
+            "inputs": {"effective_json": "reports/EVENT_WATCHBOARD_EFFECTIVE.json"},
+            "metrics": {"banner_mode": "merged", "focus_lane_count": 2, "top_lane": "return_shock", "top_action": "escalate_monitoring"},
+            "artifacts": {"json": "reports/EVENT_MERGED_BANNER_POLICY.json", "md": "reports/EVENT_MERGED_BANNER_POLICY.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "event_merged_banner_policy"
+    assert rsv.validate_payload(payload, "event_merged_banner_policy") == []
+
+
 def test_validate_spread_stress_alerts_payload() -> None:
     payload = {
         "symbol": "ETHUSDT",
