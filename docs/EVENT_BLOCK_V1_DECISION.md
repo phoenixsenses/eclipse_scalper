@@ -126,6 +126,7 @@ Interpretation:
 - the 21D issue is not just a strict validation gate setting
 - current 21D live slice lacks tradeable coverage for this surface
 - this profile should not be positioned as a long-window default candidate
+- reducing `splits` and `min_n` still did not create a common tradeable set
 
 ## Decision
 
@@ -153,6 +154,7 @@ This is not ready to become:
 Current positioning:
 - `event_block_eth_micro_v1` = ETH short-window experimental profile
 - not a long-window production candidate
+- 21D long-window retests should be considered non-actionable until tradeable coverage improves
 
 ## Rollout Rule
 
