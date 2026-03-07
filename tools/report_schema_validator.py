@@ -2612,6 +2612,48 @@ def _validate_summarize_event_signal_bridge(payload: Dict[str, Any]) -> List[str
     return errors
 
 
+def _validate_evaluate_event_conditioned_filter(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source_bridge_json": str,
+        "summary": dict,
+        "filter_candidate": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key, expected in {
+            "primary_allow_lane": str,
+            "tentative_allow_lane": str,
+            "block_lane_count": int,
+            "recommendation": str,
+        }.items():
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+            elif not isinstance(summary[key], expected):
+                errors.append(f"bad_type:summary.{key}")
+    candidate = payload.get("filter_candidate")
+    if isinstance(candidate, dict):
+        for key, expected in {
+            "min_tagged_n": int,
+            "allow_lanes": list,
+            "tentative_allow_lanes": list,
+            "block_lanes": list,
+        }.items():
+            if key not in candidate:
+                errors.append(f"missing:filter_candidate.{key}")
+            elif not isinstance(candidate[key], expected):
+                errors.append(f"bad_type:filter_candidate.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "micro_edge_smoke": _validate_micro_edge_record,
     "validate_canonical": _validate_validate_canonical,
@@ -2686,6 +2728,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "event_lane_persistence_policy": _validate_event_lane_persistence_policy,
     "event_merged_banner_policy": _validate_event_merged_banner_policy,
     "summarize_event_signal_bridge": _validate_summarize_event_signal_bridge,
+    "evaluate_event_conditioned_filter": _validate_evaluate_event_conditioned_filter,
 }
 
 
@@ -2844,6 +2887,8 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "liquidation_regime_tagger"
     if {"source_forward_json", "discovery", "validation", "recommendation"}.issubset(keys):
         return "summarize_event_signal_bridge"
+    if {"source_bridge_json", "summary", "filter_candidate"}.issubset(keys):
+        return "evaluate_event_conditioned_filter"
     return None
 
 

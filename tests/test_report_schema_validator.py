@@ -147,6 +147,33 @@ def test_validate_summarize_event_signal_bridge_payload() -> None:
     assert rsv.validate_payload(payload, "summarize_event_signal_bridge") == []
 
 
+def test_validate_evaluate_event_conditioned_filter_payload() -> None:
+    payload = {
+        "source_bridge_json": "reports/bridge.json",
+        "summary": {
+            "primary_allow_lane": "return_shock",
+            "tentative_allow_lane": "volume_vacuum",
+            "block_lane_count": 2,
+            "recommendation": "test_allow_and_block_filters",
+        },
+        "filter_candidate": {
+            "min_tagged_n": 3,
+            "allow_lanes": ["return_shock"],
+            "tentative_allow_lanes": ["volume_vacuum"],
+            "block_lanes": [{"lane": "spread_stress"}],
+        },
+        "run_summary": {
+            "version": "1",
+            "run_type": "evaluate_event_conditioned_filter",
+            "inputs": {"bridge_json": "reports/bridge.json"},
+            "metrics": {"block_lane_count": 2},
+            "artifacts": {"json": "reports/filter.json"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "evaluate_event_conditioned_filter"
+    assert rsv.validate_payload(payload, "evaluate_event_conditioned_filter") == []
+
+
 def test_validate_canonical_payload() -> None:
     payload = {
         "status": "pass",
