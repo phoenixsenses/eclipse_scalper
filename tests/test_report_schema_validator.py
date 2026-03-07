@@ -207,6 +207,27 @@ def test_validate_evaluate_event_conditioned_forward_payload() -> None:
     assert rsv.validate_payload(payload, "evaluate_event_conditioned_forward") == []
 
 
+def test_validate_evaluate_event_conditioned_forward_grid_payload() -> None:
+    payload = {
+        "source_debug_jsonl": "localtests/debug.jsonl",
+        "source_filter_json": "reports/filter.json",
+        "variant_count": 5,
+        "best_variant": "block_only",
+        "best_validation_delta_avg_net": 0.0003,
+        "best_validation_kept_ratio": 0.42,
+        "rows": [{"variant": "block_only"}],
+        "run_summary": {
+            "version": "1",
+            "run_type": "evaluate_event_conditioned_forward_grid",
+            "inputs": {"debug_jsonl": "localtests/debug.jsonl"},
+            "metrics": {"variant_count": 5},
+            "artifacts": {"json": "reports/out.json"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "evaluate_event_conditioned_forward_grid"
+    assert rsv.validate_payload(payload, "evaluate_event_conditioned_forward_grid") == []
+
+
 def test_validate_canonical_payload() -> None:
     payload = {
         "status": "pass",
