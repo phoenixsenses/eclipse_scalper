@@ -2577,6 +2577,41 @@ def _validate_event_merged_banner_policy(payload: Dict[str, Any]) -> List[str]:
     return errors
 
 
+def _validate_summarize_event_signal_bridge(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source_forward_json": str,
+        "discovery": dict,
+        "validation": dict,
+        "recommendation": str,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    for section_name in ("discovery", "validation"):
+        section = payload.get(section_name)
+        if isinstance(section, dict):
+            for key, expected in {
+                "available": bool,
+                "rows_total": int,
+                "best_positive_lane": dict,
+                "worst_negative_lane": dict,
+                "positive_lane_count": int,
+                "negative_lane_count": int,
+                "ranked": list,
+            }.items():
+                if key not in section:
+                    errors.append(f"missing:{section_name}.{key}")
+                elif not isinstance(section[key], expected):
+                    errors.append(f"bad_type:{section_name}.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "micro_edge_smoke": _validate_micro_edge_record,
     "validate_canonical": _validate_validate_canonical,
@@ -2650,6 +2685,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "event_watchboard_effective": _validate_event_watchboard_effective,
     "event_lane_persistence_policy": _validate_event_lane_persistence_policy,
     "event_merged_banner_policy": _validate_event_merged_banner_policy,
+    "summarize_event_signal_bridge": _validate_summarize_event_signal_bridge,
 }
 
 
@@ -2806,6 +2842,8 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "run_liq_reversal_e2e"
     if {"symbol", "rule", "lookback_min", "bucket_sec", "summary", "tags"}.issubset(keys):
         return "liquidation_regime_tagger"
+    if {"source_forward_json", "discovery", "validation", "recommendation"}.issubset(keys):
+        return "summarize_event_signal_bridge"
     return None
 
 

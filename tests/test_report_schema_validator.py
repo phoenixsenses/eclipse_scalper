@@ -113,6 +113,40 @@ def test_validate_liquidation_rule_coverage_payload() -> None:
     assert rsv.validate_payload(payload, "liquidation_rule_coverage") == []
 
 
+def test_validate_summarize_event_signal_bridge_payload() -> None:
+    payload = {
+        "source_forward_json": "reports/forward.json",
+        "discovery": {
+            "available": True,
+            "rows_total": 10,
+            "best_positive_lane": {"lane": "volume_vacuum"},
+            "worst_negative_lane": {"lane": "book_proxy_pressure"},
+            "positive_lane_count": 1,
+            "negative_lane_count": 2,
+            "ranked": [],
+        },
+        "validation": {
+            "available": True,
+            "rows_total": 8,
+            "best_positive_lane": {"lane": "return_shock"},
+            "worst_negative_lane": {"lane": "volatility_burst"},
+            "positive_lane_count": 1,
+            "negative_lane_count": 1,
+            "ranked": [],
+        },
+        "recommendation": "test_event_conditioned_filter",
+        "run_summary": {
+            "version": "1",
+            "run_type": "summarize_event_signal_bridge",
+            "inputs": {"forward_json": "reports/forward.json"},
+            "metrics": {"discovery_positive_lane_count": 1, "validation_positive_lane_count": 1},
+            "artifacts": {"json": "reports/summary.json"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "summarize_event_signal_bridge"
+    assert rsv.validate_payload(payload, "summarize_event_signal_bridge") == []
+
+
 def test_validate_canonical_payload() -> None:
     payload = {
         "status": "pass",
