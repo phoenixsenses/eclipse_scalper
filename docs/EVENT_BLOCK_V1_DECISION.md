@@ -93,6 +93,40 @@ Interpretation:
 - the earlier improvement does not generalize across the wider ETH rule surface
 - the filter benefit appears tied to the `micro_edge_v3_passive_alpha` lane, not to ETH globally
 
+### ETH micro-edge 21D retest
+
+Source:
+- `reports/RANK_EVENT_FILTER_SET_SUMMARY_ETH_MICRO_21D_REAL.json`
+
+Result:
+- `common_count = 0`
+- `improved_count = 0`
+- `degraded_count = 0`
+- `recommendation = keep_baseline`
+
+Interpretation:
+- this does not falsify the filter logic directly
+- it shows the current live slice did not produce a tradeable common set after capacity filtering
+- in other words, the next blocker is tradeable coverage, not just filter quality
+
+### ETH micro-edge 21D relaxed retest
+
+Source:
+- `reports/EVENT_BLOCK_ETH_MICRO_BASELINE_21D_RELAXED_REAL.json`
+- `reports/EVENT_BLOCK_ETH_MICRO_V1_21D_RELAXED_REAL.json`
+
+Result:
+- relaxed settings used:
+  - `splits = 2`
+  - `min_n = 40`
+- baseline and filtered still produced no tradeable ranked pockets
+- effective blocker remained `insufficient_fill_rate`
+
+Interpretation:
+- the 21D issue is not just a strict validation gate setting
+- current 21D live slice lacks tradeable coverage for this surface
+- this profile should not be positioned as a long-window default candidate
+
 ## Decision
 
 Current research decision:
@@ -105,6 +139,7 @@ Current research decision:
     - positive on ETH 7D
     - positive again on ETH 1D repeated-window retest
     - broad ETH retest showed symbol-only scoping is too loose
+    - 21D micro-edge retest currently lacks common tradeable coverage, even after relaxed validation gates
 - BTC:
   - `event_block_v1 = observe_only`
   - rationale:
@@ -114,6 +149,10 @@ Current research decision:
 This is not ready to become:
 - a default global mitigation profile across all symbols
 - or a blanket ETH-wide profile across all rules
+
+Current positioning:
+- `event_block_eth_micro_v1` = ETH short-window experimental profile
+- not a long-window production candidate
 
 ## Rollout Rule
 
@@ -155,7 +194,7 @@ In short:
 ## Next Step
 
 Next research step:
-- run broader `micro_edge_v3_passive_alpha` ETH candidate universes
+- keep testing `event_block_eth_micro_v1` on ETH short windows where common tradeable coverage exists
 - repeat BTC on more windows
 - then decide whether `event_block_v1` should become:
   - a rule-aware ETH experimental profile in ranking
