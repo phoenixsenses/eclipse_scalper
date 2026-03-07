@@ -1545,6 +1545,9 @@ def _validate_run_research_event_watchboard_cycle(payload: Dict[str, Any]) -> Li
         "append_json": str,
         "overlap_json": str,
         "consolidation_json": str,
+        "suppression_json": str,
+        "persistence_json": str,
+        "merged_banner_json": str,
         "trend_json": str,
         "brief_json": str,
         "history_jsonl": str,
@@ -1559,7 +1562,18 @@ def _validate_run_research_event_watchboard_cycle(payload: Dict[str, Any]) -> Li
             errors.append(f"bad_type:{key}")
     summary = payload.get("summary")
     if isinstance(summary, dict):
-        for key in ("top_lane", "top_action", "history_rows", "trend", "trimmed_rows", "top_overlap_pair", "suppression_candidate_count"):
+        for key in (
+            "top_lane",
+            "top_action",
+            "history_rows",
+            "trend",
+            "trimmed_rows",
+            "top_overlap_pair",
+            "suppression_candidate_count",
+            "suppression_rule_count",
+            "noisy_lane_count",
+            "merged_banner_mode",
+        ):
             if key not in summary:
                 errors.append(f"missing:summary.{key}")
         if "history_rows" in summary and not isinstance(summary["history_rows"], int):
@@ -1577,6 +1591,8 @@ def _validate_research_event_operator_brief(payload: Dict[str, Any]) -> List[str
         "trend_json": str,
         "overlap_json": str,
         "consolidation_json": str,
+        "persistence_json": str,
+        "merged_banner_json": str,
         "summary": dict,
         "brief": dict,
         "run_summary": dict,
@@ -1589,12 +1605,38 @@ def _validate_research_event_operator_brief(payload: Dict[str, Any]) -> List[str
             errors.append(f"bad_type:{key}")
     summary = payload.get("summary")
     if isinstance(summary, dict):
-        for key in ("top_lane", "top_action", "trend", "severe_lane_count", "stale_lane_count", "strongest_delta_lane", "strongest_delta_trend", "strongest_overlap_pair", "suppression_candidate_count", "primary_suppression_lane"):
+        for key in (
+            "top_lane",
+            "top_action",
+            "trend",
+            "severe_lane_count",
+            "stale_lane_count",
+            "strongest_delta_lane",
+            "strongest_delta_trend",
+            "strongest_overlap_pair",
+            "suppression_candidate_count",
+            "primary_suppression_lane",
+            "noisy_lane_count",
+            "primary_noisy_lane",
+            "merged_banner_mode",
+            "merged_focus_lane_count",
+        ):
             if key not in summary:
                 errors.append(f"missing:summary.{key}")
     brief = payload.get("brief")
     if isinstance(brief, dict):
-        for key in ("headline", "operator_note", "top_event", "strongest_delta", "strongest_overlap", "primary_suppression", "severe_lanes", "stale_lanes"):
+        for key in (
+            "headline",
+            "operator_note",
+            "top_event",
+            "strongest_delta",
+            "strongest_overlap",
+            "primary_suppression",
+            "primary_persistence",
+            "merged_banner",
+            "severe_lanes",
+            "stale_lanes",
+        ):
             if key not in brief:
                 errors.append(f"missing:brief.{key}")
     errors.extend(_validate_run_summary(payload.get("run_summary")))

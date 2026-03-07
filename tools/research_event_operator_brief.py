@@ -19,6 +19,7 @@ def build_operator_brief_payload(
     overlap_json: str,
     consolidation_json: str,
     persistence_json: str,
+    merged_banner_json: str,
     out_json: str,
     out_md: str,
 ) -> Dict[str, Any]:
@@ -27,6 +28,7 @@ def build_operator_brief_payload(
     overlap = _load_json(overlap_json)
     consolidation = _load_json(consolidation_json)
     persistence = _load_json(persistence_json)
+    merged_banner = _load_json(merged_banner_json)
 
     lanes = watchboard.get("lanes") or []
     severe_lanes = [lane for lane in lanes if str(lane.get("level") or lane.get("state_level") or "") == "severe"]
@@ -46,6 +48,8 @@ def build_operator_brief_payload(
     persistence_lanes = list(persistence.get("lanes") or [])
     noisy_lanes = [row for row in persistence_lanes if bool(row.get("is_noisy"))]
     primary_noisy = noisy_lanes[0] if noisy_lanes else {}
+    merged_summary = merged_banner.get("summary") or {}
+    merged_banner_block = merged_banner.get("banner") or {}
 
     brief_lines: List[str] = []
     top_lane = str((watchboard.get("summary") or {}).get("top_lane") or "")
@@ -78,6 +82,11 @@ def build_operator_brief_payload(
             + f"min_persist={int(primary_noisy.get('recommended_min_persist_snapshots') or 1)} "
             + f"cooldown={int(primary_noisy.get('recommended_cooldown_snapshots') or 0)}."
         )
+    if str(merged_summary.get("banner_mode") or "single") == "merged":
+        brief_lines.append(
+            "merged banner: "
+            + f"{', '.join(str(x) for x in (merged_summary.get('focus_lanes') or []))}."
+        )
     if severe_lanes:
         brief_lines.append("severe lanes: " + ", ".join(str(lane.get("lane") or "unknown") for lane in severe_lanes) + ".")
     if stale_lanes:
@@ -90,6 +99,8 @@ def build_operator_brief_payload(
         "trend_json": str(trend_json),
         "overlap_json": str(overlap_json),
         "consolidation_json": str(consolidation_json),
+        "persistence_json": str(persistence_json),
+        "merged_banner_json": str(merged_banner_json),
         "summary": {
             "top_lane": top_lane,
             "top_action": top_action,
@@ -107,6 +118,8 @@ def build_operator_brief_payload(
             "primary_suppression_lane": str(primary_suppression.get("secondary_lane") or ""),
             "noisy_lane_count": int(persistence_summary.get("noisy_lane_count") or 0),
             "primary_noisy_lane": str(primary_noisy.get("lane") or ""),
+            "merged_banner_mode": str(merged_summary.get("banner_mode") or "single"),
+            "merged_focus_lane_count": int(merged_summary.get("focus_lane_count") or 0),
         },
         "brief": {
             "headline": f"Research events top={top_lane or 'unknown'} action={top_action} trend={trend_name}",
@@ -139,6 +152,12 @@ def build_operator_brief_payload(
                 "recommended_cooldown_snapshots": int(primary_noisy.get("recommended_cooldown_snapshots") or 0),
                 "recommendation": str(primary_noisy.get("recommendation") or ""),
             },
+            "merged_banner": {
+                "banner_mode": str(merged_summary.get("banner_mode") or "single"),
+                "focus_lanes": list(merged_summary.get("focus_lanes") or []),
+                "headline": str(merged_banner_block.get("headline") or ""),
+                "recommended_action": str(merged_banner_block.get("recommended_action") or "monitor_only"),
+            },
             "severe_lanes": [str(lane.get("lane") or "") for lane in severe_lanes],
             "stale_lanes": [str(lane.get("lane") or "") for lane in stale_lanes],
         },
@@ -151,6 +170,7 @@ def build_operator_brief_payload(
             "overlap_json": overlap_json,
             "consolidation_json": consolidation_json,
             "persistence_json": persistence_json,
+            "merged_banner_json": merged_banner_json,
         },
         metrics=payload["summary"],
         artifacts={
@@ -161,6 +181,7 @@ def build_operator_brief_payload(
             "overlap_json": overlap_json,
             "consolidation_json": consolidation_json,
             "persistence_json": persistence_json,
+            "merged_banner_json": merged_banner_json,
         },
     )
     return payload
@@ -173,6 +194,7 @@ def _parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     p.add_argument("--overlap-json", default="reports/EVENT_LANE_OVERLAP.json")
     p.add_argument("--consolidation-json", default="reports/EVENT_LANE_CONSOLIDATION.json")
     p.add_argument("--persistence-json", default="reports/EVENT_LANE_PERSISTENCE_POLICY.json")
+    p.add_argument("--merged-banner-json", default="reports/EVENT_MERGED_BANNER_POLICY.json")
     p.add_argument("--out-json", default="reports/RESEARCH_EVENT_OPERATOR_BRIEF.json")
     p.add_argument("--out-md", default="reports/RESEARCH_EVENT_OPERATOR_BRIEF.md")
     return p.parse_args(argv)
@@ -186,6 +208,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         overlap_json=str(args.overlap_json),
         consolidation_json=str(args.consolidation_json),
         persistence_json=str(args.persistence_json),
+        merged_banner_json=str(args.merged_banner_json),
         out_json=str(args.out_json),
         out_md=str(args.out_md),
     )

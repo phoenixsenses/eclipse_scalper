@@ -51,6 +51,21 @@ def test_build_cycle_payload(monkeypatch) -> None:
     )
     monkeypatch.setattr(
         rwc,
+        "build_suppression_policy_payload",
+        lambda **kwargs: {"summary": {"rule_count": 1, "suppressed_lanes": ["spread_stress"]}, "rules": []},
+    )
+    monkeypatch.setattr(
+        rwc,
+        "build_effective_watchboard_payload",
+        lambda **kwargs: {"summary": {"effective_top_lane": "liquidation"}, "lanes": []},
+    )
+    monkeypatch.setattr(
+        rwc,
+        "build_merged_banner_policy_payload",
+        lambda **kwargs: {"summary": {"banner_mode": "merged", "focus_lane_count": 2, "focus_lanes": ["liquidation", "return_shock"]}, "banner": {"headline": "merged"}},
+    )
+    monkeypatch.setattr(
+        rwc,
         "build_operator_brief_payload",
         lambda **kwargs: {"brief": {"headline": "brief", "operator_note": "note"}},
     )
@@ -74,8 +89,12 @@ def test_build_cycle_payload(monkeypatch) -> None:
         overlap_top_n=5,
         consolidation_json=str(out_dir / "consolidation.json"),
         consolidation_md=str(out_dir / "consolidation.md"),
+        suppression_json=str(out_dir / "suppression.json"),
+        suppression_md=str(out_dir / "suppression.md"),
         persistence_json=str(out_dir / "persistence.json"),
         persistence_md=str(out_dir / "persistence.md"),
+        merged_banner_json=str(out_dir / "merged.json"),
+        merged_banner_md=str(out_dir / "merged.md"),
         trend_json=str(out_dir / "trend.json"),
         trend_md=str(out_dir / "trend.md"),
         brief_json=str(out_dir / "brief.json"),
@@ -88,13 +107,17 @@ def test_build_cycle_payload(monkeypatch) -> None:
     assert payload["summary"]["trimmed_rows"] == 0
     assert payload["summary"]["top_overlap_pair"] == "liquidation::spread_stress"
     assert payload["summary"]["suppression_candidate_count"] == 1
+    assert payload["summary"]["suppression_rule_count"] == 1
     assert payload["summary"]["noisy_lane_count"] == 1
+    assert payload["summary"]["merged_banner_mode"] == "merged"
     assert payload["run_summary"]["run_type"] == "run_research_event_watchboard_cycle"
     assert (out_dir / "watchboard.json").exists()
     assert (out_dir / "append.json").exists()
     assert (out_dir / "overlap.json").exists()
     assert (out_dir / "consolidation.json").exists()
+    assert (out_dir / "suppression.json").exists()
     assert (out_dir / "persistence.json").exists()
+    assert (out_dir / "merged.json").exists()
     assert (out_dir / "trend.json").exists()
     assert (out_dir / "brief.json").exists()
 
@@ -108,16 +131,18 @@ def test_main_writes_files(monkeypatch) -> None:
             "append_json": "reports/RESEARCH_EVENT_WATCHBOARD_SNAPSHOT_APPEND.json",
             "overlap_json": "reports/EVENT_LANE_OVERLAP.json",
             "consolidation_json": "reports/EVENT_LANE_CONSOLIDATION.json",
+            "suppression_json": "reports/EVENT_LANE_SUPPRESSION_POLICY.json",
             "persistence_json": "reports/EVENT_LANE_PERSISTENCE_POLICY.json",
+            "merged_banner_json": "reports/EVENT_MERGED_BANNER_POLICY.json",
             "trend_json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json",
             "brief_json": "reports/RESEARCH_EVENT_OPERATOR_BRIEF.json",
             "history_jsonl": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl",
-            "summary": {"top_lane": "liquidation", "top_action": "monitor_only", "history_rows": 1, "trend": "flat", "trimmed_rows": 0, "top_overlap_pair": "liquidation::spread_stress", "suppression_candidate_count": 1, "noisy_lane_count": 0},
+            "summary": {"top_lane": "liquidation", "top_action": "monitor_only", "history_rows": 1, "trend": "flat", "trimmed_rows": 0, "top_overlap_pair": "liquidation::spread_stress", "suppression_candidate_count": 1, "suppression_rule_count": 1, "noisy_lane_count": 0, "merged_banner_mode": "single"},
             "run_summary": {
                 "version": "v1",
                 "run_type": "run_research_event_watchboard_cycle",
                 "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"]},
-                "metrics": {"top_lane": "liquidation", "history_rows": 1, "trend": "flat", "trimmed_rows": 0, "top_overlap_pair": "liquidation::spread_stress", "suppression_candidate_count": 1, "noisy_lane_count": 0},
+                "metrics": {"top_lane": "liquidation", "history_rows": 1, "trend": "flat", "trimmed_rows": 0, "top_overlap_pair": "liquidation::spread_stress", "suppression_candidate_count": 1, "suppression_rule_count": 1, "noisy_lane_count": 0, "merged_banner_mode": "single"},
                 "artifacts": {"json": "reports/x.json", "md": "reports/x.md"},
             },
         },
