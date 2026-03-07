@@ -129,6 +129,99 @@ def _liq_regime_tag_impact(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     }
 
 
+def _event_lane_context_impact(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
+    if not rows:
+        return {"available": False, "rows_total": 0, "lane_count": 0, "by_lane": {}}
+
+    spreads = [abs(float(r.get("spread") or 0.0)) for r in rows if r.get("spread") is not None]
+    intensities = [max(0.0, float(r.get("trade_intensity") or 0.0)) for r in rows if r.get("trade_intensity") is not None]
+    abs_rets = [abs(float(r.get("ret_1") or 0.0)) for r in rows if r.get("ret_1") is not None]
+    abs_imbalances = [abs(float(r.get("imbalance") or 0.0)) for r in rows if r.get("imbalance") is not None]
+
+    spread_q90 = float(_quantile(spreads, 0.90) or 0.0)
+    spread_q75 = float(_quantile(spreads, 0.75) or 0.0)
+    spread_q50 = float(_quantile(spreads, 0.50) or 0.0)
+    intensity_q75 = float(_quantile(intensities, 0.75) or 0.0)
+    intensity_q60 = float(_quantile(intensities, 0.60) or 0.0)
+    intensity_q50 = float(_quantile(intensities, 0.50) or 0.0)
+    intensity_q40 = float(_quantile(intensities, 0.40) or 0.0)
+    intensity_q25 = float(_quantile(intensities, 0.25) or 0.0)
+    intensity_q10 = float(_quantile(intensities, 0.10) or 0.0)
+    abs_ret_q90 = float(_quantile(abs_rets, 0.90) or 0.0)
+    abs_ret_q75 = float(_quantile(abs_rets, 0.75) or 0.0)
+    abs_ret_q50 = float(_quantile(abs_rets, 0.50) or 0.0)
+    abs_imb_q90 = float(_quantile(abs_imbalances, 0.90) or 0.0)
+    abs_imb_q75 = float(_quantile(abs_imbalances, 0.75) or 0.0)
+
+    def _tagged_rows(pred) -> List[Dict[str, Any]]:
+        return [r for r in rows if pred(r)]
+
+    def _lane_summary(tagged: List[Dict[str, Any]]) -> Dict[str, Any]:
+        normal = [r for r in rows if r not in tagged]
+        tagged_sm = summarize(tagged)
+        normal_sm = summarize(normal)
+        return {
+            "tagged_n": int(tagged_sm.get("n", 0) or 0),
+            "tagged_rate": (float(tagged_sm.get("n", 0) or 0) / float(len(rows))) if rows else 0.0,
+            "tagged_avg_net": float(tagged_sm.get("avg_net", 0.0) or 0.0),
+            "tagged_p90_net": float(tagged_sm.get("p90_net", 0.0) or 0.0),
+            "normal_n": int(normal_sm.get("n", 0) or 0),
+            "normal_avg_net": float(normal_sm.get("avg_net", 0.0) or 0.0),
+            "normal_p90_net": float(normal_sm.get("p90_net", 0.0) or 0.0),
+            "delta_avg_net": float(tagged_sm.get("avg_net", 0.0) or 0.0) - float(normal_sm.get("avg_net", 0.0) or 0.0),
+            "delta_p90_net": float(tagged_sm.get("p90_net", 0.0) or 0.0) - float(normal_sm.get("p90_net", 0.0) or 0.0),
+        }
+
+    def _spread_stress(r: Dict[str, Any]) -> bool:
+        return float(r.get("spread") or 0.0) >= spread_q75 and float(r.get("trade_intensity") or 0.0) <= max(1.0, intensity_q25 * 1.5)
+
+    def _return_shock(r: Dict[str, Any]) -> bool:
+        return abs(float(r.get("ret_1") or 0.0)) >= abs_ret_q75 and float(r.get("spread") or 0.0) <= max(spread_q75, 0.0)
+
+    def _volatility_burst(r: Dict[str, Any]) -> bool:
+        return abs(float(r.get("ret_1") or 0.0)) >= abs_ret_q75 and float(r.get("trade_intensity") or 0.0) >= intensity_q40
+
+    def _volume_vacuum(r: Dict[str, Any]) -> bool:
+        return float(r.get("trade_intensity") or 0.0) <= intensity_q25 and float(r.get("spread") or 0.0) >= spread_q50 and abs(float(r.get("ret_1") or 0.0)) <= abs_ret_q50
+
+    def _book_proxy_pressure(r: Dict[str, Any]) -> bool:
+        return abs(float(r.get("imbalance") or 0.0)) >= abs_imb_q75 and float(r.get("trade_intensity") or 0.0) >= intensity_q50 and float(r.get("spread") or 0.0) >= spread_q50
+
+    lane_defs = {
+        "spread_stress": _spread_stress,
+        "return_shock": _return_shock,
+        "volatility_burst": _volatility_burst,
+        "volume_vacuum": _volume_vacuum,
+        "book_proxy_pressure": _book_proxy_pressure,
+    }
+
+    by_lane: Dict[str, Any] = {}
+    for lane, pred in lane_defs.items():
+        tagged = _tagged_rows(pred)
+        by_lane[lane] = _lane_summary(tagged)
+
+    ranked = sorted(
+        (
+            {
+                "lane": lane,
+                "tagged_n": int(section.get("tagged_n", 0) or 0),
+                "delta_avg_net": float(section.get("delta_avg_net", 0.0) or 0.0),
+                "delta_p90_net": float(section.get("delta_p90_net", 0.0) or 0.0),
+            }
+            for lane, section in by_lane.items()
+        ),
+        key=lambda item: (item["tagged_n"] > 0, item["delta_avg_net"], item["delta_p90_net"]),
+        reverse=True,
+    )
+    return {
+        "available": True,
+        "rows_total": int(len(rows)),
+        "lane_count": int(len(by_lane)),
+        "top_lane_by_delta_avg_net": ranked[0]["lane"] if ranked else "",
+        "by_lane": by_lane,
+    }
+
+
 def _relax_threshold(groups: List[Dict[str, Any]], start_min_n: int, floor: int, no_relax: bool) -> tuple[int, bool]:
     cur = int(start_min_n)
     if any(int(g.get("n", 0)) >= cur for g in groups):
@@ -253,6 +346,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     valid_liq = _liquidation_impact(valid_sel)
     disc_liq_tag = _liq_regime_tag_impact(disc_sel)
     valid_liq_tag = _liq_regime_tag_impact(valid_sel)
+    disc_event_ctx = _event_lane_context_impact(disc_sel)
+    valid_event_ctx = _event_lane_context_impact(valid_sel)
 
     print(
         f"validate_micro_edge_forward debug={path} total={n_total} discover={len(disc)} valid={len(valid)} "
@@ -346,6 +441,15 @@ def main(argv: Optional[List[str]] = None) -> int:
                 f"active_p90_net={_fmt_num(active.get('p90_net'))} inactive_n={int(inactive.get('n', 0) or 0)} "
                 f"inactive_avg_net={_fmt_num(inactive.get('avg_net'))} inactive_p90_net={_fmt_num(inactive.get('p90_net'))}"
             )
+    print("EVENT_LANE_CONTEXT")
+    for name, section in (("discovery", disc_event_ctx), ("validation", valid_event_ctx)):
+        top_lane = str(section.get("top_lane_by_delta_avg_net", ""))
+        by_lane = section.get("by_lane", {}) if isinstance(section, dict) else {}
+        top = by_lane.get(top_lane, {}) if isinstance(by_lane, dict) else {}
+        print(
+            f"{name}: top_lane={top_lane or '-'} tagged_n={int(top.get('tagged_n', 0) or 0)} "
+            f"delta_avg_net={_fmt_num(top.get('delta_avg_net'))} delta_p90_net={_fmt_num(top.get('delta_p90_net'))}"
+        )
 
     payload = {
         "debug": str(path),
@@ -378,6 +482,10 @@ def main(argv: Optional[List[str]] = None) -> int:
         "liquidation_regime_tag_impact": {
             "discovery": disc_liq_tag,
             "validation": valid_liq_tag,
+        },
+        "event_lane_context_impact": {
+            "discovery": disc_event_ctx,
+            "validation": valid_event_ctx,
         },
         "run_summary": build_run_summary(
             run_type="validate_micro_edge_forward",

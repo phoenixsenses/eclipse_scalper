@@ -58,6 +58,22 @@ def test_validate_micro_edge_forward_payload() -> None:
             "discovery": {"available": True, "tagged": {"n": 1, "avg_net": 0.0012, "p90_net": 0.0012}, "normal": {"n": 2, "avg_net": 0.0008, "p90_net": 0.0010}},
             "validation": {"available": True, "tagged": {"n": 0, "avg_net": 0.0, "p90_net": 0.0}, "normal": {"n": 2, "avg_net": 0.0005, "p90_net": 0.0010}},
         },
+        "event_lane_context_impact": {
+            "discovery": {
+                "available": True,
+                "rows_total": 3,
+                "lane_count": 5,
+                "top_lane_by_delta_avg_net": "spread_stress",
+                "by_lane": {"spread_stress": {"tagged_n": 1, "delta_avg_net": 0.0004, "delta_p90_net": 0.0002}},
+            },
+            "validation": {
+                "available": True,
+                "rows_total": 2,
+                "lane_count": 5,
+                "top_lane_by_delta_avg_net": "return_shock",
+                "by_lane": {"return_shock": {"tagged_n": 1, "delta_avg_net": -0.0002, "delta_p90_net": -0.0001}},
+            },
+        },
         "run_summary": {
             "version": "1",
             "run_type": "validate_micro_edge_forward",

@@ -1698,6 +1698,7 @@ def _validate_validate_micro_edge_forward(payload: Dict[str, Any]) -> List[str]:
         "collapse": dict,
         "liquidation_impact": dict,
         "liquidation_regime_tag_impact": dict,
+        "event_lane_context_impact": dict,
         "run_summary": dict,
     }
     for key, expected in required_top.items():
@@ -1723,6 +1724,16 @@ def _validate_validate_micro_edge_forward(payload: Dict[str, Any]) -> List[str]:
             errors.append("missing:collapse.flags")
         elif not isinstance(collapse["flags"], dict):
             errors.append("bad_type:collapse.flags")
+    event_ctx = payload.get("event_lane_context_impact")
+    if isinstance(event_ctx, dict):
+        for section_name in ("discovery", "validation"):
+            section = event_ctx.get(section_name)
+            if not isinstance(section, dict):
+                errors.append(f"bad_type:event_lane_context_impact.{section_name}")
+                continue
+            for key in ("available", "rows_total", "lane_count", "by_lane"):
+                if key not in section:
+                    errors.append(f"missing:event_lane_context_impact.{section_name}.{key}")
     errors.extend(_validate_run_summary(payload.get("run_summary")))
     return errors
 

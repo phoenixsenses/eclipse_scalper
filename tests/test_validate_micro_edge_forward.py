@@ -222,6 +222,9 @@ def test_forward_validation_writes_json_with_liquidation_impact():
         assert payload["liquidation_impact"]["validation"]["available"] is True
         assert payload["liquidation_regime_tag_impact"]["discovery"]["available"] is True
         assert "tagged" in payload["liquidation_regime_tag_impact"]["validation"]
+        assert payload["event_lane_context_impact"]["discovery"]["available"] is True
+        assert payload["event_lane_context_impact"]["validation"]["lane_count"] >= 5
+        assert "spread_stress" in payload["event_lane_context_impact"]["discovery"]["by_lane"]
     finally:
         path.unlink(missing_ok=True)
         out_json.unlink(missing_ok=True)
