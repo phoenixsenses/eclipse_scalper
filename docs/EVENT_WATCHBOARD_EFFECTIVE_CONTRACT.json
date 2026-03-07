@@ -1,0 +1,33 @@
+{
+  "purpose": "suppression_aware_research_event_watchboard",
+  "required": [
+    "summary.raw_top_lane",
+    "summary.effective_top_lane",
+    "summary.hidden_lane_count",
+    "summary.degraded_lane_count",
+    "summary.collapsed_lane_count",
+    "top_event.lane",
+    "top_event.level",
+    "top_event.recommended_action",
+    "top_event.headline",
+    "banner.headline",
+    "banner.recommended_action",
+    "lanes"
+  ],
+  "lane_required": [
+    "lane",
+    "level",
+    "freshness_status",
+    "recommended_action",
+    "headline",
+    "detail",
+    "priority_score",
+    "effective_display_mode",
+    "effective_priority_score"
+  ],
+  "runtime_rules": [
+    "Use effective_top_lane rather than raw_top_lane for primary UI emphasis.",
+    "Render degraded lanes in a lower-emphasis style instead of hiding them entirely.",
+    "Do not auto-wire the effective watchboard into execution logic."
+  ]
+}
