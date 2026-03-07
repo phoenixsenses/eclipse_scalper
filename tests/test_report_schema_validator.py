@@ -228,6 +228,25 @@ def test_validate_evaluate_event_conditioned_forward_grid_payload() -> None:
     assert rsv.validate_payload(payload, "evaluate_event_conditioned_forward_grid") == []
 
 
+def test_validate_summarize_event_conditioned_forward_grid_payload() -> None:
+    payload = {
+        "source_grid_json": "reports/grid.json",
+        "best_tradeoff_variant": {"variant": "block_only", "tradeoff_score": 0.74},
+        "best_quality_variant": {"variant": "primary_allow_block", "validation_delta_avg_net": 0.0012},
+        "recommendation": "test_tradeoff_variant_in_rank_pipeline",
+        "rows": [{"variant": "block_only"}],
+        "run_summary": {
+            "version": "1",
+            "run_type": "summarize_event_conditioned_forward_grid",
+            "inputs": {"grid_json": "reports/grid.json"},
+            "metrics": {"best_tradeoff_score": 0.74},
+            "artifacts": {"json": "reports/out.json"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "summarize_event_conditioned_forward_grid"
+    assert rsv.validate_payload(payload, "summarize_event_conditioned_forward_grid") == []
+
+
 def test_validate_canonical_payload() -> None:
     payload = {
         "status": "pass",

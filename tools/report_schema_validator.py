@@ -2712,6 +2712,26 @@ def _validate_evaluate_event_conditioned_forward_grid(payload: Dict[str, Any]) -
     return errors
 
 
+def _validate_summarize_event_conditioned_forward_grid(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source_grid_json": str,
+        "best_tradeoff_variant": dict,
+        "best_quality_variant": dict,
+        "recommendation": str,
+        "rows": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "micro_edge_smoke": _validate_micro_edge_record,
     "validate_canonical": _validate_validate_canonical,
@@ -2789,6 +2809,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "evaluate_event_conditioned_filter": _validate_evaluate_event_conditioned_filter,
     "evaluate_event_conditioned_forward": _validate_evaluate_event_conditioned_forward,
     "evaluate_event_conditioned_forward_grid": _validate_evaluate_event_conditioned_forward_grid,
+    "summarize_event_conditioned_forward_grid": _validate_summarize_event_conditioned_forward_grid,
 }
 
 
@@ -2953,6 +2974,8 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "evaluate_event_conditioned_forward"
     if {"source_debug_jsonl", "source_filter_json", "variant_count", "best_variant", "rows"}.issubset(keys):
         return "evaluate_event_conditioned_forward_grid"
+    if {"source_grid_json", "best_tradeoff_variant", "best_quality_variant", "recommendation", "rows"}.issubset(keys):
+        return "summarize_event_conditioned_forward_grid"
     return None
 
 
