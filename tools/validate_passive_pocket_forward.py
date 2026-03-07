@@ -23,8 +23,80 @@ from tools.micro_edge_lib import build_bucket_features
 from tools.micro_edge_signal_v2 import enrich_rows_with_v2
 from tools.micro_edge_smoke import _load_symbol_trades_and_marks
 from tools.run_summary import build_run_summary
+from tools.validate_micro_edge_forward import _event_lane_tagged_rows
 
 _ROWS_CACHE: Dict[Tuple[str, str, int, int, str], Tuple[List[Dict[str, Any]], Dict[str, Any], Dict[str, Any]]] = {}
+
+
+def _parse_lane_list(raw: str | List[str]) -> List[str]:
+    if isinstance(raw, list):
+        return [str(x).strip() for x in raw if str(x).strip()]
+    out: List[str] = []
+    for tok in str(raw or "").replace(";", ",").split(","):
+        t = str(tok).strip()
+        if t:
+            out.append(t)
+    return out
+
+
+def _apply_event_lane_filter(
+    rows: List[Dict[str, Any]],
+    *,
+    allow_lanes: str | List[str] = "",
+    block_lanes: str | List[str] = "",
+) -> tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    allow = set(_parse_lane_list(allow_lanes))
+    block = set(_parse_lane_list(block_lanes))
+    if not allow and not block:
+        return rows, {
+            "available": False,
+            "allow_lanes": [],
+            "block_lanes": [],
+            "rows_before": int(len(rows)),
+            "rows_after": int(len(rows)),
+            "kept_ratio": 1.0 if rows else 0.0,
+            "blocked_by_allow_only": 0,
+            "blocked_by_block_only": 0,
+            "lane_counts": {},
+        }
+
+    tagged_rows = _event_lane_tagged_rows(rows)
+    row_lanes: Dict[int, List[str]] = {}
+    lane_counts: Dict[str, int] = {}
+    for lane, lane_rows in tagged_rows.items():
+        lane_counts[str(lane)] = int(len(lane_rows))
+        for row in lane_rows:
+            row_lanes.setdefault(id(row), []).append(str(lane))
+
+    filtered: List[Dict[str, Any]] = []
+    blocked_by_allow_only = 0
+    blocked_by_block_only = 0
+    for row in rows:
+        lanes = row_lanes.get(id(row), [])
+        lane_set = set(lanes)
+        allow_ok = (not allow) or bool(lane_set & allow)
+        block_ok = not bool(lane_set & block)
+        if allow_ok and block_ok:
+            copied = dict(row)
+            copied["_event_lanes"] = list(lanes)
+            filtered.append(copied)
+            continue
+        if not allow_ok:
+            blocked_by_allow_only += 1
+        elif not block_ok:
+            blocked_by_block_only += 1
+
+    return filtered, {
+        "available": True,
+        "allow_lanes": sorted(allow),
+        "block_lanes": sorted(block),
+        "rows_before": int(len(rows)),
+        "rows_after": int(len(filtered)),
+        "kept_ratio": (float(len(filtered)) / float(len(rows))) if rows else 0.0,
+        "blocked_by_allow_only": int(blocked_by_allow_only),
+        "blocked_by_block_only": int(blocked_by_block_only),
+        "lane_counts": lane_counts,
+    }
 
 
 def _parse_seed_list(raw: str | List[int]) -> List[int]:
@@ -303,6 +375,8 @@ def validate_pocket_forward(
     vol_quantile_reject: float = 0.0,
     regime_bucket: str = "",
     regime_filter: str = "",
+    event_allow_lanes: str | List[str] = "",
+    event_block_lanes: str | List[str] = "",
     scratch_bps: float = 0.0,
     scratch_window_sec: int = 0,
     scratch_taker_fee_bps: float = 0.0,
@@ -334,6 +408,11 @@ def validate_pocket_forward(
             sym_profile = resolve_symbol_profile(load_passive_profiles(str(passive_profile_in or "")), str(symbol))
             regime_edges = compute_regime_bins(rows)
             _ROWS_CACHE[cache_key] = (rows, regime_edges, sym_profile)
+        rows, event_filter = _apply_event_lane_filter(
+            rows,
+            allow_lanes=event_allow_lanes,
+            block_lanes=event_block_lanes,
+        )
         if rows and "_regime_label" not in rows[0]:
             _add_regime_labels(rows)
         if len(rows) < 500:
@@ -344,6 +423,7 @@ def validate_pocket_forward(
                 "pass_rate": 0.0,
                 "per_combo": [],
                 "per_split": [],
+                "event_filter": event_filter,
                 "insufficient_data": True,
             }
         tox_cfg = sym_profile.get("toxicity_gate", {}) if isinstance(sym_profile.get("toxicity_gate", {}), dict) else {}
@@ -583,6 +663,7 @@ def validate_pocket_forward(
             "failure_attribution_median": failure_attribution_median,
             "regime_bucket": str(regime_bucket or ""),
             "per_regime": per_regime,
+            "event_filter": event_filter,
             "insufficient_data": False,
         }
         res["run_summary"] = build_run_summary(
@@ -604,12 +685,15 @@ def validate_pocket_forward(
                 "min_n_frac": float(min_n_frac),
                 "maker_fee_bps": float(maker_fee_bps),
                 "passive_adverse_mult": float(passive_adverse_mult),
+                "event_allow_lanes": _parse_lane_list(event_allow_lanes),
+                "event_block_lanes": _parse_lane_list(event_block_lanes),
             },
             metrics={
                 "rows_total": int(total),
                 "pass_count": int(passes),
                 "pass_rate": (passes / total) if total > 0 else 0.0,
                 "insufficient_fill_rate": res["insufficient_fill_rate"],
+                "event_filter_kept_ratio": float(event_filter.get("kept_ratio", 0.0) or 0.0),
             },
             artifacts={},
         )
@@ -654,6 +738,8 @@ def _args() -> argparse.Namespace:
     p.add_argument("--scratch-slippage-bps", type=float, default=0.0, help="Extra one-way slippage bps when scratch triggers.")
     p.add_argument("--exec-model", choices=["passive_realistic", "passive_then_taker"], default="passive_realistic")
     p.add_argument("--regime-bucket", default="", choices=["", "spread_q", "intensity_q", "vol_q"], help="Optional per-regime robustness breakdown.")
+    p.add_argument("--event-allow-lanes", default="", help="Comma-separated event lanes; keep only rows tagged by any of these lanes.")
+    p.add_argument("--event-block-lanes", default="", help="Comma-separated event lanes; drop rows tagged by any of these lanes.")
     return p.parse_args()
 
 
@@ -687,6 +773,8 @@ def main() -> int:
         max_volatility_extreme=float(args.max_volatility_extreme),
         vol_quantile_reject=float(args.vol_quantile_reject),
         regime_bucket=str(args.regime_bucket),
+        event_allow_lanes=str(args.event_allow_lanes),
+        event_block_lanes=str(args.event_block_lanes),
         scratch_bps=float(args.scratch_bps),
         scratch_window_sec=int(args.scratch_window_sec),
         scratch_taker_fee_bps=float(args.scratch_taker_fee_bps),
@@ -723,6 +811,7 @@ def main() -> int:
         f"seeds={_parse_seed_list(args.seeds)} splits={len(res.get('per_split', []))} min_n={args.min_n} min_n_frac={args.min_n_frac} maker_fee_bps={args.maker_fee_bps} passive_adverse_mult={args.passive_adverse_mult} v2_min_score={args.v2_min_score} v2_min_persistence={args.v2_min_persistence} v2_min_confidence={args.v2_min_confidence}",
         f"effective_min_n_formula=max(min_n={int(args.min_n)}, ceil(min_n_frac*val_rows)=ceil({float(args.min_n_frac)}*val_rows)); median_frac_component={int(res.get('frac_min_component_median', 0))} median_effective_min_n={int(res.get('effective_min_n_median', 0))}",
         f"gate: min_intensity_strong={args.min_intensity_strong} min_imbalance_strong={args.min_imbalance_strong} max_spread_tight={args.max_spread_tight} max_volatility_extreme={args.max_volatility_extreme} vol_quantile_reject={args.vol_quantile_reject}",
+        f"event_filter: allow={_parse_lane_list(args.event_allow_lanes)} block={_parse_lane_list(args.event_block_lanes)} kept_ratio={float((res.get('event_filter') or {}).get('kept_ratio', 0.0)):.2%}",
         f"scratch: scratch_bps={args.scratch_bps} scratch_window_sec={args.scratch_window_sec} scratch_taker_fee_bps={args.scratch_taker_fee_bps} scratch_slippage_bps={args.scratch_slippage_bps} exec_model={args.exec_model}",
         f"regime_bucket={args.regime_bucket or 'none'}",
         "",

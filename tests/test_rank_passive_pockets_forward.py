@@ -1170,6 +1170,81 @@ def test_failure_reason_top_enum(monkeypatch) -> None:
     assert reason in {"gate_reject", "no_fills", "adverse_dominates", "fees_dominate", "mixed"}
 
 
+def test_event_block_v1_passes_event_block_lanes(monkeypatch) -> None:
+    monkeypatch.setattr(
+        rp,
+        "_parse_candidates_from_md",
+        lambda path, debug=False: (
+            [{"symbol": "ETHUSDT", "horizon_sec": 60, "min_imbalance": 0.5, "min_trade_intensity": 2500.0, "max_spread": 0.00025}],
+            {"total_rows_seen": 1, "table_rows_seen": 1, "rows_with_pass_yes": 1, "candidates_parsed": 1, "candidates_unique": 1, "rows_skipped_missing_fields": 0},
+        ),
+    )
+    seen: list[list[str]] = []
+
+    def _fake_validate(**kwargs):
+        seen.append(list(kwargs.get("event_block_lanes", "").split(",")))
+        rows = [
+            {
+                "seed": 11,
+                "split": 1,
+                "train_n": 100,
+                "val_n_rows": 100,
+                "effective_min_n": 20,
+                "filled_n": 30,
+                "filled_avg_net": 0.00005,
+                "filled_p90_net": 0.00010,
+                "filled_win_rate": 0.5,
+                "attempt_fill_rate": 0.5,
+                "net_per_attempt": 0.000025,
+                "val_attempts": 60,
+                "val_filled": 30,
+                "attempts_per_min": 20.0,
+                "pass": True,
+            }
+        ]
+        return {
+            "rows_total": 1,
+            "pass_count": 1,
+            "pass_rate": 1.0,
+            "insufficient_fill_rate": 0.0,
+            "per_combo": rows,
+            "failure_attribution_median": {},
+            "event_filter": {"allow_lanes": [], "block_lanes": ["book_proxy_pressure", "volatility_burst"], "kept_ratio": 0.75},
+        }
+
+    monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "x",
+            "--candidates-md",
+            "reports/dummy.md",
+            "--db",
+            "data/microstructure.db",
+            "--maker-fee-bps-grid",
+            "1.0",
+            "--passive-adverse-mult-grid",
+            "1.0",
+            "--mitigation-profile",
+            "event_block_v1",
+            "--min-attempt-fill-rate",
+            "0.0",
+            "--out-md",
+            "reports/test_rank_event_block_v1.md",
+            "--out-json",
+            "reports/test_rank_event_block_v1.json",
+        ],
+    )
+    rc = rp.main()
+    assert rc == 0
+    assert seen
+    assert any("book_proxy_pressure" in row and "volatility_burst" in row for row in seen)
+    data = json.loads(Path("reports/test_rank_event_block_v1.json").read_text(encoding="utf-8"))
+    assert data["gate_config"]["event_block_lanes"] == ["book_proxy_pressure", "volatility_burst"]
+    assert data["ranking"][0]["event_filter_kept_ratio"] == 0.75
+
+
 def test_attribution_fields_merged_into_ranking_row(monkeypatch) -> None:
     monkeypatch.setattr(
         rp,

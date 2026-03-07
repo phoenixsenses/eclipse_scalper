@@ -247,6 +247,51 @@ def test_validate_summarize_event_conditioned_forward_grid_payload() -> None:
     assert rsv.validate_payload(payload, "summarize_event_conditioned_forward_grid") == []
 
 
+def test_validate_summarize_rank_event_filter_payload() -> None:
+    payload = {
+        "source_baseline_json": "reports/EVENT_BLOCK_BASELINE_REAL.json",
+        "source_filtered_json": "reports/EVENT_BLOCK_V1_REAL.json",
+        "baseline_top": {"symbol": "ETHUSDT", "rule": "micro_edge_v3_passive_alpha", "npa_core": -0.0002, "score_raw_core": -0.0003, "attempt_fill_rate": 0.65},
+        "filtered_top": {"symbol": "ETHUSDT", "rule": "micro_edge_v3_passive_alpha", "npa_core": -0.0001, "score_raw_core": -0.0001, "attempt_fill_rate": 0.60, "event_block_lanes": ["book_proxy_pressure", "volatility_burst"], "event_filter_kept_ratio": 0.74},
+        "delta": {"npa_core": 0.0001, "score_raw_core": 0.0002, "attempt_fill_rate": -0.05},
+        "recommendation": "test_event_block_v1_in_rank_pipeline",
+        "run_summary": {
+            "version": "v1",
+            "run_type": "summarize_rank_event_filter",
+            "inputs": {"baseline_json": "reports/EVENT_BLOCK_BASELINE_REAL.json", "filtered_json": "reports/EVENT_BLOCK_V1_REAL.json"},
+            "metrics": {"delta_npa_core": 0.0001, "delta_score_raw_core": 0.0002, "filtered_kept_ratio": 0.74},
+            "artifacts": {"json": "reports/RANK_EVENT_FILTER_SUMMARY.json"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "summarize_rank_event_filter"
+    assert rsv.validate_payload(payload, "summarize_rank_event_filter") == []
+
+
+def test_validate_summarize_rank_event_filter_set_payload() -> None:
+    payload = {
+        "source_baseline_json": "reports/BASE.json",
+        "source_filtered_json": "reports/FILTERED.json",
+        "common_count": 2,
+        "improved_count": 1,
+        "degraded_count": 1,
+        "median_delta_npa_core": 0.0001,
+        "median_delta_score_raw_core": 0.0002,
+        "median_filtered_kept_ratio": 0.7,
+        "best_tradeoff_row": {"symbol": "ETHUSDT", "rule": "r1", "delta_npa_core": 0.0001, "filtered_kept_ratio": 0.7},
+        "recommendation": "mixed_candidate_set_result",
+        "rows": [{"symbol": "ETHUSDT", "rule": "r1", "delta_npa_core": 0.0001, "delta_score_raw_core": 0.0002, "delta_attempt_fill_rate": -0.02, "filtered_kept_ratio": 0.7}],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "summarize_rank_event_filter_set",
+            "inputs": {"baseline_json": "reports/BASE.json", "filtered_json": "reports/FILTERED.json"},
+            "metrics": {"common_count": 2, "improved_count": 1, "median_delta_npa_core": 0.0001},
+            "artifacts": {"json": "reports/RANK_EVENT_FILTER_SET_SUMMARY.json"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "summarize_rank_event_filter_set"
+    assert rsv.validate_payload(payload, "summarize_rank_event_filter_set") == []
+
+
 def test_validate_canonical_payload() -> None:
     payload = {
         "status": "pass",

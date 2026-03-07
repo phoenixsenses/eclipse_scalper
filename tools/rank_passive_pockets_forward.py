@@ -521,7 +521,7 @@ def _args() -> argparse.Namespace:
     p.add_argument(
         "--mitigation-profile",
         default="baseline",
-        choices=["baseline", "anti_adverse_v1", "anti_adverse_v2", "anti_adverse_v3", "anti_adverse_v4", "anti_adverse_v5", "anti_adverse_v6"],
+        choices=["baseline", "anti_adverse_v1", "anti_adverse_v2", "anti_adverse_v3", "anti_adverse_v4", "anti_adverse_v5", "anti_adverse_v6", "event_block_v1"],
         help=(
             "Signal filter profile to reduce adverse selection. "
             "'baseline' = no change. "
@@ -531,7 +531,8 @@ def _args() -> argparse.Namespace:
             "'anti_adverse_v3' = quantile-based volatility-extreme guard. "
             "'anti_adverse_v4' = anti_adverse_v3 + conservative scratch/escape defaults. "
             "'anti_adverse_v5' = anti_adverse_v4 + extra passive wait for event-driven fills. "
-            "'anti_adverse_v6' = anti_adverse_v5 + taker fallback after passive miss."
+            "'anti_adverse_v6' = anti_adverse_v5 + taker fallback after passive miss. "
+            "'event_block_v1' = block negative event lanes book_proxy_pressure and volatility_burst."
         ),
     )
     return p.parse_args()
@@ -695,6 +696,10 @@ def main() -> int:
                 "passive_max_wait_buckets": (int(args.passive_max_wait_buckets) if int(args.passive_max_wait_buckets) > 0 else 2),
                 "exec_model": "passive_then_taker",
             }
+        if mitigation_profile == "event_block_v1":
+            return {
+                "event_block_lanes": "book_proxy_pressure,volatility_burst",
+            }
         return {}  # baseline: honour the args values directly
 
     scored: List[Dict[str, Any]] = []
@@ -734,6 +739,8 @@ def main() -> int:
                             max_spread_tight=float(profile_overrides.get("max_spread_tight", args.max_spread_tight)),
                             max_volatility_extreme=float(profile_overrides.get("max_volatility_extreme", args.max_volatility_extreme if args.max_volatility_extreme is not None else 0.0)),
                             vol_quantile_reject=float(profile_overrides.get("vol_quantile_reject", 0.0)),
+                            event_allow_lanes=str(profile_overrides.get("event_allow_lanes", "")),
+                            event_block_lanes=str(profile_overrides.get("event_block_lanes", "")),
                             scratch_bps=float(profile_overrides.get("scratch_bps", args.scratch_bps)),
                             scratch_window_sec=int(profile_overrides.get("scratch_window_sec", args.scratch_window_sec)),
                             scratch_taker_fee_bps=float(profile_overrides.get("scratch_taker_fee_bps", args.scratch_taker_fee_bps)),
@@ -747,6 +754,7 @@ def main() -> int:
                         agg["pass_count"] = int(res.get("pass_count", 0))
                         agg["pass_rate_raw"] = float(res.get("pass_rate", 0.0))
                         agg["insufficient_fill_rate"] = float(res.get("insufficient_fill_rate", 0.0))
+                        agg["event_filter"] = dict(res.get("event_filter") or {})
                         # Prefer explicit validator median attribution when present.
                         for k in [
                             "n_events_total",
@@ -883,6 +891,9 @@ def main() -> int:
                     "delta_npa_stress": stress_npa - base_npa_stress,
                     "delta_pass_rate_core": pass_rate_core - base_pass_rate_core,
                     "delta_pass_rate_stress": pass_rate_stress - base_pass_rate_stress,
+                    "event_allow_lanes": list((core_eval.get("event_filter") or {}).get("allow_lanes", [])),
+                    "event_block_lanes": list((core_eval.get("event_filter") or {}).get("block_lanes", [])),
+                    "event_filter_kept_ratio": float((core_eval.get("event_filter") or {}).get("kept_ratio", 1.0) or 0.0),
                     "failure_reason_top": failure_reason_top,
                     "n_events_total": core_eval.get("n_events_total"),
                     "n_rejected_attempt_gate": core_eval.get("n_rejected_attempt_gate"),
@@ -1049,6 +1060,8 @@ def main() -> int:
             "scratch_slippage_bps": float(eff_scratch_slippage_bps),
             "passive_max_wait_buckets": int(eff_passive_max_wait_buckets),
             "horizon_sec_override": int(args.horizon_sec),
+            "event_allow_lanes": [],
+            "event_block_lanes": (["book_proxy_pressure", "volatility_burst"] if mitigation_profile == "event_block_v1" else []),
         },
         "statistical": {
             "bootstrap_ci": bool(args.bootstrap_ci),

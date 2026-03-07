@@ -2732,6 +2732,53 @@ def _validate_summarize_event_conditioned_forward_grid(payload: Dict[str, Any]) 
     return errors
 
 
+def _validate_summarize_rank_event_filter(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source_baseline_json": str,
+        "source_filtered_json": str,
+        "baseline_top": dict,
+        "filtered_top": dict,
+        "delta": dict,
+        "recommendation": str,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_summarize_rank_event_filter_set(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source_baseline_json": str,
+        "source_filtered_json": str,
+        "common_count": int,
+        "improved_count": int,
+        "degraded_count": int,
+        "median_delta_npa_core": (int, float),
+        "median_delta_score_raw_core": (int, float),
+        "median_filtered_kept_ratio": (int, float),
+        "best_tradeoff_row": dict,
+        "recommendation": str,
+        "rows": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "micro_edge_smoke": _validate_micro_edge_record,
     "validate_canonical": _validate_validate_canonical,
@@ -2810,6 +2857,8 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "evaluate_event_conditioned_forward": _validate_evaluate_event_conditioned_forward,
     "evaluate_event_conditioned_forward_grid": _validate_evaluate_event_conditioned_forward_grid,
     "summarize_event_conditioned_forward_grid": _validate_summarize_event_conditioned_forward_grid,
+    "summarize_rank_event_filter": _validate_summarize_rank_event_filter,
+    "summarize_rank_event_filter_set": _validate_summarize_rank_event_filter_set,
 }
 
 
@@ -2976,6 +3025,10 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "evaluate_event_conditioned_forward_grid"
     if {"source_grid_json", "best_tradeoff_variant", "best_quality_variant", "recommendation", "rows"}.issubset(keys):
         return "summarize_event_conditioned_forward_grid"
+    if {"source_baseline_json", "source_filtered_json", "baseline_top", "filtered_top", "delta", "recommendation"}.issubset(keys):
+        return "summarize_rank_event_filter"
+    if {"source_baseline_json", "source_filtered_json", "common_count", "improved_count", "degraded_count", "best_tradeoff_row", "recommendation", "rows"}.issubset(keys):
+        return "summarize_rank_event_filter_set"
     return None
 
 
