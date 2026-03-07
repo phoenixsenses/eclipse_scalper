@@ -2111,6 +2111,44 @@ def test_validate_event_lane_suppression_policy_payload() -> None:
     assert rsv.validate_payload(payload, "event_lane_suppression_policy") == []
 
 
+def test_validate_event_watchboard_effective_payload() -> None:
+    payload = {
+        "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
+        "suppression_json": "reports/EVENT_LANE_SUPPRESSION_POLICY.json",
+        "summary": {
+            "raw_top_lane": "spread_stress",
+            "effective_top_lane": "spread_stress",
+            "hidden_lane_count": 1,
+            "degraded_lane_count": 1,
+            "collapsed_lane_count": 0,
+        },
+        "effective_top_event": {
+            "lane": "spread_stress",
+            "level": "severe",
+            "recommended_action": "reduce_passive_aggression",
+            "effective_display_mode": "keep",
+        },
+        "lanes": [
+            {
+                "lane": "spread_stress",
+                "level": "severe",
+                "recommended_action": "reduce_passive_aggression",
+                "effective_display_mode": "keep",
+                "effective_priority_score": 225.0,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "event_watchboard_effective",
+            "inputs": {"watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json", "suppression_json": "reports/EVENT_LANE_SUPPRESSION_POLICY.json"},
+            "metrics": {"raw_top_lane": "spread_stress", "effective_top_lane": "spread_stress"},
+            "artifacts": {"json": "reports/EVENT_WATCHBOARD_EFFECTIVE.json", "md": "reports/EVENT_WATCHBOARD_EFFECTIVE.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "event_watchboard_effective"
+    assert rsv.validate_payload(payload, "event_watchboard_effective") == []
+
+
 def test_validate_research_event_operator_brief_payload() -> None:
     payload = {
         "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",

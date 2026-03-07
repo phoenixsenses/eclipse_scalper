@@ -54,6 +54,7 @@ KEY_MODULES = [
     "tools.event_lane_overlap",
     "tools.event_lane_consolidation",
     "tools.event_lane_suppression_policy",
+    "tools.event_watchboard_effective",
     "tools.run_research_event_watchboard_cycle",
     "tools.research_event_operator_brief",
 ]
@@ -103,6 +104,7 @@ KEY_FILES = [
     "tools/event_lane_overlap.py",
     "tools/event_lane_consolidation.py",
     "tools/event_lane_suppression_policy.py",
+    "tools/event_watchboard_effective.py",
     "tools/run_research_event_watchboard_cycle.py",
     "tools/research_event_operator_brief.py",
 ]

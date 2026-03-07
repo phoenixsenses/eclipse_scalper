@@ -2336,6 +2336,45 @@ def _validate_event_lane_suppression_policy(payload: Dict[str, Any]) -> List[str
     return errors
 
 
+def _validate_event_watchboard_effective(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "watchboard_json": str,
+        "suppression_json": str,
+        "summary": dict,
+        "effective_top_event": dict,
+        "lanes": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("raw_top_lane", "effective_top_lane", "hidden_lane_count", "degraded_lane_count", "collapsed_lane_count"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    effective_top_event = payload.get("effective_top_event")
+    if isinstance(effective_top_event, dict):
+        for key in ("lane", "level", "recommended_action", "effective_display_mode"):
+            if key not in effective_top_event:
+                errors.append(f"missing:effective_top_event.{key}")
+    lanes = payload.get("lanes")
+    if isinstance(lanes, list):
+        for idx, row in enumerate(lanes):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:lanes[{idx}]")
+                continue
+            for key in ("lane", "level", "recommended_action", "effective_display_mode", "effective_priority_score"):
+                if key not in row:
+                    errors.append(f"missing:lanes[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "micro_edge_smoke": _validate_micro_edge_record,
     "validate_canonical": _validate_validate_canonical,
@@ -2406,6 +2445,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "event_lane_overlap": _validate_event_lane_overlap,
     "event_lane_consolidation": _validate_event_lane_consolidation,
     "event_lane_suppression_policy": _validate_event_lane_suppression_policy,
+    "event_watchboard_effective": _validate_event_watchboard_effective,
 }
 
 
@@ -2471,6 +2511,8 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "event_lane_consolidation"
     if {"watchboard_json", "consolidation_json", "summary", "rules"}.issubset(keys):
         return "event_lane_suppression_policy"
+    if {"watchboard_json", "suppression_json", "summary", "effective_top_event", "lanes"}.issubset(keys):
+        return "event_watchboard_effective"
     if {"watchboard_json", "append_json", "trend_json", "brief_json", "history_jsonl", "summary"}.issubset(keys):
         return "run_research_event_watchboard_cycle"
     if {"watchboard_json", "trend_json", "summary", "brief"}.issubset(keys):
