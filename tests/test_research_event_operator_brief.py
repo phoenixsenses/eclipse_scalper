@@ -18,6 +18,7 @@ def test_build_operator_brief_payload() -> None:
     trend_path = out_dir / "trend.json"
     overlap_path = out_dir / "overlap.json"
     consolidation_path = out_dir / "consolidation.json"
+    persistence_path = out_dir / "persistence.json"
     watchboard_path.write_text(
         json.dumps(
             {
@@ -66,12 +67,30 @@ def test_build_operator_brief_payload() -> None:
         ),
         encoding="utf-8",
     )
+    persistence_path.write_text(
+        json.dumps(
+            {
+                "summary": {"noisy_lane_count": 1, "primary_noisy_lane": "liquidation"},
+                "lanes": [
+                    {
+                        "lane": "liquidation",
+                        "is_noisy": True,
+                        "recommended_min_persist_snapshots": 2,
+                        "recommended_cooldown_snapshots": 1,
+                        "recommendation": "stabilize_banner",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
 
     payload = reob.build_operator_brief_payload(
         watchboard_json=str(watchboard_path),
         trend_json=str(trend_path),
         overlap_json=str(overlap_path),
         consolidation_json=str(consolidation_path),
+        persistence_json=str(persistence_path),
         out_json=str(out_dir / "out.json"),
         out_md=str(out_dir / "out.md"),
     )
@@ -82,9 +101,12 @@ def test_build_operator_brief_payload() -> None:
     assert payload["summary"]["strongest_overlap_pair"] == "liquidation::spread_stress"
     assert payload["summary"]["suppression_candidate_count"] == 1
     assert payload["summary"]["primary_suppression_lane"] == "spread_stress"
+    assert payload["summary"]["noisy_lane_count"] == 1
+    assert payload["summary"]["primary_noisy_lane"] == "liquidation"
     assert payload["brief"]["strongest_delta"]["trend"] == "rising_fast"
     assert payload["brief"]["strongest_overlap"]["jaccard"] == 0.75
     assert payload["brief"]["primary_suppression"]["secondary_lane"] == "spread_stress"
+    assert payload["brief"]["primary_persistence"]["lane"] == "liquidation"
     assert payload["run_summary"]["run_type"] == "research_event_operator_brief"
 
 
@@ -96,6 +118,7 @@ def test_build_operator_brief_payload_accepts_watchboard_level_field() -> None:
     trend_path = out_dir / "trend.json"
     overlap_path = out_dir / "overlap.json"
     consolidation_path = out_dir / "consolidation.json"
+    persistence_path = out_dir / "persistence.json"
     watchboard_path.write_text(
         json.dumps(
             {
@@ -109,11 +132,13 @@ def test_build_operator_brief_payload_accepts_watchboard_level_field() -> None:
     trend_path.write_text(json.dumps({"summary": {"trend": "flat"}, "lane_deltas": []}), encoding="utf-8")
     overlap_path.write_text(json.dumps({"summary": {"top_overlap_pair": ""}, "strongest_overlaps": []}), encoding="utf-8")
     consolidation_path.write_text(json.dumps({"decisions": []}), encoding="utf-8")
+    persistence_path.write_text(json.dumps({"summary": {"noisy_lane_count": 0, "primary_noisy_lane": ""}, "lanes": []}), encoding="utf-8")
     payload = reob.build_operator_brief_payload(
         watchboard_json=str(watchboard_path),
         trend_json=str(trend_path),
         overlap_json=str(overlap_path),
         consolidation_json=str(consolidation_path),
+        persistence_json=str(persistence_path),
         out_json=str(out_dir / "out.json"),
         out_md=str(out_dir / "out.md"),
     )
@@ -129,10 +154,12 @@ def test_main_writes_files(monkeypatch) -> None:
     trend_path = out_dir / "trend.json"
     overlap_path = out_dir / "overlap.json"
     consolidation_path = out_dir / "consolidation.json"
+    persistence_path = out_dir / "persistence.json"
     watchboard_path.write_text(json.dumps({"summary": {"top_lane": "liquidation"}, "top_event": {}, "lanes": []}), encoding="utf-8")
     trend_path.write_text(json.dumps({"summary": {"trend": "flat"}, "lane_deltas": []}), encoding="utf-8")
     overlap_path.write_text(json.dumps({"summary": {"top_overlap_pair": ""}, "strongest_overlaps": []}), encoding="utf-8")
     consolidation_path.write_text(json.dumps({"decisions": []}), encoding="utf-8")
+    persistence_path.write_text(json.dumps({"summary": {"noisy_lane_count": 0, "primary_noisy_lane": ""}, "lanes": []}), encoding="utf-8")
 
     out_json = out_dir / "brief.json"
     out_md = out_dir / "brief.md"
@@ -149,6 +176,8 @@ def test_main_writes_files(monkeypatch) -> None:
             str(overlap_path),
             "--consolidation-json",
             str(consolidation_path),
+            "--persistence-json",
+            str(persistence_path),
             "--out-json",
             str(out_json),
             "--out-md",

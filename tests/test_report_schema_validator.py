@@ -370,6 +370,45 @@ def test_validate_liquidation_watchlist_payload() -> None:
     assert rsv.validate_payload(payload, "liquidation_watchlist") == []
 
 
+def test_validate_event_lane_persistence_policy_payload() -> None:
+    payload = {
+        "history_path": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl",
+        "last_n": 24,
+        "summary": {
+            "history_path": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl",
+            "available_rows": 10,
+            "used_rows": 8,
+            "sequence_length": 8,
+            "latest_top_lane": "spread_stress",
+            "flip_count": 4,
+            "noisy_lane_count": 1,
+            "primary_noisy_lane": "spread_stress",
+        },
+        "lanes": [
+            {
+                "lane": "spread_stress",
+                "top_hits": 4,
+                "hit_rate": 0.5,
+                "longest_streak": 1,
+                "transitions_involved": 4,
+                "is_noisy": True,
+                "recommended_min_persist_snapshots": 2,
+                "recommended_cooldown_snapshots": 1,
+                "recommendation": "stabilize_banner",
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "event_lane_persistence_policy",
+            "inputs": {"history_path": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl", "last_n": 24},
+            "metrics": {"used_rows": 8, "flip_count": 4, "noisy_lane_count": 1, "primary_noisy_lane": "spread_stress"},
+            "artifacts": {"json": "reports/EVENT_LANE_PERSISTENCE_POLICY.json", "md": "reports/EVENT_LANE_PERSISTENCE_POLICY.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "event_lane_persistence_policy"
+    assert rsv.validate_payload(payload, "event_lane_persistence_policy") == []
+
+
 def test_validate_spread_stress_alerts_payload() -> None:
     payload = {
         "symbol": "ETHUSDT",
@@ -2115,18 +2154,24 @@ def test_validate_event_watchboard_effective_payload() -> None:
     payload = {
         "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
         "suppression_json": "reports/EVENT_LANE_SUPPRESSION_POLICY.json",
+        "persistence_json": "reports/EVENT_LANE_PERSISTENCE_POLICY.json",
         "summary": {
             "raw_top_lane": "spread_stress",
             "effective_top_lane": "spread_stress",
             "hidden_lane_count": 1,
             "degraded_lane_count": 1,
             "collapsed_lane_count": 0,
+            "noisy_lane_count": 1,
+            "primary_noisy_lane": "spread_stress",
         },
         "effective_top_event": {
             "lane": "spread_stress",
             "level": "severe",
             "recommended_action": "reduce_passive_aggression",
             "effective_display_mode": "keep",
+            "persistence_recommendation": "stabilize_banner",
+            "recommended_min_persist_snapshots": 2,
+            "recommended_cooldown_snapshots": 1,
         },
         "lanes": [
             {
@@ -2135,12 +2180,20 @@ def test_validate_event_watchboard_effective_payload() -> None:
                 "recommended_action": "reduce_passive_aggression",
                 "effective_display_mode": "keep",
                 "effective_priority_score": 225.0,
+                "persistence_recommendation": "stabilize_banner",
+                "recommended_min_persist_snapshots": 2,
+                "recommended_cooldown_snapshots": 1,
+                "is_noisy": True,
             }
         ],
         "run_summary": {
             "version": "v1",
             "run_type": "event_watchboard_effective",
-            "inputs": {"watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json", "suppression_json": "reports/EVENT_LANE_SUPPRESSION_POLICY.json"},
+            "inputs": {
+                "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
+                "suppression_json": "reports/EVENT_LANE_SUPPRESSION_POLICY.json",
+                "persistence_json": "reports/EVENT_LANE_PERSISTENCE_POLICY.json",
+            },
             "metrics": {"raw_top_lane": "spread_stress", "effective_top_lane": "spread_stress"},
             "artifacts": {"json": "reports/EVENT_WATCHBOARD_EFFECTIVE.json", "md": "reports/EVENT_WATCHBOARD_EFFECTIVE.md"},
         },

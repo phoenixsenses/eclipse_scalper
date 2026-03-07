@@ -2341,6 +2341,7 @@ def _validate_event_watchboard_effective(payload: Dict[str, Any]) -> List[str]:
     required_top = {
         "watchboard_json": str,
         "suppression_json": str,
+        "persistence_json": str,
         "summary": dict,
         "effective_top_event": dict,
         "lanes": list,
@@ -2354,12 +2355,28 @@ def _validate_event_watchboard_effective(payload: Dict[str, Any]) -> List[str]:
             errors.append(f"bad_type:{key}")
     summary = payload.get("summary")
     if isinstance(summary, dict):
-        for key in ("raw_top_lane", "effective_top_lane", "hidden_lane_count", "degraded_lane_count", "collapsed_lane_count"):
+        for key in (
+            "raw_top_lane",
+            "effective_top_lane",
+            "hidden_lane_count",
+            "degraded_lane_count",
+            "collapsed_lane_count",
+            "noisy_lane_count",
+            "primary_noisy_lane",
+        ):
             if key not in summary:
                 errors.append(f"missing:summary.{key}")
     effective_top_event = payload.get("effective_top_event")
     if isinstance(effective_top_event, dict):
-        for key in ("lane", "level", "recommended_action", "effective_display_mode"):
+        for key in (
+            "lane",
+            "level",
+            "recommended_action",
+            "effective_display_mode",
+            "persistence_recommendation",
+            "recommended_min_persist_snapshots",
+            "recommended_cooldown_snapshots",
+        ):
             if key not in effective_top_event:
                 errors.append(f"missing:effective_top_event.{key}")
     lanes = payload.get("lanes")
@@ -2368,9 +2385,75 @@ def _validate_event_watchboard_effective(payload: Dict[str, Any]) -> List[str]:
             if not isinstance(row, dict):
                 errors.append(f"bad_type:lanes[{idx}]")
                 continue
-            for key in ("lane", "level", "recommended_action", "effective_display_mode", "effective_priority_score"):
+            for key in (
+                "lane",
+                "level",
+                "recommended_action",
+                "effective_display_mode",
+                "effective_priority_score",
+                "persistence_recommendation",
+                "recommended_min_persist_snapshots",
+                "recommended_cooldown_snapshots",
+                "is_noisy",
+            ):
                 if key not in row:
                     errors.append(f"missing:lanes[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_event_lane_persistence_policy(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "history_path": str,
+        "last_n": int,
+        "summary": dict,
+        "lanes": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key, expected in {
+            "history_path": str,
+            "available_rows": int,
+            "used_rows": int,
+            "sequence_length": int,
+            "latest_top_lane": str,
+            "flip_count": int,
+            "noisy_lane_count": int,
+            "primary_noisy_lane": str,
+        }.items():
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+            elif not isinstance(summary[key], expected):
+                errors.append(f"bad_type:summary.{key}")
+    lanes = payload.get("lanes")
+    if isinstance(lanes, list):
+        for idx, row in enumerate(lanes):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:lanes[{idx}]")
+                continue
+            for key, expected in {
+                "lane": str,
+                "top_hits": int,
+                "hit_rate": (int, float),
+                "longest_streak": int,
+                "transitions_involved": int,
+                "is_noisy": bool,
+                "recommended_min_persist_snapshots": int,
+                "recommended_cooldown_snapshots": int,
+                "recommendation": str,
+            }.items():
+                if key not in row:
+                    errors.append(f"missing:lanes[{idx}].{key}")
+                elif not isinstance(row[key], expected):
+                    errors.append(f"bad_type:lanes[{idx}].{key}")
     errors.extend(_validate_run_summary(payload.get("run_summary")))
     return errors
 
@@ -2446,6 +2529,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "event_lane_consolidation": _validate_event_lane_consolidation,
     "event_lane_suppression_policy": _validate_event_lane_suppression_policy,
     "event_watchboard_effective": _validate_event_watchboard_effective,
+    "event_lane_persistence_policy": _validate_event_lane_persistence_policy,
 }
 
 
@@ -2513,6 +2597,10 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "event_lane_suppression_policy"
     if {"watchboard_json", "suppression_json", "summary", "effective_top_event", "lanes"}.issubset(keys):
         return "event_watchboard_effective"
+    if {"history_path", "last_n", "summary", "lanes"}.issubset(keys) and "effective_top_event" not in keys:
+        summary = payload.get("summary") or {}
+        if "flip_count" in summary and "noisy_lane_count" in summary:
+            return "event_lane_persistence_policy"
     if {"watchboard_json", "append_json", "trend_json", "brief_json", "history_jsonl", "summary"}.issubset(keys):
         return "run_research_event_watchboard_cycle"
     if {"watchboard_json", "trend_json", "summary", "brief"}.issubset(keys):

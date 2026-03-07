@@ -30,43 +30,70 @@ def build_effective_watchboard_payload(
     *,
     watchboard_json: str,
     suppression_json: str,
+    persistence_json: str,
     out_json: str,
     out_md: str,
 ) -> Dict[str, Any]:
     watchboard = _load_json(watchboard_json)
     suppression = _load_json(suppression_json)
+    persistence = _load_json(persistence_json)
     suppress_map = {
         str(row.get("secondary_lane") or ""): str(row.get("display_mode") or "keep")
         for row in (suppression.get("rules") or [])
         if isinstance(row, dict) and str(row.get("secondary_lane") or "")
     }
+    persistence_map = {
+        str(row.get("lane") or ""): row
+        for row in (persistence.get("lanes") or [])
+        if isinstance(row, dict) and str(row.get("lane") or "")
+    }
     raw_lanes = [dict(row) for row in (watchboard.get("lanes") or []) if isinstance(row, dict)]
-    effective_lanes = [_apply_display_mode(row, suppress_map.get(str(row.get("lane") or ""), "keep")) for row in raw_lanes]
+    effective_lanes = []
+    for row in raw_lanes:
+        lane = str(row.get("lane") or "")
+        updated = _apply_display_mode(row, suppress_map.get(lane, "keep"))
+        persistence_row = persistence_map.get(lane, {})
+        updated["persistence_recommendation"] = str(persistence_row.get("recommendation") or "keep_immediate")
+        updated["recommended_min_persist_snapshots"] = int(persistence_row.get("recommended_min_persist_snapshots") or 1)
+        updated["recommended_cooldown_snapshots"] = int(persistence_row.get("recommended_cooldown_snapshots") or 0)
+        updated["is_noisy"] = bool(persistence_row.get("is_noisy"))
+        effective_lanes.append(updated)
     visible_lanes = [row for row in effective_lanes if str(row.get("effective_display_mode") or "keep") != "hide"]
     visible_lanes.sort(key=lambda row: float(row.get("effective_priority_score") or 0.0), reverse=True)
     top_effective = visible_lanes[0] if visible_lanes else {}
+    persistence_summary = persistence.get("summary") or {}
     summary = {
         "raw_top_lane": str((watchboard.get("summary") or {}).get("top_lane") or ""),
         "effective_top_lane": str(top_effective.get("lane") or ""),
         "hidden_lane_count": sum(1 for row in effective_lanes if str(row.get("effective_display_mode") or "") == "hide"),
         "degraded_lane_count": sum(1 for row in effective_lanes if str(row.get("effective_display_mode") or "") == "degrade"),
         "collapsed_lane_count": sum(1 for row in effective_lanes if str(row.get("effective_display_mode") or "") == "collapse"),
+        "noisy_lane_count": int(persistence_summary.get("noisy_lane_count") or 0),
+        "primary_noisy_lane": str(persistence_summary.get("primary_noisy_lane") or ""),
     }
     payload = {
         "watchboard_json": str(watchboard_json),
         "suppression_json": str(suppression_json),
+        "persistence_json": str(persistence_json),
         "summary": summary,
         "effective_top_event": {
             "lane": str(top_effective.get("lane") or ""),
             "level": str(top_effective.get("level") or "quiet"),
             "recommended_action": str(top_effective.get("recommended_action") or "monitor_only"),
             "effective_display_mode": str(top_effective.get("effective_display_mode") or "keep"),
+            "persistence_recommendation": str(top_effective.get("persistence_recommendation") or "keep_immediate"),
+            "recommended_min_persist_snapshots": int(top_effective.get("recommended_min_persist_snapshots") or 1),
+            "recommended_cooldown_snapshots": int(top_effective.get("recommended_cooldown_snapshots") or 0),
         },
         "lanes": effective_lanes,
     }
     payload["run_summary"] = build_run_summary(
         run_type="event_watchboard_effective",
-        inputs={"watchboard_json": str(watchboard_json), "suppression_json": str(suppression_json)},
+        inputs={
+            "watchboard_json": str(watchboard_json),
+            "suppression_json": str(suppression_json),
+            "persistence_json": str(persistence_json),
+        },
         metrics=summary,
         artifacts={"json": str(out_json), "md": str(out_md)},
     )
@@ -77,6 +104,7 @@ def _parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Apply suppression policy to a raw watchboard and produce an effective view.")
     p.add_argument("--watchboard-json", default="reports/RESEARCH_EVENT_WATCHBOARD.json")
     p.add_argument("--suppression-json", default="reports/EVENT_LANE_SUPPRESSION_POLICY.json")
+    p.add_argument("--persistence-json", default="reports/EVENT_LANE_PERSISTENCE_POLICY.json")
     p.add_argument("--out-json", default="reports/EVENT_WATCHBOARD_EFFECTIVE.json")
     p.add_argument("--out-md", default="reports/EVENT_WATCHBOARD_EFFECTIVE.md")
     return p.parse_args(argv)
@@ -87,6 +115,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     payload = build_effective_watchboard_payload(
         watchboard_json=str(args.watchboard_json),
         suppression_json=str(args.suppression_json),
+        persistence_json=str(args.persistence_json),
         out_json=str(args.out_json),
         out_md=str(args.out_md),
     )

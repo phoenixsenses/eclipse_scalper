@@ -18,6 +18,7 @@ def build_operator_brief_payload(
     trend_json: str,
     overlap_json: str,
     consolidation_json: str,
+    persistence_json: str,
     out_json: str,
     out_md: str,
 ) -> Dict[str, Any]:
@@ -25,6 +26,7 @@ def build_operator_brief_payload(
     trend = _load_json(trend_json)
     overlap = _load_json(overlap_json)
     consolidation = _load_json(consolidation_json)
+    persistence = _load_json(persistence_json)
 
     lanes = watchboard.get("lanes") or []
     severe_lanes = [lane for lane in lanes if str(lane.get("level") or lane.get("state_level") or "") == "severe"]
@@ -40,6 +42,10 @@ def build_operator_brief_payload(
         row for row in consolidation_decisions if str(row.get("recommendation") or "") == "candidate_suppress_secondary"
     ]
     primary_suppression = suppression_candidates[0] if suppression_candidates else {}
+    persistence_summary = persistence.get("summary") or {}
+    persistence_lanes = list(persistence.get("lanes") or [])
+    noisy_lanes = [row for row in persistence_lanes if bool(row.get("is_noisy"))]
+    primary_noisy = noisy_lanes[0] if noisy_lanes else {}
 
     brief_lines: List[str] = []
     top_lane = str((watchboard.get("summary") or {}).get("top_lane") or "")
@@ -64,6 +70,13 @@ def build_operator_brief_payload(
             "suppression candidate: "
             + f"{str(primary_suppression.get('secondary_lane') or 'unknown')} "
             + f"behind {str(primary_suppression.get('lane_a') or 'unknown')} / {str(primary_suppression.get('lane_b') or 'unknown')}."
+        )
+    if primary_noisy:
+        brief_lines.append(
+            "persistence candidate: "
+            + f"{str(primary_noisy.get('lane') or 'unknown')} "
+            + f"min_persist={int(primary_noisy.get('recommended_min_persist_snapshots') or 1)} "
+            + f"cooldown={int(primary_noisy.get('recommended_cooldown_snapshots') or 0)}."
         )
     if severe_lanes:
         brief_lines.append("severe lanes: " + ", ".join(str(lane.get("lane") or "unknown") for lane in severe_lanes) + ".")
@@ -92,6 +105,8 @@ def build_operator_brief_payload(
             ),
             "suppression_candidate_count": len(suppression_candidates),
             "primary_suppression_lane": str(primary_suppression.get("secondary_lane") or ""),
+            "noisy_lane_count": int(persistence_summary.get("noisy_lane_count") or 0),
+            "primary_noisy_lane": str(primary_noisy.get("lane") or ""),
         },
         "brief": {
             "headline": f"Research events top={top_lane or 'unknown'} action={top_action} trend={trend_name}",
@@ -118,6 +133,12 @@ def build_operator_brief_payload(
                 "lane_b": str(primary_suppression.get("lane_b") or ""),
                 "recommendation": str(primary_suppression.get("recommendation") or ""),
             },
+            "primary_persistence": {
+                "lane": str(primary_noisy.get("lane") or ""),
+                "recommended_min_persist_snapshots": int(primary_noisy.get("recommended_min_persist_snapshots") or 1),
+                "recommended_cooldown_snapshots": int(primary_noisy.get("recommended_cooldown_snapshots") or 0),
+                "recommendation": str(primary_noisy.get("recommendation") or ""),
+            },
             "severe_lanes": [str(lane.get("lane") or "") for lane in severe_lanes],
             "stale_lanes": [str(lane.get("lane") or "") for lane in stale_lanes],
         },
@@ -129,6 +150,7 @@ def build_operator_brief_payload(
             "trend_json": trend_json,
             "overlap_json": overlap_json,
             "consolidation_json": consolidation_json,
+            "persistence_json": persistence_json,
         },
         metrics=payload["summary"],
         artifacts={
@@ -138,6 +160,7 @@ def build_operator_brief_payload(
             "trend_json": trend_json,
             "overlap_json": overlap_json,
             "consolidation_json": consolidation_json,
+            "persistence_json": persistence_json,
         },
     )
     return payload
@@ -149,6 +172,7 @@ def _parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     p.add_argument("--trend-json", default="reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json")
     p.add_argument("--overlap-json", default="reports/EVENT_LANE_OVERLAP.json")
     p.add_argument("--consolidation-json", default="reports/EVENT_LANE_CONSOLIDATION.json")
+    p.add_argument("--persistence-json", default="reports/EVENT_LANE_PERSISTENCE_POLICY.json")
     p.add_argument("--out-json", default="reports/RESEARCH_EVENT_OPERATOR_BRIEF.json")
     p.add_argument("--out-md", default="reports/RESEARCH_EVENT_OPERATOR_BRIEF.md")
     return p.parse_args(argv)
@@ -161,6 +185,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         trend_json=str(args.trend_json),
         overlap_json=str(args.overlap_json),
         consolidation_json=str(args.consolidation_json),
+        persistence_json=str(args.persistence_json),
         out_json=str(args.out_json),
         out_md=str(args.out_md),
     )
