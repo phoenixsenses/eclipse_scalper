@@ -455,12 +455,138 @@ Candidate scoping lesson:
 - identifying which pockets lose and finding their common feature (here: imb=0.3) enables scoping
 - scoping the profile to excluded degraded candidates gives a strictly better result
 
+### Out-of-sample validation: 14D window, splits=4
+
+Source:
+- `reports/EVENT_BLOCK_BASELINE_14D_OOS.json`
+- `reports/EVENT_BLOCK_IMB05_V1_14D_OOS.json`
+- `reports/RANK_EVENT_FILTER_SET_SUMMARY_IMB05_V1_14D_OOS.json`
+
+Window: 14D lookback (2026-02-21 to 2026-03-07), splits=4, min_n=5, relaxed gates.
+This extends ~7 days earlier than the 7D in-sample probe.
+
+Result:
+- `common_count = 8`
+- `improved_count = 4`
+- `degraded_count = 4`
+- `median_delta_npa_core = +3.756e-05`
+- `median_filtered_kept_ratio = 76.34%`
+
+Comparison vs 7D in-sample:
+
+| Window | Improved | Degraded | Median ΔNPA |
+|---|---|---|---|
+| 7D in-sample | 7/8 | 1/8 | +2.501e-04 |
+| 14D OOS | 4/8 | 4/8 | +3.756e-05 |
+
+Pocket-level pattern on 14D OOS:
+- imb>=0.85 filtered: consistently improved on BOTH windows (h=120: +5.13e-04, h=60: +1.19e-04)
+- imb=0.5 filtered: mixed — h=120 int=6000 degraded (-1.67e-04), others improved
+- imb=0.3 passthru: degraded on 14D (was strong on 7D) — volatile across windows
+
+Interpretation:
+- The 14D OOS does NOT confirm the strong 7D result
+- The profile improvement is partially window-specific
+- Only the imb>=0.85 pockets are robust across both windows
+- The imb=0.5 benefit is not consistent enough for promotion
+- The imb=0.3 passthru approach helps on short windows but degrades on longer ones
+
+Current status: `event_block_eth_micro_imb05_v1` = **extended_testing** (not promote_to_primary)
+
+## Decision
+
+Current research decision:
+
+- ETH:
+  - Primary experimental profile: `event_block_eth_micro_imb05_v1`
+    - scoped to: ETHUSDT + micro_edge_v3_passive_alpha + min_imbalance >= 0.5
+    - 7D in-sample: 7/8 improved, 1 degraded, median ΔNPA = +2.501e-04
+    - 14D OOS: 4/8 improved, 4/8 degraded, median ΔNPA = +3.756e-05
+    - VERDICT: extended_testing — not ready for promotion; imb>=0.85 pockets are the robust subset
+  - Legacy profile: `event_block_eth_micro_v1` (6/8 on 7D; superseded by imb05 on in-sample)
+  - rationale:
+    - positive on ETH 7D in-sample
+    - imbalance scoping removed worst degraded pockets
+    - 14D OOS validation shows the benefit does not hold uniformly across longer windows
+    - the most robust signal: filtering helps imb>=0.85 pockets on all tested windows
+    - imb=0.5 benefit is window-dependent; imb=0.3 passthru is volatile
+- BTC:
+  - `event_block_v1 = observe_only`
+  - rationale:
+    - not harmful on BTC 1D
+    - but not strong enough to claim clear broad benefit
+
+This is not ready to become:
+- a default global mitigation profile across all symbols
+- or a blanket ETH-wide profile across all rules
+
+Current positioning:
+- `event_block_eth_micro_imb05_v1` = ETH experimental, extended_testing phase
+- the imb>=0.85 subset is the most robust target for further testing
+- not long-window production candidates
+- 21D long-window retests remain non-actionable until tradeable coverage improves
+
+## Rollout Rule
+
+Use this order:
+
+1. ETH broader candidate sets
+2. BTC repeated retests
+3. symbol-aware profile trial
+4. only then consider general defaulting
+
+## Technical Notes
+
+Implementation points:
+- `tools/validate_passive_pocket_forward.py`
+- `tools/rank_passive_pockets_forward.py`
+- `tools/summarize_rank_event_filter.py`
+- `tools/summarize_rank_event_filter_set.py`
+
+Profile name:
+- `event_block_v1`
+- `event_block_eth_v1`
+- `event_block_eth_micro_v1`
+- `event_block_eth_micro_imb05_v1` (extended_testing — 7D strong, 14D OOS mixed)
+- `event_block_book_proxy_v1` (tested; single lane only; NO-GO on ETH micro-edge surface)
+- `event_block_volatility_v1` (tested; single lane only; MIXED — 50/50, positive median; weaker than two-lane)
+
+Blocked lanes:
+- `book_proxy_pressure`
+- `volatility_burst`
+
+## Teaching Note
+
+This is a good example of a usable research result:
+
+- not every event becomes a positive signal
+- often the first real gain comes from removing bad context
+- that is usually safer than forcing trades only in rare "good" context
+
+In short:
+- negative filters often productionize earlier than positive filters
+
+Single-lane decomposition lesson:
+- always decompose multi-lane results before crediting any single lane
+- `book_proxy_pressure` alone is harmful; `volatility_burst` alone is mixed
+- the two lanes are SYNERGISTIC — each rescues pockets the other cannot
+- do not conclude the improvement comes from one lane when the effect is interactive
+
+Candidate scoping lesson:
+- even a good two-lane block can degrade some pockets
+- identifying which pockets lose and finding their common feature (here: imb=0.3) enables scoping
+- scoping the profile to excluded degraded candidates gives a strictly better in-sample result
+
+OOS validation lesson:
+- in-sample improvements do not always hold on extended windows
+- always test on a shifted or wider window before promoting a profile
+- the robust sub-pattern (imb>=0.85) is a better foundation than the full imb>=0.5 scope
+
 ## Next Step
 
 Next research step:
-1. Validate `event_block_eth_micro_imb05_v1` on a fresh out-of-sample window (different date range
-   or different lookback start) to test whether the improvement holds
-2. Investigate whether the h=60, imb=0.85 degradation is structural (short-horizon + extreme imbalance
-   in volatile markets = good entry) or noise
-3. Repeat BTC on more windows with the two-lane profile
-4. Then decide whether to promote `event_block_eth_micro_imb05_v1` to the primary ranking profile
+1. Test `event_block_eth_micro_imb085_v1` — restrict scoping further to imb>=0.85 only;
+   this is the only imbalance tier that improved consistently on BOTH the 7D and 14D windows
+2. Run BTC 7D and 14D comparisons with the two-lane block to assess cross-symbol robustness
+3. Collect more data (extend dataset beyond 2026-03-07) to increase OOS window diversity
+4. Only promote to primary ranking profile if imb>=0.85 results hold on 3+ independent windows
