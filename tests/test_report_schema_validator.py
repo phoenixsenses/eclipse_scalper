@@ -174,6 +174,39 @@ def test_validate_evaluate_event_conditioned_filter_payload() -> None:
     assert rsv.validate_payload(payload, "evaluate_event_conditioned_filter") == []
 
 
+def test_validate_evaluate_event_conditioned_forward_payload() -> None:
+    payload = {
+        "source_debug_jsonl": "localtests/debug.jsonl",
+        "source_filter_json": "reports/filter.json",
+        "allow_lanes": ["return_shock"],
+        "block_lanes": ["book_proxy_pressure"],
+        "discovery": {
+            "baseline": {"n": 10, "avg_net": -0.001, "p90_net": 0.001},
+            "filtered": {"n": 4, "avg_net": -0.0005, "p90_net": 0.0012},
+            "delta_avg_net": 0.0005,
+            "delta_p90_net": 0.0002,
+            "kept_ratio": 0.4,
+        },
+        "validation": {
+            "baseline": {"n": 8, "avg_net": -0.0011, "p90_net": 0.0002},
+            "filtered": {"n": 3, "avg_net": -0.0009, "p90_net": 0.0004},
+            "delta_avg_net": 0.0002,
+            "delta_p90_net": 0.0002,
+            "kept_ratio": 0.375,
+        },
+        "recommendation": "test_filter_in_rank_pipeline",
+        "run_summary": {
+            "version": "1",
+            "run_type": "evaluate_event_conditioned_forward",
+            "inputs": {"debug_jsonl": "localtests/debug.jsonl"},
+            "metrics": {"validation_delta_avg_net": 0.0002, "validation_kept_ratio": 0.375},
+            "artifacts": {"json": "reports/out.json"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "evaluate_event_conditioned_forward"
+    assert rsv.validate_payload(payload, "evaluate_event_conditioned_forward") == []
+
+
 def test_validate_canonical_payload() -> None:
     payload = {
         "status": "pass",

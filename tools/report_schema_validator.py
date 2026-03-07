@@ -2654,6 +2654,42 @@ def _validate_evaluate_event_conditioned_filter(payload: Dict[str, Any]) -> List
     return errors
 
 
+def _validate_evaluate_event_conditioned_forward(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source_debug_jsonl": str,
+        "source_filter_json": str,
+        "allow_lanes": list,
+        "block_lanes": list,
+        "discovery": dict,
+        "validation": dict,
+        "recommendation": str,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    for section_name in ("discovery", "validation"):
+        section = payload.get(section_name)
+        if isinstance(section, dict):
+            for key, expected in {
+                "baseline": dict,
+                "filtered": dict,
+                "delta_avg_net": (int, float),
+                "delta_p90_net": (int, float),
+                "kept_ratio": (int, float),
+            }.items():
+                if key not in section:
+                    errors.append(f"missing:{section_name}.{key}")
+                elif not isinstance(section[key], expected):
+                    errors.append(f"bad_type:{section_name}.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "micro_edge_smoke": _validate_micro_edge_record,
     "validate_canonical": _validate_validate_canonical,
@@ -2729,6 +2765,7 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "event_merged_banner_policy": _validate_event_merged_banner_policy,
     "summarize_event_signal_bridge": _validate_summarize_event_signal_bridge,
     "evaluate_event_conditioned_filter": _validate_evaluate_event_conditioned_filter,
+    "evaluate_event_conditioned_forward": _validate_evaluate_event_conditioned_forward,
 }
 
 
@@ -2889,6 +2926,8 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "summarize_event_signal_bridge"
     if {"source_bridge_json", "summary", "filter_candidate"}.issubset(keys):
         return "evaluate_event_conditioned_filter"
+    if {"source_debug_jsonl", "source_filter_json", "allow_lanes", "block_lanes", "discovery", "validation"}.issubset(keys):
+        return "evaluate_event_conditioned_forward"
     return None
 
 

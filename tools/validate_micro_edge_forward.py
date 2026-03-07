@@ -129,9 +129,9 @@ def _liq_regime_tag_impact(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     }
 
 
-def _event_lane_context_impact(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
+def _event_lane_tagged_rows(rows: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
     if not rows:
-        return {"available": False, "rows_total": 0, "lane_count": 0, "by_lane": {}}
+        return {}
 
     spreads = [abs(float(r.get("spread") or 0.0)) for r in rows if r.get("spread") is not None]
     intensities = [max(0.0, float(r.get("trade_intensity") or 0.0)) for r in rows if r.get("trade_intensity") is not None]
@@ -152,25 +152,6 @@ def _event_lane_context_impact(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     abs_ret_q50 = float(_quantile(abs_rets, 0.50) or 0.0)
     abs_imb_q90 = float(_quantile(abs_imbalances, 0.90) or 0.0)
     abs_imb_q75 = float(_quantile(abs_imbalances, 0.75) or 0.0)
-
-    def _tagged_rows(pred) -> List[Dict[str, Any]]:
-        return [r for r in rows if pred(r)]
-
-    def _lane_summary(tagged: List[Dict[str, Any]]) -> Dict[str, Any]:
-        normal = [r for r in rows if r not in tagged]
-        tagged_sm = summarize(tagged)
-        normal_sm = summarize(normal)
-        return {
-            "tagged_n": int(tagged_sm.get("n", 0) or 0),
-            "tagged_rate": (float(tagged_sm.get("n", 0) or 0) / float(len(rows))) if rows else 0.0,
-            "tagged_avg_net": float(tagged_sm.get("avg_net", 0.0) or 0.0),
-            "tagged_p90_net": float(tagged_sm.get("p90_net", 0.0) or 0.0),
-            "normal_n": int(normal_sm.get("n", 0) or 0),
-            "normal_avg_net": float(normal_sm.get("avg_net", 0.0) or 0.0),
-            "normal_p90_net": float(normal_sm.get("p90_net", 0.0) or 0.0),
-            "delta_avg_net": float(tagged_sm.get("avg_net", 0.0) or 0.0) - float(normal_sm.get("avg_net", 0.0) or 0.0),
-            "delta_p90_net": float(tagged_sm.get("p90_net", 0.0) or 0.0) - float(normal_sm.get("p90_net", 0.0) or 0.0),
-        }
 
     def _spread_stress(r: Dict[str, Any]) -> bool:
         return float(r.get("spread") or 0.0) >= spread_q75 and float(r.get("trade_intensity") or 0.0) <= max(1.0, intensity_q25 * 1.5)
@@ -194,10 +175,33 @@ def _event_lane_context_impact(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
         "volume_vacuum": _volume_vacuum,
         "book_proxy_pressure": _book_proxy_pressure,
     }
+    return {lane: [r for r in rows if pred(r)] for lane, pred in lane_defs.items()}
+
+
+def _event_lane_context_impact(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
+    if not rows:
+        return {"available": False, "rows_total": 0, "lane_count": 0, "by_lane": {}}
+
+    lane_tagged = _event_lane_tagged_rows(rows)
+
+    def _lane_summary(tagged: List[Dict[str, Any]]) -> Dict[str, Any]:
+        normal = [r for r in rows if r not in tagged]
+        tagged_sm = summarize(tagged)
+        normal_sm = summarize(normal)
+        return {
+            "tagged_n": int(tagged_sm.get("n", 0) or 0),
+            "tagged_rate": (float(tagged_sm.get("n", 0) or 0) / float(len(rows))) if rows else 0.0,
+            "tagged_avg_net": float(tagged_sm.get("avg_net", 0.0) or 0.0),
+            "tagged_p90_net": float(tagged_sm.get("p90_net", 0.0) or 0.0),
+            "normal_n": int(normal_sm.get("n", 0) or 0),
+            "normal_avg_net": float(normal_sm.get("avg_net", 0.0) or 0.0),
+            "normal_p90_net": float(normal_sm.get("p90_net", 0.0) or 0.0),
+            "delta_avg_net": float(tagged_sm.get("avg_net", 0.0) or 0.0) - float(normal_sm.get("avg_net", 0.0) or 0.0),
+            "delta_p90_net": float(tagged_sm.get("p90_net", 0.0) or 0.0) - float(normal_sm.get("p90_net", 0.0) or 0.0),
+        }
 
     by_lane: Dict[str, Any] = {}
-    for lane, pred in lane_defs.items():
-        tagged = _tagged_rows(pred)
+    for lane, tagged in lane_tagged.items():
         by_lane[lane] = _lane_summary(tagged)
 
     ranked = sorted(
