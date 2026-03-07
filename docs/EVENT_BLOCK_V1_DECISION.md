@@ -75,24 +75,45 @@ Interpretation:
 - filter is not harmful on this BTC sample
 - but benefit is not strong enough to claim broad BTC improvement
 
+### ETH broad candidate result
+
+Source:
+- `reports/RANK_EVENT_FILTER_SET_SUMMARY_ETH_BROAD_REAL.json`
+
+Result:
+- `common_count = 6`
+- `improved_count = 1`
+- `degraded_count = 5`
+- `median_delta_npa_core = -1.038896e-04`
+- `median_delta_score_raw_core = -2.135000e-04`
+- `median_filtered_kept_ratio = 75.94%`
+
+Interpretation:
+- ETH-only symbol scope is too broad
+- the earlier improvement does not generalize across the wider ETH rule surface
+- the filter benefit appears tied to the `micro_edge_v3_passive_alpha` lane, not to ETH globally
+
 ## Decision
 
 Current research decision:
 
 - ETH:
-  - `event_block_v1 = experimental_on`
+  - `event_block_v1 = experimental_on` only on the validated `micro_edge_v3_passive_alpha` surface
   - ranking profile candidate:
-    - `event_block_eth_v1`
+    - `event_block_eth_micro_v1`
   - rationale:
     - positive on ETH 7D
     - positive again on ETH 1D repeated-window retest
+    - broad ETH retest showed symbol-only scoping is too loose
 - BTC:
   - `event_block_v1 = observe_only`
   - rationale:
     - not harmful on BTC 1D
     - but not strong enough to claim clear broad benefit
 
-This is not ready to become a default global mitigation profile across all symbols.
+This is not ready to become:
+- a default global mitigation profile across all symbols
+- or a blanket ETH-wide profile across all rules
 
 ## Rollout Rule
 
@@ -114,6 +135,7 @@ Implementation points:
 Profile name:
 - `event_block_v1`
 - `event_block_eth_v1`
+- `event_block_eth_micro_v1`
 
 Blocked lanes:
 - `book_proxy_pressure`
@@ -133,8 +155,8 @@ In short:
 ## Next Step
 
 Next research step:
-- run broader ETH candidate universes
+- run broader `micro_edge_v3_passive_alpha` ETH candidate universes
 - repeat BTC on more windows
 - then decide whether `event_block_v1` should become:
-  - an ETH-only experimental profile in ranking
-  - or a symbol-aware profile family such as `event_block_eth_v1`
+  - a rule-aware ETH experimental profile in ranking
+  - or a symbol/rule-aware profile family such as `event_block_eth_micro_v1`

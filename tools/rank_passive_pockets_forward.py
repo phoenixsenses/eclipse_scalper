@@ -521,7 +521,7 @@ def _args() -> argparse.Namespace:
     p.add_argument(
         "--mitigation-profile",
         default="baseline",
-        choices=["baseline", "anti_adverse_v1", "anti_adverse_v2", "anti_adverse_v3", "anti_adverse_v4", "anti_adverse_v5", "anti_adverse_v6", "event_block_v1", "event_block_eth_v1"],
+        choices=["baseline", "anti_adverse_v1", "anti_adverse_v2", "anti_adverse_v3", "anti_adverse_v4", "anti_adverse_v5", "anti_adverse_v6", "event_block_v1", "event_block_eth_v1", "event_block_eth_micro_v1"],
         help=(
             "Signal filter profile to reduce adverse selection. "
             "'baseline' = no change. "
@@ -533,7 +533,8 @@ def _args() -> argparse.Namespace:
             "'anti_adverse_v5' = anti_adverse_v4 + extra passive wait for event-driven fills. "
             "'anti_adverse_v6' = anti_adverse_v5 + taker fallback after passive miss. "
             "'event_block_v1' = block negative event lanes book_proxy_pressure and volatility_burst. "
-            "'event_block_eth_v1' = same block rule, but only for ETH symbol candidates."
+            "'event_block_eth_v1' = same block rule, but only for ETH symbol candidates. "
+            "'event_block_eth_micro_v1' = same block rule, but only for ETH + micro_edge_v3_passive_alpha candidates."
         ),
     )
     return p.parse_args()
@@ -649,7 +650,7 @@ def main() -> int:
     if mitigation_profile in {"anti_adverse_v5", "anti_adverse_v6"} and eff_passive_max_wait_buckets <= 0:
         eff_passive_max_wait_buckets = 2
 
-    def _mitigation_overrides(c: Dict[str, Any]) -> Dict[str, float]:
+    def _mitigation_overrides(c: Dict[str, Any], rule_name: str) -> Dict[str, float]:
         """Return extra kwargs for validate_pocket_forward based on mitigation profile."""
         if mitigation_profile == "anti_adverse_v1":
             # Require stronger imbalance confirmation + tighter spread
@@ -707,12 +708,20 @@ def main() -> int:
             return {
                 "event_block_lanes": "book_proxy_pressure,volatility_burst",
             }
+        if mitigation_profile == "event_block_eth_micro_v1":
+            if str(c.get("symbol", "")).upper() != "ETHUSDT":
+                return {}
+            if str(rule_name) != "micro_edge_v3_passive_alpha":
+                return {}
+            return {
+                "event_block_lanes": "book_proxy_pressure,volatility_burst",
+            }
         return {}  # baseline: honour the args values directly
 
     scored: List[Dict[str, Any]] = []
     for c in candidates:
         for rule_name in rules:
-            mit_overrides = _mitigation_overrides(c)
+            mit_overrides = _mitigation_overrides(c, str(rule_name))
 
             def _evaluate_grid(profile_overrides: Dict[str, float]) -> Dict[str, Any]:
                 out: Dict[str, Any] = {}
@@ -1070,10 +1079,11 @@ def main() -> int:
             "event_allow_lanes": [],
             "event_block_lanes": (
                 ["book_proxy_pressure", "volatility_burst"]
-                if mitigation_profile in {"event_block_v1", "event_block_eth_v1"}
+                if mitigation_profile in {"event_block_v1", "event_block_eth_v1", "event_block_eth_micro_v1"}
                 else []
             ),
-            "event_profile_symbol_scope": ("ETHUSDT" if mitigation_profile == "event_block_eth_v1" else None),
+            "event_profile_symbol_scope": ("ETHUSDT" if mitigation_profile in {"event_block_eth_v1", "event_block_eth_micro_v1"} else None),
+            "event_profile_rule_scope": ("micro_edge_v3_passive_alpha" if mitigation_profile == "event_block_eth_micro_v1" else None),
         },
         "statistical": {
             "bootstrap_ci": bool(args.bootstrap_ci),
