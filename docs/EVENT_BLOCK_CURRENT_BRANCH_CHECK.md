@@ -44,6 +44,27 @@ Root-DB rerun:
     - `insufficient_fill_rate = 1.0`
     - `attempt_fill_rate = 0.0` on the remaining pockets
 
+Fresh current-surface rebuild:
+- instead of relying on the stale historical ETH TOP8 markdown, rebuilt the current 1D ETH passive-realistic surface from the live/root DB:
+  - `reports/FILTER_SWEEP_PASSIVE_REALISTIC_ETH_FRESH_TOP8.md`
+- result:
+  - `rows = 24`
+  - `pass = 0`
+  - top 8 current ETH pockets were all `NO`
+  - even the best current rows had:
+    - negative `avg_net`
+    - `insuf% = 100%`
+- implication:
+  - the current 1D ETH passive-realistic surface itself is non-actionable
+  - this is stronger evidence than comparing against the stale historical TOP8 file
+
+7D note:
+- attempted a broad 7D fresh ETH passive-realistic rebuild from the live/root DB
+- the generic sweep timed out before completion
+- conclusion:
+  - 7D broad evaluation needs a narrower/optimized runner
+  - but this does not change the 1D conclusion above
+
 Interpretation update:
 - the stale local DB was real and had to be ruled out
 - however, even after rerunning on the live/root DB, the current branch still yields a non-tradeable ETH TOP8 passive-realistic surface
@@ -90,9 +111,11 @@ Practical decision:
 - treat the current branch state as:
   - `surface_non_actionable_on_current_branch`
   - until current-branch execution/validation drift is reconciled
+  - and until a fresh actionable surface is re-established
 
 Next sensible step:
 1. do not use `C:\Users\Windows 11\.vscode\CryptoLion\eclipse_scalper-research\data\microstructure.db` for promotion decisions
 2. treat the root-DB rerun as the authoritative current-branch result:
    - the ETH TOP8 passive-realistic surface is currently non-actionable
-3. next debugging target should be current-branch drift in passive execution / pocket validation, not more event-block profile tuning
+3. treat the fresh 1D ETH rebuild as confirming that current ETH passive-realistic pockets are not passing even before event filters
+4. next debugging target should be current-branch drift / surface weakness in passive execution or candidate generation, not more event-block profile tuning
