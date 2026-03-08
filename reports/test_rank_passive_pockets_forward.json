@@ -83,6 +83,10 @@
       }
     }
   ],
+  "liquidation_scoring_impact": {
+    "available": false,
+    "count": 0
+  },
   "ranking": [
     {
       "symbol": "ETHUSDT",

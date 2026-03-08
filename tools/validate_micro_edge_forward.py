@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from tools.analyze_micro_edge_regimes import group_key, group_stats, load_debug_rows, summarize
+from tools.analyze_micro_edge_regimes import enrich_liq_regime_tags, group_key, group_stats, load_debug_rows, summarize
+from tools.run_summary import build_run_summary
 
 
 def _parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
@@ -28,6 +30,7 @@ def _parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     p.add_argument("--collapse-select-ratio", type=float, default=0.5)
     p.add_argument("--collapse-n-ratio", type=float, default=0.5)
     p.add_argument("--collapse-mode", choices=["strict", "balanced"], default="balanced")
+    p.add_argument("--out-json", default=None)
     return p.parse_args(argv)
 
 
@@ -40,6 +43,187 @@ def _fmt_num(x: Any) -> str:
 
 def _selection(rows: List[Dict[str, Any]], keys: set[str], fields: List[str]) -> List[Dict[str, Any]]:
     return [r for r in rows if group_key(r, fields) in keys]
+
+
+def _quantile(vals: List[float], q: float) -> Optional[float]:
+    if not vals:
+        return None
+    q = max(0.0, min(1.0, float(q)))
+    ordered = sorted(float(v) for v in vals)
+    if len(ordered) == 1:
+        return ordered[0]
+    pos = q * (len(ordered) - 1)
+    lo = int(pos)
+    hi = min(lo + 1, len(ordered) - 1)
+    if hi == lo:
+        return ordered[lo]
+    w = pos - lo
+    return ordered[lo] * (1.0 - w) + ordered[hi] * w
+
+
+def _liq_signal_score(row: Dict[str, Any]) -> Optional[float]:
+    try:
+        if row.get("v2_liq_reversal_signal") is not None:
+            return abs(float(row.get("v2_liq_reversal_signal")))
+        li = row.get("liq_imbalance")
+        lr = row.get("liq_rate_per_sec")
+        if li is None or lr is None:
+            return None
+        return abs(float(li)) * max(0.0, float(lr))
+    except Exception:
+        return None
+
+
+def _liquidation_impact(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
+    scored: List[tuple[float, Dict[str, Any]]] = []
+    for row in rows:
+        score = _liq_signal_score(row)
+        if score is None:
+            continue
+        scored.append((float(score), row))
+    if not scored:
+        return {"available": False, "count": 0}
+    vals = [s for s, _ in scored]
+    threshold = _quantile(vals, 0.75)
+    if threshold is None:
+        return {"available": False, "count": len(scored)}
+    active = [row for score, row in scored if float(score) >= float(threshold) and float(score) > 0.0]
+    inactive = [row for score, row in scored if not (float(score) >= float(threshold) and float(score) > 0.0)]
+    active_sm = summarize(active)
+    inactive_sm = summarize(inactive)
+    return {
+        "available": True,
+        "count": len(scored),
+        "threshold_q75": float(threshold),
+        "active": {
+            "n": int(active_sm.get("n", 0) or 0),
+            "avg_net": float(active_sm.get("avg_net", 0.0) or 0.0),
+            "p90_net": float(active_sm.get("p90_net", 0.0) or 0.0),
+        },
+        "inactive": {
+            "n": int(inactive_sm.get("n", 0) or 0),
+            "avg_net": float(inactive_sm.get("avg_net", 0.0) or 0.0),
+            "p90_net": float(inactive_sm.get("p90_net", 0.0) or 0.0),
+        },
+    }
+
+
+def _liq_regime_tag_impact(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
+    enrich_liq_regime_tags(rows, rule_name="high_liq_reversal_regime")
+    tagged = [r for r in rows if str(r.get("liq_regime_tag", "")) == "high_liq_reversal"]
+    normal = [r for r in rows if str(r.get("liq_regime_tag", "")) != "high_liq_reversal"]
+    tagged_sm = summarize(tagged)
+    normal_sm = summarize(normal)
+    return {
+        "available": bool(rows),
+        "tagged": {
+            "n": int(tagged_sm.get("n", 0) or 0),
+            "avg_net": float(tagged_sm.get("avg_net", 0.0) or 0.0),
+            "p90_net": float(tagged_sm.get("p90_net", 0.0) or 0.0),
+        },
+        "normal": {
+            "n": int(normal_sm.get("n", 0) or 0),
+            "avg_net": float(normal_sm.get("avg_net", 0.0) or 0.0),
+            "p90_net": float(normal_sm.get("p90_net", 0.0) or 0.0),
+        },
+    }
+
+
+def _event_lane_tagged_rows(rows: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
+    if not rows:
+        return {}
+
+    spreads = [abs(float(r.get("spread") or 0.0)) for r in rows if r.get("spread") is not None]
+    intensities = [max(0.0, float(r.get("trade_intensity") or 0.0)) for r in rows if r.get("trade_intensity") is not None]
+    abs_rets = [abs(float(r.get("ret_1") or 0.0)) for r in rows if r.get("ret_1") is not None]
+    abs_imbalances = [abs(float(r.get("imbalance") or 0.0)) for r in rows if r.get("imbalance") is not None]
+
+    spread_q90 = float(_quantile(spreads, 0.90) or 0.0)
+    spread_q75 = float(_quantile(spreads, 0.75) or 0.0)
+    spread_q50 = float(_quantile(spreads, 0.50) or 0.0)
+    intensity_q75 = float(_quantile(intensities, 0.75) or 0.0)
+    intensity_q60 = float(_quantile(intensities, 0.60) or 0.0)
+    intensity_q50 = float(_quantile(intensities, 0.50) or 0.0)
+    intensity_q40 = float(_quantile(intensities, 0.40) or 0.0)
+    intensity_q25 = float(_quantile(intensities, 0.25) or 0.0)
+    intensity_q10 = float(_quantile(intensities, 0.10) or 0.0)
+    abs_ret_q90 = float(_quantile(abs_rets, 0.90) or 0.0)
+    abs_ret_q75 = float(_quantile(abs_rets, 0.75) or 0.0)
+    abs_ret_q50 = float(_quantile(abs_rets, 0.50) or 0.0)
+    abs_imb_q90 = float(_quantile(abs_imbalances, 0.90) or 0.0)
+    abs_imb_q75 = float(_quantile(abs_imbalances, 0.75) or 0.0)
+
+    def _spread_stress(r: Dict[str, Any]) -> bool:
+        return float(r.get("spread") or 0.0) >= spread_q75 and float(r.get("trade_intensity") or 0.0) <= max(1.0, intensity_q25 * 1.5)
+
+    def _return_shock(r: Dict[str, Any]) -> bool:
+        return abs(float(r.get("ret_1") or 0.0)) >= abs_ret_q75 and float(r.get("spread") or 0.0) <= max(spread_q75, 0.0)
+
+    def _volatility_burst(r: Dict[str, Any]) -> bool:
+        return abs(float(r.get("ret_1") or 0.0)) >= abs_ret_q75 and float(r.get("trade_intensity") or 0.0) >= intensity_q40
+
+    def _volume_vacuum(r: Dict[str, Any]) -> bool:
+        return float(r.get("trade_intensity") or 0.0) <= intensity_q25 and float(r.get("spread") or 0.0) >= spread_q50 and abs(float(r.get("ret_1") or 0.0)) <= abs_ret_q50
+
+    def _book_proxy_pressure(r: Dict[str, Any]) -> bool:
+        return abs(float(r.get("imbalance") or 0.0)) >= abs_imb_q75 and float(r.get("trade_intensity") or 0.0) >= intensity_q50 and float(r.get("spread") or 0.0) >= spread_q50
+
+    lane_defs = {
+        "spread_stress": _spread_stress,
+        "return_shock": _return_shock,
+        "volatility_burst": _volatility_burst,
+        "volume_vacuum": _volume_vacuum,
+        "book_proxy_pressure": _book_proxy_pressure,
+    }
+    return {lane: [r for r in rows if pred(r)] for lane, pred in lane_defs.items()}
+
+
+def _event_lane_context_impact(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
+    if not rows:
+        return {"available": False, "rows_total": 0, "lane_count": 0, "by_lane": {}}
+
+    lane_tagged = _event_lane_tagged_rows(rows)
+
+    def _lane_summary(tagged: List[Dict[str, Any]]) -> Dict[str, Any]:
+        normal = [r for r in rows if r not in tagged]
+        tagged_sm = summarize(tagged)
+        normal_sm = summarize(normal)
+        return {
+            "tagged_n": int(tagged_sm.get("n", 0) or 0),
+            "tagged_rate": (float(tagged_sm.get("n", 0) or 0) / float(len(rows))) if rows else 0.0,
+            "tagged_avg_net": float(tagged_sm.get("avg_net", 0.0) or 0.0),
+            "tagged_p90_net": float(tagged_sm.get("p90_net", 0.0) or 0.0),
+            "normal_n": int(normal_sm.get("n", 0) or 0),
+            "normal_avg_net": float(normal_sm.get("avg_net", 0.0) or 0.0),
+            "normal_p90_net": float(normal_sm.get("p90_net", 0.0) or 0.0),
+            "delta_avg_net": float(tagged_sm.get("avg_net", 0.0) or 0.0) - float(normal_sm.get("avg_net", 0.0) or 0.0),
+            "delta_p90_net": float(tagged_sm.get("p90_net", 0.0) or 0.0) - float(normal_sm.get("p90_net", 0.0) or 0.0),
+        }
+
+    by_lane: Dict[str, Any] = {}
+    for lane, tagged in lane_tagged.items():
+        by_lane[lane] = _lane_summary(tagged)
+
+    ranked = sorted(
+        (
+            {
+                "lane": lane,
+                "tagged_n": int(section.get("tagged_n", 0) or 0),
+                "delta_avg_net": float(section.get("delta_avg_net", 0.0) or 0.0),
+                "delta_p90_net": float(section.get("delta_p90_net", 0.0) or 0.0),
+            }
+            for lane, section in by_lane.items()
+        ),
+        key=lambda item: (item["tagged_n"] > 0, item["delta_avg_net"], item["delta_p90_net"]),
+        reverse=True,
+    )
+    return {
+        "available": True,
+        "rows_total": int(len(rows)),
+        "lane_count": int(len(by_lane)),
+        "top_lane_by_delta_avg_net": ranked[0]["lane"] if ranked else "",
+        "by_lane": by_lane,
+    }
 
 
 def _relax_threshold(groups: List[Dict[str, Any]], start_min_n: int, floor: int, no_relax: bool) -> tuple[int, bool]:
@@ -162,6 +346,12 @@ def main(argv: Optional[List[str]] = None) -> int:
         n_ratio=float(args.collapse_n_ratio),
         mode=str(args.collapse_mode),
     )
+    disc_liq = _liquidation_impact(disc_sel)
+    valid_liq = _liquidation_impact(valid_sel)
+    disc_liq_tag = _liq_regime_tag_impact(disc_sel)
+    valid_liq_tag = _liq_regime_tag_impact(valid_sel)
+    disc_event_ctx = _event_lane_context_impact(disc_sel)
+    valid_event_ctx = _event_lane_context_impact(valid_sel)
 
     print(
         f"validate_micro_edge_forward debug={path} total={n_total} discover={len(disc)} valid={len(valid)} "
@@ -241,6 +431,87 @@ def main(argv: Optional[List[str]] = None) -> int:
             f"group={g['group']} n={int(g['n'])} avg_net={_fmt_num(g['avg_net'])} "
             f"p90_net={_fmt_num(g['p90_net'])} p90<0={'YES' if bool(g['p90_net_negative']) else 'NO'}"
         )
+    if bool(disc_liq.get("available")) or bool(valid_liq.get("available")):
+        print("LIQUIDATION_IMPACT")
+        for name, section in (("discovery", disc_liq), ("validation", valid_liq)):
+            if not bool(section.get("available")):
+                print(f"{name}: unavailable")
+                continue
+            active = section.get("active", {})
+            inactive = section.get("inactive", {})
+            print(
+                f"{name}: threshold_q75={float(section.get('threshold_q75', 0.0)):.6f} "
+                f"active_n={int(active.get('n', 0) or 0)} active_avg_net={_fmt_num(active.get('avg_net'))} "
+                f"active_p90_net={_fmt_num(active.get('p90_net'))} inactive_n={int(inactive.get('n', 0) or 0)} "
+                f"inactive_avg_net={_fmt_num(inactive.get('avg_net'))} inactive_p90_net={_fmt_num(inactive.get('p90_net'))}"
+            )
+    print("EVENT_LANE_CONTEXT")
+    for name, section in (("discovery", disc_event_ctx), ("validation", valid_event_ctx)):
+        top_lane = str(section.get("top_lane_by_delta_avg_net", ""))
+        by_lane = section.get("by_lane", {}) if isinstance(section, dict) else {}
+        top = by_lane.get(top_lane, {}) if isinstance(by_lane, dict) else {}
+        print(
+            f"{name}: top_lane={top_lane or '-'} tagged_n={int(top.get('tagged_n', 0) or 0)} "
+            f"delta_avg_net={_fmt_num(top.get('delta_avg_net'))} delta_p90_net={_fmt_num(top.get('delta_p90_net'))}"
+        )
+
+    payload = {
+        "debug": str(path),
+        "group_by": fields,
+        "discover_frac": float(args.discover_frac),
+        "counts": {
+            "total": int(n_total),
+            "discovery": int(len(disc)),
+            "validation": int(len(valid)),
+            "selected_discovery": int(len(disc_sel)),
+            "selected_validation": int(len(valid_sel)),
+            "top_groups": int(len(top_keys)),
+        },
+        "thresholds": {
+            "min_n_discovery": int(min_disc_eff),
+            "min_n_validation": int(min_val_eff),
+            "min_select_frac": float(args.min_select_frac),
+        },
+        "discovery": disc_sm,
+        "validation": valid_sm,
+        "collapse": {
+            "detected": bool(collapse),
+            "flags": collapse_flags,
+            "values": collapse_vals,
+        },
+        "liquidation_impact": {
+            "discovery": disc_liq,
+            "validation": valid_liq,
+        },
+        "liquidation_regime_tag_impact": {
+            "discovery": disc_liq_tag,
+            "validation": valid_liq_tag,
+        },
+        "event_lane_context_impact": {
+            "discovery": disc_event_ctx,
+            "validation": valid_event_ctx,
+        },
+        "run_summary": build_run_summary(
+            run_type="validate_micro_edge_forward",
+            inputs={
+                "debug": str(path),
+                "group_by": fields,
+                "discover_frac": float(args.discover_frac),
+                "top_k": int(args.top_k),
+            },
+            metrics={
+                "total": int(n_total),
+                "selected_discovery": int(len(disc_sel)),
+                "selected_validation": int(len(valid_sel)),
+                "collapse_detected": int(bool(collapse)),
+            },
+            artifacts={"json": str(args.out_json)} if args.out_json else {},
+        ),
+    }
+    if args.out_json:
+        out_path = Path(str(args.out_json))
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(json.dumps(payload, ensure_ascii=True, indent=2) + "\n", encoding="utf-8")
     return 0
 
 

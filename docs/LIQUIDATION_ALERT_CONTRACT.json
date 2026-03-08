@@ -1,0 +1,165 @@
+{
+  "symbol": "ETHUSDT",
+  "rule": "high_liq_reversal_regime",
+  "lookback_min": 240,
+  "bucket_sec": 5,
+  "recent_limit": 20,
+  "min_liq_rate": 0.5,
+  "summary": {
+    "rows_total": 2843,
+    "tagged_count": 112,
+    "tagged_rate": 0.03939500527611678,
+    "recent_alert_count": 20,
+    "max_consecutive_tagged": 3,
+    "max_liq_rate_recent": 11.4712,
+    "side_bias_counts": {
+      "LONG": 12,
+      "SHORT": 8
+    },
+    "severity_counts": {
+      "low": 5,
+      "medium": 13,
+      "high": 2
+    }
+  },
+  "alerts": [
+    {
+      "ts_ms": 1772826385000,
+      "tag": "high_liq_reversal",
+      "side_bias": "LONG",
+      "severity": "low",
+      "liq_rate_per_sec": 0.8754,
+      "liq_imbalance": 1.0,
+      "spread": 6.724831577864952e-05,
+      "trade_intensity": 1152.0,
+      "ret_1": -0.00025849609380979526
+    }
+  ],
+  "state_payload_example": {
+    "source_json": "reports/LIQUIDATION_REGIME_ALERTS_REAL.json",
+    "symbol": "ETHUSDT",
+    "rule": "high_liq_reversal_regime",
+    "dashboard_summary": "ETHUSDT severe liquidation regime, bias LONG, 20 recent alerts, freshness fresh.",
+    "notification_text": "[liq-regime] symbol=ETHUSDT level=severe freshness=fresh bias=LONG recent_alerts=20 max_liq_rate=11.4712 action=escalate_monitoring",
+    "recommended_action": "escalate_monitoring",
+    "state": {
+      "level": "severe",
+      "reasons": [
+        "multiple_high_severity_alerts",
+        "extreme_liquidation_rate",
+        "persistent_regime"
+      ],
+      "primary_side_bias": "LONG",
+      "dominant_severity": "medium",
+      "freshness": {
+        "status": "fresh",
+        "age_sec": 4.0,
+        "stale_after_sec": 60
+      }
+    },
+    "card": {
+      "headline": "ETHUSDT liquidation regime severe: 20 recent alerts, bias=LONG, top_severity=medium",
+      "operator_note": "Escalate on dashboard and monitoring. Use as caution context, not auto-trade.",
+      "recent_alert_count": 20,
+      "tagged_rate": 0.03939500527611678,
+      "max_consecutive_tagged": 3,
+      "max_liq_rate_recent": 11.4712,
+      "primary_side_bias": "LONG",
+      "dominant_severity": "medium",
+      "latest_alert_ts_ms": 1772826385000,
+      "freshness_status": "fresh",
+      "age_sec": 4.0
+    },
+    "summary_snapshot": {
+      "rows_total": 2843,
+      "tagged_count": 112,
+      "tagged_rate": 0.03939500527611678,
+      "recent_alert_count": 20,
+      "max_consecutive_tagged": 3,
+      "max_liq_rate_recent": 11.4712,
+      "side_bias_counts": {
+        "LONG": 12,
+        "SHORT": 8
+      },
+      "severity_counts": {
+        "low": 5,
+        "medium": 13,
+        "high": 2
+      }
+    }
+  },
+  "watchlist_payload_example": {
+    "rule": "high_liq_reversal_regime",
+    "lookback_min": 240,
+    "bucket_sec": 5,
+    "recent_limit": 20,
+    "min_liq_rate": 0.5,
+    "summary": {
+      "symbol_count": 2,
+      "top_n": 2,
+      "state_counts": {
+        "severe": 1,
+        "quiet": 1
+      },
+      "top_symbol": "ETHUSDT"
+    },
+    "top_summary": {
+      "symbol": "ETHUSDT",
+      "state_level": "severe",
+      "freshness_status": "stale",
+      "recommended_action": "monitor_only",
+      "dashboard_summary": "ETHUSDT severe liquidation regime, bias LONG, 20 recent alerts, freshness stale."
+    },
+    "banner": {
+      "headline": "Liquidation watchlist top=ETHUSDT level=severe freshness=stale action=monitor_only",
+      "recommended_action": "monitor_only",
+      "top_symbol": "ETHUSDT",
+      "top_state_level": "severe",
+      "top_freshness_status": "stale",
+      "severe_count": 1,
+      "elevated_count": 0,
+      "quiet_count": 1
+    },
+    "rows": [
+      {
+        "symbol": "ETHUSDT",
+        "state_level": "severe",
+        "freshness_status": "stale",
+        "recommended_action": "monitor_only",
+        "primary_side_bias": "LONG",
+        "dominant_severity": "medium",
+        "recent_alert_count": 20,
+        "max_liq_rate_recent": 11.4712,
+        "tagged_rate": 0.03939500527611678,
+        "age_sec": 1883.141,
+        "dashboard_summary": "ETHUSDT severe liquidation regime, bias LONG, 20 recent alerts, freshness stale.",
+        "priority_score": 206.4712
+      }
+    ]
+  },
+  "run_summary": {
+    "version": "v1",
+    "run_type": "liquidation_regime_alerts",
+    "inputs": {
+      "db": "data/microstructure.db",
+      "symbol": "ETHUSDT",
+      "lookback_min": 240,
+      "bucket_sec": 5,
+      "rule": "high_liq_reversal_regime",
+      "recent_limit": 20,
+      "min_liq_rate": 0.5
+    },
+    "metrics": {
+      "rows_total": 2843,
+      "tagged_count": 112,
+      "tagged_rate": 0.03939500527611678,
+      "recent_alert_count": 20,
+      "max_consecutive_tagged": 3,
+      "max_liq_rate_recent": 11.4712
+    },
+    "artifacts": {
+      "json": "reports/LIQUIDATION_REGIME_ALERTS_REAL.json",
+      "md": "reports/LIQUIDATION_REGIME_ALERTS_REAL.md"
+    }
+  }
+}

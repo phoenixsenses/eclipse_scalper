@@ -422,6 +422,44 @@ def _bonferroni_adjust(items: List[Tuple[int, float]]) -> Dict[int, float]:
     return out
 
 
+def _summarize_liquidation_scoring_impact(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
+    impacted = [
+        r
+        for r in rows
+        if str(r.get("rule", "")).startswith("micro_edge_v")
+    ]
+    if not impacted:
+        return {"available": False, "count": 0}
+    avg_delta_score = sum(float(r.get("delta_score_raw_core", 0.0) or 0.0) for r in impacted) / float(len(impacted))
+    avg_delta_npa = sum(float(r.get("delta_npa_core", 0.0) or 0.0) for r in impacted) / float(len(impacted))
+    avg_delta_pass = sum(float(r.get("delta_pass_rate_core", 0.0) or 0.0) for r in impacted) / float(len(impacted))
+    positive = sum(1 for r in impacted if float(r.get("delta_score_raw_core", 0.0) or 0.0) > 0.0)
+    improved = max(impacted, key=lambda r: float(r.get("delta_score_raw_core", 0.0) or 0.0))
+    degraded = min(impacted, key=lambda r: float(r.get("delta_score_raw_core", 0.0) or 0.0))
+    return {
+        "available": True,
+        "count": int(len(impacted)),
+        "positive_delta_score_count": int(positive),
+        "avg_delta_score_raw_core": float(avg_delta_score),
+        "avg_delta_npa_core": float(avg_delta_npa),
+        "avg_delta_pass_rate_core": float(avg_delta_pass),
+        "top_improved": {
+            "symbol": improved.get("symbol"),
+            "rule": improved.get("rule"),
+            "delta_score_raw_core": float(improved.get("delta_score_raw_core", 0.0) or 0.0),
+            "delta_npa_core": float(improved.get("delta_npa_core", 0.0) or 0.0),
+            "delta_pass_rate_core": float(improved.get("delta_pass_rate_core", 0.0) or 0.0),
+        },
+        "top_degraded": {
+            "symbol": degraded.get("symbol"),
+            "rule": degraded.get("rule"),
+            "delta_score_raw_core": float(degraded.get("delta_score_raw_core", 0.0) or 0.0),
+            "delta_npa_core": float(degraded.get("delta_npa_core", 0.0) or 0.0),
+            "delta_pass_rate_core": float(degraded.get("delta_pass_rate_core", 0.0) or 0.0),
+        },
+    }
+
+
 def _args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Rank passive pockets by forward robustness.")
     p.add_argument("--candidates-md", required=True)
@@ -442,6 +480,7 @@ def _args() -> argparse.Namespace:
     p.add_argument("--v2-min-persistence", type=float, default=0.0)
     p.add_argument("--v2-min-confidence", type=float, default=0.0)
     p.add_argument("--passive-profile-in", default="state/passive_realistic_profiles.json")
+    p.add_argument("--passive-max-wait-buckets", type=int, default=0, help="Optional extra passive wait buckets before considering the order unfilled.")
     p.add_argument("--out-md", default="reports/PASSIVE_POCKET_RANKING.md")
     p.add_argument("--out-json", default="reports/PASSIVE_POCKET_RANKING.json")
     p.add_argument("--debug-parse", action="store_true")
@@ -481,8 +520,8 @@ def _args() -> argparse.Namespace:
     )
     p.add_argument(
         "--mitigation-profile",
-        default="baseline",
-        choices=["baseline", "anti_adverse_v1", "anti_adverse_v2", "anti_adverse_v3", "anti_adverse_v4"],
+        default="auto",
+        choices=["baseline", "auto", "anti_adverse_v1", "anti_adverse_v2", "anti_adverse_v3", "anti_adverse_v4", "anti_adverse_v5", "anti_adverse_v6", "event_block_v1", "event_block_book_proxy_v1", "event_block_volatility_v1", "event_block_eth_v1", "event_block_eth_micro_v1", "event_block_eth_micro_imb05_v1", "event_block_eth_micro_imb085_v1"],
         help=(
             "Signal filter profile to reduce adverse selection. "
             "'baseline' = no change. "
@@ -490,7 +529,19 @@ def _args() -> argparse.Namespace:
             "trading fill-rate for lower adverse selection. "
             "'anti_adverse_v2' = light-touch fixed volatility-extreme guard. "
             "'anti_adverse_v3' = quantile-based volatility-extreme guard. "
-            "'anti_adverse_v4' = anti_adverse_v3 + conservative scratch/escape defaults."
+            "'anti_adverse_v4' = anti_adverse_v3 + conservative scratch/escape defaults. "
+            "'anti_adverse_v5' = anti_adverse_v4 + extra passive wait for event-driven fills. "
+            "'anti_adverse_v6' = anti_adverse_v5 + taker fallback after passive miss. "
+            "'event_block_v1' = block negative event lanes book_proxy_pressure and volatility_burst. "
+            "'event_block_book_proxy_v1' = block only book_proxy_pressure. "
+            "'event_block_volatility_v1' = block only volatility_burst. "
+            "'event_block_eth_v1' = same block rule, but only for ETH symbol candidates. "
+            "'event_block_eth_micro_v1' = same block rule, but only for ETH + micro_edge_v3_passive_alpha candidates. "
+            "'event_block_eth_micro_imb05_v1' = same block rule, but only for ETH + micro_edge_v3_passive_alpha + min_imbalance>=0.5 candidates. "
+            "'event_block_eth_micro_imb085_v1' = same block rule, but only for ETH + micro_edge_v3_passive_alpha + min_imbalance>=0.85 candidates. "
+            "'auto' = apply the best validated promoted profile per candidate; currently wires "
+            "event_block_eth_micro_imb085_v1 for ETHUSDT+micro_edge_v3_passive_alpha+h=60+imb>=0.85, "
+            "baseline for all other candidates (default)."
         ),
     )
     return p.parse_args()
@@ -593,7 +644,8 @@ def main() -> int:
     eff_scratch_window_sec = int(args.scratch_window_sec)
     eff_scratch_taker_fee_bps = float(args.scratch_taker_fee_bps)
     eff_scratch_slippage_bps = float(args.scratch_slippage_bps)
-    if mitigation_profile == "anti_adverse_v4":
+    eff_passive_max_wait_buckets = int(args.passive_max_wait_buckets)
+    if mitigation_profile in {"anti_adverse_v4", "anti_adverse_v5", "anti_adverse_v6"}:
         if eff_scratch_bps <= 0.0:
             eff_scratch_bps = 4.0
         if eff_scratch_window_sec <= 0:
@@ -602,8 +654,10 @@ def main() -> int:
             eff_scratch_taker_fee_bps = 1.0
         if eff_scratch_slippage_bps <= 0.0:
             eff_scratch_slippage_bps = 0.5
+    if mitigation_profile in {"anti_adverse_v5", "anti_adverse_v6"} and eff_passive_max_wait_buckets <= 0:
+        eff_passive_max_wait_buckets = 2
 
-    def _mitigation_overrides(c: Dict[str, Any]) -> Dict[str, float]:
+    def _mitigation_overrides(c: Dict[str, Any], rule_name: str) -> Dict[str, float]:
         """Return extra kwargs for validate_pocket_forward based on mitigation profile."""
         if mitigation_profile == "anti_adverse_v1":
             # Require stronger imbalance confirmation + tighter spread
@@ -632,12 +686,89 @@ def main() -> int:
                 "scratch_taker_fee_bps": (float(args.scratch_taker_fee_bps) if float(args.scratch_taker_fee_bps) > 0.0 else 1.0),
                 "scratch_slippage_bps": (float(args.scratch_slippage_bps) if float(args.scratch_slippage_bps) > 0.0 else 0.5),
             }
+        if mitigation_profile == "anti_adverse_v5":
+            return {
+                "vol_quantile_reject": max(0.0, min(0.50, float(args.vol_quantile_reject))),
+                "scratch_bps": (float(args.scratch_bps) if float(args.scratch_bps) > 0.0 else 4.0),
+                "scratch_window_sec": (int(args.scratch_window_sec) if int(args.scratch_window_sec) > 0 else 10),
+                "scratch_taker_fee_bps": (float(args.scratch_taker_fee_bps) if float(args.scratch_taker_fee_bps) > 0.0 else 1.0),
+                "scratch_slippage_bps": (float(args.scratch_slippage_bps) if float(args.scratch_slippage_bps) > 0.0 else 0.5),
+                "passive_max_wait_buckets": (int(args.passive_max_wait_buckets) if int(args.passive_max_wait_buckets) > 0 else 2),
+            }
+        if mitigation_profile == "anti_adverse_v6":
+            return {
+                "vol_quantile_reject": max(0.0, min(0.50, float(args.vol_quantile_reject))),
+                "scratch_bps": (float(args.scratch_bps) if float(args.scratch_bps) > 0.0 else 4.0),
+                "scratch_window_sec": (int(args.scratch_window_sec) if int(args.scratch_window_sec) > 0 else 10),
+                "scratch_taker_fee_bps": (float(args.scratch_taker_fee_bps) if float(args.scratch_taker_fee_bps) > 0.0 else 1.0),
+                "scratch_slippage_bps": (float(args.scratch_slippage_bps) if float(args.scratch_slippage_bps) > 0.0 else 0.5),
+                "passive_max_wait_buckets": (int(args.passive_max_wait_buckets) if int(args.passive_max_wait_buckets) > 0 else 2),
+                "exec_model": "passive_then_taker",
+            }
+        if mitigation_profile == "event_block_v1":
+            return {
+                "event_block_lanes": "book_proxy_pressure,volatility_burst",
+            }
+        if mitigation_profile == "event_block_book_proxy_v1":
+            return {
+                "event_block_lanes": "book_proxy_pressure",
+            }
+        if mitigation_profile == "event_block_volatility_v1":
+            return {
+                "event_block_lanes": "volatility_burst",
+            }
+        if mitigation_profile == "event_block_eth_v1":
+            if str(c.get("symbol", "")).upper() != "ETHUSDT":
+                return {}
+            return {
+                "event_block_lanes": "book_proxy_pressure,volatility_burst",
+            }
+        if mitigation_profile == "event_block_eth_micro_v1":
+            if str(c.get("symbol", "")).upper() != "ETHUSDT":
+                return {}
+            if str(rule_name) != "micro_edge_v3_passive_alpha":
+                return {}
+            return {
+                "event_block_lanes": "book_proxy_pressure,volatility_burst",
+            }
+        if mitigation_profile == "event_block_eth_micro_imb05_v1":
+            if str(c.get("symbol", "")).upper() != "ETHUSDT":
+                return {}
+            if str(rule_name) != "micro_edge_v3_passive_alpha":
+                return {}
+            if float(c.get("min_imbalance", 0)) < 0.5:
+                return {}
+            return {
+                "event_block_lanes": "book_proxy_pressure,volatility_burst",
+            }
+        if mitigation_profile == "event_block_eth_micro_imb085_v1":
+            if str(c.get("symbol", "")).upper() != "ETHUSDT":
+                return {}
+            if str(rule_name) != "micro_edge_v3_passive_alpha":
+                return {}
+            if float(c.get("min_imbalance", 0)) < 0.85:
+                return {}
+            return {
+                "event_block_lanes": "book_proxy_pressure,volatility_burst",
+            }
+        if mitigation_profile == "auto":
+            # Apply the best validated promoted profile per candidate.
+            # Currently: event_block_eth_micro_imb085_v1 for ETHUSDT + micro_edge_v3_passive_alpha
+            # + horizon_sec==60 + min_imbalance>=0.85. All others: baseline.
+            if (
+                str(c.get("symbol", "")).upper() == "ETHUSDT"
+                and str(rule_name) == "micro_edge_v3_passive_alpha"
+                and int(c.get("horizon_sec", 0)) == 60
+                and float(c.get("min_imbalance", 0)) >= 0.85
+            ):
+                return {"event_block_lanes": "book_proxy_pressure,volatility_burst"}
+            return {}
         return {}  # baseline: honour the args values directly
 
     scored: List[Dict[str, Any]] = []
     for c in candidates:
         for rule_name in rules:
-            mit_overrides = _mitigation_overrides(c)
+            mit_overrides = _mitigation_overrides(c, str(rule_name))
 
             def _evaluate_grid(profile_overrides: Dict[str, float]) -> Dict[str, Any]:
                 out: Dict[str, Any] = {}
@@ -661,6 +792,7 @@ def main() -> int:
                             min_n_frac=float(args.min_n_frac),
                             maker_fee_bps=float(fee),
                             passive_profile_in=str(args.passive_profile_in),
+                            passive_max_wait_buckets=int(profile_overrides.get("passive_max_wait_buckets", eff_passive_max_wait_buckets)),
                             passive_adverse_mult=float(adv),
                             v2_min_score=float(args.v2_min_score),
                             v2_min_persistence=float(args.v2_min_persistence),
@@ -670,10 +802,13 @@ def main() -> int:
                             max_spread_tight=float(profile_overrides.get("max_spread_tight", args.max_spread_tight)),
                             max_volatility_extreme=float(profile_overrides.get("max_volatility_extreme", args.max_volatility_extreme if args.max_volatility_extreme is not None else 0.0)),
                             vol_quantile_reject=float(profile_overrides.get("vol_quantile_reject", 0.0)),
+                            event_allow_lanes=str(profile_overrides.get("event_allow_lanes", "")),
+                            event_block_lanes=str(profile_overrides.get("event_block_lanes", "")),
                             scratch_bps=float(profile_overrides.get("scratch_bps", args.scratch_bps)),
                             scratch_window_sec=int(profile_overrides.get("scratch_window_sec", args.scratch_window_sec)),
                             scratch_taker_fee_bps=float(profile_overrides.get("scratch_taker_fee_bps", args.scratch_taker_fee_bps)),
                             scratch_slippage_bps=float(profile_overrides.get("scratch_slippage_bps", args.scratch_slippage_bps)),
+                            exec_model=str(profile_overrides.get("exec_model", "passive_realistic")),
                             regime_filter=str(args.regime).upper() if str(args.regime).lower() not in ("none", "") else "",
                         )
                         agg = _aggregate_eval(res, min_n=int(args.min_n))
@@ -682,6 +817,7 @@ def main() -> int:
                         agg["pass_count"] = int(res.get("pass_count", 0))
                         agg["pass_rate_raw"] = float(res.get("pass_rate", 0.0))
                         agg["insufficient_fill_rate"] = float(res.get("insufficient_fill_rate", 0.0))
+                        agg["event_filter"] = dict(res.get("event_filter") or {})
                         # Prefer explicit validator median attribution when present.
                         for k in [
                             "n_events_total",
@@ -818,6 +954,9 @@ def main() -> int:
                     "delta_npa_stress": stress_npa - base_npa_stress,
                     "delta_pass_rate_core": pass_rate_core - base_pass_rate_core,
                     "delta_pass_rate_stress": pass_rate_stress - base_pass_rate_stress,
+                    "event_allow_lanes": list((core_eval.get("event_filter") or {}).get("allow_lanes", [])),
+                    "event_block_lanes": list((core_eval.get("event_filter") or {}).get("block_lanes", [])),
+                    "event_filter_kept_ratio": float((core_eval.get("event_filter") or {}).get("kept_ratio", 1.0) or 0.0),
                     "failure_reason_top": failure_reason_top,
                     "n_events_total": core_eval.get("n_events_total"),
                     "n_rejected_attempt_gate": core_eval.get("n_rejected_attempt_gate"),
@@ -938,7 +1077,17 @@ def main() -> int:
             if cnt >= 5:
                 break
     survive = sum(1 for r in scored if float(r["evals"].get("fee=1.000|adv=1.000", {}).get("pass_rate", 0.0)) >= 0.5)
+    liq_impact = _summarize_liquidation_scoring_impact(scored)
     print(f"pockets survive fee>=1.0 with pass_rate>=0.5: {survive}")
+    if bool(liq_impact.get("available")):
+        print(
+            "liquidation_scoring_impact "
+            f"count={int(liq_impact.get('count', 0))} "
+            f"positive_delta_score_count={int(liq_impact.get('positive_delta_score_count', 0))} "
+            f"avg_delta_score_raw_core={float(liq_impact.get('avg_delta_score_raw_core', 0.0)):+.6e} "
+            f"avg_delta_npa_core={float(liq_impact.get('avg_delta_npa_core', 0.0)):+.6e} "
+            f"avg_delta_pass_rate_core={float(liq_impact.get('avg_delta_pass_rate_core', 0.0)):+.2%}"
+        )
     if bool(args.diagnostic_breakdown) and scored:
         top = scored[0]
         maker_bps = float(top.get("avg_fee_bps", 0.0) or 0.0)
@@ -972,7 +1121,37 @@ def main() -> int:
             "scratch_window_sec": int(eff_scratch_window_sec),
             "scratch_taker_fee_bps": float(eff_scratch_taker_fee_bps),
             "scratch_slippage_bps": float(eff_scratch_slippage_bps),
+            "passive_max_wait_buckets": int(eff_passive_max_wait_buckets),
             "horizon_sec_override": int(args.horizon_sec),
+            "event_allow_lanes": [],
+            "event_block_lanes": (
+                ["book_proxy_pressure"]
+                if mitigation_profile == "event_block_book_proxy_v1"
+                else (
+                    ["volatility_burst"]
+                    if mitigation_profile == "event_block_volatility_v1"
+                    else (
+                        ["book_proxy_pressure", "volatility_burst"]
+                        if mitigation_profile in {"event_block_v1", "event_block_eth_v1", "event_block_eth_micro_v1", "event_block_eth_micro_imb05_v1", "event_block_eth_micro_imb085_v1", "auto"}
+                        else []
+                    )
+                )
+            ),
+            "event_profile_lane_scope": (
+                ["book_proxy_pressure"]
+                if mitigation_profile == "event_block_book_proxy_v1"
+                else (
+                    ["volatility_burst"]
+                    if mitigation_profile == "event_block_volatility_v1"
+                    else (
+                        ["book_proxy_pressure", "volatility_burst"]
+                        if mitigation_profile in {"event_block_v1", "event_block_eth_v1", "event_block_eth_micro_v1", "event_block_eth_micro_imb05_v1", "event_block_eth_micro_imb085_v1", "auto"}
+                        else []
+                    )
+                )
+            ),
+            "event_profile_symbol_scope": ("ETHUSDT" if mitigation_profile in {"event_block_eth_v1", "event_block_eth_micro_v1", "event_block_eth_micro_imb05_v1", "event_block_eth_micro_imb085_v1", "auto"} else None),
+            "event_profile_rule_scope": ("micro_edge_v3_passive_alpha" if mitigation_profile in {"event_block_eth_micro_v1", "event_block_eth_micro_imb05_v1", "event_block_eth_micro_imb085_v1", "auto"} else None),
         },
         "statistical": {
             "bootstrap_ci": bool(args.bootstrap_ci),
@@ -1010,6 +1189,7 @@ def main() -> int:
             }
             for r in scored
         ],
+        "liquidation_scoring_impact": liq_impact,
         "ranking": scored,
     }
     payload["run_summary"] = build_run_summary(
@@ -1036,6 +1216,14 @@ def main() -> int:
         f"fee_grid={fee_grid} adverse_mult_grid={adverse_grid}",
         f"pass_threshold={float(args.pass_threshold):.3f}",
         (
+            f"liquidation_scoring_impact available={bool(liq_impact.get('available'))} "
+            f"count={int(liq_impact.get('count', 0))} "
+            f"positive_delta_score_count={int(liq_impact.get('positive_delta_score_count', 0))} "
+            f"avg_delta_score_raw_core={float(liq_impact.get('avg_delta_score_raw_core', 0.0)):+.6e} "
+            f"avg_delta_npa_core={float(liq_impact.get('avg_delta_npa_core', 0.0)):+.6e} "
+            f"avg_delta_pass_rate_core={float(liq_impact.get('avg_delta_pass_rate_core', 0.0)):+.2%}"
+        ),
+        (
             f"mitigation_profile={mitigation_profile} gate_config "
             f"min_intensity_strong={float(args.min_intensity_strong):.6f} "
             f"min_imbalance_strong={float(args.min_imbalance_strong):.6f} "
@@ -1044,6 +1232,7 @@ def main() -> int:
             f"vol_quantile_reject={float(args.vol_quantile_reject):.6f} "
             f"scratch_bps={float(eff_scratch_bps):.4f} scratch_window_sec={int(eff_scratch_window_sec)} "
             f"scratch_taker_fee_bps={float(eff_scratch_taker_fee_bps):.4f} scratch_slippage_bps={float(eff_scratch_slippage_bps):.4f} "
+            f"passive_max_wait_buckets={int(eff_passive_max_wait_buckets)} "
             f"horizon_sec_override={int(args.horizon_sec)}"
         ),
         "",

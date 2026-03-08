@@ -33,6 +33,265 @@ def test_validate_micro_edge_smoke_payload() -> None:
     assert rsv.validate_payload(payload, "micro_edge_smoke") == []
 
 
+def test_validate_micro_edge_forward_payload() -> None:
+    payload = {
+        "debug": "localtests/forward.jsonl",
+        "group_by": ["regime_spread_bin"],
+        "discover_frac": 0.6,
+        "counts": {
+            "total": 10,
+            "discovery": 6,
+            "validation": 4,
+            "selected_discovery": 3,
+            "selected_validation": 2,
+            "top_groups": 1,
+        },
+        "thresholds": {"min_n_discovery": 2, "min_n_validation": 2, "min_select_frac": 0.01},
+        "discovery": {"n": 3, "avg_net": 0.001, "p90_net": 0.002, "p90_net_negative": False},
+        "validation": {"n": 2, "avg_net": 0.0005, "p90_net": 0.001, "p90_net_negative": False},
+        "collapse": {"detected": False, "flags": {"p90_sign_flip": False}, "values": {}},
+        "liquidation_impact": {
+            "discovery": {"available": True, "count": 3, "threshold_q75": 0.4, "active": {"n": 1, "avg_net": 0.0012, "p90_net": 0.0012}, "inactive": {"n": 2, "avg_net": 0.0008, "p90_net": 0.0010}},
+            "validation": {"available": False, "count": 0},
+        },
+        "liquidation_regime_tag_impact": {
+            "discovery": {"available": True, "tagged": {"n": 1, "avg_net": 0.0012, "p90_net": 0.0012}, "normal": {"n": 2, "avg_net": 0.0008, "p90_net": 0.0010}},
+            "validation": {"available": True, "tagged": {"n": 0, "avg_net": 0.0, "p90_net": 0.0}, "normal": {"n": 2, "avg_net": 0.0005, "p90_net": 0.0010}},
+        },
+        "event_lane_context_impact": {
+            "discovery": {
+                "available": True,
+                "rows_total": 3,
+                "lane_count": 5,
+                "top_lane_by_delta_avg_net": "spread_stress",
+                "by_lane": {"spread_stress": {"tagged_n": 1, "delta_avg_net": 0.0004, "delta_p90_net": 0.0002}},
+            },
+            "validation": {
+                "available": True,
+                "rows_total": 2,
+                "lane_count": 5,
+                "top_lane_by_delta_avg_net": "return_shock",
+                "by_lane": {"return_shock": {"tagged_n": 1, "delta_avg_net": -0.0002, "delta_p90_net": -0.0001}},
+            },
+        },
+        "run_summary": {
+            "version": "1",
+            "run_type": "validate_micro_edge_forward",
+            "inputs": {"debug": "localtests/forward.jsonl"},
+            "metrics": {"total": 10, "collapse_detected": 0},
+            "artifacts": {"json": "localtests/forward.json"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "validate_micro_edge_forward"
+    assert rsv.validate_payload(payload, "validate_micro_edge_forward") == []
+
+
+def test_validate_liquidation_rule_coverage_payload() -> None:
+    payload = {
+        "symbol": "ETHUSDT",
+        "rule": "high_liq_reversal_regime",
+        "bucket_sec": 5,
+        "results": [
+            {
+                "lookback_min": 60,
+                "bucket_rows": 100,
+                "liq_rows": 10,
+                "rule_fire_count": 2,
+                "rule_fire_rate": 0.02,
+                "rule_given_liq_rate": 0.2,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "liquidation_rule_coverage",
+            "inputs": {"symbol": "ETHUSDT"},
+            "metrics": {"windows": 1},
+            "artifacts": {"json": "reports/out.json", "md": "reports/out.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "liquidation_rule_coverage"
+    assert rsv.validate_payload(payload, "liquidation_rule_coverage") == []
+
+
+def test_validate_summarize_event_signal_bridge_payload() -> None:
+    payload = {
+        "source_forward_json": "reports/forward.json",
+        "discovery": {
+            "available": True,
+            "rows_total": 10,
+            "best_positive_lane": {"lane": "volume_vacuum"},
+            "worst_negative_lane": {"lane": "book_proxy_pressure"},
+            "positive_lane_count": 1,
+            "negative_lane_count": 2,
+            "ranked": [],
+        },
+        "validation": {
+            "available": True,
+            "rows_total": 8,
+            "best_positive_lane": {"lane": "return_shock"},
+            "worst_negative_lane": {"lane": "volatility_burst"},
+            "positive_lane_count": 1,
+            "negative_lane_count": 1,
+            "ranked": [],
+        },
+        "recommendation": "test_event_conditioned_filter",
+        "run_summary": {
+            "version": "1",
+            "run_type": "summarize_event_signal_bridge",
+            "inputs": {"forward_json": "reports/forward.json"},
+            "metrics": {"discovery_positive_lane_count": 1, "validation_positive_lane_count": 1},
+            "artifacts": {"json": "reports/summary.json"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "summarize_event_signal_bridge"
+    assert rsv.validate_payload(payload, "summarize_event_signal_bridge") == []
+
+
+def test_validate_evaluate_event_conditioned_filter_payload() -> None:
+    payload = {
+        "source_bridge_json": "reports/bridge.json",
+        "summary": {
+            "primary_allow_lane": "return_shock",
+            "tentative_allow_lane": "volume_vacuum",
+            "block_lane_count": 2,
+            "recommendation": "test_allow_and_block_filters",
+        },
+        "filter_candidate": {
+            "min_tagged_n": 3,
+            "allow_lanes": ["return_shock"],
+            "tentative_allow_lanes": ["volume_vacuum"],
+            "block_lanes": [{"lane": "spread_stress"}],
+        },
+        "run_summary": {
+            "version": "1",
+            "run_type": "evaluate_event_conditioned_filter",
+            "inputs": {"bridge_json": "reports/bridge.json"},
+            "metrics": {"block_lane_count": 2},
+            "artifacts": {"json": "reports/filter.json"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "evaluate_event_conditioned_filter"
+    assert rsv.validate_payload(payload, "evaluate_event_conditioned_filter") == []
+
+
+def test_validate_evaluate_event_conditioned_forward_payload() -> None:
+    payload = {
+        "source_debug_jsonl": "localtests/debug.jsonl",
+        "source_filter_json": "reports/filter.json",
+        "allow_lanes": ["return_shock"],
+        "block_lanes": ["book_proxy_pressure"],
+        "discovery": {
+            "baseline": {"n": 10, "avg_net": -0.001, "p90_net": 0.001},
+            "filtered": {"n": 4, "avg_net": -0.0005, "p90_net": 0.0012},
+            "delta_avg_net": 0.0005,
+            "delta_p90_net": 0.0002,
+            "kept_ratio": 0.4,
+        },
+        "validation": {
+            "baseline": {"n": 8, "avg_net": -0.0011, "p90_net": 0.0002},
+            "filtered": {"n": 3, "avg_net": -0.0009, "p90_net": 0.0004},
+            "delta_avg_net": 0.0002,
+            "delta_p90_net": 0.0002,
+            "kept_ratio": 0.375,
+        },
+        "recommendation": "test_filter_in_rank_pipeline",
+        "run_summary": {
+            "version": "1",
+            "run_type": "evaluate_event_conditioned_forward",
+            "inputs": {"debug_jsonl": "localtests/debug.jsonl"},
+            "metrics": {"validation_delta_avg_net": 0.0002, "validation_kept_ratio": 0.375},
+            "artifacts": {"json": "reports/out.json"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "evaluate_event_conditioned_forward"
+    assert rsv.validate_payload(payload, "evaluate_event_conditioned_forward") == []
+
+
+def test_validate_evaluate_event_conditioned_forward_grid_payload() -> None:
+    payload = {
+        "source_debug_jsonl": "localtests/debug.jsonl",
+        "source_filter_json": "reports/filter.json",
+        "variant_count": 5,
+        "best_variant": "block_only",
+        "best_validation_delta_avg_net": 0.0003,
+        "best_validation_kept_ratio": 0.42,
+        "rows": [{"variant": "block_only"}],
+        "run_summary": {
+            "version": "1",
+            "run_type": "evaluate_event_conditioned_forward_grid",
+            "inputs": {"debug_jsonl": "localtests/debug.jsonl"},
+            "metrics": {"variant_count": 5},
+            "artifacts": {"json": "reports/out.json"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "evaluate_event_conditioned_forward_grid"
+    assert rsv.validate_payload(payload, "evaluate_event_conditioned_forward_grid") == []
+
+
+def test_validate_summarize_event_conditioned_forward_grid_payload() -> None:
+    payload = {
+        "source_grid_json": "reports/grid.json",
+        "best_tradeoff_variant": {"variant": "block_only", "tradeoff_score": 0.74},
+        "best_quality_variant": {"variant": "primary_allow_block", "validation_delta_avg_net": 0.0012},
+        "recommendation": "test_tradeoff_variant_in_rank_pipeline",
+        "rows": [{"variant": "block_only"}],
+        "run_summary": {
+            "version": "1",
+            "run_type": "summarize_event_conditioned_forward_grid",
+            "inputs": {"grid_json": "reports/grid.json"},
+            "metrics": {"best_tradeoff_score": 0.74},
+            "artifacts": {"json": "reports/out.json"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "summarize_event_conditioned_forward_grid"
+    assert rsv.validate_payload(payload, "summarize_event_conditioned_forward_grid") == []
+
+
+def test_validate_summarize_rank_event_filter_payload() -> None:
+    payload = {
+        "source_baseline_json": "reports/EVENT_BLOCK_BASELINE_REAL.json",
+        "source_filtered_json": "reports/EVENT_BLOCK_V1_REAL.json",
+        "baseline_top": {"symbol": "ETHUSDT", "rule": "micro_edge_v3_passive_alpha", "npa_core": -0.0002, "score_raw_core": -0.0003, "attempt_fill_rate": 0.65},
+        "filtered_top": {"symbol": "ETHUSDT", "rule": "micro_edge_v3_passive_alpha", "npa_core": -0.0001, "score_raw_core": -0.0001, "attempt_fill_rate": 0.60, "event_block_lanes": ["book_proxy_pressure", "volatility_burst"], "event_filter_kept_ratio": 0.74},
+        "delta": {"npa_core": 0.0001, "score_raw_core": 0.0002, "attempt_fill_rate": -0.05},
+        "recommendation": "test_event_block_v1_in_rank_pipeline",
+        "run_summary": {
+            "version": "v1",
+            "run_type": "summarize_rank_event_filter",
+            "inputs": {"baseline_json": "reports/EVENT_BLOCK_BASELINE_REAL.json", "filtered_json": "reports/EVENT_BLOCK_V1_REAL.json"},
+            "metrics": {"delta_npa_core": 0.0001, "delta_score_raw_core": 0.0002, "filtered_kept_ratio": 0.74},
+            "artifacts": {"json": "reports/RANK_EVENT_FILTER_SUMMARY.json"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "summarize_rank_event_filter"
+    assert rsv.validate_payload(payload, "summarize_rank_event_filter") == []
+
+
+def test_validate_summarize_rank_event_filter_set_payload() -> None:
+    payload = {
+        "source_baseline_json": "reports/BASE.json",
+        "source_filtered_json": "reports/FILTERED.json",
+        "common_count": 2,
+        "improved_count": 1,
+        "degraded_count": 1,
+        "median_delta_npa_core": 0.0001,
+        "median_delta_score_raw_core": 0.0002,
+        "median_filtered_kept_ratio": 0.7,
+        "best_tradeoff_row": {"symbol": "ETHUSDT", "rule": "r1", "delta_npa_core": 0.0001, "filtered_kept_ratio": 0.7},
+        "recommendation": "mixed_candidate_set_result",
+        "rows": [{"symbol": "ETHUSDT", "rule": "r1", "delta_npa_core": 0.0001, "delta_score_raw_core": 0.0002, "delta_attempt_fill_rate": -0.02, "filtered_kept_ratio": 0.7}],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "summarize_rank_event_filter_set",
+            "inputs": {"baseline_json": "reports/BASE.json", "filtered_json": "reports/FILTERED.json"},
+            "metrics": {"common_count": 2, "improved_count": 1, "median_delta_npa_core": 0.0001},
+            "artifacts": {"json": "reports/RANK_EVENT_FILTER_SET_SUMMARY.json"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "summarize_rank_event_filter_set"
+    assert rsv.validate_payload(payload, "summarize_rank_event_filter_set") == []
+
+
 def test_validate_canonical_payload() -> None:
     payload = {
         "status": "pass",
@@ -105,6 +364,1240 @@ def test_validate_summarize_rank_attribution_payload() -> None:
     assert rsv.validate_payload(payload, "summarize_rank_attribution") == []
 
 
+def test_validate_summarize_liq_regime_tag_impact_payload() -> None:
+    payload = {
+        "source": "reports/forward.json",
+        "discovery": {
+            "available": True,
+            "tagged": {"n": 3, "avg_net": 0.0010, "p90_net": 0.0015},
+            "normal": {"n": 7, "avg_net": 0.0004, "p90_net": 0.0008},
+            "delta_avg_net": 0.0006,
+            "delta_p90_net": 0.0007,
+            "sample_warning": False,
+        },
+        "validation": {
+            "available": True,
+            "tagged": {"n": 2, "avg_net": -0.0001, "p90_net": 0.0002},
+            "normal": {"n": 8, "avg_net": 0.0002, "p90_net": 0.0006},
+            "delta_avg_net": -0.0003,
+            "delta_p90_net": -0.0004,
+            "sample_warning": False,
+        },
+        "recommendation": "Next action: discovery edge does not survive validation. Keep as annotation, not as a trading gate.",
+        "run_summary": {
+            "version": "v1",
+            "run_type": "summarize_liq_regime_tag_impact",
+            "inputs": {"source": "reports/forward.json"},
+            "metrics": {"discovery_delta_avg_net": 0.0006, "validation_delta_avg_net": -0.0003},
+            "artifacts": {"json": "reports/liq_regime_tag_summary.json"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "summarize_liq_regime_tag_impact"
+    assert rsv.validate_payload(payload, "summarize_liq_regime_tag_impact") == []
+
+
+def test_validate_summarize_liq_tag_signal_behavior_payload() -> None:
+    payload = {
+        "debug": "localtests/debug.jsonl",
+        "rule": "high_liq_reversal_regime",
+        "overall": {
+            "rows_total": 10,
+            "tagged": {"n": 2, "avg_net": 0.0009, "p90_net": 0.0012, "break_even_bps_total": 9.0},
+            "normal": {"n": 8, "avg_net": 0.0001, "p90_net": 0.0005, "break_even_bps_total": 1.0},
+            "delta_avg_net": 0.0008,
+            "delta_p90_net": 0.0007,
+        },
+        "recommendation": "Next action: tagged signals look stronger. Use liquidation regime as a downstream filter candidate.",
+        "run_summary": {
+            "version": "v1",
+            "run_type": "summarize_liq_tag_signal_behavior",
+            "inputs": {"debug": "localtests/debug.jsonl", "rule": "high_liq_reversal_regime"},
+            "metrics": {"rows_total": 10, "tagged_n": 2, "normal_n": 8, "delta_avg_net": 0.0008, "delta_p90_net": 0.0007},
+            "artifacts": {"json": "reports/liq_tag_signal_behavior.json"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "summarize_liq_tag_signal_behavior"
+    assert rsv.validate_payload(payload, "summarize_liq_tag_signal_behavior") == []
+
+
+def test_validate_liquidation_regime_alerts_payload() -> None:
+    payload = {
+        "symbol": "ETHUSDT",
+        "rule": "high_liq_reversal_regime",
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "recent_limit": 20,
+        "min_liq_rate": 2.0,
+        "summary": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 2,
+            "max_consecutive_tagged": 2,
+            "max_liq_rate_recent": 5.0,
+            "side_bias_counts": {"LONG": 1, "SHORT": 1},
+            "severity_counts": {"high": 1, "medium": 1},
+        },
+        "alerts": [
+            {
+                "ts_ms": 1,
+                "side_bias": "LONG",
+                "severity": "high",
+                "liq_rate_per_sec": 5.0,
+                "liq_imbalance": 0.8,
+                "spread": 0.01,
+                "trade_intensity": 10.0,
+                "ret_1": -0.002,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "liquidation_regime_alerts",
+            "inputs": {"symbol": "ETHUSDT"},
+            "metrics": {"rows_total": 100},
+            "artifacts": {"json": "reports/liq_alerts.json", "md": "reports/liq_alerts.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "liquidation_regime_alerts"
+    assert rsv.validate_payload(payload, "liquidation_regime_alerts") == []
+
+
+def test_validate_liquidation_alert_state_payload() -> None:
+    payload = {
+        "source_json": "reports/LIQUIDATION_REGIME_ALERTS_REAL.json",
+        "symbol": "ETHUSDT",
+        "rule": "high_liq_reversal_regime",
+        "dashboard_summary": "ETHUSDT elevated liquidation regime, bias LONG, 3 recent alerts, freshness fresh.",
+        "notification_text": "[liq-regime] symbol=ETHUSDT level=elevated freshness=fresh bias=LONG recent_alerts=3 max_liq_rate=5.2000 action=show_caution",
+        "recommended_action": "show_caution",
+        "state": {
+            "level": "elevated",
+            "reasons": ["recent_alert_cluster"],
+            "primary_side_bias": "LONG",
+            "dominant_severity": "medium",
+            "freshness": {"status": "fresh", "age_sec": 4.0, "stale_after_sec": 60},
+        },
+        "card": {
+            "headline": "ETHUSDT liquidation regime elevated",
+            "operator_note": "Show on dashboard.",
+            "recent_alert_count": 3,
+            "tagged_rate": 0.04,
+            "max_consecutive_tagged": 2,
+            "max_liq_rate_recent": 5.2,
+            "primary_side_bias": "LONG",
+            "dominant_severity": "medium",
+            "latest_alert_ts_ms": 456,
+            "freshness_status": "fresh",
+            "age_sec": 4.0,
+        },
+        "summary_snapshot": {
+            "rows_total": 50,
+            "tagged_count": 2,
+            "tagged_rate": 0.04,
+            "recent_alert_count": 3,
+            "max_consecutive_tagged": 2,
+            "max_liq_rate_recent": 5.2,
+            "side_bias_counts": {"LONG": 2},
+            "severity_counts": {"medium": 2},
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "liquidation_alert_state",
+            "inputs": {"source_json": "reports/LIQUIDATION_REGIME_ALERTS_REAL.json"},
+            "metrics": {"state_level": "elevated", "recommended_action": "show_caution"},
+            "artifacts": {"json": "reports/LIQUIDATION_ALERT_STATE.json", "md": "reports/LIQUIDATION_ALERT_STATE.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "liquidation_alert_state"
+    assert rsv.validate_payload(payload, "liquidation_alert_state") == []
+
+
+def test_validate_liquidation_watchlist_payload() -> None:
+    payload = {
+        "rule": "high_liq_reversal_regime",
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "recent_limit": 20,
+        "min_liq_rate": 0.0,
+        "summary": {"symbol_count": 2, "top_n": 2, "state_counts": {"elevated": 1, "quiet": 1}, "top_symbol": "ETHUSDT"},
+        "top_summary": {
+            "symbol": "ETHUSDT",
+            "state_level": "elevated",
+            "freshness_status": "fresh",
+            "recommended_action": "show_caution",
+            "dashboard_summary": "ETH summary",
+        },
+        "banner": {
+            "headline": "Liquidation watchlist top=ETHUSDT level=elevated freshness=fresh action=show_caution",
+            "recommended_action": "show_caution",
+            "top_symbol": "ETHUSDT",
+            "top_state_level": "elevated",
+            "top_freshness_status": "fresh",
+            "severe_count": 0,
+            "elevated_count": 1,
+            "quiet_count": 1,
+        },
+        "rows": [
+            {
+                "symbol": "ETHUSDT",
+                "state_level": "elevated",
+                "freshness_status": "fresh",
+                "recommended_action": "show_caution",
+                "primary_side_bias": "LONG",
+                "dominant_severity": "medium",
+                "recent_alert_count": 3,
+                "max_liq_rate_recent": 5.2,
+                "tagged_rate": 0.04,
+                "age_sec": 4.0,
+                "dashboard_summary": "ETH summary",
+                "priority_score": 120.0,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "liquidation_watchlist",
+            "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"]},
+            "metrics": {"symbol_count": 2, "elevated_count": 1, "severe_count": 0, "quiet_count": 1},
+            "artifacts": {"json": "reports/LIQUIDATION_WATCHLIST.json", "md": "reports/LIQUIDATION_WATCHLIST.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "liquidation_watchlist"
+    assert rsv.validate_payload(payload, "liquidation_watchlist") == []
+
+
+def test_validate_event_lane_persistence_policy_payload() -> None:
+    payload = {
+        "history_path": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl",
+        "last_n": 24,
+        "summary": {
+            "history_path": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl",
+            "available_rows": 10,
+            "used_rows": 8,
+            "sequence_length": 8,
+            "latest_top_lane": "spread_stress",
+            "flip_count": 4,
+            "noisy_lane_count": 1,
+            "primary_noisy_lane": "spread_stress",
+        },
+        "lanes": [
+            {
+                "lane": "spread_stress",
+                "top_hits": 4,
+                "hit_rate": 0.5,
+                "longest_streak": 1,
+                "transitions_involved": 4,
+                "is_noisy": True,
+                "recommended_min_persist_snapshots": 2,
+                "recommended_cooldown_snapshots": 1,
+                "recommendation": "stabilize_banner",
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "event_lane_persistence_policy",
+            "inputs": {"history_path": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl", "last_n": 24},
+            "metrics": {"used_rows": 8, "flip_count": 4, "noisy_lane_count": 1, "primary_noisy_lane": "spread_stress"},
+            "artifacts": {"json": "reports/EVENT_LANE_PERSISTENCE_POLICY.json", "md": "reports/EVENT_LANE_PERSISTENCE_POLICY.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "event_lane_persistence_policy"
+    assert rsv.validate_payload(payload, "event_lane_persistence_policy") == []
+
+
+def test_validate_event_merged_banner_policy_payload() -> None:
+    payload = {
+        "effective_json": "reports/EVENT_WATCHBOARD_EFFECTIVE.json",
+        "summary": {
+            "banner_mode": "merged",
+            "focus_lane_count": 2,
+            "focus_lanes": ["return_shock", "book_proxy_pressure"],
+            "top_lane": "return_shock",
+            "top_action": "escalate_monitoring",
+        },
+        "banner": {
+            "headline": "Research events merged=return_shock + book_proxy_pressure action=escalate_monitoring",
+            "recommended_action": "escalate_monitoring",
+            "top_lane": "return_shock",
+            "banner_mode": "merged",
+            "focus_lanes": ["return_shock", "book_proxy_pressure"],
+            "reasons": ["multiple_fresh_high_priority_lanes"],
+            "operator_note": "Show one combined banner for the current high-priority lanes.",
+        },
+        "focus_rows": [
+            {
+                "lane": "return_shock",
+                "level": "severe",
+                "freshness_status": "fresh",
+                "recommended_action": "escalate_monitoring",
+                "effective_display_mode": "keep",
+                "effective_priority_score": 225.0,
+                "headline": "Return shock",
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "event_merged_banner_policy",
+            "inputs": {"effective_json": "reports/EVENT_WATCHBOARD_EFFECTIVE.json"},
+            "metrics": {"banner_mode": "merged", "focus_lane_count": 2, "top_lane": "return_shock", "top_action": "escalate_monitoring"},
+            "artifacts": {"json": "reports/EVENT_MERGED_BANNER_POLICY.json", "md": "reports/EVENT_MERGED_BANNER_POLICY.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "event_merged_banner_policy"
+    assert rsv.validate_payload(payload, "event_merged_banner_policy") == []
+
+
+def test_validate_spread_stress_alerts_payload() -> None:
+    payload = {
+        "symbol": "ETHUSDT",
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "summary": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 3,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_spread_tagged": 0.01,
+            "avg_trade_intensity_tagged": 5.0,
+        },
+        "alerts": [
+            {"ts_ms": 1, "severity": "high", "spread": 0.02, "trade_intensity": 1.0, "ret_1": -0.001}
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "spread_stress_alerts",
+            "inputs": {"symbol": "ETHUSDT"},
+            "metrics": {"rows_total": 100, "tagged_count": 5},
+            "artifacts": {"json": "reports/SPREAD_STRESS_ALERTS.json", "md": "reports/SPREAD_STRESS_ALERTS.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "spread_stress_alerts"
+    assert rsv.validate_payload(payload, "spread_stress_alerts") == []
+
+
+def test_validate_spread_stress_state_payload() -> None:
+    payload = {
+        "source_json": "reports/SPREAD_STRESS_ALERTS_REAL.json",
+        "symbol": "ETHUSDT",
+        "state": {
+            "level": "elevated",
+            "reasons": ["recent_spread_stress_cluster"],
+            "freshness": {"status": "fresh", "age_sec": 4.0, "stale_after_sec": 60},
+        },
+        "dashboard_summary": "ETHUSDT elevated spread stress, 4 recent alerts, freshness fresh.",
+        "notification_text": "[spread-stress] symbol=ETHUSDT level=elevated freshness=fresh recent_alerts=4 avg_spread=0.000150 action=show_caution",
+        "recommended_action": "show_caution",
+        "card": {
+            "headline": "ETHUSDT spread stress elevated: 4 recent alerts",
+            "operator_note": "Show caution for passive execution quality.",
+            "recent_alert_count": 4,
+            "tagged_rate": 0.05,
+            "high_count": 0,
+            "medium_count": 4,
+            "avg_spread_tagged": 0.00015,
+            "avg_trade_intensity_tagged": 500.0,
+            "latest_alert_ts_ms": 1,
+            "freshness_status": "fresh",
+            "age_sec": 4.0,
+        },
+        "summary_snapshot": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 4,
+            "high_count": 0,
+            "medium_count": 4,
+            "avg_spread_tagged": 0.00015,
+            "avg_trade_intensity_tagged": 500.0,
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "spread_stress_state",
+            "inputs": {"source_json": "reports/SPREAD_STRESS_ALERTS_REAL.json"},
+            "metrics": {"state_level": "elevated", "recommended_action": "show_caution"},
+            "artifacts": {"json": "reports/SPREAD_STRESS_STATE.json", "md": "reports/SPREAD_STRESS_STATE.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "spread_stress_state"
+    assert rsv.validate_payload(payload, "spread_stress_state") == []
+
+
+def test_validate_return_shock_alerts_payload() -> None:
+    payload = {
+        "symbol": "ETHUSDT",
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "summary": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 3,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_abs_ret_1_tagged": 0.0012,
+            "avg_trade_intensity_tagged": 450.0,
+            "direction_counts": {"UP": 1, "DOWN": 2, "FLAT": 0},
+        },
+        "alerts": [
+            {
+                "ts_ms": 1,
+                "severity": "high",
+                "direction": "DOWN",
+                "ret_1": -0.003,
+                "abs_ret_1": 0.003,
+                "spread": 0.0001,
+                "trade_intensity": 500.0,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "return_shock_alerts",
+            "inputs": {"symbol": "ETHUSDT"},
+            "metrics": {"rows_total": 100, "tagged_count": 5},
+            "artifacts": {"json": "reports/RETURN_SHOCK_ALERTS.json", "md": "reports/RETURN_SHOCK_ALERTS.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "return_shock_alerts"
+    assert rsv.validate_payload(payload, "return_shock_alerts") == []
+
+
+def test_validate_return_shock_state_payload() -> None:
+    payload = {
+        "source_json": "reports/RETURN_SHOCK_ALERTS_REAL.json",
+        "symbol": "ETHUSDT",
+        "state": {
+            "level": "elevated",
+            "reasons": ["recent_return_shock_cluster"],
+            "dominant_direction": "DOWN",
+            "freshness": {"status": "fresh", "age_sec": 4.0, "stale_after_sec": 60},
+        },
+        "dashboard_summary": "ETHUSDT elevated return shock, 3 recent alerts, freshness fresh.",
+        "notification_text": "[return-shock] symbol=ETHUSDT level=elevated freshness=fresh direction=DOWN recent_alerts=3 avg_abs_ret=0.001200 action=show_caution",
+        "recommended_action": "show_caution",
+        "card": {
+            "headline": "ETHUSDT return shock elevated",
+            "operator_note": "Use as event context; do not map directly to trade direction.",
+            "recent_alert_count": 3,
+            "tagged_rate": 0.05,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_abs_ret_1_tagged": 0.0012,
+            "avg_trade_intensity_tagged": 450.0,
+            "dominant_direction": "DOWN",
+            "latest_alert_ts_ms": 1,
+            "freshness_status": "fresh",
+            "age_sec": 4.0,
+        },
+        "summary_snapshot": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 3,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_abs_ret_1_tagged": 0.0012,
+            "avg_trade_intensity_tagged": 450.0,
+            "direction_counts": {"UP": 1, "DOWN": 2, "FLAT": 0},
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "return_shock_state",
+            "inputs": {"source_json": "reports/RETURN_SHOCK_ALERTS_REAL.json"},
+            "metrics": {"state_level": "elevated", "recommended_action": "show_caution"},
+            "artifacts": {"json": "reports/RETURN_SHOCK_STATE.json", "md": "reports/RETURN_SHOCK_STATE.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "return_shock_state"
+    assert rsv.validate_payload(payload, "return_shock_state") == []
+
+
+def test_validate_return_shock_watchlist_payload() -> None:
+    payload = {
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "recent_limit": 20,
+        "summary": {"symbol_count": 2, "top_n": 2, "state_counts": {"severe": 1, "elevated": 1}, "top_symbol": "ETHUSDT"},
+        "top_summary": {
+            "symbol": "ETHUSDT",
+            "state_level": "severe",
+            "freshness_status": "fresh",
+            "recommended_action": "escalate_monitoring",
+            "dashboard_summary": "ETH severe return shock",
+        },
+        "banner": {
+            "headline": "Return shock watchlist top=ETHUSDT level=severe freshness=fresh action=escalate_monitoring",
+            "recommended_action": "escalate_monitoring",
+            "top_symbol": "ETHUSDT",
+            "top_state_level": "severe",
+            "top_freshness_status": "fresh",
+            "severe_count": 1,
+            "elevated_count": 1,
+            "quiet_count": 0,
+        },
+        "rows": [
+            {
+                "symbol": "ETHUSDT",
+                "state_level": "severe",
+                "freshness_status": "fresh",
+                "recommended_action": "escalate_monitoring",
+                "dominant_direction": "DOWN",
+                "recent_alert_count": 6,
+                "high_count": 2,
+                "medium_count": 4,
+                "avg_abs_ret_1_tagged": 0.0021,
+                "avg_trade_intensity_tagged": 400.0,
+                "age_sec": 3.0,
+                "dashboard_summary": "ETH severe return shock",
+                "priority_score": 227.0,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "return_shock_watchlist",
+            "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"]},
+            "metrics": {"symbol_count": 2},
+            "artifacts": {"json": "reports/RETURN_SHOCK_WATCHLIST.json", "md": "reports/RETURN_SHOCK_WATCHLIST.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "return_shock_watchlist"
+    assert rsv.validate_payload(payload, "return_shock_watchlist") == []
+
+
+def test_validate_volume_vacuum_alerts_payload() -> None:
+    payload = {
+        "lane": "volume_vacuum",
+        "symbol": "ETHUSDT",
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "summary": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 3,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_trade_intensity_tagged": 20.0,
+            "avg_spread_tagged": 0.0002,
+        },
+        "alerts": [
+            {"ts_ms": 1, "severity": "high", "trade_intensity": 10.0, "spread": 0.0002, "ret_1": 0.0}
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "volume_vacuum_alerts",
+            "inputs": {"symbol": "ETHUSDT"},
+            "metrics": {"rows_total": 100, "tagged_count": 5},
+            "artifacts": {"json": "reports/VOLUME_VACUUM_ALERTS.json", "md": "reports/VOLUME_VACUUM_ALERTS.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "volume_vacuum_alerts"
+    assert rsv.validate_payload(payload, "volume_vacuum_alerts") == []
+
+
+def test_validate_volume_vacuum_state_payload() -> None:
+    payload = {
+        "lane": "volume_vacuum",
+        "source_json": "reports/VOLUME_VACUUM_ALERTS_REAL.json",
+        "symbol": "ETHUSDT",
+        "state": {
+            "level": "elevated",
+            "reasons": ["recent_volume_vacuum_cluster"],
+            "freshness": {"status": "fresh", "age_sec": 4.0, "stale_after_sec": 60},
+        },
+        "dashboard_summary": "ETHUSDT elevated volume vacuum, 3 recent alerts, freshness fresh.",
+        "notification_text": "[volume-vacuum] symbol=ETHUSDT level=elevated freshness=fresh recent_alerts=3 avg_trade_intensity=20.00 avg_spread=0.000200 action=monitor_only",
+        "recommended_action": "monitor_only",
+        "card": {
+            "headline": "ETHUSDT volume vacuum elevated",
+            "operator_note": "Thin/quiet market context; use as passive execution caution, not directional signal.",
+            "recent_alert_count": 3,
+            "tagged_rate": 0.05,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_trade_intensity_tagged": 20.0,
+            "avg_spread_tagged": 0.0002,
+            "latest_alert_ts_ms": 1,
+            "freshness_status": "fresh",
+            "age_sec": 4.0,
+        },
+        "summary_snapshot": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 3,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_trade_intensity_tagged": 20.0,
+            "avg_spread_tagged": 0.0002,
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "volume_vacuum_state",
+            "inputs": {"source_json": "reports/VOLUME_VACUUM_ALERTS_REAL.json"},
+            "metrics": {"state_level": "elevated", "recommended_action": "monitor_only"},
+            "artifacts": {"json": "reports/VOLUME_VACUUM_STATE.json", "md": "reports/VOLUME_VACUUM_STATE.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "volume_vacuum_state"
+    assert rsv.validate_payload(payload, "volume_vacuum_state") == []
+
+
+def test_validate_volume_vacuum_watchlist_payload() -> None:
+    payload = {
+        "lane": "volume_vacuum",
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "recent_limit": 20,
+        "summary": {"symbol_count": 2, "top_n": 2, "state_counts": {"severe": 1, "elevated": 1}, "top_symbol": "ETHUSDT"},
+        "top_summary": {
+            "symbol": "ETHUSDT",
+            "state_level": "severe",
+            "freshness_status": "fresh",
+            "recommended_action": "show_caution",
+            "dashboard_summary": "ETH severe volume vacuum",
+        },
+        "banner": {
+            "headline": "Volume vacuum watchlist top=ETHUSDT level=severe freshness=fresh action=show_caution",
+            "recommended_action": "show_caution",
+            "top_symbol": "ETHUSDT",
+            "top_state_level": "severe",
+            "top_freshness_status": "fresh",
+            "severe_count": 1,
+            "elevated_count": 1,
+            "quiet_count": 0,
+        },
+        "rows": [
+            {
+                "symbol": "ETHUSDT",
+                "state_level": "severe",
+                "freshness_status": "fresh",
+                "recommended_action": "show_caution",
+                "recent_alert_count": 6,
+                "high_count": 2,
+                "medium_count": 4,
+                "avg_trade_intensity_tagged": 20.0,
+                "avg_spread_tagged": 0.00021,
+                "age_sec": 3.0,
+                "dashboard_summary": "ETH severe volume vacuum",
+                "priority_score": 227.0,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "volume_vacuum_watchlist",
+            "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"]},
+            "metrics": {"symbol_count": 2, "severe_count": 1, "elevated_count": 1, "quiet_count": 0},
+            "artifacts": {"json": "reports/VOLUME_VACUUM_WATCHLIST.json", "md": "reports/VOLUME_VACUUM_WATCHLIST.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "volume_vacuum_watchlist"
+    assert rsv.validate_payload(payload, "volume_vacuum_watchlist") == []
+
+
+def test_validate_volatility_burst_alerts_payload() -> None:
+    payload = {
+        "lane": "volatility_burst",
+        "symbol": "ETHUSDT",
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "summary": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 3,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_abs_ret_1_tagged": 0.001,
+            "avg_trade_intensity_tagged": 400.0,
+            "direction_counts": {"UP": 2, "DOWN": 1, "FLAT": 0},
+        },
+        "alerts": [
+            {"ts_ms": 1, "severity": "high", "direction": "UP", "ret_1": 0.002, "abs_ret_1": 0.002, "trade_intensity": 500.0, "spread": 0.0002}
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "volatility_burst_alerts",
+            "inputs": {"symbol": "ETHUSDT"},
+            "metrics": {"rows_total": 100, "tagged_count": 5},
+            "artifacts": {"json": "reports/VOLATILITY_BURST_ALERTS.json", "md": "reports/VOLATILITY_BURST_ALERTS.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "volatility_burst_alerts"
+    assert rsv.validate_payload(payload, "volatility_burst_alerts") == []
+
+
+def test_validate_volatility_burst_state_payload() -> None:
+    payload = {
+        "lane": "volatility_burst",
+        "source_json": "reports/VOLATILITY_BURST_ALERTS_REAL.json",
+        "symbol": "ETHUSDT",
+        "state": {
+            "level": "elevated",
+            "reasons": ["recent_volatility_burst_cluster"],
+            "dominant_direction": "UP",
+            "freshness": {"status": "fresh", "age_sec": 4.0, "stale_after_sec": 60},
+        },
+        "dashboard_summary": "ETHUSDT elevated volatility burst, 3 recent alerts, freshness fresh.",
+        "notification_text": "[volatility-burst] symbol=ETHUSDT level=elevated freshness=fresh direction=UP recent_alerts=3 avg_abs_ret=0.001000 action=show_caution",
+        "recommended_action": "show_caution",
+        "card": {
+            "headline": "ETHUSDT volatility burst elevated",
+            "operator_note": "Use as expansion context; do not map directly to execution or trade direction.",
+            "recent_alert_count": 3,
+            "tagged_rate": 0.05,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_abs_ret_1_tagged": 0.001,
+            "avg_trade_intensity_tagged": 400.0,
+            "dominant_direction": "UP",
+            "latest_alert_ts_ms": 1,
+            "freshness_status": "fresh",
+            "age_sec": 4.0,
+        },
+        "summary_snapshot": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 3,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_abs_ret_1_tagged": 0.001,
+            "avg_trade_intensity_tagged": 400.0,
+            "direction_counts": {"UP": 2, "DOWN": 1, "FLAT": 0},
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "volatility_burst_state",
+            "inputs": {"source_json": "reports/VOLATILITY_BURST_ALERTS_REAL.json"},
+            "metrics": {"state_level": "elevated", "recommended_action": "show_caution"},
+            "artifacts": {"json": "reports/VOLATILITY_BURST_STATE.json", "md": "reports/VOLATILITY_BURST_STATE.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "volatility_burst_state"
+    assert rsv.validate_payload(payload, "volatility_burst_state") == []
+
+
+def test_validate_volatility_burst_watchlist_payload() -> None:
+    payload = {
+        "lane": "volatility_burst",
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "recent_limit": 20,
+        "summary": {"symbol_count": 2, "top_n": 2, "state_counts": {"severe": 1, "elevated": 1}, "top_symbol": "ETHUSDT"},
+        "top_summary": {
+            "symbol": "ETHUSDT",
+            "state_level": "severe",
+            "freshness_status": "fresh",
+            "recommended_action": "escalate_monitoring",
+            "dashboard_summary": "ETH severe volatility burst",
+        },
+        "banner": {
+            "headline": "Volatility burst watchlist top=ETHUSDT level=severe freshness=fresh action=escalate_monitoring",
+            "recommended_action": "escalate_monitoring",
+            "top_symbol": "ETHUSDT",
+            "top_state_level": "severe",
+            "top_freshness_status": "fresh",
+            "severe_count": 1,
+            "elevated_count": 1,
+            "quiet_count": 0,
+        },
+        "rows": [
+            {
+                "symbol": "ETHUSDT",
+                "state_level": "severe",
+                "freshness_status": "fresh",
+                "recommended_action": "escalate_monitoring",
+                "dominant_direction": "UP",
+                "recent_alert_count": 6,
+                "high_count": 2,
+                "medium_count": 4,
+                "avg_abs_ret_1_tagged": 0.0021,
+                "avg_trade_intensity_tagged": 400.0,
+                "age_sec": 3.0,
+                "dashboard_summary": "ETH severe volatility burst",
+                "priority_score": 247.0,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "volatility_burst_watchlist",
+            "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"]},
+            "metrics": {"symbol_count": 2, "severe_count": 1, "elevated_count": 1, "quiet_count": 0},
+            "artifacts": {"json": "reports/VOLATILITY_BURST_WATCHLIST.json", "md": "reports/VOLATILITY_BURST_WATCHLIST.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "volatility_burst_watchlist"
+    assert rsv.validate_payload(payload, "volatility_burst_watchlist") == []
+
+
+def test_validate_book_proxy_pressure_alerts_payload() -> None:
+    payload = {
+        "lane": "book_proxy_pressure",
+        "symbol": "ETHUSDT",
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "summary": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 3,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_abs_imbalance_tagged": 0.8,
+            "avg_trade_intensity_tagged": 400.0,
+            "avg_spread_tagged": 0.0008,
+            "side_bias_counts": {"LONG": 2, "SHORT": 1, "NEUTRAL": 0},
+        },
+        "alerts": [
+            {"ts_ms": 1, "severity": "high", "side_bias": "LONG", "imbalance": 0.9, "abs_imbalance": 0.9, "trade_intensity": 500.0, "spread": 0.0008, "ret_1": 0.0}
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "book_proxy_pressure_alerts",
+            "inputs": {"symbol": "ETHUSDT"},
+            "metrics": {"rows_total": 100, "tagged_count": 5},
+            "artifacts": {"json": "reports/BOOK_PROXY_PRESSURE_ALERTS.json", "md": "reports/BOOK_PROXY_PRESSURE_ALERTS.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "book_proxy_pressure_alerts"
+    assert rsv.validate_payload(payload, "book_proxy_pressure_alerts") == []
+
+
+def test_validate_book_proxy_pressure_state_payload() -> None:
+    payload = {
+        "lane": "book_proxy_pressure",
+        "source_json": "reports/BOOK_PROXY_PRESSURE_ALERTS_REAL.json",
+        "symbol": "ETHUSDT",
+        "state": {
+            "level": "elevated",
+            "reasons": ["recent_proxy_pressure_cluster"],
+            "primary_side_bias": "LONG",
+            "freshness": {"status": "fresh", "age_sec": 4.0, "stale_after_sec": 60},
+        },
+        "dashboard_summary": "ETHUSDT elevated book proxy pressure, 3 recent alerts, freshness fresh.",
+        "notification_text": "[book-proxy-pressure] symbol=ETHUSDT level=elevated freshness=fresh side_bias=LONG recent_alerts=3 avg_abs_imbalance=0.8000 action=monitor_only",
+        "recommended_action": "monitor_only",
+        "card": {
+            "headline": "ETHUSDT book proxy pressure elevated",
+            "operator_note": "Proxy lane built from spread, trade intensity and imbalance; not true order-book depth.",
+            "recent_alert_count": 3,
+            "tagged_rate": 0.05,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_abs_imbalance_tagged": 0.8,
+            "avg_trade_intensity_tagged": 400.0,
+            "avg_spread_tagged": 0.0008,
+            "primary_side_bias": "LONG",
+            "latest_alert_ts_ms": 1,
+            "freshness_status": "fresh",
+            "age_sec": 4.0,
+        },
+        "summary_snapshot": {
+            "rows_total": 100,
+            "tagged_count": 5,
+            "tagged_rate": 0.05,
+            "recent_alert_count": 3,
+            "high_count": 1,
+            "medium_count": 2,
+            "avg_abs_imbalance_tagged": 0.8,
+            "avg_trade_intensity_tagged": 400.0,
+            "avg_spread_tagged": 0.0008,
+            "side_bias_counts": {"LONG": 2, "SHORT": 1, "NEUTRAL": 0},
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "book_proxy_pressure_state",
+            "inputs": {"source_json": "reports/BOOK_PROXY_PRESSURE_ALERTS_REAL.json"},
+            "metrics": {"state_level": "elevated", "recommended_action": "monitor_only"},
+            "artifacts": {"json": "reports/BOOK_PROXY_PRESSURE_STATE.json", "md": "reports/BOOK_PROXY_PRESSURE_STATE.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "book_proxy_pressure_state"
+    assert rsv.validate_payload(payload, "book_proxy_pressure_state") == []
+
+
+def test_validate_book_proxy_pressure_watchlist_payload() -> None:
+    payload = {
+        "lane": "book_proxy_pressure",
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "recent_limit": 20,
+        "summary": {"symbol_count": 2, "top_n": 2, "state_counts": {"severe": 1, "elevated": 1}, "top_symbol": "ETHUSDT"},
+        "top_summary": {
+            "symbol": "ETHUSDT",
+            "state_level": "severe",
+            "freshness_status": "fresh",
+            "recommended_action": "show_caution",
+            "dashboard_summary": "ETH severe book proxy pressure",
+        },
+        "banner": {
+            "headline": "Book proxy pressure watchlist top=ETHUSDT level=severe freshness=fresh action=show_caution",
+            "recommended_action": "show_caution",
+            "top_symbol": "ETHUSDT",
+            "top_state_level": "severe",
+            "top_freshness_status": "fresh",
+            "severe_count": 1,
+            "elevated_count": 1,
+            "quiet_count": 0,
+        },
+        "rows": [
+            {
+                "symbol": "ETHUSDT",
+                "state_level": "severe",
+                "freshness_status": "fresh",
+                "recommended_action": "show_caution",
+                "primary_side_bias": "SHORT",
+                "recent_alert_count": 6,
+                "high_count": 2,
+                "medium_count": 4,
+                "avg_abs_imbalance_tagged": 0.95,
+                "avg_trade_intensity_tagged": 400.0,
+                "avg_spread_tagged": 0.0008,
+                "age_sec": 3.0,
+                "dashboard_summary": "ETH severe book proxy pressure",
+                "priority_score": 247.0,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "book_proxy_pressure_watchlist",
+            "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"]},
+            "metrics": {"symbol_count": 2, "severe_count": 1, "elevated_count": 1, "quiet_count": 0},
+            "artifacts": {"json": "reports/BOOK_PROXY_PRESSURE_WATCHLIST.json", "md": "reports/BOOK_PROXY_PRESSURE_WATCHLIST.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "book_proxy_pressure_watchlist"
+    assert rsv.validate_payload(payload, "book_proxy_pressure_watchlist") == []
+
+
+def test_validate_spread_stress_watchlist_payload() -> None:
+    payload = {
+        "lookback_min": 240,
+        "bucket_sec": 5,
+        "recent_limit": 20,
+        "summary": {"symbol_count": 2, "top_n": 2, "state_counts": {"severe": 1, "elevated": 1}, "top_symbol": "ETHUSDT"},
+        "top_summary": {
+            "symbol": "ETHUSDT",
+            "state_level": "severe",
+            "freshness_status": "fresh",
+            "recommended_action": "reduce_passive_aggression",
+            "dashboard_summary": "ETH severe spread stress",
+        },
+        "banner": {
+            "headline": "Spread stress watchlist top=ETHUSDT level=severe freshness=fresh action=reduce_passive_aggression",
+            "recommended_action": "reduce_passive_aggression",
+            "top_symbol": "ETHUSDT",
+            "top_state_level": "severe",
+            "top_freshness_status": "fresh",
+            "severe_count": 1,
+            "elevated_count": 1,
+            "quiet_count": 0,
+        },
+        "rows": [
+            {
+                "symbol": "ETHUSDT",
+                "state_level": "severe",
+                "freshness_status": "fresh",
+                "recommended_action": "reduce_passive_aggression",
+                "recent_alert_count": 6,
+                "high_count": 2,
+                "medium_count": 4,
+                "avg_spread_tagged": 0.00021,
+                "avg_trade_intensity_tagged": 400.0,
+                "age_sec": 3.0,
+                "dashboard_summary": "ETH severe spread stress",
+                "priority_score": 227.0,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "spread_stress_watchlist",
+            "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"]},
+            "metrics": {"symbol_count": 2, "severe_count": 1, "elevated_count": 1, "quiet_count": 0},
+            "artifacts": {"json": "reports/SPREAD_STRESS_WATCHLIST.json", "md": "reports/SPREAD_STRESS_WATCHLIST.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "spread_stress_watchlist"
+    assert rsv.validate_payload(payload, "spread_stress_watchlist") == []
+
+
+def test_validate_fill_toxicity_state_payload() -> None:
+    payload = {
+        "source": "data/live/papertrades_live.parquet",
+        "rows": 10,
+        "top_side": "buy",
+        "state": {"level": "severe", "reasons": ["extreme_toxicity_score"]},
+        "dashboard_summary": "fill toxicity severe, top_side buy, toxicity=1.700, adverse=2.200bps.",
+        "notification_text": "[fill-toxicity] level=severe top_side=buy toxicity=1.7000 adverse_bps=2.2000 pnl_bps=-0.5000 action=reduce_passive_aggression",
+        "recommended_action": "reduce_passive_aggression",
+        "card": {
+            "headline": "Fill toxicity severe",
+            "operator_note": "Escalate monitoring and consider reducing passive aggression.",
+            "top_side": "buy",
+            "rows": 10,
+            "toxicity_score": 1.7,
+            "adverse_bps_mean": 2.2,
+            "pnl_bps_mean": -0.5,
+        },
+        "summary_snapshot": {
+            "rows": 10,
+            "sides": {"buy": {"rows": 5, "adverse_bps_mean": 2.2, "pnl_bps_mean": -0.5, "toxicity_score": 1.7}},
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "fill_toxicity_state",
+            "inputs": {"source": "data/live/papertrades_live.parquet"},
+            "metrics": {"rows": 10, "side_count": 1, "state_level": "severe", "top_side": "buy", "top_toxicity_score": 1.7},
+            "artifacts": {"json": "reports/FILL_TOXICITY_STATE.json", "md": "reports/FILL_TOXICITY_STATE.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "fill_toxicity_state"
+    assert rsv.validate_payload(payload, "fill_toxicity_state") == []
+
+
+def test_validate_latency_stress_state_payload() -> None:
+    payload = {
+        "source": "data/live/papertrades_live.parquet",
+        "state": {"level": "severe", "reasons": ["very_high_p95_fill_delay"]},
+        "dashboard_summary": "latency stress severe, p95=12.00s, p50=4.50s, fill_rate=18.00%.",
+        "notification_text": "[latency-stress] level=severe p95=12.00s p50=4.50s fill_rate=0.1800 corr=-0.3000 action=escalate_monitoring",
+        "recommended_action": "escalate_monitoring",
+        "card": {
+            "headline": "Latency stress severe",
+            "operator_note": "Escalate latency monitoring and inspect runtime execution path.",
+            "rows": 20,
+            "fill_rate": 0.18,
+            "latency_fill_delay_sec_p50": 4.5,
+            "latency_fill_delay_sec_p95": 12.0,
+            "latency_impact_vs_net_corr": -0.3,
+        },
+        "summary_snapshot": {
+            "rows": 20,
+            "fill_rate": 0.18,
+            "queue_competition_score": 0.5,
+            "toxicity_score": 0.8,
+            "adverse_selection_bps_mean": 1.2,
+            "latency_fill_delay_sec_p50": 4.5,
+            "latency_fill_delay_sec_p95": 12.0,
+            "latency_impact_vs_net_corr": -0.3,
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "latency_stress_state",
+            "inputs": {"source": "data/live/papertrades_live.parquet"},
+            "metrics": {"rows": 20, "state_level": "severe", "fill_rate": 0.18, "latency_fill_delay_sec_p95": 12.0},
+            "artifacts": {"json": "reports/LATENCY_STRESS_STATE.json", "md": "reports/LATENCY_STRESS_STATE.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "latency_stress_state"
+    assert rsv.validate_payload(payload, "latency_stress_state") == []
+
+
+def test_validate_research_event_watchboard_payload() -> None:
+    payload = {
+        "summary": {"lane_count": 4, "state_counts": {"severe": 1, "quiet": 3}, "top_lane": "liquidation"},
+        "top_event": {
+            "lane": "liquidation",
+            "level": "severe",
+            "recommended_action": "escalate_monitoring",
+            "headline": "Liq top ETH",
+            "detail": "ETH severe liq",
+        },
+        "banner": {
+            "headline": "Liq top ETH",
+            "recommended_action": "escalate_monitoring",
+            "top_lane": "liquidation",
+            "top_level": "severe",
+        },
+        "lanes": [
+            {
+                "lane": "liquidation",
+                "level": "severe",
+                "freshness_status": "fresh",
+                "recommended_action": "escalate_monitoring",
+                "headline": "Liq top ETH",
+                "detail": "ETH severe liq",
+                "priority_score": 225.0,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "research_event_watchboard",
+            "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"]},
+            "metrics": {"lane_count": 4, "severe_count": 1, "elevated_count": 0, "quiet_count": 3},
+            "artifacts": {"json": "reports/RESEARCH_EVENT_WATCHBOARD.json", "md": "reports/RESEARCH_EVENT_WATCHBOARD.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "research_event_watchboard"
+    assert rsv.validate_payload(payload, "research_event_watchboard") == []
+
+
+def test_validate_event_watchboard_trend_payload() -> None:
+    payload = {
+        "summary": {
+            "snapshot_count": 2,
+            "start_top_lane": "spread_stress",
+            "end_top_lane": "liquidation",
+            "delta_priority_score": 100.0,
+            "trend": "rising_fast",
+        },
+        "latest": {
+            "index": 1,
+            "source": "b.json",
+            "top_lane": "liquidation",
+            "top_level": "severe",
+            "top_recommended_action": "escalate_monitoring",
+            "priority_score": 225.0,
+        },
+        "points": [
+            {
+                "index": 0,
+                "source": "a.json",
+                "top_lane": "spread_stress",
+                "top_level": "elevated",
+                "top_recommended_action": "show_caution",
+                "priority_score": 125.0,
+            },
+            {
+                "index": 1,
+                "source": "b.json",
+                "top_lane": "liquidation",
+                "top_level": "severe",
+                "top_recommended_action": "escalate_monitoring",
+                "priority_score": 225.0,
+            },
+        ],
+        "lane_deltas": [
+            {
+                "lane": "liquidation",
+                "start_priority_score": 0.0,
+                "end_priority_score": 225.0,
+                "delta_priority_score": 225.0,
+                "trend": "rising_fast",
+            },
+            {
+                "lane": "spread_stress",
+                "start_priority_score": 125.0,
+                "end_priority_score": 50.0,
+                "delta_priority_score": -75.0,
+                "trend": "falling_fast",
+            },
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "event_watchboard_trend",
+            "inputs": {"sources": ["a.json", "b.json"]},
+            "metrics": {"snapshot_count": 2, "delta_priority_score": 100.0, "trend": "rising_fast"},
+            "artifacts": {"json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND.json", "md": "reports/RESEARCH_EVENT_WATCHBOARD_TREND.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "event_watchboard_trend"
+    assert rsv.validate_payload(payload, "event_watchboard_trend") == []
+
+
+def test_validate_event_watchboard_snapshot_append_payload() -> None:
+    payload = {
+        "history_path": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl",
+        "appended": {
+            "source": "reports/RESEARCH_EVENT_WATCHBOARD_REAL.json",
+            "top_lane": "liquidation",
+            "state_counts": {"severe": 2},
+            "lanes": [
+                {
+                    "lane": "liquidation",
+                    "priority_score": 225.0,
+                    "level": "severe",
+                    "freshness_status": "fresh",
+                    "recommended_action": "escalate_monitoring",
+                }
+            ],
+            "top_event": {
+                "lane": "liquidation",
+                "level": "severe",
+                "recommended_action": "monitor_only",
+                "headline": "Liq top ETH",
+            },
+            "banner": {
+                "headline": "Liq top ETH",
+                "recommended_action": "monitor_only",
+                "top_lane": "liquidation",
+                "top_level": "severe",
+            },
+            "upstream_run_type": "research_event_watchboard",
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "event_watchboard_snapshot_append",
+            "inputs": {"source": "reports/RESEARCH_EVENT_WATCHBOARD_REAL.json", "history_path": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl"},
+            "metrics": {"top_lane": "liquidation", "severe_count": 2},
+            "artifacts": {"json": "reports/RESEARCH_EVENT_WATCHBOARD_SNAPSHOT_APPEND.json", "history_jsonl": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "event_watchboard_snapshot_append"
+    assert rsv.validate_payload(payload, "event_watchboard_snapshot_append") == []
+
+
+def test_validate_event_watchboard_trend_from_history_payload() -> None:
+    payload = {
+        "summary": {
+            "snapshot_count": 2,
+            "start_top_lane": "spread_stress",
+            "end_top_lane": "liquidation",
+            "delta_priority_score": 100.0,
+            "trend": "rising_fast",
+        },
+        "latest": {
+            "index": 1,
+            "source": "b.json",
+            "top_lane": "liquidation",
+            "top_level": "severe",
+            "top_recommended_action": "monitor_only",
+            "priority_score": 200.0,
+        },
+        "points": [
+            {
+                "index": 0,
+                "source": "a.json",
+                "top_lane": "spread_stress",
+                "top_level": "elevated",
+                "top_recommended_action": "show_caution",
+                "priority_score": 100.0,
+            },
+            {
+                "index": 1,
+                "source": "b.json",
+                "top_lane": "liquidation",
+                "top_level": "severe",
+                "top_recommended_action": "monitor_only",
+                "priority_score": 200.0,
+            },
+        ],
+        "lane_deltas": [
+            {
+                "lane": "liquidation",
+                "start_priority_score": 0.0,
+                "end_priority_score": 200.0,
+                "delta_priority_score": 200.0,
+                "trend": "rising_fast",
+            }
+        ],
+        "history": {
+            "history_path": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl",
+            "last_n": 2,
+            "available_rows": 5,
+            "used_rows": 2,
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "event_watchboard_trend_from_history",
+            "inputs": {"history_path": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl", "last_n": 2},
+            "metrics": {"available_rows": 5, "used_rows": 2, "delta_priority_score": 100.0, "trend": "rising_fast"},
+            "artifacts": {"json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json", "md": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "event_watchboard_trend_from_history"
+    assert rsv.validate_payload(payload, "event_watchboard_trend_from_history") == []
 def test_validate_artifacts_payload() -> None:
     payload = {
         "ok": True,
@@ -617,6 +2110,423 @@ def test_validate_freeze_runtime_profile_payload() -> None:
     assert rsv.validate_payload(payload, "freeze_runtime_profile") == []
 
 
+def test_validate_microstructure_contract_payload() -> None:
+    payload = {
+        "db": "data/microstructure.db",
+        "symbols": ["ETHUSDT", "BTCUSDT"],
+        "required_tables": ["agg_trades", "mark_prices", "liquidations"],
+        "status": "warn",
+        "table_contracts": {
+            "agg_trades": {"present": True, "row_count": 1, "timestamp_column": "ts_ms", "symbol_column": "symbol", "required_columns_missing": [], "available_book_fields": []},
+            "mark_prices": {"present": True, "row_count": 1, "timestamp_column": "ts_ms", "symbol_column": "symbol", "required_columns_missing": [], "available_book_fields": []},
+            "liquidations": {"present": True, "row_count": 1, "timestamp_column": "ts_ms", "symbol_column": "symbol", "required_columns_missing": [], "available_book_fields": []},
+        },
+        "symbol_coverage": {
+            "ETHUSDT": {"agg_trades": True, "mark_prices": True, "liquidations": True},
+            "BTCUSDT": {"agg_trades": True, "mark_prices": True, "liquidations": False},
+        },
+        "feature_capability": {
+            "tier": "trade_plus_liq_mark_proxy",
+            "mark_only": True,
+            "trade_flow": True,
+            "trade_plus_liq": True,
+            "requires_book": False,
+            "book_source_table": "mark_prices",
+            "reason": "true_top_of_book_missing_mark_prices_or_proxy_used",
+        },
+        "warnings": ["true_top_of_book_missing"],
+        "failures": [],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "validate_microstructure_contract",
+            "inputs": {"db": "data/microstructure.db", "symbols": ["ETHUSDT", "BTCUSDT"], "require_true_book": False},
+            "metrics": {"status": "warn", "table_count": 3, "warning_count": 1, "failure_count": 0, "requires_book": False},
+            "artifacts": {"json": "reports/MICROSTRUCTURE_CONTRACT.json", "md": "reports/MICROSTRUCTURE_CONTRACT.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "validate_microstructure_contract"
+    assert rsv.validate_payload(payload, "validate_microstructure_contract") == []
+
+
+def test_validate_generate_liq_reversal_candidates_payload() -> None:
+    payload = {
+        "rule": "high_liq_reversal_regime",
+        "regime": "liq_reversal_research",
+        "symbols": ["ETHUSDT"],
+        "grid": {
+            "horizons": [30, 60],
+            "min_imbalances": [0.3, 0.5],
+            "min_trade_intensities": [200.0, 400.0],
+            "max_spreads": [0.00025],
+        },
+        "count": 8,
+        "rows": [
+            {
+                "symbol": "ETHUSDT",
+                "rule": "high_liq_reversal_regime",
+                "regime": "liq_reversal_research",
+                "horizon_sec": 30,
+                "min_imbalance": 0.3,
+                "min_trade_intensity": 200.0,
+                "max_spread": 0.00025,
+                "pass": "YES",
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "generate_liq_reversal_candidates",
+            "inputs": {"rule": "high_liq_reversal_regime", "regime": "liq_reversal_research", "symbols": ["ETHUSDT"]},
+            "metrics": {"count": 8},
+            "artifacts": {"json": "reports/LIQ_REVERSAL_CANDIDATES.json", "md": "reports/LIQ_REVERSAL_CANDIDATES.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "generate_liq_reversal_candidates"
+    assert rsv.validate_payload(payload, "generate_liq_reversal_candidates") == []
+
+
+def test_validate_run_liq_reversal_e2e_payload() -> None:
+    payload = {
+        "symbol": "ETHUSDT",
+        "rule": "high_liq_reversal_regime",
+        "lookback_min": 1440,
+        "bucket_sec": 5,
+        "coverage_json": "reports/LIQ_REVERSAL_E2E_COVERAGE.json",
+        "candidates_json": "reports/LIQ_REVERSAL_E2E_CANDIDATES.json",
+        "rank_baseline_json": "reports/LIQ_REVERSAL_E2E_RANK_BASELINE.json",
+        "rank_v5_json": "reports/LIQ_REVERSAL_E2E_RANK_V5.json",
+        "summary": {
+            "coverage": {"windows": 3, "max_rule_fire_count": 12, "max_rule_given_liq_rate": 0.5},
+            "candidate_surface": {"count": 8},
+            "rank_baseline": {"count": 0, "top": None},
+            "rank_v5": {"count": 1, "top": {"symbol": "ETHUSDT"}},
+            "decision": {"baseline_tradeable": False, "v5_tradeable": True, "next_step": "inspect_ranked_pockets"},
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "run_liq_reversal_e2e",
+            "inputs": {"db": "data/microstructure.db", "symbol": "ETHUSDT"},
+            "metrics": {"coverage_windows": 3, "candidate_count": 8, "baseline_rank_count": 0, "v5_rank_count": 1},
+            "artifacts": {"json": "reports/LIQ_REVERSAL_E2E.json", "md": "reports/LIQ_REVERSAL_E2E.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "run_liq_reversal_e2e"
+    assert rsv.validate_payload(payload, "run_liq_reversal_e2e") == []
+
+
+def test_validate_liquidation_regime_tagger_payload() -> None:
+    payload = {
+        "symbol": "ETHUSDT",
+        "rule": "high_liq_reversal_regime",
+        "lookback_min": 1440,
+        "bucket_sec": 5,
+        "summary": {"rows_total": 10, "tagged_count": 2, "tagged_rate": 0.2},
+        "tags": [{"ts_ms": 1, "tag": "high_liq_reversal", "rule_fired": True}],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "liquidation_regime_tagger",
+            "inputs": {"db": "data/microstructure.db", "symbol": "ETHUSDT"},
+            "metrics": {"rows_total": 10, "tagged_count": 2, "tagged_rate": 0.2},
+            "artifacts": {"json": "reports/LIQUIDATION_REGIME_TAGGER.json", "md": "reports/LIQUIDATION_REGIME_TAGGER.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "liquidation_regime_tagger"
+    assert rsv.validate_payload(payload, "liquidation_regime_tagger") == []
+
+
+def test_validate_run_research_event_watchboard_cycle_payload() -> None:
+    payload = {
+        "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
+        "append_json": "reports/RESEARCH_EVENT_WATCHBOARD_SNAPSHOT_APPEND.json",
+        "overlap_json": "reports/EVENT_LANE_OVERLAP.json",
+        "consolidation_json": "reports/EVENT_LANE_CONSOLIDATION.json",
+        "suppression_json": "reports/EVENT_LANE_SUPPRESSION_POLICY.json",
+        "persistence_json": "reports/EVENT_LANE_PERSISTENCE_POLICY.json",
+        "merged_banner_json": "reports/EVENT_MERGED_BANNER_POLICY.json",
+        "trend_json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json",
+        "brief_json": "reports/RESEARCH_EVENT_OPERATOR_BRIEF.json",
+        "history_jsonl": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl",
+        "summary": {
+            "top_lane": "liquidation",
+            "top_action": "monitor_only",
+            "history_rows": 3,
+            "trend": "rising",
+            "trimmed_rows": 1,
+            "top_overlap_pair": "liquidation::spread_stress",
+            "suppression_candidate_count": 1,
+            "suppression_rule_count": 1,
+            "noisy_lane_count": 0,
+            "merged_banner_mode": "single",
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "run_research_event_watchboard_cycle",
+            "inputs": {"symbols": ["ETHUSDT", "BTCUSDT"], "lookback_min": 240},
+            "metrics": {"top_lane": "liquidation", "history_rows": 3, "trend": "rising", "trimmed_rows": 1, "top_overlap_pair": "liquidation::spread_stress"},
+            "artifacts": {
+                "json": "reports/RESEARCH_EVENT_WATCHBOARD_CYCLE.json",
+                "md": "reports/RESEARCH_EVENT_WATCHBOARD_CYCLE.md",
+                "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
+                "append_json": "reports/RESEARCH_EVENT_WATCHBOARD_SNAPSHOT_APPEND.json",
+                "overlap_json": "reports/EVENT_LANE_OVERLAP.json",
+                "consolidation_json": "reports/EVENT_LANE_CONSOLIDATION.json",
+                "suppression_json": "reports/EVENT_LANE_SUPPRESSION_POLICY.json",
+                "persistence_json": "reports/EVENT_LANE_PERSISTENCE_POLICY.json",
+                "merged_banner_json": "reports/EVENT_MERGED_BANNER_POLICY.json",
+                "trend_json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json",
+                "history_jsonl": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl",
+            },
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "run_research_event_watchboard_cycle"
+    assert rsv.validate_payload(payload, "run_research_event_watchboard_cycle") == []
+
+
+def test_validate_event_lane_overlap_payload() -> None:
+    payload = {
+        "history_jsonl": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl",
+        "summary": {
+            "available_rows": 3,
+            "used_rows": 3,
+            "lane_count": 4,
+            "active_lane_count": 3,
+            "active_snapshot_count": 3,
+            "min_level": "elevated",
+            "top_overlap_pair": "spread_stress::liquidation",
+        },
+        "lane_stats": [
+            {
+                "lane": "liquidation",
+                "active_count": 2,
+                "active_rate": 0.6667,
+                "fresh_active_count": 1,
+                "top_count": 1,
+            }
+        ],
+        "pairwise": [
+            {
+                "lane_a": "spread_stress",
+                "lane_b": "liquidation",
+                "coactive_count": 2,
+                "coactive_rate": 0.6667,
+                "jaccard": 1.0,
+            }
+        ],
+        "strongest_overlaps": [
+            {
+                "lane_a": "spread_stress",
+                "lane_b": "liquidation",
+                "coactive_count": 2,
+                "coactive_rate": 0.6667,
+                "jaccard": 1.0,
+            }
+        ],
+        "redundancy_notes": [
+            "spread_stress and liquidation co-activate frequently (jaccard=1.00, coactive_count=2)."
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "event_lane_overlap",
+            "inputs": {"history_jsonl": "reports/RESEARCH_EVENT_WATCHBOARD_HISTORY.jsonl", "min_level": "elevated", "top_n": 5},
+            "metrics": {"available_rows": 3, "lane_count": 4, "active_snapshot_count": 3, "top_overlap_pair": "spread_stress::liquidation"},
+            "artifacts": {"json": "reports/EVENT_LANE_OVERLAP.json", "md": "reports/EVENT_LANE_OVERLAP.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "event_lane_overlap"
+    assert rsv.validate_payload(payload, "event_lane_overlap") == []
+
+
+def test_validate_event_lane_consolidation_payload() -> None:
+    payload = {
+        "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
+        "overlap_json": "reports/EVENT_LANE_OVERLAP.json",
+        "summary": {
+            "top_lane": "spread_stress",
+            "top_overlap_pair": "spread_stress::volume_vacuum",
+            "decision_count": 2,
+            "recommendation_counts": {"candidate_suppress_secondary": 1, "keep_separate": 1},
+        },
+        "decisions": [
+            {
+                "lane_a": "spread_stress",
+                "lane_b": "volume_vacuum",
+                "jaccard": 0.9,
+                "coactive_count": 4,
+                "secondary_lane": "volume_vacuum",
+                "recommendation": "candidate_suppress_secondary",
+                "reason": "spread_stress and volume_vacuum move almost together; consider suppressing volume_vacuum when the stronger companion lane is already active.",
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "event_lane_consolidation",
+            "inputs": {"watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json", "overlap_json": "reports/EVENT_LANE_OVERLAP.json", "top_n": 5},
+            "metrics": {"decision_count": 2, "candidate_suppress_secondary_count": 1, "review_for_merge_count": 0},
+            "artifacts": {"json": "reports/EVENT_LANE_CONSOLIDATION.json", "md": "reports/EVENT_LANE_CONSOLIDATION.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "event_lane_consolidation"
+    assert rsv.validate_payload(payload, "event_lane_consolidation") == []
+
+
+def test_validate_event_lane_suppression_policy_payload() -> None:
+    payload = {
+        "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
+        "consolidation_json": "reports/EVENT_LANE_CONSOLIDATION.json",
+        "summary": {"top_lane": "spread_stress", "rule_count": 2, "suppressed_lanes": ["volume_vacuum", "volatility_burst"]},
+        "rules": [
+            {
+                "secondary_lane": "volume_vacuum",
+                "when_lane_a": "spread_stress",
+                "when_lane_b": "volume_vacuum",
+                "display_mode": "degrade",
+                "reason": "overlap",
+                "secondary_level": "severe",
+                "secondary_action": "show_caution",
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "event_lane_suppression_policy",
+            "inputs": {"watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json", "consolidation_json": "reports/EVENT_LANE_CONSOLIDATION.json"},
+            "metrics": {"rule_count": 2, "top_lane": "spread_stress"},
+            "artifacts": {"json": "reports/EVENT_LANE_SUPPRESSION_POLICY.json", "md": "reports/EVENT_LANE_SUPPRESSION_POLICY.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "event_lane_suppression_policy"
+    assert rsv.validate_payload(payload, "event_lane_suppression_policy") == []
+
+
+def test_validate_event_watchboard_effective_payload() -> None:
+    payload = {
+        "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
+        "suppression_json": "reports/EVENT_LANE_SUPPRESSION_POLICY.json",
+        "persistence_json": "reports/EVENT_LANE_PERSISTENCE_POLICY.json",
+        "summary": {
+            "raw_top_lane": "spread_stress",
+            "effective_top_lane": "spread_stress",
+            "hidden_lane_count": 1,
+            "degraded_lane_count": 1,
+            "collapsed_lane_count": 0,
+            "noisy_lane_count": 1,
+            "primary_noisy_lane": "spread_stress",
+        },
+        "effective_top_event": {
+            "lane": "spread_stress",
+            "level": "severe",
+            "recommended_action": "reduce_passive_aggression",
+            "effective_display_mode": "keep",
+            "persistence_recommendation": "stabilize_banner",
+            "recommended_min_persist_snapshots": 2,
+            "recommended_cooldown_snapshots": 1,
+        },
+        "lanes": [
+            {
+                "lane": "spread_stress",
+                "level": "severe",
+                "recommended_action": "reduce_passive_aggression",
+                "effective_display_mode": "keep",
+                "effective_priority_score": 225.0,
+                "persistence_recommendation": "stabilize_banner",
+                "recommended_min_persist_snapshots": 2,
+                "recommended_cooldown_snapshots": 1,
+                "is_noisy": True,
+            }
+        ],
+        "run_summary": {
+            "version": "v1",
+            "run_type": "event_watchboard_effective",
+            "inputs": {
+                "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
+                "suppression_json": "reports/EVENT_LANE_SUPPRESSION_POLICY.json",
+                "persistence_json": "reports/EVENT_LANE_PERSISTENCE_POLICY.json",
+            },
+            "metrics": {"raw_top_lane": "spread_stress", "effective_top_lane": "spread_stress"},
+            "artifacts": {"json": "reports/EVENT_WATCHBOARD_EFFECTIVE.json", "md": "reports/EVENT_WATCHBOARD_EFFECTIVE.md"},
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "event_watchboard_effective"
+    assert rsv.validate_payload(payload, "event_watchboard_effective") == []
+
+
+def test_validate_research_event_operator_brief_payload() -> None:
+    payload = {
+        "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
+        "trend_json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json",
+        "overlap_json": "reports/EVENT_LANE_OVERLAP.json",
+        "consolidation_json": "reports/EVENT_LANE_CONSOLIDATION.json",
+        "persistence_json": "reports/EVENT_LANE_PERSISTENCE_POLICY.json",
+        "merged_banner_json": "reports/EVENT_MERGED_BANNER_POLICY.json",
+        "summary": {
+            "top_lane": "liquidation",
+            "top_action": "monitor_only",
+            "trend": "flat",
+            "severe_lane_count": 1,
+            "stale_lane_count": 2,
+            "strongest_delta_lane": "return_shock",
+            "strongest_delta_trend": "rising_fast",
+            "strongest_overlap_pair": "liquidation::spread_stress",
+            "suppression_candidate_count": 1,
+            "primary_suppression_lane": "spread_stress",
+            "noisy_lane_count": 1,
+            "primary_noisy_lane": "liquidation",
+            "merged_banner_mode": "merged",
+            "merged_focus_lane_count": 2,
+        },
+        "brief": {
+            "headline": "Research events top=liquidation action=monitor_only trend=flat",
+            "operator_note": "top lane liquidation, action monitor_only, trend flat. strongest lane delta: return_shock rising_fast (+125.00). strongest overlap: liquidation + spread_stress (jaccard=0.75, coactive_count=3). suppression candidate: spread_stress behind liquidation / spread_stress. severe lanes: liquidation. stale lanes: liquidation, spread_stress.",
+            "top_event": {"lane": "liquidation", "action": "monitor_only", "headline": "top headline"},
+            "strongest_delta": {"lane": "return_shock", "trend": "rising_fast", "delta_priority_score": 125.0},
+            "strongest_overlap": {"lane_a": "liquidation", "lane_b": "spread_stress", "jaccard": 0.75, "coactive_count": 3},
+            "primary_suppression": {"secondary_lane": "spread_stress", "lane_a": "liquidation", "lane_b": "spread_stress", "recommendation": "candidate_suppress_secondary"},
+            "primary_persistence": {"lane": "liquidation", "recommended_min_persist_snapshots": 2, "recommended_cooldown_snapshots": 1, "recommendation": "stabilize_banner"},
+            "merged_banner": {"banner_mode": "merged", "focus_lanes": ["liquidation", "return_shock"], "headline": "merged headline", "recommended_action": "monitor_only"},
+            "severe_lanes": ["liquidation"],
+            "stale_lanes": ["liquidation", "spread_stress"],
+        },
+        "run_summary": {
+            "version": "v1",
+            "run_type": "research_event_operator_brief",
+            "inputs": {
+                "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
+                "trend_json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json",
+                "overlap_json": "reports/EVENT_LANE_OVERLAP.json",
+                "consolidation_json": "reports/EVENT_LANE_CONSOLIDATION.json",
+                "persistence_json": "reports/EVENT_LANE_PERSISTENCE_POLICY.json",
+                "merged_banner_json": "reports/EVENT_MERGED_BANNER_POLICY.json",
+            },
+            "metrics": {
+                "top_lane": "liquidation",
+                "top_action": "monitor_only",
+                "trend": "flat",
+                "severe_lane_count": 1,
+                "stale_lane_count": 2,
+                "strongest_delta_lane": "return_shock",
+                "strongest_delta_trend": "rising_fast",
+                "strongest_overlap_pair": "liquidation::spread_stress",
+                "suppression_candidate_count": 1,
+                "primary_suppression_lane": "spread_stress",
+                "noisy_lane_count": 1,
+                "primary_noisy_lane": "liquidation",
+                "merged_banner_mode": "merged",
+                "merged_focus_lane_count": 2,
+            },
+            "artifacts": {
+                "json": "reports/RESEARCH_EVENT_OPERATOR_BRIEF.json",
+                "md": "reports/RESEARCH_EVENT_OPERATOR_BRIEF.md",
+                "watchboard_json": "reports/RESEARCH_EVENT_WATCHBOARD.json",
+                "trend_json": "reports/RESEARCH_EVENT_WATCHBOARD_TREND_FROM_HISTORY.json",
+                "overlap_json": "reports/EVENT_LANE_OVERLAP.json",
+                "consolidation_json": "reports/EVENT_LANE_CONSOLIDATION.json",
+                "persistence_json": "reports/EVENT_LANE_PERSISTENCE_POLICY.json",
+                "merged_banner_json": "reports/EVENT_MERGED_BANNER_POLICY.json",
+            },
+        },
+    }
+    assert rsv.infer_schema_name(payload) == "research_event_operator_brief"
+    assert rsv.validate_payload(payload, "research_event_operator_brief") == []
+
+
 def test_rejects_bad_micro_edge_rule_shape() -> None:
     payload = {
         "ts_utc": "2026-03-05T00:00:00Z",
@@ -666,7 +2576,7 @@ def test_main_validates_jsonl_with_auto_schema(monkeypatch) -> None:
         horizon_sec=30,
         min_rule_n=5,
     )
-    path = Path("reports/test_report_schema_validator/micro_edge.jsonl")
+    path = Path("localtests/test_report_schema_validator/micro_edge.jsonl")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(record) + "\n", encoding="utf-8")
     monkeypatch.setattr(sys, "argv", ["x", "--in", str(path), "--schema", "auto"])
