@@ -101,27 +101,29 @@ def _event_touch_and_depth(
     entry_price: float,
     spread_ratio: float,
     future_mids: Sequence[float],
+    limit_offset_mult: float = 0.5,
 ) -> Tuple[bool, float, int]:
     s = str(side).upper()
     ep = float(entry_price)
     sp = max(1e-9, float(spread_ratio))
+    mult = max(0.0, float(limit_offset_mult))
     if ep <= 0.0 or not future_mids:
         return False, 0.0, -1
 
     if s == "SHORT":
-        limit = ep * (1.0 + 0.5 * sp)
+        limit = ep * (1.0 + mult * sp)
         for i, m in enumerate(future_mids):
             px = float(m)
             if px >= limit:
-                depth = (px - limit) / (ep * sp)
+                depth = (px - limit) / max(1e-9, ep * sp)
                 return True, max(0.0, depth), i
         return False, 0.0, -1
 
-    limit = ep * (1.0 - 0.5 * sp)
+    limit = ep * (1.0 - mult * sp)
     for i, m in enumerate(future_mids):
         px = float(m)
         if px <= limit:
-            depth = (limit - px) / (ep * sp)
+            depth = (limit - px) / max(1e-9, ep * sp)
             return True, max(0.0, depth), i
     return False, 0.0, -1
 
@@ -324,6 +326,7 @@ def simulate_passive_fill(event: Dict[str, Any], horizon_sec: int, features: Dic
         entry_price=entry_price,
         spread_ratio=float(spread_ratio or 0.0),
         future_mids=future_mids,
+        limit_offset_mult=float(params.get("limit_offset_mult", 0.5)),
     )
 
     p_touch = _blend_metric(

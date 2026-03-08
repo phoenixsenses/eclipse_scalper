@@ -476,6 +476,7 @@ def _args() -> argparse.Namespace:
     p.add_argument("--min-n-frac", type=float, default=0.0)
     p.add_argument("--maker-fee-bps-grid", default=f"{float(DEFAULT_MAKER_FEE_BPS)}")
     p.add_argument("--passive-adverse-mult-grid", default="0.8,1.0,1.2")
+    p.add_argument("--limit-offset-mult", type=float, default=0.5, help="Passive limit placement: mult * spread from entry price (default 0.5). Lower = tighter limit, fills earlier with smaller adverse excursion.")
     p.add_argument("--v2-min-score", type=float, default=0.0)
     p.add_argument("--v2-min-persistence", type=float, default=0.0)
     p.add_argument("--v2-min-confidence", type=float, default=0.0)
@@ -794,6 +795,7 @@ def main() -> int:
                             passive_profile_in=str(args.passive_profile_in),
                             passive_max_wait_buckets=int(profile_overrides.get("passive_max_wait_buckets", eff_passive_max_wait_buckets)),
                             passive_adverse_mult=float(adv),
+                            limit_offset_mult=float(args.limit_offset_mult),
                             v2_min_score=float(args.v2_min_score),
                             v2_min_persistence=float(args.v2_min_persistence),
                             v2_min_confidence=float(args.v2_min_confidence),
