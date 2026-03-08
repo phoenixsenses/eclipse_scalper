@@ -522,7 +522,8 @@ This is not ready to become:
 
 Current positioning:
 - `event_block_eth_micro_imb05_v1` = ETH experimental, extended_testing phase
-- the imb>=0.85 subset is the most robust target for further testing
+- `event_block_eth_micro_imb085_v1` = candidate_for_promotion (h=60 imb>=0.85 only; h=120 data-limited)
+- the h=60 imb>=0.85 pocket is the first sub-profile with consistent improvement on 2+ independent windows
 - not long-window production candidates
 - 21D long-window retests remain non-actionable until tradeable coverage improves
 
@@ -548,6 +549,7 @@ Profile name:
 - `event_block_eth_v1`
 - `event_block_eth_micro_v1`
 - `event_block_eth_micro_imb05_v1` (extended_testing — 7D strong, 14D OOS mixed)
+- `event_block_eth_micro_imb085_v1` (tested — see below; GO on h=60 imb>=0.85; CAUTION on h=120)
 - `event_block_book_proxy_v1` (tested; single lane only; NO-GO on ETH micro-edge surface)
 - `event_block_volatility_v1` (tested; single lane only; MIXED — 50/50, positive median; weaker than two-lane)
 
@@ -582,11 +584,63 @@ OOS validation lesson:
 - always test on a shifted or wider window before promoting a profile
 - the robust sub-pattern (imb>=0.85) is a better foundation than the full imb>=0.5 scope
 
+## event_block_eth_micro_imb085_v1 Results
+
+### 7D in-sample (splits=3, fee=0)
+
+Source: `reports/RANK_EVENT_FILTER_SET_SUMMARY_IMB085_V1_7D.json`
+
+| Pocket | baseline NPA | filtered NPA | delta NPA | pass bl | pass filt | kept |
+|---|---:|---:|---:|---:|---:|---:|
+| h=60 imb=0.85 int>=4000 | -5.57e-04 | +3.66e-05 | +5.94e-04 | 10% | 50% | 0.76 |
+| h=120 imb=0.85 int>=6000 | -1.25e-04 | +6.96e-04 | +8.21e-04 | 40% | 0%* | 0.76 |
+
+*pass=0% due to insufficient fills after filtering (low afr=80% at min_n=5 threshold)
+
+Overall (5 candidates, 2 imb=0.85 + 3 imb=0.5 pass-throughs):
+- improved=2, degraded=3 (all 3 degraded are imb=0.5 noise — filter not applied)
+- median ΔNPA = -6.79e-05 (misleading: negative only because 3 imb=0.5 pass-throughs dominate)
+
+imb=0.85 only: both improved, delta +5.94e-04 and +8.21e-04.
+
+### 14D OOS (splits=4, fee=0)
+
+Source: `reports/RANK_EVENT_FILTER_SET_SUMMARY_IMB085_V1_14D.json`
+
+| Pocket | baseline NPA | filtered NPA | delta NPA | pass bl | pass filt | kept |
+|---|---:|---:|---:|---:|---:|---:|
+| h=60 imb=0.85 int>=4000 | -1.68e-04 | +9.06e-05 | +2.58e-04 | 26.7% | 60% | 0.76 |
+| h=120 imb=0.85 int>=6000 | -9.19e-05 | +0 | +9.19e-05 | 46.7% | 0%* | 0.76 |
+
+*pass=0% — insufficient fills after filtering on 14D window (afr=20%)
+
+Overall (5 candidates): improved=3, degraded=2, median ΔNPA = +9.19e-05 (positive)
+
+### Interpretation
+
+h=60 imb>=0.85 is the single consistent pocket:
+- 7D: -5.57e-04 → +3.66e-05 NPA, pass 10% → 50%
+- 14D: -1.68e-04 → +9.06e-05 NPA, pass 26.7% → 60%
+- Consistent sign-flip from negative to positive on BOTH windows
+- Filter kept ~76% of signals (blocked ~24% via book_proxy + volatility_burst)
+
+h=120 imb>=0.85 improves in delta NPA direction but loses all pass rate due to sparse
+fills after filtering — this pocket is data-limited and cannot be promoted without
+more data or relaxed cap_filter thresholds.
+
+### Verdict
+
+`event_block_eth_micro_imb085_v1`:
+- **GO for h=60 imb>=0.85**: consistently positive improvement on both 7D and 14D windows
+- **CAUTION for h=120 imb>=0.85**: positive NPA direction but pass=0% due to low fill density
+- Overall status: **candidate_for_promotion** (h=60 imb>=0.85 only)
+
+Current status: `event_block_eth_micro_imb085_v1` = **candidate_for_promotion** (h=60 only)
+
 ## Next Step
 
 Next research step:
-1. Test `event_block_eth_micro_imb085_v1` — restrict scoping further to imb>=0.85 only;
-   this is the only imbalance tier that improved consistently on BOTH the 7D and 14D windows
-2. Run BTC 7D and 14D comparisons with the two-lane block to assess cross-symbol robustness
-3. Collect more data (extend dataset beyond 2026-03-07) to increase OOS window diversity
-4. Only promote to primary ranking profile if imb>=0.85 results hold on 3+ independent windows
+1. Run BTC 7D and 14D comparisons with the two-lane block to assess cross-symbol robustness
+2. Collect more data (extend dataset beyond 2026-03-07) to increase OOS window diversity
+3. Test h=120 imb>=0.85 with more data or relaxed cap_filter to determine if it is genuinely sparse or noise
+4. Only promote to primary ranking profile if h=60 imb>=0.85 results hold on 3+ independent windows
