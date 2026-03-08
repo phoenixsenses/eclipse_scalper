@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Eclipse Scalper Social Thumbnail</title>
+  <desc id="desc">Bold social thumbnail for Eclipse Scalper, showing a crypto microstructure research terminal layout.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#041018"/>
+      <stop offset="52%" stop-color="#0a1d2b"/>
+      <stop offset="100%" stop-color="#11354a"/>
+    </linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#33f0c5"/>
+      <stop offset="100%" stop-color="#59c9ff"/>
+    </linearGradient>
+    <linearGradient id="amber" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffcf5a"/>
+      <stop offset="100%" stop-color="#ff8f5a"/>
+    </linearGradient>
+    <filter id="soft-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <g opacity="0.18">
+    <circle cx="1015" cy="84" r="168" fill="#2cf0c3"/>
+    <circle cx="1072" cy="78" r="115" fill="#0b2636"/>
+    <circle cx="1080" cy="134" r="118" fill="#06131d"/>
+  </g>
+
+  <g opacity="0.08" fill="none" stroke="#88d6ff">
+    <path d="M58 462 C170 418, 242 338, 334 356 S516 466, 636 418 S826 286, 926 318 S1076 450, 1146 410" stroke-width="3"/>
+    <path d="M58 500 C154 456, 250 398, 348 422 S536 524, 654 472 S846 350, 956 382 S1086 490, 1146 468" stroke-width="1.6"/>
+  </g>
+
+  <g transform="translate(74 74)">
+    <rect x="0" y="0" width="142" height="34" rx="17" fill="#0d1f2b" stroke="#29516a" stroke-width="1.2"/>
+    <text x="18" y="23" fill="#a8efff" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="700" letter-spacing="1.2">OPEN SOURCE</text>
+  </g>
+
+  <g transform="translate(74 148)">
+    <text x="0" y="0" fill="#f4fbff" font-family="Segoe UI, Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="1.5">ECLIPSE</text>
+    <text x="0" y="90" fill="url(#teal)" font-family="Segoe UI, Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="1.5">SCALPER</text>
+    <text x="0" y="146" fill="#b1d4e4" font-family="Segoe UI, Arial, sans-serif" font-size="27" font-weight="600">
+      crypto microstructure research and execution framework
+    </text>
+  </g>
+
+  <g transform="translate(76 372)">
+    <rect x="0" y="0" width="218" height="48" rx="12" fill="#0a1823" stroke="#23455a" stroke-width="1.2"/>
+    <text x="20" y="31" fill="#e7faff" font-family="Consolas, Segoe UI, monospace" font-size="21" font-weight="700">data → signal</text>
+
+    <rect x="234" y="0" width="254" height="48" rx="12" fill="#0a1823" stroke="#23455a" stroke-width="1.2"/>
+    <text x="254" y="31" fill="#e7faff" font-family="Consolas, Segoe UI, monospace" font-size="21" font-weight="700">forward validation</text>
+
+    <rect x="504" y="0" width="252" height="48" rx="12" fill="#0a1823" stroke="#23455a" stroke-width="1.2"/>
+    <text x="524" y="31" fill="#e7faff" font-family="Consolas, Segoe UI, monospace" font-size="21" font-weight="700">event watchboard</text>
+  </g>
+
+  <g transform="translate(752 168)">
+    <rect x="0" y="0" width="378" height="286" rx="24" fill="#0a1620" stroke="#214459" stroke-width="1.5"/>
+    <rect x="18" y="18" width="342" height="42" rx="12" fill="#101f2c"/>
+    <circle cx="40" cy="39" r="6" fill="#ff6b63"/>
+    <circle cx="60" cy="39" r="6" fill="#ffcf5a"/>
+    <circle cx="80" cy="39" r="6" fill="#33f0c5"/>
+    <text x="104" y="45" fill="#b8d7e8" font-family="Consolas, Segoe UI, monospace" font-size="18" font-weight="700">
+      research_event_watchboard
+    </text>
+
+    <rect x="22" y="82" width="334" height="52" rx="14" fill="#11202d"/>
+    <text x="42" y="114" fill="#e7f9ff" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">top lane</text>
+    <text x="186" y="114" fill="#59c9ff" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="800">return_shock</text>
+
+    <rect x="22" y="148" width="334" height="52" rx="14" fill="#11202d"/>
+    <text x="42" y="180" fill="#e7f9ff" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">action</text>
+    <text x="186" y="180" fill="url(#amber)" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="800">escalate_monitoring</text>
+
+    <rect x="22" y="214" width="334" height="52" rx="14" fill="#11202d"/>
+    <text x="42" y="246" fill="#e7f9ff" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">filter</text>
+    <text x="186" y="246" fill="#33f0c5" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="800">book_proxy_pressure</text>
+
+    <rect x="22" y="278" width="334" height="8" rx="4" fill="#143447"/>
+    <rect x="22" y="278" width="236" height="8" rx="4" fill="url(#teal)" filter="url(#soft-glow)"/>
+  </g>
+
+  <g transform="translate(76 558)">
+    <text x="0" y="0" fill="#8fb7c8" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="600">
+      passive pockets • market context • execution-aware research
+    </text>
+  </g>
+</svg>
