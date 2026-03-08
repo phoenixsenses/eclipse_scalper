@@ -203,6 +203,39 @@ Next sensible step:
 6. if continuing this line, scope any further test to the tight `spr<=0.000200` pocket family only
 7. next debugging target should be current-branch drift / surface weakness in passive execution or candidate generation on the dead 1D surface
 
+Book-proxy-only broad current-branch check:
+- broader current-branch runs were also checked with `event_block_book_proxy_v1`
+- artifacts:
+  - `reports/EVENT_BLOCK_SET_BOOK_PROXY_V1_REAL.json`
+  - `reports/EVENT_BLOCK_SET_BOOK_PROXY_V1_REAL_1D.json`
+  - `reports/EVENT_BLOCK_SET_BOOK_PROXY_V1_FULL_REAL.json`
+  - `reports/RANK_EVENT_FILTER_SET_SUMMARY_BOOK_PROXY_V1_7D.json`
+- result:
+  - current broad 1D / broad-current surfaces still ranked `0`
+  - the useful signal only appeared in the older narrow 7D probe family
+  - even there the set summary was:
+    - `common_count = 8`
+    - `improved_count = 4`
+    - `degraded_count = 4`
+    - `median_delta_npa_core = -1.019758e-05`
+    - `median_filtered_kept_ratio = 94.82%`
+- interpretation:
+  - `event_block_book_proxy_v1` is too weak to be a rollout candidate on the current branch
+  - it preserves coverage well, but quality improvement is not robust
+  - on current evidence it should be treated as a diagnostic / pocket-level research knob, not as a production-facing mitigation profile
+
+Current freeze decision:
+- do not promote:
+  - `event_block_v1`
+  - `event_block_book_proxy_v1`
+  - `event_block_eth_*`
+  from the current branch snapshot
+- treat the whole event-block family on this branch as:
+  - `research_only_until_surface_recovers`
+- preferred next move:
+  - stop broad event-filter testing here
+  - focus on why the current ETH passive-realistic surface itself is weak
+
 Limit-offset sensitivity check:
 - to test whether the weak current surface is mainly caused by passive limit placement, reran focused ETH pockets with:
   - default `limit_offset_mult = 0.5`
