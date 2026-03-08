@@ -65,6 +65,34 @@ Fresh current-surface rebuild:
   - 7D broad evaluation needs a narrower/optimized runner
   - but this does not change the 1D conclusion above
 
+Focused 7D pocket probes:
+- to avoid the broad 7D sweep timeout, ran direct 7D pocket validation on two historical TOP8 ETH pockets against the live/root DB:
+  - pocket A:
+    - `h=120`
+    - `imb>=0.30`
+    - `int>=8000`
+    - `spr<=0.000200`
+    - artifact: `reports/FOCUSED_ETH_POCKET_A_7D.json`
+  - pocket B:
+    - `h=60`
+    - `imb>=0.30`
+    - `int>=8000`
+    - `spr<=0.000200`
+    - artifact: `reports/FOCUSED_ETH_POCKET_B_7D.json`
+- with the default `min_n=50` both failed due to insufficient fills
+- then reran both with `min_n=20`:
+  - pocket A still failed
+    - artifact: `reports/FOCUSED_ETH_POCKET_A_7D_MIN20.json`
+    - pass_count = `0`
+  - pocket B partially opened
+    - artifact: `reports/FOCUSED_ETH_POCKET_B_7D_MIN20.json`
+    - pass_count = `3/6`
+    - pass_rate = `0.5`
+- implication:
+  - the 7D ETH surface is not uniformly dead
+  - it is capacity-threshold sensitive
+  - at least one narrow ETH 60s pocket can become actionable under a softer capacity requirement
+
 Interpretation update:
 - the stale local DB was real and had to be ruled out
 - however, even after rerunning on the live/root DB, the current branch still yields a non-tradeable ETH TOP8 passive-realistic surface
@@ -112,10 +140,14 @@ Practical decision:
   - `surface_non_actionable_on_current_branch`
   - until current-branch execution/validation drift is reconciled
   - and until a fresh actionable surface is re-established
+- more precise refinement after focused 7D probes:
+  - `1D broad ETH surface` = non-actionable
+  - `7D focused ETH pockets` = threshold-sensitive, with at least one viable 60s pocket under softer `min_n`
 
 Next sensible step:
 1. do not use `C:\Users\Windows 11\.vscode\CryptoLion\eclipse_scalper-research\data\microstructure.db` for promotion decisions
 2. treat the root-DB rerun as the authoritative current-branch result:
    - the ETH TOP8 passive-realistic surface is currently non-actionable
 3. treat the fresh 1D ETH rebuild as confirming that current ETH passive-realistic pockets are not passing even before event filters
-4. next debugging target should be current-branch drift / surface weakness in passive execution or candidate generation, not more event-block profile tuning
+4. for 7D work, stop using broad generic sweep as the only decision source; use targeted pocket probes where needed
+5. next debugging target should be current-branch drift / surface weakness in passive execution or candidate generation, not more event-block profile tuning on the dead 1D surface
