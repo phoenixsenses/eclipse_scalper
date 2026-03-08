@@ -365,6 +365,7 @@ def validate_pocket_forward(
     passive_profile_in: str | None = None,
     passive_max_wait_buckets: int = 0,
     passive_adverse_mult: float = 1.0,
+    limit_offset_mult: float = 0.5,
     v2_min_score: float = 0.0,
     v2_min_persistence: float = 0.0,
     v2_min_confidence: float = 0.0,
@@ -484,6 +485,7 @@ def validate_pocket_forward(
                 p_over = sym_profile.get("passive", {}) if isinstance(sym_profile.get("passive", {}), dict) else {}
                 pparams.update(p_over)
                 pparams["passive_adverse_mult"] = float(passive_adverse_mult)
+                pparams["limit_offset_mult"] = float(limit_offset_mult)
                 sim = simulate_rule_trades(
                     rows=val_rows,
                     rule_name=str(rule),
