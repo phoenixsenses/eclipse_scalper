@@ -511,10 +511,14 @@ Current research decision:
     - the most robust signal: filtering helps imb>=0.85 pockets on all tested windows
     - imb=0.5 benefit is window-dependent; imb=0.3 passthru is volatile
 - BTC:
-  - `event_block_v1 = observe_only`
+  - `event_block_v1 = NO-GO`
   - rationale:
-    - not harmful on BTC 1D
-    - but not strong enough to claim clear broad benefit
+    - 7D: improved=0, degraded=8, median ΔNPA=-1.35e-04 — categorically harmful
+    - 14D: improved=5, degraded=3, median ΔNPA=+3.08e-05 — but imb>=0.85 pockets degrade
+    - the two imb=0.85 candidates (best baseline pockets) degrade on both windows
+    - inconsistent direction across windows → cannot rely on filter for BTC
+    - event lanes are not reliable toxic context indicators on BTC
+    - scoping the filter to ETH-only is confirmed necessary
 
 This is not ready to become:
 - a default global mitigation profile across all symbols
@@ -637,10 +641,52 @@ more data or relaxed cap_filter thresholds.
 
 Current status: `event_block_eth_micro_imb085_v1` = **candidate_for_promotion** (h=60 only)
 
+## BTC Cross-Symbol Robustness Test
+
+### Setup
+
+Tested `event_block_v1` (both lanes, no symbol/imbalance scoping) on BTC TOP8 candidates:
+- `reports/FILTER_SWEEP_PASSIVE_REALISTIC_BTC_TOP8.md` — 8 BTCUSDT pockets
+- 7D (splits=3) and 14D OOS (splits=4), relaxed gates, fee=0
+
+### 7D result
+
+Source: `reports/RANK_EVENT_FILTER_SET_SUMMARY_BTC_V1_7D.json`
+
+- improved=0, degraded=8, median ΔNPA=-1.35e-04
+- All candidates degraded including both imb=0.85 pockets (delta=-4.34e-05, -7.29e-05)
+- Filter removed ~24% of signals (kept=0.76) but made every pocket worse
+
+### 14D result
+
+Source: `reports/RANK_EVENT_FILTER_SET_SUMMARY_BTC_V1_14D.json`
+
+- improved=5, degraded=3, median ΔNPA=+3.08e-05
+- The 3 degraded are the two imb=0.85 pockets (best baseline pockets) and one imb=0.70
+- Low-imbalance pockets (imb=0.3, 0.5, 0.7) improved — but these are weaker baseline pockets
+
+### Interpretation
+
+The result is **window-dependent and internally contradictory**:
+- 7D: filter is categorically harmful (0/8 improved)
+- 14D: filter is mixed — helps weak pockets, hurts strong ones
+- The imb=0.85 candidates (the only profitable BTC pockets on baseline) degrade on both 7D and 14D
+
+Root cause: **the event lanes have opposite character on BTC**. On ETH,
+`book_proxy_pressure` and `volatility_burst` are toxic entry contexts. On BTC,
+blocking these events removes neutral or favorable signals, degrading NPA.
+
+### Verdict
+
+`event_block_v1` on BTC = **NO-GO**
+
+The two-lane block is not cross-symbol portable. ETH-specific scoping
+(`event_block_eth_micro_*` profiles) is required. BTC should remain on baseline.
+
 ## Next Step
 
 Next research step:
-1. Run BTC 7D and 14D comparisons with the two-lane block to assess cross-symbol robustness
-2. Collect more data (extend dataset beyond 2026-03-07) to increase OOS window diversity
-3. Test h=120 imb>=0.85 with more data or relaxed cap_filter to determine if it is genuinely sparse or noise
-4. Only promote to primary ranking profile if h=60 imb>=0.85 results hold on 3+ independent windows
+1. Collect more data (extend dataset beyond 2026-03-07) to increase OOS window diversity
+2. Test h=120 imb>=0.85 with more data or relaxed cap_filter to determine if it is genuinely sparse or noise
+3. Only promote to primary ranking profile if h=60 imb>=0.85 results hold on 3+ independent windows
+4. Do not attempt BTC event block until a BTC-specific lane analysis is performed
