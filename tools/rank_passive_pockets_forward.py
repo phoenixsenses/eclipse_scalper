@@ -520,8 +520,8 @@ def _args() -> argparse.Namespace:
     )
     p.add_argument(
         "--mitigation-profile",
-        default="baseline",
-        choices=["baseline", "anti_adverse_v1", "anti_adverse_v2", "anti_adverse_v3", "anti_adverse_v4", "anti_adverse_v5", "anti_adverse_v6", "event_block_v1", "event_block_book_proxy_v1", "event_block_volatility_v1", "event_block_eth_v1", "event_block_eth_micro_v1", "event_block_eth_micro_imb05_v1", "event_block_eth_micro_imb085_v1"],
+        default="auto",
+        choices=["baseline", "auto", "anti_adverse_v1", "anti_adverse_v2", "anti_adverse_v3", "anti_adverse_v4", "anti_adverse_v5", "anti_adverse_v6", "event_block_v1", "event_block_book_proxy_v1", "event_block_volatility_v1", "event_block_eth_v1", "event_block_eth_micro_v1", "event_block_eth_micro_imb05_v1", "event_block_eth_micro_imb085_v1"],
         help=(
             "Signal filter profile to reduce adverse selection. "
             "'baseline' = no change. "
@@ -538,7 +538,10 @@ def _args() -> argparse.Namespace:
             "'event_block_eth_v1' = same block rule, but only for ETH symbol candidates. "
             "'event_block_eth_micro_v1' = same block rule, but only for ETH + micro_edge_v3_passive_alpha candidates. "
             "'event_block_eth_micro_imb05_v1' = same block rule, but only for ETH + micro_edge_v3_passive_alpha + min_imbalance>=0.5 candidates. "
-            "'event_block_eth_micro_imb085_v1' = same block rule, but only for ETH + micro_edge_v3_passive_alpha + min_imbalance>=0.85 candidates."
+            "'event_block_eth_micro_imb085_v1' = same block rule, but only for ETH + micro_edge_v3_passive_alpha + min_imbalance>=0.85 candidates. "
+            "'auto' = apply the best validated promoted profile per candidate; currently wires "
+            "event_block_eth_micro_imb085_v1 for ETHUSDT+micro_edge_v3_passive_alpha+h=60+imb>=0.85, "
+            "baseline for all other candidates (default)."
         ),
     )
     return p.parse_args()
@@ -748,6 +751,18 @@ def main() -> int:
             return {
                 "event_block_lanes": "book_proxy_pressure,volatility_burst",
             }
+        if mitigation_profile == "auto":
+            # Apply the best validated promoted profile per candidate.
+            # Currently: event_block_eth_micro_imb085_v1 for ETHUSDT + micro_edge_v3_passive_alpha
+            # + horizon_sec==60 + min_imbalance>=0.85. All others: baseline.
+            if (
+                str(c.get("symbol", "")).upper() == "ETHUSDT"
+                and str(rule_name) == "micro_edge_v3_passive_alpha"
+                and int(c.get("horizon_sec", 0)) == 60
+                and float(c.get("min_imbalance", 0)) >= 0.85
+            ):
+                return {"event_block_lanes": "book_proxy_pressure,volatility_burst"}
+            return {}
         return {}  # baseline: honour the args values directly
 
     scored: List[Dict[str, Any]] = []
@@ -1117,7 +1132,7 @@ def main() -> int:
                     if mitigation_profile == "event_block_volatility_v1"
                     else (
                         ["book_proxy_pressure", "volatility_burst"]
-                        if mitigation_profile in {"event_block_v1", "event_block_eth_v1", "event_block_eth_micro_v1", "event_block_eth_micro_imb05_v1", "event_block_eth_micro_imb085_v1"}
+                        if mitigation_profile in {"event_block_v1", "event_block_eth_v1", "event_block_eth_micro_v1", "event_block_eth_micro_imb05_v1", "event_block_eth_micro_imb085_v1", "auto"}
                         else []
                     )
                 )
@@ -1130,13 +1145,13 @@ def main() -> int:
                     if mitigation_profile == "event_block_volatility_v1"
                     else (
                         ["book_proxy_pressure", "volatility_burst"]
-                        if mitigation_profile in {"event_block_v1", "event_block_eth_v1", "event_block_eth_micro_v1", "event_block_eth_micro_imb05_v1", "event_block_eth_micro_imb085_v1"}
+                        if mitigation_profile in {"event_block_v1", "event_block_eth_v1", "event_block_eth_micro_v1", "event_block_eth_micro_imb05_v1", "event_block_eth_micro_imb085_v1", "auto"}
                         else []
                     )
                 )
             ),
-            "event_profile_symbol_scope": ("ETHUSDT" if mitigation_profile in {"event_block_eth_v1", "event_block_eth_micro_v1", "event_block_eth_micro_imb05_v1", "event_block_eth_micro_imb085_v1"} else None),
-            "event_profile_rule_scope": ("micro_edge_v3_passive_alpha" if mitigation_profile in {"event_block_eth_micro_v1", "event_block_eth_micro_imb05_v1", "event_block_eth_micro_imb085_v1"} else None),
+            "event_profile_symbol_scope": ("ETHUSDT" if mitigation_profile in {"event_block_eth_v1", "event_block_eth_micro_v1", "event_block_eth_micro_imb05_v1", "event_block_eth_micro_imb085_v1", "auto"} else None),
+            "event_profile_rule_scope": ("micro_edge_v3_passive_alpha" if mitigation_profile in {"event_block_eth_micro_v1", "event_block_eth_micro_imb05_v1", "event_block_eth_micro_imb085_v1", "auto"} else None),
         },
         "statistical": {
             "bootstrap_ci": bool(args.bootstrap_ci),
