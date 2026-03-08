@@ -1,0 +1,32 @@
+{
+  "purpose": "runtime_ready_merged_event_header_policy",
+  "required": [
+    "summary.banner_mode",
+    "summary.focus_lane_count",
+    "summary.focus_lanes",
+    "summary.top_lane",
+    "summary.top_action",
+    "banner.headline",
+    "banner.recommended_action",
+    "banner.top_lane",
+    "banner.banner_mode",
+    "banner.focus_lanes",
+    "banner.reasons",
+    "banner.operator_note",
+    "focus_rows"
+  ],
+  "focus_row_required": [
+    "lane",
+    "level",
+    "freshness_status",
+    "recommended_action",
+    "effective_display_mode",
+    "effective_priority_score",
+    "headline"
+  ],
+  "runtime_rules": [
+    "Use banner_mode=merged to decide whether to show one combined top banner.",
+    "Keep lane cards/tables below the merged banner rather than replacing them.",
+    "Do not auto-wire the merged banner policy into execution logic."
+  ]
+}

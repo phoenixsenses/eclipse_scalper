@@ -100,6 +100,248 @@ def test_ranking_fee_priority_and_stability(monkeypatch) -> None:
     data = json.loads(out_json.read_text(encoding="utf-8"))
     assert data["run_summary"]["run_type"] == "rank_passive_pockets_forward"
     assert data["ranking"][0]["symbol"] == "ETHUSDT"
+    assert "liquidation_scoring_impact" in data
+    assert data["liquidation_scoring_impact"]["available"] is False
+
+
+def test_liquidation_scoring_impact_summary(monkeypatch) -> None:
+    monkeypatch.setattr(
+        rp,
+        "_parse_candidates_from_md",
+        lambda path, debug=False: (
+            [
+                {"symbol": "ETHUSDT", "horizon_sec": 60, "min_imbalance": 0.5, "min_trade_intensity": 2500.0, "max_spread": 0.00025},
+            ],
+            {"total_rows_seen": 1, "table_rows_seen": 1, "rows_with_pass_yes": 1, "candidates_parsed": 1, "candidates_unique": 1, "rows_skipped_missing_fields": 0},
+        ),
+    )
+
+    def _fake_validate(**kwargs):
+        fee = float(kwargs["maker_fee_bps"])
+        rule = str(kwargs["rule"])
+        vol_quantile_reject = float(kwargs.get("vol_quantile_reject", 0.0) or 0.0)
+        rows = []
+        for split in [1, 2]:
+            for seed in [11, 22]:
+                base = 0.00001
+                if rule == "micro_edge_v3_passive_alpha":
+                    base = 0.00003 if fee <= 1.0 else 0.000015
+                    if vol_quantile_reject > 0.0:
+                        base += 0.00001
+                rows.append(
+                    {
+                        "seed": seed,
+                        "split": split,
+                        "train_n": 100,
+                        "val_n_rows": 100,
+                        "effective_min_n": 20,
+                        "filled_n": 60,
+                        "filled_avg_net": base,
+                        "filled_p90_net": 0.00010,
+                        "filled_win_rate": 0.5,
+                        "attempt_fill_rate": 0.4,
+                        "net_per_attempt": base * 0.4,
+                        "val_attempts": 150,
+                        "val_filled": 60,
+                        "attempts_per_min": 90.0,
+                        "pass": True,
+                    }
+                )
+        return {"rows_total": len(rows), "pass_count": len(rows), "pass_rate": 1.0, "insufficient_fill_rate": 0.0, "per_combo": rows}
+
+    monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
+    out_json = Path("reports/test_rank_liq_impact.json")
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "x",
+            "--candidates-md",
+            "reports/dummy.md",
+            "--db",
+            "data/microstructure.db",
+            "--rule",
+            "micro_edge_v3_passive_alpha",
+            "--maker-fee-bps-grid",
+            "1.0,1.5",
+            "--passive-adverse-mult-grid",
+            "1.0",
+            "--min-attempt-fill-rate",
+            "0.0",
+            "--mitigation-profile",
+            "anti_adverse_v3",
+            "--out-md",
+            "reports/test_rank_liq_impact.md",
+            "--out-json",
+            str(out_json),
+        ],
+    )
+    rc = rp.main()
+    assert rc == 0
+    data = json.loads(out_json.read_text(encoding="utf-8"))
+    impact = data["liquidation_scoring_impact"]
+    assert impact["available"] is True
+    assert impact["count"] == 1
+    assert impact["positive_delta_score_count"] == 1
+    assert float(impact["avg_delta_score_raw_core"]) > 0.0
+
+
+def test_anti_adverse_v5_passes_wait_and_scratch_overrides(monkeypatch) -> None:
+    monkeypatch.setattr(
+        rp,
+        "_parse_candidates_from_md",
+        lambda path, debug=False: (
+            [
+                {"symbol": "ETHUSDT", "horizon_sec": 60, "min_imbalance": 0.35, "min_trade_intensity": 200.0, "max_spread": 0.00035},
+            ],
+            {"total_rows_seen": 1, "table_rows_seen": 1, "rows_with_pass_yes": 1, "candidates_parsed": 1, "candidates_unique": 1, "rows_skipped_missing_fields": 0},
+        ),
+    )
+
+    seen_waits: list[float] = []
+    seen_scratch_bps: list[float] = []
+    seen_scratch_windows: list[float] = []
+
+    def _fake_validate(**kwargs):
+        seen_waits.append(float(kwargs.get("passive_max_wait_buckets", -1)))
+        seen_scratch_bps.append(float(kwargs.get("scratch_bps", -1.0)))
+        seen_scratch_windows.append(float(kwargs.get("scratch_window_sec", -1)))
+        return {
+            "rows_total": 1,
+            "pass_count": 1,
+            "pass_rate": 1.0,
+            "insufficient_fill_rate": 0.0,
+            "per_combo": [
+                {
+                    "seed": 11,
+                    "split": 1,
+                    "train_n": 100,
+                    "val_n_rows": 100,
+                    "effective_min_n": 20,
+                    "filled_n": 30,
+                    "filled_avg_net": 0.00005,
+                    "filled_p90_net": 0.00010,
+                    "filled_win_rate": 0.5,
+                    "attempt_fill_rate": 0.5,
+                    "net_per_attempt": 0.000025,
+                    "val_attempts": 60,
+                    "val_filled": 30,
+                    "attempts_per_min": 20.0,
+                    "pass": True,
+                    "fail_reason": "ok",
+                }
+            ],
+            "failure_attribution_median": {},
+        }
+
+    monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
+    out_json = Path("reports/test_rank_anti_adverse_v5.json")
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "x",
+            "--candidates-md",
+            "reports/dummy.md",
+            "--db",
+            "data/microstructure.db",
+            "--rule",
+            "high_liq_reversal_regime",
+            "--maker-fee-bps-grid",
+            "1.0",
+            "--passive-adverse-mult-grid",
+            "1.0",
+            "--min-attempt-fill-rate",
+            "0.0",
+            "--mitigation-profile",
+            "anti_adverse_v5",
+            "--out-md",
+            "reports/test_rank_anti_adverse_v5.md",
+            "--out-json",
+            str(out_json),
+        ],
+    )
+    rc = rp.main()
+    assert rc == 0
+    assert 2.0 in seen_waits
+    assert 4.0 in seen_scratch_bps
+    assert 10.0 in seen_scratch_windows
+    data = json.loads(out_json.read_text(encoding="utf-8"))
+    assert data["gate_config"]["passive_max_wait_buckets"] == 2
+
+
+def test_anti_adverse_v6_passes_exec_model_override(monkeypatch) -> None:
+    monkeypatch.setattr(
+        rp,
+        "_parse_candidates_from_md",
+        lambda path, debug=False: (
+            [
+                {"symbol": "ETHUSDT", "horizon_sec": 60, "min_imbalance": 0.35, "min_trade_intensity": 200.0, "max_spread": 0.00035},
+            ],
+            {"total_rows_seen": 1, "table_rows_seen": 1, "rows_with_pass_yes": 1, "candidates_parsed": 1, "candidates_unique": 1, "rows_skipped_missing_fields": 0},
+        ),
+    )
+    seen_exec_models: list[str] = []
+
+    def _fake_validate(**kwargs):
+        seen_exec_models.append(str(kwargs.get("exec_model", "")))
+        return {
+            "rows_total": 1,
+            "pass_count": 1,
+            "pass_rate": 1.0,
+            "insufficient_fill_rate": 0.0,
+            "per_combo": [
+                {
+                    "seed": 11,
+                    "split": 1,
+                    "train_n": 100,
+                    "val_n_rows": 100,
+                    "effective_min_n": 20,
+                    "filled_n": 30,
+                    "filled_avg_net": 0.00005,
+                    "filled_p90_net": 0.00010,
+                    "filled_win_rate": 0.5,
+                    "attempt_fill_rate": 0.5,
+                    "net_per_attempt": 0.000025,
+                    "val_attempts": 60,
+                    "val_filled": 30,
+                    "attempts_per_min": 20.0,
+                    "pass": True,
+                    "fail_reason": "ok",
+                }
+            ],
+            "failure_attribution_median": {},
+        }
+
+    monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "x",
+            "--candidates-md",
+            "reports/dummy.md",
+            "--db",
+            "data/microstructure.db",
+            "--rule",
+            "high_liq_reversal_regime",
+            "--maker-fee-bps-grid",
+            "1.0",
+            "--passive-adverse-mult-grid",
+            "1.0",
+            "--min-attempt-fill-rate",
+            "0.0",
+            "--mitigation-profile",
+            "anti_adverse_v6",
+            "--out-md",
+            "reports/test_rank_anti_adverse_v6.md",
+            "--out-json",
+            "reports/test_rank_anti_adverse_v6.json",
+        ],
+    )
+    rc = rp.main()
+    assert rc == 0
+    assert "passive_then_taker" in seen_exec_models
 
 
 def test_parse_candidates_md_v2_style() -> None:
@@ -926,6 +1168,648 @@ def test_failure_reason_top_enum(monkeypatch) -> None:
     assert data["count"] >= 1
     reason = str(data["ranking"][0].get("failure_reason_top", ""))
     assert reason in {"gate_reject", "no_fills", "adverse_dominates", "fees_dominate", "mixed"}
+
+
+def test_event_block_v1_passes_event_block_lanes(monkeypatch) -> None:
+    monkeypatch.setattr(
+        rp,
+        "_parse_candidates_from_md",
+        lambda path, debug=False: (
+            [{"symbol": "ETHUSDT", "horizon_sec": 60, "min_imbalance": 0.5, "min_trade_intensity": 2500.0, "max_spread": 0.00025}],
+            {"total_rows_seen": 1, "table_rows_seen": 1, "rows_with_pass_yes": 1, "candidates_parsed": 1, "candidates_unique": 1, "rows_skipped_missing_fields": 0},
+        ),
+    )
+    seen: list[list[str]] = []
+
+    def _fake_validate(**kwargs):
+        seen.append(list(kwargs.get("event_block_lanes", "").split(",")))
+        rows = [
+            {
+                "seed": 11,
+                "split": 1,
+                "train_n": 100,
+                "val_n_rows": 100,
+                "effective_min_n": 20,
+                "filled_n": 30,
+                "filled_avg_net": 0.00005,
+                "filled_p90_net": 0.00010,
+                "filled_win_rate": 0.5,
+                "attempt_fill_rate": 0.5,
+                "net_per_attempt": 0.000025,
+                "val_attempts": 60,
+                "val_filled": 30,
+                "attempts_per_min": 20.0,
+                "pass": True,
+            }
+        ]
+        return {
+            "rows_total": 1,
+            "pass_count": 1,
+            "pass_rate": 1.0,
+            "insufficient_fill_rate": 0.0,
+            "per_combo": rows,
+            "failure_attribution_median": {},
+            "event_filter": {"allow_lanes": [], "block_lanes": ["book_proxy_pressure", "volatility_burst"], "kept_ratio": 0.75},
+        }
+
+    monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "x",
+            "--candidates-md",
+            "reports/dummy.md",
+            "--db",
+            "data/microstructure.db",
+            "--maker-fee-bps-grid",
+            "1.0",
+            "--passive-adverse-mult-grid",
+            "1.0",
+            "--mitigation-profile",
+            "event_block_v1",
+            "--min-attempt-fill-rate",
+            "0.0",
+            "--out-md",
+            "reports/test_rank_event_block_v1.md",
+            "--out-json",
+            "reports/test_rank_event_block_v1.json",
+        ],
+    )
+    rc = rp.main()
+    assert rc == 0
+    assert seen
+    assert any("book_proxy_pressure" in row and "volatility_burst" in row for row in seen)
+    data = json.loads(Path("reports/test_rank_event_block_v1.json").read_text(encoding="utf-8"))
+    assert data["gate_config"]["event_block_lanes"] == ["book_proxy_pressure", "volatility_burst"]
+    assert data["ranking"][0]["event_filter_kept_ratio"] == 0.75
+
+
+def test_event_block_book_proxy_v1_passes_single_lane(monkeypatch) -> None:
+    monkeypatch.setattr(
+        rp,
+        "_parse_candidates_from_md",
+        lambda path, debug=False: (
+            [{"symbol": "ETHUSDT", "horizon_sec": 60, "min_imbalance": 0.5, "min_trade_intensity": 2500.0, "max_spread": 0.00025}],
+            {"total_rows_seen": 1, "table_rows_seen": 1, "rows_with_pass_yes": 1, "candidates_parsed": 1, "candidates_unique": 1, "rows_skipped_missing_fields": 0},
+        ),
+    )
+    seen: list[list[str]] = []
+
+    def _fake_validate(**kwargs):
+        seen.append(list(filter(None, str(kwargs.get("event_block_lanes", "")).split(","))))
+        rows = [
+            {
+                "seed": 11,
+                "split": 1,
+                "train_n": 100,
+                "val_n_rows": 100,
+                "effective_min_n": 20,
+                "filled_n": 30,
+                "filled_avg_net": 0.00005,
+                "filled_p90_net": 0.00010,
+                "filled_win_rate": 0.5,
+                "attempt_fill_rate": 0.5,
+                "net_per_attempt": 0.000025,
+                "val_attempts": 60,
+                "val_filled": 30,
+                "attempts_per_min": 20.0,
+                "pass": True,
+            }
+        ]
+        return {
+            "rows_total": 1,
+            "pass_count": 1,
+            "pass_rate": 1.0,
+            "insufficient_fill_rate": 0.0,
+            "per_combo": rows,
+            "failure_attribution_median": {},
+            "event_filter": {"allow_lanes": [], "block_lanes": ["book_proxy_pressure"], "kept_ratio": 0.80},
+        }
+
+    monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "x",
+            "--candidates-md",
+            "reports/dummy.md",
+            "--db",
+            "data/microstructure.db",
+            "--maker-fee-bps-grid",
+            "1.0",
+            "--passive-adverse-mult-grid",
+            "1.0",
+            "--mitigation-profile",
+            "event_block_book_proxy_v1",
+            "--min-attempt-fill-rate",
+            "0.0",
+            "--out-md",
+            "reports/test_rank_event_block_book_proxy_v1.md",
+            "--out-json",
+            "reports/test_rank_event_block_book_proxy_v1.json",
+        ],
+    )
+    rc = rp.main()
+    assert rc == 0
+    assert seen
+    assert any(row == ["book_proxy_pressure"] for row in seen)
+    data = json.loads(Path("reports/test_rank_event_block_book_proxy_v1.json").read_text(encoding="utf-8"))
+    assert data["gate_config"]["event_block_lanes"] == ["book_proxy_pressure"]
+    assert data["gate_config"]["event_profile_lane_scope"] == ["book_proxy_pressure"]
+    assert data["ranking"][0]["event_filter_kept_ratio"] == 0.80
+
+
+def test_event_block_volatility_v1_passes_single_lane(monkeypatch) -> None:
+    monkeypatch.setattr(
+        rp,
+        "_parse_candidates_from_md",
+        lambda path, debug=False: (
+            [{"symbol": "ETHUSDT", "horizon_sec": 60, "min_imbalance": 0.5, "min_trade_intensity": 2500.0, "max_spread": 0.00025}],
+            {"total_rows_seen": 1, "table_rows_seen": 1, "rows_with_pass_yes": 1, "candidates_parsed": 1, "candidates_unique": 1, "rows_skipped_missing_fields": 0},
+        ),
+    )
+    seen: list[list[str]] = []
+
+    def _fake_validate(**kwargs):
+        seen.append(list(filter(None, str(kwargs.get("event_block_lanes", "")).split(","))))
+        rows = [
+            {
+                "seed": 11,
+                "split": 1,
+                "train_n": 100,
+                "val_n_rows": 100,
+                "effective_min_n": 20,
+                "filled_n": 30,
+                "filled_avg_net": 0.00005,
+                "filled_p90_net": 0.00010,
+                "filled_win_rate": 0.5,
+                "attempt_fill_rate": 0.5,
+                "net_per_attempt": 0.000025,
+                "val_attempts": 60,
+                "val_filled": 30,
+                "attempts_per_min": 20.0,
+                "pass": True,
+            }
+        ]
+        return {
+            "rows_total": 1,
+            "pass_count": 1,
+            "pass_rate": 1.0,
+            "insufficient_fill_rate": 0.0,
+            "per_combo": rows,
+            "failure_attribution_median": {},
+            "event_filter": {"allow_lanes": [], "block_lanes": ["volatility_burst"], "kept_ratio": 0.78},
+        }
+
+    monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "x",
+            "--candidates-md",
+            "reports/dummy.md",
+            "--db",
+            "data/microstructure.db",
+            "--maker-fee-bps-grid",
+            "1.0",
+            "--passive-adverse-mult-grid",
+            "1.0",
+            "--mitigation-profile",
+            "event_block_volatility_v1",
+            "--min-attempt-fill-rate",
+            "0.0",
+            "--out-md",
+            "reports/test_rank_event_block_volatility_v1.md",
+            "--out-json",
+            "reports/test_rank_event_block_volatility_v1.json",
+        ],
+    )
+    rc = rp.main()
+    assert rc == 0
+    assert seen
+    assert any(row == ["volatility_burst"] for row in seen)
+    data = json.loads(Path("reports/test_rank_event_block_volatility_v1.json").read_text(encoding="utf-8"))
+    assert data["gate_config"]["event_block_lanes"] == ["volatility_burst"]
+    assert data["gate_config"]["event_profile_lane_scope"] == ["volatility_burst"]
+    assert data["ranking"][0]["event_filter_kept_ratio"] == 0.78
+
+
+def test_event_block_eth_v1_applies_only_to_eth(monkeypatch) -> None:
+    monkeypatch.setattr(
+        rp,
+        "_parse_candidates_from_md",
+        lambda path, debug=False: (
+            [
+                {"symbol": "ETHUSDT", "horizon_sec": 60, "min_imbalance": 0.5, "min_trade_intensity": 2500.0, "max_spread": 0.00025},
+                {"symbol": "BTCUSDT", "horizon_sec": 60, "min_imbalance": 0.5, "min_trade_intensity": 2500.0, "max_spread": 0.00025},
+            ],
+            {"total_rows_seen": 2, "table_rows_seen": 2, "rows_with_pass_yes": 2, "candidates_parsed": 2, "candidates_unique": 2, "rows_skipped_missing_fields": 0},
+        ),
+    )
+    seen: dict[str, list[list[str]]] = {}
+
+    def _fake_validate(**kwargs):
+        symbol = str(kwargs.get("symbol"))
+        seen.setdefault(symbol, []).append(list(filter(None, str(kwargs.get("event_block_lanes", "")).split(","))))
+        rows = [
+            {
+                "seed": 11,
+                "split": 1,
+                "train_n": 100,
+                "val_n_rows": 100,
+                "effective_min_n": 20,
+                "filled_n": 30,
+                "filled_avg_net": 0.00005,
+                "filled_p90_net": 0.00010,
+                "filled_win_rate": 0.5,
+                "attempt_fill_rate": 0.5,
+                "net_per_attempt": 0.000025,
+                "val_attempts": 60,
+                "val_filled": 30,
+                "attempts_per_min": 20.0,
+                "pass": True,
+            }
+        ]
+        return {
+            "rows_total": 1,
+            "pass_count": 1,
+            "pass_rate": 1.0,
+            "insufficient_fill_rate": 0.0,
+            "per_combo": rows,
+            "failure_attribution_median": {},
+            "event_filter": {
+                "allow_lanes": [],
+                "block_lanes": list(filter(None, str(kwargs.get("event_block_lanes", "")).split(","))),
+                "kept_ratio": 0.75,
+            },
+        }
+
+    monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "x",
+            "--candidates-md",
+            "reports/dummy.md",
+            "--db",
+            "data/microstructure.db",
+            "--maker-fee-bps-grid",
+            "1.0",
+            "--passive-adverse-mult-grid",
+            "1.0",
+            "--mitigation-profile",
+            "event_block_eth_v1",
+            "--min-attempt-fill-rate",
+            "0.0",
+            "--out-md",
+            "reports/test_rank_event_block_eth_v1.md",
+            "--out-json",
+            "reports/test_rank_event_block_eth_v1.json",
+        ],
+    )
+    rc = rp.main()
+    assert rc == 0
+    assert any(row == ["book_proxy_pressure", "volatility_burst"] for row in seen["ETHUSDT"])
+    assert not any(row == ["book_proxy_pressure", "volatility_burst"] for row in seen["BTCUSDT"])
+    data = json.loads(Path("reports/test_rank_event_block_eth_v1.json").read_text(encoding="utf-8"))
+    assert data["gate_config"]["event_block_lanes"] == ["book_proxy_pressure", "volatility_burst"]
+    assert data["gate_config"]["event_profile_symbol_scope"] == "ETHUSDT"
+
+
+def test_event_block_eth_micro_v1_applies_only_to_eth_micro_edge(monkeypatch) -> None:
+    monkeypatch.setattr(
+        rp,
+        "_parse_candidates_from_md",
+        lambda path, debug=False: (
+            [
+                {"symbol": "ETHUSDT", "horizon_sec": 60, "min_imbalance": 0.5, "min_trade_intensity": 2500.0, "max_spread": 0.00025},
+                {"symbol": "BTCUSDT", "horizon_sec": 60, "min_imbalance": 0.5, "min_trade_intensity": 2500.0, "max_spread": 0.00025},
+            ],
+            {"total_rows_seen": 2, "table_rows_seen": 2, "rows_with_pass_yes": 2, "candidates_parsed": 2, "candidates_unique": 2, "rows_skipped_missing_fields": 0},
+        ),
+    )
+    seen: dict[tuple[str, str], list[list[str]]] = {}
+
+    def _fake_validate(**kwargs):
+        key = (str(kwargs.get("symbol")), str(kwargs.get("rule")))
+        seen.setdefault(key, []).append(list(filter(None, str(kwargs.get("event_block_lanes", "")).split(","))))
+        rows = [
+            {
+                "seed": 11,
+                "split": 1,
+                "train_n": 100,
+                "val_n_rows": 100,
+                "effective_min_n": 20,
+                "filled_n": 30,
+                "filled_avg_net": 0.00005,
+                "filled_p90_net": 0.00010,
+                "filled_win_rate": 0.5,
+                "attempt_fill_rate": 0.5,
+                "net_per_attempt": 0.000025,
+                "val_attempts": 60,
+                "val_filled": 30,
+                "attempts_per_min": 20.0,
+                "pass": True,
+            }
+        ]
+        return {
+            "rows_total": 1,
+            "pass_count": 1,
+            "pass_rate": 1.0,
+            "insufficient_fill_rate": 0.0,
+            "per_combo": rows,
+            "failure_attribution_median": {},
+            "event_filter": {
+                "allow_lanes": [],
+                "block_lanes": list(filter(None, str(kwargs.get("event_block_lanes", "")).split(","))),
+                "kept_ratio": 0.75,
+            },
+        }
+
+    monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "x",
+            "--candidates-md",
+            "reports/dummy.md",
+            "--db",
+            "data/microstructure.db",
+            "--maker-fee-bps-grid",
+            "1.0",
+            "--passive-adverse-mult-grid",
+            "1.0",
+            "--mitigation-profile",
+            "event_block_eth_micro_v1",
+            "--rules",
+            "micro_edge_v3_passive_alpha,intensity_spike_imbalance_cont",
+            "--min-attempt-fill-rate",
+            "0.0",
+            "--out-md",
+            "reports/test_rank_event_block_eth_micro_v1.md",
+            "--out-json",
+            "reports/test_rank_event_block_eth_micro_v1.json",
+        ],
+    )
+    rc = rp.main()
+    assert rc == 0
+    assert any(row == ["book_proxy_pressure", "volatility_burst"] for row in seen[("ETHUSDT", "micro_edge_v3_passive_alpha")])
+    assert not any(row == ["book_proxy_pressure", "volatility_burst"] for row in seen[("ETHUSDT", "intensity_spike_imbalance_cont")])
+    assert not any(row == ["book_proxy_pressure", "volatility_burst"] for row in seen[("BTCUSDT", "micro_edge_v3_passive_alpha")])
+    data = json.loads(Path("reports/test_rank_event_block_eth_micro_v1.json").read_text(encoding="utf-8"))
+    assert data["gate_config"]["event_profile_symbol_scope"] == "ETHUSDT"
+    assert data["gate_config"]["event_profile_rule_scope"] == "micro_edge_v3_passive_alpha"
+
+
+def test_event_block_eth_micro_imb05_v1_skips_low_imbalance(monkeypatch) -> None:
+    monkeypatch.setattr(
+        rp,
+        "_parse_candidates_from_md",
+        lambda path, debug=False: (
+            [
+                {"symbol": "ETHUSDT", "horizon_sec": 60, "min_imbalance": 0.5, "min_trade_intensity": 2500.0, "max_spread": 0.00025},
+                {"symbol": "ETHUSDT", "horizon_sec": 60, "min_imbalance": 0.3, "min_trade_intensity": 2500.0, "max_spread": 0.00025},
+            ],
+            {"total_rows_seen": 2, "table_rows_seen": 2, "rows_with_pass_yes": 2, "candidates_parsed": 2, "candidates_unique": 2, "rows_skipped_missing_fields": 0},
+        ),
+    )
+    seen: dict[float, list[list[str]]] = {}
+
+    def _fake_validate(**kwargs):
+        imb = float(kwargs.get("min_imbalance", 0))
+        seen.setdefault(imb, []).append(list(filter(None, str(kwargs.get("event_block_lanes", "")).split(","))))
+        rows = [
+            {
+                "seed": 11,
+                "split": 1,
+                "train_n": 100,
+                "val_n_rows": 100,
+                "effective_min_n": 20,
+                "filled_n": 30,
+                "filled_avg_net": 0.00005,
+                "filled_p90_net": 0.00010,
+                "filled_win_rate": 0.5,
+                "attempt_fill_rate": 0.5,
+                "net_per_attempt": 0.000025,
+                "val_attempts": 60,
+                "val_filled": 30,
+                "attempts_per_min": 20.0,
+                "pass": True,
+            }
+        ]
+        return {
+            "rows_total": 1,
+            "pass_count": 1,
+            "pass_rate": 1.0,
+            "insufficient_fill_rate": 0.0,
+            "per_combo": rows,
+            "failure_attribution_median": {},
+            "event_filter": {
+                "allow_lanes": [],
+                "block_lanes": list(filter(None, str(kwargs.get("event_block_lanes", "")).split(","))),
+                "kept_ratio": 0.77,
+            },
+        }
+
+    monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "x",
+            "--candidates-md",
+            "reports/dummy.md",
+            "--db",
+            "data/microstructure.db",
+            "--maker-fee-bps-grid",
+            "1.0",
+            "--passive-adverse-mult-grid",
+            "1.0",
+            "--mitigation-profile",
+            "event_block_eth_micro_imb05_v1",
+            "--rules",
+            "micro_edge_v3_passive_alpha",
+            "--min-attempt-fill-rate",
+            "0.0",
+            "--out-md",
+            "reports/test_rank_event_block_eth_micro_imb05_v1.md",
+            "--out-json",
+            "reports/test_rank_event_block_eth_micro_imb05_v1.json",
+        ],
+    )
+    rc = rp.main()
+    assert rc == 0
+    # imb=0.5 candidate: filter applied
+    assert any(row == ["book_proxy_pressure", "volatility_burst"] for row in seen[0.5])
+    # imb=0.3 candidate: filter NOT applied (passes through as baseline)
+    assert all(row == [] for row in seen[0.3])
+    data = json.loads(Path("reports/test_rank_event_block_eth_micro_imb05_v1.json").read_text(encoding="utf-8"))
+    assert data["gate_config"]["event_profile_symbol_scope"] == "ETHUSDT"
+    assert data["gate_config"]["event_profile_rule_scope"] == "micro_edge_v3_passive_alpha"
+
+
+def test_event_block_eth_micro_imb085_v1_skips_below_threshold(monkeypatch) -> None:
+    monkeypatch.setattr(
+        rp,
+        "_parse_candidates_from_md",
+        lambda path, debug=False: (
+            [
+                {"symbol": "ETHUSDT", "horizon_sec": 60, "min_imbalance": 0.85, "min_trade_intensity": 2500.0, "max_spread": 0.00025},
+                {"symbol": "ETHUSDT", "horizon_sec": 60, "min_imbalance": 0.5, "min_trade_intensity": 2500.0, "max_spread": 0.00025},
+            ],
+            {"total_rows_seen": 2, "table_rows_seen": 2, "rows_with_pass_yes": 2, "candidates_parsed": 2, "candidates_unique": 2, "rows_skipped_missing_fields": 0},
+        ),
+    )
+    seen: dict[float, list[list[str]]] = {}
+
+    def _fake_validate(**kwargs):
+        imb = float(kwargs.get("min_imbalance", 0))
+        seen.setdefault(imb, []).append(list(filter(None, str(kwargs.get("event_block_lanes", "")).split(","))))
+        rows = [
+            {
+                "seed": 11,
+                "split": 1,
+                "train_n": 100,
+                "val_n_rows": 100,
+                "effective_min_n": 20,
+                "filled_n": 30,
+                "filled_avg_net": 0.00005,
+                "filled_p90_net": 0.00010,
+                "filled_win_rate": 0.5,
+                "attempt_fill_rate": 0.5,
+                "net_per_attempt": 0.000025,
+                "val_attempts": 60,
+                "val_filled": 30,
+                "attempts_per_min": 20.0,
+                "pass": True,
+            }
+        ]
+        return {
+            "rows_total": 1,
+            "pass_count": 1,
+            "pass_rate": 1.0,
+            "insufficient_fill_rate": 0.0,
+            "per_combo": rows,
+            "failure_attribution_median": {},
+            "event_filter": {
+                "allow_lanes": [],
+                "block_lanes": list(filter(None, str(kwargs.get("event_block_lanes", "")).split(","))),
+                "kept_ratio": 0.77,
+            },
+        }
+
+    monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "x",
+            "--candidates-md",
+            "reports/dummy.md",
+            "--db",
+            "data/microstructure.db",
+            "--maker-fee-bps-grid",
+            "1.0",
+            "--passive-adverse-mult-grid",
+            "1.0",
+            "--mitigation-profile",
+            "event_block_eth_micro_imb085_v1",
+            "--rules",
+            "micro_edge_v3_passive_alpha",
+            "--min-attempt-fill-rate",
+            "0.0",
+            "--out-md",
+            "reports/test_rank_event_block_eth_micro_imb085_v1.md",
+            "--out-json",
+            "reports/test_rank_event_block_eth_micro_imb085_v1.json",
+        ],
+    )
+    rc = rp.main()
+    assert rc == 0
+    # imb=0.85 candidate: filter applied
+    assert any(row == ["book_proxy_pressure", "volatility_burst"] for row in seen[0.85])
+    # imb=0.5 candidate: filter NOT applied (passes through as baseline)
+    assert all(row == [] for row in seen[0.5])
+    data = json.loads(Path("reports/test_rank_event_block_eth_micro_imb085_v1.json").read_text(encoding="utf-8"))
+    assert data["gate_config"]["event_profile_symbol_scope"] == "ETHUSDT"
+    assert data["gate_config"]["event_profile_rule_scope"] == "micro_edge_v3_passive_alpha"
+
+
+def test_auto_profile_applies_imb085_filter_to_qualifying_candidate(monkeypatch) -> None:
+    """'auto' profile applies event_block_eth_micro_imb085_v1 to ETHUSDT+h=60+imb>=0.85 only."""
+    monkeypatch.setattr(
+        rp,
+        "_parse_candidates_from_md",
+        lambda path, debug=False: (
+            [
+                # qualifying: ETHUSDT, micro_edge rule, h=60, imb=0.85
+                {"symbol": "ETHUSDT", "horizon_sec": 60, "min_imbalance": 0.85, "min_trade_intensity": 2500.0, "max_spread": 0.00025},
+                # non-qualifying: imb=0.5 (below threshold)
+                {"symbol": "ETHUSDT", "horizon_sec": 60, "min_imbalance": 0.5, "min_trade_intensity": 2500.0, "max_spread": 0.00025},
+                # non-qualifying: h=120
+                {"symbol": "ETHUSDT", "horizon_sec": 120, "min_imbalance": 0.85, "min_trade_intensity": 2500.0, "max_spread": 0.00025},
+                # non-qualifying: BTC
+                {"symbol": "BTCUSDT", "horizon_sec": 60, "min_imbalance": 0.85, "min_trade_intensity": 2500.0, "max_spread": 0.00025},
+            ],
+            {"total_rows_seen": 4, "table_rows_seen": 4, "rows_with_pass_yes": 4, "candidates_parsed": 4, "candidates_unique": 4, "rows_skipped_missing_fields": 0},
+        ),
+    )
+    seen: dict[tuple, list[list[str]]] = {}
+
+    def _fake_validate(**kwargs):
+        key = (str(kwargs.get("symbol", "")), int(kwargs.get("horizon_sec", 0)), float(kwargs.get("min_imbalance", 0)))
+        lanes = list(filter(None, str(kwargs.get("event_block_lanes", "")).split(",")))
+        seen.setdefault(key, []).append(lanes)
+        rows = [
+            {
+                "seed": 11, "split": 1, "train_n": 100, "val_n_rows": 100, "effective_min_n": 20,
+                "filled_n": 30, "filled_avg_net": 0.00005, "filled_p90_net": 0.00010,
+                "filled_win_rate": 0.5, "attempt_fill_rate": 0.5, "net_per_attempt": 0.000025,
+                "val_attempts": 60, "val_filled": 30, "attempts_per_min": 20.0, "pass": True,
+            }
+        ]
+        return {
+            "rows_total": 1, "pass_count": 1, "pass_rate": 1.0, "insufficient_fill_rate": 0.0,
+            "per_combo": rows, "failure_attribution_median": {},
+            "event_filter": {
+                "allow_lanes": [],
+                "block_lanes": list(filter(None, str(kwargs.get("event_block_lanes", "")).split(","))),
+                "kept_ratio": 0.77,
+            },
+        }
+
+    monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
+    monkeypatch.setattr(
+        sys, "argv",
+        [
+            "x", "--candidates-md", "reports/dummy.md", "--db", "data/microstructure.db",
+            "--maker-fee-bps-grid", "1.0", "--passive-adverse-mult-grid", "1.0",
+            "--rules", "micro_edge_v3_passive_alpha",
+            "--min-attempt-fill-rate", "0.0",
+            "--out-md", "reports/test_rank_auto_profile.md",
+            "--out-json", "reports/test_rank_auto_profile.json",
+            # no --mitigation-profile: should default to "auto"
+        ],
+    )
+    rc = rp.main()
+    assert rc == 0
+    # ETHUSDT h=60 imb=0.85: filter APPLIED
+    assert any(row == ["book_proxy_pressure", "volatility_burst"] for row in seen[("ETHUSDT", 60, 0.85)])
+    # ETHUSDT h=60 imb=0.5: filter NOT applied
+    assert all(row == [] for row in seen[("ETHUSDT", 60, 0.5)])
+    # ETHUSDT h=120 imb=0.85: filter NOT applied (wrong horizon)
+    assert all(row == [] for row in seen[("ETHUSDT", 120, 0.85)])
+    # BTCUSDT h=60 imb=0.85: filter NOT applied (wrong symbol)
+    assert all(row == [] for row in seen[("BTCUSDT", 60, 0.85)])
+    data = json.loads(Path("reports/test_rank_auto_profile.json").read_text(encoding="utf-8"))
+    assert data["mitigation_profile"] == "auto"
+    assert data["gate_config"]["event_profile_symbol_scope"] == "ETHUSDT"
+    assert data["gate_config"]["event_profile_rule_scope"] == "micro_edge_v3_passive_alpha"
 
 
 def test_attribution_fields_merged_into_ranking_row(monkeypatch) -> None:

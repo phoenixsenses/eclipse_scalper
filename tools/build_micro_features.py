@@ -152,15 +152,28 @@ def compute_micro_bars_from_frames(
     if not l.empty:
         l["bucket_ts"] = _bucketize(l["ts"], interval_ms)
         l["qty"] = pd.to_numeric(l["qty"], errors="coerce").fillna(0.0)
-        lg = l.groupby("bucket_ts", as_index=False).agg(liq_count=("qty", "size"), liq_qty=("qty", "sum"))
+        side = l["side"].fillna("").astype(str).str.lower()
+        l["liq_sell_qty"] = np.where(side.eq("sell"), l["qty"], 0.0)
+        l["liq_buy_qty"] = np.where(side.eq("buy"), l["qty"], 0.0)
+        lg = (
+            l.groupby("bucket_ts", as_index=False)
+            .agg(
+                liq_count=("qty", "size"),
+                liq_qty=("qty", "sum"),
+                liq_sell_qty=("liq_sell_qty", "sum"),
+                liq_buy_qty=("liq_buy_qty", "sum"),
+            )
+        )
         out = out.merge(lg, on="bucket_ts", how="left")
     else:
         out["liq_count"] = 0
         out["liq_qty"] = 0.0
+        out["liq_sell_qty"] = 0.0
+        out["liq_buy_qty"] = 0.0
 
     # Derived columns
-    out[["buy_qty", "sell_qty", "qty_sum", "notional_sum", "liq_qty"]] = out[
-        ["buy_qty", "sell_qty", "qty_sum", "notional_sum", "liq_qty"]
+    out[["buy_qty", "sell_qty", "qty_sum", "notional_sum", "liq_qty", "liq_sell_qty", "liq_buy_qty"]] = out[
+        ["buy_qty", "sell_qty", "qty_sum", "notional_sum", "liq_qty", "liq_sell_qty", "liq_buy_qty"]
     ].fillna(0.0)
     out[["trade_count", "liq_count"]] = out[["trade_count", "liq_count"]].fillna(0).astype(int)
 
@@ -187,6 +200,8 @@ def compute_micro_bars_from_frames(
     out["trade_intensity_qty_per_sec"] = out["qty_sum"] / max(EPS, interval_sec)
     out["trade_intensity_trades_per_sec"] = out["trade_count"] / max(EPS, interval_sec)
     out["top_depth_imbalance"] = (out["bid_qty"] - out["ask_qty"]) / (out["bid_qty"] + out["ask_qty"] + EPS)
+    out["liq_imbalance"] = (out["liq_sell_qty"] - out["liq_buy_qty"]) / (out["liq_qty"] + EPS)
+    out["liq_rate_per_sec"] = out["liq_qty"] / max(EPS, interval_sec)
 
     out["mid_ret"] = np.log((out["mid"].replace(0.0, np.nan)) / (out["mid"].shift(1).replace(0.0, np.nan)))
     rv_window = max(2, int(round(float(rv_window_sec) / interval_sec)))
@@ -215,6 +230,10 @@ def compute_micro_bars_from_frames(
         "rv_short",
         "liq_count",
         "liq_qty",
+        "liq_sell_qty",
+        "liq_buy_qty",
+        "liq_imbalance",
+        "liq_rate_per_sec",
         "bid_px",
         "ask_px",
         "bid_qty",

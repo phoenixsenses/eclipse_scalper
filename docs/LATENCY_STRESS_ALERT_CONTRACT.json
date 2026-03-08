@@ -1,0 +1,26 @@
+{
+  "lane": "latency_stress_regime",
+  "purpose": "execution_quality_monitoring",
+  "single_symbol_state": {
+    "required": [
+      "source",
+      "state.level",
+      "state.reasons",
+      "dashboard_summary",
+      "notification_text",
+      "recommended_action",
+      "card.headline",
+      "card.operator_note",
+      "card.rows",
+      "card.fill_rate",
+      "card.latency_fill_delay_sec_p50",
+      "card.latency_fill_delay_sec_p95",
+      "card.latency_impact_vs_net_corr"
+    ]
+  },
+  "runtime_rules": [
+    "Treat recommended_action as operator guidance only.",
+    "If rows == 0, render as quiet/no-data rather than as an active incident.",
+    "Do not auto-wire this payload into execution logic without separate validation."
+  ]
+}

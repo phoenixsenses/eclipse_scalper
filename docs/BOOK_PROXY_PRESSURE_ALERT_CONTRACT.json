@@ -1,0 +1,53 @@
+{
+  "alerts_json": {
+    "lane": "book_proxy_pressure",
+    "symbol": "ETHUSDT",
+    "lookback_min": 240,
+    "bucket_sec": 5,
+    "summary": {
+      "rows_total": 100,
+      "tagged_count": 5,
+      "tagged_rate": 0.05,
+      "recent_alert_count": 3,
+      "high_count": 1,
+      "medium_count": 2,
+      "avg_abs_imbalance_tagged": 0.8,
+      "avg_trade_intensity_tagged": 400.0,
+      "avg_spread_tagged": 0.0008,
+      "side_bias_counts": {
+        "LONG": 2,
+        "SHORT": 1,
+        "NEUTRAL": 0
+      }
+    }
+  },
+  "state_json": {
+    "lane": "book_proxy_pressure",
+    "symbol": "ETHUSDT",
+    "state": {
+      "level": "elevated",
+      "primary_side_bias": "LONG",
+      "freshness": {
+        "status": "fresh"
+      }
+    },
+    "recommended_action": "monitor_only",
+    "dashboard_summary": "ETHUSDT elevated book proxy pressure, 3 recent alerts, freshness fresh."
+  },
+  "watchlist_json": {
+    "lane": "book_proxy_pressure",
+    "summary": {
+      "symbol_count": 2,
+      "top_symbol": "ETHUSDT"
+    },
+    "top_summary": {
+      "symbol": "ETHUSDT",
+      "state_level": "severe",
+      "freshness_status": "fresh",
+      "recommended_action": "show_caution"
+    },
+    "banner": {
+      "headline": "Book proxy pressure watchlist top=ETHUSDT level=severe freshness=fresh action=show_caution"
+    }
+  }
+}

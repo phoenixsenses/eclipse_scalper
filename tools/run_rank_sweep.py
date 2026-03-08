@@ -66,6 +66,7 @@ def _extract_summary(rank_json_path: Path) -> Dict[str, Any]:
     except Exception:
         return {"count": 0, "top": None}
     ranking = payload.get("ranking") or []
+    liq_impact = payload.get("liquidation_scoring_impact") or {}
     top = ranking[0] if ranking else None
     top_summary = None
     if isinstance(top, dict):
@@ -79,7 +80,18 @@ def _extract_summary(rank_json_path: Path) -> Dict[str, Any]:
             "pass_rate_core": top.get("pass_rate_core"),
             "failure_reason_top": top.get("failure_reason_top"),
         }
-    return {"count": int(payload.get("count", 0) or 0), "top": top_summary}
+    return {
+        "count": int(payload.get("count", 0) or 0),
+        "top": top_summary,
+        "liquidation_scoring_impact": {
+            "available": bool(liq_impact.get("available", False)),
+            "count": int(liq_impact.get("count", 0) or 0),
+            "positive_delta_score_count": int(liq_impact.get("positive_delta_score_count", 0) or 0),
+            "avg_delta_score_raw_core": liq_impact.get("avg_delta_score_raw_core"),
+            "avg_delta_npa_core": liq_impact.get("avg_delta_npa_core"),
+            "avg_delta_pass_rate_core": liq_impact.get("avg_delta_pass_rate_core"),
+        },
+    }
 
 
 def _invoke_rank(argv: List[str]) -> int:

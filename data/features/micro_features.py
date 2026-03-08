@@ -9,8 +9,8 @@ from typing import Any, Dict, Iterable, List, Optional
 
 _TS_CANDIDATES = ("ts_ms", "timestamp_ms", "timestamp", "ts", "event_time", "time_ms", "time")
 _SYMBOL_CANDIDATES = ("symbol", "s", "pair", "instrument", "ticker")
-_BID_CANDIDATES = ("best_bid", "bid", "bid_price", "b")
-_ASK_CANDIDATES = ("best_ask", "ask", "ask_price", "a")
+_BID_CANDIDATES = ("best_bid", "bid", "bid_price", "bid_px", "b")
+_ASK_CANDIDATES = ("best_ask", "ask", "ask_price", "ask_px", "a")
 _BID_VOL_CANDIDATES = ("bid_vol", "bid_volume", "bq", "bid_qty")
 _ASK_VOL_CANDIDATES = ("ask_vol", "ask_volume", "aq", "ask_qty")
 _PRICE_CANDIDATES = ("mark_price", "mid", "price", "last_price", "p")

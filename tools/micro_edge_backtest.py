@@ -783,7 +783,8 @@ def simulate_rule_trades(
         scratch_exit_idx = None
         queue_competition_score = 0.0
         toxicity_score = 0.0
-        if str(exec_model).lower() == "passive_realistic":
+        exec_mode = str(exec_model).lower()
+        if exec_mode in {"passive_realistic", "passive_then_taker"}:
             debug_stats["passive_attempts"] = int(debug_stats.get("passive_attempts", 0)) + 1
             wait_buckets = int(passive_max_wait_buckets) if int(passive_max_wait_buckets) > 0 else int(hold_buckets)
             max_end = min(n - 1, entry_idx + max(1, wait_buckets) + max(1, int(hold_buckets)))
@@ -807,35 +808,60 @@ def simulate_rule_trades(
             )
             filled_flag = bool(pfill.get("filled"))
             if not filled_flag:
-                debug_stats["passive_unfilled"] = int(debug_stats.get("passive_unfilled", 0)) + 1
-                attempt_rows.append(attempted)
-                i += 1
-                continue
-            debug_stats["passive_filled"] = int(debug_stats.get("passive_filled", 0)) + 1
-            fill_fraction = float(pfill.get("fill_fraction", 1.0) or 1.0)
-            if fill_fraction < 0.999:
-                debug_stats["passive_partial"] = int(debug_stats.get("passive_partial", 0)) + 1
-            adverse_bps = float(pfill.get("adverse_selection_bps", 0.0) or 0.0)
-            effective_cost_bps = float(pfill.get("effective_cost_bps", 0.0) or 0.0)
-            exec_price_adj = float(pfill.get("execution_price_adjustment", 0.0) or 0.0)
-            queue_competition_score = float(pfill.get("queue_competition_score", 0.0) or 0.0)
-            toxicity_score = float(pfill.get("toxicity_score", 0.0) or 0.0)
-            fill_offset = max(0, int(pfill.get("fill_index_offset", 0) or 0))
-            entry_idx = entry_idx + fill_offset
-            exit_idx = entry_idx + max(1, int(hold_buckets))
-            if exit_idx >= n:
-                break
-            entry_px = mids[entry_idx]
-            exit_px = mids[exit_idx]
-            if entry_px is None or exit_px is None or entry_px <= 0 or exit_px <= 0:
-                i += 1
-                continue
-            cost_fee_ratio = (2.0 * float((passive_params or {}).get("maker_fee_bps", maker_fee_bps))) / 10000.0
-            cost_adverse_ratio = max(0.0, float(adverse_bps) / 10000.0)
-            # Spread is modeled via execution price adjustment (price improvement/slippage path), not direct additive cost.
-            cost_spread_ratio = 0.0
-            cost_total_ratio = cost_fee_ratio + cost_spread_ratio + cost_adverse_ratio
-            event_cost = cost_total_ratio
+                if exec_mode == "passive_then_taker":
+                    debug_stats["passive_fallback_taker"] = int(debug_stats.get("passive_fallback_taker", 0)) + 1
+                    fallback_offset = max(1, int(passive_max_wait_buckets) if int(passive_max_wait_buckets) > 0 else 1)
+                    entry_idx = entry_idx + fallback_offset
+                    exit_idx = entry_idx + max(1, int(hold_buckets))
+                    if exit_idx >= n:
+                        break
+                    entry_px = mids[entry_idx]
+                    exit_px = mids[exit_idx]
+                    if entry_px is None or exit_px is None or entry_px <= 0 or exit_px <= 0:
+                        i += 1
+                        continue
+                    fallback_one_way_bps = max(0.0, float(scratch_taker_fee_bps)) + max(0.0, float(scratch_slippage_bps))
+                    cost_fee_ratio = (2.0 * fallback_one_way_bps) / 10000.0
+                    cost_adverse_ratio = 0.0
+                    cost_spread_ratio = 0.0
+                    cost_total_ratio = cost_fee_ratio
+                    event_cost = cost_total_ratio
+                    effective_cost_bps = 2.0 * fallback_one_way_bps
+                    adverse_bps = 0.0
+                    exec_price_adj = 0.0
+                    fill_fraction = 1.0
+                    filled_flag = True
+                else:
+                    debug_stats["passive_unfilled"] = int(debug_stats.get("passive_unfilled", 0)) + 1
+                    attempt_rows.append(attempted)
+                    i += 1
+                    continue
+            else:
+                debug_stats["passive_filled"] = int(debug_stats.get("passive_filled", 0)) + 1
+                fill_fraction = float(pfill.get("fill_fraction", 1.0) or 1.0)
+                if fill_fraction < 0.999:
+                    debug_stats["passive_partial"] = int(debug_stats.get("passive_partial", 0)) + 1
+                adverse_bps = float(pfill.get("adverse_selection_bps", 0.0) or 0.0)
+                effective_cost_bps = float(pfill.get("effective_cost_bps", 0.0) or 0.0)
+                exec_price_adj = float(pfill.get("execution_price_adjustment", 0.0) or 0.0)
+                queue_competition_score = float(pfill.get("queue_competition_score", 0.0) or 0.0)
+                toxicity_score = float(pfill.get("toxicity_score", 0.0) or 0.0)
+                fill_offset = max(0, int(pfill.get("fill_index_offset", 0) or 0))
+                entry_idx = entry_idx + fill_offset
+                exit_idx = entry_idx + max(1, int(hold_buckets))
+                if exit_idx >= n:
+                    break
+                entry_px = mids[entry_idx]
+                exit_px = mids[exit_idx]
+                if entry_px is None or exit_px is None or entry_px <= 0 or exit_px <= 0:
+                    i += 1
+                    continue
+                cost_fee_ratio = (2.0 * float((passive_params or {}).get("maker_fee_bps", maker_fee_bps))) / 10000.0
+                cost_adverse_ratio = max(0.0, float(adverse_bps) / 10000.0)
+                # Spread is modeled via execution price adjustment (price improvement/slippage path), not direct additive cost.
+                cost_spread_ratio = 0.0
+                cost_total_ratio = cost_fee_ratio + cost_spread_ratio + cost_adverse_ratio
+                event_cost = cost_total_ratio
         else:
             event_cost = compute_exec_cost(
                 exec_model=exec_model,
@@ -864,7 +890,7 @@ def simulate_rule_trades(
         # Optional post-fill scratch/escape:
         # if adverse move exceeds threshold within scratch window, force early taker-like exit.
         if (
-            str(exec_model).lower() == "passive_realistic"
+            str(exec_model).lower() in {"passive_realistic", "passive_then_taker"}
             and float(scratch_bps) > 0.0
             and int(scratch_window_sec) > 0
             and float(exec_entry_px) > 0.0
