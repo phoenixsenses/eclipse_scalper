@@ -120,6 +120,27 @@ Focused 7D event-filter comparison on the viable 60s pocket:
   - on the current branch, the lighter single-lane negative filter is still plausible
   - the two-lane block is too aggressive on this viable 7D ETH pocket
 
+Adjacent 7D pocket check (same horizon, slightly wider spread):
+- pocket C:
+  - `ETHUSDT`
+  - `h=60`
+  - `imb>=0.30`
+  - `int>=8000`
+  - `spr<=0.000250`
+  - `min_n=20`
+- baseline:
+  - artifact: `reports/FOCUSED_ETH_POCKET_C_7D_MIN20.json`
+  - `pass_count = 1/6`
+  - `pass_rate = 0.1667`
+- book-proxy-only block:
+  - artifact: `reports/FOCUSED_ETH_POCKET_C_7D_BOOKBLOCK.json`
+  - `pass_count = 0/6`
+  - `pass_rate = 0.0`
+- implication:
+  - `book_proxy_pressure`-only blocking is not generically helpful across nearby ETH 60s pockets
+  - it may still help on the tighter `spr<=0.000200` pocket
+  - but it currently fails the adjacent-pocket robustness check
+
 Interpretation update:
 - the stale local DB was real and had to be ruled out
 - however, even after rerunning on the live/root DB, the current branch still yields a non-tradeable ETH TOP8 passive-realistic surface
@@ -170,6 +191,7 @@ Practical decision:
 - more precise refinement after focused 7D probes:
   - `1D broad ETH surface` = non-actionable
   - `7D focused ETH pockets` = threshold-sensitive, with at least one viable 60s pocket under softer `min_n`
+  - `book_proxy_pressure`-only filter = pocket-sensitive, not yet robust enough for broad rollout
 
 Next sensible step:
 1. do not use `C:\Users\Windows 11\.vscode\CryptoLion\eclipse_scalper-research\data\microstructure.db` for promotion decisions
@@ -177,5 +199,6 @@ Next sensible step:
    - the ETH TOP8 passive-realistic surface is currently non-actionable
 3. treat the fresh 1D ETH rebuild as confirming that current ETH passive-realistic pockets are not passing even before event filters
 4. for 7D work, stop using broad generic sweep as the only decision source; use targeted pocket probes where needed
-5. for current 7D ETH work, prefer testing `book_proxy_pressure`-only negative filtering over the old two-lane block
-6. next debugging target should be current-branch drift / surface weakness in passive execution or candidate generation on the dead 1D surface
+5. do not promote `book_proxy_pressure`-only filtering as an ETH-wide 60s rule from current evidence
+6. if continuing this line, scope any further test to the tight `spr<=0.000200` pocket family only
+7. next debugging target should be current-branch drift / surface weakness in passive execution or candidate generation on the dead 1D surface
