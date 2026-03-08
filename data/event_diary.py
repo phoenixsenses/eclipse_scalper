@@ -188,10 +188,14 @@ class EventDiary:
                   f"price={event.get('price_at_event', '?')}", flush=True)
 
         # Fill forward prices for pending events
-        filled = self._fill_forward_prices(conn, now_ms)
+        filled, to_remove = self._fill_forward_prices(conn, now_ms)
         if filled > 0:
-            # Rewrite CSV with updated fills
+            # Rewrite CSV first (while fully-filled events are still in
+            # _pending_fills so _rewrite_all can read their updated dicts),
+            # then remove them.
             self._rewrite_all(conn)
+            for eid in to_remove:
+                del self._pending_fills[eid]
 
         conn.close()
 
@@ -414,11 +418,17 @@ class EventDiary:
 
         return context
 
-    def _fill_forward_prices(self, conn: sqlite3.Connection, now_ms: int) -> int:
-        """Fill in forward price snapshots for pending events."""
-        filled_count = 0
+    def _fill_forward_prices(self, conn: sqlite3.Connection, now_ms: int):
+        """Fill in forward price snapshots for pending events.
 
+        Returns (filled_count, to_remove) where to_remove is the list of
+        event IDs that are now fully filled.  The caller is responsible for
+        deleting them from _pending_fills AFTER _rewrite_all so the rewrite
+        can still read the updated in-memory dicts.
+        """
+        filled_count = 0
         to_remove = []
+
         for eid, event in self._pending_fills.items():
             event_ts = int(event["ts_ms"])
             symbol = event["symbol"]
@@ -460,10 +470,7 @@ class EventDiary:
             if all_filled:
                 to_remove.append(eid)
 
-        for eid in to_remove:
-            del self._pending_fills[eid]
-
-        return filled_count
+        return filled_count, to_remove
 
     def _rewrite_all(self, conn: sqlite3.Connection):
         """Rewrite CSV with all events including updated fills."""
