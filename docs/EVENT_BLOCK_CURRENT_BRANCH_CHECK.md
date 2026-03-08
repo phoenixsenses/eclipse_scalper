@@ -93,6 +93,33 @@ Focused 7D pocket probes:
   - it is capacity-threshold sensitive
   - at least one narrow ETH 60s pocket can become actionable under a softer capacity requirement
 
+Focused 7D event-filter comparison on the viable 60s pocket:
+- pocket used:
+  - `ETHUSDT`
+  - `h=60`
+  - `imb>=0.30`
+  - `int>=8000`
+  - `spr<=0.000200`
+  - `min_n=20`
+- baseline:
+  - artifact: `reports/FOCUSED_ETH_POCKET_B_7D_MIN20.json`
+  - `pass_count = 3/6`
+  - `pass_rate = 0.5`
+  - `insufficient_fill_rate = 0.5`
+- book-proxy-only block:
+  - artifact: `reports/FOCUSED_ETH_POCKET_B_7D_BOOKBLOCK.json`
+  - `pass_count = 3/6`
+  - `pass_rate = 0.5`
+  - `insufficient_fill_rate = 0.5`
+  - but split-level fills improved materially in the strong split (e.g. `filled_n` rose from `21` to `29`)
+- two-lane block (`book_proxy_pressure + volatility_burst`):
+  - artifact: `reports/FOCUSED_ETH_POCKET_B_7D_BLOCKV1.json`
+  - `pass_count = 0/6`
+  - `insufficient_fill_rate = 1.0`
+- implication:
+  - on the current branch, the lighter single-lane negative filter is still plausible
+  - the two-lane block is too aggressive on this viable 7D ETH pocket
+
 Interpretation update:
 - the stale local DB was real and had to be ruled out
 - however, even after rerunning on the live/root DB, the current branch still yields a non-tradeable ETH TOP8 passive-realistic surface
@@ -150,4 +177,5 @@ Next sensible step:
    - the ETH TOP8 passive-realistic surface is currently non-actionable
 3. treat the fresh 1D ETH rebuild as confirming that current ETH passive-realistic pockets are not passing even before event filters
 4. for 7D work, stop using broad generic sweep as the only decision source; use targeted pocket probes where needed
-5. next debugging target should be current-branch drift / surface weakness in passive execution or candidate generation, not more event-block profile tuning on the dead 1D surface
+5. for current 7D ETH work, prefer testing `book_proxy_pressure`-only negative filtering over the old two-lane block
+6. next debugging target should be current-branch drift / surface weakness in passive execution or candidate generation on the dead 1D surface
