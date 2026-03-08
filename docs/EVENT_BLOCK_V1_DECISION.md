@@ -722,9 +722,7 @@ The result is **window-dependent and internally contradictory**:
 - 14D: filter is mixed — helps weak pockets, hurts strong ones
 - The imb=0.85 candidates (the only profitable BTC pockets on baseline) degrade on both 7D and 14D
 
-Root cause: **the event lanes have opposite character on BTC**. On ETH,
-`book_proxy_pressure` and `volatility_burst` are toxic entry contexts. On BTC,
-blocking these events removes neutral or favorable signals, degrading NPA.
+Root cause identified via BTC-specific lane analysis (see below).
 
 ### Verdict
 
@@ -732,6 +730,52 @@ blocking these events removes neutral or favorable signals, degrading NPA.
 
 The two-lane block is not cross-symbol portable. ETH-specific scoping
 (`event_block_eth_micro_*` profiles) is required. BTC should remain on baseline.
+
+## BTC Event Lane Analysis
+
+Ran `micro_edge_backtest` on BTCUSDT (passive_realistic, h=120, micro_edge_v3_passive_alpha)
+to generate per-signal debug JSONL. Computed event lane impact by imbalance tier.
+
+### 7D window (n=859 filled signals)
+
+| Lane | hi_imb(>=0.85) delta | mid_imb(0.5-0.85) delta | Notes |
+|------|---------------------:|------------------------:|-------|
+| book_proxy_pressure | −6.3e−05 (n=19) | **+2.80e−04** (n=19) | POSITIVE on mid-imb |
+| volatility_burst | **−2.62e−04** (n=46) | −2.37e−04 (n=73) | strongly negative |
+| return_shock | −3.0e−05 (n=25) | −4.3e−05 (n=36) | weakly negative |
+| spread_stress | −5.5e−04 (n=3) | −6.2e−04 (n=2) | n too small |
+
+### 21D window (n=2422 filled signals — 3x more data)
+
+| Lane | hi_imb(>=0.85) delta | mid_imb(0.5-0.85) delta | Notes |
+|------|---------------------:|------------------------:|-------|
+| book_proxy_pressure | **+1.4e−05** (n=67) | +1.1e−05 (n=74) | POSITIVE both tiers |
+| volatility_burst | **+1.2e−05** (n=150) | +5.9e−05 (n=208) | POSITIVE both tiers |
+| return_shock | −2.6e−05 (n=76) | +8.8e−05 (n=88) | mixed |
+| spread_stress | −1.5e−04 (n=9) | +2.0e−03 (n=1) | n too small |
+
+### Interpretation
+
+The 7D finding that `volatility_burst` was strongly negative on hi_imb BTC was
+**small-sample noise** (n=46). On the 21D window with n=150, `volatility_burst`
+is slightly POSITIVE on hi_imb BTC (+1.2e-05 delta).
+
+Key pattern: BTC event lanes are **window-dependent and sign-unstable** at these
+sample sizes. Neither lane can be reliably classified as toxic on BTC:
+- `book_proxy_pressure`: positive on mid-imb in both windows; positive on hi-imb in 21D
+- `volatility_burst`: negative 7D hi-imb (n=46) reverses to positive 21D hi-imb (n=150)
+
+The reason the two-lane block hurt BTC in the 7D ranking run:
+- Mid-imb pockets (imb=0.3–0.7): `book_proxy_pressure` is POSITIVE — blocking removes good signals
+- Hi-imb pockets (imb=0.85): `volatility_burst` appears negative on 7D but reverses on 21D
+
+### Verdict
+
+No event block candidate exists for BTC at current data volumes. The ETH findings
+(where book_proxy_pressure and volatility_burst are consistently negative on ETH
+micro-edge signals) do not transfer to BTC. BTC requires a fully independent lane
+characterization with at least 60+ days of data per lane tier before any block
+candidate could be identified.
 
 ## Next Step
 
