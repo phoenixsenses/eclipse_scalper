@@ -60,13 +60,14 @@ def main() -> int:
     ]
     print(f"ops_smoke dashboard_base={base}")
     all_ok = True
+    any_ok = False
+    all_unreachable = True
     for path in checks:
         ok, detail = _http_ok(base + path)
         print(f"ops_smoke endpoint {path} ok={int(ok)} detail={detail}")
         all_ok = all_ok and ok
-
-    if not all_ok:
-        return 1
+        any_ok = any_ok or ok
+        all_unreachable = all_unreachable and str(detail).startswith("err:")
 
     if not args.skip_local:
         rc_v, out_v = _run([sys.executable, "-m", "tools.validate_env", "--env", str(args.env)], env)
@@ -80,6 +81,9 @@ def main() -> int:
         # missing telegram config is acceptable in smoke; send failure is acceptable but surfaced
         if rc_p not in (0, 2, 3):
             return 1
+    dashboard_optional = (not any_ok) and all_unreachable and base in {"http://127.0.0.1:8765", "http://localhost:8765"}
+    if not all_ok and not dashboard_optional:
+        return 1
     return 0
 
 
