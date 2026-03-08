@@ -608,6 +608,13 @@ def simulate_rule_trades(
 ) -> Dict[str, Any]:
     use_unified_engine = _exec_engine_unified_enabled()
     engines = build_default_engines() if use_unified_engine else {}
+    passive_params_effective = dict(passive_params or {})
+    if (
+        "touch_without_cross_factor" not in passive_params_effective
+        and float(passive_params_effective.get("base_touch", 0.0) or 0.0) >= 0.999
+        and float(passive_params_effective.get("base_full_cond_touch", 0.0) or 0.0) >= 0.999
+    ):
+        passive_params_effective["touch_without_cross_factor"] = 1.0
     mids = [r.get("mid") for r in rows]
     n = len(rows)
     next_allowed = 0
@@ -789,13 +796,19 @@ def simulate_rule_trades(
             wait_buckets = int(passive_max_wait_buckets) if int(passive_max_wait_buckets) > 0 else int(hold_buckets)
             max_end = min(n - 1, entry_idx + max(1, wait_buckets) + max(1, int(hold_buckets)))
             future_mids = [float(v) for v in mids[entry_idx : max_end + 1] if v is not None and float(v) > 0.0]
+            future_mids_for_sim = list(future_mids)
+            optimistic_no_cross_touch = float(passive_params_effective.get("touch_without_cross_factor", 0.0) or 0.0) >= 0.999
+            spread_ratio = float(r.get("spread") or 0.0)
+            if optimistic_no_cross_touch and future_mids_for_sim and spread_ratio > 0.0:
+                synthetic_touch_px = float(entry_px) * (1.0 - (0.5 * spread_ratio) if trade_side == "LONG" else 1.0 + (0.5 * spread_ratio))
+                future_mids_for_sim = [synthetic_touch_px, *future_mids_for_sim]
             pfill = simulate_passive_fill(
                 event={
                     "event_id": event_id,
                     "symbol": debug_symbol,
                     "side": trade_side,
                     "entry_price": float(entry_px),
-                    "future_mids": future_mids,
+                    "future_mids": future_mids_for_sim,
                 },
                 horizon_sec=max(1, int(hold_buckets)),
                 features={
@@ -804,7 +817,7 @@ def simulate_rule_trades(
                     "vol_proxy": (r.get("micro_volatility") if r.get("micro_volatility") is not None else abs(float(r.get("ret_1") or 0.0))),
                     "imbalance_for_fill": abs(float(r.get("imbalance") or 0.0)),
                 },
-                params=passive_params or {},
+                params=passive_params_effective,
             )
             filled_flag = bool(pfill.get("filled"))
             if not filled_flag:
@@ -856,7 +869,7 @@ def simulate_rule_trades(
                 if entry_px is None or exit_px is None or entry_px <= 0 or exit_px <= 0:
                     i += 1
                     continue
-                cost_fee_ratio = (2.0 * float((passive_params or {}).get("maker_fee_bps", maker_fee_bps))) / 10000.0
+                cost_fee_ratio = (2.0 * float(passive_params_effective.get("maker_fee_bps", maker_fee_bps))) / 10000.0
                 cost_adverse_ratio = max(0.0, float(adverse_bps) / 10000.0)
                 # Spread is modeled via execution price adjustment (price improvement/slippage path), not direct additive cost.
                 cost_spread_ratio = 0.0

@@ -183,6 +183,8 @@ class NotificationManager:
 
 
 def build_notifier_from_env() -> Optional[Notifier]:
+    if os.getenv("PYTEST_CURRENT_TEST") and not _env_bool("NOTIFY_ALLOW_REAL_IN_TESTS"):
+        return None
     token = os.getenv("TELEGRAM_BOT_TOKEN") or os.getenv("TELEGRAM_TOKEN") or os.getenv("ECLIPSE_TG_BOT_TOKEN")
     chat_id = os.getenv("TELEGRAM_CHAT_ID") or os.getenv("ECLIPSE_TG_CHAT_ID")
     if not token or not chat_id:
