@@ -202,3 +202,38 @@ Next sensible step:
 5. do not promote `book_proxy_pressure`-only filtering as an ETH-wide 60s rule from current evidence
 6. if continuing this line, scope any further test to the tight `spr<=0.000200` pocket family only
 7. next debugging target should be current-branch drift / surface weakness in passive execution or candidate generation on the dead 1D surface
+
+Limit-offset sensitivity check:
+- to test whether the weak current surface is mainly caused by passive limit placement, reran focused ETH pockets with:
+  - default `limit_offset_mult = 0.5`
+  - tighter `limit_offset_mult = 0.25`
+- pocket B (`h=60`, `imb>=0.30`, `int>=8000`, `spr<=0.000200`, 7D, `min_n=20`):
+  - default rank result:
+    - artifact: `reports/LIMIT_OFFSET_POCKET_B_DEFAULT.json`
+    - skipped with `insufficient_fill_rate = 0.6`
+  - tighter rank result:
+    - artifact: `reports/LIMIT_OFFSET_POCKET_B_TIGHT.json`
+    - also skipped with `insufficient_fill_rate = 0.6`
+  - implication:
+    - tighter offset did not rescue this tighter pocket at rank level
+- pocket C (`h=60`, `imb>=0.30`, `int>=8000`, `spr<=0.000250`, 7D, `min_n=20`):
+  - default rank result:
+    - artifact: `reports/LIMIT_OFFSET_POCKET_C_DEFAULT.json`
+    - `npa = -1.344515e-04`
+    - `pass_core = 10%`
+    - `pass_stress = 0%`
+    - `afr = 68.63%`
+  - tighter rank result:
+    - artifact: `reports/LIMIT_OFFSET_POCKET_C_TIGHT.json`
+    - `npa = -1.329405e-04`
+    - `pass_core = 10%`
+    - `pass_stress = 10%`
+    - `afr = 69.91%`
+  - implication:
+    - tighter offset gives only a marginal improvement
+    - it does not turn the pocket positive or robust
+
+Execution-side conclusion:
+- current ETH surface weakness is not primarily explained by the passive limit offset alone
+- `limit_offset_mult` can slightly improve a marginal pocket
+- but it is not the main unlock for the current non-actionable broad ETH surface
