@@ -28,8 +28,30 @@ Data-source check:
   - `C:\Users\Windows 11\.vscode\CryptoLion\eclipse_scalper\data\microstructure.db`
   - size ~= `8.89 GB`
 - implication:
-  - the current `no_fills` result is not a reliable event-filter decision by itself
-  - it is primarily a data-source mismatch / stale-local-DB problem
+  - the first current-branch `no_fills` result was not a reliable event-filter decision by itself
+  - it was initially confounded by a data-source mismatch / stale-local-DB problem
+
+Root-DB rerun:
+- reran the same ETH TOP8 surface against the live/root DB:
+  - `C:\Users\Windows 11\.vscode\CryptoLion\eclipse_scalper\data\microstructure.db`
+- explicit baseline result:
+  - `reports/ROOTDB_BASELINE_EXPLICIT_ETH_TOP8.json`
+  - `reports/ROOTDB_BASELINE_EXPLICIT_ETH_TOP8.md`
+- result stayed the same:
+  - `count = 0`
+  - all 8 pockets skipped
+  - dominant failures:
+    - `insufficient_fill_rate = 1.0`
+    - `attempt_fill_rate = 0.0` on the remaining pockets
+
+Interpretation update:
+- the stale local DB was real and had to be ruled out
+- however, even after rerunning on the live/root DB, the current branch still yields a non-tradeable ETH TOP8 passive-realistic surface
+- therefore the problem is no longer just data-source mismatch
+- the likely remaining causes are current-branch model / surface drift, especially in:
+  - `execution/passive_execution_simulator.py`
+  - `tools/validate_passive_pocket_forward.py`
+  - `tools/rank_passive_pockets_forward.py`
 
 Current-code result:
 - all four runs produced `count = 0`
@@ -59,21 +81,18 @@ Artifacts:
 
 Interpretation:
 - this is not currently a filter-ranking problem
-- on the research worktree local DB, it appears as a current-surface tradeable coverage failure
-- but the stronger root cause is that the run used a tiny stale local DB instead of the live root DB snapshot
+- on the current branch, even the live/root DB rerun produces a tradeable coverage failure on the ETH TOP8 passive-realistic surface
 - therefore none of the event-block profiles can be meaningfully compared on this snapshot
 
 Practical decision:
 - keep the older decision document as historical research evidence
 - do not promote any event-block profile from the current branch snapshot
 - treat the current branch state as:
-  - `data_source_invalid_for_decision`
-  - until runs are repeated against the live/root DB or the research DB is resynced
+  - `surface_non_actionable_on_current_branch`
+  - until current-branch execution/validation drift is reconciled
 
 Next sensible step:
 1. do not use `C:\Users\Windows 11\.vscode\CryptoLion\eclipse_scalper-research\data\microstructure.db` for promotion decisions
-2. rerun the same ETH TOP8 checks against:
-   - `C:\Users\Windows 11\.vscode\CryptoLion\eclipse_scalper\data\microstructure.db`
-3. only after that:
-   - continue event-block comparison
-   - or declare the surface genuinely non-actionable
+2. treat the root-DB rerun as the authoritative current-branch result:
+   - the ETH TOP8 passive-realistic surface is currently non-actionable
+3. next debugging target should be current-branch drift in passive execution / pocket validation, not more event-block profile tuning
