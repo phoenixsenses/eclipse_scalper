@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from tools.run_summary import build_run_summary
-from tools.validate_data_research_fitness import analyze_research_fitness
+from tools.validate_data_research_fitness import analyze_research_fitness, summarize_research_fitness
 
 def _load_dotenv_best_effort() -> None:
     try:
@@ -177,20 +177,23 @@ def main() -> int:
         symbols=fitness_symbols,
         fresh_sec=int(args.fitness_fresh_sec),
     )
+    fitness_summary = summarize_research_fitness(fitness)
     checks["data_research_fitness_status"] = str(fitness.get("status") or "unknown")
     checks["data_research_fitness_tier"] = str(fitness.get("contract", {}).get("tier") or "unknown")
     checks["data_research_fitness_db_ready"] = bool(fitness.get("db_ready"))
     checks["data_research_fitness_warning_count"] = len(fitness.get("warnings") or [])
     checks["data_research_fitness_failure_count"] = len(fitness.get("failures") or [])
+    checks["data_research_fitness_summary"] = str(fitness_summary.get("headline") or "")
+    checks["data_research_fitness_action"] = str(fitness_summary.get("operator_action") or "")
     if checks["data_research_fitness_status"] == "fail":
         failures.append(
             "Data research fitness failed: "
-            + ", ".join((fitness.get("failures") or ["unknown_failure"])[:3])
+            + str(fitness_summary.get("headline") or "unknown failure")
         )
     elif checks["data_research_fitness_status"] == "warn":
         warnings.append(
             "Data research fitness warn: "
-            + ", ".join((fitness.get("warnings") or ["warning"])[:3])
+            + str(fitness_summary.get("headline") or "warning")
         )
 
     payload = {
@@ -199,6 +202,7 @@ def main() -> int:
         "warnings": warnings,
         "checks": checks,
         "data_research_fitness": fitness,
+        "data_research_fitness_summary": fitness_summary,
     }
     payload["run_summary"] = build_run_summary(
         run_type="preflight_check",

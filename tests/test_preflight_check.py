@@ -128,6 +128,8 @@ def test_preflight_warns_on_data_research_fitness(monkeypatch) -> None:
         assert payload["ok"] is True
         assert payload["checks"]["data_research_fitness_symbols"] == ["ETHUSDT"]
         assert payload["checks"]["data_research_fitness_status"] == "warn"
+        assert payload["checks"]["data_research_fitness_summary"] == "1 warning(s), no failures"
+        assert payload["data_research_fitness_summary"]["warning_summary"] == ["spread not computable for ETHUSDT"]
         assert any("Data research fitness warn" in item for item in payload["warnings"])
     finally:
         monkeypatch.chdir(cwd)
