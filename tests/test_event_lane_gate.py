@@ -10,6 +10,19 @@ def test_applies_to_live_event_gate_matches() -> None:
     )
 
 
+def test_applies_to_live_event_gate_prefers_pocket_scope_over_current_feature() -> None:
+    assert event_lane_gate.applies_to_live_event_gate(
+        "ETHUSDT",
+        "micro_edge_v3_passive_alpha",
+        60,
+        signal={
+            "source": "micro_signal",
+            "pocket_name": "imb>=0.85_int>=7000_spr<=0.000200",
+            "min_imbalance": 0.42,
+        },
+    )
+
+
 def test_applies_to_live_event_gate_requires_narrow_scope() -> None:
     assert not event_lane_gate.applies_to_live_event_gate(
         "BTCUSDT",

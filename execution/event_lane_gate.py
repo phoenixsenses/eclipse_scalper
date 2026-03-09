@@ -10,7 +10,22 @@ from __future__ import annotations
 import os
 import sqlite3
 import time
+import re
 from typing import Any, Dict, List, Optional, Tuple
+
+def _signal_scope_min_imbalance(signal: Optional[Dict[str, Any]]) -> float:
+    signal = signal or {}
+    try:
+        pocket_name = str(signal.get("pocket_name") or "").strip()
+        m = re.search(r"imb>=([0-9]+(?:\.[0-9]+)?)", pocket_name)
+        if m:
+            return abs(float(m.group(1)))
+    except Exception:
+        pass
+    try:
+        return abs(float(signal.get("min_imbalance", 0.0) or 0.0))
+    except Exception:
+        return 0.0
 
 
 def applies_to_live_event_gate(
@@ -22,10 +37,7 @@ def applies_to_live_event_gate(
     """Restrict the gate to the live ETH micro pocket that research validated."""
     signal = signal or {}
     source = str(signal.get("source") or "")
-    try:
-        min_imbalance = abs(float(signal.get("min_imbalance", 0.0) or 0.0))
-    except Exception:
-        min_imbalance = 0.0
+    min_imbalance = _signal_scope_min_imbalance(signal)
     return (
         symbol.upper() == "ETHUSDT"
         and rule_name == "micro_edge_v3_passive_alpha"
