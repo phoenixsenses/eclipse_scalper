@@ -25,6 +25,7 @@ from .data_sources import (
     read_regime_events,
     read_runtime_status,
     read_live_metrics,
+    read_market_chart,
     read_live_monitor_tests_status,
     read_ops_health,
     read_connectivity_diag,
@@ -93,6 +94,7 @@ from .models import (
     RegimeEvent,
     RuntimeResponse,
     LiveMetricsResponse,
+    MarketChartResponse,
     LiveMonitorTestsStatusResponse,
     Scoreboard,
     SignalEvent,
@@ -425,6 +427,18 @@ async def get_runtime():
 @app.get("/api/live/metrics", response_model=LiveMetricsResponse)
 async def get_live_metrics():
     return read_live_metrics()
+
+
+@app.get("/api/market/chart", response_model=MarketChartResponse)
+async def get_market_chart(
+    symbol: str = Query("BTCUSDT"),
+    interval: str = Query("5m"),
+    limit: int = Query(240, ge=50, le=500),
+):
+    try:
+        return read_market_chart(symbol=symbol, interval=interval, limit=limit)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Failed to load market chart: {exc}")
 
 @app.get("/api/live/tests/status", response_model=LiveMonitorTestsStatusResponse)
 async def get_live_tests_status(limit: int = Query(80, ge=10, le=400)):

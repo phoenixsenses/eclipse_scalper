@@ -233,6 +233,42 @@ export interface LiveMonitorTestsRunResponse {
   command?: string;
 }
 
+export interface MarketChartIndicatorSeries {
+  name: string;
+  values: Array<number | null>;
+}
+
+export interface MarketChartCandle {
+  time: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+}
+
+export interface MarketChartResponse {
+  source: string;
+  symbol: string;
+  interval: string;
+  limit: number;
+  generated_ts: string;
+  candles: MarketChartCandle[];
+  overlays: MarketChartIndicatorSeries[];
+  oscillator?: MarketChartIndicatorSeries | null;
+  pocket_markers: Array<{
+    time: number;
+    bucket_time: number;
+    side: string;
+    verdict: string;
+    regime: string;
+    imbalance: number;
+    trade_intensity: number;
+    spread: number;
+    score: number;
+  }>;
+}
+
 export interface OverviewResponse {
   scoreboard?: Scoreboard;
   gates?: GatesSummaryResponse;

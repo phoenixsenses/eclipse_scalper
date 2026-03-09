@@ -54,6 +54,21 @@ export function usePoll<T>({
   const abortRef = useRef<AbortController | null>(null);
   const stoppedRef = useRef(false);
   const failuresRef = useRef(0);
+  const fetcherRef = useRef(fetcher);
+  const circuitOpenUntilRef = useRef<number | null>(null);
+  const dataRef = useRef<T | null>(null);
+
+  useEffect(() => {
+    fetcherRef.current = fetcher;
+  }, [fetcher]);
+
+  useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
+
+  useEffect(() => {
+    circuitOpenUntilRef.current = circuitOpenUntil;
+  }, [circuitOpenUntil]);
 
   const clearTimer = useCallback(() => {
     if (timerRef.current !== null) {
@@ -81,25 +96,28 @@ export function usePoll<T>({
 
   useEffect(() => {
     stoppedRef.current = false;
-    failuresRef.current = 0;
-    setFailureCount(0);
-    setRetryAt(null);
-    setCircuitOpenUntil(null);
-    setError(null);
-    setIsLoading(enabled);
     if (!enabled) {
+      failuresRef.current = 0;
+      circuitOpenUntilRef.current = null;
+      setFailureCount(0);
+      setRetryAt(null);
+      setCircuitOpenUntil(null);
+      setError(null);
       setIsLoading(false);
+      setIsFetching(false);
       clearAbort();
       clearTimer();
       return;
     }
+    setIsLoading((prev) => prev && dataRef.current === null);
 
     runRef.current = () => {
       if (stoppedRef.current) {
         return;
       }
-      if (circuitOpenUntil !== null && Date.now() < circuitOpenUntil) {
-        const wait = Math.max(0, circuitOpenUntil - Date.now());
+      const openUntil = circuitOpenUntilRef.current;
+      if (openUntil !== null && Date.now() < openUntil) {
+        const wait = Math.max(0, openUntil - Date.now());
         setRetryAt(Date.now() + wait);
         schedule(wait, runRef.current);
         return;
@@ -110,7 +128,7 @@ export function usePoll<T>({
       abortRef.current = controller;
       setIsFetching(true);
 
-      fetcher(controller.signal)
+      fetcherRef.current(controller.signal)
         .then((next) => {
           if (stoppedRef.current) {
             return;
@@ -123,6 +141,7 @@ export function usePoll<T>({
           failuresRef.current = 0;
           setFailureCount(0);
           setRetryAt(null);
+          circuitOpenUntilRef.current = null;
           setCircuitOpenUntil(null);
           schedule(intervalMs, runRef.current);
         })
@@ -144,6 +163,7 @@ export function usePoll<T>({
           let circuitOpen = false;
           if (circuitBreakerThreshold > 0 && failuresRef.current >= circuitBreakerThreshold) {
             delay = Math.max(baseBackoff, circuitBreakerCooldownMs);
+            circuitOpenUntilRef.current = Date.now() + delay;
             setCircuitOpenUntil(Date.now() + delay);
             circuitOpen = true;
           }
@@ -174,13 +194,11 @@ export function usePoll<T>({
     clearAbort,
     clearTimer,
     enabled,
-    fetcher,
     immediate,
     intervalMs,
     retryInitialMs,
     retryMaxMs,
     schedule,
-    circuitOpenUntil,
     circuitBreakerCooldownMs,
     circuitBreakerThreshold,
     pollKey,

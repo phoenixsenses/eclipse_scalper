@@ -31,6 +31,7 @@ import type {
   RegimeEvent,
   RuntimeStatus,
   LiveMetricsResponse,
+  MarketChartResponse,
   LiveMonitorTestsStatusResponse,
   LiveMonitorTestsRunResponse,
   Scoreboard,
@@ -311,6 +312,13 @@ export const api = {
     normalizeRuntime(await get<unknown>("/runtime", undefined, signal)),
   liveMetrics: (signal?: AbortSignal): Promise<LiveMetricsResponse> =>
     get<LiveMetricsResponse>("/live/metrics", undefined, signal),
+  marketChart: (
+    symbol = "BTCUSDT",
+    interval = "5m",
+    limit = 240,
+    signal?: AbortSignal
+  ): Promise<MarketChartResponse> =>
+    get<MarketChartResponse>("/market/chart", { symbol, interval, limit }, signal),
   liveTestsStatus: (limit = 80, signal?: AbortSignal): Promise<LiveMonitorTestsStatusResponse> =>
     get<LiveMonitorTestsStatusResponse>("/live/tests/status", { limit }, signal),
   liveTestsRun: (signal?: AbortSignal): Promise<LiveMonitorTestsRunResponse> =>
