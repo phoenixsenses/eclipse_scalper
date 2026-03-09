@@ -25,6 +25,7 @@ Branch: `codex/runtime/ops-foundation`
 | `dec1c4c` | P1 | Startup validation gates: symbols, hedge mode, API permissions |
 | `059c3e9` | P1 | Margin/liquidation alerts + position stuck detection in guardian |
 | `8d1925f` | Tech | Consolidated /api/risk-overview endpoint + roadmap update |
+| `e0dcfc4` | Tech | Log rotation manager + Prometheus /metrics endpoint |
 
 ## Full Audit Status
 

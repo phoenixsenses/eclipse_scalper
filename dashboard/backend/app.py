@@ -8,7 +8,9 @@ import subprocess
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Query, Request, Response
+import asyncio
+
+from fastapi import FastAPI, HTTPException, Query, Request, Response, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
@@ -854,4 +856,80 @@ async def patch_debug_macro_preset(req: MacroPresetConfig, request: Request):
 @app.get("/api/debug/security-audit", response_model=list[SecurityAuditEvent])
 async def get_debug_security_audit(limit: int = Query(100, ge=1, le=500)):
     return _read_security_audit(limit=limit)
+
+
+# ─── WebSocket real-time metrics push ───────────────────────────────
+
+_WS_CLIENTS: set[WebSocket] = set()
+_WS_PUSH_INTERVAL = float(os.getenv("WS_PUSH_INTERVAL_SEC", "5"))
+
+
+def _collect_ws_snapshot() -> dict:
+    """Build a lightweight snapshot for WS push."""
+    try:
+        snapshot: dict = {"ts": time.time()}
+        try:
+            rt = read_runtime_status()
+            if isinstance(rt, dict):
+                snapshot["data_freshness"] = rt.get("data_freshness") or {}
+                snapshot["database"] = rt.get("database") or {}
+        except Exception:
+            pass
+        try:
+            snapshot["liq_alert"] = read_liq_alert_state()
+        except Exception:
+            pass
+        try:
+            snapshot["ops_health"] = read_ops_health()
+        except Exception:
+            pass
+        return snapshot
+    except Exception:
+        return {"ts": time.time(), "error": "snapshot_failed"}
+
+
+@app.websocket("/ws/live")
+async def websocket_live(ws: WebSocket):
+    """Bidirectional WebSocket: push metrics every N seconds, receive control commands."""
+    await ws.accept()
+    _WS_CLIENTS.add(ws)
+    try:
+        # Send initial snapshot immediately
+        await ws.send_json({"type": "snapshot", "data": _collect_ws_snapshot()})
+
+        while True:
+            # Wait for either a client message or push interval
+            try:
+                msg = await asyncio.wait_for(ws.receive_json(), timeout=_WS_PUSH_INTERVAL)
+            except asyncio.TimeoutError:
+                # Push periodic snapshot
+                await ws.send_json({"type": "snapshot", "data": _collect_ws_snapshot()})
+                continue
+
+            # Handle client commands
+            if isinstance(msg, dict):
+                cmd = msg.get("cmd")
+                if cmd == "ping":
+                    await ws.send_json({"type": "pong", "ts": time.time()})
+                elif cmd == "snapshot":
+                    await ws.send_json({"type": "snapshot", "data": _collect_ws_snapshot()})
+                elif cmd == "risk_overview":
+                    overview = {
+                        "liq_alert": read_liq_alert_state(),
+                        "spread_stress": read_spread_stress_state(),
+                        "fill_toxicity": read_fill_toxicity_state(),
+                        "latency_stress": read_latency_stress_state(),
+                        "watchboard": read_watchboard_state(),
+                        "ts": time.time(),
+                    }
+                    await ws.send_json({"type": "risk_overview", "data": overview})
+                else:
+                    await ws.send_json({"type": "error", "msg": f"unknown cmd: {cmd}"})
+
+    except WebSocketDisconnect:
+        pass
+    except Exception:
+        pass
+    finally:
+        _WS_CLIENTS.discard(ws)
 

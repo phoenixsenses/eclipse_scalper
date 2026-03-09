@@ -34,7 +34,7 @@ Created: 2026-03-09
 |---|------|----------|--------|--------|
 | 10 | Log rotation manager (compress + archive old JSONL) | Medium | 6-8h | DONE |
 | 11 | Prometheus /metrics endpoint | Low | 6h | DONE |
-| 12 | WebSocket real-time dashboard | Low | 8+h | TODO |
+| 12 | WebSocket real-time dashboard | Low | 8+h | DONE |
 
 ## Details
 
