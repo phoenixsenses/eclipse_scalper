@@ -1,55 +1,52 @@
-# Kisi 1 (Research/Data) Status — 2026-03-09
+# Kisi 1 (Research/Data) — Yapilacaklar
 
-Branch: `feat/execution-hardening-and-strategies`
+Tarih: 2026-03-09 | Branch: `feat/execution-hardening-and-strategies`
 
-## Owned Directories
+## P0 — Kritik (Deploy Oncesi Yapilmali)
 
-### strategies/ (2 modules)
-- `eclipse_scalper.py` — Primary scalper signal (910 lines after split)
-- `risk.py` — Risk calculations with named constants
+| # | Gorev | Detay | Durum |
+|---|-------|-------|-------|
+| 1 | 12 execution dosyasini merge et | `feat/execution-hardening-and-strategies` branch'indeki 12 yeni dosya (circuit_breaker, event_journal, order_verifier, vb.) Kisi 2 ile koordinasyon gerekli — 7 dosya guvenli, 5 dosya mimari review lazim | Beklemede |
+| 2 | Microstructure sinyalleri implement et | `data/microstructure_signals.py:21` — 2+ hafta canli veri toplandiktan sonra implement edilecek | Bloke (veri yok) |
 
-### data/ (10+ modules)
-- `cache.py` — `GodEmperorDataOracle` (OHLCV, ticker, funding cache)
-- `quality.py` — Data quality checks
-- `microstructure_collector.py` — Microstructure data collection
-- `microstructure_signals.py` — Signal generation from microstructure
-- `microstructure_analysis.py` — Analysis utilities
-- `event_diary.py` — Event diary tracking
-- `data/features/` — `micro_features.py`, `registry.py`, `snapshot.py`
-- `data/labels/` — `forward_return.py`
-- `data/derived/` — 10 subdirectories (alpha_candidates, regimes, physics, etc.)
-- `data/live/` — `online_plan.json`
+## P1 — Yuksek Oncelik
 
-### tools/ (200+ files)
-Key research tools:
-- `micro_edge_lib.py` — Feature computation
-- `micro_edge_signal_v2.py` — Signal generation
-- `micro_edge_backtest.py` — Execution-aware backtest
-- `sweep_passive_realistic_filters.py` — Parameter sweep
-- `validate_passive_pocket_forward.py` — Forward validation
-- `rank_passive_pockets_forward.py` — Robustness ranking
-- 20+ telemetry analysis tools (`telemetry_*.py`)
-- 10+ event lane/watchboard tools
-- Dashboard runners and health check scripts
+| # | Gorev | Detay | Durum |
+|---|-------|-------|-------|
+| 3 | Canonical integrity gate | `tools/validate_canonical.py` — Mikroyapi verisi icin deterministik schema dogrulama (zorunlu kolonlar, dtype, zaman invariantlari, NaN/Inf eslikleri) | Baslanmadi |
+| 4 | Data contract dokumantasyonu | `docs/MICROSTRUCTURE_DATA_CONTRACT.md` — microstructure.db icin tablo/kolon/freshness kurallari | Baslanmadi |
+| 5 | Feature'lari dependency level'a gore etiketle | `data/features/micro_features.py` icindeki her feature'i siniflandir: mark_only / trade_flow / trade_plus_liq / requires_book | Kismi |
+| 6 | Sinyal katmani iyilestirmeleri | Score calibration, regime-conditioning (sadece past-only), feature sanitation pipeline, no-lookahead unit check'leri | Baslanmadi |
+| 7 | Deterministik test fixture | `tests/fixtures/microstructure_sample.db` — Research tool testleri icin sentetik sqlite DB | Baslanmadi |
+| 8 | Research fitness validator | `tools/validate_data_research_fitness.py` — Tablo/kolon varlik kontrolu, book proxy uyarisi | Baslanmadi |
 
-### tests/ (200+ test files)
-- Unit tests for strategies, signals, micro edge, alpha pipeline
-- Parity, replay, execution, and contract tests in subdirectories
-- 698 passing, 36 pre-existing failures (alpha pipeline/transfer tests)
+## P2 — Orta Oncelik
 
-## Pending Merge: 12 New execution/ Files
-Branch `feat/execution-hardening-and-strategies` has 12 new execution files
-not yet in `codex/runtime/ops-foundation`. Coordination needed before merge
-to avoid conflicts with Kisi 2's runtime hardening work.
+| # | Gorev | Detay | Durum |
+|---|-------|-------|-------|
+| 9 | Liq reversal E2E chain | `tools/run_liq_reversal_e2e.py` — high_liq_reversal_regime icin ucretsiz arastirma zinciri. Sifir pocket bulunursa execution stili degistir | Planli |
+| 10 | Research event lane'leri tamamla | 7 lane: book_proxy_pressure, fill_toxicity, latency_stress, return_shock, spread_stress, volatility_burst, volume_vacuum | Planli |
+| 11 | Event watchboard research entegrasyonu | Research tarafli watchboard, event-driven strateji izleme | Planli |
 
-## Known Issues / TODOs
-- `data/microstructure_signals.py:21` — TODO: "Implement after collecting 2+ weeks of microstructure data"
-- 36 pre-existing test failures in alpha pipeline/transfer/live model tests
-- `canonical_symbol()` vs `symkey()` deduplication gap (USDTUSDT case)
-- No top-level `features/` directory — feature code lives in `data/features/`
+## Tech — Teknik Borc
 
-## Completed Refactoring (by Kisi 1)
-- `eclipse_scalper.py` split: 1521 -> 910 lines + `env_helpers.py` + `indicators.py`
-- `_symkey()` duplication eliminated across 21 files
-- `strategies/risk.py` magic numbers replaced with named constants
-- 88 unit tests added for env helpers, indicators, signal pipeline
+| # | Gorev | Detay | Durum |
+|---|-------|-------|-------|
+| 12 | `canonical_symbol()` vs `symkey()` duzelt | canonical_symbol USDTUSDT'yi dedupe etmiyor, symkey ediyor. 21 dosya etkilenebilir | Bilinen sorun |
+| 13 | Phase 0 baseline safety | Tum tool'lar explicit output path'e yazsin, run metadata eklensin, smoke check standardize edilsin | Planli |
+| 14 | Invariant test audit | DAT-01 ile VAL-03 arasi test dosyalarinin tam kapsam sagladigini dogrula | Audit lazim |
+
+## Koordinasyon
+
+| # | Gorev | Detay |
+|---|-------|-------|
+| 15 | Kisi 2 ile merge koordinasyonu | 12 dosya merge'den once mimari karar: health_monitor vs guardian, metrics_collector vs telemetry, state_machine genislemesi |
+| 16 | 36 pre-existing test failure | Alpha pipeline/transfer/live model testleri — suan bloke degil ama takip edilmeli |
+
+## Tamamlanan Isler (Referans)
+
+- `eclipse_scalper.py` split: 1521 -> 910 satir + `env_helpers.py` + `indicators.py`
+- `_symkey()` 21 dosyada tekrar temizlendi
+- `strategies/risk.py` magic number'lar named constant'a dondu
+- 88 unit test eklendi (env helpers, indicators, signal pipeline)
+- 698 test basarili
