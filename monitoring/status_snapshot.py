@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from tools.paper_trade_summary import generate_summary
-from tools.validate_data_research_fitness import analyze_research_fitness
+from tools.validate_data_research_fitness import analyze_research_fitness, summarize_research_fitness
 
 
 def _utc(ts: float) -> str:
@@ -206,18 +206,21 @@ def collect_data_research_fitness(
             symbols=symbol_list,
             fresh_sec=int(fresh_sec),
         )
+        operator_summary = summarize_research_fitness(payload)
         return {
             "status": str(payload.get("status") or "unknown"),
             "summary": (
+                f"{operator_summary.get('headline', 'n/a')} | "
                 f"tier={payload.get('contract', {}).get('tier', 'unknown')} "
-                f"db_ready={bool(payload.get('db_ready'))} "
-                f"warnings={len(payload.get('warnings') or [])} "
-                f"failures={len(payload.get('failures') or [])}"
+                f"db_ready={bool(payload.get('db_ready'))}"
             ),
+            "operator_action": operator_summary.get("operator_action"),
             "contract_tier": payload.get("contract", {}).get("tier"),
             "db_ready": bool(payload.get("db_ready")),
             "warning_count": len(payload.get("warnings") or []),
             "failure_count": len(payload.get("failures") or []),
+            "warning_summary": operator_summary.get("warning_summary", []),
+            "failure_summary": operator_summary.get("failure_summary", []),
             "raw": payload,
         }
     except Exception as exc:
@@ -277,6 +280,8 @@ def render_status_text() -> str:
 
     fitness_status = str(fitness.get("status") or "unknown").upper()
     lines.append(f"Data research fitness: {fitness_status} | {fitness.get('summary', 'n/a')}")
+    if fitness.get("operator_action"):
+        lines.append(f"Fitness action: {fitness.get('operator_action')}")
 
     # PnL
     if pnl.get("ok"):

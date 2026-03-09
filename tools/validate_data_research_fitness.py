@@ -76,6 +76,65 @@ def _feature_fitness(conn: sqlite3.Connection, symbols: List[str]) -> Dict[str, 
     return out
 
 
+def _issue_to_operator_text(issue: str) -> str:
+    raw = str(issue or "").strip()
+    code, _, symbol = raw.partition(":")
+    if code == "missing_event_diary_csv":
+        return "event diary csv missing"
+    if code == "stale_event_diary_csv":
+        return "event diary csv stale"
+    if code == "db_not_ready":
+        return "microstructure db not fresh enough"
+    if code == "contract_fail":
+        return "microstructure contract failed"
+    if code == "contract_warn":
+        return "microstructure contract degraded"
+    if code == "low_trade_rows":
+        return f"low trade sample for {symbol or 'symbol'}"
+    if code == "no_feature_rows":
+        return f"no feature rows for {symbol or 'symbol'}"
+    if code == "no_mid":
+        return f"mid not computable for {symbol or 'symbol'}"
+    if code == "no_trade_intensity":
+        return f"trade intensity not computable for {symbol or 'symbol'}"
+    if code == "no_spread":
+        return f"spread not computable for {symbol or 'symbol'}"
+    return raw.replace("_", " ")
+
+
+def summarize_research_fitness(payload: Dict[str, Any]) -> Dict[str, Any]:
+    warnings = [str(x) for x in payload.get("warnings") or []]
+    failures = [str(x) for x in payload.get("failures") or []]
+    warning_summary = [_issue_to_operator_text(item) for item in warnings]
+    failure_summary = [_issue_to_operator_text(item) for item in failures]
+    status = str(payload.get("status") or "unknown")
+    tier = str(payload.get("contract", {}).get("tier") or "unknown")
+    db_ready = bool(payload.get("db_ready"))
+
+    if failures:
+        headline = f"{len(failures)} failure(s), {len(warnings)} warning(s)"
+    elif warnings:
+        headline = f"{len(warnings)} warning(s), no failures"
+    else:
+        headline = "no warnings or failures"
+
+    operator_action = "safe to continue"
+    if failures:
+        operator_action = "fix data readiness or contract failures before startup"
+    elif warnings:
+        operator_action = "continue with caution; review degraded feature coverage"
+
+    return {
+        "status": status,
+        "tier": tier,
+        "db_ready": db_ready,
+        "headline": headline,
+        "operator_action": operator_action,
+        "warning_summary": warning_summary,
+        "failure_summary": failure_summary,
+    }
+
+
 def analyze_research_fitness(
     db_path: Path,
     csv_path: Path,
@@ -171,6 +230,7 @@ def analyze_research_fitness(
         "warnings": warnings,
         "failures": failures,
     }
+    payload["operator_summary"] = summarize_research_fitness(payload)
     payload["run_summary"] = build_run_summary(
         run_type="validate_data_research_fitness",
         inputs={

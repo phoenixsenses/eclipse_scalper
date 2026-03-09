@@ -41,11 +41,13 @@ def test_collect_pnl_and_render(monkeypatch) -> None:
             lambda *args, **kwargs: {
                 "status": "pass",
                 "summary": "tier=trade_plus_liq_mark_proxy db_ready=True warnings=0 failures=0",
+                "operator_action": "safe to continue",
             },
         )
         txt = render_status_text()
         assert "Eclipse Scalper - Health Check" in txt
         assert "Data research fitness: PASS" in txt
+        assert "Fitness action: safe to continue" in txt
     finally:
         db.unlink(missing_ok=True)
 
@@ -104,6 +106,7 @@ def test_collect_data_research_fitness_uses_active_symbols_env(monkeypatch) -> N
     )
     assert seen["symbols"] == ["ETHUSDT", "DOGEUSDT"]
     assert payload["status"] == "pass"
+    assert payload["operator_action"] == "safe to continue"
 
 
 def test_render_status_text_includes_data_research_fitness(monkeypatch) -> None:
@@ -123,9 +126,11 @@ def test_render_status_text_includes_data_research_fitness(monkeypatch) -> None:
             "kill_switch": {"active": False},
             "data_research_fitness": {
                 "status": "warn",
-                "summary": "tier=trade_plus_liq_mark_proxy db_ready=True warnings=1 failures=0",
+                "summary": "1 warning(s), no failures | tier=trade_plus_liq_mark_proxy db_ready=True",
+                "operator_action": "continue with caution; review degraded feature coverage",
             },
         },
     )
     text = render_status_text()
     assert "Data research fitness: WARN" in text
+    assert "Fitness action: continue with caution; review degraded feature coverage" in text
