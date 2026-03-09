@@ -1,0 +1,174 @@
+# PASSIVE_THEN_TAKER Decision
+
+Date:
+- 2026-03-09
+
+Branch:
+- `codex/research/pocket-promotion-checklist`
+
+Question:
+- does `passive_then_taker` rescue the current weak ETH 60s passive-realistic surface better than pure passive execution?
+
+Scope:
+- symbol:
+  - `ETHUSDT`
+- rule:
+  - `micro_edge_v3_passive_alpha`
+- lookback:
+  - `7D`
+- current evidence:
+  - focused ETH 60s pocket family only
+
+Decision Contract
+-----------------
+
+Primary metrics:
+- `pass_count`
+- `filled_avg_net_mean`
+
+Secondary metrics:
+- `attempt_fill_rate_mean`
+- `insufficient_fill_rate`
+- `filled_n_mean`
+
+Success criteria:
+- `pass_count` strictly improves over baseline
+- `filled_avg_net_mean` improves over baseline
+- `attempt_fill_rate_mean` materially improves or stays near `100%`
+
+Failure / freeze criteria:
+- no improvement versus baseline
+- or fillability improves but `filled_avg_net_mean` stays structurally negative
+- or benefit appears only in one isolated pocket and disappears in adjacent pockets
+
+Outcome labels:
+- `experimental_on`
+- `observe_only`
+- `keep_baseline`
+
+## Evidence
+
+### Pocket B
+- scope:
+  - `h=60`
+  - `imb>=0.30`
+  - `int>=8000`
+  - `spr<=0.000200`
+  - `splits=2`
+  - `min_n=20`
+
+Baseline:
+- artifact:
+  - `reports/ETH_POCKET_B_7D_BASELINE_SPLIT2.json`
+- result:
+  - `pass_count = 1/3`
+  - `filled_avg_net_mean = -2.043730e-04`
+  - `attempt_fill_rate_mean = 79.97%`
+
+Passive-then-taker:
+- artifact:
+  - `reports/ETH_POCKET_B_7D_PASSIVE_THEN_TAKER.json`
+- result:
+  - `pass_count = 3/3`
+  - `filled_avg_net_mean = +9.015886e-05`
+  - `attempt_fill_rate_mean = 100%`
+
+Interpretation:
+- strong improvement
+- this is a real rescue, not just a marginal fill tweak
+
+### Pocket C
+- scope:
+  - `h=60`
+  - `imb>=0.30`
+  - `int>=8000`
+  - `spr<=0.000250`
+  - `splits=2`
+  - `min_n=20`
+
+Passive-then-taker:
+- artifact:
+  - `reports/ETH_POCKET_C_7D_PASSIVE_THEN_TAKER.json`
+- result:
+  - `pass_count = 3/3`
+  - `filled_avg_net_mean = +3.791728e-04`
+  - `attempt_fill_rate_mean = 100%`
+
+Interpretation:
+- confirms the effect on an adjacent pocket
+- stronger than pocket B
+
+### Soft ETH pocket
+- scope:
+  - `h=60`
+  - `imb>=0.40`
+  - `int>=2500`
+  - `spr<=0.000300`
+  - `splits=2`
+  - `min_n=20`
+
+Baseline:
+- artifact:
+  - `reports/ETH_POCKET_SOFT_7D_BASELINE.json`
+- result:
+  - `pass_count = 0/3`
+  - `filled_avg_net_mean = -2.775605e-04`
+  - `attempt_fill_rate_mean = 55.91%`
+
+Passive-then-taker:
+- artifact:
+  - `reports/ETH_POCKET_SOFT_7D_PASSIVE_THEN_TAKER.json`
+- result:
+  - `pass_count = 2/3`
+  - `filled_avg_net_mean = +4.934115e-06`
+  - `attempt_fill_rate_mean = 100%`
+
+Interpretation:
+- benefit persists outside the tight high-intensity subfamily
+- edge is weaker, but still directionally positive versus baseline
+
+## Decision
+
+Current status:
+- `passive_then_taker = experimental_on`
+
+Why:
+- improved `pass_count` on every tested ETH 60s pocket family member
+- turned a clearly negative/non-passing soft ETH pocket into a partially passing one
+- improved fillability from sub-80% or sub-60% toward `100%`
+
+What this does **not** mean:
+- not a global execution default
+- not yet validated for BTC
+- not yet validated for long-window broad surfaces
+
+## Recommended rollout scope
+
+Safe experimental scope:
+- `ETHUSDT`
+- `micro_edge_v3_passive_alpha`
+- `h=60`
+
+Preferred order:
+1. keep baseline ranking as the reference
+2. test `passive_then_taker` as an experimental execution profile on ETH 60s pocket family
+3. measure whether gains survive on more adjacent pockets before broader promotion
+
+## Freeze conditions
+
+Freeze this line if:
+- broader ETH 60s family mapping shows mixed/negative median
+- BTC replication turns clearly negative
+- current `7D` effect disappears on the next refreshed window
+
+## Next step
+
+Run a small ETH 60s family map:
+- vary:
+  - `min_imbalance`
+  - `min_trade_intensity`
+  - `max_spread`
+- compare:
+  - `passive_realistic`
+  - `passive_then_taker`
+- then promote only if the median family result stays positive
