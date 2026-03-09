@@ -1,4 +1,4 @@
-﻿"""FastAPI backend for Eclipse Scalper Dashboard."""
+"""FastAPI backend for Eclipse Scalper Dashboard."""
 from __future__ import annotations
 
 import os
@@ -8,7 +8,9 @@ import subprocess
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Query, Request, Response
+import asyncio
+
+from fastapi import FastAPI, HTTPException, Query, Request, Response, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
@@ -28,6 +30,11 @@ from .data_sources import (
     read_live_monitor_tests_status,
     read_ops_health,
     read_connectivity_diag,
+    read_liq_alert_state,
+    read_spread_stress_state,
+    read_fill_toxicity_state,
+    read_latency_stress_state,
+    read_watchboard_state,
     read_supervisor_status,
     read_scoreboard,
     read_signal_events,
@@ -129,6 +136,13 @@ app.add_middleware(
 )
 
 
+@app.on_event("startup")
+def _ensure_dirs() -> None:
+    """Create required directories on dashboard boot."""
+    for d in (LOGS_DIR, LOGS_DIR / "health"):
+        d.mkdir(parents=True, exist_ok=True)
+
+
 def _role_rank(role: str) -> int:
     return {"viewer": 1, "operator": 2, "admin": 3}.get((role or "viewer").strip().lower(), 1)
 
@@ -228,7 +242,7 @@ def _require_api_key(req: Request) -> None:
 
 
 def _rate_limit_enabled() -> bool:
-    raw = (os.environ.get("DASHBOARD_RATE_LIMIT_ENABLED", "0") or "0").strip().lower()
+    raw = (os.environ.get("DASHBOARD_RATE_LIMIT_ENABLED", "1") or "1").strip().lower()
     return raw in {"1", "true", "yes", "on"}
 
 
@@ -245,6 +259,11 @@ def _check_rate_limit(req: Request, bucket: str, max_ops: int) -> None:
         raise HTTPException(status_code=429, detail="Rate limit exceeded")
     arr.append(now)
     _RATE_STATE[key] = arr
+    # Prevent unbounded growth of stale keys
+    if len(_RATE_STATE) > 500:
+        stale = [k for k, v in _RATE_STATE.items() if not v or now - v[-1] > window_sec * 2]
+        for k in stale:
+            _RATE_STATE.pop(k, None)
 
 
 def _idempotency_enabled() -> bool:
@@ -281,27 +300,27 @@ def _idempotency_store(req: Request, scope: str, payload: object) -> None:
     _IDEMPOTENCY_STATE[f"{scope}:{key}"] = (time.time(), payload)
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 # Overview
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 @app.get("/api/overview", response_model=OverviewResponse)
 async def get_overview():
     return build_overview()
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 # Scoreboard
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 @app.get("/api/scoreboard", response_model=Scoreboard)
 async def get_scoreboard():
     return read_scoreboard()
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 # Gates & profiles
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 @app.get("/api/gates", response_model=MicroEdgeGatesResponse)
 async def get_gates():
@@ -313,9 +332,9 @@ async def get_passive_profiles():
     return read_passive_profiles()
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 # Events / log streams
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 @app.get("/api/events/regimes", response_model=list[RegimeEvent])
 async def get_regime_events(
@@ -349,9 +368,9 @@ async def get_quality_events(
     return read_quality_events(limit=limit, symbol=symbol)
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 # Logs
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 @app.get("/api/logs", response_model=list[LogFile])
 async def get_log_files(response: Response):
@@ -404,18 +423,18 @@ async def stream_log(
     )
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 # Config
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 @app.get("/api/config", response_model=list[ConfigEntry])
 async def get_config():
     return read_config_entries()
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 # Runtime status
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 @app.get("/api/runtime", response_model=RuntimeResponse)
 async def get_runtime():
@@ -467,9 +486,9 @@ async def post_live_tests_run(request: Request):
     }
     append_incident_audit({"kind": "live_tests_run", "action": "run_live_monitor_tests", **_request_audit_meta(request)})
     return out
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 # Health
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 @app.get("/api/health", response_model=HealthResponse)
 async def health():
@@ -481,9 +500,128 @@ async def get_ops_health():
     return read_ops_health()
 
 
+@app.get("/metrics")
+async def prometheus_metrics():
+    """Prometheus text-format metrics endpoint for Grafana/Datadog integration."""
+    lines: list[str] = []
+
+    def _gauge(name: str, value: float, help_text: str = "", labels: str = ""):
+        if help_text:
+            lines.append(f"# HELP {name} {help_text}")
+            lines.append(f"# TYPE {name} gauge")
+        lbl = f"{{{labels}}}" if labels else ""
+        lines.append(f"{name}{lbl} {value}")
+
+    now = time.time()
+    _gauge("eclipse_up", 1, "Whether the dashboard API is up")
+    _gauge("eclipse_scrape_ts", now, "Timestamp of this scrape")
+
+    # Bot heartbeat (guardian writes this every 5s)
+    try:
+        hb_path = Path("logs/health/heartbeat.json")
+        if hb_path.exists():
+            hb = json.loads(hb_path.read_text(encoding="utf-8", errors="replace"))
+            hb_ts = float(hb.get("ts", 0) or 0)
+            hb_age = max(0, now - hb_ts)
+            _gauge("eclipse_bot_heartbeat_age_sec", hb_age, "Seconds since last guardian heartbeat")
+            _gauge("eclipse_bot_alive", 1 if hb_age < 30 else 0, "Bot process alive (heartbeat < 30s)")
+            _gauge("eclipse_bot_uptime_sec", float(hb.get("uptime_sec", 0) or 0), "Bot uptime seconds")
+            _gauge("eclipse_open_positions", float(hb.get("open_positions", 0) or 0), "Number of open positions")
+            _gauge("eclipse_kill_switch_active", 1 if hb.get("kill_switch_active") else 0, "Kill switch active")
+        else:
+            _gauge("eclipse_bot_alive", 0, "Bot process alive (heartbeat < 30s)")
+    except Exception:
+        pass
+
+    # Runtime status
+    try:
+        rt = read_runtime_status()
+        if isinstance(rt, dict):
+            db = rt.get("database") or {}
+            _gauge("eclipse_db_size_mb", float(db.get("size_mb", 0) or 0), "Database size in MB")
+            fresh = rt.get("data_freshness") or {}
+            _gauge("eclipse_data_age_sec", float(fresh.get("age_sec", -1) or -1), "Data feed age in seconds")
+    except Exception:
+        pass
+
+    # Ops health
+    try:
+        ops = read_ops_health()
+        if isinstance(ops, dict):
+            _gauge("eclipse_ops_ok", 1 if ops.get("ok") else 0, "Overall ops health")
+    except Exception:
+        pass
+
+    # Risk overview (single read)
+    try:
+        liq = read_liq_alert_state()
+        if isinstance(liq, dict) and liq.get("available"):
+            _gauge("eclipse_margin_ratio", float(liq.get("margin_ratio", 0) or 0), "Current margin ratio")
+            _gauge("eclipse_liq_proximity", float(liq.get("liq_proximity_pct", 0) or 0), "Liquidation proximity pct")
+
+        ss = read_spread_stress_state()
+        if isinstance(ss, dict) and ss.get("available"):
+            metrics = ss.get("metrics") or {}
+            _gauge("eclipse_spread_stress_level", 1 if ss.get("level") == "elevated" else (2 if ss.get("level") == "critical" else 0), "Spread stress level (0=ok,1=elevated,2=critical)")
+
+        ft = read_fill_toxicity_state()
+        if isinstance(ft, dict) and ft.get("available"):
+            metrics = ft.get("metrics") or {}
+            _gauge("eclipse_fill_toxicity_score", float(metrics.get("toxicity_score", 0) or 0), "Fill toxicity score")
+
+        ls = read_latency_stress_state()
+        if isinstance(ls, dict) and ls.get("available"):
+            metrics = ls.get("metrics") or {}
+            _gauge("eclipse_fill_rate", float(metrics.get("fill_rate", 0) or 0), "Order fill rate")
+            _gauge("eclipse_latency_p95_sec", float(metrics.get("p95_delay_sec", 0) or 0), "P95 fill latency seconds")
+    except Exception:
+        pass
+
+    body = "\n".join(lines) + "\n"
+    return Response(content=body, media_type="text/plain; version=0.0.4; charset=utf-8")
+
+
 @app.get("/api/diag/connectivity", response_model=DiagConnectivityResponse)
 async def get_diag_connectivity():
     return read_connectivity_diag()
+
+
+@app.get("/api/liq-alert-state", response_model=dict)
+async def get_liq_alert_state():
+    return read_liq_alert_state()
+
+
+@app.get("/api/spread-stress-state", response_model=dict)
+async def get_spread_stress_state():
+    return read_spread_stress_state()
+
+
+@app.get("/api/fill-toxicity-state", response_model=dict)
+async def get_fill_toxicity_state():
+    return read_fill_toxicity_state()
+
+
+@app.get("/api/latency-stress-state", response_model=dict)
+async def get_latency_stress_state():
+    return read_latency_stress_state()
+
+
+@app.get("/api/watchboard-state", response_model=dict)
+async def get_watchboard_state():
+    return read_watchboard_state()
+
+
+@app.get("/api/risk-overview", response_model=dict)
+async def get_risk_overview():
+    """Consolidated risk-metrics endpoint — single call replaces 5+ individual requests."""
+    return {
+        "liq_alert": read_liq_alert_state(),
+        "spread_stress": read_spread_stress_state(),
+        "fill_toxicity": read_fill_toxicity_state(),
+        "latency_stress": read_latency_stress_state(),
+        "watchboard": read_watchboard_state(),
+        "ts": time.time(),
+    }
 
 
 @app.get("/api/ops/supervisor", response_model=dict)
@@ -496,9 +634,9 @@ async def get_ops_supervisor_alias():
     return read_supervisor_status()
 
 
-# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+# Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬
 # Debug control
-# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+# Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬Ã¢ --â‚¬
 
 @app.get("/api/debug/actions", response_model=list[ControlActionInfo])
 async def get_debug_actions():
@@ -735,4 +873,84 @@ async def patch_debug_macro_preset(req: MacroPresetConfig, request: Request):
 @app.get("/api/debug/security-audit", response_model=list[SecurityAuditEvent])
 async def get_debug_security_audit(limit: int = Query(100, ge=1, le=500)):
     return _read_security_audit(limit=limit)
+
+
+# ─── WebSocket real-time metrics push ───────────────────────────────
+
+_WS_CLIENTS: set[WebSocket] = set()
+_WS_MAX_CLIENTS = int(os.getenv("WS_MAX_CLIENTS", "50"))
+_WS_PUSH_INTERVAL = float(os.getenv("WS_PUSH_INTERVAL_SEC", "5"))
+
+
+def _collect_ws_snapshot() -> dict:
+    """Build a lightweight snapshot for WS push."""
+    try:
+        snapshot: dict = {"ts": time.time()}
+        try:
+            rt = read_runtime_status()
+            if isinstance(rt, dict):
+                snapshot["data_freshness"] = rt.get("data_freshness") or {}
+                snapshot["database"] = rt.get("database") or {}
+        except Exception:
+            pass
+        try:
+            snapshot["liq_alert"] = read_liq_alert_state()
+        except Exception:
+            pass
+        try:
+            snapshot["ops_health"] = read_ops_health()
+        except Exception:
+            pass
+        return snapshot
+    except Exception:
+        return {"ts": time.time(), "error": "snapshot_failed"}
+
+
+@app.websocket("/ws/live")
+async def websocket_live(ws: WebSocket):
+    """Bidirectional WebSocket: push metrics every N seconds, receive control commands."""
+    if len(_WS_CLIENTS) >= _WS_MAX_CLIENTS:
+        await ws.close(code=1013, reason="max connections reached")
+        return
+    await ws.accept()
+    _WS_CLIENTS.add(ws)
+    try:
+        # Send initial snapshot immediately
+        await ws.send_json({"type": "snapshot", "data": _collect_ws_snapshot()})
+
+        while True:
+            # Wait for either a client message or push interval
+            try:
+                msg = await asyncio.wait_for(ws.receive_json(), timeout=_WS_PUSH_INTERVAL)
+            except asyncio.TimeoutError:
+                # Push periodic snapshot
+                await ws.send_json({"type": "snapshot", "data": _collect_ws_snapshot()})
+                continue
+
+            # Handle client commands
+            if isinstance(msg, dict):
+                cmd = msg.get("cmd")
+                if cmd == "ping":
+                    await ws.send_json({"type": "pong", "ts": time.time()})
+                elif cmd == "snapshot":
+                    await ws.send_json({"type": "snapshot", "data": _collect_ws_snapshot()})
+                elif cmd == "risk_overview":
+                    overview = {
+                        "liq_alert": read_liq_alert_state(),
+                        "spread_stress": read_spread_stress_state(),
+                        "fill_toxicity": read_fill_toxicity_state(),
+                        "latency_stress": read_latency_stress_state(),
+                        "watchboard": read_watchboard_state(),
+                        "ts": time.time(),
+                    }
+                    await ws.send_json({"type": "risk_overview", "data": overview})
+                else:
+                    await ws.send_json({"type": "error", "msg": f"unknown cmd: {cmd}"})
+
+    except WebSocketDisconnect:
+        pass
+    except Exception:
+        pass
+    finally:
+        _WS_CLIENTS.discard(ws)
 

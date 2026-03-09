@@ -534,3 +534,192 @@ export type LogsStreamLine = string;
 export interface LogsStreamEvent {
   data: LogsStreamLine;
 }
+
+export interface LiqAlertState {
+  available: boolean;
+  stale?: boolean;
+  age_sec?: number;
+  symbol?: string;
+  rule?: string;
+  state: {
+    level: "quiet" | "elevated" | "severe";
+    reasons: string[];
+    primary_side_bias: string;
+    dominant_severity: string;
+  };
+  card: {
+    headline?: string;
+    operator_note?: string;
+    recent_alert_count?: number;
+    tagged_rate?: number;
+    max_consecutive_tagged?: number;
+    max_liq_rate_recent?: number;
+    primary_side_bias?: string;
+    dominant_severity?: string;
+    latest_alert_ts_ms?: number;
+  };
+  summary_snapshot: {
+    rows_total?: number;
+    tagged_count?: number;
+    tagged_rate?: number;
+    recent_alert_count?: number;
+    max_consecutive_tagged?: number;
+    max_liq_rate_recent?: number;
+    side_bias_counts?: Record<string, number>;
+    severity_counts?: Record<string, number>;
+  };
+  alerts?: Array<{
+    ts_ms?: number;
+    tag?: string;
+    side_bias?: string;
+    severity?: string;
+    liq_rate_per_sec?: number;
+    liq_imbalance?: number;
+    spread?: number;
+    trade_intensity?: number;
+    ret_1?: number;
+  }>;
+}
+
+export type StressLevel = "quiet" | "elevated" | "severe";
+
+export interface SpreadStressState {
+  available: boolean;
+  stale?: boolean;
+  age_sec?: number;
+  symbol?: string;
+  state: {
+    level: StressLevel;
+    reasons: string[];
+    freshness_status?: string;
+  };
+  card: {
+    headline?: string;
+    operator_note?: string;
+    recent_alert_count?: number;
+    high_count?: number;
+    medium_count?: number;
+    avg_spread_tagged?: number;
+    avg_trade_intensity_tagged?: number;
+    freshness_status?: string;
+    age_sec?: number;
+  };
+  dashboard_summary?: string;
+  recommended_action?: string;
+  watchlist?: {
+    summary?: Record<string, unknown>;
+    top_summary?: {
+      symbol?: string;
+      state_level?: string;
+      freshness_status?: string;
+      recommended_action?: string;
+      dashboard_summary?: string;
+    };
+    banner?: {
+      headline?: string;
+      recommended_action?: string;
+    };
+    rows?: Array<{
+      symbol?: string;
+      state_level?: string;
+      freshness_status?: string;
+      recommended_action?: string;
+      recent_alert_count?: number;
+      high_count?: number;
+      medium_count?: number;
+      avg_spread_tagged?: number;
+      priority_score?: number;
+      dashboard_summary?: string;
+    }>;
+  } | null;
+}
+
+export interface FillToxicityState {
+  available: boolean;
+  stale?: boolean;
+  age_sec?: number;
+  source?: string;
+  rows?: number;
+  top_side?: string;
+  state: {
+    level: StressLevel;
+    reasons: string[];
+  };
+  card: {
+    headline?: string;
+    operator_note?: string;
+    top_side?: string;
+    rows?: number;
+    toxicity_score?: number;
+    adverse_bps_mean?: number;
+    pnl_bps_mean?: number;
+  };
+  dashboard_summary?: string;
+  recommended_action?: string;
+}
+
+export interface LatencyStressState {
+  available: boolean;
+  stale?: boolean;
+  age_sec?: number;
+  source?: string;
+  state: {
+    level: StressLevel;
+    reasons: string[];
+  };
+  card: {
+    headline?: string;
+    operator_note?: string;
+    rows?: number;
+    fill_rate?: number;
+    latency_fill_delay_sec_p50?: number;
+    latency_fill_delay_sec_p95?: number;
+    latency_impact_vs_net_corr?: number;
+  };
+  dashboard_summary?: string;
+  recommended_action?: string;
+}
+
+export interface WatchboardLane {
+  lane?: string;
+  level?: string;
+  freshness_status?: string;
+  recommended_action?: string;
+  headline?: string;
+  detail?: string;
+  priority_score?: number;
+}
+
+export interface WatchboardState {
+  available: boolean;
+  stale?: boolean;
+  age_sec?: number;
+  summary: {
+    lane_count: number;
+    state_counts: Record<string, number>;
+    top_lane: string;
+  };
+  top_event?: {
+    lane?: string;
+    level?: string;
+    recommended_action?: string;
+    headline?: string;
+    detail?: string;
+  } | null;
+  banner?: {
+    headline?: string;
+    recommended_action?: string;
+    top_lane?: string;
+    top_level?: string;
+  } | null;
+  lanes: WatchboardLane[];
+}
+
+export interface RiskOverview {
+  liq_alert: LiqAlertState;
+  spread_stress: SpreadStressState;
+  fill_toxicity: FillToxicityState;
+  latency_stress: LatencyStressState;
+  watchboard: WatchboardState;
+  ts: number;
+}

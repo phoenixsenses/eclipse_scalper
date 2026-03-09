@@ -8,8 +8,10 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import time
 import random
+from pathlib import Path
 from typing import Any, Awaitable, Callable, Optional, Dict, List
 
 from utils.logging import log_core, log_entry
@@ -84,6 +86,16 @@ except Exception as e:
     handle_exit = None
     we_dont_have_this("execution.exit.handle_exit", e)
 
+# Collection watchdog (inline health check, never fatal)
+try:
+    from tools.collection_watchdog import run_once as _watchdog_run_once  # type: ignore
+    import logging as _logging
+    _watchdog_logger = _logging.getLogger("collection_watchdog")
+except Exception as e:
+    _watchdog_run_once = None
+    _watchdog_logger = None
+    we_dont_have_this("tools.collection_watchdog.run_once", e)
+
 
 # ─────────────────────────────────────────────────────────────────────
 # Helpers
@@ -146,11 +158,17 @@ def _record_shutdown_reason(bot, reason: str, source: str) -> None:
         pass
 
 
-async def _safe_call(name: str, fn: Callable[..., Awaitable[Any]], *args, **kwargs):
+_GUARDIAN_STEP_TIMEOUT_SEC = 45.0  # max time any single guardian step may run
+
+
+async def _safe_call(name: str, fn: Callable[..., Awaitable[Any]], *args, timeout_sec: float = 0.0, **kwargs):
     if not callable(fn):
         return
+    t = float(timeout_sec) if timeout_sec > 0 else _GUARDIAN_STEP_TIMEOUT_SEC
     try:
-        await fn(*args, **kwargs)
+        await asyncio.wait_for(fn(*args, **kwargs), timeout=t)
+    except asyncio.TimeoutError:
+        log_entry.error(f"GUARDIAN: {name} TIMED OUT after {t:.1f}s — skipping")
     except asyncio.CancelledError:
         raise
     except Exception as e:
@@ -255,6 +273,193 @@ async def _position_manager_tick(bot):
     if not _posmgr_allowed(bot):
         return
     await _safe_call("position_manager.position_manager_tick", position_manager_tick, bot)
+
+
+async def _exchange_connectivity_tick(bot) -> None:
+    """Probe exchange health — trigger _health_check if stale, notify on failure."""
+    try:
+        ex = getattr(bot, "ex", None)
+        if ex is None:
+            return
+        hc = getattr(ex, "_health_check", None)
+        if not callable(hc):
+            return
+        last = float(getattr(ex, "last_health_check", 0.0) or 0.0)
+        now = _now()
+        # If last health check is older than 90s, force a probe
+        if last > 0 and (now - last) < 90:
+            return
+        try:
+            await hc()
+        except Exception as e:
+            log_entry.error(f"GUARDIAN: exchange connectivity probe failed: {e}")
+            # Notify via bot if possible
+            notify = getattr(bot, "notify", None)
+            if notify is not None:
+                try:
+                    await notify.speak(
+                        f"EXCHANGE CONNECTIVITY FAILED — {type(e).__name__}: {e}",
+                        "critical",
+                    )
+                except Exception:
+                    pass
+    except Exception:
+        pass
+
+
+_STUCK_ALERTED: dict = {}  # sym -> alert_ts (tracks symbols we already alerted for stuck positions)
+
+
+async def _position_stuck_check(bot) -> None:
+    """Alert if any position has been open > TTL without exit activity."""
+    try:
+        st = getattr(bot, "state", None)
+        if st is None:
+            return
+        positions = getattr(st, "positions", None)
+        if not isinstance(positions, dict):
+            return
+        ttl = float(_cfg(bot, "POSITION_STUCK_TTL_SEC", 3600.0) or 3600.0)
+        if ttl <= 0:
+            return
+        now = _now()
+        for sym, pos in positions.items():
+            if not isinstance(pos, dict):
+                continue
+            qty = float(pos.get("size") or pos.get("qty") or 0.0)
+            if abs(qty) <= 0:
+                _STUCK_ALERTED.pop(sym, None)
+                continue
+            entry_ts = float(pos.get("entry_ts") or pos.get("open_ts") or 0.0)
+            if entry_ts <= 0:
+                continue
+            age = now - entry_ts
+            if age > ttl and sym not in _STUCK_ALERTED:
+                _STUCK_ALERTED[sym] = now
+                # Evict oldest if dict grows too large
+                if len(_STUCK_ALERTED) > 500:
+                    oldest = min(_STUCK_ALERTED, key=_STUCK_ALERTED.get)  # type: ignore[arg-type]
+                    _STUCK_ALERTED.pop(oldest, None)
+                msg = (
+                    f"POSITION STUCK — {sym} open for {age / 3600:.1f}h "
+                    f"(TTL={ttl / 3600:.1f}h) qty={qty}"
+                )
+                log_entry.warning(msg)
+                notify = getattr(bot, "notify", None)
+                if notify is not None:
+                    try:
+                        await notify.speak(msg, "warning")
+                    except Exception:
+                        pass
+    except Exception:
+        pass
+
+
+_LAST_LOG_ROTATION_TS: float = 0.0
+_LOG_ROTATION_INTERVAL_SEC: float = 86400.0  # once per day
+
+
+_HEARTBEAT_PATH = Path("logs/health/heartbeat.json")
+
+
+async def _write_heartbeat(bot) -> None:
+    """Write a heartbeat file every guardian cycle for external dead-bot detection.
+
+    External monitors (cron, Prometheus node-exporter, uptime-kuma) can check
+    if this file's mtime is stale (> 30s) to detect a dead bot process.
+    """
+    try:
+        from execution.runtime_helpers import atomic_write_json
+        now = _now()
+        data = {
+            "ts": now,
+            "pid": os.getpid(),
+            "uptime_sec": now - float(getattr(bot, "STARTUP_TIMESTAMP", now) or now),
+        }
+        try:
+            if callable(is_halted):
+                data["kill_switch_active"] = bool(is_halted(bot))
+        except Exception:
+            pass
+        try:
+            positions = getattr(getattr(bot, "state", None), "positions", None)
+            if isinstance(positions, dict):
+                data["open_positions"] = sum(
+                    1 for v in positions.values()
+                    if isinstance(v, dict) and abs(float(v.get("size") or v.get("qty") or 0)) > 0
+                )
+        except Exception:
+            pass
+        atomic_write_json(_HEARTBEAT_PATH, data)
+    except Exception:
+        pass
+
+
+async def _log_rotation_tick(bot) -> None:
+    """Run log rotation at most once per day."""
+    global _LAST_LOG_ROTATION_TS
+    now = _now()
+    interval = float(_cfg(bot, "LOG_ROTATION_INTERVAL_SEC", _LOG_ROTATION_INTERVAL_SEC) or _LOG_ROTATION_INTERVAL_SEC)
+    if (now - _LAST_LOG_ROTATION_TS) < interval:
+        return
+    _LAST_LOG_ROTATION_TS = now
+    try:
+        from monitoring.log_rotation import run_rotation
+        max_size = float(_cfg(bot, "LOG_ROTATION_MAX_SIZE_MB", 50.0) or 50.0)
+        max_age = float(_cfg(bot, "LOG_ROTATION_MAX_AGE_DAYS", 180.0) or 180.0)
+        await asyncio.get_event_loop().run_in_executor(
+            None, lambda: run_rotation(max_size_mb=max_size, max_age_days=max_age)
+        )
+    except Exception:
+        pass
+
+
+async def _margin_ratio_refresh(bot) -> None:
+    """Fetch margin ratio from Binance and cache on bot.state for kill switch."""
+    try:
+        ex = getattr(bot, "ex", None)
+        if ex is None:
+            return
+        resp = None
+        if hasattr(ex, "fapiPrivateV2GetAccount"):
+            resp = await ex.fapiPrivateV2GetAccount()
+        elif hasattr(ex, "fapiPrivate_get_account"):
+            resp = await ex.fapiPrivate_get_account()
+        if isinstance(resp, dict):
+            raw = resp.get("totalMarginRatio") or resp.get("marginRatio")
+            if raw is not None:
+                ratio = float(raw)
+                st = getattr(bot, "state", None)
+                if st is not None:
+                    st.margin_ratio = ratio
+                    st.margin_ratio_ts = _now()
+    except Exception:
+        pass
+
+
+async def _collection_watchdog_tick(bot) -> None:
+    """Run collection watchdog inline — checks DB freshness, writes health state."""
+    if not callable(_watchdog_run_once):
+        return
+    try:
+        from pathlib import Path as _Path
+        import os as _os
+        db_env = _os.environ.get("MICROSTRUCTURE_DB_PATH", "data/microstructure.db")
+        db_path = _Path(str(getattr(getattr(bot, "cfg", None), "MICROSTRUCTURE_DB_PATH", db_env) or db_env))
+        symbols_raw = str(getattr(getattr(bot, "cfg", None), "WATCHDOG_SYMBOLS", "BTCUSDT,ETHUSDT") or "BTCUSDT,ETHUSDT")
+        symbols = [s.strip().upper() for s in symbols_raw.split(",") if s.strip()]
+        threshold = int(getattr(getattr(bot, "cfg", None), "WATCHDOG_STALE_THRESHOLD_SEC", 300) or 300)
+        dry_run = bool(getattr(getattr(bot, "cfg", None), "SCALPER_DRY_RUN", False))
+        await _watchdog_run_once(
+            db_path=db_path,
+            symbols=symbols,
+            table="",
+            stale_threshold_sec=threshold,
+            logger=_watchdog_logger or __import__("logging").getLogger("collection_watchdog"),
+            dry_run=dry_run,
+        )
+    except Exception as e:
+        log_entry.error(f"GUARDIAN: collection_watchdog_tick failed: {e}")
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -586,6 +791,18 @@ async def guardian_loop(bot):
     posmgr_every = float(_cfg(bot, "POSMGR_EVERY_SEC", 0.0))  # 0 -> every guardian cycle (if allowed)
     _last_posmgr = 0.0
 
+    # Collection watchdog cadence (default: every 60s)
+    watchdog_every = float(_cfg(bot, "WATCHDOG_EVERY_SEC", 60.0))
+    if watchdog_every <= 0:
+        watchdog_every = 60.0
+    _last_watchdog = 0.0
+
+    # Exchange connectivity probe cadence (default: every 60s)
+    ex_probe_every = float(_cfg(bot, "EX_PROBE_EVERY_SEC", 60.0))
+    if ex_probe_every <= 0:
+        ex_probe_every = 60.0
+    _last_ex_probe = 0.0
+
     shutdown_ev = _ensure_shutdown_event(bot)
     _ensure_shutdown_fields(bot)
 
@@ -596,9 +813,12 @@ async def guardian_loop(bot):
     fail_streak = 0
 
     async def _one_cycle():
-        nonlocal _last_exit_watch, _last_posmgr
+        nonlocal _last_exit_watch, _last_posmgr, _last_watchdog, _last_ex_probe
 
-        # 0) Kill-switch tick (evaluate)
+        # 0) Heartbeat for external monitoring (every cycle, cheap)
+        await _safe_call("heartbeat", _write_heartbeat, bot)
+
+        # 0a) Kill-switch tick (evaluate)
         if respect_kill and callable(tick_kill_switch):
             await _safe_call("kill_switch.tick_kill_switch", tick_kill_switch, bot)
 
@@ -662,6 +882,30 @@ async def guardian_loop(bot):
 
         # 3) Emergency checks
         await _emergency_tick(bot, legacy_brief_sec)
+
+        # 4) Collection watchdog (DB freshness + health state write)
+        if callable(_watchdog_run_once):
+            now_ts = _now()
+            if (now_ts - _last_watchdog) >= watchdog_every:
+                _last_watchdog = now_ts
+                await _safe_call("collection_watchdog_tick", _collection_watchdog_tick, bot)
+
+        # 5) Exchange connectivity probe
+        now_ts = _now()
+        if (now_ts - _last_ex_probe) >= ex_probe_every:
+            _last_ex_probe = now_ts
+            await _safe_call("exchange_connectivity_tick", _exchange_connectivity_tick, bot)
+
+        # 6) Margin ratio refresh (piggybacks on exchange probe cadence)
+        if (now_ts - _last_ex_probe) < 2.0:  # just probed exchange
+            await _safe_call("margin_ratio_refresh", _margin_ratio_refresh, bot)
+
+        # 7) Position stuck detection (on watchdog cadence)
+        if (now_ts - _last_watchdog) < 2.0:  # just ran watchdog
+            await _safe_call("position_stuck_check", _position_stuck_check, bot)
+
+        # 8) Log rotation (once per day, non-blocking)
+        await _safe_call("log_rotation_tick", _log_rotation_tick, bot)
 
         # optional emergency halt hook
         if halted and emergency_mod is not None:

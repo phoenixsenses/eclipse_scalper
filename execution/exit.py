@@ -61,6 +61,16 @@ except Exception:
     EXIT_TIME = 'EXIT_TIME'
     EXIT_STAGNATION = 'EXIT_STAGNATION'
 
+try:
+    from execution.runtime_helpers import symkey as _symkey  # type: ignore
+except Exception:
+    def _symkey(sym: str) -> str:
+        s = (sym or "").upper().strip()
+        s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
+        s = s.replace(":USDT", "USDT").replace(":", "").replace("/", "")
+        if s.endswith("USDTUSDT"): s = s[:-4]
+        return s
+
 _EXIT_LOCKS: dict[str, asyncio.Lock] = {}
 
 
@@ -83,16 +93,6 @@ def _get_exit_lock(k: str) -> asyncio.Lock:
         lock = asyncio.Lock()
         _EXIT_LOCKS[k] = lock
     return lock
-
-
-def _symkey(sym: str) -> str:
-    s = (sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
 
 
 def _load_telemetry_actions() -> dict[str, Any]:

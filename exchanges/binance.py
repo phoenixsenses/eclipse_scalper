@@ -30,15 +30,12 @@ def _env_truthy(name: str) -> bool:
     return v.strip().lower() in {"1", "true", "yes", "y", "on"}
 
 
-def _symkey(sym: str) -> str:
-    """
-    Canonical key normalizer: 'BTC/USDT:USDT' -> 'BTCUSDT', 'BTC/USDT' -> 'BTCUSDT', 'BTCUSDT' -> 'BTCUSDT'
-    """
-    s = str(sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    return s
+try:
+    from execution.runtime_helpers import symkey as _symkey
+except Exception:
+    def _symkey(sym) -> str:
+        s = str(sym or "").upper().strip()
+        return s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT").replace(":USDT", "USDT").replace(":", "")
 
 
 class BinanceCosmicAdapter(ExchangeAdapter):

@@ -59,12 +59,23 @@ def collect_last_decisions(journal_path: str = "logs/execution_journal.jsonl", l
     p = Path(str(journal_path))
     if not p.exists():
         return []
-    lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
+    # Read only the tail of the file to avoid loading GBs into memory.
+    _TAIL_BYTES = 256 * 1024  # 256 KB is enough for recent decisions
+    try:
+        file_size = p.stat().st_size
+        with open(p, "r", encoding="utf-8", errors="replace") as fh:
+            if file_size > _TAIL_BYTES:
+                fh.seek(file_size - _TAIL_BYTES)
+                fh.readline()  # skip partial first line
+            tail_lines = fh.readlines()
+    except Exception:
+        return []
     out: List[Dict[str, Any]] = []
-    for raw in reversed(lines):
+    for raw in reversed(tail_lines):
         if len(out) >= int(limit):
             break
-        if not raw.strip():
+        raw = raw.strip()
+        if not raw:
             continue
         try:
             obj = json.loads(raw)
@@ -144,11 +155,43 @@ def collect_diag(micro_db: str = "data/microstructure.db") -> Dict[str, Any]:
     }
 
 
+def collect_kill_switch_status() -> Dict[str, Any]:
+    ks_path = Path("logs/kill_switch_state.json")
+    if not ks_path.exists():
+        return {"active": False, "source": "no_file"}
+    try:
+        obj = json.loads(ks_path.read_text(encoding="utf-8", errors="replace"))
+        halt_until = float(obj.get("halt_until_ts", 0.0) or 0.0)
+        now = time.time()
+        active = halt_until > now
+        return {
+            "active": active,
+            "halt_until_ts": halt_until,
+            "reason": str(obj.get("halt_reason") or ""),
+            "halt_count": int(obj.get("halt_count", 0) or 0),
+            "trip_streak": int(obj.get("trip_streak", 0) or 0),
+            "saved_at": float(obj.get("saved_at", 0.0) or 0.0),
+            "source": "state_file",
+        }
+    except Exception:
+        return {"active": False, "source": "read_error"}
+
+
 def collect_status() -> Dict[str, Any]:
     pnl = collect_pnl()
     diag = collect_diag()
     cfg = collect_config_flags()
-    return {"pnl": pnl, "diag": diag, "config": cfg}
+    positions = collect_open_positions()
+    decisions = collect_last_decisions(limit=5)
+    kill_switch = collect_kill_switch_status()
+    return {
+        "pnl": pnl,
+        "diag": diag,
+        "config": cfg,
+        "positions": positions,
+        "last_decisions": decisions,
+        "kill_switch": kill_switch,
+    }
 
 
 def render_status_text() -> str:
@@ -156,7 +199,27 @@ def render_status_text() -> str:
     pnl = s["pnl"]
     diag = s["diag"]
     cfg = s["config"]
-    lines = ["Eclipse Scalper - Paper Run", "==========================="]
+    positions = s["positions"]
+    decisions = s["last_decisions"]
+    ks = s["kill_switch"]
+
+    lines = ["Eclipse Scalper - Health Check", "============================="]
+
+    # Kill switch
+    if ks.get("active"):
+        lines.append(f"KILL SWITCH: ACTIVE — {ks.get('reason', 'unknown')}")
+    else:
+        lines.append("Kill switch: inactive")
+
+    # Data feed
+    if diag.get("ok"):
+        age = int(diag.get("feed_age_sec", 0))
+        freshness = "FRESH" if age < 30 else ("DEGRADED" if age < 120 else "STALE")
+        lines.append(f"Data feed: {freshness} | Last tick: {diag.get('last_tick_utc')} | age={age}s")
+    else:
+        lines.append("Data feed: UNAVAILABLE")
+
+    # PnL
     if pnl.get("ok"):
         lines.append(
             f"PnL today: {float(pnl.get('today_pnl_bps', 0.0)):+.2f} bps | Trades: {int(pnl.get('today_trades', 0))} | Win: {float(pnl.get('today_win_rate', 0.0))*100.0:.1f}%"
@@ -165,11 +228,28 @@ def render_status_text() -> str:
             f"Total: {float(pnl.get('total_pnl_bps', 0.0)):+.2f} bps | Trades: {int(pnl.get('total_trades', 0))} | DD: -{float(pnl.get('max_drawdown_bps', 0.0)):.2f} bps"
         )
     else:
-        lines.append("PnL: unavailable (paper_trades.db missing)")
-    if diag.get("ok"):
-        lines.append(f"Data feed: fresh | Last tick: {diag.get('last_tick_utc')} | age={int(diag.get('feed_age_sec', 0))}s")
+        lines.append("PnL: unavailable")
+
+    # Positions
+    pos_count = int(positions.get("count", 0))
+    if pos_count > 0:
+        lines.append(f"Open positions: {pos_count}")
+        for p in positions.get("positions", [])[:5]:
+            lines.append(f"  {p.get('symbol')} {p.get('side')} qty={p.get('qty')} entry={p.get('entry_price')}")
     else:
-        lines.append("Data feed: unavailable")
+        lines.append("Open positions: 0")
+
+    # Last decisions
+    if decisions:
+        lines.append("Recent decisions:")
+        for d in decisions[:3]:
+            lines.append(f"  [{d.get('event')}] {d.get('symbol')} — {d.get('reason', '')}"[:80])
+
+    # Config flags
     lines.append("Flags: regime={ENTRY_REGIME} risk={ENTRY_REGIME_RISK_ENABLED} scratch={EXIT_SCRATCH_ENABLED} notify={NOTIFY_ENABLED}".format(**cfg))
     return "\n".join(lines)
+
+
+if __name__ == "__main__":
+    print(render_status_text())
 

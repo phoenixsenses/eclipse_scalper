@@ -44,15 +44,25 @@ def _now() -> float:
 
 
 _THROTTLE_LAST: Dict[str, float] = {}
+_THROTTLE_MAX_KEYS = 500  # cap to prevent unbounded growth
 
 
 def _throttled_log(key: str, every_sec: float, fn, msg: str) -> None:
     now = _now()
     last = float(_THROTTLE_LAST.get(key, 0.0) or 0.0)
     if (now - last) >= max(0.0, every_sec):
+        # Cap dict size to prevent OOM on long-running bots
+        if len(_THROTTLE_LAST) >= _THROTTLE_MAX_KEYS:
+            try:
+                oldest = min(_THROTTLE_LAST, key=_THROTTLE_LAST.get)  # type: ignore[arg-type]
+                del _THROTTLE_LAST[oldest]
+            except Exception:
+                pass
         _THROTTLE_LAST[key] = now
         try:
             fn(msg)
+        except asyncio.CancelledError:
+            raise
         except Exception:
             pass
 
@@ -365,11 +375,13 @@ def _resolve_micro_builder():
 
 def _write_last_shutdown_json(payload: Dict[str, Any]) -> None:
     try:
-        p = Path("logs/last_shutdown.json")
-        p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        from execution.runtime_helpers import atomic_write_json
+        atomic_write_json(Path("logs/last_shutdown.json"), payload)
     except Exception:
         pass
+
+
+_APPEND_JSONL_WARNED: set = set()
 
 
 def _append_jsonl(path: Path, payload: Dict[str, Any]) -> None:
@@ -377,8 +389,14 @@ def _append_jsonl(path: Path, payload: Dict[str, Any]) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(payload, ensure_ascii=True, sort_keys=True) + "\n")
-    except Exception:
-        pass
+    except Exception as exc:
+        key = str(path)
+        if key not in _APPEND_JSONL_WARNED:
+            _APPEND_JSONL_WARNED.add(key)
+            try:
+                log_entry.warning(f"_append_jsonl failed for {path}: {exc}")
+            except Exception:
+                pass
 
 
 def _tripwire_shutdown_bypass(bot) -> tuple[str, str, int, float]:

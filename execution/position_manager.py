@@ -15,6 +15,16 @@ from typing import Optional, List, Tuple, Dict, Any
 from utils.logging import log_entry, log_core
 from execution.order_router import create_order, cancel_order
 
+try:
+    from execution.runtime_helpers import symkey as _symkey  # type: ignore
+except Exception:
+    def _symkey(sym: str) -> str:
+        s = (sym or "").upper().strip()
+        s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
+        s = s.replace(":USDT", "USDT").replace(":", "").replace("/", "")
+        if s.endswith("USDTUSDT"): s = s[:-4]
+        return s
+
 
 _POSMGR_LOCKS: dict[str, asyncio.Lock] = {}
 
@@ -85,16 +95,6 @@ def _cfg_env(bot, name: str, default):
         pass
 
     return default
-
-
-def _symkey(sym: str) -> str:
-    s = (sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
 
 
 def _get_lock(k: str) -> asyncio.Lock:

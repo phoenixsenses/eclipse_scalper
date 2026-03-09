@@ -22,10 +22,15 @@ async def tail_sse(path: Path, last_n: int = 50) -> AsyncIterator[str]:
         yield f"data: [file not found: {path.name}]\n\n"
         return
 
-    # Seed: tail last_n lines
+    # Seed: tail last_n lines (read only tail to avoid OOM on large files)
+    _TAIL_BYTES = 256 * 1024  # 256 KB is enough for last_n lines
     lines: list[str] = []
     try:
+        file_size = path.stat().st_size
         with open(path, "r", encoding="utf-8", errors="replace") as fh:
+            if file_size > _TAIL_BYTES:
+                fh.seek(file_size - _TAIL_BYTES)
+                fh.readline()  # skip partial first line
             lines = fh.readlines()
     except Exception as exc:
         yield f"data: [read error: {exc}]\n\n"

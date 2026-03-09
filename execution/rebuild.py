@@ -20,6 +20,16 @@ try:
 except Exception:
     _intent_ledger = None
 
+try:
+    from execution.runtime_helpers import symkey as _symkey  # type: ignore
+except Exception:
+    def _symkey(sym: str) -> str:
+        s = (sym or "").upper().strip()
+        s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
+        s = s.replace(":USDT", "USDT").replace(":", "").replace("/", "")
+        if s.endswith("USDTUSDT"): s = s[:-4]
+        return s
+
 
 def _now() -> float:
     return time.time()
@@ -45,16 +55,6 @@ def _truthy(x: Any) -> bool:
     if isinstance(x, str):
         return x.strip().lower() in ("1", "true", "yes", "y", "on", "t")
     return False
-
-
-def _symkey(sym: str) -> str:
-    s = (sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
 
 
 def _ensure_run_context(bot) -> dict:
