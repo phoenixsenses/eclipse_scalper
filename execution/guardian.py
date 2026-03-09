@@ -96,6 +96,13 @@ except Exception as e:
     _watchdog_logger = None
     we_dont_have_this("tools.collection_watchdog.run_once", e)
 
+# Config hot-reload (never fatal)
+try:
+    from config.hot_reload import check_and_apply as _config_hot_reload  # type: ignore
+except Exception as e:
+    _config_hot_reload = None
+    we_dont_have_this("config.hot_reload.check_and_apply", e)
+
 
 # ─────────────────────────────────────────────────────────────────────
 # Helpers
@@ -462,6 +469,31 @@ async def _log_rotation_tick(bot) -> None:
         await asyncio.get_event_loop().run_in_executor(
             None, lambda: run_rotation(max_size_mb=max_size, max_age_days=max_age)
         )
+    except Exception:
+        pass
+
+
+async def _config_hot_reload_tick(bot) -> None:
+    """Check for config override file changes and apply them."""
+    try:
+        if not callable(_config_hot_reload):
+            return
+        cfg = getattr(bot, "cfg", None)
+        if cfg is None:
+            return
+        changes = _config_hot_reload(cfg)
+        if changes:
+            # Notify operator about config changes
+            notify = getattr(bot, "notify", None)
+            if notify is not None:
+                changed_keys = ", ".join(changes.keys())
+                try:
+                    await notify.speak(
+                        f"CONFIG HOT-RELOAD: {len(changes)} field(s) updated: {changed_keys}",
+                        "normal",
+                    )
+                except Exception:
+                    pass
     except Exception:
         pass
 
@@ -958,6 +990,9 @@ async def guardian_loop(bot):
 
         # 8) Log rotation (once per day, non-blocking)
         await _safe_call("log_rotation_tick", _log_rotation_tick, bot)
+
+        # 9) Config hot-reload (check override file every ~10s)
+        await _safe_call("config_hot_reload_tick", _config_hot_reload_tick, bot)
 
         # optional emergency halt hook
         if halted and emergency_mod is not None:
