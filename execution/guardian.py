@@ -96,6 +96,34 @@ except Exception as e:
     _watchdog_logger = None
     we_dont_have_this("tools.collection_watchdog.run_once", e)
 
+# Order verifier tick (Kisi1 additive, never fatal)
+try:
+    from execution.order_verifier import verification_tick  # type: ignore
+except Exception as e:
+    verification_tick = None
+    we_dont_have_this("execution.order_verifier.verification_tick", e)
+
+# Health monitor tick (Kisi1 additive, never fatal)
+try:
+    from execution.health_monitor import health_check_tick  # type: ignore
+except Exception as e:
+    health_check_tick = None
+    we_dont_have_this("execution.health_monitor.health_check_tick", e)
+
+# Metrics collector tick (Kisi1 additive, never fatal)
+try:
+    from execution.metrics_collector import collect_bot_metrics  # type: ignore
+except Exception as e:
+    collect_bot_metrics = None
+    we_dont_have_this("execution.metrics_collector.collect_bot_metrics", e)
+
+# System status tick (Kisi1 additive, never fatal)
+try:
+    from execution.system_status import status_tick  # type: ignore
+except Exception as e:
+    status_tick = None
+    we_dont_have_this("execution.system_status.status_tick", e)
+
 # Config hot-reload (never fatal)
 try:
     from config.hot_reload import check_and_apply as _config_hot_reload  # type: ignore
@@ -1070,10 +1098,23 @@ async def guardian_loop(bot):
         # 8) Log rotation (once per day, non-blocking)
         await _safe_call("log_rotation_tick", _log_rotation_tick, bot)
 
-        # 9) Config hot-reload (check override file every ~10s)
+        # 9) Kisi1 additive ticks (optional, never fatal)
+        if callable(verification_tick):
+            await _safe_call("order_verifier.verification_tick", verification_tick, bot)
+
+        if callable(health_check_tick):
+            await _safe_call("health_monitor.health_check_tick", health_check_tick, bot)
+
+        if callable(collect_bot_metrics):
+            await _safe_call("metrics_collector.collect_bot_metrics", collect_bot_metrics, bot)
+
+        if callable(status_tick):
+            await _safe_call("system_status.status_tick", status_tick, bot)
+
+        # 10) Config hot-reload (check override file every ~10s)
         await _safe_call("config_hot_reload_tick", _config_hot_reload_tick, bot)
 
-        # 10) Structured alert rules evaluation (on watchdog cadence)
+        # 11) Structured alert rules evaluation (on watchdog cadence)
         if (now_ts - _last_watchdog) < 2.0:
             await _safe_call("alert_rules_tick", _alert_rules_tick, bot)
 

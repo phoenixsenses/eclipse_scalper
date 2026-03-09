@@ -27,6 +27,7 @@ from .data_sources import (
     read_regime_events,
     read_runtime_status,
     read_live_metrics,
+    read_market_chart,
     read_live_monitor_tests_status,
     read_ops_health,
     read_connectivity_diag,
@@ -35,6 +36,10 @@ from .data_sources import (
     read_fill_toxicity_state,
     read_latency_stress_state,
     read_watchboard_state,
+    read_book_proxy_pressure_state,
+    read_return_shock_state,
+    read_volatility_burst_state,
+    read_volume_vacuum_state,
     read_supervisor_status,
     read_scoreboard,
     read_signal_events,
@@ -100,6 +105,7 @@ from .models import (
     RegimeEvent,
     RuntimeResponse,
     LiveMetricsResponse,
+    MarketChartResponse,
     LiveMonitorTestsStatusResponse,
     Scoreboard,
     SignalEvent,
@@ -445,6 +451,18 @@ async def get_runtime():
 async def get_live_metrics():
     return read_live_metrics()
 
+
+@app.get("/api/market/chart", response_model=MarketChartResponse)
+async def get_market_chart(
+    symbol: str = Query("BTCUSDT"),
+    interval: str = Query("5m"),
+    limit: int = Query(240, ge=50, le=500),
+):
+    try:
+        return read_market_chart(symbol=symbol, interval=interval, limit=limit)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Failed to load market chart: {exc}")
+
 @app.get("/api/live/tests/status", response_model=LiveMonitorTestsStatusResponse)
 async def get_live_tests_status(limit: int = Query(80, ge=10, le=400)):
     return read_live_monitor_tests_status(limit=limit)
@@ -640,15 +658,39 @@ async def get_watchboard_state():
     return read_watchboard_state()
 
 
+@app.get("/api/book-proxy-pressure-state", response_model=dict)
+async def get_book_proxy_pressure_state():
+    return read_book_proxy_pressure_state()
+
+
+@app.get("/api/return-shock-state", response_model=dict)
+async def get_return_shock_state():
+    return read_return_shock_state()
+
+
+@app.get("/api/volatility-burst-state", response_model=dict)
+async def get_volatility_burst_state():
+    return read_volatility_burst_state()
+
+
+@app.get("/api/volume-vacuum-state", response_model=dict)
+async def get_volume_vacuum_state():
+    return read_volume_vacuum_state()
+
+
 @app.get("/api/risk-overview", response_model=dict)
 async def get_risk_overview():
-    """Consolidated risk-metrics endpoint — single call replaces 5+ individual requests."""
+    """Consolidated risk-metrics endpoint — single call replaces 9+ individual requests."""
     return {
         "liq_alert": read_liq_alert_state(),
         "spread_stress": read_spread_stress_state(),
         "fill_toxicity": read_fill_toxicity_state(),
         "latency_stress": read_latency_stress_state(),
         "watchboard": read_watchboard_state(),
+        "book_proxy_pressure": read_book_proxy_pressure_state(),
+        "return_shock": read_return_shock_state(),
+        "volatility_burst": read_volatility_burst_state(),
+        "volume_vacuum": read_volume_vacuum_state(),
         "ts": time.time(),
     }
 

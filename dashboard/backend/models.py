@@ -238,6 +238,32 @@ class LiveMonitorTestsStatusResponse(BaseModel):
     log_tail: list[str] = Field(default_factory=list)
 
 
+class MarketChartIndicatorSeries(BaseModel):
+    name: str
+    values: list[Optional[float]] = Field(default_factory=list)
+
+
+class MarketChartCandle(BaseModel):
+    time: int
+    open: float
+    high: float
+    low: float
+    close: float
+    volume: float
+
+
+class MarketChartResponse(BaseModel):
+    source: str = "binance_spot"
+    symbol: str
+    interval: str
+    limit: int
+    generated_ts: str
+    candles: list[MarketChartCandle] = Field(default_factory=list)
+    overlays: list[MarketChartIndicatorSeries] = Field(default_factory=list)
+    oscillator: Optional[MarketChartIndicatorSeries] = None
+    pocket_markers: list[dict[str, Any]] = Field(default_factory=list)
+
+
 class OverviewResponse(BaseModel):
     scoreboard: Scoreboard = Field(default_factory=Scoreboard)
     gates: GatesSummaryResponse = Field(default_factory=GatesSummaryResponse)

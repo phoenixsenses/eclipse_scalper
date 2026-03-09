@@ -1,16 +1,21 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { api } from "../api/client";
 import type { OverviewResponse } from "../api/types";
 import AsyncState from "../components/AsyncState";
+import MarketStructureChart from "../components/MarketStructureChart";
 import PageGuide from "../components/PageGuide";
+import ResearchPocketOverlay from "../components/ResearchPocketOverlay";
 import ResearchEventsPanel from "../components/ResearchEventsPanel";
 import { usePoll } from "../hooks/usePoll";
+import type { MarketChartInterval, MarketChartSymbol } from "../components/MarketStructureChart";
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
 }
 
 export default function ResearchEvents() {
+  const [chartSymbol, setChartSymbol] = useState<MarketChartSymbol>("BTCUSDT");
+  const [chartInterval, setChartInterval] = useState<MarketChartInterval>("5m");
   const fetchOverview = useCallback((signal: AbortSignal) => api.overview(signal), []);
   const overviewPoll = usePoll<OverviewResponse>({
     fetcher: fetchOverview,
@@ -52,6 +57,19 @@ export default function ResearchEvents() {
             descEn: "Highlights multi-symbol lane watchlists with top priorities first.",
           },
         ]}
+      />
+
+      <MarketStructureChart
+        symbol={chartSymbol}
+        interval={chartInterval}
+        onSymbolChange={setChartSymbol}
+        onIntervalChange={setChartInterval}
+        researchEvents={researchEvents}
+      />
+
+      <ResearchPocketOverlay
+        symbol={chartSymbol}
+        recentRegimes={overviewPoll.data?.recent_regimes ?? []}
       />
 
       <AsyncState

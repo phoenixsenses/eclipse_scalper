@@ -6,8 +6,10 @@ import "./index.css";
 import { DashboardAuthProvider } from "./context/AuthContext";
 import { ApiErrorProvider } from "./context/ApiErrorContext";
 
+const RootMode = import.meta.env.DEV ? React.Fragment : React.StrictMode;
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
+  <RootMode>
     <ApiErrorProvider>
       <DashboardAuthProvider>
         <BrowserRouter>
@@ -15,5 +17,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </BrowserRouter>
       </DashboardAuthProvider>
     </ApiErrorProvider>
-  </React.StrictMode>
+  </RootMode>
 );

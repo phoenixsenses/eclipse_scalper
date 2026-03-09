@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/client";
-import type { LiveMetricsResponse, LiveMonitorTestsStatusResponse, LogFile, LogTailResponse, OpsHealthResponse, RuntimeStatus, Scoreboard, LiqAlertState, SpreadStressState, FillToxicityState, LatencyStressState, WatchboardState } from "../api/types";
+import type { LiveMetricsResponse, LiveMonitorTestsStatusResponse, LogFile, LogTailResponse, OpsHealthResponse, RuntimeStatus, Scoreboard, LiqAlertState, SpreadStressState, FillToxicityState, LatencyStressState, WatchboardState, BookProxyPressureState, ReturnShockState, VolatilityBurstState, VolumeVacuumState } from "../api/types";
 import AsyncState from "../components/AsyncState";
 import DegradedBanner, { type DegradedMode } from "../components/DegradedBanner";
 import LiqAlertCard from "../components/LiqAlertCard";
@@ -9,6 +9,10 @@ import SpreadStressCard from "../components/SpreadStressCard";
 import FillToxicityCard from "../components/FillToxicityCard";
 import LatencyStressCard from "../components/LatencyStressCard";
 import WatchboardCard from "../components/WatchboardCard";
+import BookProxyPressureCard from "../components/BookProxyPressureCard";
+import ReturnShockCard from "../components/ReturnShockCard";
+import VolatilityBurstCard from "../components/VolatilityBurstCard";
+import VolumeVacuumCard from "../components/VolumeVacuumCard";
 import PageGuide from "../components/PageGuide";
 import { usePoll } from "../hooks/usePoll";
 
@@ -227,6 +231,30 @@ export default function LiveMonitor() {
   const watchboardPoll = usePoll<WatchboardState>({
     fetcher: (signal) => api.watchboardState(signal),
     pollKey: "api:/watchboard-state:live-monitor",
+    intervalMs: 10000,
+    staleAfterMs: 30000,
+  });
+  const bookProxyPressurePoll = usePoll<BookProxyPressureState>({
+    fetcher: (signal) => api.bookProxyPressureState(signal),
+    pollKey: "api:/book-proxy-pressure-state:live-monitor",
+    intervalMs: 10000,
+    staleAfterMs: 30000,
+  });
+  const returnShockPoll = usePoll<ReturnShockState>({
+    fetcher: (signal) => api.returnShockState(signal),
+    pollKey: "api:/return-shock-state:live-monitor",
+    intervalMs: 10000,
+    staleAfterMs: 30000,
+  });
+  const volatilityBurstPoll = usePoll<VolatilityBurstState>({
+    fetcher: (signal) => api.volatilityBurstState(signal),
+    pollKey: "api:/volatility-burst-state:live-monitor",
+    intervalMs: 10000,
+    staleAfterMs: 30000,
+  });
+  const volumeVacuumPoll = usePoll<VolumeVacuumState>({
+    fetcher: (signal) => api.volumeVacuumState(signal),
+    pollKey: "api:/volume-vacuum-state:live-monitor",
     intervalMs: 10000,
     staleAfterMs: 30000,
   });
@@ -547,6 +575,19 @@ export default function LiveMonitor() {
     }
   }
 
+  const sectionHeader = (label: string) => (
+    <div style={{ borderBottom: "1px solid var(--border)", paddingBottom: 4, color: "var(--muted)", fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, marginTop: 4 }}>
+      {label}
+    </div>
+  );
+
+  const watchboardTopLevel = (() => {
+    const sc = watchboardPoll.data?.summary?.state_counts ?? {};
+    if ((sc["severe"] ?? 0) > 0) return "severe";
+    if ((sc["elevated"] ?? 0) > 0) return "elevated";
+    return watchboardPoll.data?.available ? "quiet" : undefined;
+  })();
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <PageGuide
@@ -582,133 +623,11 @@ export default function LiveMonitor() {
 
       <DegradedBanner mode={mode} message={liveMetricsPoll.error?.message ?? runtimePoll.error?.message ?? tailPoll.error?.message ?? paperTailPoll.error?.message ?? scoreboardPoll.error?.message ?? paperTailLongPoll.error?.message} />
 
-      <WatchboardCard data={watchboardPoll.data ?? null} />
-      <LiqAlertCard data={liqAlertPoll.data ?? null} />
-      <SpreadStressCard data={spreadStressPoll.data ?? null} />
-      <FillToxicityCard data={fillToxicityPoll.data ?? null} />
-      <LatencyStressCard data={latencyStressPoll.data ?? null} />
-
-      <div className="card">
-        <div className="card-title self-help" data-help="Hizli gecis: detayli log/tower/recovery ekranlarina tek tik.">
-          Quick Actions
-        </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <button className="guide-toggle self-help" data-help="Canli kontrol kulesine git." onClick={() => navigate("/tower")}>Open Tower</button>
-          <button className="guide-toggle self-help" data-help="Log analiz ekranina git." onClick={() => navigate("/logs")}>Open Logs</button>
-          <button className="guide-toggle self-help" data-help="Recovery adimlarini ac." onClick={() => navigate("/recovery")}>Open Recovery</button>
-          <button className="guide-toggle self-help" data-help="Trades ekranina gec." onClick={() => navigate("/trades")}>Open Trades</button>
-          <button className="guide-toggle self-help" data-help="Mevcut monitor durumunu JSON olarak indir." onClick={exportSnapshot}>Export Snapshot</button>
-        </div>
-      </div>
-
-      <div className="card">
-        <div className="card-title self-help" data-help="run_live_monitor_tests script son calisma durumunu canli izler.">
-          Diagnostics - Live Monitor Test Bundle
-        </div>
-        <AsyncState loading={liveTestsPoll.isLoading} error={liveTestsPoll.error} loadingText="Loading diagnostics status...">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
-            <div className="card">
-              <div className="card-title">State</div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: tests?.state === "passed" ? "var(--green)" : tests?.state === "failed" ? "var(--red)" : "var(--yellow)" }}>
-                {(tests?.state ?? "unknown").toUpperCase()}
-              </div>
-              <div style={{ color: "var(--muted)", fontSize: 11 }}>stage={tests?.stage ?? "-"}</div>
-            </div>
-            <div className="card">
-              <div className="card-title">Age</div>
-              <div style={{ fontSize: 18, fontWeight: 700 }}>{num(tests?.status_age_sec ?? null, 1)}s</div>
-              <div style={{ color: "var(--muted)", fontSize: 11 }}>{tests?.ts_utc ?? "-"}</div>
-            </div>
-            <div className="card">
-              <div className="card-title">Checklist</div>
-              <div style={{ fontSize: 12, color: "var(--muted)" }}>
-                backend={tests?.backend_ok ? "OK" : "NO"} typecheck={tests?.frontend_typecheck_ok ? "OK" : "NO"} smoke={tests?.frontend_smoke_ok ? "OK" : tests?.frontend_smoke_skipped ? "SKIP" : "NO"}
-              </div>
-              <div style={{ fontSize: 11, color: "var(--muted)" }}>strict={tests?.strict_mode ? "1" : "0"} pid={tests?.pid ?? "-"}</div>
-            </div>
-          </div>
-          <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <button className="guide-toggle self-help" data-help="Backend'e test paketi calistir komutu yollar." onClick={runTestsNow} disabled={runTestsBusy}>
-              {runTestsBusy ? "Starting..." : "Run Tests Now"}
-            </button>
-            <button className="guide-toggle self-help" data-help="Test komutunu kopyala ve PowerShell'e yapistir." onClick={copyTestCommand}>
-              Copy Test Command
-            </button>
-            <span className="badge badge-gray" style={{ maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {tests?.run_command ?? "powershell -NoProfile -ExecutionPolicy Bypass -File .\\tools\\run_live_monitor_tests.ps1"}
-            </span>
-          </div>
-          {runTestsMsg ? <div style={{ marginTop: 6, color: "var(--muted)", fontSize: 12 }}>{runTestsMsg}</div> : null}
-          <div style={{ marginTop: 8, color: "var(--muted)", fontSize: 12 }}>{tests?.message ?? "-"}</div>
-          <pre
-            style={{
-              marginTop: 8,
-              maxHeight: 180,
-              overflowY: "auto",
-              fontSize: 11,
-              padding: 8,
-              background: "var(--bg)",
-              borderRadius: 4,
-              border: "1px solid var(--border)",
-              whiteSpace: "pre-wrap",
-              wordBreak: "break-word",
-            }}
-          >
-            {(tests?.log_tail ?? []).join("\n")}
-          </pre>
-        </AsyncState>
-      </div>
-
-      <div className="card">
-        <div className="card-title self-help" data-help="Canli alarm badge'leri: trade stale ve fill flatline durumlarini izler.">
-          Live Alerts
-        </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <span className={`badge ${anyAlert ? "badge-yellow" : "badge-green"}`}>
-            {anyAlert ? "ALERT" : "OK"}
-          </span>
-          <span className={`badge ${tradeAgeAlert ? "badge-red" : "badge-green"}`}>
-            trade_age {tradeAgeAlert ? "HIGH" : "OK"} ({num(freshness.seconds_since_last_trade, 2)}s)
-          </span>
-          <span className={`badge ${fillFlatlineAlert ? "badge-red" : "badge-green"}`}>
-            fill_flow {fillFlatlineAlert ? "FLATLINE" : "OK"} ({lastFillAgeMin == null ? "-" : `${num(lastFillAgeMin, 1)}m`})
-          </span>
-          <span className="badge badge-gray">
-            {`thresholds: trade>${configuredTradeAge}s fill>${configuredFillFlatline}m`}
-          </span>
-        </div>
-      </div>
-
-      <div className="card">
-        <div className="card-title self-help" data-help="Alarm esiklerini buradan degistir; localStorage'a kaydolur.">
-          Alert Config
-        </div>
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
-          <label style={{ color: "var(--muted)", fontSize: 12 }}>
-            trade_age_sec
-            <input
-              type="number"
-              min={1}
-              value={tradeAgeAlertSec}
-              onChange={(e) => setTradeAgeAlertSec(Math.max(1, Number(e.target.value) || DEFAULT_TRADE_AGE_ALERT_SEC))}
-              style={{ marginLeft: 6, width: 84 }}
-            />
-          </label>
-          <label style={{ color: "var(--muted)", fontSize: 12 }}>
-            fill_flatline_min
-            <input
-              type="number"
-              min={1}
-              value={fillFlatlineAlertMin}
-              onChange={(e) => setFillFlatlineAlertMin(Math.max(1, Number(e.target.value) || DEFAULT_FILL_FLATLINE_ALERT_MIN))}
-              style={{ marginLeft: 6, width: 84 }}
-            />
-          </label>
-        </div>
-      </div>
+      {/* ── LIVE STATUS ─────────────────────────────────────────── */}
+      {sectionHeader("Live Status")}
 
       <AsyncState loading={runtimePoll.isLoading} error={runtimePoll.error} loadingText="Loading live monitor...">
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10 }}>
           <div className="card self-help" data-help="Collector process ayakta mi?">
             <div className="card-title">Collector</div>
             <div style={{ fontSize: 20, fontWeight: 700, color: collector.alive ? "var(--green)" : "var(--red)" }}>
@@ -749,119 +668,266 @@ export default function LiveMonitor() {
       </AsyncState>
 
       <div className="card">
-        <div className="card-title self-help" data-help="Paper trade canli ozet: order/fill/block sayilari ve son fill zamani.">
-          Paper Trade Live Summary
+        <div className="card-title self-help" data-help="Canli alarm badge'leri: trade stale ve fill flatline durumlarini izler.">
+          Live Alerts
         </div>
-        <AsyncState loading={scoreboardPoll.isLoading} error={scoreboardPoll.error} loadingText="Loading paper trade summary...">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
-            <div className="card self-help" data-help="Paper mod acik mi?">
-              <div className="card-title">Mode</div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: scoreboardPoll.data?.paper_trading ? "var(--yellow)" : "var(--green)" }}>
-                {scoreboardPoll.data?.paper_trading ? "PAPER" : "LIVE"}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <span className={`badge ${anyAlert ? "badge-yellow" : "badge-green"}`}>
+            {anyAlert ? "ALERT" : "OK"}
+          </span>
+          <span className={`badge ${tradeAgeAlert ? "badge-red" : "badge-green"}`}>
+            trade_age {tradeAgeAlert ? "HIGH" : "OK"} ({num(freshness.seconds_since_last_trade, 2)}s)
+          </span>
+          <span className={`badge ${fillFlatlineAlert ? "badge-red" : "badge-green"}`}>
+            fill_flow {fillFlatlineAlert ? "FLATLINE" : "OK"} ({lastFillAgeMin == null ? "-" : `${num(lastFillAgeMin, 1)}m`})
+          </span>
+          <span className="badge badge-gray">
+            {`thresholds: trade>${configuredTradeAge}s fill>${configuredFillFlatline}m`}
+          </span>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div className="card">
+          <div className="card-title self-help" data-help="Paper trade canli ozet: order/fill/block sayilari ve son fill zamani.">
+            Paper Trade Summary
+          </div>
+          <AsyncState loading={scoreboardPoll.isLoading} error={scoreboardPoll.error} loadingText="Loading...">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+              <div className="card self-help" data-help="Paper mod acik mi?">
+                <div className="card-title">Mode</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: scoreboardPoll.data?.paper_trading ? "var(--yellow)" : "var(--green)" }}>
+                  {scoreboardPoll.data?.paper_trading ? "PAPER" : "LIVE"}
+                </div>
+              </div>
+              <div className="card">
+                <div className="card-title">Orders</div>
+                <div style={{ fontSize: 16, fontWeight: 700 }}>{scoreboardPoll.data?.orders_total ?? 0}</div>
+              </div>
+              <div className="card">
+                <div className="card-title">Fills</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: "var(--green)" }}>{scoreboardPoll.data?.fills_total ?? 0}</div>
+              </div>
+              <div className="card">
+                <div className="card-title">Fill%</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: (fillRatio ?? 0) >= 40 ? "var(--green)" : "var(--yellow)" }}>
+                  {fillRatio == null ? "-" : `${fillRatio.toFixed(1)}%`}
+                </div>
+                <div style={{ color: "var(--muted)", fontSize: 10 }}>{scoreboard?.fills_total ?? 0}/{scoreboard?.orders_total ?? 0}</div>
+              </div>
+              <div className="card">
+                <div className="card-title">Blocked</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: (scoreboardPoll.data?.blocked_total ?? 0) > 0 ? "var(--yellow)" : "var(--text)" }}>
+                  {scoreboardPoll.data?.blocked_total ?? 0}
+                </div>
+              </div>
+              <div className="card">
+                <div className="card-title">Last Fill</div>
+                <div style={{ fontSize: 11, fontWeight: 700 }}>{scoreboardPoll.data?.last_fill_ts ?? "-"}</div>
               </div>
             </div>
-            <div className="card self-help" data-help="Toplam order adedi.">
+          </AsyncState>
+        </div>
+
+        <div className="card">
+          <div className="card-title self-help" data-help="PnL strip: tail tabanli today/24h/7d toplamlari.">
+            PnL Strip
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}>
+            <div className="card">
+              <div className="card-title">Today</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: pnlStrip.today >= 0 ? "var(--green)" : "var(--red)" }}>{num(pnlStrip.today, 2)}</div>
+            </div>
+            <div className="card">
+              <div className="card-title">24h</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: pnlStrip.h24 >= 0 ? "var(--green)" : "var(--red)" }}>{num(pnlStrip.h24, 2)}</div>
+            </div>
+            <div className="card">
+              <div className="card-title">7d</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: pnlStrip.d7 >= 0 ? "var(--green)" : "var(--red)" }}>{num(pnlStrip.d7, 2)}</div>
+            </div>
+            <div className="card">
+              <div className="card-title">Samples</div>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>{pnlStrip.sample}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div className="card">
+          <div className="card-title self-help" data-help="Fill quality: ortalama fill delay ve adverse bps (veri varsa).">
+            Fill Quality
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            <div className="card">
+              <div className="card-title">Avg Delay (ms)</div>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>{num(fillQuality.avgDelayMs, 1)}</div>
+              <div style={{ color: "var(--muted)", fontSize: 11 }}>n={fillQuality.withDelay}</div>
+            </div>
+            <div className="card">
+              <div className="card-title">Avg Adverse (bps)</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: (fillQuality.avgAdverseBps ?? 0) <= 0 ? "var(--green)" : "var(--yellow)" }}>
+                {num(fillQuality.avgAdverseBps, 2)}
+              </div>
+              <div style={{ color: "var(--muted)", fontSize: 11 }}>n={fillQuality.withAdverse}</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-title self-help" data-help="Paper log tail penceresinde order/fill/block yogunlugu.">
+            Tail KPIs
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+            <div className="card">
               <div className="card-title">Orders</div>
-              <div style={{ fontSize: 18, fontWeight: 700 }}>{scoreboardPoll.data?.orders_total ?? 0}</div>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>{paperTailKpis.orderCount}</div>
             </div>
-            <div className="card self-help" data-help="Toplam fill adedi.">
+            <div className="card">
               <div className="card-title">Fills</div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: "var(--green)" }}>{scoreboardPoll.data?.fills_total ?? 0}</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: "var(--green)" }}>{paperTailKpis.fillCount}</div>
             </div>
-            <div className="card self-help" data-help="Fill success ratio: fills/orders, canli pencerede verim gostergesi.">
-              <div className="card-title">Fill Success</div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: (fillRatio ?? 0) >= 40 ? "var(--green)" : "var(--yellow)" }}>
-                {fillRatio == null ? "-" : `${fillRatio.toFixed(1)}%`}
-              </div>
-              <div style={{ color: "var(--muted)", fontSize: 11 }}>
-                fills={scoreboard?.fills_total ?? 0} / orders={scoreboard?.orders_total ?? 0}
-              </div>
-            </div>
-            <div className="card self-help" data-help="Toplam blocked karar adedi.">
+            <div className="card">
               <div className="card-title">Blocked</div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: (scoreboardPoll.data?.blocked_total ?? 0) > 0 ? "var(--yellow)" : "var(--text)" }}>
-                {scoreboardPoll.data?.blocked_total ?? 0}
+              <div style={{ fontSize: 16, fontWeight: 700, color: paperTailKpis.blockedCount > 0 ? "var(--yellow)" : "var(--text)" }}>{paperTailKpis.blockedCount}</div>
+            </div>
+            <div className="card">
+              <div className="card-title">Fill Ratio</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: (paperTailKpis.fillPerOrder ?? 0) >= 40 ? "var(--green)" : "var(--yellow)" }}>
+                {paperTailKpis.fillPerOrder == null ? "-" : `${paperTailKpis.fillPerOrder.toFixed(1)}%`}
               </div>
             </div>
-            <div className="card self-help" data-help="Son fill zamani.">
-              <div className="card-title">Last Fill</div>
-              <div style={{ fontSize: 12, fontWeight: 700 }}>{scoreboardPoll.data?.last_fill_ts ?? "-"}</div>
+            <div className="card">
+              <div className="card-title">Lines</div>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>{paperTailKpis.windowLines}</div>
             </div>
-          </div>
-        </AsyncState>
-      </div>
-
-      <div className="card">
-        <div className="card-title self-help" data-help="PnL strip: tail tabanli today/24h/7d toplamlari.">
-          PnL Strip (tail-based)
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
-          <div className="card">
-            <div className="card-title">Today</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: pnlStrip.today >= 0 ? "var(--green)" : "var(--red)" }}>{num(pnlStrip.today, 2)}</div>
-          </div>
-          <div className="card">
-            <div className="card-title">24h</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: pnlStrip.h24 >= 0 ? "var(--green)" : "var(--red)" }}>{num(pnlStrip.h24, 2)}</div>
-          </div>
-          <div className="card">
-            <div className="card-title">7d</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: pnlStrip.d7 >= 0 ? "var(--green)" : "var(--red)" }}>{num(pnlStrip.d7, 2)}</div>
-          </div>
-          <div className="card">
-            <div className="card-title">Samples</div>
-            <div style={{ fontSize: 18, fontWeight: 700 }}>{pnlStrip.sample}</div>
+            <div className="card">
+              <div className="card-title">Trades/sec</div>
+              <Spark values={tradeSeries} color="var(--accent)" />
+            </div>
           </div>
         </div>
       </div>
 
+      {/* ── RISK MONITOR ─────────────────────────────────────────── */}
+      {sectionHeader("Risk Monitor — 9 Lanes")}
+
       <div className="card">
-        <div className="card-title self-help" data-help="Fill quality: ortalama fill delay ve adverse bps (veri varsa).">
-          Fill Quality
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10 }}>
-          <div className="card">
-            <div className="card-title">Avg Fill Delay (ms)</div>
-            <div style={{ fontSize: 18, fontWeight: 700 }}>{num(fillQuality.avgDelayMs, 1)}</div>
-            <div style={{ color: "var(--muted)", fontSize: 11 }}>samples={fillQuality.withDelay}</div>
-          </div>
-          <div className="card">
-            <div className="card-title">Avg Adverse (bps)</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: (fillQuality.avgAdverseBps ?? 0) <= 0 ? "var(--green)" : "var(--yellow)" }}>
-              {num(fillQuality.avgAdverseBps, 2)}
-            </div>
-            <div style={{ color: "var(--muted)", fontSize: 11 }}>samples={fillQuality.withAdverse}</div>
-          </div>
+        <div className="card-title">Risk Radar</div>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {([
+            { label: "Watchboard", level: watchboardTopLevel },
+            { label: "Liq", level: liqAlertPoll.data?.state?.level },
+            { label: "SpreadStress", level: spreadStressPoll.data?.state?.level },
+            { label: "Toxicity", level: fillToxicityPoll.data?.state?.level },
+            { label: "Latency", level: latencyStressPoll.data?.state?.level },
+            { label: "BookProxy", level: bookProxyPressurePoll.data?.state?.level },
+            { label: "RetShock", level: returnShockPoll.data?.state?.level },
+            { label: "VolBurst", level: volatilityBurstPoll.data?.state?.level },
+            { label: "VolVacuum", level: volumeVacuumPoll.data?.state?.level },
+          ] as Array<{ label: string; level: string | undefined }>).map(({ label, level }) => (
+            <span key={label} style={{
+              padding: "3px 10px", borderRadius: 12, fontSize: 11, fontWeight: 600,
+              background: level === "severe" ? "#fef2f2" : level === "elevated" ? "#fffbeb" : level ? "#f0fdf4" : "#f9fafb",
+              color: level === "severe" ? "#991b1b" : level === "elevated" ? "#92400e" : level ? "#166534" : "#9ca3af",
+              border: `1px solid ${level === "severe" ? "#fca5a5" : level === "elevated" ? "#fcd34d" : level ? "#86efac" : "#e5e7eb"}`,
+            }}>
+              {label}: {level ?? "–"}
+            </span>
+          ))}
         </div>
       </div>
 
-      <div className="card">
-        <div className="card-title self-help" data-help="Paper log tail penceresinde order/fill/block yogunlugu.">
-          Paper Tail Window KPIs
+      <WatchboardCard data={watchboardPoll.data ?? null} />
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+        <LiqAlertCard data={liqAlertPoll.data ?? null} />
+        <SpreadStressCard data={spreadStressPoll.data ?? null} />
+        <FillToxicityCard data={fillToxicityPoll.data ?? null} />
+        <LatencyStressCard data={latencyStressPoll.data ?? null} />
+        <BookProxyPressureCard data={bookProxyPressurePoll.data ?? null} />
+        <ReturnShockCard data={returnShockPoll.data ?? null} />
+        <VolatilityBurstCard data={volatilityBurstPoll.data ?? null} />
+        <VolumeVacuumCard data={volumeVacuumPoll.data ?? null} />
+      </div>
+
+      {/* ── EXECUTION ────────────────────────────────────────────── */}
+      {sectionHeader("Execution")}
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 12 }}>
+        <div className="card">
+          <div className="card-title self-help" data-help="Son blocker reason dagilimi (top 10).">
+            Blocked Reasons
+          </div>
+          <AsyncState loading={scoreboardPoll.isLoading} error={scoreboardPoll.error} isEmpty={blockedReasons.length === 0} emptyText="No blocked reasons">
+            <table>
+              <thead>
+                <tr><th>reason</th><th>count</th></tr>
+              </thead>
+              <tbody>
+                {blockedReasons.map((r) => (
+                  <tr key={r.reason}>
+                    <td style={{ color: "var(--muted)" }}>{r.reason}</td>
+                    <td>{r.count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </AsyncState>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
-          <div className="card self-help" data-help="Tail penceresindeki satir sayisi.">
-            <div className="card-title">Window Lines</div>
-            <div style={{ fontSize: 18, fontWeight: 700 }}>{paperTailKpis.windowLines}</div>
+
+        <div className="card">
+          <div className="card-title self-help" data-help="Paper log icinden yakalanan son 5 fill olayi.">
+            Last 5 Fills
           </div>
-          <div className="card self-help" data-help="Tail satirlarinda gecen order olay sayisi.">
-            <div className="card-title">Orders (tail)</div>
-            <div style={{ fontSize: 18, fontWeight: 700 }}>{paperTailKpis.orderCount}</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+            <input className="self-help" data-help="Sembol filtresi (ornek: ETHUSDT)." placeholder="Symbol filter" value={fillSymbolFilter}
+              onChange={(e) => setFillSymbolFilter(e.target.value.toUpperCase())}
+              style={{ padding: "4px 8px", borderRadius: 4, border: "1px solid var(--border)", background: "var(--bg)", color: "var(--text)", width: 140 }} />
+            <input className="self-help" data-help="Fill tablosunda genel metin aramasi." placeholder="Search fills" value={fillSearch}
+              onChange={(e) => setFillSearch(e.target.value)}
+              style={{ padding: "4px 8px", borderRadius: 4, border: "1px solid var(--border)", background: "var(--bg)", color: "var(--text)", width: 180 }} />
+            <span style={{ marginLeft: "auto", color: "var(--muted)", fontSize: 11 }}>rows={visibleFills.length}</span>
           </div>
-          <div className="card self-help" data-help="Tail satirlarinda gecen fill olay sayisi.">
-            <div className="card-title">Fills (tail)</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: "var(--green)" }}>{paperTailKpis.fillCount}</div>
+          <AsyncState loading={paperTailPoll.isLoading} error={paperTailPoll.error} isEmpty={visibleFills.length === 0} emptyText="No fill lines in log tail">
+            <table>
+              <thead>
+                <tr><th>ts</th><th>symbol</th><th>side</th><th>price</th><th>qty</th><th>pnl</th></tr>
+              </thead>
+              <tbody>
+                {visibleFills.map((r, i) => (
+                  <tr key={`${r.ts}_${r.symbol}_${i}`}>
+                    <td style={{ color: "var(--muted)" }}>{r.ts}</td>
+                    <td>{r.symbol}</td><td>{r.side}</td><td>{r.price}</td><td>{r.qty}</td><td>{r.pnl}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </AsyncState>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div className="card">
+          <div className="card-title self-help" data-help="Collector log dosyasinin son 80 satiri, her 3 saniyede bir yenilenir.">
+            Collector Log ({collectorFile})
           </div>
-          <div className="card self-help" data-help="Tail satirlarinda gecen blocked/no_match/regime_mismatch olaylari.">
-            <div className="card-title">Blocked (tail)</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: paperTailKpis.blockedCount > 0 ? "var(--yellow)" : "var(--text)" }}>{paperTailKpis.blockedCount}</div>
+          <AsyncState loading={tailPoll.isLoading} error={tailPoll.error} isEmpty={(tailPoll.data?.lines?.length ?? 0) === 0} emptyText="No collector log lines">
+            <pre style={{ maxHeight: 280, overflowY: "auto", fontSize: 11, padding: 8, background: "var(--bg)", borderRadius: 4, border: "1px solid var(--border)", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+              {(tailPoll.data?.lines ?? []).join("\n")}
+            </pre>
+          </AsyncState>
+        </div>
+        <div className="card">
+          <div className="card-title self-help" data-help="Paper trade log son satirlari (3 saniyede bir yenilenir).">
+            Paper Log ({effectivePaperFile})
           </div>
-          <div className="card self-help" data-help="Tail penceresinde fill/order oranı.">
-            <div className="card-title">Tail Fill Ratio</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: (paperTailKpis.fillPerOrder ?? 0) >= 40 ? "var(--green)" : "var(--yellow)" }}>
-              {paperTailKpis.fillPerOrder == null ? "-" : `${paperTailKpis.fillPerOrder.toFixed(1)}%`}
-            </div>
-          </div>
+          <AsyncState loading={paperTailPoll.isLoading} error={paperTailPoll.error} isEmpty={(paperTailPoll.data?.lines?.length ?? 0) === 0} emptyText="No paper trade log lines">
+            <pre style={{ maxHeight: 280, overflowY: "auto", fontSize: 11, padding: 8, background: "var(--bg)", borderRadius: 4, border: "1px solid var(--border)", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+              {(paperTailPoll.data?.lines ?? []).join("\n")}
+            </pre>
+          </AsyncState>
         </div>
       </div>
 
@@ -881,145 +947,85 @@ export default function LiveMonitor() {
         </div>
       </div>
 
+      {/* ── TOOLS ────────────────────────────────────────────────── */}
+      {sectionHeader("Tools")}
+
       <div className="card">
-        <div className="card-title self-help" data-help="Son blocker reason dagilimi (top 10).">
-          Last 10 Blocked Reasons
+        <div className="card-title self-help" data-help="Hizli gecis: detayli log/tower/recovery ekranlarina tek tik.">
+          Quick Actions
         </div>
-        <AsyncState
-          loading={scoreboardPoll.isLoading}
-          error={scoreboardPoll.error}
-          isEmpty={blockedReasons.length === 0}
-          emptyText="No blocked reasons found"
-        >
-          <table>
-            <thead>
-              <tr>
-                <th>reason</th>
-                <th>count</th>
-              </tr>
-            </thead>
-            <tbody>
-              {blockedReasons.map((r) => (
-                <tr key={r.reason}>
-                  <td style={{ color: "var(--muted)" }}>{r.reason}</td>
-                  <td>{r.count}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </AsyncState>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <button className="guide-toggle self-help" data-help="Canli kontrol kulesine git." onClick={() => navigate("/tower")}>Open Tower</button>
+          <button className="guide-toggle self-help" data-help="Log analiz ekranina git." onClick={() => navigate("/logs")}>Open Logs</button>
+          <button className="guide-toggle self-help" data-help="Recovery adimlarini ac." onClick={() => navigate("/recovery")}>Open Recovery</button>
+          <button className="guide-toggle self-help" data-help="Trades ekranina gec." onClick={() => navigate("/trades")}>Open Trades</button>
+          <button className="guide-toggle self-help" data-help="Mevcut monitor durumunu JSON olarak indir." onClick={exportSnapshot}>Export Snapshot</button>
+        </div>
       </div>
 
       <div className="card">
-        <div className="card-title self-help" data-help="Paper log icinden yakalanan son 5 fill olayi.">
-          Last 5 Fills
+        <div className="card-title self-help" data-help="run_live_monitor_tests script son calisma durumunu canli izler.">
+          Diagnostics — Live Monitor Tests
         </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
-          <input
-            className="self-help"
-            data-help="Sembol filtresi (ornek: ETHUSDT)."
-            placeholder="Symbol filter"
-            value={fillSymbolFilter}
-            onChange={(e) => setFillSymbolFilter(e.target.value.toUpperCase())}
-            style={{ padding: "4px 8px", borderRadius: 4, border: "1px solid var(--border)", background: "var(--bg)", color: "var(--text)", width: 160 }}
-          />
-          <input
-            className="self-help"
-            data-help="Fill tablosunda genel metin aramasi."
-            placeholder="Search fill text"
-            value={fillSearch}
-            onChange={(e) => setFillSearch(e.target.value)}
-            style={{ padding: "4px 8px", borderRadius: 4, border: "1px solid var(--border)", background: "var(--bg)", color: "var(--text)", width: 220 }}
-          />
-          <span style={{ marginLeft: "auto", color: "var(--muted)", fontSize: 11 }}>rows={visibleFills.length}</span>
-        </div>
-        <AsyncState
-          loading={paperTailPoll.isLoading}
-          error={paperTailPoll.error}
-          isEmpty={visibleFills.length === 0}
-          emptyText="No fill lines found in current paper log tail"
-        >
-          <table>
-            <thead>
-              <tr>
-                <th>ts</th>
-                <th>symbol</th>
-                <th>side</th>
-                <th>price</th>
-                <th>qty</th>
-                <th>pnl</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visibleFills.map((r, i) => (
-                <tr key={`${r.ts}_${r.symbol}_${i}`}>
-                  <td style={{ color: "var(--muted)" }}>{r.ts}</td>
-                  <td>{r.symbol}</td>
-                  <td>{r.side}</td>
-                  <td>{r.price}</td>
-                  <td>{r.qty}</td>
-                  <td>{r.pnl}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </AsyncState>
-      </div>
-
-      <div className="card">
-        <div className="card-title self-help" data-help="Collector log dosyasinin son 80 satiri, her 3 saniyede bir yenilenir.">
-          Collector Log Tail ({collectorFile})
-        </div>
-        <AsyncState
-          loading={tailPoll.isLoading}
-          error={tailPoll.error}
-          isEmpty={(tailPoll.data?.lines?.length ?? 0) === 0}
-          emptyText="No collector log lines"
-        >
-          <pre
-            style={{
-              maxHeight: 420,
-              overflowY: "auto",
-              fontSize: 11,
-              padding: 8,
-              background: "var(--bg)",
-              borderRadius: 4,
-              border: "1px solid var(--border)",
-              whiteSpace: "pre-wrap",
-              wordBreak: "break-word",
-            }}
-          >
-            {(tailPoll.data?.lines ?? []).join("\n")}
+        <AsyncState loading={liveTestsPoll.isLoading} error={liveTestsPoll.error} loadingText="Loading diagnostics...">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
+            <div className="card">
+              <div className="card-title">State</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: tests?.state === "passed" ? "var(--green)" : tests?.state === "failed" ? "var(--red)" : "var(--yellow)" }}>
+                {(tests?.state ?? "unknown").toUpperCase()}
+              </div>
+              <div style={{ color: "var(--muted)", fontSize: 11 }}>stage={tests?.stage ?? "-"}</div>
+            </div>
+            <div className="card">
+              <div className="card-title">Age</div>
+              <div style={{ fontSize: 18, fontWeight: 700 }}>{num(tests?.status_age_sec ?? null, 1)}s</div>
+              <div style={{ color: "var(--muted)", fontSize: 11 }}>{tests?.ts_utc ?? "-"}</div>
+            </div>
+            <div className="card">
+              <div className="card-title">Checklist</div>
+              <div style={{ fontSize: 12, color: "var(--muted)" }}>
+                backend={tests?.backend_ok ? "OK" : "NO"} typecheck={tests?.frontend_typecheck_ok ? "OK" : "NO"} smoke={tests?.frontend_smoke_ok ? "OK" : tests?.frontend_smoke_skipped ? "SKIP" : "NO"}
+              </div>
+              <div style={{ fontSize: 11, color: "var(--muted)" }}>strict={tests?.strict_mode ? "1" : "0"} pid={tests?.pid ?? "-"}</div>
+            </div>
+          </div>
+          <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button className="guide-toggle self-help" data-help="Backend'e test paketi calistir komutu yollar." onClick={runTestsNow} disabled={runTestsBusy}>
+              {runTestsBusy ? "Starting..." : "Run Tests Now"}
+            </button>
+            <button className="guide-toggle self-help" data-help="Test komutunu kopyala ve PowerShell'e yapistir." onClick={copyTestCommand}>
+              Copy Test Command
+            </button>
+            <span className="badge badge-gray" style={{ maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {tests?.run_command ?? "powershell -NoProfile -ExecutionPolicy Bypass -File .\\tools\\run_live_monitor_tests.ps1"}
+            </span>
+          </div>
+          {runTestsMsg ? <div style={{ marginTop: 6, color: "var(--muted)", fontSize: 12 }}>{runTestsMsg}</div> : null}
+          <div style={{ marginTop: 8, color: "var(--muted)", fontSize: 12 }}>{tests?.message ?? "-"}</div>
+          <pre style={{ marginTop: 8, maxHeight: 180, overflowY: "auto", fontSize: 11, padding: 8, background: "var(--bg)", borderRadius: 4, border: "1px solid var(--border)", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+            {(tests?.log_tail ?? []).join("\n")}
           </pre>
         </AsyncState>
       </div>
 
       <div className="card">
-        <div className="card-title self-help" data-help="Paper trade log son satirlari (3 saniyede bir yenilenir).">
-          Paper Trade Log Tail ({effectivePaperFile})
+        <div className="card-title self-help" data-help="Alarm esiklerini buradan degistir; localStorage'a kaydolur.">
+          Alert Config
         </div>
-        <AsyncState
-          loading={paperTailPoll.isLoading}
-          error={paperTailPoll.error}
-          isEmpty={(paperTailPoll.data?.lines?.length ?? 0) === 0}
-          emptyText="No paper trade log lines"
-        >
-          <pre
-            style={{
-              maxHeight: 320,
-              overflowY: "auto",
-              fontSize: 11,
-              padding: 8,
-              background: "var(--bg)",
-              borderRadius: 4,
-              border: "1px solid var(--border)",
-              whiteSpace: "pre-wrap",
-              wordBreak: "break-word",
-            }}
-          >
-            {(paperTailPoll.data?.lines ?? []).join("\n")}
-          </pre>
-        </AsyncState>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+          <label style={{ color: "var(--muted)", fontSize: 12 }}>
+            trade_age_sec
+            <input type="number" min={1} value={tradeAgeAlertSec}
+              onChange={(e) => setTradeAgeAlertSec(Math.max(1, Number(e.target.value) || DEFAULT_TRADE_AGE_ALERT_SEC))}
+              style={{ marginLeft: 6, width: 84 }} />
+          </label>
+          <label style={{ color: "var(--muted)", fontSize: 12 }}>
+            fill_flatline_min
+            <input type="number" min={1} value={fillFlatlineAlertMin}
+              onChange={(e) => setFillFlatlineAlertMin(Math.max(1, Number(e.target.value) || DEFAULT_FILL_FLATLINE_ALERT_MIN))}
+              style={{ marginLeft: 6, width: 84 }} />
+          </label>
+        </div>
       </div>
     </div>
   );

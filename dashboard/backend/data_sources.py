@@ -13,6 +13,8 @@ import shutil
 import sqlite3
 import sys
 import time
+import urllib.parse
+import urllib.request
 from collections import deque
 from datetime import datetime, timezone
 from pathlib import Path
@@ -100,6 +102,160 @@ def _safe_json(path: Path) -> dict[str, Any]:
             return json.load(f)
     except Exception:
         return {}
+
+
+def _ema(values: list[float], period: int) -> list[float | None]:
+    if period <= 0 or not values:
+        return [None] * len(values)
+    out: list[float | None] = [None] * len(values)
+    alpha = 2.0 / (period + 1.0)
+    prev: float | None = None
+    for idx, value in enumerate(values):
+        prev = value if prev is None else (value * alpha) + (prev * (1.0 - alpha))
+        if idx >= period - 1:
+            out[idx] = round(prev, 6)
+    return out
+
+
+def _rsi(values: list[float], period: int = 14) -> list[float | None]:
+    if period <= 0 or len(values) <= period:
+        return [None] * len(values)
+    gains = [0.0] * len(values)
+    losses = [0.0] * len(values)
+    for idx in range(1, len(values)):
+        delta = values[idx] - values[idx - 1]
+        gains[idx] = max(delta, 0.0)
+        losses[idx] = max(-delta, 0.0)
+
+    out: list[float | None] = [None] * len(values)
+    avg_gain = sum(gains[1 : period + 1]) / period
+    avg_loss = sum(losses[1 : period + 1]) / period
+    out[period] = 100.0 if avg_loss == 0 else round(100.0 - (100.0 / (1.0 + (avg_gain / avg_loss))), 4)
+
+    for idx in range(period + 1, len(values)):
+        avg_gain = ((avg_gain * (period - 1)) + gains[idx]) / period
+        avg_loss = ((avg_loss * (period - 1)) + losses[idx]) / period
+        out[idx] = 100.0 if avg_loss == 0 else round(100.0 - (100.0 / (1.0 + (avg_gain / avg_loss))), 4)
+    return out
+
+
+def _interval_to_seconds(interval: str) -> int:
+    mapping = {"1m": 60, "5m": 300, "15m": 900, "1h": 3600, "4h": 14400}
+    return mapping.get(interval, 300)
+
+
+def _build_pocket_markers(symbol: str, interval: str, candles: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    if symbol != "ETHUSDT" or not candles:
+        return []
+
+    db_path = _get_db_path()
+    if not db_path.exists():
+        return []
+
+    interval_sec = _interval_to_seconds(interval)
+    start_ts_ms = int(candles[0]["time"]) * 1000
+    end_ts_ms = int(candles[-1]["time"] + interval_sec) * 1000
+    regime_start_ts_ms = start_ts_ms - (3600 * 1000)
+    candle_times = {int(c["time"]): c for c in candles}
+
+    try:
+        conn = sqlite3.connect(db_path)
+        cur = conn.cursor()
+        trades = cur.execute(
+            """
+            select (ts_ms / 1000) as bucket_s,
+                   sum(case when is_buyer_maker = 0 then quantity else 0 end) as buy_qty,
+                   sum(case when is_buyer_maker = 1 then quantity else 0 end) as sell_qty,
+                   count(*) as trade_count,
+                   sum(price * quantity) / nullif(sum(quantity), 0) as vwap
+            from agg_trades
+            where symbol = ? and ts_ms >= ? and ts_ms < ?
+            group by bucket_s
+            order by bucket_s
+            """,
+            (symbol, start_ts_ms, end_ts_ms),
+        ).fetchall()
+        marks = cur.execute(
+            """
+            select (ts_ms / 1000) as bucket_s,
+                   avg(mark_price) as mark_price
+            from mark_prices
+            where symbol = ? and ts_ms >= ? and ts_ms < ?
+            group by bucket_s
+            order by bucket_s
+            """,
+            (symbol, regime_start_ts_ms, end_ts_ms),
+        ).fetchall()
+        conn.close()
+    except Exception:
+        try:
+            conn.close()
+        except Exception:
+            pass
+        return []
+
+    mark_by_bucket = {int(row[0]): float(row[1]) for row in marks if row and row[1] is not None}
+    if not trades or not mark_by_bucket:
+        return []
+
+    price_history: list[tuple[int, float]] = sorted(mark_by_bucket.items())
+    history_times = [row[0] for row in price_history]
+    history_prices = [row[1] for row in price_history]
+
+    markers_by_candle: dict[int, dict[str, Any]] = {}
+    for bucket_s, buy_qty, sell_qty, trade_count, vwap in trades:
+        bucket_s = int(bucket_s)
+        mark = mark_by_bucket.get(bucket_s)
+        if mark is None or mark <= 0:
+            continue
+        buy_qty = float(buy_qty or 0.0)
+        sell_qty = float(sell_qty or 0.0)
+        total_qty = buy_qty + sell_qty
+        if total_qty <= 0:
+            continue
+        imbalance = (buy_qty - sell_qty) / total_qty
+        trade_intensity = int(trade_count or 0) * 60.0
+        spread = abs(float(vwap or mark) - mark) / mark
+
+        if abs(imbalance) < 0.5 or trade_intensity < 3500.0 or spread > 0.0003:
+            continue
+
+        regime = "UNKNOWN"
+        window_start = bucket_s - 3600
+        past_candidates = [price for ts, price in price_history if ts <= window_start]
+        if past_candidates:
+            prev_mark = past_candidates[-1]
+            if prev_mark > 0:
+                regime = "UP" if mark > prev_mark else "DOWN"
+
+        side = "BUY" if imbalance > 0 else "SELL"
+        verdict = "WAIT"
+        if regime == "UP":
+            verdict = "GO"
+        elif regime == "DOWN":
+            verdict = "MARGINAL" if side == "BUY" else "NO-GO"
+
+        candle_time = (bucket_s // interval_sec) * interval_sec
+        if candle_time not in candle_times:
+            continue
+
+        score = abs(imbalance) + (trade_intensity / 3500.0) + max(0.0, (0.0003 - spread) / 0.0003)
+        existing = markers_by_candle.get(candle_time)
+        marker = {
+            "time": candle_time,
+            "bucket_time": bucket_s,
+            "side": side,
+            "verdict": verdict,
+            "regime": regime,
+            "imbalance": round(imbalance, 4),
+            "trade_intensity": round(trade_intensity, 2),
+            "spread": round(spread, 6),
+            "score": round(score, 4),
+        }
+        if existing is None or float(existing.get("score", 0.0)) < score:
+            markers_by_candle[candle_time] = marker
+
+    return [markers_by_candle[key] for key in sorted(markers_by_candle)]
 
 
 def _safe_json_with_meta(path: Path, stale_after_sec: float = 900.0) -> dict[str, Any]:
@@ -338,6 +494,10 @@ _SPREAD_STRESS_WATCHLIST_PATH = _env_path("SPREAD_STRESS_WATCHLIST_JSON", REPO_R
 _FILL_TOXICITY_STATE_PATH = _env_path("FILL_TOXICITY_STATE_JSON", REPO_ROOT / "reports" / "FILL_TOXICITY_STATE_REAL.json")
 _LATENCY_STRESS_STATE_PATH = _env_path("LATENCY_STRESS_STATE_JSON", REPO_ROOT / "reports" / "LATENCY_STRESS_STATE_REAL.json")
 _WATCHBOARD_STATE_PATH = _env_path("WATCHBOARD_STATE_JSON", REPO_ROOT / "reports" / "RESEARCH_EVENT_WATCHBOARD_REAL.json")
+_BOOK_PROXY_PRESSURE_STATE_PATH = _env_path("BOOK_PROXY_PRESSURE_STATE_JSON", REPO_ROOT / "reports" / "BOOK_PROXY_PRESSURE_STATE_REAL.json")
+_RETURN_SHOCK_STATE_PATH = _env_path("RETURN_SHOCK_STATE_JSON", REPO_ROOT / "reports" / "RETURN_SHOCK_STATE_REAL.json")
+_VOLATILITY_BURST_STATE_PATH = _env_path("VOLATILITY_BURST_STATE_JSON", REPO_ROOT / "reports" / "VOLATILITY_BURST_STATE_REAL.json")
+_VOLUME_VACUUM_STATE_PATH = _env_path("VOLUME_VACUUM_STATE_JSON", REPO_ROOT / "reports" / "VOLUME_VACUUM_STATE_REAL.json")
 _OPS_HEALTH_HISTORY_PATH = LOGS_DIR / "ops_health_history.jsonl"
 _OPS_HEALTH_HISTORY_APPEND_SEC = float(os.environ.get("OPS_HEALTH_HISTORY_APPEND_SEC", "60") or "60")
 _ops_health_last_append_ts: float = 0.0
@@ -346,6 +506,8 @@ _live_metrics_cache: dict[str, Any] = {}
 _live_metrics_cache_ts: float = 0.0
 _live_trades_series: deque[float] = deque(maxlen=30)
 _live_fills_series: deque[float] = deque(maxlen=30)
+_MARKET_CHART_CACHE_TTL = float(os.environ.get("MARKET_CHART_CACHE_TTL_SEC", "15") or "15")
+_market_chart_cache: dict[tuple[str, str, int], tuple[float, dict[str, Any]]] = {}
 
 
 def _tail_lines_fast(path: Path, n: int = 200, max_bytes: int = _LOG_TAIL_MAX_BYTES) -> list[str]:
@@ -1450,6 +1612,68 @@ def read_live_metrics() -> dict[str, Any]:
     return _live_metrics_cache
 
 
+def read_market_chart(symbol: str = "BTCUSDT", interval: str = "5m", limit: int = 240) -> dict[str, Any]:
+    symbol_clean = str(symbol or "BTCUSDT").upper().strip()
+    interval_clean = str(interval or "5m").strip()
+    limit_clean = max(50, min(int(limit or 240), 500))
+    if symbol_clean not in {"BTCUSDT", "ETHUSDT"}:
+        symbol_clean = "BTCUSDT"
+    if interval_clean not in {"1m", "5m", "15m", "1h", "4h"}:
+        interval_clean = "5m"
+
+    cache_key = (symbol_clean, interval_clean, limit_clean)
+    now_mono = time.monotonic()
+    cached = _market_chart_cache.get(cache_key)
+    if cached is not None and (now_mono - cached[0]) < _MARKET_CHART_CACHE_TTL:
+        return cached[1]
+
+    params = urllib.parse.urlencode(
+        {
+            "symbol": symbol_clean,
+            "interval": interval_clean,
+            "limit": limit_clean,
+        }
+    )
+    url = f"https://api.binance.com/api/v3/klines?{params}"
+    req = urllib.request.Request(url, headers={"User-Agent": "eclipse-scalper-dashboard/1.0"})
+
+    with urllib.request.urlopen(req, timeout=8) as response:
+        raw = json.loads(response.read().decode("utf-8"))
+
+    candles: list[dict[str, Any]] = []
+    closes: list[float] = []
+    for row in raw:
+        if not isinstance(row, list) or len(row) < 6:
+            continue
+        candle = {
+            "time": int(float(row[0]) / 1000.0),
+            "open": float(row[1]),
+            "high": float(row[2]),
+            "low": float(row[3]),
+            "close": float(row[4]),
+            "volume": float(row[5]),
+        }
+        candles.append(candle)
+        closes.append(candle["close"])
+
+    payload = {
+        "source": "binance_spot",
+        "symbol": symbol_clean,
+        "interval": interval_clean,
+        "limit": limit_clean,
+        "generated_ts": datetime.now(tz=timezone.utc).isoformat(),
+        "candles": candles,
+        "overlays": [
+            {"name": "EMA 20", "values": _ema(closes, 20)},
+            {"name": "EMA 50", "values": _ema(closes, 50)},
+        ],
+        "oscillator": {"name": "RSI 14", "values": _rsi(closes, 14)},
+        "pocket_markers": _build_pocket_markers(symbol_clean, interval_clean, candles),
+    }
+    _market_chart_cache[cache_key] = (now_mono, payload)
+    return payload
+
+
 def build_overview() -> dict[str, Any]:
     raw_gates = read_micro_edge_gates()
     symbols: list[dict] = []
@@ -1715,6 +1939,164 @@ def read_watchboard_state() -> dict[str, Any]:
             "top_event": dict(top_event) if isinstance(top_event, dict) else None,
             "banner": dict(banner) if isinstance(banner, dict) else None,
             "lanes": [dict(l) for l in lanes if isinstance(l, dict)],
+        }
+    except Exception:
+        return empty
+
+
+# ---------------------------------------------------------------------------
+# Book proxy pressure state
+# ---------------------------------------------------------------------------
+
+def read_book_proxy_pressure_state() -> dict[str, Any]:
+    """Read book-proxy-pressure state payload. Safe dict on missing/malformed."""
+    empty: dict[str, Any] = {
+        "available": False,
+        "state": {"level": "quiet", "reasons": [], "primary_side_bias": "NEUTRAL"},
+        "card": {},
+    }
+    try:
+        if not _BOOK_PROXY_PRESSURE_STATE_PATH.exists():
+            return empty
+        payload = json.loads(_BOOK_PROXY_PRESSURE_STATE_PATH.read_text(encoding="utf-8", errors="replace"))
+        if not isinstance(payload, dict):
+            return empty
+        state = payload.get("state") or {}
+        card = payload.get("card") or {}
+        age_sec = max(0.0, time.time() - _BOOK_PROXY_PRESSURE_STATE_PATH.stat().st_mtime)
+        return {
+            "available": True,
+            "stale": age_sec > 600,
+            "age_sec": round(age_sec, 1),
+            "symbol": str(payload.get("symbol") or ""),
+            "lane": str(payload.get("lane") or "book_proxy_pressure"),
+            "state": {
+                "level": str(state.get("level") or "quiet"),
+                "reasons": list(state.get("reasons") or []),
+                "primary_side_bias": str(state.get("primary_side_bias") or "NEUTRAL"),
+                "freshness": dict(state.get("freshness") or {}),
+            },
+            "card": dict(card),
+            "dashboard_summary": str(payload.get("dashboard_summary") or ""),
+            "recommended_action": str(payload.get("recommended_action") or ""),
+        }
+    except Exception:
+        return empty
+
+
+# ---------------------------------------------------------------------------
+# Return shock state
+# ---------------------------------------------------------------------------
+
+def read_return_shock_state() -> dict[str, Any]:
+    """Read return-shock state payload. Safe dict on missing/malformed."""
+    empty: dict[str, Any] = {
+        "available": False,
+        "state": {"level": "quiet", "reasons": [], "dominant_direction": ""},
+        "card": {},
+    }
+    try:
+        if not _RETURN_SHOCK_STATE_PATH.exists():
+            return empty
+        payload = json.loads(_RETURN_SHOCK_STATE_PATH.read_text(encoding="utf-8", errors="replace"))
+        if not isinstance(payload, dict):
+            return empty
+        state = payload.get("state") or {}
+        card = payload.get("card") or {}
+        age_sec = max(0.0, time.time() - _RETURN_SHOCK_STATE_PATH.stat().st_mtime)
+        return {
+            "available": True,
+            "stale": age_sec > 600,
+            "age_sec": round(age_sec, 1),
+            "symbol": str(payload.get("symbol") or ""),
+            "state": {
+                "level": str(state.get("level") or "quiet"),
+                "reasons": list(state.get("reasons") or []),
+                "dominant_direction": str(state.get("dominant_direction") or ""),
+                "freshness": dict(state.get("freshness") or {}),
+            },
+            "card": dict(card),
+            "dashboard_summary": str(payload.get("dashboard_summary") or ""),
+            "recommended_action": str(payload.get("recommended_action") or ""),
+        }
+    except Exception:
+        return empty
+
+
+# ---------------------------------------------------------------------------
+# Volatility burst state
+# ---------------------------------------------------------------------------
+
+def read_volatility_burst_state() -> dict[str, Any]:
+    """Read volatility-burst state payload. Safe dict on missing/malformed."""
+    empty: dict[str, Any] = {
+        "available": False,
+        "state": {"level": "quiet", "reasons": [], "dominant_direction": ""},
+        "card": {},
+    }
+    try:
+        if not _VOLATILITY_BURST_STATE_PATH.exists():
+            return empty
+        payload = json.loads(_VOLATILITY_BURST_STATE_PATH.read_text(encoding="utf-8", errors="replace"))
+        if not isinstance(payload, dict):
+            return empty
+        state = payload.get("state") or {}
+        card = payload.get("card") or {}
+        age_sec = max(0.0, time.time() - _VOLATILITY_BURST_STATE_PATH.stat().st_mtime)
+        return {
+            "available": True,
+            "stale": age_sec > 600,
+            "age_sec": round(age_sec, 1),
+            "symbol": str(payload.get("symbol") or ""),
+            "lane": str(payload.get("lane") or "volatility_burst"),
+            "state": {
+                "level": str(state.get("level") or "quiet"),
+                "reasons": list(state.get("reasons") or []),
+                "dominant_direction": str(state.get("dominant_direction") or ""),
+                "freshness": dict(state.get("freshness") or {}),
+            },
+            "card": dict(card),
+            "dashboard_summary": str(payload.get("dashboard_summary") or ""),
+            "recommended_action": str(payload.get("recommended_action") or ""),
+        }
+    except Exception:
+        return empty
+
+
+# ---------------------------------------------------------------------------
+# Volume vacuum state
+# ---------------------------------------------------------------------------
+
+def read_volume_vacuum_state() -> dict[str, Any]:
+    """Read volume-vacuum state payload. Safe dict on missing/malformed."""
+    empty: dict[str, Any] = {
+        "available": False,
+        "state": {"level": "quiet", "reasons": []},
+        "card": {},
+    }
+    try:
+        if not _VOLUME_VACUUM_STATE_PATH.exists():
+            return empty
+        payload = json.loads(_VOLUME_VACUUM_STATE_PATH.read_text(encoding="utf-8", errors="replace"))
+        if not isinstance(payload, dict):
+            return empty
+        state = payload.get("state") or {}
+        card = payload.get("card") or {}
+        age_sec = max(0.0, time.time() - _VOLUME_VACUUM_STATE_PATH.stat().st_mtime)
+        return {
+            "available": True,
+            "stale": age_sec > 600,
+            "age_sec": round(age_sec, 1),
+            "symbol": str(payload.get("symbol") or ""),
+            "lane": str(payload.get("lane") or "volume_vacuum"),
+            "state": {
+                "level": str(state.get("level") or "quiet"),
+                "reasons": list(state.get("reasons") or []),
+                "freshness": dict(state.get("freshness") or {}),
+            },
+            "card": dict(card),
+            "dashboard_summary": str(payload.get("dashboard_summary") or ""),
+            "recommended_action": str(payload.get("recommended_action") or ""),
         }
     except Exception:
         return empty
