@@ -78,6 +78,15 @@ function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
 }
 
+function fitnessBadge(status: string, connected: boolean | null) {
+  const normalized = status.toLowerCase();
+  if (normalized === "ok") return <span className="badge badge-green">PASS</span>;
+  if (normalized === "warning") return <span className="badge badge-yellow">WARN</span>;
+  if (normalized === "degraded") return <span className="badge badge-red">FAIL</span>;
+  if (connected === false) return <span className="badge badge-red">DISCONNECTED</span>;
+  return <span className="badge badge-gray">UNKNOWN</span>;
+}
+
 function blockerRecommendation(reason: string): { action: string; detail: string } {
   const r = reason.toLowerCase();
   if (r.includes("no_match")) {
@@ -258,7 +267,14 @@ export default function Overview() {
   const regimes: RegimeEvent[] = data?.recent_regimes ?? [];
   const preflight = data?.preflight ?? {};
   const reliability = data?.reliability ?? {};
+  const healthOverall = asRecord(data?.health_overall);
   const research = asRecord(data?.research_events);
+  const fitnessStatus = String(healthOverall.data_research_fitness_status || "");
+  const fitnessConnected =
+    typeof healthOverall.data_research_fitness_connected === "boolean"
+      ? healthOverall.data_research_fitness_connected
+      : null;
+  const fitnessDetail = String(healthOverall.data_research_fitness_detail || "");
   const topBlockers: Array<{ reason: string; count: number }> = useMemo(() => {
     const raw = sb.blocked_by_reason ?? {};
     return Object.entries(raw)
@@ -480,6 +496,40 @@ export default function Overview() {
             value={sb.circuit_breaker_trips_total ?? 0}
             color={(sb.circuit_breaker_trips_total ?? 0) > 0 ? "var(--red)" : undefined}
           />
+        </div>
+
+        <div
+          className="card"
+          style={{
+            borderLeft: `3px solid ${
+              fitnessStatus === "ok"
+                ? "var(--green)"
+                : fitnessStatus === "warning"
+                  ? "var(--yellow)"
+                  : fitnessStatus === "degraded"
+                    ? "var(--red)"
+                    : "var(--border)"
+            }`,
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <div>
+              <div className="card-title self-help" data-help="Runtime health artifact icindeki data research fitness component durumu.">
+                Data Research Fitness
+              </div>
+              <div style={{ color: "var(--muted)" }}>
+                overall.json component surfaced for operator health review
+              </div>
+            </div>
+            {fitnessBadge(fitnessStatus, fitnessConnected)}
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+            <span className={`badge ${fitnessConnected ? "badge-green" : "badge-red"}`}>
+              connected={fitnessConnected === null ? "-" : String(fitnessConnected)}
+            </span>
+            {fitnessStatus ? <span className="badge badge-blue">status={fitnessStatus}</span> : null}
+            {fitnessDetail ? <span className="badge badge-gray">{fitnessDetail}</span> : null}
+          </div>
         </div>
 
         <div className="card">

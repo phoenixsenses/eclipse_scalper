@@ -35,7 +35,7 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--db", default="data/microstructure.db")
     p.add_argument("--trade-db", default="data/paper_trades.db")
     p.add_argument("--event-diary-csv", default="data/event_diary.csv")
-    p.add_argument("--fitness-symbols", default="BTCUSDT,ETHUSDT")
+    p.add_argument("--fitness-symbols", default="")
     p.add_argument("--fitness-fresh-sec", type=int, default=120)
     p.add_argument("--max-db-stale-sec", type=float, default=1800.0)
     p.add_argument("--min-free-gb", type=float, default=2.0)
@@ -46,6 +46,16 @@ def _parse_args() -> argparse.Namespace:
 
 def _parse_symbols(raw: str) -> List[str]:
     return [s.strip().upper() for s in str(raw or "").replace(";", ",").split(",") if s.strip()]
+
+
+def _resolve_fitness_symbols(raw: str) -> List[str]:
+    cli_symbols = _parse_symbols(raw)
+    if cli_symbols:
+        return cli_symbols
+    env_symbols = _parse_symbols(os.getenv("ACTIVE_SYMBOLS", ""))
+    if env_symbols:
+        return env_symbols
+    return ["BTCUSDT"]
 
 
 def _check_writable(path: Path) -> bool:
@@ -159,10 +169,12 @@ def main() -> int:
     if free_gb < float(args.min_free_gb):
         failures.append(f"Low disk space: free_gb={free_gb:.2f} < min_free_gb={float(args.min_free_gb):.2f}")
 
+    fitness_symbols = _resolve_fitness_symbols(args.fitness_symbols)
+    checks["data_research_fitness_symbols"] = list(fitness_symbols)
     fitness = analyze_research_fitness(
         db_path=db,
         csv_path=Path(str(args.event_diary_csv)),
-        symbols=_parse_symbols(args.fitness_symbols),
+        symbols=fitness_symbols,
         fresh_sec=int(args.fitness_fresh_sec),
     )
     checks["data_research_fitness_status"] = str(fitness.get("status") or "unknown")
@@ -194,7 +206,7 @@ def main() -> int:
             "db": str(args.db),
             "trade_db": str(args.trade_db),
             "event_diary_csv": str(args.event_diary_csv),
-            "fitness_symbols": _parse_symbols(args.fitness_symbols),
+            "fitness_symbols": fitness_symbols,
             "fitness_fresh_sec": int(args.fitness_fresh_sec),
             "max_db_stale_sec": float(args.max_db_stale_sec),
             "min_free_gb": float(args.min_free_gb),

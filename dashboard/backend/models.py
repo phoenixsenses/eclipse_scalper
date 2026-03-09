@@ -271,6 +271,7 @@ class OverviewResponse(BaseModel):
     exit_quality: dict[str, Any] = Field(default_factory=dict)
     preflight: dict[str, Any] = Field(default_factory=dict)
     reliability: dict[str, Any] = Field(default_factory=dict)
+    health_overall: dict[str, Any] = Field(default_factory=dict)
     research_events: dict[str, Any] = Field(default_factory=dict)
 
 
