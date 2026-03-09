@@ -343,6 +343,29 @@ async def _position_stuck_check(bot) -> None:
         pass
 
 
+_LAST_LOG_ROTATION_TS: float = 0.0
+_LOG_ROTATION_INTERVAL_SEC: float = 86400.0  # once per day
+
+
+async def _log_rotation_tick(bot) -> None:
+    """Run log rotation at most once per day."""
+    global _LAST_LOG_ROTATION_TS
+    now = _now()
+    interval = float(_cfg(bot, "LOG_ROTATION_INTERVAL_SEC", _LOG_ROTATION_INTERVAL_SEC) or _LOG_ROTATION_INTERVAL_SEC)
+    if (now - _LAST_LOG_ROTATION_TS) < interval:
+        return
+    _LAST_LOG_ROTATION_TS = now
+    try:
+        from monitoring.log_rotation import run_rotation
+        max_size = float(_cfg(bot, "LOG_ROTATION_MAX_SIZE_MB", 50.0) or 50.0)
+        max_age = float(_cfg(bot, "LOG_ROTATION_MAX_AGE_DAYS", 180.0) or 180.0)
+        await asyncio.get_event_loop().run_in_executor(
+            None, lambda: run_rotation(max_size_mb=max_size, max_age_days=max_age)
+        )
+    except Exception:
+        pass
+
+
 async def _margin_ratio_refresh(bot) -> None:
     """Fetch margin ratio from Binance and cache on bot.state for kill switch."""
     try:
@@ -829,6 +852,9 @@ async def guardian_loop(bot):
         # 7) Position stuck detection (on watchdog cadence)
         if (now_ts - _last_watchdog) < 2.0:  # just ran watchdog
             await _safe_call("position_stuck_check", _position_stuck_check, bot)
+
+        # 8) Log rotation (once per day, non-blocking)
+        await _safe_call("log_rotation_tick", _log_rotation_tick, bot)
 
         # optional emergency halt hook
         if halted and emergency_mod is not None:

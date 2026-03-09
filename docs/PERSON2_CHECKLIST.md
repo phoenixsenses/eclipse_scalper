@@ -24,6 +24,7 @@ Branch: `codex/runtime/ops-foundation`
 | `e6d4400` | P1 | Atomic disk writes: 5 files hardened with tmp+rename pattern |
 | `dec1c4c` | P1 | Startup validation gates: symbols, hedge mode, API permissions |
 | `059c3e9` | P1 | Margin/liquidation alerts + position stuck detection in guardian |
+| `8d1925f` | Tech | Consolidated /api/risk-overview endpoint + roadmap update |
 
 ## Full Audit Status
 

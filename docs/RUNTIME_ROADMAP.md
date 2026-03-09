@@ -32,8 +32,8 @@ Created: 2026-03-09
 
 | # | Task | Severity | Effort | Status |
 |---|------|----------|--------|--------|
-| 10 | Log rotation manager (compress + archive old JSONL) | Medium | 6-8h | TODO |
-| 11 | Prometheus /metrics endpoint | Low | 6h | TODO |
+| 10 | Log rotation manager (compress + archive old JSONL) | Medium | 6-8h | DONE |
+| 11 | Prometheus /metrics endpoint | Low | 6h | DONE |
 | 12 | WebSocket real-time dashboard | Low | 8+h | TODO |
 
 ## Details

@@ -498,6 +498,70 @@ async def get_ops_health():
     return read_ops_health()
 
 
+@app.get("/metrics")
+async def prometheus_metrics():
+    """Prometheus text-format metrics endpoint for Grafana/Datadog integration."""
+    lines: list[str] = []
+
+    def _gauge(name: str, value: float, help_text: str = "", labels: str = ""):
+        if help_text:
+            lines.append(f"# HELP {name} {help_text}")
+            lines.append(f"# TYPE {name} gauge")
+        lbl = f"{{{labels}}}" if labels else ""
+        lines.append(f"{name}{lbl} {value}")
+
+    now = time.time()
+    _gauge("eclipse_up", 1, "Whether the dashboard API is up")
+    _gauge("eclipse_scrape_ts", now, "Timestamp of this scrape")
+
+    # Runtime status
+    try:
+        rt = read_runtime_status()
+        if isinstance(rt, dict):
+            db = rt.get("database") or {}
+            _gauge("eclipse_db_size_mb", float(db.get("size_mb", 0) or 0), "Database size in MB")
+            fresh = rt.get("data_freshness") or {}
+            _gauge("eclipse_data_age_sec", float(fresh.get("age_sec", -1) or -1), "Data feed age in seconds")
+    except Exception:
+        pass
+
+    # Ops health
+    try:
+        ops = read_ops_health()
+        if isinstance(ops, dict):
+            _gauge("eclipse_ops_ok", 1 if ops.get("ok") else 0, "Overall ops health")
+    except Exception:
+        pass
+
+    # Risk overview (single read)
+    try:
+        liq = read_liq_alert_state()
+        if isinstance(liq, dict) and liq.get("available"):
+            _gauge("eclipse_margin_ratio", float(liq.get("margin_ratio", 0) or 0), "Current margin ratio")
+            _gauge("eclipse_liq_proximity", float(liq.get("liq_proximity_pct", 0) or 0), "Liquidation proximity pct")
+
+        ss = read_spread_stress_state()
+        if isinstance(ss, dict) and ss.get("available"):
+            metrics = ss.get("metrics") or {}
+            _gauge("eclipse_spread_stress_level", 1 if ss.get("level") == "elevated" else (2 if ss.get("level") == "critical" else 0), "Spread stress level (0=ok,1=elevated,2=critical)")
+
+        ft = read_fill_toxicity_state()
+        if isinstance(ft, dict) and ft.get("available"):
+            metrics = ft.get("metrics") or {}
+            _gauge("eclipse_fill_toxicity_score", float(metrics.get("toxicity_score", 0) or 0), "Fill toxicity score")
+
+        ls = read_latency_stress_state()
+        if isinstance(ls, dict) and ls.get("available"):
+            metrics = ls.get("metrics") or {}
+            _gauge("eclipse_fill_rate", float(metrics.get("fill_rate", 0) or 0), "Order fill rate")
+            _gauge("eclipse_latency_p95_sec", float(metrics.get("p95_delay_sec", 0) or 0), "P95 fill latency seconds")
+    except Exception:
+        pass
+
+    body = "\n".join(lines) + "\n"
+    return Response(content=body, media_type="text/plain; version=0.0.4; charset=utf-8")
+
+
 @app.get("/api/diag/connectivity", response_model=DiagConnectivityResponse)
 async def get_diag_connectivity():
     return read_connectivity_diag()
