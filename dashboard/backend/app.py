@@ -32,6 +32,7 @@ from .data_sources import (
     read_spread_stress_state,
     read_fill_toxicity_state,
     read_latency_stress_state,
+    read_watchboard_state,
     read_supervisor_status,
     read_scoreboard,
     read_signal_events,
@@ -520,6 +521,11 @@ async def get_fill_toxicity_state():
 @app.get("/api/latency-stress-state", response_model=dict)
 async def get_latency_stress_state():
     return read_latency_stress_state()
+
+
+@app.get("/api/watchboard-state", response_model=dict)
+async def get_watchboard_state():
+    return read_watchboard_state()
 
 
 @app.get("/api/ops/supervisor", response_model=dict)

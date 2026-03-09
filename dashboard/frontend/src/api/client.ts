@@ -40,6 +40,7 @@ import type {
   SpreadStressState,
   FillToxicityState,
   LatencyStressState,
+  WatchboardState,
 } from "./types";
 
 const BASE = "/api";
@@ -372,6 +373,8 @@ export const api = {
     get<FillToxicityState>("/fill-toxicity-state", undefined, signal),
   latencyStressState: (signal?: AbortSignal): Promise<LatencyStressState> =>
     get<LatencyStressState>("/latency-stress-state", undefined, signal),
+  watchboardState: (signal?: AbortSignal): Promise<WatchboardState> =>
+    get<WatchboardState>("/watchboard-state", undefined, signal),
   supervisorStatus: (signal?: AbortSignal): Promise<SupervisorStatusResponse> =>
     get<SupervisorStatusResponse>("/ops/supervisor", undefined, signal),
   debugActions: (signal?: AbortSignal): Promise<ControlActionInfo[]> =>

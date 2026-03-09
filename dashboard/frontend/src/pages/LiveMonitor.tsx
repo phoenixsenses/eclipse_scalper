@@ -1,13 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/client";
-import type { LiveMetricsResponse, LiveMonitorTestsStatusResponse, LogFile, LogTailResponse, OpsHealthResponse, RuntimeStatus, Scoreboard, LiqAlertState, SpreadStressState, FillToxicityState, LatencyStressState } from "../api/types";
+import type { LiveMetricsResponse, LiveMonitorTestsStatusResponse, LogFile, LogTailResponse, OpsHealthResponse, RuntimeStatus, Scoreboard, LiqAlertState, SpreadStressState, FillToxicityState, LatencyStressState, WatchboardState } from "../api/types";
 import AsyncState from "../components/AsyncState";
 import DegradedBanner, { type DegradedMode } from "../components/DegradedBanner";
 import LiqAlertCard from "../components/LiqAlertCard";
 import SpreadStressCard from "../components/SpreadStressCard";
 import FillToxicityCard from "../components/FillToxicityCard";
 import LatencyStressCard from "../components/LatencyStressCard";
+import WatchboardCard from "../components/WatchboardCard";
 import PageGuide from "../components/PageGuide";
 import { usePoll } from "../hooks/usePoll";
 
@@ -220,6 +221,12 @@ export default function LiveMonitor() {
   const latencyStressPoll = usePoll<LatencyStressState>({
     fetcher: (signal) => api.latencyStressState(signal),
     pollKey: "api:/latency-stress-state:live-monitor",
+    intervalMs: 10000,
+    staleAfterMs: 30000,
+  });
+  const watchboardPoll = usePoll<WatchboardState>({
+    fetcher: (signal) => api.watchboardState(signal),
+    pollKey: "api:/watchboard-state:live-monitor",
     intervalMs: 10000,
     staleAfterMs: 30000,
   });
@@ -575,6 +582,7 @@ export default function LiveMonitor() {
 
       <DegradedBanner mode={mode} message={liveMetricsPoll.error?.message ?? runtimePoll.error?.message ?? tailPoll.error?.message ?? paperTailPoll.error?.message ?? scoreboardPoll.error?.message ?? paperTailLongPoll.error?.message} />
 
+      <WatchboardCard data={watchboardPoll.data ?? null} />
       <LiqAlertCard data={liqAlertPoll.data ?? null} />
       <SpreadStressCard data={spreadStressPoll.data ?? null} />
       <FillToxicityCard data={fillToxicityPoll.data ?? null} />

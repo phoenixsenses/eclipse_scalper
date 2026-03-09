@@ -678,3 +678,38 @@ export interface LatencyStressState {
   dashboard_summary?: string;
   recommended_action?: string;
 }
+
+export interface WatchboardLane {
+  lane?: string;
+  level?: string;
+  freshness_status?: string;
+  recommended_action?: string;
+  headline?: string;
+  detail?: string;
+  priority_score?: number;
+}
+
+export interface WatchboardState {
+  available: boolean;
+  stale?: boolean;
+  age_sec?: number;
+  summary: {
+    lane_count: number;
+    state_counts: Record<string, number>;
+    top_lane: string;
+  };
+  top_event?: {
+    lane?: string;
+    level?: string;
+    recommended_action?: string;
+    headline?: string;
+    detail?: string;
+  } | null;
+  banner?: {
+    headline?: string;
+    recommended_action?: string;
+    top_lane?: string;
+    top_level?: string;
+  } | null;
+  lanes: WatchboardLane[];
+}

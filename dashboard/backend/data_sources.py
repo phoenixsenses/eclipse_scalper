@@ -264,6 +264,7 @@ _SPREAD_STRESS_STATE_PATH = _env_path("SPREAD_STRESS_STATE_JSON", REPO_ROOT / "r
 _SPREAD_STRESS_WATCHLIST_PATH = _env_path("SPREAD_STRESS_WATCHLIST_JSON", REPO_ROOT / "reports" / "SPREAD_STRESS_WATCHLIST_REAL.json")
 _FILL_TOXICITY_STATE_PATH = _env_path("FILL_TOXICITY_STATE_JSON", REPO_ROOT / "reports" / "FILL_TOXICITY_STATE_REAL.json")
 _LATENCY_STRESS_STATE_PATH = _env_path("LATENCY_STRESS_STATE_JSON", REPO_ROOT / "reports" / "LATENCY_STRESS_STATE_REAL.json")
+_WATCHBOARD_STATE_PATH = _env_path("WATCHBOARD_STATE_JSON", REPO_ROOT / "reports" / "RESEARCH_EVENT_WATCHBOARD_REAL.json")
 _OPS_HEALTH_HISTORY_PATH = LOGS_DIR / "ops_health_history.jsonl"
 _OPS_HEALTH_HISTORY_APPEND_SEC = float(os.environ.get("OPS_HEALTH_HISTORY_APPEND_SEC", "60") or "60")
 _ops_health_last_append_ts: float = 0.0
@@ -1599,6 +1600,47 @@ def read_latency_stress_state() -> dict[str, Any]:
             "card": dict(card),
             "dashboard_summary": str(payload.get("dashboard_summary") or ""),
             "recommended_action": str(payload.get("recommended_action") or ""),
+        }
+    except Exception:
+        return empty
+
+
+# ---------------------------------------------------------------------------
+# Research event watchboard (top-level aggregation)
+# ---------------------------------------------------------------------------
+
+def read_watchboard_state() -> dict[str, Any]:
+    """Read the research event watchboard aggregation payload."""
+    empty: dict[str, Any] = {
+        "available": False,
+        "summary": {"lane_count": 0, "state_counts": {}, "top_lane": ""},
+        "top_event": None,
+        "banner": None,
+        "lanes": [],
+    }
+    try:
+        if not _WATCHBOARD_STATE_PATH.exists():
+            return empty
+        payload = json.loads(_WATCHBOARD_STATE_PATH.read_text(encoding="utf-8", errors="replace"))
+        if not isinstance(payload, dict):
+            return empty
+        summary = payload.get("summary") or {}
+        top_event = payload.get("top_event")
+        banner = payload.get("banner")
+        lanes = list(payload.get("lanes") or [])[:20]
+        age_sec = max(0.0, time.time() - _WATCHBOARD_STATE_PATH.stat().st_mtime)
+        return {
+            "available": True,
+            "stale": age_sec > 600,
+            "age_sec": round(age_sec, 1),
+            "summary": {
+                "lane_count": int(summary.get("lane_count") or 0),
+                "state_counts": dict(summary.get("state_counts") or {}),
+                "top_lane": str(summary.get("top_lane") or ""),
+            },
+            "top_event": dict(top_event) if isinstance(top_event, dict) else None,
+            "banner": dict(banner) if isinstance(banner, dict) else None,
+            "lanes": [dict(l) for l in lanes if isinstance(l, dict)],
         }
     except Exception:
         return empty
