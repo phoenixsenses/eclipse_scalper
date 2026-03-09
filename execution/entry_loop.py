@@ -1,4 +1,4 @@
-﻿# execution/entry_loop.py â€” SCALPER ETERNAL â€” ENTRY LOOP â€” 2026 v1.6 (PENDING-LOCK + COOLDOWN + OPEN-ORDERS ADOPT)
+# execution/entry_loop.py  -- SCALPER ETERNAL  -- ENTRY LOOP  -- 2026 v1.6 (PENDING-LOCK + COOLDOWN + OPEN-ORDERS ADOPT)
 # Patch vs v1.5:
 # - âœ… FIX: Per-symbol "pending entry" lock so you cannot machine-gun entries (even if reconcile is lagging)
 # - âœ… FIX: Cooldown after ANY submitted entry attempt (success OR fail) to avoid rapid re-fire loops
@@ -1847,7 +1847,7 @@ async def entry_loop(bot) -> None:
         else:
             log_core.info("ENTRY_LOOP: strategy signal missing; using micro signal path only.")
 
-    log_core.info("ENTRY_LOOP ONLINE â€” scanning for new entries")
+    log_core.info("ENTRY_LOOP ONLINE  -- scanning for new entries")
 
     # initial data-ready wait (best-effort)
     if wait_data_sec > 0 and not data_ready_ev.is_set():
@@ -2707,7 +2707,7 @@ async def entry_loop(bot) -> None:
                                 blocked = _recent_router_blocks(bot, k, window_sec)
                             if blocked >= threshold:
                                 log_entry.warning(
-                                    f"ENTRY_LOOP: router blocks={blocked} within {window_sec:.0f}s â†’ backoff {k}"
+                                    f"ENTRY_LOOP: router blocks={blocked} within {window_sec:.0f}s â†' backoff {k}"
                                 )
                                 await _emit_entry_blocked(
                                     bot,
@@ -2729,7 +2729,7 @@ async def entry_loop(bot) -> None:
                             err_count = int(count_recent(bot, event="entry.blocked", symbol=k, window_sec=err_window))
                             if err_count >= err_thresh:
                                 log_entry.warning(
-                                    f"ENTRY_LOOP: entry.blocked={err_count} within {err_window:.0f}s â†’ backoff {k}"
+                                    f"ENTRY_LOOP: entry.blocked={err_count} within {err_window:.0f}s â†' backoff {k}"
                                 )
                                 await _emit_entry_blocked(
                                     bot,
@@ -2741,6 +2741,15 @@ async def entry_loop(bot) -> None:
                                 _set_pending(k, sec=max(3.0, err_backoff))
                                 await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                                 continue
+
+                    # Post-scaling size validation: multiple scaling factors
+                    # (confidence, correlation, exposure, notional, budget) can
+                    # reduce amt to near-zero. Block before hitting the exchange.
+                    if amt is None or amt <= 0:
+                        log_entry.warning(f"ENTRY_LOOP: size scaled to zero for {k} after adjustments")
+                        await _emit_entry_blocked(bot, k, "size_scaled_to_zero", throttle_sec=30.0)
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
 
                     # Submit order
                     order_start = _now()
@@ -2789,7 +2798,7 @@ async def entry_loop(bot) -> None:
                         if "Margin is insufficient" in msg or '"code":-2019' in msg or "code': -2019" in msg:
                             until = _now() + max(60.0, float(margin_backoff_sec))
                             backoff_until_by_sym[k] = until
-                            log_entry.critical(f"ENTRY_LOOP: margin insufficient â†’ backing off {k} for {int(margin_backoff_sec)}s")
+                            log_entry.critical(f"ENTRY_LOOP: margin insufficient â†' backing off {k} for {int(margin_backoff_sec)}s")
                             await _emit_entry_blocked(
                                 bot,
                                 k,

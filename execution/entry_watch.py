@@ -2,7 +2,7 @@
 # Patch vs v1.1:
 # - ✅ Wires diagnostics helper into optional imports (logs what's missing instead of silent None)
 # - ✅ Adds tiny helper we_dont_have_this() (per your request) + optional diag dump hook
-# - ✅ Adds one-time “ENTRY_WATCH ONLINE” banner (no spam)
+# - ✅ Adds one-time "ENTRY_WATCH ONLINE" banner (no spam)
 # - ✅ Zero behavior change to watch logic (only observability)
 
 import time
@@ -11,6 +11,16 @@ from typing import Optional, Any
 
 from utils.logging import log_entry
 from execution.order_router import create_order, cancel_order
+
+try:
+    from execution.runtime_helpers import symkey as _symkey  # type: ignore
+except Exception:
+    def _symkey(sym: str) -> str:
+        s = (sym or "").upper().strip()
+        s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
+        s = s.replace(":USDT", "USDT").replace(":", "").replace("/", "")
+        if s.endswith("USDTUSDT"): s = s[:-4]
+        return s
 
 # ─────────────────────────────────────────────────────────────────────
 # Diagnostics wiring (never fatal, never changes behavior)
@@ -74,16 +84,6 @@ def _banner_once() -> None:
 
 def _now() -> float:
     return time.time()
-
-
-def _symkey(sym: str) -> str:
-    s = (sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
 
 
 def _safe_float(x, default=0.0) -> float:

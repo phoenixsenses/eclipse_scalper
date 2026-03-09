@@ -37,6 +37,12 @@ import type {
   Scoreboard,
   SignalEvent,
   StabilityEvent,
+  LiqAlertState,
+  SpreadStressState,
+  FillToxicityState,
+  LatencyStressState,
+  WatchboardState,
+  RiskOverview,
 } from "./types";
 
 const BASE = "/api";
@@ -369,6 +375,18 @@ export const api = {
   opsHealth: (signal?: AbortSignal): Promise<OpsHealthResponse> => get<OpsHealthResponse>("/ops/health", undefined, signal),
   diagConnectivity: (signal?: AbortSignal): Promise<DiagConnectivityResponse> =>
     get<DiagConnectivityResponse>("/diag/connectivity", undefined, signal),
+  liqAlertState: (signal?: AbortSignal): Promise<LiqAlertState> =>
+    get<LiqAlertState>("/liq-alert-state", undefined, signal),
+  spreadStressState: (signal?: AbortSignal): Promise<SpreadStressState> =>
+    get<SpreadStressState>("/spread-stress-state", undefined, signal),
+  fillToxicityState: (signal?: AbortSignal): Promise<FillToxicityState> =>
+    get<FillToxicityState>("/fill-toxicity-state", undefined, signal),
+  latencyStressState: (signal?: AbortSignal): Promise<LatencyStressState> =>
+    get<LatencyStressState>("/latency-stress-state", undefined, signal),
+  watchboardState: (signal?: AbortSignal): Promise<WatchboardState> =>
+    get<WatchboardState>("/watchboard-state", undefined, signal),
+  riskOverview: (signal?: AbortSignal): Promise<RiskOverview> =>
+    get<RiskOverview>("/risk-overview", undefined, signal),
   supervisorStatus: (signal?: AbortSignal): Promise<SupervisorStatusResponse> =>
     get<SupervisorStatusResponse>("/ops/supervisor", undefined, signal),
   debugActions: (signal?: AbortSignal): Promise<ControlActionInfo[]> =>

@@ -1,6 +1,6 @@
 # execution/data_loop.py — SCALPER ETERNAL — DATA LOOP — 2026 v1.5 (RAW-SYMBOL AUTO-FALLBACK)
 # Patch vs v1.4:
-# - ✅ FIX: Do NOT “lock in” a bad raw symbol. Try multiple ccxt symbol formats until one works.
+# - ✅ FIX: Do NOT "lock in" a bad raw symbol. Try multiple ccxt symbol formats until one works.
 # - ✅ FIX: Prefer what the exchange *actually* lists (ex.markets) — e.g. MATICUSDT on Binance futures.
 # - ✅ Keeps: MiniDataCache, resample rules ('min'/'h'), speed knobs, guardian-safe never-raise behavior.
 # - ✅ Result: MATIC-style symbols stop showing df=None; cache fills reliably.
@@ -79,14 +79,12 @@ def _mark_cache_success(data_obj, key: str) -> None:
         pass
 
 
-def _symkey(sym: str) -> str:
-    s = (sym or "").upper().strip()
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
+try:
+    from execution.runtime_helpers import symkey as _symkey
+except Exception:
+    def _symkey(sym) -> str:
+        s = str(sym or "").upper().strip()
+        return s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT").replace(":USDT", "USDT").replace(":", "")
 
 
 def _pick_symbols(bot) -> list[str]:

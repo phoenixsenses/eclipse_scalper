@@ -483,6 +483,12 @@ _log_list_cache: tuple[float, list[dict[str, Any]]] = (0.0, [])
 _log_list_cache_last_hit: bool = False
 _tail_last_source: str = "init"
 _RATE_LIMIT_RE = re.compile(r"\[RATE_LIMIT\]\s+used_1m=(\d+)\s+cap_1m=(\d+)\s+usage_pct=([\d.]+)", re.IGNORECASE)
+_LIQ_ALERT_STATE_PATH = _env_path("LIQ_ALERT_STATE_JSON", REPO_ROOT / "reports" / "LIQUIDATION_ALERT_STATE_REAL.json")
+_SPREAD_STRESS_STATE_PATH = _env_path("SPREAD_STRESS_STATE_JSON", REPO_ROOT / "reports" / "SPREAD_STRESS_STATE_REAL.json")
+_SPREAD_STRESS_WATCHLIST_PATH = _env_path("SPREAD_STRESS_WATCHLIST_JSON", REPO_ROOT / "reports" / "SPREAD_STRESS_WATCHLIST_REAL.json")
+_FILL_TOXICITY_STATE_PATH = _env_path("FILL_TOXICITY_STATE_JSON", REPO_ROOT / "reports" / "FILL_TOXICITY_STATE_REAL.json")
+_LATENCY_STRESS_STATE_PATH = _env_path("LATENCY_STRESS_STATE_JSON", REPO_ROOT / "reports" / "LATENCY_STRESS_STATE_REAL.json")
+_WATCHBOARD_STATE_PATH = _env_path("WATCHBOARD_STATE_JSON", REPO_ROOT / "reports" / "RESEARCH_EVENT_WATCHBOARD_REAL.json")
 _OPS_HEALTH_HISTORY_PATH = LOGS_DIR / "ops_health_history.jsonl"
 _OPS_HEALTH_HISTORY_APPEND_SEC = float(os.environ.get("OPS_HEALTH_HISTORY_APPEND_SEC", "60") or "60")
 _ops_health_last_append_ts: float = 0.0
@@ -1168,9 +1174,14 @@ def _append_ops_health_history(payload: dict[str, Any]) -> None:
 def _read_ops_health_history(limit: int = 120) -> list[dict[str, Any]]:
     if limit <= 0:
         return []
+    _TAIL_BYTES = 512 * 1024  # 512 KB — enough for ~120 recent entries
     rows: list[dict[str, Any]] = []
     try:
+        file_size = _OPS_HEALTH_HISTORY_PATH.stat().st_size
         with open(_OPS_HEALTH_HISTORY_PATH, "r", encoding="utf-8", errors="replace") as f:
+            if file_size > _TAIL_BYTES:
+                f.seek(file_size - _TAIL_BYTES)
+                f.readline()  # skip partial first line
             for line in f:
                 line = line.strip()
                 if not line:
@@ -1681,3 +1692,244 @@ def build_overview() -> dict[str, Any]:
         "reliability": read_reliability(),
         "research_events": read_research_events(),
     }
+
+
+# ---------------------------------------------------------------------------
+# Liquidation alert state (monitoring/annotation card)
+# ---------------------------------------------------------------------------
+
+def read_liq_alert_state() -> dict[str, Any]:
+    """Read the liquidation alert state payload produced by research tools.
+
+    Returns a safe dict even if the file is missing or malformed.
+    """
+    empty: dict[str, Any] = {
+        "available": False,
+        "symbol": "",
+        "state": {"level": "quiet", "reasons": [], "primary_side_bias": "NEUTRAL", "dominant_severity": "none"},
+        "card": {},
+        "summary_snapshot": {},
+        "alerts": [],
+    }
+    try:
+        if not _LIQ_ALERT_STATE_PATH.exists():
+            return empty
+        payload = json.loads(_LIQ_ALERT_STATE_PATH.read_text(encoding="utf-8", errors="replace"))
+        if not isinstance(payload, dict):
+            return empty
+        state = payload.get("state") or {}
+        card = payload.get("card") or {}
+        summary = payload.get("summary_snapshot") or {}
+        # Also try to load raw alerts for the table
+        alerts: list[dict[str, Any]] = []
+        source = str(payload.get("source_json") or "")
+        if source:
+            source_path = Path(source)
+            if not source_path.is_absolute():
+                source_path = REPO_ROOT / source_path
+            if source_path.exists():
+                try:
+                    raw = json.loads(source_path.read_text(encoding="utf-8", errors="replace"))
+                    alerts = list(raw.get("alerts") or [])[:50]
+                except Exception:
+                    pass
+        # File age for staleness detection
+        age_sec = max(0.0, time.time() - _LIQ_ALERT_STATE_PATH.stat().st_mtime)
+        return {
+            "available": True,
+            "stale": age_sec > 600,  # >10 min = stale
+            "age_sec": round(age_sec, 1),
+            "symbol": str(payload.get("symbol") or ""),
+            "rule": str(payload.get("rule") or ""),
+            "state": {
+                "level": str(state.get("level") or "quiet"),
+                "reasons": list(state.get("reasons") or []),
+                "primary_side_bias": str(state.get("primary_side_bias") or "NEUTRAL"),
+                "dominant_severity": str(state.get("dominant_severity") or "none"),
+            },
+            "card": dict(card),
+            "summary_snapshot": dict(summary),
+            "alerts": alerts,
+        }
+    except Exception:
+        return empty
+
+
+# ---------------------------------------------------------------------------
+# Spread stress state + watchlist (monitoring/annotation card)
+# ---------------------------------------------------------------------------
+
+def read_spread_stress_state() -> dict[str, Any]:
+    """Read spread-stress state payload. Safe dict on missing/malformed."""
+    empty: dict[str, Any] = {
+        "available": False,
+        "symbol": "",
+        "state": {"level": "quiet", "reasons": []},
+        "card": {},
+        "watchlist": None,
+    }
+    try:
+        # Single-symbol state
+        state_payload: dict[str, Any] = {}
+        if _SPREAD_STRESS_STATE_PATH.exists():
+            state_payload = json.loads(_SPREAD_STRESS_STATE_PATH.read_text(encoding="utf-8", errors="replace"))
+            if not isinstance(state_payload, dict):
+                state_payload = {}
+
+        # Watchlist
+        watchlist_payload: dict[str, Any] | None = None
+        if _SPREAD_STRESS_WATCHLIST_PATH.exists():
+            raw_wl = json.loads(_SPREAD_STRESS_WATCHLIST_PATH.read_text(encoding="utf-8", errors="replace"))
+            if isinstance(raw_wl, dict):
+                watchlist_payload = {
+                    "summary": dict(raw_wl.get("summary") or {}),
+                    "top_summary": dict(raw_wl.get("top_summary") or {}),
+                    "banner": dict(raw_wl.get("banner") or {}),
+                    "rows": list(raw_wl.get("rows") or [])[:50],
+                }
+
+        if not state_payload and not watchlist_payload:
+            return empty
+
+        state = state_payload.get("state") or {}
+        card = state_payload.get("card") or {}
+        freshness = state.get("freshness") or {}
+
+        # File age
+        ref_path = _SPREAD_STRESS_STATE_PATH if _SPREAD_STRESS_STATE_PATH.exists() else _SPREAD_STRESS_WATCHLIST_PATH
+        age_sec = max(0.0, time.time() - ref_path.stat().st_mtime) if ref_path.exists() else 9999.0
+
+        return {
+            "available": True,
+            "stale": age_sec > 600,
+            "age_sec": round(age_sec, 1),
+            "symbol": str(state_payload.get("symbol") or ""),
+            "state": {
+                "level": str(state.get("level") or "quiet"),
+                "reasons": list(state.get("reasons") or []),
+                "freshness_status": str(freshness.get("status") or "unknown"),
+            },
+            "card": dict(card),
+            "dashboard_summary": str(state_payload.get("dashboard_summary") or ""),
+            "recommended_action": str(state_payload.get("recommended_action") or ""),
+            "watchlist": watchlist_payload,
+        }
+    except Exception:
+        return empty
+
+
+# ---------------------------------------------------------------------------
+# Fill toxicity state (monitoring/annotation card)
+# ---------------------------------------------------------------------------
+
+def read_fill_toxicity_state() -> dict[str, Any]:
+    """Read fill-toxicity state payload. Safe dict on missing/malformed."""
+    empty: dict[str, Any] = {
+        "available": False,
+        "state": {"level": "quiet", "reasons": []},
+        "card": {},
+    }
+    try:
+        if not _FILL_TOXICITY_STATE_PATH.exists():
+            return empty
+        payload = json.loads(_FILL_TOXICITY_STATE_PATH.read_text(encoding="utf-8", errors="replace"))
+        if not isinstance(payload, dict):
+            return empty
+        state = payload.get("state") or {}
+        card = payload.get("card") or {}
+        age_sec = max(0.0, time.time() - _FILL_TOXICITY_STATE_PATH.stat().st_mtime)
+        return {
+            "available": True,
+            "stale": age_sec > 600,
+            "age_sec": round(age_sec, 1),
+            "source": str(payload.get("source") or ""),
+            "rows": int(payload.get("rows") or 0),
+            "top_side": str(payload.get("top_side") or ""),
+            "state": {
+                "level": str(state.get("level") or "quiet"),
+                "reasons": list(state.get("reasons") or []),
+            },
+            "card": dict(card),
+            "dashboard_summary": str(payload.get("dashboard_summary") or ""),
+            "recommended_action": str(payload.get("recommended_action") or ""),
+        }
+    except Exception:
+        return empty
+
+
+# ---------------------------------------------------------------------------
+# Latency stress state (monitoring/annotation card)
+# ---------------------------------------------------------------------------
+
+def read_latency_stress_state() -> dict[str, Any]:
+    """Read latency-stress state payload. Safe dict on missing/malformed."""
+    empty: dict[str, Any] = {
+        "available": False,
+        "state": {"level": "quiet", "reasons": []},
+        "card": {},
+    }
+    try:
+        if not _LATENCY_STRESS_STATE_PATH.exists():
+            return empty
+        payload = json.loads(_LATENCY_STRESS_STATE_PATH.read_text(encoding="utf-8", errors="replace"))
+        if not isinstance(payload, dict):
+            return empty
+        state = payload.get("state") or {}
+        card = payload.get("card") or {}
+        age_sec = max(0.0, time.time() - _LATENCY_STRESS_STATE_PATH.stat().st_mtime)
+        return {
+            "available": True,
+            "stale": age_sec > 600,
+            "age_sec": round(age_sec, 1),
+            "source": str(payload.get("source") or ""),
+            "state": {
+                "level": str(state.get("level") or "quiet"),
+                "reasons": list(state.get("reasons") or []),
+            },
+            "card": dict(card),
+            "dashboard_summary": str(payload.get("dashboard_summary") or ""),
+            "recommended_action": str(payload.get("recommended_action") or ""),
+        }
+    except Exception:
+        return empty
+
+
+# ---------------------------------------------------------------------------
+# Research event watchboard (top-level aggregation)
+# ---------------------------------------------------------------------------
+
+def read_watchboard_state() -> dict[str, Any]:
+    """Read the research event watchboard aggregation payload."""
+    empty: dict[str, Any] = {
+        "available": False,
+        "summary": {"lane_count": 0, "state_counts": {}, "top_lane": ""},
+        "top_event": None,
+        "banner": None,
+        "lanes": [],
+    }
+    try:
+        if not _WATCHBOARD_STATE_PATH.exists():
+            return empty
+        payload = json.loads(_WATCHBOARD_STATE_PATH.read_text(encoding="utf-8", errors="replace"))
+        if not isinstance(payload, dict):
+            return empty
+        summary = payload.get("summary") or {}
+        top_event = payload.get("top_event")
+        banner = payload.get("banner")
+        lanes = list(payload.get("lanes") or [])[:20]
+        age_sec = max(0.0, time.time() - _WATCHBOARD_STATE_PATH.stat().st_mtime)
+        return {
+            "available": True,
+            "stale": age_sec > 600,
+            "age_sec": round(age_sec, 1),
+            "summary": {
+                "lane_count": int(summary.get("lane_count") or 0),
+                "state_counts": dict(summary.get("state_counts") or {}),
+                "top_lane": str(summary.get("top_lane") or ""),
+            },
+            "top_event": dict(top_event) if isinstance(top_event, dict) else None,
+            "banner": dict(banner) if isinstance(banner, dict) else None,
+            "lanes": [dict(l) for l in lanes if isinstance(l, dict)],
+        }
+    except Exception:
+        return empty

@@ -153,24 +153,31 @@ def _load_from_disk(store: dict) -> None:
     if loaded:
         return
     # Fallback: recover ledger state from journal mirror events.
+    # Only read the tail to avoid OOM on multi-GB journal files.
     jpath = Path(str(store.get("journal_path") or "logs/execution_journal.jsonl"))
     if not jpath.exists():
         return
+    _TAIL_BYTES = 512 * 1024  # 512 KB — enough for recent intent events
     try:
-        for raw in jpath.read_text(encoding="utf-8").splitlines():
-            line = str(raw or "").strip()
-            if not line:
-                continue
-            try:
-                payload = json.loads(line)
-            except Exception:
-                continue
-            if str(payload.get("event") or "").strip() != "intent.ledger":
-                continue
-            data = payload.get("data")
-            if not isinstance(data, dict):
-                continue
-            _apply(store, data)
+        file_size = jpath.stat().st_size
+        with jpath.open("r", encoding="utf-8", errors="replace") as fh:
+            if file_size > _TAIL_BYTES:
+                fh.seek(file_size - _TAIL_BYTES)
+                fh.readline()  # skip partial first line
+            for raw in fh:
+                line = str(raw or "").strip()
+                if not line:
+                    continue
+                try:
+                    payload = json.loads(line)
+                except Exception:
+                    continue
+                if str(payload.get("event") or "").strip() != "intent.ledger":
+                    continue
+                data = payload.get("data")
+                if not isinstance(data, dict):
+                    continue
+                _apply(store, data)
     except Exception:
         return
 

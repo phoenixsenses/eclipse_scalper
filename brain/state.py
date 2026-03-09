@@ -46,31 +46,12 @@ def _safe_int(x, default: int = 0) -> int:
         return default
 
 
-def _symkey(sym: Any) -> str:
-    """
-    Canonicalize symbol keys for state maps.
-    Examples:
-      'BTC/USDT:USDT' -> 'BTCUSDT'
-      'BTC/USDT'      -> 'BTCUSDT'
-      'btcusdt'       -> 'BTCUSDT'
-      None            -> ''
-    """
-    if sym is None:
-        return ""
-    try:
-        s = str(sym).strip().upper()
-    except Exception:
-        return ""
-    if not s:
-        return ""
-
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
+try:
+    from execution.runtime_helpers import symkey as _symkey
+except Exception:
+    def _symkey(sym) -> str:
+        s = str(sym or "").upper().strip()
+        return s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT").replace(":USDT", "USDT").replace(":", "")
 
 
 def _merge_max(a: Any, b: Any) -> Any:

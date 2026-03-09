@@ -180,6 +180,81 @@ def _already_running_loops(bot) -> bool:
     return False
 
 
+async def _startup_validation(bot, dry_run: bool) -> None:
+    """Pre-loop validation: symbols, hedge mode, API permissions.
+
+    Logs warnings/errors but never blocks startup — the bot may still
+    operate if some checks fail (e.g. dry-run without live API perms).
+    """
+    ex = getattr(bot, "ex", None)
+    if ex is None:
+        return
+
+    # 1) Symbol existence check
+    try:
+        markets = getattr(ex, "markets", None) or {}
+        cfg = getattr(bot, "cfg", None)
+        active = getattr(cfg, "ACTIVE_SYMBOLS", None) or []
+        if not active:
+            raw = os.getenv("ACTIVE_SYMBOLS", "").strip()
+            if raw:
+                active = [s.strip().upper() for s in raw.split(",") if s.strip()]
+
+        if active and markets:
+            known = set(markets.keys())
+            # Also include market IDs (e.g. "BTCUSDT")
+            for m in markets.values():
+                if isinstance(m, dict) and m.get("id"):
+                    known.add(str(m["id"]).upper())
+            missing = [s for s in active if s not in known and f"{s}/USDT:USDT" not in known]
+            if missing:
+                log_core.critical(f"STARTUP GATE: {len(missing)} symbols NOT found on exchange: {missing[:10]}")
+            else:
+                log_core.info(f"STARTUP GATE: all {len(active)} active symbols verified on exchange")
+    except Exception as e:
+        log_core.warning(f"STARTUP GATE: symbol check failed: {e}")
+
+    # 2) Hedge mode check (Binance USDT-M futures)
+    try:
+        resp = None
+        if hasattr(ex, "fapiPrivateGetPositionSideDual"):
+            resp = await ex.fapiPrivateGetPositionSideDual()
+        elif hasattr(ex, "fapiPrivate_get_positionside_dual"):
+            resp = await ex.fapiPrivate_get_positionside_dual()
+        if isinstance(resp, dict):
+            dual = resp.get("dualSidePosition", False)
+            if dual:
+                log_core.info("STARTUP GATE: hedge mode ON (dual-side position)")
+            else:
+                log_core.critical(
+                    "STARTUP GATE: hedge mode OFF — bot requires dual-side (hedge) mode! "
+                    "Enable via Binance Futures settings or API."
+                )
+    except Exception as e:
+        log_core.warning(f"STARTUP GATE: hedge mode check skipped: {e}")
+
+    # 3) API permissions check (try fetching account to verify trade access)
+    if not dry_run:
+        try:
+            resp = None
+            if hasattr(ex, "fapiPrivateV2GetAccount"):
+                resp = await ex.fapiPrivateV2GetAccount()
+            elif hasattr(ex, "fapiPrivate_get_account"):
+                resp = await ex.fapiPrivate_get_account()
+            if isinstance(resp, dict):
+                can_trade = resp.get("canTrade", None)
+                if can_trade is True:
+                    log_core.info("STARTUP GATE: API canTrade=True — order permissions OK")
+                elif can_trade is False:
+                    log_core.critical(
+                        "STARTUP GATE: API canTrade=False — API key lacks trade permission! "
+                        "Bot will NOT be able to place orders."
+                    )
+                # else: field not present, skip
+        except Exception as e:
+            log_core.warning(f"STARTUP GATE: API permission check skipped: {e}")
+
+
 async def run_bot(
     dry_run: bool = False,
     ignore_core_version: bool = False,
@@ -243,6 +318,21 @@ async def run_bot(
         log_core.warning("TELEGRAM DISABLED — no divine messenger")
         bot.notify = None
 
+    # ---- Ensure critical directories exist ----
+    for d in (Path("logs"), Path("logs/health"), Path("state")):
+        try:
+            d.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            pass
+
+    # ---- Load persisted kill switch state early ----
+    try:
+        from risk.kill_switch import _ensure_state_fields  # type: ignore
+        if hasattr(bot, "state"):
+            _ensure_state_fields(bot.state)
+    except Exception:
+        pass
+
     # ---- Brain path + directory write check ----
     brain_path = Path.home() / ".blade_eternal.brain.lz4"
     try:
@@ -286,6 +376,9 @@ async def run_bot(
         await _safe_notify(bot, "THE VOID REJECTS THE BLADE — CONNECTION LOST", "critical")
         await _safe_close_exchange(bot)
         return
+
+    # ---- Startup validation gates ----
+    await _startup_validation(bot, dry_run)
 
     # ---- Early equity fetch (mode selection) ----
     equity_source = "live"
@@ -640,8 +733,8 @@ async def run_bot(
         }
 
         try:
-            with open(Path.home() / ".blade_eternal_testament.json", "w", encoding="utf-8") as f:
-                json.dump(testament, f, indent=2)
+            from execution.runtime_helpers import atomic_write_json
+            atomic_write_json(Path.home() / ".blade_eternal_testament.json", testament)
         except Exception as e:
             log_core.error(f"Testament write failed: {e}")
 
@@ -670,8 +763,14 @@ if __name__ == "__main__":
         os.setsid()
         if os.fork():
             sys.exit(0)
-        with open("/tmp/blade_eternal.pid", "w", encoding="utf-8") as f:
+        import tempfile as _tmpmod
+        _pid_path = Path("/tmp/blade_eternal.pid")
+        _fd, _tmp = _tmpmod.mkstemp(prefix=".pid_", dir="/tmp")
+        with os.fdopen(_fd, "w", encoding="utf-8") as f:
             f.write(str(os.getpid()))
+        os.replace(_tmp, str(_pid_path))
+        import atexit as _atexit
+        _atexit.register(lambda: _pid_path.unlink(missing_ok=True))
 
     asyncio.run(
         run_bot(

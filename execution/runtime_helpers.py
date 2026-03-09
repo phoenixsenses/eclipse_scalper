@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import json
 import os
+import tempfile
+from pathlib import Path
 from typing import Any
 
 
@@ -86,6 +89,34 @@ def parse_group_kv(raw: str) -> dict[str, float]:
     except Exception:
         return out
     return out
+
+
+def atomic_write_json(dst: Path, data: Any, *, indent: int = 2) -> None:
+    """Write JSON to *dst* atomically via tmp-file + os.replace.
+
+    Survives power loss / crash during write — the old file remains intact
+    until the new content is fully flushed and renamed.
+    """
+    dst = Path(dst)
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    text = json.dumps(data, ensure_ascii=False, indent=indent)
+    fd, tmp_name = tempfile.mkstemp(
+        prefix=".tmp_atomic_", suffix=".json", dir=str(dst.parent)
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
+            f.write(text)
+            if not text.endswith("\n"):
+                f.write("\n")
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_name, str(dst))
+    except BaseException:
+        try:
+            Path(tmp_name).unlink(missing_ok=True)
+        except Exception:
+            pass
+        raise
 
 
 def parse_symbol_kv(raw: str) -> dict[str, float]:

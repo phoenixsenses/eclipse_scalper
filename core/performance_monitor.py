@@ -65,7 +65,13 @@ def _daily_regime_durations(health_history_path: Path, start_ts: float, end_ts: 
     try:
         import json
 
-        lines = health_history_path.read_text(encoding="utf-8", errors="replace").splitlines()
+        _TAIL = 512 * 1024  # 512 KB tail to avoid OOM on large history files
+        _sz = health_history_path.stat().st_size
+        with open(health_history_path, "r", encoding="utf-8", errors="replace") as _fh:
+            if _sz > _TAIL:
+                _fh.seek(_sz - _TAIL)
+                _fh.readline()  # skip partial first line
+            lines = _fh.read().splitlines()
         for raw in lines:
             if not raw.strip():
                 continue
@@ -92,7 +98,14 @@ def _daily_blocked_count(journal_path: Path, start_ts: float, end_ts: float) -> 
     try:
         import json
 
-        for raw in journal_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        _TAIL_J = 512 * 1024  # 512 KB tail to avoid OOM
+        _sz_j = journal_path.stat().st_size
+        with open(journal_path, "r", encoding="utf-8", errors="replace") as _fhj:
+            if _sz_j > _TAIL_J:
+                _fhj.seek(_sz_j - _TAIL_J)
+                _fhj.readline()
+            _journal_lines = _fhj.read().splitlines()
+        for raw in _journal_lines:
             if not raw.strip():
                 continue
             obj = json.loads(raw)

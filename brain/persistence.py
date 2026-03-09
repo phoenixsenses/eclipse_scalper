@@ -162,23 +162,12 @@ def _to_primitive_safe(x: Any, *, _depth: int = 0, _max_depth: int = 40) -> _Msg
 # -----------------------
 # Canonical symbol law (MATCHES brain/state.py)
 # -----------------------
-def _symkey(sym: Any) -> str:
-    if sym is None:
-        return ""
-    try:
-        s = str(sym).strip().upper()
-    except Exception:
-        return ""
-    if not s:
-        return ""
-
-    s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    s = s.replace(":USDT", "USDT").replace(":", "")
-    s = s.replace("/", "")
-
-    if s.endswith("USDTUSDT"):
-        s = s[:-4]
-    return s
+try:
+    from execution.runtime_helpers import symkey as _symkey
+except Exception:
+    def _symkey(sym) -> str:
+        s = str(sym or "").upper().strip()
+        return s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT").replace(":USDT", "USDT").replace(":", "")
 
 
 def _merge_max(a: Any, b: Any) -> Any:
