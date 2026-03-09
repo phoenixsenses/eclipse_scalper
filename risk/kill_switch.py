@@ -94,8 +94,8 @@ def _save_halt_state(state) -> None:
         _HALT_STATE_PATH.write_text(
             json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
         )
-    except Exception:
-        pass
+    except Exception as exc:
+        log_core.warning(f"kill_switch: failed to persist halt state: {type(exc).__name__}: {exc}")
 
 
 def _load_halt_state(state) -> None:
@@ -127,8 +127,8 @@ def _load_halt_state(state) -> None:
                     f"KILL SWITCH: restored persisted halt — "
                     f"remaining {persisted_until - now:.0f}s | reason={state.halt_reason}"
                 )
-    except Exception:
-        pass
+    except Exception as exc:
+        log_core.warning(f"kill_switch: failed to load halt state: {type(exc).__name__}: {exc}")
 
     # --- Post-crash cooldown ---
     try:
@@ -146,8 +146,8 @@ def _load_halt_state(state) -> None:
                     if not str(getattr(state, "halt_reason", "") or ""):
                         state.halt_reason = reason
                     log_core.critical(reason)
-    except Exception:
-        pass
+    except Exception as exc:
+        log_core.warning(f"kill_switch: failed to apply post-crash cooldown: {type(exc).__name__}: {exc}")
 
 
 def _ensure_state_fields(state) -> None:
