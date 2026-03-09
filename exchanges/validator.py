@@ -109,7 +109,7 @@ async def cosmic_symbol_purity_oracle(ex) -> list:
                         'symbol': sym,
                         'volume': volume_24h,
                         'oi_usd': oi_usd,
-                        'spread_pct': spread_pct if 'spread_pct' in locals() else 999,
+                        'spread_pct': spread_pct,
                         'range_pct': range_pct,
                         'score': score
                     })
@@ -137,7 +137,7 @@ async def cosmic_symbol_purity_oracle(ex) -> list:
         }
 
         log_core.critical(f"COSMIC JUDGMENT COMPLETE — {len(cosmic_symbols)} DIVINE SYMBOLS CHOSEN")
-        log_core.critical(f"HIGHEST PURITY: {cosmic_symbols[0] if cosmic_symbols else 'NONE'} (Score: {validated[0]['score']:.1f} if validated else 0)")
+        log_core.critical(f"HIGHEST PURITY: {cosmic_symbols[0] if cosmic_symbols else 'NONE'} (Score: {validated[0]['score']:.1f if validated else 0})")
 
         # Sacred top 10 revelation
         for v in validated[:10]:
