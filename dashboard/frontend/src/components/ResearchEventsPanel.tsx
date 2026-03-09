@@ -15,6 +15,12 @@ function metricString(value: unknown, suffix = ""): string {
   return "-";
 }
 
+function boolBadge(value: unknown) {
+  if (value === true) return <span className="badge badge-green">true</span>;
+  if (value === false) return <span className="badge badge-red">false</span>;
+  return <span className="badge badge-gray">-</span>;
+}
+
 function titleizeLane(name: string): string {
   return name
     .split("_")
@@ -266,7 +272,12 @@ export default function ResearchEventsPanel({
   const fitnessMeta = asRecord(fitnessReport._meta);
   const fitnessContract = asRecord(fitnessReport.contract);
   const fitnessFeatureStats = asRecord(fitnessReport.feature_stats);
+  const fitnessSampleStats = asRecord(fitnessReport.sample_stats);
   const fitnessSymbols = asArray<string>(fitnessReport.symbols);
+  const fitnessWarnings = asArray<string>(fitnessReport.warnings);
+  const fitnessFailures = asArray<string>(fitnessReport.failures);
+  const fitnessCsvStatus = asRecord(fitnessReport.csv_status);
+  const fitnessDbReadyDetails = asRecord(fitnessReport.db_ready_details);
   const researchWatchboard = asRecord(researchEvents.watchboard);
   const researchStates = asRecord(researchEvents.states);
   const researchWatchlists = asRecord(researchEvents.watchlists);
@@ -352,6 +363,85 @@ export default function ResearchEventsPanel({
                 </span>
               );
             })}
+          </div>
+        ) : null}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12, marginTop: 12 }}>
+          <div style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 12, background: "var(--surface-2)" }}>
+            <div style={{ fontSize: 10, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Inputs / Freshness</div>
+            <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 8 }}>
+              <div><span style={{ color: "var(--muted)" }}>db</span> {metricString(fitnessReport.db)}</div>
+              <div><span style={{ color: "var(--muted)" }}>csv</span> {metricString(fitnessReport.csv)}</div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <span className="badge badge-gray">fresh_sec={metricString(fitnessReport.fresh_sec)}</span>
+                <span className="badge badge-gray">csv_age_sec={metricString(fitnessCsvStatus.age_sec)}</span>
+                <span className="badge badge-gray">csv_detail={metricString(fitnessCsvStatus.detail)}</span>
+              </div>
+            </div>
+          </div>
+          <div style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 12, background: "var(--surface-2)" }}>
+            <div style={{ fontSize: 10, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Failure Breakdown</div>
+            <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <span className={`badge ${fitnessFailures.length > 0 ? "badge-red" : "badge-green"}`}>failures={fitnessFailures.length}</span>
+              <span className={`badge ${fitnessWarnings.length > 0 ? "badge-yellow" : "badge-green"}`}>warnings={fitnessWarnings.length}</span>
+              <span className="badge badge-gray">db_ready={metricString(fitnessReport.db_ready)}</span>
+            </div>
+            <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
+              {fitnessFailures.length > 0 ? fitnessFailures.map((item) => (
+                <div key={`failure-${item}`} style={{ color: "var(--red)", fontSize: 12 }}>{item}</div>
+              )) : <div style={{ color: "var(--muted)", fontSize: 12 }}>No failures</div>}
+              {fitnessWarnings.length > 0 ? fitnessWarnings.map((item) => (
+                <div key={`warning-${item}`} style={{ color: "var(--yellow)", fontSize: 12 }}>{item}</div>
+              )) : null}
+            </div>
+          </div>
+        </div>
+        {Object.keys(fitnessDbReadyDetails).length > 0 ? (
+          <div style={{ marginTop: 12 }}>
+            {sectionTitle("DB Readiness Detail", "Freshness and table checks from validator input")}
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+              {Object.entries(fitnessDbReadyDetails).slice(0, 8).map(([key, value]) => (
+                <span key={key} className="badge badge-gray">
+                  {key}={typeof value === "object" ? JSON.stringify(value) : metricString(value)}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : null}
+        {fitnessSymbols.length > 0 ? (
+          <div style={{ marginTop: 16 }}>
+            {sectionTitle("Symbol Fitness", "Sample coverage and feature computability by active symbol")}
+            <table style={{ marginTop: 8 }}>
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Trades</th>
+                  <th>Marks</th>
+                  <th>Liqs</th>
+                  <th>Feature Rows</th>
+                  <th>Mid</th>
+                  <th>Spread</th>
+                  <th>Trade Intensity</th>
+                </tr>
+              </thead>
+              <tbody>
+                {fitnessSymbols.map((symbol) => {
+                  const feature = asRecord(fitnessFeatureStats[symbol]);
+                  const sample = asRecord(fitnessSampleStats[symbol]);
+                  return (
+                    <tr key={`fitness-symbol-${symbol}`}>
+                      <td>{symbol}</td>
+                      <td>{metricString(sample.agg_trade_rows)}</td>
+                      <td>{metricString(sample.mark_price_rows)}</td>
+                      <td>{metricString(sample.liquidation_rows)}</td>
+                      <td>{metricString(feature.feature_rows)}</td>
+                      <td>{boolBadge(feature.has_mid)}</td>
+                      <td>{boolBadge(feature.has_spread)}</td>
+                      <td>{boolBadge(feature.has_trade_intensity)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         ) : null}
       </div>
