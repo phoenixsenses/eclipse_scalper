@@ -33,11 +33,30 @@ _LOOKBACK_MIN = 60  # 1h of data for quantile calibration
 # Data loading (self-contained, mirrors liquidation_regime_tagger._load_rows)
 # ---------------------------------------------------------------------------
 
-def _load_buckets(db: str, symbol: str, lookback_min: int, bucket_sec: int) -> List[Dict[str, Any]]:
+def _resolve_window_end_ms(con: sqlite3.Connection, symbol: str, lookback_min: int) -> int:
     now_ms = int(time.time() * 1000)
-    start_ms = now_ms - int(lookback_min * 60 * 1000)
+    lookback_ms = int(lookback_min * 60 * 1000)
+    latest_trade_ts = con.execute(
+        "SELECT MAX(ts_ms) FROM agg_trades WHERE symbol=?",
+        (symbol,),
+    ).fetchone()[0]
+    latest_mark_ts = con.execute(
+        "SELECT MAX(ts_ms) FROM mark_prices WHERE symbol=?",
+        (symbol,),
+    ).fetchone()[0]
+    latest_ts = max(int(latest_trade_ts or 0), int(latest_mark_ts or 0))
+    if latest_ts <= 0:
+        return now_ms
+    if latest_ts < now_ms - lookback_ms:
+        return latest_ts
+    return now_ms
+
+
+def _load_buckets(db: str, symbol: str, lookback_min: int, bucket_sec: int) -> List[Dict[str, Any]]:
     con = sqlite3.connect(str(db))
     try:
+        end_ms = _resolve_window_end_ms(con, symbol, lookback_min)
+        start_ms = end_ms - int(lookback_min * 60 * 1000)
         trade_rows = con.execute(
             """
             SELECT
@@ -51,7 +70,7 @@ def _load_buckets(db: str, symbol: str, lookback_min: int, bucket_sec: int) -> L
             GROUP BY bucket_ms
             ORDER BY bucket_ms
             """,
-            (bucket_sec, bucket_sec, symbol, start_ms, now_ms),
+            (bucket_sec, bucket_sec, symbol, start_ms, end_ms),
         ).fetchall()
 
         mark_rows = con.execute(
@@ -63,7 +82,7 @@ def _load_buckets(db: str, symbol: str, lookback_min: int, bucket_sec: int) -> L
             GROUP BY bucket_ms
             ORDER BY bucket_ms
             """,
-            (bucket_sec, bucket_sec, symbol, start_ms, now_ms),
+            (bucket_sec, bucket_sec, symbol, start_ms, end_ms),
         ).fetchall()
     finally:
         con.close()

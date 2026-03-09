@@ -139,3 +139,53 @@ def test_daily_research_report_writes_markdown_and_json(monkeypatch) -> None:
         assert payload["promotion"]["promotable"] == ["Pocket B", "Pocket C", "Tight-mid"]
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_daily_research_report_uses_fixture_db_for_event_lane(monkeypatch) -> None:
+    tmp = _mk_local_tmp()
+    try:
+        telemetry = tmp / "telemetry.jsonl"
+        now = time.time()
+        telemetry.write_text(
+            json.dumps(
+                {
+                    "ts": now,
+                    "event": "execution.belief_state",
+                    "data": {
+                        "runtime_gate_degraded": False,
+                        "allow_entries": True,
+                        "guard_mode": "GREEN",
+                        "guard_recovery_stage": "READY",
+                        "runtime_gate_reason": "steady",
+                    },
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        fixture_db = Path(__file__).resolve().parents[1] / "tests" / "fixtures" / "microstructure_sample.db"
+        monkeypatch.chdir(tmp)
+        rc = drr.run_once(
+            type(
+                "Args",
+                (),
+                {
+                    "date": "2026-03-10",
+                    "out": "",
+                    "db": str(fixture_db),
+                    "symbol": "ETHUSDT",
+                    "telemetry_path": str(telemetry.resolve()),
+                    "recovery_lookback_min": 180,
+                    "event_lookback_min": 60,
+                    "event_bucket_sec": 5,
+                    "event_stale_after_sec": 60,
+                },
+            )()
+        )
+        assert rc == 0
+        payload = json.loads((Path("reports") / "DAILY_2026-03-10.json").read_text(encoding="utf-8"))
+        assert payload["event_lane"]["status"] in {"CLEAR", "BLOCKED"}
+        assert "no_data" not in payload["event_lane"]["summary"]
+        assert payload["event_lane"]["raw"]["buckets_loaded"] > 0
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
