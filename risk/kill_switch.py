@@ -579,6 +579,17 @@ def _daily_pnl(bot) -> float:
     return _safe_float(getattr(bot.state, "daily_pnl", 0.0), 0.0)
 
 
+def _margin_ratio(bot) -> float:
+    """Read cached margin ratio from bot state.
+
+    The guardian or data loop should periodically fetch this from Binance
+    (fapiPrivateV2GetAccount -> totalMarginRatio) and store on
+    bot.state.margin_ratio as a float between 0 and 1.
+    A value of 0.80 means 80% margin used — close to liquidation.
+    """
+    return _safe_float(getattr(getattr(bot, "state", None), "margin_ratio", 0.0), 0.0)
+
+
 def _ex_counts(bot) -> Tuple[int, int]:
     ex = getattr(bot, "ex", None)
     req = int(getattr(ex, "request_count", 0) or 0) if ex is not None else 0
@@ -701,6 +712,21 @@ async def evaluate(bot) -> Tuple[bool, Optional[str]]:
                 await request_halt(bot, dd_halt_sec, reason, "critical")
                 km["last_check_ts"] = now
                 return False, reason
+
+        # ---------- margin / liquidation proximity ----------
+        margin_alert_pct = float(_cfg(bot, "KILL_MARGIN_ALERT_PCT", 0.0) or 0.0)
+        if margin_alert_pct > 0:
+            margin_ratio = _margin_ratio(bot)
+            if _is_finite(margin_ratio) and margin_ratio > 0:
+                if margin_ratio >= margin_alert_pct:
+                    reason = (
+                        f"MARGIN ALERT — marginRatio {margin_ratio:.1%} >= "
+                        f"threshold {margin_alert_pct:.1%} (liquidation proximity)"
+                    )
+                    margin_halt_sec = float(_cfg(bot, "KILL_MARGIN_HALT_SEC", cooldown) or cooldown)
+                    await request_halt(bot, margin_halt_sec, reason, "critical")
+                    km["last_check_ts"] = now
+                    return False, reason
 
         # ---------- data staleness ----------
         age = _data_age(bot)

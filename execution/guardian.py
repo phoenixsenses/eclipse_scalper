@@ -299,6 +299,73 @@ async def _exchange_connectivity_tick(bot) -> None:
         pass
 
 
+_STUCK_ALERTED: set = set()  # tracks symbols we already alerted for stuck positions
+
+
+async def _position_stuck_check(bot) -> None:
+    """Alert if any position has been open > TTL without exit activity."""
+    try:
+        st = getattr(bot, "state", None)
+        if st is None:
+            return
+        positions = getattr(st, "positions", None)
+        if not isinstance(positions, dict):
+            return
+        ttl = float(_cfg(bot, "POSITION_STUCK_TTL_SEC", 3600.0) or 3600.0)
+        if ttl <= 0:
+            return
+        now = _now()
+        for sym, pos in positions.items():
+            if not isinstance(pos, dict):
+                continue
+            qty = float(pos.get("size") or pos.get("qty") or 0.0)
+            if abs(qty) <= 0:
+                _STUCK_ALERTED.discard(sym)
+                continue
+            entry_ts = float(pos.get("entry_ts") or pos.get("open_ts") or 0.0)
+            if entry_ts <= 0:
+                continue
+            age = now - entry_ts
+            if age > ttl and sym not in _STUCK_ALERTED:
+                _STUCK_ALERTED.add(sym)
+                msg = (
+                    f"POSITION STUCK — {sym} open for {age / 3600:.1f}h "
+                    f"(TTL={ttl / 3600:.1f}h) qty={qty}"
+                )
+                log_entry.warning(msg)
+                notify = getattr(bot, "notify", None)
+                if notify is not None:
+                    try:
+                        await notify.speak(msg, "warning")
+                    except Exception:
+                        pass
+    except Exception:
+        pass
+
+
+async def _margin_ratio_refresh(bot) -> None:
+    """Fetch margin ratio from Binance and cache on bot.state for kill switch."""
+    try:
+        ex = getattr(bot, "ex", None)
+        if ex is None:
+            return
+        resp = None
+        if hasattr(ex, "fapiPrivateV2GetAccount"):
+            resp = await ex.fapiPrivateV2GetAccount()
+        elif hasattr(ex, "fapiPrivate_get_account"):
+            resp = await ex.fapiPrivate_get_account()
+        if isinstance(resp, dict):
+            raw = resp.get("totalMarginRatio") or resp.get("marginRatio")
+            if raw is not None:
+                ratio = float(raw)
+                st = getattr(bot, "state", None)
+                if st is not None:
+                    st.margin_ratio = ratio
+                    st.margin_ratio_ts = _now()
+    except Exception:
+        pass
+
+
 async def _collection_watchdog_tick(bot) -> None:
     """Run collection watchdog inline — checks DB freshness, writes health state."""
     if not callable(_watchdog_run_once):
@@ -754,6 +821,14 @@ async def guardian_loop(bot):
         if (now_ts - _last_ex_probe) >= ex_probe_every:
             _last_ex_probe = now_ts
             await _safe_call("exchange_connectivity_tick", _exchange_connectivity_tick, bot)
+
+        # 6) Margin ratio refresh (piggybacks on exchange probe cadence)
+        if (now_ts - _last_ex_probe) < 2.0:  # just probed exchange
+            await _safe_call("margin_ratio_refresh", _margin_ratio_refresh, bot)
+
+        # 7) Position stuck detection (on watchdog cadence)
+        if (now_ts - _last_watchdog) < 2.0:  # just ran watchdog
+            await _safe_call("position_stuck_check", _position_stuck_check, bot)
 
         # optional emergency halt hook
         if halted and emergency_mod is not None:
