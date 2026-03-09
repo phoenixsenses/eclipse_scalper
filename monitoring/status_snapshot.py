@@ -178,13 +178,17 @@ def collect_kill_switch_status() -> Dict[str, Any]:
         return {"active": False, "source": "read_error"}
 
 
+def _parse_symbols(raw: str) -> List[str]:
+    return [s.strip().upper() for s in str(raw or "").replace(";", ",").split(",") if s.strip()]
+
+
 def collect_data_research_fitness(
     db_path: str = "data/microstructure.db",
     csv_path: str = "data/event_diary.csv",
     symbols: List[str] | None = None,
     fresh_sec: int = 120,
 ) -> Dict[str, Any]:
-    symbol_list = list(symbols or ["BTCUSDT", "ETHUSDT"])
+    symbol_list = list(symbols or _parse_symbols(os.getenv("ACTIVE_SYMBOLS", "")) or ["BTCUSDT"])
     db = Path(str(db_path))
     csv = Path(str(csv_path))
     if not db.exists():

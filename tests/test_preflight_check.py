@@ -39,16 +39,20 @@ def test_preflight_passes_with_fresh_db(monkeypatch) -> None:
 
         monkeypatch.setenv("SCALPER_DRY_RUN", "1")
         monkeypatch.setenv("ACTIVE_SYMBOLS", "ETHUSDT")
+        seen: dict[str, object] = {}
         monkeypatch.setattr(
             pf,
             "analyze_research_fitness",
-            lambda **kwargs: {
-                "status": "pass",
-                "db_ready": True,
-                "warnings": [],
-                "failures": [],
-                "contract": {"tier": "trade_plus_liq_mark_proxy"},
-            },
+            lambda **kwargs: (
+                seen.update(kwargs),
+                {
+                    "status": "pass",
+                    "db_ready": True,
+                    "warnings": [],
+                    "failures": [],
+                    "contract": {"tier": "trade_plus_liq_mark_proxy"},
+                },
+            )[1],
         )
         monkeypatch.setattr(
             "sys.argv",
@@ -71,6 +75,7 @@ def test_preflight_passes_with_fresh_db(monkeypatch) -> None:
         assert pf.main() == 0
         payload = json.loads(out_json.read_text(encoding="utf-8"))
         assert payload["ok"] is True
+        assert seen["symbols"] == ["ETHUSDT"]
         assert payload["run_summary"]["run_type"] == "preflight_check"
         assert out_md.exists()
     finally:
@@ -121,6 +126,7 @@ def test_preflight_warns_on_data_research_fitness(monkeypatch) -> None:
         assert pf.main() == 0
         payload = json.loads(out_json.read_text(encoding="utf-8"))
         assert payload["ok"] is True
+        assert payload["checks"]["data_research_fitness_symbols"] == ["ETHUSDT"]
         assert payload["checks"]["data_research_fitness_status"] == "warn"
         assert any("Data research fitness warn" in item for item in payload["warnings"])
     finally:

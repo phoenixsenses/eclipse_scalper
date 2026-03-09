@@ -81,6 +81,31 @@ def test_collect_data_research_fitness_handles_missing_db() -> None:
     assert payload["summary"] == "db_missing"
 
 
+def test_collect_data_research_fitness_uses_active_symbols_env(monkeypatch) -> None:
+    seen: dict[str, object] = {}
+    monkeypatch.setenv("ACTIVE_SYMBOLS", "ETHUSDT,DOGEUSDT")
+    monkeypatch.setattr(
+        "monitoring.status_snapshot.analyze_research_fitness",
+        lambda **kwargs: (
+            seen.update(kwargs),
+            {
+                "status": "pass",
+                "db_ready": True,
+                "warnings": [],
+                "failures": [],
+                "contract": {"tier": "trade_plus_liq_mark_proxy"},
+            },
+        )[1],
+    )
+    payload = collect_data_research_fitness(
+        db_path="data/microstructure.db",
+        csv_path="data/event_diary.csv",
+        symbols=None,
+    )
+    assert seen["symbols"] == ["ETHUSDT", "DOGEUSDT"]
+    assert payload["status"] == "pass"
+
+
 def test_render_status_text_includes_data_research_fitness(monkeypatch) -> None:
     monkeypatch.setattr(
         "monitoring.status_snapshot.collect_status",
