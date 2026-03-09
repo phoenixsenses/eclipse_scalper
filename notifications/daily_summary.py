@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import argparse
+import logging
 import os
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
+
+_log = logging.getLogger("notifications.daily_summary")
 
 from notifications.events import NotificationEvent, NotificationSeverity
 from tools.collection_health import analyze_collection_health
@@ -69,7 +72,7 @@ def main() -> int:
     token = os.getenv("TELEGRAM_TOKEN") or os.getenv("ECLIPSE_TG_BOT_TOKEN")
     chat = os.getenv("TELEGRAM_CHAT_ID") or os.getenv("ECLIPSE_TG_CHAT_ID")
     if not token or not chat:
-        print(evt.render())
+        _log.info("No Telegram credentials — summary:\n%s", evt.render())
         return 0
     from notifications.telegram import Notifier
     import asyncio
@@ -77,7 +80,7 @@ def main() -> int:
     async def _run() -> int:
         n = Notifier(token=token, chat_id=chat)
         await n.speak(evt.render(), priority="normal", silent=False)
-        print("daily_summary_sent")
+        _log.info("daily_summary_sent")
         return 0
 
     return asyncio.run(_run())
