@@ -63,7 +63,7 @@ def write_recovery_state(
     if extra:
         data["extra"] = extra
     try:
-        STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-        STATE_PATH.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        from execution.runtime_helpers import atomic_write_json
+        atomic_write_json(STATE_PATH, data)
     except Exception:
         pass

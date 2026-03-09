@@ -75,9 +75,8 @@ def _safe_log(bot, level: str, msg: str) -> None:
 
 def _write_last_shutdown(meta: dict[str, Any]) -> None:
     try:
-        path = Path("logs/last_shutdown.json")
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+        from execution.runtime_helpers import atomic_write_json
+        atomic_write_json(Path("logs/last_shutdown.json"), meta)
     except Exception:
         pass
 

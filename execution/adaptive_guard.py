@@ -59,8 +59,8 @@ def _load_state() -> Dict[str, Any]:
 
 def _persist(state: Dict[str, Any]) -> None:
     try:
-        STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-        STATE_PATH.write_text(json.dumps(state, indent=2), encoding="utf-8")
+        from execution.runtime_helpers import atomic_write_json
+        atomic_write_json(STATE_PATH, state)
     except Exception:
         pass
 

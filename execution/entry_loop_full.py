@@ -365,9 +365,8 @@ def _resolve_micro_builder():
 
 def _write_last_shutdown_json(payload: Dict[str, Any]) -> None:
     try:
-        p = Path("logs/last_shutdown.json")
-        p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        from execution.runtime_helpers import atomic_write_json
+        atomic_write_json(Path("logs/last_shutdown.json"), payload)
     except Exception:
         pass
 

@@ -90,10 +90,8 @@ def _save_halt_state(state) -> None:
             hist = km.get("trip_history")
             if isinstance(hist, list):
                 data["trip_history"] = hist[-12:]
-        _HALT_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-        _HALT_STATE_PATH.write_text(
-            json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
-        )
+        from execution.runtime_helpers import atomic_write_json
+        atomic_write_json(_HALT_STATE_PATH, data)
     except Exception as exc:
         log_core.warning(f"kill_switch: failed to persist halt state: {type(exc).__name__}: {exc}")
 
