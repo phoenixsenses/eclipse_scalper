@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import json
+import logging
 import math
 import os
 import tempfile
@@ -9,6 +10,8 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Optional
+
+_log = logging.getLogger("alpha_gate")
 
 
 @dataclass
@@ -110,7 +113,7 @@ def _fallback_last_good_json(
         return None, None, False, latest_reason
     if fb_mtime is not None and (float(now_ts) - float(fb_mtime)) > float(max_staleness_sec):
         return None, None, False, latest_reason
-    print(f"[ALPHA] latest metrics {latest_reason}, using fallback last_good")
+    _log.info("latest metrics %s, using fallback last_good", latest_reason)
     return fb_metrics, fb_mtime, True, latest_reason
 
 
@@ -125,7 +128,7 @@ def _fallback_last_good_stability(
         return None, None, False, latest_reason
     if fb_mtime is not None and (float(now_ts) - float(fb_mtime)) > float(max_staleness_sec):
         return None, None, False, latest_reason
-    print(f"[ALPHA] latest stability {latest_reason}, using fallback last_good")
+    _log.info("latest stability %s, using fallback last_good", latest_reason)
     return fb_metrics, fb_mtime, True, latest_reason
 
 
@@ -162,7 +165,7 @@ def _update_last_good_if_ok(
     if cfg.exists():
         _atomic_copy(cfg, last_good_dir / "config.json")
     _atomic_write_text(last_good_dir / "ts_utc.txt", str(int(time.time())))
-    print("[ALPHA] updated last_good metrics snapshot")
+    _log.info("updated last_good metrics snapshot")
 
 
 def evaluate_alpha_gate(
