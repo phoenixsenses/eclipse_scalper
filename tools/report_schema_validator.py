@@ -195,6 +195,1454 @@ def _validate_summarize_rank_attribution(payload: Dict[str, Any]) -> List[str]:
     return errors
 
 
+def _validate_summarize_liq_regime_tag_impact(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source": str,
+        "discovery": dict,
+        "validation": dict,
+        "recommendation": str,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    for section in ("discovery", "validation"):
+        block = payload.get(section)
+        if not isinstance(block, dict):
+            continue
+        for key in ("available", "tagged", "normal", "delta_avg_net", "delta_p90_net", "sample_warning"):
+            if key not in block:
+                errors.append(f"missing:{section}.{key}")
+        if "available" in block and not isinstance(block["available"], bool):
+            errors.append(f"bad_type:{section}.available")
+        if "sample_warning" in block and not isinstance(block["sample_warning"], bool):
+            errors.append(f"bad_type:{section}.sample_warning")
+        for sub in ("tagged", "normal"):
+            sub_block = block.get(sub)
+            if not isinstance(sub_block, dict):
+                errors.append(f"bad_type:{section}.{sub}")
+                continue
+            for key in ("n", "avg_net", "p90_net"):
+                if key not in sub_block:
+                    errors.append(f"missing:{section}.{sub}.{key}")
+            if "n" in sub_block and not isinstance(sub_block["n"], int):
+                errors.append(f"bad_type:{section}.{sub}.n")
+            for key in ("avg_net", "p90_net"):
+                if key in sub_block and not _is_number(sub_block[key]):
+                    errors.append(f"bad_type:{section}.{sub}.{key}")
+        for key in ("delta_avg_net", "delta_p90_net"):
+            if key in block and not _is_number(block[key]):
+                errors.append(f"bad_type:{section}.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_summarize_liq_tag_signal_behavior(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "debug": str,
+        "rule": str,
+        "overall": dict,
+        "recommendation": str,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    overall = payload.get("overall")
+    if isinstance(overall, dict):
+        for key in ("rows_total", "tagged", "normal", "delta_avg_net", "delta_p90_net"):
+            if key not in overall:
+                errors.append(f"missing:overall.{key}")
+        if "rows_total" in overall and not isinstance(overall["rows_total"], int):
+            errors.append("bad_type:overall.rows_total")
+        for group in ("tagged", "normal"):
+            block = overall.get(group)
+            if not isinstance(block, dict):
+                errors.append(f"bad_type:overall.{group}")
+                continue
+            for key in ("n", "avg_net", "p90_net", "break_even_bps_total"):
+                if key not in block:
+                    errors.append(f"missing:overall.{group}.{key}")
+            if "n" in block and not isinstance(block["n"], int):
+                errors.append(f"bad_type:overall.{group}.n")
+        for key in ("delta_avg_net", "delta_p90_net"):
+            if key in overall and not _is_number(overall[key]):
+                errors.append(f"bad_type:overall.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_liquidation_regime_alerts(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "symbol": str,
+        "rule": str,
+        "lookback_min": int,
+        "bucket_sec": int,
+        "recent_limit": int,
+        "min_liq_rate": (int, float),
+        "summary": dict,
+        "alerts": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("rows_total", "tagged_count", "tagged_rate", "recent_alert_count", "max_consecutive_tagged", "max_liq_rate_recent", "side_bias_counts", "severity_counts"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    alerts = payload.get("alerts")
+    if isinstance(alerts, list):
+        for idx, item in enumerate(alerts):
+            if not isinstance(item, dict):
+                errors.append(f"bad_type:alerts[{idx}]")
+                continue
+            for key in ("ts_ms", "side_bias", "severity", "liq_rate_per_sec", "liq_imbalance", "spread", "trade_intensity", "ret_1"):
+                if key not in item:
+                    errors.append(f"missing:alerts[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_liquidation_alert_state(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source_json": str,
+        "symbol": str,
+        "rule": str,
+        "state": dict,
+        "dashboard_summary": str,
+        "notification_text": str,
+        "recommended_action": str,
+        "card": dict,
+        "summary_snapshot": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    state = payload.get("state")
+    if isinstance(state, dict):
+        for key in ("level", "reasons", "primary_side_bias", "dominant_severity", "freshness"):
+            if key not in state:
+                errors.append(f"missing:state.{key}")
+        if "reasons" in state and not isinstance(state["reasons"], list):
+            errors.append("bad_type:state.reasons")
+        freshness = state.get("freshness")
+        if not isinstance(freshness, dict):
+            errors.append("bad_type:state.freshness")
+        else:
+            for key in ("status", "age_sec", "stale_after_sec"):
+                if key not in freshness:
+                    errors.append(f"missing:state.freshness.{key}")
+    card = payload.get("card")
+    if isinstance(card, dict):
+        for key in (
+            "headline",
+            "operator_note",
+            "recent_alert_count",
+            "tagged_rate",
+            "max_consecutive_tagged",
+            "max_liq_rate_recent",
+            "primary_side_bias",
+            "dominant_severity",
+            "latest_alert_ts_ms",
+            "freshness_status",
+            "age_sec",
+        ):
+            if key not in card:
+                errors.append(f"missing:card.{key}")
+    summary = payload.get("summary_snapshot")
+    if isinstance(summary, dict):
+        for key in (
+            "rows_total",
+            "tagged_count",
+            "tagged_rate",
+            "recent_alert_count",
+            "max_consecutive_tagged",
+            "max_liq_rate_recent",
+            "side_bias_counts",
+            "severity_counts",
+        ):
+            if key not in summary:
+                errors.append(f"missing:summary_snapshot.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_liquidation_watchlist(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "rule": str,
+        "lookback_min": int,
+        "bucket_sec": int,
+        "recent_limit": int,
+        "min_liq_rate": (int, float),
+        "summary": dict,
+        "top_summary": dict,
+        "banner": dict,
+        "rows": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("symbol_count", "top_n", "state_counts", "top_symbol"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    top_summary = payload.get("top_summary")
+    if isinstance(top_summary, dict):
+        for key in ("symbol", "state_level", "freshness_status", "recommended_action", "dashboard_summary"):
+            if key not in top_summary:
+                errors.append(f"missing:top_summary.{key}")
+    banner = payload.get("banner")
+    if isinstance(banner, dict):
+        for key in (
+            "headline",
+            "recommended_action",
+            "top_symbol",
+            "top_state_level",
+            "top_freshness_status",
+            "severe_count",
+            "elevated_count",
+            "quiet_count",
+        ):
+            if key not in banner:
+                errors.append(f"missing:banner.{key}")
+    rows = payload.get("rows")
+    if isinstance(rows, list):
+        for idx, row in enumerate(rows):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:rows[{idx}]")
+                continue
+            for key in (
+                "symbol",
+                "state_level",
+                "freshness_status",
+                "recommended_action",
+                "primary_side_bias",
+                "dominant_severity",
+                "recent_alert_count",
+                "max_liq_rate_recent",
+                "tagged_rate",
+                "age_sec",
+                "dashboard_summary",
+                "priority_score",
+            ):
+                if key not in row:
+                    errors.append(f"missing:rows[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_spread_stress_alerts(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "symbol": str,
+        "lookback_min": int,
+        "bucket_sec": int,
+        "summary": dict,
+        "alerts": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in (
+            "rows_total",
+            "tagged_count",
+            "tagged_rate",
+            "recent_alert_count",
+            "high_count",
+            "medium_count",
+            "avg_spread_tagged",
+            "avg_trade_intensity_tagged",
+        ):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    alerts = payload.get("alerts")
+    if isinstance(alerts, list):
+        for idx, row in enumerate(alerts):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:alerts[{idx}]")
+                continue
+            for key in ("ts_ms", "severity", "spread", "trade_intensity", "ret_1"):
+                if key not in row:
+                    errors.append(f"missing:alerts[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_spread_stress_state(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source_json": str,
+        "symbol": str,
+        "state": dict,
+        "dashboard_summary": str,
+        "notification_text": str,
+        "recommended_action": str,
+        "card": dict,
+        "summary_snapshot": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    state = payload.get("state")
+    if isinstance(state, dict):
+        for key in ("level", "reasons", "freshness"):
+            if key not in state:
+                errors.append(f"missing:state.{key}")
+    card = payload.get("card")
+    if isinstance(card, dict):
+        for key in (
+            "headline",
+            "recent_alert_count",
+            "tagged_rate",
+            "high_count",
+            "medium_count",
+            "avg_spread_tagged",
+            "avg_trade_intensity_tagged",
+            "latest_alert_ts_ms",
+            "freshness_status",
+            "age_sec",
+        ):
+            if key not in card:
+                errors.append(f"missing:card.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_return_shock_alerts(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "symbol": str,
+        "lookback_min": int,
+        "bucket_sec": int,
+        "summary": dict,
+        "alerts": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in (
+            "rows_total",
+            "tagged_count",
+            "tagged_rate",
+            "recent_alert_count",
+            "high_count",
+            "medium_count",
+            "avg_abs_ret_1_tagged",
+            "avg_trade_intensity_tagged",
+            "direction_counts",
+        ):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    alerts = payload.get("alerts")
+    if isinstance(alerts, list):
+        for idx, row in enumerate(alerts):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:alerts[{idx}]")
+                continue
+            for key in ("ts_ms", "severity", "direction", "ret_1", "abs_ret_1", "spread", "trade_intensity"):
+                if key not in row:
+                    errors.append(f"missing:alerts[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_return_shock_state(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source_json": str,
+        "symbol": str,
+        "state": dict,
+        "dashboard_summary": str,
+        "notification_text": str,
+        "recommended_action": str,
+        "card": dict,
+        "summary_snapshot": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    state = payload.get("state")
+    if isinstance(state, dict):
+        for key in ("level", "reasons", "dominant_direction", "freshness"):
+            if key not in state:
+                errors.append(f"missing:state.{key}")
+    card = payload.get("card")
+    if isinstance(card, dict):
+        for key in (
+            "headline",
+            "operator_note",
+            "recent_alert_count",
+            "tagged_rate",
+            "high_count",
+            "medium_count",
+            "avg_abs_ret_1_tagged",
+            "avg_trade_intensity_tagged",
+            "dominant_direction",
+            "latest_alert_ts_ms",
+            "freshness_status",
+            "age_sec",
+        ):
+            if key not in card:
+                errors.append(f"missing:card.{key}")
+    summary = payload.get("summary_snapshot")
+    if isinstance(summary, dict):
+        for key in (
+            "rows_total",
+            "tagged_count",
+            "tagged_rate",
+            "recent_alert_count",
+            "high_count",
+            "medium_count",
+            "avg_abs_ret_1_tagged",
+            "avg_trade_intensity_tagged",
+            "direction_counts",
+        ):
+            if key not in summary:
+                errors.append(f"missing:summary_snapshot.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_return_shock_watchlist(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "lookback_min": int,
+        "bucket_sec": int,
+        "recent_limit": int,
+        "summary": dict,
+        "top_summary": dict,
+        "banner": dict,
+        "rows": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("symbol_count", "top_n", "state_counts", "top_symbol"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    top_summary = payload.get("top_summary")
+    if isinstance(top_summary, dict):
+        for key in ("symbol", "state_level", "freshness_status", "recommended_action", "dashboard_summary"):
+            if key not in top_summary:
+                errors.append(f"missing:top_summary.{key}")
+    banner = payload.get("banner")
+    if isinstance(banner, dict):
+        for key in (
+            "headline",
+            "recommended_action",
+            "top_symbol",
+            "top_state_level",
+            "top_freshness_status",
+            "severe_count",
+            "elevated_count",
+            "quiet_count",
+        ):
+            if key not in banner:
+                errors.append(f"missing:banner.{key}")
+    rows = payload.get("rows")
+    if isinstance(rows, list):
+        for idx, row in enumerate(rows):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:rows[{idx}]")
+                continue
+            for key in (
+                "symbol",
+                "state_level",
+                "freshness_status",
+                "recommended_action",
+                "dominant_direction",
+                "recent_alert_count",
+                "high_count",
+                "medium_count",
+                "avg_abs_ret_1_tagged",
+                "avg_trade_intensity_tagged",
+                "age_sec",
+                "dashboard_summary",
+                "priority_score",
+            ):
+                if key not in row:
+                    errors.append(f"missing:rows[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_volume_vacuum_alerts(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "lane": str,
+        "symbol": str,
+        "lookback_min": int,
+        "bucket_sec": int,
+        "summary": dict,
+        "alerts": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in (
+            "rows_total",
+            "tagged_count",
+            "tagged_rate",
+            "recent_alert_count",
+            "high_count",
+            "medium_count",
+            "avg_trade_intensity_tagged",
+            "avg_spread_tagged",
+        ):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    alerts = payload.get("alerts")
+    if isinstance(alerts, list):
+        for idx, row in enumerate(alerts):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:alerts[{idx}]")
+                continue
+            for key in ("ts_ms", "severity", "trade_intensity", "spread", "ret_1"):
+                if key not in row:
+                    errors.append(f"missing:alerts[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_volume_vacuum_state(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "lane": str,
+        "source_json": str,
+        "symbol": str,
+        "state": dict,
+        "dashboard_summary": str,
+        "notification_text": str,
+        "recommended_action": str,
+        "card": dict,
+        "summary_snapshot": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    state = payload.get("state")
+    if isinstance(state, dict):
+        for key in ("level", "reasons", "freshness"):
+            if key not in state:
+                errors.append(f"missing:state.{key}")
+    card = payload.get("card")
+    if isinstance(card, dict):
+        for key in (
+            "headline",
+            "operator_note",
+            "recent_alert_count",
+            "tagged_rate",
+            "high_count",
+            "medium_count",
+            "avg_trade_intensity_tagged",
+            "avg_spread_tagged",
+            "latest_alert_ts_ms",
+            "freshness_status",
+            "age_sec",
+        ):
+            if key not in card:
+                errors.append(f"missing:card.{key}")
+    summary = payload.get("summary_snapshot")
+    if isinstance(summary, dict):
+        for key in (
+            "rows_total",
+            "tagged_count",
+            "tagged_rate",
+            "recent_alert_count",
+            "high_count",
+            "medium_count",
+            "avg_trade_intensity_tagged",
+            "avg_spread_tagged",
+        ):
+            if key not in summary:
+                errors.append(f"missing:summary_snapshot.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_volume_vacuum_watchlist(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "lane": str,
+        "lookback_min": int,
+        "bucket_sec": int,
+        "recent_limit": int,
+        "summary": dict,
+        "top_summary": dict,
+        "banner": dict,
+        "rows": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("symbol_count", "top_n", "state_counts", "top_symbol"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    top_summary = payload.get("top_summary")
+    if isinstance(top_summary, dict):
+        for key in ("symbol", "state_level", "freshness_status", "recommended_action", "dashboard_summary"):
+            if key not in top_summary:
+                errors.append(f"missing:top_summary.{key}")
+    banner = payload.get("banner")
+    if isinstance(banner, dict):
+        for key in (
+            "headline",
+            "recommended_action",
+            "top_symbol",
+            "top_state_level",
+            "top_freshness_status",
+            "severe_count",
+            "elevated_count",
+            "quiet_count",
+        ):
+            if key not in banner:
+                errors.append(f"missing:banner.{key}")
+    rows = payload.get("rows")
+    if isinstance(rows, list):
+        for idx, row in enumerate(rows):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:rows[{idx}]")
+                continue
+            for key in (
+                "symbol",
+                "state_level",
+                "freshness_status",
+                "recommended_action",
+                "recent_alert_count",
+                "high_count",
+                "medium_count",
+                "avg_trade_intensity_tagged",
+                "avg_spread_tagged",
+                "age_sec",
+                "dashboard_summary",
+                "priority_score",
+            ):
+                if key not in row:
+                    errors.append(f"missing:rows[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_volatility_burst_alerts(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "lane": str,
+        "symbol": str,
+        "lookback_min": int,
+        "bucket_sec": int,
+        "summary": dict,
+        "alerts": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in (
+            "rows_total",
+            "tagged_count",
+            "tagged_rate",
+            "recent_alert_count",
+            "high_count",
+            "medium_count",
+            "avg_abs_ret_1_tagged",
+            "avg_trade_intensity_tagged",
+            "direction_counts",
+        ):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    alerts = payload.get("alerts")
+    if isinstance(alerts, list):
+        for idx, row in enumerate(alerts):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:alerts[{idx}]")
+                continue
+            for key in ("ts_ms", "severity", "direction", "ret_1", "abs_ret_1", "trade_intensity", "spread"):
+                if key not in row:
+                    errors.append(f"missing:alerts[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_volatility_burst_state(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "lane": str,
+        "source_json": str,
+        "symbol": str,
+        "state": dict,
+        "dashboard_summary": str,
+        "notification_text": str,
+        "recommended_action": str,
+        "card": dict,
+        "summary_snapshot": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    state = payload.get("state")
+    if isinstance(state, dict):
+        for key in ("level", "reasons", "dominant_direction", "freshness"):
+            if key not in state:
+                errors.append(f"missing:state.{key}")
+    card = payload.get("card")
+    if isinstance(card, dict):
+        for key in (
+            "headline",
+            "operator_note",
+            "recent_alert_count",
+            "tagged_rate",
+            "high_count",
+            "medium_count",
+            "avg_abs_ret_1_tagged",
+            "avg_trade_intensity_tagged",
+            "dominant_direction",
+            "latest_alert_ts_ms",
+            "freshness_status",
+            "age_sec",
+        ):
+            if key not in card:
+                errors.append(f"missing:card.{key}")
+    summary = payload.get("summary_snapshot")
+    if isinstance(summary, dict):
+        for key in (
+            "rows_total",
+            "tagged_count",
+            "tagged_rate",
+            "recent_alert_count",
+            "high_count",
+            "medium_count",
+            "avg_abs_ret_1_tagged",
+            "avg_trade_intensity_tagged",
+            "direction_counts",
+        ):
+            if key not in summary:
+                errors.append(f"missing:summary_snapshot.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_volatility_burst_watchlist(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "lane": str,
+        "lookback_min": int,
+        "bucket_sec": int,
+        "recent_limit": int,
+        "summary": dict,
+        "top_summary": dict,
+        "banner": dict,
+        "rows": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("symbol_count", "top_n", "state_counts", "top_symbol"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    top_summary = payload.get("top_summary")
+    if isinstance(top_summary, dict):
+        for key in ("symbol", "state_level", "freshness_status", "recommended_action", "dashboard_summary"):
+            if key not in top_summary:
+                errors.append(f"missing:top_summary.{key}")
+    banner = payload.get("banner")
+    if isinstance(banner, dict):
+        for key in (
+            "headline",
+            "recommended_action",
+            "top_symbol",
+            "top_state_level",
+            "top_freshness_status",
+            "severe_count",
+            "elevated_count",
+            "quiet_count",
+        ):
+            if key not in banner:
+                errors.append(f"missing:banner.{key}")
+    rows = payload.get("rows")
+    if isinstance(rows, list):
+        for idx, row in enumerate(rows):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:rows[{idx}]")
+                continue
+            for key in (
+                "symbol",
+                "state_level",
+                "freshness_status",
+                "recommended_action",
+                "dominant_direction",
+                "recent_alert_count",
+                "high_count",
+                "medium_count",
+                "avg_abs_ret_1_tagged",
+                "avg_trade_intensity_tagged",
+                "age_sec",
+                "dashboard_summary",
+                "priority_score",
+            ):
+                if key not in row:
+                    errors.append(f"missing:rows[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_book_proxy_pressure_alerts(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "lane": str,
+        "symbol": str,
+        "lookback_min": int,
+        "bucket_sec": int,
+        "summary": dict,
+        "alerts": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in (
+            "rows_total",
+            "tagged_count",
+            "tagged_rate",
+            "recent_alert_count",
+            "high_count",
+            "medium_count",
+            "avg_abs_imbalance_tagged",
+            "avg_trade_intensity_tagged",
+            "avg_spread_tagged",
+            "side_bias_counts",
+        ):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    alerts = payload.get("alerts")
+    if isinstance(alerts, list):
+        for idx, row in enumerate(alerts):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:alerts[{idx}]")
+                continue
+            for key in ("ts_ms", "severity", "side_bias", "imbalance", "abs_imbalance", "trade_intensity", "spread", "ret_1"):
+                if key not in row:
+                    errors.append(f"missing:alerts[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_book_proxy_pressure_state(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "lane": str,
+        "source_json": str,
+        "symbol": str,
+        "state": dict,
+        "dashboard_summary": str,
+        "notification_text": str,
+        "recommended_action": str,
+        "card": dict,
+        "summary_snapshot": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    state = payload.get("state")
+    if isinstance(state, dict):
+        for key in ("level", "reasons", "primary_side_bias", "freshness"):
+            if key not in state:
+                errors.append(f"missing:state.{key}")
+    card = payload.get("card")
+    if isinstance(card, dict):
+        for key in (
+            "headline",
+            "operator_note",
+            "recent_alert_count",
+            "tagged_rate",
+            "high_count",
+            "medium_count",
+            "avg_abs_imbalance_tagged",
+            "avg_trade_intensity_tagged",
+            "avg_spread_tagged",
+            "primary_side_bias",
+            "latest_alert_ts_ms",
+            "freshness_status",
+            "age_sec",
+        ):
+            if key not in card:
+                errors.append(f"missing:card.{key}")
+    summary = payload.get("summary_snapshot")
+    if isinstance(summary, dict):
+        for key in (
+            "rows_total",
+            "tagged_count",
+            "tagged_rate",
+            "recent_alert_count",
+            "high_count",
+            "medium_count",
+            "avg_abs_imbalance_tagged",
+            "avg_trade_intensity_tagged",
+            "avg_spread_tagged",
+            "side_bias_counts",
+        ):
+            if key not in summary:
+                errors.append(f"missing:summary_snapshot.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_book_proxy_pressure_watchlist(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "lane": str,
+        "lookback_min": int,
+        "bucket_sec": int,
+        "recent_limit": int,
+        "summary": dict,
+        "top_summary": dict,
+        "banner": dict,
+        "rows": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("symbol_count", "top_n", "state_counts", "top_symbol"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    top_summary = payload.get("top_summary")
+    if isinstance(top_summary, dict):
+        for key in ("symbol", "state_level", "freshness_status", "recommended_action", "dashboard_summary"):
+            if key not in top_summary:
+                errors.append(f"missing:top_summary.{key}")
+    banner = payload.get("banner")
+    if isinstance(banner, dict):
+        for key in (
+            "headline",
+            "recommended_action",
+            "top_symbol",
+            "top_state_level",
+            "top_freshness_status",
+            "severe_count",
+            "elevated_count",
+            "quiet_count",
+        ):
+            if key not in banner:
+                errors.append(f"missing:banner.{key}")
+    rows = payload.get("rows")
+    if isinstance(rows, list):
+        for idx, row in enumerate(rows):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:rows[{idx}]")
+                continue
+            for key in (
+                "symbol",
+                "state_level",
+                "freshness_status",
+                "recommended_action",
+                "primary_side_bias",
+                "recent_alert_count",
+                "high_count",
+                "medium_count",
+                "avg_abs_imbalance_tagged",
+                "avg_trade_intensity_tagged",
+                "avg_spread_tagged",
+                "age_sec",
+                "dashboard_summary",
+                "priority_score",
+            ):
+                if key not in row:
+                    errors.append(f"missing:rows[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_spread_stress_watchlist(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "lookback_min": int,
+        "bucket_sec": int,
+        "recent_limit": int,
+        "summary": dict,
+        "top_summary": dict,
+        "banner": dict,
+        "rows": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("symbol_count", "top_n", "state_counts", "top_symbol"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    top_summary = payload.get("top_summary")
+    if isinstance(top_summary, dict):
+        for key in ("symbol", "state_level", "freshness_status", "recommended_action", "dashboard_summary"):
+            if key not in top_summary:
+                errors.append(f"missing:top_summary.{key}")
+    banner = payload.get("banner")
+    if isinstance(banner, dict):
+        for key in (
+            "headline",
+            "recommended_action",
+            "top_symbol",
+            "top_state_level",
+            "top_freshness_status",
+            "severe_count",
+            "elevated_count",
+            "quiet_count",
+        ):
+            if key not in banner:
+                errors.append(f"missing:banner.{key}")
+    rows = payload.get("rows")
+    if isinstance(rows, list):
+        for idx, row in enumerate(rows):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:rows[{idx}]")
+                continue
+            for key in (
+                "symbol",
+                "state_level",
+                "freshness_status",
+                "recommended_action",
+                "recent_alert_count",
+                "high_count",
+                "medium_count",
+                "avg_spread_tagged",
+                "avg_trade_intensity_tagged",
+                "age_sec",
+                "dashboard_summary",
+                "priority_score",
+            ):
+                if key not in row:
+                    errors.append(f"missing:rows[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_fill_toxicity_state(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source": str,
+        "rows": int,
+        "top_side": str,
+        "state": dict,
+        "dashboard_summary": str,
+        "notification_text": str,
+        "recommended_action": str,
+        "card": dict,
+        "summary_snapshot": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    state = payload.get("state")
+    if isinstance(state, dict):
+        for key in ("level", "reasons"):
+            if key not in state:
+                errors.append(f"missing:state.{key}")
+    card = payload.get("card")
+    if isinstance(card, dict):
+        for key in ("headline", "operator_note", "top_side", "rows", "toxicity_score", "adverse_bps_mean", "pnl_bps_mean"):
+            if key not in card:
+                errors.append(f"missing:card.{key}")
+    summary = payload.get("summary_snapshot")
+    if isinstance(summary, dict):
+        for key in ("rows", "sides"):
+            if key not in summary:
+                errors.append(f"missing:summary_snapshot.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_latency_stress_state(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source": str,
+        "state": dict,
+        "dashboard_summary": str,
+        "notification_text": str,
+        "recommended_action": str,
+        "card": dict,
+        "summary_snapshot": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    state = payload.get("state")
+    if isinstance(state, dict):
+        for key in ("level", "reasons"):
+            if key not in state:
+                errors.append(f"missing:state.{key}")
+    card = payload.get("card")
+    if isinstance(card, dict):
+        for key in (
+            "headline",
+            "operator_note",
+            "rows",
+            "fill_rate",
+            "latency_fill_delay_sec_p50",
+            "latency_fill_delay_sec_p95",
+            "latency_impact_vs_net_corr",
+        ):
+            if key not in card:
+                errors.append(f"missing:card.{key}")
+    summary = payload.get("summary_snapshot")
+    if isinstance(summary, dict):
+        for key in (
+            "rows",
+            "fill_rate",
+            "queue_competition_score",
+            "toxicity_score",
+            "adverse_selection_bps_mean",
+            "latency_fill_delay_sec_p50",
+            "latency_fill_delay_sec_p95",
+            "latency_impact_vs_net_corr",
+        ):
+            if key not in summary:
+                errors.append(f"missing:summary_snapshot.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_research_event_watchboard(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "summary": dict,
+        "top_event": dict,
+        "banner": dict,
+        "lanes": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("lane_count", "state_counts", "top_lane"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    top_event = payload.get("top_event")
+    if isinstance(top_event, dict):
+        for key in ("lane", "level", "recommended_action", "headline", "detail"):
+            if key not in top_event:
+                errors.append(f"missing:top_event.{key}")
+    banner = payload.get("banner")
+    if isinstance(banner, dict):
+        for key in ("headline", "recommended_action", "top_lane", "top_level"):
+            if key not in banner:
+                errors.append(f"missing:banner.{key}")
+    lanes = payload.get("lanes")
+    if isinstance(lanes, list):
+        for idx, lane in enumerate(lanes):
+            if not isinstance(lane, dict):
+                errors.append(f"bad_type:lanes[{idx}]")
+                continue
+            for key in ("lane", "level", "freshness_status", "recommended_action", "headline", "detail", "priority_score"):
+                if key not in lane:
+                    errors.append(f"missing:lanes[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_event_watchboard_trend(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "summary": dict,
+        "latest": dict,
+        "points": list,
+        "lane_deltas": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("snapshot_count", "start_top_lane", "end_top_lane", "delta_priority_score", "trend"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    latest = payload.get("latest")
+    if isinstance(latest, dict):
+        for key in ("index", "top_lane", "top_level", "top_recommended_action", "priority_score"):
+            if key not in latest:
+                errors.append(f"missing:latest.{key}")
+    points = payload.get("points")
+    if isinstance(points, list):
+        for idx, point in enumerate(points):
+            if not isinstance(point, dict):
+                errors.append(f"bad_type:points[{idx}]")
+                continue
+            for key in ("index", "source", "top_lane", "top_level", "top_recommended_action", "priority_score"):
+                if key not in point:
+                    errors.append(f"missing:points[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_event_watchboard_snapshot_append(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "history_path": str,
+        "appended": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    appended = payload.get("appended")
+    if isinstance(appended, dict):
+        for key in ("source", "top_lane", "state_counts", "lanes", "top_event", "banner", "upstream_run_type"):
+            if key not in appended:
+                errors.append(f"missing:appended.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_event_watchboard_trend_from_history(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "summary": dict,
+        "latest": dict,
+        "points": list,
+        "history": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    history = payload.get("history")
+    if isinstance(history, dict):
+        for key in ("history_path", "last_n", "available_rows", "used_rows"):
+            if key not in history:
+                errors.append(f"missing:history.{key}")
+    if "lane_deltas" not in payload:
+        errors.append("missing:lane_deltas")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_run_research_event_watchboard_cycle(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "watchboard_json": str,
+        "append_json": str,
+        "overlap_json": str,
+        "consolidation_json": str,
+        "suppression_json": str,
+        "persistence_json": str,
+        "merged_banner_json": str,
+        "trend_json": str,
+        "brief_json": str,
+        "history_jsonl": str,
+        "summary": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in (
+            "top_lane",
+            "top_action",
+            "history_rows",
+            "trend",
+            "trimmed_rows",
+            "top_overlap_pair",
+            "suppression_candidate_count",
+            "suppression_rule_count",
+            "noisy_lane_count",
+            "merged_banner_mode",
+        ):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+        if "history_rows" in summary and not isinstance(summary["history_rows"], int):
+            errors.append("bad_type:summary.history_rows")
+        if "trimmed_rows" in summary and not isinstance(summary["trimmed_rows"], int):
+            errors.append("bad_type:summary.trimmed_rows")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_research_event_operator_brief(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "watchboard_json": str,
+        "trend_json": str,
+        "overlap_json": str,
+        "consolidation_json": str,
+        "persistence_json": str,
+        "merged_banner_json": str,
+        "summary": dict,
+        "brief": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in (
+            "top_lane",
+            "top_action",
+            "trend",
+            "severe_lane_count",
+            "stale_lane_count",
+            "strongest_delta_lane",
+            "strongest_delta_trend",
+            "strongest_overlap_pair",
+            "suppression_candidate_count",
+            "primary_suppression_lane",
+            "noisy_lane_count",
+            "primary_noisy_lane",
+            "merged_banner_mode",
+            "merged_focus_lane_count",
+        ):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    brief = payload.get("brief")
+    if isinstance(brief, dict):
+        for key in (
+            "headline",
+            "operator_note",
+            "top_event",
+            "strongest_delta",
+            "strongest_overlap",
+            "primary_suppression",
+            "primary_persistence",
+            "merged_banner",
+            "severe_lanes",
+            "stale_lanes",
+        ):
+            if key not in brief:
+                errors.append(f"missing:brief.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 def _validate_validate_artifacts(payload: Dict[str, Any]) -> List[str]:
     errors: List[str] = []
     required_top = {
@@ -233,6 +1681,88 @@ def _validate_report_check(payload: Dict[str, Any]) -> List[str]:
                 errors.append(f"missing:summary.{key}")
             elif not isinstance(summary[key], int):
                 errors.append(f"bad_type:summary.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_validate_micro_edge_forward(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "debug": str,
+        "group_by": list,
+        "discover_frac": (int, float),
+        "counts": dict,
+        "thresholds": dict,
+        "discovery": dict,
+        "validation": dict,
+        "collapse": dict,
+        "liquidation_impact": dict,
+        "liquidation_regime_tag_impact": dict,
+        "event_lane_context_impact": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    counts = payload.get("counts")
+    if isinstance(counts, dict):
+        for key in ("total", "discovery", "validation", "selected_discovery", "selected_validation", "top_groups"):
+            if key not in counts:
+                errors.append(f"missing:counts.{key}")
+            elif not isinstance(counts[key], int):
+                errors.append(f"bad_type:counts.{key}")
+    collapse = payload.get("collapse")
+    if isinstance(collapse, dict):
+        if "detected" not in collapse:
+            errors.append("missing:collapse.detected")
+        elif not isinstance(collapse["detected"], bool):
+            errors.append("bad_type:collapse.detected")
+        if "flags" not in collapse:
+            errors.append("missing:collapse.flags")
+        elif not isinstance(collapse["flags"], dict):
+            errors.append("bad_type:collapse.flags")
+    event_ctx = payload.get("event_lane_context_impact")
+    if isinstance(event_ctx, dict):
+        for section_name in ("discovery", "validation"):
+            section = event_ctx.get(section_name)
+            if not isinstance(section, dict):
+                errors.append(f"bad_type:event_lane_context_impact.{section_name}")
+                continue
+            for key in ("available", "rows_total", "lane_count", "by_lane"):
+                if key not in section:
+                    errors.append(f"missing:event_lane_context_impact.{section_name}.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_liquidation_rule_coverage(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "symbol": str,
+        "rule": str,
+        "bucket_sec": int,
+        "results": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    if isinstance(payload.get("results"), list):
+        for idx, row in enumerate(payload["results"]):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:results[{idx}]")
+                continue
+            for key in ("lookback_min", "bucket_rows", "liq_rows", "rule_fire_count"):
+                if key not in row:
+                    errors.append(f"missing:results[{idx}].{key}")
+                elif not isinstance(row[key], int):
+                    errors.append(f"bad_type:results[{idx}].{key}")
     errors.extend(_validate_run_summary(payload.get("run_summary")))
     return errors
 
@@ -657,13 +2187,635 @@ def _validate_freeze_runtime_profile(payload: Dict[str, Any]) -> List[str]:
     return errors
 
 
+def _validate_microstructure_contract(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "db": str,
+        "symbols": list,
+        "required_tables": list,
+        "status": str,
+        "table_contracts": dict,
+        "symbol_coverage": dict,
+        "feature_capability": dict,
+        "warnings": list,
+        "failures": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    if "status" in payload and payload["status"] not in {"pass", "warn", "fail"}:
+        errors.append("bad_value:status")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_generate_liq_reversal_candidates(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "rule": str,
+        "regime": str,
+        "symbols": list,
+        "grid": dict,
+        "count": int,
+        "rows": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_run_liq_reversal_e2e(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "symbol": str,
+        "rule": str,
+        "lookback_min": int,
+        "bucket_sec": int,
+        "coverage_json": str,
+        "candidates_json": str,
+        "rank_baseline_json": str,
+        "rank_v5_json": str,
+        "summary": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_liquidation_regime_tagger(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "symbol": str,
+        "rule": str,
+        "lookback_min": int,
+        "bucket_sec": int,
+        "summary": dict,
+        "tags": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_event_lane_overlap(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "history_jsonl": str,
+        "summary": dict,
+        "lane_stats": list,
+        "pairwise": list,
+        "strongest_overlaps": list,
+        "redundancy_notes": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("available_rows", "used_rows", "lane_count", "active_lane_count", "active_snapshot_count", "min_level", "top_overlap_pair"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    lane_stats = payload.get("lane_stats")
+    if isinstance(lane_stats, list):
+        for idx, row in enumerate(lane_stats):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:lane_stats[{idx}]")
+                continue
+            for key in ("lane", "active_count", "active_rate", "fresh_active_count", "top_count"):
+                if key not in row:
+                    errors.append(f"missing:lane_stats[{idx}].{key}")
+    pairwise = payload.get("pairwise")
+    if isinstance(pairwise, list):
+        for idx, row in enumerate(pairwise):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:pairwise[{idx}]")
+                continue
+            for key in ("lane_a", "lane_b", "coactive_count", "coactive_rate", "jaccard"):
+                if key not in row:
+                    errors.append(f"missing:pairwise[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_event_lane_consolidation(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "watchboard_json": str,
+        "overlap_json": str,
+        "summary": dict,
+        "decisions": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("top_lane", "top_overlap_pair", "decision_count", "recommendation_counts"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    decisions = payload.get("decisions")
+    if isinstance(decisions, list):
+        for idx, row in enumerate(decisions):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:decisions[{idx}]")
+                continue
+            for key in ("lane_a", "lane_b", "jaccard", "coactive_count", "secondary_lane", "recommendation", "reason"):
+                if key not in row:
+                    errors.append(f"missing:decisions[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_event_lane_suppression_policy(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "watchboard_json": str,
+        "consolidation_json": str,
+        "summary": dict,
+        "rules": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in ("top_lane", "rule_count", "suppressed_lanes"):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    rules = payload.get("rules")
+    if isinstance(rules, list):
+        for idx, row in enumerate(rules):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:rules[{idx}]")
+                continue
+            for key in ("secondary_lane", "when_lane_a", "when_lane_b", "display_mode", "reason", "secondary_level", "secondary_action"):
+                if key not in row:
+                    errors.append(f"missing:rules[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_event_watchboard_effective(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "watchboard_json": str,
+        "suppression_json": str,
+        "persistence_json": str,
+        "summary": dict,
+        "effective_top_event": dict,
+        "lanes": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key in (
+            "raw_top_lane",
+            "effective_top_lane",
+            "hidden_lane_count",
+            "degraded_lane_count",
+            "collapsed_lane_count",
+            "noisy_lane_count",
+            "primary_noisy_lane",
+        ):
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+    effective_top_event = payload.get("effective_top_event")
+    if isinstance(effective_top_event, dict):
+        for key in (
+            "lane",
+            "level",
+            "recommended_action",
+            "effective_display_mode",
+            "persistence_recommendation",
+            "recommended_min_persist_snapshots",
+            "recommended_cooldown_snapshots",
+        ):
+            if key not in effective_top_event:
+                errors.append(f"missing:effective_top_event.{key}")
+    lanes = payload.get("lanes")
+    if isinstance(lanes, list):
+        for idx, row in enumerate(lanes):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:lanes[{idx}]")
+                continue
+            for key in (
+                "lane",
+                "level",
+                "recommended_action",
+                "effective_display_mode",
+                "effective_priority_score",
+                "persistence_recommendation",
+                "recommended_min_persist_snapshots",
+                "recommended_cooldown_snapshots",
+                "is_noisy",
+            ):
+                if key not in row:
+                    errors.append(f"missing:lanes[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_event_lane_persistence_policy(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "history_path": str,
+        "last_n": int,
+        "summary": dict,
+        "lanes": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key, expected in {
+            "history_path": str,
+            "available_rows": int,
+            "used_rows": int,
+            "sequence_length": int,
+            "latest_top_lane": str,
+            "flip_count": int,
+            "noisy_lane_count": int,
+            "primary_noisy_lane": str,
+        }.items():
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+            elif not isinstance(summary[key], expected):
+                errors.append(f"bad_type:summary.{key}")
+    lanes = payload.get("lanes")
+    if isinstance(lanes, list):
+        for idx, row in enumerate(lanes):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:lanes[{idx}]")
+                continue
+            for key, expected in {
+                "lane": str,
+                "top_hits": int,
+                "hit_rate": (int, float),
+                "longest_streak": int,
+                "transitions_involved": int,
+                "is_noisy": bool,
+                "recommended_min_persist_snapshots": int,
+                "recommended_cooldown_snapshots": int,
+                "recommendation": str,
+            }.items():
+                if key not in row:
+                    errors.append(f"missing:lanes[{idx}].{key}")
+                elif not isinstance(row[key], expected):
+                    errors.append(f"bad_type:lanes[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_event_merged_banner_policy(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "effective_json": str,
+        "summary": dict,
+        "banner": dict,
+        "focus_rows": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key, expected in {
+            "banner_mode": str,
+            "focus_lane_count": int,
+            "focus_lanes": list,
+            "top_lane": str,
+            "top_action": str,
+        }.items():
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+            elif not isinstance(summary[key], expected):
+                errors.append(f"bad_type:summary.{key}")
+    banner = payload.get("banner")
+    if isinstance(banner, dict):
+        for key, expected in {
+            "headline": str,
+            "recommended_action": str,
+            "top_lane": str,
+            "banner_mode": str,
+            "focus_lanes": list,
+            "reasons": list,
+            "operator_note": str,
+        }.items():
+            if key not in banner:
+                errors.append(f"missing:banner.{key}")
+            elif not isinstance(banner[key], expected):
+                errors.append(f"bad_type:banner.{key}")
+    focus_rows = payload.get("focus_rows")
+    if isinstance(focus_rows, list):
+        for idx, row in enumerate(focus_rows):
+            if not isinstance(row, dict):
+                errors.append(f"bad_type:focus_rows[{idx}]")
+                continue
+            for key, expected in {
+                "lane": str,
+                "level": str,
+                "freshness_status": str,
+                "recommended_action": str,
+                "effective_display_mode": str,
+                "effective_priority_score": (int, float),
+                "headline": str,
+            }.items():
+                if key not in row:
+                    errors.append(f"missing:focus_rows[{idx}].{key}")
+                elif not isinstance(row[key], expected):
+                    errors.append(f"bad_type:focus_rows[{idx}].{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_summarize_event_signal_bridge(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source_forward_json": str,
+        "discovery": dict,
+        "validation": dict,
+        "recommendation": str,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    for section_name in ("discovery", "validation"):
+        section = payload.get(section_name)
+        if isinstance(section, dict):
+            for key, expected in {
+                "available": bool,
+                "rows_total": int,
+                "best_positive_lane": dict,
+                "worst_negative_lane": dict,
+                "positive_lane_count": int,
+                "negative_lane_count": int,
+                "ranked": list,
+            }.items():
+                if key not in section:
+                    errors.append(f"missing:{section_name}.{key}")
+                elif not isinstance(section[key], expected):
+                    errors.append(f"bad_type:{section_name}.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_evaluate_event_conditioned_filter(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source_bridge_json": str,
+        "summary": dict,
+        "filter_candidate": dict,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        for key, expected in {
+            "primary_allow_lane": str,
+            "tentative_allow_lane": str,
+            "block_lane_count": int,
+            "recommendation": str,
+        }.items():
+            if key not in summary:
+                errors.append(f"missing:summary.{key}")
+            elif not isinstance(summary[key], expected):
+                errors.append(f"bad_type:summary.{key}")
+    candidate = payload.get("filter_candidate")
+    if isinstance(candidate, dict):
+        for key, expected in {
+            "min_tagged_n": int,
+            "allow_lanes": list,
+            "tentative_allow_lanes": list,
+            "block_lanes": list,
+        }.items():
+            if key not in candidate:
+                errors.append(f"missing:filter_candidate.{key}")
+            elif not isinstance(candidate[key], expected):
+                errors.append(f"bad_type:filter_candidate.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_evaluate_event_conditioned_forward(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source_debug_jsonl": str,
+        "source_filter_json": str,
+        "allow_lanes": list,
+        "block_lanes": list,
+        "discovery": dict,
+        "validation": dict,
+        "recommendation": str,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    for section_name in ("discovery", "validation"):
+        section = payload.get(section_name)
+        if isinstance(section, dict):
+            for key, expected in {
+                "baseline": dict,
+                "filtered": dict,
+                "delta_avg_net": (int, float),
+                "delta_p90_net": (int, float),
+                "kept_ratio": (int, float),
+            }.items():
+                if key not in section:
+                    errors.append(f"missing:{section_name}.{key}")
+                elif not isinstance(section[key], expected):
+                    errors.append(f"bad_type:{section_name}.{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_evaluate_event_conditioned_forward_grid(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source_debug_jsonl": str,
+        "source_filter_json": str,
+        "variant_count": int,
+        "best_variant": str,
+        "best_validation_delta_avg_net": (int, float),
+        "best_validation_kept_ratio": (int, float),
+        "rows": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_summarize_event_conditioned_forward_grid(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source_grid_json": str,
+        "best_tradeoff_variant": dict,
+        "best_quality_variant": dict,
+        "recommendation": str,
+        "rows": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_summarize_rank_event_filter(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source_baseline_json": str,
+        "source_filtered_json": str,
+        "baseline_top": dict,
+        "filtered_top": dict,
+        "delta": dict,
+        "recommendation": str,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
+def _validate_summarize_rank_event_filter_set(payload: Dict[str, Any]) -> List[str]:
+    errors: List[str] = []
+    required_top = {
+        "source_baseline_json": str,
+        "source_filtered_json": str,
+        "common_count": int,
+        "improved_count": int,
+        "degraded_count": int,
+        "median_delta_npa_core": (int, float),
+        "median_delta_score_raw_core": (int, float),
+        "median_filtered_kept_ratio": (int, float),
+        "best_tradeoff_row": dict,
+        "recommendation": str,
+        "rows": list,
+        "run_summary": dict,
+    }
+    for key, expected in required_top.items():
+        if key not in payload:
+            errors.append(f"missing:{key}")
+            continue
+        if not isinstance(payload[key], expected):
+            errors.append(f"bad_type:{key}")
+    errors.extend(_validate_run_summary(payload.get("run_summary")))
+    return errors
+
+
 SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "micro_edge_smoke": _validate_micro_edge_record,
     "validate_canonical": _validate_validate_canonical,
     "validate_passive_pocket_forward": _validate_validate_passive_pocket_forward,
     "summarize_rank_attribution": _validate_summarize_rank_attribution,
+    "summarize_liq_regime_tag_impact": _validate_summarize_liq_regime_tag_impact,
+    "summarize_liq_tag_signal_behavior": _validate_summarize_liq_tag_signal_behavior,
+    "liquidation_regime_alerts": _validate_liquidation_regime_alerts,
+    "liquidation_alert_state": _validate_liquidation_alert_state,
+    "liquidation_watchlist": _validate_liquidation_watchlist,
+    "spread_stress_alerts": _validate_spread_stress_alerts,
+    "spread_stress_state": _validate_spread_stress_state,
+    "return_shock_alerts": _validate_return_shock_alerts,
+    "return_shock_state": _validate_return_shock_state,
+    "return_shock_watchlist": _validate_return_shock_watchlist,
+    "volume_vacuum_alerts": _validate_volume_vacuum_alerts,
+    "volume_vacuum_state": _validate_volume_vacuum_state,
+    "volume_vacuum_watchlist": _validate_volume_vacuum_watchlist,
+    "volatility_burst_alerts": _validate_volatility_burst_alerts,
+    "volatility_burst_state": _validate_volatility_burst_state,
+    "volatility_burst_watchlist": _validate_volatility_burst_watchlist,
+    "book_proxy_pressure_alerts": _validate_book_proxy_pressure_alerts,
+    "book_proxy_pressure_state": _validate_book_proxy_pressure_state,
+    "book_proxy_pressure_watchlist": _validate_book_proxy_pressure_watchlist,
+    "spread_stress_watchlist": _validate_spread_stress_watchlist,
+    "fill_toxicity_state": _validate_fill_toxicity_state,
+    "latency_stress_state": _validate_latency_stress_state,
+    "research_event_watchboard": _validate_research_event_watchboard,
+    "event_watchboard_trend": _validate_event_watchboard_trend,
+    "event_watchboard_snapshot_append": _validate_event_watchboard_snapshot_append,
+    "event_watchboard_trend_from_history": _validate_event_watchboard_trend_from_history,
+    "run_research_event_watchboard_cycle": _validate_run_research_event_watchboard_cycle,
+    "research_event_operator_brief": _validate_research_event_operator_brief,
     "validate_artifacts": _validate_validate_artifacts,
     "report_check": _validate_report_check,
+    "validate_micro_edge_forward": _validate_validate_micro_edge_forward,
+    "liquidation_rule_coverage": _validate_liquidation_rule_coverage,
     "analyze_cost_breakdown": _validate_analyze_cost_breakdown,
     "analyze_fill_timing": _validate_analyze_fill_timing,
     "daily_execution_calibration": _validate_daily_execution_calibration,
@@ -690,11 +2842,47 @@ SCHEMAS: Dict[str, Callable[[Dict[str, Any]], List[str]]] = {
     "funding_rate_analysis": _validate_funding_rate_analysis,
     "prototype_ws_vs_db_latency": _validate_prototype_ws_vs_db_latency,
     "freeze_runtime_profile": _validate_freeze_runtime_profile,
+    "validate_microstructure_contract": _validate_microstructure_contract,
+    "generate_liq_reversal_candidates": _validate_generate_liq_reversal_candidates,
+    "run_liq_reversal_e2e": _validate_run_liq_reversal_e2e,
+    "liquidation_regime_tagger": _validate_liquidation_regime_tagger,
+    "event_lane_overlap": _validate_event_lane_overlap,
+    "event_lane_consolidation": _validate_event_lane_consolidation,
+    "event_lane_suppression_policy": _validate_event_lane_suppression_policy,
+    "event_watchboard_effective": _validate_event_watchboard_effective,
+    "event_lane_persistence_policy": _validate_event_lane_persistence_policy,
+    "event_merged_banner_policy": _validate_event_merged_banner_policy,
+    "summarize_event_signal_bridge": _validate_summarize_event_signal_bridge,
+    "evaluate_event_conditioned_filter": _validate_evaluate_event_conditioned_filter,
+    "evaluate_event_conditioned_forward": _validate_evaluate_event_conditioned_forward,
+    "evaluate_event_conditioned_forward_grid": _validate_evaluate_event_conditioned_forward_grid,
+    "summarize_event_conditioned_forward_grid": _validate_summarize_event_conditioned_forward_grid,
+    "summarize_rank_event_filter": _validate_summarize_rank_event_filter,
+    "summarize_rank_event_filter_set": _validate_summarize_rank_event_filter_set,
 }
 
 
 def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
     keys = set(payload)
+    lane = payload.get("lane")
+    if lane == "volume_vacuum" and {"symbol", "lookback_min", "bucket_sec", "summary", "alerts"}.issubset(keys):
+        return "volume_vacuum_alerts"
+    if lane == "volume_vacuum" and {"source_json", "state", "card", "summary_snapshot"}.issubset(keys):
+        return "volume_vacuum_state"
+    if lane == "volume_vacuum" and {"summary", "top_summary", "banner", "rows"}.issubset(keys):
+        return "volume_vacuum_watchlist"
+    if lane == "volatility_burst" and {"symbol", "lookback_min", "bucket_sec", "summary", "alerts"}.issubset(keys):
+        return "volatility_burst_alerts"
+    if lane == "volatility_burst" and {"source_json", "state", "card", "summary_snapshot"}.issubset(keys):
+        return "volatility_burst_state"
+    if lane == "volatility_burst" and {"summary", "top_summary", "banner", "rows"}.issubset(keys):
+        return "volatility_burst_watchlist"
+    if lane == "book_proxy_pressure" and {"symbol", "lookback_min", "bucket_sec", "summary", "alerts"}.issubset(keys):
+        return "book_proxy_pressure_alerts"
+    if lane == "book_proxy_pressure" and {"source_json", "state", "card", "summary_snapshot"}.issubset(keys):
+        return "book_proxy_pressure_state"
+    if lane == "book_proxy_pressure" and {"summary", "top_summary", "banner", "rows"}.issubset(keys):
+        return "book_proxy_pressure_watchlist"
     if {"naive_rules", "label_definition", "label_counts", "baseline_hit_rate"}.issubset(keys):
         return "micro_edge_smoke"
     if {"status", "run_id", "violations", "column_stats", "invariant_summary"}.issubset(keys):
@@ -703,10 +2891,70 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "validate_passive_pocket_forward"
     if {"reason_share", "gate_high_share", "next_action", "source"}.issubset(keys):
         return "summarize_rank_attribution"
+    if {"source", "discovery", "validation", "recommendation"}.issubset(keys):
+        return "summarize_liq_regime_tag_impact"
+    if {"debug", "rule", "overall", "recommendation"}.issubset(keys):
+        return "summarize_liq_tag_signal_behavior"
+    if {"symbol", "rule", "recent_limit", "min_liq_rate", "alerts"}.issubset(keys):
+        return "liquidation_regime_alerts"
+    if {"rule", "summary", "rows"}.issubset(keys) and "source_json" not in keys:
+        return "liquidation_watchlist"
+    if {"symbol", "lookback_min", "bucket_sec", "alerts"}.issubset(keys) and "rule" not in keys and "summary" in keys:
+        alerts = payload.get("alerts") or []
+        if alerts and isinstance(alerts, list) and isinstance(alerts[0], dict) and "direction" in alerts[0]:
+            return "return_shock_alerts"
+    if {"symbol", "lookback_min", "bucket_sec", "alerts"}.issubset(keys) and "rule" not in keys:
+        return "spread_stress_alerts"
+    if {"lookback_min", "bucket_sec", "top_summary", "banner", "rows"}.issubset(keys) and "rule" not in keys and "source_json" not in keys:
+        rows = payload.get("rows") or []
+        if rows and isinstance(rows, list) and isinstance(rows[0], dict) and "dominant_direction" in rows[0]:
+            return "return_shock_watchlist"
+        return "spread_stress_watchlist"
+    if {"source", "top_side", "notification_text", "summary_snapshot"}.issubset(keys):
+        return "fill_toxicity_state"
+    if {"source", "notification_text", "summary_snapshot"}.issubset(keys) and "top_side" not in keys:
+        return "latency_stress_state"
+    if {"summary", "top_event", "banner", "lanes"}.issubset(keys) and "top_summary" not in keys:
+        return "research_event_watchboard"
+    if {"history_path", "appended"}.issubset(keys):
+        return "event_watchboard_snapshot_append"
+    if {"history_jsonl", "summary", "lane_stats", "pairwise", "strongest_overlaps"}.issubset(keys):
+        return "event_lane_overlap"
+    if {"watchboard_json", "overlap_json", "summary", "decisions"}.issubset(keys):
+        return "event_lane_consolidation"
+    if {"watchboard_json", "consolidation_json", "summary", "rules"}.issubset(keys):
+        return "event_lane_suppression_policy"
+    if {"watchboard_json", "suppression_json", "summary", "effective_top_event", "lanes"}.issubset(keys):
+        return "event_watchboard_effective"
+    if {"history_path", "last_n", "summary", "lanes"}.issubset(keys) and "effective_top_event" not in keys:
+        summary = payload.get("summary") or {}
+        if "flip_count" in summary and "noisy_lane_count" in summary:
+            return "event_lane_persistence_policy"
+    if {"effective_json", "summary", "banner", "focus_rows"}.issubset(keys):
+        return "event_merged_banner_policy"
+    if {"watchboard_json", "append_json", "trend_json", "brief_json", "history_jsonl", "summary"}.issubset(keys):
+        return "run_research_event_watchboard_cycle"
+    if {"watchboard_json", "trend_json", "summary", "brief"}.issubset(keys):
+        return "research_event_operator_brief"
+    if {"summary", "latest", "points", "history"}.issubset(keys):
+        return "event_watchboard_trend_from_history"
+    if {"summary", "latest", "points"}.issubset(keys) and "top_event" not in keys:
+        return "event_watchboard_trend"
+    if {"source_json", "state", "card", "summary_snapshot"}.issubset(keys) and "rule" not in keys:
+        summary_snapshot = payload.get("summary_snapshot") or {}
+        if "avg_abs_ret_1_tagged" in summary_snapshot:
+            return "return_shock_state"
+        return "spread_stress_state"
+    if {"source_json", "state", "card", "summary_snapshot"}.issubset(keys):
+        return "liquidation_alert_state"
     if {"ok", "calibration", "execution"}.issubset(keys):
         return "validate_artifacts"
     if {"results", "summary"}.issubset(keys):
         return "report_check"
+    if {"debug", "group_by", "counts", "collapse", "liquidation_impact"}.issubset(keys):
+        return "validate_micro_edge_forward"
+    if {"symbol", "rule", "bucket_sec", "results"}.issubset(keys):
+        return "liquidation_rule_coverage"
     if {"tool", "source_json", "n_pockets", "pockets"}.issubset(keys):
         return "analyze_cost_breakdown"
     if {"live_parquet", "trade_db", "timeout_candidates", "live_summary"}.issubset(keys):
@@ -759,6 +3007,28 @@ def infer_schema_name(payload: Dict[str, Any]) -> Optional[str]:
         return "prototype_ws_vs_db_latency"
     if {"hash", "profile"}.issubset(keys):
         return "freeze_runtime_profile"
+    if {"table_contracts", "symbol_coverage", "feature_capability", "required_tables"}.issubset(keys):
+        return "validate_microstructure_contract"
+    if {"rule", "regime", "symbols", "grid", "rows"}.issubset(keys):
+        return "generate_liq_reversal_candidates"
+    if {"coverage_json", "candidates_json", "rank_baseline_json", "rank_v5_json", "summary"}.issubset(keys):
+        return "run_liq_reversal_e2e"
+    if {"symbol", "rule", "lookback_min", "bucket_sec", "summary", "tags"}.issubset(keys):
+        return "liquidation_regime_tagger"
+    if {"source_forward_json", "discovery", "validation", "recommendation"}.issubset(keys):
+        return "summarize_event_signal_bridge"
+    if {"source_bridge_json", "summary", "filter_candidate"}.issubset(keys):
+        return "evaluate_event_conditioned_filter"
+    if {"source_debug_jsonl", "source_filter_json", "allow_lanes", "block_lanes", "discovery", "validation"}.issubset(keys):
+        return "evaluate_event_conditioned_forward"
+    if {"source_debug_jsonl", "source_filter_json", "variant_count", "best_variant", "rows"}.issubset(keys):
+        return "evaluate_event_conditioned_forward_grid"
+    if {"source_grid_json", "best_tradeoff_variant", "best_quality_variant", "recommendation", "rows"}.issubset(keys):
+        return "summarize_event_conditioned_forward_grid"
+    if {"source_baseline_json", "source_filtered_json", "baseline_top", "filtered_top", "delta", "recommendation"}.issubset(keys):
+        return "summarize_rank_event_filter"
+    if {"source_baseline_json", "source_filtered_json", "common_count", "improved_count", "degraded_count", "best_tradeoff_row", "recommendation", "rows"}.issubset(keys):
+        return "summarize_rank_event_filter_set"
     return None
 
 

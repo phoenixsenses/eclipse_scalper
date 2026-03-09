@@ -73,12 +73,12 @@ def _majority_baseline(actual: List[int]) -> Optional[float]:
     return max(up, down) / len(vals)
 
 
-def _load_symbol_trades_and_marks(
+def _load_symbol_trades_marks_and_liqs(
     conn: sqlite3.Connection,
     symbol: str,
     start_ms: int,
     end_ms: int,
-) -> tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+) -> tuple[List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]]]:
     trades_raw = conn.execute(
         "SELECT ts_ms, price, quantity, is_buyer_maker FROM agg_trades "
         "WHERE symbol = ? AND ts_ms >= ? AND ts_ms <= ? ORDER BY ts_ms ASC",
@@ -86,6 +86,11 @@ def _load_symbol_trades_and_marks(
     ).fetchall()
     marks_raw = conn.execute(
         "SELECT ts_ms, mark_price FROM mark_prices "
+        "WHERE symbol = ? AND ts_ms >= ? AND ts_ms <= ? ORDER BY ts_ms ASC",
+        (symbol, int(start_ms), int(end_ms)),
+    ).fetchall()
+    liq_raw = conn.execute(
+        "SELECT ts_ms, side, quantity, price FROM liquidations "
         "WHERE symbol = ? AND ts_ms >= ? AND ts_ms <= ? ORDER BY ts_ms ASC",
         (symbol, int(start_ms), int(end_ms)),
     ).fetchall()
@@ -99,6 +104,25 @@ def _load_symbol_trades_and_marks(
         for r in trades_raw
     ]
     marks = [{"ts_ms": int(r[0]), "mark_price": float(r[1])} for r in marks_raw]
+    liqs = [
+        {
+            "ts_ms": int(r[0]),
+            "side": str(r[1]),
+            "quantity": float(r[2]),
+            "price": float(r[3]),
+        }
+        for r in liq_raw
+    ]
+    return trades, marks, liqs
+
+
+def _load_symbol_trades_and_marks(
+    conn: sqlite3.Connection,
+    symbol: str,
+    start_ms: int,
+    end_ms: int,
+) -> tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    trades, marks, _ = _load_symbol_trades_marks_and_liqs(conn, symbol, start_ms, end_ms)
     return trades, marks
 
 
@@ -112,10 +136,11 @@ def analyze_symbol(
 ) -> Dict[str, Any]:
     now_ms = int(time.time() * 1000)
     start_ms = now_ms - int(max(1, lookback_min) * 60 * 1000)
-    trades, marks = _load_symbol_trades_and_marks(conn, symbol, start_ms=start_ms, end_ms=now_ms)
+    trades, marks, liqs = _load_symbol_trades_marks_and_liqs(conn, symbol, start_ms=start_ms, end_ms=now_ms)
     feats = build_bucket_features(
         trades=trades,
         marks=marks,
+        liqs=liqs,
         bucket_sec=max(1, int(bucket_sec)),
         vol_window=max(4, int(60 / max(1, bucket_sec))),
     )

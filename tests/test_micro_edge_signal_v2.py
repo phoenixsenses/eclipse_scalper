@@ -110,6 +110,37 @@ def test_v2_enrich_sanitizes_non_finite_inputs() -> None:
         assert math.isfinite(float(out[1][key]))
 
 
+def test_v2_liquidation_signal_changes_scores() -> None:
+    base_rows = [
+        {
+            "ts_ms": float(i),
+            "mid": 100.0 + i * 0.01,
+            "spread": 0.0005 - min(i, 10) * 0.00001,
+            "trade_intensity": 8.0 + (i % 3),
+            "imbalance": 0.35,
+            "ret_1": 0.0001,
+            "micro_volatility": 0.001,
+            "liq_imbalance": 0.0,
+            "liq_rate_per_sec": 0.0,
+        }
+        for i in range(20)
+    ]
+    liq_rows = copy.deepcopy(base_rows)
+    for i in range(12, 20):
+        liq_rows[i]["liq_imbalance"] = 0.9
+        liq_rows[i]["liq_rate_per_sec"] = 12.0
+        liq_rows[i]["spread"] = 0.00030 - ((i - 12) * 0.00001)
+
+    base = enrich_rows_with_v2(base_rows, bucket_sec=1, cache_key=None)
+    liq = enrich_rows_with_v2(liq_rows, bucket_sec=1, cache_key=None)
+
+    assert float(liq[-1]["v2_liq_spike"]) > 0.0
+    assert float(liq[-1]["v2_liq_gate_strength"]) > 0.0
+    assert float(liq[-1]["v2_liq_reversal_signal"]) > 0.0
+    assert float(liq[-1]["v2_score"]) != float(base[-1]["v2_score"])
+    assert float(liq[-1]["v3_imbalance_persist"]) != float(base[-1]["v3_imbalance_persist"])
+
+
 def test_v3_no_lookahead_stability() -> None:
     rows = []
     for i in range(120):

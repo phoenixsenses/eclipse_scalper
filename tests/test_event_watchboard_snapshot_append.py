@@ -1,0 +1,100 @@
+from __future__ import annotations
+
+import json
+import shutil
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from tools import event_watchboard_snapshot_append as ewsa
+
+
+def test_build_append_payload() -> None:
+    payload = ewsa.build_append_payload(
+        payload={
+            "summary": {"top_lane": "liquidation", "state_counts": {"severe": 2}},
+            "lanes": [
+                {"lane": "liquidation", "priority_score": 225.0, "level": "severe", "freshness_status": "fresh", "recommended_action": "escalate_monitoring"},
+                {"lane": "spread_stress", "priority_score": 50.0, "level": "elevated", "freshness_status": "stale", "recommended_action": "show_caution"},
+            ],
+            "top_event": {
+                "lane": "liquidation",
+                "level": "severe",
+                "recommended_action": "monitor_only",
+                "headline": "Liq top ETH",
+            },
+            "banner": {
+                "headline": "Liq top ETH",
+                "recommended_action": "monitor_only",
+                "top_lane": "liquidation",
+                "top_level": "severe",
+            },
+            "run_summary": {"run_type": "research_event_watchboard"},
+        },
+        source="reports/RESEARCH_EVENT_WATCHBOARD_REAL.json",
+        history_path="reports/HISTORY.jsonl",
+        out_json="reports/APPEND.json",
+    )
+    assert payload["appended"]["top_lane"] == "liquidation"
+    assert len(payload["appended"]["lanes"]) == 2
+    assert payload["run_summary"]["run_type"] == "event_watchboard_snapshot_append"
+
+
+def test_main_appends_history(monkeypatch) -> None:
+    out_dir = Path("localtests/test_event_watchboard_snapshot_append")
+    shutil.rmtree(out_dir, ignore_errors=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    source = out_dir / "watchboard.json"
+    source.write_text(
+        json.dumps(
+            {
+                "summary": {"top_lane": "liquidation", "state_counts": {"severe": 2}},
+                "lanes": [
+                    {"lane": "liquidation", "priority_score": 225.0, "level": "severe", "freshness_status": "fresh", "recommended_action": "escalate_monitoring"}
+                ],
+                "top_event": {
+                    "lane": "liquidation",
+                    "level": "severe",
+                    "recommended_action": "monitor_only",
+                    "headline": "Liq top ETH",
+                },
+                "banner": {
+                    "headline": "Liq top ETH",
+                    "recommended_action": "monitor_only",
+                    "top_lane": "liquidation",
+                    "top_level": "severe",
+                },
+                "run_summary": {"run_type": "research_event_watchboard"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    history = out_dir / "history.jsonl"
+    out_json = out_dir / "append.json"
+    monkeypatch.setattr(sys, "argv", ["x", "--source", str(source), "--history-jsonl", str(history), "--out-json", str(out_json)])
+    assert ewsa.main() == 0
+    lines = [json.loads(line) for line in history.read_text(encoding="utf-8").splitlines() if line.strip()]
+    assert len(lines) == 1
+    assert lines[0]["top_lane"] == "liquidation"
+    assert lines[0]["lanes"][0]["lane"] == "liquidation"
+    payload = json.loads(out_json.read_text(encoding="utf-8"))
+    assert payload["run_summary"]["run_type"] == "event_watchboard_snapshot_append"
+
+
+def test_append_history_record_trims() -> None:
+    out_dir = Path("localtests/test_event_watchboard_snapshot_append_trim")
+    shutil.rmtree(out_dir, ignore_errors=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    history = out_dir / "history.jsonl"
+    for idx in range(3):
+        stats = ewsa.append_history_record(
+            history_path=history,
+            record={"top_lane": f"lane{idx}"},
+            max_history=2,
+        )
+    rows = [json.loads(line) for line in history.read_text(encoding="utf-8").splitlines() if line.strip()]
+    assert len(rows) == 2
+    assert rows[0]["top_lane"] == "lane1"
+    assert rows[1]["top_lane"] == "lane2"
+    assert stats["trimmed_rows"] == 1

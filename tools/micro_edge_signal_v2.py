@@ -80,12 +80,16 @@ def enrich_rows_with_v2(
         imb = r.get("imbalance")
         vol = r.get("micro_volatility")
         ret_1 = r.get("ret_1")
+        liq_imb = r.get("liq_imbalance")
+        liq_rate = r.get("liq_rate_per_sec")
 
         spread_f = _safe(spread, 0.0)
         intensity_f = _safe(intensity, 0.0)
         imb_f = _safe(imb, 0.0)
         vol_f = _safe(vol, 0.0)
         ret_f = _safe(ret_1, 0.0)
+        liq_imb_f = _safe(liq_imb, 0.0)
+        liq_rate_f = _safe(liq_rate, 0.0)
 
         sign = 1 if ret_f > 0 else (-1 if ret_f < 0 else 0)
         if sign != 0:
@@ -136,9 +140,18 @@ def enrich_rows_with_v2(
         ret_abs_mean = sum(ret_abs_hist[-short_w:]) / max(1, min(len(ret_abs_hist), short_w))
         meanrev_prob = min(1.0, 0.5 * flip_rate + 0.5 * (1.0 if abs(ret_f) > ret_abs_mean else 0.0))
 
+        # liquidation reversal proxy: sell-liquidation spikes support long fade, buy-liquidation spikes support short fade
+        liq_spike = min(1.0, liq_rate_f / max(1.0, intensity_f))
+        liq_spike_active = max(0.0, liq_spike - 0.35)
+        liq_gate_strength = 0.0
+        if liq_spike_active > 0.0 and abs(liq_imb_f) >= 0.60 and spread_recompress > 0.0:
+            liq_gate_strength = liq_spike_active * (0.5 + 0.5 * meanrev_prob)
+        liq_reversal_signal = liq_imb_f * liq_gate_strength
+
         # score for extractable passive alpha
-        side_signal = imb_persist
+        side_signal = (0.96 * imb_persist) + (0.04 * liq_reversal_signal)
         fill_quality = (0.45 * spread_recompress) + (0.35 * intensity_decay) + (0.20 * vol_stabilize)
+        fill_quality += 0.01 * liq_gate_strength * max(0.0, spread_recompress)
         toxicity = max(0.0, d_intensity) + max(0.0, vol_change) + (0.25 * meanrev_prob)
         core = (abs(side_signal) * fill_quality) - (0.50 * toxicity)
         v2_score_signed = (1.0 if side_signal >= 0 else -1.0) * core
@@ -151,6 +164,8 @@ def enrich_rows_with_v2(
         ret_dir = 1.0 if ret_ema > 0.0 else (-1.0 if ret_ema < 0.0 else 0.0)
         follow_agree = 1.0 if (imb_dir != 0.0 and imb_dir == ret_dir) else (0.0 if ret_dir == 0.0 else -1.0)
         follow_mult = 1.0 if follow_agree > 0.0 else (0.35 if follow_agree < 0.0 else 0.60)
+        liq_follow = 1.0 if (liq_reversal_signal != 0.0 and (1.0 if liq_reversal_signal > 0.0 else -1.0) == imb_dir) else 0.0
+        v3_persist = (0.97 * imb_persist) + (0.03 * liq_reversal_signal)
         v3_quality = (
             abs(imb_persist)
             * max(0.0, intensity_slope)
@@ -158,10 +173,11 @@ def enrich_rows_with_v2(
             * follow_mult
             + 0.20 * max(0.0, spread_recompress)
             + 0.10 * max(0.0, intensity_decay)
+            + 0.01 * liq_gate_strength * (0.5 + 0.5 * liq_follow)
         )
         v3_toxic = (0.45 * max(0.0, vol_change)) + (0.35 * max(0.0, intensity_accel)) + (0.20 * meanrev_prob)
         v3_core = v3_quality - v3_toxic
-        v3_side_signal = imb_persist if follow_agree >= 0.0 else (0.5 * imb_persist)
+        v3_side_signal = v3_persist if follow_agree >= 0.0 else (0.5 * imb_persist)
         v3_score_signed = (1.0 if v3_side_signal >= 0.0 else -1.0) * max(0.0, v3_core)
         v3_conf = _sigmoid(max(0.0, v3_core) * 45.0)
 
@@ -176,6 +192,10 @@ def enrich_rows_with_v2(
         r["v2_streak_norm"] = float(imb_streak_norm)
         r["v2_flip_rate"] = float(flip_rate)
         r["v2_meanrev_prob"] = float(meanrev_prob)
+        r["v2_liq_spike"] = float(liq_spike)
+        r["v2_liq_spike_active"] = float(liq_spike_active)
+        r["v2_liq_gate_strength"] = float(liq_gate_strength)
+        r["v2_liq_reversal_signal"] = float(liq_reversal_signal)
         r["v2_side_signal"] = float(side_signal)
         r["v2_score"] = float(v2_score_signed)
         r["v2_confidence"] = float(v2_conf)
@@ -183,6 +203,8 @@ def enrich_rows_with_v2(
         r["v3_intensity_slope"] = float(intensity_slope)
         r["v3_intensity_accel"] = float(intensity_accel)
         r["v3_follow_agree"] = float(follow_agree)
+        r["v3_liq_follow_agree"] = float(liq_follow)
+        r["v3_imbalance_persist"] = float(v3_persist)
         r["v3_toxicity"] = float(v3_toxic)
         r["v3_side_signal"] = float(v3_side_signal)
         r["v3_score"] = float(v3_score_signed)

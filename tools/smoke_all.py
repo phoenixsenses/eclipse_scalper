@@ -16,11 +16,49 @@ KEY_MODULES = [
     "tools.validate_passive_pocket_forward",
     "tools.run_rank_sweep",
     "tools.summarize_rank_attribution",
+    "tools.summarize_liq_regime_tag_impact",
+    "tools.summarize_liq_tag_signal_behavior",
     "tools.validate_canonical",
     "tools.report_schema_validator",
     "tools.run_summary",
     "tools.report_check",
     "tools.tooling_audit",
+    "tools.validate_microstructure_contract",
+    "tools.generate_liq_reversal_candidates",
+    "tools.run_liq_reversal_e2e",
+    "tools.liquidation_regime_tagger",
+    "tools.liquidation_regime_alerts",
+    "tools.liquidation_alert_state",
+    "tools.liquidation_watchlist",
+    "tools.spread_stress_alerts",
+    "tools.spread_stress_state",
+    "tools.return_shock_alerts",
+    "tools.return_shock_state",
+    "tools.return_shock_watchlist",
+    "tools.volume_vacuum_alerts",
+    "tools.volume_vacuum_state",
+    "tools.volume_vacuum_watchlist",
+    "tools.volatility_burst_alerts",
+    "tools.volatility_burst_state",
+    "tools.volatility_burst_watchlist",
+    "tools.book_proxy_pressure_alerts",
+    "tools.book_proxy_pressure_state",
+    "tools.book_proxy_pressure_watchlist",
+    "tools.spread_stress_watchlist",
+    "tools.fill_toxicity_state",
+    "tools.latency_stress_state",
+    "tools.research_event_watchboard",
+    "tools.event_watchboard_trend",
+    "tools.event_watchboard_snapshot_append",
+    "tools.event_watchboard_trend_from_history",
+    "tools.event_lane_overlap",
+    "tools.event_lane_consolidation",
+    "tools.event_lane_suppression_policy",
+    "tools.event_lane_persistence_policy",
+    "tools.event_merged_banner_policy",
+    "tools.event_watchboard_effective",
+    "tools.run_research_event_watchboard_cycle",
+    "tools.research_event_operator_brief",
 ]
 
 KEY_FILES = [
@@ -30,11 +68,49 @@ KEY_FILES = [
     "tools/validate_passive_pocket_forward.py",
     "tools/run_rank_sweep.py",
     "tools/summarize_rank_attribution.py",
+    "tools/summarize_liq_regime_tag_impact.py",
+    "tools/summarize_liq_tag_signal_behavior.py",
     "tools/validate_canonical.py",
     "tools/report_schema_validator.py",
     "tools/run_summary.py",
     "tools/report_check.py",
     "tools/tooling_audit.py",
+    "tools/validate_microstructure_contract.py",
+    "tools/generate_liq_reversal_candidates.py",
+    "tools/run_liq_reversal_e2e.py",
+    "tools/liquidation_regime_tagger.py",
+    "tools/liquidation_regime_alerts.py",
+    "tools/liquidation_alert_state.py",
+    "tools/liquidation_watchlist.py",
+    "tools/spread_stress_alerts.py",
+    "tools/spread_stress_state.py",
+    "tools/return_shock_alerts.py",
+    "tools/return_shock_state.py",
+    "tools/return_shock_watchlist.py",
+    "tools/volume_vacuum_alerts.py",
+    "tools/volume_vacuum_state.py",
+    "tools/volume_vacuum_watchlist.py",
+    "tools/volatility_burst_alerts.py",
+    "tools/volatility_burst_state.py",
+    "tools/volatility_burst_watchlist.py",
+    "tools/book_proxy_pressure_alerts.py",
+    "tools/book_proxy_pressure_state.py",
+    "tools/book_proxy_pressure_watchlist.py",
+    "tools/spread_stress_watchlist.py",
+    "tools/fill_toxicity_state.py",
+    "tools/latency_stress_state.py",
+    "tools/research_event_watchboard.py",
+    "tools/event_watchboard_trend.py",
+    "tools/event_watchboard_snapshot_append.py",
+    "tools/event_watchboard_trend_from_history.py",
+    "tools/event_lane_overlap.py",
+    "tools/event_lane_consolidation.py",
+    "tools/event_lane_suppression_policy.py",
+    "tools/event_lane_persistence_policy.py",
+    "tools/event_merged_banner_policy.py",
+    "tools/event_watchboard_effective.py",
+    "tools/run_research_event_watchboard_cycle.py",
+    "tools/research_event_operator_brief.py",
 ]
 
 
@@ -98,6 +174,49 @@ def run_synthetic_checks() -> List[Tuple[str, bool, str]]:
             out.append(("synthetic_validate_canonical", False, f"status={res.status}"))
     except Exception as exc:
         out.append(("synthetic_validate_canonical", False, f"{type(exc).__name__}: {exc}"))
+    try:
+        import json
+        import shutil
+        import sqlite3
+        import uuid
+        from pathlib import Path
+
+        from tools.validate_microstructure_contract import analyze_contract
+        from tools.report_schema_validator import validate_payload
+
+        tmp = Path("localtests") / f"smoke_micro_contract_{uuid.uuid4().hex[:8]}"
+        tmp.mkdir(parents=True, exist_ok=True)
+        db = tmp / "micro.db"
+        conn = sqlite3.connect(str(db))
+        try:
+            conn.execute(
+                "CREATE TABLE agg_trades (ts_ms INTEGER, symbol TEXT, price REAL, quantity REAL, notional REAL, is_buyer_maker INTEGER)"
+            )
+            conn.execute("CREATE TABLE mark_prices (ts_ms INTEGER, symbol TEXT, mark_price REAL)")
+            conn.execute(
+                "CREATE TABLE liquidations (ts_ms INTEGER, symbol TEXT, side TEXT, price REAL, quantity REAL, notional REAL)"
+            )
+            conn.execute("INSERT INTO agg_trades VALUES (1700000000000, 'ETHUSDT', 100.0, 1.0, 100.0, 0)")
+            conn.execute("INSERT INTO mark_prices VALUES (1700000000000, 'ETHUSDT', 100.1)")
+            conn.execute("INSERT INTO liquidations VALUES (1700000000500, 'ETHUSDT', 'SELL', 99.9, 2.0, 199.8)")
+            conn.commit()
+        finally:
+            conn.close()
+        payload = analyze_contract(db, ["ETHUSDT"])
+        schema_errors = validate_payload(payload, "validate_microstructure_contract")
+        if payload.get("status") == "warn" and not schema_errors:
+            out.append(("synthetic_validate_microstructure_contract", True, "ok"))
+        else:
+            out.append(
+                (
+                    "synthetic_validate_microstructure_contract",
+                    False,
+                    f"status={payload.get('status')} schema_errors={json.dumps(schema_errors)}",
+                )
+            )
+        shutil.rmtree(tmp, ignore_errors=True)
+    except Exception as exc:
+        out.append(("synthetic_validate_microstructure_contract", False, f"{type(exc).__name__}: {exc}"))
     return out
 
 

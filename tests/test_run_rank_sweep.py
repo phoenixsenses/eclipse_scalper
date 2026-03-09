@@ -43,6 +43,14 @@ def test_run_rank_sweep_writes_registry_and_run_folders(monkeypatch) -> None:
             json.dumps(
                 {
                     "count": 1,
+                    "liquidation_scoring_impact": {
+                        "available": True,
+                        "count": 1,
+                        "positive_delta_score_count": 1,
+                        "avg_delta_score_raw_core": 1e-4,
+                        "avg_delta_npa_core": 2e-5,
+                        "avg_delta_pass_rate_core": 0.1,
+                    },
                     "ranking": [
                         {
                             "symbol": "ETHUSDT",
@@ -97,6 +105,8 @@ def test_run_rank_sweep_writes_registry_and_run_folders(monkeypatch) -> None:
     assert "run_id" in rec
     assert rec["outputs"]["json"].endswith("rank.json")
     assert rec["summary"]["count"] == 1
+    assert rec["summary"]["liquidation_scoring_impact"]["available"] is True
+    assert rec["summary"]["liquidation_scoring_impact"]["positive_delta_score_count"] == 1
     assert rec["run_summary"]["version"] == "v1"
     assert rec["run_summary"]["run_type"] == "run_rank_sweep"
     assert rec["run_summary"]["metrics"]["ranking_count"] == 1

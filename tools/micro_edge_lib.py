@@ -106,6 +106,7 @@ def build_bucket_features(
     trades: Sequence[Dict[str, float | int]],
     marks: Sequence[Dict[str, float | int]],
     bucket_sec: int,
+    liqs: Optional[Sequence[Dict[str, float | int]]] = None,
     vol_window: int = 12,
 ) -> List[Dict[str, Optional[float]]]:
     bms = max(1, int(bucket_sec)) * 1000
@@ -153,7 +154,32 @@ def build_bucket_features(
             row["sum_abs_dev_ratio"] += abs(p - mp) / mp
             row["spread_n"] += 1.0
 
-    all_buckets = sorted(set(mark_buckets.keys()) | set(agg.keys()))
+    liq_agg: Dict[int, Dict[str, float]] = {}
+    for l in liqs or []:
+        ts = int(l.get("ts_ms", 0) or 0)
+        b = (ts // bms) * bms
+        row = liq_agg.get(b)
+        if row is None:
+            row = {
+                "liq_count": 0.0,
+                "liq_qty": 0.0,
+                "liq_buy_qty": 0.0,
+                "liq_sell_qty": 0.0,
+            }
+            liq_agg[b] = row
+        try:
+            q = float(l.get("quantity", l.get("qty", 0.0)) or 0.0)
+        except Exception:
+            continue
+        side = str(l.get("side", "") or "").lower()
+        row["liq_count"] += 1.0
+        row["liq_qty"] += abs(q)
+        if side == "buy":
+            row["liq_buy_qty"] += abs(q)
+        elif side == "sell":
+            row["liq_sell_qty"] += abs(q)
+
+    all_buckets = sorted(set(mark_buckets.keys()) | set(agg.keys()) | set(liq_agg.keys()))
     out: List[Dict[str, Optional[float]]] = []
     prev_mid: Optional[float] = None
     logrets: List[float] = []
@@ -174,6 +200,14 @@ def build_bucket_features(
             imbalance = signed_qty / sum_abs_qty
         trade_intensity = trade_count * (60.0 / max(1.0, float(bucket_sec)))
         volume = float(a.get("sum_qty", 0.0))
+        la = liq_agg.get(b, {})
+        liq_qty = float(la.get("liq_qty", 0.0))
+        liq_buy_qty = float(la.get("liq_buy_qty", 0.0))
+        liq_sell_qty = float(la.get("liq_sell_qty", 0.0))
+        liq_count = float(la.get("liq_count", 0.0))
+        liq_imbalance = None
+        if liq_qty > 0.0:
+            liq_imbalance = (liq_sell_qty - liq_buy_qty) / liq_qty
         ret_1 = None
         if mid is not None and prev_mid is not None and mid > 0 and prev_mid > 0:
             ret_1 = math.log(mid / prev_mid)
@@ -200,6 +234,12 @@ def build_bucket_features(
                 "ret_1": ret_1,
                 "micro_volatility": micro_vol,
                 "liquidity_proxy": liq_proxy,
+                "liq_count": liq_count,
+                "liq_qty": liq_qty,
+                "liq_buy_qty": liq_buy_qty,
+                "liq_sell_qty": liq_sell_qty,
+                "liq_imbalance": liq_imbalance,
+                "liq_rate_per_sec": liq_qty / max(1.0, float(bucket_sec)),
             }
         )
     return out
@@ -218,10 +258,15 @@ def evaluate_naive_rules(
     imbs = [float(r["imbalance"]) for r in rows if r.get("imbalance") is not None]
     ints = [float(r["trade_intensity"]) for r in rows if r.get("trade_intensity") is not None]
     sprs = [float(r["spread"]) for r in rows if r.get("spread") is not None]
+    liq_imb = [float(r["liq_imbalance"]) for r in rows if r.get("liq_imbalance") is not None]
+    liq_rate = [float(r["liq_rate_per_sec"]) for r in rows if r.get("liq_rate_per_sec") is not None]
     q10_imb = quantile(imbs, 0.10)
     q90_imb = quantile(imbs, 0.90)
     q90_int = quantile(ints, 0.90)
     q90_spr = quantile(sprs, 0.90)
+    q90_liq_rate = quantile(liq_rate, 0.90)
+    q90_liq_imb = quantile(liq_imb, 0.90)
+    q10_liq_imb = quantile(liq_imb, 0.10)
     rules: Dict[str, Dict[str, Optional[float] | int]] = {}
 
     def _build(name: str, pred: List[int], act: List[int]) -> None:
@@ -295,6 +340,47 @@ def evaluate_naive_rules(
         _build("spread_spike_reversal", pred, act)
 
     pred, act = [], []
+    if q90_liq_rate is not None:
+        for i, r in enumerate(rows):
+            lbl = labels[i] if i < len(labels) else None
+            lr = r.get("liq_rate_per_sec")
+            li = r.get("liq_imbalance")
+            if lbl in (None, 0) or lr is None or li is None:
+                continue
+            if float(lr) > float(q90_liq_rate) and abs(float(li)) > 0.10:
+                side = rule_predicted_side("liquidation_spike_reversal", r, default_side="LONG")
+                if side is None:
+                    continue
+                pred.append(1 if side == "LONG" else -1)
+                act.append(int(lbl))
+    if pred:
+        _build("liquidation_spike_reversal", pred, act)
+
+    pred, act = [], []
+    if q90_liq_rate is not None and q90_spr is not None:
+        for i, r in enumerate(rows):
+            lbl = labels[i] if i < len(labels) else None
+            lr = r.get("liq_rate_per_sec")
+            li = r.get("liq_imbalance")
+            r1 = r.get("ret_1")
+            sp = r.get("spread")
+            if lbl in (None, 0) or lr is None or li is None or r1 is None or sp is None:
+                continue
+            li_f = float(li)
+            r1_f = float(r1)
+            sp_f = float(sp)
+            if float(lr) > float(q90_liq_rate) and abs(li_f) >= 0.60 and sp_f <= float(q90_spr):
+                # Forced move followed by opposite-signed short-horizon return is the special reversal regime.
+                if (li_f > 0.0 and r1_f < 0.0) or (li_f < 0.0 and r1_f > 0.0):
+                    side = rule_predicted_side("high_liq_reversal_regime", r, default_side="LONG")
+                    if side is None:
+                        continue
+                    pred.append(1 if side == "LONG" else -1)
+                    act.append(int(lbl))
+    if pred:
+        _build("high_liq_reversal_regime", pred, act)
+
+    pred, act = [], []
     thr = compute_rule_thresholds(rows)
     for i, r in enumerate(rows):
         lbl = labels[i] if i < len(labels) else None
@@ -346,10 +432,12 @@ def compute_rule_thresholds(rows: Sequence[Dict[str, Optional[float]]]) -> Dict[
     imbs = [float(r["imbalance"]) for r in rows if r.get("imbalance") is not None]
     ints = [float(r["trade_intensity"]) for r in rows if r.get("trade_intensity") is not None]
     sprs = [float(r["spread"]) for r in rows if r.get("spread") is not None]
+    liq_imb = [float(r["liq_imbalance"]) for r in rows if r.get("liq_imbalance") is not None]
+    liq_rate = [float(r["liq_rate_per_sec"]) for r in rows if r.get("liq_rate_per_sec") is not None]
     v2_scores = [abs(float(r["v2_score"])) for r in rows if r.get("v2_score") is not None]
     v2_persist = [abs(float(r["v2_imbalance_persist"])) for r in rows if r.get("v2_imbalance_persist") is not None]
     v3_scores = [abs(float(r["v3_score"])) for r in rows if r.get("v3_score") is not None]
-    v3_persist = [abs(float(r["v2_imbalance_persist"])) for r in rows if r.get("v2_imbalance_persist") is not None]
+    v3_persist = [abs(float(r["v3_imbalance_persist"])) for r in rows if r.get("v3_imbalance_persist") is not None]
     v3_shrink = [float(r["v3_spread_shrink_ratio"]) for r in rows if r.get("v3_spread_shrink_ratio") is not None]
     v3_int_slope = [float(r["v3_intensity_slope"]) for r in rows if r.get("v3_intensity_slope") is not None]
     return {
@@ -357,6 +445,9 @@ def compute_rule_thresholds(rows: Sequence[Dict[str, Optional[float]]]) -> Dict[
         "imb_q90": quantile(imbs, 0.90),
         "int_q90": quantile(ints, 0.90),
         "spr_q90": quantile(sprs, 0.90),
+        "liq_imb_q10": quantile(liq_imb, 0.10),
+        "liq_imb_q90": quantile(liq_imb, 0.90),
+        "liq_rate_q90": quantile(liq_rate, 0.90),
         "v2_score_q70": quantile(v2_scores, 0.70),
         "v2_score_q80": quantile(v2_scores, 0.80),
         "v2_persist_q60": quantile(v2_persist, 0.60),
@@ -392,6 +483,16 @@ def rule_predicted_side(
         if r1 is None or float(r1) == 0.0:
             return None
         return "SHORT" if float(r1) > 0 else "LONG"
+    if rn == "liquidation_spike_reversal":
+        li = row.get("liq_imbalance")
+        if li is None or float(li) == 0.0:
+            return None
+        return "LONG" if float(li) > 0 else "SHORT"
+    if rn == "high_liq_reversal_regime":
+        li = row.get("liq_imbalance")
+        if li is None or float(li) == 0.0:
+            return None
+        return "LONG" if float(li) > 0 else "SHORT"
     if rn == "micro_edge_v2_passive_alpha":
         ss = row.get("v2_side_signal")
         if ss is None or float(ss) == 0.0:
@@ -427,6 +528,28 @@ def rule_fires(
     if rn == "spread_spike_reversal":
         q = thresholds.get("spr_q90")
         return sp is not None and r1 is not None and q is not None and float(sp) > float(q) and float(r1) != 0.0
+    if rn == "liquidation_spike_reversal":
+        lr = row.get("liq_rate_per_sec")
+        li = row.get("liq_imbalance")
+        q = thresholds.get("liq_rate_q90")
+        return lr is not None and li is not None and q is not None and float(lr) > float(q) and abs(float(li)) > 0.10
+    if rn == "high_liq_reversal_regime":
+        lr = row.get("liq_rate_per_sec")
+        li = row.get("liq_imbalance")
+        r1 = row.get("ret_1")
+        sp = row.get("spread")
+        q_liq = thresholds.get("liq_rate_q90")
+        q_spr = thresholds.get("spr_q90")
+        if lr is None or li is None or r1 is None or sp is None or q_liq is None or q_spr is None:
+            return False
+        li_f = float(li)
+        r1_f = float(r1)
+        return (
+            float(lr) > float(q_liq)
+            and abs(li_f) >= 0.60
+            and float(sp) <= float(q_spr)
+            and ((li_f > 0.0 and r1_f < 0.0) or (li_f < 0.0 and r1_f > 0.0))
+        )
     if rn == "micro_edge_v2_passive_alpha":
         score = row.get("v2_score")
         persist = row.get("v2_imbalance_persist")
@@ -449,7 +572,7 @@ def rule_fires(
         )
     if rn == "micro_edge_v3_passive_alpha":
         score = row.get("v3_score")
-        persist = row.get("v2_imbalance_persist")
+        persist = row.get("v3_imbalance_persist")
         conf = row.get("v3_confidence")
         shrink = row.get("v3_spread_shrink_ratio")
         int_slope = row.get("v3_intensity_slope")

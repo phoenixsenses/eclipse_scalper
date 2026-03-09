@@ -173,6 +173,7 @@ def check_exchange_api() -> None:
             f"path={( '/fapi/v2/balance' if default_type == 'future' else '/api/v3/account' )} "
             f"timestamp_ms={ts_ms} recvWindow={recv_window}"
         )
+        exchange.options["fetchCurrencies"] = False
         exchange.fetch_balance()
         _record(OK, "Exchange API", "Connected (authenticated read-only ping succeeded)")
     except ImportError:

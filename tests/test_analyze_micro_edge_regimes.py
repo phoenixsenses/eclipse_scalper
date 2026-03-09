@@ -77,3 +77,28 @@ def test_analyze_regimes_grouping_and_flags():
     pos_group = [r for r in out if not bool(r["p90_net_negative"])][0]
     assert abs(float(pos_group["break_even_bps_total"]) - (((0.0020 + 0.0018) / 2.0) * 10000.0)) < 1e-9
 
+
+def test_enrich_liq_regime_tags_marks_rows() -> None:
+    rows = [
+        {
+            "spread": 0.010,
+            "trade_intensity": 6.0,
+            "ret_1": -0.003,
+            "liq_imbalance": 0.85,
+            "liq_rate_per_sec": 30.0,
+            "imbalance": 0.2,
+        },
+        {
+            "spread": 0.040,
+            "trade_intensity": 1.0,
+            "ret_1": 0.0,
+            "liq_imbalance": 0.0,
+            "liq_rate_per_sec": 0.0,
+            "imbalance": 0.0,
+        },
+    ]
+    mod.enrich_liq_regime_tags(rows, rule_name="high_liq_reversal_regime")
+    assert "liq_regime_tag" in rows[0]
+    assert rows[0]["liq_regime_tag"] in {"high_liq_reversal", "normal"}
+    assert rows[1]["liq_regime_tag"] == "normal"
+

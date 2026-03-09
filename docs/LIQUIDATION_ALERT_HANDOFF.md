@@ -54,6 +54,7 @@ Primary real artifact:
 
 - `reports/LIQUIDATION_REGIME_ALERTS_REAL.json`
 - `reports/LIQUIDATION_ALERT_STATE_REAL.json`
+- `reports/LIQUIDATION_WATCHLIST_REAL.json`
 
 ## Minimal Contract
 
@@ -100,6 +101,7 @@ Show:
 
 - last 20 alerts
 - current state card: `quiet / elevated / severe`
+- freshness: `fresh / stale`
 - side bias distribution
 - severity distribution
 - max liquidation rate in window
@@ -108,6 +110,18 @@ Show:
 Suggested card source:
 
 - `python -m tools.liquidation_alert_state --alerts-json reports/LIQUIDATION_REGIME_ALERTS_REAL.json --out-json reports/LIQUIDATION_ALERT_STATE_REAL.json`
+- stale payload should be rendered as stale, not active
+- runtime can directly use:
+  - `dashboard_summary`
+  - `notification_text`
+  - `recommended_action`
+
+Suggested watchlist source:
+
+- `python -m tools.liquidation_watchlist --symbols ETHUSDT,BTCUSDT --out-json reports/LIQUIDATION_WATCHLIST_REAL.json`
+- use this for multi-symbol ranking / watch tables
+- `top_summary` can be used for a single top-watch badge without parsing the full rows list
+- `banner` can be used for a single dashboard header / top-of-page strip
 
 ### Monitoring
 

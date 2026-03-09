@@ -479,3 +479,62 @@ def test_validate_pocket_forward_scratch_deterministic(monkeypatch) -> None:
     b = vf.validate_pocket_forward(**kwargs)
     assert a["per_combo"] == b["per_combo"]
     assert a["failure_attribution_median"] == b["failure_attribution_median"]
+
+
+def test_validate_pocket_forward_event_block_filter(monkeypatch) -> None:
+    vf._ROWS_CACHE.clear()
+    monkeypatch.setattr(vf.time, "time", lambda: 1700000000.0)
+    monkeypatch.setattr(vf, "_load_symbol_trades_and_marks", lambda *args, **kwargs: ([], []))
+    monkeypatch.setattr(
+        vf,
+        "build_bucket_features",
+        lambda *args, **kwargs: [
+            {
+                "ts_ms": float(i),
+                "mid": 100.0 + i * 0.001,
+                "spread": 0.0001 if i < 700 else 0.0003,
+                "trade_intensity": 3000.0 if i < 700 else 5000.0,
+                "micro_volatility": 0.001,
+                "imbalance": 0.2 if i < 700 else 0.95,
+                "ret_1": 0.0 if i < 700 else 0.002,
+            }
+            for i in range(1000)
+        ],
+    )
+    monkeypatch.setattr(vf, "compute_regime_bins", lambda rows: {"vol": (0.0, 0.0, 0.001), "intensity": (0.0, 0.0, 2500.0)})
+    monkeypatch.setattr(vf, "compute_rule_thresholds", lambda rows: {})
+    monkeypatch.setattr(vf, "build_passive_calibration_samples", lambda **kwargs: [])
+    monkeypatch.setattr(vf, "calibrate_passive_model", lambda samples, maker_fee_bps, seed: {"seed": int(seed)})
+    monkeypatch.setattr(vf, "load_passive_profiles", lambda path: {})
+    monkeypatch.setattr(vf, "resolve_symbol_profile", lambda profiles, symbol: {})
+    monkeypatch.setattr(
+        vf,
+        "simulate_rule_trades",
+        lambda **kwargs: {
+            "filled_only_metrics": {"n": 60, "avg_net": 0.0002, "p90_net": 0.0003, "win_rate": 0.55},
+            "attempt_level_metrics": {"fill_rate": 0.5},
+        },
+    )
+    res = vf.validate_pocket_forward(
+        db="data/microstructure.db",
+        symbol="ETHUSDT",
+        lookback_min=100,
+        bucket_sec=1,
+        horizon_sec=60,
+        rule="r",
+        side="auto",
+        min_imbalance=0.5,
+        min_trade_intensity=2500,
+        max_spread=0.00025,
+        splits=4,
+        seeds="11",
+        min_n=30,
+        min_n_frac=0.0,
+        maker_fee_bps=0.5,
+        event_block_lanes="book_proxy_pressure",
+    )
+    event_filter = res["event_filter"]
+    assert event_filter["available"] is True
+    assert event_filter["block_lanes"] == ["book_proxy_pressure"]
+    assert event_filter["rows_after"] < event_filter["rows_before"]
+    assert event_filter["kept_ratio"] < 1.0

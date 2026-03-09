@@ -1,0 +1,52 @@
+{
+  "alerts_json": {
+    "lane": "volatility_burst",
+    "symbol": "ETHUSDT",
+    "lookback_min": 240,
+    "bucket_sec": 5,
+    "summary": {
+      "rows_total": 100,
+      "tagged_count": 5,
+      "tagged_rate": 0.05,
+      "recent_alert_count": 3,
+      "high_count": 1,
+      "medium_count": 2,
+      "avg_abs_ret_1_tagged": 0.0012,
+      "avg_trade_intensity_tagged": 450.0,
+      "direction_counts": {
+        "UP": 2,
+        "DOWN": 1,
+        "FLAT": 0
+      }
+    }
+  },
+  "state_json": {
+    "lane": "volatility_burst",
+    "symbol": "ETHUSDT",
+    "state": {
+      "level": "elevated",
+      "dominant_direction": "UP",
+      "freshness": {
+        "status": "fresh"
+      }
+    },
+    "recommended_action": "show_caution",
+    "dashboard_summary": "ETHUSDT elevated volatility burst, 3 recent alerts, freshness fresh."
+  },
+  "watchlist_json": {
+    "lane": "volatility_burst",
+    "summary": {
+      "symbol_count": 2,
+      "top_symbol": "ETHUSDT"
+    },
+    "top_summary": {
+      "symbol": "ETHUSDT",
+      "state_level": "severe",
+      "freshness_status": "fresh",
+      "recommended_action": "escalate_monitoring"
+    },
+    "banner": {
+      "headline": "Volatility burst watchlist top=ETHUSDT level=severe freshness=fresh action=escalate_monitoring"
+    }
+  }
+}
