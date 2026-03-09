@@ -78,6 +78,10 @@ try:
     from tools.ingestion_check import run_ingestion_check as _run_ingestion_check  # type: ignore
 except Exception:  # pragma: no cover
     _run_ingestion_check = None  # type: ignore
+try:
+    from execution import event_lane_gate  # type: ignore
+except Exception:  # pragma: no cover
+    event_lane_gate = None  # type: ignore
 
 # Optional telemetry (never fatal)
 try:
@@ -2428,6 +2432,39 @@ async def entry_loop(bot) -> None:
                         await _emit_entry_blocked(bot, k, "signal_action", throttle_sec=30.0)
                         await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                         continue
+
+                    # Event lane gate (shadow mode — logs only, does not block orders)
+                    # Placed after kill-switch, after signal validation, never on reduce-only intents.
+                    if event_lane_gate is not None and sig.get("source") == "micro_signal":
+                        _gate_rule = "micro_edge_v3_passive_alpha"
+                        _gate_horizon = int(os.getenv("MICRO_SIGNAL_LOOKBACK_SEC", "60") or "60")
+                        if event_lane_gate.applies_to_live_event_gate(k, _gate_rule, _gate_horizon):
+                            _gate_db = os.getenv(
+                                "ENTRY_EVENT_LANE_GATE_DB",
+                                os.getenv("MICRO_SIGNAL_DB", str(getattr(getattr(bot, "cfg", None), "DB_PATH", "") or "")),
+                            )
+                            if _gate_db:
+                                _gate = event_lane_gate.load_current_event_gate(db=_gate_db, symbol=k)
+                                _blocked, _gate_reason, _gate_details = event_lane_gate.should_block_event_gate(
+                                    _gate, symbol=k, rule_name=_gate_rule, horizon_sec=_gate_horizon
+                                )
+                                _gate_shadow = os.getenv("ENTRY_EVENT_LANE_GATE_SHADOW", "1") == "1"
+                                if _blocked:
+                                    log_entry.warning(
+                                        f"[event_lane_gate] symbol={k} rule={_gate_rule} h={_gate_horizon}"
+                                        f" gate_status=blocked reason={_gate_reason}"
+                                        f" lanes={_gate.get('blocked_lanes', [])} shadow={_gate_shadow}"
+                                        f" imb={_gate.get('latest_abs_imbalance')} ts={_gate.get('latest_ts_ms')}"
+                                    )
+                                    if not _gate_shadow:
+                                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                                        continue  # actual block — only when SHADOW=0
+                                else:
+                                    log_entry.info(
+                                        f"[event_lane_gate] symbol={k} rule={_gate_rule} h={_gate_horizon}"
+                                        f" gate_status={_gate.get('gate', 'unknown')} shadow={_gate_shadow}"
+                                    )
+
                     if risk_mgr is not None:
                         try:
                             rd = risk_mgr.check_entry(
