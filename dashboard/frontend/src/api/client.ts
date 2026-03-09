@@ -281,6 +281,7 @@ function normalizeOverview(value: unknown): OverviewResponse {
     preflight: asObject(obj.preflight, {}),
     reliability: asObject(obj.reliability, {}),
     exit_quality: asObject(obj.exit_quality, {}),
+    research_events: asObject(obj.research_events, {}),
   };
 }
 

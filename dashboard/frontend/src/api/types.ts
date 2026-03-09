@@ -240,6 +240,7 @@ export interface OverviewResponse {
   exit_quality?: Record<string, unknown>;
   preflight?: Record<string, unknown>;
   reliability?: Record<string, unknown>;
+  research_events?: Record<string, unknown>;
 }
 
 export type PassiveProfilesResponse = Record<string, unknown>;

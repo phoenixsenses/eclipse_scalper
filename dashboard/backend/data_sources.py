@@ -39,6 +39,7 @@ def _env_path(env_var: str, default: Path) -> Path:
 LOGS_DIR  = _env_path("LOG_DIR", REPO_ROOT / "logs")
 STATE_DIR = REPO_ROOT / "state"
 DATA_DIR  = REPO_ROOT / "data"
+REPORTS_DIR = REPO_ROOT / "reports"
 
 _SENSITIVE_KEYWORDS = {"API_KEY", "API_SECRET", "SECRET", "TOKEN", "PASSWORD", "PASS", "PRIVATE"}
 
@@ -99,6 +100,30 @@ def _safe_json(path: Path) -> dict[str, Any]:
             return json.load(f)
     except Exception:
         return {}
+
+
+def _safe_json_with_meta(path: Path, stale_after_sec: float = 900.0) -> dict[str, Any]:
+    payload = _safe_json(path)
+    exists = path.exists()
+    mtime = None
+    age_sec = None
+    stale = True
+    if exists:
+        try:
+            mtime = path.stat().st_mtime
+            age_sec = round(max(0.0, time.time() - mtime), 1)
+            stale = age_sec > max(30.0, float(stale_after_sec))
+        except Exception:
+            pass
+    if isinstance(payload, dict):
+        payload.setdefault("_meta", {})
+        payload["_meta"] = {
+            "path": str(path),
+            "exists": exists,
+            "age_sec": age_sec,
+            "stale": stale if exists else True,
+        }
+    return payload if isinstance(payload, dict) else {}
 
 
 def _tail_lines(path: Path, n: int = 200) -> list[str]:
@@ -176,6 +201,49 @@ def read_micro_edge_gates() -> dict[str, Any]:
 
 def read_passive_profiles() -> dict[str, Any]:
     return _safe_json(STATE_DIR / "passive_realistic_profiles.json")
+
+
+_RESEARCH_STATE_FILES: dict[str, str] = {
+    "liquidation": "LIQUIDATION_ALERT_STATE_REAL.json",
+    "spread_stress": "SPREAD_STRESS_STATE_REAL.json",
+    "fill_toxicity": "FILL_TOXICITY_STATE_REAL.json",
+    "latency_stress": "LATENCY_STRESS_STATE_REAL.json",
+    "return_shock": "RETURN_SHOCK_STATE_REAL.json",
+    "volume_vacuum": "VOLUME_VACUUM_STATE_REAL.json",
+    "volatility_burst": "VOLATILITY_BURST_STATE_REAL.json",
+    "book_proxy_pressure": "BOOK_PROXY_PRESSURE_STATE_REAL.json",
+}
+
+_RESEARCH_WATCHLIST_FILES: dict[str, str] = {
+    "liquidation": "LIQUIDATION_WATCHLIST_REAL.json",
+    "spread_stress": "SPREAD_STRESS_WATCHLIST_REAL.json",
+    "return_shock": "RETURN_SHOCK_WATCHLIST_REAL.json",
+    "volume_vacuum": "VOLUME_VACUUM_WATCHLIST_REAL.json",
+    "volatility_burst": "VOLATILITY_BURST_WATCHLIST_REAL.json",
+    "book_proxy_pressure": "BOOK_PROXY_PRESSURE_WATCHLIST_REAL.json",
+}
+
+
+def _latest_daily_report() -> dict[str, Any]:
+    try:
+        candidates = sorted(REPORTS_DIR.glob("DAILY_*.json"), key=lambda path: path.name, reverse=True)
+    except Exception:
+        candidates = []
+    if not candidates:
+        return {"_meta": {"path": str(REPORTS_DIR / "DAILY_<date>.json"), "exists": False, "age_sec": None, "stale": True}}
+    return _safe_json_with_meta(candidates[0], stale_after_sec=36 * 3600.0)
+
+
+def read_research_events() -> dict[str, Any]:
+    watchboard = _safe_json_with_meta(REPORTS_DIR / "RESEARCH_EVENT_WATCHBOARD_REAL.json")
+    states = {name: _safe_json_with_meta(REPORTS_DIR / filename) for name, filename in _RESEARCH_STATE_FILES.items()}
+    watchlists = {name: _safe_json_with_meta(REPORTS_DIR / filename) for name, filename in _RESEARCH_WATCHLIST_FILES.items()}
+    return {
+        "daily_report": _latest_daily_report(),
+        "watchboard": watchboard,
+        "states": states,
+        "watchlists": watchlists,
+    }
 
 
 # ─────────────────────────────────────────────
@@ -1391,4 +1459,5 @@ def build_overview() -> dict[str, Any]:
         "exit_quality": read_exit_quality(),
         "preflight": read_preflight(),
         "reliability": read_reliability(),
+        "research_events": read_research_events(),
     }
