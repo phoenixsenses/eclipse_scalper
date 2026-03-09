@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from tools.run_summary import build_run_summary
+from tools.validate_data_research_fitness import analyze_research_fitness
 
 def _load_dotenv_best_effort() -> None:
     try:
@@ -33,11 +34,18 @@ def _parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Preflight gate before paper/live bootstrap.")
     p.add_argument("--db", default="data/microstructure.db")
     p.add_argument("--trade-db", default="data/paper_trades.db")
+    p.add_argument("--event-diary-csv", default="data/event_diary.csv")
+    p.add_argument("--fitness-symbols", default="BTCUSDT,ETHUSDT")
+    p.add_argument("--fitness-fresh-sec", type=int, default=120)
     p.add_argument("--max-db-stale-sec", type=float, default=1800.0)
     p.add_argument("--min-free-gb", type=float, default=2.0)
     p.add_argument("--out-json", default="reports/PREFLIGHT_CHECK.json")
     p.add_argument("--out-md", default="reports/PREFLIGHT_CHECK.md")
     return p.parse_args()
+
+
+def _parse_symbols(raw: str) -> List[str]:
+    return [s.strip().upper() for s in str(raw or "").replace(";", ",").split(",") if s.strip()]
 
 
 def _check_writable(path: Path) -> bool:
@@ -151,17 +159,43 @@ def main() -> int:
     if free_gb < float(args.min_free_gb):
         failures.append(f"Low disk space: free_gb={free_gb:.2f} < min_free_gb={float(args.min_free_gb):.2f}")
 
+    fitness = analyze_research_fitness(
+        db_path=db,
+        csv_path=Path(str(args.event_diary_csv)),
+        symbols=_parse_symbols(args.fitness_symbols),
+        fresh_sec=int(args.fitness_fresh_sec),
+    )
+    checks["data_research_fitness_status"] = str(fitness.get("status") or "unknown")
+    checks["data_research_fitness_tier"] = str(fitness.get("contract", {}).get("tier") or "unknown")
+    checks["data_research_fitness_db_ready"] = bool(fitness.get("db_ready"))
+    checks["data_research_fitness_warning_count"] = len(fitness.get("warnings") or [])
+    checks["data_research_fitness_failure_count"] = len(fitness.get("failures") or [])
+    if checks["data_research_fitness_status"] == "fail":
+        failures.append(
+            "Data research fitness failed: "
+            + ", ".join((fitness.get("failures") or ["unknown_failure"])[:3])
+        )
+    elif checks["data_research_fitness_status"] == "warn":
+        warnings.append(
+            "Data research fitness warn: "
+            + ", ".join((fitness.get("warnings") or ["warning"])[:3])
+        )
+
     payload = {
         "ok": len(failures) == 0,
         "failures": failures,
         "warnings": warnings,
         "checks": checks,
+        "data_research_fitness": fitness,
     }
     payload["run_summary"] = build_run_summary(
         run_type="preflight_check",
         inputs={
             "db": str(args.db),
             "trade_db": str(args.trade_db),
+            "event_diary_csv": str(args.event_diary_csv),
+            "fitness_symbols": _parse_symbols(args.fitness_symbols),
+            "fitness_fresh_sec": int(args.fitness_fresh_sec),
             "max_db_stale_sec": float(args.max_db_stale_sec),
             "min_free_gb": float(args.min_free_gb),
         },

@@ -40,6 +40,17 @@ def test_preflight_passes_with_fresh_db(monkeypatch) -> None:
         monkeypatch.setenv("SCALPER_DRY_RUN", "1")
         monkeypatch.setenv("ACTIVE_SYMBOLS", "ETHUSDT")
         monkeypatch.setattr(
+            pf,
+            "analyze_research_fitness",
+            lambda **kwargs: {
+                "status": "pass",
+                "db_ready": True,
+                "warnings": [],
+                "failures": [],
+                "contract": {"tier": "trade_plus_liq_mark_proxy"},
+            },
+        )
+        monkeypatch.setattr(
             "sys.argv",
             [
                 "x",
@@ -62,6 +73,56 @@ def test_preflight_passes_with_fresh_db(monkeypatch) -> None:
         assert payload["ok"] is True
         assert payload["run_summary"]["run_type"] == "preflight_check"
         assert out_md.exists()
+    finally:
+        monkeypatch.chdir(cwd)
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_preflight_warns_on_data_research_fitness(monkeypatch) -> None:
+    tmp = _mk_local_tmp()
+    cwd = Path.cwd()
+    try:
+        monkeypatch.chdir(tmp)
+        db = tmp / "micro.db"
+        now_ms = int(time.time() * 1000.0)
+        _mk_db(db, now_ms)
+        out_json = tmp / "reports" / "preflight.json"
+        out_md = tmp / "reports" / "preflight.md"
+
+        monkeypatch.setenv("SCALPER_DRY_RUN", "1")
+        monkeypatch.setenv("ACTIVE_SYMBOLS", "ETHUSDT")
+        monkeypatch.setattr(
+            pf,
+            "analyze_research_fitness",
+            lambda **kwargs: {
+                "status": "warn",
+                "db_ready": True,
+                "warnings": ["no_spread:ETHUSDT"],
+                "failures": [],
+                "contract": {"tier": "trade_plus_liq_mark_proxy"},
+            },
+        )
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "x",
+                "--db",
+                str(db),
+                "--max-db-stale-sec",
+                "3600",
+                "--min-free-gb",
+                "0",
+                "--out-json",
+                str(out_json),
+                "--out-md",
+                str(out_md),
+            ],
+        )
+        assert pf.main() == 0
+        payload = json.loads(out_json.read_text(encoding="utf-8"))
+        assert payload["ok"] is True
+        assert payload["checks"]["data_research_fitness_status"] == "warn"
+        assert any("Data research fitness warn" in item for item in payload["warnings"])
     finally:
         monkeypatch.chdir(cwd)
         shutil.rmtree(tmp, ignore_errors=True)
