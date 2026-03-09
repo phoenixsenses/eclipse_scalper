@@ -32,6 +32,8 @@ from execution.runtime_helpers import symkey
     ("BTC/USDT", "BTCUSDT"),
     ("btc/usdt:usdt", "BTCUSDT"),
     ("  ETH/USDT  ", "ETHUSDT"),
+    ("ETH-USDT", "ETHUSDT"),
+    ("ETH_USDT", "ETHUSDT"),
     ("ETHUSDT", "ETHUSDT"),
     ("ETH:USDT", "ETHUSDT"),
     ("BTCUSDTUSDT", "BTCUSDT"),  # dedup trailing USDTUSDT

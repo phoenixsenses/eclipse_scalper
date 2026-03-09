@@ -6,6 +6,8 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+from utils.symbols import canonical_symbol
+
 
 def cfg_value(bot: Any, name: str, default: Any) -> Any:
     try:
@@ -42,10 +44,10 @@ def safe_float(value: Any, default: float = 0.0) -> float:
 
 
 def symkey(sym: str) -> str:
-    normalized = (sym or "").upper().strip()
-    normalized = normalized.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-    normalized = normalized.replace(":USDT", "USDT").replace(":", "")
-    normalized = normalized.replace("/", "")
+    try:
+        normalized = canonical_symbol(str(sym or ""))
+    except Exception:
+        return ""
     if normalized.endswith("USDTUSDT"):
         normalized = normalized[:-4]
     return normalized
