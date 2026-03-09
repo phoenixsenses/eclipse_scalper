@@ -275,8 +275,35 @@ async def _position_manager_tick(bot):
     await _safe_call("position_manager.position_manager_tick", position_manager_tick, bot)
 
 
+_DEGRADED_CONSECUTIVE_FAILURES = 0
+_DEGRADED_THRESHOLD = 3  # consecutive probe failures to enter degraded mode
+_DEGRADED_NOTIFIED = False
+
+
+def _set_exchange_degraded(bot, degraded: bool) -> None:
+    """Set exchange degraded flag on bot.state.run_context."""
+    try:
+        rc = _rc_map(getattr(bot, "state", None))
+        rc["exchange_degraded"] = bool(degraded)
+        rc["exchange_degraded_ts"] = _now() if degraded else 0.0
+    except Exception:
+        pass
+
+
+def is_exchange_degraded(bot) -> bool:
+    """Check if exchange is in degraded mode (entries blocked, exits allowed)."""
+    try:
+        rc = getattr(getattr(bot, "state", None), "run_context", None)
+        if isinstance(rc, dict):
+            return bool(rc.get("exchange_degraded", False))
+    except Exception:
+        pass
+    return False
+
+
 async def _exchange_connectivity_tick(bot) -> None:
-    """Probe exchange health — trigger _health_check if stale, notify on failure."""
+    """Probe exchange health — enter degraded mode on repeated failures."""
+    global _DEGRADED_CONSECUTIVE_FAILURES, _DEGRADED_NOTIFIED
     try:
         ex = getattr(bot, "ex", None)
         if ex is None:
@@ -291,14 +318,38 @@ async def _exchange_connectivity_tick(bot) -> None:
             return
         try:
             await hc()
+            # Success: clear degraded state
+            if _DEGRADED_CONSECUTIVE_FAILURES > 0:
+                _DEGRADED_CONSECUTIVE_FAILURES = 0
+                if is_exchange_degraded(bot):
+                    _set_exchange_degraded(bot, False)
+                    _DEGRADED_NOTIFIED = False
+                    log_entry.warning("GUARDIAN: exchange connectivity restored — exiting DEGRADED mode")
+                    notify = getattr(bot, "notify", None)
+                    if notify is not None:
+                        try:
+                            await notify.speak(
+                                "EXCHANGE CONNECTIVITY RESTORED — degraded mode OFF, entries re-enabled",
+                                "critical",
+                            )
+                        except Exception:
+                            pass
         except Exception as e:
-            log_entry.error(f"GUARDIAN: exchange connectivity probe failed: {e}")
-            # Notify via bot if possible
+            _DEGRADED_CONSECUTIVE_FAILURES += 1
+            log_entry.error(f"GUARDIAN: exchange connectivity probe failed ({_DEGRADED_CONSECUTIVE_FAILURES}x): {e}")
+            if _DEGRADED_CONSECUTIVE_FAILURES >= _DEGRADED_THRESHOLD and not is_exchange_degraded(bot):
+                _set_exchange_degraded(bot, True)
+                log_entry.critical(
+                    f"GUARDIAN: ENTERING DEGRADED MODE — {_DEGRADED_CONSECUTIVE_FAILURES} consecutive "
+                    f"exchange failures. New entries BLOCKED, exits still allowed."
+                )
             notify = getattr(bot, "notify", None)
-            if notify is not None:
+            if notify is not None and not _DEGRADED_NOTIFIED:
+                _DEGRADED_NOTIFIED = True
                 try:
                     await notify.speak(
-                        f"EXCHANGE CONNECTIVITY FAILED — {type(e).__name__}: {e}",
+                        f"EXCHANGE DEGRADED — {_DEGRADED_CONSECUTIVE_FAILURES}x failures. "
+                        f"Entries blocked, exits allowed. Will auto-recover on next successful probe.",
                         "critical",
                     )
                 except Exception:
@@ -390,6 +441,7 @@ async def _write_heartbeat(bot) -> None:
                 )
         except Exception:
             pass
+        data["exchange_degraded"] = is_exchange_degraded(bot)
         atomic_write_json(_HEARTBEAT_PATH, data)
     except Exception:
         pass
