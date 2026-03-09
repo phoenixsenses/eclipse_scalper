@@ -42,6 +42,10 @@ import type {
   FillToxicityState,
   LatencyStressState,
   WatchboardState,
+  BookProxyPressureState,
+  ReturnShockState,
+  VolatilityBurstState,
+  VolumeVacuumState,
   RiskOverview,
 } from "./types";
 
@@ -385,6 +389,14 @@ export const api = {
     get<LatencyStressState>("/latency-stress-state", undefined, signal),
   watchboardState: (signal?: AbortSignal): Promise<WatchboardState> =>
     get<WatchboardState>("/watchboard-state", undefined, signal),
+  bookProxyPressureState: (signal?: AbortSignal): Promise<BookProxyPressureState> =>
+    get<BookProxyPressureState>("/book-proxy-pressure-state", undefined, signal),
+  returnShockState: (signal?: AbortSignal): Promise<ReturnShockState> =>
+    get<ReturnShockState>("/return-shock-state", undefined, signal),
+  volatilityBurstState: (signal?: AbortSignal): Promise<VolatilityBurstState> =>
+    get<VolatilityBurstState>("/volatility-burst-state", undefined, signal),
+  volumeVacuumState: (signal?: AbortSignal): Promise<VolumeVacuumState> =>
+    get<VolumeVacuumState>("/volume-vacuum-state", undefined, signal),
   riskOverview: (signal?: AbortSignal): Promise<RiskOverview> =>
     get<RiskOverview>("/risk-overview", undefined, signal),
   supervisorStatus: (signal?: AbortSignal): Promise<SupervisorStatusResponse> =>

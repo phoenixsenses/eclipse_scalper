@@ -489,6 +489,10 @@ _SPREAD_STRESS_WATCHLIST_PATH = _env_path("SPREAD_STRESS_WATCHLIST_JSON", REPO_R
 _FILL_TOXICITY_STATE_PATH = _env_path("FILL_TOXICITY_STATE_JSON", REPO_ROOT / "reports" / "FILL_TOXICITY_STATE_REAL.json")
 _LATENCY_STRESS_STATE_PATH = _env_path("LATENCY_STRESS_STATE_JSON", REPO_ROOT / "reports" / "LATENCY_STRESS_STATE_REAL.json")
 _WATCHBOARD_STATE_PATH = _env_path("WATCHBOARD_STATE_JSON", REPO_ROOT / "reports" / "RESEARCH_EVENT_WATCHBOARD_REAL.json")
+_BOOK_PROXY_PRESSURE_STATE_PATH = _env_path("BOOK_PROXY_PRESSURE_STATE_JSON", REPO_ROOT / "reports" / "BOOK_PROXY_PRESSURE_STATE_REAL.json")
+_RETURN_SHOCK_STATE_PATH = _env_path("RETURN_SHOCK_STATE_JSON", REPO_ROOT / "reports" / "RETURN_SHOCK_STATE_REAL.json")
+_VOLATILITY_BURST_STATE_PATH = _env_path("VOLATILITY_BURST_STATE_JSON", REPO_ROOT / "reports" / "VOLATILITY_BURST_STATE_REAL.json")
+_VOLUME_VACUUM_STATE_PATH = _env_path("VOLUME_VACUUM_STATE_JSON", REPO_ROOT / "reports" / "VOLUME_VACUUM_STATE_REAL.json")
 _OPS_HEALTH_HISTORY_PATH = LOGS_DIR / "ops_health_history.jsonl"
 _OPS_HEALTH_HISTORY_APPEND_SEC = float(os.environ.get("OPS_HEALTH_HISTORY_APPEND_SEC", "60") or "60")
 _ops_health_last_append_ts: float = 0.0
@@ -1930,6 +1934,164 @@ def read_watchboard_state() -> dict[str, Any]:
             "top_event": dict(top_event) if isinstance(top_event, dict) else None,
             "banner": dict(banner) if isinstance(banner, dict) else None,
             "lanes": [dict(l) for l in lanes if isinstance(l, dict)],
+        }
+    except Exception:
+        return empty
+
+
+# ---------------------------------------------------------------------------
+# Book proxy pressure state
+# ---------------------------------------------------------------------------
+
+def read_book_proxy_pressure_state() -> dict[str, Any]:
+    """Read book-proxy-pressure state payload. Safe dict on missing/malformed."""
+    empty: dict[str, Any] = {
+        "available": False,
+        "state": {"level": "quiet", "reasons": [], "primary_side_bias": "NEUTRAL"},
+        "card": {},
+    }
+    try:
+        if not _BOOK_PROXY_PRESSURE_STATE_PATH.exists():
+            return empty
+        payload = json.loads(_BOOK_PROXY_PRESSURE_STATE_PATH.read_text(encoding="utf-8", errors="replace"))
+        if not isinstance(payload, dict):
+            return empty
+        state = payload.get("state") or {}
+        card = payload.get("card") or {}
+        age_sec = max(0.0, time.time() - _BOOK_PROXY_PRESSURE_STATE_PATH.stat().st_mtime)
+        return {
+            "available": True,
+            "stale": age_sec > 600,
+            "age_sec": round(age_sec, 1),
+            "symbol": str(payload.get("symbol") or ""),
+            "lane": str(payload.get("lane") or "book_proxy_pressure"),
+            "state": {
+                "level": str(state.get("level") or "quiet"),
+                "reasons": list(state.get("reasons") or []),
+                "primary_side_bias": str(state.get("primary_side_bias") or "NEUTRAL"),
+                "freshness": dict(state.get("freshness") or {}),
+            },
+            "card": dict(card),
+            "dashboard_summary": str(payload.get("dashboard_summary") or ""),
+            "recommended_action": str(payload.get("recommended_action") or ""),
+        }
+    except Exception:
+        return empty
+
+
+# ---------------------------------------------------------------------------
+# Return shock state
+# ---------------------------------------------------------------------------
+
+def read_return_shock_state() -> dict[str, Any]:
+    """Read return-shock state payload. Safe dict on missing/malformed."""
+    empty: dict[str, Any] = {
+        "available": False,
+        "state": {"level": "quiet", "reasons": [], "dominant_direction": ""},
+        "card": {},
+    }
+    try:
+        if not _RETURN_SHOCK_STATE_PATH.exists():
+            return empty
+        payload = json.loads(_RETURN_SHOCK_STATE_PATH.read_text(encoding="utf-8", errors="replace"))
+        if not isinstance(payload, dict):
+            return empty
+        state = payload.get("state") or {}
+        card = payload.get("card") or {}
+        age_sec = max(0.0, time.time() - _RETURN_SHOCK_STATE_PATH.stat().st_mtime)
+        return {
+            "available": True,
+            "stale": age_sec > 600,
+            "age_sec": round(age_sec, 1),
+            "symbol": str(payload.get("symbol") or ""),
+            "state": {
+                "level": str(state.get("level") or "quiet"),
+                "reasons": list(state.get("reasons") or []),
+                "dominant_direction": str(state.get("dominant_direction") or ""),
+                "freshness": dict(state.get("freshness") or {}),
+            },
+            "card": dict(card),
+            "dashboard_summary": str(payload.get("dashboard_summary") or ""),
+            "recommended_action": str(payload.get("recommended_action") or ""),
+        }
+    except Exception:
+        return empty
+
+
+# ---------------------------------------------------------------------------
+# Volatility burst state
+# ---------------------------------------------------------------------------
+
+def read_volatility_burst_state() -> dict[str, Any]:
+    """Read volatility-burst state payload. Safe dict on missing/malformed."""
+    empty: dict[str, Any] = {
+        "available": False,
+        "state": {"level": "quiet", "reasons": [], "dominant_direction": ""},
+        "card": {},
+    }
+    try:
+        if not _VOLATILITY_BURST_STATE_PATH.exists():
+            return empty
+        payload = json.loads(_VOLATILITY_BURST_STATE_PATH.read_text(encoding="utf-8", errors="replace"))
+        if not isinstance(payload, dict):
+            return empty
+        state = payload.get("state") or {}
+        card = payload.get("card") or {}
+        age_sec = max(0.0, time.time() - _VOLATILITY_BURST_STATE_PATH.stat().st_mtime)
+        return {
+            "available": True,
+            "stale": age_sec > 600,
+            "age_sec": round(age_sec, 1),
+            "symbol": str(payload.get("symbol") or ""),
+            "lane": str(payload.get("lane") or "volatility_burst"),
+            "state": {
+                "level": str(state.get("level") or "quiet"),
+                "reasons": list(state.get("reasons") or []),
+                "dominant_direction": str(state.get("dominant_direction") or ""),
+                "freshness": dict(state.get("freshness") or {}),
+            },
+            "card": dict(card),
+            "dashboard_summary": str(payload.get("dashboard_summary") or ""),
+            "recommended_action": str(payload.get("recommended_action") or ""),
+        }
+    except Exception:
+        return empty
+
+
+# ---------------------------------------------------------------------------
+# Volume vacuum state
+# ---------------------------------------------------------------------------
+
+def read_volume_vacuum_state() -> dict[str, Any]:
+    """Read volume-vacuum state payload. Safe dict on missing/malformed."""
+    empty: dict[str, Any] = {
+        "available": False,
+        "state": {"level": "quiet", "reasons": []},
+        "card": {},
+    }
+    try:
+        if not _VOLUME_VACUUM_STATE_PATH.exists():
+            return empty
+        payload = json.loads(_VOLUME_VACUUM_STATE_PATH.read_text(encoding="utf-8", errors="replace"))
+        if not isinstance(payload, dict):
+            return empty
+        state = payload.get("state") or {}
+        card = payload.get("card") or {}
+        age_sec = max(0.0, time.time() - _VOLUME_VACUUM_STATE_PATH.stat().st_mtime)
+        return {
+            "available": True,
+            "stale": age_sec > 600,
+            "age_sec": round(age_sec, 1),
+            "symbol": str(payload.get("symbol") or ""),
+            "lane": str(payload.get("lane") or "volume_vacuum"),
+            "state": {
+                "level": str(state.get("level") or "quiet"),
+                "reasons": list(state.get("reasons") or []),
+                "freshness": dict(state.get("freshness") or {}),
+            },
+            "card": dict(card),
+            "dashboard_summary": str(payload.get("dashboard_summary") or ""),
+            "recommended_action": str(payload.get("recommended_action") or ""),
         }
     except Exception:
         return empty

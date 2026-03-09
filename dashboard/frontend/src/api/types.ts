@@ -751,11 +751,133 @@ export interface WatchboardState {
   lanes: WatchboardLane[];
 }
 
+export interface BookProxyPressureState {
+  available: boolean;
+  stale?: boolean;
+  age_sec?: number;
+  symbol?: string;
+  lane?: string;
+  state: {
+    level: StressLevel;
+    reasons: string[];
+    primary_side_bias?: string;
+    freshness?: Record<string, unknown>;
+  };
+  card: {
+    headline?: string;
+    operator_note?: string;
+    recent_alert_count?: number;
+    tagged_rate?: number;
+    high_count?: number;
+    medium_count?: number;
+    avg_abs_imbalance_tagged?: number;
+    avg_trade_intensity_tagged?: number;
+    avg_spread_tagged?: number;
+    primary_side_bias?: string;
+    latest_alert_ts_ms?: number;
+    freshness_status?: string;
+    age_sec?: number;
+  };
+  dashboard_summary?: string;
+  recommended_action?: string;
+}
+
+export interface ReturnShockState {
+  available: boolean;
+  stale?: boolean;
+  age_sec?: number;
+  symbol?: string;
+  state: {
+    level: StressLevel;
+    reasons: string[];
+    dominant_direction?: string;
+    freshness?: Record<string, unknown>;
+  };
+  card: {
+    headline?: string;
+    operator_note?: string;
+    recent_alert_count?: number;
+    tagged_rate?: number;
+    high_count?: number;
+    medium_count?: number;
+    avg_abs_ret_1_tagged?: number;
+    avg_trade_intensity_tagged?: number;
+    dominant_direction?: string;
+    latest_alert_ts_ms?: number;
+    freshness_status?: string;
+    age_sec?: number;
+  };
+  dashboard_summary?: string;
+  recommended_action?: string;
+}
+
+export interface VolatilityBurstState {
+  available: boolean;
+  stale?: boolean;
+  age_sec?: number;
+  symbol?: string;
+  lane?: string;
+  state: {
+    level: StressLevel;
+    reasons: string[];
+    dominant_direction?: string;
+    freshness?: Record<string, unknown>;
+  };
+  card: {
+    headline?: string;
+    operator_note?: string;
+    recent_alert_count?: number;
+    tagged_rate?: number;
+    high_count?: number;
+    medium_count?: number;
+    avg_abs_ret_1_tagged?: number;
+    avg_trade_intensity_tagged?: number;
+    dominant_direction?: string;
+    latest_alert_ts_ms?: number;
+    freshness_status?: string;
+    age_sec?: number;
+  };
+  dashboard_summary?: string;
+  recommended_action?: string;
+}
+
+export interface VolumeVacuumState {
+  available: boolean;
+  stale?: boolean;
+  age_sec?: number;
+  symbol?: string;
+  lane?: string;
+  state: {
+    level: StressLevel;
+    reasons: string[];
+    freshness?: Record<string, unknown>;
+  };
+  card: {
+    headline?: string;
+    operator_note?: string;
+    recent_alert_count?: number;
+    tagged_rate?: number;
+    high_count?: number;
+    medium_count?: number;
+    avg_trade_intensity_tagged?: number;
+    avg_spread_tagged?: number;
+    latest_alert_ts_ms?: number;
+    freshness_status?: string;
+    age_sec?: number;
+  };
+  dashboard_summary?: string;
+  recommended_action?: string;
+}
+
 export interface RiskOverview {
   liq_alert: LiqAlertState;
   spread_stress: SpreadStressState;
   fill_toxicity: FillToxicityState;
   latency_stress: LatencyStressState;
   watchboard: WatchboardState;
+  book_proxy_pressure?: BookProxyPressureState;
+  return_shock?: ReturnShockState;
+  volatility_burst?: VolatilityBurstState;
+  volume_vacuum?: VolumeVacuumState;
   ts: number;
 }
