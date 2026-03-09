@@ -81,3 +81,34 @@ Standard /metrics for Grafana/Datadog integration.
 
 ### 12. WebSocket
 Bidirectional real-time: push metrics, receive control commands.
+
+---
+
+## Deep Audit Fixes (Beyond Roadmap)
+
+### Pass 1 — Safety Fundamentals
+| Fix | Commit |
+|-----|--------|
+| Atomic writes: 8 files hardened (shutdown, kill_switch, guardian, emergency, etc.) | `6ac95f9` |
+| Dict caps: telemetry counters (1000), emit keys (1000), throttle keys (500) | `6ac95f9` |
+| CancelledError re-raise in entry_loop_full.py | `6ac95f9` |
+| Silent exception paths: one-time warning on JSONL write failure | `6ac95f9` |
+
+### Pass 2 — Resilience & Timeouts
+| Fix | Commit |
+|-----|--------|
+| Order router: per-attempt timeout (ROUTER_ATTEMPT_TIMEOUT_SEC=10s) | `5b2b6ad` |
+| Reconcile: fetch_positions timeout (RECONCILE_FETCH_TIMEOUT_SEC=8s) | `5b2b6ad` |
+| Guardian: external heartbeat file (logs/health/heartbeat.json) | `5b2b6ad` |
+| Telegram: circuit breaker (5 failures → 120s cooldown → fallback log) | `5b2b6ad` |
+| Prometheus: heartbeat metrics (bot_alive, uptime, positions, kill_switch) | `5b2b6ad` |
+
+### Pass 3 — Memory & Resource Safety
+| Fix | Commit |
+|-----|--------|
+| Guardian: 45s timeout on every _safe_call step | `da09858` |
+| Guardian: _STUCK_ALERTED dict with 500-entry cap (was unbounded set) | `da09858` |
+| Notifications: _pending deque capped at 200 | `da09858` |
+| Notifications: _last_by_key evicts oldest above 500 | `da09858` |
+| Runner: atexit cleanup for daemon PID file | `da09858` |
+| Dashboard: WebSocket connections capped at 50 (WS_MAX_CLIENTS) | `02fc30f` |
