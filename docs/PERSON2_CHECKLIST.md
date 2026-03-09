@@ -26,6 +26,10 @@ Branch: `codex/runtime/ops-foundation`
 | `059c3e9` | P1 | Margin/liquidation alerts + position stuck detection in guardian |
 | `8d1925f` | Tech | Consolidated /api/risk-overview endpoint + roadmap update |
 | `e0dcfc4` | Tech | Log rotation manager + Prometheus /metrics endpoint |
+| `c4d04dd` | Tech | WebSocket /ws/live for real-time metrics push |
+| `6ac95f9` | P1 | Deep audit: atomic writes everywhere, dict caps, CancelledError safety |
+| `5b2b6ad` | **P0** | Timeout guards (order_router 10s, reconcile 8s), heartbeat, Telegram circuit breaker |
+| `da09858` | P1 | Guardian step timeout (45s), memory caps (_pending, _last_by_key, _STUCK_ALERTED), PID cleanup |
 
 ## Full Audit Status
 
@@ -38,11 +42,11 @@ Branch: `codex/runtime/ops-foundation`
 | entry_loop_full.py | Clean | Same pattern, shutdown/CancelledError handling |
 | entry_watch.py | Clean | Lock-guarded polling, CancelledError re-raised |
 | exit.py | Clean | `exit_sent` guard on all paths, CancelledError re-raised |
-| order_router.py | Clean | Spread/impact/notional guards, bounded retries |
+| order_router.py | FIXED | Per-attempt timeout (10s), spread/impact/notional guards, bounded retries |
 | emergency.py | Clean | Truth-first flatten, live verification, forced escalation |
 | data_loop.py | Clean | CancelledError re-raised, shutdown check |
-| guardian.py | Clean | Watchdog + exchange probe |
-| reconcile.py | Clean | Encoding fix + priority upgrade |
+| guardian.py | FIXED | Step timeout (45s), heartbeat writer, stuck position alerts, log rotation, memory caps |
+| reconcile.py | FIXED | Fetch timeout (8s), encoding fix + priority upgrade |
 | bootstrap.py | Clean | mkdir + encoding |
 | position_manager.py | Clean | Stable client IDs, proper locking |
 | rebuild.py | Clean | Orphan handling |
@@ -76,7 +80,7 @@ Branch: `codex/runtime/ops-foundation`
 | File | Status | Notes |
 |------|--------|-------|
 | core.py | Clean | `_trade_allowed()` returns False on exception (fail-closed) |
-| runner.py | Clean | Early kill switch state load |
+| runner.py | FIXED | Early kill switch state load, startup validation, PID cleanup with atexit |
 
 ### brain/
 
@@ -106,7 +110,7 @@ Branch: `codex/runtime/ops-foundation`
 | File | Status | Notes |
 |------|--------|-------|
 | telegram.py | FIXED | HTML injection via `html.escape()` |
-| manager.py | Clean | Fallback JSONL |
+| manager.py | FIXED | Circuit breaker, fallback JSONL, bounded _pending (200), bounded _last_by_key (500) |
 | events.py | Clean | |
 | health_alerts.py | Clean | |
 | daily_summary.py | Clean | |
@@ -116,7 +120,7 @@ Branch: `codex/runtime/ops-foundation`
 
 | File | Status | Notes |
 |------|--------|-------|
-| app.py | FIXED | Rate limit default ON, stale key cleanup |
+| app.py | FIXED | Rate limit ON, stale key cleanup, /api/risk-overview, /metrics Prometheus, /ws/live WebSocket |
 | control_actions.py | Clean | Whitelisted actions, path traversal protection |
 | data_sources.py | Clean | Masked sensitive config, hardcoded SQL columns |
 | models.py | Clean | Pydantic response models |
