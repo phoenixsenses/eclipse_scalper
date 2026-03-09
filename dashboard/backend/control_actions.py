@@ -363,9 +363,7 @@ def run_runbook_with_context(actions: list[str] | None = None, context: dict[str
         "updated_ts": ended,
     }
     try:
-        _SESSION_DIR.mkdir(parents=True, exist_ok=True)
-        with open(_SESSION_DIR / f"{session_id}.json", "w", encoding="utf-8") as f:
-            json.dump(payload, f, ensure_ascii=False, indent=2)
+        _save_json(_SESSION_DIR / f"{session_id}.json", payload)
     except Exception:
         pass
     return payload
@@ -439,9 +437,8 @@ def _load_json(path: Path, default: dict[str, Any]) -> dict[str, Any]:
 
 def _save_json(path: Path, payload: dict[str, Any]) -> None:
     try:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(payload, f, ensure_ascii=False, indent=2)
+        from execution.runtime_helpers import atomic_write_json
+        atomic_write_json(path, payload)
     except Exception:
         pass
 
@@ -836,8 +833,7 @@ def update_runbook_session(session_id: str, tag: str | None = None, note: str | 
     if note is not None:
         obj["note"] = str(note)[:4000]
     obj["updated_ts"] = time.time()
-    with open(p, "w", encoding="utf-8") as f:
-        json.dump(obj, f, ensure_ascii=False, indent=2)
+    _save_json(p, obj)
     return obj
 
 

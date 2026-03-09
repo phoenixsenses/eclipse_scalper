@@ -733,8 +733,8 @@ async def run_bot(
         }
 
         try:
-            with open(Path.home() / ".blade_eternal_testament.json", "w", encoding="utf-8") as f:
-                json.dump(testament, f, indent=2)
+            from execution.runtime_helpers import atomic_write_json
+            atomic_write_json(Path.home() / ".blade_eternal_testament.json", testament)
         except Exception as e:
             log_core.error(f"Testament write failed: {e}")
 
@@ -763,8 +763,12 @@ if __name__ == "__main__":
         os.setsid()
         if os.fork():
             sys.exit(0)
-        with open("/tmp/blade_eternal.pid", "w", encoding="utf-8") as f:
+        import tempfile as _tmpmod
+        _pid_path = Path("/tmp/blade_eternal.pid")
+        _fd, _tmp = _tmpmod.mkstemp(prefix=".pid_", dir="/tmp")
+        with os.fdopen(_fd, "w", encoding="utf-8") as f:
             f.write(str(os.getpid()))
+        os.replace(_tmp, str(_pid_path))
 
     asyncio.run(
         run_bot(

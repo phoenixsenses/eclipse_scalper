@@ -620,8 +620,8 @@ async def emergency_flat(bot, reason: str = "COSMIC_CHAOS", forced: bool = False
 
     testament_path = os.path.expanduser("~/.blade_cosmic_testament.json")
     try:
-        with open(testament_path, "w", encoding="utf-8") as f:
-            json.dump(testament, f, indent=2)
+        from execution.runtime_helpers import atomic_write_json
+        atomic_write_json(Path(testament_path), testament)
         log_core.critical(f"COSMIC TESTAMENT PRESERVED — {testament_path}")
     except Exception as e:
         log_core.error(f"Testament preservation failed: {e}")

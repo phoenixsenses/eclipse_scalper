@@ -318,6 +318,13 @@ async def emit_throttled(
         if cd > 0 and (now - last) < cd:
             return
 
+        # Cap dict size to prevent unbounded growth on long-running bots
+        if len(t.last_emit_by_key) > 1000:
+            try:
+                oldest = min(t.last_emit_by_key, key=t.last_emit_by_key.get)  # type: ignore[arg-type]
+                del t.last_emit_by_key[oldest]
+            except Exception:
+                pass
         t.last_emit_by_key[k] = now
         await emit(bot, event, data=data, level=level, symbol=symbol)
     except asyncio.CancelledError:
@@ -334,6 +341,13 @@ def bump(bot, name: str, n: int = 1) -> None:
         if not _truthy(_cfg(bot, "TELEMETRY_ENABLED", True)):
             return
         t = _ensure_telemetry_state(bot)
+        if len(t.counters) > 1000:
+            # Evict oldest entries to prevent unbounded growth
+            try:
+                oldest = min(t.counters, key=t.counters.get)  # type: ignore[arg-type]
+                del t.counters[oldest]
+            except Exception:
+                pass
         t.counters[name] = int(t.counters.get(name, 0) or 0) + int(n or 0)
     except Exception:
         return
