@@ -32,7 +32,7 @@ try:
     VOICE_AVAILABLE = True
     engine = pyttsx3.init()
     engine.setProperty('rate', 150)
-except:
+except Exception:
     VOICE_AVAILABLE = False
 
 from strategies.eclipse_scalper import scalper_signal
@@ -125,7 +125,7 @@ async def play_divine_sound(tier: str):
                 winsound.Beep(800, 600)
         else:
             print('\a' * (5 if tier == "DIVINE" else 4 if tier == "COSMIC" else 3))
-    except:
+    except Exception:
         print('\a')
 
     if VOICE_AVAILABLE:
