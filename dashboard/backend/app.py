@@ -878,6 +878,7 @@ async def get_debug_security_audit(limit: int = Query(100, ge=1, le=500)):
 # ─── WebSocket real-time metrics push ───────────────────────────────
 
 _WS_CLIENTS: set[WebSocket] = set()
+_WS_MAX_CLIENTS = int(os.getenv("WS_MAX_CLIENTS", "50"))
 _WS_PUSH_INTERVAL = float(os.getenv("WS_PUSH_INTERVAL_SEC", "5"))
 
 
@@ -908,6 +909,9 @@ def _collect_ws_snapshot() -> dict:
 @app.websocket("/ws/live")
 async def websocket_live(ws: WebSocket):
     """Bidirectional WebSocket: push metrics every N seconds, receive control commands."""
+    if len(_WS_CLIENTS) >= _WS_MAX_CLIENTS:
+        await ws.close(code=1013, reason="max connections reached")
+        return
     await ws.accept()
     _WS_CLIENTS.add(ws)
     try:
