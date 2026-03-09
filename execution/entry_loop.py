@@ -2438,7 +2438,7 @@ async def entry_loop(bot) -> None:
                     if event_lane_gate is not None and sig.get("source") == "micro_signal":
                         _gate_rule = "micro_edge_v3_passive_alpha"
                         _gate_horizon = int(os.getenv("MICRO_SIGNAL_LOOKBACK_SEC", "60") or "60")
-                        if event_lane_gate.applies_to_live_event_gate(k, _gate_rule, _gate_horizon):
+                        if event_lane_gate.applies_to_live_event_gate(k, _gate_rule, _gate_horizon, signal=sig):
                             _gate_db = os.getenv(
                                 "ENTRY_EVENT_LANE_GATE_DB",
                                 os.getenv("MICRO_SIGNAL_DB", str(getattr(getattr(bot, "cfg", None), "DB_PATH", "") or "")),
@@ -2446,20 +2446,77 @@ async def entry_loop(bot) -> None:
                             if _gate_db:
                                 _gate = event_lane_gate.load_current_event_gate(db=_gate_db, symbol=k)
                                 _blocked, _gate_reason, _gate_details = event_lane_gate.should_block_event_gate(
-                                    _gate, symbol=k, rule_name=_gate_rule, horizon_sec=_gate_horizon
+                                    _gate, symbol=k, rule_name=_gate_rule, horizon_sec=_gate_horizon, signal=sig
                                 )
                                 _gate_shadow = os.getenv("ENTRY_EVENT_LANE_GATE_SHADOW", "1") == "1"
                                 if _blocked:
+                                    if callable(emit_throttled):
+                                        await emit_throttled(
+                                            bot,
+                                            "entry.event_lane_gate",
+                                            key=f"{k}:blocked",
+                                            cooldown_sec=5.0,
+                                            data={
+                                                "symbol": k,
+                                                "rule_name": _gate_rule,
+                                                "horizon_sec": _gate_horizon,
+                                                "shadow": _gate_shadow,
+                                                "decision": "would_block" if _gate_shadow else "blocked",
+                                                "gate_reason": _gate_reason,
+                                                "gate_status": str(_gate.get("gate") or "unknown"),
+                                                "blocking_lanes": list(_gate.get("blocked_lanes", [])),
+                                                "latest_abs_imbalance": _gate.get("latest_abs_imbalance"),
+                                                "latest_ts_ms": _gate.get("latest_ts_ms"),
+                                            },
+                                            symbol=k,
+                                            level="warning",
+                                        )
                                     log_entry.warning(
                                         f"[event_lane_gate] symbol={k} rule={_gate_rule} h={_gate_horizon}"
                                         f" gate_status=blocked reason={_gate_reason}"
                                         f" lanes={_gate.get('blocked_lanes', [])} shadow={_gate_shadow}"
                                         f" imb={_gate.get('latest_abs_imbalance')} ts={_gate.get('latest_ts_ms')}"
                                     )
-                                    if not _gate_shadow:
+                                    if _gate_shadow:
+                                        await _emit_entry_blocked(
+                                            bot,
+                                            k,
+                                            "event_lane_gate_shadow",
+                                            data={
+                                                "gate_reason": _gate_reason,
+                                                "gate_status": str(_gate.get("gate") or "unknown"),
+                                                "blocking_lanes": list(_gate.get("blocked_lanes", [])),
+                                                "latest_abs_imbalance": _gate.get("latest_abs_imbalance"),
+                                                "latest_ts_ms": _gate.get("latest_ts_ms"),
+                                            },
+                                            throttle_sec=5.0,
+                                            throttle_key=f"{k}:event_lane_gate_shadow",
+                                        )
+                                    else:
                                         await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                                         continue  # actual block — only when SHADOW=0
                                 else:
+                                    if callable(emit_throttled):
+                                        await emit_throttled(
+                                            bot,
+                                            "entry.event_lane_gate",
+                                            key=f"{k}:{str(_gate.get('gate') or 'allowed')}",
+                                            cooldown_sec=5.0,
+                                            data={
+                                                "symbol": k,
+                                                "rule_name": _gate_rule,
+                                                "horizon_sec": _gate_horizon,
+                                                "shadow": _gate_shadow,
+                                                "decision": "allowed",
+                                                "gate_reason": _gate_reason,
+                                                "gate_status": str(_gate.get("gate") or "unknown"),
+                                                "blocking_lanes": list(_gate.get("blocked_lanes", [])),
+                                                "latest_abs_imbalance": _gate.get("latest_abs_imbalance"),
+                                                "latest_ts_ms": _gate.get("latest_ts_ms"),
+                                            },
+                                            symbol=k,
+                                            level="info",
+                                        )
                                     log_entry.info(
                                         f"[event_lane_gate] symbol={k} rule={_gate_rule} h={_gate_horizon}"
                                         f" gate_status={_gate.get('gate', 'unknown')} shadow={_gate_shadow}"

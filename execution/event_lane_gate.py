@@ -1,36 +1,51 @@
 """
-execution/event_lane_gate.py — Event lane gate for the h=60 imb>=0.85 ETHUSDT pocket.
+Live event lane gate for the ETHUSDT h=60 / min_imbalance>=0.85 micro pocket.
 
-Shadow mode: computes and logs gate decisions but does NOT block orders until
-    ENTRY_EVENT_LANE_GATE_ENABLED=1  AND  ENTRY_EVENT_LANE_GATE_SHADOW=0
-
-Lane detection logic copied verbatim from tools/check_event_lanes.py.
-Do NOT import from research tools — this module is self-contained.
+This module is intentionally self-contained. It reads the live microstructure DB,
+derives current-bucket lane state, and exposes a narrow helper for the live entry
+loop to decide whether the current pocket would be blocked.
 """
 from __future__ import annotations
 
 import os
 import sqlite3
 import time
-from typing import Any, Dict, List, Tuple
+import re
+from typing import Any, Dict, List, Optional, Tuple
+
+def _signal_scope_min_imbalance(signal: Optional[Dict[str, Any]]) -> float:
+    signal = signal or {}
+    try:
+        pocket_name = str(signal.get("pocket_name") or "").strip()
+        m = re.search(r"imb>=([0-9]+(?:\.[0-9]+)?)", pocket_name)
+        if m:
+            return abs(float(m.group(1)))
+    except Exception:
+        pass
+    try:
+        return abs(float(signal.get("min_imbalance", 0.0) or 0.0))
+    except Exception:
+        return 0.0
 
 
-# ---------------------------------------------------------------------------
-# Scope guard
-# ---------------------------------------------------------------------------
-
-def applies_to_live_event_gate(symbol: str, rule_name: str, horizon_sec: int) -> bool:
-    """Returns True only for ETHUSDT + micro_edge_v3_passive_alpha + h=60."""
+def applies_to_live_event_gate(
+    symbol: str,
+    rule_name: str,
+    horizon_sec: int,
+    signal: Optional[Dict[str, Any]] = None,
+) -> bool:
+    """Restrict the gate to the live ETH micro pocket that research validated."""
+    signal = signal or {}
+    source = str(signal.get("source") or "")
+    min_imbalance = _signal_scope_min_imbalance(signal)
     return (
         symbol.upper() == "ETHUSDT"
         and rule_name == "micro_edge_v3_passive_alpha"
         and int(horizon_sec) == 60
+        and source == "micro_signal"
+        and min_imbalance >= 0.85
     )
 
-
-# ---------------------------------------------------------------------------
-# Data loading (self-contained, mirrors check_event_lanes._load_buckets)
-# ---------------------------------------------------------------------------
 
 def _load_buckets_for_gate(
     db: str,
@@ -60,8 +75,9 @@ def _load_buckets_for_gate(
 
         mark_rows = con.execute(
             """
-            SELECT (ts_ms / (?*1000)) * (?*1000) AS bucket_ms,
-                   AVG(mark_price) AS mark_price
+            SELECT
+                (ts_ms / (?*1000)) * (?*1000) AS bucket_ms,
+                AVG(mark_price) AS mark_price
             FROM mark_prices
             WHERE symbol=? AND ts_ms BETWEEN ? AND ?
             GROUP BY bucket_ms
@@ -72,37 +88,34 @@ def _load_buckets_for_gate(
     finally:
         con.close()
 
-    mark_map: Dict[int, float] = {int(r[0]): float(r[1]) for r in mark_rows}
-
+    mark_map: Dict[int, float] = {int(row[0]): float(row[1]) for row in mark_rows}
     buckets: List[Dict[str, Any]] = []
     prev_vwap = None
-    for r in trade_rows:
-        bms = int(r[0])
-        bv = float(r[1] or 0)
-        sv = float(r[2] or 0)
-        vwap = float(r[3])
-        cnt = int(r[4])
-        tot = bv + sv
-        imb = (bv - sv) / tot if tot > 0 else 0.0
-        mark = mark_map.get(bms, vwap)
-        spread = abs(vwap - mark) / vwap if vwap > 0 else 0.0
-        intensity = cnt * (60.0 / bucket_sec)
+    for row in trade_rows:
+        bucket_ms = int(row[0])
+        buy_qty = float(row[1] or 0.0)
+        sell_qty = float(row[2] or 0.0)
+        vwap = float(row[3] or 0.0)
+        count = int(row[4] or 0)
+        total_qty = buy_qty + sell_qty
+        imbalance = (buy_qty - sell_qty) / total_qty if total_qty > 0 else 0.0
+        mark_price = mark_map.get(bucket_ms, vwap)
+        spread = abs(vwap - mark_price) / vwap if vwap > 0 else 0.0
+        trade_intensity = count * (60.0 / max(1, int(bucket_sec)))
         ret_1 = (vwap - prev_vwap) / prev_vwap if prev_vwap and prev_vwap > 0 else 0.0
-        buckets.append({
-            "ts_ms": bms,
-            "imbalance": imb,
-            "trade_intensity": intensity,
-            "spread": spread,
-            "ret_1": ret_1,
-            "vwap": vwap,
-        })
+        buckets.append(
+            {
+                "ts_ms": bucket_ms,
+                "imbalance": imbalance,
+                "trade_intensity": trade_intensity,
+                "spread": spread,
+                "ret_1": ret_1,
+                "vwap": vwap,
+            }
+        )
         prev_vwap = vwap
     return buckets
 
-
-# ---------------------------------------------------------------------------
-# Lane detection — copied verbatim from tools/check_event_lanes.py
-# ---------------------------------------------------------------------------
 
 def _quantile(values: List[float], q: float) -> float:
     if not values:
@@ -111,14 +124,15 @@ def _quantile(values: List[float], q: float) -> float:
     pos = (len(xs) - 1) * max(0.0, min(1.0, q))
     lo = int(pos)
     hi = min(len(xs) - 1, lo + 1)
-    return xs[lo] * (1.0 - (pos - lo)) + xs[hi] * (pos - lo)
+    w = pos - lo
+    return xs[lo] * (1.0 - w) + xs[hi] * w
 
 
 def _detect_book_proxy_pressure(buckets: List[Dict[str, Any]]) -> List[bool]:
-    spreads = [float(r["spread"]) for r in buckets]
-    intensities = [float(r["trade_intensity"]) for r in buckets]
-    imbalances = [abs(float(r["imbalance"])) for r in buckets]
-    rets = [abs(float(r["ret_1"])) for r in buckets]
+    spreads = [float(row["spread"]) for row in buckets]
+    intensities = [float(row["trade_intensity"]) for row in buckets]
+    imbalances = [abs(float(row["imbalance"])) for row in buckets]
+    rets = [abs(float(row["ret_1"])) for row in buckets]
 
     spread_q50 = _quantile(spreads, 0.50)
     intensity_q50 = _quantile(intensities, 0.50)
@@ -127,22 +141,27 @@ def _detect_book_proxy_pressure(buckets: List[Dict[str, Any]]) -> List[bool]:
     imbalance_q90 = _quantile(imbalances, 0.90)
     ret_q50 = _quantile(rets, 0.50)
 
-    fired = []
-    for r in buckets:
-        spr = float(r["spread"])
-        inten = float(r["trade_intensity"])
-        abs_imb = abs(float(r["imbalance"]))
-        abs_ret = abs(float(r["ret_1"]))
-        high = abs_imb >= imbalance_q90 and inten >= intensity_q75 and spr >= spread_q50
-        med = abs_imb >= imbalance_q75 and inten >= intensity_q50 and abs_ret <= ret_q50 and spr >= spread_q50
-        fired.append(high or med)
+    fired: List[bool] = []
+    for row in buckets:
+        spread = float(row["spread"])
+        intensity = float(row["trade_intensity"])
+        abs_imbalance = abs(float(row["imbalance"]))
+        abs_ret = abs(float(row["ret_1"]))
+        high = abs_imbalance >= imbalance_q90 and intensity >= intensity_q75 and spread >= spread_q50
+        medium = (
+            abs_imbalance >= imbalance_q75
+            and intensity >= intensity_q50
+            and abs_ret <= ret_q50
+            and spread >= spread_q50
+        )
+        fired.append(high or medium)
     return fired
 
 
 def _detect_volatility_burst(buckets: List[Dict[str, Any]]) -> List[bool]:
-    abs_rets = [abs(float(r["ret_1"])) for r in buckets]
-    intensities = [float(r["trade_intensity"]) for r in buckets]
-    spreads = [float(r["spread"]) for r in buckets]
+    abs_rets = [abs(float(row["ret_1"])) for row in buckets]
+    intensities = [float(row["trade_intensity"]) for row in buckets]
+    spreads = [float(row["spread"]) for row in buckets]
 
     abs_ret_q75 = _quantile(abs_rets, 0.75)
     abs_ret_q90 = _quantile(abs_rets, 0.90)
@@ -150,25 +169,22 @@ def _detect_volatility_burst(buckets: List[Dict[str, Any]]) -> List[bool]:
     intensity_q60 = _quantile(intensities, 0.60)
     spread_q75 = _quantile(spreads, 0.75)
 
-    fired = []
-    for r in buckets:
-        abs_move = abs(float(r["ret_1"]))
-        inten = float(r["trade_intensity"])
-        spr = float(r["spread"])
-        high = abs_move >= abs_ret_q90 and inten >= intensity_q60
-        med = abs_move >= abs_ret_q75 and inten >= intensity_q40 and spr <= max(spread_q75, 0.0)
-        fired.append(high or med)
+    fired: List[bool] = []
+    for row in buckets:
+        abs_move = abs(float(row["ret_1"]))
+        intensity = float(row["trade_intensity"])
+        spread = float(row["spread"])
+        high = abs_move >= abs_ret_q90 and intensity >= intensity_q60
+        medium = abs_move >= abs_ret_q75 and intensity >= intensity_q40 and spread <= max(spread_q75, 0.0)
+        fired.append(high or medium)
     return fired
 
 
-# ---------------------------------------------------------------------------
-# Gate payload helpers
-# ---------------------------------------------------------------------------
-
-def _inactive_payload(symbol: str, reason: str = "gate_disabled") -> dict:
+def _base_payload(symbol: str, gate: str, reason: str) -> Dict[str, Any]:
     return {
-        "symbol": symbol,
-        "gate": "inactive",
+        "symbol": str(symbol).upper(),
+        "gate": gate,
+        "pocket_active": False,
         "allow_trade": True,
         "blocked_lanes": [],
         "reason": reason,
@@ -180,26 +196,6 @@ def _inactive_payload(symbol: str, reason: str = "gate_disabled") -> dict:
         },
     }
 
-
-def _no_data_payload(symbol: str, reason: str = "no_buckets") -> dict:
-    return {
-        "symbol": symbol,
-        "gate": "no_data",
-        "allow_trade": True,
-        "blocked_lanes": [],
-        "reason": reason,
-        "latest_ts_ms": None,
-        "latest_abs_imbalance": None,
-        "lanes": {
-            "book_proxy_pressure": {"rule_fired": False, "severity": "none"},
-            "volatility_burst": {"rule_fired": False, "severity": "none"},
-        },
-    }
-
-
-# ---------------------------------------------------------------------------
-# Public API
-# ---------------------------------------------------------------------------
 
 def load_current_event_gate(
     *,
@@ -209,49 +205,47 @@ def load_current_event_gate(
     bucket_sec: int = 5,
     pocket_horizon_sec: int = 60,
     pocket_min_abs_imbalance: float = 0.85,
-) -> dict:
+) -> Dict[str, Any]:
     """
-    Load recent buckets from microstructure DB and compute current lane state.
-    Returns a gate payload dict. Never raises.
-    Returns {"gate": "no_data", "allow_trade": True} on any error.
+    Derive gate state from the latest bucket only.
 
     Gate semantics:
-      inactive  — ENTRY_EVENT_LANE_GATE_ENABLED=0 (default)
-      no_data   — DB unavailable or empty
-      blocked   — last bucket has at least one active lane
-      allowed   — last bucket is clean
+      inactive       - gate disabled
+      no_data        - DB missing/unreadable or empty
+      inactive_pocket- latest bucket does not satisfy abs(imbalance)>=threshold
+      blocked        - latest bucket is active and at least one blocking lane fired
+      allowed        - latest bucket is active and clean
     """
-    gate_enabled = os.getenv("ENTRY_EVENT_LANE_GATE_ENABLED", "0") == "1"
-    if not gate_enabled:
-        return _inactive_payload(symbol)
+    del pocket_horizon_sec  # Horizon is currently enforced by the caller scope.
+
+    if os.getenv("ENTRY_EVENT_LANE_GATE_ENABLED", "0") != "1":
+        return _base_payload(symbol, "inactive", "gate_disabled")
 
     try:
         buckets = _load_buckets_for_gate(db, symbol, lookback_min, bucket_sec)
-    except Exception as e:
-        return _no_data_payload(symbol, reason=f"error:{e}")
+    except Exception as exc:
+        return _base_payload(symbol, "no_data", f"error:{exc}")
 
     if not buckets:
-        return _no_data_payload(symbol)
+        return _base_payload(symbol, "no_data", "no_buckets")
 
     try:
         bpp_fired = _detect_book_proxy_pressure(buckets)
         vb_fired = _detect_volatility_burst(buckets)
-
-        # Current-bucket gate: inspect ONLY the last bucket
-        last_bpp = bpp_fired[-1]
-        last_vb = vb_fired[-1]
-        last_bucket = buckets[-1]
-
-        blocked_lanes = []
-        if last_bpp:
+        latest_bucket = buckets[-1]
+        latest_abs_imbalance = abs(float(latest_bucket.get("imbalance", 0.0) or 0.0))
+        pocket_active = latest_abs_imbalance >= float(pocket_min_abs_imbalance)
+        blocked_lanes: List[str] = []
+        if bpp_fired[-1]:
             blocked_lanes.append("book_proxy_pressure")
-        if last_vb:
+        if vb_fired[-1]:
             blocked_lanes.append("volatility_burst")
 
-        latest_ts_ms = int(last_bucket["ts_ms"])
-        latest_abs_imbalance = abs(float(last_bucket.get("imbalance", 0.0)))
-
-        if blocked_lanes:
+        if not pocket_active:
+            gate = "inactive_pocket"
+            allow_trade = True
+            reason = "imbalance_below_threshold"
+        elif blocked_lanes:
             gate = "blocked"
             allow_trade = False
             reason = "lane_blocked"
@@ -261,53 +255,51 @@ def load_current_event_gate(
             reason = "no_blocking_lanes"
 
         return {
-            "symbol": symbol,
+            "symbol": str(symbol).upper(),
             "gate": gate,
+            "pocket_active": pocket_active,
             "allow_trade": allow_trade,
             "blocked_lanes": blocked_lanes,
             "reason": reason,
-            "latest_ts_ms": latest_ts_ms,
+            "latest_ts_ms": int(latest_bucket.get("ts_ms", 0) or 0),
             "latest_abs_imbalance": latest_abs_imbalance,
             "lanes": {
                 "book_proxy_pressure": {
-                    "rule_fired": last_bpp,
-                    "severity": "high" if last_bpp else "none",
+                    "rule_fired": bool(bpp_fired[-1]),
+                    "severity": "high" if bpp_fired[-1] else "none",
                 },
                 "volatility_burst": {
-                    "rule_fired": last_vb,
-                    "severity": "high" if last_vb else "none",
+                    "rule_fired": bool(vb_fired[-1]),
+                    "severity": "high" if vb_fired[-1] else "none",
                 },
             },
         }
-    except Exception as e:
-        return _no_data_payload(symbol, reason=f"error:{e}")
+    except Exception as exc:
+        return _base_payload(symbol, "no_data", f"error:{exc}")
 
 
 def should_block_event_gate(
-    gate_payload: dict,
+    gate_payload: Dict[str, Any],
     *,
     symbol: str,
     rule_name: str,
     horizon_sec: int,
-) -> Tuple[bool, str, dict]:
+    signal: Optional[Dict[str, Any]] = None,
+) -> Tuple[bool, str, Dict[str, Any]]:
     """
-    Given a gate payload, decide if this entry should be blocked.
-    Returns (blocked: bool, reason: str, details: dict).
+    Decide whether this live entry should be blocked.
 
-    Only applies to ETHUSDT + micro_edge_v3_passive_alpha + h=60.
-    Always returns (False, "gate_not_applicable", {}) for other pockets.
-    Never blocks on inactive or no_data gates.
+    The gate is narrow by design. Anything outside the current ETH micro pocket
+    returns `gate_not_applicable`.
     """
-    if not applies_to_live_event_gate(symbol, rule_name, horizon_sec):
+    if not applies_to_live_event_gate(symbol, rule_name, horizon_sec, signal=signal):
         return False, "gate_not_applicable", {}
 
-    gate = gate_payload.get("gate", "no_data")
-
-    if gate in ("inactive", "no_data"):
+    gate = str(gate_payload.get("gate") or "no_data")
+    if gate in ("inactive", "no_data", "inactive_pocket"):
         return False, gate, {}
 
-    allow_trade = bool(gate_payload.get("allow_trade", True))
-    if not allow_trade:
+    if not bool(gate_payload.get("allow_trade", True)):
         details = {
             "blocking_lanes": list(gate_payload.get("blocked_lanes", [])),
             "latest_ts_ms": gate_payload.get("latest_ts_ms"),
