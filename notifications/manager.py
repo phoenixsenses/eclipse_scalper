@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any, Deque, Dict, Optional, Tuple
 
 from notifications.daily_summary import compose_daily_summary
-from notifications.events import NotificationEvent
+from notifications.events import NotificationEvent, NotificationSeverity
 from notifications.health_alerts import build_heartbeat_event
 from notifications.telegram import Notifier
 
@@ -92,6 +92,8 @@ class NotificationManager:
         self._last_trade_batch_flush_ts: float = 0.0
         self._last_heartbeat_ts: float = 0.0
         self._last_daily_key: Optional[Tuple[int, int, int]] = None
+        # Alert escalation: same alert repeated → auto-escalate severity
+        self._alert_repeat_count: Dict[str, int] = {}
         # Telegram failure circuit breaker
         self._consecutive_failures: int = 0
         self._tg_circuit_open: bool = False
@@ -109,6 +111,7 @@ class NotificationManager:
             return False
         if cat.startswith("risk_") and not self.config.risk_alerts:
             return False
+        event = self._maybe_escalate(event)
         now = time.time()
         if event.throttle_key and float(event.throttle_window_sec or 0.0) > 0:
             last = float(self._last_by_key.get(event.throttle_key, 0.0) or 0.0)
@@ -129,6 +132,35 @@ class NotificationManager:
 
     _TG_CIRCUIT_THRESHOLD = 5  # consecutive failures to open circuit
     _TG_CIRCUIT_COOLDOWN_SEC = 120.0  # wait before retrying after circuit opens
+    _ESCALATION_THRESHOLD = 3  # same alert N times → escalate severity
+    _ESCALATION_MAX_TRACKED = 500  # cap on tracked alert keys
+
+    _SEVERITY_LADDER = {
+        NotificationSeverity.INFO: NotificationSeverity.WARNING,
+        NotificationSeverity.WARNING: NotificationSeverity.CRITICAL,
+    }
+
+    def _maybe_escalate(self, event: NotificationEvent) -> NotificationEvent:
+        """Auto-escalate severity if the same alert fires repeatedly."""
+        esc_key = f"{event.category or ''}:{event.throttle_key or event.title or ''}"
+        count = self._alert_repeat_count.get(esc_key, 0) + 1
+        self._alert_repeat_count[esc_key] = count
+        if len(self._alert_repeat_count) > self._ESCALATION_MAX_TRACKED:
+            oldest = min(self._alert_repeat_count, key=self._alert_repeat_count.get)  # type: ignore[arg-type]
+            self._alert_repeat_count.pop(oldest, None)
+        if count >= self._ESCALATION_THRESHOLD:
+            new_sev = self._SEVERITY_LADDER.get(event.severity)
+            if new_sev is not None:
+                return NotificationEvent(
+                    severity=new_sev,
+                    category=event.category,
+                    title=f"[ESCALATED x{count}] {event.title}",
+                    body=event.body,
+                    throttle_key=event.throttle_key,
+                    throttle_window_sec=event.throttle_window_sec,
+                    silent=event.silent,
+                )
+        return event
 
     async def _send_now(self, event: NotificationEvent, now: float) -> bool:
         # Telegram circuit breaker: skip sends during cooldown
