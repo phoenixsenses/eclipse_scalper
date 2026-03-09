@@ -1,5 +1,6 @@
 # execution/diagnostics.py — SCALPER ETERNAL — DIAGNOSTIC PULSE — v0.3
 
+import os
 import time
 import platform
 import sys
@@ -74,7 +75,6 @@ def print_diagnostics(bot=None) -> None:
 
         # Entry loop mode (env-driven)
         try:
-            import os
             entry_mode = os.getenv("ENTRY_LOOP_MODE", "").strip().lower() or "auto"
             print(f"entry_loop    : {entry_mode}")
         except Exception:
