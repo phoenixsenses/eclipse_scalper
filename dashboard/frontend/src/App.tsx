@@ -10,6 +10,7 @@ const Debug    = lazy(() => import("./pages/Debug"));
 const ControlTower = lazy(() => import("./pages/ControlTower"));
 const Recovery = lazy(() => import("./pages/Recovery"));
 const LiveMonitor = lazy(() => import("./pages/LiveMonitor"));
+const ResearchEvents = lazy(() => import("./pages/ResearchEvents"));
 
 function Loading() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="trades"   element={<Trades />} />
           <Route path="tower"    element={<ControlTower />} />
           <Route path="live"     element={<LiveMonitor />} />
+          <Route path="research" element={<ResearchEvents />} />
           <Route path="recovery" element={<Recovery />} />
           <Route path="debug"    element={<Debug />} />
           <Route path="settings" element={<Settings />} />

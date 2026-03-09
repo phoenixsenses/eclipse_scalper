@@ -5,6 +5,7 @@ import type { GateSymbol, IncidentInboxItem, OverviewResponse, RegimeEvent, Runt
 import AsyncState from "../components/AsyncState";
 import DegradedBanner, { type DegradedMode } from "../components/DegradedBanner";
 import PageGuide from "../components/PageGuide";
+import { ResearchEventsSummary } from "../components/ResearchEventsPanel";
 import TermTip from "../components/TermTip";
 import { usePoll } from "../hooks/usePoll";
 
@@ -71,6 +72,10 @@ function MetricCell({
       </span>
     </div>
   );
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
 }
 
 function blockerRecommendation(reason: string): { action: string; detail: string } {
@@ -253,6 +258,7 @@ export default function Overview() {
   const regimes: RegimeEvent[] = data?.recent_regimes ?? [];
   const preflight = data?.preflight ?? {};
   const reliability = data?.reliability ?? {};
+  const research = asRecord(data?.research_events);
   const topBlockers: Array<{ reason: string; count: number }> = useMemo(() => {
     const raw = sb.blocked_by_reason ?? {};
     return Object.entries(raw)
@@ -456,6 +462,8 @@ export default function Overview() {
             </div>
           )}
         </div>
+
+        <ResearchEventsSummary researchEvents={research} onOpenDetails={() => navigate("/research")} />
 
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           <Stat label="Mode" value={<StatusBadge value={sb.paper_trading == null ? null : !sb.paper_trading} />} />

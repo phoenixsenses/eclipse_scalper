@@ -12,6 +12,7 @@ import { useApiErrors } from "../context/ApiErrorContext";
 const NAV: { to: string; label: string }[] = [
   { to: "/",         label: "Genel Bakis / Overview"  },
   { to: "/live",     label: "Canli Veri / Live"       },
+  { to: "/research", label: "Arastirma / Research"    },
   { to: "/tower",    label: "Kontrol Kulesi / Tower"  },
   { to: "/recovery", label: "Kurtarma / Recovery"     },
   { to: "/logs",     label: "Loglar / Logs"           },
@@ -42,6 +43,7 @@ function NavItem({ to, label }: { to: string; label: string }) {
   const tip =
     to === "/" ? "Overview: quick status summary." :
     to === "/live" ? "Live Monitor: microstructure flow + collector log tail." :
+    to === "/research" ? "Research Events: daily report watchboard, lane cards, and watchlists." :
     to === "/tower" ? "Control Tower: live health and incident center." :
     to === "/recovery" ? "Recovery Wizard: guided backend fix." :
     to === "/logs" ? "Logs: inspect runtime logs with quick filters." :
@@ -141,6 +143,7 @@ export default function Layout() {
   const helpText = useMemo(() => {
     const p = location.pathname;
     if (p.startsWith("/live")) return "Live Monitor: watch trades/sec, mark/sec, freshness, and collector logs in real-time.";
+    if (p.startsWith("/research")) return "Research Events: watch daily report lanes, state cards, and watchlists.";
     if (p.startsWith("/recovery")) return "Recovery: guided backend bring-up and verification flow.";
     if (p.startsWith("/tower")) return "Control Tower: one-screen runtime health, incidents, rate-limit, and quick operations.";
     if (p.startsWith("/logs")) return "Logs: select file, then filter by level/search to isolate issues fast.";
