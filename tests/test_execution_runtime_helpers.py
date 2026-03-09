@@ -22,6 +22,9 @@ def test_symkey_normalizes_variants() -> None:
     assert symkey("eth/usdt:usdt") == "ETHUSDT"
     assert symkey("ETH:USDT") == "ETHUSDT"
     assert symkey("ETHUSDTUSDT") == "ETHUSDT"
+    assert symkey("ETH-USDT") == "ETHUSDT"
+    assert symkey("ETH_USDT") == "ETHUSDT"
+    assert symkey("  eth usdt  ") == "ETHUSDT"
 
 
 def test_safe_float_handles_invalid_and_nan() -> None:
