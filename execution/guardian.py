@@ -103,6 +103,13 @@ except Exception as e:
     _config_hot_reload = None
     we_dont_have_this("config.hot_reload.check_and_apply", e)
 
+# Alert rule engine (never fatal)
+try:
+    from monitoring.alert_rules import get_engine as _get_alert_engine  # type: ignore
+except Exception as e:
+    _get_alert_engine = None
+    we_dont_have_this("monitoring.alert_rules.get_engine", e)
+
 
 # ─────────────────────────────────────────────────────────────────────
 # Helpers
@@ -494,6 +501,35 @@ async def _config_hot_reload_tick(bot) -> None:
                     )
                 except Exception:
                     pass
+    except Exception:
+        pass
+
+
+async def _alert_rules_tick(bot) -> None:
+    """Evaluate structured alert rules and send notifications for triggered alerts."""
+    try:
+        if not callable(_get_alert_engine):
+            return
+        engine = _get_alert_engine()
+        metrics = engine.collect_metrics(bot)
+        if not metrics:
+            return
+        alerts = engine.evaluate(metrics)
+        if not alerts:
+            return
+        notify = getattr(bot, "notify", None)
+        for alert in alerts:
+            try:
+                prefix = {"CRITICAL": "\U0001f6a8", "WARNING": "\u26a0\ufe0f", "INFO": "\u2139\ufe0f"}.get(
+                    alert.severity, "\u2139\ufe0f"
+                )
+                msg = f"{prefix} ALERT [{alert.rule_id}]: {alert.message}"
+                priority = "critical" if alert.severity == "CRITICAL" else "normal"
+                if notify is not None:
+                    await notify.speak(msg, priority)
+                log_entry.warning(f"ALERT RULE FIRED: {alert.rule_id} — {alert.message}")
+            except Exception:
+                pass
     except Exception:
         pass
 
@@ -993,6 +1029,10 @@ async def guardian_loop(bot):
 
         # 9) Config hot-reload (check override file every ~10s)
         await _safe_call("config_hot_reload_tick", _config_hot_reload_tick, bot)
+
+        # 10) Structured alert rules evaluation (on watchdog cadence)
+        if (now_ts - _last_watchdog) < 2.0:
+            await _safe_call("alert_rules_tick", _alert_rules_tick, bot)
 
         # optional emergency halt hook
         if halted and emergency_mod is not None:
