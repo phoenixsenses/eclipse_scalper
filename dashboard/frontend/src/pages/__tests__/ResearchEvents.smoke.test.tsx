@@ -26,9 +26,22 @@ vi.mock("../../hooks/usePoll", () => ({
             { name: "EMA 20", values: Array.from({ length: 60 }, (_, index) => 50000 + index) },
             { name: "EMA 50", values: Array.from({ length: 60 }, (_, index) => 49980 + index) },
           ],
-          oscillator: { name: "RSI 14", values: Array.from({ length: 60 }, (_, index) => (index < 14 ? null : 45 + (index % 10))) },
+          oscillator: {
+            name: "RSI 14",
+            values: Array.from({ length: 60 }, (_, index) => (index < 14 ? null : 45 + (index % 10))),
+          },
           pocket_markers: [
-            { time: 1700000000, bucket_time: 1700000000, side: "SELL", verdict: "GO", regime: "UP", imbalance: -0.62, trade_intensity: 4200, spread: 0.00012, score: 3.1 },
+            {
+              time: 1700000000,
+              bucket_time: 1700000000,
+              side: "SELL",
+              verdict: "GO",
+              regime: "UP",
+              imbalance: -0.62,
+              trade_intensity: 4200,
+              spread: 0.00012,
+              score: 3.1,
+            },
           ],
         },
         error: null,
@@ -41,6 +54,16 @@ vi.mock("../../hooks/usePoll", () => ({
     return {
       data: {
         research_events: {
+          data_research_fitness: {
+            status: "warn",
+            db_ready: true,
+            symbols: ["BTCUSDT", "ETHUSDT"],
+            contract: { status: "warn", tier: "trade_plus_liq_mark_proxy", requires_book: false },
+            feature_stats: {
+              BTCUSDT: { feature_rows: 24, has_mid: true, has_spread: false },
+              ETHUSDT: { feature_rows: 24, has_mid: true, has_spread: false },
+            },
+          },
           watchboard: {
             banner: { headline: "Research watchboard banner", detail: "top event stale" },
             summary: { top_lane: "liquidation", state_counts: { severe: 2, quiet: 2 } },
@@ -56,7 +79,13 @@ vi.mock("../../hooks/usePoll", () => ({
           states: {
             liquidation: {
               state: { level: "elevated", freshness: { status: "fresh" }, primary_side_bias: "sell" },
-              card: { headline: "Liquidation context", recent_alert_count: 3, tagged_rate: 0.04, max_consecutive_tagged: 2, max_liq_rate_recent: 11.4 },
+              card: {
+                headline: "Liquidation context",
+                recent_alert_count: 3,
+                tagged_rate: 0.04,
+                max_consecutive_tagged: 2,
+                max_liq_rate_recent: 11.4,
+              },
               dashboard_summary: "liquidation lane",
               recommended_action: "monitor_only",
             },
@@ -64,7 +93,12 @@ vi.mock("../../hooks/usePoll", () => ({
           watchlists: {
             liquidation: {
               banner: { headline: "Top liq watch", detail: "ETHUSDT elevated" },
-              top_summary: { symbol: "ETHUSDT", state_level: "elevated", freshness_status: "fresh", recommended_action: "monitor_only" },
+              top_summary: {
+                symbol: "ETHUSDT",
+                state_level: "elevated",
+                freshness_status: "fresh",
+                recommended_action: "monitor_only",
+              },
               rows: [{ symbol: "ETHUSDT", state_level: "elevated", priority_score: 1.2 }],
             },
           },
@@ -88,6 +122,7 @@ describe("ResearchEvents smoke", () => {
     );
 
     expect(screen.getByText("Research Event Watchboard")).toBeInTheDocument();
+    expect(screen.getByText("Data Research Fitness")).toBeInTheDocument();
     expect(screen.getByText("Market Structure Chart")).toBeInTheDocument();
     expect(screen.getByText("Research Pocket Overlay")).toBeInTheDocument();
     expect(screen.getByText("Liquidation")).toBeInTheDocument();
