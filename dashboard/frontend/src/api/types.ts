@@ -276,6 +276,7 @@ export interface OverviewResponse {
   exit_quality?: Record<string, unknown>;
   preflight?: Record<string, unknown>;
   reliability?: Record<string, unknown>;
+  health_overall?: Record<string, unknown>;
   research_events?: Record<string, unknown>;
 }
 

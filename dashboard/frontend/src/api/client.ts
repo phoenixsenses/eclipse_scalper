@@ -291,6 +291,7 @@ function normalizeOverview(value: unknown): OverviewResponse {
     recent_regimes: asArray<RegimeEvent>(obj.recent_regimes),
     preflight: asObject(obj.preflight, {}),
     reliability: asObject(obj.reliability, {}),
+    health_overall: asObject(obj.health_overall, {}),
     exit_quality: asObject(obj.exit_quality, {}),
     research_events: asObject(obj.research_events, {}),
   };

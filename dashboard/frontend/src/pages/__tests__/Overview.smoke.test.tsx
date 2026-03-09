@@ -23,6 +23,11 @@ vi.mock("../../hooks/usePoll", () => ({
         recent_regimes: [],
         preflight: {},
         reliability: {},
+        health_overall: {
+          data_research_fitness_status: "warning",
+          data_research_fitness_connected: true,
+          data_research_fitness_detail: "fitness_status=warn warnings=1 failures=0",
+        },
         research_events: {
           watchboard: {
             banner: { headline: "Research watchboard banner", detail: "top event stale" },
@@ -85,6 +90,8 @@ describe("Overview smoke", () => {
 
     expect(screen.getByText("Top Blockers (reason)")).toBeInTheDocument();
     expect(screen.getAllByText("no_match").length).toBeGreaterThan(0);
+    expect(screen.getByText("Data Research Fitness")).toBeInTheDocument();
+    expect(screen.getByText("fitness_status=warn warnings=1 failures=0")).toBeInTheDocument();
     expect(screen.getByText("Research Event Watchboard")).toBeInTheDocument();
     expect(screen.getByText("Open Research Events")).toBeInTheDocument();
   });

@@ -1706,6 +1706,7 @@ def build_overview() -> dict[str, Any]:
         "exit_quality": read_exit_quality(),
         "preflight": read_preflight(),
         "reliability": read_reliability(),
+        "health_overall": _health_overall_stats(),
         "research_events": read_research_events(),
     }
 

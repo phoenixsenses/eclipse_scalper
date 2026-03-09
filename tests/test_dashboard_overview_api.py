@@ -75,3 +75,30 @@ def test_health_overall_stats_reads_data_research_fitness(monkeypatch) -> None:
     assert payload["collector_connected"] is True
     assert payload["data_research_fitness_status"] == "warning"
     assert payload["data_research_fitness_connected"] is True
+
+
+def test_overview_includes_health_overall_summary(monkeypatch) -> None:
+    logs_dir = Path("tmp/tests/dashboard_overview_with_fitness/logs")
+    if logs_dir.parent.exists():
+        shutil.rmtree(logs_dir.parent, ignore_errors=True)
+    (logs_dir / "health").mkdir(parents=True, exist_ok=True)
+    (logs_dir / "health" / "overall.json").write_text(
+        json.dumps(
+            {
+                "components": {
+                    "collector": {"connected": True},
+                    "data_research_fitness": {
+                        "status": "warning",
+                        "connected": True,
+                        "detail": "fitness_status=warn warnings=1 failures=0",
+                    },
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(ds, "LOGS_DIR", logs_dir)
+
+    payload = ds.build_overview()
+    assert payload["health_overall"]["data_research_fitness_status"] == "warning"
+    assert payload["health_overall"]["data_research_fitness_connected"] is True
