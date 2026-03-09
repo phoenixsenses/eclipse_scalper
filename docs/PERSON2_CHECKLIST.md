@@ -30,6 +30,11 @@ Branch: `codex/runtime/ops-foundation`
 | `6ac95f9` | P1 | Deep audit: atomic writes everywhere, dict caps, CancelledError safety |
 | `5b2b6ad` | **P0** | Timeout guards (order_router 10s, reconcile 8s), heartbeat, Telegram circuit breaker |
 | `da09858` | P1 | Guardian step timeout (45s), memory caps (_pending, _last_by_key, _STUCK_ALERTED), PID cleanup |
+| `150559d` | P1 | Alert escalation: repeated alerts auto-escalate severity (INFO→WARNING→CRITICAL) |
+| `a70aefc` | P1 | Graceful degradation mode: exchange down → entries blocked, exits allowed, auto-recovery |
+| `48524e1` | P2 | Config hot-reload from JSON override file (40+ safe fields, blocked fields require restart) |
+| `fd91f51` | P2 | Structured alert rules engine with JSON-configurable rules + 6 defaults |
+| `bfd1e06` | Tech | Ops runbook: incident response playbook for all runtime scenarios |
 
 ## Full Audit Status
 
@@ -160,3 +165,13 @@ Branch: `codex/runtime/ops-foundation`
 | Kill-switch path/schema mismatch fix | DONE — correct path + field names | `4b5f0b2` |
 | Kill-switch silent exception logging | DONE — 3 except blocks now log warnings | `813dce8` |
 | Main sync | DONE — merged 90+ commits from main | `bd02d84` |
+
+## Phase 2 — Ops Enhancements
+
+| Item | Status | Commit |
+|------|--------|--------|
+| Alert escalation (repeat → auto-escalate) | DONE | `150559d` |
+| Graceful degradation mode | DONE | `a70aefc` |
+| Config hot-reload (JSON override) | DONE | `48524e1` |
+| Structured alert rules engine | DONE | `fd91f51` |
+| Ops runbook | DONE | `bfd1e06` |
