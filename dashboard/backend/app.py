@@ -516,6 +516,23 @@ async def prometheus_metrics():
     _gauge("eclipse_up", 1, "Whether the dashboard API is up")
     _gauge("eclipse_scrape_ts", now, "Timestamp of this scrape")
 
+    # Bot heartbeat (guardian writes this every 5s)
+    try:
+        hb_path = Path("logs/health/heartbeat.json")
+        if hb_path.exists():
+            hb = json.loads(hb_path.read_text(encoding="utf-8", errors="replace"))
+            hb_ts = float(hb.get("ts", 0) or 0)
+            hb_age = max(0, now - hb_ts)
+            _gauge("eclipse_bot_heartbeat_age_sec", hb_age, "Seconds since last guardian heartbeat")
+            _gauge("eclipse_bot_alive", 1 if hb_age < 30 else 0, "Bot process alive (heartbeat < 30s)")
+            _gauge("eclipse_bot_uptime_sec", float(hb.get("uptime_sec", 0) or 0), "Bot uptime seconds")
+            _gauge("eclipse_open_positions", float(hb.get("open_positions", 0) or 0), "Number of open positions")
+            _gauge("eclipse_kill_switch_active", 1 if hb.get("kill_switch_active") else 0, "Kill switch active")
+        else:
+            _gauge("eclipse_bot_alive", 0, "Bot process alive (heartbeat < 30s)")
+    except Exception:
+        pass
+
     # Runtime status
     try:
         rt = read_runtime_status()

@@ -347,6 +347,42 @@ _LAST_LOG_ROTATION_TS: float = 0.0
 _LOG_ROTATION_INTERVAL_SEC: float = 86400.0  # once per day
 
 
+_HEARTBEAT_PATH = Path("logs/health/heartbeat.json")
+
+
+async def _write_heartbeat(bot) -> None:
+    """Write a heartbeat file every guardian cycle for external dead-bot detection.
+
+    External monitors (cron, Prometheus node-exporter, uptime-kuma) can check
+    if this file's mtime is stale (> 30s) to detect a dead bot process.
+    """
+    try:
+        from execution.runtime_helpers import atomic_write_json
+        now = _now()
+        data = {
+            "ts": now,
+            "pid": os.getpid(),
+            "uptime_sec": now - float(getattr(bot, "STARTUP_TIMESTAMP", now) or now),
+        }
+        try:
+            if callable(is_halted):
+                data["kill_switch_active"] = bool(is_halted(bot))
+        except Exception:
+            pass
+        try:
+            positions = getattr(getattr(bot, "state", None), "positions", None)
+            if isinstance(positions, dict):
+                data["open_positions"] = sum(
+                    1 for v in positions.values()
+                    if isinstance(v, dict) and abs(float(v.get("size") or v.get("qty") or 0)) > 0
+                )
+        except Exception:
+            pass
+        atomic_write_json(_HEARTBEAT_PATH, data)
+    except Exception:
+        pass
+
+
 async def _log_rotation_tick(bot) -> None:
     """Run log rotation at most once per day."""
     global _LAST_LOG_ROTATION_TS
@@ -767,7 +803,10 @@ async def guardian_loop(bot):
     async def _one_cycle():
         nonlocal _last_exit_watch, _last_posmgr, _last_watchdog, _last_ex_probe
 
-        # 0) Kill-switch tick (evaluate)
+        # 0) Heartbeat for external monitoring (every cycle, cheap)
+        await _safe_call("heartbeat", _write_heartbeat, bot)
+
+        # 0a) Kill-switch tick (evaluate)
         if respect_kill and callable(tick_kill_switch):
             await _safe_call("kill_switch.tick_kill_switch", tick_kill_switch, bot)
 

@@ -92,6 +92,11 @@ class NotificationManager:
         self._last_trade_batch_flush_ts: float = 0.0
         self._last_heartbeat_ts: float = 0.0
         self._last_daily_key: Optional[Tuple[int, int, int]] = None
+        # Telegram failure circuit breaker
+        self._consecutive_failures: int = 0
+        self._tg_circuit_open: bool = False
+        self._tg_circuit_open_ts: float = 0.0
+        self._tg_dead_logged: bool = False
 
     async def send(self, event: NotificationEvent) -> bool:
         if not self.config.enabled:
@@ -122,7 +127,19 @@ class NotificationManager:
             return False
         return await self._send_now(event, now=now)
 
+    _TG_CIRCUIT_THRESHOLD = 5  # consecutive failures to open circuit
+    _TG_CIRCUIT_COOLDOWN_SEC = 120.0  # wait before retrying after circuit opens
+
     async def _send_now(self, event: NotificationEvent, now: float) -> bool:
+        # Telegram circuit breaker: skip sends during cooldown
+        if self._tg_circuit_open:
+            if (now - self._tg_circuit_open_ts) < self._TG_CIRCUIT_COOLDOWN_SEC:
+                _fallback_log_event(event, "telegram_circuit_open")
+                return False
+            # Cooldown expired, try again (half-open state)
+            self._tg_circuit_open = False
+            self._tg_dead_logged = False
+
         try:
             coro = self.notifier.speak(
                 event.render(),
@@ -136,18 +153,38 @@ class NotificationManager:
                 sent_ok = await coro
             # Accept None as success for in-memory/dummy notifier implementations in tests.
             if sent_ok is False:
-                _fallback_log_event(event, "telegram_returned_false")
+                self._record_tg_failure("telegram_returned_false", event)
                 return False
+            # Success: reset failure counter
+            self._consecutive_failures = 0
             self._sent_ts.append(now)
             if event.throttle_key:
                 self._last_by_key[event.throttle_key] = now
             return True
         except asyncio.TimeoutError:
-            _fallback_log_event(event, "telegram_timeout")
+            self._record_tg_failure("telegram_timeout", event)
             return False
         except Exception as exc:
-            _fallback_log_event(event, f"telegram_error:{type(exc).__name__}")
+            self._record_tg_failure(f"telegram_error:{type(exc).__name__}", event)
             return False
+
+    def _record_tg_failure(self, reason: str, event: NotificationEvent) -> None:
+        _fallback_log_event(event, reason)
+        self._consecutive_failures += 1
+        if self._consecutive_failures >= self._TG_CIRCUIT_THRESHOLD and not self._tg_circuit_open:
+            self._tg_circuit_open = True
+            self._tg_circuit_open_ts = time.time()
+            if not self._tg_dead_logged:
+                self._tg_dead_logged = True
+                # Log a critical warning that Telegram channel is dead
+                try:
+                    import logging
+                    logging.getLogger("eclipse.notifications").critical(
+                        f"TELEGRAM CIRCUIT BREAKER OPEN — {self._consecutive_failures} consecutive failures. "
+                        f"Messages falling back to {_FALLBACK_LOG}. Retrying in {self._TG_CIRCUIT_COOLDOWN_SEC}s."
+                    )
+                except Exception:
+                    pass
 
     async def send_trade_event(self, event: NotificationEvent) -> bool:
         now = time.time()

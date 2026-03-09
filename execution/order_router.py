@@ -2217,6 +2217,8 @@ async def create_order(
     retry_alert_tries = int(_safe_float(_cfg_env(bot, "ROUTER_RETRY_ALERT_TRIES", 6), 6))
     retry_alert_cd = float(_safe_float(_cfg_env(bot, "ROUTER_RETRY_ALERT_COOLDOWN_SEC", 60.0), 60.0))
 
+    _per_attempt_timeout = float(_safe_float(_cfg_env(bot, "ROUTER_ATTEMPT_TIMEOUT_SEC", 10.0), 10.0))
+
     async def _attempt(raw_symbol: str, amt_try: Any, px_try: Any, p_try: dict) -> dict:
         fn = getattr(ex, "create_order", None)
         if not callable(fn):
@@ -2230,18 +2232,21 @@ async def create_order(
         if bool(_truthy(p_try.get("closePosition"))):
             p_try.pop("reduceOnly", None)
 
-        if type_norm == "market":
-            return await fn(symbol=raw_symbol, type=type_norm, side=side_l, amount=amt_try, params=p_try)
-
-        if type_norm == "limit":
+        async def _do_call():
+            if type_norm == "market":
+                return await fn(symbol=raw_symbol, type=type_norm, side=side_l, amount=amt_try, params=p_try)
+            if type_norm == "limit":
+                if px_try is None:
+                    raise RuntimeError("limit order missing price")
+                return await fn(symbol=raw_symbol, type=type_norm, side=side_l, amount=amt_try, price=px_try, params=p_try)
             if px_try is None:
-                raise RuntimeError("limit order missing price")
+                return await fn(symbol=raw_symbol, type=type_norm, side=side_l, amount=amt_try, params=p_try)
             return await fn(symbol=raw_symbol, type=type_norm, side=side_l, amount=amt_try, price=px_try, params=p_try)
 
-        if px_try is None:
-            return await fn(symbol=raw_symbol, type=type_norm, side=side_l, amount=amt_try, params=p_try)
-
-        return await fn(symbol=raw_symbol, type=type_norm, side=side_l, amount=amt_try, price=px_try, params=p_try)
+        # Per-attempt timeout to prevent indefinite hangs on exchange API
+        if _per_attempt_timeout > 0:
+            return await asyncio.wait_for(_do_call(), timeout=_per_attempt_timeout)
+        return await _do_call()
 
     # ----------------------------
     # Variants (BOUNDED + DEDUPED)

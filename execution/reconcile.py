@@ -677,6 +677,25 @@ async def _fetch_positions_best_effort(bot, symbols: Optional[List[str]] = None)
     Some ccxt wrappers accept fetch_positions([symbols]); some don't.
     If symbols is None -> fetch all positions (for orphan scan).
     """
+    # Timeout protection: prevent indefinite hangs on exchange API
+    _timeout = float(_cfg(bot, "RECONCILE_FETCH_TIMEOUT_SEC", 8.0) or 8.0)
+    try:
+        return await asyncio.wait_for(
+            _fetch_positions_inner(bot, symbols), timeout=_timeout
+        )
+    except asyncio.TimeoutError:
+        try:
+            setattr(bot, "_reconcile_last_fetch_positions_error", f"TIMEOUT after {_timeout}s")
+        except Exception:
+            pass
+        return [], False
+    except asyncio.CancelledError:
+        raise
+    except Exception:
+        return [], False
+
+
+async def _fetch_positions_inner(bot, symbols: Optional[List[str]] = None) -> Tuple[List[dict], bool]:
     ex = getattr(bot, "ex", None)
     try:
         setattr(bot, "_reconcile_last_fetch_positions_error", "")
