@@ -967,6 +967,9 @@ def _health_overall_stats() -> dict[str, Any]:
         "collector_connected": None,
         "reconnects_last_5m": 0,
         "errors_last_5m": 0,
+        "data_research_fitness_status": None,
+        "data_research_fitness_connected": None,
+        "data_research_fitness_detail": None,
     }
     path = LOGS_DIR / "health" / "overall.json"
     try:
@@ -975,9 +978,13 @@ def _health_overall_stats() -> dict[str, Any]:
         payload = _safe_json(path)
         comps = payload.get("components") if isinstance(payload.get("components"), dict) else {}
         collector = comps.get("collector") if isinstance(comps.get("collector"), dict) else {}
+        fitness = comps.get("data_research_fitness") if isinstance(comps.get("data_research_fitness"), dict) else {}
         out["collector_connected"] = collector.get("connected")
         out["reconnects_last_5m"] = int(collector.get("reconnects_last_5m", 0) or 0)
         out["errors_last_5m"] = int(collector.get("errors_last_5m", 0) or 0)
+        out["data_research_fitness_status"] = fitness.get("status")
+        out["data_research_fitness_connected"] = fitness.get("connected")
+        out["data_research_fitness_detail"] = fitness.get("detail")
     except Exception:
         pass
     return out

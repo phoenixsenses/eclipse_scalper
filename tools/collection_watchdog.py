@@ -15,10 +15,40 @@ from notifications.telegram import Notifier
 from notifications.health_alerts import build_data_stale_event
 from tools.check_data_ready import detect_ts_col, list_tables, normalize_ts_to_seconds, table_columns
 from tools.health_state import write_component_health, write_overall_health, utc_now_iso
+from tools.validate_data_research_fitness import analyze_research_fitness
 
 
 def _parse_symbols(raw: str) -> List[str]:
     return [s.strip().upper() for s in str(raw or "").replace(";", ",").split(",") if s.strip()]
+
+
+def _fitness_component(db_path: Path, symbols: List[str]) -> Dict[str, object]:
+    payload = analyze_research_fitness(
+        db_path=db_path,
+        csv_path=Path("data/event_diary.csv"),
+        symbols=list(symbols or ["BTCUSDT"]),
+        fresh_sec=120,
+    )
+    status = str(payload.get("status") or "unknown")
+    if status == "fail":
+        level = "degraded"
+    elif status == "warn":
+        level = "warning"
+    else:
+        level = "ok"
+    return {
+        "status": level,
+        "connected": bool(payload.get("db_ready")),
+        "detail": (
+            f"fitness_status={status} "
+            f"warnings={len(payload.get('warnings') or [])} "
+            f"failures={len(payload.get('failures') or [])}"
+        ),
+        "warnings": len(payload.get("warnings") or []),
+        "failures": len(payload.get("failures") or []),
+        "contract_tier": str((payload.get("contract") or {}).get("tier") or "unknown"),
+        "symbols": list(symbols or ["BTCUSDT"]),
+    }
 
 
 def _setup_logger(log_path: Path) -> logging.Logger:
@@ -173,6 +203,7 @@ async def run_once(
             if _is_stale(ts, int(stale_threshold_sec), now_sec=now):
                 stale_symbols.append(sym)
         if stale_symbols:
+            fitness = _fitness_component(db_path, symbols)
             parts = []
             max_age = 0
             last_ts = None
@@ -214,7 +245,8 @@ async def run_once(
                             "progress_lag_sec": int(max_age),
                             "reconnects_last_5m": 0,
                             "errors_last_5m": 1,
-                        }
+                        },
+                        "data_research_fitness": fitness,
                     },
                 }
             )
@@ -234,6 +266,7 @@ async def run_once(
                 await _send_telegram(msg, bool(dry_run))
             return {"ok": False, "stale_symbols": stale_symbols, "table": table_name}
         logger.info(f"OK table={table_name} ts_col={ts_col} symbols={','.join(symbols)}")
+        fitness = _fitness_component(db_path, symbols)
         write_component_health(
             "watchdog",
             {
@@ -244,6 +277,25 @@ async def run_once(
                 "reconnects_last_5m": 0,
                 "errors_last_5m": 0,
             },
+        )
+        write_overall_health(
+            {
+                "ts_utc": utc_now_iso(),
+                "mode": "paper",
+                "state": "ok",
+                "reason": "watchdog_ok",
+                "components": {
+                    "watchdog": {
+                        "status": "ok",
+                        "connected": True,
+                        "last_progress_ts_utc": utc_now_iso(),
+                        "progress_lag_sec": 0,
+                        "reconnects_last_5m": 0,
+                        "errors_last_5m": 0,
+                    },
+                    "data_research_fitness": fitness,
+                },
+            }
         )
         return {"ok": True, "stale_symbols": [], "table": table_name}
     except Exception as exc:

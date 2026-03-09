@@ -49,12 +49,25 @@ def test_run_once_dry_run_alert(monkeypatch) -> None:
     db = wd / "micro.db"
     _mk_db(db, ts_ms=1_700_000_000_000)
     sent: list[str] = []
+    overall_payloads: list[dict] = []
 
     async def _fake_send(msg: str, dry_run: bool) -> None:
         if dry_run:
             sent.append(msg)
 
     monkeypatch.setattr(cw, "_send_telegram", _fake_send)
+    monkeypatch.setattr(
+        cw,
+        "analyze_research_fitness",
+        lambda **kwargs: {
+            "status": "warn",
+            "db_ready": True,
+            "warnings": ["no_spread:ETHUSDT"],
+            "failures": [],
+            "contract": {"tier": "trade_plus_liq_mark_proxy"},
+        },
+    )
+    monkeypatch.setattr(cw, "write_overall_health", lambda payload, root="logs/health": overall_payloads.append(payload))
     monkeypatch.setattr(cw.time, "time", lambda: 1_700_000_500.0)
     logger = logging.getLogger("test_collection_watchdog")
     logger.handlers.clear()
@@ -71,6 +84,10 @@ def test_run_once_dry_run_alert(monkeypatch) -> None:
     )
     assert res["ok"] is False
     assert sent and "COLLECTOR STALE" in sent[0]
+    assert overall_payloads
+    comps = overall_payloads[-1]["components"]
+    assert comps["data_research_fitness"]["status"] == "warning"
+    assert comps["data_research_fitness"]["symbols"] == ["ETHUSDT"]
     shutil.rmtree(wd, ignore_errors=True)
 
 
