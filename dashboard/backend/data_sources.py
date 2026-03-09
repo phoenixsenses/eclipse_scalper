@@ -234,12 +234,17 @@ def _latest_daily_report() -> dict[str, Any]:
     return _safe_json_with_meta(candidates[0], stale_after_sec=36 * 3600.0)
 
 
+def _data_research_fitness_report() -> dict[str, Any]:
+    return _safe_json_with_meta(REPORTS_DIR / "DATA_RESEARCH_FITNESS.json", stale_after_sec=36 * 3600.0)
+
+
 def read_research_events() -> dict[str, Any]:
     watchboard = _safe_json_with_meta(REPORTS_DIR / "RESEARCH_EVENT_WATCHBOARD_REAL.json")
     states = {name: _safe_json_with_meta(REPORTS_DIR / filename) for name, filename in _RESEARCH_STATE_FILES.items()}
     watchlists = {name: _safe_json_with_meta(REPORTS_DIR / filename) for name, filename in _RESEARCH_WATCHLIST_FILES.items()}
     return {
         "daily_report": _latest_daily_report(),
+        "data_research_fitness": _data_research_fitness_report(),
         "watchboard": watchboard,
         "states": states,
         "watchlists": watchlists,

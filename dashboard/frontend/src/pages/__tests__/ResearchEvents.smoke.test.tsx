@@ -8,6 +8,16 @@ vi.mock("../../hooks/usePoll", () => ({
   usePoll: vi.fn(() => ({
     data: {
       research_events: {
+        data_research_fitness: {
+          status: "warn",
+          db_ready: true,
+          symbols: ["BTCUSDT", "ETHUSDT"],
+          contract: { status: "warn", tier: "trade_plus_liq_mark_proxy", requires_book: false },
+          feature_stats: {
+            BTCUSDT: { feature_rows: 24, has_mid: true, has_spread: false },
+            ETHUSDT: { feature_rows: 24, has_mid: true, has_spread: false },
+          },
+        },
         watchboard: {
           banner: { headline: "Research watchboard banner", detail: "top event stale" },
           summary: { top_lane: "liquidation", state_counts: { severe: 2, quiet: 2 } },
@@ -54,6 +64,7 @@ describe("ResearchEvents smoke", () => {
     );
 
     expect(screen.getByText("Research Event Watchboard")).toBeInTheDocument();
+    expect(screen.getByText("Data Research Fitness")).toBeInTheDocument();
     expect(screen.getByText("Liquidation")).toBeInTheDocument();
     expect(screen.getByText("Liquidation Watchlist")).toBeInTheDocument();
   });

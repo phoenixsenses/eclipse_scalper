@@ -260,8 +260,13 @@ export default function ResearchEventsPanel({
   researchEvents: Record<string, unknown>;
 }) {
   const dailyReport = asRecord(researchEvents.daily_report);
+  const fitnessReport = asRecord(researchEvents.data_research_fitness);
   const dailyHeadline = asRecord(dailyReport.headline);
   const dailyMeta = asRecord(dailyReport._meta);
+  const fitnessMeta = asRecord(fitnessReport._meta);
+  const fitnessContract = asRecord(fitnessReport.contract);
+  const fitnessFeatureStats = asRecord(fitnessReport.feature_stats);
+  const fitnessSymbols = asArray<string>(fitnessReport.symbols);
   const researchWatchboard = asRecord(researchEvents.watchboard);
   const researchStates = asRecord(researchEvents.states);
   const researchWatchlists = asRecord(researchEvents.watchlists);
@@ -296,6 +301,61 @@ export default function ResearchEventsPanel({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div
+        className="card"
+        style={{
+          borderLeft: "3px solid var(--yellow)",
+          background: "linear-gradient(180deg, rgba(255, 196, 61, 0.12), rgba(0, 0, 0, 0))",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <div>
+            <div className="card-title" style={{ marginBottom: 6 }}>Data Research Fitness</div>
+            <div style={{ color: "var(--muted)" }}>
+              path={metricString(fitnessMeta.path)}
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {fitnessMeta.stale ? <span className="badge badge-gray">stale</span> : <span className="badge badge-green">current</span>}
+            {fitnessReport.status ? levelBadge(String(fitnessReport.status).toLowerCase() === "fail" ? "severe" : String(fitnessReport.status).toLowerCase() === "warn" ? "elevated" : "quiet", false) : null}
+            {fitnessContract.tier ? <span className="badge badge-blue">tier={metricString(fitnessContract.tier)}</span> : null}
+          </div>
+        </div>
+        {Object.keys(fitnessReport).length > 0 && fitnessReport.status ? (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10, marginTop: 12 }}>
+            <div style={{ padding: "10px 12px", borderRadius: 8, background: "var(--surface-2)", border: "1px solid var(--border)" }}>
+              <div style={{ fontSize: 10, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Research Fitness</div>
+              <div style={{ fontWeight: 700, marginTop: 4 }}>{metricString(fitnessReport.status)}</div>
+              <div style={{ color: "var(--muted)", fontSize: 12 }}>db_ready={metricString(fitnessReport.db_ready)}</div>
+            </div>
+            <div style={{ padding: "10px 12px", borderRadius: 8, background: "var(--surface-2)", border: "1px solid var(--border)" }}>
+              <div style={{ fontSize: 10, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Contract</div>
+              <div style={{ fontWeight: 700, marginTop: 4 }}>{metricString(fitnessContract.status)}</div>
+              <div style={{ color: "var(--muted)", fontSize: 12 }}>requires_book={metricString(fitnessContract.requires_book)}</div>
+            </div>
+            <div style={{ padding: "10px 12px", borderRadius: 8, background: "var(--surface-2)", border: "1px solid var(--border)" }}>
+              <div style={{ fontSize: 10, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Symbol Coverage</div>
+              <div style={{ fontWeight: 700, marginTop: 4 }}>{fitnessSymbols.length} symbols</div>
+              <div style={{ color: "var(--muted)", fontSize: 12 }}>{fitnessSymbols.join(", ") || "-"}</div>
+            </div>
+          </div>
+        ) : (
+          <div style={{ color: "var(--muted)", marginTop: 12 }}>No data research fitness payload available yet.</div>
+        )}
+        {fitnessSymbols.length > 0 ? (
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+            {fitnessSymbols.slice(0, 4).map((symbol) => {
+              const stats = asRecord(fitnessFeatureStats[symbol]);
+              return (
+                <span key={symbol} className="badge badge-gray">
+                  {symbol} rows={metricString(stats.feature_rows)} mid={metricString(stats.has_mid)} spread={metricString(stats.has_spread)}
+                </span>
+              );
+            })}
+          </div>
+        ) : null}
+      </div>
+
       <div
         className="card"
         style={{
