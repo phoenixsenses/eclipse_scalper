@@ -156,15 +156,21 @@ def collect_diag(micro_db: str = "data/microstructure.db") -> Dict[str, Any]:
 
 
 def collect_kill_switch_status() -> Dict[str, Any]:
-    ks_path = Path("state/kill_switch.json")
+    ks_path = Path("logs/kill_switch_state.json")
     if not ks_path.exists():
         return {"active": False, "source": "no_file"}
     try:
         obj = json.loads(ks_path.read_text(encoding="utf-8", errors="replace"))
+        halt_until = float(obj.get("halt_until_ts", 0.0) or 0.0)
+        now = time.time()
+        active = halt_until > now
         return {
-            "active": bool(obj.get("halted", False)),
-            "reason": str(obj.get("reason") or ""),
-            "ts": float(obj.get("ts") or 0),
+            "active": active,
+            "halt_until_ts": halt_until,
+            "reason": str(obj.get("halt_reason") or ""),
+            "halt_count": int(obj.get("halt_count", 0) or 0),
+            "trip_streak": int(obj.get("trip_streak", 0) or 0),
+            "saved_at": float(obj.get("saved_at", 0.0) or 0.0),
             "source": "state_file",
         }
     except Exception:

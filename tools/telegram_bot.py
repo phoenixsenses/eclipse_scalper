@@ -101,7 +101,12 @@ def _render_open() -> str:
 def _render_kill() -> str:
     ks = collect_kill_switch_status()
     if ks.get("active"):
-        return f"KILL SWITCH: ACTIVE\nReason: {ks.get('reason', 'unknown')}\nSource: {ks.get('source', '')}"
+        return (
+            f"KILL SWITCH: ACTIVE\n"
+            f"Reason: {ks.get('reason', 'unknown')}\n"
+            f"Halt until: {ks.get('halt_until_ts', 0):.0f}\n"
+            f"Trip streak: {ks.get('trip_streak', 0)} | Count: {ks.get('halt_count', 0)}"
+        )
     return f"Kill switch: inactive (source={ks.get('source', '')})"
 
 
