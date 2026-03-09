@@ -156,11 +156,17 @@ def _record_shutdown_reason(bot, reason: str, source: str) -> None:
         pass
 
 
-async def _safe_call(name: str, fn: Callable[..., Awaitable[Any]], *args, **kwargs):
+_GUARDIAN_STEP_TIMEOUT_SEC = 45.0  # max time any single guardian step may run
+
+
+async def _safe_call(name: str, fn: Callable[..., Awaitable[Any]], *args, timeout_sec: float = 0.0, **kwargs):
     if not callable(fn):
         return
+    t = float(timeout_sec) if timeout_sec > 0 else _GUARDIAN_STEP_TIMEOUT_SEC
     try:
-        await fn(*args, **kwargs)
+        await asyncio.wait_for(fn(*args, **kwargs), timeout=t)
+    except asyncio.TimeoutError:
+        log_entry.error(f"GUARDIAN: {name} TIMED OUT after {t:.1f}s — skipping")
     except asyncio.CancelledError:
         raise
     except Exception as e:
@@ -299,7 +305,7 @@ async def _exchange_connectivity_tick(bot) -> None:
         pass
 
 
-_STUCK_ALERTED: set = set()  # tracks symbols we already alerted for stuck positions
+_STUCK_ALERTED: dict = {}  # sym -> alert_ts (tracks symbols we already alerted for stuck positions)
 
 
 async def _position_stuck_check(bot) -> None:
@@ -320,14 +326,18 @@ async def _position_stuck_check(bot) -> None:
                 continue
             qty = float(pos.get("size") or pos.get("qty") or 0.0)
             if abs(qty) <= 0:
-                _STUCK_ALERTED.discard(sym)
+                _STUCK_ALERTED.pop(sym, None)
                 continue
             entry_ts = float(pos.get("entry_ts") or pos.get("open_ts") or 0.0)
             if entry_ts <= 0:
                 continue
             age = now - entry_ts
             if age > ttl and sym not in _STUCK_ALERTED:
-                _STUCK_ALERTED.add(sym)
+                _STUCK_ALERTED[sym] = now
+                # Evict oldest if dict grows too large
+                if len(_STUCK_ALERTED) > 500:
+                    oldest = min(_STUCK_ALERTED, key=_STUCK_ALERTED.get)  # type: ignore[arg-type]
+                    _STUCK_ALERTED.pop(oldest, None)
                 msg = (
                     f"POSITION STUCK — {sym} open for {age / 3600:.1f}h "
                     f"(TTL={ttl / 3600:.1f}h) qty={qty}"

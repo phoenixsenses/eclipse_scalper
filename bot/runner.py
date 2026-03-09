@@ -769,6 +769,8 @@ if __name__ == "__main__":
         with os.fdopen(_fd, "w", encoding="utf-8") as f:
             f.write(str(os.getpid()))
         os.replace(_tmp, str(_pid_path))
+        import atexit as _atexit
+        _atexit.register(lambda: _pid_path.unlink(missing_ok=True))
 
     asyncio.run(
         run_bot(

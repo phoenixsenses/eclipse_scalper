@@ -86,7 +86,7 @@ class NotificationManager:
         self.config = config
         self._last_by_key: Dict[str, float] = {}
         self._sent_ts: Deque[float] = deque()
-        self._pending: Deque[NotificationEvent] = deque()
+        self._pending: Deque[NotificationEvent] = deque(maxlen=200)
         self._trade_burst_ts: Deque[float] = deque()
         self._batched_trade_count: int = 0
         self._last_trade_batch_flush_ts: float = 0.0
@@ -160,6 +160,9 @@ class NotificationManager:
             self._sent_ts.append(now)
             if event.throttle_key:
                 self._last_by_key[event.throttle_key] = now
+                if len(self._last_by_key) > 500:
+                    oldest_k = min(self._last_by_key, key=self._last_by_key.get)  # type: ignore[arg-type]
+                    self._last_by_key.pop(oldest_k, None)
             return True
         except asyncio.TimeoutError:
             self._record_tg_failure("telegram_timeout", event)
