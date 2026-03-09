@@ -317,3 +317,47 @@ Updated current-branch diagnosis:
 - but one focused 7D ETH pocket now shows a clear next direction:
   - investigate `passive_then_taker`
   - not broader event blocking
+
+Pocket-family robustness check for `passive_then_taker`:
+- tested neighboring ETH 60s pockets on the same 7D live/root DB slice
+- pocket C (adjacent wider-spread sibling):
+  - `ETHUSDT`
+  - `h=60`
+  - `imb>=0.30`
+  - `int>=8000`
+  - `spr<=0.000250`
+  - `splits=2`
+  - `min_n=20`
+  - artifact: `reports/ETH_POCKET_C_7D_PASSIVE_THEN_TAKER.json`
+  - result:
+    - `pass_count = 3/3`
+    - `pass_rate = 100%`
+    - `attempt_fill_rate_mean = 100%`
+    - `filled_avg_net_mean = +3.791728e-04`
+- soft ETH pocket (broader live signal family):
+  - `ETHUSDT`
+  - `h=60`
+  - `imb>=0.40`
+  - `int>=2500`
+  - `spr<=0.000300`
+  - baseline artifact: `reports/ETH_POCKET_SOFT_7D_BASELINE.json`
+  - passive-then-taker artifact: `reports/ETH_POCKET_SOFT_7D_PASSIVE_THEN_TAKER.json`
+  - baseline:
+    - `pass_count = 0/3`
+    - `attempt_fill_rate_mean = 55.91%`
+    - `filled_avg_net_mean = -2.775605e-04`
+  - passive-then-taker:
+    - `pass_count = 2/3`
+    - `attempt_fill_rate_mean = 100%`
+    - `filled_avg_net_mean = +4.934115e-06`
+- implication:
+  - the improvement is no longer isolated to one lucky pocket
+  - `passive_then_taker` materially improves fillability across multiple ETH 60s pockets
+  - the effect is strongest on the tighter high-intensity pockets, but it also rescues a softer ETH pocket from fully negative / non-passing to partially passing
+
+Current preferred direction:
+- stop prioritizing broader event-block experiments on this branch
+- shift focus to execution-shape promotion on ETH 60s pockets
+- specifically:
+  - `passive_then_taker` is now the leading current-branch candidate
+  - next work should quantify where it helps and where it stops helping
