@@ -1,7 +1,10 @@
 from html import escape as _html_escape
+import logging
 
 from telegram import Bot
 import time
+
+_log = logging.getLogger("notifications.telegram")
 
 from notifications.x_twitter import XTweetPublisher
 
@@ -32,11 +35,11 @@ class Notifier:
                 self.last_alert = now
             sent_ok = True
         except Exception as e:
-            print(f"Telegram failed: {e}")
+            _log.error("Telegram failed: %s", e)
 
         # X/Twitter - optional, fire-and-forget, errors never propagate
         try:
             self._x.publish(text)
         except Exception as exc:
-            print(f"X publisher error: {exc}")
+            _log.error("X publisher error: %s", exc)
         return sent_ok
