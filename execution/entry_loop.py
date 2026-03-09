@@ -2450,6 +2450,27 @@ async def entry_loop(bot) -> None:
                                 )
                                 _gate_shadow = os.getenv("ENTRY_EVENT_LANE_GATE_SHADOW", "1") == "1"
                                 if _blocked:
+                                    if callable(emit_throttled):
+                                        await emit_throttled(
+                                            bot,
+                                            "entry.event_lane_gate",
+                                            key=f"{k}:blocked",
+                                            cooldown_sec=5.0,
+                                            data={
+                                                "symbol": k,
+                                                "rule_name": _gate_rule,
+                                                "horizon_sec": _gate_horizon,
+                                                "shadow": _gate_shadow,
+                                                "decision": "would_block" if _gate_shadow else "blocked",
+                                                "gate_reason": _gate_reason,
+                                                "gate_status": str(_gate.get("gate") or "unknown"),
+                                                "blocking_lanes": list(_gate.get("blocked_lanes", [])),
+                                                "latest_abs_imbalance": _gate.get("latest_abs_imbalance"),
+                                                "latest_ts_ms": _gate.get("latest_ts_ms"),
+                                            },
+                                            symbol=k,
+                                            level="warning",
+                                        )
                                     log_entry.warning(
                                         f"[event_lane_gate] symbol={k} rule={_gate_rule} h={_gate_horizon}"
                                         f" gate_status=blocked reason={_gate_reason}"
@@ -2475,6 +2496,27 @@ async def entry_loop(bot) -> None:
                                         await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                                         continue  # actual block — only when SHADOW=0
                                 else:
+                                    if callable(emit_throttled):
+                                        await emit_throttled(
+                                            bot,
+                                            "entry.event_lane_gate",
+                                            key=f"{k}:{str(_gate.get('gate') or 'allowed')}",
+                                            cooldown_sec=5.0,
+                                            data={
+                                                "symbol": k,
+                                                "rule_name": _gate_rule,
+                                                "horizon_sec": _gate_horizon,
+                                                "shadow": _gate_shadow,
+                                                "decision": "allowed",
+                                                "gate_reason": _gate_reason,
+                                                "gate_status": str(_gate.get("gate") or "unknown"),
+                                                "blocking_lanes": list(_gate.get("blocked_lanes", [])),
+                                                "latest_abs_imbalance": _gate.get("latest_abs_imbalance"),
+                                                "latest_ts_ms": _gate.get("latest_ts_ms"),
+                                            },
+                                            symbol=k,
+                                            level="info",
+                                        )
                                     log_entry.info(
                                         f"[event_lane_gate] symbol={k} rule={_gate_rule} h={_gate_horizon}"
                                         f" gate_status={_gate.get('gate', 'unknown')} shadow={_gate_shadow}"

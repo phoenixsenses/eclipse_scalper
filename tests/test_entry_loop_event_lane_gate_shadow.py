@@ -90,10 +90,12 @@ def test_entry_loop_event_lane_gate_shadow_emits_without_blocking(monkeypatch) -
         submit_mock = AsyncMock(side_effect=_fake_create_order)
         cancel_mock = AsyncMock(return_value=True)
         blocked_mock = AsyncMock()
+        gate_emit_mock = AsyncMock()
 
         monkeypatch.setattr(el, "create_order", submit_mock)
         monkeypatch.setattr(el, "cancel_order", cancel_mock)
         monkeypatch.setattr(el, "_emit_entry_blocked", blocked_mock)
+        monkeypatch.setattr(el, "emit_throttled", gate_emit_mock)
         monkeypatch.setattr(el, "_load_signal_fn", lambda: None)
         monkeypatch.setattr(
             el,
@@ -148,5 +150,8 @@ def test_entry_loop_event_lane_gate_shadow_emits_without_blocking(monkeypatch) -
         assert symbol == "ETHUSDT"
         assert reason == "event_lane_gate_shadow"
         assert blocked_mock.await_args.kwargs["data"]["blocking_lanes"] == ["book_proxy_pressure"]
+        assert gate_emit_mock.await_count >= 1
+        assert gate_emit_mock.await_args.args[1] == "entry.event_lane_gate"
+        assert gate_emit_mock.await_args.kwargs["data"]["decision"] == "would_block"
 
     asyncio.run(_run())
