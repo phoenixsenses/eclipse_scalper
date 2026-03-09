@@ -174,11 +174,32 @@ def _record_shutdown_reason(bot, reason: str, source: str) -> None:
 
 _GUARDIAN_STEP_TIMEOUT_SEC = 45.0  # max time any single guardian step may run
 
+# Step profiling: track last N durations per step name
+_STEP_TIMINGS: Dict[str, List[float]] = {}  # name -> [duration_sec, ...]
+_STEP_TIMINGS_MAX_HISTORY = 20  # keep last N measurements per step
+_STEP_TIMINGS_MAX_STEPS = 50  # max distinct step names tracked
+
+
+def get_step_timings() -> Dict[str, Dict[str, float]]:
+    """Return profiling summary: {step_name: {avg_ms, max_ms, last_ms, count}}."""
+    result: Dict[str, Dict[str, float]] = {}
+    for name, durations in _STEP_TIMINGS.items():
+        if not durations:
+            continue
+        result[name] = {
+            "avg_ms": sum(durations) / len(durations) * 1000.0,
+            "max_ms": max(durations) * 1000.0,
+            "last_ms": durations[-1] * 1000.0,
+            "count": float(len(durations)),
+        }
+    return result
+
 
 async def _safe_call(name: str, fn: Callable[..., Awaitable[Any]], *args, timeout_sec: float = 0.0, **kwargs):
     if not callable(fn):
         return
     t = float(timeout_sec) if timeout_sec > 0 else _GUARDIAN_STEP_TIMEOUT_SEC
+    t0 = time.monotonic()
     try:
         await asyncio.wait_for(fn(*args, **kwargs), timeout=t)
     except asyncio.TimeoutError:
@@ -187,6 +208,20 @@ async def _safe_call(name: str, fn: Callable[..., Awaitable[Any]], *args, timeou
         raise
     except Exception as e:
         log_entry.error(f"GUARDIAN: {name} failed: {e}")
+    finally:
+        elapsed = time.monotonic() - t0
+        try:
+            if name not in _STEP_TIMINGS:
+                if len(_STEP_TIMINGS) >= _STEP_TIMINGS_MAX_STEPS:
+                    oldest = next(iter(_STEP_TIMINGS))
+                    _STEP_TIMINGS.pop(oldest, None)
+                _STEP_TIMINGS[name] = []
+            hist = _STEP_TIMINGS[name]
+            hist.append(elapsed)
+            if len(hist) > _STEP_TIMINGS_MAX_HISTORY:
+                del hist[: len(hist) - _STEP_TIMINGS_MAX_HISTORY]
+        except Exception:
+            pass
 
 
 async def _cancel_task_bounded(task: asyncio.Task, *, wait_sec: float = 0.35) -> None:
@@ -456,6 +491,14 @@ async def _write_heartbeat(bot) -> None:
         except Exception:
             pass
         data["exchange_degraded"] = is_exchange_degraded(bot)
+        # Include step profiling summary (top 5 slowest by avg)
+        try:
+            timings = get_step_timings()
+            if timings:
+                top5 = sorted(timings.items(), key=lambda x: x[1]["avg_ms"], reverse=True)[:5]
+                data["step_profiling"] = {k: v for k, v in top5}
+        except Exception:
+            pass
         atomic_write_json(_HEARTBEAT_PATH, data)
     except Exception:
         pass
