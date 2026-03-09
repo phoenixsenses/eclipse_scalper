@@ -146,3 +146,7 @@ Branch: `codex/runtime/ops-foundation`
 | Dashboard: spread-stress card (issue #4) | DONE — card + watchlist | `7371805` |
 | Dashboard: fill-toxicity card (issue #5) | DONE — toxicity metrics | `7371805` |
 | Dashboard: latency-stress card (issue #6) | DONE — latency metrics | `7371805` |
+| Dashboard: watchboard overview card (issue #7) | DONE — banner + lane table | `f7c770c` |
+| Kill-switch path/schema mismatch fix | DONE — correct path + field names | `4b5f0b2` |
+| Kill-switch silent exception logging | DONE — 3 except blocks now log warnings | `813dce8` |
+| Main sync | DONE — merged 90+ commits from main | `bd02d84` |
