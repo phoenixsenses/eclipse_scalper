@@ -529,6 +529,12 @@ export default function Overview() {
             </span>
             {fitnessStatus ? <span className="badge badge-blue">status={fitnessStatus}</span> : null}
             {fitnessDetail ? <span className="badge badge-gray">{fitnessDetail}</span> : null}
+            <button
+              onClick={() => navigate("/research")}
+              style={{ padding: "3px 8px", borderRadius: 4, border: "1px solid var(--accent)", background: "transparent", color: "var(--accent)", cursor: "pointer", fontSize: 11 }}
+            >
+              Open Fitness Detail
+            </button>
           </div>
         </div>
 

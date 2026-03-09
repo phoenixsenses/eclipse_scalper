@@ -57,11 +57,22 @@ vi.mock("../../hooks/usePoll", () => ({
           data_research_fitness: {
             status: "warn",
             db_ready: true,
+            db: "data/microstructure.db",
+            csv: "data/event_diary.csv",
+            fresh_sec: 120,
+            csv_status: { age_sec: 12, detail: "fresh" },
+            db_ready_details: { agg_trades: "fresh", mark_prices: "fresh" },
             symbols: ["BTCUSDT", "ETHUSDT"],
             contract: { status: "warn", tier: "trade_plus_liq_mark_proxy", requires_book: false },
+            warnings: ["no_spread:BTCUSDT", "no_spread:ETHUSDT"],
+            failures: [],
+            sample_stats: {
+              BTCUSDT: { agg_trade_rows: 48, mark_price_rows: 48, liquidation_rows: 4 },
+              ETHUSDT: { agg_trade_rows: 48, mark_price_rows: 48, liquidation_rows: 4 },
+            },
             feature_stats: {
-              BTCUSDT: { feature_rows: 24, has_mid: true, has_spread: false },
-              ETHUSDT: { feature_rows: 24, has_mid: true, has_spread: false },
+              BTCUSDT: { feature_rows: 24, has_mid: true, has_spread: false, has_trade_intensity: true },
+              ETHUSDT: { feature_rows: 24, has_mid: true, has_spread: false, has_trade_intensity: true },
             },
           },
           watchboard: {
@@ -123,6 +134,8 @@ describe("ResearchEvents smoke", () => {
 
     expect(screen.getByText("Research Event Watchboard")).toBeInTheDocument();
     expect(screen.getByText("Data Research Fitness")).toBeInTheDocument();
+    expect(screen.getByText("Symbol Fitness")).toBeInTheDocument();
+    expect(screen.getByText("Failure Breakdown")).toBeInTheDocument();
     expect(screen.getByText("Market Structure Chart")).toBeInTheDocument();
     expect(screen.getByText("Research Pocket Overlay")).toBeInTheDocument();
     expect(screen.getByText("Liquidation")).toBeInTheDocument();
