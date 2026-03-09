@@ -77,8 +77,9 @@ Branch: `codex/runtime/ops-foundation`
 | passive_execution_simulator.py | Clean | Research code, no side effects |
 | sim/min_exec_sim.py | Clean | Research code |
 | sim/price_oracle.py | Clean | Research code |
-| management.py | Dead code | Not imported, bypasses router |
-| management_omega.py | Dead code | Not imported, bypasses router |
+| event_lane_gate.py | Clean | Event lane gating for entry flow |
+| management.py | DELETED | Removed in commit 975507f |
+| management_omega.py | DELETED | Removed in commit 975507f |
 
 ### bot/
 
@@ -142,7 +143,7 @@ Branch: `codex/runtime/ops-foundation`
 | File | Status | Notes |
 |------|--------|-------|
 | main.py | Clean | Proper dry-run handling |
-| guardian.py | Dead code | Standalone script, not imported, bypasses router |
+| guardian.py | Dead code | Standalone script (NOT execution/guardian.py), not imported |
 | signal_check.py | N/A | Standalone analysis tool |
 | settings.py | Clean | 5-line bridge |
 
@@ -175,3 +176,14 @@ Branch: `codex/runtime/ops-foundation`
 | Config hot-reload (JSON override) | DONE | `48524e1` |
 | Structured alert rules engine | DONE | `fd91f51` |
 | Ops runbook | DONE | `bfd1e06` |
+
+## Phase 3 — Profiling & Gaps
+
+| Item | Status | Commit |
+|------|--------|--------|
+| Guardian step profiling (avg/max/last ms) | DONE | `c57ce48` |
+| Default alert rules JSON file | DONE | `c57ce48` |
+| Kişi 1 sync analysis document | DONE | `c57ce48` |
+| Degraded mode wired to entry gate | DONE | `7c2841f` |
+| Alert rules API endpoint | DONE | `7c2841f` |
+| Adaptive guard memory cap (P0) | DONE | `0df640b` |
