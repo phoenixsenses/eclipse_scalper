@@ -5,16 +5,16 @@ from pathlib import Path
 
 try:
     from core.trade_logger import TradeLogger
-    from monitoring.status_snapshot import collect_last_decisions, collect_pnl, render_status_text
+    from monitoring.status_snapshot import collect_data_research_fitness, collect_last_decisions, collect_pnl, render_status_text
 except ModuleNotFoundError:  # pragma: no cover
     import sys
 
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
     from core.trade_logger import TradeLogger
-    from monitoring.status_snapshot import collect_last_decisions, collect_pnl, render_status_text
+    from monitoring.status_snapshot import collect_data_research_fitness, collect_last_decisions, collect_pnl, render_status_text
 
 
-def test_collect_pnl_and_render() -> None:
+def test_collect_pnl_and_render(monkeypatch) -> None:
     db = Path("data") / f"test_status_snapshot_{uuid.uuid4().hex}.db"
     try:
         lg = TradeLogger(str(db))
@@ -36,8 +36,16 @@ def test_collect_pnl_and_render() -> None:
         p = collect_pnl(str(db))
         assert p["ok"] is True
         assert int(p["total_trades"]) == 1
+        monkeypatch.setattr(
+            "monitoring.status_snapshot.collect_data_research_fitness",
+            lambda *args, **kwargs: {
+                "status": "pass",
+                "summary": "tier=trade_plus_liq_mark_proxy db_ready=True warnings=0 failures=0",
+            },
+        )
         txt = render_status_text()
-        assert "Eclipse Scalper - Paper Run" in txt
+        assert "Eclipse Scalper - Health Check" in txt
+        assert "Data research fitness: PASS" in txt
     finally:
         db.unlink(missing_ok=True)
 
@@ -61,3 +69,38 @@ def test_collect_last_decisions() -> None:
         assert rows[0]["event"] in ("entry.submitted", "entry.blocked")
     finally:
         jp.unlink(missing_ok=True)
+
+
+def test_collect_data_research_fitness_handles_missing_db() -> None:
+    payload = collect_data_research_fitness(
+        db_path="data/does_not_exist.db",
+        csv_path="data/does_not_exist.csv",
+        symbols=["ETHUSDT"],
+    )
+    assert payload["status"] == "unknown"
+    assert payload["summary"] == "db_missing"
+
+
+def test_render_status_text_includes_data_research_fitness(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "monitoring.status_snapshot.collect_status",
+        lambda: {
+            "pnl": {"ok": False},
+            "diag": {"ok": False},
+            "config": {
+                "ENTRY_REGIME": "",
+                "ENTRY_REGIME_RISK_ENABLED": "",
+                "EXIT_SCRATCH_ENABLED": "",
+                "NOTIFY_ENABLED": "",
+            },
+            "positions": {"count": 0, "positions": []},
+            "last_decisions": [],
+            "kill_switch": {"active": False},
+            "data_research_fitness": {
+                "status": "warn",
+                "summary": "tier=trade_plus_liq_mark_proxy db_ready=True warnings=1 failures=0",
+            },
+        },
+    )
+    text = render_status_text()
+    assert "Data research fitness: WARN" in text

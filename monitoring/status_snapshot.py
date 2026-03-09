@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from tools.paper_trade_summary import generate_summary
+from tools.validate_data_research_fitness import analyze_research_fitness
 
 
 def _utc(ts: float) -> str:
@@ -177,6 +178,54 @@ def collect_kill_switch_status() -> Dict[str, Any]:
         return {"active": False, "source": "read_error"}
 
 
+def collect_data_research_fitness(
+    db_path: str = "data/microstructure.db",
+    csv_path: str = "data/event_diary.csv",
+    symbols: List[str] | None = None,
+    fresh_sec: int = 120,
+) -> Dict[str, Any]:
+    symbol_list = list(symbols or ["BTCUSDT", "ETHUSDT"])
+    db = Path(str(db_path))
+    csv = Path(str(csv_path))
+    if not db.exists():
+        return {
+            "status": "unknown",
+            "summary": "db_missing",
+            "db": str(db),
+            "csv": str(csv),
+            "symbols": symbol_list,
+        }
+    try:
+        payload = analyze_research_fitness(
+            db_path=db,
+            csv_path=csv,
+            symbols=symbol_list,
+            fresh_sec=int(fresh_sec),
+        )
+        return {
+            "status": str(payload.get("status") or "unknown"),
+            "summary": (
+                f"tier={payload.get('contract', {}).get('tier', 'unknown')} "
+                f"db_ready={bool(payload.get('db_ready'))} "
+                f"warnings={len(payload.get('warnings') or [])} "
+                f"failures={len(payload.get('failures') or [])}"
+            ),
+            "contract_tier": payload.get("contract", {}).get("tier"),
+            "db_ready": bool(payload.get("db_ready")),
+            "warning_count": len(payload.get("warnings") or []),
+            "failure_count": len(payload.get("failures") or []),
+            "raw": payload,
+        }
+    except Exception as exc:
+        return {
+            "status": "unknown",
+            "summary": f"read_error:{exc}",
+            "db": str(db),
+            "csv": str(csv),
+            "symbols": symbol_list,
+        }
+
+
 def collect_status() -> Dict[str, Any]:
     pnl = collect_pnl()
     diag = collect_diag()
@@ -184,6 +233,7 @@ def collect_status() -> Dict[str, Any]:
     positions = collect_open_positions()
     decisions = collect_last_decisions(limit=5)
     kill_switch = collect_kill_switch_status()
+    data_research_fitness = collect_data_research_fitness()
     return {
         "pnl": pnl,
         "diag": diag,
@@ -191,6 +241,7 @@ def collect_status() -> Dict[str, Any]:
         "positions": positions,
         "last_decisions": decisions,
         "kill_switch": kill_switch,
+        "data_research_fitness": data_research_fitness,
     }
 
 
@@ -202,6 +253,7 @@ def render_status_text() -> str:
     positions = s["positions"]
     decisions = s["last_decisions"]
     ks = s["kill_switch"]
+    fitness = s["data_research_fitness"]
 
     lines = ["Eclipse Scalper - Health Check", "============================="]
 
@@ -218,6 +270,9 @@ def render_status_text() -> str:
         lines.append(f"Data feed: {freshness} | Last tick: {diag.get('last_tick_utc')} | age={age}s")
     else:
         lines.append("Data feed: UNAVAILABLE")
+
+    fitness_status = str(fitness.get("status") or "unknown").upper()
+    lines.append(f"Data research fitness: {fitness_status} | {fitness.get('summary', 'n/a')}")
 
     # PnL
     if pnl.get("ok"):
