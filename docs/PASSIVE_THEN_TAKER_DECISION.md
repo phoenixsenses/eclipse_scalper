@@ -127,15 +127,76 @@ Interpretation:
 - benefit persists outside the tight high-intensity subfamily
 - edge is weaker, but still directionally positive versus baseline
 
+### Mid ETH pocket
+- scope:
+  - `h=60`
+  - `imb>=0.50`
+  - `int>=3500`
+  - `spr<=0.000300`
+  - `splits=2`
+  - `min_n=20`
+
+Baseline:
+- artifact:
+  - `reports/ETH_POCKET_MID_7D_BASELINE.json`
+- result:
+  - `pass_count = 0/3`
+  - `filled_avg_net_mean = -4.311250e-04`
+  - `attempt_fill_rate_mean = 57.76%`
+
+Passive-then-taker:
+- artifact:
+  - `reports/ETH_POCKET_MID_7D_PASSIVE_THEN_TAKER.json`
+- result:
+  - `pass_count = 0/3`
+  - `filled_avg_net_mean = -4.930262e-05`
+  - `attempt_fill_rate_mean = 100%`
+
+Interpretation:
+- fillability improves materially
+- loss magnitude shrinks sharply
+- but this pocket still does not pass
+- this is not promotable as a passing pocket
+
+### Tight-mid ETH pocket
+- scope:
+  - `h=60`
+  - `imb>=0.50`
+  - `int>=5000`
+  - `spr<=0.000250`
+  - `splits=2`
+  - `min_n=20`
+
+Baseline:
+- artifact:
+  - `reports/ETH_POCKET_TIGHTMID_7D_BASELINE.json`
+- result:
+  - `pass_count = 0/3`
+  - `filled_avg_net_mean = -2.028754e-04`
+  - `attempt_fill_rate_mean = 60.73%`
+
+Passive-then-taker:
+- artifact:
+  - `reports/ETH_POCKET_TIGHTMID_7D_PASSIVE_THEN_TAKER.json`
+- result:
+  - `pass_count = 3/3`
+  - `filled_avg_net_mean = +2.131802e-04`
+  - `attempt_fill_rate_mean = 100%`
+
+Interpretation:
+- this confirms the rescue is strongest on the tighter, higher-intensity subfamily
+- this is a real flip from non-passing to fully passing
+
 ## Decision
 
 Current status:
 - `passive_then_taker = experimental_on`
 
 Why:
-- improved `pass_count` on every tested ETH 60s pocket family member
-- turned a clearly negative/non-passing soft ETH pocket into a partially passing one
-- improved fillability from sub-80% or sub-60% toward `100%`
+- it fully rescues multiple tighter ETH 60s pockets
+- it improves the soft ETH pocket enough to become partially passing
+- it improves fillability consistently toward `100%`
+- but it does not rescue every softer-mid pocket in the family
 
 What this does **not** mean:
 - not a global execution default
@@ -148,16 +209,19 @@ Safe experimental scope:
 - `ETHUSDT`
 - `micro_edge_v3_passive_alpha`
 - `h=60`
+- tighter pocket family first:
+  - stronger imbalance and/or stronger intensity
+  - tighter spread caps
 
 Preferred order:
 1. keep baseline ranking as the reference
-2. test `passive_then_taker` as an experimental execution profile on ETH 60s pocket family
-3. measure whether gains survive on more adjacent pockets before broader promotion
+2. test `passive_then_taker` as an experimental execution profile on the tighter ETH 60s pocket family
+3. keep softer-mid pockets in `observe_only` until they produce passing results
 
 ## Freeze conditions
 
 Freeze this line if:
-- broader ETH 60s family mapping shows mixed/negative median
+- tighter ETH 60s family mapping turns mixed/negative
 - BTC replication turns clearly negative
 - current `7D` effect disappears on the next refreshed window
 
