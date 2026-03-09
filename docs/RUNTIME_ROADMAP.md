@@ -8,25 +8,25 @@ Created: 2026-03-09
 
 | # | Task | Severity | Effort | Status |
 |---|------|----------|--------|--------|
-| 1 | CancelledError re-raise in entry_loop.py | Medium | 1-2h | TODO |
-| 2 | Atomic disk writes audit (shutdown_control, bootstrap) | High | 2-3h | TODO |
-| 3 | Startup validation gates (symbols, hedge mode, API perms) | Medium | 4h | TODO |
+| 1 | CancelledError re-raise in entry_loop.py | Medium | 1-2h | DONE (already clean) |
+| 2 | Atomic disk writes audit (shutdown_control, bootstrap) | High | 2-3h | DONE `e6d4400` |
+| 3 | Startup validation gates (symbols, hedge mode, API perms) | Medium | 4h | DONE `dec1c4c` |
 
 ## Week 2 — High Impact (Risk)
 
 | # | Task | Severity | Effort | Status |
 |---|------|----------|--------|--------|
-| 4 | Margin/liquidation proximity alerts | High | 2-3h | TODO |
-| 5 | SIGTERM graceful shutdown (cancel orders before exit) | High | 4-5h | TODO |
-| 6 | Position stuck detection alert (open > TTL with no fills) | Medium | 2h | TODO |
+| 4 | Margin/liquidation proximity alerts | High | 2-3h | DONE `059c3e9` |
+| 5 | SIGTERM graceful shutdown (cancel orders before exit) | High | 4-5h | DONE (already handled) |
+| 6 | Position stuck detection alert (open > TTL with no fills) | Medium | 2h | DONE `059c3e9` |
 
 ## Week 3 — Medium Impact (Reliability)
 
 | # | Task | Severity | Effort | Status |
 |---|------|----------|--------|--------|
-| 7 | Exchange reconnect: add jitter + circuit breaker | Medium | 2h | TODO |
-| 8 | Position drift alerts (size/price divergence > 5%) | Medium | 4-5h | TODO |
-| 9 | Dashboard consolidated risk-metrics endpoint | Low | 5h | TODO |
+| 7 | Exchange reconnect: add jitter + circuit breaker | Medium | 2h | DONE (already in collector) |
+| 8 | Position drift alerts (size/price divergence > 5%) | Medium | 4-5h | DONE (already in reconcile) |
+| 9 | Dashboard consolidated risk-metrics endpoint | Low | 5h | DONE |
 
 ## Week 4+ — Polish
 

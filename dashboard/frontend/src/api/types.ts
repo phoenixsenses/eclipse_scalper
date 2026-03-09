@@ -714,3 +714,12 @@ export interface WatchboardState {
   } | null;
   lanes: WatchboardLane[];
 }
+
+export interface RiskOverview {
+  liq_alert: LiqAlertState;
+  spread_stress: SpreadStressState;
+  fill_toxicity: FillToxicityState;
+  latency_stress: LatencyStressState;
+  watchboard: WatchboardState;
+  ts: number;
+}

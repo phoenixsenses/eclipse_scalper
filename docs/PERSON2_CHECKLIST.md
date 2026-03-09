@@ -20,6 +20,10 @@ Branch: `codex/runtime/ops-foundation`
 | `3558b67` | P2 | Enhance status_snapshot: kill switch, positions, decisions, feed freshness |
 | `3a3ac31` | P1 | Fix HTML injection in telegram_bot replies + add /kill command |
 | `d32cfb6` | P2 | Fix OOM: tail-based reading in tailer, performance_monitor, telegram_bot |
+| `5ffb69a` | Tech | Add runtime/ops improvement roadmap (12 items, 4 weeks) |
+| `e6d4400` | P1 | Atomic disk writes: 5 files hardened with tmp+rename pattern |
+| `dec1c4c` | P1 | Startup validation gates: symbols, hedge mode, API permissions |
+| `059c3e9` | P1 | Margin/liquidation alerts + position stuck detection in guardian |
 
 ## Full Audit Status
 

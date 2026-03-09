@@ -528,6 +528,19 @@ async def get_watchboard_state():
     return read_watchboard_state()
 
 
+@app.get("/api/risk-overview", response_model=dict)
+async def get_risk_overview():
+    """Consolidated risk-metrics endpoint — single call replaces 5+ individual requests."""
+    return {
+        "liq_alert": read_liq_alert_state(),
+        "spread_stress": read_spread_stress_state(),
+        "fill_toxicity": read_fill_toxicity_state(),
+        "latency_stress": read_latency_stress_state(),
+        "watchboard": read_watchboard_state(),
+        "ts": time.time(),
+    }
+
+
 @app.get("/api/ops/supervisor", response_model=dict)
 async def get_ops_supervisor():
     return read_supervisor_status()

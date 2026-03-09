@@ -41,6 +41,7 @@ import type {
   FillToxicityState,
   LatencyStressState,
   WatchboardState,
+  RiskOverview,
 } from "./types";
 
 const BASE = "/api";
@@ -376,6 +377,8 @@ export const api = {
     get<LatencyStressState>("/latency-stress-state", undefined, signal),
   watchboardState: (signal?: AbortSignal): Promise<WatchboardState> =>
     get<WatchboardState>("/watchboard-state", undefined, signal),
+  riskOverview: (signal?: AbortSignal): Promise<RiskOverview> =>
+    get<RiskOverview>("/risk-overview", undefined, signal),
   supervisorStatus: (signal?: AbortSignal): Promise<SupervisorStatusResponse> =>
     get<SupervisorStatusResponse>("/ops/supervisor", undefined, signal),
   debugActions: (signal?: AbortSignal): Promise<ControlActionInfo[]> =>
