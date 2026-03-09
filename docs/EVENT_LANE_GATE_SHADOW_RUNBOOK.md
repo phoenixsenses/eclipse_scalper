@@ -62,6 +62,12 @@ Optional:
 $env:TELEMETRY_PATH="logs/telemetry.jsonl"
 ```
 
+Or use the wrapper:
+
+```powershell
+.\scripts\start_event_lane_gate_shadow.ps1
+```
+
 ## What the bot emits
 
 When the narrow pocket is in scope, entry loop emits telemetry event:
@@ -91,6 +97,12 @@ Run:
 
 ```powershell
 py -3 -m tools.review_event_lane_gate_shadow --telemetry-path logs/telemetry.jsonl --symbol ETHUSDT
+```
+
+Or use the wrapper:
+
+```powershell
+.\scripts\review_event_lane_gate_shadow.ps1
 ```
 
 Expected output:
@@ -125,4 +137,3 @@ First active rollout should stay narrow:
 - `ETHUSDT`
 - `micro_edge_v3_passive_alpha`
 - `h=60`
-
