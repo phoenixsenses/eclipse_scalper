@@ -236,3 +236,10 @@ Run a small ETH 60s family map:
   - `passive_realistic`
   - `passive_then_taker`
 - then promote only if the median family result stays positive
+
+Current map artifact:
+- `docs/PASSIVE_THEN_TAKER_ETH60_FAMILY_MAP.md`
+
+Map read:
+- tighter spread / higher-intensity pockets are promotable experimental candidates
+- softer-mid pockets remain `observe_only` or `do_not_promote`
