@@ -518,6 +518,26 @@ async def get_ops_health():
     return read_ops_health()
 
 
+@app.get("/api/alert-rules")
+async def get_alert_rules():
+    """Return current alert rules and their status."""
+    try:
+        from monitoring.alert_rules import get_engine
+        engine = get_engine()
+        rules = engine._rules
+        last_fired = engine._last_fired
+        result = []
+        for rule in rules:
+            rid = rule.get("id", "")
+            result.append({
+                **rule,
+                "last_fired_ts": last_fired.get(rid, 0),
+            })
+        return {"rules": result}
+    except Exception:
+        return {"rules": []}
+
+
 @app.get("/metrics")
 async def prometheus_metrics():
     """Prometheus text-format metrics endpoint for Grafana/Datadog integration."""
@@ -546,6 +566,15 @@ async def prometheus_metrics():
             _gauge("eclipse_bot_uptime_sec", float(hb.get("uptime_sec", 0) or 0), "Bot uptime seconds")
             _gauge("eclipse_open_positions", float(hb.get("open_positions", 0) or 0), "Number of open positions")
             _gauge("eclipse_kill_switch_active", 1 if hb.get("kill_switch_active") else 0, "Kill switch active")
+            _gauge("eclipse_exchange_degraded", 1 if hb.get("exchange_degraded") else 0, "Exchange in degraded mode")
+            # Guardian step profiling
+            step_prof = hb.get("step_profiling")
+            if isinstance(step_prof, dict):
+                for step_name, metrics in step_prof.items():
+                    if isinstance(metrics, dict):
+                        safe_name = step_name.replace(".", "_").replace("-", "_")
+                        _gauge(f"eclipse_guardian_step_avg_ms", float(metrics.get("avg_ms", 0)), "Guardian step avg duration ms", f'step="{safe_name}"')
+                        _gauge(f"eclipse_guardian_step_max_ms", float(metrics.get("max_ms", 0)), "Guardian step max duration ms", f'step="{safe_name}"')
         else:
             _gauge("eclipse_bot_alive", 0, "Bot process alive (heartbeat < 30s)")
     except Exception:

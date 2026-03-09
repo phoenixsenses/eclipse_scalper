@@ -25,6 +25,7 @@ GUARD_HISTORY_LEVERAGE_DURATION = float(os.getenv("ADAPTIVE_GUARD_GUARD_HISTORY_
 GUARD_HISTORY_NOTIONAL_SCALE = float(os.getenv("ADAPTIVE_GUARD_GUARD_HISTORY_NOTIONAL_SCALE", 0.8))
 GUARD_HISTORY_NOTIONAL_DURATION = float(os.getenv("ADAPTIVE_GUARD_GUARD_HISTORY_NOTIONAL_DURATION_SEC", 900))
 _STATE_CACHE: Dict[str, Any] = {}
+_STATE_SYMBOLS_MAX = 500  # cap on tracked symbols in state cache
 
 
 def _safe_float(value: Any, default: float = 0.0) -> float:
@@ -70,6 +71,12 @@ def _cleanup(state: Dict[str, Any]) -> None:
     symbols = state.get("symbols") or {}
     for sym in list(symbols):
         if _safe_float(symbols[sym].get("expires"), 0.0) <= now:
+            symbols.pop(sym, None)
+    # Cap symbols dict to prevent unbounded growth
+    if len(symbols) > _STATE_SYMBOLS_MAX:
+        # Evict entries closest to expiry first
+        by_expiry = sorted(symbols.items(), key=lambda kv: _safe_float(kv[1].get("expires"), 0.0))
+        for sym, _ in by_expiry[: len(symbols) - _STATE_SYMBOLS_MAX]:
             symbols.pop(sym, None)
     global_entry = state.get("global") or {}
     if global_entry:

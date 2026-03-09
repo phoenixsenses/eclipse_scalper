@@ -124,6 +124,20 @@ except Exception as e:
     status_tick = None
     we_dont_have_this("execution.system_status.status_tick", e)
 
+# Config hot-reload (never fatal)
+try:
+    from config.hot_reload import check_and_apply as _config_hot_reload  # type: ignore
+except Exception as e:
+    _config_hot_reload = None
+    we_dont_have_this("config.hot_reload.check_and_apply", e)
+
+# Alert rule engine (never fatal)
+try:
+    from monitoring.alert_rules import get_engine as _get_alert_engine  # type: ignore
+except Exception as e:
+    _get_alert_engine = None
+    we_dont_have_this("monitoring.alert_rules.get_engine", e)
+
 
 # ─────────────────────────────────────────────────────────────────────
 # Helpers
@@ -188,11 +202,32 @@ def _record_shutdown_reason(bot, reason: str, source: str) -> None:
 
 _GUARDIAN_STEP_TIMEOUT_SEC = 45.0  # max time any single guardian step may run
 
+# Step profiling: track last N durations per step name
+_STEP_TIMINGS: Dict[str, List[float]] = {}  # name -> [duration_sec, ...]
+_STEP_TIMINGS_MAX_HISTORY = 20  # keep last N measurements per step
+_STEP_TIMINGS_MAX_STEPS = 50  # max distinct step names tracked
+
+
+def get_step_timings() -> Dict[str, Dict[str, float]]:
+    """Return profiling summary: {step_name: {avg_ms, max_ms, last_ms, count}}."""
+    result: Dict[str, Dict[str, float]] = {}
+    for name, durations in _STEP_TIMINGS.items():
+        if not durations:
+            continue
+        result[name] = {
+            "avg_ms": sum(durations) / len(durations) * 1000.0,
+            "max_ms": max(durations) * 1000.0,
+            "last_ms": durations[-1] * 1000.0,
+            "count": float(len(durations)),
+        }
+    return result
+
 
 async def _safe_call(name: str, fn: Callable[..., Awaitable[Any]], *args, timeout_sec: float = 0.0, **kwargs):
     if not callable(fn):
         return
     t = float(timeout_sec) if timeout_sec > 0 else _GUARDIAN_STEP_TIMEOUT_SEC
+    t0 = time.monotonic()
     try:
         await asyncio.wait_for(fn(*args, **kwargs), timeout=t)
     except asyncio.TimeoutError:
@@ -201,6 +236,20 @@ async def _safe_call(name: str, fn: Callable[..., Awaitable[Any]], *args, timeou
         raise
     except Exception as e:
         log_entry.error(f"GUARDIAN: {name} failed: {e}")
+    finally:
+        elapsed = time.monotonic() - t0
+        try:
+            if name not in _STEP_TIMINGS:
+                if len(_STEP_TIMINGS) >= _STEP_TIMINGS_MAX_STEPS:
+                    oldest = next(iter(_STEP_TIMINGS))
+                    _STEP_TIMINGS.pop(oldest, None)
+                _STEP_TIMINGS[name] = []
+            hist = _STEP_TIMINGS[name]
+            hist.append(elapsed)
+            if len(hist) > _STEP_TIMINGS_MAX_HISTORY:
+                del hist[: len(hist) - _STEP_TIMINGS_MAX_HISTORY]
+        except Exception:
+            pass
 
 
 async def _cancel_task_bounded(task: asyncio.Task, *, wait_sec: float = 0.35) -> None:
@@ -303,8 +352,35 @@ async def _position_manager_tick(bot):
     await _safe_call("position_manager.position_manager_tick", position_manager_tick, bot)
 
 
+_DEGRADED_CONSECUTIVE_FAILURES = 0
+_DEGRADED_THRESHOLD = 3  # consecutive probe failures to enter degraded mode
+_DEGRADED_NOTIFIED = False
+
+
+def _set_exchange_degraded(bot, degraded: bool) -> None:
+    """Set exchange degraded flag on bot.state.run_context."""
+    try:
+        rc = _rc_map(getattr(bot, "state", None))
+        rc["exchange_degraded"] = bool(degraded)
+        rc["exchange_degraded_ts"] = _now() if degraded else 0.0
+    except Exception:
+        pass
+
+
+def is_exchange_degraded(bot) -> bool:
+    """Check if exchange is in degraded mode (entries blocked, exits allowed)."""
+    try:
+        rc = getattr(getattr(bot, "state", None), "run_context", None)
+        if isinstance(rc, dict):
+            return bool(rc.get("exchange_degraded", False))
+    except Exception:
+        pass
+    return False
+
+
 async def _exchange_connectivity_tick(bot) -> None:
-    """Probe exchange health — trigger _health_check if stale, notify on failure."""
+    """Probe exchange health — enter degraded mode on repeated failures."""
+    global _DEGRADED_CONSECUTIVE_FAILURES, _DEGRADED_NOTIFIED
     try:
         ex = getattr(bot, "ex", None)
         if ex is None:
@@ -319,14 +395,38 @@ async def _exchange_connectivity_tick(bot) -> None:
             return
         try:
             await hc()
+            # Success: clear degraded state
+            if _DEGRADED_CONSECUTIVE_FAILURES > 0:
+                _DEGRADED_CONSECUTIVE_FAILURES = 0
+                if is_exchange_degraded(bot):
+                    _set_exchange_degraded(bot, False)
+                    _DEGRADED_NOTIFIED = False
+                    log_entry.warning("GUARDIAN: exchange connectivity restored — exiting DEGRADED mode")
+                    notify = getattr(bot, "notify", None)
+                    if notify is not None:
+                        try:
+                            await notify.speak(
+                                "EXCHANGE CONNECTIVITY RESTORED — degraded mode OFF, entries re-enabled",
+                                "critical",
+                            )
+                        except Exception:
+                            pass
         except Exception as e:
-            log_entry.error(f"GUARDIAN: exchange connectivity probe failed: {e}")
-            # Notify via bot if possible
+            _DEGRADED_CONSECUTIVE_FAILURES += 1
+            log_entry.error(f"GUARDIAN: exchange connectivity probe failed ({_DEGRADED_CONSECUTIVE_FAILURES}x): {e}")
+            if _DEGRADED_CONSECUTIVE_FAILURES >= _DEGRADED_THRESHOLD and not is_exchange_degraded(bot):
+                _set_exchange_degraded(bot, True)
+                log_entry.critical(
+                    f"GUARDIAN: ENTERING DEGRADED MODE — {_DEGRADED_CONSECUTIVE_FAILURES} consecutive "
+                    f"exchange failures. New entries BLOCKED, exits still allowed."
+                )
             notify = getattr(bot, "notify", None)
-            if notify is not None:
+            if notify is not None and not _DEGRADED_NOTIFIED:
+                _DEGRADED_NOTIFIED = True
                 try:
                     await notify.speak(
-                        f"EXCHANGE CONNECTIVITY FAILED — {type(e).__name__}: {e}",
+                        f"EXCHANGE DEGRADED — {_DEGRADED_CONSECUTIVE_FAILURES}x failures. "
+                        f"Entries blocked, exits allowed. Will auto-recover on next successful probe.",
                         "critical",
                     )
                 except Exception:
@@ -418,6 +518,15 @@ async def _write_heartbeat(bot) -> None:
                 )
         except Exception:
             pass
+        data["exchange_degraded"] = is_exchange_degraded(bot)
+        # Include step profiling summary (top 5 slowest by avg)
+        try:
+            timings = get_step_timings()
+            if timings:
+                top5 = sorted(timings.items(), key=lambda x: x[1]["avg_ms"], reverse=True)[:5]
+                data["step_profiling"] = {k: v for k, v in top5}
+        except Exception:
+            pass
         atomic_write_json(_HEARTBEAT_PATH, data)
     except Exception:
         pass
@@ -438,6 +547,60 @@ async def _log_rotation_tick(bot) -> None:
         await asyncio.get_event_loop().run_in_executor(
             None, lambda: run_rotation(max_size_mb=max_size, max_age_days=max_age)
         )
+    except Exception:
+        pass
+
+
+async def _config_hot_reload_tick(bot) -> None:
+    """Check for config override file changes and apply them."""
+    try:
+        if not callable(_config_hot_reload):
+            return
+        cfg = getattr(bot, "cfg", None)
+        if cfg is None:
+            return
+        changes = _config_hot_reload(cfg)
+        if changes:
+            # Notify operator about config changes
+            notify = getattr(bot, "notify", None)
+            if notify is not None:
+                changed_keys = ", ".join(changes.keys())
+                try:
+                    await notify.speak(
+                        f"CONFIG HOT-RELOAD: {len(changes)} field(s) updated: {changed_keys}",
+                        "normal",
+                    )
+                except Exception:
+                    pass
+    except Exception:
+        pass
+
+
+async def _alert_rules_tick(bot) -> None:
+    """Evaluate structured alert rules and send notifications for triggered alerts."""
+    try:
+        if not callable(_get_alert_engine):
+            return
+        engine = _get_alert_engine()
+        metrics = engine.collect_metrics(bot)
+        if not metrics:
+            return
+        alerts = engine.evaluate(metrics)
+        if not alerts:
+            return
+        notify = getattr(bot, "notify", None)
+        for alert in alerts:
+            try:
+                prefix = {"CRITICAL": "\U0001f6a8", "WARNING": "\u26a0\ufe0f", "INFO": "\u2139\ufe0f"}.get(
+                    alert.severity, "\u2139\ufe0f"
+                )
+                msg = f"{prefix} ALERT [{alert.rule_id}]: {alert.message}"
+                priority = "critical" if alert.severity == "CRITICAL" else "normal"
+                if notify is not None:
+                    await notify.speak(msg, priority)
+                log_entry.warning(f"ALERT RULE FIRED: {alert.rule_id} — {alert.message}")
+            except Exception:
+                pass
     except Exception:
         pass
 
@@ -947,6 +1110,13 @@ async def guardian_loop(bot):
 
         if callable(status_tick):
             await _safe_call("system_status.status_tick", status_tick, bot)
+
+        # 10) Config hot-reload (check override file every ~10s)
+        await _safe_call("config_hot_reload_tick", _config_hot_reload_tick, bot)
+
+        # 11) Structured alert rules evaluation (on watchdog cadence)
+        if (now_ts - _last_watchdog) < 2.0:
+            await _safe_call("alert_rules_tick", _alert_rules_tick, bot)
 
         # optional emergency halt hook
         if halted and emergency_mod is not None:

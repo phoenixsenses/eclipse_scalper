@@ -1,0 +1,56 @@
+[
+  {
+    "id": "margin_warning",
+    "metric": "margin_ratio",
+    "op": "<",
+    "threshold": 0.10,
+    "severity": "WARNING",
+    "message": "Margin ratio {value:.4f} below {threshold}",
+    "cooldown_sec": 300
+  },
+  {
+    "id": "margin_critical",
+    "metric": "margin_ratio",
+    "op": "<",
+    "threshold": 0.05,
+    "severity": "CRITICAL",
+    "message": "MARGIN CRITICAL: {value:.4f} — liquidation risk!",
+    "cooldown_sec": 60
+  },
+  {
+    "id": "daily_loss_warning",
+    "metric": "daily_pnl_pct",
+    "op": "<",
+    "threshold": -0.05,
+    "severity": "WARNING",
+    "message": "Daily PnL {value:.2%} exceeds loss threshold {threshold}",
+    "cooldown_sec": 600
+  },
+  {
+    "id": "daily_loss_critical",
+    "metric": "daily_pnl_pct",
+    "op": "<",
+    "threshold": -0.10,
+    "severity": "CRITICAL",
+    "message": "Daily PnL CRITICAL: {value:.2%}",
+    "cooldown_sec": 120
+  },
+  {
+    "id": "position_count_high",
+    "metric": "open_position_count",
+    "op": ">",
+    "threshold": 5,
+    "severity": "WARNING",
+    "message": "{value} open positions (max recommended: {threshold})",
+    "cooldown_sec": 600
+  },
+  {
+    "id": "uptime_heartbeat",
+    "metric": "uptime_sec",
+    "op": ">",
+    "threshold": 86400,
+    "severity": "INFO",
+    "message": "Bot uptime: {value:.0f}s ({hours:.1f}h)",
+    "cooldown_sec": 86400
+  }
+]
