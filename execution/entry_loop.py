@@ -2002,6 +2002,16 @@ async def entry_loop(bot) -> None:
                     await asyncio.sleep(max(0.25, poll_sec))
                     continue
 
+            # Check exchange degraded mode — block new entries only
+            try:
+                from execution.guardian import is_exchange_degraded
+                if is_exchange_degraded(bot):
+                    await _emit_entry_blocked(bot, "EXCHANGE_DEGRADED", "exchange_degraded", throttle_sec=60.0)
+                    await asyncio.sleep(max(0.25, poll_sec))
+                    continue
+            except Exception:
+                pass
+
             paused, remaining = anomaly_should_pause()
             if paused:
                 await _emit_entry_blocked(bot, "ANOMALY", "anomaly_pause", throttle_sec=60.0)

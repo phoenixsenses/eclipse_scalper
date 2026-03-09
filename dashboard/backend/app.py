@@ -500,6 +500,26 @@ async def get_ops_health():
     return read_ops_health()
 
 
+@app.get("/api/alert-rules")
+async def get_alert_rules():
+    """Return current alert rules and their status."""
+    try:
+        from monitoring.alert_rules import get_engine
+        engine = get_engine()
+        rules = engine._rules
+        last_fired = engine._last_fired
+        result = []
+        for rule in rules:
+            rid = rule.get("id", "")
+            result.append({
+                **rule,
+                "last_fired_ts": last_fired.get(rid, 0),
+            })
+        return {"rules": result}
+    except Exception:
+        return {"rules": []}
+
+
 @app.get("/metrics")
 async def prometheus_metrics():
     """Prometheus text-format metrics endpoint for Grafana/Datadog integration."""
