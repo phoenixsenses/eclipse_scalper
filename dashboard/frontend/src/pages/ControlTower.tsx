@@ -628,13 +628,13 @@ export default function ControlTower() {
         <div className="card">
           <div className="card-title self-help" data-help="Hizli aksiyonlar: tek tikla triage, log pack ve recovery adimlari.">Quick Actions</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            <button className="guide-toggle self-help" data-help="Debug triage makrosunu otomatik baslatir." onClick={() => navigate("/debug?auto=triage")}>Run Triage Macro</button>
-            <button className="guide-toggle self-help" data-help="No-match kok nedenlerini filtreli log paketinde acar." onClick={() => navigate("/logs?pack=No%20Match")}>Logs: No Match</button>
-            <button className="guide-toggle self-help" data-help="Regime uyumsuzlugu log paketini acar." onClick={() => navigate("/logs?pack=Regime")}>Logs: Regime</button>
-            <button className="guide-toggle self-help" data-help="Shutdown olaylari log paketini acar." onClick={() => navigate("/logs?pack=Shutdown")}>Logs: Shutdown</button>
-            <button className="guide-toggle self-help" data-help="Timeout/network kaynakli olaylari filtreler." onClick={() => navigate("/logs?pack=Timeout")}>Logs: Timeout</button>
-            <button className="guide-toggle self-help" data-help="Log sayfasinda fallback/degrade kilidini sifirlar." onClick={() => navigate("/logs?ops=force_recover")}>Force Recover</button>
-            <button className="guide-toggle self-help" data-help="Log fallback modunu manuel acik tutar." onClick={() => navigate("/logs?ops=keep_fallback_on")}>Keep Fallback ON</button>
+            <button className="guide-toggle self-help" data-help="Debug triage makrosunu otomatik başlatır." onClick={() => navigate("/debug?auto=triage")}>Run Triage</button>
+            <button className="guide-toggle self-help" data-help="No-match kök nedenlerini filtreli log paketinde açar." onClick={() => navigate("/logs?pack=No%20Match")}>Logs: No Match</button>
+            <button className="guide-toggle self-help" data-help="Rejim uyumsuzluğu log paketini açar." onClick={() => navigate("/logs?pack=Regime")}>Logs: Regime</button>
+            <button className="guide-toggle self-help" data-help="Shutdown olayları log paketini açar." onClick={() => navigate("/logs?pack=Shutdown")}>Logs: Shutdown</button>
+            <button className="guide-toggle self-help" data-help="Timeout/network kaynaklı olayları filtreler." onClick={() => navigate("/logs?pack=Timeout")}>Logs: Timeout</button>
+            <button className="guide-toggle self-help" data-help="Log sayfasında fallback/degrade kilidini sıfırlar." onClick={() => navigate("/logs?ops=force_recover")}>Force Recover</button>
+            <button className="guide-toggle self-help" data-help="Log fallback modunu manuel açık tutar." onClick={() => navigate("/logs?ops=keep_fallback_on")}>Keep Fallback ON</button>
           </div>
         </div>
 
@@ -773,14 +773,14 @@ export default function ControlTower() {
             <button className="guide-toggle self-help" data-help="Preflight raporunu yeniden olusturur." onClick={() => void runOpsAction("preflight_check")} disabled={writeLocked || !!opsActionRunning}>
               {opsActionRunning === "preflight_check" ? "Running..." : "Run Preflight"}
             </button>
-            <button className="guide-toggle self-help" data-help="Incident bundle dosyasini export eder." onClick={() => void runOpsAction("incident_bundle")} disabled={writeLocked || !!opsActionRunning}>
-              {opsActionRunning === "incident_bundle" ? "Running..." : "Export Incident Bundle"}
+            <button className="guide-toggle self-help" data-help="Tüm incident detaylarını ve logları tek dosyaya paketler." onClick={() => void runOpsAction("incident_bundle")} disabled={writeLocked || !!opsActionRunning}>
+              {opsActionRunning === "incident_bundle" ? "Running..." : "Capture Incident Snapshot"}
             </button>
-            <button className="guide-toggle self-help" data-help="API/runtime/log dosya erisim kontrolunu calistirir." onClick={() => void runConnectivityCheck()} disabled={diagRunning}>
-              {diagRunning ? "Checking..." : "Run Connectivity Check"}
+            <button className="guide-toggle self-help" data-help="API/runtime/log dosya erişim kontrolünü çalıştırır." onClick={() => void runConnectivityCheck()} disabled={diagRunning}>
+              {diagRunning ? "Checking..." : "Connectivity Check"}
             </button>
-            <button className="guide-toggle self-help" data-help="Debug paylasimi icin bug bundle indirir." onClick={() => exportBugBundle()}>
-              Export Bug Bundle
+            <button className="guide-toggle self-help" data-help="Debug paylaşımı için sistem tanılama paketini indirir." onClick={() => exportBugBundle()}>
+              Export Diagnostics
             </button>
           </div>
           {opsActionError && <div style={{ color: "var(--yellow)", fontSize: 12, marginBottom: 8 }}>{opsActionError}</div>}

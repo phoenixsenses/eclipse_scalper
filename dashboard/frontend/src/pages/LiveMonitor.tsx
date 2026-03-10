@@ -592,16 +592,16 @@ export default function LiveMonitor() {
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <PageGuide
         icon="LIVE"
-        titleTr="Canli Veri Monitoru"
+        titleTr="Canlı Veri Monitörü"
         titleEn="Live Data Monitor"
-        subtitleTr="Microstructure akisini tek sayfada canli izle."
+        subtitleTr="Microstructure akışını tek sayfada canlı izle."
         subtitleEn="Watch microstructure flow and collector health on one page."
         items={[
           {
             icon: "1",
             titleTr: "Hiz",
             titleEn: "Flow",
-            descTr: "Trades/sec ve Mark/sec veri akisinin hizini gosterir.",
+            descTr: "Trades/sec ve Mark/sec veri akışının hızını gösterir.",
             descEn: "Trades/sec and Mark/sec show data feed throughput.",
           },
           {
@@ -628,18 +628,18 @@ export default function LiveMonitor() {
 
       <AsyncState loading={runtimePoll.isLoading} error={runtimePoll.error} loadingText="Loading live monitor...">
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10 }}>
-          <div className="card self-help" data-help="Collector process ayakta mi?">
+          <div className="card self-help" data-help="Collector process ayakta mı?">
             <div className="card-title">Collector</div>
             <div style={{ fontSize: 20, fontWeight: 700, color: collector.alive ? "var(--green)" : "var(--red)" }}>
               {collector.alive ? "ALIVE" : "DOWN"}
             </div>
             <div style={{ color: "var(--muted)", fontSize: 11 }}>uptime={num(collector.uptime_sec, 0)}s</div>
           </div>
-          <div className="card self-help" data-help="Son 60 saniyede saniye basina trade adedi.">
+          <div className="card self-help" data-help="Son 60 saniyede saniye başına trade adedi.">
             <div className="card-title">Trades / sec</div>
             <div style={{ fontSize: 20, fontWeight: 700 }}>{num(collector.trades_per_sec_60s, 1)}</div>
           </div>
-          <div className="card self-help" data-help="Son 60 saniyede saniye basina mark update adedi.">
+          <div className="card self-help" data-help="Son 60 saniyede saniye başına mark price update adedi.">
             <div className="card-title">Mark / sec</div>
             <div style={{ fontSize: 20, fontWeight: 700 }}>{num(collector.mark_per_sec_60s, 1)}</div>
           </div>
@@ -668,7 +668,7 @@ export default function LiveMonitor() {
       </AsyncState>
 
       <div className="card">
-        <div className="card-title self-help" data-help="Canli alarm badge'leri: trade stale ve fill flatline durumlarini izler.">
+        <div className="card-title self-help" data-help="Canlı alarm göstergeleri: trade yaşı ve fill flatline durumlarını izler.">
           Live Alerts
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -689,7 +689,7 @@ export default function LiveMonitor() {
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <div className="card">
-          <div className="card-title self-help" data-help="Paper trade canli ozet: order/fill/block sayilari ve son fill zamani.">
+          <div className="card-title self-help" data-help="Paper trade canlı özet: order/fill/block sayıları ve son fill zamanı.">
             Paper Trade Summary
           </div>
           <AsyncState loading={scoreboardPoll.isLoading} error={scoreboardPoll.error} loadingText="Loading...">
@@ -829,9 +829,9 @@ export default function LiveMonitor() {
           ] as Array<{ label: string; level: string | undefined }>).map(({ label, level }) => (
             <span key={label} style={{
               padding: "3px 10px", borderRadius: 12, fontSize: 11, fontWeight: 600,
-              background: level === "severe" ? "#fef2f2" : level === "elevated" ? "#fffbeb" : level ? "#f0fdf4" : "#f9fafb",
-              color: level === "severe" ? "#991b1b" : level === "elevated" ? "#92400e" : level ? "#166534" : "#9ca3af",
-              border: `1px solid ${level === "severe" ? "#fca5a5" : level === "elevated" ? "#fcd34d" : level ? "#86efac" : "#e5e7eb"}`,
+              background: level === "severe" ? "var(--danger-bg)" : level === "elevated" ? "var(--warn-bg)" : level ? "var(--ok-bg)" : "var(--surface-3)",
+              color: level === "severe" ? "var(--red)" : level === "elevated" ? "var(--yellow)" : level ? "var(--green)" : "var(--muted)",
+              border: `1px solid ${level === "severe" ? "rgba(255,64,64,0.3)" : level === "elevated" ? "rgba(245,166,35,0.3)" : level ? "rgba(0,201,107,0.3)" : "var(--border)"}`,
             }}>
               {label}: {level ?? "–"}
             </span>
@@ -910,7 +910,7 @@ export default function LiveMonitor() {
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <div className="card">
-          <div className="card-title self-help" data-help="Collector log dosyasinin son 80 satiri, her 3 saniyede bir yenilenir.">
+          <div className="card-title self-help" data-help="Collector log dosyasının son 80 satırı, 3 saniyede bir yenilenir.">
             Collector Log ({collectorFile})
           </div>
           <AsyncState loading={tailPoll.isLoading} error={tailPoll.error} isEmpty={(tailPoll.data?.lines?.length ?? 0) === 0} emptyText="No collector log lines">
@@ -955,16 +955,16 @@ export default function LiveMonitor() {
           Quick Actions
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <button className="guide-toggle self-help" data-help="Canli kontrol kulesine git." onClick={() => navigate("/tower")}>Open Tower</button>
-          <button className="guide-toggle self-help" data-help="Log analiz ekranina git." onClick={() => navigate("/logs")}>Open Logs</button>
-          <button className="guide-toggle self-help" data-help="Recovery adimlarini ac." onClick={() => navigate("/recovery")}>Open Recovery</button>
-          <button className="guide-toggle self-help" data-help="Trades ekranina gec." onClick={() => navigate("/trades")}>Open Trades</button>
+          <button className="guide-toggle self-help" data-help="Incident ve runtime sağlığı için Control Tower'a git." onClick={() => navigate("/tower")}>Open Tower</button>
+          <button className="guide-toggle self-help" data-help="Log analiz ekranına git." onClick={() => navigate("/logs")}>Open Logs</button>
+          <button className="guide-toggle self-help" data-help="Backend kurtarma adımlarını açar." onClick={() => navigate("/recovery")}>Open Recovery</button>
+          <button className="guide-toggle self-help" data-help="Sinyal ve trade event ekranına geç." onClick={() => navigate("/trades")}>Open Signals</button>
           <button className="guide-toggle self-help" data-help="Mevcut monitor durumunu JSON olarak indir." onClick={exportSnapshot}>Export Snapshot</button>
         </div>
       </div>
 
       <div className="card">
-        <div className="card-title self-help" data-help="run_live_monitor_tests script son calisma durumunu canli izler.">
+        <div className="card-title self-help" data-help="run_live_monitor_tests script'inin son çalışma durumunu canlı izler.">
           Diagnostics — Live Monitor Tests
         </div>
         <AsyncState loading={liveTestsPoll.isLoading} error={liveTestsPoll.error} loadingText="Loading diagnostics...">

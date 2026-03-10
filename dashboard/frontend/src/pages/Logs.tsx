@@ -683,7 +683,7 @@ export default function Logs() {
       )}
 
       <div className="card" style={{ padding: 8 }}>
-        <div className="card-title self-help" data-help="Incident kayit oturumu: triage adimlarini zaman cizelgesiyle kaydeder.">Incident Session Registry</div>
+        <div className="card-title self-help" data-help="Incident oturumu: triage adımlarını zaman çizelgesiyle kaydeder.">Incident Session</div>
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           <span className={`badge ${incidentSessionId ? "badge-yellow" : "badge-gray"}`}>
             {incidentSessionId || "no active incident"}
@@ -691,7 +691,7 @@ export default function Logs() {
           {!incidentSessionId ? (
             <button
               className="self-help"
-              data-help="Yeni incident oturumu baslatir."
+              data-help="Yeni incident oturumu başlatır ve triage adımlarını kaydeder."
               onClick={startIncidentSession}
               style={{
                 padding: "3px 8px",
@@ -763,7 +763,7 @@ export default function Logs() {
 
       <div style={{ display: "flex", gap: 16, height: "calc(100vh - 140px)" }}>
         <div className="card" style={{ width: 240, overflowY: "auto", flexShrink: 0 }}>
-          <div className="card-title self-help" data-help="Analiz etmek istedigin log dosyasini soldan sec.">Log Files</div>
+          <div className="card-title self-help" data-help="Analiz etmek istediğin log dosyasını seç. Seçim sonrası sağda içerik görünür.">Log Files</div>
           <AsyncState
             loading={filesPoll.isLoading}
             error={filesPoll.error}
@@ -777,7 +777,7 @@ export default function Logs() {
                   padding: "6px 8px",
                   borderRadius: 4,
                   cursor: "pointer",
-                  background: selected === f.name ? "#21262d" : "transparent",
+                  background: selected === f.name ? "var(--accent-dim)" : "transparent",
                   marginBottom: 2,
                 }}
                 onClick={() => openFile(f.name)}
@@ -797,7 +797,7 @@ export default function Logs() {
                 {streaming ? (
                   <button
                     className="self-help"
-                    data-help="Canli akis modunu durdurur ve ekrani dondurur."
+                    data-help="Canlı akışı durdurur ve ekranı o anda dondurur."
                     onClick={stopStream}
                     style={{
                       padding: "2px 10px",
@@ -813,7 +813,7 @@ export default function Logs() {
                 ) : (
                   <button
                     className="self-help"
-                    data-help="Canli log akisina gecer (tail)."
+                    data-help="Canlı log akışına geçer — yeni satırlar otomatik eklenir."
                     onClick={() => startStream(selected)}
                     style={{
                       padding: "2px 10px",
