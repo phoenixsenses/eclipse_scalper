@@ -29,11 +29,6 @@ except Exception:
 _DIAG_ONCE = False
 
 
-def we_dont_have_this() -> None:
-    # Tiny function you asked for (literal string)
-    print("wedon't have this")
-
-
 def _optional_import(module: str, attr: Optional[str] = None):
     """
     Best-effort optional import that logs explicitly what's missing.
