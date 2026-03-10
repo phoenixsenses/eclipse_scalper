@@ -1,0 +1,120 @@
+# ============================================================================
+# Eclipse Scalper — Docker Compose (bot + dashboard + monitoring)
+# ============================================================================
+# Usage:
+#   docker compose up -d          # Start all services
+#   docker compose up bot         # Start bot only
+#   docker compose logs -f bot    # Follow bot logs
+#   docker compose down           # Stop all services
+# ============================================================================
+
+services:
+  # --------------------------------------------------------------------------
+  # Bot: Main scalping engine
+  # --------------------------------------------------------------------------
+  bot:
+    build: .
+    container_name: eclipse-bot
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - SCALPER_DRY_RUN=${SCALPER_DRY_RUN:-1}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ACTIVE_SYMBOLS=${ACTIVE_SYMBOLS:-BTCUSDT,ETHUSDT}
+    volumes:
+      - bot-logs:/app/logs
+      - bot-state:/app/state
+      - bot-data:/app/data
+      - bot-reports:/app/reports
+    networks:
+      - eclipse-net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import time; print('alive')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # --------------------------------------------------------------------------
+  # Dashboard: FastAPI backend + frontend
+  # --------------------------------------------------------------------------
+  dashboard:
+    build: .
+    container_name: eclipse-dashboard
+    restart: unless-stopped
+    command: >
+      uvicorn dashboard.backend.app:app
+      --host 0.0.0.0
+      --port 8000
+      --log-level info
+    env_file: .env
+    ports:
+      - "${DASHBOARD_PORT:-8000}:8000"
+    volumes:
+      - bot-logs:/app/logs:ro
+      - bot-state:/app/state:ro
+      - bot-data:/app/data:ro
+      - bot-reports:/app/reports:ro
+    networks:
+      - eclipse-net
+    depends_on:
+      - bot
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 30s
+      timeout: 10s
+      start_period: 15s
+      retries: 3
+
+  # --------------------------------------------------------------------------
+  # Prometheus: Metrics collection
+  # --------------------------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: eclipse-prometheus
+    restart: unless-stopped
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - eclipse-net
+    depends_on:
+      - dashboard
+
+  # --------------------------------------------------------------------------
+  # Grafana: Metrics visualization
+  # --------------------------------------------------------------------------
+  grafana:
+    image: grafana/grafana:latest
+    container_name: eclipse-grafana
+    restart: unless-stopped
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - eclipse-net
+    depends_on:
+      - prometheus
+
+# --------------------------------------------------------------------------
+# Volumes
+# --------------------------------------------------------------------------
+volumes:
+  bot-logs:
+  bot-state:
+  bot-data:
+  bot-reports:
+  prometheus-data:
+  grafana-data:
+
+# --------------------------------------------------------------------------
+# Networks
+# --------------------------------------------------------------------------
+networks:
+  eclipse-net:
+    driver: bridge
