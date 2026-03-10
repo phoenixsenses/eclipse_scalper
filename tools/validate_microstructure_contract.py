@@ -100,7 +100,8 @@ def analyze_contract(db_path: Path, symbols: List[str], require_true_book: bool 
             missing = [c for c in required_cols if c not in cols]
             ts_col = detect_ts_col(cols) if present else None
             sym_col = _detect_symbol_col(cols) if present else None
-            row_count = _safe_count(conn, f"SELECT COUNT(*) FROM {table}") if present else 0
+            # MAX(rowid) is O(log N) on the rowid btree — avoids full table scan on large DBs
+            row_count = _safe_count(conn, f"SELECT MAX(rowid) FROM {table}") if present else 0
             available_book_fields = [c for c in cols if c.lower() in {x.lower() for x in BOOK_FIELD_CANDIDATES}]
             table_contracts[table] = {
                 "present": present,
@@ -123,9 +124,11 @@ def analyze_contract(db_path: Path, symbols: List[str], require_true_book: bool 
                 failures.append(f"missing_symbol_column:{table}")
             if sym_col:
                 for sym in symbols:
-                    symbol_coverage[sym][table] = bool(
-                        _safe_count(conn, f"SELECT COUNT(*) FROM {table} WHERE {sym_col} = ?", (sym,)) > 0
-                    )
+                    # EXISTS + LIMIT 1 uses the symbol index without scanning all matching rows
+                    row = conn.execute(
+                        f"SELECT 1 FROM {table} WHERE {sym_col} = ? LIMIT 1", (sym,)
+                    ).fetchone()
+                    symbol_coverage[sym][table] = bool(row)
             else:
                 for sym in symbols:
                     symbol_coverage[sym][table] = False
