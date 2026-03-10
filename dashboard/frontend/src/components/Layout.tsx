@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import GlossaryDrawer from "./GlossaryDrawer";
 import OnboardingTour from "./OnboardingTour";
@@ -8,92 +8,317 @@ import { api } from "../api/client";
 import type { SecurityAuditEvent } from "../api/types";
 import { BackendStatusProvider } from "../context/BackendStatusContext";
 import { useApiErrors } from "../context/ApiErrorContext";
+import { NavigationProvider } from "../context/NavigationContext";
+import CommandPalette from "./CommandPalette";
 
-const NAV: { to: string; label: string }[] = [
-  { to: "/",         label: "Genel Bakis / Overview"  },
-  { to: "/live",     label: "Canli Veri / Live"       },
-  { to: "/research", label: "Arastirma / Research"    },
-  { to: "/tower",    label: "Kontrol Kulesi / Tower"  },
-  { to: "/recovery", label: "Kurtarma / Recovery"     },
-  { to: "/logs",     label: "Loglar / Logs"           },
-  { to: "/trades",   label: "Islemler / Trades"       },
-  { to: "/debug",    label: "Hata Ayikla / Debug"     },
-  { to: "/settings", label: "Ayarlar / Settings"      },
+// ─── Nav structure ────────────────────────────────────────────
+interface NavItem { to: string; label: string; icon: string; desc: string; }
+
+const NAV: { section: string; items: NavItem[] }[] = [
+  {
+    section: "MONITOR",
+    items: [
+      { to: "/",         label: "Status",    icon: "◉", desc: "System health overview" },
+      { to: "/live",     label: "Live",      icon: "▶", desc: "Real-time microstructure" },
+      { to: "/research", label: "Research",  icon: "◆", desc: "Pockets & watchboard" },
+    ],
+  },
+  {
+    section: "OPERATIONS",
+    items: [
+      { to: "/tower",    label: "Incidents", icon: "!", desc: "Incident inbox & runbooks" },
+      { to: "/debug",    label: "Tools",     icon: "⚙", desc: "Debug actions & history" },
+      { to: "/recovery", label: "Recovery",  icon: "↺", desc: "Guided recovery wizard" },
+    ],
+  },
+  {
+    section: "DATA",
+    items: [
+      { to: "/logs",     label: "Logs",      icon: "≡", desc: "Log browser & streamer" },
+      { to: "/trades",   label: "Signals",   icon: "~", desc: "Trade signals & events" },
+    ],
+  },
+  {
+    section: "SYSTEM",
+    items: [
+      { to: "/settings", label: "Settings",  icon: "⚙", desc: "Config & diagnostics" },
+    ],
+  },
 ];
 
-const navStyle: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 2,
-  padding: "0 12px",
-  height: 40,
-  background: "var(--surface)",
-  borderBottom: "1px solid var(--border)",
+const PAGE_TITLES: Record<string, string> = {
+  "/":         "Status Overview",
+  "/live":     "Live Monitor",
+  "/research": "Research",
+  "/tower":    "Control Tower — Incidents",
+  "/debug":    "Tools",
+  "/recovery": "Recovery Wizard",
+  "/logs":     "Logs",
+  "/trades":   "Signals & Events",
+  "/settings": "Settings",
 };
 
-const logoStyle: React.CSSProperties = {
-  fontWeight: 700,
-  fontSize: 14,
-  color: "var(--accent)",
-  marginRight: 24,
-  letterSpacing: "0.02em",
-};
+// ─── Sidebar ──────────────────────────────────────────────────
+function Sidebar({
+  collapsed,
+  mobileOpen,
+  onToggle,
+  onMobileClose,
+  backendUp,
+  backendMessage,
+  incidentCount,
+}: {
+  collapsed: boolean;
+  mobileOpen: boolean;
+  onToggle: () => void;
+  onMobileClose: () => void;
+  backendUp: boolean;
+  backendMessage: string;
+  incidentCount: number;
+}) {
+  const sidebarClass = [
+    "sidebar",
+    collapsed ? "collapsed" : "",
+    mobileOpen ? "mobile-open" : "",
+  ].filter(Boolean).join(" ");
 
-function NavItem({ to, label }: { to: string; label: string }) {
-  const tip =
-    to === "/" ? "Overview: quick status summary." :
-    to === "/live" ? "Live Monitor: microstructure flow + collector log tail." :
-    to === "/research" ? "Research Events: daily report watchboard, lane cards, and watchlists." :
-    to === "/tower" ? "Control Tower: live health and incident center." :
-    to === "/recovery" ? "Recovery Wizard: guided backend fix." :
-    to === "/logs" ? "Logs: inspect runtime logs with quick filters." :
-    to === "/trades" ? "Trades: latest trade results and signals." :
-    to === "/debug" ? "Debug: advanced operator tools." :
-    "Settings: runtime and configuration checks.";
   return (
-    <NavLink
-      to={to}
-      end={to === "/"}
-      className="self-help"
-      data-help={tip}
-      style={({ isActive }) => ({
-        padding: "4px 10px",
-        borderRadius: 4,
-        fontSize: 13,
-        color: isActive ? "var(--text)" : "var(--muted)",
-        background: isActive ? "#21262d" : "transparent",
-        transition: "background 0.1s",
-      })}
-    >
-      {label}
-    </NavLink>
+    <>
+      {/* Mobile backdrop */}
+      {mobileOpen && (
+        <div
+          onClick={onMobileClose}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 199 }}
+        />
+      )}
+
+      <aside className={sidebarClass}>
+        {/* Logo */}
+        <div className="sidebar-logo">
+          <div className="sidebar-logo-mark">E</div>
+          {!collapsed && (
+            <div className="sidebar-logo-text">
+              Eclipse <span>Scalper</span>
+            </div>
+          )}
+          <button className="sidebar-collapse-btn" onClick={onToggle} title={collapsed ? "Expand sidebar" : "Collapse sidebar"}>
+            {collapsed ? "»" : "«"}
+          </button>
+        </div>
+
+        {/* Nav sections */}
+        <nav className="sidebar-nav">
+          {NAV.map((section) => (
+            <div key={section.section} className="sidebar-section">
+              <div className="sidebar-section-label">{section.section}</div>
+              {section.items.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.to === "/"}
+                  className={({ isActive }) =>
+                    "sidebar-nav-item self-help" + (isActive ? " active" : "")
+                  }
+                  data-help={item.desc}
+                  onClick={mobileOpen ? onMobileClose : undefined}
+                >
+                  <span className="sidebar-nav-icon">{item.icon}</span>
+                  <span className="sidebar-nav-label">{item.label}</span>
+                  {item.to === "/tower" && incidentCount > 0 && (
+                    <span className="sidebar-badge">{incidentCount > 99 ? "99+" : incidentCount}</span>
+                  )}
+                </NavLink>
+              ))}
+            </div>
+          ))}
+        </nav>
+
+        {/* Footer: API status */}
+        <div className="sidebar-footer">
+          <div
+            className={`sidebar-api-pill ${backendUp ? "up" : "down"}`}
+            title={backendMessage}
+          >
+            <span className="sidebar-api-dot" />
+            {!collapsed && <span>API {backendUp ? "LIVE" : "DOWN"}</span>}
+          </div>
+        </div>
+      </aside>
+    </>
   );
 }
 
+// ─── TopBar ───────────────────────────────────────────────────
+function TopBar({
+  title,
+  backendUp,
+  onOpenCmd,
+  onOpenMobileSidebar,
+  onToggleDense,
+  denseMode,
+  apiErrCount,
+  onOpenApiPanel,
+  auth,
+  onToggleRole,
+}: {
+  title: string;
+  backendUp: boolean;
+  onOpenCmd: () => void;
+  onOpenMobileSidebar: () => void;
+  onToggleDense: () => void;
+  denseMode: boolean;
+  apiErrCount: number;
+  onOpenApiPanel: () => void;
+  auth: { role: string; operator: string };
+  onToggleRole: () => void;
+}) {
+  return (
+    <header className="topbar">
+      {/* Mobile hamburger */}
+      <button
+        onClick={onOpenMobileSidebar}
+        style={{
+          display: "none",
+          background: "none",
+          border: "1px solid var(--border)",
+          borderRadius: 5,
+          color: "var(--muted)",
+          width: 30,
+          height: 30,
+          cursor: "pointer",
+          fontSize: 16,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        className="mobile-menu-btn"
+        title="Open navigation"
+      >
+        ☰
+      </button>
+
+      <div className="topbar-title">{title}</div>
+
+      {/* Command palette trigger */}
+      <button className="topbar-cmd-trigger self-help" data-help="Search pages, tools, log filters" onClick={onOpenCmd}>
+        <span>Search</span>
+        <kbd>Ctrl</kbd><kbd>K</kbd>
+      </button>
+
+      <div className="topbar-divider" />
+
+      <button
+        className={`topbar-btn self-help${denseMode ? "" : ""}`}
+        data-help="Dense mode: compact rows"
+        onClick={onToggleDense}
+        title="Toggle dense layout"
+        style={{ background: denseMode ? "var(--surface-3)" : undefined, color: denseMode ? "var(--text)" : undefined }}
+      >
+        {denseMode ? "Dense" : "Compact"}
+      </button>
+
+      {apiErrCount > 0 && (
+        <button
+          className="topbar-btn danger-pill self-help"
+          data-help="Recent API failures — click to inspect"
+          onClick={onOpenApiPanel}
+        >
+          {apiErrCount} err{apiErrCount !== 1 ? "s" : ""}
+        </button>
+      )}
+
+      <button
+        className={`topbar-btn self-help ${auth.role === "admin" ? "ok-pill" : "warn-pill"}`}
+        data-help="Toggle viewer/admin role for write operations"
+        onClick={onToggleRole}
+        title={`operator=${auth.operator} role=${auth.role}`}
+      >
+        {auth.role.toUpperCase()}
+      </button>
+    </header>
+  );
+}
+
+// ─── StatusBar ────────────────────────────────────────────────
+function StatusBar({
+  backendUp,
+  backendMessage,
+  nextRetryInMs,
+  lastSuccessAt,
+  secHealth,
+  onOpenGlossary,
+  onOpenOps,
+}: {
+  backendUp: boolean;
+  backendMessage: string;
+  nextRetryInMs: number;
+  lastSuccessAt: number | null;
+  secHealth: { authFailed: number; roleDenied: number; rateLimited: number };
+  onOpenGlossary: () => void;
+  onOpenOps: () => void;
+}) {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  return (
+    <footer className="statusbar">
+      <div className={`statusbar-item ${backendUp ? "up" : "down"}`} title={backendMessage}>
+        <span className="statusbar-dot" />
+        <span>
+          {backendUp
+            ? "API LIVE"
+            : `API DOWN${nextRetryInMs > 0 ? ` (${Math.ceil(nextRetryInMs / 1000)}s)` : ""}`}
+        </span>
+      </div>
+
+      {lastSuccessAt && (
+        <div className="statusbar-item" title="Last successful API poll">
+          last {new Date(lastSuccessAt).toLocaleTimeString()}
+        </div>
+      )}
+
+      {(secHealth.authFailed > 0 || secHealth.roleDenied > 0) && (
+        <div className="statusbar-item warn" title="Security events in last 15 min">
+          auth:{secHealth.authFailed} deny:{secHealth.roleDenied} rate:{secHealth.rateLimited}
+        </div>
+      )}
+
+      <div className="statusbar-item accent" style={{ cursor: "pointer" }} onClick={onOpenOps} title="Quick ops palette">
+        OPS
+      </div>
+      <div className="statusbar-item" style={{ cursor: "pointer" }} onClick={onOpenGlossary} title="Glossary">
+        GLO
+      </div>
+      <div className="statusbar-item" style={{ marginLeft: "auto", borderRight: "none" }}>
+        {now.toLocaleTimeString()}
+      </div>
+    </footer>
+  );
+}
+
+// ─── Layout (root) ────────────────────────────────────────────
 export default function Layout() {
   const navigate = useNavigate();
-  const { auth, setAuth } = useDashboardAuth();
-  const [glossaryOpen, setGlossaryOpen] = useState(false);
-  const [opsOpen, setOpsOpen] = useState(false);
-  const [apiPanelOpen, setApiPanelOpen] = useState(false);
-  const [easyGuideOpen, setEasyGuideOpen] = useState<boolean>(() => {
-    try {
-      const raw = localStorage.getItem("eclipse.ui.easy_guide_open");
-      return raw !== "0";
-    } catch {
-      return true;
-    }
-  });
-  const [copyHint, setCopyHint] = useState<string>("");
-  const { events: apiEvents, clear: clearApiEvents } = useApiErrors();
-  const [denseMode, setDenseMode] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem("eclipse.ui.dense") === "1";
-    } catch {
-      return false;
-    }
-  });
   const location = useLocation();
+  const { auth, setAuth } = useDashboardAuth();
+  const { events: apiEvents, clear: clearApiEvents } = useApiErrors();
+
+  const [sidebarCollapsed, setSidebarCollapsed]   = useState(() => window.innerWidth < 768);
+  const [mobileOpen, setMobileOpen]               = useState(false);
+  const [cmdOpen, setCmdOpen]                     = useState(false);
+  const [glossaryOpen, setGlossaryOpen]           = useState(false);
+  const [opsOpen, setOpsOpen]                     = useState(false);
+  const [apiPanelOpen, setApiPanelOpen]           = useState(false);
+  const [copyHint, setCopyHint]                   = useState("");
+  const [incidentCount, setIncidentCount]         = useState(0);
+
+  const [denseMode, setDenseMode] = useState<boolean>(() => {
+    try { return localStorage.getItem("eclipse.ui.dense") === "1"; } catch { return false; }
+  });
+
+  // Backend health polling
   const backendPoll = usePoll({
     fetcher: (signal) => api.health(signal),
     pollKey: "api:/health",
@@ -103,29 +328,9 @@ export default function Layout() {
     retryMaxMs: 30000,
   });
   const backendUp = !backendPoll.error && !backendPoll.isStale;
-  const backendBadge = backendUp ? "UP" : "DOWN";
   const backendMessage = backendPoll.error?.message ?? (backendPoll.isStale ? "stale" : "ok");
-  const backendCommands = useMemo(
-    () => [
-      {
-        label: "Start backend supervisor",
-        tr: "Backend supervisor baslat",
-        command:
-          "powershell -NoProfile -ExecutionPolicy Bypass -File .\\tools\\run_dashboard_backend_supervisor.ps1",
-      },
-      {
-        label: "Start full dashboard",
-        tr: "Tum dashboard stacki baslat",
-        command: "powershell -NoProfile -ExecutionPolicy Bypass -File .\\tools\\run_dashboard.ps1",
-      },
-      {
-        label: "Check backend health",
-        tr: "Backend health kontrol et",
-        command: "Invoke-WebRequest http://127.0.0.1:8765/api/health -UseBasicParsing",
-      },
-    ],
-    [],
-  );
+
+  // Security audit polling
   const secPoll = usePoll<SecurityAuditEvent[]>({
     fetcher: (signal) => api.debugSecurityAudit(30, signal),
     pollKey: "api:/debug/security-audit",
@@ -133,6 +338,7 @@ export default function Layout() {
     staleAfterMs: 45_000,
     enabled: backendUp,
   });
+
   const secHealth = useMemo(() => {
     const rows = secPoll.data ?? [];
     const cutoff = Date.now() / 1000 - 15 * 60;
@@ -140,38 +346,41 @@ export default function Layout() {
     const byKind = (k: string) => recent.filter((r) => r.kind === k).length;
     return { authFailed: byKind("auth_failed"), roleDenied: byKind("role_denied"), rateLimited: byKind("rate_limited") };
   }, [secPoll.data]);
-  const helpText = useMemo(() => {
-    const p = location.pathname;
-    if (p.startsWith("/live")) return "Live Monitor: watch trades/sec, mark/sec, freshness, and collector logs in real-time.";
-    if (p.startsWith("/research")) return "Research Events: watch daily report lanes, state cards, and watchlists.";
-    if (p.startsWith("/recovery")) return "Recovery: guided backend bring-up and verification flow.";
-    if (p.startsWith("/tower")) return "Control Tower: one-screen runtime health, incidents, rate-limit, and quick operations.";
-    if (p.startsWith("/logs")) return "Logs: select file, then filter by level/search to isolate issues fast.";
-    if (p.startsWith("/trades")) return "Trades: inspect signal/stability/quality decisions and blockers.";
-    if (p.startsWith("/debug")) return "Debug: run safe diagnostics (validate_env, preflight, status) from UI.";
-    if (p.startsWith("/settings")) return "Settings: verify env/runtime config and backend health.";
-    return "Overview: monitor health, data freshness, and entry gating status.";
-  }, [location.pathname]);
 
+  // Incident count polling (for sidebar badge)
+  const incidentPoll = usePoll({
+    fetcher: (signal) => api.debugIncidents(10, signal),
+    pollKey: "api:/debug/incidents/badge",
+    intervalMs: 15_000,
+    staleAfterMs: 45_000,
+    enabled: backendUp,
+  });
   useEffect(() => {
-    const root = document.body;
-    if (denseMode) root.classList.add("dense");
-    else root.classList.remove("dense");
-    try {
-      localStorage.setItem("eclipse.ui.dense", denseMode ? "1" : "0");
-    } catch {
-      // best effort
-    }
+    const rows = incidentPoll.data ?? [];
+    const open = rows.filter((r) => r.status !== "resolved" && r.status !== "muted").length;
+    setIncidentCount(open);
+  }, [incidentPoll.data]);
+
+  // Dense mode
+  useEffect(() => {
+    document.body.classList.toggle("dense", denseMode);
+    try { localStorage.setItem("eclipse.ui.dense", denseMode ? "1" : "0"); } catch { /**/ }
   }, [denseMode]);
 
+  // Ctrl+K shortcut
   useEffect(() => {
-    try {
-      localStorage.setItem("eclipse.ui.easy_guide_open", easyGuideOpen ? "1" : "0");
-    } catch {
-      // best effort
+    function handler(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        e.preventDefault();
+        setCmdOpen((v) => !v);
+      }
+      if (e.key === "Escape" && cmdOpen) setCmdOpen(false);
     }
-  }, [easyGuideOpen]);
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [cmdOpen]);
 
+  // Copy hint auto-clear
   useEffect(() => {
     if (!copyHint) return;
     const t = window.setTimeout(() => setCopyHint(""), 2000);
@@ -181,317 +390,140 @@ export default function Layout() {
   async function copyCommand(value: string) {
     try {
       await navigator.clipboard.writeText(value);
-      setCopyHint("Command copied");
+      setCopyHint("Copied!");
     } catch {
       setCopyHint("Copy failed");
     }
   }
 
+  const toggleDense = useCallback(() => setDenseMode((v) => !v), []);
+  const toggleRole  = useCallback(() => setAuth((p) => ({ ...p, role: p.role === "viewer" ? "admin" : "viewer" })), [setAuth]);
+
+  const title = PAGE_TITLES[location.pathname] ?? "Eclipse Scalper";
+
+  const backendCommands = [
+    { label: "Start backend supervisor", tr: "Backend supervisor baslat", command: "powershell -NoProfile -ExecutionPolicy Bypass -File .\\tools\\run_dashboard_backend_supervisor.ps1" },
+    { label: "Start full dashboard",     tr: "Tum dashboard stacki baslat", command: "powershell -NoProfile -ExecutionPolicy Bypass -File .\\tools\\run_dashboard.ps1" },
+    { label: "Check backend health",     tr: "Backend health kontrol et", command: "Invoke-WebRequest http://127.0.0.1:8765/api/health -UseBasicParsing" },
+  ];
+
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      <nav style={navStyle}>
-        <span style={logoStyle}>ECLIPSE SCALPER</span>
-        {NAV.map((n) => <NavItem key={n.to} {...n} />)}
-        <span
-          className="self-help"
-          data-help="API badge: UP means backend reachable, DOWN means recovery needed."
-          style={{
-            marginLeft: "auto",
-            padding: "4px 8px",
-            borderRadius: 999,
-            border: "1px solid var(--border)",
-            background: backendUp ? "#1d3a25" : "#3a1d1d",
-            color: "var(--text)",
-            fontSize: 11,
-          }}
-          title={`backend=${backendMessage}${!backendUp && backendPoll.nextRetryInMs > 0 ? ` | retry=${Math.ceil(backendPoll.nextRetryInMs / 1000)}s` : ""}`}
-        >
-          API {backendBadge}
-          {!backendUp && backendPoll.nextRetryInMs > 0 ? ` (${Math.ceil(backendPoll.nextRetryInMs / 1000)}s)` : ""}
-        </span>
-        <button
-          onClick={() => setDenseMode((v) => !v)}
-          className="self-help"
-          data-help="Dense mode: compact rows, more data on screen."
-          style={{
-            marginLeft: 8,
-            padding: "4px 8px",
-            borderRadius: 4,
-            border: "1px solid var(--border)",
-            background: denseMode ? "var(--surface-2)" : "transparent",
-            color: denseMode ? "var(--text)" : "var(--muted)",
-            cursor: "pointer",
-            fontSize: 11,
-          }}
-          title="Toggle dense table layout"
-        >
-          {denseMode ? "Dense ON" : "Dense OFF"}
-        </button>
-        <button
-          onClick={() => setOpsOpen(true)}
-          className="self-help"
-          data-help="Ops palette: quick shortcuts for logs, triage, and incident actions."
-          style={{
-            marginLeft: 8,
-            padding: "4px 8px",
-            borderRadius: 4,
-            border: "1px solid var(--border)",
-            background: "transparent",
-            color: "var(--muted)",
-            cursor: "pointer",
-            fontSize: 11,
-          }}
-          title="Open Ops Command Palette"
-        >
-          OPS
-        </button>
-        <button
-          onClick={() => setGlossaryOpen(true)}
-          className="self-help"
-          data-help="Glossary: definitions for trading and dashboard terms."
-          style={{
-            marginLeft: 8,
-            padding: "4px 8px",
-            borderRadius: 4,
-            border: "1px solid var(--border)",
-            background: "transparent",
-            color: "var(--muted)",
-            cursor: "pointer",
-            fontSize: 12,
-          }}
-        >
-          Glossary
-        </button>
-        <button
-          onClick={() => setApiPanelOpen((v) => !v)}
-          className="self-help"
-          data-help="API ERR: recent request failures and retry status."
-          style={{
-            marginLeft: 8,
-            padding: "4px 8px",
-            borderRadius: 999,
-            border: "1px solid var(--border)",
-            background: apiEvents.length > 0 ? "#3a1d1d" : "transparent",
-            color: apiEvents.length > 0 ? "var(--text)" : "var(--muted)",
-            cursor: "pointer",
-            fontSize: 11,
-          }}
-          title="API failure panel"
-        >
-          API ERR {apiEvents.length}
-        </button>
-        <button
-          onClick={() => setAuth((p) => ({ ...p, role: p.role === "viewer" ? "admin" : "viewer" }))}
-          className="self-help"
-          data-help="SEC role toggle: viewer/admin permissions for write actions."
-          title={`operator=${auth.operator} role=${auth.role}`}
-          style={{
-            marginLeft: 8,
-            padding: "4px 8px",
-            borderRadius: 999,
-            border: "1px solid var(--border)",
-            background: auth.role === "viewer" ? "#3a1d1d" : "#1d3a25",
-            color: "var(--text)",
-            cursor: "pointer",
-            fontSize: 11,
-          }}
-        >
-          SEC {auth.role.toUpperCase()} | A:{secHealth.authFailed} R:{secHealth.roleDenied} L:{secHealth.rateLimited}
-        </button>
-      </nav>
-      <div
-        style={{
-          padding: "8px 16px",
-          borderBottom: "1px solid var(--border)",
-          background: "var(--bg)",
-          color: "var(--muted)",
-          fontSize: 12,
-        }}
-      >
-        Help: {helpText}
-        <div className="legend-row" style={{ marginTop: 6 }}>
-          <span className="legend-chip">Healthy</span>
-          <span className="legend-chip">Degraded</span>
-          <span className="legend-chip">Critical</span>
-          <span className="legend-chip">Paper Mode</span>
-          <span className="legend-chip">Regime</span>
-        </div>
-      </div>
-      <div className="easy-guide-wrap">
-        <div className="easy-guide-head">
-          <div className="easy-guide-title">Start Here / Nereden Baslayayim?</div>
-          <button className="guide-toggle" onClick={() => setEasyGuideOpen((v) => !v)}>
-            {easyGuideOpen ? "Hide" : "Show"}
-          </button>
-        </div>
-        {easyGuideOpen && (
-          <div className="easy-guide-grid">
-            <div className="easy-guide-card">
-              <div className="easy-guide-card-title">1) Is system ready? / Sistem hazir mi?</div>
-              <div className="easy-guide-card-text">
-                Recovery page checks backend health and tells you exactly what to run.
+    <NavigationProvider>
+      <div className="app-shell">
+        {/* Sidebar */}
+        <Sidebar
+          collapsed={sidebarCollapsed}
+          mobileOpen={mobileOpen}
+          onToggle={() => setSidebarCollapsed((v) => !v)}
+          onMobileClose={() => setMobileOpen(false)}
+          backendUp={backendUp}
+          backendMessage={backendMessage}
+          incidentCount={incidentCount}
+        />
+
+        {/* Main area */}
+        <div className="main-area">
+          {/* Top bar */}
+          <TopBar
+            title={title}
+            backendUp={backendUp}
+            onOpenCmd={() => setCmdOpen(true)}
+            onOpenMobileSidebar={() => setMobileOpen(true)}
+            onToggleDense={toggleDense}
+            denseMode={denseMode}
+            apiErrCount={apiEvents.length}
+            onOpenApiPanel={() => setApiPanelOpen(true)}
+            auth={auth}
+            onToggleRole={toggleRole}
+          />
+
+          {/* Backend down banner */}
+          {!backendUp && (
+            <div style={{ padding: "10px 16px", borderBottom: "1px solid rgba(255,64,64,0.2)", background: "rgba(255,64,64,0.06)", fontSize: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--red)", display: "inline-block" }} />
+                <span style={{ color: "var(--red)", fontWeight: 700 }}>API degraded</span>
+                <span style={{ color: "var(--muted)" }}>
+                  {backendMessage}
+                  {backendPoll.nextRetryInMs > 0 ? ` — retry in ${Math.ceil(backendPoll.nextRetryInMs / 1000)}s` : ""}
+                </span>
               </div>
-              <div className="easy-guide-card-status">
-                Current API: <span className={`badge ${backendUp ? "badge-green" : "badge-red"}`}>{backendUp ? "UP" : "DOWN"}</span>
-              </div>
-              <button className="guide-toggle self-help" data-help="Go to guided recovery checklist." onClick={() => navigate("/recovery")}>Open Recovery</button>
-            </div>
-            <div className="easy-guide-card">
-              <div className="easy-guide-card-title">2) Monitor runtime / Sistemi izle</div>
-              <div className="easy-guide-card-text">
-                Control Tower is your main screen for live health, incidents, and supervisor.
-              </div>
-              <button className="guide-toggle self-help" data-help="Open live runtime health dashboard." onClick={() => navigate("/tower")}>Open Tower</button>
-            </div>
-            <div className="easy-guide-card">
-              <div className="easy-guide-card-title">3) Find root cause / Sorun nedenini bul</div>
-              <div className="easy-guide-card-text">
-                Logs page has quick packs (Regime / Shutdown / Timeout) to filter noise fast.
-              </div>
-              <button className="guide-toggle self-help" data-help="Open logs with quick packs for root-cause." onClick={() => navigate("/logs")}>Open Logs</button>
-            </div>
-          </div>
-        )}
-      </div>
-      {!backendUp && (
-        <div
-          style={{
-            padding: "8px 16px",
-            borderBottom: "1px solid var(--border)",
-            background: "#3a1d1d",
-            color: "var(--text)",
-            fontSize: 12,
-          }}
-        >
-          API degraded: backend unreachable ({backendMessage}). Auto-retry in {Math.max(1, Math.ceil(backendPoll.nextRetryInMs / 1000))}s.
-          {backendPoll.lastSuccessAt ? ` Last success: ${new Date(backendPoll.lastSuccessAt).toLocaleTimeString()}` : " No successful poll yet."}
-          <div className="recovery-panel">
-            <div className="recovery-title">Quick Recovery / Hizli Kurtarma</div>
-            <div className="recovery-steps">
-              <div>1. Open a new PowerShell window in repo root.</div>
-              <div>2. Run one command below (copy button).</div>
-              <div>3. Wait until top-right API badge turns UP.</div>
-            </div>
-            <div className="recovery-cmd-grid">
-              {backendCommands.map((c) => (
-                <div key={c.command} className="recovery-cmd-card">
-                  <div className="recovery-cmd-head">
-                    <span>{c.label}</span>
-                    <span style={{ color: "var(--muted)", fontSize: 10 }}>{c.tr}</span>
+              <div className="recovery-cmd-grid">
+                {backendCommands.map((c) => (
+                  <div key={c.command} className="recovery-cmd-card">
+                    <div className="recovery-cmd-head">
+                      <span>{c.label}</span>
+                    </div>
+                    <code className="recovery-code">{c.command}</code>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <button className="guide-toggle" onClick={() => copyCommand(c.command)}>Copy</button>
+                      <button className="guide-toggle" onClick={() => navigate("/recovery")}>Recovery page</button>
+                    </div>
                   </div>
-                  <code className="recovery-code">{c.command}</code>
-                  <button className="guide-toggle" onClick={() => copyCommand(c.command)}>
-                    Copy
-                  </button>
-                </div>
-              ))}
-            </div>
-            <div className="recovery-next">
-              <div className="recovery-next-title">After Backend Is UP / Backend UP olduktan sonra</div>
-              <div className="recovery-next-actions">
-                <button
-                  className={`guide-toggle recovery-next-btn${backendUp ? " ready" : ""}`}
-                  onClick={() => navigate("/tower")}
-                  title={backendUp ? "Backend is up: proceed" : "Wait for API UP, then proceed"}
-                >
-                  Open Control Tower
-                </button>
-                <button
-                  className={`guide-toggle recovery-next-btn${backendUp ? " ready" : ""}`}
-                  onClick={() => navigate("/logs")}
-                  title={backendUp ? "Backend is up: proceed" : "Wait for API UP, then proceed"}
-                >
-                  Open Logs
-                </button>
-                <button
-                  className={`guide-toggle recovery-next-btn${backendUp ? " ready" : ""}`}
-                  onClick={() => navigate("/debug?auto=triage")}
-                  title={backendUp ? "Backend is up: proceed" : "Wait for API UP, then proceed"}
-                >
-                  Run Debug Triage
-                </button>
+                ))}
               </div>
+              {copyHint && <div style={{ marginTop: 6, color: "var(--green)", fontSize: 11 }}>{copyHint}</div>}
             </div>
-            {copyHint ? <div className="recovery-copy-hint">{copyHint}</div> : null}
-          </div>
+          )}
+
+          {/* Page content */}
+          <BackendStatusProvider value={{
+            backendUp,
+            backendMessage,
+            lastSuccessAt: backendPoll.lastSuccessAt,
+            nextRetryInMs: backendPoll.nextRetryInMs,
+          }}>
+            <main className="content-area">
+              <Outlet />
+            </main>
+          </BackendStatusProvider>
+
+          {/* Status bar */}
+          <StatusBar
+            backendUp={backendUp}
+            backendMessage={backendMessage}
+            nextRetryInMs={backendPoll.nextRetryInMs}
+            lastSuccessAt={backendPoll.lastSuccessAt}
+            secHealth={secHealth}
+            onOpenGlossary={() => setGlossaryOpen(true)}
+            onOpenOps={() => setOpsOpen(true)}
+          />
         </div>
-      )}
-      {backendUp && (
-        <div
-          style={{
-            padding: "6px 16px",
-            borderBottom: "1px solid var(--border)",
-            background: "rgba(20, 52, 31, 0.55)",
-          }}
-        >
-          <button
-            className="recovery-ready-badge"
-            title="Backend reachable and polling healthy. Open Control Tower."
-            onClick={() => navigate("/tower")}
-          >
-            API UP - safe to continue
-          </button>
-        </div>
-      )}
-      <BackendStatusProvider
-        value={{
-          backendUp,
-          backendMessage,
-          lastSuccessAt: backendPoll.lastSuccessAt,
-          nextRetryInMs: backendPoll.nextRetryInMs,
-        }}
-      >
-        <main style={{ flex: 1, padding: 14, maxWidth: 1280, margin: "0 auto", width: "100%" }}>
-          <Outlet />
-        </main>
-      </BackendStatusProvider>
+      </div>
+
+      {/* Command palette */}
+      {cmdOpen && <CommandPalette onClose={() => setCmdOpen(false)} />}
+
+      {/* Glossary drawer */}
       <GlossaryDrawer open={glossaryOpen} onClose={() => setGlossaryOpen(false)} />
       <OnboardingTour />
+
+      {/* API error panel */}
       {apiPanelOpen && (
         <div
           onClick={() => setApiPanelOpen(false)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 9998,
-          }}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9998 }}
         >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="card"
-            style={{ width: 760, maxWidth: "94vw", maxHeight: "80vh", overflowY: "auto" }}
-          >
-            <div className="card-title">API Failure Panel (last 10)</div>
-            <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-              <button className="guide-toggle" onClick={() => clearApiEvents()}>Clear</button>
+          <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: 720, maxWidth: "94vw", maxHeight: "80vh", overflowY: "auto" }}>
+            <div className="card-title">API Failures (last 10)</div>
+            <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+              <button className="guide-toggle" onClick={() => clearApiEvents()}>Clear all</button>
+              <button className="guide-toggle" onClick={() => setApiPanelOpen(false)}>Close</button>
             </div>
             {apiEvents.length === 0 ? (
               <div style={{ color: "var(--muted)", fontSize: 12 }}>No recent API failures.</div>
             ) : (
               <table>
-                <thead>
-                  <tr>
-                    <th>time</th>
-                    <th>endpoint</th>
-                    <th>message</th>
-                    <th>fails</th>
-                    <th>retry_s</th>
-                    <th>circuit</th>
-                  </tr>
-                </thead>
+                <thead><tr><th>time</th><th>endpoint</th><th>message</th><th>fails</th><th>retry_s</th><th>circuit</th></tr></thead>
                 <tbody>
                   {apiEvents.slice(0, 10).map((e) => (
                     <tr key={e.id}>
-                      <td style={{ color: "var(--muted)", fontSize: 12 }}>{new Date(e.ts).toLocaleTimeString()}</td>
-                      <td>{e.key}</td>
-                      <td style={{ color: "var(--muted)", fontSize: 12 }}>{e.message}</td>
-                      <td>{e.failureCount}</td>
-                      <td>{Math.ceil(e.nextRetryInMs / 1000)}</td>
-                      <td>{e.circuitOpen ? "OPEN" : "-"}</td>
+                      <td style={{ color: "var(--muted)", fontSize: 11, fontFamily: "var(--font-mono)" }}>{new Date(e.ts).toLocaleTimeString()}</td>
+                      <td style={{ fontFamily: "var(--font-mono)", fontSize: 11 }}>{e.key}</td>
+                      <td style={{ color: "var(--muted)", fontSize: 11 }}>{e.message}</td>
+                      <td style={{ fontFamily: "var(--font-mono)" }}>{e.failureCount}</td>
+                      <td style={{ fontFamily: "var(--font-mono)" }}>{Math.ceil(e.nextRetryInMs / 1000)}</td>
+                      <td>{e.circuitOpen ? <span className="badge badge-red">OPEN</span> : "-"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -500,42 +532,35 @@ export default function Layout() {
           </div>
         </div>
       )}
+
+      {/* Ops quick palette */}
       {opsOpen && (
         <div
           onClick={() => setOpsOpen(false)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 9999,
-          }}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999 }}
         >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="card"
-            style={{ width: 620, maxWidth: "92vw", display: "flex", flexDirection: "column", gap: 8 }}
-          >
-            <div className="card-title">Ops Command Palette</div>
+          <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: 600, maxWidth: "92vw", display: "flex", flexDirection: "column", gap: 10 }}>
+            <div className="card-title">Quick Ops</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              <button className="guide-toggle" onClick={() => { setOpsOpen(false); navigate("/debug?auto=triage"); }}>Run Triage Macro</button>
-              <button className="guide-toggle" onClick={() => { setOpsOpen(false); navigate("/logs?pack=No%20Match"); }}>Logs: No Match</button>
-              <button className="guide-toggle" onClick={() => { setOpsOpen(false); navigate("/logs?pack=Regime"); }}>Logs: Regime</button>
-              <button className="guide-toggle" onClick={() => { setOpsOpen(false); navigate("/logs?pack=Shutdown"); }}>Logs: Shutdown</button>
-              <button className="guide-toggle" onClick={() => { setOpsOpen(false); navigate("/logs?pack=Timeout"); }}>Logs: Timeout</button>
-              <button className="guide-toggle" onClick={() => { setOpsOpen(false); navigate("/logs?ops=start_incident"); }}>Start Incident Session</button>
-              <button className="guide-toggle" onClick={() => { setOpsOpen(false); navigate("/logs?ops=stop_incident"); }}>Stop Incident Session</button>
-              <button className="guide-toggle" onClick={() => { setOpsOpen(false); navigate("/logs?ops=export_bundle"); }}>Export Bundle</button>
-              <button className="guide-toggle" onClick={() => { setOpsOpen(false); navigate("/logs?ops=copy_summary"); }}>Copy Triage Summary</button>
-              <button className="guide-toggle" onClick={() => { setOpsOpen(false); navigate("/logs?ops=force_recover"); }}>Force Recover</button>
-              <button className="guide-toggle" onClick={() => { setOpsOpen(false); navigate("/logs?ops=keep_fallback_on"); }}>Keep Fallback ON</button>
-              <button className="guide-toggle" onClick={() => { setOpsOpen(false); navigate("/logs?ops=keep_fallback_off"); }}>Keep Fallback OFF</button>
+              {[
+                { label: "Run Triage Macro",       action: () => { setOpsOpen(false); navigate("/debug?auto=triage"); } },
+                { label: "Logs: Regime",            action: () => { setOpsOpen(false); navigate("/logs?pack=Regime"); } },
+                { label: "Logs: Shutdown",          action: () => { setOpsOpen(false); navigate("/logs?pack=Shutdown"); } },
+                { label: "Logs: Timeout",           action: () => { setOpsOpen(false); navigate("/logs?pack=Timeout"); } },
+                { label: "Logs: No Match",          action: () => { setOpsOpen(false); navigate("/logs?pack=No%20Match"); } },
+                { label: "Start Incident Session",  action: () => { setOpsOpen(false); navigate("/logs?ops=start_incident"); } },
+                { label: "Stop Incident Session",   action: () => { setOpsOpen(false); navigate("/logs?ops=stop_incident"); } },
+                { label: "Export Bundle",           action: () => { setOpsOpen(false); navigate("/logs?ops=export_bundle"); } },
+                { label: "Copy Triage Summary",     action: () => { setOpsOpen(false); navigate("/logs?ops=copy_summary"); } },
+                { label: "Force Recover",           action: () => { setOpsOpen(false); navigate("/logs?ops=force_recover"); } },
+              ].map((op) => (
+                <button key={op.label} className="guide-toggle" onClick={op.action}>{op.label}</button>
+              ))}
             </div>
+            <div style={{ fontSize: 11, color: "var(--muted)" }}>Or press Ctrl+K for full search palette.</div>
           </div>
         </div>
       )}
-    </div>
+    </NavigationProvider>
   );
 }
