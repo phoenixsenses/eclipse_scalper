@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/client";
-import type { LiveMetricsResponse, LiveMonitorTestsStatusResponse, LogFile, LogTailResponse, OpsHealthResponse, RuntimeStatus, Scoreboard, LiqAlertState, SpreadStressState, FillToxicityState, LatencyStressState, WatchboardState, BookProxyPressureState, ReturnShockState, VolatilityBurstState, VolumeVacuumState } from "../api/types";
+import type { LiveMetricsResponse, LiveMonitorTestsStatusResponse, LogFile, LogTailResponse, OpsHealthResponse, RuntimeStatus, Scoreboard, LiqAlertState, SpreadStressState, FillToxicityState, LatencyStressState, WatchboardState, BookProxyPressureState, ReturnShockState, VolatilityBurstState, VolumeVacuumState, PaperRunStatusResponse } from "../api/types";
 import AsyncState from "../components/AsyncState";
 import DegradedBanner, { type DegradedMode } from "../components/DegradedBanner";
 import LiqAlertCard from "../components/LiqAlertCard";
@@ -68,6 +68,17 @@ function toMillis(ts: string | null | undefined): number | null {
   if (!ts) return null;
   const ms = Date.parse(ts);
   return Number.isFinite(ms) ? ms : null;
+}
+
+function fmtDuration(sec: number | null | undefined): string {
+  if (sec == null || !Number.isFinite(sec)) return "-";
+  const total = Math.max(0, Math.floor(sec));
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const seconds = total % 60;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  if (minutes > 0) return `${minutes}m ${seconds}s`;
+  return `${seconds}s`;
 }
 
 function parseTsAny(v: unknown): number | null {
@@ -317,6 +328,14 @@ export default function LiveMonitor() {
     retryInitialMs: 1000,
     retryMaxMs: 12000,
   });
+  const paperRunPoll = usePoll<PaperRunStatusResponse>({
+    fetcher: (signal) => api.paperRunStatus(signal),
+    pollKey: "api:/live/paper-run",
+    intervalMs: 3000,
+    staleAfterMs: 12000,
+    retryInitialMs: 1000,
+    retryMaxMs: 12000,
+  });
   const liveTestsPoll = usePoll<LiveMonitorTestsStatusResponse>({
     fetcher: (signal) => api.liveTestsStatus(80, signal),
     pollKey: "api:/live/tests/status",
@@ -338,13 +357,14 @@ export default function LiveMonitor() {
   });
 
   const mode: DegradedMode =
-    runtimePoll.error || tailPoll.error || paperTailPoll.error || scoreboardPoll.error || paperTailLongPoll.error || liveMetricsPoll.error || liveTestsPoll.error
+    runtimePoll.error || tailPoll.error || paperTailPoll.error || scoreboardPoll.error || paperTailLongPoll.error || liveMetricsPoll.error || paperRunPoll.error || liveTestsPoll.error
       ? "down"
-      : runtimePoll.isStale || tailPoll.isStale || paperTailPoll.isStale || scoreboardPoll.isStale || paperTailLongPoll.isStale || liveMetricsPoll.isStale || liveTestsPoll.isStale
+      : runtimePoll.isStale || tailPoll.isStale || paperTailPoll.isStale || scoreboardPoll.isStale || paperTailLongPoll.isStale || liveMetricsPoll.isStale || paperRunPoll.isStale || liveTestsPoll.isStale
         ? "degraded"
         : "ok";
 
   const live = liveMetricsPoll.data;
+  const paperRun = paperRunPoll.data;
   const tests = liveTestsPoll.data;
   const rt = (live?.runtime as RuntimeStatus | undefined) ?? runtimePoll.data;
   const collector = rt?.collector ?? {};
@@ -503,6 +523,13 @@ export default function LiveMonitor() {
     });
   }, [lastFills, fillSearch, fillSymbolFilter]);
   const effectivePaperFile = live?.paper_file ?? paperFile;
+  const paperSession = paperRun?.session;
+  const paperEntry = paperRun?.entry_state;
+  const paperDiagnosis = paperRun?.diagnosis;
+  const paperTradeState = paperRun?.trade_state;
+  const paperChain = paperRun?.process_chain;
+  const paperReasonBreakdown = paperRun?.reason_breakdown;
+  const paperSymbols = paperRun?.symbols ?? [];
   useEffect(() => {
     try {
       localStorage.setItem(LIVE_CFG_KEY, JSON.stringify({ tradeAgeAlertSec, fillFlatlineAlertMin }));
@@ -621,7 +648,140 @@ export default function LiveMonitor() {
         ]}
       />
 
-      <DegradedBanner mode={mode} message={liveMetricsPoll.error?.message ?? runtimePoll.error?.message ?? tailPoll.error?.message ?? paperTailPoll.error?.message ?? scoreboardPoll.error?.message ?? paperTailLongPoll.error?.message} />
+      <DegradedBanner mode={mode} message={paperRunPoll.error?.message ?? liveMetricsPoll.error?.message ?? runtimePoll.error?.message ?? tailPoll.error?.message ?? paperTailPoll.error?.message ?? scoreboardPoll.error?.message ?? paperTailLongPoll.error?.message} />
+
+      {sectionHeader("Paper Run Diagnosis")}
+      <AsyncState loading={paperRunPoll.isLoading} error={paperRunPoll.error} loadingText="Loading paper run diagnosis...">
+        <div style={{ display: "grid", gap: 12 }}>
+          <div
+            className="card"
+            style={{
+              borderColor:
+                paperDiagnosis?.severity === "critical"
+                  ? "var(--red)"
+                  : paperDiagnosis?.severity === "warning"
+                    ? "var(--yellow)"
+                    : "var(--border)",
+            }}
+          >
+            <div className="card-title self-help" data-help="Paper run neden trade uretmiyor ya da neden bozuk; en yuksek oncelikli tani karti.">
+              Why No Trade?
+            </div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 8 }}>
+              <span className={`badge ${paperSession?.status === "down" ? "badge-red" : paperSession?.status === "degraded" ? "badge-yellow" : "badge-green"}`}>
+                {String(paperSession?.status ?? "unknown").toUpperCase()}
+              </span>
+              <span className={`badge ${paperDiagnosis?.severity === "critical" ? "badge-red" : paperDiagnosis?.severity === "warning" ? "badge-yellow" : "badge-green"}`}>
+                {String(paperDiagnosis?.code ?? "unknown").replace(/_/g, " ")}
+              </span>
+              <span className="badge badge-gray">{paperSession?.active_symbols?.join(", ") || "-"}</span>
+            </div>
+            <div style={{ fontSize: 18, fontWeight: 700 }}>{paperDiagnosis?.summary ?? "paper run status unknown"}</div>
+            <div style={{ color: "var(--muted)", fontSize: 12, marginTop: 6 }}>{paperDiagnosis?.detail ?? "awaiting telemetry"}</div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10 }}>
+            <div className="card self-help" data-help="Session health: paper zinciri ayakta mi, ne kadar suredir calisiyor, hangi semboller aktif.">
+              <div className="card-title">Session Health</div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+                <span className={`badge ${paperSession?.status === "running" ? "badge-green" : paperSession?.status === "degraded" ? "badge-yellow" : "badge-red"}`}>
+                  {String(paperSession?.status ?? "unknown").toUpperCase()}
+                </span>
+                <span className="badge badge-gray">uptime {fmtDuration(paperSession?.uptime_sec)}</span>
+                <span className="badge badge-gray">telemetry {paperSession?.telemetry_present ? "ON" : "OFF"}</span>
+              </div>
+              <div style={{ color: "var(--muted)", fontSize: 12 }}>started={paperSession?.started_ts ?? "-"}</div>
+              <div style={{ color: "var(--muted)", fontSize: 12 }}>telemetry_age={paperSession?.telemetry_age_sec == null ? "-" : `${num(paperSession.telemetry_age_sec, 1)}s`}</div>
+              <div style={{ color: "var(--muted)", fontSize: 12 }}>symbols={paperSession?.active_symbols?.join(", ") || "-"}</div>
+              <div style={{ color: "var(--muted)", fontSize: 12, marginTop: 6 }}>{paperChain?.summary ?? "process chain unknown"}</div>
+            </div>
+
+            <div className="card self-help" data-help="Entry readiness: gate, guard ve veri katmanlari entry acisindan uygun mu.">
+              <div className="card-title">Entry Readiness</div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+                <span className={`badge ${paperEntry?.allow_entries ? "badge-green" : "badge-red"}`}>
+                  allow_entries {paperEntry?.allow_entries ? "ON" : "OFF"}
+                </span>
+                <span className={`badge ${paperEntry?.runtime_gate_degraded ? "badge-red" : "badge-green"}`}>
+                  gate {paperEntry?.runtime_gate_degraded ? "DEGRADED" : "OK"}
+                </span>
+                <span className={`badge ${paperEntry?.data_state === "ok" ? "badge-green" : paperEntry?.data_state === "degraded" ? "badge-yellow" : "badge-red"}`}>
+                  data {String(paperEntry?.data_state ?? "unknown").toUpperCase()}
+                </span>
+                <span className={`badge ${paperEntry?.risk_state === "blocked" ? "badge-red" : "badge-green"}`}>
+                  risk {String(paperEntry?.risk_state ?? "ok").toUpperCase()}
+                </span>
+                <span className={`badge ${paperEntry?.regime_state === "blocked" ? "badge-yellow" : "badge-green"}`}>
+                  regime {String(paperEntry?.regime_state ?? "ok").toUpperCase()}
+                </span>
+              </div>
+              <div style={{ color: "var(--muted)", fontSize: 12 }}>guard_mode={paperEntry?.guard_mode ?? "-"}</div>
+              <div style={{ color: "var(--muted)", fontSize: 12 }}>runtime_gate_reason={paperEntry?.runtime_gate_reason ?? "-"}</div>
+            </div>
+
+            <div className="card self-help" data-help="Trade snapshot: hic trade yok mu, en son trade ne zaman, paper trade DB gorunuyor mu.">
+              <div className="card-title">Trade Snapshot</div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+                <span className={`badge ${(paperTradeState?.trade_count ?? 0) > 0 ? "badge-green" : "badge-yellow"}`}>
+                  trades {paperTradeState?.trade_count ?? 0}
+                </span>
+                <span className={`badge ${paperTradeState?.no_trades_yet ? "badge-yellow" : "badge-green"}`}>
+                  {paperTradeState?.no_trades_yet ? "NO TRADES YET" : "HAS TRADES"}
+                </span>
+                <span className={`badge ${paperTradeState?.db_present ? "badge-green" : "badge-red"}`}>
+                  db {paperTradeState?.db_present ? "PRESENT" : "MISSING"}
+                </span>
+              </div>
+              <div style={{ color: "var(--muted)", fontSize: 12 }}>last_trade={paperTradeState?.last_trade_ts ?? "-"}</div>
+              <div style={{ color: "var(--muted)", fontSize: 12, wordBreak: "break-all" }}>{paperTradeState?.db_path ?? "-"}</div>
+            </div>
+
+            <div className="card self-help" data-help="Reason breakdown: son telemetry blockerlarinin kategori dagilimi.">
+              <div className="card-title">Reason Breakdown</div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}>
+                <div className="card"><div className="card-title">Signal</div><div style={{ fontSize: 16, fontWeight: 700 }}>{paperReasonBreakdown?.signal_not_present ?? 0}</div></div>
+                <div className="card"><div className="card-title">Gate</div><div style={{ fontSize: 16, fontWeight: 700 }}>{paperReasonBreakdown?.gate_blocked ?? 0}</div></div>
+                <div className="card"><div className="card-title">Data</div><div style={{ fontSize: 16, fontWeight: 700 }}>{paperReasonBreakdown?.data_degraded ?? 0}</div></div>
+                <div className="card"><div className="card-title">Risk</div><div style={{ fontSize: 16, fontWeight: 700 }}>{paperReasonBreakdown?.risk_blocked ?? 0}</div></div>
+                <div className="card"><div className="card-title">Regime</div><div style={{ fontSize: 16, fontWeight: 700 }}>{paperReasonBreakdown?.regime_blocked ?? 0}</div></div>
+                <div className="card"><div className="card-title">Unknown</div><div style={{ fontSize: 16, fontWeight: 700 }}>{paperReasonBreakdown?.unknown ?? 0}</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="card self-help" data-help="Symbol diagnostics: her sembol icin son blocker, son signal ve belief zamani.">
+            <div className="card-title">Symbol Diagnostics</div>
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                <thead>
+                  <tr style={{ color: "var(--muted)", textAlign: "left" }}>
+                    <th style={{ padding: "6px 4px" }}>Symbol</th>
+                    <th style={{ padding: "6px 4px" }}>Last blocker</th>
+                    <th style={{ padding: "6px 4px" }}>Blocked count</th>
+                    <th style={{ padding: "6px 4px" }}>Last signal</th>
+                    <th style={{ padding: "6px 4px" }}>Last belief</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paperSymbols.length > 0 ? paperSymbols.map((row) => (
+                    <tr key={row.symbol}>
+                      <td style={{ padding: "6px 4px", fontWeight: 700 }}>{row.symbol}</td>
+                      <td style={{ padding: "6px 4px" }}>{row.last_blocker_reason ?? "-"}</td>
+                      <td style={{ padding: "6px 4px" }}>{row.recent_blocked_count ?? 0}</td>
+                      <td style={{ padding: "6px 4px" }}>{row.last_signal_ts ?? "-"}</td>
+                      <td style={{ padding: "6px 4px" }}>{row.last_belief_ts ?? "-"}</td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={5} style={{ padding: "8px 4px", color: "var(--muted)" }}>No symbol diagnostics yet.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </AsyncState>
 
       {/* ── LIVE STATUS ─────────────────────────────────────────── */}
       {sectionHeader("Live Status")}

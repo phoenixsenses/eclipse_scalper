@@ -220,6 +220,80 @@ class LiveMetricsResponse(BaseModel):
     paper_file: Optional[str] = None
 
 
+class PaperRunProcessChain(BaseModel):
+    launcher_present: bool = False
+    watchdog_present: bool = False
+    bootstrap_present: bool = False
+    launcher_pid: Optional[int] = None
+    watchdog_pids: list[int] = Field(default_factory=list)
+    bootstrap_pids: list[int] = Field(default_factory=list)
+    launcher_started_ts: Optional[str] = None
+    summary: str = "process chain unknown"
+
+
+class PaperRunSession(BaseModel):
+    status: str = "unknown"
+    started_ts: Optional[str] = None
+    uptime_sec: Optional[float] = None
+    active_symbols: list[str] = Field(default_factory=list)
+    telemetry_age_sec: Optional[float] = None
+    telemetry_present: bool = False
+
+
+class PaperRunEntryState(BaseModel):
+    allow_entries: Optional[bool] = None
+    guard_mode: Optional[str] = None
+    runtime_gate_degraded: Optional[bool] = None
+    runtime_gate_reason: Optional[str] = None
+    data_state: str = "unknown"
+    risk_state: str = "unknown"
+    regime_state: str = "unknown"
+
+
+class PaperRunTradeState(BaseModel):
+    trade_count: int = 0
+    last_trade_ts: Optional[str] = None
+    no_trades_yet: bool = True
+    db_present: bool = False
+    db_path: Optional[str] = None
+
+
+class PaperRunDiagnosis(BaseModel):
+    code: str = "unknown"
+    summary: str = "paper run status unknown"
+    detail: str = "awaiting telemetry"
+    severity: str = "warning"
+
+
+class PaperRunReasonBreakdown(BaseModel):
+    signal_not_present: int = 0
+    gate_blocked: int = 0
+    data_degraded: int = 0
+    risk_blocked: int = 0
+    regime_blocked: int = 0
+    unknown: int = 0
+
+
+class PaperRunSymbolState(BaseModel):
+    symbol: str
+    last_blocker_reason: Optional[str] = None
+    last_blocker_ts: Optional[str] = None
+    last_signal_ts: Optional[str] = None
+    last_belief_ts: Optional[str] = None
+    recent_blocked_count: int = 0
+
+
+class PaperRunStatusResponse(BaseModel):
+    ts_utc: str
+    session: PaperRunSession = Field(default_factory=PaperRunSession)
+    process_chain: PaperRunProcessChain = Field(default_factory=PaperRunProcessChain)
+    entry_state: PaperRunEntryState = Field(default_factory=PaperRunEntryState)
+    trade_state: PaperRunTradeState = Field(default_factory=PaperRunTradeState)
+    diagnosis: PaperRunDiagnosis = Field(default_factory=PaperRunDiagnosis)
+    reason_breakdown: PaperRunReasonBreakdown = Field(default_factory=PaperRunReasonBreakdown)
+    symbols: list[PaperRunSymbolState] = Field(default_factory=list)
+
+
 class LiveMonitorTestsStatusResponse(BaseModel):
     ts_utc: str
     state: str = "unknown"

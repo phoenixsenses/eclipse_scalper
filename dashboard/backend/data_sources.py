@@ -11,6 +11,7 @@ import platform
 import re
 import shutil
 import sqlite3
+import subprocess
 import sys
 import time
 import urllib.parse
@@ -72,6 +73,10 @@ _TS_COL_PRIORITY: list[str] = ["ts_ms", "ts_utc", "ts", "timestamp"]
 # Module-level runtime cache
 _runtime_cache: dict[str, Any] = {}
 _runtime_cache_ts: float = 0.0
+_paper_run_cache: dict[str, Any] = {}
+_paper_run_cache_ts: float = 0.0
+_process_snapshot_cache: list[dict[str, Any]] = []
+_process_snapshot_cache_ts: float = 0.0
 
 # DB size history for 5-minute growth: deque of (monotonic_ts, size_bytes)
 _db_size_history: deque[tuple[float, int]] = deque(maxlen=360)  # 1 s × 360 s > 5 min
@@ -319,6 +324,252 @@ def _read_jsonl_tail(
     except Exception:
         pass
     return list(buf)[-limit:]
+
+
+def _epoch_to_iso(ts: Any) -> str | None:
+    try:
+        value = float(ts)
+        if value <= 0:
+            return None
+        return datetime.fromtimestamp(value, tz=timezone.utc).isoformat()
+    except Exception:
+        return None
+
+
+def _seconds_since_iso(ts: str | None) -> float | None:
+    dt = _parse_iso_ts(ts) if ts else None
+    if dt is None:
+        return None
+    return round(max(0.0, time.time() - dt.timestamp()), 1)
+
+
+def _paper_trade_db_path() -> Path:
+    return _env_path("PAPER_TRADES_DB_PATH", DATA_DIR / "paper_trades.db")
+
+
+def _telemetry_tail(limit: int = 400) -> list[dict[str, Any]]:
+    return _read_jsonl_tail(LOGS_DIR / "telemetry.jsonl", limit=limit)
+
+
+def _active_symbols_from_env() -> list[str]:
+    raw = (os.environ.get("ACTIVE_SYMBOLS") or "").strip()
+    if not raw:
+        return []
+    return [part.strip().upper() for part in raw.split(",") if part.strip()]
+
+
+def _normalize_block_reason(reason: str) -> tuple[str, str]:
+    low = (reason or "").strip().lower()
+    if not low:
+        return ("unknown", "unknown block reason")
+    if "signal not present" in low or "no_match" in low or "no signal" in low:
+        return ("signal_not_present", "signal not present")
+    if "gate" in low or "allow_entries" in low or "entries disabled" in low:
+        return ("gate_blocked", reason)
+    if "regime" in low:
+        return ("regime_blocked", reason)
+    if "risk" in low or "kill" in low or "circuit" in low or "guard" in low:
+        return ("risk_blocked", reason)
+    if "stale" in low or "no_data" in low or "data" in low or "collector" in low or "freshness" in low:
+        return ("data_degraded", reason)
+    return ("unknown", reason)
+
+
+def _safe_iso_from_wmi(value: str) -> str | None:
+    try:
+        raw = str(value).strip()
+        if len(raw) < 14:
+            return None
+        dt = datetime.strptime(raw[:14], "%Y%m%d%H%M%S").replace(tzinfo=timezone.utc)
+        return dt.isoformat()
+    except Exception:
+        return None
+
+
+def _process_snapshot() -> list[dict[str, Any]]:
+    global _process_snapshot_cache, _process_snapshot_cache_ts
+    now = time.monotonic()
+    if now - _process_snapshot_cache_ts < 5.0 and _process_snapshot_cache:
+        return _process_snapshot_cache
+    if platform.system().lower() != "windows":
+        return []
+    command = (
+        "Get-CimInstance Win32_Process | "
+        "Select-Object ProcessId,ParentProcessId,Name,CommandLine,CreationDate | "
+        "ConvertTo-Json -Compress"
+    )
+    try:
+        proc = subprocess.run(
+            ["powershell", "-NoProfile", "-Command", command],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=4,
+            check=False,
+        )
+        if proc.returncode != 0 or not proc.stdout.strip():
+            return _process_snapshot_cache
+        raw = json.loads(proc.stdout)
+        rows = raw if isinstance(raw, list) else [raw]
+        _process_snapshot_cache = [row for row in rows if isinstance(row, dict)]
+        _process_snapshot_cache_ts = now
+        return _process_snapshot_cache
+    except Exception:
+        return _process_snapshot_cache
+
+
+def _detect_paper_process_chain() -> dict[str, Any]:
+    rows = _process_snapshot()
+    out: dict[str, Any] = {
+        "launcher_present": False,
+        "watchdog_present": False,
+        "bootstrap_present": False,
+        "launcher_pid": None,
+        "watchdog_pids": [],
+        "bootstrap_pids": [],
+        "launcher_started_ts": None,
+        "summary": "process chain unknown",
+    }
+    for row in rows:
+        cmd = str(row.get("CommandLine") or "")
+        name = str(row.get("Name") or "").lower()
+        pid_raw = row.get("ProcessId")
+        try:
+            pid = int(pid_raw)
+        except Exception:
+            pid = None
+        if ".\\scripts\\start_paper_trading.ps1" in cmd or "start_paper_trading.ps1" in cmd:
+            out["launcher_present"] = True
+            out["launcher_pid"] = pid
+            created = row.get("CreationDate")
+            if isinstance(created, str):
+                out["launcher_started_ts"] = _safe_iso_from_wmi(created)
+        elif name == "powershell.exe" and ("paper" in cmd.lower() and "start_" in cmd.lower()):
+            out["launcher_present"] = True
+            out["launcher_pid"] = pid
+        if "collection_watchdog" in cmd:
+            out["watchdog_present"] = True
+            if isinstance(pid, int):
+                out["watchdog_pids"].append(pid)
+        if "execution.bootstrap" in cmd:
+            out["bootstrap_present"] = True
+            if isinstance(pid, int):
+                out["bootstrap_pids"].append(pid)
+    out["watchdog_pids"] = sorted(set(out["watchdog_pids"]))
+    out["bootstrap_pids"] = sorted(set(out["bootstrap_pids"]))
+    if out["launcher_present"] or out["watchdog_present"] or out["bootstrap_present"]:
+        summary_parts: list[str] = []
+        if out["launcher_present"]:
+            summary_parts.append(f"launcher pid={out['launcher_pid'] or '-'}")
+        if out["watchdog_present"]:
+            summary_parts.append(f"watchdog={len(out['watchdog_pids'])}")
+        if out["bootstrap_present"]:
+            summary_parts.append(f"bootstrap={len(out['bootstrap_pids'])}")
+        out["summary"] = ", ".join(summary_parts)
+    return out
+
+
+def _paper_trade_snapshot() -> dict[str, Any]:
+    path = _paper_trade_db_path()
+    out = {
+        "trade_count": 0,
+        "last_trade_ts": None,
+        "no_trades_yet": True,
+        "db_present": path.exists(),
+        "db_path": str(path),
+    }
+    if not path.exists():
+        return out
+    conn: sqlite3.Connection | None = None
+    try:
+        conn = sqlite3.connect(path)
+        cur = conn.cursor()
+        tables = {str(row[0]) for row in cur.execute("select name from sqlite_master where type='table'")}
+        if "trades" not in tables:
+            return out
+        out["trade_count"] = int(cur.execute("select count(*) from trades").fetchone()[0] or 0)
+        last = cur.execute(
+            "select exit_time, entry_time from trades order by coalesce(exit_time, entry_time) desc limit 1"
+        ).fetchone()
+        if last is not None:
+            out["last_trade_ts"] = _epoch_to_iso(last[0] if last[0] is not None else last[1])
+        out["no_trades_yet"] = out["trade_count"] <= 0
+    except Exception:
+        return out
+    finally:
+        try:
+            if conn is not None:
+                conn.close()
+        except Exception:
+            pass
+    return out
+
+
+def _paper_run_diagnosis(
+    session_status: str,
+    allow_entries: Any,
+    runtime_gate_degraded: Any,
+    data_state: str,
+    reason_breakdown: dict[str, int],
+    collector_alive: Any,
+    telemetry_age_sec: float | None,
+) -> dict[str, Any]:
+    if session_status == "down":
+        return {
+            "code": "session_down",
+            "summary": "paper run session appears down",
+            "detail": "launcher/watchdog/bootstrap chain not detected and telemetry is stale",
+            "severity": "critical",
+        }
+    if allow_entries is False or runtime_gate_degraded is True:
+        return {
+            "code": "gate_blocked",
+            "summary": "entries are blocked by runtime gate",
+            "detail": "runtime gate is degraded or allow_entries is false",
+            "severity": "warning",
+        }
+    if data_state == "blocked" or collector_alive is False:
+        return {
+            "code": "data_degraded",
+            "summary": "paper run is up but data flow is degraded",
+            "detail": "collector/runtime freshness indicates degraded market data",
+            "severity": "warning",
+        }
+    if reason_breakdown.get("risk_blocked", 0) > 0:
+        return {
+            "code": "risk_blocked",
+            "summary": "paper run is blocked by risk controls",
+            "detail": "recent blockers include guard, kill switch, or risk actions",
+            "severity": "warning",
+        }
+    if reason_breakdown.get("regime_blocked", 0) > 0:
+        return {
+            "code": "regime_blocked",
+            "summary": "paper run is waiting on regime alignment",
+            "detail": "recent blockers include regime mismatch conditions",
+            "severity": "warning",
+        }
+    if reason_breakdown.get("signal_not_present", 0) > 0:
+        return {
+            "code": "signal_not_present",
+            "summary": "paper run is healthy but no signal is present",
+            "detail": "entries are allowed; recent blockers show signal not present",
+            "severity": "info",
+        }
+    if telemetry_age_sec is None or telemetry_age_sec > 120:
+        return {
+            "code": "unknown",
+            "summary": "paper run status is unknown",
+            "detail": "recent telemetry is unavailable",
+            "severity": "warning",
+        }
+    return {
+        "code": "healthy_idle",
+        "summary": "paper run is healthy and waiting",
+        "detail": "session is up; no high-priority blocker detected",
+        "severity": "info",
+    }
 
 
 def _is_sensitive(key: str) -> bool:
@@ -1492,6 +1743,150 @@ def _extract_fill_rows(lines: list[str]) -> list[dict[str, Any]]:
         if row is not None:
             out.append(row)
     return out
+
+
+def read_paper_run_status() -> dict[str, Any]:
+    global _paper_run_cache, _paper_run_cache_ts
+    now_mono = time.monotonic()
+    if (now_mono - _paper_run_cache_ts) < 2.0 and _paper_run_cache:
+        return _paper_run_cache
+
+    runtime = read_runtime_status()
+    scoreboard = read_scoreboard()
+    health = _health_overall_stats()
+    telemetry_rows = _telemetry_tail(limit=500)
+    process_chain = _detect_paper_process_chain()
+    trade_state = _paper_trade_snapshot()
+    collector = runtime.get("collector") if isinstance(runtime.get("collector"), dict) else {}
+    freshness = runtime.get("data_freshness") if isinstance(runtime.get("data_freshness"), dict) else {}
+
+    active_symbols = _active_symbols_from_env()
+    if not active_symbols:
+        order_syms = scoreboard.get("orders_by_symbol") if isinstance(scoreboard.get("orders_by_symbol"), dict) else {}
+        fill_syms = scoreboard.get("fills_by_symbol") if isinstance(scoreboard.get("fills_by_symbol"), dict) else {}
+        active_symbols = sorted({str(sym).upper() for sym in [*order_syms.keys(), *fill_syms.keys()] if str(sym).strip()})
+    if not active_symbols:
+        recent_symbols = {
+            str(row.get("symbol") or row.get("sym") or "").upper()
+            for row in telemetry_rows
+            if str(row.get("symbol") or row.get("sym") or "").strip()
+        }
+        active_symbols = sorted(sym for sym in recent_symbols if sym)
+
+    belief_ts: str | None = None
+    allow_entries = None
+    guard_mode = None
+    runtime_gate_degraded = None
+    runtime_gate_reason = None
+    last_signal_by_symbol: dict[str, str] = {}
+    last_blocker_by_symbol: dict[str, dict[str, Any]] = {}
+    reason_breakdown = {
+        "signal_not_present": 0,
+        "gate_blocked": 0,
+        "data_degraded": 0,
+        "risk_blocked": 0,
+        "regime_blocked": 0,
+        "unknown": 0,
+    }
+
+    for row in telemetry_rows:
+        event = str(row.get("event") or row.get("type") or "")
+        ts_iso = _epoch_to_iso(row.get("ts")) or str(row.get("ts_utc") or row.get("time") or "") or None
+        symbol = str(row.get("symbol") or row.get("sym") or (row.get("data") or {}).get("k") or "").upper()
+        data = row.get("data") if isinstance(row.get("data"), dict) else {}
+
+        if event == "execution.belief_state":
+            belief_ts = ts_iso or belief_ts
+            allow_entries = data.get("allow_entries") if "allow_entries" in data else allow_entries
+            guard_mode = str(data.get("guard_mode") or guard_mode or "") or guard_mode
+            runtime_gate_degraded = data.get("runtime_gate_degraded") if "runtime_gate_degraded" in data else runtime_gate_degraded
+            runtime_gate_reason = str(data.get("runtime_gate_reason") or runtime_gate_reason or "") or runtime_gate_reason
+            continue
+
+        if "signal" in event.lower() and symbol and ts_iso:
+            last_signal_by_symbol[symbol] = ts_iso
+
+        if event == "entry.blocked":
+            reason = str(data.get("reason") or row.get("reason") or "unknown")
+            category, normalized = _normalize_block_reason(reason)
+            reason_breakdown[category] = reason_breakdown.get(category, 0) + 1
+            if symbol:
+                state = last_blocker_by_symbol.setdefault(symbol, {"count": 0})
+                state["reason"] = normalized
+                state["ts"] = ts_iso
+                state["count"] = int(state.get("count", 0) or 0) + 1
+
+    telemetry_present = len(telemetry_rows) > 0
+    telemetry_age_sec = _seconds_since_iso(_epoch_to_iso(telemetry_rows[-1].get("ts")) if telemetry_rows else None)
+    data_state = "ok"
+    if collector.get("alive") is False or health.get("collector_connected") is False:
+        data_state = "blocked"
+    elif str(freshness.get("status") or "").upper() in {"DEGRADED", "STALE"}:
+        data_state = "degraded"
+
+    regime_state = "blocked" if reason_breakdown.get("regime_blocked", 0) > 0 else "ok"
+    risk_state = "blocked" if reason_breakdown.get("risk_blocked", 0) > 0 else "ok"
+
+    session_started_ts = process_chain.get("launcher_started_ts") or belief_ts or trade_state.get("last_trade_ts")
+    session_uptime_sec = _seconds_since_iso(session_started_ts)
+    session_status = "running"
+    if not telemetry_present or (telemetry_age_sec is not None and telemetry_age_sec > 120):
+        session_status = "down" if not (process_chain.get("launcher_present") or process_chain.get("watchdog_present") or process_chain.get("bootstrap_present")) else "degraded"
+    elif allow_entries is False or runtime_gate_degraded is True or data_state != "ok":
+        session_status = "degraded"
+
+    diagnosis = _paper_run_diagnosis(
+        session_status=session_status,
+        allow_entries=allow_entries,
+        runtime_gate_degraded=runtime_gate_degraded,
+        data_state=data_state,
+        reason_breakdown=reason_breakdown,
+        collector_alive=collector.get("alive"),
+        telemetry_age_sec=telemetry_age_sec,
+    )
+
+    symbol_states: list[dict[str, Any]] = []
+    symbols = active_symbols or sorted(set(list(last_blocker_by_symbol.keys()) + list(last_signal_by_symbol.keys())))
+    for symbol in symbols:
+        blocker = last_blocker_by_symbol.get(symbol, {})
+        symbol_states.append(
+            {
+                "symbol": symbol,
+                "last_blocker_reason": blocker.get("reason"),
+                "last_blocker_ts": blocker.get("ts"),
+                "last_signal_ts": last_signal_by_symbol.get(symbol),
+                "last_belief_ts": belief_ts,
+                "recent_blocked_count": int(blocker.get("count", 0) or 0),
+            }
+        )
+
+    _paper_run_cache = {
+        "ts_utc": datetime.now(tz=timezone.utc).isoformat(),
+        "session": {
+            "status": session_status,
+            "started_ts": session_started_ts,
+            "uptime_sec": session_uptime_sec,
+            "active_symbols": symbols,
+            "telemetry_age_sec": telemetry_age_sec,
+            "telemetry_present": telemetry_present,
+        },
+        "process_chain": process_chain,
+        "entry_state": {
+            "allow_entries": allow_entries,
+            "guard_mode": guard_mode,
+            "runtime_gate_degraded": runtime_gate_degraded,
+            "runtime_gate_reason": runtime_gate_reason,
+            "data_state": data_state,
+            "risk_state": risk_state,
+            "regime_state": regime_state,
+        },
+        "trade_state": trade_state,
+        "diagnosis": diagnosis,
+        "reason_breakdown": reason_breakdown,
+        "symbols": symbol_states,
+    }
+    _paper_run_cache_ts = now_mono
+    return _paper_run_cache
 
 
 def read_live_metrics() -> dict[str, Any]:

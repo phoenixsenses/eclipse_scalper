@@ -206,6 +206,80 @@ export interface LiveMetricsResponse {
   paper_file?: string | null;
 }
 
+export interface PaperRunProcessChain {
+  launcher_present?: boolean;
+  watchdog_present?: boolean;
+  bootstrap_present?: boolean;
+  launcher_pid?: number | null;
+  watchdog_pids?: number[];
+  bootstrap_pids?: number[];
+  launcher_started_ts?: string | null;
+  summary?: string;
+}
+
+export interface PaperRunSession {
+  status?: string;
+  started_ts?: string | null;
+  uptime_sec?: number | null;
+  active_symbols?: string[];
+  telemetry_age_sec?: number | null;
+  telemetry_present?: boolean;
+}
+
+export interface PaperRunEntryState {
+  allow_entries?: boolean | null;
+  guard_mode?: string | null;
+  runtime_gate_degraded?: boolean | null;
+  runtime_gate_reason?: string | null;
+  data_state?: string;
+  risk_state?: string;
+  regime_state?: string;
+}
+
+export interface PaperRunTradeState {
+  trade_count?: number;
+  last_trade_ts?: string | null;
+  no_trades_yet?: boolean;
+  db_present?: boolean;
+  db_path?: string | null;
+}
+
+export interface PaperRunDiagnosis {
+  code?: string;
+  summary?: string;
+  detail?: string;
+  severity?: string;
+}
+
+export interface PaperRunReasonBreakdown {
+  signal_not_present?: number;
+  gate_blocked?: number;
+  data_degraded?: number;
+  risk_blocked?: number;
+  regime_blocked?: number;
+  unknown?: number;
+}
+
+export interface PaperRunSymbolState {
+  symbol: string;
+  last_blocker_reason?: string | null;
+  last_blocker_ts?: string | null;
+  last_signal_ts?: string | null;
+  last_belief_ts?: string | null;
+  recent_blocked_count?: number;
+}
+
+export interface PaperRunStatusResponse {
+  ts_utc?: string;
+  session?: PaperRunSession;
+  process_chain?: PaperRunProcessChain;
+  entry_state?: PaperRunEntryState;
+  trade_state?: PaperRunTradeState;
+  diagnosis?: PaperRunDiagnosis;
+  reason_breakdown?: PaperRunReasonBreakdown;
+  symbols?: PaperRunSymbolState[];
+}
+
 export interface LiveMonitorTestsStatusResponse {
   ts_utc?: string;
   state?: string;

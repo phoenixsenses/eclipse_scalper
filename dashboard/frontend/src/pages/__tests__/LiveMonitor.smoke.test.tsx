@@ -53,6 +53,65 @@ vi.mock("../../hooks/usePoll", () => ({
         error: null, isLoading: false, isFetching: false, isStale: false, refresh: vi.fn(),
       };
     }
+    if (key.includes("api:/live/paper-run")) {
+      return {
+        data: {
+          ts_utc: "2026-03-05T00:00:00+00:00",
+          session: {
+            status: "running",
+            started_ts: "2026-03-05T00:00:00+00:00",
+            uptime_sec: 300,
+            active_symbols: ["ETHUSDT", "BTCUSDT"],
+            telemetry_age_sec: 1,
+            telemetry_present: true,
+          },
+          process_chain: {
+            launcher_present: true,
+            watchdog_present: true,
+            bootstrap_present: true,
+            launcher_pid: 111,
+            watchdog_pids: [222],
+            bootstrap_pids: [333],
+            summary: "launcher pid=111, watchdog=1, bootstrap=1",
+          },
+          entry_state: {
+            allow_entries: true,
+            guard_mode: "GREEN",
+            runtime_gate_degraded: false,
+            runtime_gate_reason: "missing",
+            data_state: "ok",
+            risk_state: "ok",
+            regime_state: "ok",
+          },
+          trade_state: {
+            trade_count: 0,
+            last_trade_ts: null,
+            no_trades_yet: true,
+            db_present: true,
+            db_path: "data/paper_trades.db",
+          },
+          diagnosis: {
+            code: "signal_not_present",
+            summary: "paper run is healthy but no signal is present",
+            detail: "entries are allowed; recent blockers show signal not present",
+            severity: "info",
+          },
+          reason_breakdown: {
+            signal_not_present: 2,
+            gate_blocked: 0,
+            data_degraded: 0,
+            risk_blocked: 0,
+            regime_blocked: 0,
+            unknown: 0,
+          },
+          symbols: [
+            { symbol: "ETHUSDT", last_blocker_reason: "signal not present", recent_blocked_count: 2, last_signal_ts: null, last_belief_ts: "2026-03-05T00:00:00+00:00" },
+            { symbol: "BTCUSDT", last_blocker_reason: null, recent_blocked_count: 0, last_signal_ts: null, last_belief_ts: "2026-03-05T00:00:00+00:00" },
+          ],
+        },
+        error: null, isLoading: false, isFetching: false, isStale: false, refresh: vi.fn(),
+      };
+    }
     return {
       data: { file: "paper_trades.jsonl", lines: ["fill_price=2100 qty=0.01 pnl_bps=0.5"] },
       error: null, isLoading: false, isFetching: false, isStale: false, refresh: vi.fn(),
@@ -69,6 +128,9 @@ describe("LiveMonitor smoke", () => {
     );
 
     expect(screen.getByText("Live Alerts")).toBeInTheDocument();
+    expect(screen.getByText("Paper Run Diagnosis")).toBeInTheDocument();
+    expect(screen.getByText("Why No Trade?")).toBeInTheDocument();
+    expect(screen.getByText("Symbol Diagnostics")).toBeInTheDocument();
     expect(screen.getByText("Paper Trade Live Summary")).toBeInTheDocument();
     expect(screen.getByText("Last 5 Fills")).toBeInTheDocument();
     expect(screen.getByText("Mini Trends")).toBeInTheDocument();
