@@ -29,6 +29,18 @@ function fmtTs(ts?: number | null): string {
   }
 }
 
+function isResearchFitnessIncident(inc: IncidentInboxItem): boolean {
+  return inc.type === "data_research_fitness" || inc.incident_id === "data_research_fitness";
+}
+
+function incidentAccent(level?: string): string {
+  const key = String(level || "").toUpperCase();
+  if (key === "CRITICAL" || key === "ERROR") return "var(--red)";
+  if (key === "WARNING") return "var(--yellow)";
+  if (key === "INFO") return "var(--accent)";
+  return "var(--border)";
+}
+
 interface RunbookStep {
   action: string;
   label: string;
@@ -549,6 +561,10 @@ export default function Debug() {
     } finally {
       setRunningAction(null);
     }
+  }
+
+  async function runPreflightFromIncident() {
+    await onRun("preflight_check");
   }
 
   async function runGuidedSession() {
@@ -2012,28 +2028,76 @@ export default function Debug() {
                 <th><TermTip term="Actions" tr="Uygulanabilir operasyonlar." en="Available operations." /></th>
               </tr>
             </thead>
-            <tbody>
-              {filteredIncidents.map((inc) => (
-                <tr key={inc.incident_id}>
-                  <td style={{ color: "var(--muted)" }}>{fmtTs(inc.ts ?? null)}</td>
-                  <td>{inc.type}</td>
-                  <td>{inc.level}</td>
-                  <td>{inc.status}{inc.muted ? " (muted)" : ""}</td>
-                  <td>{inc.failed_action ?? "-"}</td>
-                  <td style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                    <button onClick={() => runIncident(inc.incident_id)} disabled={writeLocked} style={{ fontSize: 11 }}>Run now</button>
-                    <button onClick={() => patchIncident(inc.incident_id, "ack")} disabled={writeLocked} style={{ fontSize: 11 }}>Ack</button>
-                    <button onClick={() => patchIncident(inc.incident_id, "snooze_type", inc.type)} disabled={writeLocked} style={{ fontSize: 11 }}>Snooze type</button>
-                    {inc.muted ? (
-                      <button onClick={() => patchIncident(inc.incident_id, "unmute_type", inc.type)} disabled={writeLocked} style={{ fontSize: 11 }}>Unmute type</button>
-                    ) : (
-                      <button onClick={() => patchIncident(inc.incident_id, "mute_type", inc.type)} disabled={writeLocked} style={{ fontSize: 11 }}>Mute type</button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              <tbody>
+                {filteredIncidents.map((inc) => (
+                  <tr
+                    key={inc.incident_id}
+                    style={
+                      isResearchFitnessIncident(inc)
+                        ? {
+                            boxShadow: `inset 3px 0 0 ${incidentAccent(inc.level)}`,
+                            background: "color-mix(in srgb, var(--panel) 88%, var(--accent) 12%)",
+                          }
+                        : undefined
+                    }
+                  >
+                    <td style={{ color: "var(--muted)" }}>{fmtTs(inc.ts ?? null)}</td>
+                    <td>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                        <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+                          <span>{inc.type}</span>
+                          {isResearchFitnessIncident(inc) && (
+                            <span className={`badge ${String(inc.level).toUpperCase() === "ERROR" ? "badge-red" : "badge-yellow"}`}>
+                              FITNESS
+                            </span>
+                          )}
+                        </div>
+                        {isResearchFitnessIncident(inc) && (
+                          <div style={{ fontSize: 11, color: "var(--muted)", maxWidth: 420 }}>
+                            {inc.detail || inc.query || "Research fitness degraded"}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td>{inc.level}</td>
+                    <td>{inc.status}{inc.muted ? " (muted)" : ""}</td>
+                    <td>
+                      {isResearchFitnessIncident(inc) ? (
+                        <span style={{ color: "var(--muted)", fontSize: 11 }}>
+                          review research coverage
+                        </span>
+                      ) : (
+                        inc.failed_action ?? "-"
+                      )}
+                    </td>
+                    <td style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      <button onClick={() => runIncident(inc.incident_id)} disabled={writeLocked} style={{ fontSize: 11 }}>Run now</button>
+                      <button onClick={() => patchIncident(inc.incident_id, "ack")} disabled={writeLocked} style={{ fontSize: 11 }}>Ack</button>
+                      <button onClick={() => patchIncident(inc.incident_id, "snooze_type", inc.type)} disabled={writeLocked} style={{ fontSize: 11 }}>Snooze type</button>
+                      {inc.muted ? (
+                        <button onClick={() => patchIncident(inc.incident_id, "unmute_type", inc.type)} disabled={writeLocked} style={{ fontSize: 11 }}>Unmute type</button>
+                      ) : (
+                        <button onClick={() => patchIncident(inc.incident_id, "mute_type", inc.type)} disabled={writeLocked} style={{ fontSize: 11 }}>Mute type</button>
+                      )}
+                      {isResearchFitnessIncident(inc) && (
+                        <>
+                          <button onClick={() => navigate("/research")} style={{ fontSize: 11 }}>
+                            Open Research
+                          </button>
+                          <button
+                            onClick={() => void runPreflightFromIncident()}
+                            disabled={writeLocked || runningAction === "preflight_check"}
+                            style={{ fontSize: 11 }}
+                          >
+                            {runningAction === "preflight_check" ? "Running..." : "Run Preflight"}
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
         </AsyncState>
         <div style={{ marginTop: 10 }}>
           <div style={{ color: "var(--muted)", fontSize: 12, marginBottom: 6 }}>Recent Incident Audit</div>
