@@ -483,6 +483,7 @@ export interface IncidentInboxItem {
   ts?: number | null;
   type: string;
   title: string;
+  detail?: string | null;
   level: string;
   file?: string | null;
   query?: string | null;

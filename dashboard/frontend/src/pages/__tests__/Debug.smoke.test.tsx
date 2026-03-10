@@ -48,7 +48,22 @@ vi.mock("../../api/client", () => ({
     }
   },
   api: {
-    debugIncidents: vi.fn().mockResolvedValue([]),
+    debugIncidents: vi.fn().mockResolvedValue([
+      {
+        incident_id: "data_research_fitness",
+        session_id: "data_research_fitness",
+        ts: 1,
+        type: "data_research_fitness",
+        title: "Data research fitness degraded",
+        detail: "1 warning(s), no failures | continue with caution; review degraded feature coverage",
+        level: "WARNING",
+        file: "reports/DATA_RESEARCH_FITNESS.json",
+        query: "1 warning(s), no failures",
+        status: "new",
+        muted: false,
+        failed_action: null,
+      },
+    ]),
     debugIncidentPolicy: vi.fn().mockResolvedValue({
       enabled: false,
       min_level: "WARNING",
@@ -163,5 +178,9 @@ describe("Debug smoke", () => {
     await waitFor(() => {
       expect(screen.getByText("Last Action Output")).toBeInTheDocument();
     });
+
+    expect(screen.getByText("FITNESS")).toBeInTheDocument();
+    expect(screen.getByText("Open Research")).toBeInTheDocument();
+    expect(screen.getByText("Run Preflight")).toBeInTheDocument();
   });
 });
