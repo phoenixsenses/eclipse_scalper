@@ -34,12 +34,12 @@ const HISTORY_KEY = "eclipse.recovery.history.v1";
 const COMMANDS: CommandRow[] = [
   {
     label: "Start backend supervisor",
-    tr: "Backend supervisor baslat",
+    tr: "Backend supervisor başlat",
     command: "powershell -NoProfile -ExecutionPolicy Bypass -File .\\tools\\run_dashboard_backend_supervisor.ps1",
   },
   {
     label: "Start full dashboard",
-    tr: "Tum dashboard stacki baslat",
+    tr: "Tüm dashboard stack'ini başlat",
     command: "powershell -NoProfile -ExecutionPolicy Bypass -File .\\tools\\run_dashboard.ps1",
   },
   {

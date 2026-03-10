@@ -29,7 +29,7 @@ function TabBtn({
         padding: "4px 14px",
         borderRadius: 4,
         border: "1px solid " + (active ? "var(--accent)" : "var(--border)"),
-        background: active ? "#0d2044" : "transparent",
+        background: active ? "var(--accent-dim)" : "transparent",
         color: active ? "var(--accent)" : "var(--muted)",
         cursor: "pointer",
         fontSize: 12,
@@ -141,9 +141,9 @@ export default function Trades() {
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <PageGuide
         icon="💱"
-        titleTr="Islem Analizi"
-        titleEn="Trade Analytics"
-        subtitleTr="Signals/Stability/Quality sekmeleriyle giris kararini adim adim takip et."
+        titleTr="Sinyal & Karar Analizi"
+        titleEn="Signal & Decision Analytics"
+        subtitleTr="Signals/Stability/Quality sekmeleriyle giriş kararını adım adım takip et."
         subtitleEn="Use Signals/Stability/Quality tabs to trace entry decisions end-to-end."
         items={[
           {
@@ -157,7 +157,7 @@ export default function Trades() {
             icon: "🧱",
             titleTr: "Stability",
             titleEn: "Stability",
-            descTr: "Cooldown/streak gibi anti-noise kontrolleri gosterilir.",
+            descTr: "Cooldown/streak gibi gürültü önleme kontrolleri gösterilir.",
             descEn: "Cooldown/streak controls are tracked here.",
           },
           {
@@ -176,7 +176,7 @@ export default function Trades() {
         <TabBtn
           label="Signals"
           active={tab === "signals"}
-          tip="Signals: giris sinyali ve confidence kararlarini gosterir."
+          tip="Giriş sinyalleri ve confidence skorlarını gösterir."
           onClick={() => {
             setTab("signals");
             const next = new URLSearchParams(searchParams);
@@ -187,7 +187,7 @@ export default function Trades() {
         <TabBtn
           label="Stability"
           active={tab === "stability"}
-          tip="Stability: cooldown ve streak gibi koruma kontrollerini gosterir."
+          tip="Cooldown ve streak gibi gürültü koruma kontrollerini gösterir."
           onClick={() => {
             setTab("stability");
             const next = new URLSearchParams(searchParams);
@@ -198,7 +198,7 @@ export default function Trades() {
         <TabBtn
           label="Quality"
           active={tab === "quality"}
-          tip="Quality: veri anomali ve kalite sorunlarini gosterir."
+          tip="Veri anomalileri ve kalite sorunlarını gösterir."
           onClick={() => {
             setTab("quality");
             const next = new URLSearchParams(searchParams);
@@ -208,7 +208,7 @@ export default function Trades() {
         />
         <input
           className="self-help"
-          data-help="Symbol filtresi: sadece bir sembol satirlarini getirir (orn. ETHUSDT)."
+          data-help="Sembol filtresi: sadece seçilen sembol satırlarını getirir (örn. ETHUSDT)."
           placeholder="Filter symbol (e.g. ETHUSDT)"
           value={symbol}
           onChange={(e) => {

@@ -92,13 +92,13 @@ function blockerRecommendation(reason: string): { action: string; detail: string
   if (r.includes("no_match")) {
     return {
       action: "Logs > query=no_match_detail",
-      detail: "Esiklerden hangisinin fail oldugunu kontrol et (imb/int/spr).",
+      detail: "Eşiklerden hangisinin başarısız olduğunu kontrol et (imb/int/spr).",
     };
   }
   if (r.includes("regime")) {
     return {
       action: "Overview > Recent Regime + paper_trading.log",
-      detail: "Rejim uyumsuzlugu veya UNKNOWN durumunu kontrol et.",
+      detail: "Rejim uyumsuzluğu veya UNKNOWN durumunu kontrol et.",
     };
   }
   if (r.includes("risk") || r.includes("kill") || r.includes("circuit")) {
@@ -110,7 +110,7 @@ function blockerRecommendation(reason: string): { action: string; detail: string
   if (r.includes("data") || r.includes("stale")) {
     return {
       action: "Overview Runtime + preflight",
-      detail: "Data freshness/collector durumunu dogrula.",
+      detail: "Veri tazeliği ve collector durumunu doğrula.",
     };
   }
   return {
@@ -340,7 +340,7 @@ export default function Overview() {
             borderLeft: `3px solid ${lastTriage.ok ? "var(--green)" : "var(--yellow)"}`,
           }}
         >
-          <div className="card-title self-help" data-help="Last Triage: en son otomatik tanilama sonucunun PASS/FAIL ozeti.">Last Triage</div>
+          <div className="card-title self-help" data-help="Son otomatik tanılama çalışmasının PASS/FAIL özeti.">Last Triage</div>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
             <span className={`badge ${lastTriage.ok ? "badge-green" : "badge-yellow"}`}>
               {lastTriage.ok ? "PASS" : "FAIL"}
@@ -374,7 +374,7 @@ export default function Overview() {
         {runtimePoll.data && <RuntimePanel rt={runtimePoll.data} stale={runtimePoll.isStale} />}
 
         <div className="card">
-          <div className="card-title self-help" data-help="Son 15 dakikadaki olaylar. Tiklayinca ilgili log paketine yonlendirir.">Incident Ribbon (Last 15m)</div>
+          <div className="card-title self-help" data-help="Son 15 dakikadaki olaylar. Tıklayınca ilgili log paketine yönlendirir.">Recent Incidents (Last 15m)</div>
           {recentIncidentRibbon.length === 0 ? (
             <div style={{ color: "var(--muted)" }}>No recent incidents in last 15m.</div>
           ) : (
@@ -409,10 +409,10 @@ export default function Overview() {
         </div>
 
         <div className="card" style={{ borderLeft: "3px solid var(--yellow)" }}>
-          <div className="card-title self-help" data-help="En cok gorulen blokaj nedenini ve siradaki aksiyonu ozetler.">Entry Blocker Snapshot / Giris Engeli Ozeti</div>
+          <div className="card-title self-help" data-help="En sık görülen blokaj nedenini ve sonraki adımı özetler.">Entry Blocker Snapshot</div>
           {!topBlocker ? (
             <div style={{ color: "var(--muted)" }}>
-              Son pencerede blocker kaydi yok. Bu iyi bir isaret; gate akisi acik olabilir.
+              Son pencerede blocker kaydı yok — giriş kanalı açık görünüyor.
             </div>
           ) : (
             <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
@@ -443,7 +443,7 @@ export default function Overview() {
                   </button>
                   <button
                     className="self-help"
-                    data-help="Regime log paketini ac ve rejim uyumsuzlugunu kontrol et."
+                    data-help="Regime log paketini aç ve rejim uyumsuzluğunu kontrol et."
                     onClick={() => openLogPack("Regime")}
                     style={{
                       padding: "3px 8px",
@@ -586,7 +586,7 @@ export default function Overview() {
         </div>
 
         <div className="card">
-          <div className="card-title self-help" data-help="Son rejim gecisleri: market modundaki degisimleri gosterir.">Recent Regime Transitions</div>
+          <div className="card-title self-help" data-help="Son rejim geçişleri: market modundaki değişimleri gösterir.">Recent Regime Transitions</div>
           <AsyncState loading={false} error={null} isEmpty={regimes.length === 0} emptyText="No recent transitions">
             <table>
               <thead>

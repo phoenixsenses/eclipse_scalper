@@ -519,6 +519,59 @@ def _level_rank(level: str | None) -> int:
     return m.get((level or "WARNING").upper(), 2)
 
 
+def _data_research_fitness_incident() -> dict[str, Any] | None:
+    path = REPO_ROOT / "reports" / "DATA_RESEARCH_FITNESS.json"
+    try:
+        if not path.exists():
+            return None
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            payload = json.load(f)
+        if not isinstance(payload, dict):
+            return None
+    except Exception:
+        return None
+
+    status = str(payload.get("status") or "").lower()
+    if status not in {"warn", "fail"}:
+        return None
+
+    summary = payload.get("operator_summary") if isinstance(payload.get("operator_summary"), dict) else {}
+    failures = [str(x) for x in (payload.get("failures") or [])][:3]
+    warnings = [str(x) for x in (payload.get("warnings") or [])][:3]
+    detail_parts: list[str] = []
+    if isinstance(summary, dict) and summary.get("headline"):
+        detail_parts.append(str(summary.get("headline")))
+    if isinstance(summary, dict) and summary.get("operator_action"):
+        detail_parts.append(str(summary.get("operator_action")))
+    if failures:
+        detail_parts.append("failures=" + ", ".join(failures))
+    elif warnings:
+        detail_parts.append("warnings=" + ", ".join(warnings))
+
+    try:
+        ts = path.stat().st_mtime
+    except Exception:
+        ts = time.time()
+
+    return {
+        "incident_id": "data_research_fitness",
+        "session_id": "data_research_fitness",
+        "ts": ts,
+        "type": "data_research_fitness",
+        "title": "Data research fitness degraded" if status == "warn" else "Data research fitness failed",
+        "level": "WARNING" if status == "warn" else "ERROR",
+        "file": str(path),
+        "query": str(summary.get("headline") or status) if isinstance(summary, dict) else status,
+        "status": "new",
+        "snoozed_until": None,
+        "muted": False,
+        "failed_action": None,
+        "ack_ts": None,
+        "resolved_ts": None,
+        "detail": " | ".join(detail_parts),
+    }
+
+
 def list_incidents(limit: int = 50) -> list[dict[str, Any]]:
     state = _incident_state()
     acked = set(state.get("acked_ids") or [])
@@ -528,6 +581,19 @@ def list_incidents(limit: int = 50) -> list[dict[str, Any]]:
     acked_meta = state.get("acked_meta") or {}
     resolved_meta = state.get("resolved_meta") or {}
     rows: list[dict[str, Any]] = []
+    fitness_incident = _data_research_fitness_incident()
+    if fitness_incident:
+        incident_id = str(fitness_incident["incident_id"])
+        incident_type = str(fitness_incident["type"])
+        if incident_id in resolved:
+            fitness_incident["status"] = "resolved"
+        elif incident_id in acked:
+            fitness_incident["status"] = "ack"
+        fitness_incident["snoozed_until"] = snoozed_types.get(incident_type)
+        fitness_incident["muted"] = bool(muted_types.get(incident_type, False))
+        fitness_incident["ack_ts"] = acked_meta.get(incident_id)
+        fitness_incident["resolved_ts"] = resolved_meta.get(incident_id)
+        rows.append(fitness_incident)
     for s in list_runbook_sessions(limit=max(1, limit * 2)):
         sid = s.get("session_id")
         if not sid:
@@ -563,7 +629,8 @@ def list_incidents(limit: int = 50) -> list[dict[str, Any]]:
         )
         if len(rows) >= limit:
             break
-    return rows
+    rows.sort(key=lambda row: float(row.get("ts") or 0.0), reverse=True)
+    return rows[:limit]
 
 
 def update_incident(incident_id: str, action: str, incident_type: str | None = None, snooze_minutes: int = 60) -> dict[str, Any]:
