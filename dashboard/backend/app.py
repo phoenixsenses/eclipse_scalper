@@ -27,6 +27,7 @@ from .data_sources import (
     read_regime_events,
     read_runtime_status,
     read_live_metrics,
+    read_paper_run_status,
     read_market_chart,
     read_live_monitor_tests_status,
     read_ops_health,
@@ -105,6 +106,7 @@ from .models import (
     RegimeEvent,
     RuntimeResponse,
     LiveMetricsResponse,
+    PaperRunStatusResponse,
     MarketChartResponse,
     LiveMonitorTestsStatusResponse,
     Scoreboard,
@@ -450,6 +452,11 @@ async def get_runtime():
 @app.get("/api/live/metrics", response_model=LiveMetricsResponse)
 async def get_live_metrics():
     return read_live_metrics()
+
+
+@app.get("/api/live/paper-run", response_model=PaperRunStatusResponse)
+async def get_paper_run_status():
+    return read_paper_run_status()
 
 
 @app.get("/api/market/chart", response_model=MarketChartResponse)
