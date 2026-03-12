@@ -124,6 +124,13 @@ except Exception as e:
     status_tick = None
     we_dont_have_this("execution.system_status.status_tick", e)
 
+# Cross-module health dashboard (Kisi1 additive, never fatal)
+try:
+    from execution.dashboard_aggregator import dashboard_export_tick  # type: ignore
+except Exception as e:
+    dashboard_export_tick = None
+    we_dont_have_this("execution.dashboard_aggregator.dashboard_export_tick", e)
+
 # Config hot-reload (never fatal)
 try:
     from config.hot_reload import check_and_apply as _config_hot_reload  # type: ignore
@@ -1110,6 +1117,9 @@ async def guardian_loop(bot):
 
         if callable(status_tick):
             await _safe_call("system_status.status_tick", status_tick, bot)
+
+        if callable(dashboard_export_tick):
+            await _safe_call("dashboard_aggregator.dashboard_export_tick", dashboard_export_tick, bot)
 
         # 10) Config hot-reload (check override file every ~10s)
         await _safe_call("config_hot_reload_tick", _config_hot_reload_tick, bot)
