@@ -131,6 +131,7 @@ def check_exchange_api() -> None:
     secret = _sanitize_credential(sec_raw)
     dry_run = (_env("SCALPER_DRY_RUN") == "1")
     skip_auth_in_dryrun = _env_bool("SKIP_EXCHANGE_AUTH_IN_DRYRUN")
+    require_private_auth = _env_bool("PAPER_REQUIRE_PRIVATE_AUTH")
 
     _debug(
         "binance_env "
@@ -147,7 +148,7 @@ def check_exchange_api() -> None:
         _record(WARN, "Exchange API", f"{sec_name or 'BINANCE_API_SECRET'} not set - bot will run in offline/data-only mode")
         return
 
-    if dry_run and skip_auth_in_dryrun:
+    if dry_run and (skip_auth_in_dryrun or not require_private_auth):
         _record(SKIP, "Exchange API", "Skipped authenticated check in dry-run (SKIP_EXCHANGE_AUTH_IN_DRYRUN=1)")
         return
 
@@ -181,6 +182,55 @@ def check_exchange_api() -> None:
                 "ccxt not importable - skipping connectivity check (keys look set)")
     except Exception as exc:
         _record(FAIL, "Exchange API", f"Authentication failed: {_redact_exchange_error(str(exc))}")
+
+
+def check_env_profile(allow_live: bool) -> None:
+    profile = _env("SCALPER_ENV_PROFILE", "").lower()
+    if not profile:
+        _record(WARN, "Env profile", "SCALPER_ENV_PROFILE not set - runtime will infer profile")
+        return
+    if allow_live:
+        if profile != "live":
+            _record(WARN, "Env profile", f"SCALPER_ENV_PROFILE={profile!r} while validating live config")
+        else:
+            _record(OK, "Env profile", "SCALPER_ENV_PROFILE=live")
+        return
+    if profile != "paper":
+        _record(FAIL, "Env profile", f"SCALPER_ENV_PROFILE={profile!r} must be 'paper' for paper config")
+        return
+    _record(OK, "Env profile", "SCALPER_ENV_PROFILE=paper")
+
+
+def check_paper_private_api_safety(allow_live: bool) -> None:
+    if allow_live:
+        _record(SKIP, "Paper/live guard", "Live validation requested")
+        return
+    dry_run = _env("SCALPER_DRY_RUN") == "1"
+    if not dry_run:
+        _record(SKIP, "Paper/live guard", "Dry-run not active")
+        return
+    key_name, key_raw = _env_first("BINANCE_API_KEY", "BINANCE_KEY", "API_KEY")
+    sec_name, sec_raw = _env_first("BINANCE_API_SECRET", "BINANCE_SECRET", "API_SECRET")
+    key = _sanitize_credential(key_raw)
+    secret = _sanitize_credential(sec_raw)
+    testnet_on = _env_bool("BINANCE_TESTNET")
+    allow_live_private_api = _env_bool("PAPER_ALLOW_LIVE_PRIVATE_API")
+
+    if not key or not secret:
+        _record(OK, "Paper/live guard", "No private Binance credentials loaded for paper profile")
+        return
+    if testnet_on:
+        _record(OK, "Paper/live guard", f"Private credentials present via {key_name}/{sec_name}, sandbox enabled")
+        return
+    if allow_live_private_api:
+        _record(WARN, "Paper/live guard", "Live private Binance API explicitly allowed in paper mode")
+        return
+    _record(
+        FAIL,
+        "Paper/live guard",
+        "Paper mode has live private Binance credentials with BINANCE_TESTNET=0; "
+        "set BINANCE_TESTNET=1, clear keys, or set PAPER_ALLOW_LIVE_PRIVATE_API=1",
+    )
 
 
 def check_database() -> None:
@@ -313,6 +363,10 @@ def check_trade_logger() -> None:
     entry_on = _env_bool("ENTRY_TRADE_LOGGER_ENABLED")
     exit_on = _env_bool("EXIT_TRADE_LOGGER_ENABLED")
     db = _env("ENTRY_TRADE_LOG_DB", "data/paper_trades.db")
+    exit_db = _env("EXIT_TRADE_LOG_DB", db or "data/paper_trades.db")
+    if entry_on and exit_on and db and exit_db and db != exit_db:
+        _record(FAIL, "Trade logger", f"ENTRY_TRADE_LOG_DB={db} must match EXIT_TRADE_LOG_DB={exit_db}")
+        return
     if entry_on and exit_on:
         _record(OK, "Trade logger", f"ENABLED (entry+exit -> {db})")
     elif entry_on:
@@ -325,10 +379,15 @@ def check_trade_logger() -> None:
 
 def check_telegram() -> None:
     token = _env("TELEGRAM_TOKEN")
+    bot_token = _env("TELEGRAM_BOT_TOKEN")
     chat_id = _env("TELEGRAM_CHAT_ID")
-    if token and not token.startswith("<") and chat_id and not chat_id.startswith("<"):
+    if token and bot_token and token != bot_token:
+        _record(FAIL, "Telegram", "TELEGRAM_TOKEN and TELEGRAM_BOT_TOKEN differ; keep one canonical value")
+        return
+    effective_token = token or bot_token
+    if effective_token and not effective_token.startswith("<") and chat_id and not chat_id.startswith("<"):
         _record(OK, "Telegram", "Configured")
-    elif not token or token.startswith("<"):
+    elif not effective_token or effective_token.startswith("<"):
         _record(WARN, "Telegram", "TELEGRAM_TOKEN not set - notifications disabled")
     else:
         _record(WARN, "Telegram", "TELEGRAM_CHAT_ID not set - notifications disabled")
@@ -374,7 +433,9 @@ def main() -> int:
             env_label = f"File not found: {args.env} (using process env)"
 
         # Run all checks
+        check_env_profile(allow_live=args.live)
         check_paper_mode(allow_live=args.live)
+        check_paper_private_api_safety(allow_live=args.live)
         check_exchange_api()
         check_database()
         check_trade_log_db()

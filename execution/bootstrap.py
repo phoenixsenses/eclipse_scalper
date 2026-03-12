@@ -16,32 +16,14 @@ import random
 import signal
 import sys
 import time
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, Optional, Callable, Awaitable, List
 
+from utils.env_profile import load_dotenv_best_effort as _shared_load_dotenv_best_effort
+
 def _load_dotenv_best_effort() -> str:
-    """
-    Load env before any project imports.
-    Priority: .env.paper (if exists) -> .env.
-    """
-    try:
-        from dotenv import load_dotenv  # type: ignore
-    except Exception:
-        return ""
-    try:
-        here = os.getcwd()
-        env_paper = os.path.join(here, ".env.paper")
-        env_default = os.path.join(here, ".env")
-        if os.path.exists(env_paper):
-            load_dotenv(dotenv_path=env_paper, override=False)
-            return ".env.paper"
-        if os.path.exists(env_default):
-            load_dotenv(dotenv_path=env_default, override=False)
-            return ".env"
-        load_dotenv(override=False)
-    except Exception:
-        return ""
-    return ""
+    return _shared_load_dotenv_best_effort(root=Path.cwd(), cwd_fallback=True)
 
 
 _DOTENV_SOURCE = _load_dotenv_best_effort()
@@ -102,6 +84,10 @@ def _get_logger():
 
 
 log_core = _get_logger()
+
+
+def _utc_now_iso() -> str:
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
 
 def _opt_import(mod: str) -> Optional[Any]:
@@ -432,6 +418,58 @@ def _cfg(cfg: Any, name: str, default: Any) -> Any:
         return default
 
 
+def _write_startup_manifest(bot: Any, *, dotenv_source: str) -> None:
+    try:
+        from execution.runtime_helpers import atomic_write_json  # type: ignore
+    except Exception:
+        return
+
+    try:
+        st = getattr(bot, "state", None)
+        rc = getattr(st, "run_context", None) if st is not None else None
+        if not isinstance(rc, dict):
+            if st is None:
+                return
+            st.run_context = {}
+            rc = st.run_context
+
+        active_symbols = []
+        try:
+            syms = getattr(bot, "active_symbols", None) or getattr(getattr(bot, "cfg", None), "ACTIVE_SYMBOLS", None)
+            if isinstance(syms, set):
+                active_symbols = sorted(str(x) for x in syms if str(x).strip())
+            elif isinstance(syms, (list, tuple)):
+                active_symbols = [str(x) for x in syms if str(x).strip()]
+        except Exception:
+            active_symbols = []
+
+        manifest = {
+            "ts_utc": _utc_now_iso(),
+            "entrypoint": "execution.bootstrap",
+            "dotenv_source": str(dotenv_source or ""),
+            "env_profile": str(os.getenv("SCALPER_ENV_PROFILE", "") or "").strip().lower(),
+            "dry_run": _env_bool("SCALPER_DRY_RUN", False),
+            "paper_profile_active": _env_bool("SCALPER_DRY_RUN", False) or str(os.getenv("SCALPER_ENV_PROFILE", "") or "").strip().lower() == "paper",
+            "paper_execution_mode": str(os.getenv("PAPER_EXECUTION_MODE", "") or "").strip().lower(),
+            "paper_allow_live_private_api": _env_bool("PAPER_ALLOW_LIVE_PRIVATE_API", False),
+            "paper_require_private_auth": _env_bool("PAPER_REQUIRE_PRIVATE_AUTH", False),
+            "exchange": str(getattr(getattr(bot, "cfg", None), "EXCHANGE", os.getenv("EXCHANGE", "")) or "").strip().lower(),
+            "default_type": str(getattr(getattr(bot, "cfg", None), "DEFAULT_TYPE", os.getenv("DEFAULT_TYPE", "")) or "").strip().lower(),
+            "binance_testnet": _env_bool("BINANCE_TESTNET", False),
+            "private_api_key_present": bool(str(os.getenv("BINANCE_API_KEY", "") or "").strip()),
+            "private_api_secret_present": bool(str(os.getenv("BINANCE_API_SECRET", "") or "").strip()),
+            "active_symbols": active_symbols,
+        }
+        rc["startup_manifest"] = dict(manifest)
+        rc["startup_manifest_path"] = "logs/paper_startup_manifest.json"
+        atomic_write_json(Path("logs/paper_startup_manifest.json"), manifest)
+    except Exception as e:
+        try:
+            log_core.warning(f"[bootstrap] startup manifest write failed: {e}")
+        except Exception:
+            pass
+
+
 # ----------------------------
 # Exchange init (ccxt async)
 # ----------------------------
@@ -510,6 +548,8 @@ async def _init_exchange(cfg: Any) -> Any:
 
     exchange = ex_cls(params)
     dry_run = _env_bool("SCALPER_DRY_RUN", False)
+    env_profile = str(os.getenv("SCALPER_ENV_PROFILE", "") or "").strip().lower()
+    paper_profile = bool(dry_run or env_profile == "paper")
     fetch_currencies_default = False if dry_run else True
     init_fetch_currencies = _env_bool("EXCHANGE_INIT_FETCH_CURRENCIES", fetch_currencies_default)
     try:
@@ -554,7 +594,20 @@ async def _init_exchange(cfg: Any) -> Any:
     except Exception:
         pass
 
-    failfast_auth = str(os.getenv("BOOT_FAILFAST_PRIVATE_AUTH", "1")).strip().lower() in ("1", "true", "yes", "on")
+    paper_allow_live_private_api = _env_bool("PAPER_ALLOW_LIVE_PRIVATE_API", False)
+    if paper_profile and api_key and api_secret and (not testnet_on) and (not paper_allow_live_private_api):
+        try:
+            if hasattr(exchange, "close"):
+                await exchange.close()
+        except Exception:
+            pass
+        raise RuntimeError(
+            "paper profile refuses live private Binance API access: "
+            "set BINANCE_TESTNET=1, clear paper API keys, or set PAPER_ALLOW_LIVE_PRIVATE_API=1"
+        )
+
+    failfast_auth_default = False if paper_profile else True
+    failfast_auth = str(os.getenv("BOOT_FAILFAST_PRIVATE_AUTH", "1" if failfast_auth_default else "0")).strip().lower() in ("1", "true", "yes", "on")
     if failfast_auth and (not api_key or not api_secret):
         raise RuntimeError(
             "bootstrap private auth failed: missing api credentials; "
@@ -1185,6 +1238,21 @@ async def main() -> None:
     env_syms_bot = _apply_env_symbols_to_bot(bot)
     if env_syms_bot:
         log_core.info(f"[bootstrap] ENV ACTIVE_SYMBOLS -> bot.active_symbols ({len(env_syms_bot)}): {env_syms_bot[:12]}")
+
+    _write_startup_manifest(bot, dotenv_source=_DOTENV_SOURCE)
+    try:
+        rc = getattr(getattr(bot, "state", None), "run_context", None) or {}
+        sm = rc.get("startup_manifest") if isinstance(rc, dict) else None
+        if isinstance(sm, dict):
+            log_core.info(
+                "[bootstrap] startup_manifest "
+                f"profile={sm.get('env_profile') or 'unknown'} "
+                f"dry_run={int(bool(sm.get('dry_run')))} "
+                f"testnet={int(bool(sm.get('binance_testnet')))} "
+                f"keys={int(bool(sm.get('private_api_key_present')) and bool(sm.get('private_api_secret_present')))}"
+            )
+    except Exception:
+        pass
 
     # validate + build data/notify
     _validate_data_or_null(bot)
