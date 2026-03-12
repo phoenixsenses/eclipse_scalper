@@ -10,6 +10,12 @@ class Scoreboard(BaseModel):
     generated_ts: Optional[str] = None
     window_sec: Optional[int] = None
     paper_trading: bool = False
+    runtime_mode: Optional[str] = None
+    paper_execution_mode: Optional[str] = None
+    paper_execution_label: Optional[str] = None
+    paper_fill_model: Optional[str] = None
+    binance_testnet: Optional[bool] = None
+    paper_allow_live_private_api: Optional[bool] = None
     orders_total: int = 0
     fills_total: int = 0
     cancels_total: int = 0
@@ -256,6 +262,7 @@ class PaperRunTradeState(BaseModel):
     no_trades_yet: bool = True
     db_present: bool = False
     db_path: Optional[str] = None
+    execution_note: Optional[str] = None
 
 
 class PaperRunDiagnosis(BaseModel):
@@ -263,6 +270,7 @@ class PaperRunDiagnosis(BaseModel):
     summary: str = "paper run status unknown"
     detail: str = "awaiting telemetry"
     severity: str = "warning"
+    execution_context: Optional[str] = None
 
 
 class PaperRunReasonBreakdown(BaseModel):
@@ -283,9 +291,25 @@ class PaperRunSymbolState(BaseModel):
     recent_blocked_count: int = 0
 
 
+class PaperRunStartupManifest(BaseModel):
+    env_profile: Optional[str] = None
+    paper_profile_active: Optional[bool] = None
+    paper_execution_mode: Optional[str] = None
+    paper_execution_label: Optional[str] = None
+    paper_fill_model: Optional[str] = None
+    binance_testnet: Optional[bool] = None
+    paper_allow_live_private_api: Optional[bool] = None
+    private_api_key_present: Optional[bool] = None
+    private_api_secret_present: Optional[bool] = None
+    dotenv_source: Optional[str] = None
+    meta: dict[str, Any] = Field(default_factory=dict, alias="_meta")
+    model_config = {"populate_by_name": True}
+
+
 class PaperRunStatusResponse(BaseModel):
     ts_utc: str
     session: PaperRunSession = Field(default_factory=PaperRunSession)
+    startup_manifest: PaperRunStartupManifest = Field(default_factory=PaperRunStartupManifest)
     process_chain: PaperRunProcessChain = Field(default_factory=PaperRunProcessChain)
     entry_state: PaperRunEntryState = Field(default_factory=PaperRunEntryState)
     trade_state: PaperRunTradeState = Field(default_factory=PaperRunTradeState)

@@ -4,6 +4,12 @@ export interface Scoreboard {
   generated_ts?: string | null;
   window_sec?: number | null;
   paper_trading?: boolean;
+  runtime_mode?: string | null;
+  paper_execution_mode?: string | null;
+  paper_execution_label?: string | null;
+  paper_fill_model?: string | null;
+  binance_testnet?: boolean | null;
+  paper_allow_live_private_api?: boolean | null;
   orders_total?: number;
   fills_total?: number;
   cancels_total?: number;
@@ -242,6 +248,7 @@ export interface PaperRunTradeState {
   no_trades_yet?: boolean;
   db_present?: boolean;
   db_path?: string | null;
+  execution_note?: string | null;
 }
 
 export interface PaperRunDiagnosis {
@@ -249,6 +256,21 @@ export interface PaperRunDiagnosis {
   summary?: string;
   detail?: string;
   severity?: string;
+  execution_context?: string | null;
+}
+
+export interface PaperRunStartupManifest {
+  env_profile?: string | null;
+  paper_profile_active?: boolean | null;
+  paper_execution_mode?: string | null;
+  paper_execution_label?: string | null;
+  paper_fill_model?: string | null;
+  binance_testnet?: boolean | null;
+  paper_allow_live_private_api?: boolean | null;
+  private_api_key_present?: boolean | null;
+  private_api_secret_present?: boolean | null;
+  dotenv_source?: string | null;
+  _meta?: Record<string, unknown>;
 }
 
 export interface PaperRunReasonBreakdown {
@@ -272,6 +294,7 @@ export interface PaperRunSymbolState {
 export interface PaperRunStatusResponse {
   ts_utc?: string;
   session?: PaperRunSession;
+  startup_manifest?: PaperRunStartupManifest;
   process_chain?: PaperRunProcessChain;
   entry_state?: PaperRunEntryState;
   trade_state?: PaperRunTradeState;
@@ -393,6 +416,13 @@ export interface OpsHealthResponse {
     collector_connected?: boolean | null;
     reconnects_last_5m?: number;
     errors_last_5m?: number;
+    paper_trader_status?: string | null;
+    paper_profile_active?: boolean | null;
+    paper_execution_mode?: string | null;
+    binance_testnet?: boolean | null;
+    paper_allow_live_private_api?: boolean | null;
+    startup_contract_safe?: boolean | null;
+    startup_contract_reason?: string | null;
     used_1m?: number | null;
     cap_1m?: number | null;
     usage_pct?: number | null;

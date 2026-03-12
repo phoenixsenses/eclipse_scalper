@@ -77,6 +77,44 @@ def test_health_overall_stats_reads_data_research_fitness(monkeypatch) -> None:
     assert payload["data_research_fitness_connected"] is True
 
 
+def test_health_overall_stats_reads_paper_contract(monkeypatch) -> None:
+    logs_dir = Path("tmp/tests/dashboard_overview_paper_contract/logs")
+    if logs_dir.parent.exists():
+        shutil.rmtree(logs_dir.parent, ignore_errors=True)
+    (logs_dir / "health").mkdir(parents=True, exist_ok=True)
+    (logs_dir / "health" / "overall.json").write_text(
+        json.dumps(
+            {
+                "ts_utc": "2026-03-10T00:00:00+00:00",
+                "state": "ok",
+                "components": {
+                    "collector": {
+                        "connected": True,
+                        "reconnects_last_5m": 1,
+                        "errors_last_5m": 0,
+                    },
+                    "paper_trader": {
+                        "status": "ok",
+                        "paper_profile_active": True,
+                        "paper_execution_mode": "router_blocked",
+                        "binance_testnet": True,
+                        "paper_allow_live_private_api": False,
+                        "startup_contract_safe": True,
+                        "startup_contract_reason": "",
+                    },
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(ds, "LOGS_DIR", logs_dir)
+    payload = ds._health_overall_stats()
+    assert payload["paper_trader_status"] == "ok"
+    assert payload["paper_profile_active"] is True
+    assert payload["paper_execution_mode"] == "router_blocked"
+    assert payload["startup_contract_safe"] is True
+
+
 def test_overview_includes_health_overall_summary(monkeypatch) -> None:
     logs_dir = Path("tmp/tests/dashboard_overview_with_fitness/logs")
     if logs_dir.parent.exists():

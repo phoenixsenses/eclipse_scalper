@@ -27,6 +27,11 @@ vi.mock("../../hooks/usePoll", () => ({
           data_research_fitness_status: "warning",
           data_research_fitness_connected: true,
           data_research_fitness_detail: "fitness_status=warn warnings=1 failures=0",
+          paper_execution_mode: "router_blocked",
+          startup_contract_safe: true,
+          startup_contract_reason: "",
+          binance_testnet: true,
+          paper_allow_live_private_api: false,
         },
         research_events: {
           watchboard: {
@@ -92,6 +97,9 @@ describe("Overview smoke", () => {
     expect(screen.getAllByText("no_match").length).toBeGreaterThan(0);
     expect(screen.getByText("Data Research Fitness")).toBeInTheDocument();
     expect(screen.getByText("fitness_status=warn warnings=1 failures=0")).toBeInTheDocument();
+    expect(screen.getByText("Paper Execution Contract")).toBeInTheDocument();
+    expect(screen.getAllByText("No-fill rehearsal").length).toBeGreaterThan(0);
+    expect(screen.getByText(/SAFE CONTRACT/i)).toBeInTheDocument();
     expect(screen.getByText("Research Event Watchboard")).toBeInTheDocument();
     expect(screen.getByText("Open Research Events")).toBeInTheDocument();
   });

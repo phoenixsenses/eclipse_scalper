@@ -67,6 +67,19 @@ def test_paper_run_endpoint_contract(monkeypatch) -> None:
             "telemetry_age_sec": 1.0,
             "telemetry_present": True,
         },
+        "startup_manifest": {
+            "env_profile": "paper",
+            "paper_profile_active": True,
+            "paper_execution_mode": "router_blocked",
+            "paper_execution_label": "No-fill rehearsal",
+            "paper_fill_model": "blocked_no_fill",
+            "binance_testnet": True,
+            "paper_allow_live_private_api": False,
+            "private_api_key_present": False,
+            "private_api_secret_present": False,
+            "dotenv_source": ".env.paper",
+            "_meta": {"path": "logs/paper_startup_manifest.json", "exists": True, "age_sec": 1.0},
+        },
         "process_chain": {
             "launcher_present": True,
             "watchdog_present": True,
@@ -92,12 +105,14 @@ def test_paper_run_endpoint_contract(monkeypatch) -> None:
             "no_trades_yet": True,
             "db_present": True,
             "db_path": "data/paper_trades.db",
+            "execution_note": "no fills are expected in router_blocked mode; this run rehearses entry and guard flow only",
         },
         "diagnosis": {
             "code": "signal_not_present",
             "summary": "paper run is healthy but no signal is present",
-            "detail": "entries are allowed; recent blockers show signal not present",
+            "detail": "entries are allowed; recent blockers show signal not present; no fills are expected in router_blocked mode; this run rehearses entry and guard flow only",
             "severity": "info",
+            "execution_context": "no fills are expected in router_blocked mode; this run rehearses entry and guard flow only",
         },
         "reason_breakdown": {
             "signal_not_present": 3,
@@ -124,6 +139,9 @@ def test_paper_run_endpoint_contract(monkeypatch) -> None:
     assert resp.status_code == 200
     body = resp.json()
     assert body["session"]["status"] == "running"
+    assert body["startup_manifest"]["env_profile"] == "paper"
+    assert body["startup_manifest"]["paper_execution_label"] == "No-fill rehearsal"
+    assert "router_blocked mode" in body["trade_state"]["execution_note"]
     assert body["diagnosis"]["code"] == "signal_not_present"
     assert body["symbols"][0]["symbol"] == "ETHUSDT"
 
@@ -138,6 +156,18 @@ def test_read_paper_run_status_signal_not_present(monkeypatch) -> None:
         "database": {},
         "system": {},
     })
+    monkeypatch.setattr(
+        ds,
+        "_startup_manifest_snapshot",
+        lambda: {
+            "env_profile": "paper",
+            "paper_profile_active": True,
+            "paper_execution_mode": "router_blocked",
+            "binance_testnet": True,
+            "paper_allow_live_private_api": False,
+            "_meta": {"exists": True, "age_sec": 1.0, "path": "logs/paper_startup_manifest.json"},
+        },
+    )
     monkeypatch.setattr(ds, "read_scoreboard", lambda: {"orders_by_symbol": {"ETHUSDT": 1}, "fills_by_symbol": {}})
     monkeypatch.setattr(ds, "_health_overall_stats", lambda: {"collector_connected": True})
     monkeypatch.setattr(ds, "_detect_paper_process_chain", lambda: {
@@ -165,6 +195,8 @@ def test_read_paper_run_status_signal_not_present(monkeypatch) -> None:
     out = ds.read_paper_run_status()
     assert out["session"]["status"] == "running"
     assert out["diagnosis"]["code"] == "signal_not_present"
+    assert out["diagnosis"]["execution_context"].startswith("no fills are expected")
+    assert out["trade_state"]["execution_note"].startswith("no fills are expected")
     assert out["symbols"][0]["last_blocker_reason"] == "signal not present"
 
 
@@ -190,6 +222,61 @@ def test_read_paper_run_status_gate_blocked_precedes_signal(monkeypatch) -> None
     out = ds.read_paper_run_status()
     assert out["diagnosis"]["code"] == "gate_blocked"
     assert out["session"]["status"] == "degraded"
+
+
+def test_read_paper_run_status_flags_unsafe_startup_contract(monkeypatch) -> None:
+    now = time.time()
+    monkeypatch.setattr(ds, "_paper_run_cache", {})
+    monkeypatch.setattr(ds, "_paper_run_cache_ts", 0.0)
+    monkeypatch.setattr(ds, "read_runtime_status", lambda: {
+        "collector": {"alive": True},
+        "data_freshness": {"status": "LIVE"},
+        "database": {},
+        "system": {},
+    })
+    monkeypatch.setattr(ds, "read_scoreboard", lambda: {})
+    monkeypatch.setattr(
+        ds,
+        "_startup_manifest_snapshot",
+        lambda: {
+            "env_profile": "paper",
+            "paper_profile_active": True,
+            "paper_execution_mode": "router_blocked",
+            "paper_execution_label": "No-fill rehearsal",
+            "paper_fill_model": "blocked_no_fill",
+            "binance_testnet": False,
+            "paper_allow_live_private_api": True,
+            "private_api_key_present": True,
+            "private_api_secret_present": True,
+            "_meta": {"exists": True, "age_sec": 1.0},
+        },
+    )
+    monkeypatch.setattr(ds, "_health_overall_stats", lambda: {"collector_connected": True})
+    monkeypatch.setattr(ds, "_detect_paper_process_chain", lambda: {
+        "launcher_present": True,
+        "watchdog_present": True,
+        "bootstrap_present": True,
+        "launcher_pid": 1,
+        "watchdog_pids": [2],
+        "bootstrap_pids": [3],
+        "launcher_started_ts": "2026-03-10T00:00:00+00:00",
+        "summary": "launcher pid=1, watchdog=1, bootstrap=1",
+    })
+    monkeypatch.setattr(ds, "_paper_trade_snapshot", lambda: {
+        "trade_count": 0,
+        "last_trade_ts": None,
+        "no_trades_yet": True,
+        "db_present": True,
+        "db_path": "data/paper_trades.db",
+    })
+    monkeypatch.setattr(ds, "_active_symbols_from_env", lambda: ["ETHUSDT"])
+    monkeypatch.setattr(ds, "_telemetry_tail", lambda limit=400: [
+        {"ts": now - 2, "event": "execution.belief_state", "data": {"allow_entries": True, "guard_mode": "GREEN", "runtime_gate_degraded": False}},
+    ])
+    out = ds.read_paper_run_status()
+    assert out["session"]["status"] == "degraded"
+    assert out["diagnosis"]["code"] == "unsafe_startup_contract"
+    assert "live private api" in out["diagnosis"]["summary"].lower()
 
 
 def test_read_paper_run_status_data_degraded(monkeypatch) -> None:
@@ -272,6 +359,9 @@ def test_read_live_metrics_basic_sanity(monkeypatch) -> None:
         "read_scoreboard",
         lambda: {
             "paper_trading": True,
+            "runtime_mode": "paper",
+            "paper_execution_mode": "router_blocked",
+            "binance_testnet": True,
             "orders_total": 10,
             "fills_total": 5,
             "blocked_total": 3,
@@ -304,6 +394,31 @@ def test_read_live_metrics_basic_sanity(monkeypatch) -> None:
     assert len(out["blocked_reasons"]) >= 1
     assert out["pnl_strip"]["sample"] >= 1
     assert len(out["trends"]["trades_per_sec"]) >= 1
+
+
+def test_read_scoreboard_uses_startup_manifest(monkeypatch) -> None:
+    monkeypatch.setattr(ds, "_safe_json", lambda path: {"orders_total": 1, "paper_trading": False} if "paper_scoreboard.json" in str(path) else {})
+    monkeypatch.setattr(
+        ds,
+        "_startup_manifest_snapshot",
+        lambda: {
+            "env_profile": "paper",
+            "paper_profile_active": True,
+            "paper_execution_mode": "router_blocked",
+            "paper_execution_label": "No-fill rehearsal",
+            "paper_fill_model": "blocked_no_fill",
+            "binance_testnet": True,
+            "paper_allow_live_private_api": False,
+            "_meta": {"exists": True, "age_sec": 1.0, "path": "logs/paper_startup_manifest.json"},
+        },
+    )
+    out = ds.read_scoreboard()
+    assert out["paper_trading"] is True
+    assert out["runtime_mode"] == "paper"
+    assert out["paper_execution_mode"] == "router_blocked"
+    assert out["paper_execution_label"] == "No-fill rehearsal"
+    assert out["paper_fill_model"] == "blocked_no_fill"
+    assert out["binance_testnet"] is True
 
 
 def test_live_tests_status_endpoint_contract(monkeypatch) -> None:

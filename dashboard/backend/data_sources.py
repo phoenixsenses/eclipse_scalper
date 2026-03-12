@@ -347,6 +347,51 @@ def _paper_trade_db_path() -> Path:
     return _env_path("PAPER_TRADES_DB_PATH", DATA_DIR / "paper_trades.db")
 
 
+def _startup_manifest_path() -> Path:
+    return _env_path("PAPER_STARTUP_MANIFEST_PATH", LOGS_DIR / "paper_startup_manifest.json")
+
+
+def _startup_manifest_snapshot() -> dict[str, Any]:
+    path = _startup_manifest_path()
+    payload = _safe_json(path)
+    if not isinstance(payload, dict):
+        payload = {}
+    payload.setdefault("_meta", {})
+    payload["_meta"] = {
+        "path": str(path),
+        "exists": path.exists(),
+        "age_sec": (round(max(0.0, time.time() - path.stat().st_mtime), 1) if path.exists() else None),
+    }
+    return payload
+
+
+def _paper_execution_contract(mode: Any) -> dict[str, str]:
+    normalized = str(mode or "").strip().lower()
+    if normalized == "router_blocked":
+        return {
+            "paper_execution_label": "No-fill rehearsal",
+            "paper_fill_model": "blocked_no_fill",
+        }
+    if not normalized:
+        return {
+            "paper_execution_label": "",
+            "paper_fill_model": "",
+        }
+    return {
+        "paper_execution_label": normalized.replace("_", " ").title(),
+        "paper_fill_model": normalized,
+    }
+
+
+def _paper_execution_note(execution_mode: str, trade_count: int) -> str:
+    normalized = str(execution_mode or "").strip().lower()
+    if normalized in {"router_blocked", "blocked_no_fill"}:
+        if int(trade_count or 0) <= 0:
+            return "no fills are expected in router_blocked mode; this run rehearses entry and guard flow only"
+        return "router_blocked mode does not create new fills; existing trade records may come from prior sessions"
+    return ""
+
+
 def _telemetry_tail(limit: int = 400) -> list[dict[str, Any]]:
     return _read_jsonl_tail(LOGS_DIR / "telemetry.jsonl", limit=limit)
 
@@ -572,6 +617,48 @@ def _paper_run_diagnosis(
     }
 
 
+def _paper_startup_contract_issue(startup_manifest: dict[str, Any]) -> dict[str, str] | None:
+    if not startup_manifest:
+        return None
+    env_profile = str(startup_manifest.get("env_profile") or "").strip().lower()
+    paper_profile_active = startup_manifest.get("paper_profile_active")
+    allow_live_private_api = startup_manifest.get("paper_allow_live_private_api")
+    binance_testnet = startup_manifest.get("binance_testnet")
+    private_key_present = startup_manifest.get("private_api_key_present")
+    private_secret_present = startup_manifest.get("private_api_secret_present")
+    private_api_present = bool(private_key_present and private_secret_present)
+
+    if env_profile and env_profile != "paper":
+        return {
+            "code": "unsafe_startup_contract",
+            "summary": "paper dashboard is reporting a non-paper runtime profile",
+            "detail": "startup manifest env_profile is not paper",
+            "severity": "critical",
+        }
+    if paper_profile_active is False:
+        return {
+            "code": "unsafe_startup_contract",
+            "summary": "paper profile is not active",
+            "detail": "startup manifest shows paper_profile_active=false",
+            "severity": "critical",
+        }
+    if allow_live_private_api is True:
+        return {
+            "code": "unsafe_startup_contract",
+            "summary": "paper run allows live private API access",
+            "detail": "paper_allow_live_private_api is enabled in startup manifest",
+            "severity": "critical",
+        }
+    if private_api_present and binance_testnet is False:
+        return {
+            "code": "unsafe_startup_contract",
+            "summary": "paper run is carrying private API credentials against non-testnet Binance",
+            "detail": "startup manifest shows private credentials with binance_testnet=false",
+            "severity": "critical",
+        }
+    return None
+
+
 def _is_sensitive(key: str) -> bool:
     ku = key.upper()
     return any(kw in ku for kw in _SENSITIVE_KEYWORDS)
@@ -599,7 +686,20 @@ def _safe_path(filename: str, base_dir: Path) -> Optional[Path]:
 # ─────────────────────────────────────────────
 
 def read_scoreboard() -> dict[str, Any]:
-    return _safe_json(STATE_DIR / "paper_scoreboard.json")
+    payload = _safe_json(STATE_DIR / "paper_scoreboard.json")
+    if not isinstance(payload, dict):
+        payload = {}
+    manifest = _startup_manifest_snapshot()
+    if isinstance(manifest, dict) and manifest.get("_meta", {}).get("exists"):
+        execution_contract = _paper_execution_contract(manifest.get("paper_execution_mode"))
+        payload["paper_trading"] = bool(manifest.get("paper_profile_active", payload.get("paper_trading", False)))
+        payload["runtime_mode"] = str(manifest.get("env_profile") or ("paper" if payload.get("paper_trading") else ""))
+        payload["paper_execution_mode"] = str(manifest.get("paper_execution_mode") or "")
+        payload["paper_execution_label"] = execution_contract["paper_execution_label"]
+        payload["paper_fill_model"] = execution_contract["paper_fill_model"]
+        payload["binance_testnet"] = bool(manifest.get("binance_testnet", False))
+        payload["paper_allow_live_private_api"] = bool(manifest.get("paper_allow_live_private_api", False))
+    return payload
 
 
 def read_micro_edge_gates() -> dict[str, Any]:
@@ -1218,6 +1318,13 @@ def _health_overall_stats() -> dict[str, Any]:
         "collector_connected": None,
         "reconnects_last_5m": 0,
         "errors_last_5m": 0,
+        "paper_trader_status": None,
+        "paper_profile_active": None,
+        "paper_execution_mode": None,
+        "binance_testnet": None,
+        "paper_allow_live_private_api": None,
+        "startup_contract_safe": None,
+        "startup_contract_reason": None,
         "data_research_fitness_status": None,
         "data_research_fitness_connected": None,
         "data_research_fitness_detail": None,
@@ -1229,10 +1336,18 @@ def _health_overall_stats() -> dict[str, Any]:
         payload = _safe_json(path)
         comps = payload.get("components") if isinstance(payload.get("components"), dict) else {}
         collector = comps.get("collector") if isinstance(comps.get("collector"), dict) else {}
+        paper_trader = comps.get("paper_trader") if isinstance(comps.get("paper_trader"), dict) else {}
         fitness = comps.get("data_research_fitness") if isinstance(comps.get("data_research_fitness"), dict) else {}
         out["collector_connected"] = collector.get("connected")
         out["reconnects_last_5m"] = int(collector.get("reconnects_last_5m", 0) or 0)
         out["errors_last_5m"] = int(collector.get("errors_last_5m", 0) or 0)
+        out["paper_trader_status"] = paper_trader.get("status")
+        out["paper_profile_active"] = paper_trader.get("paper_profile_active")
+        out["paper_execution_mode"] = paper_trader.get("paper_execution_mode")
+        out["binance_testnet"] = paper_trader.get("binance_testnet")
+        out["paper_allow_live_private_api"] = paper_trader.get("paper_allow_live_private_api")
+        out["startup_contract_safe"] = paper_trader.get("startup_contract_safe")
+        out["startup_contract_reason"] = paper_trader.get("startup_contract_reason")
         out["data_research_fitness_status"] = fitness.get("status")
         out["data_research_fitness_connected"] = fitness.get("connected")
         out["data_research_fitness_detail"] = fitness.get("detail")
@@ -1753,6 +1868,8 @@ def read_paper_run_status() -> dict[str, Any]:
 
     runtime = read_runtime_status()
     scoreboard = read_scoreboard()
+    startup_manifest = _startup_manifest_snapshot()
+    execution_contract = _paper_execution_contract(startup_manifest.get("paper_execution_mode"))
     health = _health_overall_stats()
     telemetry_rows = _telemetry_tail(limit=500)
     process_chain = _detect_paper_process_chain()
@@ -1835,15 +1952,31 @@ def read_paper_run_status() -> dict[str, Any]:
     elif allow_entries is False or runtime_gate_degraded is True or data_state != "ok":
         session_status = "degraded"
 
-    diagnosis = _paper_run_diagnosis(
-        session_status=session_status,
-        allow_entries=allow_entries,
-        runtime_gate_degraded=runtime_gate_degraded,
-        data_state=data_state,
-        reason_breakdown=reason_breakdown,
-        collector_alive=collector.get("alive"),
-        telemetry_age_sec=telemetry_age_sec,
+    startup_contract_issue = _paper_startup_contract_issue(startup_manifest)
+    if startup_contract_issue is not None and session_status == "running":
+        session_status = "degraded"
+
+    diagnosis = (
+        startup_contract_issue
+        if startup_contract_issue is not None
+        else _paper_run_diagnosis(
+            session_status=session_status,
+            allow_entries=allow_entries,
+            runtime_gate_degraded=runtime_gate_degraded,
+            data_state=data_state,
+            reason_breakdown=reason_breakdown,
+            collector_alive=collector.get("alive"),
+            telemetry_age_sec=telemetry_age_sec,
+        )
     )
+    execution_note = _paper_execution_note(execution_contract["paper_fill_model"], int(trade_state.get("trade_count", 0) or 0))
+    if execution_note:
+        diagnosis = {
+            **diagnosis,
+            "execution_context": execution_note,
+        }
+        detail = str(diagnosis.get("detail") or "").strip()
+        diagnosis["detail"] = f"{detail}; {execution_note}" if detail else execution_note
 
     symbol_states: list[dict[str, Any]] = []
     symbols = active_symbols or sorted(set(list(last_blocker_by_symbol.keys()) + list(last_signal_by_symbol.keys())))
@@ -1870,6 +2003,19 @@ def read_paper_run_status() -> dict[str, Any]:
             "telemetry_age_sec": telemetry_age_sec,
             "telemetry_present": telemetry_present,
         },
+        "startup_manifest": {
+            "env_profile": startup_manifest.get("env_profile"),
+            "paper_profile_active": startup_manifest.get("paper_profile_active"),
+            "paper_execution_mode": startup_manifest.get("paper_execution_mode"),
+            "paper_execution_label": execution_contract["paper_execution_label"],
+            "paper_fill_model": execution_contract["paper_fill_model"],
+            "binance_testnet": startup_manifest.get("binance_testnet"),
+            "paper_allow_live_private_api": startup_manifest.get("paper_allow_live_private_api"),
+            "private_api_key_present": startup_manifest.get("private_api_key_present"),
+            "private_api_secret_present": startup_manifest.get("private_api_secret_present"),
+            "dotenv_source": startup_manifest.get("dotenv_source"),
+            "_meta": startup_manifest.get("_meta", {}),
+        },
         "process_chain": process_chain,
         "entry_state": {
             "allow_entries": allow_entries,
@@ -1880,7 +2026,10 @@ def read_paper_run_status() -> dict[str, Any]:
             "risk_state": risk_state,
             "regime_state": regime_state,
         },
-        "trade_state": trade_state,
+        "trade_state": {
+            **trade_state,
+            "execution_note": execution_note or None,
+        },
         "diagnosis": diagnosis,
         "reason_breakdown": reason_breakdown,
         "symbols": symbol_states,

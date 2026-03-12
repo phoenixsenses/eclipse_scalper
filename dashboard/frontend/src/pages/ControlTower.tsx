@@ -560,6 +560,16 @@ export default function ControlTower() {
     URL.revokeObjectURL(url);
   }, [apiErrors, backend.backendMessage, backend.backendUp, backend.lastSuccessAt, diagData, opsPoll.data, runtimePoll.data, selectedIncident, sessionDetail?.session_id]);
 
+  const paperContractMode = String(opsPoll.data?.network?.paper_execution_mode ?? "");
+  const paperContractLabel =
+    paperContractMode === "router_blocked"
+      ? "No-fill rehearsal"
+      : paperContractMode
+        ? paperContractMode.replace(/_/g, " ")
+        : "-";
+  const paperContractSafe = opsPoll.data?.network?.startup_contract_safe;
+  const paperContractReason = String(opsPoll.data?.network?.startup_contract_reason ?? "");
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <PageGuide
@@ -760,6 +770,39 @@ export default function ControlTower() {
                   </div>
                 </div>
               )}
+            </AsyncState>
+          </div>
+
+          <div className="card">
+            <div className="card-title">Ops Health: Paper Contract Safety</div>
+            <AsyncState loading={opsPoll.isLoading} error={opsPoll.error}>
+              <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6, flexWrap: "wrap" }}>
+                <span className={`badge ${paperContractSafe === false ? "badge-red" : paperContractSafe === true ? "badge-green" : "badge-gray"}`}>
+                  {paperContractSafe === false ? "UNSAFE" : paperContractSafe === true ? "SAFE" : "UNKNOWN"}
+                </span>
+                <span className={`badge ${paperContractMode === "router_blocked" ? "badge-yellow" : "badge-gray"}`}>
+                  {paperContractLabel}
+                </span>
+                <span className={`badge ${(opsPoll.data?.network?.binance_testnet ?? false) ? "badge-green" : "badge-red"}`}>
+                  testnet={String(opsPoll.data?.network?.binance_testnet ?? "-")}
+                </span>
+                <span className={`badge ${(opsPoll.data?.network?.paper_allow_live_private_api ?? true) ? "badge-red" : "badge-green"}`}>
+                  live_private_api={String(opsPoll.data?.network?.paper_allow_live_private_api ?? "-")}
+                </span>
+              </div>
+              <div style={{ fontSize: 12, color: "var(--muted)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                <span>paper_trader_status: {String(opsPoll.data?.network?.paper_trader_status ?? "-")}</span>
+                <span>paper_profile_active: {String(opsPoll.data?.network?.paper_profile_active ?? "-")}</span>
+                <span>paper_execution_mode: {paperContractMode || "-"}</span>
+                <span>startup_contract_reason: {paperContractReason || "-"}</span>
+              </div>
+              <div style={{ marginTop: 8, fontSize: 12, color: "var(--muted)" }}>
+                {paperContractMode === "router_blocked"
+                  ? "router_blocked mode rehearses runtime and guard flow without creating fills"
+                  : paperContractMode
+                    ? `paper_execution_mode=${paperContractMode}`
+                    : "paper contract details not reported yet"}
+              </div>
             </AsyncState>
           </div>
         </div>
