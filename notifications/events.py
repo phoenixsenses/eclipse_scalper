@@ -19,6 +19,10 @@ class NotificationEvent:
     category: str
     title: str
     body: str
+    symbol: Optional[str] = None
+    side: Optional[str] = None
+    source: str = "eclipse_scalper"
+    raw_payload: Optional[dict[str, object]] = None
     throttle_key: Optional[str] = None
     throttle_window_sec: float = 0.0
     silent: bool = False

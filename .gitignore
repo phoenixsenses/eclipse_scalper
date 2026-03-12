@@ -14,6 +14,8 @@ logs/
 **/*.log
 runlog.txt
 *.csv
+eclipse_notify_fallback_*/
+eclipse_test_*/
 
 # Brain / state / data
 data/**/*.db
@@ -23,6 +25,26 @@ data/**/*.csv
 data/**/*.parquet
 data/canonical/
 data/backtest_cache/
+localtests/
+eclipse_scalper/localtests/
+tmp/
+tmp_tests/
+runtime/daily_research_pipeline_status.json
+
+# Generated reports / audits
+reports/*_REAL.json
+reports/*_REAL.md
+reports/DAILY_20*.json
+reports/DAILY_20*.md
+reports/DAILY_RESEARCH_PIPELINE.json
+reports/DAILY_RESEARCH_PIPELINE.md
+reports/PAPER_TRADE_SUMMARY.json
+reports/PAPER_TRADE_SUMMARY.md
+reports/test_cmp_*
+reports/test_daily_execution_calibration/
+reports/test_generate_liq_reversal_candidates/
+reports/test_liq_alerts/
+reports/test_liquidation_regime_tagger/
 
 # IDE
 .vscode/
