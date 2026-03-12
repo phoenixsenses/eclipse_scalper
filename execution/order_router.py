@@ -10,14 +10,24 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import random
 import time
 import hashlib
 import os
 import re
+from pathlib import Path
 from typing import Any, Dict, Optional, Tuple, List
 
 from utils.logging import log_entry
+from execution.runtime_helpers import cfg_value as _cfg, truthy as _truthy, safe_float as _safe_float
+from execution.order_classification import (
+    _error_text, _extract_binance_code, _binance_filter_reason,
+    _classify_order_error, _error_class_from_reason, _classify_order_error_policy,
+    _looks_like_binance_reduceonly_not_required, _looks_like_binance_client_id_duplicate,
+    _looks_like_binance_client_id_too_long, _looks_like_unknown_order,
+    _ERROR_CLASS_RETRYABLE, _ERROR_CLASS_RETRYABLE_MOD, _ERROR_CLASS_IDEMPOTENT, _ERROR_CLASS_FATAL,
+)
 
 # Optional telemetry (never fatal)
 try:
@@ -49,10 +59,22 @@ try:
 except Exception:
     _replace_manager = None
 
+# Phase 2.1: state_machine import is MANDATORY — order state transitions
+# must be validated. If this fails, order lifecycle is unprotected.
 try:
     from execution import state_machine as _state_machine  # type: ignore
-except Exception:
+except Exception as _sm_err:
     _state_machine = None
+    # Log critical warning at import time — bot should still start but
+    # order state validation is degraded. Guardian will surface this.
+    try:
+        from utils.logging import log_entry as _sm_log
+        _sm_log.critical(
+            f"ORDER ROUTER: state_machine import FAILED — order state transitions "
+            f"will NOT be validated. Error: {_sm_err}"
+        )
+    except Exception:
+        pass
 
 try:
     from execution import event_journal as _event_journal  # type: ignore
@@ -64,33 +86,24 @@ try:
 except Exception:
     _intent_ledger = None
 
-try:
-    from execution.runtime_helpers import symkey as _symkey  # type: ignore
-except Exception:
-    def _symkey(sym: str) -> str:
-        s = (sym or "").upper().strip()
-        s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-        s = s.replace(":USDT", "USDT").replace(":", "").replace("/", "")
-        if s.endswith("USDTUSDT"): s = s[:-4]
-        return s
+from execution.runtime_helpers import symkey as _symkey
+
+from execution.order_validation import (
+    _clamp, _normalize_callback_rate, _normalize_pct,
+    _normalize_type_for_ccxt, _is_number_like, _strip_none_params,
+    _normalize_bool_params, _merge_params, _to_float_if_possible,
+    _infer_position_side, _price_to_precision_safe,
+    _amount_to_precision_safe, _is_futures_symbol,
+    _sanitize_client_order_id, _BINANCE_CLIENT_ID_MAX,
+)
 
 
 # ----------------------------
 # Helpers
 # ----------------------------
 
-# Binance: clientOrderId MUST be < 36 chars (so max 35)
-_BINANCE_CLIENT_ID_MAX = 35
-
 # Prevent variant explosion
 _MAX_VARIANTS = 12
-
-
-def _cfg(bot, name: str, default: Any) -> Any:
-    try:
-        return getattr(getattr(bot, "cfg", None), name, default)
-    except Exception:
-        return default
 
 
 def _cfg_env(bot, name: str, default: Any) -> Any:
@@ -163,10 +176,7 @@ _DEFAULT_RETRY_POLICIES: dict[str, dict[str, Any]] = {
     "timestamp": {"extra_attempts": 1, "base_delay": 0.3, "max_delay": 2.5},
 }
 
-_ERROR_CLASS_RETRYABLE = "retryable"
-_ERROR_CLASS_RETRYABLE_MOD = "retryable_with_modification"
-_ERROR_CLASS_IDEMPOTENT = "idempotent_safe"
-_ERROR_CLASS_FATAL = "fatal"
+# Error class constants moved to execution/order_classification.py
 
 _EXCHANGE_RETRY_POLICIES: dict[str, dict[str, dict[str, Any]]] = {
     "binance": {
@@ -505,140 +515,19 @@ def _symbol_override_pct(bot, name: str, k: str, default: float) -> float:
     return _normalize_pct(_cfg_env(bot, name.replace("_BY_SYMBOL", ""), default), default)
 
 
-def _safe_float(x, default=0.0) -> float:
-    try:
-        v = float(x)
-        if v != v:  # NaN
-            return default
-        return v
-    except Exception:
-        return default
+# Error classification functions moved to execution/order_classification.py:
+# _error_text, _extract_binance_code, _binance_filter_reason,
+# _classify_order_error, _error_class_from_reason, _classify_order_error_policy
 
 
-def _error_text(err: Exception) -> str:
-    try:
-        return f"{repr(err)} {str(err)}".lower()
-    except Exception:
-        return str(err or "").lower()
-
-
-def _extract_binance_code(msg: str) -> Optional[int]:
-    try:
-        hits = re.findall(r"-\d{4,5}", msg)
-        if not hits:
-            return None
-        return int(hits[0])
-    except Exception:
-        return None
-
-
-def _binance_filter_reason(msg: str) -> Optional[str]:
-    if "filter failure" not in msg:
-        return None
-    if "price_filter" in msg:
-        return "price_filter"
-    if "min_notional" in msg or "notional" in msg:
-        return "min_notional"
-    if "lot_size" in msg:
-        return "lot_size"
-    if "market_lot_size" in msg:
-        return "market_lot_size"
-    return "filter_failure"
-
-
-def _classify_order_error(err: Exception, *, ex=None, sym_raw: Optional[str] = None) -> tuple[bool, str, str]:
-    if _error_policy is None:
-        msg = _error_text(err)
-        binance_code = _extract_binance_code(msg)
-        filter_reason = _binance_filter_reason(msg)
-        if filter_reason is not None:
-            return False, filter_reason, (map_reason(filter_reason) if callable(map_reason) else "ERR_UNKNOWN")
-        if binance_code == -2019 or any(x in msg for x in ("margin is insufficient", "insufficient margin", "insufficient balance")):
-            return False, "margin_insufficient", (map_reason("margin_insufficient") if callable(map_reason) else "ERR_UNKNOWN")
-        if binance_code == -1021 or "recvwindow" in msg or "timestamp for this request is outside" in msg:
-            return True, "timestamp", (map_reason("timestamp") if callable(map_reason) else "ERR_UNKNOWN")
-        if any(x in msg for x in ("timeout", "timed out", "temporarily unavailable", "connection", "econnreset", "network")):
-            return True, "network", (map_reason("network") if callable(map_reason) else "ERR_UNKNOWN")
-        if "symbol not found" in msg or "invalid symbol" in msg:
-            return False, "invalid_symbol", (map_reason("invalid_symbol") if callable(map_reason) else "ERR_UNKNOWN")
-        return True, "unknown", (map_reason(msg) if callable(map_reason) else "ERR_UNKNOWN")
-    return _error_policy.classify_order_error(err, ex=ex, sym_raw=sym_raw, map_reason=map_reason)
-
-
-def _error_class_from_reason(err: Exception, *, retryable: bool, reason: str) -> str:
-    if _error_policy is None:
-        rs = str(reason or "").strip().lower()
-        if _looks_like_binance_client_id_duplicate(err) or _looks_like_binance_client_id_too_long(err):
-            return _ERROR_CLASS_RETRYABLE_MOD
-        if _looks_like_binance_reduceonly_not_required(err) or rs == "reduceonly":
-            return _ERROR_CLASS_RETRYABLE_MOD
-        if rs == "unknown_order" or _looks_like_unknown_order(err):
-            return _ERROR_CLASS_IDEMPOTENT
-        if retryable:
-            return _ERROR_CLASS_RETRYABLE
-        return _ERROR_CLASS_FATAL
-    policy = _error_policy.classify_order_error_policy(err, ex=None, sym_raw=None, map_reason=map_reason)
-    return str(policy.get("error_class") or _ERROR_CLASS_FATAL)
-
-
-def _classify_order_error_policy(err: Exception, *, ex=None, sym_raw: Optional[str] = None) -> dict[str, Any]:
-    if _error_policy is None:
-        retryable, reason, code = _classify_order_error(err, ex=ex, sym_raw=sym_raw)
-        err_class = _error_class_from_reason(err, retryable=retryable, reason=reason)
-        return {
-            "retryable": bool(retryable),
-            "reason": str(reason),
-            "code": str(code),
-            "error_class": err_class,
-            "retry_with_modification": err_class == _ERROR_CLASS_RETRYABLE_MOD,
-            "idempotent_safe": err_class == _ERROR_CLASS_IDEMPOTENT,
-            "fatal": err_class == _ERROR_CLASS_FATAL,
-        }
-    return _error_policy.classify_order_error_policy(err, ex=ex, sym_raw=sym_raw, map_reason=map_reason)
-
-
-def _truthy(x) -> bool:
-    if x is True:
-        return True
-    if x is False or x is None:
-        return False
-    if isinstance(x, (int, float)):
-        return x != 0
-    if isinstance(x, str):
-        return x.strip().lower() in ("true", "1", "yes", "y", "t", "on")
-    return False
-
-
-def _clamp(x: float, lo: float, hi: float) -> float:
-    return max(lo, min(hi, x))
-
-
-def _normalize_callback_rate(val: Any) -> float:
-    """
-    Binance expects callbackRate in percent units within [0.1, 5.0].
-    If user passes 45 (likely "45%"), normalize to 0.45 before clamping.
-    """
-    v = _safe_float(val, 0.0)
-    if v > 5.0:
-        v = v / 100.0
-    return _clamp(v, 0.1, 5.0)
+# _clamp, _normalize_callback_rate → order_validation.py
 
 
 def _get_ex(bot):
     return getattr(bot, "ex", None)
 
 
-def _normalize_pct(val: Any, default: float) -> float:
-    """
-    Accept percent as 0.5 or 0.5% (0.5) or 0.005.
-    If value > 1, assume it's a percent (e.g., 0.5 => 0.5%, 2 => 2%).
-    """
-    v = _safe_float(val, default)
-    if v <= 0:
-        return 0.0
-    if v > 1.0:
-        return v / 100.0
-    return v
+# _normalize_pct → order_validation.py
 
 
 def _resolve_raw_symbol(bot, k: str, fallback: str) -> str:
@@ -652,130 +541,9 @@ def _resolve_raw_symbol(bot, k: str, fallback: str) -> str:
     return fallback
 
 
-def _to_float_if_possible(x: Any) -> Any:
-    try:
-        if x is None:
-            return None
-        if isinstance(x, (int, float)):
-            return float(x)
-        s = str(x).strip()
-        if not s:
-            return x
-        return float(s)
-    except Exception:
-        return x
-
-
-def _price_to_precision_safe(ex, sym_raw: str, price: float) -> float:
-    p = float(price)
-    try:
-        fn = getattr(ex, "price_to_precision", None)
-        if callable(fn):
-            out = fn(sym_raw, p)
-            out2 = _to_float_if_possible(out)
-            return float(out2) if isinstance(out2, (int, float)) else p
-    except Exception:
-        pass
-    try:
-        inner = getattr(ex, "exchange", None)
-        if inner is not None:
-            out = inner.price_to_precision(sym_raw, p)
-            out2 = _to_float_if_possible(out)
-            return float(out2) if isinstance(out2, (int, float)) else p
-    except Exception:
-        pass
-    return p
-
-
-def _amount_to_precision_safe(ex, sym_raw: str, amount: float) -> float:
-    a = float(amount)
-    try:
-        fn = getattr(ex, "amount_to_precision", None)
-        if callable(fn):
-            out = fn(sym_raw, a)
-            out2 = _to_float_if_possible(out)
-            return float(out2) if isinstance(out2, (int, float)) else a
-    except Exception:
-        pass
-    try:
-        inner = getattr(ex, "exchange", None)
-        if inner is not None:
-            out = inner.amount_to_precision(sym_raw, a)
-            out2 = _to_float_if_possible(out)
-            return float(out2) if isinstance(out2, (int, float)) else a
-    except Exception:
-        pass
-    return a
-
-
-def _merge_params(base: Optional[dict], extra: Optional[dict]) -> dict:
-    p: dict = {}
-    if isinstance(base, dict):
-        p.update(base)
-    if isinstance(extra, dict):
-        p.update(extra)
-    return p
-
-
-def _normalize_type_for_ccxt(type_u: str) -> str:
-    tu = (type_u or "").upper().strip()
-
-    if tu == "MARKET":
-        return "market"
-    if tu == "LIMIT":
-        return "limit"
-    if tu in ("STOP_MARKET", "STOP", "STOPMARKET"):
-        return "stop_market"
-    if tu in ("TAKE_PROFIT_MARKET", "TP_MARKET", "TAKEPROFITMARKET"):
-        return "take_profit_market"
-    if tu in ("TRAILING_STOP_MARKET", "TRAILING", "TRAILINGSTOPMARKET"):
-        return "trailing_stop_market"
-
-    return tu.lower() if tu.isupper() else tu
-
-
-def _is_number_like(x) -> bool:
-    try:
-        float(x)
-        return True
-    except Exception:
-        return False
-
-
-def _strip_none_params(p: dict) -> dict:
-    out = {}
-    for k, v in (p or {}).items():
-        if v is None:
-            continue
-        out[k] = v
-    return out
-
-
-def _normalize_bool_params(p: dict, keys: Tuple[str, ...]) -> None:
-    for k in keys:
-        if k in p:
-            p[k] = bool(_truthy(p.get(k)))
-
-
-def _infer_position_side(side_hint: Optional[str]) -> Optional[str]:
-    if not side_hint:
-        return None
-    s = str(side_hint).strip()
-    if not s:
-        return None
-    u = s.upper()
-    if u in ("LONG", "SHORT"):
-        return u
-    l = s.lower()
-    if l == "long":
-        return "LONG"
-    if l == "short":
-        return "SHORT"
-    if l == "buy":
-        return "LONG"
-    if l == "sell":
-        return "SHORT"
-    return None
+# _to_float_if_possible, _price_to_precision_safe, _amount_to_precision_safe → order_validation.py
+# _merge_params, _normalize_type_for_ccxt, _is_number_like → order_validation.py
+# _strip_none_params, _normalize_bool_params, _infer_position_side → order_validation.py
 
 
 def _make_client_order_id(
@@ -898,9 +666,7 @@ def _intent_ledger_record(
         pass
 
 
-def _is_futures_symbol(sym_raw: str) -> bool:
-    s = sym_raw or ""
-    return (":USDT" in s) or (":USD" in s) or ("PERP" in s.upper())
+# _is_futures_symbol → order_validation.py
 
 
 def _is_futures_symbol_ex(ex, sym_raw: str) -> bool:
@@ -933,44 +699,7 @@ def _is_exit_intent(
     return False
 
 
-def _looks_like_binance_reduceonly_not_required(err: Exception) -> bool:
-    if _error_policy is not None:
-        return bool(_error_policy.looks_like_binance_reduceonly_not_required(err))
-    s = repr(err).lower()
-    return ("reduceonly" in s) and ("not required" in s or "sent when not required" in s or "parameter 'reduceonly'" in s)
-
-
-def _looks_like_binance_client_id_duplicate(err: Exception) -> bool:
-    if _error_policy is not None:
-        return bool(_error_policy.looks_like_binance_client_id_duplicate(err))
-    s = repr(err).lower()
-    return ("-4116" in s) or ("clientorderid is duplicated" in s) or ("client order id is duplicated" in s)
-
-
-def _looks_like_binance_client_id_too_long(err: Exception) -> bool:
-    if _error_policy is not None:
-        return bool(_error_policy.looks_like_binance_client_id_too_long(err))
-    s = repr(err).lower()
-    return ("-4015" in s) or ("client order id length" in s) or ("less than 36" in s)
-
-
-def _looks_like_unknown_order(err: Exception) -> bool:
-    """
-    Binance/CCXT "already canceled / unknown order / order not found" patterns.
-    Treat as idempotent success for cancel.
-    """
-    if _error_policy is not None:
-        return bool(_error_policy.looks_like_unknown_order(err))
-    s = repr(err).lower()
-    return (
-        ("-2011" in s)
-        or ("unknown order" in s)
-        or ("order does not exist" in s)
-        or ("order not found" in s)
-        or ("order_not_found" in s)
-        or ("invalid order" in s and "id" in s)
-        or ("cancel" in s and "already" in s and "order" in s)
-    )
+# _looks_like_* pattern matchers moved to execution/order_classification.py
 
 
 def _router_auto_client_id_enabled(bot) -> bool:
@@ -978,36 +707,41 @@ def _router_auto_client_id_enabled(bot) -> bool:
     return bool(_truthy(v))
 
 
-def _sanitize_client_order_id(coid: Any, *, max_len: int = _BINANCE_CLIENT_ID_MAX) -> Optional[str]:
-    """
-    Binance requires clientOrderId length < 36 (use max 35).
-    Keep only [A-Za-z0-9_-]. If too long, shorten deterministically via hash.
-    """
-    if coid is None:
-        return None
-    s = str(coid).strip()
-    if not s:
-        return None
+_SUSPECTED_ORPHAN_PATH = Path("logs/suspected_orphans.jsonl")
 
-    safe_chars = []
-    for ch in s:
-        if ch.isalnum() or ch in ("_", "-"):
-            safe_chars.append(ch)
-        # else: drop it completely (no "_" spam)
 
-    s2 = "".join(safe_chars) or "SE"
+def _record_suspected_orphan(
+    *, k: str, raw_symbol: str, type_u: str, side: str,
+    amount: Any, price: Any, correlation_id: str,
+    client_order_id: str, error_reason: str, tries: int,
+) -> None:
+    """Write suspected orphan to JSONL for reconcile to check. Guardian-safe."""
+    try:
+        _SUSPECTED_ORPHAN_PATH.parent.mkdir(parents=True, exist_ok=True)
+        record = json.dumps({
+            "ts": time.time(),
+            "k": k,
+            "raw_symbol": raw_symbol,
+            "type": type_u,
+            "side": side,
+            "amount": str(amount),
+            "price": str(price) if price is not None else None,
+            "client_order_id": client_order_id,
+            "correlation_id": correlation_id,
+            "error_reason": error_reason,
+            "tries": tries,
+        }, ensure_ascii=False)
+        with open(_SUSPECTED_ORPHAN_PATH, "a", encoding="utf-8") as f:
+            f.write(record + "\n")
+        log_entry.critical(
+            f"SUSPECTED ORPHAN RECORDED — k={k} {type_u} {side} amount={amount} "
+            f"reason={error_reason} — order MAY exist on exchange without local tracking"
+        )
+    except Exception:
+        pass
 
-    if len(s2) <= max_len:
-        return s2
 
-    # Deterministic shorten:
-    # keep a bit of prefix for human readability + hash tail for uniqueness
-    h = hashlib.sha1(s2.encode("utf-8")).hexdigest()  # deterministic
-    # reserve 1 + 10 for "_" + 10 hash chars
-    keep = max(1, max_len - (1 + 10))
-    prefix = s2[:keep]
-    compact = f"{prefix}_{h[:10]}"
-    return compact[:max_len]
+# _sanitize_client_order_id → order_validation.py
 
 
 def _sanitize_client_id_fields(p: dict) -> dict:
@@ -2496,6 +2230,18 @@ async def create_order(
     log_entry.error(
         f"ORDER ROUTER FAILED → k={k} raw={sym_raw} {type_norm} {side_l} amount={amount} price={price} corr={corr_id} err={last_err}"
     )
+
+    # Phase 1.4: Record suspected orphan when failure is network/timeout.
+    # The order MAY have been placed on exchange but response was lost.
+    # Reconcile should check this file and prioritize adoption.
+    if last_err_reason in ("network", "timestamp", "unknown"):
+        _record_suspected_orphan(
+            k=k, raw_symbol=sym_raw, type_u=type_u, side=side_l,
+            amount=amount, price=price, correlation_id=corr_id,
+            client_order_id=str((p or {}).get("clientOrderId", "")),
+            error_reason=last_err_reason, tries=tries,
+        )
+
     _journal_intent_transition(
         "DONE",
         "terminal_error",

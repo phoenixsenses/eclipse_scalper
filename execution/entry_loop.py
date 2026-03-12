@@ -30,6 +30,42 @@ from execution.runtime_helpers import (
     symkey as _symkey,
     truthy as _truthy,
 )
+from execution.entry_signals import (
+    _load_signal_fn,
+    _parse_micro_pockets,
+    _micro_signal_to_entry_sig,
+    _parse_action,
+    _parse_order_type,
+    _parse_amount,
+    _parse_price,
+    _order_filled,
+)
+from execution.entry_sizing import (
+    _env_float,
+    _cfg_float,
+    _resolve_sizing,
+    _resolve_symbol_sizing,
+    _confidence_notional_scale,
+    _get_price,
+)
+from execution.entry_gates import (
+    _adaptive_guard_enabled,
+    _effective_min_conf,
+    _get_guard_knobs,
+    _guard_block_reason_code,
+    _resolve_symbol_guard,
+    _record_reconcile_first_gate,
+    _estimate_open_exposure_usdt,
+    _entry_budget_snapshot,
+    _entry_budget_symbol_cap,
+    _parse_regime_mode,
+    _should_block_regime,
+    _parse_groups,
+    _get_corr_groups,
+    _check_corr_group,
+    _corr_group_scale,
+    _corr_group_exposure_scale,
+)
 try:
     from core.regime import RegimeClassifier  # type: ignore
 except Exception:  # pragma: no cover - optional wiring
@@ -157,214 +193,12 @@ def _now() -> float:
     return time.time()
 
 
-def _adaptive_guard_enabled(bot) -> bool:
-    return _cfg_env_bool(bot, "ENTRY_ADAPTIVE_GUARD_ENABLED", True)
+
+# _adaptive_guard_enabled, _effective_min_conf, _parse_groups, _get_corr_groups → entry_gates.py
 
 
-def _effective_min_conf(base_min_conf: float, guard_min_conf: float, adaptive_enabled: bool) -> float:
-    if not bool(adaptive_enabled):
-        return float(max(0.0, float(base_min_conf)))
-    return float(max(float(base_min_conf), max(0.0, float(guard_min_conf))))
 
-
-def _parse_groups(raw: str) -> dict:
-    """
-    Parse "MEME:BTCUSDT,SHIBUSDT;MAJOR:BTCUSDT,ETHUSDT" into dict.
-    """
-    out: dict = {}
-    try:
-        s = str(raw or "").strip()
-        if not s:
-            return out
-        groups = [g.strip() for g in s.split(";") if g.strip()]
-        for g in groups:
-            if ":" not in g:
-                continue
-            name, syms = g.split(":", 1)
-            gn = str(name or "").strip().upper()
-            if not gn:
-                continue
-            members = []
-            for p in syms.replace(" ", "").split(","):
-                if not p:
-                    continue
-                members.append(_symkey(p))
-            if members:
-                out[gn] = members
-    except Exception:
-        return out
-    return out
-
-
-def _get_corr_groups(bot) -> dict:
-    try:
-        cfg = getattr(bot, "cfg", None)
-        g = getattr(cfg, "CORRELATION_GROUPS", None)
-        if isinstance(g, dict) and g:
-            return {str(k).upper(): [_symkey(x) for x in v] for k, v in g.items()}
-    except Exception:
-        pass
-    try:
-        g2 = getattr(bot, "CORRELATION_GROUPS", None)
-        if isinstance(g2, dict) and g2:
-            return {str(k).upper(): [_symkey(x) for x in v] for k, v in g2.items()}
-    except Exception:
-        pass
-    try:
-        raw = os.getenv("CORR_GROUPS", "").strip()
-        g3 = _parse_groups(raw)
-        if g3:
-            return g3
-    except Exception:
-        pass
-    return {}
-
-
-def _check_corr_group(bot, k: str, planned_notional: float) -> tuple[Optional[str], dict]:
-    """
-    Returns reason string if blocked, else None.
-    """
-    group_name = ""
-    group_syms = []
-    group_count = 0
-    group_notional = 0.0
-    try:
-        groups = _get_corr_groups(bot)
-        for gname, members in (groups or {}).items():
-            if k in members:
-                group_name = str(gname).upper()
-                group_syms = [_symkey(x) for x in members]
-                break
-        if not group_name:
-            return None, {}
-        pos_map = getattr(getattr(bot, "state", None), "positions", None)
-        if isinstance(pos_map, dict):
-            for pk, pos in pos_map.items():
-                if _symkey(pk) not in group_syms:
-                    continue
-                try:
-                    sz = float(getattr(pos, "size", 0.0) or 0.0)
-                    if abs(sz) <= 0:
-                        continue
-                    group_count += 1
-                    group_notional += abs(sz) * float(getattr(pos, "entry_price", 0.0) or 0.0)
-                except Exception:
-                    continue
-        group_max_pos = int(_cfg_env_float(bot, "CORR_GROUP_MAX_POSITIONS", 0) or 0)
-        group_max_notional = float(_cfg_env_float(bot, "CORR_GROUP_MAX_NOTIONAL_USDT", 0.0) or 0.0)
-        per_group_pos = _parse_group_kv(os.getenv("CORR_GROUP_LIMITS", ""))
-        per_group_not = _parse_group_kv(os.getenv("CORR_GROUP_NOTIONAL", ""))
-        if group_name in per_group_pos:
-            group_max_pos = int(per_group_pos.get(group_name) or group_max_pos)
-        if group_name in per_group_not:
-            group_max_notional = float(per_group_not.get(group_name) or group_max_notional)
-        meta = {
-            "group": group_name,
-            "group_count": group_count,
-            "group_max_positions": group_max_pos,
-            "group_notional": group_notional,
-            "group_max_notional": group_max_notional,
-        }
-        if group_max_pos > 0 and group_count >= group_max_pos:
-            return f"group {group_name} max positions {group_max_pos} reached", meta
-        if group_max_notional > 0 and planned_notional > 0:
-            if (group_notional + planned_notional) > group_max_notional:
-                meta.update(
-                    {
-                        "planned_notional": planned_notional,
-                        "group_projected_notional": group_notional + planned_notional,
-                    }
-                )
-                return (
-                    f"group {group_name} notional {(group_notional + planned_notional):.2f} > {group_max_notional:.2f}",
-                    meta,
-                )
-        if planned_notional > 0:
-            meta.update(
-                {
-                    "planned_notional": planned_notional,
-                    "group_projected_notional": group_notional + planned_notional,
-                }
-            )
-        return None, meta
-    except Exception:
-        return None, {}
-    return None, {}
-
-
-def _corr_group_scale(bot, meta: dict) -> tuple[float, str]:
-    """
-    Returns (scale, reason). Scale=1.0 means no scaling.
-    """
-    try:
-        if not meta or not meta.get("group"):
-            return 1.0, ""
-        enabled = _cfg_env_bool(bot, "CORR_GROUP_SCALE_ENABLED", True)
-        if not enabled:
-            return 1.0, ""
-        group = str(meta.get("group") or "").upper()
-        count = int(meta.get("group_count") or 0)
-        if count <= 0:
-            return 1.0, ""
-        scale_base = float(_cfg_env_float(bot, "CORR_GROUP_SCALE", 0.7) or 0.7)
-        scale_min = float(_cfg_env_float(bot, "CORR_GROUP_SCALE_MIN", 0.25) or 0.25)
-        per_group = _parse_group_kv(os.getenv("CORR_GROUP_SCALE_BY_GROUP", ""))
-        if group in per_group:
-            try:
-                scale_base = float(per_group.get(group) or scale_base)
-            except Exception:
-                pass
-        if scale_base <= 0 or scale_base >= 1.0:
-            return 1.0, ""
-        scale = max(scale_min, float(scale_base) ** float(count))
-        return float(scale), f"corr_group_scale {group} count={count}"
-    except Exception:
-        return 1.0, ""
-
-
-def _corr_group_exposure_scale(bot, meta: dict, planned_notional: float) -> tuple[float, str]:
-    """
-    Scale notional as group exposure grows.
-    Scale <= 1.0. If disabled or missing data, returns 1.0.
-    """
-    try:
-        if not meta or not meta.get("group"):
-            return 1.0, ""
-        enabled = _cfg_env_bool(bot, "CORR_GROUP_EXPOSURE_SCALE_ENABLED", False)
-        if not enabled:
-            return 1.0, ""
-        group = str(meta.get("group") or "").upper()
-        group_notional = float(meta.get("group_notional") or 0.0)
-        if planned_notional <= 0 and group_notional <= 0:
-            return 1.0, ""
-
-        base_scale = float(_cfg_env_float(bot, "CORR_GROUP_EXPOSURE_SCALE", 0.7) or 0.7)
-        min_scale = float(_cfg_env_float(bot, "CORR_GROUP_EXPOSURE_SCALE_MIN", 0.25) or 0.25)
-        ref_notional = float(_cfg_env_float(bot, "CORR_GROUP_EXPOSURE_REF_NOTIONAL", 0.0) or 0.0)
-        per_group_scale = _parse_group_kv(os.getenv("CORR_GROUP_EXPOSURE_SCALE_BY_GROUP", ""))
-        per_group_min = _parse_group_kv(os.getenv("CORR_GROUP_EXPOSURE_SCALE_MIN_BY_GROUP", ""))
-        per_group_ref = _parse_group_kv(os.getenv("CORR_GROUP_EXPOSURE_REF_NOTIONAL_BY_GROUP", ""))
-        if group in per_group_scale:
-            base_scale = float(per_group_scale.get(group) or base_scale)
-        if group in per_group_min:
-            min_scale = float(per_group_min.get(group) or min_scale)
-        if group in per_group_ref:
-            ref_notional = float(per_group_ref.get(group) or ref_notional)
-
-        total = group_notional + max(0.0, planned_notional)
-        if ref_notional <= 0:
-            ref_notional = float(_cfg_env_float(bot, "CORR_GROUP_MAX_NOTIONAL_USDT", 0.0) or 0.0)
-        if ref_notional <= 0:
-            return 1.0, ""
-
-        if base_scale <= 0 or base_scale >= 1.0:
-            return 1.0, ""
-
-        factor = total / max(1e-9, ref_notional)
-        scale = max(min_scale, base_scale ** max(1.0, factor))
-        return float(scale), f"corr_group_exposure {group} notional={total:.2f}"
-    except Exception:
-        return 1.0, ""
+# _check_corr_group, _corr_group_scale, _corr_group_exposure_scale → entry_gates.py
 
 
 _SIGNAL_FEEDBACK_STATE: Dict[str, float] = {"offset": 0.0, "last_ts": 0.0}
@@ -523,16 +357,8 @@ def _resolve_raw_symbol(bot, k: str, fallback: str) -> str:
     return fallback
 
 
-def _order_filled(order: dict) -> float:
-    try:
-        if order is None:
-            return 0.0
-        if "filled" in order:
-            return float(order.get("filled") or 0.0)
-        info = order.get("info") or {}
-        return float(info.get("executedQty") or 0.0)
-    except Exception:
-        return 0.0
+
+# _order_filled → entry_signals.py
 
 
 def _recent_router_blocks(bot, k: str, window_sec: float, *, now_ts: Optional[float] = None) -> int:
@@ -568,246 +394,14 @@ def _recent_router_blocks(bot, k: str, window_sec: float, *, now_ts: Optional[fl
 # ENV + CFG sizing resolver
 # ----------------------------
 
-def _env_float(*names: str, default: float = 0.0) -> float:
-    for n in names:
-        try:
-            v = os.getenv(n, "")
-            s = str(v).strip()
-            if s != "":
-                return float(s)
-        except Exception:
-            pass
-    return float(default)
+
+# _env_float, _cfg_float, _resolve_sizing, _resolve_symbol_sizing → entry_sizing.py
 
 
-def _cfg_float(cfg_obj, *names: str, default: float = 0.0) -> float:
-    for n in names:
-        try:
-            if cfg_obj is None:
-                continue
-            v = getattr(cfg_obj, n, None)
-            if v is None:
-                continue
-            s = float(v)
-            if s != 0.0:
-                return s
-        except Exception:
-            pass
-    return float(default)
 
-
-def _resolve_sizing(bot) -> tuple[float, float]:
-    """
-    Returns (fixed_qty, fixed_notional_usdt)
-    Priority:
-      1) ENV (supports aliases)
-      2) cfg (supports aliases)
-    """
-    cfg_obj = getattr(bot, "cfg", None)
-
-    fixed_qty = _env_float("FIXED_QTY", "ORDER_QTY", "QTY", default=0.0)
-    fixed_notional = _env_float(
-        "FIXED_NOTIONAL_USDT",
-        "ORDER_NOTIONAL_USDT",
-        "FIXED_NOTIONAL",
-        "NOTIONAL_USDT",
-        "FIXED_USDT",
-        "BASE_NOTIONAL_USDT",
-        default=0.0,
-    )
-
-    if fixed_qty <= 0:
-        fixed_qty = _cfg_float(cfg_obj, "FIXED_QTY", "ORDER_QTY", "QTY", default=0.0)
-
-    if fixed_notional <= 0:
-        fixed_notional = _cfg_float(
-            cfg_obj,
-            "FIXED_NOTIONAL_USDT",
-            "ORDER_NOTIONAL_USDT",
-            "FIXED_NOTIONAL",
-            "NOTIONAL_USDT",
-            "FIXED_USDT",
-            "BASE_NOTIONAL_USDT",
-            default=0.0,
-        )
-
-    return float(fixed_qty), float(fixed_notional)
-
-
-def _resolve_symbol_sizing(bot, symbol: str) -> tuple[float, float]:
-    """
-    Per-symbol overrides:
-      FIXED_QTY_<SYM>, FIXED_NOTIONAL_USDT_<SYM>
-    Falls back to global sizing if not set.
-    """
-    base_qty, base_notional = _resolve_sizing(bot)
-    sym = _symkey(symbol)
-    if not sym:
-        return base_qty, base_notional
-    base = sym[:-4] if sym.endswith("USDT") and len(sym) > 4 else sym
-
-    fixed_qty = _env_float(f"FIXED_QTY_{base}", f"FIXED_QTY_{sym}", default=0.0)
-    fixed_notional = _env_float(
-        f"FIXED_NOTIONAL_USDT_{base}",
-        f"FIXED_NOTIONAL_USDT_{sym}",
-        f"FIXED_NOTIONAL_{base}",
-        f"FIXED_NOTIONAL_{sym}",
-        default=0.0,
-    )
-
-    if fixed_qty <= 0:
-        fixed_qty = base_qty
-    if fixed_notional <= 0:
-        fixed_notional = base_notional
-    return float(fixed_qty), float(fixed_notional)
-
-
-def _get_guard_knobs(bot) -> dict[str, Any]:
-    st = getattr(bot, "state", None)
-    if st is None:
-        return {}
-    raw = getattr(st, "guard_knobs", None)
-    if isinstance(raw, dict):
-        return raw
-    if hasattr(raw, "to_dict") and callable(getattr(raw, "to_dict", None)):
-        try:
-            data = raw.to_dict()
-            if isinstance(data, dict):
-                return data
-        except Exception:
-            return {}
-    return {}
-
-
-def _guard_block_reason_code(guard_knobs: dict[str, Any]) -> tuple[str, str]:
-    reason = str(guard_knobs.get("reason") or "")
-    runtime_gate_degraded = bool(guard_knobs.get("runtime_gate_degraded", False))
-    reconcile_first_gate_degraded = bool(guard_knobs.get("reconcile_first_gate_degraded", False))
-    if (not runtime_gate_degraded) and ("runtime_gate_degraded" in reason.lower()):
-        runtime_gate_degraded = True
-    if runtime_gate_degraded:
-        return "runtime_gate_reconcile_first", ERR_RELIABILITY_GATE
-    if reconcile_first_gate_degraded:
-        return "reconcile_first_pressure", ERR_RELIABILITY_GATE
-    return "belief_controller_block", ERR_ROUTER_BLOCK
-
-
-def _resolve_symbol_guard(guard_knobs: dict[str, Any], symbol: str) -> dict[str, Any]:
-    base = dict(guard_knobs or {})
-    per_symbol = base.get("per_symbol")
-    if not isinstance(per_symbol, dict):
-        return base
-    sym = _symkey(symbol)
-    if not sym:
-        return base
-    override = per_symbol.get(sym)
-    if not isinstance(override, dict):
-        return base
-    merged = dict(base)
-    for k, v in override.items():
-        merged[k] = v
-    return merged
-
-
-def _record_reconcile_first_gate(bot, symbol: str, severity: float, reason: str = "") -> None:
-    """
-    Track reconcile-first pressure in state.kill_metrics so reconcile/belief_controller
-    can consume recent spike pressure as runtime policy input.
-    """
-    try:
-        st = getattr(bot, "state", None)
-        if st is None:
-            return
-        km = getattr(st, "kill_metrics", None)
-        if not isinstance(km, dict):
-            km = {}
-            st.kill_metrics = km
-        now_ts = _now()
-        sev = max(0.0, min(1.0, float(severity or 0.0)))
-        threshold = float(_cfg_env_float(bot, "ENTRY_RECONCILE_FIRST_SEVERITY_THRESHOLD", 0.85) or 0.85)
-        events = km.get("reconcile_first_gate_events")
-        if not isinstance(events, list):
-            events = []
-            km["reconcile_first_gate_events"] = events
-        events.append(
-            {
-                "ts": float(now_ts),
-                "severity": float(sev),
-                "symbol": _symkey(symbol),
-                "reason": str(reason or ""),
-            }
-        )
-        max_events = int(_cfg_env_float(bot, "ENTRY_RECONCILE_FIRST_EVENTS_MAX", 160.0) or 160)
-        if max_events < 20:
-            max_events = 20
-        if len(events) > max_events:
-            del events[:-max_events]
-        current_streak = int(km.get("reconcile_first_gate_current_streak", 0) or 0)
-        if sev >= threshold:
-            current_streak += 1
-        else:
-            current_streak = 0
-        km["reconcile_first_gate_current_streak"] = int(current_streak)
-        km["reconcile_first_gate_max_streak"] = max(
-            int(km.get("reconcile_first_gate_max_streak", 0) or 0),
-            int(current_streak),
-        )
-        km["reconcile_first_gate_count"] = int(km.get("reconcile_first_gate_count", 0) or 0) + 1
-        km["reconcile_first_gate_last_ts"] = float(now_ts)
-        km["reconcile_first_gate_last_severity"] = float(sev)
-        km["reconcile_first_gate_last_reason"] = str(reason or "")
-    except Exception:
-        return
-
-
-def _estimate_open_exposure_usdt(bot) -> float:
-    total = 0.0
-    try:
-        pos_map = getattr(getattr(bot, "state", None), "positions", None)
-        if not isinstance(pos_map, dict):
-            return 0.0
-        for _k, pos in pos_map.items():
-            try:
-                sz = abs(float(getattr(pos, "size", 0.0) or 0.0))
-                px = float(getattr(pos, "entry_price", 0.0) or 0.0)
-                if sz > 0 and px > 0:
-                    total += (sz * px)
-            except Exception:
-                continue
-    except Exception:
-        return 0.0
-    return float(max(0.0, total))
-
-
-def _entry_budget_snapshot(bot, guard_knobs: dict[str, Any]) -> tuple[bool, float, float, str]:
-    enabled = _cfg_env_bool(bot, "ENTRY_BUDGET_ENABLED", True)
-    if not enabled:
-        return False, 0.0, 0.0, ""
-    total = float(_cfg_env_float(bot, "ENTRY_GLOBAL_BUDGET_USDT", 0.0) or 0.0)
-    if total <= 0:
-        total = float(_cfg(bot, "ENTRY_GLOBAL_BUDGET_USDT", 0.0) or 0.0)
-    if total <= 0:
-        total = float(guard_knobs.get("global_entry_budget_usdt", 0.0) or 0.0)
-    if total <= 0:
-        return False, 0.0, 0.0, ""
-    include_open = _cfg_env_bool(bot, "ENTRY_BUDGET_INCLUDE_OPEN_EXPOSURE", True)
-    open_exposure = _estimate_open_exposure_usdt(bot) if include_open else 0.0
-    remaining = max(0.0, total - open_exposure)
-    return True, float(total), float(remaining), f"entry_budget total={total:.2f} open={open_exposure:.2f}"
-
-
-def _entry_budget_symbol_cap(bot, confidence: float, min_conf: float, remaining: float) -> float:
-    rem = max(0.0, float(remaining or 0.0))
-    if rem <= 0:
-        return 0.0
-    conf = max(0.0, min(1.0, float(confidence or 0.0)))
-    mn = max(0.0, min(1.0, float(min_conf or 0.0)))
-    span = max(1e-6, 1.0 - mn)
-    score = max(0.0, min(1.0, (conf - mn) / span))
-    min_share = max(0.01, min(1.0, float(_cfg_env_float(bot, "ENTRY_BUDGET_MIN_SHARE", 0.10) or 0.10)))
-    max_share = max(min_share, min(1.0, float(_cfg_env_float(bot, "ENTRY_BUDGET_MAX_SHARE", 0.60) or 0.60)))
-    share = min_share + ((max_share - min_share) * score)
-    return float(max(0.0, rem * share))
+# _get_guard_knobs, _guard_block_reason_code, _resolve_symbol_guard,
+# _record_reconcile_first_gate, _estimate_open_exposure_usdt,
+# _entry_budget_snapshot, _entry_budget_symbol_cap → entry_gates.py
 
 
 # ----------------------------
@@ -817,42 +411,8 @@ def _entry_budget_symbol_cap(bot, confidence: float, min_conf: float, remaining:
 _LAST_LOG_TS: Dict[str, float] = {}
 
 
-def _parse_regime_mode(raw: Any) -> str:
-    v = str(raw or "").strip().lower()
-    if v in ("up", "down", "none"):
-        return v
-    return "none"
 
-
-def _should_block_regime(
-    *,
-    mode: str,
-    current_regime: str,
-    block_transition: bool,
-    block_unknown: bool,
-    allow_unknown: bool = False,
-    warmup_active: bool = False,
-) -> tuple[bool, str]:
-    m = _parse_regime_mode(mode)
-    cur = str(current_regime or "").strip().upper()
-    unknown_allowed = bool(allow_unknown) or bool(warmup_active)
-    if m == "none":
-        if block_transition and cur == "TRANSITION":
-            return True, "regime_transition"
-        if block_unknown and cur == "UNKNOWN" and not unknown_allowed:
-            return True, "regime_unknown"
-        return False, ""
-    if block_transition and cur == "TRANSITION":
-        return True, "regime_transition"
-    if block_unknown and cur == "UNKNOWN" and not unknown_allowed:
-        return True, "regime_unknown"
-    if cur == "UNKNOWN" and unknown_allowed:
-        return False, ""
-    if m == "up" and cur != "UP":
-        return True, "regime_mismatch"
-    if m == "down" and cur != "DOWN":
-        return True, "regime_mismatch"
-    return False, ""
+# _parse_regime_mode, _should_block_regime → entry_gates.py
 
 
 class _RegimeRuntime:
@@ -980,43 +540,8 @@ def _throttled_log(key: str, every_sec: float, fn: Callable[[str], None], msg: s
 # Strategy signal adapter
 # ----------------------------
 
-def _load_signal_fn() -> Optional[Callable]:
-    """
-    Locate a signal function without hard dependency.
-    Preferred: strategies.eclipse_scalper.scalper_signal
-    """
-    try:
-        from strategies.eclipse_scalper import scalper_signal as fn  # type: ignore
-        if callable(fn):
-            return fn
-    except Exception:
-        pass
-    return None
 
-
-def _parse_micro_pockets(raw: str) -> list:
-    out = []
-    if not callable(PocketFilter):
-        return out
-    for chunk in str(raw or "").split(";"):
-        part = str(chunk or "").strip()
-        if not part:
-            continue
-        vals = [x.strip() for x in part.split(",")]
-        if len(vals) < 3:
-            continue
-        try:
-            out.append(
-                PocketFilter(
-                    min_imbalance=float(vals[0]),
-                    min_intensity=float(vals[1]),
-                    max_spread=float(vals[2]),
-                    priority=len(out),
-                )
-            )
-        except Exception:
-            continue
-    return out
+# _load_signal_fn, _parse_micro_pockets → entry_signals.py
 
 
 def _build_micro_signal_provider(bot):
@@ -1059,41 +584,8 @@ def _build_micro_signal_provider(bot):
     return engine, provider
 
 
-def _micro_signal_to_entry_sig(msig) -> Optional[Dict[str, Any]]:
-    if msig is None:
-        return None
-    try:
-        if hasattr(msig, "present") and hasattr(msig, "reason"):
-            if not bool(getattr(msig, "present", False)):
-                return None
-            meta = dict(getattr(msig, "meta", {}) or {})
-            inner = meta.get("signal")
-            if inner is not None:
-                msig = inner
-        side = str(getattr(msig, "side", "")).strip().lower()
-        if side not in ("buy", "sell"):
-            return None
-        feat = getattr(msig, "features", None)
-        mark_px = float(getattr(feat, "mark_price", 0.0) or 0.0)
-        otype = str(getattr(msig, "order_type", "limit") or "limit").strip().lower()
-        sig: Dict[str, Any] = {
-            "action": side,
-            "confidence": float(getattr(msig, "confidence", 0.0) or 0.0),
-            "type": ("limit" if otype == "limit" else "market"),
-            "price": (mark_px if otype == "limit" and mark_px > 0 else None),
-            "symbol": str(getattr(msig, "symbol", "") or ""),
-            "pocket_name": str(getattr(msig, "pocket_name", "") or ""),
-            "min_imbalance": float(getattr(feat, "imbalance", 0.0) or 0.0),
-            "min_trade_intensity": float(getattr(feat, "trade_intensity", 0.0) or 0.0),
-            "max_spread": float(getattr(feat, "spread", 0.0) or 0.0),
-            "source": "micro_signal",
-            "regime": str(getattr(msig, "regime", "UNKNOWN") or "UNKNOWN"),
-            "regime_age_sec": float(getattr(msig, "regime_age_sec", 0.0) or 0.0),
-            "fill_timeout_sec": float(getattr(msig, "fill_timeout_sec", 10.0) or 10.0),
-        }
-        return sig
-    except Exception:
-        return None
+
+# _micro_signal_to_entry_sig → entry_signals.py
 
 
 def _tuple_to_sig_dict(
@@ -1189,91 +681,12 @@ async def _maybe_call_signal(fn: Callable, bot, symbol: str, diag: bool = False)
     return None
 
 
-def _parse_action(sig: Dict[str, Any]) -> Optional[str]:
-    a = str(sig.get("action") or sig.get("side") or "").strip().lower()
-    if a in ("long", "buy"):
-        return "buy"
-    if a in ("short", "sell"):
-        return "sell"
-    return None
+
+# _parse_action, _parse_order_type, _parse_amount, _parse_price → entry_signals.py
 
 
-def _parse_order_type(sig: Dict[str, Any]) -> str:
-    t = str(sig.get("type") or sig.get("order_type") or "market").strip().lower()
-    return "limit" if t in ("limit",) else "market"
 
-
-def _parse_amount(sig: Dict[str, Any]) -> Optional[float]:
-    for key in ("amount", "qty", "size"):
-        if key in sig:
-            try:
-                v = float(sig.get(key))
-                return v if v > 0 else None
-            except Exception:
-                return None
-    return None
-
-
-def _parse_price(sig: Dict[str, Any]) -> Optional[float]:
-    for key in ("price", "limit_price"):
-        if key in sig:
-            try:
-                v = float(sig.get(key))
-                return v if v > 0 else None
-            except Exception:
-                return None
-    return None
-
-
-def _confidence_notional_scale(bot, confidence: float) -> tuple[float, str]:
-    try:
-        enabled = _cfg_env_bool(bot, "ENTRY_CONF_SCALE_ENABLED", False)
-        if not enabled:
-            return 1.0, ""
-        min_conf = float(_cfg_env_float(bot, "ENTRY_CONF_SCALE_MIN_CONF", 0.0) or 0.0)
-        max_conf = float(_cfg_env_float(bot, "ENTRY_CONF_SCALE_MAX_CONF", 1.0) or 1.0)
-        min_scale = float(_cfg_env_float(bot, "ENTRY_CONF_SCALE_MIN", 0.5) or 0.5)
-        max_scale = float(_cfg_env_float(bot, "ENTRY_CONF_SCALE_MAX", 1.0) or 1.0)
-        conf = float(confidence or 0.0)
-        if max_conf <= min_conf:
-            return max_scale, ""
-        if conf <= min_conf:
-            return max(0.0, min_scale), f"confidence<{min_conf:.2f}"
-        if conf >= max_conf:
-            return max_scale, ""
-        ratio = (conf - min_conf) / (max_conf - min_conf)
-        scale = min_scale + ratio * (max_scale - min_scale)
-        return float(scale), f"confidence={conf:.2f}"
-    except Exception:
-        return 1.0, ""
-
-
-def _get_price(bot, symbol: str) -> float:
-    """
-    Best-effort last price getter for qty-from-notional conversion.
-    """
-    k = _symkey(symbol)
-    px = 0.0
-    try:
-        data = getattr(bot, "data", None)
-        gp = getattr(data, "get_price", None) if data is not None else None
-        if callable(gp):
-            try:
-                px = float(gp(k, in_position=False) or 0.0)
-            except TypeError:
-                px = float(gp(k) or 0.0)
-    except Exception:
-        px = 0.0
-
-    if px <= 0:
-        try:
-            price_map = getattr(getattr(bot, "data", None), "price", {}) or {}
-            if isinstance(price_map, dict):
-                px = float(price_map.get(k, 0.0) or 0.0)
-        except Exception:
-            px = 0.0
-
-    return float(px) if px > 0 else 0.0
+# _confidence_notional_scale, _get_price → entry_sizing.py
 
 
 def _sizing_fallback_amount(bot, symbol: str) -> Optional[float]:
@@ -1637,6 +1050,25 @@ def _pending_active(k: str) -> bool:
         return False
 
 
+_PENDING_MAX_AGE_SEC = 300.0  # 5 minutes max lock age
+_PENDING_LAST_EVICTION_TS: float = 0.0
+
+
+def _evict_stale_pending() -> None:
+    """Phase 2.2: Auto-clear stale pending entries older than 5 minutes.
+    Prevents permanent lockout if a pending entry is never cleared."""
+    global _PENDING_LAST_EVICTION_TS
+    now = _now()
+    if (now - _PENDING_LAST_EVICTION_TS) < 60.0:  # evict at most once per minute
+        return
+    _PENDING_LAST_EVICTION_TS = now
+    stale = [k for k, until in _PENDING_UNTIL.items()
+             if (now - until) > _PENDING_MAX_AGE_SEC]
+    for k in stale:
+        _PENDING_UNTIL.pop(k, None)
+        _PENDING_ORDER_ID.pop(k, None)
+
+
 async def _has_open_entry_order(bot, k: str, sym_raw: str, *, max_open: int = 1) -> bool:
     """
     Best-effort: detect open orders from exchange to avoid stacking while reconcile lags.
@@ -1887,6 +1319,7 @@ async def entry_loop(bot) -> None:
 
     while not shutdown_ev.is_set():
         try:
+            _evict_stale_pending()  # Phase 2.2: clean up stale pending locks
             now = _now()
             if health_gate_enabled and gate_state is not None and callable(evaluate_health_gate):
                 health_obj = load_overall_health(health_path) if callable(load_overall_health) else None
@@ -2293,6 +1726,17 @@ async def entry_loop(bot) -> None:
                 # hard pending gate (prevents stacking during adopt/reconcile lag)
                 if _pending_active(k):
                     continue
+
+                # Phase 1.3: Reconcile staleness gate — block entries if reconcile
+                # hasn't succeeded recently. Prevents duplicate entries during desync.
+                # Disable with RECONCILE_STALENESS_GATE=0 env var.
+                if _truthy(os.environ.get("RECONCILE_STALENESS_GATE", "1")):
+                    _recon_max_age = float(_cfg_env_float(bot, "RECONCILE_STALENESS_MAX_SEC", 120.0) or 120.0)
+                    _rc = getattr(getattr(bot, "state", None), "run_context", None)
+                    _last_recon = float((_rc or {}).get("last_reconcile_success_ts", 0.0) or 0.0)
+                    if _last_recon > 0 and (_now() - _last_recon) > _recon_max_age:
+                        await _emit_entry_blocked(bot, k, "reconcile_stale", throttle_sec=30.0)
+                        continue
 
                 # skip if already in position (brain-state)
                 if _in_position_brain(bot, k):
@@ -3077,6 +2521,22 @@ async def entry_loop(bot) -> None:
 
                         # âœ… key anti-stack: once we submitted ANY entry, block more entries for a while
                         _set_pending(k, sec=max(5.0, pending_block_sec), order_id=str(oid) if oid else None)
+
+                        # Phase 3.4: Record handoff verification hint for reconcile.
+                        # If position doesn't appear within 30s, reconcile should prioritize this symbol.
+                        try:
+                            _rc = getattr(getattr(bot, "state", None), "run_context", None)
+                            if isinstance(_rc, dict):
+                                _pending_verifications = _rc.setdefault("entry_handoff_verify", {})
+                                _pending_verifications[k] = {
+                                    "submit_ts": _now(),
+                                    "order_id": str(oid or ""),
+                                    "side": action,
+                                    "deadline_ts": _now() + 30.0,
+                                }
+                        except Exception:
+                            pass
+
                         if (
                             isinstance(sig, dict)
                             and str(sig.get("source") or "") == "micro_signal"

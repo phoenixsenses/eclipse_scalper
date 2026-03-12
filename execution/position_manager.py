@@ -15,15 +15,7 @@ from typing import Optional, List, Tuple, Dict, Any
 from utils.logging import log_entry, log_core
 from execution.order_router import create_order, cancel_order
 
-try:
-    from execution.runtime_helpers import symkey as _symkey  # type: ignore
-except Exception:
-    def _symkey(sym: str) -> str:
-        s = (sym or "").upper().strip()
-        s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-        s = s.replace(":USDT", "USDT").replace(":", "").replace("/", "")
-        if s.endswith("USDTUSDT"): s = s[:-4]
-        return s
+from execution.runtime_helpers import symkey as _symkey
 
 
 _POSMGR_LOCKS: dict[str, asyncio.Lock] = {}

@@ -14,6 +14,7 @@ from typing import Tuple, Optional, Any
 
 from utils.logging import log_core
 from execution.shutdown_control import request_shutdown
+from execution.runtime_helpers import safe_float as _safe_float, truthy as _truthy, cfg_value as _cfg
 
 # Optional telemetry (never fatal)
 try:
@@ -38,24 +39,6 @@ def _seconds_until_utc_midnight() -> float:
         return 0.0
 
 
-def _safe_float(x, default: float = 0.0) -> float:
-    try:
-        v = float(x)
-        if v != v:  # NaN
-            return default
-        return v
-    except Exception:
-        return default
-
-
-def _truthy(x) -> bool:
-    if x is True:
-        return True
-    if isinstance(x, (int, float)) and x != 0:
-        return True
-    if isinstance(x, str) and x.strip().lower() in ("1", "true", "yes", "y", "on"):
-        return True
-    return False
 
 
 def _is_finite(x: Any) -> bool:
@@ -182,11 +165,6 @@ def _ensure_state_fields(state) -> None:
 
     # Load persisted halt state on first access
     _load_halt_state(state)
-
-
-def _cfg(bot, name: str, default):
-    cfg = getattr(bot, "cfg", None)
-    return getattr(cfg, name, default) if cfg is not None else default
 
 
 async def _safe_speak(bot, text: str, priority: str = "critical"):
