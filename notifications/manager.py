@@ -12,6 +12,7 @@ from typing import Any, Deque, Dict, Optional, Tuple
 from notifications.daily_summary import compose_daily_summary
 from notifications.events import NotificationEvent, NotificationSeverity
 from notifications.health_alerts import build_heartbeat_event
+from notifications.pentest_publisher import PentestPublisher
 from notifications.telegram import Notifier
 
 _FALLBACK_LOG = Path(os.environ.get("NOTIFY_FALLBACK_LOG", "logs/notifications_fallback.jsonl"))
@@ -80,10 +81,23 @@ def load_config_from_env() -> NotificationConfig:
     )
 
 
+def _env_bool(name: str, default: bool = False) -> bool:
+    v = os.getenv(name)
+    if v is None:
+        return bool(default)
+    return str(v).strip().lower() in ("1", "true", "yes", "on")
+
+
 class NotificationManager:
-    def __init__(self, notifier: Notifier, config: NotificationConfig):
+    def __init__(
+        self,
+        notifier: Notifier | None,
+        config: NotificationConfig,
+        pentest_publisher: PentestPublisher | None = None,
+    ):
         self.notifier = notifier
         self.config = config
+        self._pentest_publisher = pentest_publisher if pentest_publisher is not None else PentestPublisher()
         self._last_by_key: Dict[str, float] = {}
         self._sent_ts: Deque[float] = deque()
         self._pending: Deque[NotificationEvent] = deque(maxlen=200)
@@ -102,9 +116,6 @@ class NotificationManager:
 
     async def send(self, event: NotificationEvent) -> bool:
         if not self.config.enabled:
-            return False
-        if self.notifier is None:
-            _fallback_log_event(event, "no_notifier")
             return False
         cat = str(event.category or "")
         if cat.startswith("trade_") and not self.config.trade_alerts:
@@ -156,6 +167,10 @@ class NotificationManager:
                     category=event.category,
                     title=f"[ESCALATED x{count}] {event.title}",
                     body=event.body,
+                    symbol=event.symbol,
+                    side=event.side,
+                    source=event.source,
+                    raw_payload=event.raw_payload,
                     throttle_key=event.throttle_key,
                     throttle_window_sec=event.throttle_window_sec,
                     silent=event.silent,
@@ -167,10 +182,16 @@ class NotificationManager:
         if self._tg_circuit_open:
             if (now - self._tg_circuit_open_ts) < self._TG_CIRCUIT_COOLDOWN_SEC:
                 _fallback_log_event(event, "telegram_circuit_open")
+                self._publish_to_pentest(event)
                 return False
             # Cooldown expired, try again (half-open state)
             self._tg_circuit_open = False
             self._tg_dead_logged = False
+
+        if self.notifier is None:
+            _fallback_log_event(event, "no_notifier")
+            self._publish_to_pentest(event)
+            return False
 
         try:
             coro = self.notifier.speak(
@@ -186,6 +207,7 @@ class NotificationManager:
             # Accept None as success for in-memory/dummy notifier implementations in tests.
             if sent_ok is False:
                 self._record_tg_failure("telegram_returned_false", event)
+                self._publish_to_pentest(event)
                 return False
             # Success: reset failure counter
             self._consecutive_failures = 0
@@ -195,13 +217,24 @@ class NotificationManager:
                 if len(self._last_by_key) > 500:
                     oldest_k = min(self._last_by_key, key=self._last_by_key.get)  # type: ignore[arg-type]
                     self._last_by_key.pop(oldest_k, None)
+            self._publish_to_pentest(event)
             return True
         except asyncio.TimeoutError:
             self._record_tg_failure("telegram_timeout", event)
+            self._publish_to_pentest(event)
             return False
         except Exception as exc:
             self._record_tg_failure(f"telegram_error:{type(exc).__name__}", event)
+            self._publish_to_pentest(event)
             return False
+
+    def _publish_to_pentest(self, event: NotificationEvent) -> None:
+        if self._pentest_publisher is None:
+            return
+        try:
+            asyncio.create_task(self._pentest_publisher.publish(event))
+        except Exception:
+            pass
 
     def _record_tg_failure(self, reason: str, event: NotificationEvent) -> None:
         _fallback_log_event(event, reason)
@@ -257,6 +290,10 @@ class NotificationManager:
                 category=evt.category,
                 title=evt.title,
                 body=evt.body,
+                symbol=evt.symbol,
+                side=evt.side,
+                source=evt.source,
+                raw_payload=evt.raw_payload,
                 throttle_key=evt.throttle_key,
                 throttle_window_sec=evt.throttle_window_sec,
                 silent=True,
@@ -300,8 +337,6 @@ def get_notification_manager_from_bot(bot: Any) -> Optional[NotificationManager]
     if isinstance(nm, NotificationManager):
         return nm
     notifier = build_notifier_from_env()
-    if notifier is None:
-        return None
     nm = NotificationManager(notifier=notifier, config=load_config_from_env())
     rc["notification_manager"] = nm
     return nm

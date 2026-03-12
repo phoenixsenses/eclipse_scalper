@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import tempfile
 import time
 from pathlib import Path
 from types import SimpleNamespace
@@ -19,6 +20,7 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 import pytest
 
 from notifications.events import NotificationEvent, NotificationSeverity
+from notifications.pentest_publisher import PentestPublisher
 from notifications.manager import (
     NotificationConfig,
     NotificationManager,
@@ -119,6 +121,8 @@ class TestNotificationEvent:
         assert e.throttle_key is None
         assert e.throttle_window_sec == 0.0
         assert e.silent is False
+        assert e.symbol is None
+        assert e.raw_payload is None
 
     def test_frozen_dataclass(self):
         e = _evt()
@@ -207,6 +211,25 @@ class TestManagerEscalation:
         assert result.severity == NotificationSeverity.CRITICAL
         assert "[ESCALATED" in result.title
 
+    def test_escalation_preserves_enriched_fields(self):
+        mgr = NotificationManager(_mock_notifier(), _cfg())
+        e = NotificationEvent(
+            severity=NotificationSeverity.WARNING,
+            category="trade_entry",
+            title="ENTRY",
+            body="body",
+            symbol="ETHUSDT",
+            side="buy",
+            source="test_source",
+            raw_payload={"regime": "UP"},
+        )
+        for _ in range(3):
+            result = mgr._maybe_escalate(e)
+        assert result.symbol == "ETHUSDT"
+        assert result.side == "buy"
+        assert result.source == "test_source"
+        assert result.raw_payload == {"regime": "UP"}
+
     def test_escalation_memory_cap(self):
         mgr = NotificationManager(_mock_notifier(), _cfg())
         # Fill beyond _ESCALATION_MAX_TRACKED
@@ -258,8 +281,14 @@ class TestManagerCircuitBreaker:
 # ===================================================================
 
 class TestManagerFallback:
-    def test_fallback_on_no_notifier(self, tmp_path):
-        log_file = tmp_path / "fallback.jsonl"
+    def _tmpdir(self, name: str) -> Path:
+        d = Path(tempfile.gettempdir()) / f"eclipse_notify_{name}"
+        d.mkdir(parents=True, exist_ok=True)
+        return d
+
+    def test_fallback_on_no_notifier(self):
+        log_file = self._tmpdir("fallback_no_notifier") / "fallback.jsonl"
+        log_file.unlink(missing_ok=True)
         with patch("notifications.manager._FALLBACK_LOG", log_file):
             mgr = NotificationManager(None, _cfg())  # type: ignore[arg-type]
             _run(mgr.send(_evt(title="FALLBACK_TEST")))
@@ -268,16 +297,18 @@ class TestManagerFallback:
         assert row["title"] == "FALLBACK_TEST"
         assert row["reason"] == "no_notifier"
 
-    def test_fallback_log_event_writes_jsonl(self, tmp_path):
-        log_file = tmp_path / "fb.jsonl"
+    def test_fallback_log_event_writes_jsonl(self):
+        log_file = self._tmpdir("fallback_log_event") / "fb.jsonl"
+        log_file.unlink(missing_ok=True)
         with patch("notifications.manager._FALLBACK_LOG", log_file):
             _fallback_log_event(_evt(title="FB"), "test_reason")
         assert log_file.exists()
         row = json.loads(log_file.read_text(encoding="utf-8").strip())
         assert row["reason"] == "test_reason"
 
-    def test_fallback_on_telegram_exception(self, tmp_path):
-        log_file = tmp_path / "exc_fb.jsonl"
+    def test_fallback_on_telegram_exception(self):
+        log_file = self._tmpdir("fallback_tg_exception") / "exc_fb.jsonl"
+        log_file.unlink(missing_ok=True)
         notifier = _mock_notifier()
         notifier.speak = AsyncMock(side_effect=RuntimeError("boom"))
         mgr = NotificationManager(notifier, _cfg())
@@ -285,6 +316,46 @@ class TestManagerFallback:
             result = _run(mgr.send(_evt(title="BOOM")))
         assert result is False
         assert log_file.exists()
+
+    def test_pentest_publisher_runs_without_notifier(self):
+        publisher = Mock(spec=PentestPublisher)
+        publisher.publish = AsyncMock(return_value=None)
+        mgr = NotificationManager(None, _cfg(), pentest_publisher=publisher)  # type: ignore[arg-type]
+        with patch("notifications.manager.asyncio.create_task") as create_task:
+            result = _run(mgr.send(_evt(title="BRIDGE_ONLY")))
+        assert result is False
+        assert create_task.called
+
+    def test_send_heartbeat_preserves_enriched_payload_in_silent_mode(self):
+        mgr = NotificationManager(_mock_notifier(), _cfg(silent_heartbeat=True))
+        evt = NotificationEvent(
+            severity=NotificationSeverity.INFO,
+            category="heartbeat",
+            title="HEARTBEAT",
+            body="alive",
+            source="runtime",
+            raw_payload={"trades": 2},
+        )
+        with patch("notifications.manager.build_heartbeat_event", return_value=evt):
+            with patch.object(mgr, "send", AsyncMock(return_value=True)) as send_mock:
+                result = _run(mgr.send_heartbeat(SimpleNamespace(), started_ts=0.0))
+        assert result is True
+        sent_evt = send_mock.await_args.args[0]
+        assert sent_evt.source == "runtime"
+        assert sent_evt.raw_payload == {"trades": 2}
+        assert sent_evt.silent is True
+
+
+class TestPentestPublisher:
+    def test_skip_heartbeat(self):
+        publisher = PentestPublisher()
+        publisher._enabled = True
+        evt = _evt(cat="heartbeat")
+        assert _run(publisher.publish(evt)) is None
+
+    def test_event_type_map(self):
+        publisher = PentestPublisher()
+        assert publisher.EVENT_TYPE_MAP["scratch_pause"] == "circuit_breaker"
 
 
 # ===================================================================

@@ -138,6 +138,16 @@ try:
 except Exception:
     get_adaptive_notional_scale = None
 
+try:
+    from execution.regime_sizer import regime_size_scale as _regime_size_scale  # type: ignore
+except Exception:
+    _regime_size_scale = None
+
+try:
+    from execution.pocket_scheduler import PocketScheduler as _PocketScheduler  # type: ignore
+except Exception:
+    _PocketScheduler = None
+
 
 # ----------------------------
 # Helpers
@@ -1817,6 +1827,21 @@ async def entry_loop(bot) -> None:
     elif callable(RegimeClassifier):
         regime_runtime = _RegimeRuntime(lookback_sec=regime_lookback_sec, debounce_sec=regime_debounce_sec)
 
+    # Pocket scheduler init (per-pocket cooldowns + daily quotas)
+    _pocket_scheduler = None
+    if callable(_PocketScheduler):
+        try:
+            st = getattr(bot, "state", None)
+            rc = getattr(st, "run_context", None) if st is not None else None
+            if isinstance(rc, dict):
+                _pocket_scheduler = rc.get("pocket_scheduler")
+            if _pocket_scheduler is None:
+                _pocket_scheduler = _PocketScheduler.from_env()
+                if isinstance(rc, dict):
+                    rc["pocket_scheduler"] = _pocket_scheduler
+        except Exception:
+            _pocket_scheduler = None
+
     sizing_warn_every = _cfg_env_float(bot, "ENTRY_SIZING_WARN_EVERY_SEC", 30.0)
     last_sizing_warn_ts = 0.0
 
@@ -1985,6 +2010,11 @@ async def entry_loop(bot) -> None:
                         risk_mgr.reset_daily()
                     except Exception:
                         pass
+                    if _pocket_scheduler is not None:
+                        try:
+                            _pocket_scheduler.reset_daily()
+                        except Exception:
+                            pass
                     last_risk_day = day_now
 
             if wait_data_sec > 0 and not data_ready_ev.is_set():
@@ -2443,6 +2473,15 @@ async def entry_loop(bot) -> None:
                         await asyncio.sleep(max(0.01, per_symbol_gap_sec))
                         continue
 
+                    # Pocket scheduler gate (per-pocket cooldown + daily quota)
+                    if _pocket_scheduler is not None:
+                        _pn = str(sig.get("pocket_name", "") or "default")
+                        _ps_ok, _ps_reason = _pocket_scheduler.can_fire(_pn, _now())
+                        if not _ps_ok:
+                            await _emit_entry_blocked(bot, k, f"pocket_scheduler:{_ps_reason}", throttle_sec=30.0)
+                            await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                            continue
+
                     # Event lane gate (shadow mode — logs only, does not block orders)
                     # Placed after kill-switch, after signal validation, never on reduce-only intents.
                     if event_lane_gate is not None and sig.get("source") == "micro_signal":
@@ -2636,6 +2675,19 @@ async def entry_loop(bot) -> None:
                                         level="info",
                                     )
                                 )
+                        except Exception:
+                            pass
+
+                    # Regime-aware sizing (applied after confidence scale)
+                    if callable(_regime_size_scale) and amt is not None and amt > 0:
+                        try:
+                            _rlabel = str(sig.get("_regime_label", "") or sig.get("regime", "") or "")
+                            _rscale = _regime_size_scale(_rlabel, action)
+                            if _rscale != 1.0:
+                                amt = float(amt) * _rscale
+                            log_entry.debug(
+                                f"[regime_sizer] regime={_rlabel} side={action} scale={_rscale:.3f} amt={amt:.6f}"
+                            )
                         except Exception:
                             pass
 
@@ -3042,6 +3094,12 @@ async def entry_loop(bot) -> None:
                         if risk_mgr is not None:
                             try:
                                 risk_mgr.on_entry_submitted()
+                            except Exception:
+                                pass
+                        if _pocket_scheduler is not None:
+                            try:
+                                _pn_submitted = str(sig.get("pocket_name", "") or "default")
+                                _pocket_scheduler.record_fire(_pn_submitted, _now())
                             except Exception:
                                 pass
                         if callable(build_entry_event):

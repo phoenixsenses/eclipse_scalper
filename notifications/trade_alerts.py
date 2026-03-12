@@ -37,6 +37,9 @@ def build_entry_event(
         category="trade_entry",
         title="ENTRY",
         body=body,
+        symbol=symbol,
+        side=str(side).lower(),
+        raw_payload={"regime": str(regime).upper()},
     )
 
 
@@ -59,7 +62,15 @@ def build_exit_event(
         f"Session: {int(session_trades)} trades | {_f(session_pnl_bps, 2)} bps | {_f(session_win_rate * 100.0, 1)}% win"
     )
     sev = NotificationSeverity.SUCCESS if float(pnl_bps or 0.0) >= 0 else NotificationSeverity.WARNING
-    return NotificationEvent(severity=sev, category="trade_exit", title="EXIT", body=body)
+    return NotificationEvent(
+        severity=sev,
+        category="trade_exit",
+        title="EXIT",
+        body=body,
+        symbol=symbol,
+        side=str(side).lower(),
+        raw_payload={"exit_type": str(exit_type)},
+    )
 
 
 def build_scratch_event(
@@ -83,5 +94,8 @@ def build_scratch_event(
         category="trade_scratch",
         title="SCRATCH",
         body=body,
+        symbol=symbol,
+        side=str(side).lower(),
+        raw_payload={"adverse_limit_bps": float(adverse_limit_bps or 0.0)},
     )
 

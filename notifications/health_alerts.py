@@ -33,7 +33,13 @@ def build_startup_event(*, symbols: str, horizon_sec: int, scratch_enabled: bool
         f"Scratch: {'ENABLED' if scratch_enabled else 'DISABLED'}\n"
         f"Watchdog: {'ACTIVE' if watchdog_active else 'DISABLED'}"
     )
-    return NotificationEvent(NotificationSeverity.SUCCESS, "startup", "ECLIPSE STARTED", body)
+    return NotificationEvent(
+        NotificationSeverity.SUCCESS,
+        "startup",
+        "ECLIPSE STARTED",
+        body,
+        raw_payload={"symbols": symbols, "horizon_sec": int(horizon_sec)},
+    )
 
 
 def build_heartbeat_event(bot: Any, started_ts: float) -> NotificationEvent:
@@ -53,7 +59,14 @@ def build_heartbeat_event(bot: Any, started_ts: float) -> NotificationEvent:
         f"Regime: {reg} | Return: {rret*100.0:+.3f}%\n"
         f"Data rows(mark_prices): {db_rows}"
     )
-    return NotificationEvent(NotificationSeverity.INFO, "heartbeat", "HEARTBEAT", body, silent=True)
+    return NotificationEvent(
+        NotificationSeverity.INFO,
+        "heartbeat",
+        "HEARTBEAT",
+        body,
+        raw_payload={"trades": trades, "daily_pnl_bps": pnl},
+        silent=True,
+    )
 
 
 def build_crash_event(error_text: str, uptime_sec: float) -> NotificationEvent:
@@ -62,7 +75,13 @@ def build_crash_event(error_text: str, uptime_sec: float) -> NotificationEvent:
         f"Error: {error_text}\n"
         f"Uptime was: {int(float(uptime_sec or 0.0)//3600)}h {int((float(uptime_sec or 0.0)%3600)//60)}m"
     )
-    return NotificationEvent(NotificationSeverity.CRITICAL, "crash", "CRASH", body)
+    return NotificationEvent(
+        NotificationSeverity.CRITICAL,
+        "crash",
+        "CRASH",
+        body,
+        raw_payload={"error_text": str(error_text)},
+    )
 
 
 def build_data_stale_event(*, stale_sec: int, last_row_utc: str, symbols: str) -> NotificationEvent:
@@ -71,5 +90,11 @@ def build_data_stale_event(*, stale_sec: int, last_row_utc: str, symbols: str) -
         f"Last row: {last_row_utc}\n"
         f"Symbols affected: {symbols}"
     )
-    return NotificationEvent(NotificationSeverity.CRITICAL, "data_stale", "DATA STALE", body)
+    return NotificationEvent(
+        NotificationSeverity.CRITICAL,
+        "data_stale",
+        "DATA STALE",
+        body,
+        raw_payload={"stale_sec": int(stale_sec), "symbols": symbols},
+    )
 

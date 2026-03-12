@@ -52,6 +52,9 @@ def test_event_formatting() -> None:
     assert "ENTRY" in e1.render()
     assert "EXIT" in e2.render()
     assert "ETHUSDT" in e1.render()
+    assert e1.symbol == "ETHUSDT"
+    assert e1.side == "sell"
+    assert e2.symbol == "ETHUSDT"
 
 
 def test_throttle_logic() -> None:
@@ -140,3 +143,24 @@ def test_silent_mode_and_heartbeat_interval() -> None:
         assert dm.sent[0]["silent"] is True
 
     asyncio.run(_run())
+
+
+def test_manager_without_telegram_still_initializes_from_bot() -> None:
+    bot = type("B", (), {})()
+    bot.state = type("S", (), {"run_context": {}})()
+    from notifications.manager import get_notification_manager_from_bot
+
+    nm = get_notification_manager_from_bot(bot)
+    assert nm is not None
+
+
+def test_scratch_pause_maps_to_circuit_breaker_payload() -> None:
+    from notifications.pentest_publisher import PentestPublisher
+    evt = NotificationEvent(
+        severity=NotificationSeverity.CRITICAL,
+        category="scratch_pause",
+        title="SCRATCH CIRCUIT BREAKER",
+        body="Trading paused",
+    )
+    pub = PentestPublisher()
+    assert pub.EVENT_TYPE_MAP[evt.category] == "circuit_breaker"
