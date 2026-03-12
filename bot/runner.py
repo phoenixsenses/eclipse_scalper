@@ -395,6 +395,16 @@ async def run_bot(
         log_core.warning(f"Equity fetch failed: {e} — using fallback 10000 for mode selection")
         equity = 10000.0
         equity_source = "fallback"
+        log_core.critical(
+            "EQUITY FALLBACK ACTIVATED — live equity fetch FAILED, using $10000 default. "
+            "Mode selection (micro vs production) may be WRONG. Cause: %s", e
+        )
+        await _safe_notify(
+            bot,
+            "⚠️ EQUITY FETCH FAILED — fallback $10000 active. Mode selection may be incorrect. "
+            f"Error: {e}",
+            "critical",
+        )
 
     env_equity = os.getenv("SCALPER_EQUITY")
     if env_equity is not None:

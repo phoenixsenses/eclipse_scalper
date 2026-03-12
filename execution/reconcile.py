@@ -6,7 +6,9 @@
 # - âœ… Keeps: orphan adoption, hedge-aware ex_map, optional imports, router-integrated stop ladder
 
 import asyncio
+import json
 import time
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Dict, Any, Optional, Tuple, List
 
@@ -14,15 +16,7 @@ from utils.logging import log_entry, log_core
 from execution.order_router import create_order, cancel_order, cancel_replace_order  # âœ… ROUTER
 from execution.shutdown_control import ensure_traced_shutdown_event
 
-try:
-    from execution.runtime_helpers import symkey as _symkey  # type: ignore
-except Exception:
-    def _symkey(sym: str) -> str:
-        s = (sym or "").upper().strip()
-        s = s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT")
-        s = s.replace(":USDT", "USDT").replace(":", "").replace("/", "")
-        if s.endswith("USDTUSDT"): s = s[:-4]
-        return s
+from execution.runtime_helpers import symkey as _symkey
 
 
 # â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
@@ -153,6 +147,35 @@ def _phantom_store(bot) -> dict:
         store = {}
         rc["phantom"] = store
     return store
+
+
+_RECONCILE_TELEMETRY_PATH = Path("logs/reconcile_telemetry.jsonl")
+
+_PHANTOM_MAX_AGE_SEC = 86400.0  # 24 hours
+_PHANTOM_MAX_ENTRIES = 500
+
+
+def _evict_stale_phantoms(phantom: dict) -> None:
+    """Phase 2.4: Evict phantom entries older than 24h and cap at 500 entries."""
+    try:
+        if not phantom:
+            return
+        now = _now()
+        # Age eviction
+        stale = [k for k, v in phantom.items()
+                 if isinstance(v, dict)
+                 and (now - _safe_float(v.get("first_ts", 0.0), 0.0)) > _PHANTOM_MAX_AGE_SEC]
+        for k in stale:
+            phantom.pop(k, None)
+        # Size cap: remove oldest entries
+        if len(phantom) > _PHANTOM_MAX_ENTRIES:
+            by_age = sorted(phantom.items(),
+                            key=lambda kv: _safe_float((kv[1] or {}).get("first_ts", 0.0), 0.0))
+            to_remove = len(phantom) - _PHANTOM_MAX_ENTRIES
+            for k, _ in by_age[:to_remove]:
+                phantom.pop(k, None)
+    except Exception:
+        pass
 
 
 def _position_belief_store(bot) -> dict:
@@ -1445,6 +1468,9 @@ async def reconcile_tick(bot):
     phantom_miss = int(_cfg(bot, "RECONCILE_PHANTOM_MISS_COUNT", 3))
     phantom_grace = float(_cfg(bot, "RECONCILE_PHANTOM_GRACE_SEC", 45.0))
 
+    # Phase 2.4: Evict stale phantom entries (24h max-age + 500-entry cap)
+    _evict_stale_phantoms(phantom)
+
     for k in list(state_positions.keys()):
         if k in ex_map:
             phantom.pop(k, None)
@@ -1992,6 +2018,32 @@ async def reconcile_tick(bot):
             )
         except Exception:
             pass
+
+    # Phase 1.2: Record last successful reconcile timestamp in run_context
+    # Entry loop uses this to gate orders when reconcile is stale (>120s)
+    try:
+        rc = _ensure_run_context(bot)
+        rc["last_reconcile_success_ts"] = _now()
+    except Exception:
+        pass
+
+    # Phase 3.2: Per-cycle telemetry JSONL
+    try:
+        _RECONCILE_TELEMETRY_PATH.parent.mkdir(parents=True, exist_ok=True)
+        tel = json.dumps({
+            "ts": _now(),
+            "positions_tracked": len(state_positions),
+            "mismatch_events": int(mismatch_events),
+            "repair_actions": int(repair_actions),
+            "repair_skipped": int(repair_skipped),
+            "mismatch_symbols": list(mismatch_symbols)[:20],
+            "belief_confidence": float(conf),
+            "belief_debt_sec": float(debt_sec),
+        }, ensure_ascii=False)
+        with open(_RECONCILE_TELEMETRY_PATH, "a", encoding="utf-8") as f:
+            f.write(tel + "\n")
+    except Exception:
+        pass
 
 
 # Backward compatibility for older code that still imports guardian_loop from reconcile.py

@@ -107,6 +107,25 @@ def _collect_pocket_scheduler(bot) -> dict:
         return {"error": str(exc)}
 
 
+def _collect_guardian_steps() -> dict:
+    """Phase 5.1: Collect guardian step timings and failure counts."""
+    result: Dict[str, Any] = {}
+    try:
+        from execution.guardian import get_step_timings, get_step_failures
+        timings = get_step_timings()
+        failures = get_step_failures()
+        result["step_timings"] = timings
+        result["step_failures"] = failures
+        result["total_failures"] = sum(failures.values()) if failures else 0
+        if timings:
+            slowest = max(timings.items(), key=lambda x: x[1].get("avg_ms", 0))
+            result["slowest_step"] = slowest[0]
+            result["slowest_avg_ms"] = slowest[1].get("avg_ms", 0)
+    except Exception as exc:
+        result["error"] = str(exc)
+    return result
+
+
 # ---------------------------------------------------------------------------
 # Aggregation
 # ---------------------------------------------------------------------------
@@ -122,6 +141,7 @@ def get_system_dashboard(bot) -> Dict[str, Any]:
         "event_gate":      _collect_event_gate(bot),
         "regime_watch":    _collect_regime_watch(),
         "pocket_scheduler": _collect_pocket_scheduler(bot),
+        "guardian_steps":  _collect_guardian_steps(),
     }
 
 

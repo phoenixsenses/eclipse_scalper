@@ -30,12 +30,7 @@ def _env_truthy(name: str) -> bool:
     return v.strip().lower() in {"1", "true", "yes", "y", "on"}
 
 
-try:
-    from execution.runtime_helpers import symkey as _symkey
-except Exception:
-    def _symkey(sym) -> str:
-        s = str(sym or "").upper().strip()
-        return s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT").replace(":USDT", "USDT").replace(":", "")
+from execution.runtime_helpers import symkey as _symkey
 
 
 class BinanceCosmicAdapter(ExchangeAdapter):

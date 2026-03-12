@@ -53,12 +53,7 @@ def _cfg(bot, name: str, default: Any) -> Any:
         return default
 
 
-try:
-    from execution.runtime_helpers import symkey as _symkey
-except Exception:
-    def _symkey(sym) -> str:
-        s = str(sym or "").upper().strip()
-        return s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT").replace(":USDT", "USDT").replace(":", "")
+from execution.runtime_helpers import symkey as _symkey
 
 
 def _safe_jsonable(x: Any) -> Any:

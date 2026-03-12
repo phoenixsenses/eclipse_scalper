@@ -34,12 +34,7 @@ def _safe_float(x, default=0.0) -> float:
         return default
 
 
-try:
-    from execution.runtime_helpers import symkey as _symkey
-except Exception:
-    def _symkey(sym) -> str:
-        s = str(sym or "").upper().strip()
-        return s.replace("/USDT:USDT", "USDT").replace("/USDT", "USDT").replace(":USDT", "USDT").replace(":", "")
+from execution.runtime_helpers import symkey as _symkey
 
 
 def _tf_minutes(tf: str) -> int:

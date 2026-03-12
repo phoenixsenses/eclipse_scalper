@@ -39,9 +39,14 @@ ENV PYTHONUNBUFFERED=1 \
     SCALPER_DRY_RUN=1 \
     LOG_LEVEL=INFO
 
-# Health check: dashboard API
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')" || exit 1
+# Health check: heartbeat file mtime (primary) + dashboard API (secondary)
+# Heartbeat file is updated every guardian cycle (~15s). Stale > 60s = unhealthy.
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD python -c "\
+import os, sys, time; \
+hb = 'logs/health/heartbeat.json'; \
+ok = os.path.exists(hb) and (time.time() - os.path.getmtime(hb)) < 60; \
+sys.exit(0 if ok else 1)" || exit 1
 
 # Expose dashboard port
 EXPOSE 8000

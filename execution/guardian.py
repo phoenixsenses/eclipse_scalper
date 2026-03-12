@@ -17,6 +17,7 @@ from typing import Any, Awaitable, Callable, Optional, Dict, List
 from utils.logging import log_core, log_entry
 from execution.shutdown_control import request_shutdown
 from execution.shutdown_control import ensure_traced_shutdown_event
+from execution.runtime_helpers import cfg_value as _cfg, truthy as _truthy
 
 # ─────────────────────────────────────────────────────────────────────
 # Diagnostics helper (best-effort; never fatal)
@@ -150,25 +151,8 @@ except Exception as e:
 # Helpers
 # ─────────────────────────────────────────────────────────────────────
 
-def _cfg(bot, name: str, default):
-    try:
-        return getattr(bot.cfg, name, default)
-    except Exception:
-        return default
-
-
 def _now() -> float:
     return time.time()
-
-
-def _truthy(x) -> bool:
-    if x is True:
-        return True
-    if isinstance(x, (int, float)) and x != 0:
-        return True
-    if isinstance(x, str) and x.strip().lower() in ("true", "1", "yes", "y", "t", "on"):
-        return True
-    return False
 
 
 def _ensure_shutdown_event(bot) -> asyncio.Event:
@@ -214,6 +198,9 @@ _STEP_TIMINGS: Dict[str, List[float]] = {}  # name -> [duration_sec, ...]
 _STEP_TIMINGS_MAX_HISTORY = 20  # keep last N measurements per step
 _STEP_TIMINGS_MAX_STEPS = 50  # max distinct step names tracked
 
+# Step failure counter: track cumulative failures per step name (Phase 0.1)
+_STEP_FAILURES: Dict[str, int] = {}  # name -> cumulative failure count
+
 
 def get_step_timings() -> Dict[str, Dict[str, float]]:
     """Return profiling summary: {step_name: {avg_ms, max_ms, last_ms, count}}."""
@@ -230,6 +217,11 @@ def get_step_timings() -> Dict[str, Dict[str, float]]:
     return result
 
 
+def get_step_failures() -> Dict[str, int]:
+    """Return cumulative failure counts per guardian step: {step_name: failure_count}."""
+    return dict(_STEP_FAILURES)
+
+
 async def _safe_call(name: str, fn: Callable[..., Awaitable[Any]], *args, timeout_sec: float = 0.0, **kwargs):
     if not callable(fn):
         return
@@ -239,10 +231,12 @@ async def _safe_call(name: str, fn: Callable[..., Awaitable[Any]], *args, timeou
         await asyncio.wait_for(fn(*args, **kwargs), timeout=t)
     except asyncio.TimeoutError:
         log_entry.error(f"GUARDIAN: {name} TIMED OUT after {t:.1f}s — skipping")
+        _STEP_FAILURES[name] = _STEP_FAILURES.get(name, 0) + 1
     except asyncio.CancelledError:
         raise
     except Exception as e:
         log_entry.error(f"GUARDIAN: {name} failed: {e}")
+        _STEP_FAILURES[name] = _STEP_FAILURES.get(name, 0) + 1
     finally:
         elapsed = time.monotonic() - t0
         try:
@@ -532,6 +526,14 @@ async def _write_heartbeat(bot) -> None:
             if timings:
                 top5 = sorted(timings.items(), key=lambda x: x[1]["avg_ms"], reverse=True)[:5]
                 data["step_profiling"] = {k: v for k, v in top5}
+        except Exception:
+            pass
+        # Include step failure counts (Phase 0.1)
+        try:
+            failures = get_step_failures()
+            if failures:
+                data["step_failures"] = failures
+                data["total_step_failures"] = sum(failures.values())
         except Exception:
             pass
         atomic_write_json(_HEARTBEAT_PATH, data)
@@ -1013,14 +1015,18 @@ async def guardian_loop(bot):
     async def _one_cycle():
         nonlocal _last_exit_watch, _last_posmgr, _last_watchdog, _last_ex_probe
 
+        # Phase 1.5: Priority ordering — critical ticks first, housekeeping second.
+        # CRITICAL GROUP (sequential, must run every cycle):
+        #   kill_switch → reconcile → emergency → exit → position_manager
+
         # 0) Heartbeat for external monitoring (every cycle, cheap)
         await _safe_call("heartbeat", _write_heartbeat, bot)
 
-        # 0a) Kill-switch tick (evaluate)
+        # C1) Kill-switch tick — HIGHEST PRIORITY (evaluate risk conditions)
         if respect_kill and callable(tick_kill_switch):
             await _safe_call("kill_switch.tick_kill_switch", tick_kill_switch, bot)
 
-        # 0b) Kill-switch state snapshot (for optional hooks)
+        # C1b) Kill-switch state snapshot (for optional hooks)
         halted = False
         if respect_kill and callable(is_halted):
             try:
@@ -1028,28 +1034,7 @@ async def guardian_loop(bot):
             except Exception:
                 halted = False
 
-        # Exit watch tick (high-frequency, lightweight)
-        if exit_watch_enabled and callable(handle_exit):
-            now_ts = _now()
-            if (now_ts - _last_exit_watch) >= exit_watch_every:
-                _last_exit_watch = now_ts
-                await _safe_call("exit_watch_tick", _exit_watch_tick, bot)
-
-        # 1) Entry watch housekeeping
-        if callable(poll_entry_watches):
-            await _safe_call("entry_watch.poll_entry_watches", poll_entry_watches, bot)
-
-        # optional entry_watch halt hook
-        if halted:
-            try:
-                import execution.entry_watch as entry_watch_mod  # type: ignore
-                ew_hook = getattr(entry_watch_mod, "on_halt", None)
-                if callable(ew_hook):
-                    await _safe_call("entry_watch.on_halt", ew_hook, bot)
-            except Exception as e:
-                we_dont_have_this("execution.entry_watch.on_halt (runtime)", e)
-
-        # 2) Reconcile truth
+        # C2) Reconcile truth — must run before exits/entries to detect drift
         await _reconcile_tick(bot, legacy_brief_sec)
 
         # optional reconcile halt hook
@@ -1061,7 +1046,26 @@ async def guardian_loop(bot):
             except Exception as e:
                 we_dont_have_this("execution.reconcile.on_halt (runtime)", e)
 
-        # 2b) Position manager tick (guarded + optionally throttled)
+        # C3) Emergency checks — catch catastrophic divergence early
+        await _emergency_tick(bot, legacy_brief_sec)
+
+        # optional emergency halt hook
+        if halted and emergency_mod is not None:
+            try:
+                eh = getattr(emergency_mod, "on_halt", None)
+                if callable(eh):
+                    await _safe_call("emergency.on_halt", eh, bot)
+            except Exception as e:
+                we_dont_have_this("execution.emergency.on_halt (runtime)", e)
+
+        # C4) Exit watch tick (high-frequency, lightweight)
+        if exit_watch_enabled and callable(handle_exit):
+            now_ts = _now()
+            if (now_ts - _last_exit_watch) >= exit_watch_every:
+                _last_exit_watch = now_ts
+                await _safe_call("exit_watch_tick", _exit_watch_tick, bot)
+
+        # C5) Position manager tick (guarded + optionally throttled)
         if _posmgr_allowed(bot):
             now_ts = _now()
             if (posmgr_every <= 0) or ((now_ts - _last_posmgr) >= posmgr_every):
@@ -1078,34 +1082,47 @@ async def guardian_loop(bot):
             except Exception as e:
                 we_dont_have_this("execution.position_manager.on_halt (runtime)", e)
 
-        # 3) Emergency checks
-        await _emergency_tick(bot, legacy_brief_sec)
+        # HOUSEKEEPING GROUP (runs after critical ticks):
 
-        # 4) Collection watchdog (DB freshness + health state write)
+        # H1) Entry watch housekeeping
+        if callable(poll_entry_watches):
+            await _safe_call("entry_watch.poll_entry_watches", poll_entry_watches, bot)
+
+        # optional entry_watch halt hook
+        if halted:
+            try:
+                import execution.entry_watch as entry_watch_mod  # type: ignore
+                ew_hook = getattr(entry_watch_mod, "on_halt", None)
+                if callable(ew_hook):
+                    await _safe_call("entry_watch.on_halt", ew_hook, bot)
+            except Exception as e:
+                we_dont_have_this("execution.entry_watch.on_halt (runtime)", e)
+
+        # H2) Collection watchdog (DB freshness + health state write)
         if callable(_watchdog_run_once):
             now_ts = _now()
             if (now_ts - _last_watchdog) >= watchdog_every:
                 _last_watchdog = now_ts
                 await _safe_call("collection_watchdog_tick", _collection_watchdog_tick, bot)
 
-        # 5) Exchange connectivity probe
+        # H3) Exchange connectivity probe
         now_ts = _now()
         if (now_ts - _last_ex_probe) >= ex_probe_every:
             _last_ex_probe = now_ts
             await _safe_call("exchange_connectivity_tick", _exchange_connectivity_tick, bot)
 
-        # 6) Margin ratio refresh (piggybacks on exchange probe cadence)
+        # H4) Margin ratio refresh (piggybacks on exchange probe cadence)
         if (now_ts - _last_ex_probe) < 2.0:  # just probed exchange
             await _safe_call("margin_ratio_refresh", _margin_ratio_refresh, bot)
 
-        # 7) Position stuck detection (on watchdog cadence)
+        # H5) Position stuck detection (on watchdog cadence)
         if (now_ts - _last_watchdog) < 2.0:  # just ran watchdog
             await _safe_call("position_stuck_check", _position_stuck_check, bot)
 
-        # 8) Log rotation (once per day, non-blocking)
+        # H6) Log rotation (once per day, non-blocking)
         await _safe_call("log_rotation_tick", _log_rotation_tick, bot)
 
-        # 9) Kisi1 additive ticks (optional, never fatal)
+        # H7) Kisi1 additive ticks (optional, never fatal)
         if callable(verification_tick):
             await _safe_call("order_verifier.verification_tick", verification_tick, bot)
 
@@ -1121,21 +1138,12 @@ async def guardian_loop(bot):
         if callable(dashboard_export_tick):
             await _safe_call("dashboard_aggregator.dashboard_export_tick", dashboard_export_tick, bot)
 
-        # 10) Config hot-reload (check override file every ~10s)
+        # H8) Config hot-reload (check override file every ~10s)
         await _safe_call("config_hot_reload_tick", _config_hot_reload_tick, bot)
 
-        # 11) Structured alert rules evaluation (on watchdog cadence)
+        # H9) Structured alert rules evaluation (on watchdog cadence)
         if (now_ts - _last_watchdog) < 2.0:
             await _safe_call("alert_rules_tick", _alert_rules_tick, bot)
-
-        # optional emergency halt hook
-        if halted and emergency_mod is not None:
-            try:
-                eh = getattr(emergency_mod, "on_halt", None)
-                if callable(eh):
-                    await _safe_call("emergency.on_halt", eh, bot)
-            except Exception as e:
-                we_dont_have_this("execution.emergency.on_halt (runtime)", e)
 
     async def _run_cycle_with_timeout() -> None:
         if not cycle_timeout or cycle_timeout <= 0:
