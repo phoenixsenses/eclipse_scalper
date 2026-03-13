@@ -15,6 +15,7 @@ import os
 import subprocess
 import sys
 import time
+import json
 from logging.handlers import RotatingFileHandler
 import logging
 from pathlib import Path
@@ -47,6 +48,66 @@ FAST_RESTART_WINDOW_SEC = 120   # seconds
 FAST_RESTART_MAX = 5            # restarts within window = storm
 BACKOFF_DELAY_SEC = 60
 CHECK_INTERVAL_SEC = 10
+
+
+def _pid_dir(cwd: Path) -> Path:
+    p = cwd / "logs" / "pids"
+    p.mkdir(parents=True, exist_ok=True)
+    return p
+
+
+def _pid_file(cwd: Path, module: str) -> Path:
+    name = "microstructure_collector.pid" if module == "data.microstructure_collector" else "event_diary.pid"
+    return _pid_dir(cwd) / name
+
+
+def _meta_file(cwd: Path, module: str) -> Path:
+    name = "microstructure_collector.json" if module == "data.microstructure_collector" else "event_diary.json"
+    return _pid_dir(cwd) / name
+
+
+def _write_json_atomic(path: Path, payload: Dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(payload, ensure_ascii=True, indent=2), encoding="utf-8")
+    tmp.replace(path)
+
+
+def _write_pid_state(*, cwd: Path, module: str, pid: int, launcher: str, python: str, args: List[str]) -> None:
+    pid_path = _pid_file(cwd, module)
+    meta_path = _meta_file(cwd, module)
+    pid_path.write_text(str(int(pid)), encoding="ascii")
+    _write_json_atomic(
+        meta_path,
+        {
+            "role": "data_layer",
+            "pid": int(pid),
+            "module": str(module),
+            "cmdline_sig": " ".join([str(python), "-W", "ignore", "-u", "-m", str(module)] + list(args)),
+            "started_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "launcher": str(launcher),
+            "cwd": str(cwd),
+        },
+    )
+
+
+def _clear_pid_state_if_matches(*, cwd: Path, module: str, pid: Optional[int]) -> None:
+    if not pid:
+        return
+    pid_path = _pid_file(cwd, module)
+    meta_path = _meta_file(cwd, module)
+    try:
+        raw = pid_path.read_text(encoding="utf-8", errors="ignore").strip()
+        if raw and int(raw) == int(pid):
+            pid_path.unlink(missing_ok=True)
+    except Exception:
+        pass
+    try:
+        payload = json.loads(meta_path.read_text(encoding="utf-8", errors="ignore"))
+        if isinstance(payload, dict) and int(payload.get("pid") or 0) == int(pid):
+            meta_path.unlink(missing_ok=True)
+    except Exception:
+        pass
 
 
 # ---------------------------------------------------------------------------
@@ -119,6 +180,14 @@ class ManagedProcess:
         ts = time.strftime("%Y-%m-%d %H:%M:%S")
         with self.restart_log.open("a", encoding="utf-8") as f:
             f.write(f"{self.name} started at {ts} (restart #{self.restart_count})\n")
+        _write_pid_state(
+            cwd=self.cwd,
+            module=self.module,
+            pid=int(self.proc.pid),
+            launcher="collector_supervisor",
+            python=self.python,
+            args=self.extra_args,
+        )
         self.log.info(f"[{self.name}] started pid={self.proc.pid}")
 
     def is_alive(self) -> bool:
@@ -201,6 +270,12 @@ def main() -> None:
         asyncio.run(run(cwd))
     except KeyboardInterrupt:
         print("Collector supervisor stopped.")
+    finally:
+        for cfg in PROCS:
+            try:
+                _clear_pid_state_if_matches(cwd=cwd, module=str(cfg["module"]), pid=None)
+            except Exception:
+                pass
 
 
 if __name__ == "__main__":

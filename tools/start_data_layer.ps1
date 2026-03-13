@@ -13,6 +13,20 @@ function Ensure-Dir([string]$Path) {
     }
 }
 
+function Write-PidState([string]$PidFile, [string]$MetaFile, [int]$Pid, [string]$ModuleName, [string[]]$Args, [string]$Launcher) {
+    Set-Content -LiteralPath $PidFile -Value ([string]$Pid) -Encoding ascii
+    $meta = @{
+        role = "data_layer"
+        pid = [int]$Pid
+        module = $ModuleName
+        cmdline_sig = "$PythonExe $($Args -join ' ')"
+        started_at = [DateTime]::UtcNow.ToString("o")
+        launcher = $Launcher
+        cwd = $RepoRoot
+    }
+    ($meta | ConvertTo-Json -Depth 4) | Set-Content -LiteralPath $MetaFile -Encoding utf8
+}
+
 function Try-StopPid([string]$PidFile) {
     if (-not (Test-Path -LiteralPath $PidFile)) {
         return
@@ -102,9 +116,24 @@ $RunsLog = Join-Path $LogsDir "data_layer_runs.jsonl"
 
 $MicroPidFile = Join-Path $PidDir "microstructure_collector.pid"
 $DiaryPidFile = Join-Path $PidDir "event_diary.pid"
+$MicroMetaFile = Join-Path $PidDir "microstructure_collector.json"
+$DiaryMetaFile = Join-Path $PidDir "event_diary.json"
 
 $PythonCmd = Get-Command python -ErrorAction Stop
 $PythonExe = [string]$PythonCmd.Source
+
+$MicroArgs = @(
+    "-u",
+    "-m", "data.microstructure_collector",
+    "--symbols", $Symbols,
+    "--db-path", "data/microstructure.db"
+)
+$DiaryArgs = @(
+    "-u",
+    "-m", "data.event_diary",
+    "--db-path", "data/microstructure.db",
+    "--csv-path", "data/event_diary.csv"
+)
 
 $startCollector = $true
 $startDiary = $true
@@ -142,30 +171,19 @@ if (-not $ForceRestart) {
     $existingDiaryPids = @($existingDiaryPids | Sort-Object -Unique)
     if ($startCollector -and $existingCollectorPids.Count -gt 0) {
         $startCollector = $false
+        Write-PidState -PidFile $MicroPidFile -MetaFile $MicroMetaFile -Pid ([int]$existingCollectorPids[0]) -ModuleName "data.microstructure_collector" -Args @($MicroArgs) -Launcher "start_data_layer.ps1:refresh_existing"
         Write-Output ("ALREADY_RUNNING module=microstructure_collector pids=" + ($existingCollectorPids -join ","))
         Write-Output "micro_stdout=$MicroOutLog"
         Write-Output "micro_stderr=$MicroErrLog"
     }
     if ($startDiary -and $existingDiaryPids.Count -gt 0) {
         $startDiary = $false
+        Write-PidState -PidFile $DiaryPidFile -MetaFile $DiaryMetaFile -Pid ([int]$existingDiaryPids[0]) -ModuleName "data.event_diary" -Args @($DiaryArgs) -Launcher "start_data_layer.ps1:refresh_existing"
         Write-Output ("ALREADY_RUNNING module=event_diary pids=" + ($existingDiaryPids -join ","))
         Write-Output "event_diary_stdout=$DiaryOutLog"
         Write-Output "event_diary_stderr=$DiaryErrLog"
     }
 }
-
-$MicroArgs = @(
-    "-u",
-    "-m", "data.microstructure_collector",
-    "--symbols", $Symbols,
-    "--db-path", "data/microstructure.db"
-)
-$DiaryArgs = @(
-    "-u",
-    "-m", "data.event_diary",
-    "--db-path", "data/microstructure.db",
-    "--csv-path", "data/event_diary.csv"
-)
 
 $pMicro = $null
 $pDiary = $null
@@ -178,7 +196,7 @@ if ($startCollector) {
         -PassThru `
         -RedirectStandardOutput $MicroOutLog `
         -RedirectStandardError $MicroErrLog
-    Set-Content -LiteralPath $MicroPidFile -Value ([string]$pMicro.Id)
+    Write-PidState -PidFile $MicroPidFile -MetaFile $MicroMetaFile -Pid ([int]$pMicro.Id) -ModuleName "data.microstructure_collector" -Args @($MicroArgs) -Launcher "start_data_layer.ps1"
 }
 
 if ($startDiary) {
@@ -190,7 +208,7 @@ if ($startDiary) {
         -PassThru `
         -RedirectStandardOutput $DiaryOutLog `
         -RedirectStandardError $DiaryErrLog
-    Set-Content -LiteralPath $DiaryPidFile -Value ([string]$pDiary.Id)
+    Write-PidState -PidFile $DiaryPidFile -MetaFile $DiaryMetaFile -Pid ([int]$pDiary.Id) -ModuleName "data.event_diary" -Args @($DiaryArgs) -Launcher "start_data_layer.ps1"
 }
 
 $tsUtc = [DateTime]::UtcNow.ToString("o")
