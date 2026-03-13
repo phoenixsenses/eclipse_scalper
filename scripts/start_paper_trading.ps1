@@ -85,6 +85,38 @@ $pythonExe = if (Test-Path $venvPythonLocal) {
 $watchdogPidFile = Join-Path $script:RepoRoot "logs\\pids\\paper_watchdog.pid"
 $watchdogMetaFile = Join-Path $script:RepoRoot "logs\\pids\\paper_watchdog.json"
 $watchdogCmdSig = "$pythonExe -m tools.collection_watchdog"
+$launcherStatusFile = Join-Path $script:RepoRoot "logs\\paper_launcher_status.json"
+
+function Write-LauncherStatus {
+    param(
+        [Parameter(Mandatory = $true)][string]$Stage,
+        [string]$Status = "running",
+        [string]$Detail = "",
+        [hashtable]$Extra = @{}
+    )
+    try {
+        $payload = @{
+            ts_utc = (Get-Date).ToUniversalTime().ToString("s") + "Z"
+            entrypoint = "scripts/start_paper_trading.ps1"
+            stage = $Stage
+            status = $Status
+            detail = $Detail
+            env_file = $resolvedEnv
+            env_profile = [System.Environment]::GetEnvironmentVariable("SCALPER_ENV_PROFILE", "Process")
+            dry_run = [System.Environment]::GetEnvironmentVariable("SCALPER_DRY_RUN", "Process")
+            paper_execution_mode = [System.Environment]::GetEnvironmentVariable("PAPER_EXECUTION_MODE", "Process")
+            bootstrap_smoke_only = [System.Environment]::GetEnvironmentVariable("BOOTSTRAP_SMOKE_ONLY", "Process")
+            pid = $PID
+        }
+        foreach ($k in $Extra.Keys) {
+            $payload[$k] = $Extra[$k]
+        }
+        $parent = Split-Path -Parent $launcherStatusFile
+        New-Item -ItemType Directory -Path $parent -Force | Out-Null
+        ($payload | ConvertTo-Json -Depth 6) | Set-Content -Path $launcherStatusFile -Encoding utf8
+    } catch {
+    }
+}
 
 function Get-WatchdogPythonProcesses {
     $procs = @(Get-CimInstance Win32_Process -Filter "Name='python.exe'" -ErrorAction SilentlyContinue)
@@ -219,6 +251,7 @@ if (-not (Test-Path $resolvedEnv)) {
 }
 
 Write-Host "Loading $resolvedEnv ..." -ForegroundColor Gray
+Write-LauncherStatus -Stage "env_load_start" -Detail "loading env file into process scope"
 Get-Content $resolvedEnv | Where-Object {
     # Skip blank lines and comments
     $_ -match "^\s*[^#\s]" -and $_ -match "="
@@ -234,6 +267,7 @@ Get-Content $resolvedEnv | Where-Object {
         [System.Environment]::SetEnvironmentVariable($varName, $varValue, "Process")
     }
 }
+Write-LauncherStatus -Stage "env_load_complete" -Detail "env file loaded into process scope"
 
 # Verify SCALPER_DRY_RUN=1 immediately
 $dryRun = [System.Environment]::GetEnvironmentVariable("SCALPER_DRY_RUN", "Process")
@@ -246,33 +280,42 @@ if ($dryRun -ne "1") {
     exit 1
 }
 Write-Host "  Paper mode confirmed: SCALPER_DRY_RUN=1" -ForegroundColor Green
+Write-LauncherStatus -Stage "paper_contract_confirmed" -Detail "SCALPER_DRY_RUN confirmed"
 
 # -- Validate environment ------------------------------------------------------
 if (-not $SkipValidation) {
     Write-Host ""
     Write-Host "Running environment validation..." -ForegroundColor Gray
+    Write-LauncherStatus -Stage "validation_start" -Detail "tools.validate_env starting"
     & $pythonExe -m tools.validate_env --env $resolvedEnv
     if ($LASTEXITCODE -ne 0) {
+        Write-LauncherStatus -Stage "validation_failed" -Status "failed" -Detail "tools.validate_env returned non-zero" -Extra @{ exit_code = $LASTEXITCODE }
         Write-Host ""
         Write-Host "Validation failed. Fix the FAIL items above before starting." -ForegroundColor Red
         exit 1
     }
+    Write-LauncherStatus -Stage "validation_complete" -Detail "tools.validate_env passed"
 } else {
     Write-Host "  Validation skipped (-SkipValidation)" -ForegroundColor Yellow
+    Write-LauncherStatus -Stage "validation_skipped" -Detail "validation skipped by flag"
 }
 
 # -- Preflight gate ------------------------------------------------------------
 if (-not $SkipPreflight) {
     Write-Host ""
     Write-Host "Running preflight checks..." -ForegroundColor Gray
+    Write-LauncherStatus -Stage "preflight_start" -Detail "tools.preflight_check starting"
     & $pythonExe -m tools.preflight_check
     if ($LASTEXITCODE -ne 0) {
+        Write-LauncherStatus -Stage "preflight_failed" -Status "failed" -Detail "tools.preflight_check returned non-zero" -Extra @{ exit_code = $LASTEXITCODE }
         Write-Host ""
         Write-Host "Preflight failed. Resolve FAIL items in reports/PREFLIGHT_CHECK.md before starting." -ForegroundColor Red
         exit 1
     }
+    Write-LauncherStatus -Stage "preflight_complete" -Detail "tools.preflight_check passed"
 } else {
     Write-Host "  Preflight skipped (-SkipPreflight)" -ForegroundColor Yellow
+    Write-LauncherStatus -Stage "preflight_skipped" -Detail "preflight skipped by flag"
 }
 
 # -- Start data collection watchdog (background process) -----------------------
@@ -281,6 +324,7 @@ $watchdogStartedHere = $false
 if (-not $NoWatchdog) {
     Write-Host ""
     Write-Host "Starting data collection watchdog..." -ForegroundColor Gray
+    Write-LauncherStatus -Stage "watchdog_check" -Detail "checking existing watchdog state"
     $status = Get-WatchdogIdentityStatus -MetaFile $watchdogMetaFile -ExpectedSig $watchdogCmdSig
     if ($status.status -eq "live_match" -or $status.status -eq "live_unknown") {
         $watchdog = [PSCustomObject]@{ ProcessId = [int]$status.pid; Source = "registry"; Id = [int]$status.pid }
@@ -325,8 +369,10 @@ if (-not $NoWatchdog) {
     }
     ($record | ConvertTo-Json -Depth 4) | Set-Content -Path $watchdogMetaFile -Encoding utf8
     Write-Host "  PID file: $watchdogPidFile" -ForegroundColor DarkGray
+    Write-LauncherStatus -Stage "watchdog_ready" -Detail "watchdog state resolved" -Extra @{ watchdog_pid = $recordPid; watchdog_started_here = [bool]$watchdogStartedHere }
 } else {
     Write-Host "  Watchdog skipped (-NoWatchdog)" -ForegroundColor Yellow
+    Write-LauncherStatus -Stage "watchdog_skipped" -Detail "watchdog skipped by flag"
 }
 
 # -- Start paper trading -------------------------------------------------------
@@ -344,6 +390,7 @@ if ($SmokeOffline) {
     }
     Write-Host "  SmokeOffline enabled: bootstrap will skip exchange init and loops." -ForegroundColor Yellow
 }
+Write-LauncherStatus -Stage "bootstrap_handoff_start" -Detail "invoking python -m execution.bootstrap"
 $sessionStartUtc = (Get-Date).ToUniversalTime()
 $lastShutdown = Join-Path $script:RepoRoot "logs\\last_shutdown.json"
 if (Test-Path $lastShutdown) {
@@ -355,9 +402,13 @@ try {
     # (main.py removes SCALPER_DRY_RUN unless --dry-run is passed)
     & $pythonExe -m execution.bootstrap
     $exitCode = $LASTEXITCODE
+    $manifestExists = Test-Path (Join-Path $script:RepoRoot "logs\\paper_startup_manifest.json")
+    $startupStateExists = Test-Path (Join-Path $script:RepoRoot "logs\\paper_startup_state.json")
+    Write-LauncherStatus -Stage "bootstrap_returned" -Status ($(if ($exitCode -eq 0) { "ok" } else { "failed" })) -Detail "execution.bootstrap returned" -Extra @{ exit_code = $exitCode; startup_manifest_exists = $manifestExists; startup_state_exists = $startupStateExists }
 } catch {
     Write-Host "Bot exited with exception: $_" -ForegroundColor Red
     $exitCode = 1
+    Write-LauncherStatus -Stage "bootstrap_exception" -Status "failed" -Detail "$_" -Extra @{ exit_code = $exitCode }
 } finally {
     if ($SmokeOffline) {
         [System.Environment]::SetEnvironmentVariable("BOOTSTRAP_SMOKE_ONLY", $prevSmokeOnly, "Process")
@@ -385,6 +436,14 @@ try {
 
     Write-Host ""
     Write-Host "Python exit code: $exitCode" -ForegroundColor Gray
+    $startupManifest = Join-Path $script:RepoRoot "logs\\paper_startup_manifest.json"
+    $startupState = Join-Path $script:RepoRoot "logs\\paper_startup_state.json"
+    Write-Host "Launcher status: $launcherStatusFile" -ForegroundColor Gray
+    Write-Host "Bootstrap state: $startupState" -ForegroundColor Gray
+    Write-Host "Startup manifest: $startupManifest" -ForegroundColor Gray
+    if (-not (Test-Path $startupManifest)) {
+        Write-Host "Startup manifest missing -> bootstrap likely did not reach manifest write stage." -ForegroundColor Yellow
+    }
     if (Test-Path $lastShutdown) {
         try {
             $lsw = (Get-Item $lastShutdown).LastWriteTimeUtc

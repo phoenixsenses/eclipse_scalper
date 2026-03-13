@@ -17,6 +17,7 @@ import time
 import hashlib
 import asyncio
 from datetime import date, datetime
+from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple, Union, Callable
 
 from utils.logging import log_brain
@@ -47,6 +48,30 @@ _IO_LOCK = asyncio.Lock()
 # Caps (bloat control)
 KNOWN_EXIT_IDS_CAP = 50_000
 ENTRY_WATCHES_CAP = 500
+
+
+def _paper_profile_active() -> bool:
+    try:
+        profile = str(os.getenv("SCALPER_ENV_PROFILE", "") or "").strip().lower()
+        dry_run = str(os.getenv("SCALPER_DRY_RUN", "") or "").strip().lower()
+        return profile == "paper" or dry_run in ("1", "true", "yes", "on")
+    except Exception:
+        return False
+
+
+def _resolve_brain_path() -> str:
+    try:
+        override = str(os.getenv("BRAIN_PATH", "") or "").strip()
+        if override:
+            return os.path.abspath(os.path.expanduser(override))
+    except Exception:
+        pass
+    if _paper_profile_active():
+        try:
+            return str((Path.cwd() / "state" / "paper_brain.lz4").resolve())
+        except Exception:
+            return str(Path("state") / "paper_brain.lz4")
+    return BRAIN_PATH
 
 
 # -----------------------
@@ -590,7 +615,8 @@ def _unpack_envelope(raw: bytes) -> Optional[Dict[str, Any]]:
 
 
 def _rotate_backups():
-    oldest = f"{BRAIN_PATH}.bak{MAX_BACKUPS}"
+    brain_path = _resolve_brain_path()
+    oldest = f"{brain_path}.bak{MAX_BACKUPS}"
     if os.path.exists(oldest):
         try:
             os.unlink(oldest)
@@ -598,8 +624,8 @@ def _rotate_backups():
             pass
 
     for i in range(MAX_BACKUPS - 1, 0, -1):
-        src = f"{BRAIN_PATH}.bak{i}"
-        dst = f"{BRAIN_PATH}.bak{i+1}"
+        src = f"{brain_path}.bak{i}"
+        dst = f"{brain_path}.bak{i+1}"
         if os.path.exists(src):
             try:
                 os.replace(src, dst)
@@ -703,7 +729,7 @@ async def save_brain(state: PsycheState, force: bool = False):
             payload_bytes = msgpack.packb(data, use_bin_type=True)
             envelope = _pack_envelope(payload_bytes)
 
-            await _atomic_write(BRAIN_PATH, envelope)
+            await _atomic_write(_resolve_brain_path(), envelope)
 
             _disk_failed = False
             _memory_fallback_payload = None
@@ -755,7 +781,8 @@ async def load_brain(state: PsycheState) -> bool:
 
         # 2) Disk resurrection: main + backups
         for i in range(MAX_BACKUPS + 1):
-            path = BRAIN_PATH if i == 0 else f"{BRAIN_PATH}.bak{i}"
+            brain_path = _resolve_brain_path()
+            path = brain_path if i == 0 else f"{brain_path}.bak{i}"
             if not os.path.exists(path):
                 continue
 

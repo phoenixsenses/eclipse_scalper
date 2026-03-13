@@ -470,6 +470,31 @@ def _write_startup_manifest(bot: Any, *, dotenv_source: str) -> None:
             pass
 
 
+def _write_startup_state(stage: str, **fields: Any) -> None:
+    try:
+        from execution.runtime_helpers import atomic_write_json  # type: ignore
+    except Exception:
+        return
+    try:
+        payload = {
+            "ts_utc": _utc_now_iso(),
+            "entrypoint": "execution.bootstrap",
+            "stage": str(stage or "").strip() or "unknown",
+            "env_profile": str(os.getenv("SCALPER_ENV_PROFILE", "") or "").strip().lower(),
+            "dry_run": _env_bool("SCALPER_DRY_RUN", False),
+            "paper_execution_mode": str(os.getenv("PAPER_EXECUTION_MODE", "") or "").strip().lower(),
+            "binance_testnet": _env_bool("BINANCE_TESTNET", False),
+        }
+        for key, value in fields.items():
+            payload[str(key)] = value
+        atomic_write_json(Path("logs/paper_startup_state.json"), payload)
+    except Exception as e:
+        try:
+            log_core.warning(f"[bootstrap] startup state write failed: {e}")
+        except Exception:
+            pass
+
+
 # ----------------------------
 # Exchange init (ccxt async)
 # ----------------------------
@@ -1149,6 +1174,7 @@ async def main() -> None:
             _d.mkdir(parents=True, exist_ok=True)
         except Exception:
             pass
+    _write_startup_state("bootstrap_entered")
 
     cfg = _load_cfg()
     _apply_env_overrides_to_cfg(cfg)
@@ -1156,6 +1182,7 @@ async def main() -> None:
         log_core.info(f"[bootstrap] dotenv loaded: {_DOTENV_SOURCE} (override=0)")
     else:
         log_core.info("[bootstrap] dotenv loaded: none (using process env only)")
+    _write_startup_state("dotenv_loaded", dotenv_source=_DOTENV_SOURCE or "")
     try:
         # Env var should be explicit/authoritative. If only .env is loaded and ACTIVE_SYMBOLS
         # is absent in process env, stale symbol sets can silently persist.
@@ -1203,7 +1230,9 @@ async def main() -> None:
     bot._shutdown = ensure_traced_shutdown_event(bot)
     bot.data_ready = asyncio.Event()
 
+    _write_startup_state("exchange_init_start")
     bot.ex = await _init_exchange(cfg)
+    _write_startup_state("exchange_init_ok", exchange_type=type(bot.ex).__name__)
     bot.exchange = bot.ex
 
     bot.data = getattr(bot, "data", None)
@@ -1240,6 +1269,7 @@ async def main() -> None:
         log_core.info(f"[bootstrap] ENV ACTIVE_SYMBOLS -> bot.active_symbols ({len(env_syms_bot)}): {env_syms_bot[:12]}")
 
     _write_startup_manifest(bot, dotenv_source=_DOTENV_SOURCE)
+    _write_startup_state("startup_manifest_written")
     try:
         rc = getattr(getattr(bot, "state", None), "run_context", None) or {}
         sm = rc.get("startup_manifest") if isinstance(rc, dict) else None
@@ -1320,9 +1350,11 @@ async def main() -> None:
     smoke_only = _env_bool("BOOTSTRAP_SMOKE_ONLY", False)
     smoke_sec = max(0.0, _env_float("BOOTSTRAP_SMOKE_SEC", 5.0))
     if smoke_only:
+        _write_startup_state("smoke_sleep", smoke_sec=smoke_sec)
         log_core.warning(f"[bootstrap] smoke-only mode enabled; loops are skipped, sleeping {smoke_sec:.1f}s")
         tasks.append(asyncio.create_task(asyncio.sleep(smoke_sec)))
     else:
+        _write_startup_state("loop_task_build_start")
         # ------------------------------------------------------------
         # Required loops
         # ------------------------------------------------------------

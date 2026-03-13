@@ -5,13 +5,16 @@ import json
 import os
 import shutil
 import sqlite3
+import subprocess
+import sys
 import tempfile
 import time
+import uuid
 from pathlib import Path
 from typing import Any, Dict, List
 
 from tools.run_summary import build_run_summary
-from tools.validate_data_research_fitness import analyze_research_fitness, summarize_research_fitness
+from tools.validate_data_research_fitness import summarize_research_fitness
 from utils.env_profile import current_env_profile, load_dotenv_best_effort, paper_profile_active
 
 
@@ -25,6 +28,11 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--event-diary-csv", default="data/event_diary.csv")
     p.add_argument("--fitness-symbols", default="")
     p.add_argument("--fitness-fresh-sec", type=int, default=120)
+    p.add_argument(
+        "--fitness-timeout-sec",
+        type=float,
+        default=float(os.getenv("PREFLIGHT_FITNESS_TIMEOUT_SEC", "8") or 8.0),
+    )
     p.add_argument("--max-db-stale-sec", type=float, default=1800.0)
     p.add_argument("--min-free-gb", type=float, default=2.0)
     p.add_argument("--out-json", default="reports/PREFLIGHT_CHECK.json")
@@ -101,6 +109,97 @@ def _read_max_ts(db: Path) -> int:
         conn.close()
 
 
+def _run_research_fitness_subprocess(
+    *,
+    db_path: Path,
+    csv_path: Path,
+    symbols: List[str],
+    fresh_sec: int,
+    timeout_sec: float,
+) -> Dict[str, Any]:
+    reports_dir = Path("reports")
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    token = uuid.uuid4().hex[:8]
+    out_json = reports_dir / f"_preflight_fitness_{token}.json"
+    out_md = reports_dir / f"_preflight_fitness_{token}.md"
+    cmd = [
+        sys.executable,
+        "-m",
+        "tools.validate_data_research_fitness",
+        "--db",
+        str(db_path),
+        "--csv",
+        str(csv_path),
+        "--symbols",
+        ",".join(symbols),
+        "--fresh-sec",
+        str(int(fresh_sec)),
+        "--out-json",
+        str(out_json),
+        "--out-md",
+        str(out_md),
+    ]
+    try:
+        completed = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=max(0.1, float(timeout_sec)),
+            check=False,
+        )
+        if out_json.exists():
+            payload = json.loads(out_json.read_text(encoding="utf-8"))
+            payload["_preflight_runner"] = {
+                "returncode": int(completed.returncode),
+                "stdout": (completed.stdout or "").strip(),
+                "stderr": (completed.stderr or "").strip(),
+                "timed_out": False,
+                "timeout_sec": float(timeout_sec),
+            }
+            return payload
+        return {
+            "status": "fail",
+            "db": str(db_path),
+            "csv": str(csv_path),
+            "symbols": list(symbols),
+            "warnings": [],
+            "failures": ["preflight_fitness_output_missing"],
+            "_preflight_runner": {
+                "returncode": int(completed.returncode),
+                "stdout": (completed.stdout or "").strip(),
+                "stderr": (completed.stderr or "").strip(),
+                "timed_out": False,
+                "timeout_sec": float(timeout_sec),
+            },
+        }
+    except subprocess.TimeoutExpired as exc:
+        return {
+            "status": "timeout",
+            "db": str(db_path),
+            "csv": str(csv_path),
+            "symbols": list(symbols),
+            "warnings": [f"timeout:{float(timeout_sec):.1f}s"],
+            "failures": [],
+            "_preflight_runner": {
+                "returncode": None,
+                "stdout": ((exc.stdout or "") if isinstance(exc.stdout, str) else "").strip(),
+                "stderr": ((exc.stderr or "") if isinstance(exc.stderr, str) else "").strip(),
+                "timed_out": True,
+                "timeout_sec": float(timeout_sec),
+            },
+        }
+    finally:
+        try:
+            out_json.unlink(missing_ok=True)
+        except Exception:
+            pass
+        try:
+            out_md.unlink(missing_ok=True)
+        except Exception:
+            pass
+
+
 def main() -> int:
     args = _parse_args()
     out_json = Path(str(args.out_json))
@@ -120,6 +219,22 @@ def main() -> int:
     checks["SCALPER_ENV_PROFILE"] = profile
     if not paper_profile_active():
         failures.append("SCALPER_ENV_PROFILE must be 'paper' (or SCALPER_DRY_RUN=1) for paper startup")
+    paper_execution_mode = str(os.getenv("PAPER_EXECUTION_MODE", "")).strip().lower()
+    checks["PAPER_EXECUTION_MODE"] = paper_execution_mode
+    if paper_execution_mode != "router_blocked":
+        failures.append("PAPER_EXECUTION_MODE must be router_blocked for the current paper contract")
+    binance_testnet = str(os.getenv("BINANCE_TESTNET", "")).strip()
+    checks["BINANCE_TESTNET"] = binance_testnet
+    if binance_testnet != "1":
+        failures.append("BINANCE_TESTNET must be 1 for paper startup")
+    paper_allow_live_private_api = str(os.getenv("PAPER_ALLOW_LIVE_PRIVATE_API", "")).strip()
+    checks["PAPER_ALLOW_LIVE_PRIVATE_API"] = paper_allow_live_private_api
+    if paper_allow_live_private_api not in {"", "0"}:
+        failures.append("PAPER_ALLOW_LIVE_PRIVATE_API must remain 0 for the paper contract")
+    paper_require_private_auth = str(os.getenv("PAPER_REQUIRE_PRIVATE_AUTH", "")).strip()
+    checks["PAPER_REQUIRE_PRIVATE_AUTH"] = paper_require_private_auth
+    if paper_require_private_auth not in {"", "0"}:
+        failures.append("PAPER_REQUIRE_PRIVATE_AUTH must remain 0 for the paper contract")
 
     active_symbols = str(os.getenv("ACTIVE_SYMBOLS", "")).strip()
     checks["ACTIVE_SYMBOLS"] = active_symbols
@@ -163,11 +278,13 @@ def main() -> int:
 
     fitness_symbols = _resolve_fitness_symbols(args.fitness_symbols)
     checks["data_research_fitness_symbols"] = list(fitness_symbols)
-    fitness = analyze_research_fitness(
+    checks["data_research_fitness_timeout_sec"] = float(args.fitness_timeout_sec)
+    fitness = _run_research_fitness_subprocess(
         db_path=db,
         csv_path=Path(str(args.event_diary_csv)),
         symbols=fitness_symbols,
         fresh_sec=int(args.fitness_fresh_sec),
+        timeout_sec=float(args.fitness_timeout_sec),
     )
     fitness_summary = summarize_research_fitness(fitness)
     checks["data_research_fitness_status"] = str(fitness.get("status") or "unknown")
@@ -181,6 +298,11 @@ def main() -> int:
         failures.append(
             "Data research fitness failed: "
             + str(fitness_summary.get("headline") or "unknown failure")
+        )
+    elif checks["data_research_fitness_status"] == "timeout":
+        warnings.append(
+            "Data research fitness timed out: "
+            + str(fitness_summary.get("headline") or "timed out")
         )
     elif checks["data_research_fitness_status"] == "warn":
         warnings.append(
