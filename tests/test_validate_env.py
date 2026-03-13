@@ -55,7 +55,10 @@ def _run_main(monkeypatch, env: dict, argv: list[str] | None = None) -> int:
 def _minimal_paper_env() -> dict:
     """Minimum valid paper trading environment."""
     return {
+        "SCALPER_ENV_PROFILE": "paper",
         "SCALPER_DRY_RUN": "1",
+        "BINANCE_TESTNET": "1",
+        "SKIP_EXCHANGE_AUTH_IN_DRYRUN": "1",
         "ACTIVE_SYMBOLS": "ETHUSDT",
         "FIXED_NOTIONAL_USDT": "15",
         "ENTRY_REGIME": "up",
@@ -181,7 +184,7 @@ def test_trade_log_dir_created_if_missing(monkeypatch):
     tmpdir.mkdir(parents=True, exist_ok=True)
     try:
         db_path = str(Path(tmpdir) / "new_subdir" / "paper_trades.db")
-        env = {**_minimal_paper_env(), "ENTRY_TRADE_LOG_DB": db_path}
+        env = {**_minimal_paper_env(), "ENTRY_TRADE_LOG_DB": db_path, "EXIT_TRADE_LOG_DB": db_path}
         rc = _run_main(monkeypatch, env)
         assert rc == 0
         assert (Path(tmpdir) / "new_subdir").exists()
@@ -212,7 +215,9 @@ def test_invalid_api_key_fails(monkeypatch):
     """An actually invalid (non-placeholder) key that fails ccxt auth → FAIL."""
     env = {**_minimal_paper_env(),
            "BINANCE_API_KEY": "invalid_key_12345",
-           "BINANCE_API_SECRET": "invalid_secret_67890"}
+           "BINANCE_API_SECRET": "invalid_secret_67890",
+           "PAPER_REQUIRE_PRIVATE_AUTH": "1",
+           "SKIP_EXCHANGE_AUTH_IN_DRYRUN": "0"}
 
     mock_exchange = MagicMock()
     mock_exchange.options = {}
@@ -232,6 +237,8 @@ def test_exchange_alias_and_quote_strip(monkeypatch):
     env.pop("BINANCE_API_SECRET", None)
     env["BINANCE_KEY"] = "  'alias_key_123'  "
     env["BINANCE_SECRET"] = '  "alias_secret_456"  '
+    env["PAPER_REQUIRE_PRIVATE_AUTH"] = "1"
+    env["SKIP_EXCHANGE_AUTH_IN_DRYRUN"] = "0"
 
     mock_exchange = MagicMock()
     mock_exchange.options = {}
@@ -254,6 +261,38 @@ def test_skip_exchange_auth_in_dryrun(monkeypatch):
     assert rc == 0
 
 
+def test_paper_live_private_api_requires_testnet_or_override(monkeypatch):
+    env = {
+        **_minimal_paper_env(),
+        "BINANCE_API_KEY": "paper_key",
+        "BINANCE_API_SECRET": "paper_secret",
+        "BINANCE_TESTNET": "0",
+        "SKIP_EXCHANGE_AUTH_IN_DRYRUN": "1",
+    }
+    rc = _run_main(monkeypatch, env)
+    assert rc == 2
+
+
+def test_mismatched_telegram_token_names_fail(monkeypatch):
+    env = {
+        **_minimal_paper_env(),
+        "TELEGRAM_TOKEN": "123456:AAAA",
+        "TELEGRAM_BOT_TOKEN": "987654:BBBB",
+    }
+    rc = _run_main(monkeypatch, env)
+    assert rc == 2
+
+
+def test_trade_logger_db_mismatch_fails(monkeypatch):
+    env = {
+        **_minimal_paper_env(),
+        "ENTRY_TRADE_LOG_DB": "data/paper_trades.db",
+        "EXIT_TRADE_LOG_DB": "data/paper_trades_other.db",
+    }
+    rc = _run_main(monkeypatch, env)
+    assert rc == 2
+
+
 # ── trade log ─────────────────────────────────────────────────────────────────
 
 def test_trade_log_writable_dir_passes(monkeypatch):
@@ -262,7 +301,7 @@ def test_trade_log_writable_dir_passes(monkeypatch):
     tmpdir.mkdir(parents=True, exist_ok=True)
     try:
         db_path = str(Path(tmpdir) / "paper_trades.db")
-        env = {**_minimal_paper_env(), "ENTRY_TRADE_LOG_DB": db_path}
+        env = {**_minimal_paper_env(), "ENTRY_TRADE_LOG_DB": db_path, "EXIT_TRADE_LOG_DB": db_path}
         rc = _run_main(monkeypatch, env)
         assert rc == 0
     finally:

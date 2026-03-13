@@ -35,6 +35,11 @@ def _set_windows_asyncio_policy() -> None:
         pass
 
 
+def _paper_profile_active() -> bool:
+    profile = str(os.getenv("SCALPER_ENV_PROFILE", "") or "").strip().lower()
+    return profile == "paper"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="SCALPER ETERNAL — Blade Ascendant Launcher (2026 v4.2)"
@@ -72,6 +77,13 @@ def main() -> int:
     # Mode (auto/micro/production)
     os.environ["SCALPER_MODE"] = args.mode
 
+    preexisting_dry_run = str(os.getenv("SCALPER_DRY_RUN", "") or "").strip().lower()
+    if (not args.dry_run) and (_paper_profile_active() or preexisting_dry_run in {"1", "true", "yes", "y", "on"}):
+        print("ERROR: paper-profile environment detected.")
+        print("Use `scripts/start_paper_trading.ps1` or `python -m execution.bootstrap` for paper trading.")
+        print("Refusing to clear SCALPER_DRY_RUN from a paper environment.")
+        return 2
+
     # Dry-run authority
     if args.dry_run:
         os.environ["SCALPER_DRY_RUN"] = "1"
@@ -98,6 +110,7 @@ def main() -> int:
     print(f"Equity Override : {effective_equity or 'EXCHANGE BALANCE'}")
     print(f"Dry Run         : {'YES (SIMULATION)' if effective_dry else 'NO (LIVE ORDERS)'}")
     print(f"Signal Profile  : {effective_signal or 'default'}")
+    print(f"Env Profile     : {os.getenv('SCALPER_ENV_PROFILE', 'live/default')}")
     print("─" * 80)
 
     if not effective_dry:

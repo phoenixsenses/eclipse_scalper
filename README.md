@@ -52,7 +52,7 @@ The repository contains the **core engine and research tools**. No exchange secr
                            |
                            v
                      exchanges/binance
-                     exchanges/paper
+                     paper runtime = dry-run guards + paper startup profile
                            |
                            v
               execution/reconcile.py
@@ -160,11 +160,12 @@ pip install -r requirements.txt
 ### Paper Trading
 
 ```bash
-# Copy and configure your environment
-cp .env.paper.example .env.paper
-# Edit .env.paper — set PAPER_MODE=true, no live API key required
+# Review .env.paper and keep SCALPER_ENV_PROFILE=paper / SCALPER_DRY_RUN=1
+# Prefer no private Binance keys for paper mode unless sandbox-only.
 
-python main.py --env paper
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start_paper_trading.ps1
+# or
+python -m execution.bootstrap
 ```
 
 ### Run the Research Pipeline

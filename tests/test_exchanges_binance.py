@@ -140,7 +140,8 @@ class TestOrderSubmission(unittest.TestCase):
 
     def test_create_order_resolves_symbol(self):
         adapter = _make_adapter()
-        result = _run(adapter.create_order("BTCUSDT", "limit", "buy", 0.001, 50000.0))
+        with patch.dict("os.environ", {"SCALPER_DRY_RUN": ""}, clear=False):
+            result = _run(adapter.create_order("BTCUSDT", "limit", "buy", 0.001, 50000.0))
         # safe_request should have been called with resolved raw symbol
         adapter.exchange.create_order.assert_called_once()
         args = adapter.exchange.create_order.call_args
@@ -171,7 +172,8 @@ class TestOrderCancellation(unittest.TestCase):
 
     def test_cancel_order_resolves_symbol(self):
         adapter = _make_adapter()
-        result = _run(adapter.cancel_order("order123", "BTCUSDT"))
+        with patch.dict("os.environ", {"SCALPER_DRY_RUN": ""}, clear=False):
+            result = _run(adapter.cancel_order("order123", "BTCUSDT"))
         adapter.exchange.cancel_order.assert_called_once()
         args = adapter.exchange.cancel_order.call_args
         self.assertEqual(args[0][1], "BTC/USDT:USDT")

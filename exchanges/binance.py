@@ -13,15 +13,11 @@ import asyncio
 import time
 import os
 import random
-from dotenv import load_dotenv
 from typing import Dict, Optional, Any, Tuple
 
 from utils.logging import log_core
 
 from .base import ExchangeAdapter
-
-load_dotenv()
-
 
 def _env_truthy(name: str) -> bool:
     v = os.getenv(name)

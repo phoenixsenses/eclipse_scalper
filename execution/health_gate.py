@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -66,6 +67,50 @@ def load_overall_health(path: str | Path = "logs/health/overall.json") -> Dict[s
         return json.loads(p.read_text(encoding="utf-8", errors="replace"))
     except Exception:
         return None
+
+
+def _env_truthy(name: str, default: bool = False) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    return str(raw).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _paper_contract_fields() -> Dict[str, Any]:
+    env_profile = str(os.environ.get("SCALPER_ENV_PROFILE", "") or "").strip().lower()
+    dry_run = _env_truthy("SCALPER_DRY_RUN", False)
+    paper_profile_active = dry_run or env_profile == "paper"
+    paper_execution_mode = str(os.environ.get("PAPER_EXECUTION_MODE", "") or "").strip().lower()
+    allow_live_private_api = _env_truthy("PAPER_ALLOW_LIVE_PRIVATE_API", False)
+    binance_testnet = _env_truthy("BINANCE_TESTNET", False)
+    private_key_present = bool(str(os.environ.get("BINANCE_API_KEY", "") or os.environ.get("BINANCE_KEY", "") or "").strip())
+    private_secret_present = bool(str(os.environ.get("BINANCE_API_SECRET", "") or os.environ.get("BINANCE_SECRET", "") or "").strip())
+    private_api_present = private_key_present and private_secret_present
+
+    startup_contract_safe = True
+    startup_contract_reason = ""
+    if env_profile and env_profile != "paper":
+        startup_contract_safe = False
+        startup_contract_reason = "env_profile_not_paper"
+    elif not paper_profile_active:
+        startup_contract_safe = False
+        startup_contract_reason = "paper_profile_inactive"
+    elif allow_live_private_api:
+        startup_contract_safe = False
+        startup_contract_reason = "paper_allows_live_private_api"
+    elif private_api_present and not binance_testnet:
+        startup_contract_safe = False
+        startup_contract_reason = "paper_private_api_non_testnet"
+
+    return {
+        "env_profile": env_profile or None,
+        "paper_profile_active": paper_profile_active,
+        "paper_execution_mode": paper_execution_mode or None,
+        "binance_testnet": binance_testnet,
+        "paper_allow_live_private_api": allow_live_private_api,
+        "startup_contract_safe": startup_contract_safe,
+        "startup_contract_reason": startup_contract_reason,
+    }
 
 
 def evaluate_health_gate(
@@ -222,35 +267,26 @@ def write_paper_trader_health(
     if not callable(write_component_health):
         return
     status = "ok" if decision.allow else ("halted" if decision.state == "halted" else "degraded")
+    contract_fields = _paper_contract_fields()
+    payload = {
+        "status": status,
+        "connected": decision.allow,
+        "last_progress_ts_utc": (utc_now_iso() if callable(utc_now_iso) else None),
+        "progress_lag_sec": decision.collector_lag_sec,
+        "reconnects_last_5m": int(decision.reconnects_last_5m),
+        "errors_last_5m": int(decision.errors_last_5m),
+        "reason": reason,
+        **contract_fields,
+    }
     try:
-        write_component_health(
-            "paper_trader",
-            {
-                "status": status,
-                "connected": decision.allow,
-                "last_progress_ts_utc": (utc_now_iso() if callable(utc_now_iso) else None),
-                "progress_lag_sec": decision.collector_lag_sec,
-                "reconnects_last_5m": int(decision.reconnects_last_5m),
-                "errors_last_5m": int(decision.errors_last_5m),
-                "reason": reason,
-            },
-            root=root,
-        )
+        write_component_health("paper_trader", payload, root=root)
     except Exception:
         return
     if callable(write_overall_health):
         try:
             overall = load_overall_health(Path(root) / "overall.json") or {}
             comps = overall.get("components") if isinstance(overall.get("components"), dict) else {}
-            comps["paper_trader"] = {
-                "status": status,
-                "connected": decision.allow,
-                "last_progress_ts_utc": (utc_now_iso() if callable(utc_now_iso) else None),
-                "progress_lag_sec": decision.collector_lag_sec,
-                "reconnects_last_5m": int(decision.reconnects_last_5m),
-                "errors_last_5m": int(decision.errors_last_5m),
-                "reason": reason,
-            }
+            comps["paper_trader"] = dict(payload)
             overall["components"] = comps
             if not decision.allow and decision.state == "halted":
                 overall["state"] = "halted"

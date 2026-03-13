@@ -10,7 +10,11 @@ Covers:
 """
 from __future__ import annotations
 
+import json
+import shutil
 import time
+import uuid
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -49,6 +53,14 @@ def _health_obj(
             }
         },
     }
+
+
+def _local_tmp_dir(name: str) -> Path:
+    base = (Path("localtests") / "runtime" / "health_gate_unit" / f"{name}_{uuid.uuid4().hex[:8]}").resolve()
+    if base.exists():
+        shutil.rmtree(base, ignore_errors=True)
+    base.mkdir(parents=True, exist_ok=True)
+    return base
 
 
 # ---------------------------------------------------------------------------
@@ -284,21 +296,58 @@ def test_ingestion_probe_cooldown_skips():
 # 12. load_overall_health
 # ---------------------------------------------------------------------------
 
-def test_load_overall_health_missing(tmp_path):
-    result = load_overall_health(tmp_path / "nonexistent.json")
+def test_load_overall_health_missing():
+    base = _local_tmp_dir("missing")
+    result = load_overall_health(base / "nonexistent.json")
     assert result is None
 
 
-def test_load_overall_health_valid(tmp_path):
-    import json
-    p = tmp_path / "overall.json"
+def test_load_overall_health_valid():
+    base = _local_tmp_dir("valid")
+    p = base / "overall.json"
     p.write_text(json.dumps({"state": "ok"}), encoding="utf-8")
     result = load_overall_health(p)
     assert result == {"state": "ok"}
 
 
-def test_load_overall_health_corrupt(tmp_path):
-    p = tmp_path / "overall.json"
+def test_load_overall_health_corrupt():
+    base = _local_tmp_dir("corrupt")
+    p = base / "overall.json"
     p.write_text("NOT JSON", encoding="utf-8")
     result = load_overall_health(p)
     assert result is None
+
+
+def test_write_paper_trader_health_includes_paper_contract(monkeypatch):
+    from execution.health_gate import GateDecision, write_paper_trader_health
+    base = _local_tmp_dir("paper_contract")
+
+    monkeypatch.setenv("SCALPER_ENV_PROFILE", "paper")
+    monkeypatch.setenv("SCALPER_DRY_RUN", "1")
+    monkeypatch.setenv("PAPER_EXECUTION_MODE", "router_blocked")
+    monkeypatch.setenv("BINANCE_TESTNET", "1")
+    monkeypatch.setenv("PAPER_ALLOW_LIVE_PRIVATE_API", "0")
+    monkeypatch.delenv("BINANCE_API_KEY", raising=False)
+    monkeypatch.delenv("BINANCE_API_SECRET", raising=False)
+
+    decision = GateDecision(
+        allow=True,
+        reason="",
+        state="ok",
+        collector_connected=True,
+        collector_lag_sec=2,
+        reconnects_last_5m=0,
+        errors_last_5m=0,
+    )
+    write_paper_trader_health(decision, "", root=base)
+
+    payload = json.loads((base / "paper_trader.json").read_text(encoding="utf-8"))
+    assert payload["paper_profile_active"] is True
+    assert payload["paper_execution_mode"] == "router_blocked"
+    assert payload["binance_testnet"] is True
+    assert payload["paper_allow_live_private_api"] is False
+    assert payload["startup_contract_safe"] is True
+
+    overall = json.loads((base / "overall.json").read_text(encoding="utf-8"))
+    assert overall["components"]["paper_trader"]["paper_execution_mode"] == "router_blocked"
+    assert overall["components"]["paper_trader"]["startup_contract_safe"] is True

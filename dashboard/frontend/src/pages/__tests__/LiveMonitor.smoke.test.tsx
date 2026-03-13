@@ -65,6 +65,15 @@ vi.mock("../../hooks/usePoll", () => ({
             telemetry_age_sec: 1,
             telemetry_present: true,
           },
+          startup_manifest: {
+            env_profile: "paper",
+            paper_profile_active: true,
+            paper_execution_mode: "router_blocked",
+            paper_execution_label: "No-fill rehearsal",
+            paper_fill_model: "blocked_no_fill",
+            binance_testnet: true,
+            paper_allow_live_private_api: false,
+          },
           process_chain: {
             launcher_present: true,
             watchdog_present: true,
@@ -89,12 +98,14 @@ vi.mock("../../hooks/usePoll", () => ({
             no_trades_yet: true,
             db_present: true,
             db_path: "data/paper_trades.db",
+            execution_note: "no fills are expected in router_blocked mode; this run rehearses entry and guard flow only",
           },
           diagnosis: {
             code: "signal_not_present",
             summary: "paper run is healthy but no signal is present",
-            detail: "entries are allowed; recent blockers show signal not present",
+            detail: "entries are allowed; recent blockers show signal not present; no fills are expected in router_blocked mode; this run rehearses entry and guard flow only",
             severity: "info",
+            execution_context: "no fills are expected in router_blocked mode; this run rehearses entry and guard flow only",
           },
           reason_breakdown: {
             signal_not_present: 2,
@@ -132,6 +143,8 @@ describe("LiveMonitor smoke", () => {
     expect(screen.getByText("Why No Trade?")).toBeInTheDocument();
     expect(screen.getByText("Symbol Diagnostics")).toBeInTheDocument();
     expect(screen.getByText("Paper Trade Live Summary")).toBeInTheDocument();
+    expect(screen.getAllByText("No-fill rehearsal").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/no fills are expected in router_blocked mode/i).length).toBeGreaterThan(0);
     expect(screen.getByText("Last 5 Fills")).toBeInTheDocument();
     expect(screen.getByText("Mini Trends")).toBeInTheDocument();
   });

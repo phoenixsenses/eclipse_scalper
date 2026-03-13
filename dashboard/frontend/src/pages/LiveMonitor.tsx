@@ -524,12 +524,20 @@ export default function LiveMonitor() {
   }, [lastFills, fillSearch, fillSymbolFilter]);
   const effectivePaperFile = live?.paper_file ?? paperFile;
   const paperSession = paperRun?.session;
+  const paperStartup = paperRun?.startup_manifest;
   const paperEntry = paperRun?.entry_state;
   const paperDiagnosis = paperRun?.diagnosis;
   const paperTradeState = paperRun?.trade_state;
   const paperChain = paperRun?.process_chain;
   const paperReasonBreakdown = paperRun?.reason_breakdown;
   const paperSymbols = paperRun?.symbols ?? [];
+  const paperExecutionLabel = paperStartup?.paper_execution_label || scoreboardPoll.data?.paper_execution_label || "-";
+  const paperExecutionMode = paperStartup?.paper_execution_mode || scoreboardPoll.data?.paper_execution_mode || "-";
+  const paperFillModel = paperStartup?.paper_fill_model || scoreboardPoll.data?.paper_fill_model || "-";
+  const paperSafeContract =
+    paperStartup?.paper_allow_live_private_api === false &&
+    paperStartup?.binance_testnet === true &&
+    paperStartup?.paper_profile_active !== false;
   useEffect(() => {
     try {
       localStorage.setItem(LIVE_CFG_KEY, JSON.stringify({ tradeAgeAlertSec, fillFlatlineAlertMin }));
@@ -678,6 +686,11 @@ export default function LiveMonitor() {
             </div>
             <div style={{ fontSize: 18, fontWeight: 700 }}>{paperDiagnosis?.summary ?? "paper run status unknown"}</div>
             <div style={{ color: "var(--muted)", fontSize: 12, marginTop: 6 }}>{paperDiagnosis?.detail ?? "awaiting telemetry"}</div>
+            {paperDiagnosis?.execution_context ? (
+              <div style={{ color: "var(--muted)", fontSize: 12, marginTop: 6 }}>
+                execution_context={paperDiagnosis.execution_context}
+              </div>
+            ) : null}
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10 }}>
@@ -689,10 +702,20 @@ export default function LiveMonitor() {
                 </span>
                 <span className="badge badge-gray">uptime {fmtDuration(paperSession?.uptime_sec)}</span>
                 <span className="badge badge-gray">telemetry {paperSession?.telemetry_present ? "ON" : "OFF"}</span>
+                <span className={`badge ${paperExecutionMode === "router_blocked" ? "badge-yellow" : "badge-gray"}`}>
+                  {paperExecutionLabel}
+                </span>
+                <span className="badge badge-gray">fill {paperFillModel}</span>
               </div>
               <div style={{ color: "var(--muted)", fontSize: 12 }}>started={paperSession?.started_ts ?? "-"}</div>
               <div style={{ color: "var(--muted)", fontSize: 12 }}>telemetry_age={paperSession?.telemetry_age_sec == null ? "-" : `${num(paperSession.telemetry_age_sec, 1)}s`}</div>
               <div style={{ color: "var(--muted)", fontSize: 12 }}>symbols={paperSession?.active_symbols?.join(", ") || "-"}</div>
+              <div style={{ color: "var(--muted)", fontSize: 12 }}>execution_mode={paperExecutionMode}</div>
+              <div style={{ color: paperSafeContract ? "var(--muted)" : "var(--yellow)", fontSize: 12 }}>
+                {paperExecutionMode === "router_blocked"
+                  ? "router_blocked mode rehearses runtime flow without creating fills"
+                  : `paper fill model=${paperFillModel}`}
+              </div>
               <div style={{ color: "var(--muted)", fontSize: 12, marginTop: 6 }}>{paperChain?.summary ?? "process chain unknown"}</div>
             </div>
 
@@ -733,6 +756,9 @@ export default function LiveMonitor() {
                 </span>
               </div>
               <div style={{ color: "var(--muted)", fontSize: 12 }}>last_trade={paperTradeState?.last_trade_ts ?? "-"}</div>
+              {paperTradeState?.execution_note ? (
+                <div style={{ color: "var(--muted)", fontSize: 12 }}>{paperTradeState.execution_note}</div>
+              ) : null}
               <div style={{ color: "var(--muted)", fontSize: 12, wordBreak: "break-all" }}>{paperTradeState?.db_path ?? "-"}</div>
             </div>
 
@@ -859,6 +885,7 @@ export default function LiveMonitor() {
                 <div style={{ fontSize: 16, fontWeight: 700, color: scoreboardPoll.data?.paper_trading ? "var(--yellow)" : "var(--green)" }}>
                   {scoreboardPoll.data?.paper_trading ? "PAPER" : "LIVE"}
                 </div>
+                <div style={{ color: "var(--muted)", fontSize: 10 }}>{paperExecutionLabel}</div>
               </div>
               <div className="card">
                 <div className="card-title">Orders</div>

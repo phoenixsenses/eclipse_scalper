@@ -9,25 +9,10 @@ import time
 from collections import deque
 from pathlib import Path
 
-
-def _load_dotenv_best_effort() -> None:
-    try:
-        from dotenv import load_dotenv  # type: ignore
-    except Exception:
-        return
-    root = Path(__file__).resolve().parents[1]
-    env_paper = root / ".env.paper"
-    env_default = root / ".env"
-    try:
-        if env_paper.exists():
-            load_dotenv(dotenv_path=env_paper, override=False)
-        elif env_default.exists():
-            load_dotenv(dotenv_path=env_default, override=False)
-    except Exception:
-        return
+from utils.env_profile import load_dotenv_best_effort, paper_profile_active
 
 
-_load_dotenv_best_effort()
+load_dotenv_best_effort(root=Path(__file__).resolve().parents[1])
 
 
 def _send_alert(msg: str) -> None:
@@ -59,6 +44,9 @@ def _args() -> argparse.Namespace:
 
 def main() -> int:
     args = _args()
+    if not paper_profile_active():
+        print("[supervisor] refusing to run without paper profile / dry-run")
+        return 2
     log_path = Path(args.log)
     log_path.parent.mkdir(parents=True, exist_ok=True)
     restart_hist: deque[float] = deque()

@@ -12,22 +12,10 @@ from typing import Any, Dict, List
 
 from tools.run_summary import build_run_summary
 from tools.validate_data_research_fitness import analyze_research_fitness, summarize_research_fitness
-
-def _load_dotenv_best_effort() -> None:
-    try:
-        from dotenv import load_dotenv  # type: ignore
-    except Exception:
-        return
-    root = Path(__file__).resolve().parents[1]
-    env_paper = root / ".env.paper"
-    env_default = root / ".env"
-    if env_paper.exists():
-        load_dotenv(dotenv_path=env_paper, override=False)
-    elif env_default.exists():
-        load_dotenv(dotenv_path=env_default, override=False)
+from utils.env_profile import current_env_profile, load_dotenv_best_effort, paper_profile_active
 
 
-_load_dotenv_best_effort()
+load_dotenv_best_effort(root=Path(__file__).resolve().parents[1])
 
 
 def _parse_args() -> argparse.Namespace:
@@ -128,6 +116,10 @@ def main() -> int:
     checks["SCALPER_DRY_RUN"] = dry
     if dry != "1":
         failures.append("SCALPER_DRY_RUN must be 1 for paper startup")
+    profile = current_env_profile()
+    checks["SCALPER_ENV_PROFILE"] = profile
+    if not paper_profile_active():
+        failures.append("SCALPER_ENV_PROFILE must be 'paper' (or SCALPER_DRY_RUN=1) for paper startup")
 
     active_symbols = str(os.getenv("ACTIVE_SYMBOLS", "")).strip()
     checks["ACTIVE_SYMBOLS"] = active_symbols

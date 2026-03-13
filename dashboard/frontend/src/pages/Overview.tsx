@@ -275,6 +275,20 @@ export default function Overview() {
       ? healthOverall.data_research_fitness_connected
       : null;
   const fitnessDetail = String(healthOverall.data_research_fitness_detail || "");
+  const paperExecutionMode = String(healthOverall.paper_execution_mode || sb.paper_execution_mode || "");
+  const paperExecutionLabel =
+    paperExecutionMode === "router_blocked"
+      ? "No-fill rehearsal"
+      : paperExecutionMode
+        ? paperExecutionMode.replace(/_/g, " ")
+        : "";
+  const startupContractSafe =
+    typeof healthOverall.startup_contract_safe === "boolean" ? healthOverall.startup_contract_safe : null;
+  const startupContractReason = String(healthOverall.startup_contract_reason || "");
+  const binanceTestnet =
+    typeof healthOverall.binance_testnet === "boolean" ? healthOverall.binance_testnet : null;
+  const paperAllowLivePrivateApi =
+    typeof healthOverall.paper_allow_live_private_api === "boolean" ? healthOverall.paper_allow_live_private_api : null;
   const topBlockers: Array<{ reason: string; count: number }> = useMemo(() => {
     const raw = sb.blocked_by_reason ?? {};
     return Object.entries(raw)
@@ -497,6 +511,66 @@ export default function Overview() {
             color={(sb.circuit_breaker_trips_total ?? 0) > 0 ? "var(--red)" : undefined}
           />
         </div>
+
+        {(sb.paper_trading || paperExecutionMode || startupContractSafe !== null) && (
+          <div
+            className="card"
+            style={{
+              borderLeft: `3px solid ${
+                startupContractSafe === false
+                  ? "var(--red)"
+                  : paperExecutionMode === "router_blocked"
+                    ? "var(--yellow)"
+                    : "var(--border)"
+              }`,
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+              <div>
+                <div className="card-title self-help" data-help="Paper runtime execution contract: fill modeli, testnet ve startup safety durumu.">
+                  Paper Execution Contract
+                </div>
+                <div style={{ color: "var(--muted)" }}>
+                  operator-visible paper execution semantics
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {paperExecutionLabel ? (
+                  <span className={`badge ${paperExecutionMode === "router_blocked" ? "badge-yellow" : "badge-gray"}`}>
+                    {paperExecutionLabel}
+                  </span>
+                ) : null}
+                {startupContractSafe !== null ? (
+                  <span className={`badge ${startupContractSafe ? "badge-green" : "badge-red"}`}>
+                    {startupContractSafe ? "SAFE CONTRACT" : "UNSAFE CONTRACT"}
+                  </span>
+                ) : null}
+                {binanceTestnet !== null ? (
+                  <span className={`badge ${binanceTestnet ? "badge-green" : "badge-red"}`}>
+                    testnet={String(binanceTestnet)}
+                  </span>
+                ) : null}
+                {paperAllowLivePrivateApi !== null ? (
+                  <span className={`badge ${paperAllowLivePrivateApi ? "badge-red" : "badge-green"}`}>
+                    live_private_api={String(paperAllowLivePrivateApi)}
+                  </span>
+                ) : null}
+              </div>
+            </div>
+            <div style={{ color: "var(--muted)", fontSize: 12, marginTop: 10 }}>
+              {paperExecutionMode === "router_blocked"
+                ? "router_blocked mode rehearses entry, guard, and telemetry flow without creating fills"
+                : paperExecutionMode
+                  ? `paper_execution_mode=${paperExecutionMode}`
+                  : "paper execution contract not reported yet"}
+            </div>
+            {startupContractReason ? (
+              <div style={{ color: "var(--muted)", fontSize: 12, marginTop: 6 }}>
+                startup_contract_reason={startupContractReason}
+              </div>
+            ) : null}
+          </div>
+        )}
 
         <div
           className="card"

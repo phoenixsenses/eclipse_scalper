@@ -9,26 +9,10 @@ from statistics import mean
 from typing import Any, Dict, List
 
 from tools.run_summary import build_run_summary
-
-def _load_dotenv_best_effort() -> None:
-    try:
-        from dotenv import load_dotenv  # type: ignore
-    except Exception:
-        return
-    try:
-        env_paper = Path(".env.paper")
-        env_default = Path(".env")
-        if env_paper.exists():
-            load_dotenv(dotenv_path=env_paper, override=False)
-        elif env_default.exists():
-            load_dotenv(dotenv_path=env_default, override=False)
-        else:
-            load_dotenv(override=False)
-    except Exception:
-        return
+from utils.env_profile import load_dotenv_best_effort
 
 
-_load_dotenv_best_effort()
+load_dotenv_best_effort(root=Path.cwd(), cwd_fallback=True)
 
 
 def _connect(db: str) -> sqlite3.Connection:
