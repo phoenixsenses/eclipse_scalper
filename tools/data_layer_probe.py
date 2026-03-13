@@ -192,7 +192,25 @@ def _scan_process_modules() -> Dict[str, int]:
                 if k in cl:
                     counts[k] += 1
     except Exception:
-        return counts
+        pass
+    return counts
+
+
+def _scan_process_modules_from_meta(pid_root: Path) -> Dict[str, int]:
+    counts = {"data.microstructure_collector": 0, "data.event_diary": 0}
+    mapping = {
+        "data.microstructure_collector": pid_root / "microstructure_collector.json",
+        "data.event_diary": pid_root / "event_diary.json",
+    }
+    for module, meta_path in mapping.items():
+        try:
+            payload = json.loads(meta_path.read_text(encoding="utf-8", errors="ignore"))
+            pid = int((payload or {}).get("pid") or 0)
+            cmd = str((payload or {}).get("cmdline_sig") or "")
+            if pid > 0 and module in cmd and _pid_exists(pid):
+                counts[module] += 1
+        except Exception:
+            continue
     return counts
 
 
@@ -385,6 +403,10 @@ def probe(
     details["event_diary_pid_alive"] = bool(diary_pid and _is_pid_alive_with_module(diary_pid, "data.event_diary", run_map))
 
     scan_counts = _scan_process_modules()
+    if not any(scan_counts.values()):
+        meta_counts = _scan_process_modules_from_meta(pid_root)
+        for key, value in meta_counts.items():
+            scan_counts[key] = max(int(scan_counts.get(key, 0)), int(value))
     details["scan_micro_count"] = scan_counts.get("data.microstructure_collector", 0)
     details["scan_diary_count"] = scan_counts.get("data.event_diary", 0)
 

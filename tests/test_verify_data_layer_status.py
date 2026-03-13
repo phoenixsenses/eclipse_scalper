@@ -79,3 +79,46 @@ def test_verify_stopped_when_no_process_and_no_progress(monkeypatch):
         assert details["overall_status"] == "stopped"
     finally:
         shutil.rmtree(tmp_path, ignore_errors=True)
+
+
+def test_verify_uses_pid_meta_fallback_when_process_scan_fails(monkeypatch):
+    tmp_path = _mk_local_tmp()
+    data_dir = tmp_path / "data"
+    logs_dir = tmp_path / "logs"
+    pids_dir = logs_dir / "pids"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    pids_dir.mkdir(parents=True, exist_ok=True)
+
+    db = data_dir / "microstructure.db"
+    csv = data_dir / "event_diary.csv"
+    db.write_bytes(b"a" * 10)
+    csv.write_text("x\n", encoding="utf-8")
+    (pids_dir / "microstructure_collector.json").write_text(
+        '{"pid": 111, "cmdline_sig": "python -m data.microstructure_collector"}',
+        encoding="utf-8",
+    )
+    (pids_dir / "event_diary.json").write_text(
+        '{"pid": 222, "cmdline_sig": "python -m data.event_diary"}',
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(vdl, "_list_python_processes", lambda: ([], "process_scan_failed:access_denied"))
+
+    class _Proc:
+        def __init__(self, returncode: int):
+            self.returncode = returncode
+
+    monkeypatch.setattr(vdl.subprocess, "run", lambda *args, **kwargs: _Proc(0))
+    stats = iter([(10, 10.0), (1, 10.0), (20, 11.0), (2, 11.0)])
+    monkeypatch.setattr(vdl, "_file_stats", lambda path: next(stats))
+    monkeypatch.setattr(vdl.time, "sleep", lambda _: None)
+    monkeypatch.setattr(vdl.time, "time", lambda: 150.0)
+    try:
+        ok, details = vdl.verify(db, csv, wait_sec=1, min_db_growth_bytes=1)
+        assert ok is True
+        assert details["overall_status"] == "running"
+        assert details["process_scan"].endswith("process_scan_meta_fallback")
+        assert details["microstructure_collector_count"] == "1"
+        assert details["event_diary_count"] == "1"
+    finally:
+        shutil.rmtree(tmp_path, ignore_errors=True)

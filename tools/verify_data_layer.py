@@ -59,6 +59,32 @@ def _list_python_processes() -> Tuple[List[Dict[str, Any]], Optional[str]]:
         return [], f"process_scan_failed:{exc}"
 
 
+def _list_python_processes_from_meta(pid_root: Path) -> List[Dict[str, Any]]:
+    rows: List[Dict[str, Any]] = []
+    mapping = [
+        pid_root / "microstructure_collector.json",
+        pid_root / "event_diary.json",
+    ]
+    for meta_path in mapping:
+        try:
+            payload = json.loads(meta_path.read_text(encoding="utf-8", errors="ignore"))
+            pid = int((payload or {}).get("pid") or 0)
+            cmd = str((payload or {}).get("cmdline_sig") or "")
+            if pid <= 0 or not cmd:
+                continue
+            proc = subprocess.run(
+                ["powershell", "-NoProfile", "-Command", f"Get-Process -Id {pid} | Out-Null"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if proc.returncode == 0:
+                rows.append({"ProcessId": pid, "CommandLine": cmd})
+        except Exception:
+            continue
+    return rows
+
+
 def _find_by_substring(rows: List[Dict[str, Any]], needle: str) -> List[Dict[str, Any]]:
     out: List[Dict[str, Any]] = []
     for r in rows:
@@ -83,6 +109,11 @@ def verify(
     fresh_window_sec = max(60, int(wait_sec) * 30)
 
     procs, scan_error = _list_python_processes()
+    if not procs:
+        meta_rows = _list_python_processes_from_meta(db_path.parent.parent / "logs" / "pids")
+        if meta_rows:
+            procs = meta_rows
+            scan_error = (f"{scan_error};" if scan_error else "") + "process_scan_meta_fallback"
     micro = _find_by_substring(procs, "data.microstructure_collector")
     diary = _find_by_substring(procs, "data.event_diary")
     details["microstructure_collector_count"] = str(len(micro))

@@ -201,6 +201,28 @@ class ManagedProcess:
         recent = [t for t in self.restart_times if now - t <= FAST_RESTART_WINDOW_SEC]
         return len(recent) >= FAST_RESTART_MAX
 
+    def cleanup_pid_state(self) -> None:
+        if self.proc and self.proc.pid:
+            _clear_pid_state_if_matches(cwd=self.cwd, module=self.module, pid=int(self.proc.pid))
+
+    def stop(self, timeout_sec: float = 5.0) -> None:
+        if not self.proc:
+            return
+        if self.proc.poll() is not None:
+            self.cleanup_pid_state()
+            return
+        try:
+            self.proc.terminate()
+            self.proc.wait(timeout=max(0.1, float(timeout_sec)))
+        except Exception:
+            try:
+                self.proc.kill()
+                self.proc.wait(timeout=2.0)
+            except Exception:
+                pass
+        finally:
+            self.cleanup_pid_state()
+
 
 # ---------------------------------------------------------------------------
 # Main loop
@@ -232,30 +254,38 @@ async def run(cwd: Path) -> None:
     pids = " | ".join(f"{mp.name}={mp.proc.pid}" for mp in procs)
     await _send_telegram(f"[SUPERVISOR] Collector supervisor started\n{pids}")
 
-    while True:
-        await asyncio.sleep(CHECK_INTERVAL_SEC)
+    try:
+        while True:
+            await asyncio.sleep(CHECK_INTERVAL_SEC)
+            for mp in procs:
+                if not mp.is_alive():
+                    code = mp.exit_code()
+                    mp.cleanup_pid_state()
+                    log.warning(f"[{mp.name}] DIED exit_code={code} total_restarts={mp.restart_count}")
+
+                    if mp.is_crash_looping():
+                        msg = (
+                            f"[SUPERVISOR] {mp.name} crash-loop detected "
+                            f"({FAST_RESTART_MAX}+ deaths in {FAST_RESTART_WINDOW_SEC}s). "
+                            f"Backing off {BACKOFF_DELAY_SEC}s."
+                        )
+                        log.error(msg)
+                        await _send_telegram(msg)
+                        await asyncio.sleep(BACKOFF_DELAY_SEC)
+                    else:
+                        msg = f"[SUPERVISOR] {mp.name} died (exit={code}). Restarting in {RESTART_DELAY_SEC}s..."
+                        log.warning(msg)
+                        await _send_telegram(msg)
+                        await asyncio.sleep(RESTART_DELAY_SEC)
+
+                    mp.start()
+                    await _send_telegram(f"[SUPERVISOR] {mp.name} restarted (restart #{mp.restart_count})")
+    finally:
         for mp in procs:
-            if not mp.is_alive():
-                code = mp.exit_code()
-                log.warning(f"[{mp.name}] DIED exit_code={code} total_restarts={mp.restart_count}")
-
-                if mp.is_crash_looping():
-                    msg = (
-                        f"[SUPERVISOR] {mp.name} crash-loop detected "
-                        f"({FAST_RESTART_MAX}+ deaths in {FAST_RESTART_WINDOW_SEC}s). "
-                        f"Backing off {BACKOFF_DELAY_SEC}s."
-                    )
-                    log.error(msg)
-                    await _send_telegram(msg)
-                    await asyncio.sleep(BACKOFF_DELAY_SEC)
-                else:
-                    msg = f"[SUPERVISOR] {mp.name} died (exit={code}). Restarting in {RESTART_DELAY_SEC}s..."
-                    log.warning(msg)
-                    await _send_telegram(msg)
-                    await asyncio.sleep(RESTART_DELAY_SEC)
-
-                mp.start()
-                await _send_telegram(f"[SUPERVISOR] {mp.name} restarted (restart #{mp.restart_count})")
+            try:
+                mp.stop()
+            except Exception:
+                pass
 
 
 def main() -> None:
@@ -270,12 +300,6 @@ def main() -> None:
         asyncio.run(run(cwd))
     except KeyboardInterrupt:
         print("Collector supervisor stopped.")
-    finally:
-        for cfg in PROCS:
-            try:
-                _clear_pid_state_if_matches(cwd=cwd, module=str(cfg["module"]), pid=None)
-            except Exception:
-                pass
 
 
 if __name__ == "__main__":

@@ -76,6 +76,26 @@ function Get-MatchingPids([string]$ModuleName) {
             }
         }
     } catch {
+        $metaFile = $null
+        if ($ModuleName -eq "data.microstructure_collector") {
+            $metaFile = $MicroMetaFile
+        } elseif ($ModuleName -eq "data.event_diary") {
+            $metaFile = $DiaryMetaFile
+        }
+        if ($metaFile -and (Test-Path -LiteralPath $metaFile)) {
+            try {
+                $meta = Get-Content -LiteralPath $metaFile -Raw | ConvertFrom-Json
+                $pid = [int]($meta.pid)
+                $cmd = [string]($meta.cmdline_sig)
+                if ($pid -gt 0 -and $cmd -and $cmd.Contains($ModuleName)) {
+                    $proc = Get-Process -Id $pid -ErrorAction SilentlyContinue
+                    if ($proc) {
+                        $out += $pid
+                    }
+                }
+            } catch {
+            }
+        }
     }
     return $out
 }
