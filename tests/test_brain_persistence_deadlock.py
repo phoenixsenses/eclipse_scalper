@@ -59,3 +59,20 @@ def test_post_load_save_timeout_is_non_blocking(monkeypatch) -> None:
 
     elapsed = asyncio.run(_run())
     assert elapsed < 1.0
+
+
+def test_resolve_brain_path_uses_repo_state_for_paper(monkeypatch) -> None:
+    monkeypatch.delenv("BRAIN_PATH", raising=False)
+    monkeypatch.setenv("SCALPER_ENV_PROFILE", "paper")
+    monkeypatch.setenv("SCALPER_DRY_RUN", "1")
+    resolved = Path(bp._resolve_brain_path())
+    assert resolved.name == "paper_brain.lz4"
+    assert resolved.parent.name == "state"
+
+
+def test_resolve_brain_path_honors_override(monkeypatch) -> None:
+    monkeypatch.setenv("BRAIN_PATH", "state/custom_brain.lz4")
+    monkeypatch.setenv("SCALPER_ENV_PROFILE", "paper")
+    monkeypatch.setenv("SCALPER_DRY_RUN", "1")
+    resolved = Path(bp._resolve_brain_path())
+    assert resolved.name == "custom_brain.lz4"
