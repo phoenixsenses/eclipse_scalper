@@ -8,6 +8,8 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from tools.data_layer_probe import is_heartbeat_fresh, parse_heartbeat_json
+
 
 def _powershell_json(command: str) -> Any:
     proc = subprocess.run(
@@ -78,6 +80,7 @@ def verify(
     min_db_growth_bytes: int,
 ) -> Tuple[bool, Dict[str, str]]:
     details: Dict[str, str] = {}
+    fresh_window_sec = max(60, int(wait_sec) * 30)
 
     procs, scan_error = _list_python_processes()
     micro = _find_by_substring(procs, "data.microstructure_collector")
@@ -113,6 +116,21 @@ def verify(
     details["csv_age_sec"] = str(int(max(0.0, now - csv_mtime_1)))
     details["db_age_sec"] = str(int(max(0.0, now - db_mtime_1)))
 
+    heartbeat_path = db_path.parent.parent / "logs" / "collector_heartbeat.json"
+    heartbeat_fresh = False
+    if heartbeat_path.exists():
+        try:
+            hb = parse_heartbeat_json(heartbeat_path.read_text(encoding="utf-8", errors="ignore"))
+            if hb:
+                heartbeat_fresh = is_heartbeat_fresh(hb, fresh_sec=fresh_window_sec, now_ts=now)
+        except Exception:
+            heartbeat_fresh = False
+    collector_data_live = db_growth >= int(min_db_growth_bytes) or heartbeat_fresh or (max(0.0, now - db_mtime_1) <= fresh_window_sec)
+    diary_data_live = csv_mtime_delta > 0 or (max(0.0, now - csv_mtime_1) <= fresh_window_sec)
+    details["collector_data_live"] = str(bool(collector_data_live)).lower()
+    details["diary_data_live"] = str(bool(diary_data_live)).lower()
+    details["heartbeat_fresh"] = str(bool(heartbeat_fresh)).lower()
+
     if not micro:
         details["proc_micro"] = "not_running"
     if not diary:
@@ -122,7 +140,17 @@ def verify(
     if csv_mtime_delta <= 0:
         details["csv_update_check"] = "mtime_not_updated"
 
-    ok = bool(micro) and bool(diary) and db_growth >= int(min_db_growth_bytes) and csv_mtime_delta > 0
+    diary_live = bool(diary) or diary_data_live
+    details["diary_live"] = str(bool(diary_live)).lower()
+    if bool(micro) and diary_live and collector_data_live and diary_data_live:
+        details["overall_status"] = "running"
+        ok = True
+    elif (bool(micro) and collector_data_live) or diary_live or diary_data_live:
+        details["overall_status"] = "degraded"
+        ok = False
+    else:
+        details["overall_status"] = "stopped"
+        ok = False
     return ok, details
 
 

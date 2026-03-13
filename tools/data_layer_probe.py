@@ -309,6 +309,18 @@ def _read_pid(path: Path) -> Optional[int]:
         return None
 
 
+def _pid_state(pid: Optional[int], alive: bool, scan_count: int, data_live: bool) -> str:
+    if pid is None:
+        if scan_count > 0:
+            return "missing_process_live"
+        return "missing"
+    if alive:
+        return "live"
+    if scan_count > 0 or data_live:
+        return "stale_process_live"
+    return "stale"
+
+
 def _read_last_run_record_map(path: Path) -> Dict[Tuple[int, str], Dict[str, Any]]:
     out: Dict[Tuple[int, str], Dict[str, Any]] = {}
     if not path.exists():
@@ -435,21 +447,34 @@ def probe(
     collector_process_live = bool(details["micro_pid_alive"] or details["scan_micro_count"] > 0)
     diary_process_live = bool(details["event_diary_pid_alive"] or details["scan_diary_count"] > 0)
     diary_data_live = bool(csv_mtime_delta > 0 or csv_line_delta > 0)
+    details["micro_pid_state"] = _pid_state(
+        micro_pid,
+        bool(details["micro_pid_alive"]),
+        int(details["scan_micro_count"] or 0),
+        bool(collector_data_live),
+    )
+    details["event_diary_pid_state"] = _pid_state(
+        diary_pid,
+        bool(details["event_diary_pid_alive"]),
+        int(details["scan_diary_count"] or 0),
+        bool(diary_data_live),
+    )
     details["collector_data_live"] = collector_data_live
     details["collector_process_live"] = collector_process_live
     details["diary_data_live"] = diary_data_live
     details["diary_process_live"] = diary_process_live
+    details["diary_live"] = bool(diary_process_live or diary_data_live)
     details["require_diary"] = bool(require_diary)
     ok, warn_line = compute_probe_ok(
         collector_process_live=collector_process_live,
         collector_data_live=collector_data_live,
-        diary_process_live=diary_process_live,
+        diary_process_live=bool(diary_process_live or diary_data_live),
         require_diary=bool(require_diary),
     )
     if warn_line:
         details["warning"] = warn_line
     details["data_live"] = bool(collector_data_live or diary_data_live)
-    details["process_live"] = bool(collector_process_live and (diary_process_live or (not require_diary)))
+    details["process_live"] = bool(collector_process_live and ((diary_process_live or diary_data_live) or (not require_diary)))
 
     record = {
         "ts_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -497,6 +522,8 @@ def main() -> int:
     print(f"data_live={details.get('data_live')}")
     print(f"micro_pid_alive={details.get('micro_pid_alive')} scan_micro_count={details.get('scan_micro_count')}")
     print(f"event_diary_pid_alive={details.get('event_diary_pid_alive')} scan_diary_count={details.get('scan_diary_count')}")
+    print(f"micro_pid_state={details.get('micro_pid_state')} event_diary_pid_state={details.get('event_diary_pid_state')}")
+    print(f"diary_live={details.get('diary_live')}")
     print(f"csv_mtime_delta_sec={details.get('csv_mtime_delta_sec')} csv_line_delta={details.get('csv_line_delta')}")
     print(
         f"heartbeat_fresh={details.get('heartbeat_fresh')} "
