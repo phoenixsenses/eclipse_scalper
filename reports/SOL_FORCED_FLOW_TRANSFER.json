@@ -1,0 +1,300 @@
+{
+  "coverage": {
+    "BUY": {
+      "25000": 76,
+      "50000": 46,
+      "100000": 24,
+      "200000": 9,
+      "500000": 7
+    },
+    "SELL": {
+      "25000": 114,
+      "50000": 39,
+      "100000": 23,
+      "200000": 8,
+      "500000": 0
+    }
+  },
+  "results": [
+    {
+      "side": "SELL",
+      "threshold": 25000,
+      "horizon_sec": 60,
+      "n": 114,
+      "wr": 46.49122807017544,
+      "mean_bps": 0.6515744503991237,
+      "median_bps": -1.2010929666336785
+    },
+    {
+      "side": "SELL",
+      "threshold": 25000,
+      "horizon_sec": 300,
+      "n": 114,
+      "wr": 50.0,
+      "mean_bps": -1.3623466787224559,
+      "median_bps": 0.4933553504474963
+    },
+    {
+      "side": "SELL",
+      "threshold": 25000,
+      "horizon_sec": 900,
+      "n": 114,
+      "wr": 58.77192982456141,
+      "mean_bps": 3.134846708709883,
+      "median_bps": 4.702010109322471
+    },
+    {
+      "side": "SELL",
+      "threshold": 50000,
+      "horizon_sec": 60,
+      "n": 39,
+      "wr": 53.84615384615385,
+      "mean_bps": 2.0209190444217375,
+      "median_bps": 1.92350059551015
+    },
+    {
+      "side": "SELL",
+      "threshold": 50000,
+      "horizon_sec": 300,
+      "n": 39,
+      "wr": 56.41025641025641,
+      "mean_bps": -1.27010439207227,
+      "median_bps": 2.468804482596054
+    },
+    {
+      "side": "SELL",
+      "threshold": 50000,
+      "horizon_sec": 900,
+      "n": 39,
+      "wr": 58.97435897435898,
+      "mean_bps": 5.902266676233372,
+      "median_bps": 6.984866123397912
+    },
+    {
+      "side": "SELL",
+      "threshold": 100000,
+      "horizon_sec": 60,
+      "n": 23,
+      "wr": 56.52173913043478,
+      "mean_bps": 2.731211735494067,
+      "median_bps": 1.92350059551015
+    },
+    {
+      "side": "SELL",
+      "threshold": 100000,
+      "horizon_sec": 300,
+      "n": 23,
+      "wr": 60.86956521739131,
+      "mean_bps": 1.1314173961227332,
+      "median_bps": 8.384076189456868
+    },
+    {
+      "side": "SELL",
+      "threshold": 100000,
+      "horizon_sec": 900,
+      "n": 23,
+      "wr": 60.86956521739131,
+      "mean_bps": 4.19383575583003,
+      "median_bps": 4.846403071879841
+    },
+    {
+      "side": "SELL",
+      "threshold": 200000,
+      "horizon_sec": 60,
+      "n": 8,
+      "wr": 37.5,
+      "mean_bps": -2.7807991623351245,
+      "median_bps": 0.0
+    },
+    {
+      "side": "SELL",
+      "threshold": 200000,
+      "horizon_sec": 300,
+      "n": 8,
+      "wr": 50.0,
+      "mean_bps": -4.85477961019772,
+      "median_bps": 8.384076189456868
+    },
+    {
+      "side": "SELL",
+      "threshold": 200000,
+      "horizon_sec": 900,
+      "n": 8,
+      "wr": 62.5,
+      "mean_bps": -0.7975256718291841,
+      "median_bps": 12.54991443240153
+    },
+    {
+      "side": "SELL",
+      "threshold": 500000,
+      "horizon_sec": 60,
+      "n": 0,
+      "wr": null,
+      "mean_bps": null,
+      "median_bps": null
+    },
+    {
+      "side": "SELL",
+      "threshold": 500000,
+      "horizon_sec": 300,
+      "n": 0,
+      "wr": null,
+      "mean_bps": null,
+      "median_bps": null
+    },
+    {
+      "side": "SELL",
+      "threshold": 500000,
+      "horizon_sec": 900,
+      "n": 0,
+      "wr": null,
+      "mean_bps": null,
+      "median_bps": null
+    },
+    {
+      "side": "BUY",
+      "threshold": 25000,
+      "horizon_sec": 60,
+      "n": 76,
+      "wr": 48.68421052631579,
+      "mean_bps": -0.20089369256502543,
+      "median_bps": -0.0
+    },
+    {
+      "side": "BUY",
+      "threshold": 25000,
+      "horizon_sec": 300,
+      "n": 76,
+      "wr": 65.78947368421053,
+      "mean_bps": 9.242054928813298,
+      "median_bps": 8.45893240559555
+    },
+    {
+      "side": "BUY",
+      "threshold": 25000,
+      "horizon_sec": 900,
+      "n": 76,
+      "wr": 68.42105263157895,
+      "mean_bps": 13.222615681372362,
+      "median_bps": 13.148656169229996
+    },
+    {
+      "side": "BUY",
+      "threshold": 50000,
+      "horizon_sec": 60,
+      "n": 46,
+      "wr": 54.347826086956516,
+      "mean_bps": 0.06404951453130532,
+      "median_bps": 1.8631744438523
+    },
+    {
+      "side": "BUY",
+      "threshold": 50000,
+      "horizon_sec": 300,
+      "n": 46,
+      "wr": 76.08695652173914,
+      "mean_bps": 13.438899273355275,
+      "median_bps": 16.41815237960265
+    },
+    {
+      "side": "BUY",
+      "threshold": 50000,
+      "horizon_sec": 900,
+      "n": 46,
+      "wr": 73.91304347826086,
+      "mean_bps": 15.784917022604914,
+      "median_bps": 16.546420908469617
+    },
+    {
+      "side": "BUY",
+      "threshold": 100000,
+      "horizon_sec": 60,
+      "n": 24,
+      "wr": 50.0,
+      "mean_bps": -1.7068589266292644,
+      "median_bps": 1.8631744438523
+    },
+    {
+      "side": "BUY",
+      "threshold": 100000,
+      "horizon_sec": 300,
+      "n": 24,
+      "wr": 70.83333333333334,
+      "mean_bps": 11.55913581299456,
+      "median_bps": 14.490730778112281
+    },
+    {
+      "side": "BUY",
+      "threshold": 100000,
+      "horizon_sec": 900,
+      "n": 24,
+      "wr": 70.83333333333334,
+      "mean_bps": 14.408308993277528,
+      "median_bps": 12.616743995808907
+    },
+    {
+      "side": "BUY",
+      "threshold": 200000,
+      "horizon_sec": 60,
+      "n": 9,
+      "wr": 44.44444444444444,
+      "mean_bps": -3.2446550302496715,
+      "median_bps": -6.072849680039342
+    },
+    {
+      "side": "BUY",
+      "threshold": 200000,
+      "horizon_sec": 300,
+      "n": 9,
+      "wr": 66.66666666666666,
+      "mean_bps": 2.7648907551347968,
+      "median_bps": 5.80130687701489
+    },
+    {
+      "side": "BUY",
+      "threshold": 200000,
+      "horizon_sec": 900,
+      "n": 9,
+      "wr": 66.66666666666666,
+      "mean_bps": 5.958494503365618,
+      "median_bps": 8.414247802055518
+    },
+    {
+      "side": "BUY",
+      "threshold": 500000,
+      "horizon_sec": 60,
+      "n": 7,
+      "wr": 28.57142857142857,
+      "mean_bps": -8.855534538197938,
+      "median_bps": -6.078333587507999
+    },
+    {
+      "side": "BUY",
+      "threshold": 500000,
+      "horizon_sec": 300,
+      "n": 7,
+      "wr": 57.14285714285714,
+      "mean_bps": -1.0537161174339311,
+      "median_bps": 0.32939351818974305
+    },
+    {
+      "side": "BUY",
+      "threshold": 500000,
+      "horizon_sec": 900,
+      "n": 7,
+      "wr": 57.14285714285714,
+      "mean_bps": 6.175921554632698,
+      "median_bps": 10.055827324340394
+    }
+  ],
+  "best_qualifying_n_ge_20": {
+    "side": "BUY",
+    "threshold": 50000,
+    "horizon_sec": 900,
+    "n": 46,
+    "wr": 73.91304347826086,
+    "mean_bps": 15.784917022604914,
+    "median_bps": 16.546420908469617
+  },
+  "verdict": "SHADOW_CANDIDATE"
+}

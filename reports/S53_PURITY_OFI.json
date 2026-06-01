@@ -1,0 +1,223 @@
+{
+  "distributions": {
+    "purity": {
+      "min": 1,
+      "p25": 3.0,
+      "p50": 3.0,
+      "p75": 4.0,
+      "p90": 4.0
+    },
+    "ofi": {
+      "min": -0.4697422727168306,
+      "p25": -0.04083924232889871,
+      "p50": 0.14512761045961162,
+      "p75": 0.24801085283304683,
+      "p90": 0.32104359497386564
+    },
+    "btc_ofi": {
+      "min": -0.5898170595174513,
+      "p25": -0.19635124874304824,
+      "p50": -0.06957648417864788,
+      "p75": 0.14358916639021851,
+      "p90": 0.24698598916047276
+    }
+  },
+  "results": [
+    {
+      "filter": "purity >= 6",
+      "h": 60,
+      "n": 0,
+      "wr_pct": NaN,
+      "mean_ret_bps": NaN
+    },
+    {
+      "filter": "purity >= 6",
+      "h": 120,
+      "n": 0,
+      "wr_pct": NaN,
+      "mean_ret_bps": NaN
+    },
+    {
+      "filter": "purity >= 7",
+      "h": 60,
+      "n": 0,
+      "wr_pct": NaN,
+      "mean_ret_bps": NaN
+    },
+    {
+      "filter": "purity >= 7",
+      "h": 120,
+      "n": 0,
+      "wr_pct": NaN,
+      "mean_ret_bps": NaN
+    },
+    {
+      "filter": "purity >= 8",
+      "h": 60,
+      "n": 0,
+      "wr_pct": NaN,
+      "mean_ret_bps": NaN
+    },
+    {
+      "filter": "purity >= 8",
+      "h": 120,
+      "n": 0,
+      "wr_pct": NaN,
+      "mean_ret_bps": NaN
+    },
+    {
+      "filter": "purity >= 9",
+      "h": 60,
+      "n": 0,
+      "wr_pct": NaN,
+      "mean_ret_bps": NaN
+    },
+    {
+      "filter": "purity >= 9",
+      "h": 120,
+      "n": 0,
+      "wr_pct": NaN,
+      "mean_ret_bps": NaN
+    },
+    {
+      "filter": "purity >= 10",
+      "h": 60,
+      "n": 0,
+      "wr_pct": NaN,
+      "mean_ret_bps": NaN
+    },
+    {
+      "filter": "purity >= 10",
+      "h": 120,
+      "n": 0,
+      "wr_pct": NaN,
+      "mean_ret_bps": NaN
+    },
+    {
+      "filter": "purity < 5",
+      "h": 60,
+      "n": 38,
+      "wr_pct": 55.26315789473685,
+      "mean_ret_bps": 0.3295506683775972
+    },
+    {
+      "filter": "purity < 5",
+      "h": 120,
+      "n": 38,
+      "wr_pct": 47.368421052631575,
+      "mean_ret_bps": 1.4852852552445708
+    },
+    {
+      "filter": "ofi < -0.3",
+      "h": 60,
+      "n": 4,
+      "wr_pct": 50.0,
+      "mean_ret_bps": -0.7475375764953744
+    },
+    {
+      "filter": "ofi < -0.3",
+      "h": 120,
+      "n": 4,
+      "wr_pct": 0.0,
+      "mean_ret_bps": -11.465976531368408
+    },
+    {
+      "filter": "ofi < -0.5",
+      "h": 60,
+      "n": 0,
+      "wr_pct": NaN,
+      "mean_ret_bps": NaN
+    },
+    {
+      "filter": "ofi < -0.5",
+      "h": 120,
+      "n": 0,
+      "wr_pct": NaN,
+      "mean_ret_bps": NaN
+    },
+    {
+      "filter": "ofi < -0.7",
+      "h": 60,
+      "n": 0,
+      "wr_pct": NaN,
+      "mean_ret_bps": NaN
+    },
+    {
+      "filter": "ofi < -0.7",
+      "h": 120,
+      "n": 0,
+      "wr_pct": NaN,
+      "mean_ret_bps": NaN
+    },
+    {
+      "filter": "ofi > 0.3",
+      "h": 60,
+      "n": 8,
+      "wr_pct": 62.5,
+      "mean_ret_bps": 3.8045310302460176
+    },
+    {
+      "filter": "ofi > 0.3",
+      "h": 120,
+      "n": 8,
+      "wr_pct": 75.0,
+      "mean_ret_bps": 16.868429028140564
+    },
+    {
+      "filter": "purity >= 7 and ofi < -0.3",
+      "h": 60,
+      "n": 0,
+      "wr_pct": NaN,
+      "mean_ret_bps": NaN
+    },
+    {
+      "filter": "purity >= 7 and ofi < -0.3",
+      "h": 120,
+      "n": 0,
+      "wr_pct": NaN,
+      "mean_ret_bps": NaN
+    },
+    {
+      "filter": "purity >= 7 and ofi < -0.5",
+      "h": 60,
+      "n": 0,
+      "wr_pct": NaN,
+      "mean_ret_bps": NaN
+    },
+    {
+      "filter": "purity >= 7 and ofi < -0.5",
+      "h": 120,
+      "n": 0,
+      "wr_pct": NaN,
+      "mean_ret_bps": NaN
+    },
+    {
+      "filter": "btc_ofi < -0.3",
+      "h": 60,
+      "n": 10,
+      "wr_pct": 70.0,
+      "mean_ret_bps": 3.9306020618276176
+    },
+    {
+      "filter": "btc_ofi < -0.3",
+      "h": 120,
+      "n": 10,
+      "wr_pct": 80.0,
+      "mean_ret_bps": 6.179171404425797
+    },
+    {
+      "filter": "eth_ofi < -0.3 and btc_ofi < -0.3",
+      "h": 60,
+      "n": 0,
+      "wr_pct": NaN,
+      "mean_ret_bps": NaN
+    },
+    {
+      "filter": "eth_ofi < -0.3 and btc_ofi < -0.3",
+      "h": 120,
+      "n": 0,
+      "wr_pct": NaN,
+      "mean_ret_bps": NaN
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "bucket_rows": [
+    {
+      "bucket": "lt_-0.01pct",
+      "summary": {
+        "n": 3,
+        "wr_pct": 33.33333333333333,
+        "mean_ret_bps": -1.6326691553629509,
+        "ci_low": NaN,
+        "ci_high": NaN
+      }
+    },
+    {
+      "bucket": "-0.01pct_to_0",
+      "summary": {
+        "n": 38,
+        "wr_pct": 60.526315789473685,
+        "mean_ret_bps": 2.6466442024070638,
+        "ci_low": 44.73684210526316,
+        "ci_high": 76.31578947368422
+      }
+    },
+    {
+      "bucket": "0_to_0.01pct",
+      "summary": {
+        "n": 32,
+        "wr_pct": 62.5,
+        "mean_ret_bps": 6.283678264947456,
+        "ci_low": 43.75,
+        "ci_high": 78.125
+      }
+    },
+    {
+      "bucket": "gt_0.01pct",
+      "summary": {
+        "n": 0,
+        "wr_pct": NaN,
+        "mean_ret_bps": NaN,
+        "ci_low": NaN,
+        "ci_high": NaN
+      }
+    }
+  ],
+  "combo_rows": [
+    {
+      "label": "extreme_negative + single_large",
+      "summary": {
+        "n": 0,
+        "wr_pct": NaN,
+        "mean_ret_bps": NaN,
+        "ci_low": NaN,
+        "ci_high": NaN
+      }
+    },
+    {
+      "label": "extreme_negative + btc_ofi_positive",
+      "summary": {
+        "n": 1,
+        "wr_pct": 0.0,
+        "mean_ret_bps": -7.084312863176654,
+        "ci_low": NaN,
+        "ci_high": NaN
+      }
+    }
+  ],
+  "verdict": "INSUFFICIENT_EVIDENCE"
+}

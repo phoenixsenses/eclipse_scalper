@@ -1,0 +1,24 @@
+{
+  "available_tables": [
+    "agg_trades",
+    "basis_reversion_candidates",
+    "book_ticker",
+    "detector_heartbeat",
+    "detector_log",
+    "detector_signals",
+    "event_diary",
+    "funding_rates",
+    "gaps",
+    "liq_heatmap",
+    "liquidations",
+    "mark_prices",
+    "open_interest",
+    "sol_s35_candidates",
+    "spot_prices",
+    "sqlite_sequence",
+    "vol_state"
+  ],
+  "candidate_orderbook_tables": [],
+  "verdict": "INSUFFICIENT_EVIDENCE",
+  "reason": "No orderbook snapshot table available in microstructure.db"
+}

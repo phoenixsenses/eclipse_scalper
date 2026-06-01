@@ -1,0 +1,31 @@
+{
+  "total_sell_liq": 43994,
+  "baseline_wr_h60": 51.36609537664227,
+  "by_threshold": {
+    "100000": {
+      "n_all": 850,
+      "n_session": 234,
+      "wr_all_h60": 50.117647058823536,
+      "wr_session_h60": 47.863247863247864
+    },
+    "200000": {
+      "n_all": 370,
+      "n_session": 101,
+      "wr_all_h60": 51.621621621621614,
+      "wr_session_h60": 51.48514851485149
+    },
+    "500000": {
+      "n_all": 101,
+      "n_session": 30,
+      "wr_all_h60": 53.46534653465347,
+      "wr_session_h60": 50.0
+    },
+    "1000000": {
+      "n_all": 31,
+      "n_session": 12,
+      "wr_all_h60": 48.38709677419355,
+      "wr_session_h60": 58.333333333333336
+    }
+  },
+  "verdict": "WEAK \u2014 marginal edge at thresh=1000k, h=60s, session"
+}

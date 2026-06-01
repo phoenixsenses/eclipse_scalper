@@ -1,0 +1,561 @@
+{
+  "inputs": {
+    "db": "data/microstructure.db",
+    "symbol": "ETHUSDT",
+    "liq_side": "BUY",
+    "direction": "SHORT",
+    "thresholds": "200000,500000,1000000",
+    "horizons": "120,900",
+    "exec_model": "taker",
+    "passive_wait_sec": 10,
+    "fee_rt_bps": "2,4,8,10",
+    "folds": 5,
+    "min_n": 20,
+    "min_wr": 60.0,
+    "min_mean_bps": 5.0,
+    "out_md": "reports\\ETH_BUY_LIQ_SHORT_BASELINE_WF.md",
+    "out_json": "reports\\ETH_BUY_LIQ_SHORT_BASELINE_WF.json"
+  },
+  "results": [
+    {
+      "symbol": "ETHUSDT",
+      "liq_side": "BUY",
+      "direction": "SHORT",
+      "threshold": 200000.0,
+      "horizon_sec": 120,
+      "exec_model": "taker",
+      "events": 438,
+      "filled": 438,
+      "fill_rate": 1.0,
+      "gross_wr": 57.534246575342465,
+      "gross_mean_bps": -0.6231196781818188,
+      "gross_median_bps": 4.215423186704651,
+      "folds": [
+        {
+          "fold": 1,
+          "n": 87,
+          "wr": 56.32183908045977,
+          "mean_bps": -4.105607244606633,
+          "median_bps": 4.397833688717412
+        },
+        {
+          "fold": 2,
+          "n": 88,
+          "wr": 57.95454545454545,
+          "mean_bps": -4.93784479714089,
+          "median_bps": 4.207400935498376
+        },
+        {
+          "fold": 3,
+          "n": 87,
+          "wr": 58.62068965517241,
+          "mean_bps": 0.5707501712583668,
+          "median_bps": 4.589338124210612
+        },
+        {
+          "fold": 4,
+          "n": 88,
+          "wr": 55.68181818181818,
+          "mean_bps": 2.7497477294348123,
+          "median_bps": 3.589434646885342
+        },
+        {
+          "fold": 5,
+          "n": 88,
+          "wr": 59.09090909090909,
+          "mean_bps": 2.5813487306340606,
+          "median_bps": 2.431005522179996
+        }
+      ],
+      "fees": {
+        "2.0": {
+          "net_mean_bps": -2.6231196781818187,
+          "net_median_bps": 2.2154231867046508,
+          "net_wr": 53.881278538812786,
+          "folds_positive": 2
+        },
+        "4.0": {
+          "net_mean_bps": -4.623119678181819,
+          "net_median_bps": 0.21542318670465077,
+          "net_wr": 50.45662100456621,
+          "folds_positive": 0
+        },
+        "8.0": {
+          "net_mean_bps": -8.62311967818182,
+          "net_median_bps": -3.7845768132953492,
+          "net_wr": 39.04109589041096,
+          "folds_positive": 0
+        },
+        "10.0": {
+          "net_mean_bps": -10.62311967818182,
+          "net_median_bps": -5.784576813295349,
+          "net_wr": 34.70319634703196,
+          "folds_positive": 0
+        }
+      }
+    },
+    {
+      "symbol": "ETHUSDT",
+      "liq_side": "BUY",
+      "direction": "SHORT",
+      "threshold": 200000.0,
+      "horizon_sec": 900,
+      "exec_model": "taker",
+      "events": 438,
+      "filled": 438,
+      "fill_rate": 1.0,
+      "gross_wr": 61.18721461187214,
+      "gross_mean_bps": 5.644670759815838,
+      "gross_median_bps": 9.575167705266969,
+      "folds": [
+        {
+          "fold": 1,
+          "n": 87,
+          "wr": 55.172413793103445,
+          "mean_bps": -2.459773129826036,
+          "median_bps": 4.514287720636268
+        },
+        {
+          "fold": 2,
+          "n": 88,
+          "wr": 65.9090909090909,
+          "mean_bps": -3.4745215156089597,
+          "median_bps": 11.79716547480352
+        },
+        {
+          "fold": 3,
+          "n": 87,
+          "wr": 63.2183908045977,
+          "mean_bps": 14.137893906861317,
+          "median_bps": 11.598391436202192
+        },
+        {
+          "fold": 4,
+          "n": 88,
+          "wr": 68.18181818181819,
+          "mean_bps": 10.894821478899667,
+          "median_bps": 10.464260026563663
+        },
+        {
+          "fold": 5,
+          "n": 88,
+          "wr": 53.40909090909091,
+          "mean_bps": 9.129351004860064,
+          "median_bps": 4.575944152902059
+        }
+      ],
+      "fees": {
+        "2.0": {
+          "net_mean_bps": 3.6446707598158388,
+          "net_median_bps": 7.575167705266969,
+          "net_wr": 59.58904109589041,
+          "folds_positive": 3
+        },
+        "4.0": {
+          "net_mean_bps": 1.6446707598158388,
+          "net_median_bps": 5.575167705266969,
+          "net_wr": 56.62100456621005,
+          "folds_positive": 3
+        },
+        "8.0": {
+          "net_mean_bps": -2.3553292401841612,
+          "net_median_bps": 1.5751677052669688,
+          "net_wr": 51.598173515981735,
+          "folds_positive": 3
+        },
+        "10.0": {
+          "net_mean_bps": -4.355329240184162,
+          "net_median_bps": -0.4248322947330312,
+          "net_wr": 49.31506849315068,
+          "folds_positive": 2
+        }
+      }
+    },
+    {
+      "symbol": "ETHUSDT",
+      "liq_side": "BUY",
+      "direction": "SHORT",
+      "threshold": 500000.0,
+      "horizon_sec": 120,
+      "exec_model": "taker",
+      "events": 121,
+      "filled": 121,
+      "fill_rate": 1.0,
+      "gross_wr": 60.33057851239669,
+      "gross_mean_bps": 0.04949140794239275,
+      "gross_median_bps": 4.642593254068633,
+      "folds": [
+        {
+          "fold": 1,
+          "n": 24,
+          "wr": 66.66666666666667,
+          "mean_bps": 0.8799972292107819,
+          "median_bps": 4.914546707391768
+        },
+        {
+          "fold": 2,
+          "n": 24,
+          "wr": 62.5,
+          "mean_bps": -15.183247262670093,
+          "median_bps": 5.79763528193611
+        },
+        {
+          "fold": 3,
+          "n": 24,
+          "wr": 50.0,
+          "mean_bps": 6.666815617353306,
+          "median_bps": -0.3001397452209233
+        },
+        {
+          "fold": 4,
+          "n": 24,
+          "wr": 62.5,
+          "mean_bps": 2.157189881451473,
+          "median_bps": 6.607252156856355
+        },
+        {
+          "fold": 5,
+          "n": 25,
+          "wr": 60.0,
+          "mean_bps": 5.499613167709532,
+          "median_bps": 4.642593254068633
+        }
+      ],
+      "fees": {
+        "2.0": {
+          "net_mean_bps": -1.9505085920576073,
+          "net_median_bps": 2.6425932540686334,
+          "net_wr": 57.85123966942149,
+          "folds_positive": 3
+        },
+        "4.0": {
+          "net_mean_bps": -3.950508592057607,
+          "net_median_bps": 0.6425932540686334,
+          "net_wr": 52.892561983471076,
+          "folds_positive": 2
+        },
+        "8.0": {
+          "net_mean_bps": -7.9505085920576075,
+          "net_median_bps": -3.3574067459313666,
+          "net_wr": 41.32231404958678,
+          "folds_positive": 0
+        },
+        "10.0": {
+          "net_mean_bps": -9.950508592057608,
+          "net_median_bps": -5.357406745931367,
+          "net_wr": 38.01652892561984,
+          "folds_positive": 0
+        }
+      }
+    },
+    {
+      "symbol": "ETHUSDT",
+      "liq_side": "BUY",
+      "direction": "SHORT",
+      "threshold": 500000.0,
+      "horizon_sec": 900,
+      "exec_model": "taker",
+      "events": 121,
+      "filled": 121,
+      "fill_rate": 1.0,
+      "gross_wr": 63.63636363636363,
+      "gross_mean_bps": 7.522522297506553,
+      "gross_median_bps": 11.548009166585963,
+      "folds": [
+        {
+          "fold": 1,
+          "n": 24,
+          "wr": 66.66666666666667,
+          "mean_bps": 7.5354438415051455,
+          "median_bps": 16.106246451256894
+        },
+        {
+          "fold": 2,
+          "n": 24,
+          "wr": 62.5,
+          "mean_bps": -19.23345294362497,
+          "median_bps": 11.178396754435534
+        },
+        {
+          "fold": 3,
+          "n": 24,
+          "wr": 70.83333333333333,
+          "mean_bps": 17.81856535084757,
+          "median_bps": 9.882049082253234
+        },
+        {
+          "fold": 4,
+          "n": 24,
+          "wr": 79.16666666666667,
+          "mean_bps": 33.55494430633593,
+          "median_bps": 27.608606922226425
+        },
+        {
+          "fold": 5,
+          "n": 25,
+          "wr": 40.0,
+          "mean_bps": -1.6794726129294102,
+          "median_bps": -4.253421215935176
+        }
+      ],
+      "fees": {
+        "2.0": {
+          "net_mean_bps": 5.522522297506553,
+          "net_median_bps": 9.548009166585963,
+          "net_wr": 62.8099173553719,
+          "folds_positive": 3
+        },
+        "4.0": {
+          "net_mean_bps": 3.522522297506553,
+          "net_median_bps": 7.548009166585963,
+          "net_wr": 58.67768595041322,
+          "folds_positive": 3
+        },
+        "8.0": {
+          "net_mean_bps": -0.4774777024934471,
+          "net_median_bps": 3.548009166585963,
+          "net_wr": 55.37190082644628,
+          "folds_positive": 2
+        },
+        "10.0": {
+          "net_mean_bps": -2.4774777024934473,
+          "net_median_bps": 1.5480091665859632,
+          "net_wr": 52.892561983471076,
+          "folds_positive": 2
+        }
+      }
+    },
+    {
+      "symbol": "ETHUSDT",
+      "liq_side": "BUY",
+      "direction": "SHORT",
+      "threshold": 1000000.0,
+      "horizon_sec": 120,
+      "exec_model": "taker",
+      "events": 50,
+      "filled": 50,
+      "fill_rate": 1.0,
+      "gross_wr": 52.0,
+      "gross_mean_bps": -7.363364253207266,
+      "gross_median_bps": 2.4754729905638118,
+      "folds": [
+        {
+          "fold": 1,
+          "n": 10,
+          "wr": 50.0,
+          "mean_bps": -47.41350509242229,
+          "median_bps": -0.4301972759136372
+        },
+        {
+          "fold": 2,
+          "n": 10,
+          "wr": 60.0,
+          "mean_bps": 7.321546840414832,
+          "median_bps": 4.217590043550832
+        },
+        {
+          "fold": 3,
+          "n": 10,
+          "wr": 30.0,
+          "mean_bps": -0.9930448512648705,
+          "median_bps": -6.91897427283657
+        },
+        {
+          "fold": 4,
+          "n": 10,
+          "wr": 60.0,
+          "mean_bps": 2.051286136287555,
+          "median_bps": 10.85169327525917
+        },
+        {
+          "fold": 5,
+          "n": 10,
+          "wr": 60.0,
+          "mean_bps": 2.216895700948445,
+          "median_bps": 3.0921544565225756
+        }
+      ],
+      "fees": {
+        "2.0": {
+          "net_mean_bps": -9.363364253207266,
+          "net_median_bps": 0.47547299056381165,
+          "net_wr": 50.0,
+          "folds_positive": 3
+        },
+        "4.0": {
+          "net_mean_bps": -11.363364253207266,
+          "net_median_bps": -1.5245270094361885,
+          "net_wr": 46.0,
+          "folds_positive": 1
+        },
+        "8.0": {
+          "net_mean_bps": -15.363364253207266,
+          "net_median_bps": -5.524527009436188,
+          "net_wr": 30.0,
+          "folds_positive": 0
+        },
+        "10.0": {
+          "net_mean_bps": -17.363364253207266,
+          "net_median_bps": -7.524527009436188,
+          "net_wr": 30.0,
+          "folds_positive": 0
+        }
+      }
+    },
+    {
+      "symbol": "ETHUSDT",
+      "liq_side": "BUY",
+      "direction": "SHORT",
+      "threshold": 1000000.0,
+      "horizon_sec": 900,
+      "exec_model": "taker",
+      "events": 50,
+      "filled": 50,
+      "fill_rate": 1.0,
+      "gross_wr": 64.0,
+      "gross_mean_bps": 4.875069713719771,
+      "gross_median_bps": 13.03832675447596,
+      "folds": [
+        {
+          "fold": 1,
+          "n": 10,
+          "wr": 70.0,
+          "mean_bps": -33.18230512249799,
+          "median_bps": 20.807389554080316
+        },
+        {
+          "fold": 2,
+          "n": 10,
+          "wr": 80.0,
+          "mean_bps": 28.926023151388883,
+          "median_bps": 24.986535944698318
+        },
+        {
+          "fold": 3,
+          "n": 10,
+          "wr": 60.0,
+          "mean_bps": -8.671125228792011,
+          "median_bps": 1.5969741576806964
+        },
+        {
+          "fold": 4,
+          "n": 10,
+          "wr": 50.0,
+          "mean_bps": 21.800396734422883,
+          "median_bps": 5.438400306585724
+        },
+        {
+          "fold": 5,
+          "n": 10,
+          "wr": 60.0,
+          "mean_bps": 15.502359034077083,
+          "median_bps": 21.449289600590042
+        }
+      ],
+      "fees": {
+        "2.0": {
+          "net_mean_bps": 2.8750697137197707,
+          "net_median_bps": 11.03832675447596,
+          "net_wr": 62.0,
+          "folds_positive": 3
+        },
+        "4.0": {
+          "net_mean_bps": 0.8750697137197708,
+          "net_median_bps": 9.03832675447596,
+          "net_wr": 60.0,
+          "folds_positive": 3
+        },
+        "8.0": {
+          "net_mean_bps": -3.1249302862802293,
+          "net_median_bps": 5.03832675447596,
+          "net_wr": 60.0,
+          "folds_positive": 3
+        },
+        "10.0": {
+          "net_mean_bps": -5.124930286280229,
+          "net_median_bps": 3.0383267544759596,
+          "net_wr": 56.0,
+          "folds_positive": 3
+        }
+      }
+    }
+  ],
+  "best": {
+    "symbol": "ETHUSDT",
+    "liq_side": "BUY",
+    "direction": "SHORT",
+    "threshold": 500000.0,
+    "horizon_sec": 900,
+    "exec_model": "taker",
+    "events": 121,
+    "filled": 121,
+    "fill_rate": 1.0,
+    "gross_wr": 63.63636363636363,
+    "gross_mean_bps": 7.522522297506553,
+    "gross_median_bps": 11.548009166585963,
+    "folds": [
+      {
+        "fold": 1,
+        "n": 24,
+        "wr": 66.66666666666667,
+        "mean_bps": 7.5354438415051455,
+        "median_bps": 16.106246451256894
+      },
+      {
+        "fold": 2,
+        "n": 24,
+        "wr": 62.5,
+        "mean_bps": -19.23345294362497,
+        "median_bps": 11.178396754435534
+      },
+      {
+        "fold": 3,
+        "n": 24,
+        "wr": 70.83333333333333,
+        "mean_bps": 17.81856535084757,
+        "median_bps": 9.882049082253234
+      },
+      {
+        "fold": 4,
+        "n": 24,
+        "wr": 79.16666666666667,
+        "mean_bps": 33.55494430633593,
+        "median_bps": 27.608606922226425
+      },
+      {
+        "fold": 5,
+        "n": 25,
+        "wr": 40.0,
+        "mean_bps": -1.6794726129294102,
+        "median_bps": -4.253421215935176
+      }
+    ],
+    "fees": {
+      "2.0": {
+        "net_mean_bps": 5.522522297506553,
+        "net_median_bps": 9.548009166585963,
+        "net_wr": 62.8099173553719,
+        "folds_positive": 3
+      },
+      "4.0": {
+        "net_mean_bps": 3.522522297506553,
+        "net_median_bps": 7.548009166585963,
+        "net_wr": 58.67768595041322,
+        "folds_positive": 3
+      },
+      "8.0": {
+        "net_mean_bps": -0.4774777024934471,
+        "net_median_bps": 3.548009166585963,
+        "net_wr": 55.37190082644628,
+        "folds_positive": 2
+      },
+      "10.0": {
+        "net_mean_bps": -2.4774777024934473,
+        "net_median_bps": 1.5480091665859632,
+        "net_wr": 52.892561983471076,
+        "folds_positive": 2
+      }
+    }
+  },
+  "verdict": "SHADOW_CANDIDATE"
+}

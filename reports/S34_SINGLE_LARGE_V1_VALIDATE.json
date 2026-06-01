@@ -1,0 +1,270 @@
+{
+  "verdict": "VALIDATE_FORWARD",
+  "rows": 73,
+  "results": [
+    {
+      "label": "all",
+      "horizon_sec": 60,
+      "n": 73,
+      "wr": 60.273972602739725,
+      "mean_bps": 4.065098311009563,
+      "median_bps": 5.618599514129699
+    },
+    {
+      "label": "all",
+      "horizon_sec": 120,
+      "n": 73,
+      "wr": 54.794520547945204,
+      "mean_bps": 1.9976479290202935,
+      "median_bps": 2.1900638487844377
+    },
+    {
+      "label": "all",
+      "horizon_sec": 300,
+      "n": 73,
+      "wr": 63.013698630136986,
+      "mean_bps": 2.482681249743886,
+      "median_bps": 4.25655972633881
+    },
+    {
+      "label": "all",
+      "horizon_sec": 900,
+      "n": 73,
+      "wr": 60.273972602739725,
+      "mean_bps": 5.548121474330249,
+      "median_bps": 13.47156763719689
+    },
+    {
+      "label": "single_large",
+      "horizon_sec": 60,
+      "n": 21,
+      "wr": 85.71428571428571,
+      "mean_bps": 8.02492889436892,
+      "median_bps": 12.353282702295223
+    },
+    {
+      "label": "single_large",
+      "horizon_sec": 120,
+      "n": 21,
+      "wr": 80.95238095238095,
+      "mean_bps": 10.784683073152674,
+      "median_bps": 13.457991451614703
+    },
+    {
+      "label": "single_large",
+      "horizon_sec": 300,
+      "n": 21,
+      "wr": 85.71428571428571,
+      "mean_bps": 12.259890172983575,
+      "median_bps": 11.555068102562098
+    },
+    {
+      "label": "single_large",
+      "horizon_sec": 900,
+      "n": 21,
+      "wr": 80.95238095238095,
+      "mean_bps": 17.366417006798947,
+      "median_bps": 19.715349218450232
+    },
+    {
+      "label": "clustered",
+      "horizon_sec": 60,
+      "n": 44,
+      "wr": 45.45454545454545,
+      "mean_bps": 0.011766065827692457,
+      "median_bps": -1.1426387371237714
+    },
+    {
+      "label": "clustered",
+      "horizon_sec": 120,
+      "n": 44,
+      "wr": 36.36363636363637,
+      "mean_bps": -5.471131701172791,
+      "median_bps": -6.079038429680413
+    },
+    {
+      "label": "clustered",
+      "horizon_sec": 300,
+      "n": 44,
+      "wr": 45.45454545454545,
+      "mean_bps": -7.662628424318414,
+      "median_bps": -1.9802545283068544
+    },
+    {
+      "label": "clustered",
+      "horizon_sec": 900,
+      "n": 44,
+      "wr": 47.72727272727273,
+      "mean_bps": -4.5420886473477475,
+      "median_bps": -2.764409105996694
+    },
+    {
+      "label": "other_or_null",
+      "horizon_sec": 60,
+      "n": 8,
+      "wr": 75.0,
+      "mean_bps": 15.96387037819154,
+      "median_bps": 13.965530866097485
+    },
+    {
+      "label": "other_or_null",
+      "horizon_sec": 120,
+      "n": 8,
+      "wr": 87.5,
+      "mean_bps": 20.009968641734755,
+      "median_bps": 16.474676915003787
+    },
+    {
+      "label": "other_or_null",
+      "horizon_sec": 300,
+      "n": 8,
+      "wr": 100.0,
+      "mean_bps": 32.61671103358235,
+      "median_bps": 25.645524312798905
+    },
+    {
+      "label": "other_or_null",
+      "horizon_sec": 900,
+      "n": 8,
+      "wr": 75.0,
+      "mean_bps": 30.021251370828896,
+      "median_bps": 14.763060099043674
+    },
+    {
+      "label": "single_large_basis_pos",
+      "horizon_sec": 60,
+      "n": 10,
+      "wr": 80.0,
+      "mean_bps": 9.99982171697144,
+      "median_bps": 13.23357889897461
+    },
+    {
+      "label": "single_large_basis_pos",
+      "horizon_sec": 120,
+      "n": 10,
+      "wr": 90.0,
+      "mean_bps": 11.97489721271185,
+      "median_bps": 13.497989091677832
+    },
+    {
+      "label": "single_large_basis_pos",
+      "horizon_sec": 300,
+      "n": 10,
+      "wr": 100.0,
+      "mean_bps": 15.743855020299693,
+      "median_bps": 11.161889190717417
+    },
+    {
+      "label": "single_large_basis_pos",
+      "horizon_sec": 900,
+      "n": 10,
+      "wr": 90.0,
+      "mean_bps": 31.78097146444937,
+      "median_bps": 30.84746377400385
+    },
+    {
+      "label": "single_large_ofi_pos",
+      "horizon_sec": 60,
+      "n": 10,
+      "wr": 80.0,
+      "mean_bps": 2.6840252622893748,
+      "median_bps": 5.583297203222819
+    },
+    {
+      "label": "single_large_ofi_pos",
+      "horizon_sec": 120,
+      "n": 10,
+      "wr": 70.0,
+      "mean_bps": 3.9083133812184885,
+      "median_bps": 3.9057265404946224
+    },
+    {
+      "label": "single_large_ofi_pos",
+      "horizon_sec": 300,
+      "n": 10,
+      "wr": 80.0,
+      "mean_bps": 5.3961611118829005,
+      "median_bps": 8.897151691775093
+    },
+    {
+      "label": "single_large_ofi_pos",
+      "horizon_sec": 900,
+      "n": 10,
+      "wr": 70.0,
+      "mean_bps": 5.36020652980992,
+      "median_bps": 11.272335285115023
+    },
+    {
+      "label": "single_large_book_partial",
+      "horizon_sec": 60,
+      "n": 3,
+      "wr": 66.66666666666667,
+      "mean_bps": 0.4661900898555639,
+      "median_bps": 1.0065273122212481
+    },
+    {
+      "label": "single_large_book_partial",
+      "horizon_sec": 120,
+      "n": 3,
+      "wr": 100.0,
+      "mean_bps": 2.576712516199618,
+      "median_bps": 2.4413997831961662
+    },
+    {
+      "label": "single_large_book_partial",
+      "horizon_sec": 300,
+      "n": 3,
+      "wr": 100.0,
+      "mean_bps": 10.019741156060748,
+      "median_bps": 10.768710278872739
+    },
+    {
+      "label": "single_large_book_partial",
+      "horizon_sec": 900,
+      "n": 3,
+      "wr": 66.66666666666667,
+      "mean_bps": 4.7519532212622035,
+      "median_bps": 12.768087889025972
+    },
+    {
+      "label": "single_large_book_recovered",
+      "horizon_sec": 60,
+      "n": 1,
+      "wr": 0.0,
+      "mean_bps": -45.57421676530098,
+      "median_bps": -45.57421676530098
+    },
+    {
+      "label": "single_large_book_recovered",
+      "horizon_sec": 120,
+      "n": 1,
+      "wr": 0.0,
+      "mean_bps": -39.40405808343539,
+      "median_bps": -39.40405808343539
+    },
+    {
+      "label": "single_large_book_recovered",
+      "horizon_sec": 300,
+      "n": 1,
+      "wr": 0.0,
+      "mean_bps": -33.88647810822408,
+      "median_bps": -33.88647810822408
+    },
+    {
+      "label": "single_large_book_recovered",
+      "horizon_sec": 900,
+      "n": 1,
+      "wr": 0.0,
+      "mean_bps": -59.74854423783749,
+      "median_bps": -59.74854423783749
+    }
+  ],
+  "best": {
+    "label": "other_or_null",
+    "horizon_sec": 300,
+    "n": 8,
+    "wr": 100.0,
+    "mean_bps": 32.61671103358235,
+    "median_bps": 25.645524312798905
+  }
+}

@@ -1,0 +1,177 @@
+{
+  "entropy_distribution": {
+    "min": 0.6930330845273658,
+    "p25": 1.3643920215464056,
+    "p50": 1.7223749848376364,
+    "p75": 2.117586617052527,
+    "p90": 2.239317918506396
+  },
+  "basis_distribution": {
+    "min": -0.023645336233497825,
+    "p25": -0.0022254078092027907,
+    "p50": 0.0005295786806355256,
+    "p75": 0.0029973198569489745,
+    "p90": 0.007736387027134514
+  },
+  "basis_corr_60s": 0.3025432106635479,
+  "filter_results": [
+    {
+      "filter": "entropy < p25",
+      "h": 60,
+      "n": 4,
+      "wr_pct": 75.0,
+      "mean_ret_bps": 3.5532785869999577
+    },
+    {
+      "filter": "entropy < p25",
+      "h": 120,
+      "n": 4,
+      "wr_pct": 75.0,
+      "mean_ret_bps": -0.8354122392821095
+    },
+    {
+      "filter": "entropy < p50",
+      "h": 60,
+      "n": 8,
+      "wr_pct": 75.0,
+      "mean_ret_bps": 1.2870547746036693
+    },
+    {
+      "filter": "entropy < p50",
+      "h": 120,
+      "n": 8,
+      "wr_pct": 50.0,
+      "mean_ret_bps": -4.561713521360074
+    },
+    {
+      "filter": "entropy > p75",
+      "h": 60,
+      "n": 4,
+      "wr_pct": 0.0,
+      "mean_ret_bps": -9.846282902000903
+    },
+    {
+      "filter": "entropy > p75",
+      "h": 120,
+      "n": 4,
+      "wr_pct": 25.0,
+      "mean_ret_bps": -24.517936563891634
+    },
+    {
+      "filter": "basis > 0.5 bps",
+      "h": 60,
+      "n": 30,
+      "wr_pct": 56.666666666666664,
+      "mean_ret_bps": 5.120389716030863
+    },
+    {
+      "filter": "basis > 0.5 bps",
+      "h": 120,
+      "n": 30,
+      "wr_pct": 66.66666666666666,
+      "mean_ret_bps": 5.331422945136346
+    },
+    {
+      "filter": "basis > 1.0 bps",
+      "h": 60,
+      "n": 30,
+      "wr_pct": 56.666666666666664,
+      "mean_ret_bps": 5.120389716030863
+    },
+    {
+      "filter": "basis > 1.0 bps",
+      "h": 120,
+      "n": 30,
+      "wr_pct": 66.66666666666666,
+      "mean_ret_bps": 5.331422945136346
+    },
+    {
+      "filter": "basis > 2.0 bps",
+      "h": 60,
+      "n": 30,
+      "wr_pct": 56.666666666666664,
+      "mean_ret_bps": 5.120389716030863
+    },
+    {
+      "filter": "basis > 2.0 bps",
+      "h": 120,
+      "n": 30,
+      "wr_pct": 66.66666666666666,
+      "mean_ret_bps": 5.331422945136346
+    },
+    {
+      "filter": "basis < 0",
+      "h": 60,
+      "n": 21,
+      "wr_pct": 52.38095238095239,
+      "mean_ret_bps": -4.604308922058023
+    },
+    {
+      "filter": "basis < 0",
+      "h": 120,
+      "n": 21,
+      "wr_pct": 23.809523809523807,
+      "mean_ret_bps": -15.644549447369009
+    }
+  ],
+  "entropy_cohorts": [
+    {
+      "category": "high",
+      "n": 8,
+      "wr_pct": 37.5,
+      "mean_ret_bps": -1.8585178105824327
+    },
+    {
+      "category": "low",
+      "n": 9,
+      "wr_pct": 66.66666666666666,
+      "mean_ret_bps": 0.07098853367136736
+    }
+  ],
+  "geometry_types": [
+    {
+      "category": "type_L",
+      "n": 15,
+      "wr_pct": 53.333333333333336,
+      "mean_ret_bps": 0.006032855456887473
+    },
+    {
+      "category": "type_S",
+      "n": 14,
+      "wr_pct": 64.28571428571429,
+      "mean_ret_bps": 7.13625230258985
+    },
+    {
+      "category": "type_U",
+      "n": 21,
+      "wr_pct": 61.904761904761905,
+      "mean_ret_bps": -0.32094422665223776
+    },
+    {
+      "category": "type_V",
+      "n": 23,
+      "wr_pct": 60.86956521739131,
+      "mean_ret_bps": 8.847564365012344
+    }
+  ],
+  "cluster_labels": [
+    {
+      "category": "cluster_A_high_quality",
+      "n": 5,
+      "wr_pct": 80.0,
+      "mean_ret_bps": 8.91314748253321
+    },
+    {
+      "category": "cluster_B_medium_quality",
+      "n": 45,
+      "wr_pct": 62.22222222222222,
+      "mean_ret_bps": 4.824123708735258
+    },
+    {
+      "category": "cluster_C_low_quality",
+      "n": 23,
+      "wr_pct": 52.17391304347826,
+      "mean_ret_bps": 1.5261248868671924
+    }
+  ]
+}

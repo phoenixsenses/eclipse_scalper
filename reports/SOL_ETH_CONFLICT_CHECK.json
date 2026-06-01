@@ -1,0 +1,514 @@
+{
+  "candidate": "SOLUSDT BUY>=50000 SHORT 900s",
+  "rows": [
+    {
+      "ts_ms": 1776618325441,
+      "notional": 50845.1593,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 0,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": -48.63475989693244,
+      "eth_short_900_bps": -71.35207929461872,
+      "btc_short_900_bps": -36.77926238464003
+    },
+    {
+      "ts_ms": 1776644690066,
+      "notional": 50019.601500000004,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 2,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": 5.970149253731004,
+      "eth_short_900_bps": 7.86605730356813,
+      "btc_short_900_bps": 11.751894858276067
+    },
+    {
+      "ts_ms": 1776667264452,
+      "notional": 50111.1555,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 0,
+      "btc_big_buy_overlap": 1,
+      "sol_short_900_bps": 26.225067307268905,
+      "eth_short_900_bps": 19.559078621526496,
+      "btc_short_900_bps": 19.562728242702928
+    },
+    {
+      "ts_ms": 1776667272116,
+      "notional": 71119.5166,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 0,
+      "btc_big_buy_overlap": 1,
+      "sol_short_900_bps": 40.696460718712714,
+      "eth_short_900_bps": 28.691261412070357,
+      "btc_short_900_bps": 26.13226762486731
+    },
+    {
+      "ts_ms": 1776669640181,
+      "notional": 532263.4448,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 8,
+      "btc_big_buy_overlap": 3,
+      "sol_short_900_bps": -5.8899752621035635,
+      "eth_short_900_bps": -33.39592741277116,
+      "btc_short_900_bps": 0.09336719450215139
+    },
+    {
+      "ts_ms": 1776669825089,
+      "notional": 569184.0,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 8,
+      "btc_big_buy_overlap": 3,
+      "sol_short_900_bps": 99.30274521251785,
+      "eth_short_900_bps": 100.23746700557477,
+      "btc_short_900_bps": 74.57587970365351
+    },
+    {
+      "ts_ms": 1776669879482,
+      "notional": 57481.003000000004,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 8,
+      "btc_big_buy_overlap": 3,
+      "sol_short_900_bps": 102.67180025667898,
+      "eth_short_900_bps": 139.0658432901542,
+      "btc_short_900_bps": 84.02221398111146
+    },
+    {
+      "ts_ms": 1776708196116,
+      "notional": 204412.148,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 4,
+      "btc_big_buy_overlap": 2,
+      "sol_short_900_bps": 1.9807518458061593,
+      "eth_short_900_bps": -5.541605632592104,
+      "btc_short_900_bps": -7.58608832149112
+    },
+    {
+      "ts_ms": 1776710465190,
+      "notional": 62033.72570000001,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 1,
+      "btc_big_buy_overlap": 1,
+      "sol_short_900_bps": 9.293680297397572,
+      "eth_short_900_bps": 1.8281453400487675,
+      "btc_short_900_bps": -23.0946143640373
+    },
+    {
+      "ts_ms": 1776761275602,
+      "notional": 1014225.2016,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 1,
+      "btc_big_buy_overlap": 2,
+      "sol_short_900_bps": 23.78607161888078,
+      "eth_short_900_bps": 27.616296521033174,
+      "btc_short_900_bps": 16.82371300868899
+    },
+    {
+      "ts_ms": 1776761278152,
+      "notional": 101461.0287,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 1,
+      "btc_big_buy_overlap": 2,
+      "sol_short_900_bps": 30.967303904272796,
+      "eth_short_900_bps": 31.969565627216443,
+      "btc_short_900_bps": 19.176879340761708
+    },
+    {
+      "ts_ms": 1776782086224,
+      "notional": 197581.14449999997,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 1,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": 4.632310364793519,
+      "eth_short_900_bps": 23.844053532664105,
+      "btc_short_900_bps": 1.732308471644222
+    },
+    {
+      "ts_ms": 1776782441234,
+      "notional": 87160.0,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 1,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": 57.41541755954738,
+      "eth_short_900_bps": 69.02938786236548,
+      "btc_short_900_bps": 49.74150434923893
+    },
+    {
+      "ts_ms": 1776782500130,
+      "notional": 135329.8364,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 1,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": 74.77413265602378,
+      "eth_short_900_bps": 85.64205747304369,
+      "btc_short_900_bps": 80.1119145696412
+    },
+    {
+      "ts_ms": 1776789306458,
+      "notional": 59632.530000000006,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 2,
+      "btc_big_buy_overlap": 1,
+      "sol_short_900_bps": 20.570269110311976,
+      "eth_short_900_bps": 34.976466977125234,
+      "btc_short_900_bps": 17.210787434123887
+    },
+    {
+      "ts_ms": 1776815184136,
+      "notional": 408745.938,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 1,
+      "btc_big_buy_overlap": 3,
+      "sol_short_900_bps": 8.414247802055518,
+      "eth_short_900_bps": 5.939916041849976,
+      "btc_short_900_bps": 1.6435884234918725
+    },
+    {
+      "ts_ms": 1776817111553,
+      "notional": 104100.0,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 0,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": -11.591515011012929,
+      "eth_short_900_bps": 10.230398899587815,
+      "btc_short_900_bps": 12.005067380690495
+    },
+    {
+      "ts_ms": 1776823894608,
+      "notional": 666896.96,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 5,
+      "btc_big_buy_overlap": 1,
+      "sol_short_900_bps": -40.02739854934709,
+      "eth_short_900_bps": -34.134862092863486,
+      "btc_short_900_bps": -48.85122012445439
+    },
+    {
+      "ts_ms": 1776824213184,
+      "notional": 87390.0,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 8,
+      "btc_big_buy_overlap": 1,
+      "sol_short_900_bps": -34.20369071579506,
+      "eth_short_900_bps": -49.165592087720185,
+      "btc_short_900_bps": -23.45844773085558
+    },
+    {
+      "ts_ms": 1776824231106,
+      "notional": 83248.902,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 8,
+      "btc_big_buy_overlap": 1,
+      "sol_short_900_bps": -4.7942794135616555,
+      "eth_short_900_bps": -22.802829379728806,
+      "btc_short_900_bps": -5.293547650740154
+    },
+    {
+      "ts_ms": 1776824234434,
+      "notional": 71655.3286,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 8,
+      "btc_big_buy_overlap": 1,
+      "sol_short_900_bps": 3.914930566276376,
+      "eth_short_900_bps": -15.473475564270805,
+      "btc_short_900_bps": 1.9462724989100875
+    },
+    {
+      "ts_ms": 1776824831243,
+      "notional": 107041.4976,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 6,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": -8.732977387163503,
+      "eth_short_900_bps": -59.81437506128414,
+      "btc_short_900_bps": -1.236753366083443
+    },
+    {
+      "ts_ms": 1776825004064,
+      "notional": 133164.97879999998,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 7,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": -12.81043617630306,
+      "eth_short_900_bps": -26.16958952550215,
+      "btc_short_900_bps": 9.28883958107852
+    },
+    {
+      "ts_ms": 1776826629411,
+      "notional": 70296.0,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 6,
+      "btc_big_buy_overlap": 3,
+      "sol_short_900_bps": -45.57711478473091,
+      "eth_short_900_bps": -5.3092199239001845,
+      "btc_short_900_bps": -15.771870748220753
+    },
+    {
+      "ts_ms": 1776827366790,
+      "notional": 92808.90629999999,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 5,
+      "btc_big_buy_overlap": 2,
+      "sol_short_900_bps": 16.546420908469617,
+      "eth_short_900_bps": 32.63310892140489,
+      "btc_short_900_bps": 12.73709627723591
+    },
+    {
+      "ts_ms": 1776827467242,
+      "notional": 108551.0832,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 4,
+      "btc_big_buy_overlap": 1,
+      "sol_short_900_bps": 30.772737633917945,
+      "eth_short_900_bps": 36.464736659681655,
+      "btc_short_900_bps": 8.300434483924189
+    },
+    {
+      "ts_ms": 1776835037627,
+      "notional": 705840.0,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 9,
+      "btc_big_buy_overlap": 4,
+      "sol_short_900_bps": -56.61256345766839,
+      "eth_short_900_bps": -62.99705935528806,
+      "btc_short_900_bps": -30.052855094204354
+    },
+    {
+      "ts_ms": 1776835464124,
+      "notional": 521242.7792,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 9,
+      "btc_big_buy_overlap": 4,
+      "sol_short_900_bps": 12.616743995808907,
+      "eth_short_900_bps": 28.674693722533384,
+      "btc_short_900_bps": 46.9249797396263
+    },
+    {
+      "ts_ms": 1776835826214,
+      "notional": 62287.0584,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 9,
+      "btc_big_buy_overlap": 4,
+      "sol_short_900_bps": 29.691934432678305,
+      "eth_short_900_bps": 13.0241032746825,
+      "btc_short_900_bps": 28.123501454069448
+    },
+    {
+      "ts_ms": 1776848947342,
+      "notional": 113402.3436,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 0,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": 4.349609698682834,
+      "eth_short_900_bps": 5.746552551609266,
+      "btc_short_900_bps": 5.918147874191803
+    },
+    {
+      "ts_ms": 1776848948385,
+      "notional": 68839.9716,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 0,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": 2.193130903124746,
+      "eth_short_900_bps": 5.352759389282544,
+      "btc_short_900_bps": 5.66694712810694
+    },
+    {
+      "ts_ms": 1776848996170,
+      "notional": 170953.584,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 0,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": 28.451394891624037,
+      "eth_short_900_bps": 6.982899046260731,
+      "btc_short_900_bps": 5.166634017390856
+    },
+    {
+      "ts_ms": 1776849017347,
+      "notional": 110605.90789999999,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 0,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": 30.533815197598976,
+      "eth_short_900_bps": 8.77893390299012,
+      "btc_short_900_bps": 6.9009706931066805
+    },
+    {
+      "ts_ms": 1776849052639,
+      "notional": 101794.0108,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 0,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": 43.14535907249068,
+      "eth_short_900_bps": 10.796343005535238,
+      "btc_short_900_bps": 5.817134407838617
+    },
+    {
+      "ts_ms": 1776849053701,
+      "notional": 55166.2504,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 0,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": 42.77352543899253,
+      "eth_short_900_bps": 10.823275269999007,
+      "btc_short_900_bps": 5.817134407838617
+    },
+    {
+      "ts_ms": 1776867304171,
+      "notional": 94474.209,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 1,
+      "btc_big_buy_overlap": 2,
+      "sol_short_900_bps": 26.766122065517827,
+      "eth_short_900_bps": 45.217290761631865,
+      "btc_short_900_bps": 5.20809718834767
+    },
+    {
+      "ts_ms": 1777105877123,
+      "notional": 50479.8945,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 0,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": 14.121673389066885,
+      "eth_short_900_bps": 0.3915991649632536,
+      "btc_short_900_bps": -1.4565834996162494
+    },
+    {
+      "ts_ms": 1777178944340,
+      "notional": 175409.3344,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 0,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": 34.634033710460784,
+      "eth_short_900_bps": 7.420431061587662,
+      "btc_short_900_bps": 11.225680111428026
+    },
+    {
+      "ts_ms": 1777227323167,
+      "notional": 1006250.0,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 4,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": 10.055827324340394,
+      "eth_short_900_bps": 18.52820496550181,
+      "btc_short_900_bps": -7.63331480209851
+    },
+    {
+      "ts_ms": 1777227481307,
+      "notional": 50485.59,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 4,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": 18.424689083371323,
+      "eth_short_900_bps": 21.71143680617616,
+      "btc_short_900_bps": 0.753729642490467
+    },
+    {
+      "ts_ms": 1777230929703,
+      "notional": 109360.4874,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 2,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": 44.760702398714635,
+      "eth_short_900_bps": 42.01941842534475,
+      "btc_short_900_bps": 38.176547424736036
+    },
+    {
+      "ts_ms": 1777241730126,
+      "notional": 50168.451400000005,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 2,
+      "btc_big_buy_overlap": 1,
+      "sol_short_900_bps": 55.703313720251934,
+      "eth_short_900_bps": 54.10144097223964,
+      "btc_short_900_bps": 40.23592358130873
+    },
+    {
+      "ts_ms": 1777241731162,
+      "notional": 84775.2396,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 2,
+      "btc_big_buy_overlap": 1,
+      "sol_short_900_bps": 55.703313720251934,
+      "eth_short_900_bps": 54.10144097223964,
+      "btc_short_900_bps": 40.64001863429436
+    },
+    {
+      "ts_ms": 1777247350266,
+      "notional": 73732.1975,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 0,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": -15.165286719464588,
+      "eth_short_900_bps": -0.9673161737143705,
+      "btc_short_900_bps": -19.723126412756113
+    },
+    {
+      "ts_ms": 1777251631544,
+      "notional": 147446.703,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 7,
+      "btc_big_buy_overlap": 3,
+      "sol_short_900_bps": -18.27959883847353,
+      "eth_short_900_bps": 39.87773611377966,
+      "btc_short_900_bps": 36.55090554815647
+    },
+    {
+      "ts_ms": 1777258443176,
+      "notional": 174037.5056,
+      "eth_detector_overlap": 0,
+      "eth_big_buy_overlap": 0,
+      "btc_big_buy_overlap": 0,
+      "sol_short_900_bps": 16.56609319274315,
+      "eth_short_900_bps": 11.869820668450517,
+      "btc_short_900_bps": 0.9476708776948601
+    }
+  ],
+  "summary": [
+    {
+      "label": "all",
+      "n": 46,
+      "wr": 73.91304347826087,
+      "mean_bps": 15.784917022604914
+    },
+    {
+      "label": "eth_detector_overlap",
+      "n": 0,
+      "wr": null,
+      "mean_bps": null
+    },
+    {
+      "label": "no_eth_detector_overlap",
+      "n": 46,
+      "wr": 73.91304347826087,
+      "mean_bps": 15.784917022604914
+    },
+    {
+      "label": "eth_big_buy_overlap",
+      "n": 32,
+      "wr": 71.875,
+      "mean_bps": 16.18148691082718
+    },
+    {
+      "label": "no_eth_big_buy_overlap",
+      "n": 14,
+      "wr": 78.57142857142857,
+      "mean_bps": 14.878471563811162
+    },
+    {
+      "label": "btc_big_buy_overlap",
+      "n": 25,
+      "wr": 72.0,
+      "mean_bps": 15.609571763815836
+    },
+    {
+      "label": "no_btc_big_buy_overlap",
+      "n": 21,
+      "wr": 76.19047619047619,
+      "mean_bps": 15.993661378306196
+    }
+  ],
+  "overlap_rates": {
+    "eth_detector": 0.0,
+    "eth_big_buy": 0.6956521739130435,
+    "btc_big_buy": 0.5434782608695652
+  }
+}

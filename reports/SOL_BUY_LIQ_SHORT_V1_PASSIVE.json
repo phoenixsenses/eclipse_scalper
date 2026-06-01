@@ -1,0 +1,330 @@
+{
+  "inputs": {
+    "db": "data/microstructure.db",
+    "symbol": "SOLUSDT",
+    "liq_side": "BUY",
+    "direction": "SHORT",
+    "thresholds": "25000,50000,100000",
+    "horizons": "900",
+    "exec_model": "passive",
+    "passive_wait_sec": 10,
+    "fee_rt_bps": "2,4,8,10",
+    "folds": 5,
+    "min_n": 20,
+    "min_wr": 60.0,
+    "min_mean_bps": 5.0,
+    "out_md": "reports\\SOL_BUY_LIQ_SHORT_V1_PASSIVE.md",
+    "out_json": "reports\\SOL_BUY_LIQ_SHORT_V1_PASSIVE.json"
+  },
+  "results": [
+    {
+      "symbol": "SOLUSDT",
+      "liq_side": "BUY",
+      "direction": "SHORT",
+      "threshold": 25000.0,
+      "horizon_sec": 900,
+      "exec_model": "passive",
+      "events": 76,
+      "filled": 64,
+      "fill_rate": 0.8421052631578947,
+      "gross_wr": 68.75,
+      "gross_mean_bps": 13.939097890228101,
+      "gross_median_bps": 13.96140124693181,
+      "folds": [
+        {
+          "fold": 1,
+          "n": 12,
+          "wr": 75.0,
+          "mean_bps": 27.220189810025854,
+          "median_bps": 22.21861587865877
+        },
+        {
+          "fold": 2,
+          "n": 13,
+          "wr": 53.84615384615385,
+          "mean_bps": 5.126955812962933,
+          "median_bps": 6.946856547412559
+        },
+        {
+          "fold": 3,
+          "n": 13,
+          "wr": 53.84615384615385,
+          "mean_bps": -1.0582946820119101,
+          "median_bps": 3.4296201514806133
+        },
+        {
+          "fold": 4,
+          "n": 13,
+          "wr": 84.61538461538461,
+          "mean_bps": 19.546179599649584,
+          "median_bps": 21.87176240359131
+        },
+        {
+          "fold": 5,
+          "n": 13,
+          "wr": 76.92307692307692,
+          "mean_bps": 19.8820813658831,
+          "median_bps": 18.424689083371323
+        }
+      ],
+      "fees": {
+        "2.0": {
+          "net_mean_bps": 11.939097890228101,
+          "net_median_bps": 11.96140124693181,
+          "net_wr": 68.75,
+          "folds_positive": 4
+        },
+        "4.0": {
+          "net_mean_bps": 9.939097890228101,
+          "net_median_bps": 9.96140124693181,
+          "net_wr": 64.0625,
+          "folds_positive": 4
+        },
+        "8.0": {
+          "net_mean_bps": 5.939097890228101,
+          "net_median_bps": 5.961401246931811,
+          "net_wr": 56.25,
+          "folds_positive": 3
+        },
+        "10.0": {
+          "net_mean_bps": 3.9390978902281013,
+          "net_median_bps": 3.9614012469318114,
+          "net_wr": 54.6875,
+          "folds_positive": 3
+        }
+      }
+    },
+    {
+      "symbol": "SOLUSDT",
+      "liq_side": "BUY",
+      "direction": "SHORT",
+      "threshold": 50000.0,
+      "horizon_sec": 900,
+      "exec_model": "passive",
+      "events": 46,
+      "filled": 37,
+      "fill_rate": 0.8043478260869565,
+      "gross_wr": 75.67567567567568,
+      "gross_mean_bps": 16.999621204177345,
+      "gross_median_bps": 16.504582287148807,
+      "folds": [
+        {
+          "fold": 1,
+          "n": 7,
+          "wr": 71.42857142857143,
+          "mean_bps": 19.18047352558339,
+          "median_bps": 6.946856547412559
+        },
+        {
+          "fold": 2,
+          "n": 7,
+          "wr": 57.142857142857146,
+          "mean_bps": 13.293933722443821,
+          "median_bps": 3.4296201514806133
+        },
+        {
+          "fold": 3,
+          "n": 8,
+          "wr": 62.5,
+          "mean_bps": -4.435257838431942,
+          "median_bps": 4.523032141217269
+        },
+        {
+          "fold": 4,
+          "n": 7,
+          "wr": 100.0,
+          "mean_bps": 32.70858079089467,
+          "median_bps": 33.79900856241678
+        },
+        {
+          "fold": 5,
+          "n": 8,
+          "wr": 87.5,
+          "mean_bps": 26.02339137369551,
+          "median_bps": 21.40287698855411
+        }
+      ],
+      "fees": {
+        "2.0": {
+          "net_mean_bps": 14.999621204177346,
+          "net_median_bps": 14.504582287148807,
+          "net_wr": 75.67567567567568,
+          "folds_positive": 4
+        },
+        "4.0": {
+          "net_mean_bps": 12.999621204177346,
+          "net_median_bps": 12.504582287148807,
+          "net_wr": 67.56756756756756,
+          "folds_positive": 4
+        },
+        "8.0": {
+          "net_mean_bps": 8.999621204177345,
+          "net_median_bps": 8.504582287148807,
+          "net_wr": 59.45945945945946,
+          "folds_positive": 4
+        },
+        "10.0": {
+          "net_mean_bps": 6.999621204177346,
+          "net_median_bps": 6.504582287148807,
+          "net_wr": 56.75675675675676,
+          "folds_positive": 4
+        }
+      }
+    },
+    {
+      "symbol": "SOLUSDT",
+      "liq_side": "BUY",
+      "direction": "SHORT",
+      "threshold": 100000.0,
+      "horizon_sec": 900,
+      "exec_model": "passive",
+      "events": 24,
+      "filled": 21,
+      "fill_rate": 0.875,
+      "gross_wr": 71.42857142857143,
+      "gross_mean_bps": 16.832377705361417,
+      "gross_median_bps": 12.883582869477062,
+      "folds": [
+        {
+          "fold": 1,
+          "n": 4,
+          "wr": 75.0,
+          "mean_bps": 45.530643582849535,
+          "median_bps": 42.6213845201077
+        },
+        {
+          "fold": 2,
+          "n": 4,
+          "wr": 25.0,
+          "mean_bps": -11.633975958053995,
+          "median_bps": -9.809979319935149
+        },
+        {
+          "fold": 3,
+          "n": 4,
+          "wr": 50.0,
+          "mean_bps": -4.048509794960142,
+          "median_bps": 0.6096508669728429
+        },
+        {
+          "fold": 4,
+          "n": 4,
+          "wr": 100.0,
+          "mean_bps": 27.9758997145213,
+          "median_bps": 31.552344677962513
+        },
+        {
+          "fold": 5,
+          "n": 5,
+          "wr": 100.0,
+          "mean_bps": 24.436740327032588,
+          "median_bps": 24.381064893736895
+        }
+      ],
+      "fees": {
+        "2.0": {
+          "net_mean_bps": 14.832377705361417,
+          "net_median_bps": 10.883582869477062,
+          "net_wr": 71.42857142857143,
+          "folds_positive": 3
+        },
+        "4.0": {
+          "net_mean_bps": 12.832377705361417,
+          "net_median_bps": 8.883582869477062,
+          "net_wr": 66.66666666666667,
+          "folds_positive": 3
+        },
+        "8.0": {
+          "net_mean_bps": 8.832377705361417,
+          "net_median_bps": 4.8835828694770615,
+          "net_wr": 57.142857142857146,
+          "folds_positive": 3
+        },
+        "10.0": {
+          "net_mean_bps": 6.8323777053614165,
+          "net_median_bps": 2.8835828694770615,
+          "net_wr": 52.38095238095238,
+          "folds_positive": 3
+        }
+      }
+    }
+  ],
+  "best": {
+    "symbol": "SOLUSDT",
+    "liq_side": "BUY",
+    "direction": "SHORT",
+    "threshold": 50000.0,
+    "horizon_sec": 900,
+    "exec_model": "passive",
+    "events": 46,
+    "filled": 37,
+    "fill_rate": 0.8043478260869565,
+    "gross_wr": 75.67567567567568,
+    "gross_mean_bps": 16.999621204177345,
+    "gross_median_bps": 16.504582287148807,
+    "folds": [
+      {
+        "fold": 1,
+        "n": 7,
+        "wr": 71.42857142857143,
+        "mean_bps": 19.18047352558339,
+        "median_bps": 6.946856547412559
+      },
+      {
+        "fold": 2,
+        "n": 7,
+        "wr": 57.142857142857146,
+        "mean_bps": 13.293933722443821,
+        "median_bps": 3.4296201514806133
+      },
+      {
+        "fold": 3,
+        "n": 8,
+        "wr": 62.5,
+        "mean_bps": -4.435257838431942,
+        "median_bps": 4.523032141217269
+      },
+      {
+        "fold": 4,
+        "n": 7,
+        "wr": 100.0,
+        "mean_bps": 32.70858079089467,
+        "median_bps": 33.79900856241678
+      },
+      {
+        "fold": 5,
+        "n": 8,
+        "wr": 87.5,
+        "mean_bps": 26.02339137369551,
+        "median_bps": 21.40287698855411
+      }
+    ],
+    "fees": {
+      "2.0": {
+        "net_mean_bps": 14.999621204177346,
+        "net_median_bps": 14.504582287148807,
+        "net_wr": 75.67567567567568,
+        "folds_positive": 4
+      },
+      "4.0": {
+        "net_mean_bps": 12.999621204177346,
+        "net_median_bps": 12.504582287148807,
+        "net_wr": 67.56756756756756,
+        "folds_positive": 4
+      },
+      "8.0": {
+        "net_mean_bps": 8.999621204177345,
+        "net_median_bps": 8.504582287148807,
+        "net_wr": 59.45945945945946,
+        "folds_positive": 4
+      },
+      "10.0": {
+        "net_mean_bps": 6.999621204177346,
+        "net_median_bps": 6.504582287148807,
+        "net_wr": 56.75675675675676,
+        "folds_positive": 4
+      }
+    }
+  },
+  "verdict": "SHADOW_CANDIDATE"
+}

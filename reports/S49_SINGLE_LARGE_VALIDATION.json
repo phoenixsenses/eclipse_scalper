@@ -1,0 +1,16 @@
+{
+  "pkl_single_large": {
+    "n": 13,
+    "wr": 84.61538461538461
+  },
+  "pkl_clustered": {
+    "n": 17,
+    "wr": 52.94117647058824
+  },
+  "sim_fill_rate": 0.47619047619047616,
+  "sim_n_filled": 10,
+  "sim_wr_net": 80.0,
+  "sim_mean_net_bps": 5.111361568040401,
+  "npa_per_attempt": 2.4339816990668575,
+  "verdict": "GO \u2014 single_large NPA per attempt: +2.43 bps (fee-adjusted positive)"
+}
