@@ -1,0 +1,29 @@
+{
+  "output_jsonl": "logs\\telemetry.jsonl",
+  "state": "reports\\LANE_SHADOW_EMITTER_STATE.json",
+  "dry_run": false,
+  "backfill_existing": false,
+  "initialized": {
+    "ETH_BUY250K_SHORT_900_UTC14": 1777254452076,
+    "ETH_BUY500K_SHORT_900_SESSION_US": 1777251615113,
+    "SOL_BUY50K_SHORT_900_FUNDING_NEGATIVE": 1777258443176,
+    "S34_SHORT_900_SESSION_US": 1776211530008,
+    "S34_SHORT_900_BASIS_POSITIVE": 1776211530008
+  },
+  "matched_counts": {
+    "ETH_BUY250K_SHORT_900_UTC14": 0,
+    "ETH_BUY500K_SHORT_900_SESSION_US": 0,
+    "SOL_BUY50K_SHORT_900_FUNDING_NEGATIVE": 0,
+    "S34_SHORT_900_SESSION_US": 0,
+    "S34_SHORT_900_BASIS_POSITIVE": 0
+  },
+  "emitted_count": 0,
+  "families": [
+    "ETH_BUY250K_SHORT_900_UTC14",
+    "ETH_BUY500K_SHORT_900_SESSION_US",
+    "SOL_BUY50K_SHORT_900_FUNDING_NEGATIVE",
+    "S34_SHORT_900_SESSION_US",
+    "S34_SHORT_900_BASIS_POSITIVE"
+  ],
+  "events": []
+}

@@ -102,3 +102,18 @@ Do not promote beyond shadow unless forward-only data satisfies:
 - positive performance both with and without cross-asset forced-flow overlap
 - no mature fold worse than -5 bps mean once it has at least 20 events
 
+## Emitter
+
+Shadow emission is wired through:
+
+```powershell
+python tools\shadow_lane_signal_emitter.py --db data\microstructure.db --output-jsonl logs\telemetry.jsonl --state reports\LANE_SHADOW_EMITTER_STATE.json --out-json reports\LANE_SHADOW_EMITTER_RUN.json
+```
+
+Default behavior is forward-safe. If `reports/LANE_SHADOW_EMITTER_STATE.json` does not exist, the emitter initializes each cursor at the current DB frontier and emits zero historical events. It only emits future matching rows on later runs.
+
+Use historical replay only for research checks:
+
+```powershell
+python tools\shadow_lane_signal_emitter.py --db data\microstructure.db --backfill-existing --output-jsonl logs\lane_shadow_backfill.jsonl --state reports\LANE_SHADOW_EMITTER_BACKFILL_STATE.json
+```
