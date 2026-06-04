@@ -33,9 +33,20 @@ class ShadowSpec:
     session_us: bool = False
     funding_negative: bool = False
     basis_positive: bool = False
+    confidence_band: str = ""
 
 
 SPECS: tuple[ShadowSpec, ...] = (
+    ShadowSpec(
+        family="BTC_BUY100K_SHORT_900_UTC07",
+        source="liquidations",
+        symbol="BTCUSDT",
+        liq_side="BUY",
+        min_notional=100000.0,
+        utc_hour=7,
+        direction="SHORT",
+        horizon_sec=900,
+    ),
     ShadowSpec(
         family="ETH_BUY250K_SHORT_900_UTC14",
         source="liquidations",
@@ -43,6 +54,26 @@ SPECS: tuple[ShadowSpec, ...] = (
         liq_side="BUY",
         min_notional=250000.0,
         utc_hour=14,
+        direction="SHORT",
+        horizon_sec=900,
+    ),
+    ShadowSpec(
+        family="ETH_BUY250K_SHORT_900_UTC19",
+        source="liquidations",
+        symbol="ETHUSDT",
+        liq_side="BUY",
+        min_notional=250000.0,
+        utc_hour=19,
+        direction="SHORT",
+        horizon_sec=900,
+    ),
+    ShadowSpec(
+        family="ETH_BUY1M_SHORT_900_SESSION_US",
+        source="liquidations",
+        symbol="ETHUSDT",
+        liq_side="BUY",
+        min_notional=1000000.0,
+        session_us=True,
         direction="SHORT",
         horizon_sec=900,
     ),
@@ -57,12 +88,30 @@ SPECS: tuple[ShadowSpec, ...] = (
         horizon_sec=900,
     ),
     ShadowSpec(
+        family="SOL_BUY25K_SHORT_900_FUNDING_NEGATIVE",
+        source="liquidations",
+        symbol="SOLUSDT",
+        liq_side="BUY",
+        min_notional=25000.0,
+        funding_negative=True,
+        direction="SHORT",
+        horizon_sec=900,
+    ),
+    ShadowSpec(
         family="SOL_BUY50K_SHORT_900_FUNDING_NEGATIVE",
         source="liquidations",
         symbol="SOLUSDT",
         liq_side="BUY",
         min_notional=50000.0,
         funding_negative=True,
+        direction="SHORT",
+        horizon_sec=900,
+    ),
+    ShadowSpec(
+        family="S34_SHORT_900_CONFIDENCE_MEDIUM",
+        source="detector_signals",
+        symbol="ETHUSDT",
+        confidence_band="medium",
         direction="SHORT",
         horizon_sec=900,
     ),
@@ -294,6 +343,8 @@ def _detector_events(conn: sqlite3.Connection, spec: ShadowSpec, after_ts_ms: in
             continue
         if spec.basis_positive and not (basis_value is not None and basis_value > 0):
             continue
+        if spec.confidence_band and str(confidence or "").lower() != spec.confidence_band.lower():
+            continue
         event = _base_event(spec, ts, signal_id or source_id)
         event["data"].update(
             {
@@ -321,6 +372,7 @@ def _lane_fields(spec: ShadowSpec, ts_ms: int, *, funding: float | None = None, 
         "funding_rate": funding,
         "basis_positive_required": bool(spec.basis_positive),
         "basis_at_entry": basis,
+        "confidence_band_required": spec.confidence_band,
     }
 
 

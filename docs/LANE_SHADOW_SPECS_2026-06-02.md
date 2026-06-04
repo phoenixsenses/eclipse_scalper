@@ -92,6 +92,16 @@ Every shadow signal should record:
 - fee-stressed net estimates at 2, 4, 8, and 10 bps round trip
 - overlap flags for ETH/BTC/SOL forced-flow within 60s
 
+## Added After Alpha Discovery Tests
+
+The 2026-06-04 discovery suite added these additional `SHADOW_ONLY` families to the emitter:
+
+- `BTC_BUY100K_SHORT_900_UTC07`
+- `ETH_BUY250K_SHORT_900_UTC19`
+- `ETH_BUY1M_SHORT_900_SESSION_US`
+- `SOL_BUY25K_SHORT_900_FUNDING_NEGATIVE`
+- `S34_SHORT_900_CONFIDENCE_MEDIUM`
+
 ## Promotion Gates
 
 Do not promote beyond shadow unless forward-only data satisfies:

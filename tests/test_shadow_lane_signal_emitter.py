@@ -81,8 +81,11 @@ def test_backfill_emits_matching_shadow_events(tmp_path: Path) -> None:
     rows = [json.loads(line) for line in out.read_text(encoding="utf-8").splitlines()]
     families = {row["data"]["signal_family"] for row in rows}
     assert "ETH_BUY250K_SHORT_900_UTC14" in families
+    assert "ETH_BUY250K_SHORT_900_UTC19" not in families
     assert "SOL_BUY50K_SHORT_900_FUNDING_NEGATIVE" in families
+    assert "SOL_BUY25K_SHORT_900_FUNDING_NEGATIVE" in families
     assert "S34_SHORT_900_BASIS_POSITIVE" in families
+    assert "S34_SHORT_900_CONFIDENCE_MEDIUM" in families
     assert all(row["data"]["status"] == "SHADOW_ONLY" for row in rows)
 
 
