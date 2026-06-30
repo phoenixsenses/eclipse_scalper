@@ -1,0 +1,94 @@
+{
+  "generated_utc": "2026-06-30T15:00:00Z",
+  "status": "VALIDATED_OOS_PERMUTATION_PASS",
+  "research_suites": ["S34_COMPREHENSIVE_FINAL", "S34_DEEP_EXPANSION", "S34_THIRD_WAVE", "S34_FOURTH_WAVE", "S34_FIFTH_WAVE"],
+  "holdout_period": {"start": "2026-06-08T00:00:00Z", "end": "2026-06-29T08:28:10Z", "n_events": 602},
+  "cal_period": {"start": "2026-02-15T18:32:18Z", "end": "2026-06-08T01:05:38Z", "n_events": 1404},
+  "fee_bps": 5.0,
+  "signals": [
+    {
+      "id": "SILENCE_LONG",
+      "family": "ETH_SELL",
+      "direction": "LONG",
+      "description": "ETH SELL cascade >= 200K + 30min silence (no follow-on >= 50K)",
+      "entry": "anchor cascade time (no delay)",
+      "exit": "4h from anchor",
+      "cal_n": 247, "cal_wr": 0.655, "cal_t3r": 5082, "cal_perm_p": 0.0, "cal_verdict": "PASS",
+      "hold_n": 194, "hold_wr": 0.701, "hold_t3r": 7733, "hold_perm_p": 0.0, "hold_verdict": "PASS",
+      "live_rule": "SILENCE_GATE_ACTIVE_IN_EXECUTOR",
+      "live_status": "ARMED"
+    },
+    {
+      "id": "SILENCE_SYNC200K_LONG",
+      "family": "ETH_SELL",
+      "direction": "LONG",
+      "description": "ETH SELL cascade >= 200K + 30min silence + BTC+SOL sync_k >= 200K",
+      "entry": "anchor cascade time",
+      "exit": "4h from anchor",
+      "cal_n": 80, "cal_wr": 0.738, "cal_t3r": 2891, "cal_perm_p": 0.001, "cal_verdict": "PASS",
+      "hold_n": 65, "hold_wr": 0.831, "hold_t3r": 4298, "hold_perm_p": 0.0, "hold_verdict": "PASS",
+      "live_rule": "SILENCE_GATE_ACTIVE_IN_EXECUTOR",
+      "live_status": "ARMED"
+    },
+    {
+      "id": "WEEKDAY_SCORE3_BID_SILENCE_LONG",
+      "family": "ETH_SELL",
+      "direction": "LONG",
+      "description": "Mon-Fri + score>=3 + bid_depth>0 + 30min silence",
+      "entry": "anchor cascade time",
+      "exit": "4h from anchor",
+      "cal_n": 37, "cal_wr": 0.892, "cal_t3r": 1334, "cal_perm_p": 0.001, "cal_verdict": "PASS",
+      "hold_n": 86, "hold_wr": 0.884, "hold_t3r": 6162, "hold_perm_p": 0.0, "hold_verdict": "PASS",
+      "live_rule": "SILENCE_GATE_ACTIVE_IN_EXECUTOR",
+      "live_status": "ARMED"
+    },
+    {
+      "id": "NOISY_NOT_BULL_SHORT",
+      "family": "ETH_SELL",
+      "direction": "SHORT",
+      "description": "ETH SELL cascade >= 200K + propagation in 1-30min + NOT bull context",
+      "entry": "first propagation cascade time",
+      "exit": "2h from entry",
+      "cal_n": 508, "cal_wr": 0.632, "cal_t3r": 8420, "cal_perm_p": 0.0, "cal_verdict": "PASS",
+      "hold_n": 397, "hold_wr": 0.549, "hold_t3r": 11360, "hold_perm_p": 0.0, "hold_verdict": "PASS",
+      "live_rule": "SHADOW_PAPER_ONLY",
+      "live_status": "SHADOW_PAPER_TRACKING"
+    },
+    {
+      "id": "NEITHER_SILENCE_SHORT",
+      "family": "ETH_SELL",
+      "direction": "SHORT",
+      "description": "ETH SELL cascade >= 200K + BTC SELL >= 500K in 30min window (both cascading)",
+      "entry": "BTC cascade detection time",
+      "exit": "2h from entry",
+      "cal_n": 90, "cal_wr": 0.667, "cal_t3r": 6042, "cal_perm_p": 0.0, "cal_verdict": "PASS",
+      "hold_n": 119, "hold_wr": 0.731, "hold_t3r": 8599, "hold_perm_p": 0.0, "hold_verdict": "PASS",
+      "live_rule": "SHADOW_PAPER_ONLY",
+      "live_status": "SHADOW_PAPER_TRACKING"
+    },
+    {
+      "id": "NEITHER_SCORE3_NO_ULTRA_SHORT",
+      "family": "ETH_SELL",
+      "direction": "SHORT",
+      "description": "ETH+BTC both cascading + score>=3 + no ultra-early (<1min) event",
+      "entry": "BTC cascade detection time",
+      "exit": "2h from entry",
+      "cal_n": 31, "cal_wr": 0.774, "cal_t3r": 2703, "cal_perm_p": 0.0, "cal_verdict": "PASS",
+      "hold_n": 41, "hold_wr": 0.902, "hold_t3r": 5780, "hold_perm_p": 0.0, "hold_verdict": "PASS",
+      "live_rule": "SHADOW_PAPER_ONLY",
+      "live_status": "SHADOW_PAPER_TRACKING"
+    }
+  ],
+  "combined_portfolio": {
+    "hold_n": 233, "hold_wr": 0.755, "hold_t3r": 15278,
+    "note": "Refined portfolio: score>=3 + bid_dep>0 + prop filters"
+  },
+  "key_rules": {
+    "entry_must_be_at_anchor": true,
+    "delayed_entry_kills_edge_bps": 28,
+    "ultra_early_abort_window_ms": 60000,
+    "silence_window_ms": 1800000,
+    "silence_hold_extension_sec": 14400,
+    "noisy_exit_window_ms": [60000, 1800000]
+  }
+}
