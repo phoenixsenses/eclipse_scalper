@@ -31,7 +31,9 @@ PROCS: List[Dict] = [
         "module": "data.microstructure_collector",
         "args": ["--symbols", "BTCUSDT,ETHUSDT",
                  "--db-path", "data/microstructure.db",
-                 "--stats-interval", "300"],
+                 "--stats-interval", "300",
+                 "--rest-fallback-enabled",
+                 "--rest-poll-interval-sec", "5"],
         "restart_log": "logs/collector_restarts.log",
     },
     {
@@ -57,13 +59,11 @@ def _pid_dir(cwd: Path) -> Path:
 
 
 def _pid_file(cwd: Path, module: str) -> Path:
-    name = "microstructure_collector.pid" if module == "data.microstructure_collector" else "event_diary.pid"
-    return _pid_dir(cwd) / name
+    return _pid_dir(cwd) / (module.split(".")[-1] + ".pid")
 
 
 def _meta_file(cwd: Path, module: str) -> Path:
-    name = "microstructure_collector.json" if module == "data.microstructure_collector" else "event_diary.json"
-    return _pid_dir(cwd) / name
+    return _pid_dir(cwd) / (module.split(".")[-1] + ".json")
 
 
 def _write_json_atomic(path: Path, payload: Dict) -> None:
@@ -139,6 +139,8 @@ def _tg_token_chat():
 
 
 async def _send_telegram(text: str) -> None:
+    if os.getenv("ECLIPSE_SUPERVISOR_TELEGRAM", "0").strip() != "1":
+        return
     token, chat_id = _tg_token_chat()
     if not token or not chat_id:
         return
@@ -171,7 +173,17 @@ class ManagedProcess:
 
     def start(self) -> None:
         self.restart_log.parent.mkdir(parents=True, exist_ok=True)
-        self.proc = subprocess.Popen(self._cmd(), cwd=str(self.cwd))
+        log_stem = self.module.split(".")[-1]
+        child_out = (self.cwd / "logs" / f"{log_stem}.supervised.out.log").open("ab", buffering=0)
+        child_err = (self.cwd / "logs" / f"{log_stem}.supervised.err.log").open("ab", buffering=0)
+        self.proc = subprocess.Popen(
+            self._cmd(),
+            cwd=str(self.cwd),
+            stdin=subprocess.DEVNULL,
+            stdout=child_out,
+            stderr=child_err,
+            close_fds=True,
+        )
         self.restart_count += 1
         now = time.time()
         self.restart_times.append(now)
@@ -228,12 +240,40 @@ class ManagedProcess:
 # Main loop
 # ---------------------------------------------------------------------------
 
-async def run(cwd: Path) -> None:
+def _with_symbols(symbols: str) -> List[Dict]:
+    configured = []
+    for cfg in PROCS:
+        row = dict(cfg)
+        if row.get("module") == "data.microstructure_collector":
+            args = list(row.get("args") or [])
+            if "--symbols" in args:
+                idx = args.index("--symbols")
+                if idx + 1 < len(args):
+                    args[idx + 1] = symbols
+            row["args"] = args
+        configured.append(row)
+    return configured
+
+
+async def run(cwd: Path, symbols: str) -> None:
     venv_py = cwd / ".venv" / "Scripts" / "python.exe"
     python = str(venv_py) if venv_py.exists() else sys.executable
 
     log = _setup_logger(cwd / "logs" / "collector_supervisor.log")
-    log.info(f"Collector supervisor started cwd={cwd} python={python}")
+    log.info(f"Collector supervisor started cwd={cwd} python={python} symbols={symbols}")
+    _write_json_atomic(
+        _meta_file(cwd, "scripts.collector_supervisor"),
+        {
+            "role": "collector_supervisor",
+            "pid": int(os.getpid()),
+            "module": "scripts.collector_supervisor",
+            "cmdline_sig": " ".join([str(python), "-u", "scripts\\collector_supervisor.py", "--cwd", str(cwd), "--symbols", str(symbols)]),
+            "started_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "cwd": str(cwd),
+            "symbols": str(symbols),
+        },
+    )
+    _pid_file(cwd, "scripts.collector_supervisor").write_text(str(int(os.getpid())), encoding="ascii")
 
     # Load .env.paper if present
     env_file = cwd / ".env.paper"
@@ -244,7 +284,7 @@ async def run(cwd: Path) -> None:
                 k, _, v = line.partition("=")
                 os.environ.setdefault(k.strip(), v.strip())
 
-    procs = [ManagedProcess(cfg, python, cwd, log) for cfg in PROCS]
+    procs = [ManagedProcess(cfg, python, cwd, log) for cfg in _with_symbols(symbols)]
 
     # Start all
     for mp in procs:
@@ -291,13 +331,18 @@ async def run(cwd: Path) -> None:
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--cwd", default=str(Path(__file__).resolve().parent.parent))
+    p.add_argument(
+        "--symbols",
+        default=os.getenv("ECLIPSE_DATA_SYMBOLS", "BTCUSDT,ETHUSDT"),
+        help="Comma-separated symbols for data.microstructure_collector.",
+    )
     args = p.parse_args()
     cwd = Path(args.cwd).resolve()
     # Add cwd to sys.path so project modules are importable
     if str(cwd) not in sys.path:
         sys.path.insert(0, str(cwd))
     try:
-        asyncio.run(run(cwd))
+        asyncio.run(run(cwd, symbols=str(args.symbols)))
     except KeyboardInterrupt:
         print("Collector supervisor stopped.")
 

@@ -98,3 +98,35 @@ def test_setup_logger_rotating() -> None:
     lg.info("x")
     assert log_path.exists()
     shutil.rmtree(wd, ignore_errors=True)
+
+
+def test_overall_health_merge_preserves_unrelated_components(monkeypatch, tmp_path) -> None:
+    existing = {
+        "ts_utc": "old",
+        "mode": "live",
+        "state": "ok",
+        "components": {
+            "collector": {"status": "ok", "connected": True},
+            "runtime": {"status": "ready", "connected": True},
+            "bookticker": {"status": "ok", "connected": True},
+            "detector": {"status": "ok", "connected": True},
+        },
+    }
+    path = tmp_path / "overall.json"
+    path.write_text(__import__("json").dumps(existing), encoding="utf-8")
+
+    monkeypatch.setattr(cw, "OVERALL_HEALTH_PATH", path)
+    payload = cw._merged_overall_health(
+        state="ok",
+        reason="watchdog_ok",
+        watchdog_component={"status": "ok", "connected": True},
+        fitness_component={"status": "warning"},
+    )
+
+    comps = payload["components"]
+    assert comps["collector"]["status"] == "ok"
+    assert comps["runtime"]["status"] == "ready"
+    assert comps["bookticker"]["status"] == "ok"
+    assert comps["detector"]["status"] == "ok"
+    assert comps["watchdog"]["status"] == "ok"
+    assert comps["data_research_fitness"]["status"] == "warning"

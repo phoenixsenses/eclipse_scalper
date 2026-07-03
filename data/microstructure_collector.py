@@ -271,12 +271,34 @@ class StreamParser:
         stream = msg.get("stream", "")
         data = msg.get("data", {})
 
-        if "@forceOrder" in stream:
+        if "forceOrder" in stream:
             self._parse_liquidation(data)
         elif "@aggTrade" in stream:
             self._parse_agg_trade(data)
         elif "@markPrice" in stream:
             self._parse_mark_price(data)
+
+    def ingest_rest_agg_trade(self, data: dict) -> bool:
+        """Ingest one public /fapi/v1/aggTrades row."""
+        before = int(self.counts_total.get("agg_trades", 0))
+        self._parse_agg_trade(data)
+        return int(self.counts_total.get("agg_trades", 0)) > before
+
+    def ingest_rest_mark_price(self, data: dict) -> bool:
+        """Ingest one public /fapi/v1/premiumIndex row as a mark price update."""
+        symbol = data.get("symbol", "")
+        mark_price = float(data.get("markPrice", 0) or 0)
+        event_time = int(data.get("time", 0) or int(time.time() * 1000))
+        funding_rate_raw = data.get("lastFundingRate")
+        next_funding_raw = data.get("nextFundingTime")
+        funding_rate = float(funding_rate_raw) if funding_rate_raw not in (None, "") else None
+        next_funding_ms = int(next_funding_raw) if next_funding_raw not in (None, "") else None
+        if symbol and mark_price > 0:
+            self.buffer.add_mark_price(event_time, symbol, mark_price, funding_rate, next_funding_ms)
+            self.counts["mark_prices"] += 1
+            self.counts_total["mark_prices"] += 1
+            return True
+        return False
 
     def _parse_liquidation(self, data: dict):
         """Parse forceOrder event.
@@ -387,6 +409,7 @@ class MicrostructureCollector:
     """Async websocket collector for Binance Futures microstructure data."""
 
     BINANCE_WS = "wss://fstream.binance.com/stream"
+    BINANCE_REST = "https://fapi.binance.com"
 
     def __init__(
         self,
@@ -403,6 +426,9 @@ class MicrostructureCollector:
         simulate_cycle_sec: float = 20.0,
         simulate_down_sec: float = 6.0,
         simulate_max_seconds: float = 0.0,
+        rest_fallback_enabled: bool = True,
+        rest_poll_interval_sec: float = 5.0,
+        liquidation_stream_mode: str = "all_market_arr",
     ):
         self.symbols = [s.lower() for s in symbols]
         self.db_path = db_path
@@ -446,12 +472,26 @@ class MicrostructureCollector:
         self.simulate_cycle_sec = max(6.0, float(simulate_cycle_sec))
         self.simulate_down_sec = min(max(1.0, float(simulate_down_sec)), self.simulate_cycle_sec - 1.0)
         self.simulate_max_seconds = max(0.0, float(simulate_max_seconds))
+        self.rest_fallback_enabled = bool(rest_fallback_enabled)
+        self.rest_poll_interval_sec = max(2.0, float(rest_poll_interval_sec))
+        self._rest_fallback_active = False
+        self._rest_last_progress_ts_utc: Optional[str] = None
+        self._rest_last_error = ""
+        self._rest_agg_last_id: Dict[str, int] = {}
+        self._last_data_progress_ts_utc: Optional[str] = None
+        mode = str(liquidation_stream_mode or "all_market_arr").strip().lower()
+        if mode not in {"all_market_arr", "per_symbol"}:
+            mode = "all_market_arr"
+        self.liquidation_stream_mode = mode
 
     def _build_stream_url(self) -> str:
         """Build combined stream URL for all symbols."""
         streams = []
+        if self.liquidation_stream_mode == "all_market_arr":
+            streams.append("!forceOrder@arr")
         for sym in self.symbols:
-            streams.append(f"{sym}@forceOrder")
+            if self.liquidation_stream_mode == "per_symbol":
+                streams.append(f"{sym}@forceOrder")
             streams.append(f"{sym}@aggTrade")
             streams.append(f"{sym}@markPrice@1s")
         stream_str = "/".join(streams)
@@ -484,12 +524,16 @@ class MicrostructureCollector:
         print(f"  Flush interval: {self.flush_interval}s")
         print(f"  Checkpoint interval: {self.checkpoint_interval_sec}s")
         print(f"  Stats interval: {self.stats_interval}s")
-        print(f"  Streams: forceOrder, aggTrade, markPrice@1s")
+        print(f"  Streams: forceOrder({self.liquidation_stream_mode}), aggTrade, markPrice@1s")
+        print(f"  REST fallback: {'enabled' if self.rest_fallback_enabled else 'disabled'} interval={self.rest_poll_interval_sec:.1f}s")
         print(f"{'=' * 80}")
         print(f"  Starting collection... Press Ctrl+C to stop.\n", flush=True)
 
         # Start stats printer task
         stats_task = asyncio.create_task(self._stats_loop())
+        rest_task = None
+        if self.rest_fallback_enabled and not self.simulate_connection:
+            rest_task = asyncio.create_task(self._rest_fallback_loop())
 
         try:
             if self.simulate_connection:
@@ -532,10 +576,17 @@ class MicrostructureCollector:
                         await asyncio.sleep(sleep_s)
         finally:
             stats_task.cancel()
+            if rest_task:
+                rest_task.cancel()
             try:
                 await stats_task
             except asyncio.CancelledError:
                 pass
+            if rest_task:
+                try:
+                    await rest_task
+                except asyncio.CancelledError:
+                    pass
             self._shutdown()
         return self._exit_code
 
@@ -582,6 +633,7 @@ class MicrostructureCollector:
                         raise RuntimeError(f"stall_timeout_no_messages>{self.stall_timeout_sec:.0f}s")
                     msg_count += 1
                     self._last_message_ts_utc = datetime.now(timezone.utc).isoformat()
+                    self._last_data_progress_ts_utc = self._last_message_ts_utc
                     if parse_messages and self.parser:
                         self.parser.parse(message)
                     if max_messages is not None and msg_count >= max_messages:
@@ -633,6 +685,7 @@ class MicrostructureCollector:
             self._connected = connected_now
             if connected_now:
                 self._last_message_ts_utc = datetime.now(timezone.utc).isoformat()
+                self._last_data_progress_ts_utc = self._last_message_ts_utc
                 if (time.time() - self._connected_since_ts) >= self._stable_reset_sec:
                     self._reconnect_delay = self._reconnect_base
                     self._reconnect_attempt = 0
@@ -674,6 +727,7 @@ class MicrostructureCollector:
                         if msg.type == aiohttp.WSMsgType.TEXT:
                             msg_count += 1
                             self._last_message_ts_utc = datetime.now(timezone.utc).isoformat()
+                            self._last_data_progress_ts_utc = self._last_message_ts_utc
                             if parse_messages and self.parser:
                                 self.parser.parse(msg.data)
                         elif msg.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.CLOSING):
@@ -692,6 +746,95 @@ class MicrostructureCollector:
         finally:
             self._connected = False
         return msg_count
+
+    def _ws_progress_recent(self) -> bool:
+        if not self._last_message_ts_utc:
+            return False
+        try:
+            last = datetime.fromisoformat(self._last_message_ts_utc).timestamp()
+        except Exception:
+            return False
+        return (time.time() - last) <= self.stall_timeout_sec
+
+    async def _rest_fallback_loop(self) -> None:
+        if not AIOHTTP_AVAILABLE:
+            self._rest_last_error = "aiohttp_unavailable"
+            return
+        timeout = aiohttp.ClientTimeout(total=20, sock_connect=10, sock_read=10)
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            while self._running:
+                try:
+                    if self._ws_progress_recent():
+                        self._rest_fallback_active = False
+                        await asyncio.sleep(self.rest_poll_interval_sec)
+                        continue
+                    self._rest_fallback_active = True
+                    inserted = 0
+                    for sym in self.symbols:
+                        inserted += await self._poll_rest_agg_trades(session, sym.upper())
+                        inserted += await self._poll_rest_mark_price(session, sym.upper())
+                    if inserted > 0:
+                        now = datetime.now(timezone.utc).isoformat()
+                        self._rest_last_progress_ts_utc = now
+                        self._last_data_progress_ts_utc = now
+                        self._rest_last_error = ""
+                        if self.buffer:
+                            self.buffer.flush()
+                    self._write_heartbeat()
+                except asyncio.CancelledError:
+                    raise
+                except Exception as exc:
+                    self._rest_last_error = f"{type(exc).__name__}: {exc}"
+                    self._last_error = f"rest_fallback_error:{self._rest_last_error}"
+                    self._write_heartbeat()
+                await asyncio.sleep(self.rest_poll_interval_sec)
+
+    async def _poll_rest_agg_trades(self, session, symbol: str) -> int:
+        if not self.parser:
+            return 0
+        params = {"symbol": symbol, "limit": "100"}
+        last_id = self._rest_agg_last_id.get(symbol)
+        if last_id is not None:
+            params["fromId"] = str(last_id + 1)
+        url = f"{self.BINANCE_REST}/fapi/v1/aggTrades"
+        async with session.get(url, params=params) as resp:
+            if resp.status != 200:
+                text = await resp.text()
+                raise RuntimeError(f"aggTrades {symbol} status={resp.status} body={text[:160]}")
+            rows = await resp.json()
+        inserted = 0
+        max_id = last_id
+        for row in rows if isinstance(rows, list) else []:
+            try:
+                agg_id = int(row.get("a"))
+            except Exception:
+                continue
+            if last_id is not None and agg_id <= last_id:
+                continue
+            payload = {
+                "s": symbol,
+                "p": row.get("p"),
+                "q": row.get("q"),
+                "T": row.get("T"),
+                "m": row.get("m", False),
+            }
+            if self.parser.ingest_rest_agg_trade(payload):
+                inserted += 1
+            max_id = agg_id if max_id is None else max(max_id, agg_id)
+        if max_id is not None:
+            self._rest_agg_last_id[symbol] = int(max_id)
+        return inserted
+
+    async def _poll_rest_mark_price(self, session, symbol: str) -> int:
+        if not self.parser:
+            return 0
+        url = f"{self.BINANCE_REST}/fapi/v1/premiumIndex"
+        async with session.get(url, params={"symbol": symbol}) as resp:
+            if resp.status != 200:
+                text = await resp.text()
+                raise RuntimeError(f"premiumIndex {symbol} status={resp.status} body={text[:160]}")
+            row = await resp.json()
+        return 1 if self.parser.ingest_rest_mark_price(row if isinstance(row, dict) else {}) else 0
 
     def _next_reconnect_sleep(self) -> float:
         base = max(self._reconnect_base, float(self._reconnect_delay))
@@ -882,12 +1025,18 @@ class MicrostructureCollector:
             "ts_utc": datetime.now(timezone.utc).isoformat(),
             "connected": bool(self._connected),
             "last_message_ts_utc": self._last_message_ts_utc,
+            "last_data_progress_ts_utc": self._last_data_progress_ts_utc,
             "last_flush_ts_utc": self._last_flush_ts_utc,
             "last_checkpoint_ts_utc": self._last_checkpoint_ts_utc,
             "rows_written_since_start": rows,
             "last_error": self._last_error,
             "current_backoff_seconds": float(self._reconnect_delay),
             "backend": self._backend,
+            "liquidation_stream_mode": self.liquidation_stream_mode,
+            "rest_fallback_enabled": bool(self.rest_fallback_enabled),
+            "rest_fallback_active": bool(self._rest_fallback_active),
+            "rest_last_progress_ts_utc": self._rest_last_progress_ts_utc,
+            "rest_last_error": self._rest_last_error,
             "db_path": self.db_path,
             "wal_size_mb": float(wal_size_mb),
             "wal_alert_threshold_mb": float(self.wal_alert_mb),
@@ -901,28 +1050,38 @@ class MicrostructureCollector:
             self.heartbeat_path.write_text(json.dumps(payload, ensure_ascii=True), encoding="utf-8")
             now = time.time()
             last_msg = None
-            if self._last_message_ts_utc:
+            progress_ts = self._last_data_progress_ts_utc or self._last_message_ts_utc
+            if progress_ts:
                 try:
-                    last_msg = datetime.fromisoformat(self._last_message_ts_utc).timestamp()
+                    last_msg = datetime.fromisoformat(progress_ts).timestamp()
                 except Exception:
                     last_msg = None
             lag = None if last_msg is None else max(0.0, now - float(last_msg))
             reconnects5m = len([x for x in self._recent_reconnect_ts if (now - x) <= 300.0])
+            data_progressing = lag is not None and lag <= max(self.stall_timeout_sec, self.rest_poll_interval_sec * 4.0)
+            status = "ok" if data_progressing else ("degraded" if self._connected else "degraded")
             component = {
-                "status": ("ok" if self._connected else "degraded"),
+                "status": status,
                 "connected": bool(self._connected),
-                "last_progress_ts_utc": self._last_message_ts_utc,
+                "transport_connected": bool(self._connected),
+                "last_progress_ts_utc": progress_ts,
                 "progress_lag_sec": (None if lag is None else int(lag)),
                 "reconnects_last_5m": int(reconnects5m),
                 "errors_last_5m": int(reconnects5m if self._last_error else 0),
                 "backend": self._backend,
+                "liquidation_stream_mode": self.liquidation_stream_mode,
+                "rest_fallback_enabled": bool(self.rest_fallback_enabled),
+                "rest_fallback_active": bool(self._rest_fallback_active),
+                "rest_last_progress_ts_utc": self._rest_last_progress_ts_utc,
+                "required_streams_progressing": bool(data_progressing),
+                "liquidation_transport_available": bool(self._last_message_ts_utc),
             }
             write_component_health("collector", component)
             overall = {
                 "ts_utc": utc_now_iso(),
                 "mode": "paper",
-                "state": ("ok" if self._connected and (lag is None or lag <= self.stall_timeout_sec) else "degraded"),
-                "reason": ("" if self._connected else "collector_disconnected"),
+                "state": ("ok" if data_progressing else "degraded"),
+                "reason": ("" if data_progressing else "collector_no_data_progress"),
                 "components": {
                     "collector": component,
                     "watchdog": {"status": "unknown", "connected": None, "last_progress_ts_utc": None, "progress_lag_sec": None, "reconnects_last_5m": 0, "errors_last_5m": 0},
@@ -996,6 +1155,14 @@ def main():
                         help="Simulation disconnected duration per cycle seconds (default: 6).")
     parser.add_argument("--simulate-max-seconds", type=float, default=0.0,
                         help="Stop simulation after this many seconds (default: 0=no auto-stop).")
+    parser.add_argument("--rest-fallback-enabled", action="store_true",
+                        help="Enable public REST fallback for aggTrade and markPrice when WebSocket stalls.")
+    parser.add_argument("--rest-fallback-disabled", action="store_true",
+                        help="Disable public REST fallback even if enabled by default/env.")
+    parser.add_argument("--rest-poll-interval-sec", type=float, default=5.0,
+                        help="REST fallback polling interval in seconds (default: 5).")
+    parser.add_argument("--liquidation-stream-mode", choices=["all_market_arr", "per_symbol"], default="all_market_arr",
+                        help="Liquidation stream strategy: all_market_arr uses !forceOrder@arr, per_symbol uses <symbol>@forceOrder.")
     args = parser.parse_args()
 
     symbols = [s.strip() for s in args.symbols.split(",") if s.strip()]
@@ -1017,6 +1184,9 @@ def main():
         simulate_cycle_sec=float(args.simulate_cycle_sec),
         simulate_down_sec=float(args.simulate_down_sec),
         simulate_max_seconds=float(args.simulate_max_seconds),
+        rest_fallback_enabled=(bool(args.rest_fallback_enabled) and not bool(args.rest_fallback_disabled)),
+        rest_poll_interval_sec=float(args.rest_poll_interval_sec),
+        liquidation_stream_mode=str(args.liquidation_stream_mode),
     )
 
     if args.connect_test:

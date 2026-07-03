@@ -1,7 +1,8 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 import asyncio
+import json
 import logging
 from logging.handlers import RotatingFileHandler
 import os
@@ -16,6 +17,9 @@ from notifications.health_alerts import build_data_stale_event
 from tools.check_data_ready import detect_ts_col, list_tables, normalize_ts_to_seconds, table_columns
 from tools.health_state import write_component_health, write_overall_health, utc_now_iso
 from tools.validate_data_research_fitness import analyze_research_fitness
+
+
+OVERALL_HEALTH_PATH = Path("logs/health/overall.json")
 
 
 def _parse_symbols(raw: str) -> List[str]:
@@ -50,6 +54,45 @@ def _fitness_component(db_path: Path, symbols: List[str]) -> Dict[str, object]:
         "symbols": list(symbols or ["BTCUSDT"]),
     }
 
+
+
+def _read_existing_overall(path: Optional[Path] = None) -> Dict[str, object]:
+    path = OVERALL_HEALTH_PATH if path is None else Path(path)
+    try:
+        if not path.exists():
+            return {}
+        with path.open("r", encoding="utf-8") as f:
+            payload = json.load(f)
+        return payload if isinstance(payload, dict) else {}
+    except Exception:
+        return {}
+
+
+def _merged_overall_health(
+    *,
+    state: str,
+    reason: str,
+    watchdog_component: Dict[str, object],
+    fitness_component: Dict[str, object],
+) -> Dict[str, object]:
+    """Update watchdog truth without erasing unrelated component truth."""
+    existing = _read_existing_overall()
+    components = existing.get("components")
+    merged_components: Dict[str, object] = dict(components) if isinstance(components, dict) else {}
+    merged_components["watchdog"] = dict(watchdog_component)
+    merged_components["data_research_fitness"] = dict(fitness_component)
+
+    payload = dict(existing)
+    payload.update(
+        {
+            "ts_utc": utc_now_iso(),
+            "state": state,
+            "reason": reason,
+            "components": merged_components,
+        }
+    )
+    payload.setdefault("mode", existing.get("mode") or "paper")
+    return payload
 
 def _setup_logger(log_path: Path) -> logging.Logger:
     log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -220,42 +263,29 @@ async def run_once(
                 f"threshold_sec={int(stale_threshold_sec)} details={' | '.join(parts)}"
             )
             logger.warning(msg)
-            write_component_health(
-                "watchdog",
-                {
-                    "status": "degraded",
-                    "connected": False,
-                    "last_progress_ts_utc": (last_row_utc if 'last_row_utc' in locals() else None),
-                    "progress_lag_sec": int(max_age),
-                    "reconnects_last_5m": 0,
-                    "errors_last_5m": 1,
-                },
+            last_row_utc = (
+                time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime(float(last_ts)))
+                if last_ts is not None
+                else "unknown"
             )
+            watchdog_component = {
+                "status": "degraded",
+                "connected": False,
+                "last_progress_ts_utc": last_row_utc,
+                "progress_lag_sec": int(max_age),
+                "reconnects_last_5m": 0,
+                "errors_last_5m": 1,
+            }
+            write_component_health("watchdog", watchdog_component)
             write_overall_health(
-                {
-                    "ts_utc": utc_now_iso(),
-                    "mode": "paper",
-                    "state": "degraded",
-                    "reason": "watchdog_stale_data",
-                    "components": {
-                        "watchdog": {
-                            "status": "degraded",
-                            "connected": False,
-                            "last_progress_ts_utc": (last_row_utc if 'last_row_utc' in locals() else None),
-                            "progress_lag_sec": int(max_age),
-                            "reconnects_last_5m": 0,
-                            "errors_last_5m": 1,
-                        },
-                        "data_research_fitness": fitness,
-                    },
-                }
+                _merged_overall_health(
+                    state="degraded",
+                    reason="watchdog_stale_data",
+                    watchdog_component=watchdog_component,
+                    fitness_component=fitness,
+                )
             )
             if callable(build_data_stale_event):
-                last_row_utc = (
-                    time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime(float(last_ts)))
-                    if last_ts is not None
-                    else "unknown"
-                )
                 evt = build_data_stale_event(
                     stale_sec=int(max_age),
                     last_row_utc=last_row_utc,
@@ -267,35 +297,22 @@ async def run_once(
             return {"ok": False, "stale_symbols": stale_symbols, "table": table_name}
         logger.info(f"OK table={table_name} ts_col={ts_col} symbols={','.join(symbols)}")
         fitness = _fitness_component(db_path, symbols)
-        write_component_health(
-            "watchdog",
-            {
-                "status": "ok",
-                "connected": True,
-                "last_progress_ts_utc": utc_now_iso(),
-                "progress_lag_sec": 0,
-                "reconnects_last_5m": 0,
-                "errors_last_5m": 0,
-            },
-        )
+        watchdog_component = {
+            "status": "ok",
+            "connected": True,
+            "last_progress_ts_utc": utc_now_iso(),
+            "progress_lag_sec": 0,
+            "reconnects_last_5m": 0,
+            "errors_last_5m": 0,
+        }
+        write_component_health("watchdog", watchdog_component)
         write_overall_health(
-            {
-                "ts_utc": utc_now_iso(),
-                "mode": "paper",
-                "state": "ok",
-                "reason": "watchdog_ok",
-                "components": {
-                    "watchdog": {
-                        "status": "ok",
-                        "connected": True,
-                        "last_progress_ts_utc": utc_now_iso(),
-                        "progress_lag_sec": 0,
-                        "reconnects_last_5m": 0,
-                        "errors_last_5m": 0,
-                    },
-                    "data_research_fitness": fitness,
-                },
-            }
+            _merged_overall_health(
+                state="ok",
+                reason="watchdog_ok",
+                watchdog_component=watchdog_component,
+                fitness_component=fitness,
+            )
         )
         return {"ok": True, "stale_symbols": [], "table": table_name}
     except Exception as exc:
@@ -307,3 +324,7 @@ async def run_once(
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+
+
