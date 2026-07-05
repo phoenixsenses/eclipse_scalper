@@ -1,0 +1,3579 @@
+{
+ "field_counts": {
+  "running_notional": {
+   "SOURCE_COMPLETE": 94,
+   "SOURCE_COVERAGE_UNRESOLVED": 126
+  },
+  "running_liq_count": {
+   "SOURCE_COMPLETE": 94,
+   "SOURCE_COVERAGE_UNRESOLVED": 126
+  },
+  "max_single_notional": {
+   "SOURCE_COMPLETE": 94,
+   "SOURCE_COVERAGE_UNRESOLVED": 126
+  },
+  "running_single_liq_dominance": {
+   "SOURCE_COMPLETE": 94,
+   "SOURCE_COVERAGE_UNRESOLVED": 126
+  },
+  "running_rate": {
+   "SOURCE_COMPLETE": 94,
+   "SOURCE_COVERAGE_UNRESOLVED": 126
+  },
+  "running_accel": {
+   "SOURCE_COMPLETE": 94,
+   "SOURCE_COVERAGE_UNRESOLVED": 126
+  },
+  "elapsed_since_first_sec": {
+   "SOURCE_COMPLETE": 94,
+   "SOURCE_COVERAGE_UNRESOLVED": 126
+  },
+  "inter_cluster_gap_sec": {
+   "SOURCE_COVERAGE_UNRESOLVED": 127,
+   "SOURCE_COMPLETE": 87,
+   "SOURCE_GAPPED": 6
+  }
+ },
+ "row_counts": {
+  "SOURCE_COVERAGE_UNRESOLVED": 127,
+  "SOURCE_COMPLETE": 87,
+  "SOURCE_GAPPED": 6
+ },
+ "complete_only_population_report": {
+  "signal_n": 87,
+  "source_event_n": 87,
+  "independent_cycle_n": 51,
+  "train_cycle_n": 35,
+  "test_cycle_n": 16,
+  "cycle_straddling_violations": 0,
+  "monthly_distribution": {
+   "2026-06": 87
+  },
+  "setup_composition": {
+   "LONG_SILENCE": 87
+  },
+  "min_bucket_n_verdict": "INSUFFICIENT_SAMPLE"
+ },
+ "per_signal": [
+  {
+   "signal_id": "SIG-12100befee661a7db5ca7794",
+   "month": "2026-06",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-eb48c5bc1557d79a99f3195f",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-3e9b80773f95f9e2b7d5260d",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-70a1bae11007ca446760117d",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-05021772b0f392c178c8003f",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-c0fcb9e5c6cdf52c633c1dd4",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-7411c51baa4df54525677a14",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-c0fcb9e5c6cdf52c633c1dd4",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-eaff1301534cbea41f384055",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-6927044df1bed5eb1781f496",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-52260f2c901a95198f266b2e",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-6927044df1bed5eb1781f496",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-ee97699d4827553964c18c28",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-6927044df1bed5eb1781f496",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-9883806bb2d9bad7d8e597d7",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-6927044df1bed5eb1781f496",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-f7377695265ef36f32047427",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-7834bfb2e3cb8de18b20acde",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-3327bb9331d6fbb7d3d34491",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-7834bfb2e3cb8de18b20acde",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-bcf87fe47b507612db0f28d7",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-7834bfb2e3cb8de18b20acde",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-39895f48bc6244f6ef96b6cb",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-7834bfb2e3cb8de18b20acde",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-a10eb6bb50c1d5ce08f495a0",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-1ccdc37aa48166f9b65a34f4",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-beb02801031920e346f69acc",
+   "month": "2026-06",
+   "row_status": "SOURCE_GAPPED",
+   "independent_cycle_id": "CYC-baaa5b7907cb226c217d818a",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_GAPPED"
+   }
+  },
+  {
+   "signal_id": "SIG-4d33a7019e72771491ee362e",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-baaa5b7907cb226c217d818a",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-63dd90e521ffa2fc74b5f7c0",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-baaa5b7907cb226c217d818a",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-a3858ff8cba8b58ddeb15369",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-3c243721e286cef9f24732ab",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-b67042570f4cec874a8a3cb2",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-d757d59be5e7b3af7a50de0e",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-00030b01ffd7eb383f38f929",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-cfd792e45777403a5abe59ec",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-94790ae1d85eb8d37a40a015",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-980a4df135be405be1771d01",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-74564ce8be01d8a989f05c27",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-cf2fe8ce5c2fbe81db2a6201",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-2ec40aab4bcab2dcd64b1822",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-e2bcd0e073feff8d538f7deb",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-03b51a63a02e92b169ff4e40",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-e2bcd0e073feff8d538f7deb",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-35a944f7f1b22fb75d4f1d77",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-e2bcd0e073feff8d538f7deb",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-cfad094e191387e4afb93aeb",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-d046625356c778375d94ffea",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-a041cb571a6a9714908e0e9d",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-dffac095a85abf6104242631",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-4f0d46609802d5758e02882d",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-1588c134c0311fe8a76ad54a",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-df6a68ef04aa2181159543ed",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-1588c134c0311fe8a76ad54a",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-30ab0e1263efdf383cbf1ccf",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-a2db3bbf107add4f48deb2dc",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-bdec20a0bae26bf559e2e856",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-c5935ed2cdeab1e7b068145c",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-e5fa8497b451684135071d1a",
+   "month": "2026-06",
+   "row_status": "SOURCE_GAPPED",
+   "independent_cycle_id": "CYC-c5935ed2cdeab1e7b068145c",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_GAPPED"
+   }
+  },
+  {
+   "signal_id": "SIG-9d828f555d4a0f410812f72b",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-c5935ed2cdeab1e7b068145c",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-a2232ad7c6674921b5cdd48b",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-c5935ed2cdeab1e7b068145c",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-3e7bad50366e4f19ca9c2bd5",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-235e0f968ada968941a7c9a1",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-ac329d21d7581f869ffd4eea",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-235e0f968ada968941a7c9a1",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-63f8bcac9ebebd70720428e1",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-4e55186be15760db2d329c07",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-42331cbcae4b0d085e33783e",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-b91686a58ae1bbaf4d676745",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-4e1727a27661c659889de5d8",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-b91686a58ae1bbaf4d676745",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-6977939b8d1691ae8c44dd6c",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-eebb322ae5a6c3caa8fd46b1",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-dc0909f16f568870dbfebd45",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-eebb322ae5a6c3caa8fd46b1",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-ee0008543551e6e00120c89b",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-2b72f7edd36f10be4d21ee57",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-6474466eedf77ba771fb1091",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-2b72f7edd36f10be4d21ee57",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-28a56ad3554de583e32fd2a2",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-2b72f7edd36f10be4d21ee57",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-924f6ac368caf8371c7b3393",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-f2378eda8cd75920bb157cd6",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-acbeec61ff8a973aab2b7574",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-0e4d54360c4bf5c7c1efb766",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-b2b69e100ef2c69c4c669cb6",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-0e4d54360c4bf5c7c1efb766",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-d88b8735c629b894df50fd3e",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-0e4d54360c4bf5c7c1efb766",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-58cf89d503f119f716090beb",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-0e4d54360c4bf5c7c1efb766",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-d428d96e1754422f654f3fd3",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-88b76a406fea776db67a64f2",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-f4331a4421edb9bc0fc68f79",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-cba3aaf97b63c333f2e36597",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-86e4e6275eeb6065710583d9",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-cba3aaf97b63c333f2e36597",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-6beb53c5cdd9c85bbc2d5788",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-cba3aaf97b63c333f2e36597",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-83379ce33a4cd38c8fb6106a",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-55c30372e412380ff1c89432",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-3aab6c30598061c23c6c12be",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-55c30372e412380ff1c89432",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-918b262211fcc5ee925177bb",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-51748ca57781cf6b311d3233",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-4f8ed9371b2708d1cd79b76a",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-51748ca57781cf6b311d3233",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-b2f8f10481a39b67dab222c3",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-0c215daea7efc3545791b814",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-4b5fa520d52ae5ebdc4a2873",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-614f3f7be0bc27f00cfc4715",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-d192f5b5b9bb54b94abb40a3",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-f6f0b61107753bfa0a7e4ff5",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-5863a774ca658afb06d4b828",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-7725a72bd9128940646bfccd",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-7befac12a43b9fb18b747aa1",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-29790568a903ab6d7039fba8",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-a89ec1f88162859eab90246a",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-29790568a903ab6d7039fba8",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-6b861fedd74926c44ca278f9",
+   "month": "2026-06",
+   "row_status": "SOURCE_GAPPED",
+   "independent_cycle_id": "CYC-38e0da651404ee4fad9634ae",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_GAPPED"
+   }
+  },
+  {
+   "signal_id": "SIG-7c4cfdd4ddcf248d18fa156d",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-646d6ba8c48e1ba4dfaf9163",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-1be82e4f14e93cc079a24a5e",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-646d6ba8c48e1ba4dfaf9163",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-c0419fe677a3f302d22282d6",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-1ed6f72edae350a3f0cb41cd",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-f609e8109d96fb97962f1fe3",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-1ed6f72edae350a3f0cb41cd",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-fe299c2b37c59f5c0296d149",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-1ed6f72edae350a3f0cb41cd",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-32276e560947dbce6a69ef57",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-8fb3bfcb9d18ddff370fd7d2",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-9938c86e2ed4f75106f3828d",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-8fb3bfcb9d18ddff370fd7d2",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-c7972823ff6db32311fcaf51",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-8fb3bfcb9d18ddff370fd7d2",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-5b391acb19f0de640390716d",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-b31ca90f8701ba777fa1f0bf",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-3357d0be54b371ac569ae5fe",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-d4694dce61bf5682ab1a2346",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-f2fc4a99fee4e701281b8f01",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-d4694dce61bf5682ab1a2346",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-58eca17c93be9280a0dd6d1e",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-d8e66ab510ee239a09f22d10",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-39b52a17d699c6bd5f41c09f",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-ea3d4a94486245647e36e4ae",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-955f299440d00d2d6e086692",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-973bbffd452755757a495f9f",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-f0b95ee79eb516ef068a8cb9",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-c8ca38ae91dc86902fbffecd",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-3919c7a3b06b421ce03f5785",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-87c497958f2af1723572e930",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-390bbd930a22990228be1a3f",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-fa8907edf504b6025b311c53",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-62e42d8530e1b07bfc0bba9a",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-a355aeae0edc40856e7b1175",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-c388eb8d593059eb7575469b",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-386a843b0ecf13f1ddc1bd59",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-1ba397dfca3f6faf5bdbedd7",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-723d76f0a2a239ca5823a9a1",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-bb7a7de3a1afc2f6cc89a015",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-85f13c70b92c1435729b1d16",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-7be4ab584eae35c4a7f6c52c",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-f96f7cf25454dd34b4cceedf",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-23cc4d9168b8041b2b91d4ea",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-5ae9c6684c8857bf3da18e9e",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-d0162a531554e0d59ad8d3c7",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-3c66c13ed737ed92e587577f",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-f14cf8e8c8d389dd97bd7073",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-fa8811a451e331aa843ef5e7",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-d4c28f7f549558ca80d91c8b",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-30109400284658248e0df509",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-7171b6a73f6b35afe20f3b72",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-c1c984ca24f18eebe81a8e4f",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-d39a852495abbc18137a9245",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-e097d47b8018d39565535640",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-92d0500712034e9e0f33cd5f",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-5c8c2e439e8ac06e47aef595",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-b6d5a62f37ecccdf7cc940ea",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-5c8c2e439e8ac06e47aef595",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-f844fadb32d9315de95e8322",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-5c8c2e439e8ac06e47aef595",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-779fbe066fe5a1a18a33dd7d",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-5c8c2e439e8ac06e47aef595",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-693917deb67b7a61b380c1fc",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-907eae5ca340249f14167a23",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-3bca9ad6eef29df16254ed45",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-907eae5ca340249f14167a23",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-57a25cf14130fcf616eff520",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-4eda5d5b24eac5d21c8773af",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-5f8539219fda880920a39d96",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-9dc2a327066114e0ab4b447e",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-a36cd0ae3b36a04027211977",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-c5db2167f3a85ac2a268c6b7",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-c8f3d26d899436de7958bd31",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-32fb0031fbe5e3dc848e03ff",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-5b7a79ba139fd0731d38be99",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-32fb0031fbe5e3dc848e03ff",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-3839302229b41f4c03ff05b0",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-25315c25e5efb3c245ef9a71",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-b8fcfd542f8a4518cdf8a441",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-d43730a6cb2ea5eac478197a",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-346065b4a4c91f537f775f1f",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-d43730a6cb2ea5eac478197a",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-69f8e188d6932d65ec65034e",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-98717cba290a4f83cb2d8a20",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-89d326a065c3ea6a595f536f",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-98717cba290a4f83cb2d8a20",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-381c95b63931f9e07f37d031",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-aa0e6d9e268dbae43a24937f",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-7a378d49807c4082361c9393",
+   "month": "2026-02",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-aa0e6d9e268dbae43a24937f",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-04c39c014d47cd37c59b24df",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-e5ccd2ea7f0f85cf92dc718f",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-ce59c996b5a069c9ae7af333",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-e517df81518fd0baef7a8b90",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-687fff82bc38c1fb64132cf2",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-c2ab473b08d5737194b8508b",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-c4462927eeb97881ca8105dc",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-0e4783526f6cf5564e93695f",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-582d39cf2960e21c56ba33ca",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-9a46017c30b673d9acf6198b",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-254c81f5044a31248f4d94d9",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-6bae1b6226b696bc090ce0d1",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-82a84e3c5c2e4d44324b03ca",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-3ed872f2f516c7bb6f04ba97",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-f772ff7f64c9a852c5f6386e",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-55e62f4e9c2b919da1ad5962",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-911fb4371633d78f7cd7159d",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-cc930b01a3f79be09256ca6d",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-b78166affe5be0700c439590",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-cc930b01a3f79be09256ca6d",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-98ddebe26cb9039394c533c6",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-cc930b01a3f79be09256ca6d",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-33f0e472378c2643478c2978",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-0360cfa6019591f3e60da7b5",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-99961acbda74748a9964c13b",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-f4ca01d63b18648157d12b4d",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-8a4821d64928eb030141b75b",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-4278b1c55a03baae8eb9a97b",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-ea8cc794a4a95168c6771a55",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-4278b1c55a03baae8eb9a97b",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-38dff7c0861e27fbc8556018",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-b7b6070f64a5500f762e485a",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-e204fd950af686aebe9c691c",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-31489a0bc5605d2eeb91144e",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-e78f43dd59e29febf557e036",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-f89ddee3bf9394b2eeecb27d",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-f9396a31eff4fc65561b5e2f",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-fff20961e53a5deec34ead68",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-1ca54d5ad5e97d49703a6dbe",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-c7a247156765177afd12a468",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-5ede839247ec5d254f6ea5a9",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-4c495c8febedd3c382dea803",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-999002eb85474d955cbdf90f",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-4c495c8febedd3c382dea803",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-42815e5a401bdeec7645e53f",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-76b69c6e3e242fd98b89ec09",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-4f4798872203cbea2b4aae8f",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-596878aa70d015e3a0cdc327",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-4f62814e0ded4d0f476991c9",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-0f4ca227217cb5af13891500",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-004bae19ef5dcca891ada5a7",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-be805625d2dfedebfdae9184",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-0900aebe6a58c9bb28068efb",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-fa3d24a1fc802db5c7109ed0",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-4edad5c2fb8fd58f15e2c413",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-e564ac59b29bb647c793525a",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-fd110d3beb3af35f83015ff7",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-652dd6af559284c620add461",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-5334cdfec480fd5b1b7c4944",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-652dd6af559284c620add461",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-3b595d459e3d249729b540e0",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-652dd6af559284c620add461",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-f2aa670324e451e1aec2396a",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-652dd6af559284c620add461",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-315b628079c45cf0556c452a",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-652dd6af559284c620add461",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-ec415655d75c1d9305ef559b",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-82dd870cae0a122e065ad2c2",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-5060919c758a30019ade1cde",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-39fca6b3c38e8783028ebf76",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-f593b0e7a334c6d2c0aea43d",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-b6d5a6cb4cc5c486967b11c4",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-eb509c08a33ac05220996ea1",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-b6d5a6cb4cc5c486967b11c4",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-76c59d5329cfab1435efc223",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-ac19341231a3bd18d4902fef",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-d637ea13e5d3b9b2b739dc59",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-3ac744e40156040efbe4a443",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-8adcc92c476eb215d1b4b4ba",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-8126f6520b32ed9fdbea226b",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-4356778f52b2713f65ca19a8",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-8126f6520b32ed9fdbea226b",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-fca49aaabd96cd4a0b498565",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-8126f6520b32ed9fdbea226b",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-19ccd675fb3146e0e1769294",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-8126f6520b32ed9fdbea226b",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-b6d51bd4a7ccac7d0d9ab94f",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-f9779f15bb2d93d6dea24eaf",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-02133e956658ce930568f541",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-431ee0b5d8d6a427e0922962",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-296b1291b6982edfea8f004e",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-431ee0b5d8d6a427e0922962",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-53e0c5127476238e37737e98",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-00b00ae107ac5732c3e27a5e",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-0d20266a494877b99e99ee1a",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-3f7236cc94eeb6f1db991ad4",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-34418b4959a47b2bdbd93ecc",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-20819014d4a8e525d92262d5",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-413d27c0fa9fb37180afb6ca",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-e85c36f531789f2dea44382e",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-a73cefea4ea554fc7b238e81",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-7381908583f86b06a67a721a",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-f915e7f4fb85a970aa8073b3",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-7381908583f86b06a67a721a",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-2793ed59f66ea4e563da4c6b",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-9dd6fcddc63aca325fdbdc93",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-9db629918cc16951d65f19fc",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-b35405ec7558dc2289b7558c",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-3e5e171d88a26bfde61f323a",
+   "month": "2026-03",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-34d71623e38cedd74c377c86",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-b69866bc40984d03575f5b52",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-98a2300e924229350c01fd44",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-a34d7a43373f3b10728a65fe",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-98a2300e924229350c01fd44",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-1622ce595a2825415f49f822",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-98a2300e924229350c01fd44",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-e409705bb30a07674061c879",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-cbc46f7bac13e1d0d3400e3f",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-291486458a347231dcb60109",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-8ff37f312d04efdb6e3243f7",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-fbc4407a0c79b87fbfe6903d",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-b9721750d22d5ea75962b12b",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-c9b3540475a9442717dfe2b3",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-d8d4769b8ddb98f5f36b8069",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-9d4eb9eeff7496934181c0a1",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-9cc566280e6a8ad922e71c20",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-2620f5b7a2c7dbc9a396394a",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-d38e6ab3973f70fe954293e3",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-a8c76b0d24447fa16fb89d04",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-affab9f34598e514e5e06bd6",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-f9879e30c5bffc039c8f20c6",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-ceaceeb2d066a165e769b7c4",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-ad07927ff232f84d86d5928f",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-ceaceeb2d066a165e769b7c4",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-2750022afe2c78c3894ebecd",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-b65290f6a27767235e59b759",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-54b7f22f6c0739f795a27476",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-b65290f6a27767235e59b759",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-440b86f97147debd8485a137",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-b65290f6a27767235e59b759",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-324d437d071bfd72d0ae1356",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-b65290f6a27767235e59b759",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-359a845deef3a69f26310b03",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-b65290f6a27767235e59b759",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-91819e8b3c786ae733f09694",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-1fae0b571a963452d74750f6",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-3486105face1721d7f040d73",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-c3f5ce0c94c3640d2ad0458c",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-dc762c114c1fbab3954d7c68",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-75816d04525e1b41c7760e7b",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-5194048171f6ebbbcc2fe999",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-dd9aeedc472591fb13cdca8e",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-19c8a333f6b86281bb0aacd2",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-86d1d87e5c2294532b7e6bef",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-b4f8c21ec63701a4d7707b1a",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-223be2bff1f2f85c0dfb5e90",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-1795f49940aa207063e0f9c5",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-e51c2b918bff95025f97da8b",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-75fbcb1e1a5a44c4a74e6c8b",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-e51c2b918bff95025f97da8b",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-f2e90755859f99a8d4e7f320",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-d6ec9d76c2ec51ba730b30f9",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-25e636383cd0dd943c74d1cf",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-666830977781413d816a3cdf",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-d781f2e301a1001776650435",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-666830977781413d816a3cdf",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-ed05ed07c22e0591ac49917b",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-1f54b759233c5bc0b4b21b6e",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-572913b9c46e127f3e020ea9",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-d326163bdcb1d8f325cfdf94",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-e811eb065a391e84c993f0d2",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-3970a20eb17a9604de341675",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-429e7d151028beaafe8e28e7",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-3970a20eb17a9604de341675",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-58b00e269c36e988ef8e9a81",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-3970a20eb17a9604de341675",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-5f37ca599078f81b4362f3a5",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-3970a20eb17a9604de341675",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-5e161ee9778b824993313fcd",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-3970a20eb17a9604de341675",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-3317c11ea19a455cfdc02d08",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-48bfd365b918f020a27708fa",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-c3a62152668241618c0700e9",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-ed19d88d0c83f9a5401e4f94",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-e03382b4d82720185dfc870a",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-f8a61eab111e474774583b9e",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-107b1a1d6110b910e7516e7f",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-f8a61eab111e474774583b9e",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-927d811aaf73fe7e4e7eb65c",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-f8a61eab111e474774583b9e",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-35ed05e56c972e4071686e8f",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-554bad13d7049e0263c7fec2",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-3ccf9fc885cdbb74b175a23b",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-b232bf99d5a4d8568a970296",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-7c6953b8b4498cfe6a36c12f",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-b232bf99d5a4d8568a970296",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-2e953551d8cf8e0118ab6c5f",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-bf5ff33621456d1b6cc7059d",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-c4abd8714d7d8aa236f2752c",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-83eace50ce14449cb3a62e5c",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-7c92d425990f7c6a1f1c0791",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-37906cb3015a67bac2a031b5",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-d8bc825ffecb5d98d7dedc25",
+   "month": "2026-04",
+   "row_status": "SOURCE_COVERAGE_UNRESOLVED",
+   "independent_cycle_id": "CYC-b48a6f6eea1ad206f472d486",
+   "fields": {
+    "running_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_liq_count": "SOURCE_COVERAGE_UNRESOLVED",
+    "max_single_notional": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_single_liq_dominance": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_rate": "SOURCE_COVERAGE_UNRESOLVED",
+    "running_accel": "SOURCE_COVERAGE_UNRESOLVED",
+    "elapsed_since_first_sec": "SOURCE_COVERAGE_UNRESOLVED",
+    "inter_cluster_gap_sec": "SOURCE_COVERAGE_UNRESOLVED"
+   }
+  },
+  {
+   "signal_id": "SIG-1b84d0a33c544889d2f82c15",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-386a843b0ecf13f1ddc1bd59",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-3a7e428b68317767782bfc6f",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-4d2d9042fe8a51d5437a10a8",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-c9641392aa9c18675bb7760d",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-4d2d9042fe8a51d5437a10a8",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-9eb6ae65684531424e055692",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-4d2d9042fe8a51d5437a10a8",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-47798ebb5ff11b836fa79561",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-a9474cb3ebf1ddaea796f782",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-fe583ce2f072384714b7fcff",
+   "month": "2026-06",
+   "row_status": "SOURCE_COMPLETE",
+   "independent_cycle_id": "CYC-a9474cb3ebf1ddaea796f782",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_COMPLETE"
+   }
+  },
+  {
+   "signal_id": "SIG-5027265c96d4dc4e1f696908",
+   "month": "2026-07",
+   "row_status": "SOURCE_GAPPED",
+   "independent_cycle_id": "CYC-b1acd2d81ea9557567d949e1",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_GAPPED"
+   }
+  },
+  {
+   "signal_id": "SIG-7f83d22345aadf82005eaca6",
+   "month": "2026-07",
+   "row_status": "SOURCE_GAPPED",
+   "independent_cycle_id": "CYC-b1acd2d81ea9557567d949e1",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_GAPPED"
+   }
+  },
+  {
+   "signal_id": "SIG-8cbfce2f22ff7a168cc9a296",
+   "month": "2026-07",
+   "row_status": "SOURCE_GAPPED",
+   "independent_cycle_id": "CYC-b1acd2d81ea9557567d949e1",
+   "fields": {
+    "running_notional": "SOURCE_COMPLETE",
+    "running_liq_count": "SOURCE_COMPLETE",
+    "max_single_notional": "SOURCE_COMPLETE",
+    "running_single_liq_dominance": "SOURCE_COMPLETE",
+    "running_rate": "SOURCE_COMPLETE",
+    "running_accel": "SOURCE_COMPLETE",
+    "elapsed_since_first_sec": "SOURCE_COMPLETE",
+    "inter_cluster_gap_sec": "SOURCE_GAPPED"
+   }
+  }
+ ]
+}
