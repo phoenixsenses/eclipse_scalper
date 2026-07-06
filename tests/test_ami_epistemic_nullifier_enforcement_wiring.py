@@ -494,12 +494,15 @@ def test_21_gated_entry_point_has_no_bypass_switch():
 # ---------------------------------------------------------------------------
 
 def test_22_known_legacy_bypass_surface_is_exactly_the_documented_set():
-    """This batch does NOT close the pre-existing bypass in the 10 older
-    research modules (candidate_universe/w1/w3/w4/w5a/w6/w6rs_confirmation/
-    w6rs_confound_resolution/w7a/w10a) -- closing it means editing 10
-    historical/frozen research files (repository-wide cleanup, out of scope).
-    This canary fails loudly if that set silently grows without the
-    transition-proof being updated to match."""
+    """UPDATED by BATCH-EPISTEMIC-NULLIFIER-LEGACY-BYPASS-CLOSURE-V1: the 10
+    legacy modules (candidate_universe/w1/w3/w4/w5a/w6/w6rs_confirmation/
+    w6rs_confound_resolution/w7a/w10a) that this test originally flagged as
+    an open bypass now all route through
+    ami.warehouse.experiment_ledger.register_legacy_snapshot_with_gates
+    (see reports/governance/EPISTEMIC_NULLIFIER_LEGACY_BYPASS_CLOSURE_V1_
+    STATE_TRANSITION_PROOF.md) -- the offending set is now empty. This canary
+    still fails loudly if inline registry/result SQL reappears in
+    ami/research/ without a matching transition-proof update."""
     import pathlib
     research_dir = pathlib.Path(__file__).resolve().parents[1] / "ami" / "research"
     offenders = set()
@@ -507,15 +510,10 @@ def test_22_known_legacy_bypass_surface_is_exactly_the_documented_set():
         text = f.read_text(encoding="utf-8")
         if "INSERT INTO experiment_registry" in text:
             offenders.add(f.name)
-    expected = {
-        "candidate_universe.py", "w1_cycle_integrity.py", "w3_entry_timing_reconciliation.py",
-        "w4_post_event_path_taxonomy.py", "w5a_morphology_swing_grammar.py",
-        "w6_compression_rs_session.py", "w6rs_confirmation.py", "w6rs_confound_resolution.py",
-        "w7a_state_structure_aging_market_clocks.py", "w10a_multi_tf_structural_conflict.py",
-    }
+    expected: set[str] = set()
     assert offenders == expected, (
         f"legacy bypass surface changed: now={sorted(offenders)} expected={sorted(expected)} -- "
-        "update reports/governance/EPISTEMIC_NULLIFIER_ENFORCEMENT_WIRING_V1_STATE_TRANSITION_PROOF.md"
+        "update reports/governance/EPISTEMIC_NULLIFIER_LEGACY_BYPASS_CLOSURE_V1_STATE_TRANSITION_PROOF.md"
         " if this is an intentional, reviewed change.")
 
 

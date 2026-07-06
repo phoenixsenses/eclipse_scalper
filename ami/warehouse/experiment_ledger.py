@@ -335,6 +335,13 @@ def register_experiment_with_gates(
             _gates._finalize_authorization_consumption(  # noqa: SLF001
                 canonical_conn, authorization_id=supersession_auth_id, resulting_experiment_id=experiment_id)
 
+        # M-0034: issue the gate receipt research.sqlite's ResearchRegistry
+        # checks before permitting its own projection write -- same
+        # transaction, same commit.
+        _gates.issue_gate_receipt(
+            canonical_conn, experiment_id=experiment_id, canonical_family_id=family_id,
+            split_version=split_version, nullifier=nullifier, registry_result=registry_result)
+
         canonical_conn.commit()
         return {
             "experiment_id": experiment_id, "family_id": family_id, "split_version": split_version,
@@ -347,3 +354,223 @@ def register_experiment_with_gates(
     finally:
         if attached_by_us:
             canonical_conn.execute("DETACH DATABASE kb")
+
+
+# ---------------------------------------------------------------------------
+# BATCH-EPISTEMIC-NULLIFIER-LEGACY-BYPASS-CLOSURE-V1 (M-0034)
+# ---------------------------------------------------------------------------
+
+# The 10 legacy "living snapshot" modules (candidate_universe/w1/w3/w4/w5a/
+# w6/w6rs_confirmation/w6rs_confound_resolution/w7a/w10a) have their OWN
+# long-standing, already-accepted `ON CONFLICT(experiment_id) DO UPDATE SET
+# dataset_hash=excluded.dataset_hash, completed_at=..., updated_ms=...`
+# behavior: re-running against a live, growing population is BY DESIGN.
+# `dataset_hash` AND every `frozen_*` free-text/count-embedding column
+# (population/features/target/thresholds/economic_gate/statistical_gate) are
+# EXPECTED to drift on every call -- e.g. `frozen_population` embeds a live
+# `anchor_n` count, and a module's own prose (e.g. a checkpoint-closure note
+# appended to `frozen_statistical_gate` by a later code change) legitimately
+# gets refined without that being new scientific evidence. Real-data proof
+# this distinction matters: `E-W7A-STATE-STRUCTURE-AGING-MARKET-CLOCKS-001`'s
+# CURRENT code computes a `frozen_statistical_gate` string that already
+# differs from what is stored in the REAL canonical.sqlite today (a
+# pre-existing, harmless documentation-text drift from before this batch,
+# invisible until this stricter check -- confirmed read-only against the real
+# DB; the actual closure verdict is correctly recorded as its own
+# `experiment_results` row, `closure_classification`, unaffected).
+#
+# What DOES stay strictly compared (must match for a drift-only refresh,
+# else routes through the full gate): `question_ids`/`hypothesis_id` (family
+# identity) and `frozen_splits` (split METHODOLOGY, e.g. "chronological
+# 70/30" -- changing the actual split fraction/ordering IS a genuine
+# methodology change, unlike a prose refinement or a growing count).
+_LEGACY_SNAPSHOT_STRICT_COLUMNS = frozenset({"question_ids", "hypothesis_id", "frozen_splits"})
+
+
+def _upsert_legacy_snapshot(conn, registry_values: dict, results: list[tuple[str, str]],
+                             results_schema_version: int, results_provenance: str,
+                             results_created_ms: int) -> str:
+    """Reproduces the 10 legacy modules' OWN pre-existing
+    `INSERT ... ON CONFLICT(experiment_id) DO UPDATE SET dataset_hash=...,
+    completed_at=..., updated_ms=...` + `DELETE FROM experiment_results
+    WHERE experiment_id=?` -- reinsert pattern, verbatim, for the
+    drift-only-refresh case (population grew, scientific content columns
+    unchanged). Deliberately bypasses `record_experiment_registry`/
+    `record_experiment_results`'s strict content-immutability check, which
+    would otherwise raise on the dataset_hash change alone -- that check
+    stays fully in effect for anything BEYOND drift columns (see the caller,
+    `register_legacy_snapshot_with_gates`, which only reaches this helper
+    after confirming non-drift columns are unchanged)."""
+    experiment_id = registry_values["experiment_id"]
+    conn.execute(
+        f"INSERT INTO experiment_registry ({', '.join(REGISTRY_COLUMNS)}) "
+        f"VALUES ({', '.join('?' for _ in REGISTRY_COLUMNS)}) "
+        "ON CONFLICT(experiment_id) DO UPDATE SET dataset_hash=excluded.dataset_hash, "
+        "completed_at=excluded.completed_at, updated_ms=excluded.updated_ms",
+        [registry_values[c] for c in REGISTRY_COLUMNS])
+    conn.execute("DELETE FROM experiment_results WHERE experiment_id=?", (experiment_id,))
+    for name, value in results:
+        conn.execute(
+            "INSERT INTO experiment_results (experiment_id, metric_name, metric_value, schema_version, "
+            "provenance, created_ms) VALUES (?,?,?,?,?,?)",
+            (experiment_id, name, value, results_schema_version, results_provenance, results_created_ms))
+    return "UPSERTED_DRIFT_ONLY"
+
+
+class MissingFrozenTestMetadata(Exception):
+    """A legacy snapshot module's SCIENTIFIC content (anything other than
+    dataset_hash/timestamp drift) changed from what is already registered,
+    but no `test_cycle_ids` (or explicit `no_test_split=True`) was supplied
+    to gate the resulting new-or-changed registration. Fails closed rather
+    than inventing a TEST split the legacy module's own frozen_statistical_gate
+    never defined -- see the legacy-bypass-closure transition-proof for the
+    exact migration/adaptation each of the 10 modules would need if its
+    computed content ever genuinely changes."""
+
+
+def register_legacy_snapshot_with_gates(
+    canonical_conn,
+    *,
+    registry_values: dict,
+    results: list[tuple[str, str]],
+    results_schema_version: int,
+    results_provenance: str,
+    results_created_ms: int,
+    knowledge_db_path=None,
+    test_cycle_ids=None,
+    train_cycle_ids=None,
+    no_test_split: bool = False,
+    retry_token: str | None = None,
+    supersession_token: str | None = None,
+) -> dict:
+    """Mandatory gated entry point for the 10 legacy "living snapshot"
+    research modules. Always runs the graveyard slash-set gate. Then:
+
+      - No prior row for this experiment_id, or the prior row's
+        `_LEGACY_SNAPSHOT_STRICT_COLUMNS` (family identity + split
+        methodology) match `registry_values`: this is either a first-ever
+        registration or a plain refresh (population counts, descriptive
+        prose, and dataset_hash may all legitimately drift). Writes directly
+        via `_upsert_legacy_snapshot` (still a true no-op when truly nothing
+        at all changed) -- no TEST-evidence nullifier is touched, because no
+        new confirmatory evidence was consumed, only a descriptive
+        re-measurement.
+      - The prior row's strict (family/split-methodology) columns DIFFER: this is a
+        genuine new-or-changed registration. If `no_test_split=True`
+        (matches this module's own `frozen_statistical_gate`/`frozen_splits`
+        text -- candidate_universe/w1/w3 declare "no train/test split"),
+        registers directly (graveyard-gated, no nullifier applicable). Else
+        requires `test_cycle_ids` and routes through the full
+        `register_experiment_with_gates` (family+split+TEST-nullifier);
+        missing `test_cycle_ids` here raises `MissingFrozenTestMetadata`
+        fail-closed rather than inventing one.
+
+    Every branch that actually registers issues an M-0034 gate receipt
+    (`ami.governance.epistemic_gates.issue_gate_receipt`) so
+    `ami.research.registry.ResearchRegistry` can verify this experiment_id
+    passed the gate before accepting its own research.sqlite projection.
+    """
+    if knowledge_db_path is None:
+        from ami.knowledge.store import DEFAULT_PATH as knowledge_db_path  # noqa: PLC0415
+
+    experiment_id = registry_values["experiment_id"]
+    existing = canonical_conn.execute(
+        f"SELECT {', '.join(REGISTRY_COLUMNS)} FROM experiment_registry WHERE experiment_id=?",
+        (experiment_id,)).fetchone()
+    is_drift_only = existing is not None and all(
+        dict(zip(REGISTRY_COLUMNS, existing))[c] == registry_values[c]
+        for c in _LEGACY_SNAPSHOT_STRICT_COLUMNS
+    )
+
+    _direct_kb = sqlite3.connect(str(knowledge_db_path))
+    try:
+        _gates.init_gates_schema(_direct_kb)
+    finally:
+        _direct_kb.close()
+
+    family_id = _gates.resolve_canonical_family_id(
+        registry_values.get("question_ids", ""), registry_values.get("hypothesis_id", ""))
+
+    # IMPORTANT: `existing is None` (a brand-new experiment_id) is NOT
+    # eligible for the lenient drift-only path -- there is nothing yet to
+    # compare against, so a first-ever registration is, by definition, new
+    # content and must go through the same graveyard+nullifier gate as any
+    # genuine content change below. Only an ALREADY-REGISTERED experiment_id
+    # whose strict (family/split) columns are unchanged qualifies as a
+    # drift-only refresh.
+    if existing is not None and is_drift_only:
+        already_attached = any(
+            r[1] == "kb" for r in canonical_conn.execute("PRAGMA database_list").fetchall())
+        if not already_attached:
+            canonical_conn.execute("ATTACH DATABASE ? AS kb", (str(knowledge_db_path),))
+        attached_by_us = not already_attached
+        try:
+            spec_text = " | ".join(str(x) for x in (
+                registry_values.get("hypothesis_id", ""), registry_values.get("question_ids", ""),
+                registry_values.get("frozen_population", ""), registry_values.get("frozen_features", ""),
+                registry_values.get("frozen_target", ""), registry_values.get("frozen_thresholds", ""),
+            ))
+            _gates.assert_not_graveyard(canonical_conn, spec_text, retry_token=retry_token, _autocommit=False)
+            registry_result = _upsert_legacy_snapshot(
+                canonical_conn, registry_values, results, results_schema_version,
+                results_provenance, results_created_ms)
+            _gates.issue_gate_receipt(
+                canonical_conn, experiment_id=experiment_id, canonical_family_id=family_id,
+                split_version=None, nullifier=None, registry_result=registry_result)
+            canonical_conn.commit()
+            return {"experiment_id": experiment_id, "family_id": family_id, "registry_result": registry_result,
+                    "results_result": registry_result, "nullifier_result": "N/A_DRIFT_ONLY_SNAPSHOT"}
+        except BaseException:
+            canonical_conn.rollback()
+            raise
+        finally:
+            if attached_by_us:
+                canonical_conn.execute("DETACH DATABASE kb")
+
+    # scientific content changed -- descriptive-only modules register
+    # directly (no TEST evidence exists to gate); everything else must
+    # supply real test_cycle_ids or fail closed.
+    if no_test_split:
+        already_attached = any(
+            r[1] == "kb" for r in canonical_conn.execute("PRAGMA database_list").fetchall())
+        if not already_attached:
+            canonical_conn.execute("ATTACH DATABASE ? AS kb", (str(knowledge_db_path),))
+        attached_by_us = not already_attached
+        try:
+            spec_text = " | ".join(str(x) for x in (
+                registry_values.get("hypothesis_id", ""), registry_values.get("question_ids", ""),
+                registry_values.get("frozen_population", ""), registry_values.get("frozen_features", ""),
+                registry_values.get("frozen_target", ""), registry_values.get("frozen_thresholds", ""),
+            ))
+            _gates.assert_not_graveyard(canonical_conn, spec_text, retry_token=retry_token, _autocommit=False)
+            registry_result = record_experiment_registry(canonical_conn, registry_values)
+            results_result = record_experiment_results(
+                canonical_conn, experiment_id, results, schema_version=results_schema_version,
+                provenance=results_provenance, created_ms=results_created_ms)
+            _gates.issue_gate_receipt(
+                canonical_conn, experiment_id=experiment_id, canonical_family_id=family_id,
+                split_version=None, nullifier=None, registry_result=registry_result)
+            canonical_conn.commit()
+            return {"experiment_id": experiment_id, "family_id": family_id, "registry_result": registry_result,
+                    "results_result": results_result, "nullifier_result": "N/A_NO_TEST_SPLIT"}
+        except BaseException:
+            canonical_conn.rollback()
+            raise
+        finally:
+            if attached_by_us:
+                canonical_conn.execute("DETACH DATABASE kb")
+
+    if test_cycle_ids is None:
+        raise MissingFrozenTestMetadata(
+            f"MISSING_FROZEN_TEST_METADATA: {experiment_id!r}'s scientific content changed but no"
+            " test_cycle_ids were supplied (and no_test_split was not set). Refusing to invent a"
+            " TEST split -- supply the real frozen TEST independent-cycle-id set for this content"
+            " version, or confirm this module truly has no train/test split and pass"
+            " no_test_split=True.")
+
+    return register_experiment_with_gates(
+        canonical_conn, registry_values=registry_values, results=results,
+        results_schema_version=results_schema_version, results_provenance=results_provenance,
+        results_created_ms=results_created_ms, test_cycle_ids=test_cycle_ids,
+        train_cycle_ids=train_cycle_ids, knowledge_db_path=knowledge_db_path,
+        retry_token=retry_token, supersession_token=supersession_token)

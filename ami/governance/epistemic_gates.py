@@ -130,6 +130,24 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_test_nullifiers_first_consumption
     ON epistemic_test_nullifiers(nullifier) WHERE supersession_token IS NULL;
 """
 
+# BATCH-EPISTEMIC-NULLIFIER-LEGACY-BYPASS-CLOSURE-V1 (M-0034) additive schema.
+# One immutable receipt per successfully-gated experiment_id -- the join key
+# `ami/research/registry.py`'s ResearchRegistry uses to decide whether a
+# research.sqlite projection write is backed by a real canonical gate pass
+# (see `register_and_project`/`_require_gate_receipt_or_identical`). Rollback:
+# DROP TABLE experiment_gate_receipts; no other table touched.
+_RECEIPT_SCHEMA = """
+CREATE TABLE IF NOT EXISTS experiment_gate_receipts (
+    experiment_id TEXT PRIMARY KEY,
+    canonical_family_id TEXT NOT NULL,
+    split_version TEXT,
+    nullifier TEXT,
+    registry_result TEXT NOT NULL,
+    receipt_hash TEXT NOT NULL,
+    issued_ms INTEGER NOT NULL
+);
+"""
+
 
 class GraveyardRetestBlocked(Exception):
     """Proposed spec matches a slashed (graveyarded) hypothesis family and no
@@ -152,12 +170,42 @@ class AuthorizationInvalid(Exception):
 
 def init_gates_schema(conn) -> None:
     """Idempotent, additive-only. Caller supplies the knowledge.sqlite
-    connection (real or disposable copy). Runs both the V1 seed-batch schema
-    and the WIRING-V1 (M-0033) additions -- safe to call repeatedly and safe
-    to call on a DB that already has either or both."""
+    connection (real or disposable copy). Runs the V1 seed-batch schema, the
+    WIRING-V1 (M-0033) additions, and the LEGACY-BYPASS-CLOSURE-V1 (M-0034)
+    receipt table -- safe to call repeatedly and safe to call on a DB that
+    already has any subset of them."""
     conn.executescript(_GATES_SCHEMA)
     conn.executescript(_AUTH_SCHEMA)
+    conn.executescript(_RECEIPT_SCHEMA)
     conn.commit()
+
+
+def issue_gate_receipt(conn, *, experiment_id: str, canonical_family_id: str,
+                        split_version: str | None, nullifier: str | None,
+                        registry_result: str) -> str:
+    """Called only by `register_experiment_with_gates`/
+    `register_legacy_snapshot_with_gates` as part of their single atomic
+    transaction (no internal commit -- the caller's commit covers this row
+    too). One receipt per experiment_id (`INSERT OR REPLACE` -- reissuing a
+    receipt for the SAME experiment_id after a legitimate corrected-rerun/
+    supersession is expected and safe; the receipt only ever attests
+    "this experiment_id passed the gate", not a specific content version)."""
+    receipt_hash = hashlib.sha256(
+        f"{experiment_id}|{canonical_family_id}|{split_version}|{nullifier}".encode()).hexdigest()
+    conn.execute(
+        "INSERT OR REPLACE INTO experiment_gate_receipts (experiment_id, canonical_family_id,"
+        " split_version, nullifier, registry_result, receipt_hash, issued_ms) VALUES (?,?,?,?,?,?,?)",
+        (experiment_id, canonical_family_id, split_version, nullifier, registry_result,
+         receipt_hash, int(time.time() * 1000)))
+    return receipt_hash
+
+
+def has_gate_receipt(conn, experiment_id: str) -> bool:
+    """Read-only check used by `ami.research.registry.ResearchRegistry` --
+    `conn` is a knowledge.sqlite connection (real or disposable)."""
+    row = conn.execute(
+        "SELECT 1 FROM experiment_gate_receipts WHERE experiment_id=?", (experiment_id,)).fetchone()
+    return row is not None
 
 
 def _audit(conn, action: str, detail: str) -> None:
