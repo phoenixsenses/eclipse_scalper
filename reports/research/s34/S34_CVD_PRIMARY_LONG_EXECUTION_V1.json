@@ -1,0 +1,159 @@
+{
+  "execution_id": "S34_CVD_PRIMARY_LONG_EXECUTION_V1",
+  "gate": "G2-CVD-PRIMARY-LONG-GOVERNED-EXECUTION-V1",
+  "preregistration_commit": "749520b3",
+  "experiment_id": "E-CVD-PRIMARY-LONG-W300-PREREG-001",
+  "status": "EXECUTED",
+  "date": "2026-07-06",
+  "author": "Sonnet 5",
+  "pre_execution_verification": {
+    "errors": [],
+    "canonical_family_id": "FAMv1:bec99d8d36f7d6a1",
+    "split_version": "SPLITv1:0a1b96fd74dd281e",
+    "split_version_note": "reused as a frozen constant, not re-derived from the unrecorded frozen_splits prose (see execution MD sec 1)",
+    "representative_cycle_n": 131,
+    "train_cycle_n": 91,
+    "test_cycle_n": 40,
+    "train_cycle_set_hash_sha256": "61486bc62392eed7b7fc038715f2cd9775e270a568e5c1f728dc2d60417671a5",
+    "test_cycle_set_hash_sha256": "98174ed356826b15bd8513584015447b68d18718bb933d75380a4d6b2c4f7b04",
+    "test_nullifier_sha256": "085397f31c199c1d0c1d5ce647af4d1aa311166c63199f92872e089db8e72a7a",
+    "nullifier_prior_consumption_count": 0,
+    "gate_receipt_before": "PREREGISTERED_NOT_EXECUTED",
+    "w300_quality_population": {"total": 324, "exact_reconstructable": 324, "source_gapped": 0},
+    "known_at_violations": 0,
+    "bucket_exclusions_by_direction": {"SHORT": 104},
+    "experiment_registry_count_before": 22,
+    "experiment_results_count_before": 323,
+    "schema_version": 12
+  },
+  "authorization": {
+    "nullifier_consume_result": "CONSUMED",
+    "consumed_by_experiment_id": "E-CVD-PRIMARY-LONG-W300-PREREG-001",
+    "test_outcome_first_read_after_authorization": true
+  },
+  "train_diagnostics": {
+    "n": 91,
+    "n_dropped_missing": 0,
+    "predictor_scale_stats_usd": {
+      "min": -114507036.87746961,
+      "max": 20161411.40128993,
+      "mean": -23002972.439979225,
+      "median": -16216250.98408997
+    },
+    "predictor_scale_stats_match_frozen_prereg": true,
+    "vif": {
+      "cvd_notional_w300_per_1m": 1.1744323617706263,
+      "event_notional_per_100k": 1.0243026025856503,
+      "session_EUROPE": null,
+      "session_US": 1.328914753344631,
+      "session_OFF": 1.3143286414058666,
+      "day_trend_bps": 1.0326601166381462
+    },
+    "session_europe_zero_variance_note": "0/91 TRAIN and 0/40 TEST LONG signals fall in the EUROPE session window -- discovered from TRAIN diagnostics before any TEST access; handled via pseudo-inverse (session_EUROPE coefficient/SE come out as ~0/0.0, primary predictor unaffected), not a model amendment",
+    "collinearity_vif_threshold": 10.0,
+    "collinearity_drops_applied": [],
+    "descriptive_secondary_coefficient": -0.6464646012554807,
+    "descriptive_secondary_p_value": 0.6683521420301344
+  },
+  "primary_result": {
+    "model": "OLS, cluster-robust (CR1) SE by independent_cycle_id",
+    "formula": "endpoint_return_bps ~ cvd_notional_w300_per_1M + event_notional_per_100k + session_EUROPE + session_US + session_OFF + day_trend_bps",
+    "test_n": 40,
+    "test_n_dropped_missing": 0,
+    "test_n_clusters": 40,
+    "df": 39,
+    "coefficient_bps_per_1m": -0.9356320563432652,
+    "cluster_robust_se": 2.662003862077086,
+    "t_stat": -0.35147659613582155,
+    "p_value_two_sided": 0.7271227120001349,
+    "ci95_lo": -6.320043097269376,
+    "ci95_hi": 4.448778984582845,
+    "effect_size_per_10m_bps": 9.356320563432652,
+    "effect_size_relevance_floor_bps_per_10m": 5.0,
+    "relevance_floor_cleared": true,
+    "ci_excludes_zero": false,
+    "full_beta_vector": {
+      "design_columns": ["const", "cvd_notional_w300_per_1m", "event_notional_per_100k",
+                          "session_EUROPE", "session_US", "session_OFF", "day_trend_bps"],
+      "beta": [-37.18822590202934, -0.9356320563432652, 2.806950661871209,
+                5.902641304464517e-14, -32.17732618265413, 202.41681248905647, -0.31592573852389505],
+      "se": [96.24224373798947, 2.662003862077086, 23.35591204762259,
+              0.0, 94.8678391096926, 112.92584293467579, 0.3264147434382814]
+    }
+  },
+  "secondary_checks_non_promotable": {
+    "mfe_bps_outcome_test": {"coefficient": 2.353479955691343, "p_value": 0.14524663150614736}
+  },
+  "verdict_rule_evaluation": {
+    "n_test_ge_20": true,
+    "ci_half_width": 5.384411041,
+    "ci_half_width_le_2x_floor": true,
+    "ci_excludes_zero": false,
+    "p_lt_0_05": false,
+    "effect_size_ge_floor": true,
+    "scientific_disposition": "NO_RELIABLE_ASSOCIATION"
+  },
+  "required_validations": {
+    "exact_proxy_pooling": false,
+    "threshold_scan": false,
+    "predictor_binning": false,
+    "alternative_transformation": false,
+    "subgroup_rescue": false,
+    "session_specific_rerun": false,
+    "alternative_outcome_swap": false,
+    "interaction_or_nonlinear_search": false,
+    "second_model_after_first_result": false,
+    "known_at_violations": 0,
+    "cycle_representatives_unique": true,
+    "missing_data_train_dropped": 0,
+    "missing_data_test_dropped": 0
+  },
+  "database_state": {
+    "canonical_sqlite_sha256_before": "fdda663dcc331053f6351d6acb7117eeb266fda5cf5d5691a799e48416be724c",
+    "canonical_sqlite_sha256_after": "25a56a98d02f84191aeb6ff46f81245d36bc0d635e916dbfac3e13d076bf5291",
+    "knowledge_sqlite_sha256_before": "ef7f8cde5e790ef765498861e2bdbc561f8ac64e3044eeb84afe3786125a8b6c",
+    "knowledge_sqlite_sha256_after": "2a5abc280889eac91a5ec5e9c82f63d024670b6735f8c4a77b10597c9029b93e",
+    "schema_version_after": 12,
+    "experiment_registry_count_after": 23,
+    "experiment_results_count_after": 350,
+    "experiment_results_count_for_this_experiment": 27,
+    "researcher_exposure_ledger_before": 1173,
+    "researcher_exposure_ledger_after": 1176,
+    "integrity_check": "ok",
+    "foreign_key_check_rows": 0,
+    "protected_counts_unchanged": {
+      "ami_events": 252, "ami_signal_lifecycle": 324, "ami_cycles": 167,
+      "ami_birth_truncated_cascade_geometry": 220,
+      "ami_agg_trades_repaired": 40934, "ami_cvd_windowed_flow": 1840,
+      "ami_cvd_windowed_flow_proxy": 1840, "ami_cvd_window_quality_v1": 1840,
+      "ami_cvd_bucket_exclusions": 104
+    },
+    "epistemic_test_nullifiers_after": 1,
+    "gate_receipt_registry_result_after": "EXECUTED",
+    "graveyard_slash_fingerprints_unchanged": 31,
+    "backups": [
+      "data/ami/backups/canonical_pre_G2_governed_execution_20260706.sqlite",
+      "data/ami/backups/knowledge_pre_G2_governed_execution_20260706.sqlite"
+    ]
+  },
+  "scope_discipline": {
+    "execution_risk_brain_env_live_executor_touched": false,
+    "route_promoted": false,
+    "second_test_execution": false,
+    "existing_experiments_immutable": true
+  },
+  "code": {
+    "module": "ami/research/cvd_windowed_flow_001.py",
+    "tests": "tests/test_ami_research_cvd_windowed_flow_001.py",
+    "tests_passed": "15/15",
+    "code_changed_after_test_access": false
+  },
+  "limitations": [
+    "session_EUROPE structurally absent from both TRAIN and TEST populations (0/91, 0/40) -- newly disclosed, does not affect primary predictor identification",
+    "outcome-identity interpretation risk carried over from preregistration (no single named prior experiment_id for the primary LONG reversal outcome)",
+    "representative-selection rule newly authored at preregistration, unaffected by execution",
+    "family/split identity adapters remain text-hash-based (paraphrase-bypass risk)"
+  ],
+  "operational_verdict": "CVD_PRIMARY_LONG_GOVERNED_EXECUTION_V1_COMPLETE",
+  "scientific_disposition": "NO_RELIABLE_ASSOCIATION"
+}
