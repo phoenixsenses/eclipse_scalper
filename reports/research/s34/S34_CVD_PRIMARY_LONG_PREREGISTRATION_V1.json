@@ -1,0 +1,124 @@
+{
+  "preregistration_id": "S34_CVD_PRIMARY_LONG_PREREGISTRATION_V1",
+  "gate": "G2-CVD-PRIMARY-LONG-PREREGISTRATION-V1",
+  "status": "PREREGISTERED_NOT_EXECUTED",
+  "date": "2026-07-06",
+  "research_question": "Does exact signal-relative 300-second net taker-flow notional contain continuous incremental predictive information for the primary LONG endpoint-return outcome (swing_24h), controlling for event notional, session, and day_trend_bps?",
+  "graveyard": {
+    "checked_against": "data/ami/knowledge.sqlite graveyard_slash_fingerprints (31 curated)",
+    "hits": [],
+    "not_a_graveyard_retest_of": "S34_ORDERFLOW_LEAD.md",
+    "confirmed": true
+  },
+  "identity": {
+    "canonical_family_id": "FAMv1:bec99d8d36f7d6a1",
+    "experiment_id": "E-CVD-PRIMARY-LONG-W300-PREREG-001",
+    "hypothesis_id": "H-CVD-PRIMARY-LONG-W300-EXACT-NET-TAKER-FLOW-NOTIONAL-V1",
+    "question_ids": "FAM_CVD_PRIMARY_LONG_REVERSAL",
+    "specification_hash_sha256": "a2fd9e5b08ed2a716ac0c1cae0658740f24b48024d5b7524eb843e4441940b57",
+    "outcome_id": "endpoint_return_bps@swing_24h",
+    "outcome_source": "ami_lifecycle_path_observations (effective/corrected selection via fetch_effective_path_observations)",
+    "outcome_lineage": "classify_path(endpoint_return_bps) in ami/research/w4_post_event_path_taxonomy.py; reused verbatim by E-W5A/E-W6/E-W6RS-CONFIRMATION/E-W6RS-CONFOUND-RESOLUTION/E-W7A/E-W10A",
+    "split_version": "SPLITv1:0a1b96fd74dd281e",
+    "split_algorithm": "ami.research.w8_short_expanded_baseline.compute_global_cycle_split (is-identity convention, cycle-grouped, TRAIN_FRACTION=0.7, cut by cycle count, ordered by earliest signal_birth_ts per cycle)"
+  },
+  "population": {
+    "base_universe": "ami_signal_lifecycle direction=LONG",
+    "base_universe_n": 220,
+    "total_signal_lifecycle_n": 324,
+    "long_n": 220,
+    "short_n": 104,
+    "cvd_window_id": "W300",
+    "cvd_quality_status_required": "EXACT_RECONSTRUCTABLE",
+    "cvd_eligible_n_for_w300": 324,
+    "cvd_source_gapped_n_for_w300": 0,
+    "bucket_exclusions_total": 104,
+    "bucket_exclusions_direction": "SHORT",
+    "bucket_exclusions_touching_long": 0,
+    "outcome_horizon": "swing_24h",
+    "outcome_eligible_ok_n": 194,
+    "outcome_missing_internal_gap_n": 23,
+    "outcome_excluded_no_horizon_data_n": 1,
+    "distinct_cycles_before_dedup": 142,
+    "representative_selection_rule": "earliest signal_birth_ts per independent_cycle_id, among outcome-eligible (observation_status=OK) LONG signals",
+    "representative_selection_rule_is_new": true,
+    "representative_cycle_n": 131,
+    "train_cycle_n": 91,
+    "test_cycle_n": 40,
+    "train_cycle_set_hash_sha256": "61486bc62392eed7b7fc038715f2cd9775e270a568e5c1f728dc2d60417671a5",
+    "test_cycle_set_hash_sha256": "98174ed356826b15bd8513584015447b68d18718bb933d75380a4d6b2c4f7b04",
+    "no_post_outcome_eligibility_filtering": true
+  },
+  "predictor": {
+    "primary": "ami_cvd_windowed_flow.cvd_notional WHERE window_id='W300'",
+    "type": "continuous",
+    "scaling": "divide by 1000000 (bps-per-$1,000,000)",
+    "scaling_basis": "TRAIN-only distribution, outcome-blind",
+    "train_only_distribution": {
+      "n": 91,
+      "min": -114507036.88,
+      "max": 20161411.40,
+      "mean": -23002972.44,
+      "median": -16216250.98,
+      "stdev": 23383108.72
+    },
+    "binning": false,
+    "threshold": false,
+    "transformation": "none (no winsorization, no log, no sign transform)"
+  },
+  "controls": [
+    {"name": "event_notional", "column": "ami_events.notional", "type": "continuous", "scaling": "divide by 100000"},
+    {"name": "session", "column": "_session_of_hour(signal_birth_ts)", "type": "categorical", "reference_category": "ASIA", "levels": ["ASIA", "EUROPE", "US", "OFF"]},
+    {"name": "day_trend_bps", "column": "compute_day_trend_bps(...)", "type": "continuous", "scaling": "none"}
+  ],
+  "model": {
+    "family": "OLS linear regression",
+    "formula": "endpoint_return_bps ~ cvd_notional_w300_per_1M + event_notional_per_100k + session_EUROPE + session_US + session_OFF + day_trend_bps",
+    "standard_error_method": "cluster-robust (CR1), clustered by independent_cycle_id",
+    "significance_criterion": "two-sided p<0.05",
+    "confidence_interval_level": 0.95,
+    "min_sample_requirement": 20,
+    "collinearity_policy": "VIF on TRAIN; if any VIF>10 drop day_trend_bps first, then event_notional; session never dropped",
+    "missing_value_policy": "listwise deletion, count reported"
+  },
+  "secondary_checks_non_promotable": [
+    "same model with mfe_bps@swing_24h as outcome",
+    "TRAIN-side coefficient sign/magnitude (descriptive only)",
+    "VIF/collinearity diagnostic",
+    "TRAIN-only predictor distribution diagnostics"
+  ],
+  "forbidden_analyses": [
+    "threshold scan", "quantile bucket sweep", "subgroup rescue", "session-specific reruns",
+    "alternative outcome swap after TEST", "interaction search", "nonlinear/spline search",
+    "pooling exact and proxy CVD", "short-horizon substitution without a new preregistration",
+    "any economic/fee-based route promotion claim from this result alone"
+  ],
+  "verdict_rule": {
+    "EVIDENCE_SUPPORTS_INCREMENTAL_ASSOCIATION": "TEST 95% CI excludes 0 AND p<0.05 AND |coefficient*10|>=5bps per $10M AND n>=20 AND no invalidation",
+    "NO_RELIABLE_ASSOCIATION": "CI includes 0, OR p>=0.05, OR below relevance floor",
+    "INSUFFICIENT_SAMPLE_OR_INCONCLUSIVE": "n<20 OR CI half-width > 2x relevance floor",
+    "PROTOCOL_OR_DATA_QUALITY_INVALIDATION": "any required validation fails"
+  },
+  "nullifier_and_gate": {
+    "test_nullifier_sha256": "085397f31c199c1d0c1d5ce647af4d1aa311166c63199f92872e089db8e72a7a",
+    "nullifier_prior_consumption_count": 0,
+    "nullifier_consumed_by_this_batch": false,
+    "gate_receipt_hash": "d46f7e2c6b3621215e13eed136f1e22aec2531549769c96da694a407855f7e5c",
+    "gate_receipt_registry_result": "PREREGISTERED_NOT_EXECUTED",
+    "gate_receipt_table": "experiment_gate_receipts (real data/ami/knowledge.sqlite)",
+    "authorization_state": "NOT_REQUIRED_CLEAN_GRAVEYARD"
+  },
+  "input_manifest": {
+    "canonical_sqlite_sha256": "458bc07ca5b436041e59c781a26cf502779d5dc2751a3be8a0c1cddb93e84d49",
+    "canonical_schema_version": 12,
+    "code_commit": "09104298"
+  },
+  "pre_cascade_legacy_incident": {
+    "id": "PRE_CASCADE_DIP_RECOVERY_NO_EDGE_LEGACY_BYPASS_RECORDED",
+    "failure_archive_id": 22,
+    "merged_into_this_family": false,
+    "identity_reused": false,
+    "reinterpreted": false
+  },
+  "amendment_policy": "immutable once committed; any change requires a new versioned file and a new gate cycle before TEST access"
+}
