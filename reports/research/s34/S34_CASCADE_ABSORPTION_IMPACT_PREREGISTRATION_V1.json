@@ -1,0 +1,150 @@
+{
+  "preregistration_id": "S34_CASCADE_ABSORPTION_IMPACT_PREREGISTRATION_V1",
+  "gate": "BATCH-CASCADE-ABSORPTION-IMPACT-PREREGISTRATION-V1",
+  "status": "PREREGISTERED_NOT_EXECUTED",
+  "date": "2026-07-07",
+  "research_question": "Does the pre-birth, signal-relative, 300-second price-impact-per-signed-notional (aggressive-flow absorption capacity) preceding a LONG-direction signal contain continuous incremental predictive information for the already-accepted primary LONG reversal outcome (the continuous endpoint-return quantity underlying the existing REVERSAL/CONTINUATION/CHOP path classification), controlling for event notional, session, and day_trend_bps?",
+  "not_an_economic_claim": "This is a descriptive/inferential association question. No entry rule, no threshold, no economic/fee claim, no route or bucket promotion decision is made by this preregistration or by the eventual TEST result alone.",
+  "graveyard": {
+    "checked_against": "data/ami/knowledge.sqlite graveyard_slash_fingerprints (31 curated)",
+    "hits": [],
+    "not_a_graveyard_retest_of": "S34_ORDERFLOW_LEAD.md (agg-trade OFI momentum) and the closed CVD test (E-CVD-PRIMARY-LONG-W300-PREREG-001, NO_RELIABLE_ASSOCIATION) -- different causal channel (price-impact-per-notional / absorption capacity, not net flow imbalance), different source table lineage (agg_trades price-impact derivation via ami_absorption_impact_windowed_flow, not ami_cvd_windowed_flow), different family_id/nullifier",
+    "confirmed": true
+  },
+  "window_ruling": {
+    "text": "OPERATOR RULING -- FAM_CASCADE_ABSORPTION_IMPACT PRIMARY WINDOW V1. The primary predictor window for the first preregistration of FAM_CASCADE_ABSORPTION_IMPACT is W300, representing the 300 seconds immediately preceding signal birth. W300 was selected before outcome access on mechanistic and data-quality grounds: it provides a defensible balance between short-horizon microstructure sensitivity and longer-horizon temporal dilution; it has complete 324/324 EXACT_RECONSTRUCTABLE coverage; it satisfies the same frozen known-at contract as the other candidate windows; and it matches the previously governed W300 CVD lane, improving cross-mechanism comparability while eliminating window choice as an additional researcher degree of freedom. Only W300 may be joined to outcomes in this first experiment. W60, W600, W1800 and W3600 may not be used for outcome-linked diagnostics, alternative fits or verdict modification. They remain available only for future independently preregistered hypotheses. W3600 additionally retains its frozen one-row SOURCE_GAPPED exclusion. This ruling applies only to the first preregistration of FAM_CASCADE_ABSORPTION_IMPACT and does not establish a universal window rule for other mechanism families.",
+    "approved_by": "operator",
+    "amendment_1": "the claim that W60 may contain only 1-2 prints is not frozen or repeated (unverified from any outcome-blind source-distribution audit); replaced with the narrower statement: W60 carries greater sensitivity to short-horizon microstructure noise, bid-ask effects and transient price response than W300",
+    "amendment_2": "W300 is the only window permitted to be joined to the outcome or included in the scientific model in this first experiment; W60/W600/W1800/W3600 must not be evaluated against TRAIN or TEST outcomes, must not appear as robustness coefficients, diagnostic outcome tables, subgroup results or alternative model fits; they remain canonical data products only, available for future independently preregistered hypotheses"
+  },
+  "identity": {
+    "canonical_family_id": "FAMv1:3e2dfe63f9e271bf",
+    "experiment_id": "E-CASCADE-ABSORPTION-IMPACT-LONG-W300-PREREG-001",
+    "hypothesis_id": "H-CASCADE-ABSORPTION-IMPACT-LONG-W300-EXACT-PRICE-RESPONSE-PER-SIGNED-NOTIONAL-V1",
+    "question_ids": "FAM_CASCADE_ABSORPTION_IMPACT_LONG_REVERSAL",
+    "specification_hash_sha256": "531b16232a88d5a6c692055bd00fa59bd508b7b69cd7fd45cf8e666772fb6608",
+    "outcome_id": "endpoint_return_bps@swing_24h",
+    "outcome_source": "ami_lifecycle_path_observations (effective/corrected selection via fetch_effective_path_observations)",
+    "outcome_lineage": "classify_path(endpoint_return_bps) in ami/research/w4_post_event_path_taxonomy.py; identical outcome identity to the closed CVD test (E-CVD-PRIMARY-LONG-W300-PREREG-001 / E-CVD-PRIMARY-LONG-W300-001), reused verbatim not redefined",
+    "split_version": "SPLITv1:16ea98c239034593",
+    "split_algorithm": "ami.research.w8_short_expanded_baseline.compute_global_cycle_split (is-identity convention, cycle-grouped, TRAIN_FRACTION=0.7, cut by cycle count, ordered by earliest signal_birth_ts per cycle) -- freshly computed split_version for this family (different wording of frozen_splits than the CVD prereg's own SPLITv1:0a1b96fd74dd281e; the underlying TRAIN/TEST cycle SETS are nonetheless byte-identical, since eligibility depends only on direction+outcome-availability, not on which feature is under test -- proven below, not assumed)"
+  },
+  "population": {
+    "base_universe": "ami_signal_lifecycle direction=LONG",
+    "base_universe_n": 220,
+    "total_signal_lifecycle_n": 324,
+    "long_n": 220,
+    "short_n": 104,
+    "predictor_window_id": "W300",
+    "predictor_quality_status_required": "EXACT_RECONSTRUCTABLE",
+    "predictor_eligible_n_for_w300": 324,
+    "predictor_source_gapped_n_for_w300": 0,
+    "predictor_long_coverage_n": 220,
+    "predictor_long_coverage_note": "all 220 LONG signals have a W300 ami_absorption_impact_windowed_flow row; the family's sole exclusion (1 signal, W3600 only) does not touch W300 or the LONG population",
+    "outcome_horizon": "swing_24h",
+    "outcome_eligible_ok_n": 194,
+    "outcome_missing_internal_gap_n": 23,
+    "outcome_excluded_no_horizon_data_n": 1,
+    "outcome_excluded_no_horizon_data_n_note": "26 total non-eligible (23 MISSING_INTERNAL_GAP + 3 EXCLUDED_NO_HORIZON_DATA); the JSON key name is inherited verbatim from the CVD prereg template and its 'no_horizon_data' bucket alone is 3, matching 220-194-23=3",
+    "distinct_cycles_before_dedup": 142,
+    "representative_selection_rule": "earliest signal_birth_ts per independent_cycle_id, among outcome-eligible (observation_status=OK) LONG signals -- identical rule to the closed CVD preregistration, reused not redefined",
+    "representative_selection_rule_is_new": false,
+    "representative_cycle_n": 131,
+    "train_cycle_n": 91,
+    "test_cycle_n": 40,
+    "train_cycle_set_hash_sha256": "61486bc62392eed7b7fc038715f2cd9775e270a568e5c1f728dc2d60417671a5",
+    "test_cycle_set_hash_sha256": "98174ed356826b15bd8513584015447b68d18718bb933d75380a4d6b2c4f7b04",
+    "train_test_cycle_sets_identical_to_cvd_prereg": true,
+    "train_test_cycle_sets_identical_to_cvd_prereg_reason": "population/eligibility/representative-rule/split-algorithm are all identical to the closed CVD preregistration's own; the two frozen hashes above are byte-identical to CVD's own recorded hashes, reproduced independently this session, not copied",
+    "no_post_outcome_eligibility_filtering": true,
+    "known_at_violations_w300": 0
+  },
+  "predictor": {
+    "primary": "ami_absorption_impact_windowed_flow.price_response_per_signed_notional WHERE window_id='W300'",
+    "formula": "price_response_per_signed_notional_w300 = mark_price_return_bps([T-300s,T]) / max(|signed_notional_w300|/1e6, FLOOR_USD_M)",
+    "floor_usd_m": 0.01,
+    "units": "bps of mark-price return per $1,000,000 of net signed aggressive notional",
+    "sign_interpretation": "not direction-flipped; positive means mark price rose over [T-300s,T], negative means it fell -- same absolute-sign convention as the endpoint_return_bps outcome (a LONG signal's REVERSAL means price moved favorably/up), so predictor and outcome share the same sign convention with no transform needed",
+    "evidence_layer": "EXACT",
+    "quality_requirement": "EXACT_RECONSTRUCTABLE only (ami_absorption_impact_window_quality_v1, window_id='W300')",
+    "feature_available_ts_ms_rule": "= signal_birth_ts (schema CHECK-enforced)",
+    "missing_value_policy": "listwise deletion if a required column is NULL for an eligible signal; count reported (0 observed in TRAIN, checked outcome-blind, this session)",
+    "type": "continuous",
+    "scaling": "none -- no additional rescaling applied",
+    "scaling_basis": "TRAIN-only distribution, outcome-blind: n=91, min=-93.20590058400667, max=0.5413583755453063, mean=-4.8980604410035085, median=-2.3082816480163024, stdev=10.70108397867223. Already in a well-scaled bps-per-$1M range (unlike CVD's raw multi-million-dollar notional, which required a /1e6 divisor for coefficient interpretability); no transform needed.",
+    "binning": false,
+    "threshold": false,
+    "transformation": "none (no winsorization, no log, no sign transform, no clipping)"
+  },
+  "controls": [
+    {"name": "event_notional", "column": "ami_events.notional", "type": "continuous", "scaling": "divide by 100000", "known_at": "available at signal_birth_ts (event precedes signal by construction)", "missing_in_train": 0},
+    {"name": "session", "column": "_session_of_hour(signal_birth_ts)", "type": "categorical", "reference_category": "ASIA", "candidate_levels": ["ASIA", "EUROPE", "US", "OFF"], "observed_levels_train": {"US": 62, "ASIA": 21, "OFF": 8, "EUROPE": 0}, "observed_levels_test": {"US": 24, "ASIA": 12, "OFF": 4, "EUROPE": 0}, "encoded_dummy_columns": ["session_US", "session_OFF"]},
+    {"name": "day_trend_bps", "column": "compute_day_trend_bps(...)", "type": "continuous", "scaling": "none", "known_at": "computed from data strictly before signal_birth_ts"}
+  ],
+  "rank_deficiency_and_zero_variance_policy": {
+    "issue_disclosed": "the previous CVD execution exposed a zero-variance session-control ambiguity; this population (identical LONG/eligible set) has the SAME structural fact: EUROPE has 0 observations in TRAIN (0/91) and 0 in TEST (0/40) -- confirmed this session, not assumed",
+    "detection_rule": "after computing TRAIN-only session assignments (outcome-blind), any candidate level among {ASIA, EUROPE, US, OFF} with zero TRAIN observations is deterministically DROPPED from the design matrix before model fitting -- no column is created for it, it is never imputed, and it is never forced via an arbitrary encoding",
+    "dropped_level_this_experiment": "EUROPE (0/91 TRAIN, 0/40 TEST)",
+    "retained_dummy_columns": ["session_US", "session_OFF"],
+    "reference_category": "ASIA (never dropped, never encoded as its own column)",
+    "rank_valid_encoding_permitted": true,
+    "pseudo_inverse_permitted": false,
+    "degrees_of_freedom_policy": "design matrix = intercept + price_response_per_signed_notional_w300 + event_notional_per_100k + day_trend_bps + session_US + session_OFF = 6 parameters; TRAIN n=91, TEST n=40 -- both comfortably identified (n >> parameters); explicit matrix-rank check required before fitting (rank must equal column count) as a mandatory pre-fit validation, not merely assumed from the parameter count",
+    "train_test_design_rank_mismatch_policy": "TEST's design matrix uses ONLY the column set frozen from TRAIN (session_US, session_OFF; EUROPE never becomes a column regardless of what TEST alone would show); if TEST's own data additionally lacks a level present in TRAIN, that dummy simply evaluates to all-zero for the affected TEST rows -- valid, not rank-deficient, since the column's existence is a TRAIN-only decision applied deterministically forward. If TRAIN's design matrix is found rank-deficient for any OTHER, unanticipated reason at fit time, the verdict is PROTOCOL_OR_DATA_QUALITY_INVALIDATED -- no ad hoc post-hoc fix is permitted",
+    "any_TEST_row_in_a_train_dropped_level": "does not arise this experiment (0 TEST EUROPE rows either), verified outcome-blind this session; the policy itself is recorded for completeness independent of whether it binds"
+  },
+  "model": {
+    "family": "OLS linear regression",
+    "formula": "endpoint_return_bps ~ price_response_per_signed_notional_w300 + event_notional_per_100k + session_US + session_OFF + day_trend_bps",
+    "standard_error_method": "cluster-robust (CR1), clustered by independent_cycle_id",
+    "significance_criterion": "two-sided p<0.05",
+    "confidence_interval_level": 0.95,
+    "min_sample_requirement": 20,
+    "effect_size_relevance_rule": "relevant iff |coefficient * TRAIN_stdev(predictor)| >= 5 bps, i.e. a one-TRAIN-standard-deviation move in the predictor (10.70108397867223 bps-per-$1M, frozen from TRAIN this session, outcome-blind) implies at least 5bps of expected endpoint_return_bps change -- a standard, outcome-blind, standardized-effect-size convention, chosen because the predictor's own natural units (a ratio, not a raw notional) make a fixed round-dollar reference move [CVD's own $10M convention] inapplicable; anchored purely to the TRAIN predictor's own dispersion, never to any outcome value",
+    "collinearity_policy": "VIF on TRAIN, continuous regressors only (price_response_per_signed_notional_w300, event_notional_per_100k, day_trend_bps); if any VIF>10 drop day_trend_bps first, then event_notional; session dummies are never dropped via VIF (only via the zero-variance structural rule above, applied BEFORE any VIF check)",
+    "missing_value_policy": "listwise deletion, count reported",
+    "rank_deficiency_policy": "see rank_deficiency_and_zero_variance_policy above; any unresolved rank deficiency at fit time is PROTOCOL_OR_DATA_QUALITY_INVALIDATED"
+  },
+  "secondary_checks_non_promotable": [
+    "same model with mfe_bps@swing_24h as outcome",
+    "TRAIN-side coefficient sign/magnitude (descriptive only)",
+    "VIF/collinearity diagnostic",
+    "TRAIN-only predictor distribution diagnostics"
+  ],
+  "forbidden_analyses": [
+    "threshold scan", "quantile bucket sweep", "subgroup rescue", "session-specific reruns",
+    "alternative outcome swap after TEST", "interaction search", "nonlinear/spline search",
+    "pooling exact and proxy absorption-impact evidence",
+    "joining, evaluating, or reporting W60, W600, W1800 or W3600 against TRAIN or TEST outcomes in any form (robustness coefficient, diagnostic outcome table, subgroup result, or alternative model fit) -- per operator Amendment 2, only W300 may be outcome-linked in this experiment",
+    "short-horizon or alternative-window substitution without a new preregistration",
+    "any economic/fee-based route or bucket promotion claim from this result alone"
+  ],
+  "verdict_rule": {
+    "SUPPORTS_INCREMENTAL_ABSORPTION_IMPACT_ASSOCIATION": "TEST 95% CI excludes 0 AND p<0.05 AND |coefficient * 10.70108397867223| >= 5bps AND n>=20 AND no invalidation",
+    "NO_RELIABLE_INCREMENTAL_ASSOCIATION": "CI includes 0, OR p>=0.05, OR below the relevance floor",
+    "UNDERPOWERED_OR_INCONCLUSIVE": "n<20 OR CI half-width > 2x the relevance floor",
+    "PROTOCOL_OR_DATA_QUALITY_INVALIDATED": "any required validation fails (known-at violation, population/split mismatch, unresolved rank deficiency, exact/proxy pooling detected, or any forbidden analysis attempted)"
+  },
+  "promotion_scope": "this experiment may create a candidate mechanism result only; it may not directly create or promote a trading route or bucket",
+  "nullifier_and_gate": {
+    "test_nullifier_sha256": "4e3d1229edc04a946ef29994f1562444fd7c9e77b6ff3ecf3004677f919df7d4",
+    "nullifier_prior_consumption_count": 0,
+    "nullifier_consumed_by_this_batch": false,
+    "gate_receipt_hash": "6dbe0f59416977fce75b20a13876ff4d54dddae171d1fa8b07613135550e06e4",
+    "gate_receipt_registry_result": "PREREGISTERED_NOT_EXECUTED",
+    "gate_receipt_table": "experiment_gate_receipts (real data/ami/knowledge.sqlite)",
+    "authorization_state": "NOT_REQUIRED_CLEAN_GRAVEYARD"
+  },
+  "input_manifest": {
+    "canonical_sqlite_sha256": "a229d4b0a7ed82c0ec8411f767a3cba031414e61e32b42ace3e7f6ef390aaaf7",
+    "canonical_schema_version": 13,
+    "migration_commit": "8808ada8",
+    "waiver_commit": "5ab89f63",
+    "readiness_contract_commit": "fc1321f5",
+    "rehearsal_commit": "fc43e972",
+    "row_accounting_freeze_commit": "931cd3dd",
+    "selection_artifact_commit": "0c976e21",
+    "code_commit_at_preregistration_time": "5ab89f63"
+  },
+  "amendment_policy": "immutable once committed; any change requires a new versioned file and a new gate cycle before TEST access"
+}
