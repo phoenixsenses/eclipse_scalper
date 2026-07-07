@@ -1,0 +1,141 @@
+{
+  "gate": "BATCH-NEXT-INDEPENDENT-RESEARCH-FAMILY-SELECTION-V2",
+  "date": "2026-07-07",
+  "author": "Sonnet 5",
+  "nature": "governance-only, outcome-blind portfolio reconciliation",
+  "accepted_checkpoint": {
+    "cvd": {"status": "SCIENTIFICALLY_CLOSED", "verdict": "NO_RELIABLE_ASSOCIATION", "execution_commit": "60c3e26f"},
+    "absorption": {"status": "SCIENTIFICALLY_CLOSED", "verdict": "NO_RELIABLE_INCREMENTAL_ASSOCIATION", "execution_commit": "5e9e2e33", "closure_commit": "ba3ab906"},
+    "spot_perp_basis": {"status": "BLOCKED_BY_COVERAGE", "verdict": "SPOT_PERP_BASIS_BLOCKED_BY_COVERAGE", "commit": "1630f0a1", "valid_aligned_anchors": "54/324", "independent_cycles": 38},
+    "book_spread_dynamics": {
+      "canonical_migration_commit": "5267a15a", "migration_id": "M-0036",
+      "mixed_direction_child": {"commit": "a4722117", "status": "INCOMPLETE", "reason": "direction-mixed sign unresolvable"},
+      "long_child": {"commit": "93b7296d", "status": "INCOMPLETE", "disposition": "PARKED_FOR_SAMPLE_GROWTH", "test_n": 18, "min_test_n": 20, "eligible_n": 58, "min_eligible_n_needed": 67}
+    },
+    "governance_state": {"schema_version": 14, "experiment_registry": 24, "experiment_results": 381, "epistemic_test_nullifiers": 2, "experiment_gate_receipts": 2}
+  },
+  "book_spread_long_parking_ruling": {
+    "family": "FAM_BOOK_SPREAD_DYNAMICS", "child": "H-BOOK-SPREAD-CHANGE-BPS-W300-LONG-V1",
+    "status": "PARKED_FOR_SAMPLE_GROWTH", "reopened_by_this_batch": false, "outcome_accessed_by_this_batch": false
+  },
+  "phase_1_roadmap_resolution": {
+    "authoritative_roadmap": "reports/governance/NEXT_INDEPENDENT_RESEARCH_HYPOTHESIS_SELECTION_V1.md",
+    "roadmap_commit": "0c976e21",
+    "superseding_artifact_found": false,
+    "failure_archive_satisfied_retries_found": 0,
+    "operator_decision_queue_entries_rechecked": ["OD-006", "OD-012", "OD-014", "OD-016", "OD-017"],
+    "operator_decision_queue_status_changes_since_v1": 0,
+    "cvd_next_batches_plan_status": "PLAN_ONLY_NEVER_BUILT",
+    "system_state_bookkeeping_gap": "pre-existing, disclosed in V1 itself; not closed by this batch; direct commit/report evidence used instead"
+  },
+  "phase_2_3_portfolio_matrix": {
+    "candidate_count": 18,
+    "eligible_count": 0,
+    "candidates": [
+      {"family_id": "FAM_CASCADE_ABSORPTION_IMPACT", "rank": 1, "score": 51, "status": "SCIENTIFICALLY_CLOSED", "evidence": "execution 5e9e2e33, closure ba3ab906"},
+      {"family_id": "FAM_SPOT_PERP_BASIS_REVERSAL", "rank": 2, "score": 47, "status": "BLOCKED_BY_COVERAGE", "evidence": "1630f0a1, 54/324, 38 cycles"},
+      {"family_id": "FAM_BOOK_SPREAD_DYNAMICS", "rank": 3, "score": 47, "status": "PARKED_FOR_SAMPLE_GROWTH", "evidence": "M-0036 5267a15a; mixed a4722117; LONG 93b7296d"},
+      {"family_id": "FAM_CVD_WINDOWED_TAKER_FLOW", "rank": null, "score": null, "status": "SCIENTIFICALLY_CLOSED", "evidence": "60c3e26f"},
+      {"family_id": "FAM_CVD_WINDOWED_TAKER_FLOW_ALT_WINDOWS", "rank": null, "score": null, "status": "DUPLICATE_OR_NONINDEPENDENT", "evidence": "plan-only, forbidden follow-up"},
+      {"family_id": "OFI_MOMENTUM", "rank": null, "score": null, "status": "GRAVEYARDED", "evidence": "graveyard fingerprint"},
+      {"family_id": "OFI_EVENT_ANCHORED_NONMOMENTUM", "rank": null, "score": null, "status": "GRAVEYARDED", "evidence": "same fingerprint family, deprioritized"},
+      {"family_id": "PULL_REFILL_LIQUIDITY", "rank": null, "score": null, "status": "GRAVEYARDED", "evidence": "failure_archive id=6, retry unmet"},
+      {"family_id": "FUNDING_LEVEL_VELOCITY", "rank": null, "score": null, "status": "BLOCKED_BY_SOURCE_QUALITY", "evidence": "OD-006 OPEN, both collectors dead"},
+      {"family_id": "OPEN_INTEREST", "rank": null, "score": null, "status": "BLOCKED_BY_COVERAGE", "evidence": "OD-012, 38/252 (15%), unresolved"},
+      {"family_id": "CROSS_ASSET_TRANSFER", "rank": null, "score": null, "status": "GRAVEYARDED", "evidence": "graveyard id=9, NO_EDGE"},
+      {"family_id": "CROSS_EXCHANGE_NEW_COLLECTOR", "rank": null, "score": null, "status": "BLOCKED_BY_SOURCE_QUALITY", "evidence": "no collector exists"},
+      {"family_id": "LONG_ANCHOR_EVENT_ASYMMETRY", "rank": null, "score": null, "status": "BLOCKED_BY_COVERAGE", "evidence": "OD-017, ami_events 100% SELL-cascade"},
+      {"family_id": "ENTRY_TIMING_HOLD_EXIT_MFE_MAE_REVERSAL_REGIME", "rank": null, "score": null, "status": "SCIENTIFICALLY_CLOSED", "evidence": "W3/W4/W7A/W8/W10A already answered"},
+      {"family_id": "FAILED_BREAKOUTS_SWEEP_RETEST_EXHAUSTION", "rank": null, "score": null, "status": "BLOCKED_BY_SOURCE_QUALITY", "evidence": "OD-014 OPEN, infra not implemented"},
+      {"family_id": "FORWARD_SHADOW_VALIDATION", "rank": null, "score": null, "status": "ACTIVE_GATE_IN_PROGRESS", "evidence": "already accumulating, leave alone"},
+      {"family_id": "BIRTH_TRUNCATED_CASCADE_GEOMETRY", "rank": null, "score": null, "status": "BLOCKED_BY_SOURCE_QUALITY", "evidence": "source dead, operator-excluded"},
+      {"family_id": "PRE_CASCADE_DIP_RECOVERY", "rank": null, "score": null, "status": "GRAVEYARDED", "evidence": "failure_archive id=22, retry unmet"}
+    ]
+  },
+  "phase_4_selection_rule": {
+    "candidates_with_untouched_eligible_status": 0,
+    "ranked_shortlist_all_resolved": true,
+    "no_profitability_used": true,
+    "no_outcome_behavior_used_for_ranking": true
+  },
+  "phase_5_family_distinctness": "NOT_APPLICABLE -- no family selected",
+  "phase_6_source_path_feasibility_screen": "NOT_APPLICABLE -- no family selected",
+  "phase_7_graveyard_retry_exposure": "performed at portfolio level, see phase_2_3_portfolio_matrix and retry_conditions",
+  "phase_8_frozen_elements": {
+    "family_id": null, "predictor": null, "window": null, "formula": null,
+    "direction": null, "outcome": null, "split": null, "model": null,
+    "controls": null, "nullifier": null, "gate_receipt": null,
+    "note": "nothing frozen -- no family selected"
+  },
+  "phase_9_next_gate": {
+    "readiness_gate_opened": false,
+    "nearest_paths_to_unblock_in_proximity_order": [
+      "FAM_BOOK_SPREAD_DYNAMICS LONG: 9 more eligible LONG independent cycles (58->67) under the frozen 70/30 split -- passive data accrual, no engineering",
+      "FAM_SPOT_PERP_BASIS_REVERSAL: sufficient new forward spot-price coverage growth",
+      "OPEN_INTEREST: a dedicated, separately-authorized anchor-coverage recheck (forbidden inside this batch)"
+    ]
+  },
+  "retry_conditions": [
+    {"family_id": "FAM_CVD_WINDOWED_TAKER_FLOW", "condition": "none -- scientifically closed, no rescue permitted"},
+    {"family_id": "FAM_CVD_WINDOWED_TAKER_FLOW_ALT_WINDOWS", "condition": "none -- explicitly forbidden as a disguised rescue"},
+    {"family_id": "OFI_MOMENTUM", "condition": "none offered by the graveyard record"},
+    {"family_id": "OFI_EVENT_ANCHORED_NONMOMENTUM", "condition": "would need to be argued independently distinct from the OFI graveyard fingerprint, not attempted here"},
+    {"family_id": "PULL_REFILL_LIQUIDITY", "condition": "forward data accumulation resolves the open recompute flag (unconfirmed)"},
+    {"family_id": "FUNDING_LEVEL_VELOCITY", "condition": "a live funding-rate collector is (re)activated (operator decision pending, OD-006)"},
+    {"family_id": "OPEN_INTEREST", "condition": "a dedicated, separately-authorized anchor-coverage recheck (forbidden inside a selection-only batch) showing coverage materially above the last-measured 15%"},
+    {"family_id": "CROSS_ASSET_TRANSFER", "condition": "none offered by the graveyard record"},
+    {"family_id": "CROSS_EXCHANGE_NEW_COLLECTOR", "condition": "a cross-exchange collector is built (none exists)"},
+    {"family_id": "LONG_ANCHOR_EVENT_ASYMMETRY", "condition": "a LONG-anchor event population is structurally created (currently 0/252)"},
+    {"family_id": "ENTRY_TIMING_HOLD_EXIT_MFE_MAE_REVERSAL_REGIME", "condition": "none -- already answered; a genuinely novel sub-question would need its own justification"},
+    {"family_id": "FAILED_BREAKOUTS_SWEEP_RETEST_EXHAUSTION", "condition": "the breakout/volume-profile chart-native engine is built (NOT_IMPLEMENTED)"},
+    {"family_id": "FORWARD_SHADOW_VALIDATION", "condition": "not a retry condition -- already active, leave running"},
+    {"family_id": "BIRTH_TRUNCATED_CASCADE_GEOMETRY", "condition": "source revival (currently dead)"},
+    {"family_id": "PRE_CASCADE_DIP_RECOVERY", "condition": ">=6 months of additional data plus a single pre-fixed config prereg"},
+    {"family_id": "FAM_CASCADE_ABSORPTION_IMPACT", "condition": "none -- scientifically closed for this child; no rescue permitted"},
+    {"family_id": "FAM_SPOT_PERP_BASIS_REVERSAL", "condition": "sufficient new forward spot-price coverage to raise aligned-anchor count past the frozen minimum"},
+    {"family_id": "FAM_BOOK_SPREAD_DYNAMICS", "condition": "LONG eligible independent-cycle population reaches >=67 (9 more eligible LONG cycles) under the frozen 70/30 split, or a new authorized split-ratio scoping decision"}
+  ],
+  "phase_10_11_immutability_proof": {
+    "train_outcome_reads": 0, "test_outcome_reads": 0, "all_outcome_value_reads": 0,
+    "experiment_creation": 0, "experiment_result_creation": 0,
+    "nullifier_creation": 0, "nullifier_consumption": 0,
+    "gate_receipt_creation": 0, "gate_receipt_update": 0,
+    "schema_change": 0, "canonical_data_migration": 0, "feature_row_creation": 0,
+    "route_promotion": 0, "bucket_promotion": 0,
+    "runtime_delta": 0, "risk_delta": 0, "execution_delta": 0,
+    "paper_delta": 0, "shadow_delta": 0, "forward_delta": 0, "live_delta": 0,
+    "canonical_sqlite_sha256_before": "0604b0da93238388451eb23203e1b12806f6e627d4d599168877e1abcb8d57a0",
+    "canonical_sqlite_sha256_after": "0604b0da93238388451eb23203e1b12806f6e627d4d599168877e1abcb8d57a0",
+    "knowledge_sqlite_sha256_before": "710b3f689db2238f11efa04230600b9ddd06e500807b5fb69c7e797e6053dc65",
+    "knowledge_sqlite_sha256_after": "710b3f689db2238f11efa04230600b9ddd06e500807b5fb69c7e797e6053dc65",
+    "schema_version_before": 14, "schema_version_after": 14,
+    "experiment_registry_before": 24, "experiment_registry_after": 24,
+    "experiment_results_before": 381, "experiment_results_after": 381,
+    "nullifiers_before": 2, "nullifiers_after": 2,
+    "gate_receipts_before": 2, "gate_receipts_after": 2,
+    "m_0036_rows_unchanged": true,
+    "book_spread_incomplete_artifacts_unchanged": true,
+    "prior_family_artifacts_unchanged": true
+  },
+  "phase_12_focused_tests": {
+    "file": "tests/test_ami_governance_next_independent_research_family_selection_v2.py",
+    "total": 22, "passed": 22
+  },
+  "phase_13_regression": {
+    "batch_nature": "additive-only, one pure-Python module (zero database access) + one test file",
+    "schema_touched": false, "shared_governance_write_path_touched": false,
+    "other_family_code_touched": false,
+    "established_baseline": "18 pre-existing failures, unaffected"
+  },
+  "storage_report": {
+    "temporary_database_created": false,
+    "module_opens_zero_connections": true,
+    "microstructure_db_copied": false,
+    "peak_temp_disk_usage_mb": 0
+  },
+  "verdict": "NEXT_INDEPENDENT_RESEARCH_FAMILY_SELECTION_V2_COMPLETE",
+  "disposition": "NO_CURRENTLY_ELIGIBLE_INDEPENDENT_FAMILY",
+  "selected_family": null,
+  "next_readiness_gate_opened": false,
+  "execution_stopped": true
+}
