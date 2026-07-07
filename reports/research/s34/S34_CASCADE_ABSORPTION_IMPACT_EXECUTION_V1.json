@@ -1,0 +1,178 @@
+{
+  "execution_id": "S34_CASCADE_ABSORPTION_IMPACT_EXECUTION_V1",
+  "gate": "BATCH-CASCADE-ABSORPTION-IMPACT-GOVERNED-EXECUTION-V1",
+  "status": "EXECUTED",
+  "date": "2026-07-07",
+  "test_access_timestamp_utc": "2026-07-07T11:13:29Z",
+  "preregistration_commit": "fb002a75",
+  "code_module": "ami/research/cascade_absorption_impact_001.py",
+  "pre_execution_identity_check": {
+    "errors": [],
+    "family_id": "FAMv1:3e2dfe63f9e271bf",
+    "family_id_drift": false,
+    "nullifier": "4e3d1229edc04a946ef29994f1562444fd7c9e77b6ff3ecf3004677f919df7d4",
+    "nullifier_drift": false,
+    "is_rerun_of_self_before_execution": false,
+    "gate_receipt_state_before": "PREREGISTERED_NOT_EXECUTED",
+    "schema_version_before": 13,
+    "train_cycle_set_hash": "61486bc62392eed7b7fc038715f2cd9775e270a568e5c1f728dc2d60417671a5",
+    "test_cycle_set_hash": "98174ed356826b15bd8513584015447b68d18718bb933d75380a4d6b2c4f7b04",
+    "train_n": 91,
+    "test_n": 40,
+    "absorption_w300_quality_total": 324,
+    "absorption_w300_quality_exact": 324,
+    "known_at_violations": 0,
+    "proxy_tables_present": false
+  },
+  "code_freeze": {
+    "code_written_and_dress_rehearsed_before_any_TEST_access": true,
+    "focused_tests_before_execution": {
+      "file": "tests/test_ami_research_cascade_absorption_impact_001.py",
+      "total": 19,
+      "passed": 19,
+      "includes_full_disposable_dress_rehearsal": true
+    },
+    "no_code_change_after_first_TEST_access": true
+  },
+  "zero_variance_and_rank_policy_applied": {
+    "europe_session_train_count": 0,
+    "europe_session_test_count": 0,
+    "europe_column_present_in_design": false,
+    "pseudo_inverse_used": false,
+    "design_columns": ["const", "price_response_w300", "event_notional_per_100k", "session_US", "session_OFF", "day_trend_bps"],
+    "train_design_rank": 6,
+    "train_design_full_rank": true,
+    "test_design_rank": 6,
+    "test_design_full_rank": true
+  },
+  "nullifier_consumption": {
+    "before_count_for_this_nullifier": 0,
+    "consume_result": "CONSUMED",
+    "after_count_for_this_nullifier": 1,
+    "consumed_by_experiment_id": "E-CASCADE-ABSORPTION-IMPACT-LONG-W300-PREREG-001",
+    "bound_to_family_id": "FAMv1:3e2dfe63f9e271bf",
+    "bound_to_split_version": "SPLITv1:16ea98c239034593",
+    "bound_to_test_cycle_set_hash": "98174ed356826b15bd8513584015447b68d18718bb933d75380a4d6b2c4f7b04",
+    "second_test_execution_attempted": false,
+    "idempotency_proof": "full CONSUMED->NOOP_IDENTICAL round-trip proven against a disposable copy in tests/test_ami_research_cascade_absorption_impact_001.py::test_governed_execution_dress_rehearsal_on_disposable_copies -- not re-executed against the real database a second time, per the no-second-TEST-execution requirement"
+  },
+  "model": {
+    "family": "OLS linear regression",
+    "formula": "endpoint_return_bps ~ price_response_w300 + event_notional_per_100k + session_US + session_OFF + day_trend_bps",
+    "design_columns": ["const", "price_response_w300", "event_notional_per_100k", "session_US", "session_OFF", "day_trend_bps"],
+    "full_beta_vector": [3.0906009541183153, -3.4285074465436134, -14.438285562583076, -30.003287484385922, 133.178225512469, -0.35177309817901137],
+    "full_se_vector": [92.94740135152719, 2.3954324586247613, 29.628177347282247, 92.93901120187724, 111.82113326895794, 0.3392721240879276],
+    "standard_error_method": "cluster-robust (CR1), clustered by independent_cycle_id",
+    "vif": {"price_response_w300": 1.0339883831410945, "event_notional_per_100k": 1.029052110043828, "day_trend_bps": 1.0186310232059623},
+    "collinearity_drops_applied": []
+  },
+  "primary_result": {
+    "predictor": "price_response_w300",
+    "coefficient": -3.4285074465436134,
+    "units": "bps of endpoint_return_bps per 1-unit change in price_response_per_signed_notional (bps-per-$1M ratio)",
+    "standard_error_cluster_robust": 2.3954324586247613,
+    "confidence_interval_95": [-8.27372693016525, 1.4167120370780237],
+    "t_stat": -1.4312686772692182,
+    "df": 39,
+    "p_value": 0.16031838015391875,
+    "test_n": 40,
+    "test_n_dropped_missing": 0,
+    "test_n_clusters": 40,
+    "train_n": 91,
+    "train_n_dropped_missing": 0,
+    "relevance_floor_bps": 5.0,
+    "predictor_train_stdev": 10.701083978672228,
+    "magnitude_coef_times_stdev": 36.68866581839457,
+    "effect_size_relevance_decision": "magnitude exceeds the 5bps floor, but this alone is insufficient per the frozen verdict rule",
+    "sample_sufficiency_decision": "n=40 >= MIN_BUCKET_N=20; CI half-width=4.845 <= 2x floor=10 -- sufficient, not underpowered",
+    "design_rank": 6,
+    "known_at_result": "0 violations (re-verified at pre-execution identity check)"
+  },
+  "verdict_rule_evaluation": {
+    "ci_excludes_zero": false,
+    "p_lt_005": false,
+    "magnitude_gte_floor": true,
+    "n_gte_min_bucket": true,
+    "ci_half_width_le_2x_floor": true,
+    "applied_disposition": "NO_RELIABLE_INCREMENTAL_ASSOCIATION",
+    "reason": "ci_excludes_zero=False p=0.1603 |coef*10.7011|=36.6887"
+  },
+  "non_promotable_diagnostics": {
+    "secondary_mfe_bps_coefficient": -2.350901577615649,
+    "secondary_mfe_bps_p_value": 0.05947404174497839,
+    "train_side_descriptive_coefficient": 1.841861197678332,
+    "train_side_descriptive_p_value": 0.11073748310107745,
+    "note": "these did not alter the primary verdict; the primary verdict is determined solely by the TEST-side price_response_w300 fit"
+  },
+  "missing_row_and_quality_accounting": {
+    "test_n_total_representative": 40,
+    "test_n_used": 40,
+    "test_n_dropped_missing": 0,
+    "train_n_total_representative": 91,
+    "train_n_used": 91,
+    "train_n_dropped_missing": 0,
+    "absorption_w300_quality_exact_reconstructable": 324,
+    "absorption_w300_source_gapped": 0,
+    "cycle_uniqueness": "131 representative cycles, one per independent_cycle_id, verified 0 duplicates"
+  },
+  "exact_proxy_separation": {
+    "proxy_table_exists_for_this_family": false,
+    "proxy_rows_used": 0,
+    "pooling_detected": false
+  },
+  "cross_family_holdout_exposure_disclosure": {
+    "recorded_in_researcher_exposure_ledger": true,
+    "exposure_category": "CROSS_FAMILY_TEST_CYCLE_REUSE_DISCLOSURE",
+    "same_test_cycle_set_as": "E-CVD-PRIMARY-LONG-W300-PREREG-001",
+    "same_test_cycle_set_hash": true,
+    "different_canonical_family": true,
+    "different_nullifier": true,
+    "independent_market_period_replication": false,
+    "cvd_result_used_to_alter_this_specification": false,
+    "new_multiplicity_correction_or_verdict_rule_introduced": false
+  },
+  "db_deltas": {
+    "canonical_sqlite_sha256_before": "815f35d0619e293d64b7a2d34057a0679d52818116e97fd86fd85408e84e9252",
+    "canonical_sqlite_sha256_after": "3aefce833a67b8d43b841619f97667a56e182822e167aa606320ca8c52043d59",
+    "knowledge_sqlite_sha256_before": "d435c3a294a286a18a7900d42824f3d4ad020ddedbadf878fcca2a18865c03a9",
+    "knowledge_sqlite_sha256_after": "710b3f689db2238f11efa04230600b9ddd06e500807b5fb69c7e797e6053dc65",
+    "experiment_registry_before": 23, "experiment_registry_after": 24,
+    "experiment_results_before": 350, "experiment_results_after": 381,
+    "this_experiment_results_row_count": 31,
+    "epistemic_test_nullifiers_before": 1, "epistemic_test_nullifiers_after": 2,
+    "experiment_gate_receipts_before": 2, "experiment_gate_receipts_after": 2,
+    "gate_receipt_state_after": "EXECUTED",
+    "researcher_exposure_ledger_before": 1176, "researcher_exposure_ledger_after": 1180,
+    "researcher_exposure_ledger_delta_reason": "1176->1177 (pre-execution identity check's fetch_lifecycle_signals call), 1177->1179 (execute_governed_run's own fetch_lifecycle_signals+fetch_events calls, TRAIN and TEST), 1179->1180 (explicit cross-family holdout disclosure row)",
+    "schema_version_before": 13, "schema_version_after": 13,
+    "absorption_windowed_flow_before": 1619, "absorption_windowed_flow_after": 1619,
+    "absorption_quality_before": 1620, "absorption_quality_after": 1620,
+    "absorption_exclusions_before": 1, "absorption_exclusions_after": 1,
+    "integrity_check_after": "ok",
+    "foreign_key_check_after": []
+  },
+  "protected_delta": {
+    "ami_events": {"before": 252, "after": 252},
+    "ami_signal_lifecycle": {"before": 324, "after": 324},
+    "ami_cycles": {"before": 167, "after": 167},
+    "ami_birth_truncated_cascade_geometry": {"before": 220, "after": 220},
+    "ami_agg_trades_repaired": {"before": 40934, "after": 40934},
+    "ami_cvd_windowed_flow": {"before": 1840, "after": 1840},
+    "ami_cvd_windowed_flow_proxy": {"before": 1840, "after": 1840},
+    "delta": "ZERO across all protected tables"
+  },
+  "runtime_risk_execution_delta": 0,
+  "route_or_bucket_promotion": false,
+  "remaining_limitations": [
+    "TEST result is NO_RELIABLE_INCREMENTAL_ASSOCIATION -- the pre-birth W300 price-impact-per-notional ratio does not show a statistically reliable incremental association with the LONG endpoint_return_bps@swing_24h outcome in this population, despite a large point-estimate magnitude (CI too wide, includes zero)",
+    "This experiment's TEST cycles are not independent of the closed CVD experiment's TEST cycles (same 40 holdout cycles) -- this NO_RELIABLE_INCREMENTAL_ASSOCIATION result and CVD's own closed result are not two independent confirmations of unrelated market periods",
+    "W60/W600/W1800/W3600 remain entirely untested against any outcome -- no information about whether a different window would show an association",
+    "SHORT-direction absorption/impact remains entirely untested",
+    "The secondary mfe_bps diagnostic (p=0.059) is close to conventional significance but is explicitly NON_PROMOTABLE and does not alter the primary verdict"
+  ],
+  "success_verdicts": {
+    "operational": "CASCADE_ABSORPTION_IMPACT_GOVERNED_EXECUTION_V1_COMPLETE",
+    "scientific_disposition": "NO_RELIABLE_INCREMENTAL_ASSOCIATION"
+  },
+  "stop_instruction": "Stop after recording the result. No follow-up hypothesis, window, subgroup or bucket opened by this batch."
+}
