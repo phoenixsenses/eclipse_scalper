@@ -1,0 +1,191 @@
+{
+  "gate": "BATCH-STORAGE-ROTATION-RETENTION-BOUNDED-IMPLEMENTATION-V1",
+  "date": "2026-07-07",
+  "author": "Sonnet 5",
+  "nature": "production-quality, fail-closed, deterministic archive tooling implementation",
+  "accepted_checkpoint": {
+    "readiness_commit": "f65545ee",
+    "discrepancy_audit_commit": "54c1355f",
+    "disposable_dry_run_commit": "6fbe0571",
+    "governance_state": {"schema_version": 14, "experiment_registry": 24, "experiment_results": 381, "epistemic_test_nullifiers": 2, "experiment_gate_receipts": 2}
+  },
+  "module_map": {
+    "ami/storage/__init__.py": "public re-exports (StoragePolicy, DEFAULT_POLICY, registry accessors)",
+    "ami/storage/policy.py": "StoragePolicy dataclass + fail-closed validate_policy()",
+    "ami/storage/registry.py": "SOURCE_TABLE_REGISTRY allowlist (mark_prices/agg_trades/book_ticker) + SourceTableSpec",
+    "ami/storage/partition.py": "PartitionIdentity + build_partition_identity() + plan_partition()",
+    "ami/storage/source_access.py": "open_read_only() with mode=ro + query_only + authorizer",
+    "ami/storage/archive.py": "canonical_row_hash, fetch_partition_rows, export_partition, build_manifest",
+    "ami/storage/verifier.py": "layered verification -> VerificationState (9 states)",
+    "ami/storage/catalog.py": "DisposableArchiveCatalog",
+    "ami/storage/reader.py": "read_partition() -- direct Parquet reader",
+    "ami/storage/restorer.py": "restore_slice() + cleanup_restored_slice()",
+    "ami/storage/job_state.py": "ArchiveJob 7-state machine",
+    "ami/storage/health.py": "build_health_report() pure aggregation",
+    "ami/storage/cli.py": "6-command bounded CLI"
+  },
+  "effective_storage_policy": {
+    "policy_version": "v1", "active_raw_retention_days": 30, "archive_format": "PARQUET",
+    "compression": "ZSTD", "partition_timezone": "UTC", "partition_cadence": "CLOSED_CALENDAR_MONTH",
+    "automatic_purge_enabled": false, "automatic_vacuum_enabled": false,
+    "production_activation_enabled": false, "scheduler_activation_enabled": false,
+    "max_disposable_source_bytes_estimate": 2147483648, "max_disposable_output_bytes": 4294967296,
+    "no_override_exists_for_deletion_vacuum_production_scheduler": true
+  },
+  "source_table_registry": {
+    "allowlisted_tables": ["agg_trades", "book_ticker", "mark_prices"],
+    "unknown_table_rejected": true,
+    "purge_default_all_tables": "PROHIBITED",
+    "stable_ordering_field_all_tables": "id"
+  },
+  "partition_planner_behavior": {
+    "utc_only": true, "half_open_boundaries": true, "current_month_rejected": true,
+    "future_month_rejected": true, "partial_month_rejected": true,
+    "active_horizon_protection_days": 30,
+    "plan_states": ["ARCHIVE_PLAN_ELIGIBLE", "ARCHIVE_PLAN_BLOCKED_BY_SCHEMA", "ARCHIVE_PLAN_BLOCKED_BY_INDEX",
+                    "ARCHIVE_PLAN_BLOCKED_BY_SOURCE_GAP", "ARCHIVE_PLAN_BLOCKED_BY_REPAIR",
+                    "ARCHIVE_PLAN_BLOCKED_BY_RESOURCE_LIMIT", "ARCHIVE_PLAN_BLOCKED_BY_UNKNOWN_SOURCE_SEMANTICS"],
+    "purge_eligible_always_false": true, "production_activation_eligible_always_false": true
+  },
+  "read_only_source_guarantees": {
+    "mode_ro_uri": true, "query_only_pragma": true, "authorizer_deny_writes": true,
+    "authorizer_deny_writable_pragmas": true,
+    "rejected_actions_tested": ["INSERT", "UPDATE", "DELETE", "CREATE TABLE", "DROP TABLE",
+                                 "ALTER TABLE", "REINDEX", "ATTACH", "writable PRAGMA"]
+  },
+  "exporter_behavior": {
+    "partial_file_first": true, "atomic_publish_via_os_replace": true,
+    "validation_checks": ["row_count_positive_or_empty_allowed", "duplicate_count_zero",
+                           "symbol_only_selected", "all_ts_in_range", "all_ids_le_watermark",
+                           "output_size_within_cap"],
+    "production_path_rejected_before_write": true
+  },
+  "archive_schema_contracts": {
+    "mark_prices_columns": 6, "agg_trades_columns": 7, "book_ticker_columns": 11,
+    "int64_preserved_for_ids_and_timestamps": true, "no_float_downcast": true
+  },
+  "manifest_contract": {
+    "field_count": 36,
+    "production_status_hardcoded": "DISPOSABLE_NOT_PRODUCTION",
+    "purge_authorization_hardcoded": "PROHIBITED",
+    "reconciled_with_readiness_draft_29_fields": "extra 7 fields preserved from the accepted dry-run's own disclosure discipline, not dropped"
+  },
+  "verification_states": ["VERIFIED_DISPOSABLE", "FAILED_SCHEMA", "FAILED_ACCOUNTING",
+                          "FAILED_CONTENT_PARITY", "FAILED_CHECKSUM", "FAILED_MANIFEST",
+                          "FAILED_RESOURCE_LIMIT", "FAILED_SOURCE_CHANGED", "FAILED_UNKNOWN"],
+  "no_failed_state_equals_verified": true,
+  "disposable_catalog_behavior": {
+    "disposable_root_enforced": true, "path_escape_rejected": true, "production_path_rejected": true,
+    "conflicting_identity_rejected": true, "verified_entry_immutable": true,
+    "repaired_archive_requires_new_version": true, "history_preserved": true
+  },
+  "direct_reader_behavior": {
+    "manifest_required": true, "checksum_required": true, "symbol_venue_segment_matched": true,
+    "predicate_pushdown_via_symbol_filter": true, "column_projection_supported": true
+  },
+  "minimal_restorer_behavior": {
+    "approved_roots_only": [".runtime_temp", ".pytest_temp"],
+    "os_temp_rejected": true, "production_db_destination_rejected": true,
+    "overwrite_nonempty_rejected": true, "manifest_mismatch_rejected": true,
+    "restored_content_reverified_against_manifest": true
+  },
+  "interruption_restart_behavior": {
+    "job_states": ["PLANNED", "EXPORTING_PARTIAL", "EXPORTED_UNVERIFIED", "VERIFYING",
+                   "VERIFIED_DISPOSABLE", "FAILED", "ABANDONED_PARTIAL"],
+    "verified_disposable_has_zero_outgoing_transitions": true,
+    "abandoned_partial_detection": true, "safe_restart_to_planned": true,
+    "idempotent_same_watermark": true, "different_watermark_new_job_identity": true
+  },
+  "cli_commands": ["policy-status", "plan", "disposable-dry-run", "verify", "read", "restore-slice"],
+  "cli_forbidden_commands_confirmed_absent": ["purge", "delete", "vacuum", "schedule",
+                                              "activate-production", "stop-collector", "restart-collector"],
+  "resource_guards": {
+    "max_disposable_source_bytes_estimate": 2147483648,
+    "max_disposable_output_bytes": 4294967296,
+    "aborts_before_bulk_export_when_exceeded": true,
+    "no_hidden_force_override": true
+  },
+  "research_dependency_behavior": {
+    "mark_prices_dependencies": ["FUNDING_LEVEL_VELOCITY", "FAM_SPOT_PERP_BASIS_REVERSAL"],
+    "agg_trades_dependencies": ["execution_fill_studies_future", "FAM_CASCADE_ABSORPTION_IMPACT_historical"],
+    "book_ticker_dependencies": ["FAM_BOOK_SPREAD_DYNAMICS_LONG"],
+    "unknown_dependency_structurally_blocked": true
+  },
+  "phase_20_acceptance_reproduction": {
+    "table": "mark_prices", "symbol": "ETHUSDT", "utc_partition": "2026-05",
+    "accepted_row_count": 260657, "reproduced_row_count": 260657,
+    "accepted_watermark": 13265132, "reproduced_watermark": 13265132,
+    "accepted_scientific_hash": "228c5705bc1461471102b5bbc1e81b781ddfe7cb5a853b484a7cbb5961860999",
+    "reproduced_scientific_hash": "228c5705bc1461471102b5bbc1e81b781ddfe7cb5a853b484a7cbb5961860999",
+    "accepted_parquet_sha256": "6f91914400dcbe84b662c9260a24f9e5eb7f56b2d9db34adfde55a53af8e900f",
+    "reproduced_parquet_sha256": "6f91914400dcbe84b662c9260a24f9e5eb7f56b2d9db34adfde55a53af8e900f",
+    "byte_identical": true,
+    "note": "full byte equality was not required (only scientific-content equality was), achieved anyway -- disclosed, not forced",
+    "verify_cli_result": "VERIFIED_DISPOSABLE",
+    "read_cli_result": {"row_count": 260657},
+    "restore_slice_cli_result": {"row_count": 260657, "scientific_content_hash_match": true}
+  },
+  "fixture_coverage": {
+    "agg_trades": {
+      "row_at_partition_start": "included", "row_at_partition_end": "excluded (half-open)",
+      "rows_above_watermark": "excluded", "wrong_symbol": "excluded",
+      "active_horizon_blocker": "raises PartitionValidationError",
+      "current_month_blocker": "raises PartitionValidationError",
+      "boolean_column_int64_preserved": true
+    },
+    "book_ticker": {
+      "nullable_bid_depth_usd_preserved": true, "no_duplicate_ids": true,
+      "scientific_content_hash_stable": true,
+      "missing_source_column_raises_operational_error": true
+    }
+  },
+  "source_live_db_immutability": {
+    "authorizer_denied_write_attempts": 0,
+    "write_attempts_during_acceptance_reproduction": 0,
+    "canonical_sqlite_sha256_unchanged": "0604b0da93238388451eb23203e1b12806f6e627d4d599168877e1abcb8d57a0",
+    "knowledge_sqlite_sha256_unchanged": "710b3f689db2238f11efa04230600b9ddd06e500807b5fb69c7e797e6053dc65"
+  },
+  "focused_tests": {
+    "test_ami_storage_policy_and_registry.py": 24,
+    "test_ami_storage_partition_and_planner.py": 21,
+    "test_ami_storage_source_access.py": 14,
+    "test_ami_storage_archive_and_verifier.py": 25,
+    "test_ami_storage_catalog_reader_restorer.py": 22,
+    "test_ami_storage_job_state_and_cli.py": 23,
+    "test_ami_storage_acceptance.py": 15,
+    "total": 144,
+    "passed": 144
+  },
+  "paired_regression": {
+    "test_ami_governance_storage_rotation_retention_readiness_v1.py": {"total": 27, "passed": 27},
+    "test_ami_governance_storage_disk_usage_discrepancy_audit_v1.py": {"total": 25, "passed": 25},
+    "test_ami_governance_storage_rotation_retention_disposable_dry_run_v1.py": {"total": 40, "passed": 40},
+    "combined_prior_storage_suites": 92,
+    "new_attributable_failures": 0
+  },
+  "production_activation_status": "DISABLED (no code path exists)",
+  "purge_status": "DISABLED (no code path exists)",
+  "scheduler_status": "DISABLED (no code path exists)",
+  "vacuum_status": "DISABLED (no code path exists)",
+  "verdict": "STORAGE_ROTATION_RETENTION_BOUNDED_IMPLEMENTATION_V1_COMPLETE",
+  "readiness_disposition": "STORAGE_ROTATION_RETENTION_IMPLEMENTATION_READY_FOR_PRODUCTION_ACTIVATION_REHEARSAL",
+  "disposition_authorizes_production_activation": false,
+  "blockers": [
+    "only mark_prices exercised live; agg_trades/book_ticker covered by fixtures only",
+    "catalog is in-memory only, no persistence layer decided yet",
+    "no production Parquet reader integration in research-facing modules yet"
+  ],
+  "vacuum_boundary_gate_documented_not_opened": "BATCH-STORAGE-SQLITE-PHYSICAL-RECLAMATION-MAINTENANCE-V1",
+  "storage_report": {
+    "disposable_files_retained": ["manifest.json (1911 bytes)"],
+    "disposable_files_deleted_after_hash_recording": 2,
+    "peak_disposable_disk_usage_bytes_before_cleanup": 15400000,
+    "final_disposable_dir_size_bytes": 1911,
+    "full_database_copy_created": false,
+    "production_archive_created": false,
+    "source_row_modified_or_deleted": false
+  },
+  "next_gate": "BATCH-STORAGE-ROTATION-RETENTION-PRODUCTION-ACTIVATION-REHEARSAL-V1",
+  "next_gate_begun": false,
+  "execution_stopped": true
+}
