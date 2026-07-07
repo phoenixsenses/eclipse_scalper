@@ -1,0 +1,121 @@
+{
+  "gate": "BATCH-BOOK-SPREAD-DYNAMICS-PREREGISTRATION-V1",
+  "date": "2026-07-07",
+  "author": "Sonnet 5",
+  "status": "BOOK_SPREAD_DYNAMICS_PREREGISTRATION_V1_INCOMPLETE",
+  "authorization_state": "INCOMPLETE_NO_AUTHORIZATION_ISSUED",
+  "research_question": "Does pre-birth L1 spread expansion (relative to its own pre-window baseline) contain continuous incremental predictive information for endpoint_return_bps@swing_24h, controlling for the same frozen control set?",
+  "accepted_checkpoint": {
+    "readiness_commit": "f115b9c1",
+    "disposable_rehearsal_commit": "6a449a64",
+    "row_accounting_freeze_commit": "54d00dca",
+    "canonical_migration_commit": "5267a15a",
+    "migration_id": "M-0036"
+  },
+  "family_and_child_identity": {
+    "family_name": "FAM_BOOK_SPREAD_DYNAMICS",
+    "child_id": "H-BOOK-SPREAD-CHANGE-BPS-W300-V1",
+    "question_ids_frozen_for_this_attempt": "FAM_BOOK_SPREAD_DYNAMICS",
+    "hypothesis_id_frozen_for_this_attempt": "H-BOOK-SPREAD-CHANGE-BPS-W300-V1-DIRECTION-NEUTRAL",
+    "resolved_canonical_family_id": "FAMv1:2d102e7b70820470",
+    "formula_version": "BOOK_SPREAD_CHANGE_BPS_W300_V1",
+    "specification_hash": "ea611121291c63136860d57926389520de571ce6615bed2e1a3627e51442a212",
+    "row_accounting_root": "33c4f4be3233aad399d72fc525601c7eecb2eb6ab235ecd4070ba640701c6e31",
+    "migration_schema_version": 14
+  },
+  "phase_1_graveyard_and_exposure": {
+    "graveyard_check": {"fingerprints_checked": 31, "hits": [], "clean": true},
+    "prior_test_exposure": {"epistemic_test_nullifiers_for_family_id": 0, "experiment_gate_receipts_for_family_id": 0, "clean": true},
+    "existing_registry_rows_matching_spread": 0,
+    "genuinely_unconsumed": true,
+    "result": "PHASE_1_COMPLETE"
+  },
+  "phase_2_outcome_resolution": {
+    "outcome_id": "endpoint_return_bps@swing_24h",
+    "outcome_table": "ami_lifecycle_path_observations",
+    "dependent_variable_type": "continuous",
+    "direction_semantics": "NOT_DIRECTION_FLIPPED_ABSOLUTE_PRICE_RETURN_SIGN",
+    "reused_verbatim": true,
+    "newly_derived": false,
+    "structural_compatibility": {
+      "representative_population": 97,
+      "observation_status_breakdown": {"OK": 77, "MISSING_INTERNAL_GAP": 35, "EXCLUDED_NO_HORIZON_DATA": 8},
+      "note": "breakdown counts are pre-effective-selection raw path_definition_version rows; effective/corrected selection collapses to one row per signal_id",
+      "outcome_values_accessed": 0
+    },
+    "result": "PHASE_2_COMPLETE"
+  },
+  "phase_3_direction_and_sign": {
+    "population_direction_composition": {
+      "exact_196_rows": {"LONG": 120, "SHORT": 76},
+      "representative_97_cycles": {"LONG": 70, "SHORT": 27}
+    },
+    "is_direction_mixed": true,
+    "candidate_resolutions_considered": [
+      {
+        "path": 1,
+        "description": "restrict base population to one direction (mirror CVD/Absorption LONG-only precedent)",
+        "blocked_because": "no earlier accepted gate (readiness/rehearsal/freeze/migration) scoped this family by direction; freeze's representative rule explicitly uses no direction signal; hypothesis text specifies no direction restriction; would be a new, previously-unfrozen researcher degree of freedom introduced immediately before modeling; would also diverge from the frozen 196/97 population the migration materialized"
+      },
+      {
+        "path": 2,
+        "description": "direction-flip the outcome (endpoint_return_bps for LONG, -endpoint_return_bps for SHORT)",
+        "blocked_because": "derives a new, family-specific outcome; explicitly forbidden by this gate's Phase 2 instruction ('do not invent a new outcome, do not derive an outcome specifically for this family')"
+      },
+      {
+        "path": 3,
+        "description": "add a direction x spread_change_bps_w300 interaction term, or equivalently fit two separate per-direction models",
+        "blocked_because": "interactions are explicitly forbidden by the model-freeze phase ('do not create interactions'); per-direction subgroup fitting is explicitly forbidden as subgroup rescue by the TEST-access policy"
+      }
+    ],
+    "mechanistic_analysis": "spread widening's two plausible mechanisms (liquidity-withdrawal amplification of a subsequent move; amplification of the cascade's own known mean-reversion base rate) both imply opposite algebraic signs on raw unflipped endpoint_return_bps depending on whether the anchor is LONG (down-cascade) or SHORT (up-cascade) -- an interaction effect, not an additive one; no additive pooled model (the only kind permitted) can carry one coherent sign for it",
+    "repository_precedent_consulted": "ami/research/w8_hold_baseline.py stratifies LONG/SHORT into separate cells rather than pooling -- confirms the repository's own established convention for direction-mixed populations is per-direction stratification, which this gate's single-primary-model/no-interaction/no-subgroup-rescue constraints explicitly forbid for a new preregistered hypothesis",
+    "result": "PHASE_3_BLOCKED",
+    "verdict": "BOOK_SPREAD_DYNAMICS_PREREGISTRATION_V1_INCOMPLETE"
+  },
+  "phases_4_through_24": "NOT_ATTEMPTED -- Phase 3 gates the enforced preregistration order (position 7, before predictor freeze at 8 and population freeze at 9); no partial downstream freeze was recorded",
+  "governance_deltas": {
+    "schema_version": {"before": 14, "after": 14},
+    "experiment_registry": {"before": 24, "after": 24},
+    "experiment_results": {"before": 381, "after": 381},
+    "epistemic_test_nullifiers": {"before": 2, "after": 2},
+    "experiment_gate_receipts": {"before": 2, "after": 2},
+    "delta": "ZERO across all governance tables",
+    "note": "an INCOMPLETE closure is governance-indistinguishable from never having attempted this preregistration -- no experiment_registry row, no nullifier row, no gate receipt was created for FAMv1:2d102e7b70820470"
+  },
+  "input_manifest": {
+    "canonical_sqlite_sha256": "0604b0da93238388451eb23203e1b12806f6e627d4d599168877e1abcb8d57a0",
+    "canonical_sqlite_schema_version": 14,
+    "knowledge_sqlite_sha256": "710b3f689db2238f11efa04230600b9ddd06e500807b5fb69c7e797e6053dc65",
+    "knowledge_sqlite_unchanged": true
+  },
+  "no_outcome_access_proof": {
+    "endpoint_return_bps_reads": 0,
+    "mfe_bps_reads": 0,
+    "ast_scoped_guard": "test_outcome_metadata_reads_no_value_columns scans only .execute()-family call-argument string literals (not docstrings/comments) for forbidden column tokens -- 0 hits",
+    "outcome_metadata_only_reads": ["observation_status", "path_definition_version"]
+  },
+  "implementation": {
+    "module": "ami/research/book_spread_dynamics_preregistration_v1.py",
+    "functions": ["resolve_family_and_child_identity", "resolve_population", "resolve_outcome_metadata", "resolve_direction_and_sign"],
+    "focused_tests": "tests/test_ami_research_book_spread_dynamics_preregistration_v1.py",
+    "focused_tests_result": "17/17 passed"
+  },
+  "amendment_path_not_authorized_here": [
+    "an explicit, new, separately operator-approved scoping decision restricting the base universe to one direction (mirroring CVD/Absorption)",
+    "a repository-wide, outcome-blind, pre-existing signal-relative/direction-aligned outcome convention (none currently exists)"
+  ],
+  "storage_report": {
+    "microstructure_db_copied": false,
+    "canonical_backup_created": false,
+    "temporary_files": "disposable canonical/knowledge copies under pytest --basetemp only, deleted by the test runner",
+    "peak_temp_disk_usage_mb_approx": 5
+  },
+  "verdict": "BOOK_SPREAD_DYNAMICS_PREREGISTRATION_V1_INCOMPLETE",
+  "next_step": "operator scoping decision (not a controlled research gate): whether to authorize a direction-restricted re-attempt before any further preregistration work on this family; no default is recommended",
+  "execution_stopped": true,
+  "test_outcome_accessed": false,
+  "nullifier_consumed": false,
+  "experiment_registered": false,
+  "gate_receipt_issued": false
+}
