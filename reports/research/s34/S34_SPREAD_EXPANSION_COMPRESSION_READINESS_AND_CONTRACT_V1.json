@@ -1,0 +1,272 @@
+{
+  "gate": "SPREAD_EXPANSION_COMPRESSION_READINESS_AND_CONTRACT_V1",
+  "date": "2026-07-07",
+  "author": "Sonnet 5",
+  "canonical_family": "FAM_BOOK_SPREAD_DYNAMICS",
+  "family_identity_source": "reports/governance/NEXT_INDEPENDENT_RESEARCH_HYPOTHESIS_SELECTION_V1.md (commit 0c976e21), candidate 3 (ranked 47/60), not invented this batch",
+  "family_hypothesis_verbatim": "Does pre-birth L1 spread expansion (relative to its own pre-window baseline) contain continuous incremental predictive information for endpoint_return_bps@swing_24h, controlling for the same frozen control set?",
+  "accepted_checkpoint": {
+    "absorption_execution_commit": "5e9e2e33",
+    "absorption_closure_commit": "ba3ab906",
+    "absorption_disposition": "NO_RELIABLE_INCREMENTAL_ASSOCIATION",
+    "basis_readiness_commit": "1630f0a1",
+    "basis_verdict": "SPOT_PERP_BASIS_BLOCKED_BY_COVERAGE",
+    "schema_version": 13,
+    "experiment_registry": 24,
+    "experiment_results": 381,
+    "deterministic_regression_baseline": "1027 collected / 1013 passed / 14 narrowly waived pre-existing failures"
+  },
+  "graveyard_check": {
+    "fingerprint_hits": [],
+    "knowledge_object_hits": [],
+    "failure_archive_direct_family_hits": [],
+    "failure_archive_incidental_mention": {
+      "id": 13,
+      "family": "MFE50 giveback separation",
+      "ruling": "NO_EDGE",
+      "why_not_a_spread_family_ruling": "spread appeared as 1 of 10 candidate features in a post-entry (+50) MFE50-giveback single-feature separation rule; the graveyard ruling was about the MFE50-giveback claim, not about a pre-birth spread-dynamics predictor; different population framing, different mechanism, different claim -- NOT a terminal ruling on FAM_BOOK_SPREAD_DYNAMICS"
+    },
+    "sibling_families_not_the_same": [
+      "K-S34-BOOK-PULL-001 (book_ticker DEPTH: bid_qty withdrawal -- a quantity, not the bid/ask price gap)",
+      "K-S34-REFILL-CTX-001 (book_ticker DEPTH: liquidity return -- a quantity dynamic, not spread)"
+    ],
+    "confirmed_clean": true
+  },
+  "source_inventory": [
+    {
+      "source_name": "L1 best bid/ask (primary, EXACT for spread)",
+      "database": "data/microstructure.db", "table": "book_ticker", "symbol": "ETHUSDT",
+      "relevant_columns": ["ts_ms", "id", "bid_price", "ask_price", "bid_qty", "ask_qty", "mid_price", "spread_pct"],
+      "row_count_ethusdt": 2077780064,
+      "row_count_note": "from the accepted absorption readiness audit (fc1321f5); not recounted this batch (a full COUNT over ~2e9 rows is disallowed by the storage guardrail); MIN/MAX re-verified index-backed this batch",
+      "first_ts_utc": "2026-04-11T17:08:42.005Z", "last_ts_utc": "live (2026-07-07, growing)",
+      "exchange_timestamp_field": "none (single ts_ms only)",
+      "local_receipt_timestamp_field": "ts_ms (local collector write time)",
+      "bid_price_field": "bid_price", "ask_price_field": "ask_price",
+      "bid_qty_field": "bid_qty", "ask_qty_field": "ask_qty",
+      "venue": "Binance USD(S)-M Perpetual Futures (fapi.binance.com book ticker websocket)",
+      "market_segment": "perpetual futures (same segment as the anchor population's mark_prices -- same tradable instrument)",
+      "update_semantics": "streamed best-bid/best-ask updates; continuous",
+      "expected_update_frequency": "sub-second; measured ~120,000 updates per 5-minute pre-birth window",
+      "deduplication_rule": "id (autoincrement PK) is unique; ts_ms is NOT unique -- ~75% of rows share a ts_ms with another row (multiple sub-ms updates); frozen quote selection tie-breaks by id DESC",
+      "ordering_guarantee": "id monotonic with insertion; ts_ms non-decreasing in practice (0 out-of-order observed in a 598,261-quote sample); no exchange-sequence field to cross-check",
+      "repair_status": "none (no repair mechanism instrumented for this stream)",
+      "gap_status": "no gap ledger for book_ticker in the gaps table (streams present: agg_trades, liquidations, mark_prices only)",
+      "known_at_semantics": "ts_ms is the local receipt time (>= exchange event time), so at-or-before selection on ts_ms is conservatively known-at-safe",
+      "exact_or_proxy": "EXACT for spread (best bid/ask L1 IS the spread directly); the 'L1 is proxy' caveat in the mechanism plan applies to DEPTH/absorption inference, not to spread",
+      "contemporaneous_with_anchors": "partial -- coverage begins 2026-04-11, anchor population begins 2026-02-17 (106 anchors predate coverage)"
+    },
+    {
+      "source_name": "perp mark price (reference/sanity only, not the spread source)",
+      "database": "data/microstructure.db", "table": "mark_prices", "symbol": "ETHUSDT",
+      "note": "mark_price is a single value, not a bid/ask pair -- cannot yield a spread; used elsewhere as day_trend control, not as a spread source here"
+    }
+  ],
+  "explicitly_not_treated_as_exact_bid_ask_spread": [
+    "candles/OHLC bars (none used)", "trade prices (agg_trades, not used for spread)",
+    "mark prices", "index prices", "liquidation prices", "synthetic volatility-inferred spreads"
+  ],
+  "venue_symbol_identity": {
+    "exact_exchange": "Binance",
+    "exact_market_segment": "USD(S)-M Perpetual Futures",
+    "exact_symbol": "ETHUSDT",
+    "exact_quote_currency": "USDT",
+    "instrument_mapping": "book_ticker ETHUSDT perp <-> anchor population's own ETHUSDT perp (ami_signal_lifecycle is 100% ETHUSDT perp)",
+    "anchor_and_quote_same_tradable_instrument": true,
+    "cross_venue_or_cross_instrument": false,
+    "no_spot_quote_for_perp_anchor": true,
+    "no_other_exchange": true,
+    "no_synthetic_or_index_instrument": true
+  },
+  "primary_spread_formula_contract": {
+    "status": "PROPOSED_NOT_YET_ACCEPTED",
+    "mid_price": "(ask_price + bid_price) / 2",
+    "spread_bps": "10000 * (ask_price - bid_price) / mid_price",
+    "source_table": "book_ticker", "bid_field": "bid_price", "ask_field": "ask_price",
+    "venue": "Binance perp", "symbol": "ETHUSDT",
+    "timestamp_selection_rule": "latest quote at-or-before the required timestamp, tie-broken by id DESC (deterministic under ts_ms collisions)",
+    "maximum_permitted_quote_staleness_ms": 300000,
+    "staleness_source": "reused from ami.states.engine.FEED_LIMITS['book_ticker']=5.0 minutes, not invented",
+    "locked_book_handling": "bid==ask -> INVALID_QUOTE_LOCKED (flagged with its own code, value retained as 0.0 bps but never silently pooled with normal spreads)",
+    "crossed_book_handling": "bid>ask -> INVALID_QUOTE_CROSSED (excluded, no spread computed)",
+    "zero_negative_price_handling": "bid<=0 or ask<=0 -> INVALID_QUOTE_ZERO_OR_NEG (excluded)",
+    "units": "basis points of mid price",
+    "numerical_precision": "IEEE-754 double, no rounding",
+    "source_quality_class": "EXACT_RECONSTRUCTABLE (no proxy tier exists)",
+    "formula_version": "spread-dynamics-readiness-v1",
+    "feature_availability_timestamp_rule": "= signal_birth_ts",
+    "known_at_timestamp_rule": "= signal_birth_ts",
+    "selected_by_outcome_behavior": false
+  },
+  "quote_selection_rule": {
+    "ordering_timestamp": "ts_ms (local receipt time)",
+    "tie_breaking_rule": "id DESC when multiple rows share ts_ms (latest insert = most recent update at that ms)",
+    "duplicate_timestamp_rule": "id tie-break makes selection deterministic (proven materially necessary: ~6.5% of ms-collisions carry a different bid/ask)",
+    "maximum_staleness_tolerance_ms": 300000,
+    "no_valid_quote_behavior": "UNAVAILABLE_BEFORE_COLLECTION (if before coverage) or STALE_SOURCE (if a quote exists but exceeds tolerance) -- excluded, never imputed",
+    "exchange_vs_receipt_timestamp": "only a receipt timestamp exists; receipt time determines known-at safety (conservative: receipt >= exchange event time)",
+    "out_of_order_handling": "0 out-of-order observed in a 598,261-quote sample; the id-DESC tie-break plus ts_ms ordering is robust to it regardless",
+    "no_interpolation_across_birth": true,
+    "no_future_quote_fills_pre_birth_gap": true
+  },
+  "spread_feature_children": {
+    "candidate_concepts": [
+      "1. spread level at signal birth (zero window/baseline DOF)",
+      "2. pre-birth spread expansion (needs a baseline window)",
+      "3. pre-birth spread compression (needs a baseline window)",
+      "4. spread change relative to a prior baseline (needs a baseline window + ratio-vs-difference-vs-log choice)",
+      "5. past-only normalized spread state / z-score (needs lookback + expanding-vs-rolling + min-obs + cold-start sub-contract)",
+      "6. spread persistence or reversion (needs a window + persistence metric)"
+    ],
+    "recommended_leading_option": "the family's own named concept is a windowed CHANGE (expansion/compression), so the leading candidate is a single spread-ratio expansion: spread_bps(T) vs spread_bps(T-W) as a log-ratio; the minimal zero-DOF fallback is concept 1 (spread level at birth)",
+    "why_not_frozen_here": "concepts 2-6 all require at minimum a baseline-window choice, and concepts 4-5 additionally require a feature-FORM choice (ratio vs log-ratio vs difference vs z-score) and (for 5) a full normalization sub-contract -- none of which is resolvable outcome-blind; per the batch instructions, the exact candidate set is presented and an operator ruling is requested rather than choosing arbitrarily"
+  },
+  "window_audit": {
+    "healthy_age_ms": 300000,
+    "level_at_birth": {"exact_rows": 196, "independent_cycles": 97},
+    "windowed_pairs_both_endpoints_exact": [
+      {"window_sec": 60, "usable_rows": 196, "independent_cycles": 97},
+      {"window_sec": 300, "usable_rows": 196, "independent_cycles": 97},
+      {"window_sec": 600, "usable_rows": 196, "independent_cycles": 97},
+      {"window_sec": 1800, "usable_rows": 194, "independent_cycles": 97},
+      {"window_sec": 3600, "usable_rows": 196, "independent_cycles": 97}
+    ],
+    "coverage_is_window_invariant": true,
+    "window_invariance_reason": "book_ticker updates sub-second continuously, so a fresh quote exists at T-W whenever one exists at T -- coverage cannot differentiate windows, removing the one outcome-blind tiebreaker that resolved absorption's W300",
+    "primary_window_selectable_outcome_blind": false,
+    "outcome_metrics_inspected": "none (no coefficient/correlation/MFE/MAE/WR/PnL/route/subgroup ever computed)"
+  },
+  "anchor_universe": {
+    "total_anchors": 324, "long": 220, "short": 104,
+    "earliest_anchor_utc": "2026-02-17T14:42:45.459Z", "latest_anchor_utc": "2026-07-03T19:15:57.545Z",
+    "anchor_source": "ami_signal_lifecycle (schema_version 13)",
+    "duplicate_anchors": 0,
+    "independent_cycles_total": 167,
+    "cycle_representative_rule": "earliest signal_birth_ts per independent_cycle_id among quality-eligible signals (is-identity reuse of the CVD/absorption convention)"
+  },
+  "anchor_accounting_level_at_birth": {
+    "outcome_blind": true,
+    "healthy_age_ms": 300000,
+    "quality_breakdown": {
+      "EXACT_RECONSTRUCTABLE": 196,
+      "STALE_SOURCE": 22,
+      "UNAVAILABLE_BEFORE_COLLECTION": 106
+    },
+    "quality_breakdown_by_direction": {
+      "LONG": {"EXACT_RECONSTRUCTABLE": 120, "STALE_SOURCE": 13, "UNAVAILABLE_BEFORE_COLLECTION": 87},
+      "SHORT": {"EXACT_RECONSTRUCTABLE": 76, "STALE_SOURCE": 9, "UNAVAILABLE_BEFORE_COLLECTION": 19}
+    },
+    "reconciliation": "196 + 22 + 106 = 324",
+    "invalid_quote_crossed": 0,
+    "invalid_quote_zero_or_neg": 0,
+    "invalid_quote_locked": 0,
+    "exact_rows": 196,
+    "exact_independent_cycles": 97,
+    "duplicates_collapsed": 99,
+    "min_bucket_n_check": {
+      "min_bucket_n_convention": 20,
+      "exact_independent_cycles": 97,
+      "est_train_70pct": 67,
+      "est_test_30pct": 30,
+      "test_meets_min_bucket_n": true
+    }
+  },
+  "data_quality_audit": {
+    "quotes_examined_pre_birth_5min_sample": 598261,
+    "sample_anchors": 5,
+    "avg_quotes_per_5min_window": 119652,
+    "duplicate_ts_ms": {"observed": true, "fraction_of_rows_approx": 0.75, "material_bid_ask_difference_fraction_of_collisions_approx": 0.065, "resolution": "deterministic id-DESC tie-break in the frozen quote-selection rule"},
+    "out_of_order_ts_ms": 0,
+    "out_of_order_receipt_ts": 0,
+    "bid_greater_than_ask_at_anchors": 0,
+    "bid_equal_to_ask_at_anchors": 0,
+    "zero_or_negative_at_anchors": 0,
+    "extreme_spread_spikes": "none flagged at the 196 anchor quotes (spreads ~0.06 bps, tight liquid perp)",
+    "collector_restart_gaps": "22 anchors STALE (a quote exists but >5min old, scattered minor gaps); 106 predate collection entirely (single coverage-start boundary, not a mid-series outage)",
+    "symbol_mismatch": 0, "venue_mismatch": 0, "timestamp_unit_mismatch": 0,
+    "silent_repair_or_clip_applied": false
+  },
+  "source_quality_partitions": {
+    "EXACT_RECONSTRUCTABLE": 196,
+    "REPAIRED_EXACT": 0,
+    "SOURCE_GAPPED": 0,
+    "STALE_SOURCE": 22,
+    "INVALID_QUOTE": 0,
+    "PROXY_ONLY": 0,
+    "UNAVAILABLE": 106,
+    "exact_and_proxy_pooled": false
+  },
+  "known_at_proof": {
+    "known_at_violations": 0,
+    "reproduced_independently_twice": true,
+    "idempotent_byte_identical": true,
+    "all_observations_at_or_before_birth": true,
+    "receipt_time_determines_known_at": true,
+    "no_future_quote_selected": true,
+    "no_future_candle_or_snapshot": true,
+    "no_interpolation_across_birth": true,
+    "staleness_deterministically_bounded": true,
+    "feature_available_ts_reproducible": true,
+    "outcome_access_control": "AST-based static guard over .execute()-family string literals (test_module_never_executes_sql_naming_outcome_or_governance_tables) + structural fact that no outcome/experiment/nullifier/gate-receipt table is ever opened by this module; no schema/data-write step exists to additionally protect with a live SQLite authorizer"
+  },
+  "family_distinctness": {
+    "physical_mechanism": "instantaneous quoted liquidity thinness -- how far apart the best bid and best ask are on the L1 book",
+    "data_used": "book_ticker best bid/ask price (L1)",
+    "what_it_does_not_measure": "executed flow (CVD), price impact per flow (absorption), queued depth quantity (book-pull/refill), funding rate, single-instrument trend, or a two-market price relationship (basis)",
+    "why_not_volatility": "spread is an instantaneous cross-sectional price gap between two live quotes, not a time-series dispersion of returns",
+    "why_not_trend": "spread is directionless (a magnitude of bid-ask separation), not a signed price movement",
+    "why_not_order_flow_imbalance": "spread uses no trade/taker-side information at all -- only resting best quotes",
+    "why_not_renamed_absorption": "absorption is price response PER UNIT of executed signed flow (a ratio driven by trades); spread uses zero trade data and measures quoted-liquidity width, a distinct liquidity-state channel",
+    "distinct_confirmed": true
+  },
+  "future_scientific_question_draft": {
+    "question": "Does a frozen, pre-birth spread expansion or compression state (Binance ETHUSDT perp L1, at signal_birth_ts, <=5-minute staleness, deterministic id-tiebreak) contain incremental information for one existing frozen outcome, on a defined independent-cycle population, controlling for the same frozen control set (event_notional, session, day_trend_bps)?",
+    "possible_outcome_ids_not_read": [
+      "endpoint_return_bps@swing_24h (ami_lifecycle_path_observations, effective/corrected selection)",
+      "mfe_bps@swing_24h (established NON_PROMOTABLE_DIAGNOSTIC secondary in prior families)"
+    ],
+    "outcome_selected_by_performance": false,
+    "preregistered_this_batch": false
+  },
+  "readiness_thresholds": {
+    "exact_anchor_count": 196,
+    "exact_independent_cycle_count": 97,
+    "likely_train_count": 67,
+    "likely_test_count": 30,
+    "test_meets_repository_min_sample_rule": true,
+    "source_quality_sufficient_for_deterministic_rehearsal": true,
+    "one_primary_definition_frozen": false,
+    "definition_open_items": ["level-vs-change feature form", "if change: ratio-vs-log-vs-difference form", "if change: baseline window (60/300/600/1800/3600, coverage-indistinguishable)", "if z-score: lookback/expanding-vs-rolling/min-obs/cold-start sub-contract"]
+  },
+  "readiness_verdict": "SPREAD_EXPANSION_COMPRESSION_DEFINITION_AMBIGUOUS",
+  "verdict_meaning": "the DATA is ready (NOT blocked by coverage: 97 cycles, TEST~30 >= MIN_BUCKET_N=20; NOT blocked by source quality: exact L1, 0 crossed/locked/zero at anchors, 2ms median staleness, duplicate-ts resolved deterministically) -- but the family's named concept (expansion/compression = a windowed CHANGE relative to a baseline) has multiple defensible feature forms AND a baseline-window that cannot be selected outcome-blind (coverage is window-invariant), so one operator ruling on feature-form + window is required before disposable rehearsal",
+  "blockers": [
+    "DEFINITION: feature form (level vs expansion-ratio vs log-ratio vs difference vs z-score) is unresolved and not selectable outcome-blind",
+    "WINDOW: the baseline window for any change feature is coverage-indistinguishable across {60,300,600,1800,3600}s -- no outcome-blind tiebreaker exists (unlike absorption's W300, which had a defensible mechanism/comparability rationale that here applies equally to all windows)",
+    "NOT a data blocker: coverage (97 cycles) and source quality (exact, clean) are both sufficient"
+  ],
+  "disposable_rehearsal_readiness_contract_if_operator_rules": {
+    "input_sources": "book_ticker ETHUSDT (mode=ro, bounded per-anchor at-or-before queries only, never a full-table copy)",
+    "formula": "the operator-ruled feature form over the frozen base spread_bps formula",
+    "candidate_windows": [60, 300, 600, 1800, 3600],
+    "anchor_universe": "ami_signal_lifecycle 324 (LONG 220 / SHORT 104)",
+    "quality_classes": ["EXACT_RECONSTRUCTABLE", "STALE_SOURCE", "UNAVAILABLE_BEFORE_COLLECTION", "INVALID_QUOTE_CROSSED", "INVALID_QUOTE_ZERO_OR_NEG", "INVALID_QUOTE_LOCKED"],
+    "exclusion_codes": "immutable, as above",
+    "expected_row_accounting_identity": "324 = EXACT + STALE + UNAVAILABLE + INVALID (per window; level-at-birth: 196 + 22 + 106 + 0 = 324)",
+    "outcome_access": "PROHIBITED until a separate preregistration/execution gate",
+    "canonical_migration": "PROHIBITED until a later gate"
+  },
+  "next_controlled_gate": "await operator ruling on feature-form + window for FAM_BOOK_SPREAD_DYNAMICS; only then does a disposable-rehearsal gate open. No rehearsal begins automatically.",
+  "prohibited_actions_this_batch_confirmed_not_performed": [
+    "TRAIN_outcome_access", "TEST_outcome_access", "join_spread_to_outcomes", "experiment_creation",
+    "gate_receipt_creation", "nullifier_issue_or_consume", "preregistration", "canonical_migration",
+    "route_or_bucket_promotion", "paper_shadow_forward_live_change", "runtime_risk_execution_change",
+    "unrelated_legacy_regression_repair", "disposable_rehearsal_start"
+  ],
+  "db_state_unchanged": {
+    "canonical_sqlite_sha256": "3aefce833a67b8d43b841619f97667a56e182822e167aa606320ca8c52043d59",
+    "knowledge_sqlite_sha256": "710b3f689db2238f11efa04230600b9ddd06e500807b5fb69c7e797e6053dc65",
+    "experiment_registry": 24, "experiment_results": 381, "schema_version": 13,
+    "epistemic_test_nullifiers": 2, "experiment_gate_receipts": 2
+  }
+}
