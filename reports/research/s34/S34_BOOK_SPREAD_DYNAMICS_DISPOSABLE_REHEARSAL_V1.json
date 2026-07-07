@@ -1,0 +1,184 @@
+{
+  "gate": "BATCH-BOOK-SPREAD-DYNAMICS-DISPOSABLE-REHEARSAL-V1",
+  "date": "2026-07-07",
+  "author": "Sonnet 5",
+  "nature": "outcome-blind disposable rehearsal only -- no outcome access, no experiment/nullifier/gate-receipt, no migration, no schema change",
+  "accepted_checkpoint": {
+    "readiness_commit": "f115b9c1",
+    "readiness_verdict_resolved": "SPREAD_EXPANSION_COMPRESSION_DEFINITION_AMBIGUOUS",
+    "operator_ruling": "FAM_BOOK_SPREAD_DYNAMICS_PRIMARY_DEFINITION_V1 (W300 + additive spread_change_bps difference)",
+    "schema_version": 13, "experiment_registry": 24, "experiment_results": 381,
+    "epistemic_test_nullifiers": 2, "experiment_gate_receipts": 2,
+    "deterministic_regression_baseline": "1027 collected / 1013 passed / 14 narrowly waived"
+  },
+  "family_and_child_identity": {
+    "family_id": "FAM_BOOK_SPREAD_DYNAMICS",
+    "child_working_id": "H-BOOK-SPREAD-CHANGE-BPS-W300-V1",
+    "formula_version": "BOOK_SPREAD_CHANGE_BPS_W300_V1",
+    "specification_hash": "ea611121291c63136860d57926389520de571ce6615bed2e1a3627e51442a212"
+  },
+  "source_identity": {
+    "database": "data/microstructure.db", "table": "book_ticker",
+    "bid_field": "bid_price", "ask_field": "ask_price",
+    "exchange_timestamp_field": "none (single ts_ms only)",
+    "local_receipt_timestamp_field": "ts_ms", "deterministic_row_id": "id (autoincrement PK)",
+    "venue": "BINANCE_USDM_PERP", "symbol": "ETHUSDT", "market_segment": "PERPETUAL_FUTURES",
+    "quote_currency": "USDT",
+    "coverage_begins_utc": "2026-04-11T17:08:42.005Z",
+    "exact_or_proxy": "EXACT (L1 best bid/ask IS the spread; no proxy tier)"
+  },
+  "specification": {
+    "current_target_timestamp_rule": "t0 = signal_birth_ts",
+    "historical_target_timestamp_rule": "t0 - 300000 ms",
+    "window_ms": 300000,
+    "current_quote_selection_rule": "latest quote WHERE ts_ms<=t0 ORDER BY ts_ms DESC, id DESC LIMIT 1",
+    "historical_quote_selection_rule": "latest quote WHERE ts_ms<=(t0-300000) ORDER BY ts_ms DESC, id DESC LIMIT 1",
+    "duplicate_timestamp_rule": "id DESC tie-break (deterministic; ~6.5% of ms-collisions carry a different bid/ask)",
+    "staleness_tolerance_ms": 300000,
+    "staleness_source": "FEED_LIMITS['book_ticker']=5.0 min (reused, not invented)",
+    "locked_book_policy": "bid==ask -> INVALID_QUOTE_LOCKED (own code; never pooled as normal 0-bps)",
+    "crossed_book_policy": "bid>ask -> INVALID_QUOTE_CROSSED (excluded)",
+    "zero_negative_price_policy": "bid<=0 or ask<=0 -> INVALID_QUOTE_ZERO_OR_NEG (excluded)",
+    "source_gap_policy": "no quote at-or-before target -> UNAVAILABLE_BEFORE_COLLECTION; too-old -> STALE_SOURCE",
+    "symbol_venue_instrument_identity_policy": "ETHUSDT / BINANCE_USDM_PERP / PERPETUAL_FUTURES / USDT enforced by schema CHECK",
+    "known_at_timestamp": "= signal_birth_ts", "feature_availability_timestamp": "= signal_birth_ts",
+    "units": "bps of spread change", "numerical_precision": "IEEE-754 double, no rounding",
+    "missing_value_policy": "row retained with exclusion reason; feature value NULL when not EXACT",
+    "exclusion_codes": ["EXACT_RECONSTRUCTABLE","STALE_SOURCE","UNAVAILABLE_BEFORE_COLLECTION","INVALID_QUOTE_CROSSED","INVALID_QUOTE_ZERO_OR_NEG","INVALID_QUOTE_LOCKED"],
+    "independent_cycle_representative_rule": "earliest signal_birth_ts per independent_cycle_id among EXACT rows (anchor_id tie-break)",
+    "anchor_universe_version": "ami_signal_lifecycle @ schema_version 13 (324 signals)"
+  },
+  "quality_class_precedence": {
+    "frozen_before_counts": true,
+    "order_highest_to_lowest": ["UNAVAILABLE_BEFORE_COLLECTION","INVALID_QUOTE_ZERO_OR_NEG","INVALID_QUOTE_CROSSED","INVALID_QUOTE_LOCKED","STALE_SOURCE"],
+    "row_rule": "EXACT iff both endpoints EXACT; else the highest-precedence non-EXACT status among the two endpoints, tagged current/historical/both",
+    "independent_of_feature_values_and_outcomes": true
+  },
+  "anchor_accounting": {
+    "total_anchors": 324,
+    "distinct_anchor_ids": 324,
+    "by_source_quality_class": {
+      "EXACT_RECONSTRUCTABLE": 196,
+      "STALE_SOURCE": 22,
+      "UNAVAILABLE_BEFORE_COLLECTION": 106,
+      "INVALID_QUOTE_CROSSED": 0,
+      "INVALID_QUOTE_ZERO_OR_NEG": 0,
+      "INVALID_QUOTE_LOCKED": 0,
+      "REPAIRED_EXACT": 0,
+      "SOURCE_GAPPED": 0,
+      "PROXY_ONLY": 0
+    },
+    "symbol_mismatch_exclusions": 0, "venue_mismatch_exclusions": 0, "market_segment_mismatch_exclusions": 0,
+    "duplicate_source_exclusions": 0, "duplicate_anchor_count": 0,
+    "reconciliation": "196 + 22 + 106 = 324",
+    "reconciles_to_324": true,
+    "difference_from_readiness_estimate": "none -- the strict two-endpoint rehearsal reproduces the readiness level-at-birth accounting exactly (196/22/106), because book_ticker updates sub-second so the historical endpoint is fresh whenever the current endpoint is"
+  },
+  "cycle_accounting": {
+    "independent_cycles_total": 167,
+    "exact_independent_cycles": 97,
+    "cycle_representatives": 97,
+    "duplicate_cycle_representatives": 0,
+    "est_train_70pct": 67, "est_test_30pct": 30, "test_meets_min_bucket_n_20": true
+  },
+  "source_lineage": {
+    "per_row_provenance": ["current_quote_id","current_quote_ts","historical_quote_id","historical_quote_ts","current_bid","current_ask","historical_bid","historical_ask","input_manifest_id","specification_hash"],
+    "input_manifest_id": "spread-rehearsal-v1-input-manifest"
+  },
+  "known_at_proof": {
+    "known_at_violations": 0,
+    "known_at_field_violations": 0,
+    "current_selected_quote_after_target": 0,
+    "historical_selected_quote_after_target": 0,
+    "no_post_target_nearest_neighbour": true,
+    "no_future_snapshot_in_lineage": true,
+    "no_interpolation_across_either_target": true,
+    "no_interpolation_across_signal_birth": true,
+    "no_future_repair_data": true,
+    "feature_available_ts_reproducible": true,
+    "staleness_bounded": true,
+    "out_of_order_handled_deterministically": true,
+    "duplicate_ts_resolved_by_id_desc": true
+  },
+  "no_outcome_access_proof": {
+    "sqlite_authorizer_installed_on_canonical": true,
+    "authorizer_violations_run1": [],
+    "authorizer_violations_run2": [],
+    "denied_tables": ["ami_lifecycle_path_observations","experiment_registry","experiment_results","epistemic_test_nullifiers","experiment_gate_receipts"],
+    "denied_columns": ["endpoint_return_bps","mfe_bps","mae_bps"],
+    "outcome_table_reads": 0, "experiment_writes": 0, "nullifier_writes": 0, "gate_receipt_writes": 0
+  },
+  "deterministic_rebuild": {
+    "runs": 2,
+    "content_hash": "5e9ee58cd9c260c2877b05ed803dbf51767ecedc579bdc90c37b5391a867bcbb",
+    "content_hash_identical": true,
+    "row_manifest_hash": "8e8e23ff8af6dfd1c11199f963698d4a148583fd2b9c979dffa7f4e4fdec72f2",
+    "row_manifest_hash_identical": true,
+    "counts_identical": true,
+    "accounting_identical": true,
+    "ordering_before_hashing": "ORDER BY anchor_id",
+    "file_sha256_run1": "341677679426af38336393e89369df586be00714a43ebe0e892bb555557b11e5",
+    "file_sha256_run2": "227b26040fdae02157caa983f20ee98ccbcaab79a73517c72d4b9076dd69c941",
+    "file_hash_differs_reason": "created_ms bookkeeping timestamp only (excluded from content hash, same discipline as every prior rehearsal); scientific content byte-identical",
+    "result": "REBUILD_IDENTICAL"
+  },
+  "numerical_validation": {
+    "exact_n": 196,
+    "nonfinite_values": 0,
+    "mid_nonpositive": 0,
+    "additive_difference_holds_exactly": true,
+    "spread_change_bps_min": -0.0008385226773034646,
+    "spread_change_bps_max": 0.12807017834733342,
+    "spread_change_bps_median": 0.000180781759279533,
+    "expansion_positive": 170, "compression_negative": 26, "zero": 0,
+    "current_quote_age_ms_min": 0, "current_quote_age_ms_median": 2, "current_quote_age_ms_max": 13682,
+    "silent_clip_winsorize_smooth_applied": false,
+    "future_informed_normalization": false,
+    "note": "distribution summaries used ONLY for source-integrity; never joined to outcomes, never used to alter the formula or window"
+  },
+  "family_distinctness": {
+    "measures": "the cost/immediacy of crossing the top of book -- short-horizon widening/narrowing of the executable L1 quote state",
+    "distinct_from": {
+      "FAM_CVD_WINDOWED_TAKER_FLOW": "aggressive executed-flow imbalance (uses trades; spread uses none)",
+      "FAM_CASCADE_ABSORPTION_IMPACT": "price response per unit of forced-flow notional (trade-driven ratio; spread uses none)",
+      "FAM_SPOT_PERP_BASIS_REVERSAL": "cross-instrument price dislocation (two markets; spread is one book)",
+      "book_depth_imbalance": "displayed quantity asymmetry (a quantity; spread is a price gap)",
+      "refill_pull": "order-book replenishment/cancellation dynamics (quantity dynamics)",
+      "funding": "periodic positioning/carry state",
+      "day_trend": "directional price context (signed; spread is directionless magnitude)",
+      "liquidation_geometry": "forced-flow event structure",
+      "graveyarded_OFI_momentum": "signed order-flow pressure (trades)"
+    },
+    "not_merely": ["volatility","trend","CVD","depth imbalance","absorption"]
+  },
+  "future_scientific_question_draft": {
+    "question": "Does the frozen continuous BOOK_SPREAD_CHANGE_BPS_W300_V1 feature contain incremental information for one already-existing frozen canonical outcome on the accepted independent-cycle population?",
+    "outcome_selected": false,
+    "outcome_values_read": false,
+    "compatible_existing_outcome_ids_enumerated_without_reading_values": ["endpoint_return_bps@swing_24h","mfe_bps@swing_24h"],
+    "note": "enumerating identity strings (not values) is consistent with prior families' readiness/rehearsal artifacts; outcome RESOLUTION belongs to a later preregistration gate"
+  },
+  "retained_evidence": {
+    "location": "D:/eclipse_scalper/.runtime_temp/spread_rehearsal_v1/",
+    "files": ["rehearsal_run1.sqlite","rehearsal_run2.sqlite","rehearsal_result.json","manifest.json"],
+    "total_size_bytes_approx": 462000,
+    "contains_outcome_data": false,
+    "retention_reason": "immutable rehearsal evidence for a future BATCH-BOOK-SPREAD-DYNAMICS-ROW-ACCOUNTING-FREEZE-V1 gate"
+  },
+  "verdict": "BOOK_SPREAD_DYNAMICS_DISPOSABLE_REHEARSAL_V1_COMPLETE",
+  "readiness_disposition": "BOOK_SPREAD_DYNAMICS_DISPOSABLE_DATA_READY_FOR_ROW_ACCOUNTING_FREEZE",
+  "disposition_authorizes_no_automatic_step": true,
+  "recommended_next_gate": "BATCH-BOOK-SPREAD-DYNAMICS-ROW-ACCOUNTING-FREEZE-V1 (do not begin automatically; still prohibits outcome access unless separately authorized)",
+  "blockers_or_risks": [
+    "none blocking the rehearsal verdict",
+    "the ~5-minute staleness on 22 STALE anchors and the pre-2026-04-11 106 UNAVAILABLE anchors are permanent, immutable, outcome-blind exclusions -- the usable population is 196 rows / 97 cycles (TEST~30 >= MIN_BUCKET_N=20)",
+    "cross-family independence: this family's eventual TEST cycles will overlap with prior families' holdout to the extent the 97-cycle exact subset intersects theirs -- a disclosure item for the future preregistration, not a rehearsal blocker"
+  ],
+  "db_state_unchanged": {
+    "canonical_sqlite_sha256_before": "3aefce833a67b8d43b841619f97667a56e182822e167aa606320ca8c52043d59",
+    "canonical_sqlite_sha256_after": "3aefce833a67b8d43b841619f97667a56e182822e167aa606320ca8c52043d59",
+    "knowledge_sqlite_sha256_before": "710b3f689db2238f11efa04230600b9ddd06e500807b5fb69c7e797e6053dc65",
+    "knowledge_sqlite_sha256_after": "710b3f689db2238f11efa04230600b9ddd06e500807b5fb69c7e797e6053dc65",
+    "experiment_registry": 24, "schema_version": 13, "epistemic_test_nullifiers": 2, "experiment_gate_receipts": 2
+  }
+}
