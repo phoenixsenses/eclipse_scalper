@@ -55,9 +55,16 @@ def test_full_provenance_rehearsal_real_data(tmp_path):
     # [BATCH-AMI-BIRTH-TRUNCATED-GEOMETRY-CANONICAL-MIGRATION] v10->v11 only
     # ADDED ami_birth_truncated_cascade_geometry/field_provenance/field_
     # quality_v2 -- same reasoning, v11 joins the same branch.
-    assert report["schema_version_before"] in (8, 9, 10, 11)
+    # [BATCH-CVD-REPAIR-REHEARSAL-AND-QUALITY-CONTRACT-V1] v11->v12 only ADDED
+    # ami_agg_trades_repaired/ami_cvd_repair_batch_ledger/ami_cvd_windowed_flow(
+    # _proxy)/ami_cvd_bucket_exclusions/ami_cvd_window_quality_v1 -- same
+    # reasoning, v12 joins the same branch.
+    # [BATCH-CASCADE-ABSORPTION-IMPACT-CANONICAL-MIGRATION-V1, M-0035] v12->v13
+    # only ADDED ami_absorption_impact_windowed_flow/window_quality_v1/
+    # exclusions -- same reasoning, v13 joins the same branch.
+    assert report["schema_version_before"] in (8, 9, 10, 11, 12, 13)
     assert report["new_objects_present"] is True
-    already_migrated = report["schema_version_before"] in (9, 10, 11)
+    already_migrated = report["schema_version_before"] in (9, 10, 11, 12, 13)
 
     # [POST BATCH-SHORT-NOISY-V1-CANON-BACKFILL] signal population is now 324 (270 original +
     # 54 SHORT_NOISY_BTC200K_CONFIRMED_V1) and raw transitions 856 (802 + 54 new SIGNAL_BIRTH) --

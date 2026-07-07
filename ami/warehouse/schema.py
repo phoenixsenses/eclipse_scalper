@@ -28,7 +28,7 @@ REAL_CANONICAL_PATH_IMMUTABLE = DEFAULT_PATH
 # REAL_CANONICAL_PATH_IMMUTABLE (fail-closed) -- see connect() below.
 _TEST_ISOLATION_ACTIVE = False
 
-CANONICAL_SCHEMA_VERSION = 11
+CANONICAL_SCHEMA_VERSION = 13
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS schema_versions (
@@ -826,6 +826,365 @@ GROUP BY feature_id;
 """
 
 
+# BATCH-CVD-REPAIR-REHEARSAL-AND-QUALITY-CONTRACT-V1 (operator approval, real
+# migration step of "devam edelim" -> "Gerçek schema 11→12 migrasyonunu
+# çalıştır"): verbatim copy of the DDL already validated in the disposable
+# rehearsal (`ami/cvd/windowed_taker_flow.py::_SCHEMA`,
+# `ami/cvd/cvd_source_quality_contract_v1.py::_SCHEMA`,
+# `ami/cvd/aggtrades_repair_rehearsal.py::_SCHEMA`) -- not redesigned here.
+# The ONLY permitted delta vs the rehearsal DDL (per
+# S34_CVD_SCHEMA_11_TO_12_MIGRATION_PROPOSAL_2026-07-05.md §1.3/1.4): three
+# FK lines added to the CVD signal-window feature/quality tables (the
+# disposable DB has no parent tables to reference) + a rename of the staging
+# table `ami_agg_trades_repaired_stage` -> canonical `ami_agg_trades_repaired`
+# (identical columns) + its effective-view (superseded-row exclusion,
+# geometry precedent) + the quality ledger's own effective-view
+# (assessment_version-latest-wins, byte-identical to the accepted contract's
+# `ami_cvd_window_quality_v1_effective` definition).
+_SCHEMA_PHASE_CVD = """
+CREATE TABLE IF NOT EXISTS ami_agg_trades_repaired (
+    symbol TEXT NOT NULL,
+    agg_trade_id INTEGER NOT NULL,
+    ts_ms INTEGER NOT NULL,
+    retrieved_at_ms INTEGER NOT NULL,
+    price TEXT NOT NULL,
+    quantity TEXT NOT NULL,
+    notional REAL NOT NULL,
+    signed_quantity REAL NOT NULL,
+    signed_notional REAL NOT NULL,
+    is_buyer_maker INTEGER NOT NULL,
+    taker_side TEXT NOT NULL,
+    first_trade_id INTEGER,
+    last_trade_id INTEGER,
+    source_regime_id TEXT NOT NULL,
+    retrieval_batch_id TEXT NOT NULL,
+    retrieval_page_index INTEGER NOT NULL,
+    source_provenance TEXT NOT NULL,
+    source_quality_status TEXT NOT NULL,
+    legacy_match_status TEXT NOT NULL,
+    legacy_match_fingerprint TEXT,
+    superseded_by_batch_id TEXT,
+    data_version_id TEXT NOT NULL,
+    created_ms INTEGER NOT NULL,
+    PRIMARY KEY (symbol, agg_trade_id, retrieval_batch_id),
+    CHECK (is_buyer_maker IN (0,1)),
+    CHECK (taker_side IN ('BUY','SELL')),
+    CHECK ((is_buyer_maker = 0) = (taker_side = 'BUY')),
+    CHECK (legacy_match_status IN ('UNMATCHED','MATCHED_1TO1','AMBIGUOUS','CONFLICTING','NOT_ATTEMPTED')),
+    CHECK (data_version_id = 'aggtrades-binance-fapi-repair-r1')
+);
+CREATE INDEX IF NOT EXISTS idx_repair_stage_ts
+    ON ami_agg_trades_repaired(symbol, ts_ms, agg_trade_id);
+
+CREATE VIEW IF NOT EXISTS ami_agg_trades_repaired_effective AS
+  SELECT * FROM ami_agg_trades_repaired WHERE superseded_by_batch_id IS NULL;
+
+CREATE TABLE IF NOT EXISTS ami_cvd_repair_batch_ledger (
+    retrieval_batch_id TEXT PRIMARY KEY,
+    symbol TEXT NOT NULL,
+    requested_start_ms INTEGER NOT NULL,
+    requested_end_ms INTEGER NOT NULL,
+    pagination_method TEXT NOT NULL,
+    page_count INTEGER NOT NULL,
+    row_count INTEGER NOT NULL,
+    first_agg_trade_id INTEGER,
+    last_agg_trade_id INTEGER,
+    earliest_trade_ts_ms INTEGER,
+    latest_trade_ts_ms INTEGER,
+    page_overlap_rows INTEGER NOT NULL,
+    missing_id_ranges TEXT NOT NULL,
+    request_errors TEXT NOT NULL,
+    truncation_flag INTEGER NOT NULL,
+    content_sha256 TEXT NOT NULL,
+    gap_manifest_sha256 TEXT NOT NULL,
+    duplicate_manifest_sha256 TEXT NOT NULL,
+    exact_reconstruction_verdict TEXT NOT NULL,
+    data_version_id TEXT NOT NULL,
+    created_ms INTEGER NOT NULL,
+    CHECK (exact_reconstruction_verdict IN
+           ('EXACT_RECONSTRUCTED','INCOMPLETE','FAILED','PROBE_ONLY'))
+);
+
+CREATE TABLE IF NOT EXISTS ami_cvd_windowed_flow (
+    feature_id TEXT PRIMARY KEY,
+    feature_definition_version TEXT NOT NULL,
+    raw_interpretation_version TEXT NOT NULL,
+    quality_contract_version TEXT NOT NULL,
+    signal_id TEXT NOT NULL,
+    source_event_id TEXT NOT NULL,
+    independent_cycle_id TEXT,
+    symbol TEXT NOT NULL,
+    signal_birth_ts INTEGER NOT NULL,
+    window_id TEXT NOT NULL,
+    window_start_ts_ms INTEGER NOT NULL,
+    window_end_ts_ms INTEGER NOT NULL,
+    evidence_layer TEXT NOT NULL,
+    source_row_count INTEGER NOT NULL,
+    legacy_row_count INTEGER NOT NULL,
+    repair_row_count INTEGER NOT NULL,
+    cvd_qty REAL,
+    cvd_notional REAL,
+    total_notional REAL,
+    taker_buy_qty REAL,
+    taker_sell_qty REAL,
+    taker_buy_notional REAL,
+    taker_sell_notional REAL,
+    normalized_cvd REAL,
+    source_row_manifest_sha256 TEXT NOT NULL,
+    source_regime_ids TEXT NOT NULL,
+    repair_method TEXT NOT NULL,
+    repair_population_version TEXT,
+    feature_available_ts_ms INTEGER NOT NULL,
+    known_at_classification TEXT NOT NULL,
+    schema_version INTEGER NOT NULL,
+    provenance TEXT NOT NULL,
+    created_ms INTEGER NOT NULL,
+    UNIQUE (signal_id, window_id, feature_definition_version),
+    FOREIGN KEY (signal_id) REFERENCES ami_signal_lifecycle(signal_id),
+    FOREIGN KEY (source_event_id) REFERENCES ami_events(event_id),
+    FOREIGN KEY (independent_cycle_id) REFERENCES ami_cycles(cycle_id),
+    CHECK (window_id IN ('W60','W300','W600','W1800','W3600','BUCKET')),
+    CHECK (evidence_layer = 'EXACT'),
+    CHECK (window_start_ts_ms <= window_end_ts_ms),
+    CHECK (window_end_ts_ms = signal_birth_ts),
+    CHECK (feature_available_ts_ms = signal_birth_ts),
+    CHECK (known_at_classification = 'KNOWN_AT_SAFE'),
+    CHECK (source_row_count = legacy_row_count + repair_row_count),
+    CHECK (source_row_count >= 0),
+    CHECK (repair_method IN ('NONE','AGGTRADES_REST','AGGTRADES_VISION_ARCHIVE')),
+    CHECK (total_notional IS NULL OR total_notional >= 0),
+    CHECK (normalized_cvd IS NULL OR (normalized_cvd >= -1.0 AND normalized_cvd <= 1.0))
+);
+CREATE INDEX IF NOT EXISTS idx_cvd_flow_signal ON ami_cvd_windowed_flow(signal_id);
+CREATE INDEX IF NOT EXISTS idx_cvd_flow_cycle ON ami_cvd_windowed_flow(independent_cycle_id);
+
+-- PROXY layer: PHYSICALLY separate table. Never pooled with the exact table;
+-- a schema-level CHECK pins evidence_layer so a mixed population cannot even
+-- be represented.
+CREATE TABLE IF NOT EXISTS ami_cvd_windowed_flow_proxy (
+    feature_id TEXT PRIMARY KEY,
+    feature_definition_version TEXT NOT NULL,
+    quality_contract_version TEXT NOT NULL,
+    signal_id TEXT NOT NULL,
+    source_event_id TEXT NOT NULL,
+    independent_cycle_id TEXT,
+    symbol TEXT NOT NULL,
+    signal_birth_ts INTEGER NOT NULL,
+    window_id TEXT NOT NULL,
+    window_start_ts_ms INTEGER NOT NULL,
+    window_end_ts_ms INTEGER NOT NULL,
+    evidence_layer TEXT NOT NULL,
+    candle_timeframe TEXT NOT NULL,
+    contained_candle_count INTEGER NOT NULL,
+    last_contained_close_ts_ms INTEGER,
+    proxy_cvd_qty REAL,
+    proxy_taker_buy_qty REAL,
+    proxy_taker_sell_qty REAL,
+    candle_versions TEXT NOT NULL,
+    source_row_manifest_sha256 TEXT NOT NULL,
+    feature_available_ts_ms INTEGER NOT NULL,
+    known_at_classification TEXT NOT NULL,
+    descriptive_only INTEGER NOT NULL,
+    schema_version INTEGER NOT NULL,
+    provenance TEXT NOT NULL,
+    created_ms INTEGER NOT NULL,
+    UNIQUE (signal_id, window_id, feature_definition_version),
+    FOREIGN KEY (signal_id) REFERENCES ami_signal_lifecycle(signal_id),
+    FOREIGN KEY (source_event_id) REFERENCES ami_events(event_id),
+    FOREIGN KEY (independent_cycle_id) REFERENCES ami_cycles(cycle_id),
+    CHECK (window_id IN ('W60','W300','W600','W1800','W3600','BUCKET')),
+    CHECK (evidence_layer = 'PROXY'),
+    CHECK (descriptive_only = 1),
+    CHECK (window_start_ts_ms <= window_end_ts_ms),
+    CHECK (window_end_ts_ms = signal_birth_ts),
+    CHECK (feature_available_ts_ms = signal_birth_ts),
+    CHECK (known_at_classification = 'KNOWN_AT_SAFE'),
+    CHECK (contained_candle_count >= 0),
+    CHECK (last_contained_close_ts_ms IS NULL OR last_contained_close_ts_ms <= signal_birth_ts),
+    CHECK ((contained_candle_count = 0) = (proxy_cvd_qty IS NULL))
+);
+CREATE INDEX IF NOT EXISTS idx_cvd_proxy_signal ON ami_cvd_windowed_flow_proxy(signal_id);
+
+-- explicit, non-silent BUCKET exclusion ledger
+CREATE TABLE IF NOT EXISTS ami_cvd_bucket_exclusions (
+    exclusion_id TEXT PRIMARY KEY,
+    feature_definition_version TEXT NOT NULL,
+    signal_id TEXT NOT NULL,
+    direction TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    schema_version INTEGER NOT NULL,
+    created_ms INTEGER NOT NULL,
+    UNIQUE (signal_id, feature_definition_version),
+    FOREIGN KEY (signal_id) REFERENCES ami_signal_lifecycle(signal_id),
+    CHECK (reason = 'BUCKET_WINDOW_NOT_FROZEN_FOR_SIGNAL')
+);
+
+CREATE TABLE IF NOT EXISTS ami_cvd_window_quality_v1 (
+    quality_id TEXT PRIMARY KEY,
+    quality_contract_version TEXT NOT NULL,
+    assessment_version TEXT NOT NULL,
+    signal_id TEXT NOT NULL,
+    independent_cycle_id TEXT,
+    symbol TEXT NOT NULL,
+    signal_birth_ts INTEGER NOT NULL,
+    window_id TEXT NOT NULL,
+    window_start_ts_ms INTEGER NOT NULL,
+    window_end_ts_ms INTEGER NOT NULL,
+    evidence_layer TEXT NOT NULL,
+    source_regime_ids TEXT NOT NULL,
+    regime_spanning INTEGER NOT NULL,
+    legacy_row_count INTEGER NOT NULL,
+    repair_row_count INTEGER NOT NULL,
+    total_row_count INTEGER NOT NULL,
+    duplicate_count INTEGER NOT NULL,
+    collision_count INTEGER NOT NULL,
+    unresolved_match_count INTEGER NOT NULL,
+    missing_minute_count INTEGER NOT NULL,
+    repaired_minute_count INTEGER NOT NULL,
+    cadence_proof TEXT NOT NULL,
+    completeness_proof TEXT NOT NULL,
+    quality_status TEXT NOT NULL,
+    feature_available_ts_ms INTEGER NOT NULL,
+    source_provenance TEXT NOT NULL,
+    data_version_id TEXT NOT NULL,
+    feature_definition_version TEXT NOT NULL,
+    assessed_at_ms INTEGER NOT NULL,
+    UNIQUE (signal_id, window_id, quality_contract_version, assessment_version),
+    FOREIGN KEY (signal_id) REFERENCES ami_signal_lifecycle(signal_id),
+    CHECK (quality_status IN ('EXACT_RECONSTRUCTABLE','PROXY_ONLY','SOURCE_GAPPED',
+                              'SOURCE_COVERAGE_UNRESOLVED','UNREPAIRABLE')),
+    CHECK (evidence_layer IN ('EXACT','PROXY')),
+    CHECK (window_id IN ('W60','W300','W600','W1800','W3600','BUCKET')),
+    CHECK (window_start_ts_ms <= window_end_ts_ms),
+    CHECK (window_end_ts_ms = signal_birth_ts),
+    CHECK (feature_available_ts_ms = signal_birth_ts),
+    CHECK (regime_spanning IN (0,1)),
+    CHECK (total_row_count = legacy_row_count + repair_row_count)
+);
+CREATE INDEX IF NOT EXISTS idx_cvd_quality_signal
+    ON ami_cvd_window_quality_v1(signal_id, window_id);
+
+CREATE VIEW IF NOT EXISTS ami_cvd_window_quality_v1_effective AS
+  SELECT q.* FROM ami_cvd_window_quality_v1 q
+  WHERE q.assessed_at_ms = (
+    SELECT MAX(q2.assessed_at_ms) FROM ami_cvd_window_quality_v1 q2
+    WHERE q2.signal_id = q.signal_id AND q2.window_id = q.window_id
+      AND q2.quality_contract_version = q.quality_contract_version);
+"""
+
+
+# BATCH-CASCADE-ABSORPTION-IMPACT-CANONICAL-MIGRATION-V1 (M-0035, operator
+# approval): verbatim copy of the DDL already validated in the disposable
+# rehearsal (`ami/absorption/cascade_absorption_impact_rehearsal.py::_SCHEMA`,
+# accepted commit fc43e972) and frozen row-accounted in
+# S34_CASCADE_ABSORPTION_IMPACT_ROW_ACCOUNTING_FREEZE_V1.json (commit
+# 931cd3dd) -- not redesigned here. Per operator naming ruling, canonical
+# production table names are `ami_absorption_impact_*` (the frozen contract's
+# illustrative `ami_impact_*` and the rehearsal's disposable
+# `absorption_impact_*` are both superseded by this naming only -- formula,
+# units, window definitions, row identities, quality states, exclusion
+# identity, FLOOR_USD_M and feature values are unchanged). The ONLY permitted
+# delta vs the rehearsal DDL (same precedent as _SCHEMA_PHASE_CVD's three FK
+# additions): FK lines added referencing the canonical identity tables (the
+# disposable rehearsal DB had no parent tables to reference) + a `window_id`
+# enum CHECK (rehearsal enforced this only in code, not in its disposable
+# schema). No effective-view is added -- unlike CVD's quality table, this
+# family's quality table has no `assessment_version` dimension in its UNIQUE
+# constraint (one quality row per signal/window/quality_contract_version,
+# ever), so there is no multi-assessment "latest wins" case to resolve.
+_SCHEMA_PHASE_ABSORPTION_IMPACT = """
+CREATE TABLE IF NOT EXISTS ami_absorption_impact_windowed_flow (
+    feature_id TEXT PRIMARY KEY,
+    feature_definition_version TEXT NOT NULL,
+    signal_id TEXT NOT NULL,
+    source_event_id TEXT NOT NULL,
+    independent_cycle_id TEXT,
+    symbol TEXT NOT NULL,
+    direction TEXT NOT NULL,
+    signal_birth_ts INTEGER NOT NULL,
+    window_id TEXT NOT NULL,
+    window_start_ts_ms INTEGER NOT NULL,
+    window_end_ts_ms INTEGER NOT NULL,
+    trade_count INTEGER NOT NULL,
+    native_rows_used INTEGER NOT NULL,
+    repaired_rows_used INTEGER NOT NULL,
+    signed_notional REAL NOT NULL,
+    total_notional REAL NOT NULL,
+    mark_price_start REAL,
+    mark_price_end REAL,
+    mark_return_bps REAL,
+    floor_usd_m_applied INTEGER NOT NULL,
+    floor_usd_m_value REAL NOT NULL,
+    price_response_per_signed_notional REAL,
+    evidence_layer TEXT NOT NULL,
+    feature_available_ts_ms INTEGER NOT NULL,
+    known_at_classification TEXT NOT NULL,
+    created_ms INTEGER NOT NULL,
+    UNIQUE (symbol, signal_id, window_id, feature_definition_version),
+    FOREIGN KEY (signal_id) REFERENCES ami_signal_lifecycle(signal_id),
+    FOREIGN KEY (source_event_id) REFERENCES ami_events(event_id),
+    FOREIGN KEY (independent_cycle_id) REFERENCES ami_cycles(cycle_id),
+    CHECK (window_id IN ('W60','W300','W600','W1800','W3600')),
+    CHECK (window_end_ts_ms = signal_birth_ts),
+    CHECK (feature_available_ts_ms = signal_birth_ts),
+    CHECK (known_at_classification = 'KNOWN_AT_SAFE'),
+    CHECK (evidence_layer = 'EXACT'),
+    CHECK (direction IN ('LONG','SHORT')),
+    CHECK (floor_usd_m_applied IN (0,1))
+);
+CREATE INDEX IF NOT EXISTS idx_absorption_impact_flow_symbol_window
+    ON ami_absorption_impact_windowed_flow(symbol, window_id);
+CREATE INDEX IF NOT EXISTS idx_absorption_impact_flow_signal
+    ON ami_absorption_impact_windowed_flow(signal_id);
+
+CREATE TABLE IF NOT EXISTS ami_absorption_impact_window_quality_v1 (
+    quality_id TEXT PRIMARY KEY,
+    quality_contract_version TEXT NOT NULL,
+    signal_id TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    window_id TEXT NOT NULL,
+    window_start_ts_ms INTEGER NOT NULL,
+    window_end_ts_ms INTEGER NOT NULL,
+    evidence_layer TEXT NOT NULL,
+    quality_status TEXT NOT NULL,
+    confirmed_gap_overlap INTEGER NOT NULL,
+    unresolved_gap_overlap INTEGER NOT NULL,
+    before_collection_began INTEGER NOT NULL,
+    repaired_rows_used INTEGER NOT NULL,
+    native_rows_used INTEGER NOT NULL,
+    assessed_at_ms INTEGER NOT NULL,
+    UNIQUE (signal_id, window_id, quality_contract_version),
+    FOREIGN KEY (signal_id) REFERENCES ami_signal_lifecycle(signal_id),
+    CHECK (quality_status IN ('EXACT_RECONSTRUCTABLE','PROXY_ONLY','SOURCE_GAPPED',
+                              'SOURCE_COVERAGE_UNRESOLVED','UNREPAIRABLE')),
+    CHECK (evidence_layer = 'EXACT'),
+    CHECK (window_id IN ('W60','W300','W600','W1800','W3600'))
+);
+CREATE INDEX IF NOT EXISTS idx_absorption_impact_quality_window
+    ON ami_absorption_impact_window_quality_v1(window_id, quality_status);
+
+-- immutable exclusion ledger; a signal/window pair excluded here must never
+-- also appear in ami_absorption_impact_windowed_flow (proven by the
+-- rehearsal's own test_signal_window_pair_never_in_both_windowed_flow_and_
+-- exclusions, re-verified independently in the row-accounting freeze).
+CREATE TABLE IF NOT EXISTS ami_absorption_impact_exclusions (
+    exclusion_id TEXT PRIMARY KEY,
+    signal_id TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    window_id TEXT NOT NULL,
+    reason_code TEXT NOT NULL,
+    created_ms INTEGER NOT NULL,
+    UNIQUE (signal_id, window_id, reason_code),
+    FOREIGN KEY (signal_id) REFERENCES ami_signal_lifecycle(signal_id),
+    CHECK (reason_code IN ('WINDOW_STARTS_BEFORE_COLLECTION_BEGAN','CONFIRMED_GAP_OVERLAP',
+                           'UNRESOLVED_GAP_PROXIMITY')),
+    CHECK (window_id IN ('W60','W300','W600','W1800','W3600'))
+);
+CREATE INDEX IF NOT EXISTS idx_absorption_impact_exclusions_window
+    ON ami_absorption_impact_exclusions(window_id, reason_code);
+"""
+
+
 def connect(path: str | Path | None = None, read_only: bool = False) -> sqlite3.Connection:
     """Open the canonical warehouse. WAL + busy_timeout matches existing AMI store practice.
 
@@ -891,6 +1250,8 @@ def init_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(_SCHEMA_PHASE7AP1_PROVENANCE)
     conn.executescript(_SCHEMA_PHASE7B)
     conn.executescript(_SCHEMA_PHASE_GEOMETRY)
+    conn.executescript(_SCHEMA_PHASE_CVD)
+    conn.executescript(_SCHEMA_PHASE_ABSORPTION_IMPACT)
     _add_column_if_missing(conn, "ami_levels", "touch_stats_point_in_time",
                             "touch_stats_point_in_time INTEGER NOT NULL DEFAULT 0")
     conn.execute(
