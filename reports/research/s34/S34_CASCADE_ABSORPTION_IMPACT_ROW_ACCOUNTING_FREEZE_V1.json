@@ -1,0 +1,349 @@
+{
+  "gate": "BATCH-CASCADE-ABSORPTION-IMPACT-ROW-ACCOUNTING-FREEZE-V1",
+  "date": "2026-07-07",
+  "author": "Sonnet 5",
+  "nature": "row_accounting_and_migration_input_freeze_only",
+  "prohibited_actions_this_batch_confirmed_not_performed": [
+    "canonical_migration", "schema_version_change", "preregistration", "experiment_id_creation",
+    "nullifier_issue_or_consume", "TEST_outcome_read", "predictive_model_run", "profitability_inspection",
+    "window_or_formula_or_floor_alteration", "alternative_feature_definition", "exact_proxy_pooling",
+    "runtime_risk_execution_shadow_paper_forward_live_modification"
+  ],
+  "source_of_truth": {
+    "readiness_contract_commit": "fc1321f5",
+    "disposable_rehearsal_commit": "fc43e972",
+    "files_committed_by_fc1321f5": [
+      {"path": "reports/research/s34/S34_CASCADE_ABSORPTION_IMPACT_READINESS_AUDIT_V1.md", "sha256": "fbef831fe828c4a8768bb01b884edac3f52059cc8f48e84f522a2adf4d0ba709", "bytes": 27863},
+      {"path": "reports/research/s34/S34_CASCADE_ABSORPTION_IMPACT_READINESS_AUDIT_V1.json", "sha256": "7fea347b59b1c3721199c7bf3be5bc2f2d0daa2a50d751fde4b967aa18156c8e", "bytes": 7665},
+      {"path": "reports/research/s34/S34_CASCADE_ABSORPTION_IMPACT_CANONICAL_BRIDGE_CONTRACT_V1.md", "sha256": "5acf0d532241f8f4197da1ac10951d6afec6539244422ceeba636674bdbfdb9a", "bytes": 15518},
+      {"path": "reports/governance/CASCADE_ABSORPTION_IMPACT_READINESS_AND_CONTRACT_V1_STATE_TRANSITION_PROOF.md", "sha256": "981425798c7e13b4bf6250a4a636332aadea4e0285f074200468985e3de39482", "bytes": 9780}
+    ],
+    "files_committed_by_fc43e972": [
+      {"path": "ami/absorption/__init__.py", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      {"path": "ami/absorption/cascade_absorption_impact_rehearsal.py", "sha256": "604947829105be47b0a425694104392a91b502e7bbff6b7ba2a71b3f881ec609", "bytes": 29189},
+      {"path": "reports/governance/CASCADE_ABSORPTION_IMPACT_DISPOSABLE_REHEARSAL_V1_STATE_TRANSITION_PROOF.md", "sha256": "1d4ccd5d84e4b19d71ae0b3cab3b02548eef73603cab5d466dea38ba6d69d910", "bytes": 11156},
+      {"path": "reports/research/s34/S34_CASCADE_ABSORPTION_IMPACT_DISPOSABLE_REHEARSAL_V1.json", "sha256": "c8ee11efbcaaa195d45b2fbd7f87b60c879bf3aff3cfae67a59f50fe0cceea82", "bytes": 5826},
+      {"path": "reports/research/s34/S34_CASCADE_ABSORPTION_IMPACT_DISPOSABLE_REHEARSAL_V1.md", "sha256": "0c76beb68792354201d156ad3864aabbd28724bcbeac8b8bb7122b55681a4e1f", "bytes": 23168},
+      {"path": "tests/test_ami_absorption_cascade_impact_rehearsal.py", "sha256": "d21a771e95f207ccc9791aa537861a4252df22b6e233a403b43e9dd9f770269a", "bytes": 28886}
+    ],
+    "all_hashes_independently_recomputed_this_batch": true,
+    "recomputed_hashes_matched_original_manifest_claims": true
+  },
+  "phase1_formula_and_parameter_freeze": {
+    "status": "REHEARSAL_VALIDATED_FROZEN_FOR_CANONICAL_MIGRATION",
+    "status_is_a_data_product_status_not_a_scientific_edge_verdict": true,
+    "canonical_family_id": "FAM_CASCADE_ABSORPTION_IMPACT",
+    "formula_version": "absorption-impact-rehearsal-v1",
+    "quality_contract_version": "absorption-impact-quality-rehearsal-v1",
+    "formula": "price_response_per_signed_notional_w = mark_price_return_bps([T-W,T]) / max(|signed_notional_w|/1e6, FLOOR_USD_M)",
+    "numerator": "mark_price_return_bps = (mark_price(T) - mark_price(T-W)) / mark_price(T-W) * 1e4, both prices via nearest-at-or-before lookup (never a future mark price)",
+    "denominator": "max(|signed_notional_w| / 1_000_000, FLOOR_USD_M); absolute value of signed_notional, per frozen contract text; NOT a signed denominator",
+    "signed_notional_w": "sum(taker_sign(trade) * notional(trade)) over trades in [T-W, T]",
+    "units": "bps of mark-price return per $1,000,000 of net signed aggressive notional",
+    "sign_convention": "is_buyer_maker=0 -> taker_sign=+1 (taker BUY); is_buyer_maker=1 -> taker_sign=-1 (taker SELL); identical to ami/cvd/windowed_taker_flow.py",
+    "price_source": "microstructure.db:mark_prices, nearest at-or-before convention identical to ami.states.engine.StateEngine._px",
+    "signed_notional_source": "microstructure.db:agg_trades (native), merged with data/ami/canonical.sqlite:ami_agg_trades_repaired where a window intersects one of its 8 repair spans (repaired row wins on content conflict for the same agg_trade_id); 0 of the 324 signals' windows intersected any repair span in this rehearsal",
+    "five_fixed_windows_sec": [60, 300, 600, 1800, 3600],
+    "window_ids": ["W60", "W300", "W600", "W1800", "W3600"],
+    "anchor_timestamp": "T = signal_birth_ts (from ami_signal_lifecycle, reused verbatim, no new identity)",
+    "window_inclusivity": "[T-W, T], both ends inclusive (verified: test_boundary_timestamps_both_inclusive)",
+    "feature_availability_timestamp": "feature_available_ts_ms = signal_birth_ts (schema CHECK-constrained)",
+    "numerical_precision": "IEEE-754 double (Python float) throughout; no intermediate rounding",
+    "zero_denominator_policy": "floored at FLOOR_USD_M, never divides by exactly zero, never crashes",
+    "near_zero_denominator_policy": "same floor applies continuously, no discontinuity beyond the floor itself",
+    "source_gap_policy": "CONFIRMED_GAP_OVERLAP -> immutable exclusion row, never imputed; UNRESOLVED_GAP_PROXIMITY and WINDOW_STARTS_BEFORE_COLLECTION_BEGAN reserved categories (0 occurrences today)",
+    "duplicate_policy": "dedup by agg_trade_id; native + repaired both present for same id -> repaired value wins (matches CVD repair precedent)",
+    "quality_taxonomy": ["EXACT_RECONSTRUCTABLE", "PROXY_ONLY", "SOURCE_GAPPED", "SOURCE_COVERAGE_UNRESOLVED", "UNREPAIRABLE"],
+    "floor_usd_m": {
+      "value": 0.01,
+      "units": "USD millions (= $10,000)",
+      "selected_outcome_blind_from": "W=60 signed-notional distribution across all 324 signals (0 excluded at that window): min=$37,006.70, p1=$93,985.10, max=$78,936,758.21",
+      "derivation_rule": "1st percentile of |signed_notional| at W=60s, rounded down to one significant figure, expressed in $M units",
+      "bound_on_any_real_rehearsal_row": false,
+      "floor_applied_rows_both_runs": 0,
+      "may_not_be_retuned_during": ["canonical_migration", "preregistration", "TEST_execution"]
+    },
+    "formula_or_alteration_this_batch": "none -- no upgrade, no alternative formula, no window/floor change performed or proposed"
+  },
+  "phase2_immutable_source_manifest": {
+    "contract_commit": "fc1321f5",
+    "code_hash_sha256": "604947829105be47b0a425694104392a91b502e7bbff6b7ba2a71b3f881ec609",
+    "contract_md_hash_sha256": "5acf0d532241f8f4197da1ac10951d6afec6539244422ceeba636674bdbfdb9a",
+    "readiness_audit_md_hash_sha256": "fbef831fe828c4a8768bb01b884edac3f52059cc8f48e84f522a2adf4d0ba709",
+    "quality_contract_hash_sha256_classify_quality_function_source": "9d38d748b08197ea153988c9dce4a85894d80483603edf70b93dcb09031353ea",
+    "package_creation_timestamp_utc": "2026-07-07T06:13:51Z",
+    "repository_commit_identities": ["0c976e21", "fc1321f5", "fc43e972"],
+    "source_db_manifest": {
+      "canonical_sqlite": {
+        "path": "D:/eclipse_scalper/data/ami/canonical.sqlite",
+        "sha256_before_and_after_rehearsal_and_this_freeze_batch": "25a56a98d02f84191aeb6ff46f81245d36bc0d635e916dbfac3e13d076bf5291",
+        "access_mode": "read-only (mode=ro) throughout"
+      },
+      "microstructure_db": {
+        "path": "D:/eclipse_scalper/data/microstructure.db",
+        "note": "not hashed (~747GB); never copied; every read is a bounded per-signal-per-window range query",
+        "access_mode": "read-only (mode=ro), bounded queries only"
+      }
+    },
+    "table_schema_hashes_sha256": {
+      "microstructure.db:agg_trades": "4f402d7959ebc4e9d2eb51968d05c5ae7be523421473a412dfd58fab40134625",
+      "microstructure.db:mark_prices": "9de41c03820d8143a797c69b0ff4f7139003355d0d0b9f6f2c4ff6ddd889deb6",
+      "microstructure.db:gaps": "4ec87c2dd82391d68da92169cb44103c929d45053fcd4e4f4611eec706059493",
+      "canonical.sqlite:ami_signal_lifecycle": "b4a5c75a6d56ce6cf16f204b12854b2268f44471f57e533fde9efd0115e90357",
+      "canonical.sqlite:ami_agg_trades_repaired": "f50e679ee114d7615a24df6fb62478828e35fd5670f3136cc42315996868c49b",
+      "canonical.sqlite:ami_events": "6daff1fbb63cbfaa7b0e8b2787a30af0ea87106a1c4486c9c202e51535d47fef",
+      "canonical.sqlite:ami_cycles": "ec822d1bee2dba5d87ec3ea989d8454fddd6782fb125fe1c54919cfead375dd6"
+    },
+    "symbol_coverage": "ETHUSDT only (100% of 324-signal population)",
+    "timestamp_range_utc": ["2026-02-15T14:26:27.967", "2026-07-06T21:09:26.704"],
+    "row_selection_boundaries": "324 signals from ami_signal_lifecycle (LONG 220 / SHORT 104), 5 fixed windows each = 1620 candidate signal-window pairs; no outcome-dependent eligibility rule",
+    "anchor_manifest": {"total_signals": 324, "long": 220, "short": 104, "total_events": 252, "total_independent_cycles": 167},
+    "retained_evidence_promotion": {
+      "eligible_for_promotion_to_immutable_rehearsal_evidence": true,
+      "complete_manifest_exists": true,
+      "every_retained_file_has_content_hash": true,
+      "retained_files_and_hashes_sha256": {
+        "rehearsal_run1.sqlite": "b42972c76cb8de700fb8b9addc358958a2bd5c904eaf798026db20c4799978b9",
+        "rehearsal_run2.sqlite": "e842f694d930091f714de53049ec4565be546bef39ca17cdcc1ac349eb5bc923",
+        "manifest.json": "19dde7e08abb470596634d73e911af2914cf053143349bc27ec84167193b436d",
+        "rehearsal_result.json": "3fd71592fe2a5521bf067087c3cafad74150554e593b7c97435fef98338d0aa8"
+      },
+      "contains_no_outcome_data": true,
+      "reproducible_from_frozen_source_commitments": true,
+      "purpose": "retained rehearsal evidence for FAM_CASCADE_ABSORPTION_IMPACT bridge validation, independently re-verified this freeze batch against both retained disposable databases",
+      "retention_status": "RETAINED_AS_ACCEPTED_IMMUTABLE_REHEARSAL_EVIDENCE (pending this freeze's acceptance)",
+      "location": "D:/eclipse_scalper/.runtime_temp/absorption_impact_rehearsal_v1/"
+    }
+  },
+  "phase3_primary_key_and_row_identity_freeze": {
+    "row_identity_definition": "(symbol, signal_id, window_id, feature_definition_version) for usable rows [absorption_impact_windowed_flow]; (signal_id, symbol, window_id, reason_code) for exclusion rows [absorption_impact_exclusions]; (signal_id, symbol, window_id, quality_contract_version) for quality rows [absorption_impact_window_quality_v1]; the union of (signal_id, window_id) pairs across windowed_flow and exclusions is the row-identity space for scientific-content purposes",
+    "expected_primary_key_count": 1620,
+    "independent_verification_run1": {
+      "distinct_feature_id": 1619, "distinct_quality_id": 1620, "distinct_exclusion_id": 1,
+      "union_signal_window_pairs": 1620,
+      "duplicate_signal_window_pairs_within_windowed_flow": 0,
+      "signal_window_pairs_present_in_both_windowed_flow_and_exclusions": 0
+    },
+    "independent_verification_run2": {
+      "distinct_feature_id": 1619, "distinct_quality_id": 1620, "distinct_exclusion_id": 1,
+      "union_signal_window_pairs": 1620,
+      "duplicate_signal_window_pairs_within_windowed_flow": 0,
+      "signal_window_pairs_present_in_both_windowed_flow_and_exclusions": 0
+    },
+    "duplicate_primary_keys": 0,
+    "conflicting_rows": 0,
+    "one_terminal_accounting_state_per_expected_row": true,
+    "mutable_timestamps_used_as_row_identity": false
+  },
+  "phase4_per_window_accounting_freeze": {
+    "W60":   {"candidate_anchors": 324, "usable_EXACT_RECONSTRUCTABLE": 324, "excluded_before_collection": 0, "excluded_confirmed_gap": 0, "excluded_unresolved_gap": 0, "zero_denominator_exclusions": 0, "near_zero_denominator_exclusions": 0, "timestamp_invalid_rows": 0, "duplicate_conflict_rows": 0, "quarantined_rows": 0, "reconciled": 324, "content_hash_windowed_flow_sha256": "fe1fe456bbb94b21ca4c8f10adf5453cf214b1d65d2b6e10c6be508d8a6b4667", "content_hash_quality_sha256": "6a8b1e7caf11aa8a8d8547850e695ba282b2e9b131805b8bae8ac3c497656fc2", "content_hash_exclusions_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+    "W300":  {"candidate_anchors": 324, "usable_EXACT_RECONSTRUCTABLE": 324, "excluded_before_collection": 0, "excluded_confirmed_gap": 0, "excluded_unresolved_gap": 0, "zero_denominator_exclusions": 0, "near_zero_denominator_exclusions": 0, "timestamp_invalid_rows": 0, "duplicate_conflict_rows": 0, "quarantined_rows": 0, "reconciled": 324, "content_hash_windowed_flow_sha256": "487a7ca4f4bfb79f39cae436949c618533754d13b20b7bdff8879ae0464f1ea5", "content_hash_quality_sha256": "63132629a24cc4482e56b833719e83be177e4f56504eb9a3f8e6c7e5611fb049", "content_hash_exclusions_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+    "W600":  {"candidate_anchors": 324, "usable_EXACT_RECONSTRUCTABLE": 324, "excluded_before_collection": 0, "excluded_confirmed_gap": 0, "excluded_unresolved_gap": 0, "zero_denominator_exclusions": 0, "near_zero_denominator_exclusions": 0, "timestamp_invalid_rows": 0, "duplicate_conflict_rows": 0, "quarantined_rows": 0, "reconciled": 324, "content_hash_windowed_flow_sha256": "d68eed83399ccb09765e4c8613a99d6435b6adf0cc61f61d0a2a6e2895e21a62", "content_hash_quality_sha256": "8e27c364394629d33b10ad42def2aa56060fc5f54409f30a2c27ba8c72217bfb", "content_hash_exclusions_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+    "W1800": {"candidate_anchors": 324, "usable_EXACT_RECONSTRUCTABLE": 324, "excluded_before_collection": 0, "excluded_confirmed_gap": 0, "excluded_unresolved_gap": 0, "zero_denominator_exclusions": 0, "near_zero_denominator_exclusions": 0, "timestamp_invalid_rows": 0, "duplicate_conflict_rows": 0, "quarantined_rows": 0, "reconciled": 324, "content_hash_windowed_flow_sha256": "ffde744b2e2042f48372ab37017126ae65e571ddaf76d85224d954be0143f1f9", "content_hash_quality_sha256": "69edad046d06d33fa851d0a9ccc3728553534bfffb88f2b4033d05f4989e90be", "content_hash_exclusions_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+    "W3600": {"candidate_anchors": 324, "usable_EXACT_RECONSTRUCTABLE": 323, "excluded_before_collection": 0, "excluded_confirmed_gap": 1, "excluded_unresolved_gap": 0, "zero_denominator_exclusions": 0, "near_zero_denominator_exclusions": 0, "timestamp_invalid_rows": 0, "duplicate_conflict_rows": 0, "quarantined_rows": 0, "reconciled": 324, "content_hash_windowed_flow_sha256": "7778b457b7276fdb5467e4b4d815aa3a6d34c438252ce1899eab2ffc3b8e63e4", "content_hash_quality_sha256": "9467adcc6e005d028406c1bdfbf7eae8deb967092acbb21c9de98b358f42709c", "content_hash_exclusions_sha256": "5e3ae2e524fcdbd5d045698a5a14bd397ae2c21bf0ff9ae2f54f2502c35a3ff7"},
+    "aggregate": {
+      "candidate_universe": 1620,
+      "usable_EXACT_RECONSTRUCTABLE": 1619,
+      "immutable_exclusions_confirmed_gap": 1,
+      "immutable_exclusions_before_collection": 0,
+      "unresolved_gap_quarantine": 0,
+      "reconciliation_equation": "1620 = 1619 + 1 + 0",
+      "reconciles_exactly": true
+    },
+    "single_source_gap": {
+      "signal_id": "SIG-e03382b4d82720185dfc870a",
+      "direction": "LONG",
+      "independent_cycle_id": "CYC-f8a61eab111e474774583b9e",
+      "source_event_id": "EVT-137f4705e3e807cda51c61fb",
+      "signal_birth_ts_ms": 1776783451255,
+      "signal_birth_utc": "2026-04-21T14:57:31.255Z",
+      "window": "W3600",
+      "window_start_ts_ms": 1776779851255, "window_end_ts_ms": 1776783451255,
+      "window_utc": ["2026-04-21T13:57:31.255Z", "2026-04-21T14:57:31.255Z"],
+      "missing_interval": {
+        "gap_id": 766, "stream": "agg_trades",
+        "start_ts_ms": 1776780635146, "end_ts_ms": 1776781025985,
+        "start_utc": "2026-04-21T14:10:35.146Z", "end_utc": "2026-04-21T14:17:05.985Z",
+        "duration_sec": 390.839, "resolved_bool": 1
+      },
+      "immutable_exclusion_reason_code": "CONFIRMED_GAP_OVERLAP",
+      "source_manifest_evidence": "microstructure.db:gaps row id=766, stream='agg_trades', resolved_bool=1 (confirmed/closed gap), overlapping the W3600 pre-birth window per overlaps_any() in ami/absorption/cascade_absorption_impact_rehearsal.py",
+      "repaired_this_batch": false,
+      "silently_filled": false
+    }
+  },
+  "phase5_content_hash_freeze": {
+    "hash_type_definitions": {
+      "raw_file_byte_hash": "sha256 over the literal bytes of a retained disposable file; differs run-to-run for the two .sqlite files because row-level created_ms/assessed_at_ms bookkeeping timestamps capture each run's wall-clock time",
+      "deterministic_scientific_content_hash": "sha256 over a table's declared content columns only (all columns except the bookkeeping timestamp columns), ORDER BY 1, joined and hashed; reproducible byte-for-byte across independent reruns against the same frozen source state",
+      "semantic_hash_excluding_non_scientific_bookkeeping": "identical computation and identical result to the deterministic scientific-content hash above -- in this rehearsal there is no other volatile-but-non-bookkeeping field, so these two categories collapse to one value per table; kept as two named concepts here only because the freeze instructions distinguish them"
+    },
+    "fields_excluded_from_semantic_hashing": [
+      {"table": "absorption_impact_windowed_flow", "column": "created_ms", "justification": "wall-clock time this specific disposable row was inserted; carries no information about the measured signed_notional/mark_return/price_response values; two runs against identical frozen source state legitimately differ here while being scientifically identical"},
+      {"table": "absorption_impact_window_quality_v1", "column": "assessed_at_ms", "justification": "wall-clock time the quality classification was assessed; the classification result itself (quality_status, gap flags) is a separate, included column; identical convention to ami/warehouse/experiment_ledger.py's _VOLATILE_BOOKKEEPING_COLUMNS"},
+      {"table": "absorption_impact_exclusions", "column": "created_ms", "justification": "same as above; the exclusion reason_code itself is included and hashed"}
+    ],
+    "complete_expected_row_manifest_hash": "see phase3 (row-identity space); no single manifest file enumerates all 1620 rows outside the two disposable databases themselves, which are hash-verified below",
+    "usable_feature_rows_content_hash_sha256": "f7c834cc8ebe90708e308629f1921a050d58520ad5560422b09406a7d1ca8942",
+    "quality_ledger_content_hash_sha256": "5d1a205c7f79ca1b269307e34750c0d46dc104c8a799e9b4d01c862d307d7ba0",
+    "exclusion_ledger_content_hash_sha256": "5e3ae2e524fcdbd5d045698a5a14bd397ae2c21bf0ff9ae2f54f2502c35a3ff7",
+    "source_manifest_hash_sha256": "see phase2.table_schema_hashes_sha256 (7 independent schema hashes) plus phase2.source_db_manifest.canonical_sqlite.sha256",
+    "per_window_partitions": "see phase4 per-window content_hash_* fields (15 hashes: 3 tables x 5 windows)",
+    "complete_rehearsal_package": {
+      "raw_byte_hash_sha256": "a209e84ad15592d1665e8d02b1393f9aa079c8b33207cff4cd4d567e8a92a49c",
+      "raw_byte_hash_basis": "sha256 over sorted 'filename:sha256' pairs for manifest.json, rehearsal_result.json, rehearsal_run1.sqlite, rehearsal_run2.sqlite",
+      "semantic_content_hash_sha256": "9ad5f49c9ae952577cb3c81a77c1a70c0f0c54df66bdb2081e5a6dc8a0d24d93",
+      "semantic_content_hash_basis": "sha256 over sorted 'table:content_hash' pairs for the three scientific tables"
+    },
+    "run1_vs_run2_raw_file_hashes_differ": true,
+    "run1_vs_run2_raw_file_hash_reason": "created_ms/assessed_at_ms bookkeeping timestamps only",
+    "run1_vs_run2_content_hashes_identical": true,
+    "files_never_described_as_byte_identical_when_they_are_not": true
+  },
+  "phase6_exact_proxy_separation_freeze": {
+    "native_agg_trade_absorption_impact_reconstruction": "primary EXACT_RECONSTRUCTABLE representation",
+    "book_depth_absorption": "LOW_FIDELITY_PROXY_ONLY (ruled in the readiness audit; not constructed in this rehearsal, not constructed in this freeze batch)",
+    "proxy_layer_constructed_in_rehearsal": false,
+    "proxy_layer_constructed_in_this_freeze_batch": false,
+    "proxy_rows_in_primary_table": 0,
+    "rules_frozen": {
+      "separate_physical_storage": true,
+      "separate_accounting": true,
+      "no_union_or_pooling_in_primary_population": true,
+      "no_silent_fallback": true,
+      "no_substitution_when_primary_row_missing": true,
+      "proxy_promotion_requires_separate_future_preregistration": true
+    },
+    "statement": "the disposable rehearsal did not construct a proxy layer; this freeze batch does not invent one either -- proxy representation for this family is out of scope for the migration this freeze prepares"
+  },
+  "phase7_known_at_and_access_freeze": {
+    "known_at_violations": 0,
+    "outcome_reads": 0,
+    "post_cutoff_source_rows": 0,
+    "feature_availability_deterministic": true,
+    "independent_verification_this_batch": {
+      "feature_available_ts_ms_equals_signal_birth_ts_mismatches_run1": 0,
+      "feature_available_ts_ms_equals_signal_birth_ts_mismatches_run2": 0,
+      "window_end_ts_ms_equals_signal_birth_ts_mismatches_run1": 0,
+      "window_end_ts_ms_equals_signal_birth_ts_mismatches_run2": 0,
+      "known_at_classification_not_KNOWN_AT_SAFE_run1": 0,
+      "known_at_classification_not_KNOWN_AT_SAFE_run2": 0,
+      "evidence_layer_not_EXACT_run1": 0,
+      "evidence_layer_not_EXACT_run2": 0,
+      "window_boundary_duration_mismatch_run1": 0,
+      "window_boundary_duration_mismatch_run2": 0,
+      "method": "read-only SQL against retained rehearsal_run1.sqlite / rehearsal_run2.sqlite; no outcome table exists in either disposable database (they contain only absorption_impact_windowed_flow/window_quality_v1/exclusions/rehearsal_manifest)"
+    },
+    "every_usable_row_satisfies_frozen_cutoff": true,
+    "outcome_reads_reread_this_batch": false,
+    "original_authorizer_proof_reference": "install_outcome_access_guard(), SQLITE_DENY on ami_lifecycle_path_observations / endpoint_return_bps / mfe_bps / mae_bps, installed for the entire fc43e972 rehearsal run; outcome_access_violations = [] (0 attempts)"
+  },
+  "phase8_expected_canonical_migration_manifest": {
+    "note_on_naming": "the frozen contract (fc1321f5, section 12) used the illustrative name ami_impact_window_quality_v1; the validated rehearsal implementation (fc43e972) actually used and hash-proved absorption_impact_windowed_flow / absorption_impact_window_quality_v1 / absorption_impact_exclusions. This freeze recommends the future canonical migration (A5) reuse the rehearsal's exact validated table names for continuity between validated code and canonical schema, rather than renaming at migration time -- an explicit operator decision point, not decided unilaterally here.",
+    "tables": [
+      {
+        "name": "absorption_impact_windowed_flow (canonical, illustrative-alias ami_impact_windowed_flow)",
+        "purpose": "one row per usable (signal, window) pair: the constructed price_response_per_signed_notional feature and its inputs",
+        "primary_key": "feature_id (content-derived sha256(symbol|signal_id|window_id|version)[:24], prefixed AIF-)",
+        "unique_constraint": "(symbol, signal_id, window_id, feature_definition_version)",
+        "columns_and_units": "feature_id TEXT, feature_definition_version TEXT, signal_id TEXT, source_event_id TEXT, independent_cycle_id TEXT, symbol TEXT, direction TEXT, signal_birth_ts INTEGER (ms), window_id TEXT, window_start_ts_ms INTEGER, window_end_ts_ms INTEGER, trade_count INTEGER, native_rows_used INTEGER, repaired_rows_used INTEGER, signed_notional REAL (USD), total_notional REAL (USD), mark_price_start REAL, mark_price_end REAL, mark_return_bps REAL, floor_usd_m_applied INTEGER (bool), floor_usd_m_value REAL, price_response_per_signed_notional REAL (bps per $1M), evidence_layer TEXT, feature_available_ts_ms INTEGER, known_at_classification TEXT, created_ms INTEGER",
+        "constraints": ["CHECK (window_end_ts_ms = signal_birth_ts)", "CHECK (feature_available_ts_ms = signal_birth_ts)", "CHECK (known_at_classification = 'KNOWN_AT_SAFE')", "CHECK (evidence_layer = 'EXACT')", "CHECK (direction IN ('LONG','SHORT'))"],
+        "evidence_layer_checks": "CHECK (evidence_layer='EXACT'); no proxy row may ever exist in this table",
+        "foreign_keys": "signal_id -> ami_signal_lifecycle.signal_id (logical; not enforced at rehearsal stage, should be enforced or at least verified at migration time)",
+        "indexes": "recommended: (symbol, window_id), (signal_id)",
+        "immutable_update_policy": "insert-only; a corrected computation requires a new feature_definition_version, never an UPDATE of an existing row",
+        "expected_row_count": 1619,
+        "expected_content_hash_sha256": "f7c834cc8ebe90708e308629f1921a050d58520ad5560422b09406a7d1ca8942",
+        "idempotent_insert_behavior": "INSERT OR IGNORE on the UNIQUE constraint; a second migration run must be a no-op (0 new rows, 0 changed rows)"
+      },
+      {
+        "name": "absorption_impact_window_quality_v1 (canonical, illustrative-alias ami_impact_window_quality_v1)",
+        "purpose": "exactly one quality-classification row per (signal, window) pair regardless of usability",
+        "primary_key": "quality_id (content-derived)",
+        "unique_constraint": "(signal_id, window_id, quality_contract_version)",
+        "columns_and_units": "quality_id TEXT, quality_contract_version TEXT, signal_id TEXT, symbol TEXT, window_id TEXT, window_start_ts_ms INTEGER, window_end_ts_ms INTEGER, evidence_layer TEXT, quality_status TEXT, confirmed_gap_overlap INTEGER (bool), unresolved_gap_overlap INTEGER (bool), before_collection_began INTEGER (bool), repaired_rows_used INTEGER, native_rows_used INTEGER, assessed_at_ms INTEGER",
+        "constraints": ["CHECK (quality_status IN ('EXACT_RECONSTRUCTABLE','PROXY_ONLY','SOURCE_GAPPED','SOURCE_COVERAGE_UNRESOLVED','UNREPAIRABLE'))", "CHECK (evidence_layer = 'EXACT')"],
+        "evidence_layer_checks": "same CHECK as windowed_flow",
+        "foreign_keys": "signal_id -> ami_signal_lifecycle.signal_id (logical)",
+        "indexes": "recommended: (window_id, quality_status)",
+        "immutable_update_policy": "insert-only per quality_contract_version; disclosed gap vs. CVD's full cadence-proof machinery -- this rehearsal's classify_quality() is a conservative gap-ledger-only approximation (see remaining risk #1 in the rehearsal report), an open item for A5 to resolve, not silently upgraded here",
+        "expected_row_count": 1620,
+        "expected_content_hash_sha256": "5d1a205c7f79ca1b269307e34750c0d46dc104c8a799e9b4d01c862d307d7ba0",
+        "idempotent_insert_behavior": "INSERT OR IGNORE; second run is a no-op"
+      },
+      {
+        "name": "absorption_impact_exclusions (canonical, illustrative-alias ami_impact_exclusions)",
+        "purpose": "immutable exclusion ledger; one row per (signal, window) pair that could not be constructed",
+        "primary_key": "exclusion_id (content-derived)",
+        "unique_constraint": "(signal_id, window_id, reason_code)",
+        "columns_and_units": "exclusion_id TEXT, signal_id TEXT, symbol TEXT, window_id TEXT, reason_code TEXT, created_ms INTEGER",
+        "constraints": ["CHECK (reason_code IN ('WINDOW_STARTS_BEFORE_COLLECTION_BEGAN','CONFIRMED_GAP_OVERLAP','UNRESOLVED_GAP_PROXIMITY'))"],
+        "evidence_layer_checks": "n/a (no evidence_layer column; exclusions are pre-evidence)",
+        "foreign_keys": "signal_id -> ami_signal_lifecycle.signal_id (logical)",
+        "indexes": "recommended: (window_id, reason_code)",
+        "immutable_update_policy": "insert-only; a signal/window pair excluded for a gap must never be silently repaired into this same row -- a repair would require a new reason-code-absent feature row plus retention of this exclusion row for audit history, or an explicit superseding decision at A5",
+        "expected_row_count": 1,
+        "expected_content_hash_sha256": "5e3ae2e524fcdbd5d045698a5a14bd397ae2c21bf0ff9ae2f54f2502c35a3ff7",
+        "idempotent_insert_behavior": "INSERT OR IGNORE; second run is a no-op"
+      }
+    ],
+    "effective_views": "not required by the rehearsal-validated schema (no assessment_version-latest-wins versioning is implemented, unlike the contract's illustrative CVD-parallel description); this is a disclosed gap between the frozen contract's aspirational description (section 12) and the rehearsal's actual validated implementation -- an A5 decision point, not resolved in this freeze",
+    "broad_feature_store_redesign_proposed": false,
+    "ddl_implemented_in_live_database_this_batch": false
+  },
+  "phase9_migration_acceptance_equations": {
+    "expected_feature_rows": 1619,
+    "expected_exclusions": 1,
+    "expected_candidate_universe": 1620,
+    "known_at_violations_required": 0,
+    "duplicate_primary_keys_required": 0,
+    "proxy_rows_in_primary_table_required": 0,
+    "outcome_reads_required": 0,
+    "experiment_writes_required": 0,
+    "runtime_risk_execution_delta_required": 0,
+    "second_migration_run_required_result": "NOOP_IDENTICAL",
+    "backup_restore_proof_required": true,
+    "canonical_regression_requirements": "existing AMI test suites (tests/test_ami_knowledge_governance.py, tests/test_ami_states_research.py, and any warehouse-schema tests) must pass unchanged after migration; schema_version bump itself must be the only warehouse.schema.py delta attributable to this family",
+    "source_package_code_hashes_must_match_this_freeze": true,
+    "drift_policy": "any count or hash drift at A5 must block migration; no automatic reconciliation permitted"
+  },
+  "phase10_independent_freeze_verification": {
+    "method": "read-only queries against the two retained disposable databases (rehearsal_run1.sqlite, rehearsal_run2.sqlite); no rebuild of the full rehearsal against microstructure.db was performed; no new disposable database was created",
+    "all_row_counts_verified": true,
+    "all_primary_keys_verified": true,
+    "all_quality_partitions_verified": true,
+    "all_exclusion_reasons_verified": true,
+    "all_content_hashes_verified": true,
+    "w3600_source_gap_independently_traced_to_gap_id_766": true,
+    "denominator_floor_non_binding_confirmed": true,
+    "known_at_compliance_confirmed": true,
+    "outcome_access_count_confirmed_zero_by_absence_of_outcome_table_in_disposable_schema": true,
+    "result": "ROW_ACCOUNTING_IDENTICAL_TO_ACCEPTED_REHEARSAL",
+    "any_drift_found": false
+  },
+  "live_database_state": {
+    "canonical_sqlite_sha256_unchanged": "25a56a98d02f84191aeb6ff46f81245d36bc0d635e916dbfac3e13d076bf5291",
+    "experiment_registry_before": 23, "experiment_registry_after": 23,
+    "experiment_results_before": 350, "experiment_results_after": 350,
+    "schema_version_before": 12, "schema_version_after": 12,
+    "researcher_exposure_ledger_before": 1176, "researcher_exposure_ledger_after": 1176,
+    "epistemic_test_nullifiers_before": 1, "epistemic_test_nullifiers_after": 1,
+    "experiment_gate_receipts_before": 1, "experiment_gate_receipts_after": 1,
+    "no_feature_window_or_floor_change": true,
+    "no_runtime_risk_execution_delta": true,
+    "no_route_or_bucket_promotion": true,
+    "no_canonical_migration_occurred": true
+  },
+  "storage_guardrail": {
+    "peak_temporary_disk_usage_this_batch_bytes": 6713,
+    "files_created_this_batch": ["independent_verification_run1_run2.json (working diagnostic, deleted after incorporation into this freeze)"],
+    "files_retained_this_batch": ["reports/research/s34/S34_CASCADE_ABSORPTION_IMPACT_ROW_ACCOUNTING_FREEZE_V1.md", "reports/research/s34/S34_CASCADE_ABSORPTION_IMPACT_ROW_ACCOUNTING_FREEZE_V1.json", "reports/governance/CASCADE_ABSORPTION_IMPACT_ROW_ACCOUNTING_FREEZE_V1_STATE_TRANSITION_PROOF.md"],
+    "files_deleted_this_batch": [".runtime_temp/absorption_impact_rehearsal_v1/independent_verification_run1_run2.json"],
+    "remaining_files_under_runtime_temp": ["absorption_impact_rehearsal_v1/manifest.json", "absorption_impact_rehearsal_v1/rehearsal_result.json", "absorption_impact_rehearsal_v1/rehearsal_run1.sqlite", "absorption_impact_rehearsal_v1/rehearsal_run2.sqlite"],
+    "remaining_files_under_pytest_temp": [],
+    "no_full_microstructure_db_copy_made": true
+  },
+  "success_verdict": "CASCADE_ABSORPTION_IMPACT_ROW_ACCOUNTING_FREEZE_V1_COMPLETE",
+  "readiness_verdict": "ABSORPTION_IMPACT_ROW_ACCOUNTING_FROZEN_FOR_CANONICAL_MIGRATION",
+  "next_gate": "A5 -- controlled canonical migration (requires new, separate operator instruction; not started by this batch)"
+}
