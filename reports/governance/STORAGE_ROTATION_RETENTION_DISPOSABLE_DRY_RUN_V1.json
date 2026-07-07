@@ -1,0 +1,230 @@
+{
+  "gate": "BATCH-STORAGE-ROTATION-RETENTION-DISPOSABLE-DRY-RUN-V1",
+  "date": "2026-07-07",
+  "author": "Sonnet 5",
+  "nature": "bounded, non-production, non-destructive archive rehearsal",
+  "accepted_checkpoint": {
+    "readiness_commit": "f65545ee",
+    "discrepancy_audit_commit": "54c1355f",
+    "governance_state": {"schema_version": 14, "experiment_registry": 24, "experiment_results": 381, "epistemic_test_nullifiers": 2, "experiment_gate_receipts": 2}
+  },
+  "phase_1_tooling": {
+    "python_version": "3.13.9",
+    "python_executable": "C:\\Users\\Windows 11\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+    "pyarrow_version": "21.0.0",
+    "zstd_available": true,
+    "pandas_version": "2.3.3",
+    "sqlite_version": "3.50.4",
+    "packages_installed": 0,
+    "blocked_by_tooling": false
+  },
+  "phase_2_partition_selection": {
+    "selected_table": "mark_prices",
+    "selected_symbol": "ETHUSDT",
+    "selected_venue": "BINANCE_USDM_PERP",
+    "selected_market_segment": "PERPETUAL_FUTURES",
+    "utc_partition_start": "2026-05-01T00:00:00Z",
+    "utc_partition_end": "2026-06-01T00:00:00Z",
+    "boundary_type": "half-open UTC calendar month",
+    "selection_query_time_sec": 0.03838372230529785,
+    "rejected_candidates": [
+      {"table": "agg_trades", "reason": "larger row count than necessary for first rehearsal"},
+      {"table": "book_ticker", "reason": "largest table (~4.79B rows), reserved for later larger-scale rehearsal"}
+    ]
+  },
+  "phase_3_source_snapshot": {
+    "source_database": "data/microstructure.db",
+    "connection_mode": "read-only (mode=ro)",
+    "watermark_field": "id",
+    "watermark_value": 13265132,
+    "snapshot_start_ts_utc": "2026-07-07T18:19:29.661971+00:00",
+    "row_count": 260657,
+    "min_id": 12483110,
+    "max_id": 13265132,
+    "min_ts_ms": 1777593604001,
+    "max_ts_ms": 1780271978008,
+    "duplicate_id_count": 0,
+    "null_counts": {"id": 0, "ts_ms": 0, "symbol": 0, "mark_price": 0, "funding_rate": 0, "next_funding_time_ms": 0},
+    "symbols_present": ["ETHUSDT"],
+    "scientific_content_hash": "228c5705bc1461471102b5bbc1e81b781ddfe7cb5a853b484a7cbb5961860999",
+    "schema_sql": "CREATE TABLE mark_prices (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    ts_ms INTEGER NOT NULL,\n    symbol TEXT NOT NULL,\n    mark_price REAL NOT NULL,\n    funding_rate REAL,\n    next_funding_time_ms INTEGER\n)",
+    "db_size_start_bytes": 759124799488,
+    "wal_size_start_bytes": 8157632,
+    "gap_ledger_overlap": {
+      "total_gap_rows_overlapping_partition": 31,
+      "unresolved_open_ended_gaps": 3,
+      "unresolved_gap_ids": [778, 781, 796],
+      "note": "disclosed honestly; does not block disposable rehearsal, only future purge"
+    }
+  },
+  "phase_4_archive_schema": {
+    "columns": {
+      "id": {"sql_type": "INTEGER", "parquet_type": "int64", "nullable": false},
+      "ts_ms": {"sql_type": "INTEGER", "parquet_type": "int64", "nullable": false},
+      "symbol": {"sql_type": "TEXT", "parquet_type": "string", "nullable": false},
+      "mark_price": {"sql_type": "REAL", "parquet_type": "double", "nullable": false},
+      "funding_rate": {"sql_type": "REAL", "parquet_type": "double", "nullable": true},
+      "next_funding_time_ms": {"sql_type": "INTEGER", "parquet_type": "int64", "nullable": true}
+    },
+    "all_source_columns_preserved": true,
+    "no_type_narrowing": true,
+    "no_timestamp_precision_loss": true
+  },
+  "phase_6_export": {
+    "export_duration_sec": 0.4670524597167969,
+    "row_groups": 1,
+    "min_source_id": 12483110,
+    "max_source_id": 13265132
+  },
+  "phase_7_validation": {
+    "row_count_match": true,
+    "scientific_hash_match": true,
+    "compression": "ZSTD",
+    "min_id_match": true,
+    "max_id_match": true,
+    "symbol_only_selected": true,
+    "all_ts_in_range": true,
+    "all_ids_le_watermark": true,
+    "duplicate_count": 0,
+    "column_count_match": true,
+    "all_checks_passed": true,
+    "published": true
+  },
+  "phase_8_manifest": {
+    "field_count": 36,
+    "production_status": "DISPOSABLE_NOT_PRODUCTION",
+    "purge_authorization": "PROHIBITED",
+    "ordered_scientific_content_hash": "228c5705bc1461471102b5bbc1e81b781ddfe7cb5a853b484a7cbb5961860999",
+    "parquet_sha256": "6f91914400dcbe84b662c9260a24f9e5eb7f56b2d9db34adfde55a53af8e900f",
+    "verification_status": "PASS",
+    "source_gap_status": "GAPS_PRESENT_MOSTLY_RESOLVED_SEE_REPORT",
+    "repair_status": "NOT_APPLICABLE_MARK_PRICES_HAS_NO_REPAIR_LAYER",
+    "atomic_publication": true
+  },
+  "phase_9_direct_read_parity": {
+    "fresh_source_hash": "228c5705bc1461471102b5bbc1e81b781ddfe7cb5a853b484a7cbb5961860999",
+    "published_parquet_hash": "228c5705bc1461471102b5bbc1e81b781ddfe7cb5a853b484a7cbb5961860999",
+    "match": true,
+    "mismatch_count": 0,
+    "row_count_match": true
+  },
+  "phase_10_restore_parity": {
+    "restored_row_count": 260657,
+    "source_row_count": 260657,
+    "row_count_match": true,
+    "restored_hash": "228c5705bc1461471102b5bbc1e81b781ddfe7cb5a853b484a7cbb5961860999",
+    "matches_source": true,
+    "matches_parquet": true
+  },
+  "phase_11_run_a_vs_run_b": {
+    "source_scientific_hash_a": "228c5705bc1461471102b5bbc1e81b781ddfe7cb5a853b484a7cbb5961860999",
+    "source_scientific_hash_b": "228c5705bc1461471102b5bbc1e81b781ddfe7cb5a853b484a7cbb5961860999",
+    "source_hash_match": true,
+    "parquet_scientific_hash_match": true,
+    "parquet_file_sha256_a": "6f91914400dcbe84b662c9260a24f9e5eb7f56b2d9db34adfde55a53af8e900f",
+    "parquet_file_sha256_b": "6f91914400dcbe84b662c9260a24f9e5eb7f56b2d9db34adfde55a53af8e900f",
+    "parquet_file_byte_identical": true,
+    "parquet_size_bytes": 2476313,
+    "row_count": 260657,
+    "note": "full byte-level determinism achieved, no writer-metadata variance observed"
+  },
+  "phase_12_interruption_test": {
+    "partial_file_never_had_final_name": true,
+    "interrupted_state_was_not_published": true,
+    "restart_discarded_partial": true,
+    "restart_rebuild_matches_fresh_build": true
+  },
+  "phase_13_corruption_tests": {
+    "parquet_corruption": {
+      "original_untouched": true,
+      "corrupted_file_hash_differs": true,
+      "corrupted_parquet_readable": true,
+      "content_or_checksum_mismatch_detected": true,
+      "would_be_rejected_before_verified_status": true
+    },
+    "manifest_corruption": {
+      "hash_field_tampered": true,
+      "mismatch_detected": true,
+      "would_fail_verification": true
+    },
+    "corruption_test_copies_deleted": true
+  },
+  "phase_14_late_arrival_watermark_proof": {
+    "captured_watermark_id": 13265132,
+    "current_max_id_same_partition": 13265132,
+    "watermark_unchanged": true,
+    "rows_above_watermark_now": 0,
+    "rows_above_watermark_in_archive": 0,
+    "exclusion_mechanism": "id<=watermark filter in export query, proven via all_ids_le_watermark check",
+    "policy": "any late row would require a new manifest version; published archive never mutated in place"
+  },
+  "phase_15_research_dependency_proof": {
+    "table_classification": "RAW_HIGH_FREQUENCY_ARCHIVE_ELIGIBLE, CONDITIONAL purge-eligibility",
+    "conditional_reason": "funding_rates is dead; mark_prices is the last surviving raw funding-adjacent source",
+    "source_rows_deleted": 0,
+    "partitions_marked_purge_safe": 0,
+    "book_ticker_touched": false,
+    "collector_continuity_altered": false,
+    "active_30_day_availability_altered": false
+  },
+  "phase_16_live_source_immutability": {
+    "authorizer_denied_write_attempts": 0,
+    "authorizer_log": [],
+    "db_size_start_bytes": 759124799488,
+    "db_size_end_bytes": 759124799488,
+    "wal_size_start_bytes": 8157632,
+    "wal_size_end_bytes": 3015872,
+    "wal_shrink_explanation": "live collector's own periodic checkpoint, not caused by this batch (no checkpoint command issued)",
+    "table_global_max_id_at_watermark_capture_partition_scoped": 13265132,
+    "table_global_max_id_at_audit_end_unscoped_all_months": 21101480,
+    "jump_explanation": "second figure is table-wide across all months through today; does not indicate any row added to the May 2026 partition (proven separately by unchanged partition-scoped watermark)",
+    "dry_run_process_write_count": 0
+  },
+  "phase_17_performance": {
+    "source_rows": 260657,
+    "parquet_size_bytes": 2476313,
+    "compression_ratio": 5.052485691429153,
+    "total_elapsed_sec": 9.907512187957764,
+    "peak_disposable_disk_usage_bytes": 20333167,
+    "within_4gb_cap": true,
+    "within_2gb_hard_partition_cap": true,
+    "full_table_scans_outside_partition": 0,
+    "full_database_copies": 0,
+    "os_temp_database_copies": 0,
+    "collector_stoppage": 0
+  },
+  "verdict": "STORAGE_ROTATION_RETENTION_DISPOSABLE_DRY_RUN_V1_COMPLETE",
+  "readiness_disposition": "STORAGE_ROTATION_RETENTION_ARCHIVE_TOOLING_READY_FOR_BOUNDED_IMPLEMENTATION",
+  "disposition_authorizes": {
+    "production_archival": false,
+    "row_deletion": false,
+    "purge": false,
+    "scheduler_activation": false,
+    "collector_changes": false
+  },
+  "blockers": [
+    "only mark_prices rehearsed; agg_trades and book_ticker (larger tables) unrehearsed",
+    "late-arrival exclusion proven structurally, not exercised against an actual late row (none existed for a 2+ month old partition)"
+  ],
+  "focused_tests": {"file": "tests/test_ami_governance_storage_rotation_retention_disposable_dry_run_v1.py", "total": 40, "passed": 40},
+  "regression": {
+    "paired_with": ["tests/test_ami_governance_storage_rotation_retention_readiness_v1.py", "tests/test_ami_governance_storage_disk_usage_discrepancy_audit_v1.py"],
+    "batch_nature": "committed module is pure logic (zero DB/filesystem access, proven by AST guard); actual I/O lived only in the disposable, uncommitted driver script"
+  },
+  "canonical_sqlite_sha256_unchanged": "0604b0da93238388451eb23203e1b12806f6e627d4d599168877e1abcb8d57a0",
+  "knowledge_sqlite_sha256_unchanged": "710b3f689db2238f11efa04230600b9ddd06e500807b5fb69c7e797e6053dc65",
+  "storage_report": {
+    "peak_disposable_disk_usage_bytes": 20333167,
+    "files_created_total": 10,
+    "files_deleted_immediately": 3,
+    "files_deleted_post_hash_recording": 7,
+    "files_retained": ["driver.py (19810 bytes)", "results.json (6230 bytes)"],
+    "final_dry_run_dir_total_bytes": 26040,
+    "production_archive_created": false,
+    "source_row_deleted_or_modified": false,
+    "full_database_copy_created": false
+  },
+  "next_gate": "BATCH-STORAGE-ROTATION-RETENTION-BOUNDED-IMPLEMENTATION-V1",
+  "next_gate_begun": false,
+  "execution_stopped": true
+}
