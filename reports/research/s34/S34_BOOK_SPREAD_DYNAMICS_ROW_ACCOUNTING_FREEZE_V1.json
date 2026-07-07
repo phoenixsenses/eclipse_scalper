@@ -1,0 +1,183 @@
+{
+  "gate": "BATCH-BOOK-SPREAD-DYNAMICS-ROW-ACCOUNTING-FREEZE-V1",
+  "date": "2026-07-07",
+  "author": "Sonnet 5",
+  "nature": "outcome-blind immutable row-accounting and lineage freeze only -- no migration, no schema change, no outcome access, no experiment/nullifier/gate-receipt",
+  "freeze_version": "BOOK_SPREAD_DYNAMICS_ROW_ACCOUNTING_FREEZE_V1",
+  "accepted_checkpoint": {
+    "rehearsal_commit": "6a449a64",
+    "readiness_commit": "f115b9c1",
+    "operator_ruling": "FAM_BOOK_SPREAD_DYNAMICS_PRIMARY_DEFINITION_V1 (W300 + additive spread_change_bps difference)",
+    "rehearsal_verdict": "BOOK_SPREAD_DYNAMICS_DISPOSABLE_REHEARSAL_V1_COMPLETE",
+    "schema_version": 13, "experiment_registry": 24, "experiment_results": 381,
+    "epistemic_test_nullifiers": 2, "experiment_gate_receipts": 2,
+    "deterministic_regression_baseline": "1027 collected / 1013 passed / 14 narrowly waived"
+  },
+  "family_and_child_identity": {
+    "family_id": "FAM_BOOK_SPREAD_DYNAMICS",
+    "child_working_id": "H-BOOK-SPREAD-CHANGE-BPS-W300-V1",
+    "formula_version": "BOOK_SPREAD_CHANGE_BPS_W300_V1",
+    "specification_hash": "ea611121291c63136860d57926389520de571ce6615bed2e1a3627e51442a212"
+  },
+  "source_identity": {
+    "database": "data/microstructure.db", "table": "book_ticker",
+    "bid_field": "bid_price", "ask_field": "ask_price", "deterministic_row_id": "id",
+    "venue": "BINANCE_USDM_PERP", "symbol": "ETHUSDT", "market_segment": "PERPETUAL_FUTURES", "quote_currency": "USDT",
+    "exact_or_proxy": "EXACT (L1 best bid/ask IS the spread)"
+  },
+  "exact_specification": {
+    "formula": "spread_change_bps_w300 = spread_bps(t0) - spread_bps(t0-300s); mid=(ask+bid)/2; spread_bps=1e4*(ask-bid)/mid",
+    "window_ms": 300000,
+    "current_target": "t0 = signal_birth_ts", "historical_target": "t0 - 300000 ms",
+    "quote_selection": "latest quote WHERE ts_ms<=target ORDER BY ts_ms DESC, id DESC LIMIT 1",
+    "duplicate_ts_tiebreak": "id DESC", "staleness_tolerance_ms": 300000,
+    "invalid_source_policy": "crossed/locked/zero/negative excluded with own codes",
+    "quality_precedence": ["UNAVAILABLE_BEFORE_COLLECTION", "INVALID_QUOTE_ZERO_OR_NEG", "INVALID_QUOTE_CROSSED", "INVALID_QUOTE_LOCKED", "STALE_SOURCE"],
+    "known_at_ts": "= signal_birth_ts", "feature_available_ts": "= signal_birth_ts",
+    "units": "bps of spread change", "numerical_precision": "IEEE-754 double, no rounding"
+  },
+  "ordering_policy": "signal_birth_ts ASC, anchor_id ASC (uses only immutable anchor fields; never feature values/quality/direction/outcomes)",
+  "serialization_policy": "per-field repr() (full round-trippable float precision); fields joined U+001F; records joined U+001E; sha256",
+  "anchor_accounting": {
+    "total_anchors": 324, "distinct_anchor_ids": 324,
+    "EXACT_RECONSTRUCTABLE": 196, "STALE_SOURCE": 22, "UNAVAILABLE_BEFORE_COLLECTION": 106,
+    "INVALID_QUOTE_CROSSED": 0, "INVALID_QUOTE_ZERO_OR_NEG": 0, "INVALID_QUOTE_LOCKED": 0,
+    "REPAIRED_EXACT": 0, "SOURCE_GAPPED": 0, "PROXY_ONLY": 0,
+    "symbol_mismatch": 0, "venue_mismatch": 0, "market_segment_mismatch": 0, "quote_currency_mismatch": 0,
+    "duplicate_anchor": 0,
+    "reconciliation": "324 = 196 + 22 + 106",
+    "reconciles": true
+  },
+  "exact_feature_accounting": {
+    "exact_rows": 196, "exact_with_feature_value": 196, "excluded_with_feature_value": 0,
+    "spread_change_bps_min": -0.0008385226773034646, "spread_change_bps_max": 0.12807017834733342,
+    "spread_change_bps_median": 0.000180781759279533,
+    "expansion_positive": 170, "compression_negative": 26, "zero": 0,
+    "additive_identity_holds_exactly": true, "nonfinite_values": 0, "mid_nonpositive": 0
+  },
+  "exclusion_accounting": {
+    "total_excluded": 128, "reconciliation": "128 = 22 STALE_SOURCE + 106 UNAVAILABLE_BEFORE_COLLECTION",
+    "STALE_SOURCE": 22, "UNAVAILABLE_BEFORE_COLLECTION": 106,
+    "zero_count_categories_reproduced": {
+      "INVALID_QUOTE_ZERO_OR_NEG": 0, "INVALID_QUOTE_CROSSED": 0, "INVALID_QUOTE_LOCKED": 0,
+      "SOURCE_GAPPED": 0, "REPAIRED_EXACT": 0, "PROXY_ONLY": 0,
+      "symbol_mismatch": 0, "venue_mismatch": 0, "market_segment_mismatch": 0, "quote_currency_mismatch": 0, "duplicate_anchor": 0
+    }
+  },
+  "cycle_accounting": {
+    "independent_cycles_total_all_anchors": 167,
+    "exact_independent_cycles": 97,
+    "exact_cycle_membership_rows": 196,
+    "cycle_representatives": 97,
+    "duplicate_cycle_ids_in_representative_set": 0,
+    "cycles_with_more_than_one_representative": 0,
+    "exact_eligible_cycles_without_representative": 0,
+    "representative_rule": "earliest signal_birth_ts per independent_cycle_id among EXACT rows (anchor_id tie-break); uses no outcome/feature/direction/subgroup/route/bucket signal"
+  },
+  "selected_source_lineage_summary": {
+    "per_exact_row_binds": ["current_quote_id","current_quote_ts","historical_quote_id","historical_quote_ts","current_bid","current_ask","historical_bid","historical_ask","current_spread_bps","historical_spread_bps","spread_change_bps_w300"],
+    "current_quote_age_ms_min": 0, "current_quote_age_ms_median": 2, "current_quote_age_ms_max": 13682
+  },
+  "accepted_versus_replay": {
+    "independent_replays": 2,
+    "A_eq_B_content_hash": true, "A_eq_B_row_manifest_hash": true, "A_eq_B_all_manifest_hashes": true,
+    "A_eq_accepted_rehearsal_content_hash": true, "A_eq_accepted_rehearsal_row_manifest_hash": true,
+    "B_eq_accepted_rehearsal_content_hash": true,
+    "accepted_content_hash": "5e9ee58cd9c260c2877b05ed803dbf51767ecedc579bdc90c37b5391a867bcbb",
+    "accepted_row_manifest_hash": "8e8e23ff8af6dfd1c11199f963698d4a148583fd2b9c979dffa7f4e4fdec72f2",
+    "method": "fresh independent rebuilds via the accepted rehearsal builder (not a copy), each with an SQLite authorizer installed; equality compared against the retained accepted rehearsal evidence (.runtime_temp/spread_rehearsal_v1/rehearsal_run1.sqlite) recomputed live",
+    "note": "the replay uses the SAME input_manifest_id as the accepted rehearsal (spread-rehearsal-v1-input-manifest) so the rehearsal content hash reproduces exactly; no content-hash field is excluded to force the match"
+  },
+  "known_at_proof": {
+    "current_endpoint_future_quote_selections": 0,
+    "historical_endpoint_future_quote_selections": 0,
+    "current_endpoint_staleness_violations": 0,
+    "historical_endpoint_staleness_violations": 0,
+    "identity_violations": 0,
+    "known_at_field_violations": 0,
+    "all_zero": true,
+    "revalidated_directly_from_frozen_lineage_fields": true
+  },
+  "no_outcome_access_proof": {
+    "sqlite_authorizer_installed_on_canonical_both_replays": true,
+    "authorizer_violations_replay_A": [], "authorizer_violations_replay_B": [],
+    "denied_tables": ["ami_lifecycle_path_observations","experiment_registry","experiment_results","epistemic_test_nullifiers","experiment_gate_receipts"],
+    "denied_columns": ["endpoint_return_bps","mfe_bps","mae_bps"],
+    "ast_secondary_control": "static AST scan of .execute()-family literals (test_module_never_executes_sql_naming_outcome_or_governance)",
+    "outcome_reads": 0, "outcome_writes": 0, "experiment_creation": 0, "experiment_result_creation": 0,
+    "nullifier_creation": 0, "nullifier_consumption": 0, "gate_receipt_creation": 0, "gate_receipt_update": 0,
+    "route_bucket_promotion": 0
+  },
+  "component_hashes": {
+    "primary_definition_artifact": "d98f6793e4bc92f835ce7deed7954b0e96496bdbf3ea69d96e088210d2394c70",
+    "accepted_rehearsal_md": "75e4e30afdf8dd661cf44f878d55f5a8a74a950d53f3b9bee36fa6ebbb2a2b5c",
+    "accepted_rehearsal_json": "444d6bd3ab4eca184ffb9b738625c1fde6d565f4404db23de88357a1d4798d39",
+    "accepted_rehearsal_transition_proof": "3f9dd2a280a54055662ee4b932e1dffdf2f96dc5ed91e76e3ab0120464e672a4",
+    "accepted_rehearsal_implementation": "b4a45a5342ba161dc7d749de79e1fa6783781117c1a613cb4e9f1f047755160a",
+    "accepted_rehearsal_tests": "ff7738982ab36dc90828aad049bd944363175598657651e34c1d1e609bc561a4",
+    "accepted_retained_disposable_result_json": "bbefff65bd8f5642598c82e5944f0f9e59c8ca4e840592f63a7166f788e9f2c2",
+    "accepted_retained_disposable_row_manifest_hash": "8e8e23ff8af6dfd1c11199f963698d4a148583fd2b9c979dffa7f4e4fdec72f2",
+    "specification_hash": "ea611121291c63136860d57926389520de571ce6615bed2e1a3627e51442a212",
+    "ordered_anchor_manifest": "a77a8daf2a8d198d775436674a20a9bd5328dc071e2883938b7c331c17c534bb",
+    "exact_feature_manifest": "b1eb902f5b3d1ea0f19b4b60d0ad999907a042b228adf506bbe09800a81e155b",
+    "exclusion_manifest": "0694e43300710e1204c1b23643d9eacb9f10188c21aa0ceda572c28229cc8449",
+    "cycle_membership_manifest": "e692ff1c8ce37b54a3349a501a38bd44f24865e75a51accc81c7e97399d29e18",
+    "representative_manifest": "edadf5972cbbdddb0efa1db8234473ee089972f504d3bfbfafbae508238db246",
+    "rehearsal_content_hash": "5e9ee58cd9c260c2877b05ed803dbf51767ecedc579bdc90c37b5391a867bcbb",
+    "committed_manifest_json_sha256": "0a65c45ffba906414c7a484e3f966e2405017eaea8990aded429dc35ed142c89",
+    "freeze_module_sha256": "0c892d88b3744da4f6b41f88fa68c03dc4e34cc5949be60e8c84f164bdd37892"
+  },
+  "root_hash_definition": "sha256 over the sorted (name=full-hash) pairs of the row-accounting component set (5 ordered manifests + rehearsal content/row-manifest + specification), joined by U+001E",
+  "root_hash": "33c4f4be3233aad399d72fc525601c7eecb2eb6ab235ecd4070ba640701c6e31",
+  "root_hash_component_set": ["ordered_anchor_manifest","exact_feature_manifest","exclusion_manifest","cycle_membership_manifest","representative_manifest","rehearsal_content_hash","rehearsal_row_manifest_hash","specification_hash"],
+  "migration_contract_draft": {
+    "executed": false,
+    "proposed_destination_tables": {
+      "ami_book_spread_change_windowed_flow": {
+        "row_grain": "one row per EXACT anchor (feature grain)", "expected_rows": 196,
+        "primary_key": "feature_id", "unique": "(anchor_id, formula_version)",
+        "foreign_keys": ["anchor_id -> ami_signal_lifecycle.signal_id"],
+        "formula_version_field": "formula_version", "quality_field": "source_quality_class",
+        "lineage_fields": ["current_quote_id","historical_quote_id","current_quote_ts","historical_quote_ts","current_bid","current_ask","historical_bid","historical_ask","current_spread_bps","historical_spread_bps"],
+        "known_at_fields": ["known_at_ts","feature_available_ts"], "manifest_root_field": "row_accounting_root_hash",
+        "immutable": true
+      },
+      "ami_book_spread_change_window_quality_v1": {
+        "row_grain": "one row per anchor (accounting grain)", "expected_rows": 324,
+        "primary_key": "quality_id", "quality_field": "source_quality_class", "exclusion_field": "exclusion_reason",
+        "immutable": true
+      },
+      "ami_book_spread_change_exclusions": {
+        "row_grain": "one row per non-exact anchor", "expected_rows": 128,
+        "primary_key": "exclusion_id", "immutable": true
+      }
+    },
+    "expected_feature_row_count": 196, "expected_accounting_row_count": 324, "expected_representative_count": 97,
+    "idempotency_requirement": "second run NOOP_IDENTICAL; content/root hash unchanged",
+    "immutability_rules": "insert-only; a corrected computation requires a new formula_version / new freeze version, never an in-place overwrite",
+    "rollback_rebuild_proof": "byte-exact pre-migration backup + disposable restore proof before any real write (M-00xx discipline)",
+    "no_migration_id_assigned": true, "no_ddl_written": true, "no_schema_version_change": true, "no_canonical_write": true,
+    "note": "draft only, to make the next gate deterministic; assigns no migration ID and creates nothing"
+  },
+  "immutability_and_amendment": {
+    "immutable_fields_v1": ["family_id","child_id","formula_version","W300_window","additive_spread_bps_difference","source_table_and_fields","endpoint_selection_rules","id_desc_tiebreak","5min_staleness","locked_crossed_zero_negative_policies","source_quality_precedence","ordered_anchor_universe","exact_eligible_row_set","excluded_row_set","quality_classes","exclusion_reasons","selected_source_quote_ids","feature_values","cycle_membership","cycle_representatives","specification_hash","manifest_hashes","root_hash"],
+    "amendment_requires": ["a new version","a new explicit operator authorization","a new freeze artifact","a full explanation of why the prior version changed","no silent mutation of V1"],
+    "post_freeze_repair_policy": "post-freeze source repairs must not rewrite V1 retroactively; any repaired future version is separately versioned and discloses its relationship to V1"
+  },
+  "verdict": "BOOK_SPREAD_DYNAMICS_ROW_ACCOUNTING_FREEZE_V1_COMPLETE",
+  "freeze_disposition": "BOOK_SPREAD_DYNAMICS_ROW_ACCOUNTING_FROZEN_FOR_CANONICAL_MIGRATION",
+  "disposition_authorizes_no_automatic_step": true,
+  "recommended_next_gate": "BATCH-BOOK-SPREAD-DYNAMICS-CANONICAL-MIGRATION-V1 (do not begin automatically; must reuse this root, preserve 324/196/128/97, remain outcome-blind, assign a migration ID only inside that authorized gate)",
+  "blockers_or_risks": [
+    "none blocking the freeze verdict",
+    "22 STALE + 106 UNAVAILABLE are permanent, immutable, outcome-blind exclusions; usable population frozen at 196 rows / 97 cycles",
+    "future-preregistration cross-family holdout-overlap disclosure remains a later-gate concern, not a freeze blocker"
+  ],
+  "db_state_unchanged": {
+    "canonical_sqlite_sha256_before": "3aefce833a67b8d43b841619f97667a56e182822e167aa606320ca8c52043d59",
+    "canonical_sqlite_sha256_after": "3aefce833a67b8d43b841619f97667a56e182822e167aa606320ca8c52043d59",
+    "knowledge_sqlite_sha256_before": "710b3f689db2238f11efa04230600b9ddd06e500807b5fb69c7e797e6053dc65",
+    "knowledge_sqlite_sha256_after": "710b3f689db2238f11efa04230600b9ddd06e500807b5fb69c7e797e6053dc65",
+    "experiment_registry": 24, "schema_version": 13, "epistemic_test_nullifiers": 2, "experiment_gate_receipts": 2
+  }
+}
