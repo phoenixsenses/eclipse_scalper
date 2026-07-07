@@ -1,0 +1,212 @@
+{
+  "gate": "SPOT_PERP_BASIS_READINESS_AND_CONTRACT_V1",
+  "date": "2026-07-07",
+  "author": "Sonnet 5",
+  "canonical_family": "FAM_SPOT_PERP_BASIS_REVERSAL",
+  "family_identity_source": "reports/governance/NEXT_INDEPENDENT_RESEARCH_HYPOTHESIS_SELECTION_V1.md (commit 0c976e21), candidate 2, not invented this batch",
+  "graveyard_check": {
+    "hits": [],
+    "confirmed_clean": true,
+    "tables_scanned": ["graveyard_slash_fingerprints", "failure_archive"],
+    "stems_checked": ["basis", "spot", "arb", "funding", "perp"],
+    "existing_knowledge_object_conflict": false,
+    "closest_existing_ko": "K-S34-FUNDING-LEVEL-001 (funding rate level/velocity -- distinct mechanism, not the same family)"
+  },
+  "source_inventory": [
+    {
+      "source_name": "spot trade/ticker price",
+      "database": "microstructure.db", "table": "spot_prices", "symbol": "ETHUSDT",
+      "row_count": 65386, "first_ts_utc": "2026-03-07T16:00:00Z", "last_ts_utc": "live (2026-07-07, growing)",
+      "timestamp_field": "ts_ms", "price_field": "spot_price",
+      "venue": "Binance SPOT (api.binance.com/api/v3/ticker/price)",
+      "sampling_frequency": "~60s poll, public REST, no auth",
+      "known_at_semantics": "at-or-before, deterministic",
+      "repair_status": "none (no repair mechanism exists for this stream)",
+      "gap_status": "no gap ledger instrumented (0 rows in gaps table for stream='spot_prices'); measured empirically",
+      "exact_or_proxy": "EXACT where fresh (genuine last-traded/ticker spot price, not an index)",
+      "contemporaneous_with_anchors": "partial -- coverage begins 2026-03-07, anchor population begins 2026-02-17"
+    },
+    {
+      "source_name": "perp mark price (+ embedded funding)",
+      "database": "microstructure.db", "table": "mark_prices", "symbol": "ETHUSDT",
+      "row_count": 8793754, "first_ts_utc": "2026-02-15T14:26:28Z", "last_ts_utc": "live (2026-07-07)",
+      "timestamp_field": "ts_ms", "price_field": "mark_price",
+      "venue": "Binance USD(S)-M Perpetual Futures (fapi.binance.com, live websocket)",
+      "sampling_frequency": "sub-second, continuous",
+      "known_at_semantics": "at-or-before, already KNOWN_AT_SAFE (CVD/absorption precedent), re-confirmed this batch",
+      "repair_status": "n/a (already exact, live)",
+      "gap_status": "51 recorded gap incidents (pre-existing gaps ledger), none intersecting the anchor population at short windows",
+      "exact_or_proxy": "EXACT",
+      "contemporaneous_with_anchors": "full -- covers the entire anchor population"
+    },
+    {
+      "source_name": "standalone funding-rate ledger",
+      "database": "microstructure.db", "table": "funding_rates", "symbol": "ETHUSDT",
+      "row_count": 178, "first_ts_utc": "2026-02-15T16:00:00Z", "last_ts_utc": "2026-04-13T16:00:00Z",
+      "timestamp_field": "ts_ms", "price_field": "funding_rate",
+      "venue": "Binance perp (derived, source='mark_prices_next_funding')",
+      "sampling_frequency": "8h funding-interval cadence",
+      "known_at_semantics": "n/a -- table not live",
+      "repair_status": "none", "gap_status": "not instrumented",
+      "exact_or_proxy": "stale/abandoned table -- superseded by mark_prices.funding_rate (next row)",
+      "contemporaneous_with_anchors": "partial, dead ~3 months before present"
+    },
+    {
+      "source_name": "embedded funding (live, via mark_prices)",
+      "database": "microstructure.db", "table": "mark_prices.funding_rate", "symbol": "ETHUSDT",
+      "row_count": 8793754, "row_count_note": "100% non-null of total mark_prices rows",
+      "first_ts_utc": "2026-02-15T14:26:28Z", "last_ts_utc": "live (2026-07-07)",
+      "timestamp_field": "ts_ms", "price_field": "funding_rate, next_funding_time_ms",
+      "venue": "same as mark_prices", "sampling_frequency": "same as mark_prices",
+      "known_at_semantics": "same as mark_prices", "repair_status": "n/a", "gap_status": "same as mark_prices",
+      "exact_or_proxy": "EXACT, live -- the standalone funding_rates table's death is immaterial",
+      "contemporaneous_with_anchors": "full"
+    },
+    {
+      "source_name": "index price",
+      "database": null, "table": null,
+      "row_count": 0,
+      "note": "does not exist as a separate table; mark_price is Binance's own mark price (internally index-referenced by the exchange), not independently recomputed here; not silently substituted for spot"
+    },
+    {
+      "source_name": "BTC/SOL spot & mark (not anchor-relevant)",
+      "spot_BTCUSDT": {"row_count": 64356, "first_ts_utc": "~2026-04-18"},
+      "mark_BTCUSDT": {"row_count": 8793828, "first_ts_utc": "2026-02-15T14:26:28Z"},
+      "spot_SOLUSDT": {"row_count": 64285, "first_ts_utc": "~2026-04-18"},
+      "mark_SOLUSDT": {"row_count": 3505879, "first_ts_utc": "2026-04-18T08:41:08Z"},
+      "note": "not relevant to the anchor population -- ami_signal_lifecycle is 100% ETHUSDT"
+    }
+  ],
+  "collector_provenance_disclosure": {
+    "source": "data/oi_spot_poller.py header comment",
+    "verbatim_note": "spot_prices (producer 2026-06-05'te olmus) -- poller revives dead tables",
+    "meaning": "the spot_prices producer died on 2026-06-05; this script exists to revive it; independent first-party confirmation of the measured 27-day gap, not a new discovery"
+  },
+  "ungoverned_precedent": {
+    "mechanism_store_formula": "tools/s34_mechanism_feature_store.py: basis_spot_bps = (mark_price - spot_price)/spot_price*1e4, basis_spot_slope = delta between two basis readings",
+    "reused_as": "mechanical precedent only (formula shape), never for historical values",
+    "unrelated_table_disclosed": "basis_reversion_candidates (1430 rows, microstructure.db) belongs to a different exploratory script (tools/research_funding_extreme_mean_reversion.py) and carries real outcome columns (long_return, long_win) -- not opened by this audit"
+  },
+  "basis_formula_contract": {
+    "status": "PROPOSED_NOT_YET_ACCEPTED",
+    "formula": "basis_bps_w = 10000 * (mark_price(T) - spot_price_at_or_before(T)) / spot_price_at_or_before(T)",
+    "price_types": "mark_price (Binance perp mark), spot_price (Binance spot ticker) -- not index, not a different venue",
+    "venues": "both Binance (spot cash market; USD(S)-M perpetual futures)",
+    "symbol_mapping": "ETHUSDT spot <-> ETHUSDT perp, identical ticker string",
+    "timestamp_alignment_rule": "mark_price at T=signal_birth_ts (KNOWN_AT_SAFE); spot_price via at-or-before convention (ami.states.engine.StateEngine._px precedent)",
+    "maximum_staleness_tolerance_minutes": 10.0,
+    "staleness_tolerance_source": "reused verbatim from ami.states.engine.FEED_LIMITS['spot_prices']=10.0, not invented this batch",
+    "direction_sign_interpretation": "positive = perp above spot (contango); negative = perp below spot (backwardation); not direction-flipped for LONG/SHORT",
+    "units": "bps of spot price",
+    "known_at_timestamp_rule": "feature_available_ts_ms = signal_birth_ts",
+    "missing_data_rule": "no spot sample at all -> SOURCE_ABSENT_BEFORE_COLLECTION (excluded); sample exists but >10min stale -> SOURCE_STALE_BEYOND_HEALTHY_AGE (excluded); never imputed or interpolated",
+    "source_quality_class": "EXACT_RECONSTRUCTABLE only where both legs fresh; no proxy tier exists (no index table, no cross-venue fallback available)",
+    "formula_version": "spot-perp-basis-readiness-v1",
+    "selected_by_outcome_behavior": false
+  },
+  "temporal_feature_recommendation": {
+    "recommended_primary_candidate": "basis_bps level at signal_birth_ts",
+    "rationale": "simplest, single-window, zero additional design parameters beyond the family's own existence",
+    "level_vs_slope_decision": "OPEN -- explicitly flagged by the selection artifact as an operator-level decision required before any preregistration, not resolved by this readiness batch",
+    "deferred_future_children": [
+      "pre-birth basis change (slope) over a fixed window",
+      "basis compression/expansion (rate of |basis| change)",
+      "TRAIN-only basis z-score",
+      "funding proximity (next_funding_time_ms - signal_birth_ts), a distinct mechanism from price basis, not bundled here"
+    ]
+  },
+  "window_policy": {
+    "level_feature_requires_no_lookback_window": true,
+    "staleness_tolerance_resolved_outcome_blind": true,
+    "slope_variant_window_left_ambiguous": true,
+    "final_primary_window_frozen_this_batch": false,
+    "reason": "repository evidence does not yet provide a defensible outcome-blind ruling for a slope lookback window; not decided here, consistent with 'stop at readiness with exact options'"
+  },
+  "anchor_accounting": {
+    "outcome_blind": true,
+    "total_anchors": 324,
+    "direction_counts": {"LONG": 220, "SHORT": 104},
+    "healthy_age_ms_used": 600000,
+    "spot_quality_breakdown": {
+      "SOURCE_ABSENT_BEFORE_COLLECTION": 49,
+      "SOURCE_STALE_BEYOND_HEALTHY_AGE": 221,
+      "EXACT_RECONSTRUCTABLE": 54
+    },
+    "spot_quality_breakdown_by_direction": {
+      "LONG": {"SOURCE_ABSENT_BEFORE_COLLECTION": 41, "SOURCE_STALE_BEYOND_HEALTHY_AGE": 141, "EXACT_RECONSTRUCTABLE": 38},
+      "SHORT": {"SOURCE_ABSENT_BEFORE_COLLECTION": 8, "SOURCE_STALE_BEYOND_HEALTHY_AGE": 80, "EXACT_RECONSTRUCTABLE": 16}
+    },
+    "reconciliation": "49 + 221 + 54 = 324",
+    "fresh_spot_rows": 54,
+    "fresh_spot_independent_cycles": 38,
+    "duplicates_collapsed": 16,
+    "perp_absent_rows": 0,
+    "perp_stale_over_10s_rows": 0,
+    "dominant_exclusion_cause": {
+      "type": "single collector outage",
+      "start_utc": "2026-06-05T15:59:11.295Z",
+      "end_utc": "2026-07-02T15:12:58.399Z",
+      "duration_days": 26.97,
+      "anchors_affected": 159,
+      "disclosed_independently_by": "data/oi_spot_poller.py source comment"
+    },
+    "min_bucket_n_check": {
+      "min_bucket_n_convention": 20,
+      "fresh_independent_cycles": 38,
+      "train_70pct_estimate": 27,
+      "test_30pct_estimate": 11,
+      "test_below_min_bucket_n": true,
+      "note": "TEST fold already below MIN_BUCKET_N=20 before any outcome-eligibility gate is applied, which would shrink it further"
+    }
+  },
+  "known_at_proof": {
+    "known_at_violations": 0,
+    "violations": [],
+    "reproduced_independently_twice": true,
+    "idempotent_byte_identical": true,
+    "future_funding_used": false,
+    "future_candle_close_used": false,
+    "interpolation_across_birth": false,
+    "nearest_neighbor_selects_post_birth": false,
+    "staleness_bounded_by_frozen_tolerance": true,
+    "availability_timestamp_deterministic": true,
+    "runtime_access_control_mechanism": "AST-based static guard scanning only string literals passed to .execute()-family calls (test_module_never_executes_sql_naming_the_outcome_table) -- no schema/data-write step exists in this batch to additionally protect with a live SQLite authorizer"
+  },
+  "family_distinctness": [
+    {"family": "FAM_CVD_PRIMARY_LONG_REVERSAL", "source": "ami_cvd_windowed_flow (agg_trades)", "mechanism": "net signed taker-flow notional", "distinct_because": "different source table entirely, flow quantity not price relationship"},
+    {"family": "FAM_CASCADE_ABSORPTION_IMPACT", "source": "ami_absorption_impact_windowed_flow (agg_trades+mark_prices)", "mechanism": "price response per unit of signed flow (Kyle-lambda)", "distinct_because": "uses mark_prices as numerator of a flow-driven ratio, never compares two independent price series; spot_prices never opened by that family's code"},
+    {"family": "K-S34-BOOK-PULL-001 / K-S34-REFILL-CTX-001", "source": "book_ticker", "mechanism": "order-book depth withdrawal/refill", "distinct_because": "different source table, queued liquidity not traded/quoted price level"},
+    {"family": "K-S34-FUNDING-LEVEL-001", "source": "funding_rates / mark_prices.funding_rate", "mechanism": "perpetual funding rate itself", "distinct_because": "a periodic cash-flow rate between counterparties, not a price-level difference between two markets; funding explicitly excluded from this proposal"},
+    {"family": "day_trend_bps control", "source": "mark_prices", "mechanism": "single-instrument intraday drift", "distinct_because": "single instrument, not a two-instrument relative-pricing comparison"},
+    {"family": "S34_ORDERFLOW_LEAD (graveyarded)", "source": "agg_trades", "mechanism": "standalone all-timestamp OFI momentum, net-of-cost claim", "distinct_because": "different source table, different population framing, different claim type"}
+  ],
+  "scientific_contract_draft": {
+    "question": "Does a frozen pre-birth spot-perpetual basis level state (Binance ETHUSDT spot vs. perp, at signal_birth_ts, <=10-minute staleness) contain incremental information for an existing, frozen outcome, on a defined independent-cycle population, controlling for the same frozen control set (event_notional, session, day_trend_bps)?",
+    "possible_outcome_ids_not_read": [
+      "endpoint_return_bps@swing_24h (ami_lifecycle_path_observations, effective/corrected selection)",
+      "mfe_bps@swing_24h (established NON_PROMOTABLE_DIAGNOSTIC secondary in prior families)"
+    ],
+    "outcome_selected_by_performance": false,
+    "preregistered_this_batch": false
+  },
+  "readiness_verdict": "SPOT_PERP_BASIS_BLOCKED_BY_COVERAGE",
+  "verdict_basis": [
+    "270/324 anchors (83.3%) lack an adequate spot price at signal_birth_ts under the established 10-minute staleness tolerance",
+    "the 54 fresh anchors collapse to only 38 independent cycles -- a 70/30 split's TEST fold (~11) already falls below MIN_BUCKET_N=20 before any outcome-eligibility gate",
+    "not a proxy-quality situation -- no lower-fidelity spot substitute exists to fall back to",
+    "not a definition ambiguity -- the formula itself is unambiguous; only the downstream level-vs-slope feature choice remains open",
+    "perp-side data is not the problem -- exact, gap-free, already KNOWN_AT_SAFE"
+  ],
+  "forward_looking_note": "spot_prices collection has resumed and is live/current as of 2026-07-07; future anchors born from 2026-07-02 onward would have excellent staleness characteristics -- this does not change today's verdict for the existing 324-signal population",
+  "blockers": [
+    "coverage: only 38/324 anchors' independent cycles have fresh (<=10min) spot data",
+    "the 27-day collector outage (2026-06-05 -> 2026-07-02) is the dominant cause, already disclosed in the collector's own source code, not reconstructable after the fact",
+    "level-vs-slope feature design remains an open operator-level decision for any future preregistration (not itself a blocker to this readiness verdict, which is coverage-blocked regardless)"
+  ],
+  "next_gate": "none scheduled -- do not begin disposable rehearsal without new, separate operator instruction; if pursued in future, re-measure coverage against the then-current anchor population first",
+  "prohibited_actions_this_batch_confirmed_not_performed": [
+    "TRAIN_or_TEST_outcome_access", "experiment_creation", "nullifier_issue_or_consume",
+    "preregistration", "data_migration", "route_promotion",
+    "runtime_risk_execution_shadow_paper_forward_live_modification"
+  ]
+}
