@@ -1,0 +1,193 @@
+{
+  "gate": "BATCH-BOOK-SPREAD-DYNAMICS-CANONICAL-MIGRATION-V1",
+  "date": "2026-07-07",
+  "author": "Sonnet 5",
+  "nature": "governed, outcome-blind canonical data migration only -- no experiment/nullifier/gate-receipt, no preregistration, no TEST access, no scientific-definition change",
+  "migration_id": "M-0036",
+  "migration_type": "combined additive schema-and-data migration (3 new tables + frozen-source backfill)",
+  "accepted_checkpoint": {
+    "readiness_commit": "f115b9c1",
+    "rehearsal_commit": "6a449a64",
+    "row_accounting_freeze_commit": "54d00dca",
+    "operator_ruling": "FAM_BOOK_SPREAD_DYNAMICS_PRIMARY_DEFINITION_V1 (W300 + additive spread_change_bps difference)",
+    "schema_version_before": 13, "experiment_registry": 24, "experiment_results": 381,
+    "epistemic_test_nullifiers": 2, "experiment_gate_receipts": 2,
+    "deterministic_regression_baseline": "1027+ collected / waived 14 pre-existing"
+  },
+  "family_and_child_identity": {
+    "family_id": "FAM_BOOK_SPREAD_DYNAMICS",
+    "child_working_id": "H-BOOK-SPREAD-CHANGE-BPS-W300-V1",
+    "formula_version": "BOOK_SPREAD_CHANGE_BPS_W300_V1",
+    "specification_hash": "ea611121291c63136860d57926389520de571ce6615bed2e1a3627e51442a212",
+    "row_accounting_root": "33c4f4be3233aad399d72fc525601c7eecb2eb6ab235ecd4070ba640701c6e31"
+  },
+  "schema_version_ruling": {
+    "pre_schema_version": 13, "post_schema_version": 14,
+    "authoritative_policy_source": "ami/warehouse/schema.py CANONICAL_SCHEMA_VERSION + init_schema() convention, confirmed by M-0030 (10->11), M-0031 (11->12), M-0035 (12->13): each additive _SCHEMA_PHASE_* block increments the version by 1",
+    "rationale": "this migration adds a new _SCHEMA_PHASE_BOOK_SPREAD block (3 additive tables) to init_schema(), so the version increments 13->14 exactly as every prior additive canonical schema phase did; the only authorized schema delta is the 3 new tables + their indexes"
+  },
+  "destination_schema": {
+    "ami_book_spread_change_windowed_flow": {
+      "row_grain": "one row per EXACT anchor (feature grain)", "expected_rows": 196,
+      "primary_key": "feature_id", "unique": "(anchor_id, formula_version)",
+      "foreign_key": "anchor_id -> ami_signal_lifecycle(signal_id)",
+      "key_checks": ["formula_version='BOOK_SPREAD_CHANGE_BPS_W300_V1'", "source_quality_class='EXACT_RECONSTRUCTABLE'", "symbol='ETHUSDT'", "venue='BINANCE_USDM_PERP'", "market_segment='PERPETUAL_FUTURES'", "quote_currency='USDT'", "current_target_ts=signal_birth_ts", "historical_target_ts=signal_birth_ts-300000", "known_at_ts=signal_birth_ts", "feature_available_ts=signal_birth_ts", "current_quote_ts<=current_target_ts", "historical_quote_ts<=historical_target_ts", "row_accounting_root='33c4f4be...'"],
+      "provenance_fields": ["specification_hash", "row_accounting_root", "migration_id", "input_manifest_id", "created_ms"],
+      "insert_policy": "insert-only, immutable"
+    },
+    "ami_book_spread_change_window_quality_v1": {
+      "row_grain": "one row per anchor (accounting grain)", "expected_rows": 324,
+      "primary_key": "quality_id", "unique": "(anchor_id, formula_version)",
+      "foreign_key": "anchor_id -> ami_signal_lifecycle(signal_id)",
+      "key_checks": ["source_quality_class IN (6 codes)", "(exact_eligibility_flag=1) = (source_quality_class='EXACT_RECONSTRUCTABLE')", "row_accounting_root='33c4f4be...'"],
+      "insert_policy": "insert-only, immutable"
+    },
+    "ami_book_spread_change_exclusions": {
+      "row_grain": "one row per non-exact anchor", "expected_rows": 128,
+      "primary_key": "exclusion_id", "unique": "(anchor_id, formula_version)",
+      "foreign_key": "anchor_id -> ami_signal_lifecycle(signal_id)",
+      "key_checks": ["source_quality_class != 'EXACT_RECONSTRUCTABLE'", "exclusion_precedence_position BETWEEN 0 AND 4", "row_accounting_root='33c4f4be...'"],
+      "insert_policy": "insert-only, immutable"
+    },
+    "no_outcome_columns": true, "no_alternative_window_columns": true, "no_alternative_transform_columns": true
+  },
+  "write_set_boundary": {
+    "allowed_writes": ["ami_book_spread_change_windowed_flow", "ami_book_spread_change_window_quality_v1", "ami_book_spread_change_exclusions", "schema_versions (canonical_warehouse row upsert)", "the 3 new tables' indexes (CREATE INDEX IF NOT EXISTS)"],
+    "forbidden_writes_all_zero": ["outcomes", "experiment_registry", "experiment_results", "epistemic_test_nullifiers", "experiment_gate_receipts", "route/bucket/paper/shadow/forward/live/risk/execution tables", "other feature families", "knowledge.sqlite"],
+    "knowledge_sqlite_required_to_change": false,
+    "knowledge_sqlite_byte_identical": true
+  },
+  "source_frozen_root": "33c4f4be3233aad399d72fc525601c7eecb2eb6ab235ecd4070ba640701c6e31",
+  "source_verification": {
+    "retained_evidence": ".runtime_temp/spread_rehearsal_v1/rehearsal_run1.sqlite",
+    "root_recomputed_before_migration": "33c4f4be3233aad399d72fc525601c7eecb2eb6ab235ecd4070ba640701c6e31",
+    "root_matches_frozen": true,
+    "no_recomputation_of_feature_values": true,
+    "values_copied_verbatim": true
+  },
+  "pre_migration": {
+    "canonical_sqlite_sha256": "3aefce833a67b8d43b841619f97667a56e182822e167aa606320ca8c52043d59",
+    "knowledge_sqlite_sha256": "710b3f689db2238f11efa04230600b9ddd06e500807b5fb69c7e797e6053dc65",
+    "schema_version": 13, "table_count": 42, "experiment_registry": 24, "experiment_results": 381,
+    "epistemic_test_nullifiers": 2, "experiment_gate_receipts": 2, "integrity_check": "ok", "foreign_key_check": []
+  },
+  "backup": {
+    "path": "data/ami/backups/canonical_pre_M0036_book_spread_dynamics_canonical_migration_20260707_151140.sqlite",
+    "method": "shutil.copy2 after PRAGMA wal_checkpoint(FULL)",
+    "sha256": "3aefce833a67b8d43b841619f97667a56e182822e167aa606320ca8c52043d59",
+    "source_sha256_before_copy": "3aefce833a67b8d43b841619f97667a56e182822e167aa606320ca8c52043d59",
+    "byte_exact": true,
+    "manifest": "data/ami/backups/canonical_pre_M0036_book_spread_dynamics_canonical_migration_20260707_151140.manifest.json"
+  },
+  "restore_proof": {
+    "restored_to_disposable_path": ".runtime_temp/M0036_restore_verify/canonical_restored.sqlite (deleted after proof)",
+    "restored_sha256_equals_pre_migration": true,
+    "restored_schema_version": 13,
+    "restored_book_spread_tables_present": false,
+    "restored_integrity_check": "ok",
+    "restored_foreign_key_check": [],
+    "restored_experiment_registry": 24,
+    "restored_over_live_migrated_db": false
+  },
+  "dry_run": {
+    "on_disposable_copy_of_live_canonical": true,
+    "schema_13_to_14": true,
+    "inserted": {"feature": 196, "quality": 324, "exclusion": 128},
+    "replay_matches_frozen_5_manifests": true,
+    "authorizer_clean": true,
+    "protected_counts_unchanged": true
+  },
+  "first_run_inserted": {
+    "ami_book_spread_change_windowed_flow": 196,
+    "ami_book_spread_change_window_quality_v1": 324,
+    "ami_book_spread_change_exclusions": 128,
+    "conflicts": 0
+  },
+  "canonical_accounting": {
+    "feature_rows": 196, "quality_rows": 324, "exclusion_rows": 128,
+    "quality_breakdown": {"EXACT_RECONSTRUCTABLE": 196, "STALE_SOURCE": 22, "UNAVAILABLE_BEFORE_COLLECTION": 106},
+    "exclusion_breakdown": {"STALE_SOURCE": 22, "UNAVAILABLE_BEFORE_COLLECTION": 106},
+    "exact_independent_cycles": 97, "cycle_representatives": 97, "duplicate_representatives": 0,
+    "identity_324": "324 = 196 + 22 + 106", "identity_128": "128 = 22 + 106",
+    "exact_in_exclusion_table": 0, "excluded_in_feature_table": 0,
+    "distinct_row_accounting_root": "33c4f4be3233aad399d72fc525601c7eecb2eb6ab235ecd4070ba640701c6e31",
+    "distinct_migration_id": "M-0036"
+  },
+  "canonical_replay_from_destination_tables": {
+    "ordered_anchor_manifest": "a77a8daf2a8d198d775436674a20a9bd5328dc071e2883938b7c331c17c534bb",
+    "exact_feature_manifest": "b1eb902f5b3d1ea0f19b4b60d0ad999907a042b228adf506bbe09800a81e155b",
+    "exclusion_manifest": "0694e43300710e1204c1b23643d9eacb9f10188c21aa0ceda572c28229cc8449",
+    "cycle_membership_manifest": "e692ff1c8ce37b54a3349a501a38bd44f24865e75a51accc81c7e97399d29e18",
+    "representative_manifest": "edadf5972cbbdddb0efa1db8234473ee089972f504d3bfbfafbae508238db246",
+    "all_five_match_frozen": true,
+    "note": "canonical rows rebuilt directly from the destination tables (not from the frozen manifest) reproduce all five frozen manifest hashes exactly -- this IS the row-level frozen-manifest equality proof"
+  },
+  "row_level_equality": {
+    "method": "the 5 canonical-replay manifest hashes (each over every row's full field tuple, frozen ordering + serialization) reproduce the frozen component hashes exactly",
+    "mismatch_count": 0
+  },
+  "idempotency": {
+    "second_run_result": "NOOP_IDENTICAL",
+    "second_run_inserted": {"feature": 0, "quality": 0, "exclusion": 0},
+    "second_run_noop": {"feature": 196, "quality": 324, "exclusion": 128},
+    "counts_unchanged": true,
+    "replay_matches_frozen_after_second_run": true,
+    "canonical_file_hash_note": "the full-file hash changes between the first migration (ddb9d72b...) and the idempotent rerun (0604b0da...) ONLY because init_schema() re-upserts schema_versions.applied_ms (a wall-clock bookkeeping field) on every call; all 3 migrated tables' content is byte-identical (proven by identical replay hashes + NOOP + unchanged counts) -- same disclosed behavior as M-0035"
+  },
+  "known_at_proof": {
+    "current_quote_after_target": 0, "historical_quote_after_target": 0,
+    "known_at_ts_mismatch": 0, "feature_available_ts_mismatch": 0,
+    "note": "enforced by table CHECK constraints (current_quote_ts<=current_target_ts, historical_quote_ts<=historical_target_ts, known_at_ts=signal_birth_ts, feature_available_ts=signal_birth_ts) -- any violating row would have failed the INSERT"
+  },
+  "no_outcome_access_proof": {
+    "sqlite_authorizer_installed_around_data_step": true,
+    "authorizer_violations_first_run": [],
+    "authorizer_violations_rerun": [],
+    "denied_tables": ["ami_lifecycle_path_observations", "epistemic_test_nullifiers", "experiment_gate_receipts"],
+    "denied_columns": ["endpoint_return_bps", "mfe_bps", "mae_bps"],
+    "monitored_governance_write_denied": ["experiment_registry", "experiment_results"],
+    "outcome_reads": 0, "outcome_writes": 0, "experiment_creation": 0, "experiment_result_creation": 0,
+    "nullifier_creation": 0, "nullifier_consumption": 0, "gate_receipt_creation": 0, "gate_receipt_update": 0,
+    "route_bucket_promotion": 0,
+    "ast_secondary_control": "module/schema carry no outcome/experiment/nullifier column names in any SQL literal"
+  },
+  "post_migration": {
+    "canonical_sqlite_sha256_after_first_run": "ddb9d72b8d1ff67c1092d824215a3806fe305d2a4d65b60707f14cb20b87adac",
+    "canonical_sqlite_sha256_current_after_idempotent_rerun": "0604b0da93238388451eb23203e1b12806f6e627d4d599168877e1abcb8d57a0",
+    "knowledge_sqlite_sha256": "710b3f689db2238f11efa04230600b9ddd06e500807b5fb69c7e797e6053dc65",
+    "schema_version": 14, "table_count": 45,
+    "experiment_registry": 24, "experiment_results": 381,
+    "epistemic_test_nullifiers": 2, "experiment_gate_receipts": 2,
+    "integrity_check": "ok", "foreign_key_check": []
+  },
+  "protected_delta": {
+    "ami_events": {"before": 252, "after": 252}, "ami_signal_lifecycle": {"before": 324, "after": 324},
+    "ami_cycles": {"before": 167, "after": 167}, "ami_birth_truncated_cascade_geometry": {"before": 220, "after": 220},
+    "ami_agg_trades_repaired": {"before": 40934, "after": 40934}, "ami_cvd_windowed_flow": {"before": 1840, "after": 1840},
+    "ami_absorption_impact_windowed_flow": {"before": 1619, "after": 1619},
+    "experiment_registry": {"before": 24, "after": 24}, "experiment_results": {"before": 381, "after": 381},
+    "researcher_exposure_ledger": {"before": 1180, "after": 1180},
+    "delta": "ZERO across all protected tables (only the 3 new book-spread tables added)"
+  },
+  "migration_checksum": {
+    "migration_code_sha256": "d5ac1dca70c47f4818d7ad1de21e2fa695452b50d87586dc260d1e160cd80a7c",
+    "schema_py_sha256": "5868da8c3de1870939d3272e1fd426b153a9838acc07cee2326d06aba0db717b",
+    "migration_tests_sha256": "7f8c2339642fabb25cec5658894eb623285f700a5b02bf9ed9b86807fd1cb460",
+    "frozen_manifest_sha256": "0a65c45ffba906414c7a484e3f966e2405017eaea8990aded429dc35ed142c89",
+    "row_accounting_root": "33c4f4be3233aad399d72fc525601c7eecb2eb6ab235ecd4070ba640701c6e31"
+  },
+  "focused_tests": {"file": "tests/test_ami_research_book_spread_dynamics_canonical_migration.py", "total": 13, "passed": 13},
+  "immutability_after_migration": {
+    "insert_only": true, "no_update_delete_replace": true,
+    "future_correction_requires": ["a new migration", "a new version", "explicit relationship to V1", "preservation of V1 evidence", "a new operator authorization"]
+  },
+  "verdict": "BOOK_SPREAD_DYNAMICS_CANONICAL_MIGRATION_V1_COMPLETE",
+  "readiness_disposition": "BOOK_SPREAD_DYNAMICS_CANONICAL_DATA_READY_FOR_PREREGISTRATION",
+  "disposition_authorizes_no_automatic_step": true,
+  "recommended_next_gate": "BATCH-BOOK-SPREAD-DYNAMICS-PREREGISTRATION-V1 (do not begin automatically; must resolve outcome ID/split/nullifier/gate-receipt/model separately, outcome-blind until its own TEST authorization)",
+  "blockers_or_residual_risks": [
+    "none blocking the migration verdict",
+    "the migrated 196/97 usable population carries the permanent 22 STALE + 106 UNAVAILABLE exclusions; a future preregistration inherits exactly this frozen population",
+    "future-preregistration cross-family holdout-overlap disclosure remains a later-gate concern"
+  ]
+}

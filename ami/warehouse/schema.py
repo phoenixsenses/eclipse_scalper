@@ -28,7 +28,7 @@ REAL_CANONICAL_PATH_IMMUTABLE = DEFAULT_PATH
 # REAL_CANONICAL_PATH_IMMUTABLE (fail-closed) -- see connect() below.
 _TEST_ISOLATION_ACTIVE = False
 
-CANONICAL_SCHEMA_VERSION = 13
+CANONICAL_SCHEMA_VERSION = 14
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS schema_versions (
@@ -1185,6 +1185,145 @@ CREATE INDEX IF NOT EXISTS idx_absorption_impact_exclusions_window
 """
 
 
+# BATCH-BOOK-SPREAD-DYNAMICS-CANONICAL-MIGRATION-V1 (M-0036, operator approval):
+# materializes the frozen row-accounting (root
+# 33c4f4be3233aad399d72fc525601c7eecb2eb6ab235ecd4070ba640701c6e31) of the
+# accepted W300 additive spread-change child (BOOK_SPREAD_CHANGE_BPS_W300_V1,
+# operator ruling FAM_BOOK_SPREAD_DYNAMICS_PRIMARY_DEFINITION_V1) into three
+# additive, immutable, insert-only canonical tables. Column/CHECK shapes match
+# the accepted disposable rehearsal (commit 6a449a64) plus FK references to the
+# canonical identity tables and the migration-provenance fields
+# (row_accounting_root, migration_id). No outcome column, no alternative window,
+# no alternative transform. Same additive discipline as _SCHEMA_PHASE_CVD /
+# _SCHEMA_PHASE_ABSORPTION_IMPACT.
+_SCHEMA_PHASE_BOOK_SPREAD = """
+CREATE TABLE IF NOT EXISTS ami_book_spread_change_windowed_flow (
+    feature_id TEXT PRIMARY KEY,
+    formula_version TEXT NOT NULL,
+    anchor_id TEXT NOT NULL,
+    cycle_id TEXT NOT NULL,
+    signal_birth_ts INTEGER NOT NULL,
+    symbol TEXT NOT NULL,
+    venue TEXT NOT NULL,
+    market_segment TEXT NOT NULL,
+    quote_currency TEXT NOT NULL,
+    direction TEXT NOT NULL,
+    current_target_ts INTEGER NOT NULL,
+    current_quote_id INTEGER NOT NULL,
+    current_quote_ts INTEGER NOT NULL,
+    current_quote_age_ms INTEGER NOT NULL,
+    current_bid REAL NOT NULL,
+    current_ask REAL NOT NULL,
+    current_mid REAL NOT NULL,
+    current_spread_bps REAL NOT NULL,
+    historical_target_ts INTEGER NOT NULL,
+    historical_quote_id INTEGER NOT NULL,
+    historical_quote_ts INTEGER NOT NULL,
+    historical_quote_age_ms INTEGER NOT NULL,
+    historical_bid REAL NOT NULL,
+    historical_ask REAL NOT NULL,
+    historical_mid REAL NOT NULL,
+    historical_spread_bps REAL NOT NULL,
+    spread_change_bps_w300 REAL NOT NULL,
+    source_quality_class TEXT NOT NULL,
+    known_at_ts INTEGER NOT NULL,
+    feature_available_ts INTEGER NOT NULL,
+    is_cycle_representative INTEGER NOT NULL,
+    specification_hash TEXT NOT NULL,
+    row_accounting_root TEXT NOT NULL,
+    migration_id TEXT NOT NULL,
+    input_manifest_id TEXT NOT NULL,
+    created_ms INTEGER NOT NULL,
+    UNIQUE (anchor_id, formula_version),
+    FOREIGN KEY (anchor_id) REFERENCES ami_signal_lifecycle(signal_id),
+    CHECK (formula_version = 'BOOK_SPREAD_CHANGE_BPS_W300_V1'),
+    CHECK (source_quality_class = 'EXACT_RECONSTRUCTABLE'),
+    CHECK (symbol = 'ETHUSDT'),
+    CHECK (venue = 'BINANCE_USDM_PERP'),
+    CHECK (market_segment = 'PERPETUAL_FUTURES'),
+    CHECK (quote_currency = 'USDT'),
+    CHECK (direction IN ('LONG','SHORT')),
+    CHECK (current_target_ts = signal_birth_ts),
+    CHECK (historical_target_ts = signal_birth_ts - 300000),
+    CHECK (known_at_ts = signal_birth_ts),
+    CHECK (feature_available_ts = signal_birth_ts),
+    CHECK (is_cycle_representative IN (0,1)),
+    CHECK (current_quote_ts <= current_target_ts),
+    CHECK (historical_quote_ts <= historical_target_ts),
+    CHECK (row_accounting_root = '33c4f4be3233aad399d72fc525601c7eecb2eb6ab235ecd4070ba640701c6e31')
+);
+CREATE INDEX IF NOT EXISTS idx_book_spread_flow_cycle
+    ON ami_book_spread_change_windowed_flow(cycle_id);
+CREATE INDEX IF NOT EXISTS idx_book_spread_flow_representative
+    ON ami_book_spread_change_windowed_flow(is_cycle_representative);
+
+CREATE TABLE IF NOT EXISTS ami_book_spread_change_window_quality_v1 (
+    quality_id TEXT PRIMARY KEY,
+    formula_version TEXT NOT NULL,
+    anchor_id TEXT NOT NULL,
+    signal_birth_ts INTEGER NOT NULL,
+    cycle_id TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    source_quality_class TEXT NOT NULL,
+    exclusion_reason TEXT,
+    exclusion_endpoint TEXT,
+    exact_eligibility_flag INTEGER NOT NULL,
+    is_cycle_representative INTEGER NOT NULL,
+    current_quality_status TEXT NOT NULL,
+    historical_quality_status TEXT NOT NULL,
+    current_quote_age_ms INTEGER,
+    historical_quote_age_ms INTEGER,
+    specification_hash TEXT NOT NULL,
+    row_accounting_root TEXT NOT NULL,
+    migration_id TEXT NOT NULL,
+    input_manifest_id TEXT NOT NULL,
+    created_ms INTEGER NOT NULL,
+    UNIQUE (anchor_id, formula_version),
+    FOREIGN KEY (anchor_id) REFERENCES ami_signal_lifecycle(signal_id),
+    CHECK (formula_version = 'BOOK_SPREAD_CHANGE_BPS_W300_V1'),
+    CHECK (source_quality_class IN ('EXACT_RECONSTRUCTABLE','STALE_SOURCE',
+        'UNAVAILABLE_BEFORE_COLLECTION','INVALID_QUOTE_CROSSED',
+        'INVALID_QUOTE_ZERO_OR_NEG','INVALID_QUOTE_LOCKED')),
+    CHECK (exact_eligibility_flag IN (0,1)),
+    CHECK (is_cycle_representative IN (0,1)),
+    CHECK ((exact_eligibility_flag = 1) = (source_quality_class = 'EXACT_RECONSTRUCTABLE')),
+    CHECK (row_accounting_root = '33c4f4be3233aad399d72fc525601c7eecb2eb6ab235ecd4070ba640701c6e31')
+);
+CREATE INDEX IF NOT EXISTS idx_book_spread_quality_class
+    ON ami_book_spread_change_window_quality_v1(source_quality_class);
+
+CREATE TABLE IF NOT EXISTS ami_book_spread_change_exclusions (
+    exclusion_id TEXT PRIMARY KEY,
+    formula_version TEXT NOT NULL,
+    anchor_id TEXT NOT NULL,
+    cycle_id TEXT NOT NULL,
+    source_quality_class TEXT NOT NULL,
+    exclusion_reason TEXT NOT NULL,
+    exclusion_endpoint TEXT NOT NULL,
+    exclusion_precedence_position INTEGER NOT NULL,
+    current_quality_status TEXT NOT NULL,
+    historical_quality_status TEXT NOT NULL,
+    current_quote_age_ms INTEGER,
+    historical_quote_age_ms INTEGER,
+    specification_hash TEXT NOT NULL,
+    row_accounting_root TEXT NOT NULL,
+    migration_id TEXT NOT NULL,
+    input_manifest_id TEXT NOT NULL,
+    created_ms INTEGER NOT NULL,
+    UNIQUE (anchor_id, formula_version),
+    FOREIGN KEY (anchor_id) REFERENCES ami_signal_lifecycle(signal_id),
+    CHECK (formula_version = 'BOOK_SPREAD_CHANGE_BPS_W300_V1'),
+    CHECK (source_quality_class IN ('STALE_SOURCE','UNAVAILABLE_BEFORE_COLLECTION',
+        'INVALID_QUOTE_CROSSED','INVALID_QUOTE_ZERO_OR_NEG','INVALID_QUOTE_LOCKED')),
+    CHECK (source_quality_class != 'EXACT_RECONSTRUCTABLE'),
+    CHECK (exclusion_precedence_position BETWEEN 0 AND 4),
+    CHECK (row_accounting_root = '33c4f4be3233aad399d72fc525601c7eecb2eb6ab235ecd4070ba640701c6e31')
+);
+CREATE INDEX IF NOT EXISTS idx_book_spread_exclusions_class
+    ON ami_book_spread_change_exclusions(source_quality_class);
+"""
+
+
 def connect(path: str | Path | None = None, read_only: bool = False) -> sqlite3.Connection:
     """Open the canonical warehouse. WAL + busy_timeout matches existing AMI store practice.
 
@@ -1252,6 +1391,7 @@ def init_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(_SCHEMA_PHASE_GEOMETRY)
     conn.executescript(_SCHEMA_PHASE_CVD)
     conn.executescript(_SCHEMA_PHASE_ABSORPTION_IMPACT)
+    conn.executescript(_SCHEMA_PHASE_BOOK_SPREAD)
     _add_column_if_missing(conn, "ami_levels", "touch_stats_point_in_time",
                             "touch_stats_point_in_time INTEGER NOT NULL DEFAULT 0")
     conn.execute(

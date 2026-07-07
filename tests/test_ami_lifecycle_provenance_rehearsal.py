@@ -62,9 +62,12 @@ def test_full_provenance_rehearsal_real_data(tmp_path):
     # [BATCH-CASCADE-ABSORPTION-IMPACT-CANONICAL-MIGRATION-V1, M-0035] v12->v13
     # only ADDED ami_absorption_impact_windowed_flow/window_quality_v1/
     # exclusions -- same reasoning, v13 joins the same branch.
-    assert report["schema_version_before"] in (8, 9, 10, 11, 12, 13)
+    # [BATCH-BOOK-SPREAD-DYNAMICS-CANONICAL-MIGRATION-V1, M-0036] v13->v14 only
+    # ADDED ami_book_spread_change_windowed_flow/window_quality_v1/exclusions --
+    # same reasoning, v14 joins the same branch.
+    assert report["schema_version_before"] in (8, 9, 10, 11, 12, 13, 14)
     assert report["new_objects_present"] is True
-    already_migrated = report["schema_version_before"] in (9, 10, 11, 12, 13)
+    already_migrated = report["schema_version_before"] in (9, 10, 11, 12, 13, 14)
 
     # [POST BATCH-SHORT-NOISY-V1-CANON-BACKFILL] signal population is now 324 (270 original +
     # 54 SHORT_NOISY_BTC200K_CONFIRMED_V1) and raw transitions 856 (802 + 54 new SIGNAL_BIRTH) --
