@@ -1,0 +1,140 @@
+{
+  "gate": "BATCH-BOOK-SPREAD-DYNAMICS-LONG-PREREGISTRATION-V1",
+  "date": "2026-07-07",
+  "author": "Sonnet 5",
+  "status": "BOOK_SPREAD_DYNAMICS_LONG_PREREGISTRATION_V1_INCOMPLETE",
+  "authorization_state": "INCOMPLETE_NO_AUTHORIZATION_ISSUED",
+  "operator_scope_ruling_artifact": "reports/governance/FAM_BOOK_SPREAD_DYNAMICS_LONG_CHILD_SCOPE_V1.md",
+  "prior_incomplete_checkpoint": {
+    "parent_family_id": "FAMv1:2d102e7b70820470",
+    "mixed_direction_child_id": "H-BOOK-SPREAD-CHANGE-BPS-W300-V1",
+    "mixed_direction_commit": "a4722117",
+    "mixed_direction_verdict": "BOOK_SPREAD_DYNAMICS_PREREGISTRATION_V1_INCOMPLETE",
+    "immutable_and_unaffected": true
+  },
+  "new_child_identity": {
+    "child_id": "H-BOOK-SPREAD-CHANGE-BPS-W300-LONG-V1",
+    "question_ids": "FAM_BOOK_SPREAD_DYNAMICS",
+    "hypothesis_id": "H-BOOK-SPREAD-CHANGE-BPS-W300-LONG-V1",
+    "resolved_canonical_family_id": "FAMv1:85cfe11ceeadbbe8",
+    "distinct_from_parent_family_id": true,
+    "distinct_from_mixed_direction_child_family_id": true
+  },
+  "phase_1_2_identity_graveyard_exposure": {
+    "graveyard_hits": 0,
+    "graveyard_fingerprints_checked": 31,
+    "prior_test_exposure_nullifier_rows": 0,
+    "prior_test_exposure_gate_receipts": 0,
+    "mixed_direction_attempt_counted_as_exposure": false,
+    "genuinely_unconsumed": true,
+    "result": "PHASE_1_2_COMPLETE"
+  },
+  "phase_3_outcome": {
+    "outcome_id": "endpoint_return_bps@swing_24h",
+    "outcome_table": "ami_lifecycle_path_observations",
+    "reused_verbatim": true,
+    "newly_derived": false,
+    "direction_flip_applied": false,
+    "outcome_values_accessed": 0,
+    "result": "PHASE_3_COMPLETE"
+  },
+  "phase_4_long_population": {
+    "direction": "LONG",
+    "structural_representative_count": 70,
+    "eligible_representative_count": 58,
+    "excluded_count": 12,
+    "excluded_breakdown": {"MISSING_INTERNAL_GAP": 11, "EXCLUDED_NO_HORIZON_DATA": 1},
+    "duplicate_cycle_ids": 0,
+    "missing_representatives": 0,
+    "structural_population_hash": "6f7119cec64de592953a743ab8cb0b1c0dcd321797e9faf3e3a355c7aa481d6c",
+    "eligible_population_hash": "a22d4746e5b1b149edeb8e4d3ea79c8e359a6f69934435edc9afd5ec86002d79",
+    "short_rows_present": 0,
+    "result": "PHASE_4_COMPLETE"
+  },
+  "phase_5_split_and_sample_sufficiency": {
+    "split_convention": "cycle-grouped chronological 70/30 split by earliest signal_birth_ts per independent_cycle_id, cut by cycle count (reused verbatim, TRAIN_FRACTION=0.7)",
+    "split_version": "SPLITv1:9a01a5190e25526f",
+    "total_eligible_n": 58,
+    "train_n": 40,
+    "test_n": 18,
+    "residual_df": 16,
+    "design_rank": 2,
+    "overlap": 0,
+    "straddling": false,
+    "train_cycle_set_hash": "4909253243fc2f0c58f04ff48dfe336a48a51d4e714bade87de0dff3523205e4",
+    "test_cycle_set_hash": "a14a9239837a8f74e10ac13016542c864b21bcf9b27c0aaef53cdb75fa7aa03b",
+    "sufficiency_checks": {
+      "train_n_ok_min_30": true,
+      "test_n_ok_min_20": false,
+      "total_n_ok_min_50": true,
+      "residual_df_ok_min_15": true,
+      "overlap_zero": true,
+      "no_straddling": true
+    },
+    "sole_failing_rule": "test_n_ok_min_20",
+    "test_n_shortfall": 2,
+    "sufficient": false,
+    "result": "PHASE_5_BLOCKED",
+    "verdict": "BOOK_SPREAD_DYNAMICS_LONG_PREREGISTRATION_V1_INCOMPLETE"
+  },
+  "phases_6_plus": "NOT_ATTEMPTED -- Phase 5 gates predictor-consumption/model-fitting-readiness/nullifier-registration/experiment-registration in the enforced order",
+  "nullifier_audit_only_not_persisted": {
+    "would_be_nullifier": "33dcdeb2110f78c13cbe476a7c17850bdb34d0010d09e0e3f2def2467c9ee0a1",
+    "derived_from": "family_id=FAMv1:85cfe11ceeadbbe8 | split_version=SPLITv1:9a01a5190e25526f | test_cycle_set_hash",
+    "prior_consumption_by_anyone": 0,
+    "persisted_to_epistemic_test_nullifiers": false,
+    "note": "computed once for audit/documentation completeness only; INCOMPLETE closure creates nothing"
+  },
+  "governance_deltas": {
+    "schema_version": {"before": 14, "after": 14},
+    "experiment_registry": {"before": 24, "after": 24},
+    "experiment_results": {"before": 381, "after": 381},
+    "epistemic_test_nullifiers": {"before": 2, "after": 2},
+    "experiment_gate_receipts": {"before": 2, "after": 2},
+    "delta": "ZERO across all governance tables"
+  },
+  "resolved_conflict_with_prompt_expected_delta": {
+    "prompt_expected_registry_post_success": 25,
+    "prompt_expected_nullifiers_post_success": 3,
+    "prompt_expected_gate_receipts_post_success": 3,
+    "repository_evidence": [
+      "S34_CVD_PRIMARY_LONG_PREREGISTRATION_V1.md: 'No experiment_registry row exists yet'",
+      "S34_CASCADE_ABSORPTION_IMPACT_PREREGISTRATION_V1.md: identical statement",
+      "epistemic_gates.consume_test_evidence() is the only writer of epistemic_test_nullifiers and its insertion IS consumption -- no 'unconsumed nullifier row' code path exists"
+    ],
+    "resolution": "experiment_registry is written only at governed-execution time (record_experiment_registry, called only from execute_governed_run/register_experiment_with_gates); epistemic_test_nullifiers rows only exist as consumption records. This applies regardless of COMPLETE/INCOMPLETE outcome; moot here since this batch closed INCOMPLETE and created neither.",
+    "note": "disclosed per this gate's own precedence rule: repository state wins for exact enforcement mechanics"
+  },
+  "no_outcome_access_proof": {
+    "endpoint_return_bps_reads": 0,
+    "mfe_bps_reads": 0,
+    "ast_scoped_guard": "test_module_source_never_reads_outcome_value_columns scans only .execute()-family call-argument string literals -- 0 hits",
+    "outcome_metadata_only_reads": ["observation_status", "path_definition_version"]
+  },
+  "implementation": {
+    "operator_ruling_doc": "reports/governance/FAM_BOOK_SPREAD_DYNAMICS_LONG_CHILD_SCOPE_V1.md",
+    "module": "ami/research/book_spread_dynamics_long_preregistration_v1.py",
+    "functions": ["resolve_family_and_child_identity", "resolve_long_population", "resolve_outcome_metadata", "resolve_split"],
+    "focused_tests": "tests/test_ami_research_book_spread_dynamics_long_preregistration_v1.py",
+    "focused_tests_result": "24/24 passed"
+  },
+  "frozen_but_unused_operator_ruling_fields": {
+    "expected_sign": "NEGATIVE",
+    "effect_size_floor_bps": -1.0,
+    "model": "OLS with intercept, HC3 robust SE, spread_change_bps_w300 only, no controls",
+    "note": "recorded in the scope-ruling artifact for the eventual re-attempt; not consumed or tested by this INCOMPLETE closure"
+  },
+  "storage_report": {
+    "microstructure_db_copied": false,
+    "canonical_backup_created": false,
+    "temporary_files": "disposable canonical/knowledge copies under pytest --basetemp only, deleted by the test runner",
+    "peak_temp_disk_usage_mb_approx": 5
+  },
+  "verdict": "BOOK_SPREAD_DYNAMICS_LONG_PREREGISTRATION_V1_INCOMPLETE",
+  "next_step": "operator decision: wait for LONG population growth (need eligible n>=67, i.e. 9 more eligible LONG cycles, to clear TEST>=20 under a 70/30 cut) OR explicitly authorize a different outcome-blind split ratio as a separate scoping decision; no default recommended",
+  "execution_stopped": true,
+  "test_outcome_accessed": false,
+  "nullifier_consumed": false,
+  "experiment_registered": false,
+  "gate_receipt_issued": false
+}
