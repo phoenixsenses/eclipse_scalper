@@ -278,6 +278,17 @@ def test_nullifier_reproducible_from_frozen_cycle_sets(prereg):
 
 
 def test_gate_receipt_mechanism_round_trips_on_disposable_copy(disposable_knowledge, prereg):
+    """`disposable_knowledge` is a raw `shutil.copyfile` of the REAL
+    `knowledge.sqlite` (not a conftest-redirected session copy) -- since the
+    real experiment this nullifier belongs to has since been genuinely,
+    permanently executed (BATCH-CASCADE-ABSORPTION-IMPACT-GOVERNED-
+    EXECUTION-V1, commit 5e9e2e33), that copy now legitimately starts with
+    this nullifier already consumed (count=1, not 0). The invariant this
+    test actually verifies -- issuing a gate receipt alone never itself
+    consumes a nullifier -- is deterministic and ambient-state-independent
+    when asserted as a before/after equality rather than an absolute count
+    (see BATCH-CASCADE-ABSORPTION-IMPACT-EXECUTION-EVIDENCE-AND-TEST-STATE-
+    CLOSURE-V1)."""
     kconn = sqlite3.connect(str(disposable_knowledge))
     gates.init_gates_schema(kconn)
     ident = prereg["identity"]
@@ -290,29 +301,40 @@ def test_gate_receipt_mechanism_round_trips_on_disposable_copy(disposable_knowle
         registry_result="PREREGISTERED_NOT_EXECUTED")
     kconn.commit()
     assert gates.has_gate_receipt(kconn, "TEST-COPY-" + ident["experiment_id"])
-    # nullifier must NOT be consumed by issuing a receipt alone
+    # nullifier count must be UNCHANGED by issuing a receipt alone -- a
+    # relative, deterministic invariant, independent of whatever the
+    # ambient starting count is (0 pre-execution, 1 post-execution)
     nullifier_after = kconn.execute(
         "SELECT COUNT(*) FROM epistemic_test_nullifiers WHERE nullifier=?",
         (prereg["nullifier_and_gate"]["test_nullifier_sha256"],)).fetchone()[0]
-    assert nullifier_after == nullifier_before == 0
+    assert nullifier_after == nullifier_before
     kconn.close()
 
 
-def test_real_nullifier_and_receipt_state(prereg):
-    """Real, read-only confirmation of the actual preregistration's effect on
-    the real knowledge.sqlite: receipt present, nullifier still unconsumed."""
+def test_real_nullifier_and_receipt_state_post_execution(prereg):
+    """Real, read-only confirmation of the actual, current state of the real
+    knowledge.sqlite. UPDATED (BATCH-CASCADE-ABSORPTION-IMPACT-EXECUTION-
+    EVIDENCE-AND-TEST-STATE-CLOSURE-V1): the experiment this preregistration
+    describes has since been genuinely, permanently executed against the
+    real database (BATCH-CASCADE-ABSORPTION-IMPACT-GOVERNED-EXECUTION-V1,
+    commit 5e9e2e33) -- the true, current, real-world state is now EXECUTED
+    with the nullifier consumed exactly once, bound to this exact
+    experiment_id. This is not a weakened assertion: it verifies the same
+    real file, at greater specificity (the original only checked the
+    nullifier's total presence count; this also checks WHICH experiment_id
+    consumed it)."""
     conn = sqlite3.connect(f"file:{REAL_KNOWLEDGE_PATH}?mode=ro", uri=True)
     try:
         receipt = conn.execute(
             "SELECT registry_result FROM experiment_gate_receipts WHERE experiment_id=?",
             (prereg["identity"]["experiment_id"],)).fetchone()
         nullifier_rows = conn.execute(
-            "SELECT COUNT(*) FROM epistemic_test_nullifiers WHERE nullifier=?",
-            (prereg["nullifier_and_gate"]["test_nullifier_sha256"],)).fetchone()[0]
+            "SELECT consumed_by_experiment_id FROM epistemic_test_nullifiers WHERE nullifier=?",
+            (prereg["nullifier_and_gate"]["test_nullifier_sha256"],)).fetchall()
     finally:
         conn.close()
-    assert receipt == ("PREREGISTERED_NOT_EXECUTED",)
-    assert nullifier_rows == 0
+    assert receipt == ("EXECUTED",)
+    assert nullifier_rows == [(prereg["identity"]["experiment_id"],)]
 
 
 # ---------------------------------------------------------------------------

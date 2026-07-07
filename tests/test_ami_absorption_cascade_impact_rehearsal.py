@@ -568,14 +568,27 @@ def test_full_real_data_rehearsal_idempotent_and_known_at_clean(tmp_path):
 
 
 def test_real_data_no_experiment_result_nullifier_delta():
+    """Snapshot check: this rehearsal batch (fc43e972) itself never touches
+    experiment_registry/experiment_results/epistemic_test_nullifiers (proven
+    separately by the SQLite-authorizer-based access guard in this same
+    file). The literal counts below are a point-in-time snapshot, not a
+    delta computed within this test -- they legitimately advance whenever
+    ANY governed experiment anywhere in the system runs, same discipline as
+    every other "protected invariant" snapshot in this codebase (e.g.
+    schema_version tuples). Last updated after BATCH-CASCADE-ABSORPTION-
+    IMPACT-GOVERNED-EXECUTION-V1 (commit 5e9e2e33), the absorption/impact
+    family's own first governed TEST execution: experiment_registry 23->24,
+    experiment_results 350->381, epistemic_test_nullifiers 1->2 -- an
+    expected, accepted change this rehearsal's own re-verification did not
+    (and structurally could not) cause."""
     conn = _ro_canonical()
     try:
-        assert conn.execute("SELECT COUNT(*) FROM experiment_registry").fetchone()[0] == 23
-        assert conn.execute("SELECT COUNT(*) FROM experiment_results").fetchone()[0] == 350
+        assert conn.execute("SELECT COUNT(*) FROM experiment_registry").fetchone()[0] == 24
+        assert conn.execute("SELECT COUNT(*) FROM experiment_results").fetchone()[0] == 381
     finally:
         conn.close()
     kconn = sqlite3.connect(f"file:{REAL_KNOWLEDGE_PATH}?mode=ro", uri=True)
     try:
-        assert kconn.execute("SELECT COUNT(*) FROM epistemic_test_nullifiers").fetchone()[0] == 1
+        assert kconn.execute("SELECT COUNT(*) FROM epistemic_test_nullifiers").fetchone()[0] == 2
     finally:
         kconn.close()

@@ -195,23 +195,90 @@ def test_resolve_population_matches_frozen_preregistration():
     assert pop["test_hash"] == m.EXPECTED_TEST_HASH
 
 
-def test_verify_pre_execution_reports_zero_errors_against_real_db():
+# ---------------------------------------------------------------------------
+# BATCH-CASCADE-ABSORPTION-IMPACT-EXECUTION-EVIDENCE-AND-TEST-STATE-CLOSURE-V1:
+# the real experiment E-CASCADE-ABSORPTION-IMPACT-LONG-W300-PREREG-001 has now
+# been genuinely, permanently executed against the real database (commit
+# 5e9e2e33) -- the real canonical.sqlite/knowledge.sqlite files this session's
+# shared disposable copy is made FROM now permanently contain that completed
+# execution's rows. Any test that implicitly assumed "fresh, not-yet-executed"
+# ambient state merely by reading DEFAULT_PATH would therefore silently start
+# in the EXECUTED state forever after, regardless of code correctness -- a
+# live-mutable-state dependency, not a deterministic unit test. The fixture
+# below removes that dependency: every test that needs the pre-execution
+# PREREGISTERED_NOT_EXECUTED starting condition now constructs it explicitly,
+# on the disposable copy only, before proceeding -- deterministic regardless
+# of what the real source files currently contain, and never mutating the
+# real files (schema_mod.connect(DEFAULT_PATH) is conftest-redirected to the
+# session-scoped disposable copy for the whole test session; this module
+# never bypasses that redirection).
+# ---------------------------------------------------------------------------
+
+def _reset_experiment_state_to_preregistered(canonical_conn, knowledge_conn) -> None:
+    """Deterministically resets THIS experiment's own rows on the given
+    (disposable) connections to the pre-execution PREREGISTERED_NOT_EXECUTED
+    state. Idempotent -- safe to call whether or not the rows currently
+    exist. Never touches any other experiment's rows, any protected table,
+    or the real files (the caller is responsible for supplying disposable
+    connections, exactly as every other test in this module already does)."""
+    canonical_conn.execute("DELETE FROM experiment_results WHERE experiment_id=?", (m.EXPERIMENT_ID,))
+    canonical_conn.execute("DELETE FROM experiment_registry WHERE experiment_id=?", (m.EXPERIMENT_ID,))
+    canonical_conn.commit()
+    knowledge_conn.execute("DELETE FROM epistemic_test_nullifiers WHERE nullifier=?", (m.EXPECTED_NULLIFIER,))
+    knowledge_conn.execute(
+        "UPDATE experiment_gate_receipts SET registry_result='PREREGISTERED_NOT_EXECUTED' "
+        "WHERE experiment_id=?", (m.EXPERIMENT_ID,))
+    knowledge_conn.commit()
+
+
+@pytest.fixture()
+def fresh_experiment_conns():
+    """Disposable canonical/knowledge connections (conftest session
+    isolation) with this experiment's own rows deterministically reset to
+    the pre-execution PREREGISTERED_NOT_EXECUTED state -- see
+    `_reset_experiment_state_to_preregistered`. Only ever mutates the shared
+    disposable copy conftest already redirects DEFAULT_PATH to; never opens
+    the real files for writing."""
     import ami.knowledge.store as knowledge_mod
     import ami.warehouse.schema as schema_mod
 
     canonical_conn = schema_mod.connect(schema_mod.DEFAULT_PATH)
     knowledge_conn = sqlite3.connect(str(knowledge_mod.DEFAULT_PATH))
-    try:
-        result = m.verify_pre_execution(canonical_conn, knowledge_conn)
-    finally:
-        canonical_conn.close()
-        knowledge_conn.close()
+    _reset_experiment_state_to_preregistered(canonical_conn, knowledge_conn)
+    yield canonical_conn, knowledge_conn
+    canonical_conn.close()
+    knowledge_conn.close()
+
+
+def test_verify_pre_execution_reports_zero_errors_against_fresh_disposable_state(fresh_experiment_conns):
+    """Pre-execution behavior, tested against a deterministic disposable
+    fixture (not ambient live-DB state -- see module note above)."""
+    canonical_conn, knowledge_conn = fresh_experiment_conns
+    result = m.verify_pre_execution(canonical_conn, knowledge_conn)
     assert result["errors"] == []
     assert result["family_id"] == m.FAMILY_ID
     assert result["nullifier"] == m.EXPECTED_NULLIFIER
-    assert result["is_rerun_of_self"] is False  # not yet executed against the real DB
+    assert result["is_rerun_of_self"] is False  # deterministic: fixture reset this experiment's state
     assert result["already_has_results_before"] == 0
     assert result["schema_version"] == m.EXPECTED_SCHEMA_VERSION
+
+
+def test_verify_pre_execution_detects_already_executed_state(fresh_experiment_conns):
+    """Post-execution behavior, tested against an explicit EXECUTED-state
+    fixture: constructs the EXECUTED state deterministically (by running the
+    real governed-execution function once, on the disposable copy only),
+    then proves `verify_pre_execution` correctly reports `is_rerun_of_self
+    is True` and the gate receipt as EXECUTED -- the lifecycle-detection
+    logic itself, exercised explicitly rather than relying on whatever the
+    ambient real-DB state happens to be."""
+    canonical_conn, knowledge_conn = fresh_experiment_conns
+    r1 = m.execute_governed_run(canonical_conn, knowledge_conn)
+    assert r1["consume_result"] == "CONSUMED"
+
+    result = m.verify_pre_execution(canonical_conn, knowledge_conn)
+    assert result["errors"] == []
+    assert result["is_rerun_of_self"] is True
+    assert result["receipt"][0] == "EXECUTED"
 
 
 def test_verify_pre_execution_never_selects_outcome_columns():
@@ -229,93 +296,90 @@ def test_verify_pre_execution_never_selects_outcome_columns():
 #    rehearsal of the governed execution against copies of the real data
 # ---------------------------------------------------------------------------
 
-def test_execute_governed_run_blocks_on_identity_mismatch(monkeypatch):
-    """Must run BEFORE the dress rehearsal below -- both share the same
-    session-scoped disposable knowledge.sqlite copy, and this test's own
-    assertion (nullifier still unconsumed) would be false once the
-    rehearsal has legitimately consumed it."""
-    import ami.knowledge.store as knowledge_mod
-    import ami.warehouse.schema as schema_mod
-
-    canonical_conn = schema_mod.connect(schema_mod.DEFAULT_PATH)
-    knowledge_conn = sqlite3.connect(str(knowledge_mod.DEFAULT_PATH))
-    try:
-        monkeypatch.setattr(m, "FAMILY_ID", "FAMv1:0000000000000000")
-        with pytest.raises(m.ProtocolInvalidation):
-            m.execute_governed_run(canonical_conn, knowledge_conn)
-        n_rows = knowledge_conn.execute(
-            "SELECT COUNT(*) FROM epistemic_test_nullifiers WHERE nullifier=?",
-            (m.EXPECTED_NULLIFIER,)).fetchone()[0]
-        assert n_rows == 0
-    finally:
-        canonical_conn.close()
-        knowledge_conn.close()
+def test_execute_governed_run_blocks_on_identity_mismatch(monkeypatch, fresh_experiment_conns):
+    """Rejection of a second/mismatched TEST execution -- against a
+    deterministically fresh disposable state, so the assertion that nothing
+    was consumed on a blocked attempt does not depend on ambient real-DB
+    execution history."""
+    canonical_conn, knowledge_conn = fresh_experiment_conns
+    monkeypatch.setattr(m, "FAMILY_ID", "FAMv1:0000000000000000")
+    with pytest.raises(m.ProtocolInvalidation):
+        m.execute_governed_run(canonical_conn, knowledge_conn)
+    n_rows = knowledge_conn.execute(
+        "SELECT COUNT(*) FROM epistemic_test_nullifiers WHERE nullifier=?",
+        (m.EXPECTED_NULLIFIER,)).fetchone()[0]
+    assert n_rows == 0
 
 
-def test_governed_execution_dress_rehearsal_on_disposable_copies():
-    import ami.knowledge.store as knowledge_mod
-    import ami.warehouse.schema as schema_mod
+def test_governed_execution_dress_rehearsal_on_disposable_copies(fresh_experiment_conns):
+    canonical_conn, knowledge_conn = fresh_experiment_conns
 
-    canonical_conn = schema_mod.connect(schema_mod.DEFAULT_PATH)
-    knowledge_conn = sqlite3.connect(str(knowledge_mod.DEFAULT_PATH))
-    try:
-        pre_verify = m.verify_pre_execution(canonical_conn, knowledge_conn)
-        assert pre_verify["errors"] == []
-        assert pre_verify["is_rerun_of_self"] is False
+    pre_verify = m.verify_pre_execution(canonical_conn, knowledge_conn)
+    assert pre_verify["errors"] == []
+    assert pre_verify["is_rerun_of_self"] is False
+    assert pre_verify["receipt"][0] == "PREREGISTERED_NOT_EXECUTED"
 
-        pre_reg_n = canonical_conn.execute("SELECT COUNT(*) FROM experiment_registry").fetchone()[0]
-        pre_events_n = canonical_conn.execute("SELECT COUNT(*) FROM ami_events").fetchone()[0]
-        pre_signals_n = canonical_conn.execute("SELECT COUNT(*) FROM ami_signal_lifecycle").fetchone()[0]
-        pre_absorption_n = canonical_conn.execute(
-            "SELECT COUNT(*) FROM ami_absorption_impact_windowed_flow").fetchone()[0]
+    pre_reg_n = canonical_conn.execute("SELECT COUNT(*) FROM experiment_registry").fetchone()[0]
+    pre_events_n = canonical_conn.execute("SELECT COUNT(*) FROM ami_events").fetchone()[0]
+    pre_signals_n = canonical_conn.execute("SELECT COUNT(*) FROM ami_signal_lifecycle").fetchone()[0]
+    pre_absorption_n = canonical_conn.execute(
+        "SELECT COUNT(*) FROM ami_absorption_impact_windowed_flow").fetchone()[0]
 
-        r1 = m.execute_governed_run(canonical_conn, knowledge_conn)
+    r1 = m.execute_governed_run(canonical_conn, knowledge_conn)
 
-        assert r1["consume_result"] == "CONSUMED"
-        assert r1["nullifier"] == m.EXPECTED_NULLIFIER
-        assert r1["registry_result"] == "INSERTED"
-        assert r1["results_result"] == "INSERTED"
-        assert r1["test_n"] >= 20
-        assert r1["train_n"] >= 20
-        assert r1["test_design_rank"]["full_rank"] is True
-        assert r1["train_design_rank"]["full_rank"] is True
-        assert r1["verdict"] in (
-            m.VERDICT_SUPPORTS, m.VERDICT_NO_RELIABLE, m.VERDICT_UNDERPOWERED, m.VERDICT_INVALIDATED,
-        )
+    assert r1["consume_result"] == "CONSUMED"
+    assert r1["nullifier"] == m.EXPECTED_NULLIFIER
+    assert r1["registry_result"] == "INSERTED"
+    assert r1["results_result"] == "INSERTED"
+    assert r1["test_n"] >= 20
+    assert r1["train_n"] >= 20
+    assert r1["test_design_rank"]["full_rank"] is True
+    assert r1["train_design_rank"]["full_rank"] is True
+    assert r1["verdict"] in (
+        m.VERDICT_SUPPORTS, m.VERDICT_NO_RELIABLE, m.VERDICT_UNDERPOWERED, m.VERDICT_INVALIDATED,
+    )
 
-        n_rows = knowledge_conn.execute(
-            "SELECT consumed_by_experiment_id FROM epistemic_test_nullifiers WHERE nullifier=?",
-            (m.EXPECTED_NULLIFIER,)).fetchall()
-        assert n_rows == [(m.EXPERIMENT_ID,)]
+    # explicit lifecycle-transition proof: PREREGISTERED_NOT_EXECUTED -> EXECUTED
+    receipt_after = knowledge_conn.execute(
+        "SELECT registry_result FROM experiment_gate_receipts WHERE experiment_id=?",
+        (m.EXPERIMENT_ID,)).fetchone()
+    assert receipt_after == ("EXECUTED",)
 
-        assert canonical_conn.execute(
-            "SELECT COUNT(*) FROM experiment_registry").fetchone()[0] == pre_reg_n + 1
-        n_results_1 = canonical_conn.execute(
-            "SELECT COUNT(*) FROM experiment_results WHERE experiment_id=?", (m.EXPERIMENT_ID,)
-        ).fetchone()[0]
-        assert n_results_1 > 0
-        assert canonical_conn.execute("SELECT COUNT(*) FROM ami_events").fetchone()[0] == pre_events_n
-        assert canonical_conn.execute(
-            "SELECT COUNT(*) FROM ami_signal_lifecycle").fetchone()[0] == pre_signals_n
-        assert canonical_conn.execute(
-            "SELECT COUNT(*) FROM ami_absorption_impact_windowed_flow").fetchone()[0] == pre_absorption_n
+    n_rows = knowledge_conn.execute(
+        "SELECT consumed_by_experiment_id FROM epistemic_test_nullifiers WHERE nullifier=?",
+        (m.EXPECTED_NULLIFIER,)).fetchall()
+    assert n_rows == [(m.EXPERIMENT_ID,)]
 
-        # idempotent rerun: NOOP everywhere, no duplicate rows, same verdict
-        r2 = m.execute_governed_run(canonical_conn, knowledge_conn)
-        assert r2["consume_result"] == "NOOP_IDENTICAL"
-        assert r2["registry_result"] == "NOOP_IDENTICAL"
-        assert r2["results_result"] == "NOOP_IDENTICAL"
-        assert r2["verdict"] == r1["verdict"]
-        n_results_2 = canonical_conn.execute(
-            "SELECT COUNT(*) FROM experiment_results WHERE experiment_id=?", (m.EXPERIMENT_ID,)
-        ).fetchone()[0]
-        assert n_results_2 == n_results_1
-        assert canonical_conn.execute(
-            "SELECT COUNT(*) FROM experiment_registry").fetchone()[0] == pre_reg_n + 1
-        n_rows_again = knowledge_conn.execute(
-            "SELECT COUNT(*) FROM epistemic_test_nullifiers WHERE nullifier=?",
-            (m.EXPECTED_NULLIFIER,)).fetchone()[0]
-        assert n_rows_again == 1
-    finally:
-        canonical_conn.close()
-        knowledge_conn.close()
+    assert canonical_conn.execute(
+        "SELECT COUNT(*) FROM experiment_registry").fetchone()[0] == pre_reg_n + 1
+    n_results_1 = canonical_conn.execute(
+        "SELECT COUNT(*) FROM experiment_results WHERE experiment_id=?", (m.EXPERIMENT_ID,)
+    ).fetchone()[0]
+    assert n_results_1 > 0
+    assert canonical_conn.execute("SELECT COUNT(*) FROM ami_events").fetchone()[0] == pre_events_n
+    assert canonical_conn.execute(
+        "SELECT COUNT(*) FROM ami_signal_lifecycle").fetchone()[0] == pre_signals_n
+    assert canonical_conn.execute(
+        "SELECT COUNT(*) FROM ami_absorption_impact_windowed_flow").fetchone()[0] == pre_absorption_n
+
+    # idempotent rerun: NOOP everywhere, no duplicate rows, same verdict,
+    # receipt stays EXECUTED (not re-transitioned)
+    r2 = m.execute_governed_run(canonical_conn, knowledge_conn)
+    assert r2["consume_result"] == "NOOP_IDENTICAL"
+    assert r2["registry_result"] == "NOOP_IDENTICAL"
+    assert r2["results_result"] == "NOOP_IDENTICAL"
+    assert r2["verdict"] == r1["verdict"]
+    n_results_2 = canonical_conn.execute(
+        "SELECT COUNT(*) FROM experiment_results WHERE experiment_id=?", (m.EXPERIMENT_ID,)
+    ).fetchone()[0]
+    assert n_results_2 == n_results_1
+    assert canonical_conn.execute(
+        "SELECT COUNT(*) FROM experiment_registry").fetchone()[0] == pre_reg_n + 1
+    n_rows_again = knowledge_conn.execute(
+        "SELECT COUNT(*) FROM epistemic_test_nullifiers WHERE nullifier=?",
+        (m.EXPECTED_NULLIFIER,)).fetchone()[0]
+    assert n_rows_again == 1
+    receipt_still_after = knowledge_conn.execute(
+        "SELECT registry_result FROM experiment_gate_receipts WHERE experiment_id=?",
+        (m.EXPERIMENT_ID,)).fetchone()
+    assert receipt_still_after == ("EXECUTED",)
