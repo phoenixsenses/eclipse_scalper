@@ -1,0 +1,106 @@
+{
+  "gate": "BATCH-CASCADE-ABSORPTION-IMPACT-CANONICAL-BRIDGE-READINESS-AND-CONTRACT-V1",
+  "date": "2026-07-07",
+  "author": "Sonnet 5",
+  "canonical_family": "FAM_CASCADE_ABSORPTION_IMPACT",
+  "known_alias_typo": "FAM_CASCADE_ABSORMPTION_IMPACT",
+  "alias_source": "reports/governance/NEXT_INDEPENDENT_RESEARCH_HYPOTHESIS_SELECTION_V1.md (commit 0c976e21, immutable, not edited)",
+  "identity_ruling": "GENUINELY_NEW_CANONICAL_FAMILY",
+  "identity_ruling_notes": "Distinct from K-S34-BOOK-PULL-001 (book-depth state, sibling not same), K-S34-REFILL-CTX-001 (liquidity-return dynamics), S34_ORDERFLOW_LEAD (graveyarded OFI-momentum). Precedent-only prior computation: mechanism_store.sqlite.fl_*_impact (ungoverned, wrong anchor universe, unsigned-notional formula).",
+  "graveyard_check": {
+    "failure_archive_hits": 0,
+    "graveyard_slash_fingerprints_hits": 0,
+    "tables_scanned": ["failure_archive", "graveyard_slash_fingerprints"],
+    "stems_checked": ["absorption", "impact", "kyle", "exhaustion", "aggression"]
+  },
+  "source_audit": {
+    "primary_source": {
+      "path": "data/microstructure.db",
+      "table": "agg_trades",
+      "symbol": "ETHUSDT",
+      "row_count": 175748566,
+      "ts_range_utc": ["2026-02-15T14:26:27.967", "2026-07-06T21:09:26.704"],
+      "columns": ["id", "ts_ms", "symbol", "price", "quantity", "notional", "is_buyer_maker"],
+      "gap_records": {
+        "total": 20,
+        "confirmed_closed": 18,
+        "unresolved_open_ended": 2,
+        "unresolved_starts_utc": ["2026-04-24T06:02:11.825", "2026-04-24T10:27:26.426"]
+      }
+    },
+    "secondary_sources": [
+      {"path": "data/microstructure.db", "table": "mark_prices", "symbol": "ETHUSDT", "row_count": 8784962},
+      {"path": "data/microstructure.db", "table": "book_ticker", "symbol": "ETHUSDT", "row_count": 2077780064,
+       "coverage_start_utc": "2026-04-11T17:08:42.005",
+       "note": "ruled LOW_FIDELITY_PROXY_ONLY for this family; not used as primary evidence"},
+      {"path": "data/ami/canonical.sqlite", "table": "ami_agg_trades_repaired", "row_count": 40934,
+       "note": "8 disjoint repair spans, none intersect any of the 324 signals' pre-birth windows"}
+    ],
+    "anchor_population": {
+      "ami_events": 252,
+      "ami_signal_lifecycle_total": 324,
+      "ami_signal_lifecycle_long": 220,
+      "ami_signal_lifecycle_short": 104,
+      "ami_cycles": 167,
+      "representative_cycle_earliest_signal_direction": {"long": 142, "short": 25}
+    },
+    "book_ticker_coverage_gap": {
+      "all_signals_born_before_coverage_pct": 32.7,
+      "long_signals_born_before_coverage_pct": 39.5,
+      "short_signals_born_before_coverage_pct": 18.3
+    }
+  },
+  "measurement_definition": {
+    "status": "PROPOSED_NOT_YET_ACCEPTED",
+    "formula": "price_response_per_signed_notional_w = mark_price_return_bps([T-W,T]) / max(|signed_notional_w|/1e6, FLOOR_USD_M); signed_notional_w = sum(taker_sign * notional) over [T-W,T]",
+    "sign_convention": "taker_sign: is_buyer_maker=0 -> +1 (taker BUY), is_buyer_maker=1 -> -1 (taker SELL); identical to ami/cvd/windowed_taker_flow.py",
+    "units": "bps of mark-price return per $1,000,000 net signed aggressive notional",
+    "windows_sec": [60, 300, 600, 1800, 3600],
+    "window_boundary_law": "[T-W, T], both ends inclusive, pre-birth only",
+    "floor_constant": "FLOOR_USD_M not yet chosen; must be frozen from real signed-notional distribution, outcome-blind, before any rehearsal use",
+    "secondary_descriptive_definition": "legacy unsigned/total-notional variant (mechanism_store precedent), re-derived for bridge-validation continuity only, never primary",
+    "rationale_basis": "mechanical/source-based (isolates net-flow price response per the Kyle-lambda literature definition), not outcome-based"
+  },
+  "evidence_layer_ruling": {
+    "ruling": "RECONSTRUCTABLE_HIGH_FIDELITY_PROXY",
+    "pending": "EXACT_ABSORPTION_OR_IMPACT confirmation requires an actual quality-contract run (stage A3), not performed in this batch",
+    "book_depth_alternate_ruling": "LOW_FIDELITY_PROXY_ONLY (not proposed as primary evidence)"
+  },
+  "anchor_universe_and_known_at": {
+    "direction_applicability": "direction-neutral at measurement layer; direction is a mandatory stratification variable, never pooled",
+    "windows_sec": [60, 300, 600, 1800, 3600],
+    "bucket_window_in_scope": false,
+    "feature_available_ts_ms_rule": "= signal_birth_ts",
+    "known_at_classification": "KNOWN_AT_SAFE (fixed literal, CHECK-constrained)",
+    "post_anchor_information_prohibited": true
+  },
+  "coverage_accounting": {
+    "outcome_blind": true,
+    "candidate_universe_total_signals": 324,
+    "per_window": [
+      {"window_sec": 60, "confirmed_gap_overlap": 0, "unresolved_gap_proximity": 0, "before_collection_began": 0, "usable": 324},
+      {"window_sec": 300, "confirmed_gap_overlap": 0, "unresolved_gap_proximity": 0, "before_collection_began": 0, "usable": 324},
+      {"window_sec": 600, "confirmed_gap_overlap": 0, "unresolved_gap_proximity": 0, "before_collection_began": 0, "usable": 324},
+      {"window_sec": 1800, "confirmed_gap_overlap": 0, "unresolved_gap_proximity": 0, "before_collection_began": 0, "usable": 324},
+      {"window_sec": 3600, "confirmed_gap_overlap": 1, "unresolved_gap_overlap_direction": "LONG", "unresolved_gap_proximity": 0, "before_collection_began": 0, "usable": 323}
+    ],
+    "reconciliation_note": "candidate_universe = usable + confirmed_gap_exclusions + unresolved_quarantine, reconciles exactly per window",
+    "train_test_counts_computed": false,
+    "train_test_reason_not_computed": "depends on a feature-availability eligibility rule not yet formally classified (Phase 4); stating a number now would risk being read as frozen"
+  },
+  "knowledge_object_reconciliation": [
+    {"knowledge_id": "K-S34-BOOK-PULL-001", "status": "HOLDOUT_VALIDATED", "recompute_flag": "RECOMPUTE_REQUIRED", "dependency": false, "disposition": "keep quarantined under its own open recompute flag"},
+    {"knowledge_id": "K-S34-REFILL-CTX-001", "status": "REGIME_LIMITED", "recompute_flag": "AFFECTED", "dependency": false, "disposition": "unaffected, untouched"},
+    {"knowledge_id": "K-S34-MECH-COMPOSITE-001", "status": "HOLDOUT_VALIDATED", "recompute_flag": "RECOMPUTE_REQUIRED", "dependency": false, "disposition": "unaffected, untouched"},
+    {"knowledge_id": "mechanism_store.sqlite.fl_*_impact (not a KO)", "status": "ungoverned_raw_data_product", "recompute_flag": "n/a", "dependency": "precedent only", "disposition": "recompute as a non-scientific data product at bridge time (A2), not resurrected as-is, not itself a Knowledge Object"}
+  ],
+  "readiness_verdict": "ABSORPTION_IMPACT_READY_FOR_DIRECT_REHEARSAL",
+  "verdict_scope": "authorizes proceeding to disposable rehearsal (A3); explicitly not a preregistration-readiness claim (no canonical schema/quality-contract exists yet)",
+  "future_stage_plan": ["A1_readiness_contract_COMPLETE_this_batch", "A2_source_repair_or_feature_reconstruction_disposable", "A3_disposable_rehearsal", "A4_row_accounting_freeze", "A5_controlled_canonical_migration", "A6_independent_preregistration", "A7_one_governed_TEST_execution", "A8_forward_validation_if_warranted"],
+  "prohibited_actions_this_batch_confirmed_not_performed": [
+    "preregistration", "experiment_id_creation", "nullifier_issue_or_consume", "TEST_outcome_read",
+    "scientific_model_run", "threshold_or_window_scan_by_performance", "subgroup_selection_by_outcome",
+    "scientific_verdict", "canonical_migration", "schema_version_change", "runtime_risk_execution_modification",
+    "route_or_bucket_promotion", "repository_wide_cleanup"
+  ]
+}
