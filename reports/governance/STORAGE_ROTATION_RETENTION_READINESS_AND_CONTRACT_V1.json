@@ -1,0 +1,195 @@
+{
+  "gate": "BATCH-STORAGE-ROTATION-RETENTION-READINESS-AND-CONTRACT-V1",
+  "date": "2026-07-07",
+  "author": "Sonnet 5",
+  "nature": "operational-readiness, source-inventory, storage-contract design only -- no deletion, no archival, no VACUUM, no collector change",
+  "accepted_checkpoint": {
+    "research_governance_state": {"schema_version": 14, "experiment_registry": 24, "experiment_results": 381, "epistemic_test_nullifiers": 2, "experiment_gate_receipts": 2},
+    "portfolio_disposition": "NO_CURRENTLY_ELIGIBLE_INDEPENDENT_FAMILY",
+    "portfolio_commit": "c8c2156f",
+    "book_spread_long_parked_commit": "93b7296d",
+    "basis_blocked_commit": "1630f0a1",
+    "absorption_closed_commits": ["5e9e2e33", "ba3ab906"]
+  },
+  "storage_policy_ruling": {
+    "active_raw_horizon_days_initial": 30,
+    "no_automatic_14_day_reduction": true,
+    "future_amendment_range_days": [14, 30],
+    "archive_format": "PARQUET", "archive_compression": "ZSTD",
+    "forbidden_archive_formats": ["CSV", "JSONL", "PICKLE", "COMPRESSED_SQLITE_COPY"],
+    "partitioning": "CLOSED_UTC_CALENDAR_MONTH",
+    "purge_never_authorized_by_age_alone": true,
+    "no_destructive_emergency_behavior": true
+  },
+  "phase_1_data_estate_inventory": {
+    "drive": {"total_tb": 1.9, "free_tb_approx": 1.1, "used_gb_approx": 814, "pct_free": 58.9},
+    "microstructure_db": {
+      "path": "data/microstructure.db", "size_bytes": 758774398976, "size_gib_approx": 706.4,
+      "live_concurrent_writes": true, "journal_mode": "WAL", "auto_vacuum": "NONE",
+      "page_size": 4096, "page_count": 185191812, "freelist_count": 0,
+      "wal_size_bytes_start": 5273632, "wal_size_bytes_end": 5800992,
+      "backup_status": "none (too large for full backup, by design)"
+    },
+    "canonical_sqlite": {"path": "data/ami/canonical.sqlite", "size_bytes": 223117312, "journal_mode": "WAL", "auto_vacuum": "NONE", "page_size": 4096, "page_count": 54472, "freelist_count": 0, "backup_count": 39, "backup_total_gb": 2.8},
+    "knowledge_sqlite": {"path": "data/ami/knowledge.sqlite", "size_bytes": 110592, "journal_mode": "WAL", "auto_vacuum": "NONE", "page_size": 4096, "page_count": 27, "freelist_count": 0},
+    "runtime_temp_bytes": 3700000,
+    "pytest_temp_bytes": 0,
+    "runtime_dir_total_gb": 2.9,
+    "runtime_dir_unrelated_chrome_copy_gb": 2.8,
+    "logs_dir_total_mb": 632,
+    "reports_dir_total_mb": 162,
+    "stray_test_scratch_files": {"count": 416, "total_mb_approx": 13, "location": "data/test_*.db"},
+    "existing_parquet_or_csv_archive": "none found",
+    "no_full_database_copy_created": true
+  },
+  "phase_2_table_inventory": [
+    {"table": "agg_trades", "producer": "trade-tick collector", "pk": "id AUTOINCREMENT", "ts_field": "ts_ms (receipt)", "approx_row_count_upper_bound": 393648692, "earliest_utc": "2026-02-15T14:26:27.967Z", "latest_utc": "2026-07-07T17:18:32.218Z", "span_days": 142.1},
+    {"table": "book_ticker", "producer": "L1 book-ticker collector", "pk": "id AUTOINCREMENT", "ts_field": "ts_ms (receipt)", "approx_row_count_upper_bound": 4791706520, "note": "all symbols combined; ETHUSDT-only prior count 2077780064", "earliest_utc": "2026-04-11T17:08:41.948Z", "latest_utc": "2026-07-07T17:18:34.252Z", "span_days": 87.0},
+    {"table": "mark_prices", "producer": "mark-price collector", "pk": "id AUTOINCREMENT", "ts_field": "ts_ms (receipt)", "approx_row_count_upper_bound": 21099827, "earliest_utc": "2026-02-15T14:26:28Z", "latest_utc": "2026-07-07T17:18:33.001Z", "span_days": 142.1},
+    {"table": "liquidations", "producer": "liquidation-event collector", "pk": "id AUTOINCREMENT", "ts_field": "ts_ms (receipt)", "approx_row_count_upper_bound": 1328472, "earliest_utc": "2026-02-15T14:30:18.195Z", "latest_utc": "2026-07-06T10:06:39.307Z", "span_days": 140.8, "note": "direct anchor source for ami_events/ami_signal_lifecycle"},
+    {"table": "open_interest", "producer": "oi_spot_poller.py", "pk": "(symbol, ts_ms)", "ts_field": "ts_ms", "approx_row_count_upper_bound": null, "earliest_utc": "2026-03-28T12:00:00Z", "latest_utc": "2026-07-07T17:18:01.694Z", "span_days": 101.2},
+    {"table": "funding_rates", "producer": "funding collector (dead)", "pk": "(symbol, ts_ms)", "ts_field": "ts_ms", "approx_row_count_upper_bound": 178, "earliest_utc": "2026-02-15T16:00:00Z", "latest_utc": "2026-04-13T16:00:00Z", "span_days": 57.0, "note": "frozen, source dead since 2026-04-13"},
+    {"table": "spot_prices", "producer": "spot-price poller", "pk": "(symbol, ts_ms)", "ts_field": "ts_ms", "approx_row_count_upper_bound": null, "earliest_utc": "2026-03-07T16:00:00Z", "latest_utc": "2026-07-07T17:18:01.694Z", "span_days": 122.1},
+    {"table": "event_diary", "producer": "narrative event log", "pk": "id", "ts_field": "ts_ms", "approx_row_count_upper_bound": 133999, "earliest_utc": "2026-03-14T00:25:06.058Z", "latest_utc": "2026-06-05T15:53:03.004Z", "span_days": 83.6},
+    {"table": "gaps", "producer": "source-gap ledger", "pk": "id AUTOINCREMENT", "ts_field": "start_ts_ms/end_ts_ms", "approx_row_count_upper_bound": 812, "breakdown_by_stream": {"agg_trades": 20, "liquidations": 741, "mark_prices": 51}}
+  ],
+  "phase_2_measurement_method": {
+    "count_method": "MAX(id) on INTEGER PRIMARY KEY AUTOINCREMENT (index-backed, O(log n))",
+    "timestamp_method": "MIN/MAX(ts_ms) on indexed column, per-table individual queries after a combined multi-table query timed out under live-write lock contention",
+    "full_table_count_performed": false,
+    "unbounded_scan_performed": false
+  },
+  "phase_3_retention_classification": {
+    "module": "ami/governance/storage_rotation_retention_readiness_v1.py",
+    "registry_size": 45,
+    "class_counts": {
+      "CANONICAL_IMMUTABLE": 15,
+      "CONTINUITY_CRITICAL_ACTIVE": 5,
+      "RESEARCH_CRITICAL_COMPACT": 8,
+      "RAW_HIGH_FREQUENCY_ARCHIVE_ELIGIBLE": 3,
+      "DERIVED_REBUILDABLE": 6,
+      "TEMPORARY_DISPOSABLE": 8
+    },
+    "unclassified_tables": 0,
+    "archive_eligible_tables": ["agg_trades", "book_ticker", "mark_prices"],
+    "never_purge_tables_count": 28
+  },
+  "phase_4_growth_and_capacity": {
+    "snapshot_1": {"date": "2026-07-03T20:23:00Z", "microstructure_db_gb": 684.7, "drive_used_gb": 881, "drive_free_gb": 982, "source": "REPOSITORY_RUNTIME_AUDIT.md"},
+    "snapshot_2": {"date": "2026-07-07T20:37:00Z", "microstructure_db_gb": 706.4, "drive_used_gb": 814, "drive_free_gb": 1126, "source": "this batch"},
+    "growth_rate_gb_per_day": 18.5, "growth_rate_confidence": "MODERATE (2-point series, atypical activity window)",
+    "disk_used_discrepancy_disclosed": "used space decreased ~141GB net despite microstructure.db growing ~74GB; cause not investigated",
+    "projected_days_to_warning_threshold": 60,
+    "projection_confidence": "LOW-MODERATE, planning input only"
+  },
+  "proposed_thresholds": {
+    "STORAGE_HEALTHY": {"pct_free_gt": 20.0, "abs_free_gb_gt": 200.0, "permitted_response": ["none required"]},
+    "STORAGE_WARNING": {"pct_free_lte": 20.0, "abs_free_gb_lte": 200.0, "permitted_response": ["operator notification"]},
+    "STORAGE_CRITICAL": {"pct_free_lte": 10.0, "abs_free_gb_lte": 100.0, "permitted_response": ["operator notification", "block optional expensive batch jobs"]},
+    "STORAGE_EMERGENCY": {"pct_free_lte": 5.0, "abs_free_gb_lte": 50.0, "permitted_response": ["operator notification", "block optional expensive batch jobs", "pause nonessential derived-data builds under separately authorized runtime policy"]},
+    "prohibited_at_every_state": ["automatic deletion", "automatic VACUUM", "automatic collector stop/restart", "silent overwrite of raw/canonical/governance evidence"]
+  },
+  "phase_5_archive_schema_contract": {
+    "format": "PARQUET", "compression": "ZSTD", "timestamp_semantics": "UTC epoch-ms int64, lossless",
+    "integer_precision": "64-bit, no downcasting",
+    "partition_key": "(source_table, symbol, UTC_year, UTC_month)",
+    "row_ordering": "ascending source id within partition",
+    "atomic_publication": ".partial write -> verify -> os.replace",
+    "schema_fingerprint": "sha256 of canonicalized Parquet schema string"
+  },
+  "phase_6_manifest_contract_fields": [
+    "contract_version", "source_db_identity", "source_table", "utc_partition_start", "utc_partition_end",
+    "symbol", "venue", "market_segment", "export_cutoff", "captured_watermark_max_id", "row_count",
+    "min_max_source_id", "min_max_exchange_ts", "min_max_receipt_ts", "source_schema_hash",
+    "parquet_schema_hash", "parquet_file_path", "parquet_file_size", "parquet_sha256",
+    "ordered_scientific_content_hash", "duplicate_count", "invalid_row_count", "late_row_policy",
+    "repair_status", "source_gap_status", "export_timestamp", "exporter_version",
+    "verification_status", "restore_test_status", "purge_authorization_status"
+  ],
+  "phase_7_two_phase_contract": {
+    "phase_a_archive_steps": 14, "phase_a_destructive": false,
+    "phase_b_purge_requires": [
+      "ARCHIVED_VERIFIED status", "restore/read proof PASS", "Parquet hash match", "manifest hash match",
+      "row accounting match", "late-arrival window closed", "repair process closed",
+      "research dependency guard PASS", "collector continuity guard PASS", "canonical dependency guard PASS",
+      "explicit operator/policy authorization"
+    ],
+    "purge_implemented_this_batch": false,
+    "archive_implemented_this_batch": false
+  },
+  "phase_8_concurrency_late_arrival_contract": {
+    "id_monotonic_never_reused": true,
+    "ts_ms_semantics": "receipt time, conservatively >= exchange time (known-at-safe)",
+    "watermark_rule": "closed UTC month + id <= captured watermark at export start",
+    "late_row_handling": "new repair-version manifest, published archive never mutated in place",
+    "existing_gap_mechanism_reused": true,
+    "sqlite_online_backup_required": false,
+    "reason": "WAL-mode read transactions provide sufficient snapshot consistency for bounded id-range export"
+  },
+  "phase_9_research_dependency_matrix": [
+    {"dependency": "FAM_BOOK_SPREAD_DYNAMICS_LONG", "source_table": "book_ticker", "status": "PARKED_FOR_SAMPLE_GROWTH", "purge_blocked": true},
+    {"dependency": "FAM_SPOT_PERP_BASIS_REVERSAL", "source_table": "spot_prices, mark_prices", "status": "BLOCKED_BY_COVERAGE", "purge_blocked": true},
+    {"dependency": "OPEN_INTEREST_family", "source_table": "open_interest", "status": "BLOCKED_BY_COVERAGE", "purge_blocked": true},
+    {"dependency": "FUNDING_family", "source_table": "funding_rates, mark_prices", "status": "BLOCKED_BY_SOURCE_QUALITY", "purge_blocked": true},
+    {"dependency": "depth_liquidity_families_future", "source_table": "book_ticker (L2 not collected)", "status": "SOURCE_MISSING_FOR_FUTURE_FAMILY", "purge_blocked": false, "note": "does not affect L1 book_ticker retention"},
+    {"dependency": "execution_fill_studies_future", "source_table": "agg_trades", "status": "INFRA_NOT_BUILT", "purge_blocked": true},
+    {"dependency": "forward_shadow_validation", "source_table": "canonical tables only, not raw microstructure.db directly", "status": "ACTIVE_ACCUMULATING", "purge_blocked": false},
+    {"dependency": "state_transition_research_future", "source_table": "liquidations", "status": "BLOCKED_OD_016_017", "purge_blocked": true, "note": "liquidations already RESEARCH_CRITICAL_COMPACT, never purged"},
+    {"dependency": "broader_alpha_program_entry_exit_stops_reentry_multiTF_regime_crossasset", "source_table": "mostly canonical tables (CANONICAL_IMMUTABLE)", "status": "FUTURE_ROADMAP", "purge_blocked": false}
+  ],
+  "phase_9_general_guard": "no RAW_HIGH_FREQUENCY_ARCHIVE_ELIGIBLE partition may be purged merely for being older than the active horizon; NO_CURRENTLY_ELIGIBLE_INDEPENDENT_FAMILY does not make any partition purge-safe by itself",
+  "phase_10_read_restore_contract": {
+    "mode_1_direct_parquet_read": {"preferred": true, "predicate_pushdown": true, "manifest_verification_mandatory": true, "future_data_contamination_guard": true},
+    "mode_2_minimal_slice_restore": {"fallback_only": true, "location": [".runtime_temp", ".pytest_temp"], "full_db_restore_for_single_test_disallowed": true},
+    "current_tooling_gap": "no Parquet reader exists in the codebase today; all research code reads via plain sqlite3"
+  },
+  "phase_11_reclamation_policy": {
+    "microstructure_db_auto_vacuum": "NONE",
+    "microstructure_db_freelist_count": 0,
+    "vacuum_estimated_temp_space_gb": "~706 (up to 1x database size)",
+    "frozen_rule_no_automatic_vacuum_after_purge": true,
+    "frozen_rule_physical_shrinkage_requires_separate_gate": true,
+    "frozen_rule_never_vacuum_without_sufficient_free_disk": true,
+    "current_headroom_sufficient_today": true,
+    "must_reverify_at_execution_time": true
+  },
+  "phase_12_health_states": [
+    "STORAGE_HEALTHY", "STORAGE_WARNING", "STORAGE_CRITICAL", "STORAGE_EMERGENCY",
+    "ARCHIVE_LAGGING", "ARCHIVE_VERIFICATION_FAILED", "PURGE_BLOCKED_BY_RESEARCH_DEPENDENCY",
+    "PURGE_BLOCKED_BY_SOURCE_REPAIR", "PURGE_BLOCKED_BY_CONTINUITY", "STORAGE_STATE_UNKNOWN"
+  ],
+  "phase_12_current_state": "STORAGE_HEALTHY",
+  "phase_12_current_state_inputs": {"pct_free": 58.9, "abs_free_gb": 1126},
+  "phase_13_failure_modes_count": 24,
+  "phase_13_all_fail_closed": true,
+  "phase_13_deletion_permitted_in_any_failure_mode": false,
+  "phase_14_future_components": [
+    "storage_policy_configuration", "table_registry", "archive_planner", "read_only_source_snapshot_exporter",
+    "parquet_writer", "manifest_writer", "verifier", "restore_tester", "purge_planner", "chunked_purger",
+    "storage_health_reporter", "archive_catalog", "cli_dry_run_command", "cli_apply_command",
+    "scheduled_runner_integration", "parquet_research_reader", "minimal_slice_restorer"
+  ],
+  "phase_14_any_component_implemented_this_batch": false,
+  "phase_15_verdict": "STORAGE_ROTATION_RETENTION_READY_WITH_RESEARCH_DEPENDENCY_BLOCKERS",
+  "blockers": [
+    "Parquet/ZSTD tooling availability not independently verified this batch",
+    "growth-rate estimate is a 2-point series, moderate confidence only",
+    "~141GB disk-used discrepancy on D: disclosed, not investigated",
+    "open_interest/spot_prices/diagnostic-table exact row counts not independently measured",
+    "416 stray test-scratch .db files classified but not cleaned up this batch",
+    "runtime/chrome_user_data_copy (2.8GB) flagged as unrelated, out of scope"
+  ],
+  "focused_tests": {"file": "tests/test_ami_governance_storage_rotation_retention_readiness_v1.py", "total": 27, "passed": 27},
+  "storage_report": {
+    "peak_temp_disk_usage_bytes": 0,
+    "temporary_files_created": 0,
+    "temporary_files_deleted": 0,
+    "temporary_files_retained": 0,
+    "production_archive_created": false,
+    "full_database_copy_created": false,
+    "live_row_deleted_or_changed": false
+  },
+  "next_gate": "BATCH-STORAGE-ROTATION-RETENTION-DISPOSABLE-DRY-RUN-V1",
+  "next_gate_begun": false,
+  "execution_stopped": true
+}
