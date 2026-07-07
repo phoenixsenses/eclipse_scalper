@@ -1,0 +1,113 @@
+{
+  "gate": "BATCH-CASCADE-ABSORPTION-IMPACT-DISPOSABLE-REHEARSAL-V1",
+  "date": "2026-07-07",
+  "author": "Sonnet 5",
+  "depends_on_commit": "fc1321f5",
+  "contract_ambiguity_found": false,
+  "implementation": {
+    "formula": "price_response_per_signed_notional_w = mark_price_return_bps([T-W,T]) / max(|signed_notional_w|/1e6, FLOOR_USD_M)",
+    "denominator_convention": "absolute_value_of_signed_notional (exact per frozen contract, not a signed denominator)",
+    "sign_convention": "is_buyer_maker=0 -> +1 (taker BUY), is_buyer_maker=1 -> -1 (taker SELL)",
+    "windows_sec": [60, 300, 600, 1800, 3600],
+    "window_boundary": "[T-W, T] both inclusive",
+    "feature_available_ts_ms_rule": "= signal_birth_ts",
+    "frozen_floor_usd_m": 0.01,
+    "floor_derivation_basis": "1st percentile of |signed_notional| at W=60s across all 324 signals, rounded down to 1 significant figure, in $M units",
+    "floor_derivation_stats_usd": {"min": 37006.70, "p1": 93985.10, "max": 78936758.21, "n_samples": 324}
+  },
+  "disposable_environment": {
+    "location": "D:/eclipse_scalper/.runtime_temp/absorption_impact_rehearsal_v1",
+    "files": ["rehearsal_run1.sqlite", "rehearsal_run2.sqlite", "manifest.json", "rehearsal_result.json"],
+    "total_size_bytes": 2621440,
+    "source_connections_mode": "read-only (mode=ro) throughout",
+    "full_microstructure_db_copy_made": false,
+    "retained_as_accepted_evidence": true
+  },
+  "anchor_universe": {
+    "total_signals": 324,
+    "long": 220,
+    "short": 104,
+    "symbol": "ETHUSDT",
+    "windows": 5,
+    "total_signal_window_pairs": 1620
+  },
+  "row_accounting": {
+    "W60": {"usable": 324, "excluded_before_collection": 0, "excluded_confirmed_gap": 0, "excluded_unresolved_gap": 0, "reconciled": 324},
+    "W300": {"usable": 324, "excluded_before_collection": 0, "excluded_confirmed_gap": 0, "excluded_unresolved_gap": 0, "reconciled": 324},
+    "W600": {"usable": 324, "excluded_before_collection": 0, "excluded_confirmed_gap": 0, "excluded_unresolved_gap": 0, "reconciled": 324},
+    "W1800": {"usable": 324, "excluded_before_collection": 0, "excluded_confirmed_gap": 0, "excluded_unresolved_gap": 0, "reconciled": 324},
+    "W3600": {"usable": 323, "excluded_before_collection": 0, "excluded_confirmed_gap": 1, "excluded_unresolved_gap": 0, "reconciled": 324},
+    "total_usable": 1619,
+    "total_excluded": 1,
+    "total_reconciled": 1620
+  },
+  "quality_breakdown": {
+    "EXACT_RECONSTRUCTABLE": 1619,
+    "SOURCE_GAPPED": 1,
+    "PROXY_ONLY": 0,
+    "SOURCE_COVERAGE_UNRESOLVED": 0,
+    "UNREPAIRABLE": 0
+  },
+  "numerical_diagnostics": {
+    "floor_applied_rows": 0,
+    "zero_signed_notional_rows": 0,
+    "duplicate_conflict_rows_real_data": 0,
+    "timestamp_invalid_rows": 0
+  },
+  "known_at_proof": {
+    "known_at_violations": 0,
+    "outcome_access_violations": [],
+    "outcome_access_violations_count": 0,
+    "mechanism": "SQLite authorizer (SQLITE_DENY) on ami_lifecycle_path_observations and endpoint_return_bps/mfe_bps/mae_bps, installed on the live read-only canonical.sqlite connection for the full rehearsal run"
+  },
+  "idempotency": {
+    "run1_duration_sec": 270.29,
+    "run2_duration_sec": 169.82,
+    "counts_identical": true,
+    "content_hashes_identical": true,
+    "result": "REBUILD_IDENTICAL",
+    "content_hashes": {
+      "absorption_impact_windowed_flow": "f7c834cc8ebe90708e308629f1921a050d58520ad5560422b09406a7d1ca8942",
+      "absorption_impact_window_quality_v1": "5d1a205c7f79ca1b269307e34750c0d46dc104c8a799e9b4d01c862d307d7ba0",
+      "absorption_impact_exclusions": "5e3ae2e524fcdbd5d045698a5a14bd397ae2c21bf0ff9ae2f54f2502c35a3ff7"
+    },
+    "note": "disposable .sqlite file-level hashes differ between runs (bookkeeping created_ms/assessed_at_ms timestamps only); content-only hashes above (those columns excluded) are byte-identical"
+  },
+  "source_gap_reconciliation": {
+    "readiness_audit_claim": {"60": 0, "300": 0, "600": 0, "1800": 0, "3600": 1},
+    "independently_reproduced": {"60": 0, "300": 0, "600": 0, "1800": 0, "3600": 1},
+    "discrepancy": "none"
+  },
+  "live_canonical_db_state": {
+    "experiment_registry_before": 23, "experiment_registry_after": 23,
+    "experiment_results_before": 350, "experiment_results_after": 350,
+    "schema_version_before": 12, "schema_version_after": 12,
+    "unchanged": true
+  },
+  "tests": {
+    "file": "tests/test_ami_absorption_cascade_impact_rehearsal.py",
+    "total": 26,
+    "passed": 26,
+    "required_areas_covered": 25
+  },
+  "storage_guardrail": {
+    "runtime_temp_used": true,
+    "pytest_temp_used": true,
+    "peak_pytest_temp_bytes_during_batch": 893386752,
+    "pytest_temp_cleaned_up": true,
+    "pytest_temp_remaining_bytes": 0,
+    "runtime_temp_remaining_bytes": 2621440,
+    "runtime_temp_retained_as_evidence": true,
+    "full_database_copies_created": 0,
+    "large_temp_db_copies_under_c_temp": 0
+  },
+  "success_verdict": "ABSORPTION_IMPACT_REHEARSAL_READY_FOR_ROW_ACCOUNTING_FREEZE",
+  "operational_verdict": "CASCADE_ABSORPTION_IMPACT_DISPOSABLE_REHEARSAL_V1_COMPLETE",
+  "remaining_risks": [
+    "quality classification is a conservative gap-ledger-only approximation, not the full CVD-style cadence-proof/duplicate-unresolved machinery",
+    "FLOOR_USD_M frozen from data but never actually bound on real data (0/1619 rows)",
+    "absolute-value denominator convention is a disclosed methodological choice, not yet revisited by a future preregistration",
+    "no cross-symbol (BTC/SOL) context rehearsed, consistent with the frozen contract's ETHUSDT-only scope"
+  ],
+  "recommendation": "proceed to A4 (row-accounting freeze) next; operator should review whether the conservative quality-classification approximation needs strengthening before A5 (controlled canonical migration); no research execution (A6-A8) before A4/A5 complete"
+}
