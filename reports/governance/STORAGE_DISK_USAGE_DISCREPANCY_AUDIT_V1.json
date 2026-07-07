@@ -1,0 +1,200 @@
+{
+  "gate": "BATCH-STORAGE-DISK-USAGE-DISCREPANCY-AUDIT-V1",
+  "date": "2026-07-07",
+  "author": "Sonnet 5",
+  "nature": "read-only filesystem/volume-accounting audit only",
+  "headline_finding": "the prior ~141GB discrepancy was primarily a GB/GiB unit-labeling artifact in commit f65545ee's own report (df -h's binary-GiB '814' mislabeled as decimal GB=874.83GB), compounded by that batch never inventorying D:'s ~74.2GB of non-eclipse_scalper sibling directories",
+  "phase_1_measurement_frame": {
+    "audit_start_utc": "2026-07-07T17:53:07Z",
+    "audit_end_utc": "2026-07-07T18:05:52Z",
+    "local_timezone": "UTC+3",
+    "filesystem": "NTFS",
+    "volume_label": "Yeni Birim",
+    "volume_serial": "B606807D",
+    "cluster_size_bytes": 4096,
+    "measurements": {
+      "get_volume": {"total_bytes": 2000381014016, "free_bytes": 1125547708416},
+      "get_psdrive": {"used_bytes": 874833305600, "free_bytes": 1125544742912},
+      "win32_logicaldisk_cim": {"total_bytes": 2000381014016, "free_bytes": 1125544742912}
+    },
+    "cross_source_disagreement_bytes": 2965526,
+    "cross_source_disagreement_cause": "timing skew between snapshots taken seconds apart during active collector writes",
+    "canonical_used_bytes_this_batch": 874833305600,
+    "fsutil_vssadmin_access": "DENIED (Error 5) -- not running elevated"
+  },
+  "phase_13_reconciliation": {
+    "cross_snapshot": {
+      "old_audit_date": "2026-07-03T20:23:00Z",
+      "old_audit_label": "881 GB",
+      "if_decimal_gb": {"old_bytes": 881000000000, "delta_vs_current_bytes": 6166694400, "delta_gb": 6.1666944},
+      "if_gib_mislabeled_as_gb": {"old_bytes": 945966546944, "delta_vs_current_bytes": 71133241344, "delta_gb": 71.133241344},
+      "most_plausible_interpretation": "decimal_gb",
+      "root_cause_of_prior_141gb_claim": "commit f65545ee used df -h's '814' (actually GiB=814.75) as if it were decimal GB (=874.83); corrected delta is only ~6.17GB, not ~67GB, making the derived 'freed elsewhere' figure ~80GB not ~141GB, and even that is unremarkable multi-day churn"
+    },
+    "current_state_full_reconciliation": {
+      "used_bytes": 874833305600,
+      "items_bytes": {
+        "eclipse_scalper": 798716636064,
+        "Riot Games": 39389216003,
+        "Steam": 18327552078,
+        "Rise of Kingdoms Game": 5474242471,
+        "Android": 4392694272,
+        "flutter": 3209422033,
+        "lockscreen_rpg": 2131574427,
+        "psi97": 767135747,
+        "eclipse_pentest_platform": 669296655,
+        "SteamLibrary": 389812654,
+        "c": 369368022,
+        "commerce_intelligence": 37083394,
+        "RECYCLE.BIN": 24897597,
+        "chess97": 24238538,
+        "tmp_top_level": 5304190,
+        "migration_log.txt": 3025600,
+        "chess97_pytest_tmp": 373,
+        "eclipse_scalper_scratch_pytest_tmp": 0
+      },
+      "total_measured_bytes": 873931500118,
+      "remaining_unexplained_bytes": 901805482,
+      "remaining_unexplained_pct": 0.1030831218047307,
+      "explained_pct": 99.89691687819527,
+      "meets_2pct_threshold": true,
+      "residual_attribution": "System Volume Information (access denied, unenumerated) + minor NTFS allocation-rounding/du-measurement-method differences"
+    },
+    "reparse_points_found_at_top_level": 0,
+    "hard_link_double_counting_risk": "none identified (no reparse points found)"
+  },
+  "phase_2_3_eclipse_scalper_internal": {
+    "total_bytes": 798716636064,
+    "microstructure_db_bytes_at_audit_end": 759020118016,
+    "microstructure_db_growth_during_audit_bytes": 245719040,
+    "git_directory_bytes": 6700000000,
+    "note": "internal eclipse_scalper breakdown already itemized in prior readiness batch f65545ee, not re-measured here except .git which was newly noted"
+  },
+  "phase_4_large_files": {
+    "largest_non_project_consumers": [
+      {"path": "Riot Games", "bytes": 39389216003},
+      {"path": "Steam", "bytes": 18327552078},
+      {"path": "Rise of Kingdoms Game", "bytes": 5474242471}
+    ],
+    "internal_itemization_performed": false,
+    "reason": "external, unrelated applications, out of this project's audit scope"
+  },
+  "phase_5_logical_vs_allocated": {
+    "volume_compression_enabled": false,
+    "getcompressedfilesize_check_performed": false,
+    "sparse_files_found": 0,
+    "materiality": "low, disclosed limitation"
+  },
+  "phase_6_hard_links_reparse": {
+    "top_level_reparse_points": 0,
+    "chrome_user_data_copy_is_reparse_point": false,
+    "hard_link_enumeration_performed": false,
+    "reason": "would require elevated per-file fsutil hardlink list, out of scope for top-level audit"
+  },
+  "phase_7_system_managed": {
+    "system_volume_information_exists": true,
+    "system_volume_information_enumerable": false,
+    "system_volume_information_error": "Access denied ('yoluna erisim reddedildi')",
+    "win32_shadowstorage_query_result": "Initialization failure (likely no VSS configured, not independently confirmable without elevation)",
+    "vssadmin_access": "DENIED (Error 5, requires elevated admin)",
+    "usn_journal_enabled": false,
+    "usn_journal_query_result": "Error 1179: change journal not enabled (definitive, non-permission-blocked finding)",
+    "pagefile_swapfile_hiberfil_on_d": "none found",
+    "windowsapps_on_d": "none found at top level",
+    "max_possible_unresolved_contribution_bytes": 901805482
+  },
+  "phase_8_recycle_bin": {
+    "sid_directories_found": 1,
+    "sid": "S-1-5-21-169577068-3729067867-3435197522-1000",
+    "file_count": 11,
+    "total_bytes": 24897597,
+    "emptied": false
+  },
+  "phase_9_process_references": {
+    "processes_referencing_flagged_paths": 0,
+    "self_match_excluded": "this audit's own PowerShell command line",
+    "chrome_exe_running_processes": 16,
+    "chrome_exe_path": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "chrome_exe_references_runtime_copy": false
+  },
+  "phase_10_chrome_copy_classification": {
+    "path": "D:/eclipse_scalper/runtime/chrome_user_data_copy",
+    "size_bytes_prior_estimate": 2800000000,
+    "created": "2026-06-24T15:58:13+03:00",
+    "last_written": "2026-06-24T16:01:06+03:00",
+    "days_stale_at_audit": 13,
+    "is_reparse_point": false,
+    "referenced_by_active_process": false,
+    "referenced_by_repo_code": false,
+    "classification": "REPRODUCIBLE_INACTIVE_CLEANUP_CANDIDATE",
+    "deletion_authorized": false
+  },
+  "phase_11_pytest_scratch_classification": {
+    "file_count": 416,
+    "total_bytes": 13008896,
+    "date_range": "2026-03-01 to 2026-04-21",
+    "days_stale_minimum": 77,
+    "referenced_by_active_process": false,
+    "only_copy_of_accepted_evidence": false,
+    "classification": "VERIFIED_DISPOSABLE_CANDIDATE",
+    "deletion_authorized": false
+  },
+  "phase_12_backup_classification": {
+    "total_bytes": 2800000000,
+    "total_files": 39,
+    "named_canonical_snapshots": 17,
+    "named_knowledge_snapshots": 2,
+    "all_cross_referenced_to_migration_log": true,
+    "classification": "KEEP_ACCEPTED_BACKUP_OR_EVIDENCE",
+    "deletion_authorized": false
+  },
+  "phase_14_cleanup_classification_summary": {
+    "VERIFIED_DISPOSABLE_CANDIDATE": {"items": 416, "bytes": 13008896},
+    "POSSIBLE_CLEANUP_REQUIRES_OPERATOR_REVIEW": {"items": 1, "bytes": 2800000000, "item": "runtime/chrome_user_data_copy"},
+    "KEEP_RESEARCH_CRITICAL": {"bytes_approx": 759020118016},
+    "KEEP_OPERATIONAL_CONTINUITY": {"bytes_approx": 635000000},
+    "KEEP_ACCEPTED_BACKUP_OR_EVIDENCE": {"bytes_approx": 3150000000},
+    "SYSTEM_MANAGED_DO_NOT_TOUCH": {"bytes_min": 24897597, "note": "plus unmeasured System Volume Information"},
+    "EXTERNAL_OR_UNRELATED_REVIEW_SEPARATELY": {"bytes": 75214864054}
+  },
+  "phase_15_reclaimable_summary": {
+    "verified_reclaimable_bytes": 13008896,
+    "verified_reclaimable_gb": 0.013008896,
+    "possible_reclaimable_bytes": 2800000000,
+    "possible_reclaimable_gb": 2.8,
+    "protected_bytes_approx": 762829015613,
+    "system_managed_bytes_min": 24897597,
+    "unexplained_bytes": 901805482,
+    "verified_and_possible_combined": false,
+    "note": "verified and possible totals intentionally never combined per Phase 15 instruction"
+  },
+  "verdict": "STORAGE_DISK_USAGE_DISCREPANCY_EXPLAINED",
+  "explained_pct": 99.89691687819527,
+  "threshold_pct": 2.0,
+  "limitations": [
+    "fsutil/vssadmin access denied (Error 5), not elevated",
+    "System Volume Information contents not enumerable (access denied)",
+    "no GetCompressedFileSizeW-level logical-vs-allocated comparison performed",
+    "no hard-link deduplication performed (no reparse points found, low risk)",
+    "Steam/Riot Games/other unrelated directories not itemized internally (correctly out of scope)"
+  ],
+  "focused_tests": {"file": "tests/test_ami_governance_storage_disk_usage_discrepancy_audit_v1.py", "total": 25, "passed": 25},
+  "regression": {
+    "paired_with": "tests/test_ami_governance_storage_rotation_retention_readiness_v1.py",
+    "batch_nature": "additive-only, one new pure-Python module (zero filesystem/db access) + one test file"
+  },
+  "governance_state_unchanged": {"schema_version": 14, "experiment_registry": 24, "experiment_results": 381, "epistemic_test_nullifiers": 2, "experiment_gate_receipts": 2},
+  "canonical_sqlite_sha256": "0604b0da93238388451eb23203e1b12806f6e627d4d599168877e1abcb8d57a0",
+  "knowledge_sqlite_sha256": "710b3f689db2238f11efa04230600b9ddd06e500807b5fb69c7e797e6053dc65",
+  "next_gate": "BATCH-STORAGE-ROTATION-RETENTION-DISPOSABLE-DRY-RUN-V1",
+  "next_gate_reason": "verified-disposable total (13MB) is well below the 1GB bounded-cleanup trigger",
+  "chrome_copy_flagged_separately": true,
+  "next_gate_begun": false,
+  "execution_stopped": true,
+  "storage_report": {
+    "peak_temp_disk_usage_bytes": 0,
+    "temporary_files_created": 0,
+    "temporary_files_deleted": 0,
+    "no_data_backup_archive_database_or_browser_profile_copy_created": true
+  }
+}
