@@ -60,3 +60,6 @@ Thumbs.db
 **/.vite/
 dashboard/**/node_modules/
 dashboard/**/dist/
+
+# Production archive data (generated, never committed)
+data/archives/

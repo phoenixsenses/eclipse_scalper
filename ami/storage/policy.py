@@ -91,3 +91,36 @@ def validate_policy(policy: StoragePolicy) -> None:
 
 
 DEFAULT_POLICY = StoragePolicy()
+
+
+# ---------------------------------------------------------------------------
+# Production-activation-rehearsal authorization (BATCH-...-PRODUCTION-
+# ACTIVATION-REHEARSAL-V1). A single, narrowly-scoped, non-reusable
+# authorization that permits publishing EXACTLY ONE production partition
+# (mark_prices/ETHUSDT/2026-05/v1). It is not a general production-enable
+# switch: every field is an exact literal, and `is_authorized()` checks
+# all of them. General production activation stays DISABLED regardless.
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class ProductionRehearsalAuthorization:
+    table: str = "mark_prices"
+    symbol: str = "ETHUSDT"
+    venue: str = "BINANCE_USDM_PERP"
+    market_segment: str = "PERPETUAL_FUTURES"
+    utc_year: int = 2026
+    utc_month: int = 5
+    archive_version: str = "v1"
+
+    def is_authorized(self, *, table: str, symbol: str, venue: str, market_segment: str,
+                       utc_year: int, utc_month: int, archive_version: str) -> bool:
+        return (table == self.table and symbol == self.symbol and venue == self.venue
+                and market_segment == self.market_segment and utc_year == self.utc_year
+                and utc_month == self.utc_month and archive_version == self.archive_version)
+
+
+REHEARSAL_AUTHORIZATION = ProductionRehearsalAuthorization()
+
+# General production activation remains disabled: this constant is the
+# single source of truth that no code path flips it on.
+GENERAL_PRODUCTION_ACTIVATION_ENABLED = False

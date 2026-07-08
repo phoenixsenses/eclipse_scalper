@@ -70,7 +70,11 @@ def read_partition(*, parquet_path: str, manifest: dict, requested_symbol: str,
             f"checksum mismatch: file={actual_sha256} manifest={manifest.get('parquet_sha256')}")
 
     try:
-        table = pq.read_table(parquet_path, columns=list(columns) if columns else None)
+        # Single-file read via ParquetFile (NOT pq.read_table, which would
+        # trigger pyarrow dataset/Hive-partition auto-discovery on the
+        # production `key=value/` directory layout and collide the path's
+        # `symbol=...` key with the real `symbol` column).
+        table = pq.ParquetFile(parquet_path).read(columns=list(columns) if columns else None)
     except Exception as exc:
         raise ArchiveCorruptionError(f"parquet unreadable: {exc}") from exc
 

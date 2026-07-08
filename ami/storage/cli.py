@@ -72,6 +72,16 @@ def build_parser() -> argparse.ArgumentParser:
                     help="Must be beneath .runtime_temp or .pytest_temp.")
     sp.set_defaults(func=_cmd_restore_slice)
 
+    # Narrowly scoped: publishes ONLY the single frozen rehearsal partition
+    # (mark_prices/ETHUSDT/2026-05/v1). It accepts no table/symbol/month/root
+    # arguments at all -- there is nothing to parameterize, so it can never
+    # be turned into a general production-enable command.
+    sp = sub.add_parser("production-activation-rehearsal",
+                        help="Publish the single frozen rehearsal production partition "
+                             "(mark_prices/ETHUSDT/2026-05/v1). No other partition is possible.")
+    sp.add_argument("--source-db", default=None)
+    sp.set_defaults(func=_cmd_production_activation_rehearsal)
+
     return p
 
 
@@ -175,6 +185,19 @@ def _cmd_restore_slice(args: argparse.Namespace) -> dict:
         expected_scientific_hash=manifest.get("ordered_scientific_content_hash", ""))
     return {"destination_path": restore_result.destination_path, "row_count": restore_result.row_count,
             "scientific_content_hash": restore_result.scientific_content_hash}
+
+
+def _cmd_production_activation_rehearsal(args: argparse.Namespace) -> dict:
+    from ami.storage import production as PR
+    from ami.storage.source_access import open_read_only, assert_read_only_session_clean, DEFAULT_SOURCE_PATH
+
+    root, root_source = PR.resolve_production_root()
+    conn, log = open_read_only(args.source_db or DEFAULT_SOURCE_PATH)
+    try:
+        return PR.run_production_activation_rehearsal(conn, root=root, root_source=root_source)
+    finally:
+        assert_read_only_session_clean(log)
+        conn.close()
 
 
 def main(argv: list[str] | None = None) -> int:

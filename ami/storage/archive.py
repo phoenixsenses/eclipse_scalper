@@ -143,16 +143,26 @@ def _sha256_file(path: str) -> str:
 # repair-status/exporter-version disclosures added during the dry-run).
 # ---------------------------------------------------------------------------
 
+ALLOWED_PRODUCTION_STATUS = ("DISPOSABLE_NOT_PRODUCTION", "PRODUCTION_VERIFIED")
+
+
 def build_manifest(*, spec: SourceTableSpec, partition: PartitionIdentity, row_count: int,
                     scientific_hash: str, parquet_path: str, parquet_size: int, parquet_sha256: str,
                     source_schema_hash: str, parquet_schema_hash: str, unresolved_gap_count: int,
                     export_cutoff: str, publication_timestamp: str, verification_status: str,
-                    dry_run_identity: str) -> dict:
+                    dry_run_identity: str, production_status: str = "DISPOSABLE_NOT_PRODUCTION") -> dict:
+    """`production_status` defaults to DISPOSABLE_NOT_PRODUCTION (the only
+    value any disposable caller ever gets); the production-activation
+    rehearsal is the sole caller permitted to pass PRODUCTION_VERIFIED,
+    and even it can pass nothing else -- `purge_authorization` remains
+    hardcoded PROHIBITED regardless, and is never a parameter."""
+    if production_status not in ALLOWED_PRODUCTION_STATUS:
+        raise ValueError(f"invalid production_status {production_status!r}")
     ids_present = row_count > 0
     return {
         "archive_contract_version": partition.archive_contract_version,
         "dry_run_identity": dry_run_identity,
-        "production_status": "DISPOSABLE_NOT_PRODUCTION",
+        "production_status": production_status,
         "source_database_identity": spec.source_database,
         "source_table": spec.table,
         "utc_partition_start": _ms_to_iso(partition.partition_start_ms),

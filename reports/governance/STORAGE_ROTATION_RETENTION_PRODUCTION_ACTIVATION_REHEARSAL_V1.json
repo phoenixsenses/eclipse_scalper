@@ -1,0 +1,193 @@
+{
+  "gate": "BATCH-STORAGE-ROTATION-RETENTION-PRODUCTION-ACTIVATION-REHEARSAL-V1",
+  "date": "2026-07-08",
+  "author": "Sonnet 5",
+  "nature": "first production-path archive publication rehearsal, exactly one partition",
+  "accepted_checkpoint": {
+    "readiness_commit": "f65545ee",
+    "discrepancy_audit_commit": "54c1355f",
+    "disposable_dry_run_commit": "6fbe0571",
+    "bounded_implementation_commit": "55a017ff",
+    "governance_state_before": {"schema_version": 14, "experiment_registry": 24, "experiment_results": 381, "epistemic_test_nullifiers": 2, "experiment_gate_receipts": 2}
+  },
+  "production_root": {
+    "root": "D:\\eclipse_scalper\\data\\archives\\raw_v1",
+    "root_source": "operator_approved_fallback",
+    "frozen_root_found_in_accepted_artifacts": false,
+    "pre_existing_archive_found": false
+  },
+  "authorized_partition": {
+    "table": "mark_prices", "symbol": "ETHUSDT", "venue": "BINANCE_USDM_PERP",
+    "market_segment": "PERPETUAL_FUTURES", "utc_partition": "2026-05", "archive_version": "v1"
+  },
+  "implementation_bug_found_and_fixed": {
+    "symptom": "ArrowTypeError: Unable to merge: Field symbol has incompatible types: string vs dictionary<values=string, indices=int32, ordered=0>",
+    "root_cause": "pq.read_table() triggers pyarrow dataset/Hive-partition auto-discovery on the key=value/ directory layout, colliding the path's symbol=ETHUSDT segment with the real symbol column",
+    "fix": "switched every single-file verification read (production.py, reader.py) to pq.ParquetFile(path).read(), which reads exactly one file with no dataset inference",
+    "data_export_itself_was_unaffected": true,
+    "buggy_verification_run_leftover_deleted_before_clean_run": true
+  },
+  "phase_6_source_snapshot": {
+    "fresh_watermark_captured": true,
+    "row_count": 260657,
+    "watermark_value": 13265132,
+    "min_id": 12483110, "max_id": 13265132,
+    "scientific_content_hash": "228c5705bc1461471102b5bbc1e81b781ddfe7cb5a853b484a7cbb5961860999",
+    "matches_historical_reference": true,
+    "row_delta_vs_historical": 0,
+    "watermark_delta_vs_historical": 0
+  },
+  "phase_7_8_publication": {
+    "status": "PUBLISHED",
+    "final_partition_dir": "D:\\eclipse_scalper\\data\\archives\\raw_v1\\table=mark_prices\\venue=BINANCE_USDM_PERP\\market_segment=PERPETUAL_FUTURES\\symbol=ETHUSDT\\year=2026\\month=05\\version=v1",
+    "files_published": ["part-00000.parquet", "manifest.json", "catalog_entry.json", "_SUCCESS"],
+    "staging_consumed": true,
+    "atomic_directory_rename": true,
+    "final_path_did_not_preexist": true
+  },
+  "phase_9_post_publication_reverification": {
+    "mismatch_count": 0,
+    "checks": ["_SUCCESS presence", "parquet-hash vs manifest", "manifest-hash vs catalog-entry",
+               "manifest scientific-hash vs catalog-entry scientific-hash", "partition_id match",
+               "production_status", "purge_authorization (manifest + entry)",
+               "source_retention_status", "full row re-hash"]
+  },
+  "phase_10_root_catalog_index": {
+    "index_path": "D:\\eclipse_scalper\\data\\archives\\raw_v1\\catalog_index.json",
+    "index_size_bytes": 1971,
+    "index_self_hash": "2f0bf51443dd044a6a624852d3cfe5ddaa94286cb9a3a5937b532e15d69fbd4e",
+    "entry_count": 1,
+    "rebuild_deterministic": true,
+    "rebuilt_times_confirmed": 2,
+    "contains_no_source_or_outcome_data": true
+  },
+  "phase_11_direct_read": {
+    "rows_returned": 260657,
+    "mismatch_count": 0,
+    "fresh_source_comparison": true
+  },
+  "phase_12_minimal_restore": {
+    "destination": ".runtime_temp/storage_rotation_production_activation_rehearsal_v1/restored.sqlite",
+    "row_count": 260657,
+    "matches_source": true, "matches_parquet": true,
+    "deleted_after_proof": true
+  },
+  "phase_13_idempotency": {
+    "cli_second_run_status": "NOOP_IDENTICAL_PRODUCTION_ARCHIVE",
+    "reverification_mismatch_count": 0,
+    "file_mtimes_unchanged_across_runs": true,
+    "parquet_sha256_unchanged": true,
+    "version_v2_created": false,
+    "orchestration_function": "ami.storage.production.run_production_activation_rehearsal"
+  },
+  "phase_14_interruption_recovery": {
+    "tested_on_disposable_roots_only": true,
+    "partial_parquet_never_reaches_final_path": true,
+    "incomplete_staging_never_in_root_index": true,
+    "restart_after_abandoned_partial_publishes_cleanly": true,
+    "real_archive_untouched": true
+  },
+  "phase_15_corruption_tamper": {
+    "tested_on_disposable_copies_only": true,
+    "altered_parquet_byte_detected": true,
+    "truncated_parquet_rejected": true,
+    "missing_parquet_rejected": true,
+    "altered_manifest_field_detectable": true,
+    "altered_catalog_entry_rejected_by_index_build": true,
+    "missing_success_marker_detected": true,
+    "corrupted_root_index_does_not_affect_rebuild": true,
+    "real_archive_byte_identical_before_and_after": true
+  },
+  "phase_16_source_retention": {
+    "source_row_count_unchanged": true, "source_row_count": 260657,
+    "source_scientific_hash_unchanged": true,
+    "write_attempts_during_batch": 0,
+    "source_retention_status": "SOURCE_PRESENT",
+    "research_dependency_status": "BLOCKED",
+    "purge_authorization": "PROHIBITED",
+    "mark_prices_dependencies": ["FUNDING_LEVEL_VELOCITY", "FAM_SPOT_PERP_BASIS_REVERSAL"],
+    "verified_archive_satisfies_all_dependencies": false
+  },
+  "phase_17_health_report": {
+    "new_fields_added": 9,
+    "live_scan_result": {
+      "verified_production_partitions": 1, "failed_production_partitions": 0,
+      "root_catalog_index_status": "PRESENT", "root_catalog_entry_count": 1,
+      "total_archive_bytes": 2476313, "production_archive_rehearsal_status": "COMPLETE"
+    },
+    "production_activation": "DISABLED", "scheduler": "DISABLED", "purge": "DISABLED", "vacuum": "DISABLED"
+  },
+  "phase_18_cli": {
+    "new_command": "production-activation-rehearsal",
+    "accepts_partition_arguments": false,
+    "forbidden_arguments_confirmed_absent": ["--table", "--symbol", "--utc-year", "--utc-month",
+                                             "--output-root", "--production-root", "--archive-version"],
+    "forbidden_commands_confirmed_absent": ["purge", "delete", "vacuum", "schedule",
+                                            "activate-production", "stop-collector", "restart-collector",
+                                            "archive-all", "archive-range", "compact"]
+  },
+  "phase_19_resource_guards": {
+    "source_partition_estimate_bytes": 16682048, "cap_bytes": 2147483648,
+    "production_parquet_bytes": 2476313, "cap_bytes_parquet": 1073741824,
+    "staging_plus_verification_peak_bytes_approx": 2500000, "cap_bytes_staging": 4294967296,
+    "drive_free_bytes_before_start": 1123992150016, "minimum_required_bytes": 107374182400,
+    "full_database_copy_created": false, "full_database_hashed": false
+  },
+  "production_file_inventory": [
+    {"path": "table=mark_prices/.../version=v1/part-00000.parquet", "logical_size_bytes": 2476313,
+     "sha256": "6f91914400dcbe84b662c9260a24f9e5eb7f56b2d9db34adfde55a53af8e900f", "verification_state": "VERIFIED"},
+    {"path": "table=mark_prices/.../version=v1/manifest.json", "logical_size_bytes": 1898,
+     "sha256": "61c9e226a61c04cfef1a776cc1bc2e897ec627fcbf8406e609fd2efddd496371", "verification_state": "VERIFIED"},
+    {"path": "table=mark_prices/.../version=v1/catalog_entry.json", "logical_size_bytes": 1687,
+     "sha256": "009ec5095ef9be50ee8b1a8185926a929152b07220cb89bd577df919f32888fb", "verification_state": "VERIFIED"},
+    {"path": "table=mark_prices/.../version=v1/_SUCCESS", "logical_size_bytes": 26, "verification_state": "VERIFIED"},
+    {"path": "catalog_index.json", "logical_size_bytes": 1971,
+     "sha256_self_hash": "2f0bf51443dd044a6a624852d3cfe5ddaa94286cb9a3a5937b532e15d69fbd4e", "verification_state": "VERIFIED"}
+  ],
+  "production_total_bytes": 2482981,
+  "source_live_db_immutability": {
+    "authorizer_denied_write_attempts": 0,
+    "canonical_sqlite_sha256_unchanged": "0604b0da93238388451eb23203e1b12806f6e627d4d599168877e1abcb8d57a0",
+    "knowledge_sqlite_sha256_unchanged": "710b3f689db2238f11efa04230600b9ddd06e500807b5fb69c7e797e6053dc65"
+  },
+  "focused_tests": {
+    "test_ami_storage_production.py": 55,
+    "test_ami_storage_job_state_and_cli.py_delta": "+1 new test (24 total)",
+    "total_new_tests": 56
+  },
+  "paired_regression": {
+    "test_ami_storage_policy_and_registry.py": 24,
+    "test_ami_storage_partition_and_planner.py": 21,
+    "test_ami_storage_source_access.py": 14,
+    "test_ami_storage_archive_and_verifier.py": 25,
+    "test_ami_storage_catalog_reader_restorer.py": 22,
+    "test_ami_storage_acceptance.py": 15,
+    "test_ami_governance_storage_rotation_retention_readiness_v1.py": 27,
+    "test_ami_governance_storage_disk_usage_discrepancy_audit_v1.py": 25,
+    "test_ami_governance_storage_rotation_retention_disposable_dry_run_v1.py": 40,
+    "combined": 213,
+    "new_attributable_failures": 0
+  },
+  "verdict": "STORAGE_ROTATION_RETENTION_PRODUCTION_ACTIVATION_REHEARSAL_V1_COMPLETE",
+  "disposition": "STORAGE_ROTATION_RETENTION_SINGLE_PRODUCTION_PARTITION_VERIFIED_SOURCE_RETAINED",
+  "general_production_activation_status": "DISABLED",
+  "scheduler_status": "DISABLED",
+  "purge_status": "DISABLED",
+  "vacuum_status": "DISABLED",
+  "blockers": [
+    "only mark_prices/2026-05 exercised at the production-path level; agg_trades/book_ticker unrehearsed at production level (fixture-tested at engine level only, prior batch)",
+    "root catalog index has no concurrency/locking contract yet -- fine for single-partition rehearsal, needed before multi-job production activation",
+    "_scan_production_root()'s staging_directory_count field is a placeholder (always 0), live in-progress staging detection not built out"
+  ],
+  "next_gate": "BATCH-STORAGE-ROTATION-RETENTION-PRODUCTION-ARCHIVE-ACTIVATION-V1",
+  "next_gate_begun": false,
+  "execution_stopped": true,
+  "storage_report": {
+    "production_files_retained_bytes": 2482981,
+    "disposable_files_created_and_deleted": ["restored.sqlite (production restore proof)", "corruption-test copies (pytest tmp_path, auto-cleaned)"],
+    "final_staging_dir_contents": "empty",
+    "final_runtime_temp_rehearsal_dir_contents": "empty",
+    "full_database_copy_created": false,
+    "source_row_modified_or_deleted": false
+  }
+}

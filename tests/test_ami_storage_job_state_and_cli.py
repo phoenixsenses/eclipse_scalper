@@ -101,7 +101,21 @@ def test_cli_has_expected_commands():
     # argparse subparsers choices are accessible via the subparsers action
     subparsers_action = next(a for a in parser._actions if hasattr(a, "choices") and a.choices)
     commands = set(subparsers_action.choices.keys())
-    assert commands == {"policy-status", "plan", "disposable-dry-run", "verify", "read", "restore-slice"}
+    assert commands == {"policy-status", "plan", "disposable-dry-run", "verify", "read", "restore-slice",
+                        "production-activation-rehearsal"}
+
+
+def test_cli_production_activation_rehearsal_accepts_no_partition_args():
+    """The command takes NO table/symbol/month/root arguments -- there is
+    nothing to parameterize, so it can never become a general
+    production-enable command."""
+    parser = CLI.build_parser()
+    subparsers_action = next(a for a in parser._actions if hasattr(a, "choices") and a.choices)
+    sub_parser = subparsers_action.choices["production-activation-rehearsal"]
+    option_strings = {opt for action in sub_parser._actions for opt in action.option_strings}
+    forbidden = {"--table", "--symbol", "--utc-year", "--utc-month", "--output-root",
+                "--production-root", "--archive-version"}
+    assert option_strings.isdisjoint(forbidden)
 
 
 def test_cli_has_no_forbidden_commands():
