@@ -20,6 +20,7 @@ import type {
   DataQualityEvent,
   HealthResponse,
   OpsHealthResponse,
+  HostHealthResponse,
   DiagConnectivityResponse,
   SupervisorStatusResponse,
   LogFile,
@@ -381,6 +382,7 @@ export const api = {
     get<ConfigEntry[]>("/config", undefined, signal).then(asArray<ConfigEntry>),
   health: (signal?: AbortSignal): Promise<HealthResponse> => get<HealthResponse>("/health", undefined, signal),
   opsHealth: (signal?: AbortSignal): Promise<OpsHealthResponse> => get<OpsHealthResponse>("/ops/health", undefined, signal),
+  hostHealth: (signal?: AbortSignal): Promise<HostHealthResponse> => get<HostHealthResponse>("/host/health", undefined, signal),
   diagConnectivity: (signal?: AbortSignal): Promise<DiagConnectivityResponse> =>
     get<DiagConnectivityResponse>("/diag/connectivity", undefined, signal),
   liqAlertState: (signal?: AbortSignal): Promise<LiqAlertState> =>

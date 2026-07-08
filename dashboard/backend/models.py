@@ -382,6 +382,10 @@ class OpsHealthResponse(BaseModel):
     model_config = {"extra": "allow"}
 
 
+class HostHealthResponse(BaseModel):
+    model_config = {"extra": "allow"}
+
+
 class DiagConnectivityResponse(BaseModel):
     model_config = {"extra": "allow"}
 

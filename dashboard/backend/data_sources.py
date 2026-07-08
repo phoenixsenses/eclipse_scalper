@@ -1447,6 +1447,106 @@ def read_ops_health() -> dict[str, Any]:
     return payload
 
 
+# ─────────────────────────────────────────────
+# PC / Host Health (BATCH-OPERATOR-HOST-HEALTH-AND-RESTART-READINESS-DASHBOARD-V1)
+# Read-only. Never restarts, shuts down, or modifies anything -- see
+# ami/host_health/observation.py and ami/host_health/evaluator.py.
+# ─────────────────────────────────────────────
+
+_HOST_HEALTH_CACHE_TTL = float(os.environ.get("HOST_HEALTH_CACHE_TTL_SEC", "20") or "20")
+_host_health_cache: dict[str, Any] = {}
+_host_health_cache_ts: float = 0.0
+_host_health_ram_history: "deque[tuple[float, float]]" = deque(maxlen=200)
+_host_health_commit_history: "deque[tuple[float, float]]" = deque(maxlen=200)
+
+
+def read_host_health() -> dict[str, Any]:
+    """Read-only host-health / restart-readiness snapshot. Cached for
+    `_HOST_HEALTH_CACHE_TTL` seconds so frontend polling (usePoll) does
+    not spawn a fresh PowerShell subprocess on every request. Maintains
+    an in-memory (non-persisted) rolling RAM/commit history across
+    refreshes so the evaluator can distinguish a short spike from
+    sustained pressure -- no new background service, no disk writes."""
+    global _host_health_cache, _host_health_cache_ts
+
+    now = time.monotonic()
+    if now - _host_health_cache_ts < _HOST_HEALTH_CACHE_TTL and _host_health_cache:
+        return _host_health_cache
+
+    import dataclasses
+
+    from ami.host_health.evaluator import (
+        COMMIT_ELEVATED_PCT, COMMIT_CRITICAL_PCT, D_DRIVE_INTERVENTION_FREE_GB,
+        RAM_ELEVATED_PCT, RAM_CRITICAL_PCT, SSD_TEMP_ELEVATED_C, SSD_TEMP_CRITICAL_C,
+        SUSTAINED_WINDOW_MINUTES, UPTIME_ELEVATED_DAYS, UPTIME_HIGH_DAYS,
+        evaluate_restart_readiness,
+    )
+    from ami.host_health.observation import build_health_inputs, collect_host_observation, sustained_value
+
+    obs = collect_host_observation(repo_root=REPO_ROOT)
+
+    wall_now = time.time()
+    if obs.ram_used_pct is not None:
+        _host_health_ram_history.append((wall_now, obs.ram_used_pct))
+    if obs.commit_used_pct is not None:
+        _host_health_commit_history.append((wall_now, obs.commit_used_pct))
+
+    ram_sustained = sustained_value(list(_host_health_ram_history), SUSTAINED_WINDOW_MINUTES, wall_now)
+    commit_sustained = sustained_value(list(_host_health_commit_history), SUSTAINED_WINDOW_MINUTES, wall_now)
+
+    inputs = build_health_inputs(obs, ram_pct_sustained=ram_sustained, commit_pct_sustained=commit_sustained)
+    evaluation = evaluate_restart_readiness(inputs)
+
+    payload = {
+        "state": evaluation.state,
+        "recommended_action": evaluation.recommended_action,
+        "deferred": evaluation.deferred,
+        "primary_reason": evaluation.primary_reason,
+        "reasons": list(evaluation.reason_codes),
+        "observations": dataclasses.asdict(obs),
+        "unknown_fields": list(dict.fromkeys(list(evaluation.unknown_fields) + list(obs.unknown_fields))),
+        "stale_fields": list(obs.stale_fields),
+        "observation_timestamp": obs.observation_ts_utc,
+        "no_automatic_action": True,
+        "thresholds": {
+            "d_drive_intervention_free_gb": D_DRIVE_INTERVENTION_FREE_GB,
+            "ram_elevated_pct": RAM_ELEVATED_PCT,
+            "ram_critical_pct": RAM_CRITICAL_PCT,
+            "commit_elevated_pct": COMMIT_ELEVATED_PCT,
+            "commit_critical_pct": COMMIT_CRITICAL_PCT,
+            "ssd_temp_elevated_c": SSD_TEMP_ELEVATED_C,
+            "ssd_temp_critical_c": SSD_TEMP_CRITICAL_C,
+            "uptime_elevated_days": UPTIME_ELEVATED_DAYS,
+            "uptime_high_days": UPTIME_HIGH_DAYS,
+            "sustained_window_minutes": SUSTAINED_WINDOW_MINUTES,
+        },
+        "checklist": {
+            "before_restart": [
+                "Confirm no archive publication, purge, migration, database maintenance, "
+                "long-running research execution, or critical test is active.",
+                "Confirm production catalog and staging state are healthy.",
+                "Use stop_eclipse.ps1 (then start_eclipse.ps1 to resume) -- the repository's "
+                "only approved collector shutdown/startup procedure.",
+                "Confirm critical logs/checkpoints are written.",
+                "Do not use hard reset unless Windows is completely unresponsive.",
+            ],
+            "after_restart": [
+                "Confirm D: is mounted and accessible.",
+                "Confirm microstructure.db and the archive root are present.",
+                "Run start_eclipse.ps1 to bring collector/runtime processes back up.",
+                "Confirm heartbeat/data freshness (status_eclipse.ps1).",
+                "Confirm WAL/database health.",
+                "Confirm archive catalog/index health.",
+                "Confirm this dashboard returns to GREEN, or explains any remaining YELLOW/RED state.",
+            ],
+            "procedure_source": "stop_eclipse.ps1 / start_eclipse.ps1 / status_eclipse.ps1 (repository-canonical)",
+        },
+    }
+    _host_health_cache = payload
+    _host_health_cache_ts = now
+    return payload
+
+
 def read_connectivity_diag() -> dict[str, Any]:
     """Best-effort connectivity diagnostics for dashboard troubleshooting."""
     now = time.time()

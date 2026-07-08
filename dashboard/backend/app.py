@@ -31,6 +31,7 @@ from .data_sources import (
     read_market_chart,
     read_live_monitor_tests_status,
     read_ops_health,
+    read_host_health,
     read_connectivity_diag,
     read_liq_alert_state,
     read_spread_stress_state,
@@ -97,6 +98,7 @@ from .models import (
     DataQualityEvent,
     HealthResponse,
     OpsHealthResponse,
+    HostHealthResponse,
     DiagConnectivityResponse,
     LogFile,
     LogTailResponse,
@@ -523,6 +525,13 @@ async def health():
 @app.get("/api/ops/health", response_model=OpsHealthResponse)
 async def get_ops_health():
     return read_ops_health()
+
+
+@app.get("/api/host/health", response_model=HostHealthResponse)
+async def get_host_health():
+    """Read-only PC / host restart-readiness snapshot. See
+    ami/host_health/. Never restarts, shuts down, or modifies anything."""
+    return read_host_health()
 
 
 @app.get("/api/alert-rules")

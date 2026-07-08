@@ -7,6 +7,7 @@ import type {
   DiagConnectivityResponse,
   IncidentInboxItem,
   OpsHealthResponse,
+  HostHealthResponse,
   RunbookSessionDetail,
   RuntimeStatus,
   SessionTimelineEvent,
@@ -117,6 +118,14 @@ export default function ControlTower() {
     pollKey: "api:/ops/health",
     intervalMs: 15000,
     staleAfterMs: 45000,
+    enabled: backend.backendUp,
+  });
+  const fetchHostHealth = useCallback((signal: AbortSignal) => api.hostHealth(signal), []);
+  const hostHealthPoll = usePoll<HostHealthResponse>({
+    fetcher: fetchHostHealth,
+    pollKey: "api:/host/health",
+    intervalMs: 20000,
+    staleAfterMs: 90000,
     enabled: backend.backendUp,
   });
   const fetchSupervisor = useCallback((signal: AbortSignal) => api.supervisorStatus(signal), []);
@@ -805,6 +814,91 @@ export default function ControlTower() {
               </div>
             </AsyncState>
           </div>
+        </div>
+
+        <div className="card">
+          <div className="card-title">PC / Host Health</div>
+          <AsyncState loading={hostHealthPoll.isLoading} error={hostHealthPoll.error}>
+            {(() => {
+              const hh = hostHealthPoll.data;
+              const state = hh?.state ?? "HOST_RESTART_UNKNOWN";
+              const badgeClass =
+                state === "HOST_RESTART_RED" ? "badge-red" :
+                state === "HOST_RESTART_YELLOW" ? "badge-yellow" :
+                state === "HOST_RESTART_GREEN" ? "badge-green" : "badge-gray";
+              const restartNeeded =
+                state === "HOST_RESTART_RED" ? "Yes -- controlled restart recommended" :
+                state === "HOST_RESTART_YELLOW" ? "Advisable within ~24h" :
+                state === "HOST_RESTART_GREEN" ? "No" : "Unknown -- do not guess, see reasons";
+              const obs = hh?.observations ?? {};
+              const gb = (bytes?: number | null) => (bytes === null || bytes === undefined ? "-" : (bytes / (1024 ** 3)).toFixed(2));
+              const mb = (bytes?: number | null) => (bytes === null || bytes === undefined ? "-" : (bytes / (1024 ** 2)).toFixed(1));
+              return (
+                <>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6, flexWrap: "wrap" }}>
+                    <span className={`badge ${badgeClass}`}>{state.replace("HOST_RESTART_", "")}</span>
+                    {hh?.deferred && <span className="badge badge-yellow">DEFER_UNTIL_SAFE_CHECKPOINT</span>}
+                    <span style={{ fontSize: 12, color: "var(--muted)" }}>restart needed: {restartNeeded}</span>
+                  </div>
+                  <div style={{ fontSize: 12, marginBottom: 8 }}>{hh?.recommended_action ?? "-"}</div>
+                  <div style={{ fontSize: 12, color: "var(--muted)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                    <span>last boot: {obs.boot_ts_utc ?? "-"}</span>
+                    <span>uptime: {obs.uptime_human ?? "-"}</span>
+                    <span>pending Windows restart: {obs.pending_reboot ?? "-"}</span>
+                    <span>collector health: {obs.collector_status ?? "-"}</span>
+                    <span>RAM used: {obs.ram_used_pct != null ? `${obs.ram_used_pct}%` : "-"}</span>
+                    <span>commit used: {obs.commit_used_pct != null ? `${obs.commit_used_pct}%` : "-"}</span>
+                    <span>pagefile used: {obs.pagefile_used_pct != null ? `${obs.pagefile_used_pct}%` : "-"}</span>
+                    <span>CPU snapshot: {obs.cpu_pct_snapshot != null ? `${obs.cpu_pct_snapshot}%` : "-"}</span>
+                    <span>C: free: {gb(obs.c_drive_free_bytes)} GB</span>
+                    <span>D: free: {gb(obs.d_drive_free_bytes)} GB</span>
+                    <span>D: distance to {hh?.thresholds?.d_drive_intervention_free_gb ?? 800} GB threshold: {obs.d_drive_distance_to_threshold_gb ?? "-"} GB</span>
+                    <span>microstructure.db: {gb(obs.microstructure_db_size_bytes)} GB (WAL {mb(obs.microstructure_wal_size_bytes)} MB)</span>
+                    <span>Samsung 990 Pro: {obs.ssd_990pro_detected ? `detected, ${obs.ssd_health_state ?? "UNKNOWN"}, temp=${obs.ssd_temp_c ?? "unavailable"}` : "not detected"}</span>
+                    <span>storage state: {obs.storage_health_state ?? "-"}</span>
+                    <span>active critical operation: {obs.critical_operation_active ? "YES (best-effort process-scan heuristic)" : "no"}</span>
+                    <span>last observation: {hh?.observation_timestamp ?? "-"}</span>
+                  </div>
+                  {(hh?.reasons?.length ?? 0) > 0 && (
+                    <div style={{ marginTop: 8, fontSize: 12 }}>
+                      <span style={{ color: "var(--muted)" }}>why: </span>
+                      {hh?.reasons?.join(", ")}
+                    </div>
+                  )}
+                  <details style={{ marginTop: 8, fontSize: 12 }}>
+                    <summary style={{ cursor: "pointer", color: "var(--muted)" }}>Reason codes, unknown/stale fields, evidence sources</summary>
+                    <div style={{ marginTop: 6, display: "grid", gap: 3 }}>
+                      <div>primary_reason: {hh?.primary_reason ?? "-"}</div>
+                      <div>reason_codes: {(hh?.reasons ?? []).join(", ") || "-"}</div>
+                      <div>unknown_fields: {(hh?.unknown_fields ?? []).join(", ") || "none"}</div>
+                      <div>stale_fields: {(hh?.stale_fields ?? []).join(", ") || "none"}</div>
+                      <div>pending_reboot_evidence: {JSON.stringify(obs.pending_reboot_evidence ?? {})}</div>
+                      <div>event_log_access: {obs.event_log_access ?? "-"}</div>
+                      <div>recent_unexpected_shutdown_24h: {obs.recent_unexpected_shutdown_count_24h ?? "-"}</div>
+                      <div>recent_app_crash_24h: {obs.recent_app_crash_count_24h ?? "-"}</div>
+                      <div>recent_disk_ntfs_critical_24h: {obs.recent_disk_ntfs_critical_count_24h ?? "-"}</div>
+                      <div>recent_whea_critical_24h: {obs.recent_whea_critical_count_24h ?? "-"}</div>
+                      <div>no_automatic_action: {String(hh?.no_automatic_action ?? true)}</div>
+                    </div>
+                  </details>
+                  <details style={{ marginTop: 8, fontSize: 12 }}>
+                    <summary style={{ cursor: "pointer", color: "var(--muted)" }}>Controlled restart checklist (read-only, no automatic action)</summary>
+                    <div style={{ marginTop: 6 }}>
+                      <div style={{ fontWeight: 600 }}>Before restart:</div>
+                      <ol style={{ margin: "4px 0 8px 18px", padding: 0 }}>
+                        {(hh?.checklist?.before_restart ?? []).map((item, i) => <li key={i}>{item}</li>)}
+                      </ol>
+                      <div style={{ fontWeight: 600 }}>After restart:</div>
+                      <ol style={{ margin: "4px 0 0 18px", padding: 0 }}>
+                        {(hh?.checklist?.after_restart ?? []).map((item, i) => <li key={i}>{item}</li>)}
+                      </ol>
+                      <div style={{ marginTop: 6, color: "var(--muted)" }}>procedure: {hh?.checklist?.procedure_source ?? "-"}</div>
+                    </div>
+                  </details>
+                </>
+              );
+            })()}
+          </AsyncState>
         </div>
 
         <div className="card">

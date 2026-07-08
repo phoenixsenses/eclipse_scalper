@@ -447,6 +447,79 @@ export interface OpsHealthResponse {
   }>;
 }
 
+// PC / Host Health -- BATCH-OPERATOR-HOST-HEALTH-AND-RESTART-READINESS-DASHBOARD-V1.
+// Read-only restart-readiness snapshot. See ami/host_health/.
+export interface HostHealthResponse {
+  state?: "HOST_RESTART_GREEN" | "HOST_RESTART_YELLOW" | "HOST_RESTART_RED" | "HOST_RESTART_UNKNOWN" | string;
+  recommended_action?: string;
+  deferred?: boolean;
+  primary_reason?: string;
+  reasons?: string[];
+  unknown_fields?: string[];
+  stale_fields?: string[];
+  observation_timestamp?: string;
+  no_automatic_action?: boolean;
+  observations?: {
+    host_name?: string;
+    os_identity?: string;
+    boot_ts_utc?: string | null;
+    uptime_seconds?: number | null;
+    uptime_human?: string | null;
+    pending_reboot?: string;
+    pending_reboot_evidence?: Record<string, boolean | null>;
+    ram_total_bytes?: number | null;
+    ram_available_bytes?: number | null;
+    ram_used_pct?: number | null;
+    commit_limit_kb?: number | null;
+    commit_used_kb?: number | null;
+    commit_used_pct?: number | null;
+    pagefile_total_bytes?: number | null;
+    pagefile_used_bytes?: number | null;
+    pagefile_used_pct?: number | null;
+    cpu_pct_snapshot?: number | null;
+    c_drive_total_bytes?: number | null;
+    c_drive_free_bytes?: number | null;
+    d_drive_total_bytes?: number | null;
+    d_drive_free_bytes?: number | null;
+    d_drive_free_gb?: number | null;
+    d_drive_distance_to_threshold_gb?: number | null;
+    microstructure_db_size_bytes?: number | null;
+    microstructure_wal_size_bytes?: number | null;
+    storage_health_state?: string;
+    collector_status?: string;
+    latest_collector_heartbeat_age_sec?: number | null;
+    ssd_990pro_detected?: boolean;
+    ssd_temp_c?: number | null;
+    ssd_health_state?: string;
+    recent_unexpected_shutdown_count_24h?: number | null;
+    recent_app_crash_count_24h?: number | null;
+    recent_disk_ntfs_critical_count_24h?: number | null;
+    recent_whea_critical_count_24h?: number | null;
+    recent_oom_event_count_24h?: number | null;
+    event_log_access?: string;
+    critical_operation_active?: boolean;
+    critical_operation_evidence?: string[];
+    observation_errors?: string[];
+  };
+  thresholds?: {
+    d_drive_intervention_free_gb?: number;
+    ram_elevated_pct?: number;
+    ram_critical_pct?: number;
+    commit_elevated_pct?: number;
+    commit_critical_pct?: number;
+    ssd_temp_elevated_c?: number;
+    ssd_temp_critical_c?: number;
+    uptime_elevated_days?: number;
+    uptime_high_days?: number;
+    sustained_window_minutes?: number;
+  };
+  checklist?: {
+    before_restart?: string[];
+    after_restart?: string[];
+    procedure_source?: string;
+  };
+}
+
 export interface DiagConnectivityResponse {
   ts_utc?: string;
   status?: string;

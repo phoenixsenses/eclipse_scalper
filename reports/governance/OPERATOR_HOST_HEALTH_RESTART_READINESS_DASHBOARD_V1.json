@@ -1,0 +1,170 @@
+{
+  "gate": "BATCH-OPERATOR-HOST-HEALTH-AND-RESTART-READINESS-DASHBOARD-V1",
+  "date": "2026-07-08",
+  "author": "Sonnet 5",
+  "nature": "monitoring/dashboard only -- read-only host observation + pure deterministic restart-readiness classifier, no restart/shutdown/collector-stop/registry-write/package-install anywhere",
+  "accepted_checkpoint": {
+    "pre_batch_commit": "7b46b326",
+    "canonical_sqlite_sha256": "0604b0da93238388451eb23203e1b12806f6e627d4d599168877e1abcb8d57a0",
+    "knowledge_sqlite_sha256": "710b3f689db2238f11efa04230600b9ddd06e500807b5fb69c7e797e6053dc65",
+    "note": "unchanged from prior accepted STORAGE_ROTATION_RETENTION_PRODUCTION_ACTIVATION_REHEARSAL_V1 checkpoint -- this batch touches neither database"
+  },
+  "phase_1_architecture_audit": {
+    "dashboards_found": 2,
+    "chosen_integration": "dashboard/ (FastAPI backend port 8765 + React/Vite frontend port 5173)",
+    "rejected_as_primary": "tools/s34_live_chart.py (port 5050, raw http.server) -- has an unrendered disk_status() field but is the less actively developed surface; not touched this batch",
+    "unrelated_module_confirmed_not_a_dashboard": "tools/s34_cascade_navigation_dashboard.py (argparse report-generator CLI for EXECMGMT/STOPPROT trading-risk panels, unrelated to host health)",
+    "reused_precedent_module": "ami/governance/storage_rotation_retention_readiness_v1.py::storage_health_state()"
+  },
+  "phase_2_observation_model": {
+    "module": "ami/host_health/observation.py",
+    "dataclass": "HostObservation",
+    "immutable": true,
+    "field_count": 45,
+    "sources": ["psutil", "single consolidated read-only PowerShell subprocess (-EncodedCommand)", "logs/health/overall.json", "logs/collector_heartbeat.json", "data/microstructure.db(-wal) os.stat"]
+  },
+  "phase_3_pending_reboot_detection": {
+    "evidence_sources": [
+      "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Component Based Servicing\\RebootPending (Test-Path)",
+      "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\\Auto Update\\RebootRequired (Test-Path)",
+      "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\PendingFileRenameOperations (Get-ItemProperty, read-only)"
+    ],
+    "states": ["TRUE", "FALSE", "UNKNOWN", "CONTRADICTORY"],
+    "registry_writes": 0,
+    "single_unavailable_source_becomes_false": false,
+    "single_unavailable_source_becomes_unknown_or_true": true
+  },
+  "phase_4_memory_pressure": {
+    "ram_source": "psutil.virtual_memory()",
+    "commit_source": "Win32_OperatingSystem TotalVirtualMemorySize/FreeVirtualMemory (PowerShell)",
+    "pagefile_source": "psutil.swap_memory()",
+    "sustained_window_minutes": 15,
+    "sustained_history_maintainer": "dashboard/backend/data_sources.py in-memory deque (non-persisted, no new background service)",
+    "instantaneous_only_without_history": true,
+    "thresholds": {
+      "ram_elevated_pct": 80.0, "ram_critical_pct": 90.0,
+      "commit_elevated_pct": 85.0, "commit_critical_pct": 95.0,
+      "pagefile_elevated_pct": 85.0, "pagefile_critical_pct": 95.0
+    }
+  },
+  "phase_5_storage_and_ssd": {
+    "c_drive_source": "psutil.disk_usage",
+    "d_drive_source": "psutil.disk_usage",
+    "d_drive_intervention_free_gb_threshold": 800.0,
+    "threshold_note": "newly defined this batch for host-health display purposes; distinct from the existing STORAGE_WARNING/CRITICAL/EMERGENCY governance thresholds (200/100/50 GB) reused unmodified from storage_rotation_retention_readiness_v1.py",
+    "microstructure_db_size_source": "os.stat",
+    "ssd_990pro_detection_source": "Get-PhysicalDisk FriendlyName match",
+    "ssd_temp_source": "Get-PhysicalDisk | Get-StorageReliabilityCounter",
+    "ssd_temp_confirmed_access_denied_without_elevation_this_host": true,
+    "ssd_temp_thresholds_c": {"elevated": 60.0, "critical": 70.0},
+    "smartmontools_installed_this_batch": false
+  },
+  "phase_6_collector_health": {
+    "sources": ["logs/health/overall.json", "logs/collector_heartbeat.json"],
+    "states": ["HEALTHY", "DEGRADED", "FAILED", "UNKNOWN"],
+    "staleness_threshold_sec": 120,
+    "heartbeat_staleness_threshold_sec": 420,
+    "existence_alone_never_implies_healthy": true
+  },
+  "phase_7_event_health": {
+    "window_hours": 168,
+    "max_events_per_query": 500,
+    "categories": {
+      "unexpected_shutdown": {"log": "System", "ids": [41, 6008]},
+      "whea": {"log": "System", "provider": "Microsoft-Windows-WHEA-Logger"},
+      "disk_ntfs": {"log": "System", "providers": ["disk", "Ntfs"]},
+      "app_crash": {"log": "Application", "ids": [1000], "provider": "Application Error"},
+      "resource_exhaustion": {"log": "System", "ids": [2004, 2005]}
+    },
+    "access_denied_reported_as": "UNKNOWN (event_log_access=ACCESS_DENIED), never silently zero"
+  },
+  "phase_8_9_state_machine": {
+    "module": "ami/host_health/evaluator.py",
+    "states": ["HOST_RESTART_GREEN", "HOST_RESTART_YELLOW", "HOST_RESTART_RED", "HOST_RESTART_UNKNOWN"],
+    "reason_code_count": 35,
+    "unknown_gate_triggers": ["boot_time_unavailable", "pending_reboot_contradictory", "memory_observation_unavailable", "collector_status_unknown", "materially_stale"],
+    "unknown_gate_priority": "checked first, wins over every RED/YELLOW condition (proven by test)",
+    "uptime_alone_never_red": true,
+    "sustained_vs_instantaneous": "critical-tier RAM/commit/SSD-temp only reach RED with a confirmed sustained-window reading; instantaneous-only spikes cap at YELLOW",
+    "pure_function_no_io": true
+  },
+  "phase_10_dashboard": {
+    "backend_route": "GET /api/host/health",
+    "backend_function": "dashboard/backend/data_sources.py::read_host_health()",
+    "backend_cache_ttl_sec": 20,
+    "response_model": "dashboard/backend/models.py::HostHealthResponse (extra=allow)",
+    "frontend_card": "dashboard/frontend/src/pages/ControlTower.tsx (\"PC / Host Health\")",
+    "frontend_types": "dashboard/frontend/src/api/types.ts::HostHealthResponse",
+    "frontend_fetcher": "dashboard/frontend/src/api/client.ts::api.hostHealth",
+    "poll_interval_ms": 20000,
+    "typecheck_result": "npm run typecheck -- clean, zero errors introduced"
+  },
+  "phase_11_restart_checklist": {
+    "before_restart_items": 5,
+    "after_restart_items": 7,
+    "procedure_source": "stop_eclipse.ps1 / start_eclipse.ps1 / status_eclipse.ps1 (repository-canonical, pre-existing, unmodified)",
+    "new_unsafe_commands_invented": 0
+  },
+  "phase_12_cli": {
+    "command": "python -m tools.host_health_status [--pretty] [--repo-root PATH]",
+    "exit_codes": {"HOST_RESTART_GREEN": 0, "HOST_RESTART_YELLOW": 1, "HOST_RESTART_RED": 2, "HOST_RESTART_UNKNOWN": 3},
+    "no_automatic_action_field": true,
+    "restart_or_shutdown_flags_present": false
+  },
+  "phase_13_safety_privacy": {
+    "network_calls": 0,
+    "credentials_collected": 0,
+    "packages_installed": 0,
+    "admin_elevation_required_by_default": false,
+    "elevation_gated_field_fails_closed_to_unknown": "ssd_temp_c (confirmed live on this host)",
+    "event_log_payload_scope": "counts + timestamps + level only, no full message text exposed"
+  },
+  "phase_14_verdict": "OPERATOR_HOST_HEALTH_RESTART_READINESS_DASHBOARD_V1_COMPLETE",
+  "real_observation_captured_2026_07_08": {
+    "state": "HOST_RESTART_YELLOW",
+    "primary_reason": "WINDOWS_REBOOT_PENDING",
+    "reasons": ["COLLECTORS_HEALTHY", "COMMIT_PRESSURE_NORMAL", "PAGEFILE_PRESSURE_NORMAL", "RAM_NORMAL", "SSD_SENSOR_UNKNOWN", "STORAGE_HEALTHY", "UPTIME_NORMAL", "WINDOWS_REBOOT_PENDING"],
+    "uptime_human": "1d 20h 10m",
+    "pending_reboot": "TRUE",
+    "pending_reboot_evidence_source": "PendingFileRenameOperations",
+    "ram_used_pct": 77.9,
+    "commit_used_pct": 84.72,
+    "pagefile_used_pct": 56.7,
+    "d_drive_free_gb": 1041.99,
+    "d_drive_distance_to_800gb_threshold": 241.99,
+    "microstructure_db_size_bytes": 765074128896,
+    "storage_health_state": "STORAGE_HEALTHY",
+    "collector_status": "HEALTHY",
+    "ssd_990pro_detected": true,
+    "ssd_temp_c": null,
+    "ssd_health_state": "HEALTHY",
+    "recent_unexpected_shutdown_count_24h": 0,
+    "recent_app_crash_count_24h": 2,
+    "recent_disk_ntfs_critical_count_24h": 0,
+    "recent_whea_critical_count_24h": 0,
+    "event_log_access": "OK",
+    "critical_operation_active": false,
+    "unknown_fields": ["ssd_temp_c"]
+  },
+  "focused_tests": {
+    "evaluator_file": "tests/test_ami_host_health_evaluator.py",
+    "evaluator_passed": 62,
+    "evaluator_total": 62,
+    "observation_file": "tests/test_ami_host_health_observation.py",
+    "observation_passed": 36,
+    "observation_total": 36,
+    "combined_passed": 98,
+    "combined_total": 98,
+    "pytest_invocation": "pytest tests/test_ami_host_health_evaluator.py tests/test_ami_host_health_observation.py --basetemp=.runtime_temp/pytest_scratch -p no:cacheprovider"
+  },
+  "residual_risks": [
+    "production archive / catalog-index / staging-directory health not wired into this V1 (ami/storage/health.py exists but needs a live jobs list this batch does not construct)",
+    "critical-operation-active detection is a command-line keyword heuristic, not a canonical active-batch registry (none exists in the repo)",
+    "SSD temperature/SMART requires administrator elevation on this host; correctly UNKNOWN, not fabricated",
+    "event-log categorization covers standard OOM/crash/WHEA/disk signatures, not exhaustively every possible one",
+    "frontend card verified via tsc typecheck + direct backend function call, not an actual browser screenshot (no interactive browser session available this batch)"
+  ],
+  "next_gate": null,
+  "next_gate_begun": false,
+  "execution_stopped": true
+}
