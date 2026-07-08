@@ -26,6 +26,7 @@ import time
 from dataclasses import dataclass, asdict
 
 from ami.storage import production as PR
+from ami.storage import reverify_guard as RG
 from ami.storage import sharded_archive as SHA
 from ami.storage.archive import (build_manifest, build_pyarrow_schema, stream_export_to_parquet,
                                    stream_hash_parquet)
@@ -612,60 +613,6 @@ def gate_publish_partition(conn, *, root: str, table: str, approver: str, justif
 # `job_identity`, hence same deterministic staging_dir) to resume from.
 # ---------------------------------------------------------------------------
 
-def reverify_authorized_partition_sharded(final_dir: str, partition: PartitionIdentity,
-                                           spec: SourceTableSpec) -> int:
-    """Sharded counterpart to `reverify_authorized_partition`: re-reads
-    and re-hashes every shard listed in the manifest (streaming, RAM-
-    bounded, via `stream_hash_parquet_multi`) instead of one file."""
-    mismatches = 0
-    with open(os.path.join(final_dir, PR.MANIFEST_NAME)) as f:
-        manifest = json.load(f)
-    with open(os.path.join(final_dir, PR.CATALOG_ENTRY_NAME)) as f:
-        entry = json.load(f)
-    receipt_path = os.path.join(final_dir, AUTHORIZATION_RECEIPT_NAME)
-
-    if not os.path.exists(os.path.join(final_dir, PR.SUCCESS_NAME)):
-        mismatches += 1
-    if not os.path.exists(receipt_path):
-        return mismatches + 1
-    with open(receipt_path) as f:
-        receipt = json.load(f)
-    if receipt.get("receipt_sha256") != _receipt_self_hash(receipt):
-        mismatches += 1
-    if entry.get("authorization_receipt_sha256") != PR._sha256_file(receipt_path):
-        mismatches += 1
-    if receipt.get("action") != "CREATE_PRODUCTION_ARCHIVE_ONLY":
-        mismatches += 1
-    for field in ("purge_authorization", "scheduler_authorization", "vacuum_authorization"):
-        if receipt.get(field) != "PROHIBITED":
-            mismatches += 1
-    if manifest.get("partition_id") != partition.partition_id:
-        mismatches += 1
-    if manifest.get("production_status") != "PRODUCTION_VERIFIED":
-        mismatches += 1
-    if manifest.get("purge_authorization") != "PROHIBITED":
-        mismatches += 1
-    if entry.get("purge_authorization") != "PROHIBITED":
-        mismatches += 1
-    if entry.get("source_retention_status") != "SOURCE_PRESENT":
-        mismatches += 1
-
-    shards = manifest.get("shards") or []
-    if not shards:
-        return mismatches + 1
-    shard_paths = []
-    for s in shards:
-        p = os.path.join(final_dir, s["shard_file"])
-        if not os.path.exists(p) or PR._sha256_file(p) != s.get("sha256"):
-            mismatches += 1
-        shard_paths.append(p)
-    reread = SHA.stream_hash_parquet_multi(shard_paths, spec.preserved_columns)
-    if reread["row_count"] != manifest.get("row_count"):
-        mismatches += 1
-    if reread["scientific_content_hash"] != manifest.get("ordered_scientific_content_hash"):
-        mismatches += 1
-    return mismatches
-
 
 def publish_authorized_production_partition_sharded(
         conn, *, root: str, partition: PartitionIdentity, spec: SourceTableSpec,
@@ -673,7 +620,9 @@ def publish_authorized_production_partition_sharded(
         export_cutoff: str, max_rows_per_shard: int = 10_000_000,
         max_output_bytes_per_shard: int = 2 * 1024 ** 3, rss_check=None,
         rss_limit_bytes: int | None = None, batch_size: int = 1_000_000,
-        rss_check_every_rows: int = 2_000_000) -> ActivationPublicationResult:
+        rss_check_every_rows: int = 2_000_000,
+        reverify_rss_limit_bytes: int = 2 * 1024 ** 3,
+        reverify_poll_interval_seconds: float = 1.0) -> ActivationPublicationResult:
     """Multi-shard counterpart to `publish_authorized_production_partition`.
     Same receipt-first authorization and same staging -> atomic-directory-
     rename -> catalog-lock -> reverify -> index-rebuild flow; the export
@@ -681,7 +630,24 @@ def publish_authorized_production_partition_sharded(
     nothing is published, the catalog lock is never acquired, staging is
     left resumable). Retrying with the identical `job_identity` reuses the
     same deterministic staging directory and resumes from the next
-    unwritten id rather than re-exporting already-finalized shards."""
+    unwritten id rather than re-exporting already-finalized shards.
+
+    The post-publish reverify step (BATCH-STORAGE-PRODUCTION-ARCHIVE-
+    REVERIFY-MEMORY-HARDENING-V1) runs in a fresh, externally RSS-guarded
+    subprocess (`ami.storage.reverify_guard.run_guarded_reverify`)
+    instead of in-process -- this same process already ran one full
+    stream_hash_parquet_multi pass a few lines above (the pre-publish
+    reread parity check), and a second in-process pass was measured to
+    push resident memory to ~4GB on the real book_ticker/SOLUSDT/2026-04
+    publish (allocator fragmentation across the two passes, not a true
+    live-memory requirement -- see `ami.storage.reverify_worker`'s module
+    docstring). A subprocess reclaims 100% of its memory from the OS on
+    exit regardless of that fragmentation. If the guard trips or the
+    worker crashes, this raises (via `reverify_guard`) and nothing about
+    the just-published partition or the catalog lock's index rebuild is
+    left in an ambiguous state -- the lock is released either way
+    (`finally`), but the index rebuild simply doesn't happen, matching
+    the prior in-process behavior's own failure mode."""
     schema = build_pyarrow_schema(spec)
     archive_schema_hash = hashlib.sha256(str(schema).encode()).hexdigest()
     verify_authorization_receipt(receipt, partition=partition, archive_version=archive_version,
@@ -774,7 +740,10 @@ def publish_authorized_production_partition_sharded(
             raise PR.ProductionPublicationConflict(f"final path appeared before publication: {final_dir!r}")
         os.makedirs(os.path.dirname(final_dir), exist_ok=True)
         os.rename(staging_dir, final_dir)
-        mismatches = reverify_authorized_partition_sharded(final_dir, partition, spec)
+        reverify_result = RG.run_guarded_reverify(
+            final_dir, rss_limit_bytes=reverify_rss_limit_bytes,
+            poll_interval_seconds=reverify_poll_interval_seconds, batch_size=batch_size)
+        mismatches = reverify_result["mismatch_count"]
         if mismatches != 0:
             raise PR.ProductionPublicationConflict(f"post-publication re-verification found {mismatches} mismatches")
         rebuild_root_index_locked(root)
