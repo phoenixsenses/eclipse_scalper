@@ -364,7 +364,10 @@ def test_no_experiment_created_and_canonical_invariants_hold():
         }
     finally:
         conn.close()
-    assert version == 13
+    # 13 at this batch's freeze point (2026-07-06); M-0036 (unrelated
+    # book_spread_dynamics family, already accepted) bumped schema 13->14
+    # the next day -- this preregistration never wrote to schema_versions.
+    assert version == 14
     assert integrity == "ok"
     assert counts == {"ami_events": 252, "ami_signal_lifecycle": 324, "ami_cycles": 167,
                        "ami_birth_truncated_cascade_geometry": 220}

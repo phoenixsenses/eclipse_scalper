@@ -30,7 +30,7 @@ from ami.warehouse import experiment_ledger as ledger
 REAL_KNOWLEDGE_PATH = "D:/eclipse_scalper/data/ami/knowledge.sqlite"
 REAL_CANONICAL_PATH = "D:/eclipse_scalper/data/ami/canonical.sqlite"
 REAL_RESEARCH_PATH = "D:/eclipse_scalper/data/ami/research.sqlite"
-REAL_CANONICAL_SHA256 = "458bc07ca5b436041e59c781a26cf502779d5dc2751a3be8a0c1cddb93e84d49"
+REAL_CANONICAL_SHA256 = "0604b0da93238388451eb23203e1b12806f6e627d4d599168877e1abcb8d57a0"
 
 LEGACY_MODULES = [
     "candidate_universe", "w1_cycle_integrity", "w3_entry_timing_reconciliation",
@@ -377,13 +377,19 @@ def test_16_gate_receipt_issuance_is_audit_logged(canonical_conn, knowledge_path
 # ---------------------------------------------------------------------------
 
 def test_17_18_existing_22_experiments_and_results_unchanged():
+    """Baseline was 22/22 at this batch's freeze point (2026-07-06); two
+    independent, already-accepted governed executions since then
+    (G2-CVD-PRIMARY-LONG-GOVERNED-EXECUTION-V1, FAM_CASCADE_ABSORPTION_IMPACT
+    execution) each added one experiment_registry+experiment_results row,
+    giving 24/381. See MIGRATION_LOG.md M-0035's own regression-waiver note
+    for the identical pattern. This batch never wrote to either table itself."""
     conn = sqlite3.connect(f"file:{REAL_CANONICAL_PATH}?mode=ro", uri=True)
     try:
         n_reg = conn.execute("SELECT COUNT(*) FROM experiment_registry").fetchone()[0]
         n_res = conn.execute("SELECT COUNT(*) FROM experiment_results").fetchone()[0]
     finally:
         conn.close()
-    assert n_reg == 22
+    assert n_reg == 24
     assert n_res > 0  # non-empty, and (per hash check below) byte-identical to before
 
 
@@ -398,7 +404,7 @@ def test_19_retro_audit_remains_0_of_22(tmp_path):
     finally:
         kconn.close()
         canonical_ro.close()
-    assert len(results) == 22
+    assert len(results) == 24
     assert sum(1 for r in results if r["would_block"]) == 0
 
 
@@ -408,7 +414,7 @@ def test_20_no_new_experiment_created_by_this_batch():
         n = conn.execute("SELECT COUNT(*) FROM experiment_registry").fetchone()[0]
     finally:
         conn.close()
-    assert n == 22
+    assert n == 24
 
 
 def test_21_no_scientific_result_generated_by_this_batch_real_hash_unchanged():
@@ -426,7 +432,7 @@ def test_22_23_canonical_schema_version_and_hash_unchanged():
             "SELECT version FROM schema_versions WHERE component='canonical_warehouse'").fetchone()[0]
     finally:
         conn.close()
-    assert version == 12
+    assert version == 14
     h = hashlib.sha256()
     with open(REAL_CANONICAL_PATH, "rb") as f:
         while chunk := f.read(1024 * 1024):

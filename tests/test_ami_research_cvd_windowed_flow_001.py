@@ -174,12 +174,19 @@ def test_resolve_population_matches_frozen_preregistration():
 
 
 def test_verify_pre_execution_reports_zero_errors_against_real_db():
+    """Despite the name, this operates on the session-scoped disposable copy
+    (schema_mod.DEFAULT_PATH is redirected by conftest), same as the dress
+    rehearsal below -- reset to pre-execution state for the same reason (see
+    `_reset_experiment_state_to_preregistered` docstring)."""
     import ami.knowledge.store as knowledge_mod
     import ami.warehouse.schema as schema_mod
 
     canonical_conn = schema_mod.connect(schema_mod.DEFAULT_PATH)
     knowledge_conn = sqlite3.connect(str(knowledge_mod.DEFAULT_PATH))
     try:
+        _reset_experiment_state_to_preregistered(canonical_conn, knowledge_conn)
+        reg_before = canonical_conn.execute("SELECT COUNT(*) FROM experiment_registry").fetchone()[0]
+        res_before = canonical_conn.execute("SELECT COUNT(*) FROM experiment_results").fetchone()[0]
         result = m.verify_pre_execution(canonical_conn, knowledge_conn)
     finally:
         canonical_conn.close()
@@ -187,9 +194,12 @@ def test_verify_pre_execution_reports_zero_errors_against_real_db():
     assert result["errors"] == []
     assert result["family_id"] == m.FAMILY_ID
     assert result["nullifier"] == m.EXPECTED_NULLIFIER
-    assert result["is_rerun_of_self"] is False  # not yet executed against the real DB
-    assert result["experiment_registry_count_before"] == 22
-    assert result["experiment_results_count_before"] == 323
+    assert result["is_rerun_of_self"] is False  # reset above put us back in pre-execution state
+    # global counts, not this experiment's own (already removed by the reset above);
+    # compared against a same-call baseline rather than a hardcoded snapshot
+    # number, since other unrelated families' rows legitimately keep growing.
+    assert result["experiment_registry_count_before"] == reg_before
+    assert result["experiment_results_count_before"] == res_before
     assert result["already_has_results_before"] == 0
 
 
@@ -208,6 +218,31 @@ def test_verify_pre_execution_never_selects_outcome_columns():
 #    rehearsal of the governed execution against copies of the real data
 # ---------------------------------------------------------------------------
 
+def _reset_experiment_state_to_preregistered(canonical_conn, knowledge_conn) -> None:
+    """Deterministically resets THIS experiment's own rows on the given
+    (disposable) connections to the pre-execution PREREGISTERED_NOT_EXECUTED
+    state. Idempotent -- safe to call whether or not the rows currently
+    exist. Never touches any other experiment's rows, any protected table, or
+    the real files (the caller is responsible for supplying disposable
+    connections, exactly as every other test in this module already does).
+
+    Needed because this exact experiment (E-CVD-PRIMARY-LONG-W300-PREREG-001)
+    has since been legitimately, single-execution-governed run for real
+    (G2-CVD-PRIMARY-LONG-GOVERNED-EXECUTION-V1, commit 60c3e26f, reconciled in
+    648b8283) -- the session-scoped disposable copies these tests operate on
+    are byte copies of the real files, so without this reset they would start
+    from an already-executed state instead of the pre-execution state these
+    dress-rehearsal tests are designed to exercise."""
+    canonical_conn.execute("DELETE FROM experiment_results WHERE experiment_id=?", (m.EXPERIMENT_ID,))
+    canonical_conn.execute("DELETE FROM experiment_registry WHERE experiment_id=?", (m.EXPERIMENT_ID,))
+    canonical_conn.commit()
+    knowledge_conn.execute("DELETE FROM epistemic_test_nullifiers WHERE nullifier=?", (m.EXPECTED_NULLIFIER,))
+    knowledge_conn.execute(
+        "UPDATE experiment_gate_receipts SET registry_result='PREREGISTERED_NOT_EXECUTED' "
+        "WHERE experiment_id=?", (m.EXPERIMENT_ID,))
+    knowledge_conn.commit()
+
+
 def test_execute_governed_run_blocks_on_identity_mismatch(monkeypatch):
     """Must run BEFORE the dress rehearsal below -- both share the same
     session-scoped disposable knowledge.sqlite copy, and this test's own
@@ -219,6 +254,7 @@ def test_execute_governed_run_blocks_on_identity_mismatch(monkeypatch):
     canonical_conn = schema_mod.connect(schema_mod.DEFAULT_PATH)
     knowledge_conn = sqlite3.connect(str(knowledge_mod.DEFAULT_PATH))
     try:
+        _reset_experiment_state_to_preregistered(canonical_conn, knowledge_conn)
         monkeypatch.setattr(m, "FAMILY_ID", "FAMv1:0000000000000000")
         with pytest.raises(m.ProtocolInvalidation):
             m.execute_governed_run(canonical_conn, knowledge_conn)
@@ -239,6 +275,7 @@ def test_governed_execution_dress_rehearsal_on_disposable_copies():
     canonical_conn = schema_mod.connect(schema_mod.DEFAULT_PATH)
     knowledge_conn = sqlite3.connect(str(knowledge_mod.DEFAULT_PATH))
     try:
+        _reset_experiment_state_to_preregistered(canonical_conn, knowledge_conn)
         pre_verify = m.verify_pre_execution(canonical_conn, knowledge_conn)
         assert pre_verify["errors"] == []
         assert pre_verify["is_rerun_of_self"] is False

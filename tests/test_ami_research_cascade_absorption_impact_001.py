@@ -220,7 +220,20 @@ def _reset_experiment_state_to_preregistered(canonical_conn, knowledge_conn) -> 
     state. Idempotent -- safe to call whether or not the rows currently
     exist. Never touches any other experiment's rows, any protected table,
     or the real files (the caller is responsible for supplying disposable
-    connections, exactly as every other test in this module already does)."""
+    connections, exactly as every other test in this module already does).
+
+    Also pins schema_versions back to m.EXPECTED_SCHEMA_VERSION (13): this
+    family's own immutable historical marker, frozen at its own
+    preregistration/execution moment. An unrelated, already-accepted family
+    (M-0036 book_spread_dynamics) legitimately bumped the real schema to 14
+    the next day, which the disposable copies these tests operate on
+    (byte copies of the real files) would otherwise inherit -- production
+    code's EXPECTED_SCHEMA_VERSION is correctly NOT changed to track that;
+    only this disposable test fixture is reset, to restore the "as of this
+    family's own preregistration" state these tests are designed to exercise."""
+    canonical_conn.execute(
+        "UPDATE schema_versions SET version=? WHERE component='canonical_warehouse'",
+        (m.EXPECTED_SCHEMA_VERSION,))
     canonical_conn.execute("DELETE FROM experiment_results WHERE experiment_id=?", (m.EXPERIMENT_ID,))
     canonical_conn.execute("DELETE FROM experiment_registry WHERE experiment_id=?", (m.EXPERIMENT_ID,))
     canonical_conn.commit()

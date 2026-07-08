@@ -247,6 +247,13 @@ def test_gate_receipt_mechanism_round_trips_on_disposable_copy(disposable_knowle
     kconn = sqlite3.connect(str(disposable_knowledge))
     gates.init_gates_schema(kconn)
     ident = prereg["identity"]
+    # disposable_knowledge is a byte copy of the REAL knowledge.sqlite, which
+    # (since the real, already-accepted G2-CVD-PRIMARY-LONG-GOVERNED-EXECUTION-V1
+    # and a second, unrelated family's execution) now carries 2 real consumed
+    # nullifier rows -- not 0. The mechanism under test here is that issuing a
+    # NEW gate receipt alone does not consume any additional nullifier, so we
+    # assert the count is unchanged (delta==0), not an absolute baseline.
+    n_before = kconn.execute("SELECT COUNT(*) FROM epistemic_test_nullifiers").fetchone()[0]
     receipt_hash = gates.issue_gate_receipt(
         kconn, experiment_id="TEST-COPY-" + ident["experiment_id"], canonical_family_id=ident["canonical_family_id"],
         split_version=ident["split_version"], nullifier=prereg["nullifier_and_gate"]["test_nullifier_sha256"],
@@ -254,14 +261,19 @@ def test_gate_receipt_mechanism_round_trips_on_disposable_copy(disposable_knowle
     kconn.commit()
     assert gates.has_gate_receipt(kconn, "TEST-COPY-" + ident["experiment_id"])
     # nullifier must NOT be consumed by issuing a receipt alone
-    n = kconn.execute("SELECT COUNT(*) FROM epistemic_test_nullifiers").fetchone()[0]
-    assert n == 0
+    n_after = kconn.execute("SELECT COUNT(*) FROM epistemic_test_nullifiers").fetchone()[0]
+    assert n_after == n_before
     kconn.close()
 
 
 def test_real_nullifier_and_receipt_state():
     """Real, read-only confirmation of the actual preregistration's effect on
-    the real knowledge.sqlite: receipt present, nullifier still unconsumed."""
+    the real knowledge.sqlite. The preregistration itself (2026-07-06) left
+    the receipt PREREGISTERED_NOT_EXECUTED with the nullifier unconsumed; a
+    separate, already-accepted governed execution
+    (G2-CVD-PRIMARY-LONG-GOVERNED-EXECUTION-V1, commit 60c3e26f, reconciled in
+    648b8283) has since legitimately run this exact preregistered experiment
+    once, transitioning the receipt to EXECUTED and consuming its nullifier."""
     conn = sqlite3.connect(f"file:{REAL_KNOWLEDGE_PATH}?mode=ro", uri=True)
     try:
         receipt = conn.execute(
@@ -272,8 +284,8 @@ def test_real_nullifier_and_receipt_state():
             ("085397f31c199c1d0c1d5ce647af4d1aa311166c63199f92872e089db8e72a7a",)).fetchone()[0]
     finally:
         conn.close()
-    assert receipt == ("PREREGISTERED_NOT_EXECUTED",)
-    assert nullifier_rows == 0
+    assert receipt == ("EXECUTED",)
+    assert nullifier_rows == 1
 
 
 # ---------------------------------------------------------------------------
@@ -300,9 +312,15 @@ def test_no_experiment_created_and_canonical_invariants_hold():
         }
     finally:
         conn.close()
-    assert n_reg == 22
-    assert n_res == 323
-    assert version == 12
+    # 22/323/12 at this batch's freeze point (2026-07-06); two independent,
+    # already-accepted governed executions since then (this experiment's own
+    # G2-CVD-PRIMARY-LONG-GOVERNED-EXECUTION-V1, and a second unrelated
+    # family's execution) plus M-0036's schema migration legitimately moved
+    # these to 24/381/14. This preregistration itself created no
+    # experiment_registry/experiment_results row and never wrote schema_versions.
+    assert n_reg == 24
+    assert n_res == 381
+    assert version == 14
     assert integrity == "ok"
     assert counts == {"ami_events": 252, "ami_signal_lifecycle": 324, "ami_cycles": 167,
                        "ami_birth_truncated_cascade_geometry": 220}

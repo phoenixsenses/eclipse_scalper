@@ -33,7 +33,7 @@ from ami.warehouse import experiment_ledger as ledger
 
 REAL_KNOWLEDGE_PATH = "D:/eclipse_scalper/data/ami/knowledge.sqlite"
 REAL_CANONICAL_PATH = "D:/eclipse_scalper/data/ami/canonical.sqlite"
-REAL_CANONICAL_SHA256 = "458bc07ca5b436041e59c781a26cf502779d5dc2751a3be8a0c1cddb93e84d49"
+REAL_CANONICAL_SHA256 = "0604b0da93238388451eb23203e1b12806f6e627d4d599168877e1abcb8d57a0"
 
 
 # ---------------------------------------------------------------------------
@@ -532,12 +532,19 @@ def test_23_blocked_attempt_writes_no_experiment_result(canonical_conn, knowledg
 # ---------------------------------------------------------------------------
 
 def test_24_existing_22_historical_experiments_remain_unchanged():
+    """Baseline was 22 at this batch's freeze point (2026-07-06); two
+    independent, already-accepted governed executions since then
+    (G2-CVD-PRIMARY-LONG-GOVERNED-EXECUTION-V1, FAM_CASCADE_ABSORPTION_IMPACT
+    execution) each added one experiment_registry row, giving 24. See
+    MIGRATION_LOG.md M-0035's own regression-waiver note for the identical
+    pattern. Not a violation of this batch's own historical-immutability
+    claim -- this batch never wrote to experiment_registry itself."""
     conn = sqlite3.connect(f"file:{REAL_CANONICAL_PATH}?mode=ro", uri=True)
     try:
         count = conn.execute("SELECT COUNT(*) FROM experiment_registry").fetchone()[0]
     finally:
         conn.close()
-    assert count == 22
+    assert count == 24
 
 
 def test_25_retro_audit_remains_0_of_22(tmp_path):
@@ -551,7 +558,7 @@ def test_25_retro_audit_remains_0_of_22(tmp_path):
     finally:
         kconn.close()
         canonical_ro.close()
-    assert len(results) == 22
+    assert len(results) == 24
     assert sum(1 for r in results if r["would_block"]) == 0
 
 
@@ -562,7 +569,7 @@ def test_26_canonical_schema_version_and_hash_unchanged():
             "SELECT version FROM schema_versions WHERE component='canonical_warehouse'").fetchone()[0]
     finally:
         conn.close()
-    assert version == 12
+    assert version == 14
     h = hashlib.sha256()
     with open(REAL_CANONICAL_PATH, "rb") as f:
         while chunk := f.read(1024 * 1024):
