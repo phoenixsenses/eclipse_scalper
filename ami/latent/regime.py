@@ -384,7 +384,14 @@ def main():
 def _alpha_eval(ts, Z, regs, per_regime, n):
     """Untouched son %15 (85-100) — trade-benzeri no-overlap 6h LONG karsilastirmasi."""
     import sqlite3
-    from tools.research_s34_knowable_anchor_continuation import load_mark_index
+    try:
+        from tools.research_s34_knowable_anchor_continuation import load_mark_index
+    except ImportError as exc:
+        raise ImportError(
+            "_alpha_eval() requires the optional S34 research tool "
+            "tools/research_s34_knowable_anchor_continuation.py, which is not "
+            "part of the ami/ canonical core and is not present in this checkout."
+        ) from exc
     conn = sqlite3.connect(f"file:{ROOT/'data'/'microstructure.db'}?mode=ro", uri=True)
     m = load_mark_index(conn, "ETHUSDT")
     u0 = int(n * 0.85)

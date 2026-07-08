@@ -62,7 +62,14 @@ def era_missing_drop(miss: "np.ndarray", cut: int, expl_max: float = 0.30,
 def build_dataset(db_path: Path = DB, out_npz: Path = NPZ, out_meta: Path = META,
                   step_ms: int = STEP_MS) -> dict:
     sys.path.insert(0, str(ROOT))
-    from tools.research_s34_knowable_anchor_continuation import load_mark_index
+    try:
+        from tools.research_s34_knowable_anchor_continuation import load_mark_index
+    except ImportError as exc:
+        raise ImportError(
+            "build_dataset() requires the optional S34 research tool "
+            "tools/research_s34_knowable_anchor_continuation.py, which is not "
+            "part of the ami/ canonical core and is not present in this checkout."
+        ) from exc
     conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
     conn.execute("PRAGMA cache_size=-200000")
     now = int(time.time() * 1000)

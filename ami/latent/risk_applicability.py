@@ -384,7 +384,14 @@ def spec_6ar2(reg: ResearchRegistry) -> ExperimentSpec:
 
 # ── Trade populasyonu ─────────────────────────────────────────────────────────
 def build_trades(ts: np.ndarray, sessions: list[str]) -> list[dict]:
-    from tools.research_s34_knowable_anchor_continuation import load_mark_index
+    try:
+        from tools.research_s34_knowable_anchor_continuation import load_mark_index
+    except ImportError as exc:
+        raise ImportError(
+            "build_trades() requires the optional S34 research tool "
+            "tools/research_s34_knowable_anchor_continuation.py, which is not "
+            "part of the ami/ canonical core and is not present in this checkout."
+        ) from exc
     conn = sqlite3.connect(f"file:{ROOT/'data'/'microstructure.db'}?mode=ro", uri=True)
     m = load_mark_index(conn, "ETHUSDT")
     trades = []

@@ -268,7 +268,14 @@ def main():
 def _outcome_eval(ts_v, lab_v, k):
     """Ayri katman: yalniz degerlendirme; mark index'ten forward 1h/6h."""
     import sqlite3
-    from tools.research_s34_knowable_anchor_continuation import load_mark_index
+    try:
+        from tools.research_s34_knowable_anchor_continuation import load_mark_index
+    except ImportError as exc:
+        raise ImportError(
+            "_outcome_eval() requires the optional S34 research tool "
+            "tools/research_s34_knowable_anchor_continuation.py, which is not "
+            "part of the ami/ canonical core and is not present in this checkout."
+        ) from exc
     conn = sqlite3.connect(f"file:{ROOT/'data'/'microstructure.db'}?mode=ro", uri=True)
     m = load_mark_index(conn, "ETHUSDT")
     def fwd(t0, hz):
