@@ -112,9 +112,10 @@ def test_sharded_export_matches_single_file_export_row_for_row(tmp_path):
     small shards, must produce exactly the same row count, id range, and
     (via a fresh stream_hash_parquet_multi pass) the same ordered
     scientific-content hash as the existing, accepted single-file
-    stream_export_to_parquet -- proving the id-range/NOT-INDEXED scan
-    selects and orders the identical row set as the (symbol,ts_ms)-index
-    scan it replaces."""
+    stream_export_to_parquet -- proving the ts_ms-ordered (symbol,ts_ms)-
+    index scan selects and orders the identical row set as the single-
+    file exporter's `ORDER BY id` scan (which, at real scale, requires a
+    temp-sort the ts_ms-ordered scan avoids)."""
     db = str(tmp_path / "synthetic.sqlite")
     _make_synthetic_db(db, rows_per_symbol={"SOLUSDT": 47, "BTCUSDT": 31, "ETHUSDT": 29}, start_ms=START)
     conn = sqlite3.connect(db)
@@ -150,11 +151,11 @@ def test_sharded_export_matches_single_file_export_row_for_row(tmp_path):
     conn.close()
 
 
-def test_sharded_export_rejects_other_symbol_rows_silently_via_filter(tmp_path):
-    """Rows from other symbols that fall within the id range must be
-    filtered out, never written, never counted -- the id-range scan is
-    expected to examine them (that's the whole tradeoff) but must not
-    leak them into the shard output."""
+def test_sharded_export_excludes_other_symbols(tmp_path):
+    """Other symbols' rows (the SQL WHERE symbol=? filter -- an index
+    predicate here, not a post-query Python filter, since the scan is
+    ts_ms-ordered via the (symbol, ts_ms) index) must never appear in
+    the shard output."""
     db = str(tmp_path / "synthetic.sqlite")
     _make_synthetic_db(db, rows_per_symbol={"SOLUSDT": 10, "BTCUSDT": 40}, start_ms=START)
     conn = sqlite3.connect(db)
@@ -168,6 +169,71 @@ def test_sharded_export_rejects_other_symbol_rows_silently_via_filter(tmp_path):
     shard_paths = [os.path.join(staging, s["shard_file"]) for s in result.shards]
     agg = SA.stream_hash_parquet_multi(shard_paths, SPEC.preserved_columns)
     assert agg["row_count"] == 10
+    conn.close()
+
+
+def test_sharded_export_handles_tied_timestamps_deterministically(tmp_path):
+    """Multiple rows sharing the same ts_ms (a real possibility for
+    book_ticker snapshots) must all be included exactly once, in a
+    deterministic (ts_ms, id) order, whether produced in one call or
+    split across a resume -- proving the compound resume cursor
+    (ts_ms, id), not ts_ms alone, is what makes resumption correct."""
+    db = str(tmp_path / "synthetic.sqlite")
+    conn = sqlite3.connect(db)
+    conn.execute("""
+        CREATE TABLE book_ticker (
+          id INTEGER PRIMARY KEY AUTOINCREMENT, ts_ms INTEGER NOT NULL, symbol TEXT NOT NULL,
+          bid_price REAL NOT NULL, bid_qty REAL NOT NULL, ask_price REAL NOT NULL,
+          ask_qty REAL NOT NULL, mid_price REAL NOT NULL, spread_pct REAL NOT NULL,
+          book_imbalance REAL NOT NULL, bid_depth_usd REAL)
+    """)
+    conn.execute("CREATE INDEX idx_bt_symbol_ts ON book_ticker(symbol, ts_ms)")
+    conn.execute("CREATE INDEX idx_bt_ts ON book_ticker(ts_ms)")
+    # 5 distinct timestamps, each with 3 tied SOLUSDT rows (same ts_ms,
+    # increasing id) -- 15 rows total, all the same symbol.
+    for t in range(5):
+        for _ in range(3):
+            conn.execute(
+                "INSERT INTO book_ticker (ts_ms, symbol, bid_price, bid_qty, ask_price, ask_qty, "
+                "mid_price, spread_pct, book_imbalance, bid_depth_usd) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                (START + t * 60_000, "SOLUSDT", 100.0, 1.0, 100.5, 1.0, 100.25, 0.005, 0.1, 1000.0))
+    conn.commit()
+    watermark = _watermark(conn, "SOLUSDT", START, END)
+    partition = _partition_for("SOLUSDT", start_ms=START, end_ms=END, watermark=watermark)
+
+    baseline_staging = str(tmp_path / "baseline")
+    baseline = SA.stream_export_to_parquet_sharded(
+        conn, SPEC, partition, baseline_staging, batch_size=4, max_rows_per_shard=4,
+        max_output_bytes_per_shard=10**9)
+    baseline_paths = [os.path.join(baseline_staging, s["shard_file"])
+                       for s in sorted(baseline.shards, key=lambda s: s["shard_index"])]
+    baseline_agg = SA.stream_hash_parquet_multi(baseline_paths, SPEC.preserved_columns)
+    assert baseline.row_count == 15
+    assert baseline_agg["row_count"] == 15
+
+    # Simulate a guard-abort partway through, then resume -- must still
+    # yield exactly 15 rows once, not skip or duplicate any tied row.
+    interrupted_staging = str(tmp_path / "interrupted")
+    trip = {"n": 0}
+
+    def rss_check():
+        trip["n"] += 1
+        return 10**12 if trip["n"] == 1 else 0
+
+    with pytest.raises(SA.MemoryGuardAbort):
+        SA.stream_export_to_parquet_sharded(
+            conn, SPEC, partition, interrupted_staging, batch_size=4, max_rows_per_shard=4,
+            max_output_bytes_per_shard=10**9, rss_check=rss_check, rss_limit_bytes=1,
+            rss_check_every_rows=4)
+    resumed = SA.stream_export_to_parquet_sharded(
+        conn, SPEC, partition, interrupted_staging, batch_size=4, max_rows_per_shard=4,
+        max_output_bytes_per_shard=10**9)
+    resumed_paths = [os.path.join(interrupted_staging, s["shard_file"])
+                      for s in sorted(resumed.shards, key=lambda s: s["shard_index"])]
+    resumed_agg = SA.stream_hash_parquet_multi(resumed_paths, SPEC.preserved_columns)
+
+    assert resumed.row_count == 15
+    assert resumed_agg["scientific_content_hash"] == baseline_agg["scientific_content_hash"]
     conn.close()
 
 

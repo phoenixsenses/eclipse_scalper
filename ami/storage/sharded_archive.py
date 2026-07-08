@@ -12,28 +12,35 @@ Root cause (confirmed via `EXPLAIN QUERY PLAN` against the real,
     USE TEMP B-TREE FOR ORDER BY
 
 The only index covering the WHERE clause (`symbol`, `ts_ms`) returns
-rows in `ts_ms` order, not `id` order, so `ORDER BY id ASC` (required
-for the stable, resumable, watermark-bounded ordering every archive
-export in this package relies on) forces SQLite to build a full
+rows in `ts_ms` order, not `id` order, so `ORDER BY id ASC` (the
+existing single-file exporter's ordering, required for stable,
+resumable, watermark-bounded output) forces SQLite to build a full
 temporary sort structure over every one of the ~114M matching rows
 before it can yield the first row in the requested order -- this,
 combined with a single ~2GB Parquet file's footer/statistics
 finalization, is what exceeded the RAM ceiling.
 
-This module avoids the sort entirely by scanning via an `id` (rowid)
-range instead of the `(symbol, ts_ms)` index: `id` is the table's
-`INTEGER PRIMARY KEY`, so a rowid-range scan is naturally ordered
-(rowid tables are B-tree-organized by rowid) and requires no sort
-buffer of any kind. `symbol`/`ts_ms` become row-level predicates
-evaluated during the scan rather than index-selection predicates --
-trading more rows examined (other symbols interleaved in the same id
-range) for zero sort-buffer memory. Output is split into multiple
-deterministic `part-NNNNN.parquet` shards (rotating to a new
-`ParquetWriter` every `max_rows_per_shard` rows) so no single file's
-finalization dominates RAM either, with a hard RSS guard that aborts
-safely (leaving completed shards in place) if resident memory exceeds
-a configured ceiling, and resume-safe staging so a subsequent call
-continues from the next unwritten id rather than restarting.
+This module avoids the sort by ordering the scan on `ts_ms` (with `id`
+as a tiebreaker) instead of `id` alone: `EXPLAIN QUERY PLAN` confirms
+`ORDER BY ts_ms ASC, id ASC` against the same `(symbol, ts_ms)` index
+needs no `TEMP B-TREE` at all -- the index already returns rows in
+`ts_ms` order per symbol, so this ordering is free, using the exact
+same efficient index scan as the original (broken) query, examining
+only the ~114M matching rows (an earlier design here scanned via an
+`id`-range `NOT INDEXED` rowid scan instead, which also avoids the
+sort but was measured, against the real database, to require
+examining ~6.7x more rows -- other symbols interleaved across the same
+`id` range -- and was abandoned for that reason). `id` is still
+tracked, validated against the frozen watermark, and reported in every
+shard's metadata; it is just no longer the sort key. Resumability uses
+a compound `(ts_ms, id)` cursor since `ts_ms` alone is not guaranteed
+unique. Output is split into multiple deterministic `part-NNNNN.
+parquet` shards (rotating to a new `ParquetWriter` every
+`max_rows_per_shard` rows) so no single file's finalization dominates
+RAM either, with a hard RSS guard that aborts safely (leaving completed
+shards in place) if resident memory exceeds a configured ceiling, and
+resume-safe staging so a subsequent call continues from the next
+unwritten `(ts_ms, id)` position rather than restarting.
 
 The aggregate ordered scientific-content hash is deliberately NOT
 computed during export (that would require a hasher whose internal
@@ -204,7 +211,10 @@ def stream_export_to_parquet_sharded(
 
     completed = discover_resumable_shards(staging_dir, partition_id=partition_id)
     next_shard_index = (completed[-1]["shard_index"] + 1) if completed else 0
-    cursor_id = completed[-1]["max_id"] if completed else None  # exclusive lower bound
+    # Resume cursor is a compound (ts_ms, id) position -- ts_ms alone is
+    # not guaranteed unique, id alone is not the scan order any more.
+    cursor_ts = completed[-1]["max_ts"] if completed else -1
+    cursor_id = completed[-1]["max_id"] if completed else -1
     total_row_count = sum(c["row_count"] for c in completed)
     overall_min_id = completed[0]["min_id"] if completed else None
     overall_max_id = completed[-1]["max_id"] if completed else None
@@ -216,38 +226,36 @@ def stream_export_to_parquet_sharded(
                                         min_id=overall_min_id, max_id=overall_max_id, complete=True)
         raise ExportValidationError("empty partition")
 
-    lower_bound = cursor_id if cursor_id is not None else (partition_min_id - 1)
-    if lower_bound >= partition_max_id:
-        return ShardedExportResult(shards=tuple(completed), row_count=total_row_count,
-                                    min_id=overall_min_id, max_id=overall_max_id, complete=True)
-
     schema = build_pyarrow_schema(spec)
     id_idx = spec.preserved_columns.index(spec.stable_ordering_field)
     sym_idx = spec.preserved_columns.index(spec.symbol_field)
     ts_idx = spec.preserved_columns.index(spec.partition_ts_field)
     cols_sql = ",".join(spec.preserved_columns)
 
-    # `NOT INDEXED` forces a rowid (id) range scan -- naturally ordered,
-    # zero sort-buffer -- instead of the (symbol, ts_ms) index, which
-    # would require `USE TEMP B-TREE FOR ORDER BY` for ~114M matching rows.
+    # `ORDER BY ts_ms ASC, id ASC` against the (symbol, ts_ms) index needs
+    # no TEMP B-TREE (confirmed via EXPLAIN QUERY PLAN against the real
+    # 650GB+ database) -- the index already returns rows in ts_ms order
+    # per symbol, so this ordering is free, using the same efficient scan
+    # the original (broken) `ORDER BY id` query's WHERE clause used.
     cur = conn.execute(
-        f"SELECT {cols_sql} FROM {spec.table} NOT INDEXED WHERE {spec.stable_ordering_field}>? AND "
-        f"{spec.stable_ordering_field}<=? AND {spec.symbol_field}=? AND {spec.partition_ts_field}>=? "
-        f"AND {spec.partition_ts_field}<? ORDER BY {spec.stable_ordering_field} ASC",
-        (lower_bound, partition_max_id, partition.symbol,
-         partition.partition_start_ms, partition.partition_end_ms))
+        f"SELECT {cols_sql} FROM {spec.table} WHERE {spec.symbol_field}=? AND "
+        f"{spec.partition_ts_field}>=? AND {spec.partition_ts_field}<? AND "
+        f"({spec.partition_ts_field}>? OR ({spec.partition_ts_field}=? AND {spec.stable_ordering_field}>?)) "
+        f"ORDER BY {spec.partition_ts_field} ASC, {spec.stable_ordering_field} ASC",
+        (partition.symbol, partition.partition_start_ms, partition.partition_end_ms,
+         cursor_ts, cursor_ts, cursor_id))
 
     new_shards: list[dict] = []
     shard_index = next_shard_index
     writer = None
     shard_partial_path = None
     shard_row_count = 0
-    shard_min_id = shard_max_id = None
-    prev_id = cursor_id
+    shard_min_id = shard_max_id = shard_min_ts = shard_max_ts = None
     rows_since_rss_check = 0
 
     def _finalize_current_shard():
-        nonlocal writer, shard_partial_path, shard_row_count, shard_min_id, shard_max_id
+        nonlocal writer, shard_partial_path, shard_row_count, shard_min_id, shard_max_id, \
+            shard_min_ts, shard_max_ts
         if writer is None:
             return
         writer.close()
@@ -258,6 +266,7 @@ def stream_export_to_parquet_sharded(
             "partition_id": partition_id, "shard_index": shard_index,
             "shard_file": os.path.basename(final_path), "row_count": shard_row_count,
             "min_id": shard_min_id, "max_id": shard_max_id,
+            "min_ts": shard_min_ts, "max_ts": shard_max_ts,
             "byte_size": os.path.getsize(final_path),
         }
         _write_json_atomic(_checkpoint_path(staging_dir, shard_index), ckpt)
@@ -271,14 +280,11 @@ def stream_export_to_parquet_sharded(
             for r in batch:
                 rid, rsym, rts = r[id_idx], r[sym_idx], r[ts_idx]
                 if rsym != partition.symbol:
-                    continue  # interleaved other-symbol row within the id range -- expected, skip
+                    raise ExportValidationError(f"unexpected symbol {rsym!r}")
                 if not (partition.partition_start_ms <= rts < partition.partition_end_ms):
                     raise ExportValidationError(f"timestamp {rts} out of partition range")
                 if rid > partition.source_watermark_value:
                     raise ExportValidationError(f"id {rid} exceeds watermark")
-                if prev_id is not None and rid <= prev_id:
-                    raise ExportValidationError(f"non-increasing id {rid} after {prev_id} (duplicate?)")
-                prev_id = rid
 
                 if writer is None:
                     shard_partial_path = _shard_path(staging_dir, shard_index) + ".partial"
@@ -286,20 +292,18 @@ def stream_export_to_parquet_sharded(
                                                use_dictionary=False, write_statistics=True)
                     shard_row_count = 0
                     shard_min_id = rid
+                    shard_min_ts = rts
 
-                # Buffer this one validated row into the current shard's
-                # pending Arrow batch (built per-fetchmany-batch below, not
-                # per-row) -- tracked via shard_row_count/shard_max_id only.
                 shard_row_count += 1
                 shard_max_id = rid
+                shard_max_ts = rts
                 total_row_count += 1
                 overall_min_id = rid if overall_min_id is None else min(overall_min_id, rid)
                 overall_max_id = rid if overall_max_id is None else max(overall_max_id, rid)
 
-            kept = [r for r in batch if r[sym_idx] == partition.symbol]
-            if kept and writer is not None:
+            if writer is not None:
                 arrays = []
-                batch_cols = list(zip(*kept))
+                batch_cols = list(zip(*batch))
                 for i, col in enumerate(spec.preserved_columns):
                     pa_type = schema.field(col).type
                     values = list(batch_cols[i])
