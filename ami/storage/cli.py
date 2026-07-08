@@ -82,6 +82,37 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--source-db", default=None)
     sp.set_defaults(func=_cmd_production_activation_rehearsal)
 
+    # --- Manual-only production archive activation commands ---
+    sp = sub.add_parser("production-plan",
+                        help="Read-only deterministic plan for an allowlisted table (candidate "
+                             "selection + resource/authorization requirements). No production write.")
+    sp.add_argument("--table", required=True, choices=allowlisted_tables())
+    sp.add_argument("--source-db", default=None)
+    sp.set_defaults(func=_cmd_production_plan)
+
+    sp = sub.add_parser("production-archive-authorized",
+                        help="Publish one production partition matching a supplied authorization "
+                             "receipt. Requires --receipt-path; no arbitrary root/table/self-approval.")
+    sp.add_argument("--receipt-path", required=True)
+    sp.add_argument("--source-db", default=None)
+    sp.set_defaults(func=_cmd_production_archive_authorized)
+
+    sp = sub.add_parser("production-verify", help="Re-verify one production partition directory.")
+    sp.add_argument("--partition-dir", required=True)
+    sp.add_argument("--table", required=True, choices=allowlisted_tables())
+    sp.add_argument("--symbol", required=True)
+    sp.add_argument("--utc-year", required=True, type=int)
+    sp.add_argument("--utc-month", required=True, type=int)
+    sp.set_defaults(func=_cmd_production_verify)
+
+    sp = sub.add_parser("production-catalog-rebuild",
+                        help="Acquire the catalog lock and deterministically rebuild the root index "
+                             "from immutable partition-local entries. No source access.")
+    sp.set_defaults(func=_cmd_production_catalog_rebuild)
+
+    sp = sub.add_parser("production-health", help="Report real production-archive root/index/lock/staging state.")
+    sp.set_defaults(func=_cmd_production_health)
+
     return p
 
 
@@ -198,6 +229,87 @@ def _cmd_production_activation_rehearsal(args: argparse.Namespace) -> dict:
     finally:
         assert_read_only_session_clean(log)
         conn.close()
+
+
+def _cmd_production_plan(args: argparse.Namespace) -> dict:
+    from ami.storage import production as PR
+    from ami.storage import production_activation as PA
+    from ami.storage.source_access import open_read_only, assert_read_only_session_clean, DEFAULT_SOURCE_PATH
+    root, _ = PR.resolve_production_root()
+    conn, log = open_read_only(args.source_db or DEFAULT_SOURCE_PATH)
+    try:
+        plan = PA.preflight_partition(conn, root=root, table=args.table)
+    finally:
+        assert_read_only_session_clean(log)
+        conn.close()
+    p = plan["partition"]
+    return {"table": args.table, "chosen_symbol": p.symbol, "utc_year": p.utc_year,
+            "utc_month": p.utc_month, "row_count": plan["row_count"], "watermark": plan["watermark"],
+            "plan_hash": plan["plan_hash"], "final_path_exists": plan["final_path_exists"],
+            "unresolved_gap_count": plan["unresolved_gap_count"],
+            "estimated_parquet_bytes": plan["estimated_parquet_bytes"],
+            "authorization_required": "CREATE_PRODUCTION_ARCHIVE_ONLY receipt matching this plan_hash"}
+
+
+def _cmd_production_archive_authorized(args: argparse.Namespace) -> dict:
+    from ami.storage import production as PR
+    from ami.storage import production_activation as PA
+    from ami.storage.partition import build_partition_identity
+    from ami.storage.registry import get_table_spec
+    from ami.storage.source_access import open_read_only, assert_read_only_session_clean, DEFAULT_SOURCE_PATH
+    with open(args.receipt_path) as f:
+        receipt = json.load(f)
+    root, _ = PR.resolve_production_root()
+    # receipt's own root must match the resolved root (no arbitrary root)
+    if os.path.normpath(receipt.get("production_archive_root", "")).replace("\\", "/").lower() != \
+            os.path.normpath(os.path.abspath(root)).replace("\\", "/").lower():
+        return {"error": "AuthorizationReceiptRejected", "message": "receipt root does not match resolved production root"}
+    import datetime as _dt
+    table = receipt["source_table"]
+    spec = get_table_spec(table)
+    conn, log = open_read_only(args.source_db or DEFAULT_SOURCE_PATH)
+    try:
+        # Re-derive the current live plan; publish_authorized_production_partition
+        # verifies the supplied receipt against this plan (exact plan-hash /
+        # watermark / schema / table match) before any production write.
+        plan = PA.preflight_partition(conn, root=root, table=table)
+        result = PA.publish_authorized_production_partition(
+            conn, root=root, partition=plan["partition"], spec=spec, archive_version="v1",
+            receipt=receipt, job_identity="PROD-ACT-CLI", source_schema_hash=plan["source_schema_hash"],
+            export_cutoff=_dt.datetime.now(_dt.timezone.utc).isoformat())
+    finally:
+        assert_read_only_session_clean(log)
+        conn.close()
+    return {"status": result.status, "final_partition_dir": result.final_partition_dir,
+            "row_count": result.row_count, "parquet_sha256": result.parquet_sha256,
+            "reverification_mismatch_count": result.reverification_mismatch_count}
+
+
+def _cmd_production_verify(args: argparse.Namespace) -> dict:
+    from ami.storage import production_activation as PA
+    from ami.storage.partition import build_partition_identity
+    partition = build_partition_identity(table=args.table, symbol=args.symbol, utc_year=args.utc_year,
+                                         utc_month=args.utc_month, source_watermark_value=0)
+    # watermark not needed for reverify's partition_id (excludes watermark)
+    mismatches = PA.reverify_authorized_partition(args.partition_dir, partition)
+    return {"partition_dir": args.partition_dir, "reverification_mismatch_count": mismatches,
+            "verified": mismatches == 0}
+
+
+def _cmd_production_catalog_rebuild(args: argparse.Namespace) -> dict:
+    from ami.storage import production as PR
+    from ami.storage import production_activation as PA
+    root, _ = PR.resolve_production_root()
+    index_path, index_sha = PA.rebuild_root_index_under_lock(root, job_identity="CLI-REBUILD")
+    return {"root_index_path": index_path, "root_index_sha256": index_sha}
+
+
+def _cmd_production_health(args: argparse.Namespace) -> dict:
+    from ami.storage import production as PR
+    from ami.storage import production_activation as PA
+    from ami.storage.health import scan_production_archive_health
+    root, _ = PR.resolve_production_root()
+    return scan_production_archive_health(root)
 
 
 def main(argv: list[str] | None = None) -> int:

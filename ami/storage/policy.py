@@ -124,3 +124,33 @@ REHEARSAL_AUTHORIZATION = ProductionRehearsalAuthorization()
 # General production activation remains disabled: this constant is the
 # single source of truth that no code path flips it on.
 GENERAL_PRODUCTION_ACTIVATION_ENABLED = False
+
+
+# ---------------------------------------------------------------------------
+# Manual-only production activation states (BATCH-...-PRODUCTION-ARCHIVE-
+# ACTIVATION-V1, Phase 2). Deliberately SEPARATE named states -- not one
+# ambiguous boolean -- so "manual archive creation is available" can never
+# be conflated with "general unrestricted activation", "scheduler",
+# "purge", or "VACUUM", every one of which stays independently disabled.
+# ---------------------------------------------------------------------------
+
+MANUAL_PRODUCTION_ARCHIVE_CREATION = "ENABLED"   # allowlisted tables + exact authorization receipt only
+GENERAL_UNRESTRICTED_ACTIVATION = "DISABLED"
+PRODUCTION_SCHEDULER_STATE = "DISABLED"
+PRODUCTION_PURGE_STATE = "DISABLED"
+PRODUCTION_VACUUM_STATE = "DISABLED"
+SOURCE_RETENTION_REQUIREMENT = "REQUIRED"
+
+
+def production_activation_states() -> dict:
+    """Single read-only accessor for the independent activation states --
+    every reporter/CLI reads these, so the four 'disabled' guarantees are
+    reported from one source, never re-derived."""
+    return {
+        "manual_production_archive_creation": MANUAL_PRODUCTION_ARCHIVE_CREATION,
+        "general_unrestricted_activation": GENERAL_UNRESTRICTED_ACTIVATION,
+        "scheduler": PRODUCTION_SCHEDULER_STATE,
+        "purge": PRODUCTION_PURGE_STATE,
+        "vacuum": PRODUCTION_VACUUM_STATE,
+        "source_retention": SOURCE_RETENTION_REQUIREMENT,
+    }

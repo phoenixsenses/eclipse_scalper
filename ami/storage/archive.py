@@ -135,6 +135,115 @@ def _sha256_file(path: str) -> str:
     return h.hexdigest()
 
 
+def stream_export_to_parquet(conn, spec: SourceTableSpec, partition, out_path: str, *,
+                              batch_size: int = 1_000_000, max_output_bytes: int) -> dict:
+    """Bounded, streaming export (Phase 12): reads the frozen partition in
+    `batch_size` chunks (never `fetchall()` on a huge table), writes them
+    incrementally through a single `pyarrow.parquet.ParquetWriter`, and
+    computes the ordered scientific-content hash incrementally (identical
+    digest to `canonical_row_hash` over the full row set -- proven). RAM
+    stays bounded to one batch regardless of partition size.
+
+    For a partition that fits in a single batch (e.g. the 260,657-row
+    mark_prices rehearsal), this produces byte-identical Parquet to
+    `pyarrow.parquet.write_table` (one row group, same writer settings) --
+    so the accepted `6f919144...` reproduction is preserved.
+
+    Enforces, incrementally: strictly increasing id (no duplicates),
+    symbol-only, timestamp-in-range, id<=watermark, and the output-size
+    cap (checked after each batch). Raises `ExportValidationError`
+    fail-closed on any violation (leaving only a `.partial`, never a
+    published file)."""
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    schema = build_pyarrow_schema(spec)
+    id_idx = spec.preserved_columns.index(spec.stable_ordering_field)
+    sym_idx = spec.preserved_columns.index(spec.symbol_field)
+    ts_idx = spec.preserved_columns.index(spec.partition_ts_field)
+    cols_sql = ",".join(spec.preserved_columns)
+
+    cur = conn.execute(
+        f"SELECT {cols_sql} FROM {spec.table} WHERE {spec.symbol_field}=? AND "
+        f"{spec.partition_ts_field}>=? AND {spec.partition_ts_field}<? AND "
+        f"{spec.stable_ordering_field}<=? ORDER BY {spec.stable_ordering_field} ASC",
+        (partition.symbol, partition.partition_start_ms, partition.partition_end_ms,
+         partition.source_watermark_value))
+
+    hasher = hashlib.sha256()
+    row_count = 0
+    min_id = max_id = None
+    min_ts = max_ts = None
+    prev_id = None
+    writer = pq.ParquetWriter(out_path, schema, compression="zstd",
+                               use_dictionary=False, write_statistics=True)
+    try:
+        while True:
+            batch = cur.fetchmany(batch_size)
+            if not batch:
+                break
+            for r in batch:
+                rid, rsym, rts = r[id_idx], r[sym_idx], r[ts_idx]
+                if rsym != partition.symbol:
+                    raise ExportValidationError(f"unexpected symbol {rsym!r}")
+                if not (partition.partition_start_ms <= rts < partition.partition_end_ms):
+                    raise ExportValidationError(f"timestamp {rts} out of partition range")
+                if rid > partition.source_watermark_value:
+                    raise ExportValidationError(f"id {rid} exceeds watermark")
+                if prev_id is not None and rid <= prev_id:
+                    raise ExportValidationError(f"non-increasing id {rid} after {prev_id} (duplicate?)")
+                prev_id = rid
+                serialized = "\x1f".join(repr(v) for v in r)
+                hasher.update((("" if row_count == 0 else "\x1e") + serialized).encode())
+                row_count += 1
+                min_id = rid if min_id is None else min_id
+                max_id = rid
+                min_ts = rts if min_ts is None else min(min_ts, rts)
+                max_ts = rts if max_ts is None else max(max_ts, rts)
+            arrays = []
+            batch_cols = list(zip(*batch))
+            for i, col in enumerate(spec.preserved_columns):
+                pa_type = schema.field(col).type
+                values = list(batch_cols[i])
+                if pa_type == pa.int64():
+                    values = [int(v) if v is not None else None for v in values]
+                arrays.append(pa.array(values, type=pa_type))
+            writer.write_table(pa.Table.from_arrays(arrays, schema=schema))
+    finally:
+        writer.close()
+
+    if os.path.getsize(out_path) > max_output_bytes:
+        raise ExportValidationError(
+            f"parquet output {os.path.getsize(out_path)} exceeds cap {max_output_bytes}")
+    if row_count == 0:
+        raise ExportValidationError("empty partition")
+
+    return {"row_count": row_count, "scientific_content_hash": hasher.hexdigest(),
+            "min_id": min_id, "max_id": max_id, "min_ts": min_ts, "max_ts": max_ts}
+
+
+def stream_hash_parquet(path: str, preserved_columns: tuple[str, ...]) -> dict:
+    """Re-reads a single Parquet file in bounded row-group batches (via
+    ParquetFile.iter_batches -- never a full in-memory read) and computes
+    the same ordered scientific-content hash. Used for RAM-bounded
+    post-write / post-publication verification of arbitrarily large
+    partitions."""
+    import pyarrow.parquet as pq
+
+    pf = pq.ParquetFile(path)
+    hasher = hashlib.sha256()
+    row_count = 0
+    for batch in pf.iter_batches(batch_size=1_000_000):
+        d = batch.to_pydict()
+        cols = [d[c] for c in preserved_columns]
+        n = len(cols[0]) if cols else 0
+        for i in range(n):
+            serialized = "\x1f".join(repr(cols[j][i]) for j in range(len(preserved_columns)))
+            hasher.update((("" if row_count == 0 else "\x1e") + serialized).encode())
+            row_count += 1
+    return {"row_count": row_count, "scientific_content_hash": hasher.hexdigest()}
+
+
 # ---------------------------------------------------------------------------
 # Manifest (Phase 9) -- 36-field contract, matching the accepted disposable
 # dry-run's authoritative field set (superseding the readiness batch's

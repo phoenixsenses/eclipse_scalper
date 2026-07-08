@@ -102,7 +102,9 @@ def test_cli_has_expected_commands():
     subparsers_action = next(a for a in parser._actions if hasattr(a, "choices") and a.choices)
     commands = set(subparsers_action.choices.keys())
     assert commands == {"policy-status", "plan", "disposable-dry-run", "verify", "read", "restore-slice",
-                        "production-activation-rehearsal"}
+                        "production-activation-rehearsal", "production-plan",
+                        "production-archive-authorized", "production-verify",
+                        "production-catalog-rebuild", "production-health"}
 
 
 def test_cli_production_activation_rehearsal_accepts_no_partition_args():

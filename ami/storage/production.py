@@ -21,7 +21,7 @@ import shutil
 from dataclasses import dataclass, asdict
 
 from ami.storage.archive import (build_manifest, build_pyarrow_schema, canonical_row_hash,
-                                   fetch_partition_rows)
+                                   fetch_partition_rows, stream_export_to_parquet, stream_hash_parquet)
 from ami.storage.partition import PartitionIdentity, build_partition_identity
 from ami.storage.policy import REHEARSAL_AUTHORIZATION
 from ami.storage.registry import SourceTableSpec, get_table_spec
@@ -300,37 +300,18 @@ def publish_production_partition(conn, *, root: str, partition: PartitionIdentit
         shutil.rmtree(staging_dir)  # gate-owned staging identity, safe to reset
     os.makedirs(staging_dir, exist_ok=True)
 
-    # ---- export rows -> partial parquet ----
-    rows = fetch_partition_rows(conn, spec, partition)
-    scientific_hash = canonical_row_hash(rows)
+    # ---- export rows -> partial parquet (bounded streaming, RAM-safe) ----
     schema = build_pyarrow_schema(spec)
-    cols = list(zip(*rows)) if rows else [[] for _ in spec.preserved_columns]
-    arrays = []
-    for i, col in enumerate(spec.preserved_columns):
-        pa_type = schema.field(col).type
-        values = list(cols[i]) if rows else []
-        if pa_type == pa.int64():
-            values = [int(v) if v is not None else None for v in values]
-        arrays.append(pa.array(values, type=pa_type))
-    table_obj = pa.Table.from_arrays(arrays, schema=schema)
-
     parquet_partial = os.path.join(staging_dir, PARQUET_NAME + ".partial")
-    pq.write_table(table_obj, parquet_partial, compression="zstd", use_dictionary=False, write_statistics=True)
+    export = stream_export_to_parquet(conn, spec, partition, parquet_partial,
+                                       max_output_bytes=max_output_bytes)
+    row_count = export["row_count"]
+    scientific_hash = export["scientific_content_hash"]
 
-    if os.path.getsize(parquet_partial) > max_output_bytes:
-        raise ProductionPublicationConflict("parquet exceeds production output cap")
-
-    # validate before rename
-    ids = [r[spec.preserved_columns.index(spec.stable_ordering_field)] for r in rows]
-    symbols = {r[spec.preserved_columns.index(spec.symbol_field)] for r in rows}
-    ts_idx = spec.preserved_columns.index(spec.partition_ts_field)
-    assert len(ids) - len(set(ids)) == 0, "duplicate ids"
-    assert symbols <= {partition.symbol}, "unexpected symbol"
-    assert all(partition.partition_start_ms <= r[ts_idx] < partition.partition_end_ms for r in rows)
-    assert all(i <= partition.source_watermark_value for i in ids)
-    reread = pq.ParquetFile(parquet_partial).read().to_pydict()
-    reread_rows = [tuple(reread[c][i] for c in spec.preserved_columns) for i in range(len(reread["id"]))]
-    assert canonical_row_hash(reread_rows) == scientific_hash, "parquet scientific parity failed"
+    # streaming re-read parity (never loads the whole file into memory)
+    reread = stream_hash_parquet(parquet_partial, spec.preserved_columns)
+    if reread["scientific_content_hash"] != scientific_hash or reread["row_count"] != row_count:
+        raise ProductionPublicationConflict("parquet scientific parity failed")
 
     parquet_final = os.path.join(staging_dir, PARQUET_NAME)
     os.replace(parquet_partial, parquet_final)
@@ -339,7 +320,7 @@ def publish_production_partition(conn, *, root: str, partition: PartitionIdentit
 
     # ---- manifest ----
     manifest = build_manifest(
-        spec=spec, partition=partition, row_count=len(rows), scientific_hash=scientific_hash,
+        spec=spec, partition=partition, row_count=row_count, scientific_hash=scientific_hash,
         parquet_path=os.path.join(partition_relative_dir(partition, archive_version), PARQUET_NAME),
         parquet_size=os.path.getsize(parquet_final), parquet_sha256=parquet_sha,
         source_schema_hash=source_schema_hash, parquet_schema_hash=parquet_schema_hash,
@@ -353,7 +334,7 @@ def publish_production_partition(conn, *, root: str, partition: PartitionIdentit
 
     # ---- catalog entry ----
     catalog_entry = build_catalog_entry(
-        partition=partition, spec=spec, archive_version=archive_version, row_count=len(rows),
+        partition=partition, spec=spec, archive_version=archive_version, row_count=row_count,
         archive_relative_path=partition_relative_dir(partition, archive_version),
         manifest_relative_path=os.path.join(partition_relative_dir(partition, archive_version), MANIFEST_NAME),
         parquet_relative_path=os.path.join(partition_relative_dir(partition, archive_version), PARQUET_NAME),
@@ -390,15 +371,19 @@ def publish_production_partition(conn, *, root: str, partition: PartitionIdentit
         manifest_path=os.path.join(final_dir, MANIFEST_NAME),
         catalog_entry_path=os.path.join(final_dir, CATALOG_ENTRY_NAME),
         success_path=os.path.join(final_dir, SUCCESS_NAME),
-        row_count=len(rows), scientific_hash=scientific_hash, parquet_sha256=parquet_sha,
+        row_count=row_count, scientific_hash=scientific_hash, parquet_sha256=parquet_sha,
         manifest_sha256=manifest_sha, catalog_entry_sha256=catalog_entry_sha,
         reverification_mismatch_count=mismatches)
 
 
-def reverify_published_partition(final_dir: str, partition: PartitionIdentity) -> int:
+def reverify_published_partition(final_dir: str, partition: PartitionIdentity,
+                                  streaming: bool = False) -> int:
     """Independently re-verifies a published partition from its final
-    path. Returns the mismatch count (0 = fully verified)."""
-    import pyarrow.parquet as pq
+    path. Returns the mismatch count (0 = fully verified). The row
+    re-read/re-hash uses `stream_hash_parquet` (RAM-bounded, works for
+    arbitrarily large partitions); `streaming` is accepted for call-site
+    clarity but the streaming re-hash is always used."""
+    from ami.storage.registry import get_table_spec
     mismatches = 0
     with open(os.path.join(final_dir, MANIFEST_NAME)) as f:
         manifest = json.load(f)
@@ -424,12 +409,10 @@ def reverify_published_partition(final_dir: str, partition: PartitionIdentity) -
         mismatches += 1
     if entry.get("source_retention_status") != "SOURCE_PRESENT":
         mismatches += 1
-    # re-read rows and re-hash
-    reread = pq.ParquetFile(parquet_path).read().to_pydict()
-    cols = list(reread.keys())
-    n = len(reread[cols[0]]) if cols else 0
-    rows = [tuple(reread[c][i] for c in cols) for i in range(n)]
-    if canonical_row_hash(rows) != manifest.get("ordered_scientific_content_hash"):
+    # re-read rows and re-hash (streaming, RAM-bounded)
+    spec = get_table_spec(partition.table)
+    reread = stream_hash_parquet(parquet_path, spec.preserved_columns)
+    if reread["scientific_content_hash"] != manifest.get("ordered_scientific_content_hash"):
         mismatches += 1
     return mismatches
 

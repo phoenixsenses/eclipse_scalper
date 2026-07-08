@@ -723,12 +723,17 @@ def test_real_production_reverification_zero_mismatches():
     assert mismatches == 0
 
 
-def test_real_root_index_deterministic_and_single_entry():
+def test_real_root_index_deterministic_and_contains_mark_prices():
+    """After the production-archive-activation batch the real root index
+    holds >=2 verified partitions (mark_prices rehearsal + agg_trades
+    activation); it must remain deterministic and still include the
+    original mark_prices rehearsal partition."""
     root = "D:/eclipse_scalper/data/archives/raw_v1"
     idx1 = PR.build_root_catalog_index(root)
     idx2 = PR.build_root_catalog_index(root)
     assert idx1["index_self_hash"] == idx2["index_self_hash"]
-    assert idx1["entry_count"] == 1
+    assert idx1["entry_count"] >= 2
+    assert any(e["source_table"] == "mark_prices" for e in idx1["entries"])
 
 
 def test_real_idempotent_disposition_is_noop():

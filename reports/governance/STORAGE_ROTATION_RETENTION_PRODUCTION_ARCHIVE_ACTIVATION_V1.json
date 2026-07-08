@@ -1,0 +1,127 @@
+{
+  "gate": "BATCH-STORAGE-ROTATION-RETENTION-PRODUCTION-ARCHIVE-ACTIVATION-V1",
+  "date": "2026-07-08",
+  "author": "Sonnet 5",
+  "nature": "manual-only production archive activation",
+  "verdict": "STORAGE_ROTATION_RETENTION_PRODUCTION_ARCHIVE_ACTIVATION_V1_PARTIAL_PUBLICATION_SOURCE_RETAINED",
+  "accepted_checkpoint": {
+    "readiness_commit": "f65545ee", "discrepancy_audit_commit": "54c1355f",
+    "disposable_dry_run_commit": "6fbe0571", "bounded_implementation_commit": "55a017ff",
+    "production_rehearsal_commit": "7b46b326",
+    "governance_state": {"schema_version": 14, "experiment_registry": 24, "experiment_results": 381, "epistemic_test_nullifiers": 2, "experiment_gate_receipts": 2}
+  },
+  "manual_only_activation_states": {
+    "manual_production_archive_creation": "ENABLED",
+    "general_unrestricted_activation": "DISABLED",
+    "scheduler": "DISABLED", "purge": "DISABLED", "vacuum": "DISABLED",
+    "source_retention": "REQUIRED",
+    "held_unblessed_until_closure": true
+  },
+  "authorization_receipt_contract": {
+    "action": "CREATE_PRODUCTION_ARCHIVE_ONLY", "self_hashed": true,
+    "binds": ["table", "symbol", "venue", "market_segment", "utc_month", "exact_partition_plan_hash",
+              "source_watermark_value", "source_schema_hash", "archive_schema_hash", "production_archive_root"],
+    "prohibits": ["purge", "scheduler", "vacuum"],
+    "source_retention_requirement": "SOURCE_MUST_REMAIN_PRESENT",
+    "no_self_approving_cli": true, "issued_only_by_governance_driver": true
+  },
+  "catalog_lock_contract": {
+    "atomic_exclusive_create": true, "owner_token_release": true, "non_owner_release_refused": true,
+    "live_lock_fail_closed": true, "stale_lock_classified_not_deleted": true, "bounded_timeout": true,
+    "lock_path": "data/archives/raw_v1.catalog.lock"
+  },
+  "root_index": {
+    "concurrency_safe_under_lock": true, "deterministic": true, "self_hashed": true,
+    "entry_count": 2, "self_hash": "456892df5bb6f3e500f44132b727fee33dd0fb1cdb23ab7c2bc808558ced719c",
+    "size_bytes": 4236,
+    "supports_both_5file_legacy_and_6file_activation": true
+  },
+  "candidate_selection": {
+    "agg_trades": {"month": "2026-02", "symbol_counts": {"BTCUSDT": 26376020, "ETHUSDT": 23957222, "SOLUSDT": 0}, "chosen": "ETHUSDT", "chosen_count": 23957222},
+    "book_ticker": {"month": "2026-04", "symbol_counts": {"BTCUSDT": 505194719, "ETHUSDT": 540644508, "SOLUSDT": 114404095}, "chosen": "SOLUSDT", "chosen_count": 114404095}
+  },
+  "resource_guards": {
+    "min_free_bytes_required": 536870912000, "actual_free_bytes_approx": 1120000000000,
+    "max_source_bytes_per_partition": 107374182400, "max_parquet_bytes_per_partition": 32212254720,
+    "book_ticker_failure_was_cap_violation": false, "book_ticker_failure_was_runtime_ram_wall": true
+  },
+  "agg_trades_publication": {
+    "status": "PUBLISHED_AND_VERIFIED",
+    "symbol": "ETHUSDT", "utc_partition": "2026-02", "row_count": 23957222, "watermark": 50333244,
+    "scientific_hash": "5b17f4e4be294b0a7a7ba75934095676ca8792d13351a4a4535652776ea2af25",
+    "files": {
+      "part-00000.parquet": {"size": 317348832, "sha256_prefix": "7bbf05fd28ab30fd"},
+      "manifest.json": {"size": 1865, "sha256_prefix": "eb34359d9a650af6"},
+      "authorization_receipt.json": {"size": 1553, "sha256_prefix": "ec6f724386a0e5c2"},
+      "catalog_entry.json": {"size": 2127, "sha256_prefix": "d58d6d025699b77d"},
+      "_SUCCESS": {"size": 26, "sha256_prefix": "f09de3a5280da3a3"}
+    },
+    "total_bytes": 317354403,
+    "reverification_mismatch_count": 0,
+    "direct_read_parity_match": true, "direct_read_rows": 23957222, "direct_read_mismatch": 0,
+    "restore_parity_match": true, "restore_slice_bytes": 1256235008, "restore_slice_cleaned": true,
+    "idempotent_disposition": "NOOP_IDENTICAL_PRODUCTION_ARCHIVE",
+    "authorization_identity": "AUTH-PROD-3f6298c7ddcde869ebd81a37-1783492119624"
+  },
+  "book_ticker_publication": {
+    "status": "FAILED_RAM_WALL_NOT_PUBLISHED",
+    "symbol": "SOLUSDT", "utc_partition": "2026-04", "row_count": 114404095, "watermark": 1160243321,
+    "failure_mode": "process hung during ~1.95GB single-file Parquet finalization at ~3.0GB resident memory (machine RAM wall)",
+    "partial_bytes_written_before_hang": 1946257917,
+    "reached_final_path": false, "entered_root_index": false,
+    "hung_process_pid": 14180, "hung_process_was_collector": false,
+    "hung_process_terminated": true, "abandoned_staging_removed": true,
+    "source_touched": false
+  },
+  "mark_prices_legacy_reverification": {
+    "parquet_sha256_prefix": "6f91914400dcbe84", "byte_identical": true, "file_count": 5,
+    "has_authorization_receipt": false, "any_file_modified": false, "activation_era": false
+  },
+  "final_production_state": {
+    "verified_production_partitions": 2, "target_partitions": 3,
+    "partitions": ["mark_prices/ETHUSDT/2026-05 (legacy)", "agg_trades/ETHUSDT/2026-02 (activation)"],
+    "book_ticker_present": false,
+    "catalog_lock_present": false,
+    "active_staging": 0, "abandoned_staging": 0, "unrecognized_staging": 0,
+    "general_unrestricted_activation": "DISABLED", "scheduler": "DISABLED",
+    "purge": "DISABLED", "vacuum": "DISABLED", "source_retention": "REQUIRED"
+  },
+  "cli_commands_added": ["production-plan", "production-archive-authorized", "production-verify",
+                         "production-catalog-rebuild", "production-health"],
+  "cli_forbidden_commands_confirmed_absent": ["activate-production", "archive-all", "archive-range",
+                                              "schedule", "purge", "delete", "vacuum", "compact",
+                                              "stop-collector", "restart-collector"],
+  "source_live_db_immutability": {
+    "authorizer_write_attempts": 0,
+    "canonical_sqlite_sha256_unchanged": "0604b0da93238388451eb23203e1b12806f6e627d4d599168877e1abcb8d57a0",
+    "knowledge_sqlite_sha256_unchanged": "710b3f689db2238f11efa04230600b9ddd06e500807b5fb69c7e797e6053dc65"
+  },
+  "focused_tests": {
+    "test_ami_storage_production_activation.py": 45,
+    "test_ami_storage_production.py": 55,
+    "note": "streaming export/restore + receipt + lock + candidate-selection + concurrency + tamper all fixture-tested"
+  },
+  "paired_regression": {
+    "total_storage_tests_passed": 245,
+    "files": {"policy_registry": 24, "job_state_cli": 24, "partition_planner": 21, "source_access": 14,
+              "archive_verifier": 25, "catalog_reader_restorer": 22, "acceptance": 15,
+              "production": 55, "production_activation": 45},
+    "new_attributable_failures": 0
+  },
+  "root_cause": "114M-row book_ticker partition combines an unavoidable large ORDER BY id sort (index is (symbol, ts_ms)) with a ~2GB single-file Parquet finalization, together exceeding the machine's ~3GB practical RAM ceiling; the single-file/single-pass streaming design does not scale to ~100M+ row partitions on this machine",
+  "recovery_gate": "BATCH-STORAGE-PRODUCTION-ARCHIVE-BOOK-TICKER-RECOVERY-V1 (memory-bounded republication: multi-file partition and/or smaller streaming batch and/or id-ordered scan avoiding the full sort)",
+  "storage_report": {
+    "new_production_bytes": 317354403,
+    "existing_partition_unchanged_bytes": 2479924,
+    "book_ticker_production_bytes": 0,
+    "abandoned_book_ticker_staging_removed": true,
+    "final_staging_empty": true,
+    "disposable_restore_verify_cleaned": true,
+    "drive_free_gb_approx": 1118,
+    "full_database_copy": false,
+    "source_rows_modified_or_deleted": 0
+  },
+  "next_gate": "BATCH-STORAGE-PRODUCTION-ARCHIVE-BOOK-TICKER-RECOVERY-V1",
+  "next_gate_begun": false,
+  "execution_stopped": true
+}

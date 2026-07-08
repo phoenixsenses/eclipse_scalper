@@ -93,6 +93,61 @@ def restore_slice(*, destination_path: str, spec: SourceTableSpec, rows: list[tu
                           scientific_content_hash=restored_hash)
 
 
+def stream_restore_slice(*, destination_path: str, spec: SourceTableSpec, parquet_path: str,
+                          manifest: dict, expected_scientific_hash: str,
+                          batch_size: int = 1_000_000) -> RestoreResult:
+    """RAM-bounded restore for arbitrarily large partitions: streams the
+    Parquet in batches straight into a new minimal SQLite file, computing
+    the ordered scientific-content hash incrementally as it inserts.
+    Raises before touching anything if the destination is not approved.
+    Verifies the manifest hash matches the expected hash up front, and the
+    accumulated insert hash at the end -- no separate full re-read."""
+    import pyarrow.parquet as pq
+
+    _validate_destination(destination_path)
+    if manifest.get("ordered_scientific_content_hash") != expected_scientific_hash:
+        raise RestoreManifestMismatchError("manifest scientific-content hash does not match expected")
+
+    os.makedirs(os.path.dirname(destination_path) or ".", exist_ok=True)
+    conn = sqlite3.connect(destination_path)
+    hasher = hashlib.sha256()
+    total = 0
+    try:
+        col_defs = []
+        for col in spec.preserved_columns:
+            sql_type = spec.source_types[col]
+            nullable = "" if col in spec.nullable_columns else " NOT NULL"
+            pk = " PRIMARY KEY" if col == spec.stable_ordering_field else ""
+            col_defs.append(f"{col} {sql_type}{pk}{nullable}")
+        conn.execute(f"CREATE TABLE {spec.table}_restored ({', '.join(col_defs)})")
+        placeholders = ",".join("?" for _ in spec.preserved_columns)
+        insert_sql = f"INSERT INTO {spec.table}_restored VALUES ({placeholders})"
+        pf = pq.ParquetFile(parquet_path)
+        for batch in pf.iter_batches(batch_size=batch_size):
+            d = batch.to_pydict()
+            cols = [d[c] for c in spec.preserved_columns]
+            n = len(cols[0]) if cols else 0
+            batch_rows = [tuple(cols[j][i] for j in range(len(spec.preserved_columns))) for i in range(n)]
+            conn.executemany(insert_sql, batch_rows)
+            for r in batch_rows:
+                serialized = "\x1f".join(repr(v) for v in r)
+                hasher.update((("" if total == 0 else "\x1e") + serialized).encode())
+                total += 1
+        conn.commit()
+        restored_count = conn.execute(f"SELECT COUNT(*) FROM {spec.table}_restored").fetchone()[0]
+    finally:
+        conn.close()
+
+    restored_hash = hasher.hexdigest()
+    if restored_hash != expected_scientific_hash:
+        raise RestoreManifestMismatchError(
+            f"restored content hash {restored_hash} does not match expected {expected_scientific_hash}")
+    if restored_count != total:
+        raise RestoreManifestMismatchError(f"restored count {restored_count} != streamed {total}")
+    return RestoreResult(destination_path=destination_path, row_count=restored_count,
+                          scientific_content_hash=restored_hash)
+
+
 def cleanup_restored_slice(destination_path: str) -> bool:
     """Deletes only a file this restorer itself created, and only if it
     is beneath an approved temp root (re-validated, not trusted from a
