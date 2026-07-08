@@ -217,3 +217,62 @@ see the accompanying `_STATE_TRANSITION_PROOF.md`).
 wiring `ami/storage/health.py::build_health_report()`'s production-archive/catalog/staging fields
 into the observation model (§8), or adding an elevated (or `smartctl`-based, if the operator
 already trusts and has that tool installed) SSD-temperature source.
+
+## 11. Addendum (2026-07-08, same day) — operator-confirmed primary dashboard is `s34_live_chart.py` (`:5050`)
+
+After this gate's first commit, the operator clarified in-session that `tools/s34_live_chart.py`
+(port 5050, page title "Eclipse S34 Control") — not the FastAPI/React console — is the dashboard
+actually used day to day, and asked for the same Host Health section there, with the exact
+placement (own section vs. folded into "Process health") left to this agent's judgment. The
+FastAPI/React `/api/host/health` route and `ControlTower.tsx` card built in §3 remain in place
+and correct (harmless, unused today), but are no longer the primary consumer of this batch's
+observation/evaluator modules.
+
+**What was added, narrowly, on top of the already-committed `ami/host_health/` package:**
+
+* `host_health_payload()` in `tools/s34_live_chart.py` — same 20s in-process cache pattern as the
+  FastAPI backend's `read_host_health()` (module-level tuple `_HOST_HEALTH_CACHE`, bounded
+  200-sample RAM/commit history lists for the 15-minute sustained-window calculation), wrapping
+  `ami.host_health.observation.collect_host_observation()` +
+  `ami.host_health.observation.build_health_inputs()` +
+  `ami.host_health.evaluator.evaluate_restart_readiness()` — the exact same evaluator, same
+  reason codes, same fail-closed behavior; nothing was reimplemented.
+* A new `"host_health"` key added to `build_payload()`'s returned dict, in both the success path
+  and the exception-fallback path (host health has no dependency on the price-chart DB query, so
+  it stays available even if that query fails).
+* A new **"PC / Host health"** `<div class="panel">` section (own section, chosen over folding
+  into "Process health" — Process health is specifically PID-liveness; Host Health carries
+  ~15 additional independent fields and reads better as its own card) plus a `renderHostHealth()`
+  JS function, called from the existing `refresh()` tick alongside `renderProcesses()`.
+* One dedicated test file, `tests/test_s34_live_chart_host_health.py` (9 tests): payload shape,
+  20s cache hit/expiry, fail-closed behavior when the underlying collector raises, presence of
+  `"host_health"` in `build_payload()`, bounded history length, HTML panel/renderer presence, and
+  a structural guard that the HTML/JS never contains a restart/shutdown token or an
+  `/api/restart`-`/api/shutdown`-shaped endpoint.
+
+**Live verification performed this addendum (not just unit tests):** the operator's actual
+running `:5050` process (PID 12456, up since 2026-07-06) predated this code change and would not
+have picked it up without a restart. With the operator's direction in this session, the process
+was stopped and immediately relaunched with the byte-identical command line
+`start_eclipse.ps1` itself uses for this role (`python -u tools\s34_live_chart.py --host
+127.0.0.1 --port 5050 --no-browser`) — new PID 20684. Verified live, post-restart:
+`GET http://127.0.0.1:5050/api/data` returns `"host_health": {"available": true, "state":
+"HOST_RESTART_YELLOW", ...}`; `GET http://127.0.0.1:5050/` (the HTML page) contains both the
+`"PC / Host health"` panel title and the `renderHostHealth` function; exactly one
+`s34_live_chart.py` process exists afterward (no duplicate, no orphan); no other collector or
+Eclipse process was touched.
+
+**Disclosure required by this gate's own zero-mutation-proof discipline:** this addendum's one
+process action (`Stop-Process` + `Start-Process` on `s34_live_chart.py` alone) is **not** a
+"collector" restart in the sense §"Do not stop or restart collectors" means — `s34_live_chart.py`
+is a read-only HTTP viewer with no write path to any database, log, or collector state; it
+neither ingests nor writes market data. It is nonetheless a real process stop/start, explicitly
+directed by the operator in this session (not automatic, not silent), and is recorded honestly as
+`processes_killed_this_addendum: 1` in the accompanying JSON and proof documents rather than
+rounded down to zero — this repository's governance convention (see prior storage-rotation
+batches) is to disclose exactly what happened, not to force a round number.
+
+Updated verdict scope: `OPERATOR_HOST_HEALTH_RESTART_READINESS_DASHBOARD_V1_COMPLETE` now covers
+**two** working dashboard integration points (FastAPI/React, and the operator-confirmed primary
+`s34_live_chart.py`), 107/107 combined focused tests (98 from the original commit + 9 new),
+still zero collector/database/registry/Windows-configuration mutation.

@@ -293,6 +293,12 @@ HTML = r"""<!doctype html>
       <div class="panel-title"><span>Process health</span><span class="panel-kicker">current PIDs</span></div>
       <div id="proc-body" class="proc-list"></div>
     </div>
+
+    <!-- PC / Host health -->
+    <div class="panel">
+      <div class="panel-title"><span>PC / Host health</span><span class="panel-kicker">restart readiness, read-only</span></div>
+      <div id="host-health-body" style="padding:10px 12px;font-size:11px"></div>
+    </div>
   </div>
 </div>
 
@@ -871,6 +877,43 @@ HTML = r"""<!doctype html>
     document.getElementById("proc-body").innerHTML = rows;
   }
 
+  function hostStateColor(state) {
+    if (state === "HOST_RESTART_RED") return "var(--red)";
+    if (state === "HOST_RESTART_YELLOW") return "var(--gold)";
+    if (state === "HOST_RESTART_GREEN") return "var(--green)";
+    return "var(--muted)";
+  }
+  function renderHostHealth(payload) {
+    const hh = payload.host_health || {};
+    const el = document.getElementById("host-health-body");
+    if (!el) return;
+    if (!hh.available) {
+      el.innerHTML = `<div style="color:var(--muted)">host health unavailable${hh.error ? ": "+esc(hh.error) : ""}</div>`;
+      return;
+    }
+    const obs = hh.observations || {};
+    const stateLabel = String(hh.state||"HOST_RESTART_UNKNOWN").replace("HOST_RESTART_","");
+    const gb = (b) => (b==null ? "-" : (b/(1024**3)).toFixed(2));
+    el.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="color:${hostStateColor(hh.state)};font-weight:800">${esc(stateLabel)}</span>
+        ${hh.deferred ? '<span style="color:var(--gold)">DEFER_UNTIL_SAFE_CHECKPOINT</span>' : ""}
+      </div>
+      <div style="color:var(--muted);margin-bottom:6px">${esc(hh.recommended_action||"-")}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;color:var(--muted)">
+        <span>uptime: ${esc(obs.uptime_human||"-")}</span>
+        <span>pending reboot: ${esc(obs.pending_reboot||"-")}</span>
+        <span>RAM: ${obs.ram_used_pct!=null?obs.ram_used_pct+"%":"-"}</span>
+        <span>commit: ${obs.commit_used_pct!=null?obs.commit_used_pct+"%":"-"}</span>
+        <span>D: free: ${gb(obs.d_drive_free_bytes)} GB</span>
+        <span>dist to ${fmt(hh.d_drive_intervention_free_gb,0)}GB thr: ${obs.d_drive_distance_to_threshold_gb ?? "-"} GB</span>
+        <span>collector: ${esc(obs.collector_status||"-")}</span>
+        <span>SSD temp: ${obs.ssd_temp_c!=null?obs.ssd_temp_c+"°C":"unavailable"}</span>
+      </div>
+      <div style="margin-top:6px;color:var(--muted)">why: ${esc((hh.reasons||[]).join(", "))}</div>
+    `;
+  }
+
   function renderChart(payload) {
     if (!_chartReady) { document.getElementById("no-chart").style.display="flex"; return; }
     const prices = payload.price || [];
@@ -941,6 +984,7 @@ HTML = r"""<!doctype html>
       renderLiq(payload);
       renderOrders(payload);
       renderProcesses(payload);
+      renderHostHealth(payload);
       renderChart(payload);
     } catch(e) {
       document.getElementById("updated").textContent = "error: "+e.message;
@@ -1812,6 +1856,58 @@ def disk_status() -> dict[str, Any]:
         if (ROOT / "data" / "lead_lag_work.db").exists()
         else None,
     }
+
+
+_HOST_HEALTH_CACHE: tuple[float, dict[str, Any]] = (0.0, {})
+_HOST_HEALTH_CACHE_TTL_SEC = 20.0
+_HOST_HEALTH_RAM_HISTORY: list[tuple[float, float]] = []
+_HOST_HEALTH_COMMIT_HISTORY: list[tuple[float, float]] = []
+
+
+def host_health_payload() -> dict[str, Any]:
+    """Read-only PC/host restart-readiness snapshot -- see ami/host_health/.
+    Never restarts, shuts down, or modifies anything. Cached so the 3s
+    client poll doesn't spawn a PowerShell subprocess every tick."""
+    global _HOST_HEALTH_CACHE
+    now = time.monotonic()
+    cached_ts, cached_payload = _HOST_HEALTH_CACHE
+    if now - cached_ts < _HOST_HEALTH_CACHE_TTL_SEC and cached_payload:
+        return cached_payload
+    try:
+        import dataclasses
+
+        from ami.host_health.evaluator import D_DRIVE_INTERVENTION_FREE_GB, SUSTAINED_WINDOW_MINUTES, evaluate_restart_readiness
+        from ami.host_health.observation import build_health_inputs, collect_host_observation, sustained_value
+
+        obs = collect_host_observation(repo_root=ROOT)
+        wall_now = time.time()
+        if obs.ram_used_pct is not None:
+            _HOST_HEALTH_RAM_HISTORY.append((wall_now, obs.ram_used_pct))
+            del _HOST_HEALTH_RAM_HISTORY[:-200]
+        if obs.commit_used_pct is not None:
+            _HOST_HEALTH_COMMIT_HISTORY.append((wall_now, obs.commit_used_pct))
+            del _HOST_HEALTH_COMMIT_HISTORY[:-200]
+        ram_sustained = sustained_value(_HOST_HEALTH_RAM_HISTORY, SUSTAINED_WINDOW_MINUTES, wall_now)
+        commit_sustained = sustained_value(_HOST_HEALTH_COMMIT_HISTORY, SUSTAINED_WINDOW_MINUTES, wall_now)
+        inputs = build_health_inputs(obs, ram_pct_sustained=ram_sustained, commit_pct_sustained=commit_sustained)
+        evaluation = evaluate_restart_readiness(inputs)
+        payload = {
+            "available": True,
+            "state": evaluation.state,
+            "recommended_action": evaluation.recommended_action,
+            "deferred": evaluation.deferred,
+            "primary_reason": evaluation.primary_reason,
+            "reasons": list(evaluation.reason_codes),
+            "unknown_fields": list(dict.fromkeys(list(evaluation.unknown_fields) + list(obs.unknown_fields))),
+            "observation_timestamp": obs.observation_ts_utc,
+            "no_automatic_action": True,
+            "d_drive_intervention_free_gb": D_DRIVE_INTERVENTION_FREE_GB,
+            "observations": dataclasses.asdict(obs),
+        }
+    except Exception as exc:  # noqa: BLE001 - never let host-health break the main chart
+        payload = {"available": False, "state": "HOST_RESTART_UNKNOWN", "error": repr(exc)}
+    _HOST_HEALTH_CACHE = (now, payload)
+    return payload
 
 
 def guardrail_v3_dashboard_payload() -> dict[str, Any]:
@@ -3745,6 +3841,7 @@ def build_payload() -> dict[str, Any]:
                 "bucket_independence": bucket_independence_payload(),
                 "constellation_routes": constellation_routes(trades),
                 "disk": disk_status(),
+                "host_health": host_health_payload(),
                 "preliq_shadow": preliq_shadow_payload(),
                 "similarity": similarity_payload(),
                 "error": "",
@@ -3783,6 +3880,7 @@ def build_payload() -> dict[str, Any]:
             "bucket_independence": bucket_independence_payload(),
             "constellation_routes": [],
             "disk": disk_status(),
+            "host_health": host_health_payload(),
             "preliq_shadow": preliq_shadow_payload(),
             "similarity": {"available": False, "reason": "build error"},
             "error": LAST_ERROR,

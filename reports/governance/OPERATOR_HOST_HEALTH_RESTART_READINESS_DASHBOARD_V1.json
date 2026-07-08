@@ -153,17 +153,47 @@
     "observation_file": "tests/test_ami_host_health_observation.py",
     "observation_passed": 36,
     "observation_total": 36,
-    "combined_passed": 98,
-    "combined_total": 98,
-    "pytest_invocation": "pytest tests/test_ami_host_health_evaluator.py tests/test_ami_host_health_observation.py --basetemp=.runtime_temp/pytest_scratch -p no:cacheprovider"
+    "s34_live_chart_integration_file": "tests/test_s34_live_chart_host_health.py",
+    "s34_live_chart_integration_passed": 9,
+    "s34_live_chart_integration_total": 9,
+    "combined_passed": 107,
+    "combined_total": 107,
+    "pytest_invocation": "pytest tests/test_ami_host_health_evaluator.py tests/test_ami_host_health_observation.py --basetemp=.runtime_temp/pytest_scratch -p no:cacheprovider (2 files); pytest tests/test_s34_live_chart_host_health.py --basetemp=.runtime_temp/pytest_scratch -p no:cacheprovider (1 file, run separately per repo's <=2-files-per-call convention)"
   },
   "residual_risks": [
     "production archive / catalog-index / staging-directory health not wired into this V1 (ami/storage/health.py exists but needs a live jobs list this batch does not construct)",
     "critical-operation-active detection is a command-line keyword heuristic, not a canonical active-batch registry (none exists in the repo)",
     "SSD temperature/SMART requires administrator elevation on this host; correctly UNKNOWN, not fabricated",
     "event-log categorization covers standard OOM/crash/WHEA/disk signatures, not exhaustively every possible one",
-    "frontend card verified via tsc typecheck + direct backend function call, not an actual browser screenshot (no interactive browser session available this batch)"
+    "FastAPI/React card (dashboard/frontend) now unused by the operator day-to-day; left in place (harmless) rather than removed, since it works correctly and removing it would be unrelated scope"
   ],
+  "addendum_2026_07_08_same_day": {
+    "reason": "operator clarified in-session that tools/s34_live_chart.py (:5050, title 'Eclipse S34 Control') is the actual daily-use dashboard, not the FastAPI/React console",
+    "operator_confirmed_primary_dashboard": "tools/s34_live_chart.py",
+    "placement_decision": "own panel section (not folded into existing 'Process health' panel), agent's judgment call per operator's explicit delegation",
+    "new_function": "tools/s34_live_chart.py::host_health_payload() -- same 20s cache pattern, same ami.host_health.evaluator/observation modules, nothing reimplemented",
+    "build_payload_key_added": "host_health (present in both success and exception-fallback branches)",
+    "new_test_file": "tests/test_s34_live_chart_host_health.py",
+    "new_tests_passed": 9,
+    "live_verification": {
+      "old_pid": 12456,
+      "old_pid_start_time": "2026-07-06T13:32:58",
+      "new_pid": 20684,
+      "relaunch_command": "python -u tools\\s34_live_chart.py --host 127.0.0.1 --port 5050 --no-browser",
+      "relaunch_command_source": "byte-identical to start_eclipse.ps1's own s34_live_chart launch args",
+      "verified_api_endpoint": "GET http://127.0.0.1:5050/api/data -> host_health.available=true, host_health.state=HOST_RESTART_YELLOW",
+      "verified_html_page": "GET http://127.0.0.1:5050/ contains 'PC / Host health' panel title and renderHostHealth function",
+      "duplicate_or_orphan_process_after_restart": false,
+      "other_collectors_touched": false
+    },
+    "disclosed_process_action": {
+      "processes_killed_this_addendum": 1,
+      "process_name": "tools/s34_live_chart.py (read-only HTTP chart viewer, not a data collector -- no write path to any DB/log/collector state)",
+      "authorized_by": "operator, explicitly, in this session",
+      "collector_processes_killed_or_restarted": 0,
+      "note": "disclosed honestly per this repo's governance convention rather than rounded to zero; distinct from the 'do not stop or restart collectors' guardrail, which concerns data-ingesting processes"
+    }
+  },
   "next_gate": null,
   "next_gate_begun": false,
   "execution_stopped": true

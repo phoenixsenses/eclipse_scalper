@@ -118,7 +118,7 @@ existing was reformatted or moved).
 | Full database copy created | **confirmed NOT created** |
 | New background service started | **confirmed NOT started** — RAM/commit sustained-window history lives in an in-memory `deque` inside the existing FastAPI backend process, populated only on cache-miss polls of the existing `/api/host/health` route; no new process, thread, or scheduled task was created |
 
-## 8. Verdict
+## 8. Verdict (original commit `58499118`)
 
 **`OPERATOR_HOST_HEALTH_RESTART_READINESS_DASHBOARD_V1_COMPLETE`**
 **Next gate:** none requested; not begun.
@@ -127,3 +127,59 @@ process kill, registry write, Windows Update change, pagefile change, SMART chan
 install, or database mutation occurred at any point in this batch, structurally proven (AST
 guards + string-token guards over the PowerShell script) as well as behaviorally confirmed
 (hash-identical canonical/knowledge databases, zero new processes).
+
+---
+
+## 9. Addendum (2026-07-08, same day) — `s34_live_chart.py` integration + one disclosed process action
+
+All §1–§8 metrics above remain exactly as recorded for the original commit — this addendum's own
+actions are accounted separately, not folded into those zeros, per this repository's disclosure
+convention (report what happened, never round to a cleaner number).
+
+**Code added (all still additive-only, zero database/registry/Windows-config mutation):**
+`tools/s34_live_chart.py` (`host_health_payload()` + one new `build_payload()` key + one new HTML
+panel + one new JS render function) and `tests/test_s34_live_chart_host_health.py` (9 tests). No
+existing function in `s34_live_chart.py` was removed or altered; only new code was inserted.
+
+**One disclosed, operator-authorized process action:**
+
+| Metric | Value |
+|---|---|
+| `s34_live_chart.py` process stopped | 1 (PID 12456, running since 2026-07-06, predated this code change) |
+| `s34_live_chart.py` process restarted | 1 (new PID 20684, identical command line to `start_eclipse.ps1`'s own launch args) |
+| Collector processes stopped or restarted | 0 |
+| Other Eclipse processes touched | 0 |
+| Duplicate/orphan process left behind | 0 (confirmed: exactly one `s34_live_chart.py` process exists post-restart) |
+| Registry writes | 0 |
+| Database mutation | 0 |
+| Authorization | explicit, in-session, from the operator |
+
+`s34_live_chart.py` is a read-only HTTP viewer (serves a static HTML/JS page plus one JSON
+endpoint computed from read-only DB/log queries); it has no write path to any database, log file,
+or collector state, and is not one of the data-ingesting "collector" processes the batch's
+"do not stop or restart collectors" instruction refers to. Restarting it was necessary for the
+running process (started before this code existed) to serve the new code at all, and was done by
+stopping the old PID and immediately relaunching the exact same command `start_eclipse.ps1` uses
+for this role — not a different or improvised command. Live verification: `GET
+http://127.0.0.1:5050/api/data` returns `host_health.available=true,
+state=HOST_RESTART_YELLOW`; the HTML page contains the new panel and renderer; no other process
+was affected.
+
+**FastAPI/React backend and frontend (`:8765`/`:5173`) status:** both were started during this
+session for verification purposes and then explicitly stopped again at the operator's request
+(2 processes killed: the uvicorn backend and the Vite frontend, both started and stopped within
+this same session, net effect zero persistent processes). Neither restarts automatically —
+confirmed by inspecting `start_eclipse.ps1`, which never launches
+`tools/run_dashboard_backend.ps1` or `tools/run_dashboard_frontend.ps1`.
+
+## 10. Verdict (addendum)
+
+**`OPERATOR_HOST_HEALTH_RESTART_READINESS_DASHBOARD_V1_COMPLETE`** — verdict unchanged, scope
+extended to the operator-confirmed primary dashboard (`s34_live_chart.py`, `:5050`). 107/107
+combined focused tests pass (98 original + 9 new). Zero collector, database, registry, SMART,
+pagefile, Windows Update, or scheduled-task mutation at any point, in either the original commit
+or this addendum. The one process action taken is disclosed above, not hidden inside a "0" row.
+**Next gate:** none requested; not begun.
+**Execution stopped:** confirmed — no Windows restart, shutdown, forced reset, collector
+stop/restart, registry write, Windows Update change, pagefile change, SMART change, or package
+install occurred at any point.
