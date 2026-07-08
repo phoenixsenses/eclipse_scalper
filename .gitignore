@@ -21,15 +21,23 @@ eclipse_test_*/
 data/**/*.db
 data/**/*.db-shm
 data/**/*.db-wal
+data/**/*.sqlite
+data/**/*.sqlite-wal
+data/**/*.sqlite-shm
 data/**/*.csv
 data/**/*.parquet
 data/canonical/
 data/backtest_cache/
+data/ami/cvd_rehearsal_disposable_20260705/
 localtests/
 eclipse_scalper/localtests/
 tmp/
 tmp_tests/
+.runtime_temp/
+.pytest_temp/
 runtime/daily_research_pipeline_status.json
+runtime/chrome_user_data_copy/
+runtime/x_unfollow_browser/
 
 # Generated reports / audits
 reports/*_REAL.json
