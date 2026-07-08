@@ -259,12 +259,25 @@ def build_manifest(*, spec: SourceTableSpec, partition: PartitionIdentity, row_c
                     scientific_hash: str, parquet_path: str, parquet_size: int, parquet_sha256: str,
                     source_schema_hash: str, parquet_schema_hash: str, unresolved_gap_count: int,
                     export_cutoff: str, publication_timestamp: str, verification_status: str,
-                    dry_run_identity: str, production_status: str = "DISPOSABLE_NOT_PRODUCTION") -> dict:
+                    dry_run_identity: str, production_status: str = "DISPOSABLE_NOT_PRODUCTION",
+                    shards: list[dict] | None = None) -> dict:
     """`production_status` defaults to DISPOSABLE_NOT_PRODUCTION (the only
     value any disposable caller ever gets); the production-activation
     rehearsal is the sole caller permitted to pass PRODUCTION_VERIFIED,
     and even it can pass nothing else -- `purge_authorization` remains
-    hardcoded PROHIBITED regardless, and is never a parameter."""
+    hardcoded PROHIBITED regardless, and is never a parameter.
+
+    `shards`, if given (by `ami.storage.sharded_archive`'s multi-file
+    publisher), is the per-shard inventory: each entry at least
+    `shard_index`/`shard_file`/`row_count`/`min_id`/`max_id`/`byte_size`/
+    `sha256`. `parquet_path`/`parquet_size`/`parquet_sha256` remain
+    aggregate/whole-partition fields either way -- for a sharded
+    manifest they describe shard 0 by convention only if the caller
+    chooses to pass them that way; `row_count`/`scientific_hash` are
+    always the aggregate (whole logical partition) values regardless of
+    single-file or sharded. Every existing single-file caller is
+    unaffected: omitting `shards` (the default) produces the exact same
+    manifest shape as before this parameter was added."""
     if production_status not in ALLOWED_PRODUCTION_STATUS:
         raise ValueError(f"invalid production_status {production_status!r}")
     ids_present = row_count > 0
@@ -299,6 +312,7 @@ def build_manifest(*, spec: SourceTableSpec, partition: PartitionIdentity, row_c
         "primary_key": spec.primary_key,
         "preserved_columns": list(spec.preserved_columns),
         "nullable_columns": list(spec.nullable_columns),
+        "shards": shards,
     }
 
 

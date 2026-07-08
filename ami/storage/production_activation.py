@@ -26,6 +26,7 @@ import time
 from dataclasses import dataclass, asdict
 
 from ami.storage import production as PR
+from ami.storage import sharded_archive as SHA
 from ami.storage.archive import (build_manifest, build_pyarrow_schema, stream_export_to_parquet,
                                    stream_hash_parquet)
 from ami.storage.partition import PartitionIdentity, build_partition_identity, PartitionValidationError
@@ -591,3 +592,197 @@ def gate_publish_partition(conn, *, root: str, table: str, approver: str, justif
         "selection": {k: plan["selection"][k] for k in ("chosen_symbol", "chosen_year", "chosen_month",
                                                           "chosen_row_count", "symbol_counts", "considered_months")},
     }
+
+
+# ---------------------------------------------------------------------------
+# Sharded publication (BATCH-STORAGE-PRODUCTION-ARCHIVE-BOOK-TICKER-
+# RECOVERY-V1) -- for partitions too large for the single-file design
+# above to finalize within the RAM guardrail (book_ticker/SOLUSDT/
+# 2026-04, 114,404,095 rows, hit a ~3.0GB resident-memory wall; see
+# `ami.storage.sharded_archive` module docstring for the full root-cause
+# and design rationale). Reuses every authorization/locking/atomicity
+# mechanism above unchanged -- the ONLY structural difference is calling
+# the sharded, resumable, RSS-guarded exporter instead of the single-file
+# one, and writing a `shards` inventory into the manifest/catalog entry.
+# Staging is resume-safe: unlike `publish_authorized_production_partition`
+# (which always wipes staging at the start), this only removes `.partial`
+# leftovers and any OTHER partition's stale shards via
+# `SHA.clean_stale_staging` -- a MemoryGuardAbort mid-export leaves
+# already-finalized shards in place for a subsequent call (same
+# `job_identity`, hence same deterministic staging_dir) to resume from.
+# ---------------------------------------------------------------------------
+
+def reverify_authorized_partition_sharded(final_dir: str, partition: PartitionIdentity,
+                                           spec: SourceTableSpec) -> int:
+    """Sharded counterpart to `reverify_authorized_partition`: re-reads
+    and re-hashes every shard listed in the manifest (streaming, RAM-
+    bounded, via `stream_hash_parquet_multi`) instead of one file."""
+    mismatches = 0
+    with open(os.path.join(final_dir, PR.MANIFEST_NAME)) as f:
+        manifest = json.load(f)
+    with open(os.path.join(final_dir, PR.CATALOG_ENTRY_NAME)) as f:
+        entry = json.load(f)
+    receipt_path = os.path.join(final_dir, AUTHORIZATION_RECEIPT_NAME)
+
+    if not os.path.exists(os.path.join(final_dir, PR.SUCCESS_NAME)):
+        mismatches += 1
+    if not os.path.exists(receipt_path):
+        return mismatches + 1
+    with open(receipt_path) as f:
+        receipt = json.load(f)
+    if receipt.get("receipt_sha256") != _receipt_self_hash(receipt):
+        mismatches += 1
+    if entry.get("authorization_receipt_sha256") != PR._sha256_file(receipt_path):
+        mismatches += 1
+    if receipt.get("action") != "CREATE_PRODUCTION_ARCHIVE_ONLY":
+        mismatches += 1
+    for field in ("purge_authorization", "scheduler_authorization", "vacuum_authorization"):
+        if receipt.get(field) != "PROHIBITED":
+            mismatches += 1
+    if manifest.get("partition_id") != partition.partition_id:
+        mismatches += 1
+    if manifest.get("production_status") != "PRODUCTION_VERIFIED":
+        mismatches += 1
+    if manifest.get("purge_authorization") != "PROHIBITED":
+        mismatches += 1
+    if entry.get("purge_authorization") != "PROHIBITED":
+        mismatches += 1
+    if entry.get("source_retention_status") != "SOURCE_PRESENT":
+        mismatches += 1
+
+    shards = manifest.get("shards") or []
+    if not shards:
+        return mismatches + 1
+    shard_paths = []
+    for s in shards:
+        p = os.path.join(final_dir, s["shard_file"])
+        if not os.path.exists(p) or PR._sha256_file(p) != s.get("sha256"):
+            mismatches += 1
+        shard_paths.append(p)
+    reread = SHA.stream_hash_parquet_multi(shard_paths, spec.preserved_columns)
+    if reread["row_count"] != manifest.get("row_count"):
+        mismatches += 1
+    if reread["scientific_content_hash"] != manifest.get("ordered_scientific_content_hash"):
+        mismatches += 1
+    return mismatches
+
+
+def publish_authorized_production_partition_sharded(
+        conn, *, root: str, partition: PartitionIdentity, spec: SourceTableSpec,
+        archive_version: str, receipt: dict, job_identity: str, source_schema_hash: str,
+        export_cutoff: str, max_rows_per_shard: int = 10_000_000,
+        max_output_bytes_per_shard: int = 2 * 1024 ** 3, rss_check=None,
+        rss_limit_bytes: int | None = None, batch_size: int = 1_000_000,
+        rss_check_every_rows: int = 2_000_000) -> ActivationPublicationResult:
+    """Multi-shard counterpart to `publish_authorized_production_partition`.
+    Same receipt-first authorization and same staging -> atomic-directory-
+    rename -> catalog-lock -> reverify -> index-rebuild flow; the export
+    step may raise `SHA.MemoryGuardAbort` (propagates to the caller --
+    nothing is published, the catalog lock is never acquired, staging is
+    left resumable). Retrying with the identical `job_identity` reuses the
+    same deterministic staging directory and resumes from the next
+    unwritten id rather than re-exporting already-finalized shards."""
+    schema = build_pyarrow_schema(spec)
+    archive_schema_hash = hashlib.sha256(str(schema).encode()).hexdigest()
+    verify_authorization_receipt(receipt, partition=partition, archive_version=archive_version,
+                                 root=root, source_schema_hash=source_schema_hash,
+                                 archive_schema_hash=archive_schema_hash)
+
+    final_dir = PR.final_partition_dir(root, partition, archive_version)
+    if os.path.exists(final_dir):
+        raise PR.ProductionPublicationConflict(f"final partition path already exists: {final_dir!r}")
+
+    staging_dir = PR.staging_partition_dir(root, partition, job_identity, archive_version)
+    os.makedirs(staging_dir, exist_ok=True)
+    SHA.clean_stale_staging(staging_dir, partition_id=partition.partition_id)
+
+    # ---- streaming, resumable, multi-shard export (staging, before lock) ----
+    export = SHA.stream_export_to_parquet_sharded(
+        conn, spec, partition, staging_dir, batch_size=batch_size, max_rows_per_shard=max_rows_per_shard,
+        max_output_bytes_per_shard=max_output_bytes_per_shard,
+        rss_check=rss_check, rss_limit_bytes=rss_limit_bytes, rss_check_every_rows=rss_check_every_rows)
+    row_count = export.row_count
+
+    ordered_shards = sorted(export.shards, key=lambda s: s["shard_index"])
+    shard_paths = [os.path.join(staging_dir, s["shard_file"]) for s in ordered_shards]
+    reread = SHA.stream_hash_parquet_multi(shard_paths, spec.preserved_columns)
+    if reread["row_count"] != row_count:
+        raise PR.ProductionPublicationConflict("sharded parquet row-count parity failed")
+    scientific_hash = reread["scientific_content_hash"]
+
+    shard_inventory = []
+    total_bytes = 0
+    for s, path in zip(ordered_shards, shard_paths):
+        total_bytes += s["byte_size"]
+        shard_inventory.append({**s, "sha256": PR._sha256_file(path)})
+
+    rel = PR.partition_relative_dir(partition, archive_version)
+    manifest = build_manifest(
+        spec=spec, partition=partition, row_count=row_count, scientific_hash=scientific_hash,
+        parquet_path=os.path.join(rel, shard_inventory[0]["shard_file"]), parquet_size=total_bytes,
+        parquet_sha256=shard_inventory[0]["sha256"], source_schema_hash=source_schema_hash,
+        parquet_schema_hash=archive_schema_hash, unresolved_gap_count=0, export_cutoff=export_cutoff,
+        publication_timestamp=dt.datetime.now(dt.timezone.utc).isoformat(),
+        verification_status="VERIFIED", dry_run_identity=job_identity,
+        production_status="PRODUCTION_VERIFIED", shards=shard_inventory)
+    manifest["partition_id"] = partition.partition_id
+    manifest_path = os.path.join(staging_dir, PR.MANIFEST_NAME)
+    manifest_sha = PR._write_json_atomic(manifest_path, manifest)
+
+    receipt_path = os.path.join(staging_dir, AUTHORIZATION_RECEIPT_NAME)
+    receipt_sha = PR._write_json_atomic(receipt_path, receipt)
+
+    base_entry = PR.build_catalog_entry(
+        partition=partition, spec=spec, archive_version=archive_version, row_count=row_count,
+        archive_relative_path=rel, manifest_relative_path=os.path.join(rel, PR.MANIFEST_NAME),
+        parquet_relative_path=os.path.join(rel, shard_inventory[0]["shard_file"]),
+        manifest_sha256=manifest_sha, parquet_sha256=shard_inventory[0]["sha256"],
+        scientific_hash=scientific_hash, archive_schema_hash=archive_schema_hash,
+        source_schema_hash=source_schema_hash,
+        publication_timestamp=dt.datetime.now(dt.timezone.utc).isoformat())
+    catalog_entry = build_activation_catalog_entry(
+        base_entry=base_entry, receipt_relative_path=os.path.join(rel, AUTHORIZATION_RECEIPT_NAME),
+        receipt_sha256=receipt_sha, authorization_identity=receipt["authorization_identity"])
+    catalog_entry["shard_count"] = len(shard_inventory)
+    catalog_entry_path = os.path.join(staging_dir, PR.CATALOG_ENTRY_NAME)
+    catalog_entry_sha = PR._write_json_atomic(catalog_entry_path, catalog_entry)
+
+    success_partial = os.path.join(staging_dir, PR.SUCCESS_NAME + ".partial")
+    with open(success_partial, "w") as f:
+        f.write(f"{partition.partition_id}\n")
+    os.replace(success_partial, os.path.join(staging_dir, PR.SUCCESS_NAME))
+
+    # checkpoint sidecars are internal export bookkeeping, not part of the
+    # published contract -- remove before validating/publishing staging
+    for fn in list(os.listdir(staging_dir)):
+        if fn.startswith(SHA.SHARD_CHECKPOINT_PREFIX) and fn.endswith(SHA.SHARD_CHECKPOINT_SUFFIX):
+            os.remove(os.path.join(staging_dir, fn))
+
+    required = [s["shard_file"] for s in shard_inventory] + [
+        PR.MANIFEST_NAME, AUTHORIZATION_RECEIPT_NAME, PR.CATALOG_ENTRY_NAME, PR.SUCCESS_NAME]
+    for req in required:
+        if not os.path.exists(os.path.join(staging_dir, req)):
+            raise PR.ProductionPublicationConflict(f"staging missing {req}")
+    if any(fn.endswith(".partial") for fn in os.listdir(staging_dir)):
+        raise PR.ProductionPublicationConflict("staging still has a .partial file")
+
+    lock = acquire_catalog_lock(root, job_identity=job_identity,
+                                plan_hash_value=receipt["exact_partition_plan_hash"],
+                                intended_partition=partition.partition_id)
+    try:
+        if os.path.exists(final_dir):
+            raise PR.ProductionPublicationConflict(f"final path appeared before publication: {final_dir!r}")
+        os.makedirs(os.path.dirname(final_dir), exist_ok=True)
+        os.rename(staging_dir, final_dir)
+        mismatches = reverify_authorized_partition_sharded(final_dir, partition, spec)
+        if mismatches != 0:
+            raise PR.ProductionPublicationConflict(f"post-publication re-verification found {mismatches} mismatches")
+        rebuild_root_index_locked(root)
+    finally:
+        release_catalog_lock(lock)
+
+    return ActivationPublicationResult(
+        status="PUBLISHED", final_partition_dir=final_dir, row_count=row_count,
+        scientific_hash=scientific_hash, parquet_sha256=shard_inventory[0]["sha256"],
+        manifest_sha256=manifest_sha, catalog_entry_sha256=catalog_entry_sha,
+        receipt_sha256=receipt_sha, reverification_mismatch_count=mismatches)

@@ -43,6 +43,66 @@ def _sha256_file(path: str) -> str:
     return h.hexdigest()
 
 
+def stream_read_partition_shards(*, parquet_paths: list[str], manifest: dict, requested_symbol: str,
+                                  requested_venue: str | None = None,
+                                  requested_market_segment: str | None = None,
+                                  columns: tuple[str, ...] | None = None,
+                                  batch_size: int = 1_000_000):
+    """Multi-shard direct reader for partitions too large to materialize
+    in memory (`read_partition` below reads one whole file into a Python
+    list -- fine for the sizes it was designed for, but not for a
+    114M-row partition). Validates the manifest and EVERY shard's
+    checksum up front (fails closed before yielding anything, matching
+    `read_partition`'s all-or-nothing manifest-first discipline), then
+    is a generator: yields one row tuple at a time, streamed via
+    `ParquetFile.iter_batches` one shard at a time, in the given shard
+    order -- never holds more than one batch of one shard in memory,
+    never concatenates shards into one structure.
+
+    `manifest["shards"]` must be the per-shard inventory (each with at
+    least `shard_file` and `sha256`) written by the sharded publisher;
+    `parquet_paths` must be given in the same order as that inventory."""
+    import pyarrow.parquet as pq
+
+    if not manifest:
+        raise ManifestRequiredError("no manifest supplied")
+    if manifest.get("symbol") != requested_symbol:
+        raise PartitionMismatchError(
+            f"requested symbol {requested_symbol!r} != manifest symbol {manifest.get('symbol')!r}")
+    if requested_venue is not None and manifest.get("venue") != requested_venue:
+        raise PartitionMismatchError("venue mismatch")
+    if requested_market_segment is not None and manifest.get("market_segment") != requested_market_segment:
+        raise PartitionMismatchError("market_segment mismatch")
+
+    shards = manifest.get("shards") or []
+    if len(shards) != len(parquet_paths):
+        raise PartitionMismatchError(
+            f"manifest lists {len(shards)} shards but {len(parquet_paths)} paths were supplied")
+    for shard_entry, path in zip(shards, parquet_paths):
+        try:
+            actual = _sha256_file(path)
+        except OSError as exc:
+            raise ArchiveCorruptionError(f"cannot read {path!r}: {exc}") from exc
+        expected = shard_entry.get("sha256") or shard_entry.get("parquet_sha256")
+        if actual != expected:
+            raise ArchiveCorruptionError(f"shard checksum mismatch for {path!r}: file={actual} manifest={expected}")
+
+    def _rows():
+        for path in parquet_paths:
+            try:
+                pf = pq.ParquetFile(path)
+            except Exception as exc:
+                raise ArchiveCorruptionError(f"parquet unreadable: {exc}") from exc
+            for batch in pf.iter_batches(batch_size=batch_size, columns=list(columns) if columns else None):
+                d = batch.to_pydict()
+                cols = list(d.keys())
+                n = len(d[cols[0]]) if cols else 0
+                for i in range(n):
+                    yield tuple(d[c][i] for c in cols)
+
+    return _rows()
+
+
 def read_partition(*, parquet_path: str, manifest: dict, requested_symbol: str,
                     requested_venue: str | None = None, requested_market_segment: str | None = None,
                     columns: tuple[str, ...] | None = None) -> ReadResult:
