@@ -1,0 +1,94 @@
+{
+  "invariant": "entry_decision_ts_ms >= feature_available_ts_ms",
+  "family_summary": {
+    "family_id": "FAM_ETH_BUY_LIQ_CONTINUATION",
+    "family_disposition": "REJECT_ENTRY_PREDICATE_LOOKAHEAD",
+    "promotion_disposition": "REJECT_SPURIOUS_OR_DATA_PATH_SUSPECT",
+    "reason": [
+      "event_ts_ms == cluster_start_ts_ms for all universe events",
+      "predicate uses completed-cluster aggregate(s) (cluster_notional, cluster_liq_count) not available until cluster_end_ts_ms, or running-threshold facts not available until threshold_cross_ts_ms",
+      "honest threshold-cross control loses the edge (DISPOSABLE_ALPHA_CANDIDATE_PROMOTION_REHEARSAL_V1: mark median ~-8bps vs lookahead-entry ~+33bps)"
+    ],
+    "canonical_alpha_gate_eligible": false,
+    "permitted_future_work": [
+      "new preregistered mechanism claim using feature_available_ts_ms / threshold_cross_ts_ms as the entry anchor (see tools/research_s34_knowable_anchor_continuation.py for the repo's established knowable-anchor pattern)"
+    ],
+    "banned_future_work": [
+      "reuse of cluster_start (delay0) entry combined with a completed-cluster predicate for this or any structurally identical family"
+    ]
+  },
+  "candidate_records": [
+    {
+      "family_id": "FAM_ETH_BUY_LIQ_CONTINUATION",
+      "candidate_id": "CAND_ETH_BUY_CONT_500K_DAYTREND_D0_TP40_SL50_BE20",
+      "predicate_features": [
+        "cluster_notional",
+        "day_trend_bps"
+      ],
+      "event_ts_ms": 1780000000000,
+      "entry_decision_ts_ms": 1780000000000,
+      "feature_available_ts_ms": null,
+      "feature_available_rule": "cluster_start_entry",
+      "disposition": "REJECT_ENTRY_PREDICATE_LOOKAHEAD",
+      "reason": "rule 8: event_ts_ms == cluster_start_ts_ms but predicate uses completed-cluster aggregate(s) ['cluster_notional'], which finalize only at cluster_end_ts_ms"
+    },
+    {
+      "family_id": "FAM_ETH_BUY_LIQ_CONTINUATION",
+      "candidate_id": "CAND_ETH_BUY_CONT_1M_DAYTREND_D0_TP40_SL50_BE20",
+      "predicate_features": [
+        "cluster_notional",
+        "day_trend_bps"
+      ],
+      "event_ts_ms": 1780000000000,
+      "entry_decision_ts_ms": 1780000000000,
+      "feature_available_ts_ms": null,
+      "feature_available_rule": "cluster_start_entry",
+      "disposition": "REJECT_ENTRY_PREDICATE_LOOKAHEAD",
+      "reason": "rule 8: event_ts_ms == cluster_start_ts_ms but predicate uses completed-cluster aggregate(s) ['cluster_notional'], which finalize only at cluster_end_ts_ms"
+    },
+    {
+      "family_id": "FAM_ETH_BUY_LIQ_CONTINUATION",
+      "candidate_id": "CAND_ETH_BUY_CONT_500K_GEOM_COUNT22_D0_TP40_SL50_BE20",
+      "predicate_features": [
+        "cluster_notional",
+        "cluster_liq_count"
+      ],
+      "event_ts_ms": 1780000000000,
+      "entry_decision_ts_ms": 1780000000000,
+      "feature_available_ts_ms": null,
+      "feature_available_rule": "cluster_start_entry",
+      "disposition": "REJECT_ENTRY_PREDICATE_LOOKAHEAD",
+      "reason": "rule 8: event_ts_ms == cluster_start_ts_ms but predicate uses completed-cluster aggregate(s) ['cluster_liq_count', 'cluster_notional'], which finalize only at cluster_end_ts_ms"
+    },
+    {
+      "family_id": "FAM_ETH_BUY_LIQ_CONTINUATION",
+      "candidate_id": "CAND_ETH_BUY_CONT_500K_CASCADE_P15_109K_D0_TP40_SL50_BE20",
+      "predicate_features": [
+        "cluster_notional",
+        "prior15_buy_liq_notional"
+      ],
+      "event_ts_ms": 1780000000000,
+      "entry_decision_ts_ms": 1780000000000,
+      "feature_available_ts_ms": null,
+      "feature_available_rule": "cluster_start_entry",
+      "disposition": "REJECT_ENTRY_PREDICATE_LOOKAHEAD",
+      "reason": "rule 8: event_ts_ms == cluster_start_ts_ms but predicate uses completed-cluster aggregate(s) ['cluster_notional'], which finalize only at cluster_end_ts_ms"
+    },
+    {
+      "family_id": "FAM_ETH_BUY_LIQ_CONTINUATION",
+      "candidate_id": "CAND_ETH_BUY_CONT_500K_DAYTREND_GEOM_CASCADE_D0_TP40_SL50_BE20",
+      "predicate_features": [
+        "cluster_notional",
+        "day_trend_bps",
+        "cluster_liq_count",
+        "prior15_buy_liq_notional"
+      ],
+      "event_ts_ms": 1780000000000,
+      "entry_decision_ts_ms": 1780000000000,
+      "feature_available_ts_ms": null,
+      "feature_available_rule": "cluster_start_entry",
+      "disposition": "REJECT_ENTRY_PREDICATE_LOOKAHEAD",
+      "reason": "rule 8: event_ts_ms == cluster_start_ts_ms but predicate uses completed-cluster aggregate(s) ['cluster_liq_count', 'cluster_notional'], which finalize only at cluster_end_ts_ms"
+    }
+  ]
+}
