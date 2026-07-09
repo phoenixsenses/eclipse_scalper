@@ -99,6 +99,86 @@ def test_stream_read_shards_column_projection(tmp_path):
     assert rows == [(1,)]
 
 
+def test_stream_read_shards_accepts_legacy_single_file_manifest_with_no_shards_key(tmp_path):
+    """Real production `mark_prices`/`agg_trades` manifests are legacy
+    single-file (never sharded) and have `shards: null` -- not an empty
+    list, not a one-entry list. Reproduces the bug found against the
+    real archive during BATCH-STORAGE-ROTATION-RETENTION-RESEARCH-READER-
+    INTEGRATION-V1: `manifest.get("shards") or []` correctly normalizes
+    `None` to `[]`, but the old code then unconditionally compared shard
+    count to path count (0 != 1) and always raised. Must instead fall
+    back to whole-file `parquet_sha256` validation, exactly like
+    `read_partition`."""
+    p = str(tmp_path / "part-00000.parquet")
+    _write_parquet(p, [(1, "ETHUSDT"), (2, "ETHUSDT")])
+    manifest = {"symbol": "ETHUSDT", "shards": None, "parquet_sha256": _sha(p)}
+    rows = list(RD.stream_read_partition_shards(parquet_paths=[p], manifest=manifest, requested_symbol="ETHUSDT"))
+    assert rows == [(1, "ETHUSDT"), (2, "ETHUSDT")]
+
+
+def test_stream_read_shards_legacy_single_file_manifest_rejects_checksum_mismatch(tmp_path):
+    p = str(tmp_path / "part-00000.parquet")
+    _write_parquet(p, [(1, "ETHUSDT")])
+    manifest = {"symbol": "ETHUSDT", "shards": None, "parquet_sha256": "WRONG"}
+    with pytest.raises(RD.ArchiveCorruptionError):
+        list(RD.stream_read_partition_shards(parquet_paths=[p], manifest=manifest, requested_symbol="ETHUSDT"))
+
+
+def test_stream_read_shards_legacy_single_file_manifest_rejects_extra_paths(tmp_path):
+    p0 = str(tmp_path / "part-00000.parquet")
+    p1 = str(tmp_path / "part-00001.parquet")
+    _write_parquet(p0, [(1, "ETHUSDT")])
+    _write_parquet(p1, [(2, "ETHUSDT")])
+    manifest = {"symbol": "ETHUSDT", "shards": None, "parquet_sha256": _sha(p0)}
+    with pytest.raises(RD.PartitionMismatchError):
+        list(RD.stream_read_partition_shards(parquet_paths=[p0, p1], manifest=manifest, requested_symbol="ETHUSDT"))
+
+
+def test_select_overlapping_row_groups_skips_out_of_range_groups(tmp_path):
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    p = str(tmp_path / "multi_rg.parquet")
+    schema = pa.schema([pa.field("id", pa.int64()), pa.field("ts_ms", pa.int64())])
+    with pq.ParquetWriter(p, schema) as writer:
+        for base in (0, 1000, 2000):
+            table = pa.Table.from_arrays(
+                [pa.array([base, base + 1], type=pa.int64()), pa.array([base, base + 1], type=pa.int64())],
+                schema=schema)
+            writer.write_table(table)
+    # 3 row groups: ts [0,1], [1000,1001], [2000,2001].
+    assert RD.select_overlapping_row_groups(p, 1000, 1002) == [1]
+    assert RD.select_overlapping_row_groups(p, 0, 2002) == [0, 1, 2]
+    assert RD.select_overlapping_row_groups(p, 1500, 1600) == []
+    assert RD.select_overlapping_row_groups(p, 999, 1001) == [1]
+
+
+def test_select_overlapping_row_groups_returns_none_when_no_ts_ms_column(tmp_path):
+    p = str(tmp_path / "no_ts.parquet")
+    _write_parquet(p, [(1, "ETHUSDT")])
+    assert RD.select_overlapping_row_groups(p, 0, 100) is None
+
+
+def test_stream_read_shards_row_groups_by_path_restricts_rows_read():
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        p = os.path.join(d, "multi_rg.parquet")
+        schema = pa.schema([pa.field("id", pa.int64()), pa.field("ts_ms", pa.int64())])
+        with pq.ParquetWriter(p, schema) as writer:
+            for base in (0, 1000):
+                table = pa.Table.from_arrays(
+                    [pa.array([base], type=pa.int64()), pa.array([base], type=pa.int64())], schema=schema)
+                writer.write_table(table)
+        manifest = {"symbol": "ETHUSDT", "shards": None, "parquet_sha256": _sha(p)}
+        rows = list(RD.stream_read_partition_shards(
+            parquet_paths=[p], manifest=manifest, requested_symbol="ETHUSDT",
+            row_groups_by_path={p: [1]}))
+        assert rows == [(1000, 1000)]
+
+
 def test_stream_read_shards_fails_closed_before_yielding_on_bad_second_shard(tmp_path):
     """Manifest-first discipline: if any shard's checksum is wrong, the
     generator must raise on iteration start (or at latest before any

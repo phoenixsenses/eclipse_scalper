@@ -43,11 +43,38 @@ def _sha256_file(path: str) -> str:
     return h.hexdigest()
 
 
+def select_overlapping_row_groups(path: str, start_ms: int, end_ms: int) -> list[int] | None:
+    """Returns the indices of `path`'s Parquet row groups whose `ts_ms`
+    [min, max] column statistics overlap [start_ms, end_ms) -- lets a
+    caller skip decoding row groups that provably cannot contain any row
+    in the requested range, without a `filters=` param (not supported by
+    `ParquetFile.iter_batches` in the pyarrow version this project
+    targets). Returns None (meaning "read every row group, can't safely
+    skip") if the file has no `ts_ms` column or any row group is missing
+    statistics -- always a safe superset, never a false negative."""
+    import pyarrow.parquet as pq
+
+    pf = pq.ParquetFile(path)
+    names = pf.schema_arrow.names
+    if "ts_ms" not in names:
+        return None
+    ts_idx = names.index("ts_ms")
+    keep = []
+    for i in range(pf.metadata.num_row_groups):
+        stats = pf.metadata.row_group(i).column(ts_idx).statistics
+        if stats is None or stats.min is None or stats.max is None:
+            return None
+        if stats.max >= start_ms and stats.min < end_ms:
+            keep.append(i)
+    return keep
+
+
 def stream_read_partition_shards(*, parquet_paths: list[str], manifest: dict, requested_symbol: str,
                                   requested_venue: str | None = None,
                                   requested_market_segment: str | None = None,
                                   columns: tuple[str, ...] | None = None,
-                                  batch_size: int = 1_000_000):
+                                  batch_size: int = 1_000_000,
+                                  row_groups_by_path: dict[str, list[int]] | None = None):
     """Multi-shard direct reader for partitions too large to materialize
     in memory (`read_partition` below reads one whole file into a Python
     list -- fine for the sizes it was designed for, but not for a
@@ -75,17 +102,36 @@ def stream_read_partition_shards(*, parquet_paths: list[str], manifest: dict, re
         raise PartitionMismatchError("market_segment mismatch")
 
     shards = manifest.get("shards") or []
-    if len(shards) != len(parquet_paths):
-        raise PartitionMismatchError(
-            f"manifest lists {len(shards)} shards but {len(parquet_paths)} paths were supplied")
-    for shard_entry, path in zip(shards, parquet_paths):
+    if not shards:
+        # Legacy single-file (pre-sharded) manifest: exactly one path,
+        # checked against the whole-file `parquet_sha256` the same way
+        # `read_partition` does -- there is no per-shard inventory to
+        # compare lengths against.
+        if len(parquet_paths) != 1:
+            raise PartitionMismatchError(
+                f"manifest has no shard inventory but {len(parquet_paths)} paths were supplied "
+                f"(expected exactly 1 for a legacy single-file partition)")
+        path = parquet_paths[0]
         try:
             actual = _sha256_file(path)
         except OSError as exc:
             raise ArchiveCorruptionError(f"cannot read {path!r}: {exc}") from exc
-        expected = shard_entry.get("sha256") or shard_entry.get("parquet_sha256")
+        expected = manifest.get("parquet_sha256")
         if actual != expected:
-            raise ArchiveCorruptionError(f"shard checksum mismatch for {path!r}: file={actual} manifest={expected}")
+            raise ArchiveCorruptionError(f"checksum mismatch for {path!r}: file={actual} manifest={expected}")
+    elif len(shards) != len(parquet_paths):
+        raise PartitionMismatchError(
+            f"manifest lists {len(shards)} shards but {len(parquet_paths)} paths were supplied")
+    else:
+        for shard_entry, path in zip(shards, parquet_paths):
+            try:
+                actual = _sha256_file(path)
+            except OSError as exc:
+                raise ArchiveCorruptionError(f"cannot read {path!r}: {exc}") from exc
+            expected = shard_entry.get("sha256") or shard_entry.get("parquet_sha256")
+            if actual != expected:
+                raise ArchiveCorruptionError(
+                    f"shard checksum mismatch for {path!r}: file={actual} manifest={expected}")
 
     def _rows():
         for path in parquet_paths:
@@ -93,7 +139,9 @@ def stream_read_partition_shards(*, parquet_paths: list[str], manifest: dict, re
                 pf = pq.ParquetFile(path)
             except Exception as exc:
                 raise ArchiveCorruptionError(f"parquet unreadable: {exc}") from exc
-            for batch in pf.iter_batches(batch_size=batch_size, columns=list(columns) if columns else None):
+            row_groups = row_groups_by_path.get(path) if row_groups_by_path else None
+            for batch in pf.iter_batches(batch_size=batch_size, columns=list(columns) if columns else None,
+                                          row_groups=row_groups):
                 d = batch.to_pydict()
                 cols = list(d.keys())
                 n = len(d[cols[0]]) if cols else 0

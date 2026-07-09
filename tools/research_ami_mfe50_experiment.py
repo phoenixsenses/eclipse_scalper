@@ -33,6 +33,8 @@ from ami.enums import ClaimType, EvidenceLevel, FailureType, KnowledgeStatus, Pe
 from ami.knowledge.objects import KnowledgeObject, Provenance
 from ami.knowledge.store import KnowledgeStore
 from ami.research.registry import EvidenceBundle, ExperimentSpec, ResearchRegistry, assert_no_overlap
+from ami.storage import production as PR
+from ami.storage import research_reader as RR
 
 DB = ROOT / "data" / "microstructure.db"
 OUT = ROOT / "reports" / "research" / "s34"
@@ -47,15 +49,43 @@ def _s(c, q, p=()):
     r = c.execute(q, p).fetchone(); return float(r[0]) if r and r[0] is not None else 0.0
 
 
-def feats_at_hit(conn, m, entry_ts: int, hit_min: int) -> dict:
+def window_agg_trades_notional(root: str, symbol: str, start_ms: int, end_ms: int) -> tuple[float, float]:
+    """Buy-side and total notional over [start_ms, end_ms) for `symbol`,
+    via the unified research reader (transparently archive/SQLite/hybrid)
+    instead of an ad-hoc direct-SQL SUM(CASE...). Migration pilot for
+    BATCH-STORAGE-ROTATION-RETENTION-RESEARCH-READER-INTEGRATION-V1 --
+    parity with the old direct-SQL query proven in
+    tests/test_research_ami_mfe50_experiment_reader_migration_parity.py."""
+    plan = RR.plan_read(root, table="agg_trades", symbol=symbol, start_ms=start_ms, end_ms=end_ms)
+    result = RR.execute_read(plan, columns=("notional", "is_buyer_maker"))
+    buy = tot = 0.0
+    for notional, is_buyer_maker in result.iter_rows():
+        tot += notional
+        if is_buyer_maker == 0:
+            buy += notional
+    return buy, tot
+
+
+def window_avg_book_ticker_bid_qty(root: str, symbol: str, start_ms: int, end_ms: int) -> float | None:
+    """AVG(bid_qty) over [start_ms, end_ms) for `symbol`, via the unified
+    research reader instead of an ad-hoc direct-SQL AVG(...). Same
+    migration pilot as `window_agg_trades_notional` above."""
+    plan = RR.plan_read(root, table="book_ticker", symbol=symbol, start_ms=start_ms, end_ms=end_ms)
+    result = RR.execute_read(plan, columns=("bid_qty",))
+    total = 0.0; n = 0
+    for (bid_qty,) in result.iter_rows():
+        total += bid_qty; n += 1
+    return (total / n) if n else None
+
+
+def feats_at_hit(conn, root, m, entry_ts: int, hit_min: int) -> dict:
     ts = entry_ts + hit_min * 60_000
     a = m.at_or_before(ts - 600_000); b = m.at_or_before(ts)
     def mret(sym, lb):
         x = conn.execute("SELECT mark_price FROM mark_prices WHERE symbol=? AND ts_ms<=? ORDER BY ts_ms DESC LIMIT 1", (sym, ts - lb)).fetchone()
         y = conn.execute("SELECT mark_price FROM mark_prices WHERE symbol=? AND ts_ms<=? ORDER BY ts_ms DESC LIMIT 1", (sym, ts)).fetchone()
         return (float(y[0]) - float(x[0])) / float(x[0]) * 1e4 if x and y and float(x[0]) > 0 else None
-    o = conn.execute("SELECT SUM(CASE WHEN is_buyer_maker=0 THEN notional ELSE 0 END), SUM(notional) FROM agg_trades WHERE symbol='ETHUSDT' AND ts_ms>=? AND ts_ms<?", (ts - 600_000, ts)).fetchone()
-    buy = float(o[0] or 0); tot = float(o[1] or 0)
+    buy, tot = window_agg_trades_notional(root, "ETHUSDT", ts - 600_000, ts)
     ofi = (2 * buy - tot) / tot if tot > 0 else None
     taker_sell = (tot - buy) / tot if tot > 0 else None
     liq_cont = _s(conn, "SELECT COALESCE(SUM(notional),0) FROM liquidations WHERE symbol='ETHUSDT' AND side='SELL' AND ts_ms>=? AND ts_ms<?", (entry_ts + 60_000, ts))
@@ -69,9 +99,9 @@ def feats_at_hit(conn, m, entry_ts: int, hit_min: int) -> dict:
     bt = conn.execute("SELECT bid_qty, spread_pct, ts_ms FROM book_ticker WHERE symbol='ETHUSDT' AND ts_ms<=? ORDER BY ts_ms DESC LIMIT 1", (ts,)).fetchone()
     bid_ratio = spread = None
     if bt and (ts - int(bt[2])) <= 5 * 60_000:
-        pre = conn.execute("SELECT AVG(bid_qty) FROM book_ticker WHERE symbol='ETHUSDT' AND ts_ms>=? AND ts_ms<?", (entry_ts - 600_000, entry_ts)).fetchone()
-        if pre and pre[0]:
-            bid_ratio = float(bt[0]) / float(pre[0])
+        pre_avg = window_avg_book_ticker_bid_qty(root, "ETHUSDT", entry_ts - 600_000, entry_ts)
+        if pre_avg:
+            bid_ratio = float(bt[0]) / pre_avg
         spread = float(bt[1]) if bt[1] is not None else None
     return {"btc10m": mret("BTCUSDT", 600_000), "ofi10m": ofi, "taker_sell10m": taker_sell,
             "liq_cont": liq_cont, "rv_hit": rv, "ret1h_hit": mret("ETHUSDT", 3600_000),
@@ -157,6 +187,7 @@ def main():
     # -- 2) evren + milestone --
     conn = sqlite3.connect(f"file:{DB}?mode=ro", uri=True)
     conn.execute("PRAGMA cache_size=-200000")
+    root, _root_source = PR.resolve_production_root()
     now = int(datetime.now(tz=timezone.utc).timestamp() * 1000); start = now - LB
     m = load_mark_index(conn, "ETHUSDT")
     u200 = build_universe(conn, m, now, start, 200_000.0, 2)
@@ -171,7 +202,7 @@ def main():
             continue
         rest = path[hit:H6 + 1]; final = path[min(H6, len(path) - 1)]
         label = "continuation" if max(rest) >= 100.0 else ("negative" if final < -5.0 else "stall")
-        f = feats_at_hit(conn, m, e["ts"], hit)
+        f = feats_at_hit(conn, root, m, e["ts"], hit)
         ms_evs.append({**e, "hit_min": hit, "label": label, "f": f})
     print(f"  admitted={len(adm)}  milestone(+50)={len(ms_evs)}  days={days:.0f}")
     labels = {L: sum(1 for e in ms_evs if e["label"] == L) for L in ("continuation", "negative", "stall")}
