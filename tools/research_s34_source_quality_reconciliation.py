@@ -31,6 +31,9 @@ from ami.geometry import birth_truncated_cascade_geometry as geo
 from ami.geometry import birth_truncated_geometry_rehearsal as rehearsal
 from tools.research_s34_knowable_anchor_continuation import reconstruct_anchors
 
+from ami.storage import production as PR
+from ami.storage import research_reader as RR
+
 CANON = r"D:\eclipse_scalper\data\ami\canonical.sqlite"
 MICRO = r"D:\eclipse_scalper\data\microstructure.db"
 OUT_SUBDIR = "s34_source_quality_reconciliation"
@@ -65,6 +68,10 @@ def method_b(ws, we, birth):
 
 # per-window collector-health evidence (STANDARD-2 inputs)
 def window_health(ws, birth):
+    """Direct-SQL oracle -- kept unchanged as the parity reference for
+    `window_health_v2` (BATCH-STORAGE-ROTATION-RETENTION-RANGE-READ-CONSUMER-
+    MIGRATION-SOURCE-QUALITY-V1). No longer called by main(); the reader-
+    backed path is used instead. Reads the module-level `conn_m`."""
     rows = conn_m.execute(
         "SELECT ts_ms FROM mark_prices WHERE symbol='ETHUSDT' AND ts_ms >= ? AND ts_ms <= ? ORDER BY ts_ms",
         (ws - 15_000, birth + 15_000)).fetchall()
@@ -78,6 +85,42 @@ def window_health(ws, birth):
     at_n = conn_m.execute(
         "SELECT COUNT(*) FROM agg_trades WHERE symbol='ETHUSDT' AND ts_ms >= ? AND ts_ms <= ?",
         (ws, birth)).fetchone()[0]
+    return {"mark_rows_n": len(inside), "mark_max_gap_ms": max_gap_ms,
+            "mark_lead_ok": lead_ok, "mark_trail_ok": trail_ok, "agg_rows_n": at_n}
+
+
+def window_health_v2(root, ws, birth, source_db_path=None):
+    """Reader-backed replacement for `window_health`, via `plan_read`/
+    `execute_read`. Symbol is hardcoded 'ETHUSDT' in both range reads (as
+    in the oracle SQL); both allowlisted tables have real archive
+    partitions (mark_prices/ETHUSDT/2026-05, agg_trades/ETHUSDT/2026-02),
+    so each read resolves ARCHIVE_ONLY / SQLITE_ONLY / HYBRID transparently
+    for whatever month the window lands in.
+
+    Range semantics: the oracle's SQL uses INCLUSIVE upper bounds
+    (`ts_ms<=?`); the reader uses half-open `[start, end)`, so `end_ms+1`
+    is passed on each read -- exact for integer ts_ms. The mark read's
+    canonical `(ts_ms ASC, id ASC)` order is a refinement of the oracle's
+    `ORDER BY ts_ms`, yielding an identical ts_ms sequence (ties are equal
+    values); the derived `inside`, `max_gap_ms`, `lead_ok`, `trail_ok` are
+    therefore identical. The agg COUNT(*) is reproduced by counting the
+    streamed rows; an empty window yields 0, matching SQL COUNT over no
+    rows. The Python-side collector-health computation is byte-for-byte the
+    oracle's."""
+    mark_plan = RR.plan_read(root, table="mark_prices", symbol="ETHUSDT",
+                             start_ms=int(ws) - 15_000, end_ms=int(birth) + 15_000 + 1)
+    mark_result = RR.execute_read(mark_plan, columns=("ts_ms",), source_db_path=source_db_path)
+    ts = [t for (t,) in mark_result.iter_rows()]
+    inside = [t for t in ts if ws <= t <= birth]
+    # max internal inter-arrival gap across the window, including edges
+    seq = [ws] + inside + [birth]
+    max_gap_ms = max(b - a for a, b in zip(seq, seq[1:])) if len(seq) > 1 else None
+    lead_ok = any(ws - 15_000 <= t <= ws for t in ts)
+    trail_ok = any(birth <= t <= birth + 15_000 for t in ts)
+    agg_plan = RR.plan_read(root, table="agg_trades", symbol="ETHUSDT",
+                            start_ms=int(ws), end_ms=int(birth) + 1)
+    agg_result = RR.execute_read(agg_plan, columns=("ts_ms",), source_db_path=source_db_path)
+    at_n = sum(1 for _ in agg_result.iter_rows())
     return {"mark_rows_n": len(inside), "mark_max_gap_ms": max_gap_ms,
             "mark_lead_ok": lead_ok, "mark_trail_ok": trail_ok, "agg_rows_n": at_n}
 
@@ -137,6 +180,10 @@ def main(argv=None):
     conn_c.close()
     assert len(signals) == 220, len(signals)
 
+    # `conn_m` stays for the still-direct out-of-allowlist reads (gaps,
+    # liquidations); only window_health's allowlisted mark_prices/agg_trades
+    # range reads moved to the reader (via `root`/MICRO source_db_path).
+    root, _ = PR.resolve_production_root()
     conn_m = sqlite3.connect(f"file:{MICRO}?mode=ro", uri=True)
     all_sell_liqs = rehearsal.fetch_all_sell_liqs(conn_m)
     gap_rows = conn_m.execute(
@@ -177,7 +224,7 @@ def main(argv=None):
     for s in signals:
         ws, we = windows[s["signal_id"]]
         birth = int(s["signal_birth_ts"])
-        h = window_health(ws, birth)
+        h = window_health_v2(root, ws, birth, source_db_path=MICRO)
         a = method_a(ws, we, birth)
         b = method_b(ws, we, birth)
         s2 = standard2(ws, we, birth, h)
