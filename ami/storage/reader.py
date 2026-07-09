@@ -69,6 +69,38 @@ def select_overlapping_row_groups(path: str, start_ms: int, end_ms: int) -> list
     return keep
 
 
+def select_last_row_group_at_or_before(path: str, ts_ms: int) -> int | None:
+    """Returns the index of the LAST (highest-index) Parquet row group in
+    `path` whose `ts_ms` minimum statistic is `<= ts_ms` -- i.e. the one
+    row group that could contain the latest row at-or-before `ts_ms`,
+    for the point-lookup helper (`ami.storage.research_reader.
+    lookup_latest_at_or_before`). Row groups are written in ascending
+    `ts_ms` order (canonical ordering), so the highest-index row group
+    with min <= ts_ms is guaranteed to contain at least one qualifying
+    row (its own first row) and no later row group can. Returns None if
+    even the first row group's minimum exceeds `ts_ms` (nothing in this
+    file qualifies) or the file has no `ts_ms` column / row-group
+    statistics -- caller must fall back to an earlier shard/partition or
+    treat the lookup as unanswerable from this file, never guess."""
+    import pyarrow.parquet as pq
+
+    pf = pq.ParquetFile(path)
+    names = pf.schema_arrow.names
+    if "ts_ms" not in names:
+        return None
+    ts_idx = names.index("ts_ms")
+    best = None
+    for i in range(pf.metadata.num_row_groups):
+        stats = pf.metadata.row_group(i).column(ts_idx).statistics
+        if stats is None or stats.min is None:
+            return None
+        if stats.min <= ts_ms:
+            best = i
+        else:
+            break  # row groups are ts-ascending; no later group can qualify either
+    return best
+
+
 def stream_read_partition_shards(*, parquet_paths: list[str], manifest: dict, requested_symbol: str,
                                   requested_venue: str | None = None,
                                   requested_market_segment: str | None = None,

@@ -53,7 +53,8 @@ from pathlib import Path
 
 from ami.storage import production as PR
 from ami.storage import source_access as SRC
-from ami.storage.reader import ArchiveCorruptionError, select_overlapping_row_groups, stream_read_partition_shards
+from ami.storage.reader import (ArchiveCorruptionError, select_last_row_group_at_or_before,
+                                 select_overlapping_row_groups, stream_read_partition_shards)
 from ami.storage.registry import get_table_spec, SourceTableSpec
 
 ALLOWED_TABLES = ("agg_trades", "book_ticker", "mark_prices")
@@ -527,3 +528,249 @@ def execute_read(plan: ReadPlan, *, columns: tuple[str, ...] | None = None,
 
     return ReadResult(plan=plan, columns=resolved_columns, filters=tuple(filters),
                        batch_size=batch_size, _row_iter_factory=factory)
+
+
+# ---------------------------------------------------------------------------
+# Point-lookup primitive: "latest row at-or-before ts_ms"
+# (BATCH-STORAGE-ROTATION-RETENTION-POINT-LOOKUP-HELPER-FOR-ORDER-BY-TS-
+# DESC-LIMIT-1-V1) -- the single most common direct-SQL pattern in the
+# remaining research scripts: `ORDER BY ts_ms DESC LIMIT 1` with a
+# `ts_ms <= ?` (or `<`) filter. Never materializes a full partition or
+# shard: archive-side narrowing goes shard-metadata (manifest min_ts/
+# max_ts, free) -> row-group statistics (select_last_row_group_at_or_
+# before) -> at most one row group actually decoded, walked backward
+# only as far as a lookback bound or an empty file requires.
+# ---------------------------------------------------------------------------
+
+LOOKUP_ORDERING = "(ts_ms DESC, id DESC)"
+
+
+@dataclass(frozen=True)
+class LookupResult:
+    found: bool
+    row: tuple | None
+    columns: tuple[str, ...]
+    row_ts_ms: int | None
+    provenance: dict
+
+
+def _lookup_apply_filters_and_pick(cols_data, fetch_columns, ts_ms, inclusive, filters, n):
+    ts_i = fetch_columns.index("ts_ms")
+    best = None
+    for r in range(n):
+        t = cols_data[ts_i][r]
+        if (t <= ts_ms) if inclusive else (t < ts_ms):
+            row = tuple(cols_data[c][r] for c in range(len(fetch_columns)))
+            if not filters or _apply_filters(row, fetch_columns, filters):
+                best = row
+        else:
+            break  # ascending order -- no later row in this batch can qualify either
+    return best
+
+
+def _last_qualifying_row_in_file(path: str, ts_ms: int, inclusive: bool,
+                                  fetch_columns: tuple[str, ...],
+                                  filters: tuple[tuple[str, str, object], ...]) -> tuple | None:
+    """Latest row in a single Parquet file satisfying ts_ms<=/< query and
+    `filters`, narrowed to as few row groups as possible. Walks row
+    groups backward from the one row-group-statistics selection points
+    to, only when a filter excludes every ts-eligible row in a group
+    (e.g. `funding_rate IS NOT NULL`-shaped filters) -- bounded by the
+    file's own start, never an unbounded scan."""
+    rg_idx = select_last_row_group_at_or_before(path, ts_ms)
+    if rg_idx is None:
+        return None
+    import pyarrow.parquet as pq
+    pf = pq.ParquetFile(path)
+    for i in range(rg_idx, -1, -1):
+        table = pf.read_row_group(i, columns=list(fetch_columns))
+        n = table.num_rows
+        if n == 0:
+            continue
+        cols_data = [table.column(c).to_pylist() for c in fetch_columns]
+        best = _lookup_apply_filters_and_pick(cols_data, fetch_columns, ts_ms, inclusive, filters, n)
+        if best is not None:
+            return best
+    return None
+
+
+def _lookup_in_archive_entry(root: str, entry: dict, ts_ms: int, inclusive: bool,
+                              fetch_columns: tuple[str, ...],
+                              filters: tuple[tuple[str, str, object], ...]) -> tuple[tuple | None, tuple[str, ...]]:
+    manifest, shard_paths, trust_warnings = _verify_archive_trust(root, entry)
+    shards = manifest.get("shards")
+    if not shards:
+        return _last_qualifying_row_in_file(shard_paths[0], ts_ms, inclusive, fetch_columns, filters), trust_warnings
+    ordered = sorted(shards, key=lambda s: s["shard_index"])
+    candidate_idx = None
+    for i, s in enumerate(ordered):
+        if s["min_ts"] <= ts_ms:
+            candidate_idx = i
+        else:
+            break  # shards are ts-ascending; no later shard can qualify either
+    if candidate_idx is None:
+        return None, trust_warnings
+    for i in range(candidate_idx, -1, -1):
+        row = _last_qualifying_row_in_file(shard_paths[i], ts_ms, inclusive, fetch_columns, filters)
+        if row is not None:
+            return row, trust_warnings
+    return None, trust_warnings
+
+
+_LOOKUP_FILTER_SQL_OPS = {"==": "=", "!=": "!=", ">=": ">=", "<=": "<=", ">": ">", "<": "<"}
+
+
+def _lookup_in_sqlite(conn: sqlite3.Connection, spec: SourceTableSpec, symbol: str, ts_ms: int, inclusive: bool,
+                       lower_bound_ms: int | None, fetch_columns: tuple[str, ...],
+                       filters: tuple[tuple[str, str, object], ...]) -> tuple | None:
+    op = "<=" if inclusive else "<"
+    cols_sql = ",".join(fetch_columns)
+    where = [f"{spec.symbol_field}=?", f"{spec.partition_ts_field}{op}?"]
+    params: list = [symbol, ts_ms]
+    if lower_bound_ms is not None:
+        where.append(f"{spec.partition_ts_field}>=?")
+        params.append(lower_bound_ms)
+    for col, fop, value in filters:
+        if value is None:
+            # SQL NULL comparisons with =/!= are never true -- IS [NOT] NULL
+            # is the only correct translation, matching Python's `!= None`
+            # semantics used by the archive-side `_apply_filters` path.
+            if fop == "==":
+                where.append(f"{col} IS NULL")
+            elif fop == "!=":
+                where.append(f"{col} IS NOT NULL")
+            else:
+                raise ValueError(f"filter operator {fop!r} is not valid against a None value for column {col!r}")
+            continue
+        where.append(f"{col}{_LOOKUP_FILTER_SQL_OPS[fop]}?")
+        params.append(value)
+    sql = (f"SELECT {cols_sql} FROM {spec.table} WHERE {' AND '.join(where)} "
+           f"ORDER BY {spec.partition_ts_field} DESC, {spec.stable_ordering_field} DESC LIMIT 1")
+    row = conn.execute(sql, params).fetchone()
+    return tuple(row) if row else None
+
+
+def lookup_latest_at_or_before(root: str, *, table: str, symbol: str, ts_ms: int,
+                                venue: str | None = None, market_segment: str | None = None,
+                                columns: tuple[str, ...] | None = None, inclusive: bool = True,
+                                filters: tuple[tuple[str, str, object], ...] = (),
+                                max_lookback_ms: int | None = None,
+                                source_db_path: str | Path | None = None) -> LookupResult:
+    """The `ORDER BY ts_ms DESC LIMIT 1` primitive, unified over archive
+    Parquet + live SQLite. Returns the latest row with `ts_ms <= ts_ms`
+    (or `< ts_ms` if `inclusive=False`) satisfying `filters`, for
+    `symbol` in `table`. Never raises for "no such row" -- returns
+    `LookupResult(found=False, ...)`; only raises for real trust/schema
+    failures (`ArchiveTrustError`, `OverlapDetectedError`,
+    `SchemaMismatchError`, `UnsupportedTableError`), matching
+    `plan_read`/`execute_read`'s fail-closed contract.
+
+    Query planning mirrors `plan_read`: catalog-matching archive entries
+    are checked for mutual overlap (fails closed, never guesses) and
+    validated via the same lightweight structural trust model (never a
+    full scientific reverify). The "natural" source is whichever one
+    ts_ms falls into -- ARCHIVE if it's inside a covered partition's
+    [start, end), SQLite otherwise (the live tail, or before any
+    archive existed, since the source SQLite always retains full
+    history). If the natural source has no qualifying row, the OTHER
+    source is consulted as a fallback and the plan is reported as
+    HYBRID; if only one source was ever consulted, the plan is
+    ARCHIVE_ONLY or SQLITE_ONLY. `max_lookback_ms`, if given, bounds how
+    far back the search may go (both sources): a candidate row older
+    than `ts_ms - max_lookback_ms` is treated as not found."""
+    if table not in ALLOWED_TABLES:
+        raise UnsupportedTableError(f"{table!r} is not in the research-reader allowlist {ALLOWED_TABLES}")
+    spec = get_table_spec(table)
+    venue = venue or spec.venue
+    market_segment = market_segment or spec.market_segment
+    resolved_columns = _validate_columns(spec, columns)
+    if filters:
+        unknown = [f[0] for f in filters if f[0] not in resolved_columns and f[0] not in spec.preserved_columns]
+        if unknown:
+            raise SchemaMismatchError(f"filter columns {unknown} are not in {table}'s preserved_columns "
+                                       f"{spec.preserved_columns}")
+    fetch_columns = resolved_columns
+    for extra in ("ts_ms", "id"):
+        if extra not in fetch_columns:
+            fetch_columns = fetch_columns + (extra,)
+    ts_i = fetch_columns.index("ts_ms")
+    keep_idx = [fetch_columns.index(c) for c in resolved_columns]
+
+    lower_bound_ms = ts_ms - max_lookback_ms if max_lookback_ms is not None else None
+
+    entries = _root_catalog_entries(root)
+    matching = [e for e in entries if e["source_table"] == table and e["symbol"] == symbol
+                and e["venue"] == venue and e["market_segment"] == market_segment]
+    _merge_and_check_overlaps(matching)
+    eligible = sorted([e for e in matching if e["partition_start_ms"] <= ts_ms],
+                       key=lambda e: e["partition_start_ms"], reverse=True)
+    natural_source = "ARCHIVE" if any(
+        e["partition_start_ms"] <= ts_ms < e["partition_end_ms"] for e in eligible) else "SQLITE"
+
+    consulted: set[str] = set()
+    warnings: list[str] = []
+
+    def try_archive():
+        consulted.add("ARCHIVE")
+        for e in eligible:
+            if lower_bound_ms is not None and e["partition_end_ms"] <= lower_bound_ms:
+                break
+            row, w = _lookup_in_archive_entry(root, e, ts_ms, inclusive, fetch_columns, filters)
+            warnings.extend(w)
+            if row is not None and (lower_bound_ms is None or row[ts_i] >= lower_bound_ms):
+                return row, e
+        return None, None
+
+    def try_sqlite():
+        consulted.add("SQLITE")
+        conn, log = SRC.open_read_only(source_db_path or SRC.DEFAULT_SOURCE_PATH)
+        try:
+            row = _lookup_in_sqlite(conn, spec, symbol, ts_ms, inclusive, lower_bound_ms, fetch_columns, filters)
+        finally:
+            SRC.assert_read_only_session_clean(log)
+            conn.close()
+        return row
+
+    final_row = final_entry = final_source = None
+    if natural_source == "ARCHIVE":
+        row, entry = try_archive()
+        if row is not None:
+            final_row, final_entry, final_source = row, entry, "ARCHIVE"
+        else:
+            sq_row = try_sqlite()
+            if sq_row is not None:
+                final_row, final_source = sq_row, "SQLITE"
+    else:
+        sq_row = try_sqlite()
+        if sq_row is not None:
+            final_row, final_source = sq_row, "SQLITE"
+        else:
+            row, entry = try_archive()
+            if row is not None:
+                final_row, final_entry, final_source = row, entry, "ARCHIVE"
+
+    mode = "HYBRID" if len(consulted) == 2 else natural_source + "_ONLY"
+
+    output_row = tuple(final_row[i] for i in keep_idx) if final_row is not None else None
+    row_ts_ms = final_row[ts_i] if final_row is not None else None
+
+    provenance = {
+        "source_type": mode, "result_source": final_source,
+        "table": table, "venue": venue, "market_segment": market_segment, "symbol": symbol,
+        "query_ts_ms": ts_ms, "inclusive": inclusive, "max_lookback_ms": max_lookback_ms,
+        "lower_bound_ms": lower_bound_ms,
+        "ordering": LOOKUP_ORDERING,
+        "columns": list(resolved_columns), "filters": list(filters),
+        "found": final_row is not None,
+        "result_ts_ms": row_ts_ms,
+        "candidate_archive_entries": [e["archive_identity"] for e in eligible],
+        "archive_identity": final_entry["archive_identity"] if final_entry else None,
+        "manifest_sha256": final_entry.get("manifest_sha256") if final_entry else None,
+        "scientific_content_hash": final_entry.get("scientific_content_hash") if final_entry else None,
+        "overlap_status": "NO_OVERLAP",
+        "trust_check": "structural (( _SUCCESS, manifest self-hash, receipt self-hash, shard existence )) "
+                       "-- NOT a full scientific reverify",
+        "plan_warnings": warnings,
+    }
+    return LookupResult(found=final_row is not None, row=output_row, columns=resolved_columns,
+                         row_ts_ms=row_ts_ms, provenance=provenance)
