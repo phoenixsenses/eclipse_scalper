@@ -433,6 +433,48 @@ def test_missing_receipt_is_a_warning_not_a_failure(tmp_path):
     assert any("no authorization_receipt.json" in w for w in plan.warnings)
 
 
+def test_tampered_receipt_body_raises_archive_trust_error(tmp_path):
+    """A receipt whose body was mutated after being written (its own
+    `receipt_sha256` field no longer matches a fresh hash of the rest of
+    the body) must fail closed -- distinct from `no_receipt` (an
+    honestly-absent, pre-activation-era file, which is only a warning)."""
+    root = str(tmp_path / "root")
+    os.makedirs(root)
+    rows = _mark_prices_rows(1, APR, 10)
+    entry = _build_archive_partition(root, table="mark_prices", spec=SPEC, symbol="ETHUSDT",
+                                      utc_year=2026, utc_month=4, partition_start_ms=APR,
+                                      partition_end_ms=MAY, rows=rows)
+    _write_catalog_index(root, [entry])
+    receipt_path = os.path.join(root, entry["archive_relative_path"], "authorization_receipt.json")
+    with open(receipt_path, encoding="utf-8") as f:
+        receipt = json.load(f)
+    receipt["purge_authorization"] = "TAMPERED"  # mutate body without updating receipt_sha256
+    with open(receipt_path, "w", encoding="utf-8") as f:
+        json.dump(receipt, f)
+    with pytest.raises(RR.ArchiveTrustError, match="receipt self-hash mismatch"):
+        RR.plan_read(root, table="mark_prices", symbol="ETHUSDT", start_ms=APR, end_ms=MAY)
+
+
+def test_catalog_receipt_hash_mismatch_raises_archive_trust_error(tmp_path):
+    """The receipt file itself is internally self-consistent (its own
+    `receipt_sha256` matches its body), but the catalog entry's recorded
+    `authorization_receipt_sha256` does not match the file on disk --
+    e.g. the receipt was legitimately regenerated but the catalog entry
+    was not updated to match. Must fail closed, not trust either side
+    silently."""
+    root = str(tmp_path / "root")
+    os.makedirs(root)
+    rows = _mark_prices_rows(1, APR, 10)
+    entry = _build_archive_partition(root, table="mark_prices", spec=SPEC, symbol="ETHUSDT",
+                                      utc_year=2026, utc_month=4, partition_start_ms=APR,
+                                      partition_end_ms=MAY, rows=rows)
+    entry = dict(entry)
+    entry["authorization_receipt_sha256"] = "0" * 64  # stale/wrong relative to the real file
+    _write_catalog_index(root, [entry])
+    with pytest.raises(RR.ArchiveTrustError, match="authorization_receipt_sha256 mismatch"):
+        RR.plan_read(root, table="mark_prices", symbol="ETHUSDT", start_ms=APR, end_ms=MAY)
+
+
 # ---------------------------------------------------------------------------
 # 9. Schema mismatch (table-level, not just column-level)
 # ---------------------------------------------------------------------------
