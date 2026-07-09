@@ -17,6 +17,9 @@ from tools.micro_edge_lib import (
 )
 from tools.run_summary import build_run_summary
 
+from ami.storage import production as PR
+from ami.storage import research_reader as RR
+
 
 def _normalize_rule_summary(rules: Dict[str, Any]) -> Dict[str, Dict[str, Optional[float] | int]]:
     out: Dict[str, Dict[str, Optional[float] | int]] = {}
@@ -73,22 +76,64 @@ def _majority_baseline(actual: List[int]) -> Optional[float]:
     return max(up, down) / len(vals)
 
 
+def _agg_trades_range(conn: sqlite3.Connection, symbol: str, start_ms: int, end_ms: int) -> list[tuple]:
+    """Direct-SQL oracle -- kept unchanged as the parity reference for
+    `_agg_trades_range_v2` (BATCH-STORAGE-ROTATION-RETENTION-RANGE-READ-
+    CONSUMER-MIGRATION-V4). No longer called by
+    `_load_symbol_trades_marks_and_liqs`; the reader-backed path is used
+    instead."""
+    return conn.execute(
+        "SELECT ts_ms, price, quantity, is_buyer_maker FROM agg_trades "
+        "WHERE symbol = ? AND ts_ms >= ? AND ts_ms <= ? ORDER BY ts_ms ASC",
+        (symbol, int(start_ms), int(end_ms)),
+    ).fetchall()
+
+
+def _agg_trades_range_v2(root, symbol: str, start_ms: int, end_ms: int, source_db_path=None) -> list[tuple]:
+    """Reader-backed replacement for `_agg_trades_range`, via `plan_read`/
+    `execute_read`. `symbol` is a genuine runtime parameter (`--symbols`
+    CLI arg). Inclusive upper bound reproduced with `end_ms+1` (exact for
+    integer ts_ms). Streams in canonical `(ts_ms ASC, id ASC)` order -- a
+    refinement of the oracle's `ORDER BY ts_ms ASC` that yields an
+    identical ts_ms sequence."""
+    plan = RR.plan_read(root, table="agg_trades", symbol=symbol, start_ms=int(start_ms), end_ms=int(end_ms) + 1)
+    result = RR.execute_read(plan, columns=("ts_ms", "price", "quantity", "is_buyer_maker"), source_db_path=source_db_path)
+    return list(result.iter_rows())
+
+
+def _mark_prices_range(conn: sqlite3.Connection, symbol: str, start_ms: int, end_ms: int) -> list[tuple]:
+    """Direct-SQL oracle -- kept unchanged as the parity reference for
+    `_mark_prices_range_v2` (same gate). No longer called by
+    `_load_symbol_trades_marks_and_liqs`."""
+    return conn.execute(
+        "SELECT ts_ms, mark_price FROM mark_prices "
+        "WHERE symbol = ? AND ts_ms >= ? AND ts_ms <= ? ORDER BY ts_ms ASC",
+        (symbol, int(start_ms), int(end_ms)),
+    ).fetchall()
+
+
+def _mark_prices_range_v2(root, symbol: str, start_ms: int, end_ms: int, source_db_path=None) -> list[tuple]:
+    """Reader-backed replacement for `_mark_prices_range`, via `plan_read`/
+    `execute_read`. Same runtime-symbol / inclusive-boundary / ordering
+    notes as `_agg_trades_range_v2`."""
+    plan = RR.plan_read(root, table="mark_prices", symbol=symbol, start_ms=int(start_ms), end_ms=int(end_ms) + 1)
+    result = RR.execute_read(plan, columns=("ts_ms", "mark_price"), source_db_path=source_db_path)
+    return list(result.iter_rows())
+
+
 def _load_symbol_trades_marks_and_liqs(
     conn: sqlite3.Connection,
     symbol: str,
     start_ms: int,
     end_ms: int,
+    *,
+    root,
+    source_db_path=None,
 ) -> tuple[List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]]]:
-    trades_raw = conn.execute(
-        "SELECT ts_ms, price, quantity, is_buyer_maker FROM agg_trades "
-        "WHERE symbol = ? AND ts_ms >= ? AND ts_ms <= ? ORDER BY ts_ms ASC",
-        (symbol, int(start_ms), int(end_ms)),
-    ).fetchall()
-    marks_raw = conn.execute(
-        "SELECT ts_ms, mark_price FROM mark_prices "
-        "WHERE symbol = ? AND ts_ms >= ? AND ts_ms <= ? ORDER BY ts_ms ASC",
-        (symbol, int(start_ms), int(end_ms)),
-    ).fetchall()
+    trades_raw = _agg_trades_range_v2(root, symbol, start_ms, end_ms, source_db_path=source_db_path)
+    marks_raw = _mark_prices_range_v2(root, symbol, start_ms, end_ms, source_db_path=source_db_path)
+    # OUT-OF-SCOPE for RANGE-READ V4: `liquidations` is an out-of-allowlist
+    # table (no archive partition / reader support). Left on direct SQL.
     liq_raw = conn.execute(
         "SELECT ts_ms, side, quantity, price FROM liquidations "
         "WHERE symbol = ? AND ts_ms >= ? AND ts_ms <= ? ORDER BY ts_ms ASC",
@@ -121,8 +166,12 @@ def _load_symbol_trades_and_marks(
     symbol: str,
     start_ms: int,
     end_ms: int,
+    *,
+    root,
+    source_db_path=None,
 ) -> tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
-    trades, marks, _ = _load_symbol_trades_marks_and_liqs(conn, symbol, start_ms, end_ms)
+    trades, marks, _ = _load_symbol_trades_marks_and_liqs(
+        conn, symbol, start_ms, end_ms, root=root, source_db_path=source_db_path)
     return trades, marks
 
 
@@ -133,10 +182,14 @@ def analyze_symbol(
     bucket_sec: int,
     horizon_sec: int,
     threshold: float = 0.0002,
+    *,
+    root=None,
+    source_db_path=None,
 ) -> Dict[str, Any]:
     now_ms = int(time.time() * 1000)
     start_ms = now_ms - int(max(1, lookback_min) * 60 * 1000)
-    trades, marks, liqs = _load_symbol_trades_marks_and_liqs(conn, symbol, start_ms=start_ms, end_ms=now_ms)
+    trades, marks, liqs = _load_symbol_trades_marks_and_liqs(
+        conn, symbol, start_ms=start_ms, end_ms=now_ms, root=root, source_db_path=source_db_path)
     feats = build_bucket_features(
         trades=trades,
         marks=marks,
@@ -273,6 +326,10 @@ def main() -> int:
     db = str(args.db)
     symbols = _parse_symbols(args.symbols)
     out_path = Path(str(args.out))
+    # `conn` stays open for the still-direct out-of-allowlist `liquidations`
+    # read; the agg_trades/mark_prices range reads moved to the reader (via
+    # `root`/`db`).
+    root, _ = PR.resolve_production_root()
     try:
         conn = sqlite3.connect(db, check_same_thread=False)
     except Exception as exc:
@@ -294,6 +351,8 @@ def main() -> int:
                 lookback_min=int(args.lookback_min),
                 bucket_sec=int(args.bucket_sec),
                 horizon_sec=int(args.horizon_sec),
+                root=root,
+                source_db_path=db,
             )
             append_jsonl(
                 out_path,
