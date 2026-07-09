@@ -1,0 +1,8631 @@
+[
+  {
+    "path": "tools/alpha_discovery_tests.py",
+    "lines": 510,
+    "tracked": true,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "detector_signals",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "statistics",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/audit_fill_calibration.py",
+    "lines": 910,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "agg_trades",
+      "datetime",
+      "directional",
+      "entry",
+      "execution",
+      "fill",
+      "inline",
+      "mark_prices",
+      "pathlib",
+      "signal",
+      "the"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/audit_s34_live_replay_parity.py",
+    "lines": 192,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/audit_s34_paper_chronology.py",
+    "lines": 169,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "copy",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/audit_s34_paper_vs_knowable_anchor.py",
+    "lines": 421,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/backfill_s34_state_machine_shadow.py",
+    "lines": 398,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 4,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/backtest_eth_buy_full_sweep.py",
+    "lines": 471,
+    "tracked": false,
+    "mode_ro": false,
+    "dbs": [
+      "microstructure.db",
+      "s34_intelligence.db"
+    ],
+    "tables": [
+      "datetime",
+      "db",
+      "mark_prices",
+      "microstructure",
+      "pathlib",
+      "s34_trades"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "s34_trades"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/backtest_scalper_stack.py",
+    "lines": 485,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "data",
+      "dataclasses",
+      "datetime",
+      "first",
+      "pathlib",
+      "the"
+    ],
+    "allowlist_tables": [
+      "agg_trades"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/backtest_scratch.py",
+    "lines": 344,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "core",
+      "estimated",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/book_proxy_pressure_alerts.py",
+    "lines": 185,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "microstructure",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/book_proxy_pressure_watchlist.py",
+    "lines": 208,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/build_micro_features.py",
+    "lines": 380,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "pathlib",
+      "sqlite",
+      "src",
+      "typing",
+      "utils",
+      "vwap"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/build_presentation.py",
+    "lines": 1518,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "a",
+      "all",
+      "asymmetric",
+      "calibrated",
+      "data",
+      "degenerate",
+      "entry",
+      "historical",
+      "lucky",
+      "pathlib",
+      "perception",
+      "pptx",
+      "raw",
+      "score_raw_core",
+      "signal",
+      "symbol",
+      "wall"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/build_state.py",
+    "lines": 132,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "datetime",
+      "micro",
+      "pathlib",
+      "typing",
+      "utils"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/calibrate_capacity_thresholds.py",
+    "lines": 205,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "config",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/check_data_ready.py",
+    "lines": 291,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "pathlib",
+      "sqlite_master",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/check_event_lanes.py",
+    "lines": 310,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "mark_prices",
+      "sqlite",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/check_micro_edge_horizons.py",
+    "lines": 139,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "config",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/collection_health.py",
+    "lines": 261,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/collection_watchdog.py",
+    "lines": 331,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "logging",
+      "notifications",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/daily_research_report.py",
+    "lines": 405,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/data_layer_probe.py",
+    "lines": 571,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "pathlib",
+      "sqlite_master",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/db_introspect.py",
+    "lines": 270,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "pathlib",
+      "sqlite_master",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/db_maintenance.py",
+    "lines": 151,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "dotenv",
+      "notifications",
+      "pathlib"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/diagnose_sell_asymmetry.py",
+    "lines": 830,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "a",
+      "agg_trades",
+      "datetime",
+      "mark",
+      "mark_prices",
+      "pathlib",
+      "sweep",
+      "the",
+      "tools"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/diagnose_volume_regime.py",
+    "lines": 201,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "collections",
+      "mark_prices",
+      "sqlite"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/eval_run.py",
+    "lines": 376,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "collections",
+      "execution",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/export_s34_visualization_json.py",
+    "lines": 321,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "mark_prices",
+      "pathlib",
+      "the",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/feature_distribution_analysis.py",
+    "lines": 228,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "datetime",
+      "microstructure",
+      "pathlib",
+      "trades"
+    ],
+    "allowlist_tables": [
+      "agg_trades"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/fit_adverse_model.py",
+    "lines": 517,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "datetime",
+      "mark_prices",
+      "microstructure",
+      "pathlib",
+      "statistics",
+      "the",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/forced_flow_candidate_harness.py",
+    "lines": 279,
+    "tracked": true,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "statistics",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/funding_rate_analysis.py",
+    "lines": 147,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "mark_prices",
+      "paper",
+      "pathlib",
+      "tools",
+      "trades",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/health_cycle_smoke.py",
+    "lines": 201,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/ingestion_check.py",
+    "lines": 158,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/liquidation_regime_alerts.py",
+    "lines": 181,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "collections",
+      "microstructure",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/liquidation_regime_tagger.py",
+    "lines": 150,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "microstructure",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/liquidation_rule_coverage.py",
+    "lines": 131,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/liquidation_watchlist.py",
+    "lines": 231,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/market_monitor.py",
+    "lines": 348,
+    "tracked": false,
+    "mode_ro": false,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "book_ticker",
+      "datetime",
+      "liquidations",
+      "pathlib",
+      "rich"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/micro_collector_watchdog.py",
+    "lines": 186,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/micro_diag.py",
+    "lines": 59,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "core",
+      "utils"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/micro_edge_backtest.py",
+    "lines": 1463,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "config",
+      "execution",
+      "pathlib",
+      "src",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/micro_edge_gate_export.py",
+    "lines": 127,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "data",
+      "pathlib",
+      "tools",
+      "top",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/micro_edge_smoke.py",
+    "lines": 341,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 3,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/micro_edge_sweep.py",
+    "lines": 77,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "collections",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/npa_decomposition_and_regime.py",
+    "lines": 937,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "entry",
+      "gating",
+      "mark_prices",
+      "path",
+      "pathlib",
+      "the",
+      "tools"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/orderflow_chart.py",
+    "lines": 1303,
+    "tracked": false,
+    "mode_ro": false,
+    "dbs": [
+      "microstructure.db",
+      "s34_intelligence.db"
+    ],
+    "tables": [
+      "__future__",
+      "actual",
+      "agg_trades",
+      "collections",
+      "datetime",
+      "http",
+      "liquidations",
+      "microstructure",
+      "pathlib",
+      "s34_decisions",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 3,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/parity_check.py",
+    "lines": 203,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/pocket_promotion_checklist.py",
+    "lines": 291,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/preflight_check.py",
+    "lines": 371,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "datetime",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "typing",
+      "utils"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/prototype_ws_vs_db_latency.py",
+    "lines": 120,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "pathlib",
+      "stream",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/rank_passive_pockets_forward.py",
+    "lines": 1345,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "candidates",
+      "classic",
+      "config",
+      "enriched",
+      "entry",
+      "pathlib",
+      "statistics",
+      "tools",
+      "train",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/refresh_dashboard_research_events.py",
+    "lines": 371,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/replay_slice.py",
+    "lines": 177,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/replay_strategy.py",
+    "lines": 246,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/research_eth_provision_realism.py",
+    "lines": 380,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "datetime",
+      "pathlib",
+      "statistics",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_event_watchboard.py",
+    "lines": 337,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "active",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_funding_extreme_mean_reversion.py",
+    "lines": 437,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "mark_prices",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_funding_nonoverlap.py",
+    "lines": 173,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "mark_prices",
+      "pathlib",
+      "tools"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_lane_candidate_validation.py",
+    "lines": 269,
+    "tracked": true,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "datetime",
+      "detector_signals",
+      "liquidations",
+      "pathlib",
+      "small",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_narrow_event_lanes.py",
+    "lines": 424,
+    "tracked": true,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "collections",
+      "datetime",
+      "detector_signals",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "statistics",
+      "typing",
+      "vol_state"
+    ],
+    "allowlist_tables": [
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "vol_state"
+    ],
+    "desc_limit1_count": 3,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_nonpredictive_carry_provision.py",
+    "lines": 484,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "datetime",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_500k_daytrend_route_sweep.py",
+    "lines": 420,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "book_ticker",
+      "liq_event_features",
+      "mark_prices",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_absorption_timing.py",
+    "lines": 254,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_alpha_attribution.py",
+    "lines": 567,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 2,
+    "range_scan_count": 4,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_book_impulse_scalp.py",
+    "lines": 404,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "collections",
+      "datetime",
+      "liquidations",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_bridge_backtest.py",
+    "lines": 212,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_btc_1m_route_sweep.py",
+    "lines": 468,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_btc_lead_eth_scalp.py",
+    "lines": 243,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db",
+      "s34_feature_factory.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "entry",
+      "feature_factory",
+      "liquidations",
+      "mark_prices",
+      "microstructure",
+      "pathlib",
+      "s34_features"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_btc_sell_anomaly_audit.py",
+    "lines": 649,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "collections",
+      "data",
+      "datetime",
+      "entry_price",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "signals",
+      "statistics",
+      "tools",
+      "tp40"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_butterfly_seed.py",
+    "lines": 220,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_buy_reversal_short.py",
+    "lines": 276,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "liquidations",
+      "mark_prices",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_buy_runner_parity.py",
+    "lines": 459,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db",
+      "s34_feature_factory.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "first_ts",
+      "liq_event_features",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "the"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_buy_side_state_machine_gauntlet.py",
+    "lines": 704,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/research_s34_buyfade_reentry.py",
+    "lines": 634,
+    "tracked": true,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "ami",
+      "datetime",
+      "liquidations",
+      "pathlib",
+      "tools"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 1,
+    "has_ami_governance_import": true,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_buyfade_silence_exit.py",
+    "lines": 792,
+    "tracked": true,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "ami",
+      "datetime",
+      "liquidations",
+      "pathlib",
+      "tools"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 1,
+    "has_ami_governance_import": true,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_buyfade_structural.py",
+    "lines": 1144,
+    "tracked": true,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "ami",
+      "bisect",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "open_interest",
+      "pathlib",
+      "spot_prices",
+      "tools"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "open_interest",
+      "spot_prices"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 3,
+    "has_ami_governance_import": true,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_cascade_gap_cooldown.py",
+    "lines": 230,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_cascade_phase_scan.py",
+    "lines": 438,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "liq_event_features",
+      "liquidations",
+      "pathlib",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_cluster_geometry_features.py",
+    "lines": 477,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "book_ticker",
+      "cluster",
+      "liq_event_features",
+      "pathlib",
+      "the"
+    ],
+    "allowlist_tables": [
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_comprehensive_final.py",
+    "lines": 772,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "anchor",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "statistics",
+      "the",
+      "tools",
+      "ts",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_conditional_edge_screen.py",
+    "lines": 342,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "calibration",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_confirmation_entry.py",
+    "lines": 182,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "cross",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_contract_v2_measurement.py",
+    "lines": 114,
+    "tracked": true,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "ami",
+      "ami_signal_lifecycle",
+      "gaps",
+      "liquidations",
+      "tools"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [
+      "ami_signal_lifecycle",
+      "gaps",
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_convexity_flip.py",
+    "lines": 198,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_conviction_composite.py",
+    "lines": 215,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "book_ticker",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "vol_state"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "vol_state"
+    ],
+    "desc_limit1_count": 4,
+    "range_scan_count": 5,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_counter_regime_realfill.py",
+    "lines": 284,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "s34_feature_factory.db"
+    ],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "collections",
+      "datetime",
+      "liq_event_features",
+      "pathlib",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_critical_audit.py",
+    "lines": 616,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "all",
+      "bisect",
+      "collections",
+      "datetime",
+      "liquidations",
+      "loss",
+      "mark_prices",
+      "n",
+      "pathlib",
+      "statistics",
+      "t",
+      "test"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 4,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_cross_asset_absorption_pool.py",
+    "lines": 382,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_cross_asset_leadlag.py",
+    "lines": 219,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "the",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_cross_symbol_buy_realfill_scan.py",
+    "lines": 332,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "liquidations",
+      "pathlib",
+      "real",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_cross_symbol_geometry_scan.py",
+    "lines": 550,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "this",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_cross_symbol_idiosyncrasy.py",
+    "lines": 250,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_cross_symbol_lag.py",
+    "lines": 281,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "collections",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "same"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_day_context_scan.py",
+    "lines": 324,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "liq_event_features",
+      "pathlib",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_deep_expansion.py",
+    "lines": 987,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "comprehensive",
+      "datetime",
+      "drift",
+      "liquidations",
+      "pathlib",
+      "prior",
+      "statistics",
+      "test",
+      "tools",
+      "ts",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_deep_questions.py",
+    "lines": 327,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "book_ticker",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "vol_state"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "vol_state"
+    ],
+    "desc_limit1_count": 5,
+    "range_scan_count": 7,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_diversification_gauntlet.py",
+    "lines": 277,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "book_ticker",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "vol_state"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "vol_state"
+    ],
+    "desc_limit1_count": 5,
+    "range_scan_count": 5,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_early_build_entry.py",
+    "lines": 215,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_early_confirmation_scan.py",
+    "lines": 516,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "liq_event_features",
+      "mark_prices",
+      "pathlib",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_early_mgmt_gauntlet.py",
+    "lines": 428,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "collections",
+      "datetime",
+      "funding_rates",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 3,
+    "range_scan_count": 5,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_echo_expansion.py",
+    "lines": 719,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "vol_state"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "vol_state"
+    ],
+    "desc_limit1_count": 2,
+    "range_scan_count": 5,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_echo_live_gauntlet.py",
+    "lines": 627,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "entry",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "vol_state"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "vol_state"
+    ],
+    "desc_limit1_count": 2,
+    "range_scan_count": 4,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_entry_offset_decomposition.py",
+    "lines": 642,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db",
+      "s34_feature_factory.db"
+    ],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "datetime",
+      "liq_event_features",
+      "liquidations",
+      "mark_prices",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_eth_forecast_chart.py",
+    "lines": 231,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db",
+      "s34_intelligence.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "last",
+      "live",
+      "mark_prices",
+      "pathlib",
+      "s34_trades"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "s34_trades"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_eth_preliq_control.py",
+    "lines": 375,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "s34_feature_factory.db"
+    ],
+    "tables": [
+      "__future__",
+      "a",
+      "book_ticker",
+      "collections",
+      "datetime",
+      "liq_event_features",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_eth_preliq_executable.py",
+    "lines": 420,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "s34_feature_factory.db"
+    ],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "collections",
+      "datetime",
+      "liq_event_features",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_exact_route_change_validation.py",
+    "lines": 442,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "mark_prices",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_exit_giveback_sweep.py",
+    "lines": 492,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "collections",
+      "liq_event_features",
+      "liq_event_outcome_labels",
+      "mark_prices",
+      "pathlib",
+      "sl"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_failure_geometry.py",
+    "lines": 238,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "pathlib",
+      "runaways",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_fast_scalp_candidates.py",
+    "lines": 521,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_fast_scalp_sweep.py",
+    "lines": 685,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_feature_factory_phase1.py",
+    "lines": 514,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "agg_trades",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "phase"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 5,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_feature_factory_phase2_multi.py",
+    "lines": 770,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "s34_feature_factory.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "cache",
+      "liq_event_features",
+      "liq_event_outcome_labels",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_fifth_wave.py",
+    "lines": 569,
+    "tracked": true,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "fourth",
+      "liquidations",
+      "pathlib",
+      "statistics",
+      "tools"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_fourth_wave.py",
+    "lines": 947,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "liquidations",
+      "pathlib",
+      "statistics",
+      "third",
+      "tools"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_frame_picture.py",
+    "lines": 371,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg",
+      "agg_trades",
+      "current",
+      "dataclasses",
+      "datetime",
+      "detector_signals",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "sqlite_master",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 3,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_freq_expansion_v1.py",
+    "lines": 749,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "mega",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 2,
+    "range_scan_count": 4,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_freq_tests.py",
+    "lines": 538,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "sqlite_master",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_frontier_gauntlet.py",
+    "lines": 239,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "book_ticker",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "vol_state"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "vol_state"
+    ],
+    "desc_limit1_count": 5,
+    "range_scan_count": 5,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_full_audit.py",
+    "lines": 342,
+    "tracked": false,
+    "mode_ro": false,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "db",
+      "mark_prices",
+      "null",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_full_prelive.py",
+    "lines": 1014,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "btc",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "statistics",
+      "t"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_full_signal_boost.py",
+    "lines": 1082,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "dataclasses",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "the",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 5,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_hold_sweep.py",
+    "lines": 173,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_holdout_regime_probe.py",
+    "lines": 590,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "cal",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": true,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_horizon_decay.py",
+    "lines": 162,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "the",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_horizon_gauntlet.py",
+    "lines": 258,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "book_ticker",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "vol_state"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "vol_state"
+    ],
+    "desc_limit1_count": 5,
+    "range_scan_count": 7,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_ideas_v2.py",
+    "lines": 993,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "vol_state"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "vol_state"
+    ],
+    "desc_limit1_count": 2,
+    "range_scan_count": 6,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_knowable_anchor_continuation.py",
+    "lines": 842,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "dataclasses",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "typing",
+      "zero"
+    ],
+    "allowlist_tables": [
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_knowable_anchor_route_recheck.py",
+    "lines": 643,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "executable",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_liq_swing_event.py",
+    "lines": 205,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_live_rule_profile.py",
+    "lines": 167,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "pathlib",
+      "tools"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/research_s34_long_reconcile.py",
+    "lines": 541,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "bisect",
+      "collections",
+      "datetime",
+      "db",
+      "ledger",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "statistics",
+      "the"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 4,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_maker_absorption_permission.py",
+    "lines": 323,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_maker_fade.py",
+    "lines": 604,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_maker_fade_diagnostics.py",
+    "lines": 653,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_market_confluence_scan.py",
+    "lines": 336,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "liq_event_features",
+      "liquidations",
+      "pathlib",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_master_navigator.py",
+    "lines": 217,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "book_ticker",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "vol_state"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "vol_state"
+    ],
+    "desc_limit1_count": 5,
+    "range_scan_count": 6,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_mega_v1.py",
+    "lines": 925,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "noisy",
+      "pathlib",
+      "t1",
+      "the",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 5,
+    "range_scan_count": 4,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_micro_entry_scalp.py",
+    "lines": 484,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_new_batch_tests.py",
+    "lines": 320,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "liquidations",
+      "live",
+      "mark_prices",
+      "pathlib",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_new_questions.py",
+    "lines": 425,
+    "tracked": false,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "anchor",
+      "btc",
+      "collections",
+      "datetime",
+      "db",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "statistics"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_next_tests_v1.py",
+    "lines": 664,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "all",
+      "datetime",
+      "liquidations",
+      "load_mark_index",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 2,
+    "range_scan_count": 4,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_next_v2.py",
+    "lines": 905,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "mega",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 3,
+    "range_scan_count": 4,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_onset_precursor.py",
+    "lines": 217,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_orderflow_lead.py",
+    "lines": 253,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "collections",
+      "datetime",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_phase0_coverage_audit.py",
+    "lines": 195,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "liquidations",
+      "measured",
+      "pathlib",
+      "sqlite_master",
+      "the"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_post_tp_continuation.py",
+    "lines": 181,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db",
+      "s34_intelligence.db"
+    ],
+    "tables": [
+      "__future__",
+      "a",
+      "datetime",
+      "funding_rates",
+      "mark_prices",
+      "pathlib",
+      "s34_trades"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "s34_trades"
+    ],
+    "desc_limit1_count": 3,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_pre_cascade_dip_recovery.py",
+    "lines": 463,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 2,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_pre_liq_book_pressure.py",
+    "lines": 402,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "collections",
+      "datetime",
+      "liquidations",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_prediction_image.py",
+    "lines": 181,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "dataclasses",
+      "datetime",
+      "mark_prices",
+      "pathlib",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 3,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_preliq_detector.py",
+    "lines": 381,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "s34_feature_factory.db"
+    ],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "datetime",
+      "liq_event_features",
+      "matched",
+      "pathlib",
+      "sell",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_preliq_detector_v2.py",
+    "lines": 552,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "s34_feature_factory.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "bisect",
+      "book_ticker",
+      "datetime",
+      "information",
+      "liq_event_features",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 2,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_prelive_questions.py",
+    "lines": 485,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "cascade",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "net_4h_bps",
+      "pathlib",
+      "sqlite_master",
+      "statistics",
+      "t"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_price_chart.py",
+    "lines": 83,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "mark_prices",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_puzzle_full_suite.py",
+    "lines": 624,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "cal",
+      "collections",
+      "datetime",
+      "liquidations",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_puzzle_gauntlet.py",
+    "lines": 330,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "book_ticker",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "vol_state"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "vol_state"
+    ],
+    "desc_limit1_count": 5,
+    "range_scan_count": 6,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_real_fill_parity.py",
+    "lines": 282,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "book_ticker",
+      "liq_event_features",
+      "our",
+      "pathlib",
+      "real"
+    ],
+    "allowlist_tables": [
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_refined_recipe_gauntlet.py",
+    "lines": 325,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "vol_state"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "vol_state"
+    ],
+    "desc_limit1_count": 5,
+    "range_scan_count": 6,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_regime_gate.py",
+    "lines": 236,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "april",
+      "collections",
+      "datetime",
+      "pathlib",
+      "the",
+      "tools",
+      "typing",
+      "utc"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_regime_gate_validate.py",
+    "lines": 196,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_restored_window.py",
+    "lines": 307,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "statistics",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_reversal_backtest.py",
+    "lines": 225,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_reversal_regime_diag.py",
+    "lines": 158,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_reversal_stop_backtest.py",
+    "lines": 217,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "cascade",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_round2_tests.py",
+    "lines": 443,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "b1",
+      "backfill",
+      "batch",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_round3_tests.py",
+    "lines": 598,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "ledger",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "removing",
+      "score",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 3,
+    "range_scan_count": 4,
+    "has_ami_governance_import": false,
+    "random_without_seed": true,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_round4_tests.py",
+    "lines": 338,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "db",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "q",
+      "sil_lo",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 3,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_round5_tests.py",
+    "lines": 358,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "db",
+      "liquidations",
+      "long_score",
+      "mark_prices",
+      "pathlib",
+      "score"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 2,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_round6_tests.py",
+    "lines": 375,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "db",
+      "liquidations",
+      "mark_prices",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_round7_tests.py",
+    "lines": 416,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "db",
+      "ledger",
+      "liquidations",
+      "long_score",
+      "mark_prices",
+      "pathlib",
+      "records"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 2,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_round8_tests.py",
+    "lines": 414,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "db",
+      "liquidations",
+      "mark_prices",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 3,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_rv_stale_fix_validation.py",
+    "lines": 217,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "vol_state"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "vol_state"
+    ],
+    "desc_limit1_count": 4,
+    "range_scan_count": 5,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_sell_bear_filter.py",
+    "lines": 239,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "liquidations",
+      "pathlib"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_sell_btc_microtrend.py",
+    "lines": 183,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_sell_delayed_long_scan.py",
+    "lines": 444,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_sell_liq_bounce.py",
+    "lines": 436,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_sell_liq_scan.py",
+    "lines": 252,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "liquidations",
+      "pathlib",
+      "tools"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_sell_path_quality.py",
+    "lines": 410,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "the"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_sell_regime_analysis.py",
+    "lines": 429,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "raw",
+      "statistics",
+      "tools"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_sell_reversal_filter.py",
+    "lines": 255,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "agg_trades",
+      "liquidations",
+      "mark_prices",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 4,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_sell_reversal_quality.py",
+    "lines": 264,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "liquidations",
+      "mark_prices",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_sell_threshold_timing.py",
+    "lines": 240,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "sell"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_sell_tpsl_sweep.py",
+    "lines": 244,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "liquidations",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_session_analysis.py",
+    "lines": 179,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db",
+      "s34_intelligence.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "microstructure",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_session_x_idiosyncrasy.py",
+    "lines": 247,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_short_conviction.py",
+    "lines": 283,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "book_ticker",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "s2",
+      "tools",
+      "vol_state"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "vol_state"
+    ],
+    "desc_limit1_count": 5,
+    "range_scan_count": 8,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_short_setup_chart.py",
+    "lines": 94,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "mark_prices",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_signal_discovery_v2.py",
+    "lines": 311,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "book_ticker",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "vol_state"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "vol_state"
+    ],
+    "desc_limit1_count": 7,
+    "range_scan_count": 5,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_signal_mining.py",
+    "lines": 231,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "book_ticker",
+      "datetime",
+      "funding_rates",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "spot_prices",
+      "tools",
+      "vol_state"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "spot_prices",
+      "vol_state"
+    ],
+    "desc_limit1_count": 7,
+    "range_scan_count": 5,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_silence_core_final.py",
+    "lines": 663,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "vol_state"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "vol_state"
+    ],
+    "desc_limit1_count": 2,
+    "range_scan_count": 4,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_silence_edge.py",
+    "lines": 425,
+    "tracked": false,
+    "mode_ro": false,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "mark_prices",
+      "pathlib",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_silence_gate_full.py",
+    "lines": 510,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "db",
+      "entry",
+      "liquidations",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_silence_predictor.py",
+    "lines": 521,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "vol_state"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "vol_state"
+    ],
+    "desc_limit1_count": 2,
+    "range_scan_count": 5,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_sol200k_sell_dayfilter.py",
+    "lines": 443,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "regime",
+      "statistics",
+      "tools"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_sol_route_sweep.py",
+    "lines": 465,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_source_quality_reconciliation.py",
+    "lines": 243,
+    "tracked": true,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "agg_trades",
+      "ami",
+      "ami_signal_lifecycle",
+      "gaps",
+      "liquidations",
+      "mark_prices",
+      "tools"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "ami_signal_lifecycle",
+      "gaps",
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_state_machine_audit.py",
+    "lines": 551,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "db",
+      "liquidations",
+      "mark_prices",
+      "neither",
+      "pathlib",
+      "short",
+      "statistics"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/research_s34_state_machine_deep.py",
+    "lines": 726,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "eth",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "short",
+      "statistics",
+      "this"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/research_s34_state_machine_v2_gauntlet.py",
+    "lines": 802,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "statistics",
+      "this",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/research_s34_subminute_leadlag.py",
+    "lines": 147,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "tools"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_symbol_compare.py",
+    "lines": 369,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "agg_trades",
+      "liquidations",
+      "mark_prices",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 4,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_sync_absorption_realfill.py",
+    "lines": 366,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_synchronization_gate.py",
+    "lines": 210,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_tail_cut.py",
+    "lines": 255,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "the",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_third_wave.py",
+    "lines": 839,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "liquidations",
+      "noisy",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_tp_sl_sweep.py",
+    "lines": 246,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "collections",
+      "cross",
+      "datetime",
+      "liquidations",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_trade_explain_chart.py",
+    "lines": 121,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "mark_prices",
+      "pathlib",
+      "the"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_trade_mgmt_gauntlet.py",
+    "lines": 401,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "tools"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 3,
+    "range_scan_count": 6,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_trailing_oos_realfill.py",
+    "lines": 434,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "book_ticker",
+      "liq_event_features",
+      "mark_prices",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_v5_permutation_artifact_detector.py",
+    "lines": 396,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_v6_management_system.py",
+    "lines": 638,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "book_ticker",
+      "datetime",
+      "pathlib",
+      "statistics",
+      "the",
+      "this",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 4,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_v_engine_sensitivity.py",
+    "lines": 323,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/research_s34_vshape_conditioning.py",
+    "lines": 185,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "calibration",
+      "cascade",
+      "datetime",
+      "pathlib",
+      "start",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_s34_wave_absorption.py",
+    "lines": 398,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "datetime",
+      "pathlib",
+      "runaways",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/research_sol_forced_flow_transfer.py",
+    "lines": 164,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "statistics"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/return_shock_alerts.py",
+    "lines": 185,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "microstructure",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/return_shock_watchlist.py",
+    "lines": 216,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/run_daily_research_pipeline.py",
+    "lines": 110,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/run_execution_canary.py",
+    "lines": 164,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/run_full_sweep.py",
+    "lines": 133,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "concurrent",
+      "pathlib",
+      "tools"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/run_liq_reversal_e2e.py",
+    "lines": 320,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/run_live_papertrade.py",
+    "lines": 85,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "src"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/run_rank_sweep.py",
+    "lines": 297,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "config",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/run_research_event_watchboard_cycle.py",
+    "lines": 402,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "history",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/run_scratch_calibration.py",
+    "lines": 237,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/s34_cascade_navigation_dashboard.py",
+    "lines": 1525,
+    "tracked": true,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "clean",
+      "dataclasses",
+      "datetime",
+      "ledger",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "rows",
+      "the",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_cascade_navigation_survey.py",
+    "lines": 191,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "pathlib",
+      "the",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/s34_eth_forecast_live.py",
+    "lines": 653,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db",
+      "s34_intelligence.db"
+    ],
+    "tables": [
+      "__future__",
+      "cascade",
+      "date",
+      "datetime",
+      "http",
+      "large",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "s34_trades",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "s34_trades"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/s34_execution_optimizer.py",
+    "lines": 225,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "book_ticker",
+      "datetime",
+      "events",
+      "pathlib",
+      "tools"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_intelligence_ledger.py",
+    "lines": 814,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "s34_cascade_correlations",
+      "s34_signals",
+      "s34_trades",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "s34_trades"
+    ],
+    "desc_limit1_count": 2,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_liq_outcome_calculator.py",
+    "lines": 1526,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db",
+      "s34_feature_factory.db",
+      "s34_intelligence.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "filtered",
+      "liq_event_features",
+      "liq_event_outcome_labels",
+      "mark_prices",
+      "min_notional",
+      "pathlib",
+      "s34_signals",
+      "s34_trades",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "s34_trades"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/s34_live_chart.py",
+    "lines": 3963,
+    "tracked": true,
+    "mode_ro": true,
+    "dbs": [
+      "lead_lag_work.db",
+      "microstructure.db",
+      "s34_intelligence.db",
+      "smoke_microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "ami",
+      "book_ticker",
+      "bucketed",
+      "closes",
+      "datetime",
+      "http",
+      "ledger",
+      "liq",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "process",
+      "read",
+      "s34_decisions",
+      "s34_model_audit",
+      "s34_model_guardrails",
+      "s34_outcomes",
+      "s34_predictions",
+      "s34_rejected_signals",
+      "s34_shadow_geometry_tags",
+      "s34_shadow_guardrails",
+      "s34_signals",
+      "s34_trades",
+      "shadow",
+      "sqlite_master",
+      "typing",
+      "urllib"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "s34_trades"
+    ],
+    "desc_limit1_count": 3,
+    "range_scan_count": 8,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_live_preflight.py",
+    "lines": 373,
+    "tracked": false,
+    "mode_ro": false,
+    "dbs": [
+      "microstructure.db",
+      "s34_intelligence.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "pathlib",
+      "s34_trades",
+      "statistics",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [
+      "s34_trades"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_mechanism_feature_store.py",
+    "lines": 262,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "book_ticker",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "spot_prices",
+      "tools"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "spot_prices"
+    ],
+    "desc_limit1_count": 3,
+    "range_scan_count": 8,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/s34_mechanism_taxonomy.py",
+    "lines": 178,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "events",
+      "mark_prices",
+      "pathlib"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 2,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/s34_navigation_bridge.py",
+    "lines": 453,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/s34_navigation_full_followup.py",
+    "lines": 492,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "mark_prices",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/s34_navigation_next_results.py",
+    "lines": 368,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/s34_precascade_predictor.py",
+    "lines": 184,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "book_ticker",
+      "datetime",
+      "liquidations",
+      "pathlib",
+      "spot_prices",
+      "tools"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "spot_prices"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/s34_preliq_shadow_detector.py",
+    "lines": 301,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "book_ticker",
+      "datetime",
+      "liquidations",
+      "live",
+      "mark_prices",
+      "pathlib",
+      "the",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 2,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/s34_realtime_shadow_runner.py",
+    "lines": 1514,
+    "tracked": true,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "book_ticker",
+      "datetime",
+      "full",
+      "liquidations",
+      "live",
+      "mark_prices",
+      "pathlib",
+      "robust",
+      "tools",
+      "typing",
+      "vol_state"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "vol_state"
+    ],
+    "desc_limit1_count": 9,
+    "range_scan_count": 13,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_regime_filter_shadow_eval.py",
+    "lines": 402,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "collections",
+      "datetime",
+      "mark_prices",
+      "pathlib",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/s34_replay.py",
+    "lines": 678,
+    "tracked": false,
+    "mode_ro": false,
+    "dbs": [
+      "microstructure.db",
+      "s34_intelligence.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "datetime",
+      "http",
+      "liquidations",
+      "microstructure",
+      "pathlib",
+      "s34_trades",
+      "typing",
+      "urllib"
+    ],
+    "allowlist_tables": [
+      "agg_trades"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations",
+      "s34_trades"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_runtime_status.py",
+    "lines": 184,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_shadow_backfill.py",
+    "lines": 304,
+    "tracked": true,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "db",
+      "historical",
+      "ledger",
+      "liquidations",
+      "nav_events",
+      "pathlib"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/s34_shadow_paper_runner.py",
+    "lines": 2342,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "book_ticker",
+      "dataclasses",
+      "datetime",
+      "detector_signals",
+      "liquidations",
+      "mark_prices",
+      "opening",
+      "pathlib",
+      "restored",
+      "s34_outcomes",
+      "s34_shadow_guardrails",
+      "sqlite_master",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 2,
+    "range_scan_count": 7,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": true,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_single_large_v1_validate.py",
+    "lines": 139,
+    "tracked": true,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "detector_signals",
+      "mark_prices",
+      "pathlib",
+      "statistics"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/s34_state_machine_live_executor.py",
+    "lines": 880,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "exchanges",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "the",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 3,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_stop_tighten_shadow_observer.py",
+    "lines": 247,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v02_candidate_execution_gauntlet.py",
+    "lines": 609,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "bisect",
+      "book_ticker",
+      "datetime",
+      "materialized",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": true,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v02_event_chain_puzzle_tests.py",
+    "lines": 614,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "bisect",
+      "datetime",
+      "liquidations",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v02_four_arm_symmetry_tests.py",
+    "lines": 627,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v02_frequency_expansion_tests.py",
+    "lines": 562,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "bisect",
+      "datetime",
+      "loosening",
+      "pathlib",
+      "positive",
+      "separate",
+      "statistics",
+      "this",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v02_h4_shadow_control_plane.py",
+    "lines": 653,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "collections",
+      "datetime",
+      "pathlib",
+      "statistics",
+      "tools",
+      "top",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v02_nav_spike_tests.py",
+    "lines": 541,
+    "tracked": false,
+    "mode_ro": false,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "book_ticker",
+      "dataclasses",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "statistics",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 4,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v02_next_navigation_tests.py",
+    "lines": 444,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "bisect",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v02_propagation_candidate_gauntlet.py",
+    "lines": 534,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "bisect",
+      "datetime",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v02_propagation_puzzle_suite.py",
+    "lines": 535,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "bisect",
+      "datetime",
+      "enriched",
+      "pathlib",
+      "same",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_adaptive_offset.py",
+    "lines": 281,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_btc_buy_short_anatomy.py",
+    "lines": 255,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_btc_kill_failed_short.py",
+    "lines": 490,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "the",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_cancel_replace.py",
+    "lines": 412,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_confirmation_cost_current.py",
+    "lines": 316,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_confirmation_delay_sweep.py",
+    "lines": 296,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_confirmation_layer.py",
+    "lines": 378,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "failure",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_data_incomplete_audit.py",
+    "lines": 294,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "book_ticker",
+      "collections",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_execution_frontier.py",
+    "lines": 269,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_failed_rebound.py",
+    "lines": 412,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_failure_anatomy.py",
+    "lines": 589,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "s34",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_forward_management_monitor.py",
+    "lines": 730,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "a",
+      "datetime",
+      "failure",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_forward_research_pack.py",
+    "lines": 535,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "mark_prices",
+      "pathlib",
+      "statistics",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 2,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_live_executor.py",
+    "lines": 940,
+    "tracked": true,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "anchor",
+      "datetime",
+      "detected",
+      "exchanges",
+      "liquidations",
+      "pathlib",
+      "the",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_multi_offset_shadow.py",
+    "lines": 402,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_next_questions_results.py",
+    "lines": 378,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "forward",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_next_research.py",
+    "lines": 367,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_next_research_results.py",
+    "lines": 383,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "statistics",
+      "the",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_portfolio_map.py",
+    "lines": 356,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_position_management.py",
+    "lines": 370,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_protective_stop.py",
+    "lines": 448,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "fill",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_shadow_observer.py",
+    "lines": 489,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "mark_prices",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_state_machine_observer.py",
+    "lines": 392,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "signal_ts",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_v02_shadow_mirror.py",
+    "lines": 1365,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "datetime",
+      "exc",
+      "historical",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "raw",
+      "the",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_v03_research_results.py",
+    "lines": 361,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_v10_operational_risk_suite.py",
+    "lines": 544,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_v11_forward_governance.py",
+    "lines": 397,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "pathlib",
+      "telemetry",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_v8_risk_refinement.py",
+    "lines": 427,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "datetime",
+      "mark_prices",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_v9_kill_forward_review.py",
+    "lines": 437,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "book_ticker",
+      "datetime",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "book_ticker"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 2,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/s34_v_engine_winner_extension.py",
+    "lines": 292,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": true
+  },
+  {
+    "path": "tools/shadow_lane_signal_emitter.py",
+    "lines": 457,
+    "tracked": true,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "detector_signals",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 1,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/smoke_all.py",
+    "lines": 284,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [
+      "micro.db"
+    ],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "sqlite_master",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/sol_eth_conflict_check.py",
+    "lines": 152,
+    "tracked": true,
+    "mode_ro": true,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "detector_signals",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "statistics"
+    ],
+    "allowlist_tables": [
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/spread_stress_alerts.py",
+    "lines": 178,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "microstructure",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/spread_stress_watchlist.py",
+    "lines": 215,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/state_reconstruct.py",
+    "lines": 220,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "collections",
+      "datetime",
+      "pathlib",
+      "replay",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/storage_migration_inventory_scan.py",
+    "lines": 104,
+    "tracked": false,
+    "mode_ro": true,
+    "dbs": [
+      "microstructure.db"
+    ],
+    "tables": [
+      "__future__",
+      "ami",
+      "pathlib"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/sweep_eval.py",
+    "lines": 307,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/sweep_micro_edge_exec_models.py",
+    "lines": 205,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "config",
+      "execution",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/sweep_passive_realistic_filters.py",
+    "lines": 302,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "config",
+      "execution",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/telegram_bot.py",
+    "lines": 423,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "core",
+      "datetime",
+      "dotenv",
+      "html",
+      "mark_prices",
+      "monitoring",
+      "pathlib",
+      "telegram",
+      "trades",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 1,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/triage_capacity.py",
+    "lines": 167,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "config",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/validate_data_research_fitness.py",
+    "lines": 326,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "data",
+      "liquidations",
+      "mark_prices",
+      "pathlib",
+      "sqlite_master",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades",
+      "mark_prices"
+    ],
+    "out_of_allowlist_tables": [
+      "liquidations"
+    ],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/validate_env.py",
+    "lines": 482,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "dotenv",
+      "pathlib",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/validate_microstructure_contract.py",
+    "lines": 262,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "src",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/validate_passive_pocket_forward.py",
+    "lines": 886,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "attempt_level_metrics",
+      "config",
+      "execution",
+      "pathlib",
+      "rolling",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/verify_data_layer.py",
+    "lines": 219,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/verify_regime_consistency.py",
+    "lines": 139,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "core",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/volatility_burst_alerts.py",
+    "lines": 175,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "microstructure",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/volatility_burst_watchlist.py",
+    "lines": 216,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/volume_vacuum_alerts.py",
+    "lines": 166,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "microstructure",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/volume_vacuum_watchlist.py",
+    "lines": 215,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/walkforward_eval.py",
+    "lines": 446,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "agg_trades",
+      "datetime",
+      "pathlib",
+      "statistics",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [
+      "agg_trades"
+    ],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 1,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/walkforward_sweep.py",
+    "lines": 472,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "copy",
+      "pathlib",
+      "tools",
+      "typing"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  },
+  {
+    "path": "tools/watch_regime_recovery.py",
+    "lines": 146,
+    "tracked": true,
+    "mode_ro": false,
+    "dbs": [],
+    "tables": [
+      "__future__",
+      "tools"
+    ],
+    "allowlist_tables": [],
+    "out_of_allowlist_tables": [],
+    "desc_limit1_count": 0,
+    "range_scan_count": 0,
+    "has_ami_governance_import": false,
+    "random_without_seed": false,
+    "writes_report": false,
+    "do_not_touch_by_name": false
+  }
+]
