@@ -84,8 +84,18 @@ SCALEIN_WINDOW_MS       = 2 * 3600_000
 # EV-BUYFADE-SILEXIT-001 en iyi adayi (8/9 kontrol, val econ +1.37<3bps REJECTED) —
 # forward delta birikimi icin gozlemde; SIPARIS YOK, baseline cikisi DEGISMEZ.
 BD_FIRST_BUY50_ACTIVATION_UTC = "2026-07-10T18:00:00+00:00"  # frozen activation-ts (Phase 8 disiplini)
+# OD-004-FOLLOWUP (independent-review corrective): activation_utc is an
+# ENFORCED event-time lower boundary, not a label. The observer's search
+# window never starts before max(entry_ts_ms + 30min, this ms value) —
+# restart timing itself is never the economic boundary.
+BD_FIRST_BUY50_ACTIVATION_MS  = int(datetime.fromisoformat(BD_FIRST_BUY50_ACTIVATION_UTC).timestamp() * 1000)
 BD_FIRST_BUY50_THRESH_USD     = 50_000.0
 BD_FIRST_BUY50_START_MS       = 30 * 60_000  # T+30m sonrasi ilk yeni BUY>=50K
+BD_FIRST_BUY50_PROTOCOL_VERSION = "v2"
+# Process-instance boundary: set once at import (= once per process
+# lifetime/restart). Used only to LABEL whether a found event predates this
+# process (reconstructed_after_restart) -- never gates selection itself.
+_PROCESS_START_MS = int(time.time() * 1000)
 SCALEIN_ROUTES = {"LONG_HOUR17_HOLD6H", "LONG_HOUR17_COMPOSITE", "LONG_HOUR17_100K_COMPOSITE"}
 
 BUCKET_SEC        = 300
@@ -1195,30 +1205,44 @@ def advance_positions(conn, state: dict, now_ms: int) -> None:
             if bobs is None:
                 bobs = {
                     "protocol": "BD_FIRST_BUY50_EXIT_OBSERVER",
+                    "protocol_version": BD_FIRST_BUY50_PROTOCOL_VERSION,
+                    "route": sig,
                     "mode": "OBSERVE_ONLY_NO_ORDER",
                     "activation_utc": BD_FIRST_BUY50_ACTIVATION_UTC,
                     "start_after_ms": BD_FIRST_BUY50_START_MS,
                     "thresh_usd": BD_FIRST_BUY50_THRESH_USD,
                     "triggered": False,
-                    "shadow_exit_ts_ms": None,
-                    "shadow_exit_price": None,
-                    "shadow_exit_net_bps": None,
+                    "hypothetical_exit_ts_ms": None,
+                    "hypothetical_exit_price": None,
+                    "hypothetical_exit_net_bps": None,
+                    "detected_at_ts_ms": None,
+                    "reconstructed_after_restart": None,
+                    "baseline_exit_ts_ms": None,
+                    "baseline_net_bps": None,
+                    "delta_vs_baseline_bps": None,
                 }
                 pos["bd_first_buy50_observer"] = bobs
             _bets = int(pos.get("entry_ts_ms") or 0)
-            if _bets and not bobs.get("triggered") and now_ms >= _bets + BD_FIRST_BUY50_START_MS:
-                _bt = liq_first_ts(conn, "ETHUSDT", "BUY", _bets + BD_FIRST_BUY50_START_MS, now_ms, BD_FIRST_BUY50_THRESH_USD)
-                if _bt is not None:
-                    _bpx = mark_at(conn, "ETHUSDT", int(_bt))
-                    _bentry = float(pos.get("entry_price") or 0.0)
-                    if _bpx and _bentry > 0:
-                        _bmove = (float(_bpx) - _bentry) / _bentry * 10_000.0
-                        _bnet = (-_bmove if pos.get("direction") == "SHORT" else _bmove) - FEE_BPS
-                        bobs["triggered"] = True
-                        bobs["shadow_exit_ts_ms"] = int(_bt)
-                        bobs["shadow_exit_price"] = float(_bpx)
-                        bobs["shadow_exit_net_bps"] = round(_bnet, 2)
-                        log_event({**pos, "event": "BD_FIRST_BUY50_OBS_EXIT"})
+            if _bets and not bobs.get("triggered"):
+                # OD-004-FOLLOWUP: enforced lower bound = later of (entry+30m,
+                # activation). Never selects an event before either boundary,
+                # regardless of when this tick happens to run (restart-safe).
+                _search_lower_ms = max(_bets + BD_FIRST_BUY50_START_MS, BD_FIRST_BUY50_ACTIVATION_MS)
+                if now_ms >= _search_lower_ms:
+                    _bt = liq_first_ts(conn, "ETHUSDT", "BUY", _search_lower_ms, now_ms, BD_FIRST_BUY50_THRESH_USD)
+                    if _bt is not None:
+                        _bpx = mark_at(conn, "ETHUSDT", int(_bt))
+                        _bentry = float(pos.get("entry_price") or 0.0)
+                        if _bpx and _bentry > 0:
+                            _bmove = (float(_bpx) - _bentry) / _bentry * 10_000.0
+                            _bnet = (-_bmove if pos.get("direction") == "SHORT" else _bmove) - FEE_BPS
+                            bobs["triggered"] = True
+                            bobs["hypothetical_exit_ts_ms"] = int(_bt)
+                            bobs["hypothetical_exit_price"] = float(_bpx)
+                            bobs["hypothetical_exit_net_bps"] = round(_bnet, 2)
+                            bobs["detected_at_ts_ms"] = int(now_ms)
+                            bobs["reconstructed_after_restart"] = bool(int(_bt) < _PROCESS_START_MS)
+                            log_event({**pos, "event": "BD_FIRST_BUY50_OBS_EXIT"})
 
             entry_px = float(pos.get("entry_price") or 0.0)
             cur_px = mark_at(conn, "ETHUSDT", now_ms)
@@ -1281,8 +1305,10 @@ def _close_pos(pos: dict, conn, now_ms: int, reason: str) -> None:
             mech["missing"] = list(set(mech.get("missing", []) + ["bk_refill"]))
     # OD-004 bd_first_buy50 gozlemcisi: kapaniste baseline'a gore delta
     bobs = pos.get("bd_first_buy50_observer")
-    if bobs and bobs.get("triggered") and bobs.get("shadow_exit_net_bps") is not None:
-        bobs["delta_vs_baseline_bps"] = round(float(bobs["shadow_exit_net_bps"]) - float(pos["net_bps"]), 2)
+    if bobs and bobs.get("triggered") and bobs.get("hypothetical_exit_net_bps") is not None:
+        bobs["baseline_exit_ts_ms"] = pos.get("exit_ts_ms")
+        bobs["baseline_net_bps"] = pos.get("net_bps")
+        bobs["delta_vs_baseline_bps"] = round(float(bobs["hypothetical_exit_net_bps"]) - float(pos["net_bps"]), 2)
     # SCALEIN gozlemcisi: eklenmisse birlesik per-unit (2 birim, her biri fee oder)
     sobs = pos.get("scalein_observer")
     if sobs and sobs.get("added") and sobs.get("add_pnl_bps") is not None:
