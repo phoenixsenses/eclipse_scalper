@@ -1,98 +1,37 @@
-﻿from __future__ import annotations
+"""DEPRECATED. Retired as an always-on process -- see the canonical topology
+decision in reports/research/s34/CANONICAL_OPERATIONAL_HEALTH_2026-07-10.md.
 
-import argparse
-import asyncio
-import json
-import logging
-from logging.handlers import RotatingFileHandler
-import os
+This module used to run a persistent loop that wrote both
+logs/health/watchdog.json and logs/health/overall.json under the same
+component name/filenames that tools/heartbeat_watchdog.py also writes,
+racing against it (and, until 2026-07-03, against
+data/microstructure_collector.py's own blind-overwrite of overall.json).
+It was never launched by start_eclipse.ps1 in the first place.
+
+The one genuinely unique responsibility here -- research-fitness readiness
+(analyze_research_fitness) -- now lives in tools/research_fitness_report.py
+as a one-shot, dedicated-output tool. This file is kept only as a thin,
+non-looping compatibility shim for anyone still invoking it by name; it
+cannot write any operational-health file and cannot loop.
+
+The staleness-detection helpers below (get_latest_timestamp, _is_stale,
+_pick_table) are kept as plain, side-effect-free utilities -- still exercised
+by tests/test_collection_watchdog.py -- but are no longer wired into any
+alerting or health-file-writing path.
+"""
+from __future__ import annotations
+
 import sqlite3
 import sys
 import time
+from logging.handlers import RotatingFileHandler
+import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-from notifications.telegram import Notifier
-from notifications.health_alerts import build_data_stale_event
 from tools.check_data_ready import detect_ts_col, list_tables, normalize_ts_to_seconds, table_columns
-from tools.health_state import write_component_health, write_overall_health, utc_now_iso
-from tools.validate_data_research_fitness import analyze_research_fitness
+from tools.research_fitness_report import build_report, _atomic_write_json, _parse_symbols
 
-
-OVERALL_HEALTH_PATH = Path("logs/health/overall.json")
-
-
-def _parse_symbols(raw: str) -> List[str]:
-    return [s.strip().upper() for s in str(raw or "").replace(";", ",").split(",") if s.strip()]
-
-
-def _fitness_component(db_path: Path, symbols: List[str]) -> Dict[str, object]:
-    payload = analyze_research_fitness(
-        db_path=db_path,
-        csv_path=Path("data/event_diary.csv"),
-        symbols=list(symbols or ["BTCUSDT"]),
-        fresh_sec=120,
-    )
-    status = str(payload.get("status") or "unknown")
-    if status == "fail":
-        level = "degraded"
-    elif status == "warn":
-        level = "warning"
-    else:
-        level = "ok"
-    return {
-        "status": level,
-        "connected": bool(payload.get("db_ready")),
-        "detail": (
-            f"fitness_status={status} "
-            f"warnings={len(payload.get('warnings') or [])} "
-            f"failures={len(payload.get('failures') or [])}"
-        ),
-        "warnings": len(payload.get("warnings") or []),
-        "failures": len(payload.get("failures") or []),
-        "contract_tier": str((payload.get("contract") or {}).get("tier") or "unknown"),
-        "symbols": list(symbols or ["BTCUSDT"]),
-    }
-
-
-
-def _read_existing_overall(path: Optional[Path] = None) -> Dict[str, object]:
-    path = OVERALL_HEALTH_PATH if path is None else Path(path)
-    try:
-        if not path.exists():
-            return {}
-        with path.open("r", encoding="utf-8") as f:
-            payload = json.load(f)
-        return payload if isinstance(payload, dict) else {}
-    except Exception:
-        return {}
-
-
-def _merged_overall_health(
-    *,
-    state: str,
-    reason: str,
-    watchdog_component: Dict[str, object],
-    fitness_component: Dict[str, object],
-) -> Dict[str, object]:
-    """Update watchdog truth without erasing unrelated component truth."""
-    existing = _read_existing_overall()
-    components = existing.get("components")
-    merged_components: Dict[str, object] = dict(components) if isinstance(components, dict) else {}
-    merged_components["watchdog"] = dict(watchdog_component)
-    merged_components["data_research_fitness"] = dict(fitness_component)
-
-    payload = dict(existing)
-    payload.update(
-        {
-            "ts_utc": utc_now_iso(),
-            "state": state,
-            "reason": reason,
-            "components": merged_components,
-        }
-    )
-    payload.setdefault("mode", existing.get("mode") or "paper")
-    return payload
 
 def _setup_logger(log_path: Path) -> logging.Logger:
     log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -164,19 +103,6 @@ def get_latest_timestamp(
         conn.close()
 
 
-async def _send_telegram(text: str, dry_run: bool) -> None:
-    if dry_run:
-        print(f"[dry-run alert] {text}")
-        return
-    token = os.getenv("ECLIPSE_TG_BOT_TOKEN") or os.getenv("TELEGRAM_TOKEN")
-    chat_id = os.getenv("ECLIPSE_TG_CHAT_ID") or os.getenv("TELEGRAM_CHAT_ID")
-    if not token or not chat_id:
-        print("[alert skipped] missing telegram token/chat id env")
-        return
-    notifier = Notifier(token=token, chat_id=chat_id)
-    await notifier.speak(text, priority="critical")
-
-
 def _is_stale(latest_ts_sec: Optional[float], stale_threshold_sec: int, now_sec: Optional[float] = None) -> bool:
     if latest_ts_sec is None:
         return True
@@ -184,147 +110,44 @@ def _is_stale(latest_ts_sec: Optional[float], stale_threshold_sec: int, now_sec:
     return (now - float(latest_ts_sec)) > float(stale_threshold_sec)
 
 
-def _args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Microstructure collection watchdog.")
+def main() -> int:
+    import argparse
+
+    p = argparse.ArgumentParser(
+        description="DEPRECATED -- delegates to tools.research_fitness_report (one-shot, no operational-health writes)."
+    )
     p.add_argument("--db", default="data/microstructure.db")
     p.add_argument("--symbols", default="BTCUSDT,ETHUSDT")
-    p.add_argument("--table", default="", help="Optional table override (default picks mark_prices first).")
-    p.add_argument("--check-interval-sec", type=int, default=300)
-    p.add_argument("--stale-threshold-sec", type=int, default=300)
-    p.add_argument("--log", default="logs/watchdog.log")
-    p.add_argument("--dry-run", action="store_true")
-    return p.parse_args()
+    p.add_argument("--csv", default="data/event_diary.csv")
+    p.add_argument("--fresh-sec", type=int, default=120)
+    p.add_argument("--out", default="logs/health/research_fitness.json")
+    # Accepted for backward-compatible argument parsing only; a persistent
+    # loop is intentionally no longer possible from this entry point.
+    p.add_argument("--check-interval-sec", type=int, default=None, help=argparse.SUPPRESS)
+    p.add_argument("--stale-threshold-sec", type=int, default=None, help=argparse.SUPPRESS)
+    p.add_argument("--table", default="", help=argparse.SUPPRESS)
+    p.add_argument("--log", default=None, help=argparse.SUPPRESS)
+    p.add_argument("--dry-run", action="store_true", help=argparse.SUPPRESS)
+    args = p.parse_args()
 
+    print(
+        "DEPRECATED tools.collection_watchdog no longer runs a persistent loop or writes "
+        "logs/health/watchdog.json or logs/health/overall.json. Delegating once to "
+        "tools.research_fitness_report; use that module directly going forward.",
+        file=sys.stderr,
+    )
 
-async def run_loop(args: argparse.Namespace) -> int:
-    db_path = Path(str(args.db))
-    symbols = _parse_symbols(args.symbols)
-    logger = _setup_logger(Path(str(args.log)))
-    start_msg = f"Eclipse Watchdog started, monitoring {db_path}"
-    await _send_telegram(start_msg, bool(args.dry_run))
-    print(start_msg)
-    logger.info(start_msg)
-    try:
-        while True:
-            await run_once(
-                db_path=db_path,
-                symbols=symbols,
-                table=str(args.table),
-                stale_threshold_sec=int(args.stale_threshold_sec),
-                logger=logger,
-                dry_run=bool(args.dry_run),
-            )
-            await asyncio.sleep(max(1, int(args.check_interval_sec)))
-    except KeyboardInterrupt:
-        logger.info("watchdog_stopped")
-        print("watchdog_stopped")
-        return 0
-
-
-def main() -> int:
-    args = _args()
-    return asyncio.run(run_loop(args))
-
-
-async def run_once(
-    *,
-    db_path: Path,
-    symbols: List[str],
-    table: str,
-    stale_threshold_sec: int,
-    logger: logging.Logger,
-    dry_run: bool,
-) -> Dict[str, object]:
-    now = time.time()
-    try:
-        latest = get_latest_timestamp(db_path=db_path, symbols=symbols, table=str(table))
-        table_name = str(latest.get("_table"))
-        ts_col = str(latest.get("_ts_col"))
-        stale_symbols: List[str] = []
-        for sym in symbols if symbols else ["ALL"]:
-            ts = latest.get(sym)
-            if _is_stale(ts, int(stale_threshold_sec), now_sec=now):
-                stale_symbols.append(sym)
-        if stale_symbols:
-            fitness = _fitness_component(db_path, symbols)
-            parts = []
-            max_age = 0
-            last_ts = None
-            for sym in stale_symbols:
-                ts = latest.get(sym)
-                age = None if ts is None else (now - float(ts))
-                if age is not None:
-                    max_age = max(max_age, int(age))
-                if ts is not None and (last_ts is None or float(ts) < float(last_ts)):
-                    last_ts = float(ts)
-                parts.append(f"{sym}:last_ts={ts} age_sec={None if age is None else int(age)}")
-            msg = (
-                f"COLLECTOR STALE table={table_name} ts_col={ts_col} "
-                f"threshold_sec={int(stale_threshold_sec)} details={' | '.join(parts)}"
-            )
-            logger.warning(msg)
-            last_row_utc = (
-                time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime(float(last_ts)))
-                if last_ts is not None
-                else "unknown"
-            )
-            watchdog_component = {
-                "status": "degraded",
-                "connected": False,
-                "last_progress_ts_utc": last_row_utc,
-                "progress_lag_sec": int(max_age),
-                "reconnects_last_5m": 0,
-                "errors_last_5m": 1,
-            }
-            write_component_health("watchdog", watchdog_component)
-            write_overall_health(
-                _merged_overall_health(
-                    state="degraded",
-                    reason="watchdog_stale_data",
-                    watchdog_component=watchdog_component,
-                    fitness_component=fitness,
-                )
-            )
-            if callable(build_data_stale_event):
-                evt = build_data_stale_event(
-                    stale_sec=int(max_age),
-                    last_row_utc=last_row_utc,
-                    symbols=",".join(stale_symbols),
-                )
-                await _send_telegram(f"{msg}\n{evt.render()}", bool(dry_run))
-            else:
-                await _send_telegram(msg, bool(dry_run))
-            return {"ok": False, "stale_symbols": stale_symbols, "table": table_name}
-        logger.info(f"OK table={table_name} ts_col={ts_col} symbols={','.join(symbols)}")
-        fitness = _fitness_component(db_path, symbols)
-        watchdog_component = {
-            "status": "ok",
-            "connected": True,
-            "last_progress_ts_utc": utc_now_iso(),
-            "progress_lag_sec": 0,
-            "reconnects_last_5m": 0,
-            "errors_last_5m": 0,
-        }
-        write_component_health("watchdog", watchdog_component)
-        write_overall_health(
-            _merged_overall_health(
-                state="ok",
-                reason="watchdog_ok",
-                watchdog_component=watchdog_component,
-                fitness_component=fitness,
-            )
-        )
-        return {"ok": True, "stale_symbols": [], "table": table_name}
-    except Exception as exc:
-        msg = f"watchdog_check_error err={type(exc).__name__}:{exc}"
-        logger.error(msg)
-        await _send_telegram(msg, bool(dry_run))
-        return {"ok": False, "error": str(exc)}
+    report = build_report(
+        db_path=Path(str(args.db)),
+        csv_path=Path(str(args.csv)),
+        symbols=_parse_symbols(args.symbols),
+        fresh_sec=int(args.fresh_sec),
+        stale_after_sec=3600,
+    )
+    _atomic_write_json(Path(str(args.out)), report)
+    print(f"research_fitness status={report['status']} contract_tier={report['contract_tier']}")
+    return {"ready": 0, "limited": 1, "blocked": 2}.get(report["status"], 3)
 
 
 if __name__ == "__main__":
     sys.exit(main())
-
-
-
-

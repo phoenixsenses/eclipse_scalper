@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from data.features.micro_features import compute_features, load_symbol_window
-from tools.check_data_ready import check_db_fresh
+from tools.check_data_ready import RESEARCH_FITNESS_TABLE_ALLOWLIST, check_db_fresh
 from tools.run_summary import build_run_summary
 from tools.validate_microstructure_contract import analyze_contract
 
@@ -29,7 +29,24 @@ def _csv_status(csv_path: Path, fresh_sec: int, now: float) -> Dict[str, Any]:
     }
 
 
-def _symbol_sample_stats(conn: sqlite3.Connection, symbols: List[str]) -> Dict[str, Dict[str, Any]]:
+# Both sample-stats and feature-fitness are recent-activity checks ("is
+# there usable data right now"), not historical audits -- so bounding them
+# to a recent window is the semantically correct behavior, not just a
+# performance workaround. Discovered 2026-07-10: an unbounded exact
+# COUNT(*) per symbol (all-time) and an unbounded load_symbol_window() (no
+# start/end/limit -> fetches a symbol's ENTIRE history across every
+# ts+symbol-keyed table into memory) together made a live one-shot run
+# against the real, actively-growing data/microstructure.db hang past 90s
+# even after the inspect_tables() allow-list fix (Part B). Both are now
+# bounded to the same recent window + a hard row cap, using the existing
+# (symbol, ts_ms) composite indices for an efficient range scan instead of
+# a full scan. See reports/research/s34/CANONICAL_OPERATIONAL_HEALTH_2026-07-10.md
+# Part B.
+_RECENT_ACTIVITY_WINDOW_SEC = 600
+_FEATURE_ROW_LIMIT_PER_TABLE = 2000
+
+
+def _symbol_sample_stats(conn: sqlite3.Connection, symbols: List[str], now_ts: float) -> Dict[str, Dict[str, Any]]:
     out: Dict[str, Dict[str, Any]] = {}
     tables = set()
     try:
@@ -37,19 +54,30 @@ def _symbol_sample_stats(conn: sqlite3.Connection, symbols: List[str]) -> Dict[s
         tables = {str(r[0]) for r in rows if r and r[0]}
     except Exception:
         tables = set()
+    end_ms = int(now_ts * 1000)
+    start_ms = end_ms - _RECENT_ACTIVITY_WINDOW_SEC * 1000
     for symbol in symbols:
         trades = (
-            int(conn.execute("SELECT COUNT(*) FROM agg_trades WHERE symbol = ?", (symbol,)).fetchone()[0])
+            int(conn.execute(
+                "SELECT COUNT(*) FROM agg_trades WHERE symbol = ? AND ts_ms >= ? AND ts_ms <= ?",
+                (symbol, start_ms, end_ms),
+            ).fetchone()[0])
             if "agg_trades" in tables
             else 0
         )
         marks = (
-            int(conn.execute("SELECT COUNT(*) FROM mark_prices WHERE symbol = ?", (symbol,)).fetchone()[0])
+            int(conn.execute(
+                "SELECT COUNT(*) FROM mark_prices WHERE symbol = ? AND ts_ms >= ? AND ts_ms <= ?",
+                (symbol, start_ms, end_ms),
+            ).fetchone()[0])
             if "mark_prices" in tables
             else 0
         )
         liqs = (
-            int(conn.execute("SELECT COUNT(*) FROM liquidations WHERE symbol = ?", (symbol,)).fetchone()[0])
+            int(conn.execute(
+                "SELECT COUNT(*) FROM liquidations WHERE symbol = ? AND ts_ms >= ? AND ts_ms <= ?",
+                (symbol, start_ms, end_ms),
+            ).fetchone()[0])
             if "liquidations" in tables
             else 0
         )
@@ -61,10 +89,14 @@ def _symbol_sample_stats(conn: sqlite3.Connection, symbols: List[str]) -> Dict[s
     return out
 
 
-def _feature_fitness(conn: sqlite3.Connection, symbols: List[str]) -> Dict[str, Dict[str, Any]]:
+def _feature_fitness(conn: sqlite3.Connection, symbols: List[str], now_ts: float) -> Dict[str, Dict[str, Any]]:
     out: Dict[str, Dict[str, Any]] = {}
+    end_ms = int(now_ts * 1000)
+    start_ms = end_ms - _RECENT_ACTIVITY_WINDOW_SEC * 1000
     for symbol in symbols:
-        records = load_symbol_window(conn, symbol)
+        records = load_symbol_window(
+            conn, symbol, start_ms=start_ms, end_ms=end_ms, limit_per_table=_FEATURE_ROW_LIMIT_PER_TABLE
+        )
         features = compute_features(records, volatility_window=5) if records else []
         out[symbol] = {
             "records": int(len(records)),
@@ -172,9 +204,19 @@ def analyze_research_fitness(
     elif not csv_status["fresh"]:
         warnings.append("stale_event_diary_csv")
 
-    conn = sqlite3.connect(str(db_path))
+    # Read-only: research fitness only ever SELECTs. data/microstructure.db
+    # in particular must always be opened mode=ro (CLAUDE.md guardrail) --
+    # it is a large, concurrently-written production database.
+    conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
     try:
-        ready_ok, ready_details, _table_diags = check_db_fresh(conn, symbols=symbols, fresh_sec=fresh_sec, now=now_ts)
+        # Bounded to RESEARCH_FITNESS_TABLE_ALLOWLIST: unrelated operational
+        # tables (e.g. the unindexed detector_heartbeat) are never scanned --
+        # see reports/research/s34/CANONICAL_OPERATIONAL_HEALTH_2026-07-10.md
+        # Part B.
+        ready_ok, ready_details, _table_diags = check_db_fresh(
+            conn, symbols=symbols, fresh_sec=fresh_sec, now=now_ts,
+            table_allowlist=RESEARCH_FITNESS_TABLE_ALLOWLIST,
+        )
         if not ready_ok:
             failures.append("db_not_ready")
 
@@ -184,8 +226,8 @@ def analyze_research_fitness(
         elif contract["status"] == "warn":
             warnings.append("contract_warn")
 
-        sample_stats = _symbol_sample_stats(conn, symbols)
-        feature_stats = _feature_fitness(conn, symbols)
+        sample_stats = _symbol_sample_stats(conn, symbols, now_ts=now_ts)
+        feature_stats = _feature_fitness(conn, symbols, now_ts=now_ts)
     finally:
         conn.close()
 

@@ -6,8 +6,19 @@ import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
+
+# Tables research-fitness readiness actually needs: they are exactly the
+# tables the rest of analyze_research_fitness() already queries directly
+# (tools/validate_data_research_fitness.py::_symbol_sample_stats,
+# tools/replay_slice.py::_table_specs use this same triple). Passed as
+# table_allowlist to inspect_tables()/check_db_fresh() so a large unrelated
+# operational table (e.g. detector_heartbeat, which has no index on its
+# timestamp column and made a bare SELECT MAX() hang past 60s against the
+# production database) is never scanned. See
+# reports/research/s34/CANONICAL_OPERATIONAL_HEALTH_2026-07-10.md Part B.
+RESEARCH_FITNESS_TABLE_ALLOWLIST: Tuple[str, ...] = ("mark_prices", "agg_trades", "liquidations")
 
 TS_CANDIDATES = [
     "ts",
@@ -121,10 +132,23 @@ def _latest_symbol_ts(conn: sqlite3.Connection, table_diags: List[TableDiag], sy
     return best
 
 
-def inspect_tables(conn: sqlite3.Connection, now: Optional[float] = None) -> List[TableDiag]:
+def inspect_tables(
+    conn: sqlite3.Connection,
+    now: Optional[float] = None,
+    table_allowlist: Optional[Sequence[str]] = None,
+) -> List[TableDiag]:
+    """Inspects tables in the database. table_allowlist=None (the default)
+    preserves prior full-scan behavior for existing callers. Pass an
+    explicit allowlist (e.g. RESEARCH_FITNESS_TABLE_ALLOWLIST) to bound the
+    scan to only the tables actually required by the caller -- unrelated
+    tables, however large or unindexed, are never touched."""
     now_ts = float(now if now is not None else time.time())
     out: List[TableDiag] = []
-    for table in list_tables(conn):
+    candidate_tables = list_tables(conn)
+    if table_allowlist is not None:
+        allowed = set(table_allowlist)
+        candidate_tables = [t for t in candidate_tables if t in allowed]
+    for table in candidate_tables:
         try:
             cols = table_columns(conn, table)
         except sqlite3.DatabaseError as exc:
@@ -175,10 +199,11 @@ def check_db_fresh(
     symbols: List[str],
     fresh_sec: int,
     now: Optional[float] = None,
+    table_allowlist: Optional[Sequence[str]] = None,
 ) -> Tuple[bool, Dict[str, str], List[TableDiag]]:
     details: Dict[str, str] = {}
     now_ts = float(now if now is not None else time.time())
-    table_diags = inspect_tables(conn, now=now_ts)
+    table_diags = inspect_tables(conn, now=now_ts, table_allowlist=table_allowlist)
     if not table_diags:
         details["db"] = "no user tables in sqlite database"
         return False, details, table_diags

@@ -86,7 +86,10 @@ def _feature_capability(
 
 
 def analyze_contract(db_path: Path, symbols: List[str], require_true_book: bool = False) -> Dict[str, Any]:
-    conn = sqlite3.connect(str(db_path))
+    # Read-only: this function only ever SELECTs/PRAGMAs. mode=ro also fails
+    # loudly (sqlite3.OperationalError) instead of silently creating an
+    # empty file if db_path doesn't exist, unlike a plain rw connect().
+    conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
     try:
         existing_tables = set(list_tables(conn))
         table_contracts: Dict[str, Dict[str, Any]] = {}

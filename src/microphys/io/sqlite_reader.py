@@ -71,7 +71,11 @@ class TableMapping:
 
 
 def discover_mappings(db_path: Path) -> Dict[str, Optional[TableMapping]]:
-    conn = sqlite3.connect(str(db_path))
+    # Read-only: metadata discovery only (PRAGMA table_info), no data
+    # mutation. data/microstructure.db in particular must always be opened
+    # mode=ro (CLAUDE.md guardrail) -- it is a large, concurrently-written
+    # production database.
+    conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
     try:
         tables = list_tables(conn)
         out: Dict[str, Optional[TableMapping]] = {"trades": None, "book": None, "liquidations": None}
