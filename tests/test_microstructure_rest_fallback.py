@@ -94,7 +94,7 @@ def test_collector_uses_routed_market_stream_and_arr_liquidations_by_default():
 
     url = collector._build_stream_url()
 
-    assert url.startswith("wss://fstream.binance.com/stream?streams=")
+    assert url.startswith("wss://fstream.binance.com/market/stream?streams=")
     assert "!forceOrder@arr" in url
     assert "btcusdt@forceOrder" not in url
     assert "btcusdt@aggTrade" in url
@@ -106,6 +106,37 @@ def test_collector_can_restore_per_symbol_liquidation_strategy():
 
     url = collector._build_stream_url()
 
-    assert url.startswith("wss://fstream.binance.com/stream?streams=")
+    assert url.startswith("wss://fstream.binance.com/market/stream?streams=")
     assert "!forceOrder@arr" not in url
     assert "btcusdt@forceOrder" in url
+
+
+def test_collector_ws_base_is_routed_market_endpoint():
+    """Regression guard: 2026-06-06 and 2026-07-03 both saw this endpoint
+    flip-flop with the routed /market path silently killing all live data
+    (handshake succeeds, zero application frames ever arrive). BINANCE_WS
+    must stay on the routed path."""
+    assert MicrostructureCollector.BINANCE_WS == "wss://fstream.binance.com/market/stream"
+
+
+def test_build_stream_url_never_duplicates_market_path_segment():
+    for mode in ("all_market_arr", "per_symbol"):
+        collector = MicrostructureCollector(symbols=["BTCUSDT", "ETHUSDT", "SOLUSDT"], liquidation_stream_mode=mode)
+        url = collector._build_stream_url()
+        assert url.count("/market/stream") == 1
+        assert "/market/market" not in url
+
+
+def test_build_stream_url_exact_expected_shape_all_market_arr():
+    collector = MicrostructureCollector(symbols=["BTCUSDT", "ETHUSDT", "SOLUSDT"])
+    url = collector._build_stream_url()
+    assert url == (
+        "wss://fstream.binance.com/market/stream?streams="
+        "!forceOrder@arr/btcusdt@aggTrade/btcusdt@markPrice@1s/"
+        "ethusdt@aggTrade/ethusdt@markPrice@1s/solusdt@aggTrade/solusdt@markPrice@1s"
+    )
+
+
+def test_rest_endpoints_are_unaffected_by_ws_routing():
+    """The REST fallback host must stay independent of the WS routing fix."""
+    assert MicrostructureCollector.BINANCE_REST == "https://fapi.binance.com"

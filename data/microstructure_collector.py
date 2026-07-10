@@ -408,7 +408,7 @@ class StreamParser:
 class MicrostructureCollector:
     """Async websocket collector for Binance Futures microstructure data."""
 
-    BINANCE_WS = "wss://fstream.binance.com/stream"
+    BINANCE_WS = "wss://fstream.binance.com/market/stream"
     BINANCE_REST = "https://fapi.binance.com"
 
     def __init__(
