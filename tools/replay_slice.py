@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Tuple
 
 from tools.check_data_ready import detect_ts_col, list_tables, table_columns
-from tools.health_state import write_component_health, write_overall_health, utc_now_iso
+from tools.health_state import write_component_health, utc_now_iso
 
 
 def _parse_iso_utc(text: str) -> float:
@@ -73,7 +73,17 @@ def _fetch_rows(
     return rows
 
 
-def _write_replay_health(status: str, last_progress_ts: str | None, replayed_events: int, reason: str = "") -> None:
+def _write_replay_health(
+    status: str, last_progress_ts: str | None, replayed_events: int, reason: str = "", *, health_root: str = "logs/health"
+) -> None:
+    """Writes only its own dedicated component file (--health-root/replay.json,
+    default logs/health/replay.json). logs/health/overall.json is owned
+    solely by tools/heartbeat_watchdog.py -- see
+    reports/research/s34/CANONICAL_OPERATIONAL_HEALTH_2026-07-10.md. Tests
+    must pass an isolated health_root -- this must never be called against
+    the real logs/health/ from a test (discovered 2026-07-10: an earlier
+    version of tests/test_replay_slice.py did exactly that, leaving a stray
+    replay.json in the live repo)."""
     comp = {
         "status": status,
         "connected": True if status == "ok" else False if status == "halted" else None,
@@ -84,17 +94,7 @@ def _write_replay_health(status: str, last_progress_ts: str | None, replayed_eve
         "replayed_events": int(replayed_events),
         "reason": reason,
     }
-    write_component_health("replay", comp)
-    overall = {
-        "ts_utc": utc_now_iso(),
-        "mode": "paper",
-        "state": "ok" if status == "ok" else "degraded",
-        "reason": reason,
-        "components": {
-            "replay": comp,
-        },
-    }
-    write_overall_health(overall)
+    write_component_health("replay", comp, root=health_root)
 
 
 def run_replay(
@@ -104,6 +104,7 @@ def run_replay(
     end_iso: str,
     speed: float,
     progress_every: int = 1000,
+    health_root: str = "logs/health",
 ) -> int:
     if not db.exists():
         print(f"replay_slice error missing_db={db}")
@@ -137,9 +138,9 @@ def run_replay(
         if replayed % max(1, int(progress_every)) == 0:
             cur_iso = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime(ts))
             print(f"replay_slice progress replayed_events={replayed} current_ts={cur_iso} table={table} symbol={sym}")
-            _write_replay_health("ok", utc_now_iso(), replayed)
+            _write_replay_health("ok", utc_now_iso(), replayed, health_root=health_root)
 
-    _write_replay_health("ok", utc_now_iso(), replayed)
+    _write_replay_health("ok", utc_now_iso(), replayed, health_root=health_root)
     print(f"replay_slice done replayed_events={replayed}")
     return 0
 
@@ -152,6 +153,7 @@ def _parser() -> argparse.ArgumentParser:
     p.add_argument("--end", required=True)
     p.add_argument("--speed", type=float, default=50.0)
     p.add_argument("--progress-every", type=int, default=1000)
+    p.add_argument("--health-root", default="logs/health")
     return p
 
 
@@ -165,6 +167,7 @@ def main() -> int:
             end_iso=str(args.end),
             speed=float(args.speed),
             progress_every=max(1, int(args.progress_every)),
+            health_root=str(args.health_root),
         )
     except Exception as e:
         print(f"replay_slice error runtime={type(e).__name__}:{e}")

@@ -29,7 +29,18 @@ def _mk_db(path: Path) -> None:
 
 
 def test_replay_slice_runs_deterministic() -> None:
-    db = Path("eclipse_scalper/localtests/replay_slice") / f"{uuid.uuid4().hex}.db"
+    """--health-root is pinned to an isolated temp directory here (Part C
+    isolation principle) -- discovered 2026-07-10: an earlier version of
+    this test had no such override and left a stray replay.json in the
+    real repo's logs/health/ every time it ran, picked up by the live
+    canonical overall.json as a phantom "replay" component."""
+    real_replay_health = Path("logs/health/replay.json")
+    existed_before = real_replay_health.exists()
+    mtime_before = real_replay_health.stat().st_mtime if existed_before else None
+
+    base = Path("eclipse_scalper/localtests/replay_slice") / uuid.uuid4().hex
+    db = base / "db" / "sample.db"
+    health_root = base / "health"
     _mk_db(db)
     rc = run_replay(
         db=db,
@@ -38,6 +49,12 @@ def test_replay_slice_runs_deterministic() -> None:
         end_iso="2024-03-01T00:01:00Z",
         speed=1000.0,
         progress_every=1,
+        health_root=str(health_root),
     )
     assert rc == 0
+    assert (health_root / "replay.json").exists()
+
+    assert real_replay_health.exists() == existed_before
+    if existed_before:
+        assert real_replay_health.stat().st_mtime == mtime_before
 

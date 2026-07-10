@@ -9,10 +9,9 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Optional
 
 try:
-    from tools.health_state import write_component_health, write_overall_health, utc_now_iso
+    from tools.health_state import write_component_health, utc_now_iso
 except Exception:  # pragma: no cover
     write_component_health = None  # type: ignore
-    write_overall_health = None  # type: ignore
     utc_now_iso = None  # type: ignore
 
 
@@ -264,6 +263,13 @@ def write_paper_trader_health(
     *,
     root: str | Path = "logs/health",
 ) -> None:
+    """Writes only this component's own dedicated file
+    (logs/health/paper_trader.json). logs/health/overall.json is owned
+    solely by tools/heartbeat_watchdog.py, which reads this file directly
+    each cycle -- see reports/research/s34/CANONICAL_OPERATIONAL_HEALTH_2026-07-10.md.
+    This function must never read-modify-write overall.json: two writers
+    doing read-merge-write against the same file is a lost-update race no
+    atomic file replacement can prevent."""
     if not callable(write_component_health):
         return
     status = "ok" if decision.allow else ("halted" if decision.state == "halted" else "degraded")
@@ -282,20 +288,3 @@ def write_paper_trader_health(
         write_component_health("paper_trader", payload, root=root)
     except Exception:
         return
-    if callable(write_overall_health):
-        try:
-            overall = load_overall_health(Path(root) / "overall.json") or {}
-            comps = overall.get("components") if isinstance(overall.get("components"), dict) else {}
-            comps["paper_trader"] = dict(payload)
-            overall["components"] = comps
-            if not decision.allow and decision.state == "halted":
-                overall["state"] = "halted"
-                overall["reason"] = reason
-            elif not decision.allow and str(overall.get("state", "")).lower() == "ok":
-                overall["state"] = "degraded"
-                overall["reason"] = reason
-            if callable(utc_now_iso):
-                overall["ts_utc"] = utc_now_iso()
-            write_overall_health(overall, root=root)
-        except Exception:
-            pass

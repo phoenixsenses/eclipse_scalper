@@ -29,13 +29,14 @@ def atomic_write_json(path: str | Path, payload: Dict[str, Any]) -> None:
 
 
 def write_component_health(component: str, status: Dict[str, Any], root: str | Path = "logs/health") -> None:
+    """Writes a single component's own dedicated file (e.g. paper_trader.json,
+    replay.json). component="overall" is rejected -- logs/health/overall.json
+    is the canonical payload owned solely by tools/heartbeat_watchdog.py; no
+    other writer, including this generic helper, may produce it. See
+    reports/research/s34/CANONICAL_OPERATIONAL_HEALTH_2026-07-10.md."""
+    if str(component).strip().lower() == "overall":
+        raise ValueError("write_component_health may not target 'overall' -- overall.json is owned solely by tools/heartbeat_watchdog.py")
     payload = dict(status or {})
     payload.setdefault("ts_utc", utc_now_iso())
     atomic_write_json(Path(root) / f"{component}.json", payload)
-
-
-def write_overall_health(overall: Dict[str, Any], root: str | Path = "logs/health") -> None:
-    payload = dict(overall or {})
-    payload.setdefault("ts_utc", utc_now_iso())
-    atomic_write_json(Path(root) / "overall.json", payload)
 

@@ -322,6 +322,140 @@ def test_missing_collector_json_remains_deterministic_not_crash(monkeypatch, tmp
     assert result["overall"] == "RED"
 
 
+# --- canonical logs/health/overall.json (sole authoritative writer) --------
+
+
+def test_run_once_writes_canonical_overall_json_matching_report_severity(monkeypatch, tmp_path):
+    root = _fixture_root(tmp_path, monkeypatch)
+    report = hw.run_once(max_age_sec=180, expect_bookticker=True, expect_detector=False, expect_runtime=True)
+    overall_path = root / "logs" / "health" / "overall.json"
+    assert overall_path.exists()
+    canonical = json.loads(overall_path.read_text(encoding="utf-8"))
+    assert canonical["state"] == "ok"
+    assert report["overall"] == "GREEN"
+    assert canonical["native_ws_status"] == "GREEN"
+
+
+def test_canonical_overall_native_degraded_maps_to_degraded_in_both_outputs(monkeypatch, tmp_path):
+    root = _fixture_root(
+        tmp_path, monkeypatch,
+        heartbeat_overrides={"last_message_ts_utc": None, "rest_fallback_active": True, "rest_last_progress_ts_utc": hw.utc_now_z()},
+    )
+    result = hw.evaluate(max_age_sec=180, expect_bookticker=True, expect_detector=False, expect_runtime=True)
+    assert result["report"]["overall"] == "YELLOW"
+    assert result["overall"]["state"] == "degraded"
+
+
+def test_canonical_overall_native_red_maps_to_halted_in_both_outputs(monkeypatch, tmp_path):
+    _fixture_root(
+        tmp_path, monkeypatch,
+        heartbeat_overrides={
+            "connected": False, "last_message_ts_utc": None,
+            "rest_fallback_active": False, "rest_last_progress_ts_utc": None,
+        },
+        db_age_kwargs={"agg_age": 5000.0, "mark_age": 5000.0, "liq_age": 5000.0},
+    )
+    result = hw.evaluate(max_age_sec=180, expect_bookticker=True, expect_detector=False, expect_runtime=True)
+    assert result["report"]["overall"] == "RED"
+    assert result["overall"]["state"] == "halted"
+
+
+def test_two_output_files_cannot_disagree_in_severity(monkeypatch, tmp_path):
+    """WATCHDOG_STATUS.json's 'overall' (RED/YELLOW/GREEN) and the canonical
+    overall.json's 'state' (halted/degraded/ok) are both derived from the same
+    evaluate() call in the same cycle -- assert the mapping is exhaustive and
+    consistent across all three severities."""
+    root = _fixture_root(tmp_path, monkeypatch)
+    result = hw.evaluate(max_age_sec=180, expect_bookticker=True, expect_detector=False, expect_runtime=True)
+    expected = {"GREEN": "ok", "YELLOW": "degraded", "RED": "halted"}
+    assert result["overall"]["state"] == expected[result["report"]["overall"]]
+
+
+def test_canonical_overall_sources_paper_trader_from_its_own_dedicated_file(monkeypatch, tmp_path):
+    """paper_trader must be read fresh from logs/health/paper_trader.json
+    every cycle (its owner, execution/health_gate.py, writes only that
+    file) -- never preserved/merged from a previous overall.json, which no
+    longer exists as a read path at all."""
+    root = _fixture_root(tmp_path, monkeypatch)
+    paper_trader_path = root / "logs" / "health" / "paper_trader.json"
+    paper_trader_path.write_text(json.dumps(
+        {"status": "ok", "connected": True, "marker": "from_health_gate", "ts_utc": hw.utc_now_z()}
+    ), encoding="utf-8")
+
+    overall_path = root / "logs" / "health" / "overall.json"
+    hw.run_once(max_age_sec=180, expect_bookticker=True, expect_detector=False, expect_runtime=True)
+
+    canonical = json.loads(overall_path.read_text(encoding="utf-8"))
+    assert canonical["components"]["paper_trader"]["marker"] == "from_health_gate"
+    assert canonical["components"]["collector"]  # still populated alongside it
+
+
+def test_canonical_overall_omits_paper_trader_when_dedicated_file_absent(monkeypatch, tmp_path):
+    root = _fixture_root(tmp_path, monkeypatch)
+    overall_path = root / "logs" / "health" / "overall.json"
+    hw.run_once(max_age_sec=180, expect_bookticker=True, expect_detector=False, expect_runtime=True)
+    canonical = json.loads(overall_path.read_text(encoding="utf-8"))
+    assert "paper_trader" not in canonical["components"]
+
+
+def test_canonical_overall_never_reads_a_previous_overall_json(monkeypatch, tmp_path):
+    """A stale/garbage prior overall.json must have zero influence on the
+    freshly-computed canonical payload -- it is never read back."""
+    root = _fixture_root(tmp_path, monkeypatch)
+    overall_path = root / "logs" / "health" / "overall.json"
+    overall_path.parent.mkdir(parents=True, exist_ok=True)
+    overall_path.write_text(json.dumps({
+        "ts_utc": "old", "state": "halted", "mode": "live",
+        "components": {"paper_trader": {"status": "ok", "connected": True, "marker": "stale_ghost"},
+                        "notifier": {"status": "ok", "marker": "unknown_placeholder"}},
+    }), encoding="utf-8")
+
+    report = hw.run_once(max_age_sec=180, expect_bookticker=True, expect_detector=False, expect_runtime=True)
+
+    canonical = json.loads(overall_path.read_text(encoding="utf-8"))
+    assert report["overall"] == "GREEN"
+    assert canonical["state"] == "ok"  # not "halted" carried forward from the stale file
+    assert "notifier" not in canonical["components"]  # unknown historical placeholder not copied
+    assert "paper_trader" not in canonical["components"]  # no dedicated file -> omitted, not resurrected
+
+
+def test_stale_paper_trader_component_remains_visibly_stale_after_rewrite(monkeypatch, tmp_path):
+    """Rewriting overall.json must not refresh an unrelated component's own
+    timestamp -- a reader computing age(components.paper_trader.ts_utc) must
+    still see it as stale even though overall.json's own ts_utc is fresh."""
+    root = _fixture_root(tmp_path, monkeypatch)
+    stale_ts = (hw.utc_now() - __import__("datetime").timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    (root / "logs" / "health" / "paper_trader.json").write_text(json.dumps(
+        {"status": "ok", "connected": True, "ts_utc": stale_ts}
+    ), encoding="utf-8")
+
+    hw.run_once(max_age_sec=180, expect_bookticker=True, expect_detector=False, expect_runtime=True)
+
+    overall_path = root / "logs" / "health" / "overall.json"
+    canonical = json.loads(overall_path.read_text(encoding="utf-8"))
+    assert canonical["ts_utc"] != canonical["components"]["paper_trader"]["ts_utc"]
+    age = hw.age_sec(canonical["components"]["paper_trader"]["ts_utc"])
+    assert age is not None and age > 3000  # ~1h old, unmistakably stale
+
+
+def test_canonical_overall_write_is_atomic_no_leftover_tmp_files(monkeypatch, tmp_path):
+    root = _fixture_root(tmp_path, monkeypatch)
+    hw.run_once(max_age_sec=180, expect_bookticker=True, expect_detector=False, expect_runtime=True)
+    leftover = list((root / "logs" / "health").glob(".tmp_*"))
+    assert leftover == []
+
+
+def test_collector_no_longer_writes_overall_json():
+    """Retirement guard: data/microstructure_collector.py must not import or
+    call write_overall_health -- logs/health/overall.json is owned solely by
+    tools/heartbeat_watchdog.py."""
+    import inspect
+    import data.microstructure_collector as collector_mod
+
+    source = inspect.getsource(collector_mod)
+    assert "write_overall_health" not in source
+
+
 def test_recovery_to_green_only_after_native_flow_actually_resumes(monkeypatch, tmp_path):
     root = _fixture_root(
         tmp_path, monkeypatch,

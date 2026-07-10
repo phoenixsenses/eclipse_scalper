@@ -105,6 +105,59 @@ def test_health_stale():
     assert d.reason == "health_stale"
 
 
+# --- staleness boundary tests (Part D: watchdog cadence vs consumer budget) -
+
+
+def _health_obj_at_exact_age(now_ts: float, age_sec: float) -> dict:
+    from datetime import datetime, timezone
+    ts = datetime.fromtimestamp(now_ts - age_sec, tz=timezone.utc).isoformat()
+    return {
+        "state": "ok",
+        "ts_utc": ts,
+        "components": {
+            "collector": {"connected": True, "progress_lag_sec": 5, "reconnects_last_5m": 0, "errors_last_5m": 0}
+        },
+    }
+
+
+def test_health_staleness_just_below_limit_allows():
+    now = time.time()
+    obj = _health_obj_at_exact_age(now, 14.9)
+    d = evaluate_health_gate(obj, GateState(), now_ts=now, max_health_staleness_sec=15)
+    assert d.reason != "health_stale"
+    assert d.allow is True
+
+
+def test_health_staleness_exactly_at_limit_allows():
+    """The comparison is strict '>' (age > max_health_staleness_sec), so age
+    exactly equal to the budget must still be allowed -- not the boundary
+    where it flips to blocked."""
+    now = time.time()
+    obj = _health_obj_at_exact_age(now, 15.0)
+    d = evaluate_health_gate(obj, GateState(), now_ts=now, max_health_staleness_sec=15)
+    assert d.reason != "health_stale"
+    assert d.allow is True
+
+
+def test_health_staleness_just_above_limit_blocks():
+    now = time.time()
+    obj = _health_obj_at_exact_age(now, 15.1)
+    d = evaluate_health_gate(obj, GateState(), now_ts=now, max_health_staleness_sec=15)
+    assert d.allow is False
+    assert d.reason == "health_stale"
+
+
+def test_health_staleness_two_delayed_watchdog_cycles_blocks():
+    """Two missed cycles at the current 10s canonical interval (~20-22s
+    stale, comfortably past ambiguity) must be unambiguously blocked --
+    the fail-closed behavior this whole staleness gate exists for."""
+    now = time.time()
+    obj = _health_obj_at_exact_age(now, 22.0)
+    d = evaluate_health_gate(obj, GateState(), now_ts=now, max_health_staleness_sec=15)
+    assert d.allow is False
+    assert d.reason == "health_stale"
+
+
 # ---------------------------------------------------------------------------
 # 4. Degradation: overall_not_ok
 # ---------------------------------------------------------------------------
@@ -348,6 +401,32 @@ def test_write_paper_trader_health_includes_paper_contract(monkeypatch):
     assert payload["paper_allow_live_private_api"] is False
     assert payload["startup_contract_safe"] is True
 
-    overall = json.loads((base / "overall.json").read_text(encoding="utf-8"))
-    assert overall["components"]["paper_trader"]["paper_execution_mode"] == "router_blocked"
-    assert overall["components"]["paper_trader"]["startup_contract_safe"] is True
+    # Single-writer guard: write_paper_trader_health must write only its own
+    # component file, never logs/health/overall.json (owned solely by
+    # tools/heartbeat_watchdog.py).
+    assert not (base / "overall.json").exists()
+
+
+def test_write_paper_trader_health_never_touches_existing_overall_json(monkeypatch):
+    from execution.health_gate import GateDecision, write_paper_trader_health
+    base = _local_tmp_dir("paper_no_overall_merge")
+
+    overall_path = base / "overall.json"
+    sentinel = {"ts_utc": "sentinel", "state": "ok", "components": {"collector": {"marker": "untouched"}}}
+    base.mkdir(parents=True, exist_ok=True)
+    overall_path.write_text(json.dumps(sentinel), encoding="utf-8")
+
+    decision = GateDecision(
+        allow=False,
+        reason="collector_disconnected",
+        state="degraded",
+        collector_connected=False,
+        collector_lag_sec=99,
+        reconnects_last_5m=0,
+        errors_last_5m=0,
+    )
+    write_paper_trader_health(decision, "collector_disconnected", root=base)
+
+    # A pre-existing overall.json must be left byte-for-byte alone -- no
+    # read-merge-write race is possible if this writer never opens the file.
+    assert json.loads(overall_path.read_text(encoding="utf-8")) == sentinel

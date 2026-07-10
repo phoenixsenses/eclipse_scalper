@@ -31,7 +31,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from urllib.parse import urlparse
-from tools.health_state import write_component_health, write_overall_health, utc_now_iso
+from tools.health_state import write_component_health
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -430,12 +430,19 @@ class MicrostructureCollector:
         rest_poll_interval_sec: float = 5.0,
         liquidation_stream_mode: str = "all_market_arr",
         heartbeat_write_interval_sec: float = 15.0,
+        health_root: str = "logs/health",
     ):
         self.symbols = [s.lower() for s in symbols]
         self.db_path = db_path
         self.flush_interval = flush_interval
         self.stats_interval = stats_interval
         self.heartbeat_write_interval_sec = max(1.0, float(heartbeat_write_interval_sec))
+        # Overridable so isolated tests (tools/health_cycle_smoke.py) can
+        # point a spawned collector at a temp root instead of the real
+        # logs/health/ -- otherwise a test subprocess would race the actual
+        # live collector for logs/health/collector.json. Production callers
+        # never pass this; it defaults to the real path.
+        self.health_root = str(health_root)
 
         self.conn: Optional[sqlite3.Connection] = None
         self.buffer: Optional[EventBuffer] = None
@@ -1092,20 +1099,15 @@ class MicrostructureCollector:
                 "required_streams_progressing": bool(data_progressing),
                 "liquidation_transport_available": bool(self._last_message_ts_utc),
             }
-            write_component_health("collector", component)
-            overall = {
-                "ts_utc": utc_now_iso(),
-                "mode": "paper",
-                "state": ("ok" if data_progressing else "degraded"),
-                "reason": ("" if data_progressing else "collector_no_data_progress"),
-                "components": {
-                    "collector": component,
-                    "watchdog": {"status": "unknown", "connected": None, "last_progress_ts_utc": None, "progress_lag_sec": None, "reconnects_last_5m": 0, "errors_last_5m": 0},
-                    "paper_trader": {"status": "unknown", "connected": None, "last_progress_ts_utc": None, "progress_lag_sec": None, "reconnects_last_5m": 0, "errors_last_5m": 0},
-                    "notifier": {"status": "unknown", "connected": None, "last_progress_ts_utc": None, "progress_lag_sec": None, "reconnects_last_5m": 0, "errors_last_5m": 0},
-                },
-            }
-            write_overall_health(overall)
+            # Only writes its own collector.json component. logs/health/overall.json
+            # (the canonical top-level operational-health verdict) is owned solely
+            # by tools/heartbeat_watchdog.py -- see
+            # reports/research/s34/CANONICAL_OPERATIONAL_HEALTH_2026-07-10.md.
+            # A prior version of this method also blind-overwrote overall.json
+            # here (no read-first merge), which would have silently erased any
+            # other component's contribution (e.g. execution/health_gate.py's
+            # paper_trader) every time it ran.
+            write_component_health("collector", component, root=self.health_root)
         except Exception:
             pass
 
@@ -1181,6 +1183,9 @@ def main():
                         help="Liquidation stream strategy: all_market_arr uses !forceOrder@arr, per_symbol uses <symbol>@forceOrder.")
     parser.add_argument("--heartbeat-write-interval-sec", type=float, default=15.0,
                         help="How often the heartbeat JSON file is refreshed, independent of --stats-interval (default: 15).")
+    parser.add_argument("--health-root", type=str, default="logs/health",
+                        help="Root dir for this process's own collector.json component (default: logs/health). "
+                             "Isolated test runs should point this at a temp directory.")
     args = parser.parse_args()
 
     symbols = [s.strip() for s in args.symbols.split(",") if s.strip()]
@@ -1206,6 +1211,7 @@ def main():
         rest_poll_interval_sec=float(args.rest_poll_interval_sec),
         liquidation_stream_mode=str(args.liquidation_stream_mode),
         heartbeat_write_interval_sec=float(args.heartbeat_write_interval_sec),
+        health_root=str(args.health_root),
     )
 
     if args.connect_test:

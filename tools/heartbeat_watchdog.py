@@ -15,6 +15,39 @@ LOG_HEALTH = ROOT / "logs" / "health"
 REPORTS = ROOT / "reports"
 DEFAULT_DB_PATH = ROOT / "data" / "microstructure.db"
 
+# logs/health/overall.json is the canonical operational-health payload read by
+# execution/health_gate.py, execution/entry_loop.py, dashboard/backend, and
+# ami/host_health/observation.py. Every one of those consumers expects
+# state in {"ok", "degraded", "halted"} (lowercase) -- never the RED/YELLOW/
+# GREEN vocabulary used by reports/WATCHDOG_STATUS.json and logs/health/
+# watchdog.json, which are a separate, additive, operator-facing pair of
+# outputs owned by this same process. See CANONICAL_OVERALL_STATE_MAP.
+STATE_OK = "ok"
+STATE_DEGRADED = "degraded"
+STATE_HALTED = "halted"
+CANONICAL_OVERALL_STATE_MAP = {"GREEN": STATE_OK, "YELLOW": STATE_DEGRADED, "RED": STATE_HALTED}
+# execution/health_gate.py's default ENTRY_HEALTH_MAX_STALENESS_SEC is 15s
+# (execution/entry_loop.py:1217). The watchdog's --interval-sec must stay
+# comfortably below that or the live-safety gate will see overall.json's
+# ts_utc as stale and halt regardless of actual health.
+#
+# Measured 2026-07-10 against the live production watchdog (--interval-sec
+# 10, 9 consecutive real inter-write deltas): actual cycle time was ~11.03s,
+# not the nominal 10s -- evaluation itself (chiefly the ~1s
+# python_process_running() PowerShell Get-CimInstance spawns) adds ~1.03s
+# per cycle. That leaves only ~15-11.03=~3.97s of real margin (~1.36x, not
+# the ~1.5x a naive 15/10 would suggest) before a consumer sees stale
+# health. Reduced to 5s here: evaluation cost is the same ~1.03s regardless
+# of --interval-sec, so real cycle time becomes ~6s, giving ~9s of real
+# margin (~2.5x) -- a materially safer buffer against jitter/scheduling
+# pauses, at the cost of roughly double the PowerShell subprocess spawns
+# (still cheap relative to the 5s budget). See
+# reports/research/s34/CANONICAL_OPERATIONAL_HEALTH_2026-07-10.md Part D
+# for the full measurement and boundary-test evidence
+# (tests/runtime/test_health_gate_unit.py).
+CANONICAL_STALENESS_BUDGET_SEC = 15
+DEFAULT_INTERVAL_SEC = 5
+
 
 def utc_now() -> datetime:
     return datetime.now(timezone.utc)
@@ -91,6 +124,89 @@ def python_process_running(needle: str) -> bool:
 def component_fresh(payload: Dict[str, Any], max_age_sec: int, now: datetime) -> bool:
     ts_age = age_sec(payload.get("ts_utc"), now)
     return ts_age is not None and ts_age <= max_age_sec
+
+
+# Components tools/heartbeat_watchdog.py does not itself evaluate but folds
+# into canonical overall.json every cycle, read fresh from each owner's own
+# dedicated file -- never preserved from a previous overall.json. All are
+# advisory/observational: none currently contributes to top-level state (only
+# collector/bookticker/native-WS do, via evaluate()'s critical/warning lists,
+# see CANONICAL_AGGREGATION_DESIGN), so a stale or missing one of these can
+# never mask, nor fabricate, a RED/YELLOW verdict. Each entry: filename under
+# logs/health/, and the module that owns writing it.
+OPTIONAL_COMPONENT_FILES: Dict[str, str] = {
+    "paper_trader": "paper_trader.json",  # owner: execution/health_gate.py
+    "replay": "replay.json",  # owner: tools/replay_slice.py
+}
+
+
+def _read_optional_components(log_health: Path) -> Dict[str, Any]:
+    """Reads each optional component's own dedicated file fresh, every cycle.
+    Missing or corrupt -> omitted entirely (read_json returns {} for either
+    case, and an empty payload is never inserted); never fabricated, never
+    carried forward from a prior overall.json. A present-but-stale
+    component's own ts_utc is copied through verbatim -- readers can compute
+    its age themselves -- so rewriting overall.json can never make a stale
+    component look fresher than it is.
+    """
+    out: Dict[str, Any] = {}
+    for name, filename in OPTIONAL_COMPONENT_FILES.items():
+        payload = read_json(log_health / filename)
+        if payload:
+            out[name] = payload
+    return out
+
+
+def build_canonical_overall(
+    *,
+    overall: str,
+    issues: list,
+    collector_component: Dict[str, Any],
+    bookticker_component: Dict[str, Any],
+    native_ws_policy: Dict[str, Any],
+    runtime_mode: Optional[str],
+    now_iso: str,
+    log_health: Path = LOG_HEALTH,
+) -> Dict[str, Any]:
+    """The single canonical logs/health/overall.json payload for one
+    evaluation cycle. tools/heartbeat_watchdog.py is the sole authoritative
+    writer of this file (see
+    reports/research/s34/CANONICAL_OPERATIONAL_HEALTH_2026-07-10.md).
+    Every component is sourced fresh this cycle: collector/bookticker/
+    watchdog from this process's own evaluation, everything else (see
+    OPTIONAL_COMPONENT_FILES) read directly from its owner's dedicated file.
+    Nothing is ever read back from a previous overall.json -- an unowned
+    component that appeared in a stale prior overall.json is never silently
+    carried forward once its writer stops running. runtime_mode falling back
+    to "paper" (never to a remembered past mode) is deliberate: an unknown
+    current mode must never be allowed to echo a possibly-stale "live".
+    """
+    components: Dict[str, Any] = _read_optional_components(log_health)
+    components["collector"] = collector_component
+    components["bookticker"] = bookticker_component
+    components["watchdog"] = {
+        "status": STATE_OK,
+        "connected": True,
+        "last_progress_ts_utc": now_iso,
+        "progress_lag_sec": 0,
+        "reconnects_last_5m": 0,
+        "errors_last_5m": 0,
+    }
+
+    return {
+        "ts_utc": now_iso,
+        "mode": runtime_mode or "paper",
+        "state": CANONICAL_OVERALL_STATE_MAP.get(overall, STATE_HALTED),
+        "reason": "; ".join(issues),
+        "reasons": list(issues),
+        "components": components,
+        "native_ws_status": native_ws_policy["status"],
+        "native_ws_reasons": native_ws_policy["reasons"],
+        "native_websocket": native_ws_policy["native_websocket"],
+        "rest_fallback": native_ws_policy["rest_fallback"],
+        "source_freshness": native_ws_policy["source_freshness"],
+        "native_ws_thresholds": native_ws_policy["thresholds"],
+    }
 
 
 def evaluate(
@@ -245,7 +361,20 @@ def evaluate(
         "native_ws_status": native_ws_policy["status"],
         "native_ws_reasons": native_ws_policy["reasons"],
     }
-    return {"report": out, "health": health}
+    overall_canonical = build_canonical_overall(
+        overall=overall,
+        issues=critical + warning,
+        collector_component=collector,
+        bookticker_component=bookticker,
+        native_ws_policy=native_ws_policy,
+        runtime_mode=runtime_mode,
+        now_iso=out["ts_utc"],
+        # LOG_HEALTH resolved here (call time, current module global) rather
+        # than relying on build_canonical_overall's own default arg, so tests
+        # that monkeypatch hw.LOG_HEALTH for isolation are honored correctly.
+        log_health=LOG_HEALTH,
+    )
+    return {"report": out, "health": health, "overall": overall_canonical}
 
 
 def run_once(
@@ -262,14 +391,17 @@ def run_once(
         expect_runtime=expect_runtime,
         db_path=db_path,
     )
+    # All three outputs are derived from the same in-memory evaluation result
+    # in this one cycle, so they cannot disagree in severity with each other.
     atomic_write(REPORTS / "WATCHDOG_STATUS.json", result["report"])
     atomic_write(LOG_HEALTH / "watchdog.json", result["health"])
+    atomic_write(LOG_HEALTH / "overall.json", result["overall"])
     return result["report"]
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Eclipse heartbeat watchdog")
-    parser.add_argument("--interval-sec", type=int, default=30)
+    parser.add_argument("--interval-sec", type=int, default=DEFAULT_INTERVAL_SEC)
     parser.add_argument("--max-age-sec", type=int, default=180)
     parser.add_argument("--expect-bookticker", action="store_true")
     parser.add_argument("--expect-detector", action="store_true")
