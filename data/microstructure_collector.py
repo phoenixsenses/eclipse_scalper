@@ -429,11 +429,13 @@ class MicrostructureCollector:
         rest_fallback_enabled: bool = True,
         rest_poll_interval_sec: float = 5.0,
         liquidation_stream_mode: str = "all_market_arr",
+        heartbeat_write_interval_sec: float = 15.0,
     ):
         self.symbols = [s.lower() for s in symbols]
         self.db_path = db_path
         self.flush_interval = flush_interval
         self.stats_interval = stats_interval
+        self.heartbeat_write_interval_sec = max(1.0, float(heartbeat_write_interval_sec))
 
         self.conn: Optional[sqlite3.Connection] = None
         self.buffer: Optional[EventBuffer] = None
@@ -929,15 +931,29 @@ class MicrostructureCollector:
             return 3
 
     async def _stats_loop(self):
-        """Print collection statistics periodically."""
+        """Print collection statistics on `stats_interval`, but refresh the
+        heartbeat file on the much shorter `heartbeat_write_interval_sec`
+        cadence. Decoupled deliberately: external monitoring reads
+        last_message_ts_utc from the heartbeat file, and during genuinely
+        healthy operation that file must not go stale for as long as the
+        (5-minute-by-default) stats/console cadence -- see
+        reports/research/s34/LIQUIDATION_TRANSPORT_RESTORED_2026-07-10.md
+        ("Monitoring follow-up"). This does not increase console/log volume:
+        _print_stats()/_maybe_checkpoint() still only run every stats_interval.
+        """
         try:
+            elapsed_since_stats = 0.0
+            tick = min(self.stats_interval, self.heartbeat_write_interval_sec)
             while self._running:
-                await asyncio.sleep(self.stats_interval)
+                await asyncio.sleep(tick)
                 if not self._running:
                     break
-                self._print_stats()
-                self._maybe_checkpoint()
                 self._write_heartbeat()
+                elapsed_since_stats += tick
+                if elapsed_since_stats >= self.stats_interval:
+                    self._print_stats()
+                    self._maybe_checkpoint()
+                    elapsed_since_stats = 0.0
         except asyncio.CancelledError:
             pass
 
@@ -1163,6 +1179,8 @@ def main():
                         help="REST fallback polling interval in seconds (default: 5).")
     parser.add_argument("--liquidation-stream-mode", choices=["all_market_arr", "per_symbol"], default="all_market_arr",
                         help="Liquidation stream strategy: all_market_arr uses !forceOrder@arr, per_symbol uses <symbol>@forceOrder.")
+    parser.add_argument("--heartbeat-write-interval-sec", type=float, default=15.0,
+                        help="How often the heartbeat JSON file is refreshed, independent of --stats-interval (default: 15).")
     args = parser.parse_args()
 
     symbols = [s.strip() for s in args.symbols.split(",") if s.strip()]
@@ -1187,6 +1205,7 @@ def main():
         rest_fallback_enabled=(bool(args.rest_fallback_enabled) and not bool(args.rest_fallback_disabled)),
         rest_poll_interval_sec=float(args.rest_poll_interval_sec),
         liquidation_stream_mode=str(args.liquidation_stream_mode),
+        heartbeat_write_interval_sec=float(args.heartbeat_write_interval_sec),
     )
 
     if args.connect_test:
