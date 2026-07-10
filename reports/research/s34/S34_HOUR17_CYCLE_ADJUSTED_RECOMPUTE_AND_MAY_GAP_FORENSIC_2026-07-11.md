@@ -1,6 +1,10 @@
 # S34 HOUR17 — Cycle-Adjusted Recompute + May 2026 Liquidation-Feed Gap Forensic
 
-**Tarih:** 2026-07-11. **Statü:** read-only bilimsel recompute + adli inceleme; hiçbir kod/eşik/route değişmedi, hiçbir proses restart edilmedi, `knowledge.sqlite`/`canonical.sqlite` DEĞİŞTİRİLMEDİ.
+**Tarih:** 2026-07-11 (iki oturum: ilk salt-okunur recompute + adli inceleme; ardından operatör yetkisiyle tek-satır `K-S34-HOUR17-001` KO düzeltmesi — bkz. §7). Hiçbir kod/eşik/route/runtime/checkpoint/PID değişmedi, hiçbir proses restart edilmedi, `canonical.sqlite` DEĞİŞTİRİLMEDİ.
+
+## 0. K-S34-HOUR17-001 KO Düzeltmesi — UYGULANDI (§7'ye bakınız)
+
+Bu raporun ilk sürümü (§1-6) salt-okunuydu; `knowledge.sqlite` DEĞİŞTİRİLMEMİŞTİ. Operatörün açık yetkisiyle o KO artık düzeltildi (kanonik `KnowledgeStore.put()`/`touch_version()` API'si, el yazması SQL yok) — tam before/after, checksum'lar ve doğrulama §7'de.
 
 ## 1. Önceki "68 event → 53 cycle" rakamı — GEÇERSİZ (`INVALID_WRONG_POPULATION`)
 
@@ -59,9 +63,9 @@ Kaynak: `tools/research_s34_silence_predictor.py`'nin kendi metodolojisi (`build
 
 **`collector_restarts.log`:** 2026-04-21→2026-05-28 arası onlarca `"Collector canonical start FAILED"` / seyrek `"OK"` girişi (yoğun instabilite deseni); 2026-06-05 19:25-19:43 ve 2026-06-06 20:43-20:59'da çoklu restart — **kurtarma (17:47:03) bu restart penceresinin İÇİNDE**, tam nedensellik kanıtlanamıyor ama zamansal olarak tutarlı.
 
-**Temmuz olayıyla ilişki:** `bd7feb32`/`a3e92144` commit'leri **AYRI, çok daha sonraki bir olayı** (2026-07-06→07-10, "routed market websocket endpoint" onarımı) belgeliyor — bu Mayıs boşluğuyla AYNI olay DEĞİL, ama aynı SINIF (routed/network endpoint güvenilirliği) yinelenen bir zayıflığa işaret ediyor olabilir. Bu bağlantı **spekülatif**, kanıtlanmadı.
+**Temmuz olayıyla ilişki — 2026-07-11 derinleştirmesiyle KESİN OLARAK AYRIŞTIRILDI:** `bd7feb32`'nin kendi commit mesajı: `BINANCE_WS` **2026-07-03**'te (`5cda3122`) `/market/stream`'den (doğru) `/stream`'e (yanlış — bağlanıyor ama sıfır frame) REGRESE OLDU; bu yanlış değer 2026-07-06'daki restart'ta canlıya geçti, 4 gün fark edilmeden çalıştı, 07-10'da düzeltildi. **Bu regresyon commit'i Mayıs-Haziran penceresinden SONRA (Temmuz 3) geldi** — `git log --since=2026-04-20 --until=2026-06-10 -- data/microstructure_collector.py` bu pencerede `BINANCE_WS`'e dokunan SIFIR commit gösteriyor; boşluk boyunca `BINANCE_WS` zaten DOĞRU (`/market/stream`) değerdeydi. **Sonuç: Mayıs boşluğu ile Temmuz olayı KANITLANMIŞ ŞEKİLDE FARKLI mekanizmalar** — kod-seviyesi endpoint regresyonu Mayıs'ta yoktu, bu yüzden Temmuz'un nedeni Mayıs'ın nedeni OLAMAZ. `reports/RECONNECTION_AUDIT.md` (2026-03-04, ayrı/daha erken bir olay) zaten "ISP intermittently blocks Binance WS → VPN/SOCKS5 path" senaryosunu öngörüyor — bu ortamda tekrarlayan bir transport-katmanı risk sınıfı olduğunu bağımsız olarak doğruluyor.
 
-**Kök-neden: `TRANSPORT_SPECIFIC_OUTAGE` — kategori first-party kanıtla destekleniyor (ağ/VPN yolu engelleyicisi), ancak kesin nihai neden ve kesin düzeltme mekanizması KANITLANMAMIŞ/KAPATILMAMIŞ.**
+**Kök-neden güven sınıflandırması: `ROOT_CAUSE_PROBABLE`** (IDENTIFIED değil — görev kabul kriteri: gözlenen mekanizma ✓, mekanizmanın boşluk sırasında varlığı ✓ [2026-05-03 first-party diagnostik], kod-seviyesi alternatiflerin kanıtla elenmesi ✓ [yukarıda], AMA kurtarma anında neyin özel olarak değiştiğine dair confirmed kanıt YOK — yalnız zamansal çakışan restart'lar var, nedensellik kanıtlanmadı). **Kapatılamayan eksik kanıt:** (a) 2026-06-05/06 kurtarma anında spesifik bir düzeltici eylemi (commit, operatör notu, ağ-yapılandırma değişikliği) kaydeden HİÇBİR kayıt yok; (b) dönemin OS/VPN/router-seviyesi logları hiç tutulmamış, geriye dönük incelenemez; (c) `matrix_vpnfree/` alt-testi sonuçsuz (girdi dosyaları birebir aynı — VPN kapalıyken temiz bir A/B karşılaştırması elde edilememiş).
 
 ## 5. Boşluğun HOUR17 kanıtına etkisi
 
@@ -74,3 +78,30 @@ Kaynak: `tools/research_s34_silence_predictor.py`'nin kendi metodolojisi (`build
 ## 6. İleri (forward) karar sınırı
 
 Terfi YOK. Route donmuş/değişmedi. İleri shadow gözlemi devam ediyor (şu an kapanmış N=1). Gelecekteki herhangi bir değerlendirme için minimum: ≥20 bağımsız ileri cycle, ≥8 takvim haftası, ≥15 farklı işlem günü, hiçbir gün/haftanın ileri kümülatifin >%30'unu oluşturmaması, runtime semantik uyuşmazlığı yok, health GREEN ve her iki live executor OFF. Bu gereksinim tarihsel recompute'un pozitif olması nedeniyle DÜŞÜRÜLMEDİ.
+
+## 7. K-S34-HOUR17-001 KO Düzeltmesi — Uygulama Kaydı (2026-07-11, operatör yetkisiyle)
+
+**Yöntem:** kanonik `ami/knowledge/store.py:KnowledgeStore.put()` + `ami/knowledge/objects.py:KnowledgeObject.touch_version()` (el yazması SQL kullanılmadı). Önce dry-run (yazma yapılmadan tam before/after diff'i üretildi ve incelendi), sonra tek transaction'lık gerçek yazma.
+
+**DB checksum:** önce sha256=`710b3f689db2238f11efa04230600b9ddd06e500807b5fb69c7e797e6053dc65` (110592B) → sonra sha256=`24db632924f97959248577b96123d7189bdd96fca41943e0ab03843d91227760` (114688B). Beklenen ikili değişiklik: yalnız eklenen payload içeriği + WAL büyümesi.
+
+**Diğer satırların değişmezliği kanıtı:** DB'deki 11 knowledge satırının tamamının payload sha256'sı yazma öncesi/sonrası karşılaştırıldı — **10 satır birebir DEĞİŞMEDİ**, yalnız `K-S34-HOUR17-001` değişti. `PRAGMA integrity_check`=`ok`. Şema (`CREATE TABLE knowledge...`) ve `user_version` DEĞİŞMEDİ. `audit_log`'a tam olarak 1 yeni satır eklendi: `PUT actor=claude-sonnet-5-hour17-ko-correction knowledge_id=K-S34-HOUR17-001 detail="status=FORWARD_VALIDATING v2"`.
+
+**Değişen alanlar (before→after):**
+- `claim`: "~+40bps net, WR~62%" (event-belirsiz) → 200K/S6_200K_full + cycle-düzeyi tam rakamlarla (N=93, WR=62.4%, mean+32.47bps, median+24.04bps, cum+3019.4bps) + event-düzeyi rakamlar açıkça "secondary/dependence-inflated" etiketli
+- `provenance.experiment_id`: `""` → `"S6_200K_full;canonical-v1_cycle_recompute_2026-07-11"`
+- `provenance.data_time_range`: `"2026-02-15..2026-07-02"` → aynı + `"(DISCONTINUOUS: ... ~40d3h gap ... ~3.5 months, not continuous 4.5 months)"` eklendi
+- `effect_size`: `{avg_net_bps:40.8, wr:0.615}` (150K'ya ait, yanlış atıf) → `avg_net_bps`/`wr` artık **cycle-düzeyi** birincil değerler (32.47/0.624) + `cycle_n/cycle_wr/cycle_mean_net_bps/cycle_median_net_bps/cycle_cumulative_net_bps/event_to_cycle_deflation_ratio/event_n/event_wr/event_mean_net_bps/event_level_note/top5_cycle_share_of_cumulative_pct/superseded_config` eklendi
+- `scope`: `coverage_note` eklendi (tam boşluk detayı + TRAIN/TEST fold uyarısı)
+- `assumptions`: +1 ("Historical coverage is NOT continuous...")
+- `confidence`: `cycle_adjustment_classification: "HOUR17_HISTORICAL_CYCLE_EVIDENCE_POSITIVE_BUT_FRAGILE"` eklendi
+- `evidence_families`: `[]` → 2 kayıt (S6_200K_full reproduction, canonical-v1 cycle resolver recompute)
+- `version`: 1→2 (`touch_version()`: eski durum `history`'e eklendi, `forward_events` anayasal olarak 0'a resetlendi — materyal değişiklik sonrası ileri-kanıt sıfırlanması doğru davranış)
+
+**DEĞİŞMEYEN alanlar (23/30 üst-seviye alan):** `knowledge_id, claim_type, status(FORWARD_VALIDATING), mechanism, direction, evidence_level, required_evidence_level, replications, holdouts, forward_events(0), contradictions, falsification, permitted, forbidden(SIZING_ALLOWED hâlâ yasak), parents, children, decay_half_life_days, created_ms, owner, frozen(false), freeze_hash, history(+1 satır)`. **Terfi/izin genişletme YOK.**
+
+**Runtime etkisi:** `effect_size` alanı kod tabanında yalnız `ami/knowledge/objects.py`'nin kendisi tarafından okunuyor (grep ile doğrulandı) — hiçbir strateji/route/eşik/risk kodu bu KO'yu runtime'da okumuyor. Düzeltme **sıfır davranışsal etki** yarattı.
+
+**Kök-neden derinleştirmesi (Temmuz olayından kesin ayrım) ve nihai sınıflandırma `ROOT_CAUSE_PROBABLE` için bkz. §4 sonu (güncellendi).**
+
+**Nihai verdict: `HOUR17_KO_CORRECTED_ROOT_CAUSE_PROBABLE`.**
