@@ -229,7 +229,7 @@ $supervisor = Start-RegisteredPythonProcess `
 
 $heartbeatOut = Join-Path $logs "heartbeat_watchdog.stdout.log"
 $heartbeatErr = Join-Path $logs "heartbeat_watchdog.stderr.log"
-$heartbeatArgs = @("-u", "-m", "tools.heartbeat_watchdog", "--interval-sec", "30", "--max-age-sec", "420", "--expect-bookticker")
+$heartbeatArgs = @("-u", "-m", "tools.heartbeat_watchdog", "--interval-sec", "5", "--max-age-sec", "420", "--expect-bookticker")
 $heartbeat = Start-RegisteredPythonProcess `
     -Role "heartbeat_watchdog" `
     -ProcArgs $heartbeatArgs `
