@@ -3,12 +3,14 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
+import sqlite3
 import subprocess
 import sys
 import time
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from tools import heartbeat_watchdog as hw
 
 REQUIRED_TOP_LEVEL_KEYS = ("ts_utc", "mode", "state", "components")
 
@@ -24,8 +26,22 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--max-seconds", type=float, default=22.0)
     p.add_argument("--stats-interval", type=float, default=2.0)
     p.add_argument("--out-dir", default="logs/health/smoke")
-    p.add_argument("--health-file", default="logs/health/overall.json")
+    # --root scopes every health/report/heartbeat path this run touches:
+    # logs/health/ (component files + canonical overall.json, produced
+    # in-process here exactly like the real watchdog would), reports/, and
+    # logs/collector_heartbeat.json. Production default "." preserves the
+    # original real-path behavior for ad-hoc operator runs; isolated test
+    # runs pass a temp directory so nothing here ever touches the live
+    # runtime's actual logs/health/overall.json or depends on the real,
+    # already-running heartbeat watchdog process being alive. See
+    # reports/research/s34/CANONICAL_OPERATIONAL_HEALTH_2026-07-10.md Part C.
+    p.add_argument("--root", default=".")
     p.add_argument("--poll-interval-sec", type=float, default=0.5)
+    # Only ever creates/seeds --db-path when it does not already exist --
+    # never touches a real database. Isolated test runs pass a fresh temp
+    # db path together with this flag; production/ops runs against the
+    # real data/microstructure.db must never set it.
+    p.add_argument("--seed-market-data", action="store_true")
     return p
 
 
@@ -60,7 +76,24 @@ def _validate_snapshot(obj: Dict[str, Any], expected_state: str) -> tuple[bool, 
         if c_status != "ok" or c_connected is not True:
             return False, f"collector_mismatch_ok:status={c_status}:connected={c_connected}"
     elif expected_state == "degraded":
-        if c_status != "degraded" or c_connected is not False:
+        # Only components.collector.connected is checked here, not .status.
+        # Discovered 2026-07-10 while isolating this test (Part C): for a
+        # brief disconnect shorter than data.microstructure_collector.py's
+        # own stall_timeout_sec (default 45s), collector.json's *status*
+        # field legitimately stays "ok" -- it is staleness-gated, not
+        # connection-gated, by design (data.microstructure_collector.py::
+        # _write_heartbeat: status only flips once progress has been stale
+        # for stall_timeout_sec). The canonical top-level "degraded" state
+        # observed here comes from the faster native_ws_policy connection
+        # signal instead (native_ws_degraded:NATIVE_WS_DISCONNECTED), which
+        # is the correct, intended fast-detection layer. Requiring
+        # collector.status=="degraded" too was a false invariant that a
+        # short simulated outage can never satisfy; it previously appeared
+        # to pass only because this test read the real, live-mutating
+        # production overall.json instead of its own isolated one (see
+        # reports/research/s34/CANONICAL_OPERATIONAL_HEALTH_2026-07-10.md
+        # Part C) -- it was not actually being exercised.
+        if c_connected is not False:
             return False, f"collector_mismatch_degraded:status={c_status}:connected={c_connected}"
     return True, "ok"
 
@@ -86,15 +119,62 @@ def _cleanup_process(proc: Optional[subprocess.Popen]) -> None:
             proc.wait(timeout=5)
 
 
+def _seed_market_data(db_path: Path) -> None:
+    """Only ever runs against a not-yet-existing db_path (checked by the
+    caller) -- creates the three source-freshness tables native_ws_policy
+    reads, with one fresh row each, so the smoke test's overall/native_ws
+    state is driven purely by the simulated collector's own connect/
+    disconnect cycle, not by an empty, permanently-stale synthetic database."""
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(str(db_path))
+    try:
+        now_ms = int(time.time() * 1000)
+        for table in ("agg_trades", "mark_prices", "liquidations"):
+            conn.execute(f"CREATE TABLE IF NOT EXISTS {table} (id INTEGER PRIMARY KEY AUTOINCREMENT, ts_ms INTEGER, symbol TEXT)")
+            conn.execute(f"INSERT INTO {table} (ts_ms, symbol) VALUES (?, ?)", (now_ms, "ETHUSDT"))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def _refresh_canonical_overall(*, root: Path, db_path: Path, max_age_sec: int) -> None:
+    """Runs exactly one heartbeat_watchdog evaluation cycle scoped to
+    `root`, in-process -- no second Python process is spawned (only the
+    simulated collector subprocess runs concurrently), and no real
+    production heartbeat_watchdog process is depended on. Mirrors what the
+    real watchdog does every --interval-sec in production."""
+    prev_root, prev_log_health, prev_reports = hw.ROOT, hw.LOG_HEALTH, hw.REPORTS
+    try:
+        hw.ROOT = root
+        hw.LOG_HEALTH = root / "logs" / "health"
+        hw.REPORTS = root / "reports"
+        hw.run_once(
+            max_age_sec=max_age_sec,
+            expect_bookticker=False,
+            expect_detector=False,
+            expect_runtime=False,
+            db_path=db_path,
+        )
+    finally:
+        hw.ROOT, hw.LOG_HEALTH, hw.REPORTS = prev_root, prev_log_health, prev_reports
+
+
 def run_smoke(args: argparse.Namespace) -> int:
     out_dir = Path(str(args.out_dir))
-    health_file = Path(str(args.health_file))
+    root = Path(str(args.root)).resolve()
+    health_root = root / "logs" / "health"
+    heartbeat_path = root / "logs" / "collector_heartbeat.json"
+    overall_path = health_root / "overall.json"
+    db_path = Path(str(args.db_path))
     out_dir.mkdir(parents=True, exist_ok=True)
     for f in out_dir.glob("overall_snapshot*.json"):
         f.unlink(missing_ok=True)
 
-    pid_file = Path("logs/pids/paper_watchdog.pid")
-    meta_file = Path("logs/pids/paper_watchdog.json")
+    if bool(args.seed_market_data) and not db_path.exists():
+        _seed_market_data(db_path)
+
+    pid_file = root / "logs" / "pids" / "paper_watchdog.pid"
+    meta_file = root / "logs" / "pids" / "paper_watchdog.json"
     pid_exists_before = pid_file.exists()
     meta_exists_before = meta_file.exists()
 
@@ -106,7 +186,7 @@ def run_smoke(args: argparse.Namespace) -> int:
         "--symbols",
         str(args.symbols),
         "--db-path",
-        str(args.db_path),
+        str(db_path),
         "--stats-interval",
         str(args.stats_interval),
         "--simulate-connection",
@@ -116,6 +196,10 @@ def run_smoke(args: argparse.Namespace) -> int:
         str(args.down_sec),
         "--simulate-max-seconds",
         str(args.max_seconds),
+        "--health-root",
+        str(health_root),
+        "--heartbeat-path",
+        str(heartbeat_path),
     ]
 
     proc: Optional[subprocess.Popen] = None
@@ -142,7 +226,11 @@ def run_smoke(args: argparse.Namespace) -> int:
         expected_states = ["ok", "degraded", "ok"]
 
         while time.time() < end_ts:
-            obj = _read_health(health_file)
+            # This process, not the collector subprocess or any real
+            # background watchdog, is what turns the isolated collector.json
+            # into canonical overall.json for this run.
+            _refresh_canonical_overall(root=root, db_path=db_path, max_age_sec=180)
+            obj = _read_health(overall_path)
             if isinstance(obj, dict):
                 last_obj = obj
                 want = expected_states[phase]
@@ -197,4 +285,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
