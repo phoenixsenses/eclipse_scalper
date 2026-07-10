@@ -35,6 +35,26 @@ from tools.s34_feature_availability import assert_feature_set_available, signal_
 # risk/no-fill), keeping the reference data-deterministic and replay-safe.
 MIN_GAP_SEMANTICS_VERSION = "persistent-v2"
 
+# OD-018-FOLLOWUP (2026-07-10, independent-review corrective): first-activation
+# migration. On the very first v2 run for a given rule, last_signal_ts_ms is
+# derived once from the EXISTING trade/signal history rather than assumed
+# absent (-inf), which would otherwise let one post-restart signal falsely
+# pass the 900s gate if the true last pre-v2 emission's bucket has already
+# scrolled behind the persisted cursor (reproduced in
+# tests/test_s34_shadow_paper_min_gap_migration.py). The trade store is a
+# complete emission log under normal operation: every candidate _bucket_events
+# returns (after its own internal min-gap check) is persisted exactly once as
+# an OPEN/CLOSED/SKIPPED trade record before any regime/governance/risk/fill
+# gate runs (see the candidate loop in run_once) -- so max(signal_ts_ms) per
+# exact rule.name is a faithful reconstruction of _bucket_events' internal
+# last_signal_ms at the moment v2 activates. This assumes the trade store has
+# not been truncated/hand-edited since inception (governed by the standing
+# no-silent-data-deletion rule). A rule whose history shows the SAME name
+# under a DIFFERENT (symbol, threshold_usd, liq_side) identity is treated as
+# ambiguous and fails closed: no new signal is emitted for that rule until an
+# operator resolves it manually.
+MIN_GAP_STATE_MIGRATION_VERSION = "v1-derived-from-trade-history"
+
 
 @dataclass(frozen=True)
 class S34Rule:
@@ -659,6 +679,56 @@ def _regime_gate(conn: sqlite3.Connection, rule: S34Rule, signal: dict[str, Any]
     return all(checks.values()), "REGIME_FILTER", snap
 
 
+def _derive_min_gap_seed_from_history(trades: dict[str, dict[str, Any]], rule: S34Rule) -> dict[str, Any]:
+    """OD-018-FOLLOWUP first-activation migration oracle (read of already
+    in-memory `trades`, no extra file access). Never raises; fails closed and
+    reports on malformed/ambiguous input rather than approximating.
+
+    Returns one of:
+      DERIVED_FROM_HISTORY  -- seed_ts_ms is the max signal_ts_ms found for
+                                this exact rule identity (name+symbol+
+                                threshold+liq_side all match)
+      NO_PRIOR_EMISSION     -- no trade record for this rule at all (fresh
+                                rule; equivalent to the pre-migration -inf
+                                default, not an error)
+      AMBIGUOUS_FAILED      -- the same rule.name appears with a DIFFERENT
+                                identity, or a record is missing signal_ts_ms;
+                                seeding is refused
+    """
+    valid_ts: list[int] = []
+    malformed: list[str] = []
+    for trade_id, trade in trades.items():
+        rule_blob = trade.get("rule")
+        if not isinstance(rule_blob, dict) or rule_blob.get("name") != rule.name:
+            continue
+        try:
+            same_identity = (
+                str(rule_blob.get("symbol")) == str(rule.symbol)
+                and str(rule_blob.get("liq_side", "")).upper() == str(rule.liq_side).upper()
+                and abs(float(rule_blob.get("threshold_usd", -1.0)) - float(rule.threshold_usd)) < 1e-6
+            )
+        except (TypeError, ValueError):
+            same_identity = False
+        if not same_identity:
+            malformed.append(str(trade_id))
+            continue
+        ts = trade.get("signal_ts_ms")
+        if not isinstance(ts, (int, float)):
+            malformed.append(str(trade_id))
+            continue
+        valid_ts.append(int(ts))
+    if malformed:
+        return {
+            "status": "AMBIGUOUS_FAILED",
+            "seed_ts_ms": None,
+            "malformed_trade_ids": sorted(malformed),
+            "source": "trade_history",
+        }
+    if not valid_ts:
+        return {"status": "NO_PRIOR_EMISSION", "seed_ts_ms": None, "source": "trade_history"}
+    return {"status": "DERIVED_FROM_HISTORY", "seed_ts_ms": max(valid_ts), "source": "trade_history"}
+
+
 def _annotate_trade_pnl_usdt(trade: dict[str, Any]) -> dict[str, Any]:
     risk = trade.get("risk") or {}
     notional = float(risk.get("notional_usdt") or 0.0)
@@ -891,6 +961,11 @@ def _paper_trade_from_signal(rule: S34Rule, signal: dict[str, Any], risk_config:
         "risk": _risk_payload(rule, risk_config),
         "risk_gate_status": "ACCEPTED",
         "risk_gate_reason": "",
+        # OD-018-FOLLOWUP (C): top-level, durable protocol tag. Absent on all
+        # 1,338 pre-v2 trades (verified); every trade created from this point
+        # on carries it, so pre-v2/v2 populations are filterable without
+        # descending into the nested `signal` dict.
+        "min_gap_semantics": signal.get("min_gap_semantics") or MIN_GAP_SEMANTICS_VERSION,
         "signal": signal,
     }
 
@@ -2054,7 +2129,28 @@ def run_once(args: argparse.Namespace) -> dict[str, Any]:
             str(k): int(v)
             for k, v in (state.get("last_signal_ts_ms_by_rule") or {}).items()
         }
+        # OD-018-FOLLOWUP: one-time per-rule first-activation migration. Runs
+        # exactly once per rule (guarded by presence in migration_provenance,
+        # which is persisted every cycle alongside last_signal_map) so restart
+        # after a successful migration always reuses the persisted value
+        # rather than re-deriving a possibly different one.
+        migration_provenance: dict[str, Any] = dict(state.get("min_gap_state_provenance_by_rule") or {})
+        migration_initialized_at_utc = state.get("min_gap_state_initialized_at_utc")
         for rule in rules:
+            if rule.name in migration_provenance:
+                continue
+            prov = _derive_min_gap_seed_from_history(trades, rule)
+            prov["migrated_at_utc"] = _utc_now_iso()
+            prov["migration_version"] = MIN_GAP_STATE_MIGRATION_VERSION
+            migration_provenance[rule.name] = prov
+            if migration_initialized_at_utc is None:
+                migration_initialized_at_utc = prov["migrated_at_utc"]
+            if prov["status"] == "DERIVED_FROM_HISTORY" and rule.name not in last_signal_map:
+                last_signal_map[rule.name] = int(prov["seed_ts_ms"])
+        for rule in rules:
+            prov = migration_provenance.get(rule.name) or {}
+            if prov.get("status") == "AMBIGUOUS_FAILED":
+                continue  # fail closed: no candidates generated until an operator resolves the ambiguity
             bucket_ms = int(rule.bucket_sec) * 1000
             scan_start_ms = (int(start_ms) // bucket_ms) * bucket_ms
             seed = last_signal_map.get(str(rule.name))
@@ -2285,6 +2381,9 @@ def run_once(args: argparse.Namespace) -> dict[str, Any]:
             "cursor_ts_utc": _iso_from_ms(cursor_ts_ms),
             "min_gap_semantics": MIN_GAP_SEMANTICS_VERSION,
             "last_signal_ts_ms_by_rule": last_signal_map,
+            "min_gap_state_migration_version": MIN_GAP_STATE_MIGRATION_VERSION,
+            "min_gap_state_initialized_at_utc": migration_initialized_at_utc,
+            "min_gap_state_provenance_by_rule": migration_provenance,
         },
     )
     summary = {
