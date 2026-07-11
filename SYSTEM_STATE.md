@@ -5733,3 +5733,122 @@ INTEGRATED`.** Next: `OPERATOR_ADJUDICATION_FOR_LIQUIDATION_SILENCE_
 SCHEDULER_ACTIVATION` — periyodik aktivasyon (gerçek `-EnableLiquidation
 SilenceScheduler` çağrısı ile) ayrı, açık bir operatör kararı ve kendi
 kademeli inceleme zincirini gerektirir; bu kayıt onu YETKİLENDİRMEZ.
+
+---
+
+## 122. GATE 1 — LIQUIDATION-SILENCE SCHEDULER CANARY — KABUL EDİLDİ (2026-07-11, Sonnet 5)
+
+**Zincir:** §121'in `OPERATOR_ADJUDICATION_FOR_LIQUIDATION_SILENCE_
+SCHEDULER_ACTIVATION` Next'ine yanıt olarak operatör, `-EnableLiquidation
+SilenceScheduler` ile kontrollü, süreli bir Gate 1 canary çalıştırmasını
+açıkça yetkilendirdi. Canary çalıştırıldı, sonuçları BAĞIMSIZ bir
+operasyonel review agent'ı tarafından (bu implementasyonu üreten oturumdan
+ayrı, salt-okunur, kanıt-önce) denetlendi — kademeli inceleme zincirinin
+epistemik gereği ([[feedback_gated_independent_review_chain]]) böylece
+karşılandı.
+
+**Canary parametreleri:** scheduler PID `15640`, başlangıç ~
+`2026-07-11T17:40:51Z`; istenen pencere 30–45 dakika; gözlenen süre
+~34 dakika, pencere içinde. Canary sonunda scheduler, scoped
+`stop_eclipse.ps1 -LiquidationSilenceSchedulerOnly` yolu ile durduruldu
+(kesin scoped-stop UTC zaman damgası hiçbir yerde doğrudan loglanmadı —
+bu bir iddia değil, bilinen bir kanıt sınırı).
+
+**Cycle sonuçları:** `7/7` ardışık `SUCCESS` (gerekli asgari 5'in üzerinde).
+Yedi cycle'ın tamamı `GREEN`/`HEALTHY`, `reason_codes` boş. İstisna yok,
+timeout yok, malformed cycle yok, overlap yok, tight-loop yok, sessiz
+scheduler ölümü yok, scheduler restart'ı yok, `STALE_ARTIFACT` tekrarı yok.
+
+**Cadence düzeltmesi (kanonik, önceki iki hatalı formülasyonun yerine):**
+altı ardışık-cycle aralığının tamamı ~300.12 saniyeydi ve en yakın tam
+saniyeye yuvarlandığında hepsi 300 saniyeye yuvarlanıyor; minimum 300.114s,
+maksimum 300.131s, ortalama ~300.122s. Önceki cadence-sayım ifadesi
+("300s×6, 301s×1" ve ardından "five rounded to 300 seconds and one
+rounded to 301 seconds") 7 cycle için 7 (aslında 6) aralık sayma
+hatasından kaynaklanan sadece bir raporlama/aritmetik hatasıydı — gerçek
+bir scheduler zamanlama kusurunu TEMSİL ETMİYORDU.
+
+**Artefakt tazeliği:** `liquidation_silence.json` ve `overall.json`
+scheduler cycle'larıyla birlikte ilerledi; sağlık-artefaktı hash'leri
+gözlenen cycle-count ilerlemesiyle lockstep değişti; gözlenen çıktı
+donmuş/bayat-sonuç yeniden kullanımı değil, taze yeniden-değerlendirme
+gösterdi; `evaluated_at_utc` monoton ilerledi; `STALE_ARTIFACT` canary
+boyunca tekrar etmedi. (Not: bağımsız review yalnız mevcut ara-anlık
+(intermediate) izleme kanıtının kapsadığı hash geçişlerini doğruladı —
+her tarihsel hash'in ayrı ayrı bağımsız kurtarıldığı iddia edilmiyor.)
+
+**Süreç/runtime izolasyonu:** scheduler süreç sayısı aktif pencere
+boyunca tam olarak bir kaldı; scheduler PID'i sürekli `15640`, kimliği ve
+StartTime'ı PID-metadata'dan doğrulandı; hiçbir çift/yedek scheduler
+instance'ı bulunmadı; hiçbir scheduler restart'ı olmadı. `heartbeat_
+watchdog` sürekli PID `9740` kaldı, StartTime değişmedi, çıktısı
+ilerlemeye devam etti. Diğer on bir yönetilen runtime rolü (collector_
+supervisor, bookticker_collector, oi_spot_poller, s34_live_chart,
+microstructure_collector, s34_shadow_paper_runner, s34_realtime_shadow_
+runner, s34_v_engine_v02_shadow_mirror, event_diary, orderflow_chart,
+s34_replay) mevcut izleme kanıtı boyunca değişmeyen kimliklerle canlı
+kaldı. Her iki live executor kapalı (OFF) kaldı. Scheduler stderr boş
+kaldı. Scheduler CPU/memory/log büyümesi sınırlı (bounded) kaldı. Scoped
+stop yalnız scheduler'ı etkiledi.
+
+**Monitor false-positive bulgusu:** canary sırasında salt-okunur bir
+izleme scripti bir false-positive süreç-sayısı abort'u üretti. Kabul
+edilen açıklama: PowerShell'in tekil-nesne `.Count` davranışı tek bir
+eşleşen süreç için `null` döndürdü; script `@()` array-wrap ile
+düzeltildi; o ana ait kanıtlar (PID 15640 canlı ve tekil, StartTime
+değişmemiş, stderr boş, log/artefakt ilerlemesi kesintisiz) gerçek bir
+scheduler kesintisi olmadığını gösterdi; false alarm nedeniyle hiçbir
+scheduler aksiyonu alınmadı. Kanıt sınırı: monitor dosyası yerinde
+düzenlendiği için tam düzeltme-öncesi (pre-fix) kaynak satırı kurtarılamadı
+— bu satırın bağımsız olarak kurtarıldığı iddia edilmiyor.
+
+**Kabul edilen, bloklayıcı olmayan bulgular** (Gate 1 kabulünü
+engellemiyor; düzeltici implementasyon bu kaydın kapsamı dışında, ayrı
+yetki gerektirir):
+- **MEDIUM** — monitor harness scheduler canlılığını öncelikle PID ile
+  kontrol etti, her snapshot'ta StartTime'ı yeniden okumadı; teorik bir
+  PID-reuse kör noktası bırakıyor.
+- **LOW** — kesin scoped-stop olay zaman damgası doğrudan loglanmadı.
+- **LOW** — tam düzeltme-öncesi monitor-script satırı, dosya yerinde
+  düzenlendiği için kurtarılamadı.
+- **LOW** — orijinal cadence özeti, kanonik Gate 1 kaydında düzeltilen,
+  önemsiz (non-substantive) bir aritmetik ifade hatası içeriyordu.
+
+CRITICAL bulgu YOK. HIGH bulgu YOK.
+
+**Post-stop / default-OFF durumu:** scheduler süreç sayısı = 0; scheduler
+PID dosyası yok; bilinen sıfır-byte `.pid.lock` kalıntısı duruyor (zararsız
+ve bloklayıcı olmayan olarak sınıflandırıldı, kaldırılmadı); watchdog PID
+9740 sağlıklı; diğer on bir runtime rolü canlı; her iki live-executor
+marker'ı `0`; scheduler aktivasyonu açık `-EnableLiquidationSilence
+Scheduler` anahtarını gerektiriyor, bu anahtar olmadan scheduler default
+KAPALI kalıyor; hiçbir Scheduled Task yok.
+
+**Repository/reconciliation bağlamı (özet):** Gate 1 kabul kaydından önce,
+branch kontrollü, saf bir fast-forward ile uzlaştırıldı — kanonik taban
+`5a1e1b61...`'den `2999f228...`'e ilerledi, uzak scheduling-readiness
+commit'leri (`70d8f70e`+`2999f228`) merge-commit'siz entegre edildi.
+Çakışan lokal taslaklar (`start_eclipse.ps1`, `status_eclipse.ps1`,
+`stop_eclipse.ps1`, `tools/heartbeat_watchdog.py`) ve çakışan untracked
+`tools/liquidation_silence_scheduler.py`, kanonik uzak versiyonlar
+benimsenmeden ÖNCE repo dışında byte-seviyesinde korundu. Reconciliation
+sırasında hiçbir runtime restart'ı olmadı; ilgisiz beş dirty tracked path
+dokunulmadan kaldı. Tam adli kanıt iki harici arşivde saklanıyor (bu
+kayda dahil edilmedi, arşivler bloat önlemek için burada tekrarlanmıyor):
+`D:\eclipse_scalper_reconciliation_quarantine\gate1_pre_ff_
+20260711T185433Z\` ve `D:\eclipse_scalper_reconciliation_quarantine\
+gate1_collision_clear_20260711T190113Z\`.
+
+**Yetkilendirme sınırı:** Gate 1 KABUL EDİLDİ. Scheduler durdurulmuş
+durumda kalıyor. Scheduler default KAPALI kalıyor. Bu kabul: Gate 2'yi
+YETKİLENDİRMEZ; kalıcı scheduler etkinleştirmesini YETKİLENDİRMEZ;
+Scheduled Task oluşturmayı YETKİLENDİRMEZ; runtime restart'ı
+YETKİLENDİRMEZ; monitor-harness düzeltici implementasyonunu
+YETKİLENDİRMEZ. Sonraki her runtime veya düzeltici aksiyon ayrı, açık bir
+operatör yetkisi gerektirir.
+
+**Verdict: `GATE_1_ACCEPTED`.** Kanonik post-recording durum:
+`GATE_1_ACCEPTED_SCHEDULER_STOPPED_DEFAULT_OFF_AWAITING_SEPARATE_GATE_2_
+AUTHORIZATION`. Next: Gate 2 (kalıcı/uzun-süreli aktivasyon) yalnız ayrı,
+açık bir operatör kararı ve kendi kademeli inceleme zinciriyle
+başlatılabilir; bu kayıt onu başlatmaz.
