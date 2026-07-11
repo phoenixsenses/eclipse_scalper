@@ -5530,3 +5530,84 @@ düzeltmesi) → bağımsız re-review `SHADOW_EVAL_RANGE_MIGRATION_ACCEPTED`.
 
 **Verdict: `SHADOW_EVAL_RANGE_MIGRATION_ACCEPTED`.** Next:
 `RETURN_TO_STORAGE_SCOPE_DECISION_FOR_REMAINING_9_CANDIDATES`.
+
+---
+
+## 120. RANGE-READ V11 — KALAN 9 ADAY BAĞIMSIZ YENİDEN-SINIFLANDIRMA + REVIEW ÇÜRÜTMESİ + OPERATÖR BAR ADJUDİKASYONU → ZERO ELIGIBLE (2026-07-11, Opus 4.8)
+
+**Bağlam:** §119'un açık Next'i (`RETURN_TO_STORAGE_SCOPE_DECISION_FOR_
+REMAINING_9_CANDIDATES`) ele alındı. Operatör açıkça talimat verdi: hiçbir
+adaya implementasyon yetkisi verilmeden önce **kalan 9 aday temiz izole
+worktree'de read-only yeniden-sınıflandırılsın + fresh-context bağımsız
+review'dan geçsin**; en fazla 1 aday teknik eligible bulunursa implementation
+için AYRICA açık yetki istensin. `eth_preliq_*`'nin daha önce
+korumalı/CVD-adjacent işaretlendiği hatırlatıldı.
+
+**Faz 0 — düzeltilen ilk hata:** Bu oturumun ilk (kaba) geçişi yanlışlıkla
+`research_s34_eth_preliq_control.py`'yi "Tier-1 en temiz aday" önerdi. §118
+tablosu ve bağımsız worktree kanıtı (`from tools.s34_shadow_paper_runner
+import ...` + `FEATURE_DB = data/s34_feature_factory.db` cross-DB) bunun
+`CVD_ADJACENT`/protected olduğunu doğruladı → öneri GERİ ÇEKİLDİ.
+
+**Faz 1 — bağımsız yeniden-sınıflandırma (izole sparse worktree @ `92aeaeb1`,
+yalnız tools/+ami/+governance; untracked kirlilik yok; MAX_PATH bypass):**
+§118 notlarına GÜVENİLMEDEN, her diskalifiye kaynaktan yeniden doğrulandı;
+production DB'ye 0 sorgu. Sonuç §118'in `NO_ELIGIBLE_CANDIDATES`'ını yeniden
+üretti (9/9 diskalifiye): 1-2 predicated first-crossing forward-ASOF; 3
+non-allowlisted `liquidations`; 4 `ami.constitution`+`ami.research.registry`
+governance; 5 açık `ofi` composite; 6-7 shadow_paper_runner import + cross-DB
+FEATURE_DB; 8 first_book_cross + through_quote SUM; 9 çok-tablolu COUNT
+aggregate. (Reader satır-okuyucu; server-side SUM/COUNT/MAX yok.)
+
+**Faz 2 — fresh-context bağımsız review (ayrı agent, salt-okunur, adversarial):
+Faz 1'i ÇÜRÜTTÜ.** Review, `research_s34_btc_microtrend_sweep.py`'yi bar'ın
+LİTERAL ifadesi altında **eligible** buldu: migrate edilebilir kısım
+`simulate()` içinde satır 67-69 `SELECT mark_price FROM mark_prices WHERE
+symbol='ETHUSDT' AND ts_ms>? AND ts_ms<=? ORDER BY ts_ms` — `LIMIT 1` yok
+(forward-ASOF değil), aggregate yok, sadece mark_price (CVD yok), governance
+import yok, cross-DB yok. §118/Faz1'in MIXED_PARTIAL gerekçesi olan unbounded
+`FROM liquidations` scan (:100-102) **`main()` içinde event üretimi için**;
+`simulate()`'e yalnız skaler `entry_ms` akıyor → migrate edilecek range
+kısmıyla **entangled DEĞİL.** Bar item 7 "non-allowlisted table access
+**entangled with the range portion**" diyor → literal okumada btc_microtrend
+temiz. Review ayrıca **bar tutarsızlığı** yakaladı: item 7 "entangled"
+yumuşatıcısına sahip, item 6 (cross-DB) sahip değil → eth_preliq_control/
+executable'ın temiz ayrışabilir `_book_series` book_ticker range read'i sırf
+dosya-seviyesi cross-DB yüzünden diskalifiye; item 6 de item 7 gibi okunsaydı
+onlar da tartışmalı eligible olurdu.
+
+**Operatör adjudikasyonu — KATI DOSYA-SEVİYESİ BAR:** Faz 1 (zero) vs Faz 2
+(bir eligible) çatışması bar'ın yorumuna dayandığından — ve bir dosyaya
+dokunup dokunmayacağını belirlediğinden — operatör kararına götürüldü (§118/
+§119 emsali: kapsam/yorum kararları operatörün). **Operatör KATI DOSYA-SEVİYESİ
+okumayı seçti:** dosyada mevcut herhangi bir non-allowlisted / cross-DB /
+governance erişimi, ayrışabilir olsa bile o dosyayı diskalifiye eder. Bu, item
+6 ve item 7'yi **tek tip file-level** yapar (item 7'nin "entangled"
+yumuşatıcısı eligibility için geçersiz; governance amacıyla file-level okunur).
+Sonuç: **btc_microtrend'in literal-okuma eligible'ı yönetici bar altında
+GEÇERSİZ; 9/9 INELIGIBLE.**
+
+**Sonuç:** `V11_STRICT_FILE_LEVEL_BAR_ZERO_ELIGIBLE_REAFFIRMED`. Hiçbir
+implementation, hiçbir migration başlatılmadı; `btc_microtrend`,
+`eth_preliq_control`, `eth_preliq_executable` dahil hiçbir adaya dokunulmadı.
+Envanter DEĞİŞMEDİ (btc_microtrend `MIXED_PARTIAL`/non-allowlisted olarak durur;
+scanner main-tree'de untracked-kirlilik nedeniyle YENİDEN ÇALIŞTIRILMADI —
+§119 dürüstlük notu). Kod/test/catalog/archive/DB/runtime/foreign dosya
+mutasyonu YOK.
+
+**Bar netleştirmesi (gelecek oturumlar için, operatör kararıyla):** range-read
+eligibility'de non-allowlisted-table, cross-DB ve governance-coupling
+diskalifiyeleri **FILE-LEVEL** uygulanır — ayrışabilirlik bir dosyayı eligible
+yapmaz. "Entangled with the range portion" ifadesi bir gevşetme olarak
+KULLANILMAZ.
+
+**İnceleme zinciri kaydı:** Faz1 (classify, zero) → Faz2 (bağımsız review,
+REFUTE, 1 eligible) → operatör bar adjudikasyonu (strict file-level) →
+`ZERO_ELIGIBLE_REAFFIRMED`. Review'ın epistemik değeri kanıtlandı: Faz 1'in
+§118 etiketini entanglement testi yapmadan kabul eden zayıflığını yakaladı;
+operatör yorumu barı netleştirerek kapattı.
+
+**Verdict: `V11_STRICT_FILE_LEVEL_BAR_ZERO_ELIGIBLE_REAFFIRMED`.** Next:
+`STORAGE_RANGE_READ_MIGRATION_EXHAUSTED_UNDER_CURRENT_STRICT_BAR` — yeni
+range-read migrasyon ilerlemesi ancak (a) bar'ın gevşetilmesi (operatör
+kararı) veya (b) yeni/temiz bir aday ortaya çıkması ile mümkün.
