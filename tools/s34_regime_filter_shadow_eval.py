@@ -118,6 +118,14 @@ def book_at_v2(root, symbol: str, ts_ms: int, max_staleness_ms: int, source_db_p
 
 
 def mark_rows(con: sqlite3.Connection, symbol: str, start_ms: int, end_ms: int) -> list[tuple[int, float]]:
+    """Direct-SQL oracle -- kept unchanged as the parity reference for
+    `mark_rows_v2` (the mark_prices range-read leg of this file's
+    migration; the book_ticker ASOF leg was migrated separately in Batch
+    4/b40441f2, see `book_at`/`book_at_v2` above). No longer called by
+    `simulate_counterfactual`; the reader-backed path is used instead.
+    Both bounds are INCLUSIVE (`ts_ms>=start_ms AND ts_ms<=end_ms`) --
+    unlike some other migrated files' oracles, this one has no
+    exclusive-lower variant to worry about."""
     return [
         (int(ts), float(price))
         for ts, price in con.execute(
@@ -132,6 +140,30 @@ def mark_rows(con: sqlite3.Connection, symbol: str, start_ms: int, end_ms: int) 
     ]
 
 
+def mark_rows_v2(root, symbol: str, start_ms: int, end_ms: int, source_db_path=None) -> list[tuple[int, float]]:
+    """Reader-backed replacement for `mark_rows`, via `plan_read`/
+    `execute_read`. `symbol` is a genuine runtime parameter, same as
+    `book_at_v2` above.
+
+    Boundary mapping: `mark_rows`'s oracle is INCLUSIVE on BOTH bounds
+    (`ts_ms>=start_ms AND ts_ms<=end_ms`); `research_reader.plan_read`/
+    `execute_read` use a half-open `[start_ms, end_ms)` window. Only the
+    UPPER bound needs adjusting to reproduce the oracle exactly for
+    integer ts_ms: `end_ms+1` turns the reader's exclusive upper bound
+    into an inclusive one. The LOWER bound is passed through UNCHANGED --
+    `start_ms` is already the reader's own inclusive lower bound, so no
+    `+1` shift is applied here. (This mirrors the identical
+    `_mark_prices_range`/`_mark_prices_range_v2` pattern in
+    `tools/micro_edge_smoke.py`, Range-Read V4, which has the exact same
+    inclusive/inclusive oracle shape. It is NOT the different `+1`-on-the-
+    lower-bound mapping used for a different, EXCLUSIVE-lower oracle
+    elsewhere in this migration series -- that mapping does not apply to
+    this file's inclusive-lower oracle.)"""
+    plan = RR.plan_read(root, table="mark_prices", symbol=symbol, start_ms=int(start_ms), end_ms=int(end_ms) + 1)
+    result = RR.execute_read(plan, columns=("ts_ms", "mark_price"), source_db_path=source_db_path)
+    return [(int(ts), float(price)) for ts, price in result.iter_rows()]
+
+
 def simulate_counterfactual(
     con: sqlite3.Connection,
     trade: dict[str, Any],
@@ -141,6 +173,12 @@ def simulate_counterfactual(
     root,
     source_db_path=None,
 ) -> dict[str, Any] | None:
+    # `con` is no longer read inside this function body -- both DB reads
+    # (book_at_v2 for the ASOF quote, mark_rows_v2 for the mark_prices
+    # range) are now reader-backed via `root`/`source_db_path`. The
+    # parameter is kept, unused, to avoid a call-site signature change in
+    # `main()` (which still opens `con` for its own lifecycle) -- out of
+    # scope for this range-read migration gate.
     rule = trade.get("rule") or {}
     symbol = str(trade.get("symbol") or rule.get("symbol") or "ETHUSDT")
     direction = str(trade.get("direction") or rule.get("direction") or "LONG").upper()
@@ -162,7 +200,7 @@ def simulate_counterfactual(
     horizon_ms = int(safe_float(rule.get("max_horizon_sec"), 3600.0) * 1000)
     planned_end_ms = entry_ts_ms + horizon_ms
     end_ms = min(planned_end_ms, now_ms)
-    rows = mark_rows(con, symbol, entry_ts_ms, end_ms)
+    rows = mark_rows_v2(root, symbol, entry_ts_ms, end_ms, source_db_path=source_db_path)
     if not rows:
         return None
 
