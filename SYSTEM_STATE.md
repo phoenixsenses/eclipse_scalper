@@ -5371,3 +5371,68 @@ Track 2 V9 kanonik ağaca merge+commit (`717d7308`) edildi + governance kaydedil
 Track 1 forward-gated, Track 3 no-eligible-work. Push YAPILMADI. Next per track:
 Track1=`AWAIT_FORWARD_WINDOW_~2027-01`, Track2=`AWAIT_PUSH_AUTHORIZATION` (sonraki
 V10 ayrı batch), Track3=`AWAIT_FORWARD_SAMPLE_OR_OPERATOR_SPLIT_RATIO_DECISION`.
+**(V9 push §118'de doğrulandı; V10 sonucu §118'de kaydedildi.)**
+
+---
+
+## 118. STORAGE V9 PUSH + RANGE-READ V10 — NO ELIGIBLE CANDIDATES (2026-07-11, Sonnet 5)
+
+**Faz 1 — V9 push:** Operatör yetkisiyle `717d7308` + `5caead04` commit'leri
+`origin/codex/data-layer-fallback-cleanup`'a push edildi (`16ab3a1e..5caead04`,
+temiz fast-forward, force yok). Remote tip == local HEAD, 0/0, her iki commit
+de remote'ta doğrulandı. `main` dokunulmadı. Foreign-owned kirli dosyalar
+(7 dosya) değişmedi, hiçbir commit'e girmedi.
+
+**Faz 2 — V10 preflight (salt-okunur statik sınıflandırma):** Kanonik taban
+pushed HEAD `5caead04`. Mevcut kabul edilmiş envanterdeki
+**10 `REMAINING_MIGRATABLE_RANGE_READ_CANDIDATE`** tek tek, önceki hiçbir
+ret-notuna güvenmeden bağımsız incelendi. Production DB'ye **hiçbir sorgu
+çalıştırılmadı** (yalnız statik kod okuma). Hiçbir worktree açılmadı, hiçbir
+implementasyon/test değişikliği/merge/runtime aksiyonu/storage mutasyonu
+olmadı.
+
+**Sonuç: `STORAGE_RANGE_READ_V10_NO_ELIGIBLE_CANDIDATES`.** V9, sıkı migrasyon
+barını (CLEAN_NON_MIXED + tam anlaşılmış semantik + korunmuş bit-identical
+oracle + CVD/AMI epistemik çakışma yok + runtime/catalog/archive mutasyonu
+yok) sağlayan kalan tüm clean/non-mixed full-window adayları tüketti. Kalan
+10 adaydan HİÇBİRİ bu barın tamamını sağlamıyor:
+
+| # | Dosya | Sınıflandırma | Diskalifiye nedeni |
+|---|---|---|---|
+| 1 | `research_eth_provision_realism.py` | UNSAFE_OR_INELIGIBLE | predicated first-crossing forward-ASOF |
+| 2 | `research_nonpredictive_carry_provision.py` | UNSAFE_OR_INELIGIBLE | predicated first-crossing forward-ASOF |
+| 3 | `research_s34_btc_microtrend_sweep.py` | MIXED_PARTIAL | non-allowlisted `liquidations` erişimi + CVD/cascade adjacency |
+| 4 | `research_s34_buyfade_structural.py` | GOVERNANCE_ONLY | `ami.research.registry`/`ami.constitution` epistemik-gate bağımlılığı |
+| 5 | `research_s34_consensus_composite.py` | CVD_ADJACENT | OFI/CVD composite, karışık kanıt |
+| 6 | `research_s34_eth_preliq_control.py` | CVD_ADJACENT | eth_preliq avoid-list, shadow-runner, cross-DB bağımlılık |
+| 7 | `research_s34_eth_preliq_executable.py` | CVD_ADJACENT | eth_preliq avoid-list, shadow-runner, cross-DB bağımlılık |
+| 8 | `research_s34_v6_management_system.py` | UNSAFE_OR_INELIGIBLE | first-crossing + predicate-aggregate; clean full-window yok |
+| 9 | `s34_regime_filter_shadow_eval.py` | MIXED_PARTIAL (near-miss) | mark_prices range + book_ticker ASOF; shadow-mirror adjacency; mevcut sıkı kapsamda yetkisiz |
+| 10 | `validate_data_research_fitness.py` | MIXED_PARTIAL | gerçek çok-tablolu aggregate semantiği |
+
+**Envanter durumu (değişmedi):** `total_scanned=141`; `MIGRATED_RANGE_READ=24`;
+`REMAINING_MIGRATABLE=10`; `NO_OP=83+1`; `DO_NOT_TOUCH=8`;
+`BLOCKED_FORWARD_ASOF=7`; `BLOCKED_DIFFERENT_DB=4`; `OUT_OF_SCOPE_UNBOUNDED=3`;
+`ASOF_ONLY=1`.
+
+**Kanonik devam durumu:** **`AWAIT_OPERATOR_SCOPE_DECISION_MIXED_PARTIAL_OR_
+SHADOW_EVAL`** — sonraki range-read migrasyon ilerlemesi ayrı, açık bir
+operatör kapsam-genişletme kararı gerektirir: MIXED_PARTIAL tamamlama
+migrasyonları mı kabul edilsin, shadow-evaluation consumer'ları mı dahil
+edilsin, range+ASOF karışık consumer'lar mı, çok-tablolu/aggregate
+consumer'lar mı? **Bu governance kaydı bu genişletmeyi YETKİLENDİRMEZ.**
+
+**Korunan (değişmedi):** Track 1 `AWAIT_FORWARD_WINDOW_~2027-01`; Track 3
+`AWAIT_FORWARD_SAMPLE_OR_OPERATOR_SPLIT_RATIO_DECISION`; detector
+`DETECTOR_SCHEDULING_DECISION_PENDING`; watchdog
+`WATCHDOG_SILENT_STOP_ROOT_CAUSE_OPEN`.
+
+**Storage runtime gate'leri (DISABLED, bu batch'in kapsamı dışında):**
+scheduler aktivasyonu, purge/dependency-release, VACUUM, production rotation,
+book_ticker restart/recovery, yıkıcı storage bakımı — hepsi kapalı kalıyor.
+
+Bu governance-only kayıttır; kod/test/envanter/catalog/archive/DB/runtime/
+foreign dosya DEĞİŞMEDİ.
+
+**Verdict: `STORAGE_RANGE_READ_V10_NO_ELIGIBLE_CANDIDATES`.** Next:
+`AWAIT_OPERATOR_SCOPE_DECISION_MIXED_PARTIAL_OR_SHADOW_EVAL`.
