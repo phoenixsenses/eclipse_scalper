@@ -1,11 +1,26 @@
 # Liquidation Silence / Transport-Outage Detector — Implementation, 2026-07-11
 
-**Verdict: `LIQUIDATION_SILENCE_DETECTOR_IMPLEMENTED_AWAITING_REVIEW`.**
+**Verdict: `LIQUIDATION_SILENCE_DETECTOR_CORRECTED_AWAITING_REREVIEW`.**
 
-Implementation-complete, tested, replayed against real production history,
-performance-rehearsed. Not activated, not scheduled, not wired into
-`tools/heartbeat_watchdog.py`. Live executors remained OFF throughout (never
-touched). No production database mutation. No process restarted.
+> **Corrective pass (2026-07-11, Opus 4.8):** an independent read-only review
+> returned `LIQUIDATION_SILENCE_DETECTOR_CORRECTIVE_IMPLEMENTATION_REQUIRED`
+> (three MEDIUM findings + LOW items). This report has been corrected in
+> place; the full corrective record is **§19 (Corrective Implementation)** at
+> the end. Headline changes: complete-symbol-evidence gating (no more
+> all-symbol transport-outage claim from an incomplete symbol set), a
+> decision-logic policy fingerprint (`POLICY_SPEC` sha256, not thresholds
+> only), an explicit `LIVE` / `HISTORICAL_REPLAY` evaluation mode that
+> structurally blocks present-day evidence contaminating a historical replay,
+> structured DB error propagation, future-timestamp handling, and symbol
+> normalization. Frozen thresholds (3600 / 7200 / 9000 / 300) are UNCHANGED.
+> `POLICY_VERSION` is now `liquidation_silence_policy_v2_2026-07-11`; the v1
+> fingerprint is recorded as superseded in §5.
+
+Implementation-complete, tested (86/86), replayed against real production
+history under the corrected safe historical mode, performance-rehearsed. Not
+activated, not scheduled, not wired into `tools/heartbeat_watchdog.py`. Live
+executors remained OFF throughout (never touched). No production database
+mutation. No process restarted.
 
 ---
 
@@ -76,13 +91,28 @@ the collector's `liquidation_stream_mode` default became `all_market_arr`
 (subscribing to the full-market `!forceOrder@arr` stream) on **2026-06-06**
 as part of the first outage recovery
 (`LIQUIDATION_TRANSPORT_RESTORED_2026-06-06.md`). A 2026-04-20→04-27 sample
-window (pre-change) showed all-symbol combined event density **23x lower**
+window (pre-change) showed all-symbol combined event density **≈25.6x lower**
 than any post-2026-06-06 healthy window despite comparable per-symbol
 (BTC/ETH) counts — consistent with a narrower pre-change subscription scope,
 not organic volatility. **Excluded from the frozen-policy calibration
 population** as non-representative of the current architecture; per-symbol
 counts from that window were reviewed but not used to set thresholds either,
 for consistency.
+
+**Calibration duration (corrected).** The healthy calibration population is
+**307 hours of included healthy coverage** (168h + 120h + 19h across the
+three windows below) = **≈12.8 elapsed days**, spanning **14 distinct
+calendar days**. (An earlier draft summarized this loosely as "~19 days";
+307h / ≈12.8 elapsed days / 14 calendar days is the exact form.) Calibration
+adequacy is **`ADEQUATE_WITH_LOW_LIMITATION`**: the frozen thresholds are
+validated for the **current** (`all_market_arr`, post-2026-06-06)
+subscription architecture. The **0 false positives** figure applies only to
+the evaluated healthy windows (not a universal guarantee). When replayed
+against the **excluded** older, lower-density per-symbol subscription regime,
+one genuine `ALL_SYMBOL_SILENCE_WARNING` (YELLOW) can occur — that is **not a
+false positive under the current architecture**, but it means threshold
+*portability to the older regime is unproven*. Thresholds were not revised in
+light of this.
 
 **Healthy calibration population (all three windows post-2026-06-06,
 2026-07-06..07-10 outage excluded):**
@@ -151,7 +181,8 @@ calibration was necessary, not optional.
 ## 4. Frozen Detector Policy
 
 `tools/liquidation_silence_policy.py`, `POLICY_VERSION =
-"liquidation_silence_policy_v1_2026-07-11"`.
+"liquidation_silence_policy_v2_2026-07-11"` (numeric thresholds UNCHANGED
+from v1; only the surrounding evidence semantics were corrected — see §19).
 
 | Threshold | Value | Margin over observed historical max | Basis |
 |---|---:|---:|---|
@@ -167,16 +198,37 @@ P&L or any trading outcome.
 
 ## 5. Policy Fingerprint
 
+**Current (v2, decision-logic fingerprint):**
+
 ```
-POLICY_VERSION     = liquidation_silence_policy_v1_2026-07-11
-POLICY_FINGERPRINT = 9781e0ed8f7b4950e62bdb6b4e64773ef1f9f6e383749b92ac20641dec4ed9d8
+POLICY_VERSION     = liquidation_silence_policy_v2_2026-07-11
+POLICY_FINGERPRINT = e117cf132bce3bd180af3c718670d3c75910dd69206588d4b7f1b341aadf2291
 ```
 
-`sha256` over the canonical (`sort_keys=True`) JSON of the four threshold
-values + version string, computed deterministically at module import
-(`tools/liquidation_silence_policy.py::_compute_policy_fingerprint`). Any
-future threshold edit changes both the fingerprint and must bump
-`POLICY_VERSION`.
+**Superseded (v1, thresholds-only fingerprint) — retained for provenance:**
+
+```
+POLICY_VERSION     = liquidation_silence_policy_v1_2026-07-11
+POLICY_FINGERPRINT = 9781e0ed8f7b4950e62bdb6b4e64773ef1f9f6e383749b92ac20641dec4ed9d8   (SUPERSEDED)
+```
+
+The v1 fingerprint was `sha256` over only the four threshold values + a
+manually maintained version string — so a material *logic* change (a boundary
+operator, the classification precedence, the all-symbol aggregation method,
+the native-WS precedence, ...) could occur without moving it (review MEDIUM
+2). The **v2** fingerprint is `sha256` over the canonical (`sort_keys=True`)
+JSON of the full **`POLICY_SPEC`** decision-logic specification
+(`tools/liquidation_silence_policy.py::_policy_spec` /
+`_fingerprint_of`): thresholds, boundary operators, age-clamping / future-
+timestamp semantics, the complete-evidence requirement, the all-symbol
+aggregation method, the per-symbol rule, the decision precedence list, the
+native-WS/collector precedence, stale/missing/corrupt-evidence behavior, the
+status→severity map, and the output schema version. Any semantic change now
+necessarily changes the fingerprint; it is insensitive to key ordering /
+whitespace (proven by unit tests). Because semantics changed in this
+corrective pass, the v2 fingerprint **differs** from the superseded v1 value
+above (also asserted by a unit test). `SUPERSEDED_V1_POLICY_FINGERPRINT` is
+kept as a module constant for provenance.
 
 ---
 
@@ -481,10 +533,132 @@ the precedent `tools/health_cycle_smoke.py --root` and
 
 ## 18. Next Action
 
-`REVIEW_LIQUIDATION_SILENCE_DETECTOR`.
+`REREVIEW_LIQUIDATION_SILENCE_DETECTOR` (see §19 for the corrective pass that
+supersedes the original `REVIEW_...` action).
 
-Independent review required before any controlled-activation batch (adding
+Independent re-review required before any controlled-activation batch (adding
 `"liquidation_silence"` to `tools/heartbeat_watchdog.py`'s
 `OPTIONAL_COMPONENT_FILES` and wiring `compose_with_overall_severity` into
 its severity composition). No runtime change has occurred. No execution
 authorization is implied or requested by this batch.
+
+---
+
+## 19. Corrective Implementation (2026-07-11, Opus 4.8) — post-independent-review
+
+Independent read-only review verdict:
+**`LIQUIDATION_SILENCE_DETECTOR_CORRECTIVE_IMPLEMENTATION_REQUIRED`** (three
+MEDIUM findings + LOW items). The review changed nothing; this pass
+implements the corrections. Frozen thresholds (3600 / 7200 / 9000 / 300) were
+**not** changed and the detector was **not** activated, scheduled, or
+restarted.
+
+### MEDIUM 1 — Partial-symbol evidence overclaim → COMPLETE-EVIDENCE GATING
+An "all tracked symbols silent" claim now requires usable evidence for
+**every** tracked symbol. The policy computes `complete_symbol_evidence`,
+`missing_symbols`, `known_symbol_count`, `tracked_symbol_count`. When any
+tracked symbol's evidence is missing while the known symbols are silent
+beyond warning/critical, the classification is the new visibly-uncertain
+`PARTIAL_SYMBOL_EVIDENCE` / UNKNOWN (reason `KNOWN_SYMBOL_SILENCE_BEYOND_
+WARNING|CRITICAL` + `PARTIAL_SYMBOL_EVIDENCE_MISSING:<syms>`) — never
+`LIQUIDATION_TRANSPORT_OUTAGE` and never the `ALL_SYMBOL_SILENCE_BEYOND_*`
+reason codes. The exact review reproduction (BTC+ETH critically silent, SOL
+missing) is now a regression test → `PARTIAL_SYMBOL_EVIDENCE`, not RED.
+Native-WS RED still preserves upstream RED before any liquidation analysis
+(item D); isolated known-symbol warnings under complete evidence are retained
+(item E). Output explicitly reports tracked symbols, missing symbols,
+`complete_symbol_evidence`, and known/expected counts.
+
+### MEDIUM 2 — Fingerprint incompleteness → DECISION-LOGIC FINGERPRINT
+`POLICY_FINGERPRINT` is now `sha256` of the full deterministic `POLICY_SPEC`
+(see §5) rather than the four thresholds + a version string. Unit tests prove:
+same semantics → same fingerprint; threshold / boundary-operator / precedence
+/ complete-evidence / native-WS-precedence change → fingerprint changes; key
+ordering does not change it; v2 ≠ superseded v1. New value:
+`e117cf132bce3bd180af3c718670d3c75910dd69206588d4b7f1b341aadf2291`.
+
+### MEDIUM 3 — Historical replay temporal contamination → EVALUATION MODE
+`evaluate_once` / `run_once` take an explicit `evaluation_mode`
+(`LIVE` | `HISTORICAL_REPLAY`).
+- **LIVE**: `now_ts` must be within `LIVE_MODE_WALLCLOCK_TOLERANCE_SEC`
+  (900s) of wall-clock; may read the live default overall/collector/pid
+  files. A historical `now_ts` in LIVE mode is rejected (fail-visible
+  UNKNOWN, live files never consulted).
+- **HISTORICAL_REPLAY**: the live default health/pid files may **not** be
+  read (they are present-day snapshots with no historical version) — explicit
+  historical evidence paths (or nonexistent/disabled paths) are required, or
+  the call fails with `HISTORICAL_EVIDENCE_REQUIRED`. Component timestamps are
+  validated against `now_ts`; a component timestamp after `now_ts` beyond
+  tolerance is rejected as `CONTROL_COMPONENT_TEMPORAL_MISMATCH`, so a
+  present-day `collector.json` cannot influence an April/May replay. All
+  replay helpers/tests were updated to this mode. This is a structural API
+  safeguard, not a documentation warning.
+
+### ERROR PROPAGATION
+DB read helpers now return `(data, errors)` with deterministic codes
+(`DB_TABLE_MISSING`, `DB_SCHEMA_MISMATCH`, `DB_LOCKED`, `DB_READ_ERROR`,
+`DB_CONNECT_ERROR`, `DB_PERMISSION_DENIED`) surfaced centrally in the
+payload `error` field instead of being swallowed to `None`. `error` stays
+`null` on a normal healthy evaluation (tested). Output-write failures raise
+rather than silently no-op (tested). No secrets / sensitive paths exposed
+(only local non-sensitive paths, as before).
+
+### FUTURE-TIMESTAMP HANDLING
+Source timestamps in the future within `FUTURE_TIMESTAMP_TOLERANCE_SEC` (60s)
+clamp to age 0 (benign skew); beyond tolerance they are recorded as an
+evidence anomaly (`FUTURE_LIQUIDATION_TS_ANOMALY` / `FUTURE_CONTROL_TS_
+ANOMALY`) and the reading is treated as unusable — never silently clamped to
+a healthy age-0. Applied to liquidation, control-stream, and component
+timestamps. Exact-boundary tests included.
+
+### SYMBOL NORMALIZATION
+`normalize_tracked_symbols` upper-cases / strips / de-duplicates (first-seen
+order) / drops empties before evaluation and output; an empty normalized
+universe fails visibly (UNKNOWN + `EMPTY_NORMALIZED_UNIVERSE`). The detector's
+documented last-resort fallback is retained and still reported via
+`symbol_source`. Duplicate-symbol test included.
+
+### TESTS (corrective)
+`tests/test_liquidation_silence_policy.py` (48) +
+`tests/test_liquidation_silence_detector.py` (38) = **86 passed** (`-p
+no:cacheprovider`, `--basetemp` in scratchpad). Canonical health regression
+(`test_health_writer_ownership.py` + `test_canonical_health_gate_integration.py`)
+= 16 passed. Added coverage: partial-evidence + critical/warning silence,
+missing-symbol + native-WS RED, duplicate symbols, empty normalized universe,
+future liquidation/control ts within/beyond tolerance, all four evaluation-
+mode paths, component-ts-after-now_ts temporal mismatch, present-day-file
+non-contamination, missing table / schema mismatch / DB locked / permission-
+classification / output-write failure, healthy error-field null, and the six
+fingerprint-sensitivity tests.
+
+### REPLAY REVALIDATION (corrected safe HISTORICAL_REPLAY mode)
+| Event | Result |
+|---|---|
+| Outage #1 onset (last good 2026-04-27T14:27:26Z) | first YELLOW 15:30 (latency ≈3753.7s ≈62.6min); first RED 16:30 (≈7353.7s ≈122.6min) |
+| 2026-05-03 / 2026-05-15 deep-gap | `LIQUIDATION_TRANSPORT_OUTAGE` / RED (controls fresh) |
+| 2026-05-21T16:30 control-stale blip | `CONTROL_STREAMS_STALE` / UNKNOWN (controls ≈15950s stale) — no over-claim |
+| Outage #1 recovery (2026-06-06T17:47:05Z) | RED through 17:47, HEALTHY by 17:48 (recovery ≈<1min) |
+| Outage #2 onset (last good 2026-07-06T10:06:39Z) | first YELLOW 11:10 (≈3837.6s); first RED 12:10 (≈7437.6s) |
+| Outage #2 recovery (2026-07-10T11:24:37Z) | HEALTHY at 11:24 (age 79.6s) |
+| Healthy current-architecture sweep (9 probes) | 9/9 HEALTHY, 0 YELLOW/RED/UNKNOWN |
+| Excluded older per-symbol regime (7 probes) | 7/7 HEALTHY at these points (portability still unproven — a genuine YELLOW can occur elsewhere in that regime) |
+
+Historical-mode proof: every replay used `evaluation_mode=HISTORICAL_REPLAY`
+with nonexistent overall/collector/pid paths → no present-day live component
+evidence read; all outage-window classifications had
+`complete_symbol_evidence=True`. Thresholds not changed based on results.
+
+### PERFORMANCE / IMMUTABILITY (corrective rehearsal)
+One-shot LIVE-mode `run_once` against the real `mode=ro` production DB, output
+to an isolated scratch path: wall **0.0043s**, detector_runtime **0.0031s**,
+**5** indexed queries, output **1693 bytes**, `error=null`, status HEALTHY.
+Never wrote to the real `logs/health/` (verified absent). Frozen historical
+row counts (BTC/ETH/SOL liquidations 2026-04-01..03) **687 / 798 / 0**
+identical before and after. Live PIDs unchanged (12 python procs, 0 duplicate,
+0 detector process, 0 live executor).
+
+### FINAL VERDICT
+`LIQUIDATION_SILENCE_DETECTOR_CORRECTED_AWAITING_REREVIEW`. Detector remains
+disabled by default, not scheduled, not wired into `heartbeat_watchdog.py`.
+Next action: **`REREVIEW_LIQUIDATION_SILENCE_DETECTOR`**. No execution
+authorization implied.
