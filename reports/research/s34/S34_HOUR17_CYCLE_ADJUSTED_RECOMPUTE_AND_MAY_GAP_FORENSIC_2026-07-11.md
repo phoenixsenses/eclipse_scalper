@@ -64,6 +64,7 @@ Kaynak: `tools/research_s34_silence_predictor.py`'nin kendi metodolojisi (`build
 **`collector_restarts.log`:** 2026-04-21→2026-05-28 arası onlarca `"Collector canonical start FAILED"` / seyrek `"OK"` girişi (yoğun instabilite deseni); 2026-06-05 19:25-19:43 ve 2026-06-06 20:43-20:59'da çoklu restart — **kurtarma (17:47:03) bu restart penceresinin İÇİNDE**, tam nedensellik kanıtlanamıyor ama zamansal olarak tutarlı.
 
 **Temmuz olayıyla ilişki — 2026-07-11 derinleştirmesiyle KESİN OLARAK AYRIŞTIRILDI:** `bd7feb32`'nin kendi commit mesajı: `BINANCE_WS` **2026-07-03**'te (`5cda3122`) `/market/stream`'den (doğru) `/stream`'e (yanlış — bağlanıyor ama sıfır frame) REGRESE OLDU; bu yanlış değer 2026-07-06'daki restart'ta canlıya geçti, 4 gün fark edilmeden çalıştı, 07-10'da düzeltildi. **Bu regresyon commit'i Mayıs-Haziran penceresinden SONRA (Temmuz 3) geldi** — `git log --since=2026-04-20 --until=2026-06-10 -- data/microstructure_collector.py` bu pencerede `BINANCE_WS`'e dokunan SIFIR commit gösteriyor; boşluk boyunca `BINANCE_WS` zaten DOĞRU (`/market/stream`) değerdeydi. **Sonuç: Mayıs boşluğu ile Temmuz olayı KANITLANMIŞ ŞEKİLDE FARKLI mekanizmalar** — kod-seviyesi endpoint regresyonu Mayıs'ta yoktu, bu yüzden Temmuz'un nedeni Mayıs'ın nedeni OLAMAZ. `reports/RECONNECTION_AUDIT.md` (2026-03-04, ayrı/daha erken bir olay) zaten "ISP intermittently blocks Binance WS → VPN/SOCKS5 path" senaryosunu öngörüyor — bu ortamda tekrarlayan bir transport-katmanı risk sınıfı olduğunu bağımsız olarak doğruluyor.
+> **[SUPERSEDE — 2026-07-11, bkz. rapor sonu "Correction Addendum" ve `SYSTEM_STATE.md` §111]:** Bu paragrafın "git log sıfır commit gösteriyor → BINANCE_WS zaten DOĞRUYDU" çıkarımı ve ondan türeyen "KANITLANMIŞ ŞEKİLDE FARKLI mekanizmalar" sonucu, iki bağımsız salt-okunur incelemeyle FAKTÜEL OLARAK YANLIŞ bulundu. Bu paragraf arşiv amaçlı yerinde bırakılıyor — kanonik düzeltme için rapor sonundaki eki okuyun.
 
 **Kök-neden güven sınıflandırması: `ROOT_CAUSE_PROBABLE`** (IDENTIFIED değil — görev kabul kriteri: gözlenen mekanizma ✓, mekanizmanın boşluk sırasında varlığı ✓ [2026-05-03 first-party diagnostik], kod-seviyesi alternatiflerin kanıtla elenmesi ✓ [yukarıda], AMA kurtarma anında neyin özel olarak değiştiğine dair confirmed kanıt YOK — yalnız zamansal çakışan restart'lar var, nedensellik kanıtlanmadı). **Kapatılamayan eksik kanıt:** (a) 2026-06-05/06 kurtarma anında spesifik bir düzeltici eylemi (commit, operatör notu, ağ-yapılandırma değişikliği) kaydeden HİÇBİR kayıt yok; (b) dönemin OS/VPN/router-seviyesi logları hiç tutulmamış, geriye dönük incelenemez; (c) `matrix_vpnfree/` alt-testi sonuçsuz (girdi dosyaları birebir aynı — VPN kapalıyken temiz bir A/B karşılaştırması elde edilememiş).
 
@@ -105,3 +106,46 @@ Terfi YOK. Route donmuş/değişmedi. İleri shadow gözlemi devam ediyor (şu a
 **Kök-neden derinleştirmesi (Temmuz olayından kesin ayrım) ve nihai sınıflandırma `ROOT_CAUSE_PROBABLE` için bkz. §4 sonu (güncellendi).**
 
 **Nihai verdict: `HOUR17_KO_CORRECTED_ROOT_CAUSE_PROBABLE`.**
+
+---
+
+## Correction Addendum (2026-07-11, Opus 4.8) — §66'daki git-tarihi iddiasının düzeltilmesi
+
+Yukarıdaki §66 paragrafının "BINANCE_WS boşluk boyunca zaten DOĞRU (`/market/stream`)
+değerdeydi" iddiası **yanlıştır**. Bağımsız git incelemesi (`git log -S'market/stream'
+--all`, tüm dal+stash dahil) `/market/stream` string'inin git tarihçesine **yalnızca
+`bd7feb32` (2026-07-10)** ile girdiğini gösteriyor. `dc92b9b0`(2026-03-05) ve
+`5cda3122`(2026-07-03) commit'lerinin ikisinde de `BINANCE_WS = "wss://fstream.
+binance.com/stream"` (yönlendirilmemiş) — yani Mayıs-Haziran boşluk penceresi dahil,
+bu değer Şubat'tan Temmuz başına kadar **hiç değişmeden** kaldı. `LIQUIDATION_
+TRANSPORT_RESTORED_2026-06-06.md` (06-06 kurtarmasını anlatan tek belge) git'e
+**hiç eklenmemiş** (untracked).
+
+**Mantık hatası:** "dosyaya dokunan commit yok" → "değer zaten doğruydu" çıkarımı
+geçersizdir. Doğru çıkarım tam tersidir: değer (zaten yanlış olan `/stream`)
+pencere boyunca **değişmeden yanlış kaldı**.
+
+**Bunun sonucu için ne değişir, ne değişmez:**
+- **Değişen:** "Mayıs ile Temmuz KANITLANMIŞ ŞEKİLDE FARKLI mekanizmalar" iddiası
+  geri çekiliyor — endpoint DEĞERİ bu ayrımı açıklamıyor (her iki dönemde de aynı
+  `/stream` değeri kullanılıyordu). Doğru ayrım **KAPSAM**dır: Mayıs = sağlıklı
+  soket üzerinde yalnız `forceOrder` alt-akışına özgü sessizlik (collector aynı
+  soket üzerinde forceOrder+aggTrade+markPrice'ı çoğulluyordu, `dc92b9b0`
+  `_build_stream_url`; DB kanıtı: liq=0 iken mark/agg kesintisiz aktı); Temmuz =
+  kod regresyonu (`5cda3122`) ile TÜM-SOKET sıfır-frame (mark/agg yalnız aynı
+  commit'te eklenen REST fallback sayesinde kurtuldu — Mayıs'ta bu fallback
+  henüz yoktu). Kategori: `TRANSPORT_SPECIFIC_OUTAGE` → **`LIQUIDATION_
+  FORCEORDER_SUBSTREAM_SPECIFIC_SILENCE_ON_HEALTHY_SOCKET`** olarak daraltıldı.
+- **Değişmeyen:** §68'in connection-seviyesi bir arızayı ELEME sonucu geçerliliğini
+  koruyor (mark/agg aynı soket üzerinde kesintisiz aktığı için bağlantı/transport
+  tümden ölmüş olamaz) — yalnız gerekçe cümlesi ("endpoint doğruydu") yanlıştı,
+  eleme sonucunun kendisi doğru kaldı. `ROOT_CAUSE_PROBABLE` sınıflandırması
+  KORUNUYOR. Terfi YOK, route donmuş kalıyor. Binance'in sembol-bazlı
+  `forceOrder`'ı sunucu tarafında neden sustuğu hâlâ yerel kanıttan
+  KANITLANAMAZ — bu sınır yeniden açılmadı.
+
+Tam kanıt zinciri ve iki bağımsız incelemenin (araştırma + adversarial çürütme
+denemesi) ayrıntıları: `SYSTEM_STATE.md` §111.
+
+**Düzeltme verdict'i: `MAY_GAP_ROOT_CAUSE_CORRECTED_AWAITING_INDEPENDENT_REREVIEW`**
+(bağımsız taze-context bir ajanın kabulünü bekliyor — bkz. §111).
