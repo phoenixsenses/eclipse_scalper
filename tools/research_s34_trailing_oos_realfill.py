@@ -95,8 +95,12 @@ def mark_at(con: sqlite3.Connection, symbol: str, ts_ms: int, before: bool = Fal
 
 
 def path_marks(con: sqlite3.Connection, symbol: str, entry_ts_ms: int) -> list[tuple[int, float]]:
-    # OUT-OF-SCOPE for ASOF V8: bounded range read (ts_ms BETWEEN), not the
-    # as-of point lookup this gate migrates. Left on direct SQL.
+    """Direct-SQL oracle -- kept unchanged as the parity reference for
+    `path_marks_v2` (BATCH-STORAGE-ROTATION-RETENTION-RANGE-READ-CONSUMER-
+    MIGRATION-V9). No longer called by `simulate_current_be30`/
+    `simulate_trail_half_mfe`; the reader-backed path is used instead.
+    Bounded range read (ts_ms BETWEEN) on `mark_prices`; the as-of `mark_at`
+    forward lookup is out of scope for this range-read gate."""
     return [
         (int(ts), float(price))
         for ts, price in con.execute(
@@ -109,6 +113,25 @@ def path_marks(con: sqlite3.Connection, symbol: str, entry_ts_ms: int) -> list[t
             (symbol, int(entry_ts_ms), int(entry_ts_ms) + MAX_HORIZON_SEC * 1000),
         )
     ]
+
+
+def path_marks_v2(root, symbol: str, entry_ts_ms: int, source_db_path=None) -> list[tuple[int, float]]:
+    """Reader-backed replacement for `path_marks`, via `plan_read`/
+    `execute_read`. `symbol` is a genuine function parameter, but this file's
+    two call sites always pass the module constant `SYMBOL="ETHUSDT"`
+    (confirmed by inspection); the helper stays symbol-generic regardless.
+
+    Range semantics: the oracle uses `ts_ms>=?` (INCLUSIVE lower) and
+    `ts_ms<=?` (INCLUSIVE upper). `plan_read`/`execute_read` use the reader's
+    half-open `[start_ms, end_ms)` convention. Since `ts_ms` is always an
+    integer column, `ts_ms<=hi` is exactly equivalent to `ts_ms<hi+1` -- so
+    `start_ms=lo, end_ms=hi+1` reproduces BOTH boundaries bit-for-bit, proven
+    by a dedicated parity test (ARCHIVE_ONLY / HYBRID / SQLITE_ONLY)."""
+    lo = int(entry_ts_ms)
+    hi = int(entry_ts_ms) + MAX_HORIZON_SEC * 1000
+    plan = RR.plan_read(root, table="mark_prices", symbol=symbol, start_ms=lo, end_ms=hi + 1)
+    result = RR.execute_read(plan, columns=("ts_ms", "mark_price"), source_db_path=source_db_path)
+    return [(int(ts), float(price)) for ts, price in result.iter_rows()]
 
 
 def book_ticker_at(con: sqlite3.Connection, symbol: str, ts_ms: int):
@@ -189,13 +212,13 @@ def real_fill_cost(entry_ref: float, exit_ref: float, entry_ts_ms: int, exit_ts_
     }
 
 
-def simulate_current_be30(source_con: sqlite3.Connection, event: dict) -> dict | None:
+def simulate_current_be30(source_con: sqlite3.Connection, event: dict, root, source_db_path=None) -> dict | None:
     entry_target = int(event["event_ts_ms"]) + ENTRY_DELAY_SEC * 1000
     entry = mark_at(source_con, SYMBOL, entry_target, before=False)
     if not entry:
         return None
     entry_ts_ms, entry_price = int(entry[0]), float(entry[1])
-    marks = path_marks(source_con, SYMBOL, entry_ts_ms)
+    marks = path_marks_v2(root, SYMBOL, entry_ts_ms, source_db_path=source_db_path)
     if not marks:
         return None
     be_active = False
@@ -237,13 +260,13 @@ def simulate_current_be30(source_con: sqlite3.Connection, event: dict) -> dict |
     }
 
 
-def simulate_trail_half_mfe(source_con: sqlite3.Connection, event: dict) -> dict | None:
+def simulate_trail_half_mfe(source_con: sqlite3.Connection, event: dict, root, source_db_path=None) -> dict | None:
     entry_target = int(event["event_ts_ms"]) + ENTRY_DELAY_SEC * 1000
     entry = mark_at(source_con, SYMBOL, entry_target, before=False)
     if not entry:
         return None
     entry_ts_ms, entry_price = int(entry[0]), float(entry[1])
-    marks = path_marks(source_con, SYMBOL, entry_ts_ms)
+    marks = path_marks_v2(root, SYMBOL, entry_ts_ms, source_db_path=source_db_path)
     if not marks:
         return None
     mfe = -1e9
@@ -333,10 +356,11 @@ def format_num(value, digits: int = 2) -> str:
 
 def main() -> None:
     feature_con = sqlite3.connect(FEATURE_DB)
-    # `source_con` stays open for the still-direct mark_prices reads
-    # (simulate_current_be30 / simulate_trail_half_mfe via mark_at/
-    # path_marks); only the book_ticker point-lookup path (real_fill_cost)
-    # moved to the reader, via `root`/SOURCE_DB_PATH.
+    # `source_con` stays open for the still-direct mark_prices ASOF reads
+    # (simulate_current_be30 / simulate_trail_half_mfe via `mark_at`); the
+    # bounded mark_prices range read (`path_marks` -> `path_marks_v2`) and the
+    # book_ticker point-lookup path (real_fill_cost) both moved to the reader,
+    # via `root`/SOURCE_DB_PATH.
     source_con = sqlite3.connect(SOURCE_DB, uri=True, timeout=10)
     source_con.execute("pragma query_only=1")
     root, _ = PR.resolve_production_root()
@@ -345,8 +369,8 @@ def main() -> None:
     split_ts_ms = int((int(min_ts) + int(max_ts)) / 2)
     events = load_events(feature_con)
 
-    current_rows = [row for event in events if (row := simulate_current_be30(source_con, event))]
-    trail_rows = [row for event in events if (row := simulate_trail_half_mfe(source_con, event))]
+    current_rows = [row for event in events if (row := simulate_current_be30(source_con, event, root, source_db_path=SOURCE_DB_PATH))]
+    trail_rows = [row for event in events if (row := simulate_trail_half_mfe(source_con, event, root, source_db_path=SOURCE_DB_PATH))]
 
     splits = {
         "CURRENT_BE30": split_rows(current_rows, split_ts_ms),

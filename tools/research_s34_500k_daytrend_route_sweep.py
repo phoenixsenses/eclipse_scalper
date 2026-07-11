@@ -89,8 +89,12 @@ def mark_at(con: sqlite3.Connection, ts_ms: int):
 
 
 def path_marks(con: sqlite3.Connection, entry_ts_ms: int) -> list[tuple[int, float]]:
-    # OUT-OF-SCOPE for ASOF V7: bounded range read (ts_ms BETWEEN), not the
-    # as-of point lookup this gate migrates. Left on direct SQL.
+    """Direct-SQL oracle -- kept unchanged as the parity reference for
+    `path_marks_v2` (BATCH-STORAGE-ROTATION-RETENTION-RANGE-READ-CONSUMER-
+    MIGRATION-V9). No longer called by `main`'s live path; the reader-backed
+    path is used instead. Bounded range read (ts_ms BETWEEN) on `mark_prices`;
+    the as-of `mark_at` forward lookup and the `liq_event_features`/book_ticker
+    queries are out of scope for this range-read gate."""
     return [
         (int(ts), float(price))
         for ts, price in con.execute(
@@ -103,6 +107,27 @@ def path_marks(con: sqlite3.Connection, entry_ts_ms: int) -> list[tuple[int, flo
             (SYMBOL, int(entry_ts_ms), int(entry_ts_ms) + MAX_HORIZON_SEC * 1000),
         )
     ]
+
+
+def path_marks_v2(root, entry_ts_ms: int, source_db_path=None) -> list[tuple[int, float]]:
+    """Reader-backed replacement for `path_marks`, via `plan_read`/
+    `execute_read`. Symbol is hardcoded ETHUSDT (module constant `SYMBOL`),
+    exactly as in the oracle's SQL (this file never varies it).
+
+    Range semantics: the oracle uses `ts_ms>=?` (INCLUSIVE lower) and
+    `ts_ms<=?` (INCLUSIVE upper). `plan_read`/`execute_read` use the reader's
+    half-open `[start_ms, end_ms)` convention. Since `ts_ms` is always an
+    integer column, `ts_ms<=hi` is exactly equivalent to `ts_ms<hi+1` -- so
+    `start_ms=lo, end_ms=hi+1` reproduces BOTH boundaries bit-for-bit, proven
+    by a dedicated parity test. mark_prices has no ETHUSDT archive partition
+    only for months not yet archived; wherever an archive exists the reader
+    stitches archive+SQLite transparently -- the parity test covers ARCHIVE_
+    ONLY / HYBRID / SQLITE_ONLY."""
+    lo = int(entry_ts_ms)
+    hi = int(entry_ts_ms) + MAX_HORIZON_SEC * 1000
+    plan = RR.plan_read(root, table="mark_prices", symbol=SYMBOL, start_ms=lo, end_ms=hi + 1)
+    result = RR.execute_read(plan, columns=("ts_ms", "mark_price"), source_db_path=source_db_path)
+    return [(int(ts), float(price)) for ts, price in result.iter_rows()]
 
 
 def book_ticker_at(con: sqlite3.Connection, ts_ms: int):
@@ -274,7 +299,7 @@ def main() -> None:
         entry = mark_at(source_con, int(event["event_ts_ms"]) + ENTRY_DELAY_SEC * 1000)
         if not entry:
             continue
-        event_paths[event["event_id"]] = path_marks(source_con, int(entry[0]))
+        event_paths[event["event_id"]] = path_marks_v2(root, int(entry[0]), source_db_path=SOURCE_DB_PATH)
 
     combinations = list(itertools.product(TP_GRID, SL_GRID, BE_GRID))
     route_rows: dict[str, list[dict]] = {}

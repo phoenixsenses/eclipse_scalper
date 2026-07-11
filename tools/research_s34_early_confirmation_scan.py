@@ -121,8 +121,12 @@ def mark_at(con: sqlite3.Connection, ts_ms: int, *, before: bool = False) -> tup
 
 
 def path_marks(con: sqlite3.Connection, start_ts_ms: int, horizon_sec: int) -> list[tuple[int, float]]:
-    # OUT-OF-SCOPE for ASOF V9: bounded range read (ts_ms BETWEEN), not the
-    # as-of point lookup this gate migrates. Left on direct SQL.
+    """Direct-SQL oracle -- kept unchanged as the parity reference for
+    `path_marks_v2` (BATCH-STORAGE-ROTATION-RETENTION-RANGE-READ-CONSUMER-
+    MIGRATION-V9). No longer called by `early_window`/`simulate_after_wait`;
+    the reader-backed path is used instead. Bounded range read (ts_ms BETWEEN)
+    on `mark_prices`; the as-of `mark_at` forward lookup is out of scope for
+    this range-read gate."""
     return [
         (int(ts), float(price))
         for ts, price in con.execute(
@@ -135,6 +139,24 @@ def path_marks(con: sqlite3.Connection, start_ts_ms: int, horizon_sec: int) -> l
             (SYMBOL, int(start_ts_ms), int(start_ts_ms) + int(horizon_sec) * 1000),
         )
     ]
+
+
+def path_marks_v2(root, start_ts_ms: int, horizon_sec: int, source_db_path=None) -> list[tuple[int, float]]:
+    """Reader-backed replacement for `path_marks`, via `plan_read`/
+    `execute_read`. Symbol is hardcoded ETHUSDT (module constant `SYMBOL`),
+    exactly as in the oracle's SQL (this file never varies it).
+
+    Range semantics: the oracle uses `ts_ms>=?` (INCLUSIVE lower) and
+    `ts_ms<=?` (INCLUSIVE upper). `plan_read`/`execute_read` use the reader's
+    half-open `[start_ms, end_ms)` convention. Since `ts_ms` is always an
+    integer column, `ts_ms<=hi` is exactly equivalent to `ts_ms<hi+1` -- so
+    `start_ms=lo, end_ms=hi+1` reproduces BOTH boundaries bit-for-bit, proven
+    by a dedicated parity test (ARCHIVE_ONLY / HYBRID / SQLITE_ONLY)."""
+    lo = int(start_ts_ms)
+    hi = int(start_ts_ms) + int(horizon_sec) * 1000
+    plan = RR.plan_read(root, table="mark_prices", symbol=SYMBOL, start_ms=lo, end_ms=hi + 1)
+    result = RR.execute_read(plan, columns=("ts_ms", "mark_price"), source_db_path=source_db_path)
+    return [(int(ts), float(price)) for ts, price in result.iter_rows()]
 
 
 def book_ticker_at(con: sqlite3.Connection, ts_ms: int) -> dict[str, float] | None:
@@ -226,14 +248,14 @@ def load_events(feature_con: sqlite3.Connection) -> list[dict[str, Any]]:
     ]
 
 
-def early_window(source_con: sqlite3.Connection, event: dict[str, Any], wait_sec: int) -> dict[str, Any] | None:
+def early_window(source_con: sqlite3.Connection, event: dict[str, Any], wait_sec: int, root, source_db_path=None) -> dict[str, Any] | None:
     signal_mark = mark_at(source_con, int(event["event_ts_ms"]), before=False)
     wait_mark = mark_at(source_con, int(event["event_ts_ms"]) + int(wait_sec) * 1000, before=False)
     if not signal_mark or not wait_mark:
         return None
     signal_ts, signal_price = signal_mark
     wait_ts, wait_price = wait_mark
-    marks = path_marks(source_con, signal_ts, wait_sec)
+    marks = path_marks_v2(root, signal_ts, wait_sec, source_db_path=source_db_path)
     if not marks:
         return None
     rets = [signed_ret(signal_price, price) for _, price in marks if _ <= wait_ts]
@@ -248,10 +270,10 @@ def early_window(source_con: sqlite3.Connection, event: dict[str, Any], wait_sec
     }
 
 
-def simulate_after_wait(source_con: sqlite3.Connection, event: dict[str, Any], wait: dict[str, Any]) -> dict[str, Any] | None:
+def simulate_after_wait(source_con: sqlite3.Connection, event: dict[str, Any], wait: dict[str, Any], root, source_db_path=None) -> dict[str, Any] | None:
     entry_ts_ms = int(wait["wait_ts_ms"])
     entry_price = float(wait["wait_price"])
-    marks = path_marks(source_con, entry_ts_ms, MAX_HORIZON_SEC)
+    marks = path_marks_v2(root, entry_ts_ms, MAX_HORIZON_SEC, source_db_path=source_db_path)
     if not marks:
         return None
     be_active = False
@@ -327,21 +349,21 @@ def split_rows(rows: list[dict[str, Any]], split_ts_ms: int) -> tuple[list[dict[
     return [r for r in rows if int(r["event_ts_ms"]) <= split_ts_ms], [r for r in rows if int(r["event_ts_ms"]) > split_ts_ms]
 
 
-def build_rows(source_con: sqlite3.Connection, events: list[dict[str, Any]], wait_sec: int) -> list[dict[str, Any]]:
+def build_rows(source_con: sqlite3.Connection, events: list[dict[str, Any]], wait_sec: int, root, source_db_path=None) -> list[dict[str, Any]]:
     rows = []
     for event in events:
-        wait = early_window(source_con, event, wait_sec)
+        wait = early_window(source_con, event, wait_sec, root, source_db_path=source_db_path)
         if not wait:
             continue
-        sim = simulate_after_wait(source_con, event, wait)
+        sim = simulate_after_wait(source_con, event, wait, root, source_db_path=source_db_path)
         if sim:
             rows.append(sim)
     return rows
 
 
-def scan_scope(scope_name: str, scope_expr: str, events: list[dict[str, Any]], source_con: sqlite3.Connection, split_ts_ms: int) -> dict[str, Any]:
+def scan_scope(scope_name: str, scope_expr: str, events: list[dict[str, Any]], source_con: sqlite3.Connection, split_ts_ms: int, root, source_db_path=None) -> dict[str, Any]:
     scoped_events = [e for e in events if row_in_scope(e, scope_expr)]
-    by_wait = {wait_sec: build_rows(source_con, scoped_events, wait_sec) for wait_sec in WAIT_GRID_SEC}
+    by_wait = {wait_sec: build_rows(source_con, scoped_events, wait_sec, root, source_db_path=source_db_path) for wait_sec in WAIT_GRID_SEC}
     candidates = []
     for wait_sec, rows in by_wait.items():
         train, test = split_rows(rows, split_ts_ms)
@@ -525,11 +547,11 @@ def write_report(payload: dict[str, Any]) -> None:
 
 def main() -> None:
     feature_con = sqlite3.connect(FEATURE_DB)
-    # `source_con` stays open for the still-direct mark_prices reads
+    # `source_con` stays open for the still-direct mark_prices ASOF reads
     # (scan_scope -> build_rows -> early_window/simulate_after_wait via
-    # mark_at/path_marks); only the book_ticker point-lookup path
-    # (add_real_fill -> real_fill_cost) moved to the reader, via `root`/
-    # SOURCE_DB_PATH.
+    # `mark_at`); the bounded mark_prices range read (`path_marks` ->
+    # `path_marks_v2`) and the book_ticker point-lookup path (add_real_fill
+    # -> real_fill_cost) both moved to the reader, via `root`/SOURCE_DB_PATH.
     source_con = sqlite3.connect(SOURCE_DB, uri=True, timeout=10)
     source_con.execute("pragma query_only=1")
     root, _ = PR.resolve_production_root()
@@ -538,7 +560,7 @@ def main() -> None:
     split_ts_ms = int((int(min_ts) + int(max_ts)) / 2)
     scans = []
     for scope_name, scope_expr in SCOPES.items():
-        scan = scan_scope(scope_name, scope_expr, events, source_con, split_ts_ms)
+        scan = scan_scope(scope_name, scope_expr, events, source_con, split_ts_ms, root, source_db_path=SOURCE_DB_PATH)
         scans.append(add_real_fill(scan, root, split_ts_ms, source_db_path=SOURCE_DB_PATH))
     payload = {
         "generated_at": iso_now(),
