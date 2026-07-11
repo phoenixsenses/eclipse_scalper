@@ -4893,4 +4893,69 @@ kod yolundan çağrılmıyor.
 
 Tam rapor: `reports/research/s34/LIQUIDATION_SILENCE_DETECTOR_2026-07-11.md`.
 
-**Verdict: `LIQUIDATION_SILENCE_DETECTOR_IMPLEMENTED_AWAITING_REVIEW`.** Push YAPILMADI. Next: `REVIEW_LIQUIDATION_SILENCE_DETECTOR`.
+**Verdict: `LIQUIDATION_SILENCE_DETECTOR_IMPLEMENTED_AWAITING_REVIEW`.** Push YAPILMADI. Next: `REVIEW_LIQUIDATION_SILENCE_DETECTOR`. **(§108'de düzeltildi — bu verdict artık supersede edildi.)**
+
+---
+
+## 108. LIQUIDATION SILENCE DETECTOR — CORRECTIVE IMPLEMENTATION, AWAITING RE-REVIEW (2026-07-11, Opus 4.8)
+
+§107 detector'ı bağımsız (salt-okunur, hiçbir değişiklik yapmayan) review'dan
+`LIQUIDATION_SILENCE_DETECTOR_CORRECTIVE_IMPLEMENTATION_REQUIRED` verdict'i aldı
+(3 MEDIUM + LOW bulgular). Düzeltmeler uygulandı. **Donmuş eşikler
+(3600/7200/9000/300) DEĞİŞMEDİ; detector AKTİVE EDİLMEDİ, schedule EDİLMEDİ,
+restart EDİLMEDİ.** Değişen dosyalar yalnız yeni izole detector dosyaları +
+rapor + bu governance kaydı (foreign-owned kirli dosyalara DOKUNULMADI).
+
+**MEDIUM 1 — partial-symbol overclaim → complete-evidence gating:** "tüm
+izlenen semboller sessiz" iddiası artık HER sembol için kullanılabilir kanıt
+gerektiriyor (`complete_symbol_evidence`, `missing_symbols`, known/tracked
+count'ları çıktıya eklendi). BTC+ETH critical + SOL missing artık
+`LIQUIDATION_TRANSPORT_OUTAGE`/RED DEĞİL → yeni `PARTIAL_SYMBOL_EVIDENCE`/UNKNOWN
+(regression testi eklendi). Native-WS RED yukarı-akış RED'i korur; complete
+evidence'ta izole sembol uyarısı korunur.
+
+**MEDIUM 2 — fingerprint eksikliği → decision-logic fingerprint:**
+`POLICY_FINGERPRINT` artık 4 eşik+versiyon string yerine tam `POLICY_SPEC`
+(precedence, boundary operatörleri, aggregation metodu, complete-evidence
+şartı, native-WS/collector precedence, future-ts tolerance, output schema...)
+üzerinden sha256. Sensitivity testleri: semantik değişince değişir, key
+sırasına duyarsız, v2 ≠ v1.
+- Eski (superseded, v1): `9781e0ed8f7b4950e62bdb6b4e64773ef1f9f6e383749b92ac20641dec4ed9d8`
+- Yeni (v2): `e117cf132bce3bd180af3c718670d3c75910dd69206588d4b7f1b341aadf2291`
+- `POLICY_VERSION = liquidation_silence_policy_v2_2026-07-11`.
+
+**MEDIUM 3 — historical replay temporal kontaminasyonu → evaluation mode:**
+`evaluate_once`/`run_once` artık explicit `evaluation_mode`
+(`LIVE`|`HISTORICAL_REPLAY`) alıyor. LIVE: `now_ts` wall-clock'a yakın olmalı
+(≤900s), live default dosyaları okunabilir. HISTORICAL_REPLAY: live default
+overall/collector/pid dosyaları OKUNAMAZ (`HISTORICAL_EVIDENCE_REQUIRED`),
+component ts `now_ts`'e göre doğrulanır (gelecek ts →
+`CONTROL_COMPONENT_TEMPORAL_MISMATCH`). Yapısal API güvencesi, sadece dokümantasyon
+uyarısı değil. Tüm replay testleri güvenli moda taşındı.
+
+**Diğer:** structured DB hata kodları (`DB_TABLE_MISSING/SCHEMA_MISMATCH/
+LOCKED/READ_ERROR/CONNECT_ERROR/PERMISSION_DENIED`) `error` alanında yüzeye
+çıkıyor (sağlıklı koşumda null); future-timestamp handling (≤60s skew clamp,
+ötesi anomaly-unusable); symbol normalization (dedup/case/whitespace, boş
+evren fail-visible).
+
+**Test:** 86/86 passed (policy 48 + detector 38, `-p no:cacheprovider`,
+`--basetemp` scratchpad). Canonical health regression (writer-ownership +
+gate-integration) 16/16 passed. Replay revalidation (güvenli HISTORICAL mode):
+Nisan onset YELLOW ≈62.6min/RED ≈122.6min; 05-21 control-stale → CONTROL_STREAMS_STALE
+(over-claim yok); recovery <1min; Temmuz onset YELLOW ≈64min/RED ≈124min;
+sağlıklı 9/9 HEALTHY; dışlanan eski mimari 7 probe HEALTHY (portability kanıtsız).
+Performans: LIVE one-shot 0.0043s, 5 sorgu, 1693B izole scratch'e, gerçek
+`logs/health/`'e YAZILMADI. Immutability: donmuş tarihsel row-count (BTC/ETH/SOL
+2026-04-01..03 = 687/798/0) önce/sonra birebir. 12 python proses, 0 detector,
+0 live executor değişmedi.
+
+**Rapor düzeltmeleri:** "~19 gün" → 307 saat included coverage / ≈12.8 elapsed
+gün / 14 ayrı takvim günü; "23x" → ≈25.6x; kalibrasyon
+`ADEQUATE_WITH_LOW_LIMITATION` (0 FP yalnız değerlendirilen sağlıklı pencerelerde;
+dışlanan eski rejimde 1 gerçek YELLOW mümkün, mevcut mimaride false positive
+değil ama portability kanıtsız).
+
+Tam düzeltme kaydı: rapor §19.
+
+**Verdict: `LIQUIDATION_SILENCE_DETECTOR_CORRECTED_AWAITING_REREVIEW`.** Push YAPILMADI. Aktivasyon/execution yetkisi YOK. Next: `REREVIEW_LIQUIDATION_SILENCE_DETECTOR`.
