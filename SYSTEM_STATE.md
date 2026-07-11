@@ -5122,4 +5122,49 @@ supersede-yerinde-bırakma + düzeltme eklendi (rapor §"Correction Addendum").
 **Verdict: `MAY_GAP_ROOT_CAUSE_CORRECTED_AWAITING_INDEPENDENT_REREVIEW`.**
 Push YAPILMADI. Kabul kararı bekliyor — bağımsız taze-context bir ajan bu
 düzeltmeyi kanıta karşı denetlemeden `ACCEPTED` denmeyecek. Next:
-`REREVIEW_MAY_GAP_ROOT_CAUSE_CORRECTION`.
+`REREVIEW_MAY_GAP_ROOT_CAUSE_CORRECTION`. **(§112'de kabul edildi.)**
+
+---
+
+## 112. MAYIS 2026 KÖK-NEDEN DÜZELTMESİ — BAĞIMSIZ RE-REVIEW KABUL EDİLDİ (2026-07-11, Opus 4.8)
+
+§111'in düzeltmesi bağımsız (salt-okunur, hiçbir dosya değiştirmeyen, taze-
+context) bir re-review'dan geçti. **Final verdict: `ACCEPTED`.**
+
+Reviewer önceki hiçbir ajanın bulgusuna güvenmeden kendi başına yeniden
+üretti: `git log -S'market/stream' --all` → yalnız `bd7feb32`; `dc92b9b0` ve
+`5cda3122`'nin ikisinde de `BINANCE_WS="/stream"` (aynı, değişmemiş) —
+bağımsız doğrulandı. Ayrıca kendi başına yeni bir tutarsızlık da buldu:
+`5cda3122`'nin commit mesajı bir URL düzeltmesi anlatıyor ama diff'i
+`BINANCE_WS` satırını hiç değiştirmiyor (yalnız context) — bu, düzeltmenin
+zaten ölçülü şekilde not düştüğü noktayla örtüşüyor. DB kanıtı (05-15, 05-25)
+bağımsız sorguyla doğrulandı. Overclaim kontrolü: aşırı iddia yok, dil ölçülü,
+`ROOT_CAUSE_PROBABLE` korunmuş, "Binance neden sustu" sınırı yeniden
+açılmamış. Supersede-in-place disiplini doğrulandı (orijinal yanlış metin
+silinmemiş). Kapsam yalnız 2 dosya (`SYSTEM_STATE.md` + rapor). §104/105/111
+"route donmuş" ifadesi tutarlı.
+
+**Kanonik durum geçişi:** `MAY_GAP_ROOT_CAUSE_CORRECTED_AWAITING_INDEPENDENT_
+REREVIEW` → **`MAY_GAP_ROOT_CAUSE_CORRECTION_ACCEPTED`**. Bu yalnız
+governance/bulgu kabulüdür — kategori adı (`LIQUIDATION_FORCEORDER_
+SUBSTREAM_SPECIFIC_SILENCE_ON_HEALTHY_SOCKET`) kanonik kabul edildi, ancak
+hiçbir kod/route/eşik/terfi değişmedi; route hâlâ donmuş. Binance'in sunucu
+tarafı sessizlik nedeni hâlâ kanıtlanamaz durumda, yeniden açılmadı.
+
+**Verdict: `MAY_GAP_ROOT_CAUSE_CORRECTION_ACCEPTED`.** Push YAPILMADI.
+Terfi/route değişikliği YOK. Next: bekleyen aksiyon yok, bulgu kanonik kayıtta.
+
+---
+
+**Operasyonel not (2026-07-11, ~10:41:45Z):** Bu batch sırasında
+`tools/heartbeat_watchdog.py` prosesi (eski PID 22816) durduğu tespit edildi
+— OS-seviyesi crash kaydı yok (Windows Event Log'da python.exe için fault
+kaydı yok), kesin kök neden belirlenemedi. Veri katmanı (collector/
+bookticker/oi_poller/event_diary/shadow runner'lar, 11/11 PID birebir
+baseline'la eşleşiyor, 0 duplicate) TAMAMEN SAĞLAM ve canlı yazmaya devam
+ediyor (`collector.json`/`bookticker.json` kendi sahiplerince bağımsız
+güncelleniyor). Yalnız agregatör/watchdog durdu — `overall.json`/
+`watchdog.json` ~10:41:45Z'den beri donuk. **Restart operatörün işi**
+(`start_eclipse.ps1`, sandbox dışında) — bu batch hiçbir restart komutu
+çalıştırmadı, çalıştırmayacak. Bu governance kaydından sonra bu oturum yeni
+bir arka-plan işi başlatmıyor; operatör watchdog'u ele alana kadar bekliyor.
