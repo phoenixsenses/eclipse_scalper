@@ -5240,3 +5240,49 @@ batch yalnız READ-path'i canlıya aldı + tek doğrulama anlık-görüntüsü �
 ertelenmiş). Live executor OFF, hiçbir trade/order/execution yolu aktive
 edilmedi, DB mutasyonu yok, foreign dosyalar dokunulmadı. Governance commit'i
 push edildi.
+
+---
+
+## 114. AÇIK OPERASYONEL TAKİP MADDELERİ — İSİMLENDİRİLMİŞ, AÇIK, ENGELLEYİCİ DEĞİL (2026-07-11, Opus 4.8)
+
+§113 sonrası iki açık operasyonel takip maddesi bilinçli olarak **açık**
+bırakılıyor — **sessizce kapatılmış SAYILMAZLAR**. İkisi de isimlendirilmiş,
+engelleyici değil, operatör kararı veya yeni kanıt bekliyor. Bu governance-only
+kayıttır; hiçbir kod/runtime/scheduler/DB değişmedi, hiçbir şey başlatılmadı.
+
+### 1. `DETECTOR_SCHEDULING_DECISION_PENDING`
+- Liquidation-silence entegrasyon wire'ı **operasyonel ve kabul edilmiş**
+  (§107-113).
+- Geçerli bir **tek-atış** component çıktısı üretildi ve canonical health'e
+  fold edildi (§113 — GREEN no-op, fingerprint `e117cf13…`, error=null).
+- Detector **disabled-by-default** ve şu an **schedule EDİLMEMİŞ** (ne
+  `start_eclipse.ps1` ne scheduled-task ne recurring loop; doğrulandı).
+- Dolayısıyla `logs/health/liquidation_silence.json` **statik bir tek-atış
+  anlık-görüntüsüdür**, sürekli izleme DEĞİLDİR (kendini yenilemiyor).
+- Bu **kasıtlı bir controlled-activation sınırıdır** — "sürekli izleme aktif"
+  iddiası DEĞİLDİR.
+- Periyodik yürütme, scheduling sıklığı, stale-output politikası, restart
+  davranışı, soak gereksinimleri ve rollback kriterleri **ayrı, açık bir
+  operatör-onaylı batch** gerektirir.
+- **Bu governance kaydı hiçbir scheduling veya ek yürütme yetkisi VERMEZ.**
+
+### 2. `WATCHDOG_SILENT_STOP_ROOT_CAUSE_OPEN`
+- Önceki watchdog prosesi (eski PID 22816) **eksik bulundu** ve kabul edilmiş
+  başlatma yolu (`start_eclipse.ps1 -NoCleanStop`) ile başarıyla **geri
+  yüklendi** (yeni PID 12652, §113).
+- **Kesin durma nedeni belirsiz** — bir OS crash kaydı veya yeterli nedensellik
+  kanıtı bulunamadı.
+- Durma **spesifik bir nedene ATFEDİLMEZ** (kanıt yok; spekülasyon üretilmiyor).
+- Soru **açık ama inaktif** kalıyor.
+- Yeni bir adli inceleme YALNIZCA şu durumlarda açılmalı: (a) sessiz-durma
+  deseni tekrarlarsa; (b) ikinci bağımsız veri noktası çıkarsa; veya (c) yeni
+  log / OS kanıtı / exit code / proses telemetrisi erişilebilir olursa.
+- Mevcut watchdog **sağlıklı**; **acil düzeltici implementasyon yetkisi
+  VERİLMEMİŞTİR.**
+
+**Her iki madde de:** açık · isimlendirilmiş · engelleyici değil · kasıtlı
+olarak operatör kararı/yeni kanıt bekliyor · sessizce kapatılmış değil.
+
+**Verdict: `PENDING_OPERATIONAL_FOLLOWUPS_RECORDED`.** Push edilecek.
+Scheduling veya watchdog adli incelemesi bu batch'te BAŞLATILMADI. Next:
+`AWAIT_OPERATOR_DECISION_OR_NEW_WATCHDOG_EVIDENCE`.
