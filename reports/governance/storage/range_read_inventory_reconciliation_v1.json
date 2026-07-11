@@ -5112,11 +5112,11 @@
       "has_main_guard": true,
       "v2_function_defined": true,
       "do_not_touch_by_name": false,
+      "manual_review_note": null,
       "classification": "MIGRATED_RANGE_READ",
-      "recommended_next_action": "none -- both legs of this file's migration are now complete (reader-backed execute_read/plan_read call present)",
+      "recommended_next_action": "none -- reader-backed execute_read/plan_read call already present",
       "recommended_gate_if_any": null,
-      "manual_review_note": "ASOF (book_ticker) migrated in b40441f2 (Batch 4); range (mark_prices) migrated in this later gate.",
-      "classification_basis": "MANUAL_REVIEW_OVERRIDE"
+      "classification_basis": "AUTOMATED"
     },
     {
       "path": "tools/s34_shadow_backfill.py",

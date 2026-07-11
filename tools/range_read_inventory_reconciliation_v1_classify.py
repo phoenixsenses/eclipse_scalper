@@ -64,18 +64,6 @@ MANUAL_OVERRIDES = {
             "finding referenced in the operator's prompt."
         ),
     },
-    "tools/s34_regime_filter_shadow_eval.py": {
-        "classification": "MIGRATED_RANGE_READ",
-        "recommended_next_action": (
-            "none -- both legs of this file's migration are now complete "
-            "(reader-backed execute_read/plan_read call present)"
-        ),
-        "recommended_gate_if_any": None,
-        "manual_review_note": (
-            "ASOF (book_ticker) migrated in b40441f2 (Batch 4); range (mark_prices) migrated in "
-            "this later gate."
-        ),
-    },
 }
 
 # Files where the ASOF portion is already migrated (lookup_call_present)
