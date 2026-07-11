@@ -5168,3 +5168,75 @@ güncelleniyor). Yalnız agregatör/watchdog durdu — `overall.json`/
 (`start_eclipse.ps1`, sandbox dışında) — bu batch hiçbir restart komutu
 çalıştırmadı, çalıştırmayacak. Bu governance kaydından sonra bu oturum yeni
 bir arka-plan işi başlatmıyor; operatör watchdog'u ele alana kadar bekliyor.
+**(§113'te operatör yetkisiyle push + kontrollü watchdog başlatma yapıldı.)**
+
+---
+
+## 113. OPERASYONEL AKTİVASYON — PUSH + KONTROLLÜ WATCHDOG BAŞLATMA (2026-07-11, Opus 4.8)
+
+Operatörün açık yetkisiyle (`PUSH_ACCEPTED_COMMITS_AND_START_WATCHDOG`) push
+ve kontrollü watchdog başlatma yapıldı.
+
+**Push (başarılı, temiz fast-forward):** 3 kabul edilmiş commit
+`origin/codex/data-layer-fallback-cleanup`'a push edildi:
+`0e56c123` (May-gap düzeltmesi), `47f7a205` (detector activation wire),
+`1b5fec33` (May-gap kabul + watchdog-down notu). `190b064d..1b5fec33`,
+force YOK. Remote tip == local HEAD (`1b5fec33`), ahead/behind 0/0, üç commit
+de remote'ta mevcut. `main`/`origin/main` DOKUNULMADI. Foreign-owned kirli
+7 dosya (native_ws_health_policy.py, s34_cascade_navigation_dashboard.py,
+status/stop_eclipse.ps1, test_native_ws_health_policy.py,
+.claude/settings.local.json, runtime/dashboard_backend.json) hiçbir push
+commit'ine girmedi, dokunulmadı.
+
+**Watchdog başlatma (`start_eclipse.ps1 -NoCleanStop`):** `-NoCleanStop`
+seçildi — full-stack bounce YOK; her rol idempotent (çalışan prosesi
+PID-file/command-needle ile tespit edip `already_running` işaretliyor),
+yalnız EKSİK olan `heartbeat_watchdog` başlatıldı. `-EnableLive` YOK →
+live executor aktif olarak KAPALI tutuldu (pid=0). Yeni watchdog PID=12652.
+Önceki 11 sağlıklı veri-katmanı prosesi restart EDİLMEDİ (birebir aynı
+PID'ler korundu).
+
+**Post-start doğrulama (hepsi geçti):** tam olarak 1 watchdog, 12 Eclipse
+prosesi, 0 duplicate, 0 live executor; `overall.json` yeniden canlı
+(10:41'den beri donuktu, artık ~5s'de bir yazılıyor); mevcut componentler
+(bookticker/collector/paper_trader/watchdog) korundu, düşmedi; native WS
+GREEN; canonical health ok/GREEN.
+
+**Detector çıktısı (canonical path, item 6/7):** detector'ın kabul edilmiş
+**tek-atış** (`run_once`, LIVE) invocation'ı çalıştırıldı →
+`logs/health/liquidation_silence.json` yazıldı. Doğrulama: status=HEALTHY,
+severity=GREEN, schema=`liquidation_silence_component_v2`, policy=v2,
+**fingerprint `e117cf132bce3bd180af3c718670d3c75910dd69206588d4b7f1b341aadf2291`**
+(kabul edilenle birebir), `error=null`, eval_mode=LIVE, tracked semboller
+normalize (`canonical_runtime_config`), `complete_symbol_evidence=True`,
+partial-evidence altında RED YOK. Çalışan watchdog bir sonraki cycle'da bunu
+okudu → `components[]`'e `liquidation_silence` (GREEN) eklendi ve
+`compose_with_overall_severity` fold'u overall'ı GREEN bıraktı (GREEN=no-op,
+tasarım gereği). RED→halted / YELLOW→degraded dalları merge edilmiş test
+suite'inde (64 passed) kanıtlı; native_ws RED precedence'i fold sırası + compose
+never-downgrade ile korunuyor.
+
+**Soak (~55s, çoklu cycle):** watchdog canlı, PID stabil (12652), 0 duplicate,
+component timestamp'leri ilerliyor (11:43:22→11:44:10), detector runtime
+hafif (2.1ms), stderr temiz (0 istisna), dosya büyümesi kontrollü, beklenmedik
+YELLOW/RED geçişi yok, canonical-health writer çakışması yok, native WS GREEN,
+live executor OFF.
+
+**DB immutability:** detector/watchdog mode=ro; donmuş tarihsel pencere
+(2026-04-01..03 BTC/ETH/SOL liq = 687/798/0) push+start+soak öncesi/sonrası
+birebir aynı. Collector'lar canlı veriyi meşru şekilde ekliyor (ayrı).
+
+**⚠️ ÖNEMLİ DÜRÜSTLÜK NOTU — sürekli izleme DEĞİL:** detector tasarım gereği
+disabled-by-default **tek-atış**; ne `start_eclipse.ps1` ne bir scheduler onu
+periyodik çalıştırıyor. Yani `liquidation_silence.json` şu an **tek bir
+anlık-görüntü** (mtime 11:41:48'de donuk, kendini yenilemiyor). Watchdog bunu
+her cycle okuyor ama içerik GREEN olduğu için fold no-op (zararsız). **Sürekli
+liquidation-silence izlemesi için ayrı bir scheduling batch'i (cron/loop)
+gerekir** — bu ayrı bir operatör kararıdır, bu batch'in kapsamı dışındadır. Bu
+batch yalnız READ-path'i canlıya aldı + tek doğrulama anlık-görüntüsü üretti.
+
+**Verdict: `WATCHDOG_AND_LIQUIDATION_DETECTOR_OPERATIONALLY_ACTIVATED`**
+(wire operasyonel + tek-atış çıktı doğrulandı; periyodik scheduling ayrı,
+ertelenmiş). Live executor OFF, hiçbir trade/order/execution yolu aktive
+edilmedi, DB mutasyonu yok, foreign dosyalar dokunulmadı. Governance commit'i
+push edildi.
