@@ -4958,4 +4958,63 @@ değil ama portability kanıtsız).
 
 Tam düzeltme kaydı: rapor §19.
 
-**Verdict: `LIQUIDATION_SILENCE_DETECTOR_CORRECTED_AWAITING_REREVIEW`.** Push YAPILMADI. Aktivasyon/execution yetkisi YOK. Next: `REREVIEW_LIQUIDATION_SILENCE_DETECTOR`.
+**Verdict: `LIQUIDATION_SILENCE_DETECTOR_CORRECTED_AWAITING_REREVIEW`.** Push YAPILMADI. Aktivasyon/execution yetkisi YOK. Next: `REREVIEW_LIQUIDATION_SILENCE_DETECTOR`. **(§109'da kabul edildi — bu verdict artık supersede edildi.)**
+
+---
+
+## 109. LIQUIDATION SILENCE DETECTOR — INDEPENDENT RE-REVIEW ACCEPTED (2026-07-11, Sonnet 5)
+
+§108'in düzelttiği implementasyon bağımsız (salt-okunur, hiçbir dosya
+değiştirmeyen) re-review'dan geçti. **Final verdict:
+`LIQUIDATION_SILENCE_DETECTOR_ACCEPTED`.** Bu kayıt yalnız governance/
+implementasyon kabulüdür — **detector devre dışı ve inaktif kalmaya devam
+ediyor**; hiçbir aktivasyon, schedule, proses başlatma/restart, push veya
+execution yetkisi verilmedi.
+
+**3 MEDIUM bulgunun tamamı kapatıldı (bağımsız doğrulandı):**
+1. Partial-symbol evidence overclaim — BTC/ETH critical + SOL missing artık
+   `PARTIAL_SYMBOL_EVIDENCE`/UNKNOWN üretiyor, `LIQUIDATION_TRANSPORT_OUTAGE`/RED
+   DEĞİL; `ALL_SYMBOL_SILENCE_BEYOND_*` reason kodu kullanılmıyor.
+2. Eksik policy fingerprint — `POLICY_FINGERPRINT` artık tam `POLICY_SPEC`
+   (precedence/operator/aggregation/complete-evidence/native-WS precedence/
+   future-tolerance/severity-map/schema) üzerinden; bağımsız doğrulama:
+   `e117cf132bce3bd180af3c718670d3c75910dd69206588d4b7f1b341aadf2291` (v1'den
+   farklı, key-sırasına duyarsız, deterministik).
+3. Historical replay/live evidence kontaminasyonu — `LIVE`/`HISTORICAL_REPLAY`
+   mode ayrımı yapısal olarak zorunlu kılınıyor (live default path'ler
+   HISTORICAL modda reddediliyor, component ts `now_ts`'e göre doğrulanıyor);
+   bağımsız test edildi, bypass edilmedi.
+
+**Yeni HIGH/MEDIUM bulgu YOK.** 3 LOW gözlem non-blocking olarak kaydedildi
+(düzeltme yetkisi VERİLMEDİ, yalnız bilgi amaçlı):
+- detector-layer I/O/mode contract manuel schema-version string ile
+  yönetiliyor (türetilmiş bir detector-contract fingerprint değil);
+- malformed-input validasyonu native-WS RED'den önce geliyor, ama üretim
+  detector'ı her zaman well-formed input veriyor ve arıza UNKNOWN olarak
+  görünür kalıyor;
+- duplicate DB hata kodları de-duplicate edilmiyor (kozmetik).
+
+**Bağımsız test doğrulaması (izole `--basetemp`, `-p no:cacheprovider`):**
+policy 48 + detector 38 + canonical health regression (writer-ownership +
+gate-integration) 16 = **102 passed, 0 failed, 0 skipped**. Replay sonuçları
+ve rapor düzeltmeleri (307h/≈12.8 gün/14 takvim günü, ≈25.6x,
+`ADEQUATE_WITH_LOW_LIMITATION`) bağımsız olarak yeniden üretildi ve eşleşti.
+Runtime, veritabanları, canonical health çıktıları, PID/checkpoint dosyaları
+ve foreign-owned dosyalar DEĞİŞMEDİ (12 Eclipse-Scalper python prosesi, 0
+duplicate, 0 detector proses, 0 live executor — önce/sonra birebir; health
+`ok`, native WS `GREEN`).
+
+**Kanonik durum geçişi:** `LIQUIDATION_SILENCE_DETECTOR_CORRECTED_AWAITING_
+REREVIEW` → `LIQUIDATION_SILENCE_DETECTOR_ACCEPTED`. Eşikler (3600/7200/9000/
+300) DEĞİŞMEDİ. Hiçbir runtime dosyası oluşturulmadı. `OPTIONAL_COMPONENT_
+FILES`'a ve `compose_with_overall_severity`'ye wiring HALEN ERTELENMİŞ — ayrı,
+operatör-onaylı bir controlled-activation kickoff'u gerektiriyor.
+
+Tam bağımsız re-review raporu: bu oturumun re-review mesajında (aynı sohbet
+geçmişinde) kayıtlı; rapor dosyasına ayrıca yazılmadı (mevcut MD-update
+politikası: batch sonunda yalnız SYSTEM_STATE + PROGRESS_LEDGER güncellenir,
+yeni MD dosyası istisnadır).
+
+**Verdict: `LIQUIDATION_SILENCE_DETECTOR_ACCEPTED`.** Push YAPILMADI. Aktivasyon/
+schedule/restart/execution yetkisi YOK. Next: `AWAIT_EXPLICIT_CONTROLLED_
+ACTIVATION_KICKOFF`.
