@@ -5286,3 +5286,88 @@ olarak operatör kararı/yeni kanıt bekliyor · sessizce kapatılmış değil.
 **Verdict: `PENDING_OPERATIONAL_FOLLOWUPS_RECORDED`.** Push edilecek.
 Scheduling veya watchdog adli incelemesi bu batch'te BAŞLATILMADI. Next:
 `AWAIT_OPERATOR_DECISION_OR_NEW_WATCHDOG_EVIDENCE`.
+
+---
+
+## 115. PARALEL DEVAM — 3 TRACK KOORDİNASYONU (2026-07-11, Opus 4.8)
+
+Operatör yetkisiyle (`PARALLEL_CONTINUATION_...`) kalan 3 track eşzamanlı,
+salt-okunur preflight/forensic ajanlarıyla incelendi (base `16ab3a1e`). Sonuç:
+yalnız **1** track'te uygulanabilir iş çıktı (Track 2). Track 1/3 kanonik
+devam noktalarında, uygulanabilir iş YOK. Hiçbir production runtime mutasyonu
+yapılmadı; watchdog=1, 12 proses, 0 duplicate, live executor OFF, health
+ok/GREEN, native WS GREEN — tüm batch boyunca korundu. **Governance entegrasyonu
+seri**; her track ayrı bölüm (§115 bu koordinasyon, §116 Track1, §117 Track3;
+Track2 kabulü aşağıda).
+
+### TRACK 2 — Storage range-read consumer migration V9 — **ACCEPTED**
+Read-path-only, kabul edilmiş V1-V8 serisinin devamı. 3 clean non-mixed
+consumer (`research_s34_500k_daytrend_route_sweep.py`,
+`research_s34_trailing_oos_realfill.py`, `research_s34_early_confirmation_scan.py`)
+full-window `mark_prices` range-read'i `ami.storage.research_reader`'a taşındı;
+eski doğrudan-SQL `path_marks()` bit-identical parity oracle olarak korundu
+(`path_marks_v2` reader ikizi, boundary `end_ms=hi+1` ile oracle inclusive-upper
+≡ reader half-open eşlemesi). Her consumer için `*_reader_migration_parity`
+testi eklendi; inventory JSON committed scanner/classifier ile tazelendi
+(MIGRATED 21→24, REMAINING 13→10; ayrıca committed snapshot'ın scope
+bayatlığı 320→141 düzeltildi).
+
+**Gated zincir:** izole worktree'de implement → **bağımsız review PASS**
+(taze-context, testleri kendi çalıştırdı, boundary'yi `research_reader`
+kaynağını okuyarak doğruladı, inventory JSON'u committed scanner'dan 0-diff
+reprodüksiyon ederek fabrikasyon olmadığını kanıtladı) → ana ağaca merge →
+**combined regression 69 passed / 0 failed / 0 skipped** (gerçek prod DB +
+archive Parquet mevcut olduğundan `@requires_real_db` testleri de KOŞTU, yalnız
+sentetik fixture değil). Catalog immutability: `entry_count=3`,
+`index_self_hash=b2b26d06…` önce/sonra DEĞİŞMEDİ. `ami/storage/*` dokunulmadı,
+`data/archives/**` mutasyonu yok, mode=ro, scheduler/purge/VACUUM/collector/live
+YOK. Implementasyon commit'i `717d7308`. **Kapsam-dışı (ayrı serialized runtime
+gate'ler):** scheduler, purge, VACUUM, dependency release, republication/restart
+— hepsi DISABLED kalıyor; `research_dependency_status=BLOCKED` (consumer estate
+tam migrate edilene kadar). Push YAPILMADI.
+
+## 116. TRACK 1 — OD-SWEEP + SHADOW/PAPER — SALT-OKUNUR PREFLIGHT (2026-07-11)
+
+Bağımsız salt-okunur forensic (base `16ab3a1e`): OD-sweep + shadow/paper
+araştırması **kanonik devam noktasında** — aktivasyon COMPLETE (§103, commit
+`74673925`), her iki motor CANLI ve sağlıklı (paper PID 19504, realtime-shadow
+PID 21576, doğrulandı), `min_gap_semantics=persistent-v2`, pre-v2 pop=1339
+frozen/unpoolable, forward v2 N≈6. Yöneten stopping-rule **zaman-tabanlı**
+(OD-005/OD-008: ≥6 ay forward, değerlendirme ~2027-01) → uygulanabilir
+implementation, resume edilecek açık numeric-N prereg veya restart edilecek
+kesintiye uğramış-geçerli koşum **YOK**; yeni prereg OD-008 ile yasak. Bilimsel
+kısıtlar korundu (forward-only, mezarlık reopen yok, observation/paper-only,
+live yetkisi yok). Hiçbir dosya yazılmadı, hiçbir proses başlatılmadı, DB
+sorgusu çalıştırılmadı (durum committed `S34_SHADOW_PAPER_STATUS.json`'dan
+okundu). **Verdict: `FORWARD_EVIDENCE_COLLECTION_REQUIRED`** — pasif forward
+gözlem devam eder, aksiyon yok. Runtime koordinasyon notu: Track 1 `book_ticker`
+tablosu + bookticker collector üzerinde Track 2 ile RO bağımlılık paylaşıyor
+(kaynak-dosya çakışması YOK); Track 2 V9 read-path-only olduğundan canlı paper
+fill'leri etkilenmedi.
+
+## 117. TRACK 3 — EPISTEMIC-GATES + CVD — SALT-OKUNUR PREFLIGHT (2026-07-11)
+
+Bağımsız salt-okunur forensic (base `16ab3a1e`): epistemik-gate enforcement
+**COMPLETE** — `M-0033` (`51e78673`) mandatory `register_experiment_with_gates`
+giriş noktasını wire ediyor (11-adım, tek atomik cross-DB transaction,
+fail-closed rollback); `M-0034` (`e8576900`) hem 10-dosya inline-SQL yüzeyini
+hem `research.sqlite`/ResearchRegistry projeksiyonunu gate-receipt ile kapatıyor.
+§97 ad-hoc `research_s34_*.py` sınıfı gate KAPSAMI DIŞINDA (report+graveyard-only,
+`experiment_registry`/`research.sqlite` yazmıyor) — doğru şekilde kaydedilmiş,
+kapatılmamış; migration-free izole kapatma yok, deneysel-iddia/ROUTE terfisi
+olmadan gereksiz. CVD ailesi `FAM_CVD_WINDOWED_TAKER_FLOW` SCIENTIFICALLY_CLOSED
+(NO_RELIABLE_ASSOCIATION, `60c3e26f`); alt-windows forbidden rescue; V2 selektör
+`NO_CURRENTLY_ELIGIBLE_INDEPENDENT_FAMILY` (doğru). `FAM_BOOK_SPREAD_DYNAMICS`
+LONG **PARKED** (TEST N=18<20; gate floor'u düşürmeyip durdu — registry satırı
+yok, nullifier tüketilmedi). Reaktivasyon ≥67 eligible LONG cycle (forward, 9
+daha) veya operatör split-ratio kararı gerektirir. Schema 14 + M-0031/0035/0036
+ledger sağlam. Bilimsel kısıtlar korundu (nullifier/eligibility bypass yok,
+aile uydurulmadı, NO_RELIABLE reopen yok). Hiçbir dosya/DB/migration/proses
+dokunulmadı. **Verdict: `NO_CURRENTLY_ELIGIBLE_WORK`** — enforcement batch'i
+yok, CVD continuation yok, eligible independent family yok.
+
+**Batch verdict: `PARALLEL_CONTINUATION_TRACK2_V9_ACCEPTED_TRACK1_TRACK3_NO_ELIGIBLE_IMPL`.**
+Track 2 V9 kanonik ağaca merge+commit (`717d7308`) edildi + governance kaydedildi;
+Track 1 forward-gated, Track 3 no-eligible-work. Push YAPILMADI. Next per track:
+Track1=`AWAIT_FORWARD_WINDOW_~2027-01`, Track2=`AWAIT_PUSH_AUTHORIZATION` (sonraki
+V10 ayrı batch), Track3=`AWAIT_FORWARD_SAMPLE_OR_OPERATOR_SPLIT_RATIO_DECISION`.
