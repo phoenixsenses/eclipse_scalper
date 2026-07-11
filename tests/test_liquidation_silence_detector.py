@@ -380,6 +380,312 @@ def test_present_yellow_component_file_raises_canonical_overall_to_yellow(monkey
     assert result["overall"]["components"]["liquidation_silence"]["severity"] == severity_in
 
 
+# --- freshness gate (scheduling-readiness corrective, 2026-07-11) -----------
+# A future scheduled/periodic wrapper (see
+# reports/research/s34/LIQUIDATION_SILENCE_DETECTOR_PERIODIC_SCHEDULING_DESIGN.md
+# Finding 1) can die or stall; without a staleness gate on this specific
+# fold, a frozen severity value would be represented as current forever.
+# These tests lock in hw.LIQUIDATION_SILENCE_MAX_AGE_SEC-gated behavior,
+# reusing the exact same hw.component_fresh() pattern already governing
+# collector/bookticker/runtime -- no new freshness model introduced.
+
+
+def test_watchdog_cadence_constant_is_the_scheduler_wrapper_constant_not_a_copy():
+    """CORRECTIVE (independent re-review finding F2): an earlier version
+    declared hw.LIQUIDATION_SILENCE_SCHEDULER_CADENCE_SEC=300 as its own
+    independent literal, duplicating tools/liquidation_silence_scheduler.py's
+    DEFAULT_CADENCE_SEC=300 with no enforced link between them -- either
+    could be changed alone and silently desynchronize the freshness budget
+    from the cadence it's supposed to be derived from. hw now imports the
+    scheduler module's constant directly (an alias, not a copy), so this is
+    the SAME object, not merely an equal value -- `is`, not just `==`,
+    proving structural impossibility of drift rather than just its current
+    absence."""
+    from tools import liquidation_silence_scheduler as sched
+
+    assert hw.LIQUIDATION_SILENCE_SCHEDULER_CADENCE_SEC is sched.DEFAULT_CADENCE_SEC
+    assert hw.LIQUIDATION_SILENCE_MAX_AGE_SEC == sched.DEFAULT_CADENCE_SEC * 3
+
+
+def _iso_offset(seconds: float) -> str:
+    """A ts_utc string `seconds` in the past relative to real wall-clock
+    now, in the exact format hw.utc_now_z()/detector payloads use."""
+    return (hw.utc_now() - dt.timedelta(seconds=seconds)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def test_fresh_liquidation_silence_artifact_is_folded_normally(monkeypatch, tmp_path):
+    """Case 1: an artifact well inside the freshness budget is folded exactly
+    as before this correction -- its own severity/reason_codes pass through
+    verbatim."""
+    root = tmp_path
+    _write_healthy_control_components(root)
+    write_component_health(
+        "liquidation_silence",
+        {"severity": "RED", "reason_codes": ["liquidation_transport_outage"], "ts_utc": _iso_offset(10)},
+        root=root / "logs" / "health",
+    )
+    monkeypatch.setattr(hw, "ROOT", root)
+    monkeypatch.setattr(hw, "LOG_HEALTH", root / "logs" / "health")
+    monkeypatch.setattr(hw, "python_process_running", lambda needle: True)
+
+    result = hw.evaluate(max_age_sec=180)
+
+    assert result["report"]["overall"] == "RED"
+    assert any(str(r).startswith("liquidation_silence_red") for r in result["report"]["issues"])
+    assert result["overall"]["components"]["liquidation_silence"]["severity"] == "RED"
+
+
+def test_artifact_older_than_freshness_threshold_is_not_folded_as_current(monkeypatch, tmp_path):
+    """Case 2: the central corrective behavior. A RED artifact written well
+    past hw.LIQUIDATION_SILENCE_MAX_AGE_SEC must NOT force top-level RED --
+    it is treated as UNKNOWN (stale), which raises to YELLOW/degraded, never
+    RED/halted and never a false GREEN."""
+    root = tmp_path
+    _write_healthy_control_components(root)
+    stale_age = hw.LIQUIDATION_SILENCE_MAX_AGE_SEC + 60
+    write_component_health(
+        "liquidation_silence",
+        {"severity": "RED", "reason_codes": ["liquidation_transport_outage"], "ts_utc": _iso_offset(stale_age)},
+        root=root / "logs" / "health",
+    )
+    monkeypatch.setattr(hw, "ROOT", root)
+    monkeypatch.setattr(hw, "LOG_HEALTH", root / "logs" / "health")
+    monkeypatch.setattr(hw, "python_process_running", lambda needle: True)
+
+    result = hw.evaluate(max_age_sec=180)
+
+    assert result["report"]["overall"] != "RED"
+    assert result["overall"]["state"] != "halted"
+    assert result["report"]["overall"] == "YELLOW"
+    assert result["overall"]["state"] == "degraded"
+    assert any(str(r) == "liquidation_silence_unknown:STALE_ARTIFACT" for r in result["report"]["issues"])
+
+
+def test_missing_evaluated_at_utc_is_handled_safely(monkeypatch, tmp_path):
+    """Case 3: an artifact present but with no ts_utc field at all (a
+    malformed writer, or a partially-written file) must not crash and must
+    not be trusted as fresh -- treated as stale/UNKNOWN, same as an
+    old-but-present timestamp."""
+    root = tmp_path
+    _write_healthy_control_components(root)
+    log_health = root / "logs" / "health"
+    log_health.mkdir(parents=True, exist_ok=True)
+    (log_health / "liquidation_silence.json").write_text(
+        json.dumps({"severity": "RED", "reason_codes": ["x"]}), encoding="utf-8"
+    )
+    monkeypatch.setattr(hw, "ROOT", root)
+    monkeypatch.setattr(hw, "LOG_HEALTH", log_health)
+    monkeypatch.setattr(hw, "python_process_running", lambda needle: True)
+
+    result = hw.evaluate(max_age_sec=180)
+
+    assert result["report"]["overall"] == "YELLOW"
+    assert result["overall"]["state"] == "degraded"
+    assert any(str(r) == "liquidation_silence_unknown:STALE_ARTIFACT" for r in result["report"]["issues"])
+
+
+def test_malformed_evaluated_at_utc_is_handled_safely(monkeypatch, tmp_path):
+    """Case 4: an unparseable ts_utc string must not crash evaluate() and
+    must not be trusted as fresh."""
+    root = tmp_path
+    _write_healthy_control_components(root)
+    log_health = root / "logs" / "health"
+    log_health.mkdir(parents=True, exist_ok=True)
+    (log_health / "liquidation_silence.json").write_text(
+        json.dumps({"severity": "RED", "reason_codes": ["x"], "ts_utc": "not-a-timestamp"}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(hw, "ROOT", root)
+    monkeypatch.setattr(hw, "LOG_HEALTH", log_health)
+    monkeypatch.setattr(hw, "python_process_running", lambda needle: True)
+
+    result = hw.evaluate(max_age_sec=180)
+
+    assert result["report"]["overall"] == "YELLOW"
+    assert result["overall"]["state"] == "degraded"
+    assert any(str(r) == "liquidation_silence_unknown:STALE_ARTIFACT" for r in result["report"]["issues"])
+
+
+def test_freshness_boundary_is_deterministic(monkeypatch, tmp_path):
+    """Case 5: comfortably inside hw.LIQUIDATION_SILENCE_MAX_AGE_SEC is
+    fresh; comfortably past it is stale (a small margin on both sides of the
+    literal boundary avoids sub-second flakiness from the gap between this
+    test computing ts_utc and evaluate()'s own internal utc_now() call --
+    component_fresh()'s own boundary itself is exactly `<=`, unchanged)."""
+    root = tmp_path
+    _write_healthy_control_components(root)
+    log_health = root / "logs" / "health"
+
+    write_component_health(
+        "liquidation_silence",
+        {"severity": "RED", "reason_codes": ["x"], "ts_utc": _iso_offset(hw.LIQUIDATION_SILENCE_MAX_AGE_SEC - 2)},
+        root=log_health,
+    )
+    monkeypatch.setattr(hw, "ROOT", root)
+    monkeypatch.setattr(hw, "LOG_HEALTH", log_health)
+    monkeypatch.setattr(hw, "python_process_running", lambda needle: True)
+    inside_budget = hw.evaluate(max_age_sec=180)
+    assert inside_budget["report"]["overall"] == "RED"
+
+    write_component_health(
+        "liquidation_silence",
+        {"severity": "RED", "reason_codes": ["x"], "ts_utc": _iso_offset(hw.LIQUIDATION_SILENCE_MAX_AGE_SEC + 2)},
+        root=log_health,
+    )
+    past_budget = hw.evaluate(max_age_sec=180)
+    assert past_budget["report"]["overall"] != "RED"
+    assert any(str(r) == "liquidation_silence_unknown:STALE_ARTIFACT" for r in past_budget["report"]["issues"])
+
+
+def _write_healthy_control_components_at(root: Path, now_dt: "dt.datetime") -> None:
+    """Same shape as _write_healthy_control_components, but every
+    freshness-bearing field (JSON ts_utc AND DB row ts_ms) is anchored to an
+    explicit `now_dt` rather than real wall-clock time, and DB setup is
+    idempotent (CREATE TABLE IF NOT EXISTS + DELETE + reinsert) -- used only
+    by test_fresh_output_becomes_stale_as_time_advances so a second call at
+    a later synthetic `now_dt` can re-freshen every OTHER component in
+    lockstep with a monkeypatched hw.utc_now, without colliding on a second
+    sqlite CREATE TABLE call."""
+    ts = now_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+    log_health = root / "logs" / "health"
+    log_health.mkdir(parents=True, exist_ok=True)
+    (log_health / "collector.json").write_text(json.dumps({
+        "status": "ok", "ts_utc": ts, "last_progress_ts_utc": ts,
+        "required_streams_progressing": True, "transport_connected": True,
+        "connected": True,
+    }), encoding="utf-8")
+    (log_health / "bookticker.json").write_text(json.dumps({
+        "status": "ok", "connected": True, "ts_utc": ts, "last_tick_event_age_sec": 1,
+    }), encoding="utf-8")
+    (root / "logs" / "runtime_launcher_status.json").write_text(json.dumps({
+        "status": "ready", "active_mode": "paper", "fallback_to_paper": False, "ts_utc": ts,
+    }), encoding="utf-8")
+    (root / "logs" / "collector_heartbeat.json").write_text(json.dumps({
+        "connected": True, "last_message_ts_utc": ts, "last_data_progress_ts_utc": ts,
+        "rest_fallback_enabled": True, "rest_fallback_active": False,
+        "rest_last_progress_ts_utc": ts, "current_backoff_seconds": 1.0, "last_error": "",
+    }), encoding="utf-8")
+    db = root / "data" / "microstructure.db"
+    db.parent.mkdir(parents=True, exist_ok=True)
+    con = sqlite3.connect(str(db))
+    now_ms = int(now_dt.timestamp() * 1000)
+    con.execute("CREATE TABLE IF NOT EXISTS agg_trades (id INTEGER PRIMARY KEY AUTOINCREMENT, ts_ms INTEGER)")
+    con.execute("CREATE TABLE IF NOT EXISTS mark_prices (id INTEGER PRIMARY KEY AUTOINCREMENT, ts_ms INTEGER)")
+    con.execute("CREATE TABLE IF NOT EXISTS liquidations (id INTEGER PRIMARY KEY AUTOINCREMENT, ts_ms INTEGER)")
+    con.execute("DELETE FROM agg_trades")
+    con.execute("DELETE FROM mark_prices")
+    con.execute("DELETE FROM liquidations")
+    con.execute("INSERT INTO agg_trades (ts_ms) VALUES (?)", (now_ms - 1000,))
+    con.execute("INSERT INTO mark_prices (ts_ms) VALUES (?)", (now_ms - 1000,))
+    con.execute("INSERT INTO liquidations (ts_ms) VALUES (?)", (now_ms - 1000,))
+    con.commit()
+    con.close()
+
+
+def test_fresh_output_becomes_stale_as_time_advances(monkeypatch, tmp_path):
+    """Case 6: the SAME liquidation_silence artifact (fixed evaluated_at_utc,
+    never rewritten again), evaluated at two different wall-clock instants --
+    the first inside the freshness budget, the second past it -- transitions
+    from folded-as-current to folded-as-stale. Models a scheduler wrapper
+    that died silently: the file it last wrote does not change, but the
+    world around it keeps moving. Every OTHER control-plane file (and the DB
+    control-stream rows) is re-stamped fresh at each instant (simulating
+    collector/bookticker/runtime/native-WS staying genuinely alive and
+    continuously refreshed, same as real operation) so this isolates the
+    liquidation_silence fold's own freshness gate from the unrelated
+    component_fresh() call sites the other components already use --
+    otherwise a global clock jump this large would independently push
+    native_ws/collector/bookticker into their own staleness/RED,
+    confounding the assertion."""
+    root = tmp_path
+    log_health = root / "logs" / "health"
+    monkeypatch.setattr(hw, "ROOT", root)
+    monkeypatch.setattr(hw, "LOG_HEALTH", log_health)
+    monkeypatch.setattr(hw, "python_process_running", lambda needle: True)
+
+    t0 = dt.datetime(2026, 7, 11, 12, 0, 0, tzinfo=dt.timezone.utc)
+    monkeypatch.setattr(hw, "utc_now", lambda: t0)
+    _write_healthy_control_components_at(root, t0)
+    write_component_health(
+        "liquidation_silence",
+        {"severity": "RED", "reason_codes": ["x"], "ts_utc": t0.strftime("%Y-%m-%dT%H:%M:%SZ")},
+        root=log_health,
+    )
+    still_fresh = hw.evaluate(max_age_sec=180)
+    assert still_fresh["report"]["overall"] == "RED"
+
+    t1 = t0 + dt.timedelta(seconds=hw.LIQUIDATION_SILENCE_MAX_AGE_SEC + 30)
+    monkeypatch.setattr(hw, "utc_now", lambda: t1)
+    _write_healthy_control_components_at(root, t1)  # re-freshens collector/bookticker/runtime/DB at t1
+    # liquidation_silence.json intentionally NOT rewritten -- still stamped t0.
+    now_stale = hw.evaluate(max_age_sec=180)
+    assert now_stale["report"]["overall"] != "RED"
+    assert any(str(r) == "liquidation_silence_unknown:STALE_ARTIFACT" for r in now_stale["report"]["issues"])
+
+
+def test_collector_bookticker_runtime_component_fresh_unaffected(monkeypatch, tmp_path):
+    """Case 7: this correction touches only the liquidation_silence fold's
+    freshness gate; collector/bookticker/runtime's existing
+    component_fresh(payload, max_age_sec, now) call sites and their
+    max_age_sec parameter are untouched -- a stale collector.json must still
+    behave exactly as before (collector_degraded), independent of
+    liquidation_silence, which stays absent -> GREEN no-op (the preserved
+    absent-file invariant)."""
+    root = tmp_path
+    _write_healthy_control_components(root)
+    stale_collector_ts = _iso_offset(400)
+    (root / "logs" / "health" / "collector.json").write_text(json.dumps({
+        "status": "ok", "ts_utc": stale_collector_ts, "last_progress_ts_utc": stale_collector_ts,
+        "required_streams_progressing": True, "transport_connected": True, "connected": True,
+    }), encoding="utf-8")
+    monkeypatch.setattr(hw, "ROOT", root)
+    monkeypatch.setattr(hw, "LOG_HEALTH", root / "logs" / "health")
+    monkeypatch.setattr(hw, "python_process_running", lambda needle: True)
+
+    result = hw.evaluate(max_age_sec=180)
+
+    assert not (root / "logs" / "health" / "liquidation_silence.json").exists()
+    assert "collector_degraded" in result["report"]["issues"]
+    assert "liquidation_silence" not in result["overall"]["components"]
+
+
+def test_fresh_warning_and_critical_semantics_unchanged(monkeypatch, tmp_path):
+    """Case 8: a FRESH detector artifact's WARNING(YELLOW)/CRITICAL(RED)
+    verdicts fold exactly as before this correction -- the freshness gate
+    only changes behavior for STALE artifacts, never for fresh ones,
+    preserving the accepted §107-109 detector severity semantics."""
+    root = tmp_path
+    _write_healthy_control_components(root)
+    log_health = root / "logs" / "health"
+
+    write_component_health(
+        "liquidation_silence",
+        {"severity": "YELLOW", "reason_codes": ["ALL_SYMBOL_SILENCE_BEYOND_WARNING"], "ts_utc": _iso_offset(5)},
+        root=log_health,
+    )
+    monkeypatch.setattr(hw, "ROOT", root)
+    monkeypatch.setattr(hw, "LOG_HEALTH", log_health)
+    monkeypatch.setattr(hw, "python_process_running", lambda needle: True)
+    warning_result = hw.evaluate(max_age_sec=180)
+    assert warning_result["report"]["overall"] == "YELLOW"
+    assert any(
+        str(r).startswith("liquidation_silence_yellow:ALL_SYMBOL_SILENCE_BEYOND_WARNING")
+        for r in warning_result["report"]["issues"]
+    )
+
+    write_component_health(
+        "liquidation_silence",
+        {"severity": "RED", "reason_codes": ["ALL_SYMBOL_SILENCE_BEYOND_CRITICAL"], "ts_utc": _iso_offset(5)},
+        root=log_health,
+    )
+    critical_result = hw.evaluate(max_age_sec=180)
+    assert critical_result["report"]["overall"] == "RED"
+    assert any(
+        str(r).startswith("liquidation_silence_red:ALL_SYMBOL_SILENCE_BEYOND_CRITICAL")
+        for r in critical_result["report"]["issues"]
+    )
+
+
 # --- read-only / no-mutation guarantees --------------------------------------
 
 def _make_fixture_db(path: Path) -> None:

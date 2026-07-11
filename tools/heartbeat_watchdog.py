@@ -15,6 +15,7 @@ from tools.liquidation_silence_policy import (
     SEVERITY_YELLOW,
     compose_with_overall_severity,
 )
+from tools.liquidation_silence_scheduler import DEFAULT_CADENCE_SEC as LIQUIDATION_SILENCE_SCHEDULER_CADENCE_SEC
 from tools.native_ws_health_policy import evaluate_policy, read_source_freshness
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -54,6 +55,40 @@ CANONICAL_OVERALL_STATE_MAP = {"GREEN": STATE_OK, "YELLOW": STATE_DEGRADED, "RED
 # (tests/runtime/test_health_gate_unit.py).
 CANONICAL_STALENESS_BUDGET_SEC = 15
 DEFAULT_INTERVAL_SEC = 5
+
+# Freshness budget for the (currently unscheduled) periodic liquidation-
+# silence wrapper's folded artifact (logs/health/liquidation_silence.json).
+#
+# CORRECTIVE NOTE (2026-07-11, independent re-review finding F1/F2): an
+# earlier version of this comment claimed the 900s value reused "this
+# module's own established CANONICAL_STALENESS_BUDGET_SEC/DEFAULT_INTERVAL_
+# SEC=3x ratio" above. That claim was false -- CANONICAL_STALENESS_BUDGET_SEC
+# is declared above but never consumed anywhere in this file; it is not an
+# operative precedent. It also duplicated the cadence value as an
+# independent literal (300), letting the two constants silently drift out
+# of sync if only one were ever changed. Both are fixed here: the cadence
+# is now imported directly from tools.liquidation_silence_scheduler's own
+# DEFAULT_CADENCE_SEC (the single source of truth for "how often the
+# wrapper runs") instead of being re-declared, so the two values cannot
+# diverge; and the multiplier below is justified on its own honest merits.
+#
+# LIQUIDATION_SILENCE_SCHEDULER_CADENCE_SEC (300s) is grounded in
+# tools/liquidation_silence_policy.py's own CONTROL_STREAM_FRESH_AGE_SEC=
+# 300.0 (see reports/research/s34/
+# LIQUIDATION_SILENCE_DETECTOR_PERIODIC_SCHEDULING_DESIGN.md) -- the
+# finest-grained threshold that policy already uses. The 3x multiplier
+# below (900s) is deliberately far more conservative than that same
+# accepted policy's own headroom for this identical 300s value: policy
+# tolerates 12x (ALL_SYMBOL_SILENCE_WARNING_AGE_SEC=3600s) to 24x
+# (ALL_SYMBOL_SILENCE_CRITICAL_AGE_SEC=7200s) of staleness in the
+# liquidation-silence *signal itself* before raising severity; this fold's
+# 3x (900s = 2 fully-missed scheduler cycles) instead governs how long a
+# STALE ARTIFACT may still be trusted at all before this watchdog stops
+# treating it as current -- a materially tighter, more cautious bar than
+# the signal's own tolerance, chosen because an unrefreshed artifact is a
+# monitoring-pipeline failure (unknown ground truth), not a benign quiet
+# period the signal's own thresholds already account for.
+LIQUIDATION_SILENCE_MAX_AGE_SEC = LIQUIDATION_SILENCE_SCHEDULER_CADENCE_SEC * 3
 
 
 def utc_now() -> datetime:
@@ -343,14 +378,40 @@ def evaluate(
     # non-green severity is also recorded in critical/warning (hence in
     # issues/reasons and errors_last_5m) exactly like native_ws.
     liq_silence = read_json(LOG_HEALTH / "liquidation_silence.json")
-    liq_silence_severity = str((liq_silence or {}).get("severity") or SEVERITY_GREEN).upper()
-    if liq_silence_severity not in {SEVERITY_GREEN, SEVERITY_YELLOW, SEVERITY_RED, SEVERITY_UNKNOWN}:
+    liq_silence_stale = False
+    if not liq_silence:
+        # Detector has never run (disabled-by-default, not yet activated):
+        # the accepted "absent" no-op case, distinct from "present but
+        # stale" below. Preserved exactly as before this correction --
+        # defaults to GREEN, compose is a pure no-op.
         liq_silence_severity = SEVERITY_GREEN
+    elif not component_fresh(liq_silence, LIQUIDATION_SILENCE_MAX_AGE_SEC, now):
+        # Present but stale -- or its ts_utc is missing/unparseable, which
+        # component_fresh already treats as not-fresh via age_sec's None
+        # return (the same missing/malformed-timestamp handling every other
+        # folded component already relies on; no new parsing logic here).
+        # A stale artifact was written by a real run at some point but can
+        # no longer be trusted to represent current reality (e.g. a dead or
+        # stuck scheduler wrapper). Never fold a stale severity value
+        # verbatim -- that would let an old GREEN mask a newly-arisen
+        # problem, or freeze an old RED forever. UNKNOWN ranks alongside
+        # YELLOW in compose_with_overall_severity's _OVERALL_RANK (never
+        # GREEN), so this can raise composed_overall to at least YELLOW but
+        # can never itself present as a false GREEN.
+        liq_silence_severity = SEVERITY_UNKNOWN
+        liq_silence_stale = True
+    else:
+        liq_silence_severity = str(liq_silence.get("severity") or SEVERITY_GREEN).upper()
+        if liq_silence_severity not in {SEVERITY_GREEN, SEVERITY_YELLOW, SEVERITY_RED, SEVERITY_UNKNOWN}:
+            liq_silence_severity = SEVERITY_GREEN
     composed_overall = compose_with_overall_severity(overall, liq_silence_severity)
     if liq_silence_severity != SEVERITY_GREEN:
-        liq_reasons = liq_silence.get("reason_codes") if isinstance(liq_silence, dict) else None
-        detail = ",".join(str(r) for r in liq_reasons) if isinstance(liq_reasons, list) and liq_reasons else ""
-        reason_code = "liquidation_silence_" + liq_silence_severity.lower() + ((":" + detail) if detail else "")
+        if liq_silence_stale:
+            reason_code = "liquidation_silence_unknown:STALE_ARTIFACT"
+        else:
+            liq_reasons = liq_silence.get("reason_codes") if isinstance(liq_silence, dict) else None
+            detail = ",".join(str(r) for r in liq_reasons) if isinstance(liq_reasons, list) and liq_reasons else ""
+            reason_code = "liquidation_silence_" + liq_silence_severity.lower() + ((":" + detail) if detail else "")
         if composed_overall == "RED":
             critical.append(reason_code)
         else:

@@ -2,7 +2,8 @@ param(
     [string]$Symbols = "BTCUSDT,ETHUSDT,SOLUSDT",
     [int]$StatusWaitSec = 20,
     [switch]$NoCleanStop,
-    [switch]$EnableLive
+    [switch]$EnableLive,
+    [switch]$EnableLiquidationSilenceScheduler
 )
 
 $ErrorActionPreference = "Stop"
@@ -349,6 +350,30 @@ if ($EnableLive) {
     $s34SMLive = [PSCustomObject]@{ Id = 0; AlreadyRunning = $false; Disabled = $true }
 }
 
+# Opt-in, disabled by default (per operator authorization -- see
+# reports/research/s34/LIQUIDATION_SILENCE_DETECTOR_PERIODIC_SCHEDULING_DESIGN.md
+# and its corrective-implementation follow-up). Same shape as the -EnableLive
+# gate above: not requesting the flag stops any stray instance and zeroes the
+# PID file, so a prior opt-in run never silently lingers across a plain
+# start_eclipse.ps1 invocation. Read-only detector wrapper -- no order/
+# execution path, mirrors every other role's registered-process bookkeeping.
+if ($EnableLiquidationSilenceScheduler) {
+    $liqSchedOut = Join-Path $logs "liquidation_silence_scheduler.stdout.log"
+    $liqSchedErr = Join-Path $logs "liquidation_silence_scheduler.stderr.log"
+    $liqSchedArgs = @("-W", "ignore", "-u", "-m", "tools.liquidation_silence_scheduler")
+    $liqSched = Start-RegisteredPythonProcess `
+        -Role "liquidation_silence_scheduler" `
+        -ProcArgs $liqSchedArgs `
+        -StdoutPath $liqSchedOut `
+        -StderrPath $liqSchedErr `
+        -Meta @{ mode = "READ_ONLY_HEALTH_DETECTOR_SCHEDULER_NO_ORDERS" } `
+        -CommandNeedle "tools.liquidation_silence_scheduler"
+} else {
+    Stop-PythonProcessesByCommandLine -Role "liquidation_silence_scheduler" -Needle "tools.liquidation_silence_scheduler"
+    Set-Content -LiteralPath (Join-Path $pidDir "liquidation_silence_scheduler.pid") -Value "0" -Encoding ascii
+    $liqSched = [PSCustomObject]@{ Id = 0; AlreadyRunning = $false; Disabled = $true }
+}
+
 $orderflowOut = Join-Path $logs "orderflow_chart.stdout.log"
 $orderflowErr = Join-Path $logs "orderflow_chart.stderr.log"
 $orderflowArgs = @("-u", "tools\orderflow_chart.py", "--host", "127.0.0.1", "--port", "5051", "--no-browser")
@@ -380,6 +405,7 @@ Write-RoleStatus "s34_live_chart" $s34Chart
 Write-RoleStatus "s34_v_engine_v02_shadow_mirror" $s34V02Mirror
 Write-RoleStatus "s34_state_machine_shadow_runner" $s34StateMachineShadow
 Write-RoleStatus "s34_state_machine_live_executor" $s34SMLive
+Write-RoleStatus "liquidation_silence_scheduler" $liqSched
 Write-RoleStatus "orderflow_chart" $orderflow
 Write-RoleStatus "s34_replay" $replay
 Write-Output "symbols=$Symbols"

@@ -175,6 +175,47 @@ Write-Output ("s34_state_machine_live_executor_alive=" + [string]$s34StateMachin
 Write-Output ("s34_state_machine_live_executor_pid=" + [string]$s34StateMachineLivePid)
 Write-Output ("s34_v_engine_live_state_age_sec=" + [string]$vEngineStateAgeSec)
 
+# liquidation_silence_scheduler: opt-in role (-EnableLiquidationSilenceScheduler
+# on start_eclipse.ps1), disabled by default. State distinguishes:
+# DISABLED (not requested; pid file == 0, the same convention -EnableLive's
+# else-branch already uses), RUNNING, STALE_PID (pid file present/non-zero
+# but the process is gone -- e.g. after a hard kill outside stop_eclipse.ps1),
+# and NOT_REQUESTED (never started even once, no pid file at all).
+$liqSchedProcessAlive = Has-Process $rows "tools.liquidation_silence_scheduler"
+$liqSchedPid = Read-PidFile (Join-Path $RepoRoot "logs\pids\liquidation_silence_scheduler.pid")
+if (-not $liqSchedProcessAlive -and $liqSchedPid) {
+    $liqSchedProcessAlive = Test-PidAlive $liqSchedPid
+}
+$liqSchedState = "NOT_REQUESTED"
+if ($liqSchedPid -eq 0) {
+    $liqSchedState = "DISABLED"
+} elseif ($liqSchedPid) {
+    if ($liqSchedProcessAlive) { $liqSchedState = "RUNNING" } else { $liqSchedState = "STALE_PID" }
+}
+Write-Output ("liquidation_silence_scheduler_state=" + $liqSchedState)
+Write-Output ("liquidation_silence_scheduler_alive=" + [string]$liqSchedProcessAlive)
+Write-Output ("liquidation_silence_scheduler_pid=" + [string]$liqSchedPid)
+# Best-effort last-invocation health from the wrapper's own per-cycle JSONL
+# log (tools/liquidation_silence_scheduler.py's run_cycle()) -- distinct
+# from mere process-alive: a running process can still have just logged a
+# failed cycle (outcome != SUCCESS).
+$liqSchedLogPath = Join-Path $RepoRoot "logs\liquidation_silence_scheduler.log"
+if (Test-Path -LiteralPath $liqSchedLogPath) {
+    try {
+        $liqSchedLastLine = Get-Content -LiteralPath $liqSchedLogPath -Tail 1 -ErrorAction Stop
+        if ($liqSchedLastLine) {
+            $liqSchedLastRecord = $liqSchedLastLine | ConvertFrom-Json
+            Write-Output ("liquidation_silence_scheduler_last_outcome=" + [string]$liqSchedLastRecord.outcome)
+            Write-Output ("liquidation_silence_scheduler_last_ts_utc=" + [string]$liqSchedLastRecord.ts_utc)
+            Write-Output ("liquidation_silence_scheduler_last_severity=" + [string]$liqSchedLastRecord.severity)
+        }
+    } catch {
+        Write-Output "liquidation_silence_scheduler_last_outcome=UNREADABLE_LOG"
+    }
+} else {
+    Write-Output "liquidation_silence_scheduler_last_outcome=NO_LOG_YET"
+}
+
 if ($collectorHb) {
     Write-Output ("collector_connected=" + [string]$collectorHb.connected)
     Write-Output ("collector_last_message_ts_utc=" + [string]$collectorHb.last_message_ts_utc)
