@@ -18,6 +18,29 @@
 - Ana DB `data/microstructure.db` (650GB+) SALT-OKUNUR açılır (`file:...?mode=ro`).
 - Mezarlığı tekrar test etme (buy-side fade, reversal, cross-asset transfer, gentleness, micro-timing, tight stop, partial exit, limit-entry) — tam liste: AMI failure archive + `docs/ami/AMI_RESEARCH_PROTOCOLS.md` §5.
 
+## Kademeli bağımsız inceleme zinciri (ZORUNLU — sıkıştırılamaz)
+Doğrulama gerektiren her önemli implementasyon/düzeltme için standart yaşam
+döngüsü — **her zaman OTOMATİK uygulanır, sıkıştırılmaz**:
+
+`implementation → bağımsız review → correction → bağımsız re-review → acceptance`
+
+Kurallar:
+- **Fazlar TEK TEK ve AYRI** yürütülür; aralarında **operatör sign-off** vardır.
+  İki fazı asla aynı geçişte birleştirme (özellikle implementation + review'ı).
+- **Neden:** review'ın epistemik değeri BAĞIMSIZLIĞINDADIR. Aynı aktör bir
+  artefaktı tek geçişte hem üretip hem onaylarsa = kendi kodunu kendin
+  onaylamak = değersiz. Bu yüzden her review **salt-okunur**, hiçbir dosyayı
+  değiştirmez; düzeltmeler ayrı bir `correction` fazında yapılır.
+- **Otomatik ama kapılı:** bu disiplini varsayılan olarak kendiliğinden uygula
+  (her fazdan sonra bir sonraki fazın gerektiğini hatırlaman gerekmez); ama
+  insan kapısını (operatör sign-off) kaldırma. "Otomatik" = disiplin standart,
+  kapı değil.
+- Zaman baskısı / "hızlı olsun" talebi bu zinciri sıkıştırmanın gerekçesi
+  DEĞİLDİR. Sıkıştırılamaz, sıkıştırma.
+- Her faz kendi verdict token'ıyla kapanır (ör.
+  `..._CORRECTED_AWAITING_REREVIEW` → `..._ACCEPTED`) ve `SYSTEM_STATE.md`'ye
+  kaydedilir. Emsal: liquidation-silence detector §107→§108→§109 zinciri.
+
 ## Dosya haritası
 | Ne | Nerede |
 |---|---|

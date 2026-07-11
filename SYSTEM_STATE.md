@@ -5018,3 +5018,32 @@ yeni MD dosyası istisnadır).
 **Verdict: `LIQUIDATION_SILENCE_DETECTOR_ACCEPTED`.** Push YAPILMADI. Aktivasyon/
 schedule/restart/execution yetkisi YOK. Next: `AWAIT_EXPLICIT_CONTROLLED_
 ACTIVATION_KICKOFF`.
+
+---
+
+## 110. GOVERNANCE İLKESİ — KADEMELİ BAĞIMSIZ İNCELEME ZİNCİRİ (ZORUNLU, 2026-07-11)
+
+Operatör kararı: doğrulama gerektiren her önemli implementasyon/düzeltme
+**standart, sıkıştırılamaz bir kademe zincirinden** geçer:
+
+`implementation → bağımsız review → correction → bağımsız re-review → acceptance`
+
+- Fazlar **tek tek ve ayrı**; aralarında **operatör sign-off** var. İki faz
+  (özellikle implementation + review) asla aynı geçişte birleştirilmez.
+- **Gerekçe:** review'ın epistemik değeri bağımsızlığında. Aynı aktör bir
+  artefaktı tek geçişte hem üretir hem onaylarsa = self-approval = değersiz.
+  Her review **salt-okunur**, hiçbir dosyayı değiştirmez; düzeltme ayrı
+  `correction` fazında.
+- **Otomatik ama kapılı:** disiplin varsayılan olarak kendiliğinden uygulanır;
+  insan kapısı (sign-off) kaldırılmaz. Zaman baskısı sıkıştırma gerekçesi
+  değildir.
+- Her faz kendi verdict token'ıyla kapanır ve buraya kaydedilir.
+- **Kanonik emsal:** liquidation-silence detector zinciri §107 (implemented→
+  awaiting review) → bağımsız review (CORRECTIVE_REQUIRED) → §108 (corrected→
+  awaiting re-review) → bağımsız re-review (ACCEPTED) → §109 (acceptance
+  kaydı). Aynı desen bundan sonra tüm doğrulama-gerektiren işlerde geçerli.
+- Bu ilke `CLAUDE.md` "Kademeli bağımsız inceleme zinciri" bölümüne de işlendi
+  (her oturum otomatik yüklenir) ve kalıcı memory'ye
+  `feedback_gated_independent_review_chain` olarak yazıldı.
+
+Bu governance-only kayıttır; hiçbir kod/runtime değişmedi. Push YAPILMADI.
