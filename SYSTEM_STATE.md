@@ -5436,3 +5436,97 @@ foreign dosya DEĞİŞMEDİ.
 
 **Verdict: `STORAGE_RANGE_READ_V10_NO_ELIGIBLE_CANDIDATES`.** Next:
 `AWAIT_OPERATOR_SCOPE_DECISION_MIXED_PARTIAL_OR_SHADOW_EVAL`.
+**(§119'da, tek adaya özel dar kapsam kararıyla, kabul edildi ve entegre edildi.)**
+
+---
+
+## 119. SHADOW-EVAL MARK_PRICES RANGE MİGRASYONU — KABUL EDİLDİ + ENTEGRE EDİLDİ (2026-07-11, Opus 4.8 + Sonnet 5)
+
+**Kapsam kararı:** Operatör, `AWAIT_OPERATOR_SCOPE_DECISION_MIXED_PARTIAL_OR_
+SHADOW_EVAL`'e yanıt olarak **tek bir adaya özgü, dar bir kapsam genişletmesi**
+yetkilendirdi: **`tools/s34_regime_filter_shadow_eval.py`**. Bu, blanket bir
+MIXED_PARTIAL/CVD-adjacent/multi-table/aggregate/shadow-consumer yetkisi
+DEĞİLDİR ve başka hiçbir adaya otomatik olarak uygulanmaz.
+
+**Aday:** `tools/s34_regime_filter_shadow_eval.py` — yalnız ayrışabilir
+`mark_prices` range-read bölümü migrate edildi. Mevcut `book_ticker` ASOF
+implementasyonu ve çağrı-site'ı (`book_at_v2`, önceden `b40441f2`/Batch 4'te
+migrate edilmişti) **byte-identical korunarak dokunulmadı**.
+
+**Kritik veri-seviyesi coupling korundu:** `simulate_counterfactual()` içinde
+range-read'den türeyen `exit_ts_ms`, ASOF çağrısına argüman olarak geçiyor —
+yani range-read'deki bir hata ASOF sonucunu da bozabilirdi. Bu yüzden kanıt
+yalnız unit-level (`mark_rows` vs `mark_rows_v2`) değil, **uçtan-uca
+`simulate_counterfactual()` seviyesinde** de üretildi (tam sonuç sözlüğü +
+`exit_ts_ms`/`exit_mark`/`exit_reason`/`net_bps`/`mfe_bps`/`mae_bps`/
+`fill_source` + ASOF quote eşitliği; SQLITE_ONLY, gerçek HYBRID archive/live
+sınır-geçişi, ve eksik-ASOF-kanıtı senaryolarında).
+
+**Boundary mapping:** Oracle inclusive/inclusive (`ts_ms>=start_ms AND
+ts_ms<=end_ms`); reader half-open `[start_ms, end_ms)`. Mapping: `start_ms`
+DEĞİŞMEZ, yalnız `end_ms→end_ms+1`. Bu, V8/V9'daki farklı (exclusive-lower)
+oracle şeklinden bilinçli olarak FARKLIdır — kör kör kopyalanmamış, ayrıca
+türetilmiş ve doğrulanmıştır. Emsal (`tools/micro_edge_smoke.py`'nin
+`_mark_prices_range`/`_v2` çifti) gerçek ve doğru referanslandığı doğrulandı.
+
+**Kapsam ihlali bulundu ve düzeltildi:** İlk implementasyon (`8e8d7975`), bir
+bağımsız review tarafından, yetkilendirilmiş dosya listesi DIŞINDA
+`tools/range_read_inventory_reconciliation_v1_classify.py`'ye (+12 satır,
+üçüncü bir `MANUAL_OVERRIDES` girdisi) tek taraflı bir değişiklik yaptığı
+tespit edilerek `CORRECTIVE_IMPLEMENTATION_REQUIRED` verdiği. Git tarihçesi bu
+dosyanın V1-V9'un HİÇBİRİNDE değiştirilmediğini (yalnız `f124596b`'de
+yaratılıp sonra yalnız rerun edildiğini) doğruladı — bu commit bu disiplini
+ilk kez kırıyordu. Operatör "geri al, sonra re-review" seçti. Düzeltme commit'i
+(`15584744`) `classify.py`'yi `e4ffdc16`'ya karşı **sıfır-diff**'e geri
+getirdi (bağımsız doğrulandı) ve envanter JSON'u tamamen otomatik classifier
+ile yeniden üretti. Taze-context bir re-review (Kapı 4) düzeltmeyi bağımsız
+olarak yeniden denetleyip **`SHADOW_EVAL_RANGE_MIGRATION_ACCEPTED`** verdi.
+
+**Entegrasyon:** `git merge --ff-only` ile canonical'a temiz fast-forward
+(`e4ffdc16..15584744`, merge commit'i YOK). Sıralama korundu: `8e8d7975`
+(implementasyon) → `15584744` (kapsam düzeltmesi). Final diff yalnız 3 dosya
+(`tools/s34_regime_filter_shadow_eval.py`,
+`tests/test_s34_regime_filter_shadow_eval_mark_prices_reader_migration_parity.py`,
+`reports/governance/storage/range_read_inventory_reconciliation_v1.json`) —
+`classify.py` final diff'te YOK (net etki sıfır), foreign-owned dosyalar YOK.
+
+**Ana ağaç doğrulaması (izole worktree'den daha güçlü — gerçek prod DB +
+archive mevcut):** parity + ASOF + reader regression + production-parity
+suite'leri toplam **67 passed, 0 failed, 0 skipped** (izole worktree'de 10
+skip vardı, gerçek DB yokluğundan — ana ağaçta hepsi ÇALIŞTI ve geçti,
+ARCHIVE_ONLY/HYBRID testleri dahil). Boundary mapping doğrudan `ami/storage/
+research_reader.py` kaynağından dördüncü kez bağımsız doğrulandı (reader
+`>=?/<?`, oracle `>=?/<=?`, mapping doğru).
+
+**Envanter (doğru/gerçek):** `classification=MIGRATED_RANGE_READ`,
+`manual_review_note=null`, `classification_basis=AUTOMATED`,
+`reader_v2_present=true`, `v2_function_defined=true`. Sayaçlar:
+`MIGRATED_RANGE_READ` 24→25, `REMAINING_MIGRATABLE` 10→9, `total_scanned=141`
+(değişmedi).
+
+**⚠️ Dürüstlük notu (ana ağaç ortam bulgusu, migrasyonun kendisiyle ilgisiz):**
+Envanter scanner/classifier'ının ana ağaçta ("D:\eclipse_scalper" içinde,
+oturum başından beri var olan **1109 untracked/alakasız script**) SIFIRDAN
+tekrar çalıştırılması, scanner'ın `TOOLS.glob("*.py")` (git-tracked filtresi
+DEĞİL, ham dosya-sistemi glob'u) kullanması nedeniyle **farklı** sayılar
+üretti (total_scanned=323, REMAINING=50) — bu, izole (yalnız git-tracked
+dosyaların bulunduğu) worktree ortamındaki DOĞRU/kabul-edilmiş sonuçtan farklı
+bir ortam-kirliliği etkisidir, migrasyonun veya classifier'ın bir kusuru
+DEĞİLDİR. Bu yanlışlıkla üretilen çıktı **HEMEN geri alındı**
+(`git checkout --`), committed dosya sha256 hash'i doğrulanarak
+(`26a95b55…`) önceki haline dönüldüğü teyit edildi. Sıfır-diff reprodüksiyon
+zaten Kapı 4'te izole worktree'de bağımsız olarak kanıtlanmıştı (doğru,
+kapsamı git-tracked dosyalarla sınırlı ortamda) — bu bulgu yalnız gelecekteki
+oturumlar için bir uyarı: bu envanter script'i ana ağaçta çalıştırılmadan önce
+untracked dosya kirliliği hesaba katılmalı.
+
+**Değişmeyen:** AMI/CVD epistemik gate zayıflamadı, bilimsel çıktı değişmedi,
+runtime/DB/archive/catalog/scheduler/detector/watchdog/live-execution
+mutasyonu YOK, foreign-owned dosyalar dokunulmadı. **Bu kabul, başka hiçbir
+MIXED_PARTIAL adayını yetkilendirmez.**
+
+**Uygulama soy kütüğü:** `8e8d7975` (implementasyon) → `15584744` (kapsam
+düzeltmesi) → bağımsız re-review `SHADOW_EVAL_RANGE_MIGRATION_ACCEPTED`.
+
+**Verdict: `SHADOW_EVAL_RANGE_MIGRATION_ACCEPTED`.** Next:
+`RETURN_TO_STORAGE_SCOPE_DECISION_FOR_REMAINING_9_CANDIDATES`.
