@@ -4839,3 +4839,58 @@ CT-005/OD-011'in kalan 7 KO'su HOUR17 metodolojisiyle (read-only reprodüksiyon 
 **OD-010 stray-doc:** `AMI_COMMERCE_INTELLIGENCE_OS_IMPLEMENTATION_WHITEPAPER_v1.1_COMPLETE.md` (f02b7d88'de eklenmişti) — kendi header'ı canonical repo target'ı `D:\commerce_intelligence` diyor; hiçbir Eclipse/S34 dokümanı adıyla referans vermiyor; Eclipse governance zincirini kırmıyor; kanonik kopya `D:\commerce_intelligence\docs\architecture\`'da MEVCUT. Stray onaylandı → Eclipse tracking'inden `git rm` ile çıkarıldı (ayrı commit); commerce repo kopyası DOKUNULMADI.
 
 **Verdict: `SEVEN_KO_GOVERNANCE_CORRECTED_OD010_CLEAN`.** Push YAPILMADI.
+
+---
+
+## 107. LIQUIDATION SILENCE / TRANSPORT-OUTAGE DETECTOR — IMPLEMENTED, AWAITING REVIEW (2026-07-11, Sonnet 5)
+
+Confirmed 40-gün-3-saat (2026-04-27T14:24Z→2026-06-06T17:47Z) all-tracked-symbol
+likidasyon boşluğu hiçbir zaman kararlı bir canonical health failure olarak
+yüzeye çıkmamıştı (bkz. §104/105). Yeni, tamamen izole (mevcut hiçbir dosya
+DEĞİŞTİRİLMEDİ — `tools/native_ws_health_policy.py` dahil, o başka bir
+session'ın kirli/uncommitted dosyası, yalnız referans için okundu) detector
+eklendi: `tools/liquidation_silence_policy.py` (saf karar politikası,
+per-symbol + all-tracked-symbol + control-stream cross-validation) +
+`tools/liquidation_silence_detector.py` (bounded read-only snapshot + one-shot
+CLI, `tools.health_state.write_component_health` üzerinden yalnız kendi
+`logs/health/liquidation_silence.json` dosyasını yazar — `overall.json`'a
+ASLA yazmaz, `tools/heartbeat_watchdog.py` DEĞİŞTİRİLMEDİ, disabled-by-default).
+
+**Kalibrasyon (salt-okunur, `data/microstructure.db` mode=ro):** post-
+2026-06-06 (mevcut `all_market_arr` mimarisi) 3 sağlıklı pencere (~19 gün,
+Temmuz 6-10 outage hariç) → all-tracked-symbol simultaneous-silence max
+gözlenen=2508.9s. Donmuş eşikler: `ALL_SYMBOL_SILENCE_WARNING=3600s` (1.43x
+marj), `ALL_SYMBOL_SILENCE_CRITICAL=7200s` (2.87x marj), `SYMBOL_SILENCE_
+WARNING=9000s` (per-symbol, hiçbir zaman tek başına RED üretmez),
+`CONTROL_STREAM_FRESH=300s`. Policy fingerprint (sha256):
+`9781e0ed8f7b4950e62bdb6b4e64773ef1f9f6e383749b92ac20641dec4ed9d8`.
+
+**Test:** 52/52 passed (`test_liquidation_silence_policy.py` 28 +
+`test_liquidation_silence_detector.py` 24 collected, `--basetemp` scratchpad,
+`-p no:cacheprovider`). Gerçek prod DB üzerinde iki tarihsel replay:
+Nisan-Haziran boşluğu → `LIQUIDATION_TRANSPORT_OUTAGE`/RED (latency ≈2.3h vs.
+gerçekte 40 gün); Temmuz 6-10 routed-endpoint olayı → aynı sınıflandırma.
+310 sağlıklı-dönem saatlik replay → 0 false positive. Recovery-to-GREEN
+latency ≈5-10s (freshest-of-3 tasarımı sayesinde).
+
+**Bulunan yan-hata (bu batch'te düzeltildi):** ilk taslakta `now_ts` üst
+sınırı yoktu → tarihsel replay gerçek duvar saatine sızıyordu (lookahead).
+`ts_ms <= now_ts*1000` eklendi (indexed, hâlâ bounded — `EXPLAIN QUERY PLAN`
+ile doğrulandı).
+
+**Performans provası:** gerçek 741GiB prod DB'ye karşı tek-atış run
+0.0035s, 5 sorgu, hepsi covering-index (full scan yok). Sabit tarihsel
+pencere row-count (2026-04-01/02 BTC/ETH/SOL) rehearsal öncesi/sonrası
+birebir aynı. `mode=ro` INSERT'i `sqlite3.OperationalError` ile reddediyor
+(test-kanıtlı). Runtime/PID/live-executor durumu değişmedi (12 proses,
+duplicate yok, live executor yok — önce/sonra birebir).
+
+**Aktivasyon YOK:** `tools/heartbeat_watchdog.py`'nin `OPTIONAL_COMPONENT_
+FILES`'ına eklenmedi, `start_eclipse.ps1`'e eklenmedi, hiçbir proses
+başlatılmadı/restart edilmedi. `compose_with_overall_severity()` gelecekteki
+controlled-activation batch'i için tanımlı+izole test edildi, hiçbir üretim
+kod yolundan çağrılmıyor.
+
+Tam rapor: `reports/research/s34/LIQUIDATION_SILENCE_DETECTOR_2026-07-11.md`.
+
+**Verdict: `LIQUIDATION_SILENCE_DETECTOR_IMPLEMENTED_AWAITING_REVIEW`.** Push YAPILMADI. Next: `REVIEW_LIQUIDATION_SILENCE_DETECTOR`.
