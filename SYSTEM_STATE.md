@@ -5611,3 +5611,125 @@ operatör yorumu barı netleştirerek kapattı.
 `STORAGE_RANGE_READ_MIGRATION_EXHAUSTED_UNDER_CURRENT_STRICT_BAR` — yeni
 range-read migrasyon ilerlemesi ancak (a) bar'ın gevşetilmesi (operatör
 kararı) veya (b) yeni/temiz bir aday ortaya çıkması ile mümkün.
+
+---
+
+## 121. LIQUIDATION-SILENCE DETECTOR SCHEDULING-READINESS CORRECTIVE — KABUL EDİLDİ VE ENTEGRE EDİLDİ (2026-07-11, Opus 4.8 + Sonnet 5)
+
+**Zincir:** §114.1'in açık `DETECTOR_SCHEDULING_DECISION_PENDING` takip
+maddesi üzerinden başladı. Tam kademeli inceleme zinciri (tasarım →
+implementasyon → bağımsız review → correction → bağımsız re-review →
+kabul) izole worktree'de (`corrective/liquidation-silence-scheduling-
+readiness`, taban `5a1e1b61`) yürütüldü.
+
+**Faz 0 — tasarım:** Salt-okunur scheduling-readiness tasarım incelemesi,
+verdict `CORRECTIVE_IMPLEMENTATION_REQUIRED_BEFORE_SCHEDULING` — asıl
+bulgu: `heartbeat_watchdog.py`'nin `liquidation_silence` fold'unda hiçbir
+freshness (staleness) kontrolü yoktu; canlı kanıt: artefakt
+`evaluated_at_utc` ~3s47dk bayat olmasına rağmen current gibi fold
+ediliyordu.
+
+**Faz 1 — corrective implementasyon:** (a) `tools/heartbeat_watchdog.py`:
+`liquidation_silence` fold'u `component_fresh()` deseniyle 900s freshness
+bütçesine bağlandı (900s = kabul edilen policy'nin kendi 300s
+`CONTROL_STREAM_FRESH_AGE_SEC`'inden türetilen scheduler cadence'inin
+3 katı). Absent artefakt → değişmeden GREEN no-op; fresh artefakt →
+severity aynen geçer; stale/missing/malformed timestamp → `UNKNOWN`
+(asla false-GREEN, asla dondurulmuş tarihsel RED). (b) Yeni
+`tools/liquidation_silence_scheduler.py`: kabul edilmiş, DEĞİŞTİRİLMEMİŞ
+`liquidation_silence_detector.run_once()`'u saran minimal persistent-loop
+wrapper, default 300s cadence. (c) `start_eclipse.ps1`'e
+`-EnableLiquidationSilenceScheduler` opt-in (default KAPALI, `-EnableLive`
+deseniyle birebir); `status_eclipse.ps1`'e DISABLED/RUNNING/STALE_PID/
+NOT_REQUESTED ayrımı; `stop_eclipse.ps1`'e scoped
+`-LiquidationSilenceSchedulerOnly` durdurma. (d) 19 yeni test.
+
+**Faz 2 — bağımsız review (1. geçiş):** Verdict
+`CORRECTIVE_CHANGES_REQUIRED`. 3 MEDIUM bulgu: **F1** — 900s gerekçesi
+kodda hiç kullanılmayan (dead) bir sabite ("3x established convention")
+atıfta bulunuyordu, gerekçe uydurmaydı (sayının kendisi savunulabilirdi,
+gerekçe değildi). **F2** — 300s cadence iki dosyada bağımsız literal
+olarak tekrarlanmıştı, aralarında yalnız yorum-satırı bağı vardı, sessizce
+drift edebilirdi. **F3** — `acquire_single_instance_lock()` atomik
+olmayan bir read-PID→check-liveness→write-PID sırasıydı; gerçek bir
+TOCTOU race'ti; mevcut testler tam da bu liveness-check'i mock'layarak
+race'i gizliyordu. Ayrıca 1 LOW-MEDIUM (**F4** — PowerShell opt-in
+testleri gerçek çalıştırma değil, statik kaynak-metin kontrolü) ve 2 LOW
+(**F5** SIGTERM Windows'ta pratikte erişilemez, zaten dürüstçe
+belgelenmiş; **F6** future-timestamp clamp davranışı önceden var olan,
+bu batch'in eklemediği bir sınırlama).
+
+**Faz 3 — correction:** F1 gerekçesi düzeltildi (dead constant atfı geri
+çekildi; dürüst gerekçe: policy'nin aynı 300s değer için kullandığı
+12x/24x headroom'dan kasıtlı olarak daha muhafazakâr). F2: cadence sabiti
+artık `heartbeat_watchdog.py`'de `tools.liquidation_silence_scheduler`'dan
+**import** ediliyor (aynı obje, `is`-identity ile test edildi; kopya
+değil) — drift yapısal olarak imkansız. F3: kilit mekanizması tamamen
+`msvcrt.locking()` tabanlı OS-seviyesi exclusive byte-range lock'a
+değiştirildi (ayrı bir `.lock` sibling dosyasında — PID dosyasının
+kendisini kilitlemenin, kilit tutulduğu sürece dosyayı aynı process
+içinden bile okunamaz yaptığı, correction sırasında kendi kendine
+yakalanan bir regresyon, ayrı dosyaya geçilerek düzeltildi). Eski
+psutil/CIM tabanlı liveness-check makinesi dead code olarak tamamen
+kaldırıldı. F4, F5, F6 kasıtlı olarak "düzeltilmedi" — dürüstçe
+belgelendi (F4: gerçek PowerShell çalıştırmak test suite'in kendi
+"persistent process başlatma yok" kuralını ihlal ederdi).
+
+**Faz 4 — bağımsız re-review (2. geçiş):** Verdict
+`LIQUIDATION_SILENCE_SCHEDULING_READINESS_CORRECTIVE_ACCEPTED`. F1/F2/F3
+bağımsız olarak (implementasyonun kendi iddialarına güvenilmeden)
+yeniden doğrulandı — policy oranları (12x/24x) sıfırdan yeniden
+hesaplandı, doğru çıktı; import `is`-identity doğrulandı; **F3 için
+gerçek subprocess'lerle (thread değil, `subprocess.Popen`) çapraz-process
+race testi** + **gerçek `taskkill /F` hard-kill testi** yapıldı — OS
+lock'un hard-kill sonrası gerçekten serbest kaldığı ve PID-content
+incelemesine hiç ihtiyaç duyulmadan yeni bir acquire'ın başarılı olduğu
+ampirik olarak kanıtlandı (ne implementasyonun ne de ilk correction'ın
+test etmediği bir senaryo). 3 kalıntı bulgu, hepsi non-blocking, LOW/INFO,
+**düzeltilmiş olarak iddia edilmiyor**:
+- **RR-1** (kozmetik): birkaç docstring/yorum, repo'da mevcut olmayan bir
+  path'e (`reports/research/s34/LIQUIDATION_SILENCE_DETECTOR_PERIODIC_
+  SCHEDULING_DESIGN.md`) atıfta bulunuyor — tasarım raporu yalnız geçici
+  review scratchpad'inde yaşıyor, repo'ya committed değil.
+- **RR-2** (miras, yeni değil): `status_eclipse.ps1`'in `Test-PidAlive`
+  fallback'ı (dosyadaki tüm 12 rol için aynı, bu batch'e özgü değil)
+  command-line yeniden-doğrulaması yapmıyor — dar bir pencerede PID-reuse
+  status görüntüsünde yanlış RUNNING gösterebilir; gerçek single-instance
+  güvenlik garantisini (Python-seviyesi OS lock) ETKİLEMİYOR.
+- **RR-3** (zararsız): hard-kill sonrası `.lock` sibling dosyası diskte
+  kalıntı olarak kalıyor; temizlenmiyor ama zararsız (yeni bir acquire
+  bu kalıntıya rağmen başarılı — ampirik doğrulandı).
+
+**Kapsam (tüm fazlar boyunca sabit):** yalnız 7 dosya (5 modified + 2
+new): `start_eclipse.ps1`, `status_eclipse.ps1`, `stop_eclipse.ps1`,
+`tests/test_liquidation_silence_detector.py`, `tools/heartbeat_watchdog.py`,
+`tests/test_liquidation_silence_scheduler.py` (yeni),
+`tools/liquidation_silence_scheduler.py` (yeni).
+`tools/liquidation_silence_detector.py` ve `tools/liquidation_silence_
+policy.py` (kabul edilmiş detector semantikleri/eşikleri) her fazda
+DEĞİŞTİRİLMEDİ — sıfır-diff, her review'da bağımsız doğrulandı. 7
+foreign-owned kirli dosyaya (primary worktree'deki uncommitted içerik)
+hiçbir fazda dokunulmadı.
+
+**⚠️ ÖNEMLİ DÜRÜSTLÜK NOTU — bu kayıt bir aktivasyon kaydı DEĞİLDİR:**
+scheduler **default KAPALI** kalıyor. Bu batch boyunca hiçbir noktada
+scheduler başlatılmadı, hiçbir Scheduled Task oluşturulmadı, hiçbir canlı
+runtime prosesi (collector/watchdog/executor) başlatılmadı veya yeniden
+başlatılmadı, `-EnableLiquidationSilenceScheduler` hiçbir gerçek
+`start_eclipse.ps1` çağrısında kullanılmadı. Sürekli izleme ŞU AN
+ÇALIŞMIYOR. Aktivasyon, bu kaydın kapsamı dışında, ayrı ve açık bir
+operatör kararı gerektirir.
+
+**Entegrasyon:** implementasyon commit'i (`70d8f70e`, "feat(ops): harden
+liquidation-silence scheduling readiness") + bu governance kaydı,
+canonical `codex/data-layer-fallback-cleanup`'a temiz fast-forward ile
+entegre edildi (ayrı, temiz bir integration worktree'den — foreign-dirty
+primary worktree'den DEĞİL) ve push edildi. Detay: bkz. entegrasyon
+sonrası bu bölümün altına eklenecek push doğrulaması (varsa) veya ayrı
+governance kaydı.
+
+**Verdict: `LIQUIDATION_SILENCE_SCHEDULING_READINESS_ACCEPTED_AND_
+INTEGRATED`.** Next: `OPERATOR_ADJUDICATION_FOR_LIQUIDATION_SILENCE_
+SCHEDULER_ACTIVATION` — periyodik aktivasyon (gerçek `-EnableLiquidation
+SilenceScheduler` çağrısı ile) ayrı, açık bir operatör kararı ve kendi
+kademeli inceleme zincirini gerektirir; bu kayıt onu YETKİLENDİRMEZ.
