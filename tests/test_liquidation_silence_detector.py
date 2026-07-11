@@ -239,28 +239,145 @@ def test_present_day_collector_file_does_not_influence_historical_replay(tmp_pat
     assert ERR_CONTROL_COMPONENT_TEMPORAL_MISMATCH in codes
 
 
-# --- disabled-by-default integration ----------------------------------------
+# --- controlled activation: wired into OPTIONAL_COMPONENT_FILES + folded ----
+# into top-level severity via compose_with_overall_severity (see
+# tools/heartbeat_watchdog.py's evaluate(), the block right after the
+# native-WS-aware merge). The two tests below lock in the two halves of
+# that intentional behavior: (1) with the detector's own file absent, the
+# mere presence of "liquidation_silence" in OPTIONAL_COMPONENT_FILES must
+# still be a pure no-op (severity defaults to GREEN, compose is inert) --
+# this preserves the original safety invariant this test module locked in
+# before activation, just no longer via "the key isn't registered at all".
+# (2) once the detector's file is present with a non-GREEN severity, it now
+# genuinely participates in the canonical overall/state, which is the new,
+# deliberate behavior this activation batch introduces.
 
-def test_disabled_integration_has_zero_effect_on_canonical_overall(tmp_path):
-    """Proves the detector's component file is invisible to
-    tools.heartbeat_watchdog.build_canonical_overall (unmodified,
-    real production module) unless/until a future controlled-activation
-    batch explicitly adds "liquidation_silence" to OPTIONAL_COMPONENT_FILES
-    -- which this batch does not do."""
-    log_health = tmp_path / "logs" / "health"
-    log_health.mkdir(parents=True)
-    payload = evaluate_once(db_path=tmp_path / "nonexistent.db", now_ts=1_800_000_000.0, **_HIST_PATHS)
-    write_component_health("liquidation_silence", payload, root=log_health)
+def _write_healthy_control_components(root: Path) -> None:
+    """Populates the minimal set of control-plane files/DB tables that make
+    tools.heartbeat_watchdog.evaluate() resolve to a GREEN baseline on its
+    own, independent of liquidation_silence, so that any deviation from
+    GREEN in the tests below is attributable solely to the
+    liquidation_silence fold under test."""
+    now = hw.utc_now_z()
+    log_health = root / "logs" / "health"
+    log_health.mkdir(parents=True, exist_ok=True)
+    (log_health / "collector.json").write_text(json.dumps({
+        "status": "ok", "ts_utc": now, "last_progress_ts_utc": now,
+        "required_streams_progressing": True, "transport_connected": True,
+        "connected": True,
+    }), encoding="utf-8")
+    (log_health / "bookticker.json").write_text(json.dumps({
+        "status": "ok", "connected": True, "ts_utc": now, "last_tick_event_age_sec": 1,
+    }), encoding="utf-8")
+    (root / "logs" / "runtime_launcher_status.json").write_text(json.dumps({
+        "status": "ready", "active_mode": "paper", "fallback_to_paper": False, "ts_utc": now,
+    }), encoding="utf-8")
+    (root / "logs" / "collector_heartbeat.json").write_text(json.dumps({
+        "connected": True, "last_message_ts_utc": now, "last_data_progress_ts_utc": now,
+        "rest_fallback_enabled": True, "rest_fallback_active": False,
+        "rest_last_progress_ts_utc": now, "current_backoff_seconds": 1.0, "last_error": "",
+    }), encoding="utf-8")
+    db = root / "data" / "microstructure.db"
+    db.parent.mkdir(parents=True, exist_ok=True)
+    con = sqlite3.connect(str(db))
+    now_ms = int(time.time() * 1000)
+    con.execute("CREATE TABLE agg_trades (id INTEGER PRIMARY KEY AUTOINCREMENT, ts_ms INTEGER)")
+    con.execute("CREATE TABLE mark_prices (id INTEGER PRIMARY KEY AUTOINCREMENT, ts_ms INTEGER)")
+    con.execute("CREATE TABLE liquidations (id INTEGER PRIMARY KEY AUTOINCREMENT, ts_ms INTEGER)")
+    con.execute("INSERT INTO agg_trades (ts_ms) VALUES (?)", (now_ms - 1000,))
+    con.execute("INSERT INTO mark_prices (ts_ms) VALUES (?)", (now_ms - 1000,))
+    con.execute("INSERT INTO liquidations (ts_ms) VALUES (?)", (now_ms - 1000,))
+    con.commit()
+    con.close()
 
-    assert "liquidation_silence" not in hw.OPTIONAL_COMPONENT_FILES
 
-    overall_without = hw.build_canonical_overall(
-        overall="GREEN", issues=[], collector_component={}, bookticker_component={},
-        native_ws_policy={"status": "GREEN", "reasons": [], "native_websocket": {}, "rest_fallback": {}, "source_freshness": {}, "thresholds": {}},
-        runtime_mode="paper", now_iso="2026-07-11T00:00:00Z", log_health=log_health,
+def test_liquidation_silence_now_registered_in_optional_component_files():
+    """Locks in that this activation batch did in fact add
+    "liquidation_silence" to OPTIONAL_COMPONENT_FILES -- the precondition
+    both tests below depend on."""
+    assert "liquidation_silence" in hw.OPTIONAL_COMPONENT_FILES
+    assert hw.OPTIONAL_COMPONENT_FILES["liquidation_silence"] == "liquidation_silence.json"
+
+
+def test_absent_component_file_still_has_zero_effect_on_canonical_overall(monkeypatch, tmp_path):
+    """Even though "liquidation_silence" is now a registered optional
+    component, a cycle where the detector has never run (its dedicated
+    logs/health/liquidation_silence.json is simply absent) must still be a
+    complete no-op: no entry in overall.json's components[], and no
+    influence at all on the composed top-level GREEN/ok state. This is the
+    half of the pre-activation invariant that must survive activation."""
+    root = tmp_path
+    _write_healthy_control_components(root)
+    monkeypatch.setattr(hw, "ROOT", root)
+    monkeypatch.setattr(hw, "LOG_HEALTH", root / "logs" / "health")
+    monkeypatch.setattr(hw, "python_process_running", lambda needle: True)
+
+    result = hw.evaluate(max_age_sec=180)
+
+    assert not (root / "logs" / "health" / "liquidation_silence.json").exists()
+    assert result["report"]["overall"] == "GREEN"
+    assert "liquidation_silence" not in result["overall"]["components"]
+    assert result["overall"]["state"] == "ok"
+
+
+def test_present_red_component_file_now_forces_canonical_overall_red(monkeypatch, tmp_path):
+    """The new, intentional half of activation: once the detector's own
+    file is present with severity RED, tools.heartbeat_watchdog.evaluate()'s
+    compose_with_overall_severity fold must genuinely raise the canonical
+    overall/state to RED/halted -- even though every other control-plane
+    input is healthy -- and surface a liquidation_silence_red reason code."""
+    root = tmp_path
+    _write_healthy_control_components(root)
+    write_component_health(
+        "liquidation_silence",
+        {"severity": "RED", "reason_codes": ["liquidation_transport_outage"]},
+        root=root / "logs" / "health",
     )
-    assert "liquidation_silence" not in overall_without["components"]
-    assert overall_without["state"] == "ok"
+    monkeypatch.setattr(hw, "ROOT", root)
+    monkeypatch.setattr(hw, "LOG_HEALTH", root / "logs" / "health")
+    monkeypatch.setattr(hw, "python_process_running", lambda needle: True)
+
+    result = hw.evaluate(max_age_sec=180)
+
+    assert result["report"]["overall"] == "RED"
+    assert result["overall"]["state"] == "halted"
+    assert any(str(r).startswith("liquidation_silence_red") for r in result["report"]["issues"])
+    assert result["overall"]["components"]["liquidation_silence"]["severity"] == "RED"
+
+
+@pytest.mark.parametrize("severity_in", ["YELLOW", "UNKNOWN"])
+def test_present_yellow_component_file_raises_canonical_overall_to_yellow(monkeypatch, tmp_path, severity_in):
+    """Symmetric coverage for the fold's non-critical branch, which the RED
+    test above does not exercise: per compose_with_overall_severity's own
+    rank map (_OVERALL_RANK in tools/liquidation_silence_policy.py), YELLOW
+    and UNKNOWN both rank=1 and must raise an otherwise-GREEN canonical
+    overall to YELLOW/"degraded" (never RED/"halted") and surface a
+    liquidation_silence_<severity> warning reason code -- mirroring the
+    sibling native_ws fold's DEGRADED/YELLOW integration coverage in
+    tests/test_heartbeat_watchdog.py (see
+    test_canonical_overall_native_degraded_maps_to_degraded_in_both_outputs,
+    which asserts the same result["overall"]["state"] == "degraded" string).
+    This locks in the equivalent depth for the liquidation_silence fold."""
+    root = tmp_path
+    _write_healthy_control_components(root)
+    write_component_health(
+        "liquidation_silence",
+        {"severity": severity_in, "reason_codes": ["liquidation_silence_test_reason"]},
+        root=root / "logs" / "health",
+    )
+    monkeypatch.setattr(hw, "ROOT", root)
+    monkeypatch.setattr(hw, "LOG_HEALTH", root / "logs" / "health")
+    monkeypatch.setattr(hw, "python_process_running", lambda needle: True)
+
+    result = hw.evaluate(max_age_sec=180)
+
+    assert result["report"]["overall"] == "YELLOW"
+    assert result["overall"]["state"] == "degraded"
+    assert any(
+        str(r).startswith(f"liquidation_silence_{severity_in.lower()}")
+        for r in result["report"]["issues"]
+    )
+    assert result["overall"]["components"]["liquidation_silence"]["severity"] == severity_in
 
 
 # --- read-only / no-mutation guarantees --------------------------------------

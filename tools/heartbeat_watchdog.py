@@ -8,6 +8,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from tools.liquidation_silence_policy import (
+    SEVERITY_GREEN,
+    SEVERITY_RED,
+    SEVERITY_UNKNOWN,
+    SEVERITY_YELLOW,
+    compose_with_overall_severity,
+)
 from tools.native_ws_health_policy import evaluate_policy, read_source_freshness
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -128,15 +135,24 @@ def component_fresh(payload: Dict[str, Any], max_age_sec: int, now: datetime) ->
 
 # Components tools/heartbeat_watchdog.py does not itself evaluate but folds
 # into canonical overall.json every cycle, read fresh from each owner's own
-# dedicated file -- never preserved from a previous overall.json. All are
-# advisory/observational: none currently contributes to top-level state (only
-# collector/bookticker/native-WS do, via evaluate()'s critical/warning lists,
-# see CANONICAL_AGGREGATION_DESIGN), so a stale or missing one of these can
-# never mask, nor fabricate, a RED/YELLOW verdict. Each entry: filename under
-# logs/health/, and the module that owns writing it.
+# dedicated file -- never preserved from a previous overall.json. Their
+# presence in THIS dict is purely for surfacing each payload verbatim under
+# overall.json's components[] -- inclusion here alone never sets top-level
+# state, so a stale or missing entry here can never mask, nor fabricate, a
+# RED/YELLOW verdict via _read_optional_components. (Top-level state is driven
+# only by evaluate()'s critical/warning lists -- collector/bookticker/native-WS
+# always, and liquidation_silence additionally, the latter folded in evaluate()
+# via a SEPARATE fresh read of its own severity through
+# tools.liquidation_silence_policy.compose_with_overall_severity, with the same
+# never-downgrade precedence as native_ws; see that fold below.) Each entry:
+# filename under logs/health/, and the module that owns writing it.
 OPTIONAL_COMPONENT_FILES: Dict[str, str] = {
     "paper_trader": "paper_trader.json",  # owner: execution/health_gate.py
     "replay": "replay.json",  # owner: tools/replay_slice.py
+    # owner: tools/liquidation_silence_detector.py (disabled-by-default one-shot
+    # detector; its severity is additionally folded into top-level state in
+    # evaluate() -- see the compose_with_overall_severity block there).
+    "liquidation_silence": "liquidation_silence.json",
 }
 
 
@@ -311,6 +327,36 @@ def evaluate(
     else:
         overall = "GREEN"
         severity = "info"
+
+    # Fold the liquidation-silence detector's own severity axis into the
+    # top-level RED/YELLOW/GREEN enum with the SAME never-downgrade precedence
+    # already applied to native_ws above, via the detector policy's canonical
+    # compose_with_overall_severity(): detector RED forces top-level RED,
+    # detector YELLOW/UNKNOWN raise top-level to at least YELLOW, detector GREEN
+    # never downgrades a RED/YELLOW verdict already in force. The detector owns
+    # and writes its own dedicated component file
+    # (logs/health/liquidation_silence.json); it is read fresh here every cycle
+    # -- never fabricated, never carried forward from a prior overall.json.
+    # Until the (disabled-by-default) detector process is actually run, this
+    # file is absent -> severity defaults to GREEN -> compose is a pure no-op,
+    # so wiring it in can never by itself change any verdict. When present its
+    # non-green severity is also recorded in critical/warning (hence in
+    # issues/reasons and errors_last_5m) exactly like native_ws.
+    liq_silence = read_json(LOG_HEALTH / "liquidation_silence.json")
+    liq_silence_severity = str((liq_silence or {}).get("severity") or SEVERITY_GREEN).upper()
+    if liq_silence_severity not in {SEVERITY_GREEN, SEVERITY_YELLOW, SEVERITY_RED, SEVERITY_UNKNOWN}:
+        liq_silence_severity = SEVERITY_GREEN
+    composed_overall = compose_with_overall_severity(overall, liq_silence_severity)
+    if liq_silence_severity != SEVERITY_GREEN:
+        liq_reasons = liq_silence.get("reason_codes") if isinstance(liq_silence, dict) else None
+        detail = ",".join(str(r) for r in liq_reasons) if isinstance(liq_reasons, list) and liq_reasons else ""
+        reason_code = "liquidation_silence_" + liq_silence_severity.lower() + ((":" + detail) if detail else "")
+        if composed_overall == "RED":
+            critical.append(reason_code)
+        else:
+            warning.append(reason_code)
+    overall = composed_overall
+    severity = "critical" if overall == "RED" else ("warning" if overall == "YELLOW" else "info")
 
     out = {
         "ts_utc": utc_now_z(),
