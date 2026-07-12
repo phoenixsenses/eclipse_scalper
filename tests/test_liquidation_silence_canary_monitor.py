@@ -1319,8 +1319,47 @@ def test_frozen_stopevent_replace_reruns_post_init_not_bypassed():
 # ==========================================================================
 
 
-def test_current_untracked_source_reports_untracked_not_in_head():
-    provenance = mon.determine_source_provenance(Path(mon.__file__))
+def _init_isolated_git_repo(repo_dir):
+    """Creates a real, throwaway git repository under `repo_dir` with
+    fully LOCAL (never global) identity/config, plus one initial commit so
+    HEAD is resolvable -- used to exercise determine_source_provenance()'s
+    real git plumbing (real `git` subprocess calls via the function's own
+    `repo_root` parameter) against a fully controlled repository state,
+    independent of whatever the live ECLIPSE_SCALPER repository's own
+    tracked/dirty state happens to be for any particular file. This is
+    what closes the test-drift finding from the round-4/Gate-2 review
+    chain: the two tests below used to call determine_source_provenance()
+    against this monitor module's OWN file inside the live repo, which
+    was a valid "genuinely untracked" fixture only until commit
+    e5f03855dd6f3d4c0ba4fa0d9a6dc131698c2f6d made that file permanently
+    tracked -- after which the live repo could never again produce that
+    scenario for this file, no matter what round of work is in flight.
+    `commit.gpgsign` is explicitly disabled LOCALLY so this fixture never
+    depends on (or is blocked by) the operator's global git config."""
+    repo_dir.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["git", "init", "-q"], cwd=str(repo_dir), check=True, timeout=15)
+    subprocess.run(["git", "config", "user.email", "test-fixture@example.invalid"], cwd=str(repo_dir), check=True, timeout=15)
+    subprocess.run(["git", "config", "user.name", "Test Fixture"], cwd=str(repo_dir), check=True, timeout=15)
+    subprocess.run(["git", "config", "commit.gpgsign", "false"], cwd=str(repo_dir), check=True, timeout=15)
+    (repo_dir / "README.md").write_text("isolated fixture repository -- not part of ECLIPSE_SCALPER\n", encoding="utf-8")
+    subprocess.run(["git", "add", "README.md"], cwd=str(repo_dir), check=True, timeout=15)
+    subprocess.run(["git", "commit", "-q", "-m", "initial commit"], cwd=str(repo_dir), check=True, timeout=15)
+    return repo_dir
+
+
+def test_current_untracked_source_reports_untracked_not_in_head(tmp_path):
+    # Repository-state-independent (see _init_isolated_git_repo's
+    # docstring for why the live-repo-file version of this test was
+    # retired): builds a real, isolated git repository and calls the real
+    # production determine_source_provenance() -- not a mock, not a
+    # monkeypatched replacement -- against a source file that genuinely
+    # exists on disk but was never `git add`ed/committed within that
+    # isolated repository.
+    repo = _init_isolated_git_repo(tmp_path / "isolated_untracked_repo")
+    never_committed = repo / "never_committed_source.py"
+    never_committed.write_text("x = 1\n", encoding="utf-8")
+
+    provenance = mon.determine_source_provenance(never_committed, repo_root=repo)
     assert provenance.provenance_status == mon.PROVENANCE_UNTRACKED_NOT_IN_HEAD
     assert provenance.source_tracked is False
     assert provenance.source_matches_head is False
@@ -1388,17 +1427,59 @@ def test_wrong_file_hashed_fails_independent_oracle_comparison(tmp_path):
     assert decoy_provenance.source_sha256 != real_expected
 
 
-def test_manifest_source_hash_independent_of_function_under_test():
+def test_manifest_source_hash_independent_of_function_under_test(tmp_path, monkeypatch):
     # Oracle computed via plain hashlib, NOT via mon._self_source_sha256
-    # or mon.determine_source_provenance -- this is the actual fix for the
-    # tautological F-07 test.
-    expected = hashlib.sha256(Path(mon.__file__).read_bytes()).hexdigest()
+    # or mon.determine_source_provenance -- this is the original fix for
+    # the tautological F-07 test, preserved here unchanged. The
+    # provenance-status assertions are now sourced from a fully isolated,
+    # throwaway git repository (see _init_isolated_git_repo) rather than
+    # the live ECLIPSE_SCALPER repository's own tracked state, which
+    # permanently changed for this monitor module after commit
+    # e5f03855dd6f3d4c0ba4fa0d9a6dc131698c2f6d -- following the same
+    # injected-SourceProvenance pattern already used by
+    # test_manifest_provenance_resolved_from_injected_wrong_source_path.
+    repo = _init_isolated_git_repo(tmp_path / "isolated_manifest_repo")
+    never_committed = repo / "never_committed_source.py"
+    never_committed.write_text("manifest hash fixture content\n", encoding="utf-8")
+
+    expected = hashlib.sha256(never_committed.read_bytes()).hexdigest()
+    provenance = mon.determine_source_provenance(never_committed, repo_root=repo)
+    assert provenance.provenance_status == mon.PROVENANCE_UNTRACKED_NOT_IN_HEAD  # sanity: isolated repo behaves as intended
+
     manifest = mon.build_run_manifest(
-        cadence_sec=None, requested_duration_sec=None, role_definitions={}, artifact_paths={}, arguments={}
+        cadence_sec=None,
+        requested_duration_sec=None,
+        role_definitions={},
+        artifact_paths={},
+        arguments={},
+        source_provenance=provenance,
     )
     assert manifest.source_sha256 == expected
     assert manifest.source_provenance_status == mon.PROVENANCE_UNTRACKED_NOT_IN_HEAD
     assert manifest.source_tracked is False
+
+    # Monkeypatch/replacement resilience: once a SourceProvenance is
+    # explicitly supplied, build_run_manifest() must use it verbatim and
+    # must NOT silently re-derive provenance by calling (a possibly
+    # monkeypatched/replaced) determine_source_provenance() again -- proven
+    # here by making that function raise if it's ever called a second time.
+    def _must_not_be_called_again(*_args, **_kwargs):
+        raise AssertionError(
+            "determine_source_provenance() must not be called again once "
+            "source_provenance is explicitly supplied to build_run_manifest()"
+        )
+
+    monkeypatch.setattr(mon, "determine_source_provenance", _must_not_be_called_again)
+    manifest2 = mon.build_run_manifest(
+        cadence_sec=None,
+        requested_duration_sec=None,
+        role_definitions={},
+        artifact_paths={},
+        arguments={},
+        source_provenance=provenance,
+    )
+    assert manifest2.source_sha256 == expected
+    assert manifest2.source_provenance_status == mon.PROVENANCE_UNTRACKED_NOT_IN_HEAD
 
 
 def test_manifest_provenance_resolved_from_injected_wrong_source_path(tmp_path):
@@ -2175,6 +2256,136 @@ def test_baseline_malformed_starttime_via_public_entry(tmp_path):
     assert record["continuity"] is not None
     assert record["continuity"]["continuity_status"] != mon.CONTINUITY_CONTINUOUS
     assert record["continuity"]["continuity_status"] == mon.CONTINUITY_MALFORMED_STARTTIME
+
+
+# ==========================================================================
+# GATE2-F1: load_pid_metadata_baseline() must accept UTF-8-BOM-prefixed
+# metadata -- the exact byte shape Windows PowerShell 5.1's
+# `Set-Content -Encoding utf8` (used by start_eclipse.ps1's
+# Start-RegisteredPythonProcess, the sole real-world writer of this sibling
+# file) always produces -- while remaining strict: BOM-free UTF-8 must keep
+# working, malformed JSON must still fail closed, and genuinely invalid
+# (non-BOM) UTF-8 must still be rejected, never silently repaired.
+# ==========================================================================
+
+_REALISTIC_METADATA_PAYLOAD = {
+    "mode": "READ_ONLY_HEALTH_DETECTOR_SCHEDULER_NO_ORDERS",
+    "cwd": "D:\\eclipse_scalper",
+    "cmdline_sig": "python -W ignore -u -m tools.liquidation_silence_scheduler",
+    "role": "liquidation_silence_scheduler",
+    "pid": 15640,
+    "started_at": BASELINE_START,
+}
+
+
+def test_baseline_bom_prefixed_canonical_metadata_parses(tmp_path):
+    pid_meta = tmp_path / "pid_meta.json"
+    pid_meta.write_bytes(b"\xef\xbb\xbf" + json.dumps(_REALISTIC_METADATA_PAYLOAD).encode("utf-8"))
+    result = mon.load_pid_metadata_baseline(pid_meta, expected_module="tools.liquidation_silence_scheduler")
+    assert result.status == mon.BASELINE_STATUS_OK
+    assert result.reason_code == "OK"
+    assert result.reason_code != "BASELINE_MALFORMED_JSON"
+    assert result.baseline.pid == 15640
+    assert result.baseline.start_time_utc == BASELINE_START
+    assert result.expected_identity.role == "liquidation_silence_scheduler"
+
+
+def test_baseline_bom_free_metadata_still_parses(tmp_path):
+    # Same payload, ordinary UTF-8, no BOM -- must remain unaffected by the fix.
+    pid_meta = tmp_path / "pid_meta.json"
+    pid_meta.write_bytes(json.dumps(_REALISTIC_METADATA_PAYLOAD).encode("utf-8"))
+    result = mon.load_pid_metadata_baseline(pid_meta, expected_module="tools.liquidation_silence_scheduler")
+    assert result.status == mon.BASELINE_STATUS_OK
+    assert result.reason_code == "OK"
+    assert result.baseline.pid == 15640
+
+
+def test_baseline_bom_prefixed_metadata_via_real_cli(tmp_path):
+    # Real CLI subprocess, not a library-level call -- exercises main()'s
+    # actual argument parsing and take_snapshot()'s actual wiring, not just
+    # the loader function in isolation. PID 999999999 cannot plausibly
+    # exist as a real process, so continuity is expected (and required by
+    # this test) to evaluate to CONTINUITY_MISSING -- a concrete evaluated
+    # status, not NOT_EVALUATED/BASELINE_MALFORMED_JSON -- without this
+    # test requiring continuity to report success for a fixture that
+    # intentionally represents an absent process.
+    pid_meta = tmp_path / "pid_meta.json"
+    payload = dict(_REALISTIC_METADATA_PAYLOAD, pid=999999999)
+    pid_meta.write_bytes(b"\xef\xbb\xbf" + json.dumps(payload).encode("utf-8"))
+    result = _run_canary_cli_with_pid_meta(tmp_path, pid_meta_path=pid_meta)
+    assert result.returncode == 0, result.stderr
+    output = json.loads(result.stdout.strip())
+    assert output["baseline"]["status"] == mon.BASELINE_STATUS_OK
+    assert output["baseline"]["reason_codes"] == ["OK"]
+    assert "BASELINE_MALFORMED_JSON" not in output["baseline"]["reason_codes"]
+    assert output["continuity"] is not None
+    assert output["continuity"]["continuity_status"] != mon.CONTINUITY_NOT_EVALUATED
+    assert output["continuity"]["continuity_status"] == mon.CONTINUITY_MISSING
+
+
+def test_baseline_bom_prefixed_malformed_json_still_fails_closed(tmp_path):
+    pid_meta = tmp_path / "pid_meta.json"
+    pid_meta.write_bytes(b"\xef\xbb\xbf{not valid json")
+    result = mon.load_pid_metadata_baseline(pid_meta)
+    assert result.status == mon.BASELINE_STATUS_INVALID
+    assert result.reason_code == "BASELINE_MALFORMED_JSON"
+    assert result.baseline is None
+
+
+def test_baseline_bom_prefixed_malformed_json_via_real_cli(tmp_path):
+    pid_meta = tmp_path / "pid_meta.json"
+    pid_meta.write_bytes(b"\xef\xbb\xbf{not valid json")
+    result = _run_canary_cli_with_pid_meta(tmp_path, pid_meta_path=pid_meta)
+    assert result.returncode == 0, result.stderr
+    output = json.loads(result.stdout.strip())
+    assert output["baseline"]["status"] == mon.BASELINE_STATUS_INVALID
+    assert "BASELINE_MALFORMED_JSON" in output["baseline"]["reason_codes"]
+    assert output["continuity"]["continuity_status"] == mon.CONTINUITY_NOT_EVALUATED
+    assert output["continuity"]["continuity_status"] != mon.CONTINUITY_CONTINUOUS
+
+
+def test_baseline_invalid_non_bom_utf8_still_rejected(tmp_path):
+    # Genuinely invalid UTF-8 (not a BOM, not repairable) must remain a
+    # typed decode failure -- utf-8-sig performs no replacement-character
+    # recovery or permissive fallback, only BOM stripping.
+    pid_meta = tmp_path / "pid_meta.json"
+    pid_meta.write_bytes(b"\xff\xfe\x00\x01not-utf8-and-not-a-utf8-bom")
+    result = mon.load_pid_metadata_baseline(pid_meta)
+    assert result.status == mon.BASELINE_STATUS_UNREADABLE
+    assert result.reason_code == "BASELINE_INVALID_ENCODING"
+    assert result.baseline is None
+
+
+def test_baseline_regression_exact_powershell_written_shape(tmp_path):
+    # Regression pin for the exact discovered defect: a fixture byte-shaped
+    # like the real file start_eclipse.ps1's Start-RegisteredPythonProcess
+    # writes via PowerShell 5.1's `ConvertTo-Json | Set-Content -Encoding
+    # utf8` -- BOM-prefixed, CRLF line endings, the double-space-after-colon
+    # formatting ConvertTo-Json produces, 4-space indentation, key order
+    # mode/cwd/cmdline_sig/role/pid/started_at (matches the real on-disk
+    # file observed during the Gate 2 rehearsal that discovered GATE2-F1).
+    real_shaped_body = (
+        "{\r\n"
+        '    "mode":  "READ_ONLY_HEALTH_DETECTOR_SCHEDULER_NO_ORDERS",\r\n'
+        '    "cwd":  "D:\\\\eclipse_scalper",\r\n'
+        '    "cmdline_sig":  "python -W ignore -u -m tools.liquidation_silence_scheduler",\r\n'
+        '    "role":  "liquidation_silence_scheduler",\r\n'
+        '    "pid":  15640,\r\n'
+        '    "started_at":  "2026-07-11T17:40:51.3014132Z"\r\n'
+        "}"
+    ).encode("utf-8")
+    raw = b"\xef\xbb\xbf" + real_shaped_body
+    assert raw[:3] == b"\xef\xbb\xbf"
+
+    pid_meta = tmp_path / "liquidation_silence_scheduler.json"
+    pid_meta.write_bytes(raw)
+
+    result = mon.load_pid_metadata_baseline(pid_meta, expected_module="tools.liquidation_silence_scheduler")
+    assert result.status == mon.BASELINE_STATUS_OK
+    assert result.reason_code == "OK"
+    assert result.baseline.pid == 15640
+    assert result.baseline.command_line == "python -W ignore -u -m tools.liquidation_silence_scheduler"
+    assert result.expected_identity.role == "liquidation_silence_scheduler"
 
 
 # ==========================================================================

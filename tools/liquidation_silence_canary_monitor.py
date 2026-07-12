@@ -97,6 +97,22 @@ F-READFAIL-01/F-MIXEDPREC-01/F-ROUND-01: no production-code change was
       an already-invalid (duplicate/regression) gap's rounded value rather
       than a misleading rounded number.
 
+Gate 2 corrective: addresses GATE2-F1, a MEDIUM discovered during the first
+real-world rehearsal of this accepted module against an actual
+scheduler launched by the repository's role-launcher PowerShell script.
+Every prior round's tests exercised load_pid_metadata_baseline() only
+against synthetic, hand-written non-BOM JSON fixtures; the real
+PID-metadata sibling file that role-launcher's
+Start-RegisteredPythonProcess writes via Windows PowerShell 5.1's
+`Set-Content -Encoding utf8` always carries a UTF-8 BOM, which a strict
+"utf-8" decode left as a leading U+FEFF character that json.loads() then
+rejected -- continuity evaluation was therefore structurally unable to
+succeed against any canonical real baseline, despite failing closed
+correctly (never a false PASS, never a crash). Closed by decoding with
+"utf-8-sig" instead of "utf-8" in load_pid_metadata_baseline() -- BOM-
+prefixed input is now accepted, BOM-free UTF-8 input is unaffected, and
+genuinely invalid (non-BOM) UTF-8 is still rejected exactly as before.
+
 Strictly read-only / inspect-only: nothing in this module starts, stops,
 signals, or reconfigures any process, PID file, health artifact, or
 Scheduled Task. Process enumeration is dependency-injected (a
@@ -131,7 +147,7 @@ from tools.health_state import atomic_write_json
 ROOT = Path(__file__).resolve().parents[1]
 
 EVIDENCE_SCHEMA_VERSION = "liquidation_silence_canary_monitor_v2"
-MONITOR_VERSION = "2.2.0"
+MONITOR_VERSION = "2.2.1"
 
 # --------------------------------------------------------------------------
 # Timestamps (F-01: UTC normalization, never a raw string comparison)
@@ -1739,7 +1755,15 @@ def load_pid_metadata_baseline(
     NOT rejected here -- it is passed through as BASELINE_STATUS_OK so the
     existing PID+StartTime+identity continuity model in classify_continuity
     can report the more specific CONTINUITY_MALFORMED_STARTTIME, rather
-    than this loader pre-empting that with a less specific verdict."""
+    than this loader pre-empting that with a less specific verdict.
+
+    GATE2-F1 (closed here): decodes with "utf-8-sig", not plain "utf-8",
+    so a canonical, real role-launcher-written metadata file -- which
+    Windows PowerShell 5.1's `Set-Content -Encoding utf8` always
+    BOM-prefixes -- parses successfully instead of failing closed as
+    BASELINE_MALFORMED_JSON on every real invocation. BOM-free UTF-8
+    input, and genuinely invalid (non-BOM-related) UTF-8 input, behave
+    identically to before this fix."""
     if not pid_meta_path.exists():
         return BaselineLoadResult(
             status=BASELINE_STATUS_UNREADABLE,
@@ -1776,7 +1800,20 @@ def load_pid_metadata_baseline(
         )
 
     try:
-        raw_text = raw_bytes.decode("utf-8")
+        # GATE2-F1: "utf-8-sig" strips a leading UTF-8 BOM (EF BB BF) if
+        # present, and is otherwise byte-for-byte identical to plain
+        # "utf-8" decoding when no BOM is present -- it does not relax
+        # strictness or introduce a fallback chain. This is needed because
+        # the repo's role-launcher PowerShell script's
+        # Start-RegisteredPythonProcess writes this exact sibling file via
+        # Windows PowerShell 5.1's
+        # `Set-Content -Encoding utf8`, which always BOM-prefixes; a plain
+        # "utf-8" decode left that BOM as a leading U+FEFF character,
+        # which json.loads() then rejected as malformed. Genuinely invalid
+        # UTF-8 bytes (unrelated to a BOM) still raise UnicodeDecodeError
+        # here exactly as before -- utf-8-sig performs no replacement or
+        # permissive recovery.
+        raw_text = raw_bytes.decode("utf-8-sig")
     except UnicodeDecodeError as exc:
         return BaselineLoadResult(
             status=BASELINE_STATUS_UNREADABLE,
