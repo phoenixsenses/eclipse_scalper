@@ -6274,3 +6274,117 @@ RECORDED_AWAITING_COMMIT_AUTHORIZATION`. Next: kod hâlâ working-tree'de
 tracked+modified (uncommitted); staging+commit ayrı, açık bir operatör
 kararını bekliyor; commit+publish sonrası Gate 2A committed kodla yeniden
 revalide edilmeli.
+
+---
+
+## 127. BUY_FADE DUPLICATE-CLOSE LOGGING DÜZELTMESİ — BAĞIMSIZ İNCELEME SONRASI KABUL EDİLDİ (2026-07-12, Sonnet 5)
+
+**Verdict: `BUY_FADE_DUPLICATE_CLOSE_CORRECTIVE_ACCEPTED`.**
+
+**Bulgu kaynağı:** `C_buy_fade_h45_sl75_all` / `C_buy_fade_h45_sl75_silence`
+dashboard bucket'larının bağımsız route-definition + reconstruction audit'i
+(`D:\eclipse_scalper_research\buy_fade_h45_sl75_reconstruction_20260712T151830Z\`)
+sırasında, gerçek üretim ledger'ında (`reports/shadow/
+s34_state_machine_shadow.jsonl`) aynı mantıksal pozisyonun birden fazla kez
+CLOSE olarak loglandığı tespit edildi (dashboard'da gösterilen ham N,
+gerçek bağımsız-cycle N'den yüksek çıkıyordu — 58→47 ALL, 30→23 SILENCE,
+review anında ise 336 CLOSE satırı / 323 farklı id / **8 duplicate cluster
+/ 13 fazla satır**).
+
+**Kesin kök neden (bağımsız review'da simülasyonla doğrulandı):**
+`log_event()` her çağrıda ledger dosyasına satırı dayanıklı biçimde
+(open→write→close) ekliyor; `save_state()` ise `state.json`'ı yalnızca
+`run_once()` döngüsünün en sonunda, ek anchor-tarama işinden SONRA, döngü
+başına bir kez yazıyor. Ledger'a CLOSE yazıldıktan sonra ama o döngünün
+`save_state()`'i tamamlanmadan proses kesintiye uğrarsa, bir sonraki
+`load_state()` çağrısı pozisyonu hâlâ OPEN ve exit saatini geçmiş halde
+geri yüklüyor; `advance_positions()` onu tekrar tespit edip tekrar
+kapatıyor — farklı (yeniden hesaplanmış) çıkış fiyatıyla, ikinci bir CLOSE
+satırı ekleyerek. Aynı-cycle çift-tetikleme (SL + TIME_EXIT aynı turda)
+KÖK NEDEN DEĞİL — `_close_pos()` `pos["status"]`'u senkron olarak
+`CLOSED_...`'a çeviriyor, bu da ikinci bloğun ön-koşulunu daha o turda
+geçersiz kılıyor (hem düzeltme öncesi hem sonrası kodda doğrulandı).
+Mekanizma sinyale özgü değil — dosyadaki TEK iki CLOSE call-site'ı da
+(stop-loss + generic TIME_EXIT) etkileniyordu, ikisi de düzeltmede
+korundu.
+
+**Kabul edilen düzeltme mekanizması:**
+- Yeni `load_closed_ids_from_ledger()` — ledger'ı salt-okunur tarayıp
+  `event=="CLOSE"` id'lerini döndürür (ledger, `state.json`'dan daha
+  dayanıklı olduğu için "ground truth" olarak kullanılıyor).
+- `load_state()` artık her yüklemede bu ledger-truth'a göre reconcile
+  ediyor: ledger'da zaten CLOSE olan pozisyonları `state["positions"]`'tan
+  temizliyor, `state["closed_ids"]`'i dolduruyor.
+- Her iki close call-site'ı (`advance_positions()` içindeki stop-loss ve
+  time-exit blokları) artık `state["closed_ids"]` ile idempotent şekilde
+  korunuyor.
+- Route semantiği (threshold, bucket, entry, hold, stop, fee, silence
+  tanımı, eligibility gate'leri) HİÇBİR ŞEKİLDE değişmedi — grep ile
+  doğrulandı, diff'te bu sabitlerin hiçbiri görünmüyor.
+- Tarihsel ledger dosyası (`s34_state_machine_shadow.jsonl`) hiçbir aşamada
+  değiştirilmedi/yeniden yazılmadı — yalnız salt-okunur okundu; SHA-256
+  görev boyunca sabit kaldı.
+
+**Bağımsız inceleme kanıtı** (implementasyondan tamamen ayrı, taze bir
+agent tarafından, kendi simülasyonu ve kendi ledger taramasıyla):
+- Gerçek crash/restart simülasyonu: düzeltme-öncesi kod aynı senaryoda
+  ikinci bir CLOSE üretti (defekt doğrulandı); düzeltilmiş kod aynı
+  senaryoda **sıfır ek CLOSE** üretti.
+- Bağımsız ledger taraması: 336 CLOSE satırı / 323 farklı id / 8 duplicate
+  cluster / 13 fazla satır (cluster/fazla-satır sayıları implementasyon
+  raporuyla tam eşleşti; +1/+1 fark ledger'ın hâlâ canlı olmasından —
+  gerçek yeni bir forward event'ten — kaynaklanıyor, penalize edilmedi).
+- Testler bağımsız olarak yeniden çalıştırıldı: **58 passed, 0 failed**
+  (10 yeni odaklı test + 48 mevcut regresyon: bd_first_buy50 observer,
+  buyfade silexit mutations, liquidation silence scheduler, dashboard
+  host-health).
+- Diff tam satır satır okundu: 64 insertion / 18 deletion, route-semantiği
+  sabitlerinin hiçbiri diff'te yok, scope creep bulunamadı.
+- CRITICAL: 0, HIGH: 0, MEDIUM: 0.
+
+**Kabul edilen LOW bulgular (acceptance'ı ENGELLEMİYOR):**
+1. Ters failure-ordering — `state.json` başarıyla kaydedilirken ledger
+   append'inin başarısız olması (ör. gerçek bir I/O exception) teorik
+   olarak "sessiz kayıp close" riski taşıyor. Bu, düzeltme ÖNCESİ ve
+   SONRASI kodda BİREBİR AYNI sıralamayla mevcut, bu düzeltmeyle
+   değişmedi, ve duplication ÜRETMİYOR (tam tersi bir failure modu —
+   kayıp, çoğalma değil). Kapsam dışı, ayrı takip edilecek.
+2. Malformed/kesik son JSONL satırının güvenli biçimde skip edildiği
+   bağımsız probe ile doğrulandı (crash yok, sessizce atlanıyor), ancak
+   bunu kilitleyen özel bir otomatik regresyon testi henüz yok. Eklenmesi
+   önerilir, blocker değil.
+
+**Runtime/deployment durumu:**
+- Her iki live executor OFF (pid=0) — değişmedi.
+- Shadow runner PID 21576 hâlâ ÇALIŞIYOR ve hâlâ DÜZELTME-ÖNCESİ kodu
+  bellekte tutuyor (proses başlangıcı dosya mtime'ından önce; canlı
+  `state.json`'da `closed_ids` anahtarı YOK — bu da düzeltmenin henüz
+  yüklenmediğinin bağımsız kanıtı).
+- Review anında `state.json`: `positions: {}` — **sıfır açık pozisyon**.
+  Acil healing/restart gerektiren stale-open pozisyon YOK.
+- Bu görevde ve bağımsız review'da hiçbir restart/stop/deploy/activation
+  YAPILMADI ve YETKİLENDİRİLMEDİ. Restart ayrı, açık bir operatör kararını
+  gerektirir — bu kayıt o yetkiyi VERMEZ.
+
+**Açıkça İDDİA EDİLMEYEN şeyler (bu kayıt bunları belirtmez):**
+çalışan shadow prosesinin düzeltmeyi yüklediği; tarihsel duplicate
+satırların ledger'dan kaldırıldığı/temizlendiği; BUY-fade route'unun
+promote edildiği; route performansının (WR/mean/p-value) valide edildiği;
+runtime restart'ın bu kayıtla yetkilendirildiği.
+
+**Repository sınırı:** `tools/s34_realtime_shadow_runner.py` (64
+insertion/18 deletion) ve `tests/test_buy_fade_duplicate_close_
+idempotency.py` (yeni, untracked, 10 test) working-tree'de
+tracked+modified/untracked kaldı — bu kayıt sırasında STAGE/COMMIT/PUSH
+EDİLMEDİ. Beş korumalı dirty path byte-seviyesinde değişmedi. Dashboard
+(`tools/s34_live_chart.py`), route tanımları, ledger ve runtime hiçbir
+şekilde dokunulmadı.
+
+**Verdict: `BUY_FADE_DUPLICATE_CLOSE_CORRECTIVE_ACCEPTED`.** Kanonik
+post-recording durum: `BUY_FADE_DUPLICATE_CLOSE_ACCEPTANCE_RECORDED_
+AWAITING_INTEGRATION`. Next: düzeltme kodu ve testleri hâlâ working-tree'de
+uncommitted; ayrı bir görevde, açık operatör yetkisiyle, corrective
+source+test+bu governance kaydı kontrollü şekilde commit edilecek; runtime
+restart (shadow runner'ın düzeltmeyi fiilen yüklemesi için) tamamen ayrı,
+açık ve o anda gerekçelendirilmiş bir operatör kararını bekliyor — acil
+değil (sıfır açık pozisyon).
