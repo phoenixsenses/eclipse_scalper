@@ -113,6 +113,24 @@ correctly (never a false PASS, never a crash). Closed by decoding with
 prefixed input is now accepted, BOM-free UTF-8 input is unaffected, and
 genuinely invalid (non-BOM) UTF-8 is still rejected exactly as before.
 
+Gate 2A revalidation corrective: addresses GATE2A-F1, a MEDIUM found when
+the accepted BOM fix was first revalidated end-to-end against the real,
+absent scheduler. The canonical CLI passes `--expected-module
+tools.liquidation_silence_scheduler`, which places that exact module
+token in the monitor's OWN command line; find_role_candidates()'s
+anchored identity search matched the observer process itself (no
+self-exclusion existed), so with the real scheduler absent the read-only
+monitor selected ITSELF as the sole candidate and reported a spurious
+REPLACED_OR_RESTARTED/PID_CHANGED instead of the correct MISSING. Closed
+by a narrow, explicit by-PID observer exclusion (excluded_pids) applied
+at the candidate-discovery boundary: take_snapshot() passes os.getpid(),
+so the monitor's own process is skipped before any PID/identity match and
+can never enter process_count, be selected as the candidate PID, or cause
+a PID change. The exclusion is by-PID only -- a genuinely distinct
+scheduler process (even one sharing the same Python executable, cwd, or
+parent) is never excluded, and the accepted utf-8-sig BOM behavior is
+untouched.
+
 Strictly read-only / inspect-only: nothing in this module starts, stops,
 signals, or reconfigures any process, PID file, health artifact, or
 Scheduled Task. Process enumeration is dependency-injected (a
@@ -135,6 +153,7 @@ import argparse
 import hashlib
 import json
 import math
+import os
 import shlex
 import subprocess
 from dataclasses import asdict, dataclass, field
@@ -147,7 +166,7 @@ from tools.health_state import atomic_write_json
 ROOT = Path(__file__).resolve().parents[1]
 
 EVIDENCE_SCHEMA_VERSION = "liquidation_silence_canary_monitor_v2"
-MONITOR_VERSION = "2.2.1"
+MONITOR_VERSION = "2.2.2"
 
 # --------------------------------------------------------------------------
 # Timestamps (F-01: UTC normalization, never a raw string comparison)
@@ -329,6 +348,8 @@ def find_role_candidates(
     records: Optional[List[ProcessRecord]],
     baseline_pid: int,
     expected_identity: Optional["ExpectedIdentity"],
+    *,
+    excluded_pids: Optional[Sequence[int]] = None,
 ) -> "ProcessQueryResult":
     """Discovery query used by sample_role_continuity's default path: a
     candidate is any process matching the baseline PID OR matching the
@@ -339,12 +360,35 @@ def find_role_candidates(
     PID, but it now looks like a different program" (F-02's
     IDENTITY_MISMATCH case). Every candidate found here still passes
     through classify_continuity's own PID/StartTime/identity checks --
-    this function only decides what counts as worth inspecting at all."""
+    this function only decides what counts as worth inspecting at all.
+
+    GATE2A-F1 (observer self-match): `excluded_pids` is a narrow,
+    explicit exclusion applied at THIS candidate-discovery boundary,
+    before any PID/identity match is considered -- a record whose pid is
+    in excluded_pids is skipped entirely, so it can never enter `matches`,
+    never contribute to process_count, never be selected as the candidate
+    PID, and therefore never cause a spurious PID_CHANGED /
+    REPLACED_OR_RESTARTED verdict. take_snapshot() passes the monitor's
+    own os.getpid() here because the canonical CLI invocation places the
+    `--expected-module tools.liquidation_silence_scheduler` token literally
+    in the observer's OWN command line, which would otherwise satisfy the
+    anchored identity match and make the read-only monitor select itself
+    as the scheduler when the real scheduler is absent. This exclusion is
+    deliberately by-PID only (not by command-line attribute) so a genuinely
+    distinct scheduler process -- even one sharing the same Python
+    executable, cwd, or parent -- is never excluded. Default None preserves
+    the exact prior behavior for every existing internal caller."""
     if records is None:
         return ProcessQueryResult(query_failed=True, matches=[])
+    excluded = set(excluded_pids or ())
     matches: List[ProcessRecord] = []
     seen_pids = set()
     for r in records:
+        if r.pid in excluded:
+            # Observer-process (self) exclusion -- never a target-role
+            # candidate. Applied before the match test so it affects neither
+            # process_count nor candidate selection (GATE2A-F1).
+            continue
         is_pid_match = r.pid == baseline_pid
         is_identity_match = expected_identity is not None and identity_matches(r.command_line, expected_identity)[0] == IDENTITY_MATCHED
         if (is_pid_match or is_identity_match) and r.pid not in seen_pids:
@@ -579,6 +623,7 @@ def sample_role_continuity(
     query: Optional[ProcessQueryResult] = None,
     expect_singular: bool = True,
     expected_identity: Optional[ExpectedIdentity] = None,
+    excluded_pids: Optional[Sequence[int]] = None,
 ) -> ProcessIdentitySnapshot:
     """Samples one role (scheduler, watchdog, or any protected runtime
     role) using the same PID+StartTime+identity continuity principle --
@@ -586,9 +631,14 @@ def sample_role_continuity(
     `query` is not supplied, re-discovers candidates via
     find_role_candidates (PID-match OR identity-match), so both a PID
     replacement and a same-PID-different-identity case remain reachable
-    through this default path."""
+    through this default path.
+
+    `excluded_pids` is forwarded verbatim to find_role_candidates so the
+    observer process (the monitor itself) can be excluded from target-role
+    discovery (GATE2A-F1); it has no effect when an explicit `query` is
+    supplied (the caller has already chosen the candidate set)."""
     if query is None:
-        query = find_role_candidates(lister(), baseline.pid, expected_identity)
+        query = find_role_candidates(lister(), baseline.pid, expected_identity, excluded_pids=excluded_pids)
     snapshot = classify_continuity(
         baseline, query, expect_singular=expect_singular, expected_identity=expected_identity
     )
@@ -1937,6 +1987,15 @@ def take_snapshot(
                 loaded.baseline,
                 lister,
                 expected_identity=loaded.expected_identity,
+                # GATE2A-F1: exclude the monitor's OWN process from
+                # scheduler candidate discovery. The canonical CLI passes
+                # `--expected-module tools.liquidation_silence_scheduler`,
+                # which places that exact token in this observer process's
+                # own command line; without this exclusion the read-only
+                # monitor would anchor-identity-match itself and report a
+                # spurious REPLACED_OR_RESTARTED/PID_CHANGED instead of the
+                # correct MISSING when the real scheduler is absent.
+                excluded_pids=(os.getpid(),),
             )
             continuity = asdict(snapshot)
     else:

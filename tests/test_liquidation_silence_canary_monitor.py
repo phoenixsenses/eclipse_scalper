@@ -2389,6 +2389,224 @@ def test_baseline_regression_exact_powershell_written_shape(tmp_path):
 
 
 # ==========================================================================
+# GATE2A-F1: observer (self) exclusion in scheduler continuity candidate
+# discovery. The canonical CLI passes `--expected-module
+# tools.liquidation_silence_scheduler`, which places that exact token in
+# the monitor's OWN command line; without a self-exclusion the monitor
+# anchor-identity-matched itself and reported a spurious
+# REPLACED_OR_RESTARTED/PID_CHANGED instead of the correct MISSING when the
+# real scheduler was absent. Fix: a narrow, explicit by-PID `excluded_pids`
+# applied at the find_role_candidates() boundary; take_snapshot() passes
+# os.getpid(). These tests exercise the REAL production discovery and
+# classification code (no mocking of the classifier), using injected
+# synthetic process inventories for determinism plus one real-CLI
+# subprocess regression that reproduces the exact canonical argument.
+# ==========================================================================
+
+# An observer-shaped ProcessRecord: command line contains the expected
+# scheduler module token exactly as the monitor's own argv does under the
+# canonical invocation.
+_OBSERVER_CMDLINE = (
+    "C:\\Python313\\python.exe -B -W ignore -u -m tools.liquidation_silence_canary_monitor "
+    "--scheduler-log-path logs/liquidation_silence_scheduler.log --evidence-dir X "
+    "--pid-meta-path logs/pids/liquidation_silence_scheduler.json "
+    "--expected-module tools.liquidation_silence_scheduler"
+)
+_OBSERVER_PID = 18460
+_SCHED_BASELINE = mon.ProcessRecord(
+    pid=15640, start_time_utc=BASELINE_START, command_line="python -W ignore -u -m tools.liquidation_silence_scheduler"
+)
+
+
+def test_find_role_candidates_excludes_observer_pid():
+    # 1. Observer process present, its command line contains the expected
+    # module token, and its PID equals the supplied observer PID ->
+    # find_role_candidates must exclude it entirely.
+    observer = mon.ProcessRecord(pid=_OBSERVER_PID, start_time_utc="2026-07-12T12:00:00+00:00", command_line=_OBSERVER_CMDLINE)
+    result = mon.find_role_candidates([observer], baseline_pid=15640, expected_identity=SCHEDULER_IDENTITY, excluded_pids=(_OBSERVER_PID,))
+    assert result.matches == []
+    assert result.count == 0
+
+
+def test_find_role_candidates_without_exclusion_would_self_match():
+    # Proves the token genuinely matches (i.e. the exclusion is load-bearing,
+    # not vacuous): the same observer record WITHOUT exclusion is returned
+    # as a candidate -- this is exactly the GATE2A-F1 defect.
+    observer = mon.ProcessRecord(pid=_OBSERVER_PID, start_time_utc="2026-07-12T12:00:00+00:00", command_line=_OBSERVER_CMDLINE)
+    result_no_excl = mon.find_role_candidates([observer], baseline_pid=15640, expected_identity=SCHEDULER_IDENTITY)
+    assert [r.pid for r in result_no_excl.matches] == [_OBSERVER_PID]
+
+
+def test_continuity_missing_when_only_observer_present_and_excluded():
+    # 2. baseline PID absent; no legitimate scheduler; observer self-match
+    # is the only apparent token match; excluded -> CONTINUITY_MISSING,
+    # process_count 0, nothing fabricated.
+    observer = mon.ProcessRecord(pid=_OBSERVER_PID, start_time_utc="2026-07-12T12:00:00+00:00", command_line=_OBSERVER_CMDLINE)
+    snapshot = mon.sample_role_continuity(
+        "liquidation_silence_scheduler", _SCHED_BASELINE, _fake_lister([observer]),
+        expected_identity=SCHEDULER_IDENTITY, excluded_pids=(_OBSERVER_PID,),
+    )
+    assert snapshot.continuity_status == mon.CONTINUITY_MISSING
+    assert snapshot.process_count == 0
+    assert snapshot.pid is None
+    assert snapshot.command_line is None
+    assert "NO_MATCHING_PROCESS" in snapshot.reason_codes
+
+
+def test_legitimate_distinct_scheduler_still_discoverable_with_observer_excluded():
+    # 3. Observer AND a distinct legitimate scheduler both contain the token;
+    # observer excluded; the real distinct scheduler (different PID) remains
+    # and yields the governed REPLACED_OR_RESTARTED (PID changed vs baseline).
+    observer = mon.ProcessRecord(pid=_OBSERVER_PID, start_time_utc="2026-07-12T12:00:00+00:00", command_line=_OBSERVER_CMDLINE)
+    real_sched = _rec(22222, "2026-07-12T09:00:00+00:00")  # default cmdline is the real scheduler module
+    snapshot = mon.sample_role_continuity(
+        "liquidation_silence_scheduler", _SCHED_BASELINE, _fake_lister([observer, real_sched]),
+        expected_identity=SCHEDULER_IDENTITY, excluded_pids=(_OBSERVER_PID,),
+    )
+    assert snapshot.continuity_status == mon.CONTINUITY_REPLACED_OR_RESTARTED
+    assert snapshot.pid == 22222
+    assert "PID_CHANGED" in snapshot.reason_codes
+
+
+def test_same_pid_baseline_candidate_remains_eligible_with_observer_excluded():
+    # 4. A legitimate candidate whose PID matches the baseline (and is NOT
+    # the observer) stays eligible -> CONTINUOUS; self-exclusion does not
+    # break the same-process/continuous path.
+    observer = mon.ProcessRecord(pid=_OBSERVER_PID, start_time_utc="2026-07-12T12:00:00+00:00", command_line=_OBSERVER_CMDLINE)
+    same_pid_real = _rec(15640, BASELINE_START)  # same PID as baseline, real scheduler cmdline
+    snapshot = mon.sample_role_continuity(
+        "liquidation_silence_scheduler", _SCHED_BASELINE, _fake_lister([observer, same_pid_real]),
+        expected_identity=SCHEDULER_IDENTITY, excluded_pids=(_OBSERVER_PID,),
+    )
+    assert snapshot.continuity_status == mon.CONTINUITY_CONTINUOUS
+    assert snapshot.pid == 15640
+
+
+def test_multiple_legitimate_candidates_not_hidden_by_observer_exclusion():
+    # 5. Observer exclusion must not hide duplicate/multiple real candidates:
+    # two distinct real scheduler candidates -> DUPLICATE, process_count 2.
+    observer = mon.ProcessRecord(pid=_OBSERVER_PID, start_time_utc="2026-07-12T12:00:00+00:00", command_line=_OBSERVER_CMDLINE)
+    dup1 = _rec(33333, "2026-07-12T09:00:00+00:00")
+    dup2 = _rec(44444, "2026-07-12T09:05:00+00:00")
+    snapshot = mon.sample_role_continuity(
+        "liquidation_silence_scheduler", _SCHED_BASELINE, _fake_lister([observer, dup1, dup2]),
+        expected_identity=SCHEDULER_IDENTITY, excluded_pids=(_OBSERVER_PID,),
+    )
+    assert snapshot.continuity_status == mon.CONTINUITY_DUPLICATE
+    assert snapshot.process_count == 2
+    assert "MULTIPLE_MATCHING_PROCESSES" in snapshot.reason_codes
+
+
+def test_find_role_candidates_default_no_exclusion_preserves_prior_behavior():
+    # Backward compatibility: omitting excluded_pids (every existing internal
+    # caller) behaves exactly as before -- the token-matching observer is
+    # returned. Guards against the fix silently changing default semantics.
+    observer = mon.ProcessRecord(pid=_OBSERVER_PID, start_time_utc="2026-07-12T12:00:00+00:00", command_line=_OBSERVER_CMDLINE)
+    result = mon.find_role_candidates([observer], baseline_pid=15640, expected_identity=SCHEDULER_IDENTITY)
+    assert [r.pid for r in result.matches] == [_OBSERVER_PID]
+
+
+def test_take_snapshot_excludes_current_process_pid_reports_missing(tmp_path):
+    # Production-wiring proof: take_snapshot() must pass os.getpid() as the
+    # observer exclusion. A synthetic lister returns a record whose PID IS
+    # the current test process's own os.getpid() and whose cmdline contains
+    # the scheduler token -- if take_snapshot did NOT exclude os.getpid(),
+    # this would self-match and report REPLACED_OR_RESTARTED; with the fix
+    # it reports MISSING.
+    import os
+
+    scheduler_log = tmp_path / "scheduler.log"
+    scheduler_log.write_text("\n".join(_gate1_cycle_log_lines()) + "\n", encoding="utf-8")
+    pid_meta = tmp_path / "pid_meta.json"
+    pid_meta.write_bytes(
+        b"\xef\xbb\xbf"
+        + json.dumps(
+            {"pid": 999999999, "started_at": BASELINE_START, "cmdline_sig": "x", "role": "liquidation_silence_scheduler"}
+        ).encode("utf-8")
+    )
+    evidence_dir = tmp_path / "evidence"
+    self_record = mon.ProcessRecord(pid=os.getpid(), start_time_utc="2026-07-12T12:00:00+00:00", command_line=_OBSERVER_CMDLINE)
+    lister = _fake_lister([self_record])
+
+    record = mon.take_snapshot(
+        scheduler_log_path=scheduler_log, evidence_dir=evidence_dir, pid_meta_path=pid_meta,
+        expected_module="tools.liquidation_silence_scheduler", lister=lister,
+    )
+    assert record["baseline"]["status"] == mon.BASELINE_STATUS_OK
+    assert record["continuity"]["continuity_status"] == mon.CONTINUITY_MISSING
+    assert record["continuity"]["process_count"] == 0
+    assert record["continuity"]["pid"] is None
+    assert record["continuity"]["continuity_status"] != mon.CONTINUITY_REPLACED_OR_RESTARTED
+
+
+def _run_canary_cli_with_expected_module(tmp_path, *, pid_meta_path, expected_module="tools.liquidation_silence_scheduler"):
+    # Uses subprocess.Popen so the monitor's OWN pid is captured. Passes the
+    # canonical `--expected-module` (the exact argument that caused
+    # GATE2A-F1's observer self-match).
+    scheduler_log = tmp_path / "scheduler.log"
+    scheduler_log.write_text("\n".join(_gate1_cycle_log_lines()) + "\n", encoding="utf-8")
+    evidence_dir = tmp_path / "evidence"
+    proc = subprocess.Popen(
+        [
+            sys.executable, "-B", "-m", "tools.liquidation_silence_canary_monitor",
+            "--scheduler-log-path", str(scheduler_log),
+            "--evidence-dir", str(evidence_dir),
+            "--pid-meta-path", str(pid_meta_path),
+            "--expected-module", expected_module,
+        ],
+        cwd=str(mon.ROOT), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+    )
+    monitor_pid = proc.pid
+    stdout, stderr = proc.communicate(timeout=30)
+    return proc.returncode, stdout, stderr, monitor_pid
+
+
+def test_canonical_cli_with_expected_module_excludes_observer_reports_missing(tmp_path):
+    # 6. Canonical real-CLI regression: the exact invocation form that
+    # caused GATE2A-F1 (explicit --expected-module tools.liquidation_silence_scheduler,
+    # whose value token appears in the monitor's own argv) against an
+    # absent/impossible baseline scheduler PID. The monitor's OWN subprocess
+    # PID must never be the continuity candidate, and -- absent a real
+    # scheduler (canary contract; this repo runs the scheduler default-OFF)
+    # -- the honest result is CONTINUITY_MISSING. If a real scheduler were
+    # unexpectedly running, process_count would be > 0 and this test would
+    # FAIL LOUDLY rather than silently accept an environment-dependent pass.
+    pid_meta = tmp_path / "pid_meta.json"
+    payload = {
+        "pid": 999999999,  # impossible/absent baseline scheduler PID
+        "started_at": BASELINE_START,
+        "cmdline_sig": "python -W ignore -u -m tools.liquidation_silence_scheduler",
+        "role": "liquidation_silence_scheduler",
+        "mode": "READ_ONLY_HEALTH_DETECTOR_SCHEDULER_NO_ORDERS",
+        "cwd": str(mon.ROOT),
+    }
+    pid_meta.write_bytes(b"\xef\xbb\xbf" + json.dumps(payload).encode("utf-8"))  # canonical BOM-prefixed shape
+
+    rc, stdout, stderr, monitor_pid = _run_canary_cli_with_expected_module(tmp_path, pid_meta_path=pid_meta)
+    assert rc == 0, stderr
+    output = json.loads(stdout.strip())
+
+    # BOM baseline still parses (utf-8-sig fix preserved, not reopened).
+    assert output["baseline"]["status"] == mon.BASELINE_STATUS_OK
+    assert output["baseline"]["reason_codes"] == ["OK"]
+
+    cont = output["continuity"]
+    # Continuity is evaluated (not NOT_EVALUATED).
+    assert cont["continuity_status"] != mon.CONTINUITY_NOT_EVALUATED
+    # THE fix, deterministic and environment-independent: the monitor's own
+    # subprocess PID is never returned as the scheduler candidate.
+    assert cont["pid"] != monitor_pid
+    # Honest target-state: MISSING, process_count 0, no fabricated candidate.
+    assert cont["continuity_status"] == mon.CONTINUITY_MISSING
+    assert cont["process_count"] == 0
+    assert cont["pid"] is None
+    assert cont["continuity_status"] != mon.CONTINUITY_REPLACED_OR_RESTARTED
+    assert "PID_CHANGED" not in cont["reason_codes"]
+    # Cycle-log parsing remains valid over the real 9-record log fixture.
+    assert output["cycle_log"]["status"] == mon.CYCLE_LOG_STATUS_OK
+
+
+# ==========================================================================
 # F-CYCLELOG-01: fail-closed handling for --scheduler-log-path. Mirrors the
 # F-BASELINE-01 test structure: real-CLI subprocess for filesystem-content
 # cases, take_snapshot() (the real public entry) with monkeypatched
