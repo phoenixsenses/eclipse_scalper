@@ -6504,3 +6504,120 @@ post-recording durum: `GATE_2A_BASELINE_REVALIDATION_ACCEPTANCE_RECORDED`.
 Next: `GATE_2B_POSITIVE_CONTINUITY_REHEARSAL_DECISION_PENDING` (opsiyonel,
 ayrı operatör kararı); kalıcı scheduler aktivasyonu ayrı, açık bir sonraki
 yetkiyi bekliyor.
+
+## 129. GATE 2B WARM-MONITOR POZİTİF CONTINUITY RETRY — KABUL EDİLDİ (2026-07-13, Sonnet 5)
+
+**Verdict: `GATE_2B_WARM_MONITOR_POSITIVE_CONTINUITY_RETRY_ACCEPTED`.**
+
+**Kanonik sonuç durumu: `GATE_2B_POSITIVE_CONTINUITY_ACCEPTANCE_RECORDED`.**
+
+**Repository kimliği (review edilen ağaç):**
+- Branch: `codex/data-layer-fallback-cleanup`
+- Reviewed HEAD (tam): `1a109ea24329006d7833d9e9c0dde29457b37ee6`
+- Reviewed HEAD tree hash: `62c1a614261ba49b6cbc495809c7aec34dc15c21`
+- Upstream: `origin/codex/data-layer-fallback-cleanup`, ahead/behind **0/0**
+- Repository freeze kanıtı: rehearsal ve bu kayıt boyunca HEAD, HEAD tree,
+  staging (boş) ve tracked dirty set birebir aynı kaldı.
+- Gate 2 dosyaları delta: **0** (`tools/liquidation_silence_canary_monitor.py`,
+  `tests/test_liquidation_silence_canary_monitor.py`,
+  `tools/liquidation_silence_scheduler.py`, `tools/heartbeat_watchdog.py`).
+
+**Reviewer kimliği:**
+- Bağımsız reviewer rolü, salt-okunur.
+- Model: **Sonnet 5**.
+- Reviewer-model policy kontrolü sonucu: `CLAUDE.md`'de model-ailesi
+  zorunluluğu metni **YOK** (grep ile doğrulandı, `model|opus|sonnet|
+  reviewer` için sıfır eşleşme); zincir yalnız FAZ bağımsızlığını
+  (implementation → review → correction → re-review → acceptance, ayrı
+  geçişler + operatör sign-off) gerektiriyor, belirli bir model
+  ailesini değil. Doğrudan emsal: bu tam kategorideki (liquidation-
+  silence/canary-monitor gate) altı önceki "BAĞIMSIZ İNCELEME SONRASI
+  KABUL EDİLDİ" governance kaydının (§122, §123, §124, §125, §126, §127)
+  tamamı Sonnet 5 ile yapıldı. Sonnet 5 bu kayıt için policy'ye uygun
+  kabul edildi.
+- Kaynak: repository HEAD, gerçek production `take_snapshot()` kod yolu,
+  gerçek scheduler subprocess, monotonic zamanlama, odaklı testler,
+  runtime artefaktları.
+
+**Kabul edilen canlı-pozitif kanıt:**
+- Scheduler invocation sayısı: **1**.
+- Scheduler komutu: `python -m tools.liquidation_silence_scheduler --once`.
+- Scheduler PID: `19952`.
+- Process count: `1`.
+- Eşleşen PID: `19952` (scheduler subprocess PID'iyle birebir).
+- Continuity: `REPLACED_OR_RESTARTED`.
+- Reason: `PID_CHANGED`.
+- Canlı production snapshot kullanıldı: `true` (gerçek `take_snapshot()`,
+  manuel psutil taraması değil).
+- Self-match: **yok**.
+- Unrelated match: **yok**.
+- Scheduler doğal çıkış: `true`.
+- Exit code: `0`.
+- Yaklaşık proses ömrü: `~281 ms`.
+- Post-exit continuity: `MISSING`.
+- Post-exit reason: `NO_MATCHING_PROCESS`.
+
+**Mimari sonuç:** Bare `--once`, launcher'ın BOM `.json` metadata
+dosyasını güncellemiyor. Bu nedenle:
+- `REPLACED_OR_RESTARTED` bu rehearsal için doğru canlı-pozitif sonuçtu.
+- `CONTINUOUS` bu rehearsal'da beklenmiyordu.
+- Hiçbir sahte `CONTINUOUS` sonucu üretilmedi.
+
+**Runtime artefakt kanıtı:**
+- BOM `.json` checksum: **değişmedi**.
+- Scheduler log: 10 → 11 satır; bir `SUCCESS`/`GREEN`/`HEALTHY` kaydı;
+  malformed kayıt yok; exception yok.
+- Health artefaktı: `evaluated_at` yeni rehearsal cycle'ına ilerledi;
+  tracked symbols `BTCUSDT`/`ETHUSDT`/`SOLUSDT` olarak kaldı; fabricated
+  all-symbol iddiası yok.
+- Live executor sürekli `0` kaldı.
+- Duplicate roller `0` kaldı.
+- Scheduled Task oluşturulmadı.
+- Kalıcı scheduler kalmadı.
+- Orphan scheduler prosesi kalmadı.
+
+**Testler:** `tests/test_liquidation_silence_canary_monitor.py` →
+**242 passed**. Runtime artefaktları testler tarafından değiştirilmedi.
+Bu çalıştırma tarafından repository cache oluşturulmadı/mutate edilmedi.
+
+**Bulgular:** CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0.
+
+Bloklamayan bilgi notu:
+- Görevden önce iki mevcut pytest prosesi gözlemlendi.
+- Bunlar Eclipse runtime rolü değildi.
+- Rehearsal tarafından oluşturulmadı veya değiştirilmedi.
+- Temizlik ayrı bir bakım kararı olarak kalıyor.
+
+**Açıkça kabul edilMEYEN kapsam (bu acceptance şunları YETKİLENDİRMEZ):**
+- Kalıcı scheduler aktivasyonu.
+- Scheduler loop modu.
+- Windows Scheduled Task.
+- `start_eclipse.ps1` aktivasyonu.
+- Live executor.
+- Stale-warning semantiğinin değiştirilmesi.
+- Branch merge.
+- Native-WS/dashboard değişiklikleri.
+- Runtime temizliği.
+- PID-marker temizliği.
+
+**Bir sonraki açık, kapılı thread:** `GATE_2C_SOAK_AND_CADENCE_DECISION_
+PENDING`. Gate 2C ayrıca şunları kapsamalı:
+- Çoklu-cycle cadence davranışı.
+- Launcher tarafından oluşturulan BOM `.json` metadata.
+- Gerçek steady-state `CONTINUOUS` gözlemi.
+- Stale → fresh → stale watchdog davranışı.
+- Sınırlı (bounded) stop davranışı.
+- Scheduled Task tanımı review'ı.
+
+**Repository sınırı:** Bu governance kaydı yalnız `SYSTEM_STATE.md`'ye
+yazıldı. `tools/`, `tests/`, `runtime/`, `logs/`, `data/`,
+`.claude/settings.local.json`, foreign-owned `native_ws`/dashboard
+dosyaları ve AMI/research çıktıları bu geçişte DOKUNULMADI. Hiçbir
+proses başlatılmadı/durduruldu/restart edilmedi; scheduler veya live
+executor aktive edilmedi.
+
+**Verdict: `GATE_2B_WARM_MONITOR_POSITIVE_CONTINUITY_RETRY_ACCEPTED`.**
+Kanonik post-recording durum: `GATE_2B_POSITIVE_CONTINUITY_ACCEPTANCE_
+RECORDED`. Next: `GATE_2C_SOAK_AND_CADENCE_DECISION_PENDING` (ayrı
+operatör kararı); kalıcı scheduler aktivasyonu ayrı, açık bir sonraki
+yetkiyi bekliyor.
