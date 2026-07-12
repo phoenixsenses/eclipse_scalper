@@ -6388,3 +6388,119 @@ source+test+bu governance kaydı kontrollü şekilde commit edilecek; runtime
 restart (shadow runner'ın düzeltmeyi fiilen yüklemesi için) tamamen ayrı,
 açık ve o anda gerekçelendirilmiş bir operatör kararını bekliyor — acil
 değil (sıfır açık pozisyon).
+
+## 128. GATE 2A BAĞIMSIZ BASELINE REVALIDATION — KABUL EDİLDİ (2026-07-13, Opus 4.8)
+
+**Verdict: `GATE_2A_BASELINE_REVALIDATION_ACCEPTED`.**
+
+**Kanonik sonuç durumu: `GATE_2A_BASELINE_REVALIDATION_ACCEPTANCE_RECORDED`.**
+
+**Repository kimliği (review edilen ağaç):**
+- Branch: `codex/data-layer-fallback-cleanup`
+- Reviewed HEAD (tam): `0461f4ce122b3ed7da576e0bf6f9bf64fbbb746d`
+- Reviewed HEAD tree hash: `c7dfa67996ebf4f5a3ce62a23644f9bda8c16bb5`
+- Upstream: `origin/codex/data-layer-fallback-cleanup`, ahead/behind **0/0**
+- Review boyunca repository frozen kanıtı: başlangıç ve kapanışta HEAD, HEAD
+  tree, staging (boş) ve tracked dirty set (aynı 5 foreign-owned dosya:
+  `.claude/settings.local.json`, `runtime/dashboard_backend.json` [deleted],
+  `tests/test_native_ws_health_policy.py`,
+  `tools/native_ws_health_policy.py`,
+  `tools/s34_cascade_navigation_dashboard.py`) birebir aynı kaldı; beklenmedik
+  mutasyon YOK.
+
+**Reviewer kimliği:**
+- Bağımsız reviewer rolü, implementasyondan tamamen ayrı, salt-okunur.
+- Reviewer model: Opus 4.8.
+- Önceki implementasyon/acceptance iddiaları doğru varsayılmadı; kaynak
+  olarak yalnız şunlar kullanıldı: repository HEAD, gerçek BOM-prefixed PID
+  metadata artefaktı, odaklı test çalıştırması, ampirik in-memory probe'lar
+  ve monitor'ün ürettiği taze evidence.
+
+**Kabul edilen validasyon kanıtı:**
+- Odaklı test: `tests/test_liquidation_silence_canary_monitor.py` →
+  **242 passed** (`-p no:cacheprovider`, repo-dışı `--basetemp`); gerçek BOM
+  baseline dosyasının sha256'ı test öncesi/sonrası birebir aynı kaldı
+  (test gerçek metadata'yı mutate etmedi).
+- Gerçek BOM metadata: `logs/pids/liquidation_silence_scheduler.json`.
+- BOM başlangıç baytları: `EF BB BF` (hexdump ile doğrulandı).
+- BOM baseline SHA-256 (tam): `1375f009d773bdec32796386fcf2208617aef4947cce2eba67870967dc23c281`.
+- `baseline.status`: `OK` (gerçek dosyaya karşı `utf-8-sig` parse başarılı;
+  plain `utf-8` aynı dosyada `JSONDecodeError` verir).
+- `continuity_status`: `MISSING`.
+- `process_count`: `0`.
+- Continuity reason: `NO_MATCHING_PROCESS`.
+- False self-match: **yok** (monitor'ün kendi argv'si
+  `--expected-module tools.liquidation_silence_scheduler` token'ını
+  taşımasına rağmen `process_count=0` üretildi).
+- Monitor exit code: `0`.
+- Run manifest SHA-256 (review çıktısında kaydedilen, repo-dışı evidence
+  dizininde üretilen dosyanın tam değeri): `b747a214ba9319896300a80983fc87fde599c452b0cbbe34cdb4efdd266abf7e`.
+- Snapshots SHA-256 (aynı şekilde tam değer): `fc12b8062a74dfdc91b9aed503cfd9357c4e9c0b7d428ff64fe42ca174e88f43`.
+- Source provenance (run manifest'ten): `TRACKED_MATCHES_HEAD`
+  (`repository_head_commit: 0461f4ce122b3ed7da576e0bf6f9bf64fbbb746d`).
+- Operating mode: `INSPECT_ONLY`.
+
+**Kabul edilen corrective sonuçları:**
+- **§124 (StopEvent immutability):** frozen dataclass immutability geçerli;
+  post-construction attribute mutation ampirik olarak `FrozenInstanceError`
+  raise ediyor; çelişkili direct construction (`StopEvent(outcome=
+  "STOP_VERIFIED_ABSENT", verification=None, ...)`) fail-closed
+  (`ValueError`, F-STOP-01 bypass kapalı); çelişkili
+  `dataclasses.replace(...)` çağrısı da fail-closed (post_init yeniden
+  çalışıyor); geçerli `replace()` çağrısı beklendiği gibi çalışıyor.
+- **§125 (BOM/provenance):** gerçek BOM-prefixed PID metadata `utf-8-sig`
+  ile başarıyla parse edildi (`baseline.status=OK`); malformed/permission/
+  provenance-mismatch yolları typed fail-closed olarak kod-yolunda
+  doğrulandı; gerçek baseline dosyası odaklı testler ve Gate 2A run'ı
+  sırasında sha256 seviyesinde değişmedi.
+- **§126 (continuity self-match):** reviewer/monitor prosesinin kendi
+  komut satırı expected-module token'ını taşısa da, `excluded_pids=
+  (os.getpid(),)` mekanizması nedeniyle bu proses `find_role_candidates()`
+  eşleşme kümesine hiç girmedi; scheduler fiilen çalışmıyorken sahte
+  (`OK`/`CONTINUED`) continuity success üretilmedi — dürüst `MISSING`
+  raporlandı.
+
+**Açıkça kabul edilMEYEN kapsam (bu acceptance şunları YETKİLENDİRMEZ):**
+- Kalıcı scheduler aktivasyonu.
+- Windows Scheduled Task oluşturulması.
+- Scheduler loop'unun başlatılması.
+- `tools.liquidation_silence_scheduler --once` rehearsal'ı (bu görevde
+  çalıştırılmadı).
+- Pozitif/live continuity dalının (scheduler gerçekten çalışırken baseline
+  PID eşleşmesi) doğrulanması — bu turda yalnız negatif/absent-continuity
+  dalı (`MISSING`) gözlemlendi.
+- Stale liquidation-silence detector artefaktının GREEN/INFO olarak yeniden
+  sınıflandırılması.
+- Live executor aktivasyonu.
+- Foreign-owned `native_ws`/dashboard dosyalarındaki working-tree
+  değişikliklerinin bu zincire dahil edilmesi.
+- Branch'in `main`'e merge edilmesi.
+- Runtime PID marker temizliği.
+
+**Acceptance anındaki runtime durumu (salt-okunur doğrulandı, bilerek
+değiştirilmedi):**
+- Scheduler process count: `0`.
+- Live executor count: `0`.
+- Duplicate Eclipse rolü: `0`.
+- `overall`: `degraded`.
+- `WATCHDOG_STATUS`: `YELLOW`.
+- Tek ilgili sebep: `liquidation_silence_unknown:STALE_ARTIFACT`.
+- Bu durum bu geçişte kasıtlı olarak DEĞİŞTİRİLMEDİ (operatör kararı: stale
+  artefakt semantiği korunacak).
+
+**Bir sonraki açık, kapılı thread:** `GATE_2B_POSITIVE_CONTINUITY_
+REHEARSAL_DECISION_PENDING` — yalnız opsiyonel, ayrı bir operatör kararı;
+bu Gate 2A kabulünü bloklamaz. Kalıcı scheduler aktivasyonu hâlâ ayrı ve
+daha sonraki bir yetki gerektirir.
+
+**Repository sınırı:** Bu governance kaydı yalnız `SYSTEM_STATE.md`'ye
+yazıldı. `tools/`, `tests/`, `runtime/`, `logs/`, `data/`, foreign-owned
+`native_ws`/dashboard dosyaları ve AMI/research çıktıları bu geçişte
+DOKUNULMADI. Hiçbir proses başlatılmadı/durduruldu/restart edilmedi;
+scheduler veya live executor aktive edilmedi.
+
+**Verdict: `GATE_2A_BASELINE_REVALIDATION_ACCEPTED`.** Kanonik
+post-recording durum: `GATE_2A_BASELINE_REVALIDATION_ACCEPTANCE_RECORDED`.
+Next: `GATE_2B_POSITIVE_CONTINUITY_REHEARSAL_DECISION_PENDING` (opsiyonel,
+ayrı operatör kararı); kalıcı scheduler aktivasyonu ayrı, açık bir sonraki
+yetkiyi bekliyor.
