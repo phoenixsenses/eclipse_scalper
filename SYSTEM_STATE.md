@@ -5963,3 +5963,94 @@ post-recording durum: `GATE_1_MONITOR_HARNESS_ACCEPTANCE_RECORDED_
 AWAITING_COMMIT_AUTHORIZATION`. Next: kod hâlâ untracked; staging+commit
 (F-1'in `frozen=True` düzeltmesi dahil veya hariç, operatör tercihi) ayrı,
 açık bir operatör kararını bekliyor.
+
+## 124. STOPEVENT IMMUTABILITY HARDENING (F-1) — BAĞIMSIZ İNCELEME SONRASI KABUL EDİLDİ (2026-07-12, Sonnet 5)
+
+**Zincir:** §123'te kaydedilen §122 kabulünün LOW F-1 bulgusuna
+("`StopEvent` mutable bir dataclass; construction sonrası doğrudan
+attribute mutation `__post_init__`'i yeniden tetiklemiyor, teorik olarak
+çelişkili bir kayıt üretebilir") yanıt olarak, dar kapsamlı bir düzeltici
+micro-batch yürütüldü ve ardından, [[feedback_gated_independent_review_
+chain]] disiplinine tam uyumlu şekilde, implementasyonu üreten oturumdan
+tamamen ayrı, salt-okunur, kanıt-önce bir agent tarafından bağımsız
+re-review yapıldı. Verdict: `STOP_EVENT_IMMUTABILITY_HARDENING_ACCEPTED`.
+
+**Amaç ve kapanış:** Kabul edilmiş LOW F-1 kapatıldı. `StopEvent`
+(`tools/liquidation_silence_canary_monitor.py`) artık
+`@dataclass(frozen=True)` olarak tanımlı. Construction-sonrası field
+assignment ve field deletion artık `dataclasses.FrozenInstanceError` ile
+engelleniyor. Orijinal invariant-bypass mutation senaryosu (geçerli bir
+`STOP_VERIFIED_ABSENT` event'i construct ettikten sonra
+`event.outcome = STOP_FAILED` gibi doğrudan bir atama ile çelişkili bir
+kayıt üretmek) artık mümkün değil.
+
+**Bağımsız kaynak-inceleme kanıtı:**
+- `StopEvent`'in modül içinde tam olarak tek bir kanonik tanımı var.
+- `__post_init__` hiçbir field mutation'ı yapmıyor (yalnız okuma + raise)
+  — frozen dataclass semantiğiyle yapısal olarak uyumlu.
+- İlgili implementasyon ve test dosyalarının tamamında `object.
+  __setattr__`, construction-sonrası mutation, mutation helper fonksiyonu
+  veya `StopEvent`'in mutable olduğunu varsayan bir kod bulunmadı.
+- Yalnız `StopEvent` hardened edildi; modüldeki diğer 13 dataclass
+  değişmeden kaldı.
+- `parse_cycle_log()` içindeki bilinen dead `return` satırı ve eksik
+  legacy-wrapper mutation probe'u, bu micro-batch'in kasıtlı olarak
+  kapsamı dışında kaldı (dokunulmadı).
+
+**Bağımsız davranışsal kanıt:** Bağımsız reviewer'ın kendi yazdığı,
+repo dışı bir throwaway script ile çalıştırdığı **34/34 probe PASS**:
+6 geçerli outcome'ın tamamı construct edildi; 21 çelişkili kombinasyonun
+tamamı `ValueError` fırlattı; builder, direct, payload ve `dataclasses.
+replace()` yolları geçerli kaldı; uyumlu `replace()` çağrıları başarılı
+oldu, çelişkili `replace()` çağrıları fail-closed reddedildi (yani
+`replace()` her zaman `__init__`/`__post_init__`'i yeniden çalıştırıyor,
+frozen olsa da bypass değil); 7 `StopEvent` alanının tamamı için hem
+assignment hem deletion `FrozenInstanceError` fırlattı; başarısız
+mutation denemeleri sonrası nesne tamamen değişmeden kaldı (asdict
+snapshot'ları deneme öncesi/sonrası byte-bybyte özdeşti).
+
+**Bağımsız regresyon kanıtı** (implementasyon raporundan değil, bağımsız
+reviewer'ın kendi çalıştırdığı komutlardan):
+- odaklı monitor testleri: **226 passed**
+- monitor + scheduler: **237 passed**
+- heartbeat watchdog + detector: **73 passed**
+- liquidation-silence policy + native-WS policy: **69 passed**
+- `python -B -m py_compile` (her iki dosya): **temiz**
+
+**Kabul edilen, bloklayıcı olmayan bulgu:**
+- **INFORMATIONAL** — `frozen=True`, Python'ın `eq=True`/`frozen=True`
+  varsayılan davranışı gereği otomatik bir `__hash__` üretiyor; ancak
+  `StopEvent`, mutable/unhashable bir `target_pids: List[int]` alanı
+  taşıdığı için `hash(event)` çağrısı hâlâ `TypeError` fırlatıyor (mesaj
+  metni `'StopEvent'` yerine `'list'` oldu — davranışsal fark yalnız
+  hata mesajında, işlevsel bir regresyon değil). Hiçbir production veya
+  test kodu `StopEvent`'i bir `set` üyesi veya `dict` key'i olarak
+  kullanmıyor — bu kabul için düzeltici aksiyon gerekmiyor.
+
+CRITICAL bulgu YOK. HIGH bulgu YOK. Çözülmemiş MEDIUM bulgu YOK.
+
+**Repository/runtime sınırları** (implementasyon ve bağımsız review
+boyunca korundu, bu governance-only kayıt geçişinde de yeniden
+doğrulandı): `tools/liquidation_silence_canary_monitor.py` (1976 satır,
+SHA-256 `44ac9bd5...`) ve `tests/test_liquidation_silence_canary_
+monitor.py` (2932 satır, 226 test fonksiyonu, SHA-256 `350d6620...`)
+untracked kaldı; beş korumalı dirty tracked path byte-seviyesinde
+değişmedi; staging boş kaldı; hiçbir commit/push olmadı. Scheduler süreç
+sayısı = 0 kaldı; `.pid.lock` sıfır-byte kaldı; watchdog PID 9740 ve
+CreationDate değişmedi; diğer on bir runtime rolü canlı kaldı; her iki
+live-executor marker'ı `0` kaldı; hiçbir Scheduled Task oluşturulmadı;
+hiçbir runtime script çağrılmadı.
+
+**Yetkilendirme sınırı:** Bu kayıt yalnız GOVERNANCE'tır. Ne implementasyon
+ne de test dosyası bu geçişte değiştirildi. Şu ana kadar staging/commit/
+push YAPILMADI (kod hâlâ untracked). Gate 2 aktivasyonunu YETKİLENDİRMEZ;
+kalıcı scheduler etkinleştirmesini YETKİLENDİRMEZ; Scheduled Task
+oluşturmayı YETKİLENDİRMEZ; runtime restart'ı YETKİLENDİRMEZ;
+live-executor aktivasyonunu YETKİLENDİRMEZ; ek hardening (`target_pids`
+tipini veya hashing davranışını değiştirmek gibi) UYGULAMAZ. Sonraki her
+aksiyon (commit dahil) ayrı, açık bir operatör yetkisi gerektirir.
+
+**Verdict: `STOP_EVENT_IMMUTABILITY_HARDENING_ACCEPTED`.** Kanonik
+post-recording durum: `STOP_EVENT_IMMUTABILITY_HARDENING_ACCEPTANCE_
+RECORDED_AWAITING_COMMIT_AUTHORIZATION`. Next: kod hâlâ untracked;
+staging+commit ayrı, açık bir operatör kararını bekliyor.
