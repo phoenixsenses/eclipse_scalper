@@ -6054,3 +6054,114 @@ aksiyon (commit dahil) ayrı, açık bir operatör yetkisi gerektirir.
 post-recording durum: `STOP_EVENT_IMMUTABILITY_HARDENING_ACCEPTANCE_
 RECORDED_AWAITING_COMMIT_AUTHORIZATION`. Next: kod hâlâ untracked;
 staging+commit ayrı, açık bir operatör kararını bekliyor.
+
+## 125. PID-METADATA UTF-8 BOM UYUMLULUĞU + PROVENANCE TEST-DRIFT DÜZELTMELERİ — BAĞIMSIZ İNCELEME SONRASI KABUL EDİLDİ (2026-07-12, Sonnet 5)
+
+**Verdict: `PID_METADATA_BOM_AND_PROVENANCE_CORRECTIVES_ACCEPTED`.**
+
+**Gate 2 zinciri (özet):** Gate 2A ve Gate 2B mekanik olarak başarıyla
+yürütüldü (tek seferlik standalone scheduler rehearsal'ı, `--once`,
+`start_eclipse.ps1` kullanılmadan). Bağımsız review verdict'i
+`GATE_2A_2B_CORRECTIVE_REQUIRED` döndü. Bloklayıcı bulgu **GATE2-F1**:
+kanonik, `start_eclipse.ps1`'in Windows PowerShell 5.1 `Set-Content
+-Encoding utf8` ile yazdığı gerçek PID-metadata JSON dosyası UTF-8
+BOM-prefixed, ancak monitor bunu strict `"utf-8"` ile decode ediyordu —
+fail-closed davranış güvenliydi (hiçbir yanlış PASS/crash yok) ama
+continuity evaluation kanonik gerçek metadata'ya karşı operasyonel olarak
+işlevsizdi. **GATE2-F2** (scheduler'ın literal exit code'unun güvenilir
+yakalanamaması) ayrı bir bağımsız re-probe ile kapatıldı: literal exit
+code doğrudan `[System.Diagnostics.Process]` ile yakalandı ve `0` olarak
+doğrulandı.
+
+**BOM düzeltmesi:** `load_pid_metadata_baseline()` artık BOM-tolerant
+UTF-8 decode kullanıyor (`raw_bytes.decode("utf-8-sig")`). BOM-free UTF-8
+desteklenmeye devam ediyor; malformed JSON hâlâ typed fail-closed
+(`BASELINE_MALFORMED_JSON`); geçersiz UTF-8 hâlâ reddediliyor
+(`BASELINE_INVALID_ENCODING`, replacement-character kurtarma yok).
+`start_eclipse.ps1` ve cycle-log loader'ı (ayrı bir decode call, hâlâ
+plain `"utf-8"`) değişmedi. Gerçek runtime PID-metadata artefaktı
+(`logs/pids/liquidation_silence_scheduler.json`) bağımsız olarak
+hexdump ile yeniden doğrulandı — hâlâ `EF BB BF` ile başlıyor. Altı
+bağımsız BOM probe'unun altısı da (kanonik BOM, BOM-free, real CLI
+subprocess, BOM+malformed JSON, gerçekten geçersiz UTF-8, tam PowerShell
+`ConvertTo-Json` formatı) bağımsız reviewer tarafından bizzat çalıştırılıp
+PASS aldı.
+
+**Provenance test-drift düzeltmesi:** İki stale test
+(`test_current_untracked_source_reports_untracked_not_in_head`,
+`test_manifest_source_hash_independent_of_function_under_test`) artık
+repository-state-independent. Düzeltilmiş testler gerçek, izole, throwaway
+git repository'leri kullanıyor (`_init_isolated_git_repo()`); git identity
+(`user.name`/`user.email`) ve `commit.gpgsign=false` yalnızca LOCAL olarak
+konfigüre ediliyor — global git config'e veya live repository'nin dirty
+state'ine bağımlılık yok. Production provenance fonksiyonları
+(`determine_source_provenance()`, `build_run_manifest()`) mock'lanmadı,
+gerçek fonksiyonlar çağrılıyor. Bağımsız probe'lar doğruladı: untracked
+kaynak → `PROVENANCE_UNTRACKED_NOT_IN_HEAD`; tracked+modified kaynak →
+`TRACKED_DIFFERS_FROM_HEAD`; tracked+clean kaynak →
+`TRACKED_MATCHES_HEAD`. Manifest hashing hâlâ source bytes'a dayalı ve
+callable replacement/monkeypatch'ten bağımsız (bağımsız reviewer, ikinci
+bir isolated repo ile ayrı bir mutation-check reprodüksiyonu da yaptı).
+
+**Bağımsız regresyon kanıtı** (implementasyon raporundan değil, bağımsız
+reviewer'ın kendi çalıştırdığı komutlardan):
+- düzeltilen 2 test: **2/2 passed**
+- provenance + manifest testleri: **16/16 passed**
+- BOM-focused testler: **7/7 passed**
+- tam monitor suite: **233 passed** (0 failed)
+- monitor + scheduler: **244 passed** (0 failed)
+- heartbeat watchdog + detector: **73 passed**
+- liquidation-silence policy + native-WS policy: **69 passed**
+- `python -B -m py_compile`: **temiz**
+
+**Bulgular:** CRITICAL YOK. HIGH YOK. Çözülmemiş MEDIUM YOK.
+- **Kabul edilen LOW-01** — `test_tracked_modified_file_reports_differs_
+  from_head` (dokunulmamış, önceden var olan bir precedent test) hâlâ
+  `tests/test_native_ws_health_policy.py`'nin live repository'de dirty
+  kalmasına bağımlı — düzeltilen iki testin kapattığı sorunla aynı sınıf,
+  ancak bu dosya için henüz gerçekleşmemiş. Kabul edilen corrective'in bir
+  kusuru değil, dokunulmamış bir precedent test'in kırılganlığı; bu
+  geçişin kapsamı dışında. Önerilen: o dosya commit edilip/temizlenmeden
+  ÖNCE, ayrı, dar kapsamlı bir test-hardening micro-batch'i ile bu
+  precedent test de aynı `_init_isolated_git_repo()` pattern'ine
+  taşınmalı.
+- **INFORMATIONAL-01** — kanonik runtime PID-metadata artefaktının BOM
+  varlığı bağımsız olarak yeniden doğrulandı (yukarıda).
+
+**Gate 2 durum sınırı (açıkça belirtilir):** Bu bölüm YALNIZ iki
+düzeltici implementasyonun kabulünü kaydeder. `GATE_2A_2B_CORRECTIVE_
+REQUIRED` durumunu geriye dönük olarak `GATE_2A_2B_ACCEPTED`'e
+ÇEVİRMEZ. Gate 2A, kabul edilen düzeltme commit+publish edildikten SONRA
+gerçek BOM-prefixed metadata'ya karşı yeniden çalıştırılmalıdır. Herhangi
+bir Gate 2B re-run, Gate 2C sürdürülen gözlem penceresi, kalıcı scheduler
+aktivasyonu veya Scheduled Task oluşturma ayrı yetkilendirme gerektirir.
+
+**Repository/runtime sınırları** (implementasyon ve bağımsız review
+boyunca korundu, bu governance-only kayıt geçişinde de yeniden
+doğrulandı): `tools/liquidation_silence_canary_monitor.py` (2013 satır,
+SHA-256 `a1486e9e...`) ve `tests/test_liquidation_silence_canary_
+monitor.py` (3143 satır, 233 test fonksiyonu, SHA-256 `da8b9b85...`)
+tracked+modified (untracked DEĞİL — `e5f03855` commit'i ile tracked
+oldular) kaldı; beş korumalı dirty tracked path byte-seviyesinde
+değişmedi; staging boş kaldı; hiçbir commit/push olmadı. Scheduler süreç
+sayısı = 0 kaldı; `.pid`/`.pid.lock` ikisi de yok (absent) kaldı;
+scheduler log 9 satırda sabit kaldı (scheduler bu geçişte hiç
+çalıştırılmadı); watchdog PID 9740 ve CreationDate değişmedi; diğer on
+bir runtime rolü canlı kaldı; her iki live-executor marker'ı `0` kaldı;
+hiçbir Scheduled Task oluşturulmadı; hiçbir runtime script çağrılmadı.
+
+**Yetkilendirme sınırı:** Bu kayıt yalnız GOVERNANCE'tır. Ne implementasyon
+ne de test dosyası bu geçişte değiştirildi. Şu ana kadar staging/commit/
+push YAPILMADI. Scheduler çalıştırılmadı; `start_eclipse.ps1`
+çağrılmadı; Gate 2 yürütülmedi; hiçbir runtime process başlatılmadı,
+durdurulmadı, restart edilmedi veya signal edilmedi; live-executor
+aktivasyonu YETKİLENDİRMEZ; Scheduled Task oluşturmayı YETKİLENDİRMEZ;
+LOW-01 bu geçişte ELE ALINMADI (kasıtlı, kapsam dışı). Sonraki her aksiyon
+(commit dahil) ayrı, açık bir operatör yetkisi gerektirir.
+
+**Verdict: `PID_METADATA_BOM_AND_PROVENANCE_CORRECTIVES_ACCEPTED`.**
+Kanonik post-recording durum: `PID_METADATA_BOM_AND_PROVENANCE_
+CORRECTIVES_ACCEPTANCE_RECORDED_AWAITING_COMMIT_AUTHORIZATION`. Next: kod
+hâlâ working-tree'de tracked+modified (uncommitted); staging+commit ayrı,
+açık bir operatör kararını bekliyor; commit+publish sonrası Gate 2A gerçek
+BOM-prefixed metadata'ya karşı yeniden çalıştırılmalı.
