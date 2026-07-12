@@ -5852,3 +5852,114 @@ operatör yetkisi gerektirir.
 AUTHORIZATION`. Next: Gate 2 (kalıcı/uzun-süreli aktivasyon) yalnız ayrı,
 açık bir operatör kararı ve kendi kademeli inceleme zinciriyle
 başlatılabilir; bu kayıt onu başlatmaz.
+
+## 123. GATE 1 MONITOR-HARNESS — LIQUIDATION-SILENCE CANARY MONITOR SCRIPT'İ — 4 TUR BAĞIMSIZ İNCELEME SONRASI KABUL EDİLDİ (2026-07-12, Sonnet 5)
+
+**Zincir:** §122'de Gate 1 canary kabulü sırasında flagged edilen MEDIUM
+bulgu (monitor harness'ın scheduler canlılığını yalnız PID ile kontrol
+etmesi, StartTime'ı her snapshot'ta yeniden okumaması — teorik PID-reuse
+kör noktası) ve o canary'de kullanılan salt-okunur izleme script'inin
+kalıcı, yeniden kullanılabilir, tam test edilmiş bir modüle
+(`tools/liquidation_silence_canary_monitor.py` +
+`tests/test_liquidation_silence_canary_monitor.py`) taşınması kararı
+doğrultusunda, [[feedback_gated_independent_review_chain]] disiplinine
+tam uyumlu implementation→review→correction→re-review zinciri 4 tur
+boyunca yürütüldü. Her fazın uygulayıcısı ve bağımsız reviewer'ı ayrı
+agent/oturum geçişleriydi (review'lar her seferinde implementasyonu
+üreten oturumdan ayrı, salt-okunur, taze bir agent tarafından yürütüldü);
+hiçbir faz kendi kendini onaylamadı.
+
+**Tur özeti:**
+- **Round 1/2** (bu oturumun kapsamı dışında, önceki oturumlarda
+  tamamlandı): F-01..F-10 (StartTime string karşılaştırması, identity
+  truthiness-only, unanchored substring matching, unvalidated StopEvent,
+  dishonest git-commit provenance, tautological hash testi, cadence
+  monotonicity eksikliği, whole-second timestamp kullanımı, CLI
+  continuity her-zaman-null, `sample_artifact()` untested/raised-on-
+  directory) kapatıldı.
+- **Round 3** (implementation→review→correction→re-review): F-BASELINE-01,
+  F-READFAIL-01, F-MIXEDPREC-01, F-ROUND-01 kapatıldı; F-STOP-01'in
+  çekirdek riski (StopEvent doğrudan construction bypass'ı) kapatıldı,
+  ancak bağımsız re-review bir MEDIUM (StopEvent doğrulamasının yalnız
+  `STOP_VERIFIED_ABSENT` outcome'ı için uygulanması — diğer outcome'larda
+  çelişkili kanıt hâlâ inşa edilebiliyordu) ve bir LOW
+  (`--scheduler-log-path` bir dizine işaret ettiğinde unhandled
+  `PermissionError`) bulgusuyla `GATE_1_MONITOR_HARNESS_ROUND_3_
+  CORRECTIVE_REQUIRED` verdict'i verdi.
+- **Round 4** (implementation→independent re-review): F-STOP-COMPAT-01
+  (tam outcome/verification uyumluluk matrisi — `_STOP_OUTCOME_RULES`,
+  `StopEvent.__post_init__` içinde 6 outcome'ın tamamı için enforce
+  edildi) ve F-CYCLELOG-01 (`load_cycle_log()` tipli, fail-closed
+  cycle-log loader'ı; `parse_cycle_log()` geriye-uyumlu ince bir
+  wrapper'a indirgendi; `take_snapshot()` çıktısına açık `cycle_log`
+  alanı eklendi) kapatıldı. Bağımsız re-review
+  `GATE_1_MONITOR_HARNESS_ROUND_4_ACCEPTED` verdict'ini verdi.
+
+**Eklenen test kapsamı:** Round 4'te **52 yeni test** eklendi — **31**
+StopEvent uyumluluk-matrisi testi (6 outcome'ın her biri için pozitif
+construction + 21 çelişki-reddi senaryosu + builder/direct parity +
+mutation probe'lar) ve **21** cycle-log fail-closed testi (10 gerekli
+senaryo + typed-result/legacy-wrapper parity + mutation probe'lar).
+Toplam odaklanmış (focused) test sayısı 163 → 215'e çıktı. (Not:
+implementasyon raporu ilk aşamada "32 StopEvent testi" olarak yanlış
+saydı — bağımsız review 31 olduğunu doğruladı; 31+21=52, 163→215
+artışıyla tam uyuşuyor — bu bir raporlama düzeltmesidir, kod kusuru
+değildir.)
+
+**Bağımsız regresyon kanıtı** (Round 4 re-review tarafından bizzat
+çalıştırıldı, implementasyon raporundan alınmadı):
+- odaklı monitor testleri: **215 passed**
+- monitor + scheduler: **226 passed**
+- heartbeat watchdog + detector: **73 passed**
+- liquidation-silence policy + native-WS policy: **69 passed**
+- `python -B -m py_compile` (her iki dosya): **temiz**
+
+**Kabul edilen, bloklayıcı olmayan bulgular** (Round 4 kabulünü
+engellemiyor; ayrı yetki olmadan bu kayıt kapsamında düzeltilmedi):
+- **LOW (F-1)** — `StopEvent` mutable bir dataclass (`frozen=True`
+  değil); construction sonrası doğrudan attribute mutation
+  `__post_init__`'i yeniden tetiklemiyor, teorik olarak çelişkili bir
+  kayıt üretebilir. Bağımsız review bunun mevcut kodda **latent, exploit
+  edilmemiş** olduğunu doğruladı (hiçbir çağıran construction-sonrası
+  mutation yapmıyor; model henüz canlı stop-orchestration'a bağlı değil).
+  Önerilen düzeltme: bu model canlı stop-control'e entegre edilmeden
+  ÖNCE `frozen=True` uygulanmalı — bu geçişte UYGULANMADI.
+- **INFORMATIONAL (F-2)** — `parse_cycle_log()` içinde zararsız,
+  ulaşılamaz (dead) bir `return` satırı.
+- **LOW (F-3)** — "CLI legacy `parse_cycle_log()` wrapper'ına geri döner"
+  regresyonu için özel bir mutation-probe testi yok; bağımsız review
+  gerçek riskin `AttributeError` ile anında ve gürültülü şekilde ortaya
+  çıkacağı için yapısal olarak düşük olduğunu değerlendirdi.
+
+CRITICAL bulgu YOK. HIGH bulgu YOK. Çözülmemiş MEDIUM bulgu YOK.
+
+**Repository/runtime sınırları** (implementasyon ve her iki bağımsız
+review boyunca korundu, bu governance-only kayıt geçişinde de yeniden
+doğrulandı): her iki düzeltici dosya (`tools/liquidation_silence_canary_
+monitor.py` — 1966 satır, `tests/test_liquidation_silence_canary_
+monitor.py` — 2701 satır) untracked kaldı; beş korumalı dirty tracked
+path (`.claude/settings.local.json`, `runtime/dashboard_backend.json`
+[silinmiş], `tests/test_native_ws_health_policy.py`, `tools/native_ws_
+health_policy.py`, `tools/s34_cascade_navigation_dashboard.py`)
+byte-seviyesinde değişmedi; staging boş kaldı; hiçbir commit/push
+olmadı. Scheduler süreç sayısı = 0 kaldı; `.pid.lock` sıfır-byte kaldı;
+watchdog PID 9740 ve CreationDate değişmedi; diğer on bir runtime rolü
+canlı kaldı; her iki live-executor marker'ı `0` kaldı; hiçbir Scheduled
+Task oluşturulmadı; hiçbir runtime script (`start_eclipse.ps1`/
+`status_eclipse.ps1`/`stop_eclipse.ps1`) çağrılmadı; iki harici
+reconciliation arşivi (`gate1_pre_ff_20260711T185433Z\`,
+`gate1_collision_clear_20260711T190113Z\`) dokunulmadan kaldı.
+
+**Yetkilendirme sınırı:** Bu kayıt yalnız GOVERNANCE'tır. Şu ana kadar
+staging/commit/push YAPILMADI (kod hâlâ untracked). Gate 2 aktivasyonunu
+YETKİLENDİRMEZ; kalıcı scheduler etkinleştirmesini YETKİLENDİRMEZ;
+Scheduled Task oluşturmayı YETKİLENDİRMEZ; runtime restart'ı
+YETKİLENDİRMEZ; live-executor aktivasyonunu YETKİLENDİRMEZ; F-1'in
+`frozen=True` düzeltmesini bu geçişte UYGULAMAZ. Sonraki her aksiyon
+(commit dahil) ayrı, açık bir operatör yetkisi gerektirir.
+
+**Verdict: `GATE_1_MONITOR_HARNESS_ROUND_4_ACCEPTED`.** Kanonik
+post-recording durum: `GATE_1_MONITOR_HARNESS_ACCEPTANCE_RECORDED_
+AWAITING_COMMIT_AUTHORIZATION`. Next: kod hâlâ untracked; staging+commit
+(F-1'in `frozen=True` düzeltmesi dahil veya hariç, operatör tercihi) ayrı,
+açık bir operatör kararını bekliyor.
