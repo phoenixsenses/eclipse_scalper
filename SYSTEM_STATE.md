@@ -6165,3 +6165,112 @@ CORRECTIVES_ACCEPTANCE_RECORDED_AWAITING_COMMIT_AUTHORIZATION`. Next: kod
 hâlâ working-tree'de tracked+modified (uncommitted); staging+commit ayrı,
 açık bir operatör kararını bekliyor; commit+publish sonrası Gate 2A gerçek
 BOM-prefixed metadata'ya karşı yeniden çalıştırılmalı.
+
+## 126. CONTINUITY OBSERVER SELF-MATCH DÜZELTMESİ (GATE2A-F1) — BAĞIMSIZ İNCELEME SONRASI KABUL EDİLDİ (2026-07-12, Sonnet 5)
+
+**Verdict: `CONTINUITY_SELF_MATCH_CORRECTIVE_ACCEPTED`.**
+
+**Bulgu soyağacı:** §125'te kaydedilen BOM düzeltmesi sonrası Gate 2A
+revalidasyonu kanonik BOM-prefixed metadata'yı başarıyla parse etti; ancak
+revalidasyon yine de `GATE_2A_REVALIDATION_CORRECTIVE_REQUIRED` döndü.
+Bloklayıcı bulgu **GATE2A-F1 — MEDIUM**: kanonik CLI `--expected-module
+tools.liquidation_silence_scheduler` geçiyor; bu token monitor prosesinin
+KENDİ argv'sinde görünüyor; `find_role_candidates()`'te observer-process
+exclusion yoktu; baseline scheduler PID'i yokken ve gerçek scheduler
+çalışmazken monitor KENDİNİ seçip yanlışlıkla `REPLACED_OR_RESTARTED /
+PID_CHANGED` döndürüyordu — doğru hedef durum `CONTINUITY_MISSING` iken.
+Fail-closed güvenli olsa da, makine-okunur continuity classification'ı
+hedef scheduler'ı değil gözlemciyi tarif ediyordu.
+
+**Kabul edilen production düzeltmesi:** Dar, açık, by-PID observer
+exclusion candidate-discovery sınırında:
+- `os` current-process kimliği için import edildi.
+- `find_role_candidates()` artık keyword-only `excluded_pids` kabul ediyor.
+- Excluded PID'ler ŞUNLARDAN ÖNCE atlanıyor: baseline-PID matching;
+  expected-identity matching; candidate collection; process_count hesabı;
+  candidate PID/command-line kanıtı; `PID_CHANGED` sınıflandırması.
+- `sample_role_continuity()` `excluded_pids`'i forward ediyor.
+- `take_snapshot()` `excluded_pids=(os.getpid(),)` sağlıyor.
+- `excluded_pids=None` (default) önceki caller uyumluluğunu koruyor.
+- Expected-module matching zayıflatılmadı; hiçbir geniş command-line
+  tabanlı exclusion getirilmedi; legitimate scheduler prosesleri aynı
+  Python executable / cwd / parent process / interpreter özelliklerini
+  paylaşsalar bile keşfedilebilir kalıyor (exclusion yalnız PID üyeliği).
+- Kabul edilmiş `utf-8-sig` BOM düzeltmesi DEĞİŞMEDİ (diff'teki tek
+  "utf-8-sig" oluşumu docstring metni; decode satırı L1866 dokunulmadı).
+  `MONITOR_VERSION` 2.2.1 → 2.2.2.
+
+**Bağımsız davranışsal kanıt** (bağımsız reviewer'ın kendi synthetic
+inventory'leriyle gerçek production fonksiyonlarını çağırarak):
+- observer-only token match: observer excluded, sıfır candidate;
+- absent scheduler: `MISSING`, process_count=0;
+- distinct legitimate scheduler: `REPLACED_OR_RESTARTED`;
+- baseline PID legitimate scheduler ile eşleşiyor: `CONTINUOUS`;
+- multiple legitimate scheduler: `DUPLICATE`, process_count=2;
+- observer'ın executable'ını paylaşan legitimate scheduler: keşfedilebilir
+  kalıyor (exclusion by-PID, gerçek scheduler'ı gizleyemiyor);
+- default `excluded_pids=None`: geriye-uyumlu davranış korundu.
+
+**Kanonik CLI kanıtı** (bağımsız reviewer'ın tek yetkili runtime aksiyonu,
+scheduler ÇALIŞTIRILMADAN):
+- monitor PID 13564; exit code 0; `baseline.status=OK`;
+  `continuity_status=MISSING`; process_count=0; candidate pid=null;
+  candidate command_line=null; `PID_CHANGED` yok;
+- scheduler count 0 (before / during / after);
+- scheduler log ve PID metadata çalıştırma öncesi/sonrası byte-identical.
+
+**Bağımsız regresyon kanıtı** (implementasyon raporundan değil, bağımsız
+reviewer'ın kendi çalıştırdığı komutlardan):
+- self-match testleri: **9 passed**
+- kanonik real-CLI regression: **1 passed**
+- BOM testleri: **7 passed**
+- provenance/manifest testleri: **16 passed**
+- tam monitor suite: **242 passed** (0 failed)
+- monitor + scheduler: **253 passed** (0 failed)
+- heartbeat watchdog + detector: **73 passed**
+- liquidation-silence policy + native-WS policy: **69 passed**
+- `python -B -m py_compile`: **temiz**
+
+**Bulgular:** CRITICAL YOK. HIGH YOK. MEDIUM YOK. LOW YOK. INFORMATIONAL
+YOK. Over-broad exclusion ve legitimate-scheduler-gizleme riskleri açıkça
+elendi.
+
+**Gate 2 durum sınırı (açıkça belirtilir):** Bu bölüm YALNIZ continuity
+self-match düzeltmesinin kabulünü kaydeder. Önceki `GATE_2A_REVALIDATION_
+CORRECTIVE_REQUIRED` durumunu geriye dönük olarak Gate 2A kabulüne
+ÇEVİRMEZ. Düzeltme önce commit+publish edilmelidir. Publish sonrası Gate
+2A, committed kodla kanonik BOM-prefixed metadata'ya karşı bir kez daha
+çalıştırılmalıdır. Bu düzeltme Gate 2B yeniden-çalıştırmasını GEREKTİRMEZ
+(ayrı yetkilendirme olmadıkça). Gate 2C, kalıcı scheduler etkinleştirmesi,
+Scheduled Task oluşturma ve live-executor aktivasyonu ayrı gelecek
+kararlardır.
+
+**Repository/runtime sınırları** (implementasyon ve bağımsız review
+boyunca korundu, bu governance-only kayıt geçişinde de yeniden
+doğrulandı): `tools/liquidation_silence_canary_monitor.py` (2072 satır,
+SHA-256 `f48f82dd...`, `MONITOR_VERSION=2.2.2`) ve `tests/test_
+liquidation_silence_canary_monitor.py` (3361 satır, 242 test fonksiyonu,
+SHA-256 `50fa39a7...`) tracked+modified (uncommitted) kaldı; beş korumalı
+dirty tracked path byte-seviyesinde değişmedi; staging boş kaldı; hiçbir
+commit/push olmadı. Scheduler süreç sayısı = 0 kaldı; `.pid`/`.pid.lock`
+ikisi de yok kaldı; scheduler log 9 satır `445fde91...` ve PID metadata
+`1375f009...` (BOM `EF BB BF`) byte-identical kaldı; watchdog PID 9740 ve
+CreationDate değişmedi; diğer on bir runtime rolü canlı kaldı; her iki
+live-executor marker'ı `0` kaldı; hiçbir Scheduled Task oluşturulmadı;
+hiçbir runtime script çağrılmadı.
+
+**Yetkilendirme sınırı:** Bu kayıt yalnız GOVERNANCE'tır. Ne implementasyon
+ne de test dosyası bu geçişte değiştirildi. Staging/commit/push YAPILMADI.
+Gate 2A yeniden ÇALIŞTIRILMADI; scheduler çalıştırılmadı;
+`start_eclipse.ps1` çağrılmadı; hiçbir runtime process başlatılmadı,
+durdurulmadı, restart edilmedi veya signal edilmedi; Scheduled Task
+oluşturulmadı; live-executor aktivasyonu YETKİLENDİRMEZ; LOW-01 bu geçişin
+kapsamı dışında kaldı. Sonraki her aksiyon (commit dahil) ayrı, açık bir
+operatör yetkisi gerektirir.
+
+**Verdict: `CONTINUITY_SELF_MATCH_CORRECTIVE_ACCEPTED`.** Kanonik
+post-recording durum: `CONTINUITY_SELF_MATCH_CORRECTIVE_ACCEPTANCE_
+RECORDED_AWAITING_COMMIT_AUTHORIZATION`. Next: kod hâlâ working-tree'de
+tracked+modified (uncommitted); staging+commit ayrı, açık bir operatör
+kararını bekliyor; commit+publish sonrası Gate 2A committed kodla yeniden
+revalide edilmeli.
