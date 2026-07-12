@@ -386,16 +386,26 @@ def is_bull_pullback(conn, ts_ms: int) -> bool:
 def load_state() -> dict[str, Any]:
     STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
     if not STATE_PATH.exists():
-        return {"positions": {}, "processed": {}, "pnl": {}}
-    try:
-        d = json.loads(STATE_PATH.read_text(encoding="utf-8"))
-    except Exception:
-        d = {}
-    d.setdefault("positions", {})
-    d.setdefault("processed", {})
-    d.setdefault("pnl", {})
-    d.setdefault("rule_name", RULE_NAME)
-    d.setdefault("mode", "OBSERVE_ONLY_NO_ORDER")
+        d: dict[str, Any] = {"positions": {}, "processed": {}, "pnl": {}}
+    else:
+        try:
+            d = json.loads(STATE_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            d = {}
+        d.setdefault("positions", {})
+        d.setdefault("processed", {})
+        d.setdefault("pnl", {})
+        d.setdefault("rule_name", RULE_NAME)
+        d.setdefault("mode", "OBSERVE_ONLY_NO_ORDER")
+    # F-DUPCLOSE-01: reconcile against the ledger's durable CLOSE records so a
+    # restart can never re-close (and re-log) a position the ledger already
+    # shows as closed. See load_closed_ids_from_ledger() for why the ledger,
+    # not state.json, is the correct durability anchor for this check.
+    closed_ids = load_closed_ids_from_ledger()
+    d["closed_ids"] = {pid: True for pid in closed_ids}
+    for pid in list(d["positions"].keys()):
+        if pid in closed_ids:
+            d["positions"].pop(pid, None)
     return d
 
 def save_state(state: dict[str, Any]) -> None:
@@ -405,6 +415,36 @@ def log_event(rec: dict[str, Any]) -> None:
     LEDGER_PATH.parent.mkdir(parents=True, exist_ok=True)
     with LEDGER_PATH.open("a", encoding="utf-8") as f:
         f.write(json.dumps(rec, ensure_ascii=True) + "\n")
+
+
+def load_closed_ids_from_ledger() -> set[str]:
+    """Durable source of truth for "has this position id already been closed".
+
+    log_event() opens, writes, and closes the ledger file handle on every
+    call, so a CLOSE row is durable on disk immediately -- unlike
+    state["positions"], which is only persisted once per run_once() cycle
+    (save_state(), after further anchor-scanning work). If the process is
+    interrupted between a CLOSE write and that cycle's save_state(), a
+    restart reloads a stale state snapshot that still shows the position
+    open and past its exit clock, re-triggering a duplicate CLOSE. Reading
+    closed ids back from the ledger closes that gap without ever rewriting
+    the ledger itself (read-only scan, F-DUPCLOSE-01).
+    """
+    closed_ids: set[str] = set()
+    if not LEDGER_PATH.exists():
+        return closed_ids
+    with LEDGER_PATH.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rec = json.loads(line)
+            except Exception:
+                continue
+            if rec.get("event") == "CLOSE" and rec.get("id"):
+                closed_ids.add(str(rec["id"]))
+    return closed_ids
 
 
 def init_profit_lock_observer(pos: dict) -> None:
@@ -1250,20 +1290,26 @@ def advance_positions(conn, state: dict, now_ms: int) -> None:
                 adverse_bps = (float(cur_px) - entry_px) / entry_px * 10_000.0
                 pos["last_adverse_bps"] = round(adverse_bps, 2)
                 if adverse_bps >= float(pos.get("sl_bps") or BUY_FADE_SL_BPS):
-                    _close_pos(pos, conn, now_ms, "BUY_FADE_SL75")
-                    log_event({**pos, "event": "CLOSE"})
-                    closed.append(pid)
-                    print(f"{utc_now()} [SHD] BUY_FADE_SHORT_H45_SL75 SL75 net={pos.get('net_bps','?'):.1f}bps id={pid}")
+                    # F-DUPCLOSE-01: idempotency guard, see load_closed_ids_from_ledger().
+                    if pid not in state.setdefault("closed_ids", {}):
+                        _close_pos(pos, conn, now_ms, "BUY_FADE_SL75")
+                        log_event({**pos, "event": "CLOSE"})
+                        state["closed_ids"][pid] = True
+                        closed.append(pid)
+                        print(f"{utc_now()} [SHD] BUY_FADE_SHORT_H45_SL75 SL75 net={pos.get('net_bps','?'):.1f}bps id={pid}")
 
         if pos.get("status") in {"OPEN", "OPEN_SILENCE", "OPEN_NOISY", "OPEN_BUY_FADE"}:
             update_profit_lock_observer(pos, conn, now_ms)
             update_scalein_observer(pos, conn, now_ms)
             exit_due = pos.get("exit_due_ms")
             if exit_due and now_ms >= int(exit_due):
-                _close_pos(pos, conn, now_ms, "TIME_EXIT")
-                log_event({**pos, "event": "CLOSE"})
-                closed.append(pid)
-                print(f"{utc_now()} [SHD] {sig} TIME_EXIT net={pos.get('net_bps','?'):.1f}bps id={pid}")
+                # F-DUPCLOSE-01: idempotency guard, see load_closed_ids_from_ledger().
+                if pid not in state.setdefault("closed_ids", {}):
+                    _close_pos(pos, conn, now_ms, "TIME_EXIT")
+                    log_event({**pos, "event": "CLOSE"})
+                    state["closed_ids"][pid] = True
+                    closed.append(pid)
+                    print(f"{utc_now()} [SHD] {sig} TIME_EXIT net={pos.get('net_bps','?'):.1f}bps id={pid}")
 
     for pid in closed:
         state["positions"].pop(pid, None)
