@@ -3,6 +3,7 @@
 Run: pytest tests/test_ami_warehouse_registry_seed.py --basetemp <scratchpad> -p no:cacheprovider
 """
 from ami.warehouse.registry_seed import (
+    OPERATOR_DECISION_QUEUE_MD,
     derive_artifact_lineage,
     parse_conflict_register,
     parse_contradiction_register,
@@ -10,6 +11,28 @@ from ami.warehouse.registry_seed import (
     seed,
 )
 from ami.warehouse.schema import connect, init_schema
+
+
+def _raw_operator_decision_rows():
+    """Independent, minimal re-extraction of OPERATOR_DECISION_QUEUE.md's
+    own OD-* rows (id + verbatim status cell), read directly from the
+    source markdown -- not via parse_operator_decision_queue() -- so tests
+    below can cross-check the production parser's output against the
+    source of truth instead of a hardcoded, inevitably-stale snapshot.
+    OPERATOR_DECISION_QUEUE.md is actively operator-maintained (new OD-*
+    rows and status transitions land there continuously); the count and
+    status distribution are expected to keep growing/changing."""
+    text = OPERATOR_DECISION_QUEUE_MD.read_text(encoding="utf-8")
+    rows = {}
+    for line in text.splitlines():
+        line = line.strip()
+        if not line.startswith("| OD-"):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        if len(cells) < 6:
+            continue
+        rows[cells[0]] = cells[5]
+    return rows
 
 
 def _stub_lineage_artifacts(conn):
@@ -44,11 +67,17 @@ def test_parse_contradiction_register_finds_five():
     assert ids == {"CT-001", "CT-002", "CT-003", "CT-004", "CT-005"}
 
 
-def test_parse_operator_decision_queue_finds_seventeen():
-    # OD-017 added by BATCH-P6-011 (W10a LONG<->SHORT transitions half, backlog)
+def test_parse_operator_decision_queue_matches_source_markdown():
+    # OPERATOR_DECISION_QUEUE.md is actively operator-maintained -- the
+    # OD-* row count keeps growing (17 -> 23 as of the 2026-07-13
+    # broad-regression corrective). This asserts parity against the raw
+    # markdown itself (no row silently dropped/duplicated by the parser)
+    # rather than a hardcoded, inevitably-stale count.
     rows = parse_operator_decision_queue()
     ids = {r["decision_id"] for r in rows}
-    assert ids == {f"OD-{i:03d}" for i in range(1, 18)}
+    raw_ids = set(_raw_operator_decision_rows().keys())
+    assert raw_ids, "source markdown yielded zero OD-* rows -- parser regex likely broken"
+    assert ids == raw_ids
 
 
 def test_lineage_records_reconciliation_not_fabricated_supersession():
@@ -60,6 +89,7 @@ def test_lineage_records_reconciliation_not_fabricated_supersession():
 
 
 def test_seed_populates_all_three_tables(tmp_path):
+    expected_od_count = len(_raw_operator_decision_rows())
     db = tmp_path / "canonical.sqlite"
     conn = connect(db)
     init_schema(conn)
@@ -72,12 +102,13 @@ def test_seed_populates_all_three_tables(tmp_path):
     )
     conn.close()
     assert n_c == 15  # 10 CONFLICT + 5 CT
-    assert n_d == 17  # OD-001..017
+    assert n_d == expected_od_count  # OPERATOR_DECISION_QUEUE.md row count (source of truth)
     assert n_l == 1
-    assert conn_counts == (15, 17, 1)
+    assert conn_counts == (15, expected_od_count, 1)
 
 
 def test_seed_is_idempotent(tmp_path):
+    expected_od_count = len(_raw_operator_decision_rows())
     db = tmp_path / "canonical.sqlite"
     conn = connect(db)
     init_schema(conn)
@@ -90,16 +121,18 @@ def test_seed_is_idempotent(tmp_path):
         conn.execute("SELECT COUNT(*) FROM artifact_lineage").fetchone()[0],
     )
     conn.close()
-    assert counts == (15, 17, 1)
+    assert counts == (15, expected_od_count, 1)
 
 
 def test_no_operator_decisions_silently_marked_resolved():
-    # OD-003 (BATCH-P3-005, A2+B2+C2) and OD-012 (BATCH-P6-003b, W2 deferred)
-    # are the only explicitly-resolved decisions; every other OD entry is
-    # still OPEN. The seed must reflect the source markdown verbatim, not
-    # invent any other resolution.
+    # The seed must reflect OPERATOR_DECISION_QUEUE.md's own status column
+    # verbatim -- never a fabricated/altered resolution. Cross-checked
+    # against an independent re-extraction of the raw markdown (not a
+    # hardcoded snapshot, which would go stale every time the operator
+    # resolves or adds a decision -- as happened between the original
+    # 17-row/2-resolved baseline and the current 23-row state).
     rows = parse_operator_decision_queue()
     by_id = {r["decision_id"]: r["status"] for r in rows}
-    assert by_id.pop("OD-003") == "IMPLEMENTED"
-    assert by_id.pop("OD-012") == "IMPLEMENTED"
-    assert all(status == "OPEN" for status in by_id.values())
+    raw = _raw_operator_decision_rows()
+    assert raw, "source markdown yielded zero OD-* rows -- parser regex likely broken"
+    assert by_id == raw

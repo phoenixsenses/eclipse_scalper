@@ -88,6 +88,13 @@ def _install_fake_ccxt(monkeypatch, exchange_cls):
 
 def test_init_exchange_retries_then_succeeds(monkeypatch):
     _install_fake_ccxt(monkeypatch, _RetryThenOkExchange)
+    # .env.paper sets BOOTSTRAP_SKIP_EXCHANGE_INIT=1, loaded into os.environ
+    # once at execution.bootstrap import time (module-level dotenv
+    # autoload) and left in place for the rest of the pytest process --
+    # without clearing it here, _init_exchange() returns the offline stub
+    # before ever reaching the retry path this test exercises.
+    monkeypatch.setenv("BOOTSTRAP_SKIP_EXCHANGE_INIT", "0")
+    monkeypatch.setenv("BOOTSTRAP_SMOKE_ONLY", "0")
     monkeypatch.setenv("EXCHANGE", "binance")
     monkeypatch.setenv("BOOT_FAILFAST_PRIVATE_AUTH", "0")
     monkeypatch.setenv("EXCHANGE_INIT_RETRIES", "5")
@@ -113,6 +120,11 @@ def test_init_exchange_retries_then_succeeds(monkeypatch):
 
 def test_init_exchange_exhausted_retries_closes_exchange(monkeypatch):
     _install_fake_ccxt(monkeypatch, _AlwaysTimeoutExchange)
+    # See test_init_exchange_retries_then_succeeds above: must explicitly
+    # override the .env.paper-sourced BOOTSTRAP_SKIP_EXCHANGE_INIT=1
+    # (module-import-time dotenv autoload) to reach the retry path.
+    monkeypatch.setenv("BOOTSTRAP_SKIP_EXCHANGE_INIT", "0")
+    monkeypatch.setenv("BOOTSTRAP_SMOKE_ONLY", "0")
     monkeypatch.setenv("EXCHANGE", "binance")
     monkeypatch.setenv("BOOT_FAILFAST_PRIVATE_AUTH", "0")
     monkeypatch.setenv("EXCHANGE_INIT_RETRIES", "3")

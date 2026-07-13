@@ -17,7 +17,14 @@ def _load_rows(db: str, symbol: str, lookback_min: int, bucket_sec: int) -> List
     start_ms = now_ms - int(max(1, lookback_min) * 60 * 1000)
     conn = sqlite3.connect(str(db))
     try:
-        trades, marks, liqs = _load_symbol_trades_marks_and_liqs(conn, str(symbol).upper(), start_ms=start_ms, end_ms=now_ms)
+        # root points at the target db's own directory (no real archive
+        # catalog_index.json there) so plan_read() falls through to a
+        # direct sqlite read; source_db_path is pinned explicitly so
+        # execute_read() never falls back to the real data/microstructure.db.
+        trades, marks, liqs = _load_symbol_trades_marks_and_liqs(
+            conn, str(symbol).upper(), start_ms=start_ms, end_ms=now_ms,
+            root=str(Path(db).resolve().parent), source_db_path=str(db),
+        )
     finally:
         conn.close()
     return build_bucket_features(

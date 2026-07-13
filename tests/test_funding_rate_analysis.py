@@ -30,7 +30,7 @@ def _mk_dbs(trades_db: Path, micro_db: Path) -> None:
         conn.close()
     conn = sqlite3.connect(str(micro_db))
     try:
-        conn.execute("CREATE TABLE mark_prices (ts_ms INTEGER, symbol TEXT, funding_rate REAL)")
+        conn.execute("CREATE TABLE mark_prices (id INTEGER PRIMARY KEY, ts_ms INTEGER, symbol TEXT, funding_rate REAL)")
         conn.executemany(
             "INSERT INTO mark_prices(ts_ms,symbol,funding_rate) VALUES(?,?,?)",
             [(int((now - 300) * 1000), "ETHUSDT", 0.0001), (int((now - 100) * 1000), "ETHUSDT", 0.0002)],

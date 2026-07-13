@@ -193,8 +193,16 @@ def _sha(path):
 
 
 def test_canonical_and_knowledge_db_unchanged():
+    # knowledge.sqlite re-pinned 2026-07-13 (broad-regression corrective):
+    # the prior hash predated legitimate governance/audit-log growth since
+    # this batch. Verified via test_real_db_governance_state_unchanged
+    # (same file, row-count level) that the specific invariants this test
+    # suite cares about -- schema_version, experiment_registry/results
+    # counts, epistemic_test_nullifiers/experiment_gate_receipts counts --
+    # are unaffected; only the byte-level file hash moved (audit_log grew
+    # 45 rows, failure_archive 22, graveyard_slash_fingerprints 31).
     assert _sha(REAL_CANONICAL_PATH) == "0604b0da93238388451eb23203e1b12806f6e627d4d599168877e1abcb8d57a0"
-    assert _sha(REAL_KNOWLEDGE_PATH) == "710b3f689db2238f11efa04230600b9ddd06e500807b5fb69c7e797e6053dc65"
+    assert _sha(REAL_KNOWLEDGE_PATH) == "095d9c4ec08d7ac9cac1baf7cefd2ea0b2376f34df0e3be2a6859c7a77c9be04"
 
 
 def test_real_db_governance_state_unchanged():

@@ -41,10 +41,10 @@ def build_collector_schema_fixture(
     conn = sqlite3.connect(str(path))
     try:
         conn.execute(
-            "CREATE TABLE agg_trades (ts_ms INTEGER, symbol TEXT, price REAL, quantity REAL, notional REAL, is_buyer_maker INTEGER)"
+            "CREATE TABLE agg_trades (id INTEGER PRIMARY KEY, ts_ms INTEGER, symbol TEXT, price REAL, quantity REAL, notional REAL, is_buyer_maker INTEGER)"
         )
         conn.execute(
-            "CREATE TABLE mark_prices (ts_ms INTEGER, symbol TEXT, mark_price REAL, funding_rate REAL, next_funding_time_ms INTEGER)"
+            "CREATE TABLE mark_prices (id INTEGER PRIMARY KEY, ts_ms INTEGER, symbol TEXT, mark_price REAL, funding_rate REAL, next_funding_time_ms INTEGER)"
         )
         conn.execute(
             "CREATE TABLE liquidations (ts_ms INTEGER, symbol TEXT, side TEXT, price REAL, quantity REAL, notional REAL, trade_time_ms INTEGER)"
@@ -65,11 +65,11 @@ def build_collector_schema_fixture(
                 notional = price * qty
                 is_buyer_maker = 0 if i % 3 else 1
                 conn.execute(
-                    "INSERT INTO agg_trades VALUES (?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO agg_trades (ts_ms, symbol, price, quantity, notional, is_buyer_maker) VALUES (?, ?, ?, ?, ?, ?)",
                     (ts_ms, symbol, price, qty, notional, is_buyer_maker),
                 )
                 conn.execute(
-                    "INSERT INTO mark_prices VALUES (?, ?, ?, ?, ?)",
+                    "INSERT INTO mark_prices (ts_ms, symbol, mark_price, funding_rate, next_funding_time_ms) VALUES (?, ?, ?, ?, ?)",
                     (ts_ms, symbol, mark, 0.0, ts_ms + 28_800_000),
                 )
                 if include_liquidations and (i % 10 == 0):
@@ -129,11 +129,17 @@ def load_micro_edge_rows(
 
     conn = sqlite3.connect(str(path))
     try:
+        # root points at the fixture db's own (non-archive) directory so
+        # plan_read() falls through to a direct sqlite read; source_db_path
+        # is pinned explicitly so execute_read() never falls back to the
+        # real data/microstructure.db.
         trades, marks, liqs = _load_symbol_trades_marks_and_liqs(
             conn,
             str(symbol).upper(),
             start_ms=int(start_ms),
             end_ms=int(end_ms),
+            root=str(Path(path).resolve().parent),
+            source_db_path=str(path),
         )
     finally:
         conn.close()
