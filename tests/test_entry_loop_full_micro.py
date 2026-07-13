@@ -27,8 +27,16 @@ class _FakeProvider:
         return self.result
 
 
-def test_entry_loop_full_micro_path_priority(monkeypatch) -> None:
+def test_entry_loop_full_micro_path_priority(monkeypatch, tmp_path) -> None:
     async def _run() -> None:
+        # bot._shutdown.set() below (used just to stop the loop after one
+        # entry) is a direct set() bypassing request_shutdown(), which
+        # trips entry_loop_full.py's own bypass tripwire and writes a
+        # real, unisolated logs/last_shutdown.json with fatal=True --
+        # empirically confirmed to leak a POST-CRASH COOLDOWN into any
+        # other test instantiating kill-switch state within 300s. chdir
+        # keeps that incidental write off the real repo state.
+        monkeypatch.chdir(tmp_path)
         monkeypatch.setenv("ENTRY_MICRO_SIGNAL_ENABLED", "1")
         monkeypatch.setenv("MICRO_SIGNAL_SYMBOL", "ETHUSDT")
         monkeypatch.setenv("ENTRY_WAIT_FOR_DATA_READY_SEC", "0")
@@ -67,8 +75,11 @@ def test_entry_loop_full_micro_path_priority(monkeypatch) -> None:
     asyncio.run(_run())
 
 
-def test_entry_loop_full_disabled_keeps_existing_path(monkeypatch) -> None:
+def test_entry_loop_full_disabled_keeps_existing_path(monkeypatch, tmp_path) -> None:
     async def _run() -> None:
+        # See test_entry_loop_full_micro_path_priority above: isolate the
+        # incidental bypass-tripwire write from bot._shutdown.set().
+        monkeypatch.chdir(tmp_path)
         monkeypatch.setenv("ENTRY_MICRO_SIGNAL_ENABLED", "0")
         monkeypatch.setenv("ENTRY_WAIT_FOR_DATA_READY_SEC", "0")
         monkeypatch.setenv("ENTRY_POLL_SEC", "0.01")
