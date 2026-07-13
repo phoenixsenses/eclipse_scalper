@@ -52,7 +52,9 @@ Kurallar:
 | Research raporları (her test .md+.json) | `reports/research/s34/` |
 | Research scriptleri | `tools/research_s34_*.py`, `tools/s34_mechanism_*.py` |
 | Mekanizma feature store | `reports/research/s34/mechanism_store.sqlite` |
-| Shadow runner + dashboard | `tools/s34_realtime_shadow_runner.py`, `tools/s34_live_chart.py` (:5050) |
+| **Canonical operator dashboard** | `tools/s34_cascade_navigation_dashboard.py` — Eclipse'in canonical, sürekli kullanılan operator güvenlik/karar-destek yüzeyi (read-only, DB `mode=ro`, trade/order/cancel/executor/scheduler/process kontrolü YOK, fail-closed). Yeni operasyonel/güvenlik panelleri varsayılan olarak BURAYA entegre edilir. Supersession ancak bağımsız-kabul edilmiş governance migration ile. Dashboard işi read-only + test/review guardrail'larına tabi (SYSTEM_STATE §133). |
+| Secondary/diagnostic dashboard'lar | `tools/s34_live_chart.py` (:5050), orderflow chart (:5051), S34 replay (:5052) — canonical yüzeyin YERİNE GEÇMEZ |
+| Shadow runner | `tools/s34_realtime_shadow_runner.py` |
 | Proses yönetimi | `start_eclipse.ps1` / `stop_eclipse.ps1` / `status_eclipse.ps1` (live executor `-EnableLive` bayrağıyla — default KAPALI) |
 | OI+spot poller | `data/oi_spot_poller.py` (60s, public endpoint) |
 | Oturum sonuç raporları | repo kökü `S34_SESSION_SONUC_RAPORU_*.md` |

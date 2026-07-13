@@ -6900,3 +6900,105 @@ sign-off'unda kalıyor.
 **Review verdict: `F_NEW_03_MICRO_SIGNAL_TIMING_CORRECTIVE_INDEPENDENTLY_
 ACCEPTED`.** Kanonik post-recording durum:
 `F_NEW_03_MICRO_SIGNAL_TIMING_CORRECTIVE_ACCEPTANCE_RECORDED`.
+
+## 133. S34 STATE MACHINE DASHBOARD — EXECMGMT/STOPPROT FOREIGN SCOPE KABUL + CANONICAL OPERATOR SURFACE İLAN EDİLDİ (2026-07-13, Opus 4.8)
+
+**Review verdict: `S34_DASHBOARD_EXECMGMT_STOPPROT_FOREIGN_SCOPE_
+INDEPENDENTLY_ACCEPTED`.**
+
+**Kanonik sonuç durumu: `S34_STATE_MACHINE_DASHBOARD_CANONICAL_OPERATOR_
+SURFACE_RECORDED_AND_READY_FOR_COMPREHENSIVE_DESIGN_IMPLEMENTATION`.**
+
+### Canonical dashboard deklarasyonu
+
+**S34 State Machine Dashboard (`tools/s34_cascade_navigation_dashboard.py`),
+Eclipse'in canonical, sürekli kullanılan operator dashboard'udur. Yeni
+operasyonel görünürlük ve güvenlik panelleri varsayılan olarak buraya entegre
+edilir. Alternatif dashboard'lar, bağımsız-kabul edilmiş bir governance
+migration açıkça yerini almadıkça secondary kalır.**
+
+- Bu dashboard yüzeysel bir grafik değil; **operator güvenlik ve
+  karar-destek yüzeyidir**.
+- **Read-only** kalır: trade/order/cancel eylemi yok; live-executor veya
+  scheduler aktivasyonu yok; process kontrolü yok; DB `mode=ro`.
+- Eksik/stale/malformed/ambiguous girdilerde **fail-closed** davranır.
+- **Stale GREEN, açık stale göstergesi olmadan asla sunulmaz.**
+
+### Kabul edilen foreign scope
+
+Yalnız `tools/s34_cascade_navigation_dashboard.py` (+267/-4). Bağımsız
+reviewer: Opus 4.8. Reviewed working-tree diff hash (SHA-256):
+`76989df0fffa9b65bbc1dae7d5fb8c0a718851fe66cc1bf181b0e4c45398175b`
+(freeze/kapanış birebir aynı; review boyunca repo frozen).
+
+**İçerik:**
+- `load_execmgmt_panel()` — read-only sizing öneri paneli (mode
+  `READ_ONLY_RECOMMENDATION_NO_ACTION`); `.env` yalnız salt-okunur okunuyor
+  ve **yalnız numeric sizing/leverage/stop key'leri** yüzeye çıkıyor
+  (API-key/secret sızıntısı empirik olarak yok).
+- `load_stopprot_panel()` — read-only stop-koruma uyarısı (mode
+  `READ_ONLY_WARNING_NO_ACTION`); ~2s unprotected poll-loop penceresini
+  gösterir.
+- Candidate-bucket analizi — kapanmış shadow trade'leri üzerinde retrospektif
+  N/WR/avg_bps + mc_p (execution-approved olarak sunulmaz; "[live only]"
+  etiketli).
+- Shadow state/ledger path'i `s34_realtime_shadow*` → `s34_state_machine_
+  shadow*` olarak düzeltildi: çalışan runner (PID 4672) gerçekte bu dosyalara
+  yazıyor (bugün taze); eski dosyalar 13-günlük stale idi. Bu **freshness
+  düzeltmesi** ("stale-as-current gösterme" ilkesiyle uyumlu).
+- render_text/render_md'de eski inline "EXECMGMT:"/"STOPPROT:" execution-audit
+  satırları "EXECAUD :"/"STOPAUD :" olarak yeniden adlandırıldı (label
+  çakışmasını önlemek için).
+
+**Implementation commit:** `051468c0` —
+`feat(dashboard): add read-only EXECMGMT and STOPPROT panels`
+(1 dosya, +267/-4).
+
+### Read-only/güvenlik kanıtı (Phase 3-4)
+
+- Tüm `sqlite3.connect` çağrıları `?mode=ro` (source-scan doğrulandı).
+- Dangerous exec/process/network primitive (subprocess/Popen/os.system/
+  create_order/cancel_order/os.kill/requests.post/urlopen/socket) **yok**.
+- `write_text` yalnız argparse-kontrollü kendi report artefaktlarına
+  (`reports/research/s34/S34_CASCADE_NAVIGATION_DASHBOARD.json/.md`) —
+  kaynak/runtime state overwrite riski yok.
+- Empirik (repo-external instrumentation): EXECMGMT/STOPPROT/candidate
+  valid + missing + malformed → fail-closed, no crash; secret sızıntısı yok;
+  render JSON/MD tutarlı. Mevcut `tests/test_s34_cascade_navigation.py`:
+  **12/12 passed** (diff ile regression yok).
+
+### Bulgular (ikisi de LOW, non-blocking)
+
+- **F-DASH-01** (LOW): `EXECMGMT_WORST_REAL_FILL_BPS = -175.7` hardcode'u
+  canonical provenance'a sahip (`S34_V_ENGINE_EXECUTION_MANAGEMENT_AUDIT.json`
+  `gap_through.current_stop_research_max_loss_bps = -175.7` + çok sayıda
+  research raporu); canlı yol audit JSON'dan okuyor, hardcode yalnız fallback
+  ve canonical değere eşit. Öneri: gelecekte UI'da açık "historical/reference"
+  etiketi. Acceptance'ı **bloke etmez**.
+- **F-DASH-02** (LOW): yeni EXECMGMT/STOPPROT/candidate kapsamı için
+  **committed** özel test yok (mevcut untracked `test_s34_cascade_navigation.py`
+  çekirdek no-lookahead mantığını kapsıyor ama bu panelleri değil). Operatör
+  talimatı gereği review sırasında test OLUŞTURULMADI; ayrı gated adımda
+  eklenmesi önerilir.
+
+### Ayrı, çözülmemiş kalan konular
+
+- `runtime/dashboard_backend.json` silmesi (D) ayrı çözülmemiş — bu, AYRI
+  `dashboard/backend/` alt-sistemine ait runtime process-registration
+  artefaktı (pid ölü, Mart-5); untrack/restore kararı operatöre ait.
+  **Dokunulmadı.**
+- native-WS dirty paketi (`tools/native_ws_health_policy.py`,
+  `tests/test_native_ws_health_policy.py`) ayrı çözülmemiş. **Dokunulmadı.**
+- `.claude/settings.local.json` (M) ayrı. **Dokunulmadı.**
+
+### Ownership reconciled
+
+Dashboard foreign scope artık `DASHBOARD_FOREIGN_OWNED_SCOPE_ATTRIBUTED_AND_
+REVIEWABLE` → bağımsız kabul + commit ile **reconciled**. Scheduler=0, live
+executor=0, duplicate Eclipse roles=0 (review boyunca değişmedi); watchdog
+PID=9740.
+
+**Review verdict: `S34_DASHBOARD_EXECMGMT_STOPPROT_FOREIGN_SCOPE_
+INDEPENDENTLY_ACCEPTED`.** Kanonik durum: `S34_STATE_MACHINE_DASHBOARD_
+CANONICAL_OPERATOR_SURFACE_RECORDED_AND_READY_FOR_COMPREHENSIVE_DESIGN_
+IMPLEMENTATION`.
