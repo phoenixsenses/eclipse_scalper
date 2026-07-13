@@ -6712,3 +6712,92 @@ LAUNCHER_VALIDATION_PENDING`.** Kanonik post-recording durum:
 `ECLIPSE_GATE2_BROAD_REGRESSION_PENDING`; ayrıca `LIQUIDATION_SILENCE_
 GENUINE_GRACEFUL_STOP_DESIGN_PENDING`; kalıcı scheduler aktivasyonu ayrı,
 açık bir sonraki yetkiyi bekliyor.
+
+## 131. ECLIPSE BROAD-REGRESSION CORRECTIVE PAKETİ — BAĞIMSIZ İNCELEME SONRASI KABUL EDİLDİ (2026-07-13, Sonnet 5)
+
+**Review verdict: `ECLIPSE_BROAD_REGRESSION_CORRECTIVES_INDEPENDENTLY_
+ACCEPTED`.**
+
+**Kanonik sonuç durumu: `ECLIPSE_BROAD_REGRESSION_CORRECTIVE_PACKAGE_
+ACCEPTANCE_RECORDED_WITH_THREE_OUT_OF_SCOPE_FINDINGS_OPEN`.**
+
+**Reviewed baseline:**
+- Orijinal reviewed HEAD: `398cc5b9027cc50018a29b55965e4260802a5947`
+- Reviewed working-tree diff manifest (tam SHA-256):
+  `c6a62daf5814587d6caf03a93e216263069bd1d329e787a07702708af45944a7`
+- Bağımsız reviewer: Sonnet 5
+- Repository review boyunca tamamen frozen kaldı (başlangıç/kapanış
+  manifest hash'i birebir aynı).
+
+**Kabul edilen kapsam:**
+- 16 corrective dosya, 5 foreign-owned dosya hariç tutulup korundu
+- F-REGRESSION-REPORTS-01 kapatıldı (`reports/` mutasyonu sıfır,
+  46/46 odaklı test bağımsız passed)
+- Orijinal 12 deterministik failure kök nedeninden çözüldü (B1-B5,
+  39/39 odaklı test bağımsız passed; her aile için gerçek production
+  DB/schema/env kanıtla bağımsız doğrulandı — hash/expectation körlemesine
+  güncellenmedi)
+- Orijinal 3 flaky failure çözüldü (izole/ileri/ters sıra + **10x
+  alternating-order: 0/10 başarısız**, bağımsız tekrar edildi)
+- Gate 2/scheduler/monitor/watchdog/launcher delta: **sıfır** (7 dosya
+  doğrulandı)
+- Runtime artefakt mutasyonu: sıfır (BOM/log/health checksum'ları
+  değişmedi)
+
+**Üç implementasyon commit'i:**
+1. `94adf182` — `test(regression): isolate generated report outputs`
+   (7 dosya, yalnız test)
+2. `7b78fde8` — `fix(regression): reconcile deterministic contract drift`
+   (7 dosya, 5 test + 2 production reader/helper)
+3. `54a7c394` — `test(entry-loop): isolate cooldown state across tests`
+   (2 dosya, yalnız test)
+
+Commit'lerin birleşimi tam olarak reviewed 16 dosyalık kapsamla eşleşti;
+foreign-owned/Gate-2/governance dosyalarının hiçbiri hiçbir commit'e
+girmedi (bağımsız doğrulandı).
+
+**Açık bulgular (bu kabul kapsamı DIŞINDA, ayrı takip gerekiyor):**
+
+**F-NEW-01** — `PRE_EXISTING_OUT_OF_SCOPE`, **LOW**. AMI collector-write/
+environment timing (`test_ami_lifecycle_short_noisy_v1_rehearsal.py`).
+Dosyaya hiç dokunulmadı (0 diff); aynı testin tekrar koşumunda PASSED
+çıkması (rastgele/collector-zamanlamasına bağlı) nedensellik ihtimalini
+kesin olarak ekarte etti.
+
+**F-NEW-02** — `PRE_EXISTING_OUT_OF_SCOPE`, **LOW**. Windows path-length /
+basetemp derinliği (`test_liquidation_silence_canary_monitor.py`, Gate-2
+korumalı, dokunulmadı — 0 diff). Tekrar koşumunda 242/242 passed.
+
+**F-NEW-03** — `PRE_EXISTING_OUT_OF_SCOPE`, **MEDIUM**. Deterministik
+micro_signal/`execution/entry_loop.py` timing sorunu
+(`test_micro_signal_integration.py::test_entry_loop_uses_micro_signal_
+when_enabled`). Dosya, test ettiği production modülü ve `conftest.py`
+hiçbiri değişmedi (0 diff); import zinciri 16 corrective dosyasının
+hiçbiriyle kesişmiyor; 3/3 bağımsız tekrar deterministik başarısız.
+**Bu, ayrı bir corrective gerektiriyor — bu paket tarafından
+ÇÖZÜLMEDİ veya KABUL EDİLMEDİ.**
+
+**Açıkça İDDİA EDİLMEYEN şeyler:** tam repository regresyonunun yeşil
+olduğu; F-NEW-03'ün çözüldüğü; kalıcı scheduler'ın hazır olduğu; literal
+launcher'ın doğrulandığı; Scheduled Task'ın hazır olduğu; dashboard
+foreign-owned diff'inin kabul edildiği; main merge'ün yetkilendirildiği.
+
+**Bir sonraki açık, kapılı işler:**
+1. `F_NEW_03_MICRO_SIGNAL_TIMING_CORRECTIVE_PENDING`
+2. `DASHBOARD_FOREIGN_OWNED_SCOPE_RECONCILIATION_PENDING`
+3. `LIQUIDATION_SILENCE_GENUINE_GRACEFUL_STOP_DESIGN_PENDING`
+
+**Repository sınırı:** Bu governance kaydı yalnız `SYSTEM_STATE.md`'ye
+yazıldı. Foreign-owned 5 dosyaya (`.claude/settings.local.json`,
+`runtime/dashboard_backend.json`, `tests/test_native_ws_health_policy.py`,
+`tools/native_ws_health_policy.py`,
+`tools/s34_cascade_navigation_dashboard.py`) hiç dokunulmadı. Hiçbir
+proses başlatılmadı/durduruldu; scheduler veya live executor aktive
+edilmedi.
+
+**Review verdict: `ECLIPSE_BROAD_REGRESSION_CORRECTIVES_INDEPENDENTLY_
+ACCEPTED`.** Kanonik post-recording durum: `ECLIPSE_BROAD_REGRESSION_
+CORRECTIVE_PACKAGE_ACCEPTANCE_RECORDED_WITH_THREE_OUT_OF_SCOPE_FINDINGS_
+OPEN`. Next: `F_NEW_03_MICRO_SIGNAL_TIMING_CORRECTIVE_PENDING`,
+`DASHBOARD_FOREIGN_OWNED_SCOPE_RECONCILIATION_PENDING`,
+`LIQUIDATION_SILENCE_GENUINE_GRACEFUL_STOP_DESIGN_PENDING`.
