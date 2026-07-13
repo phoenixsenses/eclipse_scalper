@@ -66,11 +66,16 @@ SIZING_SHADOW_PAPER = OUT_DIR / "S34_V_ENGINE_SIZING_SHADOW_PAPER.json"
 EXECUTION_AUDIT = OUT_DIR / "S34_V_ENGINE_EXECUTION_MANAGEMENT_AUDIT.json"
 RECHECK_GLOB = "S34_KNOWABLE_ANCHOR_ROUTE_RECHECK*.json"
 VALIDATED_SIGNALS_REGISTRY = OUT_DIR / "S34_VALIDATED_SIGNALS_REGISTRY.json"
-REALTIME_SHADOW_STATE = ROOT / "reports" / "shadow" / "s34_realtime_shadow_state.json"
-REALTIME_SHADOW_LEDGER = ROOT / "reports" / "shadow" / "s34_realtime_shadow.jsonl"
+REALTIME_SHADOW_STATE = ROOT / "reports" / "shadow" / "s34_state_machine_shadow_state.json"
+REALTIME_SHADOW_LEDGER = ROOT / "reports" / "shadow" / "s34_state_machine_shadow.jsonl"
 LIVE_EXECUTOR_STATE = ROOT / "runtime" / "s34_v_engine_live_state.json"
+ENV_PATH = ROOT / ".env"
 
 THRESHOLDS_USD = (50_000.0, 100_000.0, 200_000.0, 500_000.0, 1_000_000.0)
+EXECMGMT_DEFAULT_EQUITY_USDT = 35.0
+EXECMGMT_TAIL_BUDGET_PCT = 1.0
+EXECMGMT_WORST_REAL_FILL_BPS = -175.7
+EXECMGMT_DEFAULT_LEVERAGE = 40.0
 
 
 @dataclass(frozen=True)
@@ -318,6 +323,175 @@ def load_execution_audit(path: Path = EXECUTION_AUDIT) -> dict[str, Any]:
     }
 
 
+def load_env_values(path: Path = ENV_PATH) -> dict[str, str]:
+    values: dict[str, str] = {}
+    if not path.exists():
+        return values
+    try:
+        lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return values
+    for raw in lines:
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        values[key.strip()] = value.strip().strip('"').strip("'")
+    return values
+
+
+def _float_from_any(value: Any, default: float | None = None) -> float | None:
+    try:
+        if value is None or value == "":
+            return default
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _first_float(values: dict[str, Any], keys: tuple[str, ...], default: float | None = None) -> tuple[float | None, str | None]:
+    for key in keys:
+        val = _float_from_any(values.get(key))
+        if val is not None:
+            return val, key
+    return default, None
+
+
+def load_execmgmt_panel(
+    *,
+    env_path: Path = ENV_PATH,
+    sizing_path: Path = SIZING_SHADOW_PAPER,
+    audit_path: Path = EXECUTION_AUDIT,
+) -> dict[str, Any]:
+    """Read-only sizing recommendation panel. It never mutates env/config/order state."""
+    env = load_env_values(env_path)
+    sizing = {}
+    audit = {}
+    if sizing_path.exists():
+        try:
+            sizing = json.loads(sizing_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            sizing = {}
+    if audit_path.exists():
+        try:
+            audit = json.loads(audit_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            audit = {}
+
+    audit_env = audit.get("live_env") if isinstance(audit.get("live_env"), dict) else {}
+    leverage, leverage_source = _first_float(
+        env,
+        ("S34_LIVE_MAX_LEVERAGE", "LEVERAGE"),
+        _float_from_any(audit_env.get("leverage"), EXECMGMT_DEFAULT_LEVERAGE),
+    )
+    leverage = float(leverage or EXECMGMT_DEFAULT_LEVERAGE)
+
+    margin, margin_source = _first_float(
+        env,
+        ("ORDER_MARGIN_USD", "S34_LIVE_MARGIN_USDT", "FIXED_MARGIN_USDT"),
+        _float_from_any(audit_env.get("margin_usdt")),
+    )
+    current_notional, notional_source = _first_float(
+        env,
+        ("ORDER_NOTIONAL_USD", "ORDER_NOTIONAL_USDT", "S34_LIVE_ORDER_NOTIONAL_USD", "S34_LIVE_NOTIONAL_USDT", "FIXED_NOTIONAL_USDT"),
+        None,
+    )
+    if current_notional is None and margin is not None:
+        current_notional = float(margin) * leverage
+        notional_source = f"{margin_source or 'margin'}*leverage"
+    if current_notional is None:
+        current_notional = _float_from_any(audit_env.get("notional_usdt"), 0.0) or 0.0
+        notional_source = "execution_audit.live_env.notional_usdt"
+    if margin is None and current_notional is not None and leverage > 0:
+        margin = float(current_notional) / leverage
+        margin_source = "notional/leverage"
+
+    margin_pct_val, _ = _first_float(env, ("S34_LIVE_MARGIN_PCT_ETH", "S34_LIVE_MARGIN_PCT"), 85.0)
+    margin_pct_val = float(margin_pct_val or 85.0)
+
+    equity_default = _float_from_any(sizing.get("equity_assumption_usdt"), EXECMGMT_DEFAULT_EQUITY_USDT)
+    equity, equity_source = _first_float(
+        env,
+        ("ORDER_EQUITY_USD", "ACCOUNT_EQUITY_USD", "ACCOUNT_EQUITY_USDT", "S34_ACCOUNT_EQUITY_USDT", "S34_LIVE_EQUITY_USDT"),
+        None,
+    )
+    if equity is None and current_notional and leverage > 0 and margin_pct_val > 0:
+        equity = float(current_notional) / leverage / (margin_pct_val / 100.0)
+        equity_source = f"derived_notional/lev/margin_pct({margin_pct_val:.0f}%)"
+    if equity is None:
+        equity = equity_default
+        equity_source = "static_default"
+    equity = float(equity or EXECMGMT_DEFAULT_EQUITY_USDT)
+
+    tail_budget_usdt = equity * EXECMGMT_TAIL_BUDGET_PCT / 100.0
+    worst_fill_abs_bps = abs(EXECMGMT_WORST_REAL_FILL_BPS)
+    tail_budget_notional = tail_budget_usdt / (worst_fill_abs_bps / 10_000.0) if worst_fill_abs_bps > 0 else 0.0
+    oversize = float(current_notional) / tail_budget_notional if tail_budget_notional > 0 else None
+    recommended_margin = tail_budget_notional / leverage if leverage > 0 else None
+    urgent = bool(oversize is not None and oversize > 10.0)
+
+    return {
+        "status": "ACTIVE",
+        "mode": "READ_ONLY_RECOMMENDATION_NO_ACTION",
+        "equity_usdt": round(equity, 4),
+        "equity_source": equity_source or "sizing_shadow_default",
+        "tail_budget_pct": EXECMGMT_TAIL_BUDGET_PCT,
+        "tail_budget_usdt": round(tail_budget_usdt, 4),
+        "worst_real_fill_bps": EXECMGMT_WORST_REAL_FILL_BPS,
+        "tail_budget_notional_usdt": round(tail_budget_notional, 4),
+        "current_notional_usdt": round(float(current_notional or 0.0), 4),
+        "current_notional_source": notional_source,
+        "current_margin_usdt": round(float(margin or 0.0), 4),
+        "current_margin_source": margin_source,
+        "leverage": round(leverage, 4),
+        "leverage_source": leverage_source or "default_or_audit",
+        "oversize_multiple": round(oversize, 1) if oversize is not None else None,
+        "urgent": urgent,
+        "flag": "URGENT_OVERSIZE_GT_10X" if urgent else "OK",
+        "recommended_max_margin_usdt": round(recommended_margin, 4) if recommended_margin is not None else None,
+        "read": "display/recommendation only; no order/config/env mutation",
+    }
+
+
+def load_stopprot_panel(
+    *,
+    env_path: Path = ENV_PATH,
+    audit_path: Path = EXECUTION_AUDIT,
+) -> dict[str, Any]:
+    env = load_env_values(env_path)
+    audit = {}
+    if audit_path.exists():
+        try:
+            audit = json.loads(audit_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            audit = {}
+    gap = audit.get("gap_through") if isinstance(audit.get("gap_through"), dict) else {}
+    atom = audit.get("atomicity_audit") if isinstance(audit.get("atomicity_audit"), dict) else {}
+    nominal, nominal_source = _first_float(
+        env,
+        ("S34_V_ENGINE_LIVE_STOP_BPS", "S34_V_ENGINE_EMERGENCY_STOP_BPS", "STOP_BPS"),
+        _float_from_any(gap.get("current_stop_nominal_bps"), 150.0),
+    )
+    nominal = float(nominal or 150.0)
+    worst_fill = _float_from_any(gap.get("current_stop_research_max_loss_bps"), EXECMGMT_WORST_REAL_FILL_BPS)
+    worst_fill = float(worst_fill or EXECMGMT_WORST_REAL_FILL_BPS)
+    gap_bps = max(0.0, abs(worst_fill) - abs(nominal))
+    partial = abs(worst_fill) > abs(nominal)
+    poll_sec = _float_from_any(atom.get("poll_sec"), 2.0)
+    return {
+        "status": "ACTIVE",
+        "mode": "READ_ONLY_WARNING_NO_ACTION",
+        "nominal_stop_bps": round(nominal, 4),
+        "nominal_stop_source": nominal_source or "audit_or_default",
+        "worst_real_fill_bps": round(worst_fill, 4),
+        "gap_through_bps": round(gap_bps, 4),
+        "gap_through_flag": "PARTIAL_PROTECTION" if partial else "FULL_WITHIN_AUDIT_SAMPLE",
+        "atomicity": "ENTRY_THEN_STOP_POLL_LOOP",
+        "unprotected_window_sec": round(float(poll_sec or 2.0), 4),
+        "read": "entry fill to stop placement has an approximately 2s unprotected poll-loop window; warning only",
+    }
+
+
 def load_validated_signals(path: Path = VALIDATED_SIGNALS_REGISTRY) -> dict[str, Any]:
     """Load the permutation-validated signal registry (fifth-wave research results)."""
     if not path.exists():
@@ -411,6 +585,7 @@ def load_realtime_shadow_bucket(
     # Ledger stats
     if ledger_path.exists():
         by_sig: dict[str, list[float]] = {}
+        close_rows: list[dict] = []
         n_events = 0
         with ledger_path.open(encoding="utf-8") as f:
             for line in f:
@@ -424,6 +599,7 @@ def load_realtime_shadow_bucket(
                     net = r.get("net_bps")
                     if net is not None:
                         by_sig.setdefault(sig, []).append(float(net))
+                    close_rows.append(r)
         result["closed_trades_n"] = n_events
         sig_stats = {}
         for sig, vals in by_sig.items():
@@ -434,9 +610,31 @@ def load_realtime_shadow_bucket(
                 "avg_net": round(sum(vals)/len(vals), 1) if vals else 0,
             }
         result["signal_stats"] = sig_stats
+
+        def _long_base(r: dict) -> bool:
+            return (r.get("signal") == "LONG_SILENCE"
+                    and str(r.get("close_reason") or "") == "TIME_EXIT"
+                    and float(r.get("sync_k") or 0) < 200_000)
+
+        def _cand(rows: list, fn) -> dict:
+            matched = [r for r in rows if fn(r)]
+            nets = [float(r["net_bps"]) for r in matched if r.get("net_bps") is not None]
+            wins = sum(1 for v in nets if v > 0)
+            return {"n": len(matched), "wr": round(wins / len(nets), 3) if nets else 0,
+                    "avg_bps": round(sum(nets) / len(nets), 1) if nets else 0}
+
+        result["candidate_buckets"] = [
+            {"name": "C_score_relax",      "label": "score>=2 (btc7d removed)",      "mc_p": 0.018, "stats": _cand(close_rows, lambda r: _long_base(r) and float(r.get("score") or 0) >= 2)},
+            {"name": "C_btc7d500",         "label": "btc7d in (-500,0) [live only]", "mc_p": 0.240, "stats": _cand(close_rows, lambda r: _long_base(r) and r.get("btc7d_bps") is not None and -500 < float(r.get("btc7d_bps") or 0) < 0)},
+            {"name": "C_freq_btc4h",       "label": "btc4h<0 no btc7d [live only]",  "mc_p": 0.375, "stats": _cand(close_rows, lambda r: _long_base(r) and r.get("btc4h_bps") is not None and float(r.get("btc4h_bps") or 0) < 0)},
+            {"name": "C_double_cascade",   "label": "density_24h>=1+prebuildup>=2 [live only]", "mc_p": 0.001, "stats": _cand(close_rows, lambda r: _long_base(r) and r.get("density_24h") is not None and r.get("prebuildup") is not None and int(r.get("density_24h") or 0) >= 1 and int(r.get("prebuildup") or 0) >= 2)},
+            {"name": "C_btc_falling_fast", "label": "btc5m<-20bps [live only]",      "mc_p": 0.001, "stats": _cand(close_rows, lambda r: _long_base(r) and r.get("btc5m_bps") is not None and float(r.get("btc5m_bps") or 0) < -20)},
+            {"name": "C_failed_cascade",   "label": "failed_cascade==True [live only]", "mc_p": 0.006, "stats": _cand(close_rows, lambda r: _long_base(r) and r.get("failed_cascade") is True)},
+        ]
     else:
         result["closed_trades_n"] = 0
         result["signal_stats"] = {}
+        result["candidate_buckets"] = []
     return result
 
 
@@ -920,6 +1118,26 @@ def render_text(report: dict[str, Any]) -> str:
             f"survival pnl={surv.get('sum_pnl_usdt')} end={surv.get('ending_equity_usdt')} "
             "shadow_only"
         )
+    execmgmt = report.get("execmgmt") or {}
+    if execmgmt and execmgmt.get("status") == "ACTIVE":
+        lines.append(
+            "EXECMGMT: "
+            f"notional={execmgmt.get('current_notional_usdt')}usdt "
+            f"tail_notional={execmgmt.get('tail_budget_notional_usdt')}usdt "
+            f"oversize={execmgmt.get('oversize_multiple')}x "
+            f"rec_margin={execmgmt.get('recommended_max_margin_usdt')}usdt "
+            f"flag={execmgmt.get('flag')} read_only"
+        )
+    stopprot = report.get("stopprot") or {}
+    if stopprot and stopprot.get("status") == "ACTIVE":
+        lines.append(
+            "STOPPROT: "
+            f"nominal={stopprot.get('nominal_stop_bps')}bps "
+            f"worst_fill={stopprot.get('worst_real_fill_bps')}bps "
+            f"gap={stopprot.get('gap_through_bps')}bps "
+            f"flag={stopprot.get('gap_through_flag')} "
+            f"atomicity={stopprot.get('atomicity')}~{stopprot.get('unprotected_window_sec')}s"
+        )
     # ── Silence gate status (live executor) ──────────────────────────────────
     sg = report.get("silence_gate") or {}
     sgate_resolved = sg.get("silence_gate_resolved")
@@ -953,6 +1171,15 @@ def render_text(report: dict[str, Any]) -> str:
             f" signals=LONG_SILENCE+SHORT_NEITHER+SHORT_NOISY"
             f" [{stat_str}]"
         )
+        for cb in sb.get("candidate_buckets") or []:
+            s = cb.get("stats") or {}
+            n = s.get("n", 0)
+            wr_str = f"{s['wr']:.0%}" if n > 0 else "-"
+            avg_str = f"{s['avg_bps']:+.1f}bps" if n > 0 else "-"
+            lines.append(
+                f"  CAND  [{cb['name']}] N={n} WR={wr_str} avg={avg_str}"
+                f" mc_p={cb.get('mc_p','?')} | {cb.get('label','')}"
+            )
     # ── Validated signals registry ───────────────────────────────────────────
     vr = report.get("validated_registry") or {}
     if vr and vr.get("status") not in {"MISSING", "INVALID", None}:
@@ -971,14 +1198,14 @@ def render_text(report: dict[str, Any]) -> str:
         atom_short = "NOT_ATOMIC" if "NOT_ATOMIC" in str(ea.get("atomicity", "")) else str(ea.get("atomicity", "?"))
         urgent = "URGENT_RESIZE" if (oversize or 0) > 10 else "OK"
         lines.append(
-            "EXECMGMT: "
+            "EXECAUD : "
             f"margin_env={ea.get('margin_env_usdt')}usdt budget={ea.get('budget_margin_usdt')}usdt "
             f"oversize={oversize_str} leverage={ea.get('leverage')}x "
             f"atomicity={atom_short} tail={ea.get('tail_rate_pct')}% "
             f"{urgent}"
         )
         lines.append(
-            "STOPPROT: "
+            "STOPAUD : "
             f"stop_nom={ea.get('stop_nominal_bps')}bps worst_fill={ea.get('stop_worst_fill_bps')}bps "
             f"GAP_THROUGH={ea.get('stop_gap_bps')}bps equity_risk={ea.get('stop_pct_equity')}% "
             f"tail_in3={ea.get('tail_in_3_pct')}% tail_in5={ea.get('tail_in_5_pct')}% "
@@ -1074,6 +1301,40 @@ def render_md(report: dict[str, Any]) -> str:
                     f"{mgmt.get('env_planned_margin_usdt')} | {mgmt.get('max_tail_budget_margin_usdt')} | "
                     f"{mgmt.get('max_stop_budget_margin_usdt')} | {mgmt.get('oversize_multiple')} | "
                     f"{mgmt.get('recommendation')} |"
+                ),
+                "",
+            ]
+        )
+    execmgmt = report.get("execmgmt") or {}
+    stopprot = report.get("stopprot") or {}
+    if execmgmt and execmgmt.get("status") == "ACTIVE":
+        lines.extend(
+            [
+                "## EXECMGMT Sizing",
+                "",
+                "| Equity | Tail Budget | Current Notional | Tail-Budget Notional | Oversize | Recommended Max Margin | Flag | Mode |",
+                "| ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |",
+                (
+                    f"| {execmgmt.get('equity_usdt')} | {execmgmt.get('tail_budget_usdt')} | "
+                    f"{execmgmt.get('current_notional_usdt')} | {execmgmt.get('tail_budget_notional_usdt')} | "
+                    f"{execmgmt.get('oversize_multiple')} | {execmgmt.get('recommended_max_margin_usdt')} | "
+                    f"{execmgmt.get('flag')} | {execmgmt.get('mode')} |"
+                ),
+                "",
+            ]
+        )
+    if stopprot and stopprot.get("status") == "ACTIVE":
+        lines.extend(
+            [
+                "## STOPPROT Stop Protection",
+                "",
+                "| Nominal Stop | Worst Real Fill | Gap-Through | Flag | Atomicity | Unprotected Window | Mode |",
+                "| ---: | ---: | ---: | --- | --- | ---: | --- |",
+                (
+                    f"| {stopprot.get('nominal_stop_bps')} | {stopprot.get('worst_real_fill_bps')} | "
+                    f"{stopprot.get('gap_through_bps')} | {stopprot.get('gap_through_flag')} | "
+                    f"{stopprot.get('atomicity')} | {stopprot.get('unprotected_window_sec')} | "
+                    f"{stopprot.get('mode')} |"
                 ),
                 "",
             ]
@@ -1239,6 +1500,8 @@ def main(argv: list[str] | None = None) -> int:
         "shadow_bucket": load_realtime_shadow_bucket(),
         "validated_registry": validated_registry,
         "execution_audit": load_execution_audit(),
+        "execmgmt": load_execmgmt_panel(),
+        "stopprot": load_stopprot_panel(),
         "config": {
             "bucket_sec": int(args.bucket_sec),
             "accel_window_sec": int(args.accel_window_sec),
