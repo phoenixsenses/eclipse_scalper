@@ -1003,7 +1003,14 @@ async def _report_signal_feedback(bot) -> None:
         )
 
 
-def _schedule_micro_timeout_cancel(bot, *, symbol: str, order_id: Optional[str], timeout_sec: float) -> None:
+def _schedule_micro_timeout_cancel(
+    bot,
+    *,
+    symbol: str,
+    order_id: Optional[str],
+    timeout_sec: float,
+    pending_tasks: Optional[set] = None,
+) -> None:
     if not order_id:
         return
     to_sec = float(timeout_sec or 0.0)
@@ -1019,9 +1026,12 @@ def _schedule_micro_timeout_cancel(bot, *, symbol: str, order_id: Optional[str],
             return
 
     try:
-        asyncio.create_task(_cancel_later())
+        task = asyncio.create_task(_cancel_later())
     except Exception:
-        pass
+        return
+    if pending_tasks is not None:
+        pending_tasks.add(task)
+        task.add_done_callback(pending_tasks.discard)
 
 
 def _get_entry_lock(k: str) -> asyncio.Lock:
@@ -1289,6 +1299,10 @@ async def entry_loop(bot) -> None:
     sig_fn = _load_signal_fn()
     micro_engine = None
     micro_provider = None
+    # Fire-and-forget _schedule_micro_timeout_cancel() background tasks are
+    # tracked here so the shutdown path below can drain them instead of
+    # letting asyncio.run() silently discard a pending limit-order cancel.
+    _pending_micro_cancel_tasks: set = set()
     micro_enabled = _cfg_env_bool(bot, "ENTRY_MICRO_SIGNAL_ENABLED", False)
     _picked = _pick_symbols(bot)
     micro_symbol = _symkey(_env_get("MICRO_SIGNAL_SYMBOL") or (_picked[0] if _picked else "BTCUSDT"))
@@ -2548,6 +2562,7 @@ async def entry_loop(bot) -> None:
                                 symbol=sym_raw,
                                 order_id=str(oid),
                                 timeout_sec=float(sig.get("fill_timeout_sec", 10.0) or 10.0),
+                                pending_tasks=_pending_micro_cancel_tasks,
                             )
 
                         log_core.critical(f"ENTRY_LOOP: ORDER SUBMITTED {k} {action.upper()} type={otype} amt={amt} id={oid}")
@@ -2640,6 +2655,19 @@ async def entry_loop(bot) -> None:
             if callable(build_crash_event):
                 await _safe_notify_event(bot, build_crash_event(str(e), max(0.0, _now() - float(notify_started_ts))))
             await asyncio.sleep(1.0)
+    if _pending_micro_cancel_tasks:
+        _drain = [t for t in list(_pending_micro_cancel_tasks) if not t.done()]
+        if _drain:
+            _drain_timeout = float(_cfg_env_float(bot, "ENTRY_MICRO_CANCEL_DRAIN_TIMEOUT_SEC", 5.0) or 5.0)
+            _done, _still_pending = await asyncio.wait(_drain, timeout=max(0.0, _drain_timeout))
+            if _still_pending:
+                log_entry.warning(
+                    f"ENTRY_LOOP: {len(_still_pending)} micro timeout-cancel task(s) still pending after "
+                    f"{_drain_timeout}s drain; cancelling."
+                )
+                for t in _still_pending:
+                    t.cancel()
+                await asyncio.wait(_still_pending)
     if micro_engine is not None:
         try:
             await micro_engine.stop()
