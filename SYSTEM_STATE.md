@@ -6621,3 +6621,94 @@ Kanonik post-recording durum: `GATE_2B_POSITIVE_CONTINUITY_ACCEPTANCE_
 RECORDED`. Next: `GATE_2C_SOAK_AND_CADENCE_DECISION_PENDING` (ayrı
 operatör kararı); kalıcı scheduler aktivasyonu ayrı, açık bir sonraki
 yetkiyi bekliyor.
+
+## 130. GATE 2C CONTRACT-REPLICATION SOAK — KABUL EDİLDİ (2026-07-13, Sonnet 5)
+
+**Verdict: `GATE_2C_CONTRACT_REPLICATION_SOAK_ACCEPTED_WITH_LITERAL_
+LAUNCHER_VALIDATION_PENDING`.**
+
+**Kanonik sonuç durumu: `GATE_2C_CONTRACT_REPLICATION_SOAK_ACCEPTANCE_
+RECORDED`.**
+
+**Reviewed repository kimliği:**
+- Branch: `codex/data-layer-fallback-cleanup`
+- Reviewed HEAD (tam): `1e5ea448882b6cdd8e103be53b2f6f76d03c2237`
+- Reviewed HEAD tree hash: `7d027e0e2ece2ef4cb17ed6fb71e30ba076e01a5`
+- Upstream: `origin/codex/data-layer-fallback-cleanup`, ahead/behind **0/0**
+- Repository freeze kanıtı: rehearsal ve bu kayıt boyunca HEAD, HEAD
+  tree, staging (boş) ve tracked dirty set birebir aynı kaldı.
+- Gate 2 dosyaları delta: **0** (canary monitor, monitor test, scheduler,
+  watchdog, `start_eclipse.ps1`, `status_eclipse.ps1`, `stop_eclipse.ps1`).
+
+**Reviewer kimliği:** Bağımsız reviewer, model Sonnet 5. Policy kontrolü:
+`CLAUDE.md`'de model-ailesi zorunluluğu metni yok (grep ile tekrar
+doğrulandı); doğrudan emsal — bu tam gate kategorisindeki (liquidation-
+silence scheduler/monitor) §129 (Gate 2B) zaten Sonnet 5 ile kaydedildi.
+
+**Kabul edilen teknik kanıt:**
+- Scheduler PID: `23408`.
+- Scheduler modu: gerçek loop (cadence=300s, startup-delay=60s), `--once`
+  DEĞİL.
+- Cycle sayısı: **3**.
+- Cycle zaman damgaları: `2026-07-12T21:57:59Z`, `2026-07-12T22:02:59Z`,
+  `2026-07-12T22:07:59Z`.
+- Cadence gap'leri: ~300.13s ve ~300.11s (tolerans içinde).
+- Cycle outcome'ları: `SUCCESS`/`GREEN`/`HEALTHY`, hepsinde.
+- Detector error: yok.
+- Gerçek production `CONTINUOUS` snapshot sayısı: **36**.
+- İlk canlı sonuç: `process_count:1`, `pid:23408`, `start_time` baseline'la
+  eşleşti, `identity_status:MATCHED_EXPECTED_IDENTITY`, `reason_codes:[]`.
+- Duplicate: `0`. Live executor: `0`. Diğer runtime rolü restart: `0`.
+- Graceful stop: `CTRL_BREAK_EVENT` (hard-kill/Force/taskkill hiç
+  kullanılmadı).
+- Graceful-stop gecikmesi: ~0.585s.
+- Scheduler exit code: `0`.
+- Post-stop sonuç: `MISSING`/`NO_MATCHING_PROCESS`.
+- Fresh→stale watchdog geçişi: gerçekten gözlendi (simüle edilmedi —
+  gerçek elapsed time eşiği aştı).
+- Odaklı testler: **253 passed**.
+- CRITICAL/HIGH/MEDIUM bulgu: `0`.
+
+**Runtime artefakt kanıtı:**
+- BOM metadata gerçek PID/start-time'a güncellendi; BOM prefix korundu.
+- Scheduler log tam **3** başarılı kayıt kazandı.
+- Health `evaluated_at` her cycle'da ilerledi.
+- Tracked symbols: `BTCUSDT`, `ETHUSDT`, `SOLUSDT`.
+- Malformed kayıt: `0`. Exception: `0`.
+- Soak sonrası health eşik aşılınca doğal olarak bayatladı; `overall`
+  tekrar `degraded`'e, `WATCHDOG_STATUS` tekrar `YELLOW`'a döndü; reason:
+  `liquidation_silence_unknown:STALE_ARTIFACT`.
+
+**Açık sınırlama — kaydedilen LOW bulgu `F-LAUNCHER-STOP-01`:**
+Literal `start_eclipse.ps1` bu geçişte çalıştırılMADI. Literal
+`stop_eclipse.ps1 -LiquidationSilenceSchedulerOnly` `Stop-Process`/
+`TerminateProcess()` kullanıyor — açık `-Force` olmasa da teknik olarak
+hard-kill'dir. Bunun yerine contract-replication orchestrator kullanıldı;
+gerçek graceful `CTRL_BREAK_EVENT` davranışı doğrulandı. Literal launcher/
+stop zinciri **doğrulanmamış** kaldı. Kalıcı scheduler aktivasyonu
+yetkilendirilmemiş kaldı.
+
+**Açıkça İDDİA EDİLMEYEN şeyler:** literal launcher kabul edildiği; kalıcı
+aktivasyonun hazır olduğu; Scheduled Task'ın hazır olduğu; dashboard'ın
+yalnız Gate 2C'den ötürü hazır olduğu.
+
+**Scheduled Task durumu:** liquidation-silence için hâlâ hiçbir Scheduled
+Task yok; tanım/kayıt hâlâ activation-hazırlık işi; bu geçişte hiçbir
+task oluşturulmadı.
+
+**Bir sonraki canonical kapılı iş:** `ECLIPSE_GATE2_BROAD_REGRESSION_
+PENDING`. Ayrı, açık bir corrective/tasarım thread'i: `LIQUIDATION_
+SILENCE_GENUINE_GRACEFUL_STOP_DESIGN_PENDING`.
+
+**Repository sınırı:** Bu governance kaydı yalnız `SYSTEM_STATE.md`'ye
+yazıldı. `tools/`, `tests/`, `runtime/`, `logs/`, `data/`, foreign-owned
+native-WS/dashboard dosyaları, AMI/research çıktıları ve
+`.claude/settings.local.json` bu geçişte DOKUNULMADI. Hiçbir proses
+başlatılmadı/durduruldu; scheduler veya live executor aktive edilmedi.
+
+**Verdict: `GATE_2C_CONTRACT_REPLICATION_SOAK_ACCEPTED_WITH_LITERAL_
+LAUNCHER_VALIDATION_PENDING`.** Kanonik post-recording durum:
+`GATE_2C_CONTRACT_REPLICATION_SOAK_ACCEPTANCE_RECORDED`. Next:
+`ECLIPSE_GATE2_BROAD_REGRESSION_PENDING`; ayrıca `LIQUIDATION_SILENCE_
+GENUINE_GRACEFUL_STOP_DESIGN_PENDING`; kalıcı scheduler aktivasyonu ayrı,
+açık bir sonraki yetkiyi bekliyor.
