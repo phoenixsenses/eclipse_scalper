@@ -252,7 +252,7 @@ def test_effective_min_n_without_fraction(monkeypatch) -> None:
     assert all(str(r["fail_reason"]) == "ok" for r in res["per_combo"])
 
 
-def test_main_prints_min_n_frac_dominance_warning(monkeypatch, capsys) -> None:
+def test_main_prints_min_n_frac_dominance_warning(monkeypatch, capsys, tmp_path) -> None:
     fake = {
         "symbol": "ETHUSDT",
         "horizon_sec": 60,
@@ -322,9 +322,9 @@ def test_main_prints_min_n_frac_dominance_warning(monkeypatch, capsys) -> None:
         [
             "x",
             "--out-md",
-            "reports/test_validate_forward_minfrac.md",
+            str(tmp_path / "test_validate_forward_minfrac.md"),
             "--out-json",
-            "reports/test_validate_forward_minfrac.json",
+            str(tmp_path / "test_validate_forward_minfrac.json"),
             "--min-n",
             "50",
             "--min-n-frac",
@@ -334,7 +334,7 @@ def test_main_prints_min_n_frac_dominance_warning(monkeypatch, capsys) -> None:
     rc = vf.main()
     out = capsys.readouterr().out
     assert rc == 0
-    payload = json.loads(Path("reports/test_validate_forward_minfrac.json").read_text(encoding="utf-8"))
+    payload = json.loads((tmp_path / "test_validate_forward_minfrac.json").read_text(encoding="utf-8"))
     assert payload["run_summary"]["artifacts"]["json"].endswith("test_validate_forward_minfrac.json")
     assert payload["run_summary"]["artifacts"]["md"].endswith("test_validate_forward_minfrac.md")
     assert "effective_min_n formula" in out

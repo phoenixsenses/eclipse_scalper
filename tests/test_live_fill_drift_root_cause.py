@@ -51,8 +51,8 @@ def test_rank_root_causes_insufficient_evidence() -> None:
     assert any(c.name == "Insufficient/Noisy Evidence" for c in causes)
 
 
-def test_main_writes_run_summary(monkeypatch) -> None:
-    base = Path("reports/test_live_fill_drift_root_cause")
+def test_main_writes_run_summary(monkeypatch, tmp_path) -> None:
+    base = tmp_path / "test_live_fill_drift_root_cause"
     base.mkdir(parents=True, exist_ok=True)
     parity = base / "parity.json"
     diag = base / "diag.json"

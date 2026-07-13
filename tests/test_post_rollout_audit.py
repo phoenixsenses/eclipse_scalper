@@ -7,8 +7,8 @@ from pathlib import Path
 from tools import post_rollout_audit as pra
 
 
-def test_post_rollout_audit_writes_run_summary(monkeypatch) -> None:
-    base = Path("reports/test_post_rollout_audit")
+def test_post_rollout_audit_writes_run_summary(monkeypatch, tmp_path) -> None:
+    base = tmp_path / "test_post_rollout_audit"
     base.mkdir(parents=True, exist_ok=True)
     diag = base / "diag.json"
     tox = base / "tox.json"

@@ -9,8 +9,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools import summarize_rank_attribution as sra
 
 
-def test_summarize_rank_attribution_output(capsys, monkeypatch) -> None:
-    p = Path("reports/test_rank_attribution_input.json")
+def test_summarize_rank_attribution_output(capsys, monkeypatch, tmp_path) -> None:
+    p = tmp_path / "test_rank_attribution_input.json"
     p.parent.mkdir(parents=True, exist_ok=True)
     payload = {
         "count": 3,
@@ -67,9 +67,9 @@ def test_summarize_rank_attribution_output(capsys, monkeypatch) -> None:
     assert "Next action: fees dominate" in out
 
 
-def test_summarize_rank_attribution_writes_json(monkeypatch) -> None:
-    p = Path("reports/test_rank_attribution_input_out.json")
-    out_json = Path("reports/test_rank_attribution_summary.json")
+def test_summarize_rank_attribution_writes_json(monkeypatch, tmp_path) -> None:
+    p = tmp_path / "test_rank_attribution_input_out.json"
+    out_json = tmp_path / "test_rank_attribution_summary.json"
     p.parent.mkdir(parents=True, exist_ok=True)
     payload = {
         "count": 2,

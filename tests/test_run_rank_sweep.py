@@ -9,8 +9,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools import run_rank_sweep as rrs
 
 
-def test_run_rank_sweep_writes_registry_and_run_folders(monkeypatch) -> None:
-    reports = Path("reports/test_run_rank_sweep")
+def test_run_rank_sweep_writes_registry_and_run_folders(monkeypatch, tmp_path) -> None:
+    reports = tmp_path / "test_run_rank_sweep"
     reports.mkdir(parents=True, exist_ok=True)
     candidates = reports / "candidates.md"
     candidates.write_text(
@@ -116,8 +116,8 @@ def test_run_rank_sweep_writes_registry_and_run_folders(monkeypatch) -> None:
     assert (run_dir / "rank.md").exists()
 
 
-def test_run_rank_sweep_dry_run_no_registry_write(monkeypatch, capsys) -> None:
-    reports = Path("reports/test_run_rank_sweep_dry")
+def test_run_rank_sweep_dry_run_no_registry_write(monkeypatch, capsys, tmp_path) -> None:
+    reports = tmp_path / "test_run_rank_sweep_dry"
     reports.mkdir(parents=True, exist_ok=True)
     candidates = reports / "candidates.md"
     candidates.write_text("| symbol | horizon_sec | min_imbalance | min_trade_intensity | max_spread | pass |\n", encoding="utf-8")

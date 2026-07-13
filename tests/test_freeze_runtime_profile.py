@@ -9,9 +9,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools import freeze_runtime_profile as frp
 
 
-def test_freeze_runtime_profile_writes_run_summary(monkeypatch) -> None:
-    out_json = Path("reports/test_freeze_runtime_profile/out.json")
-    out_md = Path("reports/test_freeze_runtime_profile/out.md")
+def test_freeze_runtime_profile_writes_run_summary(monkeypatch, tmp_path) -> None:
+    out_json = tmp_path / "test_freeze_runtime_profile" / "out.json"
+    out_md = tmp_path / "test_freeze_runtime_profile" / "out.md"
     out_json.parent.mkdir(parents=True, exist_ok=True)
     monkeypatch.setenv("SCALPER_DRY_RUN", "1")
     monkeypatch.setattr(

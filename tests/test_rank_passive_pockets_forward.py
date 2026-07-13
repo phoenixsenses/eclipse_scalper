@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools import rank_passive_pockets_forward as rp
 
 
-def test_ranking_fee_priority_and_stability(monkeypatch) -> None:
+def test_ranking_fee_priority_and_stability(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -75,8 +75,8 @@ def test_ranking_fee_priority_and_stability(monkeypatch) -> None:
         }
 
     monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
-    out_md = Path("reports/test_rank_passive_pockets_forward.md")
-    out_json = Path("reports/test_rank_passive_pockets_forward.json")
+    out_md = (tmp_path / "test_rank_passive_pockets_forward.md")
+    out_json = (tmp_path / "test_rank_passive_pockets_forward.json")
     argv = [
         "x",
         "--candidates-md",
@@ -104,7 +104,7 @@ def test_ranking_fee_priority_and_stability(monkeypatch) -> None:
     assert data["liquidation_scoring_impact"]["available"] is False
 
 
-def test_liquidation_scoring_impact_summary(monkeypatch) -> None:
+def test_liquidation_scoring_impact_summary(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -150,7 +150,7 @@ def test_liquidation_scoring_impact_summary(monkeypatch) -> None:
         return {"rows_total": len(rows), "pass_count": len(rows), "pass_rate": 1.0, "insufficient_fill_rate": 0.0, "per_combo": rows}
 
     monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
-    out_json = Path("reports/test_rank_liq_impact.json")
+    out_json = (tmp_path / "test_rank_liq_impact.json")
     monkeypatch.setattr(
         sys,
         "argv",
@@ -171,7 +171,7 @@ def test_liquidation_scoring_impact_summary(monkeypatch) -> None:
             "--mitigation-profile",
             "anti_adverse_v3",
             "--out-md",
-            "reports/test_rank_liq_impact.md",
+            str(tmp_path / "test_rank_liq_impact.md"),
             "--out-json",
             str(out_json),
         ],
@@ -186,7 +186,7 @@ def test_liquidation_scoring_impact_summary(monkeypatch) -> None:
     assert float(impact["avg_delta_score_raw_core"]) > 0.0
 
 
-def test_anti_adverse_v5_passes_wait_and_scratch_overrides(monkeypatch) -> None:
+def test_anti_adverse_v5_passes_wait_and_scratch_overrides(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -235,7 +235,7 @@ def test_anti_adverse_v5_passes_wait_and_scratch_overrides(monkeypatch) -> None:
         }
 
     monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
-    out_json = Path("reports/test_rank_anti_adverse_v5.json")
+    out_json = (tmp_path / "test_rank_anti_adverse_v5.json")
     monkeypatch.setattr(
         sys,
         "argv",
@@ -256,7 +256,7 @@ def test_anti_adverse_v5_passes_wait_and_scratch_overrides(monkeypatch) -> None:
             "--mitigation-profile",
             "anti_adverse_v5",
             "--out-md",
-            "reports/test_rank_anti_adverse_v5.md",
+            str(tmp_path / "test_rank_anti_adverse_v5.md"),
             "--out-json",
             str(out_json),
         ],
@@ -270,7 +270,7 @@ def test_anti_adverse_v5_passes_wait_and_scratch_overrides(monkeypatch) -> None:
     assert data["gate_config"]["passive_max_wait_buckets"] == 2
 
 
-def test_anti_adverse_v6_passes_exec_model_override(monkeypatch) -> None:
+def test_anti_adverse_v6_passes_exec_model_override(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -334,9 +334,9 @@ def test_anti_adverse_v6_passes_exec_model_override(monkeypatch) -> None:
             "--mitigation-profile",
             "anti_adverse_v6",
             "--out-md",
-            "reports/test_rank_anti_adverse_v6.md",
+            str(tmp_path / "test_rank_anti_adverse_v6.md"),
             "--out-json",
-            "reports/test_rank_anti_adverse_v6.json",
+            str(tmp_path / "test_rank_anti_adverse_v6.json"),
         ],
     )
     rc = rp.main()
@@ -344,8 +344,8 @@ def test_anti_adverse_v6_passes_exec_model_override(monkeypatch) -> None:
     assert "passive_then_taker" in seen_exec_models
 
 
-def test_parse_candidates_md_v2_style() -> None:
-    p = Path("reports/test_rank_candidates_v2_style.md")
+def test_parse_candidates_md_v2_style(tmp_path) -> None:
+    p = (tmp_path / "test_rank_candidates_v2_style.md")
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(
         "\n".join(
@@ -400,7 +400,7 @@ def test_main_returns_error_when_no_candidates(monkeypatch, capsys) -> None:
     assert "ERROR no candidates parsed" in out
 
 
-def test_rank_skip_message_includes_effective_min_hint(monkeypatch, capsys) -> None:
+def test_rank_skip_message_includes_effective_min_hint(monkeypatch, capsys, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -453,9 +453,9 @@ def test_rank_skip_message_includes_effective_min_hint(monkeypatch, capsys) -> N
             "--min-n",
             "50",
             "--out-md",
-            "reports/test_rank_skip_hint.md",
+            str(tmp_path / "test_rank_skip_hint.md"),
             "--out-json",
-            "reports/test_rank_skip_hint.json",
+            str(tmp_path / "test_rank_skip_hint.json"),
         ],
     )
     rc = rp.main()
@@ -466,7 +466,7 @@ def test_rank_skip_message_includes_effective_min_hint(monkeypatch, capsys) -> N
     assert "current min_n_frac=0.000250" in out
 
 
-def test_research_mode_sets_soft_threshold(monkeypatch, capsys) -> None:
+def test_research_mode_sets_soft_threshold(monkeypatch, capsys, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -514,9 +514,9 @@ def test_research_mode_sets_soft_threshold(monkeypatch, capsys) -> None:
             "1.0,1.2",
             "--research-mode",
             "--out-md",
-            "reports/test_rank_research.md",
+            str(tmp_path / "test_rank_research.md"),
             "--out-json",
-            "reports/test_rank_research.json",
+            str(tmp_path / "test_rank_research.json"),
         ],
     )
     rc = rp.main()
@@ -525,7 +525,7 @@ def test_research_mode_sets_soft_threshold(monkeypatch, capsys) -> None:
     assert "RESEARCH MODE enabled: pass_threshold=0.33" in out
 
 
-def test_ranker_filters_low_capacity_pocket(monkeypatch) -> None:
+def test_ranker_filters_low_capacity_pocket(monkeypatch, tmp_path) -> None:
     """Pocket whose core-eval attempt_fill_rate < --min-attempt-fill-rate must be excluded."""
     monkeypatch.setattr(
         rp,
@@ -562,8 +562,8 @@ def test_ranker_filters_low_capacity_pocket(monkeypatch) -> None:
         return {"rows_total": len(rows), "pass_count": len(rows), "pass_rate": 1.0, "insufficient_fill_rate": 0.0, "per_combo": rows}
 
     monkeypatch.setattr(rp, "validate_pocket_forward", _low_fill_validate)
-    out_md = Path("reports/test_ranker_filter_cap.md")
-    out_json = Path("reports/test_ranker_filter_cap.json")
+    out_md = (tmp_path / "test_ranker_filter_cap.md")
+    out_json = (tmp_path / "test_ranker_filter_cap.json")
     argv = [
         "x", "--candidates-md", "reports/dummy.md", "--db", "data/microstructure.db",
         "--maker-fee-bps-grid", "0.5,1.0,1.5",
@@ -579,7 +579,7 @@ def test_ranker_filters_low_capacity_pocket(monkeypatch) -> None:
     assert data["count"] == 0, f"Expected pocket filtered out, got count={data['count']}"
 
 
-def test_score_raw_fields_present_in_output(monkeypatch) -> None:
+def test_score_raw_fields_present_in_output(monkeypatch, tmp_path) -> None:
     """score_raw_core/stress/min must be present in JSON even when score is 0."""
     monkeypatch.setattr(
         rp,
@@ -618,8 +618,8 @@ def test_score_raw_fields_present_in_output(monkeypatch) -> None:
         return {"rows_total": len(rows), "pass_count": sum(1 for r in rows if r["pass"]), "pass_rate": 0.5, "insufficient_fill_rate": 0.0, "per_combo": rows}
 
     monkeypatch.setattr(rp, "validate_pocket_forward", _marginal_validate)
-    out_md = Path("reports/test_score_raw.md")
-    out_json = Path("reports/test_score_raw.json")
+    out_md = (tmp_path / "test_score_raw.md")
+    out_json = (tmp_path / "test_score_raw.json")
     argv = [
         "x", "--candidates-md", "reports/dummy.md", "--db", "data/microstructure.db",
         "--maker-fee-bps-grid", "0.5,1.0,1.5",
@@ -646,7 +646,7 @@ def test_score_raw_fields_present_in_output(monkeypatch) -> None:
     assert float(r["score_raw_stress"]) < 0.0
 
 
-def test_anti_adverse_v2_keeps_pass_core_within_tolerance(monkeypatch) -> None:
+def test_anti_adverse_v2_keeps_pass_core_within_tolerance(monkeypatch, tmp_path) -> None:
     """anti_adverse_v2 must remain light-touch for high-quality pocket."""
     monkeypatch.setattr(
         rp,
@@ -689,8 +689,8 @@ def test_anti_adverse_v2_keeps_pass_core_within_tolerance(monkeypatch) -> None:
 
     monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
 
-    out_baseline = Path("reports/test_rank_v2_tolerance_baseline.json")
-    out_v2 = Path("reports/test_rank_v2_tolerance_v2.json")
+    out_baseline = (tmp_path / "test_rank_v2_tolerance_baseline.json")
+    out_v2 = (tmp_path / "test_rank_v2_tolerance_v2.json")
 
     monkeypatch.setattr(
         sys,
@@ -698,7 +698,7 @@ def test_anti_adverse_v2_keeps_pass_core_within_tolerance(monkeypatch) -> None:
         [
             "x", "--candidates-md", "reports/dummy.md", "--db", "data/microstructure.db",
             "--maker-fee-bps-grid", "1.0", "--passive-adverse-mult-grid", "1.0",
-            "--min-attempt-fill-rate", "0.0", "--out-md", "reports/test_rank_v2_tolerance_baseline.md",
+            "--min-attempt-fill-rate", "0.0", "--out-md", str(tmp_path / "test_rank_v2_tolerance_baseline.md"),
             "--out-json", str(out_baseline), "--mitigation-profile", "baseline",
         ],
     )
@@ -712,7 +712,7 @@ def test_anti_adverse_v2_keeps_pass_core_within_tolerance(monkeypatch) -> None:
         [
             "x", "--candidates-md", "reports/dummy.md", "--db", "data/microstructure.db",
             "--maker-fee-bps-grid", "1.0", "--passive-adverse-mult-grid", "1.0",
-            "--min-attempt-fill-rate", "0.0", "--out-md", "reports/test_rank_v2_tolerance_v2.md",
+            "--min-attempt-fill-rate", "0.0", "--out-md", str(tmp_path / "test_rank_v2_tolerance_v2.md"),
             "--out-json", str(out_v2), "--mitigation-profile", "anti_adverse_v2",
             "--max-volatility-extreme", "0.0060",
         ],
@@ -748,7 +748,7 @@ def test_help_includes_new_volatility_flags(monkeypatch, capsys) -> None:
     assert "anti_adverse_v4" in out
 
 
-def test_only_pocket_exact_filters_candidates(monkeypatch) -> None:
+def test_only_pocket_exact_filters_candidates(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -775,8 +775,8 @@ def test_only_pocket_exact_filters_candidates(monkeypatch) -> None:
             "x", "--candidates-md", "reports/dummy.md", "--db", "data/microstructure.db",
             "--maker-fee-bps-grid", "1.0", "--passive-adverse-mult-grid", "1.0",
             "--only-pocket", "ETHUSDT",
-            "--out-md", "reports/test_rank_only_pocket_exact.md",
-            "--out-json", "reports/test_rank_only_pocket_exact.json",
+            "--out-md", str(tmp_path / "test_rank_only_pocket_exact.md"),
+            "--out-json", str(tmp_path / "test_rank_only_pocket_exact.json"),
         ],
     )
     rc = rp.main()
@@ -784,7 +784,7 @@ def test_only_pocket_exact_filters_candidates(monkeypatch) -> None:
     assert seen_symbols and set(seen_symbols) == {"ETHUSDT"}
 
 
-def test_only_pocket_regex_filters_candidates_and_empty_is_error(monkeypatch) -> None:
+def test_only_pocket_regex_filters_candidates_and_empty_is_error(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -811,8 +811,8 @@ def test_only_pocket_regex_filters_candidates_and_empty_is_error(monkeypatch) ->
             "x", "--candidates-md", "reports/dummy.md", "--db", "data/microstructure.db",
             "--maker-fee-bps-grid", "1.0", "--passive-adverse-mult-grid", "1.0",
             "--only-pocket-regex", "BTCUSDT.*h=60",
-            "--out-md", "reports/test_rank_only_pocket_regex.md",
-            "--out-json", "reports/test_rank_only_pocket_regex.json",
+            "--out-md", str(tmp_path / "test_rank_only_pocket_regex.md"),
+            "--out-json", str(tmp_path / "test_rank_only_pocket_regex.json"),
         ],
     )
     rc = rp.main()
@@ -831,7 +831,7 @@ def test_only_pocket_regex_filters_candidates_and_empty_is_error(monkeypatch) ->
     assert rc2 == 2
 
 
-def test_ranker_passes_max_volatility_extreme_to_validator(monkeypatch) -> None:
+def test_ranker_passes_max_volatility_extreme_to_validator(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -887,9 +887,9 @@ def test_ranker_passes_max_volatility_extreme_to_validator(monkeypatch) -> None:
             "--max-volatility-extreme",
             "0.0040",
             "--out-md",
-            "reports/test_rank_v2_passthrough.md",
+            str(tmp_path / "test_rank_v2_passthrough.md"),
             "--out-json",
-            "reports/test_rank_v2_passthrough.json",
+            str(tmp_path / "test_rank_v2_passthrough.json"),
         ],
     )
     rc = rp.main()
@@ -898,7 +898,7 @@ def test_ranker_passes_max_volatility_extreme_to_validator(monkeypatch) -> None:
     assert all(abs(v - 0.0040) < 1e-12 for v in seen["vol"])
 
 
-def test_ranker_passes_horizon_and_scratch_to_validator(monkeypatch) -> None:
+def test_ranker_passes_horizon_and_scratch_to_validator(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -964,9 +964,9 @@ def test_ranker_passes_horizon_and_scratch_to_validator(monkeypatch) -> None:
             "--scratch-slippage-bps",
             "0.5",
             "--out-md",
-            "reports/test_rank_scratch_passthrough.md",
+            str(tmp_path / "test_rank_scratch_passthrough.md"),
             "--out-json",
-            "reports/test_rank_scratch_passthrough.json",
+            str(tmp_path / "test_rank_scratch_passthrough.json"),
         ],
     )
     rc = rp.main()
@@ -978,7 +978,7 @@ def test_ranker_passes_horizon_and_scratch_to_validator(monkeypatch) -> None:
     assert seen["ssl"] and all(abs(float(v) - 0.5) < 1e-12 for v in seen["ssl"])
 
 
-def test_emit_fee_cliff_summary_writes_sidecar(monkeypatch) -> None:
+def test_emit_fee_cliff_summary_writes_sidecar(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -1020,7 +1020,7 @@ def test_emit_fee_cliff_summary_writes_sidecar(monkeypatch) -> None:
         }
 
     monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
-    out_json = Path("reports/test_rank_emit_fee_cliff.json")
+    out_json = (tmp_path / "test_rank_emit_fee_cliff.json")
     monkeypatch.setattr(
         sys,
         "argv",
@@ -1036,7 +1036,7 @@ def test_emit_fee_cliff_summary_writes_sidecar(monkeypatch) -> None:
             "1.0,1.2",
             "--emit-fee-cliff-summary",
             "--out-md",
-            "reports/test_rank_emit_fee_cliff.md",
+            str(tmp_path / "test_rank_emit_fee_cliff.md"),
             "--out-json",
             str(out_json),
         ],
@@ -1049,7 +1049,7 @@ def test_emit_fee_cliff_summary_writes_sidecar(monkeypatch) -> None:
     assert "rows" in payload and len(payload["rows"]) >= 1
 
 
-def test_anti_adverse_v4_applies_default_scratch(monkeypatch) -> None:
+def test_anti_adverse_v4_applies_default_scratch(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -1086,9 +1086,9 @@ def test_anti_adverse_v4_applies_default_scratch(monkeypatch) -> None:
             "--mitigation-profile",
             "anti_adverse_v4",
             "--out-md",
-            "reports/test_rank_v4_defaults.md",
+            str(tmp_path / "test_rank_v4_defaults.md"),
             "--out-json",
-            "reports/test_rank_v4_defaults.json",
+            str(tmp_path / "test_rank_v4_defaults.json"),
         ],
     )
     rc = rp.main()
@@ -1100,7 +1100,7 @@ def test_anti_adverse_v4_applies_default_scratch(monkeypatch) -> None:
     assert seen["vqr"] and any(abs(v - 0.01) < 1e-12 for v in seen["vqr"])
 
 
-def test_failure_reason_top_enum(monkeypatch) -> None:
+def test_failure_reason_top_enum(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -1140,7 +1140,7 @@ def test_failure_reason_top_enum(monkeypatch) -> None:
         return {"rows_total": len(rows), "pass_count": 0, "pass_rate": 0.0, "insufficient_fill_rate": 0.0, "per_combo": rows}
 
     monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
-    out_json = Path("reports/test_rank_failure_reason_enum.json")
+    out_json = (tmp_path / "test_rank_failure_reason_enum.json")
     monkeypatch.setattr(
         sys,
         "argv",
@@ -1157,7 +1157,7 @@ def test_failure_reason_top_enum(monkeypatch) -> None:
             "--min-attempt-fill-rate",
             "0.0",
             "--out-md",
-            "reports/test_rank_failure_reason_enum.md",
+            str(tmp_path / "test_rank_failure_reason_enum.md"),
             "--out-json",
             str(out_json),
         ],
@@ -1170,7 +1170,7 @@ def test_failure_reason_top_enum(monkeypatch) -> None:
     assert reason in {"gate_reject", "no_fills", "adverse_dominates", "fees_dominate", "mixed"}
 
 
-def test_event_block_v1_passes_event_block_lanes(monkeypatch) -> None:
+def test_event_block_v1_passes_event_block_lanes(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -1231,21 +1231,21 @@ def test_event_block_v1_passes_event_block_lanes(monkeypatch) -> None:
             "--min-attempt-fill-rate",
             "0.0",
             "--out-md",
-            "reports/test_rank_event_block_v1.md",
+            str(tmp_path / "test_rank_event_block_v1.md"),
             "--out-json",
-            "reports/test_rank_event_block_v1.json",
+            str(tmp_path / "test_rank_event_block_v1.json"),
         ],
     )
     rc = rp.main()
     assert rc == 0
     assert seen
     assert any("book_proxy_pressure" in row and "volatility_burst" in row for row in seen)
-    data = json.loads(Path("reports/test_rank_event_block_v1.json").read_text(encoding="utf-8"))
+    data = json.loads((tmp_path / "test_rank_event_block_v1.json").read_text(encoding="utf-8"))
     assert data["gate_config"]["event_block_lanes"] == ["book_proxy_pressure", "volatility_burst"]
     assert data["ranking"][0]["event_filter_kept_ratio"] == 0.75
 
 
-def test_event_block_book_proxy_v1_passes_single_lane(monkeypatch) -> None:
+def test_event_block_book_proxy_v1_passes_single_lane(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -1306,22 +1306,22 @@ def test_event_block_book_proxy_v1_passes_single_lane(monkeypatch) -> None:
             "--min-attempt-fill-rate",
             "0.0",
             "--out-md",
-            "reports/test_rank_event_block_book_proxy_v1.md",
+            str(tmp_path / "test_rank_event_block_book_proxy_v1.md"),
             "--out-json",
-            "reports/test_rank_event_block_book_proxy_v1.json",
+            str(tmp_path / "test_rank_event_block_book_proxy_v1.json"),
         ],
     )
     rc = rp.main()
     assert rc == 0
     assert seen
     assert any(row == ["book_proxy_pressure"] for row in seen)
-    data = json.loads(Path("reports/test_rank_event_block_book_proxy_v1.json").read_text(encoding="utf-8"))
+    data = json.loads((tmp_path / "test_rank_event_block_book_proxy_v1.json").read_text(encoding="utf-8"))
     assert data["gate_config"]["event_block_lanes"] == ["book_proxy_pressure"]
     assert data["gate_config"]["event_profile_lane_scope"] == ["book_proxy_pressure"]
     assert data["ranking"][0]["event_filter_kept_ratio"] == 0.80
 
 
-def test_event_block_volatility_v1_passes_single_lane(monkeypatch) -> None:
+def test_event_block_volatility_v1_passes_single_lane(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -1382,22 +1382,22 @@ def test_event_block_volatility_v1_passes_single_lane(monkeypatch) -> None:
             "--min-attempt-fill-rate",
             "0.0",
             "--out-md",
-            "reports/test_rank_event_block_volatility_v1.md",
+            str(tmp_path / "test_rank_event_block_volatility_v1.md"),
             "--out-json",
-            "reports/test_rank_event_block_volatility_v1.json",
+            str(tmp_path / "test_rank_event_block_volatility_v1.json"),
         ],
     )
     rc = rp.main()
     assert rc == 0
     assert seen
     assert any(row == ["volatility_burst"] for row in seen)
-    data = json.loads(Path("reports/test_rank_event_block_volatility_v1.json").read_text(encoding="utf-8"))
+    data = json.loads((tmp_path / "test_rank_event_block_volatility_v1.json").read_text(encoding="utf-8"))
     assert data["gate_config"]["event_block_lanes"] == ["volatility_burst"]
     assert data["gate_config"]["event_profile_lane_scope"] == ["volatility_burst"]
     assert data["ranking"][0]["event_filter_kept_ratio"] == 0.78
 
 
-def test_event_block_eth_v1_applies_only_to_eth(monkeypatch) -> None:
+def test_event_block_eth_v1_applies_only_to_eth(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -1466,21 +1466,21 @@ def test_event_block_eth_v1_applies_only_to_eth(monkeypatch) -> None:
             "--min-attempt-fill-rate",
             "0.0",
             "--out-md",
-            "reports/test_rank_event_block_eth_v1.md",
+            str(tmp_path / "test_rank_event_block_eth_v1.md"),
             "--out-json",
-            "reports/test_rank_event_block_eth_v1.json",
+            str(tmp_path / "test_rank_event_block_eth_v1.json"),
         ],
     )
     rc = rp.main()
     assert rc == 0
     assert any(row == ["book_proxy_pressure", "volatility_burst"] for row in seen["ETHUSDT"])
     assert not any(row == ["book_proxy_pressure", "volatility_burst"] for row in seen["BTCUSDT"])
-    data = json.loads(Path("reports/test_rank_event_block_eth_v1.json").read_text(encoding="utf-8"))
+    data = json.loads((tmp_path / "test_rank_event_block_eth_v1.json").read_text(encoding="utf-8"))
     assert data["gate_config"]["event_block_lanes"] == ["book_proxy_pressure", "volatility_burst"]
     assert data["gate_config"]["event_profile_symbol_scope"] == "ETHUSDT"
 
 
-def test_event_block_eth_micro_v1_applies_only_to_eth_micro_edge(monkeypatch) -> None:
+def test_event_block_eth_micro_v1_applies_only_to_eth_micro_edge(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -1551,9 +1551,9 @@ def test_event_block_eth_micro_v1_applies_only_to_eth_micro_edge(monkeypatch) ->
             "--min-attempt-fill-rate",
             "0.0",
             "--out-md",
-            "reports/test_rank_event_block_eth_micro_v1.md",
+            str(tmp_path / "test_rank_event_block_eth_micro_v1.md"),
             "--out-json",
-            "reports/test_rank_event_block_eth_micro_v1.json",
+            str(tmp_path / "test_rank_event_block_eth_micro_v1.json"),
         ],
     )
     rc = rp.main()
@@ -1561,12 +1561,12 @@ def test_event_block_eth_micro_v1_applies_only_to_eth_micro_edge(monkeypatch) ->
     assert any(row == ["book_proxy_pressure", "volatility_burst"] for row in seen[("ETHUSDT", "micro_edge_v3_passive_alpha")])
     assert not any(row == ["book_proxy_pressure", "volatility_burst"] for row in seen[("ETHUSDT", "intensity_spike_imbalance_cont")])
     assert not any(row == ["book_proxy_pressure", "volatility_burst"] for row in seen[("BTCUSDT", "micro_edge_v3_passive_alpha")])
-    data = json.loads(Path("reports/test_rank_event_block_eth_micro_v1.json").read_text(encoding="utf-8"))
+    data = json.loads((tmp_path / "test_rank_event_block_eth_micro_v1.json").read_text(encoding="utf-8"))
     assert data["gate_config"]["event_profile_symbol_scope"] == "ETHUSDT"
     assert data["gate_config"]["event_profile_rule_scope"] == "micro_edge_v3_passive_alpha"
 
 
-def test_event_block_eth_micro_imb05_v1_skips_low_imbalance(monkeypatch) -> None:
+def test_event_block_eth_micro_imb05_v1_skips_low_imbalance(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -1637,9 +1637,9 @@ def test_event_block_eth_micro_imb05_v1_skips_low_imbalance(monkeypatch) -> None
             "--min-attempt-fill-rate",
             "0.0",
             "--out-md",
-            "reports/test_rank_event_block_eth_micro_imb05_v1.md",
+            str(tmp_path / "test_rank_event_block_eth_micro_imb05_v1.md"),
             "--out-json",
-            "reports/test_rank_event_block_eth_micro_imb05_v1.json",
+            str(tmp_path / "test_rank_event_block_eth_micro_imb05_v1.json"),
         ],
     )
     rc = rp.main()
@@ -1648,12 +1648,12 @@ def test_event_block_eth_micro_imb05_v1_skips_low_imbalance(monkeypatch) -> None
     assert any(row == ["book_proxy_pressure", "volatility_burst"] for row in seen[0.5])
     # imb=0.3 candidate: filter NOT applied (passes through as baseline)
     assert all(row == [] for row in seen[0.3])
-    data = json.loads(Path("reports/test_rank_event_block_eth_micro_imb05_v1.json").read_text(encoding="utf-8"))
+    data = json.loads((tmp_path / "test_rank_event_block_eth_micro_imb05_v1.json").read_text(encoding="utf-8"))
     assert data["gate_config"]["event_profile_symbol_scope"] == "ETHUSDT"
     assert data["gate_config"]["event_profile_rule_scope"] == "micro_edge_v3_passive_alpha"
 
 
-def test_event_block_eth_micro_imb085_v1_skips_below_threshold(monkeypatch) -> None:
+def test_event_block_eth_micro_imb085_v1_skips_below_threshold(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -1724,9 +1724,9 @@ def test_event_block_eth_micro_imb085_v1_skips_below_threshold(monkeypatch) -> N
             "--min-attempt-fill-rate",
             "0.0",
             "--out-md",
-            "reports/test_rank_event_block_eth_micro_imb085_v1.md",
+            str(tmp_path / "test_rank_event_block_eth_micro_imb085_v1.md"),
             "--out-json",
-            "reports/test_rank_event_block_eth_micro_imb085_v1.json",
+            str(tmp_path / "test_rank_event_block_eth_micro_imb085_v1.json"),
         ],
     )
     rc = rp.main()
@@ -1735,12 +1735,12 @@ def test_event_block_eth_micro_imb085_v1_skips_below_threshold(monkeypatch) -> N
     assert any(row == ["book_proxy_pressure", "volatility_burst"] for row in seen[0.85])
     # imb=0.5 candidate: filter NOT applied (passes through as baseline)
     assert all(row == [] for row in seen[0.5])
-    data = json.loads(Path("reports/test_rank_event_block_eth_micro_imb085_v1.json").read_text(encoding="utf-8"))
+    data = json.loads((tmp_path / "test_rank_event_block_eth_micro_imb085_v1.json").read_text(encoding="utf-8"))
     assert data["gate_config"]["event_profile_symbol_scope"] == "ETHUSDT"
     assert data["gate_config"]["event_profile_rule_scope"] == "micro_edge_v3_passive_alpha"
 
 
-def test_auto_profile_applies_imb085_filter_to_qualifying_candidate(monkeypatch) -> None:
+def test_auto_profile_applies_imb085_filter_to_qualifying_candidate(monkeypatch, tmp_path) -> None:
     """'auto' profile applies event_block_eth_micro_imb085_v1 to ETHUSDT+h=60+imb>=0.85 only."""
     monkeypatch.setattr(
         rp,
@@ -1791,8 +1791,8 @@ def test_auto_profile_applies_imb085_filter_to_qualifying_candidate(monkeypatch)
             "--maker-fee-bps-grid", "1.0", "--passive-adverse-mult-grid", "1.0",
             "--rules", "micro_edge_v3_passive_alpha",
             "--min-attempt-fill-rate", "0.0",
-            "--out-md", "reports/test_rank_auto_profile.md",
-            "--out-json", "reports/test_rank_auto_profile.json",
+            "--out-md", str(tmp_path / "test_rank_auto_profile.md"),
+            "--out-json", str(tmp_path / "test_rank_auto_profile.json"),
             # no --mitigation-profile: should default to "auto"
         ],
     )
@@ -1806,13 +1806,13 @@ def test_auto_profile_applies_imb085_filter_to_qualifying_candidate(monkeypatch)
     assert all(row == [] for row in seen[("ETHUSDT", 120, 0.85)])
     # BTCUSDT h=60 imb=0.85: filter NOT applied (wrong symbol)
     assert all(row == [] for row in seen[("BTCUSDT", 60, 0.85)])
-    data = json.loads(Path("reports/test_rank_auto_profile.json").read_text(encoding="utf-8"))
+    data = json.loads((tmp_path / "test_rank_auto_profile.json").read_text(encoding="utf-8"))
     assert data["mitigation_profile"] == "auto"
     assert data["gate_config"]["event_profile_symbol_scope"] == "ETHUSDT"
     assert data["gate_config"]["event_profile_rule_scope"] == "micro_edge_v3_passive_alpha"
 
 
-def test_attribution_fields_merged_into_ranking_row(monkeypatch) -> None:
+def test_attribution_fields_merged_into_ranking_row(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -1870,7 +1870,7 @@ def test_attribution_fields_merged_into_ranking_row(monkeypatch) -> None:
         }
 
     monkeypatch.setattr(rp, "validate_pocket_forward", _fake_validate)
-    out_json = Path("reports/test_rank_attribution_merge.json")
+    out_json = (tmp_path / "test_rank_attribution_merge.json")
     monkeypatch.setattr(
         sys,
         "argv",
@@ -1887,7 +1887,7 @@ def test_attribution_fields_merged_into_ranking_row(monkeypatch) -> None:
             "--min-attempt-fill-rate",
             "0.0",
             "--out-md",
-            "reports/test_rank_attribution_merge.md",
+            str(tmp_path / "test_rank_attribution_merge.md"),
             "--out-json",
             str(out_json),
         ],
@@ -1947,7 +1947,7 @@ def test_attribution_fields_merged_into_ranking_row(monkeypatch) -> None:
     }
 
 
-def test_ranker_passes_regime_filter_to_validator(monkeypatch) -> None:
+def test_ranker_passes_regime_filter_to_validator(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         rp,
         "_parse_candidates_from_md",
@@ -2001,9 +2001,9 @@ def test_ranker_passes_regime_filter_to_validator(monkeypatch) -> None:
             "--regime",
             "up",
             "--out-md",
-            "reports/test_regime_filter_passthrough.md",
+            str(tmp_path / "test_regime_filter_passthrough.md"),
             "--out-json",
-            "reports/test_regime_filter_passthrough.json",
+            str(tmp_path / "test_regime_filter_passthrough.json"),
         ],
     )
     rc = rp.main()
