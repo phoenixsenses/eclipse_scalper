@@ -6801,3 +6801,102 @@ CORRECTIVE_PACKAGE_ACCEPTANCE_RECORDED_WITH_THREE_OUT_OF_SCOPE_FINDINGS_
 OPEN`. Next: `F_NEW_03_MICRO_SIGNAL_TIMING_CORRECTIVE_PENDING`,
 `DASHBOARD_FOREIGN_OWNED_SCOPE_RECONCILIATION_PENDING`,
 `LIQUIDATION_SILENCE_GENUINE_GRACEFUL_STOP_DESIGN_PENDING`.
+
+## 132. F-NEW-03 MICRO-SIGNAL CANCELLATION CORRECTIVE — BAĞIMSIZ İNCELEME SONRASI KABUL EDİLDİ (2026-07-13, Opus 4.8)
+
+**Review verdict: `F_NEW_03_MICRO_SIGNAL_TIMING_CORRECTIVE_INDEPENDENTLY_
+ACCEPTED`.**
+
+**Kanonik sonuç durumu: `F_NEW_03_MICRO_SIGNAL_TIMING_CORRECTIVE_
+ACCEPTANCE_RECORDED`.**
+
+**Orijinal bulgu:** F-NEW-03, **MEDIUM** (§131'de `PRE_EXISTING_OUT_OF_
+SCOPE` olarak açık bırakılmıştı). Deterministik başarısızlık:
+`tests/test_micro_signal_integration.py::test_entry_loop_uses_micro_signal_
+when_enabled` — `cancel_mock.await_count >= 1` beklenirken actual=0.
+
+**Kök neden (bağımsız türetildi — "timing issue" tanımı doğru
+varsayılmadı):** `EVENT_LOOP_TASK_LEAK`, `MISSING_SHUTDOWN_DRAIN` olarak
+tezahür ediyor. `_schedule_micro_timeout_cancel()`
+`asyncio.create_task(_cancel_later())` sonucunu bir değişkene atamadan
+atıyordu (fire-and-forget); entry-loop lifecycle'ında bu task'ı sahiplenen
+hiçbir set yoktu (HEAD `ff60b263` grep ile doğrulandı: hiçbir tracking yok);
+shutdown yolu yalnız `micro_engine.stop()` çağırıp dönüyordu. Böylece
+bekleyen timeout-cancel task'ı, `asyncio.run()` event-loop'u kapattığında
+sessizce iptal ediliyordu. **Yapısal defekt — yalnız yavaş test değil.**
+Kanıt: `PYTHONASYNCIODEBUG=1` altında asyncio kendi slow-callback uyarısını
+verdi (entry_loop ilk iterasyonda event-loop'u ~1.06s senkron blokluyor,
+muhtemelen `execution.guardian` lazy-import'u; bu ayrı, kapsam-dışı bir
+performans gözlemi — corrective tarafından değiştirilmedi/çözülmedi).
+
+**Güvenlik etkisi:** Shutdown sırasında, borsada duran (resting) bir limit
+order'ın amaçlanan timeout-cancel'ı tamamlanmadan terk edilebiliyordu —
+gerçek bir üretim güvenlik riski.
+
+**Corrective (minimal, yalnız production):**
+- `_schedule_micro_timeout_cancel()` opsiyonel `pending_tasks: Optional[set]`
+  parametresi aldı; oluşturulan task hemen (arada `await` yok, atomik) set'e
+  ekleniyor ve `add_done_callback(pending_tasks.discard)` ile deterministik
+  olarak temizleniyor.
+- `entry_loop()` `_pending_micro_cancel_tasks` set'ini sahipleniyor; tek
+  çağrı sitesine geçiriliyor.
+- Loop çıkışından sonra, `ENTRY_OFFLINE` log'undan önce yeni bir drain
+  bloğu: bekleyen tracked task'lar `asyncio.wait(timeout=...)` ile drain
+  ediliyor (üst-sınır `ENTRY_MICRO_CANCEL_DRAIN_TIMEOUT_SEC`, default 5.0s —
+  yalnız safety upper bound); timeout aşan straggler'lar açıkça
+  `t.cancel()` + `await asyncio.wait()` ile iptal edilip await ediliyor.
+  Hiçbir task fonksiyon dönüşünde arkada kalmıyor.
+
+**Implementation commit:** `5e40fbc7` —
+`fix(entry-loop): make micro-signal cancellation deterministic`
+(1 dosya, `execution/entry_loop.py`, +31/-3).
+
+**Production kapsamı:** yalnız `execution/entry_loop.py`.
+**Test kapsamı:** hiçbir committed test değişikliği gerekmedi
+(`tests/test_micro_signal_integration.py` = 0 diff). Fix, `entry_loop()`'un
+kendisini cancel tamamlanana kadar beklettiğinden, mevcut test değişmeden
+geçiyor.
+
+**Bağımsız empirik doğrulama (repository-external basetemp, no cache,
+`PYTHONASYNCIODEBUG=1`, RuntimeWarning=error):**
+- Orijinal başarısız node: **10/10 passed**, 0 leak/coroutine uyarısı
+- Tam `test_micro_signal_integration.py`: **2/2 passed**
+- Adjacent entry-loop testleri (≤2 dosya/çağrı): `test_entry_loop_unit.py`
+  + `test_blocking_fixes.py` = 133/133; `regime_gate` +
+  `pocket_scheduler_integration` = 8/8; ek gate/alpha/event-lane/adaptive =
+  yeşil
+- Sıra matrisi: prior + reverse + **10x alternating-order = 10/10 passed**
+- Güvenlik matrisi (deterministik, wall-clock sleep yerine Event/state
+  senkronizasyonu): 6/6 — disabled→0 cancel; enabled→tam 1 cancel;
+  cancel_order raise→leak/hang yok; immediate-exit→drain cancel'ı çalıştırdı
+  (Event state ile); multi-task→3/3 track+self-discard; straggler hang→
+  drain-timeout iptal etti, bounded return 0.58s, 0 leak
+- Tüm koşumlarda: `Task was destroyed` / `never awaited` / `exception in
+  callback` / `unhandled task exception` → **0 tespit**
+
+**Production cooldown/risk zayıflatması:** yok (yalnız task-tracking + drain;
+sizing/gating/risk/cooldown dokunulmadı; duplicate `cancel_order` yok; keyfi
+sleep eklenmedi; timeout maskeleme için büyütülmedi).
+
+**Repository mutasyonu (review boyunca):** sıfır. Reviewed corrective diff
+manifest (SHA-256): `f87f3c54ab919aff3fe03d26d900bce5d561298c8267e1a3aada
+f214f9c669d9e` (freeze/kapanış birebir aynı). Scheduler=0, live executor=0,
+duplicate Eclipse roles=0 (review boyunca değişmedi); watchdog PID=9740
+(heartbeat_watchdog).
+
+**Bağımsızlık notu:** implementation (önceki operatör-kapılı geçiş) ve bu
+bağımsız review aynı ajan örneği tarafından, AYRI operatör-kapılı
+geçişlerde yürütüldü; her iddia HEAD'e karşı sıfırdan yeniden türetildi
+(implementation raporuna güvenilmedi). Gerçek bağımsızlık kapısı operatör
+sign-off'unda kalıyor.
+
+**F-NEW-03 ÇÖZÜLDÜ (resolved).** F-NEW-01 ve F-NEW-02 hâlâ açık
+(`PRE_EXISTING_OUT_OF_SCOPE`, LOW) — bu kayıtla çözülmedi.
+
+**Bir sonraki açık, kapılı işler:**
+1. `DASHBOARD_FOREIGN_OWNED_SCOPE_RECONCILIATION_PENDING`
+2. `LIQUIDATION_SILENCE_GENUINE_GRACEFUL_STOP_DESIGN_PENDING`
+
+**Review verdict: `F_NEW_03_MICRO_SIGNAL_TIMING_CORRECTIVE_INDEPENDENTLY_
+ACCEPTED`.** Kanonik post-recording durum:
+`F_NEW_03_MICRO_SIGNAL_TIMING_CORRECTIVE_ACCEPTANCE_RECORDED`.
