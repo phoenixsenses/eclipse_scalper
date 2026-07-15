@@ -7002,3 +7002,80 @@ PID=9740.
 INDEPENDENTLY_ACCEPTED`.** Kanonik durum: `S34_STATE_MACHINE_DASHBOARD_
 CANONICAL_OPERATOR_SURFACE_RECORDED_AND_READY_FOR_COMPREHENSIVE_DESIGN_
 IMPLEMENTATION`.
+
+## 134. LAUNCHER + BOOKTICKER IMPLEMENTATION-PLANNING PAKETİ — LAUNCH-H2 ZİNCİRİ SONRASI OPERATÖR KABULÜ (2026-07-15, Opus 4.8)
+
+**Zincir:** implementation-planning taslağı → bağımsız review
+(`LAUNCHER_IMPLEMENTATION_PLAN_REREVIEW_REQUIRED` / `BOOKTICKER_
+IMPLEMENTATION_PLAN_REREVIEW_REQUIRED`, paylaşılan `SEQ-H1`/`SEQ-M1`) →
+birinci corrective (LAUNCH-B1/H1/M1/M2/L1, BOOK-B1/H1/M1/M2/L1/L2 ele alındı)
+→ bağımsız rereview `BOTH_IMPLEMENTATION_PLANS_CORRECTIVE_REQUIRED` (12/13
+bulgu kapandı; birinci corrective'in `LAUNCH-H1` düzeltmesi FAZLA İLERİ
+gidip yeni bir HIGH — `LAUNCH-H2` — doğurdu: `data-collection` modu yanlışlıkla
+"implementasyon-yetkili" ilan edilmişti, Contract A §3.2.2/§8 freeze'iyle
+ÇELİŞİYORDU) → ikinci (LAUNCH-H2) corrective (Launcher planı + sequencing
+cross-reference düzeltildi: `dataCollectionImplementationAuthorized = FALSE`
+donduruldu; mod bu paketten TAMAMEN DIŞLANDI; yeni `O-A1 —
+DATA_COLLECTION_PREAUTHORIZATION_BEHAVIOR_REQUIRES_OPERATOR_CONTRACT_
+CLARIFICATION` unresolved gate'i açıldı; hiçbir exact pre-authorization exit
+kodu İCAT EDİLMEDİ) → genuinely bağımsız, taze-context Opus rereview
+**`BOTH_IMPLEMENTATION_PLANS_INDEPENDENT_REREVIEW_ACCEPTED`** (LAUNCH-H2 tam
+düzeltilmiş; yeni BLOCKER/HIGH/MEDIUM YOK; 12 önceki kapanış regresyonsuz
+doğrulandı; iki INFO-seviye gözlem non-blocking) → **operatör kabulü
+2026-07-15.**
+
+### Kabul edilen paket (3 belge, kabul-anı SHA-256)
+
+| Belge | SHA-256 (kabul öncesi, rereview'de doğrulanan) |
+|---|---|
+| `LAUNCHER_ROLE_TAXONOMY_IMPLEMENTATION_PLAN_V1.md` | `efd55396d46ad2b51e9d6f1da5c7174b854e8d64210711185689478685fb9fb5` |
+| `LAUNCHER_BOOKTICKER_IMPLEMENTATION_SEQUENCING_AND_GATES_V1.md` | `070267c040e054bfd6162c330fc980d47a4ee6fa61c1589124f075f1a12f7df4` |
+| `BOOKTICKER_COLLECTOR_CANONICALIZATION_IMPLEMENTATION_PLAN_V1.md` | `16ed36137e2494803c1fb848b71a6da72696e19c9cdda46756526fe8f4fc9587` (byte-identical, LAUNCH-H2 tarafından dokunulmadı) |
+
+Operatör kabulü, bu üç belgeye yalnız durum-satırı + minimal operatör-kabul
+notu ekleyerek (§0.c / intro blockquote) kayda geçirilmiştir — hiçbir
+substantive tasarım/test/mutasyon/traceability içeriği DEĞİŞTİRİLMEDİ.
+
+### Gate-terminolojisi netliği (önemli)
+
+Bu kabul, sequencing belgesi §3'teki gate-zincirinde **`PLAN_ACCEPTED`**
+durumuna karşılık gelir — zincirin İLERİDE, `IMPLEMENTATION_ACCEPTED`
+SONRASINDA gelen ayrı `OPERATOR_ACCEPTED` durumu (implementasyon sign-off'u)
+İLE KARIŞTIRILMAMALIDIR (§3: "ASLA tek statüye birleştirilmez"). Belgelerin
+durum-satırlarındaki `_OPERATOR_ACCEPTED` soneki, Contract A/B
+preregistration kabulünde zaten kullanılan doküman-durumu deseninin
+(`LAUNCHER_ROLE_TAXONOMY_PREREGISTRATION_OPERATOR_ACCEPTED`, bkz. HEAD
+`c6cf1451` — "docs(governance): accept launcher and bookticker
+preregistrations") devamıdır; bu belgenin operatör tarafından incelenip
+kabul edildiğini ifade eder, implementasyonun tamamlandığını DEĞİL.
+
+### Bu kabulün YETKİLENDİRMEDİĞİ (açık liste)
+
+- Launcher veya BookTicker kod/test implementasyonu.
+- `INTEGRATION_BASE_ESTABLISHED` — henüz `false`/oluşturulmamış; ayrı, açıkça
+  yetkilendirilmiş bir integration-preparation fazı gerekir (Launcher/
+  sequencing §0.1).
+- Migration oluşturma/numara rezervasyonu (ledger hâlâ `M-0036`'da).
+- BookTicker aday (`data/bookticker_collector.py`, SHA `136438fd…4c79`,
+  12.159 B) canonicalization/import/execute — untracked/unstaged kalır.
+- Runtime probe, deployment, activation.
+- **`data-collection` modu implementasyonu** — Contract A §3.2.2/§8 freeze
+  gereği implementasyon-dışı KALIR; `O-A1` ÇÖZÜLMEMİŞ ve non-bypassable
+  kalır; bu kabul O-A1'i zımnen YANITLAMAZ.
+
+### Dokunulmayan/değişmeyen
+
+Contract A (`0a55d40b…`), Contract B (`85d94703…`), `OPERATOR_DECISION_
+QUEUE.md` (`305f317b…`) — DEĞİŞTİRİLMEDİ. OD-024/OD-025 zaten `ACCEPTED`
+(preregistration kabulü, önceki tur); bu implementation-plan kabulü için
+yeni bir OD ID AÇILMADI (emsal: HEAD `c6cf1451` commit mesajı "no new
+decision ID" — aynı konvansiyon burada da izlendi; queue zaten "sonraki
+kapı = bounded implementation-planning" diyordu, o kapı şimdi bu kabulle
+kapanmış oldu). Migration ledger `M-0036`'da sabit. Hiçbir proses/task/canlı
+DB'ye dokunulmadı.
+
+**Kabul verdikti: `BOTH_IMPLEMENTATION_PLANS_PLAN_ACCEPTED_BY_OPERATOR_
+PENDING_SEPARATELY_AUTHORIZED_INTEGRATION_PREPARATION`.** Sonraki kapı:
+ayrı, açıkça yetkilendirilmiş bir integration-preparation fazı (Launcher/
+sequencing §0.1) — bu faz kendi bağımsız integration-review'undan geçmeden
+implementasyon başlayamaz.
