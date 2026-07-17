@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>S34 State Machine — Canonical Operator Dashboard (READ-ONLY)</title>
+  <link rel="stylesheet" href="/static/app.css" />
+</head>
+<body>
+  <a class="skip-link" href="#panels">Skip to panels</a>
+
+  <header id="safety-header" class="safety-header" role="banner" aria-live="polite">
+    <div class="sh-left">
+      <span class="sh-title">S34 State Machine — Operator Dashboard</span>
+      <span class="sh-badge sh-readonly" title="This surface is strictly read-only">READ-ONLY</span>
+      <span class="sh-badge sh-nocontrol">NO CONTROL ACTIONS</span>
+    </div>
+    <div id="sh-fields" class="sh-fields" aria-label="Executive safety header">
+      <span class="sh-loading">loading…</span>
+    </div>
+    <div class="sh-right">
+      <span id="overall-pill" class="pill pill-unknown" aria-label="Overall severity">—</span>
+      <span id="last-refresh" class="sh-refresh" title="Last successful refresh">refresh: —</span>
+    </div>
+  </header>
+
+  <main id="panels" class="panel-grid" role="main" aria-label="Operator panels">
+    <p class="grid-loading">Loading panels…</p>
+  </main>
+
+  <footer class="foot" role="contentinfo">
+    <span>Canonical entrypoint: <code>tools/s34_cascade_navigation_dashboard.py --serve</code></span>
+    <span>GET/HEAD only · DB mode=ro · fail-closed · stale never shown as GREEN</span>
+  </footer>
+
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

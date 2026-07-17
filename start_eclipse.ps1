@@ -396,6 +396,17 @@ $replay = Start-RegisteredPythonProcess `
     -Meta @{ mode = "READ_ONLY_CHART" } `
     -CommandNeedle "tools\s34_replay.py"
 
+$s34DashboardOut = Join-Path $logs "s34_canonical_dashboard.stdout.log"
+$s34DashboardErr = Join-Path $logs "s34_canonical_dashboard.stderr.log"
+$s34DashboardArgs = @("-W", "ignore", "-u", "-m", "tools.s34_cascade_navigation_dashboard", "--serve", "--serve-host", "127.0.0.1", "--serve-port", "8770")
+$s34Dashboard = Start-RegisteredPythonProcess `
+    -Role "s34_canonical_dashboard" `
+    -ProcArgs $s34DashboardArgs `
+    -StdoutPath $s34DashboardOut `
+    -StderrPath $s34DashboardErr `
+    -Meta @{ mode = "READ_ONLY_DASHBOARD_SERVE_GET_HEAD_ONLY" } `
+    -CommandNeedle "tools.s34_cascade_navigation_dashboard --serve "
+
 Write-RoleStatus "collector_supervisor" $supervisor
 Write-RoleStatus "heartbeat_watchdog" $heartbeat
 Write-RoleStatus "bookticker_collector" $bookTicker
@@ -408,6 +419,7 @@ Write-RoleStatus "s34_state_machine_live_executor" $s34SMLive
 Write-RoleStatus "liquidation_silence_scheduler" $liqSched
 Write-RoleStatus "orderflow_chart" $orderflow
 Write-RoleStatus "s34_replay" $replay
+Write-RoleStatus "s34_canonical_dashboard" $s34Dashboard
 Write-Output "symbols=$Symbols"
 Write-Output "logs=$logs"
 

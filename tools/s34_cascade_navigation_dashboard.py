@@ -1445,11 +1445,27 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--json-out", type=Path, default=OUT_JSON)
     p.add_argument("--md-out", type=Path, default=OUT_MD)
     p.add_argument("--quiet", action="store_true")
+    # Canonical operator web UI (read-only, GET/HEAD only). Default invocation
+    # remains the CLI report; --serve opts into the read-only web surface.
+    p.add_argument("--serve", action="store_true",
+                   help="Serve the read-only canonical operator dashboard (GET/HEAD only).")
+    p.add_argument("--serve-host", default="127.0.0.1", help="Loopback host for --serve (default 127.0.0.1).")
+    p.add_argument("--serve-port", type=int, default=8770, help="Port for --serve (default 8770).")
     return p.parse_args(argv)
+
+
+def _run_serve_mode(args) -> int:
+    """Dispatch to the read-only web operator dashboard. Imported lazily so the
+    existing CLI report path has zero new dependencies."""
+    from dashboard.backend.server import serve as _serve
+    return _serve(host=args.serve_host, port=args.serve_port)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
+    if getattr(args, "serve", False):
+        # Web serve mode is explicitly separate from CLI report mode.
+        return _run_serve_mode(args)
     confidence = load_rule_confidence(resolve_recheck_json(args.recheck_json))
     validated_registry = load_validated_signals()
     with sqlite3.connect(f"file:{args.db}?mode=ro", uri=True) as conn:

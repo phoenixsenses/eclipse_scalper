@@ -1,5 +1,14 @@
 # Eclipse Scalper Dashboard
 
+> **SECONDARY / LEGACY subsystem.** This FastAPI + React app is *not* the
+> canonical operator dashboard. The canonical, continuously-used operator
+> safety/decision-support surface is the **S34 State Machine Dashboard**
+> (`tools/s34_cascade_navigation_dashboard.py`, read-only, GET/HEAD only) —
+> see [`README_CANONICAL_OPERATOR.md`](./README_CANONICAL_OPERATOR.md). New
+> operational-visibility and safety panels integrate there by default. This
+> legacy app remains a secondary diagnostic surface and does not supersede the
+> canonical one.
+
 Real-time monitoring dashboard for the Eclipse Scalper trading system.
 
 ## Stack

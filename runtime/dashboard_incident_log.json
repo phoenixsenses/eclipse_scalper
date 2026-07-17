@@ -1,0 +1,93 @@
+{
+  "schema": "dashboard_incident_log_v1",
+  "note": "Small, explicit, hand/tool-maintained record of confirmed historical outages. Read by dashboard.backend.adapters.shadow_paper_activity.read_incident_log(). Append new entries here when a genuine cross-restart outage is diagnosed and recovered -- never fabricate or backfill entries for periods that were not actually investigated.",
+  "incidents": [
+    {
+      "incident_id": "S34_SHADOW_RUNNERS_OUTAGE_2026-07-13",
+      "affected_components": [
+        "s34_shadow_paper_runner",
+        "s34_v_engine_v02_shadow_mirror",
+        "s34_state_machine_shadow_runner",
+        "s34_live_chart"
+      ],
+      "outage_start_utc": "2026-07-13T20:50:24Z",
+      "outage_start_precision": "component-specific, see per_component below; earliest confirmed loss of activity",
+      "outage_end_utc": "2026-07-15T19:14:26Z",
+      "recovery_completed_utc": "2026-07-15T19:14:26Z",
+      "detected_via": "status_eclipse.ps1 alive=False + per-component artifact mtime/last-log-line gap, cross-checked against process list (Win32_Process) showing no matching command line",
+      "per_component": {
+        "s34_shadow_paper_runner": {
+          "last_write_before_outage_utc": "2026-07-13T21:06:30.523102+00:00",
+          "recovered_pid_start_utc": "2026-07-15T19:11:55.907962Z",
+          "evidence": "reports/research/s34/S34_SHADOW_PAPER_STATUS.json updated_at_utc stopped advancing"
+        },
+        "s34_v_engine_v02_shadow_mirror": {
+          "last_tick_before_outage_utc": "2026-07-13T21:05:50.698391+00:00",
+          "recovered_pid_start_utc": "2026-07-15T19:12:53.625231Z",
+          "evidence": "logs/s34_v_engine_v02_shadow_mirror.out.log last tick line"
+        },
+        "s34_state_machine_shadow_runner": {
+          "last_event_before_outage_utc": "2026-07-13T20:50:24.668238+00:00",
+          "recovered_pid_start_utc": "2026-07-15T19:13:39.088431Z",
+          "evidence": "logs/s34_state_machine_shadow_runner.out.log last TIME_EXIT line"
+        },
+        "s34_live_chart": {
+          "last_known_alive_signal_utc": "2026-07-11T20:40:00Z",
+          "last_known_alive_precision": "imprecise -- last PID-file registration mtime; this component's actual death time may be earlier or later and was not independently pinned down",
+          "recovered_pid_start_utc": "2026-07-15T19:14:26.229154Z",
+          "evidence": "logs/pids/s34_live_chart.pid mtime; stdout log had no further lines after its single startup line"
+        }
+      },
+      "root_cause": "not established -- recovery restored the four components without determining why they stopped; root-cause investigation was out of scope for this recovery action",
+      "recovery_action": "start_eclipse.ps1's per-role start pattern replicated manually, one role at a time (serialized due to constrained RAM headroom), with a duplicate-process check and a port check (s34_live_chart, port 5050) before each start; healthy collectors (collector, bookticker, event_diary, heartbeat_watchdog, liquidation_silence_scheduler) were left untouched throughout",
+      "post_recovery_soak": "verified for ~3.5 minutes post-recovery: no stderr output, no PID changes (no crash-restart loop), all 4 components produced new cycle/tick output, RAM headroom remained positive throughout (6.4GB -> 4.7GB free)",
+      "root_cause_followup_2026-07-17": "STRONG CANDIDATE FOUND, entry above left unamended pending operator decision: this host's LastBootUpTime is 2026-07-13T21:12:09Z (Win32_OperatingSystem, TZ=Turkey Standard Time UTC+3, local 2026-07-14T00:12:09). A reboot definitionally terminates every running process, so no component could have survived it. The two latest last-write timestamps recorded above (21:05:50Z, 21:06:30Z) fall ~6 minutes before that boot, consistent with an OS shutdown sequence. This was discovered incidentally while diagnosing S34_HTTP_SURFACES_OUTAGE_2026-07-17; it was not re-derived from independent evidence, and why the host rebooted was not investigated."
+    },
+    {
+      "incident_id": "S34_HTTP_SURFACES_OUTAGE_2026-07-17",
+      "affected_components": [
+        "s34_canonical_dashboard",
+        "s34_live_chart",
+        "orderflow_chart",
+        "s34_replay"
+      ],
+      "outage_start_utc": null,
+      "outage_start_precision": "NOT ESTABLISHED for any of the four components -- none left a death-time trace. Only per-component upper/lower bounds are known; see per_component. Deliberately null rather than guessed.",
+      "outage_end_utc": "2026-07-17T13:47:13Z",
+      "recovery_completed_utc": "2026-07-17T13:53:51Z",
+      "detected_via": "operator report that http://127.0.0.1:8770/ had become unreachable; confirmed by Get-NetTCPConnection showing no listener on 5050/5051/5052/8770 and Win32_Process showing no matching command line for any of the four. All 9 non-port-binding roles (collectors, watchdog, shadow runners, scheduler) were alive and healthy at detection time.",
+      "per_component": {
+        "s34_canonical_dashboard": {
+          "port": 8770,
+          "known_alive_utc": "2026-07-17, per SYSTEM_STATE.md section 140's live verification of the :8770 surface",
+          "death_time": "NOT PINNED -- no stderr traceback, no Application-event-log crash record, no PID file to date-stamp",
+          "structural_finding": "this role had NEVER been started by the managed launcher: the 12-line s34_canonical_dashboard block in start_eclipse.ps1 was an uncommitted working-tree addition that had never executed (logs/s34_canonical_dashboard.stderr.log did not exist; logs/pids/s34_canonical_dashboard.pid did not exist). Every prior run of :8770 was started ad hoc, so nothing tracked its PID and nothing would restart it on death. This recovery started it via the launcher for the first time.",
+          "recovered_pid_start_utc": "2026-07-17T13:47:13Z"
+        },
+        "s34_live_chart": {
+          "port": 5050,
+          "known_alive_utc": "2026-07-15T19:14:26Z (recovery of incident S34_SHADOW_RUNNERS_OUTAGE_2026-07-13)",
+          "death_time": "NOT PINNED -- stderr was 0 bytes and stdout held only its single startup line. Died at some point between 2026-07-15T19:14:26Z and detection on 2026-07-17; this host did not reboot in that window (boot 2026-07-13T21:12:09Z), so reboot does NOT explain this one.",
+          "recovered_pid_start_utc": "2026-07-17T13:53:50Z"
+        },
+        "orderflow_chart": {
+          "port": 5051,
+          "last_write_before_outage_utc": "2026-07-10T10:15:56Z",
+          "death_explained": "killed by the host reboot at 2026-07-13T21:12:09Z, then never restarted -- the 2026-07-15 recovery covered only 4 components and did not include this role. No mystery here.",
+          "recovered_pid_start_utc": "2026-07-17T13:47:12Z"
+        },
+        "s34_replay": {
+          "port": 5052,
+          "last_write_before_outage_utc": "2026-07-10T10:15:56Z",
+          "death_explained": "same as orderflow_chart: killed by the 2026-07-13T21:12:09Z reboot, never restarted by the 2026-07-15 recovery.",
+          "recovered_pid_start_utc": "2026-07-17T13:47:12Z"
+        }
+      },
+      "root_cause": "SPLIT, and only partly established. orderflow_chart and s34_replay: fully explained (2026-07-13T21:12:09Z host reboot + never restarted). s34_canonical_dashboard and s34_live_chart: NOT ESTABLISHED -- both died with the host up and left no trace (no stderr, no event-log crash, no killer: tools/heartbeat_watchdog.py contains no Stop-Process/taskkill path). An 'HTTP surfaces die, non-port roles survive' pattern was initially proposed at n=4 but is REFUTED at that strength: 2 of the 4 are mundane reboot casualties. It survives only as an unexplained n=2 coincidence and must not be reported as a finding.",
+      "recovery_action": "operator-approved FULL fresh restart (operator explicitly chose full stop+start over gap-filling the 5 missing roles, accepting the collector data gap): stop_eclipse.ps1 -> verified zero surviving python processes and all 4 ports free -> start_eclipse.ps1 (no -EnableLive; live executor stayed DISABLED) at 2026-07-17T13:47:11Z. A SECOND restart followed at 2026-07-17T13:53:49Z to enable the liquidation-silence scheduler; note that start_eclipse.ps1 clean-stops by default (-NoCleanStop opts out), so that second invocation restarted 8 already-healthy roles rather than adopting them.",
+      "collector_data_gaps_caused_by_this_recovery": "TWO gaps, both self-inflicted by the recovery, both bounded by process-replacement times rather than measured against the DB: (1) around 2026-07-17T13:47:11Z, and (2) around 2026-07-17T13:53:49Z. Exact stop instants were NOT recorded at the time, so each gap's true width is not established -- each is bounded above by roughly one minute. The gaps were not verified against data/microstructure.db row timestamps.",
+      "post_recovery_soak": "verified over ~12 minutes across both restarts: watchdog_overall=GREEN with empty watchdog_issues, collector and bookticker health_status=ok, native WS GREEN, agg_trades/mark_prices/liquidations ages ~3-4s, all 14 roles present exactly once (explicit per-role duplicate check), all 4 ports listening, dashboard returning HTTP 200, all stderr logs clean, no PID churn. liquidation_silence_scheduler confirmed wired end-to-end: writes logs/health/liquidation_silence.json (evaluation_mode=LIVE, severity=GREEN, policy_fingerprint e117cf13...) which heartbeat_watchdog folds into logs/health/overall.json components[] (state=ok).",
+      "unresolved": "start_eclipse.ps1 starts s34_canonical_dashboard, orderflow_chart and s34_replay, but stop_eclipse.ps1's pattern list covers none of the three -- an asymmetry that left those three running across the second restart while the other 8 roles were replaced. Separately, one start_eclipse.ps1 invocation exited 255 while every observable outcome was healthy; the nested status_eclipse.ps1 call it ends with returns 0 on re-execution, so the 255 was not reproducible and its cause is not established."
+    }
+  ]
+}
