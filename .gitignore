@@ -71,3 +71,18 @@ dashboard/**/dist/
 
 # Production archive data (generated, never committed)
 data/archives/
+
+# Generated meta-DBs under reports (regenerable, binary)
+reports/**/*.db
+reports/**/*.sqlite
+reports/**/*.sqlite-shm
+reports/**/*.sqlite-wal
+
+# Runtime state / locks / checkpoints (transient)
+runtime/*_state.json
+runtime/*.lock
+runtime/*_checkpoint.json
+
+# Event diary runtime store (transient, regenerated at runtime)
+data/event_diary.state.json
+data/event_diary.store.jsonl
