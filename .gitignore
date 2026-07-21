@@ -86,3 +86,10 @@ runtime/*_checkpoint.json
 # Event diary runtime store (transient, regenerated at runtime)
 data/event_diary.state.json
 data/event_diary.store.jsonl
+
+# AMI runtime data stores & generated artifacts (data, not source; code lives in ami/)
+data/ami/*.json
+data/ami/*.jsonl
+data/ami/*.npz
+data/ami/backups/
+data/ami/candle_repair_source_package/
