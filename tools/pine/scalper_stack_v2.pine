@@ -1,0 +1,153 @@
+//@version=6
+indicator("Scalper Stack v2 — VWAP + EMA + Delta + Bubbles", shorttitle="SS v2", overlay=true, max_labels_count=500)
+
+// ============================================================
+// Inputs
+// ============================================================
+grpV = "VWAP"
+showVwap  = input.bool(true, "Show VWAP",            group=grpV)
+showBands = input.bool(true, "Show ±1σ / ±2σ bands", group=grpV)
+
+grpE = "EMA Trend Filter"
+fastLen = input.int(9,  "Fast EMA", minval=1, group=grpE)
+slowLen = input.int(21, "Slow EMA", minval=2, group=grpE)
+
+grpD = "Volume Delta"
+useLtf      = input.bool(true,  "Use lower-timeframe delta",                                               group=grpD)
+secondsOk   = input.bool(false, "I have seconds data (Premium) — use 10S bars on 1m chart",               group=grpD)
+strongMult  = input.float(1.5,  "Strong delta = x times average |delta|", minval=0.5, step=0.1,           group=grpD)
+deltaAvgLen = input.int(20,     "Average |delta| lookback",               minval=5,                       group=grpD)
+
+grpS = "Signals"
+showSignals    = input.bool(true,  "Show alignment signals", group=grpS)
+requireStrong  = input.bool(true,  "Require STRONG delta",   group=grpS)
+colorDeltaBars = input.bool(false, "Color strong-delta candles", group=grpS)
+
+grpF = "Noise Filters"
+// Defaults trained on Feb–Jun 2026 Binance BTC/ETH 1m data (walk-forward backtest)
+vwapBufAtr   = input.float(0.50, "VWAP chop buffer (x ATR)",        minval=0.0, step=0.05, group=grpF)
+trendMinAtr  = input.float(0.40, "Min EMA separation (x ATR)",      minval=0.0, step=0.05, group=grpF)
+confirmBars  = input.int(3,      "Alignment must hold N bars",       minval=1,              group=grpF)
+cooldownBars = input.int(15,     "Cooldown bars between signals",    minval=0,              group=grpF)
+
+grpB = "Volume Bubbles"
+showBubbles  = input.bool(true,  "Show volume bubbles",          group=grpB)
+showMedium   = input.bool(false, "Show medium bubbles (3-7x)",   group=grpB)
+volAvgLen    = input.int(20,     "Volume MA length", minval=5,   group=grpB)
+bMult1       = input.float(3.0,  "Medium  (3× avg)", minval=1.0, step=0.5, group=grpB)
+bMult2       = input.float(7.0,  "Large   (7× avg)", minval=2.0, step=1.0, group=grpB)
+bMult3       = input.float(15.0, "Huge   (15× avg)", minval=5.0, step=1.0, group=grpB)
+
+// ============================================================
+// 1) VWAP — session anchored
+// ============================================================
+anchor = timeframe.change("D")
+[vwapVal, vwapUp1, vwapDn1] = ta.vwap(hlc3, anchor, 1)
+[_,       vwapUp2, vwapDn2] = ta.vwap(hlc3, anchor, 2)
+
+plot(showVwap ? vwapVal : na, "VWAP", color=color.orange, linewidth=2)
+pU1 = plot(showVwap and showBands ? vwapUp1 : na, "VWAP +1σ", color=color.new(color.orange, 70))
+pD1 = plot(showVwap and showBands ? vwapDn1 : na, "VWAP -1σ", color=color.new(color.orange, 70))
+plot(showVwap and showBands ? vwapUp2 : na, "VWAP +2σ", color=color.new(color.orange, 85))
+plot(showVwap and showBands ? vwapDn2 : na, "VWAP -2σ", color=color.new(color.orange, 85))
+fill(pU1, pD1, color=color.new(color.orange, 95))
+
+// ============================================================
+// 2) EMA 9/21 trend filter
+// ============================================================
+emaFast = ta.ema(close, fastLen)
+emaSlow = ta.ema(close, slowLen)
+trendUp = emaFast > emaSlow
+
+pF = plot(emaFast, "EMA Fast", color=trendUp ? color.new(color.teal, 0) : color.new(color.red, 0))
+pS = plot(emaSlow, "EMA Slow", color=trendUp ? color.new(color.teal, 50) : color.new(color.red, 50))
+fill(pF, pS, color=trendUp ? color.new(color.teal, 88) : color.new(color.red, 88))
+
+// ============================================================
+// 3) Volume delta (order-flow approximation)
+// ============================================================
+ltf = timeframe.isseconds ? "1S" :
+      not timeframe.isintraday ? "60" :
+      timeframe.multiplier <= 1  ? (secondsOk ? "10S" : timeframe.period) :
+      timeframe.multiplier <= 5  ? "1" :
+      timeframe.multiplier <= 15 ? "1" : "5"
+
+signedVol  = close > open ? volume : close < open ? -volume : 0.0
+ltfDeltas  = useLtf ? request.security_lower_tf(syminfo.tickerid, ltf, signedVol) : array.new_float(0)
+delta      = array.size(ltfDeltas) > 0 ? array.sum(ltfDeltas) : signedVol
+
+avgAbsDelta = ta.sma(math.abs(delta), deltaAvgLen)
+strongBuy   = delta >  strongMult * avgAbsDelta
+strongSell  = delta < -strongMult * avgAbsDelta
+
+barcolor(colorDeltaBars and strongBuy ? color.lime : colorDeltaBars and strongSell ? color.fuchsia : na,
+         title="Strong delta bars")
+
+// ============================================================
+// 4) Alignment signals (v1 logic unchanged)
+// ============================================================
+deltaOkLong  = requireStrong ? strongBuy  : delta > 0
+deltaOkShort = requireStrong ? strongSell : delta < 0
+
+atrVal = ta.atr(14)
+longBase  = close > vwapVal + vwapBufAtr * atrVal and trendUp     and (emaFast - emaSlow) > trendMinAtr * atrVal
+shortBase = close < vwapVal - vwapBufAtr * atrVal and not trendUp and (emaSlow - emaFast) > trendMinAtr * atrVal
+
+var int longRun  = 0
+var int shortRun = 0
+longRun  := longBase  ? longRun + 1  : 0
+shortRun := shortBase ? shortRun + 1 : 0
+
+var int lastSigBar = na
+cooledDown = na(lastSigBar) or bar_index - lastSigBar >= cooldownBars
+
+longSignal  = showSignals and longRun  == confirmBars and deltaOkLong  and cooledDown
+shortSignal = showSignals and shortRun == confirmBars and deltaOkShort and cooledDown
+
+if longSignal or shortSignal
+    lastSigBar := bar_index
+
+plotshape(longSignal,  "Long",  style=shape.triangleup,   location=location.belowbar, color=color.teal, size=size.small)
+plotshape(shortSignal, "Short", style=shape.triangledown, location=location.abovebar, color=color.red,  size=size.small)
+
+// ============================================================
+// 5) Volume Bubbles — büyük işlem görselleştirmesi
+//
+//    Mum hacmi ortalamanın kaç katı?
+//      2–4×  → küçük daire (anlamlı ama normal)
+//      4–8×  → büyük daire (kurumsal/whale boyutu)
+//      8×+   → çok büyük daire (nadir spike, dikkat)
+//
+//    Yeşil daire = alıcı agresif mum (close >= open)
+//    Kırmızı daire = satıcı agresif mum (close < open)
+//
+//    Bookmap'teki "bubble" kavramının Pine approximasyonu.
+//    Gerçek tick verisi yerine bar hacmini kullanır.
+// ============================================================
+avgVol   = ta.sma(volume, volAvgLen)
+volRatio = volume / math.max(avgVol, 1.0)
+bullBar  = close >= open
+
+// Alıcı bubbles (yeşil, mumun altında)
+plotshape(showBubbles and showMedium and bullBar and volRatio >= bMult1 and volRatio < bMult2,
+          "Buy M",  shape.circle, location.belowbar, color.new(color.lime, 40), size=size.tiny)
+plotshape(showBubbles and bullBar and volRatio >= bMult2 and volRatio < bMult3,
+          "Buy L",  shape.circle, location.belowbar, color.new(color.lime, 10), size=size.small)
+plotshape(showBubbles and bullBar and volRatio >= bMult3,
+          "Buy XL", shape.circle, location.belowbar, color.new(color.lime,  0), size=size.normal)
+
+// Satıcı bubbles (kırmızı, mumun üstünde)
+plotshape(showBubbles and showMedium and not bullBar and volRatio >= bMult1 and volRatio < bMult2,
+          "Sell M",  shape.circle, location.abovebar, color.new(color.red, 40), size=size.tiny)
+plotshape(showBubbles and not bullBar and volRatio >= bMult2 and volRatio < bMult3,
+          "Sell L",  shape.circle, location.abovebar, color.new(color.red, 10), size=size.small)
+plotshape(showBubbles and not bullBar and volRatio >= bMult3,
+          "Sell XL", shape.circle, location.abovebar, color.new(color.red,  0), size=size.normal)
+
+// ============================================================
+// Alerts
+// ============================================================
+alertcondition(longSignal,  "SS LONG",  "Scalper Stack LONG  {{ticker}} {{interval}}")
+alertcondition(shortSignal, "SS SHORT", "Scalper Stack SHORT {{ticker}} {{interval}}")
+alertcondition(showBubbles and volRatio >= bMult3,
+               "SS Huge Volume", "Huge volume spike on {{ticker}} {{interval}}")

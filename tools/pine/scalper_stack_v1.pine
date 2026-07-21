@@ -1,0 +1,126 @@
+//@version=6
+indicator("Scalper Stack v1 — VWAP + EMA 9/21 + Volume Delta", shorttitle="Scalper Stack", overlay=true, max_labels_count=500)
+
+// ============================================================
+// Inputs
+// ============================================================
+grpV = "VWAP"
+showVwap   = input.bool(true,  "Show VWAP",            group=grpV)
+showBands  = input.bool(true,  "Show ±1σ / ±2σ bands", group=grpV)
+
+grpE = "EMA Trend Filter"
+fastLen = input.int(9,  "Fast EMA", minval=1, group=grpE)
+slowLen = input.int(21, "Slow EMA", minval=2, group=grpE)
+
+grpD = "Volume Delta"
+useLtf      = input.bool(true, "Use lower-timeframe delta", group=grpD)
+secondsOk   = input.bool(false, "I have seconds data (Premium plan) — use 10S bars on 1m chart", group=grpD)
+strongMult  = input.float(1.5, "Strong delta = x times average |delta|", minval=0.5, step=0.1, group=grpD)
+deltaAvgLen = input.int(20, "Average |delta| lookback", minval=5, group=grpD)
+
+grpS = "Signals"
+showSignals    = input.bool(true, "Show alignment signals", group=grpS)
+requireStrong  = input.bool(true, "Require STRONG delta for signals", group=grpS)
+colorDeltaBars = input.bool(false, "Color strong-delta candles", group=grpS)
+
+grpF = "Noise Filters"
+// Defaults below were trained on Feb–Jun 2026 Binance BTC/ETH 1m data
+// (tools/backtest_scalper_stack.py, walk-forward): stricter filters and a
+// longer hold consistently improved per-trade expectancy on both symbols.
+vwapBufAtr   = input.float(0.50, "VWAP chop buffer (x ATR)",     minval=0.0, step=0.05, group=grpF, tooltip="No signals while price is within this distance of VWAP — kills the flip-flop spam right at the line.")
+trendMinAtr  = input.float(0.40, "Min EMA separation (x ATR)",   minval=0.0, step=0.05, group=grpF, tooltip="EMAs must be at least this far apart — filters flat/choppy trend.")
+confirmBars  = input.int(3,  "Alignment must hold N bars",       minval=1,             group=grpF)
+cooldownBars = input.int(15, "Cooldown bars between signals",    minval=0,             group=grpF)
+
+// ============================================================
+// 1) VWAP — session anchored (daily anchor works for 24/7 crypto too)
+// ============================================================
+anchor = timeframe.change("D")
+[vwapVal, vwapUp1, vwapDn1] = ta.vwap(hlc3, anchor, 1)
+[_,       vwapUp2, vwapDn2] = ta.vwap(hlc3, anchor, 2)
+
+plot(showVwap ? vwapVal : na, "VWAP", color=color.orange, linewidth=2)
+pU1 = plot(showVwap and showBands ? vwapUp1 : na, "VWAP +1σ", color=color.new(color.orange, 70))
+pD1 = plot(showVwap and showBands ? vwapDn1 : na, "VWAP -1σ", color=color.new(color.orange, 70))
+plot(showVwap and showBands ? vwapUp2 : na, "VWAP +2σ", color=color.new(color.orange, 85))
+plot(showVwap and showBands ? vwapDn2 : na, "VWAP -2σ", color=color.new(color.orange, 85))
+fill(pU1, pD1, color=color.new(color.orange, 95))
+
+// ============================================================
+// 2) EMA 9/21 trend filter
+// ============================================================
+emaFast = ta.ema(close, fastLen)
+emaSlow = ta.ema(close, slowLen)
+trendUp = emaFast > emaSlow
+
+pF = plot(emaFast, "EMA Fast", color=trendUp ? color.new(color.teal, 0) : color.new(color.red, 0))
+pS = plot(emaSlow, "EMA Slow", color=trendUp ? color.new(color.teal, 50) : color.new(color.red, 50))
+fill(pF, pS, color=trendUp ? color.new(color.teal, 88) : color.new(color.red, 88))
+
+// ============================================================
+// 3) Volume delta (order-flow approximation)
+//    Real footprint data is not available in Pine; this sums
+//    signed volume of lower-timeframe bars inside each chart bar.
+//    Falls back to bar-polarity volume if seconds data is unavailable.
+// ============================================================
+// True intrabar delta on a 1m chart needs seconds bars (Premium plans).
+// Without seconds access we request the chart timeframe itself, which
+// degrades to bar-polarity delta instead of erroring the whole script.
+ltf = timeframe.isseconds ? "1S" :
+      not timeframe.isintraday ? "60" :
+      timeframe.multiplier <= 1  ? (secondsOk ? "10S" : timeframe.period) :
+      timeframe.multiplier <= 5  ? "1" :
+      timeframe.multiplier <= 15 ? "1" : "5"
+
+signedVol = close > open ? volume : close < open ? -volume : 0.0
+ltfDeltas = useLtf ? request.security_lower_tf(syminfo.tickerid, ltf, signedVol) : array.new_float(0)
+delta = array.size(ltfDeltas) > 0 ? array.sum(ltfDeltas) : signedVol
+
+avgAbsDelta = ta.sma(math.abs(delta), deltaAvgLen)
+strongBuy  = delta >  strongMult * avgAbsDelta
+strongSell = delta < -strongMult * avgAbsDelta
+
+// Candle coloring: strong delta bars (off by default to keep the chart clean)
+barcolor(colorDeltaBars and strongBuy ? color.lime : colorDeltaBars and strongSell ? color.fuchsia : na, title="Strong delta bars")
+
+// ============================================================
+// Alignment signals: where, who, which direction agree
+//   LONG  = above VWAP + EMA trend up   + positive delta
+//   SHORT = below VWAP + EMA trend down + negative delta
+// Signal fires on the FIRST bar of alignment only (no spam).
+// ============================================================
+deltaOkLong  = requireStrong ? strongBuy  : delta > 0
+deltaOkShort = requireStrong ? strongSell : delta < 0
+
+// Noise filters:
+//   1. Price must clear VWAP by a buffer (no signals in the chop zone at the line)
+//   2. EMAs must be meaningfully separated (real trend, not flat drift)
+//   3. Alignment must survive N consecutive bars
+//   4. Cooldown: no new signal for M bars after the last one
+atrVal = ta.atr(14)
+
+longBase  = close > vwapVal + vwapBufAtr * atrVal and trendUp     and (emaFast - emaSlow) > trendMinAtr * atrVal
+shortBase = close < vwapVal - vwapBufAtr * atrVal and not trendUp and (emaSlow - emaFast) > trendMinAtr * atrVal
+
+var int longRun  = 0
+var int shortRun = 0
+longRun  := longBase  ? longRun + 1  : 0
+shortRun := shortBase ? shortRun + 1 : 0
+
+var int lastSigBar = na
+cooledDown = na(lastSigBar) or bar_index - lastSigBar >= cooldownBars
+
+longSignal  = showSignals and longRun  == confirmBars and deltaOkLong  and cooledDown
+shortSignal = showSignals and shortRun == confirmBars and deltaOkShort and cooledDown
+
+if longSignal or shortSignal
+    lastSigBar := bar_index
+
+plotshape(longSignal,  "Long alignment",  style=shape.triangleup,   location=location.belowbar, color=color.teal, size=size.small)
+plotshape(shortSignal, "Short alignment", style=shape.triangledown, location=location.abovebar, color=color.red,  size=size.small)
+
+// ============================================================
+// Alerts
+// ============================================================
+alertcondition(longSignal,  "Scalper Stack LONG",  "VWAP + EMA + Delta aligned LONG on {{ticker}} {{interval}}")
+alertcondition(shortSignal, "Scalper Stack SHORT", "VWAP + EMA + Delta aligned SHORT on {{ticker}} {{interval}}")

@@ -1,0 +1,82 @@
+//@version=6
+indicator("Order Flow — Delta + Cumulative Delta", shorttitle="OFlow", overlay=false, max_bars_back=500)
+
+// ============================================================
+// Inputs
+// ============================================================
+grpD = "Delta"
+useLtf      = input.bool(true,  "Use lower-timeframe delta",   group=grpD)
+secondsOk   = input.bool(false, "Seconds data (Premium plan)", group=grpD)
+strongMult  = input.float(1.5,  "Strong delta multiplier",     group=grpD, minval=0.5, step=0.1)
+deltaAvgLen = input.int(20,     "Delta MA length",             group=grpD, minval=5)
+
+grpC = "Cumulative Delta"
+showCum  = input.bool(true,  "Show cumulative session delta", group=grpC)
+cumScale = input.float(1.0,  "Cum delta scale factor",        group=grpC, minval=0.01, step=0.1)
+
+grpA = "Divergence"
+showDiv = input.bool(true, "Highlight delta-price divergence", group=grpA)
+divLen  = input.int(5, "Divergence lookback bars", group=grpA, minval=2)
+
+// ============================================================
+// Delta hesabı
+// ============================================================
+ltf = timeframe.isseconds ? "1S" : not timeframe.isintraday ? "60" : timeframe.multiplier <= 1 ? (secondsOk ? "10S" : timeframe.period) : timeframe.multiplier <= 5 ? "1" : "5"
+
+signedVol  = close > open ? volume : close < open ? -volume : 0.0
+ltfDeltas  = useLtf ? request.security_lower_tf(syminfo.tickerid, ltf, signedVol) : array.new_float(0)
+delta      = array.size(ltfDeltas) > 0 ? array.sum(ltfDeltas) : signedVol
+
+avgAbsDelta = ta.sma(math.abs(delta), deltaAvgLen)
+strongBuy   = delta >  strongMult * avgAbsDelta
+strongSell  = delta < -strongMult * avgAbsDelta
+
+// ============================================================
+// Kümülatif delta — her gün sıfırlanır
+// ============================================================
+isNewDay = ta.change(time("D")) != 0
+
+var float cumDelta = 0.0
+if isNewDay
+    cumDelta := delta
+else
+    cumDelta := cumDelta[1] + delta
+
+// ============================================================
+// Delta histogramı
+// ============================================================
+deltaCol = strongBuy ? color.new(color.lime, 0) : strongSell ? color.new(color.red, 0) : delta > 0 ? color.new(color.green, 45) : color.new(color.red, 45)
+
+plot(delta, "Delta", style=plot.style_columns, color=deltaCol, histbase=0)
+hline(0, "Zero", color=color.new(color.gray, 50), linestyle=hline.style_solid, linewidth=1)
+
+// ============================================================
+// Kümülatif delta çizgisi
+// ============================================================
+plot(showCum ? cumDelta * cumScale : na, "Cum Delta", color=color.orange, linewidth=2, style=plot.style_line)
+
+// ============================================================
+// Divergence highlight
+// ============================================================
+priceHigh = ta.highest(high, divLen)
+priceLow  = ta.lowest(low,  divLen)
+cumHigh   = ta.highest(cumDelta, divLen)
+cumLow    = ta.lowest(cumDelta,  divLen)
+
+bearDiv = showDiv and high >= priceHigh and cumDelta < nz(cumHigh[1])
+bullDiv = showDiv and low  <= priceLow  and cumDelta > nz(cumLow[1])
+
+bgcolor(bearDiv ? color.new(color.red,  85) : na, title="Bear div")
+bgcolor(bullDiv ? color.new(color.lime, 85) : na, title="Bull div")
+
+// Strong delta arkaplan
+bgcolor(strongBuy  ? color.new(color.lime, 92) : na, title="Strong buy bg")
+bgcolor(strongSell ? color.new(color.red,  92) : na, title="Strong sell bg")
+
+// ============================================================
+// Alerts
+// ============================================================
+alertcondition(strongBuy,  "OFlow Strong Buy",  "Strong buy delta — {{ticker}} {{interval}}")
+alertcondition(strongSell, "OFlow Strong Sell", "Strong sell delta — {{ticker}} {{interval}}")
+alertcondition(bearDiv,    "OFlow Bear Div",    "Bear divergence: price high, delta not — {{ticker}}")
+alertcondition(bullDiv,    "OFlow Bull Div",    "Bull divergence: price low, delta not — {{ticker}}")

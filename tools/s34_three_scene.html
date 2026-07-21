@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>S34 Regime Scene Mock</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07100d;
+      --panel: rgba(9, 18, 17, 0.78);
+      --line: rgba(210, 234, 226, 0.18);
+      --text: #e8f4ee;
+      --muted: #8ea69f;
+      --green: #31f58a;
+      --red: #ff4e5f;
+      --gold: #ffd166;
+      --blue: #46c7ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      letter-spacing: 0;
+    }
+
+    #scene {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .hud {
+      position: fixed;
+      left: 16px;
+      top: 16px;
+      width: min(420px, calc(100vw - 32px));
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      backdrop-filter: blur(8px);
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .status {
+      padding: 5px 8px;
+      border: 1px solid currentColor;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .status.on { color: var(--green); }
+    .status.off { color: var(--red); }
+    .status.signal { color: var(--gold); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .metric {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.03);
+      min-height: 58px;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+
+    .value {
+      color: var(--text);
+      font-size: 18px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .keys {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .keys b {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .ticker {
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--muted);
+      backdrop-filter: blur(8px);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="scene"></canvas>
+
+  <section class="hud" aria-label="S34 mock telemetry">
+    <div class="title">
+      <span>S34 REGIME MOCK</span>
+      <span id="status" class="status off">REGIME OFF</span>
+    </div>
+    <div class="grid">
+      <div class="metric">
+        <div class="label">ETH MARK</div>
+        <div id="price" class="value">$1,724.40</div>
+      </div>
+      <div class="metric">
+        <div class="label">BUY LIQ</div>
+        <div id="liq" class="value">0.82M</div>
+      </div>
+      <div class="metric">
+        <div class="label">SELL PRESS</div>
+        <div id="sell" class="value">0.20</div>
+      </div>
+      <div class="metric">
+        <div class="label">AGG PRESS</div>
+        <div id="agg" class="value">0.40</div>
+      </div>
+      <div class="metric">
+        <div class="label">SIGNAL</div>
+        <div id="signal" class="value">waiting</div>
+      </div>
+      <div class="metric">
+        <div class="label">BUBBLES</div>
+        <div id="bubbles" class="value">low</div>
+      </div>
+      <div class="metric">
+        <div class="label">OPEN</div>
+        <div id="openTrade" class="value">none</div>
+      </div>
+      <div class="metric">
+        <div class="label">NET BPS</div>
+        <div id="netBps" class="value">-</div>
+      </div>
+    </div>
+    <div class="keys">
+      <div><b>1</b> Regime OFF</div>
+      <div><b>2</b> Regime ON</div>
+      <div><b>3</b> Signal fired</div>
+      <div><b>4</b> Cycle liquidation intensity</div>
+    </div>
+  </section>
+
+  <div id="ticker" class="ticker">Mock mode. No DB reads. No orders. Ready for 5050 API wiring.</div>
+
+  <script type="module">
+    import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js";
+
+    const canvas = document.getElementById("scene");
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x07100d, 12, 70);
+
+    const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 120);
+    camera.position.set(0, 7, 18);
+    camera.lookAt(0, 2.4, 0);
+
+    const clock = new THREE.Clock();
+
+    const state = {
+      mode: "off",
+      signalPulse: 0,
+      bubbleLevel: 0,
+      price: 1724.4,
+      buyLiqM: 0.82,
+      buyPressure: 0.35,
+      sellPressure: 0.20,
+      aggPressure: 0.40,
+      liveConnected: false,
+      liveMode: "mock",
+      lastLiveTradeId: ""
+    };
+
+    const API_URL = window.location.port === "5050" ? "/api/data" : "http://127.0.0.1:5050/api/data";
+
+    function clamp01(value) {
+      return Math.max(0, Math.min(1, Number(value) || 0));
+    }
+
+    function fmtCompact(value) {
+      const n = Number(value || 0);
+      if (Math.abs(n) >= 1e9) return (n / 1e9).toFixed(2).replace(/\.00$/, "") + "B";
+      if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(2).replace(/\.00$/, "") + "M";
+      if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(0) + "K";
+      return n.toFixed(0);
+    }
+
+    function fmtBps(value) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n.toFixed(2) : "-";
+    }
+
+    const colors = {
+      offBg: new THREE.Color(0x07100d),
+      onBg: new THREE.Color(0x0b1c14),
+      signalBg: new THREE.Color(0x201908),
+      green: new THREE.Color(0x31f58a),
+      red: new THREE.Color(0xff4e5f),
+      gold: new THREE.Color(0xffd166),
+      blue: new THREE.Color(0x46c7ff)
+    };
+
+    function mat(color, roughness = 0.55, metalness = 0.05) {
+      return new THREE.MeshStandardMaterial({ color, roughness, metalness });
+    }
+
+    const mats = {
+      floor: mat(0x10201c, 0.8),
+      grid: mat(0x263933, 0.8),
+      body: mat(0xdce6df, 0.5),
+      glass: mat(0x44c7ff, 0.25, 0.1),
+      engineOff: mat(0x31433d, 0.7),
+      green: mat(0x31f58a, 0.45),
+      red: mat(0xff4e5f, 0.5),
+      gold: mat(0xffd166, 0.45),
+      line: mat(0xb9c7c2, 0.7),
+      bubbleLow: mat(0x46c7ff, 0.35),
+      bubbleHigh: mat(0xff3d3d, 0.4)
+    };
+
+    const ambient = new THREE.HemisphereLight(0xcde8dd, 0x0b100e, 1.2);
+    scene.add(ambient);
+
+    const key = new THREE.DirectionalLight(0xffffff, 2.2);
+    key.position.set(-6, 12, 8);
+    key.castShadow = true;
+    key.shadow.mapSize.width = 2048;
+    key.shadow.mapSize.height = 2048;
+    scene.add(key);
+
+    const rim = new THREE.PointLight(0x31f58a, 2.2, 28);
+    rim.position.set(6, 5, -8);
+    scene.add(rim);
+
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), mats.floor);
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    const grid = new THREE.GridHelper(80, 40, 0x235044, 0x18332e);
+    grid.position.y = 0.015;
+    scene.add(grid);
+
+    const road = new THREE.Mesh(new THREE.BoxGeometry(22, 0.04, 3.5), mat(0x0d1514, 0.9));
+    road.position.set(0, 0.04, 0);
+    road.receiveShadow = true;
+    scene.add(road);
+
+    const chartGroup = new THREE.Group();
+    chartGroup.position.set(0, 0.15, -1.1);
+    scene.add(chartGroup);
+
+    const priceLine = [];
+    for (let i = 0; i < 34; i++) {
+      const x = -10 + i * 0.62;
+      const y = 0.18 + Math.sin(i * 0.45) * 0.18 + Math.max(0, i - 20) * 0.06;
+      priceLine.push(new THREE.Vector3(x, y, 0));
+    }
+    const lineGeom = new THREE.BufferGeometry().setFromPoints(priceLine);
+    const line = new THREE.Line(lineGeom, new THREE.LineBasicMaterial({ color: 0xdce6df, linewidth: 2 }));
+    line.position.z = -0.2;
+    chartGroup.add(line);
+
+    const bars = [];
+    for (let i = 0; i < 18; i++) {
+      const h = 0.1 + Math.random() * 0.25;
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(0.28, h, 0.28), mats.bubbleLow);
+      mesh.position.set(-9.5 + i * 1.05, h / 2, 0.35);
+      mesh.castShadow = true;
+      chartGroup.add(mesh);
+      bars.push(mesh);
+    }
+
+    const rocket = new THREE.Group();
+    rocket.position.set(-2.2, 1.25, 1.3);
+    scene.add(rocket);
+
+    const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.45, 1.8, 12, 24), mats.body);
+    body.rotation.z = Math.PI / 2;
+    body.castShadow = true;
+    rocket.add(body);
+
+    const nose = new THREE.Mesh(new THREE.ConeGeometry(0.46, 0.95, 24), mats.glass);
+    nose.rotation.z = -Math.PI / 2;
+    nose.position.x = 1.38;
+    nose.castShadow = true;
+    rocket.add(nose);
+
+    const tail = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.5, 0.35, 24), mats.engineOff);
+    tail.rotation.z = Math.PI / 2;
+    tail.position.x = -1.32;
+    tail.castShadow = true;
+    rocket.add(tail);
+
+    const finGeom = new THREE.BoxGeometry(0.25, 0.7, 0.12);
+    for (const z of [-0.42, 0.42]) {
+      const fin = new THREE.Mesh(finGeom, mats.gold);
+      fin.position.set(-0.65, -0.45, z);
+      fin.rotation.x = z > 0 ? 0.45 : -0.45;
+      fin.castShadow = true;
+      rocket.add(fin);
+    }
+
+    const flame = new THREE.Mesh(new THREE.ConeGeometry(0.36, 1.2, 24), mats.red);
+    flame.rotation.z = Math.PI / 2;
+    flame.position.x = -2.05;
+    flame.scale.set(0.01, 0.01, 0.01);
+    rocket.add(flame);
+
+    const trader = new THREE.Group();
+    trader.position.set(-5.6, 0.1, 1.2);
+    scene.add(trader);
+
+    const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.22, 0.7, 8, 12), mats.green);
+    torso.position.y = 0.9;
+    torso.castShadow = true;
+    trader.add(torso);
+
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), mats.body);
+    head.position.y = 1.48;
+    head.castShadow = true;
+    trader.add(head);
+
+    const leftArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.055, 0.62, 8, 8), mats.body);
+    leftArm.position.set(-0.28, 1.08, 0);
+    leftArm.rotation.z = 0.6;
+    trader.add(leftArm);
+
+    const rightArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.055, 0.62, 8, 8), mats.body);
+    rightArm.position.set(0.28, 1.08, 0);
+    rightArm.rotation.z = -0.6;
+    trader.add(rightArm);
+
+    const bubbles = [];
+    for (let i = 0; i < 55; i++) {
+      const b = new THREE.Mesh(new THREE.SphereGeometry(0.04 + Math.random() * 0.1, 10, 10), mats.bubbleLow);
+      b.position.set(-10 + Math.random() * 20, 0.6 + Math.random() * 6, -4 - Math.random() * 10);
+      b.userData.speed = 0.25 + Math.random() * 0.9;
+      b.userData.phase = Math.random() * Math.PI * 2;
+      scene.add(b);
+      bubbles.push(b);
+    }
+
+    const buyStorm = [];
+    const sellStorm = [];
+
+    for (let i = 0; i < 120; i++) {
+      const p = new THREE.Mesh(
+        new THREE.SphereGeometry(0.025 + Math.random() * 0.055, 8, 8),
+        new THREE.MeshBasicMaterial({ color: 0x46c7ff, transparent: true, opacity: 0.08 })
+      );
+      p.position.set(-10 + Math.random() * 12, 0.6 + Math.random() * 5.4, -5 + Math.random() * 6);
+      p.userData.phase = Math.random() * Math.PI * 2;
+      p.userData.radius = 0.12 + Math.random() * 0.55;
+      p.userData.speed = 0.35 + Math.random() * 1.05;
+      p.userData.baseX = p.position.x;
+      scene.add(p);
+      buyStorm.push(p);
+    }
+
+    for (let i = 0; i < 120; i++) {
+      const p = new THREE.Mesh(
+        new THREE.SphereGeometry(0.025 + Math.random() * 0.055, 8, 8),
+        new THREE.MeshBasicMaterial({ color: 0xff4e5f, transparent: true, opacity: 0.06 })
+      );
+      p.position.set(2 + Math.random() * 10, 0.6 + Math.random() * 5.4, -5 + Math.random() * 6);
+      p.userData.phase = Math.random() * Math.PI * 2;
+      p.userData.speed = 0.25 + Math.random() * 0.85;
+      scene.add(p);
+      sellStorm.push(p);
+    }
+
+    const whales = [];
+    const whaleSpecs = [
+      { x: -13.5, y: 6.4, z: -16.5, sx: 4.6, sy: 0.72, sz: 0.55, drift: 0.18 },
+      { x: 0.5, y: 7.8, z: -18.0, sx: 6.2, sy: 0.9, sz: 0.65, drift: -0.12 },
+      { x: 13.2, y: 5.1, z: -12.5, sx: 3.8, sy: 0.62, sz: 0.48, drift: 0.15 }
+    ];
+
+    for (const spec of whaleSpecs) {
+      const whale = new THREE.Mesh(
+        new THREE.SphereGeometry(1, 24, 12),
+        new THREE.MeshBasicMaterial({ color: 0x020706, transparent: true, opacity: 0.04, depthWrite: false })
+      );
+      whale.position.set(spec.x, spec.y, spec.z);
+      whale.scale.set(spec.sx, spec.sy, spec.sz);
+      whale.userData.baseX = spec.x;
+      whale.userData.drift = spec.drift;
+      whale.userData.phase = Math.random() * Math.PI * 2;
+      scene.add(whale);
+      whales.push(whale);
+    }
+
+    const signalRing = new THREE.Mesh(
+      new THREE.TorusGeometry(1.4, 0.025, 8, 80),
+      new THREE.MeshBasicMaterial({ color: 0xffd166, transparent: true, opacity: 0 })
+    );
+    signalRing.position.set(-2.2, 1.25, 1.3);
+    signalRing.rotation.x = Math.PI / 2;
+    scene.add(signalRing);
+
+    const windows = [];
+
+    const skylineGroup = new THREE.Group();
+    skylineGroup.position.set(0, 0, -14);
+    scene.add(skylineGroup);
+
+    const skylineBuildings = [
+      { w: 2.8, h: 9.0, x: -18 },
+      { w: 2.2, h: 6.5, x: -13 },
+      { w: 3.5, h: 12.0, x: -7 },
+      { w: 2.0, h: 7.5, x: -2 },
+      { w: 3.2, h: 10.5, x: 4 },
+      { w: 2.5, h: 6.0, x: 10 },
+      { w: 2.8, h: 8.5, x: 16 }
+    ];
+
+    for (const spec of skylineBuildings) {
+      const depth = 1.0 + Math.random() * 0.35;
+      const building = new THREE.Mesh(
+        new THREE.BoxGeometry(spec.w, spec.h, depth),
+        new THREE.MeshStandardMaterial({ color: 0x0b1c17, roughness: 0.9 })
+      );
+      building.position.set(spec.x + (Math.random() - 0.5) * 0.35, spec.h / 2, 0);
+      building.castShadow = false;
+      building.receiveShadow = false;
+      skylineGroup.add(building);
+
+      const windowCount = 6 + Math.floor(Math.random() * 5);
+      for (let i = 0; i < windowCount; i++) {
+        const warm = Math.random() > 0.45;
+        const windowLight = new THREE.Mesh(
+          new THREE.PlaneGeometry(0.18, 0.18),
+          new THREE.MeshBasicMaterial({
+            color: warm ? 0xffeebb : 0x88ccff,
+            transparent: true,
+            opacity: warm ? 0.35 + Math.random() * 0.2 : 0.2 + Math.random() * 0.2
+          })
+        );
+        windowLight.position.set(
+          spec.x + (Math.random() - 0.5) * (spec.w * 0.72),
+          0.9 + Math.random() * (spec.h - 1.8),
+          depth / 2 + 0.01
+        );
+        skylineGroup.add(windowLight);
+        windows.push(windowLight);
+      }
+    }
+
+    const midDistrict = new THREE.Group();
+    midDistrict.position.set(0, 0, -6);
+    scene.add(midDistrict);
+
+    const midBuildings = [
+      { w: 1.8, h: 3.2, x: -14 },
+      { w: 2.2, h: 4.5, x: -9 },
+      { w: 1.6, h: 2.8, x: 9 },
+      { w: 2.4, h: 3.8, x: 14 }
+    ];
+
+    for (const spec of midBuildings) {
+      const midBuilding = new THREE.Mesh(
+        new THREE.BoxGeometry(spec.w, spec.h, 0.85),
+        new THREE.MeshStandardMaterial({ color: 0x0d201a, roughness: 0.85 })
+      );
+      midBuilding.position.set(spec.x, spec.h / 2, 0);
+      midDistrict.add(midBuilding);
+    }
+
+    const midGlowL = new THREE.PointLight(0x22ff88, 0.3, 6);
+    midGlowL.position.set(-11.5, 4.9, -6);
+    scene.add(midGlowL);
+
+    const midGlowR = new THREE.PointLight(0x22ff88, 0.3, 6);
+    midGlowR.position.set(11.5, 4.2, -6);
+    scene.add(midGlowR);
+
+    const centerStripe = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.12, 22),
+      new THREE.MeshBasicMaterial({ color: 0x31f58a, transparent: true, opacity: 0.12, side: THREE.DoubleSide })
+    );
+    centerStripe.position.set(0, 0.06, 0);
+    centerStripe.rotation.x = -Math.PI / 2;
+    scene.add(centerStripe);
+
+    const launchRing = new THREE.Mesh(
+      new THREE.RingGeometry(0.9, 1.05, 48),
+      new THREE.MeshBasicMaterial({ color: 0x31f58a, transparent: true, opacity: 0.0, side: THREE.DoubleSide })
+    );
+    launchRing.position.set(-2.2, 0.06, 1.3);
+    launchRing.rotation.x = -Math.PI / 2;
+    scene.add(launchRing);
+
+    const markerXs = [-8.75, -4.375, 0, 4.375, 8.75];
+    for (const x of markerXs) {
+      const marker = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.06, 3.5),
+        new THREE.MeshBasicMaterial({ color: 0x1a3530, transparent: true, opacity: 0.6, side: THREE.DoubleSide })
+      );
+      marker.position.set(x, 0.061, 0);
+      marker.rotation.x = -Math.PI / 2;
+      marker.rotation.z = Math.PI / 2;
+      scene.add(marker);
+    }
+
+    const groundFog = new THREE.Mesh(
+      new THREE.PlaneGeometry(80, 30),
+      new THREE.MeshBasicMaterial({
+        color: 0x0d2218,
+        transparent: true,
+        opacity: 0.45,
+        depthWrite: false,
+        side: THREE.DoubleSide
+      })
+    );
+    groundFog.position.set(0, 0.08, 0);
+    groundFog.rotation.x = -Math.PI / 2;
+    scene.add(groundFog);
+
+    const gantryGroup = new THREE.Group();
+    gantryGroup.position.set(0, 5.5, 1.3);
+    scene.add(gantryGroup);
+
+    const gantryMat = new THREE.MeshStandardMaterial({ color: 0x152920, roughness: 0.7 });
+    for (const x of [-4.5, 4.5]) {
+      const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.12, 5.5, 0.12), gantryMat);
+      pillar.position.set(x, 0, 0);
+      gantryGroup.add(pillar);
+    }
+
+    const crossbar = new THREE.Mesh(new THREE.BoxGeometry(9.2, 0.12, 0.12), gantryMat);
+    crossbar.position.set(0, 2.75, 0);
+    gantryGroup.add(crossbar);
+
+    const gantryLightL = new THREE.Mesh(
+      new THREE.SphereGeometry(0.09, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0xff4e5f })
+    );
+    gantryLightL.position.set(-2.2, 2.52, 0.08);
+    gantryGroup.add(gantryLightL);
+
+    const gantryLightC = new THREE.Mesh(
+      new THREE.SphereGeometry(0.09, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0x332200 })
+    );
+    gantryLightC.position.set(0, 2.52, 0.08);
+    gantryGroup.add(gantryLightC);
+
+    const gantryLightR = new THREE.Mesh(
+      new THREE.SphereGeometry(0.09, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0x1a1a1a })
+    );
+    gantryLightR.position.set(2.2, 2.52, 0.08);
+    gantryGroup.add(gantryLightR);
+
+    function setMode(next) {
+      state.mode = next;
+      const status = document.getElementById("status");
+      status.className = "status " + (next === "off" ? "off" : next === "signal" ? "signal" : "on");
+      status.textContent = next === "off" ? "REGIME OFF" : next === "signal" ? "SIGNAL FIRED" : "REGIME ON";
+      document.getElementById("signal").textContent = next === "signal" ? "entry" : "waiting";
+      document.getElementById("ticker").textContent =
+        next === "off"
+          ? "Regime gate closed. Engine idle."
+          : next === "signal"
+            ? "Mock signal fired. Entry marker active. Rocket thrust on."
+            : "Regime gate open. Watching liquidation bars.";
+      if (next === "signal") state.signalPulse = 1;
+    }
+
+    function cycleBubbles() {
+      state.bubbleLevel = (state.bubbleLevel + 1) % 4;
+      const labels = ["low", "medium", "high", "cascade"];
+      const liq = [0.82, 4.6, 13.2, 31.8][state.bubbleLevel];
+      state.buyLiqM = liq;
+      state.buyPressure = [0.2, 0.45, 0.75, 1.0][state.bubbleLevel];
+      state.sellPressure = [0.12, 0.25, 0.45, 0.75][state.bubbleLevel];
+      state.aggPressure = [0.25, 0.45, 0.70, 1.0][state.bubbleLevel];
+      document.getElementById("bubbles").textContent = labels[state.bubbleLevel];
+      document.getElementById("liq").textContent = liq.toFixed(liq >= 10 ? 1 : 2) + "M";
+      for (let i = 0; i < bars.length; i++) {
+        const boost = state.bubbleLevel * 0.45;
+        const h = 0.12 + Math.random() * (0.25 + boost);
+        bars[i].scale.y = h / Math.max(bars[i].geometry.parameters.height, 0.01);
+        bars[i].position.y = h / 2;
+        bars[i].material = state.bubbleLevel >= 3 ? mats.red : state.bubbleLevel >= 2 ? mats.gold : mats.bubbleLow;
+      }
+    }
+
+    function applyLiveMode(next, tickerText) {
+      if (state.mode !== next) {
+        state.mode = next;
+        if (next === "signal") state.signalPulse = 1;
+      }
+      const status = document.getElementById("status");
+      status.className = "status " + (next === "off" ? "off" : next === "signal" ? "signal" : "on");
+      status.textContent = next === "off" ? "REGIME OFF" : next === "signal" ? "LIVE SIGNAL" : "REGIME ON";
+      document.getElementById("signal").textContent = next === "signal" ? "entry/open" : next === "on" ? "watching" : "waiting";
+      document.getElementById("ticker").textContent = tickerText;
+    }
+
+    function applyLivePayload(payload) {
+      const prices = Array.isArray(payload.price) ? payload.price : [];
+      const latestPrice = prices.length ? Number(prices[prices.length - 1].close) : null;
+      if (Number.isFinite(latestPrice)) state.price = latestPrice;
+
+      const liq = Array.isArray(payload.liq) ? payload.liq : [];
+      const recentLiq = liq.slice(-6).reduce((sum, row) => sum + Number(row.notional || 0), 0);
+      const maxRecentLiq = liq.slice(-18).reduce((max, row) => Math.max(max, Number(row.notional || 0)), 0);
+
+      const regime = payload.regime || {};
+      const thresholds = regime.thresholds || {};
+      const buyThreshold = Number(thresholds.buy_liq_notional || 5000000);
+      const aggThreshold = Number(thresholds.agg_count || 250000);
+      const trendPct = Number(regime.trend_pct || 0);
+      const aggCount = Number(regime.agg_count || 0);
+
+      state.buyLiqM = recentLiq / 1e6;
+      state.buyPressure = clamp01((recentLiq / Math.max(buyThreshold * 4, 1)) + (maxRecentLiq / 30000000) * 0.35);
+      state.aggPressure = clamp01(aggCount / Math.max(aggThreshold * 3, 1));
+      state.sellPressure = clamp01(Math.max(0, -trendPct) / 3.0);
+
+      const open = payload.open_trade || null;
+      const summary = payload.summary || {};
+      const nextMode = open ? "signal" : regime.regime_on ? "on" : "off";
+      const openText = open ? `${open.trade_id || "open"} ${fmtBps(open.unrealized_bps)}bps` : "none";
+      const tickerText = open
+        ? `LIVE: ${open.trade_id || "open"} ${open.rule_label || open.rule_id || ""} open, unrealized ${fmtBps(open.unrealized_bps)} bps.`
+        : `LIVE: ${regime.regime_on ? "regime open" : "regime closed"} · buy liq ${fmtCompact(recentLiq)} · agg ${fmtCompact(aggCount)}.`;
+
+      applyLiveMode(nextMode, tickerText);
+      document.getElementById("liq").textContent = fmtCompact(recentLiq);
+      document.getElementById("sell").textContent = state.sellPressure.toFixed(2);
+      document.getElementById("agg").textContent = state.aggPressure.toFixed(2);
+      document.getElementById("openTrade").textContent = openText;
+      document.getElementById("netBps").textContent = fmtBps(summary.cum_net_bps);
+
+      state.liveConnected = true;
+      state.liveMode = "real";
+      state.lastLiveTradeId = open ? String(open.trade_id || "") : "";
+    }
+
+    async function fetchLiveData() {
+      try {
+        const response = await fetch(API_URL, { cache: "no-store" });
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        const payload = await response.json();
+        applyLivePayload(payload);
+      } catch (err) {
+        if (state.liveConnected) {
+          document.getElementById("ticker").textContent = "Live API stale/unreachable. Holding last scene state. " + String(err);
+        }
+        state.liveConnected = false;
+      }
+    }
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "1") setMode("off");
+      if (event.key === "2") setMode("on");
+      if (event.key === "3") setMode("signal");
+      if (event.key === "4") cycleBubbles();
+    });
+
+    function resize() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+
+    window.addEventListener("resize", resize);
+    resize();
+    setMode("off");
+    fetchLiveData();
+    setInterval(fetchLiveData, 5000);
+
+    function animate() {
+      const dt = clock.getDelta();
+      const t = clock.elapsedTime;
+
+      const targetBg = state.mode === "off" ? colors.offBg : state.mode === "signal" ? colors.signalBg : colors.onBg;
+      scene.background = (scene.background || colors.offBg.clone()).lerp(targetBg, 0.04);
+      scene.fog.color.copy(scene.background);
+
+      const on = state.mode !== "off";
+      const thrust = state.mode === "signal" ? 1.0 : on ? 0.45 : 0.0;
+      flame.scale.setScalar(THREE.MathUtils.lerp(flame.scale.x, thrust, 0.12));
+      flame.rotation.x = Math.sin(t * 22) * 0.22;
+      rim.intensity = THREE.MathUtils.lerp(rim.intensity, on ? 4.5 : 1.2, 0.05);
+
+      rocket.position.y = 1.25 + Math.sin(t * 2.2) * (on ? 0.12 : 0.035);
+      rocket.rotation.z = THREE.MathUtils.lerp(rocket.rotation.z, state.mode === "off" ? -0.12 : 0.08, 0.04);
+      rocket.position.x = THREE.MathUtils.lerp(rocket.position.x, state.mode === "signal" ? 1.2 : -2.2, 0.015);
+
+      rightArm.rotation.z = THREE.MathUtils.lerp(rightArm.rotation.z, state.mode === "signal" ? -2.25 : -0.6, 0.08);
+      leftArm.rotation.z = THREE.MathUtils.lerp(leftArm.rotation.z, state.mode === "off" ? 0.95 : 0.35, 0.05);
+      trader.rotation.z = THREE.MathUtils.lerp(trader.rotation.z, state.mode === "off" ? -0.08 : 0.04, 0.04);
+
+      state.signalPulse = Math.max(0, state.signalPulse - dt * 0.55);
+      signalRing.material.opacity = state.signalPulse * 0.75;
+      signalRing.scale.setScalar(1 + (1 - state.signalPulse) * 1.5);
+
+      for (const b of bubbles) {
+        b.position.y += b.userData.speed * dt * (0.7 + state.bubbleLevel * 0.55);
+        b.position.x += Math.sin(t * 0.7 + b.userData.phase) * dt * 0.25;
+        if (b.position.y > 8) {
+          b.position.y = 0.3;
+          b.position.x = -10 + Math.random() * 20;
+        }
+        b.material = state.bubbleLevel >= 3 ? mats.bubbleHigh : state.bubbleLevel >= 2 ? mats.gold : mats.bubbleLow;
+      }
+
+      if (!state.liveConnected) {
+        const priceDrift = (state.mode === "signal" ? 0.42 : state.mode === "on" ? 0.12 : -0.04) * dt;
+        state.price += priceDrift + Math.sin(t * 1.6) * 0.01;
+      }
+      document.getElementById("price").textContent = "$" + state.price.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+
+      // Window flicker - subtle random opacity shifts
+      if (Math.floor(t * 3) !== Math.floor((t - dt) * 3)) {
+        const w = windows[Math.floor(Math.random() * windows.length)];
+        if (w) w.material.opacity = 0.15 + Math.random() * 0.45;
+      }
+
+      // Launch ring opacity
+      const targetRingOpacity = state.mode === "off" ? 0.0 : state.mode === "signal" ? 0.55 : 0.18;
+      launchRing.material.opacity = THREE.MathUtils.lerp(launchRing.material.opacity, targetRingOpacity, 0.05);
+      launchRing.rotation.z += dt * (state.mode === "signal" ? 1.8 : 0.3);
+
+      // Gantry indicator lights
+      gantryLightL.material.color.setHex(on ? 0x31f58a : 0xff4e5f);
+      gantryLightR.material.color.setHex(state.mode === "signal" ? 0xffd166 : 0x1a1a1a);
+
+      // Liquidation storm animation
+      const signalBoost = state.mode === "signal" ? 0.35 : 0.0;
+      const buyTargetOpacity = state.mode === "off" ? 0.035 : Math.min(0.58, 0.05 + state.buyPressure * 0.34 + signalBoost * 0.42);
+      const sellTargetOpacity = state.mode === "off" ? 0.025 : Math.min(0.48, 0.035 + state.sellPressure * 0.32 + signalBoost * 0.36);
+
+      for (const p of buyStorm) {
+        const speed = (0.45 + state.buyPressure * 1.45 + signalBoost * 2.2) * p.userData.speed;
+        p.position.y += dt * speed;
+        p.position.x += Math.sin(t * 2.1 + p.userData.phase) * dt * (0.35 + state.buyPressure * 0.8);
+        p.position.z += Math.cos(t * 1.7 + p.userData.phase) * dt * (0.18 + state.buyPressure * 0.35);
+        p.material.opacity = THREE.MathUtils.lerp(p.material.opacity, buyTargetOpacity, 0.045);
+        if (p.position.y > 6.4 || p.position.x > 2.4 || p.position.z > 1.2) {
+          p.position.set(-10 + Math.random() * 12, 0.55, -5 + Math.random() * 6);
+          p.userData.phase = Math.random() * Math.PI * 2;
+        }
+      }
+
+      for (const p of sellStorm) {
+        const speed = (0.35 + state.sellPressure * 1.25 + signalBoost * 1.8) * p.userData.speed;
+        p.position.y -= dt * speed * 0.65;
+        p.position.x -= dt * speed * (0.22 + state.sellPressure * 0.28);
+        p.position.z += Math.sin(t * 1.4 + p.userData.phase) * dt * (0.18 + state.sellPressure * 0.3);
+        p.material.opacity = THREE.MathUtils.lerp(p.material.opacity, sellTargetOpacity, 0.045);
+        if (p.position.y < 0.35 || p.position.x < 1.5 || p.position.z > 1.2) {
+          p.position.set(2 + Math.random() * 10, 5.8 + Math.random() * 0.7, -5 + Math.random() * 6);
+          p.userData.phase = Math.random() * Math.PI * 2;
+        }
+      }
+
+      const whaleTarget = Math.min(0.28, 0.04 + state.aggPressure * 0.22 + signalBoost * 0.2);
+      for (const whale of whales) {
+        whale.position.x = whale.userData.baseX + Math.sin(t * whale.userData.drift + whale.userData.phase) * 1.2;
+        whale.material.opacity = THREE.MathUtils.lerp(whale.material.opacity, whaleTarget, 0.035);
+      }
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
