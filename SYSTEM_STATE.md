@@ -7079,3 +7079,1884 @@ PENDING_SEPARATELY_AUTHORIZED_INTEGRATION_PREPARATION`.** Sonraki kapı:
 ayrı, açıkça yetkilendirilmiş bir integration-preparation fazı (Launcher/
 sequencing §0.1) — bu faz kendi bağımsız integration-review'undan geçmeden
 implementasyon başlayamaz.
+
+## 135. S34 SHADOW/PAPER RUNTIME RECOVERY + DASHBOARD SHADOW_PAPER_ACTIVITY PANELİ — İNCELEME ZİNCİRİ TAMAMLANDI, OPERATÖR KABULÜ BEKLİYOR (2026-07-15, Sonnet 5)
+
+**Durum: `SHADOW_PAPER_ACTIVITY_PANEL_CORRECTED_AWAITING_OPERATOR_ACCEPTANCE`.**
+Hiçbir dosya commit edilmedi; canlı 8770 dashboard prosesi (PID 21100) yeni
+kodu henüz ÇALIŞTIRMIYOR (restart edilmedi — operatör kararı bekleniyor).
+
+### R0 — Bağımsız yeniden-türetme (read-only)
+
+`status_eclipse.ps1` çıktısı yeniden doğrulandı (prompt'a güvenilmedi): 4
+S34 shadow/paper bileşeni ölüydü — `s34_shadow_paper_runner`,
+`s34_v_engine_v02_shadow_mirror`, `s34_state_machine_shadow_runner`,
+`s34_live_chart`. `collection_watchdog` KASITLI deprecate edilmiş
+(`CANONICAL_OPERATIONAL_HEALTH_2026-07-10.md`) — restore EDİLMEDİ (operatör
+onayıyla). `dashboard/backend/*` (aggregator/adapters/server.py, uncommitted)
+zaten `tools/s34_cascade_navigation_dashboard.py --serve` için canlı
+implementasyon olduğu doğrulandı — ikinci/çakışan bir dashboard DEĞİL.
+İki Scheduled Task (`EclipseS34LiveChartService`,
+`EclipseS34V02MirrorService`, disabled, farklı `_service.py` wrapper'lara
+işaret ediyor) incelendi — `start_eclipse.ps1`'in supersede ettiği, bilerek
+disabled bırakılmış eski persistence katmanı olduğu sonucuna varıldı;
+re-enable EDİLMEDİ.
+
+### R1 — Hedefli restore (RAM kısıtı: ~6.4GB→4.7GB free, seri başlatma)
+
+4 bileşen tek tek, duplicate-proof + (chart için) port-proof ile,
+`start_eclipse.ps1`'in kendi argümanları birebir kopyalanarak başlatıldı
+(collector/bookticker/event_diary/heartbeat_watchdog/liquidation_silence_
+scheduler'a DOKUNULMADI). ~3.5 dk soak: 4/4 PID sabit (crash-loop yok),
+0 stderr, 0 duplicate proses, `live_executor_count=0` doğrulandı (hem
+Win32_Process taraması hem de dashboard'un kendi `/api/panel/
+process_topology`'si ile çapraz kontrol). Outage penceresi türetildi:
+~2026-07-13T20:50–21:06Z → 2026-07-15T19:11–19:14Z (~46 saat); kesin
+timestamp'ler `runtime/dashboard_incident_log.json`'a yazıldı. Kalan bilinen
+boşluk: `oi_spot_poller` hâlâ MISSING (kapsam dışı, restore edilmedi).
+
+### R2 — `shadow_paper_activity` paneli (gated zincir tam uygulandı)
+
+**Implementation** → `dashboard/backend/adapters/shadow_paper_activity.py`
+(yeni): 8-durumlu bucket sınıflandırması (`DATA_STALE/PROCESS_DEAD/
+EVALUATION_STALE/NO_ELIGIBLE_SIGNAL/SIGNAL_SEEN_NO_ENTRY/
+VIRTUAL_POSITION_OPEN/VIRTUAL_TRADE_CLOSED/ERROR`, precedence-chain),
++ `aggregator.py`/`sources.py` wiring, + `start_eclipse.ps1`'e yeni
+`s34_canonical_dashboard` role (mevcut canlı prosesi PID-registry'ye
+kaydediyor, restart ETMİYOR), + 21 test.
+
+**Bağımsız review** (taze agent, salt-okunur) → verdikt
+`NEEDS_CORRECTION`: 2×HIGH (pnl dict'teki `updated_utc` metadata key'i
+hayalet bucket olarak sızıyordu; panel-level `freshness_threshold_seconds=
+None` panели kalıcı olarak non-current/degraded gösteriyordu — sağlıklıyken
+bile), 2×MEDIUM, 2×LOW/INFO.
+
+**Correction** → tüm bulgular düzeltildi + 8 yeni regresyon testi eklendi
+(29→33 test).
+
+**Bağımsız re-review** (ikinci taze agent) → verdikt
+`ACCEPT_WITH_MINOR_FIXES`: 6/6 düzeltme `VERIFIED_FIXED`; 1 yeni MEDIUM
+bulundu (`s34_state.py`'de AYNI `pnl["updated_utc"]` sızıntısı, farklı
+panel) + 3 test-coverage boşluğu.
+
+**İkinci correction** → `s34_state.py` düzeltildi (aynı tek satır fix),
+`overall_state` precedence tutarsızlığı düzeltildi, 3 eksik test eklendi
+(33→39 test dahil legacy dosya). Gerçek repo verisine karşı final smoke
+test: `trust_state=current severity=ok`, hayalet bucket yok, tüm 11 panel
+`build_overview()` içinde hatasız.
+
+### Kabul verdikti
+
+`SHADOW_PAPER_ACTIVITY_PANEL_CORRECTED_AWAITING_OPERATOR_ACCEPTANCE`.
+Sonraki kapı: operatör bu bölümü + diff'i inceleyip (a) commit onayı,
+(b) canlı 8770 dashboard'un yeni kodla restart onayı verir — ikisi de
+ayrı, açık operatör kararı gerektirir; bu oturum ne commit etti ne de
+canlı prosesi restart etti.
+
+---
+
+## 136. AMI WHITEPAPER v0.3 GAP ANALİZİ + APPENDIX I İLK TEST PAKETİ — IMPLEMENTED, BAĞIMSIZ İNCELEME BEKLİYOR (2026-07-17, Opus 4.8)
+
+**Durum: `V03_GAP_ANALYSIS_AND_APPENDIX_I_BATCH1_IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW`.**
+Hiçbir şey commit edilmedi. Hiçbir proses başlatılmadı/restart edilmedi. Hiçbir
+KnowledgeObject/verdict/store mutasyona uğratılmadı. Guardrail dosyaları
+(`tools/s34_state_machine_live_executor.py`, `.env`, `execution/`, `risk/`,
+`brain/`, leverage/sizing) okunmadı ve değiştirilmedi.
+
+### 1. Kapsam ve yöntem
+
+`AMI_ARTIFICIAL_MARKET_INTELLIGENCE_WHITEPAPER_v0.3_COMPLETE.md` (9117 satır)
+§57-78 + Appendix H/I/J repo'ya karşı denetlendi: 3 bağımsız salt-okunur tarama
+(Phase A+B / Phase C+D / Phase E+F) + doğrudan SQLite şema/satır sayımı
+(`mode=ro`). Sonuç: `docs/ami/AMI_GAP_ANALYSIS.md` v0.2'den v0.3'e revize edildi
+(v0.2 analizi BÖLÜM II'de değiştirilmeden korundu).
+
+### 2. Ana bulgu — TEK kök neden
+
+**Phase E / Forward Observatory (§68 + Appendix H `ami_forward_*`) hiç inşa
+edilmedi; Appendix H'nin 17 tablosundan 0'ı mevcut.** Bu tek boşluk C1/C2/D1/D5
++ W7-tam (OD-016) + W10-transitions (OD-017) + W12'yi zincirleme bloke ediyor.
+Boşluk DÜRÜST: bu dosyanın :3247 satırı `first_known_ts`/`first_executable_ts`
+alanlarını `FORWARD_ONLY` ilan ediyor — tarihsel uydurma YASAK.
+
+**v0.3 DoD skoru: 7 ✅ / 10 ⚠️ / 7 ❌ → KARŞILANMADI.**
+
+### 3. "Vakum uyumu" uyarısı (analizin en önemli çıktısı)
+
+DoD 14 (ACTUAL_SHADOW/OBSERVER/REPLAY ayrımı), DoD 16 (OOD≠uncertainty),
+DoD 17 (action-value emir üretemez) şu anda **yalnız üretici taraf hiç inşa
+edilmediği için** sağlanıyor — invariant değil, implementasyon kazası.
+Özellikle Appendix I-17 için **hiçbir assertion/test yok**. Phase E inşa
+edildiği AN üçü de sessizce ihlale döner → **guard'lar üreticiden ÖNCE yazılmalı.**
+
+### 4. Şişirmeye karşı iki düzeltme (bağımsız taramaların iddiaları daraltıldı)
+
+- `evidence_contamination`=0 **işlevsel boşluk değil**: §70 contamination yasası
+  `knowledge.sqlite`'ta `ami/governance/epistemic_gates.py` (nullifier +
+  graveyard slash-set, M-0033 wiring) ile fail-closed zorlanıyor. O tablo bir
+  **orphan şema**. Gerçek boşluk: 4 `evidence_status` değeri hiç atanmıyor.
+- `StateObject.age_ms` (`ami/states/objects.py:28`) `time.time()` kullanıyor →
+  point-in-time güvensiz, AMA **hiçbir araştırma kodu çağırmıyor** (tek tüketici
+  `to_dict()`; W7A kendi point-in-time yaşını hesaplıyor). **Aktif lookahead
+  kirlenmesi DEĞİL, tüketicisi olmayan gizli tuzak** — lookahead bulgusu olarak
+  raporlanmamalı.
+
+### 5. İlk test paketi (Appendix J P0 merkezi, Phase E'yi beklemiyor)
+
+`tests/test_ami_v03_appendix_i_cycle_independence.py` (YENİ, additive).
+Seçim gerekçesi: I-3/I-4/I-12 mevcut motorlara karşı test edilebilir.
+
+**Kanıtlanan yapısal bulgu:** `ami/research/registry.py:161`
+`assert_no_overlap(train_ids, test_ids)` **cycle-kör** — yalnız aynı event
+id'sini yakalıyor; aynı cycle'ın FARKLI iki event'inin train/test'e düşmesini
+(= tam olarak Appendix I-4 ihlali) yakalayamıyor. `ami/identity/split_utils.py`
+bunu doğru yapabiliyor ve testli, ama **çağrılması zorunlu değil**:
+
+    capability EXISTS + nothing FORCES its use = Appendix I-4 unmet
+
+Bu, repo'nun **zaten bir kez çözdüğü** desenin aynısı (`epistemic_gates.py:20`
+→ M-0033) — çözüm şablonu ve emsali mevcut.
+
+**Test sonucu: 4 passed + 3 xfailed(strict).** `strict=True` load-bearing:
+gerçek bir kapı wire'landığı an XPASS → FAIL olur ve bu dosya + gap analizi
+birlikte güncellenmeye zorlanır (drift alarmı).
+Non-regresyon: `test_ami_mutation_suite` + `w1_cycle_integrity` **26/26 ✓**;
+`split_utils` + yeni dosya **12 passed / 3 xfailed ✓**;
+`warehouse_schema` + `question_seed` **16/16 ✓**.
+
+### 6. Appendix I kapsamı — dürüst tablo
+
+`ami/mutation_suite.py` 20/20 geçiyor ama **v0.2 kapsamı**. v0.3'ün 35 maddesine
+eşleme: ~6'sı kısmen (I-1/I-4/I-26/I-27/I-28/I-31), **I-2,3,5-25,29,30,32-35 YOK.**
+
+### 7. Diğer açık boşluklar (gap analizi §5)
+
+- `docs/ami/AMI_ROADMAP.md` + `AMI_CHANGELOG.md` v0.3'ten hiç söz etmiyor (bayat).
+  **Canlı izleyici `HISTORICAL_RESEARCH_WAVES.md` (W1-W12)** — roadmap gap analizi
+  için kullanılmamalı.
+- Question Registry triyaj edilmemiş: 1072 sorudan 1058'i `FUTURE_PHASE`, 866'sı
+  `FAMILY_TRIAGE_PENDING`, `evidence_layer` 1072/1072 boş, `READY_FOR_PREREG`
+  sıfır hit → §69.4 research-ready kapısı hiç işletilmemiş.
+- B5: `ami/warehouse/schema.py:682` CHECK constraint soft path label'ı
+  **temsil edilemez** kılıyor (§58.3'ün tam tersi).
+
+### 8. Sonraki kapı
+
+Bu bölüm bir **implementation** fazıdır ve CLAUDE.md §"Kademeli bağımsız inceleme
+zinciri" gereği **sıkıştırılamaz**. Sıradaki faz: **BAĞIMSIZ, salt-okunur review**
+(farklı aktör; bu oturum kendi çıktısını onaylamaz), ardından operatör sign-off.
+Review odağı önerisi: (a) gap tablosundaki her ⚠️/❌'nin kanıtı gerçekten
+doğrulanıyor mu; (b) §4'teki iki daraltma haklı mı yoksa gerçek boşluğu
+gizliyor mu; (c) xfail(strict) sözleşmesi doğru mu yoksa kırmızı-bar mı olmalıydı;
+(d) §6.1 sıralaması (guard'lar üreticiden önce) kabul ediliyor mu.
+
+**Rollback:** salt-dokümantasyon + additive test. Geri alma =
+`docs/ami/AMI_GAP_ANALYSIS.md`'yi v0.2 sürümüne döndürmek + yeni test dosyasını
+silmek + bu bölümü kaldırmak. Hiçbir şema/veri/proses değişmedi.
+
+---
+
+## 137. §136 CORRECTIVE + OD-011 FROZEN POPULATION MANIFEST v1→v2 — HER İKİSİ DE BAĞIMSIZ RE-REVIEW BEKLİYOR (2026-07-17, Opus 4.8)
+
+**Durum:** `V03_GAP_ANALYSIS_BATCH1_CORRECTED_AWAITING_REREVIEW` +
+`OD011_FROZEN_POPULATION_MANIFEST_V2_CORRECTED_AWAITING_REREVIEW`.
+Hiçbir şey commit edilmedi, hiçbir proses başlatılmadı, hiçbir KO/store yazılmadı.
+
+### 1. §136 bağımsız review → `CORRECTIVE_REQUIRED` → düzeltildi
+
+Review, §136'nın **her sayısal iddiasını canlı DB'den yeniden türetip doğruladı**
+ve merkezi bulgunun (assert_no_overlap cycle-kör) **abartılı değil, EKSİK**
+olduğunu buldu: `chronological_group_split`'in **sıfır production çağıranı** var;
+`register_experiment_with_gates` cycle id'lerini **çağırandan olduğu gibi alıyor**,
+`event_cycle_membership`'e karşı doğrulamıyor; `tools/research_ami_mfe50_experiment.py:213`
+I-4 açığının **canlı örneği**.
+
+Uygulanan düzeltmeler:
+- **F-1 (MED):** "§70 fail-closed zorlanıyor" daraltması **fazla genişti**.
+  Kapsam sınırı eklendi: zorlama yalnız `register_experiment_with_gates()`
+  üzerinden geçenler için; `record_experiment_registry/results` doğrudan
+  çağrılabilir ve **10 legacy `w*` modülü** hem immutability guard'ını hem
+  gate'leri baypas ediyor (`experiment_ledger.py:46-69` bunu "KNOWN, UNCLOSED
+  bypass surface" diye adlandırıyor).
+- **F-2 (LOW-MED):** xfail "otomatik drift alarmı" iddiası **abartılıydı** —
+  3 test kendi hardcoded mantığını değerlendiriyor, başka yerde kapı wire'lansa
+  **otomatik XPASS olmaz**. Docstring dürüstleştirildi: kapıyı kapatan kişi test
+  gövdelerini **birlikte yeniden yazmak zorunda**.
+- **F-3 (LOW-MED):** öncelik listesi yeniden türetildi. A3 (mt_family_registry
+  yazıcısı) 3.→**2.** (tablo+string'ler zaten var, spekülatif değil, Appendix J P0).
+  **A1 boşluğu listeden tamamen DÜŞMÜŞTÜ** → yeni **3.** madde olarak eklendi
+  (4 `evidence_status` + 10-modül baypas). Phase E guard'ları 2.→**4.**
+- Doğrulama: 12 passed / 3 xfailed ✓ (davranış değişmedi, yalnız docstring).
+
+### 2. OD-011 manifest — v1 ÇÜRÜTÜLDÜ, v2 yazıldı
+
+`reports/governance/OD011_CYCLE_ADJUSTED_RECOMPUTE_FROZEN_POPULATION_MANIFEST_V1.md`
+
+**v1'in KAPSAM DÜZELTMESİ DOĞRULANDI:** "7 KO bekliyor" (OD-011 kaydı + oturum-öncesi
+bilgi) **BAYAT** — 8 RECOMPUTE_REQUIRED'ın **5'i zaten yapılmış** (v2 payload,
+`primary_metric_basis="independent_cycle"`, `history[]`'de 2026-07-11 kayıtları).
+Track record: **3 zayıfladı/düştü** (MECH-COMPOSITE `WEAKENED`, MONDAY-VETO
+`DESCRIPTIVE_ONLY_LOW_SAMPLE`, HOUR17 `FRAGILE`), **1 güçlendi** (BOOK-PULL
++70.2→+80.3), 1 nötr.
+
+**v1'in MERKEZİ TESPİTİ YANLIŞTI (review F-1, HIGH):** "MGMT-6H'nin sayıları hiç
+kaydedilmemiş → denetlenemez" — **gerçek dışı**. Sayılar
+`reports/research/s34/S34_TRADE_MGMT.md`+`.json`'da: `baseline n=59 wr=69.5
+avg=65.1 mdd=-362.5 mc_p=0.0`; `baseline_TEST n=18 wr=72.2 avg=58.3 mc_p=0.028`;
+`trail_1m avg=-1.5 (mc_p 0.556)` / `trail_1h +61.7 (mc_p 0.0)`. Kök neden: v1,
+CLAUDE.md'nin araştırma raporları için gösterdiği **canonical konuma bakmadan**
+yokluk ilan etti. Kusur "kanıt yok" değil, **payload'a taşınmamış**.
+
+**Asıl bulgu (v1'in yanlış çerçevesi bunu GİZLİYORDU):** MGMT-6H TEST kolu
+**N=18, mc_p=0.028**. Gözlenen deflasyon aralığı (0.598–0.732) → TEST ≈ **11–13
+bağımsız cycle**, aynı batch'in `MIN_BUCKET_N=20` eşiğinin **altında**.
+**Öngörü (iddia değil): TEST kanıtı `INSUFFICIENT_SAMPLE`'a düşebilir.**
+
+Diğer düzeltmeler: **F-2 (HIGH)** M-2/M-3'te "N YOK" yanlıştı (M-2: n=59 §M7;
+M-3: N=217 `S34_PRECASCADE.md`) → §3 öncelik gerekçesi yeniden türetildi ve iş
+hacmi düzeltildi (sıfırdan rekonstrüksiyon değil, **rapor lookup + cycle-adjust**).
+**F-3 (MED)** OD-011'in muafiyeti `K-BUYFADE-SILENCE-INFO-001` için **geçersiz**
+(claim'de p<5e-5, N=26) → **M-4 olarak kapsama alındı**; kalan kapsam **3→4 KO**.
+`K-LATENT-REGIME-001` + `K-S34-REFILL-CTX-001` muafiyeti bağımsız doğrulandı.
+**F-4 (LOW)** MONDAY-VETO `DESCRIPTIVE_ONLY_LOW_SAMPLE`+N=15 iken hâlâ
+`confidence.statistical="HIGH"` taşıyor — kaydedildi, düzeltilmedi.
+
+**S-1 (öz-düzeltme, review dışı):** v1'in "tek `PAPER_ALLOWED` → en yüksek
+operasyonel bahis" gerekçesi **yanlış**. `knowledge.sqlite` paper/shadow/executor'a
+**hiç bağlı değil** — tüm repoda `ami/`'ye referans veren 2 dosya var, ikisi de
+araştırma aracı. Paper runner kendi 12 hardcoded `DEFAULT_RULES` kuralıyla çalışıyor
+(hepsi TP/SL/BE bracket'li; 2'si `ARCHIVED_CONTAMINATED_LOOKAHEAD_ANCHOR`).
+**`PAPER_ALLOWED` atıl bir governance etiketi** — hiçbir şey okumuyor/zorlamıyor.
+Yeni öncelik gerekçesi yalnız **ölçülebilir kırılganlık + statü ağırlığı**.
+
+**İşaretlendi, doğrulanmadı:** MGMT-6H "stop yok, erken çıkış yok en güçlü" diyor;
+paper'daki 12 kuralın **hepsinde** SL+BE+TP var. Evrenler farklı olabilir
+(KO: hour17-gate'li ETH SELL cascade→LONG; paper: SELL liq→SHORT), ama iki katman
+bağlantısız olduğu için bu gerilim bugüne dek **fark edilmemiş**.
+
+### 3. Sonraki kapı
+
+Her iki artefakt da **BAĞIMSIZ RE-REVIEW** bekliyor (yeni geçiş, farklı aktör),
+sonra operatör sign-off. Manifest re-review'ının kritik sorusu: §M-1'deki
+"TEST N=18 → 11–13 cycle" aritmetiği meşru mu — **deflasyon oranları (0.598/0.732)
+BAŞKA popülasyonlardan geldi; M-1'in kendi deflasyonu ÖLÇÜLMEDİ.**
+
+**Rollback:** salt-dokümantasyon + additive test. Geri alma = manifesti silmek,
+`AMI_GAP_ANALYSIS.md`'yi v0.2'ye döndürmek, test dosyasını silmek, §136+§137'yi kaldırmak.
+
+---
+
+## 138. PHASE A EVIDENCE LEDGERS + PORTFOLIO OVERLAP OBSERVER + PAPER BUCKET PANEL — IMPLEMENTED, BAĞIMSIZ İNCELEME BEKLİYOR (2026-07-17, Opus 4.8)
+
+**Durum:** `PHASE_A_LEDGERS_AND_PORTFOLIO_OVERLAP_IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW`.
+Hiçbir şey commit edilmedi. Canlı store'lara yazılmadı. Guardrail dosyalarına dokunulmadı.
+
+### 1. Phase A evidence ledgers (gap-analizi A1 + A3) — YAZICI EKLENDİ
+
+`ami/governance/evidence_ledgers.py` (YENİ) → `register_experiment_with_gates`
+step 12, **aynı transaction** (bloke kayıt ledger satırı bırakmaz).
+
+**Uçtan uca koşturma İKİ GERÇEK HATA ortaya çıkardı; birim testler ikisini de kaçırmıştı:**
+
+- **Contamination ölü koddu:** gate `split_version`'ı hash olarak taşıyor
+  (`SPLITv1:<hash>`), çağıran düz metin bildiriyor → asla eşleşmiyordu →
+  `CONTAMINATED_FOR_CONFIRMATION` **production'da erişilemezdi**. Düzeltme:
+  origin `resolve_split_version()`'dan geçiriliyor.
+- **Bonferroni hiç sıkılaşmıyordu:** `resolve_canonical_family_id` hypothesis_id'yi
+  de hash'liyor → her hipotez kendi ailesi → `variants_tested` **daima 1**.
+  Düzeltme: MT için AYRI kimlik `resolve_mt_family_id(question_ids)`.
+  **Gate'in resolver'ına DOKUNULMADI** (nullifier ondan türüyor; değiştirmek
+  tüketilmiş tüm nullifier'ları geçersiz kılardı).
+
+Düzeltme sonrası gerçek: `MTFAMv1:fam_demo` variants 1→2→3, alpha 0.05→0.025→0.0167;
+origin==confirm-split → `CONTAMINATED_FOR_CONFIRMATION` + `fresh_forward_required`.
+**Uydurma reddedildi:** `threshold_stability`/`researcher_freedom_score`/
+`minimum_economic_effect` = NULL (kapıda tespit edilemez). Holm değil Bonferroni
+(kapı deneyleri teker teker görüyor → online sınır).
+**Kapsam:** yalnız kapıdan geçenler; 10 legacy `w*` modülü baypas ediyor →
+satır yokluğu "test edilmedi" demek DEĞİL.
+
+### 2. Portfolio overlap observer (§73.1 / Part IX) — YENİ
+
+`ami/portfolio/overlap.py`. OD-021'in ETH+SOL eşzamanlı SL vakası **istisna değil**:
+
+```
+265 kapanmış trade → 138 eş-zamanlı açık ÇİFT / 52 bağımsız epizot
+ETH+SOL 64 (%46) · ETH+ETH 39 · BTC+ETH 15 · BTC+SOL 15
+ikisi de ZARAR: 52/138 (%37.7) → -3815 bps · ikisi de SL: 26/138
+en yoğun kural çifti: ETH_SELL_500K + SOL_SELL_200K (13x)
+```
+
+Her çift **kendi kuralının limiti içindeydi** — `max_open_trades=1` kural-başına,
+global portföy limiti YOK (OD-021 açık). Per-rule gate bunu göremez.
+**Bu modül cap ÖNERMİYOR/ZORLAMIYOR** — OD-021 kararı operatörde.
+**Reddedilenler:** returns-correlation katsayısı (§50 tek katsayıya indirgemeye
+karşı uyarıyor; N yetersiz) → co-occurrence raporlanıyor; §73.3 ergodisite
+(net_bps size-agnostic). `pair_n` bağımsız gözlem DEĞİL → `episodes_with_overlap_n=39`.
+**Timestamp güvenliği:** `signal_ts_ms` kullanılıyor, `entry_ts_ms` DEĞİL
+(265'in 31'i sıfır → epoch'ta sahte mega-epizot).
+
+### 3. Paper bucket ledger paneli — canlı
+
+`dashboard/backend/adapters/paper_bucket_ledger.py`, canonical dashboard'a
+entegre (ayrı yüzey açılmadı). Kardeş panelin kasıtlı boşluğunu kapatıyor
+(`win_loss_net_bps_breakdown: unavailable_without_unbounded_read`) — 9MB JSON
+yerine intelligence DB'de SQL aggregate. Dashboard restart: PID 21100 → **23336**,
+12/12 panel canlı doğrulandı.
+**Bilinen gizli hata (review'a):** pre_v2/v2 ayrımı `entry_ts_ms` ile yapılıyor;
+31 bozuk satır sessizce pre_v2'ye düşüyor. Şu an tesadüfen doğru (180/85 her iki
+alanla da) ama **inşa gereği değil** → `signal_ts_ms`'e çevrilmeli + `entry_ts_ms=0`
+veri-kalitesi alanı olarak yüzeye çıkarılmalı.
+
+### 4. Bu oturumda ÇÜRÜTÜLEN kendi iddialarım
+
+- **"Likidasyon dışında hiçbir şey yok, derin süreç modellenmemiş" — YANLIŞ.**
+  Grep'ler spec terminolojisini aradı, repo'nunkini değil. Gerçek: `ami/cvd/`
+  (`ami_cvd_windowed_flow` 1840 satır, 6 pencere ailesi, 1828 EXACT) = §35 Flow
+  State; `ami/absorption/` (`price_response_per_signed_notional` = Kyle's lambda
+  = derinliğin tersi) = §38 Liquidity Stress. **İkisi de inşa edildi, prereg'li
+  test edildi, İKİSİ DE NULL:** CVD `NO_RELIABLE_ASSOCIATION` (p=0.727, t=-0.35,
+  CI[-6.32,+4.45], N=40); absorption `NO_RELIABLE_INCREMENTAL_ASSOCIATION`
+  (p=0.160, N=40). Üstlerine maker-inventory inşa etmek null'ın türevi olurdu.
+- **İki pozitif paper bucket'ta cluster analizim GEÇERSİZDİ** — `entry_ts_ms=0`
+  (ETH_200K'da 39'un 17'si) epoch-0'da zincirlenmişti. `signal_ts_ms` ile
+  düzeltilmiş:
+  **ETH_BUY_LIQ_LONG_200K** trade N=39 mean +10.3 t=+1.26 → **cycle-adj N=16
+  mean −4.9 t=−0.52** (deflasyon 0.410); tek cluster (n=11) +449.2, **o hariç 28
+  trade −46.8**.
+  **SOL_BUY_LIQ_LONG_200K** N=38 +8.3 t=+0.99 → **cycle-adj N=19 mean −1.9
+  t=−0.18** (deflasyon 0.500).
+  Seçim düzeltmesi (12 kuraldan en iyi 2): Bonferroni α=0.0042 → gereken |t|≈2.9.
+  **Doğru birimle ikisi de negatif.** `DESCRIPTIVE_ONLY`, post-hoc, prereg'siz —
+  KO değil, backlog kaydı. Ham sqlite kullanıldığı için `feature_gateway` baypas
+  edildi → exposure satırı YAZILMADI (F-1 baypas yüzeyinin canlı örneği).
+
+### 5. §74 + §26/§27 + §64 kontrol bulguları (salt-okunur)
+
+- **§74:** `market_structure_version`/`exchange_api_version`/`fee_schedule_version`/
+  `contract_version` = **0 hit**; §74.3'ün 5 şok durumunun (`NORMAL_MARKET`…
+  `UNKNOWN_ANOMALY`) **hepsi 0**; `BLOCKED_BY_DERIVATIVES_DATA` = 0. İroni:
+  repoda **gerçek bir DATA_INCIDENT var** (40 günlük likidasyon boşluğu
+  2026-04-27→06-06) ve `2026-02-15..07-02` penceresini kullanan HER deney onu
+  içeriyor, ama hiçbir event `DATA_INCIDENT` işaretli değil.
+- **§26/§27 — AKTİF İHLAL:** `ami/states/structure.py`'nin `dual_direction` alanı
+  §26 matrisi DEĞİL; yalnız `p_up_next` üretiyor → `p_short = 1 − p_up_next`
+  **mirror-symmetry varsayımı kodda gömülü**. §27 "LONG and SHORT should not be
+  assumed symmetric" diyor, **Appendix I-19** bunu reddedilecek mutasyon olarak
+  listeliyor — ve **I-19 mutasyon testi YOK** (`mirror` = 0 hit). §26'nın 7 alanı
+  (`p_long`/`p_short`/`p_no_trade`/`best_horizon_*`/`expected_mfe_*`/`failure_modes`)
+  = 0 hit. **OD-017 düzeltmesi:** "LONG-anchor popülasyonu yok" yalnız `ami_events`
+  için doğru; `ami_signal_lifecycle` LONG 220 / SHORT 104 taşıyor (paper: LONG
+  +5.7 vs SHORT −13.9 — §27'nin öngördüğü asimetri, ham rakam).
+- **§64.1 DEGENERATE'ten fazlası:** W4'ün 3 yapısal-konum bayrağı
+  (`c2_near_swing_low`/`c3_near_level`/`c4_recent_down_push`) **birebir özdeş**
+  (hepsi yes n=243 CONT 89/REV 140/CHOP 14, **no kolu N=0**). Kayıt "eşik gevşek"
+  diyor — eksik teşhis; üçü aynı partition'ı üretiyor.
+  `ami_events.structural_location` = 252/252 NULL.
+- **§64.2:** `ami_birth_truncated_cascade_geometry` 220 satır **var**, ama
+  experiment_registry'de **tek bir geometry deneyi yok**.
+- **§76 BUY-fade vaka çalışması:** Volume VIII'in **tek sağlam bölümü** —
+  `BUYFADE_STRUCTURAL.json:B_entries.train.delay_0s.mean = −9.48` ≈ whitepaper'ın
+  −9.5'i; KO ile birebir. Sebep: spec değil, **bitmiş araştırmanın raporu**.
+  §62.6'daki +1.37 vs ham +32.45 çelişki değil (incremental vs ham) — doğru olan
+  incremental'ı raporlaması.
+- **§60.3 C2 teşhis düzeltmesi:** "ABSENT" eksikti. Doğrusu: mezarlık **#20
+  INSUFFICIENT_SAMPLE** (flip val **n=2**, `first_long_eligible val=0`) —
+  **çürütülmedi, ölçülemedi**; #8 (NO_EDGE, kalıcı kapalı) ile karıştırılmamalı.
+  5 zorunlu benchmark'tan 4'ü (`T0_SHORT`/`HOLD_EXISTING_LONG`/`FAILED_FADE_LONG`/
+  `WAIT_THEN_LONG`) = 0 hit. `research_s34_buyfade_structural.py:840`'ın
+  `FAILED_FADE`'i gerçekleşmiş MAE'den hesaplanan **outcome etiketi** — detektör
+  değil. **Squeeze-continuation LONG eksik DEĞİL:** paper'da 7/12 kural
+  (`*_BUY_LIQ_LONG_*`).
+
+### 6. Testler
+
+Yeni: evidence_ledgers **22/22** (2'si bu iki hatanın regresyonu) · portfolio_overlap
+**13/13** · paper_bucket_ledger **10/10**.
+Non-regresyon: gate wiring **37/37** · bypass closure + gates **42/42** ·
+dashboard aggregator + kardeş panel **39/39** · Appendix I + split_utils
+**12/12 + 3 xfail**.
+
+### 7. Sonraki kapı
+
+**BEŞ artefakt bağımsız review bekliyor:** §136 (düzeltildi), OD-011 manifest v2
+(düzeltildi), paper_bucket_ledger paneli (**canlı çalışıyor, hiç review görmedi**),
+evidence_ledgers, portfolio_overlap. Zincir borcu birikti — yeni katman açmadan
+önce kapatılmalı.
+
+**Rollback:** additive. Geri alma = `ami/governance/evidence_ledgers.py`,
+`ami/portfolio/`, `dashboard/backend/adapters/paper_bucket_ledger.py`, 3 test
+dosyasını silmek + `experiment_ledger.py`/`aggregator.py`/`sources.py` yamalarını
+geri almak + §136/§137/§138'i kaldırmak. Dashboard eski PID'e restart edilir.
+
+---
+
+## 139. S34 STATE MACHINE SHADOW OBSERVATORY (:5053) — IMPLEMENTED, BAĞIMSIZ İNCELEME BEKLİYOR (2026-07-17, Opus 4.8)
+
+**Durum:** `S34_STATE_MACHINE_SHADOW_OBSERVATORY_IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW`.
+Hiçbir şey commit edilmedi. Ledger/state'e YAZILMADI (mtime 11:34 değişmedi).
+Guardrail dosyalarına dokunulmadı. Prosesler restart edilmedi. `start_eclipse.ps1`
+DEĞİŞTİRİLMEDİ — dashboard henüz launcher'a bağlı değil (bilinçli: kabul öncesi kalıcılık yok).
+
+### 1. Ne inşa edildi
+
+`tools/s34_state_machine_shadow_dashboard.py` (YENİ, port 5053) —
+`tools/s34_realtime_shadow_runner.py` için salt-okunur gözlemevi.
+
+**Sınıf: `SECONDARY_DIAGNOSTIC_NOT_CANONICAL`.** Canonical operatör yüzeyi
+`tools/s34_cascade_navigation_dashboard.py` OLARAK KALIR (§133). Bu yüzey onu
+supersede ETMEZ; `s34_live_chart.py` (:5050) / orderflow (:5051) / replay (:5052)
+ile aynı sınıfta. Yüzey bunu hem HTML header'ında hem `/api/report` payload'ında
+kendisi beyan eder; test bunu doğrular.
+
+**Kaynak: TAM OLARAK 2 dosya.** `reports/shadow/s34_state_machine_shadow.jsonl` +
+`s34_state_machine_shadow_state.json`. **DB okuması YOK** (operatör kararı: 650GB
+`microstructure.db`'ye bağımlılık ve tazelik riski alınmadı) — açık pozisyonun
+anlık PnL'i yerine ledger'daki `profit_lock_observer.last_seen_pnl_bps`
+("runner'ın son gördüğü") gösteriliyor. Emir/kontrol yüzeyi YOK, yazma YOK.
+
+10 panel: health/freshness · live positions · forward evidence · backfill ·
+lifecycle funnel · observer protocols · event stream (filtreli) · route detail ·
+feature coverage · time&session. Endpoint: `/`, `/api/report`, `/healthz`.
+`--once [--json] [--route X]` dry-run modu.
+
+### 2. İKİ EPİSTEMİK DEĞİŞMEZ (panel tasarımını bunlar sürüyor)
+
+- **Backfill kanıt DEĞİLDİR.** Runner'ın `state.json` `pnl` bloğu iki popülasyonu
+  TEK sayıda topluyor: **395 kapanış = 245 backfill + 150 forward**. Bu bloğa bakan
+  operatör geriye-dönük simülasyonu forward kanıt sanar. Dashboard `pnl` bloğunu
+  HİÇ OKUMUYOR; ledger'dan yeniden hesaplıyor ve iki tabloyu ayrı tutuyor
+  (backfill `SIMULATED_NOT_EVIDENCE` etiketli, asla forward ile toplanmıyor).
+- **n<10 → `INSUFFICIENT_N`.** WR sayı olarak basılmıyor. Forward gerçek:
+  BUY_FADE n=74 (+523.5bps WR62.2%) · SHORT_NOISY n=46 (−432.2bps WR39.1%) ·
+  HOUR17_HOLD6H n=11 (+2477.9bps WR45.5%) — **yalnız bu 3 rota n≥10**; kalan 7 rota
+  (HOUR17_COMPOSITE +2755.6bps dahil) n≤5 → INSUFFICIENT_N. Forward toplam
+  +7068.5bps'in ~%60'ı n≤5 rotalardan geliyor.
+
+### 3. UÇTAN UCA KOŞTURMA BİR TUTARSIZLIK ORTAYA ÇIKARDI (runner'da, dashboard'da değil)
+
+İlk `--once` dry-run 54 pozisyonu "canlı" gösterdi (biri 15.6 gündür `OPEN_BUY_FADE`).
+Runner'ın `state.json["positions"]` sözlüğü ise **BOŞ** — runner SIFIR pozisyon izliyor.
+
+**Yani ledger'da 54 lifecycle terminal event (CLOSE/EXPIRE) almadan bırakılmış.**
+Ledger tek başına okunduğunda bunlar açık pozisyon gibi görünür → **maruziyet
+olduğundan fazla raporlanır**. Panel bu haliyle yanıltıcıydı; düzeltildi:
+
+- `state["positions"]` ledger ile aynı id ile anahtarlı (runner:1520/1541/1562) →
+  runner canlılık konusunda otorite kabul edildi, ledger onunla mutabakatlanıyor.
+- 3 grup: `EXPOSED` (runner izliyor + maruziyet) / `WAITING` (izliyor, tetik
+  bekliyor, maruziyet yok) / `ORPHANED_IN_LEDGER` (runner izlemiyor, terminal
+  event yok) → **NOT_LIVE** rozeti + health WARN.
+- Ters sızıntı da raporlanıyor: runner'ın izleyip ledger'da OPEN'ı olmayan id'ler.
+- `state.json` yoksa mutabakat yapılamaz → `LIVENESS_UNRECONCILED` + **CRIT**
+  (fail-closed: mutabakatsız canlılık "sağlıklı" gösterilmez).
+
+Şu anki gerçek: `exposed=0 waiting=0 orphaned=54 runner_tracked=0`, verdict WARN.
+
+**Kök neden ARAŞTIRILMADI.** 54 orphan'ın neden terminal event almadığı açık soru.
+Bu bir runner defect'i OLABİLİR (ledger kapanışları eksik raporluyor) ama
+teşhis edilmedi — yalnız gözlem olarak kaydediliyor. Not: `load_state` (runner:406)
+`closed_ids`'i ledger'dan türetip pozisyonları prune ediyor; orphan'ların bu yolla
+mı düştüğü incelenmedi. **İnceleme fazına devredilen ilk soru budur.**
+
+### 4. Kanıt
+
+- `py_compile` OK · `--once` gerçek veriyle koştu (1136 event, 498 lifecycle).
+- `tests/test_s34_state_machine_shadow_dashboard.py` (YENİ): **25/25 PASS**.
+  Süslemeyi değil değişmezleri hedefliyor: backfill izolasyonu · `state.json` pnl'in
+  kanıt kaynağı OLMADIĞI (zehirli pnl fixture'ı ile) · INSUFFICIENT_N sınırı (n=9 vs
+  n=10) · orphan mutabakatı · fail-closed (absent/malformed/stale/UNEXPECTED_MODE) ·
+  funnel atıfı · observer OBSERVE_ONLY · HTML escaping · surface self-declaration.
+- Regresyon: `test_s34_bd_first_buy50_observer.py` + `test_buy_fade_duplicate_close_idempotency.py`
+  **22/22 PASS** (paylaşılan ledger bozulmadı).
+- **İki test HATASI fixture'dandı, koddan değil** — ikisi de düzeltildi:
+  (a) fixture `MONITORING_*` satırına `entry_ts_ms` koyuyordu; gerçek runner orada
+  `null` yazıyor → funnel "entered" sayımı fixture gürültüsü olurdu.
+  (b) yardımcı fonksiyon ledger'ı üzerine yazıyordu.
+
+### 5. Yapılmayanlar / bilinen sınırlar
+
+- `S34_SHADOW_PAPER_STATE.json` (`tools/s34_shadow_paper_runner.py`) **AYRI bir
+  strateji ailesi** — farklı proses, farklı ledger, TP/SL/BE bracket vs
+  time-exit/noisy-early-exit; ortak olan yalnız `microstructure.db` feed'i.
+  Bu dashboard'a DAHİL EDİLMEDİ (kapsam: tek runner).
+  **Açık risk:** iki aile de ETH sell-liq'te short açabiliyor
+  (`SHORT_NOISY` vs `ETH_SELL_LIQ_SHORT_500K_*`) → eşzamanlı pozisyonlar bağımsız
+  kanıt DEĞİL, korelasyonlu gözlem. Panel bunu göstermiyor; §138 portfolio overlap
+  observer'ın kapsamına aday.
+- Ledger >64MB olursa tail okunur → lifecycle kısmi; rapor bunu WARN olarak beyan
+  eder (`LEDGER_TAIL_ONLY_LIFECYCLE_PARTIAL`), sessizce kırpmaz.
+- Launcher'a bağlanmadı, PID dosyası üretmiyor, kalıcı değil.
+
+**Sıradaki faz:** BAĞIMSIZ İNCELEME (salt-okunur, dosya değiştirmez). Özellikle:
+54 orphan'ın kök nedeni · runner'ı canlılık otoritesi kabul etmenin doğruluğu ·
+backfill/forward ayrımının ledger'daki `backfill` bayrağına güvenmesinin yeterliliği.
+
+**Rollback:** additive. Geri alma = `tools/s34_state_machine_shadow_dashboard.py` +
+`tests/test_s34_state_machine_shadow_dashboard.py` silmek + §139'u kaldırmak.
+Çalışan hiçbir prosese dokunulmadığı için restart gerekmez.
+
+---
+
+## 140. CANONICAL DASHBOARD (:8770) SHADOW OBSERVATORY ENTEGRASYONU + `s34_state` PnL TRUNCATION HATASI DÜZELTİLDİ — IMPLEMENTED, BAĞIMSIZ İNCELEME BEKLİYOR (2026-07-17, Opus 4.8)
+
+**Durum:** `CANONICAL_SHADOW_OBSERVATORY_INTEGRATION_IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW`.
+Commit YOK. Ledger/state'e YAZILMADI. Guardrail dosyalarına dokunulmadı.
+§139'un ayrı :5053 yüzeyi **operatör kararıyla tamamen kaldırıldı** — tek dashboard :8770.
+
+### 1. §139'da OPERATÖRE YANLIŞ BİLGİ VERİLDİ — DÜZELTME
+
+§139 boyunca :8770'in "untracked `dashboard/` paketi, canonical'dan ayrı" olduğu
+söylendi. **Yanlış.** `start_eclipse.ps1:401` şunu başlatıyor:
+`tools.s34_cascade_navigation_dashboard --serve --serve-port 8770`, o da
+`_run_serve_mode` içinde `dashboard.backend.server`'ı lazy import ediyor.
+Yani :8770 = §133'te canonical ilan edilen operatör yüzeyinin ta kendisi;
+`dashboard/backend/` onun servis katmanı. Bu yanlış teşhis, aşağıdaki hatanın
+"ikincil bir yüzeyde" sanılmasına yol açacaktı.
+
+### 2. CANONICAL YÜZEYDE GERÇEK HATA: PnL TABLOSU 4 ROTAYI SESSİZCE DÜŞÜRÜYORDU
+
+`dashboard/backend/adapters/s34_state.py:76` (düzeltme öncesi):
+```python
+"pnl_summary": {k: pnl.get(k) for k in list(pnl.keys())[:8] if k != "updated_utc"},
+```
+Runner state'i `json.dumps(..., sort_keys=True)` ile yazıyor (runner:412) →
+anahtarlar **alfabetik**. `[:8]` head-slice'ı bu yüzden rastgele değil
+**sistematik**: `SHORT_*` ile başlayan her rota daima listenin sonunda kalıp
+düşüyordu. Ölçülen gerçek (2026-07-17):
+
+```
+8770'in GOSTERDIGI : 8 rota  n=316  net=+7190.8
+8770'in DUSURDUGU  : LONG_T15_BOUNCE n=3 -104.6 · SHORT_NEITHER n=28 +2013.7
+                     SHORT_NOISY n=46 -432.2 · SHORT_NOISY_BTC1M_D5_H180 n=2 +91.0
+                     -> 4 rota  n=79  net=+1567.9
+GERCEK             : 12 rota  n=395  net=+8758.7
+```
+Panelin kendi `summary`'si `closed=395` derken tablosu 316 gösteriyordu — **aynı
+ekranda çelişki**, ve `severity=ok`. Beklentinin aksine tabloyu iyimser DEĞİL
+kötümser yapıyordu (gizlenen 79 kapanış net +1568bps); asıl zarar, operatörün
+`SHORT_NOISY`'nin −432bps'ini canonical yüzeyde HİÇ görememesiydi.
+**Runner ve state.json temiz:** state pnl ↔ ledger birebir (395 kapanış, 12 rota,
+sıfır fark). Hata yalnız sunum katmanındaydı.
+
+### 3. Ne değişti
+
+- **`dashboard/backend/shadow_observatory.py` (YENİ)** — saf analiz (I/O yok,
+  HTTP yok, render yok): lifecycle fold · forward/backfill ayrımı · route_stats
+  (INSUFFICIENT_N) · liveness mutabakatı · funnel · observer sayaçları.
+- **`dashboard/backend/adapters/s34_state.py` (DÜZELTİLDİ)** — `[:8]` head-slice
+  ve `pnl_summary` alanı **tamamen kaldırıldı** (kirli bloğu hiç yayınlamıyor;
+  `pnl_source` alanı okuyucuyu kanıt paneline yönlendiriyor). Liveness artık
+  ledger'dan değil **runner ile mutabakatlanarak** raporlanıyor:
+  `exposed_positions` / `waiting_positions` / `ledger_orphans` /
+  `runner_positions_absent_from_ledger`; orphan varsa `severity=LOW` + reason code.
+- **`dashboard/backend/adapters/s34_shadow_evidence.py` (YENİ panel)** — her rota
+  ledger'dan yeniden hesaplanıyor, `population` kolonu ile `FORWARD` vs
+  `BACKFILL_SIMULATED` **asla tek tabloda toplanmıyor**; n<10 → `INSUFFICIENT_N`.
+  **Hiçbir rota kesilmiyor.**
+- `aggregator.py` PANEL_BUILDERS'a kayıt (s34_state'in hemen ardına) +
+  `sources.py` FRESHNESS eşiği 300s. Frontend generic (`renderPanel` fields/rows'tan
+  çiziyor) → UI değişikliği gerekmedi.
+- **SİLİNDİ:** `tools/s34_state_machine_shadow_dashboard.py` +
+  `tests/test_s34_state_machine_shadow_dashboard.py` (§139'un :5053 yüzeyi).
+
+### 4. Canlı doğrulama (:8770, restart sonrası)
+
+```
+s34_shadow_evidence: forward n=150 net=+7068.5 across 10 routes (7 below n=10)
+                     backfill n=245 SIMULATED_NOT_EVIDENCE  -> 12 rotanin HEPSI gorunuyor
+s34_state          : exposed=1 waiting=1 orphans=54 closed=395  severity=low
+                     pnl_summary alani artik YOK
+contract           : read_only=True control_actions_available=False db_mode=ro
+```
+
+### 5. Kanıt
+
+- `tests/test_dashboard_shadow_observatory.py` (YENİ): **19/19 PASS**. Regresyon
+  testi dahil: `test_no_route_is_truncated_away` (sort_keys=True head-slice'ın
+  SHORT_* rotaları sistematik düşürdüğünü kilitler) ·
+  `test_losing_short_route_is_visible` · `test_state_json_pnl_block_is_never_the_evidence_source`
+  (zehirli pnl fixture'ı; her iki panelin çıktısında da sızmadığı doğrulanıyor) ·
+  INSUFFICIENT_N sınırı · orphan mutabakatı · fail-closed.
+- Regresyon: `test_dashboard_aggregator` + `test_dashboard_overview_api` **11/11**,
+  `test_dashboard_shadow_paper_activity` + `test_dashboard_paper_bucket_ledger` **42/42**.
+
+### 6. Açık kalanlar / bilinen sınırlar
+
+- **54 orphan'ın kök nedeni HÂLÂ ARAŞTIRILMADI** (§139'dan devreden birinci soru).
+  Panel artık görünür kılıyor ama teşhis etmiyor.
+- `iter_jsonl_tail` sınırı 16MB; ledger 1MB → şu an tam okunuyor. Sınır aşılırsa
+  lifecycle/orphan sayımı kısmi olur; **bu durum şu an panelde beyan EDİLMİYOR** →
+  inceleme fazına ikinci soru.
+- `LONG_SILENCE` (n=217) ve `SHORT_NEITHER` (n=28) forward'da SIFIR gözleme sahip —
+  tamamen backfill. Canonical yüzeyde artık ayrı, ama bu rotaların forward kanıtı yok.
+- **:5050 (s34_live_chart, pid 3644) operatör talebiyle ÖLDÜRÜLDÜ** →
+  `logs/pids/s34_live_chart.pid` STALE, `status_eclipse.ps1` onu ölü gösterecek.
+  Ayrıca orderflow_chart (:5051), s34_replay (:5052), oi_spot_poller start_eclipse'te
+  tanımlı ama çalışmıyor (bu oturumdan ÖNCE düşmüşlerdi, dokunulmadı).
+- :8770 sandbox'tan restart edildi → **kalıcı değil**; kalıcılık için operatör
+  sandbox dışında `start_eclipse.ps1` çalıştırmalı.
+
+**Sıradaki faz:** BAĞIMSIZ İNCELEME (salt-okunur). Özellikle: 54 orphan kök nedeni ·
+tail sınırı beyan edilmemesi · liveness'ta runner'ı otorite kabul etmenin doğruluğu ·
+backfill ayrımının ledger `backfill` bayrağına güvenmesinin yeterliliği.
+
+**Rollback:** additive + tek dosya düzeltmesi. Geri alma =
+`dashboard/backend/shadow_observatory.py`, `adapters/s34_shadow_evidence.py`,
+`tests/test_dashboard_shadow_observatory.py` silmek + `s34_state.py`/`aggregator.py`/
+`sources.py` yamalarını geri almak + §140'ı kaldırmak. §139'un :5053 tool'u git'te
+olmadığı için geri gelmez (yeniden yazılması gerekir).
+
+---
+
+## 141. §140 BAĞIMSIZ İNCELEME (5 PARALEL SALT-OKUNUR REVIEWER) — VERDICT: KABUL EDİLEMEZ, DÜZELTME GEREKİYOR (2026-07-17, Opus 4.8)
+
+**Durum:** `CANONICAL_DASHBOARD_S140_INDEPENDENT_REVIEW_COMPLETE_NOT_ACCEPTED_AWAITING_OPERATOR_GATED_CORRECTION`.
+§140 (+ commit edilmemiş `dashboard/backend` paketi + launcher değişiklikleri) için
+CLAUDE.md zorunlu zincirinin **bağımsız inceleme** fazı yürütüldü. Beş reviewer
+paralel, salt-okunur (Explore agent tipi — Edit/Write araçları YOK, guardrail araç
+seviyesinde), temiz bağlamla, yazarın gerekçelerini görmeden, yalnız artefakta bakarak.
+Hiçbiri test/proses çalıştırmadı (RAM guardrail). **Hiçbir dosya düzeltilmedi** —
+correction ayrı, operatör-kapılı faz.
+
+Bu inceleme öncesinde savunma amaçlı bir commit atıldı (`d744ba1a`, 32 dosya): daha
+önce TAMAMEN untracked olan `dashboard/backend` paketi (canonical :8770 yüzeyinin
+servis katmanı) git'e alındı — `git clean -fd` ile yok olma riski vardı. Commit =
+incelenen artefaktı kaydeder, ONAYLAMAZ; push yapılmadı.
+
+### VERDICT ÖZETİ
+
+§140'ın merkez iddiası (`[:8]` head-slice hatası) **gerçekten çözülmüş ve sayılar
+ondalığına kadar doğru** (reviewer canlı artefaktlardan aritmetik olarak yeniden üretti:
+ilk-8 n=316 net=+7190.8, tam-12 n=395 net=+8758.7). Yeni `s34_shadow_evidence` paneli
+sağlam: truncation yok, INSUFFICIENT_N sınırı doğru (n<10), forward/backfill hiçbir
+alanda toplanmıyor. `shadow_observatory.py` saflık iddiası doğrulandı (yalnız
+`collections`+`typing`, sıfır I/O), ms/s ve timezone hatası **yok** (UTC+3 geçmişi
+nedeniyle özellikle arandı), sıfıra bölme yok.
+
+**ANCAK düzeltme hatanın SINIRINA değil iki DOSYANIN sınırına göre yapılmış; aynı
+epistemik yalan operatöre başka yollardan hâlâ ulaşıyor.** İki CRITICAL correctness +
+bir CRITICAL contract kökü + çok sayıda HIGH. §140 bu haliyle KABUL EDİLEMEZ.
+
+### EN AĞIR BULGULAR (operatör-yüzeyi, canlı)
+
+- **[CRITICAL] Kirli `pnl` bloğu hâlâ operatöre ulaşıyor.** §140 iki dosyayı
+  temizledi ama `dashboard/backend/adapters/shadow_paper_activity.py:429` aynı kirli
+  `pnl` bloğunu aynı dosyadan okuyup `n`/`wr`/`total_net`'i population kolonu OLMADAN
+  yayınlamaya devam ediyor. Canlı sonuç: `SHORT_NEITHER` (%100 backfill simülasyon,
+  sıfır forward) panelde **+2013.7 bps, %64.3 WR** ile — tüm panelin en kârlı görünen
+  bucket'ı — forward bucket'larla byte-byte aynı, `severity=ok`. §140'ın öldürmek için
+  yazıldığı yalanın **daha kötü** bir sunumu, dokunmadığı bir panelde.
+- **[CRITICAL] `freshness.py:101` bildirilen güven durumunu koşulsuz eziyor.**
+  `vm.trust_state = res.trust_state` — gelen değeri hiç okumuyor, oysa docstring'i
+  (`:90-91`) "adapter sert güven hatası işaretlediyse korunur" diyor. Sonuç:
+  `executive_header` psutil'i göremediğinde `live_executor="OFF"` sahte değerini
+  **GREEN / `current` rozetiyle** basıyor (o `0` gözlem değil, boş taramanın varsayılanı).
+  Yüzeyin en güvenlik-kritik tek bilgisi, dashboard körken "kapalı" diye iddia ediliyor.
+  Alttaki 3 bulgu (storage MALFORMED→INFERRED, execmgmt −175.7 fallback, header) hep
+  bu tek kökten; `freshness.py:101`'i docstring'ine uydurmak üçünü birden kapatıyor.
+- **[HIGH, iki reviewer bağımsız kesişti] Forward kanıt tablosu şişirilmiş — kârlı yönde.**
+  `shadow_observatory.py:136` her `CLOSE` satırını ayrı işlem sayıyor, `id`'ye göre
+  dedup YOK. Ledger'da geçmiş `F-DUPCLOSE-01` hatasından kalan mükerrer CLOSE satırları
+  var (guard yalnız gelecekteki yazmaları korudu). Ölçüm: 395 satır ama 382 ayrı id →
+  13 hayalet işlem, HEPSİ forward. `BUY_FADE_SHORT_H45_SL75` panelde n=74, gerçek n=63
+  (%17 şişme, MIN_EVIDENCE_N'i geçtiği için karar-seviyesi WR basıyor). Sapma
+  yeniden-kapanan pozisyonlarda kümelendiği için **kazananlara doğru**.
+- **KESİŞME (bağımsızlığın kanıtı):** §140 "gerçek=395" dedi → PnL-reviewer "forward
+  gerçek=150" dedi → observatory-reviewer (habersiz) "150 de dup'la şişmiş, gerçek=137"
+  dedi. Test-reviewer ayrıca `test_losing_short_route_is_visible`'ın n=46/n=74'ü sabit
+  kodladığını, bunların **şişirilmiş satır sayıları** olduğunu, yani testin hatayı
+  yakalamak yerine BEKLENTİ olarak sabitlediğini buldu. Üç reviewer birbirini görmeden
+  aynı noktada buluştu; tek-aktör tek-geçiş inceleme bunu üretemezdi.
+
+### GÜVENLİK ÇEMBERİ (contract-reviewer, ayrı sonuç)
+
+`read_only=True, control_actions_available=False, db_mode=ro` ilanı **DOĞRU** —
+reviewer her maddeyi kırmayı denedi, kıramadı: ana-DB tek yolu `readers.py:81 open_ro`
+(`file:` URI + `uri=True` + `mode=ro` + `PRAGMA query_only=ON`); GET/HEAD merkezi,
+metot spoofing yok; `0.0.0.0` bind'da fail-closed; path traversal (`..`, Windows sürücü,
+symlink) hepsi 404; HTTP'den yazma/subprocess/executor yolu yok. **Latent uyarı:**
+`data_sources.py:167` ana DB'yi `mode=ro` OLMADAN açıyor (legacy FastAPI, canonical
+import grafiğinden erişilemez) — izolasyon yalnız import disipliniyle korunuyor, tek bir
+`import` satırını yakalayacak test/lint YOK. Yapısal guardrail (import-graph testi) önerildi.
+
+### TEST KALİTESİ (test-reviewer)
+
+Dosya bir bütün olarak "vacuum compliance" DEĞİL — pnl-leak testi, INSUFFICIENT_N sınırı
+(n=9/n=10 iki yanı), orphan kümesi gerçek değer-iddialı testler. AMA §140'ın kanıt diye
+ilk sırada gösterdiği iki test en zayıfları: `test_no_route_is_truncated_away` hatanın
+HİÇ bulunmadığı paneli (`s34_shadow_evidence`) okumadığı bir veri kaynağı üzerinden test
+ediyor (`[:8]`'i `s34_state.py`'ye geri koysan yeşil kalır); `test_losing_short_route_is_visible`
+2 rotalı, hiçbir slice düşüremez. Hatayı gerçekten kilitleyen test farklı:
+`test_state_json_pnl_block_is_never_the_evidence_source`. §140'ın `SYSTEM_STATE`
+kanıt cümlesi bu yönüyle YANLIŞ.
+
+### 54 ORPHAN — KÖK NEDEN BULUNDU (observatory-reviewer)
+
+54 (şimdi 57) orphan **GERÇEK, artefakt DEĞİL** (str/int, namespace, ms/s, tail — hepsi
+elendi). Kök neden **observatory'de değil ÜRETİCİDE**: `s34_realtime_shadow_runner.py`'de
+5 kod yolu (`:1226`, `:1089`, `:1106`, `:1124`, `:1055`) pozisyonu `closed.append(pid)`
+ile düşürüp `log_event` çağırmıyor; yanlarındaki 6 benzer yol çağırıyor → açık unutma.
+57 orphan'ın 56'sı hiç pozisyon taşımamış gürültü ama **1'i** (`OPEN_BUY_FADE`) gerçekten
+teminatlı bir pozisyondu — o tek vaka 56 gürültüde görünmez. Üretici düzeltmesi orphan'ı
+~1'e indirir (ayrı faz, bu modülün dışında).
+
+### LAUNCHER (launcher-reviewer — 20 bulgu, önceki iddialarımı DÜZELTTİ)
+
+Sana daha önce söylediğim iki şey YANLIŞTI, reviewer düzeltti: (1) `-CommandNeedle`
+sondaki boşluk hatası DEĞİL — doğru eşleşiyor, sondaki boşluk kasıtlı ve gerekli
+(non-serving CLI-report koşusunu yanlış benimsemeyi önlüyor). (2) "start_eclipse
+ayaktakileri benimser" — evet ama VARSAYILAN clean-stop yapar (`-NoCleanStop` opt-out),
+bu yüzden scheduler'ı açarken 8 sağlıklı rolü gereksiz restart ettim (§140 notunda kayıtlı).
+
+En ağır launcher bulguları (hepsi CONFIRMED):
+- **[CRITICAL] `start_eclipse.ps1:83-86`** `$PreferredPid` üyelik kontrolü olmadan
+  dönüyor + `Get-LivePidFromFile` isim-kör → geri-dönüştürülmüş (recycled) PID rolün
+  HİÇ başlamamasına yol açıyor, ve `status_eclipse.ps1:90-92` AYNI hatayı tekrarlıyor
+  (bağımsız sanılan status kontrolü aslında starter'ın hatasının kopyası).
+- **[CRITICAL] `:229,283`** duplicate-needle yalnız backslash yol formunu kapsıyor,
+  stop her iki formu da kapsıyor → forward-slash'la başlatılan ikinci supervisor →
+  **650GB DB'ye iki yazıcı**. Python tarafında singleton lock YOK (doğrulandı).
+- **[CRITICAL, latent] `Name='python.exe'` filtresi** üç scripti de pythonw rollerine
+  kör bırakıyor; repo'nun kurmak üzere olduğu pythonw supervisor kurulunca iki yazıcı.
+- **[HIGH] `:349`** `-NoCleanStop` + `-EnableLive` YOKKEN v-engine live executor'ı
+  DURDURMADAN pid dosyasına `0` (=DISABLED) yazıyor → executor **canlı emir verirken**
+  status onu DISABLED gösteriyor. Bugün default clean-stop bunu maskeliyor (benim
+  restart'ım default clean-stop kullandı, live executor şu an bağımsız doğrulandı: sıfır
+  proses). Ama emniyet TAMAMEN `-NoCleanStop` kullanılmamasına bağlı — ve bilinen sorun
+  (a) operatörü tam da `-NoCleanStop`'a itiyor.
+- **[HIGH] stop/start asimetrisi** (dashboard/orderflow/replay start ediliyor, stop
+  edilmiyor) → ESKİ KOD çalıştıran stale proses süresiz benimseniyor; kodu düzenleyip
+  restart etsen 8770 eski kodu servis etmeye devam eder, port emniyet değil
+  (`server.py:170 allow_reuse_address` Windows'ta çift bind'a izin veriyor).
+- **exit 255:** reviewer de açıklayamadı, tahmin etmedi. Ama `:427` script'in exit
+  kodunun bir status YAZICISINDAN miras alındığını gösterdi (13 rolün başlayıp
+  başlamadığıyla yapısal olarak alakasız) — 255 zaten anlamsız. İki ayırt edici kanıt
+  (Security 4689 TerminateProcess durumu, eşzamanlı stop 4688) listelendi.
+
+### SIRADAKİ FAZ: CORRECTION (operatör-kapılı)
+
+Bu faz `..._REVIEW_COMPLETE_NOT_ACCEPTED` ile kapanır. Correction AYRI bir geçiştir ve
+**operatör sign-off bekler** — kendiliğinden geçilmez. Önerilen düzeltme sırası:
+1. `shadow_paper_activity.py:429` kirli-pnl sızıntısı (CRITICAL) — pnl-türevi kolonları
+   at ya da `obs.evidence()`'tan geçir.
+2. `freshness.py:101` (CRITICAL kök) — docstring'ine uy; `executive_header`'a tek satır
+   `parse_status=MISSING`. Bu, 4 bulguyu birden kapatır.
+3. `shadow_observatory.py` close dedup by `id` (forward şişmesi).
+4. Launcher CRITICAL'ları (recycled-PID, forward-slash needle, pythonw filtresi,
+   `:349` live-executor emniyeti) — bunlar guardrail-bitişik, ayrı governance dikkati.
+5. Üretici düzeltmesi: runner'daki 5 eksik `log_event`.
+Correction'lar ayrı fazda yapılır, sonra ZORUNLU bağımsız re-review, sonra acceptance.
+
+**Operatöre pratik uyarı (correction'a kadar):** 8770'de `shadow_paper_activity`
+panelindeki bucket PnL'lerine — özellikle `SHORT_NEITHER` (+2013.7) ve `LONG_SILENCE` —
+GÜVENME; %100 backfill simülasyon, gerçek işlem değil. Forward `n` sayıları da ~%9-17
+şişkin.
+
+## 142. HOUR17 FORWARD AUDIT ZİNCİRİ — GOVERNANCE KAYDI + BİRİNCİL HÜKÜM: FORWARD EDGE DESTEKLENMİYOR — BAĞIMSIZ İNCELEME BEKLİYOR (2026-07-17, Opus 4.8 [1M])
+
+**Durum:** `HOUR17_CURRENT_ROUTE_FORWARD_EDGE_NOT_SUPPORTED_PENDING_INDEPENDENT_REVIEW`.
+
+Bu bölüm YALNIZ bir kayıt/preregistration-reconciliation adımıdır. **Hiçbir strateji,
+parametre, runtime, DB veya execution davranışı değiştirilmedi.** HOUR17 route'u
+(`LONG_HOUR17_HOLD6H`) silinmedi, disable edilmedi, deploy edilmedi — bunlar ayrı
+operatör kararıdır (OD-026). Tüm araştırma salt-okunur yürütüldü (`data/microstructure.db`
+`mode=ro`, yalnız event-çevresi indeksli pencereler). Bu actor kendi kaydını
+İNCELEMEZ/KABUL ETMEZ.
+
+### Kaynak research dosyaları (salt-okunur doğrulandı; hepsi UNTRACKED)
+| dosya | bytes | sha256(16) |
+|---|---|---|
+| `reports/research/s34/S34_HOUR17_DIRECT_SHORT_AUDIT_2026-07-17.md` | 30092 | `72db587b9bcee4aa` |
+| `reports/research/s34/S34_HOUR17_DIRECT_SHORT_AUDIT_2026-07-17.sql` | 28109 | `7aece56eee75459a` |
+| `reports/research/s34/S34_HOUR17_MICROSTRUCTURE_STATE_FILTER_2026-07-17.md` | 11315 | `cc956008dbc1e8e1` |
+| `reports/research/s34/S34_HOUR17_MICROSTRUCTURE_STATE_FILTER_2026-07-17.sql` | 7781 | `9f826096a31ff68a` |
+
+Branch `codex/data-layer-fallback-cleanup` @ HEAD `d744ba1a`. Önceki kanonik kayıtlar:
+K-S34-HOUR17-001 (§104/§105 cycle-adjusted recompute, `POSITIVE_BUT_FRAGILE`), OD-011,
+CT-005, `S34_HOUR17_CYCLE_ADJUSTED_RECOMPUTE_AND_MAY_GAP_FORENSIC_2026-07-11.md`.
+
+### BİRİNCİL HÜKÜM (kayıt için)
+`HOUR17_CURRENT_ROUTE_FORWARD_EDGE_NOT_SUPPORTED_PENDING_INDEPENDENT_REVIEW`
+
+Kapsam (kanıt zinciri, salt-okunur):
+- HOUR17 deploy edilmiş yönü **contrarian LONG**'dur (ETH SELL cascade ≥200K anchor → LONG 6h).
+- **Direction semantics 7/7 katmanda tutarlıdır; sign inversion YOKTUR** (AUDIT 9: liquidation
+  SELL=LONG_LIQ → shadow/live/ledger/feature/93-cycle hepsi LONG ölçüyor).
+- LONG 6h paired alpha ≈ **−41 bps** (CI[−96,+15]) ve **desteklenmemiştir**.
+- LONG→SHORT ayrıştırmasında **ilk LONG bacağı değer katmamıştır** (P5−P3=P4, 0/154 hücre GEREKLİ).
+- DIRECT SHORT **medium** etkisi (6h–18h) exact-time/session kontrolünde **başarısızdır**
+  (FWER p=0.0523→0.086-0.145; same-day placebo 37. persentil, p=0.63).
+- DIRECT SHORT **micro** etkisi (1m–5m) executable bid/ask modelinde **başarısızdır**
+  (mark +10 → executable −2.3 bps; alpha +3.4, exact_p=0.17; break-even 1.72 bps/leg).
+- Birleşik DIRECT SHORT hükmü **`BOTH_FAIL`**'dır.
+- Pre-T0 microstructure state filtresi June iç doğrulamada **başarısız** (MCC −0.21,
+  improvement −1139 bps, day-perm p=0.7616).
+- July external holdout **başarısız** (tek reversal veto edildi; işlenen tek event kaybetti).
+- **P0 NO-TRADE=0, P1 ALWAYS-LONG=−375, P2 FILTERED-LONG=−60**; filtered politika NO-TRADE'i
+  **yenmemiştir** (`FILTER_NO_BETTER_THAN_NO_TRADE`).
+- Feature ilişkileri kohortlar arası **OOS-stabil değildir** (5/12 SIGN_FLIP, M3 çekirdeği dahil).
+- Sample limitations: June **4 bağımsız gün**; July **7 cluster** ve binary holdout'ta **yalnız 1 reversal**.
+- 07-13 data gap (46.4h runner kesintisi + 15.2h mark_prices boşluğu) **model başarısı sayılmamıştır**
+  (DATA_QUALITY_VETO olarak izole); ilk shadow +2477.9 bps iddiasının %115'i bu kesinti artefaktıdır (CT-006).
+- Shadow/live 300bps stop bu örneklemde sonucu **değiştirmemiştir** (11/11 TIME_EXIT, en derin MAE −200.9);
+  divergence riski gelecekte açık (OD-027).
+- **Hiçbir yeni feature, threshold, classifier veya direction deploy için KABUL EDİLMEMİŞTİR.**
+
+### Governance yönlendirmeleri
+- **CONTRADICTION_REGISTER:** CT-006 (ilk shadow iddiası kesinti-artefaktı → kullanılamaz),
+  CT-007 (DIRECT_SHORT_ALPHA_SUPPORTED count-reconciliation sonrası geri çekildi), CT-008
+  (microstructure filtre OOS-stabil değil), CT-009 (mevcut route forward-edge göstermiyor),
+  CT-010 (NO-TRADE aktif politikalardan üstün).
+- **OPERATOR_DECISION_QUEUE:** OD-026 (route aktif/quarantine/disable — operatör), OD-027
+  (shadow/live stop reconcile — ayrı corrective), OD-028 (yeni varyant = yeni prereg + tarihsel
+  holdout zorunlu), OD-029 (yakılmış June/July örnekleminde yeni optimizasyon yasak).
+
+### Bu actor'ın YAPMADIĞI (sınır beyanı)
+Araştırmayı yeniden çalıştırmadı; bulguları yeniden-yorumlayıp yumuşatmadı; strategy
+acceptance yapmadı; route'u kapatmadı; kendi kaydını incelemedi/kabul etmedi. Kod, `.env`,
+`execution/`, `risk/`, `brain/`, sizing/leverage/ORDER_NOTIONAL, live executor — DOKUNULMADI.
+
+### Sonraki kapı
+**Tam bağımsız fresh-context review** (CLAUDE.md zorunlu zincir: implementation → **bağımsız
+review** → correction → re-review → acceptance). Bu kayıt = `implementation` fazının governance
+artefaktı; onay değil. Review temiz bağlamla, yazarın gerekçelerini görmeden, yalnız kaynak
+dosyalara + bu §142'ye bakarak yürütülmelidir.
+
+## 143. LİKİDASYON-AKIŞI QUOTE-SUPPRESSION POLİTİKA DIAGNOSTİĞİ (MAKER RISK-GATING) — BİRİNCİL HÜKÜM: NO_INCREMENTAL_VALUE — BAĞIMSIZ İNCELEME BEKLİYOR (2026-07-17, Opus 4.8 [1M])
+
+**Durum:** `LIQUIDATION_QUOTE_SUPPRESSION_NO_INCREMENTAL_VALUE`. Salt-okunur araştırma
+(`data/microstructure.db` `mode=ro`, yalnız event-çevresi indeksli pencereler). Hiçbir
+strateji/parametre/runtime/DB/execution değişmedi. Holdout AÇILMADI, deep-bid SİMÜLE
+EDİLMEDİ, top-of-book dışı fill varsayılmadı, directional 2h return maker PnL'e katılmadı.
+Bu actor kendi kaydını İNCELEMEZ/KABUL ETMEZ.
+
+**Soru (yönsüz, risk-gating):** BUY/SELL likidasyon agresif akışı sırasında pasif quote'ları
+geçici geri çekmek (P2–P5) her-zaman-iki-taraflı maker'a (P1) göre değer katıyor mu — ve daha
+önemlisi, **eşleştirilmiş yüksek-volatilite likidasyon-DIŞI pencerede** aynısını yapmanın
+ötesinde ek değer var mı?
+
+**Rapor:** `reports/research/s34/LIQUIDATION_QUOTE_SUPPRESSION_POLICY_DIAGNOSTIC.md` (+ `.json`;
+stage-1 fills sha256 `4b49aaf1d2b5f87b`). Book penceresi 2026-04-11→07-17; frozen primary
+trigger = ilk tekil print ≥100K, 5dk debounce; SELL→BID, BUY→ASK saldırılan taraf. 1068 event
++ 1068 eşleşmiş kontrol, 51 event-günü. Sürekli iki-taraflı maker (0.5 ETH, best'e katıl,
+her fill sonrası re-quote), F3 queue-conservative (queue-ahead=görünür top qty), F2 secondary,
+F1 yalnız upper-bound (kanıttan hariç).
+
+**Bulgular (F3, bps/event, day-clustered CI90):**
+- P1 (always-on) = −501; **TÜM politikalar mutlak NEGATİF** (P0/do-nothing=−363 en az-zarar). Kârlı maker politikası YOK.
+- P2 (both-off) Δ vs P1 = **+142 [131,154]** (zararı gerçekten azaltır) ama **eşleşmiş kontrol Δ = +125** → **incremental (ev−ctrl) = +11.7 [−2.5,+26] (CI 0 içeriyor)**. P3/P4 incremental −4.5 (CI 0 içeriyor).
+- **Fee=0'da incremental = −0.6 [−6.9,+5.6]**: pozitif incremental'in tamamı **churn/taker-fee artefaktı** (fee ile ölçekleniyor; fee0'da 6 politika −125…−140'a çöküyor, en iyi/en kötü farkı ~173→~15).
+- Max-stat FWER (incremental, aile P2–P5) p: P2=0.69, P3/P4=0.96 (anlamsız). P5 p=0.0 ama **artefakt** (kontrolde trigger yok → P5 kontrolde hiç suppress etmiyor).
+- BUY/SELL incremental TUTARSIZ: SELL P2 +35.6 vs BUY P2 −2.0.
+- Not-just-uptime: suppress edilen burst fill'leri (−5.5/fill) kalan fill'lerden (−7.7/fill) DAHA AZ adverse → en kötü fill'leri hedeflemiyor.
+- **F2 ailesi daha sert reddediyor:** P2 incremental −78.9 [−98,−59] (anlamlı NEGATİF).
+- Latency 0→500ms incremental 14→9 (250ms'de CI 0 içeriyor); dur sweep: 5s en iyi (+35 fee-dahil ama fee0'da +4.4 CI 0 içeriyor), 60s over-suppress (−50).
+
+**Success-criteria (§10):** #10 (≥40 gün) ✅, #1 (Pk−P1>0) ✅, #3 ✅; ama **#5 (matched-control incremental) ❌ KESİN**, #6 ❌, #7 ❌, #8 ❌, #9 ❌, #4 ❌ → **Phase-2 adayı YOK.**
+
+**Hüküm:** Quote suppression'ın değeri likidasyon bilgisinden değil **yüksek volatiliteden**
+geliyor; likidasyon trigger'ı generic bir vol-gate'in ötesinde ek maker risk-gating değeri
+TAŞIMIYOR. Bu, korunan `SELL_BURST_MAKER_EDGE_NOT_IDENTIFIED` bulgusunun risk-gating aynası
+("aggressor flow'a maker olma" generic, SELL/likidasyon'a özel değil). Deep-bid sınırı:
+`DEEP_BID_FILL_ASSUMPTIONS_NOT_VALIDATABLE_FROM_TOP_OF_BOOK` — `..._DEEPBID` protokolünün
+best-altı fill iddiaları UNVERIFIED (L2 depth + queue-position reconstruction gerekli); bu
+çalışma deep-bid'i ne kabul ne reddediyor.
+
+`tools/s34_state_machine_live_executor.py`, `.env`, `execution/`, `risk/`, `brain/`,
+sizing/leverage/ORDER_NOTIONAL, live executor — DOKUNULMADI. Korunan iki Phase-1 hükmü
+değiştirilmedi. Operatör kapısı Phase-2'den önce geçerli.
+
+## 144. BOOK STATE H1/H2 — BOUNDED PREREGISTRATION AUTHORED — OVERALL: PREREGISTERED, PENDING INDEPENDENT REVIEW; BASELINE CONTRACT UNRESOLVED (2026-07-19, Opus 4.8 [1M])
+
+**Durum:** `BOOK_STATE_H1_H2_VALIDATION_PREREGISTERED_PENDING_INDEPENDENT_REVIEW`.
+Authoring blocker raised: **`BOOK_STATE_PREREG_BASELINE_CONTRACT_UNRESOLVED`**.
+Bu geçişte YALNIZ preregistration author rolü çalıştı. Holdout AÇILMADI, policy
+simülasyonu YOK, PnL/markout YOK, yeni state YOK, S3/S2 eşiği DEĞİŞMEDİ, quote
+offset/widening YOK, deployment/runtime değişikliği YOK. Author kendi kaydını KABUL
+ETMEZ. Sonraki kapı = tam bağımsız fresh-context preregistration review.
+
+**Kanonik başlangıç:** `BOOK_STATE_STAGE1_ACCEPTED` (operatör 2026-07-18). Kabul edilen sınır
+= yalnız S0–S5 geometri/metodoloji/kanıt; S3 incremental-adverse (BID −0.584 / ASK −0.410 bps
+@1s, BID attribution residual −0.397), S2 clean null; fill-ordering S3 1705:293, S2 1044:352.
+Maker alpha / policy PnL / S3-gate deploy / S2-quoting KABUL EDİLMEDİ. F1–F4 disclosure'ları
+preregistration'a aynen taşındı (F2 → validation'da SMD tablosu ZORUNLU; F1 → "1s merge
+bağımsızlık sağlar" iddiası YASAK).
+
+**Kritik bulgu (baseline contract):** Stage-1 "maker" bir **salt-okunur fill-quality
+simülasyonudur**, deploy edilmiş bir maker motoru DEĞİL. Repo taraması: canlı yüzey
+(`s34_state_machine_live_executor.py`, `execution/`, `risk/`, `brain/`) yönsel scalper; quoting
+motoru (place_quote/post_only/inventory_skew/unwind) YOK. Acceptance stamp: "NO inventory
+accounting." Primary estimand `Delta_EV_H1` = **inventory-adjusted** net PnL farkı → inventory
+limit/skew, passive exit, market-unwind, stop/risk guardrail, re-quote cadence, cancellation
+tanımları hiçbir kabul edilmiş artefaktta YOK. §1 fabrikasyon-yasağı gereği bunlar
+UYDURULMADI; Stage-1'in byte-exact sabitlediği alanlar donduruldu (symbol ETHUSDT, sides
+BID/ASK, best-of-book, own 0.5 ETH, latency 250ms primary, lifetime 1000ms primary, F3 primary,
+fee 1bps `config/costs.py` + 0/2 sens), gerisi için token yükseltildi. **Sonuç:** birincil
+estimand'ın holdout'u, operatör §1.3'ü (baseline inventory/unwind/exit/risk sözleşmesi —
+`execution/`/`risk/` = `DOKUNMA`, operatör sign-off şart) çözene kadar AÇILAMAZ.
+
+**Dondurulan deney (özet):** Burned cutoff `FROZEN_CUTOFF_TS=1784320049654`
+(2026-07-17T20:27:29.654Z). Primary holdout = cutoff SONRASI ilk 40 kullanılabilir bağımsız
+takvim günü (yoksa `BOOK_STATE_H1_H2_HOLDOUT_UNDERPOWERED`). H1 = S3 ilk causal sınıflamada
+attacked-side quote'u geçici SUPPRESS (SELL-attacked→BID, BUY-attacked→ASK; offset/widening YOK,
+yalnız cancel; action latency 250ms primary/100·500 sens; re-entry 2 ardışık non-S3 eval, max
+5s; mechanism window 1s; policy window +5s). H2 = S2 tek başına gate'i tetiklemez (S2→S3
+geçişinde H1 devreye girer; H2 ≠ "S2 quoting kârlı"). State tanımları `br_lib.py` + `br_bins.json`
+byte-exact (SHA-256 manifest'te). Inference unit = takvim günü; day-clustered bootstrap + LODO +
+paired day-permutation; multiple-testing family = {H1 250ms, 100ms, 500ms, H2}; discovery grid
+family'ye alınmaz. Prohibited-adaptations + verdict token seti donduruldu.
+
+**Artefaktlar (reports/research/s34/):**
+`BOOK_STATE_H1_H2_BOUNDED_PREREGISTRATION_V1.md` (insan-okur, 15 bölüm),
+`BOOK_STATE_H1_H2_BOUNDED_PREREGISTRATION_V1.json` (makine-okur sözleşme),
+`BOOK_STATE_H1_H2_STATE_ARTIFACT_HASH_MANIFEST_V1.json` (10 Stage-1 artefaktının SHA-256 pin'i;
+kaynak: session 39231408 scratchpad, repo DIŞI — validation öncesi kurtarma checksum'ı).
+
+**Guardrail:** `s34_state_machine_live_executor.py`, `.env`, `execution/`, `risk/`, `brain/`,
+sizing/leverage/ORDER_NOTIONAL — DOKUNULMADI. DB açılmadı (salt authoring). Stage-1 artefaktları
+byte-immutable (yalnız hash'lendi). Operatör kapısı: (1) §1.3 baseline sözleşmesini çöz, (2)
+bağımsız review verdict'ini imzala — ikisinden önce preregistration frozen-final sayılmaz.
+
+## 145. BOOK STATE H1/H2 PREREG — BAĞIMSIZ REVIEW → CORRECTION C1 → RE-REVIEW ZİNCİRİ TAMAMLANDI (RE_REVIEW_ACCEPTED) + BASELINE MAKER CONTRACT PROPOSAL V1 YAZILDI — OPERATÖR SIGN-OFF BEKLİYOR (2026-07-19, Opus 4.8 [1M])
+
+**Durum:** `BOOK_STATE_H1_H2_VALIDATION_PREREGISTERED_CORRECTED_AWAITING_REREVIEW` →
+re-review sonucu `BOOK_STATE_H1_H2_PREREG_RE_REVIEW_ACCEPTED`. Gated zincir tam işletildi:
+`author → bağımsız review → correction C1 → bağımsız re-review → ▶ OPERATÖR SIGN-OFF`.
+Hiçbir holdout/simülasyon/PnL/threshold/deploy YOK; tüm fazlar salt-okunur veya salt-metadata.
+
+### 1. Bağımsız review (fresh-context, salt-okunur) → `BOOK_STATE_H1_H2_PREREG_CORRECTIVE_REQUIRED`
+Hash-drift **CLEAN** (10/10 Stage-1 dosyası manifest'le birebir). Resolved alanlar byte-exact
+(`br_lib.py`: OWN=0.5, PRIMARY_LAT=250, PRIMARY_LIFE=1000, STALE_SNAP/MID; fee 1.0 `config/costs.py`),
+§4 state freeze byte-exact (predicate/precedence/7 bin edge/TICK/W), §5 cutoff+no-leakage, §6–11
+estimand/decomposition/family-of-4/SMD/§14 hepsi pre-committed, MD↔JSON parity. Primary estimand
+doğru şekilde §1.3'e kadar non-computable ilan edilmiş. **1 BLOCKING:** §0 (MD) + JSON'da S2
+fill-ordering etiketleri TERS (`move-before-fill 1044 ≫ fill-before-move 352` yazılmış; hash'li kaynak
+`BR_STAGE1_DISCOVERY_REPORT.md`/`BR_STAGE1_ACCEPTANCE.md` = **fill-before-move 1044 ≫ move-before-fill
+352, benign**). Rakamlar doğru, etiketler yer değişmiş → H2'nin dayandığı benign/adverse ayrımını ters
+çeviriyor; MD satırı kendi parantezi ile çelişik. 3 non-blocking (N1 F2 4439/9020 numerator
+doğrulanamaz ama SMD-zorunlu sonuç durur; N2 `tools/s34_v_engine_live_executor.py` tek-taraflı
+maker-LIMIT var ama iki-taraflı P_BASE değil, §1.3 UNRESOLVED durur; N3 kozmetik).
+
+### 2. Correction C1 (ayrı faz, salt-metadata) — sadece S2 etiket swap'ı
+`BOOK_STATE_H1_H2_BOUNDED_PREREGISTRATION_V1.md` §0 + `.json` `fill_ordering_f3_nfull.S2`:
+`fill_before_move=1044 / move_before_fill=352` (rakamlar DEĞİŞMEDİ, sadece iki etiket). S3 el değmedi
+(`1705≫293` zaten doğruydu). 352-vs-376 disclosure notu korundu. Overall token → CORRECTED_AWAITING_
+REREVIEW (prior token saklandı); JSON'a `correction_c1` bloğu + MD'ye §16 CORRECTION LOG eklendi.
+JSON valid. Stage-1 artefaktlarına DOKUNULMADI → hash manifest bozulmadı.
+
+### 3. Bağımsız re-review (ayrı fresh-context reviewer) → `BOOK_STATE_H1_H2_PREREG_RE_REVIEW_ACCEPTED`
+9/9 PASS: C1 faithful+complete, S2 kaynağa uyuyor, S3 untouched, yeni drift/regression yok, MD↔JSON
+parity, JSON parses, hash manifest re-check byte-exact (br_lib.py=44345918…, br_bins.json=a7820638…),
+N1/N2 §16'da açık (gömülmemiş). Tek non-blocking O1 (kozmetik): §12/JSON `allowed_verdicts.overall`
+hâlâ prior token'ı gösteriyor (hedef-terminal alan, canlı status değil) — operatör isterse patch (her
+patch yeni light re-review).
+
+### 4. Baseline Maker Contract PROPOSAL V1 (§1.3 blocker'ına karşı) — YAZILDI, operatör+review bekliyor
+`reports/research/s34/BOOK_STATE_BASELINE_MAKER_CONTRACT_PROPOSAL_V1.md`
+(`BOOK_STATE_BASELINE_CONTRACT_PROPOSED_PENDING_OPERATOR_SIGNOFF_AND_REVIEW`). **Çerçeve:** validation
+tamamen offline holdout olduğundan `P_BASE` bir *research-simulation baseline*'dır → canlı execution/risk
+koduna DEĞİŞİKLİK GEREKMİYOR, DOKUNMA canlı-kod guardrail'ı geçilmiyor (yalnız offline scorer spec'i).
+Strategic fork: **A (önerilen)** offline sim P_BASE tanımla → primary `Delta_EV_H1` computable; **B**
+tanımlama → yalnız markout-secondary (acceptance basis DEĞİL). 7 §1.3 alanı için önerilen default +
+alternatif + gerekçe (cadence 250ms, cancel lifetime1000ms+H1+inv-limit, ★inv-limit ±2.0ETH,
+★skew hard one-sided throttle @50%, passive exit opposite-side F3, ★market-unwind taker @limit|>60s,
+★stop=unwind backstop no PnL-gate). **Tek eksik dış girdi:** taker fee `config/costs.py`'de YOK →
+unwind maliyeti için operatör input'u şart (maker 1.0bps doğrulandı). Repo-grounded: `s34_v_engine`
+konvansiyonları (O20→300s→O5 cancel/replace, reduce-only emergency stop) referans, uydurulmadı.
+
+### 5. Operatör kapısı (şu an açık — 3 karar)
+1. **Prereg acceptance:** re-review ACCEPTED → prereg'i sign-off ile frozen-final yap (veya O1 kozmetik
+   patch iste). 2. **Baseline fork A/B** seç + seçilirse ★ risk-domain sayılarını imzala + taker input ver.
+3. Baseline kabul edilirse → ayrı bağımsız review → prereg §1.3 RESOLVED + holdout AÇILMADAN önce freeze.
+
+**Guardrail:** execution/risk/brain/.env/live-executor/sizing/leverage — DOKUNULMADI. DB açılmadı.
+Stage-1 artefaktları byte-immutable. Standing prohibitions (no holdout/PnL/threshold/new-state/
+widening/deploy) DEVAM. Hiçbir faz self-ratify edilmedi.
+
+## 146. MAKER HATTI — STEP 0 "V-ENGINE EXECUTION-OVERLAY" FEASIBILITY → `OVERLAY_NOT_IDENTIFIABLE` → MAKER AİLESİ `RESEARCH_ONLY` PARK EDİLDİ, GEOMETRİ ARŞİVLENDİ (2026-07-19, Opus 4.8 [1M], operatör onayı)
+
+**Bağlam:** §144/§145'te H1/H2 maker-suppression prereg'i gated review'dan geçti (RE_REVIEW_ACCEPTED)
+ama primary estimand hesaplanamadı (`§1.3 BASELINE_CONTRACT_UNRESOLVED`: deploy edilmiş iki-taraflı
+quoting motoru YOK). Blocker'ı çözmenin tek yolu = etkiyi **gerçek bir motora** bağlamaktı. Operatör
+sorusu: "bu sub-fee maker geometrisini nasıl pozitife çeviririz?" Step 0 = o dönüşümün fizibilitesi.
+
+**Aday gerçek motor:** `tools/s34_v_engine_live_executor.py` (doğrulandı: SYMBOL=ETHUSDT, DIRECTION=LONG,
+timeInForce=**GTX post-only** gerçek maker BID; rule `S34_V_ENGINE_V0_2_ETH_SELL_MAKER_LONG_H2_O20_W300_O5_DEEPBID`;
+entry ETH SELL notional≥200K + V-depth 28–40 + prior4h<−50bps; **O20→300s→O5 deep-bid**; stop 150bps;
+2h→silence 4h reduce-only close). İki kapı test edildi:
+
+**G1 — v-engine kendisi kazanıyor mu? HAYIR.** `reports/research/s34/S34_KNOWABLE_ANCHOR_HOLDOUT_ETH_SELL.md`:
+verdict **`BLOCKED`**, n=**0**, primary_config_id=**NONE**, median/mean/WR=None. Seçilmiş config yok,
+holdout'ta sıfır örnek → kanıtlanmış kazanan değil. (Diğer knowable-anchor aileleri de HOLDOUT dosyalarında
+PAPER_CANDIDATE'a ulaşmadı.) Kazanmayan bir motorun fill'ini iyileştirmek anlamsız.
+
+**G2 — best-of-book S2/S3 geometrisi v-engine fill'ine transfer olur mu? HAYIR (veri sınırı, zaten kayıtlı).**
+§143 hükmü `DEEP_BID_FILL_ASSUMPTIONS_NOT_VALIDATABLE_FROM_TOP_OF_BOOK`: v-engine O20/O5 = 20/5bps
+**deep-bid**; best-altı fill kalitesi top-of-book'tan reconstruct edilemez (L2 depth + queue-position gerekli,
+`book_ticker`'da yok). Stage-1 zaten below-best'i `NOT_IDENTIFIABLE` işaretlemişti. Geometri bu motora köprülenemiyor.
+
+**Directional/taker alternatifi (Step 2) de elenmiş:** continuation directional aileleri mezarlıkta
+(promotion-rehearsal 5/5 REJECT; clean-recheck all RESEARCH_ONLY); S3 markout −0.58bps = hareket taker-fee'nin
+altında. Yeni prereg açmaya değmez.
+
+**HÜKÜM (operatör onaylı):** `MAKER_LINE_RESEARCH_ONLY_PARKED_GEOMETRY_ARCHIVED`. Maker/quote-quality ailesi
+(book-state depletion/refill, trade-flow shock, liq quote-suppression, SELL-burst maker) **4/4 sub-fee /
+not-harvestable** → bölge tam haritalandı, **artık test edilmez** (mezarlığa eklendi, CLAUDE.md guardrail).
+Book-state Stage-1 geometrisi temiz/reproducible bir **epistemik varlık** olarak arşivde donuk kalır — yalnız
+*gelecekte gerçek bir best-of-book maker motoru kurulursa* yeniden açılabilir. H1/H2 prereg + baseline proposal
++ Stage-1 artefaktları byte-immutable saklanır. Bu başarısızlık değil, **negatif ama kesin bilim sonucu.**
+
+**Yön:** efor → **canlı yönsel S34 sistemi** (marjinal getirisi en yüksek yer). Bir sonraki iş = mevcut
+kanonik en-iyi alfa/paper-candidate statüsünü otoriter kayıtlardan kesinleştirmek (cross-session çelişkileri
+çöz: clean-recheck zero-candidate vs echo_30_90+regime vs hour17 forward-audit-unsupported), redirect'i ona
+oturtmak. Read-only investigation başlatıldı.
+
+**Guardrail:** execution/risk/brain/.env/live-executor — DOKUNULMADI. Büyük DB açılmadı (Step 0 mevcut
+artefaktlardan çözüldü — mezarlığı tekrar test etme disiplini). Hiçbir yeni holdout/PnL çalışmadı.
+
+## 147. KANONİK EN-İYİ ALFA MUTABAKATI (READ-ONLY RECORDS RECONCILIATION) — HÜKÜM: BUGÜN DEPLOY/HOLDOUT-PROVEN ROUTE YOK; EN GÜÇLÜ LEAD = `echo_30_90+regime` (KANITLANMAMIŞ) (2026-07-19, Opus 4.8 [1M])
+
+**Amaç:** §146 redirect'ini doğru temele oturtmak için "en iyi alfa belirli mi, hangisine base alacağız"
+sorusunu **hafızadan değil otoriter kayıtlardan** çöz (cross-session çelişkiler: clean-recheck zero-candidate
+vs echo paper-candidate vs hour17 deploy-adayı vs silence ana-alfa). Salt-okunur; hiçbir yeni deney/DB yok.
+
+**TEK HÜKÜM:** Bugün **deploy-proven veya holdout-proven route YOK.** Forward+holdout kapısını geçmiş,
+şu an ayakta duran **sıfır** PAPER_CANDIDATE var. Üç aile de kanıtlanmış edge olarak base alınamaz.
+
+**Sıralı durum (otoriter kaynaklarla):**
+- **#1 lead (KANITLANMAMIŞ) `echo_30_90+regime`** (contrarian LONG T0): estate'in en iyi point-in-time
+  kanıtı — no-overlap WR76.9% (raw81.2), mc_p0.0, tail0, WF5/5, fee-robust 15bps (§24, S34_ECHO_LIVE_GAUNTLET.md
+  2026-07-01). AMA **forward YOK + holdout YOK** — §24 (L1241/L1308) promosyondan önce ikisini şart koşmuştu,
+  hiç çalışmadı. Skeptik family prior: kardeş route hour17 forward audit'te düştü.
+- **#2 `LONG_HOUR17_HOLD6H`** (executor'da armed): §142/CT-009 `FORWARD_EDGE_NOT_SUPPORTED` — LONG 6h paired
+  alpha −41bps CI[−96,+15], DIRECT SHORT BOTH_FAIL, NO-TRADE her aktif politikayı yeniyor (CT-010 P0=0/P1=−375/
+  P2=−60). §142 (07-17) §104'ü (07-11) supersede eder. OD-026 (leave/quarantine/disable) HÂLÂ AÇIK.
+- **#3–4 v_engine ailesi** (ETH SELL / BTC BUY dist / SOL BUY / SOL SELL): hepsi holdout `BLOCKED n=0 config NONE`
+  → §146'da parked.
+- **#5 SILENCE LONG:** CT-001 `FALSIFIED` (lookahead); yalnız geç-safha management/risk INFO (max SHADOW).
+- Directional continuation (BUY-fade/reversal/promotion): graveyard, 5/5 REJECT.
+
+**Canlı executor fiilen ne çalıştırıyor:** `s34_state_machine_live_executor.py` armed route'lar =
+`LONG_HOUR17_HOLD6H`, `BTC2000_DELAY5_CONFIRM_SHORT`, base delayed-LONG, `t15_bounce_confirm` LONG. Echo
+ayrı armed route DEĞİL (aynı LONG ailesinin refinement gate'i, hiç promote edilmedi). **Live default-OFF,
+triple-gated** (`S34_LIVE_TRADING_ENABLED=1`+`S34_LIVE_DRY_RUN=0`+`SCALPER_DRY_RUN=0`; `start_eclipse.ps1`
+yalnız `-EnableLive` ile, `--confirm-live-orders` şart). Hour17 kodda armed ama live KAPALI.
+
+**REDIRECT HEDEFİ:** Yatırım yapılacaksa, taze **gated forward+holdout**'a sokulacak tek en-iyi-kanıtlı lead
+= `echo_30_90+regime`. İki uyarı: (1) forward-audit'te düşen contrarian-LONG-on-cascade ailesinde → family
+prior skeptik; (2) **un-burned** veri şart — Haz/Tem hour17 örneği burned, OD-028/029 onun üstünde
+re-optimize'ı YASAKLIYOR, yeni variant için taze prereg + ≥100 bağımsız-cascade tarihsel holdout gerektiriyor.
+
+**Guardrail:** salt-okunur records reconciliation; executor/DB/execution/risk — DOKUNULMADI. Hiçbir route'un
+statüsü DEĞİŞTİRİLMEDİ (yalnız mevcut kayıtlar mutabık kılındı). Bir sonraki iş = operatör echo-validation
+prereg'ine mi girsin yoksa başka yöne mi — operatör kararı.
+
+## 148. ADLİ MEZARLIK DENETİMİ (READ-ONLY DEATH-CERTIFICATE LEDGER, 30 ITEM) — HÜKÜM: ~%52 GERÇEKTEN ÖLÜ, ~%44 PRENSİPTE-DÜZELTİLEBİLİR AMA ÇOĞU DÜŞÜK-DEĞER; FİLTRELENİNCE YALNIZ 2 CANLANDIRMA ADAYI (2026-07-19, Opus 4.8 [1M], operatör talebi)
+
+**Amaç:** frekans-açlığı kök darboğazı verilince "mezarlıktaki bazı ölümler kanıtlanmış-null değil,
+güçsüzlükten erken gömülmüş olabilir" hipotezini test et. Salt-okunur; hiçbir şey re-test edilmedi, DB açılmadı.
+Kaynak: `data/ami/knowledge.sqlite` (failure_archive 22 + knowledge 11 KO + 31 graveyard fingerprint, mode=ro),
+`CONTRADICTION_REGISTER.md` CT-001..010, `docs/ami/AMI_RESEARCH_PROTOCOLS.md §5`, SYSTEM_STATE verdict token'ları.
+
+**Ölüm-nedeni dökümü (30 belge):** TRUE_NULL (fee-net neg / matched-control öldürüyor = ekonomik ölü) **~13**;
+LOOKAHEAD **~1–2** (silence-T0); NOT_IDENTIFIABLE **~1** (deep-bid); UNDERPOWERED (pozitif tahmin, düşük-N /
+borderline-p / kırılgan-WF = kanıtlanmış-null DEĞİL) **~6**; DATA_GAP (Mayıs outage / book Apr-11 başlangıcı /
+<2ay kapsama) **~4**; PARAM (tek config'le öldü, alternatif adilce denenmedi) **~3**. **Gerçekten-ölü kova
+(TRUE_NULL+LOOKAHEAD+NOT_IDENTIFIABLE) ≈ 15–16/30; düzeltilebilir kova ≈ 13/30 — ama çoğu düşük-değer.**
+
+**Gerçek pozitif tahmin + kabul edilebilir recidivism filtresinden geçen YALNIZ 2 CANLANDIRMA ADAYI:**
+- **#1 HOUR17 direct-SHORT** — en saf frekans-darboğazı kurbanı. 93 bağımsız cycle tarihsel POZİTİF; direct-short
+  FWER **p=0.0523**, 10h exact **p=0.0781** (ikisi de 0.05'in tam üstünde = underpowered, null değil);
+  yön-semantiği 7/7 tutarlı, lookahead bulunmadı (AUDIT 9). Dürüst canlandırma = forward-n 7→**20** için ~13 ek
+  bağımsız hour-17 cascade. UYARI: LONG yönü gerçekten negatif (6h alpha −41), NO-TRADE filtreyi yeniyor (CT-010)
+  → canlandırma **yalnız SHORT** ve hâlâ borderline. Kaynak: K-S34-HOUR17-001, §104, CT-009/010.
+- **#2 Swing reversal harvest** — büyük cascade'ler mean-revert **53–65% WR** (robust yapısal taban oranı);
+  falsify EDİLMEDİ, DATA_GAP (~2ay tradeable) + PARAM (calibration ve hold *zıt* rejim parametreleri istiyor,
+  2 ayda ayrı fit edilemez) ile gömüldü. Dürüst canlandırma = rejim-koşullu hold'u kendi donmuş config'i olarak
+  fit etmek için ~6+ ay geçmiş. Recidivism yalnız LOW-MED. Kaynak: fingerprint "reversal harvest",
+  project_s34_swing_reversal_lead.
+
+**Kritik allocation gerçeği:** her iki canlandırma da echo_30_90+regime survivor'ını (mc 0.004) forward-doğrulamak
+için gereken **AYNI kıt kaynağı — bağımsız cascade + aylarca geçmiş — harcıyor.** Bu bedava umut değil, gerçek bir
+tahsis takası. Üçü de aslında aynı bahsin kılıkları: "SELL-cascade → mean-reverting LONG/SHORT hareket", hepsi
+bağımsız-cascade sayısıyla açlık çekiyor. **Geri kalan her şey (BUY-fade ailesi, tight stops, partials, cross-asset,
+tüm maker/quote-quality hattı, silence-T0) gerçekten ölü — matched-control / sub-fee / lookahead öldürdü; açmak
+cascade israfı, EXHUME ETME.**
+
+**Guardrail:** salt-okunur adli denetim; DB (büyük) açılmadı, hiçbir deney koşulmadı, hiçbir statü değiştirilmedi.
+Bir sonraki iş = operatör tahsis kararı: (A) survivor echo'yu forward-doğrula, (B) HOUR17-SHORT exhume, (C) reversal
+exhume, (D) ortak darboğazı vur — cascade popülasyonunu GEÇMİŞTEN derinleştir (recover May-gap? / earlier history
+ingest?) ki üçü birden N kazansın. (D) feasibility'si açık: Mayıs outage muhtemelen kalıcı kayıp; earlier-history
+mevcudiyeti doğrulanmalı.
+
+## 149. CASCADE-POPÜLASYONU DERİNLEŞTİRME FEASIBILITY (READ-ONLY DB METADATA) — HÜKÜM: `HISTORY_PARTIALLY_DEEPENABLE` — PRICE-TABANLI SİNYALLER İÇİN ~2 AY KULLANILMAMIŞ İÇ-DB GEÇMİŞİ (2026-07-19, Opus 4.8 [1M])
+
+**Amaç:** §148'in ortak darboğazını (bağımsız cascade sayısı) GEÇMİŞTEN büyütmek mümkün mü. Salt-okunur
+`mode=ro`+`query_only=1` metadata sorgusu (indexed min/max + aylık COUNT). Not: `immutable=1` bayrağı canlı-append
+DB ile "database disk image is malformed" verdi → yalnız `mode=ro` ile tekrar, temiz.
+
+**Doğrulanan kapsam (ETHUSDT):** liquidations **2026-02-15→2026-07-19**; mark_prices **2026-02-15→07-19** (yoğun,
+Şubat yarısı 1.15M satır); agg_trades **2026-02-15→07-19**; book_ticker **2026-04-11→07-19** (2 ay SONRA başlıyor).
+Cascade trigger (SELL-liq ≥200K) aylık: Şub 57 / Mar 115 / Nis 198 / **May 0** / Haz 450 / Tem 133(→19). Mayıs gap
+günlük zoom: 04-25/28→06-06 TAM boş.
+
+**HÜKÜM `HISTORY_PARTIALLY_DEEPENABLE`:**
+- **Book gerektiren sinyaller (echo, maker) = CAPPED.** book_ticker Apr-11 sert taban; değişmez.
+- **Price/liquidation-tabanlı sinyaller (HOUR17-SHORT, reversal, birleşik post-cascade model) = ~2 ay derinleştirilebilir.**
+  Feb-15→Apr-11 penceresinde liquidations+mark_prices+agg_trades MEVCUT, book YOK → book-anchored pipeline bunu
+  kullanamadı, muhtemelen KULLANILMAMIŞ (teyit: hour17/reversal'ın pre-Apr ingest edip etmediği 1-adım kontrol).
+  Anında ekstra ~170+ anchor-scale SELL-liq print (Şub 57 + Mar 115 + Nis-erken), beklemeden.
+- **Mayıs ~40 gün = kalıcı kayıp** (likidasyon real-time forceOrder, backfill YOK); Feb-15 öncesi yok; forward ~5.7/ay.
+
+**BAĞ (§148 birleştirme içgörüsüyle):** üç canlı lead (echo/hour17-SHORT/reversal) = tek bahsin dilimleri
+("SELL-cascade → rejim-koşullu mean-reverting hareket"). Birleşik model yalnız fiyat+trigger ister (book DEĞİL) →
+hem 3 fragmenti birleştirir hem de kullanılmamış Feb-Apr geçmişini sömürür → book-limitli ~3 ay yerine ~4 ay
+(Feb-15→Jul-19 eksi Mayıs) popülasyon. **Önerilen plan:** TEK pre-registered "cascade sonrası rejim-koşullu yanıt-
+yüzeyi" modeli (rejim dims önceden-tanımlı: time-of-day/trend/vol; train/holdout ayrımı; dürüst FWER grid), full
+price-based popülasyon üstünde. Tuzaklar: naive-her-cascade TRUE_NULL (FA#1); in-sample rejim madenciliği = lookahead
+(hour17 max-stat'ı kıl payı kaybetti); rejim koşulları teori-güdümlü olmalı.
+
+**Guardrail:** salt-okunur metadata; hiçbir yazma/deney yok; execution/risk/executor DOKUNULMADI. Bir sonraki iş =
+(1) pre-Apr un-used teyidi (1-adım), (2) operatör onayı → birleşik model prereg author (gated zincir).
+
+### C1 DÜZELTME (2026-07-19, aynı tur — Adım 1 teyidi premise'i çürüttü)
+**Verdict `HISTORY_PARTIALLY_DEEPENABLE` YANLIŞ → düzeltildi `HISTORY_NOT_MEANINGFULLY_DEEPENABLE`.** Adım 1
+provenance teyidi (outcome'a bakmadan): `S34_HOUR17_CYCLE_ADJUSTED_RECOMPUTE_AND_MAY_GAP_FORENSIC_2026-07-11.md`
+satır 73–74 — likidasyon-tabanlı cascade cycle popülasyonu ZATEN **2026-02-15→2026-07-02** tüm pencereyi kapsıyor;
+aylık cycle Şub=12/Mar=28/Nis=17/May=0/Haz=35/Tem=1 = 93 (hour17-gated). Yani Feb-Apr **kullanılmamış değil, zaten
+93-cycle popülasyonda.** book_ticker Apr-11 sınırı YALNIZ echo'yu (book-tabanlı) bağlar; hour17/reversal/price-based
+birleşik model zaten tam Feb-Jul geçmişini kullanıyor. **Sonuç: likidasyon cascade popülasyonu tarihsel MAX'ında
+(~167 ungated / 93 hour17-gated, Feb-Jul eksi May); geçmişten anlamlı derinleştirme YOK** (May kalıcı kayıp,
+pre-Feb-15 yok, liquidations backfill edilemez). Ekstra cascade YALNIZ forward (~5.7/ay). **Birleşik model hâlâ
+doğru hamle — ama değeri PURELY UNIFICATION** (sabit 167'yi 26/93/2ay fragmentlerine bölmemek), **ekstra-veri
+DEĞİL.** Ders: feasibility verdict'ini provenance teyidinden ÖNCE yazdım; teyit onu çürüttü — düzeltme kaydı burada.
+
+## 150. BİRLEŞİK CASCADE RESPONSE SURFACE — BOUNDED PREREGISTRATION AUTHORED — PENDING INDEPENDENT REVIEW (2026-07-19, Opus 4.8 [1M])
+
+**Durum:** `CASCADE_RESPONSE_UNIFIED_PREREGISTERED_PENDING_INDEPENDENT_REVIEW`. Yalnız author rolü; hiçbir
+holdout/fit/PnL/forward-eval/deploy YOK. Artefakt: `reports/research/s34/CASCADE_RESPONSE_SURFACE_UNIFIED_PREREGISTRATION_V1.md`.
+
+**Model:** üç buried lead'i (echo-LONG / reversal-LONG / hour17-SHORT) TEK "E[cascade sonrası return | rejim]"
+yüzeyinde birleştirir. Rejim dims önceden-donmuş, teori-güdümlü: Session (ASIA/EU/US), Trend (btc4h&btc7d sign),
+Vol (pre-cascade RV HIGH/LOW). Direction map pre-committed: favorable-bounce→LONG, failed-bounce(US-late/adverse)→
+SHORT, gerisi→NO-TRADE. Estimand = 6h hold fee-net (5bps), naive-all-cascade TRUE_NULL'ını (FA#1 mc0.88) GEÇMELİ.
+
+**Kritik dürüstlük (§149 düzeltmesiyle):** 167 cascade YANMIŞ (echo/hour17/reversal onlarda keşfedildi) → yalnız
+DESIGN-FREEZE için kullanılır, VALIDATION DEĞİL. Bildiğimiz rejim kesimlerini pre-specify etmek dairesel → tek temiz
+test = FORWARD holdout (cutoff sonrası ilk 40 bağımsız cycle, ~5.7/ay → ~7 ay → ~2027-02, yoksa UNDERPOWERED).
+Birleştirmenin ekonomik değeri = **forward-veri verimliliği** (her forward cascade tüm yüzeyi günceller, 3 fragment
+yerine → ~3× bilgi/cascade), ekstra-geçmiş DEĞİL. Anti-lookahead: FWER rejim grid boyunca (hour17'nin kıl payı
+kaybettiği yer), discovery istatistikleri kanıt olarak re-admit EDİLMEZ, cell direction holdout'ta flip edilemez.
+
+**Gated zincir durumu:** author ✓ → ▶ bağımsız fresh-context review (sıradaki kapı) → correction → re-review →
+operatör sign-off → holdout AÇ (biriktir ~7 ay). Author self-ratify etmez.
+
+**Guardrail:** execution/risk/brain/executor/.env — DOKUNULMADI. DB salt-okunur (yalnız §149 metadata). Hiçbir fit/
+forward-eval yok. Operatör kapısı: (1) forward-holdout çerçevesini kabul (temiz verdict ~7 ay uzakta, frekans tavanı),
+(2) bağımsız review verdict'ini imzala.
+
+### EK (2026-07-19): MAY-GAP VERİ HAYATTA-KALMA + GAP-BRIDGE-AS-PROXY FEASIBILITY (read-only)
+Operatör "cascade'i süreç olarak aç (öncesi/içi/sonrası) + indikatör + ML + Kelly + gap'i bağla" vizyonu üzerine
+May-gap (04-25→06-06) veri hayatta-kalması sorgulandı (salt-okunur daily COUNT). **Bulgu:** liquidations=**0**
+(kalıcı kayıp), agg_trades **büyük ölçüde HAYATTA** (~200k–1.3M/gün, yalnız 06-03=0), mark_prices **bozulmuş ama var**
+(~5–14k/gün vs normal ~86k, 6–16× seyrek). **Sonuç:** gap yalnız **PROXY** bağlanabilir — May cascade'leri agg_trades
+aggressive-SELL patlamalarından yeniden inşa edilebilir (likidasyon-cascade = mekanik zorla-agresif-satış), AMA proxy
+≠ gerçek likidasyon (heterojen popülasyon) + May fiyatı seyrek + 06-03 boş → ayrı proxy-validation gerekir.
+**Vizyon değerlendirmesi (dürüst):** (a) öncesi/içi/sonrası ayrıştırma sağlam çerçeve — ama "öncesi"ni ENTRY olarak
+kullanmak mezarlıkta (pre-cascade TRUE_NULL FA#1, precursors undirected); "içi" book ister (Apr-11+). (b) indikatör =
+yalnız önceden-donmuş feature, feature-fishing N=167'de overfit. (c) **ML @ N=167 (çoğu yanmış) = lookahead-üretme
+makinesi** (silence/+1805bps'i öldüren tuzak); basit-donmuş model kasıtlı. (d) **Kelly = deployment-only**, kanıtlanmış
+stabil edge ister (yok); yanlış-edge'de iflas; sizing=DOKUNMA. **Meta: gerçek bilgi ekleyen tek şey gap-bridge (daha
+çok olay); ML/indikatör/Kelly bağımsızlık üretmez, aynı 167'yi overfit etmenin yolları.** Doğru sıra: proxy-events →
+basit donmuş model → forward doğrula → EDGE kanıtlanınca ML-zenginleştirme + Kelly-sizing. Hiçbir fit/deney yok.
+
+## 151. PROXY-CASCADE VALIDASYONU (A, DATA-QUALITY, READ-ONLY) — HÜKÜM `PROXY_DIVERGES` → GAP-BRIDGE ÖLÜ, B POPÜLASYONU SAF-167'DE DONAR (2026-07-19, Opus 4.8 [1M])
+
+**Amaç:** operatörün gap-bridge fikrini test et — agg_trades aggressive-sell proxy'si gerçek ≥200K SELL-liq
+cascade'lerini üretiyor mu (→ May bağlanır + outage-dayanıklılık). Salt-okunur, alfa YAKMADAN (yalnız olay-tanıma
+denkliği + response-shape descriptive). Real anchor `research_s34_knowable_anchor_continuation.py`'a sadık (≥200K,
+300s bucket, running-notional crossing, 900s min-gap). Proxy a priori sabit (60s bin aggressive-sell ≥10× trailing-
+60-bin-median, 900s min-gap, no lookahead) — real anchor'a göre TUNE EDİLMEDİ.
+
+**HÜKÜM `PROXY_DIVERGES`:** proxy over-fire 1.7–2.8×; recall ±120s %31–39; precision %11–23; response +1h gerçek
++13.2/+7.4 bps sekme vs proxy-only ~0 (−0.8/+0.7) = farklı/heterojen popülasyon. **Kök neden:** 60s aggressive-sell
+medyanı $2.44M, 200K liq ~1/12 = normal ETH akış gürültü tabanının ALTINDA → cascade'lerin %61–69'unun eşzamanlı
+burst'ü yok (coverage fail) + proxy'nin %77–89'u cascade değil (purity fail). Mekanizma yalnız burst'e denk gelen ~1/3
+için gerçek (matched-real +8.2/+5.8, gerçek gibi). is_buyer_maker=1=aggressive-sell teyit (top-15 sell bin −9.74bps/
+1dk). Rapor: scratchpad `PROXY_CASCADE_VALIDATION_V1.md`.
+
+**Sonuç:** (1) **May gap bağlanamaz** — kalıcı kayıp, proxy ikame değil. (2) Bu bir kayıp değil, A'nın tam amacı —
+kötü proxy ile bağlasaydık B kontamine olurdu; A korudu. (3) **B (§150) değişmeden:** popülasyon = saf gerçek-
+likidasyon (~167, Feb-Jul eksi May); prereg proxy'ye commit etmemişti → amendment YOK, B donmaya hazır. (4) Ekstra
+olay tek kaynak = forward (~5.7/ay). Bir sonraki kapı = B bağımsız review.
+
+**Guardrail:** salt-okunur; DB mode=ro bounded queries, no full-scan/parallel; hiçbir trading-rule/threshold-for-alpha/
+PnL türetilmedi; execution/risk/executor DOKUNULMADI.
+
+## 152. ÇOK-SİNYALLİ CASCADE DEDEKTÖRÜ (A-v2, operatör "double-ways" fikri) — HÜKÜM `MULTISIGNAL_INSUFFICIENT` → GAP KESİN BAĞLANAMAZ (İKİNCİ BAĞIMSIZ TEST), PURE-167 KALIR (2026-07-19, Opus 4.8 [1M])
+
+**Amaç:** operatörün "her şeyi iki yoldan ölç, likidasyon-dışı sinyallerle cascade'i tanı" fikrini test et — çok-
+sinyalli dedektör (fiyat/RV + sell-flow + book + funding/OI) tek-sinyalli (§151) proxy'yi geçip gap'te label
+kurtarabilir mi. Salt-okunur, detection-only, alfa YOK.
+
+**HÜKÜM `MULTISIGNAL_INSUFFICIENT`:** çok-sinyal, tek-sinyali yalnız MARJİNAL geçiyor (recall +3–7pp, precision
++1–7pp; en iyi precision W1 0.20 / W2 0.40). Kazanç TEK feature'dan (fiyat düşüşü); ablation: mark_return en kritik,
+realized_vol net gürültü, sell/imbalance redundant → sinyaller **tek latent faktörün gereksiz yansımaları.**
+Case-control AUC-vs-random yüksek (flow 0.944, +price 0.952, +book 0.947) AMA operasyonel precision düşük = **base-rate
+sorunu: 200K cascade, SESSİZ bir dakikadan ayrılabiliyor ama çok daha kalabalık EŞİT-BÜYÜKLÜKTEKİ cascade-olmayan
+satış epizotlarından AYRILAMIYOR.** Gap label-recovery: ~8.65 event/gün (ref ay 10.12) yüzeyde tutarlı ama precision
+0.2–0.4'te çoğunluk false-positive ve **doğrulanamaz** — üstelik tek ayırt edici feature (fiyat) tam gap'te ~10× bozuk,
+gap'te yoğun olan feature (book) ise ayırt etmiyor.
+
+**Sürpriz veri bulgusu:** `book_ticker` gap boyunca **TAM YOĞUN** (13–21M satır/gün) — likidasyon 0'ken book hayatta
+(book'un kendi ayrı deliği 06-06→06-10). Yani outage yalnız liquidations + funding/OI'yi öldürdü, book'u değil. Ama book
+tespit için değersiz (depth/imbalance ~0.60 near-random). OI kullanılamaz (poller çalışmıyor, ~0).
+
+**Sonuç:** (1) **Gap KESİN bağlanamaz** — iki bağımsız test (§151 tek-sinyal, §152 çok-sinyal) aynı yere çıktı: 200K
+tetiği sadık tespitin altında. Gap-bridge KAPANDI, tekrar denenmez. (2) **B popülasyonu = saf gerçek-likidasyon ~167**,
+inferred-label genişletme YOK. (3) Küçük fayda: fiyat-return + sell-flow forward FEATURE'ları HAFİFÇE zenginleştirebilir
+(asla label değil). (4) **B için derin uyarı (base-rate):** 200K cascade, sıradan eşit-büyüklükteki satıştan ayırt
+edilemiyor → B, response'un **likidasyona-özgü mü yoksa generic sell-off mean-reversion mu** olduğunu forward'da
+ayrıştırmalı (aksi halde "cascade edge" = her mean-reversion stratejisiyle yarışan generic bir şey).
+
+**Meta (operatöre öğretici):** A-v2 = "tespit için ML güvenli" vakasıydı; ML dürüstçe **INSUFFICIENT** döndü, sahte-
+pozitif uydurmadı — disiplinin çalıştığının kanıtı. Rapor: scratchpad `MULTISIGNAL_CASCADE_DETECTOR_V1.md`.
+
+**Guardrail:** salt-okunur mode=ro bounded; hiçbir trading-rule/PnL; execution/risk/executor DOKUNULMADI.
+
+## 153. CASCADE MİKROYAPI FORENSİĞİ (case-control, descriptive) — HÜKÜM: **GENERIC** — 200K CASCADE ÖZEL DEĞİL; BOUNCE/BREAKDOWN ANCHOR'DA TAHMİN EDİLEMEZ (2026-07-19, Opus 4.8 [1M])
+
+**Amaç:** operatörün "olayları aç, içine bak, cascade'i sıradan satıştan ayıran anomali var mı" sorusu. 346 gerçek
+≥200K SELL-liq cascade (book era Apr-11→Jul-15 eksi May, 45 gün, faithful reconstruct) vs magnitude-matched sıradan-
+satış kontrolleri (tight-matched subset 97 case/126 ctrl, sell-notional ratio 1.13). Salt-okunur, descriptive, alfa YOK.
+
+**Q1 HÜKÜM — 200K cascade ÖZEL mi? → GENERIC.** Toplam aggressive-sell magnitude eşleştirilince intra-event hiçbir
+mikroyapı feature'ı cascade'i sıradan eşit-satıştan AYIRMIYOR. Operatörün 4 hedef hipotezi tight-matching'de ÇÖKÜYOR:
+spread-widen SMD 0.61→0.04; largest-print 0.40→−0.01; whale-share 0.34→−0.03; drawdown −0.39→+0.16; funding ~0; gini
+~0. **Trade-size:** özel değil (cascade *daha az* konsantre, çok sayıda küçük iki-yönlü print — zorunlu tek whale print
+DEĞİL). **CVD:** tek-yönlü süpürme DEĞİL (sell_share *daha düşük* = daha iki-yönlü). **Book refill:** vacuum yok,
+refill hafifçe *daha yüksek*. **Funding:** anchor'da imza yok. Cascade'i ayıran TEK şey **pre-event context:** zaten
+düşüyor (pre_ret_60s SMD −1.59), negatif prior CVD (−1.05), ince book (−0.42), yüksek prior vol (+0.33) — hepsi
+LOO-stable. **Yani cascade mikroyapıda esasen "zaten-stresli tape'te sıradan büyük satış"tır.**
+
+**Q2 HÜKÜM — bounce vs breakdown → yazı-tura.** 189 bounce/146 breakdown = **%56.4 bounce**; ~37 feature'dan yalnız
+pre_spread_bps day-clustered CI'yi geçti (multiplicity altında şans). **Anchor mikroyapısından yön TAHMİN EDİLEMİYOR.**
+Zayıf aday rejim dims (UNVALIDATED, time-confounded, forward için dondurulacak): **funding işareti** (negatif→bounce
+0.65/+57bps vs pozitif 0.51/−16bps, ama day-clustered CI 0'ı kapsıyor), core-drawdown derinliği (derin→breakdown).
+Session sinyalsiz. Cascade'in matched-satıştan hafif yüksek recovery'si = daha derin prior-drop'un mean-reversion'ı,
+likidasyon etkisi DEĞİL.
+
+**BLUNT BOTTOM LINE:** 200K cascade'i özel kılan mikroyapı imzası YOK; "zaten-düşen/ince/volatil tape'te sıradan satış."
+Yön anchor'da tahmin edilemez. **Cascade-edge muhtemelen gerçek değil — en iyi ihtimalle generic, zayıf, yön-
+belirsiz mean-reversion.** Tek ince iplik = negatif-funding bounce hipotezi (teori-makul: crowded shorts→squeeze;
+ama time-confounded). Rapor: scratchpad `CASCADE_MICROSTRUCTURE_FORENSICS_V1.md`.
+
+**OPERASYONEL:** agent 15 lingering python.exe öldürdü (paralel-Python garantisi); şu an hiç python çalışmıyor →
+collector'lar (bookticker/supervisor/event_diary/heartbeat) DURMUŞ olabilir → operatör `start_eclipse.ps1` ile
+restart etmeli, yoksa forward veride yeni gap. **Guardrail:** salt-okunur; execution/risk/executor DOKUNULMADI.
+
+**RESTART (2026-07-19T14:02Z, operatör talebi):** `start_eclipse.ps1` **`-EnableLive` OLMADAN** çalıştırıldı →
+collector_supervisor/microstructure_collector/bookticker/heartbeat/event_diary + **oi_spot_poller (PID 4132)** +
+s34_shadow_paper_runner + s34_realtime_shadow_runner + s34_v_engine_v02_shadow_mirror + chart'lar/:8770 dashboard
+geri geldi (13 python, health ok, veri akıyor). **LIVE TRADING KAPALI — 3 yoldan teyit:** live executor prosesi YOK,
+live PID dosyaları=0, `S34_LIVE_TRADING_ENABLED`/`DRY_RUN` env boş. Status alanındaki `s34_v_engine_live_mode=LIVE`
+yanıltıcı config-okuması (çalışan live proses değil; §141 status-misrepresentation deseni). **ÖNEMLİ: OI poller artık
+çalışıyor** → kaldıraç-birikimi (funding+OI, hours-before) hipotezi bugünden itibaren forward veri biriktiriyor;
+tarihsel test imkânsız (OI geçmişi yok) ama forward mümkün hale geldi. Persistence: sandbox-başlatımı, kalıcılık için
+operatör sandbox-dışı restart etmeli. Guardrail: execution/risk/live-executor DOKUNULMADI (yalnız data/shadow).
+
+## 154. LİKİDASYON BOYUT×TIMEFRAME ANOMALİ HARİTASI (200K FİLTRESİ ATILDI, TÜM BOYUT+YÖN+ZAMAN) — HÜKÜM: **GENERIC HER BOYUT VE TIMEFRAME'DE SAĞLAM** (2026-07-19, Opus 4.8 [1M])
+
+**Amaç:** operatör "200K değil, tüm likidasyonlar, tüm timeframe, anomali bul" — belki başka bir boyut/ufukta ayırt
+edici bir şey var mı. 125,741 ETHUSDT liq, iki yön, 5 boyut kovası (<25K…≥2M), min-gap(900s) → 2,213 event, −4h…+6h.
+Salt-okunur descriptive, alfa YOK.
+
+**HÜKÜM — GENERIC ROBUST.** Hiçbir gizli boyut/ufuk likidasyonu ayırt edici kılmıyor. Veri her ölçekte TEK mekanik
+yapı: (1) **PRE:** bir hareket likidasyonu NEDEN olur (SELL −4h drift ≥2M **−155bps** vs <25K −9; lookahead, tradeable
+DEĞİL); (2) **flow** trigger'da spike sonra dakikalarda ~0.50'ye tükeniyor (post flow-edge yok, ≥2M'de bile); (3)
+**POST:** kısmi mean-reversion, yalnız 4-6h'te material, boyutla ölçekli, **iki yön mirror-simetrik** (SELL +6h bounce
+<25K +17→≥2M +57; BUY −19→−24). Büyük liq'ler hareketlerinin *daha KÜÇÜK* kısmını geri veriyor (≥2M, −155'in ~%37'si
+→ büyük hareket kısmen kalıcı). +1m anlık tepki her boyutta düz/anlamsız. Bu tam da §153 matched-selling sonucunun
+tekrarı: "büyük trigger→büyük kısmi reversion," matched non-liq hareketin de üreteceği şey.
+
+**Tek ince aday (UNVALIDATED):** ≥500K liq'lerde **book-imbalance işaret-dönüşü** (SELL −0.11→+0.29) — confound'u
+açıkça trigger-hareketi OLMAYAN tek non-return merak; forward-test adayı = büyük-liq'i t0 book-imbalance işaretine
+göre koşulla, eşit-hareket non-liq kontrolüne karşı. Diğerleri (≥2M 4-6h reversion small-n simetrik; deepening basis;
+bid-depth incelme) mekanik/generic.
+
+**KÜMÜLATİF (4 yakınsak test):** proxy gap-bridge (§151) + multi-signal (§152) + forensik case-control (§153) + boyut×
+timeframe (§154) → HEPSİ aynı yere: **bu veride likidasyona-özgü, forward-sömürülebilir edge YOK, hiçbir boyut/ufukta.**
+Likidasyon-cascade premisi yüksek güvenle çürütüldü. Rapor: scratchpad `LIQ_SIZE_TIMEFRAME_ANOMALY_MAP_V1.md`.
+**Guardrail:** salt-okunur mode=ro bounded; collector'lara dokunulmadı; execution/risk/executor DOKUNULMADI.
+
+## 155. STREAM-INDEPENDENT ANOMALİ TARAMASI (LİKİDASYONUN ÖTESİ) — İLK GENERIC-OLMAYAN LEAD: SPOT-PERP BASIS REVERSION (ZAYIF, FEE-SINIRINDA, DOĞRULAMA GEREKLİ) (2026-07-19, Opus 4.8 [1M])
+
+**Amaç:** likidasyon 4 testle çürütülünce (§151-154) operatör pivotu — her NON-liq akış kendi başına ne söylüyor.
+1-dk mark backbone (Feb-15→Jul-19, 215k bucket) + funding/spot/OI/vol; her akışın a-priori anomalisi → forward mark
+log-return (5m-1d) vs baseline. Salt-okunur, GROSS bps, alfa/PnL YOK.
+
+**TEK GERÇEK, TEKRARLAYAN, LİKİDASYON-BAĞIMSIZ LEAD — spot-perp BASIS dislocation reversion:**
+- Premium ≥p99 → **−25.6bps @+1h** (sign-consistency 0.77); discount ≤p1 → **+20.5bps @+1h** (0.75). 370–600 event,
+  94–103 gün, top-day-share ~%2 (few-day artefakt DEĞİL), LOO-day dar.
+- **Bağımsızlık kontrolü belirleyici:** basis event'lerinin yalnız %10–15'i ±15m'de bir ≥200K liq'e yakın — random-
+  minute base rate %13.8 → şans seviyesinde/altında → **ölü likidasyon yapısının yeni etiketi DEĞİL, gerçekten bağımsız.**
+- İkincil: çok-negatif funding → +41bps@6h (sign 0.69) ama küçük n (10–35), basis'ten ayrık (4/580 overlap).
+
+**GEÇMEYEN:** vol_state ölü (tüm tarihte 7 high_vol_alert, %96 decile-0); OI jump/drop 19-23 güne kümeleniyor + ~2×
+liq-colocated (OI-drop = liq flush = ölü yapı); funding sign-flip forward-bilgisiz.
+
+**KRİTİK CAVEAT'LAR (lead'i kapılayan):**
+1. **ETH zaten hiçbir stream olmadan ~1h generic mean-reversion gösteriyor** (büyük up→−6.8bps@1h; down→+10.6). Basis-
+   premium→down (−16…−26) bu kontrolden GÜÇLÜ + basis prior-hareketle zayıf korele (frac_up 0.55) → basis bir INCREMENT
+   ekliyor — AMA discount→long tarafı generic bounce'la neredeyse ÇAKIŞIYOR. Distinctive olan = **premium→SHORT tarafı.**
+   Forward test ŞART: matched trailing-price-reversion kontrolünü GEÇMELİ.
+2. Gross ~6–26bps, round-trip fee ~10bps civarında → **net sub-fee olabilir.**
+3. **Spot-feed staleness** sahte dislocation üretebilir (spot ~1/dk vs mark ~1/s; ayrıca 20-günlük spot gap Jun-05→25)
+   → "dislocation"ların bir kısmı stale-spot artefaktı olabilir. **Önce bu doğrulanmalı.**
+
+**COVERAGE GAP (dürüst):** book_ticker (spread/depth/imbalance) işlenemedi — canlı-yazılan collector stream'i, soğuk
+tarihsel okuma live-write'a karşı thrash etti (>20dk/5-gün chunk); guardrail gereği o read-only proses öldürülmedi
+(sonradan §-dışı temizlendi: scratchpad `s6_book.py` PID 21548 kill). agg_trades (~650GB) broad-scan edilmedi. İkisinin
+verdict'i YOK.
+
+**HÜKÜM:** estate geniş ölçüde efficient görünüyor. Forward-test'e değer TEK non-liq aday = **basis-premium ≥p99 →
+≤1h short**; doğrulama testi = senkron spot + pre-registered threshold/horizon + matched price-reversion kontrolünü
+CI-excl-0 ile geçmeli + net-of-fees. Fee sınırında ölebilir. Descriptive harita + hipotez, VALIDATED alfa DEĞİL.
+Rapor: scratchpad `STREAM_INDEPENDENT_ANOMALY_STUDY_V1.md`. **Guardrail:** salt-okunur; execution/risk/executor DOKUNULMADI.
+
+## 156. BASIS-STALENESS BELİRLEYİCİ TEST — HÜKÜM `BASIS_STALENESS_ARTIFACT` → SON LEAD DE DÜŞTÜ; KEŞİF DİZİSİ NEGATİF KAPANDI (2026-07-19, Opus 4.8 [1M])
+
+**Amaç:** §155'in tek non-liq lead'i (basis-premium≥p99→short) gerçek mi, stale-spot artefaktı mı — belirleyici
+data-quality testi (senkron imkânsız ama 3 test: spot-age profili + staleness-regresyonu + taze-subset survival).
+Salt-okunur, serial, alfa YOK.
+
+**HÜKÜM `BASIS_STALENESS_ARTIFACT`.** Basis-premium sinyali = **sıradan mark mean-reversion'ın stale-spot kılığı.**
+Kanıt: (1) Naive p99 basis=646bps, event median spot-age **~37 SAAT**, basis~mark_move **R²=1.000** = brüt outage
+artefaktı. (2) Live-60s rejim (N=23, çekirdek): basis-at-spot-print-instant ≈ **0** (mean −0.4bps), dislocation'ın
+yalnız ~%24'ü mark-drift'le açıklanamıyor, event'ler ~40s spot-age'de (klasik stale imzası). (3) Taze-subset ≤15s→N=4,
+≤5s→N=3 (sonuç çıkmaz) — **çünkü taze-spot basis'i ~0, test edilecek premium yok.** "Gerçek görünen" −80/−100bps
+tamamen erken **hourly-spot** rejiminden (daha da stale). **Taze dense-spot'a gate'lenince premium sıfırlanıyor.**
+
+**KRİTİK VERİ GERÇEĞİ:** spot 1/dk DEĞİL — Mar-08→Apr-17 **saatlik** (~25/gün), yalnız Apr-18→Jul-19 ~60s "live"
+(55 gün) + 29 sıfır-spot günü. "~100 gün" aslında ~55 yoğun gün. **Spot feed'i basis için tarihsel olarak kullanılamaz.**
+
+**KÜMÜLATİF NİHAİ HÜKÜM (tüm oturum, 6 yakınsak test §151-156):** maker ölü + likidasyon her boyut/timeframe'de
+generic + tek non-liq lead (basis) stale-artefakt + vol/OI/funding-flip ölü/liq-entangled. **Bu retail-erişilebilir
+ETH perp microstructure verisinde fee-sonrası yaşayan temiz, forward-sömürülebilir edge YOK. Estate broadly efficient.**
+Bu kesin bilgi = mezarlığı doldurmaktansa (silence/+1805bps gibi aynalar) dürüst eleme. Tek kalan ince iplik: çok-
+negatif funding→+41bps@6h (§155, n=10-35, mekanistik makul [crowded shorts→squeeze] ama bankaya konmaz kadar ince);
+forward-watch adayı, bahis değil. Rapor: scratchpad `BASIS_STALENESS_DECISIVE_TEST_V1.md`.
+
+**Actionable data bulgusu:** spot-dependent (basis vb.) herhangi bir şey için ÖNCE düzgün spot feed şart; OI/spot
+poller artık çalışıyor → forward'da spot yoğunlaşacak, ama tarihsel basis fair test edilemez. **Guardrail:** salt-
+okunur; execution/risk/executor/collector DOKUNULMADI; hiçbir proses öldürülmedi.
+
+## 157. MOVE-BIRTH PRECURSOR (SEBEP TARAFI) — HÜKÜM: YÖN TAHMİN EDİLEMEZ (COIN-FLIP); VERİ DIRECTIONAL-EFFICIENT — MANTIK ZİNCİRİ KAPANDI (2026-07-19, Opus 4.8 [1M])
+
+**Amaç:** §156 mekanizması "likidasyon hareketin ETKİSİ (lag)" → operatörün doğru dönüşü: sebebi = **hareketin DOĞUMU**
+ara. İlk kez hareket-merkezli (liq/stream değil). Haziran bounded analiz (2.13M mark row → 1-dk backbone; 355 clean
+birth [≥50bps/20m, prior |move|<25bps, refractory 60m]: 161 UP / 194 DN). Salt-okunur, descriptive, alfa YOK. (Not:
+ilk agent yavaş COUNT'ta takıldı, verdict dönmedi → bounded olarak elle yapıldı.)
+
+**Bulgu 1 — "hareket geliyor" ZAYIFÇA belli:** doğumlar kontrolden daha volatil bağlamda (|pre-return| −30m med 20.0
+vs 11.8; −15m 13.0 vs 9.1; −5m 10.3 vs 6.2). = **volatilite kümelenmesi** (GARCH, bilinen/fiyatlanmış).
+
+**Bulgu 2 (BELİRLEYİCİ) — YÖN tahmin EDİLEMEZ:** birth yönü ile −15m drift **aynı yön yalnız %48** = yazı-tura
+(momentum YOK). Signed pre-return: UP-birth −30m med **−7.6bps (%39 pozitif)** — up'tan önce aşağı drift; −5m'de hafif
+ters (UP-birth −4.2 / DN-birth +4.6 = zayıf mean-reversion). **Yön ne momentum ne reversion olarak sağlam öngörülüyor.**
+
+**HÜKÜM:** "yönü bilmeden hareket geliyor" tradeable değil (yönsel edge değil; vol/straddle oyunu = ne veri ne altyapı,
+zaten fiyatlanmış). **Her iki uçtan doğrulandı: ne ETKİDEN (liq §151-156) ne SEBEPTEN (birth §157) yönsel edge çıkıyor.
+Bu veri bu ölçekte DIRECTIONAL-EFFICIENT.** Mantık zinciri kapandı: liq=lag-effect → move-birth=direction-coinflip.
+
+**TAM MEKANİSTİK KAPANIŞ (7 yakınsak test §151-157):** maker sub-fee ölü · likidasyon her boyut/tf generic (lagging
+amplifier) · basis stale-artefakt · vol/OI/funding-flip ölü/entangled · move-birth yönü coin-flip. **Bu retail ETH-perp
+microstructure'da fee-sonrası yaşayan yönsel forward-edge YOK — yüksek güvenle, hem etki hem sebep tarafından.** Elde
+kalan gerçek değer: indikatör kütüphanesi (`tools/liq_indicator_library.py`) + 589-olay kataloğu + mekanizma anlayışı
+(liq lag, vol-clusters-not-direction). Araçlar canlı-izleme + gelecek forward için durur. Rapor: scratchpad
+`MOVE_BIRTH_PRECURSOR_STUDY_V1.md` (agent kısmi) + inline Haziran analizi. **Guardrail:** salt-okunur; execution/risk/
+executor/collector DOKUNULMADI.
+
+## 158. LİQ-ANCHORED MEAN-REVERSION SİSTEM BACKTEST (operatör: mevcut veride backtest) — NAIVE +11bps AMA OVERLAP-ARTEFAKTI; NON-OVERLAP NET ~0/NEG, −%20 DD → TRADEABLE DEĞİL (2026-07-19, Opus 4.8 [1M])
+
+**Amaç:** operatör mevcut veride backtest istedi (forward değil) — liq etrafına indikatör-sistemi. Disiplinli:
+donmuş standart eşikler + train/test + net-of-fee. Kural: SELL-liq≥500K cluster→LONG bounce, BUY-liq→SHORT (900s
+refractory, book-era+May-hariç, 350 event); RSI 35/65 std filtre; exit 1h/6h; fee 10bps round-trip. Salt-okunur.
+
+**NAIVE (overlapping):** H6h RSI-filtre mean **+15.2bps**, WR 59%, TRAIN+14.5/TEST+16.8 — "edge gibi görünüyor."
+**ADVERSARIAL KONTROLLER ÖLDÜRDÜ:** (1) **NON-OVERLAP** (aynı anda tek pozisyon, gerçek kısıt): 350→160 bağımsız
+trade, mean **−0.4bps**, WR 54%, total −57 → **net ~0/negatif.** +11bps tamamen overlapping 6h hold'ların aynı
+hareketi çok-sayması artefaktı. (2) **TAIL:** max-DD **−2015bps (−%20)**, worst-8 = −566/−492/−442/−418/−415/−377/
+−336/−333 (aşağı devam eden flush'lar); **median +14.8 ama mean −0.4** = "pennies in front of steamroller" (sık küçük
+kazan, nadir felaket kaybet). (3) **REJİM:** aylık non-overlap mean Şub−63/Mar+32/Nis−24/Haz+17/Tem−18 = tutarsız/
+gürültü. **HÜKÜM: liq-anchored mean-reversion sistemi fee-sonrası TRADEABLE DEĞİL.** Naive backtest (WR59%, test-holds)
+kandırıcıydı; overlap+tail+regime demoladı — mezarlığın +1805bps lookahead'inin doğuş mekanizmasının canlı örneği,
+disiplinle yakalandı.
+
+**8. yakınsak test.** §151-158 hepsi aynı: bu retail ETH-perp microstructure directional-efficient, fee-sonrası edge
+yok. İndikatör kütüphanesi TA-genişletildi (EMA/RSI/MACD/BB, standart donmuş eşikler; `tools/liq_indicator_library.py`
+`compute_ta_indicators`) — ama backtest kanıtladı: TA+liq sistemi de net-negatif (Scalper Stack emsaliyle tutarlı).
+Ders: **naive backtest + overlapping hold = sahte edge; non-overlap + tail + regime = gerçek.** **Guardrail:** salt-
+okunur; execution/risk/executor/collector DOKUNULMADI.
+
+## 159. LİQ TÜYO SİSTEMİ + MİKROYAPI SİNYAL KARAKTERİZASYONU (AUC~0.55, EDGE YOK) + ANOMALİ-İZLEME KATMANI (PHASE 1) IMPLEMENTED — BAĞIMSIZ REVIEW + AKTİVASYON BEKLİYOR (2026-07-19, Opus 4.8 [1M])
+
+**Bağlam:** §151-158 sonrası operatör microstructure "tüyo sistemi" araştırmasını sürdürdü. Kapsamlı fingerprint
+kazısı (flush/squeeze, exhaustion, liq-notional, delta-divergence, book-refill, RSI, idio/BTC-cross, beta-adj, drop-
+magnitude, reaktif-continuation, cross-asset, tail) + **CV logistic** ile matematiksel kapak: **out-of-sample AUC =
+0.553 ± 0.044** (yazı-turadan kıl payı üstü, robust-anlamlı değil; reaktif-60s feature'ları eklemek 0.551, yükseltmiyor).
+**Hüküm: liq-flush outcome T0'da da reaktifte de ~öngörülemez; kanıtlanmış directional edge YOK.** Sinyalin kimliği:
+bounce = generic magnitude mean-reversion (raw-drop en iyi ölçü +16pp, RSI daha kötü, idio/beta marjinal, cross-asset
+replike olmadı); continuation/tail = T0-predictor YOK, sadece reaktif 60s flow (tail-rate %9→16). = §154/§157 ile tutarlı.
+
+**Operatör kararı:** liq işi edge DEĞİL, **TOOL** olarak kalır (karar-destek/durum-farkındalık). Geliştirme planı onaylandı
+(plan dosyası `gleaming-scribbling-fairy.md`); operatör **anomali-izleme katmanını ÖNCE** seçti.
+
+**Bu oturumda inşa edilen araçlar (hepsi salt-okunur, causal, guardrail-safe):**
+`tools/liq_indicator_library.py` (micro+TA, freshness-gated §156) · `tools/microstructure_indicators.py` (OFI/CVD/Kyle-λ/
+microprice/Amihud) · `tools/liq_event_readout.py` (before/during/after) · `tools/liq_signal_system.py` (tüyo panosu:
+identity/bounce-tilt/regime/BTC-context/positioning/microstructure/reaktif-continuation) · `tools/liq_anomaly_scan.py`
+(589-olay katalog).
+
+**PHASE 1 IMPLEMENTED (anomali-izleme katmanı):**
+- `tools/liq_anomaly_monitor.py` (YENİ, salt-okunur loop) — çok-akış anomali flag'leri (funding-extremity/acceleration/
+  OI-divergence, OI-change, basis-dislocation [fresh-gated §156], realized-vol+jump [kendi, vol_state bozuk], liq-
+  intensity/cascade-velocity/side-flip, cross-asset-dispersion, book-stress) → bounded artifact
+  `reports/research/s34/LIQ_ANOMALY_MONITOR.json`. A-priori eşikler, freshness-flagged, outcome-tuning YOK. `--once`
+  test: 9 flag, overall=medium. Kimlik: situational-only, **NOT a predictor (AUC~0.55)**.
+- `dashboard/backend/adapters/liq_anomaly.py` (YENİ panel adapter) + `aggregator.py` PANEL_BUILDERS'a `liq_anomaly`
+  kaydı + `sources.py` freshness(120s). build_panel/build_overview doğrulandı (ACTIVE, panel_order pos 11).
+- `start_eclipse.ps1`'e `liq_anomaly_monitor` role kaydı eklendi (`--interval-sec 30`, DB mode=ro).
+- **Regresyon testi:** `test_dashboard_aggregator.py` + `test_dashboard_overview_api.py` **11/11 PASS**.
+
+**Durum:** kod IMPLEMENTED + verified; **bağımsız salt-okunur review BEKLİYOR** (gated-review disiplini), ardından
+operatör aktivasyonu (dashboard restart → panel canlı; monitor persistent run). Aktive edilene kadar :8770 eski
+aggregator'ı serve ediyor (panel henüz görünmez). Phase 2 (forward-ledger runner) + Phase 3 (tam tüyo paneli + gürültü
+budama) planda, sonraki fazlar.
+
+**Guardrail:** DB salt-okunur (mode=ro+query_only=1); yeni tool yalnız kendi artifact'ini yazar; execution/risk/brain/
+.env/live-executor DOKUNULMADI; emir yok. Honest framing kodda gömülü: TOOL, edge değil.
+
+## 160. LİQ TÜYO ARACI — İNDİKATÖR UZAYI TÜKENDİ (16 feature, AUC 0.55 sert tavan) + PHASE 2 FORWARD-LEDGER IMPLEMENTED (2026-07-19, Opus 4.8 [1M])
+
+**İndikatör uzayı kesin tükendi.** §159'un CV-AUC 0.553'üne 9 bakmadığımız indikatör eklendi (cvd/whale/trade-int/
+Kyle-λ/Hawkes-clustering/microprice/**liq_heatmap**/spread/depth): **AUC 0.553→0.518'e DÜŞTÜ** (gürültü eklediler),
+un-examined-tek-başına AUC=0.449 (random-altı). Her birinin univariate AUC'si ~0.5 (en iyi trade_int 0.551, liq_heatmap
+0.523 — gürültü içinde). **Hiçbir indikatör (examined/un-examined, tek/kombine) 0.55 tavanını geçmiyor.** AUC-içi
+decomposition: high-conviction alt-küme (|prob−0.5| top-25%, n=70) sadece %61 accuracy + net +1.9bps (başabaş) →
+**gizli tradeable alt-küme YOK, sinyal uniform-zayıf.** Sinyal nihai kimliği: generic magnitude mean-reversion (raw-drop
+en iyi ölçü), AUC 0.55 sert tavan, kırılgan, fee-geçmez, cross-asset replike olmadı, tail sadece reaktif.
+
+**PHASE 2 IMPLEMENTED — `tools/liq_tip_forward.py` (forward-ledger runner, salt-okunur):** taze liq anchor'ları
+(≥200K, min-gap 900s, age≤120s) tespit → her birinde tam tüyo-parmakizi (`liq_signal_system.signal_readout`, 14-key) +
+anomali flag'leri (`liq_anomaly_monitor.compute_flags`, 10 flag) ile OPEN record → append-only `reports/shadow/
+liq_tip_forward.jsonl`; outcome'lar (+5m/+30m/+1h/+6h) olgunlaştıkça CLOSE backfill. State dosyası + ledger'dan
+restart-safety. **Amaç: UN-BURNED forward veri** (zayıf AUC-0.55 sinyalini forward'da dürüstçe test etmenin TEK yolu;
+burned-data backtest-mining bir daha YAPILMAZ) + per-event context capture (800GB depolama-sürdürülebilirliği). `--once`
+test: opened=0 (freshness doğru — forward'dan biriktirir), OPEN record yapısı doğrulandı, JSON-serializable.
+`start_eclipse.ps1`'e `liq_tip_forward` role eklendi. NOT a trader, emir yok.
+
+**Durum:** Phase 1 (anomali panel §159) + Phase 2 (forward ledger) IMPLEMENTED; ikisi de **bağımsız review + operatör
+aktivasyonu bekliyor** (dashboard restart + persistent run). Phase 3 (tam tüyo paneli + gürültü budama) sonraki.
+**Guardrail:** DB mode=ro; araçlar yalnız kendi ledger/artifact'lerini yazar; execution/risk/brain/.env/live-executor
+DOKUNULMADI; emir yok. Honest framing kodda: TOOL, edge değil (AUC 0.55).
+
+## 161. REJİM-KOŞULLU SİNYAL — SESSION BAĞIMLILIĞI GERÇEK (ASIA/EU AUC~0.68 vs US~0.50) AMA GÜÇLÜ SESSION'DA BİLE FEE-GEÇMEZ; TÜYO ARACINA + FORWARD-LEDGER'A SESSION ETİKETİ EKLENDİ (2026-07-19, Opus 4.8 [1M])
+
+**Operatör sezgisi ("indikatör uzayını geçmişe bak başka bir şey ifade eden yerler vardır") DOĞRULANDI.** §160'ın
+0.55 ortalaması bir rejim yapısını gizliyor (in-sample, n=280 SELL-flush→bounce, rank-ordering AUC):
+- **SESSION (asıl bulgu):** ASIA(0-7 UTC) n=79 **AUC 0.681** · EU(7-13) n=46 **AUC 0.684** · US(13-24) n=155 **AUC 0.503**.
+  Overall 0.55 = güçlü Asya/EU sinyalinin ölü US ile **sulandırılması**. Mekanistik mantıklı (US = büyük yönsel
+  hamleler/continuation; Asya/EU sakin/range → mean-reversion). Hem Asya HEM EU 0.68 = tek şanslı kesim değil, tutarlı.
+- **MONTH:** Nisan 0.633 · **Haziran 0.501 (n=144, en büyük dilim, random)** · Temmuz 0.670 → ay-tutarsız = kırılgan.
+- **TREND:** güçlü-düşüş(<−100bps) 0.591 vs değil 0.498.
+
+**KRİTİK TEST — AUC 0.68 fee'yi GEÇMİYOR.** Asia+EU (0-13 UTC) SELL→LONG, non-overlap, net 10bps: 30m no-stop
+n=112 **mean −9.2bps** WR46% maxDD−1026 (TRAIN−12.4→TEST−3.4); 30m stop100 −9.5; 6h stop150 n=60 −4.7 (TRAIN−16.3→
+TEST+17.0 = **sign-flip kırılganlık**, umut değil); US kontrol −9.8. **İki şey aynı anda doğru:** (1) rejim yapısı
+GERÇEK — Asya/EU'da bounce **sıralaması** US'ten belirgin iyi (gerçek durumsal tüyo); (2) tradeable edge DEĞİL —
+bounce'ların büyüklüğü en güçlü session'da bile 10bps fee'yi geçmiyor. Klasik AUC>0.5-ama-fee-altı deseni (tüm oturum).
+
+**GELİŞTİRME (operatör "geliştirelim"):** bulgu operasyonel hale getirildi —
+- `tools/liq_signal_system.py`: yeni `TIP_session_regime` bloğu (`_session_context`) — session (ASIA/EU/US) + dürüst
+  kalibrasyon ("bounce ordering historically more reliable AUC~0.68 in-sample; NOT fee-tradeable, forward-unconfirmed"
+  vs US "historically random ~0.50; treat as directionless"). `_session(hour)` sınır testi PASS.
+- `tools/liq_tip_forward.py`: OPEN record'a eksplisit `session`/`hour_utc`/`month` etiketi — §161 rejim bulgusu
+  **forward'da per-session çürütülebilir** olsun (burned-data tekrar madenlenmez). Restart edildi (yeni PID), state temiz.
+
+**Durum:** rejim-koşullu araştırma KAPANDI (verdict: session-dependence gerçek ama fee-geçmez → TOOL kalır, edge değil);
+tüyo aracı + forward-ledger session-aware. Forward accumulation ay-tutarsızlığı (Haziran 0.50) zamanla çözecek TEK dürüst
+yol. **Guardrail:** DB mode=ro; emir yok; execution/risk/brain/.env DOKUNULMADI. Phase 1+2 hâlâ bağımsız review bekliyor.
+
+## 162. TAIL FORENSİĞİ — FADED SELL-FLUSH FELAKET KUYRUĞU: 4h TAIL İNDİRGENEMEZ (HİÇBİR T0 FEATURE AYIRMIYOR, SESSION HİPOTEZİ ÇÜRÜDÜ), REAKTİF-60s DETEKTÖR YALNIZ KISA-VADEDE GEÇERLİ (2026-07-20, Opus 4.8 [1M])
+
+**Bağlam (operatör "en son iyiydik, tail'i araştıralım"):** §159-161'in tüm AUC işi *medyan bounce YÖNÜ* üzerineydi ve 0.55
+sert tavana çarptı. Ama fade'de para medyan olayda değil, **fat sol KUYRUKTA** kaybediliyor: bounce yapmayıp düşmeye devam
+eden azınlık ("-447bps felaketler"). Tail ayrı bir NADİR-OLAY sınıflandırma problemi ve ASİMETRİK (harvestable bounce olmasa
+bile *kaçınmanın* değeri var). Yeni araç `tools/research_s34_tail_forensics.py` (salt-okunur, causal, canonical no-lookahead
+`reconstruct_anchors`; tail derinliği = **MAE** [path içi en kötü nokta], sadece endpoint değil). Popülasyon: ETHUSDT
+SELL-flush ≥200K → LONG fade, n≈687 (4h) / 689 (30m), Şub–Tem 2026.
+
+**Bulgular (iki horizon, temporal TRAIN/TEST split + bootstrap CI):**
+- **Tail gerçek ve kalın:** 4h MAE≤−150bps = **%21.7** (149/687); endpoint medyan +15.8 (bounce var) ama p10 −150, min −533,
+  MAE min −642. 30m MAE≤−100bps = %10.4.
+- **Q1/Q2 — 4h tail'i HİÇBİR T0-gözlemlenebilir feature ayırmıyor:** session/trend4h/size/max-print/accel/funding/rv/flow
+  hepsi **AUC ~0.50** (0.456–0.548). **§161 session-tail hipotezi ÇÜRÜDÜ:** ASIA %20 / EU %25 / US %21 düz, CI'lar örtüşüyor;
+  dahası US fade için *daha iyi* (endpoint drop-US −5.5 vs only-US +8.9) → "tail'ler US'te yaşar" YANLIŞ.
+- **Tek zayıf-ama-replike eden T0 tilt'i:** güçlü önceki-1h düşüş (trend1h alt-tercile) → tail YÜKSELİR, hem train hem test'te
+  (4h: %27.5 vs %21.7 baz; 30m: %15.7 vs %10.4 baz). Continuation-rejimi tilt'i, modest, temiz gate DEĞİL.
+- **Q3 — §159 reaktif iddiası HEM DOĞRULANDI HEM SINIRLANDI:** reaktif-60s CVD ("satış devam ediyor mu") tail-classifier
+  AUC'si **30m'de 0.636** (gerçek öngörü, recall~0.72) ama **4h'te 0.505'e ÇÜRÜYOR** (yazı-tura, precision=baz oran, lift yok).
+  Mekanizma: ilk-60s akışı sonraki ~30dk devamını öngörüyor, 4h'teki nihai en-kötü-nokta ilk 60s'den DEKUPLE. → §159'un
+  `continuation_check` detektörü yakın-vade endpoint-continuation için geçerli, 4h path-tail için DEĞİL.
+
+**HÜKÜM:** 4h faded-flush tail'i esasen **indirgenemez / T0-öngörülemez** (§154 GENERIC + §157 yön-coin-flip ile tutarlı). Tail'e
+doğru yanıt **tahmin değil, pozisyon yönetimi**: küçük size / hard time-stop / yalnız yakın-vade reaktif kesim. Yeni edge YOK;
+mevcut sonuçları (fade tradeable değil §158, detektör reaktif-only) sıkılaştıran dürüst negatif + iki hipotez çürütmesi
+(session-tail, 4h-reaktif-tail) + bir zayıf tilt (prior-1h-downtrend). Raporlar: `reports/research/s34/S34_TAIL_FORENSICS{,_30M}.{md,json}`.
+**Guardrail:** DB mode=ro (query_only=1); araç yalnız kendi raporunu yazar; execution/risk/brain/.env/live-executor DOKUNULMADI; emir yok.
+
+## 163. TAIL YÖNETİM/CHOP FORENSİĞİ — REAKTİF-CUT = SAF WHIPSAW (ÇÖP), MEKANİK PRICE-STOP TAİL'İ UCUZA KESİYOR AMA EDGE DEĞİL + STOP-FILL İYİMSER (2026-07-20, Opus 4.8 [1M])
+
+**Bağlam (operatör "hem ona bak, trade chop-chop'ları araştıralım"):** §162 tail'in indirgenemez olduğunu gösterdi; asıl soru
+kesim/stop kuralının **whipsaw (chop) maliyeti** — tail'i evcilleştiren kural winner'ları da doğruyor mu? Yeni araç
+`tools/research_s34_tail_management.py` (salt-okunur, causal, `compute_indicators` yok → hızlı; mark-path fill; TRAIN/TEST +
+T3R + **chop ledger**). Popülasyon: ETHUSDT SELL-flush ≥200K → LONG fade, n=676, 4h, fee 3.05/side. Rapor:
+`reports/research/s34/S34_TAIL_MANAGEMENT.{md,json}`.
+
+**Bulgular (net PnL, kural karşılaştırması):**
+- **Baseline HOLD_4h:** mean +1.1bps, medyan +8.5, **max_loss −540**, WR 53.6%, T3R −1.0 → ~başabaş, tradeable değil (§158 teyit).
+- **Reaktif-60s CVD cut = CHOP FELAKETİ:** cvd<0 → +5m/+15m çıkış: mean **−7.0** (baseline'dan kötü), WR→%40, **241 winner
+  doğrandı**, holding'e karşı **~5500bps verildi**, max_loss −495 (4h tail'i yakalamıyor bile, §162 AUC 0.505 ile tutarlı). Kesim
+  trade'lerin ~%68'ini flag'liyor → medyanı öldürüp yakalayamadığı tail için whipsaw. **4h hold'da reaktif-cut ÇÖP.** COMBINED
+  (reaktif+stop) daha da kötü: mean −30.3, 229 winner doğrandı.
+- **Mekanik PRICE-STOP kazanıyor (tahmin değil):** −120bps stop mean **+3.8**, max_loss **−126** (−540'tan), T3R **+1.7**,
+  train +3.1/test +5.4 (İKİSİ DE +), yalnız 27 winner doğrandı, chop-faturası NEGATİF (stop net *kazandırdı* — tail=continuation
+  olduğu için −120 gören trade nadiren toparlar). −150bps benzer (mean +3.7, maxL −156, T3R +1.6, her iki split +). −80bps çok
+  dar → chop (medyan −26.6, WR %42, 77 winner doğrandı).
+
+**HÜKÜM:** (1) operatörün "chop" sezgisi DOĞRULANDI — reaktif-60s cut saf whipsaw, 4h yönetiminde kullanılamaz; (2) tail'e doğru
+yanıt **mekanik hard stop (−120/−150bps), reaktif tahmin DEĞİL** — stop tail'i ucuza kesiyor (few winners chopped, net kazandırıyor).
+**AMA edge DEĞİL:** stop'la bile mean +3.8bps ince + T3R marjinal (başabaz fade'i "biraz daha az kötü" yapıyor), ve **−126 max_loss
+İYİMSER** — price-stop tam −120'de dolduğunu varsayıyor; gerçek stop'lar cascade/gap-through'da kayar (execmgmt gözlemi GAP_THROUGH
+−175.7bps). Gerçekçi slippage max_loss'u ve ince mean'i erozyona uğratır. Tail yönetimi = stop, ama fade hâlâ deploy adayı değil.
+**Guardrail:** DB mode=ro (query_only=1); araç yalnız kendi raporunu yazar; execution/risk/brain/.env/live-executor DOKUNULMADI; emir yok.
+
+## 164. ECHO — FRESH GATED PRE-REGISTRATION V1 YAZILDI; KRİTİK: UN-BURNED TARİHSEL HOLDOUT YOK → HOLDOUT FORWARD-ONLY (~14 AY); BAĞIMSIZ REVIEW BEKLİYOR (2026-07-20, Opus 4.8 [1M])
+
+**Bağlam:** Operatör tek yanmamış lead'i (`echo_30_90+regime`, §147) disiplinli forward+holdout'a sokmayı seçti. Prereg yazıldı:
+`reports/research/s34/S34_ECHO_FRESH_GATED_PREREGISTRATION_V1.md` (`PREREGISTERED_AWAITING_INDEPENDENT_REVIEW`).
+- **Kural DONDURULDU** (§1): kaynak `research_s34_echo_live_gauntlet.py::cand_9090` verbatim — anchor(200K,bucket300,gap900),
+  regime(btc4h<0 OR btc7d<0), echo_30_90([T−90m,T−30m)'de prior anchor), not-bull, sess≠EUROPE, not-noisy, dow∉{Mon,Wed},
+  entry T0, hold 4h, FEE=5bps net, no-overlap.
+- **KRİTİK BULGU (§2):** discovery LOOKBACK=400g = TÜM tarih (liq yalnız 2026-02-15'ten var, Jul-19'a kadar) → **un-burned
+  tarihsel dilim YOK**; OD-028 "≥100 bağımsız-cascade holdout" mevcut veriden SAĞLANAMAZ. **Holdout FORWARD-ONLY**
+  (anchor_ts > 2026-07-20). Olgunlaşma ~7/ay → ~14 ay. **Bugün verdict imkânsız; alınırsa lead yanar.**
+- Success gate'leri (§3) tek-seferlik terminal değerlendirme için önceden bağlandı (WR≥70, mc≤0.05, tail≤2/100, /ay≥4, WF≥4/5).
+**Durum:** GATE — prereg bağımsız read-only review + operatör sign-off bekliyor. Onaylanınca sıradaki faz: frozen-rule echo
+forward-ledger inşası (liq_tip_forward disiplini). Bu prereg HİÇBİR deploy yetkilendirmez, yalnız forward ölçüm. Guardrail: emir yok.
+
+## 165. ECHO FORWARD-LEDGER İNŞA EDİLDİ (CAUSAL) + KRİTİK BULGU: FROZEN KURAL `not noisy` GATE'İ T+30m LOOKAHEAD → "+92.5bps/tail-0" MUHTEMELEN KONTAMİNE + SİNYAL-GELİŞTİRME İNDİKATÖR LİSTESİ (2026-07-20, Opus 4.8 [1M])
+
+**Operatör "forward koy bunu + geliştirme için indikatör listesi hazırla".** İki teslimat + bir kırmızı bayrak:
+
+**KIRMIZI BAYRAK (echo değerlendirmesini değiştirir):** `cand_9090`'daki `not noisy` gate'i `liq_first_ts(ts+60s, ts+30m)`
+= **T+30 dakika ileriye bakıyor** (girişten sonra satış durmuş mu). T0'da giriş + T+30m filtre = **LOOKAHEAD**; tam da satışın
+devam ettiği olayları (tail'leri) hindsight'la eliyor → "+92.5bps net, tail 0, mc0.0" büyük olasılıkla **bu yüzden**. Bu,
+hafızadaki "silence ana-alfa LOOKAHEAD çıktı" deseninin echo'ya sızmış hali. **İlk forward sorusu artık "hangi yeni indikatör"
+değil, "causal echo (noisy'siz) forward'da hâlâ kazanıyor mu?"**
+
+**1) `tools/research_s34_echo_forward_ledger.py` (YENİ, salt-okunur, frozen kural):** taze ETH SELL 200K anchor (bucket300/
+gap900, age≤120s, strictly ts>2026-07-20) → **iki qualification ayrı** kaydeder: `qualified_t0` (yalnız T0-bilinebilir gate:
+regime/echo_30_90/not-bull/sess≠EUROPE/dow∉{Mon,Wed} — CAUSAL, tradeable) vs `qualified_full` (+not-noisy, T+30m'de olgunlaşan
+lookahead). OPEN@T0 + CLOSE@T+4h (net=gross−5bps). Ayrıca zengin **indikatör snapshot** (7 aile) kaydeder → gelecekteki
+geliştirme forward-temiz (OD-029). `--once` dry-run PASS (opened=0, forward'dan birikir). `start_eclipse.ps1`'e `echo_forward_ledger`
+role eklendi (mode READONLY_FROZEN_RULE...NOT_EDGE). Ledger `reports/shadow/echo_forward_ledger.jsonl`.
+
+**2) `docs/ECHO_SIGNAL_DEV_INDICATORS.md` (YENİ):** 21 aday indikatör, 7 aile (rejim/echo-yapısı/cross-asset/pozisyonlama/akış-
+mikroyapı/vol/zaman), ● captured vs ○ candidate; her biri hipotez + OD-029 uyarısı. Geliştirme sırası: Faz A causal-doğrulama
+(noisy'siz kazanıyor mu) → Faz B forward'da indikatör zenginleştirme (her yeni gate = ayrı prereg) → Faz C forward-koşullu test.
+**Yanmış veride tarama YASAK; liste = forward veri şeması + hipotez kaydı.**
+
+**Durum:** echo lead artık forward'da birikmeye HAZIR (operatör sandbox-dışı `start_eclipse.ps1` çalıştırınca kalıcı). Prereg V1
+hâlâ bağımsız review bekliyor; noisy-lookahead bulgusu prereg'in causal `qualified_t0` koluyla zaten ele alınıyor (V2 gerekmez —
+forward veri iki kolu da ayrıştırır). **Guardrail:** DB mode=ro; emir yok; execution/risk/brain/.env/live-executor DOKUNULMADI.
+
+## 166. İKİ-LEAD İZLEME DASHBOARD'U İNŞA EDİLDİ (`s34_leads_monitor_dashboard.py` :8771, READ-ONLY, SECONDARY) — echo(causal)+hour17 forward trade monitörü; KRİTİK: hour17 shadow'unda OUTAGE/GAP ARTIFACT (hold~49h, sahte +900bps) TESPİT + KARANTİNA → temiz hour17 forward NEGATİF (−14 avg WR45.5) — BAĞIMSIZ REVIEW BEKLİYOR (2026-07-20, Opus 4.8 [1M])
+
+**Talep:** operatör iki standing lead'i (CAUSAL echo, LONG_HOUR17) tek yerde, trade yaparken canlı,
+sonuç/detaylarıyla izleyeceği güzel-tasarımlı **ayrı** bir dashboard istedi ("başka bir şey yapma" —
+process kontrolü/dashboard kaldırma/hour17-geliştirme hepsi düştü).
+
+**İnşa:** `tools/s34_leads_monitor_dashboard.py` — stdlib http.server, **:8771**, loopback-only.
+Secondary/diagnostic yüzey; canonical :8770'in YERİNE GEÇMEZ. Salt-okunur: GET/HEAD only
+(POST/PUT/PATCH/DELETE→405, curl ile doğrulandı), hiçbir kontrol/subprocess/mutasyon yok, DB
+`mode=ro`+`query_only`. Contract `{read_only:True, control_actions_available:False, db_mode:ro}`.
+§141 kirli adapter'ları (shadow_paper_activity.py:429 population'sız pnl, freshness.py:101
+fabricated-GREEN) KULLANILMADI — doğrudan ham JSONL: echo `reports/shadow/echo_forward_ledger.jsonl`
+(OPEN↔CLOSE anchor_ts_ms join, qualified_t0/full ayrımı), hour17 `reports/shadow/s34_state_machine_shadow.jsonl`
+(signal `LONG_HOUR17*`, id-dedup). UI: iki-lead yan yana, açık pozisyon (canlı unrealized), kapanmış
+trade tablosu, toplamlar, tarihsel causal baseline kartı (edge iddiası DEĞİL), dürüst rozetler
+(FORWARD/BF/GAP/REAL), 7s auto-refresh.
+
+**KRİTİK BULGU (operatör sorusu "sistematik mi, saatler mi"):** hour17 shadow ledger'da 8 trade
+**hold≈49h** ile force-close, net **+904…+985 bps** → §141/DIRECT_SHORT_AUDIT'teki 46.4h ledger-gap
+OUTAGE ARTIFACT'i. Bu strateji-saati/clock değil, **proses downtime** (6h time-exit proses-bağımlı;
+runner ~46h düştü, geç kapattı). Dashboard `hold>7h = GAP_ARTIFACT` olarak **forward toplamından
+ÇIKARIYOR**. Sonuç: körlemesine +284 avg → temiz **HOLD6H forward N=11 WR45.5% avg −14.0 tail2**
+(Direct-Short-Audit'in −41 alpha bulgusuyla tutarlı, **NEGATİF/zayıf**). Sistematik risk = süreç
+dayanıklılığı (start/stop asimetrisi, recycled-PID, iki-yazıcı — §141), strateji parametresi değil.
+
+**Wiring:** `start_eclipse.ps1` yeni rol `s34_leads_monitor_dashboard` (default ON, mirror echo/canonical
+deseni) + `Write-RoleStatus`; `stop_eclipse.ps1` needle pattern listesi (start/stop asimetrisini bu
+yüzeyde tekrarlamamak için); CLAUDE.md secondary satırı. Her iki .ps1 parse OK.
+
+**Test/doğrulama:** `tests/test_leads_monitor_dashboard.py` 9/9 PASS (gap-karantina, backfill-ayrımı,
+id-dedup, echo t0/full split, boş-ledger graceful, read-only contract, non-loopback-refuse). py_compile OK.
+serve+curl: GET/ 200 HTML, /api/leads 200 JSON, POST 405, /nope 404.
+
+**Durum:** IMPLEMENTATION tamam → `S34_LEADS_MONITOR_DASHBOARD_IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW`.
+Kademeli zincir gereği sıradaki faz = **bağımsız salt-okunur review** (operatör sign-off arası), sonra
+correction → re-review → acceptance. **Guardrail:** DB mode=ro; emir/kontrol yok;
+execution/risk/brain/.env/live-executor/canonical-dashboard DOKUNULMADI. Sandbox'tan başlatılan proses
+kalıcı olmayabilir → kalıcılık için operatör sandbox-dışı `start_eclipse.ps1` çalıştırır.
+
+## 167. HOLD-UFKU SÜPÜRMESİ (2/4/6/12/24/48h) + STOP VARYANTLARI — her iki lead (hour17+echo causal) causal tarihsel + forward paper ledger + dashboard paneli; KRİTİK: 48h avg yüksek AMA worst −929/tail patlar/bağımsız-N çöker (kanıt değil); −300 stop felaketi bedavaya keser, −150 whipsaw (§163) — BAĞIMSIZ REVIEW BEKLİYOR (2026-07-20, Opus 4.8 [1M])
+
+**Talep:** operatör "48 hold stratejisi ... bütün time frame'lerde hold, hepsinden birer birer" istedi
+(dashboard'daki +900@48h'ı görüp). O +900'ler OUTAGE ARTIFACT'iydi (§166) — bu iş onu **dürüst causal
+hold-response eğrisiyle** değiştiriyor. Sonra "düşüşte yakalanan long, ne yapalım?" → stop varyantları eklendi.
+
+**İnşa (3 faz):**
+1. `tools/research_s34_hold_horizon_sweep.py` — causal (T0 gate, mark-to-mark, no-lookahead) sweep,
+   hour17 + echo_causal × [2,4,6,12,24,48]h × stop {yok,−150,−300}. gauntlet altyapısını (build_events,
+   gross, stats, no_overlap, regime) birebir yeniden kullanır. **noov_N** (bağımsız gözlem) ve **funding
+   drift** (funding_rates ort ≈ −0.12bps/8h) raporlanır. Rapor `S34_HOLD_HORIZON_SWEEP.{md,json}`.
+2. `tools/research_s34_hold_horizon_forward_ledger.py` — forward-only (post-2026-07-20) paper ledger;
+   nitelenen her anchor'a OPEN + her ufukta RESOLVE, 48h olgunlaşana dek pending. echo ledger
+   helper'larını (_mark_at/_mark_bps/_echo_check/_session/_detect_fresh_anchors/_min_mark) yeniden kullanır.
+   **Her RESOLVE nostop + s150 + s300 net'i birlikte kaydeder** (path-stop, _min_mark) — forward veri
+   GERİ-MADENLENEMEZ olduğu için stop kolları accumulation'ın BAŞINDAN yakalanır (operatör talebi:
+   "önce bütün timeframe'lerde forwarda al bu ikisini"). Ledger `reports/shadow/hold_horizon_forward_ledger.jsonl`.
+   NOT a trader, mode=ro. **Forward accumulation başlatıldı 2026-07-20** (kalıcılık için operatör start_eclipse.ps1).
+3. Dashboard `s34_leads_monitor_dashboard.py`'ye "Hold-Ufku Süpürmesi" paneli (tarihsel avg°/avg₃₀₀/worst/
+   tail/bağN/mc + forward paper kolonu).
+
+**BULGULAR (tarihsel causal, 695 anchor 5.15ay, hour17 N=141 / echo N=118):**
+- avg hold ile yükselir (drift+varyans) ama **worst/tail patlar**: hour17 48h avg +57 / worst **−929** /
+  tail 41 / **bağımsız-N sadece 37** / mc **0.062** (anlamsız). Yükselen eğri KANIT DEĞİL.
+- **Stop = tek gerçek kol** ("düşüşte yakalanan long"): **−300bps felaketi neredeyse bedavaya keser**
+  (hour17 6h: worst −448→−305, avg +36→+34 — canlıdaki 300bps'i DOĞRULAR). **−150 whipsaw**: avg çöker
+  (+36→+19), tail SAYISI patlar (20→32; 48h 41→86) — §163 birebir. Stop edge yaratmaz, kuyruğu sınırlar.
+- **6h + 300bps = "en az kötü"** nokta; 48h stop'la bile 60 tail + 29-37 bağımsız gözlem.
+- Not: tarihsel hour17 causal POZİTİF ama BURNED/in-sample (hour≥17 bu veride seçildi) → forward shadow
+  NEGATİF (§166: N11 avg−14) ile birlikte necessary-not-sufficient. Hangi çağlayanın düşmeye devam edeceği
+  T0'da tahmin edilemiyor (§162); short-the-trend ÇÖKTÜ (Direct-Short-Audit BOTH_FAIL).
+
+**Wiring/test:** `start_eclipse.ps1` yeni rol `hold_horizon_forward_ledger` (default ON) + `stop_eclipse.ps1`
+needle; her iki .ps1 parse OK. Test `tests/test_hold_horizon.py` 6/6 + `test_leads_monitor_dashboard.py`
+9/9 = 15/15 PASS (gate=executor mirror, causal no-noisy, forward-agg bucketing, graceful degrade). Sweep
+çalıştı; forward ledger --once temiz (0 forward anchor — bekleniyor); gate son-30g 48 hour17/37 echo doğrular.
+
+**Durum:** IMPLEMENTATION tamam → `S34_HOLD_HORIZON_SWEEP_AND_FORWARD_LEDGER_IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW`
+(dashboard §166 review'ıyla birlikte). **Guardrail:** DB mode=ro; emir/kontrol yok; execution/risk/brain/
+.env/live-executor/canonical DOKUNULMADI. Burned-sample'da eşik/ufuk TUNING yapılmadı (sadece descriptive sweep).
+
+## 168. KESİŞİM BULGUSU (DOĞRULANDI): echo_causal ∩ hour≥17 UTC = echo'nun İLK CAUSAL (lookahead'siz) TAIL-GATE'i — echo'nun 14 felaket-kuyruğunun 14'ü de hour<17'de; hour≥17 kesimi tail 14→0, avg +41→+62, WR 69.5→82.1, worst −339→−82.6. HİPOTEZ (edge değil), forward-only prereg adayı (2026-07-20, Opus 4.8 [1M])
+
+**Bağlam:** operatör echo_causal ile hour17'nin kesişimini fark etti. Bağımsız yeniden hesap (build_events +
+cand_causal + g_t0_4h, aynı 5.15ay/695-anchor evreni) **birebir doğruladı:**
+- echo_causal (hepsi): N=118 WR=69.5 avg=+41.2 tot=+4857 worst=−338.9 **tail=14**
+- ∩ hour≥17: **N=28 WR=82.1 avg=+62.0 tot=+1735 worst=−82.6 tail=0**
+- tamamlayıcı hour<17: N=90 WR=65.6 avg=+34.7 worst=−338.9 tail=14
+- TAIL saatleri (<−100): [0,0,1,2,6,6,6,13,13,14,14,15,15,16] → **14/14'ü hour<17, hiçbiri ≥17.**
+
+**Neden ÖNEMLİ (yeni olan):** echo'nun kuyruğunu şimdiye dek temizleyen tek gate `not noisy`'ydi = T+30m
+LOOKAHEAD (§165, sahte). **hour≥17 aynı tail-temizliğini T0-bilinir biçimde yapıyor (lookahead YOK).**
+Yani echo'nun kuyruğunu hindsight olmadan kesen İLK causal mekanizma. Mekanistik: echo bir geç-gün
+(US öğleden sonra/akşam) olgusu olabilir; erken-gün girişleri trend-devamı kuyruğunu yiyor. §162
+session-bağımlılığı + hour17 hold-predictor ile örtüşür.
+
+**KILL potansiyeli / caveat'lar (iddia DEĞİL):** (1) **çifte-BURNED** — hem echo hem hour17 aynı Şub–Tem
+evreninde keşfedildi; bu kesim o evreni ikinci burned filtreyle diliyor = garden-of-forking-paths
+(prereg edilmemiş post-hoc). tail=0 @ N=28, base-rate %12'de beklenen ~3.4 yerine → in-sample anlamlı
+görünüyor ama seçilmiş. (2) **N=28 küçük** (~5.4/ay). (3) **hour17 TEK BAŞINA forward'ı NEGATİF** (§166
+N11 avg−14) — ama burada hour≥17 standalone giriş değil, echo'nun tail-gate'i (farklı popülasyon,
+test edilmemiş). (4) FULL(lookahead) reconciliation temiz (N=38) → sayı doğru, yorum ayrı.
+
+**Sıradaki (önerilen, gated):** forward-only PREREG ("echo_causal ∩ hour≥17 = causal tail-gate hipotezi";
+başarı/çürütme koşulu + donmuş kural). **Yeni ledger wiring'e neredeyse gerek yok** —
+`hold_horizon_forward_ledger` echo OPEN'larında `hour_utc`'yi zaten kaydediyor → kesişim mevcut forward
+veriden RESOLVE→OPEN join + hour≥17 filtresiyle ÖLÇÜLEBİLİR; prereg + küçük analiz/panel kolu yeter,
+o da bağımsız review zincirine tabi. **Guardrail:** sadece bulgu kaydı + doğrulama; kod/deploy/tuning YOK.
+
+## 169. §168 DERİN DOĞRULAMA (read-only, DB'ye dokunmadan, 118-satır records): TAIL-GATE DOĞRULANDI, ALFA-AMPLİFİKATÖRÜ REDDEDİLDİ — ikisi net ayrılıyor (2026-07-20, Opus 4.8 [1M])
+
+**Bağlam:** operatör "bunu araştırsak ne çıkar" dedi → §168 kesişimini `S34_ECHO_SEPARABILITY_STATS_records.jsonl` (per-anchor: hour/ts/_net_4h/score/prebuildup/be_ratio_causal/btc4h) üzerinde 6 açıdan test ettim (650GB DB'ye DOKUNMADAN, tek geçiş, seed=1234).
+
+**✅ SAĞLAM — hour17 gerçek bir CAUSAL KUYRUK-GATE'i:**
+- **Eşik süpürme monoton, knife-edge DEĞİL:** tail h≥14→5, ≥15→3, ≥16→1, ≥17→0; worst −339→−277→−147→−131→−82. Kademeli = gerçek session yapısı, seçilmiş-bin değil.
+- **Permütasyon tail=0 ANLAMLI (p=0.018):** rastgele 28-altküme nadiren kuyruksuz.
+- **Split-half STABİL:** her iki zamansal yarıda h≥17 tail=0 (H1 N16, H2 N12).
+- **Confound DEĞİL:** h≥17 vs h<17 median btc4h/score/be_ratio birebir aynı → hour ortogonal bilgi; ayrıca kuyruklar her score'da (score-4 dahil) patlıyor, echo skoru kuyruğu koruyamıyor, hour koruyor.
+- **Mekanizma:** "avoid[0-6]&[13-16]" ≡ h≥17 (echo 7-12 hiç ateşlemiyor); tek pencere yetmiyor (her biri ~7 kuyruk) → iki yüksek-varyans seansından (Asya-ince + US-açılış/EU-PM) birden kaçış.
+
+**❌ ÇÜRÜDÜ — hour17 alfayı BÜYÜTMÜYOR:**
+- **Avg-uplift permütasyonu p=0.156 (anlamsız):** +62 vs +41 tamamen mekanik kuyruk-silme; post-17 kazananları daha büyük değil. hour17 = kayıp-azaltıcı, getiri-artırıcı DEĞİL.
+
+**⚠️ Kırılganlık:** no-overlap temel echo'yu neredeyse öldürüyor (avg +41→**+8.9**, 11 kuyruk); h≥17-noov karakterini koruyor (N=20 avg +55.8 tail0) ama N çok ince. "≥17" eşiği tune-edilmiş (≥16 zaten near-tail-free).
+
+**Verdict `ECHO_HOUR17_TAIL_GATE_CONFIRMED_AS_TAILGATE_NOT_ALPHA`:** doğru forward metriği **avg değil TAIL-RATE** (anlamlı olan tek şey o). Çürütme koşulu: forward'da h≥17 echo anchor'ları base-rate ~%12'de kuyruk gösterirse iddia düşer. Caveat'lar §168'deki gibi (çifte-burned, post-hoc, hour17-standalone-forward-negatif). **Guardrail:** sadece analiz+kayıt; DB salt-okunur değil HİÇ açılmadı, kod/deploy/tuning YOK.
+
+## 170. FORWARD-CAPTURE ENRICHMENT: hold_horizon_forward_ledger her RESOLVE'a `hour_utc`+`is_hour17` etiketi ekliyor → echo∩hour≥17 causal tail-gate dilimi (§168/§169) TÜM 6 ufuk × {nostop/−150/−300} için forward'da self-contained per-row filtre (operatör: "bunu da stoplu stopsuz tüm timeframe'li forwarda alalım") (2026-07-20, Opus 4.8 [1M])
+
+**Talep/karar:** operatör echo∩hour≥17 kesişimini forward'da izlemek istedi. **KRİTİK:** yeni kol/gate GEREKMİYOR — ledger echo_causal'ı zaten 6 ufuk × 3 stop olarak kaydediyordu; tek eksik ∩ dilimini kolay okumaktı. Forward veri GERİ-MADENLENEMEZ olduğu için (aynı gerekçe: stop kolları §167) her RESOLVE'a `hour_utc` + `is_hour17` etiketi eklendi → echo∩hour≥17 artık düz per-row filtre, join gerekmez.
+
+**Değişiklik:** `tools/research_s34_hold_horizon_forward_ledger.py` — OPEN'daki `hour_utc` pending'e taşınıyor, her RESOLVE'da `hour_utc`+`is_hour17` yazılıyor (nostop/s150/s300 net'lerle birlikte). YENİ eşik/gate/tuning YOK, yeni sinyal YOK — sadece mevcut kaydın etiketlenmesi.
+
+**Test:** `tests/test_hold_horizon.py` — sentetik echo∩hour≥17 anchor'ıyla (DB açmadan, helper'lar monkeypatch) `run_once` sürülüp OPEN.hour_utc=18, 6 ufuk × 2 sinyal = 12 RESOLVE hepsi `hour_utc=18`+`is_hour17=True`, echo∩hour≥17 dilimi=6 ufuk, stop alanları mevcut doğrulandı. **16/16 PASS** (test_hold_horizon 7 + test_leads_monitor_dashboard 9). py_compile OK.
+
+**Restart:** çalışan ledger yeni kodla temiz yeniden başlatıldı (forward veri henüz 0 → kayıp yok), PID tutarlı. Kalıcılık için operatör start_eclipse.ps1 (rol default ON).
+
+**Durum:** forward-capture zenginleştirmesi implementation → `HOLD_HORIZON_FWD_HOUR_TAG_IMPLEMENTED_AWAITING_REVIEW` (§166/§167 review'larıyla birlikte). İddia/deploy YOK; §169 verdict (tail-gate, alfa değil; forward metriği=tail-rate) değişmedi. **Guardrail:** DB mode=ro; emir/kontrol/tuning yok; execution/risk/brain/.env/live-executor/canonical DOKUNULMADI.
+
+## 171. DASHBOARD KONTROL-GRUBU DÜZELTMESİ: echo `agg_forward_t0` qualified+non-qualified'ı HAVUZLUYORDU (yanlış etiket) → qualified_t0 (nitelenmiş, causal) vs KONTROL (q_t0=false) AYRILDI; "gate değer katıyor mu?" forward'da görünür (operatör sorusu: nitelenmeyip kazananları kaydedip bakıyor muyuz) (2026-07-20, Opus 4.8 [1M])
+
+**Operatör sorusu:** dashboard'da açık bir echo pozisyonu `q_t0=false` (giriş 1859.68, saat 13 US) — "qualified olmayıp kazananları kaydedip bakıyor muyuz?"
+
+**Bulgu (iki parça):** (1) **KAYIT: EVET** — `research_s34_echo_forward_ledger.py` TÜM forward anchor'ları açıyor (qualify etsin etmesin), CLOSE'da `net_bps`+`qualified_t0`+`qualified_full` yazıyor (satır 272-274) → kontrol grubu TASARIMDA VAR. (2) **GÖSTERİM: HATA** — dashboard `load_echo` `agg_forward_t0`'ı qualified filtresi olmadan hesaplıyordu (tüm CLOSE'ları havuzluyordu) → "causal echo" diye gösterilen rakam aslında nitelenmiş+nitelenmemiş karışımıydı.
+
+**Düzeltme:** `tools/s34_leads_monitor_dashboard.py` `load_echo` — `agg_forward_t0` artık SADECE qualified_t0=true; yeni `agg_control_nonqual` = q_t0=false kontrol grubu; panelde "KONTROL (q_t0=false)" satırı + "gate değer katıyorsa qualified > kontrol olmalı" notu. Bilimsel kontrol: kontrol de qualified kadar kazanıyorsa edge = çıplak cascade-bounce, echo/regime seçimi değil.
+
+**Test:** `test_leads_monitor_dashboard.py` — nitelenmemiş +90'lık CLOSE'un qualified_t0 havuzuna KARIŞMADIĞI (agg_forward_t0 total=30 = 50+(−20), kontrol total=90) doğrulandı. **16/16 PASS.** Dashboard yeni kodla restart (HTTP 200, pid tutarlı).
+
+**AÇIK NOT (eksik kalan):** `hold_horizon_forward_ledger` yalnız NİTELENEN anchor'ları açıyor (sigs boşsa kayıt yok) → hour17/hold-horizon için non-qualified KONTROL YOK; sadece echo ledger tam kontrole sahip. hour17 kontrolü istenirse ayrı ekleme gerekir.
+
+**Durum:** dashboard correctness fix → §166 review kapsamında. **Guardrail:** DB mode=ro; emir/kontrol/tuning yok; sadece gösterim düzeltmesi + kontrol grubu yüzeye çıkarıldı.
+
+## 172. HOLD-HORIZON LEDGER SİMETRİK KONTROL: artık TÜM forward anchor'ları açıyor (sadece nitelenen değil) + her RESOLVE'da `qualified_hour17`/`qualified_echo` bayrakları → hour17 & echo için non-qualified KONTROL grubu + echo∩hour≥17 dilimi, hepsi hesaplanabilir; per-signal tekrarı kaldırıldı (ufuk başına tek RESOLVE) (2026-07-20, Opus 4.8 [1M])
+
+**Talep:** operatör "diğerine de bak" — echo'daki kontrol grubunu (§171) hold_horizon/hour17'ye de.
+
+**Değişiklik (`tools/research_s34_hold_horizon_forward_ledger.py`):** (1) OPEN artık **tüm** anchor'lar için (sigs boş olsa da), `qualified_hour17`+`qualified_echo` bayraklarıyla. (2) RESOLVE **ufuk başına TEK** kayıt (per-signal döngü kaldırıldı — net aynı anchor için sinyalden bağımsız, tekrar gereksizdi), her kayıtta `qualified_hour17`/`qualified_echo`/`hour_utc` + nostop/s150/s300. Şema, forward veri 0 iken (restart sonrası) düzeltildi — kayıp yok.
+
+**Dashboard `_hold_forward_agg`:** bayrak-tabanlı kovalar — `hour17|hH` (qualified) vs `hour17_ctrl|hH` (kontrol); `echo_causal|hH` vs `echo_ctrl|hH`; `echo_hi|hH` (echo∩hour≥17). Böylece her sinyal için "gate değer katıyor mu" (qualified > kontrol?) forward'da ölçülür.
+
+**Test:** `test_hold_horizon.py` — (a) agg bucket testi 4 anchor'la qualified/control/echo_hi ayrımını doğruluyor; (b) run_once sentetik testi ufuk-başına-tek-RESOLVE + bayraklar + intersection. **16/16 PASS.** py_compile OK. Ledger + dashboard yeni kodla restart (HTTP 200, PID tutarlı).
+
+**Durum:** §166/§167/§170/§171 ile birlikte review kapsamında. **Guardrail:** DB mode=ro; emir/kontrol/tuning yok; sadece kayıt kapsamı genişletildi (kontrol grubu) + şema sadeleştirildi. §169 verdict değişmedi.
+
+## 173. OLAY AKIŞI + TAIL-RATE İZLEME MEKANİZMASI: leads dashboard'a üçüncü panel — her forward olayı satır satır (6 ufuk grid, ⏳/net/kuyruk-kırmızı) + qualified vs KONTROL tail-rate skorbordu (§169 metrik) + echo∩h≥17 çürütme çizgisi; mevcut ledger'dan, read-only (2026-07-20, Opus 4.8 [1M])
+
+**Talep:** operatör "bunu bir mekanizmaya çevirelim izlemek için her olayı."
+
+**İnşa (`tools/s34_leads_monitor_dashboard.py`, mevcut `hold_horizon_forward_ledger.jsonl`'dan — YENİ kayıt yok):**
+- `load_event_feed()`: OPEN↔RESOLVE'ları anchor bazında birleştirip her olay = 1 satır (en yeni üstte, ≤120): zaman/hour/rozetler(H17/ECHO qualified vs kontrol, ∩h≥17)/running_notional + **6 ufuk gridi** (her hücre nostop net, ⏳=bekleyen, kuyruk<−100=kırmızı) + açık/çözüldü durumu.
+- **Tail-rate skorbordu** (§169: doğru metrik avg değil TAIL-RATE, nostop net üzerinden): echo qualified vs echo KONTROL, hour17 qualified vs KONTROL, echo∩h≥17 — her biri N/tail/rate%. Primer ufuk echo=4h, hour17=6h. **echo∩h≥17 base-rate ~%12'de kuyruk gösterirse kart kırmızı (çürütme).** Panel notu: "qualified < kontrol olmalı."
+
+**Test:** `test_leads_monitor_dashboard.py` — 4-olay sentetik ledger'la skorbord (echo_qual 2/3 tail rate66.7, kontrol 0%, echo∩h≥17 1/2 rate50), en-yeni-üstte sıralama, açık/pending grid, any_tail doğrulandı; boş-ledger graceful. **18/18 PASS** (leads 11 + hold_horizon 7). py_compile OK. Dashboard restart (HTTP 200, POST→405 read-only, pid tutarlı).
+
+**Durum:** izleme mekanizması → §166/§167/§170/§171/§172 ile review kapsamında. Şu an event_feed boş (forward anchor yok) — ilk olayla dolacak. **Guardrail:** DB mode=ro; emir/kontrol/tuning yok; sadece görüntü+skorbord, mevcut kayıttan. İddia/deploy yok; §169 verdict korunuyor.
+
+## 174. 30/45dk SCALP TESTİ (causal vs lookahead, tüm ufuklar) — SCALP CAUSAL OLARAK ÖLÜ (30m avg −1.8 mc0.60, 45m +4.7 mc0.28 = fee-gürültüsü); edge ancak 4h+'ta (mc0.001); kısa-hold'da iyi görünen her sayı LOOKAHEAD (30m not-noisy +41.7 tail0 ama pencere=hold = dairesel) (2026-07-20, Opus 4.8 [1M])
+
+**Talep:** operatör "45 dakikalık [+30] scalp testi, lookahead ve lookaheadsiz, tüm timeframe'lerde."
+
+**Araç:** `tools/research_s34_scalp_causal_vs_lookahead.py` — echo, ufuklar [30m,45m,2h,4h,6h,12h,24h,48h], iki kol: CAUSAL (cand_causal, T0) vs LOOKAHEAD (cand_full = +not-noisy, T0+60s→T0+30m gelecek). gauntlet altyapısı (build_events/gross/stats/no_overlap) yeniden kullanıldı. Read-only mode=ro. Rapor `S34_SCALP_CAUSAL_VS_LOOKAHEAD.{md,json}`.
+
+**BULGU (695 anchor 5.15ay, echo N=118 causal / 38 lookahead):**
+- **CAUSAL:** 30m avg **−1.8** WR54.2 tail8 **mc0.602**; 45m **+4.7** WR61.9 mc0.282; 2h +9.5 mc0.159; **4h +41.2 mc0.001** (edge ilk burada); 6h +49; 24h +92; 48h +64. → **30/45dk scalp ÖLÜ** (avg~0, mc anlamsız); cascade sıçraması 45dk'dan yavaş, scalp bounce'u hasat edemiyor, edge ≥4h.
+- **LOOKAHEAD:** 30m +41.7 WR89.5 **tail0**; 45m +41.5 tail0; 4h +87.8 tail0. Kısa-hold'da bile pristine AMA sahte: not-noisy "hold boyunca satış sürdü mü" filtreler (30m'de pencere=hold=dairesel), N 118→38 (hindsight'la 80 event atılıyor, çoğu kuyruk). LOOKAHEAD−CAUSAL farkı = lookahead'in katkısı; 30m'de +43bps + tail 8→0.
+
+**Sonuç:** (1) 30/45dk scalp bir edge DEĞİL (causal ölü). (2) §165 birebir doğrulandı — kısa-hold'da "harika" sayılar lookahead artefaktı. (3) echo'nun causal edge'i yalnız uzun hold'da (≥4h) var, kuyrukla birlikte (§167/§169 ile tutarlı). **Guardrail:** DB mode=ro; iddia/deploy/tuning yok; descriptive test, burned örneklem → necessary-not-sufficient, forward şart.
+
+## 175. ÖLÇÜLEN-MALİYET FORWARD LEDGER (V2) — hold_horizon_forward_ledger artık mark→mark/5bps VARSAYIMI yerine GERÇEK spread'i geçerek fill + kaynakta outage karantinası; IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW (2026-07-20, Opus 4.8 [1M])
+
+**Bağlam:** operatör zinciri — echo geçmişini tüm timeframe'lerde inceledik → "bunun alphadan farkı ne" → "üstüne makine kuralım" (seçim: forward-değerlendirme skorlayıcı) → operatör iki delik tespit etti: **(1) slippage defteri YOK** (fill=`mark_price`, FEE=5bps hardcoded varsayım, satır 135 "optimistic fill"), **(2) outage karantinası ledger'da YOK** — sadece dashboard'da kaba `hold>7h` ekran filtresi; `_mark_at` outage'da bayat mark döndürüyor = §166 sahte-+900 mekanizması hâlâ kontamine satır yazabilir. Operatör kararı: **"gerçek forward olsun hepsi" → ölçülen-maliyetli PAPER** (gerçek emir YOK, maliyet ölçülür). Design spec: `reports/research/s34/S34_ECHO_FORWARD_EVALUATOR_DESIGN_V1.md` (V2 amendment), operatör frozen-parametreleri ONAYLADI.
+
+**Zemin (doğrulandı, varsayılmadı):** `book_ticker` tablosu var — `bid_price/ask_price/mid_price/spread_pct/bid_depth_usd/bid_qty/ask_qty`; (symbol,ts_ms) indeksli; sqlite 3.50.4 (LAG destekli); ETHUSDT canlı (son 2026-07-20 15:00 UTC). Gerçek sorgu: top-of-book spread ~**0.05 bps** (çok dar), depth ~**$112k** (vs $25 notional → impact nil) → küçük boyutta gerçek maliyet ≈ komisyon 5bps + ~0.05 spread; artık VARSAYILMIYOR, ÖLÇÜLÜYOR (stres'te spread açılırsa yakalanır).
+
+**Değişiklik (`tools/research_s34_hold_horizon_forward_ledger.py`, SADECE bu dosya):**
+- **Ölçülen fill:** entry=`ask` (alım offer'ı kaldırır), exit=`bid` (satım bid'e vurur) → `net_bps_measured = (bid_exit−ask_entry)/ask_entry×1e4 − COMMISSION_BPS(5)`. Spread ARTIK ÖDENİYOR ve kayıtlı.
+- **Slip attribution:** `slip_bps = net_bps_mark − net_bps_measured` (her işlemde spread+komisyon'un gerçek bedeli görünür).
+- **Kaynak outage karantinası (per-horizon):** entry/exit quote >60s bayat VEYA pencere içi book_ticker boşluğu >5dk → `quarantined=True`+`quarantine_reasons`, sayıma girmez ama LOGLANIR (kontaminasyon oranı görünür). §166 artık geçemez.
+- Measured stop (−150/−300) min-bid path'inde; `spread_bps_entry`,`bid_depth_usd_entry`,`top_of_book_insufficient` kaydedilir; mark-tabanlı alanlar reconciliation için korunur; `cost_model:"measured_v2"` (evaluator iki maliyet rejimini karıştırmaz). echo ledger'ın paylaşılan primitiflerine DOKUNULMADI (lokal `_book_at`/`_min_bid`/`_max_book_gap_ms`).
+
+**Doğrulama:** `py_compile` ✅; `tests/test_hold_horizon.py` **9/9 PASS** (ölçülen-maliyet net + slip>0 + stale-exit karantina + in-window-gap karantina, synthetic monkeypatch, DB açılmadı); üç yeni SQL gerçek DB'de read-only geçerli+sane. **Guardrail:** `mode=ro`+`query_only=1`, `execution/risk/brain/.env/live-executor/sizing/ORDER_NOTIONAL` DOKUNULMADI, tek process, paralel yok, no orders.
+
+**Verdict:** `MEASURED_COST_LEDGER_V2_IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW`. **Sıradaki (gated):** bağımsız salt-okunur review (bu implementasyonu ben onaylamam — değeri bağımsızlığında) → correction → re-review → acceptance; SONRA Parça 2 (forward-değerlendirme skorlayıcı, measured satırları okur). İki faz birleştirilmez. Forward şu an N=0 (post-2026-07-20 birikiyor).
+
+## 176. ÖLÇÜLEN-MALİYET LEDGER (V2) — BAĞIMSIZ REVIEW=CORRECTIVE (3 blocker) → CORRECTION UYGULANDI; CORRECTED_AWAITING_RE_REVIEW (2026-07-20, Opus 4.8 [1M])
+
+**Zincir:** §175 implementation → bağımsız salt-okunur review (general-purpose agent, kendi yargısı) → **verdict CORRECTIVE** (guardrail ihlali YOK, ama 3 blocking kusur) → operatör sign-off ("devam et") → **correction** (bu bölüm) → ▶ re-review bekliyor.
+
+**Review'ın bulduğu 3 blocker (hepsi gerçek, ben gözden kaçırmıştım — bağımsızlığın değeri):**
+- **B1:** RESOLVE `net_bps` yazmıyordu; dashboard (`s34_leads_monitor_dashboard.py:424`) `net_bps` okuyor, fallback yok → forward paneli sessizce boşalırdı (design §1 arayüz sözleşmesi ihlali). Eski test sentetik `net_bps` besleyip false-green veriyordu.
+- **B2:** 48h `MIN(bid)` (~55s) + `LAG` gap-scan (~85s) indekssiz tam-tarama → tek `run_once` ~140s; FRESH_MS=120s detection cadence'ı aşıp fresh anchor OPEN'ı düşürebilir.
+- **B3:** book feed mark saatinin gerisine düşünce exit-quote-stale → karantina, ama `resolved++`/`done_h.add` koşulsuz → horizon "bitti" işaretlenip **asla retry edilmez**; geçici gecikme işlemi kalıcı düşürür.
+
+**Correction (`tools/research_s34_hold_horizon_forward_ledger.py`, aynı dosya):**
+- **B1:** RESOLVE artık `net_bps`/`net_bps_s150`/`net_bps_s300` (=measured, AUTHORITATIVE) yazıyor; **quarantined/ölçülemez ise None** → tüketici otomatik dışlar. `net_bps_measured`/`net_bps_mark`/`slip_bps` reconciliation için kalıyor.
+- **B2:** LAG-scan yerine ucuz `_window_has_gap` probe (her 5dk indeksli point-lookup, >5dk boşluğu garanti yakalar, ilk boşlukta kısa-devre → 85s→~1s) + per-pass `RESOLVE_BUDGET_SEC=40` bütçesi (OPEN'lar zaman-kritik, matured RESOLVE'lar değil → fazlası bir sonraki pass'e ertelenir, düşmez).
+- **B3:** yeni `_book_max` (book saati); horizon ancak **HER İKİ saat** (mark + book) exit_ts'i geçince resolve olur; book gerisindeyse `continue` → pending kalır, retry edilir (kalıcı düşme yok). Böylece exit_quote_stale artık yalnız GERÇEK boşlukta yanar.
+- **N5** (review non-blocking, ama ilk canlı forward anchor'ında yaşandı): mark hazır değilse anchor `processed`'a eklenmiyor → retry (collector race'te düşmez).
+
+**Doğrulama:** py_compile ✅; `tests/test_hold_horizon.py` **10/10 PASS** (yeni: B1 net_bps + quarantine→None, B3 defer testi; false-green testi artık gerçek formatla tutarlı); yeni SQL gerçek DB'de read-only geçerli+hafif; book feed canlı/güncel. **Guardrail:** mode=ro+query_only, execution/risk/.env/sizing/ORDER_NOTIONAL DOKUNULMADI, tek dosya+testi, no orders.
+
+**Verdict:** `MEASURED_COST_LEDGER_V2_CORRECTED_AWAITING_RE_REVIEW`. **NOT:** canlı ledger prosesi (start_eclipse ile ayakta, pid eski) hâlâ **düzeltme-öncesi kodu** çalıştırıyor — düzeltme diske yazıldı; canlı birikime yansıması için kabul SONRASI restart gerekir (şimdi restart etmiyorum, zincir tamamlanmadı). **Sıradaki:** bağımsız RE-review (ayrı geçiş) → kabul → sonra Parça 2 (evaluator).
+
+## 177. ÖLÇÜLEN-MALİYET LEDGER (V2) — BAĞIMSIZ RE-REVIEW=ACCEPT → PARÇA 1 KABUL + DÜZELTİLMİŞ KOD CANLIYA ALINDI (2026-07-20, Opus 4.8 [1M])
+
+**Zincir TAMAMLANDI:** §175 impl → review CORRECTIVE → §176 correction → **bağımsız re-review (2. general-purpose agent, temiz context)** = **VERDICT ACCEPT.** Tüm faz kapıları operatör sign-off'lu, hiçbiri birleştirilmedi.
+
+**Re-review'ın bağımsız doğruladığı (iddiaya güvenmeden, satır-satır):**
+- **B1 CLOSED:** RESOLVE `net_bps`/`s150`/`s300` yazıyor (measured, quarantined/ölçülemez→None); dashboard tüketicisi `s34_leads_monitor_dashboard.py:424` artık çalışıyor; eski-isim tüketici yok; §169 tail-rate skorbordu quarantine'i `quarantined` bayrağından sayıyor (net_bps=None onu gizlemiyor).
+- **B2 CLOSED:** `_window_has_gap` probe doğru (thr aralıklı probe → thr'den geniş her boşluk bir probe içerir; start-edge kapsanıyor; `>thr`); budget her çözülmemiş anchor'ı pending'de KORUYOR (budget_hit sadece inner-loop break, dış-loop her anchor'ı `still`'e ekliyor); livelock yok (ilk resolve hep koşar).
+- **B3 CLOSED:** `_book_max`; horizon ancak mark+book **iki saat** de exit_ts'i geçince resolve; book gerideyse defer (test kanıtı: book=+5h → yalnız 2h/4h resolve, pending=1, quarantined=0); recoverable durumda done+drop yolu YOK; exit_quote_stale artık yalnız gerçek boşlukta yanar.
+- **N5 CLOSED:** processed.add `if entry:` içinde; sonsuz-retry/çift-OPEN yok.
+- **Yeni blocking defect: YOK.** Non-blocking: quarantined horizon tape'te "open" görünür (zararsız), `_window_has_gap` thr≤0 teorik (call-site sabit 300k), budget/`_window_has_gap` için birim-test yok (kod-inceleme ile doğrulandı) — gelecekte eklenmesi önerilir.
+
+**Doğrulama:** py_compile ✅ · 10/10 test ✅ · determinizm/causality/state round-trip korunuyor.
+
+**CANLIYA ALMA:** kabul geldiği için `stop_eclipse.ps1`+`start_eclipse.ps1` ile stack temiz restart edildi → hold_horizon_forward_ledger artık **düzeltilmiş V2 kodu** çalıştırıyor. Live executor DISABLED (default OFF) — canlı trade YOK, ledger salt-okunur paper, `execution/risk/.env/sizing` DOKUNULMADI.
+
+**Verdict:** `MEASURED_COST_LEDGER_V2_ACCEPTED`. **SIRADAKİ:** Parça 2 = forward-değerlendirme skorlayıcı (measured satırları okur, primary metrik=tail-rate, §169). Ayrı gated zincir; forward veri birikmeye devam ediyor (post-2026-07-20).
+
+## 178. PARÇA 2 — FORWARD-DEĞERLENDİRME SKORLAYICI İNŞA EDİLDİ (evaluator); IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW (2026-07-20, Opus 4.8 [1M])
+
+**Ne:** `tools/research_s34_echo_forward_evaluator.py` — measured-cost forward ledger'ı (§177) + donmuş burned baseline'ı okuyup echo_causal'ı her (signal × horizon × stop) hücre + §169 hour17 tail-gate'te **PRE-REGISTERED donmuş kurallara** göre skorlar; hücre başına verdict (`ACCUMULATING/CONFIRMED/DEGRADED/REFUTED`) + gate verdict; `ECHO_FORWARD_SCORECARD.{json,md}` yazar. **Kanıt üretir, deploy ETMEZ.** DB YOK (sadece 2 dosya okur), no orders, RAM-hafif, fail-closed.
+
+**Donmuş kurallar (design §2/§3, forward N=0'ken sabitlendi):** N_MIN=20 noov; CONFIRM = CI_LB>0 & avg≥0.40×in-sample-noov-avg; REFUTED = CI_UB≤0; tail-gate CONFIRM≤%5/REFUTE≥%10 (primary metrik=tail-rate); bootstrap 10k seed=1234; primary hücreler = echo 6h nostop (P1) + hour17 tail-gate 6h (P2); gerisi SECONDARY_DESCRIPTIVE (Bonferroni α/36). No-overlap zorunlu; quarantined satırlar (net_bps=None) tüm istatistikten dışlanır ama quarantine-rate raporlanır.
+
+**Lookahead notu (operatör sorusu):** "sonra yapmak lookahead olur mu" → HAYIR; makineyi yazmak işçilik, lookahead riski kuralları veriye bakarak seçmek. Kurallar N=0'ken donduruldu → şimdi/sonra uygulamak temiz out-of-sample. **N=0'ken kurmak EN güvenli zamanlama** (tune edilecek veri yok). Disiplin: verdict ne derse o; farklı kural = yeni prereg TAZE forward'da, aynı veriyi yeniden yargılamak değil.
+
+**Doğrulama:** py_compile ✅; `tests/test_echo_forward_evaluator.py` **8/8 PASS** (NO_DATA fail-closed, ACCUMULATING<N_MIN, CONFIRMED, REFUTED, quarantine-dışlama, no-overlap collapse, gate CONFIRMED/REFUTED); gerçek ledger'da uçtan-uca (status NO_DATA, N=0 doğru). **Guardrail:** read-only, execution/risk/.env DOKUNULMADI, wire EDİLMEDİ, self-approve YOK.
+
+**Verdict:** `ECHO_FORWARD_EVALUATOR_IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW`. **Sıradaki:** bağımsız salt-okunur review → correction → re-review → acceptance; SONRA (istenirse) start_eclipse'e düşük-frekans rol olarak wire + leads dashboard paneli. Forward veri birikince ilk gerçek verdict'ler gelir (~aylar).
+
+## 179. PARÇA 2 (evaluator) — BAĞIMSIZ REVIEW=ACCEPT → KABUL; FORWARD-DEĞERLENDİRME MAKİNESİ (Parça 1+2) TAM (2026-07-20, Opus 4.8 [1M])
+
+**Zincir:** §178 implementation → bağımsız salt-okunur review (general-purpose agent, temiz context) = **VERDICT ACCEPT** (blocker YOK). Doğrulanan: donmuş-kural sadakati (N_MIN=20, CONFIRM=CI_LB>0 & avg≥0.40×in-sample, REFUTED=CI_UB≤0, tail-gate ≤%5/≥%10), no-overlap (yalnız clean satır), seeded bootstrap (deterministik), quarantine dışlama, gate mantığı, sinyal predicate'leri, **lookahead YOK** (eşikler sabit, baseline yalnız çıpa), fail-closed, guardrail'lar. 8/8 test verdict'leri gerçekten kanıtlıyor (tautoloji değil).
+
+**4 NON-BLOCKING (kabul engeli değil, gelecekte sertleştirme):** NB1 GATE_REFUTED de N_MIN'e tabi (güvenli yorum — <20 gözlemde asla kill yok; operatör ratify etsin); NB2 baseline yoksa fail-OPEN (bar→0) → fail-closed sertleştir (baseline commit'li, gerçek risk ~0); NB3 test boşlukları (DEGRADED yolu, noovN==20 sınırı, dağınık-değer CI); NB4 quarantine_rate "ölçülemez-ama-quarantined-değil" satırları saymıyor (raporlama nüansı). İstatistikler doğru; hiçbiri yanlış verdict üretmiyor.
+
+**Verdict:** `ECHO_FORWARD_EVALUATOR_ACCEPTED`. **FORWARD-DEĞERLENDİRME MAKİNESİ TAM:** Parça 1 (ölçülen-maliyet ledger, §177 canlıda) + Parça 2 (skorlayıcı, on-demand). Makine şu an `NO_DATA/ACCUMULATING` (forward N=0); veri birikince (~aylar) ilk gerçek verdict'ler (CONFIRMED/REFUTED/gate) gelir. **Guardrail:** read-only, DB yok, no orders, wire EDİLMEDİ, execution/risk/.env DOKUNULMADI.
+
+**Sıradaki (opsiyonel, acele yok):** (a) istenirse evaluator'ı start_eclipse'e düşük-frekans rol + leads dashboard paneli olarak wire; (b) NB1 ratify + NB2/NB3 sertleştirme küçük bir polish pass'te. Şimdilik: forward'ı izle, makine hazır bekliyor.
+
+## 180. İKİNCİL TEŞHİS YÜZEYLERİ + LEGACY PAPER RUNNER EMEKLİYE AYRILDI — start/stop rol seti sadeleştirildi (2026-07-21, Opus 4.8 [1M])
+
+**Bağlam:** operatör "start eclipse fresh" → sıfırdan restart (canlı executor + liq-scheduler KAPALI, guardrail-doğru). Ardından operatör kararı: kullanılmayan ikincil dashboard'lar + eski paper simülatörü fazladan çalışmasın.
+
+**Emekliye ayrılan 4 rol** (`start_eclipse.ps1`'te canlı-executor'daki "disabled" desenine çevrildi — düz start artık başlatmaz + stray'i aktif öldürür; PID dosyaları 0'lanır):
+- `s34_live_chart` (:5050) — ikincil teşhis grafiği.
+- `orderflow_chart` (:5051) — ikincil teşhis grafiği.
+- `s34_replay` (:5052) — ikincil replay grafiği.
+- `s34_shadow_paper_runner` — legacy paper simülatörü; forward kanıt zaten özel ledger'larda (echo_forward_ledger, hold_horizon_forward_ledger §167/§177) + v02 shadow mirror'da. Ayrıca collector-downtime book_ticker boşluğunda `_fill_quote` sahte fiyat üretmeyi reddedip (`no_fill_data`, ölçülen-maliyet §175) her döngüde çöküyordu → crash-loop.
+
+**`stop_eclipse.ps1`:** orderflow_chart + s34_replay pattern'leri eklendi (daha önce listede yoktu = "yönetilmeyen" süreçlerdi; boşluk kapatıldı). Her iki script `Parser.ParseFile` ile syntax-temiz doğrulandı; 4 rolün hiçbiri çalışmıyor teyit edildi.
+
+**Kalan sağlıklı yüzeyler:** canonical dashboard (:8770) + leads monitör (:8771) = standing operator surfaces; collector'lar/bookticker/oi_spot/heartbeat, echo + hold-horizon forward ledger'lar, v02 shadow mirror, state-machine shadow runner. Canlı executor + liq-scheduler KAPALI.
+
+**Yan etki (bilinen, kabul):** canonical dashboard'un "shadow paper" paneli artık bayatlar (beslendiği runner emekli); leads monitör + forward toplamları ETKİLENMEZ. **Geri dönülebilir:** bir rolü tek blok geri koyarak canlandırılır. **Guardrail:** execution/risk/brain/.env DOKUNULMADI; yalnız ops start/stop script'leri düzenlendi.

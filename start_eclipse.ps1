@@ -261,37 +261,77 @@ $oiSpot = Start-RegisteredPythonProcess `
     -Meta @{ mode = "PUBLIC_POLL_60S_OI_SPOT" } `
     -CommandNeedle "data.oi_spot_poller"
 
-$s34ShadowOut = Join-Path $logs "s34_shadow_paper_runner.stdout.log"
-$s34ShadowErr = Join-Path $logs "s34_shadow_paper_runner.stderr.log"
-$s34ShadowArgs = @(
-    "-u", "tools\s34_shadow_paper_runner.py",
-    "--loop", "--interval-sec", "60",
-    "--regime-filter-enabled",
-    "--regime-min-trend-pct", "1.0",
-    "--regime-min-range-pct", "2.5",
-    "--regime-min-buy-liq-notional", "5000000",
-    "--regime-min-agg-trade-count", "250000",
-    "--quality-gate-enabled",
-    "--quality-gate-min-eclipse", "42.0"
-)
-$s34Shadow = Start-RegisteredPythonProcess `
-    -Role "s34_shadow_paper_runner" `
-    -ProcArgs $s34ShadowArgs `
-    -StdoutPath $s34ShadowOut `
-    -StderrPath $s34ShadowErr `
-    -Meta @{ mode = "PAPER_ONLY_NO_ORDERS" } `
-    -CommandNeedle "tools\s34_shadow_paper_runner.py"
+# Liquidation / stream ANOMALY MONITOR — read-only situational-awareness tool (NOT an edge; AUC~0.55).
+# Writes reports/research/s34/LIQ_ANOMALY_MONITOR.json for the dashboard liq_anomaly panel. DB mode=ro.
+$liqAnomOut = Join-Path $logs "liq_anomaly_monitor.stdout.log"
+$liqAnomErr = Join-Path $logs "liq_anomaly_monitor.stderr.log"
+$liqAnomArgs = @("-W", "ignore", "-u", "-m", "tools.liq_anomaly_monitor", "--interval-sec", "30")
+$liqAnom = Start-RegisteredPythonProcess `
+    -Role "liq_anomaly_monitor" `
+    -ProcArgs $liqAnomArgs `
+    -StdoutPath $liqAnomOut `
+    -StderrPath $liqAnomErr `
+    -Meta @{ mode = "READONLY_ANOMALY_MONITOR_TOOL_NOT_EDGE" } `
+    -CommandNeedle "tools.liq_anomaly_monitor"
 
-$s34ChartOut = Join-Path $logs "s34_live_chart.stdout.log"
-$s34ChartErr = Join-Path $logs "s34_live_chart.stderr.log"
-$s34ChartArgs = @("-u", "tools\s34_live_chart.py", "--host", "127.0.0.1", "--port", "5050", "--no-browser")
-$s34Chart = Start-RegisteredPythonProcess `
-    -Role "s34_live_chart" `
-    -ProcArgs $s34ChartArgs `
-    -StdoutPath $s34ChartOut `
-    -StderrPath $s34ChartErr `
-    -Meta @{ mode = "READ_ONLY_CHART" } `
-    -CommandNeedle "tools\s34_live_chart.py"
+# Liquidation tip FORWARD-LEDGER — read-only un-burned data accumulation (tip fingerprint + outcome
+# backfill per liq event). The only honest way to ever forward-test the weak (AUC~0.55) signal; NOT a
+# trader, no orders. Ledger reports/shadow/liq_tip_forward.jsonl. DB mode=ro.
+$liqFwdOut = Join-Path $logs "liq_tip_forward.stdout.log"
+$liqFwdErr = Join-Path $logs "liq_tip_forward.stderr.log"
+$liqFwdArgs = @("-W", "ignore", "-u", "-m", "tools.liq_tip_forward", "--interval-sec", "30")
+$liqFwd = Start-RegisteredPythonProcess `
+    -Role "liq_tip_forward" `
+    -ProcArgs $liqFwdArgs `
+    -StdoutPath $liqFwdOut `
+    -StderrPath $liqFwdErr `
+    -Meta @{ mode = "READONLY_FORWARD_LEDGER_UNBURNED_NOT_EDGE" } `
+    -CommandNeedle "tools.liq_tip_forward"
+
+# ECHO FORWARD-LEDGER — frozen-rule (echo_30_90+regime) un-burned forward accumulation for the last
+# alpha lead (prereg S34_ECHO_FRESH_GATED_PREREGISTRATION_V1, SYSTEM_STATE §164). Records T0-causal
+# qualification (qualified_t0) separately from the discovery rule's T+30m lookahead gate (qualified_full),
+# plus a rich indicator snapshot for forward-clean signal development (OD-029). NOT a trader, no orders.
+# Ledger reports/shadow/echo_forward_ledger.jsonl. DB mode=ro.
+$echoFwdOut = Join-Path $logs "echo_forward_ledger.stdout.log"
+$echoFwdErr = Join-Path $logs "echo_forward_ledger.stderr.log"
+$echoFwdArgs = @("-W", "ignore", "-u", "-m", "tools.research_s34_echo_forward_ledger", "--interval-sec", "30")
+$echoFwd = Start-RegisteredPythonProcess `
+    -Role "echo_forward_ledger" `
+    -ProcArgs $echoFwdArgs `
+    -StdoutPath $echoFwdOut `
+    -StderrPath $echoFwdErr `
+    -Meta @{ mode = "READONLY_FROZEN_RULE_FORWARD_LEDGER_ECHO_LEAD_NOT_EDGE" } `
+    -CommandNeedle "tools.research_s34_echo_forward_ledger"
+
+# HOLD-HORIZON FORWARD-LEDGER — forward paper accumulation of hour17 & echo(causal) outcomes across
+# hold horizons 2/4/6/12/24/48h (SYSTEM_STATE §167). Companion to the in-sample sweep
+# (research_s34_hold_horizon_sweep, which is BURNED); this is the honest forward test. NOT a trader,
+# no orders. Ledger reports/shadow/hold_horizon_forward_ledger.jsonl. DB mode=ro.
+$holdFwdOut = Join-Path $logs "hold_horizon_forward_ledger.stdout.log"
+$holdFwdErr = Join-Path $logs "hold_horizon_forward_ledger.stderr.log"
+$holdFwdArgs = @("-W", "ignore", "-u", "-m", "tools.research_s34_hold_horizon_forward_ledger", "--interval-sec", "30")
+$holdFwd = Start-RegisteredPythonProcess `
+    -Role "hold_horizon_forward_ledger" `
+    -ProcArgs $holdFwdArgs `
+    -StdoutPath $holdFwdOut `
+    -StderrPath $holdFwdErr `
+    -Meta @{ mode = "READONLY_FORWARD_LEDGER_HOLD_HORIZON_SWEEP_NOT_EDGE" } `
+    -CommandNeedle "tools.research_s34_hold_horizon_forward_ledger"
+
+# RETIRED by operator (2026-07-21): legacy paper simulator superseded by the dedicated forward
+# ledgers (echo_forward_ledger, hold_horizon_forward_ledger) + v02 shadow mirror. It also crash-loops
+# whenever an open paper trade falls inside a collector-downtime book_ticker gap (measured-cost fill
+# refuses to fabricate a price). Not restarted; a plain start_eclipse run actively stops any stray.
+Stop-PythonProcessesByCommandLine -Role "s34_shadow_paper_runner" -Needle "tools\s34_shadow_paper_runner.py"
+Set-Content -LiteralPath (Join-Path $pidDir "s34_shadow_paper_runner.pid") -Value "0" -Encoding ascii
+$s34Shadow = [PSCustomObject]@{ Id = 0; AlreadyRunning = $false; Disabled = $true }
+
+# RETIRED by operator (2026-07-21): secondary diagnostic live chart (:5050) no longer used;
+# canonical dashboard (:8770) + leads monitor (:8771) are the standing surfaces. Not restarted.
+Stop-PythonProcessesByCommandLine -Role "s34_live_chart" -Needle "tools\s34_live_chart.py"
+Set-Content -LiteralPath (Join-Path $pidDir "s34_live_chart.pid") -Value "0" -Encoding ascii
+$s34Chart = [PSCustomObject]@{ Id = 0; AlreadyRunning = $false; Disabled = $true }
 
 $s34V02MirrorInterval = 180
 $s34V02MirrorDb = "data/microstructure.db"
@@ -374,27 +414,15 @@ if ($EnableLiquidationSilenceScheduler) {
     $liqSched = [PSCustomObject]@{ Id = 0; AlreadyRunning = $false; Disabled = $true }
 }
 
-$orderflowOut = Join-Path $logs "orderflow_chart.stdout.log"
-$orderflowErr = Join-Path $logs "orderflow_chart.stderr.log"
-$orderflowArgs = @("-u", "tools\orderflow_chart.py", "--host", "127.0.0.1", "--port", "5051", "--no-browser")
-$orderflow = Start-RegisteredPythonProcess `
-    -Role "orderflow_chart" `
-    -ProcArgs $orderflowArgs `
-    -StdoutPath $orderflowOut `
-    -StderrPath $orderflowErr `
-    -Meta @{ mode = "READ_ONLY_CHART" } `
-    -CommandNeedle "tools\orderflow_chart.py"
+# RETIRED by operator (2026-07-21): secondary diagnostic orderflow chart (:5051) no longer used. Not restarted.
+Stop-PythonProcessesByCommandLine -Role "orderflow_chart" -Needle "tools\orderflow_chart.py"
+Set-Content -LiteralPath (Join-Path $pidDir "orderflow_chart.pid") -Value "0" -Encoding ascii
+$orderflow = [PSCustomObject]@{ Id = 0; AlreadyRunning = $false; Disabled = $true }
 
-$replayOut = Join-Path $logs "s34_replay.stdout.log"
-$replayErr = Join-Path $logs "s34_replay.stderr.log"
-$replayArgs = @("-u", "tools\s34_replay.py", "--host", "127.0.0.1", "--port", "5052", "--no-browser")
-$replay = Start-RegisteredPythonProcess `
-    -Role "s34_replay" `
-    -ProcArgs $replayArgs `
-    -StdoutPath $replayOut `
-    -StderrPath $replayErr `
-    -Meta @{ mode = "READ_ONLY_CHART" } `
-    -CommandNeedle "tools\s34_replay.py"
+# RETIRED by operator (2026-07-21): secondary diagnostic replay chart (:5052) no longer used. Not restarted.
+Stop-PythonProcessesByCommandLine -Role "s34_replay" -Needle "tools\s34_replay.py"
+Set-Content -LiteralPath (Join-Path $pidDir "s34_replay.pid") -Value "0" -Encoding ascii
+$replay = [PSCustomObject]@{ Id = 0; AlreadyRunning = $false; Disabled = $true }
 
 $s34DashboardOut = Join-Path $logs "s34_canonical_dashboard.stdout.log"
 $s34DashboardErr = Join-Path $logs "s34_canonical_dashboard.stderr.log"
@@ -406,6 +434,20 @@ $s34Dashboard = Start-RegisteredPythonProcess `
     -StderrPath $s34DashboardErr `
     -Meta @{ mode = "READ_ONLY_DASHBOARD_SERVE_GET_HEAD_ONLY" } `
     -CommandNeedle "tools.s34_cascade_navigation_dashboard --serve "
+
+# LEADS MONITOR — secondary/diagnostic read-only surface for the two standing leads
+# (echo_30_90+regime CAUSAL, LONG_HOUR17). GET/HEAD only, DB mode=ro, no control. Does NOT
+# supersede the canonical :8770 surface. Quarantines outage/gap artifacts (SYSTEM_STATE §141).
+$s34LeadsMonOut = Join-Path $logs "s34_leads_monitor_dashboard.stdout.log"
+$s34LeadsMonErr = Join-Path $logs "s34_leads_monitor_dashboard.stderr.log"
+$s34LeadsMonArgs = @("-W", "ignore", "-u", "-m", "tools.s34_leads_monitor_dashboard", "--serve", "--host", "127.0.0.1", "--serve-port", "8771")
+$s34LeadsMon = Start-RegisteredPythonProcess `
+    -Role "s34_leads_monitor_dashboard" `
+    -ProcArgs $s34LeadsMonArgs `
+    -StdoutPath $s34LeadsMonOut `
+    -StderrPath $s34LeadsMonErr `
+    -Meta @{ mode = "READ_ONLY_LEADS_MONITOR_SERVE_GET_HEAD_ONLY_NOT_CANONICAL" } `
+    -CommandNeedle "tools.s34_leads_monitor_dashboard --serve "
 
 Write-RoleStatus "collector_supervisor" $supervisor
 Write-RoleStatus "heartbeat_watchdog" $heartbeat
@@ -420,6 +462,8 @@ Write-RoleStatus "liquidation_silence_scheduler" $liqSched
 Write-RoleStatus "orderflow_chart" $orderflow
 Write-RoleStatus "s34_replay" $replay
 Write-RoleStatus "s34_canonical_dashboard" $s34Dashboard
+Write-RoleStatus "s34_leads_monitor_dashboard" $s34LeadsMon
+Write-RoleStatus "hold_horizon_forward_ledger" $holdFwd
 Write-Output "symbols=$Symbols"
 Write-Output "logs=$logs"
 

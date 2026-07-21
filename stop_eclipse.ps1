@@ -53,6 +53,10 @@ $patterns = @(
     "tools/s34_shadow_paper_runner.py",
     "tools\s34_live_chart.py",
     "tools/s34_live_chart.py",
+    "tools\orderflow_chart.py",
+    "tools/orderflow_chart.py",
+    "tools\s34_replay.py",
+    "tools/s34_replay.py",
     "tools.s34_v_engine_v02_shadow_mirror",
     "tools.collection_watchdog",
     "tools.data_layer_probe",
@@ -61,7 +65,9 @@ $patterns = @(
     "tools.s34_state_machine_live_executor",
     "tools.s34_realtime_shadow_runner",
     "data.oi_spot_poller",
-    "tools.liquidation_silence_scheduler"
+    "tools.liquidation_silence_scheduler",
+    "tools.s34_leads_monitor_dashboard",
+    "tools.research_s34_hold_horizon_forward_ledger"
 )
 
 $stopped = @()
