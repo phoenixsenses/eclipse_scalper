@@ -1,0 +1,4149 @@
+{
+  "generated_at_utc": "2026-06-29T13:26:28.306401+00:00",
+  "status": "RESEARCH_ONLY_NO_LIVE_CHANGE",
+  "stress_score3_reverse_anatomy_15m": {
+    "best10": [
+      {
+        "bid_depth": 31419.0,
+        "book_imbalance": -0.741,
+        "btc4h": -100.5,
+        "eth1h": -51.7,
+        "event_id": "ETHUSDT_SELL_50000_1782394272242",
+        "fold": 5,
+        "prior4h": -122.9,
+        "signal_utc": "2026-06-25T13:31:12.242000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": 261.1,
+        "vdepth": 24.2
+      },
+      {
+        "bid_depth": 325274.6,
+        "book_imbalance": 0.807,
+        "btc4h": -109.2,
+        "eth1h": -60.8,
+        "event_id": "ETHUSDT_SELL_100000_1782394284495",
+        "fold": 5,
+        "prior4h": -132.2,
+        "signal_utc": "2026-06-25T13:31:24.495000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_CORE",
+          "BID_DEPTH_OK",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_LOW_CONTEXT",
+          "SIZE_15X_STABLE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": 242.9,
+        "vdepth": 39.4
+      },
+      {
+        "bid_depth": 4368.9,
+        "book_imbalance": -0.97,
+        "btc4h": -112.0,
+        "eth1h": -63.0,
+        "event_id": "ETHUSDT_SELL_200000_1782394305283",
+        "fold": 5,
+        "prior4h": -135.4,
+        "signal_utc": "2026-06-25T13:31:45.283000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_HIGH",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": 242.1,
+        "vdepth": 45.6
+      },
+      {
+        "bid_depth": 229234.2,
+        "book_imbalance": 0.592,
+        "btc4h": -202.5,
+        "eth1h": -99.6,
+        "event_id": "ETHUSDT_SELL_50000_1782202432090",
+        "fold": 5,
+        "prior4h": -306.8,
+        "signal_utc": "2026-06-23T08:13:52.090000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_CORE",
+          "BID_DEPTH_OK",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_LOW_CONTEXT",
+          "SIZE_15X_STABLE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": 196.9,
+        "vdepth": 28.8
+      },
+      {
+        "bid_depth": 300442.8,
+        "book_imbalance": 0.272,
+        "btc4h": -406.7,
+        "eth1h": -54.2,
+        "event_id": "ETHUSDT_SELL_50000_1782319123478",
+        "fold": 5,
+        "prior4h": -311.8,
+        "signal_utc": "2026-06-24T16:38:43.478000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": 177.1,
+        "vdepth": 16.6
+      },
+      {
+        "bid_depth": 94814.2,
+        "book_imbalance": -0.642,
+        "btc4h": -425.3,
+        "eth1h": -54.2,
+        "event_id": "ETHUSDT_SELL_100000_1782319424366",
+        "fold": 5,
+        "prior4h": -337.3,
+        "signal_utc": "2026-06-24T16:43:44.366000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": 173.5,
+        "vdepth": 20.2
+      },
+      {
+        "bid_depth": 2655.4,
+        "book_imbalance": -0.984,
+        "btc4h": -219.9,
+        "eth1h": -128.4,
+        "event_id": "ETHUSDT_SELL_200000_1782202514090",
+        "fold": 5,
+        "prior4h": -335.2,
+        "signal_utc": "2026-06-23T08:15:14.090000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": 163.3,
+        "vdepth": 7.9
+      },
+      {
+        "bid_depth": 35378.2,
+        "book_imbalance": -0.803,
+        "btc4h": -420.9,
+        "eth1h": -21.8,
+        "event_id": "ETHUSDT_SELL_200000_1782319601345",
+        "fold": 5,
+        "prior4h": -341.9,
+        "signal_utc": "2026-06-24T16:46:41.345000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": 155.6,
+        "vdepth": 18.4
+      },
+      {
+        "bid_depth": 260942.6,
+        "book_imbalance": 0.326,
+        "btc4h": -130.2,
+        "eth1h": -63.7,
+        "event_id": "ETHUSDT_SELL_200000_1782194864406",
+        "fold": 5,
+        "prior4h": -125.4,
+        "signal_utc": "2026-06-23T06:07:44.406000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "TAIL_REALIZED",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": 151.8,
+        "vdepth": 11.8
+      },
+      {
+        "bid_depth": 70492.1,
+        "book_imbalance": -0.805,
+        "btc4h": -130.9,
+        "eth1h": -61.3,
+        "event_id": "ETHUSDT_SELL_100000_1782194855206",
+        "fold": 5,
+        "prior4h": -123.8,
+        "signal_utc": "2026-06-23T06:07:35.206000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": 146.6,
+        "vdepth": 9.7
+      }
+    ],
+    "loser_profile": {
+      "avg_bid_depth": 146349.3,
+      "avg_book_imbalance": 0.0,
+      "avg_btc4h": -135.8,
+      "avg_eth1h": -92.4,
+      "avg_prior4h": -169.9,
+      "avg_threshold": 116176.5,
+      "avg_vdepth": 21.8,
+      "n": 34,
+      "tag_mix": {
+        "BID_DEPTH_OK": 19,
+        "BID_DEPTH_THIN": 15,
+        "EXIT_2H_ACTUAL_BETTER": 17,
+        "EXIT_4H_ACTUAL_BETTER": 17,
+        "RISK_OFF_REBOUND": 30,
+        "SIZE_34X_FRAGILE": 32,
+        "TAIL_HIGH_OR_UNKNOWN": 32,
+        "VDEPTH_DANGER_LOW": 26
+      },
+      "threshold_mix": {
+        "thr100000": 12,
+        "thr200000": 11,
+        "thr50000": 11
+      }
+    },
+    "summary": {
+      "max_loss_bps": -150.8,
+      "mean_bps": 2.1,
+      "median_bps": -5.6,
+      "n": 283,
+      "sum_bps": 607.4,
+      "t3r_bps": -138.8,
+      "tail_lte_minus100_n": 6,
+      "tail_lte_minus150_n": 1,
+      "tail_lte_minus300_n": 0,
+      "win_rate": 0.431
+    },
+    "tail_profile": {
+      "avg_bid_depth": 95469.2,
+      "avg_book_imbalance": -0.6,
+      "avg_btc4h": -115.8,
+      "avg_eth1h": -98.6,
+      "avg_prior4h": -119.4,
+      "avg_threshold": 200000.0,
+      "avg_vdepth": 68.1,
+      "n": 1,
+      "tag_mix": {
+        "BID_DEPTH_THIN": 1,
+        "EXIT_4H_ACTUAL_BETTER": 1,
+        "RISK_OFF_REBOUND": 1,
+        "SIZE_34X_FRAGILE": 1,
+        "TAIL_HIGH_OR_UNKNOWN": 1,
+        "VDEPTH_DANGER_HIGH": 1
+      },
+      "threshold_mix": {
+        "thr200000": 1
+      }
+    },
+    "winner_profile": {
+      "avg_bid_depth": 171676.9,
+      "avg_book_imbalance": -0.1,
+      "avg_btc4h": -147.0,
+      "avg_eth1h": -97.8,
+      "avg_prior4h": -163.1,
+      "avg_threshold": 109016.4,
+      "avg_vdepth": 19.1,
+      "n": 122,
+      "tag_mix": {
+        "BID_DEPTH_OK": 52,
+        "BID_DEPTH_THIN": 70,
+        "EXIT_2H_ACTUAL_BETTER": 57,
+        "EXIT_4H_ACTUAL_BETTER": 65,
+        "RISK_OFF_REBOUND": 95,
+        "SIZE_34X_FRAGILE": 119,
+        "TAIL_HIGH_OR_UNKNOWN": 119,
+        "VDEPTH_DANGER_LOW": 95
+      },
+      "threshold_mix": {
+        "thr100000": 45,
+        "thr200000": 33,
+        "thr50000": 44
+      }
+    },
+    "worst10": [
+      {
+        "bid_depth": 95469.2,
+        "book_imbalance": -0.632,
+        "btc4h": -115.8,
+        "eth1h": -98.6,
+        "event_id": "ETHUSDT_SELL_200000_1782699234143",
+        "fold": 5,
+        "prior4h": -119.4,
+        "signal_utc": "2026-06-29T02:13:54.143000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_HIGH",
+          "BID_DEPTH_THIN",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": -150.8,
+        "vdepth": 68.1
+      },
+      {
+        "bid_depth": 137419.7,
+        "book_imbalance": 0.024,
+        "btc4h": -103.4,
+        "eth1h": -72.2,
+        "event_id": "ETHUSDT_SELL_100000_1782699195732",
+        "fold": 5,
+        "prior4h": -97.9,
+        "signal_utc": "2026-06-29T02:13:15.732000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_HIGH",
+          "BID_DEPTH_OK",
+          "BID_DEPTH_CORE",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": -127.6,
+        "vdepth": 45.2
+      },
+      {
+        "bid_depth": 278379.4,
+        "book_imbalance": 0.186,
+        "btc4h": -91.7,
+        "eth1h": -68.7,
+        "event_id": "ETHUSDT_SELL_50000_1782699186530",
+        "fold": 5,
+        "prior4h": -85.6,
+        "signal_utc": "2026-06-29T02:13:06.530000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_CORE",
+          "BID_DEPTH_OK",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_LOW_CONTEXT",
+          "SIZE_15X_STABLE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": -113.1,
+        "vdepth": 34.8
+      },
+      {
+        "bid_depth": 319829.3,
+        "book_imbalance": 0.811,
+        "btc4h": 122.0,
+        "eth1h": 187.5,
+        "event_id": "ETHUSDT_SELL_50000_1781472538313",
+        "fold": 4,
+        "prior4h": 201.4,
+        "signal_utc": "2026-06-14T21:28:58.313000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "BULL_PULLBACK",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": -103.4,
+        "vdepth": 19.0
+      },
+      {
+        "bid_depth": 146145.3,
+        "book_imbalance": 0.018,
+        "btc4h": 1.3,
+        "eth1h": -42.7,
+        "event_id": "ETHUSDT_SELL_100000_1782485772253",
+        "fold": 5,
+        "prior4h": 39.1,
+        "signal_utc": "2026-06-26T14:56:12.253000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "NEUTRAL_CONTEXT",
+          "VDEPTH_CORE",
+          "BID_DEPTH_OK",
+          "BID_DEPTH_CORE",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": -102.9,
+        "vdepth": 32.4
+      },
+      {
+        "bid_depth": 166592.1,
+        "book_imbalance": 0.569,
+        "btc4h": -255.1,
+        "eth1h": -119.5,
+        "event_id": "ETHUSDT_SELL_200000_1782310759584",
+        "fold": 5,
+        "prior4h": -148.5,
+        "signal_utc": "2026-06-24T14:19:19.584000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "BID_DEPTH_CORE",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": -102.0,
+        "vdepth": 18.7
+      },
+      {
+        "bid_depth": 221042.7,
+        "book_imbalance": 0.233,
+        "btc4h": -324.1,
+        "eth1h": -252.3,
+        "event_id": "ETHUSDT_SELL_50000_1782324164473",
+        "fold": 5,
+        "prior4h": -520.8,
+        "signal_utc": "2026-06-24T18:02:44.473000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_CORE",
+          "BID_DEPTH_OK",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_LOW_CONTEXT",
+          "SIZE_15X_STABLE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": -97.4,
+        "vdepth": 34.0
+      },
+      {
+        "bid_depth": 181059.6,
+        "book_imbalance": -0.063,
+        "btc4h": -249.6,
+        "eth1h": -114.9,
+        "event_id": "ETHUSDT_SELL_100000_1782310755533",
+        "fold": 5,
+        "prior4h": -151.3,
+        "signal_utc": "2026-06-24T14:19:15.533000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "BID_DEPTH_CORE",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": -95.7,
+        "vdepth": 16.6
+      },
+      {
+        "bid_depth": 119890.1,
+        "book_imbalance": -0.644,
+        "btc4h": -35.5,
+        "eth1h": -69.8,
+        "event_id": "ETHUSDT_SELL_200000_1781873198071",
+        "fold": 4,
+        "prior4h": -83.2,
+        "signal_utc": "2026-06-19T12:46:38.071000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": -87.5,
+        "vdepth": 17.9
+      },
+      {
+        "bid_depth": 254686.0,
+        "book_imbalance": 0.593,
+        "btc4h": -39.4,
+        "eth1h": -184.7,
+        "event_id": "ETHUSDT_SELL_100000_1781280185093",
+        "fold": 4,
+        "prior4h": -91.1,
+        "signal_utc": "2026-06-12T16:03:05.093000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": -84.0,
+        "vdepth": 19.3
+      }
+    ]
+  },
+  "stress_score3_reverse_anatomy_30m": {
+    "best10": [
+      {
+        "bid_depth": 31419.0,
+        "book_imbalance": -0.741,
+        "btc4h": -100.5,
+        "eth1h": -51.7,
+        "event_id": "ETHUSDT_SELL_50000_1782394272242",
+        "fold": 5,
+        "prior4h": -122.9,
+        "signal_utc": "2026-06-25T13:31:12.242000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": 502.2,
+        "vdepth": 24.2
+      },
+      {
+        "bid_depth": 325274.6,
+        "book_imbalance": 0.807,
+        "btc4h": -109.2,
+        "eth1h": -60.8,
+        "event_id": "ETHUSDT_SELL_100000_1782394284495",
+        "fold": 5,
+        "prior4h": -132.2,
+        "signal_utc": "2026-06-25T13:31:24.495000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_CORE",
+          "BID_DEPTH_OK",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_LOW_CONTEXT",
+          "SIZE_15X_STABLE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": 466.7,
+        "vdepth": 39.4
+      },
+      {
+        "bid_depth": 4368.9,
+        "book_imbalance": -0.97,
+        "btc4h": -112.0,
+        "eth1h": -63.0,
+        "event_id": "ETHUSDT_SELL_200000_1782394305283",
+        "fold": 5,
+        "prior4h": -135.4,
+        "signal_utc": "2026-06-25T13:31:45.283000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_HIGH",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": 450.5,
+        "vdepth": 45.6
+      },
+      {
+        "bid_depth": 80386.7,
+        "book_imbalance": -0.462,
+        "btc4h": -179.4,
+        "eth1h": -42.7,
+        "event_id": "ETHUSDT_SELL_100000_1782201545071",
+        "fold": 5,
+        "prior4h": -256.7,
+        "signal_utc": "2026-06-23T07:59:05.071000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": 229.1,
+        "vdepth": 16.1
+      },
+      {
+        "bid_depth": 111445.1,
+        "book_imbalance": -0.389,
+        "btc4h": -187.0,
+        "eth1h": -56.2,
+        "event_id": "ETHUSDT_SELL_200000_1782201584477",
+        "fold": 5,
+        "prior4h": -273.4,
+        "signal_utc": "2026-06-23T07:59:44.477000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_CORE",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": 228.3,
+        "vdepth": 30.6
+      },
+      {
+        "bid_depth": 300442.8,
+        "book_imbalance": 0.272,
+        "btc4h": -406.7,
+        "eth1h": -54.2,
+        "event_id": "ETHUSDT_SELL_50000_1782319123478",
+        "fold": 5,
+        "prior4h": -311.8,
+        "signal_utc": "2026-06-24T16:38:43.478000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": 223.2,
+        "vdepth": 16.6
+      },
+      {
+        "bid_depth": 94814.2,
+        "book_imbalance": -0.642,
+        "btc4h": -425.3,
+        "eth1h": -54.2,
+        "event_id": "ETHUSDT_SELL_100000_1782319424366",
+        "fold": 5,
+        "prior4h": -337.3,
+        "signal_utc": "2026-06-24T16:43:44.366000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": 209.1,
+        "vdepth": 20.2
+      },
+      {
+        "bid_depth": 35378.2,
+        "book_imbalance": -0.803,
+        "btc4h": -420.9,
+        "eth1h": -21.8,
+        "event_id": "ETHUSDT_SELL_200000_1782319601345",
+        "fold": 5,
+        "prior4h": -341.9,
+        "signal_utc": "2026-06-24T16:46:41.345000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": 205.6,
+        "vdepth": 18.4
+      },
+      {
+        "bid_depth": 266541.0,
+        "book_imbalance": 0.158,
+        "btc4h": -88.0,
+        "eth1h": -26.4,
+        "event_id": "ETHUSDT_SELL_50000_1781795840597",
+        "fold": 4,
+        "prior4h": -84.1,
+        "signal_utc": "2026-06-18T15:17:20.597000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": 202.9,
+        "vdepth": 8.6
+      },
+      {
+        "bid_depth": 235771.3,
+        "book_imbalance": 0.195,
+        "btc4h": -89.0,
+        "eth1h": -27.4,
+        "event_id": "ETHUSDT_SELL_100000_1781795844423",
+        "fold": 4,
+        "prior4h": -85.0,
+        "signal_utc": "2026-06-18T15:17:24.423000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": 197.3,
+        "vdepth": 9.0
+      }
+    ],
+    "loser_profile": {
+      "avg_bid_depth": 168400.2,
+      "avg_book_imbalance": -0.0,
+      "avg_btc4h": -159.6,
+      "avg_eth1h": -97.3,
+      "avg_prior4h": -196.9,
+      "avg_threshold": 120408.2,
+      "avg_vdepth": 20.2,
+      "n": 49,
+      "tag_mix": {
+        "BID_DEPTH_CORE": 16,
+        "BID_DEPTH_OK": 30,
+        "BID_DEPTH_THIN": 19,
+        "EXIT_4H_ACTUAL_BETTER": 34,
+        "RISK_OFF_REBOUND": 41,
+        "SIZE_34X_FRAGILE": 46,
+        "TAIL_HIGH_OR_UNKNOWN": 46,
+        "VDEPTH_DANGER_LOW": 39
+      },
+      "threshold_mix": {
+        "thr100000": 18,
+        "thr200000": 17,
+        "thr50000": 14
+      }
+    },
+    "summary": {
+      "max_loss_bps": -187.8,
+      "mean_bps": 1.1,
+      "median_bps": -8.3,
+      "n": 283,
+      "sum_bps": 302.3,
+      "t3r_bps": -1117.2,
+      "tail_lte_minus100_n": 15,
+      "tail_lte_minus150_n": 6,
+      "tail_lte_minus300_n": 0,
+      "win_rate": 0.399
+    },
+    "tail_profile": {
+      "avg_bid_depth": 220398.1,
+      "avg_book_imbalance": 0.3,
+      "avg_btc4h": -144.9,
+      "avg_eth1h": -32.0,
+      "avg_prior4h": -192.2,
+      "avg_threshold": 125000.0,
+      "avg_vdepth": 35.0,
+      "n": 6,
+      "tag_mix": {
+        "BID_DEPTH_CORE": 2,
+        "BID_DEPTH_OK": 5,
+        "EXIT_4H_ACTUAL_BETTER": 5,
+        "RISK_OFF_REBOUND": 5,
+        "SIZE_34X_FRAGILE": 6,
+        "TAIL_HIGH_OR_UNKNOWN": 6,
+        "VDEPTH_DANGER_HIGH": 2,
+        "VDEPTH_DANGER_LOW": 3
+      },
+      "threshold_mix": {
+        "thr100000": 3,
+        "thr200000": 2,
+        "thr50000": 1
+      }
+    },
+    "winner_profile": {
+      "avg_bid_depth": 174723.3,
+      "avg_book_imbalance": -0.1,
+      "avg_btc4h": -116.5,
+      "avg_eth1h": -72.6,
+      "avg_prior4h": -116.4,
+      "avg_threshold": 106637.2,
+      "avg_vdepth": 20.2,
+      "n": 113,
+      "tag_mix": {
+        "BID_DEPTH_OK": 54,
+        "BID_DEPTH_THIN": 59,
+        "EXIT_2H_ACTUAL_BETTER": 58,
+        "EXIT_4H_ACTUAL_BETTER": 55,
+        "RISK_OFF_REBOUND": 79,
+        "SIZE_34X_FRAGILE": 111,
+        "TAIL_HIGH_OR_UNKNOWN": 111,
+        "VDEPTH_DANGER_LOW": 90
+      },
+      "threshold_mix": {
+        "thr100000": 44,
+        "thr200000": 28,
+        "thr50000": 41
+      }
+    },
+    "worst10": [
+      {
+        "bid_depth": 146145.3,
+        "book_imbalance": 0.018,
+        "btc4h": 1.3,
+        "eth1h": -42.7,
+        "event_id": "ETHUSDT_SELL_100000_1782485772253",
+        "fold": 5,
+        "prior4h": 39.1,
+        "signal_utc": "2026-06-26T14:56:12.253000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "NEUTRAL_CONTEXT",
+          "VDEPTH_CORE",
+          "BID_DEPTH_OK",
+          "BID_DEPTH_CORE",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": -187.8,
+        "vdepth": 32.4
+      },
+      {
+        "bid_depth": 314451.5,
+        "book_imbalance": 0.889,
+        "btc4h": -217.1,
+        "eth1h": 7.2,
+        "event_id": "ETHUSDT_SELL_50000_1782444185117",
+        "fold": 5,
+        "prior4h": -325.0,
+        "signal_utc": "2026-06-26T03:23:05.117000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": -187.4,
+        "vdepth": 21.4
+      },
+      {
+        "bid_depth": 314451.5,
+        "book_imbalance": 0.889,
+        "btc4h": -217.1,
+        "eth1h": 7.2,
+        "event_id": "ETHUSDT_SELL_100000_1782444185117",
+        "fold": 5,
+        "prior4h": -325.0,
+        "signal_utc": "2026-06-26T03:23:05.117000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": -187.4,
+        "vdepth": 21.4
+      },
+      {
+        "bid_depth": 314451.5,
+        "book_imbalance": 0.889,
+        "btc4h": -217.1,
+        "eth1h": 7.2,
+        "event_id": "ETHUSDT_SELL_200000_1782444185117",
+        "fold": 5,
+        "prior4h": -325.0,
+        "signal_utc": "2026-06-26T03:23:05.117000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": -187.4,
+        "vdepth": 21.4
+      },
+      {
+        "bid_depth": 95469.2,
+        "book_imbalance": -0.632,
+        "btc4h": -115.8,
+        "eth1h": -98.6,
+        "event_id": "ETHUSDT_SELL_200000_1782699234143",
+        "fold": 5,
+        "prior4h": -119.4,
+        "signal_utc": "2026-06-29T02:13:54.143000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_HIGH",
+          "BID_DEPTH_THIN",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": -159.9,
+        "vdepth": 68.1
+      },
+      {
+        "bid_depth": 137419.7,
+        "book_imbalance": 0.024,
+        "btc4h": -103.4,
+        "eth1h": -72.2,
+        "event_id": "ETHUSDT_SELL_100000_1782699195732",
+        "fold": 5,
+        "prior4h": -97.9,
+        "signal_utc": "2026-06-29T02:13:15.732000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_HIGH",
+          "BID_DEPTH_OK",
+          "BID_DEPTH_CORE",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": -150.9,
+        "vdepth": 45.2
+      },
+      {
+        "bid_depth": 221042.7,
+        "book_imbalance": 0.233,
+        "btc4h": -324.1,
+        "eth1h": -252.3,
+        "event_id": "ETHUSDT_SELL_50000_1782324164473",
+        "fold": 5,
+        "prior4h": -520.8,
+        "signal_utc": "2026-06-24T18:02:44.473000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_CORE",
+          "BID_DEPTH_OK",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_LOW_CONTEXT",
+          "SIZE_15X_STABLE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": -143.2,
+        "vdepth": 34.0
+      },
+      {
+        "bid_depth": 278379.4,
+        "book_imbalance": 0.186,
+        "btc4h": -91.7,
+        "eth1h": -68.7,
+        "event_id": "ETHUSDT_SELL_50000_1782699186530",
+        "fold": 5,
+        "prior4h": -85.6,
+        "signal_utc": "2026-06-29T02:13:06.530000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_CORE",
+          "BID_DEPTH_OK",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_LOW_CONTEXT",
+          "SIZE_15X_STABLE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": -140.1,
+        "vdepth": 34.8
+      },
+      {
+        "bid_depth": 319829.3,
+        "book_imbalance": 0.811,
+        "btc4h": 122.0,
+        "eth1h": 187.5,
+        "event_id": "ETHUSDT_SELL_50000_1781472538313",
+        "fold": 4,
+        "prior4h": 201.4,
+        "signal_utc": "2026-06-14T21:28:58.313000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "BULL_PULLBACK",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": -129.9,
+        "vdepth": 19.0
+      },
+      {
+        "bid_depth": 149889.4,
+        "book_imbalance": 0.007,
+        "btc4h": -318.6,
+        "eth1h": -235.9,
+        "event_id": "ETHUSDT_SELL_100000_1782324211658",
+        "fold": 5,
+        "prior4h": -511.4,
+        "signal_utc": "2026-06-24T18:03:31.658000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "BID_DEPTH_CORE",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": -126.9,
+        "vdepth": 22.2
+      }
+    ]
+  },
+  "stress_score3_reverse_grid": {
+    "horizons": {
+      "15m": {
+        "fixed": {
+          "max_loss_bps": -150.8,
+          "mean_bps": 2.1,
+          "median_bps": -5.6,
+          "n": 283,
+          "sum_bps": 607.4,
+          "t3r_bps": -138.8,
+          "tail_lte_minus100_n": 6,
+          "tail_lte_minus150_n": 1,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.431
+        },
+        "top_brackets": [
+          {
+            "exits": {
+              "SL": 107,
+              "TIME": 158,
+              "TP": 18
+            },
+            "sl": 30.0,
+            "summary": {
+              "max_loss_bps": -35.0,
+              "mean_bps": 3.1,
+              "median_bps": -10.3,
+              "n": 283,
+              "sum_bps": 871.0,
+              "t3r_bps": 436.0,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.396
+            },
+            "tp": 150.0
+          },
+          {
+            "exits": {
+              "SL": 56,
+              "TIME": 209,
+              "TP": 18
+            },
+            "sl": 50.0,
+            "summary": {
+              "max_loss_bps": -55.0,
+              "mean_bps": 2.5,
+              "median_bps": -5.6,
+              "n": 283,
+              "sum_bps": 707.1,
+              "t3r_bps": 272.1,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.435
+            },
+            "tp": 150.0
+          },
+          {
+            "exits": {
+              "SL": 56,
+              "TIME": 193,
+              "TP": 34
+            },
+            "sl": 50.0,
+            "summary": {
+              "max_loss_bps": -55.0,
+              "mean_bps": 1.6,
+              "median_bps": -4.6,
+              "n": 283,
+              "sum_bps": 449.1,
+              "t3r_bps": 164.1,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.442
+            },
+            "tp": 100.0
+          },
+          {
+            "exits": {
+              "SL": 107,
+              "TIME": 145,
+              "TP": 31
+            },
+            "sl": 30.0,
+            "summary": {
+              "max_loss_bps": -35.0,
+              "mean_bps": 1.5,
+              "median_bps": -10.3,
+              "n": 283,
+              "sum_bps": 427.1,
+              "t3r_bps": 142.1,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.403
+            },
+            "tp": 100.0
+          },
+          {
+            "exits": {
+              "SL": 21,
+              "TIME": 244,
+              "TP": 18
+            },
+            "sl": 75.0,
+            "summary": {
+              "max_loss_bps": -80.0,
+              "mean_bps": 1.7,
+              "median_bps": -5.6,
+              "n": 283,
+              "sum_bps": 483.3,
+              "t3r_bps": 48.3,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.435
+            },
+            "tp": 150.0
+          },
+          {
+            "exits": {
+              "SL": 106,
+              "TIME": 132,
+              "TP": 45
+            },
+            "sl": 30.0,
+            "summary": {
+              "max_loss_bps": -35.0,
+              "mean_bps": 0.9,
+              "median_bps": -10.3,
+              "n": 283,
+              "sum_bps": 243.8,
+              "t3r_bps": 33.8,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.406
+            },
+            "tp": 75.0
+          },
+          {
+            "exits": {
+              "SL": 101,
+              "TIME": 98,
+              "TP": 84
+            },
+            "sl": 30.0,
+            "summary": {
+              "max_loss_bps": -35.0,
+              "mean_bps": 0.4,
+              "median_bps": -7.9,
+              "n": 283,
+              "sum_bps": 123.4,
+              "t3r_bps": -11.6,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.438
+            },
+            "tp": 50.0
+          },
+          {
+            "exits": {
+              "SL": 56,
+              "TIME": 178,
+              "TP": 49
+            },
+            "sl": 50.0,
+            "summary": {
+              "max_loss_bps": -55.0,
+              "mean_bps": 0.6,
+              "median_bps": -4.6,
+              "n": 283,
+              "sum_bps": 180.0,
+              "t3r_bps": -30.0,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.442
+            },
+            "tp": 75.0
+          },
+          {
+            "exits": {
+              "SL": 21,
+              "TIME": 228,
+              "TP": 34
+            },
+            "sl": 75.0,
+            "summary": {
+              "max_loss_bps": -80.0,
+              "mean_bps": 0.8,
+              "median_bps": -4.6,
+              "n": 283,
+              "sum_bps": 225.3,
+              "t3r_bps": -59.7,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.442
+            },
+            "tp": 100.0
+          },
+          {
+            "exits": {
+              "SL": 2,
+              "TIME": 263,
+              "TP": 18
+            },
+            "sl": 150.0,
+            "summary": {
+              "max_loss_bps": -155.0,
+              "mean_bps": 1.3,
+              "median_bps": -5.6,
+              "n": 283,
+              "sum_bps": 363.5,
+              "t3r_bps": -71.5,
+              "tail_lte_minus100_n": 6,
+              "tail_lte_minus150_n": 2,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.435
+            },
+            "tp": 150.0
+          }
+        ]
+      },
+      "30m": {
+        "fixed": {
+          "max_loss_bps": -187.8,
+          "mean_bps": 1.1,
+          "median_bps": -8.3,
+          "n": 283,
+          "sum_bps": 302.3,
+          "t3r_bps": -1117.2,
+          "tail_lte_minus100_n": 15,
+          "tail_lte_minus150_n": 6,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.399
+        },
+        "top_brackets": [
+          {
+            "exits": {
+              "SL": 154,
+              "TIME": 84,
+              "TP": 45
+            },
+            "sl": 30.0,
+            "summary": {
+              "max_loss_bps": -35.0,
+              "mean_bps": -0.4,
+              "median_bps": -35.0,
+              "n": 283,
+              "sum_bps": -118.2,
+              "t3r_bps": -403.2,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.353
+            },
+            "tp": 100.0
+          },
+          {
+            "exits": {
+              "SL": 158,
+              "TIME": 100,
+              "TP": 25
+            },
+            "sl": 30.0,
+            "summary": {
+              "max_loss_bps": -35.0,
+              "mean_bps": -0.2,
+              "median_bps": -35.0,
+              "n": 283,
+              "sum_bps": -57.8,
+              "t3r_bps": -492.8,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.339
+            },
+            "tp": 150.0
+          },
+          {
+            "exits": {
+              "SL": 113,
+              "TIME": 20,
+              "TP": 150
+            },
+            "sl": 30.0,
+            "summary": {
+              "max_loss_bps": -35.0,
+              "mean_bps": -1.6,
+              "median_bps": 25.0,
+              "n": 283,
+              "sum_bps": -439.1,
+              "t3r_bps": -514.1,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.544
+            },
+            "tp": 30.0
+          },
+          {
+            "exits": {
+              "SL": 45,
+              "TIME": 186,
+              "TP": 52
+            },
+            "sl": 75.0,
+            "summary": {
+              "max_loss_bps": -80.0,
+              "mean_bps": -1.2,
+              "median_bps": -8.3,
+              "n": 283,
+              "sum_bps": -326.6,
+              "t3r_bps": -611.6,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.417
+            },
+            "tp": 100.0
+          },
+          {
+            "exits": {
+              "SL": 92,
+              "TIME": 141,
+              "TP": 50
+            },
+            "sl": 50.0,
+            "summary": {
+              "max_loss_bps": -55.0,
+              "mean_bps": -1.3,
+              "median_bps": -14.9,
+              "n": 283,
+              "sum_bps": -355.0,
+              "t3r_bps": -640.0,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.396
+            },
+            "tp": 100.0
+          },
+          {
+            "exits": {
+              "SL": 66,
+              "TIME": 54,
+              "TP": 163
+            },
+            "sl": 50.0,
+            "summary": {
+              "max_loss_bps": -55.0,
+              "mean_bps": -2.4,
+              "median_bps": 25.0,
+              "n": 283,
+              "sum_bps": -665.2,
+              "t3r_bps": -740.2,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.594
+            },
+            "tp": 30.0
+          },
+          {
+            "exits": {
+              "SL": 143,
+              "TIME": 41,
+              "TP": 99
+            },
+            "sl": 30.0,
+            "summary": {
+              "max_loss_bps": -35.0,
+              "mean_bps": -2.2,
+              "median_bps": -35.0,
+              "n": 283,
+              "sum_bps": -627.2,
+              "t3r_bps": -762.2,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.413
+            },
+            "tp": 50.0
+          },
+          {
+            "exits": {
+              "SL": 153,
+              "TIME": 68,
+              "TP": 62
+            },
+            "sl": 30.0,
+            "summary": {
+              "max_loss_bps": -35.0,
+              "mean_bps": -2.0,
+              "median_bps": -35.0,
+              "n": 283,
+              "sum_bps": -578.9,
+              "t3r_bps": -788.9,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.357
+            },
+            "tp": 75.0
+          },
+          {
+            "exits": {
+              "SL": 93,
+              "TIME": 165,
+              "TP": 25
+            },
+            "sl": 50.0,
+            "summary": {
+              "max_loss_bps": -55.0,
+              "mean_bps": -1.4,
+              "median_bps": -15.5,
+              "n": 283,
+              "sum_bps": -392.1,
+              "t3r_bps": -827.1,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.378
+            },
+            "tp": 150.0
+          },
+          {
+            "exits": {
+              "SL": 46,
+              "TIME": 212,
+              "TP": 25
+            },
+            "sl": 75.0,
+            "summary": {
+              "max_loss_bps": -80.0,
+              "mean_bps": -1.4,
+              "median_bps": -10.8,
+              "n": 283,
+              "sum_bps": -400.9,
+              "t3r_bps": -835.9,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.399
+            },
+            "tp": 150.0
+          }
+        ]
+      },
+      "5m": {
+        "fixed": {
+          "max_loss_bps": -84.1,
+          "mean_bps": -0.7,
+          "median_bps": -5.9,
+          "n": 283,
+          "sum_bps": -185.3,
+          "t3r_bps": -748.8,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.41
+        },
+        "top_brackets": [
+          {
+            "exits": {
+              "SL": 50,
+              "TIME": 210,
+              "TP": 23
+            },
+            "sl": 30.0,
+            "summary": {
+              "max_loss_bps": -35.0,
+              "mean_bps": -1.2,
+              "median_bps": -5.9,
+              "n": 283,
+              "sum_bps": -345.6,
+              "t3r_bps": -555.6,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.392
+            },
+            "tp": 75.0
+          },
+          {
+            "exits": {
+              "SL": 50,
+              "TIME": 223,
+              "TP": 10
+            },
+            "sl": 30.0,
+            "summary": {
+              "max_loss_bps": -35.0,
+              "mean_bps": -1.1,
+              "median_bps": -5.9,
+              "n": 283,
+              "sum_bps": -299.4,
+              "t3r_bps": -584.4,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.392
+            },
+            "tp": 100.0
+          },
+          {
+            "exits": {
+              "SL": 50,
+              "TIME": 231,
+              "TP": 2
+            },
+            "sl": 30.0,
+            "summary": {
+              "max_loss_bps": -35.0,
+              "mean_bps": -0.6,
+              "median_bps": -5.9,
+              "n": 283,
+              "sum_bps": -166.6,
+              "t3r_bps": -594.2,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.392
+            },
+            "tp": 150.0
+          },
+          {
+            "exits": {
+              "SL": 49,
+              "TIME": 186,
+              "TP": 48
+            },
+            "sl": 30.0,
+            "summary": {
+              "max_loss_bps": -35.0,
+              "mean_bps": -1.6,
+              "median_bps": -5.7,
+              "n": 283,
+              "sum_bps": -465.4,
+              "t3r_bps": -600.4,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.399
+            },
+            "tp": 50.0
+          },
+          {
+            "exits": {
+              "SL": 17,
+              "TIME": 243,
+              "TP": 23
+            },
+            "sl": 50.0,
+            "summary": {
+              "max_loss_bps": -55.0,
+              "mean_bps": -1.5,
+              "median_bps": -5.5,
+              "n": 283,
+              "sum_bps": -426.7,
+              "t3r_bps": -636.7,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.406
+            },
+            "tp": 75.0
+          },
+          {
+            "exits": {
+              "TIME": 260,
+              "TP": 23
+            },
+            "sl": 150.0,
+            "summary": {
+              "max_loss_bps": -80.4,
+              "mean_bps": -1.6,
+              "median_bps": -5.5,
+              "n": 283,
+              "sum_bps": -446.9,
+              "t3r_bps": -656.9,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.406
+            },
+            "tp": 75.0
+          },
+          {
+            "exits": {
+              "SL": 17,
+              "TIME": 256,
+              "TP": 10
+            },
+            "sl": 50.0,
+            "summary": {
+              "max_loss_bps": -55.0,
+              "mean_bps": -1.3,
+              "median_bps": -5.5,
+              "n": 283,
+              "sum_bps": -380.5,
+              "t3r_bps": -665.5,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.406
+            },
+            "tp": 100.0
+          },
+          {
+            "exits": {
+              "SL": 2,
+              "TIME": 258,
+              "TP": 23
+            },
+            "sl": 75.0,
+            "summary": {
+              "max_loss_bps": -80.0,
+              "mean_bps": -1.6,
+              "median_bps": -5.5,
+              "n": 283,
+              "sum_bps": -462.1,
+              "t3r_bps": -672.1,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.406
+            },
+            "tp": 75.0
+          },
+          {
+            "exits": {
+              "SL": 17,
+              "TIME": 264,
+              "TP": 2
+            },
+            "sl": 50.0,
+            "summary": {
+              "max_loss_bps": -55.0,
+              "mean_bps": -0.9,
+              "median_bps": -5.5,
+              "n": 283,
+              "sum_bps": -247.8,
+              "t3r_bps": -675.3,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.406
+            },
+            "tp": 150.0
+          },
+          {
+            "exits": {
+              "TIME": 273,
+              "TP": 10
+            },
+            "sl": 150.0,
+            "summary": {
+              "max_loss_bps": -80.4,
+              "mean_bps": -1.4,
+              "median_bps": -5.5,
+              "n": 283,
+              "sum_bps": -400.7,
+              "t3r_bps": -685.7,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.406
+            },
+            "tp": 100.0
+          }
+        ]
+      }
+    },
+    "n": 283
+  },
+  "tail_cleaner": {
+    "all_score3": {
+      "n": 283,
+      "reverse_15m": {
+        "max_loss_bps": -150.8,
+        "mean_bps": 2.1,
+        "median_bps": -5.6,
+        "n": 283,
+        "sum_bps": 607.4,
+        "t3r_bps": -138.8,
+        "tail_lte_minus100_n": 6,
+        "tail_lte_minus150_n": 1,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.431
+      },
+      "reverse_30m": {
+        "max_loss_bps": -187.8,
+        "mean_bps": 1.1,
+        "median_bps": -8.3,
+        "n": 283,
+        "sum_bps": 302.3,
+        "t3r_bps": -1117.2,
+        "tail_lte_minus100_n": 15,
+        "tail_lte_minus150_n": 6,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.399
+      }
+    },
+    "bid_depth_ok": {
+      "n": 270,
+      "reverse_15m": {
+        "max_loss_bps": -150.8,
+        "mean_bps": 2.8,
+        "median_bps": -4.9,
+        "n": 270,
+        "sum_bps": 753.1,
+        "t3r_bps": 7.0,
+        "tail_lte_minus100_n": 6,
+        "tail_lte_minus150_n": 1,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.433
+      },
+      "reverse_30m": {
+        "max_loss_bps": -187.8,
+        "mean_bps": 1.3,
+        "median_bps": -8.3,
+        "n": 270,
+        "sum_bps": 359.1,
+        "t3r_bps": -1060.3,
+        "tail_lte_minus100_n": 15,
+        "tail_lte_minus150_n": 6,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.4
+      }
+    },
+    "btc4h_ge_-75": {
+      "n": 93,
+      "reverse_15m": {
+        "max_loss_bps": -103.4,
+        "mean_bps": -12.4,
+        "median_bps": -11.8,
+        "n": 93,
+        "sum_bps": -1149.8,
+        "t3r_bps": -1286.3,
+        "tail_lte_minus100_n": 2,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.344
+      },
+      "reverse_30m": {
+        "max_loss_bps": -187.8,
+        "mean_bps": -13.3,
+        "median_bps": -14.3,
+        "n": 93,
+        "sum_bps": -1239.2,
+        "t3r_bps": -1476.0,
+        "tail_lte_minus100_n": 2,
+        "tail_lte_minus150_n": 1,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.376
+      }
+    },
+    "btc4h_lt_-75": {
+      "n": 190,
+      "reverse_15m": {
+        "max_loss_bps": -150.8,
+        "mean_bps": 9.2,
+        "median_bps": -1.7,
+        "n": 190,
+        "sum_bps": 1757.1,
+        "t3r_bps": 1011.0,
+        "tail_lte_minus100_n": 4,
+        "tail_lte_minus150_n": 1,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.474
+      },
+      "reverse_30m": {
+        "max_loss_bps": -187.4,
+        "mean_bps": 8.1,
+        "median_bps": -6.0,
+        "n": 190,
+        "sum_bps": 1541.5,
+        "t3r_bps": 122.1,
+        "tail_lte_minus100_n": 13,
+        "tail_lte_minus150_n": 5,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.411
+      }
+    },
+    "neutral": {
+      "n": 71,
+      "reverse_15m": {
+        "max_loss_bps": -102.9,
+        "mean_bps": -3.7,
+        "median_bps": -9.5,
+        "n": 71,
+        "sum_bps": -263.8,
+        "t3r_bps": -541.6,
+        "tail_lte_minus100_n": 1,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.38
+      },
+      "reverse_30m": {
+        "max_loss_bps": -187.8,
+        "mean_bps": -3.1,
+        "median_bps": -5.0,
+        "n": 71,
+        "sum_bps": -216.8,
+        "t3r_bps": -484.6,
+        "tail_lte_minus100_n": 1,
+        "tail_lte_minus150_n": 1,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.465
+      }
+    },
+    "risk_off": {
+      "n": 206,
+      "reverse_15m": {
+        "max_loss_bps": -150.8,
+        "mean_bps": 5.7,
+        "median_bps": -4.2,
+        "n": 206,
+        "sum_bps": 1177.6,
+        "t3r_bps": 431.5,
+        "tail_lte_minus100_n": 4,
+        "tail_lte_minus150_n": 1,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.461
+      },
+      "reverse_30m": {
+        "max_loss_bps": -187.4,
+        "mean_bps": 3.5,
+        "median_bps": -10.8,
+        "n": 206,
+        "sum_bps": 713.5,
+        "t3r_bps": -706.0,
+        "tail_lte_minus100_n": 13,
+        "tail_lte_minus150_n": 5,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.383
+      }
+    },
+    "vdepth_25_40": {
+      "n": 51,
+      "reverse_15m": {
+        "max_loss_bps": -113.1,
+        "mean_bps": 10.6,
+        "median_bps": -14.1,
+        "n": 51,
+        "sum_bps": 541.4,
+        "t3r_bps": 3.4,
+        "tail_lte_minus100_n": 2,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.431
+      },
+      "reverse_30m": {
+        "max_loss_bps": -187.8,
+        "mean_bps": -4.2,
+        "median_bps": -19.4,
+        "n": 51,
+        "sum_bps": -213.7,
+        "t3r_bps": -1067.6,
+        "tail_lte_minus100_n": 5,
+        "tail_lte_minus150_n": 1,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.314
+      }
+    },
+    "vdepth_ge_40": {
+      "n": 21,
+      "reverse_15m": {
+        "max_loss_bps": -150.8,
+        "mean_bps": -6.9,
+        "median_bps": -12.3,
+        "n": 21,
+        "sum_bps": -145.8,
+        "t3r_bps": -511.2,
+        "tail_lte_minus100_n": 2,
+        "tail_lte_minus150_n": 1,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.429
+      },
+      "reverse_30m": {
+        "max_loss_bps": -159.9,
+        "mean_bps": 12.9,
+        "median_bps": 1.5,
+        "n": 21,
+        "sum_bps": 270.6,
+        "t3r_bps": -345.6,
+        "tail_lte_minus100_n": 3,
+        "tail_lte_minus150_n": 2,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.524
+      }
+    },
+    "vdepth_lt_25": {
+      "n": 211,
+      "reverse_15m": {
+        "max_loss_bps": -103.4,
+        "mean_bps": 1.0,
+        "median_bps": -4.6,
+        "n": 211,
+        "sum_bps": 211.8,
+        "t3r_bps": -399.8,
+        "tail_lte_minus100_n": 2,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.431
+      },
+      "reverse_30m": {
+        "max_loss_bps": -187.4,
+        "mean_bps": 1.2,
+        "median_bps": -7.0,
+        "n": 211,
+        "sum_bps": 245.4,
+        "t3r_bps": -709.2,
+        "tail_lte_minus100_n": 7,
+        "tail_lte_minus150_n": 3,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.408
+      }
+    }
+  },
+  "v02_stress_guard_anatomy_2h": {
+    "baseline": {
+      "best10": [
+        {
+          "bid_depth": 829882.1,
+          "book_imbalance": 0.772,
+          "btc4h": -212.3,
+          "eth1h": -140.6,
+          "event_id": "ETHUSDT_SELL_200000_1782479934877",
+          "fold": 5,
+          "prior4h": -225.6,
+          "signal_utc": "2026-06-26T13:18:54.877000+00:00",
+          "stress_score": 4,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "BID_DEPTH_HEAVY",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 266.9,
+          "vdepth": 36.3
+        },
+        {
+          "bid_depth": 136804.1,
+          "book_imbalance": -0.368,
+          "btc4h": -139.1,
+          "eth1h": -50.1,
+          "event_id": "ETHUSDT_SELL_200000_1782084822690",
+          "fold": 5,
+          "prior4h": -168.8,
+          "signal_utc": "2026-06-21T23:33:42.690000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "BID_DEPTH_CORE",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 225.9,
+          "vdepth": 29.8
+        },
+        {
+          "bid_depth": 225003.7,
+          "book_imbalance": 0.619,
+          "btc4h": -74.4,
+          "eth1h": -95.2,
+          "event_id": "ETHUSDT_SELL_200000_1781964531159",
+          "fold": 4,
+          "prior4h": -99.7,
+          "signal_utc": "2026-06-20T14:08:51.159000+00:00",
+          "stress_score": 2,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 152.2,
+          "vdepth": 29.2
+        },
+        {
+          "bid_depth": 135918.4,
+          "book_imbalance": 0.999,
+          "btc4h": -188.4,
+          "eth1h": -206.5,
+          "event_id": "ETHUSDT_SELL_200000_1782442110475",
+          "fold": 5,
+          "prior4h": -278.6,
+          "signal_utc": "2026-06-26T02:48:30.475000+00:00",
+          "stress_score": 4,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "BID_DEPTH_CORE",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 144.8,
+          "vdepth": 39.6
+        },
+        {
+          "bid_depth": 0.0,
+          "book_imbalance": null,
+          "btc4h": -23.8,
+          "eth1h": -51.1,
+          "event_id": "ETHUSDT_SELL_200000_1773990078235",
+          "fold": 1,
+          "prior4h": -86.3,
+          "signal_utc": "2026-03-20T07:01:18.235000+00:00",
+          "stress_score": 1,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 142.6,
+          "vdepth": 30.1
+        },
+        {
+          "bid_depth": 382659.3,
+          "book_imbalance": 0.995,
+          "btc4h": -61.1,
+          "eth1h": -58.3,
+          "event_id": "ETHUSDT_SELL_200000_1776347534594",
+          "fold": 2,
+          "prior4h": -60.9,
+          "signal_utc": "2026-04-16T13:52:14.594000+00:00",
+          "stress_score": 1,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 64.7,
+          "vdepth": 29.4
+        },
+        {
+          "bid_depth": 177537.4,
+          "book_imbalance": 0.557,
+          "btc4h": -25.6,
+          "eth1h": -38.5,
+          "event_id": "ETHUSDT_SELL_200000_1776694119155",
+          "fold": 3,
+          "prior4h": -75.9,
+          "signal_utc": "2026-04-20T14:08:39.155000+00:00",
+          "stress_score": 1,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "BID_DEPTH_CORE",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 50.2,
+          "vdepth": 31.4
+        },
+        {
+          "bid_depth": 0.0,
+          "book_imbalance": null,
+          "btc4h": -161.4,
+          "eth1h": -77.5,
+          "event_id": "ETHUSDT_SELL_200000_1773931070236",
+          "fold": 1,
+          "prior4h": -342.8,
+          "signal_utc": "2026-03-19T14:37:50.236000+00:00",
+          "stress_score": 1,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 32.7,
+          "vdepth": 35.7
+        },
+        {
+          "bid_depth": 6242.3,
+          "book_imbalance": -0.963,
+          "btc4h": -106.5,
+          "eth1h": -45.5,
+          "event_id": "ETHUSDT_SELL_200000_1776783451255",
+          "fold": 3,
+          "prior4h": -106.4,
+          "signal_utc": "2026-04-21T14:57:31.255000+00:00",
+          "stress_score": 1,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 32.3,
+          "vdepth": 31.7
+        },
+        {
+          "bid_depth": 71019.6,
+          "book_imbalance": -0.234,
+          "btc4h": -22.4,
+          "eth1h": -131.8,
+          "event_id": "ETHUSDT_SELL_200000_1781279802488",
+          "fold": 4,
+          "prior4h": -75.9,
+          "signal_utc": "2026-06-12T15:56:42.488000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 28.8,
+          "vdepth": 34.3
+        }
+      ],
+      "loser_profile": {
+        "avg_bid_depth": 43945.0,
+        "avg_book_imbalance": 0.3,
+        "avg_btc4h": -113.4,
+        "avg_eth1h": -74.6,
+        "avg_prior4h": -146.2,
+        "avg_threshold": 200000.0,
+        "avg_vdepth": 32.4,
+        "n": 5,
+        "tag_mix": {
+          "BID_DEPTH_THIN": 5,
+          "EXIT_2H_ACTUAL_BETTER": 1,
+          "EXIT_4H_ACTUAL_BETTER": 4,
+          "RISK_OFF_REBOUND": 5,
+          "SIZE_34X_FRAGILE": 5,
+          "TAIL_HIGH_OR_UNKNOWN": 5,
+          "TAIL_REALIZED": 2,
+          "VDEPTH_CORE": 5
+        },
+        "threshold_mix": {
+          "thr200000": 5
+        }
+      },
+      "summary": {
+        "max_loss_bps": -194.4,
+        "mean_bps": 22.5,
+        "median_bps": 12.0,
+        "n": 31,
+        "sum_bps": 697.6,
+        "t3r_bps": 52.6,
+        "tail_lte_minus100_n": 2,
+        "tail_lte_minus150_n": 2,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.645
+      },
+      "tail_profile": {
+        "avg_bid_depth": 55722.6,
+        "avg_book_imbalance": -0.4,
+        "avg_btc4h": -182.1,
+        "avg_eth1h": -70.8,
+        "avg_prior4h": -216.4,
+        "avg_threshold": 200000.0,
+        "avg_vdepth": 33.6,
+        "n": 2,
+        "tag_mix": {
+          "BID_DEPTH_THIN": 2,
+          "EXIT_4H_ACTUAL_BETTER": 2,
+          "RISK_OFF_REBOUND": 2,
+          "SIZE_34X_FRAGILE": 2,
+          "TAIL_HIGH_OR_UNKNOWN": 2,
+          "TAIL_REALIZED": 2,
+          "VDEPTH_CORE": 2
+        },
+        "threshold_mix": {
+          "thr200000": 2
+        }
+      },
+      "winner_profile": {
+        "avg_bid_depth": 150898.1,
+        "avg_book_imbalance": 0.1,
+        "avg_btc4h": -82.6,
+        "avg_eth1h": -71.1,
+        "avg_prior4h": -136.7,
+        "avg_threshold": 200000.0,
+        "avg_vdepth": 32.5,
+        "n": 20,
+        "tag_mix": {
+          "BID_DEPTH_OK": 10,
+          "BID_DEPTH_THIN": 10,
+          "EXIT_2H_ACTUAL_BETTER": 10,
+          "EXIT_4H_ACTUAL_BETTER": 10,
+          "RISK_OFF_REBOUND": 20,
+          "SIZE_15X_STABLE": 10,
+          "SIZE_34X_FRAGILE": 10,
+          "VDEPTH_CORE": 20
+        },
+        "threshold_mix": {
+          "thr200000": 20
+        }
+      },
+      "worst10": [
+        {
+          "bid_depth": 111445.1,
+          "book_imbalance": -0.389,
+          "btc4h": -187.0,
+          "eth1h": -56.2,
+          "event_id": "ETHUSDT_SELL_200000_1782201584477",
+          "fold": 5,
+          "prior4h": -273.4,
+          "signal_utc": "2026-06-23T07:59:44.477000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "TAIL_REALIZED",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -194.4,
+          "vdepth": 30.6
+        },
+        {
+          "bid_depth": 0.0,
+          "book_imbalance": null,
+          "btc4h": -177.1,
+          "eth1h": -85.3,
+          "event_id": "ETHUSDT_SELL_200000_1774891459103",
+          "fold": 1,
+          "prior4h": -159.5,
+          "signal_utc": "2026-03-30T17:24:19.103000+00:00",
+          "stress_score": 1,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "TAIL_REALIZED",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -154.2,
+          "vdepth": 36.6
+        },
+        {
+          "bid_depth": 0.0,
+          "book_imbalance": null,
+          "btc4h": -111.2,
+          "eth1h": -71.1,
+          "event_id": "ETHUSDT_SELL_200000_1774941500133",
+          "fold": 1,
+          "prior4h": -126.7,
+          "signal_utc": "2026-03-31T07:18:20.133000+00:00",
+          "stress_score": 2,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -69.7,
+          "vdepth": 32.1
+        },
+        {
+          "bid_depth": 108279.9,
+          "book_imbalance": 0.999,
+          "btc4h": -46.2,
+          "eth1h": -92.7,
+          "event_id": "ETHUSDT_SELL_200000_1781576875467",
+          "fold": 4,
+          "prior4h": -81.3,
+          "signal_utc": "2026-06-16T02:27:55.467000+00:00",
+          "stress_score": 2,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -56.2,
+          "vdepth": 34.0
+        },
+        {
+          "bid_depth": 0.0,
+          "book_imbalance": null,
+          "btc4h": -45.6,
+          "eth1h": -67.8,
+          "event_id": "ETHUSDT_SELL_200000_1780891575767",
+          "fold": 3,
+          "prior4h": -90.0,
+          "signal_utc": "2026-06-08T04:06:15.767000+00:00",
+          "stress_score": 0,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -50.1,
+          "vdepth": 28.8
+        },
+        {
+          "bid_depth": 56439.3,
+          "book_imbalance": -0.584,
+          "btc4h": -255.2,
+          "eth1h": -325.6,
+          "event_id": "ETHUSDT_SELL_200000_1781798251634",
+          "fold": 4,
+          "prior4h": -361.7,
+          "signal_utc": "2026-06-18T15:57:31.634000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -26.1,
+          "vdepth": 29.2
+        },
+        {
+          "bid_depth": 0.0,
+          "book_imbalance": null,
+          "btc4h": -25.2,
+          "eth1h": -135.3,
+          "event_id": "ETHUSDT_SELL_200000_1774280632147",
+          "fold": 1,
+          "prior4h": -52.9,
+          "signal_utc": "2026-03-23T15:43:52.147000+00:00",
+          "stress_score": 1,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -18.0,
+          "vdepth": 35.4
+        },
+        {
+          "bid_depth": 293221.2,
+          "book_imbalance": 0.903,
+          "btc4h": -131.6,
+          "eth1h": -115.4,
+          "event_id": "ETHUSDT_SELL_200000_1782470373530",
+          "fold": 5,
+          "prior4h": -141.6,
+          "signal_utc": "2026-06-26T10:39:33.530000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -12.6,
+          "vdepth": 34.4
+        },
+        {
+          "bid_depth": 108401.7,
+          "book_imbalance": -0.218,
+          "btc4h": -118.8,
+          "eth1h": -79.6,
+          "event_id": "ETHUSDT_SELL_200000_1782664454359",
+          "fold": 5,
+          "prior4h": -91.7,
+          "signal_utc": "2026-06-28T16:34:14.359000+00:00",
+          "stress_score": 4,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -8.2,
+          "vdepth": 30.0
+        },
+        {
+          "bid_depth": 134929.2,
+          "book_imbalance": -0.312,
+          "btc4h": -355.7,
+          "eth1h": -2.7,
+          "event_id": "ETHUSDT_SELL_200000_1782399803104",
+          "fold": 5,
+          "prior4h": -462.3,
+          "signal_utc": "2026-06-25T15:03:23.104000+00:00",
+          "stress_score": 4,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -1.0,
+          "vdepth": 37.5
+        }
+      ]
+    },
+    "score_ge_1": {
+      "best10": [
+        {
+          "bid_depth": 829882.1,
+          "book_imbalance": 0.772,
+          "btc4h": -212.3,
+          "eth1h": -140.6,
+          "event_id": "ETHUSDT_SELL_200000_1782479934877",
+          "fold": 5,
+          "prior4h": -225.6,
+          "signal_utc": "2026-06-26T13:18:54.877000+00:00",
+          "stress_score": 4,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "BID_DEPTH_HEAVY",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 266.9,
+          "vdepth": 36.3
+        },
+        {
+          "bid_depth": 136804.1,
+          "book_imbalance": -0.368,
+          "btc4h": -139.1,
+          "eth1h": -50.1,
+          "event_id": "ETHUSDT_SELL_200000_1782084822690",
+          "fold": 5,
+          "prior4h": -168.8,
+          "signal_utc": "2026-06-21T23:33:42.690000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "BID_DEPTH_CORE",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 225.9,
+          "vdepth": 29.8
+        },
+        {
+          "bid_depth": 225003.7,
+          "book_imbalance": 0.619,
+          "btc4h": -74.4,
+          "eth1h": -95.2,
+          "event_id": "ETHUSDT_SELL_200000_1781964531159",
+          "fold": 4,
+          "prior4h": -99.7,
+          "signal_utc": "2026-06-20T14:08:51.159000+00:00",
+          "stress_score": 2,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 152.2,
+          "vdepth": 29.2
+        },
+        {
+          "bid_depth": 135918.4,
+          "book_imbalance": 0.999,
+          "btc4h": -188.4,
+          "eth1h": -206.5,
+          "event_id": "ETHUSDT_SELL_200000_1782442110475",
+          "fold": 5,
+          "prior4h": -278.6,
+          "signal_utc": "2026-06-26T02:48:30.475000+00:00",
+          "stress_score": 4,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "BID_DEPTH_CORE",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 144.8,
+          "vdepth": 39.6
+        },
+        {
+          "bid_depth": 0.0,
+          "book_imbalance": null,
+          "btc4h": -23.8,
+          "eth1h": -51.1,
+          "event_id": "ETHUSDT_SELL_200000_1773990078235",
+          "fold": 1,
+          "prior4h": -86.3,
+          "signal_utc": "2026-03-20T07:01:18.235000+00:00",
+          "stress_score": 1,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 142.6,
+          "vdepth": 30.1
+        },
+        {
+          "bid_depth": 382659.3,
+          "book_imbalance": 0.995,
+          "btc4h": -61.1,
+          "eth1h": -58.3,
+          "event_id": "ETHUSDT_SELL_200000_1776347534594",
+          "fold": 2,
+          "prior4h": -60.9,
+          "signal_utc": "2026-04-16T13:52:14.594000+00:00",
+          "stress_score": 1,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 64.7,
+          "vdepth": 29.4
+        },
+        {
+          "bid_depth": 177537.4,
+          "book_imbalance": 0.557,
+          "btc4h": -25.6,
+          "eth1h": -38.5,
+          "event_id": "ETHUSDT_SELL_200000_1776694119155",
+          "fold": 3,
+          "prior4h": -75.9,
+          "signal_utc": "2026-04-20T14:08:39.155000+00:00",
+          "stress_score": 1,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "BID_DEPTH_CORE",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 50.2,
+          "vdepth": 31.4
+        },
+        {
+          "bid_depth": 0.0,
+          "book_imbalance": null,
+          "btc4h": -161.4,
+          "eth1h": -77.5,
+          "event_id": "ETHUSDT_SELL_200000_1773931070236",
+          "fold": 1,
+          "prior4h": -342.8,
+          "signal_utc": "2026-03-19T14:37:50.236000+00:00",
+          "stress_score": 1,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 32.7,
+          "vdepth": 35.7
+        },
+        {
+          "bid_depth": 6242.3,
+          "book_imbalance": -0.963,
+          "btc4h": -106.5,
+          "eth1h": -45.5,
+          "event_id": "ETHUSDT_SELL_200000_1776783451255",
+          "fold": 3,
+          "prior4h": -106.4,
+          "signal_utc": "2026-04-21T14:57:31.255000+00:00",
+          "stress_score": 1,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 32.3,
+          "vdepth": 31.7
+        },
+        {
+          "bid_depth": 71019.6,
+          "book_imbalance": -0.234,
+          "btc4h": -22.4,
+          "eth1h": -131.8,
+          "event_id": "ETHUSDT_SELL_200000_1781279802488",
+          "fold": 4,
+          "prior4h": -75.9,
+          "signal_utc": "2026-06-12T15:56:42.488000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 28.8,
+          "vdepth": 34.3
+        }
+      ],
+      "loser_profile": {
+        "avg_bid_depth": 54931.2,
+        "avg_book_imbalance": 0.3,
+        "avg_btc4h": -130.4,
+        "avg_eth1h": -76.3,
+        "avg_prior4h": -160.2,
+        "avg_threshold": 200000.0,
+        "avg_vdepth": 33.3,
+        "n": 4,
+        "tag_mix": {
+          "BID_DEPTH_THIN": 4,
+          "EXIT_2H_ACTUAL_BETTER": 1,
+          "EXIT_4H_ACTUAL_BETTER": 3,
+          "RISK_OFF_REBOUND": 4,
+          "SIZE_34X_FRAGILE": 4,
+          "TAIL_HIGH_OR_UNKNOWN": 4,
+          "TAIL_REALIZED": 2,
+          "VDEPTH_CORE": 4
+        },
+        "threshold_mix": {
+          "thr200000": 4
+        }
+      },
+      "summary": {
+        "max_loss_bps": -194.4,
+        "mean_bps": 25.5,
+        "median_bps": 13.8,
+        "n": 28,
+        "sum_bps": 713.5,
+        "t3r_bps": 68.5,
+        "tail_lte_minus100_n": 2,
+        "tail_lte_minus150_n": 2,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.643
+      },
+      "tail_profile": {
+        "avg_bid_depth": 55722.6,
+        "avg_book_imbalance": -0.4,
+        "avg_btc4h": -182.1,
+        "avg_eth1h": -70.8,
+        "avg_prior4h": -216.4,
+        "avg_threshold": 200000.0,
+        "avg_vdepth": 33.6,
+        "n": 2,
+        "tag_mix": {
+          "BID_DEPTH_THIN": 2,
+          "EXIT_4H_ACTUAL_BETTER": 2,
+          "RISK_OFF_REBOUND": 2,
+          "SIZE_34X_FRAGILE": 2,
+          "TAIL_HIGH_OR_UNKNOWN": 2,
+          "TAIL_REALIZED": 2,
+          "VDEPTH_CORE": 2
+        },
+        "threshold_mix": {
+          "thr200000": 2
+        }
+      },
+      "winner_profile": {
+        "avg_bid_depth": 155285.1,
+        "avg_book_imbalance": 0.1,
+        "avg_btc4h": -90.7,
+        "avg_eth1h": -75.3,
+        "avg_prior4h": -145.9,
+        "avg_threshold": 200000.0,
+        "avg_vdepth": 32.7,
+        "n": 18,
+        "tag_mix": {
+          "BID_DEPTH_OK": 9,
+          "BID_DEPTH_THIN": 9,
+          "EXIT_2H_ACTUAL_BETTER": 9,
+          "EXIT_4H_ACTUAL_BETTER": 9,
+          "RISK_OFF_REBOUND": 18,
+          "SIZE_15X_STABLE": 9,
+          "SIZE_34X_FRAGILE": 9,
+          "VDEPTH_CORE": 18
+        },
+        "threshold_mix": {
+          "thr200000": 18
+        }
+      },
+      "worst10": [
+        {
+          "bid_depth": 111445.1,
+          "book_imbalance": -0.389,
+          "btc4h": -187.0,
+          "eth1h": -56.2,
+          "event_id": "ETHUSDT_SELL_200000_1782201584477",
+          "fold": 5,
+          "prior4h": -273.4,
+          "signal_utc": "2026-06-23T07:59:44.477000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "TAIL_REALIZED",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -194.4,
+          "vdepth": 30.6
+        },
+        {
+          "bid_depth": 0.0,
+          "book_imbalance": null,
+          "btc4h": -177.1,
+          "eth1h": -85.3,
+          "event_id": "ETHUSDT_SELL_200000_1774891459103",
+          "fold": 1,
+          "prior4h": -159.5,
+          "signal_utc": "2026-03-30T17:24:19.103000+00:00",
+          "stress_score": 1,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "TAIL_REALIZED",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -154.2,
+          "vdepth": 36.6
+        },
+        {
+          "bid_depth": 0.0,
+          "book_imbalance": null,
+          "btc4h": -111.2,
+          "eth1h": -71.1,
+          "event_id": "ETHUSDT_SELL_200000_1774941500133",
+          "fold": 1,
+          "prior4h": -126.7,
+          "signal_utc": "2026-03-31T07:18:20.133000+00:00",
+          "stress_score": 2,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -69.7,
+          "vdepth": 32.1
+        },
+        {
+          "bid_depth": 108279.9,
+          "book_imbalance": 0.999,
+          "btc4h": -46.2,
+          "eth1h": -92.7,
+          "event_id": "ETHUSDT_SELL_200000_1781576875467",
+          "fold": 4,
+          "prior4h": -81.3,
+          "signal_utc": "2026-06-16T02:27:55.467000+00:00",
+          "stress_score": 2,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -56.2,
+          "vdepth": 34.0
+        },
+        {
+          "bid_depth": 56439.3,
+          "book_imbalance": -0.584,
+          "btc4h": -255.2,
+          "eth1h": -325.6,
+          "event_id": "ETHUSDT_SELL_200000_1781798251634",
+          "fold": 4,
+          "prior4h": -361.7,
+          "signal_utc": "2026-06-18T15:57:31.634000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -26.1,
+          "vdepth": 29.2
+        },
+        {
+          "bid_depth": 0.0,
+          "book_imbalance": null,
+          "btc4h": -25.2,
+          "eth1h": -135.3,
+          "event_id": "ETHUSDT_SELL_200000_1774280632147",
+          "fold": 1,
+          "prior4h": -52.9,
+          "signal_utc": "2026-03-23T15:43:52.147000+00:00",
+          "stress_score": 1,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -18.0,
+          "vdepth": 35.4
+        },
+        {
+          "bid_depth": 293221.2,
+          "book_imbalance": 0.903,
+          "btc4h": -131.6,
+          "eth1h": -115.4,
+          "event_id": "ETHUSDT_SELL_200000_1782470373530",
+          "fold": 5,
+          "prior4h": -141.6,
+          "signal_utc": "2026-06-26T10:39:33.530000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -12.6,
+          "vdepth": 34.4
+        },
+        {
+          "bid_depth": 108401.7,
+          "book_imbalance": -0.218,
+          "btc4h": -118.8,
+          "eth1h": -79.6,
+          "event_id": "ETHUSDT_SELL_200000_1782664454359",
+          "fold": 5,
+          "prior4h": -91.7,
+          "signal_utc": "2026-06-28T16:34:14.359000+00:00",
+          "stress_score": 4,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -8.2,
+          "vdepth": 30.0
+        },
+        {
+          "bid_depth": 134929.2,
+          "book_imbalance": -0.312,
+          "btc4h": -355.7,
+          "eth1h": -2.7,
+          "event_id": "ETHUSDT_SELL_200000_1782399803104",
+          "fold": 5,
+          "prior4h": -462.3,
+          "signal_utc": "2026-06-25T15:03:23.104000+00:00",
+          "stress_score": 4,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -1.0,
+          "vdepth": 37.5
+        },
+        {
+          "bid_depth": 86481.1,
+          "book_imbalance": 0.165,
+          "btc4h": -31.1,
+          "eth1h": -71.6,
+          "event_id": "ETHUSDT_SELL_200000_1776326047129",
+          "fold": 2,
+          "prior4h": -85.5,
+          "signal_utc": "2026-04-16T07:54:07.129000+00:00",
+          "stress_score": 1,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -0.8,
+          "vdepth": 35.0
+        }
+      ]
+    },
+    "score_ge_2": {
+      "best10": [
+        {
+          "bid_depth": 829882.1,
+          "book_imbalance": 0.772,
+          "btc4h": -212.3,
+          "eth1h": -140.6,
+          "event_id": "ETHUSDT_SELL_200000_1782479934877",
+          "fold": 5,
+          "prior4h": -225.6,
+          "signal_utc": "2026-06-26T13:18:54.877000+00:00",
+          "stress_score": 4,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "BID_DEPTH_HEAVY",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 266.9,
+          "vdepth": 36.3
+        },
+        {
+          "bid_depth": 136804.1,
+          "book_imbalance": -0.368,
+          "btc4h": -139.1,
+          "eth1h": -50.1,
+          "event_id": "ETHUSDT_SELL_200000_1782084822690",
+          "fold": 5,
+          "prior4h": -168.8,
+          "signal_utc": "2026-06-21T23:33:42.690000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "BID_DEPTH_CORE",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 225.9,
+          "vdepth": 29.8
+        },
+        {
+          "bid_depth": 225003.7,
+          "book_imbalance": 0.619,
+          "btc4h": -74.4,
+          "eth1h": -95.2,
+          "event_id": "ETHUSDT_SELL_200000_1781964531159",
+          "fold": 4,
+          "prior4h": -99.7,
+          "signal_utc": "2026-06-20T14:08:51.159000+00:00",
+          "stress_score": 2,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 152.2,
+          "vdepth": 29.2
+        },
+        {
+          "bid_depth": 135918.4,
+          "book_imbalance": 0.999,
+          "btc4h": -188.4,
+          "eth1h": -206.5,
+          "event_id": "ETHUSDT_SELL_200000_1782442110475",
+          "fold": 5,
+          "prior4h": -278.6,
+          "signal_utc": "2026-06-26T02:48:30.475000+00:00",
+          "stress_score": 4,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "BID_DEPTH_CORE",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 144.8,
+          "vdepth": 39.6
+        },
+        {
+          "bid_depth": 71019.6,
+          "book_imbalance": -0.234,
+          "btc4h": -22.4,
+          "eth1h": -131.8,
+          "event_id": "ETHUSDT_SELL_200000_1781279802488",
+          "fold": 4,
+          "prior4h": -75.9,
+          "signal_utc": "2026-06-12T15:56:42.488000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 28.8,
+          "vdepth": 34.3
+        },
+        {
+          "bid_depth": 185449.9,
+          "book_imbalance": 0.439,
+          "btc4h": -63.6,
+          "eth1h": -75.7,
+          "event_id": "ETHUSDT_SELL_200000_1781584271525",
+          "fold": 4,
+          "prior4h": -169.0,
+          "signal_utc": "2026-06-16T04:31:11.525000+00:00",
+          "stress_score": 2,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "BID_DEPTH_CORE",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 22.9,
+          "vdepth": 28.2
+        },
+        {
+          "bid_depth": 11106.0,
+          "book_imbalance": -0.923,
+          "btc4h": -15.8,
+          "eth1h": -65.8,
+          "event_id": "ETHUSDT_SELL_200000_1782040706629",
+          "fold": 5,
+          "prior4h": -73.1,
+          "signal_utc": "2026-06-21T11:18:26.629000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 19.3,
+          "vdepth": 32.2
+        },
+        {
+          "bid_depth": 139272.4,
+          "book_imbalance": -0.014,
+          "btc4h": -36.2,
+          "eth1h": -44.8,
+          "event_id": "ETHUSDT_SELL_200000_1781659021753",
+          "fold": 4,
+          "prior4h": -69.8,
+          "signal_utc": "2026-06-17T01:17:01.753000+00:00",
+          "stress_score": 2,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "BID_DEPTH_CORE",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 15.6,
+          "vdepth": 28.4
+        },
+        {
+          "bid_depth": 127345.2,
+          "book_imbalance": -0.346,
+          "btc4h": -49.0,
+          "eth1h": -47.8,
+          "event_id": "ETHUSDT_SELL_200000_1782685158381",
+          "fold": 5,
+          "prior4h": -61.2,
+          "signal_utc": "2026-06-28T22:19:18.381000+00:00",
+          "stress_score": 2,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 11.7,
+          "vdepth": 33.9
+        },
+        {
+          "bid_depth": 64220.5,
+          "book_imbalance": -0.574,
+          "btc4h": -312.1,
+          "eth1h": 37.6,
+          "event_id": "ETHUSDT_SELL_200000_1782405123169",
+          "fold": 5,
+          "prior4h": -421.7,
+          "signal_utc": "2026-06-25T16:32:03.169000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 0.9,
+          "vdepth": 37.8
+        }
+      ],
+      "loser_profile": {
+        "avg_bid_depth": 73241.7,
+        "avg_book_imbalance": 0.3,
+        "avg_btc4h": -114.8,
+        "avg_eth1h": -73.3,
+        "avg_prior4h": -160.5,
+        "avg_threshold": 200000.0,
+        "avg_vdepth": 32.2,
+        "n": 3,
+        "tag_mix": {
+          "BID_DEPTH_THIN": 3,
+          "EXIT_2H_ACTUAL_BETTER": 1,
+          "EXIT_4H_ACTUAL_BETTER": 2,
+          "RISK_OFF_REBOUND": 3,
+          "SIZE_34X_FRAGILE": 3,
+          "TAIL_HIGH_OR_UNKNOWN": 3,
+          "TAIL_REALIZED": 1,
+          "VDEPTH_CORE": 3
+        },
+        "threshold_mix": {
+          "thr200000": 3
+        }
+      },
+      "summary": {
+        "max_loss_bps": -194.4,
+        "mean_bps": 30.6,
+        "median_bps": 11.7,
+        "n": 17,
+        "sum_bps": 520.7,
+        "t3r_bps": -124.3,
+        "tail_lte_minus100_n": 1,
+        "tail_lte_minus150_n": 1,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.588
+      },
+      "tail_profile": {
+        "avg_bid_depth": 111445.1,
+        "avg_book_imbalance": -0.4,
+        "avg_btc4h": -187.0,
+        "avg_eth1h": -56.2,
+        "avg_prior4h": -273.4,
+        "avg_threshold": 200000.0,
+        "avg_vdepth": 30.6,
+        "n": 1,
+        "tag_mix": {
+          "BID_DEPTH_THIN": 1,
+          "EXIT_4H_ACTUAL_BETTER": 1,
+          "RISK_OFF_REBOUND": 1,
+          "SIZE_34X_FRAGILE": 1,
+          "TAIL_HIGH_OR_UNKNOWN": 1,
+          "TAIL_REALIZED": 1,
+          "VDEPTH_CORE": 1
+        },
+        "threshold_mix": {
+          "thr200000": 1
+        }
+      },
+      "winner_profile": {
+        "avg_bid_depth": 192602.2,
+        "avg_book_imbalance": 0.0,
+        "avg_btc4h": -111.3,
+        "avg_eth1h": -82.1,
+        "avg_prior4h": -164.3,
+        "avg_threshold": 200000.0,
+        "avg_vdepth": 33.0,
+        "n": 10,
+        "tag_mix": {
+          "BID_DEPTH_CORE": 4,
+          "BID_DEPTH_OK": 6,
+          "EXIT_2H_ACTUAL_BETTER": 5,
+          "EXIT_4H_ACTUAL_BETTER": 5,
+          "RISK_OFF_REBOUND": 10,
+          "SIZE_15X_STABLE": 6,
+          "TAIL_LOW_CONTEXT": 6,
+          "VDEPTH_CORE": 10
+        },
+        "threshold_mix": {
+          "thr200000": 10
+        }
+      },
+      "worst10": [
+        {
+          "bid_depth": 111445.1,
+          "book_imbalance": -0.389,
+          "btc4h": -187.0,
+          "eth1h": -56.2,
+          "event_id": "ETHUSDT_SELL_200000_1782201584477",
+          "fold": 5,
+          "prior4h": -273.4,
+          "signal_utc": "2026-06-23T07:59:44.477000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "TAIL_REALIZED",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -194.4,
+          "vdepth": 30.6
+        },
+        {
+          "bid_depth": 0.0,
+          "book_imbalance": null,
+          "btc4h": -111.2,
+          "eth1h": -71.1,
+          "event_id": "ETHUSDT_SELL_200000_1774941500133",
+          "fold": 1,
+          "prior4h": -126.7,
+          "signal_utc": "2026-03-31T07:18:20.133000+00:00",
+          "stress_score": 2,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -69.7,
+          "vdepth": 32.1
+        },
+        {
+          "bid_depth": 108279.9,
+          "book_imbalance": 0.999,
+          "btc4h": -46.2,
+          "eth1h": -92.7,
+          "event_id": "ETHUSDT_SELL_200000_1781576875467",
+          "fold": 4,
+          "prior4h": -81.3,
+          "signal_utc": "2026-06-16T02:27:55.467000+00:00",
+          "stress_score": 2,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -56.2,
+          "vdepth": 34.0
+        },
+        {
+          "bid_depth": 56439.3,
+          "book_imbalance": -0.584,
+          "btc4h": -255.2,
+          "eth1h": -325.6,
+          "event_id": "ETHUSDT_SELL_200000_1781798251634",
+          "fold": 4,
+          "prior4h": -361.7,
+          "signal_utc": "2026-06-18T15:57:31.634000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -26.1,
+          "vdepth": 29.2
+        },
+        {
+          "bid_depth": 293221.2,
+          "book_imbalance": 0.903,
+          "btc4h": -131.6,
+          "eth1h": -115.4,
+          "event_id": "ETHUSDT_SELL_200000_1782470373530",
+          "fold": 5,
+          "prior4h": -141.6,
+          "signal_utc": "2026-06-26T10:39:33.530000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -12.6,
+          "vdepth": 34.4
+        },
+        {
+          "bid_depth": 108401.7,
+          "book_imbalance": -0.218,
+          "btc4h": -118.8,
+          "eth1h": -79.6,
+          "event_id": "ETHUSDT_SELL_200000_1782664454359",
+          "fold": 5,
+          "prior4h": -91.7,
+          "signal_utc": "2026-06-28T16:34:14.359000+00:00",
+          "stress_score": 4,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -8.2,
+          "vdepth": 30.0
+        },
+        {
+          "bid_depth": 134929.2,
+          "book_imbalance": -0.312,
+          "btc4h": -355.7,
+          "eth1h": -2.7,
+          "event_id": "ETHUSDT_SELL_200000_1782399803104",
+          "fold": 5,
+          "prior4h": -462.3,
+          "signal_utc": "2026-06-25T15:03:23.104000+00:00",
+          "stress_score": 4,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -1.0,
+          "vdepth": 37.5
+        },
+        {
+          "bid_depth": 64220.5,
+          "book_imbalance": -0.574,
+          "btc4h": -312.1,
+          "eth1h": 37.6,
+          "event_id": "ETHUSDT_SELL_200000_1782405123169",
+          "fold": 5,
+          "prior4h": -421.7,
+          "signal_utc": "2026-06-25T16:32:03.169000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 0.9,
+          "vdepth": 37.8
+        },
+        {
+          "bid_depth": 127345.2,
+          "book_imbalance": -0.346,
+          "btc4h": -49.0,
+          "eth1h": -47.8,
+          "event_id": "ETHUSDT_SELL_200000_1782685158381",
+          "fold": 5,
+          "prior4h": -61.2,
+          "signal_utc": "2026-06-28T22:19:18.381000+00:00",
+          "stress_score": 2,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 11.7,
+          "vdepth": 33.9
+        },
+        {
+          "bid_depth": 139272.4,
+          "book_imbalance": -0.014,
+          "btc4h": -36.2,
+          "eth1h": -44.8,
+          "event_id": "ETHUSDT_SELL_200000_1781659021753",
+          "fold": 4,
+          "prior4h": -69.8,
+          "signal_utc": "2026-06-17T01:17:01.753000+00:00",
+          "stress_score": 2,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "BID_DEPTH_CORE",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 15.6,
+          "vdepth": 28.4
+        }
+      ]
+    },
+    "score_ge_3": {
+      "best10": [
+        {
+          "bid_depth": 829882.1,
+          "book_imbalance": 0.772,
+          "btc4h": -212.3,
+          "eth1h": -140.6,
+          "event_id": "ETHUSDT_SELL_200000_1782479934877",
+          "fold": 5,
+          "prior4h": -225.6,
+          "signal_utc": "2026-06-26T13:18:54.877000+00:00",
+          "stress_score": 4,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "BID_DEPTH_HEAVY",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 266.9,
+          "vdepth": 36.3
+        },
+        {
+          "bid_depth": 136804.1,
+          "book_imbalance": -0.368,
+          "btc4h": -139.1,
+          "eth1h": -50.1,
+          "event_id": "ETHUSDT_SELL_200000_1782084822690",
+          "fold": 5,
+          "prior4h": -168.8,
+          "signal_utc": "2026-06-21T23:33:42.690000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "BID_DEPTH_CORE",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 225.9,
+          "vdepth": 29.8
+        },
+        {
+          "bid_depth": 135918.4,
+          "book_imbalance": 0.999,
+          "btc4h": -188.4,
+          "eth1h": -206.5,
+          "event_id": "ETHUSDT_SELL_200000_1782442110475",
+          "fold": 5,
+          "prior4h": -278.6,
+          "signal_utc": "2026-06-26T02:48:30.475000+00:00",
+          "stress_score": 4,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "BID_DEPTH_CORE",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 144.8,
+          "vdepth": 39.6
+        },
+        {
+          "bid_depth": 71019.6,
+          "book_imbalance": -0.234,
+          "btc4h": -22.4,
+          "eth1h": -131.8,
+          "event_id": "ETHUSDT_SELL_200000_1781279802488",
+          "fold": 4,
+          "prior4h": -75.9,
+          "signal_utc": "2026-06-12T15:56:42.488000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 28.8,
+          "vdepth": 34.3
+        },
+        {
+          "bid_depth": 11106.0,
+          "book_imbalance": -0.923,
+          "btc4h": -15.8,
+          "eth1h": -65.8,
+          "event_id": "ETHUSDT_SELL_200000_1782040706629",
+          "fold": 5,
+          "prior4h": -73.1,
+          "signal_utc": "2026-06-21T11:18:26.629000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 19.3,
+          "vdepth": 32.2
+        },
+        {
+          "bid_depth": 64220.5,
+          "book_imbalance": -0.574,
+          "btc4h": -312.1,
+          "eth1h": 37.6,
+          "event_id": "ETHUSDT_SELL_200000_1782405123169",
+          "fold": 5,
+          "prior4h": -421.7,
+          "signal_utc": "2026-06-25T16:32:03.169000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 0.9,
+          "vdepth": 37.8
+        },
+        {
+          "bid_depth": 134929.2,
+          "book_imbalance": -0.312,
+          "btc4h": -355.7,
+          "eth1h": -2.7,
+          "event_id": "ETHUSDT_SELL_200000_1782399803104",
+          "fold": 5,
+          "prior4h": -462.3,
+          "signal_utc": "2026-06-25T15:03:23.104000+00:00",
+          "stress_score": 4,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -1.0,
+          "vdepth": 37.5
+        },
+        {
+          "bid_depth": 108401.7,
+          "book_imbalance": -0.218,
+          "btc4h": -118.8,
+          "eth1h": -79.6,
+          "event_id": "ETHUSDT_SELL_200000_1782664454359",
+          "fold": 5,
+          "prior4h": -91.7,
+          "signal_utc": "2026-06-28T16:34:14.359000+00:00",
+          "stress_score": 4,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -8.2,
+          "vdepth": 30.0
+        },
+        {
+          "bid_depth": 293221.2,
+          "book_imbalance": 0.903,
+          "btc4h": -131.6,
+          "eth1h": -115.4,
+          "event_id": "ETHUSDT_SELL_200000_1782470373530",
+          "fold": 5,
+          "prior4h": -141.6,
+          "signal_utc": "2026-06-26T10:39:33.530000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -12.6,
+          "vdepth": 34.4
+        },
+        {
+          "bid_depth": 56439.3,
+          "book_imbalance": -0.584,
+          "btc4h": -255.2,
+          "eth1h": -325.6,
+          "event_id": "ETHUSDT_SELL_200000_1781798251634",
+          "fold": 4,
+          "prior4h": -361.7,
+          "signal_utc": "2026-06-18T15:57:31.634000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -26.1,
+          "vdepth": 29.2
+        }
+      ],
+      "loser_profile": {
+        "avg_bid_depth": 111445.1,
+        "avg_book_imbalance": -0.4,
+        "avg_btc4h": -187.0,
+        "avg_eth1h": -56.2,
+        "avg_prior4h": -273.4,
+        "avg_threshold": 200000.0,
+        "avg_vdepth": 30.6,
+        "n": 1,
+        "tag_mix": {
+          "BID_DEPTH_THIN": 1,
+          "EXIT_4H_ACTUAL_BETTER": 1,
+          "RISK_OFF_REBOUND": 1,
+          "SIZE_34X_FRAGILE": 1,
+          "TAIL_HIGH_OR_UNKNOWN": 1,
+          "TAIL_REALIZED": 1,
+          "VDEPTH_CORE": 1
+        },
+        "threshold_mix": {
+          "thr200000": 1
+        }
+      },
+      "summary": {
+        "max_loss_bps": -194.4,
+        "mean_bps": 40.4,
+        "median_bps": 0.9,
+        "n": 11,
+        "sum_bps": 444.3,
+        "t3r_bps": -193.3,
+        "tail_lte_minus100_n": 1,
+        "tail_lte_minus150_n": 1,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.545
+      },
+      "tail_profile": {
+        "avg_bid_depth": 111445.1,
+        "avg_book_imbalance": -0.4,
+        "avg_btc4h": -187.0,
+        "avg_eth1h": -56.2,
+        "avg_prior4h": -273.4,
+        "avg_threshold": 200000.0,
+        "avg_vdepth": 30.6,
+        "n": 1,
+        "tag_mix": {
+          "BID_DEPTH_THIN": 1,
+          "EXIT_4H_ACTUAL_BETTER": 1,
+          "RISK_OFF_REBOUND": 1,
+          "SIZE_34X_FRAGILE": 1,
+          "TAIL_HIGH_OR_UNKNOWN": 1,
+          "TAIL_REALIZED": 1,
+          "VDEPTH_CORE": 1
+        },
+        "threshold_mix": {
+          "thr200000": 1
+        }
+      },
+      "winner_profile": {
+        "avg_bid_depth": 208158.4,
+        "avg_book_imbalance": -0.1,
+        "avg_btc4h": -148.3,
+        "avg_eth1h": -92.9,
+        "avg_prior4h": -207.3,
+        "avg_threshold": 200000.0,
+        "avg_vdepth": 35.0,
+        "n": 6,
+        "tag_mix": {
+          "BID_DEPTH_OK": 3,
+          "BID_DEPTH_THIN": 3,
+          "EXIT_2H_ACTUAL_BETTER": 3,
+          "EXIT_4H_ACTUAL_BETTER": 3,
+          "RISK_OFF_REBOUND": 6,
+          "SIZE_15X_STABLE": 3,
+          "SIZE_34X_FRAGILE": 3,
+          "VDEPTH_CORE": 6
+        },
+        "threshold_mix": {
+          "thr200000": 6
+        }
+      },
+      "worst10": [
+        {
+          "bid_depth": 111445.1,
+          "book_imbalance": -0.389,
+          "btc4h": -187.0,
+          "eth1h": -56.2,
+          "event_id": "ETHUSDT_SELL_200000_1782201584477",
+          "fold": 5,
+          "prior4h": -273.4,
+          "signal_utc": "2026-06-23T07:59:44.477000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "TAIL_REALIZED",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -194.4,
+          "vdepth": 30.6
+        },
+        {
+          "bid_depth": 56439.3,
+          "book_imbalance": -0.584,
+          "btc4h": -255.2,
+          "eth1h": -325.6,
+          "event_id": "ETHUSDT_SELL_200000_1781798251634",
+          "fold": 4,
+          "prior4h": -361.7,
+          "signal_utc": "2026-06-18T15:57:31.634000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -26.1,
+          "vdepth": 29.2
+        },
+        {
+          "bid_depth": 293221.2,
+          "book_imbalance": 0.903,
+          "btc4h": -131.6,
+          "eth1h": -115.4,
+          "event_id": "ETHUSDT_SELL_200000_1782470373530",
+          "fold": 5,
+          "prior4h": -141.6,
+          "signal_utc": "2026-06-26T10:39:33.530000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -12.6,
+          "vdepth": 34.4
+        },
+        {
+          "bid_depth": 108401.7,
+          "book_imbalance": -0.218,
+          "btc4h": -118.8,
+          "eth1h": -79.6,
+          "event_id": "ETHUSDT_SELL_200000_1782664454359",
+          "fold": 5,
+          "prior4h": -91.7,
+          "signal_utc": "2026-06-28T16:34:14.359000+00:00",
+          "stress_score": 4,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -8.2,
+          "vdepth": 30.0
+        },
+        {
+          "bid_depth": 134929.2,
+          "book_imbalance": -0.312,
+          "btc4h": -355.7,
+          "eth1h": -2.7,
+          "event_id": "ETHUSDT_SELL_200000_1782399803104",
+          "fold": 5,
+          "prior4h": -462.3,
+          "signal_utc": "2026-06-25T15:03:23.104000+00:00",
+          "stress_score": 4,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": -1.0,
+          "vdepth": 37.5
+        },
+        {
+          "bid_depth": 64220.5,
+          "book_imbalance": -0.574,
+          "btc4h": -312.1,
+          "eth1h": 37.6,
+          "event_id": "ETHUSDT_SELL_200000_1782405123169",
+          "fold": 5,
+          "prior4h": -421.7,
+          "signal_utc": "2026-06-25T16:32:03.169000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 0.9,
+          "vdepth": 37.8
+        },
+        {
+          "bid_depth": 11106.0,
+          "book_imbalance": -0.923,
+          "btc4h": -15.8,
+          "eth1h": -65.8,
+          "event_id": "ETHUSDT_SELL_200000_1782040706629",
+          "fold": 5,
+          "prior4h": -73.1,
+          "signal_utc": "2026-06-21T11:18:26.629000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 19.3,
+          "vdepth": 32.2
+        },
+        {
+          "bid_depth": 71019.6,
+          "book_imbalance": -0.234,
+          "btc4h": -22.4,
+          "eth1h": -131.8,
+          "event_id": "ETHUSDT_SELL_200000_1781279802488",
+          "fold": 4,
+          "prior4h": -75.9,
+          "signal_utc": "2026-06-12T15:56:42.488000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_THIN",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_HIGH_OR_UNKNOWN",
+            "SIZE_34X_FRAGILE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 28.8,
+          "vdepth": 34.3
+        },
+        {
+          "bid_depth": 135918.4,
+          "book_imbalance": 0.999,
+          "btc4h": -188.4,
+          "eth1h": -206.5,
+          "event_id": "ETHUSDT_SELL_200000_1782442110475",
+          "fold": 5,
+          "prior4h": -278.6,
+          "signal_utc": "2026-06-26T02:48:30.475000+00:00",
+          "stress_score": 4,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "BID_DEPTH_CORE",
+            "EXIT_4H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 144.8,
+          "vdepth": 39.6
+        },
+        {
+          "bid_depth": 136804.1,
+          "book_imbalance": -0.368,
+          "btc4h": -139.1,
+          "eth1h": -50.1,
+          "event_id": "ETHUSDT_SELL_200000_1782084822690",
+          "fold": 5,
+          "prior4h": -168.8,
+          "signal_utc": "2026-06-21T23:33:42.690000+00:00",
+          "stress_score": 3,
+          "tags": [
+            "RISK_OFF_REBOUND",
+            "VDEPTH_CORE",
+            "BID_DEPTH_OK",
+            "BID_DEPTH_CORE",
+            "EXIT_2H_ACTUAL_BETTER",
+            "TAIL_LOW_CONTEXT",
+            "SIZE_15X_STABLE"
+          ],
+          "threshold": 200000.0,
+          "value_bps": 225.9,
+          "vdepth": 29.8
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,168 @@
+{
+  "tool": "backtest_scalper_stack",
+  "seed": 42,
+  "config_echo": {
+    "db_path": "data/microstructure.db",
+    "symbol": "BTCUSDT",
+    "fee_bps": 5.0,
+    "slip_bps": 1.0,
+    "folds": 4,
+    "min_train_trades": 30,
+    "seed": 42,
+    "out_dir": "reports/research/scalper_stack",
+    "profile": "deep"
+  },
+  "data": {
+    "symbol": "BTCUSDT",
+    "bars": 134603,
+    "gaps_gt_tolerance": 126,
+    "range_utc": [
+      "2026-02-15T14:26:00+00:00",
+      "2026-06-10T11:58:00+00:00"
+    ],
+    "fold_edges_bar_idx": [
+      0,
+      33651,
+      67302,
+      100952,
+      134603
+    ]
+  },
+  "grid_size": 432,
+  "eligible_configs": 0,
+  "top_by_train": [],
+  "best_overall_train_unfiltered": [
+    {
+      "config": {
+        "fast_len": 9,
+        "slow_len": 21,
+        "vwap_buf_atr": 0.5,
+        "trend_min_atr": 0.4,
+        "confirm_bars": 4,
+        "delta_mode": "strong2.0",
+        "cooldown_bars": 15,
+        "exit_mode": "h120",
+        "side_filter": "short"
+      },
+      "signals": 187,
+      "trades": 187,
+      "train_trades": 145,
+      "train_net_mean_bps": -2.2093316823654208,
+      "train_win_rate": 0.43448275862068964,
+      "train_pos_folds": 1,
+      "holdout_trades": 42,
+      "holdout_net_mean_bps": -3.0556559732064765,
+      "holdout_win_rate": 0.5238095238095238,
+      "fold_stats": [
+        {
+          "trades": 53,
+          "net_mean_bps": -12.550374066678911,
+          "win_rate": 0.4339622641509434
+        },
+        {
+          "trades": 45,
+          "net_mean_bps": 14.20560717598678,
+          "win_rate": 0.5555555555555556
+        },
+        {
+          "trades": 47,
+          "net_mean_bps": -6.264587049540617,
+          "win_rate": 0.3191489361702128
+        },
+        {
+          "trades": 42,
+          "net_mean_bps": -3.0556559732064765,
+          "win_rate": 0.5238095238095238
+        }
+      ]
+    },
+    {
+      "config": {
+        "fast_len": 9,
+        "slow_len": 21,
+        "vwap_buf_atr": 0.5,
+        "trend_min_atr": 0.6,
+        "confirm_bars": 4,
+        "delta_mode": "strong2.0",
+        "cooldown_bars": 15,
+        "exit_mode": "h60",
+        "side_filter": "long"
+      },
+      "signals": 170,
+      "trades": 170,
+      "train_trades": 130,
+      "train_net_mean_bps": -2.25430368157247,
+      "train_win_rate": 0.3923076923076923,
+      "train_pos_folds": 1,
+      "holdout_trades": 40,
+      "holdout_net_mean_bps": -18.263680829970696,
+      "holdout_win_rate": 0.275,
+      "fold_stats": [
+        {
+          "trades": 32,
+          "net_mean_bps": 0.39802657260882945,
+          "win_rate": 0.375
+        },
+        {
+          "trades": 41,
+          "net_mean_bps": -6.163720450849738,
+          "win_rate": 0.4146341463414634
+        },
+        {
+          "trades": 57,
+          "net_mean_bps": -0.9312945691765717,
+          "win_rate": 0.38596491228070173
+        },
+        {
+          "trades": 40,
+          "net_mean_bps": -18.263680829970696,
+          "win_rate": 0.275
+        }
+      ]
+    },
+    {
+      "config": {
+        "fast_len": 9,
+        "slow_len": 21,
+        "vwap_buf_atr": 1.0,
+        "trend_min_atr": 0.6,
+        "confirm_bars": 4,
+        "delta_mode": "strong2.0",
+        "cooldown_bars": 15,
+        "exit_mode": "h60",
+        "side_filter": "long"
+      },
+      "signals": 168,
+      "trades": 168,
+      "train_trades": 128,
+      "train_net_mean_bps": -2.2875993176949376,
+      "train_win_rate": 0.390625,
+      "train_pos_folds": 0,
+      "holdout_trades": 40,
+      "holdout_net_mean_bps": -15.758156334656178,
+      "holdout_win_rate": 0.275,
+      "fold_stats": [
+        {
+          "trades": 34,
+          "net_mean_bps": -2.328546563972597,
+          "win_rate": 0.35294117647058826
+        },
+        {
+          "trades": 39,
+          "net_mean_bps": -4.12818117187409,
+          "win_rate": 0.4358974358974359
+        },
+        {
+          "trades": 55,
+          "net_mean_bps": -0.9571466143053479,
+          "win_rate": 0.38181818181818183
+        },
+        {
+          "trades": 40,
+          "net_mean_bps": -15.758156334656178,
+          "win_rate": 0.275
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "symbol": "ETHUSDT",
+  "rule": "high_liq_reversal_regime",
+  "lookback_min": 1440,
+  "bucket_sec": 5,
+  "coverage_json": "reports\\test_run_liq_reversal_e2e\\LIQ_REVERSAL_E2E_COVERAGE.json",
+  "candidates_json": "reports\\test_run_liq_reversal_e2e\\LIQ_REVERSAL_E2E_CANDIDATES.json",
+  "rank_baseline_json": "reports\\test_run_liq_reversal_e2e\\LIQ_REVERSAL_E2E_RANK_BASELINE.json",
+  "rank_v5_json": "reports\\test_run_liq_reversal_e2e\\LIQ_REVERSAL_E2E_RANK_V5.json",
+  "rank_v6_json": "reports\\test_run_liq_reversal_e2e\\LIQ_REVERSAL_E2E_RANK_V6.json",
+  "summary": {
+    "symbol": "ETHUSDT",
+    "rule": "high_liq_reversal_regime",
+    "coverage": {
+      "windows": 1,
+      "max_rule_fire_count": 12,
+      "max_rule_given_liq_rate": 0.5
+    },
+    "candidate_surface": {
+      "count": 8
+    },
+    "rank_baseline": {
+      "count": 0,
+      "top": null
+    },
+    "rank_v5": {
+      "count": 0,
+      "top": null
+    },
+    "rank_v6": {
+      "count": 1,
+      "top": {
+        "symbol": "ETHUSDT",
+        "rule": "high_liq_reversal_regime",
+        "horizon_sec": 60,
+        "score": 0.0001,
+        "score_raw_core": 0.0002,
+        "npa_core": 3e-05,
+        "pass_rate_core": 0.5,
+        "attempt_fill_rate": 0.25,
+        "failure_reason_top": "mixed"
+      }
+    },
+    "decision": {
+      "baseline_tradeable": false,
+      "v5_tradeable": false,
+      "v6_tradeable": true,
+      "next_step": "inspect_ranked_pockets"
+    }
+  },
+  "run_summary": {
+    "version": "v1",
+    "run_type": "run_liq_reversal_e2e",
+    "inputs": {
+      "db": "data/microstructure.db",
+      "symbol": "ETHUSDT",
+      "lookback_min": 1440,
+      "coverage_lookbacks_min": [
+        "60",
+        "1440",
+        "10080"
+      ],
+      "bucket_sec": 5,
+      "horizons_sec": [
+        "30",
+        "60"
+      ],
+      "min_imbalances": [
+        "0.25",
+        "0.35"
+      ],
+      "min_trade_intensities": [
+        "100",
+        "200"
+      ],
+      "max_spreads": [
+        "0.00035"
+      ],
+      "splits": 2,
+      "seeds": [
+        "7",
+        "11",
+        "22"
+      ],
+      "min_n": 20,
+      "min_n_frac": 1e-05,
+      "rule": "high_liq_reversal_regime"
+    },
+    "metrics": {
+      "coverage_windows": 1,
+      "candidate_count": 8,
+      "baseline_rank_count": 0,
+      "v5_rank_count": 0,
+      "v6_rank_count": 1
+    },
+    "artifacts": {
+      "json": "reports\\test_run_liq_reversal_e2e\\LIQ_REVERSAL_E2E.json",
+      "md": "reports\\test_run_liq_reversal_e2e\\LIQ_REVERSAL_E2E.md",
+      "coverage_json": "reports\\test_run_liq_reversal_e2e\\LIQ_REVERSAL_E2E_COVERAGE.json",
+      "candidates_json": "reports\\test_run_liq_reversal_e2e\\LIQ_REVERSAL_E2E_CANDIDATES.json",
+      "rank_baseline_json": "reports\\test_run_liq_reversal_e2e\\LIQ_REVERSAL_E2E_RANK_BASELINE.json",
+      "rank_v5_json": "reports\\test_run_liq_reversal_e2e\\LIQ_REVERSAL_E2E_RANK_V5.json",
+      "rank_v6_json": "reports\\test_run_liq_reversal_e2e\\LIQ_REVERSAL_E2E_RANK_V6.json"
+    }
+  }
+}

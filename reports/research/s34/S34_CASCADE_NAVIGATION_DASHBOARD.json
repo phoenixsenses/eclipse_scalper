@@ -1,0 +1,1060 @@
+{
+  "generated_at_utc": "2026-07-01T06:41:06.846764+00:00",
+  "as_of_ts_ms": 1782888059178,
+  "as_of_utc": "2026-07-01T06:40:59.178000+00:00",
+  "execution_management": {
+    "env_planned_margin_usdt": 29.8,
+    "forward_closed_n": 0,
+    "forward_sum_bps": 0.0,
+    "kill_status": "TRIGGERED_RECOMMENDATION_ONLY",
+    "max_stop_budget_margin_usdt": 1.0,
+    "max_tail_budget_margin_usdt": 0.3,
+    "oversize_multiple": 107.8,
+    "permission": "UNVALIDATED_OBSERVATION_ONLY",
+    "recommendation": "OPERATOR_SIZE_REVIEW_OR_DISARM_UNTIL_FORWARD_VALIDATION",
+    "regime_status": "DATA_INSUFFICIENT",
+    "rule_id": "S34_V_ENGINE_V0_2_ETH_SELL_MAKER_LONG_H2_O20_W300_O5_DEEPBID",
+    "size_status": "ALERT_OVERSIZE_OPERATOR_ACTION_REQUIRED",
+    "updated_at_utc": "2026-06-29T07:01:02.104147+00:00"
+  },
+  "risk_review_v9": {
+    "status": "ACTIVE",
+    "recommended_kill": "FIRST_TAIL_OR_10PCT_DD_PAUSE",
+    "kill_logic": "pause after any closed trade <= -100 bps OR realized equity drawdown >= 10%; operator review required to resume",
+    "tick_atomicity_status": "NO_TICK_CATASTROPHIC_GAP_FOUND",
+    "tick_worst_adverse_bps": -22.7,
+    "forward_gate": "FROZEN_DECISION_GATE"
+  },
+  "forward_governance_v11": {
+    "status": "ACTIVE",
+    "forward_integrity": "NO_FORWARD_OOS_YET",
+    "valid_forward_n": 0,
+    "operator_governance": "DECISION_REQUIRED",
+    "oversize_vs_balanced": 73.0,
+    "execution_truth": "NO_S34_REAL_ORDER_TELEMETRY_FOUND",
+    "fee_tier": "ACTUAL_FEE_TIER_UNKNOWN"
+  },
+  "v02_shadow_mirror": {
+    "status": "ACTIVE",
+    "protocol_id": "S34_V_ENGINE_V0_2_ETH_SELL_MAKER_LONG_H2_O20_W300_O5_DEEPBID",
+    "permission": "EXPLORATORY_V_FADE_V0_2_SHADOW_MIRROR",
+    "decision": "OBSERVE_ONLY_NO_ORDER",
+    "live_rule_match": true,
+    "ledger_rows": 12,
+    "rows_added_this_run": 0,
+    "overall_n": 12,
+    "overall_sum_bps": 1161.5,
+    "overall_median_bps": 63.1,
+    "overall_t3r_bps": 482.5,
+    "recent_n": 8,
+    "recent_sum_bps": 1014.0,
+    "recent_median_bps": 114.9,
+    "recent_t3r_bps": 335.0,
+    "kill_triggered": false,
+    "latest_signal_utc": "2026-06-30T13:32:16.371000+00:00"
+  },
+  "v02_h4_shadow": {
+    "status": "ACTIVE",
+    "protocol_id": "S34_V_ENGINE_V0_2_ETH_SELL_MAKER_LONG_H2_O20_W300_O5_DEEPBID",
+    "h2_sum_bps": 1081.6,
+    "h4_sum_bps": 1738.6,
+    "h4_t3r_bps": 819.2,
+    "cross_policy_sum_bps": 1790.7,
+    "sl150_touch_count": 0,
+    "queue_status": "PROXY_ONLY_TOP_OF_BOOK",
+    "decision": "H4_SHADOW_OBSERVATION_ONLY"
+  },
+  "sizing_shadow_paper": {
+    "status": "SHADOW_PAPER_SIZING_ONLY_NO_ORDER",
+    "rule_id": "S34_V_ENGINE_V0_2_ETH_SELL_MAKER_LONG_H2_O20_W300_O5_DEEPBID",
+    "source_shadow_rows": 12,
+    "current_env": {
+      "n": 12,
+      "notional_usdt": 1190.0,
+      "margin_usdt": 29.75,
+      "leverage": 40.0,
+      "sum_bps": 1161.5,
+      "median_bps": 63.1,
+      "win_rate": 1.0,
+      "sum_pnl_usdt": 138.219,
+      "ending_equity_usdt": 173.219,
+      "max_drawdown_pct_equity": 0.0,
+      "max_loss_usdt": 1.583,
+      "max_win_usdt": 35.664
+    },
+    "balanced": {
+      "n": 12,
+      "notional_usdt": 16.3,
+      "margin_usdt": 0.4,
+      "leverage": 40.0,
+      "sum_bps": 1161.5,
+      "median_bps": 63.1,
+      "win_rate": 1.0,
+      "sum_pnl_usdt": 1.893,
+      "ending_equity_usdt": 36.893,
+      "max_drawdown_pct_equity": 0.0,
+      "max_loss_usdt": 0.022,
+      "max_win_usdt": 0.489
+    },
+    "survival": {
+      "n": 12,
+      "notional_usdt": 11.0,
+      "margin_usdt": 0.3,
+      "leverage": 40.0,
+      "sum_bps": 1161.5,
+      "median_bps": 63.1,
+      "win_rate": 1.0,
+      "sum_pnl_usdt": 1.28,
+      "ending_equity_usdt": 36.278,
+      "max_drawdown_pct_equity": 0.0,
+      "max_loss_usdt": 0.015,
+      "max_win_usdt": 0.33
+    },
+    "stop_assisted": {
+      "n": 12,
+      "notional_usdt": 39.8,
+      "margin_usdt": 1.0,
+      "leverage": 40.0,
+      "sum_bps": 1161.5,
+      "median_bps": 63.1,
+      "win_rate": 1.0,
+      "sum_pnl_usdt": 4.622,
+      "ending_equity_usdt": 39.623,
+      "max_drawdown_pct_equity": 0.0,
+      "max_loss_usdt": 0.053,
+      "max_win_usdt": 1.193
+    }
+  },
+  "silence_gate": {
+    "status": "NO_ACTIVE_POSITION",
+    "executor_mode": "LIVE",
+    "executor_rule": "S34_STATE_MACHINE_V1_ETH_SELL_BTC1000_DOW_SCORE3",
+    "silence_gate_armed": true,
+    "active_status": null
+  },
+  "shadow_bucket": {
+    "status": "ACTIVE",
+    "open_n": 0,
+    "open_positions": [],
+    "pnl": {
+      "LONG_SILENCE": {
+        "avg_net": -1.5,
+        "n": 217,
+        "total_net": -323.5,
+        "wins": 67,
+        "wr": 0.309
+      },
+      "SHORT_NEITHER": {
+        "avg_net": 71.9,
+        "n": 28,
+        "total_net": 2013.7,
+        "wins": 18,
+        "wr": 0.643
+      },
+      "updated_utc": "2026-07-01T06:40:56.994833+00:00"
+    },
+    "closed_trades_n": 245,
+    "signal_stats": {
+      "LONG_SILENCE": {
+        "n": 217,
+        "wr": 0.309,
+        "total_net": -323.5,
+        "avg_net": -1.5
+      },
+      "SHORT_NEITHER": {
+        "n": 28,
+        "wr": 0.643,
+        "total_net": 2013.7,
+        "avg_net": 71.9
+      }
+    },
+    "candidate_buckets": [
+      {
+        "name": "C_score_relax",
+        "label": "score>=2 (btc7d removed)",
+        "mc_p": 0.018,
+        "stats": {
+          "n": 34,
+          "wr": 0.706,
+          "avg_bps": 76.2
+        }
+      },
+      {
+        "name": "C_btc7d500",
+        "label": "btc7d in (-500,0) [live only]",
+        "mc_p": 0.24,
+        "stats": {
+          "n": 0,
+          "wr": 0,
+          "avg_bps": 0
+        }
+      },
+      {
+        "name": "C_freq_btc4h",
+        "label": "btc4h<0 no btc7d [live only]",
+        "mc_p": 0.375,
+        "stats": {
+          "n": 0,
+          "wr": 0,
+          "avg_bps": 0
+        }
+      },
+      {
+        "name": "C_double_cascade",
+        "label": "density_24h>=1+prebuildup>=2 [live only]",
+        "mc_p": 0.001,
+        "stats": {
+          "n": 0,
+          "wr": 0,
+          "avg_bps": 0
+        }
+      },
+      {
+        "name": "C_btc_falling_fast",
+        "label": "btc5m<-20bps [live only]",
+        "mc_p": 0.001,
+        "stats": {
+          "n": 0,
+          "wr": 0,
+          "avg_bps": 0
+        }
+      },
+      {
+        "name": "C_failed_cascade",
+        "label": "failed_cascade==True [live only]",
+        "mc_p": 0.006,
+        "stats": {
+          "n": 0,
+          "wr": 0,
+          "avg_bps": 0
+        }
+      }
+    ]
+  },
+  "validated_registry": {
+    "status": "VALIDATED_OOS_PERMUTATION_PASS",
+    "n_signals_total": 6,
+    "n_armed_live": 3,
+    "n_shadow_paper": 3,
+    "armed_ids": [
+      "SILENCE_LONG",
+      "SILENCE_SYNC200K_LONG",
+      "WEEKDAY_SCORE3_BID_SILENCE_LONG"
+    ],
+    "shadow_ids": [
+      "NOISY_NOT_BULL_SHORT",
+      "NEITHER_SILENCE_SHORT",
+      "NEITHER_SCORE3_NO_ULTRA_SHORT"
+    ],
+    "best_hold_wr": 0.902,
+    "best_hold_t3r": 11360,
+    "portfolio_hold_n": 233,
+    "portfolio_hold_wr": 0.755,
+    "generated_utc": "2026-06-30T15:00:00Z",
+    "signals": [
+      {
+        "id": "SILENCE_LONG",
+        "family": "ETH_SELL",
+        "direction": "LONG",
+        "description": "ETH SELL cascade >= 200K + 30min silence (no follow-on >= 50K)",
+        "entry": "anchor cascade time (no delay)",
+        "exit": "4h from anchor",
+        "cal_n": 247,
+        "cal_wr": 0.655,
+        "cal_t3r": 5082,
+        "cal_perm_p": 0.0,
+        "cal_verdict": "PASS",
+        "hold_n": 194,
+        "hold_wr": 0.701,
+        "hold_t3r": 7733,
+        "hold_perm_p": 0.0,
+        "hold_verdict": "PASS",
+        "live_rule": "SILENCE_GATE_ACTIVE_IN_EXECUTOR",
+        "live_status": "ARMED"
+      },
+      {
+        "id": "SILENCE_SYNC200K_LONG",
+        "family": "ETH_SELL",
+        "direction": "LONG",
+        "description": "ETH SELL cascade >= 200K + 30min silence + BTC+SOL sync_k >= 200K",
+        "entry": "anchor cascade time",
+        "exit": "4h from anchor",
+        "cal_n": 80,
+        "cal_wr": 0.738,
+        "cal_t3r": 2891,
+        "cal_perm_p": 0.001,
+        "cal_verdict": "PASS",
+        "hold_n": 65,
+        "hold_wr": 0.831,
+        "hold_t3r": 4298,
+        "hold_perm_p": 0.0,
+        "hold_verdict": "PASS",
+        "live_rule": "SILENCE_GATE_ACTIVE_IN_EXECUTOR",
+        "live_status": "ARMED"
+      },
+      {
+        "id": "WEEKDAY_SCORE3_BID_SILENCE_LONG",
+        "family": "ETH_SELL",
+        "direction": "LONG",
+        "description": "Mon-Fri + score>=3 + bid_depth>0 + 30min silence",
+        "entry": "anchor cascade time",
+        "exit": "4h from anchor",
+        "cal_n": 37,
+        "cal_wr": 0.892,
+        "cal_t3r": 1334,
+        "cal_perm_p": 0.001,
+        "cal_verdict": "PASS",
+        "hold_n": 86,
+        "hold_wr": 0.884,
+        "hold_t3r": 6162,
+        "hold_perm_p": 0.0,
+        "hold_verdict": "PASS",
+        "live_rule": "SILENCE_GATE_ACTIVE_IN_EXECUTOR",
+        "live_status": "ARMED"
+      },
+      {
+        "id": "NOISY_NOT_BULL_SHORT",
+        "family": "ETH_SELL",
+        "direction": "SHORT",
+        "description": "ETH SELL cascade >= 200K + propagation in 1-30min + NOT bull context",
+        "entry": "first propagation cascade time",
+        "exit": "2h from entry",
+        "cal_n": 508,
+        "cal_wr": 0.632,
+        "cal_t3r": 8420,
+        "cal_perm_p": 0.0,
+        "cal_verdict": "PASS",
+        "hold_n": 397,
+        "hold_wr": 0.549,
+        "hold_t3r": 11360,
+        "hold_perm_p": 0.0,
+        "hold_verdict": "PASS",
+        "live_rule": "SHADOW_PAPER_ONLY",
+        "live_status": "SHADOW_PAPER_TRACKING"
+      },
+      {
+        "id": "NEITHER_SILENCE_SHORT",
+        "family": "ETH_SELL",
+        "direction": "SHORT",
+        "description": "ETH SELL cascade >= 200K + BTC SELL >= 500K in 30min window (both cascading)",
+        "entry": "BTC cascade detection time",
+        "exit": "2h from entry",
+        "cal_n": 90,
+        "cal_wr": 0.667,
+        "cal_t3r": 6042,
+        "cal_perm_p": 0.0,
+        "cal_verdict": "PASS",
+        "hold_n": 119,
+        "hold_wr": 0.731,
+        "hold_t3r": 8599,
+        "hold_perm_p": 0.0,
+        "hold_verdict": "PASS",
+        "live_rule": "SHADOW_PAPER_ONLY",
+        "live_status": "SHADOW_PAPER_TRACKING"
+      },
+      {
+        "id": "NEITHER_SCORE3_NO_ULTRA_SHORT",
+        "family": "ETH_SELL",
+        "direction": "SHORT",
+        "description": "ETH+BTC both cascading + score>=3 + no ultra-early (<1min) event",
+        "entry": "BTC cascade detection time",
+        "exit": "2h from entry",
+        "cal_n": 31,
+        "cal_wr": 0.774,
+        "cal_t3r": 2703,
+        "cal_perm_p": 0.0,
+        "cal_verdict": "PASS",
+        "hold_n": 41,
+        "hold_wr": 0.902,
+        "hold_t3r": 5780,
+        "hold_perm_p": 0.0,
+        "hold_verdict": "PASS",
+        "live_rule": "SHADOW_PAPER_ONLY",
+        "live_status": "SHADOW_PAPER_TRACKING"
+      }
+    ]
+  },
+  "execution_audit": {
+    "status": "ACTIVE",
+    "margin_env_usdt": 29.8,
+    "notional_env_usdt": 1190.0,
+    "budget_margin_usdt": 0.3,
+    "budget_notional_usdt": 11.0,
+    "oversize_multiple": 99.3,
+    "leverage": 40.0,
+    "stop_nominal_bps": 150.0,
+    "stop_worst_fill_bps": -175.7,
+    "stop_gap_bps": 25.7,
+    "stop_protection": "PARTIAL_GAP_THROUGH",
+    "stop_pct_equity": 59.7,
+    "atomicity": "NOT_ATOMIC_ENTRY_THEN_STOP_AFTER_FILL_DETECTION",
+    "poll_sec": 2.0,
+    "tail_rate_pct": 18.7,
+    "tail_in_3_pct": 46.3,
+    "tail_in_5_pct": 64.6,
+    "best_stop_variant": "fixed_sl_150",
+    "recommendations": [
+      "Do not change live logic automatically.",
+      "Operator should reduce size to tail-budget or disarm before relying on any stop.",
+      "Keep exchange-native STOP_MARKET; process-only exits are not outage-safe.",
+      "Treat the entry-fill-to-stop-placement window as real atomicity risk.",
+      "Kill switch should be operator-actionable: create runtime/KILL_SWITCH to block new entries."
+    ]
+  },
+  "execmgmt": {
+    "status": "ACTIVE",
+    "mode": "READ_ONLY_RECOMMENDATION_NO_ACTION",
+    "equity_usdt": 35.2941,
+    "equity_source": "derived_notional/lev/margin_pct(85%)",
+    "tail_budget_pct": 1.0,
+    "tail_budget_usdt": 0.3529,
+    "worst_real_fill_bps": -175.7,
+    "tail_budget_notional_usdt": 20.0877,
+    "current_notional_usdt": 1200.0,
+    "current_notional_source": "S34_LIVE_MARGIN_USDT*leverage",
+    "current_margin_usdt": 30.0,
+    "current_margin_source": "S34_LIVE_MARGIN_USDT",
+    "leverage": 40.0,
+    "leverage_source": "S34_LIVE_MAX_LEVERAGE",
+    "oversize_multiple": 59.7,
+    "urgent": true,
+    "flag": "URGENT_OVERSIZE_GT_10X",
+    "recommended_max_margin_usdt": 0.5022,
+    "read": "display/recommendation only; no order/config/env mutation"
+  },
+  "stopprot": {
+    "status": "ACTIVE",
+    "mode": "READ_ONLY_WARNING_NO_ACTION",
+    "nominal_stop_bps": 150.0,
+    "nominal_stop_source": "S34_V_ENGINE_LIVE_STOP_BPS",
+    "worst_real_fill_bps": -175.7,
+    "gap_through_bps": 25.7,
+    "gap_through_flag": "PARTIAL_PROTECTION",
+    "atomicity": "ENTRY_THEN_STOP_POLL_LOOP",
+    "unprotected_window_sec": 2.0,
+    "read": "entry fill to stop placement has an approximately 2s unprotected poll-loop window; warning only"
+  },
+  "config": {
+    "bucket_sec": 300,
+    "accel_window_sec": 30,
+    "dead_gap_sec": 120.0,
+    "btc_window_sec": 900,
+    "max_book_staleness_sec": 5,
+    "recheck_json": "D:\\eclipse_scalper\\reports\\research\\s34\\S34_KNOWABLE_ANCHOR_ROUTE_RECHECK_fade_20260628.json"
+  },
+  "lanes": [
+    {
+      "lane": {
+        "symbol": "ETHUSDT",
+        "liq_side": "BUY",
+        "direction": "LONG",
+        "family": "ETH_BUY"
+      },
+      "as_of_ts_ms": 1782888059178,
+      "as_of_utc": "2026-07-01T06:40:59.178000+00:00",
+      "panels": {
+        "anchor_health": {
+          "running_notional": 0.0,
+          "highest_threshold_crossed": null,
+          "next_threshold": 50000.0,
+          "distance_to_next_usd": 50000.0,
+          "liq_count": 0,
+          "elapsed_since_first_sec": 0.0,
+          "gap_since_last_sec": null,
+          "liq_rate_usd_per_sec": 0.0,
+          "acceleration_usd_per_sec": 0.0,
+          "knowable": true
+        },
+        "cascade_phase": {
+          "phase": "DEAD",
+          "shape": "distributed",
+          "single_liq_dominance_pct": 0.0,
+          "continuation_momentum_score": 0.0,
+          "fade_momentum_score": 0.0
+        },
+        "regime_compass": {
+          "session": "ASIA",
+          "day_trend_bps": 13.3,
+          "day_range_bps": 320.4,
+          "btc_return_bps": -21.3,
+          "btc_aligned_with_direction": false,
+          "funding_rate": 6.9e-05
+        },
+        "execution_reality": {
+          "book_available": true,
+          "no_fill_risk": "LOW",
+          "book_staleness_sec": 0.1,
+          "spread_bps": 0.1,
+          "expected_entry_adverse_bps": 0.0
+        },
+        "rule_confidence": {
+          "family_edge": "UNKNOWN",
+          "evidence_quality": "NO_CLEAN_RECHECK",
+          "paper_candidate_count": 0,
+          "validated_signal_count": 0,
+          "rules": [],
+          "validated_signals": []
+        },
+        "exploratory_v_fade": {
+          "protocol": "S34_V_ENGINE_V0_1_ETH_SELL_MAKER_LONG_H2_O20_V28_40_P4D",
+          "status": "INACTIVE",
+          "permission": null,
+          "observation_only": true,
+          "reason": "lane_not_applicable",
+          "maker_direction": null,
+          "vdepth_bps": null,
+          "prior_4h_bps": null,
+          "rule": {
+            "symbol": "ETHUSDT",
+            "liq_side": "SELL",
+            "threshold_usd": 200000.0,
+            "vdepth_min_bps": 28.0,
+            "vdepth_max_bps": 40.0,
+            "prior_4h_lt_bps": -50.0,
+            "maker_offset_bps": 20.0,
+            "cross_margin_bps": 2.0,
+            "horizon_sec": 7200
+          }
+        }
+      },
+      "verdict": {
+        "permission": "OBSERVE_ONLY",
+        "action": "no new entry (edge=UNKNOWN, no_active_cascade); observe",
+        "continuation_momentum": 0.0,
+        "fade_momentum": 0.0,
+        "blocked_by_edge": true
+      }
+    },
+    {
+      "lane": {
+        "symbol": "ETHUSDT",
+        "liq_side": "SELL",
+        "direction": "SHORT",
+        "family": "ETH_SELL"
+      },
+      "as_of_ts_ms": 1782888059178,
+      "as_of_utc": "2026-07-01T06:40:59.178000+00:00",
+      "panels": {
+        "anchor_health": {
+          "running_notional": 100.3,
+          "highest_threshold_crossed": null,
+          "next_threshold": 50000.0,
+          "distance_to_next_usd": 49899.7,
+          "liq_count": 1,
+          "elapsed_since_first_sec": 0.0,
+          "gap_since_last_sec": 0.0,
+          "liq_rate_usd_per_sec": 100.3,
+          "acceleration_usd_per_sec": 3.3,
+          "knowable": true
+        },
+        "cascade_phase": {
+          "phase": "FORMING",
+          "shape": "one_shot_dominant",
+          "single_liq_dominance_pct": 100.0,
+          "continuation_momentum_score": 0.0,
+          "fade_momentum_score": 0.0
+        },
+        "regime_compass": {
+          "session": "ASIA",
+          "day_trend_bps": 13.3,
+          "day_range_bps": 320.4,
+          "btc_return_bps": -21.3,
+          "btc_aligned_with_direction": true,
+          "funding_rate": 6.9e-05
+        },
+        "execution_reality": {
+          "book_available": true,
+          "no_fill_risk": "LOW",
+          "book_staleness_sec": 0.1,
+          "spread_bps": 0.1,
+          "expected_entry_adverse_bps": 0.0
+        },
+        "rule_confidence": {
+          "family_edge": "PROVEN_5TH_WAVE",
+          "evidence_quality": "PERM_OOS_PASS_6_SIGNALS",
+          "paper_candidate_count": 6,
+          "validated_signal_count": 6,
+          "rules": [],
+          "validated_signals": [
+            {
+              "id": "SILENCE_LONG",
+              "family": "ETH_SELL",
+              "direction": "LONG",
+              "description": "ETH SELL cascade >= 200K + 30min silence (no follow-on >= 50K)",
+              "entry": "anchor cascade time (no delay)",
+              "exit": "4h from anchor",
+              "cal_n": 247,
+              "cal_wr": 0.655,
+              "cal_t3r": 5082,
+              "cal_perm_p": 0.0,
+              "cal_verdict": "PASS",
+              "hold_n": 194,
+              "hold_wr": 0.701,
+              "hold_t3r": 7733,
+              "hold_perm_p": 0.0,
+              "hold_verdict": "PASS",
+              "live_rule": "SILENCE_GATE_ACTIVE_IN_EXECUTOR",
+              "live_status": "ARMED"
+            },
+            {
+              "id": "SILENCE_SYNC200K_LONG",
+              "family": "ETH_SELL",
+              "direction": "LONG",
+              "description": "ETH SELL cascade >= 200K + 30min silence + BTC+SOL sync_k >= 200K",
+              "entry": "anchor cascade time",
+              "exit": "4h from anchor",
+              "cal_n": 80,
+              "cal_wr": 0.738,
+              "cal_t3r": 2891,
+              "cal_perm_p": 0.001,
+              "cal_verdict": "PASS",
+              "hold_n": 65,
+              "hold_wr": 0.831,
+              "hold_t3r": 4298,
+              "hold_perm_p": 0.0,
+              "hold_verdict": "PASS",
+              "live_rule": "SILENCE_GATE_ACTIVE_IN_EXECUTOR",
+              "live_status": "ARMED"
+            },
+            {
+              "id": "WEEKDAY_SCORE3_BID_SILENCE_LONG",
+              "family": "ETH_SELL",
+              "direction": "LONG",
+              "description": "Mon-Fri + score>=3 + bid_depth>0 + 30min silence",
+              "entry": "anchor cascade time",
+              "exit": "4h from anchor",
+              "cal_n": 37,
+              "cal_wr": 0.892,
+              "cal_t3r": 1334,
+              "cal_perm_p": 0.001,
+              "cal_verdict": "PASS",
+              "hold_n": 86,
+              "hold_wr": 0.884,
+              "hold_t3r": 6162,
+              "hold_perm_p": 0.0,
+              "hold_verdict": "PASS",
+              "live_rule": "SILENCE_GATE_ACTIVE_IN_EXECUTOR",
+              "live_status": "ARMED"
+            },
+            {
+              "id": "NOISY_NOT_BULL_SHORT",
+              "family": "ETH_SELL",
+              "direction": "SHORT",
+              "description": "ETH SELL cascade >= 200K + propagation in 1-30min + NOT bull context",
+              "entry": "first propagation cascade time",
+              "exit": "2h from entry",
+              "cal_n": 508,
+              "cal_wr": 0.632,
+              "cal_t3r": 8420,
+              "cal_perm_p": 0.0,
+              "cal_verdict": "PASS",
+              "hold_n": 397,
+              "hold_wr": 0.549,
+              "hold_t3r": 11360,
+              "hold_perm_p": 0.0,
+              "hold_verdict": "PASS",
+              "live_rule": "SHADOW_PAPER_ONLY",
+              "live_status": "SHADOW_PAPER_TRACKING"
+            },
+            {
+              "id": "NEITHER_SILENCE_SHORT",
+              "family": "ETH_SELL",
+              "direction": "SHORT",
+              "description": "ETH SELL cascade >= 200K + BTC SELL >= 500K in 30min window (both cascading)",
+              "entry": "BTC cascade detection time",
+              "exit": "2h from entry",
+              "cal_n": 90,
+              "cal_wr": 0.667,
+              "cal_t3r": 6042,
+              "cal_perm_p": 0.0,
+              "cal_verdict": "PASS",
+              "hold_n": 119,
+              "hold_wr": 0.731,
+              "hold_t3r": 8599,
+              "hold_perm_p": 0.0,
+              "hold_verdict": "PASS",
+              "live_rule": "SHADOW_PAPER_ONLY",
+              "live_status": "SHADOW_PAPER_TRACKING"
+            },
+            {
+              "id": "NEITHER_SCORE3_NO_ULTRA_SHORT",
+              "family": "ETH_SELL",
+              "direction": "SHORT",
+              "description": "ETH+BTC both cascading + score>=3 + no ultra-early (<1min) event",
+              "entry": "BTC cascade detection time",
+              "exit": "2h from entry",
+              "cal_n": 31,
+              "cal_wr": 0.774,
+              "cal_t3r": 2703,
+              "cal_perm_p": 0.0,
+              "cal_verdict": "PASS",
+              "hold_n": 41,
+              "hold_wr": 0.902,
+              "hold_t3r": 5780,
+              "hold_perm_p": 0.0,
+              "hold_verdict": "PASS",
+              "live_rule": "SHADOW_PAPER_ONLY",
+              "live_status": "SHADOW_PAPER_TRACKING"
+            }
+          ]
+        },
+        "exploratory_v_fade": {
+          "protocol": "S34_V_ENGINE_V0_1_ETH_SELL_MAKER_LONG_H2_O20_V28_40_P4D",
+          "status": "INACTIVE",
+          "permission": null,
+          "observation_only": true,
+          "reason": "below_200k_running_notional",
+          "maker_direction": "LONG",
+          "vdepth_bps": null,
+          "prior_4h_bps": null,
+          "rule": {
+            "symbol": "ETHUSDT",
+            "liq_side": "SELL",
+            "threshold_usd": 200000.0,
+            "vdepth_min_bps": 28.0,
+            "vdepth_max_bps": 40.0,
+            "prior_4h_lt_bps": -50.0,
+            "maker_offset_bps": 20.0,
+            "cross_margin_bps": 2.0,
+            "horizon_sec": 7200
+          }
+        }
+      },
+      "verdict": {
+        "permission": "OBSERVE_ONLY",
+        "action": "no new entry (edge=PROVEN_5TH_WAVE); observe",
+        "continuation_momentum": 0.0,
+        "fade_momentum": 0.0,
+        "blocked_by_edge": true
+      }
+    },
+    {
+      "lane": {
+        "symbol": "SOLUSDT",
+        "liq_side": "BUY",
+        "direction": "LONG",
+        "family": "SOL_BUY"
+      },
+      "as_of_ts_ms": 1782888059178,
+      "as_of_utc": "2026-07-01T06:40:59.178000+00:00",
+      "panels": {
+        "anchor_health": {
+          "running_notional": 0.0,
+          "highest_threshold_crossed": null,
+          "next_threshold": 50000.0,
+          "distance_to_next_usd": 50000.0,
+          "liq_count": 0,
+          "elapsed_since_first_sec": 0.0,
+          "gap_since_last_sec": null,
+          "liq_rate_usd_per_sec": 0.0,
+          "acceleration_usd_per_sec": 0.0,
+          "knowable": true
+        },
+        "cascade_phase": {
+          "phase": "DEAD",
+          "shape": "distributed",
+          "single_liq_dominance_pct": 0.0,
+          "continuation_momentum_score": 0.0,
+          "fade_momentum_score": 0.0
+        },
+        "regime_compass": {
+          "session": "ASIA",
+          "day_trend_bps": 69.9,
+          "day_range_bps": 486.2,
+          "btc_return_bps": -21.3,
+          "btc_aligned_with_direction": false,
+          "funding_rate": 0.0001
+        },
+        "execution_reality": {
+          "book_available": true,
+          "no_fill_risk": "LOW",
+          "book_staleness_sec": 0.3,
+          "spread_bps": 1.3,
+          "expected_entry_adverse_bps": 0.7
+        },
+        "rule_confidence": {
+          "family_edge": "UNKNOWN",
+          "evidence_quality": "NO_CLEAN_RECHECK",
+          "paper_candidate_count": 0,
+          "validated_signal_count": 0,
+          "rules": [],
+          "validated_signals": []
+        },
+        "exploratory_v_fade": {
+          "protocol": "S34_V_ENGINE_V0_1_ETH_SELL_MAKER_LONG_H2_O20_V28_40_P4D",
+          "status": "INACTIVE",
+          "permission": null,
+          "observation_only": true,
+          "reason": "lane_not_applicable",
+          "maker_direction": null,
+          "vdepth_bps": null,
+          "prior_4h_bps": null,
+          "rule": {
+            "symbol": "ETHUSDT",
+            "liq_side": "SELL",
+            "threshold_usd": 200000.0,
+            "vdepth_min_bps": 28.0,
+            "vdepth_max_bps": 40.0,
+            "prior_4h_lt_bps": -50.0,
+            "maker_offset_bps": 20.0,
+            "cross_margin_bps": 2.0,
+            "horizon_sec": 7200
+          }
+        }
+      },
+      "verdict": {
+        "permission": "OBSERVE_ONLY",
+        "action": "no new entry (edge=UNKNOWN, no_active_cascade); observe",
+        "continuation_momentum": 0.0,
+        "fade_momentum": 0.0,
+        "blocked_by_edge": true
+      }
+    },
+    {
+      "lane": {
+        "symbol": "SOLUSDT",
+        "liq_side": "SELL",
+        "direction": "SHORT",
+        "family": "SOL_SELL"
+      },
+      "as_of_ts_ms": 1782888059178,
+      "as_of_utc": "2026-07-01T06:40:59.178000+00:00",
+      "panels": {
+        "anchor_health": {
+          "running_notional": 0.0,
+          "highest_threshold_crossed": null,
+          "next_threshold": 50000.0,
+          "distance_to_next_usd": 50000.0,
+          "liq_count": 0,
+          "elapsed_since_first_sec": 0.0,
+          "gap_since_last_sec": null,
+          "liq_rate_usd_per_sec": 0.0,
+          "acceleration_usd_per_sec": 0.0,
+          "knowable": true
+        },
+        "cascade_phase": {
+          "phase": "DEAD",
+          "shape": "distributed",
+          "single_liq_dominance_pct": 0.0,
+          "continuation_momentum_score": 0.0,
+          "fade_momentum_score": 0.0
+        },
+        "regime_compass": {
+          "session": "ASIA",
+          "day_trend_bps": 69.9,
+          "day_range_bps": 486.2,
+          "btc_return_bps": -21.3,
+          "btc_aligned_with_direction": true,
+          "funding_rate": 0.0001
+        },
+        "execution_reality": {
+          "book_available": true,
+          "no_fill_risk": "LOW",
+          "book_staleness_sec": 0.3,
+          "spread_bps": 1.3,
+          "expected_entry_adverse_bps": 0.7
+        },
+        "rule_confidence": {
+          "family_edge": "UNKNOWN",
+          "evidence_quality": "NO_CLEAN_RECHECK",
+          "paper_candidate_count": 0,
+          "validated_signal_count": 0,
+          "rules": [],
+          "validated_signals": []
+        },
+        "exploratory_v_fade": {
+          "protocol": "S34_V_ENGINE_V0_1_ETH_SELL_MAKER_LONG_H2_O20_V28_40_P4D",
+          "status": "INACTIVE",
+          "permission": null,
+          "observation_only": true,
+          "reason": "lane_not_applicable",
+          "maker_direction": null,
+          "vdepth_bps": null,
+          "prior_4h_bps": null,
+          "rule": {
+            "symbol": "ETHUSDT",
+            "liq_side": "SELL",
+            "threshold_usd": 200000.0,
+            "vdepth_min_bps": 28.0,
+            "vdepth_max_bps": 40.0,
+            "prior_4h_lt_bps": -50.0,
+            "maker_offset_bps": 20.0,
+            "cross_margin_bps": 2.0,
+            "horizon_sec": 7200
+          }
+        }
+      },
+      "verdict": {
+        "permission": "OBSERVE_ONLY",
+        "action": "no new entry (edge=UNKNOWN, no_active_cascade); observe",
+        "continuation_momentum": 0.0,
+        "fade_momentum": 0.0,
+        "blocked_by_edge": true
+      }
+    },
+    {
+      "lane": {
+        "symbol": "BTCUSDT",
+        "liq_side": "BUY",
+        "direction": "LONG",
+        "family": "BTC_BUY_DISTRIBUTED"
+      },
+      "as_of_ts_ms": 1782888059178,
+      "as_of_utc": "2026-07-01T06:40:59.178000+00:00",
+      "panels": {
+        "anchor_health": {
+          "running_notional": 0.0,
+          "highest_threshold_crossed": null,
+          "next_threshold": 50000.0,
+          "distance_to_next_usd": 50000.0,
+          "liq_count": 0,
+          "elapsed_since_first_sec": 0.0,
+          "gap_since_last_sec": null,
+          "liq_rate_usd_per_sec": 0.0,
+          "acceleration_usd_per_sec": 0.0,
+          "knowable": true
+        },
+        "cascade_phase": {
+          "phase": "DEAD",
+          "shape": "distributed",
+          "single_liq_dominance_pct": 0.0,
+          "continuation_momentum_score": 0.0,
+          "fade_momentum_score": 0.0
+        },
+        "regime_compass": {
+          "session": "ASIA",
+          "day_trend_bps": 2.8,
+          "day_range_bps": 280.7,
+          "btc_return_bps": -21.3,
+          "btc_aligned_with_direction": false,
+          "funding_rate": 2.607e-05
+        },
+        "execution_reality": {
+          "book_available": true,
+          "no_fill_risk": "LOW",
+          "book_staleness_sec": 0.0,
+          "spread_bps": 0.0,
+          "expected_entry_adverse_bps": 0.0
+        },
+        "rule_confidence": {
+          "family_edge": "UNKNOWN",
+          "evidence_quality": "NO_CLEAN_RECHECK",
+          "paper_candidate_count": 0,
+          "validated_signal_count": 0,
+          "rules": [],
+          "validated_signals": []
+        },
+        "exploratory_v_fade": {
+          "protocol": "S34_V_ENGINE_V0_1_ETH_SELL_MAKER_LONG_H2_O20_V28_40_P4D",
+          "status": "INACTIVE",
+          "permission": null,
+          "observation_only": true,
+          "reason": "lane_not_applicable",
+          "maker_direction": null,
+          "vdepth_bps": null,
+          "prior_4h_bps": null,
+          "rule": {
+            "symbol": "ETHUSDT",
+            "liq_side": "SELL",
+            "threshold_usd": 200000.0,
+            "vdepth_min_bps": 28.0,
+            "vdepth_max_bps": 40.0,
+            "prior_4h_lt_bps": -50.0,
+            "maker_offset_bps": 20.0,
+            "cross_margin_bps": 2.0,
+            "horizon_sec": 7200
+          }
+        }
+      },
+      "verdict": {
+        "permission": "OBSERVE_ONLY",
+        "action": "no new entry (edge=UNKNOWN, no_active_cascade); observe",
+        "continuation_momentum": 0.0,
+        "fade_momentum": 0.0,
+        "blocked_by_edge": true
+      }
+    },
+    {
+      "lane": {
+        "symbol": "BTCUSDT",
+        "liq_side": "SELL",
+        "direction": "SHORT",
+        "family": "BTC_SELL"
+      },
+      "as_of_ts_ms": 1782888059178,
+      "as_of_utc": "2026-07-01T06:40:59.178000+00:00",
+      "panels": {
+        "anchor_health": {
+          "running_notional": 0.0,
+          "highest_threshold_crossed": null,
+          "next_threshold": 50000.0,
+          "distance_to_next_usd": 50000.0,
+          "liq_count": 0,
+          "elapsed_since_first_sec": 0.0,
+          "gap_since_last_sec": null,
+          "liq_rate_usd_per_sec": 0.0,
+          "acceleration_usd_per_sec": 0.0,
+          "knowable": true
+        },
+        "cascade_phase": {
+          "phase": "DEAD",
+          "shape": "distributed",
+          "single_liq_dominance_pct": 0.0,
+          "continuation_momentum_score": 0.0,
+          "fade_momentum_score": 0.0
+        },
+        "regime_compass": {
+          "session": "ASIA",
+          "day_trend_bps": 2.8,
+          "day_range_bps": 280.7,
+          "btc_return_bps": -21.3,
+          "btc_aligned_with_direction": true,
+          "funding_rate": 2.607e-05
+        },
+        "execution_reality": {
+          "book_available": true,
+          "no_fill_risk": "LOW",
+          "book_staleness_sec": 0.0,
+          "spread_bps": 0.0,
+          "expected_entry_adverse_bps": 0.0
+        },
+        "rule_confidence": {
+          "family_edge": "UNKNOWN",
+          "evidence_quality": "NO_CLEAN_RECHECK",
+          "paper_candidate_count": 0,
+          "validated_signal_count": 0,
+          "rules": [],
+          "validated_signals": []
+        },
+        "exploratory_v_fade": {
+          "protocol": "S34_V_ENGINE_V0_1_ETH_SELL_MAKER_LONG_H2_O20_V28_40_P4D",
+          "status": "INACTIVE",
+          "permission": null,
+          "observation_only": true,
+          "reason": "lane_not_applicable",
+          "maker_direction": null,
+          "vdepth_bps": null,
+          "prior_4h_bps": null,
+          "rule": {
+            "symbol": "ETHUSDT",
+            "liq_side": "SELL",
+            "threshold_usd": 200000.0,
+            "vdepth_min_bps": 28.0,
+            "vdepth_max_bps": 40.0,
+            "prior_4h_lt_bps": -50.0,
+            "maker_offset_bps": 20.0,
+            "cross_margin_bps": 2.0,
+            "horizon_sec": 7200
+          }
+        }
+      },
+      "verdict": {
+        "permission": "OBSERVE_ONLY",
+        "action": "no new entry (edge=UNKNOWN, no_active_cascade); observe",
+        "continuation_momentum": 0.0,
+        "fade_momentum": 0.0,
+        "blocked_by_edge": true
+      }
+    }
+  ]
+}

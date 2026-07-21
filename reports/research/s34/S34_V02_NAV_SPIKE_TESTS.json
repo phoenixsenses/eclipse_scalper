@@ -1,0 +1,876 @@
+{
+  "generated_at_utc": "2026-06-29T18:03:14.448013+00:00",
+  "scope": {
+    "symbol": "ETHUSDT",
+    "days": 30,
+    "start_utc": "2026-05-30T18:00:22.004000+00:00",
+    "end_utc": "2026-06-29T18:00:22.004000+00:00",
+    "nav_points": 34951,
+    "spike_cooldown_min": 5,
+    "note": "Navigation indicator is a 1-minute research proxy of the chart indicator, not live order logic."
+  },
+  "spike_thresholds": {
+    "BUY": {
+      "p95_nonzero": 302236.6,
+      "p99_nonzero": 1847540.9,
+      "primary_threshold": 302236.6
+    },
+    "SELL": {
+      "p95_nonzero": 312783.9,
+      "p99_nonzero": 1721854.9,
+      "primary_threshold": 312783.9
+    }
+  },
+  "spike_counts": {
+    "BUY": 109,
+    "SELL": 133
+  },
+  "test_1_nav_high_leads_spikes": {
+    "events": 7941,
+    "windows_min": {
+      "1": {
+        "BUY": {
+          "hit_rate": 0.007,
+          "hits": 55,
+          "median_delay_min": 0.0
+        },
+        "SELL": {
+          "hit_rate": 0.005,
+          "hits": 38,
+          "median_delay_min": 1.0
+        }
+      },
+      "3": {
+        "BUY": {
+          "hit_rate": 0.013,
+          "hits": 105,
+          "median_delay_min": 1.0
+        },
+        "SELL": {
+          "hit_rate": 0.013,
+          "hits": 103,
+          "median_delay_min": 2.0
+        }
+      },
+      "5": {
+        "BUY": {
+          "hit_rate": 0.019,
+          "hits": 152,
+          "median_delay_min": 2.0
+        },
+        "SELL": {
+          "hit_rate": 0.02,
+          "hits": 159,
+          "median_delay_min": 3.0
+        }
+      },
+      "15": {
+        "BUY": {
+          "hit_rate": 0.045,
+          "hits": 358,
+          "median_delay_min": 7.0
+        },
+        "SELL": {
+          "hit_rate": 0.051,
+          "hits": 403,
+          "median_delay_min": 7.0
+        }
+      }
+    }
+  },
+  "test_2_spike_forward_returns": {
+    "BUY": {
+      "n": 109,
+      "horizons": {
+        "1m": {
+          "n": 109,
+          "sum": 1410.6,
+          "mean": 12.94,
+          "median": 10.92,
+          "win_rate": 0.826,
+          "t3r": 1180.6,
+          "min": -19.76,
+          "max": 85.93
+        },
+        "5m": {
+          "n": 109,
+          "sum": 1468.2,
+          "mean": 13.47,
+          "median": 7.19,
+          "win_rate": 0.633,
+          "t3r": 1045.9,
+          "min": -84.13,
+          "max": 152.19
+        },
+        "15m": {
+          "n": 109,
+          "sum": 2025.6,
+          "mean": 18.58,
+          "median": 7.67,
+          "win_rate": 0.56,
+          "t3r": 1428.2,
+          "min": -132.68,
+          "max": 219.17
+        },
+        "60m": {
+          "n": 105,
+          "sum": 1401.7,
+          "mean": 13.35,
+          "median": 1.78,
+          "win_rate": 0.505,
+          "t3r": 654.4,
+          "min": -278.12,
+          "max": 275.5
+        },
+        "120m": {
+          "n": 105,
+          "sum": 2133.7,
+          "mean": 20.32,
+          "median": -3.37,
+          "win_rate": 0.495,
+          "t3r": 1086.3,
+          "min": -458.07,
+          "max": 378.46
+        }
+      },
+      "nav_interaction": {
+        "1m": {
+          "NAV_HIGH": {
+            "n": 70,
+            "sum": 926.4,
+            "mean": 13.23,
+            "median": 11.24,
+            "win_rate": 0.814,
+            "t3r": 696.5,
+            "min": -19.76,
+            "max": 85.93
+          },
+          "not_high": {
+            "n": 39,
+            "sum": 484.2,
+            "mean": 12.41,
+            "median": 10.88,
+            "win_rate": 0.846,
+            "t3r": 313.6,
+            "min": -18.04,
+            "max": 64.15
+          }
+        },
+        "5m": {
+          "NAV_HIGH": {
+            "n": 70,
+            "sum": 865.8,
+            "mean": 12.37,
+            "median": 6.84,
+            "win_rate": 0.614,
+            "t3r": 493.3,
+            "min": -84.13,
+            "max": 152.19
+          },
+          "not_high": {
+            "n": 39,
+            "sum": 602.4,
+            "mean": 15.45,
+            "median": 8.57,
+            "win_rate": 0.667,
+            "t3r": 325.9,
+            "min": -48.06,
+            "max": 146.87
+          }
+        },
+        "15m": {
+          "NAV_HIGH": {
+            "n": 70,
+            "sum": 1312.4,
+            "mean": 18.75,
+            "median": 4.06,
+            "win_rate": 0.543,
+            "t3r": 726.9,
+            "min": -132.68,
+            "max": 219.17
+          },
+          "not_high": {
+            "n": 39,
+            "sum": 713.2,
+            "mean": 18.29,
+            "median": 14.34,
+            "win_rate": 0.59,
+            "t3r": 244.0,
+            "min": -98.36,
+            "max": 181.88
+          }
+        },
+        "60m": {
+          "NAV_HIGH": {
+            "n": 66,
+            "sum": 915.8,
+            "mean": 13.88,
+            "median": 0.74,
+            "win_rate": 0.5,
+            "t3r": 268.0,
+            "min": -227.78,
+            "max": 267.67
+          },
+          "not_high": {
+            "n": 39,
+            "sum": 485.8,
+            "mean": 12.46,
+            "median": 3.63,
+            "win_rate": 0.513,
+            "t3r": -196.1,
+            "min": -278.12,
+            "max": 275.5
+          }
+        },
+        "120m": {
+          "NAV_HIGH": {
+            "n": 66,
+            "sum": 608.9,
+            "mean": 9.23,
+            "median": -9.28,
+            "win_rate": 0.424,
+            "t3r": -308.3,
+            "min": -458.07,
+            "max": 367.92
+          },
+          "not_high": {
+            "n": 39,
+            "sum": 1524.9,
+            "mean": 39.1,
+            "median": 24.28,
+            "win_rate": 0.615,
+            "t3r": 560.8,
+            "min": -303.88,
+            "max": 378.46
+          }
+        }
+      }
+    },
+    "SELL": {
+      "n": 133,
+      "horizons": {
+        "1m": {
+          "n": 133,
+          "sum": -1176.0,
+          "mean": -8.84,
+          "median": -5.3,
+          "win_rate": 0.278,
+          "t3r": -1277.7,
+          "min": -74.14,
+          "max": 62.2
+        },
+        "5m": {
+          "n": 133,
+          "sum": -1505.2,
+          "mean": -11.32,
+          "median": -0.93,
+          "win_rate": 0.481,
+          "t3r": -1794.0,
+          "min": -194.1,
+          "max": 125.21
+        },
+        "15m": {
+          "n": 133,
+          "sum": -2039.7,
+          "mean": -15.34,
+          "median": 3.68,
+          "win_rate": 0.541,
+          "t3r": -2426.9,
+          "min": -362.21,
+          "max": 196.45
+        },
+        "60m": {
+          "n": 133,
+          "sum": -1656.1,
+          "mean": -12.45,
+          "median": 4.02,
+          "win_rate": 0.534,
+          "t3r": -2419.6,
+          "min": -539.32,
+          "max": 299.82
+        },
+        "120m": {
+          "n": 133,
+          "sum": -2929.3,
+          "mean": -22.02,
+          "median": 5.15,
+          "win_rate": 0.526,
+          "t3r": -3699.2,
+          "min": -433.81,
+          "max": 295.58
+        }
+      },
+      "nav_interaction": {
+        "1m": {
+          "NAV_HIGH": {
+            "n": 38,
+            "sum": -516.5,
+            "mean": -13.59,
+            "median": -8.9,
+            "win_rate": 0.211,
+            "t3r": -549.5,
+            "min": -74.14,
+            "max": 17.88
+          },
+          "not_high": {
+            "n": 95,
+            "sum": -659.5,
+            "mean": -6.94,
+            "median": -4.41,
+            "win_rate": 0.305,
+            "t3r": -760.2,
+            "min": -51.16,
+            "max": 62.2
+          }
+        },
+        "5m": {
+          "NAV_HIGH": {
+            "n": 38,
+            "sum": -681.4,
+            "mean": -17.93,
+            "median": -3.79,
+            "win_rate": 0.421,
+            "t3r": -792.8,
+            "min": -194.1,
+            "max": 38.46
+          },
+          "not_high": {
+            "n": 95,
+            "sum": -823.8,
+            "mean": -8.67,
+            "median": 0.05,
+            "win_rate": 0.505,
+            "t3r": -1112.6,
+            "min": -144.21,
+            "max": 125.21
+          }
+        },
+        "15m": {
+          "NAV_HIGH": {
+            "n": 38,
+            "sum": -876.6,
+            "mean": -23.07,
+            "median": -7.92,
+            "win_rate": 0.447,
+            "t3r": -1034.1,
+            "min": -362.21,
+            "max": 56.57
+          },
+          "not_high": {
+            "n": 95,
+            "sum": -1163.1,
+            "mean": -12.24,
+            "median": 6.04,
+            "win_rate": 0.579,
+            "t3r": -1550.3,
+            "min": -351.64,
+            "max": 196.45
+          }
+        },
+        "60m": {
+          "NAV_HIGH": {
+            "n": 38,
+            "sum": -348.5,
+            "mean": -9.17,
+            "median": -5.57,
+            "win_rate": 0.474,
+            "t3r": -917.2,
+            "min": -202.74,
+            "max": 299.82
+          },
+          "not_high": {
+            "n": 95,
+            "sum": -1307.6,
+            "mean": -13.76,
+            "median": 8.88,
+            "win_rate": 0.558,
+            "t3r": -1959.2,
+            "min": -539.32,
+            "max": 246.79
+          }
+        },
+        "120m": {
+          "NAV_HIGH": {
+            "n": 38,
+            "sum": -731.4,
+            "mean": -19.25,
+            "median": -12.05,
+            "win_rate": 0.474,
+            "t3r": -1390.7,
+            "min": -363.98,
+            "max": 295.58
+          },
+          "not_high": {
+            "n": 95,
+            "sum": -2197.9,
+            "mean": -23.14,
+            "median": 8.28,
+            "win_rate": 0.547,
+            "t3r": -2834.0,
+            "min": -433.81,
+            "max": 222.83
+          }
+        }
+      }
+    }
+  },
+  "test_3_pre_spike_indicator_shape": {
+    "BUY": {
+      "spike_n": 109,
+      "spike_avg_score_t": 6.49,
+      "spike_avg_delta_5m": 0.17,
+      "spike_avg_high_minutes_prev_5": 2.68,
+      "control_n": 1156,
+      "control_avg_score_t": 5.96,
+      "control_avg_delta_5m": -0.08,
+      "control_avg_high_minutes_prev_5": 2.81
+    },
+    "SELL": {
+      "spike_n": 133,
+      "spike_avg_score_t": 4.39,
+      "spike_avg_delta_5m": -1.23,
+      "spike_avg_high_minutes_prev_5": 2.29,
+      "control_n": 1156,
+      "control_avg_score_t": 5.96,
+      "control_avg_delta_5m": -0.08,
+      "control_avg_high_minutes_prev_5": 2.81
+    }
+  },
+  "test_4_alpha_spike_timing": {
+    "n": 7,
+    "rows": [
+      {
+        "signal_utc": "2026-06-16T04:31:11.525000+00:00",
+        "net_bps": 46.3,
+        "sim_status": "FILLED",
+        "nav_score_at_signal": 6,
+        "nav_bucket_at_signal": "NAV_MID",
+        "nearest_spike_side": "SELL",
+        "nearest_spike_delta_min": 0.0,
+        "nearest_spike_after": true
+      },
+      {
+        "signal_utc": "2026-06-17T01:17:01.753000+00:00",
+        "net_bps": 41.7,
+        "sim_status": "FILLED",
+        "nav_score_at_signal": 9,
+        "nav_bucket_at_signal": "NAV_HIGH",
+        "nearest_spike_side": "BUY",
+        "nearest_spike_delta_min": 66.0,
+        "nearest_spike_after": true
+      },
+      {
+        "signal_utc": "2026-06-20T14:08:51.159000+00:00",
+        "net_bps": 152.3,
+        "sim_status": "FILLED",
+        "nav_score_at_signal": 5,
+        "nav_bucket_at_signal": "NAV_MID",
+        "nearest_spike_side": "BUY",
+        "nearest_spike_delta_min": 37.0,
+        "nearest_spike_after": true
+      },
+      {
+        "signal_utc": "2026-06-21T23:33:42.690000+00:00",
+        "net_bps": 227.0,
+        "sim_status": "FILLED",
+        "nav_score_at_signal": 4,
+        "nav_bucket_at_signal": "NAV_LOW",
+        "nearest_spike_side": "SELL",
+        "nearest_spike_delta_min": 0.0,
+        "nearest_spike_after": true
+      },
+      {
+        "signal_utc": "2026-06-26T02:48:30.475000+00:00",
+        "net_bps": 149.9,
+        "sim_status": "FILLED",
+        "nav_score_at_signal": 2,
+        "nav_bucket_at_signal": "NAV_LOW",
+        "nearest_spike_side": "SELL",
+        "nearest_spike_delta_min": 0.0,
+        "nearest_spike_after": true
+      },
+      {
+        "signal_utc": "2026-06-26T10:39:33.530000+00:00",
+        "net_bps": 17.2,
+        "sim_status": "FILLED",
+        "nav_score_at_signal": 5,
+        "nav_bucket_at_signal": "NAV_MID",
+        "nearest_spike_side": "BUY",
+        "nearest_spike_delta_min": 114.0,
+        "nearest_spike_after": true
+      },
+      {
+        "signal_utc": "2026-06-26T13:18:54.877000+00:00",
+        "net_bps": 299.7,
+        "sim_status": "FILLED",
+        "nav_score_at_signal": 7,
+        "nav_bucket_at_signal": "NAV_HIGH",
+        "nearest_spike_side": "SELL",
+        "nearest_spike_delta_min": 0.0,
+        "nearest_spike_after": true
+      }
+    ],
+    "summary_by_nav_high": {
+      "NAV_HIGH": {
+        "n": 2,
+        "sum": 341.4,
+        "mean": 170.7,
+        "median": 170.7,
+        "win_rate": 1.0,
+        "t3r": null,
+        "min": 41.7,
+        "max": 299.7
+      },
+      "not_high": {
+        "n": 5,
+        "sum": 592.7,
+        "mean": 118.54,
+        "median": 149.9,
+        "win_rate": 1.0,
+        "t3r": 63.5,
+        "min": 17.2,
+        "max": 227.0
+      }
+    }
+  },
+  "test_5_side_symmetry": {
+    "BUY_interpretation": "Positive forward return means BUY-liq spike continuation; negative means BUY-liq spike exhaustion/fade.",
+    "SELL_interpretation": "Positive forward return means SELL-liq spike rebound; negative means sell-side continuation.",
+    "by_side": {
+      "BUY": {
+        "n": 109,
+        "horizons": {
+          "1m": {
+            "n": 109,
+            "sum": 1410.6,
+            "mean": 12.94,
+            "median": 10.92,
+            "win_rate": 0.826,
+            "t3r": 1180.6,
+            "min": -19.76,
+            "max": 85.93
+          },
+          "5m": {
+            "n": 109,
+            "sum": 1468.2,
+            "mean": 13.47,
+            "median": 7.19,
+            "win_rate": 0.633,
+            "t3r": 1045.9,
+            "min": -84.13,
+            "max": 152.19
+          },
+          "15m": {
+            "n": 109,
+            "sum": 2025.6,
+            "mean": 18.58,
+            "median": 7.67,
+            "win_rate": 0.56,
+            "t3r": 1428.2,
+            "min": -132.68,
+            "max": 219.17
+          },
+          "60m": {
+            "n": 105,
+            "sum": 1401.7,
+            "mean": 13.35,
+            "median": 1.78,
+            "win_rate": 0.505,
+            "t3r": 654.4,
+            "min": -278.12,
+            "max": 275.5
+          },
+          "120m": {
+            "n": 105,
+            "sum": 2133.7,
+            "mean": 20.32,
+            "median": -3.37,
+            "win_rate": 0.495,
+            "t3r": 1086.3,
+            "min": -458.07,
+            "max": 378.46
+          }
+        },
+        "nav_interaction": {
+          "1m": {
+            "NAV_HIGH": {
+              "n": 70,
+              "sum": 926.4,
+              "mean": 13.23,
+              "median": 11.24,
+              "win_rate": 0.814,
+              "t3r": 696.5,
+              "min": -19.76,
+              "max": 85.93
+            },
+            "not_high": {
+              "n": 39,
+              "sum": 484.2,
+              "mean": 12.41,
+              "median": 10.88,
+              "win_rate": 0.846,
+              "t3r": 313.6,
+              "min": -18.04,
+              "max": 64.15
+            }
+          },
+          "5m": {
+            "NAV_HIGH": {
+              "n": 70,
+              "sum": 865.8,
+              "mean": 12.37,
+              "median": 6.84,
+              "win_rate": 0.614,
+              "t3r": 493.3,
+              "min": -84.13,
+              "max": 152.19
+            },
+            "not_high": {
+              "n": 39,
+              "sum": 602.4,
+              "mean": 15.45,
+              "median": 8.57,
+              "win_rate": 0.667,
+              "t3r": 325.9,
+              "min": -48.06,
+              "max": 146.87
+            }
+          },
+          "15m": {
+            "NAV_HIGH": {
+              "n": 70,
+              "sum": 1312.4,
+              "mean": 18.75,
+              "median": 4.06,
+              "win_rate": 0.543,
+              "t3r": 726.9,
+              "min": -132.68,
+              "max": 219.17
+            },
+            "not_high": {
+              "n": 39,
+              "sum": 713.2,
+              "mean": 18.29,
+              "median": 14.34,
+              "win_rate": 0.59,
+              "t3r": 244.0,
+              "min": -98.36,
+              "max": 181.88
+            }
+          },
+          "60m": {
+            "NAV_HIGH": {
+              "n": 66,
+              "sum": 915.8,
+              "mean": 13.88,
+              "median": 0.74,
+              "win_rate": 0.5,
+              "t3r": 268.0,
+              "min": -227.78,
+              "max": 267.67
+            },
+            "not_high": {
+              "n": 39,
+              "sum": 485.8,
+              "mean": 12.46,
+              "median": 3.63,
+              "win_rate": 0.513,
+              "t3r": -196.1,
+              "min": -278.12,
+              "max": 275.5
+            }
+          },
+          "120m": {
+            "NAV_HIGH": {
+              "n": 66,
+              "sum": 608.9,
+              "mean": 9.23,
+              "median": -9.28,
+              "win_rate": 0.424,
+              "t3r": -308.3,
+              "min": -458.07,
+              "max": 367.92
+            },
+            "not_high": {
+              "n": 39,
+              "sum": 1524.9,
+              "mean": 39.1,
+              "median": 24.28,
+              "win_rate": 0.615,
+              "t3r": 560.8,
+              "min": -303.88,
+              "max": 378.46
+            }
+          }
+        }
+      },
+      "SELL": {
+        "n": 133,
+        "horizons": {
+          "1m": {
+            "n": 133,
+            "sum": -1176.0,
+            "mean": -8.84,
+            "median": -5.3,
+            "win_rate": 0.278,
+            "t3r": -1277.7,
+            "min": -74.14,
+            "max": 62.2
+          },
+          "5m": {
+            "n": 133,
+            "sum": -1505.2,
+            "mean": -11.32,
+            "median": -0.93,
+            "win_rate": 0.481,
+            "t3r": -1794.0,
+            "min": -194.1,
+            "max": 125.21
+          },
+          "15m": {
+            "n": 133,
+            "sum": -2039.7,
+            "mean": -15.34,
+            "median": 3.68,
+            "win_rate": 0.541,
+            "t3r": -2426.9,
+            "min": -362.21,
+            "max": 196.45
+          },
+          "60m": {
+            "n": 133,
+            "sum": -1656.1,
+            "mean": -12.45,
+            "median": 4.02,
+            "win_rate": 0.534,
+            "t3r": -2419.6,
+            "min": -539.32,
+            "max": 299.82
+          },
+          "120m": {
+            "n": 133,
+            "sum": -2929.3,
+            "mean": -22.02,
+            "median": 5.15,
+            "win_rate": 0.526,
+            "t3r": -3699.2,
+            "min": -433.81,
+            "max": 295.58
+          }
+        },
+        "nav_interaction": {
+          "1m": {
+            "NAV_HIGH": {
+              "n": 38,
+              "sum": -516.5,
+              "mean": -13.59,
+              "median": -8.9,
+              "win_rate": 0.211,
+              "t3r": -549.5,
+              "min": -74.14,
+              "max": 17.88
+            },
+            "not_high": {
+              "n": 95,
+              "sum": -659.5,
+              "mean": -6.94,
+              "median": -4.41,
+              "win_rate": 0.305,
+              "t3r": -760.2,
+              "min": -51.16,
+              "max": 62.2
+            }
+          },
+          "5m": {
+            "NAV_HIGH": {
+              "n": 38,
+              "sum": -681.4,
+              "mean": -17.93,
+              "median": -3.79,
+              "win_rate": 0.421,
+              "t3r": -792.8,
+              "min": -194.1,
+              "max": 38.46
+            },
+            "not_high": {
+              "n": 95,
+              "sum": -823.8,
+              "mean": -8.67,
+              "median": 0.05,
+              "win_rate": 0.505,
+              "t3r": -1112.6,
+              "min": -144.21,
+              "max": 125.21
+            }
+          },
+          "15m": {
+            "NAV_HIGH": {
+              "n": 38,
+              "sum": -876.6,
+              "mean": -23.07,
+              "median": -7.92,
+              "win_rate": 0.447,
+              "t3r": -1034.1,
+              "min": -362.21,
+              "max": 56.57
+            },
+            "not_high": {
+              "n": 95,
+              "sum": -1163.1,
+              "mean": -12.24,
+              "median": 6.04,
+              "win_rate": 0.579,
+              "t3r": -1550.3,
+              "min": -351.64,
+              "max": 196.45
+            }
+          },
+          "60m": {
+            "NAV_HIGH": {
+              "n": 38,
+              "sum": -348.5,
+              "mean": -9.17,
+              "median": -5.57,
+              "win_rate": 0.474,
+              "t3r": -917.2,
+              "min": -202.74,
+              "max": 299.82
+            },
+            "not_high": {
+              "n": 95,
+              "sum": -1307.6,
+              "mean": -13.76,
+              "median": 8.88,
+              "win_rate": 0.558,
+              "t3r": -1959.2,
+              "min": -539.32,
+              "max": 246.79
+            }
+          },
+          "120m": {
+            "NAV_HIGH": {
+              "n": 38,
+              "sum": -731.4,
+              "mean": -19.25,
+              "median": -12.05,
+              "win_rate": 0.474,
+              "t3r": -1390.7,
+              "min": -363.98,
+              "max": 295.58
+            },
+            "not_high": {
+              "n": 95,
+              "sum": -2197.9,
+              "mean": -23.14,
+              "median": 8.28,
+              "win_rate": 0.547,
+              "t3r": -2834.0,
+              "min": -433.81,
+              "max": 222.83
+            }
+          }
+        }
+      }
+    }
+  }
+}

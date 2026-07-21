@@ -1,0 +1,777 @@
+{
+  "generated_at_utc": "2026-06-28T21:48:48.766836+00:00",
+  "config": {
+    "symbol": "ETHUSDT",
+    "side": "SELL",
+    "threshold": 200000.0,
+    "min_vdepth_bps": 28.0,
+    "fee_bps_side": 3.05
+  },
+  "event_n": 51,
+  "n_win": 26,
+  "n_lose": 25,
+  "n_runaway": 8,
+  "separation": {
+    "accel": {
+      "winner_med": 6948.2,
+      "runaway_med": 7102.3,
+      "note": "weak"
+    },
+    "elapsed_sec": {
+      "winner_med": 112.3,
+      "runaway_med": 87.4,
+      "note": "weak"
+    },
+    "dominance_pct": {
+      "winner_med": 57.6,
+      "runaway_med": 49.9,
+      "note": "weak"
+    },
+    "liq_count": {
+      "winner_med": 14.5,
+      "runaway_med": 12.0,
+      "note": "weak"
+    },
+    "depth_bps": {
+      "winner_med": 33.2,
+      "runaway_med": 42.0,
+      "note": "weak"
+    },
+    "intensity_k_per_sec": {
+      "winner_med": 2.6,
+      "runaway_med": 2.7,
+      "note": "weak"
+    },
+    "btc_ret_bps": {
+      "winner_med": -49.4,
+      "runaway_med": -29.4,
+      "note": "yes"
+    }
+  },
+  "filters": {
+    "baseline_all": {
+      "cal": {
+        "n": 35,
+        "sum": -379.3,
+        "median": -4.1,
+        "win_rate": 0.486,
+        "max_loss": -291.8,
+        "t3r": -883.0
+      },
+      "hold": {
+        "n": 16,
+        "sum": 657.9,
+        "median": 19.4,
+        "win_rate": 0.562,
+        "max_loss": -338.0,
+        "t3r": -289.8
+      }
+    },
+    "decelerating(accel<0)": {
+      "cal": {
+        "n": 2,
+        "sum": 59.7,
+        "median": 29.9,
+        "win_rate": 0.5,
+        "max_loss": -45.1,
+        "t3r": 59.7
+      },
+      "hold": {
+        "n": 2,
+        "sum": -116.5,
+        "median": -58.2,
+        "win_rate": 0.5,
+        "max_loss": -137.4,
+        "t3r": -116.5
+      }
+    },
+    "decel_bucket": {
+      "cal": {
+        "n": 2,
+        "sum": 59.7,
+        "median": 29.9,
+        "win_rate": 0.5,
+        "max_loss": -45.1,
+        "t3r": 59.7
+      },
+      "hold": {
+        "n": 2,
+        "sum": -116.5,
+        "median": -58.2,
+        "win_rate": 0.5,
+        "max_loss": -137.4,
+        "t3r": -116.5
+      }
+    },
+    "high_dominance>=80": {
+      "cal": {
+        "n": 7,
+        "sum": -194.8,
+        "median": -11.5,
+        "win_rate": 0.429,
+        "max_loss": -271.1,
+        "t3r": -387.6
+      },
+      "hold": {
+        "n": 3,
+        "sum": 18.7,
+        "median": 23.6,
+        "win_rate": 0.667,
+        "max_loss": -67.4,
+        "t3r": 18.7
+      }
+    },
+    "slow_build(elapsed>=med)": {
+      "cal": {
+        "n": 18,
+        "sum": -134.5,
+        "median": 6.4,
+        "win_rate": 0.5,
+        "max_loss": -291.8,
+        "t3r": -607.7
+      },
+      "hold": {
+        "n": 8,
+        "sum": 1035.2,
+        "median": 72.5,
+        "win_rate": 0.75,
+        "max_loss": -45.8,
+        "t3r": 87.5
+      }
+    },
+    "fast_build(elapsed<med)": {
+      "cal": {
+        "n": 17,
+        "sum": 81.0,
+        "median": 15.7,
+        "win_rate": 0.529,
+        "max_loss": -271.1,
+        "t3r": -385.4
+      },
+      "hold": {
+        "n": 8,
+        "sum": -703.1,
+        "median": -67.3,
+        "win_rate": 0.25,
+        "max_loss": -338.0,
+        "t3r": -778.8
+      }
+    }
+  },
+  "accel_median": 7088.8,
+  "elapsed_median": 103.0,
+  "rows": [
+    {
+      "entry_ts_ms": 1776031266492,
+      "net": 45.141803821005105,
+      "accel": 8285.844904333333,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 39.393,
+      "dominance_pct": 42.98177196696361,
+      "liq_count": 19,
+      "depth_bps": 63.09126141631507,
+      "intensity_k_per_sec": 6.444556350874521,
+      "btc_ret_bps": -56.78554886004955
+    },
+    {
+      "entry_ts_ms": 1776177232740,
+      "net": -271.11973151786583,
+      "accel": 12036.911211666667,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 52.394,
+      "dominance_pct": 81.21148232598365,
+      "liq_count": 9,
+      "depth_bps": 42.3880538787836,
+      "intensity_k_per_sec": 6.982011922548384,
+      "btc_ret_bps": 26.503770944115452
+    },
+    {
+      "entry_ts_ms": 1776267053166,
+      "net": 174.19337475634617,
+      "accel": 7068.316743,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 29.808,
+      "dominance_pct": 72.34111117611151,
+      "liq_count": 9,
+      "depth_bps": 31.512023590976575,
+      "intensity_k_per_sec": 7.113845353260869,
+      "btc_ret_bps": -66.8219285902976
+    },
+    {
+      "entry_ts_ms": 1776326047129,
+      "net": -10.810154236141052,
+      "accel": 9474.523778333334,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 152.419,
+      "dominance_pct": 51.7123803061198,
+      "liq_count": 9,
+      "depth_bps": 34.987337966143315,
+      "intensity_k_per_sec": 1.8888091215662088,
+      "btc_ret_bps": -24.461750656051663
+    },
+    {
+      "entry_ts_ms": 1776347534594,
+      "net": -4.119478003289231,
+      "accel": 3038.987488333333,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 94.083,
+      "dominance_pct": 40.1338053091601,
+      "liq_count": 19,
+      "depth_bps": 29.357069281746554,
+      "intensity_k_per_sec": 2.3173027009130234,
+      "btc_ret_bps": -76.67693131610619
+    },
+    {
+      "entry_ts_ms": 1776432436433,
+      "net": 59.669259514537096,
+      "accel": 28110.735728666667,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 41.248,
+      "dominance_pct": 90.47313144655959,
+      "liq_count": 8,
+      "depth_bps": 41.911807481494144,
+      "intensity_k_per_sec": 20.481613499321178,
+      "btc_ret_bps": -4.5746233699569565
+    },
+    {
+      "entry_ts_ms": 1776438236583,
+      "net": -59.854830337600646,
+      "accel": 8936.782132666669,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 191.273,
+      "dominance_pct": 85.64261679578166,
+      "liq_count": 9,
+      "depth_bps": 33.94482014475945,
+      "intensity_k_per_sec": 1.4513893341977173,
+      "btc_ret_bps": -37.19190671132297
+    },
+    {
+      "entry_ts_ms": 1776484476116,
+      "net": -11.465610182181031,
+      "accel": 25932.763279333332,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 79.574,
+      "dominance_pct": 81.93025619490528,
+      "liq_count": 13,
+      "depth_bps": 35.574094617392696,
+      "intensity_k_per_sec": 11.855446435519138,
+      "btc_ret_bps": -16.317580275084985
+    },
+    {
+      "entry_ts_ms": 1776565481298,
+      "net": -45.14863329783504,
+      "accel": -5440.875608666666,
+      "accel_bucket": "decelerating",
+      "elapsed_sec": 79.799,
+      "dominance_pct": 80.36607301706253,
+      "liq_count": 10,
+      "depth_bps": 28.55559282691289,
+      "intensity_k_per_sec": 2.703513050288851,
+      "btc_ret_bps": -11.188332931512475
+    },
+    {
+      "entry_ts_ms": 1776651250182,
+      "net": -14.681009126672496,
+      "accel": 4764.104187666667,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 146.656,
+      "dominance_pct": 67.88554335294684,
+      "liq_count": 14,
+      "depth_bps": 33.33497860043281,
+      "intensity_k_per_sec": 1.5919010198696268,
+      "btc_ret_bps": -29.34827193509058
+    },
+    {
+      "entry_ts_ms": 1776696071191,
+      "net": 174.8288610715482,
+      "accel": 4799.294629,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 43.718,
+      "dominance_pct": 28.199349249761706,
+      "liq_count": 13,
+      "depth_bps": 34.132074807952364,
+      "intensity_k_per_sec": 6.02928686010339,
+      "btc_ret_bps": -53.27673066667258
+    },
+    {
+      "entry_ts_ms": 1776783451255,
+      "net": 39.40432877855342,
+      "accel": 6828.083598666666,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 128.549,
+      "dominance_pct": 45.60321704675578,
+      "liq_count": 17,
+      "depth_bps": 31.741731377424202,
+      "intensity_k_per_sec": 1.765125777096671,
+      "btc_ret_bps": -85.2990374572323
+    },
+    {
+      "entry_ts_ms": 1776800226538,
+      "net": 53.63632723534022,
+      "accel": 3658.488689333334,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 103.037,
+      "dominance_pct": 37.91770393843407,
+      "liq_count": 12,
+      "depth_bps": 33.554290063001716,
+      "intensity_k_per_sec": 2.2328411061075144,
+      "btc_ret_bps": -53.17054868723499
+    },
+    {
+      "entry_ts_ms": 1776868262104,
+      "net": -37.52219780585735,
+      "accel": 14179.851565999998,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 46.761,
+      "dominance_pct": 74.81445268603244,
+      "liq_count": 14,
+      "depth_bps": 29.129960288643808,
+      "intensity_k_per_sec": 10.053703575201556,
+      "btc_ret_bps": -27.505841682112212
+    },
+    {
+      "entry_ts_ms": 1777239187357,
+      "net": 117.3793627036196,
+      "accel": 12010.459478,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 40.171,
+      "dominance_pct": 99.27404336040206,
+      "liq_count": 3,
+      "depth_bps": 29.864717103135312,
+      "intensity_k_per_sec": 8.976876442707425,
+      "btc_ret_bps": -21.083415172150737
+    },
+    {
+      "entry_ts_ms": 1777242864614,
+      "net": 154.71610455383586,
+      "accel": 5815.680257999999,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 240.012,
+      "dominance_pct": 75.60307580585182,
+      "liq_count": 16,
+      "depth_bps": 50.210821592822924,
+      "intensity_k_per_sec": 0.8483183906638,
+      "btc_ret_bps": -76.34480419050116
+    },
+    {
+      "entry_ts_ms": 1781180537462,
+      "net": -34.064307595250924,
+      "accel": 1977.4020103333335,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 116.355,
+      "dominance_pct": 46.57033360412098,
+      "liq_count": 13,
+      "depth_bps": 42.800124464554486,
+      "intensity_k_per_sec": 1.9548390901981,
+      "btc_ret_bps": -36.928128795790386
+    },
+    {
+      "entry_ts_ms": 1781276654089,
+      "net": -73.59799113121585,
+      "accel": 1416.3824276666664,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 62.517,
+      "dominance_pct": 25.018918831905562,
+      "liq_count": 20,
+      "depth_bps": 43.422508528418554,
+      "intensity_k_per_sec": 4.194236366268376,
+      "btc_ret_bps": 63.81669438440755
+    },
+    {
+      "entry_ts_ms": 1781278441192,
+      "net": -53.37963035925399,
+      "accel": 958.7522283333335,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 235.792,
+      "dominance_pct": 56.08732069292389,
+      "liq_count": 21,
+      "depth_bps": 33.02838049117221,
+      "intensity_k_per_sec": 1.0120937002951753,
+      "btc_ret_bps": -54.28255501942729
+    },
+    {
+      "entry_ts_ms": 1781279802488,
+      "net": 15.747464971833677,
+      "accel": 10608.709853666667,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 85.038,
+      "dominance_pct": 90.38615017100474,
+      "liq_count": 9,
+      "depth_bps": 34.25152858960167,
+      "intensity_k_per_sec": 3.8723904088760324,
+      "btc_ret_bps": -33.08809848544085
+    },
+    {
+      "entry_ts_ms": 1781474840716,
+      "net": 23.56544617882148,
+      "accel": 5746.041953333333,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 128.325,
+      "dominance_pct": 85.0405378978645,
+      "liq_count": 8,
+      "depth_bps": 32.938777327610175,
+      "intensity_k_per_sec": 1.564764103721021,
+      "btc_ret_bps": -72.80804021446751
+    },
+    {
+      "entry_ts_ms": 1781551133490,
+      "net": -176.72893981231906,
+      "accel": 14902.325180666667,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 36.625,
+      "dominance_pct": 62.50948995808283,
+      "liq_count": 13,
+      "depth_bps": 41.517112266085135,
+      "intensity_k_per_sec": 12.963525181706485,
+      "btc_ret_bps": -34.265279378763715
+    },
+    {
+      "entry_ts_ms": 1781576875467,
+      "net": -74.5812028382846,
+      "accel": 9529.856582,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 80.326,
+      "dominance_pct": 61.04542264096031,
+      "liq_count": 12,
+      "depth_bps": 33.98752922054187,
+      "intensity_k_per_sec": 4.1916253047581105,
+      "btc_ret_bps": -30.057467182827992
+    },
+    {
+      "entry_ts_ms": 1781584271525,
+      "net": 104.87109642849008,
+      "accel": -111.67179766666732,
+      "accel_bucket": "decelerating",
+      "elapsed_sec": 71.054,
+      "dominance_pct": 34.25291639492995,
+      "liq_count": 15,
+      "depth_bps": 28.22019178640365,
+      "intensity_k_per_sec": 2.956960378303825,
+      "btc_ret_bps": -41.93063320877537
+    },
+    {
+      "entry_ts_ms": 1781613424398,
+      "net": -291.7657683121884,
+      "accel": 7088.8461130000005,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 115.699,
+      "dominance_pct": 57.13225373542069,
+      "liq_count": 5,
+      "depth_bps": 39.739829012221506,
+      "intensity_k_per_sec": 1.9794420566297026,
+      "btc_ret_bps": 3.1551867299355423
+    },
+    {
+      "entry_ts_ms": 1781615315106,
+      "net": -151.56219976956478,
+      "accel": 7115.743698333333,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 213.539,
+      "dominance_pct": 42.75314908619969,
+      "liq_count": 11,
+      "depth_bps": 45.7861365465831,
+      "intensity_k_per_sec": 1.3010341122698899,
+      "btc_ret_bps": -24.498245895883926
+    },
+    {
+      "entry_ts_ms": 1781619399900,
+      "net": 62.52991861733357,
+      "accel": 11137.336672,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 8.434,
+      "dominance_pct": 88.83341324807054,
+      "liq_count": 3,
+      "depth_bps": 29.06930290955272,
+      "intensity_k_per_sec": 39.61585252074935,
+      "btc_ret_bps": -36.77391025123371
+    },
+    {
+      "entry_ts_ms": 1781659021753,
+      "net": 20.893727598567224,
+      "accel": -4332.980970333333,
+      "accel_bucket": "decelerating",
+      "elapsed_sec": 65.371,
+      "dominance_pct": 60.87940190149571,
+      "liq_count": 19,
+      "depth_bps": 28.36926960299862,
+      "intensity_k_per_sec": 3.1360101792843924,
+      "btc_ret_bps": -12.02653752464588
+    },
+    {
+      "entry_ts_ms": 1781719230110,
+      "net": -213.47483085250326,
+      "accel": 8019.434726333333,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 20.739,
+      "dominance_pct": 27.177385202849212,
+      "liq_count": 10,
+      "depth_bps": 37.58823240957585,
+      "intensity_k_per_sec": 11.600513129369787,
+      "btc_ret_bps": -40.617123566851824
+    },
+    {
+      "entry_ts_ms": 1781722715207,
+      "net": -147.07510138426264,
+      "accel": 4081.350988666666,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 206.639,
+      "dominance_pct": 63.184814630223315,
+      "liq_count": 22,
+      "depth_bps": 75.01169028693583,
+      "intensity_k_per_sec": 1.1192766691670013,
+      "btc_ret_bps": -88.34087764348584
+    },
+    {
+      "entry_ts_ms": 1781723899201,
+      "net": -67.4203790714341,
+      "accel": 38502.179117666674,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 100.596,
+      "dominance_pct": 95.23799898584733,
+      "liq_count": 8,
+      "depth_bps": 41.54564553950783,
+      "intensity_k_per_sec": 11.983195343651836,
+      "btc_ret_bps": -79.1868799582812
+    },
+    {
+      "entry_ts_ms": 1781798251634,
+      "net": 136.2470602237553,
+      "accel": 14603.944812333333,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 142.251,
+      "dominance_pct": 72.41009232659376,
+      "liq_count": 16,
+      "depth_bps": 29.211740781207663,
+      "intensity_k_per_sec": 3.6213931535806427,
+      "btc_ret_bps": -64.26833584709502
+    },
+    {
+      "entry_ts_ms": 1781817159670,
+      "net": 36.417955614543075,
+      "accel": 3120.774633666667,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 152.407,
+      "dominance_pct": 54.97510519829798,
+      "liq_count": 16,
+      "depth_bps": 29.811715237754065,
+      "intensity_k_per_sec": 1.700901040831458,
+      "btc_ret_bps": -19.116730943900247
+    },
+    {
+      "entry_ts_ms": 1781964531159,
+      "net": 102.80492325158225,
+      "accel": 2299.7009603333336,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 213.608,
+      "dominance_pct": 37.929676745907734,
+      "liq_count": 14,
+      "depth_bps": 29.192846633852966,
+      "intensity_k_per_sec": 1.2102182969270814,
+      "btc_ret_bps": -29.221349565587726
+    },
+    {
+      "entry_ts_ms": 1782040706629,
+      "net": 37.04399526170832,
+      "accel": 3308.7366603333335,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 133.526,
+      "dominance_pct": 24.733214586569993,
+      "liq_count": 14,
+      "depth_bps": 32.22321791117307,
+      "intensity_k_per_sec": 1.8776814130581307,
+      "btc_ret_bps": -48.67180433220905
+    },
+    {
+      "entry_ts_ms": 1782084822690,
+      "net": 182.22734118861413,
+      "accel": 8618.047926000001,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 147.594,
+      "dominance_pct": 61.886486093633096,
+      "liq_count": 16,
+      "depth_bps": 29.82264298787744,
+      "intensity_k_per_sec": 2.145960588980582,
+      "btc_ret_bps": -62.36743095165164
+    },
+    {
+      "entry_ts_ms": 1782097283071,
+      "net": 18.405129316572804,
+      "accel": 6648.169642,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 80.873,
+      "dominance_pct": 71.5615587246957,
+      "liq_count": 17,
+      "depth_bps": 34.78280899976368,
+      "intensity_k_per_sec": 2.55611314282888,
+      "btc_ret_bps": -70.20223782080102
+    },
+    {
+      "entry_ts_ms": 1782201584477,
+      "net": -137.38634455530274,
+      "accel": -2729.485851000001,
+      "accel_bucket": "decelerating",
+      "elapsed_sec": 211.503,
+      "dominance_pct": 33.09904183100325,
+      "liq_count": 15,
+      "depth_bps": 30.57016413474405,
+      "intensity_k_per_sec": 0.9766207501075637,
+      "btc_ret_bps": -4.90595137644584
+    },
+    {
+      "entry_ts_ms": 1782394305283,
+      "net": -338.03155720293375,
+      "accel": 2508.510228333334,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 59.145,
+      "dominance_pct": 39.48548071713278,
+      "liq_count": 17,
+      "depth_bps": 45.558156851564085,
+      "intensity_k_per_sec": 3.46499882542903,
+      "btc_ret_bps": -55.08775380646081
+    },
+    {
+      "entry_ts_ms": 1782395476217,
+      "net": -2.9117938123294307,
+      "accel": 9403.866917666666,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 63.719,
+      "dominance_pct": 79.88517631226112,
+      "liq_count": 11,
+      "depth_bps": 43.09700898581455,
+      "intensity_k_per_sec": 4.481671807310221,
+      "btc_ret_bps": -290.1163895506467
+    },
+    {
+      "entry_ts_ms": 1782396979081,
+      "net": 60.28433509630006,
+      "accel": 6611.116249999999,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 78.715,
+      "dominance_pct": 42.575694610572725,
+      "liq_count": 17,
+      "depth_bps": 51.660314095095686,
+      "intensity_k_per_sec": 2.5511064828812806,
+      "btc_ret_bps": 83.26355886131928
+    },
+    {
+      "entry_ts_ms": 1782398263517,
+      "net": -45.76609059429005,
+      "accel": 10643.494291,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 104.216,
+      "dominance_pct": 74.67199909156989,
+      "liq_count": 12,
+      "depth_bps": 46.51398909808505,
+      "intensity_k_per_sec": 3.8224340572464883,
+      "btc_ret_bps": 24.14567658535548
+    },
+    {
+      "entry_ts_ms": 1782399803104,
+      "net": 20.398649402979075,
+      "accel": 11766.669455333333,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 158.914,
+      "dominance_pct": 67.22628703388189,
+      "liq_count": 13,
+      "depth_bps": 37.45028813526953,
+      "intensity_k_per_sec": 2.791486831934254,
+      "btc_ret_bps": -63.47902768708762
+    },
+    {
+      "entry_ts_ms": 1782405123169,
+      "net": -32.08945096486595,
+      "accel": 1466.1602119999998,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 112.018,
+      "dominance_pct": 43.60340573613417,
+      "liq_count": 16,
+      "depth_bps": 37.81305273944265,
+      "intensity_k_per_sec": 1.7864004731382457,
+      "btc_ret_bps": -40.142334084118545
+    },
+    {
+      "entry_ts_ms": 1782442110475,
+      "net": 270.04832661184616,
+      "accel": 7281.765770333333,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 180.957,
+      "dominance_pct": 39.07410399807663,
+      "liq_count": 10,
+      "depth_bps": 39.5507758944371,
+      "intensity_k_per_sec": 1.3110915928646034,
+      "btc_ret_bps": -7.184908969174936
+    },
+    {
+      "entry_ts_ms": 1782467295082,
+      "net": -67.09009392474464,
+      "accel": 6946.680350333334,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 44.549,
+      "dominance_pct": 64.38828604515284,
+      "liq_count": 4,
+      "depth_bps": 28.093024074335315,
+      "intensity_k_per_sec": 4.684013903566859,
+      "btc_ret_bps": -31.25824851889953
+    },
+    {
+      "entry_ts_ms": 1782470373530,
+      "net": 76.31722668945616,
+      "accel": 9670.993942000001,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 104.272,
+      "dominance_pct": 47.113064615957114,
+      "liq_count": 12,
+      "depth_bps": 34.42474334341896,
+      "intensity_k_per_sec": 2.9460952833934324,
+      "btc_ret_bps": -49.306016974258405
+    },
+    {
+      "entry_ts_ms": 1782477597361,
+      "net": 298.1646503819575,
+      "accel": 10332.469090666667,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 283.153,
+      "dominance_pct": 42.76375157908359,
+      "liq_count": 18,
+      "depth_bps": 106.37460092592636,
+      "intensity_k_per_sec": 1.2303324597655685,
+      "btc_ret_bps": -49.47257362146067
+    },
+    {
+      "entry_ts_ms": 1782479934877,
+      "net": 379.47124215578884,
+      "accel": 9225.998882666667,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 120.422,
+      "dominance_pct": 37.1846143592357,
+      "liq_count": 15,
+      "depth_bps": 36.30429315119923,
+      "intensity_k_per_sec": 2.597114659364568,
+      "btc_ret_bps": -60.24326279371559
+    },
+    {
+      "entry_ts_ms": 1782520453408,
+      "net": 68.68122513922037,
+      "accel": 302.54930333333334,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 222.977,
+      "dominance_pct": 60.263608128352374,
+      "liq_count": 15,
+      "depth_bps": 30.247494745485245,
+      "intensity_k_per_sec": 0.9093976753656206,
+      "btc_ret_bps": -35.27439618190892
+    },
+    {
+      "entry_ts_ms": 1782579737194,
+      "net": -92.81679197994936,
+      "accel": 9979.238099666665,
+      "accel_bucket": "accelerating",
+      "elapsed_sec": 33.735,
+      "dominance_pct": 42.20161361227756,
+      "liq_count": 17,
+      "depth_bps": 33.16055704739865,
+      "intensity_k_per_sec": 9.106540350081517,
+      "btc_ret_bps": -20.57680911305722
+    }
+  ]
+}

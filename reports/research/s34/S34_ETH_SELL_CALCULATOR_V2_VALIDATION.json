@@ -1,0 +1,60 @@
+{
+  "generated_at_utc": "2026-06-26T15:22:00+00:00",
+  "combo": "ETHUSDT_SELL",
+  "primary_route": "SHORT_DELAY0_TP60",
+  "n_events": 222,
+  "n_train": 155,
+  "n_test": 67,
+  "old_config": {
+    "k": 20,
+    "metric": "euclidean",
+    "features": [
+      "cluster_notional",
+      "cluster_duration_sec",
+      "cluster_liq_count",
+      "max_single_liq_share",
+      "intensity_per_sec",
+      "inter_cluster_gap_sec",
+      "day_trend_bps",
+      "day_range_bps",
+      "symbol_pre_5m_bps",
+      "symbol_pre_15m_bps",
+      "btc_pre_15m_bps"
+    ],
+    "results": {
+      "n_test": 67,
+      "dir_acc": 0.746,
+      "mae": 22.0,
+      "pred_median": 52.4,
+      "realized_median": 52.4,
+      "base_rate": 37.7,
+      "pred_std": 23.3
+    }
+  },
+  "new_config": {
+    "k": 10,
+    "metric": "manhattan",
+    "features": [
+      "cluster_notional",
+      "max_single_liq_share",
+      "intensity_per_sec",
+      "inter_cluster_gap_sec",
+      "day_range_bps",
+      "symbol_pre_5m_bps"
+    ],
+    "results": {
+      "n_test": 67,
+      "dir_acc": 0.716,
+      "mae": 23.9,
+      "pred_median": 52.4,
+      "realized_median": 52.4,
+      "base_rate": 37.7,
+      "pred_std": 24.0
+    }
+  },
+  "delta": {
+    "dir_acc": -0.03,
+    "mae": 1.9
+  },
+  "verdict": "V2_NEUTRAL"
+}

@@ -1,0 +1,1138 @@
+{
+  "generated_at": "2026-06-25T14:48:26.323171+00:00",
+  "rows": 450,
+  "predicate_count": 300,
+  "candidates": [
+    {
+      "label": "buy_liq_ge_5m AND day_range_bps_ge_p75_539",
+      "expr": "day_buy_liq_notional >= 5000000 AND day_range_bps >= 539.0397594600645",
+      "train": {
+        "n": 52,
+        "days": 12,
+        "mean": 23.869316272914645,
+        "median": 52.44140133117912,
+        "cum": 1241.2044461915616,
+        "wr": 0.5961538461538461,
+        "top3_removed_cum": 1045.0758639054388,
+        "positive_days": 11,
+        "worst_day_cum": -106.20459285620156,
+        "exit_counts": {
+          "BE": 15,
+          "SL": 6,
+          "TIME": 1,
+          "TP": 30
+        }
+      },
+      "rank": 1,
+      "test": {
+        "n": 20,
+        "days": 6,
+        "mean": 10.015736708881574,
+        "median": -8.371594772253534,
+        "cum": 200.3147341776315,
+        "wr": 0.45,
+        "top3_removed_cum": 29.149512861353813,
+        "positive_days": 3,
+        "worst_day_cum": -50.21637653522721,
+        "exit_counts": {
+          "BE": 6,
+          "SL": 5,
+          "TP": 9
+        }
+      },
+      "all": {
+        "n": 72,
+        "days": 18,
+        "mean": 20.021099727349903,
+        "median": 52.355733444856064,
+        "cum": 1441.519180369193,
+        "wr": 0.5555555555555556,
+        "top3_removed_cum": 1245.3905980830705,
+        "positive_days": 14,
+        "worst_day_cum": -106.20459285620156,
+        "exit_counts": {
+          "BE": 21,
+          "SL": 11,
+          "TIME": 1,
+          "TP": 39
+        }
+      },
+      "real_fill": {
+        "total_rows": 72,
+        "real_fill_rows": 13,
+        "no_fill_rows": 59,
+        "no_fill_rate": 0.8194444444444444,
+        "test": {
+          "n": 13,
+          "days": 3,
+          "mean": 4.345792859480306,
+          "median": -9.060531897535338,
+          "cum": 56.49530717324398,
+          "wr": 0.38461538461538464,
+          "top3_removed_cum": -124.82684689176737,
+          "positive_days": 1,
+          "worst_day_cum": -43.255700332753165,
+          "exit_counts": {
+            "BE": 4,
+            "SL": 4,
+            "TP": 5
+          }
+        }
+      }
+    },
+    {
+      "label": "trend_ge_100 AND agg_ge_750k",
+      "expr": "day_trend_bps >= 100 AND day_agg_count >= 750000",
+      "train": {
+        "n": 70,
+        "days": 14,
+        "mean": 25.550511197494647,
+        "median": 52.43855534172811,
+        "cum": 1788.5357838246252,
+        "wr": 0.6142857142857143,
+        "top3_removed_cum": 1585.655445363005,
+        "positive_days": 10,
+        "worst_day_cum": -58.62896622942551,
+        "exit_counts": {
+          "BE": 20,
+          "SL": 6,
+          "TIME": 3,
+          "TP": 41
+        }
+      },
+      "rank": 2,
+      "test": {
+        "n": 65,
+        "days": 15,
+        "mean": 11.621458685801949,
+        "median": -8.033067531614085,
+        "cum": 755.3948145771267,
+        "wr": 0.49230769230769234,
+        "top3_removed_cum": 579.0888067192501,
+        "positive_days": 10,
+        "worst_day_cum": -122.07598845963592,
+        "exit_counts": {
+          "BE": 16,
+          "SL": 16,
+          "TIME": 2,
+          "TP": 31
+        }
+      },
+      "all": {
+        "n": 135,
+        "days": 29,
+        "mean": 18.843930358531495,
+        "median": 52.19028840252508,
+        "cum": 2543.930598401752,
+        "wr": 0.5555555555555556,
+        "top3_removed_cum": 2341.0502599401316,
+        "positive_days": 20,
+        "worst_day_cum": -122.07598845963592,
+        "exit_counts": {
+          "BE": 36,
+          "SL": 22,
+          "TIME": 5,
+          "TP": 72
+        }
+      },
+      "real_fill": {
+        "total_rows": 135,
+        "real_fill_rows": 41,
+        "no_fill_rows": 94,
+        "no_fill_rate": 0.6962962962962963,
+        "test": {
+          "n": 41,
+          "days": 7,
+          "mean": 3.7490663654614123,
+          "median": -8.45893543953136,
+          "cum": 153.7117209839179,
+          "wr": 0.4146341463414634,
+          "top3_removed_cum": -49.6387518025909,
+          "positive_days": 4,
+          "worst_day_cum": -129.04064867456594,
+          "exit_counts": {
+            "BE": 11,
+            "SL": 13,
+            "TIME": 1,
+            "TP": 16
+          }
+        }
+      }
+    },
+    {
+      "label": "trend_ge_100 AND day_agg_count_ge_p50_942742",
+      "expr": "day_trend_bps >= 100 AND day_agg_count >= 942742.5",
+      "train": {
+        "n": 64,
+        "days": 13,
+        "mean": 25.614012299120166,
+        "median": 52.43855534172811,
+        "cum": 1639.2967871436906,
+        "wr": 0.609375,
+        "top3_removed_cum": 1436.4164486820705,
+        "positive_days": 9,
+        "worst_day_cum": -58.62896622942551,
+        "exit_counts": {
+          "BE": 18,
+          "SL": 6,
+          "TIME": 2,
+          "TP": 38
+        }
+      },
+      "rank": 3,
+      "test": {
+        "n": 51,
+        "days": 13,
+        "mean": 12.423411194330294,
+        "median": 52.11144357049466,
+        "cum": 633.593970910845,
+        "wr": 0.5294117647058824,
+        "top3_removed_cum": 459.2079407164878,
+        "positive_days": 9,
+        "worst_day_cum": -149.03067286757505,
+        "exit_counts": {
+          "BE": 9,
+          "SL": 14,
+          "TIME": 2,
+          "TP": 26
+        }
+      },
+      "all": {
+        "n": 115,
+        "days": 26,
+        "mean": 19.76426746134379,
+        "median": 52.343302256700426,
+        "cum": 2272.8907580545356,
+        "wr": 0.5739130434782609,
+        "top3_removed_cum": 2070.0104195929157,
+        "positive_days": 18,
+        "worst_day_cum": -149.03067286757505,
+        "exit_counts": {
+          "BE": 27,
+          "SL": 20,
+          "TIME": 4,
+          "TP": 64
+        }
+      },
+      "real_fill": {
+        "total_rows": 115,
+        "real_fill_rows": 30,
+        "no_fill_rows": 85,
+        "no_fill_rate": 0.7391304347826086,
+        "test": {
+          "n": 30,
+          "days": 7,
+          "mean": 3.879926394950391,
+          "median": -8.242320144568342,
+          "cum": 116.39779184851173,
+          "wr": 0.43333333333333335,
+          "top3_removed_cum": -83.6830183851378,
+          "positive_days": 4,
+          "worst_day_cum": -154.46142701718384,
+          "exit_counts": {
+            "BE": 6,
+            "SL": 11,
+            "TIME": 1,
+            "TP": 12
+          }
+        }
+      }
+    },
+    {
+      "label": "day_buy_liq_notional_ge_p50_3297789 AND day_agg_count_ge_p75_1371175",
+      "expr": "day_buy_liq_notional >= 3297789.0022050003 AND day_agg_count >= 1371175.25",
+      "train": {
+        "n": 74,
+        "days": 21,
+        "mean": 25.164783787998527,
+        "median": 52.39039796735099,
+        "cum": 1862.194000311891,
+        "wr": 0.6216216216216216,
+        "top3_removed_cum": 1666.0654180257684,
+        "positive_days": 17,
+        "worst_day_cum": -53.42795526346695,
+        "exit_counts": {
+          "BE": 19,
+          "SL": 7,
+          "TIME": 5,
+          "TP": 43
+        }
+      },
+      "rank": 4,
+      "test": {
+        "n": 24,
+        "days": 10,
+        "mean": 18.71864921471961,
+        "median": 14.198361723177,
+        "cum": 449.24758115327063,
+        "wr": 0.5416666666666666,
+        "top3_removed_cum": 278.6401964371564,
+        "positive_days": 7,
+        "worst_day_cum": -20.030689679017645,
+        "exit_counts": {
+          "BE": 9,
+          "SL": 2,
+          "TIME": 2,
+          "TP": 11
+        }
+      },
+      "all": {
+        "n": 98,
+        "days": 31,
+        "mean": 23.5861385863792,
+        "median": 52.36532870785021,
+        "cum": 2311.4415814651616,
+        "wr": 0.6020408163265306,
+        "top3_removed_cum": 2115.312999179039,
+        "positive_days": 24,
+        "worst_day_cum": -53.42795526346695,
+        "exit_counts": {
+          "BE": 28,
+          "SL": 9,
+          "TIME": 7,
+          "TP": 54
+        }
+      },
+      "real_fill": {
+        "total_rows": 98,
+        "real_fill_rows": 8,
+        "no_fill_rows": 90,
+        "no_fill_rate": 0.9183673469387755,
+        "test": {
+          "n": 8,
+          "days": 3,
+          "mean": 10.045523774829151,
+          "median": -7.94945367870171,
+          "cum": 80.36419019863321,
+          "wr": 0.375,
+          "top3_removed_cum": -86.65390544648899,
+          "positive_days": 1,
+          "worst_day_cum": -16.39534691702834,
+          "exit_counts": {
+            "BE": 4,
+            "SL": 1,
+            "TP": 3
+          }
+        }
+      }
+    },
+    {
+      "label": "range_between_250_900 AND day_range_bps_ge_p75_539",
+      "expr": "day_range_bps >= 250 AND day_range_bps <= 900 AND day_range_bps >= 539.0397594600645",
+      "train": {
+        "n": 75,
+        "days": 16,
+        "mean": 26.189526890257252,
+        "median": 52.38735515899999,
+        "cum": 1964.2145167692938,
+        "wr": 0.6,
+        "top3_removed_cum": 1767.3098871383704,
+        "positive_days": 15,
+        "worst_day_cum": -6.93245710605151,
+        "exit_counts": {
+          "BE": 25,
+          "SL": 5,
+          "TIME": 1,
+          "TP": 44
+        }
+      },
+      "rank": 5,
+      "test": {
+        "n": 24,
+        "days": 8,
+        "mean": 11.390718044093726,
+        "median": 6.669346013578822,
+        "cum": 273.37723305824943,
+        "wr": 0.5,
+        "top3_removed_cum": 102.21201174197175,
+        "positive_days": 4,
+        "worst_day_cum": -50.21637653522721,
+        "exit_counts": {
+          "BE": 6,
+          "SL": 6,
+          "TIME": 1,
+          "TP": 11
+        }
+      },
+      "all": {
+        "n": 99,
+        "days": 24,
+        "mean": 22.60193686694488,
+        "median": 52.380864558233306,
+        "cum": 2237.591749827543,
+        "wr": 0.5757575757575758,
+        "top3_removed_cum": 2040.6871201966198,
+        "positive_days": 19,
+        "worst_day_cum": -50.21637653522721,
+        "exit_counts": {
+          "BE": 31,
+          "SL": 11,
+          "TIME": 2,
+          "TP": 55
+        }
+      },
+      "real_fill": {
+        "total_rows": 99,
+        "real_fill_rows": 12,
+        "no_fill_rows": 87,
+        "no_fill_rate": 0.8787878787878788,
+        "test": {
+          "n": 12,
+          "days": 3,
+          "mean": 5.599045885008465,
+          "median": -8.242320144568342,
+          "cum": 67.18855062010158,
+          "wr": 0.4166666666666667,
+          "top3_removed_cum": -114.13360344490977,
+          "positive_days": 1,
+          "worst_day_cum": -43.255700332753165,
+          "exit_counts": {
+            "BE": 3,
+            "SL": 4,
+            "TP": 5
+          }
+        }
+      }
+    },
+    {
+      "label": "day_range_bps_ge_p75_539 AND day_buy_liq_notional_ge_p50_3297789",
+      "expr": "day_range_bps >= 539.0397594600645 AND day_buy_liq_notional >= 3297789.0022050003",
+      "train": {
+        "n": 69,
+        "days": 14,
+        "mean": 24.155792953082084,
+        "median": 52.38735515899999,
+        "cum": 1666.7497137626638,
+        "wr": 0.5942028985507246,
+        "top3_removed_cum": 1470.6211314765412,
+        "positive_days": 13,
+        "worst_day_cum": -8.41410118717295,
+        "exit_counts": {
+          "BE": 21,
+          "SL": 7,
+          "TIME": 1,
+          "TP": 40
+        }
+      },
+      "rank": 6,
+      "test": {
+        "n": 20,
+        "days": 6,
+        "mean": 10.015736708881574,
+        "median": -8.371594772253534,
+        "cum": 200.3147341776315,
+        "wr": 0.45,
+        "top3_removed_cum": 29.149512861353813,
+        "positive_days": 3,
+        "worst_day_cum": -50.21637653522721,
+        "exit_counts": {
+          "BE": 6,
+          "SL": 5,
+          "TP": 9
+        }
+      },
+      "all": {
+        "n": 89,
+        "days": 20,
+        "mean": 20.978252224048262,
+        "median": 52.380864558233306,
+        "cum": 1867.0644479402952,
+        "wr": 0.5617977528089888,
+        "top3_removed_cum": 1670.9358656541726,
+        "positive_days": 16,
+        "worst_day_cum": -50.21637653522721,
+        "exit_counts": {
+          "BE": 27,
+          "SL": 12,
+          "TIME": 1,
+          "TP": 49
+        }
+      },
+      "real_fill": {
+        "total_rows": 89,
+        "real_fill_rows": 13,
+        "no_fill_rows": 76,
+        "no_fill_rate": 0.8539325842696629,
+        "test": {
+          "n": 13,
+          "days": 3,
+          "mean": 4.345792859480306,
+          "median": -9.060531897535338,
+          "cum": 56.49530717324398,
+          "wr": 0.38461538461538464,
+          "top3_removed_cum": -124.82684689176737,
+          "positive_days": 1,
+          "worst_day_cum": -43.255700332753165,
+          "exit_counts": {
+            "BE": 4,
+            "SL": 4,
+            "TP": 5
+          }
+        }
+      }
+    },
+    {
+      "label": "range_ge_500 AND range_between_250_900",
+      "expr": "day_range_bps >= 500 AND day_range_bps >= 250 AND day_range_bps <= 900",
+      "train": {
+        "n": 84,
+        "days": 18,
+        "mean": 25.1820168467311,
+        "median": 52.38410985861665,
+        "cum": 2115.2894151254122,
+        "wr": 0.5952380952380952,
+        "top3_removed_cum": 1918.3847854944886,
+        "positive_days": 16,
+        "worst_day_cum": -10.422222065108258,
+        "exit_counts": {
+          "BE": 28,
+          "SL": 6,
+          "TIME": 2,
+          "TP": 48
+        }
+      },
+      "rank": 7,
+      "test": {
+        "n": 33,
+        "days": 10,
+        "mean": 13.776139055644201,
+        "median": 18.5036677798925,
+        "cum": 454.6125888362586,
+        "wr": 0.5454545454545454,
+        "top3_removed_cum": 278.50021067018724,
+        "positive_days": 7,
+        "worst_day_cum": -36.35454617402654,
+        "exit_counts": {
+          "BE": 8,
+          "SL": 7,
+          "TIME": 3,
+          "TP": 15
+        }
+      },
+      "all": {
+        "n": 117,
+        "days": 28,
+        "mean": 21.964974392834794,
+        "median": 52.343302256700426,
+        "cum": 2569.9020039616707,
+        "wr": 0.5811965811965812,
+        "top3_removed_cum": 2372.9973743307473,
+        "positive_days": 23,
+        "worst_day_cum": -36.35454617402654,
+        "exit_counts": {
+          "BE": 36,
+          "SL": 13,
+          "TIME": 5,
+          "TP": 63
+        }
+      },
+      "real_fill": {
+        "total_rows": 117,
+        "real_fill_rows": 13,
+        "no_fill_rows": 104,
+        "no_fill_rate": 0.8888888888888888,
+        "test": {
+          "n": 13,
+          "days": 3,
+          "mean": 9.727111037127354,
+          "median": -7.424108391601346,
+          "cum": 126.4524434826556,
+          "wr": 0.46153846153846156,
+          "top3_removed_cum": -55.774565224492235,
+          "positive_days": 2,
+          "worst_day_cum": -5.483328575466486,
+          "exit_counts": {
+            "BE": 3,
+            "SL": 4,
+            "TP": 6
+          }
+        }
+      }
+    },
+    {
+      "label": "day_range_bps_ge_p50_357 AND day_buy_liq_notional_ge_p50_3297789",
+      "expr": "day_range_bps >= 357.2630815033008 AND day_buy_liq_notional >= 3297789.0022050003",
+      "train": {
+        "n": 86,
+        "days": 20,
+        "mean": 24.547741993092696,
+        "median": 52.38410985861665,
+        "cum": 2111.105811405972,
+        "wr": 0.5930232558139535,
+        "top3_removed_cum": 1908.2254729443516,
+        "positive_days": 15,
+        "worst_day_cum": -22.56882585687599,
+        "exit_counts": {
+          "BE": 27,
+          "SL": 7,
+          "TIME": 3,
+          "TP": 49
+        }
+      },
+      "rank": 8,
+      "test": {
+        "n": 69,
+        "days": 16,
+        "mean": 6.18150522254893,
+        "median": -8.374235100983926,
+        "cum": 426.5238603558762,
+        "wr": 0.4057971014492754,
+        "top3_removed_cum": 244.26906100497055,
+        "positive_days": 10,
+        "worst_day_cum": -178.14398480268855,
+        "exit_counts": {
+          "BE": 25,
+          "SL": 16,
+          "TIME": 3,
+          "TP": 25
+        }
+      },
+      "all": {
+        "n": 155,
+        "days": 36,
+        "mean": 16.371804333947406,
+        "median": 9.8930556664615,
+        "cum": 2537.629671761848,
+        "wr": 0.5096774193548387,
+        "top3_removed_cum": 2334.749333300228,
+        "positive_days": 25,
+        "worst_day_cum": -178.14398480268855,
+        "exit_counts": {
+          "BE": 52,
+          "SL": 23,
+          "TIME": 6,
+          "TP": 74
+        }
+      },
+      "real_fill": {
+        "total_rows": 155,
+        "real_fill_rows": 40,
+        "no_fill_rows": 115,
+        "no_fill_rate": 0.7419354838709677,
+        "test": {
+          "n": 40,
+          "days": 9,
+          "mean": -2.704117520643273,
+          "median": -9.068108554507525,
+          "cum": -108.16470082573092,
+          "wr": 0.3,
+          "top3_removed_cum": -311.5151736122397,
+          "positive_days": 4,
+          "worst_day_cum": -184.44273510702578,
+          "exit_counts": {
+            "BE": 15,
+            "SL": 13,
+            "TIME": 1,
+            "TP": 11
+          }
+        }
+      }
+    },
+    {
+      "label": "range_ge_500 AND day_buy_liq_notional_ge_p50_3297789",
+      "expr": "day_range_bps >= 500 AND day_buy_liq_notional >= 3297789.0022050003",
+      "train": {
+        "n": 72,
+        "days": 15,
+        "mean": 23.710187835981163,
+        "median": 52.38410985861665,
+        "cum": 1707.1335241906438,
+        "wr": 0.5833333333333334,
+        "top3_removed_cum": 1511.004941904521,
+        "positive_days": 13,
+        "worst_day_cum": -10.422222065108258,
+        "exit_counts": {
+          "BE": 23,
+          "SL": 7,
+          "TIME": 1,
+          "TP": 41
+        }
+      },
+      "rank": 9,
+      "test": {
+        "n": 27,
+        "days": 7,
+        "mean": 14.116345098033147,
+        "median": 9.8930556664615,
+        "cum": 381.14131764689495,
+        "wr": 0.5185185185185185,
+        "top3_removed_cum": 205.02893948082357,
+        "positive_days": 5,
+        "worst_day_cum": -8.809543084357333,
+        "exit_counts": {
+          "BE": 8,
+          "SL": 5,
+          "TIME": 2,
+          "TP": 12
+        }
+      },
+      "all": {
+        "n": 99,
+        "days": 22,
+        "mean": 21.093685271086247,
+        "median": 52.343302256700426,
+        "cum": 2088.2748418375386,
+        "wr": 0.5656565656565656,
+        "top3_removed_cum": 1892.146259551416,
+        "positive_days": 18,
+        "worst_day_cum": -10.422222065108258,
+        "exit_counts": {
+          "BE": 31,
+          "SL": 12,
+          "TIME": 3,
+          "TP": 53
+        }
+      },
+      "real_fill": {
+        "total_rows": 99,
+        "real_fill_rows": 14,
+        "no_fill_rows": 85,
+        "no_fill_rate": 0.8585858585858586,
+        "test": {
+          "n": 14,
+          "days": 3,
+          "mean": 8.268514288271286,
+          "median": -8.242320144568342,
+          "cum": 115.75920003579799,
+          "wr": 0.42857142857142855,
+          "top3_removed_cum": -66.46780867134984,
+          "positive_days": 2,
+          "worst_day_cum": -5.483328575466486,
+          "exit_counts": {
+            "BE": 4,
+            "SL": 4,
+            "TP": 6
+          }
+        }
+      }
+    },
+    {
+      "label": "range_ge_500 AND agg_ge_750k",
+      "expr": "day_range_bps >= 500 AND day_agg_count >= 750000",
+      "train": {
+        "n": 95,
+        "days": 18,
+        "mean": 25.05934990623078,
+        "median": 52.380864558233306,
+        "cum": 2380.638241091924,
+        "wr": 0.6,
+        "top3_removed_cum": 2183.7336114610007,
+        "positive_days": 16,
+        "worst_day_cum": -10.422222065108258,
+        "exit_counts": {
+          "BE": 30,
+          "SL": 8,
+          "TIME": 2,
+          "TP": 55
+        }
+      },
+      "rank": 10,
+      "test": {
+        "n": 30,
+        "days": 9,
+        "mean": 11.48097739522759,
+        "median": 14.198361723177,
+        "cum": 344.4293218568277,
+        "wr": 0.5333333333333333,
+        "top3_removed_cum": 173.26410054055,
+        "positive_days": 5,
+        "worst_day_cum": -50.21637653522721,
+        "exit_counts": {
+          "BE": 7,
+          "SL": 7,
+          "TIME": 3,
+          "TP": 13
+        }
+      },
+      "all": {
+        "n": 125,
+        "days": 27,
+        "mean": 21.800540503590014,
+        "median": 52.33060233147882,
+        "cum": 2725.067562948752,
+        "wr": 0.584,
+        "top3_removed_cum": 2528.1629333178284,
+        "positive_days": 21,
+        "worst_day_cum": -50.21637653522721,
+        "exit_counts": {
+          "BE": 37,
+          "SL": 15,
+          "TIME": 5,
+          "TP": 68
+        }
+      },
+      "real_fill": {
+        "total_rows": 125,
+        "real_fill_rows": 13,
+        "no_fill_rows": 112,
+        "no_fill_rate": 0.896,
+        "test": {
+          "n": 13,
+          "days": 3,
+          "mean": 4.345792859480306,
+          "median": -9.060531897535338,
+          "cum": 56.49530717324398,
+          "wr": 0.38461538461538464,
+          "top3_removed_cum": -124.82684689176737,
+          "positive_days": 1,
+          "worst_day_cum": -43.255700332753165,
+          "exit_counts": {
+            "BE": 4,
+            "SL": 4,
+            "TP": 5
+          }
+        }
+      }
+    },
+    {
+      "label": "day_range_bps_ge_p75_539",
+      "expr": "day_range_bps >= 539.0397594600645",
+      "train": {
+        "n": 89,
+        "days": 16,
+        "mean": 25.0101559874181,
+        "median": 52.380864558233306,
+        "cum": 2225.903882880211,
+        "wr": 0.5955056179775281,
+        "top3_removed_cum": 2028.9992532492874,
+        "positive_days": 15,
+        "worst_day_cum": -6.93245710605151,
+        "exit_counts": {
+          "BE": 28,
+          "SL": 8,
+          "TIME": 1,
+          "TP": 52
+        }
+      },
+      "rank": 11,
+      "test": {
+        "n": 25,
+        "days": 8,
+        "mean": 10.489432682762544,
+        "median": -8.033067531614085,
+        "cum": 262.2358170690636,
+        "wr": 0.48,
+        "top3_removed_cum": 91.07059575278596,
+        "positive_days": 4,
+        "worst_day_cum": -50.21637653522721,
+        "exit_counts": {
+          "BE": 7,
+          "SL": 6,
+          "TIME": 1,
+          "TP": 11
+        }
+      },
+      "all": {
+        "n": 114,
+        "days": 24,
+        "mean": 21.825786841660303,
+        "median": 52.33695229408963,
+        "cum": 2488.1396999492745,
+        "wr": 0.5701754385964912,
+        "top3_removed_cum": 2291.235070318351,
+        "positive_days": 19,
+        "worst_day_cum": -50.21637653522721,
+        "exit_counts": {
+          "BE": 35,
+          "SL": 14,
+          "TIME": 2,
+          "TP": 63
+        }
+      },
+      "real_fill": {
+        "total_rows": 114,
+        "real_fill_rows": 13,
+        "no_fill_rows": 101,
+        "no_fill_rate": 0.8859649122807017,
+        "test": {
+          "n": 13,
+          "days": 3,
+          "mean": 4.345792859480306,
+          "median": -9.060531897535338,
+          "cum": 56.49530717324398,
+          "wr": 0.38461538461538464,
+          "top3_removed_cum": -124.82684689176737,
+          "positive_days": 1,
+          "worst_day_cum": -43.255700332753165,
+          "exit_counts": {
+            "BE": 4,
+            "SL": 4,
+            "TP": 5
+          }
+        }
+      }
+    },
+    {
+      "label": "range_ge_250 AND day_range_bps_ge_p75_539",
+      "expr": "day_range_bps >= 250 AND day_range_bps >= 539.0397594600645",
+      "train": {
+        "n": 89,
+        "days": 16,
+        "mean": 25.0101559874181,
+        "median": 52.380864558233306,
+        "cum": 2225.903882880211,
+        "wr": 0.5955056179775281,
+        "top3_removed_cum": 2028.9992532492874,
+        "positive_days": 15,
+        "worst_day_cum": -6.93245710605151,
+        "exit_counts": {
+          "BE": 28,
+          "SL": 8,
+          "TIME": 1,
+          "TP": 52
+        }
+      },
+      "rank": 12,
+      "test": {
+        "n": 25,
+        "days": 8,
+        "mean": 10.489432682762544,
+        "median": -8.033067531614085,
+        "cum": 262.2358170690636,
+        "wr": 0.48,
+        "top3_removed_cum": 91.07059575278596,
+        "positive_days": 4,
+        "worst_day_cum": -50.21637653522721,
+        "exit_counts": {
+          "BE": 7,
+          "SL": 6,
+          "TIME": 1,
+          "TP": 11
+        }
+      },
+      "all": {
+        "n": 114,
+        "days": 24,
+        "mean": 21.825786841660303,
+        "median": 52.33695229408963,
+        "cum": 2488.1396999492745,
+        "wr": 0.5701754385964912,
+        "top3_removed_cum": 2291.235070318351,
+        "positive_days": 19,
+        "worst_day_cum": -50.21637653522721,
+        "exit_counts": {
+          "BE": 35,
+          "SL": 14,
+          "TIME": 2,
+          "TP": 63
+        }
+      },
+      "real_fill": {
+        "total_rows": 114,
+        "real_fill_rows": 13,
+        "no_fill_rows": 101,
+        "no_fill_rate": 0.8859649122807017,
+        "test": {
+          "n": 13,
+          "days": 3,
+          "mean": 4.345792859480306,
+          "median": -9.060531897535338,
+          "cum": 56.49530717324398,
+          "wr": 0.38461538461538464,
+          "top3_removed_cum": -124.82684689176737,
+          "positive_days": 1,
+          "worst_day_cum": -43.255700332753165,
+          "exit_counts": {
+            "BE": 4,
+            "SL": 4,
+            "TP": 5
+          }
+        }
+      }
+    }
+  ],
+  "sample_rows": [
+    {
+      "event_id": "ETHUSDT_BUY_5903985",
+      "event_ts_ms": 1771195631071,
+      "event_utc": "2026-02-15T22:47:11.071000+00:00",
+      "day": "2026-02-15",
+      "cluster_notional": 216935.92059,
+      "cluster_count": 6,
+      "day_trend_bps": -154.5983821098841,
+      "day_range_bps": 445.2361842529021,
+      "day_buy_liq_notional": 849909.47968,
+      "day_sell_liq_notional": 2716309.09165,
+      "day_agg_count": 771264,
+      "entry_ts_ms": 1771195632000,
+      "entry_price": 1971.21151163,
+      "exit_ts_ms": 1771196475000,
+      "exit_price": 1963.24363566,
+      "exit_reason": "SL",
+      "net_bps": -48.42121265521191,
+      "mfe_bps": 11.457361915122812,
+      "mae_bps": -40.42121265521191,
+      "day_liq_imbalance": -0.5233553621683759,
+      "day_buy_sell_ratio": 0.3128912988189166,
+      "day_total_liq_notional": 3566218.5713299997
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904001",
+      "event_ts_ms": 1771200428659,
+      "event_utc": "2026-02-16T00:07:08.659000+00:00",
+      "day": "2026-02-16",
+      "cluster_notional": 375213.6386,
+      "cluster_count": 21,
+      "day_trend_bps": 11.396707165679677,
+      "day_range_bps": 22.113007887730003,
+      "day_buy_liq_notional": 10024.65195,
+      "day_sell_liq_notional": 796.30364,
+      "day_agg_count": 7824,
+      "entry_ts_ms": 1771200429000,
+      "entry_price": 1967.71,
+      "exit_ts_ms": 1771201277000,
+      "exit_price": 1967.61,
+      "exit_reason": "BE",
+      "net_bps": -8.508204969228883,
+      "mfe_bps": 52.2434708366577,
+      "mae_bps": -0.5082049692288824,
+      "day_liq_imbalance": 0.8528219373276256,
+      "day_buy_sell_ratio": 12.588981697986462,
+      "day_total_liq_notional": 10820.95559
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904089",
+      "event_ts_ms": 1771226717535,
+      "event_utc": "2026-02-16T07:25:17.535000+00:00",
+      "day": "2026-02-16",
+      "cluster_notional": 206265.78420999998,
+      "cluster_count": 10,
+      "day_trend_bps": 45.16012383743354,
+      "day_range_bps": 162.86661670653223,
+      "day_buy_liq_notional": 915338.7596699999,
+      "day_sell_liq_notional": 458041.98003000004,
+      "day_agg_count": 366826,
+      "entry_ts_ms": 1771226718000,
+      "entry_price": 1974.51660016,
+      "exit_ts_ms": 1771227661001,
+      "exit_price": 1966.46,
+      "exit_reason": "SL",
+      "net_bps": -48.80289909614925,
+      "mfe_bps": 17.006049529935282,
+      "mae_bps": -40.80289909614925,
+      "day_liq_imbalance": 0.3329715980580093,
+      "day_buy_sell_ratio": 1.9983730740358092,
+      "day_total_liq_notional": 1373380.7397
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904155",
+      "event_ts_ms": 1771246610161,
+      "event_utc": "2026-02-16T12:56:50.161000+00:00",
+      "day": "2026-02-16",
+      "cluster_notional": 474788.74231,
+      "cluster_count": 4,
+      "day_trend_bps": 211.19522966400058,
+      "day_range_bps": 301.6599767993347,
+      "day_buy_liq_notional": 1920591.86337,
+      "day_sell_liq_notional": 2113811.87277,
+      "day_agg_count": 742524,
+      "entry_ts_ms": 1771246611005,
+      "entry_price": 2008.14,
+      "exit_ts_ms": 1771246988000,
+      "exit_price": 2020.57,
+      "exit_reason": "TP",
+      "net_bps": 53.898074835419024,
+      "mfe_bps": 61.898074835419024,
+      "mae_bps": -25.29704104295594,
+      "day_liq_imbalance": -0.047893077152676634,
+      "day_buy_sell_ratio": 0.9085916718090912,
+      "day_total_liq_notional": 4034403.7361399997
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904162",
+      "event_ts_ms": 1771248616210,
+      "event_utc": "2026-02-16T13:30:16.210000+00:00",
+      "day": "2026-02-16",
+      "cluster_notional": 221978.67975,
+      "cluster_count": 9,
+      "day_trend_bps": 77.84358019415082,
+      "day_range_bps": 380.7749892722582,
+      "day_buy_liq_notional": 2841722.65896,
+      "day_sell_liq_notional": 2879175.14372,
+      "day_agg_count": 872566,
+      "entry_ts_ms": 1771248617001,
+      "entry_price": 1980.63,
+      "exit_ts_ms": 1771249088004,
+      "exit_price": 1972.39,
+      "exit_reason": "SL",
+      "net_bps": -49.60292432205919,
+      "mfe_bps": 28.930188879294924,
+      "mae_bps": -41.60292432205919,
+      "day_liq_imbalance": -0.006546609649704805,
+      "day_buy_sell_ratio": 0.9869919393956667,
+      "day_total_liq_notional": 5720897.802680001
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904196",
+      "event_ts_ms": 1771258929443,
+      "event_utc": "2026-02-16T16:22:09.443000+00:00",
+      "day": "2026-02-16",
+      "cluster_notional": 220657.03549,
+      "cluster_count": 6,
+      "day_trend_bps": 12.465148462462327,
+      "day_range_bps": 439.5354241104445,
+      "day_buy_liq_notional": 3798778.45545,
+      "day_sell_liq_notional": 5656552.3474,
+      "day_agg_count": 1364305,
+      "entry_ts_ms": 1771258930002,
+      "entry_price": 1968.38,
+      "exit_ts_ms": 1771261798000,
+      "exit_price": 1968.33763566,
+      "exit_reason": "BE",
+      "net_bps": -8.215224397728978,
+      "mfe_bps": 38.74579070098146,
+      "mae_bps": -35.79920244058624,
+      "day_liq_imbalance": -0.19647899483220993,
+      "day_buy_sell_ratio": 0.6715713427802158,
+      "day_total_liq_notional": 9455330.80285
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904477",
+      "event_ts_ms": 1771343104205,
+      "event_utc": "2026-02-17T15:45:04.205000+00:00",
+      "day": "2026-02-17",
+      "cluster_notional": 301552.92312,
+      "cluster_count": 12,
+      "day_trend_bps": -215.63571732545594,
+      "day_range_bps": 342.63754658676163,
+      "day_buy_liq_notional": 990060.38734,
+      "day_sell_liq_notional": 3374828.03405,
+      "day_agg_count": 1099622,
+      "entry_ts_ms": 1771343105000,
+      "entry_price": 1954.28,
+      "exit_ts_ms": 1771343751000,
+      "exit_price": 1966.1,
+      "exit_reason": "TP",
+      "net_bps": 52.48263299015461,
+      "mfe_bps": 60.48263299015461,
+      "mae_bps": -8.104691855823646,
+      "day_liq_imbalance": -0.5463524875054127,
+      "day_buy_sell_ratio": 0.2933661737282261,
+      "day_total_liq_notional": 4364888.42139
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904481",
+      "event_ts_ms": 1771344311630,
+      "event_utc": "2026-02-17T16:05:11.630000+00:00",
+      "day": "2026-02-17",
+      "cluster_notional": 544503.05561,
+      "cluster_count": 14,
+      "day_trend_bps": -46.88118732320272,
+      "day_range_bps": 342.63754658676163,
+      "day_buy_liq_notional": 1456108.26599,
+      "day_sell_liq_notional": 3381609.16636,
+      "day_agg_count": 1176780,
+      "entry_ts_ms": 1771344312000,
+      "entry_price": 1987.9747907,
+      "exit_ts_ms": 1771344549000,
+      "exit_price": 1987.72412403,
+      "exit_reason": "BE",
+      "net_bps": -9.260914731780057,
+      "mfe_bps": 32.574656984053995,
+      "mae_bps": -10.637915077663187,
+      "day_liq_imbalance": -0.39801847199551227,
+      "day_buy_sell_ratio": 0.43059626182565924,
+      "day_total_liq_notional": 4837717.43235
+    }
+  ]
+}

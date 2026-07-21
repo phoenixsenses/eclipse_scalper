@@ -1,0 +1,370 @@
+{
+  "generated_at_utc": "2026-06-28T17:38:00.778701+00:00",
+  "config": {
+    "rules": [
+      "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+      "ETH_SELL_LIQ_SHORT_500K_TP60_SL40_BE40",
+      "SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+      "BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30"
+    ],
+    "cost_bps_rt": 6.1
+  },
+  "routes": [
+    {
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "family": "ETH_BUY",
+      "direction": "LONG",
+      "filtered_anchor_n": 1354,
+      "horizons": {
+        "15": {
+          "n": 1354,
+          "gross_median": -0.1,
+          "gross_mean": 1.1,
+          "win_rate": 0.488,
+          "net_median": -6.2
+        },
+        "30": {
+          "n": 1354,
+          "gross_median": -0.6,
+          "gross_mean": 0.7,
+          "win_rate": 0.455,
+          "net_median": -6.7
+        },
+        "60": {
+          "n": 1354,
+          "gross_median": -1.3,
+          "gross_mean": 0.1,
+          "win_rate": 0.454,
+          "net_median": -7.4
+        },
+        "120": {
+          "n": 1354,
+          "gross_median": -2.3,
+          "gross_mean": 0.0,
+          "win_rate": 0.423,
+          "net_median": -8.4
+        },
+        "300": {
+          "n": 1354,
+          "gross_median": -2.5,
+          "gross_mean": -0.1,
+          "win_rate": 0.434,
+          "net_median": -8.6
+        },
+        "600": {
+          "n": 1354,
+          "gross_median": -1.5,
+          "gross_mean": 1.4,
+          "win_rate": 0.474,
+          "net_median": -7.6
+        },
+        "900": {
+          "n": 1354,
+          "gross_median": -2.7,
+          "gross_mean": 2.0,
+          "win_rate": 0.462,
+          "net_median": -8.8
+        },
+        "1800": {
+          "n": 1354,
+          "gross_median": -3.1,
+          "gross_mean": 1.2,
+          "win_rate": 0.465,
+          "net_median": -9.2
+        },
+        "3600": {
+          "n": 1353,
+          "gross_median": -4.1,
+          "gross_mean": 1.9,
+          "win_rate": 0.468,
+          "net_median": -10.2
+        }
+      }
+    },
+    {
+      "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+      "family": "ETH_BUY",
+      "direction": "LONG",
+      "filtered_anchor_n": 547,
+      "horizons": {
+        "15": {
+          "n": 547,
+          "gross_median": -0.3,
+          "gross_mean": 1.0,
+          "win_rate": 0.49,
+          "net_median": -6.4
+        },
+        "30": {
+          "n": 547,
+          "gross_median": -0.8,
+          "gross_mean": 1.2,
+          "win_rate": 0.45,
+          "net_median": -6.9
+        },
+        "60": {
+          "n": 547,
+          "gross_median": -1.8,
+          "gross_mean": 0.8,
+          "win_rate": 0.435,
+          "net_median": -7.9
+        },
+        "120": {
+          "n": 547,
+          "gross_median": -3.8,
+          "gross_mean": 0.9,
+          "win_rate": 0.411,
+          "net_median": -9.9
+        },
+        "300": {
+          "n": 547,
+          "gross_median": -4.7,
+          "gross_mean": 1.8,
+          "win_rate": 0.422,
+          "net_median": -10.8
+        },
+        "600": {
+          "n": 547,
+          "gross_median": -2.3,
+          "gross_mean": 3.8,
+          "win_rate": 0.455,
+          "net_median": -8.4
+        },
+        "900": {
+          "n": 547,
+          "gross_median": -6.1,
+          "gross_mean": 2.9,
+          "win_rate": 0.437,
+          "net_median": -12.2
+        },
+        "1800": {
+          "n": 547,
+          "gross_median": -3.7,
+          "gross_mean": 2.7,
+          "win_rate": 0.47,
+          "net_median": -9.8
+        },
+        "3600": {
+          "n": 547,
+          "gross_median": -5.2,
+          "gross_mean": 1.9,
+          "win_rate": 0.459,
+          "net_median": -11.3
+        }
+      }
+    },
+    {
+      "rule_name": "ETH_SELL_LIQ_SHORT_500K_TP60_SL40_BE40",
+      "family": "ETH_SELL",
+      "direction": "SHORT",
+      "filtered_anchor_n": 226,
+      "horizons": {
+        "15": {
+          "n": 226,
+          "gross_median": 0.2,
+          "gross_mean": 0.6,
+          "win_rate": 0.513,
+          "net_median": -5.9
+        },
+        "30": {
+          "n": 226,
+          "gross_median": -0.6,
+          "gross_mean": 0.6,
+          "win_rate": 0.473,
+          "net_median": -6.7
+        },
+        "60": {
+          "n": 226,
+          "gross_median": -0.3,
+          "gross_mean": 1.0,
+          "win_rate": 0.491,
+          "net_median": -6.4
+        },
+        "120": {
+          "n": 225,
+          "gross_median": -1.1,
+          "gross_mean": 1.8,
+          "win_rate": 0.48,
+          "net_median": -7.2
+        },
+        "300": {
+          "n": 225,
+          "gross_median": -2.7,
+          "gross_mean": 1.2,
+          "win_rate": 0.453,
+          "net_median": -8.8
+        },
+        "600": {
+          "n": 225,
+          "gross_median": -2.1,
+          "gross_mean": 3.2,
+          "win_rate": 0.467,
+          "net_median": -8.2
+        },
+        "900": {
+          "n": 225,
+          "gross_median": -5.2,
+          "gross_mean": 4.1,
+          "win_rate": 0.436,
+          "net_median": -11.3
+        },
+        "1800": {
+          "n": 225,
+          "gross_median": -12.9,
+          "gross_mean": -1.6,
+          "win_rate": 0.413,
+          "net_median": -19.0
+        },
+        "3600": {
+          "n": 225,
+          "gross_median": -11.5,
+          "gross_mean": -0.4,
+          "win_rate": 0.409,
+          "net_median": -17.6
+        }
+      }
+    },
+    {
+      "rule_name": "SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+      "family": "SOL_BUY",
+      "direction": "LONG",
+      "filtered_anchor_n": 78,
+      "horizons": {
+        "15": {
+          "n": 78,
+          "gross_median": -1.2,
+          "gross_mean": 1.4,
+          "win_rate": 0.462,
+          "net_median": -7.3
+        },
+        "30": {
+          "n": 78,
+          "gross_median": -0.7,
+          "gross_mean": 3.1,
+          "win_rate": 0.487,
+          "net_median": -6.8
+        },
+        "60": {
+          "n": 78,
+          "gross_median": -3.1,
+          "gross_mean": 1.6,
+          "win_rate": 0.423,
+          "net_median": -9.2
+        },
+        "120": {
+          "n": 78,
+          "gross_median": -6.0,
+          "gross_mean": -1.6,
+          "win_rate": 0.346,
+          "net_median": -12.1
+        },
+        "300": {
+          "n": 78,
+          "gross_median": -9.5,
+          "gross_mean": 2.8,
+          "win_rate": 0.372,
+          "net_median": -15.6
+        },
+        "600": {
+          "n": 78,
+          "gross_median": -5.2,
+          "gross_mean": 1.3,
+          "win_rate": 0.423,
+          "net_median": -11.3
+        },
+        "900": {
+          "n": 78,
+          "gross_median": -7.0,
+          "gross_mean": 3.5,
+          "win_rate": 0.423,
+          "net_median": -13.1
+        },
+        "1800": {
+          "n": 78,
+          "gross_median": -9.0,
+          "gross_mean": 0.5,
+          "win_rate": 0.449,
+          "net_median": -15.1
+        },
+        "3600": {
+          "n": 78,
+          "gross_median": -22.8,
+          "gross_mean": -7.8,
+          "win_rate": 0.41,
+          "net_median": -28.9
+        }
+      }
+    },
+    {
+      "rule_name": "BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30",
+      "family": "BTC_BUY_DISTRIBUTED",
+      "direction": "LONG",
+      "filtered_anchor_n": 53,
+      "horizons": {
+        "15": {
+          "n": 53,
+          "gross_median": -1.0,
+          "gross_mean": 0.5,
+          "win_rate": 0.434,
+          "net_median": -7.1
+        },
+        "30": {
+          "n": 53,
+          "gross_median": -0.2,
+          "gross_mean": -1.2,
+          "win_rate": 0.472,
+          "net_median": -6.3
+        },
+        "60": {
+          "n": 53,
+          "gross_median": -0.6,
+          "gross_mean": -0.4,
+          "win_rate": 0.472,
+          "net_median": -6.7
+        },
+        "120": {
+          "n": 53,
+          "gross_median": -2.6,
+          "gross_mean": 0.6,
+          "win_rate": 0.415,
+          "net_median": -8.7
+        },
+        "300": {
+          "n": 53,
+          "gross_median": -6.1,
+          "gross_mean": -2.7,
+          "win_rate": 0.358,
+          "net_median": -12.2
+        },
+        "600": {
+          "n": 53,
+          "gross_median": -2.1,
+          "gross_mean": -2.9,
+          "win_rate": 0.491,
+          "net_median": -8.2
+        },
+        "900": {
+          "n": 53,
+          "gross_median": -0.4,
+          "gross_mean": -2.1,
+          "win_rate": 0.491,
+          "net_median": -6.5
+        },
+        "1800": {
+          "n": 53,
+          "gross_median": -7.4,
+          "gross_mean": -0.4,
+          "win_rate": 0.472,
+          "net_median": -13.5
+        },
+        "3600": {
+          "n": 53,
+          "gross_median": -13.4,
+          "gross_mean": -10.9,
+          "win_rate": 0.453,
+          "net_median": -19.5
+        }
+      }
+    }
+  ]
+}

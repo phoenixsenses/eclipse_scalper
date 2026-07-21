@@ -1,0 +1,699 @@
+{
+  "generated_at_utc": "2026-06-28T17:16:44.051572+00:00",
+  "lanes": [
+    {
+      "lane": {
+        "symbol": "ETHUSDT",
+        "liq_side": "BUY",
+        "direction": "LONG",
+        "family": "ETH_BUY"
+      },
+      "total_anchors": 3153,
+      "thresholds": {
+        "50K": {
+          "n": 1354,
+          "phase": {
+            "ACCELERATING": 1321,
+            "DECELERATING": 33
+          },
+          "shape": {
+            "single_dominant_80pct": 840,
+            "distributed_mid_duration": 367,
+            "stretched_120s": 147
+          },
+          "session": {
+            "US": 629,
+            "ASIA": 304,
+            "EUROPE": 279,
+            "OFF_HOURS": 142
+          },
+          "btc_aligned_rate": 0.813,
+          "executable_rate": 0.367,
+          "median_elapsed_sec": 40.2
+        },
+        "100K": {
+          "n": 917,
+          "phase": {
+            "ACCELERATING": 886,
+            "DECELERATING": 31
+          },
+          "shape": {
+            "single_dominant_80pct": 526,
+            "distributed_mid_duration": 257,
+            "stretched_120s": 134
+          },
+          "session": {
+            "US": 441,
+            "ASIA": 196,
+            "EUROPE": 183,
+            "OFF_HOURS": 97
+          },
+          "btc_aligned_rate": 0.842,
+          "executable_rate": 0.394,
+          "median_elapsed_sec": 53.4
+        },
+        "200K": {
+          "n": 547,
+          "phase": {
+            "ACCELERATING": 518,
+            "DECELERATING": 29
+          },
+          "shape": {
+            "single_dominant_80pct": 275,
+            "distributed_mid_duration": 179,
+            "stretched_120s": 93
+          },
+          "session": {
+            "US": 285,
+            "ASIA": 107,
+            "EUROPE": 101,
+            "OFF_HOURS": 54
+          },
+          "btc_aligned_rate": 0.876,
+          "executable_rate": 0.431,
+          "median_elapsed_sec": 56.1
+        },
+        "500K": {
+          "n": 215,
+          "phase": {
+            "ACCELERATING": 208,
+            "DECELERATING": 7
+          },
+          "shape": {
+            "single_dominant_80pct": 86,
+            "distributed_mid_duration": 75,
+            "stretched_120s": 54
+          },
+          "session": {
+            "US": 115,
+            "EUROPE": 40,
+            "ASIA": 39,
+            "OFF_HOURS": 21
+          },
+          "btc_aligned_rate": 0.94,
+          "executable_rate": 0.586,
+          "median_elapsed_sec": 69.7
+        },
+        "1000K": {
+          "n": 120,
+          "phase": {
+            "ACCELERATING": 116,
+            "DECELERATING": 4
+          },
+          "shape": {
+            "single_dominant_80pct": 45,
+            "distributed_mid_duration": 43,
+            "stretched_120s": 32
+          },
+          "session": {
+            "US": 56,
+            "EUROPE": 28,
+            "ASIA": 25,
+            "OFF_HOURS": 11
+          },
+          "btc_aligned_rate": 0.967,
+          "executable_rate": 0.65,
+          "median_elapsed_sec": 81.0
+        }
+      }
+    },
+    {
+      "lane": {
+        "symbol": "ETHUSDT",
+        "liq_side": "SELL",
+        "direction": "SHORT",
+        "family": "ETH_SELL"
+      },
+      "total_anchors": 3172,
+      "thresholds": {
+        "50K": {
+          "n": 1331,
+          "phase": {
+            "ACCELERATING": 1285,
+            "DECELERATING": 46
+          },
+          "shape": {
+            "single_dominant_80pct": 790,
+            "distributed_mid_duration": 333,
+            "stretched_120s": 208
+          },
+          "session": {
+            "US": 587,
+            "ASIA": 319,
+            "EUROPE": 280,
+            "OFF_HOURS": 145
+          },
+          "btc_aligned_rate": 0.844,
+          "executable_rate": 0.35,
+          "median_elapsed_sec": 41.1
+        },
+        "100K": {
+          "n": 930,
+          "phase": {
+            "ACCELERATING": 900,
+            "DECELERATING": 30
+          },
+          "shape": {
+            "single_dominant_80pct": 501,
+            "distributed_mid_duration": 251,
+            "stretched_120s": 178
+          },
+          "session": {
+            "US": 427,
+            "ASIA": 209,
+            "EUROPE": 188,
+            "OFF_HOURS": 106
+          },
+          "btc_aligned_rate": 0.88,
+          "executable_rate": 0.394,
+          "median_elapsed_sec": 50.6
+        },
+        "200K": {
+          "n": 569,
+          "phase": {
+            "ACCELERATING": 538,
+            "DECELERATING": 31
+          },
+          "shape": {
+            "single_dominant_80pct": 266,
+            "distributed_mid_duration": 180,
+            "stretched_120s": 123
+          },
+          "session": {
+            "US": 267,
+            "ASIA": 124,
+            "EUROPE": 112,
+            "OFF_HOURS": 66
+          },
+          "btc_aligned_rate": 0.916,
+          "executable_rate": 0.455,
+          "median_elapsed_sec": 65.4
+        },
+        "500K": {
+          "n": 225,
+          "phase": {
+            "ACCELERATING": 214,
+            "DECELERATING": 11
+          },
+          "shape": {
+            "single_dominant_80pct": 90,
+            "distributed_mid_duration": 70,
+            "stretched_120s": 65
+          },
+          "session": {
+            "US": 111,
+            "ASIA": 47,
+            "EUROPE": 43,
+            "OFF_HOURS": 24
+          },
+          "btc_aligned_rate": 0.973,
+          "executable_rate": 0.564,
+          "median_elapsed_sec": 92.0
+        },
+        "1000K": {
+          "n": 117,
+          "phase": {
+            "ACCELERATING": 109,
+            "DECELERATING": 8
+          },
+          "shape": {
+            "distributed_mid_duration": 46,
+            "stretched_120s": 37,
+            "single_dominant_80pct": 34
+          },
+          "session": {
+            "US": 59,
+            "EUROPE": 24,
+            "ASIA": 20,
+            "OFF_HOURS": 14
+          },
+          "btc_aligned_rate": 1.0,
+          "executable_rate": 0.692,
+          "median_elapsed_sec": 102.2
+        }
+      }
+    },
+    {
+      "lane": {
+        "symbol": "SOLUSDT",
+        "liq_side": "BUY",
+        "direction": "LONG",
+        "family": "SOL_BUY"
+      },
+      "total_anchors": 406,
+      "thresholds": {
+        "50K": {
+          "n": 171,
+          "phase": {
+            "ACCELERATING": 167,
+            "DECELERATING": 4
+          },
+          "shape": {
+            "single_dominant_80pct": 96,
+            "distributed_mid_duration": 48,
+            "stretched_120s": 27
+          },
+          "session": {
+            "US": 71,
+            "ASIA": 44,
+            "EUROPE": 34,
+            "OFF_HOURS": 22
+          },
+          "btc_aligned_rate": 0.912,
+          "executable_rate": 0.807,
+          "median_elapsed_sec": 34.7
+        },
+        "100K": {
+          "n": 115,
+          "phase": {
+            "ACCELERATING": 112,
+            "DECELERATING": 3
+          },
+          "shape": {
+            "single_dominant_80pct": 52,
+            "distributed_mid_duration": 38,
+            "stretched_120s": 25
+          },
+          "session": {
+            "US": 43,
+            "ASIA": 28,
+            "EUROPE": 26,
+            "OFF_HOURS": 18
+          },
+          "btc_aligned_rate": 0.922,
+          "executable_rate": 0.8,
+          "median_elapsed_sec": 53.1
+        },
+        "200K": {
+          "n": 78,
+          "phase": {
+            "ACCELERATING": 76,
+            "DECELERATING": 2
+          },
+          "shape": {
+            "single_dominant_80pct": 37,
+            "distributed_mid_duration": 23,
+            "stretched_120s": 18
+          },
+          "session": {
+            "US": 26,
+            "EUROPE": 20,
+            "ASIA": 19,
+            "OFF_HOURS": 13
+          },
+          "btc_aligned_rate": 0.923,
+          "executable_rate": 0.795,
+          "median_elapsed_sec": 71.3
+        },
+        "500K": {
+          "n": 29,
+          "phase": {
+            "ACCELERATING": 28,
+            "DECELERATING": 1
+          },
+          "shape": {
+            "single_dominant_80pct": 15,
+            "distributed_mid_duration": 9,
+            "stretched_120s": 5
+          },
+          "session": {
+            "US": 12,
+            "ASIA": 6,
+            "EUROPE": 6,
+            "OFF_HOURS": 5
+          },
+          "btc_aligned_rate": 0.897,
+          "executable_rate": 0.931,
+          "median_elapsed_sec": 52.0
+        },
+        "1000K": {
+          "n": 13,
+          "phase": {
+            "ACCELERATING": 13
+          },
+          "shape": {
+            "distributed_mid_duration": 7,
+            "single_dominant_80pct": 4,
+            "stretched_120s": 2
+          },
+          "session": {
+            "US": 6,
+            "EUROPE": 3,
+            "OFF_HOURS": 3,
+            "ASIA": 1
+          },
+          "btc_aligned_rate": 0.923,
+          "executable_rate": 0.846,
+          "median_elapsed_sec": 50.5
+        }
+      }
+    },
+    {
+      "lane": {
+        "symbol": "SOLUSDT",
+        "liq_side": "SELL",
+        "direction": "SHORT",
+        "family": "SOL_SELL"
+      },
+      "total_anchors": 380,
+      "thresholds": {
+        "50K": {
+          "n": 173,
+          "phase": {
+            "ACCELERATING": 164,
+            "DECELERATING": 9
+          },
+          "shape": {
+            "single_dominant_80pct": 70,
+            "distributed_mid_duration": 64,
+            "stretched_120s": 39
+          },
+          "session": {
+            "US": 80,
+            "ASIA": 43,
+            "EUROPE": 32,
+            "OFF_HOURS": 18
+          },
+          "btc_aligned_rate": 0.965,
+          "executable_rate": 0.803,
+          "median_elapsed_sec": 57.9
+        },
+        "100K": {
+          "n": 111,
+          "phase": {
+            "ACCELERATING": 105,
+            "DECELERATING": 6
+          },
+          "shape": {
+            "single_dominant_80pct": 45,
+            "distributed_mid_duration": 40,
+            "stretched_120s": 26
+          },
+          "session": {
+            "US": 50,
+            "ASIA": 28,
+            "EUROPE": 21,
+            "OFF_HOURS": 12
+          },
+          "btc_aligned_rate": 0.964,
+          "executable_rate": 0.82,
+          "median_elapsed_sec": 65.4
+        },
+        "200K": {
+          "n": 61,
+          "phase": {
+            "ACCELERATING": 57,
+            "DECELERATING": 4
+          },
+          "shape": {
+            "single_dominant_80pct": 25,
+            "distributed_mid_duration": 23,
+            "stretched_120s": 13
+          },
+          "session": {
+            "US": 30,
+            "ASIA": 12,
+            "EUROPE": 10,
+            "OFF_HOURS": 9
+          },
+          "btc_aligned_rate": 0.984,
+          "executable_rate": 0.803,
+          "median_elapsed_sec": 80.2
+        },
+        "500K": {
+          "n": 23,
+          "phase": {
+            "ACCELERATING": 22,
+            "DECELERATING": 1
+          },
+          "shape": {
+            "distributed_mid_duration": 11,
+            "stretched_120s": 7,
+            "single_dominant_80pct": 5
+          },
+          "session": {
+            "US": 11,
+            "OFF_HOURS": 5,
+            "ASIA": 4,
+            "EUROPE": 3
+          },
+          "btc_aligned_rate": 1.0,
+          "executable_rate": 0.913,
+          "median_elapsed_sec": 103.2
+        },
+        "1000K": {
+          "n": 12,
+          "phase": {
+            "ACCELERATING": 11,
+            "DECELERATING": 1
+          },
+          "shape": {
+            "distributed_mid_duration": 6,
+            "stretched_120s": 4,
+            "single_dominant_80pct": 2
+          },
+          "session": {
+            "US": 6,
+            "OFF_HOURS": 4,
+            "ASIA": 2
+          },
+          "btc_aligned_rate": 1.0,
+          "executable_rate": 1.0,
+          "median_elapsed_sec": 85.1
+        }
+      }
+    },
+    {
+      "lane": {
+        "symbol": "BTCUSDT",
+        "liq_side": "BUY",
+        "direction": "LONG",
+        "family": "BTC_BUY_DISTRIBUTED"
+      },
+      "total_anchors": 3592,
+      "thresholds": {
+        "50K": {
+          "n": 1510,
+          "phase": {
+            "ACCELERATING": 1467,
+            "DECELERATING": 43
+          },
+          "shape": {
+            "single_dominant_80pct": 908,
+            "distributed_mid_duration": 424,
+            "stretched_120s": 178
+          },
+          "session": {
+            "US": 658,
+            "ASIA": 363,
+            "EUROPE": 329,
+            "OFF_HOURS": 160
+          },
+          "btc_aligned_rate": 0.84,
+          "executable_rate": 0.38,
+          "median_elapsed_sec": 33.3
+        },
+        "100K": {
+          "n": 1053,
+          "phase": {
+            "ACCELERATING": 1017,
+            "DECELERATING": 36
+          },
+          "shape": {
+            "single_dominant_80pct": 587,
+            "distributed_mid_duration": 309,
+            "stretched_120s": 157
+          },
+          "session": {
+            "US": 466,
+            "ASIA": 246,
+            "EUROPE": 225,
+            "OFF_HOURS": 116
+          },
+          "btc_aligned_rate": 0.871,
+          "executable_rate": 0.404,
+          "median_elapsed_sec": 41.9
+        },
+        "200K": {
+          "n": 640,
+          "phase": {
+            "ACCELERATING": 613,
+            "DECELERATING": 27
+          },
+          "shape": {
+            "single_dominant_80pct": 311,
+            "distributed_mid_duration": 212,
+            "stretched_120s": 117
+          },
+          "session": {
+            "US": 284,
+            "EUROPE": 145,
+            "ASIA": 142,
+            "OFF_HOURS": 69
+          },
+          "btc_aligned_rate": 0.922,
+          "executable_rate": 0.45,
+          "median_elapsed_sec": 51.1
+        },
+        "500K": {
+          "n": 261,
+          "phase": {
+            "ACCELERATING": 242,
+            "DECELERATING": 19
+          },
+          "shape": {
+            "distributed_mid_duration": 111,
+            "single_dominant_80pct": 83,
+            "stretched_120s": 67
+          },
+          "session": {
+            "US": 126,
+            "ASIA": 54,
+            "EUROPE": 50,
+            "OFF_HOURS": 31
+          },
+          "btc_aligned_rate": 0.966,
+          "executable_rate": 0.563,
+          "median_elapsed_sec": 63.9
+        },
+        "1000K": {
+          "n": 128,
+          "phase": {
+            "ACCELERATING": 118,
+            "DECELERATING": 10
+          },
+          "shape": {
+            "distributed_mid_duration": 57,
+            "stretched_120s": 36,
+            "single_dominant_80pct": 35
+          },
+          "session": {
+            "US": 69,
+            "EUROPE": 22,
+            "ASIA": 20,
+            "OFF_HOURS": 17
+          },
+          "btc_aligned_rate": 0.984,
+          "executable_rate": 0.688,
+          "median_elapsed_sec": 76.5
+        }
+      }
+    },
+    {
+      "lane": {
+        "symbol": "BTCUSDT",
+        "liq_side": "SELL",
+        "direction": "SHORT",
+        "family": "BTC_SELL"
+      },
+      "total_anchors": 3337,
+      "thresholds": {
+        "50K": {
+          "n": 1395,
+          "phase": {
+            "ACCELERATING": 1343,
+            "DECELERATING": 52
+          },
+          "shape": {
+            "single_dominant_80pct": 775,
+            "distributed_mid_duration": 433,
+            "stretched_120s": 187
+          },
+          "session": {
+            "US": 599,
+            "ASIA": 334,
+            "EUROPE": 307,
+            "OFF_HOURS": 155
+          },
+          "btc_aligned_rate": 0.867,
+          "executable_rate": 0.346,
+          "median_elapsed_sec": 38.2
+        },
+        "100K": {
+          "n": 990,
+          "phase": {
+            "ACCELERATING": 942,
+            "DECELERATING": 48
+          },
+          "shape": {
+            "single_dominant_80pct": 502,
+            "distributed_mid_duration": 305,
+            "stretched_120s": 183
+          },
+          "session": {
+            "US": 442,
+            "ASIA": 230,
+            "EUROPE": 213,
+            "OFF_HOURS": 105
+          },
+          "btc_aligned_rate": 0.904,
+          "executable_rate": 0.36,
+          "median_elapsed_sec": 52.0
+        },
+        "200K": {
+          "n": 614,
+          "phase": {
+            "ACCELERATING": 586,
+            "DECELERATING": 28
+          },
+          "shape": {
+            "single_dominant_80pct": 262,
+            "distributed_mid_duration": 201,
+            "stretched_120s": 151
+          },
+          "session": {
+            "US": 291,
+            "ASIA": 134,
+            "EUROPE": 124,
+            "OFF_HOURS": 65
+          },
+          "btc_aligned_rate": 0.941,
+          "executable_rate": 0.391,
+          "median_elapsed_sec": 71.0
+        },
+        "500K": {
+          "n": 225,
+          "phase": {
+            "ACCELERATING": 202,
+            "DECELERATING": 23
+          },
+          "shape": {
+            "distributed_mid_duration": 85,
+            "single_dominant_80pct": 71,
+            "stretched_120s": 69
+          },
+          "session": {
+            "US": 106,
+            "ASIA": 50,
+            "EUROPE": 46,
+            "OFF_HOURS": 23
+          },
+          "btc_aligned_rate": 0.978,
+          "executable_rate": 0.529,
+          "median_elapsed_sec": 90.0
+        },
+        "1000K": {
+          "n": 113,
+          "phase": {
+            "ACCELERATING": 112,
+            "DECELERATING": 1
+          },
+          "shape": {
+            "distributed_mid_duration": 40,
+            "stretched_120s": 39,
+            "single_dominant_80pct": 34
+          },
+          "session": {
+            "US": 60,
+            "EUROPE": 23,
+            "ASIA": 17,
+            "OFF_HOURS": 13
+          },
+          "btc_aligned_rate": 0.991,
+          "executable_rate": 0.646,
+          "median_elapsed_sec": 100.9
+        }
+      }
+    }
+  ]
+}

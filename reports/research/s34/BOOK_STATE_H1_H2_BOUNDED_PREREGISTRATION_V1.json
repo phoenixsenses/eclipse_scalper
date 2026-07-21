@@ -1,0 +1,167 @@
+{
+  "artifact": "BOOK_STATE_H1_H2_BOUNDED_PREREGISTRATION",
+  "version": "V1",
+  "role": "preregistration_author_only",
+  "date_authored": "2026-07-19",
+  "symbol": "ETHUSDT",
+  "overall_token": "BOOK_STATE_H1_H2_VALIDATION_PREREGISTERED_CORRECTED_AWAITING_REREVIEW",
+  "prior_token": "BOOK_STATE_H1_H2_VALIDATION_PREREGISTERED_PENDING_INDEPENDENT_REVIEW",
+  "correction_c1": {"date": "2026-07-19", "review_verdict": "BOOK_STATE_H1_H2_PREREG_CORRECTIVE_REQUIRED", "blocking_fix": "S2 fill-ordering labels were inverted (had move_before_fill=1044/fill_before_move=352); corrected to fill_before_move=1044/move_before_fill=352 per hashed discovery+acceptance source; digits unchanged, benign/adverse semantics restored; S3 was already correct", "next_gate": "independent_re_review"},
+  "authoring_blocker_token": "BOOK_STATE_PREREG_BASELINE_CONTRACT_UNRESOLVED",
+  "grants": {"maker_alpha": false, "policy_profitability": false, "deployability": false, "holdout_result": false},
+  "accepted_basis": {
+    "token": "BOOK_STATE_STAGE1_ACCEPTED",
+    "operator_signoff_date": "2026-07-18",
+    "s3_resilient_refill": {"bid_incr_bps_1s": -0.584, "ask_incr_bps_1s": -0.410, "bid_attribution_residual_bps": -0.397},
+    "s2_liquidity_vacuum": {"incremental_adverse_present": false, "characterization": "clean_well_powered_null"},
+    "fill_ordering_f3_nfull": {
+      "S3": {"move_before_fill": 1705, "fill_before_move": 293},
+      "S2": {"fill_before_move": 1044, "move_before_fill": 352}
+    },
+    "not_accepted": ["maker_alpha", "policy_profitability", "s3_gate_deployability", "s2_quoting_profitability", "any_holdout_result"],
+    "disclosure_note_s2_count": "acceptance stamp 1044:352 vs discovery report 1044>>376; mechanistically-load-bearing S2=fill-before-move-dominant consistent; author carries ACCEPTED BASIS numbers verbatim, does not adjudicate 352/376"
+  },
+  "f_disclosures": {
+    "F1": {"claim": "1s canonical merge did not reduce anchors at 2s grid (0 removed)", "consequence": "independence carried by day-cluster; claim '1s merge provides independence' PROHIBITED"},
+    "F2": {"claim": "high matched-control reuse, SMD not tabulated in discovery", "consequence": "control-balance SMD table MANDATORY in this validation phase"},
+    "F3": {"claim": "legacy spread_bps/spread_z are dead config (ticks supersede)", "consequence": "must stay unused; no reactivation"},
+    "F4": {"claim": "S3 result fill-conditional on ~5.9% fill event", "consequence": "adverse-tail lower bound, not unconditional alpha claim"}
+  },
+  "baseline_maker_contract": {
+    "status": "PARTIALLY_UNRESOLVED",
+    "governing_finding": "No deployed maker engine exists; Stage-1 maker was a read-only fill-quality simulation; acceptance stamp records 'NO inventory accounting'. Live execution/risk/brain = directional scalper, guardrail DOKUNMA.",
+    "P_BASE": "existing maker engine (pending resolution of unresolved_fields)",
+    "P_H1": "identical to P_BASE except attacked-side quote temporarily suppressed during S3",
+    "resolved_fields": {
+      "quoted_symbol": "ETHUSDT",
+      "quote_sides": ["BID", "ASK"],
+      "placement": "best_of_book_only",
+      "below_best": "NOT_IDENTIFIABLE_out_of_scope",
+      "own_quote_size_eth": 0.5,
+      "quote_lifetime_ms": {"set": [500, 1000, 5000], "primary": 1000},
+      "latency_ms": {"set": [50, 100, 250, 500], "primary": 250},
+      "fill_model": {"primary": "F3_queue_conservative", "secondary": "F2_trade_through", "diagnostic_only": "F1"},
+      "fee_bps_maker": {"primary": 1.0, "sensitivities": [0.0, 2.0], "source": "config/costs.py DEFAULT_MAKER_FEE_BPS env MAKER_FEE_BPS default 1.0"},
+      "stale_snap_ms": 2000,
+      "stale_mid_ms": 3000
+    },
+    "unresolved_fields": ["update_requote_cadence", "cancellation_behavior", "inventory_limit", "inventory_skew", "passive_exit", "market_unwind_condition", "stop_risk_guardrails"],
+    "consequence": "inventory-adjusted net PnL (primary estimand) NOT computable until unresolved_fields defined by operator; holdout for primary estimand cannot open until then; only markout-level secondary estimands computable meanwhile (not an acceptance basis)"
+  },
+  "H1": {
+    "definition": "on first causal S3 classification: SELL-attacked side -> suppress BID; BUY-attacked side -> suppress ASK; opposite side keeps baseline; no offset, no widening; suppressed quote only cancelled/not-resent",
+    "attacked_side_mapping": "from Stage-1 adv_BID=-imb, adv_ASK=+imb; frozen, no new mapping",
+    "action_latency_ms": {"primary": 250, "sensitivities": [100, 500]},
+    "re_entry_rule": {"reopen_after_consecutive_non_S3_evals": 2, "eval_cadence": "baseline_engine_cadence (resolved with baseline contract)", "max_suppression_ms": 5000, "on_still_S3_at_max": "report event as DATA/STATE unresolved; NEVER extend duration by result"},
+    "markout_mechanism_window_ms": {"primary": 1000, "secondary_descriptive": [500, 2000, 5000]},
+    "policy_evaluation_window_ms": {"from_event_start_to": 5000}
+  },
+  "H2": {
+    "definition": "S2 alone does NOT trigger H1 suppression gate; baseline behavior preserved in S2; H1 engages only at a causal S2->S3 transition (on S3)",
+    "not_claimed": ["S2 quoting profitable", "S2 spread-capture alpha", "S2 safe in all regimes"],
+    "purpose": "prevent needless widening of the S3 risk gate onto S2"
+  },
+  "state_freeze": {
+    "source_of_truth": "hashed br_lib.py assign_states/qbin/compute_state_feat/_side_stats_1w + br_bins.json (see hash manifest artifact 3)",
+    "canonical_window_ms": 1000,
+    "tick": 0.01,
+    "spread_representation": "ticks (stationary); normal_spr=ticks<=1, wide_spr=ticks>=2",
+    "imbalance_sign": {"adv_BID": "-imb", "adv_ASK": "+imb"},
+    "quantity_keys": {"BID": "bid_qty", "ASK": "ask_qty"},
+    "qbin": "6 bands from 5 edges [Q25,Q50,Q75,Q90,Q99]; NaN/None -> -1",
+    "frozen_bin_edges": {
+      "dep_frac": [0.009271, 0.127985, 0.482031, 0.749859, 0.974995],
+      "dep_vel": [11.10225, 58.1955, 270.14425, 998.858, 3211.4662],
+      "refill_vel": [8.842, 51.9555, 276.08175, 1719.337, 6431.57665],
+      "qty": [47.18125, 95.9635, 164.29575, 262.9875, 531.7708],
+      "cr_cnt": [4.0, 8.0, 23.0, 65.0, 197.0],
+      "consec": [0.0, 0.0, 0.0, 1.0, 4.0],
+      "adv": [-0.531428, 0.0, 0.531428, 0.853064, 0.992398],
+      "spread": "NOT_BINNED_uses_ticks"
+    },
+    "predicates": {
+      "consuming": "b_depv>=3", "consumed": "b_depf>=2",
+      "refilling": "b_refv>=3 AND rd_ratio>=0.8", "weak_refill": "b_refv<=1 OR rd_ratio<0.3",
+      "thin": "b_qty<=1", "adverse_mp": "b_adv>=3", "stable_mp": "b_adv<=2", "high_osc": "b_cr>=4"
+    },
+    "S2_definition": "consuming AND thin AND (wide_spr OR adverse_mp) AND weak_refill",
+    "S3_definition": "consuming AND refilling AND stable_mp",
+    "precedence_top_down": ["S2", "S4", "S3", "S1", "S5", "S0"],
+    "exit_condition": "re-evaluated each causal step from past-only book; no hysteresis beyond frozen predicates (H1 suppression persistence is a policy layer, not a state change)",
+    "dead_config_F3": "spread_bps/spread_z remain unused; not reactivated",
+    "no_new": ["calibration", "quantiles", "features"]
+  },
+  "validation_population": {
+    "frozen_cutoff_ts": 1784320049654,
+    "frozen_cutoff_iso": "2026-07-17T20:27:29.654Z",
+    "burned_for": ["discovery", "calibration", "model_development", "this_preregistration_design"],
+    "db_path": "D:/eclipse_scalper/data/microstructure.db",
+    "db_access": "file:...?mode=ro + PRAGMA query_only=1",
+    "immutability_anchor": "cutoff timestamp (not file size)",
+    "primary_holdout": {"first_N_usable_independent_calendar_days_after_cutoff": 40},
+    "usable_day_criteria": ["joint book_ticker+agg_trades coverage", "no serious collection gap", "state/fill reconstruction feasible", "minimum quote opportunity present"],
+    "accumulation_rule": "days accumulate forward; day enters only once complete+usable; no interim PnL/markout/policy before 40 usable days complete",
+    "underpowered_verdict_if_lt_40": "BOOK_STATE_H1_H2_HOLDOUT_UNDERPOWERED"
+  },
+  "primary_estimand": {
+    "definition": "Delta_EV_H1 = inventory-adjusted net PnL(P_H1) - inventory-adjusted net PnL(P_BASE)",
+    "comparison": "paired counterfactual, same event, same market path",
+    "question": "during S3 does attacked-side suppression increase net expectancy of the existing maker engine?",
+    "not_required": ["absolute PnL>0 alone", "beat NO-QUOTE", "make whole engine positive", "BUY/SELL magnitude symmetry", "positive at every horizon"],
+    "computability_caveat": "requires unresolved baseline inventory/unwind/exit model; frozen but not evaluable until operator resolves baseline_maker_contract.unresolved_fields"
+  },
+  "secondary_estimands": ["avoided_adverse_markout", "missed_profitable_fills", "spread_capture_loss", "fill_before_cancel", "cancel_before_fill", "quote_uptime", "fill_count", "inventory_exposure", "inventory_holding_duration", "unwind_cost", "max_inventory", "drawdown_contribution"],
+  "mandatory_decomposition": "avoided_adverse_selection - missed_profitable_fills - cancel_fill_race_loss - inventory_unwind_effect - fee_effect = Delta_EV_H1",
+  "H2_secondary_comparison": {"P_H1_S3_ONLY_vs_P_H1_S3_PLUS_S2": "preregistered, NOT run this turn"},
+  "fill_fee_latency_table": {
+    "fill_model": {"primary": "F3_queue_conservative", "secondary": "F2_trade_through", "diagnostic_only_not_evidence": "F1"},
+    "F3_mechanics": ["best_of_book_only", "visible_queue_ahead_at_placement", "own_0.5_ETH", "cumulative_opposite_aggressive_volume", "no_hidden_L2"],
+    "latency_ms": {"primary": 250, "sensitivities": [100, 500]},
+    "fee_bps_maker": {"primary": 1.0, "sensitivities": [0.0, 2.0], "ruling_must_be_robust_across": [0.0, 1.0, 2.0]},
+    "deep_bid_below_best": "NOT_IDENTIFIABLE_out_of_scope"
+  },
+  "controls": {
+    "primary_matched_control_required": false,
+    "reason": "primary is paired same-path comparison",
+    "secondary_pre_state_covariates_only": ["utc_hour", "past_volatility", "past_spread_ticks", "past_eth_return", "past_imbalance"],
+    "prohibited_matching_covariates": ["refill", "depletion", "move_before_fill", "post_state_microprice_movement", "future_fill", "future_markout"],
+    "mandatory_smd_table_fields": ["smd_before_matching", "smd_after_matching", "control_reuse", "unmatched_rate", "event_control_time_distance", "same_day_reuse", "top_control_concentration"]
+  },
+  "inference": {
+    "primary_unit": "calendar_day",
+    "also_report": ["raw_state_hits", "canonical_S3_events", "fill_opportunities", "actual_fills", "distinct_days", "effective_non_overlapping_events"],
+    "canonical_event_merge": "Stage-1-accepted construction",
+    "prohibited_claim_F1": "1s merge provides independence",
+    "independence_via": ["day_clustered_bootstrap", "leave_one_day_out", "paired_day_level_aggregation"],
+    "primary_ci": "day_clustered_95",
+    "secondary_ci": "90",
+    "permutation": "day_level_paired",
+    "multiple_testing_family": ["H1_primary_250ms", "latency_100ms", "latency_500ms", "H2_exclusion_comparison"],
+    "excluded_from_family": "discovery state x side x horizon grid"
+  },
+  "success_criteria": {
+    "H1_supported_all_of": [
+      "Delta_EV_H1 point estimate > 0",
+      "day-clustered CI95 lower bound >= 0",
+      "avoided adverse-selection exceeds missed profitable fills",
+      "contribution preserved after inventory/unwind",
+      "preserved at 250ms latency",
+      "leave-one-day-out sign stable across most days",
+      "not carried by a single day or a few events",
+      "preserved under F3 primary fill model"
+    ],
+    "H1_promising_but_unresolved": "point estimate positive AND decomposition right-direction BUT CI includes 0 or day-power insufficient",
+    "H1_not_supported": ["Delta_EV<=0", "gain only from fee/churn accounting", "missed profitable fills erase gain", "disappears after inventory/unwind"],
+    "H2_supported_iff": "adding S2 to suppression gate reduces or fails to improve net contribution vs S3-only",
+    "H2_forbidden_writeup": "S2 quoting is alpha"
+  },
+  "allowed_verdicts": {
+    "H1": ["BOOK_STATE_H1_POLICY_CONTRIBUTION_SUPPORTED", "BOOK_STATE_H1_POLICY_PROMISING_BUT_UNRESOLVED", "BOOK_STATE_H1_POLICY_NOT_SUPPORTED", "BOOK_STATE_H1_HOLDOUT_UNDERPOWERED"],
+    "H2": ["BOOK_STATE_H2_EXCLUSION_SUPPORTED", "BOOK_STATE_H2_EXCLUSION_UNRESOLVED", "BOOK_STATE_H2_EXCLUSION_NOT_SUPPORTED"],
+    "overall": "BOOK_STATE_H1_H2_VALIDATION_PREREGISTERED_PENDING_INDEPENDENT_REVIEW"
+  },
+  "prohibited_adaptations_after_holdout_open": ["change_S3_S2_thresholds", "change_state_features", "change_quote_action", "change_suppression_duration", "change_re_entry_condition", "change_primary_latency", "select_fee", "select_fill_model", "drop_bad_days", "create_new_subgroups", "flip_policy_direction_by_buy_sell_result", "select_markout_horizon", "extend_or_shorten_holdout", "add_policy_beyond_H1_H2"],
+  "no_auto_validation_start": true,
+  "next_gate": "full_independent_fresh_context_preregistration_review",
+  "this_turn_actions": {"holdout": false, "simulation": false, "pnl_markout": false, "threshold_change": false, "new_state": false, "deployment": false, "author_ratified": false}
+}

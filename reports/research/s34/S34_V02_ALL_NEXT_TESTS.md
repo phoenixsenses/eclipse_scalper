@@ -1,0 +1,1335 @@
+# S34 V02 All Next Tests
+
+Generated: `2026-06-29T19:28:45.618763+00:00`
+Scope: `{'rule': 'S34_V_ENGINE_V0_2_ETH_SELL_MAKER_LONG_H2_O20_W300_O5_DEEPBID', 'source_ledger': 'D:\\eclipse_scalper\\reports\\research\\s34\\S34_V02_ALPHA_NAVIGATION_OVERLAY_120D.json', 'n': 11, 'research_only': True}`
+
+## Executive Read
+
+V02 ledger N=11. H2 sum=1077.7 T3R=391.2; H4 sum=1742.6 T3R=826.5. Cancel-after-15m H4 sum=1332.4 T3R=488.8. Forced-sell expansion remains tiny-N: 2 fills.
+
+## 1. H3/H4 Shadow
+
+```json
+{
+  "h2": {
+    "n": 11,
+    "sum": 1077.7,
+    "mean": 98.0,
+    "median": 46.2,
+    "win_rate": 1.0,
+    "t3r": 391.2,
+    "min": 15.0,
+    "max": 302.2
+  },
+  "h3": {
+    "n": 11,
+    "sum": 1319.3,
+    "mean": 119.9,
+    "median": 104.6,
+    "win_rate": 0.909,
+    "t3r": 578.9,
+    "min": -27.3,
+    "max": 338.1
+  },
+  "h4": {
+    "n": 11,
+    "sum": 1742.6,
+    "mean": 158.4,
+    "median": 167.3,
+    "win_rate": 1.0,
+    "t3r": 826.5,
+    "min": 9.7,
+    "max": 397.5
+  },
+  "delta_h4_minus_h2": {
+    "n": 11,
+    "sum": 664.9,
+    "mean": 60.4,
+    "median": 86.5,
+    "win_rate": 0.545,
+    "t3r": 137.8,
+    "min": -59.1,
+    "max": 223.1
+  }
+}
+```
+
+## 2. H4 Tail / Giveback
+
+```json
+{
+  "h4_path_mfe": {
+    "n": 11,
+    "sum": 2445.1,
+    "mean": 222.3,
+    "median": 193.8,
+    "win_rate": 1.0,
+    "t3r": 1377.2,
+    "min": 51.4,
+    "max": 444.8
+  },
+  "h4_path_mae": {
+    "n": 11,
+    "sum": -607.5,
+    "mean": -55.2,
+    "median": -19.0,
+    "win_rate": 0.0,
+    "t3r": -597.1,
+    "min": -147.2,
+    "max": -2.2
+  },
+  "h4_giveback_from_mfe_to_exit": {
+    "n": 11,
+    "sum": 702.7,
+    "mean": 63.9,
+    "median": 41.7,
+    "win_rate": 1.0,
+    "t3r": 310.1,
+    "min": 9.9,
+    "max": 148.0
+  },
+  "h4_drawdown_series": {
+    "cum_bps": 1742.6,
+    "max_drawdown_bps": 0.0
+  },
+  "h2_drawdown_series": {
+    "cum_bps": 1077.7,
+    "max_drawdown_bps": 0.0
+  }
+}
+```
+
+## 3. H3/H4 Stop Compatibility
+
+```json
+{
+  "h2_sl150": {
+    "result": {
+      "n": 11,
+      "sum": 1083.5,
+      "mean": 98.5,
+      "median": 46.7,
+      "win_rate": 1.0,
+      "t3r": 392.5,
+      "min": 15.0,
+      "max": 306.4
+    },
+    "exits": {
+      "TIME": 11
+    }
+  },
+  "h3_sl150": {
+    "result": {
+      "n": 11,
+      "sum": 1319.3,
+      "mean": 119.9,
+      "median": 104.6,
+      "win_rate": 0.909,
+      "t3r": 578.9,
+      "min": -27.3,
+      "max": 338.1
+    },
+    "exits": {
+      "TIME": 11
+    }
+  },
+  "h4_sl150": {
+    "result": {
+      "n": 11,
+      "sum": 1742.6,
+      "mean": 158.4,
+      "median": 167.3,
+      "win_rate": 1.0,
+      "t3r": 826.5,
+      "min": 9.7,
+      "max": 397.5
+    },
+    "exits": {
+      "TIME": 11
+    }
+  },
+  "h4_sl100": {
+    "result": {
+      "n": 11,
+      "sum": 878.1,
+      "mean": 79.8,
+      "median": 107.0,
+      "win_rate": 0.727,
+      "t3r": 142.0,
+      "min": -106.6,
+      "max": 397.5
+    },
+    "exits": {
+      "SL": 3,
+      "TIME": 8
+    }
+  }
+}
+```
+
+## 4. Fill Delay Cutoff
+
+```json
+{
+  "by_delay_h2": {
+    "5to15m": {
+      "n": 5,
+      "sum": 584.4,
+      "mean": 116.9,
+      "median": 137.4,
+      "win_rate": 1.0,
+      "t3r": 62.8,
+      "min": 16.6,
+      "max": 229.5
+    },
+    "gt15m": {
+      "n": 2,
+      "sum": 34.7,
+      "mean": 17.3,
+      "median": 17.3,
+      "win_rate": 1.0,
+      "t3r": 34.7,
+      "min": 15.0,
+      "max": 19.7
+    },
+    "lt5m": {
+      "n": 4,
+      "sum": 458.5,
+      "mean": 114.6,
+      "median": 63.9,
+      "win_rate": 1.0,
+      "t3r": 28.6,
+      "min": 28.6,
+      "max": 302.2
+    }
+  },
+  "by_delay_h4": {
+    "5to15m": {
+      "n": 5,
+      "sum": 854.0,
+      "mean": 170.8,
+      "median": 168.2,
+      "win_rate": 1.0,
+      "t3r": 239.7,
+      "min": 107.0,
+      "max": 275.7
+    },
+    "gt15m": {
+      "n": 2,
+      "sum": 410.2,
+      "mean": 205.1,
+      "median": 205.1,
+      "win_rate": 1.0,
+      "t3r": 410.2,
+      "min": 167.3,
+      "max": 242.8
+    },
+    "lt5m": {
+      "n": 4,
+      "sum": 478.4,
+      "mean": 119.6,
+      "median": 35.6,
+      "win_rate": 1.0,
+      "t3r": 9.7,
+      "min": 9.7,
+      "max": 397.5
+    }
+  },
+  "cancel_after_15m_h2": {
+    "n": 9,
+    "sum": 1043.0,
+    "mean": 115.9,
+    "median": 83.6,
+    "win_rate": 1.0,
+    "t3r": 356.6,
+    "min": 16.6,
+    "max": 302.2
+  },
+  "cancel_after_15m_h4": {
+    "n": 9,
+    "sum": 1332.4,
+    "mean": 148.0,
+    "median": 132.7,
+    "win_rate": 1.0,
+    "t3r": 488.8,
+    "min": 9.7,
+    "max": 397.5
+  }
+}
+```
+
+## 5. O15/O20 Execution Surface
+
+```json
+{
+  "current_o20_w300_h2": {
+    "n": 11,
+    "sum": 1077.7,
+    "mean": 98.0,
+    "median": 46.2,
+    "win_rate": 1.0,
+    "t3r": 391.2,
+    "min": 15.0,
+    "max": 302.2
+  },
+  "heavy_30d_best_from_prior_run": "V02 baseline filled N=7 sum=933.9 median=137.4 T3R=247.5. Best fixed horizon is 240m with T3R=449.0. Best giveback is peak80_gb40 with T3R=274.1. Best execution cell is O15_W300. Mechanism expansion filled N=2 T3R=113.4.",
+  "surface_120d_light": {
+    "O10_W120": {
+      "fills": 11,
+      "legs": {
+        "initial": 3,
+        "replacement": 8
+      },
+      "result": {
+        "n": 11,
+        "sum": 1034.2,
+        "mean": 94.0,
+        "median": 46.2,
+        "win_rate": 1.0,
+        "t3r": 356.1,
+        "min": 13.3,
+        "max": 293.6
+      }
+    },
+    "O10_W180": {
+      "fills": 11,
+      "legs": {
+        "initial": 5,
+        "replacement": 6
+      },
+      "result": {
+        "n": 11,
+        "sum": 1048.8,
+        "mean": 95.3,
+        "median": 46.2,
+        "win_rate": 1.0,
+        "t3r": 370.9,
+        "min": 15.0,
+        "max": 293.6
+      }
+    },
+    "O10_W300": {
+      "fills": 11,
+      "legs": {
+        "initial": 5,
+        "replacement": 6
+      },
+      "result": {
+        "n": 11,
+        "sum": 1048.8,
+        "mean": 95.3,
+        "median": 46.2,
+        "win_rate": 1.0,
+        "t3r": 370.9,
+        "min": 15.0,
+        "max": 293.6
+      }
+    },
+    "O10_W600": {
+      "fills": 10,
+      "legs": {
+        "initial": 5,
+        "replacement": 5
+      },
+      "result": {
+        "n": 10,
+        "sum": 894.0,
+        "mean": 89.4,
+        "median": 39.6,
+        "win_rate": 1.0,
+        "t3r": 220.6,
+        "min": 15.0,
+        "max": 293.6
+      }
+    },
+    "O15_W120": {
+      "fills": 11,
+      "legs": {
+        "initial": 2,
+        "replacement": 9
+      },
+      "result": {
+        "n": 11,
+        "sum": 1032.3,
+        "mean": 93.8,
+        "median": 46.2,
+        "win_rate": 1.0,
+        "t3r": 350.1,
+        "min": 13.3,
+        "max": 297.7
+      }
+    },
+    "O15_W180": {
+      "fills": 11,
+      "legs": {
+        "initial": 3,
+        "replacement": 8
+      },
+      "result": {
+        "n": 11,
+        "sum": 1045.5,
+        "mean": 95.0,
+        "median": 46.2,
+        "win_rate": 1.0,
+        "t3r": 363.6,
+        "min": 15.0,
+        "max": 297.7
+      }
+    },
+    "O15_W300": {
+      "fills": 11,
+      "legs": {
+        "initial": 5,
+        "replacement": 6
+      },
+      "result": {
+        "n": 11,
+        "sum": 1064.7,
+        "mean": 96.8,
+        "median": 46.2,
+        "win_rate": 1.0,
+        "t3r": 382.8,
+        "min": 15.0,
+        "max": 297.7
+      }
+    },
+    "O15_W600": {
+      "fills": 10,
+      "legs": {
+        "initial": 5,
+        "replacement": 5
+      },
+      "result": {
+        "n": 10,
+        "sum": 909.9,
+        "mean": 91.0,
+        "median": 41.9,
+        "win_rate": 1.0,
+        "t3r": 235.5,
+        "min": 15.0,
+        "max": 297.7
+      }
+    },
+    "O20_W120": {
+      "fills": 11,
+      "legs": {
+        "initial": 2,
+        "replacement": 9
+      },
+      "result": {
+        "n": 11,
+        "sum": 1044.5,
+        "mean": 95.0,
+        "median": 46.2,
+        "win_rate": 1.0,
+        "t3r": 357.8,
+        "min": 13.3,
+        "max": 302.2
+      }
+    },
+    "O20_W180": {
+      "fills": 11,
+      "legs": {
+        "initial": 3,
+        "replacement": 8
+      },
+      "result": {
+        "n": 11,
+        "sum": 1061.7,
+        "mean": 96.5,
+        "median": 46.2,
+        "win_rate": 1.0,
+        "t3r": 375.3,
+        "min": 15.0,
+        "max": 302.2
+      }
+    },
+    "O20_W300": {
+      "fills": 11,
+      "legs": {
+        "initial": 4,
+        "replacement": 7
+      },
+      "result": {
+        "n": 11,
+        "sum": 1077.7,
+        "mean": 98.0,
+        "median": 46.2,
+        "win_rate": 1.0,
+        "t3r": 391.2,
+        "min": 15.0,
+        "max": 302.2
+      }
+    },
+    "O20_W600": {
+      "fills": 10,
+      "legs": {
+        "initial": 5,
+        "replacement": 5
+      },
+      "result": {
+        "n": 10,
+        "sum": 934.9,
+        "mean": 93.5,
+        "median": 45.2,
+        "win_rate": 1.0,
+        "t3r": 253.9,
+        "min": 15.0,
+        "max": 302.2
+      }
+    },
+    "O25_W120": {
+      "fills": 11,
+      "legs": {
+        "initial": 2,
+        "replacement": 9
+      },
+      "result": {
+        "n": 11,
+        "sum": 1046.0,
+        "mean": 95.1,
+        "median": 46.2,
+        "win_rate": 1.0,
+        "t3r": 354.1,
+        "min": 13.3,
+        "max": 307.3
+      }
+    },
+    "O25_W180": {
+      "fills": 11,
+      "legs": {
+        "initial": 2,
+        "replacement": 9
+      },
+      "result": {
+        "n": 11,
+        "sum": 1048.1,
+        "mean": 95.3,
+        "median": 46.2,
+        "win_rate": 1.0,
+        "t3r": 356.5,
+        "min": 13.5,
+        "max": 307.3
+      }
+    },
+    "O25_W300": {
+      "fills": 11,
+      "legs": {
+        "initial": 2,
+        "replacement": 9
+      },
+      "result": {
+        "n": 11,
+        "sum": 1050.8,
+        "mean": 95.5,
+        "median": 46.2,
+        "win_rate": 1.0,
+        "t3r": 359.3,
+        "min": 14.6,
+        "max": 307.3
+      }
+    },
+    "O25_W600": {
+      "fills": 10,
+      "legs": {
+        "initial": 4,
+        "replacement": 6
+      },
+      "result": {
+        "n": 10,
+        "sum": 930.9,
+        "mean": 93.1,
+        "median": 48.9,
+        "win_rate": 1.0,
+        "t3r": 236.5,
+        "min": 7.5,
+        "max": 307.3
+      }
+    },
+    "O30_W120": {
+      "fills": 11,
+      "legs": {
+        "initial": 2,
+        "replacement": 9
+      },
+      "result": {
+        "n": 11,
+        "sum": 1055.4,
+        "mean": 95.9,
+        "median": 46.2,
+        "win_rate": 1.0,
+        "t3r": 358.4,
+        "min": 13.3,
+        "max": 312.5
+      }
+    },
+    "O30_W180": {
+      "fills": 11,
+      "legs": {
+        "initial": 2,
+        "replacement": 9
+      },
+      "result": {
+        "n": 11,
+        "sum": 1057.5,
+        "mean": 96.1,
+        "median": 46.2,
+        "win_rate": 1.0,
+        "t3r": 360.8,
+        "min": 13.5,
+        "max": 312.5
+      }
+    },
+    "O30_W300": {
+      "fills": 11,
+      "legs": {
+        "initial": 2,
+        "replacement": 9
+      },
+      "result": {
+        "n": 11,
+        "sum": 1060.3,
+        "mean": 96.4,
+        "median": 46.2,
+        "win_rate": 1.0,
+        "t3r": 363.5,
+        "min": 14.6,
+        "max": 312.5
+      }
+    },
+    "O30_W600": {
+      "fills": 10,
+      "legs": {
+        "initial": 4,
+        "replacement": 6
+      },
+      "result": {
+        "n": 10,
+        "sum": 947.6,
+        "mean": 94.8,
+        "median": 49.4,
+        "win_rate": 1.0,
+        "t3r": 241.8,
+        "min": 7.5,
+        "max": 312.5
+      }
+    }
+  }
+}
+```
+
+## 6. Forced-Sell Deep-Bid Expansion
+
+```json
+{
+  "source": "S34_V02_NEXT_GEN_ALPHA_RESEARCH_30D mechanism_expansion; 120d full expansion timed out in previous run",
+  "result": {
+    "sell_notional_p95": 43289106.1,
+    "candidates_total": 2,
+    "filled_n": 2,
+    "result": {
+      "n": 2,
+      "sum": 113.4,
+      "mean": 56.7,
+      "median": 56.7,
+      "win_rate": 1.0,
+      "t3r": 113.4,
+      "min": 1.5,
+      "max": 111.9
+    },
+    "sample": [
+      {
+        "status": "FILLED",
+        "bucket": 1780245000000,
+        "utc": "2026-05-31T16:30:00+00:00",
+        "sell_notional": 104841477.5,
+        "buy_notional": 39014994.4,
+        "depth_bps": 32.2,
+        "prior4h_bps": -79.5,
+        "bid_depth_usd": 401765.1,
+        "fill_delay_sec": 2116.0,
+        "net_2h_bps": 1.4806019893148363
+      },
+      {
+        "status": "FILLED",
+        "bucket": 1780326900000,
+        "utc": "2026-06-01T15:15:00+00:00",
+        "sell_notional": 70292334.3,
+        "buy_notional": 35571981.2,
+        "depth_bps": 34.0,
+        "prior4h_bps": -67.2,
+        "bid_depth_usd": 764272.1,
+        "fill_delay_sec": 313.0,
+        "net_2h_bps": 111.93661092802381
+      }
+    ]
+  }
+}
+```
+
+## 7. Absorption Without Cascade
+
+```json
+{
+  "proxy": "same forced-sell expansion, but interpreted as no-large-liquidation absorption proxy",
+  "result": {
+    "sell_notional_p95": 43289106.1,
+    "candidates_total": 2,
+    "filled_n": 2,
+    "result": {
+      "n": 2,
+      "sum": 113.4,
+      "mean": 56.7,
+      "median": 56.7,
+      "win_rate": 1.0,
+      "t3r": 113.4,
+      "min": 1.5,
+      "max": 111.9
+    },
+    "sample": [
+      {
+        "status": "FILLED",
+        "bucket": 1780245000000,
+        "utc": "2026-05-31T16:30:00+00:00",
+        "sell_notional": 104841477.5,
+        "buy_notional": 39014994.4,
+        "depth_bps": 32.2,
+        "prior4h_bps": -79.5,
+        "bid_depth_usd": 401765.1,
+        "fill_delay_sec": 2116.0,
+        "net_2h_bps": 1.4806019893148363
+      },
+      {
+        "status": "FILLED",
+        "bucket": 1780326900000,
+        "utc": "2026-06-01T15:15:00+00:00",
+        "sell_notional": 70292334.3,
+        "buy_notional": 35571981.2,
+        "depth_bps": 34.0,
+        "prior4h_bps": -67.2,
+        "bid_depth_usd": 764272.1,
+        "fill_delay_sec": 313.0,
+        "net_2h_bps": 111.93661092802381
+      }
+    ]
+  },
+  "verdict": "N too small; mechanism lead only"
+}
+```
+
+## 8. BTC/SOL Context at H4
+
+```json
+{
+  "by_btc_4h": {
+    "btc_down": {
+      "n": 1,
+      "sum": 9.7,
+      "mean": 9.7,
+      "median": 9.7,
+      "win_rate": 1.0,
+      "t3r": 9.7,
+      "min": 9.7,
+      "max": 9.7
+    },
+    "btc_up": {
+      "n": 10,
+      "sum": 1732.9,
+      "mean": 173.3,
+      "median": 167.8,
+      "win_rate": 1.0,
+      "t3r": 816.8,
+      "min": 31.5,
+      "max": 397.5
+    }
+  },
+  "by_sol_4h": {
+    "sol_up": {
+      "n": 11,
+      "sum": 1742.6,
+      "mean": 158.4,
+      "median": 167.3,
+      "win_rate": 1.0,
+      "t3r": 826.5,
+      "min": 9.7,
+      "max": 397.5
+    }
+  },
+  "btc_4h_bps": {
+    "n": 11,
+    "sum": 1489.1,
+    "mean": 135.4,
+    "median": 136.0,
+    "win_rate": 0.909,
+    "t3r": 759.2,
+    "min": -7.3,
+    "max": 302.5
+  },
+  "sol_4h_bps": {
+    "n": 9,
+    "sum": 2477.8,
+    "mean": 275.3,
+    "median": 170.6,
+    "win_rate": 1.0,
+    "t3r": 836.8,
+    "min": 31.2,
+    "max": 591.6
+  }
+}
+```
+
+## 9. Rebound Ignition Timing
+
+```json
+{
+  "rebound20_sec": {
+    "n": 11,
+    "sum": 12200.0,
+    "mean": 1109.1,
+    "median": 856.0,
+    "win_rate": 1.0,
+    "t3r": 3986.0,
+    "min": 29.0,
+    "max": 4588.0
+  },
+  "rebound50_sec": {
+    "n": 11,
+    "sum": 30133.0,
+    "mean": 2739.4,
+    "median": 1838.0,
+    "win_rate": 1.0,
+    "t3r": 12625.0,
+    "min": 78.0,
+    "max": 6741.0
+  },
+  "rebound80_sec": {
+    "n": 10,
+    "sum": 33172.0,
+    "mean": 3317.2,
+    "median": 2097.0,
+    "win_rate": 1.0,
+    "t3r": 13265.0,
+    "min": 644.0,
+    "max": 10567.0
+  },
+  "by_rebound50_within_30m_h4": {
+    "False": {
+      "n": 8,
+      "sum": 1135.0,
+      "mean": 141.9,
+      "median": 150.0,
+      "win_rate": 1.0,
+      "t3r": 448.3,
+      "min": 9.7,
+      "max": 275.7
+    },
+    "True": {
+      "n": 3,
+      "sum": 607.6,
+      "mean": 202.5,
+      "median": 170.3,
+      "win_rate": 1.0,
+      "t3r": 607.6,
+      "min": 39.7,
+      "max": 397.5
+    }
+  }
+}
+```
+
+## 10. MFE Late Runner
+
+```json
+{
+  "h4_runner_count": 6,
+  "by_h4_runner": {
+    "False": {
+      "n": 5,
+      "sum": 358.2,
+      "mean": 71.6,
+      "median": 39.7,
+      "win_rate": 1.0,
+      "t3r": 41.2,
+      "min": 9.7,
+      "max": 170.3
+    },
+    "True": {
+      "n": 6,
+      "sum": 1384.3,
+      "mean": 230.7,
+      "median": 205.5,
+      "win_rate": 1.0,
+      "t3r": 468.3,
+      "min": 132.7,
+      "max": 397.5
+    }
+  },
+  "mfe_time_h4": {
+    "n": 11,
+    "sum": 103896.0,
+    "mean": 9445.1,
+    "median": 9686.0,
+    "win_rate": 1.0,
+    "t3r": 62063.0,
+    "min": 3754.0,
+    "max": 13985.0
+  },
+  "mfe_bps_h4": {
+    "n": 11,
+    "sum": 2445.1,
+    "mean": 222.3,
+    "median": 193.8,
+    "win_rate": 1.0,
+    "t3r": 1377.2,
+    "min": 51.4,
+    "max": 444.8
+  }
+}
+```
+
+## 11. State Machine v1
+
+```json
+{
+  "state_counts": {
+    "LLLLHH": 1,
+    "HHHMHH": 1,
+    "LMHHHM": 2,
+    "LLMHMH": 1,
+    "MMHHHH": 1,
+    "LMLLHM": 1,
+    "HMMMMM": 1,
+    "MMHMHL": 1,
+    "MLLHHM": 1,
+    "LHMHHH": 1
+  },
+  "state_outcomes_h4": {
+    "HHHMHH": {
+      "n": 1,
+      "sum": 9.7,
+      "mean": 9.7,
+      "median": 9.7,
+      "win_rate": 1.0,
+      "t3r": 9.7,
+      "min": 9.7,
+      "max": 9.7
+    },
+    "HMMMMM": {
+      "n": 1,
+      "sum": 170.3,
+      "mean": 170.3,
+      "median": 170.3,
+      "win_rate": 1.0,
+      "t3r": 170.3,
+      "min": 170.3,
+      "max": 170.3
+    },
+    "LHMHHH": {
+      "n": 1,
+      "sum": 397.5,
+      "mean": 397.5,
+      "median": 397.5,
+      "win_rate": 1.0,
+      "t3r": 397.5,
+      "min": 397.5,
+      "max": 397.5
+    },
+    "LLLLHH": {
+      "n": 1,
+      "sum": 31.5,
+      "mean": 31.5,
+      "median": 31.5,
+      "win_rate": 1.0,
+      "t3r": 31.5,
+      "min": 31.5,
+      "max": 31.5
+    },
+    "LLMHMH": {
+      "n": 1,
+      "sum": 132.7,
+      "mean": 132.7,
+      "median": 132.7,
+      "win_rate": 1.0,
+      "t3r": 132.7,
+      "min": 132.7,
+      "max": 132.7
+    },
+    "LMHHHM": {
+      "n": 2,
+      "sum": 335.5,
+      "mean": 167.8,
+      "median": 167.8,
+      "win_rate": 1.0,
+      "t3r": 335.5,
+      "min": 167.3,
+      "max": 168.2
+    },
+    "LMLLHM": {
+      "n": 1,
+      "sum": 107.0,
+      "mean": 107.0,
+      "median": 107.0,
+      "win_rate": 1.0,
+      "t3r": 107.0,
+      "min": 107.0,
+      "max": 107.0
+    },
+    "MLLHHM": {
+      "n": 1,
+      "sum": 242.8,
+      "mean": 242.8,
+      "median": 242.8,
+      "win_rate": 1.0,
+      "t3r": 242.8,
+      "min": 242.8,
+      "max": 242.8
+    },
+    "MMHHHH": {
+      "n": 1,
+      "sum": 39.7,
+      "mean": 39.7,
+      "median": 39.7,
+      "win_rate": 1.0,
+      "t3r": 39.7,
+      "min": 39.7,
+      "max": 39.7
+    },
+    "MMHMHL": {
+      "n": 1,
+      "sum": 275.7,
+      "mean": 275.7,
+      "median": 275.7,
+      "win_rate": 1.0,
+      "t3r": 275.7,
+      "min": 275.7,
+      "max": 275.7
+    }
+  },
+  "simple_states": [
+    {
+      "fill_utc": "2026-04-16T13:52:52+00:00",
+      "state_path": [
+        "FILL",
+        "PAIN",
+        "REBOUND_20",
+        "REBOUND_50",
+        "H2_BETTER"
+      ],
+      "h2": 83.6,
+      "h4": 31.5
+    },
+    {
+      "fill_utc": "2026-04-18T03:57:08+00:00",
+      "state_path": [
+        "FILL",
+        "NO_PAIN",
+        "REBOUND_20",
+        "REBOUND_50",
+        "H2_BETTER"
+      ],
+      "h2": 28.6,
+      "h4": 9.7
+    },
+    {
+      "fill_utc": "2026-04-20T14:51:09.004000+00:00",
+      "state_path": [
+        "FILL",
+        "PAIN",
+        "REBOUND_20",
+        "REBOUND_50",
+        "RUNNER"
+      ],
+      "h2": 15.0,
+      "h4": 167.3
+    },
+    {
+      "fill_utc": "2026-04-20T14:51:13+00:00",
+      "state_path": [
+        "FILL",
+        "PAIN",
+        "REBOUND_20",
+        "REBOUND_50",
+        "RUNNER"
+      ],
+      "h2": 16.6,
+      "h4": 168.2
+    },
+    {
+      "fill_utc": "2026-06-16T04:44:40.005000+00:00",
+      "state_path": [
+        "FILL",
+        "NO_PAIN",
+        "REBOUND_20",
+        "REBOUND_50",
+        "RUNNER"
+      ],
+      "h2": 46.2,
+      "h4": 132.7
+    },
+    {
+      "fill_utc": "2026-06-17T01:21:26.001000+00:00",
+      "state_path": [
+        "FILL",
+        "NO_PAIN",
+        "REBOUND_20",
+        "REBOUND_50",
+        "H2_BETTER"
+      ],
+      "h2": 44.2,
+      "h4": 39.7
+    },
+    {
+      "fill_utc": "2026-06-20T14:14:30+00:00",
+      "state_path": [
+        "FILL",
+        "NO_PAIN",
+        "REBOUND_20",
+        "REBOUND_50",
+        "H2_BETTER"
+      ],
+      "h2": 154.8,
+      "h4": 107.0
+    },
+    {
+      "fill_utc": "2026-06-21T23:44:28.001000+00:00",
+      "state_path": [
+        "FILL",
+        "NO_PAIN",
+        "REBOUND_20",
+        "REBOUND_50",
+        "H2_BETTER"
+      ],
+      "h2": 229.5,
+      "h4": 170.3
+    },
+    {
+      "fill_utc": "2026-06-26T02:53:32.010000+00:00",
+      "state_path": [
+        "FILL",
+        "PAIN",
+        "REBOUND_20",
+        "REBOUND_50",
+        "RUNNER"
+      ],
+      "h2": 137.4,
+      "h4": 275.7
+    },
+    {
+      "fill_utc": "2026-06-26T11:50:59.001000+00:00",
+      "state_path": [
+        "FILL",
+        "PAIN",
+        "REBOUND_20",
+        "REBOUND_50",
+        "RUNNER"
+      ],
+      "h2": 19.7,
+      "h4": 242.8
+    },
+    {
+      "fill_utc": "2026-06-26T13:19:32.001000+00:00",
+      "state_path": [
+        "FILL",
+        "NO_PAIN",
+        "REBOUND_20",
+        "REBOUND_50",
+        "RUNNER"
+      ],
+      "h2": 302.2,
+      "h4": 397.5
+    }
+  ]
+}
+```
+
+## 12. Forward OOS Protocol
+
+```json
+{
+  "shadow_buckets_to_track": [
+    "H2_current",
+    "H3_shadow",
+    "H4_shadow",
+    "O15_W300_H4_shadow",
+    "O20_W300_H4_shadow"
+  ],
+  "review_gates": {
+    "N_lt_10": "observe_only",
+    "N_10_to_20": "early_confidence_only",
+    "N_ge_30": "paper_candidate_review"
+  },
+  "kill_or_pause": [
+    "T3R < 0 after N>=10",
+    "two losses below -150bps",
+    "H4 gives back more than 50% vs H2 over N>=10"
+  ]
+}
+```
+
+## 13. Tick/Book Execution Realism Proxy
+
+```json
+{
+  "fill_model_warning": "current model is top-of-book/mark conservative-cross, not true queue simulation",
+  "fill_delay": {
+    "n": 11,
+    "sum": 10021.8,
+    "mean": 911.1,
+    "median": 338.8,
+    "win_rate": 1.0,
+    "t3r": 2378.0,
+    "min": 37.1,
+    "max": 4285.5
+  },
+  "late_gt15m_count": 2,
+  "gap_proxy_mae_h4": {
+    "n": 11,
+    "sum": -607.5,
+    "mean": -55.2,
+    "median": -19.0,
+    "win_rate": 0.0,
+    "t3r": -597.1,
+    "min": -147.2,
+    "max": -2.2
+  },
+  "needs_600gb_tick_queue_test": true
+}
+```
+
+## 14. Shadow Ledger Reconciliation
+
+```json
+{
+  "v02_shadow_mirror_csv": {
+    "exists": true,
+    "rows": 11,
+    "filled_closed": 11,
+    "net_bps": {
+      "n": 11,
+      "sum": 1081.6,
+      "mean": 98.3,
+      "median": 46.3,
+      "win_rate": 1.0,
+      "t3r": 402.6,
+      "min": 13.3,
+      "max": 299.7
+    },
+    "latest_utc": "2026-06-26T13:19:32.001000+00:00",
+    "protocols": [
+      "S34_V_ENGINE_V0_2_ETH_SELL_MAKER_LONG_H2_O20_W300_O5_DEEPBID"
+    ]
+  },
+  "daily_guardrail_shadow": {
+    "v2_shadow_today": {
+      "closed": 0,
+      "cum_net_bps": 0.0,
+      "latest": "2026-06-29T17:44:52.234000+00:00 would_block  ",
+      "median_net_bps": null,
+      "signals": 72,
+      "would_block": 6
+    },
+    "v2_shadow_all_time": {
+      "closed": 9,
+      "cum_net_bps": -357.31574000728756,
+      "latest": "2026-06-29T17:44:52.234000+00:00 would_block  ",
+      "median_net_bps": -47.756366351064926,
+      "signals": 838,
+      "would_block": 102
+    }
+  },
+  "interpretation": "These are different buckets/models: v02 mirror is the frozen V02 maker lane; daily guardrail shadow references broad paper-trade guardrail signals and is not the same performance stream."
+}
+```
+
+## 15. Regime Identity Deep Test
+
+```json
+{
+  "by_eth_prior24_h2": {
+    "eth_prior_down": {
+      "n": 8,
+      "sum": 848.1,
+      "mean": 106.0,
+      "median": 63.9,
+      "win_rate": 1.0,
+      "t3r": 179.1,
+      "min": 15.0,
+      "max": 302.2
+    },
+    "eth_prior_up": {
+      "n": 3,
+      "sum": 229.5,
+      "mean": 76.5,
+      "median": 46.2,
+      "win_rate": 1.0,
+      "t3r": 229.5,
+      "min": 28.6,
+      "max": 154.8
+    }
+  },
+  "by_eth_prior24_h4": {
+    "eth_prior_down": {
+      "n": 8,
+      "sum": 1493.1,
+      "mean": 186.6,
+      "median": 169.3,
+      "win_rate": 1.0,
+      "t3r": 577.1,
+      "min": 31.5,
+      "max": 397.5
+    },
+    "eth_prior_up": {
+      "n": 3,
+      "sum": 249.4,
+      "mean": 83.1,
+      "median": 107.0,
+      "win_rate": 1.0,
+      "t3r": 249.4,
+      "min": 9.7,
+      "max": 132.7
+    }
+  },
+  "by_btc_prior24_h4": {
+    "btc_prior_down": {
+      "n": 7,
+      "sum": 1461.7,
+      "mean": 208.8,
+      "median": 170.3,
+      "win_rate": 1.0,
+      "t3r": 545.6,
+      "min": 39.7,
+      "max": 397.5
+    },
+    "btc_prior_up": {
+      "n": 4,
+      "sum": 280.9,
+      "mean": 70.2,
+      "median": 69.2,
+      "win_rate": 1.0,
+      "t3r": 9.7,
+      "min": 9.7,
+      "max": 132.7
+    }
+  },
+  "eth_prior24_bps": {
+    "n": 11,
+    "sum": -1859.2,
+    "mean": -169.0,
+    "median": -196.3,
+    "win_rate": 0.273,
+    "t3r": -2500.4,
+    "min": -701.4,
+    "max": 320.3
+  },
+  "btc_prior24_bps": {
+    "n": 11,
+    "sum": -1273.1,
+    "mean": -115.7,
+    "median": -129.6,
+    "win_rate": 0.364,
+    "t3r": -1634.1,
+    "min": -441.9,
+    "max": 315.8
+  }
+}
+```

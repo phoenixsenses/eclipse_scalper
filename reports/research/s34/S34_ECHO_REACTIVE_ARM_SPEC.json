@@ -1,0 +1,485 @@
+{
+  "tool": "echo_reactive_arm_spec",
+  "generated_utc": "2026-07-20T10:31:19.341188+00:00",
+  "n_causal": 118,
+  "n_tail": 14,
+  "frame": "PRE-DECLARED grids; TRADEOFF curves, NOT a chosen threshold. Forward locks the choice (OD-028/029). No edge claim. \u00a7163: stop caps magnitude not edge, cut whipsaws.",
+  "baseline_hold": {
+    "n": 118,
+    "wr": 69.5,
+    "mean": 41.2,
+    "sum": 4856.5,
+    "worst": -338.9,
+    "tail_n": 14
+  },
+  "grids": {
+    "stop_bps": [
+      null,
+      100.0,
+      120.0,
+      150.0,
+      200.0,
+      250.0
+    ],
+    "theta": [
+      0.5,
+      1.0,
+      1.5,
+      2.0,
+      3.0
+    ],
+    "react_k": [
+      4,
+      5,
+      6,
+      7
+    ]
+  },
+  "A_mech_stop": {
+    "None": {
+      "n": 118,
+      "wr": 69.5,
+      "mean": 41.2,
+      "sum": 4856.5,
+      "worst": -338.9,
+      "tail_n": 14,
+      "tail_only": {
+        "n": 14,
+        "wr": 0.0,
+        "mean": -186.8,
+        "sum": -2614.7,
+        "worst": -338.9,
+        "tail_n": 14
+      }
+    },
+    "100.0": {
+      "n": 118,
+      "wr": 61.9,
+      "mean": 30.5,
+      "sum": 3602.1,
+      "worst": -105.0,
+      "tail_n": 36,
+      "tail_only": {
+        "n": 14,
+        "wr": 0.0,
+        "mean": -105.0,
+        "sum": -1470.0,
+        "worst": -105.0,
+        "tail_n": 14
+      }
+    },
+    "120.0": {
+      "n": 118,
+      "wr": 64.4,
+      "mean": 34.0,
+      "sum": 4006.1,
+      "worst": -125.0,
+      "tail_n": 30,
+      "tail_only": {
+        "n": 14,
+        "wr": 0.0,
+        "mean": -125.0,
+        "sum": -1750.0,
+        "worst": -125.0,
+        "tail_n": 14
+      }
+    },
+    "150.0": {
+      "n": 118,
+      "wr": 67.8,
+      "mean": 36.6,
+      "sum": 4319.6,
+      "worst": -155.0,
+      "tail_n": 22,
+      "tail_only": {
+        "n": 14,
+        "wr": 0.0,
+        "mean": -152.9,
+        "sum": -2140.2,
+        "worst": -155.0,
+        "tail_n": 14
+      }
+    },
+    "200.0": {
+      "n": 118,
+      "wr": 69.5,
+      "mean": 39.1,
+      "sum": 4609.5,
+      "worst": -205.0,
+      "tail_n": 16,
+      "tail_only": {
+        "n": 14,
+        "wr": 0.0,
+        "mean": -179.2,
+        "sum": -2508.4,
+        "worst": -205.0,
+        "tail_n": 14
+      }
+    },
+    "250.0": {
+      "n": 118,
+      "wr": 69.5,
+      "mean": 39.2,
+      "sum": 4626.6,
+      "worst": -255.0,
+      "tail_n": 15,
+      "tail_only": {
+        "n": 14,
+        "wr": 0.0,
+        "mean": -188.8,
+        "sum": -2642.6,
+        "worst": -255.0,
+        "tail_n": 14
+      }
+    }
+  },
+  "B_reactive_tradeoff": {
+    "k4_theta0.5": {
+      "k": 4,
+      "theta": 0.5,
+      "n_cut": 67,
+      "tails_cut": 11,
+      "tail_catch_rate": 0.786,
+      "winners_whipsawed": 43,
+      "reactive_sum": 2293.7,
+      "reactive_mean": 19.4,
+      "reactive_tail_n": 4,
+      "delta_vs_hold": -2562.8
+    },
+    "k4_theta1.0": {
+      "k": 4,
+      "theta": 1.0,
+      "n_cut": 36,
+      "tails_cut": 6,
+      "tail_catch_rate": 0.429,
+      "winners_whipsawed": 23,
+      "reactive_sum": 3558.2,
+      "reactive_mean": 30.2,
+      "reactive_tail_n": 9,
+      "delta_vs_hold": -1298.3
+    },
+    "k4_theta1.5": {
+      "k": 4,
+      "theta": 1.5,
+      "n_cut": 24,
+      "tails_cut": 5,
+      "tail_catch_rate": 0.357,
+      "winners_whipsawed": 13,
+      "reactive_sum": 4161.1,
+      "reactive_mean": 35.3,
+      "reactive_tail_n": 10,
+      "delta_vs_hold": -695.4
+    },
+    "k4_theta2.0": {
+      "k": 4,
+      "theta": 2.0,
+      "n_cut": 21,
+      "tails_cut": 5,
+      "tail_catch_rate": 0.357,
+      "winners_whipsawed": 11,
+      "reactive_sum": 4460.8,
+      "reactive_mean": 37.8,
+      "reactive_tail_n": 10,
+      "delta_vs_hold": -395.7
+    },
+    "k4_theta3.0": {
+      "k": 4,
+      "theta": 3.0,
+      "n_cut": 14,
+      "tails_cut": 3,
+      "tail_catch_rate": 0.214,
+      "winners_whipsawed": 8,
+      "reactive_sum": 4284.0,
+      "reactive_mean": 36.3,
+      "reactive_tail_n": 12,
+      "delta_vs_hold": -572.6
+    },
+    "k5_theta0.5": {
+      "k": 5,
+      "theta": 0.5,
+      "n_cut": 67,
+      "tails_cut": 11,
+      "tail_catch_rate": 0.786,
+      "winners_whipsawed": 43,
+      "reactive_sum": 2379.6,
+      "reactive_mean": 20.2,
+      "reactive_tail_n": 5,
+      "delta_vs_hold": -2476.9
+    },
+    "k5_theta1.0": {
+      "k": 5,
+      "theta": 1.0,
+      "n_cut": 37,
+      "tails_cut": 7,
+      "tail_catch_rate": 0.5,
+      "winners_whipsawed": 23,
+      "reactive_sum": 3679.5,
+      "reactive_mean": 31.2,
+      "reactive_tail_n": 9,
+      "delta_vs_hold": -1177.0
+    },
+    "k5_theta1.5": {
+      "k": 5,
+      "theta": 1.5,
+      "n_cut": 25,
+      "tails_cut": 6,
+      "tail_catch_rate": 0.429,
+      "winners_whipsawed": 13,
+      "reactive_sum": 4159.4,
+      "reactive_mean": 35.2,
+      "reactive_tail_n": 10,
+      "delta_vs_hold": -697.1
+    },
+    "k5_theta2.0": {
+      "k": 5,
+      "theta": 2.0,
+      "n_cut": 21,
+      "tails_cut": 5,
+      "tail_catch_rate": 0.357,
+      "winners_whipsawed": 11,
+      "reactive_sum": 4381.6,
+      "reactive_mean": 37.1,
+      "reactive_tail_n": 11,
+      "delta_vs_hold": -474.9
+    },
+    "k5_theta3.0": {
+      "k": 5,
+      "theta": 3.0,
+      "n_cut": 14,
+      "tails_cut": 3,
+      "tail_catch_rate": 0.214,
+      "winners_whipsawed": 8,
+      "reactive_sum": 4225.7,
+      "reactive_mean": 35.8,
+      "reactive_tail_n": 13,
+      "delta_vs_hold": -630.8
+    },
+    "k6_theta0.5": {
+      "k": 6,
+      "theta": 0.5,
+      "n_cut": 70,
+      "tails_cut": 12,
+      "tail_catch_rate": 0.857,
+      "winners_whipsawed": 45,
+      "reactive_sum": 2358.5,
+      "reactive_mean": 20.0,
+      "reactive_tail_n": 4,
+      "delta_vs_hold": -2498.0
+    },
+    "k6_theta1.0": {
+      "k": 6,
+      "theta": 1.0,
+      "n_cut": 39,
+      "tails_cut": 9,
+      "tail_catch_rate": 0.643,
+      "winners_whipsawed": 23,
+      "reactive_sum": 3956.3,
+      "reactive_mean": 33.5,
+      "reactive_tail_n": 7,
+      "delta_vs_hold": -900.2
+    },
+    "k6_theta1.5": {
+      "k": 6,
+      "theta": 1.5,
+      "n_cut": 26,
+      "tails_cut": 7,
+      "tail_catch_rate": 0.5,
+      "winners_whipsawed": 13,
+      "reactive_sum": 4362.1,
+      "reactive_mean": 37.0,
+      "reactive_tail_n": 9,
+      "delta_vs_hold": -494.4
+    },
+    "k6_theta2.0": {
+      "k": 6,
+      "theta": 2.0,
+      "n_cut": 22,
+      "tails_cut": 6,
+      "tail_catch_rate": 0.429,
+      "winners_whipsawed": 11,
+      "reactive_sum": 4588.2,
+      "reactive_mean": 38.9,
+      "reactive_tail_n": 10,
+      "delta_vs_hold": -268.3
+    },
+    "k6_theta3.0": {
+      "k": 6,
+      "theta": 3.0,
+      "n_cut": 15,
+      "tails_cut": 4,
+      "tail_catch_rate": 0.286,
+      "winners_whipsawed": 8,
+      "reactive_sum": 4483.7,
+      "reactive_mean": 38.0,
+      "reactive_tail_n": 12,
+      "delta_vs_hold": -372.8
+    },
+    "k7_theta0.5": {
+      "k": 7,
+      "theta": 0.5,
+      "n_cut": 71,
+      "tails_cut": 13,
+      "tail_catch_rate": 0.929,
+      "winners_whipsawed": 45,
+      "reactive_sum": 2293.9,
+      "reactive_mean": 19.4,
+      "reactive_tail_n": 4,
+      "delta_vs_hold": -2562.6
+    },
+    "k7_theta1.0": {
+      "k": 7,
+      "theta": 1.0,
+      "n_cut": 40,
+      "tails_cut": 10,
+      "tail_catch_rate": 0.714,
+      "winners_whipsawed": 23,
+      "reactive_sum": 3841.0,
+      "reactive_mean": 32.6,
+      "reactive_tail_n": 7,
+      "delta_vs_hold": -1015.5
+    },
+    "k7_theta1.5": {
+      "k": 7,
+      "theta": 1.5,
+      "n_cut": 26,
+      "tails_cut": 7,
+      "tail_catch_rate": 0.5,
+      "winners_whipsawed": 13,
+      "reactive_sum": 4206.4,
+      "reactive_mean": 35.6,
+      "reactive_tail_n": 9,
+      "delta_vs_hold": -650.1
+    },
+    "k7_theta2.0": {
+      "k": 7,
+      "theta": 2.0,
+      "n_cut": 22,
+      "tails_cut": 6,
+      "tail_catch_rate": 0.429,
+      "winners_whipsawed": 11,
+      "reactive_sum": 4462.3,
+      "reactive_mean": 37.8,
+      "reactive_tail_n": 10,
+      "delta_vs_hold": -394.2
+    },
+    "k7_theta3.0": {
+      "k": 7,
+      "theta": 3.0,
+      "n_cut": 15,
+      "tails_cut": 4,
+      "tail_catch_rate": 0.286,
+      "winners_whipsawed": 8,
+      "reactive_sum": 4348.2,
+      "reactive_mean": 36.8,
+      "reactive_tail_n": 12,
+      "delta_vs_hold": -508.3
+    }
+  },
+  "C_info_curve": [
+    {
+      "k": 1,
+      "be_ratio": 0.502,
+      "eth_own_pnl": 0.828,
+      "btc_ret": 0.78,
+      "new_btc_sell_cnt": 0.58,
+      "new_btc_sell_not": 0.703,
+      "new_eth_sell_cnt": 0.6
+    },
+    {
+      "k": 2,
+      "be_ratio": 0.525,
+      "eth_own_pnl": 0.782,
+      "btc_ret": 0.788,
+      "new_btc_sell_cnt": 0.657,
+      "new_btc_sell_not": 0.736,
+      "new_eth_sell_cnt": 0.637
+    },
+    {
+      "k": 3,
+      "be_ratio": 0.586,
+      "eth_own_pnl": 0.773,
+      "btc_ret": 0.788,
+      "new_btc_sell_cnt": 0.753,
+      "new_btc_sell_not": 0.791,
+      "new_eth_sell_cnt": 0.692
+    },
+    {
+      "k": 4,
+      "be_ratio": 0.63,
+      "eth_own_pnl": 0.739,
+      "btc_ret": 0.757,
+      "new_btc_sell_cnt": 0.752,
+      "new_btc_sell_not": 0.801,
+      "new_eth_sell_cnt": 0.678
+    },
+    {
+      "k": 5,
+      "be_ratio": 0.653,
+      "eth_own_pnl": 0.782,
+      "btc_ret": 0.788,
+      "new_btc_sell_cnt": 0.744,
+      "new_btc_sell_not": 0.812,
+      "new_eth_sell_cnt": 0.68
+    },
+    {
+      "k": 6,
+      "be_ratio": 0.714,
+      "eth_own_pnl": 0.815,
+      "btc_ret": 0.811,
+      "new_btc_sell_cnt": 0.778,
+      "new_btc_sell_not": 0.85,
+      "new_eth_sell_cnt": 0.708
+    },
+    {
+      "k": 7,
+      "be_ratio": 0.742,
+      "eth_own_pnl": 0.834,
+      "btc_ret": 0.843,
+      "new_btc_sell_cnt": 0.829,
+      "new_btc_sell_not": 0.866,
+      "new_eth_sell_cnt": 0.761
+    },
+    {
+      "k": 8,
+      "be_ratio": 0.73,
+      "eth_own_pnl": 0.842,
+      "btc_ret": 0.845,
+      "new_btc_sell_cnt": 0.822,
+      "new_btc_sell_not": 0.851,
+      "new_eth_sell_cnt": 0.755
+    },
+    {
+      "k": 10,
+      "be_ratio": 0.729,
+      "eth_own_pnl": 0.856,
+      "btc_ret": 0.871,
+      "new_btc_sell_cnt": 0.817,
+      "new_btc_sell_not": 0.843,
+      "new_eth_sell_cnt": 0.753
+    }
+  ],
+  "D_late_flush": {
+    "medians": {
+      "be_k1": 0.462,
+      "be_k10": 0.791
+    },
+    "late_flush": {
+      "n": 11,
+      "tail_rate": 0.545,
+      "mean_net_4h": -73.0,
+      "med_btc_ret_10m": -17.0,
+      "med_new_btc_sell_cnt_10m": 6,
+      "med_new_btc_sell_not_10m_$M": 1.704,
+      "med_new_eth_sell_cnt_10m": 5
+    },
+    "stays_low": {
+      "n": 48,
+      "tail_rate": 0.042,
+      "mean_net_4h": 58.5,
+      "med_btc_ret_10m": 6.6,
+      "med_new_btc_sell_cnt_10m": 0.0,
+      "med_new_btc_sell_not_10m_$M": 0.088,
+      "med_new_eth_sell_cnt_10m": 1.0
+    }
+  }
+}

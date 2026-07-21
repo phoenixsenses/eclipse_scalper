@@ -1,0 +1,431 @@
+{
+  "generated_at": "2026-06-25T18:29:54.649593+00:00",
+  "lookback_days": 120,
+  "liq_side": "SELL",
+  "direction": "SHORT",
+  "tp_bps": 60.0,
+  "sl_bps": 40.0,
+  "be_bps": 30.0,
+  "results": [
+    {
+      "symbol": "ETHUSDT",
+      "threshold": 50000.0,
+      "total_signals": 1148,
+      "real_closed": 415,
+      "no_fill": 733,
+      "no_fill_pct": 0.6385017421602788,
+      "all": {
+        "n": 415,
+        "median": -8.239729106109877,
+        "mean": 1.1855502577111925,
+        "cum": 492.0033569501449,
+        "wr": 0.40963855421686746,
+        "top3_removed": 230.38937900211715,
+        "positive_days": 16,
+        "total_days": 32
+      },
+      "second_half": {
+        "n": 415,
+        "median": -8.239729106109877,
+        "mean": 1.1855502577111925,
+        "cum": 492.0033569501449,
+        "wr": 0.40963855421686746,
+        "top3_removed": 230.38937900211715,
+        "positive_days": 16,
+        "total_days": 32
+      }
+    },
+    {
+      "symbol": "ETHUSDT",
+      "threshold": 100000.0,
+      "total_signals": 800,
+      "real_closed": 324,
+      "no_fill": 476,
+      "no_fill_pct": 0.595,
+      "all": {
+        "n": 324,
+        "median": -7.282418884999673,
+        "mean": 6.2246159047039065,
+        "cum": 2016.7755531240657,
+        "wr": 0.45987654320987653,
+        "top3_removed": 1750.1642907650796,
+        "positive_days": 23,
+        "total_days": 32
+      },
+      "second_half": {
+        "n": 324,
+        "median": -7.282418884999673,
+        "mean": 6.2246159047039065,
+        "cum": 2016.7755531240657,
+        "wr": 0.45987654320987653,
+        "top3_removed": 1750.1642907650796,
+        "positive_days": 23,
+        "total_days": 32
+      }
+    },
+    {
+      "symbol": "ETHUSDT",
+      "threshold": 200000.0,
+      "total_signals": 492,
+      "real_closed": 230,
+      "no_fill": 262,
+      "no_fill_pct": 0.532520325203252,
+      "all": {
+        "n": 230,
+        "median": -6.9754396109326375,
+        "mean": 8.547066790582393,
+        "cum": 1965.8253618339506,
+        "wr": 0.4652173913043478,
+        "top3_removed": 1699.2140994749645,
+        "positive_days": 21,
+        "total_days": 31
+      },
+      "second_half": {
+        "n": 201,
+        "median": -6.7778129320595895,
+        "mean": 9.202160218812113,
+        "cum": 1849.6342039812346,
+        "wr": 0.472636815920398,
+        "top3_removed": 1583.0229416222485,
+        "positive_days": 18,
+        "total_days": 26
+      }
+    },
+    {
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "total_signals": 203,
+      "real_closed": 117,
+      "no_fill": 86,
+      "no_fill_pct": 0.4236453201970443,
+      "all": {
+        "n": 117,
+        "median": 47.49733627844412,
+        "mean": 20.566543615403848,
+        "cum": 2406.28560300225,
+        "wr": 0.5726495726495726,
+        "top3_removed": 2153.774461760379,
+        "positive_days": 21,
+        "total_days": 28
+      },
+      "second_half": {
+        "n": 79,
+        "median": 50.23114884471825,
+        "mean": 23.711386307838225,
+        "cum": 1873.1995183192198,
+        "wr": 0.620253164556962,
+        "top3_removed": 1620.6883770773484,
+        "positive_days": 14,
+        "total_days": 20
+      }
+    },
+    {
+      "symbol": "ETHUSDT",
+      "threshold": 1000000.0,
+      "total_signals": 107,
+      "real_closed": 76,
+      "no_fill": 31,
+      "no_fill_pct": 0.2897196261682243,
+      "all": {
+        "n": 76,
+        "median": 52.03317318619689,
+        "mean": 29.04749528730685,
+        "cum": 2207.609641835321,
+        "wr": 0.6842105263157895,
+        "top3_removed": 1976.7300924435096,
+        "positive_days": 20,
+        "total_days": 25
+      },
+      "second_half": {
+        "n": 43,
+        "median": 52.493319691872635,
+        "mean": 40.10039858088423,
+        "cum": 1724.3171389780218,
+        "wr": 0.8372093023255814,
+        "top3_removed": 1493.4375895862106,
+        "positive_days": 12,
+        "total_days": 13
+      }
+    },
+    {
+      "symbol": "BTCUSDT",
+      "threshold": 50000.0,
+      "total_signals": 1202,
+      "real_closed": 425,
+      "no_fill": 777,
+      "no_fill_pct": 0.6464226289517471,
+      "all": {
+        "n": 425,
+        "median": -8.458460343594894,
+        "mean": -1.7100232453431845,
+        "cum": -726.7598792708535,
+        "wr": 0.3976470588235294,
+        "top3_removed": -936.8439208584151,
+        "positive_days": 14,
+        "total_days": 32
+      },
+      "second_half": {
+        "n": 425,
+        "median": -8.458460343594894,
+        "mean": -1.7100232453431845,
+        "cum": -726.7598792708535,
+        "wr": 0.3976470588235294,
+        "top3_removed": -936.8439208584151,
+        "positive_days": 14,
+        "total_days": 32
+      }
+    },
+    {
+      "symbol": "BTCUSDT",
+      "threshold": 100000.0,
+      "total_signals": 846,
+      "real_closed": 311,
+      "no_fill": 535,
+      "no_fill_pct": 0.6323877068557919,
+      "all": {
+        "n": 311,
+        "median": -6.826452380989371,
+        "mean": 2.91043654622553,
+        "cum": 905.1457658761399,
+        "wr": 0.4437299035369775,
+        "top3_removed": 697.6798421284644,
+        "positive_days": 16,
+        "total_days": 32
+      },
+      "second_half": {
+        "n": 311,
+        "median": -6.826452380989371,
+        "mean": 2.91043654622553,
+        "cum": 905.1457658761399,
+        "wr": 0.4437299035369775,
+        "top3_removed": 697.6798421284644,
+        "positive_days": 16,
+        "total_days": 32
+      }
+    },
+    {
+      "symbol": "BTCUSDT",
+      "threshold": 200000.0,
+      "total_signals": 530,
+      "real_closed": 212,
+      "no_fill": 318,
+      "no_fill_pct": 0.6,
+      "all": {
+        "n": 212,
+        "median": -6.786971699694963,
+        "mean": 6.191646579348752,
+        "cum": 1312.6290748219355,
+        "wr": 0.45754716981132076,
+        "top3_removed": 1127.001288421439,
+        "positive_days": 19,
+        "total_days": 31
+      },
+      "second_half": {
+        "n": 207,
+        "median": -6.826452380989371,
+        "mean": 6.3205282815092545,
+        "cum": 1308.3493542724157,
+        "wr": 0.45410628019323673,
+        "top3_removed": 1122.7215678719194,
+        "positive_days": 19,
+        "total_days": 31
+      }
+    },
+    {
+      "symbol": "BTCUSDT",
+      "threshold": 500000.0,
+      "total_signals": 198,
+      "real_closed": 106,
+      "no_fill": 92,
+      "no_fill_pct": 0.46464646464646464,
+      "all": {
+        "n": 106,
+        "median": -6.593521854132138,
+        "mean": 13.487376064986691,
+        "cum": 1429.6618628885892,
+        "wr": 0.4811320754716981,
+        "top3_removed": 1217.9022188934575,
+        "positive_days": 18,
+        "total_days": 27
+      },
+      "second_half": {
+        "n": 72,
+        "median": 17.97598502805838,
+        "mean": 18.37128845385806,
+        "cum": 1322.7327686777803,
+        "wr": 0.5416666666666666,
+        "top3_removed": 1110.9731246826486,
+        "positive_days": 15,
+        "total_days": 19
+      }
+    },
+    {
+      "symbol": "BTCUSDT",
+      "threshold": 1000000.0,
+      "total_signals": 105,
+      "real_closed": 68,
+      "no_fill": 37,
+      "no_fill_pct": 0.3523809523809524,
+      "all": {
+        "n": 68,
+        "median": 7.008039016167986,
+        "mean": 15.758839518790548,
+        "cum": 1071.6010872777572,
+        "wr": 0.5147058823529411,
+        "top3_removed": 865.308370275738,
+        "positive_days": 12,
+        "total_days": 23
+      },
+      "second_half": {
+        "n": 44,
+        "median": 34.584611693365474,
+        "mean": 24.15877118773418,
+        "cum": 1062.985932260304,
+        "wr": 0.6363636363636364,
+        "top3_removed": 856.6932152582847,
+        "positive_days": 9,
+        "total_days": 14
+      }
+    },
+    {
+      "symbol": "SOLUSDT",
+      "threshold": 50000.0,
+      "total_signals": 160,
+      "real_closed": 124,
+      "no_fill": 36,
+      "no_fill_pct": 0.225,
+      "all": {
+        "n": 124,
+        "median": -3.836258079295954,
+        "mean": 10.569843367755336,
+        "cum": 1310.6605776016618,
+        "wr": 0.4838709677419355,
+        "top3_removed": 1007.690844749442,
+        "positive_days": 15,
+        "total_days": 23
+      },
+      "second_half": {
+        "n": 80,
+        "median": 15.89995351546244,
+        "mean": 14.06654984091254,
+        "cum": 1125.323987273003,
+        "wr": 0.5,
+        "top3_removed": 822.3542544207834,
+        "positive_days": 9,
+        "total_days": 11
+      }
+    },
+    {
+      "symbol": "SOLUSDT",
+      "threshold": 100000.0,
+      "total_signals": 102,
+      "real_closed": 81,
+      "no_fill": 21,
+      "no_fill_pct": 0.20588235294117646,
+      "all": {
+        "n": 81,
+        "median": 26.916201117318103,
+        "mean": 14.987972195311366,
+        "cum": 1214.0257478202207,
+        "wr": 0.5185185185185185,
+        "top3_removed": 911.0560149680009,
+        "positive_days": 15,
+        "total_days": 22
+      },
+      "second_half": {
+        "n": 51,
+        "median": 44.52747775192156,
+        "mean": 18.05964565055248,
+        "cum": 921.0419281781765,
+        "wr": 0.5294117647058824,
+        "top3_removed": 618.0721953259567,
+        "positive_days": 8,
+        "total_days": 11
+      }
+    },
+    {
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "total_signals": 56,
+      "real_closed": 45,
+      "no_fill": 11,
+      "no_fill_pct": 0.19642857142857142,
+      "all": {
+        "n": 45,
+        "median": 49.94922189001028,
+        "mean": 28.307132669913106,
+        "cum": 1273.8209701460896,
+        "wr": 0.6444444444444445,
+        "top3_removed": 970.85123729387,
+        "positive_days": 13,
+        "total_days": 17
+      },
+      "second_half": {
+        "n": 28,
+        "median": 50.9035384504992,
+        "mean": 32.2832435643573,
+        "cum": 903.9308198020044,
+        "wr": 0.6428571428571429,
+        "top3_removed": 600.9610869497847,
+        "positive_days": 7,
+        "total_days": 9
+      }
+    },
+    {
+      "symbol": "SOLUSDT",
+      "threshold": 500000.0,
+      "total_signals": 23,
+      "real_closed": 21,
+      "no_fill": 2,
+      "no_fill_pct": 0.08695652173913043,
+      "all": {
+        "n": 21,
+        "median": 51.5144194878244,
+        "mean": 48.37186016731134,
+        "cum": 1015.8090635135381,
+        "wr": 0.8095238095238095,
+        "top3_removed": 712.8393306613185,
+        "positive_days": 8,
+        "total_days": 10
+      },
+      "second_half": {
+        "n": 12,
+        "median": 53.15634010189099,
+        "mean": 58.387590875147886,
+        "cum": 700.6510905017745,
+        "wr": 0.9166666666666666,
+        "top3_removed": 397.6813576495549,
+        "positive_days": 5,
+        "total_days": 6
+      }
+    },
+    {
+      "symbol": "SOLUSDT",
+      "threshold": 1000000.0,
+      "total_signals": 11,
+      "real_closed": 11,
+      "no_fill": 0,
+      "no_fill_pct": 0.0,
+      "all": {
+        "n": 11,
+        "median": 54.253264500454996,
+        "mean": 59.459697378785094,
+        "cum": 654.0566711666361,
+        "wr": 0.9090909090909091,
+        "top3_removed": 356.6869241093542,
+        "positive_days": 8,
+        "total_days": 9
+      },
+      "second_half": {
+        "n": 6,
+        "median": 58.21116226385459,
+        "mean": 72.33941144679135,
+        "cum": 434.03646868074804,
+        "wr": 1.0,
+        "top3_removed": 151.6157285923686,
+        "positive_days": 5,
+        "total_days": 5
+      }
+    }
+  ]
+}

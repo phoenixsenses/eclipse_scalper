@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manual Trade Decision Map</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel2: #1f2933;
+      --text: #e6edf3;
+      --muted: #9fb0c3;
+      --line: #3b4757;
+      --green: #2fbf71;
+      --red: #ff5d6c;
+      --yellow: #f6c85f;
+      --blue: #5aa9ff;
+      --cyan: #4dd0c8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.35;
+    }
+    .page {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 30px;
+      letter-spacing: 0;
+    }
+    .subtitle {
+      color: var(--muted);
+      margin-bottom: 22px;
+      font-size: 15px;
+    }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+    .step {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 210px;
+      position: relative;
+    }
+    .step::after {
+      content: "→";
+      position: absolute;
+      right: -17px;
+      top: 42%;
+      color: var(--muted);
+      font-size: 28px;
+      z-index: 2;
+    }
+    .step:last-child::after { display: none; }
+    .num {
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #071018;
+    }
+    .s1 .num { background: var(--blue); }
+    .s2 .num { background: var(--cyan); }
+    .s3 .num { background: var(--yellow); }
+    .s4 .num { background: var(--red); }
+    .s5 .num { background: var(--green); }
+    .s6 .num { background: #b18cff; }
+    .title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .q {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+    ul {
+      padding-left: 18px;
+      margin: 0;
+      font-size: 14px;
+    }
+    li { margin-bottom: 7px; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+    .box {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .box h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
+    .formula {
+      background: #0b1220;
+      border: 1px solid #26364f;
+      border-radius: 8px;
+      padding: 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 14px;
+      color: #d7e8ff;
+      white-space: pre-wrap;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 700; }
+    .tag {
+      display: inline-block;
+      padding: 3px 7px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .long { background: rgba(47,191,113,0.18); color: #79e3a5; }
+    .short { background: rgba(255,93,108,0.18); color: #ff9aa4; }
+    .warn { background: rgba(246,200,95,0.18); color: #ffe08a; }
+    .checklist {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .mini {
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 92px;
+    }
+    .mini b { display: block; margin-bottom: 6px; }
+    .footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    @media (max-width: 1100px) {
+      .flow { grid-template-columns: repeat(2, 1fr); }
+      .step::after { display: none; }
+      .grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .page { padding: 16px; }
+      .flow, .checklist { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <h1>Manual Trade Decision Map</h1>
+    <div class="subtitle">Trade'e girmeden önce bu akış tamamlanır. Eksik kutu varsa trade yok.</div>
+
+    <section class="flow">
+      <div class="step s1">
+        <div class="num">1</div>
+        <div class="title">Bias</div>
+        <div class="q">Önce yön fikri, sonra trade.</div>
+        <ul>
+          <li>Long mu izliyorum?</li>
+          <li>Short mu izliyorum?</li>
+          <li>Yoksa no-trade mi?</li>
+          <li>Bias ekran görüntüsünden değil, plana göre oluşur.</li>
+        </ul>
+      </div>
+
+      <div class="step s2">
+        <div class="num">2</div>
+        <div class="title">Setup Zone</div>
+        <div class="q">Nerede işlem arıyorum?</div>
+        <ul>
+          <li>Destek / direnç</li>
+          <li>Rejection bölgesi</li>
+          <li>Liquidity sweep sonrası alan</li>
+          <li>Setup bölgesi yoksa trade yok.</li>
+        </ul>
+      </div>
+
+      <div class="step s3">
+        <div class="num">3</div>
+        <div class="title">Trigger</div>
+        <div class="q">Hangi olay entry'yi aktif eder?</div>
+        <ul>
+          <li>Retest + rejection</li>
+          <li>Breakdown / breakout confirmation</li>
+          <li>S34 liq/regime signal</li>
+          <li>Trigger yoksa sadece fikir var.</li>
+        </ul>
+      </div>
+
+      <div class="step s4">
+        <div class="num">4</div>
+        <div class="title">Risk</div>
+        <div class="q">Yanılırsam kaç USDT kaybederim?</div>
+        <ul>
+          <li>SL = fikrin yanlışlandığı yer</li>
+          <li>Risk max %0.5 - %1</li>
+          <li>Leverage risk değildir</li>
+          <li>Position size SL'ye göre hesaplanır.</li>
+        </ul>
+      </div>
+
+      <div class="step s5">
+        <div class="num">5</div>
+        <div class="title">Execution</div>
+        <div class="q">Order nasıl girilecek?</div>
+        <ul>
+          <li>Market = hızlı, pahalı</li>
+          <li>Limit = ucuz, dolmayabilir</li>
+          <li>SL/TP reduce-only olmalı</li>
+          <li>TP fee sonrası anlamlı olmalı.</li>
+        </ul>
+      </div>
+
+      <div class="step s6">
+        <div class="num">6</div>
+        <div class="title">Journal</div>
+        <div class="q">Trade bittiğinde ders çıkar.</div>
+        <ul>
+          <li>Entry, SL, TP, exit</li>
+          <li>Gross/net PnL</li>
+          <li>Planı takip ettim mi?</li>
+          <li>Bir sonraki trade için ders</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="box">
+        <h2>Risk ve Size Hesabı</h2>
+        <div class="formula">Max Risk = Account Equity × Risk %
+Stop Distance % = abs(Entry - SL) / Entry
+Position Notional = Max Risk / Stop Distance %
+Margin = Position Notional / Leverage
+
+Örnek:
+Equity = 40 USDT
+Risk = 1% = 0.40 USDT
+Entry = 1560
+SL = 1572
+Stop distance = 12 / 1560 = 0.77%
+Position notional = 0.40 / 0.0077 = 51.94 USDT
+10x margin ≈ 5.19 USDT</div>
+      </div>
+
+      <div class="box">
+        <h2>Binance Futures Karşılığı</h2>
+        <table>
+          <thead>
+            <tr><th>İşlem</th><th>Entry</th><th>TP/SL</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tag long">LONG</span></td>
+              <td>Open Long / Buy</td>
+              <td>Close Long / Sell, reduce-only</td>
+            </tr>
+            <tr>
+              <td><span class="tag short">SHORT</span></td>
+              <td>Open Short / Sell</td>
+              <td>Close Short / Buy, reduce-only</td>
+            </tr>
+            <tr>
+              <td><span class="tag warn">Fee</span></td>
+              <td colspan="2">Round-trip yaklaşık 8 bps varsay. Dar TP fee'ye yenilir.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="box" style="margin-top:18px">
+      <h2>Trade Açmadan Önce Doldur</h2>
+      <div class="checklist">
+        <div class="mini"><b>1. Direction</b>Long / short / no-trade. Bias yoksa işlem yok.</div>
+        <div class="mini"><b>2. Entry</b>Limit mi market mi? Entry bölgesi net mi?</div>
+        <div class="mini"><b>3. SL</b>Fikrin yanlışlandığı seviye. Duygusal stop değil.</div>
+        <div class="mini"><b>4. TP</b>TP1/TP2 veya tek TP. En az 1.5R hedefle.</div>
+        <div class="mini"><b>5. Size</b>Stop olursa kayıp kaç USDT? Hesaplandı mı?</div>
+        <div class="mini"><b>6. Cancel</b>Entry gelmeden yapı bozulursa emir iptal mi?</div>
+        <div class="mini"><b>7. Management</b>BE ne zaman? Partial var mı? Yoksa tek TP mi?</div>
+        <div class="mini"><b>8. Journal</b>Screenshot before/after. Plan takip edildi mi?</div>
+      </div>
+    </section>
+
+    <section class="box" style="margin-top:18px">
+      <h2>Tek Satırlık Karar Kuralı</h2>
+      <div class="formula">Setup var + Trigger var + SL objektif + R:R >= 1.5 + Max loss kabul edilebilir + Fee sonrası mantıklı = trade değerlendirilebilir.
+
+Bunlardan biri eksikse: no-trade.</div>
+    </section>
+
+    <div class="footer">
+      Eğitim amaçlı karar haritası. Canlı işlemden önce aynı format paper veya çok küçük size ile journal'a işlenmeli.
+    </div>
+  </main>
+</body>
+</html>

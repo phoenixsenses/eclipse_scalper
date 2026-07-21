@@ -1,0 +1,31 @@
+{
+  "trades_checked": 1,
+  "anomalies": 1,
+  "rows": [
+    {
+      "trade_id": "P013",
+      "status": "CLOSED",
+      "exit_reason": "BE",
+      "anomaly": "EXIT_BEFORE_BE_ACTIVATION",
+      "original_exit_ts_utc": "2026-06-10T13:40:59.006000+00:00",
+      "corrected_exit_ts_utc": "2026-06-10T13:51:07+00:00",
+      "original_net_bps": -8.850088427874663,
+      "corrected_net_bps": -8.589931028665637,
+      "original_gross_bps": -0.8500884278746639,
+      "corrected_gross_bps": -0.5899310286656374,
+      "original_exit_price": 1659.96887597,
+      "corrected_exit_price": 1660.01206496,
+      "corrected_exit_reference_price": 1660.01206496,
+      "corrected_executable_gross_bps": -0.5899310286656374,
+      "corrected_spread_cost_bps": 0.0,
+      "corrected_fee_cost_bps": 8.0,
+      "corrected_slippage_cost_bps": 0.0,
+      "corrected_entry_fill_source": "LEGACY_MARK_OR_MODELED",
+      "corrected_exit_fill_source": "MODELED_SPREAD",
+      "be_activated_ts_utc": "2026-06-10T13:44:01.002000+00:00",
+      "corrected_be_activated_ts_utc": "2026-06-10T13:44:01.002000+00:00",
+      "corrected_status": "CLOSED",
+      "corrected_exit_reason": "BE"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "artifact": "BOOK_STATE_H1_H2_STATE_ARTIFACT_HASH_MANIFEST",
+  "version": "V1",
+  "date": "2026-07-19",
+  "purpose": "Byte-exact SHA-256 pin of the accepted Stage-1 state/calibration/fill artifacts that this H1/H2 preregistration freezes. Reviewer re-hashes these to confirm no drift.",
+  "hash_algorithm": "SHA-256",
+  "source_location": "prior-session scratchpad (session 39231408-cb54-47bd-b62f-c01f332ee274); NOT in repo tree",
+  "source_dir_abs": "C:/Users/Windows 11/AppData/Local/Temp/claude/D--eclipse-scalper/39231408-cb54-47bd-b62f-c01f332ee274/scratchpad",
+  "cutoff_ts": 1784320049654,
+  "cutoff_iso": "2026-07-17T20:27:29.654Z",
+  "artifacts": {
+    "br_bins.json": {
+      "sha256": "a7820638135a81a7ccdfe66ba2f8edbd5c72c503f808e59b650034df92a838dc",
+      "self_sha256_field_inside_file": "b443a97ca36e26f616477416d921c1da241f0ced5a40e85a4bb3ec0b1acbce83",
+      "role": "frozen quantile bins (dep_frac, dep_vel, refill_vel, qty, cr_cnt, consec, adv) + spread_ref; calibrated on first 25 dense days 2026-04-12..2026-05-07"
+    },
+    "br_bins_timing.json": {
+      "sha256": "47aa528db42fba016ff0ca8de4f60dd941c810817d6216ca316c572014f81f35",
+      "role": "timing/diurnal bin metadata"
+    },
+    "br_lib.py": {
+      "sha256": "443459186d69ea72e867d28b4415c45c69dffb4889c7597d94e4b1802c36ee93",
+      "role": "STATE DEFINITION SOURCE OF TRUTH: assign_states (S0-S5), qbin, compute_state_feat, _side_stats_1w, compute_raw, eval_cell (F1/F2/F3), markout_bps, book_covar; FROZEN_CUTOFF_TS, OWN=0.5, LATENCIES, LIFETIMES, HORIZONS, TICK"
+    },
+    "br_calib.py": {
+      "sha256": "92844f673cc46a6d3c7633f5e8201c5bac82a8e33b111edf4dce788a58e377c4",
+      "role": "calibration script producing br_bins.json"
+    },
+    "br_census.py": {
+      "sha256": "d6cf9731a9ed685a89b233fe6777c29db1e457abd0cca80fd830c272feb13acf",
+      "role": "84-day state census (grid 2s, cap 5000/(state,side), canonical merge 1s)"
+    },
+    "br_engine.py": {
+      "sha256": "66c1e307d0a7d309a1ca563b3cc1db7249cb3effc1583822c21b8ab4a79181ae",
+      "role": "F1/F2/F3 fills + 8-horizon markout over selected grids (resumable content-ids)"
+    },
+    "br_match.py": {
+      "sha256": "a35e1d734ae16bc2e3582520a37bda5f92291fefea946350df271df78c3c1971",
+      "role": "matched S0 pre-state controls (reuse<=6)"
+    },
+    "br_infer.py": {
+      "sha256": "15078c7f5309bdd5990a98a5ce3fca140267e91d75bf93890351166fca55aa32",
+      "role": "inference A-I + Stage-1 verdict BOOK_STATE_GEOMETRY_MAPPED"
+    },
+    "br_density.py": {
+      "sha256": "a1d6db06e050200a0d42e33b86073915a0577fe288735c1fb603e2b93042aea2",
+      "role": "dense-day density audit helper"
+    },
+    "br_probe.py": {
+      "sha256": "d61522eed5ae2d7dacaa20c45ce3e28f4c71c1345882d84d21bfa4794956293a",
+      "role": "Phase 0 feasibility probe"
+    }
+  },
+  "provenance_docs": {
+    "BR_STAGE1_PHASE0_FREEZE.md": "Phase 0 reproducibility freeze",
+    "BR_STAGE1_DISCOVERY_REPORT.md": "discovery report, verdict BOOK_STATE_GEOMETRY_MAPPED",
+    "BR_STAGE1_ACCEPTANCE.md": "operator acceptance stamp BOOK_STATE_STAGE1_ACCEPTED (records 'NO inventory accounting')"
+  },
+  "note": "Files reside in a session scratchpad, not the repo. If the scratchpad is garbage-collected before the validation phase runs, these artifacts MUST be recovered/re-pinned from the originating session before the holdout may open; the hashes above are the recovery checksum."
+}

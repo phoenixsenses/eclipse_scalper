@@ -1,0 +1,215 @@
+{
+  "generated_at_utc": "2026-06-26T13:55:07.200600+00:00",
+  "results": [
+    {
+      "symbol": "BTCUSDT",
+      "liq_side": "BUY",
+      "threshold": 1000000.0,
+      "events": 127,
+      "labels": 254,
+      "no_fill": 0,
+      "routes": [
+        {
+          "route_id": "LONG_DELAY0_TP60",
+          "n": 127,
+          "median_net_bps": 22.20663546979375,
+          "mean_net_bps": 17.195613417367586,
+          "wr": 0.5433070866141733,
+          "tp": 57,
+          "be": 40,
+          "sl": 17,
+          "time": 13
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP40_CONTROL",
+          "n": 127,
+          "median_net_bps": -48.37988996203696,
+          "mean_net_bps": -33.02889585596345,
+          "wr": 0.18110236220472442,
+          "tp": 20,
+          "be": 0,
+          "sl": 96,
+          "time": 11
+        }
+      ],
+      "min_utc": "2026-02-17T16:05:39.128000+00:00",
+      "max_utc": "2026-06-26T13:35:31.100000+00:00",
+      "elapsed_sec": 89.0
+    },
+    {
+      "symbol": "BTCUSDT",
+      "liq_side": "SELL",
+      "threshold": 1000000.0,
+      "events": 113,
+      "labels": 339,
+      "no_fill": 0,
+      "routes": [
+        {
+          "route_id": "LONG_DELAY0_TP40_CONTROL",
+          "n": 113,
+          "median_net_bps": -48.20760749601048,
+          "mean_net_bps": -31.256101312244535,
+          "wr": 0.18584070796460178,
+          "tp": 16,
+          "be": 3,
+          "sl": 81,
+          "time": 13
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP40",
+          "n": 113,
+          "median_net_bps": 32.21709212174293,
+          "mean_net_bps": 14.86402555404534,
+          "wr": 0.7433628318584071,
+          "tp": 82,
+          "be": 0,
+          "sl": 18,
+          "time": 13
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP60",
+          "n": 113,
+          "median_net_bps": 25.082931772003782,
+          "mean_net_bps": 14.756299354781543,
+          "wr": 0.5486725663716814,
+          "tp": 50,
+          "be": 22,
+          "sl": 18,
+          "time": 23
+        }
+      ],
+      "min_utc": "2026-02-18T11:06:33.546000+00:00",
+      "max_utc": "2026-06-26T12:40:01.099000+00:00",
+      "elapsed_sec": 28.2
+    },
+    {
+      "symbol": "ETHUSDT",
+      "liq_side": "SELL",
+      "threshold": 500000.0,
+      "events": 222,
+      "labels": 666,
+      "no_fill": 0,
+      "routes": [
+        {
+          "route_id": "LONG_DELAY0_TP40_CONTROL",
+          "n": 222,
+          "median_net_bps": -48.71089719988038,
+          "mean_net_bps": -31.99175171579145,
+          "wr": 0.1891891891891892,
+          "tp": 37,
+          "be": 10,
+          "sl": 164,
+          "time": 11
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP60",
+          "n": 222,
+          "median_net_bps": 52.1818494059558,
+          "mean_net_bps": 19.08620202270245,
+          "wr": 0.5990990990990991,
+          "tp": 123,
+          "be": 39,
+          "sl": 40,
+          "time": 20
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP80",
+          "n": 222,
+          "median_net_bps": -8.10552352938589,
+          "mean_net_bps": 17.922091325858144,
+          "wr": 0.4774774774774775,
+          "tp": 85,
+          "be": 66,
+          "sl": 40,
+          "time": 31
+        }
+      ],
+      "min_utc": "2026-02-16T11:10:12.218000+00:00",
+      "max_utc": "2026-06-26T13:16:54.455000+00:00",
+      "elapsed_sec": 88.0
+    },
+    {
+      "symbol": "SOLUSDT",
+      "liq_side": "BUY",
+      "threshold": 100000.0,
+      "events": 104,
+      "labels": 208,
+      "no_fill": 0,
+      "routes": [
+        {
+          "route_id": "LONG_DELAY0_TP60",
+          "n": 104,
+          "median_net_bps": 52.1037116688716,
+          "mean_net_bps": 19.505946067963595,
+          "wr": 0.5673076923076923,
+          "tp": 54,
+          "be": 30,
+          "sl": 14,
+          "time": 6
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP40_CONTROL",
+          "n": 104,
+          "median_net_bps": -49.02419012590271,
+          "mean_net_bps": -32.150295101373615,
+          "wr": 0.19230769230769232,
+          "tp": 19,
+          "be": 0,
+          "sl": 76,
+          "time": 9
+        }
+      ],
+      "min_utc": "2026-04-20T06:40:08.582000+00:00",
+      "max_utc": "2026-06-26T13:50:45.406000+00:00",
+      "elapsed_sec": 6.4
+    },
+    {
+      "symbol": "SOLUSDT",
+      "liq_side": "SELL",
+      "threshold": 100000.0,
+      "events": 105,
+      "labels": 315,
+      "no_fill": 0,
+      "routes": [
+        {
+          "route_id": "LONG_DELAY0_TP40_CONTROL",
+          "n": 105,
+          "median_net_bps": -48.40616244612027,
+          "mean_net_bps": -28.23545745437425,
+          "wr": 0.23809523809523808,
+          "tp": 23,
+          "be": 5,
+          "sl": 74,
+          "time": 3
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP40",
+          "n": 105,
+          "median_net_bps": 32.414220136528286,
+          "mean_net_bps": 11.521716716794549,
+          "wr": 0.7142857142857143,
+          "tp": 75,
+          "be": 0,
+          "sl": 25,
+          "time": 5
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP60",
+          "n": 105,
+          "median_net_bps": 26.04603023287484,
+          "mean_net_bps": 13.4940602209866,
+          "wr": 0.5333333333333333,
+          "tp": 51,
+          "be": 19,
+          "sl": 25,
+          "time": 10
+        }
+      ],
+      "min_utc": "2026-04-18T08:41:11.463000+00:00",
+      "max_utc": "2026-06-26T12:40:01.200000+00:00",
+      "elapsed_sec": 3.6
+    }
+  ],
+  "db_size_bytes": 1478656,
+  "db_size_mb": 1.41
+}

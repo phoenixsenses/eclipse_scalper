@@ -1,0 +1,1 @@
+{"decision": "ARMED_KEEP_SIZE | REDUCE_MARGIN | DISARM | OVERRIDE_KILL", "event": "decision_template", "evidence_refs": ["S34_V10_OPERATIONAL_RISK_SUITE.md"], "operator": "", "reason": "", "risk_mode": "SURVIVAL | BALANCED | STOP_ASSISTED | CURRENT_ENV", "ts_utc": "2026-06-29T07:22:52.222746+00:00"}

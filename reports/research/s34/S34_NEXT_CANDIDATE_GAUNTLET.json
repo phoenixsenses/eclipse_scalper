@@ -1,0 +1,1947 @@
+{
+  "generated_at_utc": "2026-07-01T03:36:43.028541+00:00",
+  "dataset": {
+    "anchors_200k": 450,
+    "time_exit_200k": 167,
+    "candidate_count": 27
+  },
+  "baselines": {
+    "sync200": {
+      "n": 100,
+      "wr": 0.58,
+      "avg": 26.5,
+      "sum": 2652.5,
+      "median": 26.9,
+      "t3r": 1609.3,
+      "per_month": 23.0
+    },
+    "current_long": {
+      "n": 9,
+      "wr": 1.0,
+      "avg": 170.6,
+      "sum": 1535.8,
+      "median": 106.5,
+      "t3r": 590.6,
+      "per_month": 2.3
+    }
+  },
+  "ranked": [
+    {
+      "name": "C_score_relax_short1m10",
+      "family": "COMBINED",
+      "note": "L_base_score1_added + S_btc1m_delay10",
+      "mc_p": 0.018,
+      "summary": {
+        "n": 25,
+        "wr": 0.92,
+        "avg": 138.3,
+        "sum": 3457.8,
+        "median": 106.5,
+        "t3r": 2384.8,
+        "per_month": 6.2
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 5,
+            "wr": 1.0,
+            "avg": 237.4,
+            "sum": 1186.8,
+            "median": 260.8,
+            "t3r": 212.7,
+            "per_month": 5.0
+          },
+          {
+            "n": 5,
+            "wr": 0.8,
+            "avg": 65.9,
+            "sum": 329.4,
+            "median": 93.8,
+            "t3r": -14.5,
+            "per_month": 1.7
+          },
+          {
+            "n": 5,
+            "wr": 1.0,
+            "avg": 83.6,
+            "sum": 417.8,
+            "median": 31.1,
+            "t3r": 1.1,
+            "per_month": 5.0
+          },
+          {
+            "n": 5,
+            "wr": 0.8,
+            "avg": 151.5,
+            "sum": 757.4,
+            "median": 137.9,
+            "t3r": 86.1,
+            "per_month": 5.0
+          },
+          {
+            "n": 5,
+            "wr": 1.0,
+            "avg": 153.3,
+            "sum": 766.3,
+            "median": 106.5,
+            "t3r": 128.0,
+            "per_month": 5.0
+          }
+        ],
+        "positive_sum_folds": 5,
+        "positive_t3r_folds": 4,
+        "fold_t3r_sum": 413.4,
+        "worst_fold_sum": 329.4,
+        "worst_fold_t3r": -14.5
+      },
+      "basic_pass": true,
+      "n_warning": null
+    },
+    {
+      "name": "C_btc7d500_short1m10",
+      "family": "COMBINED",
+      "note": "L_btc7d_lt_500 + S_btc1m_delay10",
+      "mc_p": 0.2398,
+      "summary": {
+        "n": 24,
+        "wr": 0.875,
+        "avg": 127.5,
+        "sum": 3059.4,
+        "median": 105.8,
+        "t3r": 2015.2,
+        "per_month": 6.1
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 5,
+            "wr": 1.0,
+            "avg": 164.1,
+            "sum": 820.7,
+            "median": 95.8,
+            "t3r": 109.5,
+            "per_month": 5.0
+          },
+          {
+            "n": 5,
+            "wr": 0.6,
+            "avg": 47.3,
+            "sum": 236.5,
+            "median": 34.7,
+            "t3r": -48.4,
+            "per_month": 1.7
+          },
+          {
+            "n": 4,
+            "wr": 1.0,
+            "avg": 132.4,
+            "sum": 529.8,
+            "median": 123.8,
+            "t3r": 35.3,
+            "per_month": 4.0
+          },
+          {
+            "n": 5,
+            "wr": 0.8,
+            "avg": 79.5,
+            "sum": 397.7,
+            "median": 97.3,
+            "t3r": -11.2,
+            "per_month": 5.0
+          },
+          {
+            "n": 5,
+            "wr": 1.0,
+            "avg": 214.9,
+            "sum": 1074.7,
+            "median": 201.9,
+            "t3r": 183.3,
+            "per_month": 5.0
+          }
+        ],
+        "positive_sum_folds": 5,
+        "positive_t3r_folds": 3,
+        "fold_t3r_sum": 268.5,
+        "worst_fold_sum": 236.5,
+        "worst_fold_t3r": -48.4
+      },
+      "basic_pass": true,
+      "n_warning": null
+    },
+    {
+      "name": "C_no_btc7d_short1m10",
+      "family": "COMBINED",
+      "note": "L_no_btc7d + S_btc1m_delay10",
+      "mc_p": 0.2478,
+      "summary": {
+        "n": 31,
+        "wr": 0.806,
+        "avg": 98.5,
+        "sum": 3053.0,
+        "median": 95.8,
+        "t3r": 2008.8,
+        "per_month": 7.9
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 6,
+            "wr": 0.833,
+            "avg": 132.1,
+            "sum": 792.8,
+            "median": 94.8,
+            "t3r": 81.6,
+            "per_month": 6.0
+          },
+          {
+            "n": 6,
+            "wr": 0.667,
+            "avg": 8.9,
+            "sum": 53.2,
+            "median": 46.6,
+            "t3r": -186.0,
+            "per_month": 5.7
+          },
+          {
+            "n": 7,
+            "wr": 0.714,
+            "avg": 49.9,
+            "sum": 349.0,
+            "median": 35.3,
+            "t3r": -12.1,
+            "per_month": 3.6
+          },
+          {
+            "n": 6,
+            "wr": 0.833,
+            "avg": 114.4,
+            "sum": 686.1,
+            "median": 138.4,
+            "t3r": 126.7,
+            "per_month": 6.0
+          },
+          {
+            "n": 6,
+            "wr": 1.0,
+            "avg": 195.3,
+            "sum": 1172.0,
+            "median": 154.2,
+            "t3r": 280.5,
+            "per_month": 6.0
+          }
+        ],
+        "positive_sum_folds": 5,
+        "positive_t3r_folds": 3,
+        "fold_t3r_sum": 290.7,
+        "worst_fold_sum": 53.2,
+        "worst_fold_t3r": -186.0
+      },
+      "basic_pass": true,
+      "n_warning": null
+    },
+    {
+      "name": "C_freq_balanced_btc4h_short1m10",
+      "family": "COMBINED",
+      "note": "L_btc4h_lt0_no_btc7d + S_btc1m_delay10",
+      "mc_p": 0.3746,
+      "summary": {
+        "n": 27,
+        "wr": 0.852,
+        "avg": 108.9,
+        "sum": 2941.3,
+        "median": 97.3,
+        "t3r": 1897.1,
+        "per_month": 6.9
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 5,
+            "wr": 0.8,
+            "avg": 107.4,
+            "sum": 537.0,
+            "median": 93.8,
+            "t3r": -7.1,
+            "per_month": 5.0
+          },
+          {
+            "n": 6,
+            "wr": 0.667,
+            "avg": 35.8,
+            "sum": 214.5,
+            "median": 46.6,
+            "t3r": -24.6,
+            "per_month": 5.5
+          },
+          {
+            "n": 5,
+            "wr": 1.0,
+            "avg": 81.7,
+            "sum": 408.3,
+            "median": 107.1,
+            "t3r": 47.3,
+            "per_month": 5.0
+          },
+          {
+            "n": 6,
+            "wr": 0.833,
+            "avg": 114.4,
+            "sum": 686.1,
+            "median": 138.4,
+            "t3r": 126.7,
+            "per_month": 6.0
+          },
+          {
+            "n": 5,
+            "wr": 1.0,
+            "avg": 219.1,
+            "sum": 1095.3,
+            "median": 201.9,
+            "t3r": 203.8,
+            "per_month": 5.0
+          }
+        ],
+        "positive_sum_folds": 5,
+        "positive_t3r_folds": 3,
+        "fold_t3r_sum": 346.1,
+        "worst_fold_sum": 214.5,
+        "worst_fold_t3r": -24.6
+      },
+      "basic_pass": true,
+      "n_warning": null
+    },
+    {
+      "name": "C_current_live_long_short",
+      "family": "COMBINED",
+      "note": "L_current_live_gate + S_current_btc2m_delay5",
+      "mc_p": 0.977,
+      "summary": {
+        "n": 16,
+        "wr": 0.938,
+        "avg": 139.3,
+        "sum": 2229.0,
+        "median": 105.8,
+        "t3r": 1184.8,
+        "per_month": 4.1
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 3,
+            "wr": 1.0,
+            "avg": 236.4,
+            "sum": 709.1,
+            "median": 260.8,
+            "t3r": 709.1,
+            "per_month": 3.0
+          },
+          {
+            "n": 3,
+            "wr": 1.0,
+            "avg": 95.0,
+            "sum": 284.9,
+            "median": 105.1,
+            "t3r": 284.9,
+            "per_month": 1.2
+          },
+          {
+            "n": 4,
+            "wr": 1.0,
+            "avg": 195.1,
+            "sum": 780.3,
+            "median": 210.3,
+            "t3r": 0.0,
+            "per_month": 4.0
+          },
+          {
+            "n": 3,
+            "wr": 0.667,
+            "avg": -19.5,
+            "sum": -58.4,
+            "median": 15.4,
+            "t3r": -58.4,
+            "per_month": 3.0
+          },
+          {
+            "n": 3,
+            "wr": 1.0,
+            "avg": 171.0,
+            "sum": 513.1,
+            "median": 106.5,
+            "t3r": 513.1,
+            "per_month": 3.0
+          }
+        ],
+        "positive_sum_folds": 4,
+        "positive_t3r_folds": 3,
+        "fold_t3r_sum": 1448.7,
+        "worst_fold_sum": -58.4,
+        "worst_fold_t3r": -58.4
+      },
+      "basic_pass": true,
+      "n_warning": "LOW_N"
+    },
+    {
+      "name": "L_base_score1_added",
+      "family": "LONG",
+      "note": "Relax long_score to include base_score1.",
+      "mc_p": 0.1089,
+      "summary": {
+        "n": 15,
+        "wr": 0.933,
+        "avg": 141.7,
+        "sum": 2125.7,
+        "median": 105.1,
+        "t3r": 1082.6,
+        "per_month": 3.7
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 3,
+            "wr": 1.0,
+            "avg": 272.2,
+            "sum": 816.5,
+            "median": 260.8,
+            "t3r": 816.5,
+            "per_month": 3.0
+          },
+          {
+            "n": 3,
+            "wr": 0.667,
+            "avg": 133.0,
+            "sum": 399.1,
+            "median": 93.8,
+            "t3r": 399.1,
+            "per_month": 3.0
+          },
+          {
+            "n": 3,
+            "wr": 1.0,
+            "avg": 46.9,
+            "sum": 140.8,
+            "median": 34.7,
+            "t3r": 140.8,
+            "per_month": 1.2
+          },
+          {
+            "n": 3,
+            "wr": 1.0,
+            "avg": 93.9,
+            "sum": 281.6,
+            "median": 76.7,
+            "t3r": 281.6,
+            "per_month": 3.0
+          },
+          {
+            "n": 3,
+            "wr": 1.0,
+            "avg": 162.6,
+            "sum": 487.7,
+            "median": 106.5,
+            "t3r": 487.7,
+            "per_month": 3.0
+          }
+        ],
+        "positive_sum_folds": 5,
+        "positive_t3r_folds": 5,
+        "fold_t3r_sum": 2125.7,
+        "worst_fold_sum": 140.8,
+        "worst_fold_t3r": 140.8
+      },
+      "basic_pass": true,
+      "n_warning": "LOW_N"
+    },
+    {
+      "name": "L_btc7d_lt_500",
+      "family": "LONG",
+      "note": "Relax btc7d to +500 bps.",
+      "mc_p": 0.6364,
+      "summary": {
+        "n": 14,
+        "wr": 0.857,
+        "avg": 123.4,
+        "sum": 1727.3,
+        "median": 100.4,
+        "t3r": 782.1,
+        "per_month": 3.6
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 3,
+            "wr": 1.0,
+            "avg": 237.1,
+            "sum": 711.2,
+            "median": 260.8,
+            "t3r": 711.2,
+            "per_month": 3.0
+          },
+          {
+            "n": 3,
+            "wr": 0.667,
+            "avg": 35.2,
+            "sum": 105.6,
+            "median": 34.7,
+            "t3r": 105.6,
+            "per_month": 3.0
+          },
+          {
+            "n": 2,
+            "wr": 0.5,
+            "avg": 39.8,
+            "sum": 79.5,
+            "median": 39.8,
+            "t3r": 79.5,
+            "per_month": 2.0
+          },
+          {
+            "n": 3,
+            "wr": 1.0,
+            "avg": 105.9,
+            "sum": 317.8,
+            "median": 108.8,
+            "t3r": 317.8,
+            "per_month": 3.0
+          },
+          {
+            "n": 3,
+            "wr": 1.0,
+            "avg": 171.0,
+            "sum": 513.1,
+            "median": 106.5,
+            "t3r": 513.1,
+            "per_month": 3.0
+          }
+        ],
+        "positive_sum_folds": 5,
+        "positive_t3r_folds": 5,
+        "fold_t3r_sum": 1727.2,
+        "worst_fold_sum": 79.5,
+        "worst_fold_t3r": 79.5
+      },
+      "basic_pass": true,
+      "n_warning": "LOW_N"
+    },
+    {
+      "name": "L_btc4h_lt0_no_btc7d",
+      "family": "LONG",
+      "note": "Use btc4h<0 only.",
+      "mc_p": 0.7982,
+      "summary": {
+        "n": 17,
+        "wr": 0.824,
+        "avg": 94.7,
+        "sum": 1609.2,
+        "median": 93.8,
+        "t3r": 751.0,
+        "per_month": 4.3
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 3,
+            "wr": 1.0,
+            "avg": 181.4,
+            "sum": 544.2,
+            "median": 95.8,
+            "t3r": 544.2,
+            "per_month": 3.0
+          },
+          {
+            "n": 4,
+            "wr": 0.75,
+            "avg": 48.1,
+            "sum": 192.5,
+            "median": 55.1,
+            "t3r": -22.9,
+            "per_month": 4.0
+          },
+          {
+            "n": 3,
+            "wr": 0.333,
+            "avg": -0.3,
+            "sum": -0.8,
+            "median": -25.5,
+            "t3r": -0.8,
+            "per_month": 3.0
+          },
+          {
+            "n": 4,
+            "wr": 1.0,
+            "avg": 65.8,
+            "sum": 263.2,
+            "median": 71.2,
+            "t3r": 12.0,
+            "per_month": 4.0
+          },
+          {
+            "n": 3,
+            "wr": 1.0,
+            "avg": 203.4,
+            "sum": 610.1,
+            "median": 173.7,
+            "t3r": 610.1,
+            "per_month": 3.0
+          }
+        ],
+        "positive_sum_folds": 4,
+        "positive_t3r_folds": 3,
+        "fold_t3r_sum": 1142.6,
+        "worst_fold_sum": -0.8,
+        "worst_fold_t3r": -22.9
+      },
+      "basic_pass": true,
+      "n_warning": "LOW_N"
+    },
+    {
+      "name": "L_wed_only_block_btc7d0",
+      "family": "LONG",
+      "note": "Remove Monday block; keep Wednesday block.",
+      "mc_p": 0.7093,
+      "summary": {
+        "n": 11,
+        "wr": 1.0,
+        "avg": 152.8,
+        "sum": 1680.4,
+        "median": 105.1,
+        "t3r": 735.2,
+        "per_month": 2.5
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 171.9,
+            "sum": 343.8,
+            "median": 171.9,
+            "t3r": 343.8,
+            "per_month": 2.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 208.1,
+            "sum": 416.2,
+            "median": 208.1,
+            "t3r": 416.2,
+            "per_month": 2.0
+          },
+          {
+            "n": 3,
+            "wr": 1.0,
+            "avg": 77.9,
+            "sum": 233.6,
+            "median": 93.8,
+            "t3r": 233.6,
+            "per_month": 3.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 125.2,
+            "sum": 250.5,
+            "median": 125.2,
+            "t3r": 250.5,
+            "per_month": 2.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 218.2,
+            "sum": 436.4,
+            "median": 218.2,
+            "t3r": 436.4,
+            "per_month": 2.0
+          }
+        ],
+        "positive_sum_folds": 5,
+        "positive_t3r_folds": 5,
+        "fold_t3r_sum": 1680.5,
+        "worst_fold_sum": 233.6,
+        "worst_fold_t3r": 233.6
+      },
+      "basic_pass": true,
+      "n_warning": "LOW_N"
+    },
+    {
+      "name": "S_btc1m_delay5",
+      "family": "SHORT",
+      "note": "SHORT BTC>=1000000, delay>=5m, hold=2h.",
+      "mc_p": 0.2358,
+      "summary": {
+        "n": 12,
+        "wr": 0.833,
+        "avg": 123.3,
+        "sum": 1479.9,
+        "median": 137.9,
+        "t3r": 558.8,
+        "per_month": 3.3
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 80.4,
+            "sum": 160.8,
+            "median": 80.4,
+            "t3r": 160.8,
+            "per_month": 0.6
+          },
+          {
+            "n": 3,
+            "wr": 1.0,
+            "avg": 128.6,
+            "sum": 385.7,
+            "median": 138.9,
+            "t3r": 385.7,
+            "per_month": 3.0
+          },
+          {
+            "n": 2,
+            "wr": 0.5,
+            "avg": 63.3,
+            "sum": 126.7,
+            "median": 63.3,
+            "t3r": 126.7,
+            "per_month": 2.0
+          },
+          {
+            "n": 3,
+            "wr": 1.0,
+            "avg": 210.8,
+            "sum": 632.3,
+            "median": 137.9,
+            "t3r": 632.3,
+            "per_month": 3.0
+          },
+          {
+            "n": 2,
+            "wr": 0.5,
+            "avg": 87.2,
+            "sum": 174.4,
+            "median": 87.2,
+            "t3r": 174.4,
+            "per_month": 2.0
+          }
+        ],
+        "positive_sum_folds": 5,
+        "positive_t3r_folds": 5,
+        "fold_t3r_sum": 1479.9,
+        "worst_fold_sum": 126.7,
+        "worst_fold_t3r": 126.7
+      },
+      "basic_pass": true,
+      "n_warning": "LOW_N"
+    },
+    {
+      "name": "S_btc1m_delay10",
+      "family": "SHORT",
+      "note": "SHORT BTC>=1000000, delay>=10m, hold=2h.",
+      "mc_p": 0.4396,
+      "summary": {
+        "n": 10,
+        "wr": 0.9,
+        "avg": 133.2,
+        "sum": 1332.1,
+        "median": 138.4,
+        "t3r": 523.6,
+        "per_month": 2.7
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 80.4,
+            "sum": 160.8,
+            "median": 80.4,
+            "t3r": 160.8,
+            "per_month": 0.6
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 192.8,
+            "sum": 385.7,
+            "median": 192.8,
+            "t3r": 385.7,
+            "per_month": 2.0
+          },
+          {
+            "n": 2,
+            "wr": 0.5,
+            "avg": -5.6,
+            "sum": -11.2,
+            "median": -5.6,
+            "t3r": -11.2,
+            "per_month": 2.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 117.6,
+            "sum": 235.1,
+            "median": 117.6,
+            "t3r": 235.1,
+            "per_month": 2.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 280.8,
+            "sum": 561.6,
+            "median": 280.8,
+            "t3r": 561.6,
+            "per_month": 2.0
+          }
+        ],
+        "positive_sum_folds": 4,
+        "positive_t3r_folds": 4,
+        "fold_t3r_sum": 1332.0,
+        "worst_fold_sum": -11.2,
+        "worst_fold_t3r": -11.2
+      },
+      "basic_pass": true,
+      "n_warning": "LOW_N"
+    },
+    {
+      "name": "SEQ_silence_no_btc1m",
+      "family": "STATE_SEQUENCE_LONG4H",
+      "note": "Silence path with no BTC confirm.",
+      "mc_p": 0.001,
+      "summary": {
+        "n": 166,
+        "wr": 0.608,
+        "avg": 37.9,
+        "sum": 6290.4,
+        "median": 32.9,
+        "t3r": 4947.3,
+        "per_month": 38.1
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 33,
+            "wr": 0.576,
+            "avg": 32.7,
+            "sum": 1079.9,
+            "median": 48.4,
+            "t3r": 105.8,
+            "per_month": 33.0
+          },
+          {
+            "n": 33,
+            "wr": 0.697,
+            "avg": 43.3,
+            "sum": 1428.2,
+            "median": 54.8,
+            "t3r": 739.9,
+            "per_month": 33.0
+          },
+          {
+            "n": 34,
+            "wr": 0.559,
+            "avg": 30.5,
+            "sum": 1037.8,
+            "median": 34.3,
+            "t3r": 276.5,
+            "per_month": 34.0
+          },
+          {
+            "n": 33,
+            "wr": 0.424,
+            "avg": 3.3,
+            "sum": 108.3,
+            "median": -10.1,
+            "t3r": -479.6,
+            "per_month": 17.6
+          },
+          {
+            "n": 33,
+            "wr": 0.788,
+            "avg": 79.9,
+            "sum": 2636.2,
+            "median": 48.5,
+            "t3r": 1322.0,
+            "per_month": 33.0
+          }
+        ],
+        "positive_sum_folds": 5,
+        "positive_t3r_folds": 4,
+        "fold_t3r_sum": 1964.6,
+        "worst_fold_sum": 108.3,
+        "worst_fold_t3r": -479.6
+      },
+      "basic_pass": false,
+      "n_warning": null
+    },
+    {
+      "name": "L_no_btc7d",
+      "family": "LONG",
+      "note": "Remove btc7d regime gate.",
+      "mc_p": 0.6494,
+      "summary": {
+        "n": 21,
+        "wr": 0.762,
+        "avg": 82.0,
+        "sum": 1721.0,
+        "median": 76.7,
+        "t3r": 775.8,
+        "per_month": 5.3
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 4,
+            "wr": 0.75,
+            "avg": 170.8,
+            "sum": 683.3,
+            "median": 178.3,
+            "t3r": -27.9,
+            "per_month": 4.0
+          },
+          {
+            "n": 4,
+            "wr": 0.5,
+            "avg": -12.8,
+            "sum": -51.4,
+            "median": 26.3,
+            "t3r": -197.9,
+            "per_month": 4.0
+          },
+          {
+            "n": 5,
+            "wr": 0.6,
+            "avg": 27.8,
+            "sum": 139.0,
+            "median": 34.7,
+            "t3r": -59.4,
+            "per_month": 5.0
+          },
+          {
+            "n": 4,
+            "wr": 1.0,
+            "avg": 65.8,
+            "sum": 263.2,
+            "median": 71.2,
+            "t3r": 12.0,
+            "per_month": 4.0
+          },
+          {
+            "n": 4,
+            "wr": 1.0,
+            "avg": 171.7,
+            "sum": 686.9,
+            "median": 140.1,
+            "t3r": 76.7,
+            "per_month": 4.0
+          }
+        ],
+        "positive_sum_folds": 4,
+        "positive_t3r_folds": 2,
+        "fold_t3r_sum": -196.5,
+        "worst_fold_sum": -51.4,
+        "worst_fold_t3r": -197.9
+      },
+      "basic_pass": false,
+      "n_warning": null
+    },
+    {
+      "name": "L_notional_300_500_btc7d0",
+      "family": "LONG",
+      "note": "Notional sweet spot with current btc7d gate.",
+      "mc_p": 1.0,
+      "summary": {
+        "n": 3,
+        "wr": 1.0,
+        "avg": 211.1,
+        "sum": 633.4,
+        "median": 173.7,
+        "t3r": 633.4,
+        "per_month": 0.8
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 354.6,
+            "sum": 354.6,
+            "median": 354.6,
+            "t3r": 354.6,
+            "per_month": 1.0
+          },
+          {
+            "n": 0,
+            "wr": null,
+            "avg": null,
+            "sum": 0.0,
+            "median": null,
+            "t3r": 0.0,
+            "per_month": 0.0
+          },
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 105.1,
+            "sum": 105.1,
+            "median": 105.1,
+            "t3r": 105.1,
+            "per_month": 1.0
+          },
+          {
+            "n": 0,
+            "wr": null,
+            "avg": null,
+            "sum": 0.0,
+            "median": null,
+            "t3r": 0.0,
+            "per_month": 0.0
+          },
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 173.7,
+            "sum": 173.7,
+            "median": 173.7,
+            "t3r": 173.7,
+            "per_month": 1.0
+          }
+        ],
+        "positive_sum_folds": 3,
+        "positive_t3r_folds": 3,
+        "fold_t3r_sum": 633.4,
+        "worst_fold_sum": 0.0,
+        "worst_fold_t3r": 0.0
+      },
+      "basic_pass": false,
+      "n_warning": "LOW_N"
+    },
+    {
+      "name": "L_current_live_gate",
+      "family": "LONG",
+      "note": "Current conservative LONG gate.",
+      "mc_p": 0.8701,
+      "summary": {
+        "n": 9,
+        "wr": 1.0,
+        "avg": 170.6,
+        "sum": 1535.8,
+        "median": 106.5,
+        "t3r": 590.6,
+        "per_month": 2.3
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 307.7,
+            "sum": 615.3,
+            "median": 307.7,
+            "t3r": 615.3,
+            "per_month": 2.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 64.3,
+            "sum": 128.5,
+            "median": 64.3,
+            "t3r": 128.5,
+            "per_month": 2.0
+          },
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 105.1,
+            "sum": 105.1,
+            "median": 105.1,
+            "t3r": 105.1,
+            "per_month": 1.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 125.2,
+            "sum": 250.5,
+            "median": 125.2,
+            "t3r": 250.5,
+            "per_month": 2.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 218.2,
+            "sum": 436.4,
+            "median": 218.2,
+            "t3r": 436.4,
+            "per_month": 2.0
+          }
+        ],
+        "positive_sum_folds": 5,
+        "positive_t3r_folds": 5,
+        "fold_t3r_sum": 1535.8,
+        "worst_fold_sum": 105.1,
+        "worst_fold_t3r": 105.1
+      },
+      "basic_pass": false,
+      "n_warning": "LOW_N"
+    },
+    {
+      "name": "L_btc3d_lt0",
+      "family": "LONG",
+      "note": "Use btc3d<0 instead of btc7d.",
+      "mc_p": 0.9161,
+      "summary": {
+        "n": 9,
+        "wr": 1.0,
+        "avg": 163.7,
+        "sum": 1472.9,
+        "median": 106.5,
+        "t3r": 527.7,
+        "per_month": 2.3
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 307.7,
+            "sum": 615.3,
+            "median": 307.7,
+            "t3r": 615.3,
+            "per_month": 2.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 65.3,
+            "sum": 130.6,
+            "median": 65.3,
+            "t3r": 130.6,
+            "per_month": 2.0
+          },
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 105.1,
+            "sum": 105.1,
+            "median": 105.1,
+            "t3r": 105.1,
+            "per_month": 1.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 92.8,
+            "sum": 185.6,
+            "median": 92.8,
+            "t3r": 185.6,
+            "per_month": 2.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 218.2,
+            "sum": 436.4,
+            "median": 218.2,
+            "t3r": 436.4,
+            "per_month": 2.0
+          }
+        ],
+        "positive_sum_folds": 5,
+        "positive_t3r_folds": 5,
+        "fold_t3r_sum": 1473.0,
+        "worst_fold_sum": 105.1,
+        "worst_fold_t3r": 105.1
+      },
+      "basic_pass": false,
+      "n_warning": "LOW_N"
+    },
+    {
+      "name": "S_btc1m_delay15",
+      "family": "SHORT",
+      "note": "SHORT BTC>=1000000, delay>=15m, hold=2h.",
+      "mc_p": 0.999,
+      "summary": {
+        "n": 7,
+        "wr": 0.857,
+        "avg": 89.3,
+        "sum": 625.0,
+        "median": 97.3,
+        "t3r": 101.5,
+        "per_month": 7.0
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 246.8,
+            "sum": 246.8,
+            "median": 246.8,
+            "t3r": 246.8,
+            "per_month": 1.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 69.4,
+            "sum": 138.9,
+            "median": 69.4,
+            "t3r": 138.9,
+            "per_month": 2.0
+          },
+          {
+            "n": 1,
+            "wr": 0.0,
+            "avg": -11.2,
+            "sum": -11.2,
+            "median": -11.2,
+            "t3r": -11.2,
+            "per_month": 1.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 117.6,
+            "sum": 235.1,
+            "median": 117.6,
+            "t3r": 235.1,
+            "per_month": 2.0
+          },
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 15.4,
+            "sum": 15.4,
+            "median": 15.4,
+            "t3r": 15.4,
+            "per_month": 1.0
+          }
+        ],
+        "positive_sum_folds": 4,
+        "positive_t3r_folds": 4,
+        "fold_t3r_sum": 625.0,
+        "worst_fold_sum": -11.2,
+        "worst_fold_t3r": -11.2
+      },
+      "basic_pass": false,
+      "n_warning": "LOW_N"
+    },
+    {
+      "name": "SEQ_silence_with_btc1m",
+      "family": "STATE_SEQUENCE_LONG4H",
+      "note": "Silence path but BTC confirm appears.",
+      "mc_p": 0.997,
+      "summary": {
+        "n": 1,
+        "wr": 1.0,
+        "avg": 51.7,
+        "sum": 51.7,
+        "median": 51.7,
+        "t3r": 51.7,
+        "per_month": 1.0
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 0,
+            "wr": null,
+            "avg": null,
+            "sum": 0.0,
+            "median": null,
+            "t3r": 0.0,
+            "per_month": 0.0
+          },
+          {
+            "n": 0,
+            "wr": null,
+            "avg": null,
+            "sum": 0.0,
+            "median": null,
+            "t3r": 0.0,
+            "per_month": 0.0
+          },
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 51.7,
+            "sum": 51.7,
+            "median": 51.7,
+            "t3r": 51.7,
+            "per_month": 1.0
+          },
+          {
+            "n": 0,
+            "wr": null,
+            "avg": null,
+            "sum": 0.0,
+            "median": null,
+            "t3r": 0.0,
+            "per_month": 0.0
+          },
+          {
+            "n": 0,
+            "wr": null,
+            "avg": null,
+            "sum": 0.0,
+            "median": null,
+            "t3r": 0.0,
+            "per_month": 0.0
+          }
+        ],
+        "positive_sum_folds": 1,
+        "positive_t3r_folds": 1,
+        "fold_t3r_sum": 51.7,
+        "worst_fold_sum": 0.0,
+        "worst_fold_t3r": 0.0
+      },
+      "basic_pass": false,
+      "n_warning": "LOW_N"
+    },
+    {
+      "name": "S_btc2m_delay10",
+      "family": "SHORT",
+      "note": "SHORT BTC>=2000000, delay>=10m, hold=2h.",
+      "mc_p": 0.988,
+      "summary": {
+        "n": 5,
+        "wr": 1.0,
+        "avg": 153.4,
+        "sum": 767.0,
+        "median": 145.1,
+        "t3r": 15.4,
+        "per_month": 5.0
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 145.1,
+            "sum": 145.1,
+            "median": 145.1,
+            "t3r": 145.1,
+            "per_month": 1.0
+          },
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 246.8,
+            "sum": 246.8,
+            "median": 246.8,
+            "t3r": 246.8,
+            "per_month": 1.0
+          },
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 0.0,
+            "sum": 0.0,
+            "median": 0.0,
+            "t3r": 0.0,
+            "per_month": 1.0
+          },
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 359.8,
+            "sum": 359.8,
+            "median": 359.8,
+            "t3r": 359.8,
+            "per_month": 1.0
+          },
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 15.4,
+            "sum": 15.4,
+            "median": 15.4,
+            "t3r": 15.4,
+            "per_month": 1.0
+          }
+        ],
+        "positive_sum_folds": 4,
+        "positive_t3r_folds": 4,
+        "fold_t3r_sum": 767.1,
+        "worst_fold_sum": 0.0,
+        "worst_fold_t3r": 0.0
+      },
+      "basic_pass": false,
+      "n_warning": "LOW_N"
+    },
+    {
+      "name": "S_current_hold_90m",
+      "family": "SHORT_HOLD",
+      "note": "Current SHORT confirm with hold=90m.",
+      "mc_p": 1.0,
+      "summary": {
+        "n": 7,
+        "wr": 0.857,
+        "avg": 71.5,
+        "sum": 500.8,
+        "median": 40.4,
+        "t3r": -37.0,
+        "per_month": 7.0
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 69.4,
+            "sum": 69.4,
+            "median": 69.4,
+            "t3r": 69.4,
+            "per_month": 1.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 133.1,
+            "sum": 266.2,
+            "median": 133.1,
+            "t3r": 266.2,
+            "per_month": 2.0
+          },
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 225.4,
+            "sum": 225.4,
+            "median": 225.4,
+            "t3r": 225.4,
+            "per_month": 1.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 35.4,
+            "sum": 70.9,
+            "median": 35.4,
+            "t3r": 70.9,
+            "per_month": 2.0
+          },
+          {
+            "n": 1,
+            "wr": 0.0,
+            "avg": -131.1,
+            "sum": -131.1,
+            "median": -131.1,
+            "t3r": -131.1,
+            "per_month": 1.0
+          }
+        ],
+        "positive_sum_folds": 4,
+        "positive_t3r_folds": 4,
+        "fold_t3r_sum": 500.8,
+        "worst_fold_sum": -131.1,
+        "worst_fold_t3r": -131.1
+      },
+      "basic_pass": false,
+      "n_warning": "LOW_N"
+    },
+    {
+      "name": "S_current_btc2m_delay5",
+      "family": "SHORT",
+      "note": "SHORT BTC>=2000000, delay>=5m, hold=2h.",
+      "mc_p": 0.994,
+      "summary": {
+        "n": 7,
+        "wr": 0.857,
+        "avg": 99.0,
+        "sum": 693.2,
+        "median": 95.8,
+        "t3r": -58.4,
+        "per_month": 7.0
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 145.1,
+            "sum": 145.1,
+            "median": 145.1,
+            "t3r": 145.1,
+            "per_month": 1.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 123.4,
+            "sum": 246.8,
+            "median": 123.4,
+            "t3r": 246.8,
+            "per_month": 2.0
+          },
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 359.8,
+            "sum": 359.8,
+            "median": 359.8,
+            "t3r": 359.8,
+            "per_month": 1.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 55.6,
+            "sum": 111.2,
+            "median": 55.6,
+            "t3r": 111.2,
+            "per_month": 2.0
+          },
+          {
+            "n": 1,
+            "wr": 0.0,
+            "avg": -169.6,
+            "sum": -169.6,
+            "median": -169.6,
+            "t3r": -169.6,
+            "per_month": 1.0
+          }
+        ],
+        "positive_sum_folds": 4,
+        "positive_t3r_folds": 4,
+        "fold_t3r_sum": 693.3,
+        "worst_fold_sum": -169.6,
+        "worst_fold_t3r": -169.6
+      },
+      "basic_pass": false,
+      "n_warning": "LOW_N"
+    },
+    {
+      "name": "S_current_hold_120m",
+      "family": "SHORT_HOLD",
+      "note": "Current SHORT confirm with hold=120m.",
+      "mc_p": 0.965,
+      "summary": {
+        "n": 7,
+        "wr": 0.857,
+        "avg": 99.0,
+        "sum": 693.2,
+        "median": 95.8,
+        "t3r": -58.4,
+        "per_month": 7.0
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 145.1,
+            "sum": 145.1,
+            "median": 145.1,
+            "t3r": 145.1,
+            "per_month": 1.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 123.4,
+            "sum": 246.8,
+            "median": 123.4,
+            "t3r": 246.8,
+            "per_month": 2.0
+          },
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 359.8,
+            "sum": 359.8,
+            "median": 359.8,
+            "t3r": 359.8,
+            "per_month": 1.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 55.6,
+            "sum": 111.2,
+            "median": 55.6,
+            "t3r": 111.2,
+            "per_month": 2.0
+          },
+          {
+            "n": 1,
+            "wr": 0.0,
+            "avg": -169.6,
+            "sum": -169.6,
+            "median": -169.6,
+            "t3r": -169.6,
+            "per_month": 1.0
+          }
+        ],
+        "positive_sum_folds": 4,
+        "positive_t3r_folds": 4,
+        "fold_t3r_sum": 693.3,
+        "worst_fold_sum": -169.6,
+        "worst_fold_t3r": -169.6
+      },
+      "basic_pass": false,
+      "n_warning": "LOW_N"
+    },
+    {
+      "name": "L_notional_300_500",
+      "family": "LONG",
+      "note": "Anchor running_notional sweet spot; no btc7d gate.",
+      "mc_p": 1.0,
+      "summary": {
+        "n": 8,
+        "wr": 0.625,
+        "avg": 69.8,
+        "sum": 558.2,
+        "median": 90.3,
+        "t3r": -79.0,
+        "per_month": 2.2
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 2,
+            "wr": 0.5,
+            "avg": 163.3,
+            "sum": 326.7,
+            "median": 163.3,
+            "t3r": 326.7,
+            "per_month": 2.0
+          },
+          {
+            "n": 1,
+            "wr": 0.0,
+            "avg": -197.9,
+            "sum": -197.9,
+            "median": -197.9,
+            "t3r": -197.9,
+            "per_month": 1.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 90.3,
+            "sum": 180.6,
+            "median": 90.3,
+            "t3r": 180.6,
+            "per_month": 2.0
+          },
+          {
+            "n": 1,
+            "wr": 0.0,
+            "avg": -33.8,
+            "sum": -33.8,
+            "median": -33.8,
+            "t3r": -33.8,
+            "per_month": 1.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 141.3,
+            "sum": 282.6,
+            "median": 141.3,
+            "t3r": 282.6,
+            "per_month": 2.0
+          }
+        ],
+        "positive_sum_folds": 3,
+        "positive_t3r_folds": 3,
+        "fold_t3r_sum": 558.2,
+        "worst_fold_sum": -197.9,
+        "worst_fold_t3r": -197.9
+      },
+      "basic_pass": false,
+      "n_warning": "LOW_N"
+    },
+    {
+      "name": "S_current_hold_180m",
+      "family": "SHORT_HOLD",
+      "note": "Current SHORT confirm with hold=180m.",
+      "mc_p": 1.0,
+      "summary": {
+        "n": 7,
+        "wr": 0.714,
+        "avg": 75.6,
+        "sum": 529.3,
+        "median": 27.7,
+        "t3r": -102.0,
+        "per_month": 7.0
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 64.7,
+            "sum": 64.7,
+            "median": 64.7,
+            "t3r": 64.7,
+            "per_month": 1.0
+          },
+          {
+            "n": 2,
+            "wr": 0.5,
+            "avg": 124.4,
+            "sum": 248.7,
+            "median": 124.4,
+            "t3r": 248.7,
+            "per_month": 2.0
+          },
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 283.4,
+            "sum": 283.4,
+            "median": 283.4,
+            "t3r": 283.4,
+            "per_month": 1.0
+          },
+          {
+            "n": 2,
+            "wr": 1.0,
+            "avg": 25.7,
+            "sum": 51.3,
+            "median": 25.7,
+            "t3r": 51.3,
+            "per_month": 2.0
+          },
+          {
+            "n": 1,
+            "wr": 0.0,
+            "avg": -118.8,
+            "sum": -118.8,
+            "median": -118.8,
+            "t3r": -118.8,
+            "per_month": 1.0
+          }
+        ],
+        "positive_sum_folds": 4,
+        "positive_t3r_folds": 4,
+        "fold_t3r_sum": 529.3,
+        "worst_fold_sum": -118.8,
+        "worst_fold_t3r": -118.8
+      },
+      "basic_pass": false,
+      "n_warning": "LOW_N"
+    },
+    {
+      "name": "S_current_hold_150m",
+      "family": "SHORT_HOLD",
+      "note": "Current SHORT confirm with hold=150m.",
+      "mc_p": 1.0,
+      "summary": {
+        "n": 7,
+        "wr": 0.571,
+        "avg": 74.4,
+        "sum": 520.8,
+        "median": 102.4,
+        "t3r": -197.0,
+        "per_month": 7.0
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 138.2,
+            "sum": 138.2,
+            "median": 138.2,
+            "t3r": 138.2,
+            "per_month": 1.0
+          },
+          {
+            "n": 2,
+            "wr": 0.5,
+            "avg": 113.6,
+            "sum": 227.2,
+            "median": 113.6,
+            "t3r": 227.2,
+            "per_month": 2.0
+          },
+          {
+            "n": 1,
+            "wr": 1.0,
+            "avg": 309.1,
+            "sum": 309.1,
+            "median": 309.1,
+            "t3r": 309.1,
+            "per_month": 1.0
+          },
+          {
+            "n": 2,
+            "wr": 0.5,
+            "avg": 26.3,
+            "sum": 52.6,
+            "median": 26.3,
+            "t3r": 52.6,
+            "per_month": 2.0
+          },
+          {
+            "n": 1,
+            "wr": 0.0,
+            "avg": -206.3,
+            "sum": -206.3,
+            "median": -206.3,
+            "t3r": -206.3,
+            "per_month": 1.0
+          }
+        ],
+        "positive_sum_folds": 4,
+        "positive_t3r_folds": 4,
+        "fold_t3r_sum": 520.8,
+        "worst_fold_sum": -206.3,
+        "worst_fold_t3r": -206.3
+      },
+      "basic_pass": false,
+      "n_warning": "LOW_N"
+    },
+    {
+      "name": "SEQ_noisy_no_btc1m",
+      "family": "STATE_SEQUENCE_LONG4H",
+      "note": "Noisy/follow-on without BTC confirm.",
+      "mc_p": 1.0,
+      "summary": {
+        "n": 205,
+        "wr": 0.571,
+        "avg": -1.3,
+        "sum": -270.7,
+        "median": 14.8,
+        "t3r": -1341.7,
+        "per_month": 46.9
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 41,
+            "wr": 0.512,
+            "avg": -22.3,
+            "sum": -915.3,
+            "median": 6.1,
+            "t3r": -1562.4,
+            "per_month": 41.0
+          },
+          {
+            "n": 41,
+            "wr": 0.537,
+            "avg": -46.5,
+            "sum": -1905.5,
+            "median": 7.8,
+            "t3r": -2464.2,
+            "per_month": 41.0
+          },
+          {
+            "n": 41,
+            "wr": 0.61,
+            "avg": 35.0,
+            "sum": 1435.8,
+            "median": 23.6,
+            "t3r": 517.4,
+            "per_month": 41.0
+          },
+          {
+            "n": 41,
+            "wr": 0.659,
+            "avg": 32.7,
+            "sum": 1339.8,
+            "median": 22.1,
+            "t3r": 578.3,
+            "per_month": 41.0
+          },
+          {
+            "n": 41,
+            "wr": 0.537,
+            "avg": -5.5,
+            "sum": -225.5,
+            "median": 33.8,
+            "t3r": -1039.3,
+            "per_month": 41.0
+          }
+        ],
+        "positive_sum_folds": 2,
+        "positive_t3r_folds": 2,
+        "fold_t3r_sum": -3970.2,
+        "worst_fold_sum": -1905.5,
+        "worst_fold_t3r": -2464.2
+      },
+      "basic_pass": false,
+      "n_warning": null
+    },
+    {
+      "name": "SEQ_noisy_with_btc1m",
+      "family": "STATE_SEQUENCE_LONG4H",
+      "note": "Noisy/follow-on plus BTC confirm.",
+      "mc_p": 1.0,
+      "summary": {
+        "n": 48,
+        "wr": 0.229,
+        "avg": -129.4,
+        "sum": -6212.7,
+        "median": -86.6,
+        "t3r": -6615.0,
+        "per_month": 11.6
+      },
+      "folds": {
+        "folds": [
+          {
+            "n": 10,
+            "wr": 0.2,
+            "avg": -146.9,
+            "sum": -1468.7,
+            "median": -170.8,
+            "t3r": -1567.9,
+            "per_month": 6.3
+          },
+          {
+            "n": 9,
+            "wr": 0.222,
+            "avg": -57.9,
+            "sum": -521.0,
+            "median": -82.6,
+            "t3r": -610.6,
+            "per_month": 4.5
+          },
+          {
+            "n": 10,
+            "wr": 0.1,
+            "avg": -125.7,
+            "sum": -1256.9,
+            "median": -128.3,
+            "t3r": -1231.8,
+            "per_month": 10.0
+          },
+          {
+            "n": 9,
+            "wr": 0.333,
+            "avg": -211.1,
+            "sum": -1900.3,
+            "median": -136.2,
+            "t3r": -1986.1,
+            "per_month": 9.0
+          },
+          {
+            "n": 10,
+            "wr": 0.3,
+            "avg": -106.6,
+            "sum": -1065.7,
+            "median": -43.8,
+            "t3r": -1381.4,
+            "per_month": 10.0
+          }
+        ],
+        "positive_sum_folds": 0,
+        "positive_t3r_folds": 0,
+        "fold_t3r_sum": -6777.8,
+        "worst_fold_sum": -1900.3,
+        "worst_fold_t3r": -1986.1
+      },
+      "basic_pass": false,
+      "n_warning": null
+    }
+  ]
+}

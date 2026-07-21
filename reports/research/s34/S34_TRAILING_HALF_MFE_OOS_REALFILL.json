@@ -1,0 +1,255 @@
+{
+  "generated_at_utc": "2026-06-17T09:34:39.314493+00:00",
+  "scope": {
+    "feature_db": "data/s34_feature_factory.db",
+    "source_db": "file:data/microstructure.db?mode=ro",
+    "symbol": "ETHUSDT",
+    "liq_side": "BUY",
+    "filter": "f.cluster_notional >= 500000 and f.day_trend_bps >= 0",
+    "route": "LONG_DELAY0_TP60",
+    "tp_bps": 60.0,
+    "sl_bps": 40.0,
+    "current_be_bps": 30.0,
+    "trail_arm_bps": 30.0,
+    "trail_keep_fraction": 0.5,
+    "event_count": 97,
+    "split_ts_ms": 1776396694616,
+    "split_utc": "2026-04-17T03:31:34.616000+00:00",
+    "cost_note": "OOS section uses simplified mark path with flat 8 bps. Real-fill section uses historical book_ticker ask entry / bid exit where available."
+  },
+  "simplified_oos": {
+    "CURRENT_BE30": {
+      "train": {
+        "n": 45,
+        "days": 26,
+        "mean": 21.51294372915584,
+        "median": 29.905827437396454,
+        "cum": 968.0824678120129,
+        "wr": 0.5777777777777777,
+        "top3_removed_cum": 782.5289014690127,
+        "positive_days": 16,
+        "worst_day_cum": -48.78864872637766,
+        "exit_counts": {
+          "BE": 14,
+          "SL": 4,
+          "TIME": 5,
+          "TP": 22
+        }
+      },
+      "test": {
+        "n": 52,
+        "days": 12,
+        "mean": 26.648879750833963,
+        "median": 52.625790358595864,
+        "cum": 1385.741747043366,
+        "wr": 0.6346153846153846,
+        "top3_removed_cum": 1203.2102006112784,
+        "positive_days": 12,
+        "worst_day_cum": 38.35718264917171,
+        "exit_counts": {
+          "BE": 13,
+          "SL": 5,
+          "TIME": 3,
+          "TP": 31
+        }
+      },
+      "all": {
+        "n": 97,
+        "days": 38,
+        "mean": 24.266229019127618,
+        "median": 52.20848507147164,
+        "cum": 2353.824214855379,
+        "wr": 0.6082474226804123,
+        "top3_removed_cum": 2164.0206194917937,
+        "positive_days": 28,
+        "worst_day_cum": -48.78864872637766,
+        "exit_counts": {
+          "BE": 27,
+          "SL": 9,
+          "TIME": 8,
+          "TP": 53
+        }
+      }
+    },
+    "TRAIL_HALF_MFE_ARM30": {
+      "train": {
+        "n": 45,
+        "days": 26,
+        "mean": 25.505190736706695,
+        "median": 17.097892430982593,
+        "cum": 1147.7335831518012,
+        "wr": 0.8888888888888888,
+        "top3_removed_cum": 962.180016808801,
+        "positive_days": 25,
+        "worst_day_cum": -48.00000000000058,
+        "exit_counts": {
+          "SL": 4,
+          "TIME": 3,
+          "TP": 20,
+          "TRAIL": 18
+        }
+      },
+      "test": {
+        "n": 52,
+        "days": 12,
+        "mean": 25.209078413004143,
+        "median": 18.463166617159686,
+        "cum": 1310.8720774762155,
+        "wr": 0.8846153846153846,
+        "top3_removed_cum": 1128.3405310441278,
+        "positive_days": 12,
+        "worst_day_cum": 8.19704535139024,
+        "exit_counts": {
+          "SL": 5,
+          "TIME": 1,
+          "TP": 24,
+          "TRAIL": 22
+        }
+      },
+      "all": {
+        "n": 97,
+        "days": 38,
+        "mean": 25.346450109567183,
+        "median": 17.88412348239138,
+        "cum": 2458.6056606280167,
+        "wr": 0.8865979381443299,
+        "top3_removed_cum": 2268.8020652644313,
+        "positive_days": 37,
+        "worst_day_cum": -48.00000000000058,
+        "exit_counts": {
+          "SL": 9,
+          "TIME": 4,
+          "TP": 44,
+          "TRAIL": 40
+        }
+      }
+    }
+  },
+  "real_fill": {
+    "CURRENT_BE30": {
+      "total_rows": 97,
+      "real_fill_rows": 51,
+      "no_fill_rows": 46,
+      "no_fill_rate": 0.4742268041237113,
+      "summary": {
+        "train": {
+          "n": 10,
+          "days": 4,
+          "mean": 21.757910509219776,
+          "median": 37.61809536096381,
+          "cum": 217.57910509219778,
+          "wr": 0.7,
+          "top3_removed_cum": 45.28631510608668,
+          "positive_days": 4,
+          "worst_day_cum": 4.445904238908405,
+          "exit_counts": {
+            "BE": 1,
+            "SL": 2,
+            "TIME": 2,
+            "TP": 5
+          }
+        },
+        "test": {
+          "n": 41,
+          "days": 10,
+          "mean": 27.026259425091446,
+          "median": 48.4542534908833,
+          "cum": 1108.0766364287492,
+          "wr": 0.6585365853658537,
+          "top3_removed_cum": 853.7833281213424,
+          "positive_days": 9,
+          "worst_day_cum": -14.006518303804869,
+          "exit_counts": {
+            "BE": 8,
+            "SL": 5,
+            "TIME": 3,
+            "TP": 25
+          }
+        },
+        "all": {
+          "n": 51,
+          "days": 14,
+          "mean": 25.99324983374406,
+          "median": 48.4542534908833,
+          "cum": 1325.655741520947,
+          "wr": 0.6666666666666666,
+          "top3_removed_cum": 1071.36243321354,
+          "positive_days": 13,
+          "worst_day_cum": -14.006518303804869,
+          "exit_counts": {
+            "BE": 9,
+            "SL": 7,
+            "TIME": 5,
+            "TP": 30
+          }
+        }
+      },
+      "mean_entry_adverse": 1.106537899028656,
+      "mean_exit_adverse": -1.449337863436234,
+      "mean_spread": 0.05689735048300248,
+      "mean_fee": 8.0
+    },
+    "TRAIL_HALF_MFE_ARM30": {
+      "total_rows": 97,
+      "real_fill_rows": 51,
+      "no_fill_rows": 46,
+      "no_fill_rate": 0.4742268041237113,
+      "summary": {
+        "train": {
+          "n": 10,
+          "days": 4,
+          "mean": 16.684172150068534,
+          "median": 11.959473244498506,
+          "cum": 166.84172150068534,
+          "wr": 0.8,
+          "top3_removed_cum": -5.451068485425747,
+          "positive_days": 4,
+          "worst_day_cum": 4.445904238908405,
+          "exit_counts": {
+            "SL": 2,
+            "TP": 4,
+            "TRAIL": 4
+          }
+        },
+        "test": {
+          "n": 41,
+          "days": 10,
+          "mean": 23.181511346283433,
+          "median": 16.763971714440903,
+          "cum": 950.4419651976207,
+          "wr": 0.8292682926829268,
+          "top3_removed_cum": 696.1486568902137,
+          "positive_days": 9,
+          "worst_day_cum": -7.747837708349323,
+          "exit_counts": {
+            "SL": 5,
+            "TIME": 1,
+            "TP": 19,
+            "TRAIL": 16
+          }
+        },
+        "all": {
+          "n": 51,
+          "days": 14,
+          "mean": 21.907523268594232,
+          "median": 14.194728826807374,
+          "cum": 1117.283686698306,
+          "wr": 0.8235294117647058,
+          "top3_removed_cum": 862.9903783908991,
+          "positive_days": 13,
+          "worst_day_cum": -7.747837708349323,
+          "exit_counts": {
+            "SL": 7,
+            "TIME": 1,
+            "TP": 23,
+            "TRAIL": 20
+          }
+        }
+      },
+      "mean_entry_adverse": 1.106537899028656,
+      "mean_exit_adverse": -0.6995188444369158,
+      "mean_spread": 0.05689735048300313,
+      "mean_fee": 8.0
+    }
+  }
+}

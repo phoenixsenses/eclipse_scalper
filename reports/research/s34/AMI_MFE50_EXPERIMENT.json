@@ -1,0 +1,105 @@
+{
+  "spec_hash": "4978edd7238e6acb",
+  "train_rule": null,
+  "labels": {
+    "continuation": 29,
+    "negative": 5,
+    "stall": 8
+  },
+  "results": {
+    "HOLD_baseline": {
+      "n": 13,
+      "trades_per_day": 0.61,
+      "wr": 84.6,
+      "median_net": 93.1,
+      "mean_net": 101.0,
+      "cum_net": 1313.0,
+      "top3_removed": 546.0,
+      "profit_factor": 15.3,
+      "max_dd": -46.9,
+      "avg_mfe": 172.2,
+      "avg_mae": -69.8,
+      "neg_giveback_rate": 15.4,
+      "giveback_rescued_pct": 0.0,
+      "continuation_capture": 1.0
+    },
+    "POLICY_flagged": {
+      "n": 13,
+      "trades_per_day": 0.61,
+      "wr": 84.6,
+      "median_net": 93.1,
+      "mean_net": 101.0,
+      "cum_net": 1313.0,
+      "top3_removed": 546.0,
+      "profit_factor": 15.3,
+      "max_dd": -46.9,
+      "avg_mfe": 172.2,
+      "avg_mae": -69.8,
+      "neg_giveback_rate": 15.4,
+      "giveback_rescued_pct": 0.0,
+      "continuation_capture": 1.0
+    },
+    "LOCK_ALL_control": {
+      "n": 13,
+      "trades_per_day": 0.61,
+      "wr": 100.0,
+      "median_net": 20.0,
+      "mean_net": 92.7,
+      "cum_net": 1205.0,
+      "top3_removed": 463.0,
+      "profit_factor": null,
+      "max_dd": 0.0,
+      "avg_mfe": 172.2,
+      "avg_mae": -69.8,
+      "neg_giveback_rate": 15.4,
+      "giveback_rescued_pct": 100.0,
+      "continuation_capture": 0.75
+    },
+    "EXIT_ALL_control": {
+      "n": 13,
+      "trades_per_day": 0.61,
+      "wr": 100.0,
+      "median_net": 45.0,
+      "mean_net": 45.0,
+      "cum_net": 585.0,
+      "top3_removed": 450.0,
+      "profit_factor": null,
+      "max_dd": 0.0,
+      "avg_mfe": 172.2,
+      "avg_mae": -69.8,
+      "neg_giveback_rate": 15.4,
+      "giveback_rescued_pct": 100.0,
+      "continuation_capture": 0.0
+    },
+    "flag_rate_TEST": 0.0,
+    "session_breakdown_policy": {
+      "US": {
+        "n": 12,
+        "mean": 95.1
+      },
+      "OFF": {
+        "n": 1,
+        "mean": 171.3
+      }
+    }
+  },
+  "outcome": "FALSIFIES",
+  "passed": false,
+  "n_milestone": 42,
+  "train_baseline": {
+    "n": 29,
+    "trades_per_day": 0.26,
+    "wr": 86.2,
+    "median_net": 102.2,
+    "mean_net": 120.0,
+    "cum_net": 3480.0,
+    "top3_removed": 2278.0,
+    "profit_factor": 22.73,
+    "max_dd": -75.8,
+    "avg_mfe": 200.5,
+    "avg_mae": -54.4,
+    "neg_giveback_rate": 10.3,
+    "giveback_rescued_pct": 0.0,
+    "continuation_capture": 0.714
+  }
+}

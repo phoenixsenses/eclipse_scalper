@@ -1,0 +1,304 @@
+{
+  "generated_at_utc": "2026-07-17T19:02:58.333394+00:00",
+  "study": "LIQUIDATION_DRIVEN_FLOW_QUOTE_SUPPRESSION_POLICY_DIAGNOSTIC",
+  "symbol": "ETHUSDT",
+  "read_only": true,
+  "holdout_opened": false,
+  "deep_bid_simulated": false,
+  "book_window": [
+    "2026-04-11T17:08:42.005000+00:00",
+    "2026-07-17T18:37:55.280000+00:00"
+  ],
+  "own_eth": 0.5,
+  "trigger_thresh_usd": 100000.0,
+  "stage1_json_sha256": "4b49aaf1d2b5f87b",
+  "counts": {
+    "events": 1068,
+    "controls": 1068,
+    "event_days": 51
+  },
+  "primary_config": {
+    "latency_ms": 250,
+    "quote_off_dur_s": 30,
+    "eval_window_s": 30,
+    "markout_h_s": 30,
+    "maker_fee_bps": 2.0,
+    "taker_fee_bps": 3.05,
+    "fill_model": "F3_queue_conservative"
+  },
+  "A_policy_comparison": {
+    "F3": {
+      "P0": {
+        "abs_net_cross_per_event": -363.09,
+        "delta_vs_P1": 141.99,
+        "delta_ci": [
+          130.87,
+          154.25
+        ],
+        "ctrl_delta": 125.21,
+        "incremental": 11.72,
+        "incr_ci": [
+          -2.47,
+          25.96
+        ]
+      },
+      "P1": {
+        "abs_net_cross_per_event": -501.05,
+        "delta_vs_P1": 0.0,
+        "delta_ci": [
+          0.0,
+          0.0
+        ],
+        "ctrl_delta": 0.0,
+        "incremental": 0.0,
+        "incr_ci": [
+          0.0,
+          0.0
+        ]
+      },
+      "P2": {
+        "abs_net_cross_per_event": -363.09,
+        "delta_vs_P1": 141.99,
+        "delta_ci": [
+          131.18,
+          154.05
+        ],
+        "ctrl_delta": 125.21,
+        "incremental": 11.72,
+        "incr_ci": [
+          -2.53,
+          26.24
+        ]
+      },
+      "P3": {
+        "abs_net_cross_per_event": -444.78,
+        "delta_vs_P1": 55.48,
+        "delta_ci": [
+          46.76,
+          64.53
+        ],
+        "ctrl_delta": 63.15,
+        "incremental": -4.49,
+        "incr_ci": [
+          -15.83,
+          7.83
+        ]
+      },
+      "P4": {
+        "abs_net_cross_per_event": -444.78,
+        "delta_vs_P1": 55.48,
+        "delta_ci": [
+          47.17,
+          64.9
+        ],
+        "ctrl_delta": 63.15,
+        "incremental": -4.49,
+        "incr_ci": [
+          -16.2,
+          7.26
+        ]
+      },
+      "P5": {
+        "abs_net_cross_per_event": -363.09,
+        "delta_vs_P1": 141.99,
+        "delta_ci": [
+          130.29,
+          153.65
+        ],
+        "ctrl_delta": 0.0,
+        "incremental": 137.25,
+        "incr_ci": [
+          127.21,
+          146.82
+        ]
+      }
+    },
+    "F2": {
+      "P0": {
+        "abs_net_cross_per_event": -465.0,
+        "delta_vs_P1": 122.59,
+        "delta_ci": [
+          109.76,
+          136.57
+        ],
+        "ctrl_delta": 193.65,
+        "incremental": -78.91,
+        "incr_ci": [
+          -98.15,
+          -59.01
+        ]
+      },
+      "P1": {
+        "abs_net_cross_per_event": -577.69,
+        "delta_vs_P1": 0.0,
+        "delta_ci": [
+          0.0,
+          0.0
+        ],
+        "ctrl_delta": 0.0,
+        "incremental": 0.0,
+        "incr_ci": [
+          0.0,
+          0.0
+        ]
+      },
+      "P2": {
+        "abs_net_cross_per_event": -465.0,
+        "delta_vs_P1": 122.59,
+        "delta_ci": [
+          109.81,
+          136.39
+        ],
+        "ctrl_delta": 193.65,
+        "incremental": -78.91,
+        "incr_ci": [
+          -98.63,
+          -59.44
+        ]
+      },
+      "P3": {
+        "abs_net_cross_per_event": -545.5,
+        "delta_vs_P1": 33.78,
+        "delta_ci": [
+          26.2,
+          42.45
+        ],
+        "ctrl_delta": 97.46,
+        "incremental": -61.2,
+        "incr_ci": [
+          -73.87,
+          -47.89
+        ]
+      },
+      "P4": {
+        "abs_net_cross_per_event": -545.5,
+        "delta_vs_P1": 33.78,
+        "delta_ci": [
+          25.95,
+          42.57
+        ],
+        "ctrl_delta": 97.46,
+        "incremental": -61.2,
+        "incr_ci": [
+          -73.5,
+          -47.74
+        ]
+      },
+      "P5": {
+        "abs_net_cross_per_event": -465.0,
+        "delta_vs_P1": 122.59,
+        "delta_ci": [
+          110.12,
+          136.22
+        ],
+        "ctrl_delta": 0.0,
+        "incremental": 115.83,
+        "incr_ci": [
+          105.58,
+          126.06
+        ]
+      }
+    }
+  },
+  "B_decomposition_F3": {
+    "P2": {
+      "gross_avoided_loss": 173.92,
+      "missed_profitable_fills": 35.96,
+      "net_suppression_value": 137.96
+    },
+    "P3": {
+      "gross_avoided_loss": 64.86,
+      "missed_profitable_fills": 8.59,
+      "net_suppression_value": 56.27
+    }
+  },
+  "F_duration_sweep_incr_F3_W90": {
+    "1s": {
+      "n_days": 48,
+      "incr": 10.05,
+      "lb": 7.13,
+      "ub": 12.95,
+      "ev_delta": 14.51,
+      "ctrl_delta": 4.79
+    },
+    "5s": {
+      "n_days": 48,
+      "incr": 35.39,
+      "lb": 29.0,
+      "ub": 41.79,
+      "ev_delta": 61.42,
+      "ctrl_delta": 21.02
+    },
+    "30s": {
+      "n_days": 48,
+      "incr": 10.96,
+      "lb": -3.53,
+      "ub": 25.56,
+      "ev_delta": 142.3,
+      "ctrl_delta": 126.24
+    },
+    "60s": {
+      "n_days": 48,
+      "incr": -50.49,
+      "lb": -70.54,
+      "ub": -30.76,
+      "ev_delta": 170.23,
+      "ctrl_delta": 216.77
+    }
+  },
+  "I_sensitivity": {
+    "latency": {
+      "0ms": 14.29,
+      "50ms": 13.36,
+      "100ms": 13.01,
+      "250ms": 11.72,
+      "500ms": 8.91
+    },
+    "fee": {
+      "0/0": -0.62,
+      "2/3.05": 11.72,
+      "3/4.05": 16.61
+    },
+    "dur5_fee0_incr": {
+      "n_days": 48,
+      "incr": 4.43,
+      "lb": -0.93,
+      "ub": 9.92,
+      "ev_delta": 10.15,
+      "ctrl_delta": 1.0
+    },
+    "dur5_fee2_incr": {
+      "n_days": 48,
+      "incr": 35.39,
+      "lb": 29.12,
+      "ub": 41.56,
+      "ev_delta": 61.42,
+      "ctrl_delta": 21.02
+    }
+  },
+  "G_buy_sell_symmetry": {
+    "SELL": {
+      "P2_delta_vs_P1": 149.35,
+      "P2_incremental": 35.59,
+      "P3_delta_vs_P1": 65.91
+    },
+    "BUY": {
+      "P2_delta_vs_P1": 127.43,
+      "P2_incremental": -2.05,
+      "P3_delta_vs_P1": 47.36
+    }
+  },
+  "not_just_uptime_F3_P2": {
+    "per_suppressed_fill_net": -5.508,
+    "n_suppressed": 26751,
+    "per_kept_fill_net": -7.707,
+    "n_kept": 50317,
+    "note": "suppressed burst fills are LESS adverse per-fill than kept fills -> not targeting worst fills"
+  },
+  "maxstat_FWER_incremental_F3": {
+    "P2": 0.688,
+    "P3": 0.9627,
+    "P4": 0.9627,
+    "P5": 0.0
+  }
+}

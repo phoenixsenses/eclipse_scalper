@@ -1,0 +1,76 @@
+{
+  "baseline": {
+    "bias_bps": 1.021052628122827,
+    "hit_direction_rate": 0.6129032258064516,
+    "mae_bps": 47.52902480690921,
+    "n": 62
+  },
+  "drop_one": [
+    {
+      "bias_bps": -1.8029815674868,
+      "direction_delta_vs_full": 0.032258064516129004,
+      "hit_direction_rate": 0.6451612903225806,
+      "mae_bps": 44.78505519951294,
+      "mae_delta_vs_full": -2.7439696073962736,
+      "n": 62,
+      "removed_feature": "log_cluster_notional"
+    },
+    {
+      "bias_bps": -0.4500359311513712,
+      "direction_delta_vs_full": -0.016129032258064502,
+      "hit_direction_rate": 0.5967741935483871,
+      "mae_bps": 46.739403669089434,
+      "mae_delta_vs_full": -0.789621137819779,
+      "n": 62,
+      "removed_feature": "cluster_liq_count_ratio"
+    },
+    {
+      "bias_bps": 1.0893514695368953,
+      "direction_delta_vs_full": 0.0,
+      "hit_direction_rate": 0.6129032258064516,
+      "mae_bps": 47.46072596549514,
+      "mae_delta_vs_full": -0.0682988414140695,
+      "n": 62,
+      "removed_feature": "shape_match"
+    },
+    {
+      "bias_bps": 0.8528565445340839,
+      "direction_delta_vs_full": 0.0,
+      "hit_direction_rate": 0.6129032258064516,
+      "mae_bps": 47.64048458899685,
+      "mae_delta_vs_full": 0.11145978208763552,
+      "n": 62,
+      "removed_feature": "cluster_duration_sec"
+    },
+    {
+      "bias_bps": 0.8559374033469203,
+      "direction_delta_vs_full": 0.0,
+      "hit_direction_rate": 0.6129032258064516,
+      "mae_bps": 47.64356544780968,
+      "mae_delta_vs_full": 0.11454064090046501,
+      "n": 62,
+      "removed_feature": "max_single_liq_share"
+    },
+    {
+      "bias_bps": 1.021052628122827,
+      "direction_delta_vs_full": 0.0,
+      "hit_direction_rate": 0.6129032258064516,
+      "mae_bps": 47.52902480690921,
+      "mae_delta_vs_full": 0.0,
+      "n": 62,
+      "removed_feature": "btc_pre_return_bps"
+    }
+  ],
+  "events": 69,
+  "features": [
+    "log_cluster_notional",
+    "cluster_liq_count_ratio",
+    "shape_match",
+    "cluster_duration_sec",
+    "max_single_liq_share",
+    "btc_pre_return_bps"
+  ],
+  "k": 5,
+  "ledger_db": "D:\\eclipse_scalper\\data\\s34_intelligence.db",
+  "note": "Temporal-safe diagnostic: each event only sees same-rule outcomes closed before its signal timestamp."
+}

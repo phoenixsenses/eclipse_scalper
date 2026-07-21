@@ -1,0 +1,259 @@
+{
+  "results": {
+    "R1": {
+      "R1": {
+        "monday_avg": -47.4,
+        "base_avg": 40.2,
+        "obs_dev": 87.6,
+        "maxstat_p": 0.068
+      },
+      "R1_mon_TEST": {
+        "label": "Mon TEST",
+        "n": 8,
+        "wr": 25.0,
+        "avg": -46.9,
+        "total": -375.0,
+        "per_month": 5.9,
+        "worst": -130.0,
+        "tail_n": 2,
+        "mdd": -375.0,
+        "risk_adj": -1.0,
+        "mc_p": 0.982
+      }
+    },
+    "R2": {
+      "L0_base_s2": {
+        "label": "L0_base_s2",
+        "n": 45,
+        "wr": 71.1,
+        "avg": 58.9,
+        "total": 2648.0,
+        "per_month": 9.9,
+        "worst": -161.8,
+        "tail_n": 5,
+        "mdd": -237.4,
+        "risk_adj": 11.16,
+        "mc_p": 0.0
+      },
+      "L0_base_s2_TEST": {
+        "label": "L0_base_s2 TEST",
+        "n": 12,
+        "wr": 75.0,
+        "avg": 60.4,
+        "total": 724.0,
+        "per_month": 8.8,
+        "worst": -129.3,
+        "tail_n": 1,
+        "mdd": -129.3,
+        "risk_adj": 5.6,
+        "mc_p": 0.028
+      },
+      "L1_+notMon": {
+        "label": "L1_+notMon",
+        "n": 38,
+        "wr": 78.9,
+        "avg": 79.0,
+        "total": 3003.0,
+        "per_month": 8.4,
+        "worst": -154.6,
+        "tail_n": 2,
+        "mdd": -170.0,
+        "risk_adj": 17.66,
+        "mc_p": 0.0
+      },
+      "L1_+notMon_TEST": {
+        "label": "L1_+notMon TEST",
+        "n": 10,
+        "wr": 90.0,
+        "avg": 89.8,
+        "total": 898.0,
+        "per_month": 7.3,
+        "worst": -46.1,
+        "tail_n": 0,
+        "mdd": -46.1,
+        "risk_adj": 17.97,
+        "mc_p": 0.002
+      },
+      "L2_score9_ge4": {
+        "label": "L2_score9_ge4",
+        "n": 26,
+        "wr": 73.1,
+        "avg": 68.7,
+        "total": 1785.0,
+        "per_month": 5.7,
+        "worst": -154.6,
+        "tail_n": 2,
+        "mdd": -170.0,
+        "risk_adj": 10.5,
+        "mc_p": 0.0
+      },
+      "L2_score9_ge4_TEST": {
+        "label": "L2_score9_ge4 TEST",
+        "n": 6,
+        "wr": 100.0,
+        "avg": 97.4,
+        "total": 584.0,
+        "per_month": 4.4,
+        "worst": 19.8,
+        "tail_n": 0,
+        "mdd": 0.0,
+        "risk_adj": 11.68,
+        "mc_p": 0.012
+      },
+      "L3_+fund_neg": {
+        "label": "L3_+fund_neg",
+        "n": 17,
+        "wr": 88.2,
+        "avg": 103.2,
+        "total": 1754.0,
+        "per_month": 3.7,
+        "worst": -154.6,
+        "tail_n": 1,
+        "mdd": -154.6,
+        "risk_adj": 11.35,
+        "mc_p": 0.0
+      },
+      "L3_+fund_neg_TEST": {
+        "label": "L3_+fund_neg TEST",
+        "n": 3,
+        "wr": 100.0,
+        "avg": 113.8,
+        "total": 341.0,
+        "per_month": 2.2,
+        "worst": 19.8,
+        "tail_n": 0,
+        "mdd": 0.0,
+        "risk_adj": 6.83,
+        "mc_p": null
+      },
+      "L4_L2_pt200": {
+        "label": "L2+pt200",
+        "n": 26,
+        "wr": 73.1,
+        "avg": 72.5,
+        "total": 1884.0,
+        "per_month": 5.7,
+        "worst": -154.6,
+        "tail_n": 2,
+        "mdd": -170.0,
+        "risk_adj": 11.09,
+        "mc_p": 0.0
+      },
+      "L5_score10_ge4": {
+        "label": "s10>=4",
+        "n": 30,
+        "wr": 73.3,
+        "avg": 66.3,
+        "total": 1989.0,
+        "per_month": 6.6,
+        "worst": -154.6,
+        "tail_n": 2,
+        "mdd": -203.2,
+        "risk_adj": 9.79,
+        "mc_p": 0.0
+      },
+      "L5_score10_ge4_TEST": {
+        "label": "s10>=4 TEST",
+        "n": 7,
+        "wr": 100.0,
+        "avg": 97.4,
+        "total": 682.0,
+        "per_month": 5.1,
+        "worst": 19.8,
+        "tail_n": 0,
+        "mdd": 0.0,
+        "risk_adj": 13.64,
+        "mc_p": 0.006
+      },
+      "L5_score10_ge5": {
+        "label": "s10>=5",
+        "n": 23,
+        "wr": 73.9,
+        "avg": 70.8,
+        "total": 1629.0,
+        "per_month": 5.1,
+        "worst": -154.6,
+        "tail_n": 2,
+        "mdd": -170.0,
+        "risk_adj": 9.58,
+        "mc_p": 0.004
+      },
+      "L5_score10_ge5_TEST": {
+        "label": "s10>=5 TEST",
+        "n": 5,
+        "wr": 100.0,
+        "avg": 96.5,
+        "total": 483.0,
+        "per_month": 3.7,
+        "worst": 19.8,
+        "tail_n": 0,
+        "mdd": 0.0,
+        "risk_adj": 9.65,
+        "mc_p": 0.032
+      },
+      "L6_sizing": {
+        "n": 26,
+        "w_total": 4071.0,
+        "w_mdd": -170.0,
+        "w_worst": -154.6,
+        "risk_adj": 23.95
+      }
+    },
+    "R3": {
+      "R3_long_only": {
+        "label": "refined LONG",
+        "n": 54,
+        "wr": 79.6,
+        "avg": 84.7,
+        "total": 4572.0,
+        "per_month": 11.9,
+        "worst": -154.6,
+        "tail_n": 3,
+        "mdd": -154.6,
+        "risk_adj": 29.57,
+        "mc_p": 0.0
+      },
+      "R3_short_only": {
+        "label": "SHORT 13-17",
+        "n": 11,
+        "wr": 81.8,
+        "avg": 111.1,
+        "total": 1222.0,
+        "per_month": 2.4,
+        "worst": -81.4,
+        "tail_n": 0,
+        "mdd": -81.4,
+        "risk_adj": 15.01,
+        "mc_p": 0.006
+      },
+      "R3_portfolio": {
+        "label": "portfolio",
+        "n": 30,
+        "wr": 73.3,
+        "avg": 70.2,
+        "total": 2106.0,
+        "per_month": 6.6,
+        "worst": -154.6,
+        "tail_n": 2,
+        "mdd": -170.0,
+        "risk_adj": 12.39,
+        "mc_p": 0.0
+      }
+    },
+    "R4": {
+      "R4_mark_prices_age_min": 0.1,
+      "R4_liquidations_age_min": 1.0,
+      "R4_book_ticker_age_min": 0.0,
+      "R4_agg_trades_age_min": 0.0,
+      "R4_vol_state_age_min": 38516.3,
+      "R4_mark_gaps_7d": {
+        "count": 11,
+        "max_gap_s": 786.0
+      }
+    }
+  },
+  "meta": {
+    "n": 127,
+    "months": 4.54
+  }
+}

@@ -1,0 +1,961 @@
+{
+  "generated_at_utc": "2026-06-26T14:11:42.154667+00:00",
+  "train_ratio": 0.7,
+  "k_default": 20,
+  "prelim_threshold": 30,
+  "calib_threshold_bps": 15.0,
+  "results": [
+    {
+      "symbol": "BTCUSDT",
+      "liq_side": "BUY",
+      "n_total": 127,
+      "n_train": 88,
+      "n_test": 39,
+      "train_ends_utc": "2026-06-11",
+      "test_starts_utc": "2026-06-11",
+      "primary_route": "LONG_DELAY0_TP60",
+      "routes": [
+        {
+          "route_id": "LONG_DELAY0_TP60",
+          "is_primary": true,
+          "preliminary": false,
+          "n_train": 88,
+          "n_test": 39,
+          "k": 17,
+          "base_rate_median": -8.09,
+          "base_rate_wr": 0.455,
+          "realized_median": 52.28,
+          "realized_wr": 0.744,
+          "pred_median_def": -8.08,
+          "pred_median_auto": -8.08,
+          "mae_def": 40.41,
+          "mae_auto": 38.04,
+          "dir_acc_def": 0.436,
+          "dir_acc_auto": 0.436,
+          "uplift_vs_baserate": 60.36,
+          "calibration": [
+            {
+              "bucket": "positive",
+              "n": 8,
+              "pred_median": 28.578125855724196,
+              "realized_median": 52.52534830859021,
+              "realized_wr": 0.875
+            },
+            {
+              "bucket": "neutral",
+              "n": 31,
+              "pred_median": -8.076006681626568,
+              "realized_median": 52.27680668202395,
+              "realized_wr": 0.7096774193548387
+            },
+            {
+              "bucket": "negative",
+              "n": 0,
+              "pred_median": null,
+              "realized_median": null,
+              "realized_wr": null
+            }
+          ],
+          "auto_weights": {
+            "cluster_liq_count": 2.0,
+            "max_single_liq_share": 1.086,
+            "symbol_pre_5m_bps": 0.925,
+            "symbol_pre_15m_bps": 0.862,
+            "btc_pre_15m_bps": 0.862,
+            "cluster_duration_sec": 0.626,
+            "cluster_notional": 0.504,
+            "intensity_per_sec": 0.504,
+            "inter_cluster_gap_sec": 0.504,
+            "day_trend_bps": 0.504,
+            "day_range_bps": 0.504
+          }
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP40_CONTROL",
+          "is_primary": false,
+          "preliminary": false,
+          "n_train": 88,
+          "n_test": 39,
+          "k": 17,
+          "base_rate_median": -48.33,
+          "base_rate_wr": 0.216,
+          "realized_median": -48.52,
+          "realized_wr": 0.103,
+          "pred_median_def": -48.45,
+          "pred_median_auto": -48.54,
+          "mae_def": 9.58,
+          "mae_auto": 10.41,
+          "dir_acc_def": 0.897,
+          "dir_acc_auto": 0.897,
+          "uplift_vs_baserate": -0.19,
+          "calibration": [
+            {
+              "bucket": "positive",
+              "n": 0,
+              "pred_median": null,
+              "realized_median": null,
+              "realized_wr": null
+            },
+            {
+              "bucket": "neutral",
+              "n": 0,
+              "pred_median": null,
+              "realized_median": null,
+              "realized_wr": null
+            },
+            {
+              "bucket": "negative",
+              "n": 39,
+              "pred_median": -48.44679537947599,
+              "realized_median": -48.522315049425885,
+              "realized_wr": 0.10256410256410256
+            }
+          ],
+          "auto_weights": {
+            "cluster_liq_count": 2.0,
+            "max_single_liq_share": 1.523,
+            "symbol_pre_5m_bps": 1.192,
+            "symbol_pre_15m_bps": 1.07,
+            "btc_pre_15m_bps": 1.07,
+            "day_range_bps": 0.872,
+            "intensity_per_sec": 0.804,
+            "cluster_duration_sec": 0.775,
+            "cluster_notional": 0.681,
+            "inter_cluster_gap_sec": 0.681,
+            "day_trend_bps": 0.681
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "BTCUSDT",
+      "liq_side": "SELL",
+      "n_total": 113,
+      "n_train": 79,
+      "n_test": 34,
+      "train_ends_utc": "2026-06-17",
+      "test_starts_utc": "2026-06-17",
+      "primary_route": "SHORT_DELAY0_TP40",
+      "routes": [
+        {
+          "route_id": "LONG_DELAY0_TP40_CONTROL",
+          "is_primary": false,
+          "preliminary": false,
+          "n_train": 79,
+          "n_test": 34,
+          "k": 15,
+          "base_rate_median": -48.15,
+          "base_rate_wr": 0.253,
+          "realized_median": -48.37,
+          "realized_wr": 0.029,
+          "pred_median_def": -48.09,
+          "pred_median_auto": -48.13,
+          "mae_def": 15.77,
+          "mae_auto": 15.18,
+          "dir_acc_def": 0.941,
+          "dir_acc_auto": 0.912,
+          "uplift_vs_baserate": -0.22,
+          "calibration": [
+            {
+              "bucket": "positive",
+              "n": 0,
+              "pred_median": null,
+              "realized_median": null,
+              "realized_wr": null
+            },
+            {
+              "bucket": "neutral",
+              "n": 7,
+              "pred_median": -0.4368456745656468,
+              "realized_median": -48.124340275425084,
+              "realized_wr": 0.0
+            },
+            {
+              "bucket": "negative",
+              "n": 27,
+              "pred_median": -48.09929408220535,
+              "realized_median": -48.464337782956484,
+              "realized_wr": 0.037037037037037035
+            }
+          ],
+          "auto_weights": {
+            "cluster_duration_sec": 2.0,
+            "cluster_liq_count": 1.859,
+            "day_trend_bps": 1.138,
+            "day_range_bps": 0.716,
+            "cluster_notional": 0.68,
+            "inter_cluster_gap_sec": 0.634,
+            "max_single_liq_share": 0.461,
+            "intensity_per_sec": 0.461,
+            "symbol_pre_5m_bps": 0.461,
+            "symbol_pre_15m_bps": 0.461,
+            "btc_pre_15m_bps": 0.461
+          }
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP40",
+          "is_primary": true,
+          "preliminary": false,
+          "n_train": 79,
+          "n_test": 34,
+          "k": 15,
+          "base_rate_median": 32.15,
+          "base_rate_wr": 0.658,
+          "realized_median": 32.42,
+          "realized_wr": 0.941,
+          "pred_median_def": 32.09,
+          "pred_median_auto": 32.13,
+          "mae_def": 18.94,
+          "mae_auto": 16.73,
+          "dir_acc_def": 0.676,
+          "dir_acc_auto": 0.706,
+          "uplift_vs_baserate": 0.27,
+          "calibration": [
+            {
+              "bucket": "positive",
+              "n": 24,
+              "pred_median": 32.09929408220535,
+              "realized_median": 32.41831037543783,
+              "realized_wr": 0.9166666666666666
+            },
+            {
+              "bucket": "neutral",
+              "n": 4,
+              "pred_median": -0.26004732317368795,
+              "realized_median": 32.729179275807496,
+              "realized_wr": 1.0
+            },
+            {
+              "bucket": "negative",
+              "n": 6,
+              "pred_median": -19.966441378596798,
+              "realized_median": 32.516299520651266,
+              "realized_wr": 1.0
+            }
+          ],
+          "auto_weights": {
+            "cluster_liq_count": 2.0,
+            "cluster_duration_sec": 1.981,
+            "day_trend_bps": 1.312,
+            "day_range_bps": 0.859,
+            "cluster_notional": 0.728,
+            "inter_cluster_gap_sec": 0.679,
+            "max_single_liq_share": 0.486,
+            "intensity_per_sec": 0.486,
+            "symbol_pre_5m_bps": 0.486,
+            "symbol_pre_15m_bps": 0.486,
+            "btc_pre_15m_bps": 0.486
+          }
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP60",
+          "is_primary": false,
+          "preliminary": false,
+          "n_train": 79,
+          "n_test": 34,
+          "k": 15,
+          "base_rate_median": -8.08,
+          "base_rate_wr": 0.456,
+          "realized_median": 52.24,
+          "realized_wr": 0.765,
+          "pred_median_def": -8.16,
+          "pred_median_auto": -8.16,
+          "mae_def": 45.04,
+          "mae_auto": 39.91,
+          "dir_acc_def": 0.382,
+          "dir_acc_auto": 0.5,
+          "uplift_vs_baserate": 60.32,
+          "calibration": [
+            {
+              "bucket": "positive",
+              "n": 6,
+              "pred_median": 25.45749801148127,
+              "realized_median": 39.553808532422735,
+              "realized_wr": 0.6666666666666666
+            },
+            {
+              "bucket": "neutral",
+              "n": 22,
+              "pred_median": -8.158534297575699,
+              "realized_median": 52.297050906426335,
+              "realized_wr": 0.8181818181818182
+            },
+            {
+              "bucket": "negative",
+              "n": 6,
+              "pred_median": -19.966441378596798,
+              "realized_median": 36.30837416540463,
+              "realized_wr": 0.6666666666666666
+            }
+          ],
+          "auto_weights": {
+            "cluster_liq_count": 2.0,
+            "cluster_duration_sec": 1.493,
+            "day_trend_bps": 0.871,
+            "inter_cluster_gap_sec": 0.869,
+            "symbol_pre_15m_bps": 0.774,
+            "btc_pre_15m_bps": 0.774,
+            "cluster_notional": 0.686,
+            "day_range_bps": 0.617,
+            "max_single_liq_share": 0.43,
+            "intensity_per_sec": 0.43,
+            "symbol_pre_5m_bps": 0.43
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "ETHUSDT",
+      "liq_side": "BUY",
+      "n_total": 450,
+      "n_train": 315,
+      "n_test": 135,
+      "train_ends_utc": "2026-04-17",
+      "test_starts_utc": "2026-04-17",
+      "primary_route": "LONG_DELAY0_TP60",
+      "routes": [
+        {
+          "route_id": "LONG_DELAY0_TP60",
+          "is_primary": true,
+          "preliminary": false,
+          "n_train": 315,
+          "n_test": 135,
+          "k": 20,
+          "base_rate_median": 20.43,
+          "base_rate_wr": 0.514,
+          "realized_median": -8.05,
+          "realized_wr": 0.452,
+          "pred_median_def": 7.12,
+          "pred_median_auto": -8.03,
+          "mae_def": 31.72,
+          "mae_auto": 30.87,
+          "dir_acc_def": 0.593,
+          "dir_acc_auto": 0.615,
+          "uplift_vs_baserate": -28.48,
+          "calibration": [
+            {
+              "bucket": "positive",
+              "n": 55,
+              "pred_median": 41.3007061111158,
+              "realized_median": 52.32772746873558,
+              "realized_wr": 0.6181818181818182
+            },
+            {
+              "bucket": "neutral",
+              "n": 80,
+              "pred_median": -8.259644417673227,
+              "realized_median": -8.527397632547805,
+              "realized_wr": 0.3375
+            },
+            {
+              "bucket": "negative",
+              "n": 0,
+              "pred_median": null,
+              "realized_median": null,
+              "realized_wr": null
+            }
+          ],
+          "auto_weights": {
+            "cluster_liq_count": 2.0,
+            "max_single_liq_share": 1.611,
+            "cluster_duration_sec": 1.316,
+            "intensity_per_sec": 0.492,
+            "cluster_notional": 0.49,
+            "day_range_bps": 0.411,
+            "inter_cluster_gap_sec": 0.402,
+            "day_trend_bps": 0.402,
+            "symbol_pre_5m_bps": 0.402,
+            "symbol_pre_15m_bps": 0.402,
+            "btc_pre_15m_bps": 0.402
+          }
+        },
+        {
+          "route_id": "LONG_DELAY60_TP120",
+          "is_primary": false,
+          "preliminary": false,
+          "n_train": 315,
+          "n_test": 135,
+          "k": 20,
+          "base_rate_median": -8.81,
+          "base_rate_wr": 0.283,
+          "realized_median": -8.61,
+          "realized_wr": 0.296,
+          "pred_median_def": -9.22,
+          "pred_median_auto": -9.24,
+          "mae_def": 37.49,
+          "mae_auto": 37.25,
+          "dir_acc_def": 0.704,
+          "dir_acc_auto": 0.704,
+          "uplift_vs_baserate": 0.2,
+          "calibration": [
+            {
+              "bucket": "positive",
+              "n": 0,
+              "pred_median": null,
+              "realized_median": null,
+              "realized_wr": null
+            },
+            {
+              "bucket": "neutral",
+              "n": 121,
+              "pred_median": -9.023488502383234,
+              "realized_median": -8.58495268101896,
+              "realized_wr": 0.3140495867768595
+            },
+            {
+              "bucket": "negative",
+              "n": 14,
+              "pred_median": -20.53097736807868,
+              "realized_median": -11.495899486710444,
+              "realized_wr": 0.14285714285714285
+            }
+          ],
+          "auto_weights": {
+            "cluster_liq_count": 2.0,
+            "max_single_liq_share": 1.636,
+            "cluster_duration_sec": 1.444,
+            "cluster_notional": 0.686,
+            "intensity_per_sec": 0.686,
+            "inter_cluster_gap_sec": 0.686,
+            "day_trend_bps": 0.686,
+            "day_range_bps": 0.686,
+            "symbol_pre_5m_bps": 0.686,
+            "symbol_pre_15m_bps": 0.686,
+            "btc_pre_15m_bps": 0.686
+          }
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP40_CONTROL",
+          "is_primary": false,
+          "preliminary": false,
+          "n_train": 315,
+          "n_test": 135,
+          "k": 20,
+          "base_rate_median": -48.51,
+          "base_rate_wr": 0.219,
+          "realized_median": -48.34,
+          "realized_wr": 0.259,
+          "pred_median_def": -48.38,
+          "pred_median_auto": -48.3,
+          "mae_def": 26.43,
+          "mae_auto": 25.8,
+          "dir_acc_def": 0.741,
+          "dir_acc_auto": 0.711,
+          "uplift_vs_baserate": 0.18,
+          "calibration": [
+            {
+              "bucket": "positive",
+              "n": 0,
+              "pred_median": null,
+              "realized_median": null,
+              "realized_wr": null
+            },
+            {
+              "bucket": "neutral",
+              "n": 7,
+              "pred_median": -8.614581699459517,
+              "realized_median": -11.44971507908768,
+              "realized_wr": 0.14285714285714285
+            },
+            {
+              "bucket": "negative",
+              "n": 128,
+              "pred_median": -48.39858768577318,
+              "realized_median": -48.36765843238709,
+              "realized_wr": 0.265625
+            }
+          ],
+          "auto_weights": {
+            "cluster_liq_count": 2.0,
+            "max_single_liq_share": 1.678,
+            "cluster_duration_sec": 1.401,
+            "intensity_per_sec": 0.571,
+            "cluster_notional": 0.482,
+            "inter_cluster_gap_sec": 0.482,
+            "day_trend_bps": 0.482,
+            "day_range_bps": 0.482,
+            "symbol_pre_5m_bps": 0.482,
+            "symbol_pre_15m_bps": 0.482,
+            "btc_pre_15m_bps": 0.482
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "ETHUSDT",
+      "liq_side": "SELL",
+      "n_total": 222,
+      "n_train": 155,
+      "n_test": 67,
+      "train_ends_utc": "2026-06-11",
+      "test_starts_utc": "2026-06-11",
+      "primary_route": "SHORT_DELAY0_TP60",
+      "routes": [
+        {
+          "route_id": "LONG_DELAY0_TP40_CONTROL",
+          "is_primary": false,
+          "preliminary": false,
+          "n_train": 155,
+          "n_test": 67,
+          "k": 20,
+          "base_rate_median": -48.69,
+          "base_rate_wr": 0.213,
+          "realized_median": -48.91,
+          "realized_wr": 0.134,
+          "pred_median_def": -48.76,
+          "pred_median_auto": -48.85,
+          "mae_def": 15.77,
+          "mae_auto": 15.42,
+          "dir_acc_def": 0.866,
+          "dir_acc_auto": 0.866,
+          "uplift_vs_baserate": -0.22,
+          "calibration": [
+            {
+              "bucket": "positive",
+              "n": 0,
+              "pred_median": null,
+              "realized_median": null,
+              "realized_wr": null
+            },
+            {
+              "bucket": "neutral",
+              "n": 0,
+              "pred_median": null,
+              "realized_median": null,
+              "realized_wr": null
+            },
+            {
+              "bucket": "negative",
+              "n": 67,
+              "pred_median": -48.75849375443027,
+              "realized_median": -48.906133559626916,
+              "realized_wr": 0.13432835820895522
+            }
+          ],
+          "auto_weights": {
+            "cluster_liq_count": 2.0,
+            "max_single_liq_share": 1.886,
+            "intensity_per_sec": 1.246,
+            "cluster_duration_sec": 1.206,
+            "symbol_pre_5m_bps": 1.02,
+            "cluster_notional": 0.756,
+            "btc_pre_15m_bps": 0.672,
+            "symbol_pre_15m_bps": 0.667,
+            "day_trend_bps": 0.662,
+            "inter_cluster_gap_sec": 0.568,
+            "day_range_bps": 0.568
+          }
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP60",
+          "is_primary": true,
+          "preliminary": false,
+          "n_train": 155,
+          "n_test": 67,
+          "k": 20,
+          "base_rate_median": 37.71,
+          "base_rate_wr": 0.542,
+          "realized_median": 52.44,
+          "realized_wr": 0.731,
+          "pred_median_def": 52.36,
+          "pred_median_auto": 52.4,
+          "mae_def": 22.02,
+          "mae_auto": 21.79,
+          "dir_acc_def": 0.746,
+          "dir_acc_auto": 0.746,
+          "uplift_vs_baserate": 14.73,
+          "calibration": [
+            {
+              "bucket": "positive",
+              "n": 53,
+              "pred_median": 52.41310704727458,
+              "realized_median": 52.63789205654243,
+              "realized_wr": 0.8113207547169812
+            },
+            {
+              "bucket": "neutral",
+              "n": 14,
+              "pred_median": -5.586149171690986,
+              "realized_median": -8.176930690283456,
+              "realized_wr": 0.42857142857142855
+            },
+            {
+              "bucket": "negative",
+              "n": 0,
+              "pred_median": null,
+              "realized_median": null,
+              "realized_wr": null
+            }
+          ],
+          "auto_weights": {
+            "cluster_liq_count": 2.0,
+            "max_single_liq_share": 1.756,
+            "cluster_duration_sec": 1.172,
+            "intensity_per_sec": 0.907,
+            "symbol_pre_5m_bps": 0.832,
+            "cluster_notional": 0.753,
+            "inter_cluster_gap_sec": 0.506,
+            "day_trend_bps": 0.506,
+            "day_range_bps": 0.506,
+            "symbol_pre_15m_bps": 0.506,
+            "btc_pre_15m_bps": 0.506
+          }
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP80",
+          "is_primary": false,
+          "preliminary": false,
+          "n_train": 155,
+          "n_test": 67,
+          "k": 20,
+          "base_rate_median": -8.27,
+          "base_rate_wr": 0.432,
+          "realized_median": 51.09,
+          "realized_wr": 0.582,
+          "pred_median_def": -2.44,
+          "pred_median_auto": 10.37,
+          "mae_def": 39.11,
+          "mae_auto": 38.15,
+          "dir_acc_def": 0.642,
+          "dir_acc_auto": 0.701,
+          "uplift_vs_baserate": 59.36,
+          "calibration": [
+            {
+              "bucket": "positive",
+              "n": 26,
+              "pred_median": 45.8734170028664,
+              "realized_median": 72.34897754485353,
+              "realized_wr": 0.8076923076923077
+            },
+            {
+              "bucket": "neutral",
+              "n": 41,
+              "pred_median": -8.247491920961991,
+              "realized_median": -8.171513838308032,
+              "realized_wr": 0.43902439024390244
+            },
+            {
+              "bucket": "negative",
+              "n": 0,
+              "pred_median": null,
+              "realized_median": null,
+              "realized_wr": null
+            }
+          ],
+          "auto_weights": {
+            "cluster_liq_count": 2.0,
+            "max_single_liq_share": 1.82,
+            "cluster_duration_sec": 0.909,
+            "symbol_pre_5m_bps": 0.804,
+            "intensity_per_sec": 0.719,
+            "day_range_bps": 0.599,
+            "cluster_notional": 0.558,
+            "inter_cluster_gap_sec": 0.479,
+            "day_trend_bps": 0.454,
+            "symbol_pre_15m_bps": 0.454,
+            "btc_pre_15m_bps": 0.454
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "SOLUSDT",
+      "liq_side": "BUY",
+      "n_total": 104,
+      "n_train": 72,
+      "n_test": 32,
+      "train_ends_utc": "2026-06-19",
+      "test_starts_utc": "2026-06-20",
+      "primary_route": "LONG_DELAY0_TP60",
+      "routes": [
+        {
+          "route_id": "LONG_DELAY0_TP60",
+          "is_primary": true,
+          "preliminary": false,
+          "n_train": 72,
+          "n_test": 32,
+          "k": 14,
+          "base_rate_median": 12.74,
+          "base_rate_wr": 0.528,
+          "realized_median": 52.47,
+          "realized_wr": 0.656,
+          "pred_median_def": 27.63,
+          "pred_median_auto": 52.44,
+          "mae_def": 33.03,
+          "mae_auto": 30.56,
+          "dir_acc_def": 0.656,
+          "dir_acc_auto": 0.656,
+          "uplift_vs_baserate": 39.73,
+          "calibration": [
+            {
+              "bucket": "positive",
+              "n": 25,
+              "pred_median": 38.32006394181363,
+              "realized_median": 52.4455437950147,
+              "realized_wr": 0.68
+            },
+            {
+              "bucket": "neutral",
+              "n": 7,
+              "pred_median": -2.6457855861388984,
+              "realized_median": 53.64258160639291,
+              "realized_wr": 0.5714285714285714
+            },
+            {
+              "bucket": "negative",
+              "n": 0,
+              "pred_median": null,
+              "realized_median": null,
+              "realized_wr": null
+            }
+          ],
+          "auto_weights": {
+            "cluster_liq_count": 2.0,
+            "max_single_liq_share": 1.485,
+            "cluster_duration_sec": 1.467,
+            "intensity_per_sec": 1.33,
+            "inter_cluster_gap_sec": 1.152,
+            "btc_pre_15m_bps": 1.112,
+            "day_range_bps": 0.914,
+            "symbol_pre_15m_bps": 0.868,
+            "cluster_notional": 0.577,
+            "day_trend_bps": 0.577,
+            "symbol_pre_5m_bps": 0.577
+          }
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP40_CONTROL",
+          "is_primary": false,
+          "preliminary": false,
+          "n_train": 72,
+          "n_test": 32,
+          "k": 14,
+          "base_rate_median": -49.02,
+          "base_rate_wr": 0.167,
+          "realized_median": -49.17,
+          "realized_wr": 0.25,
+          "pred_median_def": -49.15,
+          "pred_median_auto": -49.08,
+          "mae_def": 22.54,
+          "mae_auto": 22.49,
+          "dir_acc_def": 0.75,
+          "dir_acc_auto": 0.75,
+          "uplift_vs_baserate": -0.15,
+          "calibration": [
+            {
+              "bucket": "positive",
+              "n": 0,
+              "pred_median": null,
+              "realized_median": null,
+              "realized_wr": null
+            },
+            {
+              "bucket": "neutral",
+              "n": 0,
+              "pred_median": null,
+              "realized_median": null,
+              "realized_wr": null
+            },
+            {
+              "bucket": "negative",
+              "n": 32,
+              "pred_median": -49.147514982069254,
+              "realized_median": -49.165794330838466,
+              "realized_wr": 0.25
+            }
+          ],
+          "auto_weights": {
+            "inter_cluster_gap_sec": 2.0,
+            "cluster_liq_count": 1.878,
+            "day_trend_bps": 1.461,
+            "cluster_duration_sec": 1.395,
+            "intensity_per_sec": 1.046,
+            "cluster_notional": 0.837,
+            "max_single_liq_share": 0.834,
+            "day_range_bps": 0.834,
+            "symbol_pre_5m_bps": 0.834,
+            "symbol_pre_15m_bps": 0.834,
+            "btc_pre_15m_bps": 0.834
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "SOLUSDT",
+      "liq_side": "SELL",
+      "n_total": 105,
+      "n_train": 73,
+      "n_test": 32,
+      "train_ends_utc": "2026-06-19",
+      "test_starts_utc": "2026-06-20",
+      "primary_route": "SHORT_DELAY0_TP60",
+      "routes": [
+        {
+          "route_id": "LONG_DELAY0_TP40_CONTROL",
+          "is_primary": false,
+          "preliminary": false,
+          "n_train": 73,
+          "n_test": 32,
+          "k": 14,
+          "base_rate_median": -48.27,
+          "base_rate_wr": 0.247,
+          "realized_median": -48.66,
+          "realized_wr": 0.219,
+          "pred_median_def": -48.34,
+          "pred_median_auto": -48.3,
+          "mae_def": 18.08,
+          "mae_auto": 19.48,
+          "dir_acc_def": 0.781,
+          "dir_acc_auto": 0.781,
+          "uplift_vs_baserate": -0.39,
+          "calibration": [
+            {
+              "bucket": "positive",
+              "n": 0,
+              "pred_median": null,
+              "realized_median": null,
+              "realized_wr": null
+            },
+            {
+              "bucket": "neutral",
+              "n": 0,
+              "pred_median": null,
+              "realized_median": null,
+              "realized_wr": null
+            },
+            {
+              "bucket": "negative",
+              "n": 32,
+              "pred_median": -48.340230002844685,
+              "realized_median": -48.65819534340454,
+              "realized_wr": 0.21875
+            }
+          ],
+          "auto_weights": {
+            "cluster_liq_count": 2.0,
+            "btc_pre_15m_bps": 1.599,
+            "symbol_pre_15m_bps": 1.464,
+            "max_single_liq_share": 1.249,
+            "cluster_duration_sec": 1.041,
+            "cluster_notional": 1.0,
+            "day_trend_bps": 0.966,
+            "intensity_per_sec": 0.537,
+            "inter_cluster_gap_sec": 0.537,
+            "day_range_bps": 0.537,
+            "symbol_pre_5m_bps": 0.537
+          }
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP40",
+          "is_primary": false,
+          "preliminary": false,
+          "n_train": 73,
+          "n_test": 32,
+          "k": 14,
+          "base_rate_median": 32.27,
+          "base_rate_wr": 0.685,
+          "realized_median": 32.66,
+          "realized_wr": 0.781,
+          "pred_median_def": 32.43,
+          "pred_median_auto": 32.43,
+          "mae_def": 18.69,
+          "mae_auto": 18.68,
+          "dir_acc_def": 0.781,
+          "dir_acc_auto": 0.781,
+          "uplift_vs_baserate": 0.39,
+          "calibration": [
+            {
+              "bucket": "positive",
+              "n": 32,
+              "pred_median": 32.426309629814114,
+              "realized_median": 32.65819534340454,
+              "realized_wr": 0.78125
+            },
+            {
+              "bucket": "neutral",
+              "n": 0,
+              "pred_median": null,
+              "realized_median": null,
+              "realized_wr": null
+            },
+            {
+              "bucket": "negative",
+              "n": 0,
+              "pred_median": null,
+              "realized_median": null,
+              "realized_wr": null
+            }
+          ],
+          "auto_weights": {
+            "cluster_liq_count": 2.0,
+            "btc_pre_15m_bps": 1.49,
+            "max_single_liq_share": 1.353,
+            "symbol_pre_15m_bps": 1.262,
+            "cluster_duration_sec": 1.133,
+            "cluster_notional": 0.997,
+            "day_trend_bps": 0.605,
+            "intensity_per_sec": 0.497,
+            "inter_cluster_gap_sec": 0.497,
+            "day_range_bps": 0.497,
+            "symbol_pre_5m_bps": 0.497
+          }
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP60",
+          "is_primary": true,
+          "preliminary": false,
+          "n_train": 73,
+          "n_test": 32,
+          "k": 14,
+          "base_rate_median": 10.31,
+          "base_rate_wr": 0.507,
+          "realized_median": 52.15,
+          "realized_wr": 0.594,
+          "pred_median_def": 19.63,
+          "pred_median_auto": 6.9,
+          "mae_def": 47.7,
+          "mae_auto": 43.36,
+          "dir_acc_def": 0.406,
+          "dir_acc_auto": 0.531,
+          "uplift_vs_baserate": 41.85,
+          "calibration": [
+            {
+              "bucket": "positive",
+              "n": 18,
+              "pred_median": 21.905793957409657,
+              "realized_median": 22.03426781575992,
+              "realized_wr": 0.5
+            },
+            {
+              "bucket": "neutral",
+              "n": 14,
+              "pred_median": -8.75709645199194,
+              "realized_median": 52.36611428496389,
+              "realized_wr": 0.7142857142857143
+            },
+            {
+              "bucket": "negative",
+              "n": 0,
+              "pred_median": null,
+              "realized_median": null,
+              "realized_wr": null
+            }
+          ],
+          "auto_weights": {
+            "cluster_liq_count": 2.0,
+            "max_single_liq_share": 1.472,
+            "btc_pre_15m_bps": 1.435,
+            "day_trend_bps": 1.109,
+            "symbol_pre_15m_bps": 1.094,
+            "cluster_duration_sec": 0.992,
+            "cluster_notional": 0.9,
+            "inter_cluster_gap_sec": 0.596,
+            "day_range_bps": 0.559,
+            "intensity_per_sec": 0.507,
+            "symbol_pre_5m_bps": 0.507
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,956 @@
+{
+  "candidates": [
+    {
+      "candidate": "k5_DANGER_reverse",
+      "cell_name": "k5_DANGER_REVERSE",
+      "chronological": {
+        "cal": {
+          "max_loss_bps": -685.9,
+          "mean_bps": 7.7,
+          "median_bps": -9.6,
+          "n": 231,
+          "sum_bps": 1783.3,
+          "t3r_bps": 670.1,
+          "tail_lte_minus100_n": 34,
+          "tail_lte_minus150_n": 18,
+          "tail_lte_minus300_n": 4,
+          "win_rate": 0.433
+        },
+        "hold": {
+          "max_loss_bps": -259.4,
+          "mean_bps": 82.7,
+          "median_bps": 42.3,
+          "n": 83,
+          "sum_bps": 6863.8,
+          "t3r_bps": 5670.6,
+          "tail_lte_minus100_n": 4,
+          "tail_lte_minus150_n": 4,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.578
+        }
+      },
+      "full": {
+        "max_loss_bps": -685.9,
+        "mean_bps": 27.5,
+        "median_bps": -5.5,
+        "n": 314,
+        "sum_bps": 8647.1,
+        "t3r_bps": 7453.9,
+        "tail_lte_minus100_n": 38,
+        "tail_lte_minus150_n": 22,
+        "tail_lte_minus300_n": 4,
+        "win_rate": 0.471
+      },
+      "permutation": {
+        "mc_maxstat_p": 0.001,
+        "observed_stat_t3r": 7453.9,
+        "raw_p": 0.001
+      },
+      "rationale": "small-neighborhood danger as fade/reversal",
+      "status": "PASS"
+    },
+    {
+      "candidate": "k5_CLEAN_normal",
+      "cell_name": "k5_CLEAN_NORMAL",
+      "chronological": {
+        "cal": {
+          "max_loss_bps": -199.8,
+          "mean_bps": 50.7,
+          "median_bps": 35.0,
+          "n": 126,
+          "sum_bps": 6393.4,
+          "t3r_bps": 5393.5,
+          "tail_lte_minus100_n": 4,
+          "tail_lte_minus150_n": 4,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.722
+        },
+        "hold": {
+          "max_loss_bps": -123.8,
+          "mean_bps": 37.6,
+          "median_bps": 21.4,
+          "n": 66,
+          "sum_bps": 2483.0,
+          "t3r_bps": 1675.7,
+          "tail_lte_minus100_n": 5,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.606
+        }
+      },
+      "full": {
+        "max_loss_bps": -199.8,
+        "mean_bps": 46.2,
+        "median_bps": 30.9,
+        "n": 192,
+        "sum_bps": 8876.4,
+        "t3r_bps": 7876.5,
+        "tail_lte_minus100_n": 9,
+        "tail_lte_minus150_n": 4,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.682
+      },
+      "permutation": {
+        "mc_maxstat_p": 0.001,
+        "observed_stat_t3r": 7876.5,
+        "raw_p": 0.001
+      },
+      "rationale": "small-neighborhood clean as continuation/permission",
+      "status": "PASS"
+    },
+    {
+      "candidate": "k8_DANGER_reverse",
+      "cell_name": "k8_DANGER_REVERSE",
+      "chronological": {
+        "cal": {
+          "max_loss_bps": -685.9,
+          "mean_bps": 2.1,
+          "median_bps": -10.1,
+          "n": 389,
+          "sum_bps": 806.1,
+          "t3r_bps": -307.1,
+          "tail_lte_minus100_n": 60,
+          "tail_lte_minus150_n": 28,
+          "tail_lte_minus300_n": 4,
+          "win_rate": 0.432
+        },
+        "hold": {
+          "max_loss_bps": -276.9,
+          "mean_bps": 49.2,
+          "median_bps": 4.8,
+          "n": 141,
+          "sum_bps": 6938.7,
+          "t3r_bps": 5745.5,
+          "tail_lte_minus100_n": 13,
+          "tail_lte_minus150_n": 9,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.525
+        }
+      },
+      "full": {
+        "max_loss_bps": -685.9,
+        "mean_bps": 14.6,
+        "median_bps": -7.4,
+        "n": 530,
+        "sum_bps": 7744.8,
+        "t3r_bps": 6551.6,
+        "tail_lte_minus100_n": 73,
+        "tail_lte_minus150_n": 37,
+        "tail_lte_minus300_n": 4,
+        "win_rate": 0.457
+      },
+      "permutation": {
+        "mc_maxstat_p": 0.001,
+        "observed_stat_t3r": 6551.6,
+        "raw_p": 0.001
+      },
+      "rationale": "danger fade survives one wider scale",
+      "status": "FAIL"
+    },
+    {
+      "candidate": "k10_DANGER_reverse",
+      "cell_name": "k10_DANGER_REVERSE",
+      "chronological": {
+        "cal": {
+          "max_loss_bps": -728.1,
+          "mean_bps": -2.7,
+          "median_bps": -14.6,
+          "n": 477,
+          "sum_bps": -1296.1,
+          "t3r_bps": -2409.3,
+          "tail_lte_minus100_n": 75,
+          "tail_lte_minus150_n": 35,
+          "tail_lte_minus300_n": 5,
+          "win_rate": 0.421
+        },
+        "hold": {
+          "max_loss_bps": -276.9,
+          "mean_bps": 35.3,
+          "median_bps": -1.8,
+          "n": 178,
+          "sum_bps": 6289.1,
+          "t3r_bps": 5095.9,
+          "tail_lte_minus100_n": 24,
+          "tail_lte_minus150_n": 15,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.483
+        }
+      },
+      "full": {
+        "max_loss_bps": -728.1,
+        "mean_bps": 7.6,
+        "median_bps": -9.1,
+        "n": 655,
+        "sum_bps": 4993.0,
+        "t3r_bps": 3799.8,
+        "tail_lte_minus100_n": 99,
+        "tail_lte_minus150_n": 50,
+        "tail_lte_minus300_n": 5,
+        "win_rate": 0.438
+      },
+      "permutation": {
+        "mc_maxstat_p": 0.016,
+        "observed_stat_t3r": 3799.8,
+        "raw_p": 0.001
+      },
+      "rationale": "danger fade at the last strong scale before k20 decay",
+      "status": "FAIL"
+    },
+    {
+      "candidate": "k5_CLEAN_to_k20_DANGER_normal",
+      "cell_name": "k5_to_k20_CLEAN_to_DANGER_NORMAL",
+      "chronological": {
+        "cal": {
+          "max_loss_bps": -167.7,
+          "mean_bps": 63.0,
+          "median_bps": 41.0,
+          "n": 54,
+          "sum_bps": 3402.7,
+          "t3r_bps": 2554.0,
+          "tail_lte_minus100_n": 1,
+          "tail_lte_minus150_n": 1,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.741
+        },
+        "hold": {
+          "max_loss_bps": -121.2,
+          "mean_bps": 29.5,
+          "median_bps": 12.7,
+          "n": 20,
+          "sum_bps": 589.4,
+          "t3r_bps": 88.1,
+          "tail_lte_minus100_n": 2,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.6
+        }
+      },
+      "full": {
+        "max_loss_bps": -167.7,
+        "mean_bps": 53.9,
+        "median_bps": 35.1,
+        "n": 74,
+        "sum_bps": 3992.1,
+        "t3r_bps": 3143.4,
+        "tail_lte_minus100_n": 3,
+        "tail_lte_minus150_n": 1,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.703
+      },
+      "permutation": {
+        "mc_maxstat_p": 0.043,
+        "observed_stat_t3r": 3143.4,
+        "raw_p": 0.001
+      },
+      "rationale": "local clean but broad dirty scale transition",
+      "status": "FAIL"
+    },
+    {
+      "candidate": "k20_DANGER_reverse",
+      "cell_name": "k20_DANGER_REVERSE",
+      "chronological": {
+        "cal": {
+          "max_loss_bps": -728.1,
+          "mean_bps": -9.3,
+          "median_bps": -16.1,
+          "n": 798,
+          "sum_bps": -7399.6,
+          "t3r_bps": -8512.8,
+          "tail_lte_minus100_n": 134,
+          "tail_lte_minus150_n": 66,
+          "tail_lte_minus300_n": 9,
+          "win_rate": 0.421
+        },
+        "hold": {
+          "max_loss_bps": -276.9,
+          "mean_bps": 23.8,
+          "median_bps": -4.1,
+          "n": 296,
+          "sum_bps": 7033.3,
+          "t3r_bps": 5790.0,
+          "tail_lte_minus100_n": 39,
+          "tail_lte_minus150_n": 23,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.47
+        }
+      },
+      "full": {
+        "max_loss_bps": -728.1,
+        "mean_bps": -0.3,
+        "median_bps": -9.8,
+        "n": 1094,
+        "sum_bps": -366.3,
+        "t3r_bps": -1609.6,
+        "tail_lte_minus100_n": 173,
+        "tail_lte_minus150_n": 89,
+        "tail_lte_minus300_n": 9,
+        "win_rate": 0.434
+      },
+      "permutation": {
+        "mc_maxstat_p": 1.0,
+        "observed_stat_t3r": -1609.6,
+        "raw_p": 0.005
+      },
+      "rationale": "broad danger reverse/reversal question",
+      "status": "FAIL"
+    },
+    {
+      "candidate": "k20_DANGER_thr100k_reverse",
+      "cell_name": "k20_DANGER_thr100000_REVERSE",
+      "chronological": {
+        "cal": {
+          "max_loss_bps": -412.2,
+          "mean_bps": -0.8,
+          "median_bps": -8.5,
+          "n": 261,
+          "sum_bps": -213.3,
+          "t3r_bps": -1284.1,
+          "tail_lte_minus100_n": 42,
+          "tail_lte_minus150_n": 21,
+          "tail_lte_minus300_n": 3,
+          "win_rate": 0.448
+        },
+        "hold": {
+          "max_loss_bps": -265.8,
+          "mean_bps": 27.5,
+          "median_bps": -4.3,
+          "n": 105,
+          "sum_bps": 2889.7,
+          "t3r_bps": 1666.5,
+          "tail_lte_minus100_n": 14,
+          "tail_lte_minus150_n": 8,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.467
+        }
+      },
+      "full": {
+        "max_loss_bps": -412.2,
+        "mean_bps": 7.3,
+        "median_bps": -7.3,
+        "n": 366,
+        "sum_bps": 2676.4,
+        "t3r_bps": 1453.2,
+        "tail_lte_minus100_n": 56,
+        "tail_lte_minus150_n": 29,
+        "tail_lte_minus300_n": 3,
+        "win_rate": 0.454
+      },
+      "permutation": {
+        "mc_maxstat_p": 0.47,
+        "observed_stat_t3r": 1453.2,
+        "raw_p": 0.007
+      },
+      "rationale": "broad danger reverse that only looked positive at 100K",
+      "status": "FAIL"
+    },
+    {
+      "candidate": "k20_DANGER_thr200k_reverse",
+      "cell_name": "k20_DANGER_thr200000_REVERSE",
+      "chronological": {
+        "cal": {
+          "max_loss_bps": -464.2,
+          "mean_bps": -3.7,
+          "median_bps": -20.5,
+          "n": 165,
+          "sum_bps": -605.0,
+          "t3r_bps": -1567.6,
+          "tail_lte_minus100_n": 28,
+          "tail_lte_minus150_n": 13,
+          "tail_lte_minus300_n": 2,
+          "win_rate": 0.406
+        },
+        "hold": {
+          "max_loss_bps": -276.9,
+          "mean_bps": 18.4,
+          "median_bps": -5.5,
+          "n": 83,
+          "sum_bps": 1530.8,
+          "t3r_bps": 396.2,
+          "tail_lte_minus100_n": 10,
+          "tail_lte_minus150_n": 7,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.446
+        }
+      },
+      "full": {
+        "max_loss_bps": -464.2,
+        "mean_bps": 3.7,
+        "median_bps": -9.8,
+        "n": 248,
+        "sum_bps": 925.8,
+        "t3r_bps": -208.8,
+        "tail_lte_minus100_n": 38,
+        "tail_lte_minus150_n": 20,
+        "tail_lte_minus300_n": 2,
+        "win_rate": 0.419
+      },
+      "permutation": {
+        "mc_maxstat_p": 1.0,
+        "observed_stat_t3r": -208.8,
+        "raw_p": 0.06
+      },
+      "rationale": "broad danger reverse at 200K",
+      "status": "FAIL"
+    },
+    {
+      "candidate": "k20_DANGER_thr50k_reverse",
+      "cell_name": "k20_DANGER_thr50000_REVERSE",
+      "chronological": {
+        "cal": {
+          "max_loss_bps": -728.1,
+          "mean_bps": -17.7,
+          "median_bps": -18.1,
+          "n": 372,
+          "sum_bps": -6581.3,
+          "t3r_bps": -7656.5,
+          "tail_lte_minus100_n": 64,
+          "tail_lte_minus150_n": 32,
+          "tail_lte_minus300_n": 4,
+          "win_rate": 0.409
+        },
+        "hold": {
+          "max_loss_bps": -260.8,
+          "mean_bps": 24.2,
+          "median_bps": -0.3,
+          "n": 108,
+          "sum_bps": 2612.8,
+          "t3r_bps": 1467.7,
+          "tail_lte_minus100_n": 15,
+          "tail_lte_minus150_n": 8,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.491
+        }
+      },
+      "full": {
+        "max_loss_bps": -728.1,
+        "mean_bps": -8.3,
+        "median_bps": -15.2,
+        "n": 480,
+        "sum_bps": -3968.5,
+        "t3r_bps": -5137.2,
+        "tail_lte_minus100_n": 79,
+        "tail_lte_minus150_n": 40,
+        "tail_lte_minus300_n": 4,
+        "win_rate": 0.427
+      },
+      "permutation": {
+        "mc_maxstat_p": 1.0,
+        "observed_stat_t3r": -5137.2,
+        "raw_p": 0.664
+      },
+      "rationale": "broad danger reverse at 50K",
+      "status": "FAIL"
+    }
+  ],
+  "chronological_split_index": 1404,
+  "chronological_split_ts_ms": 1780881888985,
+  "generated_at_utc": "2026-06-29T12:36:23.505435+00:00",
+  "permutation": {
+    "by_candidate": {
+      "k10_DANGER_REVERSE": {
+        "mc_maxstat_p": 0.016,
+        "observed_stat_t3r": 3799.8,
+        "raw_p": 0.001
+      },
+      "k20_DANGER_REVERSE": {
+        "mc_maxstat_p": 1.0,
+        "observed_stat_t3r": -1609.6,
+        "raw_p": 0.005
+      },
+      "k20_DANGER_thr100000_REVERSE": {
+        "mc_maxstat_p": 0.47,
+        "observed_stat_t3r": 1453.2,
+        "raw_p": 0.007
+      },
+      "k20_DANGER_thr200000_REVERSE": {
+        "mc_maxstat_p": 1.0,
+        "observed_stat_t3r": -208.8,
+        "raw_p": 0.06
+      },
+      "k20_DANGER_thr50000_REVERSE": {
+        "mc_maxstat_p": 1.0,
+        "observed_stat_t3r": -5137.2,
+        "raw_p": 0.664
+      },
+      "k5_CLEAN_NORMAL": {
+        "mc_maxstat_p": 0.001,
+        "observed_stat_t3r": 7876.5,
+        "raw_p": 0.001
+      },
+      "k5_DANGER_REVERSE": {
+        "mc_maxstat_p": 0.001,
+        "observed_stat_t3r": 7453.9,
+        "raw_p": 0.001
+      },
+      "k5_to_k20_CLEAN_to_DANGER_NORMAL": {
+        "mc_maxstat_p": 0.043,
+        "observed_stat_t3r": 3143.4,
+        "raw_p": 0.001
+      },
+      "k8_DANGER_REVERSE": {
+        "mc_maxstat_p": 0.001,
+        "observed_stat_t3r": 6551.6,
+        "raw_p": 0.001
+      }
+    },
+    "cell_universe_n": 338,
+    "max_null_p95": 2994.4,
+    "max_null_p99": 4009.2,
+    "permutations": 1000,
+    "seed": 34029
+  },
+  "row_count": 2006,
+  "status": "RESEARCH_ONLY_NO_LIVE_CHANGE",
+  "top_cells_pre_correction": [
+    {
+      "cell": "k5_CLEAN_NORMAL",
+      "direction": "NORMAL",
+      "family": "knn_pred",
+      "score_t3r": 7876.5,
+      "summary": {
+        "max_loss_bps": -199.8,
+        "mean_bps": 46.2,
+        "median_bps": 30.9,
+        "n": 192,
+        "sum_bps": 8876.4,
+        "t3r_bps": 7876.5,
+        "tail_lte_minus100_n": 9,
+        "tail_lte_minus150_n": 4,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.682
+      }
+    },
+    {
+      "cell": "k5_DANGER_REVERSE",
+      "direction": "REVERSE",
+      "family": "knn_pred",
+      "score_t3r": 7453.9,
+      "summary": {
+        "max_loss_bps": -685.9,
+        "mean_bps": 27.5,
+        "median_bps": -5.5,
+        "n": 314,
+        "sum_bps": 8647.1,
+        "t3r_bps": 7453.9,
+        "tail_lte_minus100_n": 38,
+        "tail_lte_minus150_n": 22,
+        "tail_lte_minus300_n": 4,
+        "win_rate": 0.471
+      }
+    },
+    {
+      "cell": "k5_to_k20_DANGER_to_DANGER_REVERSE",
+      "direction": "REVERSE",
+      "family": "scale_transition",
+      "score_t3r": 7453.9,
+      "summary": {
+        "max_loss_bps": -685.9,
+        "mean_bps": 27.5,
+        "median_bps": -5.5,
+        "n": 314,
+        "sum_bps": 8647.1,
+        "t3r_bps": 7453.9,
+        "tail_lte_minus100_n": 38,
+        "tail_lte_minus150_n": 22,
+        "tail_lte_minus300_n": 4,
+        "win_rate": 0.471
+      }
+    },
+    {
+      "cell": "danger_count_6_REVERSE",
+      "direction": "REVERSE",
+      "family": "danger_count",
+      "score_t3r": 7453.9,
+      "summary": {
+        "max_loss_bps": -685.9,
+        "mean_bps": 27.5,
+        "median_bps": -5.5,
+        "n": 314,
+        "sum_bps": 8647.1,
+        "t3r_bps": 7453.9,
+        "tail_lte_minus100_n": 38,
+        "tail_lte_minus150_n": 22,
+        "tail_lte_minus300_n": 4,
+        "win_rate": 0.471
+      }
+    },
+    {
+      "cell": "k8_DANGER_REVERSE",
+      "direction": "REVERSE",
+      "family": "knn_pred",
+      "score_t3r": 6551.6,
+      "summary": {
+        "max_loss_bps": -685.9,
+        "mean_bps": 14.6,
+        "median_bps": -7.4,
+        "n": 530,
+        "sum_bps": 7744.8,
+        "t3r_bps": 6551.6,
+        "tail_lte_minus100_n": 73,
+        "tail_lte_minus150_n": 37,
+        "tail_lte_minus300_n": 4,
+        "win_rate": 0.457
+      }
+    },
+    {
+      "cell": "k8_CLEAN_NORMAL",
+      "direction": "NORMAL",
+      "family": "knn_pred",
+      "score_t3r": 5539.9,
+      "summary": {
+        "max_loss_bps": -310.3,
+        "mean_bps": 36.1,
+        "median_bps": 27.2,
+        "n": 200,
+        "sum_bps": 7212.0,
+        "t3r_bps": 5539.9,
+        "tail_lte_minus100_n": 16,
+        "tail_lte_minus150_n": 7,
+        "tail_lte_minus300_n": 1,
+        "win_rate": 0.635
+      }
+    },
+    {
+      "cell": "k12_CLEAN_NORMAL",
+      "direction": "NORMAL",
+      "family": "knn_pred",
+      "score_t3r": 5238.1,
+      "summary": {
+        "max_loss_bps": -356.0,
+        "mean_bps": 30.7,
+        "median_bps": 20.5,
+        "n": 202,
+        "sum_bps": 6193.6,
+        "t3r_bps": 5238.1,
+        "tail_lte_minus100_n": 11,
+        "tail_lte_minus150_n": 5,
+        "tail_lte_minus300_n": 1,
+        "win_rate": 0.594
+      }
+    },
+    {
+      "cell": "k10_CLEAN_NORMAL",
+      "direction": "NORMAL",
+      "family": "knn_pred",
+      "score_t3r": 4842.1,
+      "summary": {
+        "max_loss_bps": -356.0,
+        "mean_bps": 29.3,
+        "median_bps": 15.2,
+        "n": 198,
+        "sum_bps": 5797.6,
+        "t3r_bps": 4842.1,
+        "tail_lte_minus100_n": 12,
+        "tail_lte_minus150_n": 6,
+        "tail_lte_minus300_n": 1,
+        "win_rate": 0.596
+      }
+    },
+    {
+      "cell": "k15_CLEAN_NORMAL",
+      "direction": "NORMAL",
+      "family": "knn_pred",
+      "score_t3r": 4662.6,
+      "summary": {
+        "max_loss_bps": -356.0,
+        "mean_bps": 28.5,
+        "median_bps": 21.6,
+        "n": 195,
+        "sum_bps": 5558.4,
+        "t3r_bps": 4662.6,
+        "tail_lte_minus100_n": 11,
+        "tail_lte_minus150_n": 8,
+        "tail_lte_minus300_n": 1,
+        "win_rate": 0.626
+      }
+    },
+    {
+      "cell": "k10_DANGER_REVERSE",
+      "direction": "REVERSE",
+      "family": "knn_pred",
+      "score_t3r": 3799.8,
+      "summary": {
+        "max_loss_bps": -728.1,
+        "mean_bps": 7.6,
+        "median_bps": -9.1,
+        "n": 655,
+        "sum_bps": 4993.0,
+        "t3r_bps": 3799.8,
+        "tail_lte_minus100_n": 99,
+        "tail_lte_minus150_n": 50,
+        "tail_lte_minus300_n": 5,
+        "win_rate": 0.438
+      }
+    },
+    {
+      "cell": "k12_DANGER_REVERSE",
+      "direction": "REVERSE",
+      "family": "knn_pred",
+      "score_t3r": 3335.8,
+      "summary": {
+        "max_loss_bps": -728.1,
+        "mean_bps": 6.1,
+        "median_bps": -9.1,
+        "n": 754,
+        "sum_bps": 4578.8,
+        "t3r_bps": 3335.8,
+        "tail_lte_minus100_n": 112,
+        "tail_lte_minus150_n": 56,
+        "tail_lte_minus300_n": 5,
+        "win_rate": 0.436
+      }
+    },
+    {
+      "cell": "k5_to_k20_CLEAN_to_DANGER_NORMAL",
+      "direction": "NORMAL",
+      "family": "scale_transition",
+      "score_t3r": 3143.4,
+      "summary": {
+        "max_loss_bps": -167.7,
+        "mean_bps": 53.9,
+        "median_bps": 35.1,
+        "n": 74,
+        "sum_bps": 3992.1,
+        "t3r_bps": 3143.4,
+        "tail_lte_minus100_n": 3,
+        "tail_lte_minus150_n": 1,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.703
+      }
+    },
+    {
+      "cell": "k5_to_k20_CLEAN_to_MIXED_NORMAL",
+      "direction": "NORMAL",
+      "family": "scale_transition",
+      "score_t3r": 2452.2,
+      "summary": {
+        "max_loss_bps": -199.8,
+        "mean_bps": 55.7,
+        "median_bps": 30.6,
+        "n": 62,
+        "sum_bps": 3452.1,
+        "t3r_bps": 2452.2,
+        "tail_lte_minus100_n": 1,
+        "tail_lte_minus150_n": 1,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.661
+      }
+    },
+    {
+      "cell": "tags_BULL_PULLBACK_NORMAL",
+      "direction": "NORMAL",
+      "family": "tag_combo",
+      "score_t3r": 2429.1,
+      "summary": {
+        "max_loss_bps": -387.6,
+        "mean_bps": 21.4,
+        "median_bps": 15.3,
+        "n": 164,
+        "sum_bps": 3503.0,
+        "t3r_bps": 2429.1,
+        "tail_lte_minus100_n": 23,
+        "tail_lte_minus150_n": 16,
+        "tail_lte_minus300_n": 2,
+        "win_rate": 0.591
+      }
+    },
+    {
+      "cell": "tags_BULL_PULLBACK+SIZE_34X_FRAGILE_NORMAL",
+      "direction": "NORMAL",
+      "family": "tag_combo",
+      "score_t3r": 2429.1,
+      "summary": {
+        "max_loss_bps": -387.6,
+        "mean_bps": 21.4,
+        "median_bps": 15.3,
+        "n": 164,
+        "sum_bps": 3503.0,
+        "t3r_bps": 2429.1,
+        "tail_lte_minus100_n": 23,
+        "tail_lte_minus150_n": 16,
+        "tail_lte_minus300_n": 2,
+        "win_rate": 0.591
+      }
+    },
+    {
+      "cell": "tags_BULL_PULLBACK+TAIL_HIGH_OR_UNKNOWN_NORMAL",
+      "direction": "NORMAL",
+      "family": "tag_combo",
+      "score_t3r": 2429.1,
+      "summary": {
+        "max_loss_bps": -387.6,
+        "mean_bps": 21.4,
+        "median_bps": 15.3,
+        "n": 164,
+        "sum_bps": 3503.0,
+        "t3r_bps": 2429.1,
+        "tail_lte_minus100_n": 23,
+        "tail_lte_minus150_n": 16,
+        "tail_lte_minus300_n": 2,
+        "win_rate": 0.591
+      }
+    },
+    {
+      "cell": "tags_BULL_PULLBACK+SIZE_34X_FRAGILE+TAIL_HIGH_OR_UNKNOWN_NORMAL",
+      "direction": "NORMAL",
+      "family": "tag_combo",
+      "score_t3r": 2429.1,
+      "summary": {
+        "max_loss_bps": -387.6,
+        "mean_bps": 21.4,
+        "median_bps": 15.3,
+        "n": 164,
+        "sum_bps": 3503.0,
+        "t3r_bps": 2429.1,
+        "tail_lte_minus100_n": 23,
+        "tail_lte_minus150_n": 16,
+        "tail_lte_minus300_n": 2,
+        "win_rate": 0.591
+      }
+    },
+    {
+      "cell": "danger_count_0_NORMAL",
+      "direction": "NORMAL",
+      "family": "danger_count",
+      "score_t3r": 2417.9,
+      "summary": {
+        "max_loss_bps": -356.0,
+        "mean_bps": 3.8,
+        "median_bps": 5.3,
+        "n": 912,
+        "sum_bps": 3486.7,
+        "t3r_bps": 2417.9,
+        "tail_lte_minus100_n": 106,
+        "tail_lte_minus150_n": 44,
+        "tail_lte_minus300_n": 4,
+        "win_rate": 0.523
+      }
+    },
+    {
+      "cell": "k15_DANGER_REVERSE",
+      "direction": "REVERSE",
+      "family": "knn_pred",
+      "score_t3r": 2112.0,
+      "summary": {
+        "max_loss_bps": -728.1,
+        "mean_bps": 3.8,
+        "median_bps": -9.6,
+        "n": 891,
+        "sum_bps": 3355.0,
+        "t3r_bps": 2112.0,
+        "tail_lte_minus100_n": 131,
+        "tail_lte_minus150_n": 66,
+        "tail_lte_minus300_n": 7,
+        "win_rate": 0.438
+      }
+    },
+    {
+      "cell": "k20_CLEAN_NORMAL",
+      "direction": "NORMAL",
+      "family": "knn_pred",
+      "score_t3r": 1899.1,
+      "summary": {
+        "max_loss_bps": -356.0,
+        "mean_bps": 15.5,
+        "median_bps": 16.8,
+        "n": 176,
+        "sum_bps": 2731.9,
+        "t3r_bps": 1899.1,
+        "tail_lte_minus100_n": 11,
+        "tail_lte_minus150_n": 7,
+        "tail_lte_minus300_n": 1,
+        "win_rate": 0.614
+      }
+    },
+    {
+      "cell": "tags_BID_DEPTH_THIN+BULL_PULLBACK_NORMAL",
+      "direction": "NORMAL",
+      "family": "tag_combo",
+      "score_t3r": 1882.8,
+      "summary": {
+        "max_loss_bps": -387.6,
+        "mean_bps": 20.3,
+        "median_bps": 13.0,
+        "n": 146,
+        "sum_bps": 2956.7,
+        "t3r_bps": 1882.8,
+        "tail_lte_minus100_n": 21,
+        "tail_lte_minus150_n": 14,
+        "tail_lte_minus300_n": 2,
+        "win_rate": 0.575
+      }
+    },
+    {
+      "cell": "tags_BID_DEPTH_THIN+BULL_PULLBACK+SIZE_34X_FRAGILE_NORMAL",
+      "direction": "NORMAL",
+      "family": "tag_combo",
+      "score_t3r": 1882.8,
+      "summary": {
+        "max_loss_bps": -387.6,
+        "mean_bps": 20.3,
+        "median_bps": 13.0,
+        "n": 146,
+        "sum_bps": 2956.7,
+        "t3r_bps": 1882.8,
+        "tail_lte_minus100_n": 21,
+        "tail_lte_minus150_n": 14,
+        "tail_lte_minus300_n": 2,
+        "win_rate": 0.575
+      }
+    },
+    {
+      "cell": "tags_BID_DEPTH_THIN+BULL_PULLBACK+TAIL_HIGH_OR_UNKNOWN_NORMAL",
+      "direction": "NORMAL",
+      "family": "tag_combo",
+      "score_t3r": 1882.8,
+      "summary": {
+        "max_loss_bps": -387.6,
+        "mean_bps": 20.3,
+        "median_bps": 13.0,
+        "n": 146,
+        "sum_bps": 2956.7,
+        "t3r_bps": 1882.8,
+        "tail_lte_minus100_n": 21,
+        "tail_lte_minus150_n": 14,
+        "tail_lte_minus300_n": 2,
+        "win_rate": 0.575
+      }
+    },
+    {
+      "cell": "k20_DANGER_thr100000_REVERSE",
+      "direction": "REVERSE",
+      "family": "k20_threshold",
+      "score_t3r": 1453.2,
+      "summary": {
+        "max_loss_bps": -412.2,
+        "mean_bps": 7.3,
+        "median_bps": -7.3,
+        "n": 366,
+        "sum_bps": 2676.4,
+        "t3r_bps": 1453.2,
+        "tail_lte_minus100_n": 56,
+        "tail_lte_minus150_n": 29,
+        "tail_lte_minus300_n": 3,
+        "win_rate": 0.454
+      }
+    },
+    {
+      "cell": "tags_VDEPTH_CORE_NORMAL",
+      "direction": "NORMAL",
+      "family": "tag_combo",
+      "score_t3r": 1314.6,
+      "summary": {
+        "max_loss_bps": -392.6,
+        "mean_bps": 7.6,
+        "median_bps": 17.7,
+        "n": 306,
+        "sum_bps": 2314.5,
+        "t3r_bps": 1314.6,
+        "tail_lte_minus100_n": 39,
+        "tail_lte_minus150_n": 24,
+        "tail_lte_minus300_n": 2,
+        "win_rate": 0.569
+      }
+    }
+  ]
+}

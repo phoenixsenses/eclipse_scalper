@@ -1,0 +1,1336 @@
+{
+  "generated_at_utc": "2026-06-24T12:20:57.141619+00:00",
+  "paper_only": true,
+  "not_live_trade_advice": true,
+  "account_equity_usdt": 40.0,
+  "trade_margin_usdt": 40.0,
+  "risk_budget_pct": 2.0,
+  "risk_budget_usdt": 0.8,
+  "fee_bps_round_trip_assumption": 8.0,
+  "leverage_scenarios": [
+    10.0,
+    20.0,
+    40.0,
+    70.0
+  ],
+  "cards": [
+    {
+      "signal_id": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30:5941005",
+      "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+      "signal_ts_utc": "2026-06-24T11:45:15.179000+00:00",
+      "cluster_notional": 539703.08273,
+      "cluster_liq_count": 17,
+      "route_params": {
+        "tp_bps": 60.0,
+        "sl_bps": 40.0,
+        "be_bps": 30.0
+      },
+      "route_stats": {
+        "n": 24,
+        "cum_net_bps": 453.63,
+        "mean_net_bps": 18.9,
+        "median_net_bps": 41.15,
+        "win_rate": 0.5833
+      },
+      "top3_removed": {
+        "n": 21,
+        "cum_net_bps": 217.3,
+        "median_net_bps": 31.09
+      },
+      "model_expected_median_bps": 37.88,
+      "predictions": [
+        {
+          "model_name": "knn_v2",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.920575+00:00",
+          "expected_net_bps": 49.860268001735754,
+          "win_rate": 0.8,
+          "k": 5,
+          "confidence_note": "usable"
+        },
+        {
+          "model_name": "knn_v1",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.920557+00:00",
+          "expected_net_bps": 34.604628640516474,
+          "win_rate": 0.6,
+          "k": 5,
+          "confidence_note": "usable"
+        },
+        {
+          "model_name": "knn_v0",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.920534+00:00",
+          "expected_net_bps": 34.604628640516474,
+          "win_rate": 0.6,
+          "k": 5,
+          "confidence_note": "usable"
+        },
+        {
+          "model_name": "base_rate_v1",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.920472+00:00",
+          "expected_net_bps": 41.14976192239769,
+          "win_rate": null,
+          "k": null,
+          "confidence_note": "usable"
+        }
+      ],
+      "model_guardrail": {
+        "level": "ok",
+        "headline": "MODEL OK: no negative consensus.",
+        "payload": {
+          "backfilled": true,
+          "headline": "MODEL OK: no negative consensus.",
+          "level": "ok",
+          "models": [
+            {
+              "confidence_note": "usable",
+              "expected_net_bps": 41.14976192239769,
+              "k": null,
+              "model_name": "base_rate_v1",
+              "win_rate": null
+            },
+            {
+              "confidence_note": "usable",
+              "expected_net_bps": 34.604628640516474,
+              "k": 5,
+              "model_name": "knn_v0",
+              "win_rate": 0.6
+            },
+            {
+              "confidence_note": "usable",
+              "expected_net_bps": 34.604628640516474,
+              "k": 5,
+              "model_name": "knn_v1",
+              "win_rate": 0.6
+            },
+            {
+              "confidence_note": "usable",
+              "expected_net_bps": 49.860268001735754,
+              "k": 5,
+              "model_name": "knn_v2",
+              "win_rate": 0.8
+            }
+          ],
+          "reasons": [],
+          "version": "2026-06-22"
+        }
+      },
+      "shadow_blocks": [],
+      "confidence": {
+        "level": "blocked_or_immature",
+        "live_gate": "blocked",
+        "reasons": [
+          "route closed N=24 < 30"
+        ]
+      },
+      "leverage_scenarios": [
+        {
+          "leverage": 10.0,
+          "notional_usdt": 400.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 52.0,
+          "tp_usdt_est": 2.08,
+          "be_usdt_est": -0.32,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -1.92,
+          "sl_pct_equity": 4.8,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 16.6667,
+          "budget_ok": false,
+          "risk_label": "high"
+        },
+        {
+          "leverage": 20.0,
+          "notional_usdt": 800.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 52.0,
+          "tp_usdt_est": 4.16,
+          "be_usdt_est": -0.64,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -3.84,
+          "sl_pct_equity": 9.6,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 8.3333,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        },
+        {
+          "leverage": 40.0,
+          "notional_usdt": 1600.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 52.0,
+          "tp_usdt_est": 8.32,
+          "be_usdt_est": -1.28,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -7.68,
+          "sl_pct_equity": 19.2,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 4.1667,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        },
+        {
+          "leverage": 70.0,
+          "notional_usdt": 2800.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 52.0,
+          "tp_usdt_est": 14.56,
+          "be_usdt_est": -2.24,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -13.44,
+          "sl_pct_equity": 33.6,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 2.381,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        }
+      ],
+      "route_rank_score": -14.4935,
+      "sizing_recommendation": {
+        "decision": "blocked",
+        "headline": "Do not size this route for live use yet.",
+        "reason": "route closed N=24 < 30",
+        "best_leverage": null,
+        "max_margin_usdt": null
+      }
+    },
+    {
+      "signal_id": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30:5941005",
+      "rule_name": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+      "signal_ts_utc": "2026-06-24T11:45:15.179000+00:00",
+      "cluster_notional": 539703.08273,
+      "cluster_liq_count": 17,
+      "route_params": {
+        "tp_bps": 60.0,
+        "sl_bps": 40.0,
+        "be_bps": 30.0
+      },
+      "route_stats": {
+        "n": 14,
+        "cum_net_bps": 560.49,
+        "mean_net_bps": 40.04,
+        "median_net_bps": 52.4,
+        "win_rate": 0.7857
+      },
+      "top3_removed": {
+        "n": 11,
+        "cum_net_bps": 319.64,
+        "median_net_bps": 50.64
+      },
+      "model_expected_median_bps": 50.25,
+      "predictions": [
+        {
+          "model_name": "knn_v2",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.918576+00:00",
+          "expected_net_bps": 49.860268001735754,
+          "win_rate": 0.8,
+          "k": 5,
+          "confidence_note": "usable"
+        },
+        {
+          "model_name": "knn_v1",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.918556+00:00",
+          "expected_net_bps": 49.860268001735754,
+          "win_rate": 0.8,
+          "k": 5,
+          "confidence_note": "thin"
+        },
+        {
+          "model_name": "knn_v0",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.918520+00:00",
+          "expected_net_bps": 50.644174051804995,
+          "win_rate": 0.8,
+          "k": 5,
+          "confidence_note": "usable"
+        },
+        {
+          "model_name": "base_rate_v1",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.918460+00:00",
+          "expected_net_bps": 52.327776532245565,
+          "win_rate": null,
+          "k": null,
+          "confidence_note": "thin"
+        }
+      ],
+      "model_guardrail": {
+        "level": "ok",
+        "headline": "MODEL OK: no negative consensus.",
+        "payload": {
+          "backfilled": true,
+          "headline": "MODEL OK: no negative consensus.",
+          "level": "ok",
+          "models": [
+            {
+              "confidence_note": "thin",
+              "expected_net_bps": 52.327776532245565,
+              "k": null,
+              "model_name": "base_rate_v1",
+              "win_rate": null
+            },
+            {
+              "confidence_note": "usable",
+              "expected_net_bps": 50.644174051804995,
+              "k": 5,
+              "model_name": "knn_v0",
+              "win_rate": 0.8
+            },
+            {
+              "confidence_note": "thin",
+              "expected_net_bps": 49.860268001735754,
+              "k": 5,
+              "model_name": "knn_v1",
+              "win_rate": 0.8
+            },
+            {
+              "confidence_note": "usable",
+              "expected_net_bps": 49.860268001735754,
+              "k": 5,
+              "model_name": "knn_v2",
+              "win_rate": 0.8
+            }
+          ],
+          "reasons": [],
+          "version": "2026-06-22"
+        }
+      },
+      "shadow_blocks": [],
+      "confidence": {
+        "level": "blocked_or_immature",
+        "live_gate": "blocked",
+        "reasons": [
+          "route closed N=14 < 30"
+        ]
+      },
+      "leverage_scenarios": [
+        {
+          "leverage": 10.0,
+          "notional_usdt": 400.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 52.0,
+          "tp_usdt_est": 2.08,
+          "be_usdt_est": -0.32,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -1.92,
+          "sl_pct_equity": 4.8,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 16.6667,
+          "budget_ok": false,
+          "risk_label": "high"
+        },
+        {
+          "leverage": 20.0,
+          "notional_usdt": 800.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 52.0,
+          "tp_usdt_est": 4.16,
+          "be_usdt_est": -0.64,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -3.84,
+          "sl_pct_equity": 9.6,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 8.3333,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        },
+        {
+          "leverage": 40.0,
+          "notional_usdt": 1600.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 52.0,
+          "tp_usdt_est": 8.32,
+          "be_usdt_est": -1.28,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -7.68,
+          "sl_pct_equity": 19.2,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 4.1667,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        },
+        {
+          "leverage": 70.0,
+          "notional_usdt": 2800.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 52.0,
+          "tp_usdt_est": 14.56,
+          "be_usdt_est": -2.24,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -13.44,
+          "sl_pct_equity": 33.6,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 2.381,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        }
+      ],
+      "route_rank_score": -18.2683,
+      "sizing_recommendation": {
+        "decision": "blocked",
+        "headline": "Do not size this route for live use yet.",
+        "reason": "route closed N=14 < 30",
+        "best_leverage": null,
+        "max_margin_usdt": null
+      }
+    },
+    {
+      "signal_id": "SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30:5940305",
+      "rule_name": "SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+      "signal_ts_utc": "2026-06-22T01:25:42.401000+00:00",
+      "cluster_notional": 647125.199002,
+      "cluster_liq_count": 13,
+      "route_params": {
+        "tp_bps": 60.0,
+        "sl_bps": 40.0,
+        "be_bps": 30.0
+      },
+      "route_stats": {
+        "n": 7,
+        "cum_net_bps": 204.77,
+        "mean_net_bps": 29.25,
+        "median_net_bps": 48.6,
+        "win_rate": 0.7143
+      },
+      "top3_removed": {
+        "n": 4,
+        "cum_net_bps": 21.73,
+        "median_net_bps": 18.15
+      },
+      "model_expected_median_bps": 52.58,
+      "predictions": [
+        {
+          "model_name": "knn_v2",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.836938+00:00",
+          "expected_net_bps": 52.581027123777744,
+          "win_rate": 0.8,
+          "k": 5,
+          "confidence_note": "usable"
+        },
+        {
+          "model_name": "knn_v1",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.836923+00:00",
+          "expected_net_bps": 52.581027123777744,
+          "win_rate": 0.8,
+          "k": 5,
+          "confidence_note": "usable"
+        },
+        {
+          "model_name": "knn_v0",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.836907+00:00",
+          "expected_net_bps": 52.581027123777744,
+          "win_rate": 0.8,
+          "k": 5,
+          "confidence_note": "usable"
+        },
+        {
+          "model_name": "base_rate_v1",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.836873+00:00",
+          "expected_net_bps": 49.79016100230635,
+          "win_rate": null,
+          "k": null,
+          "confidence_note": "thin"
+        }
+      ],
+      "model_guardrail": {
+        "level": "ok",
+        "headline": "MODEL OK: no negative consensus.",
+        "payload": {
+          "backfilled": true,
+          "headline": "MODEL OK: no negative consensus.",
+          "level": "ok",
+          "models": [
+            {
+              "confidence_note": "thin",
+              "expected_net_bps": 49.79016100230635,
+              "k": null,
+              "model_name": "base_rate_v1",
+              "win_rate": null
+            },
+            {
+              "confidence_note": "usable",
+              "expected_net_bps": 52.581027123777744,
+              "k": 5,
+              "model_name": "knn_v0",
+              "win_rate": 0.8
+            },
+            {
+              "confidence_note": "usable",
+              "expected_net_bps": 52.581027123777744,
+              "k": 5,
+              "model_name": "knn_v1",
+              "win_rate": 0.8
+            },
+            {
+              "confidence_note": "usable",
+              "expected_net_bps": 52.581027123777744,
+              "k": 5,
+              "model_name": "knn_v2",
+              "win_rate": 0.8
+            }
+          ],
+          "reasons": [],
+          "version": "2026-06-22"
+        }
+      },
+      "shadow_blocks": [],
+      "confidence": {
+        "level": "blocked_or_immature",
+        "live_gate": "blocked",
+        "reasons": [
+          "route closed N=7 < 30"
+        ]
+      },
+      "leverage_scenarios": [
+        {
+          "leverage": 10.0,
+          "notional_usdt": 400.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 52.0,
+          "tp_usdt_est": 2.08,
+          "be_usdt_est": -0.32,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -1.92,
+          "sl_pct_equity": 4.8,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 16.6667,
+          "budget_ok": false,
+          "risk_label": "high"
+        },
+        {
+          "leverage": 20.0,
+          "notional_usdt": 800.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 52.0,
+          "tp_usdt_est": 4.16,
+          "be_usdt_est": -0.64,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -3.84,
+          "sl_pct_equity": 9.6,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 8.3333,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        },
+        {
+          "leverage": 40.0,
+          "notional_usdt": 1600.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 52.0,
+          "tp_usdt_est": 8.32,
+          "be_usdt_est": -1.28,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -7.68,
+          "sl_pct_equity": 19.2,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 4.1667,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        },
+        {
+          "leverage": 70.0,
+          "notional_usdt": 2800.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 52.0,
+          "tp_usdt_est": 14.56,
+          "be_usdt_est": -2.24,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -13.44,
+          "sl_pct_equity": 33.6,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 2.381,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        }
+      ],
+      "route_rank_score": -38.8331,
+      "sizing_recommendation": {
+        "decision": "blocked",
+        "headline": "Do not size this route for live use yet.",
+        "reason": "route closed N=7 < 30",
+        "best_leverage": null,
+        "max_margin_usdt": null
+      }
+    },
+    {
+      "signal_id": "BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30:5941005",
+      "rule_name": "BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30",
+      "signal_ts_utc": "2026-06-24T11:48:58.863000+00:00",
+      "cluster_notional": 1786556.2543,
+      "cluster_liq_count": 19,
+      "route_params": {
+        "tp_bps": 60.0,
+        "sl_bps": 30.0,
+        "be_bps": 30.0
+      },
+      "route_stats": {
+        "n": 3,
+        "cum_net_bps": 34.18,
+        "mean_net_bps": 11.39,
+        "median_net_bps": -7.97,
+        "win_rate": 0.3333
+      },
+      "top3_removed": {
+        "n": 0,
+        "cum_net_bps": null,
+        "median_net_bps": null
+      },
+      "model_expected_median_bps": 55.02,
+      "predictions": [
+        {
+          "model_name": "knn_v2",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.923380+00:00",
+          "expected_net_bps": 55.02162805304743,
+          "win_rate": 0.5,
+          "k": 2,
+          "confidence_note": "thin"
+        },
+        {
+          "model_name": "knn_v1",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.923360+00:00",
+          "expected_net_bps": 55.02162805304743,
+          "win_rate": 0.5,
+          "k": 2,
+          "confidence_note": "thin"
+        },
+        {
+          "model_name": "knn_v0",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.923338+00:00",
+          "expected_net_bps": 55.02162805304743,
+          "win_rate": 0.5,
+          "k": 2,
+          "confidence_note": "thin"
+        },
+        {
+          "model_name": "base_rate_v1",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.923298+00:00",
+          "expected_net_bps": 21.07500564392678,
+          "win_rate": null,
+          "k": null,
+          "confidence_note": "thin"
+        }
+      ],
+      "model_guardrail": {
+        "level": "ok",
+        "headline": "MODEL OK: no negative consensus.",
+        "payload": {
+          "backfilled": true,
+          "headline": "MODEL OK: no negative consensus.",
+          "level": "ok",
+          "models": [
+            {
+              "confidence_note": "thin",
+              "expected_net_bps": 21.07500564392678,
+              "k": null,
+              "model_name": "base_rate_v1",
+              "win_rate": null
+            },
+            {
+              "confidence_note": "thin",
+              "expected_net_bps": 55.02162805304743,
+              "k": 2,
+              "model_name": "knn_v0",
+              "win_rate": 0.5
+            },
+            {
+              "confidence_note": "thin",
+              "expected_net_bps": 55.02162805304743,
+              "k": 2,
+              "model_name": "knn_v1",
+              "win_rate": 0.5
+            },
+            {
+              "confidence_note": "thin",
+              "expected_net_bps": 55.02162805304743,
+              "k": 2,
+              "model_name": "knn_v2",
+              "win_rate": 0.5
+            }
+          ],
+          "reasons": [],
+          "version": "2026-06-22"
+        }
+      },
+      "shadow_blocks": [],
+      "confidence": {
+        "level": "blocked_or_immature",
+        "live_gate": "blocked",
+        "reasons": [
+          "route closed N=3 < 30",
+          "route median net <= 0",
+          "top3-removed cum net <= 0 or unavailable"
+        ]
+      },
+      "leverage_scenarios": [
+        {
+          "leverage": 10.0,
+          "notional_usdt": 400.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 52.0,
+          "tp_usdt_est": 2.08,
+          "be_usdt_est": -0.32,
+          "sl_net_bps_est": -38.0,
+          "sl_usdt_est": -1.52,
+          "sl_pct_equity": 3.8,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 21.0526,
+          "budget_ok": false,
+          "risk_label": "high"
+        },
+        {
+          "leverage": 20.0,
+          "notional_usdt": 800.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 52.0,
+          "tp_usdt_est": 4.16,
+          "be_usdt_est": -0.64,
+          "sl_net_bps_est": -38.0,
+          "sl_usdt_est": -3.04,
+          "sl_pct_equity": 7.6,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 10.5263,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        },
+        {
+          "leverage": 40.0,
+          "notional_usdt": 1600.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 52.0,
+          "tp_usdt_est": 8.32,
+          "be_usdt_est": -1.28,
+          "sl_net_bps_est": -38.0,
+          "sl_usdt_est": -6.08,
+          "sl_pct_equity": 15.2,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 5.2632,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        },
+        {
+          "leverage": 70.0,
+          "notional_usdt": 2800.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 52.0,
+          "tp_usdt_est": 14.56,
+          "be_usdt_est": -2.24,
+          "sl_net_bps_est": -38.0,
+          "sl_usdt_est": -10.64,
+          "sl_pct_equity": 26.6,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 3.0075,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        }
+      ],
+      "route_rank_score": -100.3015,
+      "sizing_recommendation": {
+        "decision": "blocked",
+        "headline": "Do not size this route for live use yet.",
+        "reason": "route closed N=3 < 30; route median net <= 0; top3-removed cum net <= 0 or unavailable",
+        "best_leverage": null,
+        "max_margin_usdt": null
+      }
+    },
+    {
+      "signal_id": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30:5941005",
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "signal_ts_utc": "2026-06-24T11:45:15.179000+00:00",
+      "cluster_notional": 539703.08273,
+      "cluster_liq_count": 17,
+      "route_params": {
+        "tp_bps": 120.0,
+        "sl_bps": 40.0,
+        "be_bps": 30.0
+      },
+      "route_stats": {
+        "n": 24,
+        "cum_net_bps": -41.93,
+        "mean_net_bps": -1.75,
+        "median_net_bps": -27.65,
+        "win_rate": 0.2917
+      },
+      "top3_removed": {
+        "n": 21,
+        "cum_net_bps": -398.19,
+        "median_net_bps": -45.82
+      },
+      "model_expected_median_bps": -36.97,
+      "predictions": [
+        {
+          "model_name": "knn_v2",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.922709+00:00",
+          "expected_net_bps": 99.66798295010554,
+          "win_rate": 0.6,
+          "k": 5,
+          "confidence_note": "usable"
+        },
+        {
+          "model_name": "knn_v1",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.922685+00:00",
+          "expected_net_bps": -46.29973899129289,
+          "win_rate": 0.4,
+          "k": 5,
+          "confidence_note": "thin"
+        },
+        {
+          "model_name": "knn_v0",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.922642+00:00",
+          "expected_net_bps": -46.29973899129289,
+          "win_rate": 0.4,
+          "k": 5,
+          "confidence_note": "thin"
+        },
+        {
+          "model_name": "base_rate_v1",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.922580+00:00",
+          "expected_net_bps": -27.646213226146617,
+          "win_rate": null,
+          "k": null,
+          "confidence_note": "usable"
+        }
+      ],
+      "model_guardrail": {
+        "level": "warning",
+        "headline": "MODEL WARNING: similar signals have negative expectancy.",
+        "payload": {
+          "backfilled": true,
+          "headline": "MODEL WARNING: similar signals have negative expectancy.",
+          "level": "warning",
+          "models": [
+            {
+              "confidence_note": "usable",
+              "expected_net_bps": -27.646213226146617,
+              "k": null,
+              "model_name": "base_rate_v1",
+              "win_rate": null
+            },
+            {
+              "confidence_note": "thin",
+              "expected_net_bps": -46.29973899129289,
+              "k": 5,
+              "model_name": "knn_v0",
+              "win_rate": 0.4
+            },
+            {
+              "confidence_note": "thin",
+              "expected_net_bps": -46.29973899129289,
+              "k": 5,
+              "model_name": "knn_v1",
+              "win_rate": 0.4
+            },
+            {
+              "confidence_note": "usable",
+              "expected_net_bps": 99.66798295010554,
+              "k": 5,
+              "model_name": "knn_v2",
+              "win_rate": 0.6
+            }
+          ],
+          "reasons": [
+            "3/4 models expect negative net bps",
+            "strong negative warning from knn_v0, knn_v1",
+            "models disagree; treat confidence as low"
+          ],
+          "version": "2026-06-22"
+        }
+      },
+      "shadow_blocks": [],
+      "confidence": {
+        "level": "blocked_or_immature",
+        "live_gate": "blocked",
+        "reasons": [
+          "route closed N=24 < 30",
+          "route median net <= 0",
+          "top3-removed cum net <= 0 or unavailable",
+          "model guardrail is warning"
+        ]
+      },
+      "leverage_scenarios": [
+        {
+          "leverage": 10.0,
+          "notional_usdt": 400.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 112.0,
+          "tp_usdt_est": 4.48,
+          "be_usdt_est": -0.32,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -1.92,
+          "sl_pct_equity": 4.8,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 16.6667,
+          "budget_ok": false,
+          "risk_label": "high"
+        },
+        {
+          "leverage": 20.0,
+          "notional_usdt": 800.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 112.0,
+          "tp_usdt_est": 8.96,
+          "be_usdt_est": -0.64,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -3.84,
+          "sl_pct_equity": 9.6,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 8.3333,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        },
+        {
+          "leverage": 40.0,
+          "notional_usdt": 1600.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 112.0,
+          "tp_usdt_est": 17.92,
+          "be_usdt_est": -1.28,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -7.68,
+          "sl_pct_equity": 19.2,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 4.1667,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        },
+        {
+          "leverage": 70.0,
+          "notional_usdt": 2800.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 112.0,
+          "tp_usdt_est": 31.36,
+          "be_usdt_est": -2.24,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -13.44,
+          "sl_pct_equity": 33.6,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 2.381,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        }
+      ],
+      "route_rank_score": -107.6307,
+      "sizing_recommendation": {
+        "decision": "blocked",
+        "headline": "Do not size this route for live use yet.",
+        "reason": "route closed N=24 < 30; route median net <= 0; top3-removed cum net <= 0 or unavailable; model guardrail is warning",
+        "best_leverage": null,
+        "max_margin_usdt": null
+      }
+    },
+    {
+      "signal_id": "ETH_BUY_LIQ_LONG_200K_BTC_PRE15_TP120_SL40_BE30_DELAY60:5941005",
+      "rule_name": "ETH_BUY_LIQ_LONG_200K_BTC_PRE15_TP120_SL40_BE30_DELAY60",
+      "signal_ts_utc": "2026-06-24T11:45:15.179000+00:00",
+      "cluster_notional": 539703.08273,
+      "cluster_liq_count": 17,
+      "route_params": {
+        "tp_bps": 120.0,
+        "sl_bps": 40.0,
+        "be_bps": 30.0
+      },
+      "route_stats": {
+        "n": 2,
+        "cum_net_bps": -43.3,
+        "mean_net_bps": -21.65,
+        "median_net_bps": -21.65,
+        "win_rate": 0.0
+      },
+      "top3_removed": {
+        "n": 0,
+        "cum_net_bps": null,
+        "median_net_bps": null
+      },
+      "model_expected_median_bps": -18.72,
+      "predictions": [
+        {
+          "model_name": "knn_v2",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.921134+00:00",
+          "expected_net_bps": -18.717406717339763,
+          "win_rate": 0.0,
+          "k": 2,
+          "confidence_note": "thin"
+        },
+        {
+          "model_name": "knn_v1",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.921112+00:00",
+          "expected_net_bps": -18.717406717339763,
+          "win_rate": 0.0,
+          "k": 2,
+          "confidence_note": "thin"
+        },
+        {
+          "model_name": "knn_v0",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.921088+00:00",
+          "expected_net_bps": -18.717406717339763,
+          "win_rate": 0.0,
+          "k": 2,
+          "confidence_note": "thin"
+        },
+        {
+          "model_name": "base_rate_v1",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.921058+00:00",
+          "expected_net_bps": -21.649578232442316,
+          "win_rate": null,
+          "k": null,
+          "confidence_note": "thin"
+        }
+      ],
+      "model_guardrail": {
+        "level": "warning",
+        "headline": "MODEL WARNING: similar signals have negative expectancy.",
+        "payload": {
+          "backfilled": true,
+          "headline": "MODEL WARNING: similar signals have negative expectancy.",
+          "level": "warning",
+          "models": [
+            {
+              "confidence_note": "thin",
+              "expected_net_bps": -21.649578232442316,
+              "k": null,
+              "model_name": "base_rate_v1",
+              "win_rate": null
+            },
+            {
+              "confidence_note": "thin",
+              "expected_net_bps": -18.717406717339763,
+              "k": 2,
+              "model_name": "knn_v0",
+              "win_rate": 0.0
+            },
+            {
+              "confidence_note": "thin",
+              "expected_net_bps": -18.717406717339763,
+              "k": 2,
+              "model_name": "knn_v1",
+              "win_rate": 0.0
+            },
+            {
+              "confidence_note": "thin",
+              "expected_net_bps": -18.717406717339763,
+              "k": 2,
+              "model_name": "knn_v2",
+              "win_rate": 0.0
+            }
+          ],
+          "reasons": [
+            "4/4 models expect negative net bps"
+          ],
+          "version": "2026-06-22"
+        }
+      },
+      "shadow_blocks": [],
+      "confidence": {
+        "level": "blocked_or_immature",
+        "live_gate": "blocked",
+        "reasons": [
+          "route closed N=2 < 30",
+          "route median net <= 0",
+          "top3-removed cum net <= 0 or unavailable",
+          "model guardrail is warning"
+        ]
+      },
+      "leverage_scenarios": [
+        {
+          "leverage": 10.0,
+          "notional_usdt": 400.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 112.0,
+          "tp_usdt_est": 4.48,
+          "be_usdt_est": -0.32,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -1.92,
+          "sl_pct_equity": 4.8,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 16.6667,
+          "budget_ok": false,
+          "risk_label": "high"
+        },
+        {
+          "leverage": 20.0,
+          "notional_usdt": 800.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 112.0,
+          "tp_usdt_est": 8.96,
+          "be_usdt_est": -0.64,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -3.84,
+          "sl_pct_equity": 9.6,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 8.3333,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        },
+        {
+          "leverage": 40.0,
+          "notional_usdt": 1600.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 112.0,
+          "tp_usdt_est": 17.92,
+          "be_usdt_est": -1.28,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -7.68,
+          "sl_pct_equity": 19.2,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 4.1667,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        },
+        {
+          "leverage": 70.0,
+          "notional_usdt": 2800.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 112.0,
+          "tp_usdt_est": 31.36,
+          "be_usdt_est": -2.24,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -13.44,
+          "sl_pct_equity": 33.6,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 2.381,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        }
+      ],
+      "route_rank_score": -151.3925,
+      "sizing_recommendation": {
+        "decision": "blocked",
+        "headline": "Do not size this route for live use yet.",
+        "reason": "route closed N=2 < 30; route median net <= 0; top3-removed cum net <= 0 or unavailable; model guardrail is warning",
+        "best_leverage": null,
+        "max_margin_usdt": null
+      }
+    },
+    {
+      "signal_id": "ETH_BUY_LIQ_LONG_500K_NEGTREND_STRETCHED_TP60_SL40_BE30:5941005",
+      "rule_name": "ETH_BUY_LIQ_LONG_500K_NEGTREND_STRETCHED_TP60_SL40_BE30",
+      "signal_ts_utc": "2026-06-24T11:45:15.179000+00:00",
+      "cluster_notional": 539703.08273,
+      "cluster_liq_count": 17,
+      "route_params": {
+        "tp_bps": 60.0,
+        "sl_bps": 40.0,
+        "be_bps": 30.0
+      },
+      "route_stats": {
+        "n": 0,
+        "cum_net_bps": 0.0,
+        "mean_net_bps": null,
+        "median_net_bps": null,
+        "win_rate": null
+      },
+      "top3_removed": {
+        "n": 0,
+        "cum_net_bps": null,
+        "median_net_bps": null
+      },
+      "model_expected_median_bps": null,
+      "predictions": [
+        {
+          "model_name": "knn_v2",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.919605+00:00",
+          "expected_net_bps": null,
+          "win_rate": null,
+          "k": 0,
+          "confidence_note": "thin"
+        },
+        {
+          "model_name": "knn_v1",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.919586+00:00",
+          "expected_net_bps": null,
+          "win_rate": null,
+          "k": 0,
+          "confidence_note": "thin"
+        },
+        {
+          "model_name": "knn_v0",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.919511+00:00",
+          "expected_net_bps": null,
+          "win_rate": null,
+          "k": 0,
+          "confidence_note": "thin"
+        },
+        {
+          "model_name": "base_rate_v1",
+          "model_version": "2026-06-22",
+          "predicted_at_utc": "2026-06-24T12:08:20.919487+00:00",
+          "expected_net_bps": null,
+          "win_rate": null,
+          "k": null,
+          "confidence_note": "thin"
+        }
+      ],
+      "model_guardrail": {
+        "level": "unknown",
+        "headline": "No usable model prediction yet.",
+        "payload": {
+          "backfilled": true,
+          "headline": "No usable model prediction yet.",
+          "level": "unknown",
+          "models": [],
+          "reasons": [],
+          "version": "2026-06-22"
+        }
+      },
+      "shadow_blocks": [],
+      "confidence": {
+        "level": "blocked_or_immature",
+        "live_gate": "blocked",
+        "reasons": [
+          "route closed N=0 < 30",
+          "route median net <= 0",
+          "top3-removed cum net <= 0 or unavailable"
+        ]
+      },
+      "leverage_scenarios": [
+        {
+          "leverage": 10.0,
+          "notional_usdt": 400.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 52.0,
+          "tp_usdt_est": 2.08,
+          "be_usdt_est": -0.32,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -1.92,
+          "sl_pct_equity": 4.8,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 16.6667,
+          "budget_ok": false,
+          "risk_label": "high"
+        },
+        {
+          "leverage": 20.0,
+          "notional_usdt": 800.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 52.0,
+          "tp_usdt_est": 4.16,
+          "be_usdt_est": -0.64,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -3.84,
+          "sl_pct_equity": 9.6,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 8.3333,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        },
+        {
+          "leverage": 40.0,
+          "notional_usdt": 1600.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 52.0,
+          "tp_usdt_est": 8.32,
+          "be_usdt_est": -1.28,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -7.68,
+          "sl_pct_equity": 19.2,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 4.1667,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        },
+        {
+          "leverage": 70.0,
+          "notional_usdt": 2800.0,
+          "account_equity_usdt": 40.0,
+          "margin_usdt": 40.0,
+          "margin_pct_equity": 100.0,
+          "tp_net_bps_est": 52.0,
+          "tp_usdt_est": 14.56,
+          "be_usdt_est": -2.24,
+          "sl_net_bps_est": -48.0,
+          "sl_usdt_est": -13.44,
+          "sl_pct_equity": 33.6,
+          "risk_budget_usdt": 0.8,
+          "max_margin_for_budget_usdt": 2.381,
+          "budget_ok": false,
+          "risk_label": "too_high"
+        }
+      ],
+      "route_rank_score": -814.27,
+      "sizing_recommendation": {
+        "decision": "blocked",
+        "headline": "Do not size this route for live use yet.",
+        "reason": "route closed N=0 < 30; route median net <= 0; top3-removed cum net <= 0 or unavailable",
+        "best_leverage": null,
+        "max_margin_usdt": null
+      }
+    }
+  ],
+  "read": "This is a paper-only prediction and risk sizing sandbox. It does not approve live orders. Live gate remains blocked unless sample, guardrail, and manual review criteria pass."
+}

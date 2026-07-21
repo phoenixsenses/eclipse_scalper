@@ -1,0 +1,441 @@
+{
+  "generated_at_utc": "2026-06-28T21:51:40.950866+00:00",
+  "config": {
+    "symbol": "ETHUSDT",
+    "side": "SELL",
+    "threshold": 200000.0,
+    "min_vdepth_bps": 28.0,
+    "horizon_hr": 4,
+    "fee_bps_side": 3.05
+  },
+  "anchor_n": 170,
+  "combos": [
+    {
+      "sl_bps": 10.0,
+      "tp_bps": null,
+      "filled_n": 55,
+      "exit_reasons": {
+        "SL": 51,
+        "TIME": 4
+      },
+      "cal": {
+        "n": 38,
+        "sum": -431.5,
+        "median": -17.7,
+        "mean": -11.4,
+        "win_rate": 0.026,
+        "max_win": 258.8,
+        "max_loss": -27.4
+      },
+      "hold": {
+        "n": 17,
+        "sum": -165.7,
+        "median": -19.4,
+        "mean": -9.7,
+        "win_rate": 0.118,
+        "max_win": 80.5,
+        "max_loss": -27.1
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 10.0,
+      "tp_bps": 200.0,
+      "filled_n": 55,
+      "exit_reasons": {
+        "SL": 51,
+        "TP": 2,
+        "TIME": 2
+      },
+      "cal": {
+        "n": 38,
+        "sum": -495.8,
+        "median": -17.7,
+        "mean": -13.0,
+        "win_rate": 0.026,
+        "max_win": 194.5,
+        "max_loss": -27.4
+      },
+      "hold": {
+        "n": 17,
+        "sum": -28.7,
+        "median": -19.4,
+        "mean": -1.7,
+        "win_rate": 0.118,
+        "max_win": 190.8,
+        "max_loss": -27.1
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 10.0,
+      "tp_bps": 400.0,
+      "filled_n": 55,
+      "exit_reasons": {
+        "SL": 51,
+        "TIME": 4
+      },
+      "cal": {
+        "n": 38,
+        "sum": -431.5,
+        "median": -17.7,
+        "mean": -11.4,
+        "win_rate": 0.026,
+        "max_win": 258.8,
+        "max_loss": -27.4
+      },
+      "hold": {
+        "n": 17,
+        "sum": -165.7,
+        "median": -19.4,
+        "mean": -9.7,
+        "win_rate": 0.118,
+        "max_win": 80.5,
+        "max_loss": -27.1
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 15.0,
+      "tp_bps": null,
+      "filled_n": 55,
+      "exit_reasons": {
+        "SL": 49,
+        "TIME": 6
+      },
+      "cal": {
+        "n": 38,
+        "sum": -573.9,
+        "median": -22.6,
+        "mean": -15.1,
+        "win_rate": 0.053,
+        "max_win": 258.8,
+        "max_loss": -41.0
+      },
+      "hold": {
+        "n": 17,
+        "sum": -92.9,
+        "median": -23.0,
+        "mean": -5.5,
+        "win_rate": 0.176,
+        "max_win": 125.1,
+        "max_loss": -42.2
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 15.0,
+      "tp_bps": 200.0,
+      "filled_n": 55,
+      "exit_reasons": {
+        "SL": 49,
+        "TP": 3,
+        "TIME": 3
+      },
+      "cal": {
+        "n": 38,
+        "sum": -638.3,
+        "median": -22.6,
+        "mean": -16.8,
+        "win_rate": 0.053,
+        "max_win": 194.5,
+        "max_loss": -41.0
+      },
+      "hold": {
+        "n": 17,
+        "sum": 117.3,
+        "median": -23.0,
+        "mean": 6.9,
+        "win_rate": 0.176,
+        "max_win": 198.3,
+        "max_loss": -42.2
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 15.0,
+      "tp_bps": 400.0,
+      "filled_n": 55,
+      "exit_reasons": {
+        "SL": 49,
+        "TIME": 6
+      },
+      "cal": {
+        "n": 38,
+        "sum": -573.9,
+        "median": -22.6,
+        "mean": -15.1,
+        "win_rate": 0.053,
+        "max_win": 258.8,
+        "max_loss": -41.0
+      },
+      "hold": {
+        "n": 17,
+        "sum": -92.9,
+        "median": -23.0,
+        "mean": -5.5,
+        "win_rate": 0.176,
+        "max_win": 125.1,
+        "max_loss": -42.2
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 20.0,
+      "tp_bps": null,
+      "filled_n": 55,
+      "exit_reasons": {
+        "SL": 46,
+        "TIME": 9
+      },
+      "cal": {
+        "n": 38,
+        "sum": -196.5,
+        "median": -27.9,
+        "mean": -5.2,
+        "win_rate": 0.132,
+        "max_win": 279.4,
+        "max_loss": -41.0
+      },
+      "hold": {
+        "n": 17,
+        "sum": -138.3,
+        "median": -27.2,
+        "mean": -8.1,
+        "win_rate": 0.176,
+        "max_win": 125.1,
+        "max_loss": -44.2
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 20.0,
+      "tp_bps": 200.0,
+      "filled_n": 55,
+      "exit_reasons": {
+        "SL": 46,
+        "TP": 5,
+        "TIME": 4
+      },
+      "cal": {
+        "n": 38,
+        "sum": -277.6,
+        "median": -27.9,
+        "mean": -7.3,
+        "win_rate": 0.132,
+        "max_win": 201.0,
+        "max_loss": -41.0
+      },
+      "hold": {
+        "n": 17,
+        "sum": 71.9,
+        "median": -27.2,
+        "mean": 4.2,
+        "win_rate": 0.176,
+        "max_win": 198.3,
+        "max_loss": -44.2
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 20.0,
+      "tp_bps": 400.0,
+      "filled_n": 55,
+      "exit_reasons": {
+        "SL": 46,
+        "TIME": 9
+      },
+      "cal": {
+        "n": 38,
+        "sum": -196.5,
+        "median": -27.9,
+        "mean": -5.2,
+        "win_rate": 0.132,
+        "max_win": 279.4,
+        "max_loss": -41.0
+      },
+      "hold": {
+        "n": 17,
+        "sum": -138.3,
+        "median": -27.2,
+        "mean": -8.1,
+        "win_rate": 0.176,
+        "max_win": 125.1,
+        "max_loss": -44.2
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 30.0,
+      "tp_bps": null,
+      "filled_n": 55,
+      "exit_reasons": {
+        "SL": 44,
+        "TIME": 11
+      },
+      "cal": {
+        "n": 38,
+        "sum": -480.7,
+        "median": -38.6,
+        "mean": -12.7,
+        "win_rate": 0.158,
+        "max_win": 279.4,
+        "max_loss": -63.7
+      },
+      "hold": {
+        "n": 17,
+        "sum": 79.1,
+        "median": -39.6,
+        "mean": 4.7,
+        "win_rate": 0.235,
+        "max_win": 325.3,
+        "max_loss": -53.0
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 30.0,
+      "tp_bps": 200.0,
+      "filled_n": 55,
+      "exit_reasons": {
+        "SL": 43,
+        "TP": 7,
+        "TIME": 5
+      },
+      "cal": {
+        "n": 38,
+        "sum": -561.8,
+        "median": -38.6,
+        "mean": -14.8,
+        "win_rate": 0.158,
+        "max_win": 201.0,
+        "max_loss": -63.7
+      },
+      "hold": {
+        "n": 17,
+        "sum": 396.5,
+        "median": -38.2,
+        "mean": 23.3,
+        "win_rate": 0.294,
+        "max_win": 199.5,
+        "max_loss": -53.0
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 30.0,
+      "tp_bps": 400.0,
+      "filled_n": 55,
+      "exit_reasons": {
+        "SL": 44,
+        "TIME": 10,
+        "TP": 1
+      },
+      "cal": {
+        "n": 38,
+        "sum": -480.7,
+        "median": -38.6,
+        "mean": -12.7,
+        "win_rate": 0.158,
+        "max_win": 279.4,
+        "max_loss": -63.7
+      },
+      "hold": {
+        "n": 17,
+        "sum": 171.1,
+        "median": -39.6,
+        "mean": 10.1,
+        "win_rate": 0.235,
+        "max_win": 417.4,
+        "max_loss": -53.0
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 50.0,
+      "tp_bps": null,
+      "filled_n": 54,
+      "exit_reasons": {
+        "SL": 38,
+        "TIME": 16
+      },
+      "cal": {
+        "n": 37,
+        "sum": -626.0,
+        "median": -55.3,
+        "mean": -16.9,
+        "win_rate": 0.243,
+        "max_win": 279.4,
+        "max_loss": -76.2
+      },
+      "hold": {
+        "n": 17,
+        "sum": -156.2,
+        "median": -57.1,
+        "mean": -9.2,
+        "win_rate": 0.235,
+        "max_win": 325.3,
+        "max_loss": -91.9
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 50.0,
+      "tp_bps": 200.0,
+      "filled_n": 54,
+      "exit_reasons": {
+        "SL": 37,
+        "TP": 7,
+        "TIME": 10
+      },
+      "cal": {
+        "n": 37,
+        "sum": -707.0,
+        "median": -55.3,
+        "mean": -19.1,
+        "win_rate": 0.243,
+        "max_win": 201.0,
+        "max_loss": -76.2
+      },
+      "hold": {
+        "n": 17,
+        "sum": 213.6,
+        "median": -56.8,
+        "mean": 12.6,
+        "win_rate": 0.294,
+        "max_win": 199.5,
+        "max_loss": -68.1
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 50.0,
+      "tp_bps": 400.0,
+      "filled_n": 54,
+      "exit_reasons": {
+        "SL": 38,
+        "TIME": 15,
+        "TP": 1
+      },
+      "cal": {
+        "n": 37,
+        "sum": -626.0,
+        "median": -55.3,
+        "mean": -16.9,
+        "win_rate": 0.243,
+        "max_win": 279.4,
+        "max_loss": -76.2
+      },
+      "hold": {
+        "n": 17,
+        "sum": -64.2,
+        "median": -57.1,
+        "mean": -3.8,
+        "win_rate": 0.235,
+        "max_win": 417.4,
+        "max_loss": -91.9
+      },
+      "lead": false
+    }
+  ]
+}

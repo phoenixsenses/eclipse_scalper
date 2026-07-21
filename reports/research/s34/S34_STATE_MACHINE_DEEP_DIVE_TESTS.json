@@ -1,0 +1,2896 @@
+{
+  "generated_at_utc": "2026-07-01T04:12:40.463384+00:00",
+  "dataset": {
+    "anchors_200k": 450,
+    "time_exit_200k": 167,
+    "selected_candidate_count": 11
+  },
+  "ideas": [
+    "Added-only value: each relaxed candidate's incremental trades vs current live combo.",
+    "70/30 chronological holdout: calibration versus latest holdout behavior.",
+    "Month stability: whether a candidate is one-regime/month dependent.",
+    "Fee sensitivity: robustness if total costs rise from 5 bps to 8/10/15 bps.",
+    "Tail and drawdown: worst loss, -100 bps tail count, max drawdown, losing streaks.",
+    "No-overlap execution: one-position-at-a-time simulation, because live cannot hold infinite overlapping trades.",
+    "Candidate overlap map: whether new candidates add independent events or mostly relabel current trades.",
+    "State navigation: silence/noisy + BTC confirm as OK/DANGER context, not an entry alpha.",
+    "Current-vs-relaxed delta: whether frequency comes from genuinely positive added trades.",
+    "Live-readiness score: reject/paper/research-only classification from the above checks."
+  ],
+  "baselines": {
+    "sync200": {
+      "n": 100,
+      "wr": 0.58,
+      "avg": 26.5,
+      "sum": 2652.5,
+      "median": 26.9,
+      "t3r": 1609.3,
+      "per_month": 23.0
+    },
+    "current_long_only": {
+      "n": 9,
+      "wr": 1.0,
+      "avg": 170.6,
+      "sum": 1535.8,
+      "median": 106.5,
+      "t3r": 590.6,
+      "per_month": 2.3
+    },
+    "current_combo": {
+      "n": 16,
+      "wr": 0.938,
+      "avg": 139.3,
+      "sum": 2229.0,
+      "median": 105.8,
+      "t3r": 1184.8,
+      "per_month": 4.1
+    }
+  },
+  "candidates": [
+    {
+      "name": "C_current_live_long_short",
+      "family": "COMBINED",
+      "note": "L_current_live_gate + S_current_btc2m_delay5",
+      "score": {
+        "summary": {
+          "n": 16,
+          "wr": 0.938,
+          "avg": 139.3,
+          "sum": 2229.0,
+          "median": 105.8,
+          "t3r": 1184.8,
+          "per_month": 4.1
+        },
+        "folds": {
+          "folds": [
+            {
+              "n": 3,
+              "wr": 1.0,
+              "avg": 236.4,
+              "sum": 709.1,
+              "median": 260.8,
+              "t3r": 709.1,
+              "per_month": 3.0
+            },
+            {
+              "n": 3,
+              "wr": 1.0,
+              "avg": 95.0,
+              "sum": 284.9,
+              "median": 105.1,
+              "t3r": 284.9,
+              "per_month": 1.2
+            },
+            {
+              "n": 4,
+              "wr": 1.0,
+              "avg": 195.1,
+              "sum": 780.3,
+              "median": 210.3,
+              "t3r": 0.0,
+              "per_month": 4.0
+            },
+            {
+              "n": 3,
+              "wr": 0.667,
+              "avg": -19.5,
+              "sum": -58.4,
+              "median": 15.4,
+              "t3r": -58.4,
+              "per_month": 3.0
+            },
+            {
+              "n": 3,
+              "wr": 1.0,
+              "avg": 171.0,
+              "sum": 513.1,
+              "median": 106.5,
+              "t3r": 513.1,
+              "per_month": 3.0
+            }
+          ],
+          "positive_sum_folds": 4,
+          "positive_t3r_folds": 3,
+          "fold_t3r_sum": 1448.7,
+          "worst_fold_sum": -58.4,
+          "worst_fold_t3r": -58.4
+        },
+        "basic_pass": true,
+        "n_warning": "LOW_N"
+      },
+      "added_vs_current": {
+        "n": 0,
+        "wr": null,
+        "avg": null,
+        "sum": 0.0,
+        "median": null,
+        "t3r": 0.0,
+        "per_month": 0.0
+      },
+      "added_vs_current_risk": {
+        "n": 0
+      },
+      "holdout_70_30": {
+        "calibration": {
+          "n": 11,
+          "wr": 1.0,
+          "avg": 170.0,
+          "sum": 1870.1,
+          "median": 145.1,
+          "t3r": 895.1,
+          "per_month": 2.9
+        },
+        "holdout": {
+          "n": 5,
+          "wr": 0.8,
+          "avg": 71.8,
+          "sum": 358.9,
+          "median": 76.7,
+          "t3r": -154.3,
+          "per_month": 5.0
+        }
+      },
+      "monthly": {
+        "2026-02": {
+          "n": 1,
+          "wr": 1.0,
+          "avg": 260.8,
+          "sum": 260.8,
+          "median": 260.8,
+          "t3r": 260.8,
+          "per_month": 1.0
+        },
+        "2026-03": {
+          "n": 4,
+          "wr": 1.0,
+          "avg": 147.0,
+          "sum": 588.1,
+          "median": 99.4,
+          "t3r": 34.7,
+          "per_month": 4.0
+        },
+        "2026-06": {
+          "n": 11,
+          "wr": 0.909,
+          "avg": 125.5,
+          "sum": 1380.1,
+          "median": 106.5,
+          "t3r": 443.7,
+          "per_month": 11.0
+        }
+      },
+      "fee_sensitivity": {
+        "fee_3bps": {
+          "n": 16,
+          "wr": 0.938,
+          "avg": 141.3,
+          "sum": 2261.0,
+          "median": 107.8,
+          "t3r": 1210.8,
+          "per_month": 4.1
+        },
+        "fee_5bps": {
+          "n": 16,
+          "wr": 0.938,
+          "avg": 139.3,
+          "sum": 2229.0,
+          "median": 105.8,
+          "t3r": 1184.8,
+          "per_month": 4.1
+        },
+        "fee_8bps": {
+          "n": 16,
+          "wr": 0.875,
+          "avg": 136.3,
+          "sum": 2181.0,
+          "median": 102.8,
+          "t3r": 1145.8,
+          "per_month": 4.1
+        },
+        "fee_10bps": {
+          "n": 16,
+          "wr": 0.875,
+          "avg": 134.3,
+          "sum": 2149.0,
+          "median": 100.8,
+          "t3r": 1119.8,
+          "per_month": 4.1
+        },
+        "fee_15bps": {
+          "n": 16,
+          "wr": 0.875,
+          "avg": 129.3,
+          "sum": 2069.0,
+          "median": 95.8,
+          "t3r": 1054.8,
+          "per_month": 4.1
+        }
+      },
+      "risk_profile": {
+        "n": 16,
+        "worst": -169.6,
+        "best": 359.8,
+        "tail_loss_100bps_n": 1,
+        "tail_loss_100bps_rate": 0.062,
+        "max_drawdown_bps": -169.6,
+        "max_consecutive_losses": 1,
+        "top3_removed_sum": 1184.8
+      },
+      "overlap_profile": {
+        "max_simultaneous": 2,
+        "no_overlap_n": 13,
+        "skipped_by_no_overlap": 3,
+        "no_overlap_stats": {
+          "n": 13,
+          "wr": 1.0,
+          "avg": 177.1,
+          "sum": 2302.8,
+          "median": 145.1,
+          "t3r": 1258.6,
+          "per_month": 3.3
+        }
+      },
+      "readiness": "RESEARCH_ONLY_LOW_N"
+    },
+    {
+      "name": "C_score_relax_short1m10",
+      "family": "COMBINED",
+      "note": "L_base_score1_added + S_btc1m_delay10",
+      "score": {
+        "summary": {
+          "n": 25,
+          "wr": 0.92,
+          "avg": 138.3,
+          "sum": 3457.8,
+          "median": 106.5,
+          "t3r": 2384.8,
+          "per_month": 6.2
+        },
+        "folds": {
+          "folds": [
+            {
+              "n": 5,
+              "wr": 1.0,
+              "avg": 237.4,
+              "sum": 1186.8,
+              "median": 260.8,
+              "t3r": 212.7,
+              "per_month": 5.0
+            },
+            {
+              "n": 5,
+              "wr": 0.8,
+              "avg": 65.9,
+              "sum": 329.4,
+              "median": 93.8,
+              "t3r": -14.5,
+              "per_month": 1.7
+            },
+            {
+              "n": 5,
+              "wr": 1.0,
+              "avg": 83.6,
+              "sum": 417.8,
+              "median": 31.1,
+              "t3r": 1.1,
+              "per_month": 5.0
+            },
+            {
+              "n": 5,
+              "wr": 0.8,
+              "avg": 151.5,
+              "sum": 757.4,
+              "median": 137.9,
+              "t3r": 86.1,
+              "per_month": 5.0
+            },
+            {
+              "n": 5,
+              "wr": 1.0,
+              "avg": 153.3,
+              "sum": 766.3,
+              "median": 106.5,
+              "t3r": 128.0,
+              "per_month": 5.0
+            }
+          ],
+          "positive_sum_folds": 5,
+          "positive_t3r_folds": 4,
+          "fold_t3r_sum": 413.4,
+          "worst_fold_sum": 329.4,
+          "worst_fold_t3r": -14.5
+        },
+        "basic_pass": true,
+        "n_warning": null
+      },
+      "added_vs_current": {
+        "n": 12,
+        "wr": 0.833,
+        "avg": 97.5,
+        "sum": 1170.4,
+        "median": 74.3,
+        "t3r": 412.8,
+        "per_month": 3.0
+      },
+      "added_vs_current_risk": {
+        "n": 12,
+        "worst": -49.2,
+        "best": 358.7,
+        "tail_loss_100bps_n": 0,
+        "tail_loss_100bps_rate": 0.0,
+        "max_drawdown_bps": -49.2,
+        "max_consecutive_losses": 1,
+        "top3_removed_sum": 412.8
+      },
+      "holdout_70_30": {
+        "calibration": {
+          "n": 18,
+          "wr": 0.889,
+          "avg": 124.1,
+          "sum": 2234.5,
+          "median": 121.5,
+          "t3r": 1260.4,
+          "per_month": 4.6
+        },
+        "holdout": {
+          "n": 7,
+          "wr": 1.0,
+          "avg": 174.8,
+          "sum": 1223.3,
+          "median": 106.5,
+          "t3r": 331.8,
+          "per_month": 7.0
+        }
+      },
+      "monthly": {
+        "2026-02": {
+          "n": 3,
+          "wr": 1.0,
+          "avg": 272.2,
+          "sum": 816.5,
+          "median": 260.8,
+          "t3r": 816.5,
+          "per_month": 3.0
+        },
+        "2026-03": {
+          "n": 6,
+          "wr": 0.833,
+          "avg": 92.4,
+          "sum": 554.6,
+          "median": 64.3,
+          "t3r": 1.2,
+          "per_month": 6.0
+        },
+        "2026-06": {
+          "n": 16,
+          "wr": 0.938,
+          "avg": 130.4,
+          "sum": 2086.7,
+          "median": 122.2,
+          "t3r": 1150.3,
+          "per_month": 16.0
+        }
+      },
+      "fee_sensitivity": {
+        "fee_3bps": {
+          "n": 25,
+          "wr": 0.92,
+          "avg": 140.3,
+          "sum": 3507.8,
+          "median": 108.5,
+          "t3r": 2428.8,
+          "per_month": 6.2
+        },
+        "fee_5bps": {
+          "n": 25,
+          "wr": 0.92,
+          "avg": 138.3,
+          "sum": 3457.8,
+          "median": 106.5,
+          "t3r": 2384.8,
+          "per_month": 6.2
+        },
+        "fee_8bps": {
+          "n": 25,
+          "wr": 0.84,
+          "avg": 135.3,
+          "sum": 3382.8,
+          "median": 103.5,
+          "t3r": 2318.8,
+          "per_month": 6.2
+        },
+        "fee_10bps": {
+          "n": 25,
+          "wr": 0.84,
+          "avg": 133.3,
+          "sum": 3332.8,
+          "median": 101.5,
+          "t3r": 2274.8,
+          "per_month": 6.2
+        },
+        "fee_15bps": {
+          "n": 25,
+          "wr": 0.84,
+          "avg": 128.3,
+          "sum": 3207.8,
+          "median": 96.5,
+          "t3r": 2164.8,
+          "per_month": 6.2
+        }
+      },
+      "risk_profile": {
+        "n": 25,
+        "worst": -49.2,
+        "best": 359.8,
+        "tail_loss_100bps_n": 0,
+        "tail_loss_100bps_rate": 0.0,
+        "max_drawdown_bps": -49.2,
+        "max_consecutive_losses": 1,
+        "top3_removed_sum": 2384.8
+      },
+      "overlap_profile": {
+        "max_simultaneous": 3,
+        "no_overlap_n": 20,
+        "skipped_by_no_overlap": 5,
+        "no_overlap_stats": {
+          "n": 20,
+          "wr": 0.9,
+          "avg": 152.6,
+          "sum": 3052.7,
+          "median": 125.8,
+          "t3r": 1979.6,
+          "per_month": 4.9
+        }
+      },
+      "readiness": "PAPER_CANDIDATE"
+    },
+    {
+      "name": "C_no_btc7d_short1m10",
+      "family": "COMBINED",
+      "note": "L_no_btc7d + S_btc1m_delay10",
+      "score": {
+        "summary": {
+          "n": 31,
+          "wr": 0.806,
+          "avg": 98.5,
+          "sum": 3053.0,
+          "median": 95.8,
+          "t3r": 2008.8,
+          "per_month": 7.9
+        },
+        "folds": {
+          "folds": [
+            {
+              "n": 6,
+              "wr": 0.833,
+              "avg": 132.1,
+              "sum": 792.8,
+              "median": 94.8,
+              "t3r": 81.6,
+              "per_month": 6.0
+            },
+            {
+              "n": 6,
+              "wr": 0.667,
+              "avg": 8.9,
+              "sum": 53.2,
+              "median": 46.6,
+              "t3r": -186.0,
+              "per_month": 5.7
+            },
+            {
+              "n": 7,
+              "wr": 0.714,
+              "avg": 49.9,
+              "sum": 349.0,
+              "median": 35.3,
+              "t3r": -12.1,
+              "per_month": 3.6
+            },
+            {
+              "n": 6,
+              "wr": 0.833,
+              "avg": 114.4,
+              "sum": 686.1,
+              "median": 138.4,
+              "t3r": 126.7,
+              "per_month": 6.0
+            },
+            {
+              "n": 6,
+              "wr": 1.0,
+              "avg": 195.3,
+              "sum": 1172.0,
+              "median": 154.2,
+              "t3r": 280.5,
+              "per_month": 6.0
+            }
+          ],
+          "positive_sum_folds": 5,
+          "positive_t3r_folds": 3,
+          "fold_t3r_sum": 290.7,
+          "worst_fold_sum": 53.2,
+          "worst_fold_t3r": -186.0
+        },
+        "basic_pass": true,
+        "n_warning": null
+      },
+      "added_vs_current": {
+        "n": 18,
+        "wr": 0.667,
+        "avg": 42.5,
+        "sum": 765.6,
+        "median": 46.9,
+        "t3r": 287.0,
+        "per_month": 4.8
+      },
+      "added_vs_current_risk": {
+        "n": 18,
+        "worst": -197.9,
+        "best": 201.9,
+        "tail_loss_100bps_n": 1,
+        "tail_loss_100bps_rate": 0.056,
+        "max_drawdown_bps": -220.7,
+        "max_consecutive_losses": 2,
+        "top3_removed_sum": 287.0
+      },
+      "holdout_70_30": {
+        "calibration": {
+          "n": 22,
+          "wr": 0.773,
+          "avg": 71.8,
+          "sum": 1580.6,
+          "median": 67.0,
+          "t3r": 718.5,
+          "per_month": 6.1
+        },
+        "holdout": {
+          "n": 9,
+          "wr": 0.889,
+          "avg": 163.6,
+          "sum": 1472.4,
+          "median": 137.9,
+          "t3r": 580.9,
+          "per_month": 9.0
+        }
+      },
+      "monthly": {
+        "2026-02": {
+          "n": 1,
+          "wr": 1.0,
+          "avg": 260.8,
+          "sum": 260.8,
+          "median": 260.8,
+          "t3r": 260.8,
+          "per_month": 1.0
+        },
+        "2026-03": {
+          "n": 10,
+          "wr": 0.7,
+          "avg": 52.7,
+          "sum": 526.6,
+          "median": 55.1,
+          "t3r": -28.8,
+          "per_month": 10.0
+        },
+        "2026-04": {
+          "n": 3,
+          "wr": 0.333,
+          "avg": -0.3,
+          "sum": -0.8,
+          "median": -25.5,
+          "t3r": -0.8,
+          "per_month": 3.0
+        },
+        "2026-06": {
+          "n": 17,
+          "wr": 0.941,
+          "avg": 133.3,
+          "sum": 2266.5,
+          "median": 108.8,
+          "t3r": 1330.1,
+          "per_month": 17.0
+        }
+      },
+      "fee_sensitivity": {
+        "fee_3bps": {
+          "n": 31,
+          "wr": 0.806,
+          "avg": 100.5,
+          "sum": 3115.0,
+          "median": 97.8,
+          "t3r": 2064.8,
+          "per_month": 7.9
+        },
+        "fee_5bps": {
+          "n": 31,
+          "wr": 0.806,
+          "avg": 98.5,
+          "sum": 3053.0,
+          "median": 95.8,
+          "t3r": 2008.8,
+          "per_month": 7.9
+        },
+        "fee_8bps": {
+          "n": 31,
+          "wr": 0.774,
+          "avg": 95.5,
+          "sum": 2960.0,
+          "median": 92.8,
+          "t3r": 1924.8,
+          "per_month": 7.9
+        },
+        "fee_10bps": {
+          "n": 31,
+          "wr": 0.774,
+          "avg": 93.5,
+          "sum": 2898.0,
+          "median": 90.8,
+          "t3r": 1868.8,
+          "per_month": 7.9
+        },
+        "fee_15bps": {
+          "n": 31,
+          "wr": 0.774,
+          "avg": 88.5,
+          "sum": 2743.0,
+          "median": 85.8,
+          "t3r": 1728.8,
+          "per_month": 7.9
+        }
+      },
+      "risk_profile": {
+        "n": 31,
+        "worst": -197.9,
+        "best": 359.8,
+        "tail_loss_100bps_n": 1,
+        "tail_loss_100bps_rate": 0.032,
+        "max_drawdown_bps": -220.7,
+        "max_consecutive_losses": 2,
+        "top3_removed_sum": 2008.8
+      },
+      "overlap_profile": {
+        "max_simultaneous": 3,
+        "no_overlap_n": 25,
+        "skipped_by_no_overlap": 6,
+        "no_overlap_stats": {
+          "n": 25,
+          "wr": 0.76,
+          "avg": 103.7,
+          "sum": 2591.4,
+          "median": 95.8,
+          "t3r": 1547.2,
+          "per_month": 6.4
+        }
+      },
+      "readiness": "PAPER_SHADOW_ONLY_TAIL"
+    },
+    {
+      "name": "C_freq_balanced_btc4h_short1m10",
+      "family": "COMBINED",
+      "note": "L_btc4h_lt0_no_btc7d + S_btc1m_delay10",
+      "score": {
+        "summary": {
+          "n": 27,
+          "wr": 0.852,
+          "avg": 108.9,
+          "sum": 2941.3,
+          "median": 97.3,
+          "t3r": 1897.1,
+          "per_month": 6.9
+        },
+        "folds": {
+          "folds": [
+            {
+              "n": 5,
+              "wr": 0.8,
+              "avg": 107.4,
+              "sum": 537.0,
+              "median": 93.8,
+              "t3r": -7.1,
+              "per_month": 5.0
+            },
+            {
+              "n": 6,
+              "wr": 0.667,
+              "avg": 35.8,
+              "sum": 214.5,
+              "median": 46.6,
+              "t3r": -24.6,
+              "per_month": 5.5
+            },
+            {
+              "n": 5,
+              "wr": 1.0,
+              "avg": 81.7,
+              "sum": 408.3,
+              "median": 107.1,
+              "t3r": 47.3,
+              "per_month": 5.0
+            },
+            {
+              "n": 6,
+              "wr": 0.833,
+              "avg": 114.4,
+              "sum": 686.1,
+              "median": 138.4,
+              "t3r": 126.7,
+              "per_month": 6.0
+            },
+            {
+              "n": 5,
+              "wr": 1.0,
+              "avg": 219.1,
+              "sum": 1095.3,
+              "median": 201.9,
+              "t3r": 203.8,
+              "per_month": 5.0
+            }
+          ],
+          "positive_sum_folds": 5,
+          "positive_t3r_folds": 3,
+          "fold_t3r_sum": 346.1,
+          "worst_fold_sum": 214.5,
+          "worst_fold_t3r": -24.6
+        },
+        "basic_pass": true,
+        "n_warning": null
+      },
+      "added_vs_current": {
+        "n": 16,
+        "wr": 0.75,
+        "avg": 62.0,
+        "sum": 991.4,
+        "median": 67.0,
+        "t3r": 512.7,
+        "per_month": 4.4
+      },
+      "added_vs_current_risk": {
+        "n": 16,
+        "worst": -33.8,
+        "best": 201.9,
+        "tail_loss_100bps_n": 0,
+        "tail_loss_100bps_rate": 0.0,
+        "max_drawdown_bps": -59.4,
+        "max_consecutive_losses": 2,
+        "top3_removed_sum": 512.7
+      },
+      "holdout_70_30": {
+        "calibration": {
+          "n": 19,
+          "wr": 0.842,
+          "avg": 81.3,
+          "sum": 1545.6,
+          "median": 75.6,
+          "t3r": 799.1,
+          "per_month": 5.3
+        },
+        "holdout": {
+          "n": 8,
+          "wr": 0.875,
+          "avg": 174.5,
+          "sum": 1395.7,
+          "median": 155.8,
+          "t3r": 504.2,
+          "per_month": 8.0
+        }
+      },
+      "monthly": {
+        "2026-03": {
+          "n": 8,
+          "wr": 0.875,
+          "avg": 94.0,
+          "sum": 752.4,
+          "median": 84.7,
+          "t3r": 196.9,
+          "per_month": 8.0
+        },
+        "2026-04": {
+          "n": 3,
+          "wr": 0.333,
+          "avg": -0.3,
+          "sum": -0.8,
+          "median": -25.5,
+          "t3r": -0.8,
+          "per_month": 3.0
+        },
+        "2026-06": {
+          "n": 16,
+          "wr": 0.938,
+          "avg": 136.9,
+          "sum": 2189.7,
+          "median": 123.4,
+          "t3r": 1253.3,
+          "per_month": 16.0
+        }
+      },
+      "fee_sensitivity": {
+        "fee_3bps": {
+          "n": 27,
+          "wr": 0.852,
+          "avg": 110.9,
+          "sum": 2995.3,
+          "median": 99.3,
+          "t3r": 1945.1,
+          "per_month": 6.9
+        },
+        "fee_5bps": {
+          "n": 27,
+          "wr": 0.852,
+          "avg": 108.9,
+          "sum": 2941.3,
+          "median": 97.3,
+          "t3r": 1897.1,
+          "per_month": 6.9
+        },
+        "fee_8bps": {
+          "n": 27,
+          "wr": 0.815,
+          "avg": 105.9,
+          "sum": 2860.3,
+          "median": 94.3,
+          "t3r": 1825.1,
+          "per_month": 6.9
+        },
+        "fee_10bps": {
+          "n": 27,
+          "wr": 0.815,
+          "avg": 103.9,
+          "sum": 2806.3,
+          "median": 92.3,
+          "t3r": 1777.1,
+          "per_month": 6.9
+        },
+        "fee_15bps": {
+          "n": 27,
+          "wr": 0.815,
+          "avg": 98.9,
+          "sum": 2671.3,
+          "median": 87.3,
+          "t3r": 1657.1,
+          "per_month": 6.9
+        }
+      },
+      "risk_profile": {
+        "n": 27,
+        "worst": -33.8,
+        "best": 359.8,
+        "tail_loss_100bps_n": 0,
+        "tail_loss_100bps_rate": 0.0,
+        "max_drawdown_bps": -59.4,
+        "max_consecutive_losses": 2,
+        "top3_removed_sum": 1897.1
+      },
+      "overlap_profile": {
+        "max_simultaneous": 3,
+        "no_overlap_n": 22,
+        "skipped_by_no_overlap": 5,
+        "no_overlap_stats": {
+          "n": 22,
+          "wr": 0.818,
+          "avg": 116.1,
+          "sum": 2555.2,
+          "median": 100.4,
+          "t3r": 1511.1,
+          "per_month": 5.6
+        }
+      },
+      "readiness": "PAPER_CANDIDATE"
+    },
+    {
+      "name": "C_btc7d500_short1m10",
+      "family": "COMBINED",
+      "note": "L_btc7d_lt_500 + S_btc1m_delay10",
+      "score": {
+        "summary": {
+          "n": 24,
+          "wr": 0.875,
+          "avg": 127.5,
+          "sum": 3059.4,
+          "median": 105.8,
+          "t3r": 2015.2,
+          "per_month": 6.1
+        },
+        "folds": {
+          "folds": [
+            {
+              "n": 5,
+              "wr": 1.0,
+              "avg": 164.1,
+              "sum": 820.7,
+              "median": 95.8,
+              "t3r": 109.5,
+              "per_month": 5.0
+            },
+            {
+              "n": 5,
+              "wr": 0.6,
+              "avg": 47.3,
+              "sum": 236.5,
+              "median": 34.7,
+              "t3r": -48.4,
+              "per_month": 1.7
+            },
+            {
+              "n": 4,
+              "wr": 1.0,
+              "avg": 132.4,
+              "sum": 529.8,
+              "median": 123.8,
+              "t3r": 35.3,
+              "per_month": 4.0
+            },
+            {
+              "n": 5,
+              "wr": 0.8,
+              "avg": 79.5,
+              "sum": 397.7,
+              "median": 97.3,
+              "t3r": -11.2,
+              "per_month": 5.0
+            },
+            {
+              "n": 5,
+              "wr": 1.0,
+              "avg": 214.9,
+              "sum": 1074.7,
+              "median": 201.9,
+              "t3r": 183.3,
+              "per_month": 5.0
+            }
+          ],
+          "positive_sum_folds": 5,
+          "positive_t3r_folds": 3,
+          "fold_t3r_sum": 268.5,
+          "worst_fold_sum": 236.5,
+          "worst_fold_t3r": -48.4
+        },
+        "basic_pass": true,
+        "n_warning": null
+      },
+      "added_vs_current": {
+        "n": 11,
+        "wr": 0.727,
+        "avg": 70.2,
+        "sum": 772.0,
+        "median": 95.8,
+        "t3r": 293.3,
+        "per_month": 3.0
+      },
+      "added_vs_current_risk": {
+        "n": 11,
+        "worst": -25.5,
+        "best": 201.9,
+        "tail_loss_100bps_n": 0,
+        "tail_loss_100bps_rate": 0.0,
+        "max_drawdown_bps": -48.4,
+        "max_consecutive_losses": 2,
+        "top3_removed_sum": 293.3
+      },
+      "holdout_70_30": {
+        "calibration": {
+          "n": 17,
+          "wr": 0.824,
+          "avg": 102.9,
+          "sum": 1749.5,
+          "median": 95.8,
+          "t3r": 887.4,
+          "per_month": 4.5
+        },
+        "holdout": {
+          "n": 7,
+          "wr": 1.0,
+          "avg": 187.1,
+          "sum": 1309.9,
+          "median": 137.9,
+          "t3r": 418.4,
+          "per_month": 7.0
+        }
+      },
+      "monthly": {
+        "2026-02": {
+          "n": 1,
+          "wr": 1.0,
+          "avg": 260.8,
+          "sum": 260.8,
+          "median": 260.8,
+          "t3r": 260.8,
+          "per_month": 1.0
+        },
+        "2026-03": {
+          "n": 7,
+          "wr": 0.857,
+          "avg": 96.7,
+          "sum": 676.8,
+          "median": 93.8,
+          "t3r": 121.4,
+          "per_month": 7.0
+        },
+        "2026-04": {
+          "n": 1,
+          "wr": 0.0,
+          "avg": -25.5,
+          "sum": -25.5,
+          "median": -25.5,
+          "t3r": -25.5,
+          "per_month": 1.0
+        },
+        "2026-06": {
+          "n": 15,
+          "wr": 0.933,
+          "avg": 143.2,
+          "sum": 2147.3,
+          "median": 137.9,
+          "t3r": 1210.9,
+          "per_month": 15.0
+        }
+      },
+      "fee_sensitivity": {
+        "fee_3bps": {
+          "n": 24,
+          "wr": 0.875,
+          "avg": 129.5,
+          "sum": 3107.4,
+          "median": 107.8,
+          "t3r": 2057.2,
+          "per_month": 6.1
+        },
+        "fee_5bps": {
+          "n": 24,
+          "wr": 0.875,
+          "avg": 127.5,
+          "sum": 3059.4,
+          "median": 105.8,
+          "t3r": 2015.2,
+          "per_month": 6.1
+        },
+        "fee_8bps": {
+          "n": 24,
+          "wr": 0.833,
+          "avg": 124.5,
+          "sum": 2987.4,
+          "median": 102.8,
+          "t3r": 1952.2,
+          "per_month": 6.1
+        },
+        "fee_10bps": {
+          "n": 24,
+          "wr": 0.833,
+          "avg": 122.5,
+          "sum": 2939.4,
+          "median": 100.8,
+          "t3r": 1910.2,
+          "per_month": 6.1
+        },
+        "fee_15bps": {
+          "n": 24,
+          "wr": 0.833,
+          "avg": 117.5,
+          "sum": 2819.4,
+          "median": 95.8,
+          "t3r": 1805.2,
+          "per_month": 6.1
+        }
+      },
+      "risk_profile": {
+        "n": 24,
+        "worst": -25.5,
+        "best": 359.8,
+        "tail_loss_100bps_n": 0,
+        "tail_loss_100bps_rate": 0.0,
+        "max_drawdown_bps": -25.5,
+        "max_consecutive_losses": 1,
+        "top3_removed_sum": 2015.2
+      },
+      "overlap_profile": {
+        "max_simultaneous": 3,
+        "no_overlap_n": 20,
+        "skipped_by_no_overlap": 4,
+        "no_overlap_stats": {
+          "n": 20,
+          "wr": 0.85,
+          "avg": 134.3,
+          "sum": 2685.4,
+          "median": 105.8,
+          "t3r": 1641.2,
+          "per_month": 5.1
+        }
+      },
+      "readiness": "PAPER_CANDIDATE"
+    },
+    {
+      "name": "L_base_score1_added",
+      "family": "LONG",
+      "note": "Relax long_score to include base_score1.",
+      "score": {
+        "summary": {
+          "n": 15,
+          "wr": 0.933,
+          "avg": 141.7,
+          "sum": 2125.7,
+          "median": 105.1,
+          "t3r": 1082.6,
+          "per_month": 3.7
+        },
+        "folds": {
+          "folds": [
+            {
+              "n": 3,
+              "wr": 1.0,
+              "avg": 272.2,
+              "sum": 816.5,
+              "median": 260.8,
+              "t3r": 816.5,
+              "per_month": 3.0
+            },
+            {
+              "n": 3,
+              "wr": 0.667,
+              "avg": 133.0,
+              "sum": 399.1,
+              "median": 93.8,
+              "t3r": 399.1,
+              "per_month": 3.0
+            },
+            {
+              "n": 3,
+              "wr": 1.0,
+              "avg": 46.9,
+              "sum": 140.8,
+              "median": 34.7,
+              "t3r": 140.8,
+              "per_month": 1.2
+            },
+            {
+              "n": 3,
+              "wr": 1.0,
+              "avg": 93.9,
+              "sum": 281.6,
+              "median": 76.7,
+              "t3r": 281.6,
+              "per_month": 3.0
+            },
+            {
+              "n": 3,
+              "wr": 1.0,
+              "avg": 162.6,
+              "sum": 487.7,
+              "median": 106.5,
+              "t3r": 487.7,
+              "per_month": 3.0
+            }
+          ],
+          "positive_sum_folds": 5,
+          "positive_t3r_folds": 5,
+          "fold_t3r_sum": 2125.7,
+          "worst_fold_sum": 140.8,
+          "worst_fold_t3r": 140.8
+        },
+        "basic_pass": true,
+        "n_warning": "LOW_N"
+      },
+      "added_vs_current": {
+        "n": 6,
+        "wr": 0.833,
+        "avg": 98.3,
+        "sum": 590.0,
+        "median": 41.2,
+        "t3r": -17.1,
+        "per_month": 1.5
+      },
+      "added_vs_current_risk": {
+        "n": 6,
+        "worst": -49.2,
+        "best": 358.7,
+        "tail_loss_100bps_n": 0,
+        "tail_loss_100bps_rate": 0.0,
+        "max_drawdown_bps": -49.2,
+        "max_consecutive_losses": 1,
+        "top3_removed_sum": -17.1
+      },
+      "holdout_70_30": {
+        "calibration": {
+          "n": 10,
+          "wr": 0.9,
+          "avg": 138.8,
+          "sum": 1387.6,
+          "median": 99.4,
+          "t3r": 413.5,
+          "per_month": 2.8
+        },
+        "holdout": {
+          "n": 5,
+          "wr": 1.0,
+          "avg": 147.6,
+          "sum": 738.2,
+          "median": 106.5,
+          "t3r": 128.0,
+          "per_month": 5.0
+        }
+      },
+      "monthly": {
+        "2026-02": {
+          "n": 3,
+          "wr": 1.0,
+          "avg": 272.2,
+          "sum": 816.5,
+          "median": 260.8,
+          "t3r": 816.5,
+          "per_month": 3.0
+        },
+        "2026-03": {
+          "n": 5,
+          "wr": 0.8,
+          "avg": 107.8,
+          "sum": 538.9,
+          "median": 93.8,
+          "t3r": -14.5,
+          "per_month": 5.0
+        },
+        "2026-06": {
+          "n": 7,
+          "wr": 1.0,
+          "avg": 110.0,
+          "sum": 770.3,
+          "median": 76.7,
+          "t3r": 160.2,
+          "per_month": 7.0
+        }
+      },
+      "fee_sensitivity": {
+        "fee_3bps": {
+          "n": 15,
+          "wr": 0.933,
+          "avg": 143.7,
+          "sum": 2155.7,
+          "median": 107.1,
+          "t3r": 1106.6,
+          "per_month": 3.7
+        },
+        "fee_5bps": {
+          "n": 15,
+          "wr": 0.933,
+          "avg": 141.7,
+          "sum": 2125.7,
+          "median": 105.1,
+          "t3r": 1082.6,
+          "per_month": 3.7
+        },
+        "fee_8bps": {
+          "n": 15,
+          "wr": 0.867,
+          "avg": 138.7,
+          "sum": 2080.7,
+          "median": 102.1,
+          "t3r": 1046.6,
+          "per_month": 3.7
+        },
+        "fee_10bps": {
+          "n": 15,
+          "wr": 0.867,
+          "avg": 136.7,
+          "sum": 2050.7,
+          "median": 100.1,
+          "t3r": 1022.6,
+          "per_month": 3.7
+        },
+        "fee_15bps": {
+          "n": 15,
+          "wr": 0.867,
+          "avg": 131.7,
+          "sum": 1975.7,
+          "median": 95.1,
+          "t3r": 962.6,
+          "per_month": 3.7
+        }
+      },
+      "risk_profile": {
+        "n": 15,
+        "worst": -49.2,
+        "best": 358.7,
+        "tail_loss_100bps_n": 0,
+        "tail_loss_100bps_rate": 0.0,
+        "max_drawdown_bps": -49.2,
+        "max_consecutive_losses": 1,
+        "top3_removed_sum": 1082.6
+      },
+      "overlap_profile": {
+        "max_simultaneous": 2,
+        "no_overlap_n": 14,
+        "skipped_by_no_overlap": 1,
+        "no_overlap_stats": {
+          "n": 14,
+          "wr": 0.929,
+          "avg": 149.6,
+          "sum": 2094.6,
+          "median": 105.8,
+          "t3r": 1051.5,
+          "per_month": 3.5
+        }
+      },
+      "readiness": "RESEARCH_ONLY_LOW_N"
+    },
+    {
+      "name": "L_no_btc7d",
+      "family": "LONG",
+      "note": "Remove btc7d regime gate.",
+      "score": {
+        "summary": {
+          "n": 21,
+          "wr": 0.762,
+          "avg": 82.0,
+          "sum": 1721.0,
+          "median": 76.7,
+          "t3r": 775.8,
+          "per_month": 5.3
+        },
+        "folds": {
+          "folds": [
+            {
+              "n": 4,
+              "wr": 0.75,
+              "avg": 170.8,
+              "sum": 683.3,
+              "median": 178.3,
+              "t3r": -27.9,
+              "per_month": 4.0
+            },
+            {
+              "n": 4,
+              "wr": 0.5,
+              "avg": -12.8,
+              "sum": -51.4,
+              "median": 26.3,
+              "t3r": -197.9,
+              "per_month": 4.0
+            },
+            {
+              "n": 5,
+              "wr": 0.6,
+              "avg": 27.8,
+              "sum": 139.0,
+              "median": 34.7,
+              "t3r": -59.4,
+              "per_month": 5.0
+            },
+            {
+              "n": 4,
+              "wr": 1.0,
+              "avg": 65.8,
+              "sum": 263.2,
+              "median": 71.2,
+              "t3r": 12.0,
+              "per_month": 4.0
+            },
+            {
+              "n": 4,
+              "wr": 1.0,
+              "avg": 171.7,
+              "sum": 686.9,
+              "median": 140.1,
+              "t3r": 76.7,
+              "per_month": 4.0
+            }
+          ],
+          "positive_sum_folds": 4,
+          "positive_t3r_folds": 2,
+          "fold_t3r_sum": -196.5,
+          "worst_fold_sum": -51.4,
+          "worst_fold_t3r": -197.9
+        },
+        "basic_pass": false,
+        "n_warning": null
+      },
+      "added_vs_current": {
+        "n": 12,
+        "wr": 0.583,
+        "avg": 15.4,
+        "sum": 185.2,
+        "median": 23.6,
+        "t3r": -126.6,
+        "per_month": 3.5
+      },
+      "added_vs_current_risk": {
+        "n": 12,
+        "worst": -197.9,
+        "best": 108.8,
+        "tail_loss_100bps_n": 1,
+        "tail_loss_100bps_rate": 0.083,
+        "max_drawdown_bps": -220.7,
+        "max_consecutive_losses": 2,
+        "top3_removed_sum": -126.6
+      },
+      "holdout_70_30": {
+        "calibration": {
+          "n": 15,
+          "wr": 0.667,
+          "avg": 61.0,
+          "sum": 915.0,
+          "median": 58.5,
+          "t3r": 190.8,
+          "per_month": 4.2
+        },
+        "holdout": {
+          "n": 6,
+          "wr": 1.0,
+          "avg": 134.3,
+          "sum": 806.0,
+          "median": 106.8,
+          "t3r": 195.3,
+          "per_month": 6.0
+        }
+      },
+      "monthly": {
+        "2026-02": {
+          "n": 1,
+          "wr": 1.0,
+          "avg": 260.8,
+          "sum": 260.8,
+          "median": 260.8,
+          "t3r": 260.8,
+          "per_month": 1.0
+        },
+        "2026-03": {
+          "n": 9,
+          "wr": 0.667,
+          "avg": 56.8,
+          "sum": 510.9,
+          "median": 75.6,
+          "t3r": -44.5,
+          "per_month": 9.0
+        },
+        "2026-04": {
+          "n": 3,
+          "wr": 0.333,
+          "avg": -0.3,
+          "sum": -0.8,
+          "median": -25.5,
+          "t3r": -0.8,
+          "per_month": 3.0
+        },
+        "2026-06": {
+          "n": 8,
+          "wr": 1.0,
+          "avg": 118.8,
+          "sum": 950.1,
+          "median": 106.8,
+          "t3r": 337.7,
+          "per_month": 8.0
+        }
+      },
+      "fee_sensitivity": {
+        "fee_3bps": {
+          "n": 21,
+          "wr": 0.762,
+          "avg": 84.0,
+          "sum": 1763.0,
+          "median": 78.7,
+          "t3r": 811.8,
+          "per_month": 5.3
+        },
+        "fee_5bps": {
+          "n": 21,
+          "wr": 0.762,
+          "avg": 82.0,
+          "sum": 1721.0,
+          "median": 76.7,
+          "t3r": 775.8,
+          "per_month": 5.3
+        },
+        "fee_8bps": {
+          "n": 21,
+          "wr": 0.762,
+          "avg": 79.0,
+          "sum": 1658.0,
+          "median": 73.7,
+          "t3r": 721.8,
+          "per_month": 5.3
+        },
+        "fee_10bps": {
+          "n": 21,
+          "wr": 0.762,
+          "avg": 77.0,
+          "sum": 1616.0,
+          "median": 71.7,
+          "t3r": 685.8,
+          "per_month": 5.3
+        },
+        "fee_15bps": {
+          "n": 21,
+          "wr": 0.762,
+          "avg": 72.0,
+          "sum": 1511.0,
+          "median": 66.7,
+          "t3r": 595.8,
+          "per_month": 5.3
+        }
+      },
+      "risk_profile": {
+        "n": 21,
+        "worst": -197.9,
+        "best": 354.6,
+        "tail_loss_100bps_n": 1,
+        "tail_loss_100bps_rate": 0.048,
+        "max_drawdown_bps": -220.7,
+        "max_consecutive_losses": 2,
+        "top3_removed_sum": 775.8
+      },
+      "overlap_profile": {
+        "max_simultaneous": 2,
+        "no_overlap_n": 19,
+        "skipped_by_no_overlap": 2,
+        "no_overlap_stats": {
+          "n": 19,
+          "wr": 0.737,
+          "avg": 86.0,
+          "sum": 1633.4,
+          "median": 93.8,
+          "t3r": 688.2,
+          "per_month": 4.8
+        }
+      },
+      "readiness": "REJECT_FOLD_T3R"
+    },
+    {
+      "name": "S_btc1m_delay10",
+      "family": "SHORT",
+      "note": "SHORT BTC>=1000000, delay>=10m, hold=2h.",
+      "score": {
+        "summary": {
+          "n": 10,
+          "wr": 0.9,
+          "avg": 133.2,
+          "sum": 1332.1,
+          "median": 138.4,
+          "t3r": 523.6,
+          "per_month": 2.7
+        },
+        "folds": {
+          "folds": [
+            {
+              "n": 2,
+              "wr": 1.0,
+              "avg": 80.4,
+              "sum": 160.8,
+              "median": 80.4,
+              "t3r": 160.8,
+              "per_month": 0.6
+            },
+            {
+              "n": 2,
+              "wr": 1.0,
+              "avg": 192.8,
+              "sum": 385.7,
+              "median": 192.8,
+              "t3r": 385.7,
+              "per_month": 2.0
+            },
+            {
+              "n": 2,
+              "wr": 0.5,
+              "avg": -5.6,
+              "sum": -11.2,
+              "median": -5.6,
+              "t3r": -11.2,
+              "per_month": 2.0
+            },
+            {
+              "n": 2,
+              "wr": 1.0,
+              "avg": 117.6,
+              "sum": 235.1,
+              "median": 117.6,
+              "t3r": 235.1,
+              "per_month": 2.0
+            },
+            {
+              "n": 2,
+              "wr": 1.0,
+              "avg": 280.8,
+              "sum": 561.6,
+              "median": 280.8,
+              "t3r": 561.6,
+              "per_month": 2.0
+            }
+          ],
+          "positive_sum_folds": 4,
+          "positive_t3r_folds": 4,
+          "fold_t3r_sum": 1332.0,
+          "worst_fold_sum": -11.2,
+          "worst_fold_t3r": -11.2
+        },
+        "basic_pass": true,
+        "n_warning": "LOW_N"
+      },
+      "added_vs_current": {
+        "n": 6,
+        "wr": 0.833,
+        "avg": 96.7,
+        "sum": 580.4,
+        "median": 117.6,
+        "t3r": 101.8,
+        "per_month": 1.6
+      },
+      "added_vs_current_risk": {
+        "n": 6,
+        "worst": -11.2,
+        "best": 201.9,
+        "tail_loss_100bps_n": 0,
+        "tail_loss_100bps_rate": 0.0,
+        "max_drawdown_bps": -11.2,
+        "max_consecutive_losses": 1,
+        "top3_removed_sum": 101.8
+      },
+      "holdout_70_30": {
+        "calibration": {
+          "n": 7,
+          "wr": 0.857,
+          "avg": 96.2,
+          "sum": 673.2,
+          "median": 137.9,
+          "t3r": 142.4,
+          "per_month": 1.9
+        },
+        "holdout": {
+          "n": 3,
+          "wr": 1.0,
+          "avg": 219.6,
+          "sum": 658.9,
+          "median": 201.9,
+          "t3r": 658.9,
+          "per_month": 3.0
+        }
+      },
+      "monthly": {
+        "2026-03": {
+          "n": 1,
+          "wr": 1.0,
+          "avg": 15.7,
+          "sum": 15.7,
+          "median": 15.7,
+          "t3r": 15.7,
+          "per_month": 1.0
+        },
+        "2026-06": {
+          "n": 9,
+          "wr": 0.889,
+          "avg": 146.3,
+          "sum": 1316.3,
+          "median": 138.9,
+          "t3r": 507.9,
+          "per_month": 9.0
+        }
+      },
+      "fee_sensitivity": {
+        "fee_3bps": {
+          "n": 10,
+          "wr": 0.9,
+          "avg": 135.2,
+          "sum": 1352.1,
+          "median": 140.4,
+          "t3r": 537.6,
+          "per_month": 2.7
+        },
+        "fee_5bps": {
+          "n": 10,
+          "wr": 0.9,
+          "avg": 133.2,
+          "sum": 1332.1,
+          "median": 138.4,
+          "t3r": 523.6,
+          "per_month": 2.7
+        },
+        "fee_8bps": {
+          "n": 10,
+          "wr": 0.8,
+          "avg": 130.2,
+          "sum": 1302.1,
+          "median": 135.4,
+          "t3r": 502.6,
+          "per_month": 2.7
+        },
+        "fee_10bps": {
+          "n": 10,
+          "wr": 0.8,
+          "avg": 128.2,
+          "sum": 1282.1,
+          "median": 133.4,
+          "t3r": 488.6,
+          "per_month": 2.7
+        },
+        "fee_15bps": {
+          "n": 10,
+          "wr": 0.8,
+          "avg": 123.2,
+          "sum": 1232.1,
+          "median": 128.4,
+          "t3r": 453.6,
+          "per_month": 2.7
+        }
+      },
+      "risk_profile": {
+        "n": 10,
+        "worst": -11.2,
+        "best": 359.8,
+        "tail_loss_100bps_n": 0,
+        "tail_loss_100bps_rate": 0.0,
+        "max_drawdown_bps": -11.2,
+        "max_consecutive_losses": 1,
+        "top3_removed_sum": 523.6
+      },
+      "overlap_profile": {
+        "max_simultaneous": 3,
+        "no_overlap_n": 6,
+        "skipped_by_no_overlap": 4,
+        "no_overlap_stats": {
+          "n": 6,
+          "wr": 0.833,
+          "avg": 159.7,
+          "sum": 958.0,
+          "median": 173.5,
+          "t3r": 149.6,
+          "per_month": 1.6
+        }
+      },
+      "readiness": "RESEARCH_ONLY_LOW_N"
+    },
+    {
+      "name": "S_current_btc2m_delay5",
+      "family": "SHORT",
+      "note": "SHORT BTC>=2000000, delay>=5m, hold=2h.",
+      "score": {
+        "summary": {
+          "n": 7,
+          "wr": 0.857,
+          "avg": 99.0,
+          "sum": 693.2,
+          "median": 95.8,
+          "t3r": -58.4,
+          "per_month": 7.0
+        },
+        "folds": {
+          "folds": [
+            {
+              "n": 1,
+              "wr": 1.0,
+              "avg": 145.1,
+              "sum": 145.1,
+              "median": 145.1,
+              "t3r": 145.1,
+              "per_month": 1.0
+            },
+            {
+              "n": 2,
+              "wr": 1.0,
+              "avg": 123.4,
+              "sum": 246.8,
+              "median": 123.4,
+              "t3r": 246.8,
+              "per_month": 2.0
+            },
+            {
+              "n": 1,
+              "wr": 1.0,
+              "avg": 359.8,
+              "sum": 359.8,
+              "median": 359.8,
+              "t3r": 359.8,
+              "per_month": 1.0
+            },
+            {
+              "n": 2,
+              "wr": 1.0,
+              "avg": 55.6,
+              "sum": 111.2,
+              "median": 55.6,
+              "t3r": 111.2,
+              "per_month": 2.0
+            },
+            {
+              "n": 1,
+              "wr": 0.0,
+              "avg": -169.6,
+              "sum": -169.6,
+              "median": -169.6,
+              "t3r": -169.6,
+              "per_month": 1.0
+            }
+          ],
+          "positive_sum_folds": 4,
+          "positive_t3r_folds": 4,
+          "fold_t3r_sum": 693.3,
+          "worst_fold_sum": -169.6,
+          "worst_fold_t3r": -169.6
+        },
+        "basic_pass": false,
+        "n_warning": "LOW_N"
+      },
+      "added_vs_current": {
+        "n": 0,
+        "wr": null,
+        "avg": null,
+        "sum": 0.0,
+        "median": null,
+        "t3r": 0.0,
+        "per_month": 0.0
+      },
+      "added_vs_current_risk": {
+        "n": 0
+      },
+      "holdout_70_30": {
+        "calibration": {
+          "n": 5,
+          "wr": 1.0,
+          "avg": 169.5,
+          "sum": 847.5,
+          "median": 145.1,
+          "t3r": 95.9,
+          "per_month": 5.0
+        },
+        "holdout": {
+          "n": 2,
+          "wr": 0.5,
+          "avg": -77.1,
+          "sum": -154.3,
+          "median": -77.1,
+          "t3r": -154.3,
+          "per_month": 2.0
+        }
+      },
+      "monthly": {
+        "2026-06": {
+          "n": 7,
+          "wr": 0.857,
+          "avg": 99.0,
+          "sum": 693.2,
+          "median": 95.8,
+          "t3r": -58.4,
+          "per_month": 7.0
+        }
+      },
+      "fee_sensitivity": {
+        "fee_3bps": {
+          "n": 7,
+          "wr": 0.857,
+          "avg": 101.0,
+          "sum": 707.2,
+          "median": 97.8,
+          "t3r": -50.4,
+          "per_month": 7.0
+        },
+        "fee_5bps": {
+          "n": 7,
+          "wr": 0.857,
+          "avg": 99.0,
+          "sum": 693.2,
+          "median": 95.8,
+          "t3r": -58.4,
+          "per_month": 7.0
+        },
+        "fee_8bps": {
+          "n": 7,
+          "wr": 0.714,
+          "avg": 96.0,
+          "sum": 672.2,
+          "median": 92.8,
+          "t3r": -70.4,
+          "per_month": 7.0
+        },
+        "fee_10bps": {
+          "n": 7,
+          "wr": 0.714,
+          "avg": 94.0,
+          "sum": 658.2,
+          "median": 90.8,
+          "t3r": -78.4,
+          "per_month": 7.0
+        },
+        "fee_15bps": {
+          "n": 7,
+          "wr": 0.714,
+          "avg": 89.0,
+          "sum": 623.2,
+          "median": 85.8,
+          "t3r": -98.4,
+          "per_month": 7.0
+        }
+      },
+      "risk_profile": {
+        "n": 7,
+        "worst": -169.6,
+        "best": 359.8,
+        "tail_loss_100bps_n": 1,
+        "tail_loss_100bps_rate": 0.143,
+        "max_drawdown_bps": -169.6,
+        "max_consecutive_losses": 1,
+        "top3_removed_sum": -58.4
+      },
+      "overlap_profile": {
+        "max_simultaneous": 2,
+        "no_overlap_n": 4,
+        "skipped_by_no_overlap": 3,
+        "no_overlap_stats": {
+          "n": 4,
+          "wr": 1.0,
+          "avg": 191.8,
+          "sum": 767.0,
+          "median": 195.9,
+          "t3r": 15.4,
+          "per_month": 4.0
+        }
+      },
+      "readiness": "RESEARCH_ONLY_LOW_N"
+    },
+    {
+      "name": "SEQ_silence_no_btc1m",
+      "family": "STATE_SEQUENCE_LONG4H",
+      "note": "Silence path with no BTC confirm.",
+      "score": {
+        "summary": {
+          "n": 166,
+          "wr": 0.608,
+          "avg": 37.9,
+          "sum": 6290.4,
+          "median": 32.9,
+          "t3r": 4947.3,
+          "per_month": 38.1
+        },
+        "folds": {
+          "folds": [
+            {
+              "n": 33,
+              "wr": 0.576,
+              "avg": 32.7,
+              "sum": 1079.9,
+              "median": 48.4,
+              "t3r": 105.8,
+              "per_month": 33.0
+            },
+            {
+              "n": 33,
+              "wr": 0.697,
+              "avg": 43.3,
+              "sum": 1428.2,
+              "median": 54.8,
+              "t3r": 739.9,
+              "per_month": 33.0
+            },
+            {
+              "n": 34,
+              "wr": 0.559,
+              "avg": 30.5,
+              "sum": 1037.8,
+              "median": 34.3,
+              "t3r": 276.5,
+              "per_month": 34.0
+            },
+            {
+              "n": 33,
+              "wr": 0.424,
+              "avg": 3.3,
+              "sum": 108.3,
+              "median": -10.1,
+              "t3r": -479.6,
+              "per_month": 17.6
+            },
+            {
+              "n": 33,
+              "wr": 0.788,
+              "avg": 79.9,
+              "sum": 2636.2,
+              "median": 48.5,
+              "t3r": 1322.0,
+              "per_month": 33.0
+            }
+          ],
+          "positive_sum_folds": 5,
+          "positive_t3r_folds": 4,
+          "fold_t3r_sum": 1964.6,
+          "worst_fold_sum": 108.3,
+          "worst_fold_t3r": -479.6
+        },
+        "basic_pass": false,
+        "n_warning": null
+      },
+      "added_vs_current": {
+        "n": 157,
+        "wr": 0.586,
+        "avg": 30.3,
+        "sum": 4754.6,
+        "median": 27.3,
+        "t3r": 3411.6,
+        "per_month": 36.0
+      },
+      "added_vs_current_risk": {
+        "n": 157,
+        "worst": -452.3,
+        "best": 614.3,
+        "tail_loss_100bps_n": 20,
+        "tail_loss_100bps_rate": 0.127,
+        "max_drawdown_bps": -762.9,
+        "max_consecutive_losses": 13,
+        "top3_removed_sum": 3411.6
+      },
+      "holdout_70_30": {
+        "calibration": {
+          "n": 116,
+          "wr": 0.552,
+          "avg": 26.4,
+          "sum": 3067.5,
+          "median": 30.9,
+          "t3r": 2056.7,
+          "per_month": 54.9
+        },
+        "holdout": {
+          "n": 50,
+          "wr": 0.74,
+          "avg": 64.5,
+          "sum": 3222.9,
+          "median": 32.9,
+          "t3r": 1908.6,
+          "per_month": 22.4
+        }
+      },
+      "monthly": {
+        "2026-02": {
+          "n": 23,
+          "wr": 0.565,
+          "avg": 19.2,
+          "sum": 442.3,
+          "median": 37.7,
+          "t3r": -377.1,
+          "per_month": 23.0
+        },
+        "2026-03": {
+          "n": 66,
+          "wr": 0.652,
+          "avg": 41.4,
+          "sum": 2731.0,
+          "median": 52.9,
+          "t3r": 1818.6,
+          "per_month": 66.0
+        },
+        "2026-04": {
+          "n": 32,
+          "wr": 0.375,
+          "avg": 4.2,
+          "sum": 134.1,
+          "median": -12.8,
+          "t3r": -345.5,
+          "per_month": 32.0
+        },
+        "2026-06": {
+          "n": 45,
+          "wr": 0.733,
+          "avg": 66.3,
+          "sum": 2983.0,
+          "median": 32.5,
+          "t3r": 1668.8,
+          "per_month": 45.0
+        }
+      },
+      "fee_sensitivity": {
+        "fee_3bps": {
+          "n": 166,
+          "wr": 0.614,
+          "avg": 39.9,
+          "sum": 6622.4,
+          "median": 34.9,
+          "t3r": 5273.3,
+          "per_month": 38.1
+        },
+        "fee_5bps": {
+          "n": 166,
+          "wr": 0.608,
+          "avg": 37.9,
+          "sum": 6290.4,
+          "median": 32.9,
+          "t3r": 4947.3,
+          "per_month": 38.1
+        },
+        "fee_8bps": {
+          "n": 166,
+          "wr": 0.59,
+          "avg": 34.9,
+          "sum": 5792.4,
+          "median": 29.9,
+          "t3r": 4458.3,
+          "per_month": 38.1
+        },
+        "fee_10bps": {
+          "n": 166,
+          "wr": 0.59,
+          "avg": 32.9,
+          "sum": 5460.4,
+          "median": 27.9,
+          "t3r": 4132.3,
+          "per_month": 38.1
+        },
+        "fee_15bps": {
+          "n": 166,
+          "wr": 0.59,
+          "avg": 27.9,
+          "sum": 4630.4,
+          "median": 22.9,
+          "t3r": 3317.3,
+          "per_month": 38.1
+        }
+      },
+      "risk_profile": {
+        "n": 166,
+        "worst": -452.3,
+        "best": 614.3,
+        "tail_loss_100bps_n": 20,
+        "tail_loss_100bps_rate": 0.12,
+        "max_drawdown_bps": -762.9,
+        "max_consecutive_losses": 13,
+        "top3_removed_sum": 4947.3
+      },
+      "overlap_profile": {
+        "max_simultaneous": 4,
+        "no_overlap_n": 121,
+        "skipped_by_no_overlap": 45,
+        "no_overlap_stats": {
+          "n": 121,
+          "wr": 0.595,
+          "avg": 40.2,
+          "sum": 4860.2,
+          "median": 33.3,
+          "t3r": 3532.5,
+          "per_month": 27.8
+        }
+      },
+      "readiness": "PAPER_SHADOW_ONLY_TAIL"
+    },
+    {
+      "name": "SEQ_noisy_with_btc1m",
+      "family": "STATE_SEQUENCE_LONG4H",
+      "note": "Noisy/follow-on plus BTC confirm.",
+      "score": {
+        "summary": {
+          "n": 48,
+          "wr": 0.229,
+          "avg": -129.4,
+          "sum": -6212.7,
+          "median": -86.6,
+          "t3r": -6615.0,
+          "per_month": 11.6
+        },
+        "folds": {
+          "folds": [
+            {
+              "n": 10,
+              "wr": 0.2,
+              "avg": -146.9,
+              "sum": -1468.7,
+              "median": -170.8,
+              "t3r": -1567.9,
+              "per_month": 6.3
+            },
+            {
+              "n": 9,
+              "wr": 0.222,
+              "avg": -57.9,
+              "sum": -521.0,
+              "median": -82.6,
+              "t3r": -610.6,
+              "per_month": 4.5
+            },
+            {
+              "n": 10,
+              "wr": 0.1,
+              "avg": -125.7,
+              "sum": -1256.9,
+              "median": -128.3,
+              "t3r": -1231.8,
+              "per_month": 10.0
+            },
+            {
+              "n": 9,
+              "wr": 0.333,
+              "avg": -211.1,
+              "sum": -1900.3,
+              "median": -136.2,
+              "t3r": -1986.1,
+              "per_month": 9.0
+            },
+            {
+              "n": 10,
+              "wr": 0.3,
+              "avg": -106.6,
+              "sum": -1065.7,
+              "median": -43.8,
+              "t3r": -1381.4,
+              "per_month": 10.0
+            }
+          ],
+          "positive_sum_folds": 0,
+          "positive_t3r_folds": 0,
+          "fold_t3r_sum": -6777.8,
+          "worst_fold_sum": -1900.3,
+          "worst_fold_t3r": -1986.1
+        },
+        "basic_pass": false,
+        "n_warning": null
+      },
+      "added_vs_current": {
+        "n": 48,
+        "wr": 0.229,
+        "avg": -129.4,
+        "sum": -6212.7,
+        "median": -86.6,
+        "t3r": -6615.0,
+        "per_month": 11.6
+      },
+      "added_vs_current_risk": {
+        "n": 48,
+        "worst": -511.1,
+        "best": 147.4,
+        "tail_loss_100bps_n": 23,
+        "tail_loss_100bps_rate": 0.479,
+        "max_drawdown_bps": -6381.0,
+        "max_consecutive_losses": 13,
+        "top3_removed_sum": -6615.0
+      },
+      "holdout_70_30": {
+        "calibration": {
+          "n": 34,
+          "wr": 0.235,
+          "avg": -106.2,
+          "sum": -3610.7,
+          "median": -100.2,
+          "t3r": -3866.0,
+          "per_month": 8.6
+        },
+        "holdout": {
+          "n": 14,
+          "wr": 0.214,
+          "avg": -185.9,
+          "sum": -2602.0,
+          "median": -71.8,
+          "t3r": -2917.7,
+          "per_month": 14.0
+        }
+      },
+      "monthly": {
+        "2026-02": {
+          "n": 2,
+          "wr": 0.5,
+          "avg": -144.1,
+          "sum": -288.2,
+          "median": -144.1,
+          "t3r": -288.2,
+          "per_month": 2.0
+        },
+        "2026-03": {
+          "n": 4,
+          "wr": 0.0,
+          "avg": -202.9,
+          "sum": -811.7,
+          "median": -192.6,
+          "t3r": -377.0,
+          "per_month": 4.0
+        },
+        "2026-04": {
+          "n": 9,
+          "wr": 0.333,
+          "avg": -46.8,
+          "sum": -420.9,
+          "median": -7.7,
+          "t3r": -566.8,
+          "per_month": 9.0
+        },
+        "2026-06": {
+          "n": 33,
+          "wr": 0.212,
+          "avg": -142.2,
+          "sum": -4691.9,
+          "median": -114.6,
+          "t3r": -5094.3,
+          "per_month": 33.0
+        }
+      },
+      "fee_sensitivity": {
+        "fee_3bps": {
+          "n": 48,
+          "wr": 0.229,
+          "avg": -127.4,
+          "sum": -6116.7,
+          "median": -84.6,
+          "t3r": -6525.0,
+          "per_month": 11.6
+        },
+        "fee_5bps": {
+          "n": 48,
+          "wr": 0.229,
+          "avg": -129.4,
+          "sum": -6212.7,
+          "median": -86.6,
+          "t3r": -6615.0,
+          "per_month": 11.6
+        },
+        "fee_8bps": {
+          "n": 48,
+          "wr": 0.229,
+          "avg": -132.4,
+          "sum": -6356.7,
+          "median": -89.6,
+          "t3r": -6750.0,
+          "per_month": 11.6
+        },
+        "fee_10bps": {
+          "n": 48,
+          "wr": 0.229,
+          "avg": -134.4,
+          "sum": -6452.7,
+          "median": -91.6,
+          "t3r": -6840.0,
+          "per_month": 11.6
+        },
+        "fee_15bps": {
+          "n": 48,
+          "wr": 0.208,
+          "avg": -139.4,
+          "sum": -6692.7,
+          "median": -96.6,
+          "t3r": -7065.0,
+          "per_month": 11.6
+        }
+      },
+      "risk_profile": {
+        "n": 48,
+        "worst": -511.1,
+        "best": 147.4,
+        "tail_loss_100bps_n": 23,
+        "tail_loss_100bps_rate": 0.479,
+        "max_drawdown_bps": -6381.0,
+        "max_consecutive_losses": 13,
+        "top3_removed_sum": -6615.0
+      },
+      "overlap_profile": {
+        "max_simultaneous": 6,
+        "no_overlap_n": 29,
+        "skipped_by_no_overlap": 19,
+        "no_overlap_stats": {
+          "n": 29,
+          "wr": 0.276,
+          "avg": -116.0,
+          "sum": -3363.3,
+          "median": -83.2,
+          "t3r": -3625.6,
+          "per_month": 7.0
+        }
+      },
+      "readiness": "REJECT_T3R"
+    }
+  ],
+  "overlap_matrix": {
+    "C_current_live_long_short": {
+      "C_score_relax_short1m10": {
+        "overlap_n": 13,
+        "share_of_a": 0.812
+      },
+      "C_no_btc7d_short1m10": {
+        "overlap_n": 13,
+        "share_of_a": 0.812
+      },
+      "C_freq_balanced_btc4h_short1m10": {
+        "overlap_n": 11,
+        "share_of_a": 0.688
+      },
+      "C_btc7d500_short1m10": {
+        "overlap_n": 13,
+        "share_of_a": 0.812
+      },
+      "L_base_score1_added": {
+        "overlap_n": 9,
+        "share_of_a": 0.562
+      },
+      "L_no_btc7d": {
+        "overlap_n": 9,
+        "share_of_a": 0.562
+      },
+      "S_btc1m_delay10": {
+        "overlap_n": 4,
+        "share_of_a": 0.25
+      },
+      "S_current_btc2m_delay5": {
+        "overlap_n": 7,
+        "share_of_a": 0.438
+      },
+      "SEQ_silence_no_btc1m": {
+        "overlap_n": 9,
+        "share_of_a": 0.562
+      },
+      "SEQ_noisy_with_btc1m": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      }
+    },
+    "C_score_relax_short1m10": {
+      "C_current_live_long_short": {
+        "overlap_n": 13,
+        "share_of_a": 0.52
+      },
+      "C_no_btc7d_short1m10": {
+        "overlap_n": 19,
+        "share_of_a": 0.76
+      },
+      "C_freq_balanced_btc4h_short1m10": {
+        "overlap_n": 17,
+        "share_of_a": 0.68
+      },
+      "C_btc7d500_short1m10": {
+        "overlap_n": 19,
+        "share_of_a": 0.76
+      },
+      "L_base_score1_added": {
+        "overlap_n": 15,
+        "share_of_a": 0.6
+      },
+      "L_no_btc7d": {
+        "overlap_n": 9,
+        "share_of_a": 0.36
+      },
+      "S_btc1m_delay10": {
+        "overlap_n": 10,
+        "share_of_a": 0.4
+      },
+      "S_current_btc2m_delay5": {
+        "overlap_n": 4,
+        "share_of_a": 0.16
+      },
+      "SEQ_silence_no_btc1m": {
+        "overlap_n": 15,
+        "share_of_a": 0.6
+      },
+      "SEQ_noisy_with_btc1m": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      }
+    },
+    "C_no_btc7d_short1m10": {
+      "C_current_live_long_short": {
+        "overlap_n": 13,
+        "share_of_a": 0.419
+      },
+      "C_score_relax_short1m10": {
+        "overlap_n": 19,
+        "share_of_a": 0.613
+      },
+      "C_freq_balanced_btc4h_short1m10": {
+        "overlap_n": 27,
+        "share_of_a": 0.871
+      },
+      "C_btc7d500_short1m10": {
+        "overlap_n": 24,
+        "share_of_a": 0.774
+      },
+      "L_base_score1_added": {
+        "overlap_n": 9,
+        "share_of_a": 0.29
+      },
+      "L_no_btc7d": {
+        "overlap_n": 21,
+        "share_of_a": 0.677
+      },
+      "S_btc1m_delay10": {
+        "overlap_n": 10,
+        "share_of_a": 0.323
+      },
+      "S_current_btc2m_delay5": {
+        "overlap_n": 4,
+        "share_of_a": 0.129
+      },
+      "SEQ_silence_no_btc1m": {
+        "overlap_n": 21,
+        "share_of_a": 0.677
+      },
+      "SEQ_noisy_with_btc1m": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      }
+    },
+    "C_freq_balanced_btc4h_short1m10": {
+      "C_current_live_long_short": {
+        "overlap_n": 11,
+        "share_of_a": 0.407
+      },
+      "C_score_relax_short1m10": {
+        "overlap_n": 17,
+        "share_of_a": 0.63
+      },
+      "C_no_btc7d_short1m10": {
+        "overlap_n": 27,
+        "share_of_a": 1.0
+      },
+      "C_btc7d500_short1m10": {
+        "overlap_n": 22,
+        "share_of_a": 0.815
+      },
+      "L_base_score1_added": {
+        "overlap_n": 7,
+        "share_of_a": 0.259
+      },
+      "L_no_btc7d": {
+        "overlap_n": 17,
+        "share_of_a": 0.63
+      },
+      "S_btc1m_delay10": {
+        "overlap_n": 10,
+        "share_of_a": 0.37
+      },
+      "S_current_btc2m_delay5": {
+        "overlap_n": 4,
+        "share_of_a": 0.148
+      },
+      "SEQ_silence_no_btc1m": {
+        "overlap_n": 17,
+        "share_of_a": 0.63
+      },
+      "SEQ_noisy_with_btc1m": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      }
+    },
+    "C_btc7d500_short1m10": {
+      "C_current_live_long_short": {
+        "overlap_n": 13,
+        "share_of_a": 0.542
+      },
+      "C_score_relax_short1m10": {
+        "overlap_n": 19,
+        "share_of_a": 0.792
+      },
+      "C_no_btc7d_short1m10": {
+        "overlap_n": 24,
+        "share_of_a": 1.0
+      },
+      "C_freq_balanced_btc4h_short1m10": {
+        "overlap_n": 22,
+        "share_of_a": 0.917
+      },
+      "L_base_score1_added": {
+        "overlap_n": 9,
+        "share_of_a": 0.375
+      },
+      "L_no_btc7d": {
+        "overlap_n": 14,
+        "share_of_a": 0.583
+      },
+      "S_btc1m_delay10": {
+        "overlap_n": 10,
+        "share_of_a": 0.417
+      },
+      "S_current_btc2m_delay5": {
+        "overlap_n": 4,
+        "share_of_a": 0.167
+      },
+      "SEQ_silence_no_btc1m": {
+        "overlap_n": 14,
+        "share_of_a": 0.583
+      },
+      "SEQ_noisy_with_btc1m": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      }
+    },
+    "L_base_score1_added": {
+      "C_current_live_long_short": {
+        "overlap_n": 9,
+        "share_of_a": 0.6
+      },
+      "C_score_relax_short1m10": {
+        "overlap_n": 15,
+        "share_of_a": 1.0
+      },
+      "C_no_btc7d_short1m10": {
+        "overlap_n": 9,
+        "share_of_a": 0.6
+      },
+      "C_freq_balanced_btc4h_short1m10": {
+        "overlap_n": 7,
+        "share_of_a": 0.467
+      },
+      "C_btc7d500_short1m10": {
+        "overlap_n": 9,
+        "share_of_a": 0.6
+      },
+      "L_no_btc7d": {
+        "overlap_n": 9,
+        "share_of_a": 0.6
+      },
+      "S_btc1m_delay10": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "S_current_btc2m_delay5": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "SEQ_silence_no_btc1m": {
+        "overlap_n": 15,
+        "share_of_a": 1.0
+      },
+      "SEQ_noisy_with_btc1m": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      }
+    },
+    "L_no_btc7d": {
+      "C_current_live_long_short": {
+        "overlap_n": 9,
+        "share_of_a": 0.429
+      },
+      "C_score_relax_short1m10": {
+        "overlap_n": 9,
+        "share_of_a": 0.429
+      },
+      "C_no_btc7d_short1m10": {
+        "overlap_n": 21,
+        "share_of_a": 1.0
+      },
+      "C_freq_balanced_btc4h_short1m10": {
+        "overlap_n": 17,
+        "share_of_a": 0.81
+      },
+      "C_btc7d500_short1m10": {
+        "overlap_n": 14,
+        "share_of_a": 0.667
+      },
+      "L_base_score1_added": {
+        "overlap_n": 9,
+        "share_of_a": 0.429
+      },
+      "S_btc1m_delay10": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "S_current_btc2m_delay5": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "SEQ_silence_no_btc1m": {
+        "overlap_n": 21,
+        "share_of_a": 1.0
+      },
+      "SEQ_noisy_with_btc1m": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      }
+    },
+    "S_btc1m_delay10": {
+      "C_current_live_long_short": {
+        "overlap_n": 4,
+        "share_of_a": 0.4
+      },
+      "C_score_relax_short1m10": {
+        "overlap_n": 10,
+        "share_of_a": 1.0
+      },
+      "C_no_btc7d_short1m10": {
+        "overlap_n": 10,
+        "share_of_a": 1.0
+      },
+      "C_freq_balanced_btc4h_short1m10": {
+        "overlap_n": 10,
+        "share_of_a": 1.0
+      },
+      "C_btc7d500_short1m10": {
+        "overlap_n": 10,
+        "share_of_a": 1.0
+      },
+      "L_base_score1_added": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "L_no_btc7d": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "S_current_btc2m_delay5": {
+        "overlap_n": 4,
+        "share_of_a": 0.4
+      },
+      "SEQ_silence_no_btc1m": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "SEQ_noisy_with_btc1m": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      }
+    },
+    "S_current_btc2m_delay5": {
+      "C_current_live_long_short": {
+        "overlap_n": 7,
+        "share_of_a": 1.0
+      },
+      "C_score_relax_short1m10": {
+        "overlap_n": 4,
+        "share_of_a": 0.571
+      },
+      "C_no_btc7d_short1m10": {
+        "overlap_n": 4,
+        "share_of_a": 0.571
+      },
+      "C_freq_balanced_btc4h_short1m10": {
+        "overlap_n": 4,
+        "share_of_a": 0.571
+      },
+      "C_btc7d500_short1m10": {
+        "overlap_n": 4,
+        "share_of_a": 0.571
+      },
+      "L_base_score1_added": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "L_no_btc7d": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "S_btc1m_delay10": {
+        "overlap_n": 4,
+        "share_of_a": 0.571
+      },
+      "SEQ_silence_no_btc1m": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "SEQ_noisy_with_btc1m": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      }
+    },
+    "SEQ_silence_no_btc1m": {
+      "C_current_live_long_short": {
+        "overlap_n": 9,
+        "share_of_a": 0.054
+      },
+      "C_score_relax_short1m10": {
+        "overlap_n": 15,
+        "share_of_a": 0.09
+      },
+      "C_no_btc7d_short1m10": {
+        "overlap_n": 21,
+        "share_of_a": 0.127
+      },
+      "C_freq_balanced_btc4h_short1m10": {
+        "overlap_n": 17,
+        "share_of_a": 0.102
+      },
+      "C_btc7d500_short1m10": {
+        "overlap_n": 14,
+        "share_of_a": 0.084
+      },
+      "L_base_score1_added": {
+        "overlap_n": 15,
+        "share_of_a": 0.09
+      },
+      "L_no_btc7d": {
+        "overlap_n": 21,
+        "share_of_a": 0.127
+      },
+      "S_btc1m_delay10": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "S_current_btc2m_delay5": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "SEQ_noisy_with_btc1m": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      }
+    },
+    "SEQ_noisy_with_btc1m": {
+      "C_current_live_long_short": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "C_score_relax_short1m10": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "C_no_btc7d_short1m10": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "C_freq_balanced_btc4h_short1m10": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "C_btc7d500_short1m10": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "L_base_score1_added": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "L_no_btc7d": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "S_btc1m_delay10": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "S_current_btc2m_delay5": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      },
+      "SEQ_silence_no_btc1m": {
+        "overlap_n": 0,
+        "share_of_a": 0.0
+      }
+    }
+  },
+  "navigation": {
+    "baseline_sync200": {
+      "n": 100,
+      "wr": 0.58,
+      "avg": 26.5,
+      "sum": 2652.5,
+      "median": 26.9,
+      "t3r": 1609.3,
+      "per_month": 23.0
+    },
+    "danger_noisy_with_btc1m_long4h": {
+      "n": 48,
+      "wr": 0.229,
+      "avg": -129.4,
+      "sum": -6212.7,
+      "median": -86.6,
+      "t3r": -6615.0,
+      "per_month": 11.6
+    },
+    "safe_silence_no_btc1m_long4h": {
+      "n": 166,
+      "wr": 0.608,
+      "avg": 37.9,
+      "sum": 6290.4,
+      "median": 32.9,
+      "t3r": 4947.3,
+      "per_month": 38.1
+    },
+    "baseline_excluding_danger_noisy_btc1m": {
+      "n": 100,
+      "wr": 0.58,
+      "avg": 26.5,
+      "sum": 2652.5,
+      "median": 26.9,
+      "t3r": 1609.3,
+      "per_month": 23.0
+    }
+  },
+  "interpretation": [
+    "Best raw candidate remains C_score_relax_short1m10, but it is still PAPER/SHADOW level because N is modest and it has a -100 bps tail.",
+    "C_no_btc7d_short1m10 gets closest to 8 trades/month, but its added trades are materially weaker than the stricter score-relax candidate.",
+    "Noisy+BTC-confirm is a strong DANGER navigation state for LONG, while silence without BTC confirm is the cleanest broad state label.",
+    "No-overlap matters: frequency candidates must be evaluated as executable portfolios, not independent rows.",
+    "No live changes were made; next step is forward-shadowing the leading candidates before promotion."
+  ]
+}

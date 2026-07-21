@@ -1,0 +1,449 @@
+{
+  "generated_at_utc": "2026-06-26T15:32:20+00:00",
+  "scope_note": "BTCUSDT BUY N=127  |  BTCUSDT SELL N=113  |  ETHUSDT BUY N=450  |  ETHUSDT SELL N=222  |  SOLUSDT BUY N=104  |  SOLUSDT SELL N=105",
+  "filters": [
+    "symbol=BTCUSDT",
+    "side=SELL",
+    "cluster_notional>=1e+06"
+  ],
+  "selection_mode": "knn",
+  "prediction_mode": "event_prediction",
+  "decision_grade": true,
+  "threshold_source": "default_by_combo",
+  "min_notional_used": 1000000.0,
+  "model_config": {
+    "combo": "BTCUSDT_SELL",
+    "k": 50,
+    "metric": "euclidean",
+    "feature_set": [
+      "log_cluster_notional",
+      "cluster_duration_sec",
+      "cluster_liq_count",
+      "max_single_liq_share",
+      "intensity_per_sec",
+      "inter_cluster_gap_sec",
+      "day_trend_bps",
+      "day_range_bps",
+      "symbol_pre_5m_bps",
+      "symbol_pre_15m_bps",
+      "btc_pre_15m_bps"
+    ],
+    "excluded_features": [],
+    "config_source": "default"
+  },
+  "candidate_n": 113,
+  "matched_n": 50,
+  "confidence": "usable",
+  "knn": {
+    "enabled": true,
+    "drop_feature": null,
+    "candidate_n": 113,
+    "selected_n": 50,
+    "k": 50,
+    "metric": "euclidean",
+    "excluded_features": [],
+    "target_features": {
+      "log_cluster_notional": {
+        "column": "cluster_notional",
+        "raw_value": 1000000.0,
+        "weight": 2.0
+      },
+      "day_trend_bps": {
+        "column": "day_trend_bps",
+        "raw_value": -5.0,
+        "weight": 1.4
+      }
+    },
+    "feature_scales": {
+      "log_cluster_notional": 0.9851132630426935,
+      "day_trend_bps": 153.28859629351976
+    },
+    "distance": {
+      "n": 50,
+      "mean": 0.39904641048831024,
+      "median": 0.40151104957865086,
+      "p25": 0.2792550554878447,
+      "p75": 0.5621545178856737,
+      "p10": 0.15267338923103072,
+      "p90": 0.6193544114795333,
+      "stdev": 0.1725572417857447,
+      "positive_rate": 1.0
+    }
+  },
+  "auto_weights": {
+    "enabled": false
+  },
+  "oos_validation": {
+    "enabled": false
+  },
+  "coverage": {
+    "feature_db": "D:\\eclipse_scalper\\data\\s34_feature_factory.db",
+    "microstructure_db": "D:\\eclipse_scalper\\data\\microstructure.db",
+    "available_symbol_sides": [
+      {
+        "symbol": "BTCUSDT",
+        "liq_side": "BUY",
+        "n": 127,
+        "min_utc": "2026-02-17T16:05:39.128000+00:00",
+        "max_utc": "2026-06-26T13:35:31.100000+00:00"
+      },
+      {
+        "symbol": "BTCUSDT",
+        "liq_side": "SELL",
+        "n": 113,
+        "min_utc": "2026-02-18T11:06:33.546000+00:00",
+        "max_utc": "2026-06-26T12:40:01.099000+00:00"
+      },
+      {
+        "symbol": "ETHUSDT",
+        "liq_side": "BUY",
+        "n": 450,
+        "min_utc": "2026-02-15T22:47:11.071000+00:00",
+        "max_utc": "2026-06-16T08:15:58.161000+00:00"
+      },
+      {
+        "symbol": "ETHUSDT",
+        "liq_side": "SELL",
+        "n": 222,
+        "min_utc": "2026-02-16T11:10:12.218000+00:00",
+        "max_utc": "2026-06-26T13:16:54.455000+00:00"
+      },
+      {
+        "symbol": "SOLUSDT",
+        "liq_side": "BUY",
+        "n": 104,
+        "min_utc": "2026-04-20T06:40:08.582000+00:00",
+        "max_utc": "2026-06-26T13:50:45.406000+00:00"
+      },
+      {
+        "symbol": "SOLUSDT",
+        "liq_side": "SELL",
+        "n": 105,
+        "min_utc": "2026-04-18T08:41:11.463000+00:00",
+        "max_utc": "2026-06-26T12:40:01.200000+00:00"
+      }
+    ]
+  },
+  "forward_returns_bps": {
+    "60s": {
+      "n": 50,
+      "mean": -8.97441155556691,
+      "median": -8.801157660869436,
+      "p25": -14.224046515141447,
+      "p75": -2.0450655066121732,
+      "p10": -20.00106425640994,
+      "p90": 0.28614140286989753,
+      "stdev": 9.46559878393573,
+      "positive_rate": 0.1
+    },
+    "300s": {
+      "n": 50,
+      "mean": -19.21945585141347,
+      "median": -18.591853116289606,
+      "p25": -33.64918788716299,
+      "p75": -6.522069328669623,
+      "p10": -44.22446359426896,
+      "p90": 6.565606246348437,
+      "stdev": 26.408103500556702,
+      "positive_rate": 0.16
+    },
+    "900s": {
+      "n": 50,
+      "mean": -25.969832472965177,
+      "median": -13.35679499024046,
+      "p25": -45.85033821358479,
+      "p75": 2.7396673162467637,
+      "p10": -65.41404863519365,
+      "p90": 29.883334841437108,
+      "stdev": 59.14755079706481,
+      "positive_rate": 0.32
+    },
+    "3600s": {
+      "n": 50,
+      "mean": -41.39608550772616,
+      "median": -14.320871672155302,
+      "p25": -45.069822086230474,
+      "p75": 3.3848073217704333,
+      "p10": -155.55246801372212,
+      "p90": 49.959267178552835,
+      "stdev": 100.16813804951116,
+      "positive_rate": 0.26
+    }
+  },
+  "route_simulation": {
+    "LONG_DELAY0_TP40_CONTROL": {
+      "n": 50,
+      "net_bps": {
+        "n": 50,
+        "mean": -31.756557969165343,
+        "median": -48.13139711125781,
+        "p25": -48.56508466480733,
+        "p75": -16.324276716501203,
+        "p10": -50.42884251503406,
+        "p90": 32.08841031818791,
+        "stdev": 29.567193389399627,
+        "positive_rate": 0.18
+      },
+      "cum_net_bps": -1587.827898458267,
+      "top3_removed_cum_net_bps": -1687.026044216265,
+      "mfe_bps": {
+        "n": 50,
+        "mean": 12.17021957775283,
+        "median": 5.697376861888488,
+        "p25": 0.03507927915481199,
+        "p75": 22.282081425755873,
+        "p10": 0.0,
+        "p90": 40.08841031818791,
+        "stdev": 14.430728998710535,
+        "positive_rate": 0.76
+      },
+      "mae_bps": {
+        "n": 50,
+        "mean": -36.830708500119,
+        "median": -40.13139711125781,
+        "p25": -40.56508466480733,
+        "p75": -38.48865259115943,
+        "p10": -42.42884251503406,
+        "p90": -25.58484582878021,
+        "stdev": 8.075459857233813,
+        "positive_rate": 0.0
+      },
+      "tp_touch_rate": 0.12,
+      "sl_touch_rate": 0.72,
+      "be_hit_rate": 0.14,
+      "exit_mix": {
+        "TP": 6,
+        "BE": 1,
+        "SL": 36,
+        "TIME": 7
+      }
+    },
+    "SHORT_DELAY0_TP40": {
+      "n": 50,
+      "net_bps": {
+        "n": 50,
+        "mean": 16.54999815158371,
+        "median": 32.143566954486985,
+        "p25": 9.569672433139669,
+        "p75": 32.57085710612942,
+        "p10": -48.08841031818791,
+        "p90": 34.42884251503407,
+        "stdev": 29.476077667597615,
+        "positive_rate": 0.76
+      },
+      "cum_net_bps": 827.4999075791856,
+      "top3_removed_cum_net_bps": 721.0762810952355,
+      "mfe_bps": {
+        "n": 50,
+        "mean": 37.45406902228119,
+        "median": 40.143566954486985,
+        "p25": 39.61808318039914,
+        "p75": 40.57085710612942,
+        "p10": 26.71261971808278,
+        "p90": 42.42884251503407,
+        "stdev": 7.0619701954941405,
+        "positive_rate": 1.0
+      },
+      "mae_bps": {
+        "n": 50,
+        "mean": -12.17021957775283,
+        "median": -5.697376861888488,
+        "p25": -22.282081425755873,
+        "p75": -0.03507927915481199,
+        "p10": -40.08841031818791,
+        "p90": 0.0,
+        "stdev": 14.430728998710535,
+        "positive_rate": 0.0
+      },
+      "tp_touch_rate": 0.74,
+      "sl_touch_rate": 0.12,
+      "be_hit_rate": 0.74,
+      "exit_mix": {
+        "TP": 37,
+        "BE": 0,
+        "SL": 6,
+        "TIME": 7
+      }
+    },
+    "SHORT_DELAY0_TP60": {
+      "n": 50,
+      "net_bps": {
+        "n": 50,
+        "mean": 12.653727315163826,
+        "median": 4.612924304596977,
+        "p25": -8.980418886640543,
+        "p75": 52.29186548535349,
+        "p10": -48.08841031818791,
+        "p90": 52.80897950871133,
+        "stdev": 36.17655621807538,
+        "positive_rate": 0.52
+      },
+      "cum_net_bps": 632.6863657581913,
+      "top3_removed_cum_net_bps": 468.7056451764841,
+      "mfe_bps": {
+        "n": 50,
+        "mean": 47.589991235929574,
+        "median": 49.958360600356556,
+        "p25": 39.86747237461539,
+        "p75": 60.29186548535349,
+        "p10": 26.71261971808278,
+        "p90": 60.80897950871133,
+        "stdev": 13.95903122932029,
+        "positive_rate": 1.0
+      },
+      "mae_bps": {
+        "n": 50,
+        "mean": -12.233152800780893,
+        "median": -5.697376861888488,
+        "p25": -22.282081425755873,
+        "p75": -0.2486572033478293,
+        "p10": -40.08841031818791,
+        "p90": 0.0,
+        "stdev": 14.379145067652024,
+        "positive_rate": 0.0
+      },
+      "tp_touch_rate": 0.36,
+      "sl_touch_rate": 0.12,
+      "be_hit_rate": 0.74,
+      "exit_mix": {
+        "TP": 18,
+        "BE": 12,
+        "SL": 6,
+        "TIME": 14
+      }
+    }
+  },
+  "knn_importance": [],
+  "nearest_analogs": [
+    {
+      "event_id": "BTCUSDT_SELL_5936548",
+      "event_utc": "2026-06-09T00:21:40.583000+00:00",
+      "cluster_notional": 1077414.55321,
+      "day_trend_bps": -16.660025668431917,
+      "day_range_bps": 32.461513782691924,
+      "symbol_pre_15m_bps": -15.203269508698165,
+      "distance": 0.0758,
+      "components": {
+        "log_cluster_notional": 0.10704328309926867,
+        "day_trend_bps": 0.0900023143213411
+      }
+    },
+    {
+      "event_id": "BTCUSDT_SELL_5918387",
+      "event_utc": "2026-04-06T22:57:03.696000+00:00",
+      "cluster_notional": 1087298.47238,
+      "day_trend_bps": -18.01402997649134,
+      "day_range_bps": 225.6968493806611,
+      "symbol_pre_15m_bps": -61.89319565411034,
+      "distance": 0.0849,
+      "components": {
+        "log_cluster_notional": 0.12015292111310792,
+        "day_trend_bps": 0.10045370823690895
+      }
+    },
+    {
+      "event_id": "BTCUSDT_SELL_5920626",
+      "event_utc": "2026-04-14T17:30:01.212000+00:00",
+      "cluster_notional": 1016542.0757,
+      "day_trend_bps": 26.353680351945833,
+      "day_range_bps": 274.0932688126551,
+      "symbol_pre_15m_bps": -20.750586994220274,
+      "distance": 0.1319,
+      "components": {
+        "log_cluster_notional": 0.023553274031506387,
+        "day_trend_bps": 0.24201523001845895
+      }
+    },
+    {
+      "event_id": "BTCUSDT_SELL_5936633",
+      "event_utc": "2026-06-09T07:26:47.210000+00:00",
+      "cluster_notional": 1093561.58226,
+      "day_trend_bps": 23.34550869041165,
+      "day_range_bps": 178.42180089405667,
+      "symbol_pre_15m_bps": -31.682989562376697,
+      "distance": 0.1376,
+      "components": {
+        "log_cluster_notional": 0.12839852094878568,
+        "day_trend_bps": 0.2187955202928661
+      }
+    },
+    {
+      "event_id": "BTCUSDT_SELL_5907290",
+      "event_utc": "2026-02-27T10:10:04.504000+00:00",
+      "cluster_notional": 1102518.0953000002,
+      "day_trend_bps": -34.42816983525917,
+      "day_range_bps": 200.00408645980062,
+      "symbol_pre_15m_bps": -10.52148210233306,
+      "distance": 0.1447,
+      "components": {
+        "log_cluster_notional": 0.14010839178670934,
+        "day_trend_bps": 0.22715244946549065
+      }
+    },
+    {
+      "event_id": "BTCUSDT_SELL_5937094",
+      "event_utc": "2026-06-10T21:50:01.150000+00:00",
+      "cluster_notional": 1028903.9657,
+      "day_trend_bps": -41.29683412110153,
+      "day_range_bps": 339.6439118550573,
+      "symbol_pre_15m_bps": -38.08135738758009,
+      "distance": 0.1536,
+      "components": {
+        "log_cluster_notional": 0.040905730451688806,
+        "day_trend_bps": 0.2801708303508641
+      }
+    },
+    {
+      "event_id": "BTCUSDT_SELL_5939872",
+      "event_utc": "2026-06-20T13:20:39.557000+00:00",
+      "cluster_notional": 1270366.1424999998,
+      "day_trend_bps": -1.2910823993974565,
+      "day_range_bps": 94.39010792860662,
+      "symbol_pre_15m_bps": -14.78212230100625,
+      "distance": 0.187,
+      "components": {
+        "log_cluster_notional": 0.34354283477528846,
+        "day_trend_bps": 0.028628682060721104
+      }
+    },
+    {
+      "event_id": "BTCUSDT_SELL_5913789",
+      "event_utc": "2026-03-21T23:45:29.318000+00:00",
+      "cluster_notional": 1014021.14892,
+      "day_trend_bps": -57.34248569530991,
+      "day_range_bps": 140.12629275939523,
+      "symbol_pre_15m_bps": -2.013035699099664,
+      "distance": 0.2194,
+      "components": {
+        "log_cluster_notional": 0.019988739996702642,
+        "day_trend_bps": 0.4040252555072744
+      }
+    },
+    {
+      "event_id": "BTCUSDT_SELL_5923011",
+      "event_utc": "2026-04-23T00:15:02.154000+00:00",
+      "cluster_notional": 1256041.9515,
+      "day_trend_bps": -37.65142078354418,
+      "day_range_bps": 66.13695471479873,
+      "symbol_pre_15m_bps": -39.73371400863733,
+      "distance": 0.224,
+      "components": {
+        "log_cluster_notional": 0.327263746421756,
+        "day_trend_bps": 0.2520323299420421
+      }
+    },
+    {
+      "event_id": "BTCUSDT_SELL_5936887",
+      "event_utc": "2026-06-10T04:35:37.530000+00:00",
+      "cluster_notional": 1091289.91747,
+      "day_trend_bps": -59.887754599260106,
+      "day_range_bps": 121.3035363228196,
+      "symbol_pre_15m_bps": -30.286724075425102,
+      "distance": 0.2396,
+      "components": {
+        "log_cluster_notional": 0.12541326682928397,
+        "day_trend_bps": 0.4236718753724319
+      }
+    }
+  ]
+}

@@ -1,0 +1,190 @@
+{
+  "generated_at_utc": "2026-07-01T03:22:03.827417+00:00",
+  "dataset": {
+    "anchors_200k": 450,
+    "anchors_all_thresholds": 1157,
+    "time_exit_200k": 167
+  },
+  "baseline": {
+    "n": 100,
+    "wr": 0.58,
+    "avg": 26.5,
+    "sum": 2652.5,
+    "median": 26.9,
+    "t3r": 1609.3,
+    "per_month": 23.0
+  },
+  "tests": {
+    "B1_btc3d_lt0": {
+      "summary": {
+        "n": 9,
+        "wr": 1.0,
+        "avg": 163.7,
+        "sum": 1472.9,
+        "median": 106.5,
+        "t3r": 527.7,
+        "per_month": 2.3
+      },
+      "decision": "PROMISING"
+    },
+    "B2_btc4h_only_no_btc7d": {
+      "summary": {
+        "n": 17,
+        "wr": 0.824,
+        "avg": 94.7,
+        "sum": 1609.2,
+        "median": 93.8,
+        "t3r": 751.0,
+        "per_month": 4.3
+      },
+      "decision": "PROMISING"
+    },
+    "B3_asia_sync_btc7d": {
+      "summary": {
+        "n": 12,
+        "wr": 0.75,
+        "avg": 93.8,
+        "sum": 1125.7,
+        "median": 62.4,
+        "t3r": 244.3,
+        "per_month": 3.0
+      },
+      "decision": "PROMISING"
+    },
+    "B4_score5_no_btc7d": {
+      "summary": {
+        "n": 0,
+        "wr": null,
+        "avg": null,
+        "sum": 0.0,
+        "median": null,
+        "t3r": 0.0,
+        "per_month": 0.0
+      },
+      "decision": "WORSE"
+    },
+    "B5_eth_sell_150k_added_no_200k_bucket": {
+      "summary": {
+        "n": 143,
+        "wr": 0.552,
+        "avg": 7.0,
+        "sum": 998.9,
+        "median": 5.6,
+        "t3r": -82.2,
+        "per_month": 32.8
+      },
+      "decision": "WORSE"
+    },
+    "B6_multiple_anchor_n2h": {
+      "n2h_0_1": {
+        "n": 34,
+        "wr": 0.676,
+        "avg": 41.2,
+        "sum": 1401.6,
+        "median": 33.6,
+        "t3r": 696.0,
+        "per_month": 7.8
+      },
+      "n2h_2_4": {
+        "n": 49,
+        "wr": 0.49,
+        "avg": 1.4,
+        "sum": 66.6,
+        "median": -5.5,
+        "t3r": -739.9,
+        "per_month": 11.5
+      },
+      "n2h_5_plus": {
+        "n": 17,
+        "wr": 0.647,
+        "avg": 69.7,
+        "sum": 1184.3,
+        "median": 58.5,
+        "t3r": 281.8,
+        "per_month": 4.0
+      }
+    },
+    "B7_btc1h_split": {
+      "btc1h_gt0": {
+        "n": 16,
+        "wr": 0.438,
+        "avg": -19.3,
+        "sum": -309.5,
+        "median": -14.0,
+        "t3r": -866.5,
+        "per_month": 3.9
+      },
+      "btc1h_lt0": {
+        "n": 84,
+        "wr": 0.607,
+        "avg": 35.3,
+        "sum": 2962.0,
+        "median": 31.8,
+        "t3r": 1936.9,
+        "per_month": 19.4
+      }
+    },
+    "B8_short_btc1m_longer_delay": {
+      "btc1m_delay10": {
+        "n": 10,
+        "wr": 0.9,
+        "avg": 133.2,
+        "sum": 1332.1,
+        "median": 138.4,
+        "t3r": 523.6,
+        "per_month": 2.7
+      },
+      "btc1m_delay15": {
+        "n": 7,
+        "wr": 0.857,
+        "avg": 89.3,
+        "sum": 625.0,
+        "median": 97.3,
+        "t3r": 101.5,
+        "per_month": 7.0
+      },
+      "current_btc2m_delay5": {
+        "n": 7,
+        "wr": 0.857,
+        "avg": 99.0,
+        "sum": 693.2,
+        "median": 95.8,
+        "t3r": -58.4,
+        "per_month": 7.0
+      }
+    },
+    "B9_funding_rate": {
+      "source": "mark_prices",
+      "negative": {
+        "n": 59,
+        "wr": 0.559,
+        "avg": 38.4,
+        "sum": 2267.3,
+        "median": 27.8,
+        "t3r": 1224.1,
+        "per_month": 13.5
+      },
+      "non_negative": {
+        "n": 41,
+        "wr": 0.61,
+        "avg": 9.4,
+        "sum": 385.2,
+        "median": 26.5,
+        "t3r": -177.3,
+        "per_month": 9.8
+      }
+    },
+    "B10_btc7d_or_score5": {
+      "summary": {
+        "n": 9,
+        "wr": 1.0,
+        "avg": 170.6,
+        "sum": 1535.8,
+        "median": 106.5,
+        "t3r": 590.6,
+        "per_month": 2.3
+      },
+      "decision": "PROMISING"
+    }
+  }
+}

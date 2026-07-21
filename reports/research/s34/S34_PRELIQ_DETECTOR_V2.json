@@ -1,0 +1,544 @@
+{
+  "generated_at": "2026-06-27T13:45:34.144512+00:00",
+  "lead_sec": 5,
+  "positive_counts": {
+    "500000": 102,
+    "1000000": 61
+  },
+  "negative_count": 510,
+  "control_definition": "mid_down_10s>=5bps and spread<=1bps, excluding +/-900s around ETH SELL liquidation clusters",
+  "feature_stats_top25": [
+    {
+      "feature": "mid_down_10s_bps",
+      "auc_500k": 0.2060169165705498,
+      "best_auc_500k": 0.7939830834294502,
+      "auc_1m": 0.2099967855994857,
+      "best_auc_1m": 0.7900032144005142,
+      "pos500_median": 3.4014717495413485,
+      "control_median": 6.614057615733479
+    },
+    {
+      "feature": "sol_liq_imbalance_120s",
+      "auc_500k": 0.6728565936178393,
+      "best_auc_500k": 0.6728565936178393,
+      "auc_1m": 0.699598199935712,
+      "best_auc_1m": 0.699598199935712,
+      "pos500_median": 0.0,
+      "control_median": 0.0
+    },
+    {
+      "feature": "btc_ret_5s_bps",
+      "auc_500k": 0.6865148019992311,
+      "best_auc_500k": 0.6865148019992311,
+      "auc_1m": 0.6802475088396014,
+      "best_auc_1m": 0.6802475088396014,
+      "pos500_median": -0.7503033210330963,
+      "control_median": -1.8745660296373647
+    },
+    {
+      "feature": "btc_liq_imbalance_120s",
+      "auc_500k": 0.6755767012687428,
+      "best_auc_500k": 0.6755767012687428,
+      "auc_1m": 0.6792189006750241,
+      "best_auc_1m": 0.6792189006750241,
+      "pos500_median": 0.0,
+      "control_median": 0.0
+    },
+    {
+      "feature": "sol_ret_5s_bps",
+      "auc_500k": 0.6726451364859669,
+      "best_auc_500k": 0.6726451364859669,
+      "auc_1m": 0.6751526840244294,
+      "best_auc_1m": 0.6751526840244294,
+      "pos500_median": -1.3234318317060083,
+      "control_median": -3.2167730962900833
+    },
+    {
+      "feature": "sol_liq_imbalance_60s",
+      "auc_500k": 0.637274125336409,
+      "best_auc_500k": 0.637274125336409,
+      "auc_1m": 0.6601253616200579,
+      "best_auc_1m": 0.6601253616200579,
+      "pos500_median": 0.0,
+      "control_median": 0.0
+    },
+    {
+      "feature": "mid_down_15s_bps",
+      "auc_500k": 0.3400422914263745,
+      "best_auc_500k": 0.6599577085736255,
+      "auc_1m": 0.38084217293474765,
+      "best_auc_1m": 0.6191578270652524,
+      "pos500_median": 4.8273957001457095,
+      "control_median": 6.934019582195669
+    },
+    {
+      "feature": "sol_liq_sell_count_120s",
+      "auc_500k": 0.622798923490965,
+      "best_auc_500k": 0.622798923490965,
+      "auc_1m": 0.658711025393764,
+      "best_auc_1m": 0.658711025393764,
+      "pos500_median": 0.0,
+      "control_median": 0.0
+    },
+    {
+      "feature": "eth_taker_imbalance_10s",
+      "auc_500k": 0.367281814686659,
+      "best_auc_500k": 0.632718185313341,
+      "auc_1m": 0.344101575056252,
+      "best_auc_1m": 0.6558984249437481,
+      "pos500_median": 0.3210936637811118,
+      "control_median": 0.4802818532085373
+    },
+    {
+      "feature": "sol_liq_sell_notional_120s",
+      "auc_500k": 0.6216070742022299,
+      "best_auc_500k": 0.6216070742022299,
+      "auc_1m": 0.6556412729026037,
+      "best_auc_1m": 0.6556412729026037,
+      "pos500_median": 0.0,
+      "control_median": 0.0
+    },
+    {
+      "feature": "mid_down_5s_bps",
+      "auc_500k": 0.3449442522106882,
+      "best_auc_500k": 0.6550557477893117,
+      "auc_1m": 0.3596271295403407,
+      "best_auc_1m": 0.6403728704596593,
+      "pos500_median": 1.7585708806631108,
+      "control_median": 3.5964356894190166
+    },
+    {
+      "feature": "btc_liq_imbalance_60s",
+      "auc_500k": 0.6478758169934641,
+      "best_auc_500k": 0.6478758169934641,
+      "auc_1m": 0.6495821279331405,
+      "best_auc_1m": 0.6495821279331405,
+      "pos500_median": 0.0,
+      "control_median": 0.0
+    },
+    {
+      "feature": "btc_ret_10s_bps",
+      "auc_500k": 0.6445213379469434,
+      "best_auc_500k": 0.6445213379469434,
+      "auc_1m": 0.6227579556412729,
+      "best_auc_1m": 0.6227579556412729,
+      "pos500_median": -1.9086492281355532,
+      "control_median": -3.255109327609063
+    },
+    {
+      "feature": "sol_ret_10s_bps",
+      "auc_500k": 0.639600153787005,
+      "best_auc_500k": 0.639600153787005,
+      "auc_1m": 0.6262937962070074,
+      "best_auc_1m": 0.6262937962070074,
+      "pos500_median": -2.668065296912,
+      "control_median": -5.272898023425958
+    },
+    {
+      "feature": "sol_liq_imbalance_30s",
+      "auc_500k": 0.6139465590157631,
+      "best_auc_500k": 0.6139465590157631,
+      "auc_1m": 0.6382513661202186,
+      "best_auc_1m": 0.6382513661202186,
+      "pos500_median": 0.0,
+      "control_median": 0.0
+    },
+    {
+      "feature": "sol_liq_sell_count_60s",
+      "auc_500k": 0.6025182622068436,
+      "best_auc_500k": 0.6025182622068436,
+      "auc_1m": 0.6373352619736419,
+      "best_auc_1m": 0.6373352619736419,
+      "pos500_median": 0.0,
+      "control_median": 0.0
+    },
+    {
+      "feature": "eth_liq_imbalance_120s",
+      "auc_500k": 0.6195213379469435,
+      "best_auc_500k": 0.6195213379469435,
+      "auc_1m": 0.6371906139504983,
+      "best_auc_1m": 0.6371906139504983,
+      "pos500_median": 0.0,
+      "control_median": 0.0
+    },
+    {
+      "feature": "btc_liq_imbalance_30s",
+      "auc_500k": 0.637072279892349,
+      "best_auc_500k": 0.637072279892349,
+      "auc_1m": 0.6371102539376406,
+      "best_auc_1m": 0.6371102539376406,
+      "pos500_median": 0.0,
+      "control_median": 0.0
+    },
+    {
+      "feature": "btc_liq_sell_count_120s",
+      "auc_500k": 0.6249423298731257,
+      "best_auc_500k": 0.6249423298731257,
+      "auc_1m": 0.6368531018964964,
+      "best_auc_1m": 0.6368531018964964,
+      "pos500_median": 0.5,
+      "control_median": 0.0
+    },
+    {
+      "feature": "sol_liq_sell_notional_60s",
+      "auc_500k": 0.6017685505574779,
+      "best_auc_500k": 0.6017685505574779,
+      "auc_1m": 0.6345226615236258,
+      "best_auc_1m": 0.6345226615236258,
+      "pos500_median": 0.0,
+      "control_median": 0.0
+    },
+    {
+      "feature": "btc_liq_sell_notional_120s",
+      "auc_500k": 0.6188485198000769,
+      "best_auc_500k": 0.6188485198000769,
+      "auc_1m": 0.6300064288010286,
+      "best_auc_1m": 0.6300064288010286,
+      "pos500_median": 39.0559,
+      "control_median": 0.0
+    },
+    {
+      "feature": "eth_liq_buy_notional_120s",
+      "auc_500k": 0.3748750480584391,
+      "best_auc_500k": 0.6251249519415609,
+      "auc_1m": 0.3719061395049823,
+      "best_auc_1m": 0.6280938604950177,
+      "pos500_median": 0.0,
+      "control_median": 0.0
+    },
+    {
+      "feature": "eth_liq_buy_count_120s",
+      "auc_500k": 0.37730680507497116,
+      "best_auc_500k": 0.6226931949250288,
+      "auc_1m": 0.37373834779813564,
+      "best_auc_1m": 0.6262616522018644,
+      "pos500_median": 0.0,
+      "control_median": 0.0
+    },
+    {
+      "feature": "sol_liq_sell_count_30s",
+      "auc_500k": 0.5886197616301423,
+      "best_auc_500k": 0.5886197616301423,
+      "auc_1m": 0.6147862423657988,
+      "best_auc_1m": 0.6147862423657988,
+      "pos500_median": 0.0,
+      "control_median": 0.0
+    },
+    {
+      "feature": "sol_liq_sell_notional_30s",
+      "auc_500k": 0.5891484044598232,
+      "best_auc_500k": 0.5891484044598232,
+      "auc_1m": 0.614545162327226,
+      "best_auc_1m": 0.614545162327226,
+      "pos500_median": 0.0,
+      "control_median": 0.0
+    }
+  ],
+  "threshold_results": [
+    {
+      "threshold": 500000.0,
+      "n": 612,
+      "train_n": 428,
+      "test_n": 184,
+      "train_pos_n": 75,
+      "test_pos_n": 27,
+      "selected_features": [
+        {
+          "feature": "mid_down_10s_bps",
+          "train_auc": 0.18409820585457978,
+          "train_best_auc": 0.8159017941454202,
+          "direction": -1,
+          "edge": 0.3159017941454202
+        },
+        {
+          "feature": "btc_ret_5s_bps",
+          "train_auc": 0.7018508026440038,
+          "train_best_auc": 0.7018508026440038,
+          "direction": 1,
+          "edge": 0.2018508026440038
+        },
+        {
+          "feature": "btc_liq_imbalance_120s",
+          "train_auc": 0.6852691218130311,
+          "train_best_auc": 0.6852691218130311,
+          "direction": 1,
+          "edge": 0.18526912181303112
+        },
+        {
+          "feature": "sol_ret_5s_bps",
+          "train_auc": 0.6732955618508026,
+          "train_best_auc": 0.6732955618508026,
+          "direction": 1,
+          "edge": 0.17329556185080264
+        },
+        {
+          "feature": "sol_liq_imbalance_120s",
+          "train_auc": 0.6660056657223796,
+          "train_best_auc": 0.6660056657223796,
+          "direction": 1,
+          "edge": 0.16600566572237963
+        },
+        {
+          "feature": "mid_down_15s_bps",
+          "train_auc": 0.33699716713881017,
+          "train_best_auc": 0.6630028328611899,
+          "direction": -1,
+          "edge": 0.16300283286118983
+        },
+        {
+          "feature": "btc_liq_imbalance_60s",
+          "train_auc": 0.6597167138810198,
+          "train_best_auc": 0.6597167138810198,
+          "direction": 1,
+          "edge": 0.15971671388101982
+        },
+        {
+          "feature": "btc_ret_10s_bps",
+          "train_auc": 0.6460056657223796,
+          "train_best_auc": 0.6460056657223796,
+          "direction": 1,
+          "edge": 0.1460056657223796
+        }
+      ],
+      "train_score_auc": 0.8024929178470255,
+      "test_score_auc": 0.7834394904458599,
+      "train_precision": [
+        {
+          "score_quantile": 0.5,
+          "cutoff": -0.0020158689574388744,
+          "kept_n": 214,
+          "precision": 0.2850467289719626,
+          "lift_vs_base": 0.10981308411214952,
+          "recall": 0.8133333333333334
+        },
+        {
+          "score_quantile": 0.6,
+          "cutoff": 0.2173458955740703,
+          "kept_n": 171,
+          "precision": 0.3391812865497076,
+          "lift_vs_base": 0.1639476416898945,
+          "recall": 0.7733333333333333
+        },
+        {
+          "score_quantile": 0.7,
+          "cutoff": 0.45173224078844126,
+          "kept_n": 129,
+          "precision": 0.4186046511627907,
+          "lift_vs_base": 0.24337100630297764,
+          "recall": 0.72
+        },
+        {
+          "score_quantile": 0.8,
+          "cutoff": 0.7619102417899565,
+          "kept_n": 86,
+          "precision": 0.5116279069767442,
+          "lift_vs_base": 0.33639426211693113,
+          "recall": 0.5866666666666667
+        },
+        {
+          "score_quantile": 0.9,
+          "cutoff": 1.6372208982341165,
+          "kept_n": 43,
+          "precision": 0.7209302325581395,
+          "lift_vs_base": 0.5456965876983264,
+          "recall": 0.41333333333333333
+        }
+      ],
+      "test_precision": [
+        {
+          "score_quantile": 0.5,
+          "cutoff": -0.1515562778057645,
+          "kept_n": 92,
+          "precision": 0.21739130434782608,
+          "lift_vs_base": 0.07065217391304346,
+          "recall": 0.7407407407407407
+        },
+        {
+          "score_quantile": 0.6,
+          "cutoff": 0.11362855498710434,
+          "kept_n": 74,
+          "precision": 0.2702702702702703,
+          "lift_vs_base": 0.12353113983548766,
+          "recall": 0.7407407407407407
+        },
+        {
+          "score_quantile": 0.7,
+          "cutoff": 0.2806552195448437,
+          "kept_n": 55,
+          "precision": 0.34545454545454546,
+          "lift_vs_base": 0.19871541501976284,
+          "recall": 0.7037037037037037
+        },
+        {
+          "score_quantile": 0.8,
+          "cutoff": 0.8293870264701271,
+          "kept_n": 37,
+          "precision": 0.40540540540540543,
+          "lift_vs_base": 0.2586662749706228,
+          "recall": 0.5555555555555556
+        },
+        {
+          "score_quantile": 0.9,
+          "cutoff": 1.584905832293284,
+          "kept_n": 19,
+          "precision": 0.5263157894736842,
+          "lift_vs_base": 0.3795766590389016,
+          "recall": 0.37037037037037035
+        }
+      ]
+    },
+    {
+      "threshold": 1000000.0,
+      "n": 571,
+      "train_n": 399,
+      "test_n": 172,
+      "train_pos_n": 46,
+      "test_pos_n": 15,
+      "selected_features": [
+        {
+          "feature": "mid_down_10s_bps",
+          "train_auc": 0.19866978691957138,
+          "train_best_auc": 0.8013302130804286,
+          "direction": -1,
+          "edge": 0.3013302130804286
+        },
+        {
+          "feature": "sol_liq_imbalance_120s",
+          "train_auc": 0.6862606232294618,
+          "train_best_auc": 0.6862606232294618,
+          "direction": 1,
+          "edge": 0.1862606232294618
+        },
+        {
+          "feature": "btc_ret_5s_bps",
+          "train_auc": 0.6807796526665846,
+          "train_best_auc": 0.6807796526665846,
+          "direction": 1,
+          "edge": 0.18077965266658458
+        },
+        {
+          "feature": "btc_liq_imbalance_120s",
+          "train_auc": 0.6726197807611775,
+          "train_best_auc": 0.6726197807611775,
+          "direction": 1,
+          "edge": 0.17261978076117745
+        },
+        {
+          "feature": "sol_liq_imbalance_60s",
+          "train_auc": 0.6691710801822884,
+          "train_best_auc": 0.6691710801822884,
+          "direction": 1,
+          "edge": 0.16917108018228844
+        },
+        {
+          "feature": "sol_ret_5s_bps",
+          "train_auc": 0.6678470254957507,
+          "train_best_auc": 0.6678470254957507,
+          "direction": 1,
+          "edge": 0.1678470254957507
+        },
+        {
+          "feature": "btc_liq_imbalance_60s",
+          "train_auc": 0.6609188323685183,
+          "train_best_auc": 0.6609188323685183,
+          "direction": 1,
+          "edge": 0.16091883236851834
+        },
+        {
+          "feature": "sol_liq_imbalance_30s",
+          "train_auc": 0.6589173543539845,
+          "train_best_auc": 0.6589173543539845,
+          "direction": 1,
+          "edge": 0.15891735435398446
+        }
+      ],
+      "train_score_auc": 0.7954181549451903,
+      "test_score_auc": 0.7910828025477707,
+      "train_precision": [
+        {
+          "score_quantile": 0.5,
+          "cutoff": 0.018606227918257057,
+          "kept_n": 200,
+          "precision": 0.19,
+          "lift_vs_base": 0.07471177944862156,
+          "recall": 0.8260869565217391
+        },
+        {
+          "score_quantile": 0.6,
+          "cutoff": 0.14380705130611002,
+          "kept_n": 160,
+          "precision": 0.2375,
+          "lift_vs_base": 0.12221177944862155,
+          "recall": 0.8260869565217391
+        },
+        {
+          "score_quantile": 0.7,
+          "cutoff": 0.3804811244448124,
+          "kept_n": 120,
+          "precision": 0.2833333333333333,
+          "lift_vs_base": 0.1680451127819549,
+          "recall": 0.7391304347826086
+        },
+        {
+          "score_quantile": 0.8,
+          "cutoff": 0.9414053371646609,
+          "kept_n": 80,
+          "precision": 0.3625,
+          "lift_vs_base": 0.24721177944862155,
+          "recall": 0.6304347826086957
+        },
+        {
+          "score_quantile": 0.9,
+          "cutoff": 2.2108841495158034,
+          "kept_n": 40,
+          "precision": 0.425,
+          "lift_vs_base": 0.30971177944862155,
+          "recall": 0.3695652173913043
+        }
+      ],
+      "test_precision": [
+        {
+          "score_quantile": 0.5,
+          "cutoff": -0.030813817475723784,
+          "kept_n": 86,
+          "precision": 0.13953488372093023,
+          "lift_vs_base": 0.05232558139534883,
+          "recall": 0.8
+        },
+        {
+          "score_quantile": 0.6,
+          "cutoff": 0.0944547777001393,
+          "kept_n": 69,
+          "precision": 0.17391304347826086,
+          "lift_vs_base": 0.08670374115267947,
+          "recall": 0.8
+        },
+        {
+          "score_quantile": 0.7,
+          "cutoff": 0.20837604324681222,
+          "kept_n": 52,
+          "precision": 0.23076923076923078,
+          "lift_vs_base": 0.1435599284436494,
+          "recall": 0.8
+        },
+        {
+          "score_quantile": 0.8,
+          "cutoff": 1.1151054270209717,
+          "kept_n": 35,
+          "precision": 0.2571428571428571,
+          "lift_vs_base": 0.16993355481727573,
+          "recall": 0.6
+        },
+        {
+          "score_quantile": 0.9,
+          "cutoff": 2.3306740279310345,
+          "kept_n": 18,
+          "precision": 0.2777777777777778,
+          "lift_vs_base": 0.1905684754521964,
+          "recall": 0.3333333333333333
+        }
+      ]
+    }
+  ],
+  "interpretation": "A usable detector needs temporal-test score AUC > 0.65 and high-quantile precision materially above the base positive rate. This is detector research only."
+}

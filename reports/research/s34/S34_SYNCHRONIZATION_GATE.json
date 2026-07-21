@@ -1,0 +1,1652 @@
+{
+  "generated_at_utc": "2026-06-28T22:53:02.849937+00:00",
+  "config": {
+    "threshold": 200000.0,
+    "min_vdepth_bps": 28.0,
+    "cost": 8.1,
+    "sync_threshold_k": 200.0
+  },
+  "event_n": 169,
+  "n_idio": 72,
+  "n_sync": 97,
+  "months": [
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-06"
+  ],
+  "sep": {
+    "win": 236.9,
+    "runaway": 227.6,
+    "note": "weak",
+    "win_btcret": -48.9,
+    "runaway_btcret": -39.2
+  },
+  "buckets": {
+    "idiosyncratic(<thr)": {
+      "overall": {
+        "n": 72,
+        "sum": 6.9,
+        "mean": 0.1,
+        "win_rate": 0.5,
+        "max_loss": -331.4,
+        "t3r": -905.6
+      },
+      "split": {
+        "cal": {
+          "n": 50,
+          "sum": 376.0,
+          "mean": 7.5,
+          "win_rate": 0.54,
+          "max_loss": -331.4,
+          "t3r": -486.0
+        },
+        "hold": {
+          "n": 22,
+          "sum": -369.1,
+          "mean": -16.8,
+          "win_rate": 0.409,
+          "max_loss": -293.4,
+          "t3r": -930.3
+        }
+      },
+      "by_month": {
+        "2026-02": 394.5,
+        "2026-03": -365.1,
+        "2026-04": 623.4,
+        "2026-06": -645.9
+      }
+    },
+    "synchronized(>=thr)": {
+      "overall": {
+        "n": 97,
+        "sum": 1551.1,
+        "mean": 16.0,
+        "win_rate": 0.598,
+        "max_loss": -410.0,
+        "t3r": 559.6
+      },
+      "split": {
+        "cal": {
+          "n": 67,
+          "sum": 1215.4,
+          "mean": 18.1,
+          "win_rate": 0.627,
+          "max_loss": -410.0,
+          "t3r": 320.8
+        },
+        "hold": {
+          "n": 30,
+          "sum": 335.6,
+          "mean": 11.2,
+          "win_rate": 0.533,
+          "max_loss": -342.3,
+          "t3r": -508.4
+        }
+      },
+      "by_month": {
+        "2026-02": -617.8,
+        "2026-03": 1367.4,
+        "2026-04": 135.8,
+        "2026-06": 665.7
+      }
+    },
+    "all": {
+      "overall": {
+        "n": 169,
+        "sum": 1557.9,
+        "mean": 9.2,
+        "win_rate": 0.556,
+        "max_loss": -410.0,
+        "t3r": 474.3
+      },
+      "split": {
+        "cal": {
+          "n": 118,
+          "sum": 1223.8,
+          "mean": 10.4,
+          "win_rate": 0.568,
+          "max_loss": -410.0,
+          "t3r": 272.6
+        },
+        "hold": {
+          "n": 51,
+          "sum": 334.1,
+          "mean": 6.6,
+          "win_rate": 0.529,
+          "max_loss": -342.3,
+          "t3r": -657.4
+        }
+      },
+      "by_month": {
+        "2026-02": -223.3,
+        "2026-03": 1002.3,
+        "2026-04": 759.2,
+        "2026-06": 19.8
+      }
+    }
+  },
+  "rows": [
+    {
+      "entry_ts_ms": 1771177356156,
+      "month": "2026-02",
+      "net": -169.91401139211123,
+      "btc_liq_k": 97.2,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 97.2,
+      "btc_ret_10m": -14.8
+    },
+    {
+      "entry_ts_ms": 1771182584232,
+      "month": "2026-02",
+      "net": 52.93359173126587,
+      "btc_liq_k": 609.5,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 609.5,
+      "btc_ret_10m": -48.6
+    },
+    {
+      "entry_ts_ms": 1771196570113,
+      "month": "2026-02",
+      "net": -10.928179376905042,
+      "btc_liq_k": 27.7,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 27.7,
+      "btc_ret_10m": -35.0
+    },
+    {
+      "entry_ts_ms": 1771248069242,
+      "month": "2026-02",
+      "net": -176.52038694251266,
+      "btc_liq_k": 124.6,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 124.6,
+      "btc_ret_10m": -45.6
+    },
+    {
+      "entry_ts_ms": 1771249126298,
+      "month": "2026-02",
+      "net": 51.979222107638904,
+      "btc_liq_k": 115.8,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 115.8,
+      "btc_ret_10m": -56.4
+    },
+    {
+      "entry_ts_ms": 1771255884519,
+      "month": "2026-02",
+      "net": 98.12590435567236,
+      "btc_liq_k": 344.1,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 344.1,
+      "btc_ret_10m": -106.2
+    },
+    {
+      "entry_ts_ms": 1771339365459,
+      "month": "2026-02",
+      "net": 177.27413995392052,
+      "btc_liq_k": 636.2,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 636.2,
+      "btc_ret_10m": -119.6
+    },
+    {
+      "entry_ts_ms": 1771348252614,
+      "month": "2026-02",
+      "net": 133.9864893941697,
+      "btc_liq_k": 32.2,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 32.2,
+      "btc_ret_10m": -38.7
+    },
+    {
+      "entry_ts_ms": 1771440189790,
+      "month": "2026-02",
+      "net": -26.753936426169304,
+      "btc_liq_k": 40.3,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 40.3,
+      "btc_ret_10m": -38.8
+    },
+    {
+      "entry_ts_ms": 1771513887885,
+      "month": "2026-02",
+      "net": 81.48153773701038,
+      "btc_liq_k": 26.1,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 26.1,
+      "btc_ret_10m": -39.5
+    },
+    {
+      "entry_ts_ms": 1771561195338,
+      "month": "2026-02",
+      "net": 145.0049966110467,
+      "btc_liq_k": 251.6,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 251.6,
+      "btc_ret_10m": -17.7
+    },
+    {
+      "entry_ts_ms": 1771600613428,
+      "month": "2026-02",
+      "net": 145.63091923444478,
+      "btc_liq_k": 96.5,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 96.5,
+      "btc_ret_10m": -91.5
+    },
+    {
+      "entry_ts_ms": 1771811213190,
+      "month": "2026-02",
+      "net": 51.478689700165276,
+      "btc_liq_k": 127.1,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 127.1,
+      "btc_ret_10m": -63.2
+    },
+    {
+      "entry_ts_ms": 1771857702510,
+      "month": "2026-02",
+      "net": -159.80607945068596,
+      "btc_liq_k": 447.7,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 447.7,
+      "btc_ret_10m": -83.5
+    },
+    {
+      "entry_ts_ms": 1771861961609,
+      "month": "2026-02",
+      "net": -217.6049754846177,
+      "btc_liq_k": 260.1,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 260.1,
+      "btc_ret_10m": -25.1
+    },
+    {
+      "entry_ts_ms": 1771866894919,
+      "month": "2026-02",
+      "net": -18.80589096669894,
+      "btc_liq_k": 42.3,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 42.3,
+      "btc_ret_10m": -50.8
+    },
+    {
+      "entry_ts_ms": 1771868082615,
+      "month": "2026-02",
+      "net": 53.72505399568059,
+      "btc_liq_k": 617.0,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 617.0,
+      "btc_ret_10m": -19.8
+    },
+    {
+      "entry_ts_ms": 1771895781113,
+      "month": "2026-02",
+      "net": 57.14933593400139,
+      "btc_liq_k": 748.9,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 748.9,
+      "btc_ret_10m": -129.6
+    },
+    {
+      "entry_ts_ms": 1771906493680,
+      "month": "2026-02",
+      "net": 34.627568997214944,
+      "btc_liq_k": 433.0,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 433.0,
+      "btc_ret_10m": -70.2
+    },
+    {
+      "entry_ts_ms": 1771997050134,
+      "month": "2026-02",
+      "net": 114.31834916101491,
+      "btc_liq_k": 244.7,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 244.7,
+      "btc_ret_10m": -17.6
+    },
+    {
+      "entry_ts_ms": 1772031940237,
+      "month": "2026-02",
+      "net": 386.66766811615554,
+      "btc_liq_k": 10.1,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 10.1,
+      "btc_ret_10m": 34.9
+    },
+    {
+      "entry_ts_ms": 1772042569637,
+      "month": "2026-02",
+      "net": 217.70930327908962,
+      "btc_liq_k": 32.8,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 32.8,
+      "btc_ret_10m": -41.2
+    },
+    {
+      "entry_ts_ms": 1772055456523,
+      "month": "2026-02",
+      "net": -323.3631893908669,
+      "btc_liq_k": 395.4,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 395.4,
+      "btc_ret_10m": 101.1
+    },
+    {
+      "entry_ts_ms": 1772116250219,
+      "month": "2026-02",
+      "net": -331.4039921746868,
+      "btc_liq_k": 6.6,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 6.6,
+      "btc_ret_10m": -23.3
+    },
+    {
+      "entry_ts_ms": 1772117296074,
+      "month": "2026-02",
+      "net": -161.70905950935645,
+      "btc_liq_k": 366.1,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 366.1,
+      "btc_ret_10m": -108.7
+    },
+    {
+      "entry_ts_ms": 1772123767070,
+      "month": "2026-02",
+      "net": 89.82587224382316,
+      "btc_liq_k": 86.4,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 86.4,
+      "btc_ret_10m": -80.9
+    },
+    {
+      "entry_ts_ms": 1772185482191,
+      "month": "2026-02",
+      "net": -323.00447814716625,
+      "btc_liq_k": 537.7,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 537.7,
+      "btc_ret_10m": -54.0
+    },
+    {
+      "entry_ts_ms": 1772187078325,
+      "month": "2026-02",
+      "net": -197.56169900037648,
+      "btc_liq_k": 367.7,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 367.7,
+      "btc_ret_10m": -41.1
+    },
+    {
+      "entry_ts_ms": 1772189629658,
+      "month": "2026-02",
+      "net": -195.8723584647001,
+      "btc_liq_k": 63.2,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 63.2,
+      "btc_ret_10m": -26.3
+    },
+    {
+      "entry_ts_ms": 1772192374463,
+      "month": "2026-02",
+      "net": -90.8344801504027,
+      "btc_liq_k": 469.6,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 469.6,
+      "btc_ret_10m": -65.6
+    },
+    {
+      "entry_ts_ms": 1772199419371,
+      "month": "2026-02",
+      "net": -126.58005765497873,
+      "btc_liq_k": 240.7,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 240.7,
+      "btc_ret_10m": -64.3
+    },
+    {
+      "entry_ts_ms": 1772203654111,
+      "month": "2026-02",
+      "net": -91.76928208353534,
+      "btc_liq_k": 144.6,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 144.6,
+      "btc_ret_10m": -88.7
+    },
+    {
+      "entry_ts_ms": 1772231692768,
+      "month": "2026-02",
+      "net": 196.75502707337677,
+      "btc_liq_k": 269.1,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 269.1,
+      "btc_ret_10m": -75.5
+    },
+    {
+      "entry_ts_ms": 1772287387437,
+      "month": "2026-02",
+      "net": 52.76850174124051,
+      "btc_liq_k": 626.2,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 626.2,
+      "btc_ret_10m": 24.3
+    },
+    {
+      "entry_ts_ms": 1772291697113,
+      "month": "2026-02",
+      "net": 257.6647805653512,
+      "btc_liq_k": 66.6,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 66.6,
+      "btc_ret_10m": -51.4
+    },
+    {
+      "entry_ts_ms": 1772394257120,
+      "month": "2026-03",
+      "net": -60.00637076263223,
+      "btc_liq_k": 137.1,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 137.1,
+      "btc_ret_10m": -26.3
+    },
+    {
+      "entry_ts_ms": 1772395887271,
+      "month": "2026-03",
+      "net": 57.192730622729634,
+      "btc_liq_k": 163.3,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 163.3,
+      "btc_ret_10m": -62.4
+    },
+    {
+      "entry_ts_ms": 1772432343569,
+      "month": "2026-03",
+      "net": -36.28597571463691,
+      "btc_liq_k": 85.7,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 85.7,
+      "btc_ret_10m": -37.3
+    },
+    {
+      "entry_ts_ms": 1772435375615,
+      "month": "2026-03",
+      "net": 47.86162032298978,
+      "btc_liq_k": 194.0,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 194.0,
+      "btc_ret_10m": -69.7
+    },
+    {
+      "entry_ts_ms": 1772439148456,
+      "month": "2026-03",
+      "net": 111.08557070322132,
+      "btc_liq_k": 7.1,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 7.1,
+      "btc_ret_10m": -10.8
+    },
+    {
+      "entry_ts_ms": 1772503353138,
+      "month": "2026-03",
+      "net": -83.26063156846214,
+      "btc_liq_k": 112.8,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 112.8,
+      "btc_ret_10m": -59.0
+    },
+    {
+      "entry_ts_ms": 1772543096243,
+      "month": "2026-03",
+      "net": 86.94861289429141,
+      "btc_liq_k": 12.1,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 12.1,
+      "btc_ret_10m": -26.8
+    },
+    {
+      "entry_ts_ms": 1772548413725,
+      "month": "2026-03",
+      "net": 224.17314432639222,
+      "btc_liq_k": 231.1,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 231.1,
+      "btc_ret_10m": -62.3
+    },
+    {
+      "entry_ts_ms": 1772595225657,
+      "month": "2026-03",
+      "net": 160.0665560678944,
+      "btc_liq_k": 648.2,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 648.2,
+      "btc_ret_10m": -87.5
+    },
+    {
+      "entry_ts_ms": 1772640779485,
+      "month": "2026-03",
+      "net": 148.81241755769244,
+      "btc_liq_k": 232.9,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 232.9,
+      "btc_ret_10m": -85.5
+    },
+    {
+      "entry_ts_ms": 1772664294668,
+      "month": "2026-03",
+      "net": -98.35718849092244,
+      "btc_liq_k": 152.8,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 152.8,
+      "btc_ret_10m": -35.7
+    },
+    {
+      "entry_ts_ms": 1772697294604,
+      "month": "2026-03",
+      "net": 180.91404768715185,
+      "btc_liq_k": 269.8,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 269.8,
+      "btc_ret_10m": -53.4
+    },
+    {
+      "entry_ts_ms": 1772710798230,
+      "month": "2026-03",
+      "net": -238.48449966671313,
+      "btc_liq_k": 77.3,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 77.3,
+      "btc_ret_10m": -39.4
+    },
+    {
+      "entry_ts_ms": 1772723336376,
+      "month": "2026-03",
+      "net": -50.06030128559362,
+      "btc_liq_k": 272.3,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 272.3,
+      "btc_ret_10m": -118.1
+    },
+    {
+      "entry_ts_ms": 1772746731408,
+      "month": "2026-03",
+      "net": 30.99378491417246,
+      "btc_liq_k": 52.2,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 52.2,
+      "btc_ret_10m": -54.7
+    },
+    {
+      "entry_ts_ms": 1772807779070,
+      "month": "2026-03",
+      "net": -52.50600059342071,
+      "btc_liq_k": 321.7,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 321.7,
+      "btc_ret_10m": -64.7
+    },
+    {
+      "entry_ts_ms": 1772812267139,
+      "month": "2026-03",
+      "net": 40.208743496383875,
+      "btc_liq_k": 229.9,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 229.9,
+      "btc_ret_10m": -63.8
+    },
+    {
+      "entry_ts_ms": 1772818695168,
+      "month": "2026-03",
+      "net": 92.73003447835532,
+      "btc_liq_k": 160.3,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 160.3,
+      "btc_ret_10m": -61.2
+    },
+    {
+      "entry_ts_ms": 1773007411357,
+      "month": "2026-03",
+      "net": 60.33217572306878,
+      "btc_liq_k": 219.6,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 219.6,
+      "btc_ret_10m": -94.1
+    },
+    {
+      "entry_ts_ms": 1773055195162,
+      "month": "2026-03",
+      "net": 188.6469423780103,
+      "btc_liq_k": 17.9,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 17.9,
+      "btc_ret_10m": -43.3
+    },
+    {
+      "entry_ts_ms": 1773149922103,
+      "month": "2026-03",
+      "net": 165.2641931137952,
+      "btc_liq_k": 1550.2,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 1550.2,
+      "btc_ret_10m": -145.5
+    },
+    {
+      "entry_ts_ms": 1773166485320,
+      "month": "2026-03",
+      "net": -134.98151429128768,
+      "btc_liq_k": 188.8,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 188.8,
+      "btc_ret_10m": -64.1
+    },
+    {
+      "entry_ts_ms": 1773243035117,
+      "month": "2026-03",
+      "net": 134.16486192748084,
+      "btc_liq_k": 86.7,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 86.7,
+      "btc_ret_10m": -37.6
+    },
+    {
+      "entry_ts_ms": 1773250631739,
+      "month": "2026-03",
+      "net": 24.7389066734141,
+      "btc_liq_k": 427.7,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 427.7,
+      "btc_ret_10m": -84.8
+    },
+    {
+      "entry_ts_ms": 1773287311157,
+      "month": "2026-03",
+      "net": 90.67957491102635,
+      "btc_liq_k": 26.0,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 26.0,
+      "btc_ret_10m": -36.6
+    },
+    {
+      "entry_ts_ms": 1773331743435,
+      "month": "2026-03",
+      "net": 51.730314652198906,
+      "btc_liq_k": 212.9,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 212.9,
+      "btc_ret_10m": -54.3
+    },
+    {
+      "entry_ts_ms": 1773413083382,
+      "month": "2026-03",
+      "net": -319.6591662152391,
+      "btc_liq_k": 369.0,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 369.0,
+      "btc_ret_10m": -106.1
+    },
+    {
+      "entry_ts_ms": 1773417198178,
+      "month": "2026-03",
+      "net": -150.45037393145395,
+      "btc_liq_k": 259.4,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 259.4,
+      "btc_ret_10m": 12.0
+    },
+    {
+      "entry_ts_ms": 1773425950642,
+      "month": "2026-03",
+      "net": -25.960520893851033,
+      "btc_liq_k": 152.6,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 152.6,
+      "btc_ret_10m": -19.5
+    },
+    {
+      "entry_ts_ms": 1773439405546,
+      "month": "2026-03",
+      "net": 11.690498643893958,
+      "btc_liq_k": 369.5,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 369.5,
+      "btc_ret_10m": -69.8
+    },
+    {
+      "entry_ts_ms": 1773671387185,
+      "month": "2026-03",
+      "net": 233.18122301748235,
+      "btc_liq_k": 260.9,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 260.9,
+      "btc_ret_10m": -81.8
+    },
+    {
+      "entry_ts_ms": 1773702556171,
+      "month": "2026-03",
+      "net": 75.47698758743495,
+      "btc_liq_k": 474.2,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 474.2,
+      "btc_ret_10m": -62.5
+    },
+    {
+      "entry_ts_ms": 1773707063711,
+      "month": "2026-03",
+      "net": -153.4277341911747,
+      "btc_liq_k": 90.1,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 90.1,
+      "btc_ret_10m": -58.5
+    },
+    {
+      "entry_ts_ms": 1773711784291,
+      "month": "2026-03",
+      "net": -200.95750753050459,
+      "btc_liq_k": 84.8,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 84.8,
+      "btc_ret_10m": -43.5
+    },
+    {
+      "entry_ts_ms": 1773717755574,
+      "month": "2026-03",
+      "net": -11.22751700855148,
+      "btc_liq_k": 759.4,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 759.4,
+      "btc_ret_10m": -38.1
+    },
+    {
+      "entry_ts_ms": 1773721333713,
+      "month": "2026-03",
+      "net": 72.46003587460713,
+      "btc_liq_k": 56.0,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 56.0,
+      "btc_ret_10m": -47.9
+    },
+    {
+      "entry_ts_ms": 1773750417117,
+      "month": "2026-03",
+      "net": 73.75713801149162,
+      "btc_liq_k": 235.8,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 235.8,
+      "btc_ret_10m": -23.8
+    },
+    {
+      "entry_ts_ms": 1773838904487,
+      "month": "2026-03",
+      "net": -237.6426844824403,
+      "btc_liq_k": 79.7,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 79.7,
+      "btc_ret_10m": -34.1
+    },
+    {
+      "entry_ts_ms": 1773845610656,
+      "month": "2026-03",
+      "net": -47.12635414185281,
+      "btc_liq_k": 445.0,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 445.0,
+      "btc_ret_10m": -18.3
+    },
+    {
+      "entry_ts_ms": 1773860080071,
+      "month": "2026-03",
+      "net": 40.16927701845493,
+      "btc_liq_k": 271.2,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 271.2,
+      "btc_ret_10m": -66.7
+    },
+    {
+      "entry_ts_ms": 1773926042404,
+      "month": "2026-03",
+      "net": -62.21201535829838,
+      "btc_liq_k": 405.3,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 405.3,
+      "btc_ret_10m": -32.9
+    },
+    {
+      "entry_ts_ms": 1773931070236,
+      "month": "2026-03",
+      "net": 52.16646625410888,
+      "btc_liq_k": 393.7,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 393.7,
+      "btc_ret_10m": -27.0
+    },
+    {
+      "entry_ts_ms": 1773948377437,
+      "month": "2026-03",
+      "net": -26.45446917025216,
+      "btc_liq_k": 0.4,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 0.4,
+      "btc_ret_10m": 11.1
+    },
+    {
+      "entry_ts_ms": 1773990078235,
+      "month": "2026-03",
+      "net": 88.45479027015305,
+      "btc_liq_k": 163.6,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 163.6,
+      "btc_ret_10m": -38.3
+    },
+    {
+      "entry_ts_ms": 1774136940620,
+      "month": "2026-03",
+      "net": -75.82316686875667,
+      "btc_liq_k": 884.7,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 884.7,
+      "btc_ret_10m": -72.2
+    },
+    {
+      "entry_ts_ms": 1774247858193,
+      "month": "2026-03",
+      "net": 0.47418630971920805,
+      "btc_liq_k": 754.4,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 754.4,
+      "btc_ret_10m": -53.5
+    },
+    {
+      "entry_ts_ms": 1774266414705,
+      "month": "2026-03",
+      "net": -26.972831876827087,
+      "btc_liq_k": 204.3,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 204.3,
+      "btc_ret_10m": -48.6
+    },
+    {
+      "entry_ts_ms": 1774267393591,
+      "month": "2026-03",
+      "net": 115.05276720676905,
+      "btc_liq_k": 740.2,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 740.2,
+      "btc_ret_10m": -100.8
+    },
+    {
+      "entry_ts_ms": 1774280632147,
+      "month": "2026-03",
+      "net": 43.64663631918384,
+      "btc_liq_k": 1451.7,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 1451.7,
+      "btc_ret_10m": -44.0
+    },
+    {
+      "entry_ts_ms": 1774451894274,
+      "month": "2026-03",
+      "net": 86.67751778721359,
+      "btc_liq_k": 473.6,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 473.6,
+      "btc_ret_10m": -67.9
+    },
+    {
+      "entry_ts_ms": 1774503892080,
+      "month": "2026-03",
+      "net": -216.97368693469264,
+      "btc_liq_k": 193.2,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 193.2,
+      "btc_ret_10m": -40.5
+    },
+    {
+      "entry_ts_ms": 1774533547198,
+      "month": "2026-03",
+      "net": -141.45520389021002,
+      "btc_liq_k": 73.8,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 73.8,
+      "btc_ret_10m": -25.9
+    },
+    {
+      "entry_ts_ms": 1774538090463,
+      "month": "2026-03",
+      "net": -89.01528263949905,
+      "btc_liq_k": 250.6,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 250.6,
+      "btc_ret_10m": -57.3
+    },
+    {
+      "entry_ts_ms": 1774584095373,
+      "month": "2026-03",
+      "net": 101.95013272742023,
+      "btc_liq_k": 98.3,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 98.3,
+      "btc_ret_10m": -59.6
+    },
+    {
+      "entry_ts_ms": 1774600689421,
+      "month": "2026-03",
+      "net": -264.19702250415816,
+      "btc_liq_k": 606.4,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 606.4,
+      "btc_ret_10m": -90.0
+    },
+    {
+      "entry_ts_ms": 1774824165124,
+      "month": "2026-03",
+      "net": 203.40524728658423,
+      "btc_liq_k": 414.0,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 414.0,
+      "btc_ret_10m": -91.0
+    },
+    {
+      "entry_ts_ms": 1774891459103,
+      "month": "2026-03",
+      "net": 4.7428991598991725,
+      "btc_liq_k": 242.6,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 242.6,
+      "btc_ret_10m": -47.4
+    },
+    {
+      "entry_ts_ms": 1774911804187,
+      "month": "2026-03",
+      "net": 254.1898282967472,
+      "btc_liq_k": 263.2,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 263.2,
+      "btc_ret_10m": -40.9
+    },
+    {
+      "entry_ts_ms": 1774941500133,
+      "month": "2026-03",
+      "net": -28.7501509996992,
+      "btc_liq_k": 272.4,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 272.4,
+      "btc_ret_10m": -46.6
+    },
+    {
+      "entry_ts_ms": 1774950994642,
+      "month": "2026-03",
+      "net": 294.4998857738822,
+      "btc_liq_k": 232.0,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 232.0,
+      "btc_ret_10m": -57.1
+    },
+    {
+      "entry_ts_ms": 1774970958126,
+      "month": "2026-03",
+      "net": 185.9683184338168,
+      "btc_liq_k": 9.1,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 9.1,
+      "btc_ret_10m": -37.1
+    },
+    {
+      "entry_ts_ms": 1775050991270,
+      "month": "2026-04",
+      "net": 130.8390945229519,
+      "btc_liq_k": 180.0,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 180.0,
+      "btc_ret_10m": -67.4
+    },
+    {
+      "entry_ts_ms": 1775066613652,
+      "month": "2026-04",
+      "net": 120.029720166197,
+      "btc_liq_k": 380.9,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 380.9,
+      "btc_ret_10m": -54.8
+    },
+    {
+      "entry_ts_ms": 1775091866210,
+      "month": "2026-04",
+      "net": -409.9680439694247,
+      "btc_liq_k": 346.5,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 346.5,
+      "btc_ret_10m": -68.0
+    },
+    {
+      "entry_ts_ms": 1775101360483,
+      "month": "2026-04",
+      "net": -21.93546877909025,
+      "btc_liq_k": 62.7,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 62.7,
+      "btc_ret_10m": -41.8
+    },
+    {
+      "entry_ts_ms": 1775369598366,
+      "month": "2026-04",
+      "net": 47.432071958172614,
+      "btc_liq_k": 238.1,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 238.1,
+      "btc_ret_10m": -36.8
+    },
+    {
+      "entry_ts_ms": 1775392420253,
+      "month": "2026-04",
+      "net": 136.2367426235432,
+      "btc_liq_k": 151.5,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 151.5,
+      "btc_ret_10m": -24.1
+    },
+    {
+      "entry_ts_ms": 1775601750304,
+      "month": "2026-04",
+      "net": 270.0972927865754,
+      "btc_liq_k": 212.4,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 212.4,
+      "btc_ret_10m": 7.0
+    },
+    {
+      "entry_ts_ms": 1775757853596,
+      "month": "2026-04",
+      "net": 38.689391902794746,
+      "btc_liq_k": 188.0,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 188.0,
+      "btc_ret_10m": -59.2
+    },
+    {
+      "entry_ts_ms": 1776031266492,
+      "month": "2026-04",
+      "net": 46.1801225350367,
+      "btc_liq_k": 219.6,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 219.6,
+      "btc_ret_10m": -47.1
+    },
+    {
+      "entry_ts_ms": 1776177232740,
+      "month": "2026-04",
+      "net": -272.64831197490395,
+      "btc_liq_k": 239.1,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 239.1,
+      "btc_ret_10m": -1.2
+    },
+    {
+      "entry_ts_ms": 1776267053166,
+      "month": "2026-04",
+      "net": 173.12784907238816,
+      "btc_liq_k": 277.3,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 277.3,
+      "btc_ret_10m": -49.2
+    },
+    {
+      "entry_ts_ms": 1776326047129,
+      "month": "2026-04",
+      "net": -17.36801187657526,
+      "btc_liq_k": 321.7,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 321.7,
+      "btc_ret_10m": -29.2
+    },
+    {
+      "entry_ts_ms": 1776347534594,
+      "month": "2026-04",
+      "net": -7.178878153130145,
+      "btc_liq_k": 426.4,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 426.4,
+      "btc_ret_10m": -50.5
+    },
+    {
+      "entry_ts_ms": 1776432436433,
+      "month": "2026-04",
+      "net": 57.91482219592549,
+      "btc_liq_k": 0.1,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 0.1,
+      "btc_ret_10m": -2.0
+    },
+    {
+      "entry_ts_ms": 1776438236583,
+      "month": "2026-04",
+      "net": -60.66573216309892,
+      "btc_liq_k": 409.1,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 409.1,
+      "btc_ret_10m": -36.0
+    },
+    {
+      "entry_ts_ms": 1776449380369,
+      "month": "2026-04",
+      "net": 20.482960504713652,
+      "btc_liq_k": 33.9,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 33.9,
+      "btc_ret_10m": -41.5
+    },
+    {
+      "entry_ts_ms": 1776484476116,
+      "month": "2026-04",
+      "net": -15.580835298684875,
+      "btc_liq_k": 19.6,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 19.6,
+      "btc_ret_10m": -17.5
+    },
+    {
+      "entry_ts_ms": 1776565481298,
+      "month": "2026-04",
+      "net": -47.597923486942285,
+      "btc_liq_k": 29.4,
+      "sol_liq_k": 35.8,
+      "market_concurrent_k": 65.3,
+      "btc_ret_10m": -10.9
+    },
+    {
+      "entry_ts_ms": 1776651250182,
+      "month": "2026-04",
+      "net": -18.21178450134223,
+      "btc_liq_k": 11.1,
+      "sol_liq_k": 1.9,
+      "market_concurrent_k": 13.1,
+      "btc_ret_10m": -20.0
+    },
+    {
+      "entry_ts_ms": 1776670284303,
+      "month": "2026-04",
+      "net": -18.00801626593544,
+      "btc_liq_k": 18.1,
+      "sol_liq_k": 0.2,
+      "market_concurrent_k": 18.3,
+      "btc_ret_10m": -23.0
+    },
+    {
+      "entry_ts_ms": 1776694119155,
+      "month": "2026-04",
+      "net": 116.83468036927388,
+      "btc_liq_k": 1.2,
+      "sol_liq_k": 1.4,
+      "market_concurrent_k": 2.6,
+      "btc_ret_10m": -25.0
+    },
+    {
+      "entry_ts_ms": 1776696071191,
+      "month": "2026-04",
+      "net": 176.21209413732151,
+      "btc_liq_k": 153.5,
+      "sol_liq_k": 6.9,
+      "market_concurrent_k": 160.4,
+      "btc_ret_10m": -52.8
+    },
+    {
+      "entry_ts_ms": 1776783451255,
+      "month": "2026-04",
+      "net": 39.27539803451793,
+      "btc_liq_k": 803.4,
+      "sol_liq_k": 29.5,
+      "market_concurrent_k": 832.9,
+      "btc_ret_10m": -68.1
+    },
+    {
+      "entry_ts_ms": 1776800226538,
+      "month": "2026-04",
+      "net": 52.59651309595706,
+      "btc_liq_k": 218.4,
+      "sol_liq_k": 1.0,
+      "market_concurrent_k": 219.5,
+      "btc_ret_10m": -67.7
+    },
+    {
+      "entry_ts_ms": 1776868262104,
+      "month": "2026-04",
+      "net": -39.978545239650316,
+      "btc_liq_k": 106.7,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 106.7,
+      "btc_ret_10m": -5.6
+    },
+    {
+      "entry_ts_ms": 1777239187357,
+      "month": "2026-04",
+      "net": 107.51177339842384,
+      "btc_liq_k": 6.6,
+      "sol_liq_k": 0.0,
+      "market_concurrent_k": 6.6,
+      "btc_ret_10m": -19.0
+    },
+    {
+      "entry_ts_ms": 1777242864614,
+      "month": "2026-04",
+      "net": 154.85534254041082,
+      "btc_liq_k": 691.0,
+      "sol_liq_k": 116.4,
+      "market_concurrent_k": 807.4,
+      "btc_ret_10m": -72.5
+    },
+    {
+      "entry_ts_ms": 1780858928177,
+      "month": "2026-06",
+      "net": 330.05995684434896,
+      "btc_liq_k": 644.4,
+      "sol_liq_k": 85.3,
+      "market_concurrent_k": 729.7,
+      "btc_ret_10m": -43.7
+    },
+    {
+      "entry_ts_ms": 1780891575767,
+      "month": "2026-06",
+      "net": -1.2828130506001543,
+      "btc_liq_k": 477.7,
+      "sol_liq_k": 16.3,
+      "market_concurrent_k": 494.1,
+      "btc_ret_10m": -42.9
+    },
+    {
+      "entry_ts_ms": 1780920252316,
+      "month": "2026-06",
+      "net": 99.74862945951234,
+      "btc_liq_k": 805.7,
+      "sol_liq_k": 19.1,
+      "market_concurrent_k": 824.8,
+      "btc_ret_10m": -70.2
+    },
+    {
+      "entry_ts_ms": 1780997657131,
+      "month": "2026-06",
+      "net": 11.16105355759583,
+      "btc_liq_k": 144.9,
+      "sol_liq_k": 12.9,
+      "market_concurrent_k": 157.9,
+      "btc_ret_10m": -39.7
+    },
+    {
+      "entry_ts_ms": 1781057833158,
+      "month": "2026-06",
+      "net": -6.011791621371472,
+      "btc_liq_k": 468.4,
+      "sol_liq_k": 3.7,
+      "market_concurrent_k": 472.1,
+      "btc_ret_10m": -47.3
+    },
+    {
+      "entry_ts_ms": 1781089483552,
+      "month": "2026-06",
+      "net": 175.1583903432485,
+      "btc_liq_k": 196.9,
+      "sol_liq_k": 45.2,
+      "market_concurrent_k": 242.1,
+      "btc_ret_10m": -30.7
+    },
+    {
+      "entry_ts_ms": 1781099663672,
+      "month": "2026-06",
+      "net": -140.22059724405239,
+      "btc_liq_k": 23.5,
+      "sol_liq_k": 0.8,
+      "market_concurrent_k": 24.3,
+      "btc_ret_10m": -17.6
+    },
+    {
+      "entry_ts_ms": 1781106527244,
+      "month": "2026-06",
+      "net": -104.89002403685278,
+      "btc_liq_k": 13.1,
+      "sol_liq_k": 11.4,
+      "market_concurrent_k": 24.5,
+      "btc_ret_10m": -10.1
+    },
+    {
+      "entry_ts_ms": 1781110062516,
+      "month": "2026-06",
+      "net": -67.35719492410415,
+      "btc_liq_k": 202.3,
+      "sol_liq_k": 18.4,
+      "market_concurrent_k": 220.7,
+      "btc_ret_10m": -58.5
+    },
+    {
+      "entry_ts_ms": 1781112563144,
+      "month": "2026-06",
+      "net": -79.47732482201582,
+      "btc_liq_k": 3.9,
+      "sol_liq_k": 0.2,
+      "market_concurrent_k": 4.1,
+      "btc_ret_10m": -26.9
+    },
+    {
+      "entry_ts_ms": 1781180537462,
+      "month": "2026-06",
+      "net": -46.960135013868644,
+      "btc_liq_k": 104.4,
+      "sol_liq_k": 4.0,
+      "market_concurrent_k": 108.5,
+      "btc_ret_10m": -60.1
+    },
+    {
+      "entry_ts_ms": 1781276654089,
+      "month": "2026-06",
+      "net": -74.86842939023387,
+      "btc_liq_k": 106.2,
+      "sol_liq_k": 0.8,
+      "market_concurrent_k": 107.0,
+      "btc_ret_10m": 5.1
+    },
+    {
+      "entry_ts_ms": 1781278441192,
+      "month": "2026-06",
+      "net": -55.80567606342452,
+      "btc_liq_k": 68.1,
+      "sol_liq_k": 2.7,
+      "market_concurrent_k": 70.8,
+      "btc_ret_10m": -44.6
+    },
+    {
+      "entry_ts_ms": 1781279802488,
+      "month": "2026-06",
+      "net": 14.546910419374553,
+      "btc_liq_k": 80.0,
+      "sol_liq_k": 45.1,
+      "market_concurrent_k": 125.1,
+      "btc_ret_10m": -31.9
+    },
+    {
+      "entry_ts_ms": 1781474840716,
+      "month": "2026-06",
+      "net": 18.354251328771284,
+      "btc_liq_k": 522.1,
+      "sol_liq_k": 16.8,
+      "market_concurrent_k": 538.9,
+      "btc_ret_10m": -69.9
+    },
+    {
+      "entry_ts_ms": 1781551133490,
+      "month": "2026-06",
+      "net": -183.12245092979512,
+      "btc_liq_k": 222.0,
+      "sol_liq_k": 70.7,
+      "market_concurrent_k": 292.7,
+      "btc_ret_10m": -39.0
+    },
+    {
+      "entry_ts_ms": 1781576875467,
+      "month": "2026-06",
+      "net": -83.14467854690871,
+      "btc_liq_k": 1089.0,
+      "sol_liq_k": 154.6,
+      "market_concurrent_k": 1243.6,
+      "btc_ret_10m": -35.3
+    },
+    {
+      "entry_ts_ms": 1781584271525,
+      "month": "2026-06",
+      "net": 101.42103932583632,
+      "btc_liq_k": 233.9,
+      "sol_liq_k": 5.1,
+      "market_concurrent_k": 238.9,
+      "btc_ret_10m": -39.3
+    },
+    {
+      "entry_ts_ms": 1781613424398,
+      "month": "2026-06",
+      "net": -293.4303797995289,
+      "btc_liq_k": 0.1,
+      "sol_liq_k": 25.7,
+      "market_concurrent_k": 25.7,
+      "btc_ret_10m": 8.5
+    },
+    {
+      "entry_ts_ms": 1781615315106,
+      "month": "2026-06",
+      "net": -154.28907744666512,
+      "btc_liq_k": 330.3,
+      "sol_liq_k": 4.9,
+      "market_concurrent_k": 335.2,
+      "btc_ret_10m": -35.2
+    },
+    {
+      "entry_ts_ms": 1781619399900,
+      "month": "2026-06",
+      "net": 59.896034091031105,
+      "btc_liq_k": 247.7,
+      "sol_liq_k": 108.3,
+      "market_concurrent_k": 356.0,
+      "btc_ret_10m": -46.6
+    },
+    {
+      "entry_ts_ms": 1781659021753,
+      "month": "2026-06",
+      "net": 19.005886569706064,
+      "btc_liq_k": 0.4,
+      "sol_liq_k": 0.1,
+      "market_concurrent_k": 0.5,
+      "btc_ret_10m": -13.9
+    },
+    {
+      "entry_ts_ms": 1781719230110,
+      "month": "2026-06",
+      "net": -212.70664268071252,
+      "btc_liq_k": 273.6,
+      "sol_liq_k": 19.4,
+      "market_concurrent_k": 293.0,
+      "btc_ret_10m": -30.9
+    },
+    {
+      "entry_ts_ms": 1781722715207,
+      "month": "2026-06",
+      "net": -149.01926028716196,
+      "btc_liq_k": 182.6,
+      "sol_liq_k": 33.6,
+      "market_concurrent_k": 216.2,
+      "btc_ret_10m": -71.8
+    },
+    {
+      "entry_ts_ms": 1781723899201,
+      "month": "2026-06",
+      "net": -69.32926783337102,
+      "btc_liq_k": 288.8,
+      "sol_liq_k": 35.3,
+      "market_concurrent_k": 324.1,
+      "btc_ret_10m": -53.9
+    },
+    {
+      "entry_ts_ms": 1781798251634,
+      "month": "2026-06",
+      "net": 135.03090675363603,
+      "btc_liq_k": 4174.6,
+      "sol_liq_k": 940.1,
+      "market_concurrent_k": 5114.7,
+      "btc_ret_10m": -67.7
+    },
+    {
+      "entry_ts_ms": 1781817159670,
+      "month": "2026-06",
+      "net": 35.09766525088097,
+      "btc_liq_k": 7.1,
+      "sol_liq_k": 1.7,
+      "market_concurrent_k": 8.8,
+      "btc_ret_10m": -16.3
+    },
+    {
+      "entry_ts_ms": 1781964531159,
+      "month": "2026-06",
+      "net": 100.55348092283411,
+      "btc_liq_k": 90.2,
+      "sol_liq_k": 210.1,
+      "market_concurrent_k": 300.3,
+      "btc_ret_10m": -27.3
+    },
+    {
+      "entry_ts_ms": 1782040706629,
+      "month": "2026-06",
+      "net": 35.78390049615276,
+      "btc_liq_k": 68.6,
+      "sol_liq_k": 32.4,
+      "market_concurrent_k": 101.0,
+      "btc_ret_10m": -38.6
+    },
+    {
+      "entry_ts_ms": 1782084822690,
+      "month": "2026-06",
+      "net": 182.57832423270239,
+      "btc_liq_k": 1367.6,
+      "sol_liq_k": 175.8,
+      "market_concurrent_k": 1543.4,
+      "btc_ret_10m": -70.1
+    },
+    {
+      "entry_ts_ms": 1782097283071,
+      "month": "2026-06",
+      "net": 15.646030107774687,
+      "btc_liq_k": 472.0,
+      "sol_liq_k": 17.6,
+      "market_concurrent_k": 489.6,
+      "btc_ret_10m": -46.7
+    },
+    {
+      "entry_ts_ms": 1782201584477,
+      "month": "2026-06",
+      "net": -139.286197837405,
+      "btc_liq_k": 1.8,
+      "sol_liq_k": 12.6,
+      "market_concurrent_k": 14.4,
+      "btc_ret_10m": -17.9
+    },
+    {
+      "entry_ts_ms": 1782394305283,
+      "month": "2026-06",
+      "net": -342.3063242330281,
+      "btc_liq_k": 673.6,
+      "sol_liq_k": 39.2,
+      "market_concurrent_k": 712.8,
+      "btc_ret_10m": -41.5
+    },
+    {
+      "entry_ts_ms": 1782395476217,
+      "month": "2026-06",
+      "net": -7.271235496620495,
+      "btc_liq_k": 11076.6,
+      "sol_liq_k": 1277.0,
+      "market_concurrent_k": 12353.6,
+      "btc_ret_10m": -201.3
+    },
+    {
+      "entry_ts_ms": 1782396979081,
+      "month": "2026-06",
+      "net": 58.67206241484859,
+      "btc_liq_k": 627.7,
+      "sol_liq_k": 18.7,
+      "market_concurrent_k": 646.4,
+      "btc_ret_10m": -3.1
+    },
+    {
+      "entry_ts_ms": 1782398263517,
+      "month": "2026-06",
+      "net": -51.38866334298114,
+      "btc_liq_k": 613.8,
+      "sol_liq_k": 121.4,
+      "market_concurrent_k": 735.2,
+      "btc_ret_10m": 24.2
+    },
+    {
+      "entry_ts_ms": 1782399803104,
+      "month": "2026-06",
+      "net": 15.4438667253197,
+      "btc_liq_k": 1019.0,
+      "sol_liq_k": 81.3,
+      "market_concurrent_k": 1100.3,
+      "btc_ret_10m": -99.2
+    },
+    {
+      "entry_ts_ms": 1782405123169,
+      "month": "2026-06",
+      "net": -35.991104405835465,
+      "btc_liq_k": 203.4,
+      "sol_liq_k": 3.5,
+      "market_concurrent_k": 206.9,
+      "btc_ret_10m": -55.2
+    },
+    {
+      "entry_ts_ms": 1782442110475,
+      "month": "2026-06",
+      "net": 268.12206810087497,
+      "btc_liq_k": 27.9,
+      "sol_liq_k": 11.3,
+      "market_concurrent_k": 39.2,
+      "btc_ret_10m": -6.2
+    },
+    {
+      "entry_ts_ms": 1782467295082,
+      "month": "2026-06",
+      "net": -75.09747409726162,
+      "btc_liq_k": 284.9,
+      "sol_liq_k": 8.6,
+      "market_concurrent_k": 293.5,
+      "btc_ret_10m": -29.9
+    },
+    {
+      "entry_ts_ms": 1782470373530,
+      "month": "2026-06",
+      "net": 70.87240654331868,
+      "btc_liq_k": 616.8,
+      "sol_liq_k": 420.0,
+      "market_concurrent_k": 1036.8,
+      "btc_ret_10m": -43.8
+    },
+    {
+      "entry_ts_ms": 1782477597361,
+      "month": "2026-06",
+      "net": 294.4867228771436,
+      "btc_liq_k": 187.3,
+      "sol_liq_k": 32.2,
+      "market_concurrent_k": 219.5,
+      "btc_ret_10m": -67.2
+    },
+    {
+      "entry_ts_ms": 1782479934877,
+      "month": "2026-06",
+      "net": 366.92861672518404,
+      "btc_liq_k": 700.9,
+      "sol_liq_k": 12.0,
+      "market_concurrent_k": 712.8,
+      "btc_ret_10m": -44.1
+    },
+    {
+      "entry_ts_ms": 1782520453408,
+      "month": "2026-06",
+      "net": 65.77309610995106,
+      "btc_liq_k": 333.3,
+      "sol_liq_k": 65.0,
+      "market_concurrent_k": 398.3,
+      "btc_ret_10m": -26.7
+    },
+    {
+      "entry_ts_ms": 1782579737194,
+      "month": "2026-06",
+      "net": -94.64325728857915,
+      "btc_liq_k": 14.0,
+      "sol_liq_k": 7.4,
+      "market_concurrent_k": 21.4,
+      "btc_ret_10m": -26.1
+    },
+    {
+      "entry_ts_ms": 1782664454359,
+      "month": "2026-06",
+      "net": 13.395728119468489,
+      "btc_liq_k": 472.4,
+      "sol_liq_k": 30.0,
+      "market_concurrent_k": 502.5,
+      "btc_ret_10m": -24.2
+    }
+  ]
+}

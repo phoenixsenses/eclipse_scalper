@@ -1,0 +1,636 @@
+{
+  "generated_at_utc": "2026-06-28T10:59:22.399465+00:00",
+  "rules": {
+    "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30": {
+      "closed_n": 21,
+      "overall": {
+        "n": 21,
+        "median": 52.3,
+        "mean": 37.2,
+        "cum": 780.9,
+        "wr": 0.762
+      },
+      "classes": {
+        "knowable_like_threshold_or_cluster_end": {
+          "summary": {
+            "n": 2,
+            "median": 18.8,
+            "mean": 18.8,
+            "cum": 37.6,
+            "wr": 0.5
+          },
+          "trades": [
+            {
+              "trade_id": "P707",
+              "signal_ts_utc": "2026-06-27T14:13:46.168000+00:00",
+              "entry_ts_utc": "2026-06-27T14:13:47+00:00",
+              "exit_reason": "TP",
+              "net_bps": 54.1830966442528,
+              "cluster_start_ts_ms": 1782569588638,
+              "cluster_end_ts_ms": 1782569626168,
+              "threshold_cross_ts_ms": 1782569626168,
+              "start_to_signal_sec": 37.53,
+              "signal_to_end_sec": 0.0,
+              "signal_minus_threshold_cross_sec": 0.0
+            },
+            {
+              "trade_id": "P736",
+              "signal_ts_utc": "2026-06-28T08:38:15.374000+00:00",
+              "entry_ts_utc": "2026-06-28T08:38:16.006000+00:00",
+              "exit_reason": "TIME",
+              "net_bps": -16.593888228901545,
+              "cluster_start_ts_ms": 1782635814422,
+              "cluster_end_ts_ms": 1782635895374,
+              "threshold_cross_ts_ms": 1782635895374,
+              "start_to_signal_sec": 80.952,
+              "signal_to_end_sec": 0.0,
+              "signal_minus_threshold_cross_sec": 0.0
+            }
+          ]
+        },
+        "lookahead_like_cluster_start_entry": {
+          "summary": {
+            "n": 15,
+            "median": 53.5,
+            "mean": 42.7,
+            "cum": 640.4,
+            "wr": 0.8
+          },
+          "trades": [
+            {
+              "trade_id": "P330",
+              "signal_ts_utc": "2026-06-20T05:10:04.479000+00:00",
+              "entry_ts_utc": "2026-06-20T05:10:05.001000+00:00",
+              "exit_reason": "TP",
+              "net_bps": 72.69305201383382,
+              "cluster_start_ts_ms": 1781932204479,
+              "cluster_end_ts_ms": 1781932222146,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 17.667,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P338",
+              "signal_ts_utc": "2026-06-20T14:45:28.349000+00:00",
+              "entry_ts_utc": "2026-06-20T14:45:29+00:00",
+              "exit_reason": "TP",
+              "net_bps": 80.49043001000038,
+              "cluster_start_ts_ms": 1781966728349,
+              "cluster_end_ts_ms": 1781966769154,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 40.805,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P343",
+              "signal_ts_utc": "2026-06-20T15:16:05.590000+00:00",
+              "entry_ts_utc": "2026-06-20T15:16:06+00:00",
+              "exit_reason": "TP",
+              "net_bps": 59.313505887772735,
+              "cluster_start_ts_ms": 1781968565590,
+              "cluster_end_ts_ms": 1781968747452,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 181.862,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P347",
+              "signal_ts_utc": "2026-06-20T15:20:26.344000+00:00",
+              "entry_ts_utc": "2026-06-20T15:20:27+00:00",
+              "exit_reason": "SL",
+              "net_bps": -51.642145843699815,
+              "cluster_start_ts_ms": 1781968826344,
+              "cluster_end_ts_ms": 1781968830659,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 4.315,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P380",
+              "signal_ts_utc": "2026-06-22T01:23:43.410000+00:00",
+              "entry_ts_utc": "2026-06-22T01:23:44+00:00",
+              "exit_reason": "TP",
+              "net_bps": 56.31634792107259,
+              "cluster_start_ts_ms": 1782091423410,
+              "cluster_end_ts_ms": 1782091444094,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 20.684,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P384",
+              "signal_ts_utc": "2026-06-22T01:25:43.701000+00:00",
+              "entry_ts_utc": "2026-06-22T01:25:44.001000+00:00",
+              "exit_reason": "TP",
+              "net_bps": 59.40433510040641,
+              "cluster_start_ts_ms": 1782091543701,
+              "cluster_end_ts_ms": 1782091596175,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 52.474,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P397",
+              "signal_ts_utc": "2026-06-22T11:31:46.531000+00:00",
+              "entry_ts_utc": "2026-06-22T11:31:47.004000+00:00",
+              "exit_reason": "TP",
+              "net_bps": 50.644174051804995,
+              "cluster_start_ts_ms": 1782127906531,
+              "cluster_end_ts_ms": 1782128001633,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 95.102,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P413",
+              "signal_ts_utc": "2026-06-22T13:35:17.164000+00:00",
+              "entry_ts_utc": "2026-06-22T13:35:18+00:00",
+              "exit_reason": "TP",
+              "net_bps": 52.327776532245565,
+              "cluster_start_ts_ms": 1782135317164,
+              "cluster_end_ts_ms": 1782135393530,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 76.366,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P443",
+              "signal_ts_utc": "2026-06-24T01:31:15.552000+00:00",
+              "entry_ts_utc": "2026-06-24T01:31:16+00:00",
+              "exit_reason": "BE",
+              "net_bps": -9.553214504053246,
+              "cluster_start_ts_ms": 1782264675552,
+              "cluster_end_ts_ms": 1782264721639,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 46.087,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P456",
+              "signal_ts_utc": "2026-06-24T11:45:15.179000+00:00",
+              "entry_ts_utc": "2026-06-24T11:45:16+00:00",
+              "exit_reason": "TP",
+              "net_bps": 87.66735494843125,
+              "cluster_start_ts_ms": 1782301515179,
+              "cluster_end_ts_ms": 1782301738863,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 223.684,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P525",
+              "signal_ts_utc": "2026-06-25T04:57:06.540000+00:00",
+              "entry_ts_utc": "2026-06-25T04:57:07.002000+00:00",
+              "exit_reason": "TP",
+              "net_bps": 51.664410638011425,
+              "cluster_start_ts_ms": 1782363426540,
+              "cluster_end_ts_ms": 1782363481171,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 54.631,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P542",
+              "signal_ts_utc": "2026-06-25T06:56:38.227000+00:00",
+              "entry_ts_utc": "2026-06-25T06:56:39.002000+00:00",
+              "exit_reason": "TIME",
+              "net_bps": -12.709873682071146,
+              "cluster_start_ts_ms": 1782370598227,
+              "cluster_end_ts_ms": 1782370617296,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 19.069,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P547",
+              "signal_ts_utc": "2026-06-25T12:30:16.619000+00:00",
+              "entry_ts_utc": "2026-06-25T12:30:17+00:00",
+              "exit_reason": "TP",
+              "net_bps": 86.96382730074554,
+              "cluster_start_ts_ms": 1782390616619,
+              "cluster_end_ts_ms": 1782390631717,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 15.098,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P673",
+              "signal_ts_utc": "2026-06-26T15:25:20.523000+00:00",
+              "entry_ts_utc": "2026-06-26T15:25:21+00:00",
+              "exit_reason": "BE",
+              "net_bps": 3.389572953417682,
+              "cluster_start_ts_ms": 1782487520523,
+              "cluster_end_ts_ms": 1782487586111,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 65.588,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P680",
+              "signal_ts_utc": "2026-06-26T16:00:24.099000+00:00",
+              "entry_ts_utc": "2026-06-26T16:00:25.005000+00:00",
+              "exit_reason": "TP",
+              "net_bps": 53.460638634208195,
+              "cluster_start_ts_ms": 1782489624099,
+              "cluster_end_ts_ms": 1782489659600,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 35.501,
+              "signal_minus_threshold_cross_sec": null
+            }
+          ]
+        },
+        "missing_old_format": {
+          "summary": {
+            "n": 4,
+            "median": 49.6,
+            "mean": 25.7,
+            "cum": 102.8,
+            "wr": 0.75
+          },
+          "trades": [
+            {
+              "trade_id": "P187",
+              "signal_ts_utc": "2026-06-16T12:15:46.520000+00:00",
+              "entry_ts_utc": "2026-06-16T12:15:47+00:00",
+              "exit_reason": "TP",
+              "net_bps": 52.469372573822916,
+              "cluster_start_ts_ms": null,
+              "cluster_end_ts_ms": null,
+              "threshold_cross_ts_ms": null
+            },
+            {
+              "trade_id": "P192",
+              "signal_ts_utc": "2026-06-16T12:30:54.139000+00:00",
+              "entry_ts_utc": "2026-06-16T12:30:55.004000+00:00",
+              "exit_reason": "TP",
+              "net_bps": 49.860268001735754,
+              "cluster_start_ts_ms": null,
+              "cluster_end_ts_ms": null,
+              "threshold_cross_ts_ms": null
+            },
+            {
+              "trade_id": "P206",
+              "signal_ts_utc": "2026-06-16T18:01:56.183000+00:00",
+              "entry_ts_utc": "2026-06-16T18:01:57+00:00",
+              "exit_reason": "TP",
+              "net_bps": 49.35158190139956,
+              "cluster_start_ts_ms": null,
+              "cluster_end_ts_ms": null,
+              "threshold_cross_ts_ms": null
+            },
+            {
+              "trade_id": "P217",
+              "signal_ts_utc": "2026-06-17T02:23:19.563000+00:00",
+              "entry_ts_utc": "2026-06-17T02:23:20.003000+00:00",
+              "exit_reason": "SL",
+              "net_bps": -48.84834355232683,
+              "cluster_start_ts_ms": null,
+              "cluster_end_ts_ms": null,
+              "threshold_cross_ts_ms": null
+            }
+          ]
+        }
+      }
+    },
+    "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30": {
+      "closed_n": 25,
+      "overall": {
+        "n": 25,
+        "median": -38.9,
+        "mean": -3.2,
+        "cum": -80.9,
+        "wr": 0.28
+      },
+      "classes": {
+        "knowable_like_threshold_or_cluster_end": {
+          "summary": {
+            "n": 1,
+            "median": -43.5,
+            "mean": -43.5,
+            "cum": -43.5,
+            "wr": 0.0
+          },
+          "trades": [
+            {
+              "trade_id": "P361",
+              "signal_ts_utc": "2026-06-20T23:18:48.431000+00:00",
+              "entry_ts_utc": "2026-06-20T23:18:49+00:00",
+              "exit_reason": "TIME",
+              "net_bps": -43.521838183392695,
+              "cluster_start_ts_ms": 1781997528431,
+              "cluster_end_ts_ms": 1781997528431,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 0.0,
+              "signal_minus_threshold_cross_sec": null
+            }
+          ]
+        },
+        "lookahead_like_cluster_start_entry": {
+          "summary": {
+            "n": 9,
+            "median": -38.9,
+            "mean": -24.4,
+            "cum": -219.3,
+            "wr": 0.222
+          },
+          "trades": [
+            {
+              "trade_id": "P348",
+              "signal_ts_utc": "2026-06-20T15:20:26.344000+00:00",
+              "entry_ts_utc": "2026-06-20T15:20:27+00:00",
+              "exit_reason": "SL",
+              "net_bps": -51.642145843699815,
+              "cluster_start_ts_ms": 1781968826344,
+              "cluster_end_ts_ms": 1781968830659,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 4.315,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P351",
+              "signal_ts_utc": "2026-06-20T21:12:42.241000+00:00",
+              "entry_ts_utc": "2026-06-20T21:12:43+00:00",
+              "exit_reason": "TIME",
+              "net_bps": 31.08919494727523,
+              "cluster_start_ts_ms": 1781989962241,
+              "cluster_end_ts_ms": 1781989990307,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 28.066,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P353",
+              "signal_ts_utc": "2026-06-20T22:12:43.788000+00:00",
+              "entry_ts_utc": "2026-06-20T22:12:44.002000+00:00",
+              "exit_reason": "TIME",
+              "net_bps": 10.402252592610601,
+              "cluster_start_ts_ms": 1781993563788,
+              "cluster_end_ts_ms": 1781993616240,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 52.452,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P391",
+              "signal_ts_utc": "2026-06-22T07:11:07.643000+00:00",
+              "entry_ts_utc": "2026-06-22T07:11:08.001000+00:00",
+              "exit_reason": "BE",
+              "net_bps": -7.713255248277328,
+              "cluster_start_ts_ms": 1782112267643,
+              "cluster_end_ts_ms": 1782112405657,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 138.014,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P394",
+              "signal_ts_utc": "2026-06-22T11:05:18.417000+00:00",
+              "entry_ts_utc": "2026-06-22T11:05:19+00:00",
+              "exit_reason": "BE",
+              "net_bps": -11.770588268900541,
+              "cluster_start_ts_ms": 1782126318417,
+              "cluster_end_ts_ms": 1782126368824,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 50.407,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P416",
+              "signal_ts_utc": "2026-06-22T13:44:10.354000+00:00",
+              "entry_ts_utc": "2026-06-22T13:44:11.002000+00:00",
+              "exit_reason": "SL",
+              "net_bps": -48.031799908660616,
+              "cluster_start_ts_ms": 1782135850354,
+              "cluster_end_ts_ms": 1782135852097,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 1.743,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P418",
+              "signal_ts_utc": "2026-06-22T16:10:22.356000+00:00",
+              "entry_ts_utc": "2026-06-22T16:10:23+00:00",
+              "exit_reason": "SL",
+              "net_bps": -53.368452815103446,
+              "cluster_start_ts_ms": 1782144622356,
+              "cluster_end_ts_ms": 1782144640392,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 18.036,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P419",
+              "signal_ts_utc": "2026-06-22T23:36:41.186000+00:00",
+              "entry_ts_utc": "2026-06-22T23:36:42+00:00",
+              "exit_reason": "SL",
+              "net_bps": -49.36423904671766,
+              "cluster_start_ts_ms": 1782171401186,
+              "cluster_end_ts_ms": 1782171410668,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 9.482,
+              "signal_minus_threshold_cross_sec": null
+            },
+            {
+              "trade_id": "P551",
+              "signal_ts_utc": "2026-06-25T13:00:08.059000+00:00",
+              "entry_ts_utc": "2026-06-25T13:00:09+00:00",
+              "exit_reason": "SL",
+              "net_bps": -38.94671025376636,
+              "cluster_start_ts_ms": 1782392408059,
+              "cluster_end_ts_ms": 1782392434645,
+              "threshold_cross_ts_ms": null,
+              "start_to_signal_sec": 0.0,
+              "signal_to_end_sec": 26.586,
+              "signal_minus_threshold_cross_sec": null
+            }
+          ]
+        },
+        "missing_old_format": {
+          "summary": {
+            "n": 15,
+            "median": -10.9,
+            "mean": 12.1,
+            "cum": 182.0,
+            "wr": 0.333
+          },
+          "trades": [
+            {
+              "trade_id": "P013",
+              "signal_ts_utc": "2026-06-10T13:40:23.851000+00:00",
+              "entry_ts_utc": null,
+              "exit_reason": "BE",
+              "net_bps": -8.850088427874663,
+              "cluster_start_ts_ms": null,
+              "cluster_end_ts_ms": null,
+              "threshold_cross_ts_ms": null
+            },
+            {
+              "trade_id": "P056",
+              "signal_ts_utc": "2026-06-11T13:45:22.120000+00:00",
+              "entry_ts_utc": null,
+              "exit_reason": "SL",
+              "net_bps": -53.45042458674553,
+              "cluster_start_ts_ms": null,
+              "cluster_end_ts_ms": null,
+              "threshold_cross_ts_ms": null
+            },
+            {
+              "trade_id": "P058",
+              "signal_ts_utc": "2026-06-11T15:07:45.145000+00:00",
+              "entry_ts_utc": null,
+              "exit_reason": "BE",
+              "net_bps": -9.825007724339759,
+              "cluster_start_ts_ms": null,
+              "cluster_end_ts_ms": null,
+              "threshold_cross_ts_ms": null
+            },
+            {
+              "trade_id": "P060",
+              "signal_ts_utc": "2026-06-11T17:28:55.895000+00:00",
+              "entry_ts_utc": null,
+              "exit_reason": "TP",
+              "net_bps": 99.66798295010554,
+              "cluster_start_ts_ms": null,
+              "cluster_end_ts_ms": null,
+              "threshold_cross_ts_ms": null
+            },
+            {
+              "trade_id": "P062",
+              "signal_ts_utc": "2026-06-11T17:45:03.596000+00:00",
+              "entry_ts_utc": null,
+              "exit_reason": "BE",
+              "net_bps": -10.861424761711358,
+              "cluster_start_ts_ms": null,
+              "cluster_end_ts_ms": null,
+              "threshold_cross_ts_ms": null
+            },
+            {
+              "trade_id": "P063",
+              "signal_ts_utc": "2026-06-11T18:00:24.402000+00:00",
+              "entry_ts_utc": null,
+              "exit_reason": "SL",
+              "net_bps": -47.756366351064926,
+              "cluster_start_ts_ms": null,
+              "cluster_end_ts_ms": null,
+              "threshold_cross_ts_ms": null
+            },
+            {
+              "trade_id": "P065",
+              "signal_ts_utc": "2026-06-11T18:16:01.234000+00:00",
+              "entry_ts_utc": null,
+              "exit_reason": "SL",
+              "net_bps": -56.762407572561585,
+              "cluster_start_ts_ms": null,
+              "cluster_end_ts_ms": null,
+              "threshold_cross_ts_ms": null
+            },
+            {
+              "trade_id": "P111",
+              "signal_ts_utc": "2026-06-14T21:35:16.845000+00:00",
+              "entry_ts_utc": null,
+              "exit_reason": "TP",
+              "net_bps": 116.02218912357706,
+              "cluster_start_ts_ms": null,
+              "cluster_end_ts_ms": null,
+              "threshold_cross_ts_ms": null
+            },
+            {
+              "trade_id": "P116",
+              "signal_ts_utc": "2026-06-14T22:44:24.574000+00:00",
+              "entry_ts_utc": null,
+              "exit_reason": "SL",
+              "net_bps": -45.82086924288744,
+              "cluster_start_ts_ms": null,
+              "cluster_end_ts_ms": null,
+              "threshold_cross_ts_ms": null
+            },
+            {
+              "trade_id": "P138",
+              "signal_ts_utc": "2026-06-15T12:58:53.108000+00:00",
+              "entry_ts_utc": null,
+              "exit_reason": "TP",
+              "net_bps": 114.5175246125743,
+              "cluster_start_ts_ms": null,
+              "cluster_end_ts_ms": null,
+              "threshold_cross_ts_ms": null
+            },
+            {
+              "trade_id": "P146",
+              "signal_ts_utc": "2026-06-15T13:16:04.392000+00:00",
+              "entry_ts_utc": null,
+              "exit_reason": "TP",
+              "net_bps": 113.15204332281733,
+              "cluster_start_ts_ms": null,
+              "cluster_end_ts_ms": null,
+              "threshold_cross_ts_ms": null
+            },
+            {
+              "trade_id": "P149",
+              "signal_ts_utc": "2026-06-15T13:25:20.594000+00:00",
+              "entry_ts_utc": null,
+              "exit_reason": "SL",
+              "net_bps": -46.29973899129289,
+              "cluster_start_ts_ms": null,
+              "cluster_end_ts_ms": null,
+              "threshold_cross_ts_ms": null
+            },
+            {
+              "trade_id": "P150",
+              "signal_ts_utc": "2026-06-15T13:32:04.231000+00:00",
+              "entry_ts_utc": null,
+              "exit_reason": "SL",
+              "net_bps": -55.59389477622542,
+              "cluster_start_ts_ms": null,
+              "cluster_end_ts_ms": null,
+              "threshold_cross_ts_ms": null
+            },
+            {
+              "trade_id": "P169",
+              "signal_ts_utc": "2026-06-15T22:35:35.460000+00:00",
+              "entry_ts_utc": null,
+              "exit_reason": "SL",
+              "net_bps": -51.8708648757993,
+              "cluster_start_ts_ms": null,
+              "cluster_end_ts_ms": null,
+              "threshold_cross_ts_ms": null
+            },
+            {
+              "trade_id": "P188",
+              "signal_ts_utc": "2026-06-16T12:15:46.520000+00:00",
+              "entry_ts_utc": "2026-06-16T12:15:47+00:00",
+              "exit_reason": "TP",
+              "net_bps": 125.72716304839923,
+              "cluster_start_ts_ms": null,
+              "cluster_end_ts_ms": null,
+              "threshold_cross_ts_ms": null
+            }
+          ]
+        }
+      }
+    }
+  }
+}

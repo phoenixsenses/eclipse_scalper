@@ -1,0 +1,1392 @@
+{
+  "base_rate_segments": {
+    "by_cluster_bucket": [
+      {
+        "bucket": "200K-500K",
+        "cum_net_bps": 379.9862774710476,
+        "mean_net_bps": 19.999277761634083,
+        "median_net_bps": 31.08919494727523,
+        "n": 19,
+        "win_rate": 0.5263157894736842
+      },
+      {
+        "bucket": ">=1M",
+        "cum_net_bps": 622.2806882878,
+        "mean_net_bps": 32.751615173042104,
+        "median_net_bps": 52.327776532245565,
+        "n": 19,
+        "win_rate": 0.6842105263157895
+      },
+      {
+        "bucket": "<200K",
+        "cum_net_bps": -348.59865925650223,
+        "mean_net_bps": -24.8999042326073,
+        "median_net_bps": -46.06030411709017,
+        "n": 14,
+        "win_rate": 0.14285714285714285
+      },
+      {
+        "bucket": "500K-1M",
+        "cum_net_bps": 349.90913154646654,
+        "mean_net_bps": 31.809921049678778,
+        "median_net_bps": 50.644174051804995,
+        "n": 11,
+        "win_rate": 0.7272727272727273
+      }
+    ],
+    "by_exit_reason": [
+      {
+        "bucket": "TP",
+        "cum_net_bps": 2057.316046463879,
+        "mean_net_bps": 68.57720154879597,
+        "median_net_bps": 57.81492690442266,
+        "n": 30,
+        "win_rate": 1.0
+      },
+      {
+        "bucket": "SL",
+        "cum_net_bps": -938.5091002751784,
+        "mean_net_bps": -52.13939445973213,
+        "median_net_bps": -51.642145843699815,
+        "n": 18,
+        "win_rate": 0.0
+      },
+      {
+        "bucket": "BE",
+        "cum_net_bps": -83.7050100533313,
+        "mean_net_bps": -10.463126256666413,
+        "median_net_bps": -10.264135185137228,
+        "n": 8,
+        "win_rate": 0.0
+      },
+      {
+        "bucket": "TIME",
+        "cum_net_bps": -31.52449808655741,
+        "mean_net_bps": -4.503499726651059,
+        "median_net_bps": -17.330453563715583,
+        "n": 7,
+        "win_rate": 0.42857142857142855
+      }
+    ],
+    "by_rule": [
+      {
+        "bucket": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "cum_net_bps": 419.02366282117924,
+        "mean_net_bps": 18.218420122659968,
+        "median_net_bps": 47.69489520427891,
+        "n": 23,
+        "win_rate": 0.5652173913043478
+      },
+      {
+        "bucket": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "cum_net_bps": 16.289271446696667,
+        "mean_net_bps": 0.740421429395303,
+        "median_net_bps": -27.646213226146617,
+        "n": 22,
+        "win_rate": 0.3181818181818182
+      },
+      {
+        "bucket": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+        "cum_net_bps": 380.0507140225094,
+        "mean_net_bps": 38.00507140225094,
+        "median_net_bps": 54.32206222665908,
+        "n": 10,
+        "win_rate": 0.8
+      },
+      {
+        "bucket": "SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "cum_net_bps": 157.773911452924,
+        "mean_net_bps": 26.29565190882067,
+        "median_net_bps": 50.58858659786797,
+        "n": 6,
+        "win_rate": 0.6666666666666666
+      },
+      {
+        "bucket": "BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30",
+        "cum_net_bps": 55.02162805304743,
+        "mean_net_bps": 55.02162805304743,
+        "median_net_bps": 55.02162805304743,
+        "n": 1,
+        "win_rate": 1.0
+      },
+      {
+        "bucket": "ETH_BUY_LIQ_LONG_200K_BTC_PRE15_TP120_SL40_BE30_DELAY60",
+        "cum_net_bps": -24.581749747544865,
+        "mean_net_bps": -24.581749747544865,
+        "median_net_bps": -24.581749747544865,
+        "n": 1,
+        "win_rate": 0.0
+      }
+    ],
+    "by_session": [
+      {
+        "bucket": "13-17 UTC",
+        "cum_net_bps": 328.5741731968433,
+        "mean_net_bps": 13.69059054986847,
+        "median_net_bps": 51.018888019398005,
+        "n": 24,
+        "win_rate": 0.5416666666666666
+      },
+      {
+        "bucket": "17-24 UTC",
+        "cum_net_bps": 10.412615618504601,
+        "mean_net_bps": 0.45272241819585224,
+        "median_net_bps": -10.861424761711358,
+        "n": 23,
+        "win_rate": 0.391304347826087
+      },
+      {
+        "bucket": "07-13 UTC",
+        "cum_net_bps": 416.3253915727677,
+        "mean_net_bps": 46.25837684141864,
+        "median_net_bps": 49.860268001735754,
+        "n": 9,
+        "win_rate": 0.6666666666666666
+      },
+      {
+        "bucket": "00-07 UTC",
+        "cum_net_bps": 248.2652576606963,
+        "mean_net_bps": 35.46646538009947,
+        "median_net_bps": 56.31634792107259,
+        "n": 7,
+        "win_rate": 0.7142857142857143
+      }
+    ]
+  },
+  "correct_loss_warnings": {
+    "base_rate_v1": [
+      {
+        "actual_net_bps": -53.368452815103446,
+        "cluster_liq_count": 5,
+        "cluster_notional": 90925.93219,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -42.052446299797495,
+        "exit_reason": "SL",
+        "expected_net_bps": -11.31600651530595,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-22T16:10:22.356000+00:00",
+        "trade_id": "P418"
+      },
+      {
+        "actual_net_bps": -48.031799908660616,
+        "cluster_liq_count": 2,
+        "cluster_notional": 154940.24541,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": -37.170375146949254,
+        "exit_reason": "SL",
+        "expected_net_bps": -10.861424761711358,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-22T13:44:10.354000+00:00",
+        "trade_id": "P416"
+      },
+      {
+        "actual_net_bps": -11.770588268900541,
+        "cluster_liq_count": 11,
+        "cluster_notional": 177012.83802,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -1.4273720258749822,
+        "exit_reason": "BE",
+        "expected_net_bps": -10.343216243025559,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-22T11:05:18.417000+00:00",
+        "trade_id": "P394"
+      },
+      {
+        "actual_net_bps": -7.713255248277328,
+        "cluster_liq_count": 7,
+        "cluster_notional": 55976.46575999999,
+        "cluster_shape_label": "stretched_120s",
+        "error_bps": 3.1481695134340306,
+        "exit_reason": "BE",
+        "expected_net_bps": -10.861424761711358,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-22T07:11:07.643000+00:00",
+        "trade_id": "P391"
+      },
+      {
+        "actual_net_bps": -43.521838183392695,
+        "cluster_liq_count": 1,
+        "cluster_notional": 57157.49274000001,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": -33.17862194036714,
+        "exit_reason": "TIME",
+        "expected_net_bps": -10.343216243025559,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T23:18:48.431000+00:00",
+        "trade_id": "P361"
+      },
+      {
+        "actual_net_bps": -24.581749747544865,
+        "cluster_liq_count": 7,
+        "cluster_notional": 324826.40489,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": -5.864343030205102,
+        "exit_reason": "TIME",
+        "expected_net_bps": -18.717406717339763,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_BTC_PRE15_TP120_SL40_BE30_DELAY60",
+        "signal_ts_utc": "2026-06-20T22:32:10.147000+00:00",
+        "trade_id": "P357"
+      },
+      {
+        "actual_net_bps": -51.642145843699815,
+        "cluster_liq_count": 5,
+        "cluster_notional": 2246396.42293,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -40.78072108198846,
+        "exit_reason": "SL",
+        "expected_net_bps": -10.861424761711358,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T15:20:26.344000+00:00",
+        "trade_id": "P348"
+      },
+      {
+        "actual_net_bps": -51.8708648757993,
+        "cluster_liq_count": 2,
+        "cluster_notional": 101877.84641999999,
+        "cluster_shape_label": "",
+        "error_bps": -41.00944011408794,
+        "exit_reason": "SL",
+        "expected_net_bps": -10.861424761711358,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-15T22:35:35.460000+00:00",
+        "trade_id": "P169"
+      },
+      {
+        "actual_net_bps": -55.59389477622542,
+        "cluster_liq_count": 3,
+        "cluster_notional": 76855.88327,
+        "cluster_shape_label": "",
+        "error_bps": -45.25067853319986,
+        "exit_reason": "SL",
+        "expected_net_bps": -10.343216243025559,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-15T13:32:04.231000+00:00",
+        "trade_id": "P150"
+      },
+      {
+        "actual_net_bps": -46.29973899129289,
+        "cluster_liq_count": 14,
+        "cluster_notional": 185562.30116,
+        "cluster_shape_label": "",
+        "error_bps": -36.47473126695313,
+        "exit_reason": "SL",
+        "expected_net_bps": -9.825007724339759,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-15T13:25:20.594000+00:00",
+        "trade_id": "P149"
+      }
+    ],
+    "knn_v0": [
+      {
+        "actual_net_bps": -53.368452815103446,
+        "cluster_liq_count": 5,
+        "cluster_notional": 90925.93219,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -41.597864546202906,
+        "exit_reason": "SL",
+        "expected_net_bps": -11.770588268900541,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-22T16:10:22.356000+00:00",
+        "trade_id": "P418"
+      },
+      {
+        "actual_net_bps": -48.031799908660616,
+        "cluster_liq_count": 2,
+        "cluster_notional": 154940.24541,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": -4.509961725267921,
+        "exit_reason": "SL",
+        "expected_net_bps": -43.521838183392695,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-22T13:44:10.354000+00:00",
+        "trade_id": "P416"
+      },
+      {
+        "actual_net_bps": -11.770588268900541,
+        "cluster_liq_count": 11,
+        "cluster_notional": 177012.83802,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": 34.52915072239235,
+        "exit_reason": "BE",
+        "expected_net_bps": -46.29973899129289,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-22T11:05:18.417000+00:00",
+        "trade_id": "P394"
+      },
+      {
+        "actual_net_bps": -7.713255248277328,
+        "cluster_liq_count": 7,
+        "cluster_notional": 55976.46575999999,
+        "cluster_shape_label": "stretched_120s",
+        "error_bps": 1.1368331795973354,
+        "exit_reason": "BE",
+        "expected_net_bps": -8.850088427874663,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-22T07:11:07.643000+00:00",
+        "trade_id": "P391"
+      },
+      {
+        "actual_net_bps": -17.330453563715583,
+        "cluster_liq_count": 3,
+        "cluster_notional": 271813.31182999996,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": 2.8383692174659387,
+        "exit_reason": "TIME",
+        "expected_net_bps": -20.16882278118152,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-22T05:08:09.138000+00:00",
+        "trade_id": "P389"
+      },
+      {
+        "actual_net_bps": -43.521838183392695,
+        "cluster_liq_count": 1,
+        "cluster_notional": 57157.49274000001,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": 2.2990310594947445,
+        "exit_reason": "TIME",
+        "expected_net_bps": -45.82086924288744,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T23:18:48.431000+00:00",
+        "trade_id": "P361"
+      },
+      {
+        "actual_net_bps": -24.581749747544865,
+        "cluster_liq_count": 7,
+        "cluster_notional": 324826.40489,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": -5.864343030205102,
+        "exit_reason": "TIME",
+        "expected_net_bps": -18.717406717339763,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_BTC_PRE15_TP120_SL40_BE30_DELAY60",
+        "signal_ts_utc": "2026-06-20T22:32:10.147000+00:00",
+        "trade_id": "P357"
+      },
+      {
+        "actual_net_bps": -51.8708648757993,
+        "cluster_liq_count": 2,
+        "cluster_notional": 101877.84641999999,
+        "cluster_shape_label": "",
+        "error_bps": -6.049995632911859,
+        "exit_reason": "SL",
+        "expected_net_bps": -45.82086924288744,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-15T22:35:35.460000+00:00",
+        "trade_id": "P169"
+      },
+      {
+        "actual_net_bps": -55.59389477622542,
+        "cluster_liq_count": 3,
+        "cluster_notional": 76855.88327,
+        "cluster_shape_label": "",
+        "error_bps": -45.768887051885656,
+        "exit_reason": "SL",
+        "expected_net_bps": -9.825007724339759,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-15T13:32:04.231000+00:00",
+        "trade_id": "P150"
+      },
+      {
+        "actual_net_bps": -46.29973899129289,
+        "cluster_liq_count": 14,
+        "cluster_notional": 185562.30116,
+        "cluster_shape_label": "",
+        "error_bps": 1.4566273597720354,
+        "exit_reason": "SL",
+        "expected_net_bps": -47.756366351064926,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-15T13:25:20.594000+00:00",
+        "trade_id": "P149"
+      }
+    ],
+    "knn_v1": [
+      {
+        "actual_net_bps": -53.368452815103446,
+        "cluster_liq_count": 5,
+        "cluster_notional": 90925.93219,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -43.54344509076368,
+        "exit_reason": "SL",
+        "expected_net_bps": -9.825007724339759,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-22T16:10:22.356000+00:00",
+        "trade_id": "P418"
+      },
+      {
+        "actual_net_bps": -48.031799908660616,
+        "cluster_liq_count": 2,
+        "cluster_notional": 154940.24541,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": -4.509961725267921,
+        "exit_reason": "SL",
+        "expected_net_bps": -43.521838183392695,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-22T13:44:10.354000+00:00",
+        "trade_id": "P416"
+      },
+      {
+        "actual_net_bps": -11.770588268900541,
+        "cluster_liq_count": 11,
+        "cluster_notional": 177012.83802,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": 34.52915072239235,
+        "exit_reason": "BE",
+        "expected_net_bps": -46.29973899129289,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-22T11:05:18.417000+00:00",
+        "trade_id": "P394"
+      },
+      {
+        "actual_net_bps": -7.713255248277328,
+        "cluster_liq_count": 7,
+        "cluster_notional": 55976.46575999999,
+        "cluster_shape_label": "stretched_120s",
+        "error_bps": 2.1117524760624313,
+        "exit_reason": "BE",
+        "expected_net_bps": -9.825007724339759,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-22T07:11:07.643000+00:00",
+        "trade_id": "P391"
+      },
+      {
+        "actual_net_bps": -17.330453563715583,
+        "cluster_liq_count": 3,
+        "cluster_notional": 271813.31182999996,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": 2.8383692174659387,
+        "exit_reason": "TIME",
+        "expected_net_bps": -20.16882278118152,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-22T05:08:09.138000+00:00",
+        "trade_id": "P389"
+      },
+      {
+        "actual_net_bps": -43.521838183392695,
+        "cluster_liq_count": 1,
+        "cluster_notional": 57157.49274000001,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": 2.2990310594947445,
+        "exit_reason": "TIME",
+        "expected_net_bps": -45.82086924288744,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T23:18:48.431000+00:00",
+        "trade_id": "P361"
+      },
+      {
+        "actual_net_bps": -24.581749747544865,
+        "cluster_liq_count": 7,
+        "cluster_notional": 324826.40489,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": -5.864343030205102,
+        "exit_reason": "TIME",
+        "expected_net_bps": -18.717406717339763,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_BTC_PRE15_TP120_SL40_BE30_DELAY60",
+        "signal_ts_utc": "2026-06-20T22:32:10.147000+00:00",
+        "trade_id": "P357"
+      },
+      {
+        "actual_net_bps": -51.8708648757993,
+        "cluster_liq_count": 2,
+        "cluster_notional": 101877.84641999999,
+        "cluster_shape_label": "",
+        "error_bps": -6.049995632911859,
+        "exit_reason": "SL",
+        "expected_net_bps": -45.82086924288744,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-15T22:35:35.460000+00:00",
+        "trade_id": "P169"
+      },
+      {
+        "actual_net_bps": -55.59389477622542,
+        "cluster_liq_count": 3,
+        "cluster_notional": 76855.88327,
+        "cluster_shape_label": "",
+        "error_bps": -45.768887051885656,
+        "exit_reason": "SL",
+        "expected_net_bps": -9.825007724339759,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-15T13:32:04.231000+00:00",
+        "trade_id": "P150"
+      },
+      {
+        "actual_net_bps": -46.29973899129289,
+        "cluster_liq_count": 14,
+        "cluster_notional": 185562.30116,
+        "cluster_shape_label": "",
+        "error_bps": 1.4566273597720354,
+        "exit_reason": "SL",
+        "expected_net_bps": -47.756366351064926,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-15T13:25:20.594000+00:00",
+        "trade_id": "P149"
+      }
+    ],
+    "knn_v2": [
+      {
+        "actual_net_bps": -53.368452815103446,
+        "cluster_liq_count": 5,
+        "cluster_notional": 90925.93219,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -43.54344509076368,
+        "exit_reason": "SL",
+        "expected_net_bps": -9.825007724339759,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-22T16:10:22.356000+00:00",
+        "trade_id": "P418"
+      },
+      {
+        "actual_net_bps": -48.031799908660616,
+        "cluster_liq_count": 2,
+        "cluster_notional": 154940.24541,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": -2.2109306657731764,
+        "exit_reason": "SL",
+        "expected_net_bps": -45.82086924288744,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-22T13:44:10.354000+00:00",
+        "trade_id": "P416"
+      },
+      {
+        "actual_net_bps": -43.521838183392695,
+        "cluster_liq_count": 1,
+        "cluster_notional": 57157.49274000001,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": 2.2990310594947445,
+        "exit_reason": "TIME",
+        "expected_net_bps": -45.82086924288744,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T23:18:48.431000+00:00",
+        "trade_id": "P361"
+      },
+      {
+        "actual_net_bps": -24.581749747544865,
+        "cluster_liq_count": 7,
+        "cluster_notional": 324826.40489,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": -5.864343030205102,
+        "exit_reason": "TIME",
+        "expected_net_bps": -18.717406717339763,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_BTC_PRE15_TP120_SL40_BE30_DELAY60",
+        "signal_ts_utc": "2026-06-20T22:32:10.147000+00:00",
+        "trade_id": "P357"
+      },
+      {
+        "actual_net_bps": -51.642145843699815,
+        "cluster_liq_count": 5,
+        "cluster_notional": 2246396.42293,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -41.81713811936005,
+        "exit_reason": "SL",
+        "expected_net_bps": -9.825007724339759,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T15:20:26.344000+00:00",
+        "trade_id": "P348"
+      },
+      {
+        "actual_net_bps": -51.8708648757993,
+        "cluster_liq_count": 2,
+        "cluster_notional": 101877.84641999999,
+        "cluster_shape_label": "",
+        "error_bps": -6.049995632911859,
+        "exit_reason": "SL",
+        "expected_net_bps": -45.82086924288744,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-15T22:35:35.460000+00:00",
+        "trade_id": "P169"
+      },
+      {
+        "actual_net_bps": -55.59389477622542,
+        "cluster_liq_count": 3,
+        "cluster_notional": 76855.88327,
+        "cluster_shape_label": "",
+        "error_bps": -45.768887051885656,
+        "exit_reason": "SL",
+        "expected_net_bps": -9.825007724339759,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-15T13:32:04.231000+00:00",
+        "trade_id": "P150"
+      },
+      {
+        "actual_net_bps": -46.29973899129289,
+        "cluster_liq_count": 14,
+        "cluster_notional": 185562.30116,
+        "cluster_shape_label": "",
+        "error_bps": -36.47473126695313,
+        "exit_reason": "SL",
+        "expected_net_bps": -9.825007724339759,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-15T13:25:20.594000+00:00",
+        "trade_id": "P149"
+      },
+      {
+        "actual_net_bps": -45.82086924288744,
+        "cluster_liq_count": 2,
+        "cluster_notional": 58150.63109000001,
+        "cluster_shape_label": "",
+        "error_bps": -35.995861518547684,
+        "exit_reason": "SL",
+        "expected_net_bps": -9.825007724339759,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-14T22:44:24.574000+00:00",
+        "trade_id": "P116"
+      },
+      {
+        "actual_net_bps": -57.200659727265226,
+        "cluster_liq_count": 16,
+        "cluster_notional": 2423557.94746,
+        "cluster_shape_label": "",
+        "error_bps": -50.6670082467479,
+        "exit_reason": "SL",
+        "expected_net_bps": -6.533651480517326,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-14T21:50:02.492000+00:00",
+        "trade_id": "P114"
+      }
+    ]
+  },
+  "false_green_worst": {
+    "base_rate_v1": [
+      {
+        "actual_net_bps": -63.159396525499105,
+        "cluster_liq_count": 4,
+        "cluster_notional": 690696.2582,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": -125.37613080065043,
+        "exit_reason": "SL",
+        "expected_net_bps": 62.216734275151325,
+        "rule_name": "SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T15:20:26.561000+00:00",
+        "trade_id": "P349"
+      },
+      {
+        "actual_net_bps": -56.762407572561585,
+        "cluster_liq_count": 4,
+        "cluster_notional": 296517.06956000003,
+        "cluster_shape_label": "",
+        "error_bps": -108.72376268385628,
+        "exit_reason": "SL",
+        "expected_net_bps": 51.961355111294694,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-11T18:16:01.234000+00:00",
+        "trade_id": "P064"
+      },
+      {
+        "actual_net_bps": -51.642145843699815,
+        "cluster_liq_count": 5,
+        "cluster_notional": 2246396.42293,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -104.11151841752273,
+        "exit_reason": "SL",
+        "expected_net_bps": 52.469372573822916,
+        "rule_name": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T15:20:26.344000+00:00",
+        "trade_id": "P347"
+      },
+      {
+        "actual_net_bps": -50.9186892872556,
+        "cluster_liq_count": 2,
+        "cluster_notional": 223431.5176,
+        "cluster_shape_label": "",
+        "error_bps": -102.52079269734142,
+        "exit_reason": "SL",
+        "expected_net_bps": 51.60210341008582,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-15T17:05:38.653000+00:00",
+        "trade_id": "P166"
+      },
+      {
+        "actual_net_bps": -51.642145843699815,
+        "cluster_liq_count": 5,
+        "cluster_notional": 2246396.42293,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -101.42727959784293,
+        "exit_reason": "SL",
+        "expected_net_bps": 49.785133754143104,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T15:20:26.344000+00:00",
+        "trade_id": "P346"
+      },
+      {
+        "actual_net_bps": -47.73834695882951,
+        "cluster_liq_count": 13,
+        "cluster_notional": 662072.22542,
+        "cluster_shape_label": "",
+        "error_bps": -101.23255427245068,
+        "exit_reason": "SL",
+        "expected_net_bps": 53.494207313621175,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-15T15:51:14.509000+00:00",
+        "trade_id": "P163"
+      },
+      {
+        "actual_net_bps": -48.84834355232683,
+        "cluster_liq_count": 15,
+        "cluster_notional": 2279965.43899,
+        "cluster_shape_label": "",
+        "error_bps": -98.70861155406259,
+        "exit_reason": "SL",
+        "expected_net_bps": 49.860268001735754,
+        "rule_name": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-17T02:23:19.563000+00:00",
+        "trade_id": "P217"
+      },
+      {
+        "actual_net_bps": -18.671099079065332,
+        "cluster_liq_count": 7,
+        "cluster_notional": 324826.40489,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": -67.37354643448,
+        "exit_reason": "TIME",
+        "expected_net_bps": 48.70244735541468,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T22:32:10.147000+00:00",
+        "trade_id": "P358"
+      },
+      {
+        "actual_net_bps": -17.330453563715583,
+        "cluster_liq_count": 3,
+        "cluster_notional": 271813.31182999996,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": -65.02534876799449,
+        "exit_reason": "TIME",
+        "expected_net_bps": 47.69489520427891,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-22T05:08:09.138000+00:00",
+        "trade_id": "P389"
+      },
+      {
+        "actual_net_bps": -10.703262645934696,
+        "cluster_liq_count": 15,
+        "cluster_notional": 360842.59728,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -60.49342364824105,
+        "exit_reason": "BE",
+        "expected_net_bps": 49.79016100230635,
+        "rule_name": "SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T22:32:24.385000+00:00",
+        "trade_id": "P360"
+      }
+    ],
+    "knn_v0": [
+      {
+        "actual_net_bps": -51.642145843699815,
+        "cluster_liq_count": 5,
+        "cluster_notional": 2246396.42293,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -151.31012879380535,
+        "exit_reason": "SL",
+        "expected_net_bps": 99.66798295010554,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T15:20:26.344000+00:00",
+        "trade_id": "P348"
+      },
+      {
+        "actual_net_bps": -63.159396525499105,
+        "cluster_liq_count": 4,
+        "cluster_notional": 690696.2582,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": -140.5935701949668,
+        "exit_reason": "SL",
+        "expected_net_bps": 77.4341736694677,
+        "rule_name": "SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T15:20:26.561000+00:00",
+        "trade_id": "P349"
+      },
+      {
+        "actual_net_bps": -56.762407572561585,
+        "cluster_liq_count": 4,
+        "cluster_notional": 296517.06956000003,
+        "cluster_shape_label": "",
+        "error_bps": -126.08048915463449,
+        "exit_reason": "SL",
+        "expected_net_bps": 69.3180815820729,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-11T18:16:01.234000+00:00",
+        "trade_id": "P064"
+      },
+      {
+        "actual_net_bps": -50.9186892872556,
+        "cluster_liq_count": 2,
+        "cluster_notional": 223431.5176,
+        "cluster_shape_label": "",
+        "error_bps": -111.23061237471364,
+        "exit_reason": "SL",
+        "expected_net_bps": 60.31192308745804,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-15T17:05:38.653000+00:00",
+        "trade_id": "P166"
+      },
+      {
+        "actual_net_bps": -51.642145843699815,
+        "cluster_liq_count": 5,
+        "cluster_notional": 2246396.42293,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -101.50241384543557,
+        "exit_reason": "SL",
+        "expected_net_bps": 49.860268001735754,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T15:20:26.344000+00:00",
+        "trade_id": "P346"
+      },
+      {
+        "actual_net_bps": -51.642145843699815,
+        "cluster_liq_count": 5,
+        "cluster_notional": 2246396.42293,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -101.50241384543557,
+        "exit_reason": "SL",
+        "expected_net_bps": 49.860268001735754,
+        "rule_name": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T15:20:26.344000+00:00",
+        "trade_id": "P347"
+      },
+      {
+        "actual_net_bps": -48.84834355232683,
+        "cluster_liq_count": 15,
+        "cluster_notional": 2279965.43899,
+        "cluster_shape_label": "",
+        "error_bps": -98.70861155406259,
+        "exit_reason": "SL",
+        "expected_net_bps": 49.860268001735754,
+        "rule_name": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-17T02:23:19.563000+00:00",
+        "trade_id": "P217"
+      },
+      {
+        "actual_net_bps": -47.73834695882951,
+        "cluster_liq_count": 13,
+        "cluster_notional": 662072.22542,
+        "cluster_shape_label": "",
+        "error_bps": -95.43324216310842,
+        "exit_reason": "SL",
+        "expected_net_bps": 47.69489520427891,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-15T15:51:14.509000+00:00",
+        "trade_id": "P163"
+      },
+      {
+        "actual_net_bps": -18.671099079065332,
+        "cluster_liq_count": 7,
+        "cluster_notional": 324826.40489,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": -72.1653063926865,
+        "exit_reason": "TIME",
+        "expected_net_bps": 53.494207313621175,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T22:32:10.147000+00:00",
+        "trade_id": "P358"
+      },
+      {
+        "actual_net_bps": -10.703262645934696,
+        "cluster_liq_count": 15,
+        "cluster_notional": 360842.59728,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -63.284289769712444,
+        "exit_reason": "BE",
+        "expected_net_bps": 52.581027123777744,
+        "rule_name": "SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T22:32:24.385000+00:00",
+        "trade_id": "P360"
+      }
+    ],
+    "knn_v1": [
+      {
+        "actual_net_bps": -51.642145843699815,
+        "cluster_liq_count": 5,
+        "cluster_notional": 2246396.42293,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -151.31012879380535,
+        "exit_reason": "SL",
+        "expected_net_bps": 99.66798295010554,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T15:20:26.344000+00:00",
+        "trade_id": "P348"
+      },
+      {
+        "actual_net_bps": -63.159396525499105,
+        "cluster_liq_count": 4,
+        "cluster_notional": 690696.2582,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": -140.5935701949668,
+        "exit_reason": "SL",
+        "expected_net_bps": 77.4341736694677,
+        "rule_name": "SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T15:20:26.561000+00:00",
+        "trade_id": "P349"
+      },
+      {
+        "actual_net_bps": -56.762407572561585,
+        "cluster_liq_count": 4,
+        "cluster_notional": 296517.06956000003,
+        "cluster_shape_label": "",
+        "error_bps": -126.08048915463449,
+        "exit_reason": "SL",
+        "expected_net_bps": 69.3180815820729,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-11T18:16:01.234000+00:00",
+        "trade_id": "P064"
+      },
+      {
+        "actual_net_bps": -50.9186892872556,
+        "cluster_liq_count": 2,
+        "cluster_notional": 223431.5176,
+        "cluster_shape_label": "",
+        "error_bps": -111.23061237471364,
+        "exit_reason": "SL",
+        "expected_net_bps": 60.31192308745804,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-15T17:05:38.653000+00:00",
+        "trade_id": "P166"
+      },
+      {
+        "actual_net_bps": -51.642145843699815,
+        "cluster_liq_count": 5,
+        "cluster_notional": 2246396.42293,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -101.50241384543557,
+        "exit_reason": "SL",
+        "expected_net_bps": 49.860268001735754,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T15:20:26.344000+00:00",
+        "trade_id": "P346"
+      },
+      {
+        "actual_net_bps": -51.642145843699815,
+        "cluster_liq_count": 5,
+        "cluster_notional": 2246396.42293,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -101.50241384543557,
+        "exit_reason": "SL",
+        "expected_net_bps": 49.860268001735754,
+        "rule_name": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T15:20:26.344000+00:00",
+        "trade_id": "P347"
+      },
+      {
+        "actual_net_bps": -48.84834355232683,
+        "cluster_liq_count": 15,
+        "cluster_notional": 2279965.43899,
+        "cluster_shape_label": "",
+        "error_bps": -98.70861155406259,
+        "exit_reason": "SL",
+        "expected_net_bps": 49.860268001735754,
+        "rule_name": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-17T02:23:19.563000+00:00",
+        "trade_id": "P217"
+      },
+      {
+        "actual_net_bps": -47.73834695882951,
+        "cluster_liq_count": 13,
+        "cluster_notional": 662072.22542,
+        "cluster_shape_label": "",
+        "error_bps": -95.43324216310842,
+        "exit_reason": "SL",
+        "expected_net_bps": 47.69489520427891,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-15T15:51:14.509000+00:00",
+        "trade_id": "P163"
+      },
+      {
+        "actual_net_bps": -18.671099079065332,
+        "cluster_liq_count": 7,
+        "cluster_notional": 324826.40489,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": -72.1653063926865,
+        "exit_reason": "TIME",
+        "expected_net_bps": 53.494207313621175,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T22:32:10.147000+00:00",
+        "trade_id": "P358"
+      },
+      {
+        "actual_net_bps": -10.703262645934696,
+        "cluster_liq_count": 15,
+        "cluster_notional": 360842.59728,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -63.284289769712444,
+        "exit_reason": "BE",
+        "expected_net_bps": 52.581027123777744,
+        "rule_name": "SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T22:32:24.385000+00:00",
+        "trade_id": "P360"
+      }
+    ],
+    "knn_v2": [
+      {
+        "actual_net_bps": -63.159396525499105,
+        "cluster_liq_count": 4,
+        "cluster_notional": 690696.2582,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": -140.5935701949668,
+        "exit_reason": "SL",
+        "expected_net_bps": 77.4341736694677,
+        "rule_name": "SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T15:20:26.561000+00:00",
+        "trade_id": "P349"
+      },
+      {
+        "actual_net_bps": -56.762407572561585,
+        "cluster_liq_count": 4,
+        "cluster_notional": 296517.06956000003,
+        "cluster_shape_label": "",
+        "error_bps": -126.08048915463449,
+        "exit_reason": "SL",
+        "expected_net_bps": 69.3180815820729,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-11T18:16:01.234000+00:00",
+        "trade_id": "P064"
+      },
+      {
+        "actual_net_bps": -7.713255248277328,
+        "cluster_liq_count": 7,
+        "cluster_notional": 55976.46575999999,
+        "cluster_shape_label": "stretched_120s",
+        "error_bps": -120.86529857109466,
+        "exit_reason": "BE",
+        "expected_net_bps": 113.15204332281733,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-22T07:11:07.643000+00:00",
+        "trade_id": "P391"
+      },
+      {
+        "actual_net_bps": -11.770588268900541,
+        "cluster_liq_count": 11,
+        "cluster_notional": 177012.83802,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -111.43857121900608,
+        "exit_reason": "BE",
+        "expected_net_bps": 99.66798295010554,
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "signal_ts_utc": "2026-06-22T11:05:18.417000+00:00",
+        "trade_id": "P394"
+      },
+      {
+        "actual_net_bps": -51.642145843699815,
+        "cluster_liq_count": 5,
+        "cluster_notional": 2246396.42293,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -105.136353157321,
+        "exit_reason": "SL",
+        "expected_net_bps": 53.494207313621175,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T15:20:26.344000+00:00",
+        "trade_id": "P346"
+      },
+      {
+        "actual_net_bps": -50.9186892872556,
+        "cluster_liq_count": 2,
+        "cluster_notional": 223431.5176,
+        "cluster_shape_label": "",
+        "error_bps": -104.41289660087678,
+        "exit_reason": "SL",
+        "expected_net_bps": 53.494207313621175,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-15T17:05:38.653000+00:00",
+        "trade_id": "P166"
+      },
+      {
+        "actual_net_bps": -51.642145843699815,
+        "cluster_liq_count": 5,
+        "cluster_notional": 2246396.42293,
+        "cluster_shape_label": "distributed_mid_duration",
+        "error_bps": -101.50241384543557,
+        "exit_reason": "SL",
+        "expected_net_bps": 49.860268001735754,
+        "rule_name": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T15:20:26.344000+00:00",
+        "trade_id": "P347"
+      },
+      {
+        "actual_net_bps": -48.84834355232683,
+        "cluster_liq_count": 15,
+        "cluster_notional": 2279965.43899,
+        "cluster_shape_label": "",
+        "error_bps": -98.70861155406259,
+        "exit_reason": "SL",
+        "expected_net_bps": 49.860268001735754,
+        "rule_name": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-17T02:23:19.563000+00:00",
+        "trade_id": "P217"
+      },
+      {
+        "actual_net_bps": -47.73834695882951,
+        "cluster_liq_count": 13,
+        "cluster_notional": 662072.22542,
+        "cluster_shape_label": "",
+        "error_bps": -95.43324216310842,
+        "exit_reason": "SL",
+        "expected_net_bps": 47.69489520427891,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-15T15:51:14.509000+00:00",
+        "trade_id": "P163"
+      },
+      {
+        "actual_net_bps": -18.671099079065332,
+        "cluster_liq_count": 7,
+        "cluster_notional": 324826.40489,
+        "cluster_shape_label": "single_dominant_80pct",
+        "error_bps": -78.98302216652337,
+        "exit_reason": "TIME",
+        "expected_net_bps": 60.31192308745804,
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "signal_ts_utc": "2026-06-20T22:32:10.147000+00:00",
+        "trade_id": "P358"
+      }
+    ]
+  },
+  "generated_at_utc": "2026-06-22T18:29:56.129649+00:00",
+  "guardrail_summary": [
+    {
+      "closed": 26,
+      "cum_net_bps": 142.3597383865339,
+      "level": "warning",
+      "loss_count": 16,
+      "loss_rate": 0.6153846153846154,
+      "mean_net_bps": 5.475374553328227,
+      "median_net_bps": -11.31600651530595,
+      "signals": 267,
+      "win_count": 10
+    },
+    {
+      "closed": 34,
+      "cum_net_bps": 899.1011041224182,
+      "level": "ok",
+      "loss_count": 12,
+      "loss_rate": 0.35294117647058826,
+      "mean_net_bps": 26.444150121247592,
+      "median_net_bps": 51.48597529202528,
+      "signals": 88,
+      "win_count": 22
+    },
+    {
+      "closed": 7,
+      "cum_net_bps": 143.4944521865018,
+      "level": "unknown",
+      "loss_count": 3,
+      "loss_rate": 0.42857142857142855,
+      "mean_net_bps": 20.499207455214542,
+      "median_net_bps": 34.604628640516474,
+      "signals": 36,
+      "win_count": 4
+    },
+    {
+      "closed": 3,
+      "cum_net_bps": -37.88340446014017,
+      "level": "caution",
+      "loss_count": 2,
+      "loss_rate": 0.6666666666666666,
+      "mean_net_bps": -12.62780148671339,
+      "median_net_bps": -17.330453563715583,
+      "signals": 27,
+      "win_count": 1
+    }
+  ],
+  "latest_closed_loss": {
+    "be_active": false,
+    "be_trigger_price": 1746.5219791145798,
+    "cluster_duration_sec": 18.036,
+    "cluster_liq_count": 5,
+    "cluster_max_single_liq_share": 57.6950917482807,
+    "cluster_notional": 90925.93219,
+    "cluster_shape_label": "distributed_mid_duration",
+    "entry_adverse_bps": 4.117130468546374,
+    "entry_price": 1742.02,
+    "entry_ts_utc": "2026-06-22T16:10:23+00:00",
+    "exit_adverse_bps": 0.4289861721521974,
+    "exit_price": 1734.12,
+    "exit_reason": "SL",
+    "exit_ts_utc": "2026-06-22T16:46:25+00:00",
+    "fee_cost_bps": 8.0,
+    "gross_bps": -40.76490775311868,
+    "net_bps": -53.368452815103446,
+    "regime": {
+      "agg_trade_count": 879959,
+      "agg_trade_notional": 5479508637.41343,
+      "buy_liq_count": 422,
+      "buy_liq_notional": 17578816.79739,
+      "checks": {
+        "agg_trade_count_gte": true,
+        "buy_liq_notional_gte": true,
+        "range_pct_gte": true,
+        "trend_pct_gte": true
+      },
+      "day_start_ts_ms": 1782086400000,
+      "pass": true,
+      "range_pct": 4.2603789629743805,
+      "thresholds": {
+        "global_regime": {
+          "enabled": true,
+          "min_agg_trade_count": 250000,
+          "min_buy_liq_notional": 5000000.0,
+          "min_range_pct": 2.5,
+          "min_trend_pct": 1.0
+        }
+      },
+      "trend_pct": 2.029168361066079,
+      "window": "utc_day_so_far"
+    },
+    "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+    "signal_ts_utc": "2026-06-22T16:10:22.356000+00:00",
+    "sl_price": 1734.33289252056,
+    "spread_cost_bps": 0.05742842128619395,
+    "tp_price": 1762.19366187832,
+    "trade_id": "P418"
+  },
+  "latest_guardrails": [
+    {
+      "exit_reason": "SL",
+      "headline": "MODEL WARNING: similar signals have negative expectancy.",
+      "level": "warning",
+      "net_bps": -53.368452815103446,
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "signal_id": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30:5940482",
+      "trade_id": "P418"
+    },
+    {
+      "exit_reason": null,
+      "headline": "MODEL WARNING: similar signals have negative expectancy.",
+      "level": "warning",
+      "net_bps": null,
+      "rule_name": null,
+      "signal_id": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30:5940455",
+      "trade_id": null
+    },
+    {
+      "exit_reason": "SL",
+      "headline": "MODEL WARNING: similar signals have negative expectancy.",
+      "level": "warning",
+      "net_bps": -48.031799908660616,
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "signal_id": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30:5940452",
+      "trade_id": "P416"
+    },
+    {
+      "exit_reason": null,
+      "headline": "MODEL WARNING: similar signals have negative expectancy.",
+      "level": "warning",
+      "net_bps": null,
+      "rule_name": null,
+      "signal_id": "ETH_BUY_LIQ_LONG_200K_BTC_PRE15_TP120_SL40_BE30_DELAY60:5940451",
+      "trade_id": null
+    },
+    {
+      "exit_reason": null,
+      "headline": "MODEL OK: no negative consensus.",
+      "level": "ok",
+      "net_bps": null,
+      "rule_name": null,
+      "signal_id": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30:5940451",
+      "trade_id": null
+    },
+    {
+      "exit_reason": "TP",
+      "headline": "MODEL OK: no negative consensus.",
+      "level": "ok",
+      "net_bps": 52.327776532245565,
+      "rule_name": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+      "signal_id": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30:5940451",
+      "trade_id": "P413"
+    },
+    {
+      "exit_reason": "TP",
+      "headline": "MODEL WARNING: similar signals have negative expectancy.",
+      "level": "warning",
+      "net_bps": 55.02162805304743,
+      "rule_name": "BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30",
+      "signal_id": "BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30:5940451",
+      "trade_id": "P412"
+    },
+    {
+      "exit_reason": null,
+      "headline": "MODEL WARNING: similar signals have negative expectancy.",
+      "level": "warning",
+      "net_bps": null,
+      "rule_name": null,
+      "signal_id": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30:5940451",
+      "trade_id": null
+    },
+    {
+      "exit_reason": null,
+      "headline": "MODEL WARNING: similar signals have negative expectancy.",
+      "level": "warning",
+      "net_bps": null,
+      "rule_name": null,
+      "signal_id": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30:5940450",
+      "trade_id": null
+    },
+    {
+      "exit_reason": "TP",
+      "headline": "MODEL OK: no negative consensus.",
+      "level": "ok",
+      "net_bps": 54.04042816952455,
+      "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+      "signal_id": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30:5940450",
+      "trade_id": "P409"
+    },
+    {
+      "exit_reason": null,
+      "headline": "MODEL OK: no negative consensus.",
+      "level": "ok",
+      "net_bps": null,
+      "rule_name": null,
+      "signal_id": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30:5940429",
+      "trade_id": null
+    },
+    {
+      "exit_reason": null,
+      "headline": "MODEL WARNING: similar signals have negative expectancy.",
+      "level": "warning",
+      "net_bps": null,
+      "rule_name": null,
+      "signal_id": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30:5940429",
+      "trade_id": null
+    }
+  ],
+  "ledger_db": "D:\\eclipse_scalper\\data\\s34_intelligence.db",
+  "model_summary": {
+    "base_rate_v1": {
+      "bias_bps": -4.953979832151362,
+      "false_green_count": 13,
+      "false_green_rate": 0.20634920634920634,
+      "hit_direction_rate": 0.6349206349206349,
+      "mae_bps": 45.31421930022163,
+      "missed_winner_count": 10,
+      "n": 63,
+      "optimism_rate": 0.5238095238095238,
+      "warned_loss_count": 17
+    },
+    "knn_v0": {
+      "bias_bps": -1.15974104310834,
+      "false_green_count": 13,
+      "false_green_rate": 0.20634920634920634,
+      "hit_direction_rate": 0.6190476190476191,
+      "mae_bps": 48.08479536484738,
+      "missed_winner_count": 11,
+      "n": 63,
+      "optimism_rate": 0.4444444444444444,
+      "warned_loss_count": 17
+    },
+    "knn_v1": {
+      "bias_bps": -1.012654016314522,
+      "false_green_count": 13,
+      "false_green_rate": 0.20634920634920634,
+      "hit_direction_rate": 0.6190476190476191,
+      "mae_bps": 48.01842996969177,
+      "missed_winner_count": 11,
+      "n": 63,
+      "optimism_rate": 0.42857142857142855,
+      "warned_loss_count": 17
+    },
+    "knn_v2": {
+      "bias_bps": -10.465655013235878,
+      "false_green_count": 15,
+      "false_green_rate": 0.23809523809523808,
+      "hit_direction_rate": 0.6190476190476191,
+      "mae_bps": 48.745107587904165,
+      "missed_winner_count": 9,
+      "n": 63,
+      "optimism_rate": 0.5238095238095238,
+      "warned_loss_count": 15
+    }
+  },
+  "trades_path": "D:\\eclipse_scalper\\reports\\research\\s34\\S34_SHADOW_PAPER_TRADES.json"
+}

@@ -1,0 +1,834 @@
+{
+  "generated_at_utc": "2026-06-28T17:55:40.386997+00:00",
+  "config": {
+    "holdout_frac": 0.3,
+    "cost_bps_rt": 6.1
+  },
+  "symbols": [
+    {
+      "symbol": "ETHUSDT",
+      "thresholds": {
+        "200K": {
+          "n_buy_events": 547,
+          "n_sell_events": 570,
+          "horizons": {
+            "1h": {
+              "n_buy": 547,
+              "n_sell": 569,
+              "buy_raw_median": -5.2,
+              "sell_raw_median": 9.1,
+              "signal_diff_bps": -14.3,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -13.7,
+              "cont_win_rate": 0.445,
+              "cont_cal_net_median_bps": -15.4,
+              "cont_hold_net_median_bps": -9.6
+            },
+            "2h": {
+              "n_buy": 547,
+              "n_sell": 568,
+              "buy_raw_median": -6.6,
+              "sell_raw_median": 11.5,
+              "signal_diff_bps": -18.1,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -14.4,
+              "cont_win_rate": 0.449,
+              "cont_cal_net_median_bps": -17.5,
+              "cont_hold_net_median_bps": -9.1
+            },
+            "4h": {
+              "n_buy": 547,
+              "n_sell": 568,
+              "buy_raw_median": -3.4,
+              "sell_raw_median": 15.6,
+              "signal_diff_bps": -19.0,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -14.8,
+              "cont_win_rate": 0.46,
+              "cont_cal_net_median_bps": -12.9,
+              "cont_hold_net_median_bps": -24.9
+            },
+            "8h": {
+              "n_buy": 545,
+              "n_sell": 568,
+              "buy_raw_median": -2.5,
+              "sell_raw_median": 7.9,
+              "signal_diff_bps": -10.4,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -11.1,
+              "cont_win_rate": 0.48,
+              "cont_cal_net_median_bps": -3.8,
+              "cont_hold_net_median_bps": -27.3
+            },
+            "12h": {
+              "n_buy": 544,
+              "n_sell": 567,
+              "buy_raw_median": -12.7,
+              "sell_raw_median": 8.6,
+              "signal_diff_bps": -21.3,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -17.1,
+              "cont_win_rate": 0.474,
+              "cont_cal_net_median_bps": -10.2,
+              "cont_hold_net_median_bps": -30.6
+            },
+            "24h": {
+              "n_buy": 542,
+              "n_sell": 564,
+              "buy_raw_median": -11.1,
+              "sell_raw_median": -1.8,
+              "signal_diff_bps": -9.3,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -9.9,
+              "cont_win_rate": 0.495,
+              "cont_cal_net_median_bps": -5.6,
+              "cont_hold_net_median_bps": -17.6
+            },
+            "48h": {
+              "n_buy": 538,
+              "n_sell": 560,
+              "buy_raw_median": 0.9,
+              "sell_raw_median": 17.5,
+              "signal_diff_bps": -16.6,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -17.6,
+              "cont_win_rate": 0.494,
+              "cont_cal_net_median_bps": -23.0,
+              "cont_hold_net_median_bps": -10.8
+            }
+          }
+        },
+        "500K": {
+          "n_buy_events": 215,
+          "n_sell_events": 226,
+          "horizons": {
+            "1h": {
+              "n_buy": 215,
+              "n_sell": 225,
+              "buy_raw_median": -19.7,
+              "sell_raw_median": 11.5,
+              "signal_diff_bps": -31.2,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -20.4,
+              "cont_win_rate": 0.414,
+              "cont_cal_net_median_bps": -24.5,
+              "cont_hold_net_median_bps": -8.6
+            },
+            "2h": {
+              "n_buy": 215,
+              "n_sell": 225,
+              "buy_raw_median": -31.6,
+              "sell_raw_median": 12.0,
+              "signal_diff_bps": -43.6,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -27.6,
+              "cont_win_rate": 0.402,
+              "cont_cal_net_median_bps": -36.0,
+              "cont_hold_net_median_bps": -10.3
+            },
+            "4h": {
+              "n_buy": 215,
+              "n_sell": 225,
+              "buy_raw_median": -18.1,
+              "sell_raw_median": 24.1,
+              "signal_diff_bps": -42.2,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -26.8,
+              "cont_win_rate": 0.43,
+              "cont_cal_net_median_bps": -25.7,
+              "cont_hold_net_median_bps": -27.7
+            },
+            "8h": {
+              "n_buy": 215,
+              "n_sell": 225,
+              "buy_raw_median": -18.0,
+              "sell_raw_median": 4.9,
+              "signal_diff_bps": -22.9,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -18.4,
+              "cont_win_rate": 0.455,
+              "cont_cal_net_median_bps": -19.4,
+              "cont_hold_net_median_bps": -13.2
+            },
+            "12h": {
+              "n_buy": 214,
+              "n_sell": 225,
+              "buy_raw_median": -59.2,
+              "sell_raw_median": 10.7,
+              "signal_diff_bps": -69.9,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -27.8,
+              "cont_win_rate": 0.44,
+              "cont_cal_net_median_bps": -43.0,
+              "cont_hold_net_median_bps": 9.4
+            },
+            "24h": {
+              "n_buy": 214,
+              "n_sell": 223,
+              "buy_raw_median": -73.8,
+              "sell_raw_median": -11.9,
+              "signal_diff_bps": -61.9,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -26.0,
+              "cont_win_rate": 0.469,
+              "cont_cal_net_median_bps": -27.8,
+              "cont_hold_net_median_bps": -12.4
+            },
+            "48h": {
+              "n_buy": 212,
+              "n_sell": 221,
+              "buy_raw_median": -76.3,
+              "sell_raw_median": -2.9,
+              "signal_diff_bps": -73.4,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -39.7,
+              "cont_win_rate": 0.469,
+              "cont_cal_net_median_bps": -46.7,
+              "cont_hold_net_median_bps": -1.3
+            }
+          }
+        },
+        "1000K": {
+          "n_buy_events": 120,
+          "n_sell_events": 118,
+          "horizons": {
+            "1h": {
+              "n_buy": 120,
+              "n_sell": 117,
+              "buy_raw_median": -21.1,
+              "sell_raw_median": 7.9,
+              "signal_diff_bps": -29.0,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -20.0,
+              "cont_win_rate": 0.38,
+              "cont_cal_net_median_bps": -19.4,
+              "cont_hold_net_median_bps": -21.9
+            },
+            "2h": {
+              "n_buy": 120,
+              "n_sell": 117,
+              "buy_raw_median": -19.0,
+              "sell_raw_median": 15.3,
+              "signal_diff_bps": -34.3,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -22.8,
+              "cont_win_rate": 0.401,
+              "cont_cal_net_median_bps": -22.7,
+              "cont_hold_net_median_bps": -22.8
+            },
+            "4h": {
+              "n_buy": 120,
+              "n_sell": 117,
+              "buy_raw_median": -22.2,
+              "sell_raw_median": 33.7,
+              "signal_diff_bps": -55.9,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -29.5,
+              "cont_win_rate": 0.422,
+              "cont_cal_net_median_bps": -28.3,
+              "cont_hold_net_median_bps": -39.8
+            },
+            "8h": {
+              "n_buy": 120,
+              "n_sell": 117,
+              "buy_raw_median": -13.4,
+              "sell_raw_median": 4.1,
+              "signal_diff_bps": -17.5,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -16.4,
+              "cont_win_rate": 0.46,
+              "cont_cal_net_median_bps": -14.8,
+              "cont_hold_net_median_bps": -23.8
+            },
+            "12h": {
+              "n_buy": 119,
+              "n_sell": 117,
+              "buy_raw_median": -50.4,
+              "sell_raw_median": -2.1,
+              "signal_diff_bps": -48.3,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -20.9,
+              "cont_win_rate": 0.466,
+              "cont_cal_net_median_bps": -21.4,
+              "cont_hold_net_median_bps": -12.6
+            },
+            "24h": {
+              "n_buy": 119,
+              "n_sell": 115,
+              "buy_raw_median": -97.4,
+              "sell_raw_median": -37.3,
+              "signal_diff_bps": -60.1,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -36.8,
+              "cont_win_rate": 0.462,
+              "cont_cal_net_median_bps": -36.8,
+              "cont_hold_net_median_bps": -33.9
+            },
+            "48h": {
+              "n_buy": 118,
+              "n_sell": 114,
+              "buy_raw_median": -106.1,
+              "sell_raw_median": -45.9,
+              "signal_diff_bps": -60.2,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -26.3,
+              "cont_win_rate": 0.483,
+              "cont_cal_net_median_bps": -32.3,
+              "cont_hold_net_median_bps": 27.8
+            }
+          }
+        }
+      }
+    },
+    {
+      "symbol": "SOLUSDT",
+      "thresholds": {
+        "200K": {
+          "n_buy_events": 78,
+          "n_sell_events": 62,
+          "horizons": {
+            "1h": {
+              "n_buy": 78,
+              "n_sell": 61,
+              "buy_raw_median": -22.8,
+              "sell_raw_median": 2.7,
+              "signal_diff_bps": -25.5,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -17.5,
+              "cont_win_rate": 0.432,
+              "cont_cal_net_median_bps": -17.0,
+              "cont_hold_net_median_bps": -20.8
+            },
+            "2h": {
+              "n_buy": 78,
+              "n_sell": 61,
+              "buy_raw_median": -14.1,
+              "sell_raw_median": 12.4,
+              "signal_diff_bps": -26.5,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -19.4,
+              "cont_win_rate": 0.432,
+              "cont_cal_net_median_bps": -17.6,
+              "cont_hold_net_median_bps": -31.2
+            },
+            "4h": {
+              "n_buy": 78,
+              "n_sell": 61,
+              "buy_raw_median": -7.1,
+              "sell_raw_median": 23.6,
+              "signal_diff_bps": -30.7,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -18.0,
+              "cont_win_rate": 0.439,
+              "cont_cal_net_median_bps": -10.2,
+              "cont_hold_net_median_bps": -40.7
+            },
+            "8h": {
+              "n_buy": 77,
+              "n_sell": 61,
+              "buy_raw_median": 3.1,
+              "sell_raw_median": 42.6,
+              "signal_diff_bps": -39.5,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -25.9,
+              "cont_win_rate": 0.457,
+              "cont_cal_net_median_bps": -27.5,
+              "cont_hold_net_median_bps": 5.0
+            },
+            "12h": {
+              "n_buy": 76,
+              "n_sell": 61,
+              "buy_raw_median": 19.8,
+              "sell_raw_median": 61.9,
+              "signal_diff_bps": -42.1,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -29.6,
+              "cont_win_rate": 0.467,
+              "cont_cal_net_median_bps": -28.2,
+              "cont_hold_net_median_bps": -31.9
+            },
+            "24h": {
+              "n_buy": 76,
+              "n_sell": 58,
+              "buy_raw_median": 73.4,
+              "sell_raw_median": -8.9,
+              "signal_diff_bps": 82.3,
+              "direction": "CONTINUATION",
+              "cont_net_median_bps": 14.0,
+              "cont_win_rate": 0.56,
+              "cont_cal_net_median_bps": 26.5,
+              "cont_hold_net_median_bps": -0.8
+            },
+            "48h": {
+              "n_buy": 74,
+              "n_sell": 57,
+              "buy_raw_median": 117.9,
+              "sell_raw_median": 72.6,
+              "signal_diff_bps": 45.3,
+              "direction": "CONTINUATION",
+              "cont_net_median_bps": -5.6,
+              "cont_win_rate": 0.519,
+              "cont_cal_net_median_bps": -26.8,
+              "cont_hold_net_median_bps": 91.2
+            }
+          }
+        },
+        "500K": {
+          "n_buy_events": 29,
+          "n_sell_events": 23,
+          "horizons": {
+            "1h": {
+              "n_buy": 29,
+              "n_sell": 23,
+              "buy_raw_median": -13.6,
+              "sell_raw_median": 10.2,
+              "signal_diff_bps": -23.8,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -18.0,
+              "cont_win_rate": 0.481,
+              "cont_cal_net_median_bps": -18.0,
+              "cont_hold_net_median_bps": -27.7
+            },
+            "2h": {
+              "n_buy": 29,
+              "n_sell": 23,
+              "buy_raw_median": -13.3,
+              "sell_raw_median": -4.3,
+              "signal_diff_bps": -9.0,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -7.9,
+              "cont_win_rate": 0.481,
+              "cont_cal_net_median_bps": -7.9,
+              "cont_hold_net_median_bps": -3.5
+            },
+            "4h": {
+              "n_buy": 29,
+              "n_sell": 23,
+              "buy_raw_median": -2.2,
+              "sell_raw_median": 55.9,
+              "signal_diff_bps": -58.1,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -45.1,
+              "cont_win_rate": 0.385,
+              "cont_cal_net_median_bps": -31.1,
+              "cont_hold_net_median_bps": -83.5
+            },
+            "8h": {
+              "n_buy": 29,
+              "n_sell": 23,
+              "buy_raw_median": 21.2,
+              "sell_raw_median": 104.5,
+              "signal_diff_bps": -83.3,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -19.4,
+              "cont_win_rate": 0.442,
+              "cont_cal_net_median_bps": -12.9,
+              "cont_hold_net_median_bps": -90.9
+            },
+            "12h": {
+              "n_buy": 29,
+              "n_sell": 23,
+              "buy_raw_median": 16.6,
+              "sell_raw_median": 105.8,
+              "signal_diff_bps": -89.2,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -89.0,
+              "cont_win_rate": 0.442,
+              "cont_cal_net_median_bps": -49.3,
+              "cont_hold_net_median_bps": -130.7
+            },
+            "24h": {
+              "n_buy": 29,
+              "n_sell": 23,
+              "buy_raw_median": 59.8,
+              "sell_raw_median": 97.4,
+              "signal_diff_bps": -37.6,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -4.0,
+              "cont_win_rate": 0.5,
+              "cont_cal_net_median_bps": 16.5,
+              "cont_hold_net_median_bps": -99.9
+            },
+            "48h": {
+              "n_buy": 28,
+              "n_sell": 23,
+              "buy_raw_median": 59.0,
+              "sell_raw_median": 311.5,
+              "signal_diff_bps": -252.5,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -61.2,
+              "cont_win_rate": 0.451,
+              "cont_cal_net_median_bps": -62.2,
+              "cont_hold_net_median_bps": 31.2
+            }
+          }
+        },
+        "1000K": {
+          "n_buy_events": 13,
+          "n_sell_events": 12,
+          "horizons": {
+            "1h": {
+              "n_buy": 13,
+              "n_sell": 12,
+              "buy_raw_median": -64.0,
+              "sell_raw_median": 70.7,
+              "signal_diff_bps": -134.7,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -76.4,
+              "cont_win_rate": 0.32,
+              "cont_cal_net_median_bps": -70.1,
+              "cont_hold_net_median_bps": -104.5
+            },
+            "2h": {
+              "n_buy": 13,
+              "n_sell": 12,
+              "buy_raw_median": -58.4,
+              "sell_raw_median": 9.7,
+              "signal_diff_bps": -68.1,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -29.9,
+              "cont_win_rate": 0.4,
+              "cont_cal_net_median_bps": -29.9,
+              "cont_hold_net_median_bps": -65.1
+            },
+            "4h": {
+              "n_buy": 13,
+              "n_sell": 12,
+              "buy_raw_median": -74.1,
+              "sell_raw_median": 96.0,
+              "signal_diff_bps": -170.1,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -81.7,
+              "cont_win_rate": 0.36,
+              "cont_cal_net_median_bps": -80.2,
+              "cont_hold_net_median_bps": -213.7
+            },
+            "8h": {
+              "n_buy": 13,
+              "n_sell": 12,
+              "buy_raw_median": -36.4,
+              "sell_raw_median": 132.4,
+              "signal_diff_bps": -168.8,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -62.4,
+              "cont_win_rate": 0.36,
+              "cont_cal_net_median_bps": -40.3,
+              "cont_hold_net_median_bps": -210.0
+            },
+            "12h": {
+              "n_buy": 13,
+              "n_sell": 12,
+              "buy_raw_median": -99.9,
+              "sell_raw_median": 189.7,
+              "signal_diff_bps": -289.6,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -109.9,
+              "cont_win_rate": 0.36,
+              "cont_cal_net_median_bps": -106.0,
+              "cont_hold_net_median_bps": -235.2
+            },
+            "24h": {
+              "n_buy": 13,
+              "n_sell": 12,
+              "buy_raw_median": -7.9,
+              "sell_raw_median": -12.9,
+              "signal_diff_bps": 5.0,
+              "direction": "CONTINUATION",
+              "cont_net_median_bps": -6.5,
+              "cont_win_rate": 0.48,
+              "cont_cal_net_median_bps": 95.0,
+              "cont_hold_net_median_bps": -126.1
+            },
+            "48h": {
+              "n_buy": 12,
+              "n_sell": 12,
+              "buy_raw_median": -99.3,
+              "sell_raw_median": 239.6,
+              "signal_diff_bps": -338.9,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -155.3,
+              "cont_win_rate": 0.417,
+              "cont_cal_net_median_bps": -74.0,
+              "cont_hold_net_median_bps": -749.6
+            }
+          }
+        }
+      }
+    },
+    {
+      "symbol": "BTCUSDT",
+      "thresholds": {
+        "200K": {
+          "n_buy_events": 640,
+          "n_sell_events": 615,
+          "horizons": {
+            "1h": {
+              "n_buy": 640,
+              "n_sell": 614,
+              "buy_raw_median": -5.4,
+              "sell_raw_median": 4.3,
+              "signal_diff_bps": -9.7,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -11.1,
+              "cont_win_rate": 0.451,
+              "cont_cal_net_median_bps": -10.5,
+              "cont_hold_net_median_bps": -11.7
+            },
+            "2h": {
+              "n_buy": 640,
+              "n_sell": 613,
+              "buy_raw_median": -5.9,
+              "sell_raw_median": 2.8,
+              "signal_diff_bps": -8.7,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -10.1,
+              "cont_win_rate": 0.468,
+              "cont_cal_net_median_bps": -11.3,
+              "cont_hold_net_median_bps": -7.8
+            },
+            "4h": {
+              "n_buy": 640,
+              "n_sell": 612,
+              "buy_raw_median": -2.8,
+              "sell_raw_median": 3.3,
+              "signal_diff_bps": -6.1,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -9.1,
+              "cont_win_rate": 0.484,
+              "cont_cal_net_median_bps": -6.2,
+              "cont_hold_net_median_bps": -20.9
+            },
+            "8h": {
+              "n_buy": 640,
+              "n_sell": 612,
+              "buy_raw_median": 1.3,
+              "sell_raw_median": 4.7,
+              "signal_diff_bps": -3.4,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -8.2,
+              "cont_win_rate": 0.493,
+              "cont_cal_net_median_bps": -2.6,
+              "cont_hold_net_median_bps": -26.4
+            },
+            "12h": {
+              "n_buy": 639,
+              "n_sell": 611,
+              "buy_raw_median": -6.3,
+              "sell_raw_median": -0.6,
+              "signal_diff_bps": -5.7,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -8.2,
+              "cont_win_rate": 0.498,
+              "cont_cal_net_median_bps": -2.3,
+              "cont_hold_net_median_bps": -18.0
+            },
+            "24h": {
+              "n_buy": 639,
+              "n_sell": 607,
+              "buy_raw_median": 12.5,
+              "sell_raw_median": -0.2,
+              "signal_diff_bps": 12.7,
+              "direction": "CONTINUATION",
+              "cont_net_median_bps": 2.0,
+              "cont_win_rate": 0.515,
+              "cont_cal_net_median_bps": 6.4,
+              "cont_hold_net_median_bps": -3.8
+            },
+            "48h": {
+              "n_buy": 628,
+              "n_sell": 602,
+              "buy_raw_median": 16.1,
+              "sell_raw_median": 34.0,
+              "signal_diff_bps": -17.9,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -14.1,
+              "cont_win_rate": 0.491,
+              "cont_cal_net_median_bps": -12.8,
+              "cont_hold_net_median_bps": -19.5
+            }
+          }
+        },
+        "500K": {
+          "n_buy_events": 261,
+          "n_sell_events": 226,
+          "horizons": {
+            "1h": {
+              "n_buy": 261,
+              "n_sell": 225,
+              "buy_raw_median": -6.3,
+              "sell_raw_median": 6.5,
+              "signal_diff_bps": -12.8,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -12.5,
+              "cont_win_rate": 0.451,
+              "cont_cal_net_median_bps": -13.6,
+              "cont_hold_net_median_bps": -11.6
+            },
+            "2h": {
+              "n_buy": 261,
+              "n_sell": 225,
+              "buy_raw_median": -3.4,
+              "sell_raw_median": 7.8,
+              "signal_diff_bps": -11.2,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -11.9,
+              "cont_win_rate": 0.461,
+              "cont_cal_net_median_bps": -14.1,
+              "cont_hold_net_median_bps": -6.2
+            },
+            "4h": {
+              "n_buy": 261,
+              "n_sell": 224,
+              "buy_raw_median": 2.6,
+              "sell_raw_median": 19.3,
+              "signal_diff_bps": -16.7,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -10.7,
+              "cont_win_rate": 0.48,
+              "cont_cal_net_median_bps": -7.4,
+              "cont_hold_net_median_bps": -20.9
+            },
+            "8h": {
+              "n_buy": 261,
+              "n_sell": 224,
+              "buy_raw_median": -5.0,
+              "sell_raw_median": 16.3,
+              "signal_diff_bps": -21.3,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -16.2,
+              "cont_win_rate": 0.458,
+              "cont_cal_net_median_bps": -8.6,
+              "cont_hold_net_median_bps": -36.0
+            },
+            "12h": {
+              "n_buy": 260,
+              "n_sell": 224,
+              "buy_raw_median": -6.8,
+              "sell_raw_median": 1.8,
+              "signal_diff_bps": -8.6,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -10.8,
+              "cont_win_rate": 0.479,
+              "cont_cal_net_median_bps": -9.8,
+              "cont_hold_net_median_bps": -20.0
+            },
+            "24h": {
+              "n_buy": 260,
+              "n_sell": 222,
+              "buy_raw_median": 7.2,
+              "sell_raw_median": 4.0,
+              "signal_diff_bps": 3.2,
+              "direction": "CONTINUATION",
+              "cont_net_median_bps": -7.4,
+              "cont_win_rate": 0.498,
+              "cont_cal_net_median_bps": -7.6,
+              "cont_hold_net_median_bps": -6.2
+            },
+            "48h": {
+              "n_buy": 257,
+              "n_sell": 221,
+              "buy_raw_median": 14.3,
+              "sell_raw_median": 47.2,
+              "signal_diff_bps": -32.9,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -17.5,
+              "cont_win_rate": 0.485,
+              "cont_cal_net_median_bps": -10.5,
+              "cont_hold_net_median_bps": -22.0
+            }
+          }
+        },
+        "1000K": {
+          "n_buy_events": 128,
+          "n_sell_events": 114,
+          "horizons": {
+            "1h": {
+              "n_buy": 128,
+              "n_sell": 113,
+              "buy_raw_median": -10.6,
+              "sell_raw_median": 6.4,
+              "signal_diff_bps": -17.0,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -15.2,
+              "cont_win_rate": 0.44,
+              "cont_cal_net_median_bps": -16.1,
+              "cont_hold_net_median_bps": -2.9
+            },
+            "2h": {
+              "n_buy": 128,
+              "n_sell": 113,
+              "buy_raw_median": -10.1,
+              "sell_raw_median": 10.9,
+              "signal_diff_bps": -21.0,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -17.0,
+              "cont_win_rate": 0.44,
+              "cont_cal_net_median_bps": -20.7,
+              "cont_hold_net_median_bps": 4.8
+            },
+            "4h": {
+              "n_buy": 128,
+              "n_sell": 113,
+              "buy_raw_median": -11.5,
+              "sell_raw_median": 6.4,
+              "signal_diff_bps": -17.9,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -16.9,
+              "cont_win_rate": 0.456,
+              "cont_cal_net_median_bps": -13.5,
+              "cont_hold_net_median_bps": -18.0
+            },
+            "8h": {
+              "n_buy": 128,
+              "n_sell": 113,
+              "buy_raw_median": -19.1,
+              "sell_raw_median": 8.6,
+              "signal_diff_bps": -27.7,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -17.8,
+              "cont_win_rate": 0.465,
+              "cont_cal_net_median_bps": -13.3,
+              "cont_hold_net_median_bps": -27.0
+            },
+            "12h": {
+              "n_buy": 128,
+              "n_sell": 113,
+              "buy_raw_median": -24.2,
+              "sell_raw_median": -14.7,
+              "signal_diff_bps": -9.5,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -10.3,
+              "cont_win_rate": 0.485,
+              "cont_cal_net_median_bps": -11.2,
+              "cont_hold_net_median_bps": 0.8
+            },
+            "24h": {
+              "n_buy": 128,
+              "n_sell": 111,
+              "buy_raw_median": -12.1,
+              "sell_raw_median": -11.7,
+              "signal_diff_bps": -0.4,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -5.7,
+              "cont_win_rate": 0.502,
+              "cont_cal_net_median_bps": -6.6,
+              "cont_hold_net_median_bps": 19.6
+            },
+            "48h": {
+              "n_buy": 127,
+              "n_sell": 111,
+              "buy_raw_median": -38.0,
+              "sell_raw_median": 52.4,
+              "signal_diff_bps": -90.4,
+              "direction": "REVERSAL",
+              "cont_net_median_bps": -53.4,
+              "cont_win_rate": 0.441,
+              "cont_cal_net_median_bps": -75.0,
+              "cont_hold_net_median_bps": 40.1
+            }
+          }
+        }
+      }
+    }
+  ]
+}

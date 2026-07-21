@@ -1,0 +1,149 @@
+{
+  "tool": "echo_be_ratio_infocurve",
+  "generated_utc": "2026-07-20T10:17:55.031963+00:00",
+  "n_causal": 118,
+  "n_noisy": 80,
+  "n_tail": 14,
+  "frame": "Descriptive dissection of the [ts, ts+10m] contaminant window. Curve = how early the flush-continuation reveals itself. NOT a reactive threshold/gate; any overlay is FORWARD prereg. noisy defined over (ts+60s,ts+30m) so small-k co-measures it.",
+  "info_arrival_curve": [
+    {
+      "k_min": 0,
+      "auc_be_noisy": 0.55,
+      "auc_be_tail": 0.413,
+      "auc_btcret_tail": null,
+      "auc_neweth_noisy": null,
+      "auc_neweth_tail": null,
+      "med_btc_ret": 0.0,
+      "med_eth_ret": 0.0,
+      "med_new_eth_sell": 0
+    },
+    {
+      "k_min": 1,
+      "auc_be_noisy": 0.634,
+      "auc_be_tail": 0.502,
+      "auc_btcret_tail": 0.214,
+      "auc_neweth_noisy": 0.688,
+      "auc_neweth_tail": 0.6,
+      "med_btc_ret": 0.2,
+      "med_eth_ret": 0.8,
+      "med_new_eth_sell": 1.0
+    },
+    {
+      "k_min": 2,
+      "auc_be_noisy": 0.66,
+      "auc_be_tail": 0.525,
+      "auc_btcret_tail": 0.205,
+      "auc_neweth_noisy": 0.725,
+      "auc_neweth_tail": 0.637,
+      "med_btc_ret": 1.5,
+      "med_eth_ret": 2.3,
+      "med_new_eth_sell": 1.0
+    },
+    {
+      "k_min": 3,
+      "auc_be_noisy": 0.683,
+      "auc_be_tail": 0.586,
+      "auc_btcret_tail": 0.21,
+      "auc_neweth_noisy": 0.775,
+      "auc_neweth_tail": 0.692,
+      "med_btc_ret": 1.4,
+      "med_eth_ret": 1.7,
+      "med_new_eth_sell": 1.0
+    },
+    {
+      "k_min": 4,
+      "auc_be_noisy": 0.701,
+      "auc_be_tail": 0.63,
+      "auc_btcret_tail": 0.236,
+      "auc_neweth_noisy": 0.798,
+      "auc_neweth_tail": 0.678,
+      "med_btc_ret": 0.3,
+      "med_eth_ret": 3.3,
+      "med_new_eth_sell": 2.0
+    },
+    {
+      "k_min": 5,
+      "auc_be_noisy": 0.703,
+      "auc_be_tail": 0.653,
+      "auc_btcret_tail": 0.205,
+      "auc_neweth_noisy": 0.807,
+      "auc_neweth_tail": 0.68,
+      "med_btc_ret": 2.0,
+      "med_eth_ret": 4.5,
+      "med_new_eth_sell": 2.0
+    },
+    {
+      "k_min": 6,
+      "auc_be_noisy": 0.723,
+      "auc_be_tail": 0.714,
+      "auc_btcret_tail": 0.188,
+      "auc_neweth_noisy": 0.817,
+      "auc_neweth_tail": 0.708,
+      "med_btc_ret": 3.6,
+      "med_eth_ret": 6.4,
+      "med_new_eth_sell": 2.0
+    },
+    {
+      "k_min": 7,
+      "auc_be_noisy": 0.728,
+      "auc_be_tail": 0.742,
+      "auc_btcret_tail": 0.158,
+      "auc_neweth_noisy": 0.837,
+      "auc_neweth_tail": 0.761,
+      "med_btc_ret": 4.4,
+      "med_eth_ret": 8.1,
+      "med_new_eth_sell": 2.0
+    },
+    {
+      "k_min": 8,
+      "auc_be_noisy": 0.731,
+      "auc_be_tail": 0.73,
+      "auc_btcret_tail": 0.153,
+      "auc_neweth_noisy": 0.849,
+      "auc_neweth_tail": 0.755,
+      "med_btc_ret": 5.8,
+      "med_eth_ret": 7.7,
+      "med_new_eth_sell": 2.0
+    },
+    {
+      "k_min": 9,
+      "auc_be_noisy": 0.734,
+      "auc_be_tail": 0.736,
+      "auc_btcret_tail": 0.152,
+      "auc_neweth_noisy": 0.861,
+      "auc_neweth_tail": 0.747,
+      "med_btc_ret": 5.3,
+      "med_eth_ret": 11.9,
+      "med_new_eth_sell": 2.0
+    },
+    {
+      "k_min": 10,
+      "auc_be_noisy": 0.728,
+      "auc_be_tail": 0.729,
+      "auc_btcret_tail": 0.126,
+      "auc_neweth_noisy": 0.868,
+      "auc_neweth_tail": 0.753,
+      "med_btc_ret": 5.6,
+      "med_eth_ret": 7.4,
+      "med_new_eth_sell": 2.0
+    }
+  ],
+  "disagreement_late_flush": {
+    "n": 16,
+    "noisy_rate": 0.938,
+    "tail_rate": 0.312,
+    "mean_net": -40.2,
+    "med_btc_ret_10": -19.2
+  },
+  "agree_low": {
+    "n": 43,
+    "noisy_rate": 0.535,
+    "tail_rate": 0.047,
+    "mean_net": 63.9,
+    "med_btc_ret_10": 5.8
+  },
+  "medians": {
+    "be_causal_k0": 0.406,
+    "be_resolved_k10": 0.791
+  }
+}

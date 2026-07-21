@@ -1,0 +1,354 @@
+{
+  "decision_journal": {
+    "created": false,
+    "path": "D:\\eclipse_scalper\\reports\\research\\s34\\S34_OPERATOR_DECISION_JOURNAL.jsonl",
+    "rows": 1,
+    "status": "READY"
+  },
+  "executor_readiness": {
+    "checks": {
+      "active": null,
+      "book_age_sec": 1.7,
+      "exchange_position_amount": 0.0,
+      "exchange_s34_open_order_count": 0,
+      "kill_switch_exists": false,
+      "kill_switch_file": "runtime/KILL_SWITCH",
+      "liq_age_sec": 580.7,
+      "mark_age_sec": 3.3,
+      "mode": "LIVE",
+      "pid_alive": null,
+      "pid_file": 25988,
+      "pid_read": "unknown_access_denied_fallback_to_state_freshness",
+      "rule": "S34_V_ENGINE_V0_2_ETH_SELL_MAKER_LONG_H2_O20_W300_O5_DEEPBID",
+      "shadow_mirror_updated_at_utc": "2026-06-29T07:23:53.423897+00:00",
+      "state_age_sec": 10.5,
+      "state_orders_n": 0
+    },
+    "issues": [],
+    "status": "READY_NO_POSITION"
+  },
+  "fee_tier_reality_check": {
+    "assumed_maker_fee_bps": 2.0,
+    "assumed_taker_fee_bps": 3.05,
+    "provision_pocket_requires": "maker fee <= -0.5 bps or very favorable queue; positive maker fee mostly kills it",
+    "recommendation": "operator confirm actual exchange fee tier; do not promote provision pocket while UNKNOWN",
+    "status": "ACTUAL_FEE_TIER_UNKNOWN"
+  },
+  "generated_at_utc": "2026-06-29T07:25:05.189981+00:00",
+  "kill_switch_drill": {
+    "currently_exists": false,
+    "expected_executor_behavior": "blocks new entries when file exists; does not auto-close existing active position",
+    "kill_switch_path": "D:\\eclipse_scalper\\runtime\\KILL_SWITCH",
+    "operator_clear_command": "Remove-Item D:\\eclipse_scalper\\runtime\\KILL_SWITCH",
+    "operator_drill_command": "New-Item D:\\eclipse_scalper\\runtime\\KILL_SWITCH -ItemType File",
+    "status": "SIMULATED_ONLY_NO_FILE_CREATED"
+  },
+  "mode": "OBSERVATION_RISK_ONLY_NO_LIVE_CHANGE",
+  "post_trade_autopsy_cards": [
+    {
+      "atomicity_adverse_bps": -1.4,
+      "atomicity_gap_status": "OBSERVED",
+      "dissipation_tau120": {
+        "bid_depth_tau_usd": 142944.5,
+        "book_available": true,
+        "liq_deceleration": 0.554,
+        "post_liq_rate_usd_per_sec": 540.2,
+        "recommendation": "MIXED_SHADOW_ONLY",
+        "replenish_pct": -36.5,
+        "tau_sec": 120
+      },
+      "failure_mode": "NOT_LARGE_LOSS",
+      "net_bps": 152.3,
+      "pnl_by_mode_usdt": {
+        "BALANCED": 0.2,
+        "CURRENT_ENV": 18.1,
+        "SURVIVAL": 0.2
+      },
+      "sample_type": "PRE_FORWARD_REFERENCE",
+      "signal_utc": "2026-06-20T14:08:51.159000+00:00"
+    },
+    {
+      "atomicity_adverse_bps": -2.2,
+      "atomicity_gap_status": "OBSERVED",
+      "dissipation_tau120": {
+        "bid_depth_tau_usd": 172129.3,
+        "book_available": true,
+        "liq_deceleration": 0.691,
+        "post_liq_rate_usd_per_sec": 663.4,
+        "recommendation": "HOLD_SHADOW_ONLY",
+        "replenish_pct": 25.8,
+        "tau_sec": 120
+      },
+      "failure_mode": "NOT_LARGE_LOSS",
+      "net_bps": 227.0,
+      "pnl_by_mode_usdt": {
+        "BALANCED": 0.4,
+        "CURRENT_ENV": 27.0,
+        "SURVIVAL": 0.2
+      },
+      "sample_type": "PRE_FORWARD_REFERENCE",
+      "signal_utc": "2026-06-21T23:33:42.690000+00:00"
+    },
+    {
+      "atomicity_adverse_bps": -1.1,
+      "atomicity_gap_status": "OBSERVED",
+      "dissipation_tau120": {
+        "bid_depth_tau_usd": 100337.2,
+        "book_available": true,
+        "liq_deceleration": -0.568,
+        "post_liq_rate_usd_per_sec": 2055.9,
+        "recommendation": "EXIT_OR_TIGHTEN_SHADOW_ONLY",
+        "replenish_pct": -26.2,
+        "tau_sec": 120
+      },
+      "failure_mode": "NOT_LARGE_LOSS",
+      "net_bps": 149.9,
+      "pnl_by_mode_usdt": {
+        "BALANCED": 0.2,
+        "CURRENT_ENV": 17.8,
+        "SURVIVAL": 0.2
+      },
+      "sample_type": "PRE_FORWARD_REFERENCE",
+      "signal_utc": "2026-06-26T02:48:30.475000+00:00"
+    },
+    {
+      "atomicity_adverse_bps": -18.5,
+      "atomicity_gap_status": "OBSERVED",
+      "dissipation_tau120": {
+        "bid_depth_tau_usd": 163092.3,
+        "book_available": true,
+        "liq_deceleration": 0.958,
+        "post_liq_rate_usd_per_sec": 124.7,
+        "recommendation": "MIXED_SHADOW_ONLY",
+        "replenish_pct": -44.4,
+        "tau_sec": 120
+      },
+      "failure_mode": "NOT_LARGE_LOSS",
+      "net_bps": 17.2,
+      "pnl_by_mode_usdt": {
+        "BALANCED": 0.0,
+        "CURRENT_ENV": 2.0,
+        "SURVIVAL": 0.0
+      },
+      "sample_type": "PRE_FORWARD_REFERENCE",
+      "signal_utc": "2026-06-26T10:39:33.530000+00:00"
+    },
+    {
+      "atomicity_adverse_bps": -13.7,
+      "atomicity_gap_status": "OBSERVED",
+      "dissipation_tau120": {
+        "bid_depth_tau_usd": 70270.6,
+        "book_available": true,
+        "liq_deceleration": -0.194,
+        "post_liq_rate_usd_per_sec": 3100.3,
+        "recommendation": "EXIT_OR_TIGHTEN_SHADOW_ONLY",
+        "replenish_pct": -91.5,
+        "tau_sec": 120
+      },
+      "failure_mode": "NOT_LARGE_LOSS",
+      "net_bps": 299.7,
+      "pnl_by_mode_usdt": {
+        "BALANCED": 0.5,
+        "CURRENT_ENV": 35.7,
+        "SURVIVAL": 0.3
+      },
+      "sample_type": "PRE_FORWARD_REFERENCE",
+      "signal_utc": "2026-06-26T13:18:54.877000+00:00"
+    }
+  ],
+  "pre_trade_risk_card": {
+    "configured_stop_bps": 150.0,
+    "kill_rule": "FIRST_TAIL_OR_10PCT_DD_PAUSE",
+    "operator_question": "Is this signal allowed at selected risk mode, or should it be observed only?",
+    "planned_loss_at_realized_stop_usdt": 20.9,
+    "planned_margin_usdt": 29.8,
+    "planned_notional_usdt": 1190.0,
+    "risk_modes": {
+      "BALANCED": {
+        "basis": "conservative_weighted",
+        "loss_bps": 428.6,
+        "margin": 0.4,
+        "notional": 16.3,
+        "oversize_vs_env": 73.0
+      },
+      "CURRENT_ENV": {
+        "basis": "env",
+        "loss_bps": 428.6,
+        "margin": 29.75,
+        "notional": 1190.0,
+        "oversize_vs_env": 1.0
+      },
+      "STOP_ASSISTED": {
+        "basis": "stop_only_unreliable_floor",
+        "loss_bps": 175.7,
+        "margin": 1.0,
+        "notional": 39.8,
+        "oversize_vs_env": 29.9
+      },
+      "SURVIVAL": {
+        "basis": "tail_only_hard_floor",
+        "loss_bps": 634.0,
+        "margin": 0.3,
+        "notional": 11.0,
+        "oversize_vs_env": 108.2
+      }
+    },
+    "status": "PRE_TRADE_RISK_CARD_TEMPLATE_READY",
+    "stop_realized_worst_bps": 175.7
+  },
+  "risk_budget_modes": {
+    "BALANCED": {
+      "basis": "conservative_weighted",
+      "loss_bps": 428.6,
+      "margin": 0.4,
+      "notional": 16.3,
+      "oversize_vs_env": 73.0
+    },
+    "CURRENT_ENV": {
+      "basis": "env",
+      "loss_bps": 428.6,
+      "margin": 29.75,
+      "notional": 1190.0,
+      "oversize_vs_env": 1.0
+    },
+    "STOP_ASSISTED": {
+      "basis": "stop_only_unreliable_floor",
+      "loss_bps": 175.7,
+      "margin": 1.0,
+      "notional": 39.8,
+      "oversize_vs_env": 29.9
+    },
+    "SURVIVAL": {
+      "basis": "tail_only_hard_floor",
+      "loss_bps": 634.0,
+      "margin": 0.3,
+      "notional": 11.0,
+      "oversize_vs_env": 108.2
+    }
+  },
+  "risk_of_ruin": {
+    "horizons": {
+      "100": {
+        "BALANCED": {
+          "median_final_equity": 29.6,
+          "min_balance_breach_pct": 0.0,
+          "p05_final_equity": 24.0,
+          "p95_max_dd_usdt": 11.7,
+          "p99_max_dd_usdt": 13.9,
+          "ruin_pct": 0.0
+        },
+        "CURRENT_ENV": {
+          "median_final_equity": -368.8,
+          "min_balance_breach_pct": 94.6,
+          "p05_final_equity": -773.1,
+          "p95_max_dd_usdt": 856.4,
+          "p99_max_dd_usdt": 1017.0,
+          "ruin_pct": 93.8
+        },
+        "STOP_ASSISTED": {
+          "median_final_equity": 40.3,
+          "min_balance_breach_pct": 0.0,
+          "p05_final_equity": 32.7,
+          "p95_max_dd_usdt": 6.6,
+          "p99_max_dd_usdt": 8.5,
+          "ruin_pct": 0.0
+        },
+        "SURVIVAL": {
+          "median_final_equity": 27.1,
+          "min_balance_breach_pct": 0.0,
+          "p05_final_equity": 21.9,
+          "p95_max_dd_usdt": 13.5,
+          "p99_max_dd_usdt": 15.7,
+          "ruin_pct": 0.0
+        }
+      },
+      "30": {
+        "BALANCED": {
+          "median_final_equity": 33.4,
+          "min_balance_breach_pct": 0.0,
+          "p05_final_equity": 30.3,
+          "p95_max_dd_usdt": 5.1,
+          "p99_max_dd_usdt": 6.5,
+          "ruin_pct": 0.0
+        },
+        "CURRENT_ENV": {
+          "median_final_equity": -82.4,
+          "min_balance_breach_pct": 77.3,
+          "p05_final_equity": -316.9,
+          "p95_max_dd_usdt": 381.3,
+          "p99_max_dd_usdt": 470.8,
+          "ruin_pct": 73.5
+        },
+        "STOP_ASSISTED": {
+          "median_final_equity": 36.6,
+          "min_balance_breach_pct": 0.0,
+          "p05_final_equity": 32.5,
+          "p95_max_dd_usdt": 4.1,
+          "p99_max_dd_usdt": 5.3,
+          "ruin_pct": 0.0
+        },
+        "SURVIVAL": {
+          "median_final_equity": 32.7,
+          "min_balance_breach_pct": 0.0,
+          "p05_final_equity": 29.7,
+          "p95_max_dd_usdt": 5.6,
+          "p99_max_dd_usdt": 6.8,
+          "ruin_pct": 0.0
+        }
+      },
+      "60": {
+        "BALANCED": {
+          "median_final_equity": 31.8,
+          "min_balance_breach_pct": 0.0,
+          "p05_final_equity": 27.4,
+          "p95_max_dd_usdt": 8.2,
+          "p99_max_dd_usdt": 10.0,
+          "ruin_pct": 0.0
+        },
+        "CURRENT_ENV": {
+          "median_final_equity": -201.3,
+          "min_balance_breach_pct": 88.2,
+          "p05_final_equity": -519.1,
+          "p95_max_dd_usdt": 598.5,
+          "p99_max_dd_usdt": 731.1,
+          "ruin_pct": 86.6
+        },
+        "STOP_ASSISTED": {
+          "median_final_equity": 38.2,
+          "min_balance_breach_pct": 0.0,
+          "p05_final_equity": 32.3,
+          "p95_max_dd_usdt": 5.4,
+          "p99_max_dd_usdt": 7.1,
+          "ruin_pct": 0.0
+        },
+        "SURVIVAL": {
+          "median_final_equity": 30.3,
+          "min_balance_breach_pct": 0.0,
+          "p05_final_equity": 26.2,
+          "p95_max_dd_usdt": 9.2,
+          "p99_max_dd_usdt": 11.0,
+          "ruin_pct": 0.0
+        }
+      }
+    },
+    "seed": 734,
+    "tail_rate": 0.187,
+    "trials": 10000
+  },
+  "stop_slippage_forward_tracker": {
+    "fields_to_log_forward": [
+      "trigger_price",
+      "realized_exit_price",
+      "slippage_bps",
+      "spread_bps_at_trigger",
+      "book_age_ms",
+      "volatility_context"
+    ],
+    "historical_stop_n": 1,
+    "historical_stop_summary": {
+      "median_realized_stop_bps": -175.7,
+      "worst_realized_stop_bps": -175.7
+    },
+    "status": "FORWARD_TRACKER_SEEDED"
+  }
+}

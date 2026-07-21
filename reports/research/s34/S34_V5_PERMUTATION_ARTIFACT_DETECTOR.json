@@ -1,0 +1,762 @@
+{
+  "candidates": [
+    {
+      "by_symbol_hold": {
+        "BTCUSDT": {
+          "max_loss": -417.1,
+          "mean": -22.55,
+          "median": 13.79,
+          "n": 85,
+          "sum": -1916.5,
+          "t3r": -2665.6,
+          "win_rate": 0.576
+        },
+        "ETHUSDT": {
+          "max_loss": -507.2,
+          "mean": -13.21,
+          "median": 15.75,
+          "n": 157,
+          "sum": -2074.0,
+          "t3r": -3912.0,
+          "win_rate": 0.541
+        },
+        "SOLUSDT": {
+          "max_loss": -484.2,
+          "mean": -2.83,
+          "median": -0.13,
+          "n": 133,
+          "sum": -377.0,
+          "t3r": -2238.6,
+          "win_rate": 0.496
+        }
+      },
+      "cal": {
+        "max_loss": -285.3,
+        "mean": 10.56,
+        "median": -6.9,
+        "n": 166,
+        "sum": 1752.9,
+        "t3r": 608.8,
+        "win_rate": 0.476
+      },
+      "family": "cascade",
+      "gauntlet": {
+        "beta_control": "FAIL:not_beta_controlled",
+        "cal_positive_sum_t3r": true,
+        "cross_asset": false,
+        "holdout_positive_sum_t3r": false,
+        "n_ge_min": true,
+        "non_overlap": false,
+        "permutation_p_le_0_05": false,
+        "real_cost": true
+      },
+      "hold": {
+        "max_loss": -507.2,
+        "mean": -11.65,
+        "median": 10.71,
+        "n": 375,
+        "sum": -4367.5,
+        "t3r": -6250.2,
+        "win_rate": 0.533
+      },
+      "hold_population": {
+        "max_loss": -507.2,
+        "mean": -11.65,
+        "median": 10.71,
+        "n": 375,
+        "sum": -4367.5,
+        "t3r": -6250.2,
+        "win_rate": 0.533
+      },
+      "min_n": 40,
+      "name": "cascade_fade_all_signflip",
+      "null_mode": "sign_flip",
+      "permutation": {
+        "n_perm": 1000,
+        "null_p50": -47.4,
+        "null_p95": 6348.6,
+        "p_right": 0.8721,
+        "real_sum": -4367.5
+      },
+      "verdict": "ARTIFACT"
+    },
+    {
+      "by_symbol_hold": {
+        "BTCUSDT": {
+          "max_loss": -417.1,
+          "mean": -28.71,
+          "median": 7.74,
+          "n": 71,
+          "sum": -2038.8,
+          "t3r": -2787.8,
+          "win_rate": 0.535
+        },
+        "ETHUSDT": {
+          "max_loss": -507.2,
+          "mean": -20.75,
+          "median": 17.08,
+          "n": 101,
+          "sum": -2096.2,
+          "t3r": -3934.2,
+          "win_rate": 0.535
+        },
+        "SOLUSDT": {
+          "max_loss": -484.2,
+          "mean": -1.2,
+          "median": 6.02,
+          "n": 114,
+          "sum": -136.7,
+          "t3r": -1998.3,
+          "win_rate": 0.509
+        }
+      },
+      "cal": {
+        "max_loss": -271.1,
+        "mean": 24.38,
+        "median": 14.3,
+        "n": 95,
+        "sum": 2316.5,
+        "t3r": 1172.3,
+        "win_rate": 0.568
+      },
+      "family": "cascade_sync",
+      "gauntlet": {
+        "beta_control": "FAIL:not_beta_controlled",
+        "cal_positive_sum_t3r": true,
+        "cross_asset": false,
+        "holdout_positive_sum_t3r": false,
+        "n_ge_min": true,
+        "non_overlap": false,
+        "permutation_p_le_0_05": false,
+        "real_cost": true
+      },
+      "hold": {
+        "max_loss": -507.2,
+        "mean": -14.94,
+        "median": 10.47,
+        "n": 286,
+        "sum": -4271.7,
+        "t3r": -6154.3,
+        "win_rate": 0.524
+      },
+      "hold_population": {
+        "max_loss": -507.2,
+        "mean": -11.65,
+        "median": 10.71,
+        "n": 375,
+        "sum": -4367.5,
+        "t3r": -6250.2,
+        "win_rate": 0.533
+      },
+      "min_n": 40,
+      "name": "sync_gate_label_shuffle",
+      "null_mode": "label_shuffle",
+      "permutation": {
+        "n_perm": 1000,
+        "null_p50": -3217.6,
+        "null_p95": -337.8,
+        "p_right": 0.7283,
+        "real_sum": -4271.7
+      },
+      "verdict": "ARTIFACT"
+    },
+    {
+      "by_symbol_hold": {
+        "BTCUSDT": {
+          "max_loss": -417.1,
+          "mean": -8.35,
+          "median": 25.09,
+          "n": 35,
+          "sum": -292.2,
+          "t3r": -1041.2,
+          "win_rate": 0.657
+        },
+        "ETHUSDT": {
+          "max_loss": -494.0,
+          "mean": -61.14,
+          "median": -60.23,
+          "n": 70,
+          "sum": -4279.6,
+          "t3r": -5404.7,
+          "win_rate": 0.443
+        },
+        "SOLUSDT": {
+          "max_loss": -484.2,
+          "mean": -44.16,
+          "median": -26.31,
+          "n": 66,
+          "sum": -2914.5,
+          "t3r": -3837.4,
+          "win_rate": 0.409
+        }
+      },
+      "cal": {
+        "max_loss": -271.1,
+        "mean": -1.75,
+        "median": -14.68,
+        "n": 102,
+        "sum": -178.9,
+        "t3r": -831.8,
+        "win_rate": 0.412
+      },
+      "family": "cascade_absorption",
+      "gauntlet": {
+        "beta_control": "FAIL:not_beta_controlled",
+        "cal_positive_sum_t3r": false,
+        "cross_asset": false,
+        "holdout_positive_sum_t3r": false,
+        "n_ge_min": true,
+        "non_overlap": false,
+        "permutation_p_le_0_05": false,
+        "real_cost": true
+      },
+      "hold": {
+        "max_loss": -494.0,
+        "mean": -43.78,
+        "median": -14.9,
+        "n": 171,
+        "sum": -7486.2,
+        "t3r": -8841.0,
+        "win_rate": 0.474
+      },
+      "hold_population": {
+        "max_loss": -507.2,
+        "mean": -11.65,
+        "median": 10.71,
+        "n": 375,
+        "sum": -4367.5,
+        "t3r": -6250.2,
+        "win_rate": 0.533
+      },
+      "min_n": 40,
+      "name": "deep_bid_absorption_label_shuffle",
+      "null_mode": "label_shuffle",
+      "permutation": {
+        "n_perm": 1000,
+        "null_p50": -2055.3,
+        "null_p95": 1060.3,
+        "p_right": 0.997,
+        "real_sum": -7486.2
+      },
+      "verdict": "ARTIFACT"
+    },
+    {
+      "by_symbol_hold": {
+        "BTCUSDT": {
+          "max_loss": -417.1,
+          "mean": -14.13,
+          "median": 23.62,
+          "n": 30,
+          "sum": -424.0,
+          "t3r": -1173.1,
+          "win_rate": 0.633
+        },
+        "ETHUSDT": {
+          "max_loss": -494.0,
+          "mean": -122.85,
+          "median": -147.08,
+          "n": 37,
+          "sum": -4545.3,
+          "t3r": -5638.3,
+          "win_rate": 0.351
+        },
+        "SOLUSDT": {
+          "max_loss": -484.2,
+          "mean": -48.48,
+          "median": -15.84,
+          "n": 54,
+          "sum": -2617.9,
+          "t3r": -3540.8,
+          "win_rate": 0.444
+        }
+      },
+      "cal": {
+        "max_loss": -271.1,
+        "mean": -7.37,
+        "median": -7.43,
+        "n": 47,
+        "sum": -346.3,
+        "t3r": -830.7,
+        "win_rate": 0.426
+      },
+      "family": "cascade_confluence",
+      "gauntlet": {
+        "beta_control": "FAIL:not_beta_controlled",
+        "cal_positive_sum_t3r": false,
+        "cross_asset": false,
+        "holdout_positive_sum_t3r": false,
+        "n_ge_min": true,
+        "non_overlap": false,
+        "permutation_p_le_0_05": false,
+        "real_cost": true
+      },
+      "hold": {
+        "max_loss": -494.0,
+        "mean": -62.7,
+        "median": -16.78,
+        "n": 121,
+        "sum": -7587.2,
+        "t3r": -8942.0,
+        "win_rate": 0.463
+      },
+      "hold_population": {
+        "max_loss": -507.2,
+        "mean": -11.65,
+        "median": 10.71,
+        "n": 375,
+        "sum": -4367.5,
+        "t3r": -6250.2,
+        "win_rate": 0.533
+      },
+      "min_n": 40,
+      "name": "sync_plus_deep_bid_label_shuffle",
+      "null_mode": "label_shuffle",
+      "permutation": {
+        "n_perm": 1000,
+        "null_p50": -1329.3,
+        "null_p95": 1589.1,
+        "p_right": 1.0,
+        "real_sum": -7587.2
+      },
+      "verdict": "ARTIFACT"
+    },
+    {
+      "by_symbol_hold": {
+        "BTCUSDT": {
+          "max_loss": -426.7,
+          "mean": 7.01,
+          "median": 10.16,
+          "n": 30,
+          "sum": 210.2,
+          "t3r": -582.8,
+          "win_rate": 0.567
+        },
+        "ETHUSDT": {
+          "max_loss": -585.2,
+          "mean": 15.78,
+          "median": 5.82,
+          "n": 26,
+          "sum": 410.4,
+          "t3r": -406.0,
+          "win_rate": 0.538
+        },
+        "SOLUSDT": {
+          "max_loss": -390.3,
+          "mean": -43.74,
+          "median": -30.85,
+          "n": 20,
+          "sum": -874.8,
+          "t3r": -1474.6,
+          "win_rate": 0.5
+        }
+      },
+      "cal": {
+        "max_loss": -560.7,
+        "mean": -19.85,
+        "median": -20.53,
+        "n": 168,
+        "sum": -3334.2,
+        "t3r": -4239.2,
+        "win_rate": 0.399
+      },
+      "family": "funding_nonoverlap",
+      "gauntlet": {
+        "beta_control": "FAIL:side_split_not_consistent",
+        "cal_positive_sum_t3r": false,
+        "cross_asset": true,
+        "holdout_positive_sum_t3r": false,
+        "n_ge_min": true,
+        "non_overlap": true,
+        "permutation_p_le_0_05": false,
+        "real_cost": true
+      },
+      "hold": {
+        "max_loss": -585.2,
+        "mean": -3.35,
+        "median": 5.82,
+        "n": 76,
+        "sum": -254.3,
+        "t3r": -1158.8,
+        "win_rate": 0.539
+      },
+      "hold_population": {
+        "max_loss": -585.2,
+        "mean": -3.35,
+        "median": 5.82,
+        "n": 76,
+        "sum": -254.3,
+        "t3r": -1158.8,
+        "win_rate": 0.539
+      },
+      "min_n": 40,
+      "name": "funding_nonoverlap_z1_all_signflip",
+      "null_mode": "sign_flip",
+      "permutation": {
+        "n_perm": 1000,
+        "null_p50": 54.5,
+        "null_p95": 2547.1,
+        "p_right": 0.5734,
+        "real_sum": -254.3
+      },
+      "verdict": "ARTIFACT"
+    },
+    {
+      "by_symbol_hold": {
+        "ETHUSDT": {
+          "max_loss": -585.2,
+          "mean": 15.78,
+          "median": 5.82,
+          "n": 26,
+          "sum": 410.4,
+          "t3r": -406.0,
+          "win_rate": 0.538
+        }
+      },
+      "cal": {
+        "max_loss": -400.8,
+        "mean": -18.4,
+        "median": -28.1,
+        "n": 62,
+        "sum": -1140.7,
+        "t3r": -1858.5,
+        "win_rate": 0.355
+      },
+      "family": "funding_nonoverlap",
+      "gauntlet": {
+        "beta_control": "FAIL:single_asset",
+        "cal_positive_sum_t3r": false,
+        "cross_asset": false,
+        "holdout_positive_sum_t3r": false,
+        "n_ge_min": false,
+        "non_overlap": true,
+        "permutation_p_le_0_05": false,
+        "real_cost": true
+      },
+      "hold": {
+        "max_loss": -585.2,
+        "mean": 15.78,
+        "median": 5.82,
+        "n": 26,
+        "sum": 410.4,
+        "t3r": -406.0,
+        "win_rate": 0.538
+      },
+      "hold_population": {
+        "max_loss": -585.2,
+        "mean": -3.35,
+        "median": 5.82,
+        "n": 76,
+        "sum": -254.3,
+        "t3r": -1158.8,
+        "win_rate": 0.539
+      },
+      "min_n": 40,
+      "name": "funding_nonoverlap_z1_eth_only_signflip",
+      "null_mode": "sign_flip",
+      "permutation": {
+        "n_perm": 1000,
+        "null_p50": -15.6,
+        "null_p95": 1393.2,
+        "p_right": 0.3337,
+        "real_sum": 410.4
+      },
+      "verdict": "ARTIFACT"
+    },
+    {
+      "by_symbol_hold": {
+        "BTCUSDT": {
+          "max_loss": -150.1,
+          "mean": 39.69,
+          "median": 9.89,
+          "n": 9,
+          "sum": 357.2,
+          "t3r": -289.8,
+          "win_rate": 0.556
+        },
+        "ETHUSDT": {
+          "max_loss": -585.2,
+          "mean": -22.88,
+          "median": -9.56,
+          "n": 16,
+          "sum": -366.1,
+          "t3r": -847.9,
+          "win_rate": 0.375
+        },
+        "SOLUSDT": {
+          "max_loss": -344.7,
+          "mean": -16.32,
+          "median": 11.44,
+          "n": 14,
+          "sum": -228.5,
+          "t3r": -791.7,
+          "win_rate": 0.571
+        }
+      },
+      "cal": {
+        "max_loss": -560.7,
+        "mean": -22.6,
+        "median": -18.15,
+        "n": 88,
+        "sum": -1988.8,
+        "t3r": -2770.7,
+        "win_rate": 0.409
+      },
+      "family": "funding_nonoverlap",
+      "gauntlet": {
+        "beta_control": "FAIL:side_split_not_consistent",
+        "cal_positive_sum_t3r": false,
+        "cross_asset": false,
+        "holdout_positive_sum_t3r": false,
+        "n_ge_min": false,
+        "non_overlap": true,
+        "permutation_p_le_0_05": false,
+        "real_cost": true
+      },
+      "hold": {
+        "max_loss": -585.2,
+        "mean": -6.08,
+        "median": -3.85,
+        "n": 39,
+        "sum": -237.3,
+        "t3r": -1021.0,
+        "win_rate": 0.487
+      },
+      "hold_population": {
+        "max_loss": -585.2,
+        "mean": -6.08,
+        "median": -3.85,
+        "n": 39,
+        "sum": -237.3,
+        "t3r": -1021.0,
+        "win_rate": 0.487
+      },
+      "min_n": 40,
+      "name": "funding_nonoverlap_z1.5_all_signflip",
+      "null_mode": "sign_flip",
+      "permutation": {
+        "n_perm": 1000,
+        "null_p50": -49.8,
+        "null_p95": 1765.9,
+        "p_right": 0.5784,
+        "real_sum": -237.3
+      },
+      "verdict": "ARTIFACT"
+    },
+    {
+      "by_symbol_hold": {
+        "ETHUSDT": {
+          "max_loss": -585.2,
+          "mean": -22.88,
+          "median": -9.56,
+          "n": 16,
+          "sum": -366.1,
+          "t3r": -847.9,
+          "win_rate": 0.375
+        }
+      },
+      "cal": {
+        "max_loss": -400.8,
+        "mean": -36.84,
+        "median": -42.58,
+        "n": 26,
+        "sum": -957.8,
+        "t3r": -1485.0,
+        "win_rate": 0.346
+      },
+      "family": "funding_nonoverlap",
+      "gauntlet": {
+        "beta_control": "FAIL:single_asset",
+        "cal_positive_sum_t3r": false,
+        "cross_asset": false,
+        "holdout_positive_sum_t3r": false,
+        "n_ge_min": false,
+        "non_overlap": true,
+        "permutation_p_le_0_05": false,
+        "real_cost": true
+      },
+      "hold": {
+        "max_loss": -585.2,
+        "mean": -22.88,
+        "median": -9.56,
+        "n": 16,
+        "sum": -366.1,
+        "t3r": -847.9,
+        "win_rate": 0.375
+      },
+      "hold_population": {
+        "max_loss": -585.2,
+        "mean": -6.08,
+        "median": -3.85,
+        "n": 39,
+        "sum": -237.3,
+        "t3r": -1021.0,
+        "win_rate": 0.487
+      },
+      "min_n": 40,
+      "name": "funding_nonoverlap_z1.5_eth_only_signflip",
+      "null_mode": "sign_flip",
+      "permutation": {
+        "n_perm": 1000,
+        "null_p50": 53.4,
+        "null_p95": 1061.8,
+        "p_right": 0.6773,
+        "real_sum": -366.1
+      },
+      "verdict": "ARTIFACT"
+    },
+    {
+      "by_symbol_hold": {
+        "BTCUSDT": {
+          "max_loss": -150.1,
+          "mean": -12.44,
+          "median": -11.96,
+          "n": 5,
+          "sum": -62.2,
+          "t3r": -219.8,
+          "win_rate": 0.4
+        },
+        "ETHUSDT": {
+          "max_loss": -107.9,
+          "mean": 11.75,
+          "median": 7.37,
+          "n": 5,
+          "sum": 58.8,
+          "t3r": -132.2,
+          "win_rate": 0.6
+        },
+        "SOLUSDT": {
+          "max_loss": -65.3,
+          "mean": 78.83,
+          "median": 77.99,
+          "n": 4,
+          "sum": 315.3,
+          "t3r": -65.3,
+          "win_rate": 0.75
+        }
+      },
+      "cal": {
+        "max_loss": -560.7,
+        "mean": -42.33,
+        "median": -39.93,
+        "n": 31,
+        "sum": -1312.4,
+        "t3r": -2000.2,
+        "win_rate": 0.323
+      },
+      "family": "funding_nonoverlap",
+      "gauntlet": {
+        "beta_control": "FAIL:side_split_not_consistent",
+        "cal_positive_sum_t3r": false,
+        "cross_asset": false,
+        "holdout_positive_sum_t3r": false,
+        "n_ge_min": false,
+        "non_overlap": true,
+        "permutation_p_le_0_05": false,
+        "real_cost": true
+      },
+      "hold": {
+        "max_loss": -150.1,
+        "mean": 22.28,
+        "median": 4.7,
+        "n": 14,
+        "sum": 311.9,
+        "t3r": -212.7,
+        "win_rate": 0.571
+      },
+      "hold_population": {
+        "max_loss": -150.1,
+        "mean": 22.28,
+        "median": 4.7,
+        "n": 14,
+        "sum": 311.9,
+        "t3r": -212.7,
+        "win_rate": 0.571
+      },
+      "min_n": 40,
+      "name": "funding_nonoverlap_z2_all_signflip",
+      "null_mode": "sign_flip",
+      "permutation": {
+        "n_perm": 1000,
+        "null_p50": 7.1,
+        "null_p95": 642.9,
+        "p_right": 0.2118,
+        "real_sum": 311.9
+      },
+      "verdict": "ARTIFACT"
+    },
+    {
+      "by_symbol_hold": {
+        "ETHUSDT": {
+          "max_loss": -107.9,
+          "mean": 11.75,
+          "median": 7.37,
+          "n": 5,
+          "sum": 58.8,
+          "t3r": -132.2,
+          "win_rate": 0.6
+        }
+      },
+      "cal": {
+        "max_loss": -297.9,
+        "mean": -16.02,
+        "median": -39.93,
+        "n": 13,
+        "sum": -208.2,
+        "t3r": -601.2,
+        "win_rate": 0.308
+      },
+      "family": "funding_nonoverlap",
+      "gauntlet": {
+        "beta_control": "FAIL:single_asset",
+        "cal_positive_sum_t3r": false,
+        "cross_asset": false,
+        "holdout_positive_sum_t3r": false,
+        "n_ge_min": false,
+        "non_overlap": true,
+        "permutation_p_le_0_05": false,
+        "real_cost": true
+      },
+      "hold": {
+        "max_loss": -107.9,
+        "mean": 11.75,
+        "median": 7.37,
+        "n": 5,
+        "sum": 58.8,
+        "t3r": -132.2,
+        "win_rate": 0.6
+      },
+      "hold_population": {
+        "max_loss": -150.1,
+        "mean": 22.28,
+        "median": 4.7,
+        "n": 14,
+        "sum": 311.9,
+        "t3r": -212.7,
+        "win_rate": 0.571
+      },
+      "min_n": 40,
+      "name": "funding_nonoverlap_z2_eth_only_signflip",
+      "null_mode": "sign_flip",
+      "permutation": {
+        "n_perm": 1000,
+        "null_p50": 44.0,
+        "null_p95": 308.5,
+        "p_right": 0.4885,
+        "real_sum": 58.8
+      },
+      "verdict": "ARTIFACT"
+    }
+  ],
+  "config": {
+    "funding_cost_bps_rt": 8.0,
+    "n_perm": 1000,
+    "pool_json": "D:\\eclipse_scalper\\reports\\research\\s34\\S34_ABSORPTION_SYNC_2X2_POOL.json",
+    "seed": 3405
+  },
+  "generated_at_utc": "2026-06-29T05:43:42.074995+00:00",
+  "mode": "RESEARCH_ONLY_NO_LIVE_NO_PAPER",
+  "summary": {
+    "artifact": 10,
+    "pass": 0
+  }
+}

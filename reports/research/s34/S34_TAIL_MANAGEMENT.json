@@ -1,0 +1,407 @@
+{
+  "population": {
+    "symbol": "ETHUSDT",
+    "side": "SELL",
+    "n": 676,
+    "horizon_h": 4.0,
+    "fee_side": 3.05,
+    "date_range": [
+      "2026-02-15T16:24:19.405000+00:00",
+      "2026-07-19T17:02:02.077000+00:00"
+    ]
+  },
+  "rules": {
+    "HOLD_4h": {
+      "all": {
+        "n": 676,
+        "mean_net": 1.1,
+        "median_net": 8.5,
+        "max_loss": -539.8,
+        "win_rate": 0.536,
+        "t3r": -1.0,
+        "sum_net": 754.4,
+        "chop": null
+      },
+      "train": {
+        "n": 473,
+        "mean_net": 2.7,
+        "median_net": 7.0,
+        "max_loss": -539.8,
+        "win_rate": 0.529,
+        "t3r": -0.3,
+        "sum_net": 1262.4
+      },
+      "test": {
+        "n": 203,
+        "mean_net": -2.5,
+        "median_net": 9.3,
+        "max_loss": -513.2,
+        "win_rate": 0.552,
+        "t3r": -8.2,
+        "sum_net": -508.1
+      }
+    },
+    "TIME_STOP_30m": {
+      "all": {
+        "n": 676,
+        "mean_net": -1.8,
+        "median_net": 3.6,
+        "max_loss": -461.6,
+        "win_rate": 0.527,
+        "t3r": -3.0,
+        "sum_net": -1210.2,
+        "chop": null
+      },
+      "train": {
+        "n": 473,
+        "mean_net": -3.6,
+        "median_net": 1.5,
+        "max_loss": -280.5,
+        "win_rate": 0.512,
+        "t3r": -5.4,
+        "sum_net": -1701.7
+      },
+      "test": {
+        "n": 203,
+        "mean_net": 2.4,
+        "median_net": 7.5,
+        "max_loss": -461.6,
+        "win_rate": 0.562,
+        "t3r": 0.1,
+        "sum_net": 491.4
+      }
+    },
+    "TIME_STOP_60m": {
+      "all": {
+        "n": 676,
+        "mean_net": -1.6,
+        "median_net": 5.4,
+        "max_loss": -530.2,
+        "win_rate": 0.541,
+        "t3r": -3.3,
+        "sum_net": -1081.4,
+        "chop": null
+      },
+      "train": {
+        "n": 473,
+        "mean_net": -2.7,
+        "median_net": 4.5,
+        "max_loss": -362.4,
+        "win_rate": 0.531,
+        "t3r": -5.2,
+        "sum_net": -1298.4
+      },
+      "test": {
+        "n": 203,
+        "mean_net": 1.1,
+        "median_net": 6.2,
+        "max_loss": -530.2,
+        "win_rate": 0.567,
+        "t3r": -2.6,
+        "sum_net": 217.0
+      }
+    },
+    "TIME_STOP_120m": {
+      "all": {
+        "n": 676,
+        "mean_net": -0.7,
+        "median_net": 6.3,
+        "max_loss": -439.5,
+        "win_rate": 0.531,
+        "t3r": -2.4,
+        "sum_net": -447.6,
+        "chop": null
+      },
+      "train": {
+        "n": 473,
+        "mean_net": -1.7,
+        "median_net": 7.7,
+        "max_loss": -350.6,
+        "win_rate": 0.529,
+        "t3r": -4.2,
+        "sum_net": -793.2
+      },
+      "test": {
+        "n": 203,
+        "mean_net": 1.7,
+        "median_net": 3.3,
+        "max_loss": -439.5,
+        "win_rate": 0.537,
+        "t3r": -2.8,
+        "sum_net": 345.6
+      }
+    },
+    "PRICE_STOP_80bps": {
+      "all": {
+        "n": 676,
+        "mean_net": 0.7,
+        "median_net": -26.6,
+        "max_loss": -86.1,
+        "win_rate": 0.422,
+        "t3r": -1.4,
+        "sum_net": 490.7,
+        "chop": {
+          "stopped": 303,
+          "winners_chopped": 77,
+          "net_bps_given_up_vs_hold": 263.6
+        }
+      },
+      "train": {
+        "n": 473,
+        "mean_net": 0.3,
+        "median_net": -34.4,
+        "max_loss": -86.1,
+        "win_rate": 0.404,
+        "t3r": -2.6,
+        "sum_net": 154.9
+      },
+      "test": {
+        "n": 203,
+        "mean_net": 1.7,
+        "median_net": -12.4,
+        "max_loss": -86.1,
+        "win_rate": 0.463,
+        "t3r": -4.0,
+        "sum_net": 335.9
+      }
+    },
+    "PRICE_STOP_120bps": {
+      "all": {
+        "n": 676,
+        "mean_net": 3.8,
+        "median_net": -0.9,
+        "max_loss": -126.1,
+        "win_rate": 0.496,
+        "t3r": 1.7,
+        "sum_net": 2570.0,
+        "chop": {
+          "stopped": 200,
+          "winners_chopped": 27,
+          "net_bps_given_up_vs_hold": -1815.6
+        }
+      },
+      "train": {
+        "n": 473,
+        "mean_net": 3.1,
+        "median_net": -2.7,
+        "max_loss": -126.1,
+        "win_rate": 0.484,
+        "t3r": 0.2,
+        "sum_net": 1470.4
+      },
+      "test": {
+        "n": 203,
+        "mean_net": 5.4,
+        "median_net": 5.3,
+        "max_loss": -126.1,
+        "win_rate": 0.522,
+        "t3r": -0.2,
+        "sum_net": 1099.6
+      }
+    },
+    "PRICE_STOP_150bps": {
+      "all": {
+        "n": 676,
+        "mean_net": 3.7,
+        "median_net": 3.1,
+        "max_loss": -156.1,
+        "win_rate": 0.516,
+        "t3r": 1.6,
+        "sum_net": 2470.2,
+        "chop": {
+          "stopped": 149,
+          "winners_chopped": 13,
+          "net_bps_given_up_vs_hold": -1715.9
+        }
+      },
+      "train": {
+        "n": 473,
+        "mean_net": 3.4,
+        "median_net": 1.5,
+        "max_loss": -156.1,
+        "win_rate": 0.507,
+        "t3r": 0.5,
+        "sum_net": 1598.2
+      },
+      "test": {
+        "n": 203,
+        "mean_net": 4.3,
+        "median_net": 8.2,
+        "max_loss": -156.1,
+        "win_rate": 0.537,
+        "t3r": -1.3,
+        "sum_net": 872.0
+      }
+    },
+    "REACTIVE_cvd<0.0_exit5m": {
+      "all": {
+        "n": 676,
+        "mean_net": -7.0,
+        "median_net": -6.6,
+        "max_loss": -495.0,
+        "win_rate": 0.396,
+        "t3r": -9.1,
+        "sum_net": -4744.8,
+        "chop": {
+          "cut": 448,
+          "winners_chopped": 241,
+          "net_bps_given_up_vs_hold": 5499.2
+        }
+      },
+      "train": {
+        "n": 473,
+        "mean_net": -7.9,
+        "median_net": -7.0,
+        "max_loss": -495.0,
+        "win_rate": 0.385,
+        "t3r": -10.5,
+        "sum_net": -3736.2
+      },
+      "test": {
+        "n": 203,
+        "mean_net": -5.0,
+        "median_net": -5.4,
+        "max_loss": -440.4,
+        "win_rate": 0.424,
+        "t3r": -10.5,
+        "sum_net": -1008.7
+      }
+    },
+    "REACTIVE_cvd<0.0_exit15m": {
+      "all": {
+        "n": 676,
+        "mean_net": -7.1,
+        "median_net": -2.8,
+        "max_loss": -495.0,
+        "win_rate": 0.472,
+        "t3r": -9.1,
+        "sum_net": -4772.9,
+        "chop": {
+          "cut": 448,
+          "winners_chopped": 241,
+          "net_bps_given_up_vs_hold": 5527.2
+        }
+      },
+      "train": {
+        "n": 473,
+        "mean_net": -8.6,
+        "median_net": -5.9,
+        "max_loss": -495.0,
+        "win_rate": 0.438,
+        "t3r": -11.2,
+        "sum_net": -4071.3
+      },
+      "test": {
+        "n": 203,
+        "mean_net": -3.5,
+        "median_net": 2.4,
+        "max_loss": -440.4,
+        "win_rate": 0.552,
+        "t3r": -9.0,
+        "sum_net": -701.6
+      }
+    },
+    "REACTIVE_cvd<-1.0_exit5m": {
+      "all": {
+        "n": 676,
+        "mean_net": -5.7,
+        "median_net": -7.1,
+        "max_loss": -495.8,
+        "win_rate": 0.404,
+        "t3r": -7.8,
+        "sum_net": -3886.6,
+        "chop": {
+          "cut": 364,
+          "winners_chopped": 192,
+          "net_bps_given_up_vs_hold": 4640.9
+        }
+      },
+      "train": {
+        "n": 473,
+        "mean_net": -7.3,
+        "median_net": -7.5,
+        "max_loss": -495.0,
+        "win_rate": 0.395,
+        "t3r": -9.9,
+        "sum_net": -3460.5
+      },
+      "test": {
+        "n": 203,
+        "mean_net": -2.1,
+        "median_net": -6.9,
+        "max_loss": -495.8,
+        "win_rate": 0.424,
+        "t3r": -7.6,
+        "sum_net": -426.1
+      }
+    },
+    "REACTIVE_cvd<-1.0_exit15m": {
+      "all": {
+        "n": 676,
+        "mean_net": -6.3,
+        "median_net": -3.8,
+        "max_loss": -495.8,
+        "win_rate": 0.47,
+        "t3r": -8.3,
+        "sum_net": -4227.8,
+        "chop": {
+          "cut": 364,
+          "winners_chopped": 192,
+          "net_bps_given_up_vs_hold": 4982.2
+        }
+      },
+      "train": {
+        "n": 473,
+        "mean_net": -8.4,
+        "median_net": -5.9,
+        "max_loss": -495.0,
+        "win_rate": 0.446,
+        "t3r": -11.0,
+        "sum_net": -3956.0
+      },
+      "test": {
+        "n": 203,
+        "mean_net": -1.3,
+        "median_net": 2.3,
+        "max_loss": -495.8,
+        "win_rate": 0.527,
+        "t3r": -6.8,
+        "sum_net": -271.8
+      }
+    },
+    "COMBINED_reactive+pstop150": {
+      "all": {
+        "n": 676,
+        "mean_net": -30.3,
+        "median_net": -20.9,
+        "max_loss": -322.0,
+        "win_rate": 0.367,
+        "t3r": -32.5,
+        "sum_net": -20476.5,
+        "chop": {
+          "acted": 502,
+          "winners_chopped": 229,
+          "net_bps_given_up_vs_hold": 30038.0
+        }
+      },
+      "train": {
+        "n": 473,
+        "mean_net": -32.2,
+        "median_net": -24.3,
+        "max_loss": -322.0,
+        "win_rate": 0.34,
+        "t3r": -35.0,
+        "sum_net": -15242.2
+      },
+      "test": {
+        "n": 203,
+        "mean_net": -25.8,
+        "median_net": -13.6,
+        "max_loss": -253.2,
+        "win_rate": 0.429,
+        "t3r": -31.6,
+        "sum_net": -5234.4
+      }
+    }
+  }
+}

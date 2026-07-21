@@ -1,0 +1,2952 @@
+{
+  "candidate_results": [
+    {
+      "all": {
+        "max_bps": 611.3,
+        "mean_bps": 12.4,
+        "median_bps": 19.9,
+        "min_bps": -495.8,
+        "n": 442,
+        "sum_bps": 5479.3,
+        "t3r_bps": 4111.3,
+        "tail_lt_-100_n": 73,
+        "win_rate": 0.572
+      },
+      "cal": {
+        "max_bps": 386.8,
+        "mean_bps": 7.7,
+        "median_bps": 14.8,
+        "min_bps": -495.8,
+        "n": 292,
+        "sum_bps": 2248.7,
+        "t3r_bps": 1136.3,
+        "tail_lt_-100_n": 50,
+        "win_rate": 0.551
+      },
+      "candidate_id": "SELL_SILENCE_FADE_LONG_H4",
+      "description": "SELL shock, no same/cross propagation by tau, reclaim present -> LONG fade H4.",
+      "execution_proxy": {
+        "median_ask_depth_usd": 148977.6,
+        "median_bid_depth_usd": 162248.4,
+        "median_spread_bps": 0.1,
+        "model": "MARK_TAKER_PROXY_FOR_CANDIDATE_GAUNTLET; maker lifecycle not yet proven"
+      },
+      "gauntlet_pass": true,
+      "hold": {
+        "max_bps": 611.3,
+        "mean_bps": 21.5,
+        "median_bps": 27.6,
+        "min_bps": -455.3,
+        "n": 150,
+        "sum_bps": 3230.6,
+        "t3r_bps": 1915.0,
+        "tail_lt_-100_n": 23,
+        "win_rate": 0.613
+      },
+      "negative_control": {
+        "max_bps": 479.8,
+        "mean_bps": -28.4,
+        "median_bps": -35.9,
+        "min_bps": -627.3,
+        "n": 442,
+        "sum_bps": -12551.3,
+        "t3r_bps": -13866.7,
+        "tail_lt_-100_n": 115,
+        "win_rate": 0.357
+      },
+      "pass_flags": {
+        "all_sum_gt_0": true,
+        "all_t3r_gt_0": true,
+        "hold_sum_gt_0": true,
+        "hold_t3r_gt_0": true,
+        "n_ge_40": true,
+        "negative_control_worse": true,
+        "not_top3_dependent": true
+      },
+      "sample": [
+        {
+          "anchor_utc": "2026-02-15T16:24:19.405000+00:00",
+          "month": "2026-02",
+          "negative_bps": 261.0,
+          "outcome_bps": -277.0,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-15T17:42:36.156000+00:00",
+          "month": "2026-02",
+          "negative_bps": 153.8,
+          "outcome_bps": -169.8,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-15T19:09:44.232000+00:00",
+          "month": "2026-02",
+          "negative_bps": -69.0,
+          "outcome_bps": 53.0,
+          "side": "SELL",
+          "tags": [
+            "PROPAGATION_PRESSURE_MID"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-15T19:32:31.055000+00:00",
+          "month": "2026-02",
+          "negative_bps": -115.7,
+          "outcome_bps": 99.7,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-15T23:02:50.113000+00:00",
+          "month": "2026-02",
+          "negative_bps": -5.2,
+          "outcome_bps": -10.8,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T11:09:26.697000+00:00",
+          "month": "2026-02",
+          "negative_bps": -53.1,
+          "outcome_bps": 37.1,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T13:21:09.242000+00:00",
+          "month": "2026-02",
+          "negative_bps": 160.4,
+          "outcome_bps": -176.4,
+          "side": "SELL",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "SELL_PROPAGATION",
+            "SELL_FADE_DANGER",
+            "SELL_SHORT_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T14:26:56.339000+00:00",
+          "month": "2026-02",
+          "negative_bps": -103.4,
+          "outcome_bps": 87.4,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T16:17:45.610000+00:00",
+          "month": "2026-02",
+          "negative_bps": -58.2,
+          "outcome_bps": 42.2,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T18:37:17.654000+00:00",
+          "month": "2026-02",
+          "negative_bps": -96.1,
+          "outcome_bps": 80.1,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        }
+      ],
+      "selected_n": 442,
+      "tau_sec": 300
+    },
+    {
+      "all": {
+        "max_bps": 611.3,
+        "mean_bps": 16.7,
+        "median_bps": 21.5,
+        "min_bps": -495.8,
+        "n": 405,
+        "sum_bps": 6744.0,
+        "t3r_bps": 5376.0,
+        "tail_lt_-100_n": 63,
+        "win_rate": 0.575
+      },
+      "cal": {
+        "max_bps": 386.8,
+        "mean_bps": 10.8,
+        "median_bps": 16.1,
+        "min_bps": -495.8,
+        "n": 277,
+        "sum_bps": 2999.7,
+        "t3r_bps": 1887.3,
+        "tail_lt_-100_n": 46,
+        "win_rate": 0.552
+      },
+      "candidate_id": "SELL_SILENCE_FADE_LONG_H4",
+      "description": "SELL shock, no same/cross propagation by tau, reclaim present -> LONG fade H4.",
+      "execution_proxy": {
+        "median_ask_depth_usd": 148612.0,
+        "median_bid_depth_usd": 160513.0,
+        "median_spread_bps": 0.1,
+        "model": "MARK_TAKER_PROXY_FOR_CANDIDATE_GAUNTLET; maker lifecycle not yet proven"
+      },
+      "gauntlet_pass": true,
+      "hold": {
+        "max_bps": 611.3,
+        "mean_bps": 29.3,
+        "median_bps": 27.6,
+        "min_bps": -455.3,
+        "n": 128,
+        "sum_bps": 3744.3,
+        "t3r_bps": 2452.2,
+        "tail_lt_-100_n": 17,
+        "win_rate": 0.625
+      },
+      "negative_control": {
+        "max_bps": 479.8,
+        "mean_bps": -32.7,
+        "median_bps": -37.5,
+        "min_bps": -627.3,
+        "n": 405,
+        "sum_bps": -13224.0,
+        "t3r_bps": -14539.4,
+        "tail_lt_-100_n": 107,
+        "win_rate": 0.348
+      },
+      "pass_flags": {
+        "all_sum_gt_0": true,
+        "all_t3r_gt_0": true,
+        "hold_sum_gt_0": true,
+        "hold_t3r_gt_0": true,
+        "n_ge_40": true,
+        "negative_control_worse": true,
+        "not_top3_dependent": true
+      },
+      "sample": [
+        {
+          "anchor_utc": "2026-02-15T16:24:19.405000+00:00",
+          "month": "2026-02",
+          "negative_bps": 261.0,
+          "outcome_bps": -277.0,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-15T17:42:36.156000+00:00",
+          "month": "2026-02",
+          "negative_bps": 153.8,
+          "outcome_bps": -169.8,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-15T19:09:44.232000+00:00",
+          "month": "2026-02",
+          "negative_bps": -69.0,
+          "outcome_bps": 53.0,
+          "side": "SELL",
+          "tags": [
+            "PROPAGATION_PRESSURE_MID"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-15T19:32:31.055000+00:00",
+          "month": "2026-02",
+          "negative_bps": -115.7,
+          "outcome_bps": 99.7,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-15T23:02:50.113000+00:00",
+          "month": "2026-02",
+          "negative_bps": -5.2,
+          "outcome_bps": -10.8,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T11:09:26.697000+00:00",
+          "month": "2026-02",
+          "negative_bps": -53.1,
+          "outcome_bps": 37.1,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T13:21:09.242000+00:00",
+          "month": "2026-02",
+          "negative_bps": 160.4,
+          "outcome_bps": -176.4,
+          "side": "SELL",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "SELL_PROPAGATION",
+            "SELL_FADE_DANGER",
+            "SELL_SHORT_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T14:26:56.339000+00:00",
+          "month": "2026-02",
+          "negative_bps": -103.4,
+          "outcome_bps": 87.4,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T16:17:45.610000+00:00",
+          "month": "2026-02",
+          "negative_bps": -58.2,
+          "outcome_bps": 42.2,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T18:37:17.654000+00:00",
+          "month": "2026-02",
+          "negative_bps": -96.1,
+          "outcome_bps": 80.1,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        }
+      ],
+      "selected_n": 405,
+      "tau_sec": 900
+    },
+    {
+      "all": {
+        "max_bps": 611.3,
+        "mean_bps": 27.5,
+        "median_bps": 29.5,
+        "min_bps": -455.3,
+        "n": 345,
+        "sum_bps": 9503.0,
+        "t3r_bps": 8135.0,
+        "tail_lt_-100_n": 44,
+        "win_rate": 0.606
+      },
+      "cal": {
+        "max_bps": 386.8,
+        "mean_bps": 21.9,
+        "median_bps": 26.2,
+        "min_bps": -331.5,
+        "n": 246,
+        "sum_bps": 5391.4,
+        "t3r_bps": 4279.0,
+        "tail_lt_-100_n": 34,
+        "win_rate": 0.577
+      },
+      "candidate_id": "SELL_SILENCE_FADE_LONG_H4",
+      "description": "SELL shock, no same/cross propagation by tau, reclaim present -> LONG fade H4.",
+      "execution_proxy": {
+        "median_ask_depth_usd": 149409.4,
+        "median_bid_depth_usd": 153088.2,
+        "median_spread_bps": 0.1,
+        "model": "MARK_TAKER_PROXY_FOR_CANDIDATE_GAUNTLET; maker lifecycle not yet proven"
+      },
+      "gauntlet_pass": true,
+      "hold": {
+        "max_bps": 611.3,
+        "mean_bps": 41.5,
+        "median_bps": 32.3,
+        "min_bps": -455.3,
+        "n": 99,
+        "sum_bps": 4111.6,
+        "t3r_bps": 2819.5,
+        "tail_lt_-100_n": 10,
+        "win_rate": 0.677
+      },
+      "negative_control": {
+        "max_bps": 439.3,
+        "mean_bps": -43.5,
+        "median_bps": -45.5,
+        "min_bps": -627.3,
+        "n": 345,
+        "sum_bps": -15023.0,
+        "t3r_bps": -16174.1,
+        "tail_lt_-100_n": 96,
+        "win_rate": 0.316
+      },
+      "pass_flags": {
+        "all_sum_gt_0": true,
+        "all_t3r_gt_0": true,
+        "hold_sum_gt_0": true,
+        "hold_t3r_gt_0": true,
+        "n_ge_40": true,
+        "negative_control_worse": true,
+        "not_top3_dependent": true
+      },
+      "sample": [
+        {
+          "anchor_utc": "2026-02-15T16:24:19.405000+00:00",
+          "month": "2026-02",
+          "negative_bps": 261.0,
+          "outcome_bps": -277.0,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-15T17:42:36.156000+00:00",
+          "month": "2026-02",
+          "negative_bps": 153.8,
+          "outcome_bps": -169.8,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-15T19:32:31.055000+00:00",
+          "month": "2026-02",
+          "negative_bps": -115.7,
+          "outcome_bps": 99.7,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-15T23:02:50.113000+00:00",
+          "month": "2026-02",
+          "negative_bps": -5.2,
+          "outcome_bps": -10.8,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T11:09:26.697000+00:00",
+          "month": "2026-02",
+          "negative_bps": -53.1,
+          "outcome_bps": 37.1,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T14:26:56.339000+00:00",
+          "month": "2026-02",
+          "negative_bps": -103.4,
+          "outcome_bps": 87.4,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T16:17:45.610000+00:00",
+          "month": "2026-02",
+          "negative_bps": -58.2,
+          "outcome_bps": 42.2,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T18:37:17.654000+00:00",
+          "month": "2026-02",
+          "negative_bps": -96.1,
+          "outcome_bps": 80.1,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T10:52:14.562000+00:00",
+          "month": "2026-02",
+          "negative_bps": 40.7,
+          "outcome_bps": -56.7,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T12:49:57.378000+00:00",
+          "month": "2026-02",
+          "negative_bps": -71.8,
+          "outcome_bps": 55.8,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        }
+      ],
+      "selected_n": 345,
+      "tau_sec": 1800
+    },
+    {
+      "all": {
+        "max_bps": 611.3,
+        "mean_bps": 26.9,
+        "median_bps": 26.0,
+        "min_bps": -455.3,
+        "n": 280,
+        "sum_bps": 7523.8,
+        "t3r_bps": 6186.9,
+        "tail_lt_-100_n": 35,
+        "win_rate": 0.6
+      },
+      "cal": {
+        "max_bps": 369.9,
+        "mean_bps": 21.0,
+        "median_bps": 20.6,
+        "min_bps": -331.5,
+        "n": 207,
+        "sum_bps": 4349.2,
+        "t3r_bps": 3272.0,
+        "tail_lt_-100_n": 29,
+        "win_rate": 0.565
+      },
+      "candidate_id": "SELL_SILENCE_FADE_LONG_H4",
+      "description": "SELL shock, no same/cross propagation by tau, reclaim present -> LONG fade H4.",
+      "execution_proxy": {
+        "median_ask_depth_usd": 154110.3,
+        "median_bid_depth_usd": 161942.0,
+        "median_spread_bps": 0.1,
+        "model": "MARK_TAKER_PROXY_FOR_CANDIDATE_GAUNTLET; maker lifecycle not yet proven"
+      },
+      "gauntlet_pass": true,
+      "hold": {
+        "max_bps": 611.3,
+        "mean_bps": 43.5,
+        "median_bps": 31.8,
+        "min_bps": -455.3,
+        "n": 73,
+        "sum_bps": 3174.6,
+        "t3r_bps": 1882.5,
+        "tail_lt_-100_n": 6,
+        "win_rate": 0.699
+      },
+      "negative_control": {
+        "max_bps": 439.3,
+        "mean_bps": -42.9,
+        "median_bps": -42.0,
+        "min_bps": -627.3,
+        "n": 280,
+        "sum_bps": -12003.8,
+        "t3r_bps": -13154.9,
+        "tail_lt_-100_n": 78,
+        "win_rate": 0.329
+      },
+      "pass_flags": {
+        "all_sum_gt_0": true,
+        "all_t3r_gt_0": true,
+        "hold_sum_gt_0": true,
+        "hold_t3r_gt_0": true,
+        "n_ge_40": true,
+        "negative_control_worse": true,
+        "not_top3_dependent": true
+      },
+      "sample": [
+        {
+          "anchor_utc": "2026-02-15T16:24:19.405000+00:00",
+          "month": "2026-02",
+          "negative_bps": 261.0,
+          "outcome_bps": -277.0,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-15T17:42:36.156000+00:00",
+          "month": "2026-02",
+          "negative_bps": 153.8,
+          "outcome_bps": -169.8,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-15T19:32:31.055000+00:00",
+          "month": "2026-02",
+          "negative_bps": -115.7,
+          "outcome_bps": 99.7,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-15T23:02:50.113000+00:00",
+          "month": "2026-02",
+          "negative_bps": -5.2,
+          "outcome_bps": -10.8,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T11:09:26.697000+00:00",
+          "month": "2026-02",
+          "negative_bps": -53.1,
+          "outcome_bps": 37.1,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T14:26:56.339000+00:00",
+          "month": "2026-02",
+          "negative_bps": -103.4,
+          "outcome_bps": 87.4,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T16:17:45.610000+00:00",
+          "month": "2026-02",
+          "negative_bps": -58.2,
+          "outcome_bps": 42.2,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T18:37:17.654000+00:00",
+          "month": "2026-02",
+          "negative_bps": -96.1,
+          "outcome_bps": 80.1,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T10:52:14.562000+00:00",
+          "month": "2026-02",
+          "negative_bps": 40.7,
+          "outcome_bps": -56.7,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T12:49:57.378000+00:00",
+          "month": "2026-02",
+          "negative_bps": -71.8,
+          "outcome_bps": 55.8,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        }
+      ],
+      "selected_n": 280,
+      "tau_sec": 3600
+    },
+    {
+      "all": {
+        "max_bps": null,
+        "mean_bps": null,
+        "median_bps": null,
+        "min_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "tail_lt_-100_n": 0,
+        "win_rate": null
+      },
+      "cal": {
+        "max_bps": null,
+        "mean_bps": null,
+        "median_bps": null,
+        "min_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "tail_lt_-100_n": 0,
+        "win_rate": null
+      },
+      "candidate_id": "SELL_PROPAGATION_MOMENTUM_SHORT_H1",
+      "description": "SELL shock with propagation pressure by tau -> SHORT momentum H1.",
+      "execution_proxy": {
+        "median_ask_depth_usd": null,
+        "median_bid_depth_usd": null,
+        "median_spread_bps": null,
+        "model": "MARK_TAKER_PROXY_FOR_CANDIDATE_GAUNTLET; maker lifecycle not yet proven"
+      },
+      "gauntlet_pass": false,
+      "hold": {
+        "max_bps": null,
+        "mean_bps": null,
+        "median_bps": null,
+        "min_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "tail_lt_-100_n": 0,
+        "win_rate": null
+      },
+      "negative_control": {
+        "max_bps": null,
+        "mean_bps": null,
+        "median_bps": null,
+        "min_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "tail_lt_-100_n": 0,
+        "win_rate": null
+      },
+      "pass_flags": {
+        "all_sum_gt_0": false,
+        "all_t3r_gt_0": false,
+        "hold_sum_gt_0": false,
+        "hold_t3r_gt_0": false,
+        "n_ge_40": false,
+        "negative_control_worse": false,
+        "not_top3_dependent": false
+      },
+      "sample": [],
+      "selected_n": 0,
+      "tau_sec": 300
+    },
+    {
+      "all": {
+        "max_bps": null,
+        "mean_bps": null,
+        "median_bps": null,
+        "min_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "tail_lt_-100_n": 0,
+        "win_rate": null
+      },
+      "cal": {
+        "max_bps": null,
+        "mean_bps": null,
+        "median_bps": null,
+        "min_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "tail_lt_-100_n": 0,
+        "win_rate": null
+      },
+      "candidate_id": "SELL_PROPAGATION_MOMENTUM_SHORT_H1",
+      "description": "SELL shock with propagation pressure by tau -> SHORT momentum H1.",
+      "execution_proxy": {
+        "median_ask_depth_usd": null,
+        "median_bid_depth_usd": null,
+        "median_spread_bps": null,
+        "model": "MARK_TAKER_PROXY_FOR_CANDIDATE_GAUNTLET; maker lifecycle not yet proven"
+      },
+      "gauntlet_pass": false,
+      "hold": {
+        "max_bps": null,
+        "mean_bps": null,
+        "median_bps": null,
+        "min_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "tail_lt_-100_n": 0,
+        "win_rate": null
+      },
+      "negative_control": {
+        "max_bps": null,
+        "mean_bps": null,
+        "median_bps": null,
+        "min_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "tail_lt_-100_n": 0,
+        "win_rate": null
+      },
+      "pass_flags": {
+        "all_sum_gt_0": false,
+        "all_t3r_gt_0": false,
+        "hold_sum_gt_0": false,
+        "hold_t3r_gt_0": false,
+        "n_ge_40": false,
+        "negative_control_worse": false,
+        "not_top3_dependent": false
+      },
+      "sample": [],
+      "selected_n": 0,
+      "tau_sec": 900
+    },
+    {
+      "all": {
+        "max_bps": 380.6,
+        "mean_bps": 47.7,
+        "median_bps": 26.2,
+        "min_bps": -290.0,
+        "n": 93,
+        "sum_bps": 4439.8,
+        "t3r_bps": 3489.1,
+        "tail_lt_-100_n": 2,
+        "win_rate": 0.667
+      },
+      "cal": {
+        "max_bps": 238.6,
+        "mean_bps": 51.1,
+        "median_bps": 26.9,
+        "min_bps": -87.8,
+        "n": 39,
+        "sum_bps": 1992.4,
+        "t3r_bps": 1362.9,
+        "tail_lt_-100_n": 0,
+        "win_rate": 0.615
+      },
+      "candidate_id": "SELL_PROPAGATION_MOMENTUM_SHORT_H1",
+      "description": "SELL shock with propagation pressure by tau -> SHORT momentum H1.",
+      "execution_proxy": {
+        "median_ask_depth_usd": 148977.6,
+        "median_bid_depth_usd": 186058.5,
+        "median_spread_bps": 0.1,
+        "model": "MARK_TAKER_PROXY_FOR_CANDIDATE_GAUNTLET; maker lifecycle not yet proven"
+      },
+      "gauntlet_pass": true,
+      "hold": {
+        "max_bps": 380.6,
+        "mean_bps": 45.3,
+        "median_bps": 25.4,
+        "min_bps": -290.0,
+        "n": 54,
+        "sum_bps": 2447.4,
+        "t3r_bps": 1496.7,
+        "tail_lt_-100_n": 2,
+        "win_rate": 0.704
+      },
+      "negative_control": {
+        "max_bps": 274.0,
+        "mean_bps": -63.7,
+        "median_bps": -42.2,
+        "min_bps": -396.6,
+        "n": 93,
+        "sum_bps": -5927.8,
+        "t3r_bps": -6423.9,
+        "tail_lt_-100_n": 27,
+        "win_rate": 0.215
+      },
+      "pass_flags": {
+        "all_sum_gt_0": true,
+        "all_t3r_gt_0": true,
+        "hold_sum_gt_0": true,
+        "hold_t3r_gt_0": true,
+        "n_ge_40": true,
+        "negative_control_worse": true,
+        "not_top3_dependent": true
+      },
+      "sample": [
+        {
+          "anchor_utc": "2026-02-16T13:21:09.242000+00:00",
+          "month": "2026-02",
+          "negative_bps": -166.7,
+          "outcome_bps": 150.7,
+          "side": "SELL",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "SELL_PROPAGATION",
+            "SELL_FADE_DANGER",
+            "SELL_SHORT_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-18T00:47:22.606000+00:00",
+          "month": "2026-02",
+          "negative_bps": -59.6,
+          "outcome_bps": 43.6,
+          "side": "SELL",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "SELL_PROPAGATION",
+            "SELL_FADE_DANGER",
+            "SELL_SHORT_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-23T17:14:54.919000+00:00",
+          "month": "2026-02",
+          "negative_bps": -38.1,
+          "outcome_bps": 22.1,
+          "side": "SELL",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "SELL_PROPAGATION",
+            "SELL_FADE_DANGER",
+            "SELL_SHORT_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-25T18:46:44.673000+00:00",
+          "month": "2026-02",
+          "negative_bps": -10.1,
+          "outcome_bps": -5.9,
+          "side": "SELL",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "SELL_PROPAGATION",
+            "SELL_FADE_DANGER",
+            "SELL_SHORT_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-26T14:30:50.219000+00:00",
+          "month": "2026-02",
+          "negative_bps": -182.5,
+          "outcome_bps": 166.5,
+          "side": "SELL",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "SELL_PROPAGATION",
+            "SELL_FADE_DANGER",
+            "SELL_SHORT_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-27T09:44:42.191000+00:00",
+          "month": "2026-02",
+          "negative_bps": -130.6,
+          "outcome_bps": 114.6,
+          "side": "SELL",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "SELL_PROPAGATION",
+            "SELL_FADE_DANGER",
+            "SELL_SHORT_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-27T10:53:49.658000+00:00",
+          "month": "2026-02",
+          "negative_bps": -104.0,
+          "outcome_bps": 88.0,
+          "side": "SELL",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "SELL_PROPAGATION",
+            "SELL_FADE_DANGER",
+            "SELL_SHORT_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-27T11:18:21.089000+00:00",
+          "month": "2026-02",
+          "negative_bps": -92.2,
+          "outcome_bps": 76.2,
+          "side": "SELL",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "SELL_PROPAGATION",
+            "SELL_FADE_DANGER",
+            "SELL_SHORT_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-28T06:15:33.558000+00:00",
+          "month": "2026-02",
+          "negative_bps": -254.6,
+          "outcome_bps": 238.6,
+          "side": "SELL",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "SELL_PROPAGATION",
+            "SELL_FADE_DANGER",
+            "SELL_SHORT_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-28T06:31:11.669000+00:00",
+          "month": "2026-02",
+          "negative_bps": -132.8,
+          "outcome_bps": 116.8,
+          "side": "SELL",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "SELL_PROPAGATION",
+            "SELL_FADE_DANGER",
+            "SELL_SHORT_MOMENTUM_WATCH"
+          ]
+        }
+      ],
+      "selected_n": 93,
+      "tau_sec": 1800
+    },
+    {
+      "all": {
+        "max_bps": 516.1,
+        "mean_bps": 42.0,
+        "median_bps": 24.7,
+        "min_bps": -290.0,
+        "n": 185,
+        "sum_bps": 7763.4,
+        "t3r_bps": 6518.4,
+        "tail_lt_-100_n": 7,
+        "win_rate": 0.638
+      },
+      "cal": {
+        "max_bps": 348.3,
+        "mean_bps": 42.0,
+        "median_bps": 27.8,
+        "min_bps": -154.2,
+        "n": 88,
+        "sum_bps": 3697.1,
+        "t3r_bps": 2829.5,
+        "tail_lt_-100_n": 4,
+        "win_rate": 0.636
+      },
+      "candidate_id": "SELL_PROPAGATION_MOMENTUM_SHORT_H1",
+      "description": "SELL shock with propagation pressure by tau -> SHORT momentum H1.",
+      "execution_proxy": {
+        "median_ask_depth_usd": 137180.6,
+        "median_bid_depth_usd": 173411.9,
+        "median_spread_bps": 0.1,
+        "model": "MARK_TAKER_PROXY_FOR_CANDIDATE_GAUNTLET; maker lifecycle not yet proven"
+      },
+      "gauntlet_pass": true,
+      "hold": {
+        "max_bps": 516.1,
+        "mean_bps": 41.9,
+        "median_bps": 18.2,
+        "min_bps": -290.0,
+        "n": 97,
+        "sum_bps": 4066.3,
+        "t3r_bps": 2843.9,
+        "tail_lt_-100_n": 3,
+        "win_rate": 0.639
+      },
+      "negative_control": {
+        "max_bps": 274.0,
+        "mean_bps": -58.0,
+        "median_bps": -40.7,
+        "min_bps": -532.1,
+        "n": 185,
+        "sum_bps": -10723.4,
+        "t3r_bps": -11280.2,
+        "tail_lt_-100_n": 44,
+        "win_rate": 0.222
+      },
+      "pass_flags": {
+        "all_sum_gt_0": true,
+        "all_t3r_gt_0": true,
+        "hold_sum_gt_0": true,
+        "hold_t3r_gt_0": true,
+        "n_ge_40": true,
+        "negative_control_worse": true,
+        "not_top3_dependent": true
+      },
+      "sample": [
+        {
+          "anchor_utc": "2026-02-16T13:21:09.242000+00:00",
+          "month": "2026-02",
+          "negative_bps": -166.7,
+          "outcome_bps": 150.7,
+          "side": "SELL",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "SELL_PROPAGATION",
+            "SELL_FADE_DANGER",
+            "SELL_SHORT_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T13:38:46.298000+00:00",
+          "month": "2026-02",
+          "negative_bps": -8.8,
+          "outcome_bps": -7.2,
+          "side": "SELL",
+          "tags": [
+            "PROPAGATION_PRESSURE_MID"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T15:31:24.519000+00:00",
+          "month": "2026-02",
+          "negative_bps": 86.1,
+          "outcome_bps": -102.1,
+          "side": "SELL",
+          "tags": [
+            "PROPAGATION_PRESSURE_MID"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-18T00:47:22.606000+00:00",
+          "month": "2026-02",
+          "negative_bps": -59.6,
+          "outcome_bps": 43.6,
+          "side": "SELL",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "SELL_PROPAGATION",
+            "SELL_FADE_DANGER",
+            "SELL_SHORT_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-18T13:46:44.281000+00:00",
+          "month": "2026-02",
+          "negative_bps": 15.9,
+          "outcome_bps": -31.9,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-19T13:04:31.105000+00:00",
+          "month": "2026-02",
+          "negative_bps": -127.8,
+          "outcome_bps": 111.8,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-20T16:31:06.192000+00:00",
+          "month": "2026-02",
+          "negative_bps": -38.6,
+          "outcome_bps": 22.6,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-23T01:00:58.092000+00:00",
+          "month": "2026-02",
+          "negative_bps": -364.3,
+          "outcome_bps": 348.3,
+          "side": "SELL",
+          "tags": [
+            "PROPAGATION_PRESSURE_MID"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-23T17:14:54.919000+00:00",
+          "month": "2026-02",
+          "negative_bps": -38.1,
+          "outcome_bps": 22.1,
+          "side": "SELL",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "SELL_PROPAGATION",
+            "SELL_FADE_DANGER",
+            "SELL_SHORT_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-25T15:05:40.237000+00:00",
+          "month": "2026-02",
+          "negative_bps": 117.3,
+          "outcome_bps": -133.3,
+          "side": "SELL",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "SELL_SILENCE_RECLAIM",
+            "SELL_LONG_FADE_NAV_OK"
+          ]
+        }
+      ],
+      "selected_n": 185,
+      "tau_sec": 3600
+    },
+    {
+      "all": {
+        "max_bps": null,
+        "mean_bps": null,
+        "median_bps": null,
+        "min_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "tail_lt_-100_n": 0,
+        "win_rate": null
+      },
+      "cal": {
+        "max_bps": null,
+        "mean_bps": null,
+        "median_bps": null,
+        "min_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "tail_lt_-100_n": 0,
+        "win_rate": null
+      },
+      "candidate_id": "BUY_PROPAGATION_MOMENTUM_LONG_H1",
+      "description": "BUY shock with propagation pressure by tau -> LONG momentum H1.",
+      "execution_proxy": {
+        "median_ask_depth_usd": null,
+        "median_bid_depth_usd": null,
+        "median_spread_bps": null,
+        "model": "MARK_TAKER_PROXY_FOR_CANDIDATE_GAUNTLET; maker lifecycle not yet proven"
+      },
+      "gauntlet_pass": false,
+      "hold": {
+        "max_bps": null,
+        "mean_bps": null,
+        "median_bps": null,
+        "min_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "tail_lt_-100_n": 0,
+        "win_rate": null
+      },
+      "negative_control": {
+        "max_bps": null,
+        "mean_bps": null,
+        "median_bps": null,
+        "min_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "tail_lt_-100_n": 0,
+        "win_rate": null
+      },
+      "pass_flags": {
+        "all_sum_gt_0": false,
+        "all_t3r_gt_0": false,
+        "hold_sum_gt_0": false,
+        "hold_t3r_gt_0": false,
+        "n_ge_40": false,
+        "negative_control_worse": false,
+        "not_top3_dependent": false
+      },
+      "sample": [],
+      "selected_n": 0,
+      "tau_sec": 300
+    },
+    {
+      "all": {
+        "max_bps": null,
+        "mean_bps": null,
+        "median_bps": null,
+        "min_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "tail_lt_-100_n": 0,
+        "win_rate": null
+      },
+      "cal": {
+        "max_bps": null,
+        "mean_bps": null,
+        "median_bps": null,
+        "min_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "tail_lt_-100_n": 0,
+        "win_rate": null
+      },
+      "candidate_id": "BUY_PROPAGATION_MOMENTUM_LONG_H1",
+      "description": "BUY shock with propagation pressure by tau -> LONG momentum H1.",
+      "execution_proxy": {
+        "median_ask_depth_usd": null,
+        "median_bid_depth_usd": null,
+        "median_spread_bps": null,
+        "model": "MARK_TAKER_PROXY_FOR_CANDIDATE_GAUNTLET; maker lifecycle not yet proven"
+      },
+      "gauntlet_pass": false,
+      "hold": {
+        "max_bps": null,
+        "mean_bps": null,
+        "median_bps": null,
+        "min_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "tail_lt_-100_n": 0,
+        "win_rate": null
+      },
+      "negative_control": {
+        "max_bps": null,
+        "mean_bps": null,
+        "median_bps": null,
+        "min_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "tail_lt_-100_n": 0,
+        "win_rate": null
+      },
+      "pass_flags": {
+        "all_sum_gt_0": false,
+        "all_t3r_gt_0": false,
+        "hold_sum_gt_0": false,
+        "hold_t3r_gt_0": false,
+        "n_ge_40": false,
+        "negative_control_worse": false,
+        "not_top3_dependent": false
+      },
+      "sample": [],
+      "selected_n": 0,
+      "tau_sec": 900
+    },
+    {
+      "all": {
+        "max_bps": 306.9,
+        "mean_bps": 50.8,
+        "median_bps": 39.2,
+        "min_bps": -254.8,
+        "n": 98,
+        "sum_bps": 4974.3,
+        "t3r_bps": 4103.2,
+        "tail_lt_-100_n": 6,
+        "win_rate": 0.653
+      },
+      "cal": {
+        "max_bps": 306.9,
+        "mean_bps": 48.6,
+        "median_bps": 26.4,
+        "min_bps": -254.8,
+        "n": 60,
+        "sum_bps": 2914.9,
+        "t3r_bps": 2079.3,
+        "tail_lt_-100_n": 4,
+        "win_rate": 0.617
+      },
+      "candidate_id": "BUY_PROPAGATION_MOMENTUM_LONG_H1",
+      "description": "BUY shock with propagation pressure by tau -> LONG momentum H1.",
+      "execution_proxy": {
+        "median_ask_depth_usd": 204246.8,
+        "median_bid_depth_usd": 134160.2,
+        "median_spread_bps": 0.1,
+        "model": "MARK_TAKER_PROXY_FOR_CANDIDATE_GAUNTLET; maker lifecycle not yet proven"
+      },
+      "gauntlet_pass": true,
+      "hold": {
+        "max_bps": 274.4,
+        "mean_bps": 54.2,
+        "median_bps": 54.3,
+        "min_bps": -237.8,
+        "n": 38,
+        "sum_bps": 2059.4,
+        "t3r_bps": 1320.5,
+        "tail_lt_-100_n": 2,
+        "win_rate": 0.711
+      },
+      "negative_control": {
+        "max_bps": 238.8,
+        "mean_bps": -66.8,
+        "median_bps": -55.2,
+        "min_bps": -322.9,
+        "n": 98,
+        "sum_bps": -6542.3,
+        "t3r_bps": -7158.3,
+        "tail_lt_-100_n": 34,
+        "win_rate": 0.224
+      },
+      "pass_flags": {
+        "all_sum_gt_0": true,
+        "all_t3r_gt_0": true,
+        "hold_sum_gt_0": true,
+        "hold_t3r_gt_0": true,
+        "n_ge_40": true,
+        "negative_control_worse": true,
+        "not_top3_dependent": true
+      },
+      "sample": [
+        {
+          "anchor_utc": "2026-02-17T15:49:53.710000+00:00",
+          "month": "2026-02",
+          "negative_bps": -147.5,
+          "outcome_bps": 131.5,
+          "side": "BUY",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "BUY_PROPAGATION",
+            "BUY_SHORT_FADE_DANGER",
+            "BUY_LONG_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-18T07:48:59.653000+00:00",
+          "month": "2026-02",
+          "negative_bps": -22.6,
+          "outcome_bps": 6.6,
+          "side": "BUY",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "BUY_PROPAGATION",
+            "BUY_SHORT_FADE_DANGER",
+            "BUY_LONG_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-19T14:53:54.385000+00:00",
+          "month": "2026-02",
+          "negative_bps": 119.2,
+          "outcome_bps": -135.2,
+          "side": "BUY",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "BUY_PROPAGATION",
+            "BUY_SHORT_FADE_DANGER",
+            "BUY_LONG_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-19T18:48:43.496000+00:00",
+          "month": "2026-02",
+          "negative_bps": 49.9,
+          "outcome_bps": -65.9,
+          "side": "BUY",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "BUY_PROPAGATION",
+            "BUY_SHORT_FADE_DANGER",
+            "BUY_LONG_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-20T15:01:28.213000+00:00",
+          "month": "2026-02",
+          "negative_bps": 12.1,
+          "outcome_bps": -28.1,
+          "side": "BUY",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "BUY_PROPAGATION",
+            "BUY_SHORT_FADE_DANGER",
+            "BUY_LONG_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-23T09:03:04.618000+00:00",
+          "month": "2026-02",
+          "negative_bps": -235.0,
+          "outcome_bps": 219.0,
+          "side": "BUY",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "BUY_PROPAGATION",
+            "BUY_SHORT_FADE_DANGER",
+            "BUY_LONG_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-25T14:40:34.443000+00:00",
+          "month": "2026-02",
+          "negative_bps": -252.5,
+          "outcome_bps": 236.5,
+          "side": "BUY",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "BUY_PROPAGATION",
+            "BUY_SHORT_FADE_DANGER",
+            "BUY_LONG_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-25T16:23:59.398000+00:00",
+          "month": "2026-02",
+          "negative_bps": -151.4,
+          "outcome_bps": 135.4,
+          "side": "BUY",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "BUY_PROPAGATION",
+            "BUY_SHORT_FADE_DANGER",
+            "BUY_LONG_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-28T13:49:13.272000+00:00",
+          "month": "2026-02",
+          "negative_bps": -2.7,
+          "outcome_bps": -13.3,
+          "side": "BUY",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "BUY_PROPAGATION",
+            "BUY_SHORT_FADE_DANGER",
+            "BUY_LONG_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-28T18:37:24.095000+00:00",
+          "month": "2026-02",
+          "negative_bps": -131.2,
+          "outcome_bps": 115.2,
+          "side": "BUY",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "BUY_PROPAGATION",
+            "BUY_SHORT_FADE_DANGER",
+            "BUY_LONG_MOMENTUM_WATCH"
+          ]
+        }
+      ],
+      "selected_n": 98,
+      "tau_sec": 1800
+    },
+    {
+      "all": {
+        "max_bps": 365.8,
+        "mean_bps": 39.5,
+        "median_bps": 26.6,
+        "min_bps": -402.8,
+        "n": 194,
+        "sum_bps": 7672.0,
+        "t3r_bps": 6658.1,
+        "tail_lt_-100_n": 15,
+        "win_rate": 0.629
+      },
+      "cal": {
+        "max_bps": 365.8,
+        "mean_bps": 38.6,
+        "median_bps": 19.6,
+        "min_bps": -254.8,
+        "n": 126,
+        "sum_bps": 4868.1,
+        "t3r_bps": 3854.2,
+        "tail_lt_-100_n": 11,
+        "win_rate": 0.595
+      },
+      "candidate_id": "BUY_PROPAGATION_MOMENTUM_LONG_H1",
+      "description": "BUY shock with propagation pressure by tau -> LONG momentum H1.",
+      "execution_proxy": {
+        "median_ask_depth_usd": 142793.8,
+        "median_bid_depth_usd": 138332.8,
+        "median_spread_bps": 0.1,
+        "model": "MARK_TAKER_PROXY_FOR_CANDIDATE_GAUNTLET; maker lifecycle not yet proven"
+      },
+      "gauntlet_pass": true,
+      "hold": {
+        "max_bps": 274.4,
+        "mean_bps": 41.2,
+        "median_bps": 43.8,
+        "min_bps": -402.8,
+        "n": 68,
+        "sum_bps": 2803.9,
+        "t3r_bps": 2062.4,
+        "tail_lt_-100_n": 4,
+        "win_rate": 0.691
+      },
+      "negative_control": {
+        "max_bps": 386.8,
+        "mean_bps": -55.5,
+        "median_bps": -42.7,
+        "min_bps": -381.8,
+        "n": 194,
+        "sum_bps": -10776.0,
+        "t3r_bps": -11623.4,
+        "tail_lt_-100_n": 57,
+        "win_rate": 0.258
+      },
+      "pass_flags": {
+        "all_sum_gt_0": true,
+        "all_t3r_gt_0": true,
+        "hold_sum_gt_0": true,
+        "hold_t3r_gt_0": true,
+        "n_ge_40": true,
+        "negative_control_worse": true,
+        "not_top3_dependent": true
+      },
+      "sample": [
+        {
+          "anchor_utc": "2026-02-16T12:56:51.233000+00:00",
+          "month": "2026-02",
+          "negative_bps": 209.4,
+          "outcome_bps": -225.4,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T15:49:53.710000+00:00",
+          "month": "2026-02",
+          "negative_bps": -147.5,
+          "outcome_bps": 131.5,
+          "side": "BUY",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "BUY_PROPAGATION",
+            "BUY_SHORT_FADE_DANGER",
+            "BUY_LONG_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T16:05:58.542000+00:00",
+          "month": "2026-02",
+          "negative_bps": 66.0,
+          "outcome_bps": -82.0,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T17:48:30.197000+00:00",
+          "month": "2026-02",
+          "negative_bps": -200.2,
+          "outcome_bps": 184.2,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-18T07:48:59.653000+00:00",
+          "month": "2026-02",
+          "negative_bps": -22.6,
+          "outcome_bps": 6.6,
+          "side": "BUY",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "BUY_PROPAGATION",
+            "BUY_SHORT_FADE_DANGER",
+            "BUY_LONG_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-18T15:05:11.708000+00:00",
+          "month": "2026-02",
+          "negative_bps": 84.8,
+          "outcome_bps": -100.8,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-18T15:41:06.081000+00:00",
+          "month": "2026-02",
+          "negative_bps": 174.9,
+          "outcome_bps": -190.9,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-19T14:53:54.385000+00:00",
+          "month": "2026-02",
+          "negative_bps": 119.2,
+          "outcome_bps": -135.2,
+          "side": "BUY",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "BUY_PROPAGATION",
+            "BUY_SHORT_FADE_DANGER",
+            "BUY_LONG_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-19T18:48:43.496000+00:00",
+          "month": "2026-02",
+          "negative_bps": 49.9,
+          "outcome_bps": -65.9,
+          "side": "BUY",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "BUY_PROPAGATION",
+            "BUY_SHORT_FADE_DANGER",
+            "BUY_LONG_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-20T15:01:28.213000+00:00",
+          "month": "2026-02",
+          "negative_bps": 12.1,
+          "outcome_bps": -28.1,
+          "side": "BUY",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "BUY_PROPAGATION",
+            "BUY_SHORT_FADE_DANGER",
+            "BUY_LONG_MOMENTUM_WATCH"
+          ]
+        }
+      ],
+      "selected_n": 194,
+      "tau_sec": 3600
+    },
+    {
+      "all": {
+        "max_bps": 505.6,
+        "mean_bps": -8.9,
+        "median_bps": 5.7,
+        "min_bps": -671.3,
+        "n": 428,
+        "sum_bps": -3809.0,
+        "t3r_bps": -5188.1,
+        "tail_lt_-100_n": 83,
+        "win_rate": 0.535
+      },
+      "cal": {
+        "max_bps": 505.6,
+        "mean_bps": -13.6,
+        "median_bps": 0.7,
+        "min_bps": -671.3,
+        "n": 314,
+        "sum_bps": -4265.1,
+        "t3r_bps": -5549.8,
+        "tail_lt_-100_n": 64,
+        "win_rate": 0.51
+      },
+      "candidate_id": "BUY_SILENCE_FADE_SHORT_H4",
+      "description": "BUY shock, no same/cross propagation by tau, reclaim present -> SHORT fade H4.",
+      "execution_proxy": {
+        "median_ask_depth_usd": 152853.5,
+        "median_bid_depth_usd": 141067.8,
+        "median_spread_bps": 0.1,
+        "model": "MARK_TAKER_PROXY_FOR_CANDIDATE_GAUNTLET; maker lifecycle not yet proven"
+      },
+      "gauntlet_pass": false,
+      "hold": {
+        "max_bps": 460.4,
+        "mean_bps": 4.0,
+        "median_bps": 19.6,
+        "min_bps": -476.3,
+        "n": 114,
+        "sum_bps": 456.1,
+        "t3r_bps": -569.6,
+        "tail_lt_-100_n": 19,
+        "win_rate": 0.605
+      },
+      "negative_control": {
+        "max_bps": 655.3,
+        "mean_bps": -7.1,
+        "median_bps": -21.7,
+        "min_bps": -521.6,
+        "n": 428,
+        "sum_bps": -3039.0,
+        "t3r_bps": -4720.0,
+        "tail_lt_-100_n": 94,
+        "win_rate": 0.404
+      },
+      "pass_flags": {
+        "all_sum_gt_0": false,
+        "all_t3r_gt_0": false,
+        "hold_sum_gt_0": true,
+        "hold_t3r_gt_0": false,
+        "n_ge_40": true,
+        "negative_control_worse": false,
+        "not_top3_dependent": true
+      },
+      "sample": [
+        {
+          "anchor_utc": "2026-02-15T22:47:14.217000+00:00",
+          "month": "2026-02",
+          "negative_bps": -85.7,
+          "outcome_bps": 69.7,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T00:07:12.574000+00:00",
+          "month": "2026-02",
+          "negative_bps": -26.8,
+          "outcome_bps": 10.8,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T07:28:06.487000+00:00",
+          "month": "2026-02",
+          "negative_bps": -25.6,
+          "outcome_bps": 9.6,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T12:56:51.233000+00:00",
+          "month": "2026-02",
+          "negative_bps": -192.3,
+          "outcome_bps": 176.3,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T13:30:30.489000+00:00",
+          "month": "2026-02",
+          "negative_bps": -44.7,
+          "outcome_bps": 28.7,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T16:23:45.209000+00:00",
+          "month": "2026-02",
+          "negative_bps": 2.4,
+          "outcome_bps": -18.4,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T15:49:53.710000+00:00",
+          "month": "2026-02",
+          "negative_bps": 217.8,
+          "outcome_bps": -233.8,
+          "side": "BUY",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "BUY_PROPAGATION",
+            "BUY_SHORT_FADE_DANGER",
+            "BUY_LONG_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T16:05:58.542000+00:00",
+          "month": "2026-02",
+          "negative_bps": -2.6,
+          "outcome_bps": -13.4,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T16:36:21.372000+00:00",
+          "month": "2026-02",
+          "negative_bps": -42.0,
+          "outcome_bps": 26.0,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T17:48:30.197000+00:00",
+          "month": "2026-02",
+          "negative_bps": 174.6,
+          "outcome_bps": -190.6,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        }
+      ],
+      "selected_n": 429,
+      "tau_sec": 300
+    },
+    {
+      "all": {
+        "max_bps": 505.6,
+        "mean_bps": -7.5,
+        "median_bps": 6.6,
+        "min_bps": -671.3,
+        "n": 385,
+        "sum_bps": -2901.4,
+        "t3r_bps": -4186.1,
+        "tail_lt_-100_n": 74,
+        "win_rate": 0.54
+      },
+      "cal": {
+        "max_bps": 505.6,
+        "mean_bps": -10.0,
+        "median_bps": 3.0,
+        "min_bps": -671.3,
+        "n": 294,
+        "sum_bps": -2948.4,
+        "t3r_bps": -4233.1,
+        "tail_lt_-100_n": 59,
+        "win_rate": 0.52
+      },
+      "candidate_id": "BUY_SILENCE_FADE_SHORT_H4",
+      "description": "BUY shock, no same/cross propagation by tau, reclaim present -> SHORT fade H4.",
+      "execution_proxy": {
+        "median_ask_depth_usd": 161187.0,
+        "median_bid_depth_usd": 149251.1,
+        "median_spread_bps": 0.1,
+        "model": "MARK_TAKER_PROXY_FOR_CANDIDATE_GAUNTLET; maker lifecycle not yet proven"
+      },
+      "gauntlet_pass": false,
+      "hold": {
+        "max_bps": 311.0,
+        "mean_bps": 0.5,
+        "median_bps": 21.3,
+        "min_bps": -476.3,
+        "n": 91,
+        "sum_bps": 47.0,
+        "t3r_bps": -769.7,
+        "tail_lt_-100_n": 15,
+        "win_rate": 0.604
+      },
+      "negative_control": {
+        "max_bps": 655.3,
+        "mean_bps": -8.5,
+        "median_bps": -22.6,
+        "min_bps": -521.6,
+        "n": 385,
+        "sum_bps": -3258.6,
+        "t3r_bps": -4939.6,
+        "tail_lt_-100_n": 86,
+        "win_rate": 0.395
+      },
+      "pass_flags": {
+        "all_sum_gt_0": false,
+        "all_t3r_gt_0": false,
+        "hold_sum_gt_0": true,
+        "hold_t3r_gt_0": false,
+        "n_ge_40": true,
+        "negative_control_worse": true,
+        "not_top3_dependent": true
+      },
+      "sample": [
+        {
+          "anchor_utc": "2026-02-15T22:47:14.217000+00:00",
+          "month": "2026-02",
+          "negative_bps": -85.7,
+          "outcome_bps": 69.7,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T00:07:12.574000+00:00",
+          "month": "2026-02",
+          "negative_bps": -26.8,
+          "outcome_bps": 10.8,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T07:28:06.487000+00:00",
+          "month": "2026-02",
+          "negative_bps": -25.6,
+          "outcome_bps": 9.6,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T12:56:51.233000+00:00",
+          "month": "2026-02",
+          "negative_bps": -192.3,
+          "outcome_bps": 176.3,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T13:30:30.489000+00:00",
+          "month": "2026-02",
+          "negative_bps": -44.7,
+          "outcome_bps": 28.7,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T16:23:45.209000+00:00",
+          "month": "2026-02",
+          "negative_bps": 2.4,
+          "outcome_bps": -18.4,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T15:49:53.710000+00:00",
+          "month": "2026-02",
+          "negative_bps": 217.8,
+          "outcome_bps": -233.8,
+          "side": "BUY",
+          "tags": [
+            "PROPAGATION_PRESSURE_HIGH",
+            "MOMENTUM_MODE",
+            "BUY_PROPAGATION",
+            "BUY_SHORT_FADE_DANGER",
+            "BUY_LONG_MOMENTUM_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T16:05:58.542000+00:00",
+          "month": "2026-02",
+          "negative_bps": -2.6,
+          "outcome_bps": -13.4,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T16:36:21.372000+00:00",
+          "month": "2026-02",
+          "negative_bps": -42.0,
+          "outcome_bps": 26.0,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T17:48:30.197000+00:00",
+          "month": "2026-02",
+          "negative_bps": 174.6,
+          "outcome_bps": -190.6,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        }
+      ],
+      "selected_n": 386,
+      "tau_sec": 900
+    },
+    {
+      "all": {
+        "max_bps": 505.6,
+        "mean_bps": -0.6,
+        "median_bps": 10.5,
+        "min_bps": -671.3,
+        "n": 320,
+        "sum_bps": -192.9,
+        "t3r_bps": -1477.6,
+        "tail_lt_-100_n": 53,
+        "win_rate": 0.562
+      },
+      "cal": {
+        "max_bps": 505.6,
+        "mean_bps": -3.1,
+        "median_bps": 7.4,
+        "min_bps": -671.3,
+        "n": 247,
+        "sum_bps": -763.3,
+        "t3r_bps": -2048.0,
+        "tail_lt_-100_n": 45,
+        "win_rate": 0.538
+      },
+      "candidate_id": "BUY_SILENCE_FADE_SHORT_H4",
+      "description": "BUY shock, no same/cross propagation by tau, reclaim present -> SHORT fade H4.",
+      "execution_proxy": {
+        "median_ask_depth_usd": 158286.5,
+        "median_bid_depth_usd": 150087.5,
+        "median_spread_bps": 0.1,
+        "model": "MARK_TAKER_PROXY_FOR_CANDIDATE_GAUNTLET; maker lifecycle not yet proven"
+      },
+      "gauntlet_pass": false,
+      "hold": {
+        "max_bps": 311.0,
+        "mean_bps": 7.8,
+        "median_bps": 24.7,
+        "min_bps": -476.3,
+        "n": 73,
+        "sum_bps": 570.4,
+        "t3r_bps": -216.9,
+        "tail_lt_-100_n": 8,
+        "win_rate": 0.644
+      },
+      "negative_control": {
+        "max_bps": 655.3,
+        "mean_bps": -15.4,
+        "median_bps": -26.5,
+        "min_bps": -521.6,
+        "n": 320,
+        "sum_bps": -4927.1,
+        "t3r_bps": -6564.9,
+        "tail_lt_-100_n": 71,
+        "win_rate": 0.366
+      },
+      "pass_flags": {
+        "all_sum_gt_0": false,
+        "all_t3r_gt_0": false,
+        "hold_sum_gt_0": true,
+        "hold_t3r_gt_0": false,
+        "n_ge_40": true,
+        "negative_control_worse": true,
+        "not_top3_dependent": true
+      },
+      "sample": [
+        {
+          "anchor_utc": "2026-02-15T22:47:14.217000+00:00",
+          "month": "2026-02",
+          "negative_bps": -85.7,
+          "outcome_bps": 69.7,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T00:07:12.574000+00:00",
+          "month": "2026-02",
+          "negative_bps": -26.8,
+          "outcome_bps": 10.8,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T07:28:06.487000+00:00",
+          "month": "2026-02",
+          "negative_bps": -25.6,
+          "outcome_bps": 9.6,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T12:56:51.233000+00:00",
+          "month": "2026-02",
+          "negative_bps": -192.3,
+          "outcome_bps": 176.3,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T13:30:30.489000+00:00",
+          "month": "2026-02",
+          "negative_bps": -44.7,
+          "outcome_bps": 28.7,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T16:23:45.209000+00:00",
+          "month": "2026-02",
+          "negative_bps": 2.4,
+          "outcome_bps": -18.4,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T16:05:58.542000+00:00",
+          "month": "2026-02",
+          "negative_bps": -2.6,
+          "outcome_bps": -13.4,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T16:36:21.372000+00:00",
+          "month": "2026-02",
+          "negative_bps": -42.0,
+          "outcome_bps": 26.0,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T17:48:30.197000+00:00",
+          "month": "2026-02",
+          "negative_bps": 174.6,
+          "outcome_bps": -190.6,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T18:40:16.627000+00:00",
+          "month": "2026-02",
+          "negative_bps": -11.1,
+          "outcome_bps": -4.9,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        }
+      ],
+      "selected_n": 321,
+      "tau_sec": 1800
+    },
+    {
+      "all": {
+        "max_bps": 505.6,
+        "mean_bps": 4.8,
+        "median_bps": 14.7,
+        "min_bps": -671.3,
+        "n": 252,
+        "sum_bps": 1201.5,
+        "t3r_bps": 98.0,
+        "tail_lt_-100_n": 37,
+        "win_rate": 0.587
+      },
+      "cal": {
+        "max_bps": 505.6,
+        "mean_bps": -0.6,
+        "median_bps": 8.5,
+        "min_bps": -671.3,
+        "n": 199,
+        "sum_bps": -119.9,
+        "t3r_bps": -1160.1,
+        "tail_lt_-100_n": 32,
+        "win_rate": 0.548
+      },
+      "candidate_id": "BUY_SILENCE_FADE_SHORT_H4",
+      "description": "BUY shock, no same/cross propagation by tau, reclaim present -> SHORT fade H4.",
+      "execution_proxy": {
+        "median_ask_depth_usd": 158444.3,
+        "median_bid_depth_usd": 156957.7,
+        "median_spread_bps": 0.0,
+        "model": "MARK_TAKER_PROXY_FOR_CANDIDATE_GAUNTLET; maker lifecycle not yet proven"
+      },
+      "gauntlet_pass": true,
+      "hold": {
+        "max_bps": 311.0,
+        "mean_bps": 24.9,
+        "median_bps": 45.7,
+        "min_bps": -476.3,
+        "n": 53,
+        "sum_bps": 1321.4,
+        "t3r_bps": 534.1,
+        "tail_lt_-100_n": 5,
+        "win_rate": 0.736
+      },
+      "negative_control": {
+        "max_bps": 655.3,
+        "mean_bps": -20.8,
+        "median_bps": -30.7,
+        "min_bps": -521.6,
+        "n": 252,
+        "sum_bps": -5233.5,
+        "t3r_bps": -6871.3,
+        "tail_lt_-100_n": 59,
+        "win_rate": 0.337
+      },
+      "pass_flags": {
+        "all_sum_gt_0": true,
+        "all_t3r_gt_0": true,
+        "hold_sum_gt_0": true,
+        "hold_t3r_gt_0": true,
+        "n_ge_40": true,
+        "negative_control_worse": true,
+        "not_top3_dependent": true
+      },
+      "sample": [
+        {
+          "anchor_utc": "2026-02-15T22:47:14.217000+00:00",
+          "month": "2026-02",
+          "negative_bps": -85.7,
+          "outcome_bps": 69.7,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T00:07:12.574000+00:00",
+          "month": "2026-02",
+          "negative_bps": -26.8,
+          "outcome_bps": 10.8,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T07:28:06.487000+00:00",
+          "month": "2026-02",
+          "negative_bps": -25.6,
+          "outcome_bps": 9.6,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T13:30:30.489000+00:00",
+          "month": "2026-02",
+          "negative_bps": -44.7,
+          "outcome_bps": 28.7,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-16T16:23:45.209000+00:00",
+          "month": "2026-02",
+          "negative_bps": 2.4,
+          "outcome_bps": -18.4,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T16:36:21.372000+00:00",
+          "month": "2026-02",
+          "negative_bps": -42.0,
+          "outcome_bps": 26.0,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-17T18:40:16.627000+00:00",
+          "month": "2026-02",
+          "negative_bps": -11.1,
+          "outcome_bps": -4.9,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-18T08:16:52.165000+00:00",
+          "month": "2026-02",
+          "negative_bps": -214.3,
+          "outcome_bps": 198.3,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-18T16:28:44.590000+00:00",
+          "month": "2026-02",
+          "negative_bps": -192.9,
+          "outcome_bps": 176.9,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        },
+        {
+          "anchor_utc": "2026-02-19T15:15:54.721000+00:00",
+          "month": "2026-02",
+          "negative_bps": 97.6,
+          "outcome_bps": -113.6,
+          "side": "BUY",
+          "tags": [
+            "SILENCE_AFTER_SHOCK",
+            "FADE_MODE",
+            "BUY_SILENCE_RECLAIM",
+            "BUY_SHORT_FADE_NAV_WATCH"
+          ]
+        }
+      ],
+      "selected_n": 253,
+      "tau_sec": 3600
+    }
+  ],
+  "event_counts": {
+    "BTCUSDT": 506,
+    "ETHUSDT": 1142,
+    "SOLUSDT": 235
+  },
+  "generated_at_utc": "2026-06-30T08:26:09.877218+00:00",
+  "live_executor_touched": false,
+  "permutation": {
+    "iterations": 500,
+    "mc_corrected_p_right": 0.383,
+    "null_p95_max_t3r": 10632.9,
+    "observed_max_t3r": 8135.0,
+    "read": "Coarse max-stat correction across all candidate/tau cells. It is a guardrail, not final proof.",
+    "seed": 3403,
+    "status": "OK"
+  },
+  "read": [
+    "The best broad candidates are state labels, not live-ready strategies yet.",
+    "A full pass requires N>=40, positive all/hold sum, positive all/hold T3R, worse negative control, and no top-3 dependency.",
+    "The tag export is meant for chart/navigation: PROPAGATION_PRESSURE_HIGH, SILENCE_AFTER_SHOCK, MOMENTUM_MODE, FADE_MODE.",
+    "Execution is still mark/taker proxy here. Any candidate that looks good must next pass maker/taker live-like fill and forward shadow.",
+    "9 candidate/tau cells passed the mechanical gauntlet, but they still need execution realism and forward shadow before paper/live."
+  ],
+  "research_only": true,
+  "split": {
+    "holdout_months": [
+      "2026-06"
+    ],
+    "method": "chronological_month_tail_35pct",
+    "months": [
+      "2026-02",
+      "2026-03",
+      "2026-04",
+      "2026-06"
+    ]
+  },
+  "tag_counts_1800": {
+    "BUY_LONG_MOMENTUM_WATCH": 98,
+    "BUY_PROPAGATION": 98,
+    "BUY_SHORT_FADE_DANGER": 98,
+    "BUY_SHORT_FADE_NAV_WATCH": 321,
+    "BUY_SILENCE_RECLAIM": 321,
+    "FADE_MODE": 666,
+    "MOMENTUM_MODE": 191,
+    "PROPAGATION_PRESSURE_HIGH": 191,
+    "PROPAGATION_PRESSURE_LOW": 32,
+    "PROPAGATION_PRESSURE_MID": 253,
+    "SELL_FADE_DANGER": 93,
+    "SELL_LONG_FADE_NAV_OK": 345,
+    "SELL_PROPAGATION": 93,
+    "SELL_SHORT_MOMENTUM_WATCH": 93,
+    "SELL_SILENCE_RECLAIM": 345,
+    "SILENCE_AFTER_SHOCK": 666
+  },
+  "tags": {
+    "fragment": "D:\\eclipse_scalper\\reports\\research\\s34\\S34_V02_PROPAGATION_NAV_TAGS_FRAGMENT.json",
+    "jsonl": "D:\\eclipse_scalper\\reports\\research\\s34\\S34_V02_PROPAGATION_NAV_TAGS.jsonl",
+    "n": 1142
+  },
+  "v02_compatibility": {
+    "all_h4_minus_h2": {
+      "max_bps": 223.2,
+      "mean_bps": 59.7,
+      "median_bps": 83.8,
+      "min_bps": -59.2,
+      "n": 11,
+      "sum_bps": 657.0,
+      "t3r_bps": 130.0,
+      "tail_lt_-100_n": 0,
+      "win_rate": 0.545
+    },
+    "matched_n": 11,
+    "n": 11,
+    "not_pressure_high_1800": {
+      "max_bps": 223.2,
+      "mean_bps": 77.1,
+      "median_bps": 89.6,
+      "min_bps": -47.3,
+      "n": 8,
+      "sum_bps": 617.0,
+      "t3r_bps": 107.3,
+      "tail_lt_-100_n": 0,
+      "win_rate": 0.625
+    },
+    "not_silence_1800": {
+      "max_bps": 151.3,
+      "mean_bps": 33.9,
+      "median_bps": 21.6,
+      "min_bps": -59.2,
+      "n": 4,
+      "sum_bps": 135.4,
+      "t3r_bps": -59.2,
+      "tail_lt_-100_n": 0,
+      "win_rate": 0.5
+    },
+    "pressure_high_1800": {
+      "max_bps": 151.3,
+      "mean_bps": 13.3,
+      "median_bps": -52.1,
+      "min_bps": -59.2,
+      "n": 3,
+      "sum_bps": 40.0,
+      "t3r_bps": 40.0,
+      "tail_lt_-100_n": 0,
+      "win_rate": 0.333
+    },
+    "read": "V02 compatibility remains small-N. Tags are management/navigation context, not order logic.",
+    "rows": [
+      {
+        "h2_bps": 81.1,
+        "h4_bps": 29.0,
+        "h4_minus_h2_bps": -52.1,
+        "matched": true,
+        "pressure_high_1800": true,
+        "signal_utc": "2026-04-16T13:52:14.594000+00:00",
+        "silence_1800": false,
+        "tags_1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ]
+      },
+      {
+        "h2_bps": 26.1,
+        "h4_bps": 6.0,
+        "h4_minus_h2_bps": -20.1,
+        "matched": true,
+        "pressure_high_1800": false,
+        "signal_utc": "2026-04-18T03:54:36.116000+00:00",
+        "silence_1800": true,
+        "tags_1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      },
+      {
+        "h2_bps": 27.0,
+        "h4_bps": 179.5,
+        "h4_minus_h2_bps": 152.5,
+        "matched": true,
+        "pressure_high_1800": false,
+        "signal_utc": "2026-04-20T14:08:39.155000+00:00",
+        "silence_1800": true,
+        "tags_1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      },
+      {
+        "h2_bps": 13.3,
+        "h4_bps": 164.6,
+        "h4_minus_h2_bps": 151.3,
+        "matched": true,
+        "pressure_high_1800": true,
+        "signal_utc": "2026-04-20T14:41:11.191000+00:00",
+        "silence_1800": false,
+        "tags_1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ]
+      },
+      {
+        "h2_bps": 46.3,
+        "h4_bps": 130.1,
+        "h4_minus_h2_bps": 83.8,
+        "matched": true,
+        "pressure_high_1800": false,
+        "signal_utc": "2026-06-16T04:31:11.525000+00:00",
+        "silence_1800": true,
+        "tags_1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      },
+      {
+        "h2_bps": 41.7,
+        "h4_bps": 37.2,
+        "h4_minus_h2_bps": -4.5,
+        "matched": true,
+        "pressure_high_1800": false,
+        "signal_utc": "2026-06-17T01:17:01.753000+00:00",
+        "silence_1800": true,
+        "tags_1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      },
+      {
+        "h2_bps": 152.3,
+        "h4_bps": 105.0,
+        "h4_minus_h2_bps": -47.3,
+        "matched": true,
+        "pressure_high_1800": false,
+        "signal_utc": "2026-06-20T14:08:51.159000+00:00",
+        "silence_1800": true,
+        "tags_1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      },
+      {
+        "h2_bps": 227.0,
+        "h4_bps": 167.8,
+        "h4_minus_h2_bps": -59.2,
+        "matched": true,
+        "pressure_high_1800": true,
+        "signal_utc": "2026-06-21T23:33:42.690000+00:00",
+        "silence_1800": false,
+        "tags_1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ]
+      },
+      {
+        "h2_bps": 149.9,
+        "h4_bps": 283.9,
+        "h4_minus_h2_bps": 134.0,
+        "matched": true,
+        "pressure_high_1800": false,
+        "signal_utc": "2026-06-26T02:48:30.475000+00:00",
+        "silence_1800": true,
+        "tags_1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      },
+      {
+        "h2_bps": 17.2,
+        "h4_bps": 240.4,
+        "h4_minus_h2_bps": 223.2,
+        "matched": true,
+        "pressure_high_1800": false,
+        "signal_utc": "2026-06-26T10:39:33.530000+00:00",
+        "silence_1800": true,
+        "tags_1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      },
+      {
+        "h2_bps": 299.7,
+        "h4_bps": 395.1,
+        "h4_minus_h2_bps": 95.4,
+        "matched": true,
+        "pressure_high_1800": false,
+        "signal_utc": "2026-06-26T13:18:54.877000+00:00",
+        "silence_1800": false,
+        "tags_1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    ],
+    "silence_1800": {
+      "max_bps": 223.2,
+      "mean_bps": 74.5,
+      "median_bps": 83.8,
+      "min_bps": -47.3,
+      "n": 7,
+      "sum_bps": 521.6,
+      "t3r_bps": 11.9,
+      "tail_lt_-100_n": 0,
+      "win_rate": 0.571
+    }
+  },
+  "verdict": "SHADOW_CANDIDATES_FOUND_BUT_NO_LIVE_PROMOTION"
+}

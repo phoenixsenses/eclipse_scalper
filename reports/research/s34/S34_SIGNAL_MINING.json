@@ -1,0 +1,690 @@
+{
+  "rows": [
+    {
+      "win": "pre",
+      "key": "trades_5m",
+      "desc": "agg-trade count pre-5m",
+      "fav": "hi",
+      "cut": 8356.0,
+      "test": {
+        "n": 6,
+        "wr": 83.3,
+        "avg": 195.6,
+        "total": 1174.0,
+        "mc_p": 0.028
+      },
+      "test_other_avg": 45.2,
+      "delta": 150.4,
+      "full": {
+        "n": 50,
+        "wr": 76.0,
+        "avg": 75.9,
+        "total": 3793.0,
+        "mc_p": 0.0
+      }
+    },
+    {
+      "win": "pre",
+      "key": "eth_1h",
+      "desc": "ETH ret pre-1h",
+      "fav": "lo",
+      "cut": -80.2697,
+      "test": {
+        "n": 7,
+        "wr": 100.0,
+        "avg": 164.7,
+        "total": 1153.0,
+        "mc_p": 0.006
+      },
+      "test_other_avg": 47.4,
+      "delta": 117.3,
+      "full": {
+        "n": 51,
+        "wr": 76.5,
+        "avg": 71.3,
+        "total": 3634.0,
+        "mc_p": 0.0
+      }
+    },
+    {
+      "win": "pre",
+      "key": "be_ratio",
+      "desc": "BTC_conc/rn",
+      "fav": "hi",
+      "cut": 0.2195,
+      "test": {
+        "n": 16,
+        "wr": 93.8,
+        "avg": 122.8,
+        "total": 1965.0,
+        "mc_p": 0.0
+      },
+      "test_other_avg": 29.8,
+      "delta": 93.0,
+      "full": {
+        "n": 60,
+        "wr": 76.7,
+        "avg": 71.2,
+        "total": 4269.0,
+        "mc_p": 0.0
+      }
+    },
+    {
+      "win": "pre",
+      "key": "sync_ratio",
+      "desc": "sync_sell/rn",
+      "fav": "hi",
+      "cut": 0.5421,
+      "test": {
+        "n": 20,
+        "wr": 85.0,
+        "avg": 102.6,
+        "total": 2052.0,
+        "mc_p": 0.0
+      },
+      "test_other_avg": 31.6,
+      "delta": 71.0,
+      "full": {
+        "n": 64,
+        "wr": 75.0,
+        "avg": 69.7,
+        "total": 4459.0,
+        "mc_p": 0.0
+      }
+    },
+    {
+      "win": "pre",
+      "key": "rv5m",
+      "desc": "realized vol 5m",
+      "fav": "hi",
+      "cut": 0.0304,
+      "test": {
+        "n": 38,
+        "wr": 73.7,
+        "avg": 69.0,
+        "total": 2621.0,
+        "mc_p": 0.0
+      },
+      "test_other_avg": null,
+      "delta": 69.0,
+      "full": {
+        "n": 82,
+        "wr": 70.7,
+        "avg": 59.4,
+        "total": 4869.0,
+        "mc_p": 0.0
+      }
+    },
+    {
+      "win": "pre",
+      "key": "btc5m",
+      "desc": "BTC ret 5m",
+      "fav": "lo",
+      "cut": -24.763,
+      "test": {
+        "n": 8,
+        "wr": 87.5,
+        "avg": 123.4,
+        "total": 987.0,
+        "mc_p": 0.032
+      },
+      "test_other_avg": 54.5,
+      "delta": 68.9,
+      "full": {
+        "n": 52,
+        "wr": 71.2,
+        "avg": 69.6,
+        "total": 3619.0,
+        "mc_p": 0.0
+      }
+    },
+    {
+      "win": "pre",
+      "key": "eth_15m",
+      "desc": "ETH ret pre-15m",
+      "fav": "lo",
+      "cut": -50.7788,
+      "test": {
+        "n": 11,
+        "wr": 81.8,
+        "avg": 115.7,
+        "total": 1272.0,
+        "mc_p": 0.006
+      },
+      "test_other_avg": 50.0,
+      "delta": 65.7,
+      "full": {
+        "n": 55,
+        "wr": 70.9,
+        "avg": 67.6,
+        "total": 3719.0,
+        "mc_p": 0.0
+      }
+    },
+    {
+      "win": "post",
+      "key": "biddep_rec5",
+      "desc": "bid depth change 0->5m",
+      "fav": "hi",
+      "cut": 0.0,
+      "test": {
+        "n": 18,
+        "wr": 88.9,
+        "avg": 95.7,
+        "total": 1723.0,
+        "mc_p": 0.0
+      },
+      "test_other_avg": 33.6,
+      "delta": 62.1,
+      "full": {
+        "n": 36,
+        "wr": 72.2,
+        "avg": 57.0,
+        "total": 2053.0,
+        "mc_p": 0.002
+      }
+    },
+    {
+      "win": "pre",
+      "key": "density24",
+      "desc": "24h cascade density",
+      "fav": "hi",
+      "cut": 5.0,
+      "test": {
+        "n": 33,
+        "wr": 75.8,
+        "avg": 75.4,
+        "total": 2488.0,
+        "mc_p": 0.0
+      },
+      "test_other_avg": 26.6,
+      "delta": 48.8,
+      "full": {
+        "n": 88,
+        "wr": 68.2,
+        "avg": 49.3,
+        "total": 4335.0,
+        "mc_p": 0.0
+      }
+    },
+    {
+      "win": "pre",
+      "key": "ofi_5m",
+      "desc": "agg-trade OFI pre-5m",
+      "fav": "hi",
+      "cut": -0.2378,
+      "test": {
+        "n": 22,
+        "wr": 81.8,
+        "avg": 87.4,
+        "total": 1923.0,
+        "mc_p": 0.0
+      },
+      "test_other_avg": 43.6,
+      "delta": 43.8,
+      "full": {
+        "n": 66,
+        "wr": 68.2,
+        "avg": 48.7,
+        "total": 3214.0,
+        "mc_p": 0.0
+      }
+    },
+    {
+      "win": "post",
+      "key": "reclaim5",
+      "desc": "price reclaim vs anchor @T+5 bps",
+      "fav": "lo",
+      "cut": 0.7752,
+      "test": {
+        "n": 17,
+        "wr": 76.5,
+        "avg": 82.5,
+        "total": 1402.0,
+        "mc_p": 0.006
+      },
+      "test_other_avg": 47.3,
+      "delta": 35.2,
+      "full": {
+        "n": 61,
+        "wr": 70.5,
+        "avg": 66.1,
+        "total": 4031.0,
+        "mc_p": 0.0
+      }
+    },
+    {
+      "win": "post",
+      "key": "btc_post5",
+      "desc": "BTC ret 0->5m post",
+      "fav": "lo",
+      "cut": 0.7752,
+      "test": {
+        "n": 17,
+        "wr": 76.5,
+        "avg": 82.5,
+        "total": 1402.0,
+        "mc_p": 0.006
+      },
+      "test_other_avg": 47.3,
+      "delta": 35.2,
+      "full": {
+        "n": 61,
+        "wr": 70.5,
+        "avg": 66.1,
+        "total": 4031.0,
+        "mc_p": 0.0
+      }
+    },
+    {
+      "win": "post",
+      "key": "ofi_post5",
+      "desc": "agg-trade OFI post-5m (buyers)",
+      "fav": "lo",
+      "cut": -0.0171,
+      "test": {
+        "n": 23,
+        "wr": 78.3,
+        "avg": 75.6,
+        "total": 1740.0,
+        "mc_p": 0.0
+      },
+      "test_other_avg": 43.7,
+      "delta": 31.9,
+      "full": {
+        "n": 67,
+        "wr": 67.2,
+        "avg": 58.1,
+        "total": 3891.0,
+        "mc_p": 0.0
+      }
+    },
+    {
+      "win": "pre",
+      "key": "book_imb",
+      "desc": "bid/ask imbalance @T0",
+      "fav": "lo",
+      "cut": 0.2633,
+      "test": {
+        "n": 26,
+        "wr": 76.9,
+        "avg": 77.2,
+        "total": 2007.0,
+        "mc_p": 0.0
+      },
+      "test_other_avg": 51.1,
+      "delta": 26.1,
+      "full": {
+        "n": 40,
+        "wr": 72.5,
+        "avg": 68.4,
+        "total": 2734.0,
+        "mc_p": 0.0
+      }
+    },
+    {
+      "win": "pre",
+      "key": "ba_ratio",
+      "desc": "bid_qty/ask_qty @T0",
+      "fav": "lo",
+      "cut": 1.7149,
+      "test": {
+        "n": 26,
+        "wr": 76.9,
+        "avg": 77.2,
+        "total": 2007.0,
+        "mc_p": 0.0
+      },
+      "test_other_avg": 51.1,
+      "delta": 26.1,
+      "full": {
+        "n": 40,
+        "wr": 72.5,
+        "avg": 68.4,
+        "total": 2734.0,
+        "mc_p": 0.0
+      }
+    },
+    {
+      "win": "pre",
+      "key": "prebuild",
+      "desc": "prebuildup 30m count",
+      "fav": "hi",
+      "cut": 1.0,
+      "test": {
+        "n": 29,
+        "wr": 69.0,
+        "avg": 74.5,
+        "total": 2160.0,
+        "mc_p": 0.004
+      },
+      "test_other_avg": 51.2,
+      "delta": 23.3,
+      "full": {
+        "n": 89,
+        "wr": 65.2,
+        "avg": 46.2,
+        "total": 4109.0,
+        "mc_p": 0.002
+      }
+    },
+    {
+      "win": "post",
+      "key": "followon5",
+      "desc": "follow-on liq 1-5m notional",
+      "fav": "hi",
+      "cut": 20957.153,
+      "test": {
+        "n": 20,
+        "wr": 70.0,
+        "avg": 73.3,
+        "total": 1465.0,
+        "mc_p": 0.004
+      },
+      "test_other_avg": 51.6,
+      "delta": 21.7,
+      "full": {
+        "n": 64,
+        "wr": 65.6,
+        "avg": 60.1,
+        "total": 3848.0,
+        "mc_p": 0.0
+      }
+    },
+    {
+      "win": "pre",
+      "key": "eth_5m",
+      "desc": "ETH ret pre-5m",
+      "fav": "lo",
+      "cut": -35.5524,
+      "test": {
+        "n": 13,
+        "wr": 61.5,
+        "avg": 81.7,
+        "total": 1062.0,
+        "mc_p": 0.04
+      },
+      "test_other_avg": 62.4,
+      "delta": 19.3,
+      "full": {
+        "n": 57,
+        "wr": 70.2,
+        "avg": 71.3,
+        "total": 4063.0,
+        "mc_p": 0.0
+      }
+    },
+    {
+      "win": "at",
+      "key": "accel",
+      "desc": "running_accel",
+      "fav": "hi",
+      "cut": 7920.3466,
+      "test": {
+        "n": 20,
+        "wr": 75.0,
+        "avg": 73.0,
+        "total": 1461.0,
+        "mc_p": 0.002
+      },
+      "test_other_avg": 64.5,
+      "delta": 8.5,
+      "full": {
+        "n": 64,
+        "wr": 64.1,
+        "avg": 44.3,
+        "total": 2837.0,
+        "mc_p": 0.0
+      }
+    },
+    {
+      "win": "post",
+      "key": "imb_post5",
+      "desc": "book imbalance @T+5",
+      "fav": "lo",
+      "cut": 0.4343,
+      "test": {
+        "n": 30,
+        "wr": 70.0,
+        "avg": 63.7,
+        "total": 1912.0,
+        "mc_p": 0.0
+      },
+      "test_other_avg": 60.3,
+      "delta": 3.4,
+      "full": {
+        "n": 44,
+        "wr": 65.9,
+        "avg": 57.2,
+        "total": 2518.0,
+        "mc_p": 0.0
+      }
+    },
+    {
+      "win": "at",
+      "key": "dominance",
+      "desc": "max_single/rn",
+      "fav": "lo",
+      "cut": 74.5629,
+      "test": {
+        "n": 19,
+        "wr": 68.4,
+        "avg": 69.8,
+        "total": 1326.0,
+        "mc_p": 0.008
+      },
+      "test_other_avg": 68.1,
+      "delta": 1.7,
+      "full": {
+        "n": 63,
+        "wr": 63.5,
+        "avg": 41.0,
+        "total": 2586.0,
+        "mc_p": 0.004
+      }
+    },
+    {
+      "win": "at",
+      "key": "rn",
+      "desc": "cascade running_notional",
+      "fav": "hi",
+      "cut": 262459.4482,
+      "test": {
+        "n": 22,
+        "wr": 72.7,
+        "avg": 62.5,
+        "total": 1374.0,
+        "mc_p": 0.012
+      },
+      "test_other_avg": 77.9,
+      "delta": -15.4,
+      "full": {
+        "n": 66,
+        "wr": 62.1,
+        "avg": 45.4,
+        "total": 2997.0,
+        "mc_p": 0.0
+      }
+    },
+    {
+      "win": "pre",
+      "key": "bid_depth",
+      "desc": "bid depth USD @T0",
+      "fav": "hi",
+      "cut": 141733.6801,
+      "test": {
+        "n": 21,
+        "wr": 66.7,
+        "avg": 62.0,
+        "total": 1302.0,
+        "mc_p": 0.018
+      },
+      "test_other_avg": 77.6,
+      "delta": -15.6,
+      "full": {
+        "n": 35,
+        "wr": 65.7,
+        "avg": 44.6,
+        "total": 1562.0,
+        "mc_p": 0.038
+      }
+    },
+    {
+      "win": "at",
+      "key": "max_single",
+      "desc": "max single liq",
+      "fav": "hi",
+      "cut": 198423.8227,
+      "test": {
+        "n": 20,
+        "wr": 75.0,
+        "avg": 61.5,
+        "total": 1231.0,
+        "mc_p": 0.004
+      },
+      "test_other_avg": 77.2,
+      "delta": -15.7,
+      "full": {
+        "n": 64,
+        "wr": 64.1,
+        "avg": 40.0,
+        "total": 2559.0,
+        "mc_p": 0.012
+      }
+    },
+    {
+      "win": "at",
+      "key": "liq_count",
+      "desc": "liq count",
+      "fav": "hi",
+      "cut": 10.0,
+      "test": {
+        "n": 11,
+        "wr": 72.7,
+        "avg": 51.3,
+        "total": 564.0,
+        "mc_p": 0.064
+      },
+      "test_other_avg": 76.2,
+      "delta": -24.9,
+      "full": {
+        "n": 57,
+        "wr": 63.2,
+        "avg": 38.7,
+        "total": 2207.0,
+        "mc_p": 0.006
+      }
+    },
+    {
+      "win": "pre",
+      "key": "ofi_15m",
+      "desc": "agg-trade OFI pre-15m",
+      "fav": "lo",
+      "cut": -0.1235,
+      "test": {
+        "n": 18,
+        "wr": 61.1,
+        "avg": 44.6,
+        "total": 802.0,
+        "mc_p": 0.096
+      },
+      "test_other_avg": 90.9,
+      "delta": -46.3,
+      "full": {
+        "n": 62,
+        "wr": 64.5,
+        "avg": 37.9,
+        "total": 2350.0,
+        "mc_p": 0.016
+      }
+    },
+    {
+      "win": "pre",
+      "key": "spread",
+      "desc": "spread_pct @T0",
+      "fav": "lo",
+      "cut": 0.0,
+      "test": {
+        "n": 0
+      },
+      "test_other_avg": 69.0,
+      "delta": -69.0,
+      "full": {
+        "n": 14,
+        "wr": 64.3,
+        "avg": 24.0,
+        "total": 336.0,
+        "mc_p": 0.208
+      }
+    },
+    {
+      "win": "pre",
+      "key": "funding",
+      "desc": "funding_rate",
+      "fav": "lo",
+      "cut": 0.0,
+      "test": {
+        "n": 0
+      },
+      "test_other_avg": 69.0,
+      "delta": -69.0,
+      "full": {
+        "n": 44,
+        "wr": 59.1,
+        "avg": 30.3,
+        "total": 1332.0,
+        "mc_p": 0.042
+      }
+    },
+    {
+      "win": "at",
+      "key": "casc_drop",
+      "desc": "ETH drop during cascade bps",
+      "fav": "lo",
+      "cut": -16.5419,
+      "test": {
+        "n": 12,
+        "wr": 50.0,
+        "avg": 17.8,
+        "total": 213.0,
+        "mc_p": 0.294
+      },
+      "test_other_avg": 92.6,
+      "delta": -74.8,
+      "full": {
+        "n": 56,
+        "wr": 57.1,
+        "avg": 34.5,
+        "total": 1930.0,
+        "mc_p": 0.02
+      }
+    },
+    {
+      "win": "at",
+      "key": "rate",
+      "desc": "liq/sec rate",
+      "fav": "hi",
+      "cut": 0.1669,
+      "test": {
+        "n": 22,
+        "wr": 63.6,
+        "avg": 32.8,
+        "total": 721.0,
+        "mc_p": 0.09
+      },
+      "test_other_avg": 118.7,
+      "delta": -85.9,
+      "full": {
+        "n": 66,
+        "wr": 71.2,
+        "avg": 49.4,
+        "total": 3261.0,
+        "mc_p": 0.0
+      }
+    }
+  ],
+  "meta": {
+    "n": 126,
+    "months": 4.5
+  }
+}

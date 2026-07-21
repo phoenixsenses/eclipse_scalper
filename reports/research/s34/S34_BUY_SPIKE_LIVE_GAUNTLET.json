@@ -1,0 +1,400 @@
+{
+  "generated_at_utc": "2026-06-29T18:16:24.641637+00:00",
+  "scope": {
+    "symbol": "ETHUSDT",
+    "days": 30,
+    "start_utc": "2026-05-30T18:16:11+00:00",
+    "end_utc": "2026-06-29T18:16:11+00:00",
+    "liq_rows": 11696,
+    "note": "Research-only. No live executor/config/order logic touched."
+  },
+  "window_robustness": {
+    "10s": {
+      "threshold": 487346.2,
+      "n": 83,
+      "delay0_15m_fee_net": {
+        "n": 83,
+        "sum": -308.6,
+        "mean": -3.72,
+        "median": -6.16,
+        "win_rate": 0.277,
+        "t3r": -847.6,
+        "min": -137.96,
+        "max": 230.76
+      }
+    },
+    "15s": {
+      "threshold": 635643.8,
+      "n": 80,
+      "delay0_15m_fee_net": {
+        "n": 80,
+        "sum": -349.7,
+        "mean": -4.37,
+        "median": -8.25,
+        "win_rate": 0.263,
+        "t3r": -878.9,
+        "min": -137.96,
+        "max": 230.76
+      }
+    },
+    "30s": {
+      "threshold": 982599.8,
+      "n": 62,
+      "delay0_15m_fee_net": {
+        "n": 62,
+        "sum": -137.6,
+        "mean": -2.22,
+        "median": -6.16,
+        "win_rate": 0.306,
+        "t3r": -657.1,
+        "min": -137.96,
+        "max": 217.75
+      }
+    },
+    "60s": {
+      "threshold": 1349717.4,
+      "n": 54,
+      "delay0_15m_fee_net": {
+        "n": 54,
+        "sum": 10.4,
+        "mean": 0.19,
+        "median": -6.16,
+        "win_rate": 0.333,
+        "t3r": -494.4,
+        "min": -137.96,
+        "max": 211.77
+      }
+    }
+  },
+  "delay_sweep_60s": {
+    "0s": {
+      "n": 54,
+      "sum": 10.4,
+      "mean": 0.19,
+      "median": -6.16,
+      "win_rate": 0.333,
+      "t3r": -494.4,
+      "min": -137.96,
+      "max": 211.77
+    },
+    "2s": {
+      "n": 54,
+      "sum": 47.8,
+      "mean": 0.89,
+      "median": -6.16,
+      "win_rate": 0.296,
+      "t3r": -460.6,
+      "min": -133.42,
+      "max": 208.25
+    },
+    "5s": {
+      "n": 54,
+      "sum": 44.7,
+      "mean": 0.83,
+      "median": -6.16,
+      "win_rate": 0.315,
+      "t3r": -463.8,
+      "min": -139.78,
+      "max": 209.04
+    },
+    "10s": {
+      "n": 54,
+      "sum": -24.3,
+      "mean": -0.45,
+      "median": -6.16,
+      "win_rate": 0.352,
+      "t3r": -525.6,
+      "min": -137.01,
+      "max": 207.33
+    },
+    "30s": {
+      "n": 54,
+      "sum": -133.1,
+      "mean": -2.46,
+      "median": -6.16,
+      "win_rate": 0.352,
+      "t3r": -620.8,
+      "min": -160.35,
+      "max": 204.54
+    },
+    "60s": {
+      "n": 54,
+      "sum": 31.4,
+      "mean": 0.58,
+      "median": -6.16,
+      "win_rate": 0.333,
+      "t3r": -436.2,
+      "min": -142.83,
+      "max": 175.92
+    }
+  },
+  "fee_stress_60s": {
+    "6.1bps": {
+      "n": 54,
+      "sum": 10.4,
+      "mean": 0.19,
+      "median": -6.16,
+      "win_rate": 0.333,
+      "t3r": -494.4,
+      "min": -137.96,
+      "max": 211.77
+    },
+    "10.0bps": {
+      "n": 54,
+      "sum": -200.2,
+      "mean": -3.71,
+      "median": -10.06,
+      "win_rate": 0.296,
+      "t3r": -693.3,
+      "min": -141.86,
+      "max": 207.87
+    },
+    "15.0bps": {
+      "n": 54,
+      "sum": -470.2,
+      "mean": -8.71,
+      "median": -15.06,
+      "win_rate": 0.296,
+      "t3r": -948.3,
+      "min": -146.86,
+      "max": 202.87
+    },
+    "20.0bps": {
+      "n": 54,
+      "sum": -740.2,
+      "mean": -13.71,
+      "median": -20.06,
+      "win_rate": 0.278,
+      "t3r": -1203.3,
+      "min": -151.86,
+      "max": 197.87
+    },
+    "30.0bps": {
+      "n": 54,
+      "sum": -1280.2,
+      "mean": -23.71,
+      "median": -30.06,
+      "win_rate": 0.222,
+      "t3r": -1713.3,
+      "min": -161.86,
+      "max": 187.87
+    }
+  },
+  "exit_robustness_60s": {
+    "fixed_5m_fee6.1": {
+      "n": 54,
+      "sum": -91.0,
+      "mean": -1.69,
+      "median": -10.35,
+      "win_rate": 0.407,
+      "t3r": -578.3,
+      "min": -85.12,
+      "max": 279.27
+    },
+    "fixed_10m_fee6.1": {
+      "n": 54,
+      "sum": -54.1,
+      "mean": -1.0,
+      "median": -15.75,
+      "win_rate": 0.333,
+      "t3r": -594.5,
+      "min": -133.05,
+      "max": 224.01
+    },
+    "fixed_15m_fee6.1": {
+      "n": 54,
+      "sum": 83.3,
+      "mean": 1.54,
+      "median": -16.58,
+      "win_rate": 0.389,
+      "t3r": -480.6,
+      "min": -136.91,
+      "max": 210.7
+    },
+    "fixed_20m_fee6.1": {
+      "n": 54,
+      "sum": -24.1,
+      "mean": -0.45,
+      "median": -21.9,
+      "win_rate": 0.389,
+      "t3r": -590.9,
+      "min": -125.43,
+      "max": 198.94
+    },
+    "fixed_30m_fee6.1": {
+      "n": 54,
+      "sum": -31.3,
+      "mean": -0.58,
+      "median": -24.08,
+      "win_rate": 0.407,
+      "t3r": -670.8,
+      "min": -140.81,
+      "max": 228.46
+    },
+    "SL30_15m_fee6.1": {
+      "n": 54,
+      "sum": 130.0,
+      "mean": 2.41,
+      "median": -23.58,
+      "win_rate": 0.37,
+      "t3r": -433.9,
+      "min": -80.67,
+      "max": 210.7
+    },
+    "SL50_15m_fee6.1": {
+      "n": 54,
+      "sum": 53.3,
+      "mean": 0.99,
+      "median": -19.35,
+      "win_rate": 0.389,
+      "t3r": -510.6,
+      "min": -80.67,
+      "max": 210.7
+    },
+    "SL75_15m_fee6.1": {
+      "n": 54,
+      "sum": 162.8,
+      "mean": 3.02,
+      "median": -16.58,
+      "win_rate": 0.389,
+      "t3r": -401.1,
+      "min": -99.86,
+      "max": 210.7
+    },
+    "SL100_15m_fee6.1": {
+      "n": 54,
+      "sum": 93.1,
+      "mean": 1.72,
+      "median": -16.58,
+      "win_rate": 0.389,
+      "t3r": -470.8,
+      "min": -133.05,
+      "max": 210.7
+    }
+  },
+  "walk_forward_60s": [
+    {
+      "fold": 1,
+      "n": 10,
+      "sum": -37.6,
+      "mean": -3.76,
+      "median": -21.54,
+      "win_rate": 0.3,
+      "t3r": -264.2,
+      "min": -65.79,
+      "max": 205.79
+    },
+    {
+      "fold": 2,
+      "n": 11,
+      "sum": 109.8,
+      "mean": 9.98,
+      "median": -15.63,
+      "win_rate": 0.455,
+      "t3r": -162.3,
+      "min": -67.14,
+      "max": 126.06
+    },
+    {
+      "fold": 3,
+      "n": 11,
+      "sum": -9.0,
+      "mean": -0.82,
+      "median": -8.38,
+      "win_rate": 0.455,
+      "t3r": -325.6,
+      "min": -136.91,
+      "max": 147.41
+    },
+    {
+      "fold": 4,
+      "n": 11,
+      "sum": -134.6,
+      "mean": -12.23,
+      "median": -7.43,
+      "win_rate": 0.364,
+      "t3r": -225.0,
+      "min": -65.2,
+      "max": 48.91
+    },
+    {
+      "fold": 5,
+      "n": 11,
+      "sum": 154.6,
+      "mean": 14.06,
+      "median": -20.79,
+      "win_rate": 0.364,
+      "t3r": -251.7,
+      "min": -112.88,
+      "max": 210.7
+    }
+  ],
+  "permutation_null": {
+    "permutations": 300,
+    "real_max_sum": 10.4,
+    "null_p95": 201.6,
+    "null_p99": 367.5,
+    "p_right": 0.19
+  },
+  "regime_splits_60s": {
+    "btc_1h_up": {
+      "n": 53,
+      "sum": 196.2,
+      "mean": 3.7,
+      "median": -15.63,
+      "win_rate": 0.396,
+      "t3r": -367.7,
+      "min": -136.91,
+      "max": 210.7
+    },
+    "btc_1h_down": {
+      "n": 1,
+      "sum": -112.9,
+      "mean": -112.88,
+      "median": -112.88,
+      "win_rate": 0.0,
+      "t3r": null,
+      "min": -112.88,
+      "max": -112.88
+    },
+    "eth_pre15_up": {
+      "n": 54,
+      "sum": 83.3,
+      "mean": 1.54,
+      "median": -16.58,
+      "win_rate": 0.389,
+      "t3r": -480.6,
+      "min": -136.91,
+      "max": 210.7
+    },
+    "eth_pre15_down": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "median": null,
+      "win_rate": null,
+      "t3r": null
+    },
+    "p99_running_notional": {
+      "n": 2,
+      "sum": -4.1,
+      "mean": -2.04,
+      "median": -2.04,
+      "win_rate": 0.5,
+      "t3r": null,
+      "min": -31.99,
+      "max": 27.91
+    },
+    "non_p99_running_notional": {
+      "n": 52,
+      "sum": 87.4,
+      "mean": 1.68,
+      "median": -16.58,
+      "win_rate": 0.385,
+      "t3r": -476.5,
+      "min": -136.91,
+      "max": 210.7
+    }
+  },
+  "verdict": "RESEARCH_ONLY: pass=[]; fail=['60s running threshold fails fee-net/T3R', 'walk-forward is not uniformly positive', 'permutation-null does not clear p<=0.05', '10s delay does not robustly survive']"
+}

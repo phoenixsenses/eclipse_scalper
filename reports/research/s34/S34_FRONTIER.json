@@ -1,0 +1,438 @@
+{
+  "results": {
+    "P": {
+      "P1_mini_all": {
+        "label": "100K mini all (hour17)",
+        "n": 160,
+        "wr": 61.2,
+        "avg": 38.4,
+        "total": 6146.0,
+        "per_month": 35.5,
+        "worst": -418.9,
+        "mc_p": 0.002
+      },
+      "P1_mini_grew": {
+        "label": "100K mini that grew to 200K",
+        "n": 76,
+        "wr": 53.9,
+        "avg": 20.6,
+        "total": 1565.0,
+        "per_month": 16.9,
+        "worst": -206.3,
+        "mc_p": 0.07
+      },
+      "P1_mini_fizzled": {
+        "label": "100K mini fizzled",
+        "n": 84,
+        "wr": 67.9,
+        "avg": 54.5,
+        "total": 4581.0,
+        "per_month": 18.6,
+        "worst": -418.9,
+        "mc_p": 0.0
+      },
+      "P1_mini_score3": {
+        "label": "100K mini score>=3",
+        "n": 97,
+        "wr": 64.9,
+        "avg": 55.1,
+        "total": 5345.0,
+        "per_month": 21.5,
+        "worst": -206.3,
+        "mc_p": 0.0
+      }
+    },
+    "N": {
+      "N1_h17-19_deep7d_s<4": {
+        "label": "N1_h17-19_deep7d_s<4",
+        "n": 10,
+        "wr": 30.0,
+        "avg": -33.2,
+        "total": -332.0,
+        "per_month": 2.2,
+        "worst": -118.9,
+        "mc_p": 0.914
+      },
+      "N1_h17-19_deep7d_s>=4": {
+        "label": "N1_h17-19_deep7d_s>=4",
+        "n": 15,
+        "wr": 80.0,
+        "avg": 120.1,
+        "total": 1801.0,
+        "per_month": 3.3,
+        "worst": -64.0,
+        "mc_p": 0.002
+      },
+      "N1_h17-19_mild7d_s<4": {
+        "label": "N1_h17-19_mild7d_s<4",
+        "n": 21,
+        "wr": 71.4,
+        "avg": 42.3,
+        "total": 888.0,
+        "per_month": 4.7,
+        "worst": -161.8,
+        "mc_p": 0.006
+      },
+      "N1_h17-19_mild7d_s>=4": {
+        "label": "N1_h17-19_mild7d_s>=4",
+        "n": 15,
+        "wr": 73.3,
+        "avg": 71.7,
+        "total": 1076.0,
+        "per_month": 3.3,
+        "worst": -154.6,
+        "mc_p": 0.016
+      },
+      "N1_h20-23_deep7d_s<4": {
+        "label": "N1_h20-23_deep7d_s<4",
+        "n": 17,
+        "wr": 41.2,
+        "avg": -15.7,
+        "total": -267.0,
+        "per_month": 3.8,
+        "worst": -448.5,
+        "mc_p": 0.646
+      },
+      "N1_h20-23_deep7d_s>=4": {
+        "label": "N1_h20-23_deep7d_s>=4",
+        "n": 13,
+        "wr": 84.6,
+        "avg": 100.6,
+        "total": 1308.0,
+        "per_month": 2.9,
+        "worst": -51.8,
+        "mc_p": 0.0
+      },
+      "N1_h20-23_mild7d_s<4": {
+        "label": "N1_h20-23_mild7d_s<4",
+        "n": 24,
+        "wr": 66.7,
+        "avg": 19.5,
+        "total": 468.0,
+        "per_month": 5.3,
+        "worst": -173.4,
+        "mc_p": 0.19
+      },
+      "N1_h20-23_mild7d_s>=4": {
+        "label": "N1_h20-23_mild7d_s>=4",
+        "n": 11,
+        "wr": 63.6,
+        "avg": 6.8,
+        "total": 74.0,
+        "per_month": 2.4,
+        "worst": -183.9,
+        "mc_p": 0.402
+      },
+      "N2_after_win": {
+        "label": "after winner",
+        "n": 81,
+        "wr": 67.9,
+        "avg": 55.8,
+        "total": 4516.0,
+        "per_month": 18.0,
+        "worst": -448.5,
+        "mc_p": 0.0
+      },
+      "N2_after_loss": {
+        "label": "after loser",
+        "n": 44,
+        "wr": 59.1,
+        "avg": 6.9,
+        "total": 305.0,
+        "per_month": 9.8,
+        "worst": -189.0,
+        "mc_p": 0.314
+      }
+    },
+    "D": {
+      "D1_isolated(1-2/day)": {
+        "label": "isolated(1-2/day)",
+        "n": 49,
+        "wr": 69.4,
+        "avg": 38.7,
+        "total": 1895.0,
+        "per_month": 10.9,
+        "worst": -448.5,
+        "mc_p": 0.018
+      },
+      "D1_busy(3-4)": {
+        "label": "busy(3-4)",
+        "n": 41,
+        "wr": 58.5,
+        "avg": 20.0,
+        "total": 818.0,
+        "per_month": 9.1,
+        "worst": -189.0,
+        "mc_p": 0.13
+      },
+      "D1_storm(5+)": {
+        "label": "storm(5+)",
+        "n": 36,
+        "wr": 66.7,
+        "avg": 64.0,
+        "total": 2303.0,
+        "per_month": 8.0,
+        "worst": -159.2,
+        "mc_p": 0.0
+      },
+      "D2_ETH+BTC(>=500K)": {
+        "label": "ETH+BTC(>=500K)",
+        "n": 28,
+        "wr": 75.0,
+        "avg": 75.3,
+        "total": 2109.0,
+        "per_month": 6.2,
+        "worst": -183.9,
+        "mc_p": 0.006
+      },
+      "D2_ETH-only(btc<500K)": {
+        "label": "ETH-only(btc<500K)",
+        "n": 98,
+        "wr": 62.2,
+        "avg": 29.7,
+        "total": 2907.0,
+        "per_month": 21.8,
+        "worst": -448.5,
+        "mc_p": 0.012
+      },
+      "D2_ETH+SOL(>=100K)": {
+        "label": "ETH+SOL(>=100K)",
+        "n": 19,
+        "wr": 78.9,
+        "avg": 96.4,
+        "total": 1831.0,
+        "per_month": 4.2,
+        "worst": -183.9,
+        "mc_p": 0.012
+      },
+      "D3_2h": {
+        "label": "score>=3 2h",
+        "n": 79,
+        "wr": 62.0,
+        "avg": 31.0,
+        "total": 2446.0,
+        "per_month": 17.5,
+        "worst": -210.0,
+        "mc_p": 0.0
+      },
+      "D3_4h": {
+        "label": "score>=3 4h",
+        "n": 79,
+        "wr": 72.2,
+        "avg": 56.0,
+        "total": 4421.0,
+        "per_month": 17.5,
+        "worst": -237.0,
+        "mc_p": 0.0
+      },
+      "D3_6h": {
+        "label": "score>=3 6h",
+        "n": 79,
+        "wr": 74.7,
+        "avg": 70.4,
+        "total": 5560.0,
+        "per_month": 17.5,
+        "worst": -183.9,
+        "mc_p": 0.0
+      },
+      "D3_8h": {
+        "label": "score>=3 8h",
+        "n": 79,
+        "wr": 59.5,
+        "avg": 56.5,
+        "total": 4464.0,
+        "per_month": 17.5,
+        "worst": -272.0,
+        "mc_p": 0.0
+      },
+      "D3_12h": {
+        "label": "score>=3 12h",
+        "n": 79,
+        "wr": 63.3,
+        "avg": 60.3,
+        "total": 4765.0,
+        "per_month": 17.5,
+        "worst": -439.7,
+        "mc_p": 0.004
+      }
+    },
+    "S": {
+      "S1_whale_hi": {
+        "label": "whale hi",
+        "n": 63,
+        "wr": 57.1,
+        "avg": 15.4,
+        "total": 972.0,
+        "per_month": 14.0,
+        "worst": -448.5,
+        "mc_p": 0.184
+      },
+      "S1_whale_lo": {
+        "label": "whale lo",
+        "n": 63,
+        "wr": 73.0,
+        "avg": 64.2,
+        "total": 4044.0,
+        "per_month": 14.0,
+        "worst": -189.0,
+        "mc_p": 0.0
+      },
+      "S2_tsl_<2h": {
+        "label": "<2h",
+        "n": 68,
+        "wr": 69.1,
+        "avg": 56.0,
+        "total": 3810.0,
+        "per_month": 15.1,
+        "worst": -183.9,
+        "mc_p": 0.0
+      },
+      "S2_tsl_2-12h": {
+        "label": "2-12h",
+        "n": 52,
+        "wr": 61.5,
+        "avg": 14.4,
+        "total": 747.0,
+        "per_month": 11.5,
+        "worst": -448.5,
+        "mc_p": 0.224
+      },
+      "S2_tsl_>12h": {
+        "label": ">12h",
+        "n": 6,
+        "wr": 50.0,
+        "avg": 76.4,
+        "total": 458.0,
+        "per_month": 1.3,
+        "worst": -109.0,
+        "mc_p": 0.238
+      }
+    },
+    "M": {
+      "M1_deep7d_s>=3": {
+        "label": "M1_deep7d_s>=3",
+        "n": 38,
+        "wr": 73.7,
+        "avg": 87.6,
+        "total": 3328.0,
+        "per_month": 8.4,
+        "worst": -129.3,
+        "mc_p": 0.0
+      },
+      "M1_deep7d_s>=4": {
+        "label": "M1_deep7d_s>=4",
+        "n": 28,
+        "wr": 82.1,
+        "avg": 111.0,
+        "total": 3109.0,
+        "per_month": 6.2,
+        "worst": -64.0,
+        "mc_p": 0.0
+      },
+      "M1_mild7d_s>=3": {
+        "label": "M1_mild7d_s>=3",
+        "n": 41,
+        "wr": 75.6,
+        "avg": 54.4,
+        "total": 2232.0,
+        "per_month": 9.1,
+        "worst": -183.9,
+        "mc_p": 0.0
+      },
+      "M1_mild7d_s>=4": {
+        "label": "M1_mild7d_s>=4",
+        "n": 26,
+        "wr": 69.2,
+        "avg": 44.2,
+        "total": 1150.0,
+        "per_month": 5.8,
+        "worst": -183.9,
+        "mc_p": 0.026
+      },
+      "M2_s2_full": {
+        "label": "score>=2 (no-veto)",
+        "n": 94,
+        "wr": 71.3,
+        "avg": 57.3,
+        "total": 5390.0,
+        "per_month": 20.9,
+        "worst": -183.9,
+        "mc_p": 0.0
+      },
+      "M2_s2_noov": {
+        "label": "score>=2 noov",
+        "n": 45,
+        "wr": 71.1,
+        "avg": 57.5,
+        "total": 2586.0,
+        "per_month": 10.0,
+        "worst": -161.8,
+        "mc_p": 0.0
+      },
+      "M2_s3_full": {
+        "label": "score>=3 (no-veto)",
+        "n": 71,
+        "wr": 74.6,
+        "avg": 70.5,
+        "total": 5002.0,
+        "per_month": 15.8,
+        "worst": -183.9,
+        "mc_p": 0.0
+      },
+      "M2_s3_noov": {
+        "label": "score>=3 noov",
+        "n": 35,
+        "wr": 68.6,
+        "avg": 53.6,
+        "total": 1878.0,
+        "per_month": 7.8,
+        "worst": -175.7,
+        "mc_p": 0.002
+      },
+      "M2_s4_full": {
+        "label": "score>=4 (no-veto)",
+        "n": 50,
+        "wr": 76.0,
+        "avg": 78.1,
+        "total": 3907.0,
+        "per_month": 11.1,
+        "worst": -183.9,
+        "mc_p": 0.0
+      },
+      "M2_s4_noov": {
+        "label": "score>=4 noov",
+        "n": 23,
+        "wr": 69.6,
+        "avg": 50.1,
+        "total": 1152.0,
+        "per_month": 5.1,
+        "worst": -175.7,
+        "mc_p": 0.032
+      },
+      "M2_s5_full": {
+        "label": "score>=5 (no-veto)",
+        "n": 26,
+        "wr": 84.6,
+        "avg": 104.4,
+        "total": 2714.0,
+        "per_month": 5.8,
+        "worst": -107.4,
+        "mc_p": 0.0
+      },
+      "M2_s5_noov": {
+        "label": "score>=5 noov",
+        "n": 14,
+        "wr": 78.6,
+        "avg": 83.4,
+        "total": 1167.0,
+        "per_month": 3.1,
+        "worst": -107.4,
+        "mc_p": 0.01
+      }
+    }
+  },
+  "meta": {
+    "n": 126,
+    "months": 4.5
+  }
+}

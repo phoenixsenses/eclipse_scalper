@@ -1,0 +1,11 @@
+{
+  "status": "ACTIVE",
+  "protocol_id": "S34_V_ENGINE_V0_2_ETH_SELL_MAKER_LONG_H2_O20_W300_O5_DEEPBID",
+  "h2_sum_bps": 1081.6,
+  "h4_sum_bps": 1738.6,
+  "h4_t3r_bps": 819.2,
+  "cross_policy_sum_bps": 1790.7,
+  "sl150_touch_count": 0,
+  "queue_status": "PROXY_ONLY_TOP_OF_BOOK",
+  "decision": "H4_SHADOW_OBSERVATION_ONLY"
+}

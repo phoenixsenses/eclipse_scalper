@@ -1,0 +1,1435 @@
+{
+  "generated_at_utc": "2026-06-28T12:00:41.563051+00:00",
+  "source_db": {
+    "path": "D:\\eclipse_scalper\\data\\microstructure.db",
+    "exists": true,
+    "size_bytes": 647080472576,
+    "mtime_ns": 1782648033660994000
+  },
+  "routes_sha256": "feb6c6922f1381622d2ad5b2d2b3b498549478adc4d04768a3b51d6dc8a76a9b",
+  "config": {
+    "bucket_sec": 300,
+    "min_gap_sec": 900,
+    "accel_window_sec": 30,
+    "holdout_frac": 0.3,
+    "fee_bps_side": 3.05,
+    "max_book_staleness_sec": 5,
+    "start_ms": 1781568000000,
+    "end_ms": null
+  },
+  "results": [
+    {
+      "spec": {
+        "family": "ETH_BUY",
+        "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+        "symbol": "ETHUSDT",
+        "liq_side": "BUY",
+        "direction": "LONG",
+        "threshold_usd": 50000.0,
+        "tp_bps": 120.0,
+        "sl_bps": 40.0,
+        "be_bps": 30.0,
+        "entry_delay_sec": 0,
+        "max_horizon_sec": 3600,
+        "min_day_trend_bps": null,
+        "btc_pre_window_sec": 0,
+        "btc_pre_min_return_bps": null,
+        "max_single_dominance_pct": null
+      },
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "family": "ETH_BUY",
+      "all_anchor_n": 201,
+      "filtered_anchor_n": 201,
+      "filter_rejections": {},
+      "split": {
+        "split_method": "chronological_bucket_tail_holdout",
+        "holdout_frac": 0.3,
+        "calibration_bucket_n": 141,
+        "holdout_bucket_n": 60,
+        "holdout_bucket_ids": [
+          "5941213",
+          "5941216",
+          "5941232",
+          "5941235",
+          "5941244",
+          "5941302",
+          "5941308",
+          "5941320",
+          "5941323",
+          "5941326",
+          "5941330",
+          "5941335",
+          "5941339",
+          "5941343",
+          "5941358",
+          "5941371",
+          "5941392",
+          "5941409",
+          "5941414",
+          "5941467",
+          "5941470",
+          "5941476",
+          "5941483",
+          "5941487",
+          "5941505",
+          "5941516",
+          "5941519",
+          "5941525",
+          "5941530",
+          "5941590",
+          "5941600",
+          "5941603",
+          "5941606",
+          "5941610",
+          "5941617",
+          "5941621",
+          "5941624",
+          "5941628",
+          "5941632",
+          "5941638",
+          "5941645",
+          "5941652",
+          "5941669",
+          "5941680",
+          "5941698",
+          "5941715",
+          "5941756",
+          "5941806",
+          "5941809",
+          "5941822",
+          "5941851",
+          "5941883",
+          "5941891",
+          "5941898",
+          "5941909",
+          "5941915",
+          "5941996",
+          "5942003",
+          "5942119",
+          "5942158"
+        ],
+        "holdout_bucket_ids_sha256": "e412d085e5d82043d0f6e4c6279fe609bf98c0f854dade173ef62a28e21db88a"
+      },
+      "calibration": {
+        "total_n": 141,
+        "filled_n": 140,
+        "no_fill_n": 1,
+        "no_fill_rate": 0.007,
+        "summary": {
+          "n": 140,
+          "mean_bps": 0.5,
+          "median_bps": -10.7,
+          "p25_bps": -45.0,
+          "p75_bps": 15.2,
+          "win_rate": 0.314,
+          "cum_bps": 74.2,
+          "top3_winner_removed_cum_bps": -321.6,
+          "exits": {
+            "BE": 30,
+            "SL": 42,
+            "TIME": 52,
+            "TP": 16
+          }
+        },
+        "mark_counterfactual": {
+          "n": 141,
+          "mean_bps": 0.3,
+          "median_bps": -7.6,
+          "p25_bps": -46.3,
+          "p75_bps": 13.0,
+          "win_rate": 0.319,
+          "cum_bps": 49.0,
+          "top3_winner_removed_cum_bps": -312.2,
+          "exits": {
+            "BE": 30,
+            "NA": 1,
+            "SL": 42,
+            "TIME": 52,
+            "TP": 16
+          }
+        }
+      },
+      "holdout": {
+        "total_n": 60,
+        "filled_n": 59,
+        "no_fill_n": 1,
+        "no_fill_rate": 0.017,
+        "summary": {
+          "n": 59,
+          "mean_bps": -6.9,
+          "median_bps": -10.0,
+          "p25_bps": -42.2,
+          "p75_bps": -5.3,
+          "win_rate": 0.186,
+          "cum_bps": -405.7,
+          "top3_winner_removed_cum_bps": -770.8,
+          "exits": {
+            "BE": 23,
+            "SL": 17,
+            "TIME": 14,
+            "TP": 5
+          }
+        },
+        "mark_counterfactual": {
+          "n": 60,
+          "mean_bps": -6.9,
+          "median_bps": -7.2,
+          "p25_bps": -46.4,
+          "p75_bps": -6.2,
+          "win_rate": 0.183,
+          "cum_bps": -414.6,
+          "top3_winner_removed_cum_bps": -771.8,
+          "exits": {
+            "BE": 23,
+            "NA": 1,
+            "SL": 17,
+            "TIME": 14,
+            "TP": 5
+          }
+        }
+      },
+      "verdict": "RESEARCH_ONLY"
+    },
+    {
+      "spec": {
+        "family": "ETH_BUY",
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "symbol": "ETHUSDT",
+        "liq_side": "BUY",
+        "direction": "LONG",
+        "threshold_usd": 200000.0,
+        "tp_bps": 60.0,
+        "sl_bps": 40.0,
+        "be_bps": 30.0,
+        "entry_delay_sec": 0,
+        "max_horizon_sec": 3600,
+        "min_day_trend_bps": null,
+        "btc_pre_window_sec": 0,
+        "btc_pre_min_return_bps": null,
+        "max_single_dominance_pct": null
+      },
+      "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+      "family": "ETH_BUY",
+      "all_anchor_n": 95,
+      "filtered_anchor_n": 95,
+      "filter_rejections": {},
+      "split": {
+        "split_method": "chronological_bucket_tail_holdout",
+        "holdout_frac": 0.3,
+        "calibration_bucket_n": 67,
+        "holdout_bucket_n": 28,
+        "holdout_bucket_ids": [
+          "5941335",
+          "5941343",
+          "5941358",
+          "5941410",
+          "5941414",
+          "5941467",
+          "5941476",
+          "5941483",
+          "5941487",
+          "5941516",
+          "5941519",
+          "5941525",
+          "5941530",
+          "5941590",
+          "5941603",
+          "5941606",
+          "5941613",
+          "5941621",
+          "5941624",
+          "5941632",
+          "5941891",
+          "5941898",
+          "5941909",
+          "5941915",
+          "5941996",
+          "5942005",
+          "5942119",
+          "5942158"
+        ],
+        "holdout_bucket_ids_sha256": "61ca076016179094008f25a781dec2939ad1ee5074505f4c5791b2a9d79c0c5a"
+      },
+      "calibration": {
+        "total_n": 67,
+        "filled_n": 67,
+        "no_fill_n": 0,
+        "no_fill_rate": 0.0,
+        "summary": {
+          "n": 67,
+          "mean_bps": -1.8,
+          "median_bps": -14.0,
+          "p25_bps": -45.4,
+          "p75_bps": 54.0,
+          "win_rate": 0.373,
+          "cum_bps": -121.3,
+          "top3_winner_removed_cum_bps": -344.9,
+          "exits": {
+            "BE": 12,
+            "SL": 22,
+            "TIME": 13,
+            "TP": 20
+          }
+        },
+        "mark_counterfactual": {
+          "n": 67,
+          "mean_bps": -1.9,
+          "median_bps": -7.9,
+          "p25_bps": -46.4,
+          "p75_bps": 54.4,
+          "win_rate": 0.358,
+          "cum_bps": -128.0,
+          "top3_winner_removed_cum_bps": -305.3,
+          "exits": {
+            "BE": 12,
+            "SL": 22,
+            "TIME": 13,
+            "TP": 20
+          }
+        }
+      },
+      "holdout": {
+        "total_n": 28,
+        "filled_n": 28,
+        "no_fill_n": 0,
+        "no_fill_rate": 0.0,
+        "summary": {
+          "n": 28,
+          "mean_bps": 3.5,
+          "median_bps": -7.7,
+          "p25_bps": -45.9,
+          "p75_bps": 55.5,
+          "win_rate": 0.393,
+          "cum_bps": 98.9,
+          "top3_winner_removed_cum_bps": -83.8,
+          "exits": {
+            "BE": 7,
+            "SL": 8,
+            "TIME": 3,
+            "TP": 10
+          }
+        },
+        "mark_counterfactual": {
+          "n": 28,
+          "mean_bps": 4.4,
+          "median_bps": -7.2,
+          "p25_bps": -46.2,
+          "p75_bps": 55.4,
+          "win_rate": 0.393,
+          "cum_bps": 122.9,
+          "top3_winner_removed_cum_bps": -57.1,
+          "exits": {
+            "BE": 7,
+            "SL": 8,
+            "TIME": 3,
+            "TP": 10
+          }
+        }
+      },
+      "verdict": "RESEARCH_ONLY"
+    },
+    {
+      "spec": {
+        "family": "ETH_BUY",
+        "rule_name": "ETH_BUY_LIQ_LONG_200K_BTC_PRE15_TP120_SL40_BE30_DELAY60",
+        "symbol": "ETHUSDT",
+        "liq_side": "BUY",
+        "direction": "LONG",
+        "threshold_usd": 200000.0,
+        "tp_bps": 120.0,
+        "sl_bps": 40.0,
+        "be_bps": 30.0,
+        "entry_delay_sec": 60,
+        "max_horizon_sec": 3600,
+        "min_day_trend_bps": null,
+        "btc_pre_window_sec": 900,
+        "btc_pre_min_return_bps": 0.0,
+        "max_single_dominance_pct": null
+      },
+      "rule_name": "ETH_BUY_LIQ_LONG_200K_BTC_PRE15_TP120_SL40_BE30_DELAY60",
+      "family": "ETH_BUY",
+      "all_anchor_n": 95,
+      "filtered_anchor_n": 81,
+      "filter_rejections": {
+        "BTC_PRE_FILTER": 14
+      },
+      "split": {
+        "split_method": "chronological_bucket_tail_holdout",
+        "holdout_frac": 0.3,
+        "calibration_bucket_n": 57,
+        "holdout_bucket_n": 24,
+        "holdout_bucket_ids": [
+          "5941335",
+          "5941343",
+          "5941410",
+          "5941414",
+          "5941483",
+          "5941487",
+          "5941516",
+          "5941519",
+          "5941525",
+          "5941530",
+          "5941590",
+          "5941603",
+          "5941606",
+          "5941613",
+          "5941621",
+          "5941624",
+          "5941632",
+          "5941891",
+          "5941898",
+          "5941909",
+          "5941915",
+          "5942005",
+          "5942119",
+          "5942158"
+        ],
+        "holdout_bucket_ids_sha256": "f9ad97e3aa8bca92fb302c3b697ae1e65d184a70aea0c1174d9585e7c89d807d"
+      },
+      "calibration": {
+        "total_n": 57,
+        "filled_n": 57,
+        "no_fill_n": 0,
+        "no_fill_rate": 0.0,
+        "summary": {
+          "n": 57,
+          "mean_bps": -3.0,
+          "median_bps": -8.8,
+          "p25_bps": -46.8,
+          "p75_bps": 6.4,
+          "win_rate": 0.298,
+          "cum_bps": -173.4,
+          "top3_winner_removed_cum_bps": -527.6,
+          "exits": {
+            "BE": 11,
+            "SL": 20,
+            "TIME": 20,
+            "TP": 6
+          }
+        },
+        "mark_counterfactual": {
+          "n": 57,
+          "mean_bps": -3.1,
+          "median_bps": -6.9,
+          "p25_bps": -46.7,
+          "p75_bps": 8.1,
+          "win_rate": 0.298,
+          "cum_bps": -175.3,
+          "top3_winner_removed_cum_bps": -524.9,
+          "exits": {
+            "BE": 11,
+            "SL": 20,
+            "TIME": 20,
+            "TP": 6
+          }
+        }
+      },
+      "holdout": {
+        "total_n": 24,
+        "filled_n": 24,
+        "no_fill_n": 0,
+        "no_fill_rate": 0.0,
+        "summary": {
+          "n": 24,
+          "mean_bps": 18.8,
+          "median_bps": -5.1,
+          "p25_bps": -44.2,
+          "p75_bps": 70.8,
+          "win_rate": 0.375,
+          "cum_bps": 451.1,
+          "top3_winner_removed_cum_bps": 70.3,
+          "exits": {
+            "BE": 5,
+            "SL": 7,
+            "TIME": 6,
+            "TP": 6
+          }
+        },
+        "mark_counterfactual": {
+          "n": 24,
+          "mean_bps": 17.5,
+          "median_bps": -6.5,
+          "p25_bps": -46.2,
+          "p75_bps": 70.6,
+          "win_rate": 0.375,
+          "cum_bps": 419.4,
+          "top3_winner_removed_cum_bps": 60.9,
+          "exits": {
+            "BE": 5,
+            "SL": 7,
+            "TIME": 6,
+            "TP": 6
+          }
+        }
+      },
+      "verdict": "RESEARCH_ONLY"
+    },
+    {
+      "spec": {
+        "family": "ETH_BUY",
+        "rule_name": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+        "symbol": "ETHUSDT",
+        "liq_side": "BUY",
+        "direction": "LONG",
+        "threshold_usd": 500000.0,
+        "tp_bps": 60.0,
+        "sl_bps": 40.0,
+        "be_bps": 30.0,
+        "entry_delay_sec": 0,
+        "max_horizon_sec": 3600,
+        "min_day_trend_bps": 0.0,
+        "btc_pre_window_sec": 0,
+        "btc_pre_min_return_bps": null,
+        "max_single_dominance_pct": null
+      },
+      "rule_name": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+      "family": "ETH_BUY",
+      "all_anchor_n": 49,
+      "filtered_anchor_n": 23,
+      "filter_rejections": {
+        "DAY_TREND_FILTER": 26
+      },
+      "split": {
+        "split_method": "chronological_bucket_tail_holdout",
+        "holdout_frac": 0.3,
+        "calibration_bucket_n": 16,
+        "holdout_bucket_n": 7,
+        "holdout_bucket_ids": [
+          "5941302",
+          "5941621",
+          "5941624",
+          "5941632",
+          "5941898",
+          "5941909",
+          "5942119"
+        ],
+        "holdout_bucket_ids_sha256": "26cd5e5571db883b159ac87c1139f3cfd6737ee200c0bfc00ee270051a1cb5e2"
+      },
+      "calibration": {
+        "total_n": 16,
+        "filled_n": 16,
+        "no_fill_n": 0,
+        "no_fill_rate": 0.0,
+        "summary": {
+          "n": 16,
+          "mean_bps": -5.0,
+          "median_bps": -37.8,
+          "p25_bps": -45.3,
+          "p75_bps": 55.3,
+          "win_rate": 0.375,
+          "cum_bps": -80.5,
+          "top3_winner_removed_cum_bps": -249.3,
+          "exits": {
+            "BE": 1,
+            "SL": 8,
+            "TIME": 1,
+            "TP": 6
+          }
+        },
+        "mark_counterfactual": {
+          "n": 16,
+          "mean_bps": -5.8,
+          "median_bps": -44.4,
+          "p25_bps": -46.9,
+          "p75_bps": 54.3,
+          "win_rate": 0.375,
+          "cum_bps": -92.5,
+          "top3_winner_removed_cum_bps": -262.3,
+          "exits": {
+            "BE": 1,
+            "SL": 8,
+            "TIME": 1,
+            "TP": 6
+          }
+        }
+      },
+      "holdout": {
+        "total_n": 7,
+        "filled_n": 7,
+        "no_fill_n": 0,
+        "no_fill_rate": 0.0,
+        "summary": {
+          "n": 7,
+          "mean_bps": 1.7,
+          "median_bps": -17.7,
+          "p25_bps": -38.0,
+          "p75_bps": 50.1,
+          "win_rate": 0.429,
+          "cum_bps": 11.9,
+          "top3_winner_removed_cum_bps": -151.3,
+          "exits": {
+            "BE": 1,
+            "SL": 2,
+            "TIME": 1,
+            "TP": 3
+          }
+        },
+        "mark_counterfactual": {
+          "n": 7,
+          "mean_bps": 7.1,
+          "median_bps": -9.6,
+          "p25_bps": -30.6,
+          "p75_bps": 54.5,
+          "win_rate": 0.429,
+          "cum_bps": 49.4,
+          "top3_winner_removed_cum_bps": -118.7,
+          "exits": {
+            "BE": 1,
+            "SL": 2,
+            "TIME": 1,
+            "TP": 3
+          }
+        }
+      },
+      "verdict": "BLOCKED_THIN_CALIBRATION"
+    },
+    {
+      "spec": {
+        "family": "SOL_BUY",
+        "rule_name": "SOL_BUY_LIQ_LONG_100K_TP60_SL40_BE30",
+        "symbol": "SOLUSDT",
+        "liq_side": "BUY",
+        "direction": "LONG",
+        "threshold_usd": 100000.0,
+        "tp_bps": 60.0,
+        "sl_bps": 40.0,
+        "be_bps": 30.0,
+        "entry_delay_sec": 0,
+        "max_horizon_sec": 3600,
+        "min_day_trend_bps": null,
+        "btc_pre_window_sec": 0,
+        "btc_pre_min_return_bps": null,
+        "max_single_dominance_pct": null
+      },
+      "rule_name": "SOL_BUY_LIQ_LONG_100K_TP60_SL40_BE30",
+      "family": "SOL_BUY",
+      "all_anchor_n": 50,
+      "filtered_anchor_n": 50,
+      "filter_rejections": {},
+      "split": {
+        "split_method": "chronological_bucket_tail_holdout",
+        "holdout_frac": 0.3,
+        "calibration_bucket_n": 35,
+        "holdout_bucket_n": 15,
+        "holdout_bucket_ids": [
+          "5941433",
+          "5941486",
+          "5941516",
+          "5941524",
+          "5941602",
+          "5941606",
+          "5941610",
+          "5941613",
+          "5941624",
+          "5941632",
+          "5941669",
+          "5941674",
+          "5941910",
+          "5942119",
+          "5942158"
+        ],
+        "holdout_bucket_ids_sha256": "6e7236f33b1196437b98f3c5e8e6bd0ca1ea4cefafbd5c0a8e3e7e3ea8b025ce"
+      },
+      "calibration": {
+        "total_n": 35,
+        "filled_n": 35,
+        "no_fill_n": 0,
+        "no_fill_rate": 0.0,
+        "summary": {
+          "n": 35,
+          "mean_bps": -7.3,
+          "median_bps": -10.4,
+          "p25_bps": -49.8,
+          "p75_bps": 44.1,
+          "win_rate": 0.343,
+          "cum_bps": -253.9,
+          "top3_winner_removed_cum_bps": -466.2,
+          "exits": {
+            "BE": 7,
+            "SL": 15,
+            "TIME": 3,
+            "TP": 10
+          }
+        },
+        "mark_counterfactual": {
+          "n": 35,
+          "mean_bps": -4.3,
+          "median_bps": -7.4,
+          "p25_bps": -46.5,
+          "p75_bps": 54.2,
+          "win_rate": 0.343,
+          "cum_bps": -149.3,
+          "top3_winner_removed_cum_bps": -336.1,
+          "exits": {
+            "BE": 7,
+            "SL": 15,
+            "TIME": 3,
+            "TP": 10
+          }
+        }
+      },
+      "holdout": {
+        "total_n": 15,
+        "filled_n": 15,
+        "no_fill_n": 0,
+        "no_fill_rate": 0.0,
+        "summary": {
+          "n": 15,
+          "mean_bps": 15.5,
+          "median_bps": 52.5,
+          "p25_bps": -34.2,
+          "p75_bps": 57.4,
+          "win_rate": 0.533,
+          "cum_bps": 232.7,
+          "top3_winner_removed_cum_bps": 36.6,
+          "exits": {
+            "BE": 2,
+            "SL": 4,
+            "TIME": 1,
+            "TP": 8
+          }
+        },
+        "mark_counterfactual": {
+          "n": 15,
+          "mean_bps": 14.9,
+          "median_bps": 53.9,
+          "p25_bps": -35.0,
+          "p75_bps": 54.8,
+          "win_rate": 0.533,
+          "cum_bps": 223.2,
+          "top3_winner_removed_cum_bps": 46.9,
+          "exits": {
+            "BE": 2,
+            "SL": 4,
+            "TIME": 1,
+            "TP": 8
+          }
+        }
+      },
+      "verdict": "RESEARCH_ONLY"
+    },
+    {
+      "spec": {
+        "family": "SOL_BUY",
+        "rule_name": "SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+        "symbol": "SOLUSDT",
+        "liq_side": "BUY",
+        "direction": "LONG",
+        "threshold_usd": 200000.0,
+        "tp_bps": 60.0,
+        "sl_bps": 40.0,
+        "be_bps": 30.0,
+        "entry_delay_sec": 0,
+        "max_horizon_sec": 3600,
+        "min_day_trend_bps": null,
+        "btc_pre_window_sec": 0,
+        "btc_pre_min_return_bps": null,
+        "max_single_dominance_pct": null
+      },
+      "rule_name": "SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+      "family": "SOL_BUY",
+      "all_anchor_n": 30,
+      "filtered_anchor_n": 30,
+      "filter_rejections": {},
+      "split": {
+        "split_method": "chronological_bucket_tail_holdout",
+        "holdout_frac": 0.3,
+        "calibration_bucket_n": 21,
+        "holdout_bucket_n": 9,
+        "holdout_bucket_ids": [
+          "5941516",
+          "5941524",
+          "5941602",
+          "5941610",
+          "5941632",
+          "5941674",
+          "5941910",
+          "5942119",
+          "5942158"
+        ],
+        "holdout_bucket_ids_sha256": "af9883dfd6a6e28cb7c37702d7ed57279c89f37d15379917cfea804fd08af581"
+      },
+      "calibration": {
+        "total_n": 21,
+        "filled_n": 21,
+        "no_fill_n": 0,
+        "no_fill_rate": 0.0,
+        "summary": {
+          "n": 21,
+          "mean_bps": -1.7,
+          "median_bps": -6.1,
+          "p25_bps": -50.5,
+          "p75_bps": 52.2,
+          "win_rate": 0.429,
+          "cum_bps": -35.9,
+          "top3_winner_removed_cum_bps": -247.1,
+          "exits": {
+            "BE": 2,
+            "SL": 10,
+            "TP": 9
+          }
+        },
+        "mark_counterfactual": {
+          "n": 21,
+          "mean_bps": 1.0,
+          "median_bps": -7.5,
+          "p25_bps": -47.1,
+          "p75_bps": 54.0,
+          "win_rate": 0.429,
+          "cum_bps": 21.6,
+          "top3_winner_removed_cum_bps": -166.5,
+          "exits": {
+            "BE": 2,
+            "SL": 10,
+            "TP": 9
+          }
+        }
+      },
+      "holdout": {
+        "total_n": 9,
+        "filled_n": 9,
+        "no_fill_n": 0,
+        "no_fill_rate": 0.0,
+        "summary": {
+          "n": 9,
+          "mean_bps": -2.6,
+          "median_bps": -7.5,
+          "p25_bps": -48.5,
+          "p75_bps": 50.2,
+          "win_rate": 0.333,
+          "cum_bps": -23.1,
+          "top3_winner_removed_cum_bps": -192.5,
+          "exits": {
+            "BE": 2,
+            "SL": 3,
+            "TIME": 1,
+            "TP": 3
+          }
+        },
+        "mark_counterfactual": {
+          "n": 9,
+          "mean_bps": -1.2,
+          "median_bps": -7.1,
+          "p25_bps": -47.0,
+          "p75_bps": 54.0,
+          "win_rate": 0.333,
+          "cum_bps": -11.2,
+          "top3_winner_removed_cum_bps": -185.6,
+          "exits": {
+            "BE": 2,
+            "SL": 3,
+            "TIME": 1,
+            "TP": 3
+          }
+        }
+      },
+      "verdict": "RESEARCH_ONLY"
+    },
+    {
+      "spec": {
+        "family": "BTC_BUY_DISTRIBUTED",
+        "rule_name": "BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30",
+        "symbol": "BTCUSDT",
+        "liq_side": "BUY",
+        "direction": "LONG",
+        "threshold_usd": 1000000.0,
+        "tp_bps": 60.0,
+        "sl_bps": 30.0,
+        "be_bps": 30.0,
+        "entry_delay_sec": 0,
+        "max_horizon_sec": 3600,
+        "min_day_trend_bps": null,
+        "btc_pre_window_sec": 0,
+        "btc_pre_min_return_bps": null,
+        "max_single_dominance_pct": 50.0
+      },
+      "rule_name": "BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30",
+      "family": "BTC_BUY_DISTRIBUTED",
+      "all_anchor_n": 28,
+      "filtered_anchor_n": 12,
+      "filter_rejections": {
+        "DOMINANCE_FILTER": 16
+      },
+      "split": {
+        "split_method": "chronological_bucket_tail_holdout",
+        "holdout_frac": 0.3,
+        "calibration_bucket_n": 8,
+        "holdout_bucket_n": 4,
+        "holdout_bucket_ids": [
+          "5941320",
+          "5941345",
+          "5941627",
+          "5941910"
+        ],
+        "holdout_bucket_ids_sha256": "39c1991dd14a834c76c0fe0cd425f1a12537ebc2afc79190115f8d1b272d9522"
+      },
+      "calibration": {
+        "total_n": 8,
+        "filled_n": 8,
+        "no_fill_n": 0,
+        "no_fill_rate": 0.0,
+        "summary": {
+          "n": 8,
+          "mean_bps": -6.6,
+          "median_bps": -22.0,
+          "p25_bps": -35.4,
+          "p75_bps": 8.4,
+          "win_rate": 0.25,
+          "cum_bps": -52.4,
+          "top3_winner_removed_cum_bps": -158.6,
+          "exits": {
+            "BE": 2,
+            "SL": 4,
+            "TP": 2
+          }
+        },
+        "mark_counterfactual": {
+          "n": 8,
+          "mean_bps": -6.3,
+          "median_bps": -21.3,
+          "p25_bps": -36.3,
+          "p75_bps": 9.0,
+          "win_rate": 0.25,
+          "cum_bps": -50.3,
+          "top3_winner_removed_cum_bps": -153.6,
+          "exits": {
+            "BE": 2,
+            "SL": 4,
+            "TP": 2
+          }
+        }
+      },
+      "holdout": {
+        "total_n": 4,
+        "filled_n": 4,
+        "no_fill_n": 0,
+        "no_fill_rate": 0.0,
+        "summary": {
+          "n": 4,
+          "mean_bps": -6.0,
+          "median_bps": -13.3,
+          "p25_bps": -29.8,
+          "p75_bps": 10.5,
+          "win_rate": 0.25,
+          "cum_bps": -23.9,
+          "top3_winner_removed_cum_bps": -42.0,
+          "exits": {
+            "BE": 1,
+            "SL": 1,
+            "TIME": 1,
+            "TP": 1
+          }
+        },
+        "mark_counterfactual": {
+          "n": 4,
+          "mean_bps": -4.4,
+          "median_bps": -16.7,
+          "p25_bps": -29.5,
+          "p75_bps": 8.4,
+          "win_rate": 0.25,
+          "cum_bps": -17.8,
+          "top3_winner_removed_cum_bps": -38.6,
+          "exits": {
+            "BE": 1,
+            "SL": 1,
+            "TIME": 1,
+            "TP": 1
+          }
+        }
+      },
+      "verdict": "BLOCKED_THIN_CALIBRATION"
+    },
+    {
+      "spec": {
+        "family": "ETH_SELL",
+        "rule_name": "ETH_SELL_LIQ_SHORT_500K_TP60_SL40_BE40",
+        "symbol": "ETHUSDT",
+        "liq_side": "SELL",
+        "direction": "SHORT",
+        "threshold_usd": 500000.0,
+        "tp_bps": 60.0,
+        "sl_bps": 40.0,
+        "be_bps": 40.0,
+        "entry_delay_sec": 0,
+        "max_horizon_sec": 3600,
+        "min_day_trend_bps": null,
+        "btc_pre_window_sec": 0,
+        "btc_pre_min_return_bps": null,
+        "max_single_dominance_pct": null
+      },
+      "rule_name": "ETH_SELL_LIQ_SHORT_500K_TP60_SL40_BE40",
+      "family": "ETH_SELL",
+      "all_anchor_n": 57,
+      "filtered_anchor_n": 57,
+      "filter_rejections": {},
+      "split": {
+        "split_method": "chronological_bucket_tail_holdout",
+        "holdout_frac": 0.3,
+        "calibration_bucket_n": 40,
+        "holdout_bucket_n": 17,
+        "holdout_bucket_ids": [
+          "5941076",
+          "5941281",
+          "5941308",
+          "5941314",
+          "5941318",
+          "5941323",
+          "5941332",
+          "5941382",
+          "5941466",
+          "5941476",
+          "5941591",
+          "5941599",
+          "5941630",
+          "5941688",
+          "5941932",
+          "5941961",
+          "5941995"
+        ],
+        "holdout_bucket_ids_sha256": "e82ea594e6793fe482fecbc35daa1d663533c996ecc033d36bcfea896ffd3d4d"
+      },
+      "calibration": {
+        "total_n": 40,
+        "filled_n": 40,
+        "no_fill_n": 0,
+        "no_fill_rate": 0.0,
+        "summary": {
+          "n": 40,
+          "mean_bps": 10.5,
+          "median_bps": 10.8,
+          "p25_bps": -47.2,
+          "p75_bps": 57.6,
+          "win_rate": 0.525,
+          "cum_bps": 418.7,
+          "top3_winner_removed_cum_bps": 174.8,
+          "exits": {
+            "BE": 4,
+            "SL": 14,
+            "TIME": 3,
+            "TP": 19
+          }
+        },
+        "mark_counterfactual": {
+          "n": 40,
+          "mean_bps": 10.6,
+          "median_bps": 11.0,
+          "p25_bps": -46.5,
+          "p75_bps": 56.0,
+          "win_rate": 0.525,
+          "cum_bps": 423.6,
+          "top3_winner_removed_cum_bps": 216.4,
+          "exits": {
+            "BE": 4,
+            "SL": 14,
+            "TIME": 3,
+            "TP": 19
+          }
+        }
+      },
+      "holdout": {
+        "total_n": 17,
+        "filled_n": 17,
+        "no_fill_n": 0,
+        "no_fill_rate": 0.0,
+        "summary": {
+          "n": 17,
+          "mean_bps": -1.1,
+          "median_bps": -8.1,
+          "p25_bps": -49.4,
+          "p75_bps": 54.1,
+          "win_rate": 0.412,
+          "cum_bps": -18.9,
+          "top3_winner_removed_cum_bps": -212.3,
+          "exits": {
+            "BE": 3,
+            "SL": 7,
+            "TIME": 1,
+            "TP": 6
+          }
+        },
+        "mark_counterfactual": {
+          "n": 17,
+          "mean_bps": 1.2,
+          "median_bps": -6.2,
+          "p25_bps": -46.7,
+          "p75_bps": 54.8,
+          "win_rate": 0.412,
+          "cum_bps": 20.1,
+          "top3_winner_removed_cum_bps": -171.3,
+          "exits": {
+            "BE": 3,
+            "SL": 7,
+            "TIME": 1,
+            "TP": 6
+          }
+        }
+      },
+      "verdict": "RESEARCH_ONLY"
+    },
+    {
+      "spec": {
+        "family": "ETH_SELL",
+        "rule_name": "ETH_SELL_LIQ_SHORT_1M_TP80_SL40_BE40",
+        "symbol": "ETHUSDT",
+        "liq_side": "SELL",
+        "direction": "SHORT",
+        "threshold_usd": 1000000.0,
+        "tp_bps": 80.0,
+        "sl_bps": 40.0,
+        "be_bps": 40.0,
+        "entry_delay_sec": 0,
+        "max_horizon_sec": 3600,
+        "min_day_trend_bps": null,
+        "btc_pre_window_sec": 0,
+        "btc_pre_min_return_bps": null,
+        "max_single_dominance_pct": null
+      },
+      "rule_name": "ETH_SELL_LIQ_SHORT_1M_TP80_SL40_BE40",
+      "family": "ETH_SELL",
+      "all_anchor_n": 38,
+      "filtered_anchor_n": 38,
+      "filter_rejections": {},
+      "split": {
+        "split_method": "chronological_bucket_tail_holdout",
+        "holdout_frac": 0.3,
+        "calibration_bucket_n": 27,
+        "holdout_bucket_n": 11,
+        "holdout_bucket_ids": [
+          "5941308",
+          "5941314",
+          "5941317",
+          "5941323",
+          "5941334",
+          "5941466",
+          "5941476",
+          "5941592",
+          "5941932",
+          "5941961",
+          "5941995"
+        ],
+        "holdout_bucket_ids_sha256": "3d414eb36865a1f674d9dca58be891af1caa330190ef8e53b0d30467af5a3fb1"
+      },
+      "calibration": {
+        "total_n": 27,
+        "filled_n": 27,
+        "no_fill_n": 0,
+        "no_fill_rate": 0.0,
+        "summary": {
+          "n": 27,
+          "mean_bps": 17.0,
+          "median_bps": -6.1,
+          "p25_bps": -45.6,
+          "p75_bps": 75.3,
+          "win_rate": 0.444,
+          "cum_bps": 460.3,
+          "top3_winner_removed_cum_bps": 131.1,
+          "exits": {
+            "BE": 6,
+            "SL": 9,
+            "TIME": 1,
+            "TP": 11
+          }
+        },
+        "mark_counterfactual": {
+          "n": 27,
+          "mean_bps": 14.8,
+          "median_bps": -6.4,
+          "p25_bps": -46.4,
+          "p75_bps": 74.9,
+          "win_rate": 0.444,
+          "cum_bps": 398.4,
+          "top3_winner_removed_cum_bps": 150.4,
+          "exits": {
+            "BE": 6,
+            "SL": 9,
+            "TIME": 1,
+            "TP": 11
+          }
+        }
+      },
+      "holdout": {
+        "total_n": 11,
+        "filled_n": 11,
+        "no_fill_n": 0,
+        "no_fill_rate": 0.0,
+        "summary": {
+          "n": 11,
+          "mean_bps": 5.4,
+          "median_bps": -9.2,
+          "p25_bps": -31.6,
+          "p75_bps": 37.0,
+          "win_rate": 0.364,
+          "cum_bps": 59.9,
+          "top3_winner_removed_cum_bps": -185.9,
+          "exits": {
+            "BE": 4,
+            "SL": 3,
+            "TIME": 1,
+            "TP": 3
+          }
+        },
+        "mark_counterfactual": {
+          "n": 11,
+          "mean_bps": 5.2,
+          "median_bps": -6.7,
+          "p25_bps": -28.5,
+          "p75_bps": 39.1,
+          "win_rate": 0.364,
+          "cum_bps": 57.2,
+          "top3_winner_removed_cum_bps": -169.7,
+          "exits": {
+            "BE": 4,
+            "SL": 3,
+            "TIME": 1,
+            "TP": 3
+          }
+        }
+      },
+      "verdict": "RESEARCH_ONLY"
+    },
+    {
+      "spec": {
+        "family": "SOL_SELL",
+        "rule_name": "SOL_SELL_LIQ_SHORT_100K_TP60_SL30_BE40",
+        "symbol": "SOLUSDT",
+        "liq_side": "SELL",
+        "direction": "SHORT",
+        "threshold_usd": 100000.0,
+        "tp_bps": 60.0,
+        "sl_bps": 30.0,
+        "be_bps": 40.0,
+        "entry_delay_sec": 0,
+        "max_horizon_sec": 3600,
+        "min_day_trend_bps": null,
+        "btc_pre_window_sec": 0,
+        "btc_pre_min_return_bps": null,
+        "max_single_dominance_pct": null
+      },
+      "rule_name": "SOL_SELL_LIQ_SHORT_100K_TP60_SL30_BE40",
+      "family": "SOL_SELL",
+      "all_anchor_n": 59,
+      "filtered_anchor_n": 59,
+      "filter_rejections": {},
+      "split": {
+        "split_method": "chronological_bucket_tail_holdout",
+        "holdout_frac": 0.3,
+        "calibration_bucket_n": 41,
+        "holdout_bucket_n": 18,
+        "holdout_bucket_ids": [
+          "5941028",
+          "5941050",
+          "5941065",
+          "5941071",
+          "5941076",
+          "5941308",
+          "5941316",
+          "5941326",
+          "5941335",
+          "5941350",
+          "5941466",
+          "5941567",
+          "5941592",
+          "5941746",
+          "5941932",
+          "5941960",
+          "5941995",
+          "5942017"
+        ],
+        "holdout_bucket_ids_sha256": "6942b071254104e23b8daddbe91c950416823c3c93fde8ad93b6087964cb825c"
+      },
+      "calibration": {
+        "total_n": 41,
+        "filled_n": 41,
+        "no_fill_n": 0,
+        "no_fill_rate": 0.0,
+        "summary": {
+          "n": 41,
+          "mean_bps": -11.8,
+          "median_bps": -37.9,
+          "p25_bps": -40.1,
+          "p75_bps": -7.5,
+          "win_rate": 0.244,
+          "cum_bps": -482.9,
+          "top3_winner_removed_cum_bps": -741.9,
+          "exits": {
+            "BE": 4,
+            "SL": 26,
+            "TIME": 1,
+            "TP": 10
+          }
+        },
+        "mark_counterfactual": {
+          "n": 41,
+          "mean_bps": -10.5,
+          "median_bps": -36.4,
+          "p25_bps": -37.4,
+          "p75_bps": -6.1,
+          "win_rate": 0.244,
+          "cum_bps": -430.4,
+          "top3_winner_removed_cum_bps": -634.2,
+          "exits": {
+            "BE": 4,
+            "SL": 26,
+            "TIME": 1,
+            "TP": 10
+          }
+        }
+      },
+      "holdout": {
+        "total_n": 18,
+        "filled_n": 18,
+        "no_fill_n": 0,
+        "no_fill_rate": 0.0,
+        "summary": {
+          "n": 18,
+          "mean_bps": 3.9,
+          "median_bps": -14.9,
+          "p25_bps": -40.6,
+          "p75_bps": 52.6,
+          "win_rate": 0.5,
+          "cum_bps": 71.0,
+          "top3_winner_removed_cum_bps": -95.3,
+          "exits": {
+            "SL": 9,
+            "TIME": 1,
+            "TP": 8
+          }
+        },
+        "mark_counterfactual": {
+          "n": 18,
+          "mean_bps": 6.5,
+          "median_bps": -14.7,
+          "p25_bps": -36.7,
+          "p75_bps": 54.9,
+          "win_rate": 0.5,
+          "cum_bps": 117.7,
+          "top3_winner_removed_cum_bps": -52.8,
+          "exits": {
+            "SL": 9,
+            "TIME": 1,
+            "TP": 8
+          }
+        }
+      },
+      "verdict": "RESEARCH_ONLY"
+    },
+    {
+      "spec": {
+        "family": "SOL_SELL",
+        "rule_name": "SOL_SELL_LIQ_SHORT_200K_TP60_SL30_BE30",
+        "symbol": "SOLUSDT",
+        "liq_side": "SELL",
+        "direction": "SHORT",
+        "threshold_usd": 200000.0,
+        "tp_bps": 60.0,
+        "sl_bps": 30.0,
+        "be_bps": 30.0,
+        "entry_delay_sec": 0,
+        "max_horizon_sec": 3600,
+        "min_day_trend_bps": null,
+        "btc_pre_window_sec": 0,
+        "btc_pre_min_return_bps": null,
+        "max_single_dominance_pct": null
+      },
+      "rule_name": "SOL_SELL_LIQ_SHORT_200K_TP60_SL30_BE30",
+      "family": "SOL_SELL",
+      "all_anchor_n": 35,
+      "filtered_anchor_n": 35,
+      "filter_rejections": {},
+      "split": {
+        "split_method": "chronological_bucket_tail_holdout",
+        "holdout_frac": 0.3,
+        "calibration_bucket_n": 25,
+        "holdout_bucket_n": 10,
+        "holdout_bucket_ids": [
+          "5941071",
+          "5941077",
+          "5941316",
+          "5941335",
+          "5941466",
+          "5941567",
+          "5941746",
+          "5941960",
+          "5941995",
+          "5942017"
+        ],
+        "holdout_bucket_ids_sha256": "94f1c0f235828df5d74a7cf52141bf039b418fc2f5b5571e23c4bb2a6d52a437"
+      },
+      "calibration": {
+        "total_n": 25,
+        "filled_n": 25,
+        "no_fill_n": 0,
+        "no_fill_rate": 0.0,
+        "summary": {
+          "n": 25,
+          "mean_bps": 4.6,
+          "median_bps": -10.2,
+          "p25_bps": -36.9,
+          "p75_bps": 51.5,
+          "win_rate": 0.32,
+          "cum_bps": 114.2,
+          "top3_winner_removed_cum_bps": -139.7,
+          "exits": {
+            "BE": 8,
+            "SL": 9,
+            "TP": 8
+          }
+        },
+        "mark_counterfactual": {
+          "n": 25,
+          "mean_bps": 2.9,
+          "median_bps": -6.8,
+          "p25_bps": -36.5,
+          "p75_bps": 54.4,
+          "win_rate": 0.32,
+          "cum_bps": 73.7,
+          "top3_winner_removed_cum_bps": -124.3,
+          "exits": {
+            "BE": 8,
+            "SL": 9,
+            "TP": 8
+          }
+        }
+      },
+      "holdout": {
+        "total_n": 10,
+        "filled_n": 10,
+        "no_fill_n": 0,
+        "no_fill_rate": 0.0,
+        "summary": {
+          "n": 10,
+          "mean_bps": 0.5,
+          "median_bps": -17.9,
+          "p25_bps": -40.7,
+          "p75_bps": 52.1,
+          "win_rate": 0.5,
+          "cum_bps": 4.9,
+          "top3_winner_removed_cum_bps": -159.6,
+          "exits": {
+            "BE": 1,
+            "SL": 4,
+            "TIME": 1,
+            "TP": 4
+          }
+        },
+        "mark_counterfactual": {
+          "n": 10,
+          "mean_bps": 6.8,
+          "median_bps": -0.1,
+          "p25_bps": -36.9,
+          "p75_bps": 54.3,
+          "win_rate": 0.5,
+          "cum_bps": 68.4,
+          "top3_winner_removed_cum_bps": -95.3,
+          "exits": {
+            "BE": 1,
+            "SL": 4,
+            "TIME": 1,
+            "TP": 4
+          }
+        }
+      },
+      "verdict": "RESEARCH_ONLY"
+    }
+  ]
+}

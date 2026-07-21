@@ -1,0 +1,811 @@
+{
+  "generated_at_utc": "2026-06-28T18:39:17.189987+00:00",
+  "config": {
+    "symbol": "ETHUSDT",
+    "threshold": 200000.0,
+    "min_vdepth_bps": 28.0,
+    "horizon_hr": 4,
+    "fee_bps_side": 3.05,
+    "holdout_frac": 0.3
+  },
+  "anchor_buy_n": 177,
+  "anchor_sell_n": 169,
+  "combos": [
+    {
+      "sl_bps": 30.0,
+      "tp_bps": 60.0,
+      "be_bps": 100000.0,
+      "filled_n": 121,
+      "exit_reasons": {
+        "SL": 80,
+        "TP": 37,
+        "TIME": 4
+      },
+      "cal": {
+        "n": 84,
+        "median": -32.5,
+        "mean": -3.2,
+        "win_rate": 0.381,
+        "sum": -268.2
+      },
+      "hold": {
+        "n": 37,
+        "median": -36.4,
+        "mean": -17.7,
+        "win_rate": 0.243,
+        "sum": -656.1
+      },
+      "overall": {
+        "n": 121,
+        "median": -34.7,
+        "mean": -7.6,
+        "win_rate": 0.339,
+        "sum": -924.4
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 30.0,
+      "tp_bps": 60.0,
+      "be_bps": 40.0,
+      "filled_n": 122,
+      "exit_reasons": {
+        "SL": 70,
+        "TP": 32,
+        "BE": 17,
+        "TIME": 3
+      },
+      "cal": {
+        "n": 85,
+        "median": -30.2,
+        "mean": -4.5,
+        "win_rate": 0.353,
+        "sum": -385.6
+      },
+      "hold": {
+        "n": 37,
+        "median": -35.8,
+        "mean": -16.5,
+        "win_rate": 0.189,
+        "sum": -610.2
+      },
+      "overall": {
+        "n": 122,
+        "median": -30.9,
+        "mean": -8.2,
+        "win_rate": 0.303,
+        "sum": -995.8
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 30.0,
+      "tp_bps": 120.0,
+      "be_bps": 100000.0,
+      "filled_n": 120,
+      "exit_reasons": {
+        "SL": 92,
+        "TP": 13,
+        "TIME": 15
+      },
+      "cal": {
+        "n": 84,
+        "median": -35.3,
+        "mean": -6.0,
+        "win_rate": 0.274,
+        "sum": -507.0
+      },
+      "hold": {
+        "n": 36,
+        "median": -36.7,
+        "mean": -24.6,
+        "win_rate": 0.139,
+        "sum": -886.6
+      },
+      "overall": {
+        "n": 120,
+        "median": -36.4,
+        "mean": -11.6,
+        "win_rate": 0.233,
+        "sum": -1393.6
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 30.0,
+      "tp_bps": 120.0,
+      "be_bps": 40.0,
+      "filled_n": 122,
+      "exit_reasons": {
+        "SL": 70,
+        "BE": 31,
+        "TP": 10,
+        "TIME": 11
+      },
+      "cal": {
+        "n": 85,
+        "median": -30.2,
+        "mean": -7.1,
+        "win_rate": 0.224,
+        "sum": -601.8
+      },
+      "hold": {
+        "n": 37,
+        "median": -35.8,
+        "mean": -18.3,
+        "win_rate": 0.108,
+        "sum": -676.2
+      },
+      "overall": {
+        "n": 122,
+        "median": -30.9,
+        "mean": -10.5,
+        "win_rate": 0.189,
+        "sum": -1278.0
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 30.0,
+      "tp_bps": null,
+      "be_bps": 100000.0,
+      "filled_n": 120,
+      "exit_reasons": {
+        "SL": 93,
+        "TIME": 27
+      },
+      "cal": {
+        "n": 84,
+        "median": -35.7,
+        "mean": -9.5,
+        "win_rate": 0.262,
+        "sum": -797.7
+      },
+      "hold": {
+        "n": 36,
+        "median": -36.7,
+        "mean": -24.1,
+        "win_rate": 0.139,
+        "sum": -867.1
+      },
+      "overall": {
+        "n": 120,
+        "median": -36.6,
+        "mean": -13.9,
+        "win_rate": 0.225,
+        "sum": -1664.9
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 30.0,
+      "tp_bps": null,
+      "be_bps": 40.0,
+      "filled_n": 122,
+      "exit_reasons": {
+        "SL": 70,
+        "BE": 32,
+        "TIME": 20
+      },
+      "cal": {
+        "n": 85,
+        "median": -30.2,
+        "mean": -8.9,
+        "win_rate": 0.212,
+        "sum": -758.3
+      },
+      "hold": {
+        "n": 37,
+        "median": -35.8,
+        "mean": -17.7,
+        "win_rate": 0.108,
+        "sum": -656.7
+      },
+      "overall": {
+        "n": 122,
+        "median": -30.9,
+        "mean": -11.6,
+        "win_rate": 0.18,
+        "sum": -1415.0
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 50.0,
+      "tp_bps": 60.0,
+      "be_bps": 100000.0,
+      "filled_n": 122,
+      "exit_reasons": {
+        "TP": 50,
+        "SL": 64,
+        "TIME": 8
+      },
+      "cal": {
+        "n": 85,
+        "median": -21.2,
+        "mean": -3.0,
+        "win_rate": 0.471,
+        "sum": -254.0
+      },
+      "hold": {
+        "n": 37,
+        "median": -54.6,
+        "mean": -14.2,
+        "win_rate": 0.378,
+        "sum": -525.5
+      },
+      "overall": {
+        "n": 122,
+        "median": -48.0,
+        "mean": -6.4,
+        "win_rate": 0.443,
+        "sum": -779.4
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 50.0,
+      "tp_bps": 60.0,
+      "be_bps": 40.0,
+      "filled_n": 122,
+      "exit_reasons": {
+        "BE": 21,
+        "SL": 54,
+        "TP": 42,
+        "TIME": 5
+      },
+      "cal": {
+        "n": 85,
+        "median": -8.0,
+        "mean": -4.6,
+        "win_rate": 0.424,
+        "sum": -395.0
+      },
+      "hold": {
+        "n": 37,
+        "median": -11.7,
+        "mean": -11.3,
+        "win_rate": 0.324,
+        "sum": -417.6
+      },
+      "overall": {
+        "n": 122,
+        "median": -8.7,
+        "mean": -6.7,
+        "win_rate": 0.393,
+        "sum": -812.6
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 50.0,
+      "tp_bps": 120.0,
+      "be_bps": 100000.0,
+      "filled_n": 120,
+      "exit_reasons": {
+        "TIME": 25,
+        "SL": 74,
+        "TP": 21
+      },
+      "cal": {
+        "n": 84,
+        "median": -52.1,
+        "mean": -4.9,
+        "win_rate": 0.369,
+        "sum": -407.6
+      },
+      "hold": {
+        "n": 36,
+        "median": -55.9,
+        "mean": -16.5,
+        "win_rate": 0.278,
+        "sum": -594.6
+      },
+      "overall": {
+        "n": 120,
+        "median": -54.1,
+        "mean": -8.4,
+        "win_rate": 0.342,
+        "sum": -1002.2
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 50.0,
+      "tp_bps": 120.0,
+      "be_bps": 40.0,
+      "filled_n": 121,
+      "exit_reasons": {
+        "BE": 37,
+        "SL": 54,
+        "TP": 16,
+        "TIME": 14
+      },
+      "cal": {
+        "n": 84,
+        "median": -10.3,
+        "mean": -7.7,
+        "win_rate": 0.274,
+        "sum": -650.9
+      },
+      "hold": {
+        "n": 37,
+        "median": -11.7,
+        "mean": -7.6,
+        "win_rate": 0.216,
+        "sum": -281.6
+      },
+      "overall": {
+        "n": 121,
+        "median": -10.6,
+        "mean": -7.7,
+        "win_rate": 0.256,
+        "sum": -932.5
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 50.0,
+      "tp_bps": null,
+      "be_bps": 100000.0,
+      "filled_n": 120,
+      "exit_reasons": {
+        "TIME": 43,
+        "SL": 77
+      },
+      "cal": {
+        "n": 84,
+        "median": -52.2,
+        "mean": -7.8,
+        "win_rate": 0.357,
+        "sum": -657.5
+      },
+      "hold": {
+        "n": 36,
+        "median": -57.2,
+        "mean": -11.2,
+        "win_rate": 0.222,
+        "sum": -405.0
+      },
+      "overall": {
+        "n": 120,
+        "median": -54.7,
+        "mean": -8.9,
+        "win_rate": 0.317,
+        "sum": -1062.5
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 50.0,
+      "tp_bps": null,
+      "be_bps": 40.0,
+      "filled_n": 121,
+      "exit_reasons": {
+        "BE": 39,
+        "SL": 54,
+        "TIME": 28
+      },
+      "cal": {
+        "n": 84,
+        "median": -10.3,
+        "mean": -11.0,
+        "win_rate": 0.262,
+        "sum": -926.0
+      },
+      "hold": {
+        "n": 37,
+        "median": -11.7,
+        "mean": 3.2,
+        "win_rate": 0.189,
+        "sum": 116.6
+      },
+      "overall": {
+        "n": 121,
+        "median": -10.6,
+        "mean": -6.7,
+        "win_rate": 0.24,
+        "sum": -809.3
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 80.0,
+      "tp_bps": 60.0,
+      "be_bps": 100000.0,
+      "filled_n": 121,
+      "exit_reasons": {
+        "TP": 58,
+        "SL": 50,
+        "TIME": 13
+      },
+      "cal": {
+        "n": 84,
+        "median": 52.3,
+        "mean": -2.1,
+        "win_rate": 0.571,
+        "sum": -180.5
+      },
+      "hold": {
+        "n": 37,
+        "median": -85.2,
+        "mean": -29.0,
+        "win_rate": 0.405,
+        "sum": -1073.1
+      },
+      "overall": {
+        "n": 121,
+        "median": 18.4,
+        "mean": -10.4,
+        "win_rate": 0.521,
+        "sum": -1253.5
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 80.0,
+      "tp_bps": 60.0,
+      "be_bps": 40.0,
+      "filled_n": 121,
+      "exit_reasons": {
+        "BE": 25,
+        "SL": 42,
+        "TP": 48,
+        "TIME": 6
+      },
+      "cal": {
+        "n": 84,
+        "median": 2.0,
+        "mean": -3.5,
+        "win_rate": 0.512,
+        "sum": -295.1
+      },
+      "hold": {
+        "n": 37,
+        "median": -11.7,
+        "mean": -25.3,
+        "win_rate": 0.324,
+        "sum": -934.5
+      },
+      "overall": {
+        "n": 121,
+        "median": -5.9,
+        "mean": -10.2,
+        "win_rate": 0.455,
+        "sum": -1229.6
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 80.0,
+      "tp_bps": 120.0,
+      "be_bps": 100000.0,
+      "filled_n": 118,
+      "exit_reasons": {
+        "TIME": 35,
+        "SL": 58,
+        "TP": 25
+      },
+      "cal": {
+        "n": 82,
+        "median": -13.1,
+        "mean": -4.3,
+        "win_rate": 0.463,
+        "sum": -349.1
+      },
+      "hold": {
+        "n": 36,
+        "median": -85.6,
+        "mean": -36.5,
+        "win_rate": 0.278,
+        "sum": -1314.5
+      },
+      "overall": {
+        "n": 118,
+        "median": -61.2,
+        "mean": -14.1,
+        "win_rate": 0.407,
+        "sum": -1663.7
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 80.0,
+      "tp_bps": 120.0,
+      "be_bps": 40.0,
+      "filled_n": 119,
+      "exit_reasons": {
+        "BE": 43,
+        "SL": 42,
+        "TP": 19,
+        "TIME": 15
+      },
+      "cal": {
+        "n": 83,
+        "median": -7.0,
+        "mean": -5.7,
+        "win_rate": 0.337,
+        "sum": -472.5
+      },
+      "hold": {
+        "n": 36,
+        "median": -13.4,
+        "mean": -25.1,
+        "win_rate": 0.194,
+        "sum": -904.3
+      },
+      "overall": {
+        "n": 119,
+        "median": -7.7,
+        "mean": -11.6,
+        "win_rate": 0.294,
+        "sum": -1376.8
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 80.0,
+      "tp_bps": null,
+      "be_bps": 100000.0,
+      "filled_n": 119,
+      "exit_reasons": {
+        "TIME": 59,
+        "SL": 60
+      },
+      "cal": {
+        "n": 83,
+        "median": -14.7,
+        "mean": -4.6,
+        "win_rate": 0.458,
+        "sum": -385.1
+      },
+      "hold": {
+        "n": 36,
+        "median": -85.9,
+        "mean": -28.7,
+        "win_rate": 0.25,
+        "sum": -1031.6
+      },
+      "overall": {
+        "n": 119,
+        "median": -62.5,
+        "mean": -11.9,
+        "win_rate": 0.395,
+        "sum": -1416.7
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 80.0,
+      "tp_bps": null,
+      "be_bps": 40.0,
+      "filled_n": 119,
+      "exit_reasons": {
+        "BE": 46,
+        "SL": 42,
+        "TIME": 31
+      },
+      "cal": {
+        "n": 83,
+        "median": -7.0,
+        "mean": -11.9,
+        "win_rate": 0.325,
+        "sum": -985.9
+      },
+      "hold": {
+        "n": 36,
+        "median": -13.4,
+        "mean": -13.3,
+        "win_rate": 0.167,
+        "sum": -480.2
+      },
+      "overall": {
+        "n": 119,
+        "median": -8.0,
+        "mean": -12.3,
+        "win_rate": 0.277,
+        "sum": -1466.1
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 120.0,
+      "tp_bps": 60.0,
+      "be_bps": 100000.0,
+      "filled_n": 121,
+      "exit_reasons": {
+        "TP": 67,
+        "SL": 34,
+        "TIME": 20
+      },
+      "cal": {
+        "n": 84,
+        "median": 52.6,
+        "mean": -5.2,
+        "win_rate": 0.607,
+        "sum": -437.3
+      },
+      "hold": {
+        "n": 37,
+        "median": 43.8,
+        "mean": -13.1,
+        "win_rate": 0.595,
+        "sum": -485.4
+      },
+      "overall": {
+        "n": 121,
+        "median": 52.4,
+        "mean": -7.6,
+        "win_rate": 0.603,
+        "sum": -922.7
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 120.0,
+      "tp_bps": 60.0,
+      "be_bps": 40.0,
+      "filled_n": 121,
+      "exit_reasons": {
+        "BE": 29,
+        "SL": 28,
+        "TP": 53,
+        "TIME": 11
+      },
+      "cal": {
+        "n": 84,
+        "median": 4.8,
+        "mean": -6.2,
+        "win_rate": 0.536,
+        "sum": -517.0
+      },
+      "hold": {
+        "n": 37,
+        "median": -5.3,
+        "mean": -13.8,
+        "win_rate": 0.432,
+        "sum": -510.5
+      },
+      "overall": {
+        "n": 121,
+        "median": 1.2,
+        "mean": -8.5,
+        "win_rate": 0.504,
+        "sum": -1027.6
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 120.0,
+      "tp_bps": 120.0,
+      "be_bps": 100000.0,
+      "filled_n": 117,
+      "exit_reasons": {
+        "TIME": 48,
+        "SL": 39,
+        "TP": 30
+      },
+      "cal": {
+        "n": 81,
+        "median": -8.9,
+        "mean": -7.9,
+        "win_rate": 0.494,
+        "sum": -642.6
+      },
+      "hold": {
+        "n": 36,
+        "median": -4.1,
+        "mean": -18.2,
+        "win_rate": 0.472,
+        "sum": -653.7
+      },
+      "overall": {
+        "n": 117,
+        "median": -6.4,
+        "mean": -11.1,
+        "win_rate": 0.487,
+        "sum": -1296.2
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 120.0,
+      "tp_bps": 120.0,
+      "be_bps": 40.0,
+      "filled_n": 119,
+      "exit_reasons": {
+        "BE": 50,
+        "SL": 28,
+        "TP": 20,
+        "TIME": 21
+      },
+      "cal": {
+        "n": 83,
+        "median": -6.9,
+        "mean": -10.0,
+        "win_rate": 0.337,
+        "sum": -829.8
+      },
+      "hold": {
+        "n": 36,
+        "median": -6.2,
+        "mean": -14.4,
+        "win_rate": 0.278,
+        "sum": -519.3
+      },
+      "overall": {
+        "n": 119,
+        "median": -6.7,
+        "mean": -11.3,
+        "win_rate": 0.319,
+        "sum": -1349.1
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 120.0,
+      "tp_bps": null,
+      "be_bps": 100000.0,
+      "filled_n": 118,
+      "exit_reasons": {
+        "TIME": 77,
+        "SL": 41
+      },
+      "cal": {
+        "n": 82,
+        "median": -8.9,
+        "mean": -9.5,
+        "win_rate": 0.488,
+        "sum": -776.4
+      },
+      "hold": {
+        "n": 36,
+        "median": -19.2,
+        "mean": 1.1,
+        "win_rate": 0.444,
+        "sum": 41.0
+      },
+      "overall": {
+        "n": 118,
+        "median": -8.9,
+        "mean": -6.2,
+        "win_rate": 0.475,
+        "sum": -735.5
+      },
+      "lead": false
+    },
+    {
+      "sl_bps": 120.0,
+      "tp_bps": null,
+      "be_bps": 40.0,
+      "filled_n": 119,
+      "exit_reasons": {
+        "BE": 53,
+        "SL": 28,
+        "TIME": 38
+      },
+      "cal": {
+        "n": 83,
+        "median": -6.9,
+        "mean": -16.2,
+        "win_rate": 0.325,
+        "sum": -1343.2
+      },
+      "hold": {
+        "n": 36,
+        "median": -6.8,
+        "mean": 3.4,
+        "win_rate": 0.25,
+        "sum": 121.5
+      },
+      "overall": {
+        "n": 119,
+        "median": -6.9,
+        "mean": -10.3,
+        "win_rate": 0.303,
+        "sum": -1221.7
+      },
+      "lead": false
+    }
+  ]
+}

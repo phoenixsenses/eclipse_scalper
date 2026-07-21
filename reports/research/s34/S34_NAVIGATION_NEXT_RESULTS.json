@@ -1,0 +1,449 @@
+{
+  "generated_at_utc": "2026-06-29T09:01:52.815130+00:00",
+  "status": "RESEARCH_ONLY_NO_LIVE_CHANGE",
+  "route_specific_map": {
+    "ETHUSDT_SELL_100000": {
+      "all_2h": {
+        "n": 674,
+        "sum_bps": -5194.7,
+        "mean_bps": -7.7,
+        "median_bps": 0.2,
+        "win_rate": 0.5,
+        "max_loss_bps": -455.2,
+        "tail_lte_minus100_n": 102,
+        "tail_lte_minus150_n": 60,
+        "tail_lte_minus300_n": 15,
+        "t3r_bps": -6281.5
+      },
+      "tail_low_2h": {
+        "n": 4,
+        "sum_bps": -444.0,
+        "mean_bps": -111.0,
+        "median_bps": -50.8,
+        "win_rate": 0.25,
+        "max_loss_bps": -392.6,
+        "tail_lte_minus100_n": 1,
+        "tail_lte_minus150_n": 1,
+        "tail_lte_minus300_n": 1,
+        "t3r_bps": -392.6
+      },
+      "vdepth_core_bid_ok_2h": {
+        "n": 18,
+        "sum_bps": -548.3,
+        "mean_bps": -30.5,
+        "median_bps": 5.2,
+        "win_rate": 0.5,
+        "max_loss_bps": -392.6,
+        "tail_lte_minus100_n": 3,
+        "tail_lte_minus150_n": 2,
+        "tail_lte_minus300_n": 1,
+        "t3r_bps": -831.5
+      },
+      "tp300_sl150_4h": {
+        "n": 674,
+        "sum_bps": -1391.7,
+        "mean_bps": -2.1,
+        "median_bps": -0.9,
+        "win_rate": 0.497,
+        "max_loss_bps": -155.0,
+        "tail_lte_minus100_n": 197,
+        "tail_lte_minus150_n": 180,
+        "tail_lte_minus300_n": 0,
+        "t3r_bps": -2276.7
+      }
+    },
+    "ETHUSDT_SELL_200000": {
+      "all_2h": {
+        "n": 450,
+        "sum_bps": -605.8,
+        "mean_bps": -1.3,
+        "median_bps": 7.4,
+        "win_rate": 0.527,
+        "max_loss_bps": -412.4,
+        "tail_lte_minus100_n": 68,
+        "tail_lte_minus150_n": 41,
+        "tail_lte_minus300_n": 6,
+        "t3r_bps": -1782.6
+      },
+      "tail_low_2h": {
+        "n": 11,
+        "sum_bps": 961.6,
+        "mean_bps": 87.4,
+        "median_bps": 50.2,
+        "win_rate": 0.909,
+        "max_loss_bps": -13.7,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "t3r_bps": 316.6
+      },
+      "vdepth_core_bid_ok_2h": {
+        "n": 22,
+        "sum_bps": 1069.2,
+        "mean_bps": 48.6,
+        "median_bps": 31.1,
+        "win_rate": 0.727,
+        "max_loss_bps": -81.0,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "t3r_bps": 424.2
+      },
+      "tp300_sl150_4h": {
+        "n": 450,
+        "sum_bps": 3169.8,
+        "mean_bps": 7.0,
+        "median_bps": 9.3,
+        "win_rate": 0.533,
+        "max_loss_bps": -155.0,
+        "tail_lte_minus100_n": 125,
+        "tail_lte_minus150_n": 113,
+        "tail_lte_minus300_n": 0,
+        "t3r_bps": 2284.8
+      }
+    },
+    "ETHUSDT_SELL_50000": {
+      "all_2h": {
+        "n": 882,
+        "sum_bps": -1286.5,
+        "mean_bps": -1.5,
+        "median_bps": 3.0,
+        "win_rate": 0.509,
+        "max_loss_bps": -405.7,
+        "tail_lte_minus100_n": 126,
+        "tail_lte_minus150_n": 71,
+        "tail_lte_minus300_n": 15,
+        "t3r_bps": -3301.2
+      },
+      "tail_low_2h": {
+        "n": 8,
+        "sum_bps": -34.9,
+        "mean_bps": -4.4,
+        "median_bps": -46.6,
+        "win_rate": 0.375,
+        "max_loss_bps": -152.4,
+        "tail_lte_minus100_n": 2,
+        "tail_lte_minus150_n": 1,
+        "tail_lte_minus300_n": 0,
+        "t3r_bps": -448.4
+      },
+      "vdepth_core_bid_ok_2h": {
+        "n": 16,
+        "sum_bps": -169.9,
+        "mean_bps": -10.6,
+        "median_bps": -40.0,
+        "win_rate": 0.438,
+        "max_loss_bps": -152.4,
+        "tail_lte_minus100_n": 3,
+        "tail_lte_minus150_n": 1,
+        "tail_lte_minus300_n": 0,
+        "t3r_bps": -605.5
+      },
+      "tp300_sl150_4h": {
+        "n": 882,
+        "sum_bps": -899.9,
+        "mean_bps": -1.0,
+        "median_bps": -2.8,
+        "win_rate": 0.49,
+        "max_loss_bps": -155.0,
+        "tail_lte_minus100_n": 251,
+        "tail_lte_minus150_n": 226,
+        "tail_lte_minus300_n": 0,
+        "t3r_bps": -1784.9
+      }
+    }
+  },
+  "bull_thin_depth_anatomy": {
+    "status": "BULL_THIN_DEPTH_ANATOMY",
+    "n": 20,
+    "overall_2h": {
+      "n": 20,
+      "sum_bps": 1479.3,
+      "mean_bps": 74.0,
+      "median_bps": 50.5,
+      "win_rate": 0.7,
+      "max_loss_bps": -203.1,
+      "tail_lte_minus100_n": 2,
+      "tail_lte_minus150_n": 2,
+      "tail_lte_minus300_n": 0,
+      "t3r_bps": 479.4
+    },
+    "overall_tp300_sl150_4h": {
+      "n": 20,
+      "sum_bps": 1636.7,
+      "mean_bps": 81.8,
+      "median_bps": 54.8,
+      "win_rate": 0.6,
+      "max_loss_bps": -155.0,
+      "tail_lte_minus100_n": 6,
+      "tail_lte_minus150_n": 6,
+      "tail_lte_minus300_n": 0,
+      "t3r_bps": 751.7
+    },
+    "by_threshold_2h": {
+      "thr100000": {
+        "n": 5,
+        "sum_bps": 381.3,
+        "mean_bps": 76.3,
+        "median_bps": 45.7,
+        "win_rate": 0.6,
+        "max_loss_bps": -88.5,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "t3r_bps": -149.6
+      },
+      "thr200000": {
+        "n": 5,
+        "sum_bps": 306.1,
+        "mean_bps": 61.2,
+        "median_bps": 45.7,
+        "win_rate": 0.8,
+        "max_loss_bps": -161.4,
+        "tail_lte_minus100_n": 1,
+        "tail_lte_minus150_n": 1,
+        "tail_lte_minus300_n": 0,
+        "t3r_bps": -145.3
+      },
+      "thr50000": {
+        "n": 10,
+        "sum_bps": 791.9,
+        "mean_bps": 79.2,
+        "median_bps": 63.4,
+        "win_rate": 0.7,
+        "max_loss_bps": -203.1,
+        "tail_lte_minus100_n": 1,
+        "tail_lte_minus150_n": 1,
+        "tail_lte_minus300_n": 0,
+        "t3r_bps": -100.0
+      }
+    },
+    "by_vdepth_subbin_2h": {
+      "v28_32": {
+        "n": 8,
+        "sum_bps": 180.2,
+        "mean_bps": 22.5,
+        "median_bps": 15.3,
+        "win_rate": 0.625,
+        "max_loss_bps": -88.5,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "t3r_bps": -207.5
+      },
+      "v32_40": {
+        "n": 12,
+        "sum_bps": 1299.1,
+        "mean_bps": 108.3,
+        "median_bps": 95.9,
+        "win_rate": 0.75,
+        "max_loss_bps": -203.1,
+        "tail_lte_minus100_n": 2,
+        "tail_lte_minus150_n": 2,
+        "tail_lte_minus300_n": 0,
+        "t3r_bps": 299.2
+      }
+    },
+    "by_book_imbalance_2h": {
+      "imb_neg": {
+        "n": 1,
+        "sum_bps": -203.1,
+        "mean_bps": -203.1,
+        "median_bps": -203.1,
+        "win_rate": 0.0,
+        "max_loss_bps": -203.1,
+        "tail_lte_minus100_n": 1,
+        "tail_lte_minus150_n": 1,
+        "tail_lte_minus300_n": 0,
+        "t3r_bps": -203.1
+      },
+      "imb_pos": {
+        "n": 19,
+        "sum_bps": 1682.4,
+        "mean_bps": 88.5,
+        "median_bps": 55.3,
+        "win_rate": 0.737,
+        "max_loss_bps": -161.4,
+        "tail_lte_minus100_n": 1,
+        "tail_lte_minus150_n": 1,
+        "tail_lte_minus300_n": 0,
+        "t3r_bps": 682.5
+      }
+    },
+    "tail_rows": [
+      {
+        "signal_utc": "2026-02-16T13:21:09.242000+00:00",
+        "threshold_usd": 200000.0,
+        "vdepth_bps": 38.1,
+        "bid_depth_usd": 0.0,
+        "book_imbalance": null,
+        "net_2h_bps": -161.4,
+        "net_tp300_sl150_4h_bps": -155.0
+      },
+      {
+        "signal_utc": "2026-04-14T14:33:50.661000+00:00",
+        "threshold_usd": 50000.0,
+        "vdepth_bps": 39.9,
+        "bid_depth_usd": 32988.9,
+        "book_imbalance": -0.783,
+        "net_2h_bps": -203.1,
+        "net_tp300_sl150_4h_bps": -155.0
+      }
+    ],
+    "read": "Promising but tail-bearing context; not a candidate until tail rows are explained out-of-sample."
+  },
+  "knn_navigation": {
+    "status": "LEAVE_ONE_OUT_KNN",
+    "k": 20,
+    "pred_counts": {
+      "CLEAN": 178,
+      "DANGER": 1094,
+      "MIXED": 734
+    },
+    "actual_by_prediction": {
+      "CLEAN": {
+        "n": 178,
+        "sum_bps": 2589.2,
+        "mean_bps": 14.5,
+        "median_bps": 15.6,
+        "win_rate": 0.607,
+        "max_loss_bps": -356.0,
+        "tail_lte_minus100_n": 11,
+        "tail_lte_minus150_n": 7,
+        "tail_lte_minus300_n": 1,
+        "t3r_bps": 1756.4
+      },
+      "DANGER": {
+        "n": 1094,
+        "sum_bps": -10573.7,
+        "mean_bps": -9.7,
+        "median_bps": -0.2,
+        "win_rate": 0.499,
+        "max_loss_bps": -455.2,
+        "tail_lte_minus100_n": 190,
+        "tail_lte_minus150_n": 128,
+        "tail_lte_minus300_n": 32,
+        "t3r_bps": -12588.4
+      },
+      "MIXED": {
+        "n": 734,
+        "sum_bps": 897.5,
+        "mean_bps": 1.2,
+        "median_bps": 0.6,
+        "win_rate": 0.503,
+        "max_loss_bps": -347.2,
+        "tail_lte_minus100_n": 95,
+        "tail_lte_minus150_n": 37,
+        "tail_lte_minus300_n": 3,
+        "t3r_bps": -171.3
+      }
+    },
+    "read": "Leave-one-out KNN over navigation event features. It is a map quality test, not a trade rule."
+  },
+  "buy_side_navigation": {
+    "status": "ETH_BUY_SIDE_NAVIGATION",
+    "rows_n": 2196,
+    "fade_short_by_threshold": {
+      "thr100000": {
+        "n": 656,
+        "sum_bps": -3754.2,
+        "mean_bps": -5.7,
+        "median_bps": 4.2,
+        "win_rate": 0.523,
+        "max_loss_bps": -552.2,
+        "tail_lte_minus100_n": 101,
+        "tail_lte_minus150_n": 52,
+        "tail_lte_minus300_n": 15,
+        "t3r_bps": -4989.0
+      },
+      "thr200000": {
+        "n": 441,
+        "sum_bps": -2452.7,
+        "mean_bps": -5.6,
+        "median_bps": 6.0,
+        "win_rate": 0.535,
+        "max_loss_bps": -524.4,
+        "tail_lte_minus100_n": 71,
+        "tail_lte_minus150_n": 45,
+        "tail_lte_minus300_n": 12,
+        "t3r_bps": -3644.0
+      },
+      "thr50000": {
+        "n": 905,
+        "sum_bps": -5384.6,
+        "mean_bps": -5.9,
+        "median_bps": 6.3,
+        "win_rate": 0.527,
+        "max_loss_bps": -556.9,
+        "tail_lte_minus100_n": 126,
+        "tail_lte_minus150_n": 69,
+        "tail_lte_minus300_n": 21,
+        "t3r_bps": -6604.4
+      },
+      "thr500000": {
+        "n": 194,
+        "sum_bps": 1810.2,
+        "mean_bps": 9.3,
+        "median_bps": 28.6,
+        "win_rate": 0.577,
+        "max_loss_bps": -390.5,
+        "tail_lte_minus100_n": 28,
+        "tail_lte_minus150_n": 19,
+        "tail_lte_minus300_n": 6,
+        "t3r_bps": 618.0
+      }
+    },
+    "continuation_long_by_threshold": {
+      "thr100000": {
+        "n": 656,
+        "sum_bps": -2805.8,
+        "mean_bps": -4.3,
+        "median_bps": -14.2,
+        "win_rate": 0.433,
+        "max_loss_bps": -504.9,
+        "tail_lte_minus100_n": 93,
+        "tail_lte_minus150_n": 47,
+        "tail_lte_minus300_n": 7,
+        "t3r_bps": -4233.9
+      },
+      "thr200000": {
+        "n": 441,
+        "sum_bps": -1957.3,
+        "mean_bps": -4.4,
+        "median_bps": -16.0,
+        "win_rate": 0.429,
+        "max_loss_bps": -490.9,
+        "tail_lte_minus100_n": 65,
+        "tail_lte_minus150_n": 32,
+        "tail_lte_minus300_n": 7,
+        "t3r_bps": -3264.1
+      },
+      "thr50000": {
+        "n": 905,
+        "sum_bps": -3665.4,
+        "mean_bps": -4.1,
+        "median_bps": -16.3,
+        "win_rate": 0.424,
+        "max_loss_bps": -489.9,
+        "tail_lte_minus100_n": 126,
+        "tail_lte_minus150_n": 53,
+        "tail_lte_minus300_n": 8,
+        "t3r_bps": -5098.2
+      },
+      "thr500000": {
+        "n": 194,
+        "sum_bps": -3750.2,
+        "mean_bps": -19.3,
+        "median_bps": -38.5,
+        "win_rate": 0.387,
+        "max_loss_bps": -518.1,
+        "tail_lte_minus100_n": 32,
+        "tail_lte_minus150_n": 20,
+        "tail_lte_minus300_n": 6,
+        "t3r_bps": -4857.3
+      }
+    },
+    "read": "BUY-side map reports both reversal SHORT and continuation LONG labels. Mark labels only."
+  },
+  "read": "Navigation tests only. No live order/config changes."
+}

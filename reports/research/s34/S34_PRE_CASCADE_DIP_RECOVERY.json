@@ -1,0 +1,2491 @@
+{
+  "meta": {
+    "hypothesis": "liq oncesi 2-3 kere dusus+cikis (dip->recovery) sonucu ayirir",
+    "universe": "ETHUSDT SELL 200K anchors, bucket=300s, min_gap=900s",
+    "primary_outcome": "LONG 4h hold net (FEE=5bps)",
+    "retrace_frac": 0.6,
+    "train_frac": 0.6,
+    "n_events": 625,
+    "months": 4.66,
+    "generated_utc": "2026-07-06T15:51:37.765361+00:00"
+  },
+  "result": {
+    "selected": "tf15_n32_a60",
+    "train_grid": {
+      "tf1_n60_a10": {
+        "n": 355,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 62,
+            "wr": 51.6,
+            "avg": -10.8,
+            "total": -667.0,
+            "per_month": 22.2,
+            "pnl_per_month": -238.0,
+            "worst": -538.7,
+            "tail_n": 15,
+            "mc_p": 0.7
+          },
+          "1": {
+            "label": "1",
+            "n": 75,
+            "wr": 53.3,
+            "avg": 2.2,
+            "total": 163.0,
+            "per_month": 26.8,
+            "pnl_per_month": 58.0,
+            "worst": -493.9,
+            "tail_n": 12,
+            "mc_p": 0.428
+          },
+          "2": {
+            "label": "2",
+            "n": 81,
+            "wr": 49.4,
+            "avg": -10.0,
+            "total": -813.0,
+            "per_month": 29.0,
+            "pnl_per_month": -290.0,
+            "worst": -328.5,
+            "tail_n": 15,
+            "mc_p": 0.767
+          },
+          "3": {
+            "label": "3",
+            "n": 53,
+            "wr": 54.7,
+            "avg": 2.2,
+            "total": 114.0,
+            "per_month": 18.9,
+            "pnl_per_month": 41.0,
+            "worst": -341.8,
+            "tail_n": 11,
+            "mc_p": 0.448
+          },
+          "4+": {
+            "label": "4+",
+            "n": 84,
+            "wr": 57.1,
+            "avg": 14.1,
+            "total": 1182.0,
+            "per_month": 30.0,
+            "pnl_per_month": 422.0,
+            "worst": -406.1,
+            "tail_n": 15,
+            "mc_p": 0.185
+          }
+        },
+        "n_23": 134,
+        "n_rest": 221,
+        "avg_23": -5.2,
+        "avg_rest": 3.1,
+        "diff": -8.3
+      },
+      "tf1_n60_a20": {
+        "n": 355,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 110,
+            "wr": 50.0,
+            "avg": -17.9,
+            "total": -1965.0,
+            "per_month": 39.3,
+            "pnl_per_month": -702.0,
+            "worst": -538.7,
+            "tail_n": 26,
+            "mc_p": 0.878
+          },
+          "1": {
+            "label": "1",
+            "n": 122,
+            "wr": 56.6,
+            "avg": 11.4,
+            "total": 1392.0,
+            "per_month": 43.6,
+            "pnl_per_month": 497.0,
+            "worst": -342.8,
+            "tail_n": 18,
+            "mc_p": 0.157
+          },
+          "2": {
+            "label": "2",
+            "n": 67,
+            "wr": 49.3,
+            "avg": -18.2,
+            "total": -1223.0,
+            "per_month": 23.9,
+            "pnl_per_month": -437.0,
+            "worst": -328.5,
+            "tail_n": 15,
+            "mc_p": 0.869
+          },
+          "3": {
+            "label": "3",
+            "n": 33,
+            "wr": 54.5,
+            "avg": 33.7,
+            "total": 1113.0,
+            "per_month": 11.8,
+            "pnl_per_month": 398.0,
+            "worst": -377.6,
+            "tail_n": 5,
+            "mc_p": 0.129
+          },
+          "4+": {
+            "label": "4+",
+            "n": 23,
+            "wr": 60.9,
+            "avg": 28.8,
+            "total": 662.0,
+            "per_month": 8.2,
+            "pnl_per_month": 237.0,
+            "worst": -316.6,
+            "tail_n": 4,
+            "mc_p": 0.163
+          }
+        },
+        "n_23": 100,
+        "n_rest": 255,
+        "avg_23": -1.1,
+        "avg_rest": 0.3,
+        "diff": -1.4
+      },
+      "tf1_n60_a35": {
+        "n": 355,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 201,
+            "wr": 53.2,
+            "avg": -7.1,
+            "total": -1437.0,
+            "per_month": 71.8,
+            "pnl_per_month": -513.0,
+            "worst": -538.7,
+            "tail_n": 40,
+            "mc_p": 0.755
+          },
+          "1": {
+            "label": "1",
+            "n": 104,
+            "wr": 54.8,
+            "avg": 9.8,
+            "total": 1016.0,
+            "per_month": 37.2,
+            "pnl_per_month": 363.0,
+            "worst": -377.6,
+            "tail_n": 20,
+            "mc_p": 0.234
+          },
+          "2": {
+            "label": "2",
+            "n": 42,
+            "wr": 52.4,
+            "avg": 10.7,
+            "total": 450.0,
+            "per_month": 15.0,
+            "pnl_per_month": 161.0,
+            "worst": -274.9,
+            "tail_n": 7,
+            "mc_p": 0.283
+          },
+          "3": {
+            "label": "3",
+            "n": 7,
+            "wr": 42.9,
+            "avg": -3.9,
+            "total": -27.0,
+            "per_month": 2.5,
+            "pnl_per_month": -10.0,
+            "worst": -216.9,
+            "tail_n": 1,
+            "mc_p": 0.577
+          },
+          "4+": {
+            "label": "4+",
+            "n": 1,
+            "wr": 0.0,
+            "avg": -22.7,
+            "total": -23.0,
+            "per_month": 0.4,
+            "pnl_per_month": -8.0,
+            "worst": -22.7,
+            "tail_n": 0,
+            "mc_p": null
+          }
+        },
+        "n_23": 49,
+        "n_rest": 306,
+        "avg_23": 8.6,
+        "avg_rest": -1.4,
+        "diff": 10.0
+      },
+      "tf1_n60_a60": {
+        "n": 355,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 307,
+            "wr": 52.8,
+            "avg": -1.8,
+            "total": -564.0,
+            "per_month": 109.7,
+            "pnl_per_month": -202.0,
+            "worst": -538.7,
+            "tail_n": 61,
+            "mc_p": 0.588
+          },
+          "1": {
+            "label": "1",
+            "n": 47,
+            "wr": 55.3,
+            "avg": 7.3,
+            "total": 345.0,
+            "per_month": 16.8,
+            "pnl_per_month": 123.0,
+            "worst": -320.2,
+            "tail_n": 7,
+            "mc_p": 0.352
+          },
+          "2": {
+            "label": "2",
+            "n": 1,
+            "wr": 100.0,
+            "avg": 198.9,
+            "total": 199.0,
+            "per_month": 0.4,
+            "pnl_per_month": 71.0,
+            "worst": 198.9,
+            "tail_n": 0,
+            "mc_p": null
+          }
+        },
+        "n_23": 1,
+        "n_rest": 354,
+        "avg_23": 198.9,
+        "avg_rest": -0.6,
+        "diff": 199.5
+      },
+      "tf1_n120_a10": {
+        "n": 355,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 31,
+            "wr": 58.1,
+            "avg": 1.3,
+            "total": 40.0,
+            "per_month": 11.1,
+            "pnl_per_month": 14.0,
+            "worst": -341.8,
+            "tail_n": 3,
+            "mc_p": 0.477
+          },
+          "1": {
+            "label": "1",
+            "n": 26,
+            "wr": 30.8,
+            "avg": -53.7,
+            "total": -1395.0,
+            "per_month": 9.3,
+            "pnl_per_month": -499.0,
+            "worst": -233.6,
+            "tail_n": 8,
+            "mc_p": 0.994
+          },
+          "2": {
+            "label": "2",
+            "n": 48,
+            "wr": 52.1,
+            "avg": -7.7,
+            "total": -369.0,
+            "per_month": 17.2,
+            "pnl_per_month": -132.0,
+            "worst": -538.7,
+            "tail_n": 9,
+            "mc_p": 0.618
+          },
+          "3": {
+            "label": "3",
+            "n": 60,
+            "wr": 56.7,
+            "avg": -6.3,
+            "total": -379.0,
+            "per_month": 21.4,
+            "pnl_per_month": -136.0,
+            "worst": -493.9,
+            "tail_n": 13,
+            "mc_p": 0.635
+          },
+          "4+": {
+            "label": "4+",
+            "n": 190,
+            "wr": 54.7,
+            "avg": 11.0,
+            "total": 2084.0,
+            "per_month": 67.9,
+            "pnl_per_month": 745.0,
+            "worst": -406.1,
+            "tail_n": 35,
+            "mc_p": 0.152
+          }
+        },
+        "n_23": 108,
+        "n_rest": 247,
+        "avg_23": -6.9,
+        "avg_rest": 2.9,
+        "diff": -9.8
+      },
+      "tf1_n120_a20": {
+        "n": 355,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 55,
+            "wr": 49.1,
+            "avg": -5.6,
+            "total": -310.0,
+            "per_month": 19.7,
+            "pnl_per_month": -111.0,
+            "worst": -341.8,
+            "tail_n": 7,
+            "mc_p": 0.673
+          },
+          "1": {
+            "label": "1",
+            "n": 71,
+            "wr": 47.9,
+            "avg": -29.2,
+            "total": -2076.0,
+            "per_month": 25.4,
+            "pnl_per_month": -742.0,
+            "worst": -538.7,
+            "tail_n": 20,
+            "mc_p": 0.942
+          },
+          "2": {
+            "label": "2",
+            "n": 73,
+            "wr": 50.7,
+            "avg": -11.1,
+            "total": -811.0,
+            "per_month": 26.1,
+            "pnl_per_month": -290.0,
+            "worst": -406.1,
+            "tail_n": 16,
+            "mc_p": 0.746
+          },
+          "3": {
+            "label": "3",
+            "n": 50,
+            "wr": 56.0,
+            "avg": 16.3,
+            "total": 814.0,
+            "per_month": 17.9,
+            "pnl_per_month": 291.0,
+            "worst": -328.5,
+            "tail_n": 7,
+            "mc_p": 0.214
+          },
+          "4+": {
+            "label": "4+",
+            "n": 106,
+            "wr": 59.4,
+            "avg": 22.3,
+            "total": 2362.0,
+            "per_month": 37.9,
+            "pnl_per_month": 844.0,
+            "worst": -377.6,
+            "tail_n": 18,
+            "mc_p": 0.046
+          }
+        },
+        "n_23": 123,
+        "n_rest": 232,
+        "avg_23": 0.0,
+        "avg_rest": -0.1,
+        "diff": 0.1
+      },
+      "tf1_n120_a35": {
+        "n": 355,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 130,
+            "wr": 50.8,
+            "avg": -6.0,
+            "total": -784.0,
+            "per_month": 46.5,
+            "pnl_per_month": -280.0,
+            "worst": -538.7,
+            "tail_n": 25,
+            "mc_p": 0.694
+          },
+          "1": {
+            "label": "1",
+            "n": 104,
+            "wr": 49.0,
+            "avg": -21.6,
+            "total": -2246.0,
+            "per_month": 37.2,
+            "pnl_per_month": -803.0,
+            "worst": -406.1,
+            "tail_n": 24,
+            "mc_p": 0.937
+          },
+          "2": {
+            "label": "2",
+            "n": 66,
+            "wr": 59.1,
+            "avg": 33.9,
+            "total": 2236.0,
+            "per_month": 23.6,
+            "pnl_per_month": 799.0,
+            "worst": -328.5,
+            "tail_n": 12,
+            "mc_p": 0.035
+          },
+          "3": {
+            "label": "3",
+            "n": 31,
+            "wr": 71.0,
+            "avg": 25.5,
+            "total": 792.0,
+            "per_month": 11.1,
+            "pnl_per_month": 283.0,
+            "worst": -377.6,
+            "tail_n": 3,
+            "mc_p": 0.132
+          },
+          "4+": {
+            "label": "4+",
+            "n": 24,
+            "wr": 45.8,
+            "avg": -0.7,
+            "total": -18.0,
+            "per_month": 8.6,
+            "pnl_per_month": -6.0,
+            "worst": -316.6,
+            "tail_n": 4,
+            "mc_p": 0.49
+          }
+        },
+        "n_23": 97,
+        "n_rest": 258,
+        "avg_23": 31.2,
+        "avg_rest": -11.8,
+        "diff": 43.0
+      },
+      "tf1_n120_a60": {
+        "n": 355,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 239,
+            "wr": 50.2,
+            "avg": -7.2,
+            "total": -1719.0,
+            "per_month": 85.4,
+            "pnl_per_month": -614.0,
+            "worst": -538.7,
+            "tail_n": 49,
+            "mc_p": 0.767
+          },
+          "1": {
+            "label": "1",
+            "n": 82,
+            "wr": 61.0,
+            "avg": 16.7,
+            "total": 1366.0,
+            "per_month": 29.3,
+            "pnl_per_month": 488.0,
+            "worst": -328.5,
+            "tail_n": 14,
+            "mc_p": 0.142
+          },
+          "2": {
+            "label": "2",
+            "n": 29,
+            "wr": 62.1,
+            "avg": 20.6,
+            "total": 598.0,
+            "per_month": 10.4,
+            "pnl_per_month": 214.0,
+            "worst": -377.6,
+            "tail_n": 4,
+            "mc_p": 0.234
+          },
+          "3": {
+            "label": "3",
+            "n": 4,
+            "wr": 25.0,
+            "avg": -49.8,
+            "total": -199.0,
+            "per_month": 1.4,
+            "pnl_per_month": -71.0,
+            "worst": -197.2,
+            "tail_n": 1,
+            "mc_p": 0.809
+          },
+          "4+": {
+            "label": "4+",
+            "n": 1,
+            "wr": 0.0,
+            "avg": -65.8,
+            "total": -66.0,
+            "per_month": 0.4,
+            "pnl_per_month": -24.0,
+            "worst": -65.8,
+            "tail_n": 0,
+            "mc_p": null
+          }
+        },
+        "n_23": 33,
+        "n_rest": 322,
+        "avg_23": 12.1,
+        "avg_rest": -1.3,
+        "diff": 13.4
+      },
+      "tf3_n40_a10": {
+        "n": 356,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 52,
+            "wr": 51.9,
+            "avg": -2.2,
+            "total": -116.0,
+            "per_month": 18.6,
+            "pnl_per_month": -41.0,
+            "worst": -341.8,
+            "tail_n": 6,
+            "mc_p": 0.541
+          },
+          "1": {
+            "label": "1",
+            "n": 64,
+            "wr": 46.9,
+            "avg": -2.6,
+            "total": -168.0,
+            "per_month": 22.9,
+            "pnl_per_month": -60.0,
+            "worst": -342.8,
+            "tail_n": 12,
+            "mc_p": 0.557
+          },
+          "2": {
+            "label": "2",
+            "n": 74,
+            "wr": 54.1,
+            "avg": -18.3,
+            "total": -1352.0,
+            "per_month": 26.4,
+            "pnl_per_month": -483.0,
+            "worst": -538.7,
+            "tail_n": 20,
+            "mc_p": 0.808
+          },
+          "3": {
+            "label": "3",
+            "n": 71,
+            "wr": 54.9,
+            "avg": 3.2,
+            "total": 227.0,
+            "per_month": 25.4,
+            "pnl_per_month": 81.0,
+            "worst": -320.2,
+            "tail_n": 14,
+            "mc_p": 0.414
+          },
+          "4+": {
+            "label": "4+",
+            "n": 95,
+            "wr": 56.8,
+            "avg": 16.3,
+            "total": 1547.0,
+            "per_month": 34.0,
+            "pnl_per_month": 553.0,
+            "worst": -377.6,
+            "tail_n": 15,
+            "mc_p": 0.134
+          }
+        },
+        "n_23": 145,
+        "n_rest": 211,
+        "avg_23": -7.8,
+        "avg_rest": 6.0,
+        "diff": -13.8
+      },
+      "tf3_n40_a20": {
+        "n": 356,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 90,
+            "wr": 54.4,
+            "avg": 9.4,
+            "total": 844.0,
+            "per_month": 32.2,
+            "pnl_per_month": 302.0,
+            "worst": -341.8,
+            "tail_n": 12,
+            "mc_p": 0.226
+          },
+          "1": {
+            "label": "1",
+            "n": 107,
+            "wr": 45.8,
+            "avg": -23.6,
+            "total": -2526.0,
+            "per_month": 38.2,
+            "pnl_per_month": -903.0,
+            "worst": -538.7,
+            "tail_n": 24,
+            "mc_p": 0.961
+          },
+          "2": {
+            "label": "2",
+            "n": 73,
+            "wr": 53.4,
+            "avg": 9.5,
+            "total": 697.0,
+            "per_month": 26.1,
+            "pnl_per_month": 249.0,
+            "worst": -406.1,
+            "tail_n": 15,
+            "mc_p": 0.288
+          },
+          "3": {
+            "label": "3",
+            "n": 49,
+            "wr": 63.3,
+            "avg": 4.5,
+            "total": 218.0,
+            "per_month": 17.5,
+            "pnl_per_month": 78.0,
+            "worst": -377.6,
+            "tail_n": 11,
+            "mc_p": 0.417
+          },
+          "4+": {
+            "label": "4+",
+            "n": 37,
+            "wr": 59.5,
+            "avg": 24.5,
+            "total": 905.0,
+            "per_month": 13.2,
+            "pnl_per_month": 324.0,
+            "worst": -316.6,
+            "tail_n": 5,
+            "mc_p": 0.117
+          }
+        },
+        "n_23": 122,
+        "n_rest": 234,
+        "avg_23": 7.5,
+        "avg_rest": -3.3,
+        "diff": 10.8
+      },
+      "tf3_n40_a35": {
+        "n": 356,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 170,
+            "wr": 52.9,
+            "avg": 2.6,
+            "total": 449.0,
+            "per_month": 60.8,
+            "pnl_per_month": 161.0,
+            "worst": -538.7,
+            "tail_n": 29,
+            "mc_p": 0.388
+          },
+          "1": {
+            "label": "1",
+            "n": 120,
+            "wr": 51.7,
+            "avg": -7.9,
+            "total": -950.0,
+            "per_month": 42.9,
+            "pnl_per_month": -340.0,
+            "worst": -342.8,
+            "tail_n": 27,
+            "mc_p": 0.725
+          },
+          "2": {
+            "label": "2",
+            "n": 52,
+            "wr": 59.6,
+            "avg": 12.7,
+            "total": 659.0,
+            "per_month": 18.6,
+            "pnl_per_month": 236.0,
+            "worst": -377.6,
+            "tail_n": 9,
+            "mc_p": 0.265
+          },
+          "3": {
+            "label": "3",
+            "n": 11,
+            "wr": 45.5,
+            "avg": 6.7,
+            "total": 74.0,
+            "per_month": 3.9,
+            "pnl_per_month": 26.0,
+            "worst": -262.4,
+            "tail_n": 1,
+            "mc_p": 0.429
+          },
+          "4+": {
+            "label": "4+",
+            "n": 3,
+            "wr": 66.7,
+            "avg": -31.3,
+            "total": -94.0,
+            "per_month": 1.1,
+            "pnl_per_month": -34.0,
+            "worst": -197.2,
+            "tail_n": 1,
+            "mc_p": null
+          }
+        },
+        "n_23": 63,
+        "n_rest": 293,
+        "avg_23": 11.6,
+        "avg_rest": -2.0,
+        "diff": 13.6
+      },
+      "tf3_n40_a60": {
+        "n": 356,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 270,
+            "wr": 51.5,
+            "avg": -5.8,
+            "total": -1553.0,
+            "per_month": 96.5,
+            "pnl_per_month": -555.0,
+            "worst": -538.7,
+            "tail_n": 54,
+            "mc_p": 0.741
+          },
+          "1": {
+            "label": "1",
+            "n": 68,
+            "wr": 58.8,
+            "avg": 25.7,
+            "total": 1746.0,
+            "per_month": 24.3,
+            "pnl_per_month": 624.0,
+            "worst": -328.5,
+            "tail_n": 10,
+            "mc_p": 0.065
+          },
+          "2": {
+            "label": "2",
+            "n": 16,
+            "wr": 68.8,
+            "avg": 13.0,
+            "total": 208.0,
+            "per_month": 5.7,
+            "pnl_per_month": 74.0,
+            "worst": -377.6,
+            "tail_n": 2,
+            "mc_p": 0.376
+          },
+          "3": {
+            "label": "3",
+            "n": 2,
+            "wr": 0.0,
+            "avg": -131.5,
+            "total": -263.0,
+            "per_month": 0.7,
+            "pnl_per_month": -94.0,
+            "worst": -197.2,
+            "tail_n": 1,
+            "mc_p": null
+          }
+        },
+        "n_23": 18,
+        "n_rest": 338,
+        "avg_23": -3.1,
+        "avg_rest": 0.6,
+        "diff": -3.7
+      },
+      "tf3_n80_a10": {
+        "n": 356,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 24,
+            "wr": 54.2,
+            "avg": 3.9,
+            "total": 94.0,
+            "per_month": 8.6,
+            "pnl_per_month": 33.0,
+            "worst": -213.8,
+            "tail_n": 4,
+            "mc_p": 0.429
+          },
+          "1": {
+            "label": "1",
+            "n": 28,
+            "wr": 53.6,
+            "avg": -7.4,
+            "total": -207.0,
+            "per_month": 10.0,
+            "pnl_per_month": -74.0,
+            "worst": -226.8,
+            "tail_n": 3,
+            "mc_p": 0.695
+          },
+          "2": {
+            "label": "2",
+            "n": 36,
+            "wr": 55.6,
+            "avg": 18.8,
+            "total": 675.0,
+            "per_month": 12.9,
+            "pnl_per_month": 241.0,
+            "worst": -233.6,
+            "tail_n": 5,
+            "mc_p": 0.177
+          },
+          "3": {
+            "label": "3",
+            "n": 49,
+            "wr": 42.9,
+            "avg": -40.6,
+            "total": -1990.0,
+            "per_month": 17.5,
+            "pnl_per_month": -711.0,
+            "worst": -342.8,
+            "tail_n": 16,
+            "mc_p": 0.991
+          },
+          "4+": {
+            "label": "4+",
+            "n": 219,
+            "wr": 55.3,
+            "avg": 7.2,
+            "total": 1567.0,
+            "per_month": 78.3,
+            "pnl_per_month": 560.0,
+            "worst": -538.7,
+            "tail_n": 39,
+            "mc_p": 0.253
+          }
+        },
+        "n_23": 85,
+        "n_rest": 271,
+        "avg_23": -15.5,
+        "avg_rest": 5.4,
+        "diff": -20.9
+      },
+      "tf3_n80_a20": {
+        "n": 356,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 40,
+            "wr": 52.5,
+            "avg": -4.0,
+            "total": -160.0,
+            "per_month": 14.3,
+            "pnl_per_month": -57.0,
+            "worst": -213.8,
+            "tail_n": 6,
+            "mc_p": 0.61
+          },
+          "1": {
+            "label": "1",
+            "n": 62,
+            "wr": 43.5,
+            "avg": -37.8,
+            "total": -2341.0,
+            "per_month": 22.2,
+            "pnl_per_month": -837.0,
+            "worst": -538.7,
+            "tail_n": 15,
+            "mc_p": 0.981
+          },
+          "2": {
+            "label": "2",
+            "n": 65,
+            "wr": 53.8,
+            "avg": -1.0,
+            "total": -67.0,
+            "per_month": 23.2,
+            "pnl_per_month": -24.0,
+            "worst": -493.9,
+            "tail_n": 12,
+            "mc_p": 0.523
+          },
+          "3": {
+            "label": "3",
+            "n": 67,
+            "wr": 53.7,
+            "avg": -10.0,
+            "total": -671.0,
+            "per_month": 23.9,
+            "pnl_per_month": -240.0,
+            "worst": -377.6,
+            "tail_n": 18,
+            "mc_p": 0.701
+          },
+          "4+": {
+            "label": "4+",
+            "n": 122,
+            "wr": 58.2,
+            "avg": 27.7,
+            "total": 3377.0,
+            "per_month": 43.6,
+            "pnl_per_month": 1207.0,
+            "worst": -328.5,
+            "tail_n": 16,
+            "mc_p": 0.015
+          }
+        },
+        "n_23": 132,
+        "n_rest": 224,
+        "avg_23": -5.6,
+        "avg_rest": 3.9,
+        "diff": -9.5
+      },
+      "tf3_n80_a35": {
+        "n": 356,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 87,
+            "wr": 49.4,
+            "avg": -19.6,
+            "total": -1707.0,
+            "per_month": 31.1,
+            "pnl_per_month": -610.0,
+            "worst": -538.7,
+            "tail_n": 15,
+            "mc_p": 0.925
+          },
+          "1": {
+            "label": "1",
+            "n": 109,
+            "wr": 53.2,
+            "avg": 3.5,
+            "total": 382.0,
+            "per_month": 39.0,
+            "pnl_per_month": 137.0,
+            "worst": -406.1,
+            "tail_n": 23,
+            "mc_p": 0.408
+          },
+          "2": {
+            "label": "2",
+            "n": 82,
+            "wr": 54.9,
+            "avg": 7.2,
+            "total": 589.0,
+            "per_month": 29.3,
+            "pnl_per_month": 211.0,
+            "worst": -377.6,
+            "tail_n": 15,
+            "mc_p": 0.317
+          },
+          "3": {
+            "label": "3",
+            "n": 44,
+            "wr": 59.1,
+            "avg": 9.5,
+            "total": 418.0,
+            "per_month": 15.7,
+            "pnl_per_month": 149.0,
+            "worst": -328.5,
+            "tail_n": 9,
+            "mc_p": 0.321
+          },
+          "4+": {
+            "label": "4+",
+            "n": 34,
+            "wr": 52.9,
+            "avg": 13.4,
+            "total": 456.0,
+            "per_month": 12.2,
+            "pnl_per_month": 163.0,
+            "worst": -320.2,
+            "tail_n": 5,
+            "mc_p": 0.296
+          }
+        },
+        "n_23": 126,
+        "n_rest": 230,
+        "avg_23": 8.0,
+        "avg_rest": -3.8,
+        "diff": 11.8
+      },
+      "tf3_n80_a60": {
+        "n": 356,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 170,
+            "wr": 49.4,
+            "avg": -5.0,
+            "total": -844.0,
+            "per_month": 60.8,
+            "pnl_per_month": -302.0,
+            "worst": -538.7,
+            "tail_n": 33,
+            "mc_p": 0.673
+          },
+          "1": {
+            "label": "1",
+            "n": 128,
+            "wr": 58.6,
+            "avg": 9.9,
+            "total": 1269.0,
+            "per_month": 45.7,
+            "pnl_per_month": 454.0,
+            "worst": -406.1,
+            "tail_n": 23,
+            "mc_p": 0.217
+          },
+          "2": {
+            "label": "2",
+            "n": 40,
+            "wr": 52.5,
+            "avg": -0.7,
+            "total": -29.0,
+            "per_month": 14.3,
+            "pnl_per_month": -10.0,
+            "worst": -320.2,
+            "tail_n": 8,
+            "mc_p": 0.492
+          },
+          "3": {
+            "label": "3",
+            "n": 14,
+            "wr": 64.3,
+            "avg": -20.2,
+            "total": -282.0,
+            "per_month": 5.0,
+            "pnl_per_month": -101.0,
+            "worst": -319.8,
+            "tail_n": 3,
+            "mc_p": 0.701
+          },
+          "4+": {
+            "label": "4+",
+            "n": 4,
+            "wr": 25.0,
+            "avg": 6.2,
+            "total": 25.0,
+            "per_month": 1.4,
+            "pnl_per_month": 9.0,
+            "worst": -65.8,
+            "tail_n": 0,
+            "mc_p": 0.516
+          }
+        },
+        "n_23": 54,
+        "n_rest": 302,
+        "avg_23": -5.8,
+        "avg_rest": 1.5,
+        "diff": -7.3
+      },
+      "tf5_n48_a10": {
+        "n": 353,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 36,
+            "wr": 47.2,
+            "avg": -7.2,
+            "total": -259.0,
+            "per_month": 12.9,
+            "pnl_per_month": -93.0,
+            "worst": -226.8,
+            "tail_n": 6,
+            "mc_p": 0.656
+          },
+          "1": {
+            "label": "1",
+            "n": 50,
+            "wr": 54.0,
+            "avg": -13.3,
+            "total": -667.0,
+            "per_month": 17.9,
+            "pnl_per_month": -238.0,
+            "worst": -377.6,
+            "tail_n": 8,
+            "mc_p": 0.78
+          },
+          "2": {
+            "label": "2",
+            "n": 63,
+            "wr": 42.9,
+            "avg": -23.9,
+            "total": -1507.0,
+            "per_month": 22.5,
+            "pnl_per_month": -539.0,
+            "worst": -342.8,
+            "tail_n": 17,
+            "mc_p": 0.915
+          },
+          "3": {
+            "label": "3",
+            "n": 51,
+            "wr": 51.0,
+            "avg": -21.5,
+            "total": -1094.0,
+            "per_month": 18.2,
+            "pnl_per_month": -391.0,
+            "worst": -538.7,
+            "tail_n": 12,
+            "mc_p": 0.817
+          },
+          "4+": {
+            "label": "4+",
+            "n": 153,
+            "wr": 60.1,
+            "avg": 23.7,
+            "total": 3624.0,
+            "per_month": 54.7,
+            "pnl_per_month": 1295.0,
+            "worst": -328.5,
+            "tail_n": 24,
+            "mc_p": 0.025
+          }
+        },
+        "n_23": 114,
+        "n_rest": 239,
+        "avg_23": -22.8,
+        "avg_rest": 11.3,
+        "diff": -34.1
+      },
+      "tf5_n48_a20": {
+        "n": 353,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 56,
+            "wr": 44.6,
+            "avg": -12.8,
+            "total": -715.0,
+            "per_month": 20.0,
+            "pnl_per_month": -255.0,
+            "worst": -226.8,
+            "tail_n": 8,
+            "mc_p": 0.846
+          },
+          "1": {
+            "label": "1",
+            "n": 81,
+            "wr": 49.4,
+            "avg": -18.0,
+            "total": -1455.0,
+            "per_month": 29.0,
+            "pnl_per_month": -520.0,
+            "worst": -538.7,
+            "tail_n": 20,
+            "mc_p": 0.848
+          },
+          "2": {
+            "label": "2",
+            "n": 78,
+            "wr": 56.4,
+            "avg": 1.4,
+            "total": 111.0,
+            "per_month": 27.9,
+            "pnl_per_month": 40.0,
+            "worst": -493.9,
+            "tail_n": 17,
+            "mc_p": 0.466
+          },
+          "3": {
+            "label": "3",
+            "n": 70,
+            "wr": 57.1,
+            "avg": 6.1,
+            "total": 424.0,
+            "per_month": 25.0,
+            "pnl_per_month": 151.0,
+            "worst": -328.5,
+            "tail_n": 16,
+            "mc_p": 0.357
+          },
+          "4+": {
+            "label": "4+",
+            "n": 68,
+            "wr": 58.8,
+            "avg": 25.5,
+            "total": 1732.0,
+            "per_month": 24.3,
+            "pnl_per_month": 619.0,
+            "worst": -320.2,
+            "tail_n": 6,
+            "mc_p": 0.034
+          }
+        },
+        "n_23": 148,
+        "n_rest": 205,
+        "avg_23": 3.6,
+        "avg_rest": -2.1,
+        "diff": 5.7
+      },
+      "tf5_n48_a35": {
+        "n": 353,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 104,
+            "wr": 49.0,
+            "avg": -12.7,
+            "total": -1325.0,
+            "per_month": 37.2,
+            "pnl_per_month": -474.0,
+            "worst": -538.7,
+            "tail_n": 16,
+            "mc_p": 0.844
+          },
+          "1": {
+            "label": "1",
+            "n": 127,
+            "wr": 49.6,
+            "avg": -9.0,
+            "total": -1146.0,
+            "per_month": 45.4,
+            "pnl_per_month": -410.0,
+            "worst": -406.1,
+            "tail_n": 33,
+            "mc_p": 0.742
+          },
+          "2": {
+            "label": "2",
+            "n": 68,
+            "wr": 63.2,
+            "avg": 15.2,
+            "total": 1034.0,
+            "per_month": 24.3,
+            "pnl_per_month": 370.0,
+            "worst": -328.5,
+            "tail_n": 12,
+            "mc_p": 0.196
+          },
+          "3": {
+            "label": "3",
+            "n": 37,
+            "wr": 62.2,
+            "avg": 32.0,
+            "total": 1184.0,
+            "per_month": 13.2,
+            "pnl_per_month": 423.0,
+            "worst": -237.0,
+            "tail_n": 4,
+            "mc_p": 0.05
+          },
+          "4+": {
+            "label": "4+",
+            "n": 17,
+            "wr": 52.9,
+            "avg": 20.5,
+            "total": 349.0,
+            "per_month": 6.1,
+            "pnl_per_month": 125.0,
+            "worst": -320.2,
+            "tail_n": 2,
+            "mc_p": 0.281
+          }
+        },
+        "n_23": 105,
+        "n_rest": 248,
+        "avg_23": 21.1,
+        "avg_rest": -8.6,
+        "diff": 29.7
+      },
+      "tf5_n48_a60": {
+        "n": 353,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 189,
+            "wr": 48.1,
+            "avg": -10.2,
+            "total": -1928.0,
+            "per_month": 67.6,
+            "pnl_per_month": -689.0,
+            "worst": -538.7,
+            "tail_n": 39,
+            "mc_p": 0.823
+          },
+          "1": {
+            "label": "1",
+            "n": 123,
+            "wr": 58.5,
+            "avg": 8.5,
+            "total": 1048.0,
+            "per_month": 44.0,
+            "pnl_per_month": 375.0,
+            "worst": -406.1,
+            "tail_n": 25,
+            "mc_p": 0.26
+          },
+          "2": {
+            "label": "2",
+            "n": 33,
+            "wr": 66.7,
+            "avg": 20.4,
+            "total": 674.0,
+            "per_month": 11.8,
+            "pnl_per_month": 241.0,
+            "worst": -262.4,
+            "tail_n": 3,
+            "mc_p": 0.141
+          },
+          "3": {
+            "label": "3",
+            "n": 7,
+            "wr": 57.1,
+            "avg": 52.5,
+            "total": 368.0,
+            "per_month": 2.5,
+            "pnl_per_month": 131.0,
+            "worst": -22.7,
+            "tail_n": 0,
+            "mc_p": 0.111
+          },
+          "4+": {
+            "label": "4+",
+            "n": 1,
+            "wr": 0.0,
+            "avg": -65.8,
+            "total": -66.0,
+            "per_month": 0.4,
+            "pnl_per_month": -24.0,
+            "worst": -65.8,
+            "tail_n": 0,
+            "mc_p": null
+          }
+        },
+        "n_23": 40,
+        "n_rest": 313,
+        "avg_23": 26.0,
+        "avg_rest": -3.0,
+        "diff": 29.0
+      },
+      "tf5_n96_a10": {
+        "n": 353,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 12,
+            "wr": 41.7,
+            "avg": -92.2,
+            "total": -1106.0,
+            "per_month": 4.3,
+            "pnl_per_month": -395.0,
+            "worst": -538.7,
+            "tail_n": 3,
+            "mc_p": 0.904
+          },
+          "1": {
+            "label": "1",
+            "n": 23,
+            "wr": 34.8,
+            "avg": -34.5,
+            "total": -794.0,
+            "per_month": 8.2,
+            "pnl_per_month": -284.0,
+            "worst": -274.9,
+            "tail_n": 4,
+            "mc_p": 0.947
+          },
+          "2": {
+            "label": "2",
+            "n": 26,
+            "wr": 65.4,
+            "avg": 26.3,
+            "total": 683.0,
+            "per_month": 9.3,
+            "pnl_per_month": 244.0,
+            "worst": -213.8,
+            "tail_n": 4,
+            "mc_p": 0.113
+          },
+          "3": {
+            "label": "3",
+            "n": 35,
+            "wr": 42.9,
+            "avg": -44.8,
+            "total": -1569.0,
+            "per_month": 12.5,
+            "pnl_per_month": -561.0,
+            "worst": -377.6,
+            "tail_n": 10,
+            "mc_p": 0.971
+          },
+          "4+": {
+            "label": "4+",
+            "n": 257,
+            "wr": 56.0,
+            "avg": 11.2,
+            "total": 2883.0,
+            "per_month": 91.9,
+            "pnl_per_month": 1031.0,
+            "worst": -406.1,
+            "tail_n": 46,
+            "mc_p": 0.103
+          }
+        },
+        "n_23": 61,
+        "n_rest": 292,
+        "avg_23": -14.5,
+        "avg_rest": 3.4,
+        "diff": -17.9
+      },
+      "tf5_n96_a20": {
+        "n": 353,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 23,
+            "wr": 43.5,
+            "avg": -52.4,
+            "total": -1206.0,
+            "per_month": 8.2,
+            "pnl_per_month": -431.0,
+            "worst": -538.7,
+            "tail_n": 4,
+            "mc_p": 0.913
+          },
+          "1": {
+            "label": "1",
+            "n": 35,
+            "wr": 51.4,
+            "avg": -7.2,
+            "total": -252.0,
+            "per_month": 12.5,
+            "pnl_per_month": -90.0,
+            "worst": -319.8,
+            "tail_n": 6,
+            "mc_p": 0.634
+          },
+          "2": {
+            "label": "2",
+            "n": 47,
+            "wr": 44.7,
+            "avg": -25.1,
+            "total": -1181.0,
+            "per_month": 16.8,
+            "pnl_per_month": -422.0,
+            "worst": -377.6,
+            "tail_n": 10,
+            "mc_p": 0.924
+          },
+          "3": {
+            "label": "3",
+            "n": 49,
+            "wr": 49.0,
+            "avg": -15.7,
+            "total": -768.0,
+            "per_month": 17.5,
+            "pnl_per_month": -275.0,
+            "worst": -406.1,
+            "tail_n": 12,
+            "mc_p": 0.745
+          },
+          "4+": {
+            "label": "4+",
+            "n": 199,
+            "wr": 58.3,
+            "avg": 17.6,
+            "total": 3504.0,
+            "per_month": 71.1,
+            "pnl_per_month": 1252.0,
+            "worst": -341.8,
+            "tail_n": 35,
+            "mc_p": 0.035
+          }
+        },
+        "n_23": 96,
+        "n_rest": 257,
+        "avg_23": -20.3,
+        "avg_rest": 8.0,
+        "diff": -28.3
+      },
+      "tf5_n96_a35": {
+        "n": 353,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 36,
+            "wr": 52.8,
+            "avg": -12.7,
+            "total": -456.0,
+            "per_month": 12.9,
+            "pnl_per_month": -163.0,
+            "worst": -538.7,
+            "tail_n": 6,
+            "mc_p": 0.647
+          },
+          "1": {
+            "label": "1",
+            "n": 85,
+            "wr": 47.1,
+            "avg": -16.8,
+            "total": -1431.0,
+            "per_month": 30.4,
+            "pnl_per_month": -512.0,
+            "worst": -377.6,
+            "tail_n": 16,
+            "mc_p": 0.896
+          },
+          "2": {
+            "label": "2",
+            "n": 75,
+            "wr": 50.7,
+            "avg": -24.8,
+            "total": -1858.0,
+            "per_month": 26.8,
+            "pnl_per_month": -664.0,
+            "worst": -406.1,
+            "tail_n": 17,
+            "mc_p": 0.938
+          },
+          "3": {
+            "label": "3",
+            "n": 60,
+            "wr": 53.3,
+            "avg": 10.9,
+            "total": 656.0,
+            "per_month": 21.4,
+            "pnl_per_month": 234.0,
+            "worst": -316.3,
+            "tail_n": 16,
+            "mc_p": 0.285
+          },
+          "4+": {
+            "label": "4+",
+            "n": 97,
+            "wr": 61.9,
+            "avg": 32.8,
+            "total": 3186.0,
+            "per_month": 34.7,
+            "pnl_per_month": 1139.0,
+            "worst": -320.2,
+            "tail_n": 12,
+            "mc_p": 0.013
+          }
+        },
+        "n_23": 135,
+        "n_rest": 218,
+        "avg_23": -8.9,
+        "avg_rest": 6.0,
+        "diff": -14.9
+      },
+      "tf5_n96_a60": {
+        "n": 353,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 94,
+            "wr": 52.1,
+            "avg": -5.3,
+            "total": -503.0,
+            "per_month": 33.6,
+            "pnl_per_month": -180.0,
+            "worst": -538.7,
+            "tail_n": 17,
+            "mc_p": 0.626
+          },
+          "1": {
+            "label": "1",
+            "n": 123,
+            "wr": 50.4,
+            "avg": -10.7,
+            "total": -1322.0,
+            "per_month": 44.0,
+            "pnl_per_month": -473.0,
+            "worst": -342.8,
+            "tail_n": 27,
+            "mc_p": 0.819
+          },
+          "2": {
+            "label": "2",
+            "n": 85,
+            "wr": 54.1,
+            "avg": -3.8,
+            "total": -323.0,
+            "per_month": 30.4,
+            "pnl_per_month": -116.0,
+            "worst": -406.1,
+            "tail_n": 19,
+            "mc_p": 0.589
+          },
+          "3": {
+            "label": "3",
+            "n": 33,
+            "wr": 66.7,
+            "avg": 62.3,
+            "total": 2057.0,
+            "per_month": 11.8,
+            "pnl_per_month": 735.0,
+            "worst": -197.2,
+            "tail_n": 2,
+            "mc_p": 0.003
+          },
+          "4+": {
+            "label": "4+",
+            "n": 18,
+            "wr": 55.6,
+            "avg": 10.4,
+            "total": 187.0,
+            "per_month": 6.4,
+            "pnl_per_month": 67.0,
+            "worst": -262.4,
+            "tail_n": 2,
+            "mc_p": 0.354
+          }
+        },
+        "n_23": 118,
+        "n_rest": 235,
+        "avg_23": 14.7,
+        "avg_rest": -7.0,
+        "diff": 21.7
+      },
+      "tf15_n32_a10": {
+        "n": 358,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 37,
+            "wr": 54.1,
+            "avg": -15.7,
+            "total": -582.0,
+            "per_month": 13.2,
+            "pnl_per_month": -208.0,
+            "worst": -493.9,
+            "tail_n": 7,
+            "mc_p": 0.702
+          },
+          "1": {
+            "label": "1",
+            "n": 53,
+            "wr": 62.3,
+            "avg": 8.4,
+            "total": 445.0,
+            "per_month": 18.9,
+            "pnl_per_month": 159.0,
+            "worst": -538.7,
+            "tail_n": 7,
+            "mc_p": 0.315
+          },
+          "2": {
+            "label": "2",
+            "n": 69,
+            "wr": 36.2,
+            "avg": -24.8,
+            "total": -1714.0,
+            "per_month": 24.7,
+            "pnl_per_month": -613.0,
+            "worst": -328.5,
+            "tail_n": 13,
+            "mc_p": 0.964
+          },
+          "3": {
+            "label": "3",
+            "n": 71,
+            "wr": 52.1,
+            "avg": -11.4,
+            "total": -813.0,
+            "per_month": 25.4,
+            "pnl_per_month": -291.0,
+            "worst": -406.1,
+            "tail_n": 19,
+            "mc_p": 0.735
+          },
+          "4+": {
+            "label": "4+",
+            "n": 128,
+            "wr": 60.2,
+            "avg": 20.9,
+            "total": 2674.0,
+            "per_month": 45.7,
+            "pnl_per_month": 956.0,
+            "worst": -341.8,
+            "tail_n": 22,
+            "mc_p": 0.066
+          }
+        },
+        "n_23": 140,
+        "n_rest": 218,
+        "avg_23": -18.1,
+        "avg_rest": 11.6,
+        "diff": -29.7
+      },
+      "tf15_n32_a20": {
+        "n": 358,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 48,
+            "wr": 56.2,
+            "avg": -1.2,
+            "total": -57.0,
+            "per_month": 17.2,
+            "pnl_per_month": -21.0,
+            "worst": -493.9,
+            "tail_n": 7,
+            "mc_p": 0.501
+          },
+          "1": {
+            "label": "1",
+            "n": 71,
+            "wr": 56.3,
+            "avg": 5.6,
+            "total": 399.0,
+            "per_month": 25.4,
+            "pnl_per_month": 142.0,
+            "worst": -538.7,
+            "tail_n": 9,
+            "mc_p": 0.379
+          },
+          "2": {
+            "label": "2",
+            "n": 94,
+            "wr": 43.6,
+            "avg": -21.4,
+            "total": -2011.0,
+            "per_month": 33.6,
+            "pnl_per_month": -719.0,
+            "worst": -342.8,
+            "tail_n": 21,
+            "mc_p": 0.954
+          },
+          "3": {
+            "label": "3",
+            "n": 79,
+            "wr": 48.1,
+            "avg": -13.5,
+            "total": -1068.0,
+            "per_month": 28.2,
+            "pnl_per_month": -382.0,
+            "worst": -406.1,
+            "tail_n": 23,
+            "mc_p": 0.8
+          },
+          "4+": {
+            "label": "4+",
+            "n": 66,
+            "wr": 69.7,
+            "avg": 41.6,
+            "total": 2748.0,
+            "per_month": 23.6,
+            "pnl_per_month": 982.0,
+            "worst": -328.5,
+            "tail_n": 8,
+            "mc_p": 0.013
+          }
+        },
+        "n_23": 173,
+        "n_rest": 185,
+        "avg_23": -17.8,
+        "avg_rest": 16.7,
+        "diff": -34.5
+      },
+      "tf15_n32_a35": {
+        "n": 358,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 74,
+            "wr": 54.1,
+            "avg": 3.9,
+            "total": 287.0,
+            "per_month": 26.4,
+            "pnl_per_month": 103.0,
+            "worst": -493.9,
+            "tail_n": 11,
+            "mc_p": 0.393
+          },
+          "1": {
+            "label": "1",
+            "n": 124,
+            "wr": 54.0,
+            "avg": -1.8,
+            "total": -220.0,
+            "per_month": 44.3,
+            "pnl_per_month": -79.0,
+            "worst": -538.7,
+            "tail_n": 22,
+            "mc_p": 0.575
+          },
+          "2": {
+            "label": "2",
+            "n": 100,
+            "wr": 45.0,
+            "avg": -15.5,
+            "total": -1547.0,
+            "per_month": 35.7,
+            "pnl_per_month": -553.0,
+            "worst": -342.8,
+            "tail_n": 25,
+            "mc_p": 0.868
+          },
+          "3": {
+            "label": "3",
+            "n": 41,
+            "wr": 63.4,
+            "avg": -0.4,
+            "total": -18.0,
+            "per_month": 14.7,
+            "pnl_per_month": -7.0,
+            "worst": -406.1,
+            "tail_n": 8,
+            "mc_p": 0.495
+          },
+          "4+": {
+            "label": "4+",
+            "n": 19,
+            "wr": 73.7,
+            "avg": 79.4,
+            "total": 1509.0,
+            "per_month": 6.8,
+            "pnl_per_month": 539.0,
+            "worst": -300.9,
+            "tail_n": 2,
+            "mc_p": 0.033
+          }
+        },
+        "n_23": 141,
+        "n_rest": 217,
+        "avg_23": -11.1,
+        "avg_rest": 7.3,
+        "diff": -18.4
+      },
+      "tf15_n32_a60": {
+        "n": 358,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 140,
+            "wr": 50.7,
+            "avg": -5.7,
+            "total": -798.0,
+            "per_month": 50.0,
+            "pnl_per_month": -285.0,
+            "worst": -493.9,
+            "tail_n": 30,
+            "mc_p": 0.667
+          },
+          "1": {
+            "label": "1",
+            "n": 149,
+            "wr": 52.3,
+            "avg": -12.7,
+            "total": -1891.0,
+            "per_month": 53.3,
+            "pnl_per_month": -676.0,
+            "worst": -538.7,
+            "tail_n": 31,
+            "mc_p": 0.886
+          },
+          "2": {
+            "label": "2",
+            "n": 60,
+            "wr": 61.7,
+            "avg": 30.5,
+            "total": 1831.0,
+            "per_month": 21.4,
+            "pnl_per_month": 654.0,
+            "worst": -406.1,
+            "tail_n": 7,
+            "mc_p": 0.047
+          },
+          "3": {
+            "label": "3",
+            "n": 9,
+            "wr": 66.7,
+            "avg": 96.4,
+            "total": 867.0,
+            "per_month": 3.2,
+            "pnl_per_month": 310.0,
+            "worst": -94.8,
+            "tail_n": 0,
+            "mc_p": 0.066
+          }
+        },
+        "n_23": 69,
+        "n_rest": 289,
+        "avg_23": 39.1,
+        "avg_rest": -9.3,
+        "diff": 48.4
+      },
+      "tf15_n64_a10": {
+        "n": 358,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 19,
+            "wr": 63.2,
+            "avg": 21.6,
+            "total": 410.0,
+            "per_month": 6.8,
+            "pnl_per_month": 146.0,
+            "worst": -316.3,
+            "tail_n": 4,
+            "mc_p": 0.249
+          },
+          "1": {
+            "label": "1",
+            "n": 23,
+            "wr": 47.8,
+            "avg": -39.3,
+            "total": -904.0,
+            "per_month": 8.2,
+            "pnl_per_month": -323.0,
+            "worst": -342.8,
+            "tail_n": 5,
+            "mc_p": 0.931
+          },
+          "2": {
+            "label": "2",
+            "n": 24,
+            "wr": 45.8,
+            "avg": -13.5,
+            "total": -325.0,
+            "per_month": 8.6,
+            "pnl_per_month": -116.0,
+            "worst": -323.2,
+            "tail_n": 6,
+            "mc_p": 0.666
+          },
+          "3": {
+            "label": "3",
+            "n": 35,
+            "wr": 51.4,
+            "avg": 18.0,
+            "total": 629.0,
+            "per_month": 12.5,
+            "pnl_per_month": 225.0,
+            "worst": -377.6,
+            "tail_n": 4,
+            "mc_p": 0.199
+          },
+          "4+": {
+            "label": "4+",
+            "n": 257,
+            "wr": 54.5,
+            "avg": 0.8,
+            "total": 200.0,
+            "per_month": 91.9,
+            "pnl_per_month": 72.0,
+            "worst": -538.7,
+            "tail_n": 49,
+            "mc_p": 0.466
+          }
+        },
+        "n_23": 59,
+        "n_rest": 299,
+        "avg_23": 5.2,
+        "avg_rest": -1.0,
+        "diff": 6.2
+      },
+      "tf15_n64_a20": {
+        "n": 358,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 24,
+            "wr": 58.3,
+            "avg": 2.9,
+            "total": 70.0,
+            "per_month": 8.6,
+            "pnl_per_month": 25.0,
+            "worst": -342.8,
+            "tail_n": 5,
+            "mc_p": 0.443
+          },
+          "1": {
+            "label": "1",
+            "n": 27,
+            "wr": 48.1,
+            "avg": -16.7,
+            "total": -450.0,
+            "per_month": 9.7,
+            "pnl_per_month": -161.0,
+            "worst": -305.8,
+            "tail_n": 5,
+            "mc_p": 0.784
+          },
+          "2": {
+            "label": "2",
+            "n": 40,
+            "wr": 55.0,
+            "avg": 15.8,
+            "total": 630.0,
+            "per_month": 14.3,
+            "pnl_per_month": 225.0,
+            "worst": -323.2,
+            "tail_n": 5,
+            "mc_p": 0.217
+          },
+          "3": {
+            "label": "3",
+            "n": 56,
+            "wr": 48.2,
+            "avg": 5.0,
+            "total": 279.0,
+            "per_month": 20.0,
+            "pnl_per_month": 100.0,
+            "worst": -493.9,
+            "tail_n": 10,
+            "mc_p": 0.403
+          },
+          "4+": {
+            "label": "4+",
+            "n": 211,
+            "wr": 55.0,
+            "avg": -2.5,
+            "total": -520.0,
+            "per_month": 75.4,
+            "pnl_per_month": -186.0,
+            "worst": -538.7,
+            "tail_n": 43,
+            "mc_p": 0.614
+          }
+        },
+        "n_23": 96,
+        "n_rest": 262,
+        "avg_23": 9.5,
+        "avg_rest": -3.4,
+        "diff": 12.9
+      },
+      "tf15_n64_a35": {
+        "n": 358,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 31,
+            "wr": 58.1,
+            "avg": 8.3,
+            "total": 258.0,
+            "per_month": 11.1,
+            "pnl_per_month": 92.0,
+            "worst": -342.8,
+            "tail_n": 5,
+            "mc_p": 0.355
+          },
+          "1": {
+            "label": "1",
+            "n": 58,
+            "wr": 55.2,
+            "avg": -4.3,
+            "total": -251.0,
+            "per_month": 20.7,
+            "pnl_per_month": -90.0,
+            "worst": -305.8,
+            "tail_n": 8,
+            "mc_p": 0.619
+          },
+          "2": {
+            "label": "2",
+            "n": 64,
+            "wr": 51.6,
+            "avg": 4.2,
+            "total": 271.0,
+            "per_month": 22.9,
+            "pnl_per_month": 97.0,
+            "worst": -538.7,
+            "tail_n": 15,
+            "mc_p": 0.426
+          },
+          "3": {
+            "label": "3",
+            "n": 71,
+            "wr": 45.1,
+            "avg": -21.4,
+            "total": -1518.0,
+            "per_month": 25.4,
+            "pnl_per_month": -543.0,
+            "worst": -320.2,
+            "tail_n": 16,
+            "mc_p": 0.932
+          },
+          "4+": {
+            "label": "4+",
+            "n": 134,
+            "wr": 57.5,
+            "avg": 9.3,
+            "total": 1251.0,
+            "per_month": 47.9,
+            "pnl_per_month": 447.0,
+            "worst": -406.1,
+            "tail_n": 24,
+            "mc_p": 0.206
+          }
+        },
+        "n_23": 135,
+        "n_rest": 223,
+        "avg_23": -9.2,
+        "avg_rest": 5.6,
+        "diff": -14.8
+      },
+      "tf15_n64_a60": {
+        "n": 358,
+        "buckets": {
+          "0": {
+            "label": "0",
+            "n": 64,
+            "wr": 60.9,
+            "avg": 8.0,
+            "total": 511.0,
+            "per_month": 22.9,
+            "pnl_per_month": 182.0,
+            "worst": -342.8,
+            "tail_n": 9,
+            "mc_p": 0.298
+          },
+          "1": {
+            "label": "1",
+            "n": 95,
+            "wr": 48.4,
+            "avg": -14.1,
+            "total": -1343.0,
+            "per_month": 34.0,
+            "pnl_per_month": -480.0,
+            "worst": -377.6,
+            "tail_n": 22,
+            "mc_p": 0.847
+          },
+          "2": {
+            "label": "2",
+            "n": 87,
+            "wr": 49.4,
+            "avg": -12.8,
+            "total": -1116.0,
+            "per_month": 31.1,
+            "pnl_per_month": -399.0,
+            "worst": -538.7,
+            "tail_n": 19,
+            "mc_p": 0.77
+          },
+          "3": {
+            "label": "3",
+            "n": 58,
+            "wr": 51.7,
+            "avg": 20.9,
+            "total": 1212.0,
+            "per_month": 20.7,
+            "pnl_per_month": 433.0,
+            "worst": -262.4,
+            "tail_n": 8,
+            "mc_p": 0.107
+          },
+          "4+": {
+            "label": "4+",
+            "n": 54,
+            "wr": 63.0,
+            "avg": 13.8,
+            "total": 746.0,
+            "per_month": 19.3,
+            "pnl_per_month": 267.0,
+            "worst": -406.1,
+            "tail_n": 10,
+            "mc_p": 0.26
+          }
+        },
+        "n_23": 145,
+        "n_rest": 213,
+        "avg_23": 0.7,
+        "avg_rest": -0.4,
+        "diff": 1.1
+      }
+    },
+    "test": {
+      "n": 250,
+      "buckets": {
+        "0": {
+          "label": "0",
+          "n": 132,
+          "wr": 59.1,
+          "avg": 21.6,
+          "total": 2852.0,
+          "per_month": 70.8,
+          "pnl_per_month": 1529.0,
+          "worst": -464.5,
+          "tail_n": 14,
+          "mc_p": 0.035
+        },
+        "1": {
+          "label": "1",
+          "n": 84,
+          "wr": 52.4,
+          "avg": -20.6,
+          "total": -1734.0,
+          "per_month": 45.0,
+          "pnl_per_month": -930.0,
+          "worst": -512.1,
+          "tail_n": 21,
+          "mc_p": 0.844
+        },
+        "2": {
+          "label": "2",
+          "n": 23,
+          "wr": 65.2,
+          "avg": 48.8,
+          "total": 1122.0,
+          "per_month": 12.3,
+          "pnl_per_month": 601.0,
+          "worst": -313.6,
+          "tail_n": 4,
+          "mc_p": 0.085
+        },
+        "3": {
+          "label": "3",
+          "n": 9,
+          "wr": 44.4,
+          "avg": -20.0,
+          "total": -180.0,
+          "per_month": 4.8,
+          "pnl_per_month": -97.0,
+          "worst": -208.8,
+          "tail_n": 1,
+          "mc_p": 0.695
+        },
+        "4+": {
+          "label": "4+",
+          "n": 2,
+          "wr": 50.0,
+          "avg": -48.7,
+          "total": -97.0,
+          "per_month": 1.1,
+          "pnl_per_month": -52.0,
+          "worst": -145.9,
+          "tail_n": 1,
+          "mc_p": null
+        }
+      },
+      "n_23": 32,
+      "n_rest": 218,
+      "avg_23": 29.4,
+      "avg_rest": 4.7,
+      "diff": 24.7,
+      "perm_diff": 24.7,
+      "perm_p": 0.203
+    },
+    "train_selected": {
+      "n": 358,
+      "buckets": {
+        "0": {
+          "label": "0",
+          "n": 140,
+          "wr": 50.7,
+          "avg": -5.7,
+          "total": -798.0,
+          "per_month": 50.0,
+          "pnl_per_month": -285.0,
+          "worst": -493.9,
+          "tail_n": 30,
+          "mc_p": 0.667
+        },
+        "1": {
+          "label": "1",
+          "n": 149,
+          "wr": 52.3,
+          "avg": -12.7,
+          "total": -1891.0,
+          "per_month": 53.3,
+          "pnl_per_month": -676.0,
+          "worst": -538.7,
+          "tail_n": 31,
+          "mc_p": 0.886
+        },
+        "2": {
+          "label": "2",
+          "n": 60,
+          "wr": 61.7,
+          "avg": 30.5,
+          "total": 1831.0,
+          "per_month": 21.4,
+          "pnl_per_month": 654.0,
+          "worst": -406.1,
+          "tail_n": 7,
+          "mc_p": 0.047
+        },
+        "3": {
+          "label": "3",
+          "n": 9,
+          "wr": 66.7,
+          "avg": 96.4,
+          "total": 867.0,
+          "per_month": 3.2,
+          "pnl_per_month": 310.0,
+          "worst": -94.8,
+          "tail_n": 0,
+          "mc_p": 0.066
+        }
+      },
+      "n_23": 69,
+      "n_rest": 289,
+      "avg_23": 39.1,
+      "avg_rest": -9.3,
+      "diff": 48.4
+    },
+    "test_holds": {
+      "l1h": {
+        "b23": {
+          "label": "2-3 dips",
+          "n": 32,
+          "wr": 53.1,
+          "avg": -4.0,
+          "total": -128.0,
+          "per_month": 17.2,
+          "pnl_per_month": -68.0,
+          "worst": -241.8,
+          "tail_n": 4,
+          "mc_p": 0.596
+        },
+        "rest": {
+          "label": "rest",
+          "n": 218,
+          "wr": 54.1,
+          "avg": -1.6,
+          "total": -343.0,
+          "per_month": 116.9,
+          "pnl_per_month": -184.0,
+          "worst": -522.0,
+          "tail_n": 19,
+          "mc_p": 0.572
+        }
+      },
+      "l4h": {
+        "b23": {
+          "label": "2-3 dips",
+          "n": 32,
+          "wr": 59.4,
+          "avg": 29.4,
+          "total": 941.0,
+          "per_month": 17.2,
+          "pnl_per_month": 505.0,
+          "worst": -313.6,
+          "tail_n": 5,
+          "mc_p": 0.142
+        },
+        "rest": {
+          "label": "rest",
+          "n": 218,
+          "wr": 56.4,
+          "avg": 4.7,
+          "total": 1021.0,
+          "per_month": 116.9,
+          "pnl_per_month": 547.0,
+          "worst": -512.1,
+          "tail_n": 36,
+          "mc_p": 0.323
+        }
+      },
+      "l6h": {
+        "b23": {
+          "label": "2-3 dips",
+          "n": 32,
+          "wr": 62.5,
+          "avg": 62.8,
+          "total": 2009.0,
+          "per_month": 17.2,
+          "pnl_per_month": 1077.0,
+          "worst": -298.5,
+          "tail_n": 5,
+          "mc_p": 0.014
+        },
+        "rest": {
+          "label": "rest",
+          "n": 218,
+          "wr": 57.3,
+          "avg": 5.2,
+          "total": 1142.0,
+          "per_month": 116.9,
+          "pnl_per_month": 612.0,
+          "worst": -538.6,
+          "tail_n": 40,
+          "mc_p": 0.314
+        }
+      }
+    },
+    "test_core_gated": {
+      "n": 66,
+      "buckets": {
+        "0": {
+          "label": "0",
+          "n": 35,
+          "wr": 74.3,
+          "avg": 55.2,
+          "total": 1934.0,
+          "per_month": 18.8,
+          "pnl_per_month": 1037.0,
+          "worst": -464.5,
+          "tail_n": 2,
+          "mc_p": 0.009
+        },
+        "1": {
+          "label": "1",
+          "n": 19,
+          "wr": 57.9,
+          "avg": 21.0,
+          "total": 399.0,
+          "per_month": 10.2,
+          "pnl_per_month": 214.0,
+          "worst": -338.0,
+          "tail_n": 3,
+          "mc_p": 0.262
+        },
+        "2": {
+          "label": "2",
+          "n": 8,
+          "wr": 75.0,
+          "avg": 55.6,
+          "total": 445.0,
+          "per_month": 4.3,
+          "pnl_per_month": 239.0,
+          "worst": -111.8,
+          "tail_n": 2,
+          "mc_p": 0.175
+        },
+        "3": {
+          "label": "3",
+          "n": 3,
+          "wr": 66.7,
+          "avg": 51.1,
+          "total": 153.0,
+          "per_month": 1.6,
+          "pnl_per_month": 82.0,
+          "worst": -66.6,
+          "tail_n": 0,
+          "mc_p": null
+        },
+        "4+": {
+          "label": "4+",
+          "n": 1,
+          "wr": 100.0,
+          "avg": 48.5,
+          "total": 48.0,
+          "per_month": 0.5,
+          "pnl_per_month": 26.0,
+          "worst": 48.5,
+          "tail_n": 0,
+          "mc_p": null
+        }
+      },
+      "n_23": 11,
+      "n_rest": 55,
+      "avg_23": 54.4,
+      "avg_rest": 43.3,
+      "diff": 11.1,
+      "perm_diff": 11.1,
+      "perm_p": 0.411
+    }
+  }
+}

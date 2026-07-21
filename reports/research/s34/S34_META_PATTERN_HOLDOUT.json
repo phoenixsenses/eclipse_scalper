@@ -1,0 +1,167 @@
+{
+  "generated_at_utc": "2026-06-30T09:52:22.596292+00:00",
+  "status": "RESEARCH_ONLY_NO_LIVE_CHANGE",
+  "split": {
+    "n_total": 2006,
+    "cal_n": 1404,
+    "hold_n": 602,
+    "holdout_frac": 0.3,
+    "cal_start_utc": "2026-02-15T18:32:18Z",
+    "cal_end_utc": "2026-06-08T01:05:38Z",
+    "hold_start_utc": "2026-06-08T01:24:48Z",
+    "hold_end_utc": "2026-06-29T08:28:10Z"
+  },
+  "permutation": {
+    "n_candidates": 6,
+    "n_perm": 1000,
+    "seed": 42,
+    "cal_t3rs": {
+      "k5_CLEAN_NORMAL": 6404.6,
+      "k5_DANGER_REVERSE": 2092.1,
+      "k8_DANGER_REVERSE": -672.2,
+      "k5_CLEAN_k20_DANGER_NORMAL": 2896.0,
+      "danger_count_0_NORMAL": 2854.2,
+      "k5_CLEAN_k8_CLEAN_NORMAL": 3792.1
+    },
+    "real_max_t3r": 6404.6,
+    "best_candidate": "k5_CLEAN_NORMAL",
+    "null_p95": 1261.5,
+    "null_p99": 2020.1,
+    "p_right": 0.0,
+    "mc_verdict": "PASS_MC_CORRECTED (p-right=0.0, best=k5_CLEAN_NORMAL)"
+  },
+  "candidates": [
+    {
+      "name": "k5_CLEAN_NORMAL",
+      "desc": "k5=CLEAN -> NORMAL (buy-fade) direction",
+      "direction": "NORMAL",
+      "insample_t3r": 7876.5,
+      "cal": {
+        "n": 140,
+        "t3r": 6404.6,
+        "sum": 7404.5,
+        "median": 36.0,
+        "win_rate": 0.757,
+        "max_loss": -199.8
+      },
+      "hold": {
+        "n": 84,
+        "t3r": -4563.9,
+        "sum": -3735.9,
+        "median": -23.9,
+        "win_rate": 0.381,
+        "max_loss": -412.4
+      }
+    },
+    {
+      "name": "k5_DANGER_REVERSE",
+      "desc": "k5=DANGER -> REVERSE (counter-DANGER fade) direction",
+      "direction": "REVERSE",
+      "insample_t3r": 7453.9,
+      "cal": {
+        "n": 226,
+        "t3r": 2092.1,
+        "sum": 3205.3,
+        "median": -6.8,
+        "win_rate": 0.465,
+        "max_loss": -685.9
+      },
+      "hold": {
+        "n": 42,
+        "t3r": -1481.4,
+        "sum": -742.8,
+        "median": -29.4,
+        "win_rate": 0.238,
+        "max_loss": -167.3
+      }
+    },
+    {
+      "name": "k8_DANGER_REVERSE",
+      "desc": "k8=DANGER -> REVERSE direction",
+      "direction": "REVERSE",
+      "insample_t3r": 6551.6,
+      "cal": {
+        "n": 392,
+        "t3r": -672.2,
+        "sum": 441.0,
+        "median": -9.1,
+        "win_rate": 0.444,
+        "max_loss": -728.1
+      },
+      "hold": {
+        "n": 80,
+        "t3r": -325.8,
+        "sum": 856.0,
+        "median": -16.7,
+        "win_rate": 0.388,
+        "max_loss": -260.8
+      }
+    },
+    {
+      "name": "k5_CLEAN_k20_DANGER_NORMAL",
+      "desc": "k5=CLEAN, k20=DANGER -> NORMAL (local-clean, broad-danger = reversal setup)",
+      "direction": "NORMAL",
+      "insample_t3r": 3143.4,
+      "cal": {
+        "n": 61,
+        "t3r": 2896.0,
+        "sum": 3744.7,
+        "median": 43.7,
+        "win_rate": 0.77,
+        "max_loss": -179.2
+      },
+      "hold": {
+        "n": 27,
+        "t3r": null,
+        "sum": -1643.3,
+        "median": -23.9,
+        "win_rate": 0.37,
+        "max_loss": -364.0
+      }
+    },
+    {
+      "name": "danger_count_0_NORMAL",
+      "desc": "All {k5,k8,k10}=CLEAN -> NORMAL (consensus clean)",
+      "direction": "NORMAL",
+      "insample_t3r": 2417.9,
+      "cal": {
+        "n": 66,
+        "t3r": 2854.2,
+        "sum": 3809.7,
+        "median": 35.5,
+        "win_rate": 0.773,
+        "max_loss": -167.7
+      },
+      "hold": {
+        "n": 40,
+        "t3r": -2122.7,
+        "sum": -1294.7,
+        "median": -65.2,
+        "win_rate": 0.425,
+        "max_loss": -405.4
+      }
+    },
+    {
+      "name": "k5_CLEAN_k8_CLEAN_NORMAL",
+      "desc": "k5=CLEAN AND k8=CLEAN -> NORMAL (consensus small-scale clean)",
+      "direction": "NORMAL",
+      "insample_t3r": null,
+      "cal": {
+        "n": 85,
+        "t3r": 3792.1,
+        "sum": 4747.6,
+        "median": 35.5,
+        "win_rate": 0.776,
+        "max_loss": -167.7
+      },
+      "hold": {
+        "n": 49,
+        "t3r": -3173.7,
+        "sum": -2345.7,
+        "median": -87.9,
+        "win_rate": 0.388,
+        "max_loss": -412.4
+      }
+    }
+  ]
+}

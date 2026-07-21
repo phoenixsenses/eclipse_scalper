@@ -1,0 +1,1440 @@
+{
+  "generated_at": "2026-06-20T09:15:18.979085+00:00",
+  "symbol": "ETHUSDT",
+  "liq_side": "BUY",
+  "route": {
+    "tp_bps": 60.0,
+    "sl_bps": 40.0,
+    "be_bps": 30.0,
+    "max_horizon_sec": 3600
+  },
+  "split_ts_ms": 1776396694616,
+  "scans": [
+    {
+      "scope": "ALL_200K",
+      "scope_expr": "cluster_notional >= 200000",
+      "scoped_events": 450,
+      "wait_baselines": {
+        "30": {
+          "n": 450,
+          "days": 77,
+          "mean": 8.444722694809931,
+          "median": -8.0,
+          "cum": 3800.125212664469,
+          "wr": 0.45111111111111113,
+          "top3_removed_cum": 3567.6596444986026,
+          "positive_days": 43,
+          "worst_day_cum": -246.48765699768,
+          "exit_counts": {
+            "BE": 117,
+            "SL": 107,
+            "TIME": 41,
+            "TP": 185
+          }
+        },
+        "60": {
+          "n": 450,
+          "days": 77,
+          "mean": 4.4064502198580975,
+          "median": -8.0,
+          "cum": 1982.902598936144,
+          "wr": 0.4177777777777778,
+          "top3_removed_cum": 1776.6779265111736,
+          "positive_days": 37,
+          "worst_day_cum": -211.64711351601366,
+          "exit_counts": {
+            "BE": 110,
+            "SL": 128,
+            "TIME": 43,
+            "TP": 169
+          }
+        },
+        "120": {
+          "n": 450,
+          "days": 77,
+          "mean": -1.6359129631195564,
+          "median": -8.0,
+          "cum": -736.1608334038003,
+          "wr": 0.3688888888888889,
+          "top3_removed_cum": -935.3622857794068,
+          "positive_days": 25,
+          "worst_day_cum": -246.06780672509535,
+          "exit_counts": {
+            "BE": 100,
+            "SL": 160,
+            "TIME": 41,
+            "TP": 149
+          }
+        }
+      },
+      "candidates_scanned": 180,
+      "top_candidates": [
+        {
+          "label": "wait30_ret>=10_mfe>=20_mae>=-40",
+          "wait_sec": 30,
+          "wait_ret_min": 10.0,
+          "early_mfe_min": 20.0,
+          "early_mae_min": -40.0,
+          "train": {
+            "n": 59,
+            "days": 33,
+            "mean": 11.539876906128367,
+            "median": 52.0416334275706,
+            "cum": 680.8527374615736,
+            "wr": 0.5254237288135594,
+            "top3_removed_cum": 455.46418866000363,
+            "positive_days": 20,
+            "worst_day_cum": -107.21222098231513,
+            "exit_counts": {
+              "BE": 7,
+              "SL": 19,
+              "TIME": 3,
+              "TP": 30
+            }
+          },
+          "rank": 1,
+          "test": {
+            "n": 25,
+            "days": 14,
+            "mean": -10.621256884238912,
+            "median": -8.0,
+            "cum": -265.5314221059728,
+            "wr": 0.28,
+            "top3_removed_cum": -434.6440491236838,
+            "positive_days": 6,
+            "worst_day_cum": -144.91103996927217,
+            "exit_counts": {
+              "BE": 6,
+              "SL": 10,
+              "TIME": 3,
+              "TP": 6
+            }
+          },
+          "all": {
+            "n": 84,
+            "days": 47,
+            "mean": 4.944301373280962,
+            "median": -8.0,
+            "cum": 415.3213153556008,
+            "wr": 0.4523809523809524,
+            "top3_removed_cum": 189.93276655403082,
+            "positive_days": 26,
+            "worst_day_cum": -144.91103996927217,
+            "exit_counts": {
+              "BE": 13,
+              "SL": 29,
+              "TIME": 6,
+              "TP": 36
+            }
+          },
+          "real_fill": {
+            "total_rows": 84,
+            "real_fill_rows": 18,
+            "no_fill_rows": 66,
+            "no_fill_rate": 0.7857142857142857,
+            "test": {
+              "n": 14,
+              "days": 8,
+              "mean": 3.2620133611178166,
+              "median": -3.1169336590235663,
+              "cum": 45.66818705564943,
+              "wr": 0.42857142857142855,
+              "top3_removed_cum": -118.629457770708,
+              "positive_days": 5,
+              "worst_day_cum": -54.0145068173233,
+              "exit_counts": {
+                "BE": 4,
+                "SL": 4,
+                "TIME": 1,
+                "TP": 5
+              }
+            }
+          }
+        },
+        {
+          "label": "wait30_ret>=10_mfe>=20_mae>=-25",
+          "wait_sec": 30,
+          "wait_ret_min": 10.0,
+          "early_mfe_min": 20.0,
+          "early_mae_min": -25.0,
+          "train": {
+            "n": 59,
+            "days": 33,
+            "mean": 11.539876906128367,
+            "median": 52.0416334275706,
+            "cum": 680.8527374615736,
+            "wr": 0.5254237288135594,
+            "top3_removed_cum": 455.46418866000363,
+            "positive_days": 20,
+            "worst_day_cum": -107.21222098231513,
+            "exit_counts": {
+              "BE": 7,
+              "SL": 19,
+              "TIME": 3,
+              "TP": 30
+            }
+          },
+          "rank": 2,
+          "test": {
+            "n": 25,
+            "days": 14,
+            "mean": -10.621256884238912,
+            "median": -8.0,
+            "cum": -265.5314221059728,
+            "wr": 0.28,
+            "top3_removed_cum": -434.6440491236838,
+            "positive_days": 6,
+            "worst_day_cum": -144.91103996927217,
+            "exit_counts": {
+              "BE": 6,
+              "SL": 10,
+              "TIME": 3,
+              "TP": 6
+            }
+          },
+          "all": {
+            "n": 84,
+            "days": 47,
+            "mean": 4.944301373280962,
+            "median": -8.0,
+            "cum": 415.3213153556008,
+            "wr": 0.4523809523809524,
+            "top3_removed_cum": 189.93276655403082,
+            "positive_days": 26,
+            "worst_day_cum": -144.91103996927217,
+            "exit_counts": {
+              "BE": 13,
+              "SL": 29,
+              "TIME": 6,
+              "TP": 36
+            }
+          },
+          "real_fill": {
+            "total_rows": 84,
+            "real_fill_rows": 18,
+            "no_fill_rows": 66,
+            "no_fill_rate": 0.7857142857142857,
+            "test": {
+              "n": 14,
+              "days": 8,
+              "mean": 3.2620133611178166,
+              "median": -3.1169336590235663,
+              "cum": 45.66818705564943,
+              "wr": 0.42857142857142855,
+              "top3_removed_cum": -118.629457770708,
+              "positive_days": 5,
+              "worst_day_cum": -54.0145068173233,
+              "exit_counts": {
+                "BE": 4,
+                "SL": 4,
+                "TIME": 1,
+                "TP": 5
+              }
+            }
+          }
+        },
+        {
+          "label": "wait30_ret>=10_mfe>=20_mae>=-15",
+          "wait_sec": 30,
+          "wait_ret_min": 10.0,
+          "early_mfe_min": 20.0,
+          "early_mae_min": -15.0,
+          "train": {
+            "n": 59,
+            "days": 33,
+            "mean": 11.539876906128367,
+            "median": 52.0416334275706,
+            "cum": 680.8527374615736,
+            "wr": 0.5254237288135594,
+            "top3_removed_cum": 455.46418866000363,
+            "positive_days": 20,
+            "worst_day_cum": -107.21222098231513,
+            "exit_counts": {
+              "BE": 7,
+              "SL": 19,
+              "TIME": 3,
+              "TP": 30
+            }
+          },
+          "rank": 3,
+          "test": {
+            "n": 25,
+            "days": 14,
+            "mean": -10.621256884238912,
+            "median": -8.0,
+            "cum": -265.5314221059728,
+            "wr": 0.28,
+            "top3_removed_cum": -434.6440491236838,
+            "positive_days": 6,
+            "worst_day_cum": -144.91103996927217,
+            "exit_counts": {
+              "BE": 6,
+              "SL": 10,
+              "TIME": 3,
+              "TP": 6
+            }
+          },
+          "all": {
+            "n": 84,
+            "days": 47,
+            "mean": 4.944301373280962,
+            "median": -8.0,
+            "cum": 415.3213153556008,
+            "wr": 0.4523809523809524,
+            "top3_removed_cum": 189.93276655403082,
+            "positive_days": 26,
+            "worst_day_cum": -144.91103996927217,
+            "exit_counts": {
+              "BE": 13,
+              "SL": 29,
+              "TIME": 6,
+              "TP": 36
+            }
+          },
+          "real_fill": {
+            "total_rows": 84,
+            "real_fill_rows": 18,
+            "no_fill_rows": 66,
+            "no_fill_rate": 0.7857142857142857,
+            "test": {
+              "n": 14,
+              "days": 8,
+              "mean": 3.2620133611178166,
+              "median": -3.1169336590235663,
+              "cum": 45.66818705564943,
+              "wr": 0.42857142857142855,
+              "top3_removed_cum": -118.629457770708,
+              "positive_days": 5,
+              "worst_day_cum": -54.0145068173233,
+              "exit_counts": {
+                "BE": 4,
+                "SL": 4,
+                "TIME": 1,
+                "TP": 5
+              }
+            }
+          }
+        },
+        {
+          "label": "wait30_ret>=15_mfe>=20_mae>=-40",
+          "wait_sec": 30,
+          "wait_ret_min": 15.0,
+          "early_mfe_min": 20.0,
+          "early_mae_min": -40.0,
+          "train": {
+            "n": 57,
+            "days": 32,
+            "mean": 11.818023261678299,
+            "median": 52.0416334275706,
+            "cum": 673.627325915663,
+            "wr": 0.5263157894736842,
+            "top3_removed_cum": 448.2387771140931,
+            "positive_days": 19,
+            "worst_day_cum": -107.21222098231513,
+            "exit_counts": {
+              "BE": 7,
+              "SL": 18,
+              "TIME": 3,
+              "TP": 29
+            }
+          },
+          "rank": 4,
+          "test": {
+            "n": 23,
+            "days": 14,
+            "mean": -10.849192265477079,
+            "median": -15.895662904133232,
+            "cum": -249.5314221059728,
+            "wr": 0.30434782608695654,
+            "top3_removed_cum": -418.6440491236838,
+            "positive_days": 6,
+            "worst_day_cum": -144.91103996927217,
+            "exit_counts": {
+              "BE": 4,
+              "SL": 10,
+              "TIME": 3,
+              "TP": 6
+            }
+          },
+          "all": {
+            "n": 80,
+            "days": 46,
+            "mean": 5.3011987976211286,
+            "median": -8.0,
+            "cum": 424.0959038096903,
+            "wr": 0.4625,
+            "top3_removed_cum": 198.70735500812032,
+            "positive_days": 25,
+            "worst_day_cum": -144.91103996927217,
+            "exit_counts": {
+              "BE": 11,
+              "SL": 28,
+              "TIME": 6,
+              "TP": 35
+            }
+          },
+          "real_fill": {
+            "total_rows": 80,
+            "real_fill_rows": 16,
+            "no_fill_rows": 64,
+            "no_fill_rate": 0.8,
+            "test": {
+              "n": 12,
+              "days": 8,
+              "mean": 5.48918527277347,
+              "median": 2.5151290029224542,
+              "cum": 65.87022327328164,
+              "wr": 0.5,
+              "top3_removed_cum": -98.4274215530758,
+              "positive_days": 5,
+              "worst_day_cum": -54.0145068173233,
+              "exit_counts": {
+                "BE": 2,
+                "SL": 4,
+                "TIME": 1,
+                "TP": 5
+              }
+            }
+          }
+        },
+        {
+          "label": "wait30_ret>=15_mfe>=20_mae>=-25",
+          "wait_sec": 30,
+          "wait_ret_min": 15.0,
+          "early_mfe_min": 20.0,
+          "early_mae_min": -25.0,
+          "train": {
+            "n": 57,
+            "days": 32,
+            "mean": 11.818023261678299,
+            "median": 52.0416334275706,
+            "cum": 673.627325915663,
+            "wr": 0.5263157894736842,
+            "top3_removed_cum": 448.2387771140931,
+            "positive_days": 19,
+            "worst_day_cum": -107.21222098231513,
+            "exit_counts": {
+              "BE": 7,
+              "SL": 18,
+              "TIME": 3,
+              "TP": 29
+            }
+          },
+          "rank": 5,
+          "test": {
+            "n": 23,
+            "days": 14,
+            "mean": -10.849192265477079,
+            "median": -15.895662904133232,
+            "cum": -249.5314221059728,
+            "wr": 0.30434782608695654,
+            "top3_removed_cum": -418.6440491236838,
+            "positive_days": 6,
+            "worst_day_cum": -144.91103996927217,
+            "exit_counts": {
+              "BE": 4,
+              "SL": 10,
+              "TIME": 3,
+              "TP": 6
+            }
+          },
+          "all": {
+            "n": 80,
+            "days": 46,
+            "mean": 5.3011987976211286,
+            "median": -8.0,
+            "cum": 424.0959038096903,
+            "wr": 0.4625,
+            "top3_removed_cum": 198.70735500812032,
+            "positive_days": 25,
+            "worst_day_cum": -144.91103996927217,
+            "exit_counts": {
+              "BE": 11,
+              "SL": 28,
+              "TIME": 6,
+              "TP": 35
+            }
+          },
+          "real_fill": {
+            "total_rows": 80,
+            "real_fill_rows": 16,
+            "no_fill_rows": 64,
+            "no_fill_rate": 0.8,
+            "test": {
+              "n": 12,
+              "days": 8,
+              "mean": 5.48918527277347,
+              "median": 2.5151290029224542,
+              "cum": 65.87022327328164,
+              "wr": 0.5,
+              "top3_removed_cum": -98.4274215530758,
+              "positive_days": 5,
+              "worst_day_cum": -54.0145068173233,
+              "exit_counts": {
+                "BE": 2,
+                "SL": 4,
+                "TIME": 1,
+                "TP": 5
+              }
+            }
+          }
+        },
+        {
+          "label": "wait30_ret>=15_mfe>=20_mae>=-15",
+          "wait_sec": 30,
+          "wait_ret_min": 15.0,
+          "early_mfe_min": 20.0,
+          "early_mae_min": -15.0,
+          "train": {
+            "n": 57,
+            "days": 32,
+            "mean": 11.818023261678299,
+            "median": 52.0416334275706,
+            "cum": 673.627325915663,
+            "wr": 0.5263157894736842,
+            "top3_removed_cum": 448.2387771140931,
+            "positive_days": 19,
+            "worst_day_cum": -107.21222098231513,
+            "exit_counts": {
+              "BE": 7,
+              "SL": 18,
+              "TIME": 3,
+              "TP": 29
+            }
+          },
+          "rank": 6,
+          "test": {
+            "n": 23,
+            "days": 14,
+            "mean": -10.849192265477079,
+            "median": -15.895662904133232,
+            "cum": -249.5314221059728,
+            "wr": 0.30434782608695654,
+            "top3_removed_cum": -418.6440491236838,
+            "positive_days": 6,
+            "worst_day_cum": -144.91103996927217,
+            "exit_counts": {
+              "BE": 4,
+              "SL": 10,
+              "TIME": 3,
+              "TP": 6
+            }
+          },
+          "all": {
+            "n": 80,
+            "days": 46,
+            "mean": 5.3011987976211286,
+            "median": -8.0,
+            "cum": 424.0959038096903,
+            "wr": 0.4625,
+            "top3_removed_cum": 198.70735500812032,
+            "positive_days": 25,
+            "worst_day_cum": -144.91103996927217,
+            "exit_counts": {
+              "BE": 11,
+              "SL": 28,
+              "TIME": 6,
+              "TP": 35
+            }
+          },
+          "real_fill": {
+            "total_rows": 80,
+            "real_fill_rows": 16,
+            "no_fill_rows": 64,
+            "no_fill_rate": 0.8,
+            "test": {
+              "n": 12,
+              "days": 8,
+              "mean": 5.48918527277347,
+              "median": 2.5151290029224542,
+              "cum": 65.87022327328164,
+              "wr": 0.5,
+              "top3_removed_cum": -98.4274215530758,
+              "positive_days": 5,
+              "worst_day_cum": -54.0145068173233,
+              "exit_counts": {
+                "BE": 2,
+                "SL": 4,
+                "TIME": 1,
+                "TP": 5
+              }
+            }
+          }
+        },
+        {
+          "label": "wait30_ret>=-5_mfe>=20_mae>=-40",
+          "wait_sec": 30,
+          "wait_ret_min": -5.0,
+          "early_mfe_min": 20.0,
+          "early_mae_min": -40.0,
+          "train": {
+            "n": 61,
+            "days": 33,
+            "mean": 10.899225204288092,
+            "median": 22.982662427830594,
+            "cum": 664.8527374615736,
+            "wr": 0.5081967213114754,
+            "top3_removed_cum": 439.46418866000363,
+            "positive_days": 20,
+            "worst_day_cum": -107.21222098231513,
+            "exit_counts": {
+              "BE": 9,
+              "SL": 19,
+              "TIME": 3,
+              "TP": 30
+            }
+          },
+          "rank": 7,
+          "test": {
+            "n": 25,
+            "days": 14,
+            "mean": -10.621256884238912,
+            "median": -8.0,
+            "cum": -265.5314221059728,
+            "wr": 0.28,
+            "top3_removed_cum": -434.6440491236838,
+            "positive_days": 6,
+            "worst_day_cum": -144.91103996927217,
+            "exit_counts": {
+              "BE": 6,
+              "SL": 10,
+              "TIME": 3,
+              "TP": 6
+            }
+          },
+          "all": {
+            "n": 86,
+            "days": 47,
+            "mean": 4.643271108786056,
+            "median": -8.0,
+            "cum": 399.3213153556008,
+            "wr": 0.4418604651162791,
+            "top3_removed_cum": 173.93276655403082,
+            "positive_days": 26,
+            "worst_day_cum": -144.91103996927217,
+            "exit_counts": {
+              "BE": 15,
+              "SL": 29,
+              "TIME": 6,
+              "TP": 36
+            }
+          },
+          "real_fill": {
+            "total_rows": 86,
+            "real_fill_rows": 18,
+            "no_fill_rows": 68,
+            "no_fill_rate": 0.7906976744186046,
+            "test": {
+              "n": 14,
+              "days": 8,
+              "mean": 3.2620133611178166,
+              "median": -3.1169336590235663,
+              "cum": 45.66818705564943,
+              "wr": 0.42857142857142855,
+              "top3_removed_cum": -118.629457770708,
+              "positive_days": 5,
+              "worst_day_cum": -54.0145068173233,
+              "exit_counts": {
+                "BE": 4,
+                "SL": 4,
+                "TIME": 1,
+                "TP": 5
+              }
+            }
+          }
+        },
+        {
+          "label": "wait30_ret>=-5_mfe>=20_mae>=-25",
+          "wait_sec": 30,
+          "wait_ret_min": -5.0,
+          "early_mfe_min": 20.0,
+          "early_mae_min": -25.0,
+          "train": {
+            "n": 61,
+            "days": 33,
+            "mean": 10.899225204288092,
+            "median": 22.982662427830594,
+            "cum": 664.8527374615736,
+            "wr": 0.5081967213114754,
+            "top3_removed_cum": 439.46418866000363,
+            "positive_days": 20,
+            "worst_day_cum": -107.21222098231513,
+            "exit_counts": {
+              "BE": 9,
+              "SL": 19,
+              "TIME": 3,
+              "TP": 30
+            }
+          },
+          "rank": 8,
+          "test": {
+            "n": 25,
+            "days": 14,
+            "mean": -10.621256884238912,
+            "median": -8.0,
+            "cum": -265.5314221059728,
+            "wr": 0.28,
+            "top3_removed_cum": -434.6440491236838,
+            "positive_days": 6,
+            "worst_day_cum": -144.91103996927217,
+            "exit_counts": {
+              "BE": 6,
+              "SL": 10,
+              "TIME": 3,
+              "TP": 6
+            }
+          },
+          "all": {
+            "n": 86,
+            "days": 47,
+            "mean": 4.643271108786056,
+            "median": -8.0,
+            "cum": 399.3213153556008,
+            "wr": 0.4418604651162791,
+            "top3_removed_cum": 173.93276655403082,
+            "positive_days": 26,
+            "worst_day_cum": -144.91103996927217,
+            "exit_counts": {
+              "BE": 15,
+              "SL": 29,
+              "TIME": 6,
+              "TP": 36
+            }
+          },
+          "real_fill": {
+            "total_rows": 86,
+            "real_fill_rows": 18,
+            "no_fill_rows": 68,
+            "no_fill_rate": 0.7906976744186046,
+            "test": {
+              "n": 14,
+              "days": 8,
+              "mean": 3.2620133611178166,
+              "median": -3.1169336590235663,
+              "cum": 45.66818705564943,
+              "wr": 0.42857142857142855,
+              "top3_removed_cum": -118.629457770708,
+              "positive_days": 5,
+              "worst_day_cum": -54.0145068173233,
+              "exit_counts": {
+                "BE": 4,
+                "SL": 4,
+                "TIME": 1,
+                "TP": 5
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "scope": "500K_DAYTREND",
+      "scope_expr": "cluster_notional >= 500000 and day_trend_bps >= 0",
+      "scoped_events": 97,
+      "wait_baselines": {
+        "30": {
+          "n": 97,
+          "days": 38,
+          "mean": 17.27652339390254,
+          "median": 23.87071916626932,
+          "cum": 1675.8227692085463,
+          "wr": 0.5567010309278351,
+          "top3_removed_cum": 1478.0406703971046,
+          "positive_days": 24,
+          "worst_day_cum": -103.41704471614324,
+          "exit_counts": {
+            "BE": 24,
+            "SL": 16,
+            "TIME": 10,
+            "TP": 47
+          }
+        },
+        "60": {
+          "n": 97,
+          "days": 38,
+          "mean": 14.377219649028316,
+          "median": 21.237027483558933,
+          "cum": 1394.5903059557465,
+          "wr": 0.5257731958762887,
+          "top3_removed_cum": 1200.4402135113835,
+          "positive_days": 24,
+          "worst_day_cum": -127.96435728053959,
+          "exit_counts": {
+            "BE": 19,
+            "SL": 21,
+            "TIME": 11,
+            "TP": 46
+          }
+        },
+        "120": {
+          "n": 97,
+          "days": 38,
+          "mean": 8.269355778090794,
+          "median": -8.0,
+          "cum": 802.1275104748071,
+          "wr": 0.4536082474226804,
+          "top3_removed_cum": 614.8310340032675,
+          "positive_days": 20,
+          "worst_day_cum": -104.83573947017297,
+          "exit_counts": {
+            "BE": 23,
+            "SL": 25,
+            "TIME": 8,
+            "TP": 41
+          }
+        }
+      },
+      "candidates_scanned": 165,
+      "top_candidates": [
+        {
+          "label": "wait60_ret>=10_mfe>=15_mae>=-40",
+          "wait_sec": 60,
+          "wait_ret_min": 10.0,
+          "early_mfe_min": 15.0,
+          "early_mae_min": -40.0,
+          "train": {
+            "n": 18,
+            "days": 15,
+            "mean": 10.746372883701287,
+            "median": 52.53154908436901,
+            "cum": 193.43471190662316,
+            "wr": 0.5555555555555556,
+            "top3_removed_cum": 21.498286473379395,
+            "positive_days": 8,
+            "worst_day_cum": -49.59577950336923,
+            "exit_counts": {
+              "BE": 1,
+              "SL": 7,
+              "TP": 10
+            }
+          },
+          "rank": 1,
+          "test": {
+            "n": 21,
+            "days": 11,
+            "mean": 0.2791958588001706,
+            "median": -8.0,
+            "cum": 5.8631130348035825,
+            "wr": 0.42857142857142855,
+            "top3_removed_cum": -170.25866939973236,
+            "positive_days": 6,
+            "worst_day_cum": -84.28552329770265,
+            "exit_counts": {
+              "BE": 3,
+              "SL": 8,
+              "TIME": 2,
+              "TP": 8
+            }
+          },
+          "all": {
+            "n": 39,
+            "days": 26,
+            "mean": 5.110200639523763,
+            "median": -8.0,
+            "cum": 199.29782494142674,
+            "wr": 0.48717948717948717,
+            "top3_removed_cum": 16.763453468809722,
+            "positive_days": 14,
+            "worst_day_cum": -84.28552329770265,
+            "exit_counts": {
+              "BE": 4,
+              "SL": 15,
+              "TIME": 2,
+              "TP": 18
+            }
+          },
+          "real_fill": {
+            "total_rows": 39,
+            "real_fill_rows": 15,
+            "no_fill_rows": 24,
+            "no_fill_rate": 0.6153846153846154,
+            "test": {
+              "n": 14,
+              "days": 9,
+              "mean": 0.5817140696216441,
+              "median": 4.543149562469281,
+              "cum": 8.143996974703017,
+              "wr": 0.5,
+              "top3_removed_cum": -171.33917597323207,
+              "positive_days": 4,
+              "worst_day_cum": -54.17167991135438,
+              "exit_counts": {
+                "BE": 1,
+                "SL": 6,
+                "TIME": 1,
+                "TP": 6
+              }
+            }
+          }
+        },
+        {
+          "label": "wait60_ret>=10_mfe>=15_mae>=-25",
+          "wait_sec": 60,
+          "wait_ret_min": 10.0,
+          "early_mfe_min": 15.0,
+          "early_mae_min": -25.0,
+          "train": {
+            "n": 18,
+            "days": 15,
+            "mean": 10.746372883701287,
+            "median": 52.53154908436901,
+            "cum": 193.43471190662316,
+            "wr": 0.5555555555555556,
+            "top3_removed_cum": 21.498286473379395,
+            "positive_days": 8,
+            "worst_day_cum": -49.59577950336923,
+            "exit_counts": {
+              "BE": 1,
+              "SL": 7,
+              "TP": 10
+            }
+          },
+          "rank": 2,
+          "test": {
+            "n": 21,
+            "days": 11,
+            "mean": 0.2791958588001706,
+            "median": -8.0,
+            "cum": 5.8631130348035825,
+            "wr": 0.42857142857142855,
+            "top3_removed_cum": -170.25866939973236,
+            "positive_days": 6,
+            "worst_day_cum": -84.28552329770265,
+            "exit_counts": {
+              "BE": 3,
+              "SL": 8,
+              "TIME": 2,
+              "TP": 8
+            }
+          },
+          "all": {
+            "n": 39,
+            "days": 26,
+            "mean": 5.110200639523763,
+            "median": -8.0,
+            "cum": 199.29782494142674,
+            "wr": 0.48717948717948717,
+            "top3_removed_cum": 16.763453468809722,
+            "positive_days": 14,
+            "worst_day_cum": -84.28552329770265,
+            "exit_counts": {
+              "BE": 4,
+              "SL": 15,
+              "TIME": 2,
+              "TP": 18
+            }
+          },
+          "real_fill": {
+            "total_rows": 39,
+            "real_fill_rows": 15,
+            "no_fill_rows": 24,
+            "no_fill_rate": 0.6153846153846154,
+            "test": {
+              "n": 14,
+              "days": 9,
+              "mean": 0.5817140696216441,
+              "median": 4.543149562469281,
+              "cum": 8.143996974703017,
+              "wr": 0.5,
+              "top3_removed_cum": -171.33917597323207,
+              "positive_days": 4,
+              "worst_day_cum": -54.17167991135438,
+              "exit_counts": {
+                "BE": 1,
+                "SL": 6,
+                "TIME": 1,
+                "TP": 6
+              }
+            }
+          }
+        },
+        {
+          "label": "wait60_ret>=10_mfe>=15_mae>=-15",
+          "wait_sec": 60,
+          "wait_ret_min": 10.0,
+          "early_mfe_min": 15.0,
+          "early_mae_min": -15.0,
+          "train": {
+            "n": 18,
+            "days": 15,
+            "mean": 10.746372883701287,
+            "median": 52.53154908436901,
+            "cum": 193.43471190662316,
+            "wr": 0.5555555555555556,
+            "top3_removed_cum": 21.498286473379395,
+            "positive_days": 8,
+            "worst_day_cum": -49.59577950336923,
+            "exit_counts": {
+              "BE": 1,
+              "SL": 7,
+              "TP": 10
+            }
+          },
+          "rank": 3,
+          "test": {
+            "n": 21,
+            "days": 11,
+            "mean": 0.2791958588001706,
+            "median": -8.0,
+            "cum": 5.8631130348035825,
+            "wr": 0.42857142857142855,
+            "top3_removed_cum": -170.25866939973236,
+            "positive_days": 6,
+            "worst_day_cum": -84.28552329770265,
+            "exit_counts": {
+              "BE": 3,
+              "SL": 8,
+              "TIME": 2,
+              "TP": 8
+            }
+          },
+          "all": {
+            "n": 39,
+            "days": 26,
+            "mean": 5.110200639523763,
+            "median": -8.0,
+            "cum": 199.29782494142674,
+            "wr": 0.48717948717948717,
+            "top3_removed_cum": 16.763453468809722,
+            "positive_days": 14,
+            "worst_day_cum": -84.28552329770265,
+            "exit_counts": {
+              "BE": 4,
+              "SL": 15,
+              "TIME": 2,
+              "TP": 18
+            }
+          },
+          "real_fill": {
+            "total_rows": 39,
+            "real_fill_rows": 15,
+            "no_fill_rows": 24,
+            "no_fill_rate": 0.6153846153846154,
+            "test": {
+              "n": 14,
+              "days": 9,
+              "mean": 0.5817140696216441,
+              "median": 4.543149562469281,
+              "cum": 8.143996974703017,
+              "wr": 0.5,
+              "top3_removed_cum": -171.33917597323207,
+              "positive_days": 4,
+              "worst_day_cum": -54.17167991135438,
+              "exit_counts": {
+                "BE": 1,
+                "SL": 6,
+                "TIME": 1,
+                "TP": 6
+              }
+            }
+          }
+        },
+        {
+          "label": "wait60_ret>=15_mfe>=0_mae>=-40",
+          "wait_sec": 60,
+          "wait_ret_min": 15.0,
+          "early_mfe_min": 0.0,
+          "early_mae_min": -40.0,
+          "train": {
+            "n": 16,
+            "days": 13,
+            "mean": 11.759278623772328,
+            "median": 52.53154908436901,
+            "cum": 188.14845798035725,
+            "wr": 0.5625,
+            "top3_removed_cum": 16.212032547113495,
+            "positive_days": 7,
+            "worst_day_cum": -49.59577950336923,
+            "exit_counts": {
+              "BE": 1,
+              "SL": 6,
+              "TP": 9
+            }
+          },
+          "rank": 4,
+          "test": {
+            "n": 20,
+            "days": 10,
+            "mean": -2.336092063363367,
+            "median": -8.0,
+            "cum": -46.72184126726734,
+            "wr": 0.4,
+            "top3_removed_cum": -222.8436237018033,
+            "positive_days": 5,
+            "worst_day_cum": -84.28552329770265,
+            "exit_counts": {
+              "BE": 3,
+              "SL": 8,
+              "TIME": 2,
+              "TP": 7
+            }
+          },
+          "all": {
+            "n": 36,
+            "days": 23,
+            "mean": 3.928517130919164,
+            "median": -8.0,
+            "cum": 141.4266167130899,
+            "wr": 0.4722222222222222,
+            "top3_removed_cum": -41.1077547595271,
+            "positive_days": 12,
+            "worst_day_cum": -84.28552329770265,
+            "exit_counts": {
+              "BE": 4,
+              "SL": 14,
+              "TIME": 2,
+              "TP": 16
+            }
+          },
+          "real_fill": {
+            "total_rows": 36,
+            "real_fill_rows": 13,
+            "no_fill_rows": 23,
+            "no_fill_rate": 0.6388888888888888,
+            "test": {
+              "n": 13,
+              "days": 8,
+              "mean": -4.0212632241605215,
+              "median": -8.390206659797732,
+              "cum": -52.27642191408678,
+              "wr": 0.46153846153846156,
+              "top3_removed_cum": -226.1280411820205,
+              "positive_days": 3,
+              "worst_day_cum": -54.17167991135438,
+              "exit_counts": {
+                "BE": 1,
+                "SL": 6,
+                "TIME": 1,
+                "TP": 5
+              }
+            }
+          }
+        },
+        {
+          "label": "wait60_ret>=15_mfe>=0_mae>=-25",
+          "wait_sec": 60,
+          "wait_ret_min": 15.0,
+          "early_mfe_min": 0.0,
+          "early_mae_min": -25.0,
+          "train": {
+            "n": 16,
+            "days": 13,
+            "mean": 11.759278623772328,
+            "median": 52.53154908436901,
+            "cum": 188.14845798035725,
+            "wr": 0.5625,
+            "top3_removed_cum": 16.212032547113495,
+            "positive_days": 7,
+            "worst_day_cum": -49.59577950336923,
+            "exit_counts": {
+              "BE": 1,
+              "SL": 6,
+              "TP": 9
+            }
+          },
+          "rank": 5,
+          "test": {
+            "n": 20,
+            "days": 10,
+            "mean": -2.336092063363367,
+            "median": -8.0,
+            "cum": -46.72184126726734,
+            "wr": 0.4,
+            "top3_removed_cum": -222.8436237018033,
+            "positive_days": 5,
+            "worst_day_cum": -84.28552329770265,
+            "exit_counts": {
+              "BE": 3,
+              "SL": 8,
+              "TIME": 2,
+              "TP": 7
+            }
+          },
+          "all": {
+            "n": 36,
+            "days": 23,
+            "mean": 3.928517130919164,
+            "median": -8.0,
+            "cum": 141.4266167130899,
+            "wr": 0.4722222222222222,
+            "top3_removed_cum": -41.1077547595271,
+            "positive_days": 12,
+            "worst_day_cum": -84.28552329770265,
+            "exit_counts": {
+              "BE": 4,
+              "SL": 14,
+              "TIME": 2,
+              "TP": 16
+            }
+          },
+          "real_fill": {
+            "total_rows": 36,
+            "real_fill_rows": 13,
+            "no_fill_rows": 23,
+            "no_fill_rate": 0.6388888888888888,
+            "test": {
+              "n": 13,
+              "days": 8,
+              "mean": -4.0212632241605215,
+              "median": -8.390206659797732,
+              "cum": -52.27642191408678,
+              "wr": 0.46153846153846156,
+              "top3_removed_cum": -226.1280411820205,
+              "positive_days": 3,
+              "worst_day_cum": -54.17167991135438,
+              "exit_counts": {
+                "BE": 1,
+                "SL": 6,
+                "TIME": 1,
+                "TP": 5
+              }
+            }
+          }
+        },
+        {
+          "label": "wait60_ret>=15_mfe>=0_mae>=-15",
+          "wait_sec": 60,
+          "wait_ret_min": 15.0,
+          "early_mfe_min": 0.0,
+          "early_mae_min": -15.0,
+          "train": {
+            "n": 16,
+            "days": 13,
+            "mean": 11.759278623772328,
+            "median": 52.53154908436901,
+            "cum": 188.14845798035725,
+            "wr": 0.5625,
+            "top3_removed_cum": 16.212032547113495,
+            "positive_days": 7,
+            "worst_day_cum": -49.59577950336923,
+            "exit_counts": {
+              "BE": 1,
+              "SL": 6,
+              "TP": 9
+            }
+          },
+          "rank": 6,
+          "test": {
+            "n": 20,
+            "days": 10,
+            "mean": -2.336092063363367,
+            "median": -8.0,
+            "cum": -46.72184126726734,
+            "wr": 0.4,
+            "top3_removed_cum": -222.8436237018033,
+            "positive_days": 5,
+            "worst_day_cum": -84.28552329770265,
+            "exit_counts": {
+              "BE": 3,
+              "SL": 8,
+              "TIME": 2,
+              "TP": 7
+            }
+          },
+          "all": {
+            "n": 36,
+            "days": 23,
+            "mean": 3.928517130919164,
+            "median": -8.0,
+            "cum": 141.4266167130899,
+            "wr": 0.4722222222222222,
+            "top3_removed_cum": -41.1077547595271,
+            "positive_days": 12,
+            "worst_day_cum": -84.28552329770265,
+            "exit_counts": {
+              "BE": 4,
+              "SL": 14,
+              "TIME": 2,
+              "TP": 16
+            }
+          },
+          "real_fill": {
+            "total_rows": 36,
+            "real_fill_rows": 13,
+            "no_fill_rows": 23,
+            "no_fill_rate": 0.6388888888888888,
+            "test": {
+              "n": 13,
+              "days": 8,
+              "mean": -4.0212632241605215,
+              "median": -8.390206659797732,
+              "cum": -52.27642191408678,
+              "wr": 0.46153846153846156,
+              "top3_removed_cum": -226.1280411820205,
+              "positive_days": 3,
+              "worst_day_cum": -54.17167991135438,
+              "exit_counts": {
+                "BE": 1,
+                "SL": 6,
+                "TIME": 1,
+                "TP": 5
+              }
+            }
+          }
+        },
+        {
+          "label": "wait60_ret>=15_mfe>=10_mae>=-40",
+          "wait_sec": 60,
+          "wait_ret_min": 15.0,
+          "early_mfe_min": 10.0,
+          "early_mae_min": -40.0,
+          "train": {
+            "n": 16,
+            "days": 13,
+            "mean": 11.759278623772328,
+            "median": 52.53154908436901,
+            "cum": 188.14845798035725,
+            "wr": 0.5625,
+            "top3_removed_cum": 16.212032547113495,
+            "positive_days": 7,
+            "worst_day_cum": -49.59577950336923,
+            "exit_counts": {
+              "BE": 1,
+              "SL": 6,
+              "TP": 9
+            }
+          },
+          "rank": 7,
+          "test": {
+            "n": 20,
+            "days": 10,
+            "mean": -2.336092063363367,
+            "median": -8.0,
+            "cum": -46.72184126726734,
+            "wr": 0.4,
+            "top3_removed_cum": -222.8436237018033,
+            "positive_days": 5,
+            "worst_day_cum": -84.28552329770265,
+            "exit_counts": {
+              "BE": 3,
+              "SL": 8,
+              "TIME": 2,
+              "TP": 7
+            }
+          },
+          "all": {
+            "n": 36,
+            "days": 23,
+            "mean": 3.928517130919164,
+            "median": -8.0,
+            "cum": 141.4266167130899,
+            "wr": 0.4722222222222222,
+            "top3_removed_cum": -41.1077547595271,
+            "positive_days": 12,
+            "worst_day_cum": -84.28552329770265,
+            "exit_counts": {
+              "BE": 4,
+              "SL": 14,
+              "TIME": 2,
+              "TP": 16
+            }
+          },
+          "real_fill": {
+            "total_rows": 36,
+            "real_fill_rows": 13,
+            "no_fill_rows": 23,
+            "no_fill_rate": 0.6388888888888888,
+            "test": {
+              "n": 13,
+              "days": 8,
+              "mean": -4.0212632241605215,
+              "median": -8.390206659797732,
+              "cum": -52.27642191408678,
+              "wr": 0.46153846153846156,
+              "top3_removed_cum": -226.1280411820205,
+              "positive_days": 3,
+              "worst_day_cum": -54.17167991135438,
+              "exit_counts": {
+                "BE": 1,
+                "SL": 6,
+                "TIME": 1,
+                "TP": 5
+              }
+            }
+          }
+        },
+        {
+          "label": "wait60_ret>=15_mfe>=10_mae>=-25",
+          "wait_sec": 60,
+          "wait_ret_min": 15.0,
+          "early_mfe_min": 10.0,
+          "early_mae_min": -25.0,
+          "train": {
+            "n": 16,
+            "days": 13,
+            "mean": 11.759278623772328,
+            "median": 52.53154908436901,
+            "cum": 188.14845798035725,
+            "wr": 0.5625,
+            "top3_removed_cum": 16.212032547113495,
+            "positive_days": 7,
+            "worst_day_cum": -49.59577950336923,
+            "exit_counts": {
+              "BE": 1,
+              "SL": 6,
+              "TP": 9
+            }
+          },
+          "rank": 8,
+          "test": {
+            "n": 20,
+            "days": 10,
+            "mean": -2.336092063363367,
+            "median": -8.0,
+            "cum": -46.72184126726734,
+            "wr": 0.4,
+            "top3_removed_cum": -222.8436237018033,
+            "positive_days": 5,
+            "worst_day_cum": -84.28552329770265,
+            "exit_counts": {
+              "BE": 3,
+              "SL": 8,
+              "TIME": 2,
+              "TP": 7
+            }
+          },
+          "all": {
+            "n": 36,
+            "days": 23,
+            "mean": 3.928517130919164,
+            "median": -8.0,
+            "cum": 141.4266167130899,
+            "wr": 0.4722222222222222,
+            "top3_removed_cum": -41.1077547595271,
+            "positive_days": 12,
+            "worst_day_cum": -84.28552329770265,
+            "exit_counts": {
+              "BE": 4,
+              "SL": 14,
+              "TIME": 2,
+              "TP": 16
+            }
+          },
+          "real_fill": {
+            "total_rows": 36,
+            "real_fill_rows": 13,
+            "no_fill_rows": 23,
+            "no_fill_rate": 0.6388888888888888,
+            "test": {
+              "n": 13,
+              "days": 8,
+              "mean": -4.0212632241605215,
+              "median": -8.390206659797732,
+              "cum": -52.27642191408678,
+              "wr": 0.46153846153846156,
+              "top3_removed_cum": -226.1280411820205,
+              "positive_days": 3,
+              "worst_day_cum": -54.17167991135438,
+              "exit_counts": {
+                "BE": 1,
+                "SL": 6,
+                "TIME": 1,
+                "TP": 5
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

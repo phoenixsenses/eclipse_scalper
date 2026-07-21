@@ -1,0 +1,354 @@
+{
+  "rows": [
+    {
+      "trade_id": "P187",
+      "rule": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+      "symbol": "ETHUSDT",
+      "live": {
+        "entry_ts_utc": "2026-06-16T12:15:47+00:00",
+        "exit_ts_utc": "2026-06-16T12:31:15.005000+00:00",
+        "exit_reason": "TP",
+        "entry_price": 1813.98,
+        "exit_price": 1824.95,
+        "gross_bps": 60.28705769112468,
+        "net_bps": 52.469372573822916
+      },
+      "replay": {
+        "entry_ts_utc": "2026-06-16T12:15:47+00:00",
+        "exit_ts_utc": "2026-06-16T12:31:15.005000+00:00",
+        "exit_reason": "TP",
+        "entry_price": 1813.98,
+        "exit_price": 1824.95,
+        "gross_bps": 60.28705769112468,
+        "net_bps": 52.469372573822916
+      },
+      "diffs": {
+        "exit_ts_ms": null,
+        "exit_reason": null,
+        "entry_price_diff": 0.0,
+        "exit_price_diff": 0.0,
+        "gross_bps_diff": 0.0,
+        "net_bps_diff": 0.0,
+        "entry_adverse_diff": 0.0,
+        "exit_adverse_diff": 0.0
+      },
+      "ok": true,
+      "reasons": []
+    },
+    {
+      "trade_id": "P188",
+      "rule": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "symbol": "ETHUSDT",
+      "live": {
+        "entry_ts_utc": "2026-06-16T12:15:47+00:00",
+        "exit_ts_utc": "2026-06-16T12:33:48+00:00",
+        "exit_reason": "TP",
+        "entry_price": 1813.98,
+        "exit_price": 1838.24,
+        "gross_bps": 129.52908843318428,
+        "net_bps": 125.72716304839923
+      },
+      "replay": {
+        "entry_ts_utc": "2026-06-16T12:15:47+00:00",
+        "exit_ts_utc": "2026-06-16T12:33:48+00:00",
+        "exit_reason": "TP",
+        "entry_price": 1813.98,
+        "exit_price": 1838.24,
+        "gross_bps": 129.52908843318428,
+        "net_bps": 125.72716304839923
+      },
+      "diffs": {
+        "exit_ts_ms": null,
+        "exit_reason": null,
+        "entry_price_diff": 0.0,
+        "exit_price_diff": 0.0,
+        "gross_bps_diff": 0.0,
+        "net_bps_diff": 0.0,
+        "entry_adverse_diff": 0.0,
+        "exit_adverse_diff": 0.0
+      },
+      "ok": true,
+      "reasons": []
+    },
+    {
+      "trade_id": "P189",
+      "rule": "ETH_BUY_LIQ_LONG_200K_BTC_PRE15_TP120_SL40_BE30_DELAY60",
+      "symbol": "ETHUSDT",
+      "live": {
+        "entry_ts_utc": "2026-06-16T12:17:34+00:00",
+        "exit_ts_utc": "2026-06-16T12:40:38.007000+00:00",
+        "exit_reason": "BE",
+        "entry_price": 1819.37,
+        "exit_price": 1817.42,
+        "gross_bps": -3.7276380484425107,
+        "net_bps": -18.717406717339763
+      },
+      "replay": {
+        "entry_ts_utc": "2026-06-16T12:17:34+00:00",
+        "exit_ts_utc": "2026-06-16T12:40:38.007000+00:00",
+        "exit_reason": "BE",
+        "entry_price": 1819.37,
+        "exit_price": 1817.42,
+        "gross_bps": -3.7276380484425107,
+        "net_bps": -18.717406717339763
+      },
+      "diffs": {
+        "exit_ts_ms": null,
+        "exit_reason": null,
+        "entry_price_diff": 0.0,
+        "exit_price_diff": 0.0,
+        "gross_bps_diff": 0.0,
+        "net_bps_diff": 0.0,
+        "entry_adverse_diff": 0.0,
+        "exit_adverse_diff": 0.0
+      },
+      "ok": true,
+      "reasons": []
+    },
+    {
+      "trade_id": "P191",
+      "rule": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+      "symbol": "ETHUSDT",
+      "live": {
+        "entry_ts_utc": "2026-06-16T12:30:55.004000+00:00",
+        "exit_ts_utc": "2026-06-16T12:33:30.005000+00:00",
+        "exit_reason": "TP",
+        "entry_price": 1821.85,
+        "exit_price": 1832.39,
+        "gross_bps": 60.44037482913649,
+        "net_bps": 49.860268001735754
+      },
+      "replay": {
+        "entry_ts_utc": "2026-06-16T12:30:55.004000+00:00",
+        "exit_ts_utc": "2026-06-16T12:33:30.005000+00:00",
+        "exit_reason": "TP",
+        "entry_price": 1821.85,
+        "exit_price": 1832.39,
+        "gross_bps": 60.44037482913649,
+        "net_bps": 49.860268001735754
+      },
+      "diffs": {
+        "exit_ts_ms": null,
+        "exit_reason": null,
+        "entry_price_diff": 0.0,
+        "exit_price_diff": 0.0,
+        "gross_bps_diff": 0.0,
+        "net_bps_diff": 0.0,
+        "entry_adverse_diff": 0.0,
+        "exit_adverse_diff": 0.0
+      },
+      "ok": true,
+      "reasons": []
+    },
+    {
+      "trade_id": "P192",
+      "rule": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+      "symbol": "ETHUSDT",
+      "live": {
+        "entry_ts_utc": "2026-06-16T12:30:55.004000+00:00",
+        "exit_ts_utc": "2026-06-16T12:33:30.005000+00:00",
+        "exit_reason": "TP",
+        "entry_price": 1821.85,
+        "exit_price": 1832.39,
+        "gross_bps": 60.44037482913649,
+        "net_bps": 49.860268001735754
+      },
+      "replay": {
+        "entry_ts_utc": "2026-06-16T12:30:55.004000+00:00",
+        "exit_ts_utc": "2026-06-16T12:33:30.005000+00:00",
+        "exit_reason": "TP",
+        "entry_price": 1821.85,
+        "exit_price": 1832.39,
+        "gross_bps": 60.44037482913649,
+        "net_bps": 49.860268001735754
+      },
+      "diffs": {
+        "exit_ts_ms": null,
+        "exit_reason": null,
+        "entry_price_diff": 0.0,
+        "exit_price_diff": 0.0,
+        "gross_bps_diff": 0.0,
+        "net_bps_diff": 0.0,
+        "entry_adverse_diff": 0.0,
+        "exit_adverse_diff": 0.0
+      },
+      "ok": true,
+      "reasons": []
+    },
+    {
+      "trade_id": "P206",
+      "rule": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+      "symbol": "ETHUSDT",
+      "live": {
+        "entry_ts_utc": "2026-06-16T18:01:57+00:00",
+        "exit_ts_utc": "2026-06-16T18:03:43.006000+00:00",
+        "exit_reason": "TP",
+        "entry_price": 1795.94,
+        "exit_price": 1806.24,
+        "gross_bps": 60.63576684076258,
+        "net_bps": 49.35158190139956
+      },
+      "replay": {
+        "entry_ts_utc": "2026-06-16T18:01:57+00:00",
+        "exit_ts_utc": "2026-06-16T18:03:43.006000+00:00",
+        "exit_reason": "TP",
+        "entry_price": 1795.94,
+        "exit_price": 1806.24,
+        "gross_bps": 60.63576684076258,
+        "net_bps": 49.35158190139956
+      },
+      "diffs": {
+        "exit_ts_ms": null,
+        "exit_reason": null,
+        "entry_price_diff": 0.0,
+        "exit_price_diff": 0.0,
+        "gross_bps_diff": 0.0,
+        "net_bps_diff": 0.0,
+        "entry_adverse_diff": 0.0,
+        "exit_adverse_diff": 0.0
+      },
+      "ok": true,
+      "reasons": []
+    },
+    {
+      "trade_id": "P217",
+      "rule": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+      "symbol": "ETHUSDT",
+      "live": {
+        "entry_ts_utc": "2026-06-17T02:23:20.003000+00:00",
+        "exit_ts_utc": "2026-06-17T02:34:16.001000+00:00",
+        "exit_reason": "SL",
+        "entry_price": 1803.91,
+        "exit_price": 1796.54,
+        "gross_bps": -40.100011653275246,
+        "net_bps": -48.84834355232683
+      },
+      "replay": {
+        "entry_ts_utc": "2026-06-17T02:23:20.003000+00:00",
+        "exit_ts_utc": "2026-06-17T02:34:16.001000+00:00",
+        "exit_reason": "SL",
+        "entry_price": 1803.91,
+        "exit_price": 1796.54,
+        "gross_bps": -40.100011653275246,
+        "net_bps": -48.84834355232683
+      },
+      "diffs": {
+        "exit_ts_ms": null,
+        "exit_reason": null,
+        "entry_price_diff": 0.0,
+        "exit_price_diff": 0.0,
+        "gross_bps_diff": 0.0,
+        "net_bps_diff": 0.0,
+        "entry_adverse_diff": 0.0,
+        "exit_adverse_diff": 0.0
+      },
+      "ok": true,
+      "reasons": []
+    },
+    {
+      "trade_id": "P326",
+      "rule": "SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+      "symbol": "SOLUSDT",
+      "live": {
+        "entry_ts_utc": "2026-06-20T04:50:01.005000+00:00",
+        "exit_ts_utc": "2026-06-20T05:07:36.003000+00:00",
+        "exit_reason": "TP",
+        "entry_price": 70.92,
+        "exit_price": 71.31,
+        "gross_bps": 62.05048653222363,
+        "net_bps": 46.999294880834945
+      },
+      "replay": {
+        "entry_ts_utc": "2026-06-20T04:50:01.005000+00:00",
+        "exit_ts_utc": "2026-06-20T05:07:36.003000+00:00",
+        "exit_reason": "TP",
+        "entry_price": 70.92,
+        "exit_price": 71.31,
+        "gross_bps": 62.05048653222363,
+        "net_bps": 46.999294880834945
+      },
+      "diffs": {
+        "exit_ts_ms": null,
+        "exit_reason": null,
+        "entry_price_diff": 0.0,
+        "exit_price_diff": 0.0,
+        "gross_bps_diff": 0.0,
+        "net_bps_diff": 0.0,
+        "entry_adverse_diff": 0.0,
+        "exit_adverse_diff": 0.0
+      },
+      "ok": true,
+      "reasons": []
+    },
+    {
+      "trade_id": "P328",
+      "rule": "SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+      "symbol": "SOLUSDT",
+      "live": {
+        "entry_ts_utc": "2026-06-20T05:08:50.001000+00:00",
+        "exit_ts_utc": "2026-06-20T05:10:15+00:00",
+        "exit_reason": "TP",
+        "entry_price": 71.44,
+        "exit_price": 72.05,
+        "gross_bps": 77.75102380952292,
+        "net_bps": 77.4341736694677
+      },
+      "replay": {
+        "entry_ts_utc": "2026-06-20T05:08:50.001000+00:00",
+        "exit_ts_utc": "2026-06-20T05:10:15+00:00",
+        "exit_reason": "TP",
+        "entry_price": 71.44,
+        "exit_price": 72.05,
+        "gross_bps": 77.75102380952292,
+        "net_bps": 77.4341736694677
+      },
+      "diffs": {
+        "exit_ts_ms": null,
+        "exit_reason": null,
+        "entry_price_diff": 0.0,
+        "exit_price_diff": 0.0,
+        "gross_bps_diff": 0.0,
+        "net_bps_diff": 0.0,
+        "entry_adverse_diff": 0.0,
+        "exit_adverse_diff": 0.0
+      },
+      "ok": true,
+      "reasons": []
+    },
+    {
+      "trade_id": "P330",
+      "rule": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+      "symbol": "ETHUSDT",
+      "live": {
+        "entry_ts_utc": "2026-06-20T05:10:05.001000+00:00",
+        "exit_ts_utc": "2026-06-20T05:10:16+00:00",
+        "exit_reason": "TP",
+        "entry_price": 1717.62,
+        "exit_price": 1731.48,
+        "gross_bps": 65.50518933175,
+        "net_bps": 72.69305201383382
+      },
+      "replay": {
+        "entry_ts_utc": "2026-06-20T05:10:05.001000+00:00",
+        "exit_ts_utc": "2026-06-20T05:10:16+00:00",
+        "exit_reason": "TP",
+        "entry_price": 1717.62,
+        "exit_price": 1731.48,
+        "gross_bps": 65.50518933175,
+        "net_bps": 72.69305201383382
+      },
+      "diffs": {
+        "exit_ts_ms": null,
+        "exit_reason": null,
+        "entry_price_diff": 0.0,
+        "exit_price_diff": 0.0,
+        "gross_bps_diff": 0.0,
+        "net_bps_diff": 0.0,
+        "entry_adverse_diff": 0.0,
+        "exit_adverse_diff": 0.0
+      },
+      "ok": true,
+      "reasons": []
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "updated_at_utc": "2026-07-21T08:13:24.327034+00:00",
+  "paper_only": true,
+  "new_signals": 0,
+  "new_trades": 0,
+  "skipped_trades": 0,
+  "total_trades": 0,
+  "open_trades": 0,
+  "closed_trades": 0,
+  "risk_skipped_trades": 0,
+  "cursor_ts_ms": 1784621548270,
+  "cursor_ts_utc": "2026-07-21T08:12:28.270000+00:00",
+  "min_gap_semantics": "persistent-v2",
+  "events_jsonl": "logs\\s34_shadow_paper_events.jsonl",
+  "trades_json": "reports\\research\\s34\\S34_SHADOW_PAPER_TRADES.json",
+  "journal_csv": "reports\\research\\s34\\S34_SHADOW_PAPER_JOURNAL.csv",
+  "daily_report_md": "reports\\research\\s34\\S34_DAILY_EXECUTION_REPORT.md",
+  "intelligence_db": "data/s34_intelligence.db",
+  "risk_config": {
+    "simulated_equity_usdt": 100.0,
+    "leverage": 10.0,
+    "risk_per_trade_pct": 0.25,
+    "max_open_trades": 1,
+    "daily_max_loss_pct": 1.0,
+    "daily_max_sl": 3,
+    "cooldown_after_consecutive_sl": 2,
+    "cooldown_hours": 6.0,
+    "max_mark_staleness_sec": 30
+  },
+  "regime_config": {
+    "enabled": true,
+    "min_trend_pct": 1.0,
+    "min_range_pct": 2.5,
+    "min_buy_liq_notional": 5000000.0,
+    "min_agg_trade_count": 250000
+  },
+  "fill_model": {
+    "entry": "taker_executable_side",
+    "sl_be_time_exit": "taker_executable_side",
+    "tp_fill_mode": "taker",
+    "taker_fee_bps": 4.0,
+    "maker_fee_bps": 2.0,
+    "modeled_spread_bps": 0.0,
+    "max_book_staleness_sec": 5,
+    "require_book_ticker_fill": true,
+    "cost_identity": "net=gross-entry_adverse-exit_adverse-spread-fee"
+  }
+}

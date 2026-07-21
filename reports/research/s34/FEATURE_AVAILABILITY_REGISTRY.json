@@ -1,0 +1,185 @@
+{
+  "violation_count": 11,
+  "rows": [
+    {
+      "feature_name": "liq_total_notional",
+      "source_table": "runner_signal",
+      "definition": "running cumulative notional up to threshold-cross",
+      "class": "RUNNING_CLUSTER",
+      "knowable_at_rule": "signal.ts_ms",
+      "used_at_ts": "entry_ts_ms",
+      "consumed_by_entry": true,
+      "violation": false
+    },
+    {
+      "feature_name": "liq_count",
+      "source_table": "runner_signal",
+      "definition": "running liquidation count up to threshold-cross",
+      "class": "RUNNING_CLUSTER",
+      "knowable_at_rule": "signal.ts_ms",
+      "used_at_ts": "entry_ts_ms",
+      "consumed_by_entry": true,
+      "violation": false
+    },
+    {
+      "feature_name": "liq_max_notional",
+      "source_table": "runner_signal",
+      "definition": "running max single liquidation up to threshold-cross",
+      "class": "RUNNING_CLUSTER",
+      "knowable_at_rule": "signal.ts_ms",
+      "used_at_ts": "entry_ts_ms",
+      "consumed_by_entry": true,
+      "violation": false
+    },
+    {
+      "feature_name": "cluster_max_single_liq_share",
+      "source_table": "runner_signal",
+      "definition": "running max single share up to threshold-cross",
+      "class": "RUNNING_CLUSTER",
+      "knowable_at_rule": "signal.ts_ms",
+      "used_at_ts": "entry_ts_ms",
+      "consumed_by_entry": true,
+      "violation": false
+    },
+    {
+      "feature_name": "intensity_per_sec",
+      "source_table": "runner_signal",
+      "definition": "running notional/sec up to threshold-cross",
+      "class": "RUNNING_CLUSTER",
+      "knowable_at_rule": "signal.ts_ms",
+      "used_at_ts": "entry_ts_ms",
+      "consumed_by_entry": true,
+      "violation": false
+    },
+    {
+      "feature_name": "day_trend_bps",
+      "source_table": "mark_prices",
+      "definition": "UTC day-so-far return at decision time",
+      "class": "POINT_IN_TIME",
+      "knowable_at_rule": "signal.ts_ms",
+      "used_at_ts": "entry_ts_ms",
+      "consumed_by_entry": true,
+      "violation": false
+    },
+    {
+      "feature_name": "day_range_bps",
+      "source_table": "mark_prices",
+      "definition": "UTC day-so-far range at decision time",
+      "class": "POINT_IN_TIME",
+      "knowable_at_rule": "signal.ts_ms",
+      "used_at_ts": "entry_ts_ms",
+      "consumed_by_entry": true,
+      "violation": false
+    },
+    {
+      "feature_name": "cluster_notional",
+      "source_table": "liq_event_features",
+      "definition": "full terminal cluster notional",
+      "class": "TERMINAL_CLUSTER",
+      "knowable_at_rule": "cluster_end_ts_ms",
+      "used_at_ts": "event_ts_ms / entry_ts_ms",
+      "consumed_by_entry": true,
+      "violation": true
+    },
+    {
+      "feature_name": "cluster_count",
+      "source_table": "liq_event_features",
+      "definition": "full terminal cluster count",
+      "class": "TERMINAL_CLUSTER",
+      "knowable_at_rule": "cluster_end_ts_ms",
+      "used_at_ts": "event_ts_ms / entry_ts_ms",
+      "consumed_by_entry": true,
+      "violation": true
+    },
+    {
+      "feature_name": "cluster_duration_sec",
+      "source_table": "liq_event_features",
+      "definition": "full terminal cluster duration",
+      "class": "TERMINAL_CLUSTER",
+      "knowable_at_rule": "cluster_end_ts_ms",
+      "used_at_ts": "event_ts_ms / entry_ts_ms",
+      "consumed_by_entry": true,
+      "violation": true
+    },
+    {
+      "feature_name": "cluster_max_notional",
+      "source_table": "liq_event_features",
+      "definition": "full terminal max single liquidation",
+      "class": "TERMINAL_CLUSTER",
+      "knowable_at_rule": "cluster_end_ts_ms",
+      "used_at_ts": "event_ts_ms / entry_ts_ms",
+      "consumed_by_entry": true,
+      "violation": true
+    },
+    {
+      "feature_name": "max_single_liq_share",
+      "source_table": "liq_event_features",
+      "definition": "full terminal max single liquidation share",
+      "class": "TERMINAL_CLUSTER",
+      "knowable_at_rule": "cluster_end_ts_ms",
+      "used_at_ts": "event_ts_ms / entry_ts_ms",
+      "consumed_by_entry": true,
+      "violation": true
+    },
+    {
+      "feature_name": "shape_label",
+      "source_table": "liq_event_features",
+      "definition": "terminal cluster shape label",
+      "class": "TERMINAL_CLUSTER",
+      "knowable_at_rule": "cluster_end_ts_ms",
+      "used_at_ts": "event_ts_ms / entry_ts_ms",
+      "consumed_by_entry": true,
+      "violation": true
+    },
+    {
+      "feature_name": "entry_price",
+      "source_table": "liq_event_outcome_labels",
+      "definition": "route label entry price",
+      "class": "FORWARD_OUTCOME",
+      "knowable_at_rule": "label generation / route simulation",
+      "used_at_ts": "entry decision",
+      "consumed_by_entry": true,
+      "violation": true
+    },
+    {
+      "feature_name": "exit_price",
+      "source_table": "liq_event_outcome_labels",
+      "definition": "route label exit price",
+      "class": "FORWARD_OUTCOME",
+      "knowable_at_rule": "after entry path",
+      "used_at_ts": "entry decision",
+      "consumed_by_entry": true,
+      "violation": true
+    },
+    {
+      "feature_name": "net_bps",
+      "source_table": "liq_event_outcome_labels",
+      "definition": "route label realized net PnL",
+      "class": "FORWARD_OUTCOME",
+      "knowable_at_rule": "after exit",
+      "used_at_ts": "entry decision",
+      "consumed_by_entry": true,
+      "violation": true
+    },
+    {
+      "feature_name": "mfe_bps",
+      "source_table": "liq_event_outcome_labels",
+      "definition": "post-entry max favorable excursion",
+      "class": "FORWARD_OUTCOME",
+      "knowable_at_rule": "after entry path",
+      "used_at_ts": "entry decision",
+      "consumed_by_entry": true,
+      "violation": true
+    },
+    {
+      "feature_name": "mae_bps",
+      "source_table": "liq_event_outcome_labels",
+      "definition": "post-entry max adverse excursion",
+      "class": "FORWARD_OUTCOME",
+      "knowable_at_rule": "after entry path",
+      "used_at_ts": "entry decision",
+      "consumed_by_entry": true,
+      "violation": true
+    }
+  ]
+}

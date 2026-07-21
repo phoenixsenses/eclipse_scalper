@@ -1,0 +1,105 @@
+{
+  "contract_name": "CVD_TAKER_VOLUME_REPAIR_CONTRACT_AND_ANCHOR_DEFINITION",
+  "date": "2026-07-05",
+  "batch_type": "design_reconciliation_preregistration_readiness_only",
+  "basis_audit": "reports/research/s34/S34_CVD_TAKER_VOLUME_DATA_READINESS_AUDIT_2026-07-05.md",
+  "basis_audit_verdict": "CVD_DATA_REPAIR_REQUIRED",
+  "forbidden_respected": ["no_canonical_write", "no_backfill", "no_data_mutation", "no_repair_execution",
+    "no_outcome_read", "no_mfe_mae", "no_alpha_testing", "no_threshold_on_outcome_selection",
+    "no_experiment_registration", "no_collector_modification", "no_proxy_substitution", "no_layer_mixing"],
+  "new_facts_this_batch": {
+    "collector_drops_agg_trade_id": "parse keeps only T,s,p,q,m; Binance a/f/l ids discarded; ts_ms = trade time T (event time)",
+    "rest_fallback_exists": "ingest_rest_agg_trade, default-enabled, 5s poll, in-memory-only _rest_agg_last_id cursor -> structural WS/REST double-insert risk (no unique id column)",
+    "eth_minute_map_frozen": "data/ami/candle_repair_source_package/gap_manifest_pre_repair.json = authoritative ETHUSDT agg_trades minute-granularity coverage map (208 gap runs, 25716 missing minutes, 2026-02-15..2026-07-03)"
+  },
+  "anchor_epoch_model": {
+    "decision": "NO_GLOBAL_EPOCH_EVENT_RELATIVE_BOUNDED_WINDOWS",
+    "anchor_source_event": "ami_signal_lifecycle.signal_id (via source_event_id)",
+    "anchor_timestamp": "signal_birth_ts",
+    "epoch_semantics": "bounded trailing windows [T-W, T], end-inclusive; not fixed-clock, not rolling-persisted, not cumulative",
+    "window_family_sec": [60, 300, 600, 1800, 3600],
+    "window_family_extra": "BUCKET = [source_window_start_ts_ms, signal_birth_ts] from ami_birth_truncated_cascade_geometry",
+    "window_count": 6,
+    "window_justification": "reconciled to pre-existing conventions: 60s~orderflow_lead, 600s=mfe50 ofi10m, 3600s=orderflow_chart 1h panel, BUCKET=frozen geometry window; NOT outcome-derived",
+    "multi_signal_same_cycle": "each signal computes own windows at own T; independence enforced at research layer via cycle-grouped split only",
+    "reset_rules": "none (stateless bounded windows)",
+    "symbol_scope_v1": "ETHUSDT flow only; BTC/SOL flow explicitly deferred",
+    "venue_scope": "binance_usdtm_futures_only",
+    "feature_available_ts": "signal_birth_ts",
+    "as_of_lookup_rule": "ts_ms <= T strict; defensive pre-truncation + assertion (geometry precedent)",
+    "collector_restart_handling": "quality status of the window, never feature-value special-casing",
+    "rejected_alternatives": ["fixed_clock_session_cumulative", "previous_anchor_relative_cumulative(deferred_v2)", "persisted_rolling_series"]
+  },
+  "quantities": {
+    "exact_trade_level": {
+      "cvd_notional_W": "sum(sign*notional) over [T-W,T]; sign=+1 iff is_buyer_maker=0 else -1",
+      "cvd_qty_W": "sum(sign*quantity) over [T-W,T]",
+      "total_notional_W": "sum(notional) over [T-W,T] (normalization denominator)"
+    },
+    "proxy": {
+      "candle_cvd_qty_W": "sum(taker_buy_volume - taker_sell_volume) over 1m candles fully inside [T-W,T]; minute-quantized; PROXY_ONLY always"
+    },
+    "non_equivalence_law": "candle proxy never substitutes trade-level CVD; kline repair recovers minute-level net only (P1 layer); intra-minute sequence unrecoverable from klines"
+  },
+  "repairability_taxonomy": ["EXACT_RECONSTRUCTABLE", "PROXY_ONLY", "SOURCE_GAPPED", "SOURCE_COVERAGE_UNRESOLVED", "UNREPAIRABLE"],
+  "repair_source_exact_layer": ["GET /fapi/v1/aggTrades fromId pagination", "data.binance.vision daily aggTrades archives"],
+  "repair_source_caveat": "availability asserted from documented retention, NOT probed yet; every EXACT assignment provisional on rehearsal probe; probe failure => auto-reclassify PROXY_ONLY (ETH klines already repaired locally) + operator decision",
+  "outage_assignments": [
+    {"window": "2026-04-30..2026-05-02 (44-51h)", "symbols": ["ETHUSDT", "BTCUSDT"], "status": "EXACT_RECONSTRUCTABLE_PROVISIONAL"},
+    {"window": "2026-05-08..2026-05-09 (25-35h)", "symbols": ["ETHUSDT", "BTCUSDT"], "status": "EXACT_RECONSTRUCTABLE_PROVISIONAL"},
+    {"window": "2026-05-15 (10.1h)", "symbols": ["SOLUSDT"], "status": "EXACT_RECONSTRUCTABLE_PROVISIONAL", "note": "not needed for v1 ETHUSDT population"},
+    {"window": "2026-05-21..2026-05-22 (28.6-28.8h)", "symbols": ["ETHUSDT", "BTCUSDT", "SOLUSDT"], "status": "EXACT_RECONSTRUCTABLE_PROVISIONAL"},
+    {"window": "2026-05-26..2026-05-28 (53-64h)", "symbols": ["ETHUSDT", "BTCUSDT"], "status": "EXACT_RECONSTRUCTABLE_PROVISIONAL"},
+    {"window": "2026-06-01/02..2026-06-05 (79-96h)", "symbols": ["ETHUSDT", "BTCUSDT"], "status": "EXACT_RECONSTRUCTABLE_PROVISIONAL"},
+    {"window": "registry-era small gaps (20 rows, 66s-2.2h, 2026-04-12..04-24)", "symbols": ["mixed"], "status": "EXACT_RECONSTRUCTABLE_PROVISIONAL"},
+    {"window": "ETH minute-map residual gaps (Feb=42min, Mar=164min, residual Apr/Jun)", "symbols": ["ETHUSDT"], "status": "EXACT_RECONSTRUCTABLE_PROVISIONAL"},
+    {"window": "sub-minute completeness all eras", "symbols": ["all"], "status": "SOURCE_COVERAGE_UNRESOLVED"},
+    {"window": "post-2026-07-03 + audit blocker B6 (post-06-06 unscanned)", "symbols": ["all"], "status": "SOURCE_COVERAGE_UNRESOLVED"},
+    {"window": "SOL before 2026-04-18", "symbols": ["SOLUSDT"], "status": "OUT_OF_SCOPE_NO_REGIME"},
+    {"window": "UNREPAIRABLE class", "symbols": [], "status": "NONE_ASSIGNED_RESERVED"}
+  ],
+  "source_regimes": [
+    {"id": "R0", "start": "2026-02-15T14:26Z", "end": "2026-04-12T07:47Z", "writer": "old collector, per-symbol aggTrade WS, ETH+BTC", "duplicates": "none-in-db (no trade id)", "ordering": "ts_ms(T)+id", "completeness_proof": "ETH minute-map only; sub-minute unproven", "limitation": "no gap registry yet"},
+    {"id": "R1", "start": "2026-04-12T07:47Z", "end": "2026-04-24T10:27Z", "writer": "old collector + live gap registry; SOL joins 2026-04-18", "duplicates": "as R0", "ordering": "as R0", "completeness_proof": "registry rows + ETH minute-map", "limitation": "registry class-unreliable (in-memory resolution)"},
+    {"id": "R2", "start": "2026-04-24T10:27Z", "end": "2026-06-06T17:43Z", "writer": "same code, degraded ops; registry dead", "duplicates": "as R0", "ordering": "as R0", "completeness_proof": "ETH minute-map only", "limitation": "all 6 major outages here"},
+    {"id": "R3", "start": "2026-06-06T17:43Z", "end": "present", "writer": "current collector; aggTrade still per-symbol WS; REST fallback present in source", "duplicates": "STRUCTURAL WS/REST double-insert risk (no id + in-memory cursor)", "ordering": "as R0", "completeness_proof": "ETH minute-map through 07-03 only", "limitation": "REST-fallback deploy ts not provable (file was untracked); duplicate rate unmeasured"}
+  ],
+  "duplicate_ordering_rules": {
+    "identity_repaired_rows": "(symbol, agg_trade_id) -- repair source provides a; MUST be stored",
+    "identity_live_rows": "none exists; composite (symbol,ts_ms,price,quantity,is_buyer_maker) collides legitimately",
+    "duplicate_detection_live": "statistical cluster-rate per regime; R3 vs R0/R1 baseline; elevation => BLOCKED_BY_DUPLICATE_INTEGRITY",
+    "late_arrivals": "inert (ts_ms is exchange event time)",
+    "replay_order": "ORDER BY ts_ms ASC, id ASC (deterministic)",
+    "correction_policy": "live rows never updated/deleted; repair supersedes via separate versioned table + effective selection (path-v2-candle-repair-r1 precedent); identity conflict fails closed"
+  },
+  "version_ids": {
+    "raw_interpretation": "aggtrades-taker-side-v1",
+    "repaired_population": "aggtrades-binance-fapi-repair-r1",
+    "feature_definition": "s34-cvd-windowed-taker-flow-v1-birth-truncated",
+    "quality_assessment": "cvd-source-quality-contract-v1",
+    "created_in_canonical_sql": false
+  },
+  "provenance_quality_model": {
+    "feature_row_unit": "(signal_id, window)",
+    "row_vs_field_quality": "window IS the quality unit; Q1/Q2/Q3 share identical window+rows => row-level == field-level BY CONSTRUCTION (stated, not assumed)",
+    "stored_elements": ["source_tables", "window_start_ts_ms", "window_end_ts_ms", "feature_available_ts=signal_birth_ts", "quality_status", "repair_method(NONE|AGGTRADES_REST|AGGTRADES_VISION_ARCHIVE|PROXY_KLINE)", "source_regime_id", "source_row_manifest_sha256", "field_provenance(DETERMINISTIC_HISTORICAL_SAFE vocabulary)"],
+    "inferential_use_flag": "derived from quality, never stored as independent opinion"
+  },
+  "eligibility_rules": {
+    "inferential": "exact-layer rows with EXACT-repaired-verified or natively-complete windows (minute-map complete AND cadence-proof AND no duplicate flag)",
+    "proxy_only_rows": "descriptive-only, always; never pooled with exact",
+    "mixed_populations": "forbidden, fail-closed pooling guard",
+    "cycle_grouping": "compute_global_cycle_split machinery reused verbatim; straddling must be 0; sufficiency counts cycles",
+    "paired_split_rule": "recompute from paired baseline population + byte-compare (verify_split_matches precedent)",
+    "pre_outcome_precheck": "MIN_BUCKET_N=20 cycles in BOTH splits before any outcome read"
+  },
+  "proposed_batch": {
+    "name": "BATCH-CVD-REPAIR-REHEARSAL-AND-QUALITY-CONTRACT-V1",
+    "phases": ["D1 disposable rehearsal (cadence scan incl. B6, duplicate baseline, availability probe, disposable repair build, disposable feature backfill 324x6, quality classification + coverage precheck)", "D2 validation (idempotency, fail-closed conflict, old-reader, rollback/reapply)", "D3 canonical migration proposal (schema 11->12, separate approval)", "D4 immutable backfill (frozen-hash contract)", "D5 append-only quality ledger"],
+    "expected_rows": {"feature_rows": 1944, "quality_rows": 1944, "long_only_view": 1320, "signals": 324, "windows": 6},
+    "new_files": ["ami/cvd/__init__.py", "ami/cvd/windowed_taker_flow.py", "ami/cvd/cvd_source_quality_contract_v1.py", "ami/cvd/aggtrades_repair_rehearsal.py", "ami/cvd/cvd_rehearsal.py", "tests/test_ami_cvd_windowed_taker_flow.py", "tests/test_ami_cvd_source_quality_contract_v1.py", "tests/test_ami_cvd_repair_rehearsal.py"],
+    "proposed_tables": ["ami_agg_trades_repaired", "ami_cvd_windowed_flow", "ami_cvd_field_quality_v1", "ami_cvd_field_provenance"],
+    "stop_conditions": ["availability probe failure -> PROXY_ONLY reclass + possible CVD_INFERENTIAL_RESEARCH_BLOCKED_BY_SOURCE_QUALITY", "R3 duplicate elevation -> BLOCKED_BY_DUPLICATE_INTEGRITY", "non-arbitrary cadence threshold impossible -> BLOCKED_BY_SEMANTICS", "any count/hash/known-at/pooling breach -> hard stop", "frozen regression 795/795 must stay green at every phase boundary"]
+  },
+  "final_verdict": "CVD_REPAIR_CONTRACT_READY_FOR_REHEARSAL"
+}

@@ -1,0 +1,109 @@
+{
+  "generated_at_utc": "2026-06-28T11:38:29.726242+00:00",
+  "research_only": true,
+  "source_db": {
+    "path": "D:\\eclipse_scalper\\data\\microstructure.db",
+    "exists": true,
+    "size_bytes": 646985273344,
+    "mtime_ns": 1782646700365112700
+  },
+  "scope": {
+    "symbol": "SOLUSDT",
+    "liq_side": "SELL",
+    "bucket_sec": 300,
+    "min_gap_sec": 900,
+    "thresholds_usd": [
+      100000.0,
+      200000.0
+    ],
+    "horizons_sec": [
+      30,
+      60,
+      120
+    ],
+    "directions": [
+      "LONG",
+      "SHORT"
+    ],
+    "accel_window_sec": 30,
+    "fee_bps_side": 3.05,
+    "max_book_staleness_sec": 5,
+    "max_single_dominance_pct": null
+  },
+  "split": {
+    "split_method": "chronological_bucket_tail_holdout",
+    "holdout_frac": 0.3,
+    "calibration_bucket_n": 84,
+    "holdout_bucket_n": 36,
+    "holdout_bucket_ids": [
+      "5940253",
+      "5940282",
+      "5940324",
+      "5940459",
+      "5940462",
+      "5940477",
+      "5940515",
+      "5940547",
+      "5940557",
+      "5940581",
+      "5940597",
+      "5940641",
+      "5940649",
+      "5940651",
+      "5940674",
+      "5940892",
+      "5941024",
+      "5941028",
+      "5941050",
+      "5941065",
+      "5941071",
+      "5941076",
+      "5941077",
+      "5941308",
+      "5941316",
+      "5941326",
+      "5941335",
+      "5941350",
+      "5941466",
+      "5941567",
+      "5941592",
+      "5941746",
+      "5941932",
+      "5941960",
+      "5941995",
+      "5942017"
+    ],
+    "holdout_bucket_ids_sha256": "41458e5a1c8253b5b614853a13035403605cb2df164dae114cf21d9342cc8f0b"
+  },
+  "anchor_count": 172,
+  "evaluated_rows": 1032,
+  "primary_config": null,
+  "primary_config_id": null,
+  "primary_config_sha256": null,
+  "holdout_rows_n": 312,
+  "holdout_summary": {
+    "n": 0,
+    "mean_bps": null,
+    "median_bps": null,
+    "p25_bps": null,
+    "p75_bps": null,
+    "win_rate": null,
+    "cum_bps": 0.0,
+    "top3_winner_removed_cum_bps": 0.0
+  },
+  "holdout_no_fill_n": 0,
+  "holdout_no_fill_rate": null,
+  "holdout_no_fill_counterfactual": {
+    "n": 0,
+    "mean_bps": null,
+    "median_bps": null,
+    "p25_bps": null,
+    "p75_bps": null,
+    "win_rate": null,
+    "cum_bps": 0.0,
+    "top3_winner_removed_cum_bps": 0.0
+  },
+  "shortlist_holdout": [],
+  "verdict": "BLOCKED",
+  "note": "A PAPER_CANDIDATE verdict authorizes only fresh paper pre-registration from zero, not live capital."
+}

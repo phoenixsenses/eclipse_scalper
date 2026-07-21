@@ -1,0 +1,253 @@
+{
+  "generated_at": "2026-06-27T13:17:46.690445+00:00",
+  "scope": "ETH SELL pre-liquidation executable book-pressure check",
+  "results": [
+    {
+      "threshold": 500000.0,
+      "pressure": {
+        "name": "lead5_lb10_down5",
+        "lead_sec": 5,
+        "lookback_sec": 10,
+        "move_bps": 5.0,
+        "imb_min": null,
+        "imb_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "events": 222,
+        "filtered": 181,
+        "no_fill": 0,
+        "closed": 41
+      },
+      "summary": {
+        "n": 41,
+        "median": 1.9858131069295037,
+        "mean": -1.0670596991386079,
+        "cum": -43.749447664682926,
+        "wr": 0.7317073170731707,
+        "top3_removed_cum": -55.241802564254975,
+        "positive_days": 14,
+        "total_days": 19,
+        "avg_hold_sec": 26.073536585365854,
+        "mean_preliq_move_bps": 10.245668025546257,
+        "mean_book_imbalance": -0.4453050431792107,
+        "mean_mark_to_fill_cost_bps": 0.39825537375898445,
+        "exit_counts": {
+          "TP": 32,
+          "TIME": 9
+        }
+      },
+      "verdict": "reject_outlier_dependent"
+    },
+    {
+      "threshold": 500000.0,
+      "pressure": {
+        "name": "lead5_lb10_down5",
+        "lead_sec": 5,
+        "lookback_sec": 10,
+        "move_bps": 5.0,
+        "imb_min": null,
+        "imb_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 15.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "events": 222,
+        "filtered": 181,
+        "no_fill": 0,
+        "closed": 41
+      },
+      "summary": {
+        "n": 41,
+        "median": 6.965078039574326,
+        "mean": 2.95838291327495,
+        "cum": 121.29369944427296,
+        "wr": 0.7804878048780488,
+        "top3_removed_cum": 79.59222552339219,
+        "positive_days": 15,
+        "total_days": 19,
+        "avg_hold_sec": 30.099390243902437,
+        "mean_preliq_move_bps": 10.245668025546257,
+        "mean_book_imbalance": -0.4453050431792107,
+        "mean_mark_to_fill_cost_bps": 0.19189527155645847,
+        "exit_counts": {
+          "TP": 29,
+          "TIME": 12
+        }
+      },
+      "verdict": "watch_too_selective"
+    },
+    {
+      "threshold": 500000.0,
+      "pressure": {
+        "name": "lead5_lb10_down5",
+        "lead_sec": 5,
+        "lookback_sec": 10,
+        "move_bps": 5.0,
+        "imb_min": null,
+        "imb_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "events": 222,
+        "filtered": 181,
+        "no_fill": 0,
+        "closed": 41
+      },
+      "summary": {
+        "n": 41,
+        "median": 11.633970730106615,
+        "mean": 5.619069808038102,
+        "cum": 230.3818621295622,
+        "wr": 0.7560975609756098,
+        "top3_removed_cum": 175.5597315627667,
+        "positive_days": 16,
+        "total_days": 19,
+        "avg_hold_sec": 33.54256097560975,
+        "mean_preliq_move_bps": 10.245668025546257,
+        "mean_book_imbalance": -0.4453050431792107,
+        "mean_mark_to_fill_cost_bps": 0.49835784789199983,
+        "exit_counts": {
+          "TP": 27,
+          "TIME": 13,
+          "BE": 1
+        }
+      },
+      "verdict": "watch_too_selective"
+    },
+    {
+      "threshold": 1000000.0,
+      "pressure": {
+        "name": "lead5_lb10_down5",
+        "lead_sec": 5,
+        "lookback_sec": 10,
+        "move_bps": 5.0,
+        "imb_min": null,
+        "imb_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "events": 106,
+        "filtered": 80,
+        "no_fill": 0,
+        "closed": 26
+      },
+      "summary": {
+        "n": 26,
+        "median": 1.985767371380211,
+        "mean": -1.9429288889800473,
+        "cum": -50.51615111348123,
+        "wr": 0.7307692307692307,
+        "top3_removed_cum": -59.08628063997246,
+        "positive_days": 9,
+        "total_days": 13,
+        "avg_hold_sec": 28.109346153846154,
+        "mean_preliq_move_bps": 10.269541760729611,
+        "mean_book_imbalance": -0.4473541968272898,
+        "mean_mark_to_fill_cost_bps": 0.19273225418481937,
+        "exit_counts": {
+          "TP": 20,
+          "TIME": 6
+        }
+      },
+      "verdict": "reject_outlier_dependent"
+    },
+    {
+      "threshold": 1000000.0,
+      "pressure": {
+        "name": "lead5_lb10_down5",
+        "lead_sec": 5,
+        "lookback_sec": 10,
+        "move_bps": 5.0,
+        "imb_min": null,
+        "imb_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 15.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "events": 106,
+        "filtered": 80,
+        "no_fill": 0,
+        "closed": 26
+      },
+      "summary": {
+        "n": 26,
+        "median": 6.899133156935842,
+        "mean": 1.9904316831360807,
+        "cum": 51.7512237615381,
+        "wr": 0.7307692307692307,
+        "top3_removed_cum": 14.006797554831149,
+        "positive_days": 9,
+        "total_days": 13,
+        "avg_hold_sec": 31.66503846153846,
+        "mean_preliq_move_bps": 10.269541760729611,
+        "mean_book_imbalance": -0.4473541968272898,
+        "mean_mark_to_fill_cost_bps": 0.17558869187465054,
+        "exit_counts": {
+          "TP": 18,
+          "TIME": 8
+        }
+      },
+      "verdict": "candidate"
+    },
+    {
+      "threshold": 1000000.0,
+      "pressure": {
+        "name": "lead5_lb10_down5",
+        "lead_sec": 5,
+        "lookback_sec": 10,
+        "move_bps": 5.0,
+        "imb_min": null,
+        "imb_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "events": 106,
+        "filtered": 80,
+        "no_fill": 0,
+        "closed": 26
+      },
+      "summary": {
+        "n": 26,
+        "median": 12.01348624029422,
+        "mean": 5.1702571365117445,
+        "cum": 134.42668554930538,
+        "wr": 0.7307692307692307,
+        "top3_removed_cum": 85.97367297682123,
+        "positive_days": 10,
+        "total_days": 13,
+        "avg_hold_sec": 34.75038461538462,
+        "mean_preliq_move_bps": 10.269541760729611,
+        "mean_book_imbalance": -0.4473541968272898,
+        "mean_mark_to_fill_cost_bps": 0.206181882698165,
+        "exit_counts": {
+          "TP": 17,
+          "TIME": 9
+        }
+      },
+      "verdict": "candidate"
+    }
+  ]
+}

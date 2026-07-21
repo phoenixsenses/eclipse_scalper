@@ -1,0 +1,2669 @@
+{
+  "candidates": {
+    "S3_BTC100_VLT50_REV_TP200_SL40_20M": {
+      "all": {
+        "exits": {
+          "SL": 44,
+          "TIME": 66,
+          "TP": 14
+        },
+        "matched_n": 124,
+        "summary": {
+          "max_loss_bps": -45.0,
+          "mean_bps": 20.1,
+          "median_bps": -8.7,
+          "n": 124,
+          "sum_bps": 2492.9,
+          "t3r_bps": 1907.9,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.444
+        }
+      },
+      "exit": "tp200_sl40_20m",
+      "final_hold_folds_4_5": {
+        "exits": {
+          "SL": 44,
+          "TIME": 66,
+          "TP": 14
+        },
+        "matched_n": 124,
+        "summary": {
+          "max_loss_bps": -45.0,
+          "mean_bps": 20.1,
+          "median_bps": -8.7,
+          "n": 124,
+          "sum_bps": 2492.9,
+          "t3r_bps": 1907.9,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.444
+        }
+      },
+      "walkforward": {
+        "fold_sum_total": 2492.8,
+        "fold_t3r_total": 1459.0,
+        "folds": {
+          "fold_1": {
+            "exits": {},
+            "matched_n": 0,
+            "summary": {
+              "max_loss_bps": null,
+              "median_bps": null,
+              "n": 0,
+              "sum_bps": 0.0,
+              "t3r_bps": 0.0,
+              "win_rate": null
+            }
+          },
+          "fold_2": {
+            "exits": {},
+            "matched_n": 0,
+            "summary": {
+              "max_loss_bps": null,
+              "median_bps": null,
+              "n": 0,
+              "sum_bps": 0.0,
+              "t3r_bps": 0.0,
+              "win_rate": null
+            }
+          },
+          "fold_3": {
+            "exits": {},
+            "matched_n": 0,
+            "summary": {
+              "max_loss_bps": null,
+              "median_bps": null,
+              "n": 0,
+              "sum_bps": 0.0,
+              "t3r_bps": 0.0,
+              "win_rate": null
+            }
+          },
+          "fold_4": {
+            "exits": {
+              "SL": 7,
+              "TIME": 24,
+              "TP": 2
+            },
+            "matched_n": 33,
+            "summary": {
+              "max_loss_bps": -45.0,
+              "mean_bps": 3.4,
+              "median_bps": -8.7,
+              "n": 33,
+              "sum_bps": 112.0,
+              "t3r_bps": -336.8,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.424
+            }
+          },
+          "fold_5": {
+            "exits": {
+              "SL": 37,
+              "TIME": 42,
+              "TP": 12
+            },
+            "matched_n": 91,
+            "summary": {
+              "max_loss_bps": -45.0,
+              "mean_bps": 26.2,
+              "median_bps": -12.1,
+              "n": 91,
+              "sum_bps": 2380.8,
+              "t3r_bps": 1795.8,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.451
+            }
+          }
+        },
+        "positive_sum_folds": 2,
+        "positive_t3r_folds": 1
+      }
+    },
+    "S3_BTC75_CHAIN3_REV_TP150_SL30_15M": {
+      "all": {
+        "exits": {
+          "SL": 55,
+          "TIME": 68,
+          "TP": 14
+        },
+        "matched_n": 137,
+        "summary": {
+          "max_loss_bps": -35.0,
+          "mean_bps": 15.5,
+          "median_bps": 0.0,
+          "n": 137,
+          "sum_bps": 2127.0,
+          "t3r_bps": 1692.0,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.504
+        }
+      },
+      "exit": "tp150_sl30_15m",
+      "final_hold_folds_4_5": {
+        "exits": {
+          "SL": 55,
+          "TIME": 68,
+          "TP": 14
+        },
+        "matched_n": 137,
+        "summary": {
+          "max_loss_bps": -35.0,
+          "mean_bps": 15.5,
+          "median_bps": 0.0,
+          "n": 137,
+          "sum_bps": 2127.0,
+          "t3r_bps": 1692.0,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.504
+        }
+      },
+      "walkforward": {
+        "fold_sum_total": 2127.0,
+        "fold_t3r_total": 1356.7,
+        "folds": {
+          "fold_1": {
+            "exits": {},
+            "matched_n": 0,
+            "summary": {
+              "max_loss_bps": null,
+              "median_bps": null,
+              "n": 0,
+              "sum_bps": 0.0,
+              "t3r_bps": 0.0,
+              "win_rate": null
+            }
+          },
+          "fold_2": {
+            "exits": {},
+            "matched_n": 0,
+            "summary": {
+              "max_loss_bps": null,
+              "median_bps": null,
+              "n": 0,
+              "sum_bps": 0.0,
+              "t3r_bps": 0.0,
+              "win_rate": null
+            }
+          },
+          "fold_3": {
+            "exits": {},
+            "matched_n": 0,
+            "summary": {
+              "max_loss_bps": null,
+              "median_bps": null,
+              "n": 0,
+              "sum_bps": 0.0,
+              "t3r_bps": 0.0,
+              "win_rate": null
+            }
+          },
+          "fold_4": {
+            "exits": {
+              "SL": 16,
+              "TIME": 33,
+              "TP": 1
+            },
+            "matched_n": 50,
+            "summary": {
+              "max_loss_bps": -35.0,
+              "mean_bps": 12.6,
+              "median_bps": 16.2,
+              "n": 50,
+              "sum_bps": 630.0,
+              "t3r_bps": 294.7,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.6
+            }
+          },
+          "fold_5": {
+            "exits": {
+              "SL": 39,
+              "TIME": 35,
+              "TP": 13
+            },
+            "matched_n": 87,
+            "summary": {
+              "max_loss_bps": -35.0,
+              "mean_bps": 17.2,
+              "median_bps": -13.2,
+              "n": 87,
+              "sum_bps": 1497.0,
+              "t3r_bps": 1062.0,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.448
+            }
+          }
+        },
+        "positive_sum_folds": 2,
+        "positive_t3r_folds": 2
+      }
+    },
+    "S3_BTC75_REV_FIXED15M": {
+      "all": {
+        "exits": {
+          "TIME": 190
+        },
+        "matched_n": 190,
+        "summary": {
+          "max_loss_bps": -150.8,
+          "mean_bps": 9.2,
+          "median_bps": -1.7,
+          "n": 190,
+          "sum_bps": 1757.1,
+          "t3r_bps": 1011.0,
+          "tail_lte_minus100_n": 4,
+          "tail_lte_minus150_n": 1,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.474
+        }
+      },
+      "exit": "fixed_15m",
+      "final_hold_folds_4_5": {
+        "exits": {
+          "TIME": 190
+        },
+        "matched_n": 190,
+        "summary": {
+          "max_loss_bps": -150.8,
+          "mean_bps": 9.2,
+          "median_bps": -1.7,
+          "n": 190,
+          "sum_bps": 1757.1,
+          "t3r_bps": 1011.0,
+          "tail_lte_minus100_n": 4,
+          "tail_lte_minus150_n": 1,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.474
+        }
+      },
+      "walkforward": {
+        "fold_sum_total": 1757.1,
+        "fold_t3r_total": 624.5,
+        "folds": {
+          "fold_1": {
+            "exits": {},
+            "matched_n": 0,
+            "summary": {
+              "max_loss_bps": null,
+              "median_bps": null,
+              "n": 0,
+              "sum_bps": 0.0,
+              "t3r_bps": 0.0,
+              "win_rate": null
+            }
+          },
+          "fold_2": {
+            "exits": {},
+            "matched_n": 0,
+            "summary": {
+              "max_loss_bps": null,
+              "median_bps": null,
+              "n": 0,
+              "sum_bps": 0.0,
+              "t3r_bps": 0.0,
+              "win_rate": null
+            }
+          },
+          "fold_3": {
+            "exits": {},
+            "matched_n": 0,
+            "summary": {
+              "max_loss_bps": null,
+              "median_bps": null,
+              "n": 0,
+              "sum_bps": 0.0,
+              "t3r_bps": 0.0,
+              "win_rate": null
+            }
+          },
+          "fold_4": {
+            "exits": {
+              "TIME": 71
+            },
+            "matched_n": 71,
+            "summary": {
+              "max_loss_bps": -67.1,
+              "mean_bps": 6.3,
+              "median_bps": 1.9,
+              "n": 71,
+              "sum_bps": 445.8,
+              "t3r_bps": 59.3,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.507
+            }
+          },
+          "fold_5": {
+            "exits": {
+              "TIME": 119
+            },
+            "matched_n": 119,
+            "summary": {
+              "max_loss_bps": -150.8,
+              "mean_bps": 11.0,
+              "median_bps": -4.5,
+              "n": 119,
+              "sum_bps": 1311.3,
+              "t3r_bps": 565.2,
+              "tail_lte_minus100_n": 4,
+              "tail_lte_minus150_n": 1,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.454
+            }
+          }
+        },
+        "positive_sum_folds": 2,
+        "positive_t3r_folds": 2
+      }
+    },
+    "S3_BTC75_VLT50_CHAIN3_REV_TP200_SL40_20M": {
+      "all": {
+        "exits": {
+          "SL": 38,
+          "TIME": 84,
+          "TP": 10
+        },
+        "matched_n": 132,
+        "summary": {
+          "max_loss_bps": -45.0,
+          "mean_bps": 23.4,
+          "median_bps": 5.4,
+          "n": 132,
+          "sum_bps": 3089.8,
+          "t3r_bps": 2504.8,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.523
+        }
+      },
+      "exit": "tp200_sl40_20m",
+      "final_hold_folds_4_5": {
+        "exits": {
+          "SL": 38,
+          "TIME": 84,
+          "TP": 10
+        },
+        "matched_n": 132,
+        "summary": {
+          "max_loss_bps": -45.0,
+          "mean_bps": 23.4,
+          "median_bps": 5.4,
+          "n": 132,
+          "sum_bps": 3089.8,
+          "t3r_bps": 2504.8,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.523
+        }
+      },
+      "walkforward": {
+        "fold_sum_total": 3089.8,
+        "fold_t3r_total": 2102.1,
+        "folds": {
+          "fold_1": {
+            "exits": {},
+            "matched_n": 0,
+            "summary": {
+              "max_loss_bps": null,
+              "median_bps": null,
+              "n": 0,
+              "sum_bps": 0.0,
+              "t3r_bps": 0.0,
+              "win_rate": null
+            }
+          },
+          "fold_2": {
+            "exits": {},
+            "matched_n": 0,
+            "summary": {
+              "max_loss_bps": null,
+              "median_bps": null,
+              "n": 0,
+              "sum_bps": 0.0,
+              "t3r_bps": 0.0,
+              "win_rate": null
+            }
+          },
+          "fold_3": {
+            "exits": {},
+            "matched_n": 0,
+            "summary": {
+              "max_loss_bps": null,
+              "median_bps": null,
+              "n": 0,
+              "sum_bps": 0.0,
+              "t3r_bps": 0.0,
+              "win_rate": null
+            }
+          },
+          "fold_4": {
+            "exits": {
+              "SL": 9,
+              "TIME": 40,
+              "TP": 1
+            },
+            "matched_n": 50,
+            "summary": {
+              "max_loss_bps": -45.0,
+              "mean_bps": 13.8,
+              "median_bps": 6.7,
+              "n": 50,
+              "sum_bps": 690.5,
+              "t3r_bps": 287.8,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.56
+            }
+          },
+          "fold_5": {
+            "exits": {
+              "SL": 29,
+              "TIME": 44,
+              "TP": 9
+            },
+            "matched_n": 82,
+            "summary": {
+              "max_loss_bps": -45.0,
+              "mean_bps": 29.3,
+              "median_bps": -0.2,
+              "n": 82,
+              "sum_bps": 2399.3,
+              "t3r_bps": 1814.3,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.5
+            }
+          }
+        },
+        "positive_sum_folds": 2,
+        "positive_t3r_folds": 2
+      }
+    },
+    "S3_BTC75_VLT50_REV_FIXED15M": {
+      "all": {
+        "exits": {
+          "TIME": 184
+        },
+        "matched_n": 184,
+        "summary": {
+          "max_loss_bps": -127.6,
+          "mean_bps": 10.6,
+          "median_bps": -1.2,
+          "n": 184,
+          "sum_bps": 1953.9,
+          "t3r_bps": 1207.7,
+          "tail_lte_minus100_n": 3,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.478
+        }
+      },
+      "exit": "fixed_15m",
+      "final_hold_folds_4_5": {
+        "exits": {
+          "TIME": 184
+        },
+        "matched_n": 184,
+        "summary": {
+          "max_loss_bps": -127.6,
+          "mean_bps": 10.6,
+          "median_bps": -1.2,
+          "n": 184,
+          "sum_bps": 1953.9,
+          "t3r_bps": 1207.7,
+          "tail_lte_minus100_n": 3,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.478
+        }
+      },
+      "walkforward": {
+        "fold_sum_total": 1953.9,
+        "fold_t3r_total": 821.2,
+        "folds": {
+          "fold_1": {
+            "exits": {},
+            "matched_n": 0,
+            "summary": {
+              "max_loss_bps": null,
+              "median_bps": null,
+              "n": 0,
+              "sum_bps": 0.0,
+              "t3r_bps": 0.0,
+              "win_rate": null
+            }
+          },
+          "fold_2": {
+            "exits": {},
+            "matched_n": 0,
+            "summary": {
+              "max_loss_bps": null,
+              "median_bps": null,
+              "n": 0,
+              "sum_bps": 0.0,
+              "t3r_bps": 0.0,
+              "win_rate": null
+            }
+          },
+          "fold_3": {
+            "exits": {},
+            "matched_n": 0,
+            "summary": {
+              "max_loss_bps": null,
+              "median_bps": null,
+              "n": 0,
+              "sum_bps": 0.0,
+              "t3r_bps": 0.0,
+              "win_rate": null
+            }
+          },
+          "fold_4": {
+            "exits": {
+              "TIME": 71
+            },
+            "matched_n": 71,
+            "summary": {
+              "max_loss_bps": -67.1,
+              "mean_bps": 6.3,
+              "median_bps": 1.9,
+              "n": 71,
+              "sum_bps": 445.8,
+              "t3r_bps": 59.3,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.507
+            }
+          },
+          "fold_5": {
+            "exits": {
+              "TIME": 113
+            },
+            "matched_n": 113,
+            "summary": {
+              "max_loss_bps": -127.6,
+              "mean_bps": 13.3,
+              "median_bps": -4.5,
+              "n": 113,
+              "sum_bps": 1508.1,
+              "t3r_bps": 761.9,
+              "tail_lte_minus100_n": 3,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.46
+            }
+          }
+        },
+        "positive_sum_folds": 2,
+        "positive_t3r_folds": 2
+      }
+    },
+    "S3_BTC75_VLT50_REV_TP200_SL40_20M": {
+      "all": {
+        "exits": {
+          "SL": 57,
+          "TIME": 113,
+          "TP": 14
+        },
+        "matched_n": 184,
+        "summary": {
+          "max_loss_bps": -45.0,
+          "mean_bps": 15.9,
+          "median_bps": -5.3,
+          "n": 184,
+          "sum_bps": 2922.0,
+          "t3r_bps": 2337.0,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.462
+        }
+      },
+      "exit": "tp200_sl40_20m",
+      "final_hold_folds_4_5": {
+        "exits": {
+          "SL": 57,
+          "TIME": 113,
+          "TP": 14
+        },
+        "matched_n": 184,
+        "summary": {
+          "max_loss_bps": -45.0,
+          "mean_bps": 15.9,
+          "median_bps": -5.3,
+          "n": 184,
+          "sum_bps": 2922.0,
+          "t3r_bps": 2337.0,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.462
+        }
+      },
+      "walkforward": {
+        "fold_sum_total": 2922.0,
+        "fold_t3r_total": 1826.3,
+        "folds": {
+          "fold_1": {
+            "exits": {},
+            "matched_n": 0,
+            "summary": {
+              "max_loss_bps": null,
+              "median_bps": null,
+              "n": 0,
+              "sum_bps": 0.0,
+              "t3r_bps": 0.0,
+              "win_rate": null
+            }
+          },
+          "fold_2": {
+            "exits": {},
+            "matched_n": 0,
+            "summary": {
+              "max_loss_bps": null,
+              "median_bps": null,
+              "n": 0,
+              "sum_bps": 0.0,
+              "t3r_bps": 0.0,
+              "win_rate": null
+            }
+          },
+          "fold_3": {
+            "exits": {},
+            "matched_n": 0,
+            "summary": {
+              "max_loss_bps": null,
+              "median_bps": null,
+              "n": 0,
+              "sum_bps": 0.0,
+              "t3r_bps": 0.0,
+              "win_rate": null
+            }
+          },
+          "fold_4": {
+            "exits": {
+              "SL": 16,
+              "TIME": 53,
+              "TP": 2
+            },
+            "matched_n": 71,
+            "summary": {
+              "max_loss_bps": -45.0,
+              "mean_bps": 7.7,
+              "median_bps": -1.4,
+              "n": 71,
+              "sum_bps": 546.2,
+              "t3r_bps": 35.5,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.493
+            }
+          },
+          "fold_5": {
+            "exits": {
+              "SL": 41,
+              "TIME": 60,
+              "TP": 12
+            },
+            "matched_n": 113,
+            "summary": {
+              "max_loss_bps": -45.0,
+              "mean_bps": 21.0,
+              "median_bps": -7.1,
+              "n": 113,
+              "sum_bps": 2375.8,
+              "t3r_bps": 1790.8,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.442
+            }
+          }
+        },
+        "positive_sum_folds": 2,
+        "positive_t3r_folds": 2
+      }
+    },
+    "V02_BID_OK_NORMAL_FIXED2H": {
+      "all": {
+        "exits": {
+          "TIME": 11
+        },
+        "matched_n": 11,
+        "summary": {
+          "max_loss_bps": -12.6,
+          "mean_bps": 87.2,
+          "median_bps": 50.2,
+          "n": 11,
+          "sum_bps": 959.5,
+          "t3r_bps": 314.4,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.909
+        }
+      },
+      "exit": "fixed_120m",
+      "final_hold_folds_4_5": {
+        "exits": {
+          "TIME": 7
+        },
+        "matched_n": 7,
+        "summary": {
+          "max_loss_bps": -12.6,
+          "mean_bps": 116.5,
+          "median_bps": 144.8,
+          "n": 7,
+          "sum_bps": 815.7,
+          "t3r_bps": 170.6,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.857
+        }
+      },
+      "walkforward": {
+        "fold_sum_total": 959.5,
+        "fold_t3r_total": 321.9,
+        "folds": {
+          "fold_1": {
+            "exits": {},
+            "matched_n": 0,
+            "summary": {
+              "max_loss_bps": null,
+              "median_bps": null,
+              "n": 0,
+              "sum_bps": 0.0,
+              "t3r_bps": 0.0,
+              "win_rate": null
+            }
+          },
+          "fold_2": {
+            "exits": {
+              "TIME": 2
+            },
+            "matched_n": 2,
+            "summary": {
+              "max_loss_bps": 4.7,
+              "mean_bps": 34.7,
+              "median_bps": 34.7,
+              "n": 2,
+              "sum_bps": 69.4,
+              "t3r_bps": 69.4,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 1.0
+            }
+          },
+          "fold_3": {
+            "exits": {
+              "TIME": 2
+            },
+            "matched_n": 2,
+            "summary": {
+              "max_loss_bps": 24.2,
+              "mean_bps": 37.2,
+              "median_bps": 37.2,
+              "n": 2,
+              "sum_bps": 74.4,
+              "t3r_bps": 74.4,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 1.0
+            }
+          },
+          "fold_4": {
+            "exits": {
+              "TIME": 3
+            },
+            "matched_n": 3,
+            "summary": {
+              "max_loss_bps": 15.6,
+              "mean_bps": 63.6,
+              "median_bps": 22.9,
+              "n": 3,
+              "sum_bps": 190.7,
+              "t3r_bps": 190.7,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 1.0
+            }
+          },
+          "fold_5": {
+            "exits": {
+              "TIME": 4
+            },
+            "matched_n": 4,
+            "summary": {
+              "max_loss_bps": -12.6,
+              "mean_bps": 156.2,
+              "median_bps": 185.4,
+              "n": 4,
+              "sum_bps": 625.0,
+              "t3r_bps": -12.6,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.75
+            }
+          }
+        },
+        "positive_sum_folds": 4,
+        "positive_t3r_folds": 3
+      }
+    },
+    "V02_TAIL_HIGH_NORMAL_FIXED2H": {
+      "all": {
+        "exits": {
+          "TIME": 20
+        },
+        "matched_n": 20,
+        "summary": {
+          "max_loss_bps": -194.4,
+          "mean_bps": -13.1,
+          "median_bps": 0.0,
+          "n": 20,
+          "sum_bps": -261.9,
+          "t3r_bps": -469.5,
+          "tail_lte_minus100_n": 2,
+          "tail_lte_minus150_n": 2,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.5
+        }
+      },
+      "exit": "fixed_120m",
+      "final_hold_folds_4_5": {
+        "exits": {
+          "TIME": 9
+        },
+        "matched_n": 9,
+        "summary": {
+          "max_loss_bps": -194.4,
+          "mean_bps": -25.0,
+          "median_bps": -1.0,
+          "n": 9,
+          "sum_bps": -225.2,
+          "t3r_bps": -285.0,
+          "tail_lte_minus100_n": 1,
+          "tail_lte_minus150_n": 1,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.444
+        }
+      },
+      "walkforward": {
+        "fold_sum_total": -261.8,
+        "fold_t3r_total": -450.9,
+        "folds": {
+          "fold_1": {
+            "exits": {
+              "TIME": 5
+            },
+            "matched_n": 5,
+            "summary": {
+              "max_loss_bps": -154.2,
+              "mean_bps": -13.3,
+              "median_bps": -18.0,
+              "n": 5,
+              "sum_bps": -66.6,
+              "t3r_bps": -223.8,
+              "tail_lte_minus100_n": 1,
+              "tail_lte_minus150_n": 1,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.4
+            }
+          },
+          "fold_2": {
+            "exits": {
+              "TIME": 3
+            },
+            "matched_n": 3,
+            "summary": {
+              "max_loss_bps": -0.8,
+              "mean_bps": 11.9,
+              "median_bps": 10.0,
+              "n": 3,
+              "sum_bps": 35.8,
+              "t3r_bps": 35.8,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.667
+            }
+          },
+          "fold_3": {
+            "exits": {
+              "TIME": 3
+            },
+            "matched_n": 3,
+            "summary": {
+              "max_loss_bps": -50.1,
+              "mean_bps": -1.9,
+              "median_bps": 12.0,
+              "n": 3,
+              "sum_bps": -5.8,
+              "t3r_bps": -5.8,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.667
+            }
+          },
+          "fold_4": {
+            "exits": {
+              "TIME": 3
+            },
+            "matched_n": 3,
+            "summary": {
+              "max_loss_bps": -56.2,
+              "mean_bps": -17.8,
+              "median_bps": -26.1,
+              "n": 3,
+              "sum_bps": -53.5,
+              "t3r_bps": -53.5,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.333
+            }
+          },
+          "fold_5": {
+            "exits": {
+              "TIME": 6
+            },
+            "matched_n": 6,
+            "summary": {
+              "max_loss_bps": -194.4,
+              "mean_bps": -28.6,
+              "median_bps": -0.1,
+              "n": 6,
+              "sum_bps": -171.7,
+              "t3r_bps": -203.6,
+              "tail_lte_minus100_n": 1,
+              "tail_lte_minus150_n": 1,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.5
+            }
+          }
+        },
+        "positive_sum_folds": 1,
+        "positive_t3r_folds": 1
+      }
+    },
+    "V02_TAIL_LOW_NORMAL_FIXED2H": {
+      "all": {
+        "exits": {
+          "TIME": 11
+        },
+        "matched_n": 11,
+        "summary": {
+          "max_loss_bps": -12.6,
+          "mean_bps": 87.2,
+          "median_bps": 50.2,
+          "n": 11,
+          "sum_bps": 959.5,
+          "t3r_bps": 314.4,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.909
+        }
+      },
+      "exit": "fixed_120m",
+      "final_hold_folds_4_5": {
+        "exits": {
+          "TIME": 7
+        },
+        "matched_n": 7,
+        "summary": {
+          "max_loss_bps": -12.6,
+          "mean_bps": 116.5,
+          "median_bps": 144.8,
+          "n": 7,
+          "sum_bps": 815.7,
+          "t3r_bps": 170.6,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.857
+        }
+      },
+      "walkforward": {
+        "fold_sum_total": 959.5,
+        "fold_t3r_total": 321.9,
+        "folds": {
+          "fold_1": {
+            "exits": {},
+            "matched_n": 0,
+            "summary": {
+              "max_loss_bps": null,
+              "median_bps": null,
+              "n": 0,
+              "sum_bps": 0.0,
+              "t3r_bps": 0.0,
+              "win_rate": null
+            }
+          },
+          "fold_2": {
+            "exits": {
+              "TIME": 2
+            },
+            "matched_n": 2,
+            "summary": {
+              "max_loss_bps": 4.7,
+              "mean_bps": 34.7,
+              "median_bps": 34.7,
+              "n": 2,
+              "sum_bps": 69.4,
+              "t3r_bps": 69.4,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 1.0
+            }
+          },
+          "fold_3": {
+            "exits": {
+              "TIME": 2
+            },
+            "matched_n": 2,
+            "summary": {
+              "max_loss_bps": 24.2,
+              "mean_bps": 37.2,
+              "median_bps": 37.2,
+              "n": 2,
+              "sum_bps": 74.4,
+              "t3r_bps": 74.4,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 1.0
+            }
+          },
+          "fold_4": {
+            "exits": {
+              "TIME": 3
+            },
+            "matched_n": 3,
+            "summary": {
+              "max_loss_bps": 15.6,
+              "mean_bps": 63.6,
+              "median_bps": 22.9,
+              "n": 3,
+              "sum_bps": 190.7,
+              "t3r_bps": 190.7,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 1.0
+            }
+          },
+          "fold_5": {
+            "exits": {
+              "TIME": 4
+            },
+            "matched_n": 4,
+            "summary": {
+              "max_loss_bps": -12.6,
+              "mean_bps": 156.2,
+              "median_bps": 185.4,
+              "n": 4,
+              "sum_bps": 625.0,
+              "t3r_bps": -12.6,
+              "tail_lte_minus100_n": 0,
+              "tail_lte_minus150_n": 0,
+              "tail_lte_minus300_n": 0,
+              "win_rate": 0.75
+            }
+          }
+        },
+        "positive_sum_folds": 4,
+        "positive_t3r_folds": 3
+      }
+    }
+  },
+  "final_hold_rows_n": 484,
+  "generated_at_utc": "2026-06-29T13:38:33.117026+00:00",
+  "lead_anatomy_all": {
+    "best10": [
+      {
+        "bid_depth": 80608.4,
+        "btc4h": -107.3,
+        "chain_thresholds": 2,
+        "eth1h": -90.3,
+        "event_id": "ETHUSDT_SELL_200000_1782439900211",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -121.6,
+        "signal_utc": "2026-06-26T02:11:40.211000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": 195.0,
+        "vdepth": 7.1
+      },
+      {
+        "bid_depth": 80608.4,
+        "btc4h": -107.3,
+        "chain_thresholds": 2,
+        "eth1h": -90.3,
+        "event_id": "ETHUSDT_SELL_100000_1782439900211",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -121.6,
+        "signal_utc": "2026-06-26T02:11:40.211000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": 195.0,
+        "vdepth": 7.1
+      },
+      {
+        "bid_depth": 28384.1,
+        "btc4h": -401.2,
+        "chain_thresholds": 3,
+        "eth1h": -422.9,
+        "event_id": "ETHUSDT_SELL_200000_1782395476217",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -477.0,
+        "signal_utc": "2026-06-25T13:51:16.217000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_HIGH",
+          "BID_DEPTH_THIN",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": 195.0,
+        "vdepth": 43.1
+      },
+      {
+        "bid_depth": 28384.1,
+        "btc4h": -401.2,
+        "chain_thresholds": 3,
+        "eth1h": -422.9,
+        "event_id": "ETHUSDT_SELL_100000_1782395476217",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -477.0,
+        "signal_utc": "2026-06-25T13:51:16.217000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_HIGH",
+          "BID_DEPTH_THIN",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": 195.0,
+        "vdepth": 43.1
+      },
+      {
+        "bid_depth": 43516.6,
+        "btc4h": -396.2,
+        "chain_thresholds": 3,
+        "eth1h": -416.5,
+        "event_id": "ETHUSDT_SELL_50000_1782395474187",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -469.8,
+        "signal_utc": "2026-06-25T13:51:14.187000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_HIGH",
+          "BID_DEPTH_THIN",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": 195.0,
+        "vdepth": 41.9
+      },
+      {
+        "bid_depth": 4368.9,
+        "btc4h": -112.0,
+        "chain_thresholds": 3,
+        "eth1h": -63.0,
+        "event_id": "ETHUSDT_SELL_200000_1782394305283",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -135.4,
+        "signal_utc": "2026-06-25T13:31:45.283000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_HIGH",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": 195.0,
+        "vdepth": 45.6
+      },
+      {
+        "bid_depth": 325274.6,
+        "btc4h": -109.2,
+        "chain_thresholds": 3,
+        "eth1h": -60.8,
+        "event_id": "ETHUSDT_SELL_100000_1782394284495",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -132.2,
+        "signal_utc": "2026-06-25T13:31:24.495000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_CORE",
+          "BID_DEPTH_OK",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_LOW_CONTEXT",
+          "SIZE_15X_STABLE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": 195.0,
+        "vdepth": 39.4
+      },
+      {
+        "bid_depth": 31419.0,
+        "btc4h": -100.5,
+        "chain_thresholds": 3,
+        "eth1h": -51.7,
+        "event_id": "ETHUSDT_SELL_50000_1782394272242",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -122.9,
+        "signal_utc": "2026-06-25T13:31:12.242000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": 195.0,
+        "vdepth": 24.2
+      },
+      {
+        "bid_depth": 94814.2,
+        "btc4h": -425.3,
+        "chain_thresholds": 3,
+        "eth1h": -54.2,
+        "event_id": "ETHUSDT_SELL_100000_1782319424366",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -337.3,
+        "signal_utc": "2026-06-24T16:43:44.366000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": 195.0,
+        "vdepth": 20.2
+      },
+      {
+        "bid_depth": 300442.8,
+        "btc4h": -406.7,
+        "chain_thresholds": 3,
+        "eth1h": -54.2,
+        "event_id": "ETHUSDT_SELL_50000_1782319123478",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -311.8,
+        "signal_utc": "2026-06-24T16:38:43.478000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": 195.0,
+        "vdepth": 16.6
+      }
+    ],
+    "loser_profile": {
+      "avg_bid_depth": 165183.0,
+      "avg_btc4h": -200.5,
+      "avg_chain_thresholds": 2.6,
+      "avg_eth1h": -118.3,
+      "avg_prior4h": -226.8,
+      "avg_threshold": 114035.1,
+      "avg_vdepth": 20.1,
+      "n": 57,
+      "tags": {
+        "BID_DEPTH_OK": 35,
+        "BID_DEPTH_THIN": 22,
+        "EXIT_2H_ACTUAL_BETTER": 21,
+        "EXIT_4H_ACTUAL_BETTER": 36,
+        "RISK_OFF_REBOUND": 55,
+        "SIZE_34X_FRAGILE": 53,
+        "TAIL_HIGH_OR_UNKNOWN": 53,
+        "VDEPTH_DANGER_LOW": 46
+      }
+    },
+    "summary": {
+      "max_loss_bps": -45.0,
+      "mean_bps": 15.9,
+      "median_bps": -5.3,
+      "n": 184,
+      "sum_bps": 2922.0,
+      "t3r_bps": 2337.0,
+      "tail_lte_minus100_n": 0,
+      "tail_lte_minus150_n": 0,
+      "tail_lte_minus300_n": 0,
+      "win_rate": 0.462
+    },
+    "tail_profile": {
+      "avg_bid_depth": null,
+      "avg_btc4h": null,
+      "avg_chain_thresholds": null,
+      "avg_eth1h": null,
+      "avg_prior4h": null,
+      "avg_threshold": null,
+      "avg_vdepth": null,
+      "n": 0,
+      "tags": {}
+    },
+    "winner_profile": {
+      "avg_bid_depth": 147485.5,
+      "avg_btc4h": -182.4,
+      "avg_chain_thresholds": 2.8,
+      "avg_eth1h": -109.0,
+      "avg_prior4h": -199.8,
+      "avg_threshold": 112352.9,
+      "avg_vdepth": 17.5,
+      "n": 85,
+      "tags": {
+        "BID_DEPTH_THIN": 52,
+        "EXIT_2H_ACTUAL_BETTER": 36,
+        "EXIT_4H_ACTUAL_BETTER": 49,
+        "RISK_OFF_REBOUND": 79,
+        "SIZE_34X_FRAGILE": 82,
+        "TAIL_HIGH_OR_UNKNOWN": 82,
+        "TAIL_REALIZED": 34,
+        "VDEPTH_DANGER_LOW": 67
+      }
+    },
+    "worst10": [
+      {
+        "bid_depth": 0.0,
+        "btc4h": -97.0,
+        "chain_thresholds": 3,
+        "eth1h": -39.7,
+        "event_id": "ETHUSDT_SELL_50000_1781119401712",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -153.1,
+        "signal_utc": "2026-06-10T19:23:21.712000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": -45.0,
+        "vdepth": 14.9
+      },
+      {
+        "bid_depth": 0.0,
+        "btc4h": -93.7,
+        "chain_thresholds": 3,
+        "eth1h": -42.0,
+        "event_id": "ETHUSDT_SELL_100000_1781119418078",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -148.8,
+        "signal_utc": "2026-06-10T19:23:38.078000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": -45.0,
+        "vdepth": 15.2
+      },
+      {
+        "bid_depth": 0.0,
+        "btc4h": -93.7,
+        "chain_thresholds": 3,
+        "eth1h": -42.0,
+        "event_id": "ETHUSDT_SELL_200000_1781119418078",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -148.8,
+        "signal_utc": "2026-06-10T19:23:38.078000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": -45.0,
+        "vdepth": 15.2
+      },
+      {
+        "bid_depth": 310159.5,
+        "btc4h": -93.7,
+        "chain_thresholds": 3,
+        "eth1h": -98.8,
+        "event_id": "ETHUSDT_SELL_200000_1781190088276",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -127.2,
+        "signal_utc": "2026-06-11T15:01:28.276000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": -45.0,
+        "vdepth": 27.3
+      },
+      {
+        "bid_depth": 125536.8,
+        "btc4h": -92.6,
+        "chain_thresholds": 3,
+        "eth1h": -138.3,
+        "event_id": "ETHUSDT_SELL_50000_1781562702507",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -203.8,
+        "signal_utc": "2026-06-15T22:31:42.507000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": -45.0,
+        "vdepth": 14.0
+      },
+      {
+        "bid_depth": 164886.4,
+        "btc4h": -78.9,
+        "chain_thresholds": 2,
+        "eth1h": -53.3,
+        "event_id": "ETHUSDT_SELL_50000_1781566632078",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -226.6,
+        "signal_utc": "2026-06-15T23:37:12.078000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "BID_DEPTH_CORE",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": -45.0,
+        "vdepth": 11.6
+      },
+      {
+        "bid_depth": 7335.6,
+        "btc4h": -85.5,
+        "chain_thresholds": 2,
+        "eth1h": -76.5,
+        "event_id": "ETHUSDT_SELL_50000_1781617965180",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": 30.0,
+        "signal_utc": "2026-06-16T13:52:45.180000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "NEUTRAL_CONTEXT",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": -45.0,
+        "vdepth": 11.6
+      },
+      {
+        "bid_depth": 70420.5,
+        "btc4h": -85.8,
+        "chain_thresholds": 2,
+        "eth1h": -75.3,
+        "event_id": "ETHUSDT_SELL_100000_1781617966260",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": 30.0,
+        "signal_utc": "2026-06-16T13:52:46.260000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "NEUTRAL_CONTEXT",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": -45.0,
+        "vdepth": 11.7
+      },
+      {
+        "bid_depth": 152312.6,
+        "btc4h": -166.1,
+        "chain_thresholds": 2,
+        "eth1h": -192.7,
+        "event_id": "ETHUSDT_SELL_100000_1781620305356",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -140.5,
+        "signal_utc": "2026-06-16T14:31:45.356000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "BID_DEPTH_CORE",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": -45.0,
+        "vdepth": 8.3
+      },
+      {
+        "bid_depth": 25214.3,
+        "btc4h": -171.1,
+        "chain_thresholds": 2,
+        "eth1h": -200.2,
+        "event_id": "ETHUSDT_SELL_200000_1781620306905",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -148.3,
+        "signal_utc": "2026-06-16T14:31:46.905000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": -45.0,
+        "vdepth": 9.8
+      }
+    ]
+  },
+  "lead_anatomy_final_hold": {
+    "best10": [
+      {
+        "bid_depth": 80608.4,
+        "btc4h": -107.3,
+        "chain_thresholds": 2,
+        "eth1h": -90.3,
+        "event_id": "ETHUSDT_SELL_200000_1782439900211",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -121.6,
+        "signal_utc": "2026-06-26T02:11:40.211000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": 195.0,
+        "vdepth": 7.1
+      },
+      {
+        "bid_depth": 80608.4,
+        "btc4h": -107.3,
+        "chain_thresholds": 2,
+        "eth1h": -90.3,
+        "event_id": "ETHUSDT_SELL_100000_1782439900211",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -121.6,
+        "signal_utc": "2026-06-26T02:11:40.211000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": 195.0,
+        "vdepth": 7.1
+      },
+      {
+        "bid_depth": 28384.1,
+        "btc4h": -401.2,
+        "chain_thresholds": 3,
+        "eth1h": -422.9,
+        "event_id": "ETHUSDT_SELL_200000_1782395476217",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -477.0,
+        "signal_utc": "2026-06-25T13:51:16.217000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_HIGH",
+          "BID_DEPTH_THIN",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": 195.0,
+        "vdepth": 43.1
+      },
+      {
+        "bid_depth": 28384.1,
+        "btc4h": -401.2,
+        "chain_thresholds": 3,
+        "eth1h": -422.9,
+        "event_id": "ETHUSDT_SELL_100000_1782395476217",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -477.0,
+        "signal_utc": "2026-06-25T13:51:16.217000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_HIGH",
+          "BID_DEPTH_THIN",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": 195.0,
+        "vdepth": 43.1
+      },
+      {
+        "bid_depth": 43516.6,
+        "btc4h": -396.2,
+        "chain_thresholds": 3,
+        "eth1h": -416.5,
+        "event_id": "ETHUSDT_SELL_50000_1782395474187",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -469.8,
+        "signal_utc": "2026-06-25T13:51:14.187000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_HIGH",
+          "BID_DEPTH_THIN",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": 195.0,
+        "vdepth": 41.9
+      },
+      {
+        "bid_depth": 4368.9,
+        "btc4h": -112.0,
+        "chain_thresholds": 3,
+        "eth1h": -63.0,
+        "event_id": "ETHUSDT_SELL_200000_1782394305283",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -135.4,
+        "signal_utc": "2026-06-25T13:31:45.283000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_HIGH",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": 195.0,
+        "vdepth": 45.6
+      },
+      {
+        "bid_depth": 325274.6,
+        "btc4h": -109.2,
+        "chain_thresholds": 3,
+        "eth1h": -60.8,
+        "event_id": "ETHUSDT_SELL_100000_1782394284495",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -132.2,
+        "signal_utc": "2026-06-25T13:31:24.495000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_CORE",
+          "BID_DEPTH_OK",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_LOW_CONTEXT",
+          "SIZE_15X_STABLE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": 195.0,
+        "vdepth": 39.4
+      },
+      {
+        "bid_depth": 31419.0,
+        "btc4h": -100.5,
+        "chain_thresholds": 3,
+        "eth1h": -51.7,
+        "event_id": "ETHUSDT_SELL_50000_1782394272242",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -122.9,
+        "signal_utc": "2026-06-25T13:31:12.242000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": 195.0,
+        "vdepth": 24.2
+      },
+      {
+        "bid_depth": 94814.2,
+        "btc4h": -425.3,
+        "chain_thresholds": 3,
+        "eth1h": -54.2,
+        "event_id": "ETHUSDT_SELL_100000_1782319424366",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -337.3,
+        "signal_utc": "2026-06-24T16:43:44.366000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": 195.0,
+        "vdepth": 20.2
+      },
+      {
+        "bid_depth": 300442.8,
+        "btc4h": -406.7,
+        "chain_thresholds": 3,
+        "eth1h": -54.2,
+        "event_id": "ETHUSDT_SELL_50000_1782319123478",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -311.8,
+        "signal_utc": "2026-06-24T16:38:43.478000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": 195.0,
+        "vdepth": 16.6
+      }
+    ],
+    "loser_profile": {
+      "avg_bid_depth": 165183.0,
+      "avg_btc4h": -200.5,
+      "avg_chain_thresholds": 2.6,
+      "avg_eth1h": -118.3,
+      "avg_prior4h": -226.8,
+      "avg_threshold": 114035.1,
+      "avg_vdepth": 20.1,
+      "n": 57,
+      "tags": {
+        "BID_DEPTH_OK": 35,
+        "BID_DEPTH_THIN": 22,
+        "EXIT_2H_ACTUAL_BETTER": 21,
+        "EXIT_4H_ACTUAL_BETTER": 36,
+        "RISK_OFF_REBOUND": 55,
+        "SIZE_34X_FRAGILE": 53,
+        "TAIL_HIGH_OR_UNKNOWN": 53,
+        "VDEPTH_DANGER_LOW": 46
+      }
+    },
+    "summary": {
+      "max_loss_bps": -45.0,
+      "mean_bps": 15.9,
+      "median_bps": -5.3,
+      "n": 184,
+      "sum_bps": 2922.0,
+      "t3r_bps": 2337.0,
+      "tail_lte_minus100_n": 0,
+      "tail_lte_minus150_n": 0,
+      "tail_lte_minus300_n": 0,
+      "win_rate": 0.462
+    },
+    "tail_profile": {
+      "avg_bid_depth": null,
+      "avg_btc4h": null,
+      "avg_chain_thresholds": null,
+      "avg_eth1h": null,
+      "avg_prior4h": null,
+      "avg_threshold": null,
+      "avg_vdepth": null,
+      "n": 0,
+      "tags": {}
+    },
+    "winner_profile": {
+      "avg_bid_depth": 147485.5,
+      "avg_btc4h": -182.4,
+      "avg_chain_thresholds": 2.8,
+      "avg_eth1h": -109.0,
+      "avg_prior4h": -199.8,
+      "avg_threshold": 112352.9,
+      "avg_vdepth": 17.5,
+      "n": 85,
+      "tags": {
+        "BID_DEPTH_THIN": 52,
+        "EXIT_2H_ACTUAL_BETTER": 36,
+        "EXIT_4H_ACTUAL_BETTER": 49,
+        "RISK_OFF_REBOUND": 79,
+        "SIZE_34X_FRAGILE": 82,
+        "TAIL_HIGH_OR_UNKNOWN": 82,
+        "TAIL_REALIZED": 34,
+        "VDEPTH_DANGER_LOW": 67
+      }
+    },
+    "worst10": [
+      {
+        "bid_depth": 0.0,
+        "btc4h": -97.0,
+        "chain_thresholds": 3,
+        "eth1h": -39.7,
+        "event_id": "ETHUSDT_SELL_50000_1781119401712",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -153.1,
+        "signal_utc": "2026-06-10T19:23:21.712000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": -45.0,
+        "vdepth": 14.9
+      },
+      {
+        "bid_depth": 0.0,
+        "btc4h": -93.7,
+        "chain_thresholds": 3,
+        "eth1h": -42.0,
+        "event_id": "ETHUSDT_SELL_100000_1781119418078",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -148.8,
+        "signal_utc": "2026-06-10T19:23:38.078000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": -45.0,
+        "vdepth": 15.2
+      },
+      {
+        "bid_depth": 0.0,
+        "btc4h": -93.7,
+        "chain_thresholds": 3,
+        "eth1h": -42.0,
+        "event_id": "ETHUSDT_SELL_200000_1781119418078",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -148.8,
+        "signal_utc": "2026-06-10T19:23:38.078000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": -45.0,
+        "vdepth": 15.2
+      },
+      {
+        "bid_depth": 310159.5,
+        "btc4h": -93.7,
+        "chain_thresholds": 3,
+        "eth1h": -98.8,
+        "event_id": "ETHUSDT_SELL_200000_1781190088276",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -127.2,
+        "signal_utc": "2026-06-11T15:01:28.276000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": -45.0,
+        "vdepth": 27.3
+      },
+      {
+        "bid_depth": 125536.8,
+        "btc4h": -92.6,
+        "chain_thresholds": 3,
+        "eth1h": -138.3,
+        "event_id": "ETHUSDT_SELL_50000_1781562702507",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -203.8,
+        "signal_utc": "2026-06-15T22:31:42.507000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": -45.0,
+        "vdepth": 14.0
+      },
+      {
+        "bid_depth": 164886.4,
+        "btc4h": -78.9,
+        "chain_thresholds": 2,
+        "eth1h": -53.3,
+        "event_id": "ETHUSDT_SELL_50000_1781566632078",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -226.6,
+        "signal_utc": "2026-06-15T23:37:12.078000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "BID_DEPTH_CORE",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": -45.0,
+        "vdepth": 11.6
+      },
+      {
+        "bid_depth": 7335.6,
+        "btc4h": -85.5,
+        "chain_thresholds": 2,
+        "eth1h": -76.5,
+        "event_id": "ETHUSDT_SELL_50000_1781617965180",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": 30.0,
+        "signal_utc": "2026-06-16T13:52:45.180000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "NEUTRAL_CONTEXT",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": -45.0,
+        "vdepth": 11.6
+      },
+      {
+        "bid_depth": 70420.5,
+        "btc4h": -85.8,
+        "chain_thresholds": 2,
+        "eth1h": -75.3,
+        "event_id": "ETHUSDT_SELL_100000_1781617966260",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": 30.0,
+        "signal_utc": "2026-06-16T13:52:46.260000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "NEUTRAL_CONTEXT",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": -45.0,
+        "vdepth": 11.7
+      },
+      {
+        "bid_depth": 152312.6,
+        "btc4h": -166.1,
+        "chain_thresholds": 2,
+        "eth1h": -192.7,
+        "event_id": "ETHUSDT_SELL_100000_1781620305356",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -140.5,
+        "signal_utc": "2026-06-16T14:31:45.356000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "BID_DEPTH_CORE",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": -45.0,
+        "vdepth": 8.3
+      },
+      {
+        "bid_depth": 25214.3,
+        "btc4h": -171.1,
+        "chain_thresholds": 2,
+        "eth1h": -200.2,
+        "event_id": "ETHUSDT_SELL_200000_1781620306905",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -148.3,
+        "signal_utc": "2026-06-16T14:31:46.905000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": -45.0,
+        "vdepth": 9.8
+      }
+    ]
+  },
+  "maxstat_permutation_final_hold": {
+    "candidate_p": {
+      "S3_BTC100_VLT50_REV_TP200_SL40_20M": {
+        "mc_p": 0.001,
+        "real_t3r": 1907.9
+      },
+      "S3_BTC75_CHAIN3_REV_TP150_SL30_15M": {
+        "mc_p": 0.001,
+        "real_t3r": 1692.0
+      },
+      "S3_BTC75_REV_FIXED15M": {
+        "mc_p": 0.002,
+        "real_t3r": 1011.0
+      },
+      "S3_BTC75_VLT50_CHAIN3_REV_TP200_SL40_20M": {
+        "mc_p": 0.001,
+        "real_t3r": 2504.8
+      },
+      "S3_BTC75_VLT50_REV_FIXED15M": {
+        "mc_p": 0.001,
+        "real_t3r": 1207.7
+      },
+      "S3_BTC75_VLT50_REV_TP200_SL40_20M": {
+        "mc_p": 0.001,
+        "real_t3r": 2337.0
+      },
+      "V02_BID_OK_NORMAL_FIXED2H": {
+        "mc_p": 0.275,
+        "real_t3r": 170.6
+      },
+      "V02_TAIL_HIGH_NORMAL_FIXED2H": {
+        "mc_p": 0.902,
+        "real_t3r": -285.0
+      },
+      "V02_TAIL_LOW_NORMAL_FIXED2H": {
+        "mc_p": 0.275,
+        "real_t3r": 170.6
+      }
+    },
+    "maxstat_95pct_t3r": 590.7,
+    "permutations": 1000
+  },
+  "non_overlap_chain_lead": {
+    "nonoverlap_15m_first": {
+      "exits": {
+        "SL": 12,
+        "TIME": 30,
+        "TP": 4
+      },
+      "matched_n": 46,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 30.0,
+        "median_bps": 10.4,
+        "n": 46,
+        "sum_bps": 1381.0,
+        "t3r_bps": 796.0,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.565
+      }
+    },
+    "nonoverlap_15m_max_threshold": {
+      "exits": {
+        "SL": 13,
+        "TIME": 30,
+        "TP": 3
+      },
+      "matched_n": 46,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 21.9,
+        "median_bps": -2.6,
+        "n": 46,
+        "sum_bps": 1008.0,
+        "t3r_bps": 423.0,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.478
+      }
+    },
+    "nonoverlap_15m_min_vdepth": {
+      "exits": {
+        "SL": 12,
+        "TIME": 31,
+        "TP": 3
+      },
+      "matched_n": 46,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 24.4,
+        "median_bps": 7.6,
+        "n": 46,
+        "sum_bps": 1122.0,
+        "t3r_bps": 537.0,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.565
+      }
+    },
+    "nonoverlap_30m_first": {
+      "exits": {
+        "SL": 8,
+        "TIME": 23,
+        "TP": 2
+      },
+      "matched_n": 33,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 26.0,
+        "median_bps": 7.4,
+        "n": 33,
+        "sum_bps": 859.3,
+        "t3r_bps": 288.8,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.545
+      }
+    },
+    "nonoverlap_30m_max_threshold": {
+      "exits": {
+        "SL": 9,
+        "TIME": 23,
+        "TP": 1
+      },
+      "matched_n": 33,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 16.4,
+        "median_bps": -5.3,
+        "n": 33,
+        "sum_bps": 540.8,
+        "t3r_bps": 9.5,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.455
+      }
+    },
+    "nonoverlap_30m_min_vdepth": {
+      "exits": {
+        "SL": 9,
+        "TIME": 24
+      },
+      "matched_n": 33,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 15.0,
+        "median_bps": 6.6,
+        "n": 33,
+        "sum_bps": 496.5,
+        "t3r_bps": 54.7,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.545
+      }
+    },
+    "nonoverlap_60m_first": {
+      "exits": {
+        "SL": 7,
+        "TIME": 21,
+        "TP": 1
+      },
+      "matched_n": 29,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 24.6,
+        "median_bps": 7.4,
+        "n": 29,
+        "sum_bps": 714.3,
+        "t3r_bps": 198.3,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.552
+      }
+    },
+    "nonoverlap_60m_max_threshold": {
+      "exits": {
+        "SL": 7,
+        "TIME": 21,
+        "TP": 1
+      },
+      "matched_n": 29,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 16.4,
+        "median_bps": -3.8,
+        "n": 29,
+        "sum_bps": 474.2,
+        "t3r_bps": -22.6,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.483
+      }
+    },
+    "nonoverlap_60m_min_vdepth": {
+      "exits": {
+        "SL": 8,
+        "TIME": 21
+      },
+      "matched_n": 29,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 14.1,
+        "median_bps": 6.6,
+        "n": 29,
+        "sum_bps": 409.7,
+        "t3r_bps": -32.1,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.552
+      }
+    },
+    "overlap": {
+      "exits": {
+        "SL": 38,
+        "TIME": 84,
+        "TP": 10
+      },
+      "matched_n": 132,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 23.4,
+        "median_bps": 5.4,
+        "n": 132,
+        "sum_bps": 3089.8,
+        "t3r_bps": 2504.8,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.523
+      }
+    }
+  },
+  "non_overlap_lead": {
+    "nonoverlap_15m_first": {
+      "exits": {
+        "SL": 24,
+        "TIME": 50,
+        "TP": 5
+      },
+      "matched_n": 79,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 12.6,
+        "median_bps": -5.8,
+        "n": 79,
+        "sum_bps": 993.9,
+        "t3r_bps": 408.9,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.443
+      }
+    },
+    "nonoverlap_15m_max_threshold": {
+      "exits": {
+        "SL": 26,
+        "TIME": 49,
+        "TP": 4
+      },
+      "matched_n": 79,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 6.8,
+        "median_bps": -9.8,
+        "n": 79,
+        "sum_bps": 535.7,
+        "t3r_bps": -49.3,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.38
+      }
+    },
+    "nonoverlap_15m_min_vdepth": {
+      "exits": {
+        "SL": 24,
+        "TIME": 49,
+        "TP": 6
+      },
+      "matched_n": 79,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 11.8,
+        "median_bps": -5.8,
+        "n": 79,
+        "sum_bps": 935.0,
+        "t3r_bps": 350.0,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.443
+      }
+    },
+    "nonoverlap_30m_first": {
+      "exits": {
+        "SL": 10,
+        "TIME": 35,
+        "TP": 3
+      },
+      "matched_n": 48,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 14.3,
+        "median_bps": -5.1,
+        "n": 48,
+        "sum_bps": 685.5,
+        "t3r_bps": 100.5,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.458
+      }
+    },
+    "nonoverlap_30m_max_threshold": {
+      "exits": {
+        "SL": 12,
+        "TIME": 34,
+        "TP": 2
+      },
+      "matched_n": 48,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 9.3,
+        "median_bps": -7.6,
+        "n": 48,
+        "sum_bps": 446.9,
+        "t3r_bps": -118.1,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.396
+      }
+    },
+    "nonoverlap_30m_min_vdepth": {
+      "exits": {
+        "SL": 12,
+        "TIME": 34,
+        "TP": 2
+      },
+      "matched_n": 48,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 7.1,
+        "median_bps": -4.9,
+        "n": 48,
+        "sum_bps": 338.5,
+        "t3r_bps": -192.0,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.479
+      }
+    },
+    "nonoverlap_60m_first": {
+      "exits": {
+        "SL": 7,
+        "TIME": 27,
+        "TP": 2
+      },
+      "matched_n": 36,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 13.8,
+        "median_bps": -4.5,
+        "n": 36,
+        "sum_bps": 496.4,
+        "t3r_bps": -74.1,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.472
+      }
+    },
+    "nonoverlap_60m_max_threshold": {
+      "exits": {
+        "SL": 9,
+        "TIME": 25,
+        "TP": 2
+      },
+      "matched_n": 36,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 9.9,
+        "median_bps": -7.6,
+        "n": 36,
+        "sum_bps": 356.4,
+        "t3r_bps": -194.9,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.361
+      }
+    },
+    "nonoverlap_60m_min_vdepth": {
+      "exits": {
+        "SL": 9,
+        "TIME": 25,
+        "TP": 2
+      },
+      "matched_n": 36,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 5.4,
+        "median_bps": -5.8,
+        "n": 36,
+        "sum_bps": 193.5,
+        "t3r_bps": -274.4,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.444
+      }
+    },
+    "overlap": {
+      "exits": {
+        "SL": 57,
+        "TIME": 113,
+        "TP": 14
+      },
+      "matched_n": 184,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 15.9,
+        "median_bps": -5.3,
+        "n": 184,
+        "sum_bps": 2922.0,
+        "t3r_bps": 2337.0,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.462
+      }
+    }
+  },
+  "rows_n": 1204,
+  "status": "RESEARCH_ONLY_NO_LIVE_CHANGE"
+}

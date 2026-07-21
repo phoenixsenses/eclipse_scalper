@@ -1,0 +1,1008 @@
+{
+  "generated_at": "2026-06-20T09:11:16.640468+00:00",
+  "scope": {
+    "symbol": "ETHUSDT",
+    "liq_side": "BUY",
+    "route_id": "LONG_DELAY0_TP60",
+    "rows": 450
+  },
+  "predicate_count": 120,
+  "phase_distribution": {
+    "early_impulse": {
+      "n": 7,
+      "days": 6,
+      "mean": 30.783152356906733,
+      "median": 53.83630203428562,
+      "cum": 215.48206649834714,
+      "wr": 0.7142857142857143,
+      "top3_removed_cum": 49.567902036403254,
+      "positive_days": 4,
+      "worst_day_cum": -48.00524170449162,
+      "exit_counts": {
+        "BE": 1,
+        "SL": 1,
+        "TP": 5
+      }
+    },
+    "fresh_start": {
+      "n": 434,
+      "days": 77,
+      "mean": 13.388020743989403,
+      "median": -7.760394548990186,
+      "cum": 5810.401002891401,
+      "wr": 0.49078341013824883,
+      "top3_removed_cum": 5607.5206644297805,
+      "positive_days": 51,
+      "worst_day_cum": -74.70160382121462,
+      "exit_counts": {
+        "BE": 129,
+        "SL": 74,
+        "TIME": 37,
+        "TP": 194
+      }
+    },
+    "late_saturated": {
+      "n": 3,
+      "days": 3,
+      "mean": 32.01316999871019,
+      "median": 53.51364059649102,
+      "cum": 96.03950999613058,
+      "wr": 0.6666666666666666,
+      "top3_removed_cum": 0.0,
+      "positive_days": 2,
+      "worst_day_cum": -12.242193832406775,
+      "exit_counts": {
+        "BE": 1,
+        "TP": 2
+      }
+    },
+    "mid_cascade": {
+      "n": 6,
+      "days": 6,
+      "mean": 17.726628422301417,
+      "median": 22.020870140803847,
+      "cum": 106.3597705338085,
+      "wr": 0.5,
+      "top3_removed_cum": -68.09240557403287,
+      "positive_days": 3,
+      "worst_day_cum": -48.405490417944385,
+      "exit_counts": {
+        "BE": 2,
+        "SL": 1,
+        "TP": 3
+      }
+    }
+  },
+  "candidates": [
+    {
+      "rank": 1,
+      "label": "prior15_ge_p75_109044",
+      "expr": "prior15_buy_liq_notional >= 109044.052325",
+      "train": {
+        "n": 55,
+        "days": 22,
+        "mean": 20.155370568360112,
+        "median": 52.380864558233306,
+        "cum": 1108.5453812598062,
+        "wr": 0.5818181818181818,
+        "top3_removed_cum": 935.3626655858804,
+        "positive_days": 14,
+        "worst_day_cum": -57.52497443783374,
+        "exit_counts": {
+          "BE": 13,
+          "SL": 9,
+          "TIME": 2,
+          "TP": 31
+        }
+      },
+      "test": {
+        "n": 58,
+        "days": 27,
+        "mean": 17.45659532966359,
+        "median": 52.17302489731583,
+        "cum": 1012.4825291204882,
+        "wr": 0.5517241379310345,
+        "top3_removed_cum": 828.6426063254232,
+        "positive_days": 17,
+        "worst_day_cum": -97.32802260916804,
+        "exit_counts": {
+          "BE": 15,
+          "SL": 11,
+          "TIME": 2,
+          "TP": 30
+        }
+      },
+      "all": {
+        "n": 113,
+        "days": 48,
+        "mean": 18.77015849894066,
+        "median": 52.343302256700426,
+        "cum": 2121.0279103802945,
+        "wr": 0.5663716814159292,
+        "top3_removed_cum": 1937.1879875852294,
+        "positive_days": 31,
+        "worst_day_cum": -97.32802260916804,
+        "exit_counts": {
+          "BE": 28,
+          "SL": 20,
+          "TIME": 4,
+          "TP": 61
+        }
+      },
+      "real_fill": {
+        "total_rows": 113,
+        "real_fill_rows": 36,
+        "no_fill_rows": 77,
+        "no_fill_rate": 0.6814159292035398,
+        "test": {
+          "n": 36,
+          "days": 15,
+          "mean": 14.425695291802144,
+          "median": 21.457400303286775,
+          "cum": 519.3250305048772,
+          "wr": 0.5277777777777778,
+          "top3_removed_cum": 265.4890701881598,
+          "positive_days": 9,
+          "worst_day_cum": -97.19993490188381,
+          "exit_counts": {
+            "BE": 8,
+            "SL": 9,
+            "TIME": 1,
+            "TP": 18
+          }
+        }
+      }
+    },
+    {
+      "rank": 2,
+      "label": "prior15_clusters_eq_0 AND prior15_ge_p75_109044",
+      "expr": "prior15_cluster_count <= 0 AND prior15_buy_liq_notional >= 109044.052325",
+      "train": {
+        "n": 55,
+        "days": 22,
+        "mean": 20.155370568360112,
+        "median": 52.380864558233306,
+        "cum": 1108.5453812598062,
+        "wr": 0.5818181818181818,
+        "top3_removed_cum": 935.3626655858804,
+        "positive_days": 14,
+        "worst_day_cum": -57.52497443783374,
+        "exit_counts": {
+          "BE": 13,
+          "SL": 9,
+          "TIME": 2,
+          "TP": 31
+        }
+      },
+      "test": {
+        "n": 58,
+        "days": 27,
+        "mean": 17.45659532966359,
+        "median": 52.17302489731583,
+        "cum": 1012.4825291204882,
+        "wr": 0.5517241379310345,
+        "top3_removed_cum": 828.6426063254232,
+        "positive_days": 17,
+        "worst_day_cum": -97.32802260916804,
+        "exit_counts": {
+          "BE": 15,
+          "SL": 11,
+          "TIME": 2,
+          "TP": 30
+        }
+      },
+      "all": {
+        "n": 113,
+        "days": 48,
+        "mean": 18.77015849894066,
+        "median": 52.343302256700426,
+        "cum": 2121.0279103802945,
+        "wr": 0.5663716814159292,
+        "top3_removed_cum": 1937.1879875852294,
+        "positive_days": 31,
+        "worst_day_cum": -97.32802260916804,
+        "exit_counts": {
+          "BE": 28,
+          "SL": 20,
+          "TIME": 4,
+          "TP": 61
+        }
+      },
+      "real_fill": {
+        "total_rows": 113,
+        "real_fill_rows": 36,
+        "no_fill_rows": 77,
+        "no_fill_rate": 0.6814159292035398,
+        "test": {
+          "n": 36,
+          "days": 15,
+          "mean": 14.425695291802144,
+          "median": 21.457400303286775,
+          "cum": 519.3250305048772,
+          "wr": 0.5277777777777778,
+          "top3_removed_cum": 265.4890701881598,
+          "positive_days": 9,
+          "worst_day_cum": -97.19993490188381,
+          "exit_counts": {
+            "BE": 8,
+            "SL": 9,
+            "TIME": 1,
+            "TP": 18
+          }
+        }
+      }
+    },
+    {
+      "rank": 3,
+      "label": "phase_fresh_start AND prior15_ge_p75_109044",
+      "expr": "phase_label = 'fresh_start' AND prior15_buy_liq_notional >= 109044.052325",
+      "train": {
+        "n": 52,
+        "days": 22,
+        "mean": 19.412619038003857,
+        "median": 52.36208340746687,
+        "cum": 1009.4561899762006,
+        "wr": 0.5769230769230769,
+        "top3_removed_cum": 836.2734743022748,
+        "positive_days": 14,
+        "worst_day_cum": -57.52497443783374,
+        "exit_counts": {
+          "BE": 12,
+          "SL": 9,
+          "TIME": 2,
+          "TP": 29
+        }
+      },
+      "test": {
+        "n": 45,
+        "days": 26,
+        "mean": 15.4153416305735,
+        "median": 21.37175955877173,
+        "cum": 693.6903733758076,
+        "wr": 0.5333333333333333,
+        "top3_removed_cum": 511.48941467536764,
+        "positive_days": 13,
+        "worst_day_cum": -91.83959249655956,
+        "exit_counts": {
+          "BE": 12,
+          "SL": 9,
+          "TIME": 2,
+          "TP": 22
+        }
+      },
+      "all": {
+        "n": 97,
+        "days": 47,
+        "mean": 17.55821199331967,
+        "median": 52.1893774164002,
+        "cum": 1703.1465633520081,
+        "wr": 0.5567010309278351,
+        "top3_removed_cum": 1520.9456046515681,
+        "positive_days": 27,
+        "worst_day_cum": -91.83959249655956,
+        "exit_counts": {
+          "BE": 24,
+          "SL": 18,
+          "TIME": 4,
+          "TP": 51
+        }
+      },
+      "real_fill": {
+        "total_rows": 97,
+        "real_fill_rows": 25,
+        "no_fill_rows": 72,
+        "no_fill_rate": 0.7422680412371134,
+        "test": {
+          "n": 25,
+          "days": 14,
+          "mean": 7.231878455531545,
+          "median": -8.661863366814167,
+          "cum": 180.79696138828862,
+          "wr": 0.44,
+          "top3_removed_cum": -63.09438700841413,
+          "positive_days": 5,
+          "worst_day_cum": -61.98836784824776,
+          "exit_counts": {
+            "BE": 7,
+            "SL": 7,
+            "TIME": 1,
+            "TP": 10
+          }
+        }
+      }
+    },
+    {
+      "rank": 4,
+      "label": "prior15_notional_lt_500k AND prior15_ge_p75_109044",
+      "expr": "prior15_buy_liq_notional < 500000 AND prior15_buy_liq_notional >= 109044.052325",
+      "train": {
+        "n": 52,
+        "days": 22,
+        "mean": 19.412619038003857,
+        "median": 52.36208340746687,
+        "cum": 1009.4561899762006,
+        "wr": 0.5769230769230769,
+        "top3_removed_cum": 836.2734743022748,
+        "positive_days": 14,
+        "worst_day_cum": -57.52497443783374,
+        "exit_counts": {
+          "BE": 12,
+          "SL": 9,
+          "TIME": 2,
+          "TP": 29
+        }
+      },
+      "test": {
+        "n": 45,
+        "days": 26,
+        "mean": 15.4153416305735,
+        "median": 21.37175955877173,
+        "cum": 693.6903733758076,
+        "wr": 0.5333333333333333,
+        "top3_removed_cum": 511.48941467536764,
+        "positive_days": 13,
+        "worst_day_cum": -91.83959249655956,
+        "exit_counts": {
+          "BE": 12,
+          "SL": 9,
+          "TIME": 2,
+          "TP": 22
+        }
+      },
+      "all": {
+        "n": 97,
+        "days": 47,
+        "mean": 17.55821199331967,
+        "median": 52.1893774164002,
+        "cum": 1703.1465633520081,
+        "wr": 0.5567010309278351,
+        "top3_removed_cum": 1520.9456046515681,
+        "positive_days": 27,
+        "worst_day_cum": -91.83959249655956,
+        "exit_counts": {
+          "BE": 24,
+          "SL": 18,
+          "TIME": 4,
+          "TP": 51
+        }
+      },
+      "real_fill": {
+        "total_rows": 97,
+        "real_fill_rows": 25,
+        "no_fill_rows": 72,
+        "no_fill_rate": 0.7422680412371134,
+        "test": {
+          "n": 25,
+          "days": 14,
+          "mean": 7.231878455531545,
+          "median": -8.661863366814167,
+          "cum": 180.79696138828862,
+          "wr": 0.44,
+          "top3_removed_cum": -63.09438700841413,
+          "positive_days": 5,
+          "worst_day_cum": -61.98836784824776,
+          "exit_counts": {
+            "BE": 7,
+            "SL": 7,
+            "TIME": 1,
+            "TP": 10
+          }
+        }
+      }
+    },
+    {
+      "rank": 5,
+      "label": "pressure15_ge_p75_0.27 AND prior15_ge_p75_109044",
+      "expr": "phase_pressure_15m >= 0.27047122300872933 AND prior15_buy_liq_notional >= 109044.052325",
+      "train": {
+        "n": 48,
+        "days": 22,
+        "mean": 19.2201584834304,
+        "median": 52.36208340746687,
+        "cum": 922.5676072046592,
+        "wr": 0.5833333333333334,
+        "top3_removed_cum": 750.9395371829498,
+        "positive_days": 14,
+        "worst_day_cum": -49.469165746468654,
+        "exit_counts": {
+          "BE": 11,
+          "SL": 9,
+          "TIME": 1,
+          "TP": 27
+        }
+      },
+      "test": {
+        "n": 41,
+        "days": 24,
+        "mean": 8.99879667103148,
+        "median": -8.275744814873155,
+        "cum": 368.95066351229065,
+        "wr": 0.4634146341463415,
+        "top3_removed_cum": 185.6206722690848,
+        "positive_days": 13,
+        "worst_day_cum": -97.32802260916804,
+        "exit_counts": {
+          "BE": 12,
+          "SL": 10,
+          "TIME": 2,
+          "TP": 17
+        }
+      },
+      "all": {
+        "n": 89,
+        "days": 45,
+        "mean": 14.511441244010673,
+        "median": 21.37175955877173,
+        "cum": 1291.51827071695,
+        "wr": 0.5280898876404494,
+        "top3_removed_cum": 1108.188279473744,
+        "positive_days": 27,
+        "worst_day_cum": -97.32802260916804,
+        "exit_counts": {
+          "BE": 23,
+          "SL": 19,
+          "TIME": 3,
+          "TP": 44
+        }
+      },
+      "real_fill": {
+        "total_rows": 89,
+        "real_fill_rows": 25,
+        "no_fill_rows": 64,
+        "no_fill_rate": 0.7191011235955056,
+        "test": {
+          "n": 25,
+          "days": 12,
+          "mean": 6.509654544471,
+          "median": -8.661863366814167,
+          "cum": 162.741363611775,
+          "wr": 0.48,
+          "top3_removed_cum": -22.39472069911492,
+          "positive_days": 7,
+          "worst_day_cum": -97.19993490188381,
+          "exit_counts": {
+            "BE": 5,
+            "SL": 8,
+            "TIME": 1,
+            "TP": 11
+          }
+        }
+      }
+    },
+    {
+      "rank": 6,
+      "label": "prior15_notional_lt_1m AND prior15_ge_p75_109044",
+      "expr": "prior15_buy_liq_notional < 1000000 AND prior15_buy_liq_notional >= 109044.052325",
+      "train": {
+        "n": 53,
+        "days": 22,
+        "mean": 18.885107373760338,
+        "median": 52.343302256700426,
+        "cum": 1000.9106908092979,
+        "wr": 0.5660377358490566,
+        "top3_removed_cum": 827.7279751353722,
+        "positive_days": 14,
+        "worst_day_cum": -57.52497443783374,
+        "exit_counts": {
+          "BE": 13,
+          "SL": 9,
+          "TIME": 2,
+          "TP": 29
+        }
+      },
+      "test": {
+        "n": 51,
+        "days": 26,
+        "mean": 15.456071539796087,
+        "median": 21.37175955877173,
+        "cum": 788.2596485296004,
+        "wr": 0.5294117647058824,
+        "top3_removed_cum": 606.0586898291605,
+        "positive_days": 14,
+        "worst_day_cum": -97.32802260916804,
+        "exit_counts": {
+          "BE": 14,
+          "SL": 10,
+          "TIME": 2,
+          "TP": 25
+        }
+      },
+      "all": {
+        "n": 104,
+        "days": 47,
+        "mean": 17.203560955181715,
+        "median": 52.17302489731583,
+        "cum": 1789.1703393388984,
+        "wr": 0.5480769230769231,
+        "top3_removed_cum": 1606.9693806384585,
+        "positive_days": 28,
+        "worst_day_cum": -97.32802260916804,
+        "exit_counts": {
+          "BE": 27,
+          "SL": 19,
+          "TIME": 4,
+          "TP": 54
+        }
+      },
+      "real_fill": {
+        "total_rows": 104,
+        "real_fill_rows": 30,
+        "no_fill_rows": 74,
+        "no_fill_rate": 0.7115384615384616,
+        "test": {
+          "n": 30,
+          "days": 14,
+          "mean": 9.521196157847406,
+          "median": -7.99838364339152,
+          "cum": 285.63588473542217,
+          "wr": 0.4666666666666667,
+          "top3_removed_cum": 38.757725830828434,
+          "positive_days": 6,
+          "worst_day_cum": -97.19993490188381,
+          "exit_counts": {
+            "BE": 8,
+            "SL": 8,
+            "TIME": 1,
+            "TP": 13
+          }
+        }
+      }
+    },
+    {
+      "rank": 7,
+      "label": "current_share_15m_ge_50 AND prior15_ge_p75_109044",
+      "expr": "current_share_15m >= 50 AND prior15_buy_liq_notional >= 109044.052325",
+      "train": {
+        "n": 47,
+        "days": 21,
+        "mean": 17.197534492000692,
+        "median": 52.343302256700426,
+        "cum": 808.2841211240326,
+        "wr": 0.5531914893617021,
+        "top3_removed_cum": 635.1014054501069,
+        "positive_days": 13,
+        "worst_day_cum": -57.52497443783374,
+        "exit_counts": {
+          "BE": 11,
+          "SL": 9,
+          "TIME": 2,
+          "TP": 25
+        }
+      },
+      "test": {
+        "n": 44,
+        "days": 24,
+        "mean": 20.597339050585994,
+        "median": 52.4222813530762,
+        "cum": 906.2829182257838,
+        "wr": 0.5909090909090909,
+        "top3_removed_cum": 724.0819595253438,
+        "positive_days": 15,
+        "worst_day_cum": -56.54412385397459,
+        "exit_counts": {
+          "BE": 11,
+          "SL": 7,
+          "TIME": 2,
+          "TP": 24
+        }
+      },
+      "all": {
+        "n": 91,
+        "days": 44,
+        "mean": 18.84139603681117,
+        "median": 52.343302256700426,
+        "cum": 1714.5670393498165,
+        "wr": 0.5714285714285714,
+        "top3_removed_cum": 1532.3660806493765,
+        "positive_days": 28,
+        "worst_day_cum": -57.52497443783374,
+        "exit_counts": {
+          "BE": 22,
+          "SL": 16,
+          "TIME": 4,
+          "TP": 49
+        }
+      },
+      "real_fill": {
+        "total_rows": 91,
+        "real_fill_rows": 28,
+        "no_fill_rows": 63,
+        "no_fill_rate": 0.6923076923076923,
+        "test": {
+          "n": 28,
+          "days": 15,
+          "mean": 14.777716737294538,
+          "median": 21.457400303286775,
+          "cum": 413.77606864424706,
+          "wr": 0.5357142857142857,
+          "top3_removed_cum": 166.8979097396533,
+          "positive_days": 8,
+          "worst_day_cum": -61.98836784824776,
+          "exit_counts": {
+            "BE": 6,
+            "SL": 7,
+            "TIME": 1,
+            "TP": 14
+          }
+        }
+      }
+    },
+    {
+      "rank": 8,
+      "label": "pressure15_le_p25_0.01 AND prior15_le_p25_3736",
+      "expr": "phase_pressure_15m <= 0.00825039709523225 AND prior15_buy_liq_notional <= 3735.9707099999996",
+      "train": {
+        "n": 42,
+        "days": 24,
+        "mean": 19.55055480076199,
+        "median": 52.15931370119511,
+        "cum": 821.1233016320036,
+        "wr": 0.5476190476190477,
+        "top3_removed_cum": 630.1238488721503,
+        "positive_days": 15,
+        "worst_day_cum": -57.270719133917495,
+        "exit_counts": {
+          "BE": 11,
+          "SL": 5,
+          "TIME": 4,
+          "TP": 22
+        }
+      },
+      "test": {
+        "n": 58,
+        "days": 26,
+        "mean": 15.703248425302037,
+        "median": 14.198361723177,
+        "cum": 910.7884086675182,
+        "wr": 0.5517241379310345,
+        "top3_removed_cum": 734.8978564984025,
+        "positive_days": 18,
+        "worst_day_cum": -57.578054654640894,
+        "exit_counts": {
+          "BE": 17,
+          "SL": 8,
+          "TIME": 9,
+          "TP": 24
+        }
+      },
+      "all": {
+        "n": 100,
+        "days": 49,
+        "mean": 17.319117102995218,
+        "median": 21.338194113251728,
+        "cum": 1731.911710299522,
+        "wr": 0.55,
+        "top3_removed_cum": 1540.9122575396686,
+        "positive_days": 33,
+        "worst_day_cum": -57.578054654640894,
+        "exit_counts": {
+          "BE": 28,
+          "SL": 13,
+          "TIME": 13,
+          "TP": 46
+        }
+      },
+      "real_fill": {
+        "total_rows": 100,
+        "real_fill_rows": 40,
+        "no_fill_rows": 60,
+        "no_fill_rate": 0.6,
+        "test": {
+          "n": 40,
+          "days": 17,
+          "mean": 17.608447902228257,
+          "median": 22.93425083317854,
+          "cum": 704.3379160891302,
+          "wr": 0.575,
+          "top3_removed_cum": 515.7369827895653,
+          "positive_days": 12,
+          "worst_day_cum": -47.25073582538483,
+          "exit_counts": {
+            "BE": 12,
+            "SL": 4,
+            "TIME": 7,
+            "TP": 17
+          }
+        }
+      }
+    }
+  ],
+  "sample_rows": [
+    {
+      "event_id": "ETHUSDT_BUY_5903985",
+      "event_ts_ms": 1771195631071,
+      "event_utc": "2026-02-15T22:47:11.071000+00:00",
+      "day": "2026-02-15",
+      "cluster_notional": 216935.92059,
+      "cluster_duration_sec": 49.087,
+      "cluster_count": 6,
+      "cluster_max_notional": 126293.55382,
+      "cluster_intensity_notional_per_sec": 4419.416965591704,
+      "day_trend_bps": -154.5983821098841,
+      "day_range_bps": 445.2361842529021,
+      "max_single_liq_share": 58.21698567785353,
+      "shape_label": "distributed_mid_duration",
+      "route_id": "LONG_DELAY0_TP60",
+      "entry_ts_ms": 1771195632000,
+      "entry_price": 1971.21151163,
+      "exit_ts_ms": 1771196475000,
+      "exit_price": 1963.24363566,
+      "exit_reason": "SL",
+      "net_bps": -48.42121265521191,
+      "mfe_bps": 11.457361915122812,
+      "mae_bps": -40.42121265521191,
+      "time_to_mfe_sec": 48.001,
+      "prior15_buy_liq_notional": 2539.2627199999997,
+      "prior30_buy_liq_notional": 5547.39959,
+      "prior60_buy_liq_notional": 7931.57303,
+      "prior15_buy_liq_count": 2,
+      "prior30_buy_liq_count": 8,
+      "prior15_cluster_count": 0,
+      "prior30_cluster_count": 0,
+      "prev_cluster_gap_sec": null,
+      "phase_pressure_15m": 0.011705128007818965,
+      "phase_pressure_30m": 0.02557160462367299,
+      "current_share_15m": 98.84302968485808,
+      "phase_label": "fresh_start"
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904001",
+      "event_ts_ms": 1771200428659,
+      "event_utc": "2026-02-16T00:07:08.659000+00:00",
+      "day": "2026-02-16",
+      "cluster_notional": 375213.6386,
+      "cluster_duration_sec": 121.263,
+      "cluster_count": 21,
+      "cluster_max_notional": 245323.81923,
+      "cluster_intensity_notional_per_sec": 3094.2137222400897,
+      "day_trend_bps": 11.396707165679677,
+      "day_range_bps": 22.113007887730003,
+      "max_single_liq_share": 65.38243656210209,
+      "shape_label": "stretched_120s",
+      "route_id": "LONG_DELAY0_TP60",
+      "entry_ts_ms": 1771200429000,
+      "entry_price": 1967.71,
+      "exit_ts_ms": 1771201277000,
+      "exit_price": 1967.61,
+      "exit_reason": "BE",
+      "net_bps": -8.508204969228883,
+      "mfe_bps": 52.2434708366577,
+      "mae_bps": -0.5082049692288824,
+      "time_to_mfe_sec": 592.001,
+      "prior15_buy_liq_notional": 9850.81411,
+      "prior30_buy_liq_notional": 20010.19426,
+      "prior60_buy_liq_notional": 91915.28626000001,
+      "prior15_buy_liq_count": 3,
+      "prior30_buy_liq_count": 5,
+      "prior15_cluster_count": 0,
+      "prior30_cluster_count": 0,
+      "prev_cluster_gap_sec": 4797.588,
+      "phase_pressure_15m": 0.02625388071381262,
+      "phase_pressure_30m": 0.05333013569192791,
+      "current_share_15m": 97.44177525588974,
+      "phase_label": "fresh_start"
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904089",
+      "event_ts_ms": 1771226717535,
+      "event_utc": "2026-02-16T07:25:17.535000+00:00",
+      "day": "2026-02-16",
+      "cluster_notional": 206265.78420999998,
+      "cluster_duration_sec": 168.952,
+      "cluster_count": 10,
+      "cluster_max_notional": 124567.3032,
+      "cluster_intensity_notional_per_sec": 1220.854350407216,
+      "day_trend_bps": 45.16012383743354,
+      "day_range_bps": 162.86661670653223,
+      "max_single_liq_share": 60.39164647548987,
+      "shape_label": "stretched_120s",
+      "route_id": "LONG_DELAY0_TP60",
+      "entry_ts_ms": 1771226718000,
+      "entry_price": 1974.51660016,
+      "exit_ts_ms": 1771227661001,
+      "exit_price": 1966.46,
+      "exit_reason": "SL",
+      "net_bps": -48.80289909614925,
+      "mfe_bps": 17.006049529935282,
+      "mae_bps": -40.80289909614925,
+      "time_to_mfe_sec": 26.0,
+      "prior15_buy_liq_notional": 140784.34110999998,
+      "prior30_buy_liq_notional": 171669.46524999998,
+      "prior60_buy_liq_notional": 257161.59764999998,
+      "prior15_buy_liq_count": 14,
+      "prior30_buy_liq_count": 26,
+      "prior15_cluster_count": 0,
+      "prior30_cluster_count": 0,
+      "prev_cluster_gap_sec": 26288.876,
+      "phase_pressure_15m": 0.6825385104427543,
+      "phase_pressure_30m": 0.8322731077647985,
+      "current_share_15m": 59.43400366728328,
+      "phase_label": "fresh_start"
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904155",
+      "event_ts_ms": 1771246610161,
+      "event_utc": "2026-02-16T12:56:50.161000+00:00",
+      "day": "2026-02-16",
+      "cluster_notional": 474788.74231,
+      "cluster_duration_sec": 11.939,
+      "cluster_count": 4,
+      "cluster_max_notional": 302319.0,
+      "cluster_intensity_notional_per_sec": 39767.881925621914,
+      "day_trend_bps": 211.19522966400058,
+      "day_range_bps": 301.6599767993347,
+      "max_single_liq_share": 63.674424656557946,
+      "shape_label": "distributed_mid_duration",
+      "route_id": "LONG_DELAY0_TP60",
+      "entry_ts_ms": 1771246611005,
+      "entry_price": 2008.14,
+      "exit_ts_ms": 1771246988000,
+      "exit_price": 2020.57,
+      "exit_reason": "TP",
+      "net_bps": 53.898074835419024,
+      "mfe_bps": 61.898074835419024,
+      "mae_bps": -25.29704104295594,
+      "time_to_mfe_sec": 376.995,
+      "prior15_buy_liq_notional": 230491.75318,
+      "prior30_buy_liq_notional": 334489.21456,
+      "prior60_buy_liq_notional": 471177.01462,
+      "prior15_buy_liq_count": 30,
+      "prior30_buy_liq_count": 45,
+      "prior15_cluster_count": 0,
+      "prior30_cluster_count": 0,
+      "prev_cluster_gap_sec": 19892.626,
+      "phase_pressure_15m": 0.4854617067342066,
+      "phase_pressure_30m": 0.7045011491481503,
+      "current_share_15m": 67.31913690313188,
+      "phase_label": "fresh_start"
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904162",
+      "event_ts_ms": 1771248616210,
+      "event_utc": "2026-02-16T13:30:16.210000+00:00",
+      "day": "2026-02-16",
+      "cluster_notional": 221978.67975,
+      "cluster_duration_sec": 123.413,
+      "cluster_count": 9,
+      "cluster_max_notional": 179419.6404,
+      "cluster_intensity_notional_per_sec": 1798.6652925542692,
+      "day_trend_bps": 77.84358019415082,
+      "day_range_bps": 380.7749892722582,
+      "max_single_liq_share": 80.82742027390583,
+      "shape_label": "single_dominant_80pct",
+      "route_id": "LONG_DELAY0_TP60",
+      "entry_ts_ms": 1771248617001,
+      "entry_price": 1980.63,
+      "exit_ts_ms": 1771249088004,
+      "exit_price": 1972.39,
+      "exit_reason": "SL",
+      "net_bps": -49.60292432205919,
+      "mfe_bps": 28.930188879294924,
+      "mae_bps": -41.60292432205919,
+      "time_to_mfe_sec": 149.003,
+      "prior15_buy_liq_notional": 6594.57364,
+      "prior30_buy_liq_notional": 612157.06388,
+      "prior60_buy_liq_notional": 1389245.66279,
+      "prior15_buy_liq_count": 5,
+      "prior30_buy_liq_count": 43,
+      "prior15_cluster_count": 0,
+      "prior30_cluster_count": 0,
+      "prev_cluster_gap_sec": 2006.049,
+      "phase_pressure_15m": 0.029708139752101573,
+      "phase_pressure_30m": 2.757729096188122,
+      "current_share_15m": 97.1148970659537,
+      "phase_label": "fresh_start"
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904196",
+      "event_ts_ms": 1771258929443,
+      "event_utc": "2026-02-16T16:22:09.443000+00:00",
+      "day": "2026-02-16",
+      "cluster_notional": 220657.03549,
+      "cluster_duration_sec": 103.239,
+      "cluster_count": 6,
+      "cluster_max_notional": 159139.92978,
+      "cluster_intensity_notional_per_sec": 2137.341852303877,
+      "day_trend_bps": 12.465148462462327,
+      "day_range_bps": 439.5354241104445,
+      "max_single_liq_share": 72.1209407289495,
+      "shape_label": "distributed_mid_duration",
+      "route_id": "LONG_DELAY0_TP60",
+      "entry_ts_ms": 1771258930002,
+      "entry_price": 1968.38,
+      "exit_ts_ms": 1771261798000,
+      "exit_price": 1968.33763566,
+      "exit_reason": "BE",
+      "net_bps": -8.215224397728978,
+      "mfe_bps": 38.74579070098146,
+      "mae_bps": -35.79920244058624,
+      "time_to_mfe_sec": 2338.998,
+      "prior15_buy_liq_notional": 0.0,
+      "prior30_buy_liq_notional": 225373.08819,
+      "prior60_buy_liq_notional": 275910.65476,
+      "prior15_buy_liq_count": 0,
+      "prior30_buy_liq_count": 39,
+      "prior15_cluster_count": 0,
+      "prior30_cluster_count": 0,
+      "prev_cluster_gap_sec": 10313.233,
+      "phase_pressure_15m": 0.0,
+      "phase_pressure_30m": 1.021372772862317,
+      "current_share_15m": 100.0,
+      "phase_label": "fresh_start"
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904477",
+      "event_ts_ms": 1771343104205,
+      "event_utc": "2026-02-17T15:45:04.205000+00:00",
+      "day": "2026-02-17",
+      "cluster_notional": 301552.92312,
+      "cluster_duration_sec": 289.505,
+      "cluster_count": 12,
+      "cluster_max_notional": 290544.82464,
+      "cluster_intensity_notional_per_sec": 1041.615596000069,
+      "day_trend_bps": -215.63571732545594,
+      "day_range_bps": 342.63754658676163,
+      "max_single_liq_share": 96.34953016999293,
+      "shape_label": "single_dominant_80pct",
+      "route_id": "LONG_DELAY0_TP60",
+      "entry_ts_ms": 1771343105000,
+      "entry_price": 1954.28,
+      "exit_ts_ms": 1771343751000,
+      "exit_price": 1966.1,
+      "exit_reason": "TP",
+      "net_bps": 52.48263299015461,
+      "mfe_bps": 60.48263299015461,
+      "mae_bps": -8.104691855823646,
+      "time_to_mfe_sec": 646.0,
+      "prior15_buy_liq_notional": 26822.24739,
+      "prior30_buy_liq_notional": 72961.08103,
+      "prior60_buy_liq_notional": 230332.92689,
+      "prior15_buy_liq_count": 7,
+      "prior30_buy_liq_count": 19,
+      "prior15_cluster_count": 0,
+      "prior30_cluster_count": 0,
+      "prev_cluster_gap_sec": 84174.762,
+      "phase_pressure_15m": 0.0889470647887779,
+      "phase_pressure_30m": 0.24195116490701654,
+      "current_share_15m": 91.83182840884642,
+      "phase_label": "fresh_start"
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904481",
+      "event_ts_ms": 1771344311630,
+      "event_utc": "2026-02-17T16:05:11.630000+00:00",
+      "day": "2026-02-17",
+      "cluster_notional": 544503.05561,
+      "cluster_duration_sec": 135.004,
+      "cluster_count": 14,
+      "cluster_max_notional": 299681.26752,
+      "cluster_intensity_notional_per_sec": 4033.23646417884,
+      "day_trend_bps": -46.88118732320272,
+      "day_range_bps": 342.63754658676163,
+      "max_single_liq_share": 55.03757314718294,
+      "shape_label": "stretched_120s",
+      "route_id": "LONG_DELAY0_TP60",
+      "entry_ts_ms": 1771344312000,
+      "entry_price": 1987.9747907,
+      "exit_ts_ms": 1771344549000,
+      "exit_price": 1987.72412403,
+      "exit_reason": "BE",
+      "net_bps": -9.260914731780057,
+      "mfe_bps": 32.574656984053995,
+      "mae_bps": -10.637915077663187,
+      "time_to_mfe_sec": 138.01,
+      "prior15_buy_liq_notional": 165060.40381,
+      "prior30_buy_liq_notional": 478806.31155,
+      "prior60_buy_liq_notional": 653158.86726,
+      "prior15_buy_liq_count": 41,
+      "prior30_buy_liq_count": 57,
+      "prior15_cluster_count": 0,
+      "prior30_cluster_count": 1,
+      "prev_cluster_gap_sec": 1207.425,
+      "phase_pressure_15m": 0.3031395363338868,
+      "phase_pressure_30m": 0.879345499748572,
+      "current_share_15m": 76.73775310457489,
+      "phase_label": "fresh_start"
+    }
+  ]
+}

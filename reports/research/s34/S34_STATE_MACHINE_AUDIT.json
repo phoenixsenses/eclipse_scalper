@@ -1,0 +1,280 @@
+{
+  "generated_utc": "2026-06-30T15:16:42.711984+00:00",
+  "n_events_total": 2006,
+  "n_events_classified": 450,
+  "n_events_holdout": 135,
+  "fee_bps": 5.0,
+  "A_distribution": {
+    "by_state": {
+      "NEITHER": {
+        "n_total": 68,
+        "n_holdout": 34,
+        "hold_wr_long": 0.294,
+        "hold_wr_short": 0.765
+      },
+      "NEITHER_BULL": {
+        "n_total": 2,
+        "n_holdout": 0,
+        "hold_wr_long": null,
+        "hold_wr_short": null
+      },
+      "NOISY": {
+        "n_total": 185,
+        "n_holdout": 58,
+        "hold_wr_long": 0.483,
+        "hold_wr_short": 0.483
+      },
+      "NOISY_BULL": {
+        "n_total": 13,
+        "n_holdout": 2,
+        "hold_wr_long": 1.0,
+        "hold_wr_short": null
+      },
+      "SILENCE": {
+        "n_total": 167,
+        "n_holdout": 38,
+        "hold_wr_long": 0.737,
+        "hold_wr_short": 0.237
+      },
+      "SILENCE_BULL": {
+        "n_total": 15,
+        "n_holdout": 3,
+        "hold_wr_long": 1.0,
+        "hold_wr_short": null
+      }
+    },
+    "daily_avg_total": 5.2,
+    "daily_avg_silence": 1.9,
+    "daily_avg_neither": 0.8,
+    "daily_max_total": 15,
+    "daily_max_silence": 6,
+    "daily_max_neither": 7
+  },
+  "B_ultra_early_btc": {
+    "neither_n": 68,
+    "ultra_early_n": 10,
+    "normal_n": 58,
+    "hold_ultra": {
+      "n": 7,
+      "wr": 0.857,
+      "mean": 83.1,
+      "median": 28.4,
+      "t3r": -43.0
+    },
+    "hold_normal": {
+      "n": 27,
+      "wr": 0.741,
+      "mean": 86.7,
+      "median": 67.2,
+      "t3r": 1255.0
+    },
+    "delay_distribution": {
+      "<2min": 13,
+      "2-5min": 16,
+      "5-15min": 25,
+      "15-30min": 14
+    },
+    "median_delay_min": 5.7
+  },
+  "C_long_neither_overlap": {
+    "n_silence_events": 167,
+    "n_with_overlap": 12,
+    "overlap_rate": 0.072,
+    "holdout_hold": {
+      "scenario": "HOLD_LONG",
+      "n": 3,
+      "wr": 0.667,
+      "mean": -90.5,
+      "median": 11.5,
+      "t3r": -271.0
+    },
+    "holdout_flip": {
+      "scenario": "FLIP_SHORT",
+      "n": 3,
+      "wr": 0.667,
+      "mean": 210.8,
+      "median": 340.1,
+      "t3r": 632.0
+    },
+    "sample": [
+      {
+        "sil_ts": 1772181382421,
+        "nei_ts": 1772185482191,
+        "delay_min": 68.3,
+        "hold_net": -333.5,
+        "flip_net": 252.5,
+        "long_partial_bps": -51.1,
+        "short_net": 308.6,
+        "is_holdout": false
+      },
+      {
+        "sil_ts": 1776333833066,
+        "nei_ts": 1776347534594,
+        "delay_min": 228.4,
+        "hold_net": -138.3,
+        "flip_net": -119.5,
+        "long_partial_bps": -42.0,
+        "short_net": -72.5,
+        "is_holdout": false
+      },
+      {
+        "sil_ts": 1776336596230,
+        "nei_ts": 1776347534594,
+        "delay_min": 182.3,
+        "hold_net": -90.8,
+        "flip_net": -98.7,
+        "long_partial_bps": -21.2,
+        "short_net": -72.5,
+        "is_holdout": false
+      },
+      {
+        "sil_ts": 1776532407082,
+        "nei_ts": 1776537183235,
+        "delay_min": 79.6,
+        "hold_net": -30.5,
+        "flip_net": -30.0,
+        "long_partial_bps": -25.1,
+        "short_net": 0.1,
+        "is_holdout": false
+      },
+      {
+        "sil_ts": 1776573615952,
+        "nei_ts": 1776583005437,
+        "delay_min": 156.5,
+        "hold_net": -38.7,
+        "flip_net": -12.6,
+        "long_partial_bps": -21.8,
+        "short_net": 14.2,
+        "is_holdout": false
+      },
+      {
+        "sil_ts": 1776607589513,
+        "nei_ts": 1776617625185,
+        "delay_min": 167.3,
+        "hold_net": -150.9,
+        "flip_net": 27.4,
+        "long_partial_bps": -53.3,
+        "short_net": 85.7,
+        "is_holdout": false
+      },
+      {
+        "sil_ts": 1776612946254,
+        "nei_ts": 1776617625185,
+        "delay_min": 78.0,
+        "hold_net": -112.0,
+        "flip_net": 48.1,
+        "long_partial_bps": -32.6,
+        "short_net": 85.7,
+        "is_holdout": false
+      },
+      {
+        "sil_ts": 1780997657131,
+        "nei_ts": 1781011162089,
+        "delay_min": 225.1,
+        "hold_net": 8.7,
+        "flip_net": 133.8,
+        "long_partial_bps": 18.9,
+        "short_net": 119.9,
+        "is_holdout": false
+      },
+      {
+        "sil_ts": 1781106527244,
+        "nei_ts": 1781112563144,
+        "delay_min": 100.6,
+        "hold_net": -106.8,
+        "flip_net": -57.9,
+        "long_partial_bps": -80.8,
+        "short_net": 27.9,
+        "is_holdout": false
+      },
+      {
+        "sil_ts": 1781707645053,
+        "nei_ts": 1781719230110,
+        "delay_min": 193.1,
+        "hold_net": 174.4,
+        "flip_net": 364.1,
+        "long_partial_bps": 144.9,
+        "short_net": 224.2,
+        "is_holdout": true
+      }
+    ]
+  },
+  "D_score_filter_neither": {
+    "by_score_exact": {
+      "1": {
+        "n_all": 6,
+        "n_hold": 2,
+        "wr_all": 0.5,
+        "wr_hold": 0.5
+      },
+      "2": {
+        "n_all": 11,
+        "n_hold": 4,
+        "wr_all": 0.545,
+        "wr_hold": 0.5
+      },
+      "3": {
+        "n_all": 26,
+        "n_hold": 12,
+        "wr_all": 0.769,
+        "wr_hold": 0.75
+      },
+      "4": {
+        "n_all": 19,
+        "n_hold": 12,
+        "wr_all": 0.789,
+        "wr_hold": 0.833
+      },
+      "5": {
+        "n_all": 6,
+        "n_hold": 4,
+        "wr_all": 1.0,
+        "wr_hold": 1.0
+      }
+    },
+    "by_score_cumulative": {
+      ">=0": {
+        "n_all": 68,
+        "n_hold": 34,
+        "wr_all": 0.735,
+        "wr_hold": 0.765,
+        "t3r_hold": 1836.0
+      },
+      ">=1": {
+        "n_all": 68,
+        "n_hold": 34,
+        "wr_all": 0.735,
+        "wr_hold": 0.765,
+        "t3r_hold": 1836.0
+      },
+      ">=2": {
+        "n_all": 62,
+        "n_hold": 32,
+        "wr_all": 0.758,
+        "wr_hold": 0.781,
+        "t3r_hold": 1775.0
+      },
+      ">=3": {
+        "n_all": 51,
+        "n_hold": 28,
+        "wr_all": 0.804,
+        "wr_hold": 0.821,
+        "t3r_hold": 1870.0
+      },
+      ">=4": {
+        "n_all": 25,
+        "n_hold": 16,
+        "wr_all": 0.84,
+        "wr_hold": 0.875,
+        "t3r_hold": 1109.0
+      },
+      ">=5": {
+        "n_all": 6,
+        "n_hold": 4,
+        "wr_all": 1.0,
+        "wr_hold": 1.0,
+        "t3r_hold": 28.0
+      }
+    }
+  }
+}

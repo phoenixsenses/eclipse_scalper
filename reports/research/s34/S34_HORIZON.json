@@ -1,0 +1,399 @@
+{
+  "results": {
+    "V": {
+      "V_whale_lo_TEST": {
+        "label": "whale_lo TEST",
+        "n": 17,
+        "wr": 94.1,
+        "avg": 116.5,
+        "total": 1981.0,
+        "per_month": 12.6,
+        "mc_p": 0.0
+      },
+      "V_whale_hi_TEST": {
+        "label": "whale_hi TEST",
+        "n": 21,
+        "wr": 57.1,
+        "avg": 30.5,
+        "total": 640.0,
+        "per_month": 15.5,
+        "mc_p": 0.124
+      },
+      "V_s7_ge3_full": {
+        "label": "s7>=3 full",
+        "n": 71,
+        "wr": 74.6,
+        "avg": 70.5,
+        "total": 5002.0,
+        "per_month": 15.8,
+        "mc_p": 0.0
+      },
+      "V_s7_ge3_TEST": {
+        "label": "s7>=3 TEST",
+        "n": 32,
+        "wr": 78.1,
+        "avg": 79.0,
+        "total": 2529.0,
+        "per_month": 23.7,
+        "mc_p": 0.0
+      },
+      "V_s7_ge4_full": {
+        "label": "s7>=4 full",
+        "n": 50,
+        "wr": 76.0,
+        "avg": 78.1,
+        "total": 3907.0,
+        "per_month": 11.1,
+        "mc_p": 0.0
+      },
+      "V_s7_ge4_TEST": {
+        "label": "s7>=4 TEST",
+        "n": 25,
+        "wr": 84.0,
+        "avg": 104.4,
+        "total": 2610.0,
+        "per_month": 18.5,
+        "mc_p": 0.0
+      },
+      "V_s8_ge3_full": {
+        "label": "s8>=3 full",
+        "n": 85,
+        "wr": 74.1,
+        "avg": 64.0,
+        "total": 5438.0,
+        "per_month": 18.9,
+        "mc_p": 0.0
+      },
+      "V_s8_ge3_TEST": {
+        "label": "s8>=3 TEST",
+        "n": 32,
+        "wr": 78.1,
+        "avg": 79.0,
+        "total": 2529.0,
+        "per_month": 23.7,
+        "mc_p": 0.0
+      },
+      "V_s8_ge4_full": {
+        "label": "s8>=4 full",
+        "n": 56,
+        "wr": 75.0,
+        "avg": 75.1,
+        "total": 4205.0,
+        "per_month": 12.4,
+        "mc_p": 0.0
+      },
+      "V_s8_ge4_TEST": {
+        "label": "s8>=4 TEST",
+        "n": 27,
+        "wr": 85.2,
+        "avg": 100.7,
+        "total": 2718.0,
+        "per_month": 20.0,
+        "mc_p": 0.0
+      },
+      "V_100K_s3_full": {
+        "label": "100K s>=3 full",
+        "n": 130,
+        "wr": 68.5,
+        "avg": 60.0,
+        "total": 7806.0,
+        "per_month": 28.9,
+        "mc_p": 0.0
+      },
+      "V_100K_s3_TEST": {
+        "label": "100K s>=3 TEST",
+        "n": 58,
+        "wr": 72.4,
+        "avg": 57.7,
+        "total": 3345.0,
+        "per_month": 42.9,
+        "mc_p": 0.0
+      },
+      "V_100K_s3_noov": {
+        "label": "100K s>=3 noov",
+        "n": 53,
+        "wr": 66.0,
+        "avg": 54.6,
+        "total": 2892.0,
+        "per_month": 11.8,
+        "mc_p": 0.0
+      }
+    },
+    "I": {
+      "I_base": {
+        "label": "baz tum",
+        "n": 126,
+        "wr": 65.1,
+        "avg": 39.8,
+        "total": 5016.0,
+        "per_month": 28.0,
+        "mc_p": 0.0
+      },
+      "I_sync+rv": {
+        "label": "sync&rv both",
+        "n": 41,
+        "wr": 78.0,
+        "avg": 84.8,
+        "total": 3477.0,
+        "per_month": 9.1,
+        "mc_p": 0.0
+      },
+      "I_sync+shelf": {
+        "label": "sync&shelf both",
+        "n": 29,
+        "wr": 82.8,
+        "avg": 95.1,
+        "total": 2759.0,
+        "per_month": 6.4,
+        "mc_p": 0.0
+      },
+      "I_sync+be": {
+        "label": "sync&be both",
+        "n": 49,
+        "wr": 79.6,
+        "avg": 72.4,
+        "total": 3545.0,
+        "per_month": 10.9,
+        "mc_p": 0.0
+      },
+      "I_sync+whale_lo": {
+        "label": "sync&whale_lo both",
+        "n": 30,
+        "wr": 86.7,
+        "avg": 87.4,
+        "total": 2623.0,
+        "per_month": 6.7,
+        "mc_p": 0.0
+      },
+      "I_rv+shelf": {
+        "label": "rv&shelf both",
+        "n": 45,
+        "wr": 77.8,
+        "avg": 87.9,
+        "total": 3957.0,
+        "per_month": 10.0,
+        "mc_p": 0.0
+      },
+      "I_rv+be": {
+        "label": "rv&be both",
+        "n": 32,
+        "wr": 75.0,
+        "avg": 74.3,
+        "total": 2377.0,
+        "per_month": 7.1,
+        "mc_p": 0.0
+      },
+      "I_rv+whale_lo": {
+        "label": "rv&whale_lo both",
+        "n": 41,
+        "wr": 80.5,
+        "avg": 94.6,
+        "total": 3877.0,
+        "per_month": 9.1,
+        "mc_p": 0.0
+      },
+      "I_shelf+be": {
+        "label": "shelf&be both",
+        "n": 22,
+        "wr": 86.4,
+        "avg": 81.0,
+        "total": 1782.0,
+        "per_month": 4.9,
+        "mc_p": 0.0
+      },
+      "I_shelf+whale_lo": {
+        "label": "shelf&whale_lo both",
+        "n": 35,
+        "wr": 80.0,
+        "avg": 95.3,
+        "total": 3335.0,
+        "per_month": 7.8,
+        "mc_p": 0.0
+      },
+      "I_be+whale_lo": {
+        "label": "be&whale_lo both",
+        "n": 31,
+        "wr": 80.6,
+        "avg": 68.1,
+        "total": 2111.0,
+        "per_month": 6.9,
+        "mc_p": 0.0
+      }
+    },
+    "Z": {
+      "Z_base_s3": {
+        "label": "score>=3 base",
+        "n": 71,
+        "wr": 74.6,
+        "avg": 70.5,
+        "total": 5002.0,
+        "per_month": 15.8,
+        "mc_p": 0.0
+      },
+      "Z_veto_not_sync": {
+        "kept_n": 46,
+        "kept": {
+          "label": "keep sync-hit",
+          "n": 46,
+          "wr": 82.6,
+          "avg": 84.5,
+          "total": 3885.0,
+          "per_month": 10.2,
+          "mc_p": 0.0
+        },
+        "removed_avg": 44.7,
+        "removed_n": 25
+      },
+      "Z_veto_not_rv": {
+        "kept_n": 60,
+        "kept": {
+          "label": "keep rv-hit",
+          "n": 60,
+          "wr": 73.3,
+          "avg": 73.2,
+          "total": 4394.0,
+          "per_month": 13.3,
+          "mc_p": 0.0
+        },
+        "removed_avg": 55.3,
+        "removed_n": 11
+      },
+      "Z_veto_not_shelf": {
+        "kept_n": 49,
+        "kept": {
+          "label": "keep shelf-hit",
+          "n": 49,
+          "wr": 77.6,
+          "avg": 83.7,
+          "total": 4101.0,
+          "per_month": 10.9,
+          "mc_p": 0.0
+        },
+        "removed_avg": 41.0,
+        "removed_n": 22
+      },
+      "Z_veto_not_be": {
+        "kept_n": 39,
+        "kept": {
+          "label": "keep be-hit",
+          "n": 39,
+          "wr": 79.5,
+          "avg": 67.0,
+          "total": 2613.0,
+          "per_month": 8.7,
+          "mc_p": 0.0
+        },
+        "removed_avg": 74.7,
+        "removed_n": 32
+      },
+      "Z_veto_not_whale_lo": {
+        "kept_n": 32,
+        "kept": {
+          "label": "keep whale_lo-hit",
+          "n": 32,
+          "wr": 81.2,
+          "avg": 96.5,
+          "total": 3087.0,
+          "per_month": 7.1,
+          "mc_p": 0.0
+        },
+        "removed_avg": 49.1,
+        "removed_n": 39
+      },
+      "Z_veto_not_d24": {
+        "kept_n": 63,
+        "kept": {
+          "label": "keep d24-hit",
+          "n": 63,
+          "wr": 73.0,
+          "avg": 66.4,
+          "total": 4186.0,
+          "per_month": 14.0,
+          "mc_p": 0.0
+        },
+        "removed_avg": 102.1,
+        "removed_n": 8
+      }
+    },
+    "H": {
+      "H_6h": {
+        "label": "s>=4 6h",
+        "n": 54,
+        "wr": 75.9,
+        "avg": 78.9,
+        "total": 4259.0,
+        "per_month": 12.0,
+        "mc_p": 0.0
+      },
+      "H_12h": {
+        "label": "s>=4 12h",
+        "n": 54,
+        "wr": 66.7,
+        "avg": 84.0,
+        "total": 4534.0,
+        "per_month": 12.0,
+        "mc_p": 0.0
+      },
+      "H_24h": {
+        "label": "s>=4 24h",
+        "n": 54,
+        "wr": 66.7,
+        "avg": 66.5,
+        "total": 3592.0,
+        "per_month": 12.0,
+        "mc_p": 0.03
+      },
+      "H_48h": {
+        "label": "s>=4 48h",
+        "n": 54,
+        "wr": 59.3,
+        "avg": -31.2,
+        "total": -1687.0,
+        "per_month": 12.0,
+        "mc_p": 0.706
+      }
+    },
+    "R": {
+      "R_bootstrap": {
+        "n": 35,
+        "obs_avg": 53.6,
+        "ci5": 26.3,
+        "ci95": 75.3,
+        "p_below0": 0.0
+      }
+    },
+    "T": {
+      "T_long_only": {
+        "label": "LONG 17-23 composite",
+        "n": 71,
+        "wr": 74.6,
+        "avg": 70.5,
+        "total": 5002.0,
+        "per_month": 15.8,
+        "mc_p": 0.0
+      },
+      "T_short_only": {
+        "label": "SHORT 13-17 confirm",
+        "n": 11,
+        "wr": 81.8,
+        "avg": 111.1,
+        "total": 1222.0,
+        "per_month": 2.4,
+        "mc_p": 0.006
+      },
+      "T_portfolio": {
+        "label": "time-machine portfolio",
+        "n": 39,
+        "wr": 69.2,
+        "avg": 56.4,
+        "total": 2199.0,
+        "per_month": 8.7,
+        "mc_p": 0.0
+      }
+    }
+  },
+  "meta": {
+    "n": 126,
+    "months": 4.5
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "results": {
+    "P0_long_comp_only": {
+      "label": "",
+      "n": 42,
+      "wr": 73.8,
+      "avg": 58.6,
+      "total": 2462.0,
+      "per_month": 9.3,
+      "worst": -175.7,
+      "mdd": -176.0,
+      "mc_p": 0.0,
+      "mix": {
+        "LONG_comp": 42
+      }
+    },
+    "P1_fifo_union": {
+      "label": "",
+      "n": 60,
+      "wr": 70.0,
+      "avg": 60.9,
+      "total": 3654.0,
+      "per_month": 13.2,
+      "worst": -206.3,
+      "mdd": -264.0,
+      "mc_p": 0.0,
+      "mix": {
+        "LONG_comp": 17,
+        "LONG_100k": 39,
+        "SHORT_1317": 4
+      }
+    },
+    "P2_admit_ge4": {
+      "label": "",
+      "n": 47,
+      "wr": 66.0,
+      "avg": 63.5,
+      "total": 2985.0,
+      "per_month": 10.4,
+      "worst": -206.3,
+      "mdd": -266.0,
+      "mc_p": 0.0,
+      "mix": {
+        "LONG_comp": 13,
+        "LONG_100k": 30,
+        "SHORT_1317": 4
+      }
+    },
+    "P2_admit_ge5": {
+      "label": "",
+      "n": 32,
+      "wr": 71.9,
+      "avg": 58.8,
+      "total": 1881.0,
+      "per_month": 7.1,
+      "worst": -206.3,
+      "mdd": -227.0,
+      "mc_p": 0.014,
+      "mix": {
+        "LONG_comp": 8,
+        "LONG_100k": 20,
+        "SHORT_1317": 4
+      }
+    },
+    "P3_route_priority": {
+      "label": "",
+      "n": 49,
+      "wr": 73.5,
+      "avg": 58.3,
+      "total": 2857.0,
+      "per_month": 10.8,
+      "worst": -206.3,
+      "mdd": -222.0,
+      "mc_p": 0.0,
+      "mix": {
+        "LONG_comp": 31,
+        "LONG_100k": 14,
+        "SHORT_1317": 4
+      }
+    },
+    "P4_route_priority_strict": {
+      "label": "",
+      "n": 33,
+      "wr": 66.7,
+      "avg": 56.1,
+      "total": 1851.0,
+      "per_month": 7.3,
+      "worst": -206.3,
+      "mdd": -353.0,
+      "mc_p": 0.01,
+      "mix": {
+        "LONG_comp": 22,
+        "LONG_100k": 7,
+        "SHORT_1317": 4
+      }
+    },
+    "P3_route_priority_weighted": {
+      "label": "",
+      "n": 49,
+      "wr": 73.5,
+      "avg": 58.3,
+      "total": 2857.0,
+      "per_month": 10.8,
+      "worst": -206.3,
+      "mdd": -222.0,
+      "mc_p": 0.0,
+      "mix": {
+        "LONG_comp": 31,
+        "LONG_100k": 14,
+        "SHORT_1317": 4
+      },
+      "weighted_total": 7155.0,
+      "weighted_per_unit": 55.5,
+      "units": 129
+    },
+    "P2_admit_ge4_weighted": {
+      "label": "",
+      "n": 47,
+      "wr": 66.0,
+      "avg": 63.5,
+      "total": 2985.0,
+      "per_month": 10.4,
+      "worst": -206.3,
+      "mdd": -266.0,
+      "mc_p": 0.0,
+      "mix": {
+        "LONG_comp": 13,
+        "LONG_100k": 30,
+        "SHORT_1317": 4
+      },
+      "weighted_total": 8730.0,
+      "weighted_per_unit": 62.8,
+      "units": 139
+    }
+  },
+  "meta": {
+    "pool": 193,
+    "by_route": {
+      "LONG_comp": 85,
+      "LONG_100k": 97,
+      "SHORT_1317": 11
+    },
+    "months": 4.53
+  }
+}

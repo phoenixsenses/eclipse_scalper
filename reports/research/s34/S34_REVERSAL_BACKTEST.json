@@ -1,0 +1,65 @@
+{
+  "generated_at_utc": "2026-06-28T22:19:30.893294+00:00",
+  "config": {
+    "symbol": "SOLUSDT",
+    "threshold": 200000.0,
+    "fee_bps_side": 3.05,
+    "max_book_staleness_sec": 10,
+    "holdout_frac": 0.3
+  },
+  "event_n": 66,
+  "horizons": [
+    {
+      "horizon_hr": 4,
+      "filled_n": 53,
+      "no_fill_n": 13,
+      "all": {
+        "cal": {
+          "n": 37,
+          "median": -33.2,
+          "mean": -43.5,
+          "win_rate": 0.432,
+          "sum": -1611.0
+        },
+        "hold": {
+          "n": 16,
+          "median": 77.5,
+          "mean": 83.4,
+          "win_rate": 0.812,
+          "sum": 1335.2
+        },
+        "overall": {
+          "n": 53,
+          "median": 5.1,
+          "mean": -5.2,
+          "win_rate": 0.547,
+          "sum": -275.9
+        }
+      },
+      "sequential": {
+        "n": 32,
+        "cal": {
+          "n": 22,
+          "median": 1.7,
+          "mean": -27.3,
+          "win_rate": 0.5,
+          "sum": -600.2
+        },
+        "hold": {
+          "n": 10,
+          "median": 90.4,
+          "mean": 93.5,
+          "win_rate": 0.8,
+          "sum": 934.9
+        },
+        "overall": {
+          "n": 32,
+          "median": 30.0,
+          "mean": 10.5,
+          "win_rate": 0.594,
+          "sum": 334.7
+        }
+      }
+    }
+  ]
+}

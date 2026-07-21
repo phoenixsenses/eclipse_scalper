@@ -1,0 +1,1204 @@
+{
+  "generated_at_utc": "2026-06-29T08:09:29.830444+00:00",
+  "status": "RESEARCH_OBSERVATION_ONLY_NO_LIVE_CHANGE",
+  "rule_id": "S34_V_ENGINE_V0_2_ETH_SELL_MAKER_LONG_H2_O20_W300_O5_DEEPBID",
+  "source_shadow_rows": 11,
+  "bull_regime": {
+    "status": "TAGGED_OBSERVATION_ONLY",
+    "rows": [
+      {
+        "observation_id": "a05f8216ce8ee8bc2e409ef9",
+        "signal_utc": "2026-04-16T13:52:14.594000+00:00",
+        "tag": "RISK_OFF",
+        "eth_1h_bps": -58.3,
+        "eth_4h_bps": -60.9,
+        "btc_1h_bps": -59.7,
+        "btc_4h_bps": -61.1,
+        "funding_rate": -6.372e-05,
+        "net_bps": 81.1
+      },
+      {
+        "observation_id": "59ab07a9737bf59f321be5c7",
+        "signal_utc": "2026-04-18T03:54:36.116000+00:00",
+        "tag": "NEUTRAL",
+        "eth_1h_bps": -54.6,
+        "eth_4h_bps": -57.3,
+        "btc_1h_bps": -33.3,
+        "btc_4h_bps": -8.0,
+        "funding_rate": 2.235e-05,
+        "net_bps": 26.1
+      },
+      {
+        "observation_id": "6af7c4aab495fedd0e257602",
+        "signal_utc": "2026-04-20T14:08:39.155000+00:00",
+        "tag": "NEUTRAL",
+        "eth_1h_bps": -38.5,
+        "eth_4h_bps": -75.9,
+        "btc_1h_bps": -20.6,
+        "btc_4h_bps": -25.6,
+        "funding_rate": -2.355e-05,
+        "net_bps": 27.0
+      },
+      {
+        "observation_id": "90a517a624845c47f9bfa9ae",
+        "signal_utc": "2026-04-20T14:41:11.191000+00:00",
+        "tag": "NEUTRAL",
+        "eth_1h_bps": -43.8,
+        "eth_4h_bps": -52.6,
+        "btc_1h_bps": -3.8,
+        "btc_4h_bps": 0.8,
+        "funding_rate": -2.247e-05,
+        "net_bps": 13.3
+      },
+      {
+        "observation_id": "21ed308e4f9a76948b9619c5",
+        "signal_utc": "2026-06-16T04:31:11.525000+00:00",
+        "tag": "RISK_OFF",
+        "eth_1h_bps": -75.7,
+        "eth_4h_bps": -169.0,
+        "btc_1h_bps": -21.7,
+        "btc_4h_bps": -63.6,
+        "funding_rate": -1.177e-05,
+        "net_bps": 46.3
+      },
+      {
+        "observation_id": "2beb5c5e1cb24dcad06174ce",
+        "signal_utc": "2026-06-17T01:17:01.753000+00:00",
+        "tag": "NEUTRAL",
+        "eth_1h_bps": -44.8,
+        "eth_4h_bps": -69.8,
+        "btc_1h_bps": -14.7,
+        "btc_4h_bps": -36.2,
+        "funding_rate": 2.753e-05,
+        "net_bps": 41.7
+      },
+      {
+        "observation_id": "e83d39ece763678cc3d07855",
+        "signal_utc": "2026-06-20T14:08:51.159000+00:00",
+        "tag": "RISK_OFF",
+        "eth_1h_bps": -95.2,
+        "eth_4h_bps": -99.7,
+        "btc_1h_bps": -59.1,
+        "btc_4h_bps": -74.4,
+        "funding_rate": 1.753e-05,
+        "net_bps": 152.3
+      },
+      {
+        "observation_id": "aa8857f754bb2f7c45c3e745",
+        "signal_utc": "2026-06-21T23:33:42.690000+00:00",
+        "tag": "RISK_OFF",
+        "eth_1h_bps": -50.1,
+        "eth_4h_bps": -168.8,
+        "btc_1h_bps": -48.8,
+        "btc_4h_bps": -139.1,
+        "funding_rate": 3.011e-05,
+        "net_bps": 227.0
+      },
+      {
+        "observation_id": "9c51e8438c9f4ba61bfb8a07",
+        "signal_utc": "2026-06-26T02:48:30.475000+00:00",
+        "tag": "RISK_OFF",
+        "eth_1h_bps": -206.5,
+        "eth_4h_bps": -278.6,
+        "btc_1h_bps": -115.8,
+        "btc_4h_bps": -188.4,
+        "funding_rate": -6.701e-05,
+        "net_bps": 149.9
+      },
+      {
+        "observation_id": "0b4c2340a7b04cb90c9556c9",
+        "signal_utc": "2026-06-26T10:39:33.530000+00:00",
+        "tag": "RISK_OFF",
+        "eth_1h_bps": -115.4,
+        "eth_4h_bps": -141.6,
+        "btc_1h_bps": -96.5,
+        "btc_4h_bps": -131.6,
+        "funding_rate": -1.372e-05,
+        "net_bps": 17.2
+      },
+      {
+        "observation_id": "1db4a7587a6dd0a216620ca2",
+        "signal_utc": "2026-06-26T13:18:54.877000+00:00",
+        "tag": "RISK_OFF",
+        "eth_1h_bps": -140.6,
+        "eth_4h_bps": -225.6,
+        "btc_1h_bps": -118.1,
+        "btc_4h_bps": -212.3,
+        "funding_rate": -3.556e-05,
+        "net_bps": 299.7
+      }
+    ],
+    "by_tag": {
+      "NEUTRAL": {
+        "n": 4,
+        "sum_bps": 108.1,
+        "mean_bps": 27.0,
+        "median_bps": 26.6,
+        "win_rate": 1.0,
+        "max_loss_bps": 13.3,
+        "p10_bps": 13.3,
+        "p90_bps": 41.7,
+        "t3r_bps": 13.3
+      },
+      "RISK_OFF": {
+        "n": 7,
+        "sum_bps": 973.5,
+        "mean_bps": 139.1,
+        "median_bps": 149.9,
+        "win_rate": 1.0,
+        "max_loss_bps": 17.2,
+        "p10_bps": 17.2,
+        "p90_bps": 299.7,
+        "t3r_bps": 294.5
+      }
+    },
+    "read": "Bull tags are labels only. The current v0.2 rule is not changed by these tags."
+  },
+  "exit_management": {
+    "status": "EXIT_VARIANTS_OBSERVATION_ONLY",
+    "by_variant": {
+      "fixed_2h": {
+        "n": 11,
+        "sum_bps": 1089.9,
+        "mean_bps": 99.1,
+        "median_bps": 46.5,
+        "win_rate": 1.0,
+        "max_loss_bps": 12.9,
+        "p10_bps": 12.9,
+        "p90_bps": 227.3,
+        "t3r_bps": 406.3,
+        "exit_reasons": {
+          "TIME": 11
+        }
+      },
+      "fixed_4h": {
+        "n": 11,
+        "sum_bps": 1740.8,
+        "mean_bps": 158.3,
+        "median_bps": 165.6,
+        "win_rate": 1.0,
+        "max_loss_bps": 7.3,
+        "p10_bps": 7.3,
+        "p90_bps": 283.3,
+        "t3r_bps": 822.6,
+        "exit_reasons": {
+          "TIME": 11
+        }
+      },
+      "fixed_8h": {
+        "n": 11,
+        "sum_bps": 1406.4,
+        "mean_bps": 127.9,
+        "median_bps": 146.7,
+        "win_rate": 0.818,
+        "max_loss_bps": -211.3,
+        "p10_bps": -211.3,
+        "p90_bps": 304.8,
+        "t3r_bps": 542.2,
+        "exit_reasons": {
+          "TIME": 11
+        }
+      },
+      "sl150_2h": {
+        "n": 11,
+        "sum_bps": 1089.9,
+        "mean_bps": 99.1,
+        "median_bps": 46.5,
+        "win_rate": 1.0,
+        "max_loss_bps": 12.9,
+        "p10_bps": 12.9,
+        "p90_bps": 227.3,
+        "t3r_bps": 406.3,
+        "exit_reasons": {
+          "TIME": 11
+        }
+      },
+      "tp300_sl150_4h": {
+        "n": 11,
+        "sum_bps": 1780.1,
+        "mean_bps": 161.8,
+        "median_bps": 165.6,
+        "win_rate": 1.0,
+        "max_loss_bps": 7.3,
+        "p10_bps": 7.3,
+        "p90_bps": 295.0,
+        "t3r_bps": 895.1,
+        "exit_reasons": {
+          "TIME": 8,
+          "TP": 3
+        }
+      },
+      "trail100_after150_4h": {
+        "n": 11,
+        "sum_bps": 1361.0,
+        "mean_bps": 123.7,
+        "median_bps": 130.9,
+        "win_rate": 1.0,
+        "max_loss_bps": 7.3,
+        "p10_bps": 7.3,
+        "p90_bps": 210.1,
+        "t3r_bps": 744.5,
+        "exit_reasons": {
+          "TIME": 5,
+          "TRAIL": 6
+        }
+      },
+      "partial_tp150_2h": {
+        "n": 11,
+        "sum_bps": 1014.4,
+        "mean_bps": 92.2,
+        "median_bps": 81.2,
+        "win_rate": 1.0,
+        "max_loss_bps": 12.9,
+        "p10_bps": 12.9,
+        "p90_bps": 186.2,
+        "t3r_bps": 455.0,
+        "exit_reasons": {
+          "TIME": 6,
+          "PARTIAL_TP_TIME": 5
+        }
+      }
+    },
+    "best_by_sum": [
+      {
+        "variant": "tp300_sl150_4h",
+        "n": 11,
+        "sum_bps": 1780.1,
+        "mean_bps": 161.8,
+        "median_bps": 165.6,
+        "win_rate": 1.0,
+        "max_loss_bps": 7.3,
+        "p10_bps": 7.3,
+        "p90_bps": 295.0,
+        "t3r_bps": 895.1
+      },
+      {
+        "variant": "fixed_4h",
+        "n": 11,
+        "sum_bps": 1740.8,
+        "mean_bps": 158.3,
+        "median_bps": 165.6,
+        "win_rate": 1.0,
+        "max_loss_bps": 7.3,
+        "p10_bps": 7.3,
+        "p90_bps": 283.3,
+        "t3r_bps": 822.6
+      },
+      {
+        "variant": "fixed_8h",
+        "n": 11,
+        "sum_bps": 1406.4,
+        "mean_bps": 127.9,
+        "median_bps": 146.7,
+        "win_rate": 0.818,
+        "max_loss_bps": -211.3,
+        "p10_bps": -211.3,
+        "p90_bps": 304.8,
+        "t3r_bps": 542.2
+      },
+      {
+        "variant": "trail100_after150_4h",
+        "n": 11,
+        "sum_bps": 1361.0,
+        "mean_bps": 123.7,
+        "median_bps": 130.9,
+        "win_rate": 1.0,
+        "max_loss_bps": 7.3,
+        "p10_bps": 7.3,
+        "p90_bps": 210.1,
+        "t3r_bps": 744.5
+      },
+      {
+        "variant": "fixed_2h",
+        "n": 11,
+        "sum_bps": 1089.9,
+        "mean_bps": 99.1,
+        "median_bps": 46.5,
+        "win_rate": 1.0,
+        "max_loss_bps": 12.9,
+        "p10_bps": 12.9,
+        "p90_bps": 227.3,
+        "t3r_bps": 406.3
+      },
+      {
+        "variant": "sl150_2h",
+        "n": 11,
+        "sum_bps": 1089.9,
+        "mean_bps": 99.1,
+        "median_bps": 46.5,
+        "win_rate": 1.0,
+        "max_loss_bps": 12.9,
+        "p10_bps": 12.9,
+        "p90_bps": 227.3,
+        "t3r_bps": 406.3
+      },
+      {
+        "variant": "partial_tp150_2h",
+        "n": 11,
+        "sum_bps": 1014.4,
+        "mean_bps": 92.2,
+        "median_bps": 81.2,
+        "win_rate": 1.0,
+        "max_loss_bps": 12.9,
+        "p10_bps": 12.9,
+        "p90_bps": 186.2,
+        "t3r_bps": 455.0
+      }
+    ],
+    "rows": [
+      {
+        "observation_id": "a05f8216ce8ee8bc2e409ef9",
+        "signal_utc": "2026-04-16T13:52:14.594000+00:00",
+        "variants": {
+          "fixed_2h": {
+            "variant": "fixed_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776354772000,
+            "exit_utc": "2026-04-16T15:52:52+00:00",
+            "net_bps": 81.2
+          },
+          "fixed_4h": {
+            "variant": "fixed_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776361971000,
+            "exit_utc": "2026-04-16T17:52:51+00:00",
+            "net_bps": 28.6
+          },
+          "fixed_8h": {
+            "variant": "fixed_8h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776376372000,
+            "exit_utc": "2026-04-16T21:52:52+00:00",
+            "net_bps": 88.6
+          },
+          "sl150_2h": {
+            "variant": "sl150_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776354772000,
+            "exit_utc": "2026-04-16T15:52:52+00:00",
+            "net_bps": 81.2
+          },
+          "tp300_sl150_4h": {
+            "variant": "tp300_sl150_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776361971000,
+            "exit_utc": "2026-04-16T17:52:51+00:00",
+            "net_bps": 28.6
+          },
+          "trail100_after150_4h": {
+            "variant": "trail100_after150_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776361971000,
+            "exit_utc": "2026-04-16T17:52:51+00:00",
+            "net_bps": 28.6
+          },
+          "partial_tp150_2h": {
+            "variant": "partial_tp150_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776354772000,
+            "exit_utc": "2026-04-16T15:52:52+00:00",
+            "net_bps": 81.2
+          }
+        }
+      },
+      {
+        "observation_id": "59ab07a9737bf59f321be5c7",
+        "signal_utc": "2026-04-18T03:54:36.116000+00:00",
+        "variants": {
+          "fixed_2h": {
+            "variant": "fixed_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776491828000,
+            "exit_utc": "2026-04-18T05:57:08+00:00",
+            "net_bps": 27.0
+          },
+          "fixed_4h": {
+            "variant": "fixed_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776499027000,
+            "exit_utc": "2026-04-18T07:57:07+00:00",
+            "net_bps": 7.3
+          },
+          "fixed_8h": {
+            "variant": "fixed_8h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776513427003,
+            "exit_utc": "2026-04-18T11:57:07.003000+00:00",
+            "net_bps": -211.3
+          },
+          "sl150_2h": {
+            "variant": "sl150_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776491828000,
+            "exit_utc": "2026-04-18T05:57:08+00:00",
+            "net_bps": 27.0
+          },
+          "tp300_sl150_4h": {
+            "variant": "tp300_sl150_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776499027000,
+            "exit_utc": "2026-04-18T07:57:07+00:00",
+            "net_bps": 7.3
+          },
+          "trail100_after150_4h": {
+            "variant": "trail100_after150_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776499027000,
+            "exit_utc": "2026-04-18T07:57:07+00:00",
+            "net_bps": 7.3
+          },
+          "partial_tp150_2h": {
+            "variant": "partial_tp150_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776491828000,
+            "exit_utc": "2026-04-18T05:57:08+00:00",
+            "net_bps": 27.0
+          }
+        }
+      },
+      {
+        "observation_id": "6af7c4aab495fedd0e257602",
+        "signal_utc": "2026-04-20T14:08:39.155000+00:00",
+        "variants": {
+          "fixed_2h": {
+            "variant": "fixed_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776703271000,
+            "exit_utc": "2026-04-20T16:41:11+00:00",
+            "net_bps": 29.0
+          },
+          "fixed_4h": {
+            "variant": "fixed_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776710470000,
+            "exit_utc": "2026-04-20T18:41:10+00:00",
+            "net_bps": 180.4
+          },
+          "fixed_8h": {
+            "variant": "fixed_8h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776724871000,
+            "exit_utc": "2026-04-20T22:41:11+00:00",
+            "net_bps": 107.4
+          },
+          "sl150_2h": {
+            "variant": "sl150_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776703271000,
+            "exit_utc": "2026-04-20T16:41:11+00:00",
+            "net_bps": 29.0
+          },
+          "tp300_sl150_4h": {
+            "variant": "tp300_sl150_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776710470000,
+            "exit_utc": "2026-04-20T18:41:10+00:00",
+            "net_bps": 180.4
+          },
+          "trail100_after150_4h": {
+            "variant": "trail100_after150_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776710470000,
+            "exit_utc": "2026-04-20T18:41:10+00:00",
+            "net_bps": 180.4
+          },
+          "partial_tp150_2h": {
+            "variant": "partial_tp150_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776703271000,
+            "exit_utc": "2026-04-20T16:41:11+00:00",
+            "net_bps": 29.0
+          }
+        }
+      },
+      {
+        "observation_id": "90a517a624845c47f9bfa9ae",
+        "signal_utc": "2026-04-20T14:41:11.191000+00:00",
+        "variants": {
+          "fixed_2h": {
+            "variant": "fixed_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776703869000,
+            "exit_utc": "2026-04-20T16:51:09+00:00",
+            "net_bps": 12.9
+          },
+          "fixed_4h": {
+            "variant": "fixed_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776711069001,
+            "exit_utc": "2026-04-20T18:51:09.001000+00:00",
+            "net_bps": 165.6
+          },
+          "fixed_8h": {
+            "variant": "fixed_8h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776725469000,
+            "exit_utc": "2026-04-20T22:51:09+00:00",
+            "net_bps": 97.8
+          },
+          "sl150_2h": {
+            "variant": "sl150_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776703869000,
+            "exit_utc": "2026-04-20T16:51:09+00:00",
+            "net_bps": 12.9
+          },
+          "tp300_sl150_4h": {
+            "variant": "tp300_sl150_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776711069001,
+            "exit_utc": "2026-04-20T18:51:09.001000+00:00",
+            "net_bps": 165.6
+          },
+          "trail100_after150_4h": {
+            "variant": "trail100_after150_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776711069001,
+            "exit_utc": "2026-04-20T18:51:09.001000+00:00",
+            "net_bps": 165.6
+          },
+          "partial_tp150_2h": {
+            "variant": "partial_tp150_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1776703869000,
+            "exit_utc": "2026-04-20T16:51:09+00:00",
+            "net_bps": 12.9
+          }
+        }
+      },
+      {
+        "observation_id": "21ed308e4f9a76948b9619c5",
+        "signal_utc": "2026-06-16T04:31:11.525000+00:00",
+        "variants": {
+          "fixed_2h": {
+            "variant": "fixed_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1781592275003,
+            "exit_utc": "2026-06-16T06:44:35.003000+00:00",
+            "net_bps": 46.5
+          },
+          "fixed_4h": {
+            "variant": "fixed_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1781599475000,
+            "exit_utc": "2026-06-16T08:44:35+00:00",
+            "net_bps": 130.5
+          },
+          "fixed_8h": {
+            "variant": "fixed_8h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1781613876000,
+            "exit_utc": "2026-06-16T12:44:36+00:00",
+            "net_bps": 304.8
+          },
+          "sl150_2h": {
+            "variant": "sl150_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1781592275003,
+            "exit_utc": "2026-06-16T06:44:35.003000+00:00",
+            "net_bps": 46.5
+          },
+          "tp300_sl150_4h": {
+            "variant": "tp300_sl150_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1781599475000,
+            "exit_utc": "2026-06-16T08:44:35+00:00",
+            "net_bps": 130.5
+          },
+          "trail100_after150_4h": {
+            "variant": "trail100_after150_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1781599475000,
+            "exit_utc": "2026-06-16T08:44:35+00:00",
+            "net_bps": 130.5
+          },
+          "partial_tp150_2h": {
+            "variant": "partial_tp150_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1781592275003,
+            "exit_utc": "2026-06-16T06:44:35.003000+00:00",
+            "net_bps": 46.5
+          }
+        }
+      },
+      {
+        "observation_id": "2beb5c5e1cb24dcad06174ce",
+        "signal_utc": "2026-06-17T01:17:01.753000+00:00",
+        "variants": {
+          "fixed_2h": {
+            "variant": "fixed_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1781666485000,
+            "exit_utc": "2026-06-17T03:21:25+00:00",
+            "net_bps": 41.8
+          },
+          "fixed_4h": {
+            "variant": "fixed_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1781673685000,
+            "exit_utc": "2026-06-17T05:21:25+00:00",
+            "net_bps": 37.2
+          },
+          "fixed_8h": {
+            "variant": "fixed_8h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1781688086000,
+            "exit_utc": "2026-06-17T09:21:26+00:00",
+            "net_bps": -72.8
+          },
+          "sl150_2h": {
+            "variant": "sl150_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1781666485000,
+            "exit_utc": "2026-06-17T03:21:25+00:00",
+            "net_bps": 41.8
+          },
+          "tp300_sl150_4h": {
+            "variant": "tp300_sl150_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1781673685000,
+            "exit_utc": "2026-06-17T05:21:25+00:00",
+            "net_bps": 37.2
+          },
+          "trail100_after150_4h": {
+            "variant": "trail100_after150_4h",
+            "status": "OK",
+            "exit_reason": "TRAIL",
+            "exit_ts_ms": 1781663892003,
+            "exit_utc": "2026-06-17T02:38:12.003000+00:00",
+            "net_bps": 46.5
+          },
+          "partial_tp150_2h": {
+            "variant": "partial_tp150_2h",
+            "status": "OK",
+            "exit_reason": "PARTIAL_TP_TIME",
+            "exit_ts_ms": 1781666485000,
+            "exit_utc": "2026-06-17T03:21:25+00:00",
+            "net_bps": 93.4
+          }
+        }
+      },
+      {
+        "observation_id": "e83d39ece763678cc3d07855",
+        "signal_utc": "2026-06-20T14:08:51.159000+00:00",
+        "variants": {
+          "fixed_2h": {
+            "variant": "fixed_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1781972065000,
+            "exit_utc": "2026-06-20T16:14:25+00:00",
+            "net_bps": 152.4
+          },
+          "fixed_4h": {
+            "variant": "fixed_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1781979265000,
+            "exit_utc": "2026-06-20T18:14:25+00:00",
+            "net_bps": 105.1
+          },
+          "fixed_8h": {
+            "variant": "fixed_8h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1781993665000,
+            "exit_utc": "2026-06-20T22:14:25+00:00",
+            "net_bps": 172.6
+          },
+          "sl150_2h": {
+            "variant": "sl150_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1781972065000,
+            "exit_utc": "2026-06-20T16:14:25+00:00",
+            "net_bps": 152.4
+          },
+          "tp300_sl150_4h": {
+            "variant": "tp300_sl150_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1781979265000,
+            "exit_utc": "2026-06-20T18:14:25+00:00",
+            "net_bps": 105.1
+          },
+          "trail100_after150_4h": {
+            "variant": "trail100_after150_4h",
+            "status": "OK",
+            "exit_reason": "TRAIL",
+            "exit_ts_ms": 1781973105001,
+            "exit_utc": "2026-06-20T16:31:45.001000+00:00",
+            "net_bps": 130.9
+          },
+          "partial_tp150_2h": {
+            "variant": "partial_tp150_2h",
+            "status": "OK",
+            "exit_reason": "PARTIAL_TP_TIME",
+            "exit_ts_ms": 1781972065000,
+            "exit_utc": "2026-06-20T16:14:25+00:00",
+            "net_bps": 148.7
+          }
+        }
+      },
+      {
+        "observation_id": "aa8857f754bb2f7c45c3e745",
+        "signal_utc": "2026-06-21T23:33:42.690000+00:00",
+        "variants": {
+          "fixed_2h": {
+            "variant": "fixed_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1782092668000,
+            "exit_utc": "2026-06-22T01:44:28+00:00",
+            "net_bps": 227.3
+          },
+          "fixed_4h": {
+            "variant": "fixed_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1782099868000,
+            "exit_utc": "2026-06-22T03:44:28+00:00",
+            "net_bps": 167.9
+          },
+          "fixed_8h": {
+            "variant": "fixed_8h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1782114268001,
+            "exit_utc": "2026-06-22T07:44:28.001000+00:00",
+            "net_bps": 250.4
+          },
+          "sl150_2h": {
+            "variant": "sl150_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1782092668000,
+            "exit_utc": "2026-06-22T01:44:28+00:00",
+            "net_bps": 227.3
+          },
+          "tp300_sl150_4h": {
+            "variant": "tp300_sl150_4h",
+            "status": "OK",
+            "exit_reason": "TP",
+            "exit_ts_ms": 1782091603000,
+            "exit_utc": "2026-06-22T01:26:43+00:00",
+            "net_bps": 295.0
+          },
+          "trail100_after150_4h": {
+            "variant": "trail100_after150_4h",
+            "status": "OK",
+            "exit_reason": "TRAIL",
+            "exit_ts_ms": 1782093741007,
+            "exit_utc": "2026-06-22T02:02:21.007000+00:00",
+            "net_bps": 210.1
+          },
+          "partial_tp150_2h": {
+            "variant": "partial_tp150_2h",
+            "status": "OK",
+            "exit_reason": "PARTIAL_TP_TIME",
+            "exit_ts_ms": 1782092668000,
+            "exit_utc": "2026-06-22T01:44:28+00:00",
+            "net_bps": 186.2
+          }
+        }
+      },
+      {
+        "observation_id": "9c51e8438c9f4ba61bfb8a07",
+        "signal_utc": "2026-06-26T02:48:30.475000+00:00",
+        "variants": {
+          "fixed_2h": {
+            "variant": "fixed_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1782449600008,
+            "exit_utc": "2026-06-26T04:53:20.008000+00:00",
+            "net_bps": 150.9
+          },
+          "fixed_4h": {
+            "variant": "fixed_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1782456801000,
+            "exit_utc": "2026-06-26T06:53:21+00:00",
+            "net_bps": 283.3
+          },
+          "fixed_8h": {
+            "variant": "fixed_8h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1782471201000,
+            "exit_utc": "2026-06-26T10:53:21+00:00",
+            "net_bps": 146.7
+          },
+          "sl150_2h": {
+            "variant": "sl150_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1782449600008,
+            "exit_utc": "2026-06-26T04:53:20.008000+00:00",
+            "net_bps": 150.9
+          },
+          "tp300_sl150_4h": {
+            "variant": "tp300_sl150_4h",
+            "status": "OK",
+            "exit_reason": "TP",
+            "exit_ts_ms": 1782456239000,
+            "exit_utc": "2026-06-26T06:43:59+00:00",
+            "net_bps": 295.0
+          },
+          "trail100_after150_4h": {
+            "variant": "trail100_after150_4h",
+            "status": "OK",
+            "exit_reason": "TRAIL",
+            "exit_ts_ms": 1782449631001,
+            "exit_utc": "2026-06-26T04:53:51.001000+00:00",
+            "net_bps": 145.8
+          },
+          "partial_tp150_2h": {
+            "variant": "partial_tp150_2h",
+            "status": "OK",
+            "exit_reason": "PARTIAL_TP_TIME",
+            "exit_ts_ms": 1782449600008,
+            "exit_utc": "2026-06-26T04:53:20.008000+00:00",
+            "net_bps": 148.0
+          }
+        }
+      },
+      {
+        "observation_id": "0b4c2340a7b04cb90c9556c9",
+        "signal_utc": "2026-06-26T10:39:33.530000+00:00",
+        "variants": {
+          "fixed_2h": {
+            "variant": "fixed_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1782481859000,
+            "exit_utc": "2026-06-26T13:50:59+00:00",
+            "net_bps": 17.0
+          },
+          "fixed_4h": {
+            "variant": "fixed_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1782489059000,
+            "exit_utc": "2026-06-26T15:50:59+00:00",
+            "net_bps": 240.4
+          },
+          "fixed_8h": {
+            "variant": "fixed_8h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1782503459000,
+            "exit_utc": "2026-06-26T19:50:59+00:00",
+            "net_bps": 213.2
+          },
+          "sl150_2h": {
+            "variant": "sl150_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1782481859000,
+            "exit_utc": "2026-06-26T13:50:59+00:00",
+            "net_bps": 17.0
+          },
+          "tp300_sl150_4h": {
+            "variant": "tp300_sl150_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1782489059000,
+            "exit_utc": "2026-06-26T15:50:59+00:00",
+            "net_bps": 240.4
+          },
+          "trail100_after150_4h": {
+            "variant": "trail100_after150_4h",
+            "status": "OK",
+            "exit_reason": "TRAIL",
+            "exit_ts_ms": 1782484590000,
+            "exit_utc": "2026-06-26T14:36:30+00:00",
+            "net_bps": 89.3
+          },
+          "partial_tp150_2h": {
+            "variant": "partial_tp150_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1782481859000,
+            "exit_utc": "2026-06-26T13:50:59+00:00",
+            "net_bps": 17.0
+          }
+        }
+      },
+      {
+        "observation_id": "1db4a7587a6dd0a216620ca2",
+        "signal_utc": "2026-06-26T13:18:54.877000+00:00",
+        "variants": {
+          "fixed_2h": {
+            "variant": "fixed_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1782487172001,
+            "exit_utc": "2026-06-26T15:19:32.001000+00:00",
+            "net_bps": 303.9
+          },
+          "fixed_4h": {
+            "variant": "fixed_4h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1782494372000,
+            "exit_utc": "2026-06-26T17:19:32+00:00",
+            "net_bps": 394.5
+          },
+          "fixed_8h": {
+            "variant": "fixed_8h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1782508772000,
+            "exit_utc": "2026-06-26T21:19:32+00:00",
+            "net_bps": 309.0
+          },
+          "sl150_2h": {
+            "variant": "sl150_2h",
+            "status": "OK",
+            "exit_reason": "TIME",
+            "exit_ts_ms": 1782487172001,
+            "exit_utc": "2026-06-26T15:19:32.001000+00:00",
+            "net_bps": 303.9
+          },
+          "tp300_sl150_4h": {
+            "variant": "tp300_sl150_4h",
+            "status": "OK",
+            "exit_reason": "TP",
+            "exit_ts_ms": 1782482224001,
+            "exit_utc": "2026-06-26T13:57:04.001000+00:00",
+            "net_bps": 295.0
+          },
+          "trail100_after150_4h": {
+            "variant": "trail100_after150_4h",
+            "status": "OK",
+            "exit_reason": "TRAIL",
+            "exit_ts_ms": 1782484590000,
+            "exit_utc": "2026-06-26T14:36:30+00:00",
+            "net_bps": 226.0
+          },
+          "partial_tp150_2h": {
+            "variant": "partial_tp150_2h",
+            "status": "OK",
+            "exit_reason": "PARTIAL_TP_TIME",
+            "exit_ts_ms": 1782487172001,
+            "exit_utc": "2026-06-26T15:19:32.001000+00:00",
+            "net_bps": 224.5
+          }
+        }
+      }
+    ],
+    "read": "Exit variants are simulated on the same filled entries. They are not live order logic."
+  },
+  "sizing_equity": {
+    "status": "SIZING_EQUITY_COMPARISON",
+    "modes": {
+      "BALANCED": {
+        "n": 11,
+        "sum_bps": 1081.6,
+        "mean_bps": 98.3,
+        "median_bps": 46.3,
+        "win_rate": 1.0,
+        "max_loss_bps": 13.3,
+        "p10_bps": 13.3,
+        "p90_bps": 227.0,
+        "t3r_bps": 402.6,
+        "notional_usdt": 16.3,
+        "margin_usdt": 0.4,
+        "leverage": 40.0,
+        "sum_pnl_usdt": 1.763,
+        "ending_equity_usdt": 36.763,
+        "max_drawdown_pct_equity": 0.0
+      },
+      "CURRENT_ENV": {
+        "n": 11,
+        "sum_bps": 1081.6,
+        "mean_bps": 98.3,
+        "median_bps": 46.3,
+        "win_rate": 1.0,
+        "max_loss_bps": 13.3,
+        "p10_bps": 13.3,
+        "p90_bps": 227.0,
+        "t3r_bps": 402.6,
+        "notional_usdt": 1190.0,
+        "margin_usdt": 29.75,
+        "leverage": 40.0,
+        "sum_pnl_usdt": 128.711,
+        "ending_equity_usdt": 163.71,
+        "max_drawdown_pct_equity": 0.0
+      },
+      "STOP_ASSISTED": {
+        "n": 11,
+        "sum_bps": 1081.6,
+        "mean_bps": 98.3,
+        "median_bps": 46.3,
+        "win_rate": 1.0,
+        "max_loss_bps": 13.3,
+        "p10_bps": 13.3,
+        "p90_bps": 227.0,
+        "t3r_bps": 402.6,
+        "notional_usdt": 39.8,
+        "margin_usdt": 1.0,
+        "leverage": 40.0,
+        "sum_pnl_usdt": 4.304,
+        "ending_equity_usdt": 39.305,
+        "max_drawdown_pct_equity": 0.0
+      },
+      "SURVIVAL": {
+        "n": 11,
+        "sum_bps": 1081.6,
+        "mean_bps": 98.3,
+        "median_bps": 46.3,
+        "win_rate": 1.0,
+        "max_loss_bps": 13.3,
+        "p10_bps": 13.3,
+        "p90_bps": 227.0,
+        "t3r_bps": 402.6,
+        "notional_usdt": 11.0,
+        "margin_usdt": 0.3,
+        "leverage": 40.0,
+        "sum_pnl_usdt": 1.192,
+        "ending_equity_usdt": 36.19,
+        "max_drawdown_pct_equity": 0.0
+      }
+    },
+    "read": "CURRENT_ENV mirrors configured live sizing; BALANCED/SURVIVAL are system risk sizing shadows."
+  },
+  "fill_realism": {
+    "status": "FILL_QUEUE_PROXY_DIAGNOSTIC",
+    "fill_delay_sec": {
+      "n": 11,
+      "median": 333.0,
+      "max": 4285.0,
+      "over_300s_n": 6,
+      "over_900s_n": 2
+    },
+    "by_fill_leg": {
+      "initial": {
+        "n": 5,
+        "sum_bps": 598.5,
+        "mean_bps": 119.7,
+        "median_bps": 81.1,
+        "win_rate": 1.0,
+        "max_loss_bps": 26.1,
+        "p10_bps": 26.1,
+        "p90_bps": 299.7,
+        "t3r_bps": 67.8
+      },
+      "replacement": {
+        "n": 6,
+        "sum_bps": 483.1,
+        "mean_bps": 80.5,
+        "median_bps": 36.6,
+        "win_rate": 1.0,
+        "max_loss_bps": 13.3,
+        "p10_bps": 13.3,
+        "p90_bps": 227.0,
+        "t3r_bps": 57.5
+      }
+    },
+    "maker_vs_anchor_counterfactual_gain_bps": {
+      "n": 11,
+      "sum_bps": 122.6,
+      "mean_bps": 11.1,
+      "median_bps": 16.5,
+      "win_rate": 0.818,
+      "max_loss_bps": -23.2,
+      "p10_bps": -23.2,
+      "p90_bps": 29.9,
+      "t3r_bps": 33.6
+    },
+    "queue_penalty_stress": {
+      "minus_10bps": {
+        "n": 11,
+        "sum_bps": 971.6,
+        "mean_bps": 88.3,
+        "median_bps": 36.3,
+        "win_rate": 1.0,
+        "max_loss_bps": 3.3,
+        "p10_bps": 3.3,
+        "p90_bps": 217.0,
+        "t3r_bps": 322.6
+      },
+      "minus_20bps": {
+        "n": 11,
+        "sum_bps": 861.6,
+        "mean_bps": 78.3,
+        "median_bps": 26.3,
+        "win_rate": 0.818,
+        "max_loss_bps": -6.7,
+        "p10_bps": -6.7,
+        "p90_bps": 207.0,
+        "t3r_bps": 242.6
+      }
+    },
+    "read": "Queue stress is a proxy, not proof. Real exchange queue position and actual fee tier remain binding."
+  },
+  "decision_gate": {
+    "status": "WAIT_FORWARD_OOS",
+    "calendar_span_days": 71.0,
+    "closed_n": 11,
+    "independent_weeks": 4,
+    "summary": {
+      "n": 11,
+      "sum_bps": 1081.6,
+      "mean_bps": 98.3,
+      "median_bps": 46.3,
+      "win_rate": 1.0,
+      "max_loss_bps": 13.3,
+      "p10_bps": 13.3,
+      "p90_bps": 227.0,
+      "t3r_bps": 402.6
+    },
+    "reasons": [
+      "60D_DECISION_NOT_MET"
+    ],
+    "policy": {
+      "30d_interim": ">=30 calendar days AND >=10 closed forward fills",
+      "60d_decision": ">=60 calendar days AND >=20 closed forward fills across >=2 UTC weeks",
+      "promotion": "requires positive sum and positive T3R; still operator decision only"
+    }
+  },
+  "read": "Research only. No live executor, order logic, leverage, size, or .env changes."
+}

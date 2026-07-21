@@ -1,0 +1,365 @@
+{
+  "S1_dow_excl_monwed": {
+    "baseline_long": "N=94 WR=57.4% mean=+34.2 med=+26.0bps",
+    "filtered_long": "N=58 WR=60.3% mean=+42.9 med=+29.7bps",
+    "baseline_all": "N=127 WR=61.4% mean=+51.3 med=+34.9bps",
+    "filtered_all": "N=91 WR=64.8% mean=+63.7 med=+43.4bps",
+    "hold_long_base": "N=21 WR=85.7% mean=+89.2 med=+56.6bps",
+    "hold_long_filt": "N=14 WR=92.9% mean=+109.2 med=+67.8bps"
+  },
+  "S2_dow_excl_sun_short": {
+    "baseline_short": "N=33 WR=72.7% mean=+100.1 med=+85.7bps",
+    "filtered_short": "N=27 WR=77.8% mean=+122.1 med=+121.3bps",
+    "baseline_all": "N=127 WR=61.4% mean=+51.3 med=+34.9bps",
+    "filtered_all": "N=122 WR=62.3% mean=+54.7 med=+35.2bps",
+    "hold_short_base": "N=15 WR=73.3% mean=+105.3 med=+67.2bps",
+    "hold_short_filt": "N=12 WR=83.3% mean=+137.7 med=+113.9bps"
+  },
+  "S3_btc750k_dow_combined": {
+    "btc750_all": "N=118 WR=61.9% mean=+52.7 med=+33.8bps",
+    "btc750_hold": "N=34 WR=82.4% mean=+110.3 med=+67.8bps",
+    "btc750_dow_all": "N=78 WR=66.7% mean=+68.2 med=+44.9bps",
+    "btc750_dow_hold": "N=25 WR=92.0% mean=+136.0 med=+102.5bps",
+    "btc750_simple": {
+      "end_eq": 82.23,
+      "simple_final": 906.33,
+      "simple_gain": 871.33,
+      "max_dd_pct": 100.0
+    },
+    "btc750_dow_simple": {
+      "end_eq": 85.33,
+      "simple_final": 779.97,
+      "simple_gain": 744.97,
+      "max_dd_pct": 100.0
+    }
+  },
+  "S4_silence_score_breakdown": {
+    "score_1": "N=5 WR=20.0% mean=-49.2 med=-52.2bps",
+    "score_2": "N=28 WR=42.9% mean=-2.8 med=-7.6bps",
+    "score_3": "N=32 WR=71.9% mean=+51.7 med=+57.1bps",
+    "score_4": "N=31 WR=61.3% mean=+47.8 med=+53.5bps",
+    "score_5": "N=24 WR=75.0% mean=+64.7 med=+68.5bps",
+    "score_6": "N=8 WR=62.5% mean=+41.3 med=+44.0bps",
+    "score_ge2": "N=123 WR=62.6% mean=+40.2 med=+31.0bps",
+    "score_ge3": "N=95 WR=68.4% mean=+52.8 med=+50.2bps"
+  },
+  "S5_n2h_threshold": "see console output above",
+  "S6_sync_threshold": "see console output above",
+  "S7_silence_t15_entry": {
+    "n_with_marks": 125,
+    "t0_entry": "N=125 WR=64.0% mean=+41.7 med=+34.5bps",
+    "t15_entry": "N=125 WR=52.8% mean=+16.7 med=+8.7bps",
+    "avg_lag_15_bps": 24.98,
+    "hold_t0": "N=29 WR=89.7% mean=+88.4 med=+50.3bps",
+    "hold_t15": "N=29 WR=72.4% mean=+58.6 med=+22.3bps"
+  },
+  "S8_eth5min_drift": {
+    "n_with_marks": 128,
+    "all": "N=128 WR=60.9% mean=+36.7 med=+29.4bps",
+    "excl_bounce_gt15": "N=73 WR=67.1% mean=+48.4 med=+32.7bps",
+    "buckets": {
+      "bounce_neg10": "N=14 WR=42.9% mean=+17.5 med=-18.6bps",
+      "flat": "N=40 WR=67.5% mean=+45.8 med=+30.4bps",
+      "bounce_pos10": "N=74 WR=60.8% mean=+35.4 med=+29.7bps"
+    }
+  },
+  "S9_blocked_signals_wr": {
+    "blocked_long_on_long": "N=27 WR=66.7% mean=+27.2 med=+26.1bps",
+    "blocked_short_on_short": "N=18 WR=94.4% mean=+105.2 med=+95.7bps",
+    "taken_long_ref": "N=94 WR=57.4% mean=+34.2 med=+26.0bps",
+    "taken_short_ref": "N=33 WR=72.7% mean=+100.1 med=+85.7bps"
+  },
+  "S10_short_off_session": {
+    "off_short": "N=4 WR=75.0% mean=+54.8 med=+52.2bps",
+    "non_off_short": "N=29 WR=72.4% mean=+106.4 med=+110.0bps",
+    "off_hold": "N=2 WR=50.0% mean=-6.7 med=-6.7bps"
+  },
+  "H1_long_hold_3h_vs_4h": {
+    "hold3h": "N=94 WR=68.1% mean=+38.1 med=+31.9bps",
+    "hold4h": "N=94 WR=57.4% mean=+34.2 med=+26.0bps",
+    "hold3h_holdout": "N=21 WR=85.7% mean=+87.0 med=+56.1bps",
+    "hold4h_holdout": "N=21 WR=85.7% mean=+89.2 med=+56.6bps"
+  },
+  "H2_short_hold_1h5_vs_2h": {
+    "hold1h5": "N=33 WR=48.5% mean=+25.3 med=-6.0bps",
+    "hold2h": "N=33 WR=72.7% mean=+100.1 med=+85.7bps",
+    "hold1h5_holdout": "N=15 WR=46.7% mean=+40.4 med=-6.0bps",
+    "hold2h_holdout": "N=15 WR=73.3% mean=+105.3 med=+67.2bps"
+  },
+  "H3_breakeven_stop": {
+    "baseline": "N=92 WR=58.7% mean=+35.8 med=+29.7bps",
+    "with_be": "N=92 WR=58.7% mean=+37.4 med=+29.7bps",
+    "be_triggered_pct": "35%",
+    "hold_base": "N=21 WR=85.7% mean=+89.2 med=+56.6bps",
+    "hold_be": "N=21 WR=85.7% mean=+89.2 med=+56.6bps",
+    "note": "Approx: BE stop floor = -FEE when 2h mark >+50bps"
+  },
+  "H4_trailing_100bps": {
+    "baseline": "N=94 WR=57.4% mean=+34.2 med=+26.0bps",
+    "trailing": "N=94 WR=58.5% mean=+35.4 med=+26.0bps",
+    "hold_base": "N=21 WR=85.7% mean=+89.2 med=+56.6bps",
+    "hold_trail": "N=21 WR=85.7% mean=+89.2 med=+56.6bps",
+    "note": "Approx: if net4 < net2h-100bps, trail stops at net2h-100"
+  },
+  "H5_short_partial_exit": {
+    "baseline": "N=33 WR=72.7% mean=+100.1 med=+85.7bps",
+    "partial_50pct_at_1h": "N=33 WR=72.7% mean=+91.3 med=+85.7bps",
+    "trigger_rate": "15%",
+    "hold_base": "N=15 WR=73.3% mean=+105.3 med=+67.2bps",
+    "hold_partial": "N=15 WR=73.3% mean=+99.2 med=+67.2bps"
+  },
+  "H6_silence_gate_hold_extension": {
+    "pct_4h_better_than_2h": "52%",
+    "avg_2h_to_4h_gain": 10.4,
+    "2h_stats": "N=94 WR=63.8% mean=+23.7 med=+24.8bps",
+    "4h_stats": "N=94 WR=57.4% mean=+34.2 med=+26.0bps"
+  },
+  "E1_silence_t30_real_entry": {
+    "n": 126,
+    "lag30_mean": 36.63,
+    "lag30_p50": 32.29,
+    "t0_entry": "N=126 WR=63.5% mean=+41.1 med=+33.5bps",
+    "t30_entry": "N=126 WR=45.2% mean=+4.4 med=-4.5bps",
+    "hold_t0": "N=29 WR=89.7% mean=+88.4 med=+50.3bps",
+    "hold_t30": "N=29 WR=55.2% mean=+44.0 med=+10.0bps"
+  },
+  "E2_neither_btc_entry_slippage": {
+    "n": 33,
+    "eth_price_shift_mean_bps": -60.84,
+    "eth_price_shift_p50_bps": -54.88,
+    "net_from_btc_entry": "N=33 WR=51.5% mean=+40.3 med=+0.9bps",
+    "hold": "N=15 WR=46.7% mean=+62.6 med=-9.9bps"
+  },
+  "E3_cascade_win_sensitivity": "see console output above",
+  "E4_flip_timing": {
+    "n_flips": 5,
+    "avg_long_elapsed_min": 124.2,
+    "avg_long_pnl_at_flip": -46.9,
+    "avg_short_net": 60.1,
+    "flips": [
+      {
+        "long_elapsed_min": 88.51341666666667,
+        "long_pnl_at_flip": -59.84839309020029,
+        "short_net": 0.09999999999999964
+      },
+      {
+        "long_elapsed_min": 168.71286666666666,
+        "long_pnl_at_flip": -89.468458538275,
+        "short_net": 85.7
+      },
+      {
+        "long_elapsed_min": 103.49731666666666,
+        "long_pnl_at_flip": -120.8133129360532,
+        "short_net": 27.9
+      },
+      {
+        "long_elapsed_min": 197.30703333333332,
+        "long_pnl_at_flip": 76.77996860140628,
+        "short_net": 224.2
+      },
+      {
+        "long_elapsed_min": 62.7284,
+        "long_pnl_at_flip": -41.10628071499827,
+        "short_net": -37.2
+      }
+    ]
+  },
+  "P1_score_sizing": {
+    "flat_simple_final": 947.23,
+    "score_simple_final": 1362.67,
+    "flat_max_dd_pct": 100.0,
+    "score_max_dd_pct": 100.0
+  },
+  "P2_daily_cap": "see console output above",
+  "P3_same_day_3plus": {
+    "days_with_3plus": 14,
+    "detail": {
+      "2026-02-23": {
+        "n": 3,
+        "wr": "33%",
+        "sum": 102.0
+      },
+      "2026-02-27": {
+        "n": 4,
+        "wr": "75%",
+        "sum": 570.0
+      },
+      "2026-03-06": {
+        "n": 3,
+        "wr": "100%",
+        "sum": 507.0
+      },
+      "2026-03-13": {
+        "n": 3,
+        "wr": "33%",
+        "sum": 125.0
+      },
+      "2026-04-15": {
+        "n": 3,
+        "wr": "33%",
+        "sum": 131.0
+      },
+      "2026-04-18": {
+        "n": 4,
+        "wr": "50%",
+        "sum": -41.0
+      },
+      "2026-04-19": {
+        "n": 4,
+        "wr": "50%",
+        "sum": -77.0
+      },
+      "2026-04-21": {
+        "n": 3,
+        "wr": "33%",
+        "sum": -2.0
+      },
+      "2026-06-10": {
+        "n": 3,
+        "wr": "33%",
+        "sum": -89.0
+      },
+      "2026-06-16": {
+        "n": 3,
+        "wr": "100%",
+        "sum": 251.0
+      },
+      "2026-06-17": {
+        "n": 3,
+        "wr": "67%",
+        "sum": 366.0
+      },
+      "2026-06-24": {
+        "n": 4,
+        "wr": "75%",
+        "sum": 456.0
+      },
+      "2026-06-27": {
+        "n": 3,
+        "wr": "100%",
+        "sum": 111.0
+      },
+      "2026-06-28": {
+        "n": 4,
+        "wr": "50%",
+        "sum": -5.0
+      }
+    }
+  },
+  "P4_holdout_best_config": {
+    "config": "BTC=750K + excl Mon/Wed LONG + excl Sun SHORT",
+    "hold_all": "N=25 WR=92.0% mean=+136.0 med=+102.5bps",
+    "hold_long": "N=15 WR=93.3% mean=+113.2 med=+71.7bps",
+    "hold_short": "N=10 WR=90.0% mean=+170.3 med=+143.2bps",
+    "hold_simple": {
+      "end_eq": 467474.62,
+      "simple_final": 511.14,
+      "simple_gain": 476.14,
+      "max_dd_pct": 12.9
+    }
+  },
+  "P5_blocked_detail": {
+    "LONG_on_SHORT": "N=7 WR=85.7% mean=+106.7 med=+85.4bps",
+    "LONG_on_LONG": "N=27 WR=66.7% mean=+27.2 med=+26.1bps",
+    "SHORT_on_SHORT": "N=18 WR=94.4% mean=+105.2 med=+95.7bps",
+    "SHORT_on_LONG": "N=5 WR=80.0% mean=+60.1 med=+27.9bps",
+    "avg_time_into_pos_h": 1.69
+  },
+  "R1_cascade_density": {
+    "long_dense_5plus": "N=23 WR=65.2% mean=+69.5 med=+43.4bps",
+    "long_normal": "N=71 WR=54.9% mean=+22.7 med=+22.2bps",
+    "short_dense_5plus": "N=16 WR=87.5% mean=+113.4 med=+113.9bps",
+    "short_normal": "N=17 WR=58.8% mean=+87.7 med=+0.7bps"
+  },
+  "R2_btc_dominance": "SKIPPED — no dominance data in DB",
+  "R3_sync_breakdown": {
+    "0-100K": {
+      "long": "N=34 WR=50.0% mean=+28.7 med=+1.1bps",
+      "short": "N=4 WR=75.0% mean=+70.2 med=+56.8bps"
+    },
+    "100-200K": {
+      "long": "N=18 WR=38.9% mean=-12.3 med=-24.9bps",
+      "short": "N=2 WR=50.0% mean=+13.1 med=+13.1bps"
+    },
+    "200-500K": {
+      "long": "N=32 WR=68.8% mean=+52.5 med=+53.2bps",
+      "short": "N=10 WR=70.0% mean=+94.2 med=+143.2bps"
+    },
+    "500K+": {
+      "long": "N=10 WR=80.0% mean=+77.6 med=+42.5bps",
+      "short": "N=17 WR=76.5% mean=+120.9 med=+67.2bps"
+    }
+  },
+  "R4_consecutive_silence": {
+    "first_silence": "N=76 WR=53.9% mean=+28.0 med=+22.5bps",
+    "consecutive_silence": "N=52 WR=71.2% mean=+49.3 med=+38.5bps"
+  },
+  "R5_sol_lead": {
+    "sol_lead": "N=11 WR=72.7% mean=+35.4 med=+10.2bps",
+    "no_sol_lead": "N=116 WR=60.3% mean=+52.8 med=+36.4bps",
+    "sol_lead_long": "N=6 WR=83.3% mean=+69.4 med=+42.5bps",
+    "sol_lead_short": "N=5 WR=60.0% mean=-5.5 med=+0.1bps"
+  },
+  "R6_eth_cascade_size": {
+    "200-300K": {
+      "long": "N=94 WR=57.4% mean=+34.2 med=+26.0bps",
+      "short": "N=33 WR=72.7% mean=+100.1 med=+85.7bps"
+    },
+    "300-500K": {
+      "long": "N=0",
+      "short": "N=0"
+    },
+    "500-750K": {
+      "long": "N=0",
+      "short": "N=0"
+    },
+    "750K+": {
+      "long": "N=0",
+      "short": "N=0"
+    }
+  },
+  "RS1_daily_drawdown_stop": {
+    "halted_days": [],
+    "trades_no_halt": "N=127 WR=61.4% mean=+51.3 med=+34.9bps",
+    "trades_with_halt": "N=127 WR=61.4% mean=+51.3 med=+34.9bps"
+  },
+  "RS2_short_on_short_replace": {
+    "ignore": "N=127 WR=61.4% mean=+51.3 med=+34.9bps",
+    "replace": "N=143 WR=65.7% mean=+58.2 med=+43.4bps",
+    "n_replace": 143,
+    "n_baseline": 127
+  },
+  "RS3_permutation_test": {
+    "real_wr": "61.4%",
+    "real_mean": 51.31,
+    "perm_n": 1000,
+    "p_value_wr": 1.0,
+    "p_value_mean": 1.0,
+    "perm_wr_p5": "61.4%",
+    "perm_wr_p95": "61.4%",
+    "significant_wr": false,
+    "significant_mean": false
+  },
+  "RS4_walkforward_3block": {
+    "block_1": {
+      "date_range": "2026-02-15 to 2026-03-09",
+      "stats": "N=33 WR=60.6% mean=+56.4 med=+43.4bps"
+    },
+    "block_2": {
+      "date_range": "2026-03-09 to 2026-04-13",
+      "stats": "N=29 WR=62.1% mean=+34.1 med=+44.2bps"
+    },
+    "block_3": {
+      "date_range": "2026-04-14 to 2026-06-10",
+      "stats": "N=29 WR=37.9% mean=+7.3 med=-15.1bps"
+    }
+  },
+  "RS5_washout_filter": {
+    "n": 94,
+    "washout_rate": "62%",
+    "all": "N=94 WR=57.4% mean=+34.2 med=+26.0bps",
+    "washout_trades": "N=58 WR=62.1% mean=+50.7 med=+33.8bps",
+    "non_washout": "N=36 WR=50.0% mean=+7.6 med=+0.0bps",
+    "hold_non_washout": "N=7 WR=85.7% mean=+32.6 med=+50.2bps"
+  }
+}

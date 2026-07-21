@@ -1,0 +1,88 @@
+{
+  "generated_at_utc": "2026-06-28T11:38:01.146213+00:00",
+  "research_only": true,
+  "source_db": {
+    "path": "D:\\eclipse_scalper\\data\\microstructure.db",
+    "exists": true,
+    "size_bytes": 646983225344,
+    "mtime_ns": 1782646662773901500
+  },
+  "scope": {
+    "symbol": "BTCUSDT",
+    "liq_side": "BUY",
+    "bucket_sec": 300,
+    "min_gap_sec": 900,
+    "thresholds_usd": [
+      1000000.0
+    ],
+    "horizons_sec": [
+      30,
+      60,
+      120
+    ],
+    "directions": [
+      "LONG",
+      "SHORT"
+    ],
+    "accel_window_sec": 30,
+    "fee_bps_side": 3.05,
+    "max_book_staleness_sec": 5,
+    "max_single_dominance_pct": 50.0
+  },
+  "split": {
+    "split_method": "chronological_bucket_tail_holdout",
+    "holdout_frac": 0.3,
+    "calibration_bucket_n": 37,
+    "holdout_bucket_n": 16,
+    "holdout_bucket_ids": [
+      "5938407",
+      "5938424",
+      "5938429",
+      "5938461",
+      "5938666",
+      "5939037",
+      "5939711",
+      "5939895",
+      "5940451",
+      "5940738",
+      "5941005",
+      "5941212",
+      "5941320",
+      "5941345",
+      "5941627",
+      "5941910"
+    ],
+    "holdout_bucket_ids_sha256": "15bf8e8c66a57134582b91fe639583ea3b206110bf260845a2256230e32a1203"
+  },
+  "anchor_count": 53,
+  "evaluated_rows": 318,
+  "primary_config": null,
+  "primary_config_id": null,
+  "primary_config_sha256": null,
+  "holdout_rows_n": 96,
+  "holdout_summary": {
+    "n": 0,
+    "mean_bps": null,
+    "median_bps": null,
+    "p25_bps": null,
+    "p75_bps": null,
+    "win_rate": null,
+    "cum_bps": 0.0,
+    "top3_winner_removed_cum_bps": 0.0
+  },
+  "holdout_no_fill_n": 0,
+  "holdout_no_fill_rate": null,
+  "holdout_no_fill_counterfactual": {
+    "n": 0,
+    "mean_bps": null,
+    "median_bps": null,
+    "p25_bps": null,
+    "p75_bps": null,
+    "win_rate": null,
+    "cum_bps": 0.0,
+    "top3_winner_removed_cum_bps": 0.0
+  },
+  "shortlist_holdout": [],
+  "verdict": "BLOCKED",
+  "note": "A PAPER_CANDIDATE verdict authorizes only fresh paper pre-registration from zero, not live capital."
+}

@@ -1,0 +1,175 @@
+{
+  "A_silence_entry_lag": {
+    "n": 128,
+    "t0_entry_4h": "N=128 WR=60.9% mean=+36.7 median=+29.4bps",
+    "t30min_proxy_3h30m": "N=128 WR=60.9% mean=+31.5 median=+25.1bps",
+    "wr_t0": "60.9%",
+    "wr_t30min_proxy": "60.9%",
+    "mean_diff_bps": "-5.2",
+    "note": "T+30min entry approximated as 3.5/4 of net_4h. Real test needs per-minute mark prices. CRITICAL: live must enter at T+30min (silence confirmed), not T+0."
+  },
+  "B_neither_confirmation_time": {
+    "n_neither_score3": 51,
+    "n_with_timing": 51,
+    "eth_fo_min_delay_p25_p50_p75_p90": "1.3 / 2.8 / 8.4 / 15.1 min",
+    "btc_cascade_delay_p25_p50_p75_p90": "2.2 / 5.6 / 13.0 / 23.2 min",
+    "confirmation_delay_p25_p50_p75_p90": "2.4 / 8.0 / 15.1 / 23.2 min",
+    "pct_entry_within_5min": "43.1%",
+    "pct_entry_within_15min": "80.4%",
+    "pct_entry_within_5min_label": "BTC entry <=5min",
+    "pct_entry_within_15min_label": "BTC entry <=15min",
+    "note": "Entry = first BTC cascade time. Confirmation = max(eth_fo, btc) — when we KNOW it's NEITHER."
+  },
+  "C_overlap_conflicts": {
+    "total_raw_signals": 179,
+    "long_signals": 128,
+    "short_signals": 51,
+    "taken_after_1pos_rule": 127,
+    "blocked_signals": 52,
+    "long_on_long_conflicts": 27,
+    "short_on_short_conflicts": 18,
+    "flip_events": 5,
+    "pct_signals_taken": "70.9%"
+  },
+  "D_one_pos_rule_impact": {
+    "no_rule_long": "N=128 WR=60.9% mean=+36.7 median=+29.4bps",
+    "no_rule_short": "N=51 WR=80.4% mean=+101.9 median=+92.9bps",
+    "no_rule_all": "N=179 WR=66.5% mean=+55.3 median=+43.4bps",
+    "with_rule_long": "N=94 WR=57.4% mean=+34.2 median=+26.0bps",
+    "with_rule_short": "N=33 WR=72.7% mean=+100.1 median=+85.7bps",
+    "with_rule_all": "N=127 WR=61.4% mean=+51.3 median=+34.9bps",
+    "note": "1-pos rule blocks LONG-on-LONG and SHORT-on-SHORT; allows flip (L->S)."
+  },
+  "E_day_of_week": {
+    "Mon": {
+      "long": "N=18 WR=50.0% mean=+23.7 median=+1.5bps",
+      "short": "N=3 WR=100.0% mean=+173.1 median=+130.8bps"
+    },
+    "Tue": {
+      "long": "N=10 WR=70.0% mean=+59.6 median=+51.8bps",
+      "short": "N=7 WR=57.1% mean=+37.0 median=+117.8bps"
+    },
+    "Wed": {
+      "long": "N=20 WR=50.0% mean=+0.5 median=+6.2bps",
+      "short": "N=6 WR=66.7% mean=+103.3 median=+69.0bps"
+    },
+    "Thu": {
+      "long": "N=12 WR=58.3% mean=+24.0 median=+26.0bps",
+      "short": "N=4 WR=75.0% mean=+200.2 median=+240.5bps"
+    },
+    "Fri": {
+      "long": "N=19 WR=57.9% mean=+65.7 median=+43.4bps",
+      "short": "N=3 WR=100.0% mean=+288.5 median=+308.6bps"
+    },
+    "Sat": {
+      "long": "N=8 WR=62.5% mean=+2.9 median=+28.5bps",
+      "short": "N=4 WR=100.0% mean=+57.9 median=+18.1bps"
+    },
+    "Sun": {
+      "long": "N=7 WR=71.4% mean=+88.5 median=+101.5bps",
+      "short": "N=6 WR=50.0% mean=+1.5 median=+0.0bps"
+    }
+  },
+  "F_neither_short_session": {
+    "ASIA": "N=4 WR=100.0% mean=+201.5 median=+181.7bps",
+    "EUROPE": "N=5 WR=80.0% mean=+120.0 median=+98.5bps",
+    "US": "N=37 WR=81.1% mean=+97.9 median=+89.7bps",
+    "OFF": "N=5 WR=60.0% mean=+33.8 median=+37.3bps"
+  },
+  "G_btc_threshold_sensitivity": {
+    "200K": {
+      "n": 86,
+      "wr": "70.9%",
+      "mean": "+71.3",
+      "hold_n": 43,
+      "hold_wr": "69.8%"
+    },
+    "300K": {
+      "n": 65,
+      "wr": "69.2%",
+      "mean": "+79.0",
+      "hold_n": 35,
+      "hold_wr": "71.4%"
+    },
+    "500K": {
+      "n": 51,
+      "wr": "80.4%",
+      "mean": "+101.9",
+      "hold_n": 28,
+      "hold_wr": "82.1%"
+    },
+    "750K": {
+      "n": 38,
+      "wr": "84.2%",
+      "mean": "+109.3",
+      "hold_n": 25,
+      "hold_wr": "84.0%"
+    },
+    "1000K": {
+      "n": 31,
+      "wr": "87.1%",
+      "mean": "+130.2",
+      "hold_n": 22,
+      "hold_wr": "86.4%"
+    },
+    "1500K": {
+      "n": 24,
+      "wr": "83.3%",
+      "mean": "+124.8",
+      "hold_n": 17,
+      "hold_wr": "82.4%"
+    }
+  },
+  "H_holdout_compound": {
+    "n_trades": 36,
+    "long_n": 21,
+    "short_n": 15,
+    "long_stats": "N=21 WR=85.7% mean=+89.2 median=+56.6bps",
+    "short_stats": "N=15 WR=73.3% mean=+105.3 median=+67.2bps",
+    "all_stats": "N=36 WR=80.6% mean=+95.9 median=+60.2bps",
+    "compound_end_equity": 293843.49,
+    "compound_pct": "839452.8%",
+    "max_dd_usd": 107213.8,
+    "max_dd_pct": "47.1%",
+    "simple_pnl_usd": 483.15,
+    "simple_final": 518.15,
+    "milestones_hit": [
+      {
+        "milestone": 50,
+        "trade": 2
+      },
+      {
+        "milestone": 75,
+        "trade": 2
+      },
+      {
+        "milestone": 100,
+        "trade": 4
+      },
+      {
+        "milestone": 150,
+        "trade": 10
+      },
+      {
+        "milestone": 200,
+        "trade": 12
+      },
+      {
+        "milestone": 500,
+        "trade": 13
+      },
+      {
+        "milestone": 1000,
+        "trade": 14
+      },
+      {
+        "milestone": 2000,
+        "trade": 19
+      },
+      {
+        "milestone": 5000,
+        "trade": 21
+      }
+    ]
+  }
+}

@@ -1,0 +1,1178 @@
+{
+  "config": {
+    "adverse_mult": [
+      1.0,
+      1.2
+    ],
+    "horizon_sec": 300,
+    "maker_fee_bps": [
+      -0.5,
+      0.0
+    ],
+    "model": "fill requires quote penetration by queue_cross_bps; one-sided losses scaled by adverse_mult",
+    "offset_bps": 2.0,
+    "queue_cross_bps": [
+      0.0,
+      0.5,
+      1.0
+    ],
+    "taker_fee_bps": 3.05
+  },
+  "event_count": 92,
+  "generated_at_utc": "2026-06-29T06:14:24.001428+00:00",
+  "mode": "RESEARCH_ONLY_NO_LIVE_NO_PAPER",
+  "pass_like_configs": [
+    {
+      "adverse_mult": 1.0,
+      "config_id": "eth_provision_o2_h300s_q0_fee-0.5_adv1",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 1,
+        "BID_ONLY_LONG_INVENTORY": 4,
+        "BOTH_FILLED": 87
+      },
+      "maker_fee_bps": -0.5,
+      "queue_cross_bps": 0.0,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -122.3,
+          "mean_bps": 2.9,
+          "median_bps": 5.0,
+          "n": 92,
+          "sum_bps": 267.2,
+          "t3r_bps": 252.2,
+          "win_rate": 0.946
+        },
+        "cal": {
+          "max_loss_bps": -9.9,
+          "mean_bps": 4.5,
+          "median_bps": 5.0,
+          "n": 32,
+          "sum_bps": 145.1,
+          "t3r_bps": 130.1,
+          "win_rate": 0.969
+        },
+        "hold": {
+          "max_loss_bps": -122.3,
+          "mean_bps": 2.0,
+          "median_bps": 5.0,
+          "n": 60,
+          "sum_bps": 122.1,
+          "t3r_bps": 107.1,
+          "win_rate": 0.933
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.0,
+      "config_id": "eth_provision_o2_h300s_q0.5_fee-0.5_adv1",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 2,
+        "BID_ONLY_LONG_INVENTORY": 5,
+        "BOTH_FILLED": 85
+      },
+      "maker_fee_bps": -0.5,
+      "queue_cross_bps": 0.5,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -122.3,
+          "mean_bps": 2.4,
+          "median_bps": 5.0,
+          "n": 92,
+          "sum_bps": 221.1,
+          "t3r_bps": 206.1,
+          "win_rate": 0.924
+        },
+        "cal": {
+          "max_loss_bps": -24.2,
+          "mean_bps": 3.1,
+          "median_bps": 5.0,
+          "n": 32,
+          "sum_bps": 99.0,
+          "t3r_bps": 84.0,
+          "win_rate": 0.906
+        },
+        "hold": {
+          "max_loss_bps": -122.3,
+          "mean_bps": 2.0,
+          "median_bps": 5.0,
+          "n": 60,
+          "sum_bps": 122.1,
+          "t3r_bps": 107.1,
+          "win_rate": 0.933
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.2,
+      "config_id": "eth_provision_o2_h300s_q0_fee-0.5_adv1.2",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 1,
+        "BID_ONLY_LONG_INVENTORY": 4,
+        "BOTH_FILLED": 87
+      },
+      "maker_fee_bps": -0.5,
+      "queue_cross_bps": 0.0,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -146.3,
+          "mean_bps": 2.6,
+          "median_bps": 5.0,
+          "n": 92,
+          "sum_bps": 236.2,
+          "t3r_bps": 221.2,
+          "win_rate": 0.946
+        },
+        "cal": {
+          "max_loss_bps": -11.4,
+          "mean_bps": 4.5,
+          "median_bps": 5.0,
+          "n": 32,
+          "sum_bps": 143.6,
+          "t3r_bps": 128.6,
+          "win_rate": 0.969
+        },
+        "hold": {
+          "max_loss_bps": -146.3,
+          "mean_bps": 1.5,
+          "median_bps": 5.0,
+          "n": 60,
+          "sum_bps": 92.5,
+          "t3r_bps": 77.5,
+          "win_rate": 0.933
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.2,
+      "config_id": "eth_provision_o2_h300s_q0.5_fee-0.5_adv1.2",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 2,
+        "BID_ONLY_LONG_INVENTORY": 5,
+        "BOTH_FILLED": 85
+      },
+      "maker_fee_bps": -0.5,
+      "queue_cross_bps": 0.5,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -146.3,
+          "mean_bps": 2.0,
+          "median_bps": 5.0,
+          "n": 92,
+          "sum_bps": 183.9,
+          "t3r_bps": 168.9,
+          "win_rate": 0.924
+        },
+        "cal": {
+          "max_loss_bps": -28.5,
+          "mean_bps": 2.9,
+          "median_bps": 5.0,
+          "n": 32,
+          "sum_bps": 91.4,
+          "t3r_bps": 76.4,
+          "win_rate": 0.906
+        },
+        "hold": {
+          "max_loss_bps": -146.3,
+          "mean_bps": 1.5,
+          "median_bps": 5.0,
+          "n": 60,
+          "sum_bps": 92.5,
+          "t3r_bps": 77.5,
+          "win_rate": 0.933
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.0,
+      "config_id": "eth_provision_o2_h300s_q1_fee-0.5_adv1",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 3,
+        "BID_ONLY_LONG_INVENTORY": 5,
+        "BOTH_FILLED": 84
+      },
+      "maker_fee_bps": -0.5,
+      "queue_cross_bps": 1.0,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -122.3,
+          "mean_bps": 2.1,
+          "median_bps": 5.0,
+          "n": 92,
+          "sum_bps": 188.9,
+          "t3r_bps": 173.9,
+          "win_rate": 0.913
+        },
+        "cal": {
+          "max_loss_bps": -24.2,
+          "mean_bps": 3.1,
+          "median_bps": 5.0,
+          "n": 32,
+          "sum_bps": 99.0,
+          "t3r_bps": 84.0,
+          "win_rate": 0.906
+        },
+        "hold": {
+          "max_loss_bps": -122.3,
+          "mean_bps": 1.5,
+          "median_bps": 5.0,
+          "n": 60,
+          "sum_bps": 89.8,
+          "t3r_bps": 74.8,
+          "win_rate": 0.917
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.0,
+      "config_id": "eth_provision_o2_h300s_q0_fee0_adv1",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 1,
+        "BID_ONLY_LONG_INVENTORY": 4,
+        "BOTH_FILLED": 87
+      },
+      "maker_fee_bps": 0.0,
+      "queue_cross_bps": 0.0,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -122.8,
+          "mean_bps": 1.9,
+          "median_bps": 4.0,
+          "n": 92,
+          "sum_bps": 177.7,
+          "t3r_bps": 165.7,
+          "win_rate": 0.946
+        },
+        "cal": {
+          "max_loss_bps": -10.4,
+          "mean_bps": 3.6,
+          "median_bps": 4.0,
+          "n": 32,
+          "sum_bps": 113.6,
+          "t3r_bps": 101.6,
+          "win_rate": 0.969
+        },
+        "hold": {
+          "max_loss_bps": -122.8,
+          "mean_bps": 1.1,
+          "median_bps": 4.0,
+          "n": 60,
+          "sum_bps": 64.1,
+          "t3r_bps": 52.1,
+          "win_rate": 0.933
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.0,
+      "config_id": "eth_provision_o2_h300s_q0.5_fee0_adv1",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 2,
+        "BID_ONLY_LONG_INVENTORY": 5,
+        "BOTH_FILLED": 85
+      },
+      "maker_fee_bps": 0.0,
+      "queue_cross_bps": 0.5,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -122.8,
+          "mean_bps": 1.4,
+          "median_bps": 4.0,
+          "n": 92,
+          "sum_bps": 132.6,
+          "t3r_bps": 120.6,
+          "win_rate": 0.924
+        },
+        "cal": {
+          "max_loss_bps": -24.7,
+          "mean_bps": 2.1,
+          "median_bps": 4.0,
+          "n": 32,
+          "sum_bps": 68.5,
+          "t3r_bps": 56.5,
+          "win_rate": 0.906
+        },
+        "hold": {
+          "max_loss_bps": -122.8,
+          "mean_bps": 1.1,
+          "median_bps": 4.0,
+          "n": 60,
+          "sum_bps": 64.1,
+          "t3r_bps": 52.1,
+          "win_rate": 0.933
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.2,
+      "config_id": "eth_provision_o2_h300s_q1_fee-0.5_adv1.2",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 3,
+        "BID_ONLY_LONG_INVENTORY": 5,
+        "BOTH_FILLED": 84
+      },
+      "maker_fee_bps": -0.5,
+      "queue_cross_bps": 1.0,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -146.3,
+          "mean_bps": 1.6,
+          "median_bps": 5.0,
+          "n": 92,
+          "sum_bps": 146.7,
+          "t3r_bps": 131.7,
+          "win_rate": 0.913
+        },
+        "cal": {
+          "max_loss_bps": -28.5,
+          "mean_bps": 2.9,
+          "median_bps": 5.0,
+          "n": 32,
+          "sum_bps": 91.4,
+          "t3r_bps": 76.4,
+          "win_rate": 0.906
+        },
+        "hold": {
+          "max_loss_bps": -146.3,
+          "mean_bps": 0.9,
+          "median_bps": 5.0,
+          "n": 60,
+          "sum_bps": 55.3,
+          "t3r_bps": 40.3,
+          "win_rate": 0.917
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.2,
+      "config_id": "eth_provision_o2_h300s_q0_fee0_adv1.2",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 1,
+        "BID_ONLY_LONG_INVENTORY": 4,
+        "BOTH_FILLED": 87
+      },
+      "maker_fee_bps": 0.0,
+      "queue_cross_bps": 0.0,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -146.8,
+          "mean_bps": 1.6,
+          "median_bps": 4.0,
+          "n": 92,
+          "sum_bps": 146.7,
+          "t3r_bps": 134.7,
+          "win_rate": 0.946
+        },
+        "cal": {
+          "max_loss_bps": -11.9,
+          "mean_bps": 3.5,
+          "median_bps": 4.0,
+          "n": 32,
+          "sum_bps": 112.1,
+          "t3r_bps": 100.1,
+          "win_rate": 0.969
+        },
+        "hold": {
+          "max_loss_bps": -146.8,
+          "mean_bps": 0.6,
+          "median_bps": 4.0,
+          "n": 60,
+          "sum_bps": 34.5,
+          "t3r_bps": 22.5,
+          "win_rate": 0.933
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.2,
+      "config_id": "eth_provision_o2_h300s_q0.5_fee0_adv1.2",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 2,
+        "BID_ONLY_LONG_INVENTORY": 5,
+        "BOTH_FILLED": 85
+      },
+      "maker_fee_bps": 0.0,
+      "queue_cross_bps": 0.5,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -146.8,
+          "mean_bps": 1.0,
+          "median_bps": 4.0,
+          "n": 92,
+          "sum_bps": 95.4,
+          "t3r_bps": 83.4,
+          "win_rate": 0.924
+        },
+        "cal": {
+          "max_loss_bps": -29.0,
+          "mean_bps": 1.9,
+          "median_bps": 4.0,
+          "n": 32,
+          "sum_bps": 60.9,
+          "t3r_bps": 48.9,
+          "win_rate": 0.906
+        },
+        "hold": {
+          "max_loss_bps": -146.8,
+          "mean_bps": 0.6,
+          "median_bps": 4.0,
+          "n": 60,
+          "sum_bps": 34.5,
+          "t3r_bps": 22.5,
+          "win_rate": 0.933
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.0,
+      "config_id": "eth_provision_o2_h300s_q1_fee0_adv1",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 3,
+        "BID_ONLY_LONG_INVENTORY": 5,
+        "BOTH_FILLED": 84
+      },
+      "maker_fee_bps": 0.0,
+      "queue_cross_bps": 1.0,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -122.8,
+          "mean_bps": 1.1,
+          "median_bps": 4.0,
+          "n": 92,
+          "sum_bps": 100.9,
+          "t3r_bps": 88.9,
+          "win_rate": 0.913
+        },
+        "cal": {
+          "max_loss_bps": -24.7,
+          "mean_bps": 2.1,
+          "median_bps": 4.0,
+          "n": 32,
+          "sum_bps": 68.5,
+          "t3r_bps": 56.5,
+          "win_rate": 0.906
+        },
+        "hold": {
+          "max_loss_bps": -122.8,
+          "mean_bps": 0.5,
+          "median_bps": 4.0,
+          "n": 60,
+          "sum_bps": 32.3,
+          "t3r_bps": 20.3,
+          "win_rate": 0.917
+        }
+      }
+    }
+  ],
+  "ranked_configs": [
+    {
+      "adverse_mult": 1.0,
+      "config_id": "eth_provision_o2_h300s_q0_fee-0.5_adv1",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 1,
+        "BID_ONLY_LONG_INVENTORY": 4,
+        "BOTH_FILLED": 87
+      },
+      "maker_fee_bps": -0.5,
+      "queue_cross_bps": 0.0,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -122.3,
+          "mean_bps": 2.9,
+          "median_bps": 5.0,
+          "n": 92,
+          "sum_bps": 267.2,
+          "t3r_bps": 252.2,
+          "win_rate": 0.946
+        },
+        "cal": {
+          "max_loss_bps": -9.9,
+          "mean_bps": 4.5,
+          "median_bps": 5.0,
+          "n": 32,
+          "sum_bps": 145.1,
+          "t3r_bps": 130.1,
+          "win_rate": 0.969
+        },
+        "hold": {
+          "max_loss_bps": -122.3,
+          "mean_bps": 2.0,
+          "median_bps": 5.0,
+          "n": 60,
+          "sum_bps": 122.1,
+          "t3r_bps": 107.1,
+          "win_rate": 0.933
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.0,
+      "config_id": "eth_provision_o2_h300s_q0.5_fee-0.5_adv1",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 2,
+        "BID_ONLY_LONG_INVENTORY": 5,
+        "BOTH_FILLED": 85
+      },
+      "maker_fee_bps": -0.5,
+      "queue_cross_bps": 0.5,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -122.3,
+          "mean_bps": 2.4,
+          "median_bps": 5.0,
+          "n": 92,
+          "sum_bps": 221.1,
+          "t3r_bps": 206.1,
+          "win_rate": 0.924
+        },
+        "cal": {
+          "max_loss_bps": -24.2,
+          "mean_bps": 3.1,
+          "median_bps": 5.0,
+          "n": 32,
+          "sum_bps": 99.0,
+          "t3r_bps": 84.0,
+          "win_rate": 0.906
+        },
+        "hold": {
+          "max_loss_bps": -122.3,
+          "mean_bps": 2.0,
+          "median_bps": 5.0,
+          "n": 60,
+          "sum_bps": 122.1,
+          "t3r_bps": 107.1,
+          "win_rate": 0.933
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.2,
+      "config_id": "eth_provision_o2_h300s_q0_fee-0.5_adv1.2",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 1,
+        "BID_ONLY_LONG_INVENTORY": 4,
+        "BOTH_FILLED": 87
+      },
+      "maker_fee_bps": -0.5,
+      "queue_cross_bps": 0.0,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -146.3,
+          "mean_bps": 2.6,
+          "median_bps": 5.0,
+          "n": 92,
+          "sum_bps": 236.2,
+          "t3r_bps": 221.2,
+          "win_rate": 0.946
+        },
+        "cal": {
+          "max_loss_bps": -11.4,
+          "mean_bps": 4.5,
+          "median_bps": 5.0,
+          "n": 32,
+          "sum_bps": 143.6,
+          "t3r_bps": 128.6,
+          "win_rate": 0.969
+        },
+        "hold": {
+          "max_loss_bps": -146.3,
+          "mean_bps": 1.5,
+          "median_bps": 5.0,
+          "n": 60,
+          "sum_bps": 92.5,
+          "t3r_bps": 77.5,
+          "win_rate": 0.933
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.2,
+      "config_id": "eth_provision_o2_h300s_q0.5_fee-0.5_adv1.2",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 2,
+        "BID_ONLY_LONG_INVENTORY": 5,
+        "BOTH_FILLED": 85
+      },
+      "maker_fee_bps": -0.5,
+      "queue_cross_bps": 0.5,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -146.3,
+          "mean_bps": 2.0,
+          "median_bps": 5.0,
+          "n": 92,
+          "sum_bps": 183.9,
+          "t3r_bps": 168.9,
+          "win_rate": 0.924
+        },
+        "cal": {
+          "max_loss_bps": -28.5,
+          "mean_bps": 2.9,
+          "median_bps": 5.0,
+          "n": 32,
+          "sum_bps": 91.4,
+          "t3r_bps": 76.4,
+          "win_rate": 0.906
+        },
+        "hold": {
+          "max_loss_bps": -146.3,
+          "mean_bps": 1.5,
+          "median_bps": 5.0,
+          "n": 60,
+          "sum_bps": 92.5,
+          "t3r_bps": 77.5,
+          "win_rate": 0.933
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.0,
+      "config_id": "eth_provision_o2_h300s_q1_fee-0.5_adv1",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 3,
+        "BID_ONLY_LONG_INVENTORY": 5,
+        "BOTH_FILLED": 84
+      },
+      "maker_fee_bps": -0.5,
+      "queue_cross_bps": 1.0,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -122.3,
+          "mean_bps": 2.1,
+          "median_bps": 5.0,
+          "n": 92,
+          "sum_bps": 188.9,
+          "t3r_bps": 173.9,
+          "win_rate": 0.913
+        },
+        "cal": {
+          "max_loss_bps": -24.2,
+          "mean_bps": 3.1,
+          "median_bps": 5.0,
+          "n": 32,
+          "sum_bps": 99.0,
+          "t3r_bps": 84.0,
+          "win_rate": 0.906
+        },
+        "hold": {
+          "max_loss_bps": -122.3,
+          "mean_bps": 1.5,
+          "median_bps": 5.0,
+          "n": 60,
+          "sum_bps": 89.8,
+          "t3r_bps": 74.8,
+          "win_rate": 0.917
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.0,
+      "config_id": "eth_provision_o2_h300s_q0_fee0_adv1",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 1,
+        "BID_ONLY_LONG_INVENTORY": 4,
+        "BOTH_FILLED": 87
+      },
+      "maker_fee_bps": 0.0,
+      "queue_cross_bps": 0.0,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -122.8,
+          "mean_bps": 1.9,
+          "median_bps": 4.0,
+          "n": 92,
+          "sum_bps": 177.7,
+          "t3r_bps": 165.7,
+          "win_rate": 0.946
+        },
+        "cal": {
+          "max_loss_bps": -10.4,
+          "mean_bps": 3.6,
+          "median_bps": 4.0,
+          "n": 32,
+          "sum_bps": 113.6,
+          "t3r_bps": 101.6,
+          "win_rate": 0.969
+        },
+        "hold": {
+          "max_loss_bps": -122.8,
+          "mean_bps": 1.1,
+          "median_bps": 4.0,
+          "n": 60,
+          "sum_bps": 64.1,
+          "t3r_bps": 52.1,
+          "win_rate": 0.933
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.0,
+      "config_id": "eth_provision_o2_h300s_q0.5_fee0_adv1",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 2,
+        "BID_ONLY_LONG_INVENTORY": 5,
+        "BOTH_FILLED": 85
+      },
+      "maker_fee_bps": 0.0,
+      "queue_cross_bps": 0.5,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -122.8,
+          "mean_bps": 1.4,
+          "median_bps": 4.0,
+          "n": 92,
+          "sum_bps": 132.6,
+          "t3r_bps": 120.6,
+          "win_rate": 0.924
+        },
+        "cal": {
+          "max_loss_bps": -24.7,
+          "mean_bps": 2.1,
+          "median_bps": 4.0,
+          "n": 32,
+          "sum_bps": 68.5,
+          "t3r_bps": 56.5,
+          "win_rate": 0.906
+        },
+        "hold": {
+          "max_loss_bps": -122.8,
+          "mean_bps": 1.1,
+          "median_bps": 4.0,
+          "n": 60,
+          "sum_bps": 64.1,
+          "t3r_bps": 52.1,
+          "win_rate": 0.933
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.2,
+      "config_id": "eth_provision_o2_h300s_q1_fee-0.5_adv1.2",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 3,
+        "BID_ONLY_LONG_INVENTORY": 5,
+        "BOTH_FILLED": 84
+      },
+      "maker_fee_bps": -0.5,
+      "queue_cross_bps": 1.0,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -146.3,
+          "mean_bps": 1.6,
+          "median_bps": 5.0,
+          "n": 92,
+          "sum_bps": 146.7,
+          "t3r_bps": 131.7,
+          "win_rate": 0.913
+        },
+        "cal": {
+          "max_loss_bps": -28.5,
+          "mean_bps": 2.9,
+          "median_bps": 5.0,
+          "n": 32,
+          "sum_bps": 91.4,
+          "t3r_bps": 76.4,
+          "win_rate": 0.906
+        },
+        "hold": {
+          "max_loss_bps": -146.3,
+          "mean_bps": 0.9,
+          "median_bps": 5.0,
+          "n": 60,
+          "sum_bps": 55.3,
+          "t3r_bps": 40.3,
+          "win_rate": 0.917
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.2,
+      "config_id": "eth_provision_o2_h300s_q0_fee0_adv1.2",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 1,
+        "BID_ONLY_LONG_INVENTORY": 4,
+        "BOTH_FILLED": 87
+      },
+      "maker_fee_bps": 0.0,
+      "queue_cross_bps": 0.0,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -146.8,
+          "mean_bps": 1.6,
+          "median_bps": 4.0,
+          "n": 92,
+          "sum_bps": 146.7,
+          "t3r_bps": 134.7,
+          "win_rate": 0.946
+        },
+        "cal": {
+          "max_loss_bps": -11.9,
+          "mean_bps": 3.5,
+          "median_bps": 4.0,
+          "n": 32,
+          "sum_bps": 112.1,
+          "t3r_bps": 100.1,
+          "win_rate": 0.969
+        },
+        "hold": {
+          "max_loss_bps": -146.8,
+          "mean_bps": 0.6,
+          "median_bps": 4.0,
+          "n": 60,
+          "sum_bps": 34.5,
+          "t3r_bps": 22.5,
+          "win_rate": 0.933
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.2,
+      "config_id": "eth_provision_o2_h300s_q0.5_fee0_adv1.2",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 2,
+        "BID_ONLY_LONG_INVENTORY": 5,
+        "BOTH_FILLED": 85
+      },
+      "maker_fee_bps": 0.0,
+      "queue_cross_bps": 0.5,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -146.8,
+          "mean_bps": 1.0,
+          "median_bps": 4.0,
+          "n": 92,
+          "sum_bps": 95.4,
+          "t3r_bps": 83.4,
+          "win_rate": 0.924
+        },
+        "cal": {
+          "max_loss_bps": -29.0,
+          "mean_bps": 1.9,
+          "median_bps": 4.0,
+          "n": 32,
+          "sum_bps": 60.9,
+          "t3r_bps": 48.9,
+          "win_rate": 0.906
+        },
+        "hold": {
+          "max_loss_bps": -146.8,
+          "mean_bps": 0.6,
+          "median_bps": 4.0,
+          "n": 60,
+          "sum_bps": 34.5,
+          "t3r_bps": 22.5,
+          "win_rate": 0.933
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.0,
+      "config_id": "eth_provision_o2_h300s_q1_fee0_adv1",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 3,
+        "BID_ONLY_LONG_INVENTORY": 5,
+        "BOTH_FILLED": 84
+      },
+      "maker_fee_bps": 0.0,
+      "queue_cross_bps": 1.0,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -122.8,
+          "mean_bps": 1.1,
+          "median_bps": 4.0,
+          "n": 92,
+          "sum_bps": 100.9,
+          "t3r_bps": 88.9,
+          "win_rate": 0.913
+        },
+        "cal": {
+          "max_loss_bps": -24.7,
+          "mean_bps": 2.1,
+          "median_bps": 4.0,
+          "n": 32,
+          "sum_bps": 68.5,
+          "t3r_bps": 56.5,
+          "win_rate": 0.906
+        },
+        "hold": {
+          "max_loss_bps": -122.8,
+          "mean_bps": 0.5,
+          "median_bps": 4.0,
+          "n": 60,
+          "sum_bps": 32.3,
+          "t3r_bps": 20.3,
+          "win_rate": 0.917
+        }
+      }
+    },
+    {
+      "adverse_mult": 1.2,
+      "config_id": "eth_provision_o2_h300s_q1_fee0_adv1.2",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 3,
+        "BID_ONLY_LONG_INVENTORY": 5,
+        "BOTH_FILLED": 84
+      },
+      "maker_fee_bps": 0.0,
+      "queue_cross_bps": 1.0,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -146.8,
+          "mean_bps": 0.6,
+          "median_bps": 4.0,
+          "n": 92,
+          "sum_bps": 58.7,
+          "t3r_bps": 46.7,
+          "win_rate": 0.913
+        },
+        "cal": {
+          "max_loss_bps": -29.0,
+          "mean_bps": 1.9,
+          "median_bps": 4.0,
+          "n": 32,
+          "sum_bps": 60.9,
+          "t3r_bps": 48.9,
+          "win_rate": 0.906
+        },
+        "hold": {
+          "max_loss_bps": -146.8,
+          "mean_bps": -0.0,
+          "median_bps": 4.0,
+          "n": 60,
+          "sum_bps": -2.2,
+          "t3r_bps": -14.2,
+          "win_rate": 0.917
+        }
+      }
+    }
+  ]
+}

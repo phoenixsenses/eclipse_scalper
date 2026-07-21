@@ -1,0 +1,46 @@
+# S34 Bucket Independence Audit
+
+- generated_at_utc: `2026-06-26T08:59:40.553724+00:00`
+- clean_closed_trades: `69`
+- routes: `6`
+- pair_verdict_counts: `LIKELY_INDEPENDENT=7, RELATED=5, SAME_FAMILY=3`
+
+## Route Stats
+
+| Route | Side | N | Days | Median | Mean | Cum | WR |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30` | LONG | 17 | 6 | 52.33 | 40.38 | 686.41 | 76.5% |
+| `SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30` | LONG | 19 | 5 | 48.60 | 34.38 | 653.26 | 68.4% |
+| `ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30` | LONG | 24 | 6 | 41.15 | 18.90 | 453.63 | 58.3% |
+| `BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30` | LONG | 6 | 3 | 38.59 | 35.67 | 214.05 | 66.7% |
+| `ETH_BUY_LIQ_LONG_500K_NEGTREND_STRETCHED_TP60_SL40_BE30` | LONG | 1 | 1 | -11.37 | -11.37 | -11.37 | 0.0% |
+| `ETH_BUY_LIQ_LONG_200K_BTC_PRE15_TP120_SL40_BE30_DELAY60` | LONG | 2 | 2 | -21.65 | -21.65 | -43.30 | 0.0% |
+
+## Pairwise Independence
+
+| Route A | Route B | same cascade | co-trigger 15m | overlap days | daily corr | both loss days | verdict |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| `BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30` | `ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30` | 0 | 1 | 1 | - | 0 | **LIKELY_INDEPENDENT** |
+| `BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30` | `ETH_BUY_LIQ_LONG_500K_NEGTREND_STRETCHED_TP60_SL40_BE30` | 0 | 1 | 1 | - | 0 | **LIKELY_INDEPENDENT** |
+| `BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30` | `ETH_BUY_LIQ_LONG_200K_BTC_PRE15_TP120_SL40_BE30_DELAY60` | 0 | 0 | 0 | - | 0 | **LIKELY_INDEPENDENT** |
+| `ETH_BUY_LIQ_LONG_200K_BTC_PRE15_TP120_SL40_BE30_DELAY60` | `ETH_BUY_LIQ_LONG_500K_NEGTREND_STRETCHED_TP60_SL40_BE30` | 0 | 0 | 0 | - | 0 | **LIKELY_INDEPENDENT** |
+| `ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30` | `ETH_BUY_LIQ_LONG_500K_NEGTREND_STRETCHED_TP60_SL40_BE30` | 0 | 0 | 0 | - | 0 | **LIKELY_INDEPENDENT** |
+| `ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30` | `ETH_BUY_LIQ_LONG_500K_NEGTREND_STRETCHED_TP60_SL40_BE30` | 0 | 0 | 1 | - | 0 | **LIKELY_INDEPENDENT** |
+| `ETH_BUY_LIQ_LONG_500K_NEGTREND_STRETCHED_TP60_SL40_BE30` | `SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30` | 0 | 0 | 1 | - | 0 | **LIKELY_INDEPENDENT** |
+| `ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30` | `SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30` | 0 | 7 | 4 | -0.10 | 0 | **RELATED** |
+| `BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30` | `ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30` | 0 | 5 | 3 | 0.08 | 0 | **RELATED** |
+| `BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30` | `SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30` | 0 | 3 | 3 | 0.97 | 0 | **RELATED** |
+| `ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30` | `SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30` | 0 | 3 | 2 | - | 0 | **RELATED** |
+| `ETH_BUY_LIQ_LONG_200K_BTC_PRE15_TP120_SL40_BE30_DELAY60` | `SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30` | 0 | 2 | 1 | - | 0 | **RELATED** |
+| `ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30` | `ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30` | 2 | 5 | 3 | 0.19 | 0 | **SAME_FAMILY** |
+| `ETH_BUY_LIQ_LONG_200K_BTC_PRE15_TP120_SL40_BE30_DELAY60` | `ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30` | 1 | 2 | 2 | - | 1 | **SAME_FAMILY** |
+| `ETH_BUY_LIQ_LONG_200K_BTC_PRE15_TP120_SL40_BE30_DELAY60` | `ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30` | 1 | 2 | 2 | - | 0 | **SAME_FAMILY** |
+
+## Interpretation Rules
+
+- `SAME_FAMILY`: same symbol/direction/liq-side bucket overlap was observed.
+- `RELATED`: repeated 15-minute co-triggers or positive daily PnL correlation.
+- `ANTI_CORRELATED`: repeated overlap days with negative daily correlation.
+- `LIKELY_INDEPENDENT`: no current evidence of tight coupling, but small-N routes remain provisional.
+
+This is an audit report only. It does not change runner rules, route thresholds, or risk sizing.

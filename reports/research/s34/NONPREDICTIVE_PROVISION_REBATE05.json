@@ -1,0 +1,177 @@
+{
+  "config": {
+    "carry_cost_bps_rt": 8.0,
+    "maker_fee_bps": -0.5,
+    "permutation_scope_note": "v5 shuffles directional PnL labels/signs; it does not model exogenous funding cashflows or two-sided spread capture.",
+    "pool_json": "D:\\eclipse_scalper\\reports\\research\\s34\\S34_ABSORPTION_SYNC_2X2_POOL.json",
+    "taker_fee_bps": 3.05
+  },
+  "funding_carry": [],
+  "generated_at_utc": "2026-06-29T06:03:59.991377+00:00",
+  "maker_provision": [
+    {
+      "by_symbol": {
+        "BTCUSDT": {
+          "all": {
+            "max_loss_bps": -100.7,
+            "mean_bps": -0.1,
+            "median_bps": 5.0,
+            "n": 70,
+            "sum_bps": -7.1,
+            "t3r_bps": -22.1,
+            "tail_lt_100": 1,
+            "tail_lt_50": 2,
+            "win_rate": 0.871
+          },
+          "cal": {
+            "max_loss_bps": -24.9,
+            "mean_bps": 2.8,
+            "median_bps": 5.0,
+            "n": 26,
+            "sum_bps": 73.4,
+            "t3r_bps": 58.4,
+            "tail_lt_100": 0,
+            "tail_lt_50": 0,
+            "win_rate": 0.885
+          },
+          "hold": {
+            "max_loss_bps": -100.7,
+            "mean_bps": -1.8,
+            "median_bps": 5.0,
+            "n": 44,
+            "sum_bps": -80.5,
+            "t3r_bps": -95.5,
+            "tail_lt_100": 1,
+            "tail_lt_50": 2,
+            "win_rate": 0.864
+          }
+        },
+        "ETHUSDT": {
+          "all": {
+            "max_loss_bps": -122.3,
+            "mean_bps": 2.9,
+            "median_bps": 5.0,
+            "n": 92,
+            "sum_bps": 267.2,
+            "t3r_bps": 252.2,
+            "tail_lt_100": 1,
+            "tail_lt_50": 1,
+            "win_rate": 0.946
+          },
+          "cal": {
+            "max_loss_bps": -9.9,
+            "mean_bps": 4.5,
+            "median_bps": 5.0,
+            "n": 32,
+            "sum_bps": 145.1,
+            "t3r_bps": 130.1,
+            "tail_lt_100": 0,
+            "tail_lt_50": 0,
+            "win_rate": 0.969
+          },
+          "hold": {
+            "max_loss_bps": -122.3,
+            "mean_bps": 2.0,
+            "median_bps": 5.0,
+            "n": 60,
+            "sum_bps": 122.1,
+            "t3r_bps": 107.1,
+            "tail_lt_100": 1,
+            "tail_lt_50": 1,
+            "win_rate": 0.933
+          }
+        },
+        "SOLUSDT": {
+          "all": {
+            "max_loss_bps": -166.9,
+            "mean_bps": -2.8,
+            "median_bps": 5.0,
+            "n": 73,
+            "sum_bps": -201.6,
+            "t3r_bps": -216.6,
+            "tail_lt_100": 1,
+            "tail_lt_50": 4,
+            "win_rate": 0.89
+          },
+          "cal": {
+            "max_loss_bps": -32.7,
+            "mean_bps": 1.2,
+            "median_bps": 5.0,
+            "n": 10,
+            "sum_bps": 12.3,
+            "t3r_bps": -2.7,
+            "tail_lt_100": 0,
+            "tail_lt_50": 0,
+            "win_rate": 0.9
+          },
+          "hold": {
+            "max_loss_bps": -166.9,
+            "mean_bps": -3.4,
+            "median_bps": 5.0,
+            "n": 63,
+            "sum_bps": -213.9,
+            "t3r_bps": -228.9,
+            "tail_lt_100": 1,
+            "tail_lt_50": 4,
+            "win_rate": 0.889
+          }
+        }
+      },
+      "config_id": "provision_o2_h300s_fee-0.5",
+      "fill_counts": {
+        "ASK_ONLY_SHORT_INVENTORY": 12,
+        "BID_ONLY_LONG_INVENTORY": 10,
+        "BOTH_FILLED": 213
+      },
+      "horizon_sec": 300,
+      "maker_fee_bps": -0.5,
+      "offset_bps": 2.0,
+      "split": {
+        "holdout_months": [
+          "2026-06"
+        ],
+        "method": "chronological_month_tail",
+        "months": [
+          "2026-04",
+          "2026-06"
+        ]
+      },
+      "summary": {
+        "all": {
+          "max_loss_bps": -166.9,
+          "mean_bps": 0.2,
+          "median_bps": 5.0,
+          "n": 235,
+          "sum_bps": 58.6,
+          "t3r_bps": 43.6,
+          "tail_lt_100": 3,
+          "tail_lt_50": 7,
+          "win_rate": 0.906
+        },
+        "cal": {
+          "max_loss_bps": -32.7,
+          "mean_bps": 3.4,
+          "median_bps": 5.0,
+          "n": 68,
+          "sum_bps": 230.8,
+          "t3r_bps": 215.8,
+          "tail_lt_100": 0,
+          "tail_lt_50": 0,
+          "win_rate": 0.926
+        },
+        "hold": {
+          "max_loss_bps": -166.9,
+          "mean_bps": -1.0,
+          "median_bps": 5.0,
+          "n": 167,
+          "sum_bps": -172.3,
+          "t3r_bps": -187.3,
+          "tail_lt_100": 3,
+          "tail_lt_50": 7,
+          "win_rate": 0.898
+        }
+      }
+    }
+  ],
+  "mode": "RESEARCH_ONLY_NO_LIVE_NO_PAPER"
+}

@@ -1,0 +1,599 @@
+{
+  "generated_at_utc": "2026-06-26T19:12:26+00:00",
+  "scope_note": "BTCUSDT BUY N=127  |  BTCUSDT SELL N=113  |  ETHUSDT BUY N=450  |  ETHUSDT SELL N=222  |  SOLUSDT BUY N=104  |  SOLUSDT SELL N=105",
+  "filters": [
+    "symbol=ETHUSDT",
+    "side=BUY",
+    "cluster_notional>=500000"
+  ],
+  "preset": null,
+  "source_signal": {
+    "signal_id": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30:5941632",
+    "signal_ts_utc": "2026-06-26T16:00:24.099000+00:00",
+    "rule_name": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+    "symbol": "ETHUSDT",
+    "liq_side": "BUY",
+    "direction": "LONG",
+    "cluster_notional": 637472.7562000001,
+    "cluster_liq_count": 16,
+    "cluster_shape_label": "distributed_mid_duration"
+  },
+  "source_trade": {
+    "trade_id": "P680",
+    "status": "CLOSED",
+    "rule_name": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+    "entry_ts_ms": 1782489625005,
+    "entry_price": 1581.72,
+    "exit_ts_ms": 1782489656000,
+    "exit_reason": "TP",
+    "net_bps": 53.460638634208195
+  },
+  "run_command": "python tools\\s34_liq_outcome_calculator.py --from-trade-id P680 --output-json reports\\research\\s34\\CALC_TEST_P680.json --output-md reports\\research\\s34\\CALC_TEST_P680.md",
+  "model_tag": "REGIME_SHIFT_RECENCY_HELPFUL_PRELIMINARY",
+  "selection_mode": "knn",
+  "prediction_mode": "event_prediction",
+  "decision_grade": true,
+  "threshold_source": "explicit",
+  "min_notional_used": 500000.0,
+  "model_config": {
+    "combo": "ETHUSDT_BUY",
+    "k": 50,
+    "metric": "euclidean",
+    "feature_set": [
+      "log_cluster_notional",
+      "cluster_duration_sec",
+      "cluster_liq_count",
+      "max_single_liq_share",
+      "intensity_per_sec",
+      "inter_cluster_gap_sec",
+      "day_trend_bps",
+      "day_range_bps",
+      "symbol_pre_5m_bps",
+      "symbol_pre_15m_bps",
+      "btc_pre_15m_bps"
+    ],
+    "excluded_features": [],
+    "config_source": "default"
+  },
+  "candidate_n": 140,
+  "matched_n": 50,
+  "confidence": "usable",
+  "knn": {
+    "enabled": true,
+    "drop_feature": null,
+    "candidate_n": 140,
+    "selected_n": 50,
+    "k": 50,
+    "metric": "euclidean",
+    "excluded_features": [],
+    "target_features": {
+      "log_cluster_notional": {
+        "column": "cluster_notional",
+        "raw_value": 637472.7562000001,
+        "weight": 2.0
+      },
+      "cluster_duration_sec": {
+        "column": "cluster_duration_sec",
+        "raw_value": 35.501,
+        "weight": 0.8
+      },
+      "cluster_liq_count": {
+        "column": "cluster_liq_count",
+        "raw_value": 16.0,
+        "weight": 0.8
+      },
+      "max_single_liq_share": {
+        "column": "max_single_liq_share",
+        "raw_value": 68.88383791765249,
+        "weight": 0.8
+      },
+      "intensity_per_sec": {
+        "column": "intensity_per_sec",
+        "raw_value": 17956.473231739954,
+        "weight": 1.0
+      },
+      "inter_cluster_gap_sec": {
+        "column": "inter_cluster_gap_sec",
+        "raw_value": 143.348,
+        "weight": 0.7
+      },
+      "day_trend_bps": {
+        "column": "day_trend_bps",
+        "raw_value": 92.46212129915192,
+        "weight": 1.4
+      },
+      "day_range_bps": {
+        "column": "day_range_bps",
+        "raw_value": 483.41919801898126,
+        "weight": 1.0
+      }
+    },
+    "feature_scales": {
+      "log_cluster_notional": 1.0536640141680707,
+      "cluster_duration_sec": 135.16,
+      "cluster_liq_count": 15.5,
+      "max_single_liq_share": 43.794398981326424,
+      "intensity_per_sec": 16216.15396649544,
+      "inter_cluster_gap_sec": 10377.03925,
+      "day_trend_bps": 286.7953830532662,
+      "day_range_bps": 300.3176286811887
+    },
+    "distance": {
+      "n": 50,
+      "mean": 0.6418061888916096,
+      "median": 0.6574118485210272,
+      "p25": 0.5816330205980308,
+      "p75": 0.7065000778674597,
+      "p10": 0.5330694878005704,
+      "p90": 0.7404068006622656,
+      "stdev": 0.08763772048971022,
+      "positive_rate": 1.0
+    }
+  },
+  "auto_weights": {
+    "enabled": false
+  },
+  "oos_validation": {
+    "enabled": false
+  },
+  "coverage": {
+    "feature_db": "D:\\eclipse_scalper\\data\\s34_feature_factory.db",
+    "microstructure_db": "D:\\eclipse_scalper\\data\\microstructure.db",
+    "available_symbol_sides": [
+      {
+        "symbol": "BTCUSDT",
+        "liq_side": "BUY",
+        "n": 127,
+        "min_utc": "2026-02-17T16:05:39.128000+00:00",
+        "max_utc": "2026-06-26T13:35:31.100000+00:00"
+      },
+      {
+        "symbol": "BTCUSDT",
+        "liq_side": "SELL",
+        "n": 113,
+        "min_utc": "2026-02-18T11:06:33.546000+00:00",
+        "max_utc": "2026-06-26T12:40:01.099000+00:00"
+      },
+      {
+        "symbol": "ETHUSDT",
+        "liq_side": "BUY",
+        "n": 450,
+        "min_utc": "2026-02-15T22:47:11.071000+00:00",
+        "max_utc": "2026-06-16T08:15:58.161000+00:00"
+      },
+      {
+        "symbol": "ETHUSDT",
+        "liq_side": "SELL",
+        "n": 222,
+        "min_utc": "2026-02-16T11:10:12.218000+00:00",
+        "max_utc": "2026-06-26T13:16:54.455000+00:00"
+      },
+      {
+        "symbol": "SOLUSDT",
+        "liq_side": "BUY",
+        "n": 104,
+        "min_utc": "2026-04-20T06:40:08.582000+00:00",
+        "max_utc": "2026-06-26T13:50:45.406000+00:00"
+      },
+      {
+        "symbol": "SOLUSDT",
+        "liq_side": "SELL",
+        "n": 105,
+        "min_utc": "2026-04-18T08:41:11.463000+00:00",
+        "max_utc": "2026-06-26T12:40:01.200000+00:00"
+      }
+    ]
+  },
+  "forward_returns_bps": {
+    "60s": {
+      "n": 50,
+      "mean": 10.402033084779196,
+      "median": 7.013711576567846,
+      "p25": 1.0039237807371058,
+      "p75": 18.144819429712285,
+      "p10": -3.9284504960645905,
+      "p90": 26.585789147687013,
+      "stdev": 16.018671694636346,
+      "positive_rate": 0.78
+    },
+    "300s": {
+      "n": 50,
+      "mean": 22.466585716783587,
+      "median": 13.001093240815132,
+      "p25": 3.390171743345699,
+      "p75": 33.17602772695519,
+      "p10": -6.576475590482542,
+      "p90": 52.611805333707906,
+      "stdev": 32.71885780914799,
+      "positive_rate": 0.8
+    },
+    "900s": {
+      "n": 50,
+      "mean": 20.72436244547021,
+      "median": 8.218459547217277,
+      "p25": -7.256302643382552,
+      "p75": 36.68940115203023,
+      "p10": -17.162922341788686,
+      "p90": 71.56292907886167,
+      "stdev": 45.54055274374499,
+      "positive_rate": 0.6
+    },
+    "3600s": {
+      "n": 50,
+      "mean": 16.732462083741787,
+      "median": 15.895543465690473,
+      "p25": -10.922516006345983,
+      "p75": 38.92473394945798,
+      "p10": -52.48942956851543,
+      "p90": 91.08326746537108,
+      "stdev": 77.06637712597886,
+      "positive_rate": 0.64
+    }
+  },
+  "route_simulation": {
+    "LONG_DELAY0_TP60": {
+      "n": 50,
+      "net_bps": {
+        "n": 50,
+        "mean": 8.930790124902117,
+        "median": -8.051154920159645,
+        "p25": -9.30386173343075,
+        "p75": 52.7192575390005,
+        "p10": -48.11855803394494,
+        "p90": 54.41983641533783,
+        "stdev": 37.42531651156158,
+        "positive_rate": 0.46
+      },
+      "cum_net_bps": 446.5395062451058,
+      "top3_removed_cum_net_bps": 275.6053604877857,
+      "mfe_bps": {
+        "n": 50,
+        "mean": 43.684820674166325,
+        "median": 43.69620523045908,
+        "p25": 31.201816150821312,
+        "p75": 60.7192575390005,
+        "p10": 20.279087353369682,
+        "p90": 62.41983641533783,
+        "stdev": 17.76053817008708,
+        "positive_rate": 1.0
+      },
+      "mae_bps": {
+        "n": 50,
+        "mean": -12.826365148313966,
+        "median": -5.059564263395394,
+        "p25": -18.826587489013903,
+        "p75": -1.2503494170293954,
+        "p10": -40.11855803394494,
+        "p90": -0.4930176038541102,
+        "stdev": 14.901238683096459,
+        "positive_rate": 0.0
+      },
+      "tp_touch_rate": 0.34,
+      "sl_touch_rate": 0.16,
+      "be_hit_rate": 0.78,
+      "exit_mix": {
+        "TP": 17,
+        "BE": 17,
+        "SL": 8,
+        "TIME": 8
+      }
+    },
+    "LONG_DELAY60_TP120": {
+      "n": 50,
+      "net_bps": {
+        "n": 50,
+        "mean": -3.2458684706699534,
+        "median": -8.622748618278152,
+        "p25": -48.21347307935541,
+        "p75": -2.9720990795551963,
+        "p10": -48.803891825103555,
+        "p90": 52.62923470075297,
+        "stdev": 44.48636706190307,
+        "positive_rate": 0.24
+      },
+      "cum_net_bps": -162.29342353349767,
+      "top3_removed_cum_net_bps": -509.80750221676,
+      "mfe_bps": {
+        "n": 50,
+        "mean": 50.82542704725535,
+        "median": 43.056354081290046,
+        "p25": 22.836662169496215,
+        "p75": 77.92131019552457,
+        "p10": 9.335024809891562,
+        "p90": 109.13073530711918,
+        "stdev": 36.058397827165116,
+        "positive_rate": 1.0
+      },
+      "mae_bps": {
+        "n": 50,
+        "mean": -18.91689805448811,
+        "median": -14.215939373991102,
+        "p25": -40.21347307935541,
+        "p75": -1.6438058838676888,
+        "p10": -40.803891825103555,
+        "p90": -0.10564704391820111,
+        "stdev": 16.957765445530764,
+        "positive_rate": 0.0
+      },
+      "tp_touch_rate": 0.06,
+      "sl_touch_rate": 0.28,
+      "be_hit_rate": 0.66,
+      "exit_mix": {
+        "TP": 3,
+        "BE": 20,
+        "SL": 14,
+        "TIME": 13
+      }
+    },
+    "SHORT_DELAY0_TP40_CONTROL": {
+      "n": 50,
+      "net_bps": {
+        "n": 50,
+        "mean": -27.61301873977858,
+        "median": -48.31842992026023,
+        "p25": -50.47494172115469,
+        "p75": -8.299422052192911,
+        "p10": -53.09512004842354,
+        "p90": 32.2751055859222,
+        "stdev": 33.985073363741854,
+        "positive_rate": 0.22
+      },
+      "cum_net_bps": -1380.6509369889288,
+      "top3_removed_cum_net_bps": -1480.6546222772583,
+      "mfe_bps": {
+        "n": 50,
+        "mean": 16.21337826658254,
+        "median": 8.414057682002134,
+        "p25": 1.4497917432724934,
+        "p75": 31.78728287799052,
+        "p10": 0.45731707317031595,
+        "p90": 40.2751055859222,
+        "stdev": 16.29180524791975,
+        "positive_rate": 0.9
+      },
+      "mae_bps": {
+        "n": 50,
+        "mean": -35.97151840069381,
+        "median": -40.31842992026023,
+        "p25": -42.47494172115469,
+        "p75": -31.046294696543814,
+        "p10": -45.09512004842354,
+        "p90": -20.279087353369672,
+        "stdev": 11.455201527537172,
+        "positive_rate": 0.0
+      },
+      "tp_touch_rate": 0.2,
+      "sl_touch_rate": 0.62,
+      "be_hit_rate": 0.3,
+      "exit_mix": {
+        "TP": 10,
+        "BE": 5,
+        "SL": 31,
+        "TIME": 4
+      }
+    }
+  },
+  "knn_importance": [],
+  "nearest_analogs": [
+    {
+      "event_id": "ETHUSDT_BUY_5921387",
+      "event_utc": "2026-04-17T08:55:09.083000+00:00",
+      "cluster_notional": 500549.55045,
+      "day_trend_bps": 44.29833710769541,
+      "day_range_bps": 176.1981665068305,
+      "symbol_pre_15m_bps": 39.35264054514388,
+      "distance": 0.4328,
+      "components": {
+        "log_cluster_notional": 0.3245473206458193,
+        "cluster_duration_sec": 0.08097226331070559,
+        "cluster_liq_count": 0.577049800645107,
+        "max_single_liq_share": 0.055072400064080665,
+        "intensity_per_sec": 0.21945147830655626,
+        "inter_cluster_gap_sec": 0.10098932886619157,
+        "day_trend_bps": 0.19870667853793653,
+        "day_range_bps": 1.0229870049962688
+      }
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5911099",
+      "event_utc": "2026-03-12T15:37:41.084000+00:00",
+      "cluster_notional": 959738.2686200001,
+      "day_trend_bps": 91.50607196657607,
+      "day_range_bps": 385.1754421643927,
+      "symbol_pre_15m_bps": 97.31346135436175,
+      "distance": 0.4437,
+      "components": {
+        "log_cluster_notional": 0.5491543372513553,
+        "cluster_duration_sec": 0.6495119029050144,
+        "cluster_liq_count": 0.40393486045157495,
+        "max_single_liq_share": 0.2959711861226195,
+        "intensity_per_sec": 0.6644944788629842,
+        "inter_cluster_gap_sec": 0.3879440078934389,
+        "day_trend_bps": 0.003944320210376147,
+        "day_range_bps": 0.32713283028377343
+      }
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904481",
+      "event_utc": "2026-02-17T16:05:11.630000+00:00",
+      "cluster_notional": 544503.05561,
+      "day_trend_bps": -46.88118732320272,
+      "day_range_bps": 342.63754658676163,
+      "symbol_pre_15m_bps": 168.04294548309096,
+      "distance": 0.4686,
+      "components": {
+        "log_cluster_notional": 0.21157956959876803,
+        "cluster_duration_sec": 0.6584654393760331,
+        "cluster_liq_count": 0.1154099601290214,
+        "max_single_liq_share": 0.28278674882084376,
+        "intensity_per_sec": 0.8586028966133539,
+        "inter_cluster_gap_sec": 0.08579236038394086,
+        "day_trend_bps": 0.5748810334912637,
+        "day_range_bps": 0.4687758492581555
+      }
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5920932",
+      "event_utc": "2026-04-15T19:02:55.656000+00:00",
+      "cluster_notional": 925538.44732,
+      "day_trend_bps": 160.7200942897885,
+      "day_range_bps": 218.44219776103557,
+      "symbol_pre_15m_bps": 14.895359034103143,
+      "distance": 0.4766,
+      "components": {
+        "log_cluster_notional": 0.5004531863873357,
+        "cluster_duration_sec": 0.05609029942967807,
+        "cluster_liq_count": 0.1731149401935321,
+        "max_single_liq_share": 0.7376808132845752,
+        "intensity_per_sec": 0.19051945281704802,
+        "inter_cluster_gap_sec": 0.45699605531679777,
+        "day_trend_bps": 0.2816081693827433,
+        "day_range_bps": 0.8823224977553351
+      }
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5920367",
+      "event_utc": "2026-04-13T19:55:07.734000+00:00",
+      "cluster_notional": 1263311.9667999998,
+      "day_trend_bps": 321.9062937329869,
+      "day_range_bps": 412.7238116257886,
+      "symbol_pre_15m_bps": 27.755066017944447,
+      "distance": 0.4832,
+      "components": {
+        "log_cluster_notional": 0.9180294337255807,
+        "cluster_duration_sec": 0.28082207958917155,
+        "cluster_liq_count": 0.2885249003225535,
+        "max_single_liq_share": 0.10208577359569383,
+        "intensity_per_sec": 0.10773662863682411,
+        "inter_cluster_gap_sec": 0.07983723727694932,
+        "day_trend_bps": 0.9466052175838011,
+        "day_range_bps": 0.23540205316498924
+      }
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5922511",
+      "event_utc": "2026-04-21T06:35:00.356000+00:00",
+      "cluster_notional": 582892.49169,
+      "day_trend_bps": 27.549280074376327,
+      "day_range_bps": 114.97558236154748,
+      "symbol_pre_15m_bps": 51.21400841540411,
+      "distance": 0.5386,
+      "components": {
+        "log_cluster_notional": 0.12013746726544525,
+        "cluster_duration_sec": 0.06237034829220339,
+        "cluster_liq_count": 0.0,
+        "max_single_liq_share": 0.45342286866317905,
+        "intensity_per_sec": 0.3072227182695022,
+        "inter_cluster_gap_sec": 0.755424793449692,
+        "day_trend_bps": 0.2678073430227604,
+        "day_range_bps": 1.2268464467950575
+      }
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5921201",
+      "event_utc": "2026-04-16T17:25:05.675000+00:00",
+      "cluster_notional": 504262.62079,
+      "day_trend_bps": -146.38364979841936,
+      "day_range_bps": 369.320493804015,
+      "symbol_pre_15m_bps": 32.02859264119375,
+      "distance": 0.5525,
+      "components": {
+        "log_cluster_notional": 0.31462774458151294,
+        "cluster_duration_sec": 0.05570648190172604,
+        "cluster_liq_count": 0.8078697209031499,
+        "max_single_liq_share": 0.626197190706942,
+        "intensity_per_sec": 0.3992822503379574,
+        "inter_cluster_gap_sec": 0.41575291138890574,
+        "day_trend_bps": 0.9853928767094129,
+        "day_range_bps": 0.37992676192875524
+      }
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5936778",
+      "event_utc": "2026-06-09T19:30:42.209000+00:00",
+      "cluster_notional": 678091.48139,
+      "day_trend_bps": -215.1025645923604,
+      "day_range_bps": 508.8946845459983,
+      "symbol_pre_15m_bps": 27.36213698291551,
+      "distance": 0.5577,
+      "components": {
+        "log_cluster_notional": 0.08290775142599636,
+        "cluster_duration_sec": 0.40482822883560127,
+        "cluster_liq_count": 0.3462298803870642,
+        "max_single_liq_share": 0.40469301002829455,
+        "intensity_per_sec": 0.6747846012991675,
+        "inter_cluster_gap_sec": 0.3413852669478942,
+        "day_trend_bps": 1.2689027283679888,
+        "day_range_bps": 0.08482847523433704
+      }
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5936395",
+      "event_utc": "2026-06-08T11:36:10.305000+00:00",
+      "cluster_notional": 1100461.09152,
+      "day_trend_bps": -3.2552468660847937,
+      "day_range_bps": 405.1458196117579,
+      "symbol_pre_15m_bps": 15.758754663813242,
+      "distance": 0.5597,
+      "components": {
+        "log_cluster_notional": 0.7327975683104739,
+        "cluster_duration_sec": 0.9832743311772232,
+        "cluster_liq_count": 0.2885249003225535,
+        "max_single_liq_share": 0.5459836512964326,
+        "intensity_per_sec": 0.738679034551505,
+        "inter_cluster_gap_sec": 0.09068910490107476,
+        "day_trend_bps": 0.3948958875594497,
+        "day_range_bps": 0.26063531052423455
+      }
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5907927",
+      "event_utc": "2026-03-01T15:15:00.210000+00:00",
+      "cluster_notional": 569979.4834,
+      "day_trend_bps": 225.4766493224786,
+      "day_range_bps": 566.2561348272985,
+      "symbol_pre_15m_bps": 35.00806991538577,
+      "distance": 0.5618,
+      "components": {
+        "log_cluster_notional": 0.15020566212181113,
+        "cluster_duration_sec": 1.0155414736995345,
+        "cluster_liq_count": 0.1731149401935321,
+        "max_single_liq_share": 0.46554729724806826,
+        "intensity_per_sec": 0.9213108297331855,
+        "inter_cluster_gap_sec": 0.3947199045240651,
+        "day_trend_bps": 0.5487707310484742,
+        "day_range_bps": 0.27583108315048444
+      }
+    }
+  ],
+  "decision_card": {
+    "verdict": "AVOID",
+    "model_tag": "REGIME_SHIFT_RECENCY_HELPFUL_PRELIMINARY",
+    "decision_grade": true,
+    "prediction_mode": "event_prediction",
+    "best_route": {
+      "route_id": "LONG_DELAY0_TP60",
+      "n": 50,
+      "median_net_bps": -8.051154920159645,
+      "mean_net_bps": 8.930790124902117,
+      "win_rate": 0.46,
+      "cum_net_bps": 446.5395062451058,
+      "top3_removed_cum_net_bps": 275.6053604877857,
+      "exit_mix": {
+        "TP": 17,
+        "BE": 17,
+        "SL": 8,
+        "TIME": 8
+      }
+    },
+    "recommended_route_id": "LONG_DELAY0_TP60",
+    "reasons": [
+      "best_route_wr=46%",
+      "source_signal_targets_loaded"
+    ],
+    "warnings": [
+      "best_route_median_not_positive",
+      "high_be_time_rate=50%"
+    ]
+  }
+}

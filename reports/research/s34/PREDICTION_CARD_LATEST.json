@@ -1,0 +1,134 @@
+{
+  "generated_at_utc": "2026-06-24T12:39:50.712466+00:00",
+  "signal_id": "BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30:5941005",
+  "signal_ts_utc": "2026-06-24T11:48:58.863000+00:00",
+  "symbol": "BTCUSDT",
+  "direction": "LONG",
+  "rule_id": "BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30",
+  "cluster_notional": 1786556.2543,
+  "notional_bucket": ">=500K",
+  "route_base_rate": {
+    "closed_n": 3,
+    "median_net_bps": -7.9682,
+    "mean_net_bps": 11.3939,
+    "win_rate": 0.333333,
+    "cum_net_bps": 34.1818,
+    "p95_mae_bps": null,
+    "top3_removed_median_net_bps": null
+  },
+  "notional_bucket_base_rate": {
+    "bucket": ">=500K",
+    "closed_n": 3,
+    "median_net_bps": -7.9682,
+    "mean_net_bps": 11.3939,
+    "win_rate": 0.333333,
+    "cum_net_bps": 34.1818,
+    "p95_mae_bps": null,
+    "top3_removed_median_net_bps": null
+  },
+  "model_predictions": [
+    {
+      "prediction_id": "BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30:5941005:base_rate_v1:2026-06-22",
+      "model_id": "base_rate_v1",
+      "model_version": "2026-06-22",
+      "expected_net_bps": 21.07500564392678,
+      "confidence": "thin",
+      "neighbor_n": null,
+      "win_rate": null
+    },
+    {
+      "prediction_id": "BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30:5941005:knn_v0:2026-06-22",
+      "model_id": "knn_v0",
+      "model_version": "2026-06-22",
+      "expected_net_bps": 55.02162805304743,
+      "confidence": "thin",
+      "neighbor_n": 2,
+      "win_rate": 0.5
+    },
+    {
+      "prediction_id": "BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30:5941005:knn_v1:2026-06-22",
+      "model_id": "knn_v1",
+      "model_version": "2026-06-22",
+      "expected_net_bps": 55.02162805304743,
+      "confidence": "thin",
+      "neighbor_n": 2,
+      "win_rate": 0.5
+    },
+    {
+      "prediction_id": "BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30:5941005:knn_v2:2026-06-22",
+      "model_id": "knn_v2",
+      "model_version": "2026-06-22",
+      "expected_net_bps": 55.02162805304743,
+      "confidence": "thin",
+      "neighbor_n": 2,
+      "win_rate": 0.5
+    }
+  ],
+  "model_guardrail": {
+    "level": "ok",
+    "reason": "MODEL OK: no negative consensus.",
+    "headline": "MODEL OK: no negative consensus.",
+    "details": {
+      "backfilled": true,
+      "headline": "MODEL OK: no negative consensus.",
+      "level": "ok",
+      "models": [
+        {
+          "confidence_note": "thin",
+          "expected_net_bps": 21.07500564392678,
+          "k": null,
+          "model_name": "base_rate_v1",
+          "win_rate": null
+        },
+        {
+          "confidence_note": "thin",
+          "expected_net_bps": 55.02162805304743,
+          "k": 2,
+          "model_name": "knn_v0",
+          "win_rate": 0.5
+        },
+        {
+          "confidence_note": "thin",
+          "expected_net_bps": 55.02162805304743,
+          "k": 2,
+          "model_name": "knn_v1",
+          "win_rate": 0.5
+        },
+        {
+          "confidence_note": "thin",
+          "expected_net_bps": 55.02162805304743,
+          "k": 2,
+          "model_name": "knn_v2",
+          "win_rate": 0.5
+        }
+      ],
+      "reasons": [],
+      "version": "2026-06-22"
+    }
+  },
+  "shadow_guardrails": [
+    {
+      "guardrail_id": "guardrail_v2_warning_100k_200k",
+      "action": "observe",
+      "level": "observe",
+      "headline": "SHADOW V2: no hard-block candidate.",
+      "would_block": false,
+      "triggered": false
+    },
+    {
+      "guardrail_id": "guardrail_v4_50k_warning_lt200k",
+      "action": "observe",
+      "level": "observe",
+      "headline": "SHADOW V4: no 50K weak-cluster candidate.",
+      "would_block": false,
+      "triggered": false
+    }
+  ],
+  "verdict": "BLOCKED",
+  "verdict_reasons": [
+    "route_closed_n=3 < 10"
+  ],
+  "data_warnings": [
+    "mae_unavailable"
+  ]
+}

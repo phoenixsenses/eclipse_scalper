@@ -1,0 +1,479 @@
+{
+  "results": {
+    "S1": {
+      "S1_btc500K_h90": {
+        "label": "S1_btc500K_h90",
+        "n": 36,
+        "wr": 69.4,
+        "avg": 69.2,
+        "total": 2491.0,
+        "per_month": 8.2,
+        "worst": -234.2,
+        "mdd": -262.0,
+        "mc_p": 0.0,
+        "wf": "4/5"
+      },
+      "S1_btc500K_h120": {
+        "label": "S1_btc500K_h120",
+        "n": 36,
+        "wr": 69.4,
+        "avg": 85.0,
+        "total": 3059.0,
+        "per_month": 8.2,
+        "worst": -226.1,
+        "mdd": -267.0,
+        "mc_p": 0.0,
+        "wf": "5/5"
+      },
+      "S1_btc500K_h180": {
+        "label": "S1_btc500K_h180",
+        "n": 36,
+        "wr": 69.4,
+        "avg": 81.4,
+        "total": 2931.0,
+        "per_month": 8.2,
+        "worst": -255.3,
+        "mdd": -430.0,
+        "mc_p": 0.0,
+        "wf": "5/5"
+      },
+      "S1_btc500K_h240": {
+        "label": "S1_btc500K_h240",
+        "n": 36,
+        "wr": 63.9,
+        "avg": 85.3,
+        "total": 3070.0,
+        "per_month": 8.2,
+        "worst": -378.4,
+        "mdd": -574.0,
+        "mc_p": 0.006,
+        "wf": "4/5"
+      },
+      "S1_btc1000K_h90": {
+        "label": "S1_btc1000K_h90",
+        "n": 20,
+        "wr": 70.0,
+        "avg": 85.9,
+        "total": 1718.0,
+        "per_month": 4.6,
+        "worst": -53.1,
+        "mdd": -68.0,
+        "mc_p": 0.002,
+        "wf": "5/5"
+      },
+      "S1_btc1000K_h120": {
+        "label": "S1_btc1000K_h120",
+        "n": 20,
+        "wr": 70.0,
+        "avg": 106.5,
+        "total": 2130.0,
+        "per_month": 4.6,
+        "worst": -99.6,
+        "mdd": -124.0,
+        "mc_p": 0.002,
+        "wf": "5/5"
+      },
+      "S1_btc1000K_h180": {
+        "label": "S1_btc1000K_h180",
+        "n": 20,
+        "wr": 75.0,
+        "avg": 91.0,
+        "total": 1820.0,
+        "per_month": 4.6,
+        "worst": -255.3,
+        "mdd": -430.0,
+        "mc_p": 0.012,
+        "wf": "5/5"
+      },
+      "S1_btc1000K_h240": {
+        "label": "S1_btc1000K_h240",
+        "n": 20,
+        "wr": 70.0,
+        "avg": 121.3,
+        "total": 2427.0,
+        "per_month": 4.6,
+        "worst": -251.1,
+        "mdd": -432.0,
+        "mc_p": 0.004,
+        "wf": "5/5"
+      },
+      "S1_btc2000K_h90": {
+        "label": "S1_btc2000K_h90",
+        "n": 9,
+        "wr": 100.0,
+        "avg": 145.1,
+        "total": 1306.0,
+        "per_month": 2.0,
+        "worst": 20.5,
+        "mdd": 0.0,
+        "mc_p": 0.002,
+        "wf": "5/5"
+      },
+      "S1_btc2000K_h120": {
+        "label": "S1_btc2000K_h120",
+        "n": 9,
+        "wr": 100.0,
+        "avg": 182.7,
+        "total": 1644.0,
+        "per_month": 2.0,
+        "worst": 36.9,
+        "mdd": 0.0,
+        "mc_p": 0.002,
+        "wf": "5/5"
+      },
+      "S1_btc2000K_h180": {
+        "label": "S1_btc2000K_h180",
+        "n": 9,
+        "wr": 100.0,
+        "avg": 165.7,
+        "total": 1491.0,
+        "per_month": 2.0,
+        "worst": 37.5,
+        "mdd": 0.0,
+        "mc_p": 0.002,
+        "wf": "5/5"
+      },
+      "S1_btc2000K_h240": {
+        "label": "S1_btc2000K_h240",
+        "n": 9,
+        "wr": 88.9,
+        "avg": 138.3,
+        "total": 1245.0,
+        "per_month": 2.0,
+        "worst": -16.1,
+        "mdd": -16.0,
+        "mc_p": 0.004,
+        "wf": "5/5"
+      }
+    },
+    "S2": {
+      "S2_score0": {
+        "label": "score=0",
+        "n": 5,
+        "wr": 80.0,
+        "avg": 93.2,
+        "total": 466.0,
+        "per_month": 1.1,
+        "worst": -57.2,
+        "mdd": -57.0,
+        "mc_p": 0.14,
+        "wf": "4/5"
+      },
+      "S2_score1": {
+        "label": "score=1",
+        "n": 6,
+        "wr": 33.3,
+        "avg": -27.3,
+        "total": -164.0,
+        "per_month": 1.4,
+        "worst": -255.3,
+        "mdd": -472.0,
+        "mc_p": 0.676,
+        "wf": "2/5"
+      },
+      "S2_score2": {
+        "label": "score=2",
+        "n": 3,
+        "wr": 100.0,
+        "avg": 145.4,
+        "total": 436.0,
+        "per_month": 0.7,
+        "worst": 109.3,
+        "mdd": 0.0,
+        "mc_p": null,
+        "wf": null
+      },
+      "S2_score3": {
+        "label": "score=3",
+        "n": 6,
+        "wr": 100.0,
+        "avg": 180.3,
+        "total": 1082.0,
+        "per_month": 1.4,
+        "worst": 37.5,
+        "mdd": 0.0,
+        "mc_p": 0.012,
+        "wf": "5/5"
+      },
+      "S2_gate2_full": {
+        "label": "score>=2 full",
+        "n": 9,
+        "wr": 100.0,
+        "avg": 168.6,
+        "total": 1518.0,
+        "per_month": 2.0,
+        "worst": 37.5,
+        "mdd": 0.0,
+        "mc_p": 0.002,
+        "wf": "5/5"
+      },
+      "S2_gate2_TEST": {
+        "label": "score>=2 TEST",
+        "n": 2,
+        "wr": 100.0,
+        "avg": 187.6,
+        "total": 375.0,
+        "per_month": 1.5,
+        "worst": 37.5,
+        "mdd": 0.0,
+        "mc_p": null,
+        "wf": null
+      },
+      "S2_gate2_noov": {
+        "label": "score>=2 noov",
+        "n": 6,
+        "wr": 100.0,
+        "avg": 167.3,
+        "total": 1004.0,
+        "per_month": 1.4,
+        "worst": 62.7,
+        "mdd": 0.0,
+        "mc_p": 0.012,
+        "wf": "5/5"
+      },
+      "S2_gate3_full": {
+        "label": "score>=3 full",
+        "n": 6,
+        "wr": 100.0,
+        "avg": 180.3,
+        "total": 1082.0,
+        "per_month": 1.4,
+        "worst": 37.5,
+        "mdd": 0.0,
+        "mc_p": 0.012,
+        "wf": "5/5"
+      },
+      "S2_gate3_TEST": {
+        "label": "score>=3 TEST",
+        "n": 2,
+        "wr": 100.0,
+        "avg": 187.6,
+        "total": 375.0,
+        "per_month": 1.5,
+        "worst": 37.5,
+        "mdd": 0.0,
+        "mc_p": null,
+        "wf": null
+      },
+      "S2_gate3_noov": {
+        "label": "score>=3 noov",
+        "n": 5,
+        "wr": 100.0,
+        "avg": 208.8,
+        "total": 1044.0,
+        "per_month": 1.1,
+        "worst": 62.7,
+        "mdd": 0.0,
+        "mc_p": 0.032,
+        "wf": "5/5"
+      }
+    },
+    "S3": {
+      "S3_h0-8": {
+        "label": "h0-8",
+        "n": 4,
+        "wr": 75.0,
+        "avg": 78.4,
+        "total": 313.0,
+        "per_month": 0.9,
+        "worst": -96.4,
+        "mdd": -96.0,
+        "mc_p": 0.198,
+        "wf": null
+      },
+      "S3_h13-17": {
+        "label": "h13-17",
+        "n": 11,
+        "wr": 100.0,
+        "avg": 182.1,
+        "total": 2003.0,
+        "per_month": 2.5,
+        "worst": 37.5,
+        "mdd": 0.0,
+        "mc_p": 0.0,
+        "wf": "5/5"
+      },
+      "S3_h17-24": {
+        "label": "h17-24",
+        "n": 5,
+        "wr": 20.0,
+        "avg": -99.3,
+        "total": -496.0,
+        "per_month": 1.1,
+        "worst": -255.3,
+        "mdd": -496.0,
+        "mc_p": 0.974,
+        "wf": "1/5"
+      },
+      "S3_US13-21": {
+        "label": "US13-21",
+        "n": 15,
+        "wr": 80.0,
+        "avg": 103.2,
+        "total": 1548.0,
+        "per_month": 3.4,
+        "worst": -255.3,
+        "mdd": -430.0,
+        "mc_p": 0.014,
+        "wf": "4/5"
+      }
+    },
+    "S4": {
+      "S4_<60m": {
+        "label": "<60m",
+        "n": 4,
+        "wr": 100.0,
+        "avg": 246.6,
+        "total": 987.0,
+        "per_month": 0.9,
+        "worst": 166.8,
+        "mdd": 0.0,
+        "mc_p": 0.062,
+        "wf": null
+      },
+      "S4_60-240m": {
+        "label": "60-240m",
+        "n": 9,
+        "wr": 77.8,
+        "avg": 97.6,
+        "total": 878.0,
+        "per_month": 2.0,
+        "worst": -96.4,
+        "mdd": -96.0,
+        "mc_p": 0.028,
+        "wf": "3/5"
+      },
+      "S4_>240m": {
+        "label": ">240m",
+        "n": 7,
+        "wr": 57.1,
+        "avg": -6.4,
+        "total": -45.0,
+        "per_month": 1.6,
+        "worst": -255.3,
+        "mdd": -430.0,
+        "mc_p": 0.54,
+        "wf": "2/5"
+      }
+    },
+    "S5": {
+      "S5_entry_noisy": {
+        "label": "entry @noisy_ts",
+        "n": 20,
+        "wr": 75.0,
+        "avg": 91.0,
+        "total": 1820.0,
+        "per_month": 4.6,
+        "worst": -255.3,
+        "mdd": -430.0,
+        "mc_p": 0.012,
+        "wf": "5/5"
+      },
+      "S5_entry_confirm": {
+        "label": "entry @BTC-confirm",
+        "n": 20,
+        "wr": 70.0,
+        "avg": 32.6,
+        "total": 652.0,
+        "per_month": 4.6,
+        "worst": -313.7,
+        "mdd": -627.0,
+        "mc_p": 0.176,
+        "wf": "3/5"
+      },
+      "S5_delay<10m": {
+        "label": "delay<10m",
+        "n": 6,
+        "wr": 83.3,
+        "avg": 107.0,
+        "total": 642.0,
+        "per_month": 1.4,
+        "worst": -96.4,
+        "mdd": -96.0,
+        "mc_p": 0.066,
+        "wf": "4/5"
+      },
+      "S5_delay>=10m": {
+        "label": "delay>=10m",
+        "n": 14,
+        "wr": 71.4,
+        "avg": 84.1,
+        "total": 1178.0,
+        "per_month": 3.2,
+        "worst": -255.3,
+        "mdd": -439.0,
+        "mc_p": 0.042,
+        "wf": "4/5"
+      }
+    },
+    "S6": {
+      "S6_shelf_above_hi": {
+        "label": "shelf-above hi",
+        "n": 10,
+        "wr": 80.0,
+        "avg": 118.3,
+        "total": 1183.0,
+        "per_month": 2.3,
+        "worst": -255.3,
+        "mdd": -430.0,
+        "mc_p": 0.04,
+        "wf": "4/5"
+      },
+      "S6_shelf_above_lo": {
+        "label": "shelf-above lo",
+        "n": 10,
+        "wr": 70.0,
+        "avg": 63.7,
+        "total": 637.0,
+        "per_month": 2.3,
+        "worst": -96.4,
+        "mdd": -154.0,
+        "mc_p": 0.034,
+        "wf": "3/5"
+      }
+    },
+    "S7": {
+      "S7_long_only": {
+        "label": "LONG composite only",
+        "n": 71,
+        "wr": 74.6,
+        "avg": 70.5,
+        "total": 5002.0,
+        "per_month": 16.2,
+        "worst": -183.9,
+        "mdd": -360.0,
+        "mc_p": 0.0,
+        "wf": "5/5"
+      },
+      "S7_short_only": {
+        "label": "SHORT composite only",
+        "n": 7,
+        "wr": 100.0,
+        "avg": 141.7,
+        "total": 992.0,
+        "per_month": 1.6,
+        "worst": 37.5,
+        "mdd": 0.0,
+        "mc_p": 0.006,
+        "wf": "5/5"
+      },
+      "S7_portfolio": {
+        "label": "LONG+SHORT portfolio",
+        "n": 39,
+        "wr": 71.8,
+        "avg": 66.4,
+        "total": 2589.0,
+        "per_month": 8.9,
+        "worst": -175.7,
+        "mdd": -176.0,
+        "mc_p": 0.0,
+        "wf": "5/5"
+      }
+    }
+  },
+  "meta": {
+    "n_short": 36,
+    "n_long": 126,
+    "months": 4.4
+  }
+}

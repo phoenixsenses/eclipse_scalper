@@ -1,0 +1,60 @@
+{
+  "generated_at_utc": "2026-06-28T18:07:45.010863+00:00",
+  "config": {
+    "symbol": "ETHUSDT",
+    "threshold": 1000000.0,
+    "fee_bps_side": 3.05
+  },
+  "horizons": [
+    {
+      "horizon_hr": 4,
+      "filled_n": 159,
+      "positive_months": 0,
+      "negative_months": 2,
+      "cal_months_positive": "0/1",
+      "hold_months_positive": "0/1",
+      "cut_month": "2026-06",
+      "months": {
+        "2026-04": {
+          "n": 71,
+          "sum": -586.3,
+          "median": -4.8,
+          "win_rate": 0.493,
+          "split": "cal"
+        },
+        "2026-06": {
+          "n": 88,
+          "sum": -394.1,
+          "median": 24.7,
+          "win_rate": 0.568,
+          "split": "hold"
+        }
+      }
+    },
+    {
+      "horizon_hr": 24,
+      "filled_n": 156,
+      "positive_months": 2,
+      "negative_months": 0,
+      "cal_months_positive": "1/1",
+      "hold_months_positive": "1/1",
+      "cut_month": "2026-06",
+      "months": {
+        "2026-04": {
+          "n": 71,
+          "sum": 3532.1,
+          "median": 31.7,
+          "win_rate": 0.549,
+          "split": "cal"
+        },
+        "2026-06": {
+          "n": 85,
+          "sum": 1470.7,
+          "median": 29.6,
+          "win_rate": 0.529,
+          "split": "hold"
+        }
+      }
+    }
+  ]
+}

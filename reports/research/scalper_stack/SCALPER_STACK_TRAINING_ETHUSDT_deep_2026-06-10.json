@@ -1,0 +1,609 @@
+{
+  "tool": "backtest_scalper_stack",
+  "seed": 42,
+  "config_echo": {
+    "db_path": "data/microstructure.db",
+    "symbol": "ETHUSDT",
+    "fee_bps": 5.0,
+    "slip_bps": 1.0,
+    "folds": 4,
+    "min_train_trades": 30,
+    "seed": 42,
+    "out_dir": "reports/research/scalper_stack",
+    "profile": "deep"
+  },
+  "data": {
+    "symbol": "ETHUSDT",
+    "bars": 139823,
+    "gaps_gt_tolerance": 122,
+    "range_utc": [
+      "2026-02-15T14:26:00+00:00",
+      "2026-06-10T11:51:00+00:00"
+    ],
+    "fold_edges_bar_idx": [
+      0,
+      34956,
+      69912,
+      104867,
+      139823
+    ]
+  },
+  "grid_size": 432,
+  "eligible_configs": 12,
+  "top_by_train": [
+    {
+      "config": {
+        "fast_len": 9,
+        "slow_len": 21,
+        "vwap_buf_atr": 0.5,
+        "trend_min_atr": 0.6,
+        "confirm_bars": 4,
+        "delta_mode": "strong2.0",
+        "cooldown_bars": 15,
+        "exit_mode": "h120",
+        "side_filter": "long"
+      },
+      "signals": 150,
+      "trades": 150,
+      "train_trades": 108,
+      "train_net_mean_bps": 7.594134711412151,
+      "train_win_rate": 0.42592592592592593,
+      "train_pos_folds": 3,
+      "holdout_trades": 42,
+      "holdout_net_mean_bps": -35.22128890408118,
+      "holdout_win_rate": 0.2857142857142857,
+      "fold_stats": [
+        {
+          "trades": 35,
+          "net_mean_bps": 12.942524898248823,
+          "win_rate": 0.4857142857142857
+        },
+        {
+          "trades": 36,
+          "net_mean_bps": 6.215334950412226,
+          "win_rate": 0.4166666666666667
+        },
+        {
+          "trades": 37,
+          "net_mean_bps": 3.8763815994314386,
+          "win_rate": 0.3783783783783784
+        },
+        {
+          "trades": 42,
+          "net_mean_bps": -35.22128890408118,
+          "win_rate": 0.2857142857142857
+        }
+      ]
+    },
+    {
+      "config": {
+        "fast_len": 9,
+        "slow_len": 21,
+        "vwap_buf_atr": 0.75,
+        "trend_min_atr": 0.6,
+        "confirm_bars": 4,
+        "delta_mode": "strong2.0",
+        "cooldown_bars": 15,
+        "exit_mode": "h120",
+        "side_filter": "long"
+      },
+      "signals": 144,
+      "trades": 144,
+      "train_trades": 104,
+      "train_net_mean_bps": 6.718014766326234,
+      "train_win_rate": 0.40384615384615385,
+      "train_pos_folds": 3,
+      "holdout_trades": 40,
+      "holdout_net_mean_bps": -34.25958160114586,
+      "holdout_win_rate": 0.275,
+      "fold_stats": [
+        {
+          "trades": 35,
+          "net_mean_bps": 12.516677398468696,
+          "win_rate": 0.45714285714285713
+        },
+        {
+          "trades": 34,
+          "net_mean_bps": 4.7717564309464455,
+          "win_rate": 0.4117647058823529
+        },
+        {
+          "trades": 35,
+          "net_mean_bps": 2.8100030885527043,
+          "win_rate": 0.34285714285714286
+        },
+        {
+          "trades": 40,
+          "net_mean_bps": -34.25958160114586,
+          "win_rate": 0.275
+        }
+      ]
+    },
+    {
+      "config": {
+        "fast_len": 9,
+        "slow_len": 21,
+        "vwap_buf_atr": 1.0,
+        "trend_min_atr": 0.6,
+        "confirm_bars": 4,
+        "delta_mode": "strong2.0",
+        "cooldown_bars": 15,
+        "exit_mode": "h120",
+        "side_filter": "long"
+      },
+      "signals": 151,
+      "trades": 151,
+      "train_trades": 110,
+      "train_net_mean_bps": 5.769647150901832,
+      "train_win_rate": 0.38181818181818183,
+      "train_pos_folds": 2,
+      "holdout_trades": 41,
+      "holdout_net_mean_bps": -41.92197503782105,
+      "holdout_win_rate": 0.2682926829268293,
+      "fold_stats": [
+        {
+          "trades": 37,
+          "net_mean_bps": 14.519260608671145,
+          "win_rate": 0.4594594594594595
+        },
+        {
+          "trades": 36,
+          "net_mean_bps": 3.527242613238443,
+          "win_rate": 0.3888888888888889
+        },
+        {
+          "trades": 37,
+          "net_mean_bps": -0.7981672972490507,
+          "win_rate": 0.2972972972972973
+        },
+        {
+          "trades": 41,
+          "net_mean_bps": -41.92197503782105,
+          "win_rate": 0.2682926829268293
+        }
+      ]
+    },
+    {
+      "config": {
+        "fast_len": 5,
+        "slow_len": 13,
+        "vwap_buf_atr": 0.5,
+        "trend_min_atr": 0.6,
+        "confirm_bars": 4,
+        "delta_mode": "strong2.0",
+        "cooldown_bars": 15,
+        "exit_mode": "h120",
+        "side_filter": "long"
+      },
+      "signals": 192,
+      "trades": 192,
+      "train_trades": 141,
+      "train_net_mean_bps": 1.8586721153939532,
+      "train_win_rate": 0.41843971631205673,
+      "train_pos_folds": 2,
+      "holdout_trades": 51,
+      "holdout_net_mean_bps": -24.06876614855022,
+      "holdout_win_rate": 0.27450980392156865,
+      "fold_stats": [
+        {
+          "trades": 47,
+          "net_mean_bps": 14.14636569946552,
+          "win_rate": 0.5106382978723404
+        },
+        {
+          "trades": 44,
+          "net_mean_bps": -11.194957519344026,
+          "win_rate": 0.38636363636363635
+        },
+        {
+          "trades": 50,
+          "net_mean_bps": 1.7954342249360957,
+          "win_rate": 0.36
+        },
+        {
+          "trades": 51,
+          "net_mean_bps": -24.06876614855022,
+          "win_rate": 0.27450980392156865
+        }
+      ]
+    },
+    {
+      "config": {
+        "fast_len": 5,
+        "slow_len": 13,
+        "vwap_buf_atr": 0.75,
+        "trend_min_atr": 0.6,
+        "confirm_bars": 4,
+        "delta_mode": "strong2.0",
+        "cooldown_bars": 15,
+        "exit_mode": "h120",
+        "side_filter": "long"
+      },
+      "signals": 190,
+      "trades": 190,
+      "train_trades": 139,
+      "train_net_mean_bps": 0.4354163051521027,
+      "train_win_rate": 0.39568345323741005,
+      "train_pos_folds": 2,
+      "holdout_trades": 51,
+      "holdout_net_mean_bps": -23.02616740787459,
+      "holdout_win_rate": 0.2549019607843137,
+      "fold_stats": [
+        {
+          "trades": 48,
+          "net_mean_bps": 12.01182581029409,
+          "win_rate": 0.4791666666666667
+        },
+        {
+          "trades": 42,
+          "net_mean_bps": -12.787791250898744,
+          "win_rate": 0.38095238095238093
+        },
+        {
+          "trades": 49,
+          "net_mean_bps": 0.42943796040353566,
+          "win_rate": 0.32653061224489793
+        },
+        {
+          "trades": 51,
+          "net_mean_bps": -23.02616740787459,
+          "win_rate": 0.2549019607843137
+        }
+      ]
+    },
+    {
+      "config": {
+        "fast_len": 9,
+        "slow_len": 21,
+        "vwap_buf_atr": 0.5,
+        "trend_min_atr": 0.6,
+        "confirm_bars": 4,
+        "delta_mode": "strong2.0",
+        "cooldown_bars": 15,
+        "exit_mode": "h120",
+        "side_filter": "both"
+      },
+      "signals": 296,
+      "trades": 296,
+      "train_trades": 200,
+      "train_net_mean_bps": 0.023714793466838274,
+      "train_win_rate": 0.455,
+      "train_pos_folds": 2,
+      "holdout_trades": 96,
+      "holdout_net_mean_bps": -24.87684050516181,
+      "holdout_win_rate": 0.375,
+      "fold_stats": [
+        {
+          "trades": 64,
+          "net_mean_bps": 5.309106353358626,
+          "win_rate": 0.5
+        },
+        {
+          "trades": 70,
+          "net_mean_bps": 0.0011527282493223165,
+          "win_rate": 0.5142857142857142
+        },
+        {
+          "trades": 66,
+          "net_mean_bps": -5.077583922712684,
+          "win_rate": 0.3484848484848485
+        },
+        {
+          "trades": 96,
+          "net_mean_bps": -24.87684050516181,
+          "win_rate": 0.375
+        }
+      ]
+    },
+    {
+      "config": {
+        "fast_len": 9,
+        "slow_len": 21,
+        "vwap_buf_atr": 0.75,
+        "trend_min_atr": 0.6,
+        "confirm_bars": 4,
+        "delta_mode": "strong2.0",
+        "cooldown_bars": 15,
+        "exit_mode": "h120",
+        "side_filter": "both"
+      },
+      "signals": 288,
+      "trades": 288,
+      "train_trades": 196,
+      "train_net_mean_bps": -0.3089580053057818,
+      "train_win_rate": 0.4489795918367347,
+      "train_pos_folds": 2,
+      "holdout_trades": 92,
+      "holdout_net_mean_bps": -22.90442561988506,
+      "holdout_win_rate": 0.3695652173913043,
+      "fold_stats": [
+        {
+          "trades": 65,
+          "net_mean_bps": 4.51006278100541,
+          "win_rate": 0.47692307692307695
+        },
+        {
+          "trades": 70,
+          "net_mean_bps": 0.050885154381205465,
+          "win_rate": 0.5142857142857142
+        },
+        {
+          "trades": 61,
+          "net_mean_bps": -5.856914928065075,
+          "win_rate": 0.3442622950819672
+        },
+        {
+          "trades": 92,
+          "net_mean_bps": -22.90442561988506,
+          "win_rate": 0.3695652173913043
+        }
+      ]
+    },
+    {
+      "config": {
+        "fast_len": 9,
+        "slow_len": 21,
+        "vwap_buf_atr": 0.5,
+        "trend_min_atr": 0.6,
+        "confirm_bars": 4,
+        "delta_mode": "strong1.5",
+        "cooldown_bars": 15,
+        "exit_mode": "h120",
+        "side_filter": "long"
+      },
+      "signals": 206,
+      "trades": 206,
+      "train_trades": 148,
+      "train_net_mean_bps": -0.33848015268124626,
+      "train_win_rate": 0.40540540540540543,
+      "train_pos_folds": 2,
+      "holdout_trades": 58,
+      "holdout_net_mean_bps": -20.75585129863498,
+      "holdout_win_rate": 0.3103448275862069,
+      "fold_stats": [
+        {
+          "trades": 51,
+          "net_mean_bps": 3.4302981217110236,
+          "win_rate": 0.45098039215686275
+        },
+        {
+          "trades": 49,
+          "net_mean_bps": -16.90051222120837,
+          "win_rate": 0.3469387755102041
+        },
+        {
+          "trades": 48,
+          "net_mean_bps": 12.564267334065066,
+          "win_rate": 0.4166666666666667
+        },
+        {
+          "trades": 58,
+          "net_mean_bps": -20.75585129863498,
+          "win_rate": 0.3103448275862069
+        }
+      ]
+    },
+    {
+      "config": {
+        "fast_len": 5,
+        "slow_len": 13,
+        "vwap_buf_atr": 0.75,
+        "trend_min_atr": 0.4,
+        "confirm_bars": 4,
+        "delta_mode": "strong2.0",
+        "cooldown_bars": 15,
+        "exit_mode": "h120",
+        "side_filter": "short"
+      },
+      "signals": 256,
+      "trades": 256,
+      "train_trades": 194,
+      "train_net_mean_bps": -0.37593523586267846,
+      "train_win_rate": 0.4484536082474227,
+      "train_pos_folds": 2,
+      "holdout_trades": 62,
+      "holdout_net_mean_bps": 25.534839675875535,
+      "holdout_win_rate": 0.41935483870967744,
+      "fold_stats": [
+        {
+          "trades": 65,
+          "net_mean_bps": 6.633575166653231,
+          "win_rate": 0.5384615384615384
+        },
+        {
+          "trades": 65,
+          "net_mean_bps": 0.903632847818378,
+          "win_rate": 0.4153846153846154
+        },
+        {
+          "trades": 64,
+          "net_mean_bps": -8.794530573406469,
+          "win_rate": 0.390625
+        },
+        {
+          "trades": 62,
+          "net_mean_bps": 25.534839675875535,
+          "win_rate": 0.41935483870967744
+        }
+      ]
+    },
+    {
+      "config": {
+        "fast_len": 9,
+        "slow_len": 21,
+        "vwap_buf_atr": 1.0,
+        "trend_min_atr": 0.6,
+        "confirm_bars": 4,
+        "delta_mode": "strong1.5",
+        "cooldown_bars": 15,
+        "exit_mode": "h120",
+        "side_filter": "long"
+      },
+      "signals": 201,
+      "trades": 201,
+      "train_trades": 146,
+      "train_net_mean_bps": -1.1467824239035855,
+      "train_win_rate": 0.3767123287671233,
+      "train_pos_folds": 2,
+      "holdout_trades": 55,
+      "holdout_net_mean_bps": -24.605516535924533,
+      "holdout_win_rate": 0.3090909090909091,
+      "fold_stats": [
+        {
+          "trades": 52,
+          "net_mean_bps": 3.0542872960622693,
+          "win_rate": 0.4230769230769231
+        },
+        {
+          "trades": 47,
+          "net_mean_bps": -16.304832796004295,
+          "win_rate": 0.3404255319148936
+        },
+        {
+          "trades": 47,
+          "net_mean_bps": 9.363275917596606,
+          "win_rate": 0.3617021276595745
+        },
+        {
+          "trades": 55,
+          "net_mean_bps": -24.605516535924533,
+          "win_rate": 0.3090909090909091
+        }
+      ]
+    }
+  ],
+  "best_overall_train_unfiltered": [
+    {
+      "config": {
+        "fast_len": 9,
+        "slow_len": 21,
+        "vwap_buf_atr": 0.5,
+        "trend_min_atr": 0.6,
+        "confirm_bars": 4,
+        "delta_mode": "strong2.0",
+        "cooldown_bars": 15,
+        "exit_mode": "h120",
+        "side_filter": "long"
+      },
+      "signals": 150,
+      "trades": 150,
+      "train_trades": 108,
+      "train_net_mean_bps": 7.594134711412151,
+      "train_win_rate": 0.42592592592592593,
+      "train_pos_folds": 3,
+      "holdout_trades": 42,
+      "holdout_net_mean_bps": -35.22128890408118,
+      "holdout_win_rate": 0.2857142857142857,
+      "fold_stats": [
+        {
+          "trades": 35,
+          "net_mean_bps": 12.942524898248823,
+          "win_rate": 0.4857142857142857
+        },
+        {
+          "trades": 36,
+          "net_mean_bps": 6.215334950412226,
+          "win_rate": 0.4166666666666667
+        },
+        {
+          "trades": 37,
+          "net_mean_bps": 3.8763815994314386,
+          "win_rate": 0.3783783783783784
+        },
+        {
+          "trades": 42,
+          "net_mean_bps": -35.22128890408118,
+          "win_rate": 0.2857142857142857
+        }
+      ]
+    },
+    {
+      "config": {
+        "fast_len": 9,
+        "slow_len": 21,
+        "vwap_buf_atr": 0.75,
+        "trend_min_atr": 0.6,
+        "confirm_bars": 4,
+        "delta_mode": "strong2.0",
+        "cooldown_bars": 15,
+        "exit_mode": "h120",
+        "side_filter": "long"
+      },
+      "signals": 144,
+      "trades": 144,
+      "train_trades": 104,
+      "train_net_mean_bps": 6.718014766326234,
+      "train_win_rate": 0.40384615384615385,
+      "train_pos_folds": 3,
+      "holdout_trades": 40,
+      "holdout_net_mean_bps": -34.25958160114586,
+      "holdout_win_rate": 0.275,
+      "fold_stats": [
+        {
+          "trades": 35,
+          "net_mean_bps": 12.516677398468696,
+          "win_rate": 0.45714285714285713
+        },
+        {
+          "trades": 34,
+          "net_mean_bps": 4.7717564309464455,
+          "win_rate": 0.4117647058823529
+        },
+        {
+          "trades": 35,
+          "net_mean_bps": 2.8100030885527043,
+          "win_rate": 0.34285714285714286
+        },
+        {
+          "trades": 40,
+          "net_mean_bps": -34.25958160114586,
+          "win_rate": 0.275
+        }
+      ]
+    },
+    {
+      "config": {
+        "fast_len": 9,
+        "slow_len": 21,
+        "vwap_buf_atr": 1.0,
+        "trend_min_atr": 0.6,
+        "confirm_bars": 4,
+        "delta_mode": "strong2.0",
+        "cooldown_bars": 15,
+        "exit_mode": "h120",
+        "side_filter": "long"
+      },
+      "signals": 151,
+      "trades": 151,
+      "train_trades": 110,
+      "train_net_mean_bps": 5.769647150901832,
+      "train_win_rate": 0.38181818181818183,
+      "train_pos_folds": 2,
+      "holdout_trades": 41,
+      "holdout_net_mean_bps": -41.92197503782105,
+      "holdout_win_rate": 0.2682926829268293,
+      "fold_stats": [
+        {
+          "trades": 37,
+          "net_mean_bps": 14.519260608671145,
+          "win_rate": 0.4594594594594595
+        },
+        {
+          "trades": 36,
+          "net_mean_bps": 3.527242613238443,
+          "win_rate": 0.3888888888888889
+        },
+        {
+          "trades": 37,
+          "net_mean_bps": -0.7981672972490507,
+          "win_rate": 0.2972972972972973
+        },
+        {
+          "trades": 41,
+          "net_mean_bps": -41.92197503782105,
+          "win_rate": 0.2682926829268293
+        }
+      ]
+    }
+  ]
+}

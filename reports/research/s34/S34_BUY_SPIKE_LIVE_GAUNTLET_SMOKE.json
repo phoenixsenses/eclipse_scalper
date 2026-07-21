@@ -1,0 +1,400 @@
+{
+  "generated_at_utc": "2026-06-29T18:16:04.499976+00:00",
+  "scope": {
+    "symbol": "ETHUSDT",
+    "days": 7,
+    "start_utc": "2026-06-22T18:16:01+00:00",
+    "end_utc": "2026-06-29T18:16:01+00:00",
+    "liq_rows": 3624,
+    "note": "Research-only. No live executor/config/order logic touched."
+  },
+  "window_robustness": {
+    "10s": {
+      "threshold": 380143.7,
+      "n": 32,
+      "delay0_15m_fee_net": {
+        "n": 32,
+        "sum": -32.2,
+        "mean": -1.01,
+        "median": -14.53,
+        "win_rate": 0.375,
+        "t3r": -513.4,
+        "min": -114.92,
+        "max": 230.76
+      }
+    },
+    "15s": {
+      "threshold": 504526.4,
+      "n": 28,
+      "delay0_15m_fee_net": {
+        "n": 28,
+        "sum": 53.5,
+        "mean": 1.91,
+        "median": -14.53,
+        "win_rate": 0.357,
+        "t3r": -415.4,
+        "min": -101.49,
+        "max": 230.76
+      }
+    },
+    "30s": {
+      "threshold": 775481.4,
+      "n": 22,
+      "delay0_15m_fee_net": {
+        "n": 22,
+        "sum": 25.9,
+        "mean": 1.18,
+        "median": -17.84,
+        "win_rate": 0.318,
+        "t3r": -426.1,
+        "min": -101.49,
+        "max": 230.76
+      }
+    },
+    "60s": {
+      "threshold": 888646.1,
+      "n": 21,
+      "delay0_15m_fee_net": {
+        "n": 21,
+        "sum": 87.7,
+        "mean": 4.18,
+        "median": -15.57,
+        "win_rate": 0.381,
+        "t3r": -338.7,
+        "min": -101.49,
+        "max": 217.75
+      }
+    }
+  },
+  "delay_sweep_60s": {
+    "0s": {
+      "n": 21,
+      "sum": 87.7,
+      "mean": 4.18,
+      "median": -15.57,
+      "win_rate": 0.381,
+      "t3r": -338.7,
+      "min": -101.49,
+      "max": 217.75
+    },
+    "2s": {
+      "n": 21,
+      "sum": 98.5,
+      "mean": 4.69,
+      "median": -12.71,
+      "win_rate": 0.381,
+      "t3r": -331.0,
+      "min": -118.51,
+      "max": 220.29
+    },
+    "5s": {
+      "n": 21,
+      "sum": 145.4,
+      "mean": 6.92,
+      "median": -7.72,
+      "win_rate": 0.429,
+      "t3r": -284.3,
+      "min": -122.17,
+      "max": 221.15
+    },
+    "10s": {
+      "n": 21,
+      "sum": 119.8,
+      "mean": 5.71,
+      "median": -10.84,
+      "win_rate": 0.429,
+      "t3r": -297.1,
+      "min": -127.93,
+      "max": 210.46
+    },
+    "30s": {
+      "n": 21,
+      "sum": 148.0,
+      "mean": 7.05,
+      "median": -9.88,
+      "win_rate": 0.429,
+      "t3r": -238.7,
+      "min": -168.46,
+      "max": 200.99
+    },
+    "60s": {
+      "n": 21,
+      "sum": 196.6,
+      "mean": 9.36,
+      "median": -3.96,
+      "win_rate": 0.476,
+      "t3r": -97.1,
+      "min": -96.29,
+      "max": 177.39
+    }
+  },
+  "fee_stress_60s": {
+    "6.1bps": {
+      "n": 21,
+      "sum": 87.7,
+      "mean": 4.18,
+      "median": -15.57,
+      "win_rate": 0.381,
+      "t3r": -338.7,
+      "min": -101.49,
+      "max": 217.75
+    },
+    "10.0bps": {
+      "n": 21,
+      "sum": 5.8,
+      "mean": 0.28,
+      "median": -19.47,
+      "win_rate": 0.381,
+      "t3r": -408.9,
+      "min": -105.39,
+      "max": 213.85
+    },
+    "15.0bps": {
+      "n": 21,
+      "sum": -99.2,
+      "mean": -4.72,
+      "median": -24.47,
+      "win_rate": 0.381,
+      "t3r": -498.9,
+      "min": -110.39,
+      "max": 208.85
+    },
+    "20.0bps": {
+      "n": 21,
+      "sum": -204.2,
+      "mean": -9.72,
+      "median": -29.47,
+      "win_rate": 0.333,
+      "t3r": -588.9,
+      "min": -115.39,
+      "max": 203.85
+    },
+    "30.0bps": {
+      "n": 21,
+      "sum": -414.2,
+      "mean": -19.72,
+      "median": -39.47,
+      "win_rate": 0.286,
+      "t3r": -768.9,
+      "min": -125.39,
+      "max": 193.85
+    }
+  },
+  "exit_robustness_60s": {
+    "fixed_5m_fee6.1": {
+      "n": 21,
+      "sum": -94.1,
+      "mean": -4.48,
+      "median": -11.94,
+      "win_rate": 0.381,
+      "t3r": -365.9,
+      "min": -72.75,
+      "max": 152.23
+    },
+    "fixed_10m_fee6.1": {
+      "n": 21,
+      "sum": -20.5,
+      "mean": -0.98,
+      "median": -9.73,
+      "win_rate": 0.238,
+      "t3r": -376.3,
+      "min": -94.32,
+      "max": 155.57
+    },
+    "fixed_15m_fee6.1": {
+      "n": 21,
+      "sum": 134.9,
+      "mean": 6.42,
+      "median": -14.59,
+      "win_rate": 0.381,
+      "t3r": -300.9,
+      "min": -95.78,
+      "max": 222.43
+    },
+    "fixed_20m_fee6.1": {
+      "n": 21,
+      "sum": 180.7,
+      "mean": 8.61,
+      "median": -19.74,
+      "win_rate": 0.381,
+      "t3r": -238.4,
+      "min": -71.35,
+      "max": 176.52
+    },
+    "fixed_30m_fee6.1": {
+      "n": 21,
+      "sum": 143.7,
+      "mean": 6.84,
+      "median": 10.78,
+      "win_rate": 0.524,
+      "t3r": -312.7,
+      "min": -126.58,
+      "max": 197.69
+    },
+    "SL30_15m_fee6.1": {
+      "n": 21,
+      "sum": 55.4,
+      "mean": 2.64,
+      "median": -22.47,
+      "win_rate": 0.333,
+      "t3r": -380.4,
+      "min": -59.38,
+      "max": 222.43
+    },
+    "SL50_15m_fee6.1": {
+      "n": 21,
+      "sum": 145.7,
+      "mean": 6.94,
+      "median": -14.59,
+      "win_rate": 0.381,
+      "t3r": -290.1,
+      "min": -67.07,
+      "max": 222.43
+    },
+    "SL75_15m_fee6.1": {
+      "n": 21,
+      "sum": 147.6,
+      "mean": 7.03,
+      "median": -14.59,
+      "win_rate": 0.381,
+      "t3r": -288.2,
+      "min": -83.03,
+      "max": 222.43
+    },
+    "SL100_15m_fee6.1": {
+      "n": 21,
+      "sum": 134.9,
+      "mean": 6.42,
+      "median": -14.59,
+      "win_rate": 0.381,
+      "t3r": -300.9,
+      "min": -95.78,
+      "max": 222.43
+    }
+  },
+  "walk_forward_60s": [
+    {
+      "fold": 1,
+      "n": 4,
+      "sum": 11.7,
+      "mean": 2.93,
+      "median": 9.07,
+      "win_rate": 0.5,
+      "t3r": -36.9,
+      "min": -36.9,
+      "max": 30.5
+    },
+    {
+      "fold": 2,
+      "n": 4,
+      "sum": -49.4,
+      "mean": -12.36,
+      "median": -15.87,
+      "win_rate": 0.5,
+      "t3r": -65.2,
+      "min": -65.2,
+      "max": 47.49
+    },
+    {
+      "fold": 3,
+      "n": 4,
+      "sum": -200.3,
+      "mean": -50.06,
+      "median": -43.48,
+      "win_rate": 0.0,
+      "t3r": -95.8,
+      "min": -95.78,
+      "max": -17.53
+    },
+    {
+      "fold": 4,
+      "n": 4,
+      "sum": 77.4,
+      "mean": 19.36,
+      "median": 8.04,
+      "win_rate": 0.5,
+      "t3r": -14.6,
+      "min": -14.6,
+      "max": 75.97
+    },
+    {
+      "fold": 5,
+      "n": 5,
+      "sum": 295.4,
+      "mean": 59.08,
+      "median": -14.59,
+      "win_rate": 0.4,
+      "t3r": -49.8,
+      "min": -26.09,
+      "max": 222.43
+    }
+  ],
+  "permutation_null": {
+    "permutations": 30,
+    "real_max_sum": 87.7,
+    "null_p95": 93.4,
+    "null_p99": 177.7,
+    "p_right": 0.0667
+  },
+  "regime_splits_60s": {
+    "btc_1h_up": {
+      "n": 19,
+      "sum": 200.2,
+      "mean": 10.54,
+      "median": -14.59,
+      "win_rate": 0.368,
+      "t3r": -235.6,
+      "min": -65.2,
+      "max": 222.43
+    },
+    "btc_1h_down": {
+      "n": 2,
+      "sum": -65.3,
+      "mean": -32.64,
+      "median": -32.64,
+      "win_rate": 0.5,
+      "t3r": null,
+      "min": -95.78,
+      "max": 30.5
+    },
+    "eth_pre15_up": {
+      "n": 21,
+      "sum": 134.9,
+      "mean": 6.42,
+      "median": -14.59,
+      "win_rate": 0.381,
+      "t3r": -300.9,
+      "min": -95.78,
+      "max": 222.43
+    },
+    "eth_pre15_down": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "median": null,
+      "win_rate": null,
+      "t3r": null
+    },
+    "p99_running_notional": {
+      "n": 1,
+      "sum": -65.2,
+      "mean": -65.2,
+      "median": -65.2,
+      "win_rate": 0.0,
+      "t3r": null,
+      "min": -65.2,
+      "max": -65.2
+    },
+    "non_p99_running_notional": {
+      "n": 20,
+      "sum": 200.1,
+      "mean": 10.0,
+      "median": -12.5,
+      "win_rate": 0.4,
+      "t3r": -235.7,
+      "min": -95.78,
+      "max": 222.43
+    }
+  },
+  "verdict": "RESEARCH_ONLY: pass=[]; fail=['60s running threshold fails fee-net/T3R', 'walk-forward is not uniformly positive', 'permutation-null does not clear p<=0.05', '10s delay does not robustly survive']"
+}

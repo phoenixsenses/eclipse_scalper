@@ -1,0 +1,37 @@
+{
+  "generated_at_utc": "2026-06-26T15:22:21+00:00",
+  "combo": "BTCUSDT_SELL",
+  "primary_route": "SHORT_DELAY0_TP40",
+  "n_events": 113,
+  "n_train": 79,
+  "n_test": 34,
+  "k20_euclidean": {
+    "n_test": 34,
+    "dir_acc_knn": 0.706,
+    "dir_acc_constant_baseline": 0.941,
+    "knn_gain_over_baseline": -0.235,
+    "mae": 19.9,
+    "pred_median": 32.1,
+    "realized_median": 32.4,
+    "base_rate": 32.2,
+    "pred_std": 22.5,
+    "pred_range": 57.8,
+    "n_unique_preds": 11
+  },
+  "k50_recency": {
+    "n_test": 34,
+    "dir_acc_knn": 0.941,
+    "dir_acc_constant_baseline": 0.941,
+    "knn_gain_over_baseline": 0.0,
+    "mae": 5.7,
+    "pred_median": 32.1,
+    "realized_median": 32.4,
+    "base_rate": 32.2,
+    "pred_std": 0.0,
+    "pred_range": 0.1,
+    "n_unique_preds": 1
+  },
+  "verdict": "NOT_USEFUL_BASE_RATE_ALIGNMENT",
+  "verdict_explanation": "Prediction std=0.0 bps (< 5 bps) and KNN gain=+0.0 pp over constant baseline. K=50 predictions converge to train median — majority-class alignment confirmed. Keep BTC SELL as BASE_RATE_ONLY.",
+  "recommendation": "keep BASE_RATE_ONLY"
+}

@@ -1,0 +1,1456 @@
+{
+  "generated_at_utc": "2026-06-28T22:11:54.452977+00:00",
+  "config": {
+    "symbol": "ETHUSDT",
+    "side": "SELL",
+    "threshold": 200000.0,
+    "min_vdepth_bps": 28.0,
+    "cost": 8.1
+  },
+  "event_n": 169,
+  "n_months": 4,
+  "variants": {
+    "baseline_no_wait": {
+      "split": {
+        "cal": {
+          "n": 118,
+          "sum": 1223.8,
+          "mean": 10.4,
+          "median": 39.4,
+          "win_rate": 0.568,
+          "max_loss": -410.0
+        },
+        "hold": {
+          "n": 51,
+          "sum": 334.1,
+          "mean": 6.6,
+          "median": 13.4,
+          "win_rate": 0.529,
+          "max_loss": -342.3
+        }
+      },
+      "taken": 169,
+      "pos_months": 3
+    },
+    "confirm_5m": {
+      "split": {
+        "cal": {
+          "n": 66,
+          "sum": -478.1,
+          "mean": -7.2,
+          "median": 25.2,
+          "win_rate": 0.591,
+          "max_loss": -465.7
+        },
+        "hold": {
+          "n": 29,
+          "sum": 774.3,
+          "mean": 26.7,
+          "median": 8.3,
+          "win_rate": 0.586,
+          "max_loss": -171.4
+        }
+      },
+      "taken": 95,
+      "pos_months": 3
+    },
+    "confirm_10m": {
+      "split": {
+        "cal": {
+          "n": 66,
+          "sum": -572.4,
+          "mean": -8.7,
+          "median": 15.5,
+          "win_rate": 0.561,
+          "max_loss": -439.9
+        },
+        "hold": {
+          "n": 29,
+          "sum": 120.1,
+          "mean": 4.1,
+          "median": -0.9,
+          "win_rate": 0.483,
+          "max_loss": -189.2
+        }
+      },
+      "taken": 95,
+      "pos_months": 2
+    },
+    "confirm_15m": {
+      "split": {
+        "cal": {
+          "n": 65,
+          "sum": -11.5,
+          "mean": -0.2,
+          "median": 23.4,
+          "win_rate": 0.569,
+          "max_loss": -312.2
+        },
+        "hold": {
+          "n": 29,
+          "sum": 297.6,
+          "mean": 10.3,
+          "median": 5.2,
+          "win_rate": 0.517,
+          "max_loss": -210.3
+        }
+      },
+      "taken": 94,
+      "pos_months": 2
+    }
+  },
+  "rows": [
+    {
+      "entry_ts_ms": 1771177356156,
+      "month": "2026-02",
+      "baseline_net": -169.91401139211123,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1771182584232,
+      "month": "2026-02",
+      "baseline_net": 52.93359173126587,
+      "conf_5m_net": 29.713896163503648,
+      "conf_10m_net": 36.21901435337535,
+      "conf_15m_net": -20.071031321186936
+    },
+    {
+      "entry_ts_ms": 1771196570113,
+      "month": "2026-02",
+      "baseline_net": -10.928179376905042,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1771248069242,
+      "month": "2026-02",
+      "baseline_net": -176.52038694251266,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1771249126298,
+      "month": "2026-02",
+      "baseline_net": 51.979222107638904,
+      "conf_5m_net": 45.87886693129445,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1771255884519,
+      "month": "2026-02",
+      "baseline_net": 98.12590435567236,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1771339365459,
+      "month": "2026-02",
+      "baseline_net": 177.27413995392052,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1771348252614,
+      "month": "2026-02",
+      "baseline_net": 133.9864893941697,
+      "conf_5m_net": null,
+      "conf_10m_net": 116.20583421784804,
+      "conf_15m_net": 109.84834516566102
+    },
+    {
+      "entry_ts_ms": 1771440189790,
+      "month": "2026-02",
+      "baseline_net": -26.753936426169304,
+      "conf_5m_net": -69.71388309248292,
+      "conf_10m_net": -28.72602297553714,
+      "conf_15m_net": -41.504364986682994
+    },
+    {
+      "entry_ts_ms": 1771513887885,
+      "month": "2026-02",
+      "baseline_net": 81.48153773701038,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1771561195338,
+      "month": "2026-02",
+      "baseline_net": 145.0049966110467,
+      "conf_5m_net": 127.0836406137878,
+      "conf_10m_net": 122.78022251018353,
+      "conf_15m_net": 98.6220579722096
+    },
+    {
+      "entry_ts_ms": 1771600613428,
+      "month": "2026-02",
+      "baseline_net": 145.63091923444478,
+      "conf_5m_net": 50.33853463583298,
+      "conf_10m_net": 20.266623300425735,
+      "conf_15m_net": 57.11354478743885
+    },
+    {
+      "entry_ts_ms": 1771811213190,
+      "month": "2026-02",
+      "baseline_net": 51.478689700165276,
+      "conf_5m_net": 3.05854374856124,
+      "conf_10m_net": 1.34216139658146,
+      "conf_15m_net": 50.01446068917913
+    },
+    {
+      "entry_ts_ms": 1771857702510,
+      "month": "2026-02",
+      "baseline_net": -159.80607945068596,
+      "conf_5m_net": -194.4117812743093,
+      "conf_10m_net": -236.98354589169958,
+      "conf_15m_net": -208.09370924112406
+    },
+    {
+      "entry_ts_ms": 1771861961609,
+      "month": "2026-02",
+      "baseline_net": -217.6049754846177,
+      "conf_5m_net": -228.7138361063923,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1771866894919,
+      "month": "2026-02",
+      "baseline_net": -18.80589096669894,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1771868082615,
+      "month": "2026-02",
+      "baseline_net": 53.72505399568059,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1771895781113,
+      "month": "2026-02",
+      "baseline_net": 57.14933593400139,
+      "conf_5m_net": -13.271965494319543,
+      "conf_10m_net": -73.2297630691425,
+      "conf_15m_net": -77.77775134267142
+    },
+    {
+      "entry_ts_ms": 1771906493680,
+      "month": "2026-02",
+      "baseline_net": 34.627568997214944,
+      "conf_5m_net": null,
+      "conf_10m_net": -33.01723415306173,
+      "conf_15m_net": -28.652392055834255
+    },
+    {
+      "entry_ts_ms": 1771997050134,
+      "month": "2026-02",
+      "baseline_net": 114.31834916101491,
+      "conf_5m_net": 111.1931247818773,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1772031940237,
+      "month": "2026-02",
+      "baseline_net": 386.66766811615554,
+      "conf_5m_net": null,
+      "conf_10m_net": 381.3376928114877,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1772042569637,
+      "month": "2026-02",
+      "baseline_net": 217.70930327908962,
+      "conf_5m_net": 216.22778067193877,
+      "conf_10m_net": 188.33112670063852,
+      "conf_15m_net": 201.51061379600782
+    },
+    {
+      "entry_ts_ms": 1772055456523,
+      "month": "2026-02",
+      "baseline_net": -323.3631893908669,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1772116250219,
+      "month": "2026-02",
+      "baseline_net": -331.4039921746868,
+      "conf_5m_net": -413.8661287648145,
+      "conf_10m_net": -376.3466246956733,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1772117296074,
+      "month": "2026-02",
+      "baseline_net": -161.70905950935645,
+      "conf_5m_net": -195.4443521605678,
+      "conf_10m_net": -221.7890917751204,
+      "conf_15m_net": -220.5217297770328
+    },
+    {
+      "entry_ts_ms": 1772123767070,
+      "month": "2026-02",
+      "baseline_net": 89.82587224382316,
+      "conf_5m_net": 59.85262790062793,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1772185482191,
+      "month": "2026-02",
+      "baseline_net": -323.00447814716625,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1772187078325,
+      "month": "2026-02",
+      "baseline_net": -197.56169900037648,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1772189629658,
+      "month": "2026-02",
+      "baseline_net": -195.8723584647001,
+      "conf_5m_net": -206.32593246097144,
+      "conf_10m_net": -205.77893830862388,
+      "conf_15m_net": -212.40503498408438
+    },
+    {
+      "entry_ts_ms": 1772192374463,
+      "month": "2026-02",
+      "baseline_net": -90.8344801504027,
+      "conf_5m_net": null,
+      "conf_10m_net": -93.53601306956261,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1772199419371,
+      "month": "2026-02",
+      "baseline_net": -126.58005765497873,
+      "conf_5m_net": -184.33204913553035,
+      "conf_10m_net": -202.14445029742774,
+      "conf_15m_net": -250.49022005642274
+    },
+    {
+      "entry_ts_ms": 1772203654111,
+      "month": "2026-02",
+      "baseline_net": -91.76928208353534,
+      "conf_5m_net": -100.14602816495203,
+      "conf_10m_net": -109.47655988678783,
+      "conf_15m_net": -147.4830033730792
+    },
+    {
+      "entry_ts_ms": 1772231692768,
+      "month": "2026-02",
+      "baseline_net": 196.75502707337677,
+      "conf_5m_net": 100.4027069015716,
+      "conf_10m_net": 28.59280013595508,
+      "conf_15m_net": 33.47989781409728
+    },
+    {
+      "entry_ts_ms": 1772287387437,
+      "month": "2026-02",
+      "baseline_net": 52.76850174124051,
+      "conf_5m_net": 48.7886228539777,
+      "conf_10m_net": 23.29906565695957,
+      "conf_15m_net": 27.097503620338394
+    },
+    {
+      "entry_ts_ms": 1772291697113,
+      "month": "2026-02",
+      "baseline_net": 257.6647805653512,
+      "conf_5m_net": 216.61853008074095,
+      "conf_10m_net": 182.15883250021216,
+      "conf_15m_net": 127.84227325397754
+    },
+    {
+      "entry_ts_ms": 1772394257120,
+      "month": "2026-03",
+      "baseline_net": -60.00637076263223,
+      "conf_5m_net": -70.4486616926004,
+      "conf_10m_net": -67.8366079786967,
+      "conf_15m_net": -69.17574800177358
+    },
+    {
+      "entry_ts_ms": 1772395887271,
+      "month": "2026-03",
+      "baseline_net": 57.192730622729634,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1772432343569,
+      "month": "2026-03",
+      "baseline_net": -36.28597571463691,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1772435375615,
+      "month": "2026-03",
+      "baseline_net": 47.86162032298978,
+      "conf_5m_net": 35.64548814043063,
+      "conf_10m_net": 36.17279089660158,
+      "conf_15m_net": -1.8426113263995907
+    },
+    {
+      "entry_ts_ms": 1772439148456,
+      "month": "2026-03",
+      "baseline_net": 111.08557070322132,
+      "conf_5m_net": 82.51908343491469,
+      "conf_10m_net": 70.42352513345428,
+      "conf_15m_net": 78.22892096626101
+    },
+    {
+      "entry_ts_ms": 1772503353138,
+      "month": "2026-03",
+      "baseline_net": -83.26063156846214,
+      "conf_5m_net": -107.4734503952579,
+      "conf_10m_net": -104.37332279644984,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1772543096243,
+      "month": "2026-03",
+      "baseline_net": 86.94861289429141,
+      "conf_5m_net": 83.24448088775289,
+      "conf_10m_net": null,
+      "conf_15m_net": 81.09899652793864
+    },
+    {
+      "entry_ts_ms": 1772548413725,
+      "month": "2026-03",
+      "baseline_net": 224.17314432639222,
+      "conf_5m_net": 173.9063386650604,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1772595225657,
+      "month": "2026-03",
+      "baseline_net": 160.0665560678944,
+      "conf_5m_net": 158.98445942571686,
+      "conf_10m_net": null,
+      "conf_15m_net": 141.93872649635244
+    },
+    {
+      "entry_ts_ms": 1772640779485,
+      "month": "2026-03",
+      "baseline_net": 148.81241755769244,
+      "conf_5m_net": 104.0933621814624,
+      "conf_10m_net": null,
+      "conf_15m_net": 91.6411078594288
+    },
+    {
+      "entry_ts_ms": 1772664294668,
+      "month": "2026-03",
+      "baseline_net": -98.35718849092244,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1772697294604,
+      "month": "2026-03",
+      "baseline_net": 180.91404768715185,
+      "conf_5m_net": 142.242404567806,
+      "conf_10m_net": 173.60317847967838,
+      "conf_15m_net": 166.37764136025922
+    },
+    {
+      "entry_ts_ms": 1772710798230,
+      "month": "2026-03",
+      "baseline_net": -238.48449966671313,
+      "conf_5m_net": null,
+      "conf_10m_net": -244.58305246653615,
+      "conf_15m_net": -242.2785542264583
+    },
+    {
+      "entry_ts_ms": 1772723336376,
+      "month": "2026-03",
+      "baseline_net": -50.06030128559362,
+      "conf_5m_net": -68.47358270573436,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1772746731408,
+      "month": "2026-03",
+      "baseline_net": 30.99378491417246,
+      "conf_5m_net": 14.113567585500073,
+      "conf_10m_net": 5.934431086575765,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1772807779070,
+      "month": "2026-03",
+      "baseline_net": -52.50600059342071,
+      "conf_5m_net": -69.21432399649808,
+      "conf_10m_net": -55.26840585656226,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1772812267139,
+      "month": "2026-03",
+      "baseline_net": 40.208743496383875,
+      "conf_5m_net": 27.892643841166098,
+      "conf_10m_net": 24.8184924194127,
+      "conf_15m_net": -8.824711225494742
+    },
+    {
+      "entry_ts_ms": 1772818695168,
+      "month": "2026-03",
+      "baseline_net": 92.73003447835532,
+      "conf_5m_net": null,
+      "conf_10m_net": 69.92546147652074,
+      "conf_15m_net": 58.22866029341383
+    },
+    {
+      "entry_ts_ms": 1773007411357,
+      "month": "2026-03",
+      "baseline_net": 60.33217572306878,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1773055195162,
+      "month": "2026-03",
+      "baseline_net": 188.6469423780103,
+      "conf_5m_net": 167.0828931952055,
+      "conf_10m_net": 186.47458211277652,
+      "conf_15m_net": 157.56537177117644
+    },
+    {
+      "entry_ts_ms": 1773149922103,
+      "month": "2026-03",
+      "baseline_net": 165.2641931137952,
+      "conf_5m_net": null,
+      "conf_10m_net": 107.2788832997174,
+      "conf_15m_net": 83.35654406782905
+    },
+    {
+      "entry_ts_ms": 1773166485320,
+      "month": "2026-03",
+      "baseline_net": -134.98151429128768,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1773243035117,
+      "month": "2026-03",
+      "baseline_net": 134.16486192748084,
+      "conf_5m_net": null,
+      "conf_10m_net": 133.77002022517044,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1773250631739,
+      "month": "2026-03",
+      "baseline_net": 24.7389066734141,
+      "conf_5m_net": 1.504490065272666,
+      "conf_10m_net": -5.621153638817951,
+      "conf_15m_net": -11.287882183604186
+    },
+    {
+      "entry_ts_ms": 1773287311157,
+      "month": "2026-03",
+      "baseline_net": 90.67957491102635,
+      "conf_5m_net": 76.29461077637207,
+      "conf_10m_net": 67.00821936504752,
+      "conf_15m_net": 56.307756168646954
+    },
+    {
+      "entry_ts_ms": 1773331743435,
+      "month": "2026-03",
+      "baseline_net": 51.730314652198906,
+      "conf_5m_net": 19.52738892093147,
+      "conf_10m_net": -1.7304138010558239,
+      "conf_15m_net": -20.217525514392428
+    },
+    {
+      "entry_ts_ms": 1773413083382,
+      "month": "2026-03",
+      "baseline_net": -319.6591662152391,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1773417198178,
+      "month": "2026-03",
+      "baseline_net": -150.45037393145395,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1773425950642,
+      "month": "2026-03",
+      "baseline_net": -25.960520893851033,
+      "conf_5m_net": -29.16375847293591,
+      "conf_10m_net": -69.81925364178848,
+      "conf_15m_net": -88.4420343884443
+    },
+    {
+      "entry_ts_ms": 1773439405546,
+      "month": "2026-03",
+      "baseline_net": 11.690498643893958,
+      "conf_5m_net": 7.08330124244244,
+      "conf_10m_net": -3.7939653316381774,
+      "conf_15m_net": 2.557837466360091
+    },
+    {
+      "entry_ts_ms": 1773671387185,
+      "month": "2026-03",
+      "baseline_net": 233.18122301748235,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1773702556171,
+      "month": "2026-03",
+      "baseline_net": 75.47698758743495,
+      "conf_5m_net": 35.188265490153206,
+      "conf_10m_net": 29.895448047309955,
+      "conf_15m_net": 19.861091224676095
+    },
+    {
+      "entry_ts_ms": 1773707063711,
+      "month": "2026-03",
+      "baseline_net": -153.4277341911747,
+      "conf_5m_net": -162.1121777241978,
+      "conf_10m_net": -210.75175583513234,
+      "conf_15m_net": -188.1225877397828
+    },
+    {
+      "entry_ts_ms": 1773711784291,
+      "month": "2026-03",
+      "baseline_net": -200.95750753050459,
+      "conf_5m_net": -257.63762399330847,
+      "conf_10m_net": -228.50168684717326,
+      "conf_15m_net": -239.30789283820656
+    },
+    {
+      "entry_ts_ms": 1773717755574,
+      "month": "2026-03",
+      "baseline_net": -11.22751700855148,
+      "conf_5m_net": -26.64148507047726,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1773721333713,
+      "month": "2026-03",
+      "baseline_net": 72.46003587460713,
+      "conf_5m_net": 57.56098212242717,
+      "conf_10m_net": null,
+      "conf_15m_net": 57.651615650094804
+    },
+    {
+      "entry_ts_ms": 1773750417117,
+      "month": "2026-03",
+      "baseline_net": 73.75713801149162,
+      "conf_5m_net": 52.90419922551873,
+      "conf_10m_net": null,
+      "conf_15m_net": 56.275163827536794
+    },
+    {
+      "entry_ts_ms": 1773838904487,
+      "month": "2026-03",
+      "baseline_net": -237.6426844824403,
+      "conf_5m_net": -274.65391651912563,
+      "conf_10m_net": -266.59653620185827,
+      "conf_15m_net": -246.02253959428123
+    },
+    {
+      "entry_ts_ms": 1773845610656,
+      "month": "2026-03",
+      "baseline_net": -47.12635414185281,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1773860080071,
+      "month": "2026-03",
+      "baseline_net": 40.16927701845493,
+      "conf_5m_net": null,
+      "conf_10m_net": 0.34521338999953954,
+      "conf_15m_net": 2.630152642128447
+    },
+    {
+      "entry_ts_ms": 1773926042404,
+      "month": "2026-03",
+      "baseline_net": -62.21201535829838,
+      "conf_5m_net": -104.07479544813249,
+      "conf_10m_net": -112.96208662397714,
+      "conf_15m_net": -111.64920508029427
+    },
+    {
+      "entry_ts_ms": 1773931070236,
+      "month": "2026-03",
+      "baseline_net": 52.16646625410888,
+      "conf_5m_net": -10.682506085441634,
+      "conf_10m_net": 10.753445253953151,
+      "conf_15m_net": -64.71071621560098
+    },
+    {
+      "entry_ts_ms": 1773948377437,
+      "month": "2026-03",
+      "baseline_net": -26.45446917025216,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": -37.387981644534
+    },
+    {
+      "entry_ts_ms": 1773990078235,
+      "month": "2026-03",
+      "baseline_net": 88.45479027015305,
+      "conf_5m_net": null,
+      "conf_10m_net": 77.47794826666372,
+      "conf_15m_net": 69.93923868874339
+    },
+    {
+      "entry_ts_ms": 1774136940620,
+      "month": "2026-03",
+      "baseline_net": -75.82316686875667,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1774247858193,
+      "month": "2026-03",
+      "baseline_net": 0.47418630971920805,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1774266414705,
+      "month": "2026-03",
+      "baseline_net": -26.972831876827087,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1774267393591,
+      "month": "2026-03",
+      "baseline_net": 115.05276720676905,
+      "conf_5m_net": 73.86909364987892,
+      "conf_10m_net": 39.343202329723944,
+      "conf_15m_net": 49.32524822208375
+    },
+    {
+      "entry_ts_ms": 1774280632147,
+      "month": "2026-03",
+      "baseline_net": 43.64663631918384,
+      "conf_5m_net": 32.47148283048215,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1774451894274,
+      "month": "2026-03",
+      "baseline_net": 86.67751778721359,
+      "conf_5m_net": 25.149088865164593,
+      "conf_10m_net": 26.13390081421212,
+      "conf_15m_net": 23.442239776522605
+    },
+    {
+      "entry_ts_ms": 1774503892080,
+      "month": "2026-03",
+      "baseline_net": -216.97368693469264,
+      "conf_5m_net": -217.90538428409718,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1774533547198,
+      "month": "2026-03",
+      "baseline_net": -141.45520389021002,
+      "conf_5m_net": -157.23916056078107,
+      "conf_10m_net": -148.25549238515316,
+      "conf_15m_net": -147.71042777737676
+    },
+    {
+      "entry_ts_ms": 1774538090463,
+      "month": "2026-03",
+      "baseline_net": -89.01528263949905,
+      "conf_5m_net": -104.83348586998892,
+      "conf_10m_net": -120.36786422290665,
+      "conf_15m_net": -119.9500050346236
+    },
+    {
+      "entry_ts_ms": 1774584095373,
+      "month": "2026-03",
+      "baseline_net": 101.95013272742023,
+      "conf_5m_net": 73.62950171368426,
+      "conf_10m_net": 92.76384847921636,
+      "conf_15m_net": 85.7980347514791
+    },
+    {
+      "entry_ts_ms": 1774600689421,
+      "month": "2026-03",
+      "baseline_net": -264.19702250415816,
+      "conf_5m_net": -276.69373207367,
+      "conf_10m_net": -290.1333409990562,
+      "conf_15m_net": -312.23786599476495
+    },
+    {
+      "entry_ts_ms": 1774824165124,
+      "month": "2026-03",
+      "baseline_net": 203.40524728658423,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": 196.0218263100267
+    },
+    {
+      "entry_ts_ms": 1774891459103,
+      "month": "2026-03",
+      "baseline_net": 4.7428991598991725,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1774911804187,
+      "month": "2026-03",
+      "baseline_net": 254.1898282967472,
+      "conf_5m_net": 244.4381816171263,
+      "conf_10m_net": 242.52182393542608,
+      "conf_15m_net": 226.06314513856626
+    },
+    {
+      "entry_ts_ms": 1774941500133,
+      "month": "2026-03",
+      "baseline_net": -28.7501509996992,
+      "conf_5m_net": -51.180323048735566,
+      "conf_10m_net": -68.38896595988693,
+      "conf_15m_net": -68.08090516673724
+    },
+    {
+      "entry_ts_ms": 1774950994642,
+      "month": "2026-03",
+      "baseline_net": 294.4998857738822,
+      "conf_5m_net": 266.88505709499634,
+      "conf_10m_net": 252.20615525385224,
+      "conf_15m_net": 245.88735150932072
+    },
+    {
+      "entry_ts_ms": 1774970958126,
+      "month": "2026-03",
+      "baseline_net": 185.9683184338168,
+      "conf_5m_net": 163.46149086150157,
+      "conf_10m_net": 165.65912320263777,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1775050991270,
+      "month": "2026-04",
+      "baseline_net": 130.8390945229519,
+      "conf_5m_net": 125.08561235553245,
+      "conf_10m_net": 72.39436445248143,
+      "conf_15m_net": 89.74515491147392
+    },
+    {
+      "entry_ts_ms": 1775066613652,
+      "month": "2026-04",
+      "baseline_net": 120.029720166197,
+      "conf_5m_net": 98.43932658130399,
+      "conf_10m_net": 85.02013425450752,
+      "conf_15m_net": 114.02843001246329
+    },
+    {
+      "entry_ts_ms": 1775091866210,
+      "month": "2026-04",
+      "baseline_net": -409.9680439694247,
+      "conf_5m_net": -465.72050513322336,
+      "conf_10m_net": -439.8604619160023,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1775101360483,
+      "month": "2026-04",
+      "baseline_net": -21.93546877909025,
+      "conf_5m_net": -23.6421011906805,
+      "conf_10m_net": -27.640230410483333,
+      "conf_15m_net": -38.948075944934196
+    },
+    {
+      "entry_ts_ms": 1775369598366,
+      "month": "2026-04",
+      "baseline_net": 47.432071958172614,
+      "conf_5m_net": null,
+      "conf_10m_net": 35.83712983001569,
+      "conf_15m_net": 34.45690873037546
+    },
+    {
+      "entry_ts_ms": 1775392420253,
+      "month": "2026-04",
+      "baseline_net": 136.2367426235432,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1775601750304,
+      "month": "2026-04",
+      "baseline_net": 270.0972927865754,
+      "conf_5m_net": 228.33661931704435,
+      "conf_10m_net": 170.37396771267004,
+      "conf_15m_net": 172.9400207711124
+    },
+    {
+      "entry_ts_ms": 1775757853596,
+      "month": "2026-04",
+      "baseline_net": 38.689391902794746,
+      "conf_5m_net": 25.224209307521818,
+      "conf_10m_net": 33.86679809206374,
+      "conf_15m_net": 19.129180887841642
+    },
+    {
+      "entry_ts_ms": 1776031266492,
+      "month": "2026-04",
+      "baseline_net": 46.1801225350367,
+      "conf_5m_net": 37.01157039225509,
+      "conf_10m_net": 26.60257904841481,
+      "conf_15m_net": 37.05392757019637
+    },
+    {
+      "entry_ts_ms": 1776177232740,
+      "month": "2026-04",
+      "baseline_net": -272.64831197490395,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1776267053166,
+      "month": "2026-04",
+      "baseline_net": 173.12784907238816,
+      "conf_5m_net": null,
+      "conf_10m_net": 159.71422947134351,
+      "conf_15m_net": 131.8242545596356
+    },
+    {
+      "entry_ts_ms": 1776326047129,
+      "month": "2026-04",
+      "baseline_net": -17.36801187657526,
+      "conf_5m_net": -33.05502540370371,
+      "conf_10m_net": -21.744324088127332,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1776347534594,
+      "month": "2026-04",
+      "baseline_net": -7.178878153130145,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1776432436433,
+      "month": "2026-04",
+      "baseline_net": 57.91482219592549,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": 51.9002489636888
+    },
+    {
+      "entry_ts_ms": 1776438236583,
+      "month": "2026-04",
+      "baseline_net": -60.66573216309892,
+      "conf_5m_net": -98.07436858713426,
+      "conf_10m_net": -94.05567147949496,
+      "conf_15m_net": -95.06043113922678
+    },
+    {
+      "entry_ts_ms": 1776449380369,
+      "month": "2026-04",
+      "baseline_net": 20.482960504713652,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1776484476116,
+      "month": "2026-04",
+      "baseline_net": -15.580835298684875,
+      "conf_5m_net": null,
+      "conf_10m_net": -20.731185693902777,
+      "conf_15m_net": -27.916645039161942
+    },
+    {
+      "entry_ts_ms": 1776565481298,
+      "month": "2026-04",
+      "baseline_net": -47.597923486942285,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": -47.787461242714485
+    },
+    {
+      "entry_ts_ms": 1776651250182,
+      "month": "2026-04",
+      "baseline_net": -18.21178450134223,
+      "conf_5m_net": -36.558498023715494,
+      "conf_10m_net": -34.8436437658444,
+      "conf_15m_net": -35.8577695402407
+    },
+    {
+      "entry_ts_ms": 1776670284303,
+      "month": "2026-04",
+      "baseline_net": -18.00801626593544,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1776694119155,
+      "month": "2026-04",
+      "baseline_net": 116.83468036927388,
+      "conf_5m_net": 106.9381687378405,
+      "conf_10m_net": 70.92516841074021,
+      "conf_15m_net": 37.481411425165184
+    },
+    {
+      "entry_ts_ms": 1776696071191,
+      "month": "2026-04",
+      "baseline_net": 176.21209413732151,
+      "conf_5m_net": 145.68072535664814,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1776783451255,
+      "month": "2026-04",
+      "baseline_net": 39.27539803451793,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": 25.945373033269483
+    },
+    {
+      "entry_ts_ms": 1776800226538,
+      "month": "2026-04",
+      "baseline_net": 52.59651309595706,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1776868262104,
+      "month": "2026-04",
+      "baseline_net": -39.978545239650316,
+      "conf_5m_net": null,
+      "conf_10m_net": -46.04177906899707,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1777239187357,
+      "month": "2026-04",
+      "baseline_net": 107.51177339842384,
+      "conf_5m_net": 98.08176437070404,
+      "conf_10m_net": 96.89289877587049,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1777242864614,
+      "month": "2026-04",
+      "baseline_net": 154.85534254041082,
+      "conf_5m_net": 137.71615840046886,
+      "conf_10m_net": 129.39688489018445,
+      "conf_15m_net": 110.62233198353213
+    },
+    {
+      "entry_ts_ms": 1780858928177,
+      "month": "2026-06",
+      "baseline_net": 330.05995684434896,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1780891575767,
+      "month": "2026-06",
+      "baseline_net": -1.2828130506001543,
+      "conf_5m_net": -4.886800932947821,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1780920252316,
+      "month": "2026-06",
+      "baseline_net": 99.74862945951234,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1780997657131,
+      "month": "2026-06",
+      "baseline_net": 11.16105355759583,
+      "conf_5m_net": 8.305989543882793,
+      "conf_10m_net": -0.9064023019523537,
+      "conf_15m_net": -2.2696584926992953
+    },
+    {
+      "entry_ts_ms": 1781057833158,
+      "month": "2026-06",
+      "baseline_net": -6.011791621371472,
+      "conf_5m_net": -27.588757193374214,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1781089483552,
+      "month": "2026-06",
+      "baseline_net": 175.1583903432485,
+      "conf_5m_net": 170.46973859022705,
+      "conf_10m_net": 148.71506807045174,
+      "conf_15m_net": 164.56028996227184
+    },
+    {
+      "entry_ts_ms": 1781099663672,
+      "month": "2026-06",
+      "baseline_net": -140.22059724405239,
+      "conf_5m_net": null,
+      "conf_10m_net": -152.69273952140986,
+      "conf_15m_net": -156.01555284900812
+    },
+    {
+      "entry_ts_ms": 1781106527244,
+      "month": "2026-06",
+      "baseline_net": -104.89002403685278,
+      "conf_5m_net": -161.28895515580092,
+      "conf_10m_net": -187.1562700390467,
+      "conf_15m_net": -166.8884941860388
+    },
+    {
+      "entry_ts_ms": 1781110062516,
+      "month": "2026-06",
+      "baseline_net": -67.35719492410415,
+      "conf_5m_net": -74.64064949190544,
+      "conf_10m_net": -71.65916672993446,
+      "conf_15m_net": -107.78676823890824
+    },
+    {
+      "entry_ts_ms": 1781112563144,
+      "month": "2026-06",
+      "baseline_net": -79.47732482201582,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1781180537462,
+      "month": "2026-06",
+      "baseline_net": -46.960135013868644,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1781276654089,
+      "month": "2026-06",
+      "baseline_net": -74.86842939023387,
+      "conf_5m_net": -100.03887102233148,
+      "conf_10m_net": -127.25622183132329,
+      "conf_15m_net": -112.671907498339
+    },
+    {
+      "entry_ts_ms": 1781278441192,
+      "month": "2026-06",
+      "baseline_net": -55.80567606342452,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1781279802488,
+      "month": "2026-06",
+      "baseline_net": 14.546910419374553,
+      "conf_5m_net": 2.575813243708099,
+      "conf_10m_net": -1.7737742980244047,
+      "conf_15m_net": -11.624708050448044
+    },
+    {
+      "entry_ts_ms": 1781474840716,
+      "month": "2026-06",
+      "baseline_net": 18.354251328771284,
+      "conf_5m_net": -22.121823582316814,
+      "conf_10m_net": -19.687895509165763,
+      "conf_15m_net": -41.68910741432777
+    },
+    {
+      "entry_ts_ms": 1781551133490,
+      "month": "2026-06",
+      "baseline_net": -183.12245092979512,
+      "conf_5m_net": null,
+      "conf_10m_net": -189.2397667738131,
+      "conf_15m_net": -210.31848149711794
+    },
+    {
+      "entry_ts_ms": 1781576875467,
+      "month": "2026-06",
+      "baseline_net": -83.14467854690871,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1781584271525,
+      "month": "2026-06",
+      "baseline_net": 101.42103932583632,
+      "conf_5m_net": 93.92969252405777,
+      "conf_10m_net": 89.863913326909,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1781613424398,
+      "month": "2026-06",
+      "baseline_net": -293.4303797995289,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1781615315106,
+      "month": "2026-06",
+      "baseline_net": -154.28907744666512,
+      "conf_5m_net": null,
+      "conf_10m_net": -159.08925101622347,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1781619399900,
+      "month": "2026-06",
+      "baseline_net": 59.896034091031105,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1781659021753,
+      "month": "2026-06",
+      "baseline_net": 19.005886569706064,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1781719230110,
+      "month": "2026-06",
+      "baseline_net": -212.70664268071252,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1781722715207,
+      "month": "2026-06",
+      "baseline_net": -149.01926028716196,
+      "conf_5m_net": -171.3821679303922,
+      "conf_10m_net": -164.4217868319086,
+      "conf_15m_net": -171.91230698577525
+    },
+    {
+      "entry_ts_ms": 1781723899201,
+      "month": "2026-06",
+      "baseline_net": -69.32926783337102,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1781798251634,
+      "month": "2026-06",
+      "baseline_net": 135.03090675363603,
+      "conf_5m_net": 84.14614423303628,
+      "conf_10m_net": 100.05864463527261,
+      "conf_15m_net": 82.00662419854261
+    },
+    {
+      "entry_ts_ms": 1781817159670,
+      "month": "2026-06",
+      "baseline_net": 35.09766525088097,
+      "conf_5m_net": 20.069059527858137,
+      "conf_10m_net": 21.598138297872183,
+      "conf_15m_net": 26.26858918637042
+    },
+    {
+      "entry_ts_ms": 1781964531159,
+      "month": "2026-06",
+      "baseline_net": 100.55348092283411,
+      "conf_5m_net": null,
+      "conf_10m_net": 96.56487118966983,
+      "conf_15m_net": 85.09038298618238
+    },
+    {
+      "entry_ts_ms": 1782040706629,
+      "month": "2026-06",
+      "baseline_net": 35.78390049615276,
+      "conf_5m_net": 17.228426698657387,
+      "conf_10m_net": 17.03358720365879,
+      "conf_15m_net": 25.122368217162695
+    },
+    {
+      "entry_ts_ms": 1782084822690,
+      "month": "2026-06",
+      "baseline_net": 182.57832423270239,
+      "conf_5m_net": 171.7392854096206,
+      "conf_10m_net": 172.0951614335016,
+      "conf_15m_net": 168.94617342019131
+    },
+    {
+      "entry_ts_ms": 1782097283071,
+      "month": "2026-06",
+      "baseline_net": 15.646030107774687,
+      "conf_5m_net": 6.502124559043109,
+      "conf_10m_net": 9.013981286244976,
+      "conf_15m_net": -2.2435110496230273
+    },
+    {
+      "entry_ts_ms": 1782201584477,
+      "month": "2026-06",
+      "baseline_net": -139.286197837405,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1782394305283,
+      "month": "2026-06",
+      "baseline_net": -342.3063242330281,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1782395476217,
+      "month": "2026-06",
+      "baseline_net": -7.271235496620495,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1782396979081,
+      "month": "2026-06",
+      "baseline_net": 58.67206241484859,
+      "conf_5m_net": -20.31752279541743,
+      "conf_10m_net": -4.587598027946237,
+      "conf_15m_net": 26.305233818477056
+    },
+    {
+      "entry_ts_ms": 1782398263517,
+      "month": "2026-06",
+      "baseline_net": -51.38866334298114,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": -93.48598273235173
+    },
+    {
+      "entry_ts_ms": 1782399803104,
+      "month": "2026-06",
+      "baseline_net": 15.4438667253197,
+      "conf_5m_net": -6.948759013558199,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1782405123169,
+      "month": "2026-06",
+      "baseline_net": -35.991104405835465,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1782442110475,
+      "month": "2026-06",
+      "baseline_net": 268.12206810087497,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1782467295082,
+      "month": "2026-06",
+      "baseline_net": -75.09747409726162,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1782470373530,
+      "month": "2026-06",
+      "baseline_net": 70.87240654331868,
+      "conf_5m_net": 44.12027945895863,
+      "conf_10m_net": 60.36746663908088,
+      "conf_15m_net": 53.99213671900174
+    },
+    {
+      "entry_ts_ms": 1782477597361,
+      "month": "2026-06",
+      "baseline_net": 294.4867228771436,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": 286.9243271889028
+    },
+    {
+      "entry_ts_ms": 1782479934877,
+      "month": "2026-06",
+      "baseline_net": 366.92861672518404,
+      "conf_5m_net": 323.1779607490165,
+      "conf_10m_net": 321.566443110683,
+      "conf_15m_net": 341.53879685590886
+    },
+    {
+      "entry_ts_ms": 1782520453408,
+      "month": "2026-06",
+      "baseline_net": 65.77309610995106,
+      "conf_5m_net": 63.54283136445087,
+      "conf_10m_net": 60.14527593861117,
+      "conf_15m_net": 46.1212160698513
+    },
+    {
+      "entry_ts_ms": 1782579737194,
+      "month": "2026-06",
+      "baseline_net": -94.64325728857915,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": null
+    },
+    {
+      "entry_ts_ms": 1782664454359,
+      "month": "2026-06",
+      "baseline_net": 13.395728119468489,
+      "conf_5m_net": null,
+      "conf_10m_net": null,
+      "conf_15m_net": 5.18677102157586
+    }
+  ]
+}

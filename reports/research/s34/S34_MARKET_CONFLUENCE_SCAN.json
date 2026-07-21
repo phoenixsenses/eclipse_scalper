@@ -1,0 +1,1006 @@
+{
+  "generated_at": "2026-06-20T09:17:27.903963+00:00",
+  "rows": 450,
+  "predicate_count": 136,
+  "candidates": [
+    {
+      "label": "market_buy_liq_15m_ge_p75_303923 AND btc_eth_liq_ratio_15m_ge_p75_7",
+      "expr": "market_buy_liq_15m >= 303923.10575750005 AND btc_eth_liq_ratio_15m >= 6.624722298315183",
+      "train": {
+        "n": 10,
+        "days": 9,
+        "mean": 24.46824314044272,
+        "median": 52.72872358628236,
+        "cum": 244.6824314044272,
+        "wr": 0.6,
+        "top3_removed_cum": 78.12843030482689,
+        "positive_days": 6,
+        "worst_day_cum": -48.85495060338183,
+        "exit_counts": {
+          "BE": 3,
+          "SL": 1,
+          "TP": 6
+        }
+      },
+      "rank": 1,
+      "test": {
+        "n": 19,
+        "days": 12,
+        "mean": 11.00305298387236,
+        "median": 31.69947262026372,
+        "cum": 209.05800669357484,
+        "wr": 0.5263157894736842,
+        "top3_removed_cum": 35.58756327057347,
+        "positive_days": 7,
+        "worst_day_cum": -49.02704688284219,
+        "exit_counts": {
+          "BE": 2,
+          "SL": 6,
+          "TIME": 2,
+          "TP": 9
+        }
+      },
+      "all": {
+        "n": 29,
+        "days": 21,
+        "mean": 15.64622200337938,
+        "median": 52.20848507147164,
+        "cum": 453.740438098002,
+        "wr": 0.5517241379310345,
+        "top3_removed_cum": 274.86474485359406,
+        "positive_days": 13,
+        "worst_day_cum": -49.02704688284219,
+        "exit_counts": {
+          "BE": 5,
+          "SL": 7,
+          "TIME": 2,
+          "TP": 15
+        }
+      },
+      "real_fill": {
+        "total_rows": 29,
+        "real_fill_rows": 16,
+        "no_fill_rows": 13,
+        "no_fill_rate": 0.4482758620689655,
+        "test": {
+          "n": 16,
+          "days": 11,
+          "mean": 8.675992725819912,
+          "median": 13.946302173416099,
+          "cum": 138.8158836131186,
+          "wr": 0.5,
+          "top3_removed_cum": -49.55080411362356,
+          "positive_days": 6,
+          "worst_day_cum": -55.14289258864142,
+          "exit_counts": {
+            "BE": 2,
+            "SL": 5,
+            "TIME": 2,
+            "TP": 7
+          }
+        }
+      }
+    },
+    {
+      "label": "market_buy_liq_15m_ge_p75_303923 AND btc_eth_liq_ratio_15m_ge_p50_2",
+      "expr": "market_buy_liq_15m >= 303923.10575750005 AND btc_eth_liq_ratio_15m >= 1.5985789086696145",
+      "train": {
+        "n": 24,
+        "days": 17,
+        "mean": 19.91226383366416,
+        "median": 52.38715266696765,
+        "cum": 477.89433200793985,
+        "wr": 0.5416666666666666,
+        "top3_removed_cum": 305.2014625780802,
+        "positive_days": 11,
+        "worst_day_cum": -58.398568524377595,
+        "exit_counts": {
+          "BE": 7,
+          "SL": 3,
+          "TIME": 1,
+          "TP": 13
+        }
+      },
+      "rank": 2,
+      "test": {
+        "n": 46,
+        "days": 22,
+        "mean": 10.287687851751938,
+        "median": -8.073190973224694,
+        "cum": 473.23364118058913,
+        "wr": 0.45652173913043476,
+        "top3_removed_cum": 290.8505735035674,
+        "positive_days": 14,
+        "worst_day_cum": -104.91811450331132,
+        "exit_counts": {
+          "BE": 13,
+          "SL": 11,
+          "TIME": 2,
+          "TP": 20
+        }
+      },
+      "all": {
+        "n": 70,
+        "days": 39,
+        "mean": 13.587542474121841,
+        "median": -5.7640748544390386,
+        "cum": 951.1279731885289,
+        "wr": 0.4857142857142857,
+        "top3_removed_cum": 767.5172750513433,
+        "positive_days": 25,
+        "worst_day_cum": -104.91811450331132,
+        "exit_counts": {
+          "BE": 20,
+          "SL": 14,
+          "TIME": 3,
+          "TP": 33
+        }
+      },
+      "real_fill": {
+        "total_rows": 70,
+        "real_fill_rows": 34,
+        "no_fill_rows": 36,
+        "no_fill_rate": 0.5142857142857142,
+        "test": {
+          "n": 34,
+          "days": 15,
+          "mean": 2.901181834914747,
+          "median": -9.427760974552946,
+          "cum": 98.64018238710139,
+          "wr": 0.38235294117647056,
+          "top3_removed_cum": -91.67797884438734,
+          "positive_days": 8,
+          "worst_day_cum": -113.76137859816276,
+          "exit_counts": {
+            "BE": 11,
+            "SL": 9,
+            "TIME": 2,
+            "TP": 12
+          }
+        }
+      }
+    },
+    {
+      "label": "btc_buy_liq_15m_ge_p75_166951 AND btc_eth_liq_ratio_15m_ge_p75_7",
+      "expr": "btc_buy_liq_15m >= 166951.124275 AND btc_eth_liq_ratio_15m >= 6.624722298315183",
+      "train": {
+        "n": 19,
+        "days": 15,
+        "mean": 25.560586266426263,
+        "median": 52.380864558233306,
+        "cum": 485.651139062099,
+        "wr": 0.5789473684210527,
+        "top3_removed_cum": 295.3787536083086,
+        "positive_days": 11,
+        "worst_day_cum": -57.24312473011903,
+        "exit_counts": {
+          "BE": 7,
+          "SL": 1,
+          "TIME": 1,
+          "TP": 10
+        }
+      },
+      "rank": 3,
+      "test": {
+        "n": 23,
+        "days": 15,
+        "mean": 15.919065729425412,
+        "median": 52.20848507147164,
+        "cum": 366.13851177678447,
+        "wr": 0.5652173913043478,
+        "top3_removed_cum": 187.4670416211548,
+        "positive_days": 10,
+        "worst_day_cum": -56.87245928687689,
+        "exit_counts": {
+          "BE": 3,
+          "SL": 6,
+          "TIME": 2,
+          "TP": 12
+        }
+      },
+      "all": {
+        "n": 42,
+        "days": 30,
+        "mean": 20.28070597235437,
+        "median": 52.29467481485247,
+        "cum": 851.7896508388835,
+        "wr": 0.5714285714285714,
+        "top3_removed_cum": 656.1843065733008,
+        "positive_days": 21,
+        "worst_day_cum": -57.24312473011903,
+        "exit_counts": {
+          "BE": 10,
+          "SL": 7,
+          "TIME": 3,
+          "TP": 22
+        }
+      },
+      "real_fill": {
+        "total_rows": 42,
+        "real_fill_rows": 16,
+        "no_fill_rows": 26,
+        "no_fill_rate": 0.6190476190476191,
+        "test": {
+          "n": 16,
+          "days": 11,
+          "mean": 8.675992725819912,
+          "median": 13.946302173416099,
+          "cum": 138.8158836131186,
+          "wr": 0.5,
+          "top3_removed_cum": -49.55080411362356,
+          "positive_days": 6,
+          "worst_day_cum": -55.14289258864142,
+          "exit_counts": {
+            "BE": 2,
+            "SL": 5,
+            "TIME": 2,
+            "TP": 7
+          }
+        }
+      }
+    },
+    {
+      "label": "btc_buy_liq_15m_ge_p50_50092 AND market_buy_liq_15m_ge_p75_303923",
+      "expr": "btc_buy_liq_15m >= 50092.41463 AND market_buy_liq_15m >= 303923.10575750005",
+      "train": {
+        "n": 41,
+        "days": 23,
+        "mean": 18.870472255930718,
+        "median": 52.343302256700426,
+        "cum": 773.6893624931594,
+        "wr": 0.5365853658536586,
+        "top3_removed_cum": 598.9454117899646,
+        "positive_days": 14,
+        "worst_day_cum": -58.398568524377595,
+        "exit_counts": {
+          "BE": 12,
+          "SL": 6,
+          "TIME": 1,
+          "TP": 22
+        }
+      },
+      "rank": 4,
+      "test": {
+        "n": 67,
+        "days": 27,
+        "mean": 15.79834358658719,
+        "median": 31.69947262026372,
+        "cum": 1058.4890203013417,
+        "wr": 0.5223880597014925,
+        "top3_removed_cum": 870.619183002926,
+        "positive_days": 17,
+        "worst_day_cum": -88.9002002587228,
+        "exit_counts": {
+          "BE": 18,
+          "SL": 13,
+          "TIME": 3,
+          "TP": 33
+        }
+      },
+      "all": {
+        "n": 108,
+        "days": 50,
+        "mean": 16.96461465550464,
+        "median": 52.134665601249665,
+        "cum": 1832.1783827945012,
+        "wr": 0.5277777777777778,
+        "top3_removed_cum": 1644.3085454960853,
+        "positive_days": 31,
+        "worst_day_cum": -88.9002002587228,
+        "exit_counts": {
+          "BE": 30,
+          "SL": 19,
+          "TIME": 4,
+          "TP": 55
+        }
+      },
+      "real_fill": {
+        "total_rows": 108,
+        "real_fill_rows": 44,
+        "no_fill_rows": 64,
+        "no_fill_rate": 0.5925925925925926,
+        "test": {
+          "n": 44,
+          "days": 16,
+          "mean": 11.711037643413986,
+          "median": -0.5271907158799456,
+          "cum": 515.2856563102154,
+          "wr": 0.5,
+          "top3_removed_cum": 302.05798349887294,
+          "positive_days": 9,
+          "worst_day_cum": -96.57151939726512,
+          "exit_counts": {
+            "BE": 11,
+            "SL": 10,
+            "TIME": 3,
+            "TP": 20
+          }
+        }
+      }
+    },
+    {
+      "label": "btc_buy_liq_15m_ge_p75_166951 AND market_buy_liq_15m_ge_p75_303923",
+      "expr": "btc_buy_liq_15m >= 166951.124275 AND market_buy_liq_15m >= 303923.10575750005",
+      "train": {
+        "n": 35,
+        "days": 20,
+        "mean": 20.540748477450762,
+        "median": 52.343302256700426,
+        "cum": 718.9261967107767,
+        "wr": 0.5428571428571428,
+        "top3_removed_cum": 544.1822460075819,
+        "positive_days": 13,
+        "worst_day_cum": -58.398568524377595,
+        "exit_counts": {
+          "BE": 11,
+          "SL": 4,
+          "TIME": 1,
+          "TP": 19
+        }
+      },
+      "rank": 5,
+      "test": {
+        "n": 59,
+        "days": 25,
+        "mean": 16.14636364081434,
+        "median": 31.69947262026372,
+        "cum": 952.635454808046,
+        "wr": 0.5254237288135594,
+        "top3_removed_cum": 764.7656175096303,
+        "positive_days": 18,
+        "worst_day_cum": -88.9002002587228,
+        "exit_counts": {
+          "BE": 16,
+          "SL": 11,
+          "TIME": 3,
+          "TP": 29
+        }
+      },
+      "all": {
+        "n": 94,
+        "days": 45,
+        "mean": 17.782570760838542,
+        "median": 52.134665601249665,
+        "cum": 1671.5616515188228,
+        "wr": 0.5319148936170213,
+        "top3_removed_cum": 1483.691814220407,
+        "positive_days": 31,
+        "worst_day_cum": -88.9002002587228,
+        "exit_counts": {
+          "BE": 27,
+          "SL": 15,
+          "TIME": 4,
+          "TP": 48
+        }
+      },
+      "real_fill": {
+        "total_rows": 94,
+        "real_fill_rows": 41,
+        "no_fill_rows": 53,
+        "no_fill_rate": 0.5638297872340425,
+        "test": {
+          "n": 41,
+          "days": 16,
+          "mean": 10.465398055410722,
+          "median": -2.881589263624324,
+          "cum": 429.0813202718396,
+          "wr": 0.4878048780487805,
+          "top3_removed_cum": 230.7585869680913,
+          "positive_days": 10,
+          "worst_day_cum": -96.57151939726512,
+          "exit_counts": {
+            "BE": 11,
+            "SL": 9,
+            "TIME": 3,
+            "TP": 18
+          }
+        }
+      }
+    },
+    {
+      "label": "btc_pre15_ge_20 AND market_buy_liq_15m_ge_p75_303923",
+      "expr": "btc_pre_15m_bps >= 20 AND market_buy_liq_15m >= 303923.10575750005",
+      "train": {
+        "n": 37,
+        "days": 22,
+        "mean": 18.552149906192234,
+        "median": 52.343302256700426,
+        "cum": 686.4295465291127,
+        "wr": 0.5405405405405406,
+        "top3_removed_cum": 511.68559582591786,
+        "positive_days": 13,
+        "worst_day_cum": -58.398568524377595,
+        "exit_counts": {
+          "BE": 10,
+          "SL": 6,
+          "TIME": 1,
+          "TP": 20
+        }
+      },
+      "rank": 6,
+      "test": {
+        "n": 48,
+        "days": 23,
+        "mean": 13.415150561306662,
+        "median": -1.09649156793935,
+        "cum": 643.9272269427198,
+        "wr": 0.5,
+        "top3_removed_cum": 457.78373761601824,
+        "positive_days": 17,
+        "worst_day_cum": -88.9002002587228,
+        "exit_counts": {
+          "BE": 13,
+          "SL": 10,
+          "TIME": 3,
+          "TP": 22
+        }
+      },
+      "all": {
+        "n": 85,
+        "days": 45,
+        "mean": 15.65125615849215,
+        "median": 31.69947262026372,
+        "cum": 1330.3567734718326,
+        "wr": 0.5176470588235295,
+        "top3_removed_cum": 1144.213284145131,
+        "positive_days": 30,
+        "worst_day_cum": -88.9002002587228,
+        "exit_counts": {
+          "BE": 23,
+          "SL": 16,
+          "TIME": 4,
+          "TP": 42
+        }
+      },
+      "real_fill": {
+        "total_rows": 85,
+        "real_fill_rows": 30,
+        "no_fill_rows": 55,
+        "no_fill_rate": 0.6470588235294118,
+        "test": {
+          "n": 30,
+          "days": 14,
+          "mean": 3.316691083402433,
+          "median": -9.427760974552946,
+          "cum": 99.50073250207299,
+          "wr": 0.43333333333333335,
+          "top3_removed_cum": -98.82200080167533,
+          "positive_days": 7,
+          "worst_day_cum": -96.57151939726512,
+          "exit_counts": {
+            "BE": 7,
+            "SL": 9,
+            "TIME": 3,
+            "TP": 11
+          }
+        }
+      }
+    },
+    {
+      "label": "market_buy_liq_15m_ge_p75_303923",
+      "expr": "market_buy_liq_15m >= 303923.10575750005",
+      "train": {
+        "n": 42,
+        "days": 23,
+        "mean": 19.667142019634245,
+        "median": 52.33695229408963,
+        "cum": 826.0199648246382,
+        "wr": 0.5476190476190477,
+        "top3_removed_cum": 651.2760141214434,
+        "positive_days": 14,
+        "worst_day_cum": -58.398568524377595,
+        "exit_counts": {
+          "BE": 12,
+          "SL": 6,
+          "TIME": 1,
+          "TP": 23
+        }
+      },
+      "rank": 7,
+      "test": {
+        "n": 70,
+        "days": 27,
+        "mean": 14.508151302201892,
+        "median": 16.49602259662104,
+        "cum": 1015.5705911541324,
+        "wr": 0.5142857142857142,
+        "top3_removed_cum": 827.7007538557166,
+        "positive_days": 18,
+        "worst_day_cum": -88.9002002587228,
+        "exit_counts": {
+          "BE": 18,
+          "SL": 15,
+          "TIME": 3,
+          "TP": 34
+        }
+      },
+      "all": {
+        "n": 112,
+        "days": 50,
+        "mean": 16.442772821239025,
+        "median": 52.134665601249665,
+        "cum": 1841.5905559787707,
+        "wr": 0.5267857142857143,
+        "top3_removed_cum": 1653.7207186803548,
+        "positive_days": 32,
+        "worst_day_cum": -88.9002002587228,
+        "exit_counts": {
+          "BE": 30,
+          "SL": 21,
+          "TIME": 4,
+          "TP": 57
+        }
+      },
+      "real_fill": {
+        "total_rows": 112,
+        "real_fill_rows": 47,
+        "no_fill_rows": 65,
+        "no_fill_rate": 0.5803571428571429,
+        "test": {
+          "n": 47,
+          "days": 16,
+          "mean": 10.151102503550247,
+          "median": -2.881589263624324,
+          "cum": 477.1018176668616,
+          "wr": 0.48936170212765956,
+          "top3_removed_cum": 263.87414485551915,
+          "positive_days": 9,
+          "worst_day_cum": -96.57151939726512,
+          "exit_counts": {
+            "BE": 11,
+            "SL": 12,
+            "TIME": 3,
+            "TP": 21
+          }
+        }
+      }
+    },
+    {
+      "label": "market_buy_liq_15m_ge_p50_111890 AND market_buy_liq_15m_ge_p75_303923",
+      "expr": "market_buy_liq_15m >= 111889.92180000001 AND market_buy_liq_15m >= 303923.10575750005",
+      "train": {
+        "n": 42,
+        "days": 23,
+        "mean": 19.667142019634245,
+        "median": 52.33695229408963,
+        "cum": 826.0199648246382,
+        "wr": 0.5476190476190477,
+        "top3_removed_cum": 651.2760141214434,
+        "positive_days": 14,
+        "worst_day_cum": -58.398568524377595,
+        "exit_counts": {
+          "BE": 12,
+          "SL": 6,
+          "TIME": 1,
+          "TP": 23
+        }
+      },
+      "rank": 8,
+      "test": {
+        "n": 70,
+        "days": 27,
+        "mean": 14.508151302201892,
+        "median": 16.49602259662104,
+        "cum": 1015.5705911541324,
+        "wr": 0.5142857142857142,
+        "top3_removed_cum": 827.7007538557166,
+        "positive_days": 18,
+        "worst_day_cum": -88.9002002587228,
+        "exit_counts": {
+          "BE": 18,
+          "SL": 15,
+          "TIME": 3,
+          "TP": 34
+        }
+      },
+      "all": {
+        "n": 112,
+        "days": 50,
+        "mean": 16.442772821239025,
+        "median": 52.134665601249665,
+        "cum": 1841.5905559787707,
+        "wr": 0.5267857142857143,
+        "top3_removed_cum": 1653.7207186803548,
+        "positive_days": 32,
+        "worst_day_cum": -88.9002002587228,
+        "exit_counts": {
+          "BE": 30,
+          "SL": 21,
+          "TIME": 4,
+          "TP": 57
+        }
+      },
+      "real_fill": {
+        "total_rows": 112,
+        "real_fill_rows": 47,
+        "no_fill_rows": 65,
+        "no_fill_rate": 0.5803571428571429,
+        "test": {
+          "n": 47,
+          "days": 16,
+          "mean": 10.151102503550247,
+          "median": -2.881589263624324,
+          "cum": 477.1018176668616,
+          "wr": 0.48936170212765956,
+          "top3_removed_cum": 263.87414485551915,
+          "positive_days": 9,
+          "worst_day_cum": -96.57151939726512,
+          "exit_counts": {
+            "BE": 11,
+            "SL": 12,
+            "TIME": 3,
+            "TP": 21
+          }
+        }
+      }
+    },
+    {
+      "label": "btc_pre15_ge_0 AND market_buy_liq_15m_ge_p75_303923",
+      "expr": "btc_pre_15m_bps >= 0 AND market_buy_liq_15m >= 303923.10575750005",
+      "train": {
+        "n": 39,
+        "days": 22,
+        "mean": 18.69321901692892,
+        "median": 52.33060233147882,
+        "cum": 729.035541660228,
+        "wr": 0.5384615384615384,
+        "top3_removed_cum": 554.2915909570331,
+        "positive_days": 13,
+        "worst_day_cum": -58.398568524377595,
+        "exit_counts": {
+          "BE": 11,
+          "SL": 6,
+          "TIME": 1,
+          "TP": 21
+        }
+      },
+      "rank": 9,
+      "test": {
+        "n": 64,
+        "days": 26,
+        "mean": 17.576209397386272,
+        "median": 52.18257872485155,
+        "cum": 1124.8774014327214,
+        "wr": 0.546875,
+        "top3_removed_cum": 937.0075641343057,
+        "positive_days": 18,
+        "worst_day_cum": -88.9002002587228,
+        "exit_counts": {
+          "BE": 16,
+          "SL": 12,
+          "TIME": 3,
+          "TP": 33
+        }
+      },
+      "all": {
+        "n": 103,
+        "days": 48,
+        "mean": 17.99915478731019,
+        "median": 52.20848507147164,
+        "cum": 1853.9129430929495,
+        "wr": 0.5436893203883495,
+        "top3_removed_cum": 1666.0431057945336,
+        "positive_days": 31,
+        "worst_day_cum": -88.9002002587228,
+        "exit_counts": {
+          "BE": 27,
+          "SL": 18,
+          "TIME": 4,
+          "TP": 54
+        }
+      },
+      "real_fill": {
+        "total_rows": 103,
+        "real_fill_rows": 42,
+        "no_fill_rows": 61,
+        "no_fill_rate": 0.5922330097087378,
+        "test": {
+          "n": 42,
+          "days": 16,
+          "mean": 13.001517967588697,
+          "median": 16.300700721160478,
+          "cum": 546.0637546387253,
+          "wr": 0.5238095238095238,
+          "top3_removed_cum": 332.8360818273829,
+          "positive_days": 10,
+          "worst_day_cum": -96.57151939726512,
+          "exit_counts": {
+            "BE": 9,
+            "SL": 10,
+            "TIME": 3,
+            "TP": 20
+          }
+        }
+      }
+    },
+    {
+      "label": "btc_buy_liq_15m_ge_p75_166951",
+      "expr": "btc_buy_liq_15m >= 166951.124275",
+      "train": {
+        "n": 48,
+        "days": 24,
+        "mean": 21.091663844162237,
+        "median": 52.22798054048414,
+        "cum": 1012.3998645197875,
+        "wr": 0.5416666666666666,
+        "top3_removed_cum": 822.127479065997,
+        "positive_days": 16,
+        "worst_day_cum": -66.40602084611893,
+        "exit_counts": {
+          "BE": 16,
+          "SL": 5,
+          "TIME": 2,
+          "TP": 25
+        }
+      },
+      "rank": 10,
+      "test": {
+        "n": 64,
+        "days": 26,
+        "mean": 16.580475472809535,
+        "median": 41.92807249924759,
+        "cum": 1061.1504302598103,
+        "wr": 0.53125,
+        "top3_removed_cum": 873.2805929613945,
+        "positive_days": 18,
+        "worst_day_cum": -88.9002002587228,
+        "exit_counts": {
+          "BE": 17,
+          "SL": 12,
+          "TIME": 3,
+          "TP": 32
+        }
+      },
+      "all": {
+        "n": 112,
+        "days": 50,
+        "mean": 18.513841917674977,
+        "median": 52.134665601249665,
+        "cum": 2073.5502947795976,
+        "wr": 0.5357142857142857,
+        "top3_removed_cum": 1877.944950514015,
+        "positive_days": 34,
+        "worst_day_cum": -88.9002002587228,
+        "exit_counts": {
+          "BE": 33,
+          "SL": 17,
+          "TIME": 5,
+          "TP": 57
+        }
+      },
+      "real_fill": {
+        "total_rows": 112,
+        "real_fill_rows": 42,
+        "no_fill_rows": 70,
+        "no_fill_rate": 0.625,
+        "test": {
+          "n": 42,
+          "days": 16,
+          "mean": 8.965406503224202,
+          "median": -5.108246591796599,
+          "cum": 376.54707313541644,
+          "wr": 0.47619047619047616,
+          "top3_removed_cum": 178.22433983166812,
+          "positive_days": 10,
+          "worst_day_cum": -96.57151939726512,
+          "exit_counts": {
+            "BE": 11,
+            "SL": 10,
+            "TIME": 3,
+            "TP": 18
+          }
+        }
+      }
+    }
+  ],
+  "sample_rows": [
+    {
+      "event_id": "ETHUSDT_BUY_5903985",
+      "event_ts_ms": 1771195631071,
+      "event_utc": "2026-02-15T22:47:11.071000+00:00",
+      "day": "2026-02-15",
+      "cluster_notional": 216935.92059,
+      "day_trend_bps": -154.5983821098841,
+      "btc_pre_15m_bps": 0.6668763944590209,
+      "sol_pre_15m_bps": 0.0,
+      "route_id": "LONG_DELAY0_TP60",
+      "entry_ts_ms": 1771195632000,
+      "entry_price": 1971.21151163,
+      "exit_ts_ms": 1771196475000,
+      "exit_price": 1963.24363566,
+      "exit_reason": "SL",
+      "net_bps": -48.42121265521191,
+      "mfe_bps": 11.457361915122812,
+      "mae_bps": -40.42121265521191,
+      "btc_buy_liq_5m": 0.0,
+      "btc_buy_liq_15m": 17603.8071,
+      "btc_buy_liq_30m": 335697.2712,
+      "sol_buy_liq_15m": 0.0,
+      "eth_prior_buy_liq_15m": 2539.2627199999997,
+      "market_buy_liq_15m": 20143.06982,
+      "btc_eth_liq_ratio_15m": 6.932645039580624
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904001",
+      "event_ts_ms": 1771200428659,
+      "event_utc": "2026-02-16T00:07:08.659000+00:00",
+      "day": "2026-02-16",
+      "cluster_notional": 375213.6386,
+      "day_trend_bps": 11.396707165679677,
+      "btc_pre_15m_bps": 11.359763404837663,
+      "sol_pre_15m_bps": 0.0,
+      "route_id": "LONG_DELAY0_TP60",
+      "entry_ts_ms": 1771200429000,
+      "entry_price": 1967.71,
+      "exit_ts_ms": 1771201277000,
+      "exit_price": 1967.61,
+      "exit_reason": "BE",
+      "net_bps": -8.508204969228883,
+      "mfe_bps": 52.2434708366577,
+      "mae_bps": -0.5082049692288824,
+      "btc_buy_liq_5m": 0.0,
+      "btc_buy_liq_15m": 138.1056,
+      "btc_buy_liq_30m": 276.01380000000006,
+      "sol_buy_liq_15m": 0.0,
+      "eth_prior_buy_liq_15m": 9850.81411,
+      "market_buy_liq_15m": 9988.91971,
+      "btc_eth_liq_ratio_15m": 0.014019714356380239
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904089",
+      "event_ts_ms": 1771226717535,
+      "event_utc": "2026-02-16T07:25:17.535000+00:00",
+      "day": "2026-02-16",
+      "cluster_notional": 206265.78420999998,
+      "day_trend_bps": 45.16012383743354,
+      "btc_pre_15m_bps": 19.408095205240283,
+      "sol_pre_15m_bps": 0.0,
+      "route_id": "LONG_DELAY0_TP60",
+      "entry_ts_ms": 1771226718000,
+      "entry_price": 1974.51660016,
+      "exit_ts_ms": 1771227661001,
+      "exit_price": 1966.46,
+      "exit_reason": "SL",
+      "net_bps": -48.80289909614925,
+      "mfe_bps": 17.006049529935282,
+      "mae_bps": -40.80289909614925,
+      "btc_buy_liq_5m": 1306.7155,
+      "btc_buy_liq_15m": 8053.284299999999,
+      "btc_buy_liq_30m": 10598.0467,
+      "sol_buy_liq_15m": 0.0,
+      "eth_prior_buy_liq_15m": 140784.34110999998,
+      "market_buy_liq_15m": 148837.62540999998,
+      "btc_eth_liq_ratio_15m": 0.057202983204699395
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904155",
+      "event_ts_ms": 1771246610161,
+      "event_utc": "2026-02-16T12:56:50.161000+00:00",
+      "day": "2026-02-16",
+      "cluster_notional": 474788.74231,
+      "day_trend_bps": 211.19522966400058,
+      "btc_pre_15m_bps": 66.31066336627909,
+      "sol_pre_15m_bps": 0.0,
+      "route_id": "LONG_DELAY0_TP60",
+      "entry_ts_ms": 1771246611005,
+      "entry_price": 2008.14,
+      "exit_ts_ms": 1771246988000,
+      "exit_price": 2020.57,
+      "exit_reason": "TP",
+      "net_bps": 53.898074835419024,
+      "mfe_bps": 61.898074835419024,
+      "mae_bps": -25.29704104295594,
+      "btc_buy_liq_5m": 32575.0418,
+      "btc_buy_liq_15m": 104683.27369999999,
+      "btc_buy_liq_30m": 329537.89418999996,
+      "sol_buy_liq_15m": 0.0,
+      "eth_prior_buy_liq_15m": 230491.75318,
+      "market_buy_liq_15m": 335175.02688,
+      "btc_eth_liq_ratio_15m": 0.45417361903724485
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904162",
+      "event_ts_ms": 1771248616210,
+      "event_utc": "2026-02-16T13:30:16.210000+00:00",
+      "day": "2026-02-16",
+      "cluster_notional": 221978.67975,
+      "day_trend_bps": 77.84358019415082,
+      "btc_pre_15m_bps": -134.98335329788384,
+      "sol_pre_15m_bps": 0.0,
+      "route_id": "LONG_DELAY0_TP60",
+      "entry_ts_ms": 1771248617001,
+      "entry_price": 1980.63,
+      "exit_ts_ms": 1771249088004,
+      "exit_price": 1972.39,
+      "exit_reason": "SL",
+      "net_bps": -49.60292432205919,
+      "mfe_bps": 28.930188879294924,
+      "mae_bps": -41.60292432205919,
+      "btc_buy_liq_5m": 482.73400000000004,
+      "btc_buy_liq_15m": 552.307,
+      "btc_buy_liq_30m": 277224.98105,
+      "sol_buy_liq_15m": 0.0,
+      "eth_prior_buy_liq_15m": 6594.57364,
+      "market_buy_liq_15m": 7146.880639999999,
+      "btc_eth_liq_ratio_15m": 0.08375173743605357
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904196",
+      "event_ts_ms": 1771258929443,
+      "event_utc": "2026-02-16T16:22:09.443000+00:00",
+      "day": "2026-02-16",
+      "cluster_notional": 220657.03549,
+      "day_trend_bps": 12.465148462462327,
+      "btc_pre_15m_bps": -15.119823917855568,
+      "sol_pre_15m_bps": 0.0,
+      "route_id": "LONG_DELAY0_TP60",
+      "entry_ts_ms": 1771258930002,
+      "entry_price": 1968.38,
+      "exit_ts_ms": 1771261798000,
+      "exit_price": 1968.33763566,
+      "exit_reason": "BE",
+      "net_bps": -8.215224397728978,
+      "mfe_bps": 38.74579070098146,
+      "mae_bps": -35.79920244058624,
+      "btc_buy_liq_5m": 203.71680000000003,
+      "btc_buy_liq_15m": 1154.1204000000002,
+      "btc_buy_liq_30m": 98230.95642999999,
+      "sol_buy_liq_15m": 0.0,
+      "eth_prior_buy_liq_15m": 0.0,
+      "market_buy_liq_15m": 1154.1204000000002,
+      "btc_eth_liq_ratio_15m": 1154.1204000000002
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904477",
+      "event_ts_ms": 1771343104205,
+      "event_utc": "2026-02-17T15:45:04.205000+00:00",
+      "day": "2026-02-17",
+      "cluster_notional": 301552.92312,
+      "day_trend_bps": -215.63571732545594,
+      "btc_pre_15m_bps": 22.166654151553313,
+      "sol_pre_15m_bps": 0.0,
+      "route_id": "LONG_DELAY0_TP60",
+      "entry_ts_ms": 1771343105000,
+      "entry_price": 1954.28,
+      "exit_ts_ms": 1771343751000,
+      "exit_price": 1966.1,
+      "exit_reason": "TP",
+      "net_bps": 52.48263299015461,
+      "mfe_bps": 60.48263299015461,
+      "mae_bps": -8.104691855823646,
+      "btc_buy_liq_5m": 201.6951,
+      "btc_buy_liq_15m": 21952.227,
+      "btc_buy_liq_30m": 121783.2336,
+      "sol_buy_liq_15m": 0.0,
+      "eth_prior_buy_liq_15m": 26822.24739,
+      "market_buy_liq_15m": 48774.47439,
+      "btc_eth_liq_ratio_15m": 0.8184335443936116
+    },
+    {
+      "event_id": "ETHUSDT_BUY_5904481",
+      "event_ts_ms": 1771344311630,
+      "event_utc": "2026-02-17T16:05:11.630000+00:00",
+      "day": "2026-02-17",
+      "cluster_notional": 544503.05561,
+      "day_trend_bps": -46.88118732320272,
+      "btc_pre_15m_bps": 101.99810053423793,
+      "sol_pre_15m_bps": 0.0,
+      "route_id": "LONG_DELAY0_TP60",
+      "entry_ts_ms": 1771344312000,
+      "entry_price": 1987.9747907,
+      "exit_ts_ms": 1771344549000,
+      "exit_price": 1987.72412403,
+      "exit_reason": "BE",
+      "net_bps": -9.260914731780057,
+      "mfe_bps": 32.574656984053995,
+      "mae_bps": -10.637915077663187,
+      "btc_buy_liq_5m": 100388.7898,
+      "btc_buy_liq_15m": 245795.8024,
+      "btc_buy_liq_30m": 321978.12909999996,
+      "sol_buy_liq_15m": 0.0,
+      "eth_prior_buy_liq_15m": 165060.40381,
+      "market_buy_liq_15m": 410856.20621,
+      "btc_eth_liq_ratio_15m": 1.4891263848047653
+    }
+  ]
+}

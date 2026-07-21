@@ -1,0 +1,88 @@
+{
+  "alert_signature": "critical:S34_KILL_CRITERIA:Kill/pause recommendations triggered: ['OPERATOR_SIZE_REVIEW_REQUIRED']|critical:S34_OPERATOR_DECISION_REQUIRED:Oversize vs BALANCED 73.0x with no real decision journal row.|critical:S34_OVERSIZE:S34 live env planned margin $29.8 vs tail-budget $0.3 (oversize 107.8x).|info:S34_ATOMICITY_SCAN_OK_SMALL_N:Tick scan found no catastrophic 2s gap; worst -22.7 bps.|warning:S34_ATOMICITY_GAP:Adverse move observed inside fill-to-stop gap; worst -18.5 bps.|warning:S34_STOP_GAP_THROUGH:Configured stop 150.0 bps realized worst -175.7 bps.",
+  "alerts": [
+    {
+      "code": "S34_OVERSIZE",
+      "message": "S34 live env planned margin $29.8 vs tail-budget $0.3 (oversize 107.8x).",
+      "recommendation": "operator reduce margin to budget or disarm; no automatic action taken",
+      "severity": "critical"
+    },
+    {
+      "code": "S34_STOP_GAP_THROUGH",
+      "message": "Configured stop 150.0 bps realized worst -175.7 bps.",
+      "recommendation": "treat stop as partial protection; size remains primary control",
+      "severity": "warning"
+    },
+    {
+      "code": "S34_ATOMICITY_GAP",
+      "message": "Adverse move observed inside fill-to-stop gap; worst -18.5 bps.",
+      "recommendation": "document atomic bracket requirement; operator sign-off required for live logic change",
+      "severity": "warning"
+    },
+    {
+      "code": "S34_ATOMICITY_SCAN_OK_SMALL_N",
+      "message": "Tick scan found no catastrophic 2s gap; worst -22.7 bps.",
+      "recommendation": "continue observation; absence in 23 fills is not proof of zero risk",
+      "severity": "info"
+    },
+    {
+      "code": "S34_KILL_CRITERIA",
+      "message": "Kill/pause recommendations triggered: ['OPERATOR_SIZE_REVIEW_REQUIRED']",
+      "recommendation": "recommendation only; executor not changed",
+      "severity": "critical"
+    },
+    {
+      "code": "S34_OPERATOR_DECISION_REQUIRED",
+      "message": "Oversize vs BALANCED 73.0x with no real decision journal row.",
+      "recommendation": "operator must log REDUCE_MARGIN / DISARM / ARMED_KEEP_SIZE rationale",
+      "severity": "critical"
+    }
+  ],
+  "dashboard_line": {
+    "env_planned_margin_usdt": 29.8,
+    "forward_closed_n": 0,
+    "forward_sum_bps": 0.0,
+    "kill_status": "TRIGGERED_RECOMMENDATION_ONLY",
+    "max_stop_budget_margin_usdt": 1.0,
+    "max_tail_budget_margin_usdt": 0.3,
+    "oversize_multiple": 107.8,
+    "permission": "UNVALIDATED_OBSERVATION_ONLY",
+    "recommendation": "OPERATOR_SIZE_REVIEW_OR_DISARM_UNTIL_FORWARD_VALIDATION",
+    "regime_status": "DATA_INSUFFICIENT",
+    "rule_id": "S34_V_ENGINE_V0_2_ETH_SELL_MAKER_LONG_H2_O20_W300_O5_DEEPBID",
+    "size_status": "ALERT_OVERSIZE_OPERATOR_ACTION_REQUIRED",
+    "updated_at_utc": "2026-06-29T07:01:02.104147+00:00"
+  },
+  "delivery_status": "EMIT_STATE_CHANGED",
+  "generated_at_utc": "2026-06-29T07:34:27.522854+00:00",
+  "kill_design": {
+    "logic": "pause after any closed trade <= -100 bps OR realized equity drawdown >= 10%; operator review required to resume",
+    "name": "FIRST_TAIL_OR_10PCT_DD_PAUSE",
+    "reason": "FIRST_TAIL stops repeat-tail exposure; DD threshold catches non-tail loss clusters. It still cannot protect the first tail."
+  },
+  "mode": "NOTIFY_ONLY_NO_ACTION",
+  "operator_governance": {
+    "balanced_notional": 16.3,
+    "current_notional": 1190.0,
+    "journal_rows": 1,
+    "latest_decision": null,
+    "latest_decision_age_hours": null,
+    "oversize_vs_balanced": 73.0,
+    "real_decision_rows": 0,
+    "required_action": "operator must log REDUCE_MARGIN / DISARM / ARMED_KEEP_SIZE rationale",
+    "status": "DECISION_REQUIRED"
+  },
+  "severity": "critical",
+  "state_changed": true,
+  "tail_context": {
+    "large_loss_rate": 18.7,
+    "planned_stop_loss_pct_equity_research": 59.7,
+    "probabilities": {
+      "at_least_one_tail_in_10_trades": 87.4,
+      "at_least_one_tail_in_1_trades": 18.7,
+      "at_least_one_tail_in_20_trades": 98.4,
+      "at_least_one_tail_in_3_trades": 46.3,
+      "at_least_one_tail_in_5_trades": 64.6
+    }
+  }
+}

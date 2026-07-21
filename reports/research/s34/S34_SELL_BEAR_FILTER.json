@@ -1,0 +1,245 @@
+{
+  "generated_at": "2026-06-27T08:33:21.601625+00:00",
+  "results": [
+    {
+      "label": "ETH_SELL_500K",
+      "raw": {
+        "total": 222,
+        "no_fill": 99,
+        "metrics": {
+          "n": 122,
+          "median": -15.6,
+          "cum": -657.4,
+          "top3r": -479.0,
+          "wr": 0.369,
+          "exits": {
+            "TP": 33,
+            "SL": 39,
+            "BE": 7,
+            "TIME": 43
+          },
+          "h1_median": -26.5,
+          "h2_median": -6.7
+        }
+      },
+      "bear": {
+        "total": 222,
+        "no_fill": 99,
+        "metrics": {
+          "n": 94,
+          "median": -15.6,
+          "cum": -268.7,
+          "top3r": -90.3,
+          "wr": 0.372,
+          "exits": {
+            "TP": 30,
+            "SL": 30,
+            "BE": 5,
+            "TIME": 29
+          },
+          "h1_median": -24.8,
+          "h2_median": -5.6
+        }
+      },
+      "strongbear": {
+        "total": 222,
+        "no_fill": 99,
+        "metrics": {
+          "n": 62,
+          "median": -20.1,
+          "cum": -95.8,
+          "top3r": 81.4,
+          "wr": 0.403,
+          "exits": {
+            "TP": 22,
+            "SL": 21,
+            "BE": 4,
+            "TIME": 15
+          },
+          "h1_median": -26.5,
+          "h2_median": 44.4
+        }
+      }
+    },
+    {
+      "label": "ETH_SELL_1M",
+      "raw": {
+        "total": 114,
+        "no_fill": 36,
+        "metrics": {
+          "n": 77,
+          "median": -13.5,
+          "cum": -128.9,
+          "top3r": 41.6,
+          "wr": 0.312,
+          "exits": {
+            "TP": 18,
+            "SL": 25,
+            "BE": 12,
+            "TIME": 22
+          },
+          "h1_median": -15.4,
+          "h2_median": -10.2
+        }
+      },
+      "bear": {
+        "total": 114,
+        "no_fill": 36,
+        "metrics": {
+          "n": 67,
+          "median": -12.9,
+          "cum": -15.4,
+          "top3r": 155.1,
+          "wr": 0.313,
+          "exits": {
+            "TP": 17,
+            "SL": 22,
+            "BE": 11,
+            "TIME": 17
+          },
+          "h1_median": -16.3,
+          "h2_median": -10.2
+        }
+      },
+      "strongbear": {
+        "total": 114,
+        "no_fill": 36,
+        "metrics": {
+          "n": 52,
+          "median": -14.9,
+          "cum": -185.3,
+          "top3r": -19.2,
+          "wr": 0.288,
+          "exits": {
+            "TP": 12,
+            "SL": 20,
+            "BE": 10,
+            "TIME": 10
+          },
+          "h1_median": -18.4,
+          "h2_median": -12.7
+        }
+      }
+    },
+    {
+      "label": "SOL_SELL_200K",
+      "raw": {
+        "total": 58,
+        "no_fill": 12,
+        "metrics": {
+          "n": 46,
+          "median": -11.5,
+          "cum": 47.9,
+          "top3r": 180.9,
+          "wr": 0.391,
+          "exits": {
+            "TP": 14,
+            "SL": 15,
+            "BE": 10,
+            "TIME": 7
+          },
+          "h1_median": -14.9,
+          "h2_median": 1.8
+        }
+      },
+      "bear": {
+        "total": 58,
+        "no_fill": 12,
+        "metrics": {
+          "n": 39,
+          "median": -9.4,
+          "cum": 140.4,
+          "top3r": 273.3,
+          "wr": 0.436,
+          "exits": {
+            "TP": 13,
+            "SL": 11,
+            "BE": 8,
+            "TIME": 7
+          },
+          "h1_median": -12.1,
+          "h2_median": 2.0
+        }
+      },
+      "strongbear": {
+        "total": 58,
+        "no_fill": 12,
+        "metrics": {
+          "n": 33,
+          "median": -10.8,
+          "cum": 81.5,
+          "top3r": 213.1,
+          "wr": 0.424,
+          "exits": {
+            "TP": 11,
+            "SL": 9,
+            "BE": 8,
+            "TIME": 5
+          },
+          "h1_median": -12.4,
+          "h2_median": 2.2
+        }
+      }
+    },
+    {
+      "label": "SOL_SELL_100K",
+      "raw": {
+        "total": 107,
+        "no_fill": 20,
+        "metrics": {
+          "n": 86,
+          "median": -37.0,
+          "cum": -1007.4,
+          "top3r": -850.6,
+          "wr": 0.291,
+          "exits": {
+            "TP": 19,
+            "SL": 45,
+            "BE": 7,
+            "TIME": 15
+          },
+          "h1_median": -17.5,
+          "h2_median": -38.3
+        }
+      },
+      "bear": {
+        "total": 107,
+        "no_fill": 20,
+        "metrics": {
+          "n": 66,
+          "median": -20.3,
+          "cum": -556.4,
+          "top3r": -402.3,
+          "wr": 0.333,
+          "exits": {
+            "TP": 17,
+            "SL": 32,
+            "BE": 5,
+            "TIME": 12
+          },
+          "h1_median": -12.1,
+          "h2_median": -38.2
+        }
+      },
+      "strongbear": {
+        "total": 107,
+        "no_fill": 20,
+        "metrics": {
+          "n": 43,
+          "median": -12.8,
+          "cum": -396.2,
+          "top3r": -243.8,
+          "wr": 0.349,
+          "exits": {
+            "TP": 11,
+            "SL": 20,
+            "BE": 5,
+            "TIME": 7
+          },
+          "h1_median": -12.8,
+          "h2_median": -23.9
+        }
+      }
+    }
+  ]
+}

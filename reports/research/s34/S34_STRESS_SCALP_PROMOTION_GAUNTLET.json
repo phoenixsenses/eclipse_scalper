@@ -1,0 +1,2343 @@
+{
+  "anatomy": {
+    "best10": [
+      {
+        "bid_depth": 28384.1,
+        "btc4h": -401.2,
+        "chain_thresholds": 3,
+        "eth1h": -422.9,
+        "event_id": "ETHUSDT_SELL_200000_1782395476217",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -477.0,
+        "signal_utc": "2026-06-25T13:51:16.217000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_HIGH",
+          "BID_DEPTH_THIN",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": 195.0,
+        "vdepth": 43.1
+      },
+      {
+        "bid_depth": 28384.1,
+        "btc4h": -401.2,
+        "chain_thresholds": 3,
+        "eth1h": -422.9,
+        "event_id": "ETHUSDT_SELL_100000_1782395476217",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -477.0,
+        "signal_utc": "2026-06-25T13:51:16.217000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_HIGH",
+          "BID_DEPTH_THIN",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": 195.0,
+        "vdepth": 43.1
+      },
+      {
+        "bid_depth": 43516.6,
+        "btc4h": -396.2,
+        "chain_thresholds": 3,
+        "eth1h": -416.5,
+        "event_id": "ETHUSDT_SELL_50000_1782395474187",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -469.8,
+        "signal_utc": "2026-06-25T13:51:14.187000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_HIGH",
+          "BID_DEPTH_THIN",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": 195.0,
+        "vdepth": 41.9
+      },
+      {
+        "bid_depth": 4368.9,
+        "btc4h": -112.0,
+        "chain_thresholds": 3,
+        "eth1h": -63.0,
+        "event_id": "ETHUSDT_SELL_200000_1782394305283",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -135.4,
+        "signal_utc": "2026-06-25T13:31:45.283000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_HIGH",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": 195.0,
+        "vdepth": 45.6
+      },
+      {
+        "bid_depth": 325274.6,
+        "btc4h": -109.2,
+        "chain_thresholds": 3,
+        "eth1h": -60.8,
+        "event_id": "ETHUSDT_SELL_100000_1782394284495",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -132.2,
+        "signal_utc": "2026-06-25T13:31:24.495000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_CORE",
+          "BID_DEPTH_OK",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_LOW_CONTEXT",
+          "SIZE_15X_STABLE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": 195.0,
+        "vdepth": 39.4
+      },
+      {
+        "bid_depth": 31419.0,
+        "btc4h": -100.5,
+        "chain_thresholds": 3,
+        "eth1h": -51.7,
+        "event_id": "ETHUSDT_SELL_50000_1782394272242",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -122.9,
+        "signal_utc": "2026-06-25T13:31:12.242000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": 195.0,
+        "vdepth": 24.2
+      },
+      {
+        "bid_depth": 94814.2,
+        "btc4h": -425.3,
+        "chain_thresholds": 3,
+        "eth1h": -54.2,
+        "event_id": "ETHUSDT_SELL_100000_1782319424366",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -337.3,
+        "signal_utc": "2026-06-24T16:43:44.366000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": 195.0,
+        "vdepth": 20.2
+      },
+      {
+        "bid_depth": 300442.8,
+        "btc4h": -406.7,
+        "chain_thresholds": 3,
+        "eth1h": -54.2,
+        "event_id": "ETHUSDT_SELL_50000_1782319123478",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -311.8,
+        "signal_utc": "2026-06-24T16:38:43.478000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": 195.0,
+        "vdepth": 16.6
+      },
+      {
+        "bid_depth": 229234.2,
+        "btc4h": -202.5,
+        "chain_thresholds": 3,
+        "eth1h": -99.6,
+        "event_id": "ETHUSDT_SELL_50000_1782202432090",
+        "exit": "TP",
+        "fold": 5,
+        "prior4h": -306.8,
+        "signal_utc": "2026-06-23T08:13:52.090000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_CORE",
+          "BID_DEPTH_OK",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_LOW_CONTEXT",
+          "SIZE_15X_STABLE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": 195.0,
+        "vdepth": 28.8
+      },
+      {
+        "bid_depth": 558408.0,
+        "btc4h": -141.6,
+        "chain_thresholds": 3,
+        "eth1h": -116.3,
+        "event_id": "ETHUSDT_SELL_200000_1781797000262",
+        "exit": "TP",
+        "fold": 4,
+        "prior4h": -161.7,
+        "signal_utc": "2026-06-18T15:36:40.262000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "BID_DEPTH_HEAVY",
+          "TAIL_REALIZED",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": 195.0,
+        "vdepth": 13.7
+      }
+    ],
+    "loser_profile": {
+      "avg_bid_depth": 182399.5,
+      "avg_btc4h": -210.5,
+      "avg_chain_thresholds": 3.0,
+      "avg_eth1h": -109.5,
+      "avg_prior4h": -236.4,
+      "avg_threshold": 117105.3,
+      "avg_vdepth": 20.8,
+      "n": 38,
+      "tags": {
+        "BID_DEPTH_OK": 24,
+        "BID_DEPTH_THIN": 14,
+        "EXIT_2H_ACTUAL_BETTER": 15,
+        "EXIT_4H_ACTUAL_BETTER": 23,
+        "RISK_OFF_REBOUND": 38,
+        "SIZE_34X_FRAGILE": 35,
+        "TAIL_HIGH_OR_UNKNOWN": 35,
+        "VDEPTH_DANGER_LOW": 31
+      }
+    },
+    "summary": {
+      "max_loss_bps": -45.0,
+      "mean_bps": 23.4,
+      "median_bps": 5.4,
+      "n": 132,
+      "sum_bps": 3089.8,
+      "t3r_bps": 2504.8,
+      "tail_lte_minus100_n": 0,
+      "tail_lte_minus150_n": 0,
+      "tail_lte_minus300_n": 0,
+      "win_rate": 0.523
+    },
+    "tail_profile": {
+      "avg_bid_depth": null,
+      "avg_btc4h": null,
+      "avg_chain_thresholds": null,
+      "avg_eth1h": null,
+      "avg_prior4h": null,
+      "avg_threshold": null,
+      "avg_vdepth": null,
+      "n": 0,
+      "tags": {}
+    },
+    "winner_profile": {
+      "avg_bid_depth": 157247.5,
+      "avg_btc4h": -186.3,
+      "avg_chain_thresholds": 3.0,
+      "avg_eth1h": -121.9,
+      "avg_prior4h": -204.1,
+      "avg_threshold": 114492.8,
+      "avg_vdepth": 18.8,
+      "n": 69,
+      "tags": {
+        "BID_DEPTH_THIN": 42,
+        "EXIT_2H_ACTUAL_BETTER": 28,
+        "EXIT_4H_ACTUAL_BETTER": 41,
+        "RISK_OFF_REBOUND": 63,
+        "SIZE_34X_FRAGILE": 66,
+        "TAIL_HIGH_OR_UNKNOWN": 66,
+        "TAIL_REALIZED": 28,
+        "VDEPTH_DANGER_LOW": 52
+      }
+    },
+    "worst10": [
+      {
+        "bid_depth": 0.0,
+        "btc4h": -97.0,
+        "chain_thresholds": 3,
+        "eth1h": -39.7,
+        "event_id": "ETHUSDT_SELL_50000_1781119401712",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -153.1,
+        "signal_utc": "2026-06-10T19:23:21.712000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": -45.0,
+        "vdepth": 14.9
+      },
+      {
+        "bid_depth": 0.0,
+        "btc4h": -93.7,
+        "chain_thresholds": 3,
+        "eth1h": -42.0,
+        "event_id": "ETHUSDT_SELL_100000_1781119418078",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -148.8,
+        "signal_utc": "2026-06-10T19:23:38.078000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": -45.0,
+        "vdepth": 15.2
+      },
+      {
+        "bid_depth": 0.0,
+        "btc4h": -93.7,
+        "chain_thresholds": 3,
+        "eth1h": -42.0,
+        "event_id": "ETHUSDT_SELL_200000_1781119418078",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -148.8,
+        "signal_utc": "2026-06-10T19:23:38.078000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": -45.0,
+        "vdepth": 15.2
+      },
+      {
+        "bid_depth": 310159.5,
+        "btc4h": -93.7,
+        "chain_thresholds": 3,
+        "eth1h": -98.8,
+        "event_id": "ETHUSDT_SELL_200000_1781190088276",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -127.2,
+        "signal_utc": "2026-06-11T15:01:28.276000+00:00",
+        "stress_score": 4,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": -45.0,
+        "vdepth": 27.3
+      },
+      {
+        "bid_depth": 125536.8,
+        "btc4h": -92.6,
+        "chain_thresholds": 3,
+        "eth1h": -138.3,
+        "event_id": "ETHUSDT_SELL_50000_1781562702507",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -203.8,
+        "signal_utc": "2026-06-15T22:31:42.507000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_THIN",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": -45.0,
+        "vdepth": 14.0
+      },
+      {
+        "bid_depth": 179528.9,
+        "btc4h": -120.7,
+        "chain_thresholds": 3,
+        "eth1h": -19.3,
+        "event_id": "ETHUSDT_SELL_50000_1781623376098",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -107.3,
+        "signal_utc": "2026-06-16T15:22:56.098000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "BID_DEPTH_CORE",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": -45.0,
+        "vdepth": 20.1
+      },
+      {
+        "bid_depth": 179528.9,
+        "btc4h": -120.7,
+        "chain_thresholds": 3,
+        "eth1h": -19.3,
+        "event_id": "ETHUSDT_SELL_100000_1781623376098",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -107.3,
+        "signal_utc": "2026-06-16T15:22:56.098000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "BID_DEPTH_CORE",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 100000.0,
+        "value_bps": -45.0,
+        "vdepth": 20.1
+      },
+      {
+        "bid_depth": 179528.9,
+        "btc4h": -120.7,
+        "chain_thresholds": 3,
+        "eth1h": -19.3,
+        "event_id": "ETHUSDT_SELL_200000_1781623376098",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -107.3,
+        "signal_utc": "2026-06-16T15:22:56.098000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "BID_DEPTH_CORE",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": -45.0,
+        "vdepth": 20.1
+      },
+      {
+        "bid_depth": 56439.3,
+        "btc4h": -255.2,
+        "chain_thresholds": 3,
+        "eth1h": -325.6,
+        "event_id": "ETHUSDT_SELL_200000_1781798251634",
+        "exit": "SL",
+        "fold": 4,
+        "prior4h": -361.7,
+        "signal_utc": "2026-06-18T15:57:31.634000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_CORE",
+          "BID_DEPTH_THIN",
+          "EXIT_4H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 200000.0,
+        "value_bps": -45.0,
+        "vdepth": 29.2
+      },
+      {
+        "bid_depth": 176641.1,
+        "btc4h": -111.6,
+        "chain_thresholds": 3,
+        "eth1h": -142.2,
+        "event_id": "ETHUSDT_SELL_50000_1782307339365",
+        "exit": "SL",
+        "fold": 5,
+        "prior4h": -85.5,
+        "signal_utc": "2026-06-24T13:22:19.365000+00:00",
+        "stress_score": 3,
+        "tags": [
+          "RISK_OFF_REBOUND",
+          "VDEPTH_DANGER_LOW",
+          "BID_DEPTH_OK",
+          "BID_DEPTH_CORE",
+          "EXIT_2H_ACTUAL_BETTER",
+          "TAIL_HIGH_OR_UNKNOWN",
+          "SIZE_34X_FRAGILE"
+        ],
+        "threshold": 50000.0,
+        "value_bps": -45.0,
+        "vdepth": 12.0
+      }
+    ]
+  },
+  "big_winner_loser": {
+    "best10": [
+      {
+        "btc4h": -141.6,
+        "chain_thresholds": 3,
+        "event_id": "ETHUSDT_SELL_200000_1781797000262",
+        "exit": "TP",
+        "fold": 4,
+        "signal_utc": "2026-06-18T15:36:40.262000+00:00",
+        "value_bps": 195.0,
+        "vdepth": 13.7
+      },
+      {
+        "btc4h": -202.5,
+        "chain_thresholds": 3,
+        "event_id": "ETHUSDT_SELL_50000_1782202432090",
+        "exit": "TP",
+        "fold": 5,
+        "signal_utc": "2026-06-23T08:13:52.090000+00:00",
+        "value_bps": 195.0,
+        "vdepth": 28.8
+      },
+      {
+        "btc4h": -406.7,
+        "chain_thresholds": 3,
+        "event_id": "ETHUSDT_SELL_50000_1782319123478",
+        "exit": "TP",
+        "fold": 5,
+        "signal_utc": "2026-06-24T16:38:43.478000+00:00",
+        "value_bps": 195.0,
+        "vdepth": 16.6
+      },
+      {
+        "btc4h": -425.3,
+        "chain_thresholds": 3,
+        "event_id": "ETHUSDT_SELL_100000_1782319424366",
+        "exit": "TP",
+        "fold": 5,
+        "signal_utc": "2026-06-24T16:43:44.366000+00:00",
+        "value_bps": 195.0,
+        "vdepth": 20.2
+      },
+      {
+        "btc4h": -100.5,
+        "chain_thresholds": 3,
+        "event_id": "ETHUSDT_SELL_50000_1782394272242",
+        "exit": "TP",
+        "fold": 5,
+        "signal_utc": "2026-06-25T13:31:12.242000+00:00",
+        "value_bps": 195.0,
+        "vdepth": 24.2
+      },
+      {
+        "btc4h": -109.2,
+        "chain_thresholds": 3,
+        "event_id": "ETHUSDT_SELL_100000_1782394284495",
+        "exit": "TP",
+        "fold": 5,
+        "signal_utc": "2026-06-25T13:31:24.495000+00:00",
+        "value_bps": 195.0,
+        "vdepth": 39.4
+      },
+      {
+        "btc4h": -112.0,
+        "chain_thresholds": 3,
+        "event_id": "ETHUSDT_SELL_200000_1782394305283",
+        "exit": "TP",
+        "fold": 5,
+        "signal_utc": "2026-06-25T13:31:45.283000+00:00",
+        "value_bps": 195.0,
+        "vdepth": 45.6
+      },
+      {
+        "btc4h": -396.2,
+        "chain_thresholds": 3,
+        "event_id": "ETHUSDT_SELL_50000_1782395474187",
+        "exit": "TP",
+        "fold": 5,
+        "signal_utc": "2026-06-25T13:51:14.187000+00:00",
+        "value_bps": 195.0,
+        "vdepth": 41.9
+      },
+      {
+        "btc4h": -401.2,
+        "chain_thresholds": 3,
+        "event_id": "ETHUSDT_SELL_100000_1782395476217",
+        "exit": "TP",
+        "fold": 5,
+        "signal_utc": "2026-06-25T13:51:16.217000+00:00",
+        "value_bps": 195.0,
+        "vdepth": 43.1
+      },
+      {
+        "btc4h": -401.2,
+        "chain_thresholds": 3,
+        "event_id": "ETHUSDT_SELL_200000_1782395476217",
+        "exit": "TP",
+        "fold": 5,
+        "signal_utc": "2026-06-25T13:51:16.217000+00:00",
+        "value_bps": 195.0,
+        "vdepth": 43.1
+      }
+    ],
+    "sl_summary": {
+      "max_loss_bps": -45.0,
+      "mean_bps": -45.0,
+      "median_bps": -45.0,
+      "n": 38,
+      "sum_bps": -1710.0,
+      "t3r_bps": -1575.0,
+      "tail_lte_minus100_n": 0,
+      "tail_lte_minus150_n": 0,
+      "tail_lte_minus300_n": 0,
+      "win_rate": 0.0
+    },
+    "summary": {
+      "max_loss_bps": -45.0,
+      "mean_bps": 23.4,
+      "median_bps": 5.4,
+      "n": 132,
+      "sum_bps": 3089.8,
+      "t3r_bps": 2504.8,
+      "tail_lte_minus100_n": 0,
+      "tail_lte_minus150_n": 0,
+      "tail_lte_minus300_n": 0,
+      "win_rate": 0.523
+    },
+    "top10_removed_sum_bps": 1139.8,
+    "top3_removed_sum_bps": 2504.8,
+    "worst10": [
+      {
+        "btc4h": -97.0,
+        "chain_thresholds": 3,
+        "event_id": "ETHUSDT_SELL_50000_1781119401712",
+        "exit": "SL",
+        "fold": 4,
+        "signal_utc": "2026-06-10T19:23:21.712000+00:00",
+        "value_bps": -45.0,
+        "vdepth": 14.9
+      },
+      {
+        "btc4h": -93.7,
+        "chain_thresholds": 3,
+        "event_id": "ETHUSDT_SELL_100000_1781119418078",
+        "exit": "SL",
+        "fold": 4,
+        "signal_utc": "2026-06-10T19:23:38.078000+00:00",
+        "value_bps": -45.0,
+        "vdepth": 15.2
+      },
+      {
+        "btc4h": -93.7,
+        "chain_thresholds": 3,
+        "event_id": "ETHUSDT_SELL_200000_1781119418078",
+        "exit": "SL",
+        "fold": 4,
+        "signal_utc": "2026-06-10T19:23:38.078000+00:00",
+        "value_bps": -45.0,
+        "vdepth": 15.2
+      },
+      {
+        "btc4h": -93.7,
+        "chain_thresholds": 3,
+        "event_id": "ETHUSDT_SELL_200000_1781190088276",
+        "exit": "SL",
+        "fold": 4,
+        "signal_utc": "2026-06-11T15:01:28.276000+00:00",
+        "value_bps": -45.0,
+        "vdepth": 27.3
+      },
+      {
+        "btc4h": -92.6,
+        "chain_thresholds": 3,
+        "event_id": "ETHUSDT_SELL_50000_1781562702507",
+        "exit": "SL",
+        "fold": 4,
+        "signal_utc": "2026-06-15T22:31:42.507000+00:00",
+        "value_bps": -45.0,
+        "vdepth": 14.0
+      },
+      {
+        "btc4h": -120.7,
+        "chain_thresholds": 3,
+        "event_id": "ETHUSDT_SELL_50000_1781623376098",
+        "exit": "SL",
+        "fold": 4,
+        "signal_utc": "2026-06-16T15:22:56.098000+00:00",
+        "value_bps": -45.0,
+        "vdepth": 20.1
+      },
+      {
+        "btc4h": -120.7,
+        "chain_thresholds": 3,
+        "event_id": "ETHUSDT_SELL_100000_1781623376098",
+        "exit": "SL",
+        "fold": 4,
+        "signal_utc": "2026-06-16T15:22:56.098000+00:00",
+        "value_bps": -45.0,
+        "vdepth": 20.1
+      },
+      {
+        "btc4h": -120.7,
+        "chain_thresholds": 3,
+        "event_id": "ETHUSDT_SELL_200000_1781623376098",
+        "exit": "SL",
+        "fold": 4,
+        "signal_utc": "2026-06-16T15:22:56.098000+00:00",
+        "value_bps": -45.0,
+        "vdepth": 20.1
+      },
+      {
+        "btc4h": -255.2,
+        "chain_thresholds": 3,
+        "event_id": "ETHUSDT_SELL_200000_1781798251634",
+        "exit": "SL",
+        "fold": 4,
+        "signal_utc": "2026-06-18T15:57:31.634000+00:00",
+        "value_bps": -45.0,
+        "vdepth": 29.2
+      },
+      {
+        "btc4h": -111.6,
+        "chain_thresholds": 3,
+        "event_id": "ETHUSDT_SELL_50000_1782307339365",
+        "exit": "SL",
+        "fold": 5,
+        "signal_utc": "2026-06-24T13:22:19.365000+00:00",
+        "value_bps": -45.0,
+        "vdepth": 12.0
+      }
+    ]
+  },
+  "candidate_n": 132,
+  "causal_holdout": {
+    "exits": {
+      "SL": 38,
+      "TIME": 84,
+      "TP": 10
+    },
+    "matched_n": 132,
+    "summary": {
+      "max_loss_bps": -45.0,
+      "mean_bps": 23.4,
+      "median_bps": 5.4,
+      "n": 132,
+      "sum_bps": 3089.8,
+      "t3r_bps": 2504.8,
+      "tail_lte_minus100_n": 0,
+      "tail_lte_minus150_n": 0,
+      "tail_lte_minus300_n": 0,
+      "win_rate": 0.523
+    }
+  },
+  "definition": {
+    "direction": "REVERSE_SHORT",
+    "exit": "TP200_SL40_20M",
+    "fee_bps": 5.0,
+    "selector": "stress_score>=3 AND btc4h_bps<-75 AND vdepth_bps<50 AND chain_near_15m_thresholds>=3"
+  },
+  "execution_realism": {
+    "passive_only_off10_wait15s": {
+      "exits": {
+        "SL": 3,
+        "TIME": 6,
+        "TP": 3
+      },
+      "fill_kinds": {
+        "NO_FILL": 120,
+        "PASSIVE_FILL": 12
+      },
+      "fill_rate": 0.091,
+      "no_fill_counterfactual": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 22.1,
+        "median_bps": 5.4,
+        "n": 120,
+        "sum_bps": 2649.5,
+        "t3r_bps": 2064.5,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.525
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 40.8,
+        "median_bps": 10.4,
+        "n": 12,
+        "sum_bps": 489.9,
+        "t3r_bps": -95.1,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.583
+      }
+    },
+    "passive_only_off10_wait30s": {
+      "exits": {
+        "SL": 7,
+        "TIME": 13,
+        "TP": 4
+      },
+      "fill_kinds": {
+        "NO_FILL": 108,
+        "PASSIVE_FILL": 24
+      },
+      "fill_rate": 0.182,
+      "no_fill_counterfactual": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 22.2,
+        "median_bps": 6.6,
+        "n": 108,
+        "sum_bps": 2398.3,
+        "t3r_bps": 1813.3,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.537
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 32.8,
+        "median_bps": -1.1,
+        "n": 24,
+        "sum_bps": 786.1,
+        "t3r_bps": 201.1,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.5
+      }
+    },
+    "passive_only_off10_wait60s": {
+      "exits": {
+        "SL": 17,
+        "TIME": 20,
+        "TP": 4
+      },
+      "fill_kinds": {
+        "NO_FILL": 91,
+        "PASSIVE_FILL": 41
+      },
+      "fill_rate": 0.311,
+      "no_fill_counterfactual": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 29.2,
+        "median_bps": 10.0,
+        "n": 91,
+        "sum_bps": 2657.4,
+        "t3r_bps": 2072.4,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.593
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 15.7,
+        "median_bps": -6.7,
+        "n": 41,
+        "sum_bps": 642.7,
+        "t3r_bps": 57.7,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.439
+      }
+    },
+    "passive_only_off20_wait15s": {
+      "exits": {
+        "SL": 1
+      },
+      "fill_kinds": {
+        "NO_FILL": 131,
+        "PASSIVE_FILL": 1
+      },
+      "fill_rate": 0.008,
+      "no_fill_counterfactual": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 23.9,
+        "median_bps": 6.6,
+        "n": 131,
+        "sum_bps": 3134.8,
+        "t3r_bps": 2549.8,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.527
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": -45.0,
+        "median_bps": -45.0,
+        "n": 1,
+        "sum_bps": -45.0,
+        "t3r_bps": -45.0,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.0
+      }
+    },
+    "passive_only_off20_wait30s": {
+      "exits": {
+        "SL": 1,
+        "TIME": 1
+      },
+      "fill_kinds": {
+        "NO_FILL": 130,
+        "PASSIVE_FILL": 2
+      },
+      "fill_rate": 0.015,
+      "no_fill_counterfactual": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 24.2,
+        "median_bps": 6.6,
+        "n": 130,
+        "sum_bps": 3150.4,
+        "t3r_bps": 2565.4,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.531
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": -20.2,
+        "median_bps": -20.2,
+        "n": 2,
+        "sum_bps": -40.4,
+        "t3r_bps": -40.4,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.5
+      }
+    },
+    "passive_only_off20_wait60s": {
+      "exits": {
+        "SL": 4,
+        "TIME": 2,
+        "TP": 2
+      },
+      "fill_kinds": {
+        "NO_FILL": 124,
+        "PASSIVE_FILL": 8
+      },
+      "fill_rate": 0.061,
+      "no_fill_counterfactual": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 23.4,
+        "median_bps": 6.8,
+        "n": 124,
+        "sum_bps": 2896.8,
+        "t3r_bps": 2311.8,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.54
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 28.3,
+        "median_bps": -20.2,
+        "n": 8,
+        "sum_bps": 226.3,
+        "t3r_bps": -175.4,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.5
+      }
+    },
+    "passive_only_off5_wait15s": {
+      "exits": {
+        "SL": 12,
+        "TIME": 21,
+        "TP": 4
+      },
+      "fill_kinds": {
+        "NO_FILL": 95,
+        "PASSIVE_FILL": 37
+      },
+      "fill_rate": 0.28,
+      "no_fill_counterfactual": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 25.6,
+        "median_bps": 4.3,
+        "n": 95,
+        "sum_bps": 2436.4,
+        "t3r_bps": 1851.4,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.516
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 21.6,
+        "median_bps": 14.2,
+        "n": 37,
+        "sum_bps": 799.5,
+        "t3r_bps": 214.5,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.595
+      }
+    },
+    "passive_only_off5_wait30s": {
+      "exits": {
+        "SL": 16,
+        "TIME": 32,
+        "TP": 6
+      },
+      "fill_kinds": {
+        "NO_FILL": 78,
+        "PASSIVE_FILL": 54
+      },
+      "fill_rate": 0.409,
+      "no_fill_counterfactual": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 23.7,
+        "median_bps": 0.3,
+        "n": 78,
+        "sum_bps": 1850.1,
+        "t3r_bps": 1265.1,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.5
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 26.2,
+        "median_bps": 14.2,
+        "n": 54,
+        "sum_bps": 1413.9,
+        "t3r_bps": 828.9,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.574
+      }
+    },
+    "passive_only_off5_wait60s": {
+      "exits": {
+        "SL": 25,
+        "TIME": 43,
+        "TP": 6
+      },
+      "fill_kinds": {
+        "NO_FILL": 58,
+        "PASSIVE_FILL": 74
+      },
+      "fill_rate": 0.561,
+      "no_fill_counterfactual": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 35.9,
+        "median_bps": 8.6,
+        "n": 58,
+        "sum_bps": 2079.8,
+        "t3r_bps": 1494.8,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.534
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 16.5,
+        "median_bps": 2.1,
+        "n": 74,
+        "sum_bps": 1223.8,
+        "t3r_bps": 638.8,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.527
+      }
+    },
+    "passive_then_taker_off10_wait15s": {
+      "exits": {
+        "SL": 40,
+        "TIME": 83,
+        "TP": 9
+      },
+      "fill_kinds": {
+        "FALLBACK_TAKER": 120,
+        "PASSIVE_FILL": 12
+      },
+      "fill_rate": 1.0,
+      "no_fill_counterfactual": {
+        "max_loss_bps": null,
+        "median_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "win_rate": null
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 21.4,
+        "median_bps": 2.1,
+        "n": 132,
+        "sum_bps": 2822.9,
+        "t3r_bps": 2237.9,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.53
+      }
+    },
+    "passive_then_taker_off10_wait30s": {
+      "exits": {
+        "SL": 42,
+        "TIME": 81,
+        "TP": 9
+      },
+      "fill_kinds": {
+        "FALLBACK_TAKER": 108,
+        "PASSIVE_FILL": 24
+      },
+      "fill_rate": 1.0,
+      "no_fill_counterfactual": {
+        "max_loss_bps": null,
+        "median_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "win_rate": null
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 18.3,
+        "median_bps": -4.4,
+        "n": 132,
+        "sum_bps": 2422.0,
+        "t3r_bps": 1837.0,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.439
+      }
+    },
+    "passive_then_taker_off10_wait60s": {
+      "exits": {
+        "SL": 45,
+        "TIME": 78,
+        "TP": 9
+      },
+      "fill_kinds": {
+        "FALLBACK_TAKER": 91,
+        "PASSIVE_FILL": 41
+      },
+      "fill_rate": 1.0,
+      "no_fill_counterfactual": {
+        "max_loss_bps": null,
+        "median_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "win_rate": null
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 16.2,
+        "median_bps": -4.3,
+        "n": 132,
+        "sum_bps": 2136.2,
+        "t3r_bps": 1551.2,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.447
+      }
+    },
+    "passive_then_taker_off20_wait15s": {
+      "exits": {
+        "SL": 40,
+        "TIME": 83,
+        "TP": 9
+      },
+      "fill_kinds": {
+        "FALLBACK_TAKER": 131,
+        "PASSIVE_FILL": 1
+      },
+      "fill_rate": 1.0,
+      "no_fill_counterfactual": {
+        "max_loss_bps": null,
+        "median_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "win_rate": null
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 21.6,
+        "median_bps": 2.8,
+        "n": 132,
+        "sum_bps": 2845.3,
+        "t3r_bps": 2260.3,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.545
+      }
+    },
+    "passive_then_taker_off20_wait30s": {
+      "exits": {
+        "SL": 42,
+        "TIME": 81,
+        "TP": 9
+      },
+      "fill_kinds": {
+        "FALLBACK_TAKER": 130,
+        "PASSIVE_FILL": 2
+      },
+      "fill_rate": 1.0,
+      "no_fill_counterfactual": {
+        "max_loss_bps": null,
+        "median_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "win_rate": null
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 18.6,
+        "median_bps": -2.5,
+        "n": 132,
+        "sum_bps": 2456.3,
+        "t3r_bps": 1871.3,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.455
+      }
+    },
+    "passive_then_taker_off20_wait60s": {
+      "exits": {
+        "SL": 45,
+        "TIME": 78,
+        "TP": 9
+      },
+      "fill_kinds": {
+        "FALLBACK_TAKER": 124,
+        "PASSIVE_FILL": 8
+      },
+      "fill_rate": 1.0,
+      "no_fill_counterfactual": {
+        "max_loss_bps": null,
+        "median_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "win_rate": null
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 15.3,
+        "median_bps": -3.1,
+        "n": 132,
+        "sum_bps": 2025.6,
+        "t3r_bps": 1440.6,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.462
+      }
+    },
+    "passive_then_taker_off5_wait15s": {
+      "exits": {
+        "SL": 40,
+        "TIME": 83,
+        "TP": 9
+      },
+      "fill_kinds": {
+        "FALLBACK_TAKER": 95,
+        "PASSIVE_FILL": 37
+      },
+      "fill_rate": 1.0,
+      "no_fill_counterfactual": {
+        "max_loss_bps": null,
+        "median_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "win_rate": null
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 21.6,
+        "median_bps": 2.1,
+        "n": 132,
+        "sum_bps": 2852.5,
+        "t3r_bps": 2267.5,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.523
+      }
+    },
+    "passive_then_taker_off5_wait30s": {
+      "exits": {
+        "SL": 41,
+        "TIME": 82,
+        "TP": 9
+      },
+      "fill_kinds": {
+        "FALLBACK_TAKER": 78,
+        "PASSIVE_FILL": 54
+      },
+      "fill_rate": 1.0,
+      "no_fill_counterfactual": {
+        "max_loss_bps": null,
+        "median_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "win_rate": null
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 19.6,
+        "median_bps": -2.6,
+        "n": 132,
+        "sum_bps": 2581.8,
+        "t3r_bps": 1996.8,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.462
+      }
+    },
+    "passive_then_taker_off5_wait60s": {
+      "exits": {
+        "SL": 44,
+        "TIME": 79,
+        "TP": 9
+      },
+      "fill_kinds": {
+        "FALLBACK_TAKER": 58,
+        "PASSIVE_FILL": 74
+      },
+      "fill_rate": 1.0,
+      "no_fill_counterfactual": {
+        "max_loss_bps": null,
+        "median_bps": null,
+        "n": 0,
+        "sum_bps": 0.0,
+        "t3r_bps": 0.0,
+        "win_rate": null
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 17.9,
+        "median_bps": -0.8,
+        "n": 132,
+        "sum_bps": 2364.1,
+        "t3r_bps": 1779.1,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.492
+      }
+    },
+    "taker_immediate": {
+      "exits": {
+        "SL": 38,
+        "TIME": 84,
+        "TP": 10
+      },
+      "fill_rate": 1.0,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 23.4,
+        "median_bps": 5.4,
+        "n": 132,
+        "sum_bps": 3089.8,
+        "t3r_bps": 2504.8,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.523
+      }
+    }
+  },
+  "exit_robustness": {
+    "TP150_SL30_15M": {
+      "exits": {
+        "SL": 52,
+        "TIME": 66,
+        "TP": 14
+      },
+      "summary": {
+        "max_loss_bps": -35.0,
+        "mean_bps": 16.7,
+        "median_bps": 0.1,
+        "n": 132,
+        "sum_bps": 2208.1,
+        "t3r_bps": 1773.1,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.508
+      }
+    },
+    "TP150_SL40_20M": {
+      "exits": {
+        "SL": 38,
+        "TIME": 77,
+        "TP": 17
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 19.3,
+        "median_bps": 5.4,
+        "n": 132,
+        "sum_bps": 2545.6,
+        "t3r_bps": 2110.6,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.523
+      }
+    },
+    "TP200_SL30_20M": {
+      "exits": {
+        "SL": 53,
+        "TIME": 69,
+        "TP": 10
+      },
+      "summary": {
+        "max_loss_bps": -35.0,
+        "mean_bps": 21.3,
+        "median_bps": -7.9,
+        "n": 132,
+        "sum_bps": 2805.3,
+        "t3r_bps": 2220.3,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.47
+      }
+    },
+    "TP200_SL40_20M": {
+      "exits": {
+        "SL": 38,
+        "TIME": 84,
+        "TP": 10
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 23.4,
+        "median_bps": 5.4,
+        "n": 132,
+        "sum_bps": 3089.8,
+        "t3r_bps": 2504.8,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.523
+      }
+    },
+    "TP250_SL50_30M": {
+      "exits": {
+        "SL": 40,
+        "TIME": 87,
+        "TP": 5
+      },
+      "summary": {
+        "max_loss_bps": -55.0,
+        "mean_bps": 14.4,
+        "median_bps": -10.8,
+        "n": 132,
+        "sum_bps": 1896.4,
+        "t3r_bps": 1161.4,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.417
+      }
+    }
+  },
+  "fee_sensitivity": {
+    "fee_0bps": {
+      "exits": {
+        "SL": 38,
+        "TIME": 84,
+        "TP": 10
+      },
+      "summary": {
+        "max_loss_bps": -40.0,
+        "mean_bps": 28.4,
+        "median_bps": 10.4,
+        "n": 132,
+        "sum_bps": 3749.8,
+        "t3r_bps": 3149.8,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.553
+      }
+    },
+    "fee_10bps": {
+      "exits": {
+        "SL": 38,
+        "TIME": 84,
+        "TP": 10
+      },
+      "summary": {
+        "max_loss_bps": -50.0,
+        "mean_bps": 18.4,
+        "median_bps": 0.4,
+        "n": 132,
+        "sum_bps": 2429.8,
+        "t3r_bps": 1859.8,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.5
+      }
+    },
+    "fee_2.5bps": {
+      "exits": {
+        "SL": 38,
+        "TIME": 84,
+        "TP": 10
+      },
+      "summary": {
+        "max_loss_bps": -42.5,
+        "mean_bps": 25.9,
+        "median_bps": 7.9,
+        "n": 132,
+        "sum_bps": 3419.8,
+        "t3r_bps": 2827.3,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.538
+      }
+    },
+    "fee_5bps": {
+      "exits": {
+        "SL": 38,
+        "TIME": 84,
+        "TP": 10
+      },
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 23.4,
+        "median_bps": 5.4,
+        "n": 132,
+        "sum_bps": 3089.8,
+        "t3r_bps": 2504.8,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.523
+      }
+    },
+    "fee_8bps": {
+      "exits": {
+        "SL": 38,
+        "TIME": 84,
+        "TP": 10
+      },
+      "summary": {
+        "max_loss_bps": -48.0,
+        "mean_bps": 20.4,
+        "median_bps": 2.4,
+        "n": 132,
+        "sum_bps": 2693.8,
+        "t3r_bps": 2117.8,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.515
+      }
+    }
+  },
+  "generated_at_utc": "2026-06-29T13:44:53.647717+00:00",
+  "non_overlap": {
+    "nonoverlap_15m_first": {
+      "exits": {
+        "SL": 12,
+        "TIME": 30,
+        "TP": 4
+      },
+      "matched_n": 46,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 30.0,
+        "median_bps": 10.4,
+        "n": 46,
+        "sum_bps": 1381.0,
+        "t3r_bps": 796.0,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.565
+      }
+    },
+    "nonoverlap_15m_max_threshold": {
+      "exits": {
+        "SL": 13,
+        "TIME": 30,
+        "TP": 3
+      },
+      "matched_n": 46,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 21.9,
+        "median_bps": -2.6,
+        "n": 46,
+        "sum_bps": 1008.0,
+        "t3r_bps": 423.0,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.478
+      }
+    },
+    "nonoverlap_15m_min_vdepth": {
+      "exits": {
+        "SL": 12,
+        "TIME": 31,
+        "TP": 3
+      },
+      "matched_n": 46,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 24.4,
+        "median_bps": 7.6,
+        "n": 46,
+        "sum_bps": 1122.0,
+        "t3r_bps": 537.0,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.565
+      }
+    },
+    "nonoverlap_30m_first": {
+      "exits": {
+        "SL": 8,
+        "TIME": 23,
+        "TP": 2
+      },
+      "matched_n": 33,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 26.0,
+        "median_bps": 7.4,
+        "n": 33,
+        "sum_bps": 859.3,
+        "t3r_bps": 288.8,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.545
+      }
+    },
+    "nonoverlap_30m_max_threshold": {
+      "exits": {
+        "SL": 9,
+        "TIME": 23,
+        "TP": 1
+      },
+      "matched_n": 33,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 16.4,
+        "median_bps": -5.3,
+        "n": 33,
+        "sum_bps": 540.8,
+        "t3r_bps": 9.5,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.455
+      }
+    },
+    "nonoverlap_30m_min_vdepth": {
+      "exits": {
+        "SL": 9,
+        "TIME": 24
+      },
+      "matched_n": 33,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 15.0,
+        "median_bps": 6.6,
+        "n": 33,
+        "sum_bps": 496.5,
+        "t3r_bps": 54.7,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.545
+      }
+    },
+    "nonoverlap_60m_first": {
+      "exits": {
+        "SL": 7,
+        "TIME": 21,
+        "TP": 1
+      },
+      "matched_n": 29,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 24.6,
+        "median_bps": 7.4,
+        "n": 29,
+        "sum_bps": 714.3,
+        "t3r_bps": 198.3,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.552
+      }
+    },
+    "nonoverlap_60m_max_threshold": {
+      "exits": {
+        "SL": 7,
+        "TIME": 21,
+        "TP": 1
+      },
+      "matched_n": 29,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 16.4,
+        "median_bps": -3.8,
+        "n": 29,
+        "sum_bps": 474.2,
+        "t3r_bps": -22.6,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.483
+      }
+    },
+    "nonoverlap_60m_min_vdepth": {
+      "exits": {
+        "SL": 8,
+        "TIME": 21
+      },
+      "matched_n": 29,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 14.1,
+        "median_bps": 6.6,
+        "n": 29,
+        "sum_bps": 409.7,
+        "t3r_bps": -32.1,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.552
+      }
+    },
+    "overlap": {
+      "exits": {
+        "SL": 38,
+        "TIME": 84,
+        "TP": 10
+      },
+      "matched_n": 132,
+      "summary": {
+        "max_loss_bps": -45.0,
+        "mean_bps": 23.4,
+        "median_bps": 5.4,
+        "n": 132,
+        "sum_bps": 3089.8,
+        "t3r_bps": 2504.8,
+        "tail_lte_minus100_n": 0,
+        "tail_lte_minus150_n": 0,
+        "tail_lte_minus300_n": 0,
+        "win_rate": 0.523
+      }
+    }
+  },
+  "permutation": {
+    "candidate_p": {
+      "S3_BTC100_VLT50_REV_TP200_SL40_20M": {
+        "mc_p": 0.001,
+        "real_t3r": 1907.9
+      },
+      "S3_BTC75_CHAIN3_REV_TP150_SL30_15M": {
+        "mc_p": 0.001,
+        "real_t3r": 1692.0
+      },
+      "S3_BTC75_REV_FIXED15M": {
+        "mc_p": 0.002,
+        "real_t3r": 1011.0
+      },
+      "S3_BTC75_VLT50_CHAIN3_REV_TP200_SL40_20M": {
+        "mc_p": 0.001,
+        "real_t3r": 2504.8
+      },
+      "S3_BTC75_VLT50_REV_FIXED15M": {
+        "mc_p": 0.001,
+        "real_t3r": 1207.7
+      },
+      "S3_BTC75_VLT50_REV_TP200_SL40_20M": {
+        "mc_p": 0.001,
+        "real_t3r": 2337.0
+      },
+      "V02_BID_OK_NORMAL_FIXED2H": {
+        "mc_p": 0.275,
+        "real_t3r": 170.6
+      },
+      "V02_TAIL_HIGH_NORMAL_FIXED2H": {
+        "mc_p": 0.902,
+        "real_t3r": -285.0
+      },
+      "V02_TAIL_LOW_NORMAL_FIXED2H": {
+        "mc_p": 0.275,
+        "real_t3r": 170.6
+      }
+    },
+    "maxstat_95pct_t3r": 590.7,
+    "permutations": 1000
+  },
+  "primary_candidate": "S3_BTC75_VLT50_CHAIN3_REV_TP200_SL40_20M",
+  "promotion_verdict": {
+    "checks": {
+      "big_winner_loser": true,
+      "causal_holdout": true,
+      "execution_realism": true,
+      "exit_robustness": true,
+      "fee_sensitivity": true,
+      "non_overlap_15m": true,
+      "permutation": true,
+      "regime_concentration": false,
+      "walkforward": false
+    },
+    "hard_fail_reasons": [
+      "walkforward",
+      "regime_concentration"
+    ],
+    "status": "SHADOW_ONLY"
+  },
+  "regime_concentration": {
+    "folds": {
+      "fold_4": {
+        "n": 50,
+        "summary": {
+          "max_loss_bps": -45.0,
+          "mean_bps": 13.8,
+          "median_bps": 6.7,
+          "n": 50,
+          "sum_bps": 690.5,
+          "t3r_bps": 287.8,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.56
+        }
+      },
+      "fold_5": {
+        "n": 82,
+        "summary": {
+          "max_loss_bps": -45.0,
+          "mean_bps": 29.3,
+          "median_bps": -0.2,
+          "n": 82,
+          "sum_bps": 2399.3,
+          "t3r_bps": 1814.3,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.5
+        }
+      }
+    },
+    "hours": {
+      "hour_00": {
+        "n": 1,
+        "summary": {
+          "max_loss_bps": -14.4,
+          "mean_bps": -14.4,
+          "median_bps": -14.4,
+          "n": 1,
+          "sum_bps": -14.4,
+          "t3r_bps": -14.4,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.0
+        }
+      },
+      "hour_02": {
+        "n": 5,
+        "summary": {
+          "max_loss_bps": -45.0,
+          "mean_bps": -1.9,
+          "median_bps": 10.7,
+          "n": 5,
+          "sum_bps": -9.3,
+          "t3r_bps": -90.0,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.6
+        }
+      },
+      "hour_03": {
+        "n": 3,
+        "summary": {
+          "max_loss_bps": -45.0,
+          "mean_bps": -45.0,
+          "median_bps": -45.0,
+          "n": 3,
+          "sum_bps": -135.0,
+          "t3r_bps": -135.0,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.0
+        }
+      },
+      "hour_06": {
+        "n": 3,
+        "summary": {
+          "max_loss_bps": 140.5,
+          "mean_bps": 140.5,
+          "median_bps": 140.5,
+          "n": 3,
+          "sum_bps": 421.6,
+          "t3r_bps": 421.6,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 1.0
+        }
+      },
+      "hour_07": {
+        "n": 5,
+        "summary": {
+          "max_loss_bps": -3.8,
+          "mean_bps": 70.5,
+          "median_bps": 7.8,
+          "n": 5,
+          "sum_bps": 352.4,
+          "t3r_bps": 2.8,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.8
+        }
+      },
+      "hour_08": {
+        "n": 10,
+        "summary": {
+          "max_loss_bps": -9.8,
+          "mean_bps": 35.6,
+          "median_bps": -8.7,
+          "n": 10,
+          "sum_bps": 355.8,
+          "t3r_bps": 6.7,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.4
+        }
+      },
+      "hour_10": {
+        "n": 3,
+        "summary": {
+          "max_loss_bps": -13.9,
+          "mean_bps": -8.2,
+          "median_bps": -6.4,
+          "n": 3,
+          "sum_bps": -24.5,
+          "t3r_bps": -24.5,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.0
+        }
+      },
+      "hour_11": {
+        "n": 3,
+        "summary": {
+          "max_loss_bps": 14.1,
+          "mean_bps": 14.1,
+          "median_bps": 14.1,
+          "n": 3,
+          "sum_bps": 42.3,
+          "t3r_bps": 42.3,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 1.0
+        }
+      },
+      "hour_13": {
+        "n": 24,
+        "summary": {
+          "max_loss_bps": -45.0,
+          "mean_bps": 47.6,
+          "median_bps": 28.0,
+          "n": 24,
+          "sum_bps": 1141.4,
+          "t3r_bps": 556.4,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.667
+        }
+      },
+      "hour_14": {
+        "n": 13,
+        "summary": {
+          "max_loss_bps": -45.0,
+          "mean_bps": -4.6,
+          "median_bps": -11.9,
+          "n": 13,
+          "sum_bps": -59.7,
+          "t3r_bps": -298.0,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.231
+        }
+      },
+      "hour_15": {
+        "n": 20,
+        "summary": {
+          "max_loss_bps": -45.0,
+          "mean_bps": 18.3,
+          "median_bps": -6.5,
+          "n": 20,
+          "sum_bps": 366.7,
+          "t3r_bps": -59.1,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.5
+        }
+      },
+      "hour_16": {
+        "n": 13,
+        "summary": {
+          "max_loss_bps": -45.0,
+          "mean_bps": 52.8,
+          "median_bps": 35.1,
+          "n": 13,
+          "sum_bps": 686.0,
+          "t3r_bps": 121.0,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.692
+        }
+      },
+      "hour_17": {
+        "n": 9,
+        "summary": {
+          "max_loss_bps": -18.4,
+          "mean_bps": 19.3,
+          "median_bps": 6.6,
+          "n": 9,
+          "sum_bps": 173.7,
+          "t3r_bps": -19.8,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.667
+        }
+      },
+      "hour_19": {
+        "n": 9,
+        "summary": {
+          "max_loss_bps": -45.0,
+          "mean_bps": -26.0,
+          "median_bps": -45.0,
+          "n": 9,
+          "sum_bps": -234.0,
+          "t3r_bps": -270.0,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.333
+        }
+      },
+      "hour_21": {
+        "n": 3,
+        "summary": {
+          "max_loss_bps": 25.8,
+          "mean_bps": 27.0,
+          "median_bps": 25.8,
+          "n": 3,
+          "sum_bps": 81.0,
+          "t3r_bps": 81.0,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 1.0
+        }
+      },
+      "hour_22": {
+        "n": 5,
+        "summary": {
+          "max_loss_bps": -45.0,
+          "mean_bps": -2.4,
+          "median_bps": -45.0,
+          "n": 5,
+          "sum_bps": -11.8,
+          "t3r_bps": -90.0,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.4
+        }
+      },
+      "hour_23": {
+        "n": 3,
+        "summary": {
+          "max_loss_bps": -15.6,
+          "mean_bps": -14.2,
+          "median_bps": -14.9,
+          "n": 3,
+          "sum_bps": -42.6,
+          "t3r_bps": -42.6,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.0
+        }
+      }
+    },
+    "summary": {
+      "max_loss_bps": -45.0,
+      "mean_bps": 23.4,
+      "median_bps": 5.4,
+      "n": 132,
+      "sum_bps": 3089.8,
+      "t3r_bps": 2504.8,
+      "tail_lte_minus100_n": 0,
+      "tail_lte_minus150_n": 0,
+      "tail_lte_minus300_n": 0,
+      "win_rate": 0.523
+    },
+    "t3r_total": 2504.8,
+    "top_abs_date_sum_share": 0.389,
+    "top_dates": [
+      {
+        "date": "2026-06-25",
+        "n": 17,
+        "sum_bps": 1201.5,
+        "t3r_bps": 616.5
+      },
+      {
+        "date": "2026-06-23",
+        "n": 6,
+        "sum_bps": 958.4,
+        "t3r_bps": 421.6
+      },
+      {
+        "date": "2026-06-24",
+        "n": 34,
+        "sum_bps": 681.8,
+        "t3r_bps": 116.8
+      },
+      {
+        "date": "2026-06-18",
+        "n": 16,
+        "sum_bps": 356.4,
+        "t3r_bps": -9.4
+      },
+      {
+        "date": "2026-06-17",
+        "n": 12,
+        "sum_bps": 236.9,
+        "t3r_bps": 20.4
+      },
+      {
+        "date": "2026-06-26",
+        "n": 12,
+        "sum_bps": -213.7,
+        "t3r_bps": -294.5
+      },
+      {
+        "date": "2026-06-16",
+        "n": 7,
+        "sum_bps": 117.6,
+        "t3r_bps": -120.7
+      },
+      {
+        "date": "2026-06-29",
+        "n": 3,
+        "sum_bps": -104.4,
+        "t3r_bps": -104.4
+      },
+      {
+        "date": "2026-06-15",
+        "n": 3,
+        "sum_bps": 78.2,
+        "t3r_bps": 78.2
+      },
+      {
+        "date": "2026-06-21",
+        "n": 6,
+        "sum_bps": -72.1,
+        "t3r_bps": -42.6
+      }
+    ],
+    "warning": "candidate appears only in folds with matching stress/BTC regime; needs forward OOS before live"
+  },
+  "rows_n": 1204,
+  "status": "RESEARCH_ONLY_NO_LIVE_CHANGE",
+  "walkforward": {
+    "fold_sum_total": 3089.8,
+    "fold_t3r_total": 2102.1,
+    "folds": {
+      "fold_1": {
+        "exits": {},
+        "matched_n": 0,
+        "summary": {
+          "max_loss_bps": null,
+          "median_bps": null,
+          "n": 0,
+          "sum_bps": 0.0,
+          "t3r_bps": 0.0,
+          "win_rate": null
+        }
+      },
+      "fold_2": {
+        "exits": {},
+        "matched_n": 0,
+        "summary": {
+          "max_loss_bps": null,
+          "median_bps": null,
+          "n": 0,
+          "sum_bps": 0.0,
+          "t3r_bps": 0.0,
+          "win_rate": null
+        }
+      },
+      "fold_3": {
+        "exits": {},
+        "matched_n": 0,
+        "summary": {
+          "max_loss_bps": null,
+          "median_bps": null,
+          "n": 0,
+          "sum_bps": 0.0,
+          "t3r_bps": 0.0,
+          "win_rate": null
+        }
+      },
+      "fold_4": {
+        "exits": {
+          "SL": 9,
+          "TIME": 40,
+          "TP": 1
+        },
+        "matched_n": 50,
+        "summary": {
+          "max_loss_bps": -45.0,
+          "mean_bps": 13.8,
+          "median_bps": 6.7,
+          "n": 50,
+          "sum_bps": 690.5,
+          "t3r_bps": 287.8,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.56
+        }
+      },
+      "fold_5": {
+        "exits": {
+          "SL": 29,
+          "TIME": 44,
+          "TP": 9
+        },
+        "matched_n": 82,
+        "summary": {
+          "max_loss_bps": -45.0,
+          "mean_bps": 29.3,
+          "median_bps": -0.2,
+          "n": 82,
+          "sum_bps": 2399.3,
+          "t3r_bps": 1814.3,
+          "tail_lte_minus100_n": 0,
+          "tail_lte_minus150_n": 0,
+          "tail_lte_minus300_n": 0,
+          "win_rate": 0.5
+        }
+      }
+    },
+    "positive_sum_folds": 2,
+    "positive_t3r_folds": 2
+  }
+}

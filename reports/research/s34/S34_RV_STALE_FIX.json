@@ -1,0 +1,230 @@
+{
+  "results": {
+    "corr_fresh": {
+      "n": 72,
+      "pearson": 0.203
+    },
+    "proxy_thr_train_median": 0.002633702195581074,
+    "stale_impact": {
+      "stale_events": 55,
+      "stale_rv_hits": 55,
+      "proxy_rv_hits": 29,
+      "flipped": 26
+    },
+    "s7_ge3_stale": {
+      "label": "s7_ge3_stale",
+      "n": 68,
+      "wr": 75.0,
+      "avg": 70.5,
+      "total": 4795.0,
+      "per_month": 15.0,
+      "worst": -183.9,
+      "mc_p": 0.0
+    },
+    "s7_ge3_stale_TEST": {
+      "label": "s7_ge3_stale TEST",
+      "n": 30,
+      "wr": 80.0,
+      "avg": 85.6,
+      "total": 2567.0,
+      "per_month": 22.0,
+      "worst": -113.9,
+      "mc_p": 0.0
+    },
+    "s7_ge3_proxy": {
+      "label": "s7_ge3_proxy",
+      "n": 58,
+      "wr": 77.6,
+      "avg": 80.3,
+      "total": 4655.0,
+      "per_month": 12.8,
+      "worst": -183.9,
+      "mc_p": 0.0
+    },
+    "s7_ge3_proxy_TEST": {
+      "label": "s7_ge3_proxy TEST",
+      "n": 22,
+      "wr": 86.4,
+      "avg": 106.2,
+      "total": 2336.0,
+      "per_month": 16.2,
+      "worst": -113.9,
+      "mc_p": 0.0
+    },
+    "s7_ge4_stale": {
+      "label": "s7_ge4_stale",
+      "n": 37,
+      "wr": 81.1,
+      "avg": 85.7,
+      "total": 3169.0,
+      "per_month": 8.2,
+      "worst": -183.9,
+      "mc_p": 0.0
+    },
+    "s7_ge4_stale_TEST": {
+      "label": "s7_ge4_stale TEST",
+      "n": 19,
+      "wr": 89.5,
+      "avg": 116.8,
+      "total": 2219.0,
+      "per_month": 14.0,
+      "worst": -44.8,
+      "mc_p": 0.0
+    },
+    "s7_ge4_proxy": {
+      "label": "s7_ge4_proxy",
+      "n": 32,
+      "wr": 81.2,
+      "avg": 87.4,
+      "total": 2796.0,
+      "per_month": 7.1,
+      "worst": -154.6,
+      "mc_p": 0.0
+    },
+    "s7_ge4_proxy_TEST": {
+      "label": "s7_ge4_proxy TEST",
+      "n": 14,
+      "wr": 85.7,
+      "avg": 110.0,
+      "total": 1540.0,
+      "per_month": 10.3,
+      "worst": -44.8,
+      "mc_p": 0.0
+    },
+    "I_rv+shelf_stale": {
+      "label": "I_rv+shelf_stale",
+      "n": 43,
+      "wr": 79.1,
+      "avg": 89.3,
+      "total": 3840.0,
+      "per_month": 9.5,
+      "worst": -175.7,
+      "mc_p": 0.0
+    },
+    "I_rv+shelf_stale_TEST": {
+      "label": "I_rv+shelf_stale TEST",
+      "n": 29,
+      "wr": 79.3,
+      "avg": 83.7,
+      "total": 2427.0,
+      "per_month": 21.3,
+      "worst": -113.9,
+      "mc_p": 0.0
+    },
+    "I_rv+whale_stale": {
+      "label": "I_rv+whale_stale",
+      "n": 38,
+      "wr": 81.6,
+      "avg": 94.0,
+      "total": 3573.0,
+      "per_month": 8.4,
+      "worst": -107.4,
+      "mc_p": 0.0
+    },
+    "I_rv+whale_stale_TEST": {
+      "label": "I_rv+whale_stale TEST",
+      "n": 15,
+      "wr": 93.3,
+      "avg": 108.3,
+      "total": 1625.0,
+      "per_month": 11.0,
+      "worst": -35.4,
+      "mc_p": 0.0
+    },
+    "I_rv+shelf+whale_stale": {
+      "label": "I_rv+shelf+whale_stale",
+      "n": 24,
+      "wr": 91.7,
+      "avg": 124.1,
+      "total": 2978.0,
+      "per_month": 5.3,
+      "worst": -35.4,
+      "mc_p": 0.0
+    },
+    "I_rv+shelf+whale_stale_TEST": {
+      "label": "I_rv+shelf+whale_stale TEST",
+      "n": 14,
+      "wr": 92.9,
+      "avg": 106.8,
+      "total": 1495.0,
+      "per_month": 10.3,
+      "worst": -35.4,
+      "mc_p": 0.0
+    },
+    "I_rv+shelf_proxy": {
+      "label": "I_rv+shelf_proxy",
+      "n": 25,
+      "wr": 84.0,
+      "avg": 111.0,
+      "total": 2776.0,
+      "per_month": 5.5,
+      "worst": -113.9,
+      "mc_p": 0.0
+    },
+    "I_rv+shelf_proxy_TEST": {
+      "label": "I_rv+shelf_proxy TEST",
+      "n": 16,
+      "wr": 87.5,
+      "avg": 109.8,
+      "total": 1757.0,
+      "per_month": 11.8,
+      "worst": -113.9,
+      "mc_p": 0.004
+    },
+    "I_rv+whale_proxy": {
+      "label": "I_rv+whale_proxy",
+      "n": 26,
+      "wr": 84.6,
+      "avg": 102.2,
+      "total": 2658.0,
+      "per_month": 5.7,
+      "worst": -107.4,
+      "mc_p": 0.0
+    },
+    "I_rv+whale_proxy_TEST": {
+      "label": "I_rv+whale_proxy TEST",
+      "n": 8,
+      "wr": 100.0,
+      "avg": 121.9,
+      "total": 975.0,
+      "per_month": 5.9,
+      "worst": 19.8,
+      "mc_p": 0.004
+    },
+    "I_rv+shelf+whale_proxy": {
+      "label": "I_rv+shelf+whale_proxy",
+      "n": 14,
+      "wr": 92.9,
+      "avg": 139.7,
+      "total": 1956.0,
+      "per_month": 3.1,
+      "worst": -1.9,
+      "mc_p": 0.0
+    },
+    "I_rv+shelf+whale_proxy_TEST": {
+      "label": "I_rv+shelf+whale_proxy TEST",
+      "n": 8,
+      "wr": 100.0,
+      "avg": 121.9,
+      "total": 975.0,
+      "per_month": 5.9,
+      "worst": 19.8,
+      "mc_p": 0.004
+    },
+    "L1_notMon_proxy": {
+      "label": "L1 proxy s>=2",
+      "n": 37,
+      "wr": 78.4,
+      "avg": 80.7,
+      "total": 2987.0,
+      "per_month": 8.2,
+      "worst": -154.6,
+      "mc_p": 0.0
+    }
+  },
+  "meta": {
+    "n": 127,
+    "months": 4.54,
+    "stale_ts": 1780675203000
+  }
+}

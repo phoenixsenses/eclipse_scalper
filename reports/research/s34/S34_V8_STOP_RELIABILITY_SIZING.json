@@ -1,0 +1,438 @@
+{
+  "alert_dedup_plan": {
+    "last_emit_utc": null,
+    "last_signature": null,
+    "read": "alert tool should emit on state change and suppress unchanged repeats unless explicitly requested",
+    "state_exists": false,
+    "state_path": "D:\\eclipse_scalper\\runtime\\s34_v_engine_management_alert_state.json"
+  },
+  "catastrophic_atomicity_scan": {
+    "baseline_tail_inside_gap_start_n": 0,
+    "catastrophic_cards": [],
+    "filled_n": 23,
+    "gap_adverse_lte_25bps_n": 0,
+    "gap_adverse_lte_5bps_n": 3,
+    "gap_sec": 2.0,
+    "read": "No hit does not prove zero risk; it bounds observed history only.",
+    "sl_trigger_inside_gap_n": 0,
+    "status": "NO_CATASTROPHIC_GAP_FOUND",
+    "worst_adverse_gap_bps": -18.5
+  },
+  "final_read": "The single honest sizing recommendation is conservative_weighted; tail-only remains the hard floor if operator wants maximum survival.",
+  "generated_at_utc": "2026-06-29T07:09:00.382973+00:00",
+  "kill_drawdown_simulation": {
+    "conservative_weighted_notional": {
+      "equity_curve": [
+        {
+          "bps": -34.2,
+          "cum_usdt": -0.1,
+          "drawdown_usdt": -0.1,
+          "i": 1,
+          "trigger": null
+        },
+        {
+          "bps": 81.1,
+          "cum_usdt": 0.1,
+          "drawdown_usdt": 0.0,
+          "i": 2,
+          "trigger": null
+        },
+        {
+          "bps": 26.1,
+          "cum_usdt": 0.1,
+          "drawdown_usdt": 0.0,
+          "i": 3,
+          "trigger": null
+        },
+        {
+          "bps": 30.4,
+          "cum_usdt": 0.2,
+          "drawdown_usdt": 0.0,
+          "i": 4,
+          "trigger": null
+        },
+        {
+          "bps": 27.0,
+          "cum_usdt": 0.2,
+          "drawdown_usdt": 0.0,
+          "i": 5,
+          "trigger": null
+        },
+        {
+          "bps": 13.3,
+          "cum_usdt": 0.2,
+          "drawdown_usdt": 0.0,
+          "i": 6,
+          "trigger": null
+        },
+        {
+          "bps": 44.6,
+          "cum_usdt": 0.3,
+          "drawdown_usdt": 0.0,
+          "i": 7,
+          "trigger": null
+        },
+        {
+          "bps": 53.2,
+          "cum_usdt": 0.4,
+          "drawdown_usdt": 0.0,
+          "i": 8,
+          "trigger": null
+        },
+        {
+          "bps": -35.9,
+          "cum_usdt": 0.3,
+          "drawdown_usdt": -0.1,
+          "i": 9,
+          "trigger": null
+        },
+        {
+          "bps": 46.3,
+          "cum_usdt": 0.4,
+          "drawdown_usdt": 0.0,
+          "i": 10,
+          "trigger": null
+        },
+        {
+          "bps": 41.7,
+          "cum_usdt": 0.5,
+          "drawdown_usdt": 0.0,
+          "i": 11,
+          "trigger": null
+        },
+        {
+          "bps": 59.6,
+          "cum_usdt": 0.6,
+          "drawdown_usdt": 0.0,
+          "i": 12,
+          "trigger": null
+        },
+        {
+          "bps": 152.3,
+          "cum_usdt": 0.8,
+          "drawdown_usdt": 0.0,
+          "i": 13,
+          "trigger": null
+        },
+        {
+          "bps": 37.0,
+          "cum_usdt": 0.9,
+          "drawdown_usdt": 0.0,
+          "i": 14,
+          "trigger": null
+        },
+        {
+          "bps": 227.0,
+          "cum_usdt": 1.3,
+          "drawdown_usdt": 0.0,
+          "i": 15,
+          "trigger": null
+        },
+        {
+          "bps": -144.4,
+          "cum_usdt": 1.0,
+          "drawdown_usdt": -0.2,
+          "i": 16,
+          "trigger": null
+        },
+        {
+          "bps": 52.6,
+          "cum_usdt": 1.1,
+          "drawdown_usdt": -0.1,
+          "i": 17,
+          "trigger": null
+        },
+        {
+          "bps": -28.0,
+          "cum_usdt": 1.1,
+          "drawdown_usdt": -0.2,
+          "i": 18,
+          "trigger": null
+        },
+        {
+          "bps": 149.9,
+          "cum_usdt": 1.3,
+          "drawdown_usdt": 0.0,
+          "i": 19,
+          "trigger": null
+        },
+        {
+          "bps": 17.2,
+          "cum_usdt": 1.3,
+          "drawdown_usdt": 0.0,
+          "i": 20,
+          "trigger": null
+        },
+        {
+          "bps": 299.7,
+          "cum_usdt": 1.8,
+          "drawdown_usdt": 0.0,
+          "i": 21,
+          "trigger": null
+        },
+        {
+          "bps": 4.4,
+          "cum_usdt": 1.8,
+          "drawdown_usdt": 0.0,
+          "i": 22,
+          "trigger": null
+        },
+        {
+          "bps": -8.3,
+          "cum_usdt": 1.8,
+          "drawdown_usdt": -0.0,
+          "i": 23,
+          "trigger": null
+        }
+      ],
+      "first_trigger": null,
+      "kill_read": "Historical 23-row filled sequence does not trigger early enough to be a primary defense; first-tail risk is before kill.",
+      "max_drawdown_pct_equity": 0.7,
+      "max_drawdown_usdt": -0.2,
+      "notional_usdt": 16.3,
+      "sample_n": 23,
+      "sequence_summary_bps": {
+        "max_loss_bps": -144.4,
+        "mean_bps": 48.4,
+        "median_bps": 37.0,
+        "n": 23,
+        "sum_bps": 1112.6,
+        "win_rate": 0.783
+      },
+      "tail_probability_before_5_trade_kill_window": 64.6
+    },
+    "current_env_notional": {
+      "equity_curve": [
+        {
+          "bps": -34.2,
+          "cum_usdt": -4.1,
+          "drawdown_usdt": -4.1,
+          "i": 1,
+          "trigger": null
+        },
+        {
+          "bps": 81.1,
+          "cum_usdt": 5.6,
+          "drawdown_usdt": 0.0,
+          "i": 2,
+          "trigger": null
+        },
+        {
+          "bps": 26.1,
+          "cum_usdt": 8.7,
+          "drawdown_usdt": 0.0,
+          "i": 3,
+          "trigger": null
+        },
+        {
+          "bps": 30.4,
+          "cum_usdt": 12.3,
+          "drawdown_usdt": 0.0,
+          "i": 4,
+          "trigger": null
+        },
+        {
+          "bps": 27.0,
+          "cum_usdt": 15.5,
+          "drawdown_usdt": 0.0,
+          "i": 5,
+          "trigger": null
+        },
+        {
+          "bps": 13.3,
+          "cum_usdt": 17.1,
+          "drawdown_usdt": 0.0,
+          "i": 6,
+          "trigger": null
+        },
+        {
+          "bps": 44.6,
+          "cum_usdt": 22.4,
+          "drawdown_usdt": 0.0,
+          "i": 7,
+          "trigger": null
+        },
+        {
+          "bps": 53.2,
+          "cum_usdt": 28.7,
+          "drawdown_usdt": 0.0,
+          "i": 8,
+          "trigger": null
+        },
+        {
+          "bps": -35.9,
+          "cum_usdt": 24.5,
+          "drawdown_usdt": -4.3,
+          "i": 9,
+          "trigger": null
+        },
+        {
+          "bps": 46.3,
+          "cum_usdt": 30.0,
+          "drawdown_usdt": 0.0,
+          "i": 10,
+          "trigger": null
+        },
+        {
+          "bps": 41.7,
+          "cum_usdt": 34.9,
+          "drawdown_usdt": 0.0,
+          "i": 11,
+          "trigger": null
+        },
+        {
+          "bps": 59.6,
+          "cum_usdt": 42.0,
+          "drawdown_usdt": 0.0,
+          "i": 12,
+          "trigger": null
+        },
+        {
+          "bps": 152.3,
+          "cum_usdt": 60.2,
+          "drawdown_usdt": 0.0,
+          "i": 13,
+          "trigger": null
+        },
+        {
+          "bps": 37.0,
+          "cum_usdt": 64.6,
+          "drawdown_usdt": 0.0,
+          "i": 14,
+          "trigger": null
+        },
+        {
+          "bps": 227.0,
+          "cum_usdt": 91.6,
+          "drawdown_usdt": 0.0,
+          "i": 15,
+          "trigger": null
+        },
+        {
+          "bps": -144.4,
+          "cum_usdt": 74.4,
+          "drawdown_usdt": -17.2,
+          "i": 16,
+          "trigger": null
+        },
+        {
+          "bps": 52.6,
+          "cum_usdt": 80.6,
+          "drawdown_usdt": -10.9,
+          "i": 17,
+          "trigger": null
+        },
+        {
+          "bps": -28.0,
+          "cum_usdt": 77.3,
+          "drawdown_usdt": -14.3,
+          "i": 18,
+          "trigger": null
+        },
+        {
+          "bps": 149.9,
+          "cum_usdt": 95.2,
+          "drawdown_usdt": 0.0,
+          "i": 19,
+          "trigger": null
+        },
+        {
+          "bps": 17.2,
+          "cum_usdt": 97.2,
+          "drawdown_usdt": 0.0,
+          "i": 20,
+          "trigger": null
+        },
+        {
+          "bps": 299.7,
+          "cum_usdt": 132.9,
+          "drawdown_usdt": 0.0,
+          "i": 21,
+          "trigger": null
+        },
+        {
+          "bps": 4.4,
+          "cum_usdt": 133.4,
+          "drawdown_usdt": 0.0,
+          "i": 22,
+          "trigger": null
+        },
+        {
+          "bps": -8.3,
+          "cum_usdt": 132.4,
+          "drawdown_usdt": -1.0,
+          "i": 23,
+          "trigger": null
+        }
+      ],
+      "first_trigger": null,
+      "kill_read": "Historical 23-row filled sequence does not trigger early enough to be a primary defense; first-tail risk is before kill.",
+      "max_drawdown_pct_equity": 49.1,
+      "max_drawdown_usdt": -17.2,
+      "notional_usdt": 1190.0,
+      "sample_n": 23,
+      "sequence_summary_bps": {
+        "max_loss_bps": -144.4,
+        "mean_bps": 48.4,
+        "median_bps": 37.0,
+        "n": 23,
+        "sum_bps": 1112.6,
+        "win_rate": 0.783
+      },
+      "tail_probability_before_5_trade_kill_window": 64.6
+    }
+  },
+  "ledger_completeness": {
+    "complete_against_shadow_ledger": true,
+    "duplicate_source_observation_ids": 0,
+    "forward_rows": 0,
+    "management_rows": 11,
+    "reference_rows": 11,
+    "source_shadow_rows": 11,
+    "unique_source_observation_ids": 11
+  },
+  "mode": "RESEARCH_RISK_ONLY_NO_LIVE_CHANGE",
+  "stop_reliability_weighted_sizing": {
+    "equity_usdt": 35.0,
+    "leverage_kept": 40.0,
+    "p_atomic_empirical": 0.182,
+    "p_atomic_wilson95_upper": 0.477,
+    "p_gap_exceed_empirical": 0.0,
+    "p_gap_exceed_wilson95_upper": 0.143,
+    "p_stop_fail_conservative": 0.552,
+    "p_stop_fail_empirical": 0.182,
+    "recommendation": "use conservative_weighted as single operational recommendation unless operator explicitly chooses tail_only",
+    "risk_pct_equity": 2.0,
+    "sizing_rows": [
+      {
+        "basis": "stop_only_unreliable_floor",
+        "loss_bps": 175.7,
+        "max_margin_usdt_at_40x": 1.0,
+        "max_notional_usdt": 39.8,
+        "oversize_multiple_vs_env": 29.9
+      },
+      {
+        "basis": "empirical_weighted",
+        "loss_bps": 259.0,
+        "max_margin_usdt_at_40x": 0.7,
+        "max_notional_usdt": 27.0,
+        "oversize_multiple_vs_env": 44.0
+      },
+      {
+        "basis": "conservative_weighted",
+        "loss_bps": 428.6,
+        "max_margin_usdt_at_40x": 0.4,
+        "max_notional_usdt": 16.3,
+        "oversize_multiple_vs_env": 72.9
+      },
+      {
+        "basis": "tail_only_hard_floor",
+        "loss_bps": 634.0,
+        "max_margin_usdt_at_40x": 0.3,
+        "max_notional_usdt": 11.0,
+        "oversize_multiple_vs_env": 107.8
+      }
+    ],
+    "status": "STOP_RELIABILITY_WEIGHTED_RECOMMENDATION"
+  }
+}

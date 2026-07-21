@@ -1,0 +1,264 @@
+{
+  "generated_at": "2026-06-27T09:53:55.436737+00:00",
+  "results": [
+    {
+      "label": "ETH_BUY_500K_DAYTREND0",
+      "group": "MAIN",
+      "ff_median": 52.2,
+      "runner_median": -16.6,
+      "delta": -68.8,
+      "cascade_timing": {
+        "n": 140,
+        "median_move": 40.1,
+        "mean_move": 53.3
+      },
+      "total_signals": 212,
+      "no_fill": 89,
+      "regime_filtered": 41,
+      "risk_filtered": 16,
+      "no_fill_rate": 0.42,
+      "preliminary": true,
+      "metrics": {
+        "n": 64,
+        "median": -16.6,
+        "mean": -8.0,
+        "cum": -514.0,
+        "top3r_cum": -340.9,
+        "wr": 0.328,
+        "exits": {
+          "TP": 19,
+          "SL": 28,
+          "BE": 10,
+          "TIME": 7
+        },
+        "avg_hold": 1109.2,
+        "h1_median": -15.3,
+        "h1_cum": -387.7,
+        "h2_median": -18.6,
+        "h2_cum": -126.2
+      }
+    },
+    {
+      "label": "SOL_BUY_200K",
+      "group": "MAIN",
+      "ff_median": 52.3,
+      "runner_median": -9.4,
+      "delta": -61.7,
+      "cascade_timing": {
+        "n": 64,
+        "median_move": 39.1,
+        "mean_move": 53.1
+      },
+      "total_signals": 75,
+      "no_fill": 16,
+      "regime_filtered": 0,
+      "risk_filtered": 14,
+      "no_fill_rate": 0.213,
+      "preliminary": false,
+      "metrics": {
+        "n": 45,
+        "median": -9.4,
+        "mean": -7.4,
+        "cum": -331.4,
+        "top3r_cum": -125.9,
+        "wr": 0.4,
+        "exits": {
+          "TP": 15,
+          "SL": 20,
+          "BE": 6,
+          "TIME": 4
+        },
+        "avg_hold": 812.4,
+        "h1_median": -6.4,
+        "h1_cum": -57.8,
+        "h2_median": -49.4,
+        "h2_cum": -273.6
+      }
+    },
+    {
+      "label": "SOL_BUY_100K",
+      "group": "MAIN",
+      "ff_median": 52.1,
+      "runner_median": -12.1,
+      "delta": -64.2,
+      "cascade_timing": {
+        "n": 104,
+        "median_move": 35.5,
+        "mean_move": 46.8
+      },
+      "total_signals": 112,
+      "no_fill": 23,
+      "regime_filtered": 0,
+      "risk_filtered": 28,
+      "no_fill_rate": 0.205,
+      "preliminary": false,
+      "metrics": {
+        "n": 61,
+        "median": -12.1,
+        "mean": -7.7,
+        "cum": -472.7,
+        "top3r_cum": -263.0,
+        "wr": 0.377,
+        "exits": {
+          "TP": 18,
+          "SL": 27,
+          "BE": 10,
+          "TIME": 6
+        },
+        "avg_hold": 787.8,
+        "h1_median": -11.7,
+        "h1_cum": -274.9,
+        "h2_median": -12.3,
+        "h2_cum": -197.7
+      }
+    },
+    {
+      "label": "BTC_BUY_1M_DISTRIBUTED",
+      "group": "MAIN",
+      "ff_median": 22.2,
+      "runner_median": -11.9,
+      "delta": -34.1,
+      "cascade_timing": {
+        "n": 127,
+        "median_move": 29.1,
+        "mean_move": 33.6
+      },
+      "total_signals": 61,
+      "no_fill": 18,
+      "regime_filtered": 0,
+      "risk_filtered": 5,
+      "no_fill_rate": 0.295,
+      "preliminary": false,
+      "metrics": {
+        "n": 38,
+        "median": -11.9,
+        "mean": -5.1,
+        "cum": -195.4,
+        "top3r_cum": -59.2,
+        "wr": 0.289,
+        "exits": {
+          "TP": 10,
+          "SL": 16,
+          "BE": 11,
+          "TIME": 1
+        },
+        "avg_hold": 1151.4,
+        "h1_median": -12.3,
+        "h1_cum": -19.6,
+        "h2_median": -11.5,
+        "h2_cum": -175.8
+      }
+    },
+    {
+      "label": "ETH_BUY_200K",
+      "group": "EXPLORATORY",
+      "ff_median": -5.1,
+      "runner_median": -10.6,
+      "delta": -5.5,
+      "cascade_timing": {
+        "n": 450,
+        "median_move": 29.6,
+        "mean_move": 38.4
+      },
+      "total_signals": 538,
+      "no_fill": 311,
+      "regime_filtered": 0,
+      "risk_filtered": 65,
+      "no_fill_rate": 0.578,
+      "preliminary": true,
+      "metrics": {
+        "n": 162,
+        "median": -10.6,
+        "mean": -5.5,
+        "cum": -893.0,
+        "top3r_cum": -713.1,
+        "wr": 0.34,
+        "exits": {
+          "TP": 44,
+          "SL": 55,
+          "BE": 34,
+          "TIME": 29
+        },
+        "avg_hold": 1456.5,
+        "h1_median": -10.6,
+        "h1_cum": -774.7,
+        "h2_median": -10.5,
+        "h2_cum": -118.4
+      }
+    },
+    {
+      "label": "ETH_BUY_200K_BTC_PRE15_DELAY60",
+      "group": "EXPLORATORY",
+      "ff_median": -8.8,
+      "runner_median": -10.7,
+      "delta": -1.9,
+      "cascade_timing": {
+        "n": 450,
+        "median_move": 18.1,
+        "mean_move": 24.7
+      },
+      "total_signals": 476,
+      "no_fill": 270,
+      "regime_filtered": 0,
+      "risk_filtered": 79,
+      "no_fill_rate": 0.567,
+      "preliminary": true,
+      "metrics": {
+        "n": 127,
+        "median": -10.7,
+        "mean": -7.7,
+        "cum": -973.5,
+        "top3r_cum": -800.3,
+        "wr": 0.228,
+        "exits": {
+          "TP": 13,
+          "SL": 48,
+          "BE": 33,
+          "TIME": 33
+        },
+        "avg_hold": 1889.2,
+        "h1_median": -10.2,
+        "h1_cum": -658.3,
+        "h2_median": -15.9,
+        "h2_cum": -315.2
+      }
+    },
+    {
+      "label": "ETH_BUY_500K_NEGTREND_STRETCHED",
+      "group": "EXPLORATORY",
+      "ff_median": 52.2,
+      "runner_median": -5.6,
+      "delta": -57.8,
+      "cascade_timing": {
+        "n": 140,
+        "median_move": 40.1,
+        "mean_move": 53.3
+      },
+      "total_signals": 62,
+      "no_fill": 29,
+      "regime_filtered": 27,
+      "risk_filtered": 0,
+      "no_fill_rate": 0.468,
+      "preliminary": true,
+      "metrics": {
+        "n": 6,
+        "median": -5.6,
+        "mean": 8.7,
+        "cum": 52.4,
+        "top3r_cum": 111.0,
+        "wr": 0.333,
+        "exits": {
+          "TP": 2,
+          "SL": 1,
+          "BE": 3,
+          "TIME": 0
+        },
+        "avg_hold": 827.5,
+        "h1_median": -4.6,
+        "h1_cum": 40.0,
+        "h2_median": -6.5,
+        "h2_cum": 12.4
+      }
+    }
+  ]
+}

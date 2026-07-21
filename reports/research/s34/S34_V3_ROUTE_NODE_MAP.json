@@ -1,0 +1,6952 @@
+{
+  "generated_at_utc": "2026-06-28T23:46:01.167790+00:00",
+  "source": "D:\\eclipse_scalper\\reports\\research\\s34\\S34_ABSORPTION_SYNC_2X2_POOL.json",
+  "discipline": {
+    "min_split_n": 40,
+    "verdict_rule": "N<40 in either calibration or holdout is HYPOTHESIS only, never edge."
+  },
+  "split": {
+    "method": "chronological_month_tail",
+    "months": [
+      "2026-04",
+      "2026-06"
+    ],
+    "holdout_months": [
+      "2026-06"
+    ]
+  },
+  "overall": {
+    "all": {
+      "n": 541,
+      "sum_bps": -2614.6,
+      "mean_bps": -4.8,
+      "median_bps": 4.4,
+      "win_rate_pct": 51.6,
+      "t3r_bps": -4497.3,
+      "max_loss_bps": -507.2,
+      "tail_lt_100": 101,
+      "tail_lt_200": 70
+    },
+    "cal": {
+      "n": 166,
+      "sum_bps": 1752.9,
+      "mean_bps": 10.6,
+      "median_bps": -6.9,
+      "win_rate_pct": 47.6,
+      "t3r_bps": 608.8,
+      "max_loss_bps": -285.3,
+      "tail_lt_100": 11,
+      "tail_lt_200": 8
+    },
+    "hold": {
+      "n": 375,
+      "sum_bps": -4367.5,
+      "mean_bps": -11.6,
+      "median_bps": 10.7,
+      "win_rate_pct": 53.3,
+      "t3r_bps": -6250.2,
+      "max_loss_bps": -507.2,
+      "tail_lt_100": 90,
+      "tail_lt_200": 62
+    }
+  },
+  "node_counts": {
+    "HYPOTHESIS": 5,
+    "NO_HOLDOUT": 1,
+    "WEAK_OR_DEAD": 30
+  },
+  "routes": [
+    {
+      "route_id": "SOLUSDT_SELL_FADE_LONG_T25K_v40_60_H4",
+      "symbol": "SOLUSDT",
+      "threshold": "T25K",
+      "vdepth_band": "v40",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 14,
+          "sum_bps": 1222.1,
+          "mean_bps": 87.3,
+          "median_bps": 48.8,
+          "win_rate_pct": 71.4,
+          "t3r_bps": 91.4,
+          "max_loss_bps": -239.7,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        },
+        "cal": {
+          "n": 2,
+          "sum_bps": 37.1,
+          "mean_bps": 18.6,
+          "median_bps": 18.6,
+          "win_rate_pct": 50.0,
+          "t3r_bps": 37.1,
+          "max_loss_bps": -71.4,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 12,
+          "sum_bps": 1185.0,
+          "mean_bps": 98.7,
+          "median_bps": 48.8,
+          "win_rate_pct": 75.0,
+          "t3r_bps": 54.3,
+          "max_loss_bps": -239.7,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        }
+      },
+      "score": {
+        "status": "HYPOTHESIS",
+        "passes_min_split_n": false,
+        "passes_cal_positive": true,
+        "passes_hold_positive": true,
+        "passes_tail_zero": false,
+        "node_score": -449.4
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 9,
+            "sum_bps": 1027.9,
+            "mean_bps": 114.2,
+            "median_bps": 52.3,
+            "win_rate_pct": 66.7,
+            "t3r_bps": -102.8,
+            "max_loss_bps": -239.7,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 3,
+            "sum_bps": 157.1,
+            "mean_bps": 52.4,
+            "median_bps": 26.0,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 157.1,
+            "max_loss_bps": 8.6,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -259.9,
+          "delta_sum_bps": 870.8
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 4,
+            "sum_bps": -44.0,
+            "mean_bps": -11.0,
+            "median_bps": -36.7,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -93.1,
+            "max_loss_bps": -93.1,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 8,
+            "sum_bps": 1228.9,
+            "mean_bps": 153.6,
+            "median_bps": 133.3,
+            "win_rate_pct": 87.5,
+            "t3r_bps": 98.2,
+            "max_loss_bps": -239.7,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": -191.3,
+          "delta_sum_bps": -1272.9
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 7,
+            "sum_bps": 1086.7,
+            "mean_bps": 155.2,
+            "median_bps": 122.5,
+            "win_rate_pct": 71.4,
+            "t3r_bps": -44.0,
+            "max_loss_bps": -93.1,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 5,
+            "sum_bps": 98.2,
+            "mean_bps": 19.6,
+            "median_bps": 45.3,
+            "win_rate_pct": 80.0,
+            "t3r_bps": -213.7,
+            "max_loss_bps": -239.7,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 169.7,
+          "delta_sum_bps": 988.5
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 5,
+            "sum_bps": 1209.0,
+            "mean_bps": 241.8,
+            "median_bps": 233.8,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 78.3,
+            "max_loss_bps": 26.0,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 4,
+            "sum_bps": -44.0,
+            "mean_bps": -11.0,
+            "median_bps": -36.7,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -93.1,
+            "max_loss_bps": -93.1,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 171.4,
+          "delta_sum_bps": 1253.0
+        }
+      ]
+    },
+    {
+      "route_id": "BTCUSDT_SELL_FADE_LONG_T1000K_v20_28_H4",
+      "symbol": "BTCUSDT",
+      "threshold": "T1000K",
+      "vdepth_band": "v20",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 12,
+          "sum_bps": 814.4,
+          "mean_bps": 67.9,
+          "median_bps": 35.5,
+          "win_rate_pct": 66.7,
+          "t3r_bps": 133.9,
+          "max_loss_bps": -73.8,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "cal": {
+          "n": 4,
+          "sum_bps": 77.1,
+          "mean_bps": 19.3,
+          "median_bps": 21.7,
+          "win_rate_pct": 75.0,
+          "t3r_bps": -4.8,
+          "max_loss_bps": -4.8,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 8,
+          "sum_bps": 737.3,
+          "mean_bps": 92.2,
+          "median_bps": 102.6,
+          "win_rate_pct": 62.5,
+          "t3r_bps": 56.8,
+          "max_loss_bps": -73.8,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        }
+      },
+      "score": {
+        "status": "HYPOTHESIS",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": true,
+        "passes_tail_zero": false,
+        "node_score": -558.9
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 8,
+            "sum_bps": 737.3,
+            "mean_bps": 92.2,
+            "median_bps": 102.6,
+            "win_rate_pct": 62.5,
+            "t3r_bps": 56.8,
+            "max_loss_bps": -73.8,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 56.8,
+          "delta_sum_bps": 737.3
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 6,
+            "sum_bps": 405.5,
+            "mean_bps": 67.6,
+            "median_bps": 9.5,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -148.4,
+            "max_loss_bps": -73.8,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 2,
+            "sum_bps": 331.8,
+            "mean_bps": 165.9,
+            "median_bps": 165.9,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 331.8,
+            "max_loss_bps": 152.0,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -480.2,
+          "delta_sum_bps": 73.7
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 6,
+            "sum_bps": 405.5,
+            "mean_bps": 67.6,
+            "median_bps": 9.5,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -148.4,
+            "max_loss_bps": -73.8,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 2,
+            "sum_bps": 331.8,
+            "mean_bps": 165.9,
+            "median_bps": 165.9,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 331.8,
+            "max_loss_bps": 152.0,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -480.2,
+          "delta_sum_bps": 73.7
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": 179.7,
+            "mean_bps": 179.7,
+            "median_bps": 179.7,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 179.7,
+            "max_loss_bps": 179.7,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 6,
+            "sum_bps": 405.5,
+            "mean_bps": 67.6,
+            "median_bps": 9.5,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -148.4,
+            "max_loss_bps": -73.8,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 328.1,
+          "delta_sum_bps": -225.8
+        }
+      ]
+    },
+    {
+      "route_id": "ETHUSDT_SELL_FADE_LONG_T200K_v28_40_H4",
+      "symbol": "ETHUSDT",
+      "threshold": "T200K",
+      "vdepth_band": "v28",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 36,
+          "sum_bps": 968.9,
+          "mean_bps": 26.9,
+          "median_bps": 20.6,
+          "win_rate_pct": 58.3,
+          "t3r_bps": 137.2,
+          "max_loss_bps": -291.8,
+          "tail_lt_100": 3,
+          "tail_lt_200": 2
+        },
+        "cal": {
+          "n": 12,
+          "sum_bps": 375.8,
+          "mean_bps": 31.3,
+          "median_bps": -7.5,
+          "win_rate_pct": 41.7,
+          "t3r_bps": -90.6,
+          "max_loss_bps": -59.9,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 24,
+          "sum_bps": 593.1,
+          "mean_bps": 24.7,
+          "median_bps": 22.2,
+          "win_rate_pct": 66.7,
+          "t3r_bps": -238.7,
+          "max_loss_bps": -291.8,
+          "tail_lt_100": 3,
+          "tail_lt_200": 2
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -790.4
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 15,
+            "sum_bps": 788.3,
+            "mean_bps": 52.6,
+            "median_bps": 62.5,
+            "win_rate_pct": 73.3,
+            "t3r_bps": 90.3,
+            "max_loss_bps": -213.5,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 9,
+            "sum_bps": -195.2,
+            "mean_bps": -21.7,
+            "median_bps": 15.7,
+            "win_rate_pct": 55.6,
+            "t3r_bps": -538.7,
+            "max_loss_bps": -291.8,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 629.0,
+          "delta_sum_bps": 983.5
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 8,
+            "sum_bps": 486.6,
+            "mean_bps": 60.8,
+            "median_bps": 56.4,
+            "win_rate_pct": 62.5,
+            "t3r_bps": -100.6,
+            "max_loss_bps": -92.8,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 16,
+            "sum_bps": 106.5,
+            "mean_bps": 6.7,
+            "median_bps": 20.6,
+            "win_rate_pct": 68.8,
+            "t3r_bps": -482.0,
+            "max_loss_bps": -291.8,
+            "tail_lt_100": 3,
+            "tail_lt_200": 2
+          },
+          "delta_t3r_bps": 381.4,
+          "delta_sum_bps": 380.1
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 10,
+            "sum_bps": 798.4,
+            "mean_bps": 79.8,
+            "median_bps": 56.4,
+            "win_rate_pct": 70.0,
+            "t3r_bps": 44.1,
+            "max_loss_bps": -74.6,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 14,
+            "sum_bps": -205.4,
+            "mean_bps": -14.7,
+            "median_bps": 19.4,
+            "win_rate_pct": 64.3,
+            "t3r_bps": -592.5,
+            "max_loss_bps": -291.8,
+            "tail_lt_100": 3,
+            "tail_lt_200": 2
+          },
+          "delta_t3r_bps": 636.6,
+          "delta_sum_bps": 1003.8
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 12,
+            "sum_bps": -27.1,
+            "mean_bps": -2.3,
+            "median_bps": 18.1,
+            "win_rate_pct": 58.3,
+            "t3r_bps": -548.0,
+            "max_loss_bps": -291.8,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 7,
+            "sum_bps": 579.4,
+            "mean_bps": 82.8,
+            "median_bps": 76.3,
+            "win_rate_pct": 71.4,
+            "t3r_bps": -7.7,
+            "max_loss_bps": -67.1,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -540.3,
+          "delta_sum_bps": -606.5
+        }
+      ]
+    },
+    {
+      "route_id": "ETHUSDT_SELL_FADE_LONG_T100K_v60_inf_H4",
+      "symbol": "ETHUSDT",
+      "threshold": "T100K",
+      "vdepth_band": "v60",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 3,
+          "sum_bps": 201.6,
+          "mean_bps": 67.2,
+          "median_bps": 47.6,
+          "win_rate_pct": 66.7,
+          "t3r_bps": 201.6,
+          "max_loss_bps": -147.1,
+          "tail_lt_100": 1,
+          "tail_lt_200": 0
+        },
+        "cal": {
+          "n": 1,
+          "sum_bps": 47.6,
+          "mean_bps": 47.6,
+          "median_bps": 47.6,
+          "win_rate_pct": 100.0,
+          "t3r_bps": 47.6,
+          "max_loss_bps": 47.6,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 2,
+          "sum_bps": 154.0,
+          "mean_bps": 77.0,
+          "median_bps": 77.0,
+          "win_rate_pct": 50.0,
+          "t3r_bps": 154.0,
+          "max_loss_bps": -147.1,
+          "tail_lt_100": 1,
+          "tail_lt_200": 0
+        }
+      },
+      "score": {
+        "status": "HYPOTHESIS",
+        "passes_min_split_n": false,
+        "passes_cal_positive": true,
+        "passes_hold_positive": true,
+        "passes_tail_zero": false,
+        "node_score": -857.5
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": 154.0,
+            "mean_bps": 77.0,
+            "median_bps": 77.0,
+            "win_rate_pct": 50.0,
+            "t3r_bps": 154.0,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 154.0,
+          "delta_sum_bps": 154.0
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": -147.1,
+            "mean_bps": -147.1,
+            "median_bps": -147.1,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -147.1,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": 301.0,
+            "mean_bps": 301.0,
+            "median_bps": 301.0,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 301.0,
+            "max_loss_bps": 301.0,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -448.1,
+          "delta_sum_bps": -448.1
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 2,
+            "sum_bps": 154.0,
+            "mean_bps": 77.0,
+            "median_bps": 77.0,
+            "win_rate_pct": 50.0,
+            "t3r_bps": 154.0,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -154.0,
+          "delta_sum_bps": -154.0
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": -147.1,
+            "mean_bps": -147.1,
+            "median_bps": -147.1,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -147.1,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -147.1,
+          "delta_sum_bps": -147.1
+        }
+      ]
+    },
+    {
+      "route_id": "ETHUSDT_SELL_FADE_LONG_T150K_v60_inf_H4",
+      "symbol": "ETHUSDT",
+      "threshold": "T150K",
+      "vdepth_band": "v60",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 3,
+          "sum_bps": 199.1,
+          "mean_bps": 66.4,
+          "median_bps": 45.1,
+          "win_rate_pct": 66.7,
+          "t3r_bps": 199.1,
+          "max_loss_bps": -147.1,
+          "tail_lt_100": 1,
+          "tail_lt_200": 0
+        },
+        "cal": {
+          "n": 1,
+          "sum_bps": 45.1,
+          "mean_bps": 45.1,
+          "median_bps": 45.1,
+          "win_rate_pct": 100.0,
+          "t3r_bps": 45.1,
+          "max_loss_bps": 45.1,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 2,
+          "sum_bps": 154.0,
+          "mean_bps": 77.0,
+          "median_bps": 77.0,
+          "win_rate_pct": 50.0,
+          "t3r_bps": 154.0,
+          "max_loss_bps": -147.1,
+          "tail_lt_100": 1,
+          "tail_lt_200": 0
+        }
+      },
+      "score": {
+        "status": "HYPOTHESIS",
+        "passes_min_split_n": false,
+        "passes_cal_positive": true,
+        "passes_hold_positive": true,
+        "passes_tail_zero": false,
+        "node_score": -857.5
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": 154.0,
+            "mean_bps": 77.0,
+            "median_bps": 77.0,
+            "win_rate_pct": 50.0,
+            "t3r_bps": 154.0,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 154.0,
+          "delta_sum_bps": 154.0
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": -147.1,
+            "mean_bps": -147.1,
+            "median_bps": -147.1,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -147.1,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": 301.0,
+            "mean_bps": 301.0,
+            "median_bps": 301.0,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 301.0,
+            "max_loss_bps": 301.0,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -448.1,
+          "delta_sum_bps": -448.1
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 2,
+            "sum_bps": 154.0,
+            "mean_bps": 77.0,
+            "median_bps": 77.0,
+            "win_rate_pct": 50.0,
+            "t3r_bps": 154.0,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -154.0,
+          "delta_sum_bps": -154.0
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": -147.1,
+            "mean_bps": -147.1,
+            "median_bps": -147.1,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -147.1,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -147.1,
+          "delta_sum_bps": -147.1
+        }
+      ]
+    },
+    {
+      "route_id": "ETHUSDT_SELL_FADE_LONG_T200K_v60_inf_H4",
+      "symbol": "ETHUSDT",
+      "threshold": "T200K",
+      "vdepth_band": "v60",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 3,
+          "sum_bps": 196.2,
+          "mean_bps": 65.4,
+          "median_bps": 45.1,
+          "win_rate_pct": 66.7,
+          "t3r_bps": 196.2,
+          "max_loss_bps": -147.1,
+          "tail_lt_100": 1,
+          "tail_lt_200": 0
+        },
+        "cal": {
+          "n": 1,
+          "sum_bps": 45.1,
+          "mean_bps": 45.1,
+          "median_bps": 45.1,
+          "win_rate_pct": 100.0,
+          "t3r_bps": 45.1,
+          "max_loss_bps": 45.1,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 2,
+          "sum_bps": 151.1,
+          "mean_bps": 75.5,
+          "median_bps": 75.5,
+          "win_rate_pct": 50.0,
+          "t3r_bps": 151.1,
+          "max_loss_bps": -147.1,
+          "tail_lt_100": 1,
+          "tail_lt_200": 0
+        }
+      },
+      "score": {
+        "status": "HYPOTHESIS",
+        "passes_min_split_n": false,
+        "passes_cal_positive": true,
+        "passes_hold_positive": true,
+        "passes_tail_zero": false,
+        "node_score": -861.1
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": 151.1,
+            "mean_bps": 75.5,
+            "median_bps": 75.5,
+            "win_rate_pct": 50.0,
+            "t3r_bps": 151.1,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 151.1,
+          "delta_sum_bps": 151.1
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": 151.1,
+            "mean_bps": 75.5,
+            "median_bps": 75.5,
+            "win_rate_pct": 50.0,
+            "t3r_bps": 151.1,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 151.1,
+          "delta_sum_bps": 151.1
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": 298.2,
+            "mean_bps": 298.2,
+            "median_bps": 298.2,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 298.2,
+            "max_loss_bps": 298.2,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": -147.1,
+            "mean_bps": -147.1,
+            "median_bps": -147.1,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -147.1,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 445.3,
+          "delta_sum_bps": 445.3
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": -147.1,
+            "mean_bps": -147.1,
+            "median_bps": -147.1,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -147.1,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": 298.2,
+            "mean_bps": 298.2,
+            "median_bps": 298.2,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 298.2,
+            "max_loss_bps": 298.2,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -445.3,
+          "delta_sum_bps": -445.3
+        }
+      ]
+    },
+    {
+      "route_id": "SOLUSDT_SELL_FADE_LONG_T50K_v40_60_H4",
+      "symbol": "SOLUSDT",
+      "threshold": "T50K",
+      "vdepth_band": "v40",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 13,
+          "sum_bps": 977.8,
+          "mean_bps": 75.2,
+          "median_bps": 0.9,
+          "win_rate_pct": 53.8,
+          "t3r_bps": -328.1,
+          "max_loss_bps": -251.7,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        },
+        "cal": {
+          "n": 1,
+          "sum_bps": 0.9,
+          "mean_bps": 0.9,
+          "median_bps": 0.9,
+          "win_rate_pct": 100.0,
+          "t3r_bps": 0.9,
+          "max_loss_bps": 0.9,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 12,
+          "sum_bps": 976.8,
+          "mean_bps": 81.4,
+          "median_bps": 14.3,
+          "win_rate_pct": 50.0,
+          "t3r_bps": -329.1,
+          "max_loss_bps": -251.7,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": true,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -884.9
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 12,
+            "sum_bps": 976.8,
+            "mean_bps": 81.4,
+            "median_bps": 14.3,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -329.1,
+            "max_loss_bps": -251.7,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -329.1,
+          "delta_sum_bps": 976.8
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 4,
+            "sum_bps": -86.6,
+            "mean_bps": -21.6,
+            "median_bps": -46.3,
+            "win_rate_pct": 25.0,
+            "t3r_bps": -81.9,
+            "max_loss_bps": -81.9,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 8,
+            "sum_bps": 1063.4,
+            "mean_bps": 132.9,
+            "median_bps": 48.8,
+            "win_rate_pct": 62.5,
+            "t3r_bps": -242.5,
+            "max_loss_bps": -251.7,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 160.6,
+          "delta_sum_bps": -1150.0
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 7,
+            "sum_bps": 550.7,
+            "mean_bps": 78.7,
+            "median_bps": -16.8,
+            "win_rate_pct": 42.9,
+            "t3r_bps": -215.3,
+            "max_loss_bps": -81.9,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 5,
+            "sum_bps": 426.2,
+            "mean_bps": 85.2,
+            "median_bps": 45.3,
+            "win_rate_pct": 60.0,
+            "t3r_bps": -299.3,
+            "max_loss_bps": -251.7,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 84.0,
+          "delta_sum_bps": 124.5
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 4,
+            "sum_bps": 689.5,
+            "mean_bps": 172.4,
+            "median_bps": 178.7,
+            "win_rate_pct": 75.0,
+            "t3r_bps": -40.7,
+            "max_loss_bps": -40.7,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 4,
+            "sum_bps": -86.6,
+            "mean_bps": -21.6,
+            "median_bps": -46.3,
+            "win_rate_pct": 25.0,
+            "t3r_bps": -81.9,
+            "max_loss_bps": -81.9,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 41.2,
+          "delta_sum_bps": 776.1
+        }
+      ]
+    },
+    {
+      "route_id": "BTCUSDT_SELL_FADE_LONG_T250K_v60_inf_H4",
+      "symbol": "BTCUSDT",
+      "threshold": "T250K",
+      "vdepth_band": "v60",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 1,
+          "sum_bps": 41.0,
+          "mean_bps": 41.0,
+          "median_bps": 41.0,
+          "win_rate_pct": 100.0,
+          "t3r_bps": 41.0,
+          "max_loss_bps": 41.0,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "cal": {
+          "n": 1,
+          "sum_bps": 41.0,
+          "mean_bps": 41.0,
+          "median_bps": 41.0,
+          "win_rate_pct": 100.0,
+          "t3r_bps": 41.0,
+          "max_loss_bps": 41.0,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 0,
+          "sum_bps": 0.0,
+          "mean_bps": null,
+          "median_bps": null,
+          "win_rate_pct": null,
+          "t3r_bps": 0.0,
+          "max_loss_bps": null,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        }
+      },
+      "score": {
+        "status": "NO_HOLDOUT",
+        "passes_min_split_n": false,
+        "passes_cal_positive": true,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -1000.0
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 0.0,
+          "delta_sum_bps": 0.0
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 0.0,
+          "delta_sum_bps": 0.0
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 0.0,
+          "delta_sum_bps": 0.0
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 0.0,
+          "delta_sum_bps": 0.0
+        }
+      ]
+    },
+    {
+      "route_id": "BTCUSDT_SELL_FADE_LONG_T500K_v60_inf_H4",
+      "symbol": "BTCUSDT",
+      "threshold": "T500K",
+      "vdepth_band": "v60",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 2,
+          "sum_bps": -25.0,
+          "mean_bps": -12.5,
+          "median_bps": -12.5,
+          "win_rate_pct": 50.0,
+          "t3r_bps": -25.0,
+          "max_loss_bps": -66.0,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "cal": {
+          "n": 1,
+          "sum_bps": 41.0,
+          "mean_bps": 41.0,
+          "median_bps": 41.0,
+          "win_rate_pct": 100.0,
+          "t3r_bps": 41.0,
+          "max_loss_bps": 41.0,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 1,
+          "sum_bps": -66.0,
+          "mean_bps": -66.0,
+          "median_bps": -66.0,
+          "win_rate_pct": 0.0,
+          "t3r_bps": -66.0,
+          "max_loss_bps": -66.0,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": true,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -1057.5
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": -66.0,
+            "mean_bps": -66.0,
+            "median_bps": -66.0,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -66.0,
+            "max_loss_bps": -66.0,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -66.0,
+          "delta_sum_bps": -66.0
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": -66.0,
+            "mean_bps": -66.0,
+            "median_bps": -66.0,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -66.0,
+            "max_loss_bps": -66.0,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 66.0,
+          "delta_sum_bps": 66.0
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": -66.0,
+            "mean_bps": -66.0,
+            "median_bps": -66.0,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -66.0,
+            "max_loss_bps": -66.0,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 66.0,
+          "delta_sum_bps": 66.0
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 0.0,
+          "delta_sum_bps": 0.0
+        }
+      ]
+    },
+    {
+      "route_id": "BTCUSDT_SELL_FADE_LONG_T500K_v40_60_H4",
+      "symbol": "BTCUSDT",
+      "threshold": "T500K",
+      "vdepth_band": "v40",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 13,
+          "sum_bps": 784.7,
+          "mean_bps": 60.4,
+          "median_bps": 36.5,
+          "win_rate_pct": 69.2,
+          "t3r_bps": 85.1,
+          "max_loss_bps": -213.0,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        },
+        "cal": {
+          "n": 7,
+          "sum_bps": 540.5,
+          "mean_bps": 77.2,
+          "median_bps": 36.5,
+          "win_rate_pct": 71.4,
+          "t3r_bps": -30.0,
+          "max_loss_bps": -92.7,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 6,
+          "sum_bps": 244.2,
+          "mean_bps": 40.7,
+          "median_bps": 58.3,
+          "win_rate_pct": 66.7,
+          "t3r_bps": -198.7,
+          "max_loss_bps": -213.0,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -1087.7
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 6,
+            "sum_bps": 244.2,
+            "mean_bps": 40.7,
+            "median_bps": 58.3,
+            "win_rate_pct": 66.7,
+            "t3r_bps": -198.7,
+            "max_loss_bps": -213.0,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -198.7,
+          "delta_sum_bps": 244.2
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 3,
+            "sum_bps": 392.1,
+            "mean_bps": 130.7,
+            "median_bps": 110.9,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 392.1,
+            "max_loss_bps": 32.9,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 3,
+            "sum_bps": -147.9,
+            "mean_bps": -49.3,
+            "median_bps": -18.6,
+            "win_rate_pct": 33.3,
+            "t3r_bps": -147.9,
+            "max_loss_bps": -213.0,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 540.0,
+          "delta_sum_bps": 540.0
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 4,
+            "sum_bps": 475.8,
+            "mean_bps": 119.0,
+            "median_bps": 97.3,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 32.9,
+            "max_loss_bps": 32.9,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 2,
+            "sum_bps": -231.6,
+            "mean_bps": -115.8,
+            "median_bps": -115.8,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -231.6,
+            "max_loss_bps": -213.0,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 264.5,
+          "delta_sum_bps": 707.4
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": 65.1,
+            "mean_bps": 32.5,
+            "median_bps": 32.5,
+            "win_rate_pct": 50.0,
+            "t3r_bps": 65.1,
+            "max_loss_bps": -18.6,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 3,
+            "sum_bps": 392.1,
+            "mean_bps": 130.7,
+            "median_bps": 110.9,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 392.1,
+            "max_loss_bps": 32.9,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -327.0,
+          "delta_sum_bps": -327.0
+        }
+      ]
+    },
+    {
+      "route_id": "BTCUSDT_SELL_FADE_LONG_T1000K_v60_inf_H4",
+      "symbol": "BTCUSDT",
+      "threshold": "T1000K",
+      "vdepth_band": "v60",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 4,
+          "sum_bps": -11.0,
+          "mean_bps": -2.7,
+          "median_bps": 45.0,
+          "win_rate_pct": 75.0,
+          "t3r_bps": -207.8,
+          "max_loss_bps": -207.8,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        },
+        "cal": {
+          "n": 1,
+          "sum_bps": 41.0,
+          "mean_bps": 41.0,
+          "median_bps": 41.0,
+          "win_rate_pct": 100.0,
+          "t3r_bps": 41.0,
+          "max_loss_bps": 41.0,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 3,
+          "sum_bps": -52.0,
+          "mean_bps": -17.3,
+          "median_bps": 49.0,
+          "win_rate_pct": 66.7,
+          "t3r_bps": -52.0,
+          "max_loss_bps": -207.8,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": true,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -1090.0
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 3,
+            "sum_bps": -52.0,
+            "mean_bps": -17.3,
+            "median_bps": 49.0,
+            "win_rate_pct": 66.7,
+            "t3r_bps": -52.0,
+            "max_loss_bps": -207.8,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -52.0,
+          "delta_sum_bps": -52.0
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": -158.8,
+            "mean_bps": -79.4,
+            "median_bps": -79.4,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -158.8,
+            "max_loss_bps": -207.8,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": 106.8,
+            "mean_bps": 106.8,
+            "median_bps": 106.8,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 106.8,
+            "max_loss_bps": 106.8,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -265.6,
+          "delta_sum_bps": -265.6
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": -207.8,
+            "mean_bps": -207.8,
+            "median_bps": -207.8,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -207.8,
+            "max_loss_bps": -207.8,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 2,
+            "sum_bps": 155.9,
+            "mean_bps": 77.9,
+            "median_bps": 77.9,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 155.9,
+            "max_loss_bps": 49.0,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -363.7,
+          "delta_sum_bps": -363.7
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": 49.0,
+            "mean_bps": 49.0,
+            "median_bps": 49.0,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 49.0,
+            "max_loss_bps": 49.0,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": -207.8,
+            "mean_bps": -207.8,
+            "median_bps": -207.8,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -207.8,
+            "max_loss_bps": -207.8,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 256.8,
+          "delta_sum_bps": 256.8
+        }
+      ]
+    },
+    {
+      "route_id": "ETHUSDT_SELL_FADE_LONG_T150K_v28_40_H4",
+      "symbol": "ETHUSDT",
+      "threshold": "T150K",
+      "vdepth_band": "v28",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 30,
+          "sum_bps": 883.8,
+          "mean_bps": 29.5,
+          "median_bps": 22.0,
+          "win_rate_pct": 60.0,
+          "t3r_bps": 105.6,
+          "max_loss_bps": -296.2,
+          "tail_lt_100": 3,
+          "tail_lt_200": 1
+        },
+        "cal": {
+          "n": 14,
+          "sum_bps": 449.8,
+          "mean_bps": 32.1,
+          "median_bps": -1.0,
+          "win_rate_pct": 50.0,
+          "t3r_bps": -52.7,
+          "max_loss_bps": -70.5,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 16,
+          "sum_bps": 434.0,
+          "mean_bps": 27.1,
+          "median_bps": 35.0,
+          "win_rate_pct": 68.8,
+          "t3r_bps": -344.2,
+          "max_loss_bps": -296.2,
+          "tail_lt_100": 3,
+          "tail_lt_200": 1
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -1135.7
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 13,
+            "sum_bps": 619.8,
+            "mean_bps": 47.7,
+            "median_bps": 46.5,
+            "win_rate_pct": 76.9,
+            "t3r_bps": -28.1,
+            "max_loss_bps": -187.8,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 3,
+            "sum_bps": -185.8,
+            "mean_bps": -61.9,
+            "median_bps": -156.1,
+            "win_rate_pct": 33.3,
+            "t3r_bps": -185.8,
+            "max_loss_bps": -296.2,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 157.7,
+          "delta_sum_bps": 805.6
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 7,
+            "sum_bps": -319.0,
+            "mean_bps": -45.6,
+            "median_bps": -67.1,
+            "win_rate_pct": 42.9,
+            "t3r_bps": -707.3,
+            "max_loss_bps": -296.2,
+            "tail_lt_100": 3,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 9,
+            "sum_bps": 753.0,
+            "mean_bps": 83.7,
+            "median_bps": 62.5,
+            "win_rate_pct": 88.9,
+            "t3r_bps": 105.2,
+            "max_loss_bps": -74.6,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -812.5,
+          "delta_sum_bps": -1072.0
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 8,
+            "sum_bps": -213.9,
+            "mean_bps": -26.7,
+            "median_bps": -21.8,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -602.2,
+            "max_loss_bps": -296.2,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 8,
+            "sum_bps": 647.9,
+            "mean_bps": 81.0,
+            "median_bps": 62.5,
+            "win_rate_pct": 87.5,
+            "t3r_bps": 0.1,
+            "max_loss_bps": -156.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -602.3,
+          "delta_sum_bps": -861.8
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 5,
+            "sum_bps": -4.5,
+            "mean_bps": -0.9,
+            "median_bps": 20.4,
+            "win_rate_pct": 60.0,
+            "t3r_bps": -230.7,
+            "max_loss_bps": -156.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 6,
+            "sum_bps": -162.9,
+            "mean_bps": -27.1,
+            "median_bps": -10.3,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -551.2,
+            "max_loss_bps": -296.2,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 320.5,
+          "delta_sum_bps": 158.4
+        }
+      ]
+    },
+    {
+      "route_id": "SOLUSDT_SELL_FADE_LONG_T50K_v60_inf_H4",
+      "symbol": "SOLUSDT",
+      "threshold": "T50K",
+      "vdepth_band": "v60",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 1,
+          "sum_bps": -103.3,
+          "mean_bps": -103.3,
+          "median_bps": -103.3,
+          "win_rate_pct": 0.0,
+          "t3r_bps": -103.3,
+          "max_loss_bps": -103.3,
+          "tail_lt_100": 1,
+          "tail_lt_200": 0
+        },
+        "cal": {
+          "n": 0,
+          "sum_bps": 0.0,
+          "mean_bps": null,
+          "median_bps": null,
+          "win_rate_pct": null,
+          "t3r_bps": 0.0,
+          "max_loss_bps": null,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 1,
+          "sum_bps": -103.3,
+          "mean_bps": -103.3,
+          "median_bps": -103.3,
+          "win_rate_pct": 0.0,
+          "t3r_bps": -103.3,
+          "max_loss_bps": -103.3,
+          "tail_lt_100": 1,
+          "tail_lt_200": 0
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -1204.1
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": -103.3,
+            "mean_bps": -103.3,
+            "median_bps": -103.3,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -103.3,
+            "max_loss_bps": -103.3,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -103.3,
+          "delta_sum_bps": -103.3
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": -103.3,
+            "mean_bps": -103.3,
+            "median_bps": -103.3,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -103.3,
+            "max_loss_bps": -103.3,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 103.3,
+          "delta_sum_bps": 103.3
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": -103.3,
+            "mean_bps": -103.3,
+            "median_bps": -103.3,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -103.3,
+            "max_loss_bps": -103.3,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 103.3,
+          "delta_sum_bps": 103.3
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 0.0,
+          "delta_sum_bps": 0.0
+        }
+      ]
+    },
+    {
+      "route_id": "SOLUSDT_SELL_FADE_LONG_T100K_v40_60_H4",
+      "symbol": "SOLUSDT",
+      "threshold": "T100K",
+      "vdepth_band": "v40",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 11,
+          "sum_bps": 625.9,
+          "mean_bps": 56.9,
+          "median_bps": 0.9,
+          "win_rate_pct": 54.5,
+          "t3r_bps": -428.9,
+          "max_loss_bps": -234.3,
+          "tail_lt_100": 2,
+          "tail_lt_200": 1
+        },
+        "cal": {
+          "n": 1,
+          "sum_bps": 0.9,
+          "mean_bps": 0.9,
+          "median_bps": 0.9,
+          "win_rate_pct": 100.0,
+          "t3r_bps": 0.9,
+          "max_loss_bps": 0.9,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 10,
+          "sum_bps": 624.9,
+          "mean_bps": 62.5,
+          "median_bps": 16.6,
+          "win_rate_pct": 50.0,
+          "t3r_bps": -429.8,
+          "max_loss_bps": -234.3,
+          "tail_lt_100": 2,
+          "tail_lt_200": 1
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": true,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -1223.6
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 10,
+            "sum_bps": 624.9,
+            "mean_bps": 62.5,
+            "median_bps": 16.6,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -429.8,
+            "max_loss_bps": -234.3,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -429.8,
+          "delta_sum_bps": 624.9
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": -73.2,
+            "mean_bps": -73.2,
+            "median_bps": -73.2,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -73.2,
+            "max_loss_bps": -73.2,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 9,
+            "sum_bps": 698.1,
+            "mean_bps": 77.6,
+            "median_bps": 33.4,
+            "win_rate_pct": 55.6,
+            "t3r_bps": -356.6,
+            "max_loss_bps": -234.3,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 283.4,
+          "delta_sum_bps": -771.3
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": 305.2,
+            "mean_bps": 305.2,
+            "median_bps": 305.2,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 305.2,
+            "max_loss_bps": 305.2,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 9,
+            "sum_bps": 319.7,
+            "mean_bps": 35.5,
+            "median_bps": -0.1,
+            "win_rate_pct": 44.4,
+            "t3r_bps": -475.1,
+            "max_loss_bps": -234.3,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 780.3,
+          "delta_sum_bps": -14.5
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 5,
+            "sum_bps": 372.8,
+            "mean_bps": 74.6,
+            "median_bps": 33.4,
+            "win_rate_pct": 60.0,
+            "t3r_bps": -73.3,
+            "max_loss_bps": -73.2,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -73.3,
+          "delta_sum_bps": 372.8
+        }
+      ]
+    },
+    {
+      "route_id": "ETHUSDT_SELL_FADE_LONG_T100K_v40_60_H4",
+      "symbol": "ETHUSDT",
+      "threshold": "T100K",
+      "vdepth_band": "v40",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 6,
+          "sum_bps": -488.9,
+          "mean_bps": -81.5,
+          "median_bps": -60.1,
+          "win_rate_pct": 16.7,
+          "t3r_bps": -492.8,
+          "max_loss_bps": -271.1,
+          "tail_lt_100": 2,
+          "tail_lt_200": 1
+        },
+        "cal": {
+          "n": 2,
+          "sum_bps": -211.5,
+          "mean_bps": -105.7,
+          "median_bps": -105.7,
+          "win_rate_pct": 50.0,
+          "t3r_bps": -211.5,
+          "max_loss_bps": -271.1,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        },
+        "hold": {
+          "n": 4,
+          "sum_bps": -277.4,
+          "mean_bps": -69.4,
+          "median_bps": -60.1,
+          "win_rate_pct": 0.0,
+          "t3r_bps": -154.3,
+          "max_loss_bps": -154.3,
+          "tail_lt_100": 1,
+          "tail_lt_200": 0
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -1223.7
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 3,
+            "sum_bps": -123.1,
+            "mean_bps": -41.0,
+            "median_bps": -52.8,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -123.1,
+            "max_loss_bps": -67.4,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": -154.3,
+            "mean_bps": -154.3,
+            "median_bps": -154.3,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -154.3,
+            "max_loss_bps": -154.3,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 31.2,
+          "delta_sum_bps": 31.2
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": -154.3,
+            "mean_bps": -154.3,
+            "median_bps": -154.3,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -154.3,
+            "max_loss_bps": -154.3,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 3,
+            "sum_bps": -123.1,
+            "mean_bps": -41.0,
+            "median_bps": -52.8,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -123.1,
+            "max_loss_bps": -67.4,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -31.2,
+          "delta_sum_bps": -31.2
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": -154.3,
+            "mean_bps": -154.3,
+            "median_bps": -154.3,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -154.3,
+            "max_loss_bps": -154.3,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 3,
+            "sum_bps": -123.1,
+            "mean_bps": -41.0,
+            "median_bps": -52.8,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -123.1,
+            "max_loss_bps": -67.4,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -31.2,
+          "delta_sum_bps": -31.2
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 3,
+            "sum_bps": -123.1,
+            "mean_bps": -41.0,
+            "median_bps": -52.8,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -123.1,
+            "max_loss_bps": -67.4,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": -154.3,
+            "mean_bps": -154.3,
+            "median_bps": -154.3,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -154.3,
+            "max_loss_bps": -154.3,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 31.2,
+          "delta_sum_bps": 31.2
+        }
+      ]
+    },
+    {
+      "route_id": "BTCUSDT_SELL_FADE_LONG_T1000K_v40_60_H4",
+      "symbol": "BTCUSDT",
+      "threshold": "T1000K",
+      "vdepth_band": "v40",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 7,
+          "sum_bps": -81.3,
+          "mean_bps": -11.6,
+          "median_bps": -22.2,
+          "win_rate_pct": 42.9,
+          "t3r_bps": -388.5,
+          "max_loss_bps": -232.9,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        },
+        "cal": {
+          "n": 3,
+          "sum_bps": -75.3,
+          "mean_bps": -25.1,
+          "median_bps": -22.2,
+          "win_rate_pct": 33.3,
+          "t3r_bps": -75.3,
+          "max_loss_bps": -92.7,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 4,
+          "sum_bps": -6.1,
+          "mean_bps": -1.5,
+          "median_bps": 43.5,
+          "win_rate_pct": 50.0,
+          "t3r_bps": -232.9,
+          "max_loss_bps": -232.9,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -1234.4
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 3,
+            "sum_bps": -145.9,
+            "mean_bps": -48.6,
+            "median_bps": -40.8,
+            "win_rate_pct": 33.3,
+            "t3r_bps": -145.9,
+            "max_loss_bps": -232.9,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": 139.9,
+            "mean_bps": 139.9,
+            "median_bps": 139.9,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 139.9,
+            "max_loss_bps": 139.9,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -285.8,
+          "delta_sum_bps": -285.8
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": 99.1,
+            "mean_bps": 49.5,
+            "median_bps": 49.5,
+            "win_rate_pct": 50.0,
+            "t3r_bps": 99.1,
+            "max_loss_bps": -40.8,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 2,
+            "sum_bps": -105.1,
+            "mean_bps": -52.6,
+            "median_bps": -52.6,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -105.1,
+            "max_loss_bps": -232.9,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 204.2,
+          "delta_sum_bps": 204.2
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": 139.9,
+            "mean_bps": 139.9,
+            "median_bps": 139.9,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 139.9,
+            "max_loss_bps": 139.9,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 3,
+            "sum_bps": -145.9,
+            "mean_bps": -48.6,
+            "median_bps": -40.8,
+            "win_rate_pct": 33.3,
+            "t3r_bps": -145.9,
+            "max_loss_bps": -232.9,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 285.8,
+          "delta_sum_bps": 285.8
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": -40.8,
+            "mean_bps": -40.8,
+            "median_bps": -40.8,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -40.8,
+            "max_loss_bps": -40.8,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": 139.9,
+            "mean_bps": 139.9,
+            "median_bps": 139.9,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 139.9,
+            "max_loss_bps": 139.9,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -180.7,
+          "delta_sum_bps": -180.7
+        }
+      ]
+    },
+    {
+      "route_id": "BTCUSDT_SELL_FADE_LONG_T250K_v40_60_H4",
+      "symbol": "BTCUSDT",
+      "threshold": "T250K",
+      "vdepth_band": "v40",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 8,
+          "sum_bps": 71.5,
+          "mean_bps": 8.9,
+          "median_bps": -21.6,
+          "win_rate_pct": 37.5,
+          "t3r_bps": -430.9,
+          "max_loss_bps": -227.9,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        },
+        "cal": {
+          "n": 4,
+          "sum_bps": 409.7,
+          "mean_bps": 102.4,
+          "median_bps": 101.6,
+          "win_rate_pct": 75.0,
+          "t3r_bps": -92.7,
+          "max_loss_bps": -92.7,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 4,
+          "sum_bps": -338.2,
+          "mean_bps": -84.6,
+          "median_bps": -48.4,
+          "win_rate_pct": 0.0,
+          "t3r_bps": -227.9,
+          "max_loss_bps": -227.9,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -1312.5
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 3,
+            "sum_bps": -110.3,
+            "mean_bps": -36.8,
+            "median_bps": -29.6,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -110.3,
+            "max_loss_bps": -67.1,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": -227.9,
+            "mean_bps": -227.9,
+            "median_bps": -227.9,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -227.9,
+            "max_loss_bps": -227.9,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 117.6,
+          "delta_sum_bps": 117.6
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 4,
+            "sum_bps": -338.2,
+            "mean_bps": -84.6,
+            "median_bps": -48.4,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -227.9,
+            "max_loss_bps": -227.9,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 227.9,
+          "delta_sum_bps": 338.2
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": -13.6,
+            "mean_bps": -13.6,
+            "median_bps": -13.6,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -13.6,
+            "max_loss_bps": -13.6,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 3,
+            "sum_bps": -324.6,
+            "mean_bps": -108.2,
+            "median_bps": -67.1,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -324.6,
+            "max_loss_bps": -227.9,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 311.0,
+          "delta_sum_bps": 311.0
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 3,
+            "sum_bps": -110.3,
+            "mean_bps": -36.8,
+            "median_bps": -29.6,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -110.3,
+            "max_loss_bps": -67.1,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -110.3,
+          "delta_sum_bps": -110.3
+        }
+      ]
+    },
+    {
+      "route_id": "SOLUSDT_SELL_FADE_LONG_T100K_v20_28_H4",
+      "symbol": "SOLUSDT",
+      "threshold": "T100K",
+      "vdepth_band": "v20",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 10,
+          "sum_bps": 60.3,
+          "mean_bps": 6.0,
+          "median_bps": -29.1,
+          "win_rate_pct": 30.0,
+          "t3r_bps": -542.2,
+          "max_loss_bps": -260.3,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        },
+        "cal": {
+          "n": 3,
+          "sum_bps": 99.4,
+          "mean_bps": 33.1,
+          "median_bps": -15.5,
+          "win_rate_pct": 33.3,
+          "t3r_bps": 99.4,
+          "max_loss_bps": -24.9,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 7,
+          "sum_bps": -39.1,
+          "mean_bps": -5.6,
+          "median_bps": -43.9,
+          "win_rate_pct": 28.6,
+          "t3r_bps": -468.5,
+          "max_loss_bps": -260.3,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": true,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -1403.3
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 7,
+            "sum_bps": -39.1,
+            "mean_bps": -5.6,
+            "median_bps": -43.9,
+            "win_rate_pct": 28.6,
+            "t3r_bps": -468.5,
+            "max_loss_bps": -260.3,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -468.5,
+          "delta_sum_bps": -39.1
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 4,
+            "sum_bps": -468.5,
+            "mean_bps": -117.1,
+            "median_bps": -82.2,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -260.3,
+            "max_loss_bps": -260.3,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 3,
+            "sum_bps": 429.4,
+            "mean_bps": 143.1,
+            "median_bps": 65.5,
+            "win_rate_pct": 66.7,
+            "t3r_bps": 429.4,
+            "max_loss_bps": -33.3,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -689.7,
+          "delta_sum_bps": -897.9
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 4,
+            "sum_bps": -468.5,
+            "mean_bps": -117.1,
+            "median_bps": -82.2,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -260.3,
+            "max_loss_bps": -260.3,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 3,
+            "sum_bps": 429.4,
+            "mean_bps": 143.1,
+            "median_bps": 65.5,
+            "win_rate_pct": 66.7,
+            "t3r_bps": 429.4,
+            "max_loss_bps": -33.3,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -689.7,
+          "delta_sum_bps": -897.9
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": 462.7,
+            "mean_bps": 231.3,
+            "median_bps": 231.3,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 462.7,
+            "max_loss_bps": 65.5,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 4,
+            "sum_bps": -468.5,
+            "mean_bps": -117.1,
+            "median_bps": -82.2,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -260.3,
+            "max_loss_bps": -260.3,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 723.0,
+          "delta_sum_bps": 931.2
+        }
+      ]
+    },
+    {
+      "route_id": "SOLUSDT_SELL_FADE_LONG_T25K_v60_inf_H4",
+      "symbol": "SOLUSDT",
+      "threshold": "T25K",
+      "vdepth_band": "v60",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 4,
+          "sum_bps": -300.2,
+          "mean_bps": -75.0,
+          "median_bps": -93.5,
+          "win_rate_pct": 25.0,
+          "t3r_bps": -229.7,
+          "max_loss_bps": -229.7,
+          "tail_lt_100": 2,
+          "tail_lt_200": 1
+        },
+        "cal": {
+          "n": 0,
+          "sum_bps": 0.0,
+          "mean_bps": null,
+          "median_bps": null,
+          "win_rate_pct": null,
+          "t3r_bps": 0.0,
+          "max_loss_bps": null,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 4,
+          "sum_bps": -300.2,
+          "mean_bps": -75.0,
+          "median_bps": -93.5,
+          "win_rate_pct": 25.0,
+          "t3r_bps": -229.7,
+          "max_loss_bps": -229.7,
+          "tail_lt_100": 2,
+          "tail_lt_200": 1
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -1404.8
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 3,
+            "sum_bps": -216.6,
+            "mean_bps": -72.2,
+            "median_bps": -103.3,
+            "win_rate_pct": 33.3,
+            "t3r_bps": -216.6,
+            "max_loss_bps": -229.7,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": -83.6,
+            "mean_bps": -83.6,
+            "median_bps": -83.6,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -83.6,
+            "max_loss_bps": -83.6,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -133.0,
+          "delta_sum_bps": -133.0
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": 116.4,
+            "mean_bps": 116.4,
+            "median_bps": 116.4,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 116.4,
+            "max_loss_bps": 116.4,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 3,
+            "sum_bps": -416.6,
+            "mean_bps": -138.9,
+            "median_bps": -103.3,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -416.6,
+            "max_loss_bps": -229.7,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 533.0,
+          "delta_sum_bps": 533.0
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": 32.8,
+            "mean_bps": 16.4,
+            "median_bps": 16.4,
+            "win_rate_pct": 50.0,
+            "t3r_bps": 32.8,
+            "max_loss_bps": -83.6,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 2,
+            "sum_bps": -333.0,
+            "mean_bps": -166.5,
+            "median_bps": -166.5,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -333.0,
+            "max_loss_bps": -229.7,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 365.8,
+          "delta_sum_bps": 365.8
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": -313.3,
+            "mean_bps": -156.6,
+            "median_bps": -156.6,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -313.3,
+            "max_loss_bps": -229.7,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": 116.4,
+            "mean_bps": 116.4,
+            "median_bps": 116.4,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 116.4,
+            "max_loss_bps": 116.4,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -429.7,
+          "delta_sum_bps": -429.7
+        }
+      ]
+    },
+    {
+      "route_id": "SOLUSDT_SELL_FADE_LONG_T100K_v60_inf_H4",
+      "symbol": "SOLUSDT",
+      "threshold": "T100K",
+      "vdepth_band": "v60",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 5,
+          "sum_bps": -260.6,
+          "mean_bps": -52.1,
+          "median_bps": -10.1,
+          "win_rate_pct": 40.0,
+          "t3r_bps": -399.5,
+          "max_loss_bps": -305.8,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        },
+        "cal": {
+          "n": 0,
+          "sum_bps": 0.0,
+          "mean_bps": null,
+          "median_bps": null,
+          "win_rate_pct": null,
+          "t3r_bps": 0.0,
+          "max_loss_bps": null,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 5,
+          "sum_bps": -260.6,
+          "mean_bps": -52.1,
+          "median_bps": -10.1,
+          "win_rate_pct": 40.0,
+          "t3r_bps": -399.5,
+          "max_loss_bps": -305.8,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -1439.7
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 5,
+            "sum_bps": -260.6,
+            "mean_bps": -52.1,
+            "median_bps": -10.1,
+            "win_rate_pct": 40.0,
+            "t3r_bps": -399.5,
+            "max_loss_bps": -305.8,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -399.5,
+          "delta_sum_bps": -260.6
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": 74.2,
+            "mean_bps": 37.1,
+            "median_bps": 37.1,
+            "win_rate_pct": 50.0,
+            "t3r_bps": 74.2,
+            "max_loss_bps": -10.1,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 3,
+            "sum_bps": -334.8,
+            "mean_bps": -111.6,
+            "median_bps": -93.7,
+            "win_rate_pct": 33.3,
+            "t3r_bps": -334.8,
+            "max_loss_bps": -305.8,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 409.0,
+          "delta_sum_bps": 409.0
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": 74.2,
+            "mean_bps": 37.1,
+            "median_bps": 37.1,
+            "win_rate_pct": 50.0,
+            "t3r_bps": 74.2,
+            "max_loss_bps": -10.1,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 3,
+            "sum_bps": -334.8,
+            "mean_bps": -111.6,
+            "median_bps": -93.7,
+            "win_rate_pct": 33.3,
+            "t3r_bps": -334.8,
+            "max_loss_bps": -305.8,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 409.0,
+          "delta_sum_bps": 409.0
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": -29.0,
+            "mean_bps": -14.5,
+            "median_bps": -14.5,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -29.0,
+            "max_loss_bps": -93.7,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 2,
+            "sum_bps": 74.2,
+            "mean_bps": 37.1,
+            "median_bps": 37.1,
+            "win_rate_pct": 50.0,
+            "t3r_bps": 74.2,
+            "max_loss_bps": -10.1,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -103.2,
+          "delta_sum_bps": -103.2
+        }
+      ]
+    },
+    {
+      "route_id": "BTCUSDT_SELL_FADE_LONG_T250K_v20_28_H4",
+      "symbol": "BTCUSDT",
+      "threshold": "T250K",
+      "vdepth_band": "v20",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 21,
+          "sum_bps": -287.5,
+          "mean_bps": -13.7,
+          "median_bps": 13.8,
+          "win_rate_pct": 61.9,
+          "t3r_bps": -658.4,
+          "max_loss_bps": -397.0,
+          "tail_lt_100": 2,
+          "tail_lt_200": 2
+        },
+        "cal": {
+          "n": 5,
+          "sum_bps": 24.0,
+          "mean_bps": 4.8,
+          "median_bps": -6.4,
+          "win_rate_pct": 40.0,
+          "t3r_bps": -56.6,
+          "max_loss_bps": -46.6,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 16,
+          "sum_bps": -311.6,
+          "mean_bps": -19.5,
+          "median_bps": 17.0,
+          "win_rate_pct": 68.8,
+          "t3r_bps": -682.4,
+          "max_loss_bps": -397.0,
+          "tail_lt_100": 2,
+          "tail_lt_200": 2
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -1560.3
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 10,
+            "sum_bps": -687.2,
+            "mean_bps": -68.7,
+            "median_bps": -14.0,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -897.8,
+            "max_loss_bps": -397.0,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "bad_hold": {
+            "n": 6,
+            "sum_bps": 375.6,
+            "mean_bps": 62.6,
+            "median_bps": 51.1,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 85.9,
+            "max_loss_bps": 20.2,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -983.7,
+          "delta_sum_bps": -1062.8
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 5,
+            "sum_bps": 179.9,
+            "mean_bps": 36.0,
+            "median_bps": 20.2,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 25.9,
+            "max_loss_bps": 12.1,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 11,
+            "sum_bps": -491.5,
+            "mean_bps": -44.7,
+            "median_bps": 7.7,
+            "win_rate_pct": 54.5,
+            "t3r_bps": -844.2,
+            "max_loss_bps": -397.0,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "delta_t3r_bps": 870.1,
+          "delta_sum_bps": 671.4
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 7,
+            "sum_bps": 518.8,
+            "mean_bps": 74.1,
+            "median_bps": 67.0,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 148.0,
+            "max_loss_bps": 12.1,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 9,
+            "sum_bps": -830.4,
+            "mean_bps": -92.3,
+            "median_bps": -35.8,
+            "win_rate_pct": 44.4,
+            "t3r_bps": -909.9,
+            "max_loss_bps": -397.0,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "delta_t3r_bps": 1057.9,
+          "delta_sum_bps": 1349.2
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 10,
+            "sum_bps": 279.5,
+            "mean_bps": 27.9,
+            "median_bps": 22.2,
+            "win_rate_pct": 70.0,
+            "t3r_bps": -73.2,
+            "max_loss_bps": -64.9,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 4,
+            "sum_bps": 166.1,
+            "mean_bps": 41.5,
+            "median_bps": 34.4,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 12.1,
+            "max_loss_bps": 12.1,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -85.3,
+          "delta_sum_bps": 113.4
+        }
+      ]
+    },
+    {
+      "route_id": "SOLUSDT_SELL_FADE_LONG_T25K_v20_28_H4",
+      "symbol": "SOLUSDT",
+      "threshold": "T25K",
+      "vdepth_band": "v20",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 18,
+          "sum_bps": 233.0,
+          "mean_bps": 12.9,
+          "median_bps": -14.0,
+          "win_rate_pct": 44.4,
+          "t3r_bps": -871.7,
+          "max_loss_bps": -374.0,
+          "tail_lt_100": 3,
+          "tail_lt_200": 2
+        },
+        "cal": {
+          "n": 3,
+          "sum_bps": 35.7,
+          "mean_bps": 11.9,
+          "median_bps": -13.1,
+          "win_rate_pct": 33.3,
+          "t3r_bps": 35.7,
+          "max_loss_bps": -21.3,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 15,
+          "sum_bps": 197.3,
+          "mean_bps": 13.2,
+          "median_bps": -14.9,
+          "win_rate_pct": 46.7,
+          "t3r_bps": -907.4,
+          "max_loss_bps": -374.0,
+          "tail_lt_100": 3,
+          "tail_lt_200": 2
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": true,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -1783.1
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 10,
+            "sum_bps": 317.9,
+            "mean_bps": 31.8,
+            "median_bps": 15.4,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -786.9,
+            "max_loss_bps": -374.0,
+            "tail_lt_100": 3,
+            "tail_lt_200": 2
+          },
+          "bad_hold": {
+            "n": 5,
+            "sum_bps": -120.6,
+            "mean_bps": -24.1,
+            "median_bps": -48.7,
+            "win_rate_pct": 40.0,
+            "t3r_bps": -119.7,
+            "max_loss_bps": -67.1,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -667.2,
+          "delta_sum_bps": 438.5
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 11,
+            "sum_bps": -101.7,
+            "mean_bps": -9.2,
+            "median_bps": -14.9,
+            "win_rate_pct": 45.5,
+            "t3r_bps": -866.1,
+            "max_loss_bps": -374.0,
+            "tail_lt_100": 3,
+            "tail_lt_200": 2
+          },
+          "bad_hold": {
+            "n": 4,
+            "sum_bps": 299.0,
+            "mean_bps": 74.8,
+            "median_bps": -1.6,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -91.9,
+            "max_loss_bps": -91.9,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -774.2,
+          "delta_sum_bps": -400.7
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 10,
+            "sum_bps": -191.9,
+            "mean_bps": -19.2,
+            "median_bps": -31.8,
+            "win_rate_pct": 40.0,
+            "t3r_bps": -851.2,
+            "max_loss_bps": -374.0,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "bad_hold": {
+            "n": 5,
+            "sum_bps": 389.2,
+            "mean_bps": 77.8,
+            "median_bps": 45.6,
+            "win_rate_pct": 60.0,
+            "t3r_bps": -201.2,
+            "max_loss_bps": -109.3,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -650.0,
+          "delta_sum_bps": -581.1
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 6,
+            "sum_bps": 340.5,
+            "mean_bps": 56.7,
+            "median_bps": -1.6,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -250.0,
+            "max_loss_bps": -109.3,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 9,
+            "sum_bps": -143.1,
+            "mean_bps": -15.9,
+            "median_bps": -14.9,
+            "win_rate_pct": 44.4,
+            "t3r_bps": -802.5,
+            "max_loss_bps": -374.0,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "delta_t3r_bps": 552.5,
+          "delta_sum_bps": 483.6
+        }
+      ]
+    },
+    {
+      "route_id": "ETHUSDT_SELL_FADE_LONG_T150K_v40_60_H4",
+      "symbol": "ETHUSDT",
+      "threshold": "T150K",
+      "vdepth_band": "v40",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 10,
+          "sum_bps": -639.2,
+          "mean_bps": -63.9,
+          "median_bps": -56.6,
+          "win_rate_pct": 30.0,
+          "t3r_bps": -1008.2,
+          "max_loss_bps": -338.0,
+          "tail_lt_100": 3,
+          "tail_lt_200": 3
+        },
+        "cal": {
+          "n": 2,
+          "sum_bps": -211.5,
+          "mean_bps": -105.7,
+          "median_bps": -105.7,
+          "win_rate_pct": 50.0,
+          "t3r_bps": -211.5,
+          "max_loss_bps": -271.1,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        },
+        "hold": {
+          "n": 8,
+          "sum_bps": -427.7,
+          "mean_bps": -53.5,
+          "median_bps": -56.6,
+          "win_rate_pct": 25.0,
+          "t3r_bps": -734.2,
+          "max_loss_bps": -338.0,
+          "tail_lt_100": 2,
+          "tail_lt_200": 2
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -1841.1
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 5,
+            "sum_bps": -393.4,
+            "mean_bps": -78.7,
+            "median_bps": -45.8,
+            "win_rate_pct": 20.0,
+            "t3r_bps": -405.5,
+            "max_loss_bps": -338.0,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 3,
+            "sum_bps": -34.3,
+            "mean_bps": -11.4,
+            "median_bps": -72.1,
+            "win_rate_pct": 33.3,
+            "t3r_bps": -34.3,
+            "max_loss_bps": -210.8,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": -371.2,
+          "delta_sum_bps": -359.1
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": 248.6,
+            "mean_bps": 248.6,
+            "median_bps": 248.6,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 248.6,
+            "max_loss_bps": 248.6,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 7,
+            "sum_bps": -676.3,
+            "mean_bps": -96.6,
+            "median_bps": -67.4,
+            "win_rate_pct": 14.3,
+            "t3r_bps": -688.4,
+            "max_loss_bps": -338.0,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "delta_t3r_bps": 937.0,
+          "delta_sum_bps": 924.9
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": 176.5,
+            "mean_bps": 88.3,
+            "median_bps": 88.3,
+            "win_rate_pct": 50.0,
+            "t3r_bps": 176.5,
+            "max_loss_bps": -72.1,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 6,
+            "sum_bps": -604.2,
+            "mean_bps": -100.7,
+            "median_bps": -56.6,
+            "win_rate_pct": 16.7,
+            "t3r_bps": -616.3,
+            "max_loss_bps": -338.0,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "delta_t3r_bps": 792.8,
+          "delta_sum_bps": 780.7
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 6,
+            "sum_bps": -338.3,
+            "mean_bps": -56.4,
+            "median_bps": -56.6,
+            "win_rate_pct": 16.7,
+            "t3r_bps": -350.4,
+            "max_loss_bps": -210.8,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": 248.6,
+            "mean_bps": 248.6,
+            "median_bps": 248.6,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 248.6,
+            "max_loss_bps": 248.6,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -599.0,
+          "delta_sum_bps": -586.9
+        }
+      ]
+    },
+    {
+      "route_id": "SOLUSDT_SELL_FADE_LONG_T50K_v28_40_H4",
+      "symbol": "SOLUSDT",
+      "threshold": "T50K",
+      "vdepth_band": "v28",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 15,
+          "sum_bps": -380.5,
+          "mean_bps": -25.4,
+          "median_bps": 6.0,
+          "win_rate_pct": 53.3,
+          "t3r_bps": -881.1,
+          "max_loss_bps": -484.2,
+          "tail_lt_100": 3,
+          "tail_lt_200": 3
+        },
+        "cal": {
+          "n": 1,
+          "sum_bps": -25.5,
+          "mean_bps": -25.5,
+          "median_bps": -25.5,
+          "win_rate_pct": 0.0,
+          "t3r_bps": -25.5,
+          "max_loss_bps": -25.5,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 14,
+          "sum_bps": -355.0,
+          "mean_bps": -25.4,
+          "median_bps": 13.6,
+          "win_rate_pct": 57.1,
+          "t3r_bps": -855.5,
+          "max_loss_bps": -484.2,
+          "tail_lt_100": 3,
+          "tail_lt_200": 3
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -1894.2
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 13,
+            "sum_bps": -327.9,
+            "mean_bps": -25.2,
+            "median_bps": 21.1,
+            "win_rate_pct": 61.5,
+            "t3r_bps": -828.5,
+            "max_loss_bps": -484.2,
+            "tail_lt_100": 3,
+            "tail_lt_200": 3
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": -27.0,
+            "mean_bps": -27.0,
+            "median_bps": -27.0,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -27.0,
+            "max_loss_bps": -27.0,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -801.5,
+          "delta_sum_bps": -300.9
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 9,
+            "sum_bps": -229.9,
+            "mean_bps": -25.5,
+            "median_bps": 21.1,
+            "win_rate_pct": 66.7,
+            "t3r_bps": -730.4,
+            "max_loss_bps": -484.2,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "bad_hold": {
+            "n": 5,
+            "sum_bps": -125.1,
+            "mean_bps": -25.0,
+            "median_bps": -32.4,
+            "win_rate_pct": 40.0,
+            "t3r_bps": -285.3,
+            "max_loss_bps": -237.0,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": -445.1,
+          "delta_sum_bps": -104.8
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 9,
+            "sum_bps": -283.4,
+            "mean_bps": -31.5,
+            "median_bps": 6.0,
+            "win_rate_pct": 55.6,
+            "t3r_bps": -783.9,
+            "max_loss_bps": -484.2,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "bad_hold": {
+            "n": 5,
+            "sum_bps": -71.6,
+            "mean_bps": -14.3,
+            "median_bps": 21.1,
+            "win_rate_pct": 60.0,
+            "t3r_bps": -285.3,
+            "max_loss_bps": -237.0,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": -498.6,
+          "delta_sum_bps": -211.8
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": -11.3,
+            "mean_bps": -5.7,
+            "median_bps": -5.7,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -11.3,
+            "max_loss_bps": -32.4,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 8,
+            "sum_bps": -251.0,
+            "mean_bps": -31.4,
+            "median_bps": 19.7,
+            "win_rate_pct": 62.5,
+            "t3r_bps": -751.5,
+            "max_loss_bps": -484.2,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "delta_t3r_bps": 740.2,
+          "delta_sum_bps": 239.7
+        }
+      ]
+    },
+    {
+      "route_id": "BTCUSDT_SELL_FADE_LONG_T500K_v28_40_H4",
+      "symbol": "BTCUSDT",
+      "threshold": "T500K",
+      "vdepth_band": "v28",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 17,
+          "sum_bps": -323.6,
+          "mean_bps": -19.0,
+          "median_bps": 25.1,
+          "win_rate_pct": 58.8,
+          "t3r_bps": -697.5,
+          "max_loss_bps": -417.1,
+          "tail_lt_100": 4,
+          "tail_lt_200": 2
+        },
+        "cal": {
+          "n": 4,
+          "sum_bps": 32.9,
+          "mean_bps": 8.2,
+          "median_bps": -5.3,
+          "win_rate_pct": 50.0,
+          "t3r_bps": -54.6,
+          "max_loss_bps": -54.6,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 13,
+          "sum_bps": -356.5,
+          "mean_bps": -27.4,
+          "median_bps": 25.1,
+          "win_rate_pct": 61.5,
+          "t3r_bps": -730.4,
+          "max_loss_bps": -417.1,
+          "tail_lt_100": 4,
+          "tail_lt_200": 2
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -1894.5
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 10,
+            "sum_bps": -287.5,
+            "mean_bps": -28.8,
+            "median_bps": 13.0,
+            "win_rate_pct": 60.0,
+            "t3r_bps": -605.9,
+            "max_loss_bps": -417.1,
+            "tail_lt_100": 3,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 3,
+            "sum_bps": -69.0,
+            "mean_bps": -23.0,
+            "median_bps": 27.1,
+            "win_rate_pct": 66.7,
+            "t3r_bps": -69.0,
+            "max_loss_bps": -240.9,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": -536.9,
+          "delta_sum_bps": -218.5
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 4,
+            "sum_bps": -275.6,
+            "mean_bps": -68.9,
+            "median_bps": 26.1,
+            "win_rate_pct": 75.0,
+            "t3r_bps": -417.1,
+            "max_loss_bps": -417.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 9,
+            "sum_bps": -80.9,
+            "mean_bps": -9.0,
+            "median_bps": 0.9,
+            "win_rate_pct": 55.6,
+            "t3r_bps": -454.8,
+            "max_loss_bps": -240.9,
+            "tail_lt_100": 3,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 37.7,
+          "delta_sum_bps": -194.7
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 5,
+            "sum_bps": -282.3,
+            "mean_bps": -56.5,
+            "median_bps": 25.1,
+            "win_rate_pct": 60.0,
+            "t3r_bps": -423.8,
+            "max_loss_bps": -417.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 8,
+            "sum_bps": -74.2,
+            "mean_bps": -9.3,
+            "median_bps": 21.4,
+            "win_rate_pct": 62.5,
+            "t3r_bps": -448.1,
+            "max_loss_bps": -240.9,
+            "tail_lt_100": 3,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 24.3,
+          "delta_sum_bps": -208.1
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 7,
+            "sum_bps": -77.3,
+            "mean_bps": -11.0,
+            "median_bps": 0.9,
+            "win_rate_pct": 57.1,
+            "t3r_bps": -384.9,
+            "max_loss_bps": -240.9,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 4,
+            "sum_bps": -275.6,
+            "mean_bps": -68.9,
+            "median_bps": 26.1,
+            "win_rate_pct": 75.0,
+            "t3r_bps": -417.1,
+            "max_loss_bps": -417.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 32.2,
+          "delta_sum_bps": 198.3
+        }
+      ]
+    },
+    {
+      "route_id": "BTCUSDT_SELL_FADE_LONG_T500K_v20_28_H4",
+      "symbol": "BTCUSDT",
+      "threshold": "T500K",
+      "vdepth_band": "v20",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 17,
+          "sum_bps": -452.7,
+          "mean_bps": -26.6,
+          "median_bps": 7.7,
+          "win_rate_pct": 52.9,
+          "t3r_bps": -824.4,
+          "max_loss_bps": -397.1,
+          "tail_lt_100": 2,
+          "tail_lt_200": 2
+        },
+        "cal": {
+          "n": 7,
+          "sum_bps": 84.1,
+          "mean_bps": 12.0,
+          "median_bps": -9.6,
+          "win_rate_pct": 42.9,
+          "t3r_bps": -115.5,
+          "max_loss_bps": -54.1,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 10,
+          "sum_bps": -536.8,
+          "mean_bps": -53.7,
+          "median_bps": 7.8,
+          "win_rate_pct": 60.0,
+          "t3r_bps": -824.6,
+          "max_loss_bps": -397.1,
+          "tail_lt_100": 2,
+          "tail_lt_200": 2
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -1908.8
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 8,
+            "sum_bps": -580.9,
+            "mean_bps": -72.6,
+            "median_bps": -13.3,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -848.6,
+            "max_loss_bps": -397.1,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "bad_hold": {
+            "n": 2,
+            "sum_bps": 44.1,
+            "mean_bps": 22.1,
+            "median_bps": 22.1,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 44.1,
+            "max_loss_bps": 7.9,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -892.7,
+          "delta_sum_bps": -625.0
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 3,
+            "sum_bps": 81.4,
+            "mean_bps": 27.1,
+            "median_bps": 16.2,
+            "win_rate_pct": 66.7,
+            "t3r_bps": 81.4,
+            "max_loss_bps": -34.3,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 7,
+            "sum_bps": -618.2,
+            "mean_bps": -88.3,
+            "median_bps": 7.7,
+            "win_rate_pct": 57.1,
+            "t3r_bps": -814.3,
+            "max_loss_bps": -397.1,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "delta_t3r_bps": 895.7,
+          "delta_sum_bps": 699.6
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 3,
+            "sum_bps": 81.4,
+            "mean_bps": 27.1,
+            "median_bps": 16.2,
+            "win_rate_pct": 66.7,
+            "t3r_bps": 81.4,
+            "max_loss_bps": -34.3,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 7,
+            "sum_bps": -618.2,
+            "mean_bps": -88.3,
+            "median_bps": 7.7,
+            "win_rate_pct": 57.1,
+            "t3r_bps": -814.3,
+            "max_loss_bps": -397.1,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "delta_t3r_bps": 895.7,
+          "delta_sum_bps": 699.6
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 5,
+            "sum_bps": -373.1,
+            "mean_bps": -74.6,
+            "median_bps": 7.7,
+            "win_rate_pct": 60.0,
+            "t3r_bps": -425.0,
+            "max_loss_bps": -365.2,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 3,
+            "sum_bps": 81.4,
+            "mean_bps": 27.1,
+            "median_bps": 16.2,
+            "win_rate_pct": 66.7,
+            "t3r_bps": 81.4,
+            "max_loss_bps": -34.3,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -506.4,
+          "delta_sum_bps": -454.5
+        }
+      ]
+    },
+    {
+      "route_id": "ETHUSDT_SELL_FADE_LONG_T100K_v20_28_H4",
+      "symbol": "ETHUSDT",
+      "threshold": "T100K",
+      "vdepth_band": "v20",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 41,
+          "sum_bps": -72.9,
+          "mean_bps": -1.8,
+          "median_bps": -11.4,
+          "win_rate_pct": 46.3,
+          "t3r_bps": -1480.9,
+          "max_loss_bps": -439.8,
+          "tail_lt_100": 8,
+          "tail_lt_200": 6
+        },
+        "cal": {
+          "n": 19,
+          "sum_bps": -399.5,
+          "mean_bps": -21.0,
+          "median_bps": -43.4,
+          "win_rate_pct": 36.8,
+          "t3r_bps": -958.3,
+          "max_loss_bps": -256.9,
+          "tail_lt_100": 3,
+          "tail_lt_200": 2
+        },
+        "hold": {
+          "n": 22,
+          "sum_bps": 326.6,
+          "mean_bps": 14.8,
+          "median_bps": 14.6,
+          "win_rate_pct": 54.5,
+          "t3r_bps": -1060.7,
+          "max_loss_bps": -439.8,
+          "tail_lt_100": 5,
+          "tail_lt_200": 4
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -1929.1
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 11,
+            "sum_bps": 260.0,
+            "mean_bps": 23.6,
+            "median_bps": 17.1,
+            "win_rate_pct": 54.5,
+            "t3r_bps": -1127.3,
+            "max_loss_bps": -439.8,
+            "tail_lt_100": 3,
+            "tail_lt_200": 3
+          },
+          "bad_hold": {
+            "n": 11,
+            "sum_bps": 66.6,
+            "mean_bps": 6.1,
+            "median_bps": 12.0,
+            "win_rate_pct": 54.5,
+            "t3r_bps": -467.5,
+            "max_loss_bps": -429.5,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": -659.8,
+          "delta_sum_bps": 193.4
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 11,
+            "sum_bps": -167.0,
+            "mean_bps": -15.2,
+            "median_bps": 42.0,
+            "win_rate_pct": 63.6,
+            "t3r_bps": -1016.6,
+            "max_loss_bps": -439.8,
+            "tail_lt_100": 4,
+            "tail_lt_200": 3
+          },
+          "bad_hold": {
+            "n": 11,
+            "sum_bps": 493.5,
+            "mean_bps": 44.9,
+            "median_bps": -4.2,
+            "win_rate_pct": 45.5,
+            "t3r_bps": -585.5,
+            "max_loss_bps": -433.4,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": -431.1,
+          "delta_sum_bps": -660.5
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 10,
+            "sum_bps": -266.7,
+            "mean_bps": -26.7,
+            "median_bps": 29.5,
+            "win_rate_pct": 60.0,
+            "t3r_bps": -1116.4,
+            "max_loss_bps": -439.8,
+            "tail_lt_100": 4,
+            "tail_lt_200": 3
+          },
+          "bad_hold": {
+            "n": 12,
+            "sum_bps": 593.3,
+            "mean_bps": 49.4,
+            "median_bps": 3.9,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -485.7,
+            "max_loss_bps": -433.4,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": -630.7,
+          "delta_sum_bps": -860.0
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 7,
+            "sum_bps": -476.8,
+            "mean_bps": -68.1,
+            "median_bps": -11.5,
+            "win_rate_pct": 28.6,
+            "t3r_bps": -584.3,
+            "max_loss_bps": -433.4,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 10,
+            "sum_bps": -266.7,
+            "mean_bps": -26.7,
+            "median_bps": 29.5,
+            "win_rate_pct": 60.0,
+            "t3r_bps": -1116.4,
+            "max_loss_bps": -439.8,
+            "tail_lt_100": 4,
+            "tail_lt_200": 3
+          },
+          "delta_t3r_bps": 532.1,
+          "delta_sum_bps": -210.1
+        }
+      ]
+    },
+    {
+      "route_id": "ETHUSDT_SELL_FADE_LONG_T200K_v40_60_H4",
+      "symbol": "ETHUSDT",
+      "threshold": "T200K",
+      "vdepth_band": "v40",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 12,
+          "sum_bps": -886.5,
+          "mean_bps": -73.9,
+          "median_bps": -56.6,
+          "win_rate_pct": 25.0,
+          "t3r_bps": -1161.2,
+          "max_loss_bps": -338.0,
+          "tail_lt_100": 4,
+          "tail_lt_200": 2
+        },
+        "cal": {
+          "n": 3,
+          "sum_bps": -56.7,
+          "mean_bps": -18.9,
+          "median_bps": 59.7,
+          "win_rate_pct": 66.7,
+          "t3r_bps": -56.7,
+          "max_loss_bps": -271.1,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        },
+        "hold": {
+          "n": 9,
+          "sum_bps": -829.8,
+          "mean_bps": -92.2,
+          "median_bps": -67.4,
+          "win_rate_pct": 11.1,
+          "t3r_bps": -853.1,
+          "max_loss_bps": -338.0,
+          "tail_lt_100": 3,
+          "tail_lt_200": 1
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -2135.6
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 7,
+            "sum_bps": -722.1,
+            "mean_bps": -103.2,
+            "median_bps": -67.4,
+            "win_rate_pct": 14.3,
+            "t3r_bps": -733.7,
+            "max_loss_bps": -338.0,
+            "tail_lt_100": 3,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 2,
+            "sum_bps": -107.7,
+            "mean_bps": -53.8,
+            "median_bps": -53.8,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -107.7,
+            "max_loss_bps": -73.6,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -626.0,
+          "delta_sum_bps": -614.4
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": -107.7,
+            "mean_bps": -53.8,
+            "median_bps": -53.8,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -107.7,
+            "max_loss_bps": -73.6,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 7,
+            "sum_bps": -722.1,
+            "mean_bps": -103.2,
+            "median_bps": -67.4,
+            "win_rate_pct": 14.3,
+            "t3r_bps": -733.7,
+            "max_loss_bps": -338.0,
+            "tail_lt_100": 3,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 626.0,
+          "delta_sum_bps": 614.4
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 4,
+            "sum_bps": -224.1,
+            "mean_bps": -56.0,
+            "median_bps": -53.8,
+            "win_rate_pct": 25.0,
+            "t3r_bps": -176.7,
+            "max_loss_bps": -176.7,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 5,
+            "sum_bps": -605.7,
+            "mean_bps": -121.1,
+            "median_bps": -67.4,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -489.6,
+            "max_loss_bps": -338.0,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 312.9,
+          "delta_sum_bps": 381.6
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 6,
+            "sum_bps": -384.1,
+            "mean_bps": -64.0,
+            "median_bps": -56.6,
+            "win_rate_pct": 16.7,
+            "t3r_bps": -395.7,
+            "max_loss_bps": -176.7,
+            "tail_lt_100": 2,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 2,
+            "sum_bps": -107.7,
+            "mean_bps": -53.8,
+            "median_bps": -53.8,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -107.7,
+            "max_loss_bps": -73.6,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -288.0,
+          "delta_sum_bps": -276.4
+        }
+      ]
+    },
+    {
+      "route_id": "BTCUSDT_SELL_FADE_LONG_T250K_v28_40_H4",
+      "symbol": "BTCUSDT",
+      "threshold": "T250K",
+      "vdepth_band": "v28",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 14,
+          "sum_bps": -393.8,
+          "mean_bps": -28.1,
+          "median_bps": 15.0,
+          "win_rate_pct": 57.1,
+          "t3r_bps": -749.3,
+          "max_loss_bps": -413.4,
+          "tail_lt_100": 3,
+          "tail_lt_200": 2
+        },
+        "cal": {
+          "n": 8,
+          "sum_bps": 246.0,
+          "mean_bps": 30.8,
+          "median_bps": 27.5,
+          "win_rate_pct": 62.5,
+          "t3r_bps": -76.2,
+          "max_loss_bps": -59.6,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 6,
+          "sum_bps": -639.8,
+          "mean_bps": -106.6,
+          "median_bps": -65.1,
+          "win_rate_pct": 50.0,
+          "t3r_bps": -860.7,
+          "max_loss_bps": -413.4,
+          "tail_lt_100": 3,
+          "tail_lt_200": 2
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -2170.7
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 5,
+            "sum_bps": -499.3,
+            "mean_bps": -99.9,
+            "median_bps": 10.2,
+            "win_rate_pct": 60.0,
+            "t3r_bps": -720.2,
+            "max_loss_bps": -413.4,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": -140.5,
+            "mean_bps": -140.5,
+            "median_bps": -140.5,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -140.5,
+            "max_loss_bps": -140.5,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -579.7,
+          "delta_sum_bps": -358.8
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 4,
+            "sum_bps": -771.0,
+            "mean_bps": -192.7,
+            "median_bps": -223.6,
+            "win_rate_pct": 25.0,
+            "t3r_bps": -413.4,
+            "max_loss_bps": -413.4,
+            "tail_lt_100": 3,
+            "tail_lt_200": 2
+          },
+          "bad_hold": {
+            "n": 2,
+            "sum_bps": 131.1,
+            "mean_bps": 65.6,
+            "median_bps": 65.6,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 131.1,
+            "max_loss_bps": 10.2,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -544.5,
+          "delta_sum_bps": -902.1
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 4,
+            "sum_bps": -771.0,
+            "mean_bps": -192.7,
+            "median_bps": -223.6,
+            "win_rate_pct": 25.0,
+            "t3r_bps": -413.4,
+            "max_loss_bps": -413.4,
+            "tail_lt_100": 3,
+            "tail_lt_200": 2
+          },
+          "bad_hold": {
+            "n": 2,
+            "sum_bps": 131.1,
+            "mean_bps": 65.6,
+            "median_bps": 65.6,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 131.1,
+            "max_loss_bps": 10.2,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -544.5,
+          "delta_sum_bps": -902.1
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": 120.9,
+            "mean_bps": 120.9,
+            "median_bps": 120.9,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 120.9,
+            "max_loss_bps": 120.9,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 4,
+            "sum_bps": -771.0,
+            "mean_bps": -192.7,
+            "median_bps": -223.6,
+            "win_rate_pct": 25.0,
+            "t3r_bps": -413.4,
+            "max_loss_bps": -413.4,
+            "tail_lt_100": 3,
+            "tail_lt_200": 2
+          },
+          "delta_t3r_bps": 534.3,
+          "delta_sum_bps": 891.9
+        }
+      ]
+    },
+    {
+      "route_id": "BTCUSDT_SELL_FADE_LONG_T1000K_v28_40_H4",
+      "symbol": "BTCUSDT",
+      "threshold": "T1000K",
+      "vdepth_band": "v28",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 18,
+          "sum_bps": -516.0,
+          "mean_bps": -28.7,
+          "median_bps": 13.3,
+          "win_rate_pct": 55.6,
+          "t3r_bps": -953.5,
+          "max_loss_bps": -384.0,
+          "tail_lt_100": 5,
+          "tail_lt_200": 3
+        },
+        "cal": {
+          "n": 4,
+          "sum_bps": 75.0,
+          "mean_bps": 18.7,
+          "median_bps": -11.8,
+          "win_rate_pct": 50.0,
+          "t3r_bps": -44.9,
+          "max_loss_bps": -44.9,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 14,
+          "sum_bps": -591.0,
+          "mean_bps": -42.2,
+          "median_bps": 34.4,
+          "win_rate_pct": 57.1,
+          "t3r_bps": -974.1,
+          "max_loss_bps": -384.0,
+          "tail_lt_100": 5,
+          "tail_lt_200": 3
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -2271.8
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 14,
+            "sum_bps": -591.0,
+            "mean_bps": -42.2,
+            "median_bps": 34.4,
+            "win_rate_pct": 57.1,
+            "t3r_bps": -974.1,
+            "max_loss_bps": -384.0,
+            "tail_lt_100": 5,
+            "tail_lt_200": 3
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -974.1,
+          "delta_sum_bps": -591.0
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 6,
+            "sum_bps": -244.8,
+            "mean_bps": -40.8,
+            "median_bps": 34.6,
+            "win_rate_pct": 66.7,
+            "t3r_bps": -498.4,
+            "max_loss_bps": -384.0,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 8,
+            "sum_bps": -346.3,
+            "mean_bps": -43.3,
+            "median_bps": 19.9,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -643.9,
+            "max_loss_bps": -355.5,
+            "tail_lt_100": 3,
+            "tail_lt_200": 2
+          },
+          "delta_t3r_bps": 145.5,
+          "delta_sum_bps": 101.5
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 8,
+            "sum_bps": -186.4,
+            "mean_bps": -23.3,
+            "median_bps": 34.6,
+            "win_rate_pct": 62.5,
+            "t3r_bps": -457.9,
+            "max_loss_bps": -384.0,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 6,
+            "sum_bps": -404.6,
+            "mean_bps": -67.4,
+            "median_bps": -34.6,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -683.7,
+            "max_loss_bps": -355.5,
+            "tail_lt_100": 3,
+            "tail_lt_200": 2
+          },
+          "delta_t3r_bps": 225.8,
+          "delta_sum_bps": 218.2
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 3,
+            "sum_bps": -57.4,
+            "mean_bps": -19.1,
+            "median_bps": -6.7,
+            "win_rate_pct": 33.3,
+            "t3r_bps": -57.4,
+            "max_loss_bps": -115.8,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 6,
+            "sum_bps": -244.8,
+            "mean_bps": -40.8,
+            "median_bps": 34.6,
+            "win_rate_pct": 66.7,
+            "t3r_bps": -498.4,
+            "max_loss_bps": -384.0,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 441.0,
+          "delta_sum_bps": 187.4
+        }
+      ]
+    },
+    {
+      "route_id": "ETHUSDT_SELL_FADE_LONG_T100K_v28_40_H4",
+      "symbol": "ETHUSDT",
+      "threshold": "T100K",
+      "vdepth_band": "v28",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 34,
+          "sum_bps": -443.0,
+          "mean_bps": -13.0,
+          "median_bps": 6.4,
+          "win_rate_pct": 52.9,
+          "t3r_bps": -1278.1,
+          "max_loss_bps": -507.2,
+          "tail_lt_100": 7,
+          "tail_lt_200": 5
+        },
+        "cal": {
+          "n": 16,
+          "sum_bps": -48.5,
+          "mean_bps": -3.0,
+          "median_bps": -25.7,
+          "win_rate_pct": 43.8,
+          "t3r_bps": -500.2,
+          "max_loss_bps": -285.3,
+          "tail_lt_100": 2,
+          "tail_lt_200": 1
+        },
+        "hold": {
+          "n": 18,
+          "sum_bps": -394.5,
+          "mean_bps": -21.9,
+          "median_bps": 21.6,
+          "win_rate_pct": 61.1,
+          "t3r_bps": -1229.7,
+          "max_loss_bps": -507.2,
+          "tail_lt_100": 5,
+          "tail_lt_200": 4
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -2378.3
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 13,
+            "sum_bps": -545.0,
+            "mean_bps": -41.9,
+            "median_bps": 19.6,
+            "win_rate_pct": 61.5,
+            "t3r_bps": -1182.5,
+            "max_loss_bps": -507.2,
+            "tail_lt_100": 4,
+            "tail_lt_200": 3
+          },
+          "bad_hold": {
+            "n": 5,
+            "sum_bps": 150.5,
+            "mean_bps": 30.1,
+            "median_bps": 23.8,
+            "win_rate_pct": 60.0,
+            "t3r_bps": -379.2,
+            "max_loss_bps": -296.2,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": -803.3,
+          "delta_sum_bps": -695.5
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 6,
+            "sum_bps": -1033.2,
+            "mean_bps": -172.2,
+            "median_bps": -242.0,
+            "win_rate_pct": 16.7,
+            "t3r_bps": -968.7,
+            "max_loss_bps": -348.8,
+            "tail_lt_100": 4,
+            "tail_lt_200": 3
+          },
+          "bad_hold": {
+            "n": 12,
+            "sum_bps": 638.7,
+            "mean_bps": 53.2,
+            "median_bps": 43.2,
+            "win_rate_pct": 83.3,
+            "t3r_bps": -196.5,
+            "max_loss_bps": -507.2,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": -772.2,
+          "delta_sum_bps": -1671.9
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 7,
+            "sum_bps": -1009.6,
+            "mean_bps": -144.2,
+            "median_bps": -187.8,
+            "win_rate_pct": 28.6,
+            "t3r_bps": -1156.5,
+            "max_loss_bps": -348.8,
+            "tail_lt_100": 4,
+            "tail_lt_200": 3
+          },
+          "bad_hold": {
+            "n": 11,
+            "sum_bps": 615.1,
+            "mean_bps": 55.9,
+            "median_bps": 62.5,
+            "win_rate_pct": 81.8,
+            "t3r_bps": -220.0,
+            "max_loss_bps": -507.2,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": -936.5,
+          "delta_sum_bps": -1624.7
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 4,
+            "sum_bps": 136.8,
+            "mean_bps": 34.2,
+            "median_bps": 23.7,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 19.6,
+            "max_loss_bps": 19.6,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 6,
+            "sum_bps": -1033.2,
+            "mean_bps": -172.2,
+            "median_bps": -242.0,
+            "win_rate_pct": 16.7,
+            "t3r_bps": -968.7,
+            "max_loss_bps": -348.8,
+            "tail_lt_100": 4,
+            "tail_lt_200": 3
+          },
+          "delta_t3r_bps": 988.3,
+          "delta_sum_bps": 1170.0
+        }
+      ]
+    },
+    {
+      "route_id": "SOLUSDT_SELL_FADE_LONG_T100K_v28_40_H4",
+      "symbol": "SOLUSDT",
+      "threshold": "T100K",
+      "vdepth_band": "v28",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 17,
+          "sum_bps": -695.8,
+          "mean_bps": -40.9,
+          "median_bps": 12.0,
+          "win_rate_pct": 52.9,
+          "t3r_bps": -1215.7,
+          "max_loss_bps": -484.2,
+          "tail_lt_100": 4,
+          "tail_lt_200": 3
+        },
+        "cal": {
+          "n": 3,
+          "sum_bps": 51.5,
+          "mean_bps": 17.2,
+          "median_bps": 22.0,
+          "win_rate_pct": 66.7,
+          "t3r_bps": 51.5,
+          "max_loss_bps": -38.8,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 14,
+          "sum_bps": -747.2,
+          "mean_bps": -53.4,
+          "median_bps": -10.2,
+          "win_rate_pct": 50.0,
+          "t3r_bps": -1267.1,
+          "max_loss_bps": -484.2,
+          "tail_lt_100": 4,
+          "tail_lt_200": 3
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": true,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -2503.9
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 13,
+            "sum_bps": -666.8,
+            "mean_bps": -51.3,
+            "median_bps": 12.0,
+            "win_rate_pct": 53.8,
+            "t3r_bps": -1186.7,
+            "max_loss_bps": -484.2,
+            "tail_lt_100": 4,
+            "tail_lt_200": 3
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": -80.4,
+            "mean_bps": -80.4,
+            "median_bps": -80.4,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -80.4,
+            "max_loss_bps": -80.4,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -1106.3,
+          "delta_sum_bps": -586.4
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 7,
+            "sum_bps": -479.4,
+            "mean_bps": -68.5,
+            "median_bps": -80.4,
+            "win_rate_pct": 42.9,
+            "t3r_bps": -924.7,
+            "max_loss_bps": -484.2,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "bad_hold": {
+            "n": 7,
+            "sum_bps": -267.9,
+            "mean_bps": -38.3,
+            "median_bps": 12.0,
+            "win_rate_pct": 57.1,
+            "t3r_bps": -595.1,
+            "max_loss_bps": -472.5,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": -329.6,
+          "delta_sum_bps": -211.5
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 8,
+            "sum_bps": -759.0,
+            "mean_bps": -94.9,
+            "median_bps": -80.5,
+            "win_rate_pct": 25.0,
+            "t3r_bps": -1026.8,
+            "max_loss_bps": -484.2,
+            "tail_lt_100": 3,
+            "tail_lt_200": 2
+          },
+          "bad_hold": {
+            "n": 6,
+            "sum_bps": 11.8,
+            "mean_bps": 2.0,
+            "median_bps": 67.0,
+            "win_rate_pct": 83.3,
+            "t3r_bps": -397.2,
+            "max_loss_bps": -472.5,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": -629.6,
+          "delta_sum_bps": -770.8
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 6,
+            "sum_bps": 156.6,
+            "mean_bps": 26.1,
+            "median_bps": 37.7,
+            "win_rate_pct": 66.7,
+            "t3r_bps": -122.5,
+            "max_loss_bps": -102.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 6,
+            "sum_bps": -624.5,
+            "mean_bps": -104.1,
+            "median_bps": -80.5,
+            "win_rate_pct": 33.3,
+            "t3r_bps": -844.2,
+            "max_loss_bps": -484.2,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "delta_t3r_bps": 721.7,
+          "delta_sum_bps": 781.1
+        }
+      ]
+    },
+    {
+      "route_id": "SOLUSDT_SELL_FADE_LONG_T25K_v28_40_H4",
+      "symbol": "SOLUSDT",
+      "threshold": "T25K",
+      "vdepth_band": "v28",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 20,
+          "sum_bps": -1033.5,
+          "mean_bps": -51.7,
+          "median_bps": -25.6,
+          "win_rate_pct": 40.0,
+          "t3r_bps": -1530.0,
+          "max_loss_bps": -484.2,
+          "tail_lt_100": 4,
+          "tail_lt_200": 3
+        },
+        "cal": {
+          "n": 3,
+          "sum_bps": -150.6,
+          "mean_bps": -50.2,
+          "median_bps": -52.4,
+          "win_rate_pct": 0.0,
+          "t3r_bps": -150.6,
+          "max_loss_bps": -72.6,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 17,
+          "sum_bps": -883.0,
+          "mean_bps": -51.9,
+          "median_bps": -24.1,
+          "win_rate_pct": 47.1,
+          "t3r_bps": -1379.4,
+          "max_loss_bps": -484.2,
+          "tail_lt_100": 4,
+          "tail_lt_200": 3
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -2575.2
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 13,
+            "sum_bps": -711.4,
+            "mean_bps": -54.7,
+            "median_bps": 21.1,
+            "win_rate_pct": 61.5,
+            "t3r_bps": -1207.9,
+            "max_loss_bps": -484.2,
+            "tail_lt_100": 4,
+            "tail_lt_200": 3
+          },
+          "bad_hold": {
+            "n": 4,
+            "sum_bps": -171.6,
+            "mean_bps": -42.9,
+            "median_bps": -26.3,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -94.9,
+            "max_loss_bps": -94.9,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -1113.0,
+          "delta_sum_bps": -539.8
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 11,
+            "sum_bps": -674.9,
+            "mean_bps": -61.4,
+            "median_bps": -25.6,
+            "win_rate_pct": 36.4,
+            "t3r_bps": -1015.6,
+            "max_loss_bps": -484.2,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "bad_hold": {
+            "n": 6,
+            "sum_bps": -208.1,
+            "mean_bps": -34.7,
+            "median_bps": 55.2,
+            "win_rate_pct": 66.7,
+            "t3r_bps": -598.6,
+            "max_loss_bps": -460.6,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": -417.0,
+          "delta_sum_bps": -466.8
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 11,
+            "sum_bps": -1156.6,
+            "mean_bps": -105.1,
+            "median_bps": -27.0,
+            "win_rate_pct": 27.3,
+            "t3r_bps": -1482.2,
+            "max_loss_bps": -484.2,
+            "tail_lt_100": 3,
+            "tail_lt_200": 3
+          },
+          "bad_hold": {
+            "n": 6,
+            "sum_bps": 273.6,
+            "mean_bps": 45.6,
+            "median_bps": 55.2,
+            "win_rate_pct": 83.3,
+            "t3r_bps": -116.9,
+            "max_loss_bps": -172.8,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -1365.3,
+          "delta_sum_bps": -1430.2
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 5,
+            "sum_bps": -297.3,
+            "mean_bps": -59.5,
+            "median_bps": 21.1,
+            "win_rate_pct": 60.0,
+            "t3r_bps": -633.3,
+            "max_loss_bps": -460.6,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 10,
+            "sum_bps": -696.0,
+            "mean_bps": -69.6,
+            "median_bps": -26.3,
+            "win_rate_pct": 30.0,
+            "t3r_bps": -1021.6,
+            "max_loss_bps": -484.2,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "delta_t3r_bps": 388.3,
+          "delta_sum_bps": 398.7
+        }
+      ]
+    },
+    {
+      "route_id": "SOLUSDT_SELL_FADE_LONG_T50K_v20_28_H4",
+      "symbol": "SOLUSDT",
+      "threshold": "T50K",
+      "vdepth_band": "v20",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 23,
+          "sum_bps": -712.1,
+          "mean_bps": -31.0,
+          "median_bps": -14.9,
+          "win_rate_pct": 47.8,
+          "t3r_bps": -1499.5,
+          "max_loss_bps": -469.0,
+          "tail_lt_100": 5,
+          "tail_lt_200": 3
+        },
+        "cal": {
+          "n": 1,
+          "sum_bps": -39.5,
+          "mean_bps": -39.5,
+          "median_bps": -39.5,
+          "win_rate_pct": 0.0,
+          "t3r_bps": -39.5,
+          "max_loss_bps": -39.5,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 22,
+          "sum_bps": -672.6,
+          "mean_bps": -30.6,
+          "median_bps": -3.4,
+          "win_rate_pct": 50.0,
+          "t3r_bps": -1460.1,
+          "max_loss_bps": -469.0,
+          "tail_lt_100": 5,
+          "tail_lt_200": 3
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -2578.2
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 18,
+            "sum_bps": -758.5,
+            "mean_bps": -42.1,
+            "median_bps": -38.8,
+            "win_rate_pct": 44.4,
+            "t3r_bps": -1546.0,
+            "max_loss_bps": -469.0,
+            "tail_lt_100": 5,
+            "tail_lt_200": 3
+          },
+          "bad_hold": {
+            "n": 4,
+            "sum_bps": 85.9,
+            "mean_bps": 21.5,
+            "median_bps": 37.1,
+            "win_rate_pct": 75.0,
+            "t3r_bps": -31.2,
+            "max_loss_bps": -31.2,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -1514.8,
+          "delta_sum_bps": -844.4
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 12,
+            "sum_bps": -947.1,
+            "mean_bps": -78.9,
+            "median_bps": -46.9,
+            "win_rate_pct": 33.3,
+            "t3r_bps": -1166.4,
+            "max_loss_bps": -469.0,
+            "tail_lt_100": 3,
+            "tail_lt_200": 2
+          },
+          "bad_hold": {
+            "n": 10,
+            "sum_bps": 274.4,
+            "mean_bps": 27.4,
+            "median_bps": 42.5,
+            "win_rate_pct": 70.0,
+            "t3r_bps": -449.8,
+            "max_loss_bps": -372.7,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": -716.6,
+          "delta_sum_bps": -1221.5
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 8,
+            "sum_bps": -906.0,
+            "mean_bps": -113.2,
+            "median_bps": -46.9,
+            "win_rate_pct": 25.0,
+            "t3r_bps": -952.9,
+            "max_loss_bps": -469.0,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "bad_hold": {
+            "n": 14,
+            "sum_bps": 233.3,
+            "mean_bps": 16.7,
+            "median_bps": 37.1,
+            "win_rate_pct": 64.3,
+            "t3r_bps": -554.1,
+            "max_loss_bps": -372.7,
+            "tail_lt_100": 3,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": -398.8,
+          "delta_sum_bps": -1139.3
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 11,
+            "sum_bps": 405.4,
+            "mean_bps": 36.9,
+            "median_bps": 42.1,
+            "win_rate_pct": 72.7,
+            "t3r_bps": -382.0,
+            "max_loss_bps": -372.7,
+            "tail_lt_100": 2,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 8,
+            "sum_bps": -906.0,
+            "mean_bps": -113.2,
+            "median_bps": -46.9,
+            "win_rate_pct": 25.0,
+            "t3r_bps": -952.9,
+            "max_loss_bps": -469.0,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "delta_t3r_bps": 570.9,
+          "delta_sum_bps": 1311.4
+        }
+      ]
+    },
+    {
+      "route_id": "ETHUSDT_SELL_FADE_LONG_T200K_v20_28_H4",
+      "symbol": "ETHUSDT",
+      "threshold": "T200K",
+      "vdepth_band": "v20",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 34,
+          "sum_bps": -932.7,
+          "mean_bps": -27.4,
+          "median_bps": -14.8,
+          "win_rate_pct": 47.1,
+          "t3r_bps": -2257.7,
+          "max_loss_bps": -494.0,
+          "tail_lt_100": 10,
+          "tail_lt_200": 7
+        },
+        "cal": {
+          "n": 13,
+          "sum_bps": -24.7,
+          "mean_bps": -1.9,
+          "median_bps": -28.4,
+          "win_rate_pct": 30.8,
+          "t3r_bps": -591.0,
+          "max_loss_bps": -224.0,
+          "tail_lt_100": 2,
+          "tail_lt_200": 1
+        },
+        "hold": {
+          "n": 21,
+          "sum_bps": -908.0,
+          "mean_bps": -43.2,
+          "median_bps": 26.0,
+          "win_rate_pct": 57.1,
+          "t3r_bps": -2133.4,
+          "max_loss_bps": -494.0,
+          "tail_lt_100": 8,
+          "tail_lt_200": 6
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -3635.4
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 14,
+            "sum_bps": -1258.2,
+            "mean_bps": -89.9,
+            "median_bps": -29.5,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -2260.5,
+            "max_loss_bps": -494.0,
+            "tail_lt_100": 6,
+            "tail_lt_200": 6
+          },
+          "bad_hold": {
+            "n": 7,
+            "sum_bps": 350.3,
+            "mean_bps": 50.0,
+            "median_bps": 34.4,
+            "win_rate_pct": 71.4,
+            "t3r_bps": -190.6,
+            "max_loss_bps": -114.5,
+            "tail_lt_100": 2,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -2069.9,
+          "delta_sum_bps": -1608.5
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 12,
+            "sum_bps": -1107.7,
+            "mean_bps": -92.3,
+            "median_bps": -99.5,
+            "win_rate_pct": 41.7,
+            "t3r_bps": -1826.9,
+            "max_loss_bps": -494.0,
+            "tail_lt_100": 6,
+            "tail_lt_200": 4
+          },
+          "bad_hold": {
+            "n": 9,
+            "sum_bps": 199.7,
+            "mean_bps": 22.2,
+            "median_bps": 35.7,
+            "win_rate_pct": 77.8,
+            "t3r_bps": -603.4,
+            "max_loss_bps": -402.3,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "delta_t3r_bps": -1223.5,
+          "delta_sum_bps": -1307.4
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 13,
+            "sum_bps": -1070.7,
+            "mean_bps": -82.4,
+            "median_bps": -84.9,
+            "win_rate_pct": 46.2,
+            "t3r_bps": -1790.0,
+            "max_loss_bps": -494.0,
+            "tail_lt_100": 6,
+            "tail_lt_200": 4
+          },
+          "bad_hold": {
+            "n": 8,
+            "sum_bps": 162.7,
+            "mean_bps": 20.3,
+            "median_bps": 30.8,
+            "win_rate_pct": 75.0,
+            "t3r_bps": -640.4,
+            "max_loss_bps": -402.3,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "delta_t3r_bps": -1149.6,
+          "delta_sum_bps": -1233.4
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": 40.6,
+            "mean_bps": 20.3,
+            "median_bps": 20.3,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 40.6,
+            "max_loss_bps": 3.6,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 12,
+            "sum_bps": -1107.7,
+            "mean_bps": -92.3,
+            "median_bps": -99.5,
+            "win_rate_pct": 41.7,
+            "t3r_bps": -1826.9,
+            "max_loss_bps": -494.0,
+            "tail_lt_100": 6,
+            "tail_lt_200": 4
+          },
+          "delta_t3r_bps": 1867.5,
+          "delta_sum_bps": 1148.3
+        }
+      ]
+    },
+    {
+      "route_id": "ETHUSDT_SELL_FADE_LONG_T150K_v20_28_H4",
+      "symbol": "ETHUSDT",
+      "threshold": "T150K",
+      "vdepth_band": "v20",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 44,
+          "sum_bps": -854.7,
+          "mean_bps": -19.4,
+          "median_bps": 6.3,
+          "win_rate_pct": 52.3,
+          "t3r_bps": -2208.7,
+          "max_loss_bps": -494.0,
+          "tail_lt_100": 10,
+          "tail_lt_200": 8
+        },
+        "cal": {
+          "n": 15,
+          "sum_bps": 194.6,
+          "mean_bps": 13.0,
+          "median_bps": -34.5,
+          "win_rate_pct": 40.0,
+          "t3r_bps": -475.0,
+          "max_loss_bps": -221.3,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        },
+        "hold": {
+          "n": 29,
+          "sum_bps": -1049.3,
+          "mean_bps": -36.2,
+          "median_bps": 17.1,
+          "win_rate_pct": 58.6,
+          "t3r_bps": -2351.4,
+          "max_loss_bps": -494.0,
+          "tail_lt_100": 9,
+          "tail_lt_200": 7
+        }
+      },
+      "score": {
+        "status": "WEAK_OR_DEAD",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": false,
+        "passes_tail_zero": false,
+        "node_score": -3788.7
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 14,
+            "sum_bps": -1181.3,
+            "mean_bps": -84.4,
+            "median_bps": -33.9,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -2260.3,
+            "max_loss_bps": -494.0,
+            "tail_lt_100": 6,
+            "tail_lt_200": 6
+          },
+          "bad_hold": {
+            "n": 15,
+            "sum_bps": 132.0,
+            "mean_bps": 8.8,
+            "median_bps": 34.4,
+            "win_rate_pct": 66.7,
+            "t3r_bps": -402.9,
+            "max_loss_bps": -421.4,
+            "tail_lt_100": 3,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": -1857.4,
+          "delta_sum_bps": -1313.3
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 18,
+            "sum_bps": -1983.0,
+            "mean_bps": -110.2,
+            "median_bps": -46.0,
+            "win_rate_pct": 44.4,
+            "t3r_bps": -2517.9,
+            "max_loss_bps": -494.0,
+            "tail_lt_100": 8,
+            "tail_lt_200": 6
+          },
+          "bad_hold": {
+            "n": 11,
+            "sum_bps": 933.7,
+            "mean_bps": 84.9,
+            "median_bps": 37.0,
+            "win_rate_pct": 81.8,
+            "t3r_bps": -145.2,
+            "max_loss_bps": -421.4,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": -2372.7,
+          "delta_sum_bps": -2916.7
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 15,
+            "sum_bps": -1684.2,
+            "mean_bps": -112.3,
+            "median_bps": -84.9,
+            "win_rate_pct": 46.7,
+            "t3r_bps": -2207.7,
+            "max_loss_bps": -494.0,
+            "tail_lt_100": 7,
+            "tail_lt_200": 5
+          },
+          "bad_hold": {
+            "n": 14,
+            "sum_bps": 635.0,
+            "mean_bps": 45.4,
+            "median_bps": 43.1,
+            "win_rate_pct": 71.4,
+            "t3r_bps": -444.0,
+            "max_loss_bps": -421.4,
+            "tail_lt_100": 2,
+            "tail_lt_200": 2
+          },
+          "delta_t3r_bps": -1763.7,
+          "delta_sum_bps": -2319.2
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 9,
+            "sum_bps": -94.3,
+            "mean_bps": -10.5,
+            "median_bps": 34.9,
+            "win_rate_pct": 66.7,
+            "t3r_bps": -340.4,
+            "max_loss_bps": -405.7,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 14,
+            "sum_bps": -1721.2,
+            "mean_bps": -122.9,
+            "median_bps": -99.7,
+            "win_rate_pct": 42.9,
+            "t3r_bps": -2244.7,
+            "max_loss_bps": -494.0,
+            "tail_lt_100": 7,
+            "tail_lt_200": 5
+          },
+          "delta_t3r_bps": 1904.3,
+          "delta_sum_bps": 1626.9
+        }
+      ]
+    }
+  ],
+  "strong_nodes": [],
+  "watch_nodes": [],
+  "hypothesis_nodes": [
+    {
+      "route_id": "SOLUSDT_SELL_FADE_LONG_T25K_v40_60_H4",
+      "symbol": "SOLUSDT",
+      "threshold": "T25K",
+      "vdepth_band": "v40",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 14,
+          "sum_bps": 1222.1,
+          "mean_bps": 87.3,
+          "median_bps": 48.8,
+          "win_rate_pct": 71.4,
+          "t3r_bps": 91.4,
+          "max_loss_bps": -239.7,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        },
+        "cal": {
+          "n": 2,
+          "sum_bps": 37.1,
+          "mean_bps": 18.6,
+          "median_bps": 18.6,
+          "win_rate_pct": 50.0,
+          "t3r_bps": 37.1,
+          "max_loss_bps": -71.4,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 12,
+          "sum_bps": 1185.0,
+          "mean_bps": 98.7,
+          "median_bps": 48.8,
+          "win_rate_pct": 75.0,
+          "t3r_bps": 54.3,
+          "max_loss_bps": -239.7,
+          "tail_lt_100": 1,
+          "tail_lt_200": 1
+        }
+      },
+      "score": {
+        "status": "HYPOTHESIS",
+        "passes_min_split_n": false,
+        "passes_cal_positive": true,
+        "passes_hold_positive": true,
+        "passes_tail_zero": false,
+        "node_score": -449.4
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 9,
+            "sum_bps": 1027.9,
+            "mean_bps": 114.2,
+            "median_bps": 52.3,
+            "win_rate_pct": 66.7,
+            "t3r_bps": -102.8,
+            "max_loss_bps": -239.7,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "bad_hold": {
+            "n": 3,
+            "sum_bps": 157.1,
+            "mean_bps": 52.4,
+            "median_bps": 26.0,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 157.1,
+            "max_loss_bps": 8.6,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -259.9,
+          "delta_sum_bps": 870.8
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 4,
+            "sum_bps": -44.0,
+            "mean_bps": -11.0,
+            "median_bps": -36.7,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -93.1,
+            "max_loss_bps": -93.1,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 8,
+            "sum_bps": 1228.9,
+            "mean_bps": 153.6,
+            "median_bps": 133.3,
+            "win_rate_pct": 87.5,
+            "t3r_bps": 98.2,
+            "max_loss_bps": -239.7,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": -191.3,
+          "delta_sum_bps": -1272.9
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 7,
+            "sum_bps": 1086.7,
+            "mean_bps": 155.2,
+            "median_bps": 122.5,
+            "win_rate_pct": 71.4,
+            "t3r_bps": -44.0,
+            "max_loss_bps": -93.1,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 5,
+            "sum_bps": 98.2,
+            "mean_bps": 19.6,
+            "median_bps": 45.3,
+            "win_rate_pct": 80.0,
+            "t3r_bps": -213.7,
+            "max_loss_bps": -239.7,
+            "tail_lt_100": 1,
+            "tail_lt_200": 1
+          },
+          "delta_t3r_bps": 169.7,
+          "delta_sum_bps": 988.5
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 5,
+            "sum_bps": 1209.0,
+            "mean_bps": 241.8,
+            "median_bps": 233.8,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 78.3,
+            "max_loss_bps": 26.0,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 4,
+            "sum_bps": -44.0,
+            "mean_bps": -11.0,
+            "median_bps": -36.7,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -93.1,
+            "max_loss_bps": -93.1,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 171.4,
+          "delta_sum_bps": 1253.0
+        }
+      ]
+    },
+    {
+      "route_id": "BTCUSDT_SELL_FADE_LONG_T1000K_v20_28_H4",
+      "symbol": "BTCUSDT",
+      "threshold": "T1000K",
+      "vdepth_band": "v20",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 12,
+          "sum_bps": 814.4,
+          "mean_bps": 67.9,
+          "median_bps": 35.5,
+          "win_rate_pct": 66.7,
+          "t3r_bps": 133.9,
+          "max_loss_bps": -73.8,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "cal": {
+          "n": 4,
+          "sum_bps": 77.1,
+          "mean_bps": 19.3,
+          "median_bps": 21.7,
+          "win_rate_pct": 75.0,
+          "t3r_bps": -4.8,
+          "max_loss_bps": -4.8,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 8,
+          "sum_bps": 737.3,
+          "mean_bps": 92.2,
+          "median_bps": 102.6,
+          "win_rate_pct": 62.5,
+          "t3r_bps": 56.8,
+          "max_loss_bps": -73.8,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        }
+      },
+      "score": {
+        "status": "HYPOTHESIS",
+        "passes_min_split_n": false,
+        "passes_cal_positive": false,
+        "passes_hold_positive": true,
+        "passes_tail_zero": false,
+        "node_score": -558.9
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 8,
+            "sum_bps": 737.3,
+            "mean_bps": 92.2,
+            "median_bps": 102.6,
+            "win_rate_pct": 62.5,
+            "t3r_bps": 56.8,
+            "max_loss_bps": -73.8,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 56.8,
+          "delta_sum_bps": 737.3
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 6,
+            "sum_bps": 405.5,
+            "mean_bps": 67.6,
+            "median_bps": 9.5,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -148.4,
+            "max_loss_bps": -73.8,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 2,
+            "sum_bps": 331.8,
+            "mean_bps": 165.9,
+            "median_bps": 165.9,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 331.8,
+            "max_loss_bps": 152.0,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -480.2,
+          "delta_sum_bps": 73.7
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 6,
+            "sum_bps": 405.5,
+            "mean_bps": 67.6,
+            "median_bps": 9.5,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -148.4,
+            "max_loss_bps": -73.8,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 2,
+            "sum_bps": 331.8,
+            "mean_bps": 165.9,
+            "median_bps": 165.9,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 331.8,
+            "max_loss_bps": 152.0,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -480.2,
+          "delta_sum_bps": 73.7
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": 179.7,
+            "mean_bps": 179.7,
+            "median_bps": 179.7,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 179.7,
+            "max_loss_bps": 179.7,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 6,
+            "sum_bps": 405.5,
+            "mean_bps": 67.6,
+            "median_bps": 9.5,
+            "win_rate_pct": 50.0,
+            "t3r_bps": -148.4,
+            "max_loss_bps": -73.8,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 328.1,
+          "delta_sum_bps": -225.8
+        }
+      ]
+    },
+    {
+      "route_id": "ETHUSDT_SELL_FADE_LONG_T100K_v60_inf_H4",
+      "symbol": "ETHUSDT",
+      "threshold": "T100K",
+      "vdepth_band": "v60",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 3,
+          "sum_bps": 201.6,
+          "mean_bps": 67.2,
+          "median_bps": 47.6,
+          "win_rate_pct": 66.7,
+          "t3r_bps": 201.6,
+          "max_loss_bps": -147.1,
+          "tail_lt_100": 1,
+          "tail_lt_200": 0
+        },
+        "cal": {
+          "n": 1,
+          "sum_bps": 47.6,
+          "mean_bps": 47.6,
+          "median_bps": 47.6,
+          "win_rate_pct": 100.0,
+          "t3r_bps": 47.6,
+          "max_loss_bps": 47.6,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 2,
+          "sum_bps": 154.0,
+          "mean_bps": 77.0,
+          "median_bps": 77.0,
+          "win_rate_pct": 50.0,
+          "t3r_bps": 154.0,
+          "max_loss_bps": -147.1,
+          "tail_lt_100": 1,
+          "tail_lt_200": 0
+        }
+      },
+      "score": {
+        "status": "HYPOTHESIS",
+        "passes_min_split_n": false,
+        "passes_cal_positive": true,
+        "passes_hold_positive": true,
+        "passes_tail_zero": false,
+        "node_score": -857.5
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": 154.0,
+            "mean_bps": 77.0,
+            "median_bps": 77.0,
+            "win_rate_pct": 50.0,
+            "t3r_bps": 154.0,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 154.0,
+          "delta_sum_bps": 154.0
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": -147.1,
+            "mean_bps": -147.1,
+            "median_bps": -147.1,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -147.1,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": 301.0,
+            "mean_bps": 301.0,
+            "median_bps": 301.0,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 301.0,
+            "max_loss_bps": 301.0,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -448.1,
+          "delta_sum_bps": -448.1
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 2,
+            "sum_bps": 154.0,
+            "mean_bps": 77.0,
+            "median_bps": 77.0,
+            "win_rate_pct": 50.0,
+            "t3r_bps": 154.0,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -154.0,
+          "delta_sum_bps": -154.0
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": -147.1,
+            "mean_bps": -147.1,
+            "median_bps": -147.1,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -147.1,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -147.1,
+          "delta_sum_bps": -147.1
+        }
+      ]
+    },
+    {
+      "route_id": "ETHUSDT_SELL_FADE_LONG_T150K_v60_inf_H4",
+      "symbol": "ETHUSDT",
+      "threshold": "T150K",
+      "vdepth_band": "v60",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 3,
+          "sum_bps": 199.1,
+          "mean_bps": 66.4,
+          "median_bps": 45.1,
+          "win_rate_pct": 66.7,
+          "t3r_bps": 199.1,
+          "max_loss_bps": -147.1,
+          "tail_lt_100": 1,
+          "tail_lt_200": 0
+        },
+        "cal": {
+          "n": 1,
+          "sum_bps": 45.1,
+          "mean_bps": 45.1,
+          "median_bps": 45.1,
+          "win_rate_pct": 100.0,
+          "t3r_bps": 45.1,
+          "max_loss_bps": 45.1,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 2,
+          "sum_bps": 154.0,
+          "mean_bps": 77.0,
+          "median_bps": 77.0,
+          "win_rate_pct": 50.0,
+          "t3r_bps": 154.0,
+          "max_loss_bps": -147.1,
+          "tail_lt_100": 1,
+          "tail_lt_200": 0
+        }
+      },
+      "score": {
+        "status": "HYPOTHESIS",
+        "passes_min_split_n": false,
+        "passes_cal_positive": true,
+        "passes_hold_positive": true,
+        "passes_tail_zero": false,
+        "node_score": -857.5
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": 154.0,
+            "mean_bps": 77.0,
+            "median_bps": 77.0,
+            "win_rate_pct": 50.0,
+            "t3r_bps": 154.0,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 154.0,
+          "delta_sum_bps": 154.0
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": -147.1,
+            "mean_bps": -147.1,
+            "median_bps": -147.1,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -147.1,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": 301.0,
+            "mean_bps": 301.0,
+            "median_bps": 301.0,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 301.0,
+            "max_loss_bps": 301.0,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -448.1,
+          "delta_sum_bps": -448.1
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 2,
+            "sum_bps": 154.0,
+            "mean_bps": 77.0,
+            "median_bps": 77.0,
+            "win_rate_pct": 50.0,
+            "t3r_bps": 154.0,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -154.0,
+          "delta_sum_bps": -154.0
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": -147.1,
+            "mean_bps": -147.1,
+            "median_bps": -147.1,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -147.1,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -147.1,
+          "delta_sum_bps": -147.1
+        }
+      ]
+    },
+    {
+      "route_id": "ETHUSDT_SELL_FADE_LONG_T200K_v60_inf_H4",
+      "symbol": "ETHUSDT",
+      "threshold": "T200K",
+      "vdepth_band": "v60",
+      "horizon": "H4",
+      "summary": {
+        "all": {
+          "n": 3,
+          "sum_bps": 196.2,
+          "mean_bps": 65.4,
+          "median_bps": 45.1,
+          "win_rate_pct": 66.7,
+          "t3r_bps": 196.2,
+          "max_loss_bps": -147.1,
+          "tail_lt_100": 1,
+          "tail_lt_200": 0
+        },
+        "cal": {
+          "n": 1,
+          "sum_bps": 45.1,
+          "mean_bps": 45.1,
+          "median_bps": 45.1,
+          "win_rate_pct": 100.0,
+          "t3r_bps": 45.1,
+          "max_loss_bps": 45.1,
+          "tail_lt_100": 0,
+          "tail_lt_200": 0
+        },
+        "hold": {
+          "n": 2,
+          "sum_bps": 151.1,
+          "mean_bps": 75.5,
+          "median_bps": 75.5,
+          "win_rate_pct": 50.0,
+          "t3r_bps": 151.1,
+          "max_loss_bps": -147.1,
+          "tail_lt_100": 1,
+          "tail_lt_200": 0
+        }
+      },
+      "score": {
+        "status": "HYPOTHESIS",
+        "passes_min_split_n": false,
+        "passes_cal_positive": true,
+        "passes_hold_positive": true,
+        "passes_tail_zero": false,
+        "node_score": -861.1
+      },
+      "leverage_points_holdout": [
+        {
+          "gate": "sync_gate",
+          "good": "sync",
+          "bad": "idio",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": 151.1,
+            "mean_bps": 75.5,
+            "median_bps": 75.5,
+            "win_rate_pct": 50.0,
+            "t3r_bps": 151.1,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 151.1,
+          "delta_sum_bps": 151.1
+        },
+        {
+          "gate": "bid_depth_gate",
+          "good": "deep_bid",
+          "bad": "shallow_bid",
+          "good_hold": {
+            "n": 2,
+            "sum_bps": 151.1,
+            "mean_bps": 75.5,
+            "median_bps": 75.5,
+            "win_rate_pct": 50.0,
+            "t3r_bps": 151.1,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 0,
+            "sum_bps": 0.0,
+            "mean_bps": null,
+            "median_bps": null,
+            "win_rate_pct": null,
+            "t3r_bps": 0.0,
+            "max_loss_bps": null,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 151.1,
+          "delta_sum_bps": 151.1
+        },
+        {
+          "gate": "imbalance_gate",
+          "good": "bid_support",
+          "bad": "ask_heavy",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": 298.2,
+            "mean_bps": 298.2,
+            "median_bps": 298.2,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 298.2,
+            "max_loss_bps": 298.2,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": -147.1,
+            "mean_bps": -147.1,
+            "median_bps": -147.1,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -147.1,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": 445.3,
+          "delta_sum_bps": 445.3
+        },
+        {
+          "gate": "absorption_gate",
+          "good": "mixed",
+          "bad": "absorbed",
+          "good_hold": {
+            "n": 1,
+            "sum_bps": -147.1,
+            "mean_bps": -147.1,
+            "median_bps": -147.1,
+            "win_rate_pct": 0.0,
+            "t3r_bps": -147.1,
+            "max_loss_bps": -147.1,
+            "tail_lt_100": 1,
+            "tail_lt_200": 0
+          },
+          "bad_hold": {
+            "n": 1,
+            "sum_bps": 298.2,
+            "mean_bps": 298.2,
+            "median_bps": 298.2,
+            "win_rate_pct": 100.0,
+            "t3r_bps": 298.2,
+            "max_loss_bps": 298.2,
+            "tail_lt_100": 0,
+            "tail_lt_200": 0
+          },
+          "delta_t3r_bps": -445.3,
+          "delta_sum_bps": -445.3
+        }
+      ]
+    }
+  ]
+}

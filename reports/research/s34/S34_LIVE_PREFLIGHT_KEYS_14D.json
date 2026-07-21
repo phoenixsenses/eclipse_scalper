@@ -1,0 +1,141 @@
+{
+  "calculator": {
+    "available": true,
+    "decision_grade": true,
+    "generated_at": "2026-06-26T19:00:48+00:00",
+    "model_tag": "REGIME_SHIFT_RECENCY_HELPFUL_PRELIMINARY",
+    "note": "latest calculator run is informational; preflight does not treat it as the current live signal",
+    "prediction_mode": "event_prediction",
+    "status": "INFO"
+  },
+  "config": {
+    "days": 14,
+    "env_path": "D:\\eclipse_scalper\\.env",
+    "leverage": 40.0,
+    "margin_usdt": 40.0,
+    "notional_usdt": 1600.0,
+    "rules": [
+      "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+      "SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30"
+    ],
+    "usdt_per_bps": 0.16
+  },
+  "env": {
+    "api_keys_present": true,
+    "dry_run": true,
+    "live_trading_enabled": false,
+    "max_leverage": 40.0,
+    "requested_leverage": 40.0,
+    "safety": "SAFE_DISABLED",
+    "status": "PASS",
+    "testnet": false
+  },
+  "generated_at_utc": "2026-06-26T22:20:20.207918+00:00",
+  "mode": "READ_ONLY_PREFLIGHT_NO_ORDERS",
+  "overall": {
+    "env_ready": true,
+    "live_armed": false,
+    "live_ready": true,
+    "math_geometry_pass": true,
+    "streams_pass": true
+  },
+  "rules": [
+    {
+      "closed_7d": 19,
+      "cum_net_bps": 743.2630708867578,
+      "exit_counts": {
+        "BE": 2,
+        "SL": 2,
+        "TIME": 1,
+        "TP": 14
+      },
+      "gates": {
+        "cum_positive": true,
+        "median_positive": true,
+        "n_ge_10": true,
+        "reward_risk_ge_1_2": true,
+        "win_rate_ge_55": true,
+        "worst_loss_le_35pct_margin": true
+      },
+      "geometry": {
+        "be_bps": 30,
+        "reward_risk": 1.5,
+        "sl_bps": 40,
+        "tp_bps": 60
+      },
+      "mean_net_bps": 39.119108994039884,
+      "median_net_bps": 52.327776532245565,
+      "median_usdt_at_config": 8.372444245159292,
+      "open": 0,
+      "rule": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+      "status": "PASS",
+      "win_rate": 0.7894736842105263,
+      "worst_loss_pct_margin": 0.20656858337479928,
+      "worst_net_bps": -51.642145843699815,
+      "worst_usdt_at_config": -8.26274333499197
+    },
+    {
+      "closed_7d": 24,
+      "cum_net_bps": 640.3996775668022,
+      "exit_counts": {
+        "BE": 5,
+        "SL": 4,
+        "TP": 15
+      },
+      "gates": {
+        "cum_positive": true,
+        "median_positive": true,
+        "n_ge_10": true,
+        "reward_risk_ge_1_2": true,
+        "win_rate_ge_55": true,
+        "worst_loss_le_35pct_margin": true
+      },
+      "geometry": {
+        "be_bps": 30,
+        "reward_risk": 1.5,
+        "sl_bps": 40,
+        "tp_bps": 60
+      },
+      "mean_net_bps": 26.68331989861676,
+      "median_net_bps": 48.4503918980324,
+      "median_usdt_at_config": 7.7520627036851835,
+      "open": 0,
+      "rule": "SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+      "status": "PASS",
+      "win_rate": 0.625,
+      "worst_loss_pct_margin": 0.2526375861019964,
+      "worst_net_bps": -63.159396525499105,
+      "worst_usdt_at_config": -10.105503444079856
+    }
+  ],
+  "streams": [
+    {
+      "age_sec": 2.571918,
+      "last_ts_utc": "2026-06-26T22:20:17.636000+00:00",
+      "rows_1h": 643,
+      "status": "PASS",
+      "table": "liquidations"
+    },
+    {
+      "age_sec": 1.407918,
+      "last_ts_utc": "2026-06-26T22:20:18.800000+00:00",
+      "rows_1h": 2098275,
+      "status": "PASS",
+      "table": "book_ticker"
+    },
+    {
+      "age_sec": 3.207918,
+      "last_ts_utc": "2026-06-26T22:20:17+00:00",
+      "rows_1h": 10791,
+      "status": "PASS",
+      "table": "mark_prices"
+    },
+    {
+      "age_sec": 2.433918,
+      "last_ts_utc": "2026-06-26T22:20:17.774000+00:00",
+      "rows_1h": 72905,
+      "status": "PASS",
+      "table": "agg_trades"
+    }
+  ]
+}

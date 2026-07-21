@@ -1,0 +1,419 @@
+{
+  "results": {
+    "Q1": {
+      "Q1_full6": {
+        "label": "tum 6 sinyal",
+        "n": 69,
+        "wr": 73.9,
+        "avg": 74.2,
+        "total": 5118.0,
+        "per_month": 15.3,
+        "worst": -183.9,
+        "mc_p": 0.0
+      },
+      "Q1_drop_sync_ratio": {
+        "label": "-sync_ratio",
+        "n": 50,
+        "wr": 72.0,
+        "avg": 76.8,
+        "total": 3839.0,
+        "per_month": 11.1,
+        "worst": -183.9,
+        "mc_p": 0.0
+      },
+      "Q1_drop_rv5m": {
+        "label": "-rv5m",
+        "n": 47,
+        "wr": 80.9,
+        "avg": 78.2,
+        "total": 3674.0,
+        "per_month": 10.4,
+        "worst": -183.9,
+        "mc_p": 0.0
+      },
+      "Q1_drop_density24": {
+        "label": "-density24",
+        "n": 43,
+        "wr": 81.4,
+        "avg": 89.7,
+        "total": 3856.0,
+        "per_month": 9.5,
+        "worst": -183.9,
+        "mc_p": 0.0
+      },
+      "Q1_drop_ofi_pre": {
+        "label": "-ofi_pre",
+        "n": 66,
+        "wr": 75.8,
+        "avg": 74.0,
+        "total": 4887.0,
+        "per_month": 14.7,
+        "worst": -183.9,
+        "mc_p": 0.0
+      },
+      "Q1_drop_be_ratio": {
+        "label": "-be_ratio",
+        "n": 52,
+        "wr": 75.0,
+        "avg": 81.7,
+        "total": 4250.0,
+        "per_month": 11.5,
+        "worst": -183.9,
+        "mc_p": 0.0
+      },
+      "Q1_drop_ask_heavy": {
+        "label": "-ask_heavy",
+        "n": 57,
+        "wr": 78.9,
+        "avg": 80.8,
+        "total": 4604.0,
+        "per_month": 12.7,
+        "worst": -183.9,
+        "mc_p": 0.0
+      },
+      "Q1_solo_sync_ratio": {
+        "hi_avg": 71.3,
+        "lo_avg": 8.4,
+        "delta": 62.9,
+        "hi_n": 63
+      },
+      "Q1_solo_rv5m": {
+        "hi_avg": 59.4,
+        "lo_avg": 3.3,
+        "delta": 56.0,
+        "hi_n": 82
+      },
+      "Q1_solo_density24": {
+        "hi_avg": 49.3,
+        "lo_avg": 17.9,
+        "delta": 31.3,
+        "hi_n": 88
+      },
+      "Q1_solo_ofi_pre": {
+        "hi_avg": 65.9,
+        "lo_avg": 37.1,
+        "delta": 28.9,
+        "hi_n": 12
+      },
+      "Q1_solo_be_ratio": {
+        "hi_avg": 64.5,
+        "lo_avg": 21.3,
+        "delta": 43.1,
+        "hi_n": 54
+      },
+      "Q1_solo_ask_heavy": {
+        "hi_avg": 68.4,
+        "lo_avg": 26.5,
+        "delta": 41.8,
+        "hi_n": 40
+      }
+    },
+    "Q2": {
+      "Q2_limit10": {
+        "label": "limit -10bps filled",
+        "n": 31,
+        "wr": 83.9,
+        "avg": 77.6,
+        "total": 2407.0,
+        "per_month": 6.9,
+        "worst": -174.0,
+        "mc_p": 0.0,
+        "fill_rate": 44.9,
+        "ev_per_signal": 34.9,
+        "n_signals": 69
+      },
+      "Q2_limit20": {
+        "label": "limit -20bps filled",
+        "n": 25,
+        "wr": 92.0,
+        "avg": 95.2,
+        "total": 2381.0,
+        "per_month": 5.5,
+        "worst": -164.2,
+        "mc_p": 0.0,
+        "fill_rate": 36.2,
+        "ev_per_signal": 34.5,
+        "n_signals": 69
+      },
+      "Q2_limit30": {
+        "label": "limit -30bps filled",
+        "n": 19,
+        "wr": 89.5,
+        "avg": 103.2,
+        "total": 1960.0,
+        "per_month": 4.2,
+        "worst": -154.3,
+        "mc_p": 0.0,
+        "fill_rate": 27.5,
+        "ev_per_signal": 28.4,
+        "n_signals": 69
+      },
+      "Q2_market_ref": {
+        "label": "market T0 ref",
+        "n": 69,
+        "wr": 73.9,
+        "avg": 74.2,
+        "total": 5118.0,
+        "per_month": 15.3,
+        "worst": -183.9,
+        "mc_p": 0.0
+      }
+    },
+    "Q3": {
+      "Q3_cond_exit": {
+        "label": "score>=4 hold8h else6h (gate>=3)",
+        "n": 69,
+        "wr": 65.2,
+        "avg": 70.4,
+        "total": 4858.0,
+        "per_month": 15.3,
+        "worst": -251.1,
+        "mc_p": 0.0
+      },
+      "Q3_fixed_ref": {
+        "label": "fixed 6h ref",
+        "n": 69,
+        "wr": 73.9,
+        "avg": 74.2,
+        "total": 5118.0,
+        "per_month": 15.3,
+        "worst": -183.9,
+        "mc_p": 0.0
+      },
+      "Q3_sim_flat_5pct": {
+        "n": 36,
+        "final_mult": 1.128,
+        "max_dd_pct": -1.3
+      },
+      "Q3_sim_flat_10pct": {
+        "n": 36,
+        "final_mult": 1.268,
+        "max_dd_pct": -2.6
+      },
+      "Q3_sim_weighted_5pct": {
+        "n": 36,
+        "final_mult": 1.217,
+        "max_dd_pct": -2.4
+      },
+      "Q3_sim_weighted_10pct": {
+        "n": 36,
+        "final_mult": 1.468,
+        "max_dd_pct": -4.8
+      }
+    },
+    "Q4": {
+      "Q4_base": {
+        "label": "SHORT_NOISY base",
+        "n": 20,
+        "wr": 75.0,
+        "avg": 91.0,
+        "total": 1820.0,
+        "per_month": 4.4,
+        "worst": -255.3,
+        "mc_p": 0.012
+      },
+      "Q4_sync_ratio": {
+        "hi_avg": 116.1,
+        "lo_avg": 65.9,
+        "delta": 50.2
+      },
+      "Q4_rv5m": {
+        "hi_avg": 91.1,
+        "lo_avg": 90.3,
+        "delta": 0.8
+      },
+      "Q4_be_ratio": {
+        "hi_avg": 119.2,
+        "lo_avg": 62.8,
+        "delta": 56.4
+      },
+      "Q4_imb": {
+        "hi_avg": 93.9,
+        "lo_avg": 109.2,
+        "delta": -15.3
+      },
+      "Q4_ofi_post": {
+        "hi_avg": 89.3,
+        "lo_avg": 92.7,
+        "delta": -3.5
+      },
+      "Q4_btc_size": {
+        "hi_avg": 168.5,
+        "lo_avg": 13.5,
+        "delta": 154.9
+      }
+    },
+    "Q5": {
+      "Q5_allhours_s3_full": {
+        "label": "all-hours score>=3",
+        "n": 211,
+        "wr": 66.4,
+        "avg": 29.1,
+        "total": 6148.0,
+        "per_month": 46.8,
+        "worst": -538.6,
+        "mc_p": 0.0
+      },
+      "Q5_allhours_s3_noov": {
+        "label": "all-hours score>=3 noov",
+        "n": 97,
+        "wr": 60.8,
+        "avg": 23.0,
+        "total": 2232.0,
+        "per_month": 21.5,
+        "worst": -538.6,
+        "mc_p": 0.078
+      },
+      "Q5_allhours_s4_full": {
+        "label": "all-hours score>=4",
+        "n": 127,
+        "wr": 66.1,
+        "avg": 27.2,
+        "total": 3453.0,
+        "per_month": 28.2,
+        "worst": -538.6,
+        "mc_p": 0.046
+      },
+      "Q5_allhours_s4_noov": {
+        "label": "all-hours score>=4 noov",
+        "n": 61,
+        "wr": 62.3,
+        "avg": 27.7,
+        "total": 1692.0,
+        "per_month": 13.5,
+        "worst": -538.6,
+        "mc_p": 0.106
+      },
+      "Q5_s4_hour>=17": {
+        "label": "score>=4 hour>=17",
+        "n": 36,
+        "wr": 83.3,
+        "avg": 90.3,
+        "total": 3252.0,
+        "per_month": 8.0,
+        "worst": -183.9,
+        "mc_p": 0.0
+      },
+      "Q5_s4_hour<17": {
+        "label": "score>=4 hour<17",
+        "n": 91,
+        "wr": 59.3,
+        "avg": 2.2,
+        "total": 201.0,
+        "per_month": 20.2,
+        "worst": -538.6,
+        "mc_p": 0.458
+      }
+    },
+    "Q6": {
+      "Q6_shelf_hi": {
+        "label": "shelf hi (cok yakit)",
+        "n": 63,
+        "wr": 71.4,
+        "avg": 59.1,
+        "total": 3720.0,
+        "per_month": 14.0,
+        "worst": -448.5,
+        "mc_p": 0.0
+      },
+      "Q6_shelf_lo": {
+        "label": "shelf lo",
+        "n": 63,
+        "wr": 58.7,
+        "avg": 20.6,
+        "total": 1295.0,
+        "per_month": 14.0,
+        "worst": -189.0,
+        "mc_p": 0.054
+      }
+    },
+    "Q7": {
+      "Q7_fold2": {
+        "label": "fold2",
+        "n": 17,
+        "wr": 70.6,
+        "avg": 70.8,
+        "total": 1204.0,
+        "per_month": 15.1,
+        "worst": -154.6,
+        "mc_p": 0.024
+      },
+      "Q7_fold3": {
+        "label": "fold3",
+        "n": 17,
+        "wr": 70.6,
+        "avg": 70.8,
+        "total": 1204.0,
+        "per_month": 15.1,
+        "worst": -183.9,
+        "mc_p": 0.008
+      },
+      "Q7_fold4": {
+        "label": "fold4",
+        "n": 18,
+        "wr": 83.3,
+        "avg": 101.9,
+        "total": 1835.0,
+        "per_month": 16.0,
+        "worst": -129.3,
+        "mc_p": 0.0
+      },
+      "Q7_first_half": {
+        "label": "ilk yari",
+        "n": 34,
+        "wr": 70.6,
+        "avg": 61.2,
+        "total": 2080.0,
+        "per_month": 15.1,
+        "worst": -154.6,
+        "mc_p": 0.0
+      },
+      "Q7_recent_half": {
+        "label": "son yari",
+        "n": 35,
+        "wr": 77.1,
+        "avg": 86.8,
+        "total": 3039.0,
+        "per_month": 15.5,
+        "worst": -183.9,
+        "mc_p": 0.0
+      }
+    },
+    "Q8": {
+      "Q8_<60m to fund": {
+        "label": "<60m to fund",
+        "n": 20,
+        "wr": 45.0,
+        "avg": -7.0,
+        "total": -140.0,
+        "per_month": 4.4,
+        "worst": -189.0,
+        "mc_p": 0.602
+      },
+      "Q8_60-240m": {
+        "label": "60-240m",
+        "n": 45,
+        "wr": 71.1,
+        "avg": 38.3,
+        "total": 1724.0,
+        "per_month": 10.0,
+        "worst": -448.5,
+        "mc_p": 0.028
+      },
+      "Q8_>240m": {
+        "label": ">240m",
+        "n": 61,
+        "wr": 67.2,
+        "avg": 56.3,
+        "total": 3433.0,
+        "per_month": 13.5,
+        "worst": -161.8,
+        "mc_p": 0.002
+      }
+    }
+  },
+  "meta": {
+    "n": 126,
+    "months": 4.5
+  }
+}

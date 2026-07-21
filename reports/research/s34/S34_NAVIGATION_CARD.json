@@ -1,0 +1,36 @@
+{
+  "status": "NAVIGATION_CARD_OBSERVATION_ONLY",
+  "event_id": "ETHUSDT_SELL_50000_1782721690110",
+  "signal_utc": "2026-06-29T08:28:10.110000+00:00",
+  "route": "ETHUSDT_SELL_50000",
+  "tags": [
+    "RISK_OFF_REBOUND",
+    "VDEPTH_DANGER_LOW",
+    "BID_DEPTH_OK",
+    "BID_DEPTH_CORE",
+    "EXIT_2H_ACTUAL_BETTER",
+    "TAIL_HIGH_OR_UNKNOWN",
+    "SIZE_34X_FRAGILE"
+  ],
+  "knn_route_k20": {
+    "prediction": "MIXED",
+    "neighbor_summary": {
+      "n": 20,
+      "sum_bps": 285.7,
+      "mean_bps": 14.3,
+      "median_bps": -4.7,
+      "win_rate": 0.45,
+      "max_loss_bps": -112.9,
+      "tail_lte_minus100_n": 2,
+      "tail_lte_minus150_n": 0,
+      "tail_lte_minus300_n": 0,
+      "t3r_bps": -169.6
+    }
+  },
+  "tail_risk": "MIXED_OR_UNKNOWN",
+  "exit_preference": "EXIT_2H",
+  "sizing_preference": "SIZE_34X_FRAGILE",
+  "actual_label_2h_bps": 11.7,
+  "actual_reverse_2h_bps": -21.7,
+  "read": "Example latest historical navigation card. Live card should be generated point-in-time at signal arrival."
+}

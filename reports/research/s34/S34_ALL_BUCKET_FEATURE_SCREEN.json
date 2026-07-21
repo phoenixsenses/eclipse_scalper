@@ -1,0 +1,894 @@
+{
+  "generated_at": "2026-06-26T22:14:29.257539+00:00",
+  "source_db": "D:\\eclipse_scalper\\data\\s34_feature_factory.db",
+  "scope": "feature-factory all active non-deprecated S34 buckets",
+  "coverage": [
+    {
+      "symbol": "BTCUSDT",
+      "liq_side": "BUY",
+      "events": 127,
+      "first_utc": "2026-02-17T16:05:39.128000+00:00",
+      "last_utc": "2026-06-26T13:35:31.100000+00:00"
+    },
+    {
+      "symbol": "BTCUSDT",
+      "liq_side": "SELL",
+      "events": 113,
+      "first_utc": "2026-02-18T11:06:33.546000+00:00",
+      "last_utc": "2026-06-26T12:40:01.099000+00:00"
+    },
+    {
+      "symbol": "ETHUSDT",
+      "liq_side": "BUY",
+      "events": 450,
+      "first_utc": "2026-02-15T22:47:11.071000+00:00",
+      "last_utc": "2026-06-16T08:15:58.161000+00:00"
+    },
+    {
+      "symbol": "ETHUSDT",
+      "liq_side": "SELL",
+      "events": 222,
+      "first_utc": "2026-02-16T11:10:12.218000+00:00",
+      "last_utc": "2026-06-26T13:16:54.455000+00:00"
+    },
+    {
+      "symbol": "SOLUSDT",
+      "liq_side": "BUY",
+      "events": 104,
+      "first_utc": "2026-04-20T06:40:08.582000+00:00",
+      "last_utc": "2026-06-26T13:50:45.406000+00:00"
+    },
+    {
+      "symbol": "SOLUSDT",
+      "liq_side": "SELL",
+      "events": 105,
+      "first_utc": "2026-04-18T08:41:11.463000+00:00",
+      "last_utc": "2026-06-26T12:40:01.200000+00:00"
+    }
+  ],
+  "screens": [
+    {
+      "rule_id": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+      "symbol": "ETHUSDT",
+      "liq_side": "BUY",
+      "direction": "LONG",
+      "threshold": 200000.0,
+      "filters": [],
+      "event_n": 450,
+      "routes": [
+        {
+          "route_id": "LONG_DELAY0_TP60",
+          "summary": {
+            "n": 450,
+            "median": -5.094904319341532,
+            "mean": 13.840627444265971,
+            "cum": 6228.282349919687,
+            "wr": 0.4955555555555556,
+            "top3_removed_cum": 6025.402011458066,
+            "positive_days": 52,
+            "total_days": 77,
+            "avg_hold_sec": 1009.5334822222222,
+            "exit_counts": {
+              "SL": 76,
+              "BE": 133,
+              "TP": 204,
+              "TIME": 37
+            },
+            "giveback_n": 133,
+            "giveback_pct": 0.29555555555555557
+          },
+          "verdict": "negative_median",
+          "label_matches_runner_exactly": true
+        },
+        {
+          "route_id": "LONG_DELAY60_TP120",
+          "summary": {
+            "n": 450,
+            "median": -8.783343185877158,
+            "mean": 4.48157179380463,
+            "cum": 2016.7073072120836,
+            "wr": 0.2866666666666667,
+            "top3_removed_cum": 1636.0509420357969,
+            "positive_days": 31,
+            "total_days": 77,
+            "avg_hold_sec": 1608.6202933333334,
+            "exit_counts": {
+              "SL": 128,
+              "BE": 169,
+              "TP": 72,
+              "TIME": 81
+            },
+            "giveback_n": 59,
+            "giveback_pct": 0.13111111111111112
+          },
+          "verdict": "negative_median",
+          "label_matches_runner_exactly": false
+        }
+      ],
+      "best": {
+        "route_id": "LONG_DELAY0_TP60",
+        "summary": {
+          "n": 450,
+          "median": -5.094904319341532,
+          "mean": 13.840627444265971,
+          "cum": 6228.282349919687,
+          "wr": 0.4955555555555556,
+          "top3_removed_cum": 6025.402011458066,
+          "positive_days": 52,
+          "total_days": 77,
+          "avg_hold_sec": 1009.5334822222222,
+          "exit_counts": {
+            "SL": 76,
+            "BE": 133,
+            "TP": 204,
+            "TIME": 37
+          },
+          "giveback_n": 133,
+          "giveback_pct": 0.29555555555555557
+        },
+        "verdict": "negative_median",
+        "label_matches_runner_exactly": true
+      }
+    },
+    {
+      "rule_id": "ETH_BUY_LIQ_LONG_200K_BTC_PRE15_TP120_SL40_BE30_DELAY60",
+      "symbol": "ETHUSDT",
+      "liq_side": "BUY",
+      "direction": "LONG",
+      "threshold": 200000.0,
+      "filters": [
+        "btc_pre15>=0"
+      ],
+      "event_n": 356,
+      "routes": [
+        {
+          "route_id": "LONG_DELAY0_TP60",
+          "summary": {
+            "n": 356,
+            "median": 2.254638099942186,
+            "mean": 14.400910975712549,
+            "cum": 5126.724307353667,
+            "wr": 0.5028089887640449,
+            "top3_removed_cum": 4926.663555645424,
+            "positive_days": 49,
+            "total_days": 74,
+            "avg_hold_sec": 1052.6041179775282,
+            "exit_counts": {
+              "SL": 57,
+              "BE": 106,
+              "TP": 161,
+              "TIME": 32
+            },
+            "giveback_n": 106,
+            "giveback_pct": 0.29775280898876405
+          },
+          "verdict": "candidate",
+          "label_matches_runner_exactly": false
+        },
+        {
+          "route_id": "LONG_DELAY60_TP120",
+          "summary": {
+            "n": 356,
+            "median": -8.785003395564157,
+            "mean": 5.7812152276663396,
+            "cum": 2058.1126210492166,
+            "wr": 0.3089887640449438,
+            "top3_removed_cum": 1677.4562558729301,
+            "positive_days": 33,
+            "total_days": 74,
+            "avg_hold_sec": 1653.6969241573033,
+            "exit_counts": {
+              "SL": 100,
+              "BE": 126,
+              "TP": 58,
+              "TIME": 72
+            },
+            "giveback_n": 46,
+            "giveback_pct": 0.12921348314606743
+          },
+          "verdict": "negative_median",
+          "label_matches_runner_exactly": true
+        }
+      ],
+      "best": {
+        "route_id": "LONG_DELAY0_TP60",
+        "summary": {
+          "n": 356,
+          "median": 2.254638099942186,
+          "mean": 14.400910975712549,
+          "cum": 5126.724307353667,
+          "wr": 0.5028089887640449,
+          "top3_removed_cum": 4926.663555645424,
+          "positive_days": 49,
+          "total_days": 74,
+          "avg_hold_sec": 1052.6041179775282,
+          "exit_counts": {
+            "SL": 57,
+            "BE": 106,
+            "TP": 161,
+            "TIME": 32
+          },
+          "giveback_n": 106,
+          "giveback_pct": 0.29775280898876405
+        },
+        "verdict": "candidate",
+        "label_matches_runner_exactly": false
+      }
+    },
+    {
+      "rule_id": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+      "symbol": "ETHUSDT",
+      "liq_side": "BUY",
+      "direction": "LONG",
+      "threshold": 500000.0,
+      "filters": [
+        "day_trend>=0"
+      ],
+      "event_n": 97,
+      "routes": [
+        {
+          "route_id": "LONG_DELAY0_TP60",
+          "summary": {
+            "n": 97,
+            "median": 52.20848507147164,
+            "mean": 24.01896280675031,
+            "cum": 2329.8393922547803,
+            "wr": 0.6082474226804123,
+            "top3_removed_cum": 2140.035796891195,
+            "positive_days": 28,
+            "total_days": 38,
+            "avg_hold_sec": 790.392175257732,
+            "exit_counts": {
+              "SL": 9,
+              "TP": 53,
+              "TIME": 8,
+              "BE": 27
+            },
+            "giveback_n": 27,
+            "giveback_pct": 0.27835051546391754
+          },
+          "verdict": "candidate",
+          "label_matches_runner_exactly": true
+        },
+        {
+          "route_id": "LONG_DELAY60_TP120",
+          "summary": {
+            "n": 97,
+            "median": -8.340398702422712,
+            "mean": 13.697764025091493,
+            "cum": 1328.6831104338748,
+            "wr": 0.35051546391752575,
+            "top3_removed_cum": 950.5868761572884,
+            "positive_days": 15,
+            "total_days": 38,
+            "avg_hold_sec": 1556.9184639175257,
+            "exit_counts": {
+              "BE": 36,
+              "TP": 20,
+              "TIME": 20,
+              "SL": 21
+            },
+            "giveback_n": 17,
+            "giveback_pct": 0.17525773195876287
+          },
+          "verdict": "negative_median",
+          "label_matches_runner_exactly": false
+        }
+      ],
+      "best": {
+        "route_id": "LONG_DELAY0_TP60",
+        "summary": {
+          "n": 97,
+          "median": 52.20848507147164,
+          "mean": 24.01896280675031,
+          "cum": 2329.8393922547803,
+          "wr": 0.6082474226804123,
+          "top3_removed_cum": 2140.035796891195,
+          "positive_days": 28,
+          "total_days": 38,
+          "avg_hold_sec": 790.392175257732,
+          "exit_counts": {
+            "SL": 9,
+            "TP": 53,
+            "TIME": 8,
+            "BE": 27
+          },
+          "giveback_n": 27,
+          "giveback_pct": 0.27835051546391754
+        },
+        "verdict": "candidate",
+        "label_matches_runner_exactly": true
+      }
+    },
+    {
+      "rule_id": "ETH_BUY_LIQ_LONG_500K_NEGTREND_STRETCHED_TP60_SL40_BE30",
+      "symbol": "ETHUSDT",
+      "liq_side": "BUY",
+      "direction": "LONG",
+      "threshold": 500000.0,
+      "filters": [
+        "day_trend<=0",
+        "shape=stretched_120s"
+      ],
+      "event_n": 19,
+      "routes": [
+        {
+          "route_id": "LONG_DELAY0_TP60",
+          "summary": {
+            "n": 19,
+            "median": 52.1893774164002,
+            "mean": 40.07914146026824,
+            "cum": 761.5036877450965,
+            "wr": 0.7894736842105263,
+            "top3_removed_cum": 590.796473470774,
+            "positive_days": 13,
+            "total_days": 14,
+            "avg_hold_sec": 399.526052631579,
+            "exit_counts": {
+              "BE": 4,
+              "TP": 15
+            },
+            "giveback_n": 4,
+            "giveback_pct": 0.21052631578947367
+          },
+          "verdict": "thin",
+          "label_matches_runner_exactly": true
+        },
+        {
+          "route_id": "LONG_DELAY60_TP120",
+          "summary": {
+            "n": 19,
+            "median": -8.220310315533753,
+            "mean": 13.061026316146343,
+            "cum": 248.15950000678052,
+            "wr": 0.3684210526315789,
+            "top3_removed_cum": -94.31980668097853,
+            "positive_days": 6,
+            "total_days": 14,
+            "avg_hold_sec": 1783.8937894736841,
+            "exit_counts": {
+              "SL": 3,
+              "TIME": 4,
+              "BE": 9,
+              "TP": 3
+            },
+            "giveback_n": 4,
+            "giveback_pct": 0.21052631578947367
+          },
+          "verdict": "thin",
+          "label_matches_runner_exactly": false
+        }
+      ],
+      "best": {
+        "route_id": "LONG_DELAY0_TP60",
+        "summary": {
+          "n": 19,
+          "median": 52.1893774164002,
+          "mean": 40.07914146026824,
+          "cum": 761.5036877450965,
+          "wr": 0.7894736842105263,
+          "top3_removed_cum": 590.796473470774,
+          "positive_days": 13,
+          "total_days": 14,
+          "avg_hold_sec": 399.526052631579,
+          "exit_counts": {
+            "BE": 4,
+            "TP": 15
+          },
+          "giveback_n": 4,
+          "giveback_pct": 0.21052631578947367
+        },
+        "verdict": "thin",
+        "label_matches_runner_exactly": true
+      }
+    },
+    {
+      "rule_id": "SOL_BUY_LIQ_LONG_100K_TP60_SL40_BE30",
+      "symbol": "SOLUSDT",
+      "liq_side": "BUY",
+      "direction": "LONG",
+      "threshold": 100000.0,
+      "filters": [],
+      "event_n": 104,
+      "routes": [
+        {
+          "route_id": "LONG_DELAY0_TP60",
+          "summary": {
+            "n": 104,
+            "median": 52.082863060715674,
+            "mean": 19.505946067963595,
+            "cum": 2028.618391068214,
+            "wr": 0.5673076923076923,
+            "top3_removed_cum": 1845.8763804410576,
+            "positive_days": 20,
+            "total_days": 25,
+            "avg_hold_sec": 760.2800769230769,
+            "exit_counts": {
+              "BE": 30,
+              "TP": 54,
+              "TIME": 6,
+              "SL": 14
+            },
+            "giveback_n": 30,
+            "giveback_pct": 0.28846153846153844
+          },
+          "verdict": "candidate",
+          "label_matches_runner_exactly": true
+        }
+      ],
+      "best": {
+        "route_id": "LONG_DELAY0_TP60",
+        "summary": {
+          "n": 104,
+          "median": 52.082863060715674,
+          "mean": 19.505946067963595,
+          "cum": 2028.618391068214,
+          "wr": 0.5673076923076923,
+          "top3_removed_cum": 1845.8763804410576,
+          "positive_days": 20,
+          "total_days": 25,
+          "avg_hold_sec": 760.2800769230769,
+          "exit_counts": {
+            "BE": 30,
+            "TP": 54,
+            "TIME": 6,
+            "SL": 14
+          },
+          "giveback_n": 30,
+          "giveback_pct": 0.28846153846153844
+        },
+        "verdict": "candidate",
+        "label_matches_runner_exactly": true
+      }
+    },
+    {
+      "rule_id": "SOL_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+      "symbol": "SOLUSDT",
+      "liq_side": "BUY",
+      "direction": "LONG",
+      "threshold": 200000.0,
+      "filters": [],
+      "event_n": 64,
+      "routes": [
+        {
+          "route_id": "LONG_DELAY0_TP60",
+          "summary": {
+            "n": 64,
+            "median": 52.34579753312449,
+            "mean": 22.51930374890596,
+            "cum": 1441.2354399299813,
+            "wr": 0.59375,
+            "top3_removed_cum": 1258.493429302825,
+            "positive_days": 15,
+            "total_days": 19,
+            "avg_hold_sec": 712.7048125,
+            "exit_counts": {
+              "TP": 36,
+              "BE": 17,
+              "TIME": 3,
+              "SL": 8
+            },
+            "giveback_n": 17,
+            "giveback_pct": 0.265625
+          },
+          "verdict": "candidate",
+          "label_matches_runner_exactly": true
+        }
+      ],
+      "best": {
+        "route_id": "LONG_DELAY0_TP60",
+        "summary": {
+          "n": 64,
+          "median": 52.34579753312449,
+          "mean": 22.51930374890596,
+          "cum": 1441.2354399299813,
+          "wr": 0.59375,
+          "top3_removed_cum": 1258.493429302825,
+          "positive_days": 15,
+          "total_days": 19,
+          "avg_hold_sec": 712.7048125,
+          "exit_counts": {
+            "TP": 36,
+            "BE": 17,
+            "TIME": 3,
+            "SL": 8
+          },
+          "giveback_n": 17,
+          "giveback_pct": 0.265625
+        },
+        "verdict": "candidate",
+        "label_matches_runner_exactly": true
+      }
+    },
+    {
+      "rule_id": "BTC_BUY_LIQ_LONG_1M_DISTRIBUTED_TP60_SL30_BE30",
+      "symbol": "BTCUSDT",
+      "liq_side": "BUY",
+      "direction": "LONG",
+      "threshold": 1000000.0,
+      "filters": [
+        "max_share<=50"
+      ],
+      "event_n": 66,
+      "routes": [
+        {
+          "route_id": "LONG_DELAY0_TP60",
+          "summary": {
+            "n": 66,
+            "median": 52.126567062654715,
+            "mean": 25.57014446250471,
+            "cum": 1687.6295345253109,
+            "wr": 0.6363636363636364,
+            "top3_removed_cum": 1508.6865098613625,
+            "positive_days": 25,
+            "total_days": 36,
+            "avg_hold_sec": 1341.0153636363636,
+            "exit_counts": {
+              "TP": 34,
+              "BE": 21,
+              "SL": 3,
+              "TIME": 8
+            },
+            "giveback_n": 21,
+            "giveback_pct": 0.3181818181818182
+          },
+          "verdict": "candidate",
+          "label_matches_runner_exactly": false
+        }
+      ],
+      "best": {
+        "route_id": "LONG_DELAY0_TP60",
+        "summary": {
+          "n": 66,
+          "median": 52.126567062654715,
+          "mean": 25.57014446250471,
+          "cum": 1687.6295345253109,
+          "wr": 0.6363636363636364,
+          "top3_removed_cum": 1508.6865098613625,
+          "positive_days": 25,
+          "total_days": 36,
+          "avg_hold_sec": 1341.0153636363636,
+          "exit_counts": {
+            "TP": 34,
+            "BE": 21,
+            "SL": 3,
+            "TIME": 8
+          },
+          "giveback_n": 21,
+          "giveback_pct": 0.3181818181818182
+        },
+        "verdict": "candidate",
+        "label_matches_runner_exactly": false
+      }
+    },
+    {
+      "rule_id": "ETH_SELL_LIQ_SHORT_500K_TP60_SL40_BE40",
+      "symbol": "ETHUSDT",
+      "liq_side": "SELL",
+      "direction": "SHORT",
+      "threshold": 500000.0,
+      "filters": [],
+      "event_n": 222,
+      "routes": [
+        {
+          "route_id": "SHORT_DELAY0_TP60",
+          "summary": {
+            "n": 222,
+            "median": 52.17188594718001,
+            "mean": 19.08620202270245,
+            "cum": 4237.1368490399445,
+            "wr": 0.5990990990990991,
+            "top3_removed_cum": 4046.4452274110454,
+            "positive_days": 48,
+            "total_days": 67,
+            "avg_hold_sec": 1137.126171171171,
+            "exit_counts": {
+              "TP": 123,
+              "TIME": 20,
+              "SL": 40,
+              "BE": 39
+            },
+            "giveback_n": 56,
+            "giveback_pct": 0.25225225225225223
+          },
+          "verdict": "candidate",
+          "label_matches_runner_exactly": true
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP80",
+          "summary": {
+            "n": 222,
+            "median": -8.107096530912326,
+            "mean": 17.922091325858144,
+            "cum": 3978.704274340508,
+            "wr": 0.4774774774774775,
+            "top3_removed_cum": 3738.1907908159465,
+            "positive_days": 45,
+            "total_days": 67,
+            "avg_hold_sec": 1436.022617117117,
+            "exit_counts": {
+              "TP": 85,
+              "TIME": 31,
+              "SL": 40,
+              "BE": 66
+            },
+            "giveback_n": 66,
+            "giveback_pct": 0.2972972972972973
+          },
+          "verdict": "negative_median",
+          "label_matches_runner_exactly": false
+        }
+      ],
+      "best": {
+        "route_id": "SHORT_DELAY0_TP60",
+        "summary": {
+          "n": 222,
+          "median": 52.17188594718001,
+          "mean": 19.08620202270245,
+          "cum": 4237.1368490399445,
+          "wr": 0.5990990990990991,
+          "top3_removed_cum": 4046.4452274110454,
+          "positive_days": 48,
+          "total_days": 67,
+          "avg_hold_sec": 1137.126171171171,
+          "exit_counts": {
+            "TP": 123,
+            "TIME": 20,
+            "SL": 40,
+            "BE": 39
+          },
+          "giveback_n": 56,
+          "giveback_pct": 0.25225225225225223
+        },
+        "verdict": "candidate",
+        "label_matches_runner_exactly": true
+      }
+    },
+    {
+      "rule_id": "ETH_SELL_LIQ_SHORT_1M_TP80_SL40_BE40",
+      "symbol": "ETHUSDT",
+      "liq_side": "SELL",
+      "direction": "SHORT",
+      "threshold": 1000000.0,
+      "filters": [],
+      "event_n": 106,
+      "routes": [
+        {
+          "route_id": "SHORT_DELAY0_TP60",
+          "summary": {
+            "n": 106,
+            "median": 52.58244027153313,
+            "mean": 29.772998416289262,
+            "cum": 3155.9378321266618,
+            "wr": 0.7169811320754716,
+            "top3_removed_cum": 2965.2462104977626,
+            "positive_days": 35,
+            "total_days": 43,
+            "avg_hold_sec": 1064.745216981132,
+            "exit_counts": {
+              "TP": 71,
+              "SL": 11,
+              "BE": 15,
+              "TIME": 9
+            },
+            "giveback_n": 19,
+            "giveback_pct": 0.1792452830188679
+          },
+          "verdict": "candidate",
+          "label_matches_runner_exactly": false
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP80",
+          "summary": {
+            "n": 106,
+            "median": 44.400890514849856,
+            "mean": 29.396197969293826,
+            "cum": 3115.9969847451453,
+            "wr": 0.5849056603773585,
+            "top3_removed_cum": 2880.394552897295,
+            "positive_days": 32,
+            "total_days": 43,
+            "avg_hold_sec": 1450.7266415094339,
+            "exit_counts": {
+              "TP": 51,
+              "BE": 29,
+              "SL": 11,
+              "TIME": 15
+            },
+            "giveback_n": 29,
+            "giveback_pct": 0.27358490566037735
+          },
+          "verdict": "candidate",
+          "label_matches_runner_exactly": true
+        }
+      ],
+      "best": {
+        "route_id": "SHORT_DELAY0_TP60",
+        "summary": {
+          "n": 106,
+          "median": 52.58244027153313,
+          "mean": 29.772998416289262,
+          "cum": 3155.9378321266618,
+          "wr": 0.7169811320754716,
+          "top3_removed_cum": 2965.2462104977626,
+          "positive_days": 35,
+          "total_days": 43,
+          "avg_hold_sec": 1064.745216981132,
+          "exit_counts": {
+            "TP": 71,
+            "SL": 11,
+            "BE": 15,
+            "TIME": 9
+          },
+          "giveback_n": 19,
+          "giveback_pct": 0.1792452830188679
+        },
+        "verdict": "candidate",
+        "label_matches_runner_exactly": false
+      }
+    },
+    {
+      "rule_id": "SOL_SELL_LIQ_SHORT_200K_TP60_SL30_BE30",
+      "symbol": "SOLUSDT",
+      "liq_side": "SELL",
+      "direction": "SHORT",
+      "threshold": 200000.0,
+      "filters": [],
+      "event_n": 51,
+      "routes": [
+        {
+          "route_id": "SHORT_DELAY0_TP40",
+          "summary": {
+            "n": 51,
+            "median": 32.87864714682578,
+            "mean": 21.50630464051964,
+            "cum": 1096.8215366665017,
+            "wr": 0.8431372549019608,
+            "top3_removed_cum": 974.3783770472143,
+            "positive_days": 18,
+            "total_days": 20,
+            "avg_hold_sec": 496.1178431372549,
+            "exit_counts": {
+              "TP": 43,
+              "SL": 7,
+              "TIME": 1
+            },
+            "giveback_n": 2,
+            "giveback_pct": 0.0392156862745098
+          },
+          "verdict": "candidate",
+          "label_matches_runner_exactly": false
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP60",
+          "summary": {
+            "n": 51,
+            "median": 52.225885772417655,
+            "mean": 25.449190021744524,
+            "cum": 1297.9086911089707,
+            "wr": 0.6274509803921569,
+            "top3_removed_cum": 1059.816586185813,
+            "positive_days": 16,
+            "total_days": 20,
+            "avg_hold_sec": 800.5299215686274,
+            "exit_counts": {
+              "TP": 31,
+              "SL": 7,
+              "TIME": 2,
+              "BE": 11
+            },
+            "giveback_n": 13,
+            "giveback_pct": 0.2549019607843137
+          },
+          "verdict": "candidate",
+          "label_matches_runner_exactly": false
+        }
+      ],
+      "best": {
+        "route_id": "SHORT_DELAY0_TP60",
+        "summary": {
+          "n": 51,
+          "median": 52.225885772417655,
+          "mean": 25.449190021744524,
+          "cum": 1297.9086911089707,
+          "wr": 0.6274509803921569,
+          "top3_removed_cum": 1059.816586185813,
+          "positive_days": 16,
+          "total_days": 20,
+          "avg_hold_sec": 800.5299215686274,
+          "exit_counts": {
+            "TP": 31,
+            "SL": 7,
+            "TIME": 2,
+            "BE": 11
+          },
+          "giveback_n": 13,
+          "giveback_pct": 0.2549019607843137
+        },
+        "verdict": "candidate",
+        "label_matches_runner_exactly": false
+      }
+    },
+    {
+      "rule_id": "SOL_SELL_LIQ_SHORT_100K_TP60_SL30_BE40",
+      "symbol": "SOLUSDT",
+      "liq_side": "SELL",
+      "direction": "SHORT",
+      "threshold": 100000.0,
+      "filters": [],
+      "event_n": 105,
+      "routes": [
+        {
+          "route_id": "SHORT_DELAY0_TP40",
+          "summary": {
+            "n": 105,
+            "median": 32.414220136528286,
+            "mean": 11.521716716794549,
+            "cum": 1209.7802552634275,
+            "wr": 0.7142857142857143,
+            "top3_removed_cum": 1086.9278235979507,
+            "positive_days": 21,
+            "total_days": 27,
+            "avg_hold_sec": 870.9239619047619,
+            "exit_counts": {
+              "SL": 25,
+              "TP": 75,
+              "TIME": 5
+            },
+            "giveback_n": 15,
+            "giveback_pct": 0.14285714285714285
+          },
+          "verdict": "candidate",
+          "label_matches_runner_exactly": false
+        },
+        {
+          "route_id": "SHORT_DELAY0_TP60",
+          "summary": {
+            "n": 105,
+            "median": 26.04603023287484,
+            "mean": 13.4940602209866,
+            "cum": 1416.876323203593,
+            "wr": 0.5333333333333333,
+            "top3_removed_cum": 1178.7842182804354,
+            "positive_days": 18,
+            "total_days": 27,
+            "avg_hold_sec": 1105.1429523809525,
+            "exit_counts": {
+              "SL": 25,
+              "TP": 51,
+              "BE": 19,
+              "TIME": 10
+            },
+            "giveback_n": 26,
+            "giveback_pct": 0.24761904761904763
+          },
+          "verdict": "candidate",
+          "label_matches_runner_exactly": false
+        }
+      ],
+      "best": {
+        "route_id": "SHORT_DELAY0_TP40",
+        "summary": {
+          "n": 105,
+          "median": 32.414220136528286,
+          "mean": 11.521716716794549,
+          "cum": 1209.7802552634275,
+          "wr": 0.7142857142857143,
+          "top3_removed_cum": 1086.9278235979507,
+          "positive_days": 21,
+          "total_days": 27,
+          "avg_hold_sec": 870.9239619047619,
+          "exit_counts": {
+            "SL": 25,
+            "TP": 75,
+            "TIME": 5
+          },
+          "giveback_n": 15,
+          "giveback_pct": 0.14285714285714285
+        },
+        "verdict": "candidate",
+        "label_matches_runner_exactly": false
+      }
+    }
+  ]
+}

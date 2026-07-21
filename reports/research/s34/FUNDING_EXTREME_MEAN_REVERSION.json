@@ -1,0 +1,2789 @@
+{
+  "consistent_passes": [
+    {
+      "all": {
+        "all": {
+          "max_loss_bps": -833.2,
+          "mean_bps": 6.01,
+          "median_bps": -0.71,
+          "n": 4263,
+          "sum_bps": 25609.8,
+          "t3r_bps": 23613.2,
+          "tail_lt_100": 754,
+          "tail_lt_50": 1339,
+          "win_rate_pct": 49.8
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -561.6,
+            "mean_bps": 2.41,
+            "median_bps": -5.53,
+            "n": 1607,
+            "sum_bps": 3877.0,
+            "t3r_bps": 2214.0,
+            "tail_lt_100": 240,
+            "tail_lt_50": 502,
+            "win_rate_pct": 47.9
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -833.2,
+            "mean_bps": 15.95,
+            "median_bps": 3.5,
+            "n": 1643,
+            "sum_bps": 26206.3,
+            "t3r_bps": 24209.7,
+            "tail_lt_100": 274,
+            "tail_lt_50": 490,
+            "win_rate_pct": 51.2
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -720.4,
+            "mean_bps": -4.42,
+            "median_bps": 2.09,
+            "n": 1013,
+            "sum_bps": -4473.5,
+            "t3r_bps": -6155.0,
+            "tail_lt_100": 240,
+            "tail_lt_50": 347,
+            "win_rate_pct": 50.3
+          }
+        },
+        "n": 4263,
+        "negative_funding_long": {
+          "max_loss_bps": -833.2,
+          "mean_bps": 4.97,
+          "median_bps": -6.76,
+          "n": 2096,
+          "sum_bps": 10420.1,
+          "t3r_bps": 8535.7,
+          "tail_lt_100": 366,
+          "tail_lt_50": 675,
+          "win_rate_pct": 47.6
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -720.4,
+          "mean_bps": 7.01,
+          "median_bps": 4.77,
+          "n": 2167,
+          "sum_bps": 15189.7,
+          "t3r_bps": 13248.2,
+          "tail_lt_100": 388,
+          "tail_lt_50": 664,
+          "win_rate_pct": 51.8
+        }
+      },
+      "cal": {
+        "all": {
+          "max_loss_bps": -833.2,
+          "mean_bps": 2.19,
+          "median_bps": -2.84,
+          "n": 3335,
+          "sum_bps": 7290.5,
+          "t3r_bps": 5371.6,
+          "tail_lt_100": 546,
+          "tail_lt_50": 1018,
+          "win_rate_pct": 48.8
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -537.1,
+            "mean_bps": -2.57,
+            "median_bps": -7.22,
+            "n": 1329,
+            "sum_bps": -3417.7,
+            "t3r_bps": -5080.7,
+            "tail_lt_100": 205,
+            "tail_lt_50": 413,
+            "win_rate_pct": 47.0
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -833.2,
+            "mean_bps": 4.56,
+            "median_bps": -2.76,
+            "n": 1337,
+            "sum_bps": 6092.8,
+            "t3r_bps": 4174.0,
+            "tail_lt_100": 233,
+            "tail_lt_50": 415,
+            "win_rate_pct": 48.8
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -490.2,
+            "mean_bps": 6.9,
+            "median_bps": 8.25,
+            "n": 669,
+            "sum_bps": 4615.4,
+            "t3r_bps": 3310.9,
+            "tail_lt_100": 108,
+            "tail_lt_50": 190,
+            "win_rate_pct": 52.5
+          }
+        },
+        "n": 3335,
+        "negative_funding_long": {
+          "max_loss_bps": -833.2,
+          "mean_bps": 3.64,
+          "median_bps": -7.0,
+          "n": 1673,
+          "sum_bps": 6089.6,
+          "t3r_bps": 4334.5,
+          "tail_lt_100": 265,
+          "tail_lt_50": 515,
+          "win_rate_pct": 47.3
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -713.7,
+          "mean_bps": 0.72,
+          "median_bps": 1.35,
+          "n": 1662,
+          "sum_bps": 1200.8,
+          "t3r_bps": -637.9,
+          "tail_lt_100": 281,
+          "tail_lt_50": 503,
+          "win_rate_pct": 50.4
+        }
+      },
+      "config_id": "funding_abs_z_ge_1_mr_8h",
+      "hold": {
+        "all": {
+          "max_loss_bps": -720.4,
+          "mean_bps": 19.74,
+          "median_bps": 9.41,
+          "n": 928,
+          "sum_bps": 18319.3,
+          "t3r_bps": 16412.4,
+          "tail_lt_100": 208,
+          "tail_lt_50": 321,
+          "win_rate_pct": 53.0
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -561.6,
+            "mean_bps": 26.24,
+            "median_bps": 7.59,
+            "n": 278,
+            "sum_bps": 7294.7,
+            "t3r_bps": 5971.3,
+            "tail_lt_100": 35,
+            "tail_lt_50": 89,
+            "win_rate_pct": 51.8
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -696.6,
+            "mean_bps": 65.73,
+            "median_bps": 31.64,
+            "n": 306,
+            "sum_bps": 20113.4,
+            "t3r_bps": 18216.9,
+            "tail_lt_100": 41,
+            "tail_lt_50": 75,
+            "win_rate_pct": 61.8
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -720.4,
+            "mean_bps": -26.42,
+            "median_bps": -29.28,
+            "n": 344,
+            "sum_bps": -9088.9,
+            "t3r_bps": -10770.3,
+            "tail_lt_100": 132,
+            "tail_lt_50": 157,
+            "win_rate_pct": 46.2
+          }
+        },
+        "n": 928,
+        "negative_funding_long": {
+          "max_loss_bps": -566.2,
+          "mean_bps": 10.24,
+          "median_bps": -4.34,
+          "n": 423,
+          "sum_bps": 4330.5,
+          "t3r_bps": 2524.6,
+          "tail_lt_100": 101,
+          "tail_lt_50": 160,
+          "win_rate_pct": 48.7
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -720.4,
+          "mean_bps": 27.7,
+          "median_bps": 21.9,
+          "n": 505,
+          "sum_bps": 13988.8,
+          "t3r_bps": 12170.7,
+          "tail_lt_100": 107,
+          "tail_lt_50": 161,
+          "win_rate_pct": 56.6
+        }
+      },
+      "horizon_h": 8,
+      "z_cut": 1.0
+    },
+    {
+      "all": {
+        "all": {
+          "max_loss_bps": -833.2,
+          "mean_bps": 8.39,
+          "median_bps": 2.11,
+          "n": 2735,
+          "sum_bps": 22941.4,
+          "t3r_bps": 20944.9,
+          "tail_lt_100": 473,
+          "tail_lt_50": 825,
+          "win_rate_pct": 50.7
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -561.6,
+            "mean_bps": 7.68,
+            "median_bps": -0.9,
+            "n": 1014,
+            "sum_bps": 7788.4,
+            "t3r_bps": 6125.4,
+            "tail_lt_100": 140,
+            "tail_lt_50": 296,
+            "win_rate_pct": 49.5
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -833.2,
+            "mean_bps": 16.02,
+            "median_bps": 4.56,
+            "n": 1031,
+            "sum_bps": 16512.5,
+            "t3r_bps": 14515.9,
+            "tail_lt_100": 172,
+            "tail_lt_50": 294,
+            "win_rate_pct": 51.5
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -713.4,
+            "mean_bps": -1.97,
+            "median_bps": 3.7,
+            "n": 690,
+            "sum_bps": -1359.4,
+            "t3r_bps": -3040.8,
+            "tail_lt_100": 161,
+            "tail_lt_50": 235,
+            "win_rate_pct": 51.2
+          }
+        },
+        "n": 2735,
+        "negative_funding_long": {
+          "max_loss_bps": -833.2,
+          "mean_bps": 7.97,
+          "median_bps": -4.24,
+          "n": 1308,
+          "sum_bps": 10425.5,
+          "t3r_bps": 8541.1,
+          "tail_lt_100": 226,
+          "tail_lt_50": 408,
+          "win_rate_pct": 48.3
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -713.7,
+          "mean_bps": 8.77,
+          "median_bps": 8.63,
+          "n": 1427,
+          "sum_bps": 12516.0,
+          "t3r_bps": 10574.5,
+          "tail_lt_100": 247,
+          "tail_lt_50": 417,
+          "win_rate_pct": 52.8
+        }
+      },
+      "cal": {
+        "all": {
+          "max_loss_bps": -833.2,
+          "mean_bps": 3.59,
+          "median_bps": -0.89,
+          "n": 2113,
+          "sum_bps": 7591.0,
+          "t3r_bps": 5672.1,
+          "tail_lt_100": 330,
+          "tail_lt_50": 608,
+          "win_rate_pct": 49.7
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -537.1,
+            "mean_bps": 3.51,
+            "median_bps": -2.95,
+            "n": 836,
+            "sum_bps": 2934.2,
+            "t3r_bps": 1271.2,
+            "tail_lt_100": 114,
+            "tail_lt_50": 236,
+            "win_rate_pct": 48.7
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -833.2,
+            "mean_bps": 0.21,
+            "median_bps": -3.0,
+            "n": 827,
+            "sum_bps": 171.2,
+            "t3r_bps": -1747.6,
+            "tail_lt_100": 146,
+            "tail_lt_50": 247,
+            "win_rate_pct": 48.6
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -490.2,
+            "mean_bps": 9.97,
+            "median_bps": 10.55,
+            "n": 450,
+            "sum_bps": 4485.6,
+            "t3r_bps": 3295.1,
+            "tail_lt_100": 70,
+            "tail_lt_50": 125,
+            "win_rate_pct": 53.8
+          }
+        },
+        "n": 2113,
+        "negative_funding_long": {
+          "max_loss_bps": -833.2,
+          "mean_bps": 5.71,
+          "median_bps": -4.25,
+          "n": 1044,
+          "sum_bps": 5966.0,
+          "t3r_bps": 4210.9,
+          "tail_lt_100": 159,
+          "tail_lt_50": 305,
+          "win_rate_pct": 48.2
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -713.7,
+          "mean_bps": 1.52,
+          "median_bps": 3.2,
+          "n": 1069,
+          "sum_bps": 1625.0,
+          "t3r_bps": -213.7,
+          "tail_lt_100": 171,
+          "tail_lt_50": 303,
+          "win_rate_pct": 51.3
+        }
+      },
+      "config_id": "funding_abs_z_ge_1.5_mr_8h",
+      "hold": {
+        "all": {
+          "max_loss_bps": -713.4,
+          "mean_bps": 24.68,
+          "median_bps": 13.84,
+          "n": 622,
+          "sum_bps": 15350.4,
+          "t3r_bps": 13443.5,
+          "tail_lt_100": 143,
+          "tail_lt_50": 217,
+          "win_rate_pct": 53.9
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -561.6,
+            "mean_bps": 27.27,
+            "median_bps": 13.96,
+            "n": 178,
+            "sum_bps": 4854.2,
+            "t3r_bps": 3610.4,
+            "tail_lt_100": 26,
+            "tail_lt_50": 60,
+            "win_rate_pct": 53.4
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -696.6,
+            "mean_bps": 80.1,
+            "median_bps": 38.05,
+            "n": 204,
+            "sum_bps": 16341.2,
+            "t3r_bps": 14444.7,
+            "tail_lt_100": 26,
+            "tail_lt_50": 47,
+            "win_rate_pct": 63.2
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -713.4,
+            "mean_bps": -24.35,
+            "median_bps": -32.38,
+            "n": 240,
+            "sum_bps": -5845.0,
+            "t3r_bps": -7526.5,
+            "tail_lt_100": 91,
+            "tail_lt_50": 110,
+            "win_rate_pct": 46.2
+          }
+        },
+        "n": 622,
+        "negative_funding_long": {
+          "max_loss_bps": -483.0,
+          "mean_bps": 16.89,
+          "median_bps": -3.46,
+          "n": 264,
+          "sum_bps": 4459.5,
+          "t3r_bps": 2653.6,
+          "tail_lt_100": 67,
+          "tail_lt_50": 103,
+          "win_rate_pct": 48.9
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -713.4,
+          "mean_bps": 30.42,
+          "median_bps": 26.06,
+          "n": 358,
+          "sum_bps": 10891.0,
+          "t3r_bps": 9072.8,
+          "tail_lt_100": 76,
+          "tail_lt_50": 114,
+          "win_rate_pct": 57.5
+        }
+      },
+      "horizon_h": 8,
+      "z_cut": 1.5
+    },
+    {
+      "all": {
+        "all": {
+          "max_loss_bps": -671.8,
+          "mean_bps": 11.13,
+          "median_bps": 3.93,
+          "n": 1353,
+          "sum_bps": 15059.3,
+          "t3r_bps": 13259.9,
+          "tail_lt_100": 226,
+          "tail_lt_50": 392,
+          "win_rate_pct": 51.4
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -461.1,
+            "mean_bps": 10.56,
+            "median_bps": 1.73,
+            "n": 518,
+            "sum_bps": 5468.0,
+            "t3r_bps": 3975.6,
+            "tail_lt_100": 70,
+            "tail_lt_50": 137,
+            "win_rate_pct": 50.6
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -671.8,
+            "mean_bps": 19.32,
+            "median_bps": 10.7,
+            "n": 531,
+            "sum_bps": 10260.3,
+            "t3r_bps": 8460.9,
+            "tail_lt_100": 87,
+            "tail_lt_50": 148,
+            "win_rate_pct": 53.7
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -490.2,
+            "mean_bps": -2.2,
+            "median_bps": -4.38,
+            "n": 304,
+            "sum_bps": -669.0,
+            "t3r_bps": -2302.9,
+            "tail_lt_100": 69,
+            "tail_lt_50": 107,
+            "win_rate_pct": 49.0
+          }
+        },
+        "n": 1353,
+        "negative_funding_long": {
+          "max_loss_bps": -512.5,
+          "mean_bps": 10.93,
+          "median_bps": -1.96,
+          "n": 666,
+          "sum_bps": 7281.1,
+          "t3r_bps": 5587.9,
+          "tail_lt_100": 107,
+          "tail_lt_50": 195,
+          "win_rate_pct": 49.5
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -671.8,
+          "mean_bps": 11.32,
+          "median_bps": 12.51,
+          "n": 687,
+          "sum_bps": 7778.3,
+          "t3r_bps": 6067.5,
+          "tail_lt_100": 119,
+          "tail_lt_50": 197,
+          "win_rate_pct": 53.3
+        }
+      },
+      "cal": {
+        "all": {
+          "max_loss_bps": -671.8,
+          "mean_bps": 7.96,
+          "median_bps": 1.87,
+          "n": 1020,
+          "sum_bps": 8117.0,
+          "t3r_bps": 6319.3,
+          "tail_lt_100": 153,
+          "tail_lt_50": 285,
+          "win_rate_pct": 50.6
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -370.9,
+            "mean_bps": 5.22,
+            "median_bps": -0.33,
+            "n": 426,
+            "sum_bps": 2223.7,
+            "t3r_bps": 767.7,
+            "tail_lt_100": 58,
+            "tail_lt_50": 111,
+            "win_rate_pct": 49.8
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -671.8,
+            "mean_bps": 9.27,
+            "median_bps": 2.3,
+            "n": 411,
+            "sum_bps": 3811.0,
+            "t3r_bps": 2089.5,
+            "tail_lt_100": 71,
+            "tail_lt_50": 121,
+            "win_rate_pct": 51.1
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -490.2,
+            "mean_bps": 11.38,
+            "median_bps": 7.83,
+            "n": 183,
+            "sum_bps": 2082.2,
+            "t3r_bps": 891.7,
+            "tail_lt_100": 24,
+            "tail_lt_50": 53,
+            "win_rate_pct": 51.4
+          }
+        },
+        "n": 1020,
+        "negative_funding_long": {
+          "max_loss_bps": -512.5,
+          "mean_bps": 12.13,
+          "median_bps": 0.28,
+          "n": 524,
+          "sum_bps": 6357.2,
+          "t3r_bps": 4742.0,
+          "tail_lt_100": 72,
+          "tail_lt_50": 140,
+          "win_rate_pct": 50.0
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -671.8,
+          "mean_bps": 3.55,
+          "median_bps": 3.39,
+          "n": 496,
+          "sum_bps": 1759.8,
+          "t3r_bps": 166.4,
+          "tail_lt_100": 81,
+          "tail_lt_50": 145,
+          "win_rate_pct": 51.2
+        }
+      },
+      "config_id": "funding_abs_z_ge_2_mr_8h",
+      "hold": {
+        "all": {
+          "max_loss_bps": -483.0,
+          "mean_bps": 20.85,
+          "median_bps": 13.94,
+          "n": 333,
+          "sum_bps": 6942.3,
+          "t3r_bps": 5281.9,
+          "tail_lt_100": 73,
+          "tail_lt_50": 107,
+          "win_rate_pct": 54.1
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -461.1,
+            "mean_bps": 35.26,
+            "median_bps": 16.61,
+            "n": 92,
+            "sum_bps": 3244.3,
+            "t3r_bps": 2007.4,
+            "tail_lt_100": 12,
+            "tail_lt_50": 26,
+            "win_rate_pct": 54.3
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -343.8,
+            "mean_bps": 53.74,
+            "median_bps": 33.2,
+            "n": 120,
+            "sum_bps": 6449.3,
+            "t3r_bps": 4943.7,
+            "tail_lt_100": 16,
+            "tail_lt_50": 27,
+            "win_rate_pct": 62.5
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -483.0,
+            "mean_bps": -22.74,
+            "median_bps": -33.58,
+            "n": 121,
+            "sum_bps": -2751.3,
+            "t3r_bps": -4385.2,
+            "tail_lt_100": 45,
+            "tail_lt_50": 54,
+            "win_rate_pct": 45.5
+          }
+        },
+        "n": 333,
+        "negative_funding_long": {
+          "max_loss_bps": -483.0,
+          "mean_bps": 6.51,
+          "median_bps": -6.16,
+          "n": 142,
+          "sum_bps": 923.8,
+          "t3r_bps": -563.8,
+          "tail_lt_100": 35,
+          "tail_lt_50": 55,
+          "win_rate_pct": 47.9
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -461.1,
+          "mean_bps": 31.51,
+          "median_bps": 26.68,
+          "n": 191,
+          "sum_bps": 6018.5,
+          "t3r_bps": 4375.3,
+          "tail_lt_100": 38,
+          "tail_lt_50": 52,
+          "win_rate_pct": 58.6
+        }
+      },
+      "horizon_h": 8,
+      "z_cut": 2.0
+    },
+    {
+      "all": {
+        "all": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 27.89,
+          "median_bps": 17.7,
+          "n": 4261,
+          "sum_bps": 118821.9,
+          "t3r_bps": 115135.1,
+          "tail_lt_100": 1181,
+          "tail_lt_50": 1550,
+          "win_rate_pct": 53.7
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -908.9,
+            "mean_bps": 16.74,
+            "median_bps": 9.95,
+            "n": 1607,
+            "sum_bps": 26900.8,
+            "t3r_bps": 24678.3,
+            "tail_lt_100": 433,
+            "tail_lt_50": 580,
+            "win_rate_pct": 52.3
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -1016.4,
+            "mean_bps": 62.22,
+            "median_bps": 43.95,
+            "n": 1642,
+            "sum_bps": 102162.8,
+            "t3r_bps": 98476.0,
+            "tail_lt_100": 396,
+            "tail_lt_50": 534,
+            "win_rate_pct": 58.1
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -978.1,
+            "mean_bps": -10.12,
+            "median_bps": -10.24,
+            "n": 1012,
+            "sum_bps": -10241.8,
+            "t3r_bps": -13680.1,
+            "tail_lt_100": 352,
+            "tail_lt_50": 436,
+            "win_rate_pct": 48.8
+          }
+        },
+        "n": 4261,
+        "negative_funding_long": {
+          "max_loss_bps": -978.1,
+          "mean_bps": 23.38,
+          "median_bps": 14.3,
+          "n": 2094,
+          "sum_bps": 48958.1,
+          "t3r_bps": 45289.6,
+          "tail_lt_100": 576,
+          "tail_lt_50": 769,
+          "win_rate_pct": 53.0
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 32.24,
+          "median_bps": 21.45,
+          "n": 2167,
+          "sum_bps": 69863.7,
+          "t3r_bps": 66334.3,
+          "tail_lt_100": 605,
+          "tail_lt_50": 781,
+          "win_rate_pct": 54.4
+        }
+      },
+      "cal": {
+        "all": {
+          "max_loss_bps": -965.5,
+          "mean_bps": 21.1,
+          "median_bps": 13.4,
+          "n": 3335,
+          "sum_bps": 70359.1,
+          "t3r_bps": 66672.3,
+          "tail_lt_100": 856,
+          "tail_lt_50": 1188,
+          "win_rate_pct": 53.1
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -908.9,
+            "mean_bps": 9.5,
+            "median_bps": 9.48,
+            "n": 1329,
+            "sum_bps": 12619.5,
+            "t3r_bps": 10396.9,
+            "tail_lt_100": 336,
+            "tail_lt_50": 467,
+            "win_rate_pct": 52.3
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -965.5,
+            "mean_bps": 43.35,
+            "median_bps": 28.85,
+            "n": 1337,
+            "sum_bps": 57965.4,
+            "t3r_bps": 54278.6,
+            "tail_lt_100": 335,
+            "tail_lt_50": 465,
+            "win_rate_pct": 55.3
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -642.8,
+            "mean_bps": -0.34,
+            "median_bps": 1.81,
+            "n": 669,
+            "sum_bps": -225.8,
+            "t3r_bps": -1921.2,
+            "tail_lt_100": 185,
+            "tail_lt_50": 256,
+            "win_rate_pct": 50.4
+          }
+        },
+        "n": 3335,
+        "negative_funding_long": {
+          "max_loss_bps": -965.5,
+          "mean_bps": 17.76,
+          "median_bps": 12.77,
+          "n": 1673,
+          "sum_bps": 29713.2,
+          "t3r_bps": 26116.2,
+          "tail_lt_100": 429,
+          "tail_lt_50": 604,
+          "win_rate_pct": 52.7
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -925.2,
+          "mean_bps": 24.46,
+          "median_bps": 15.46,
+          "n": 1662,
+          "sum_bps": 40645.9,
+          "t3r_bps": 37147.6,
+          "tail_lt_100": 427,
+          "tail_lt_50": 584,
+          "win_rate_pct": 53.5
+        }
+      },
+      "config_id": "funding_abs_z_ge_1_mr_24h",
+      "hold": {
+        "all": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 52.34,
+          "median_bps": 54.89,
+          "n": 926,
+          "sum_bps": 48462.7,
+          "t3r_bps": 44971.9,
+          "tail_lt_100": 325,
+          "tail_lt_50": 362,
+          "win_rate_pct": 55.8
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -532.1,
+            "mean_bps": 51.37,
+            "median_bps": 18.71,
+            "n": 278,
+            "sum_bps": 14281.3,
+            "t3r_bps": 12387.2,
+            "tail_lt_100": 97,
+            "tail_lt_50": 113,
+            "win_rate_pct": 52.2
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -1016.4,
+            "mean_bps": 144.91,
+            "median_bps": 138.87,
+            "n": 305,
+            "sum_bps": 44197.4,
+            "t3r_bps": 40820.7,
+            "tail_lt_100": 61,
+            "tail_lt_50": 69,
+            "win_rate_pct": 70.5
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -978.1,
+            "mean_bps": -29.2,
+            "median_bps": -75.21,
+            "n": 343,
+            "sum_bps": -10016.0,
+            "t3r_bps": -13454.3,
+            "tail_lt_100": 167,
+            "tail_lt_50": 180,
+            "win_rate_pct": 45.8
+          }
+        },
+        "n": 926,
+        "negative_funding_long": {
+          "max_loss_bps": -978.1,
+          "mean_bps": 45.71,
+          "median_bps": 53.12,
+          "n": 421,
+          "sum_bps": 19244.9,
+          "t3r_bps": 15954.7,
+          "tail_lt_100": 147,
+          "tail_lt_50": 165,
+          "win_rate_pct": 54.2
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 57.86,
+          "median_bps": 60.36,
+          "n": 505,
+          "sum_bps": 29217.8,
+          "t3r_bps": 25779.4,
+          "tail_lt_100": 178,
+          "tail_lt_50": 197,
+          "win_rate_pct": 57.2
+        }
+      },
+      "horizon_h": 24,
+      "z_cut": 1.0
+    },
+    {
+      "all": {
+        "all": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 31.25,
+          "median_bps": 28.43,
+          "n": 2735,
+          "sum_bps": 85457.5,
+          "t3r_bps": 81770.7,
+          "tail_lt_100": 729,
+          "tail_lt_50": 969,
+          "win_rate_pct": 55.3
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -908.9,
+            "mean_bps": 29.16,
+            "median_bps": 32.47,
+            "n": 1014,
+            "sum_bps": 29567.7,
+            "t3r_bps": 27345.1,
+            "tail_lt_100": 238,
+            "tail_lt_50": 327,
+            "win_rate_pct": 56.7
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -1016.4,
+            "mean_bps": 60.27,
+            "median_bps": 49.95,
+            "n": 1031,
+            "sum_bps": 62141.6,
+            "t3r_bps": 58454.8,
+            "tail_lt_100": 244,
+            "tail_lt_50": 335,
+            "win_rate_pct": 58.5
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -973.2,
+            "mean_bps": -9.06,
+            "median_bps": -10.94,
+            "n": 690,
+            "sum_bps": -6251.8,
+            "t3r_bps": -9690.1,
+            "tail_lt_100": 247,
+            "tail_lt_50": 307,
+            "win_rate_pct": 48.4
+          }
+        },
+        "n": 2735,
+        "negative_funding_long": {
+          "max_loss_bps": -973.2,
+          "mean_bps": 27.37,
+          "median_bps": 26.1,
+          "n": 1308,
+          "sum_bps": 35804.3,
+          "t3r_bps": 32135.7,
+          "tail_lt_100": 346,
+          "tail_lt_50": 467,
+          "win_rate_pct": 54.9
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 34.8,
+          "median_bps": 30.33,
+          "n": 1427,
+          "sum_bps": 49653.2,
+          "t3r_bps": 46123.8,
+          "tail_lt_100": 383,
+          "tail_lt_50": 502,
+          "win_rate_pct": 55.6
+        }
+      },
+      "cal": {
+        "all": {
+          "max_loss_bps": -965.5,
+          "mean_bps": 26.72,
+          "median_bps": 22.99,
+          "n": 2113,
+          "sum_bps": 56467.3,
+          "t3r_bps": 52780.5,
+          "tail_lt_100": 502,
+          "tail_lt_50": 720,
+          "win_rate_pct": 54.9
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -908.9,
+            "mean_bps": 22.57,
+            "median_bps": 30.95,
+            "n": 836,
+            "sum_bps": 18869.6,
+            "t3r_bps": 16647.1,
+            "tail_lt_100": 178,
+            "tail_lt_50": 260,
+            "win_rate_pct": 56.7
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -965.5,
+            "mean_bps": 39.7,
+            "median_bps": 24.06,
+            "n": 827,
+            "sum_bps": 32831.2,
+            "t3r_bps": 29144.4,
+            "tail_lt_100": 204,
+            "tail_lt_50": 290,
+            "win_rate_pct": 54.5
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -575.5,
+            "mean_bps": 10.59,
+            "median_bps": 13.0,
+            "n": 450,
+            "sum_bps": 4766.5,
+            "t3r_bps": 3071.1,
+            "tail_lt_100": 120,
+            "tail_lt_50": 170,
+            "win_rate_pct": 52.2
+          }
+        },
+        "n": 2113,
+        "negative_funding_long": {
+          "max_loss_bps": -965.5,
+          "mean_bps": 24.95,
+          "median_bps": 21.5,
+          "n": 1044,
+          "sum_bps": 26047.1,
+          "t3r_bps": 22450.1,
+          "tail_lt_100": 247,
+          "tail_lt_50": 361,
+          "win_rate_pct": 54.5
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -925.2,
+          "mean_bps": 28.46,
+          "median_bps": 25.7,
+          "n": 1069,
+          "sum_bps": 30420.3,
+          "t3r_bps": 26922.0,
+          "tail_lt_100": 255,
+          "tail_lt_50": 359,
+          "win_rate_pct": 55.3
+        }
+      },
+      "config_id": "funding_abs_z_ge_1.5_mr_24h",
+      "hold": {
+        "all": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 46.61,
+          "median_bps": 72.35,
+          "n": 622,
+          "sum_bps": 28990.1,
+          "t3r_bps": 25499.3,
+          "tail_lt_100": 227,
+          "tail_lt_50": 249,
+          "win_rate_pct": 56.6
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -532.1,
+            "mean_bps": 60.1,
+            "median_bps": 91.04,
+            "n": 178,
+            "sum_bps": 10698.1,
+            "t3r_bps": 9037.3,
+            "tail_lt_100": 60,
+            "tail_lt_50": 67,
+            "win_rate_pct": 56.7
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -1016.4,
+            "mean_bps": 143.68,
+            "median_bps": 158.63,
+            "n": 204,
+            "sum_bps": 29310.3,
+            "t3r_bps": 25933.7,
+            "tail_lt_100": 40,
+            "tail_lt_50": 45,
+            "win_rate_pct": 74.5
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -973.2,
+            "mean_bps": -45.91,
+            "median_bps": -111.51,
+            "n": 240,
+            "sum_bps": -11018.3,
+            "t3r_bps": -14456.6,
+            "tail_lt_100": 127,
+            "tail_lt_50": 137,
+            "win_rate_pct": 41.2
+          }
+        },
+        "n": 622,
+        "negative_funding_long": {
+          "max_loss_bps": -973.2,
+          "mean_bps": 36.96,
+          "median_bps": 77.07,
+          "n": 264,
+          "sum_bps": 9757.2,
+          "t3r_bps": 6467.0,
+          "tail_lt_100": 99,
+          "tail_lt_50": 106,
+          "win_rate_pct": 56.4
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 53.72,
+          "median_bps": 69.98,
+          "n": 358,
+          "sum_bps": 19232.9,
+          "t3r_bps": 15794.6,
+          "tail_lt_100": 128,
+          "tail_lt_50": 143,
+          "win_rate_pct": 56.7
+        }
+      },
+      "horizon_h": 24,
+      "z_cut": 1.5
+    },
+    {
+      "all": {
+        "all": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 38.98,
+          "median_bps": 34.42,
+          "n": 1353,
+          "sum_bps": 52740.9,
+          "t3r_bps": 49054.1,
+          "tail_lt_100": 374,
+          "tail_lt_50": 477,
+          "win_rate_pct": 56.7
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -908.9,
+            "mean_bps": 27.45,
+            "median_bps": 38.99,
+            "n": 518,
+            "sum_bps": 14218.0,
+            "t3r_bps": 11995.4,
+            "tail_lt_100": 129,
+            "tail_lt_50": 170,
+            "win_rate_pct": 57.5
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -1016.4,
+            "mean_bps": 77.14,
+            "median_bps": 67.37,
+            "n": 531,
+            "sum_bps": 40958.9,
+            "t3r_bps": 37272.1,
+            "tail_lt_100": 130,
+            "tail_lt_50": 171,
+            "win_rate_pct": 61.0
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -823.8,
+            "mean_bps": -8.01,
+            "median_bps": -12.07,
+            "n": 304,
+            "sum_bps": -2436.0,
+            "t3r_bps": -5874.4,
+            "tail_lt_100": 115,
+            "tail_lt_50": 136,
+            "win_rate_pct": 47.7
+          }
+        },
+        "n": 1353,
+        "negative_funding_long": {
+          "max_loss_bps": -965.5,
+          "mean_bps": 39.98,
+          "median_bps": 40.3,
+          "n": 666,
+          "sum_bps": 26627.7,
+          "t3r_bps": 22959.2,
+          "tail_lt_100": 171,
+          "tail_lt_50": 226,
+          "win_rate_pct": 57.5
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 38.01,
+          "median_bps": 30.61,
+          "n": 687,
+          "sum_bps": 26113.2,
+          "t3r_bps": 22583.7,
+          "tail_lt_100": 203,
+          "tail_lt_50": 251,
+          "win_rate_pct": 55.9
+        }
+      },
+      "cal": {
+        "all": {
+          "max_loss_bps": -965.5,
+          "mean_bps": 37.84,
+          "median_bps": 30.44,
+          "n": 1020,
+          "sum_bps": 38596.7,
+          "t3r_bps": 34909.9,
+          "tail_lt_100": 252,
+          "tail_lt_50": 343,
+          "win_rate_pct": 56.6
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -908.9,
+            "mean_bps": 17.13,
+            "median_bps": 29.71,
+            "n": 426,
+            "sum_bps": 7297.6,
+            "t3r_bps": 5075.0,
+            "tail_lt_100": 101,
+            "tail_lt_50": 139,
+            "win_rate_pct": 56.3
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -965.5,
+            "mean_bps": 67.36,
+            "median_bps": 40.01,
+            "n": 411,
+            "sum_bps": 27686.4,
+            "t3r_bps": 23999.6,
+            "tail_lt_100": 102,
+            "tail_lt_50": 140,
+            "win_rate_pct": 58.2
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -571.9,
+            "mean_bps": 19.74,
+            "median_bps": 15.63,
+            "n": 183,
+            "sum_bps": 3612.8,
+            "t3r_bps": 2115.3,
+            "tail_lt_100": 49,
+            "tail_lt_50": 64,
+            "win_rate_pct": 53.6
+          }
+        },
+        "n": 1020,
+        "negative_funding_long": {
+          "max_loss_bps": -965.5,
+          "mean_bps": 34.87,
+          "median_bps": 29.92,
+          "n": 524,
+          "sum_bps": 18270.6,
+          "t3r_bps": 14673.6,
+          "tail_lt_100": 125,
+          "tail_lt_50": 177,
+          "win_rate_pct": 55.9
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -908.9,
+          "mean_bps": 40.98,
+          "median_bps": 31.36,
+          "n": 496,
+          "sum_bps": 20326.1,
+          "t3r_bps": 16827.8,
+          "tail_lt_100": 127,
+          "tail_lt_50": 166,
+          "win_rate_pct": 57.3
+        }
+      },
+      "config_id": "funding_abs_z_ge_2_mr_24h",
+      "hold": {
+        "all": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 42.47,
+          "median_bps": 82.3,
+          "n": 333,
+          "sum_bps": 14144.2,
+          "t3r_bps": 10653.3,
+          "tail_lt_100": 122,
+          "tail_lt_50": 134,
+          "win_rate_pct": 57.1
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -532.1,
+            "mean_bps": 75.22,
+            "median_bps": 149.94,
+            "n": 92,
+            "sum_bps": 6920.5,
+            "t3r_bps": 5326.8,
+            "tail_lt_100": 28,
+            "tail_lt_50": 31,
+            "win_rate_pct": 63.0
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -1016.4,
+            "mean_bps": 110.6,
+            "median_bps": 150.67,
+            "n": 120,
+            "sum_bps": 13272.5,
+            "t3r_bps": 9895.8,
+            "tail_lt_100": 28,
+            "tail_lt_50": 31,
+            "win_rate_pct": 70.8
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -823.8,
+            "mean_bps": -49.99,
+            "median_bps": -116.68,
+            "n": 121,
+            "sum_bps": -6048.8,
+            "t3r_bps": -9487.1,
+            "tail_lt_100": 66,
+            "tail_lt_50": 72,
+            "win_rate_pct": 38.8
+          }
+        },
+        "n": 333,
+        "negative_funding_long": {
+          "max_loss_bps": -958.4,
+          "mean_bps": 58.85,
+          "median_bps": 112.88,
+          "n": 142,
+          "sum_bps": 8357.1,
+          "t3r_bps": 5066.9,
+          "tail_lt_100": 46,
+          "tail_lt_50": 49,
+          "win_rate_pct": 63.4
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 30.3,
+          "median_bps": 24.77,
+          "n": 191,
+          "sum_bps": 5787.0,
+          "t3r_bps": 2348.7,
+          "tail_lt_100": 76,
+          "tail_lt_50": 85,
+          "win_rate_pct": 52.4
+        }
+      },
+      "horizon_h": 24,
+      "z_cut": 2.0
+    }
+  ],
+  "coverage": {
+    "basis_reversion_candidates": {
+      "columns": [
+        "id",
+        "symbol",
+        "basis_spike_start_ts_ms",
+        "reversion_ts_ms",
+        "entry_price",
+        "target_exit_ts_ms",
+        "status",
+        "exit_ts_ms",
+        "exit_price",
+        "long_return",
+        "long_win",
+        "created_at",
+        "updated_at"
+      ],
+      "present": true,
+      "symbols": {}
+    },
+    "funding_rates": {
+      "columns": [
+        "ts_ms",
+        "symbol",
+        "funding_rate",
+        "source"
+      ],
+      "present": true,
+      "symbols": {
+        "BTCUSDT": {
+          "end": null,
+          "rows": 0,
+          "start": null
+        },
+        "ETHUSDT": {
+          "end": "2026-04-13T16:00:00+00:00",
+          "rows": 178,
+          "start": "2026-02-15T16:00:00+00:00"
+        },
+        "SOLUSDT": {
+          "end": null,
+          "rows": 0,
+          "start": null
+        }
+      }
+    },
+    "mark_prices": {
+      "columns": [
+        "id",
+        "ts_ms",
+        "symbol",
+        "mark_price",
+        "funding_rate",
+        "next_funding_time_ms"
+      ],
+      "present": true,
+      "symbols": {
+        "BTCUSDT": {
+          "end": "2026-06-29T05:18:32+00:00",
+          "rows": 8161835,
+          "start": "2026-02-15T14:26:28+00:00"
+        },
+        "ETHUSDT": {
+          "end": "2026-06-29T05:18:38+00:00",
+          "rows": 8161769,
+          "start": "2026-02-15T14:26:28+00:00"
+        },
+        "SOLUSDT": {
+          "end": "2026-06-29T05:18:43+00:00",
+          "rows": 2873902,
+          "start": "2026-04-18T08:41:08+00:00"
+        }
+      }
+    },
+    "open_interest": {
+      "columns": [
+        "ts_ms",
+        "symbol",
+        "open_interest_usd"
+      ],
+      "present": true,
+      "symbols": {
+        "BTCUSDT": {
+          "end": null,
+          "rows": 0,
+          "start": null
+        },
+        "ETHUSDT": {
+          "end": "2026-04-18T07:53:20.916000+00:00",
+          "rows": 501,
+          "start": "2026-03-28T12:00:00+00:00"
+        },
+        "SOLUSDT": {
+          "end": null,
+          "rows": 0,
+          "start": null
+        }
+      }
+    },
+    "spot_prices": {
+      "columns": [
+        "ts_ms",
+        "symbol",
+        "spot_price"
+      ],
+      "present": true,
+      "symbols": {
+        "BTCUSDT": {
+          "end": "2026-06-05T15:59:10.783000+00:00",
+          "rows": 57301,
+          "start": "2026-04-18T08:01:10.083000+00:00"
+        },
+        "ETHUSDT": {
+          "end": "2026-06-05T15:59:11.295000+00:00",
+          "rows": 58331,
+          "start": "2026-03-07T16:00:00+00:00"
+        },
+        "SOLUSDT": {
+          "end": "2026-06-05T15:59:47.453000+00:00",
+          "rows": 57230,
+          "start": "2026-04-18T08:41:07.354000+00:00"
+        }
+      }
+    }
+  },
+  "generated_at_utc": "2026-06-29T05:20:21.574686+00:00",
+  "mode": "RESEARCH_ONLY_NO_LIVE_NO_PAPER",
+  "ranked_configs": [
+    {
+      "all": {
+        "all": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 27.89,
+          "median_bps": 17.7,
+          "n": 4261,
+          "sum_bps": 118821.9,
+          "t3r_bps": 115135.1,
+          "tail_lt_100": 1181,
+          "tail_lt_50": 1550,
+          "win_rate_pct": 53.7
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -908.9,
+            "mean_bps": 16.74,
+            "median_bps": 9.95,
+            "n": 1607,
+            "sum_bps": 26900.8,
+            "t3r_bps": 24678.3,
+            "tail_lt_100": 433,
+            "tail_lt_50": 580,
+            "win_rate_pct": 52.3
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -1016.4,
+            "mean_bps": 62.22,
+            "median_bps": 43.95,
+            "n": 1642,
+            "sum_bps": 102162.8,
+            "t3r_bps": 98476.0,
+            "tail_lt_100": 396,
+            "tail_lt_50": 534,
+            "win_rate_pct": 58.1
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -978.1,
+            "mean_bps": -10.12,
+            "median_bps": -10.24,
+            "n": 1012,
+            "sum_bps": -10241.8,
+            "t3r_bps": -13680.1,
+            "tail_lt_100": 352,
+            "tail_lt_50": 436,
+            "win_rate_pct": 48.8
+          }
+        },
+        "n": 4261,
+        "negative_funding_long": {
+          "max_loss_bps": -978.1,
+          "mean_bps": 23.38,
+          "median_bps": 14.3,
+          "n": 2094,
+          "sum_bps": 48958.1,
+          "t3r_bps": 45289.6,
+          "tail_lt_100": 576,
+          "tail_lt_50": 769,
+          "win_rate_pct": 53.0
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 32.24,
+          "median_bps": 21.45,
+          "n": 2167,
+          "sum_bps": 69863.7,
+          "t3r_bps": 66334.3,
+          "tail_lt_100": 605,
+          "tail_lt_50": 781,
+          "win_rate_pct": 54.4
+        }
+      },
+      "cal": {
+        "all": {
+          "max_loss_bps": -965.5,
+          "mean_bps": 21.1,
+          "median_bps": 13.4,
+          "n": 3335,
+          "sum_bps": 70359.1,
+          "t3r_bps": 66672.3,
+          "tail_lt_100": 856,
+          "tail_lt_50": 1188,
+          "win_rate_pct": 53.1
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -908.9,
+            "mean_bps": 9.5,
+            "median_bps": 9.48,
+            "n": 1329,
+            "sum_bps": 12619.5,
+            "t3r_bps": 10396.9,
+            "tail_lt_100": 336,
+            "tail_lt_50": 467,
+            "win_rate_pct": 52.3
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -965.5,
+            "mean_bps": 43.35,
+            "median_bps": 28.85,
+            "n": 1337,
+            "sum_bps": 57965.4,
+            "t3r_bps": 54278.6,
+            "tail_lt_100": 335,
+            "tail_lt_50": 465,
+            "win_rate_pct": 55.3
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -642.8,
+            "mean_bps": -0.34,
+            "median_bps": 1.81,
+            "n": 669,
+            "sum_bps": -225.8,
+            "t3r_bps": -1921.2,
+            "tail_lt_100": 185,
+            "tail_lt_50": 256,
+            "win_rate_pct": 50.4
+          }
+        },
+        "n": 3335,
+        "negative_funding_long": {
+          "max_loss_bps": -965.5,
+          "mean_bps": 17.76,
+          "median_bps": 12.77,
+          "n": 1673,
+          "sum_bps": 29713.2,
+          "t3r_bps": 26116.2,
+          "tail_lt_100": 429,
+          "tail_lt_50": 604,
+          "win_rate_pct": 52.7
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -925.2,
+          "mean_bps": 24.46,
+          "median_bps": 15.46,
+          "n": 1662,
+          "sum_bps": 40645.9,
+          "t3r_bps": 37147.6,
+          "tail_lt_100": 427,
+          "tail_lt_50": 584,
+          "win_rate_pct": 53.5
+        }
+      },
+      "config_id": "funding_abs_z_ge_1_mr_24h",
+      "hold": {
+        "all": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 52.34,
+          "median_bps": 54.89,
+          "n": 926,
+          "sum_bps": 48462.7,
+          "t3r_bps": 44971.9,
+          "tail_lt_100": 325,
+          "tail_lt_50": 362,
+          "win_rate_pct": 55.8
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -532.1,
+            "mean_bps": 51.37,
+            "median_bps": 18.71,
+            "n": 278,
+            "sum_bps": 14281.3,
+            "t3r_bps": 12387.2,
+            "tail_lt_100": 97,
+            "tail_lt_50": 113,
+            "win_rate_pct": 52.2
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -1016.4,
+            "mean_bps": 144.91,
+            "median_bps": 138.87,
+            "n": 305,
+            "sum_bps": 44197.4,
+            "t3r_bps": 40820.7,
+            "tail_lt_100": 61,
+            "tail_lt_50": 69,
+            "win_rate_pct": 70.5
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -978.1,
+            "mean_bps": -29.2,
+            "median_bps": -75.21,
+            "n": 343,
+            "sum_bps": -10016.0,
+            "t3r_bps": -13454.3,
+            "tail_lt_100": 167,
+            "tail_lt_50": 180,
+            "win_rate_pct": 45.8
+          }
+        },
+        "n": 926,
+        "negative_funding_long": {
+          "max_loss_bps": -978.1,
+          "mean_bps": 45.71,
+          "median_bps": 53.12,
+          "n": 421,
+          "sum_bps": 19244.9,
+          "t3r_bps": 15954.7,
+          "tail_lt_100": 147,
+          "tail_lt_50": 165,
+          "win_rate_pct": 54.2
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 57.86,
+          "median_bps": 60.36,
+          "n": 505,
+          "sum_bps": 29217.8,
+          "t3r_bps": 25779.4,
+          "tail_lt_100": 178,
+          "tail_lt_50": 197,
+          "win_rate_pct": 57.2
+        }
+      },
+      "horizon_h": 24,
+      "z_cut": 1.0
+    },
+    {
+      "all": {
+        "all": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 31.25,
+          "median_bps": 28.43,
+          "n": 2735,
+          "sum_bps": 85457.5,
+          "t3r_bps": 81770.7,
+          "tail_lt_100": 729,
+          "tail_lt_50": 969,
+          "win_rate_pct": 55.3
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -908.9,
+            "mean_bps": 29.16,
+            "median_bps": 32.47,
+            "n": 1014,
+            "sum_bps": 29567.7,
+            "t3r_bps": 27345.1,
+            "tail_lt_100": 238,
+            "tail_lt_50": 327,
+            "win_rate_pct": 56.7
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -1016.4,
+            "mean_bps": 60.27,
+            "median_bps": 49.95,
+            "n": 1031,
+            "sum_bps": 62141.6,
+            "t3r_bps": 58454.8,
+            "tail_lt_100": 244,
+            "tail_lt_50": 335,
+            "win_rate_pct": 58.5
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -973.2,
+            "mean_bps": -9.06,
+            "median_bps": -10.94,
+            "n": 690,
+            "sum_bps": -6251.8,
+            "t3r_bps": -9690.1,
+            "tail_lt_100": 247,
+            "tail_lt_50": 307,
+            "win_rate_pct": 48.4
+          }
+        },
+        "n": 2735,
+        "negative_funding_long": {
+          "max_loss_bps": -973.2,
+          "mean_bps": 27.37,
+          "median_bps": 26.1,
+          "n": 1308,
+          "sum_bps": 35804.3,
+          "t3r_bps": 32135.7,
+          "tail_lt_100": 346,
+          "tail_lt_50": 467,
+          "win_rate_pct": 54.9
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 34.8,
+          "median_bps": 30.33,
+          "n": 1427,
+          "sum_bps": 49653.2,
+          "t3r_bps": 46123.8,
+          "tail_lt_100": 383,
+          "tail_lt_50": 502,
+          "win_rate_pct": 55.6
+        }
+      },
+      "cal": {
+        "all": {
+          "max_loss_bps": -965.5,
+          "mean_bps": 26.72,
+          "median_bps": 22.99,
+          "n": 2113,
+          "sum_bps": 56467.3,
+          "t3r_bps": 52780.5,
+          "tail_lt_100": 502,
+          "tail_lt_50": 720,
+          "win_rate_pct": 54.9
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -908.9,
+            "mean_bps": 22.57,
+            "median_bps": 30.95,
+            "n": 836,
+            "sum_bps": 18869.6,
+            "t3r_bps": 16647.1,
+            "tail_lt_100": 178,
+            "tail_lt_50": 260,
+            "win_rate_pct": 56.7
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -965.5,
+            "mean_bps": 39.7,
+            "median_bps": 24.06,
+            "n": 827,
+            "sum_bps": 32831.2,
+            "t3r_bps": 29144.4,
+            "tail_lt_100": 204,
+            "tail_lt_50": 290,
+            "win_rate_pct": 54.5
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -575.5,
+            "mean_bps": 10.59,
+            "median_bps": 13.0,
+            "n": 450,
+            "sum_bps": 4766.5,
+            "t3r_bps": 3071.1,
+            "tail_lt_100": 120,
+            "tail_lt_50": 170,
+            "win_rate_pct": 52.2
+          }
+        },
+        "n": 2113,
+        "negative_funding_long": {
+          "max_loss_bps": -965.5,
+          "mean_bps": 24.95,
+          "median_bps": 21.5,
+          "n": 1044,
+          "sum_bps": 26047.1,
+          "t3r_bps": 22450.1,
+          "tail_lt_100": 247,
+          "tail_lt_50": 361,
+          "win_rate_pct": 54.5
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -925.2,
+          "mean_bps": 28.46,
+          "median_bps": 25.7,
+          "n": 1069,
+          "sum_bps": 30420.3,
+          "t3r_bps": 26922.0,
+          "tail_lt_100": 255,
+          "tail_lt_50": 359,
+          "win_rate_pct": 55.3
+        }
+      },
+      "config_id": "funding_abs_z_ge_1.5_mr_24h",
+      "hold": {
+        "all": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 46.61,
+          "median_bps": 72.35,
+          "n": 622,
+          "sum_bps": 28990.1,
+          "t3r_bps": 25499.3,
+          "tail_lt_100": 227,
+          "tail_lt_50": 249,
+          "win_rate_pct": 56.6
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -532.1,
+            "mean_bps": 60.1,
+            "median_bps": 91.04,
+            "n": 178,
+            "sum_bps": 10698.1,
+            "t3r_bps": 9037.3,
+            "tail_lt_100": 60,
+            "tail_lt_50": 67,
+            "win_rate_pct": 56.7
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -1016.4,
+            "mean_bps": 143.68,
+            "median_bps": 158.63,
+            "n": 204,
+            "sum_bps": 29310.3,
+            "t3r_bps": 25933.7,
+            "tail_lt_100": 40,
+            "tail_lt_50": 45,
+            "win_rate_pct": 74.5
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -973.2,
+            "mean_bps": -45.91,
+            "median_bps": -111.51,
+            "n": 240,
+            "sum_bps": -11018.3,
+            "t3r_bps": -14456.6,
+            "tail_lt_100": 127,
+            "tail_lt_50": 137,
+            "win_rate_pct": 41.2
+          }
+        },
+        "n": 622,
+        "negative_funding_long": {
+          "max_loss_bps": -973.2,
+          "mean_bps": 36.96,
+          "median_bps": 77.07,
+          "n": 264,
+          "sum_bps": 9757.2,
+          "t3r_bps": 6467.0,
+          "tail_lt_100": 99,
+          "tail_lt_50": 106,
+          "win_rate_pct": 56.4
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 53.72,
+          "median_bps": 69.98,
+          "n": 358,
+          "sum_bps": 19232.9,
+          "t3r_bps": 15794.6,
+          "tail_lt_100": 128,
+          "tail_lt_50": 143,
+          "win_rate_pct": 56.7
+        }
+      },
+      "horizon_h": 24,
+      "z_cut": 1.5
+    },
+    {
+      "all": {
+        "all": {
+          "max_loss_bps": -833.2,
+          "mean_bps": 6.01,
+          "median_bps": -0.71,
+          "n": 4263,
+          "sum_bps": 25609.8,
+          "t3r_bps": 23613.2,
+          "tail_lt_100": 754,
+          "tail_lt_50": 1339,
+          "win_rate_pct": 49.8
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -561.6,
+            "mean_bps": 2.41,
+            "median_bps": -5.53,
+            "n": 1607,
+            "sum_bps": 3877.0,
+            "t3r_bps": 2214.0,
+            "tail_lt_100": 240,
+            "tail_lt_50": 502,
+            "win_rate_pct": 47.9
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -833.2,
+            "mean_bps": 15.95,
+            "median_bps": 3.5,
+            "n": 1643,
+            "sum_bps": 26206.3,
+            "t3r_bps": 24209.7,
+            "tail_lt_100": 274,
+            "tail_lt_50": 490,
+            "win_rate_pct": 51.2
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -720.4,
+            "mean_bps": -4.42,
+            "median_bps": 2.09,
+            "n": 1013,
+            "sum_bps": -4473.5,
+            "t3r_bps": -6155.0,
+            "tail_lt_100": 240,
+            "tail_lt_50": 347,
+            "win_rate_pct": 50.3
+          }
+        },
+        "n": 4263,
+        "negative_funding_long": {
+          "max_loss_bps": -833.2,
+          "mean_bps": 4.97,
+          "median_bps": -6.76,
+          "n": 2096,
+          "sum_bps": 10420.1,
+          "t3r_bps": 8535.7,
+          "tail_lt_100": 366,
+          "tail_lt_50": 675,
+          "win_rate_pct": 47.6
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -720.4,
+          "mean_bps": 7.01,
+          "median_bps": 4.77,
+          "n": 2167,
+          "sum_bps": 15189.7,
+          "t3r_bps": 13248.2,
+          "tail_lt_100": 388,
+          "tail_lt_50": 664,
+          "win_rate_pct": 51.8
+        }
+      },
+      "cal": {
+        "all": {
+          "max_loss_bps": -833.2,
+          "mean_bps": 2.19,
+          "median_bps": -2.84,
+          "n": 3335,
+          "sum_bps": 7290.5,
+          "t3r_bps": 5371.6,
+          "tail_lt_100": 546,
+          "tail_lt_50": 1018,
+          "win_rate_pct": 48.8
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -537.1,
+            "mean_bps": -2.57,
+            "median_bps": -7.22,
+            "n": 1329,
+            "sum_bps": -3417.7,
+            "t3r_bps": -5080.7,
+            "tail_lt_100": 205,
+            "tail_lt_50": 413,
+            "win_rate_pct": 47.0
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -833.2,
+            "mean_bps": 4.56,
+            "median_bps": -2.76,
+            "n": 1337,
+            "sum_bps": 6092.8,
+            "t3r_bps": 4174.0,
+            "tail_lt_100": 233,
+            "tail_lt_50": 415,
+            "win_rate_pct": 48.8
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -490.2,
+            "mean_bps": 6.9,
+            "median_bps": 8.25,
+            "n": 669,
+            "sum_bps": 4615.4,
+            "t3r_bps": 3310.9,
+            "tail_lt_100": 108,
+            "tail_lt_50": 190,
+            "win_rate_pct": 52.5
+          }
+        },
+        "n": 3335,
+        "negative_funding_long": {
+          "max_loss_bps": -833.2,
+          "mean_bps": 3.64,
+          "median_bps": -7.0,
+          "n": 1673,
+          "sum_bps": 6089.6,
+          "t3r_bps": 4334.5,
+          "tail_lt_100": 265,
+          "tail_lt_50": 515,
+          "win_rate_pct": 47.3
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -713.7,
+          "mean_bps": 0.72,
+          "median_bps": 1.35,
+          "n": 1662,
+          "sum_bps": 1200.8,
+          "t3r_bps": -637.9,
+          "tail_lt_100": 281,
+          "tail_lt_50": 503,
+          "win_rate_pct": 50.4
+        }
+      },
+      "config_id": "funding_abs_z_ge_1_mr_8h",
+      "hold": {
+        "all": {
+          "max_loss_bps": -720.4,
+          "mean_bps": 19.74,
+          "median_bps": 9.41,
+          "n": 928,
+          "sum_bps": 18319.3,
+          "t3r_bps": 16412.4,
+          "tail_lt_100": 208,
+          "tail_lt_50": 321,
+          "win_rate_pct": 53.0
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -561.6,
+            "mean_bps": 26.24,
+            "median_bps": 7.59,
+            "n": 278,
+            "sum_bps": 7294.7,
+            "t3r_bps": 5971.3,
+            "tail_lt_100": 35,
+            "tail_lt_50": 89,
+            "win_rate_pct": 51.8
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -696.6,
+            "mean_bps": 65.73,
+            "median_bps": 31.64,
+            "n": 306,
+            "sum_bps": 20113.4,
+            "t3r_bps": 18216.9,
+            "tail_lt_100": 41,
+            "tail_lt_50": 75,
+            "win_rate_pct": 61.8
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -720.4,
+            "mean_bps": -26.42,
+            "median_bps": -29.28,
+            "n": 344,
+            "sum_bps": -9088.9,
+            "t3r_bps": -10770.3,
+            "tail_lt_100": 132,
+            "tail_lt_50": 157,
+            "win_rate_pct": 46.2
+          }
+        },
+        "n": 928,
+        "negative_funding_long": {
+          "max_loss_bps": -566.2,
+          "mean_bps": 10.24,
+          "median_bps": -4.34,
+          "n": 423,
+          "sum_bps": 4330.5,
+          "t3r_bps": 2524.6,
+          "tail_lt_100": 101,
+          "tail_lt_50": 160,
+          "win_rate_pct": 48.7
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -720.4,
+          "mean_bps": 27.7,
+          "median_bps": 21.9,
+          "n": 505,
+          "sum_bps": 13988.8,
+          "t3r_bps": 12170.7,
+          "tail_lt_100": 107,
+          "tail_lt_50": 161,
+          "win_rate_pct": 56.6
+        }
+      },
+      "horizon_h": 8,
+      "z_cut": 1.0
+    },
+    {
+      "all": {
+        "all": {
+          "max_loss_bps": -833.2,
+          "mean_bps": 8.39,
+          "median_bps": 2.11,
+          "n": 2735,
+          "sum_bps": 22941.4,
+          "t3r_bps": 20944.9,
+          "tail_lt_100": 473,
+          "tail_lt_50": 825,
+          "win_rate_pct": 50.7
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -561.6,
+            "mean_bps": 7.68,
+            "median_bps": -0.9,
+            "n": 1014,
+            "sum_bps": 7788.4,
+            "t3r_bps": 6125.4,
+            "tail_lt_100": 140,
+            "tail_lt_50": 296,
+            "win_rate_pct": 49.5
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -833.2,
+            "mean_bps": 16.02,
+            "median_bps": 4.56,
+            "n": 1031,
+            "sum_bps": 16512.5,
+            "t3r_bps": 14515.9,
+            "tail_lt_100": 172,
+            "tail_lt_50": 294,
+            "win_rate_pct": 51.5
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -713.4,
+            "mean_bps": -1.97,
+            "median_bps": 3.7,
+            "n": 690,
+            "sum_bps": -1359.4,
+            "t3r_bps": -3040.8,
+            "tail_lt_100": 161,
+            "tail_lt_50": 235,
+            "win_rate_pct": 51.2
+          }
+        },
+        "n": 2735,
+        "negative_funding_long": {
+          "max_loss_bps": -833.2,
+          "mean_bps": 7.97,
+          "median_bps": -4.24,
+          "n": 1308,
+          "sum_bps": 10425.5,
+          "t3r_bps": 8541.1,
+          "tail_lt_100": 226,
+          "tail_lt_50": 408,
+          "win_rate_pct": 48.3
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -713.7,
+          "mean_bps": 8.77,
+          "median_bps": 8.63,
+          "n": 1427,
+          "sum_bps": 12516.0,
+          "t3r_bps": 10574.5,
+          "tail_lt_100": 247,
+          "tail_lt_50": 417,
+          "win_rate_pct": 52.8
+        }
+      },
+      "cal": {
+        "all": {
+          "max_loss_bps": -833.2,
+          "mean_bps": 3.59,
+          "median_bps": -0.89,
+          "n": 2113,
+          "sum_bps": 7591.0,
+          "t3r_bps": 5672.1,
+          "tail_lt_100": 330,
+          "tail_lt_50": 608,
+          "win_rate_pct": 49.7
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -537.1,
+            "mean_bps": 3.51,
+            "median_bps": -2.95,
+            "n": 836,
+            "sum_bps": 2934.2,
+            "t3r_bps": 1271.2,
+            "tail_lt_100": 114,
+            "tail_lt_50": 236,
+            "win_rate_pct": 48.7
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -833.2,
+            "mean_bps": 0.21,
+            "median_bps": -3.0,
+            "n": 827,
+            "sum_bps": 171.2,
+            "t3r_bps": -1747.6,
+            "tail_lt_100": 146,
+            "tail_lt_50": 247,
+            "win_rate_pct": 48.6
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -490.2,
+            "mean_bps": 9.97,
+            "median_bps": 10.55,
+            "n": 450,
+            "sum_bps": 4485.6,
+            "t3r_bps": 3295.1,
+            "tail_lt_100": 70,
+            "tail_lt_50": 125,
+            "win_rate_pct": 53.8
+          }
+        },
+        "n": 2113,
+        "negative_funding_long": {
+          "max_loss_bps": -833.2,
+          "mean_bps": 5.71,
+          "median_bps": -4.25,
+          "n": 1044,
+          "sum_bps": 5966.0,
+          "t3r_bps": 4210.9,
+          "tail_lt_100": 159,
+          "tail_lt_50": 305,
+          "win_rate_pct": 48.2
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -713.7,
+          "mean_bps": 1.52,
+          "median_bps": 3.2,
+          "n": 1069,
+          "sum_bps": 1625.0,
+          "t3r_bps": -213.7,
+          "tail_lt_100": 171,
+          "tail_lt_50": 303,
+          "win_rate_pct": 51.3
+        }
+      },
+      "config_id": "funding_abs_z_ge_1.5_mr_8h",
+      "hold": {
+        "all": {
+          "max_loss_bps": -713.4,
+          "mean_bps": 24.68,
+          "median_bps": 13.84,
+          "n": 622,
+          "sum_bps": 15350.4,
+          "t3r_bps": 13443.5,
+          "tail_lt_100": 143,
+          "tail_lt_50": 217,
+          "win_rate_pct": 53.9
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -561.6,
+            "mean_bps": 27.27,
+            "median_bps": 13.96,
+            "n": 178,
+            "sum_bps": 4854.2,
+            "t3r_bps": 3610.4,
+            "tail_lt_100": 26,
+            "tail_lt_50": 60,
+            "win_rate_pct": 53.4
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -696.6,
+            "mean_bps": 80.1,
+            "median_bps": 38.05,
+            "n": 204,
+            "sum_bps": 16341.2,
+            "t3r_bps": 14444.7,
+            "tail_lt_100": 26,
+            "tail_lt_50": 47,
+            "win_rate_pct": 63.2
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -713.4,
+            "mean_bps": -24.35,
+            "median_bps": -32.38,
+            "n": 240,
+            "sum_bps": -5845.0,
+            "t3r_bps": -7526.5,
+            "tail_lt_100": 91,
+            "tail_lt_50": 110,
+            "win_rate_pct": 46.2
+          }
+        },
+        "n": 622,
+        "negative_funding_long": {
+          "max_loss_bps": -483.0,
+          "mean_bps": 16.89,
+          "median_bps": -3.46,
+          "n": 264,
+          "sum_bps": 4459.5,
+          "t3r_bps": 2653.6,
+          "tail_lt_100": 67,
+          "tail_lt_50": 103,
+          "win_rate_pct": 48.9
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -713.4,
+          "mean_bps": 30.42,
+          "median_bps": 26.06,
+          "n": 358,
+          "sum_bps": 10891.0,
+          "t3r_bps": 9072.8,
+          "tail_lt_100": 76,
+          "tail_lt_50": 114,
+          "win_rate_pct": 57.5
+        }
+      },
+      "horizon_h": 8,
+      "z_cut": 1.5
+    },
+    {
+      "all": {
+        "all": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 38.98,
+          "median_bps": 34.42,
+          "n": 1353,
+          "sum_bps": 52740.9,
+          "t3r_bps": 49054.1,
+          "tail_lt_100": 374,
+          "tail_lt_50": 477,
+          "win_rate_pct": 56.7
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -908.9,
+            "mean_bps": 27.45,
+            "median_bps": 38.99,
+            "n": 518,
+            "sum_bps": 14218.0,
+            "t3r_bps": 11995.4,
+            "tail_lt_100": 129,
+            "tail_lt_50": 170,
+            "win_rate_pct": 57.5
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -1016.4,
+            "mean_bps": 77.14,
+            "median_bps": 67.37,
+            "n": 531,
+            "sum_bps": 40958.9,
+            "t3r_bps": 37272.1,
+            "tail_lt_100": 130,
+            "tail_lt_50": 171,
+            "win_rate_pct": 61.0
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -823.8,
+            "mean_bps": -8.01,
+            "median_bps": -12.07,
+            "n": 304,
+            "sum_bps": -2436.0,
+            "t3r_bps": -5874.4,
+            "tail_lt_100": 115,
+            "tail_lt_50": 136,
+            "win_rate_pct": 47.7
+          }
+        },
+        "n": 1353,
+        "negative_funding_long": {
+          "max_loss_bps": -965.5,
+          "mean_bps": 39.98,
+          "median_bps": 40.3,
+          "n": 666,
+          "sum_bps": 26627.7,
+          "t3r_bps": 22959.2,
+          "tail_lt_100": 171,
+          "tail_lt_50": 226,
+          "win_rate_pct": 57.5
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 38.01,
+          "median_bps": 30.61,
+          "n": 687,
+          "sum_bps": 26113.2,
+          "t3r_bps": 22583.7,
+          "tail_lt_100": 203,
+          "tail_lt_50": 251,
+          "win_rate_pct": 55.9
+        }
+      },
+      "cal": {
+        "all": {
+          "max_loss_bps": -965.5,
+          "mean_bps": 37.84,
+          "median_bps": 30.44,
+          "n": 1020,
+          "sum_bps": 38596.7,
+          "t3r_bps": 34909.9,
+          "tail_lt_100": 252,
+          "tail_lt_50": 343,
+          "win_rate_pct": 56.6
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -908.9,
+            "mean_bps": 17.13,
+            "median_bps": 29.71,
+            "n": 426,
+            "sum_bps": 7297.6,
+            "t3r_bps": 5075.0,
+            "tail_lt_100": 101,
+            "tail_lt_50": 139,
+            "win_rate_pct": 56.3
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -965.5,
+            "mean_bps": 67.36,
+            "median_bps": 40.01,
+            "n": 411,
+            "sum_bps": 27686.4,
+            "t3r_bps": 23999.6,
+            "tail_lt_100": 102,
+            "tail_lt_50": 140,
+            "win_rate_pct": 58.2
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -571.9,
+            "mean_bps": 19.74,
+            "median_bps": 15.63,
+            "n": 183,
+            "sum_bps": 3612.8,
+            "t3r_bps": 2115.3,
+            "tail_lt_100": 49,
+            "tail_lt_50": 64,
+            "win_rate_pct": 53.6
+          }
+        },
+        "n": 1020,
+        "negative_funding_long": {
+          "max_loss_bps": -965.5,
+          "mean_bps": 34.87,
+          "median_bps": 29.92,
+          "n": 524,
+          "sum_bps": 18270.6,
+          "t3r_bps": 14673.6,
+          "tail_lt_100": 125,
+          "tail_lt_50": 177,
+          "win_rate_pct": 55.9
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -908.9,
+          "mean_bps": 40.98,
+          "median_bps": 31.36,
+          "n": 496,
+          "sum_bps": 20326.1,
+          "t3r_bps": 16827.8,
+          "tail_lt_100": 127,
+          "tail_lt_50": 166,
+          "win_rate_pct": 57.3
+        }
+      },
+      "config_id": "funding_abs_z_ge_2_mr_24h",
+      "hold": {
+        "all": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 42.47,
+          "median_bps": 82.3,
+          "n": 333,
+          "sum_bps": 14144.2,
+          "t3r_bps": 10653.3,
+          "tail_lt_100": 122,
+          "tail_lt_50": 134,
+          "win_rate_pct": 57.1
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -532.1,
+            "mean_bps": 75.22,
+            "median_bps": 149.94,
+            "n": 92,
+            "sum_bps": 6920.5,
+            "t3r_bps": 5326.8,
+            "tail_lt_100": 28,
+            "tail_lt_50": 31,
+            "win_rate_pct": 63.0
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -1016.4,
+            "mean_bps": 110.6,
+            "median_bps": 150.67,
+            "n": 120,
+            "sum_bps": 13272.5,
+            "t3r_bps": 9895.8,
+            "tail_lt_100": 28,
+            "tail_lt_50": 31,
+            "win_rate_pct": 70.8
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -823.8,
+            "mean_bps": -49.99,
+            "median_bps": -116.68,
+            "n": 121,
+            "sum_bps": -6048.8,
+            "t3r_bps": -9487.1,
+            "tail_lt_100": 66,
+            "tail_lt_50": 72,
+            "win_rate_pct": 38.8
+          }
+        },
+        "n": 333,
+        "negative_funding_long": {
+          "max_loss_bps": -958.4,
+          "mean_bps": 58.85,
+          "median_bps": 112.88,
+          "n": 142,
+          "sum_bps": 8357.1,
+          "t3r_bps": 5066.9,
+          "tail_lt_100": 46,
+          "tail_lt_50": 49,
+          "win_rate_pct": 63.4
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -1016.4,
+          "mean_bps": 30.3,
+          "median_bps": 24.77,
+          "n": 191,
+          "sum_bps": 5787.0,
+          "t3r_bps": 2348.7,
+          "tail_lt_100": 76,
+          "tail_lt_50": 85,
+          "win_rate_pct": 52.4
+        }
+      },
+      "horizon_h": 24,
+      "z_cut": 2.0
+    },
+    {
+      "all": {
+        "all": {
+          "max_loss_bps": -671.8,
+          "mean_bps": 11.13,
+          "median_bps": 3.93,
+          "n": 1353,
+          "sum_bps": 15059.3,
+          "t3r_bps": 13259.9,
+          "tail_lt_100": 226,
+          "tail_lt_50": 392,
+          "win_rate_pct": 51.4
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -461.1,
+            "mean_bps": 10.56,
+            "median_bps": 1.73,
+            "n": 518,
+            "sum_bps": 5468.0,
+            "t3r_bps": 3975.6,
+            "tail_lt_100": 70,
+            "tail_lt_50": 137,
+            "win_rate_pct": 50.6
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -671.8,
+            "mean_bps": 19.32,
+            "median_bps": 10.7,
+            "n": 531,
+            "sum_bps": 10260.3,
+            "t3r_bps": 8460.9,
+            "tail_lt_100": 87,
+            "tail_lt_50": 148,
+            "win_rate_pct": 53.7
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -490.2,
+            "mean_bps": -2.2,
+            "median_bps": -4.38,
+            "n": 304,
+            "sum_bps": -669.0,
+            "t3r_bps": -2302.9,
+            "tail_lt_100": 69,
+            "tail_lt_50": 107,
+            "win_rate_pct": 49.0
+          }
+        },
+        "n": 1353,
+        "negative_funding_long": {
+          "max_loss_bps": -512.5,
+          "mean_bps": 10.93,
+          "median_bps": -1.96,
+          "n": 666,
+          "sum_bps": 7281.1,
+          "t3r_bps": 5587.9,
+          "tail_lt_100": 107,
+          "tail_lt_50": 195,
+          "win_rate_pct": 49.5
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -671.8,
+          "mean_bps": 11.32,
+          "median_bps": 12.51,
+          "n": 687,
+          "sum_bps": 7778.3,
+          "t3r_bps": 6067.5,
+          "tail_lt_100": 119,
+          "tail_lt_50": 197,
+          "win_rate_pct": 53.3
+        }
+      },
+      "cal": {
+        "all": {
+          "max_loss_bps": -671.8,
+          "mean_bps": 7.96,
+          "median_bps": 1.87,
+          "n": 1020,
+          "sum_bps": 8117.0,
+          "t3r_bps": 6319.3,
+          "tail_lt_100": 153,
+          "tail_lt_50": 285,
+          "win_rate_pct": 50.6
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -370.9,
+            "mean_bps": 5.22,
+            "median_bps": -0.33,
+            "n": 426,
+            "sum_bps": 2223.7,
+            "t3r_bps": 767.7,
+            "tail_lt_100": 58,
+            "tail_lt_50": 111,
+            "win_rate_pct": 49.8
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -671.8,
+            "mean_bps": 9.27,
+            "median_bps": 2.3,
+            "n": 411,
+            "sum_bps": 3811.0,
+            "t3r_bps": 2089.5,
+            "tail_lt_100": 71,
+            "tail_lt_50": 121,
+            "win_rate_pct": 51.1
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -490.2,
+            "mean_bps": 11.38,
+            "median_bps": 7.83,
+            "n": 183,
+            "sum_bps": 2082.2,
+            "t3r_bps": 891.7,
+            "tail_lt_100": 24,
+            "tail_lt_50": 53,
+            "win_rate_pct": 51.4
+          }
+        },
+        "n": 1020,
+        "negative_funding_long": {
+          "max_loss_bps": -512.5,
+          "mean_bps": 12.13,
+          "median_bps": 0.28,
+          "n": 524,
+          "sum_bps": 6357.2,
+          "t3r_bps": 4742.0,
+          "tail_lt_100": 72,
+          "tail_lt_50": 140,
+          "win_rate_pct": 50.0
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -671.8,
+          "mean_bps": 3.55,
+          "median_bps": 3.39,
+          "n": 496,
+          "sum_bps": 1759.8,
+          "t3r_bps": 166.4,
+          "tail_lt_100": 81,
+          "tail_lt_50": 145,
+          "win_rate_pct": 51.2
+        }
+      },
+      "config_id": "funding_abs_z_ge_2_mr_8h",
+      "hold": {
+        "all": {
+          "max_loss_bps": -483.0,
+          "mean_bps": 20.85,
+          "median_bps": 13.94,
+          "n": 333,
+          "sum_bps": 6942.3,
+          "t3r_bps": 5281.9,
+          "tail_lt_100": 73,
+          "tail_lt_50": 107,
+          "win_rate_pct": 54.1
+        },
+        "by_symbol": {
+          "BTCUSDT": {
+            "max_loss_bps": -461.1,
+            "mean_bps": 35.26,
+            "median_bps": 16.61,
+            "n": 92,
+            "sum_bps": 3244.3,
+            "t3r_bps": 2007.4,
+            "tail_lt_100": 12,
+            "tail_lt_50": 26,
+            "win_rate_pct": 54.3
+          },
+          "ETHUSDT": {
+            "max_loss_bps": -343.8,
+            "mean_bps": 53.74,
+            "median_bps": 33.2,
+            "n": 120,
+            "sum_bps": 6449.3,
+            "t3r_bps": 4943.7,
+            "tail_lt_100": 16,
+            "tail_lt_50": 27,
+            "win_rate_pct": 62.5
+          },
+          "SOLUSDT": {
+            "max_loss_bps": -483.0,
+            "mean_bps": -22.74,
+            "median_bps": -33.58,
+            "n": 121,
+            "sum_bps": -2751.3,
+            "t3r_bps": -4385.2,
+            "tail_lt_100": 45,
+            "tail_lt_50": 54,
+            "win_rate_pct": 45.5
+          }
+        },
+        "n": 333,
+        "negative_funding_long": {
+          "max_loss_bps": -483.0,
+          "mean_bps": 6.51,
+          "median_bps": -6.16,
+          "n": 142,
+          "sum_bps": 923.8,
+          "t3r_bps": -563.8,
+          "tail_lt_100": 35,
+          "tail_lt_50": 55,
+          "win_rate_pct": 47.9
+        },
+        "positive_funding_short": {
+          "max_loss_bps": -461.1,
+          "mean_bps": 31.51,
+          "median_bps": 26.68,
+          "n": 191,
+          "sum_bps": 6018.5,
+          "t3r_bps": 4375.3,
+          "tail_lt_100": 38,
+          "tail_lt_50": 52,
+          "win_rate_pct": 58.6
+        }
+      },
+      "horizon_h": 8,
+      "z_cut": 2.0
+    }
+  ],
+  "sampling": {
+    "fee_bps_side": 3.05,
+    "horizons_h": [
+      8,
+      24
+    ],
+    "min_n_gate": 40,
+    "step_sec": 3600,
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT"
+    ],
+    "z_cuts": [
+      1.0,
+      1.5,
+      2.0
+    ],
+    "z_lookback": 72
+  },
+  "source_db": {
+    "exists": true,
+    "mtime_ns": 1782710418183303700,
+    "path": "D:\\eclipse_scalper\\data\\microstructure.db",
+    "size_bytes": 656911491072
+  },
+  "split": {
+    "cal_months": [
+      "2026-02",
+      "2026-03",
+      "2026-04",
+      "2026-05"
+    ],
+    "cal_rows": 5938,
+    "hold_months": [
+      "2026-06"
+    ],
+    "hold_rows": 2031,
+    "rows": 7969
+  }
+}

@@ -1,0 +1,220 @@
+{
+  "generated_at_utc": "2026-06-23T14:54:41.698264+00:00",
+  "all_time": {
+    "n": 432,
+    "features": {
+      "day_trend_bps": {
+        "count": 10,
+        "coverage_pct": 2.31
+      },
+      "day_range_bps": {
+        "count": 10,
+        "coverage_pct": 2.31
+      },
+      "day_buy_liq_notional": {
+        "count": 10,
+        "coverage_pct": 2.31
+      },
+      "day_agg_trade_count": {
+        "count": 10,
+        "coverage_pct": 2.31
+      },
+      "cluster_duration_sec": {
+        "count": 123,
+        "coverage_pct": 28.47
+      },
+      "max_single_liq_share": {
+        "count": 10,
+        "coverage_pct": 2.31
+      },
+      "intensity_per_sec": {
+        "count": 10,
+        "coverage_pct": 2.31
+      },
+      "inter_cluster_gap_sec": {
+        "count": 3,
+        "coverage_pct": 0.69
+      },
+      "prev_liq_gap_sec": {
+        "count": 3,
+        "coverage_pct": 0.69
+      },
+      "btc_pre_return_bps": {
+        "count": 32,
+        "coverage_pct": 7.41
+      }
+    }
+  },
+  "last_24h": {
+    "n": 15,
+    "features": {
+      "day_trend_bps": {
+        "count": 10,
+        "coverage_pct": 66.67
+      },
+      "day_range_bps": {
+        "count": 10,
+        "coverage_pct": 66.67
+      },
+      "day_buy_liq_notional": {
+        "count": 10,
+        "coverage_pct": 66.67
+      },
+      "day_agg_trade_count": {
+        "count": 10,
+        "coverage_pct": 66.67
+      },
+      "cluster_duration_sec": {
+        "count": 15,
+        "coverage_pct": 100.0
+      },
+      "max_single_liq_share": {
+        "count": 10,
+        "coverage_pct": 66.67
+      },
+      "intensity_per_sec": {
+        "count": 10,
+        "coverage_pct": 66.67
+      },
+      "inter_cluster_gap_sec": {
+        "count": 3,
+        "coverage_pct": 20.0
+      },
+      "prev_liq_gap_sec": {
+        "count": 3,
+        "coverage_pct": 20.0
+      },
+      "btc_pre_return_bps": {
+        "count": 1,
+        "coverage_pct": 6.67
+      }
+    }
+  },
+  "latest_50": {
+    "n": 50,
+    "features": {
+      "day_trend_bps": {
+        "count": 10,
+        "coverage_pct": 20.0
+      },
+      "day_range_bps": {
+        "count": 10,
+        "coverage_pct": 20.0
+      },
+      "day_buy_liq_notional": {
+        "count": 10,
+        "coverage_pct": 20.0
+      },
+      "day_agg_trade_count": {
+        "count": 10,
+        "coverage_pct": 20.0
+      },
+      "cluster_duration_sec": {
+        "count": 50,
+        "coverage_pct": 100.0
+      },
+      "max_single_liq_share": {
+        "count": 10,
+        "coverage_pct": 20.0
+      },
+      "intensity_per_sec": {
+        "count": 10,
+        "coverage_pct": 20.0
+      },
+      "inter_cluster_gap_sec": {
+        "count": 3,
+        "coverage_pct": 6.0
+      },
+      "prev_liq_gap_sec": {
+        "count": 3,
+        "coverage_pct": 6.0
+      },
+      "btc_pre_return_bps": {
+        "count": 7,
+        "coverage_pct": 14.0
+      }
+    }
+  },
+  "latest_examples": [
+    {
+      "signal_ts_utc": "2026-06-23T14:36:06.304000+00:00",
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "liq_total_notional": 427862.37176999997,
+      "day_trend_bps": -356.73497012801835,
+      "day_range_bps": 566.8667313936022,
+      "intensity_per_sec": 14336.629532569359,
+      "inter_cluster_gap_sec": 144.932,
+      "max_single_liq_share": 47.71135614368448
+    },
+    {
+      "signal_ts_utc": "2026-06-23T14:36:06.304000+00:00",
+      "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+      "liq_total_notional": 427862.37176999997,
+      "day_trend_bps": -356.73497012801835,
+      "day_range_bps": 566.8667313936022,
+      "intensity_per_sec": 14336.629532569359,
+      "inter_cluster_gap_sec": 144.932,
+      "max_single_liq_share": 47.71135614368448
+    },
+    {
+      "signal_ts_utc": "2026-06-23T14:16:55.443000+00:00",
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "liq_total_notional": 61982.44492,
+      "day_trend_bps": -345.3881816384885,
+      "day_range_bps": 566.8667313936022,
+      "intensity_per_sec": 6320.224831242989,
+      "inter_cluster_gap_sec": 1.017,
+      "max_single_liq_share": 56.21555726782389
+    },
+    {
+      "signal_ts_utc": "2026-06-23T14:01:39.504000+00:00",
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "liq_total_notional": 64134.43319,
+      "day_trend_bps": -362.9157925224676,
+      "day_range_bps": 566.8667313936022,
+      "intensity_per_sec": 1310.6313236195695,
+      "inter_cluster_gap_sec": null,
+      "max_single_liq_share": 39.116584886122695
+    },
+    {
+      "signal_ts_utc": "2026-06-23T13:48:07.344000+00:00",
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "liq_total_notional": 2711536.0243699998,
+      "day_trend_bps": -394.7698682791453,
+      "day_range_bps": 566.8667313936022,
+      "intensity_per_sec": 57870.79339174047,
+      "inter_cluster_gap_sec": null,
+      "max_single_liq_share": 98.565535400584
+    },
+    {
+      "signal_ts_utc": "2026-06-23T13:48:07.344000+00:00",
+      "rule_name": "ETH_BUY_LIQ_LONG_200K_TP60_SL40_BE30",
+      "liq_total_notional": 2711536.0243699998,
+      "day_trend_bps": -394.7698682791453,
+      "day_range_bps": 566.8667313936022,
+      "intensity_per_sec": 57870.79339174047,
+      "inter_cluster_gap_sec": null,
+      "max_single_liq_share": 98.565535400584
+    },
+    {
+      "signal_ts_utc": "2026-06-23T13:48:07.344000+00:00",
+      "rule_name": "ETH_BUY_LIQ_LONG_500K_DAYTREND0_TP60_SL40_BE30",
+      "liq_total_notional": 2711536.0243699998,
+      "day_trend_bps": -394.7698682791453,
+      "day_range_bps": 566.8667313936022,
+      "intensity_per_sec": 57870.79339174047,
+      "inter_cluster_gap_sec": null,
+      "max_single_liq_share": 98.565535400584
+    },
+    {
+      "signal_ts_utc": "2026-06-23T13:31:59.081000+00:00",
+      "rule_name": "ETH_BUY_LIQ_LONG_200K_BTC_PRE15_TP120_SL40_BE30_DELAY60",
+      "liq_total_notional": 231145.21329,
+      "day_trend_bps": -420.12126130210186,
+      "day_range_bps": 566.8667313936022,
+      "intensity_per_sec": 3568.5977473290927,
+      "inter_cluster_gap_sec": null,
+      "max_single_liq_share": 52.48093667758773
+    }
+  ]
+}

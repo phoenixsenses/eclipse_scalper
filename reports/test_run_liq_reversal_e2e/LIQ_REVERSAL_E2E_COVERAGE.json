@@ -1,0 +1,1 @@
+{"symbol": "ETHUSDT", "rule": "high_liq_reversal_regime", "bucket_sec": 5, "results": [{"lookback_min": 60, "rule_fire_count": 12, "rule_given_liq_rate": 0.5}]}

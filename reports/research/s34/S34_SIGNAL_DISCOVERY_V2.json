@@ -1,0 +1,606 @@
+{
+  "results": {
+    "S1S2": {
+      "S1_thresh": -49.9996987047508,
+      "S1_gentle_full": {
+        "label": "gentle",
+        "n": 70,
+        "wr": 62.9,
+        "avg": 24.9,
+        "total": 1744.0,
+        "per_month": 15.4,
+        "worst": -448.5,
+        "tail_n": 12,
+        "mc_p": 0.042
+      },
+      "S1_gentle_TEST": {
+        "label": "gentle TEST",
+        "n": 26,
+        "wr": 76.9,
+        "avg": 64.3,
+        "total": 1671.0,
+        "per_month": 19.1,
+        "worst": -130.0,
+        "tail_n": 2,
+        "mc_p": 0.0
+      },
+      "S1_sharp_full": {
+        "label": "sharp",
+        "n": 57,
+        "wr": 68.4,
+        "avg": 58.9,
+        "total": 3358.0,
+        "per_month": 12.6,
+        "worst": -161.8,
+        "tail_n": 6,
+        "mc_p": 0.0
+      },
+      "S1_sharp_TEST": {
+        "label": "sharp TEST",
+        "n": 13,
+        "wr": 69.2,
+        "avg": 79.6,
+        "total": 1035.0,
+        "per_month": 9.5,
+        "worst": -129.3,
+        "tail_n": 2,
+        "mc_p": 0.03
+      },
+      "S2_after_win_full": {
+        "label": "after_win",
+        "n": 91,
+        "wr": 64.8,
+        "avg": 42.1,
+        "total": 3833.0,
+        "per_month": 20.0,
+        "worst": -448.5,
+        "tail_n": 12,
+        "mc_p": 0.002
+      },
+      "S2_after_win_TEST": {
+        "label": "after_win TEST",
+        "n": 36,
+        "wr": 72.2,
+        "avg": 65.4,
+        "total": 2355.0,
+        "per_month": 26.4,
+        "worst": -130.0,
+        "tail_n": 4,
+        "mc_p": 0.0
+      },
+      "S2_after_loss_full": {
+        "label": "after_loss",
+        "n": 34,
+        "wr": 64.7,
+        "avg": 27.9,
+        "total": 949.0,
+        "per_month": 7.5,
+        "worst": -189.0,
+        "tail_n": 6,
+        "mc_p": 0.104
+      },
+      "S2_after_loss_TEST": {
+        "label": "after_loss TEST",
+        "n": 3,
+        "wr": 100.0,
+        "avg": 117.0,
+        "total": 351.0,
+        "per_month": 2.2,
+        "worst": 88.7,
+        "tail_n": 0,
+        "mc_p": null
+      }
+    },
+    "S3": {
+      "S3_fixed6h": {
+        "label": "fixed 6h",
+        "n": 45,
+        "wr": 71.1,
+        "avg": 58.9,
+        "total": 2648.0,
+        "per_month": 9.9,
+        "worst": -161.8,
+        "tail_n": 5,
+        "mc_p": 0.0
+      },
+      "S3_pt150": {
+        "label": "pt+150",
+        "n": 45,
+        "wr": 73.3,
+        "avg": 55.4,
+        "total": 2495.0,
+        "per_month": 9.9,
+        "worst": -161.8,
+        "tail_n": 5,
+        "mc_p": 0.0
+      },
+      "S3_pt200": {
+        "label": "pt+200",
+        "n": 45,
+        "wr": 73.3,
+        "avg": 63.8,
+        "total": 2871.0,
+        "per_month": 9.9,
+        "worst": -161.8,
+        "tail_n": 5,
+        "mc_p": 0.0
+      },
+      "S3_pt250": {
+        "label": "pt+250",
+        "n": 45,
+        "wr": 71.1,
+        "avg": 54.1,
+        "total": 2436.0,
+        "per_month": 9.9,
+        "worst": -161.8,
+        "tail_n": 5,
+        "mc_p": 0.0
+      },
+      "S3_pt300": {
+        "label": "pt+300",
+        "n": 45,
+        "wr": 71.1,
+        "avg": 57.4,
+        "total": 2583.0,
+        "per_month": 9.9,
+        "worst": -161.8,
+        "tail_n": 5,
+        "mc_p": 0.0
+      }
+    },
+    "S4": {
+      "S4_predrop": {
+        "fav": "lo",
+        "thresh": -49.9996987047508,
+        "TEST": {
+          "label": "predrop lo TEST",
+          "n": 13,
+          "wr": 69.2,
+          "avg": 79.6,
+          "total": 1035.0,
+          "per_month": 9.5,
+          "worst": -129.3,
+          "tail_n": 2,
+          "mc_p": 0.03
+        },
+        "TEST_anti": {
+          "label": "predrop anti TEST",
+          "n": 26,
+          "wr": 76.9,
+          "avg": 64.3,
+          "total": 1671.0,
+          "per_month": 19.1,
+          "worst": -130.0,
+          "tail_n": 2,
+          "mc_p": 0.0
+        },
+        "full": {
+          "label": "predrop lo full",
+          "n": 57,
+          "wr": 68.4,
+          "avg": 58.9,
+          "total": 3358.0,
+          "per_month": 12.6,
+          "worst": -161.8,
+          "tail_n": 6,
+          "mc_p": 0.0
+        },
+        "test_delta": 15.3
+      },
+      "S4_eth1h": {
+        "fav": "lo",
+        "thresh": -80.26969237136109,
+        "TEST": {
+          "label": "eth1h lo TEST",
+          "n": 8,
+          "wr": 100.0,
+          "avg": 154.8,
+          "total": 1238.0,
+          "per_month": 5.9,
+          "worst": 6.9,
+          "tail_n": 0,
+          "mc_p": 0.004
+        },
+        "TEST_anti": {
+          "label": "eth1h anti TEST",
+          "n": 31,
+          "wr": 67.7,
+          "avg": 47.4,
+          "total": 1468.0,
+          "per_month": 22.8,
+          "worst": -130.0,
+          "tail_n": 4,
+          "mc_p": 0.006
+        },
+        "full": {
+          "label": "eth1h lo full",
+          "n": 52,
+          "wr": 76.9,
+          "avg": 71.5,
+          "total": 3720.0,
+          "per_month": 11.5,
+          "worst": -147.2,
+          "tail_n": 4,
+          "mc_p": 0.0
+        },
+        "test_delta": 107.4
+      },
+      "S4_taker1h": {
+        "fav": "lo",
+        "thresh": 0.4732934305491743,
+        "TEST": {
+          "label": "taker1h lo TEST",
+          "n": 18,
+          "wr": 66.7,
+          "avg": 58.3,
+          "total": 1049.0,
+          "per_month": 13.2,
+          "worst": -130.0,
+          "tail_n": 3,
+          "mc_p": 0.048
+        },
+        "TEST_anti": {
+          "label": "taker1h anti TEST",
+          "n": 21,
+          "wr": 81.0,
+          "avg": 78.9,
+          "total": 1657.0,
+          "per_month": 15.4,
+          "worst": -113.9,
+          "tail_n": 1,
+          "mc_p": 0.0
+        },
+        "full": {
+          "label": "taker1h lo full",
+          "n": 62,
+          "wr": 66.1,
+          "avg": 56.6,
+          "total": 3508.0,
+          "per_month": 13.7,
+          "worst": -183.9,
+          "tail_n": 8,
+          "mc_p": 0.0
+        },
+        "test_delta": -20.6
+      },
+      "S4_two_sided": {
+        "fav": "hi",
+        "thresh": 68425.53575,
+        "TEST": {
+          "label": "two_sided hi TEST",
+          "n": 18,
+          "wr": 77.8,
+          "avg": 104.9,
+          "total": 1888.0,
+          "per_month": 13.2,
+          "worst": -113.9,
+          "tail_n": 1,
+          "mc_p": 0.0
+        },
+        "TEST_anti": {
+          "label": "two_sided anti TEST",
+          "n": 21,
+          "wr": 71.4,
+          "avg": 39.0,
+          "total": 818.0,
+          "per_month": 15.4,
+          "worst": -130.0,
+          "tail_n": 3,
+          "mc_p": 0.034
+        },
+        "full": {
+          "label": "two_sided hi full",
+          "n": 62,
+          "wr": 67.7,
+          "avg": 53.8,
+          "total": 3337.0,
+          "per_month": 13.7,
+          "worst": -161.8,
+          "tail_n": 6,
+          "mc_p": 0.0
+        },
+        "test_delta": 65.9
+      },
+      "S4_spread": {
+        "fav": "lo",
+        "thresh": 4.36790897267372e-06,
+        "TEST": {
+          "label": "spread lo TEST",
+          "n": 0
+        },
+        "TEST_anti": {
+          "label": "spread anti TEST",
+          "n": 39,
+          "wr": 74.4,
+          "avg": 69.4,
+          "total": 2706.0,
+          "per_month": 28.6,
+          "worst": -130.0,
+          "tail_n": 4,
+          "mc_p": 0.0
+        },
+        "full": {
+          "label": "spread lo full",
+          "n": 14,
+          "wr": 64.3,
+          "avg": 24.0,
+          "total": 336.0,
+          "per_month": 3.1,
+          "worst": -173.4,
+          "tail_n": 2,
+          "mc_p": 0.208
+        },
+        "test_delta": -69.4
+      },
+      "S4_basis": {
+        "fav": "hi",
+        "thresh": 0.9143567728704532,
+        "TEST": {
+          "label": "basis hi TEST",
+          "n": 15,
+          "wr": 86.7,
+          "avg": 107.3,
+          "total": 1610.0,
+          "per_month": 11.0,
+          "worst": -46.1,
+          "tail_n": 0,
+          "mc_p": 0.0
+        },
+        "TEST_anti": {
+          "label": "basis anti TEST",
+          "n": 24,
+          "wr": 66.7,
+          "avg": 45.7,
+          "total": 1096.0,
+          "per_month": 17.6,
+          "worst": -130.0,
+          "tail_n": 4,
+          "mc_p": 0.022
+        },
+        "full": {
+          "label": "basis hi full",
+          "n": 59,
+          "wr": 67.8,
+          "avg": 54.0,
+          "total": 3184.0,
+          "per_month": 13.0,
+          "worst": -161.8,
+          "tail_n": 7,
+          "mc_p": 0.002
+        },
+        "test_delta": 61.6
+      },
+      "S4_funding": {
+        "fav": "lo",
+        "thresh": -4.37e-06,
+        "TEST": {
+          "label": "funding lo TEST",
+          "n": 10,
+          "wr": 100.0,
+          "avg": 155.7,
+          "total": 1557.0,
+          "per_month": 7.3,
+          "worst": 19.5,
+          "tail_n": 0,
+          "mc_p": 0.002
+        },
+        "TEST_anti": {
+          "label": "funding anti TEST",
+          "n": 29,
+          "wr": 65.5,
+          "avg": 39.6,
+          "total": 1149.0,
+          "per_month": 21.3,
+          "worst": -130.0,
+          "tail_n": 4,
+          "mc_p": 0.02
+        },
+        "full": {
+          "label": "funding lo full",
+          "n": 54,
+          "wr": 81.5,
+          "avg": 83.7,
+          "total": 4521.0,
+          "per_month": 11.9,
+          "worst": -448.5,
+          "tail_n": 3,
+          "mc_p": 0.0
+        },
+        "test_delta": 116.1
+      },
+      "S4_tsl": {
+        "fav": "lo",
+        "thresh": 114.6492,
+        "TEST": {
+          "label": "tsl lo TEST",
+          "n": 22,
+          "wr": 81.8,
+          "avg": 106.0,
+          "total": 2332.0,
+          "per_month": 16.2,
+          "worst": -44.8,
+          "tail_n": 0,
+          "mc_p": 0.0
+        },
+        "TEST_anti": {
+          "label": "tsl anti TEST",
+          "n": 17,
+          "wr": 64.7,
+          "avg": 22.0,
+          "total": 374.0,
+          "per_month": 12.5,
+          "worst": -130.0,
+          "tail_n": 4,
+          "mc_p": 0.166
+        },
+        "full": {
+          "label": "tsl lo full",
+          "n": 66,
+          "wr": 69.7,
+          "avg": 57.6,
+          "total": 3799.0,
+          "per_month": 14.5,
+          "worst": -183.9,
+          "tail_n": 5,
+          "mc_p": 0.0
+        },
+        "test_delta": 84.0
+      },
+      "S4_dow": {
+        "0": {
+          "label": "dow0",
+          "n": 25,
+          "wr": 32.0,
+          "avg": -47.4,
+          "total": -1186.0,
+          "per_month": 5.5,
+          "worst": -183.9,
+          "tail_n": 9,
+          "mc_p": 0.98
+        },
+        "1": {
+          "label": "dow1",
+          "n": 15,
+          "wr": 80.0,
+          "avg": 82.0,
+          "total": 1230.0,
+          "per_month": 3.3,
+          "worst": -16.4,
+          "tail_n": 0,
+          "mc_p": 0.002
+        },
+        "2": {
+          "label": "dow2",
+          "n": 28,
+          "wr": 67.9,
+          "avg": 35.1,
+          "total": 982.0,
+          "per_month": 6.2,
+          "worst": -448.5,
+          "tail_n": 5,
+          "mc_p": 0.136
+        },
+        "3": {
+          "label": "dow3",
+          "n": 13,
+          "wr": 76.9,
+          "avg": 71.9,
+          "total": 935.0,
+          "per_month": 2.9,
+          "worst": -113.9,
+          "tail_n": 1,
+          "mc_p": 0.012
+        },
+        "4": {
+          "label": "dow4",
+          "n": 10,
+          "wr": 70.0,
+          "avg": 54.6,
+          "total": 546.0,
+          "per_month": 2.2,
+          "worst": -33.2,
+          "tail_n": 0,
+          "mc_p": 0.012
+        },
+        "5": {
+          "label": "dow5",
+          "n": 10,
+          "wr": 50.0,
+          "avg": -11.6,
+          "total": -116.0,
+          "per_month": 2.2,
+          "worst": -108.0,
+          "tail_n": 1,
+          "mc_p": 0.78
+        },
+        "6": {
+          "label": "dow6",
+          "n": 26,
+          "wr": 84.6,
+          "avg": 104.3,
+          "total": 2711.0,
+          "per_month": 5.7,
+          "worst": -154.6,
+          "tail_n": 2,
+          "mc_p": 0.0
+        }
+      }
+    },
+    "S5": {
+      "S5_added": [
+        "S4_tsl",
+        "S4_two_sided"
+      ],
+      "S5_s7_ge3": {
+        "label": "s7>=3 TEST",
+        "n": 30,
+        "wr": 80.0,
+        "avg": 85.6,
+        "total": 2567.0,
+        "per_month": 22.0,
+        "worst": -113.9,
+        "tail_n": 1,
+        "mc_p": 0.0
+      },
+      "S5_s9_ge4": {
+        "label": "s9>=4 TEST",
+        "n": 27,
+        "wr": 77.8,
+        "avg": 84.8,
+        "total": 2289.0,
+        "per_month": 19.8,
+        "worst": -113.9,
+        "tail_n": 1,
+        "mc_p": 0.0
+      },
+      "S5_s7_ge4": {
+        "label": "s7>=4 TEST",
+        "n": 19,
+        "wr": 89.5,
+        "avg": 116.8,
+        "total": 2219.0,
+        "per_month": 14.0,
+        "worst": -44.8,
+        "tail_n": 0,
+        "mc_p": 0.0
+      },
+      "S5_s9_ge5": {
+        "label": "s9>=5 TEST",
+        "n": 20,
+        "wr": 80.0,
+        "avg": 102.0,
+        "total": 2039.0,
+        "per_month": 14.7,
+        "worst": -44.8,
+        "tail_n": 0,
+        "mc_p": 0.0
+      },
+      "S5_s7_ge5": {
+        "label": "s7>=5 TEST",
+        "n": 11,
+        "wr": 90.9,
+        "avg": 97.2,
+        "total": 1069.0,
+        "per_month": 8.1,
+        "worst": -44.8,
+        "tail_n": 0,
+        "mc_p": 0.0
+      },
+      "S5_s9_ge6": {
+        "label": "s9>=6 TEST",
+        "n": 14,
+        "wr": 92.9,
+        "avg": 134.2,
+        "total": 1878.0,
+        "per_month": 10.3,
+        "worst": -44.8,
+        "tail_n": 0,
+        "mc_p": 0.0
+      }
+    }
+  },
+  "meta": {
+    "n": 127,
+    "months": 4.54
+  }
+}

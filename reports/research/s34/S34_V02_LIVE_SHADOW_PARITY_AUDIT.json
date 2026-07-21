@@ -1,0 +1,49 @@
+{
+  "status": "PASS",
+  "live_executor_path": "D:\\eclipse_scalper\\tools\\s34_v_engine_live_executor.py",
+  "checks": [
+    {
+      "field": "RULE_NAME/protocol_id",
+      "live": "S34_V_ENGINE_V0_2_ETH_SELL_MAKER_LONG_H2_O20_W300_O5_DEEPBID",
+      "shadow": "S34_V_ENGINE_V0_2_ETH_SELL_MAKER_LONG_H2_O20_W300_O5_DEEPBID",
+      "match": true
+    },
+    {
+      "field": "symbol",
+      "live": "ETHUSDT",
+      "shadow": "ETHUSDT",
+      "match": true
+    },
+    {
+      "field": "liq_side",
+      "live": "SELL",
+      "shadow": "SELL",
+      "match": true
+    },
+    {
+      "field": "threshold_usd",
+      "live": 200000.0,
+      "shadow": 200000.0,
+      "match": true
+    },
+    {
+      "field": "initial_offset_bps",
+      "live": 20.0,
+      "shadow": 20.0,
+      "match": true
+    },
+    {
+      "field": "replace_offset_bps",
+      "live": 5.0,
+      "shadow": 5.0,
+      "match": true
+    },
+    {
+      "field": "wait_sec",
+      "live": 300.0,
+      "shadow": 300.0,
+      "match": true
+    }
+  ],
+  "note": "Read-only parity audit; no live files were modified."
+}

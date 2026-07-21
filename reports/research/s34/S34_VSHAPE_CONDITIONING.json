@@ -1,0 +1,176 @@
+{
+  "generated_at_utc": "2026-06-28T18:38:32.656982+00:00",
+  "config": {
+    "symbol": "ETHUSDT",
+    "threshold": 200000.0,
+    "cost": 6.1,
+    "holdout_frac": 0.3
+  },
+  "screen": {
+    "status": "SCREENED",
+    "n": 1117,
+    "cut_depth_low": 9.9,
+    "cut_depth_high": 27.7,
+    "horizons": {
+      "1h": {
+        "shallow": {
+          "cal": {
+            "n": 261,
+            "median": 8.1,
+            "net_median": 2.0,
+            "sum": 496.8,
+            "win_rate": 0.571
+          },
+          "hold": {
+            "n": 107,
+            "median": 6.8,
+            "net_median": 0.7,
+            "sum": -117.7,
+            "win_rate": 0.542
+          },
+          "stable_pos": true
+        },
+        "mid": {
+          "cal": {
+            "n": 260,
+            "median": 4.4,
+            "net_median": -1.7,
+            "sum": 550.7,
+            "win_rate": 0.535
+          },
+          "hold": {
+            "n": 141,
+            "median": 1.7,
+            "net_median": -4.4,
+            "sum": -724.0,
+            "win_rate": 0.518
+          },
+          "stable_pos": false
+        },
+        "deep": {
+          "cal": {
+            "n": 260,
+            "median": 15.3,
+            "net_median": 9.2,
+            "sum": 713.9,
+            "win_rate": 0.592
+          },
+          "hold": {
+            "n": 88,
+            "median": 6.1,
+            "net_median": 0.0,
+            "sum": -1027.6,
+            "win_rate": 0.534
+          },
+          "stable_pos": false
+        }
+      },
+      "4h": {
+        "shallow": {
+          "cal": {
+            "n": 261,
+            "median": 0.2,
+            "net_median": -5.9,
+            "sum": -4910.0,
+            "win_rate": 0.506
+          },
+          "hold": {
+            "n": 106,
+            "median": 11.0,
+            "net_median": 4.9,
+            "sum": 82.9,
+            "win_rate": 0.575
+          },
+          "stable_pos": false
+        },
+        "mid": {
+          "cal": {
+            "n": 260,
+            "median": 5.4,
+            "net_median": -0.7,
+            "sum": -2555.8,
+            "win_rate": 0.523
+          },
+          "hold": {
+            "n": 141,
+            "median": 24.4,
+            "net_median": 18.3,
+            "sum": -331.9,
+            "win_rate": 0.567
+          },
+          "stable_pos": false
+        },
+        "deep": {
+          "cal": {
+            "n": 260,
+            "median": 17.0,
+            "net_median": 10.9,
+            "sum": 1087.6,
+            "win_rate": 0.558
+          },
+          "hold": {
+            "n": 87,
+            "median": 19.3,
+            "net_median": 13.2,
+            "sum": 557.0,
+            "win_rate": 0.552
+          },
+          "stable_pos": true
+        }
+      },
+      "24h": {
+        "shallow": {
+          "cal": {
+            "n": 261,
+            "median": -15.2,
+            "net_median": -21.3,
+            "sum": -4666.9,
+            "win_rate": 0.487
+          },
+          "hold": {
+            "n": 103,
+            "median": -1.2,
+            "net_median": -7.3,
+            "sum": 416.3,
+            "win_rate": 0.495
+          },
+          "stable_pos": false
+        },
+        "mid": {
+          "cal": {
+            "n": 260,
+            "median": 35.9,
+            "net_median": 29.8,
+            "sum": 5883.3,
+            "win_rate": 0.538
+          },
+          "hold": {
+            "n": 136,
+            "median": 9.6,
+            "net_median": 3.5,
+            "sum": -595.1,
+            "win_rate": 0.515
+          },
+          "stable_pos": true
+        },
+        "deep": {
+          "cal": {
+            "n": 260,
+            "median": -7.3,
+            "net_median": -13.4,
+            "sum": -3878.4,
+            "win_rate": 0.473
+          },
+          "hold": {
+            "n": 86,
+            "median": 26.0,
+            "net_median": 19.9,
+            "sum": 2348.0,
+            "win_rate": 0.558
+          },
+          "stable_pos": false
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,1398 @@
+# S34 V02 Full 25-Test Suite
+
+Generated: `2026-06-29T19:48:00.802731+00:00`
+Scope: `{'rule': 'S34_V_ENGINE_V0_2_ETH_SELL_MAKER_LONG_H2_O20_W300_O5_DEEPBID', 'source_ledger': 'D:\\eclipse_scalper\\reports\\research\\s34\\S34_V02_ALPHA_NAVIGATION_OVERLAY_120D.json', 'n': 11, 'research_only': True}`
+
+## Executive Read
+
+Completed 25 tests on V02 N=11. H4 remains the strongest management lead (H2 sum 1083.5 / T3R 392.5 vs H4 sum 1742.6 / T3R 826.5). No live change is justified yet; H4/O20 shadow + queue realism + forced-flow expansion are next.
+
+## 1. H4 real or regime artifact
+
+Question: Does H4 improve over H2 on the current V02 ledger?
+
+Verdict: `H4_LEAD_SMALL_N`
+
+```json
+{
+  "h2": {
+    "n": 11,
+    "sum": 1083.5,
+    "mean": 98.5,
+    "median": 46.7,
+    "win_rate": 1.0,
+    "t3r": 392.5,
+    "top1_removed": 777.1,
+    "min": 15.0,
+    "max": 306.4
+  },
+  "h3": {
+    "n": 11,
+    "sum": 1319.3,
+    "mean": 119.9,
+    "median": 104.6,
+    "win_rate": 0.909,
+    "t3r": 578.9,
+    "top1_removed": 981.2,
+    "min": -27.3,
+    "max": 338.1
+  },
+  "h4": {
+    "n": 11,
+    "sum": 1742.6,
+    "mean": 158.4,
+    "median": 167.3,
+    "win_rate": 1.0,
+    "t3r": 826.5,
+    "top1_removed": 1345.1,
+    "min": 9.7,
+    "max": 397.5
+  },
+  "h4_minus_h2": {
+    "n": 11,
+    "sum": 659.1,
+    "mean": 59.9,
+    "median": 86.0,
+    "win_rate": 0.545,
+    "t3r": 131.5,
+    "top1_removed": 435.4,
+    "min": -59.4,
+    "max": 223.7
+  }
+}
+```
+
+## 2. H4 runner recognition
+
+Question: Can early rebound/cross-asset context identify H4 runners?
+
+Verdict: `PROMISING_BUT_SMALL_N`
+
+```json
+{
+  "by_rebound50_30m": {
+    "False": {
+      "n": 8,
+      "sum": 1135.0,
+      "mean": 141.9,
+      "median": 150.0,
+      "win_rate": 1.0,
+      "t3r": 448.3,
+      "top1_removed": 859.3,
+      "min": 9.7,
+      "max": 275.7
+    },
+    "True": {
+      "n": 3,
+      "sum": 607.6,
+      "mean": 202.5,
+      "median": 170.3,
+      "win_rate": 1.0,
+      "t3r": 607.6,
+      "top1_removed": 210.0,
+      "min": 39.7,
+      "max": 397.5
+    }
+  },
+  "by_cross_no_dump": {
+    "False": {
+      "n": 1,
+      "sum": 31.5,
+      "mean": 31.5,
+      "median": 31.5,
+      "win_rate": 1.0,
+      "t3r": 31.5,
+      "top1_removed": 31.5,
+      "min": 31.5,
+      "max": 31.5
+    },
+    "True": {
+      "n": 10,
+      "sum": 1711.1,
+      "mean": 171.1,
+      "median": 167.8,
+      "win_rate": 1.0,
+      "t3r": 795.0,
+      "top1_removed": 1313.6,
+      "min": 9.7,
+      "max": 397.5
+    }
+  }
+}
+```
+
+## 3. H2 checkpoint decision
+
+Question: At H2 should we close, hold, or conditionally hold?
+
+Verdict: `H4_ALL_CURRENTLY_BEST`
+
+```json
+{
+  "close_h2": {
+    "n": 11,
+    "sum": 1083.5,
+    "mean": 98.5,
+    "median": 46.7,
+    "win_rate": 1.0,
+    "t3r": 392.5,
+    "top1_removed": 777.1,
+    "min": 15.0,
+    "max": 306.4
+  },
+  "hold_h4": {
+    "n": 11,
+    "sum": 1742.6,
+    "mean": 158.4,
+    "median": 167.3,
+    "win_rate": 1.0,
+    "t3r": 826.5,
+    "top1_removed": 1345.1,
+    "min": 9.7,
+    "max": 397.5
+  },
+  "hold_if_cross_no_dump_else_h2": {
+    "n": 11,
+    "sum": 1794.7,
+    "mean": 163.2,
+    "median": 167.3,
+    "win_rate": 1.0,
+    "t3r": 878.7,
+    "top1_removed": 1397.2,
+    "min": 9.7,
+    "max": 397.5
+  },
+  "hold_if_h2_lt100_else_close": {
+    "n": 11,
+    "sum": 1620.7,
+    "mean": 147.3,
+    "median": 154.8,
+    "win_rate": 1.0,
+    "t3r": 841.7,
+    "top1_removed": 1314.3,
+    "min": 9.7,
+    "max": 306.4
+  }
+}
+```
+
+## 4. H4 giveback protection
+
+Question: Can profit protection keep runner upside without losing H4 edge?
+
+Verdict: `GIVEBACK_EXISTS_BUT_FIXED_H4_STILL_BEST`
+
+```json
+{
+  "giveback_h4": {
+    "n": 11,
+    "sum": 702.6,
+    "mean": 63.9,
+    "median": 41.7,
+    "win_rate": 1.0,
+    "t3r": 310.0,
+    "top1_removed": 554.6,
+    "min": 9.9,
+    "max": 148.0
+  },
+  "prior_giveback_grid_30d": {
+    "peak40_gb25": {
+      "n": 7,
+      "sum": 241.2,
+      "mean": 34.5,
+      "median": 31.5,
+      "win_rate": 1.0,
+      "t3r": 112.5,
+      "min": 25.8,
+      "max": 45.7
+    },
+    "peak40_gb40": {
+      "n": 7,
+      "sum": 395.1,
+      "mean": 56.4,
+      "median": 38.2,
+      "win_rate": 1.0,
+      "t3r": 130.1,
+      "min": 24.4,
+      "max": 125.5
+    },
+    "peak40_gb60": {
+      "n": 7,
+      "sum": 535.0,
+      "mean": 76.4,
+      "median": 58.1,
+      "win_rate": 1.0,
+      "t3r": 143.6,
+      "min": 15.0,
+      "max": 170.3
+    },
+    "peak80_gb25": {
+      "n": 7,
+      "sum": 695.3,
+      "mean": 99.3,
+      "median": 66.5,
+      "win_rate": 1.0,
+      "t3r": 253.3,
+      "min": 58.8,
+      "max": 175.6
+    },
+    "peak80_gb40": {
+      "n": 7,
+      "sum": 632.7,
+      "mean": 90.4,
+      "median": 88.8,
+      "win_rate": 1.0,
+      "t3r": 274.1,
+      "min": 50.7,
+      "max": 139.4
+    },
+    "peak80_gb60": {
+      "n": 7,
+      "sum": 795.7,
+      "mean": 113.7,
+      "median": 88.3,
+      "win_rate": 1.0,
+      "t3r": 217.0,
+      "min": 33.9,
+      "max": 275.7
+    }
+  }
+}
+```
+
+## 5. MAE / catastrophic stop
+
+Question: What stop widths preserve the current alpha shape?
+
+Verdict: `SL100_BAD_SL150_OK_IN_SAMPLE`
+
+```json
+{
+  "sl100_h4": {
+    "result": {
+      "n": 11,
+      "sum": 878.1,
+      "mean": 79.8,
+      "median": 107.0,
+      "win_rate": 0.727,
+      "t3r": 142.0,
+      "top1_removed": 480.5,
+      "min": -106.6,
+      "max": 397.5
+    },
+    "exits": {
+      "SL": 3,
+      "TIME": 8
+    }
+  },
+  "sl150_h4": {
+    "result": {
+      "n": 11,
+      "sum": 1742.6,
+      "mean": 158.4,
+      "median": 167.3,
+      "win_rate": 1.0,
+      "t3r": 826.5,
+      "top1_removed": 1345.1,
+      "min": 9.7,
+      "max": 397.5
+    },
+    "exits": {
+      "TIME": 11
+    }
+  },
+  "sl200_h4": {
+    "result": {
+      "n": 11,
+      "sum": 1742.6,
+      "mean": 158.4,
+      "median": 167.3,
+      "win_rate": 1.0,
+      "t3r": 826.5,
+      "top1_removed": 1345.1,
+      "min": 9.7,
+      "max": 397.5
+    },
+    "exits": {
+      "TIME": 11
+    }
+  }
+}
+```
+
+## 6. Fill delay interpretation
+
+Question: Is late fill bad, or is it retest quality?
+
+Verdict: `LATE_FILL_NOT_BAD_FOR_H4`
+
+```json
+{
+  "h2_by_delay": {
+    "5to15m": {
+      "n": 5,
+      "sum": 585.6,
+      "mean": 117.1,
+      "median": 137.7,
+      "win_rate": 1.0,
+      "t3r": 63.3,
+      "top1_removed": 355.8,
+      "min": 16.6,
+      "max": 229.7
+    },
+    "gt15m": {
+      "n": 2,
+      "sum": 34.2,
+      "mean": 17.1,
+      "median": 17.1,
+      "win_rate": 1.0,
+      "t3r": 34.2,
+      "top1_removed": 15.0,
+      "min": 15.0,
+      "max": 19.1
+    },
+    "lt5m": {
+      "n": 4,
+      "sum": 463.7,
+      "mean": 115.9,
+      "median": 63.9,
+      "win_rate": 1.0,
+      "t3r": 29.5,
+      "top1_removed": 157.3,
+      "min": 29.5,
+      "max": 306.4
+    }
+  },
+  "h4_by_delay": {
+    "5to15m": {
+      "n": 5,
+      "sum": 854.0,
+      "mean": 170.8,
+      "median": 168.2,
+      "win_rate": 1.0,
+      "t3r": 239.7,
+      "top1_removed": 578.3,
+      "min": 107.0,
+      "max": 275.7
+    },
+    "gt15m": {
+      "n": 2,
+      "sum": 410.2,
+      "mean": 205.1,
+      "median": 205.1,
+      "win_rate": 1.0,
+      "t3r": 410.2,
+      "top1_removed": 167.3,
+      "min": 167.3,
+      "max": 242.8
+    },
+    "lt5m": {
+      "n": 4,
+      "sum": 478.4,
+      "mean": 119.6,
+      "median": 35.6,
+      "win_rate": 1.0,
+      "t3r": 9.7,
+      "top1_removed": 80.9,
+      "min": 9.7,
+      "max": 397.5
+    }
+  }
+}
+```
+
+## 7. Retest quality score
+
+Question: Does retest quality separate outcomes?
+
+Verdict: `QUALITY_LEDGER_BUILT_N_SMALL`
+
+```json
+{
+  "by_quality": {
+    "RETEST_QUALITY_HIGH": {
+      "n": 5,
+      "sum": 491.0,
+      "mean": 98.2,
+      "median": 46.3,
+      "win_rate": 1.0,
+      "t3r": 67.8,
+      "top1_removed": 264.0,
+      "min": 26.1,
+      "max": 227.0
+    },
+    "RETEST_QUALITY_LOW": {
+      "n": 2,
+      "sum": 44.2,
+      "mean": 22.1,
+      "median": 22.1,
+      "win_rate": 1.0,
+      "t3r": 44.2,
+      "top1_removed": 17.2,
+      "min": 17.2,
+      "max": 27.0
+    },
+    "RETEST_QUALITY_MID": {
+      "n": 4,
+      "sum": 546.4,
+      "mean": 136.6,
+      "median": 116.7,
+      "win_rate": 1.0,
+      "t3r": 13.3,
+      "top1_removed": 246.7,
+      "min": 13.3,
+      "max": 299.7
+    }
+  },
+  "by_fill_minus_arm": {
+    "FAST_0_60S": {
+      "n": 2,
+      "sum": 380.8,
+      "mean": 190.4,
+      "median": 190.4,
+      "win_rate": 1.0,
+      "t3r": 380.8,
+      "top1_removed": 81.1,
+      "min": 81.1,
+      "max": 299.7
+    },
+    "LATE_GT900S": {
+      "n": 2,
+      "sum": 44.2,
+      "mean": 22.1,
+      "median": 22.1,
+      "win_rate": 1.0,
+      "t3r": 44.2,
+      "top1_removed": 17.2,
+      "min": 17.2,
+      "max": 27.0
+    },
+    "NORMAL_60_300S": {
+      "n": 3,
+      "sum": 217.7,
+      "mean": 72.6,
+      "median": 41.7,
+      "win_rate": 1.0,
+      "t3r": 217.7,
+      "top1_removed": 67.8,
+      "min": 26.1,
+      "max": 149.9
+    },
+    "SLOW_300_900S": {
+      "n": 4,
+      "sum": 438.9,
+      "mean": 109.7,
+      "median": 99.3,
+      "win_rate": 1.0,
+      "t3r": 13.3,
+      "top1_removed": 211.9,
+      "min": 13.3,
+      "max": 227.0
+    }
+  },
+  "warnings": {
+    "LARGE_SELL_LIQ_RESTART": 1,
+    "NONE": 7,
+    "BID_VANISHED,LATE_RETEST_FILL": 2,
+    "BID_VANISHED": 1
+  }
+}
+```
+
+## 8. Forced-flow absorption engine
+
+Question: Can the mechanism expand beyond liquidation events?
+
+Verdict: `MECHANISM_LEAD_N2_ONLY`
+
+```json
+{
+  "sell_notional_p95": 43289106.1,
+  "candidates_total": 2,
+  "filled_n": 2,
+  "result": {
+    "n": 2,
+    "sum": 113.4,
+    "mean": 56.7,
+    "median": 56.7,
+    "win_rate": 1.0,
+    "t3r": 113.4,
+    "min": 1.5,
+    "max": 111.9
+  },
+  "sample": [
+    {
+      "status": "FILLED",
+      "bucket": 1780245000000,
+      "utc": "2026-05-31T16:30:00+00:00",
+      "sell_notional": 104841477.5,
+      "buy_notional": 39014994.4,
+      "depth_bps": 32.2,
+      "prior4h_bps": -79.5,
+      "bid_depth_usd": 401765.1,
+      "fill_delay_sec": 2116.0,
+      "net_2h_bps": 1.4806019893148363
+    },
+    {
+      "status": "FILLED",
+      "bucket": 1780326900000,
+      "utc": "2026-06-01T15:15:00+00:00",
+      "sell_notional": 70292334.3,
+      "buy_notional": 35571981.2,
+      "depth_bps": 34.0,
+      "prior4h_bps": -67.2,
+      "bid_depth_usd": 764272.1,
+      "fill_delay_sec": 313.0,
+      "net_2h_bps": 111.93661092802381
+    }
+  ]
+}
+```
+
+## 9. Absorption without V-depth
+
+Question: Can deep bid plus forced flow work without strict V-depth?
+
+Verdict: `NEEDS_DEDICATED_SCAN`
+
+```json
+{
+  "current_result": "not independently isolated",
+  "proxy": {
+    "sell_notional_p95": 43289106.1,
+    "candidates_total": 2,
+    "filled_n": 2,
+    "result": {
+      "n": 2,
+      "sum": 113.4,
+      "mean": 56.7,
+      "median": 56.7,
+      "win_rate": 1.0,
+      "t3r": 113.4,
+      "min": 1.5,
+      "max": 111.9
+    },
+    "sample": [
+      {
+        "status": "FILLED",
+        "bucket": 1780245000000,
+        "utc": "2026-05-31T16:30:00+00:00",
+        "sell_notional": 104841477.5,
+        "buy_notional": 39014994.4,
+        "depth_bps": 32.2,
+        "prior4h_bps": -79.5,
+        "bid_depth_usd": 401765.1,
+        "fill_delay_sec": 2116.0,
+        "net_2h_bps": 1.4806019893148363
+      },
+      {
+        "status": "FILLED",
+        "bucket": 1780326900000,
+        "utc": "2026-06-01T15:15:00+00:00",
+        "sell_notional": 70292334.3,
+        "buy_notional": 35571981.2,
+        "depth_bps": 34.0,
+        "prior4h_bps": -67.2,
+        "bid_depth_usd": 764272.1,
+        "fill_delay_sec": 313.0,
+        "net_2h_bps": 111.93661092802381
+      }
+    ]
+  }
+}
+```
+
+## 10. Cross-asset rebound confirmation
+
+Question: Do BTC/SOL rebound states explain H4 outcomes?
+
+Verdict: `MARKET_WIDE_REBOUND_CONFIRMED_SMALL_N`
+
+```json
+{
+  "btc4": {
+    "down": {
+      "n": 1,
+      "sum": 9.7,
+      "mean": 9.7,
+      "median": 9.7,
+      "win_rate": 1.0,
+      "t3r": 9.7,
+      "top1_removed": 9.7,
+      "min": 9.7,
+      "max": 9.7
+    },
+    "up": {
+      "n": 10,
+      "sum": 1732.9,
+      "mean": 173.3,
+      "median": 167.8,
+      "win_rate": 1.0,
+      "t3r": 816.8,
+      "top1_removed": 1335.3,
+      "min": 31.5,
+      "max": 397.5
+    }
+  },
+  "sol4": {
+    "up": {
+      "n": 11,
+      "sum": 1742.6,
+      "mean": 158.4,
+      "median": 167.3,
+      "win_rate": 1.0,
+      "t3r": 826.5,
+      "top1_removed": 1345.1,
+      "min": 9.7,
+      "max": 397.5
+    }
+  }
+}
+```
+
+## 11. BTC/SOL no-dump kill
+
+Question: Should early BTC/SOL dump force H2 exit instead of H4?
+
+Verdict: `NO_DUMP_POLICY_NOT_BETTER_THAN_H4_ALL`
+
+```json
+{
+  "cross_no_dump_h4": {
+    "False": {
+      "n": 1,
+      "sum": 31.5,
+      "mean": 31.5,
+      "median": 31.5,
+      "win_rate": 1.0,
+      "t3r": 31.5,
+      "top1_removed": 31.5,
+      "min": 31.5,
+      "max": 31.5
+    },
+    "True": {
+      "n": 10,
+      "sum": 1711.1,
+      "mean": 171.1,
+      "median": 167.8,
+      "win_rate": 1.0,
+      "t3r": 795.0,
+      "top1_removed": 1313.6,
+      "min": 9.7,
+      "max": 397.5
+    }
+  },
+  "policy_no_dump_hold_else_h2": {
+    "n": 11,
+    "sum": 1794.7,
+    "mean": 163.2,
+    "median": 167.3,
+    "win_rate": 1.0,
+    "t3r": 878.7,
+    "top1_removed": 1397.2,
+    "min": 9.7,
+    "max": 397.5
+  }
+}
+```
+
+## 12. H2 partial take-profit
+
+Question: Does partial H2 close stabilize H4?
+
+Verdict: `PARTIAL_SMOOTHER_BUT_LOWER_SUM`
+
+```json
+{
+  "half_h2_half_h4": {
+    "n": 11,
+    "sum": 1413.0,
+    "mean": 128.5,
+    "median": 92.4,
+    "win_rate": 1.0,
+    "t3r": 654.3,
+    "top1_removed": 1061.1,
+    "min": 19.6,
+    "max": 352.0
+  },
+  "thirty_h2_seventy_h4": {
+    "n": 11,
+    "sum": 1544.8,
+    "mean": 140.4,
+    "median": 121.7,
+    "win_rate": 1.0,
+    "t3r": 752.2,
+    "top1_removed": 1174.7,
+    "min": 15.6,
+    "max": 370.2
+  },
+  "full_h4": {
+    "n": 11,
+    "sum": 1742.6,
+    "mean": 158.4,
+    "median": 167.3,
+    "win_rate": 1.0,
+    "t3r": 826.5,
+    "top1_removed": 1345.1,
+    "min": 9.7,
+    "max": 397.5
+  }
+}
+```
+
+## 13. Compounding / account path
+
+Question: How do H2/H4 outcomes compound under sizing modes?
+
+Verdict: `CURRENT_ENV_EXPLOSIVE_IF_NO_TAIL_BUT_TAIL_RISK_UNCHANGED`
+
+```json
+{
+  "current_env_h2": {
+    "start": 35.0,
+    "notional": 1190.0,
+    "end": 163.9312,
+    "pnl": 128.9312,
+    "max_dd_usdt": 0.0,
+    "path": [
+      44.9522,
+      48.4615,
+      50.2517,
+      52.2235,
+      57.782,
+      63.042,
+      81.4674,
+      108.8063,
+      125.1968,
+      127.4706,
+      163.9312
+    ]
+  },
+  "current_env_h4": {
+    "start": 35.0,
+    "notional": 1190.0,
+    "end": 242.3673,
+    "pnl": 207.3673,
+    "max_dd_usdt": 0.0,
+    "path": [
+      38.7463,
+      39.9021,
+      59.8164,
+      79.8321,
+      95.6265,
+      100.3522,
+      113.0858,
+      133.3558,
+      166.1654,
+      195.062,
+      242.3673
+    ]
+  },
+  "survival_h4": {
+    "start": 35.0,
+    "notional": 11.0,
+    "end": 36.9168,
+    "pnl": 1.9168,
+    "max_dd_usdt": 0.0,
+    "path": [
+      35.0346,
+      35.0453,
+      35.2294,
+      35.4144,
+      35.5604,
+      35.6041,
+      35.7218,
+      35.9092,
+      36.2125,
+      36.4796,
+      36.9168
+    ]
+  },
+  "balanced_h4": {
+    "start": 35.0,
+    "notional": 16.3,
+    "end": 37.8404,
+    "pnl": 2.8404,
+    "max_dd_usdt": 0.0,
+    "path": [
+      35.0513,
+      35.0671,
+      35.3399,
+      35.6141,
+      35.8304,
+      35.8952,
+      36.0696,
+      36.3472,
+      36.7966,
+      37.1924,
+      37.8404
+    ]
+  }
+}
+```
+
+## 14. Tail injection stress
+
+Question: What happens if old tail returns?
+
+Verdict: `TAIL_STILL_DOMINANT_RISK`
+
+```json
+{
+  "h4_tail_every5_neg200": {
+    "start": 35.0,
+    "notional": 1190.0,
+    "end": 194.7673,
+    "pnl": 159.7673,
+    "max_dd_usdt": -23.8,
+    "path": [
+      38.7463,
+      39.9021,
+      59.8164,
+      79.8321,
+      95.6265,
+      71.8265,
+      76.5522,
+      89.2858,
+      109.5558,
+      142.3654,
+      171.262,
+      147.462,
+      194.7673
+    ]
+  },
+  "h4_tail_every5_neg500": {
+    "start": 35.0,
+    "notional": 1190.0,
+    "end": 123.3673,
+    "pnl": 88.3673,
+    "max_dd_usdt": -59.5,
+    "path": [
+      38.7463,
+      39.9021,
+      59.8164,
+      79.8321,
+      95.6265,
+      36.1265,
+      40.8522,
+      53.5858,
+      73.8558,
+      106.6654,
+      135.562,
+      76.062,
+      123.3673
+    ]
+  },
+  "h4_tail_every10_neg500": {
+    "start": 35.0,
+    "notional": 1190.0,
+    "end": 182.8673,
+    "pnl": 147.8673,
+    "max_dd_usdt": -59.5,
+    "path": [
+      38.7463,
+      39.9021,
+      59.8164,
+      79.8321,
+      95.6265,
+      100.3522,
+      113.0858,
+      133.3558,
+      166.1654,
+      195.062,
+      135.562,
+      182.8673
+    ]
+  }
+}
+```
+
+## 15. Queue / fill realism
+
+Question: Is current maker fill model queue-realistic?
+
+Verdict: `NEEDS_600GB_QUEUE_TEST`
+
+```json
+{
+  "fill_delay": {
+    "n": 11,
+    "sum": 10021.8,
+    "mean": 911.1,
+    "median": 338.8,
+    "win_rate": 1.0,
+    "t3r": 2378.0,
+    "top1_removed": 5736.3,
+    "min": 37.1,
+    "max": 4285.5
+  },
+  "late_gt15m": 2,
+  "model": "conservative cross but not queue-position simulation"
+}
+```
+
+## 16. Fee sensitivity
+
+Question: Which fee tiers preserve H4?
+
+Verdict: `H4_SURVIVES_REASONABLE_FEE_STRESS_IN_SAMPLE`
+
+```json
+{
+  "maker-0.5_taker3.05": {
+    "n": 11,
+    "sum": 1742.6,
+    "mean": 158.4,
+    "median": 167.3,
+    "win_rate": 1.0,
+    "t3r": 826.5,
+    "top1_removed": 1345.1,
+    "min": 9.7,
+    "max": 397.5
+  },
+  "maker0_taker3.05": {
+    "n": 11,
+    "sum": 1737.1,
+    "mean": 157.9,
+    "median": 166.8,
+    "win_rate": 1.0,
+    "t3r": 822.5,
+    "top1_removed": 1340.1,
+    "min": 9.2,
+    "max": 397.0
+  },
+  "maker1_taker5": {
+    "n": 11,
+    "sum": 1704.6,
+    "mean": 155.0,
+    "median": 163.9,
+    "win_rate": 1.0,
+    "t3r": 798.9,
+    "top1_removed": 1310.6,
+    "min": 6.3,
+    "max": 394.1
+  },
+  "maker2_taker8": {
+    "n": 11,
+    "sum": 1660.6,
+    "mean": 151.0,
+    "median": 159.9,
+    "win_rate": 1.0,
+    "t3r": 766.9,
+    "top1_removed": 1270.6,
+    "min": 2.3,
+    "max": 390.1
+  }
+}
+```
+
+## 17. Live vs shadow parity
+
+Question: Does live rule match the V02 mirror definition?
+
+Verdict: `STATIC_RULE_PARITY_OK_QUEUE_NOT_TESTED`
+
+```json
+{
+  "rule": "S34_V_ENGINE_V0_2_ETH_SELL_MAKER_LONG_H2_O20_W300_O5_DEEPBID",
+  "mirror_protocols": [
+    "S34_V_ENGINE_V0_2_ETH_SELL_MAKER_LONG_H2_O20_W300_O5_DEEPBID"
+  ],
+  "mirror_n": 11,
+  "parity_limits": "order rounding/exchange queue not tested here"
+}
+```
+
+## 18. Shadow ledger reconciliation
+
+Question: Why does V02 mirror differ from daily guardrail shadow?
+
+Verdict: `DIFFERENT_BUCKETS_NOT_CONFLICTING`
+
+```json
+{
+  "v02_shadow_mirror_csv": {
+    "exists": true,
+    "rows": 11,
+    "filled_closed": 11,
+    "net_bps": {
+      "n": 11,
+      "sum": 1081.6,
+      "mean": 98.3,
+      "median": 46.3,
+      "win_rate": 1.0,
+      "t3r": 402.6,
+      "min": 13.3,
+      "max": 299.7
+    },
+    "latest_utc": "2026-06-26T13:19:32.001000+00:00",
+    "protocols": [
+      "S34_V_ENGINE_V0_2_ETH_SELL_MAKER_LONG_H2_O20_W300_O5_DEEPBID"
+    ]
+  },
+  "daily_guardrail_shadow": {
+    "v2_shadow_today": {
+      "closed": 0,
+      "cum_net_bps": 0.0,
+      "latest": "2026-06-29T17:44:52.234000+00:00 would_block  ",
+      "median_net_bps": null,
+      "signals": 72,
+      "would_block": 6
+    },
+    "v2_shadow_all_time": {
+      "closed": 9,
+      "cum_net_bps": -357.31574000728756,
+      "latest": "2026-06-29T17:44:52.234000+00:00 would_block  ",
+      "median_net_bps": -47.756366351064926,
+      "signals": 838,
+      "would_block": 102
+    }
+  },
+  "interpretation": "These are different buckets/models: v02 mirror is the frozen V02 maker lane; daily guardrail shadow references broad paper-trade guardrail signals and is not the same performance stream."
+}
+```
+
+## 19. Visual navigation layer
+
+Question: What should chart show?
+
+Verdict: `VISUAL_TODO`
+
+```json
+{
+  "required_lines": [
+    "V02 signal",
+    "maker fill window",
+    "H2 checkpoint",
+    "H4 target window",
+    "NAV line",
+    "BUY spike bars",
+    "BTC/SOL confirmation strip",
+    "state label"
+  ],
+  "status": "indicator line exists; H2/H4 checkpoint overlays still TODO"
+}
+```
+
+## 20. State machine v2
+
+Question: Can each trade be mapped to operational states?
+
+Verdict: `STATE_MACHINE_READY_FOR_SHADOW`
+
+```json
+{
+  "state_paths": [
+    {
+      "fill_utc": "2026-04-16T13:52:52+00:00",
+      "states": [
+        "FILLED",
+        "PAIN",
+        "REBOUND20",
+        "REBOUND50",
+        "H2_BETTER"
+      ],
+      "h2": 83.6,
+      "h4": 31.5
+    },
+    {
+      "fill_utc": "2026-04-18T03:57:08+00:00",
+      "states": [
+        "FILLED",
+        "NO_PAIN",
+        "REBOUND20",
+        "REBOUND50",
+        "H2_BETTER"
+      ],
+      "h2": 29.5,
+      "h4": 9.7
+    },
+    {
+      "fill_utc": "2026-04-20T14:51:09.004000+00:00",
+      "states": [
+        "FILLED",
+        "PAIN",
+        "REBOUND20",
+        "REBOUND50",
+        "RUNNER"
+      ],
+      "h2": 15.0,
+      "h4": 167.3
+    },
+    {
+      "fill_utc": "2026-04-20T14:51:13+00:00",
+      "states": [
+        "FILLED",
+        "PAIN",
+        "REBOUND20",
+        "REBOUND50",
+        "RUNNER"
+      ],
+      "h2": 16.6,
+      "h4": 168.2
+    },
+    {
+      "fill_utc": "2026-06-16T04:44:40.005000+00:00",
+      "states": [
+        "FILLED",
+        "NO_PAIN",
+        "REBOUND20",
+        "REBOUND50",
+        "RUNNER"
+      ],
+      "h2": 46.7,
+      "h4": 132.7
+    },
+    {
+      "fill_utc": "2026-06-17T01:21:26.001000+00:00",
+      "states": [
+        "FILLED",
+        "NO_PAIN",
+        "REBOUND20",
+        "REBOUND50",
+        "H2_BETTER"
+      ],
+      "h2": 44.2,
+      "h4": 39.7
+    },
+    {
+      "fill_utc": "2026-06-20T14:14:30+00:00",
+      "states": [
+        "FILLED",
+        "NO_PAIN",
+        "REBOUND20",
+        "REBOUND50",
+        "H2_BETTER"
+      ],
+      "h2": 154.8,
+      "h4": 107.0
+    },
+    {
+      "fill_utc": "2026-06-21T23:44:28.001000+00:00",
+      "states": [
+        "FILLED",
+        "NO_PAIN",
+        "REBOUND20",
+        "REBOUND50",
+        "H2_BETTER"
+      ],
+      "h2": 229.7,
+      "h4": 170.3
+    },
+    {
+      "fill_utc": "2026-06-26T02:53:32.010000+00:00",
+      "states": [
+        "FILLED",
+        "PAIN",
+        "REBOUND20",
+        "REBOUND50",
+        "RUNNER"
+      ],
+      "h2": 137.7,
+      "h4": 275.7
+    },
+    {
+      "fill_utc": "2026-06-26T11:50:59.001000+00:00",
+      "states": [
+        "FILLED",
+        "PAIN",
+        "REBOUND20",
+        "REBOUND50",
+        "RUNNER"
+      ],
+      "h2": 19.1,
+      "h4": 242.8
+    },
+    {
+      "fill_utc": "2026-06-26T13:19:32.001000+00:00",
+      "states": [
+        "FILLED",
+        "NO_PAIN",
+        "REBOUND20",
+        "REBOUND50",
+        "RUNNER"
+      ],
+      "h2": 306.4,
+      "h4": 397.5
+    }
+  ],
+  "counts": {
+    "FILLED>PAIN>REBOUND20>REBOUND50>H2_BETTER": 1,
+    "FILLED>NO_PAIN>REBOUND20>REBOUND50>H2_BETTER": 4,
+    "FILLED>PAIN>REBOUND20>REBOUND50>RUNNER": 4,
+    "FILLED>NO_PAIN>REBOUND20>REBOUND50>RUNNER": 2
+  }
+}
+```
+
+## 21. Decision engine v0
+
+Question: What would the system recommend today?
+
+Verdict: `SHADOW_ONLY`
+
+```json
+{
+  "recommendation": "HOLD_TO_H4_SHADOW_ONLY",
+  "rules": [
+    "do not change live yet",
+    "track H2/H3/H4",
+    "catastrophic stop only",
+    "no fill-delay cancel"
+  ],
+  "reason": "H4 dominates H2 in-sample but N=11"
+}
+```
+
+## 22. Mechanism ontology
+
+Question: What is the alpha's likely mechanism?
+
+Verdict: `RENAMING_USEFUL_FOR_EXPANSION`
+
+```json
+{
+  "old_name": "liquidation fade",
+  "candidate_name": "forced-sell deep-bid absorption delayed rebound",
+  "evidence": [
+    "prior downtrend",
+    "SELL forced flow",
+    "deep bid",
+    "maker retest",
+    "delayed H4 rebound"
+  ]
+}
+```
+
+## 23. Portfolio expansion
+
+Question: Can mechanism move to BTC/SOL/routes?
+
+Verdict: `RESEARCH_BACKLOG`
+
+```json
+{
+  "status": "not proven",
+  "prior_roadmap": "route map found 0 strong node under N>=40 discipline; revisit with forced-flow absorption not raw liquidation"
+}
+```
+
+## 24. Regime identity deep test
+
+Question: Is V02 actually a prior-downtrend capitulation rebound rather than a generic liquidation fade?
+
+Verdict: `PRIOR_DOWNTREND_IDENTITY_SUPPORTED_SMALL_N`
+
+```json
+{
+  "h2_by_eth_prior24": {
+    "down": {
+      "n": 8,
+      "sum": 852.4,
+      "mean": 106.6,
+      "median": 63.9,
+      "win_rate": 1.0,
+      "t3r": 178.6,
+      "top1_removed": 546.0,
+      "min": 15.0,
+      "max": 306.4
+    },
+    "up": {
+      "n": 3,
+      "sum": 231.0,
+      "mean": 77.0,
+      "median": 46.7,
+      "win_rate": 1.0,
+      "t3r": 231.0,
+      "top1_removed": 76.2,
+      "min": 29.5,
+      "max": 154.8
+    }
+  },
+  "h4_by_eth_prior24": {
+    "down": {
+      "n": 8,
+      "sum": 1493.1,
+      "mean": 186.6,
+      "median": 169.3,
+      "win_rate": 1.0,
+      "t3r": 577.1,
+      "top1_removed": 1095.6,
+      "min": 31.5,
+      "max": 397.5
+    },
+    "up": {
+      "n": 3,
+      "sum": 249.4,
+      "mean": 83.1,
+      "median": 107.0,
+      "win_rate": 1.0,
+      "t3r": 249.4,
+      "top1_removed": 116.7,
+      "min": 9.7,
+      "max": 132.7
+    }
+  },
+  "h4_by_btc_prior24": {
+    "down": {
+      "n": 7,
+      "sum": 1461.7,
+      "mean": 208.8,
+      "median": 170.3,
+      "win_rate": 1.0,
+      "t3r": 545.6,
+      "top1_removed": 1064.1,
+      "min": 39.7,
+      "max": 397.5
+    },
+    "up": {
+      "n": 4,
+      "sum": 280.9,
+      "mean": 70.2,
+      "median": 69.2,
+      "win_rate": 1.0,
+      "t3r": 9.7,
+      "top1_removed": 148.2,
+      "min": 9.7,
+      "max": 132.7
+    }
+  },
+  "eth_prior24_bps": {
+    "n": 11,
+    "sum": -1859.3,
+    "mean": -169.0,
+    "median": -196.3,
+    "win_rate": 0.273,
+    "t3r": -2500.4,
+    "top1_removed": -2179.6,
+    "min": -701.4,
+    "max": 320.3
+  },
+  "btc_prior24_bps": {
+    "n": 11,
+    "sum": -1272.8,
+    "mean": -115.7,
+    "median": -129.6,
+    "win_rate": 0.364,
+    "t3r": -1633.9,
+    "top1_removed": -1588.6,
+    "min": -441.9,
+    "max": 315.8
+  }
+}
+```
+
+## 25. Data coverage / N plan
+
+Question: How long to N=30?
+
+Verdict: `TIME_IS_BINDING_CONSTRAINT`
+
+```json
+{
+  "ledger_n": 11,
+  "date_span": "2026-03-01T18:34:52.001000+00:00 to 2026-06-29T18:34:52.001000+00:00",
+  "rough_event_rate_per_30d": 2.8,
+  "rough_months_to_n30": 10.9
+}
+```

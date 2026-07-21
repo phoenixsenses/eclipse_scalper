@@ -1,0 +1,15 @@
+{
+  "env_planned_margin_usdt": 29.8,
+  "forward_closed_n": 0,
+  "forward_sum_bps": 0.0,
+  "kill_status": "TRIGGERED_RECOMMENDATION_ONLY",
+  "max_stop_budget_margin_usdt": 1.0,
+  "max_tail_budget_margin_usdt": 0.3,
+  "oversize_multiple": 107.8,
+  "permission": "UNVALIDATED_OBSERVATION_ONLY",
+  "recommendation": "OPERATOR_SIZE_REVIEW_OR_DISARM_UNTIL_FORWARD_VALIDATION",
+  "regime_status": "DATA_INSUFFICIENT",
+  "rule_id": "S34_V_ENGINE_V0_2_ETH_SELL_MAKER_LONG_H2_O20_W300_O5_DEEPBID",
+  "size_status": "ALERT_OVERSIZE_OPERATOR_ACTION_REQUIRED",
+  "updated_at_utc": "2026-06-29T07:01:02.104147+00:00"
+}

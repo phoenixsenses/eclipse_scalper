@@ -1,0 +1,149 @@
+{
+  "tool": "echo_tail_forensics",
+  "generated_utc": "2026-07-20T10:20:17.036695+00:00",
+  "n_causal": 118,
+  "n_tail": 14,
+  "frame": "DESCRIPTIVE, N=14 fragile. Maps a higher-risk-regime HYPOTHESIS for FORWARD sizing/management. NO threshold, NO edge claim. Refines \u00a7162/\u00a7163 to the echo set.",
+  "regime_contrasts": {
+    "hour": {
+      "tail_med": 9.5,
+      "non_med": 14.5,
+      "auc_tail": 0.311
+    },
+    "dow": {
+      "tail_med": 3.0,
+      "non_med": 4.0,
+      "auc_tail": 0.422
+    },
+    "btc4h": {
+      "tail_med": -80.51635494876501,
+      "non_med": -106.60351295439222,
+      "auc_tail": 0.566
+    },
+    "btc7d": {
+      "tail_med": -157.0773595812655,
+      "non_med": -29.432063765404926,
+      "auc_tail": 0.497
+    },
+    "btc1h_pre": {
+      "tail_med": -60.136243328945305,
+      "non_med": -54.63948381149608,
+      "auc_tail": 0.429
+    },
+    "btc2h_pre": {
+      "tail_med": -88.03122850419459,
+      "non_med": -82.48045226258445,
+      "auc_tail": 0.477
+    },
+    "eth1h_pre": {
+      "tail_med": -73.33583008453621,
+      "non_med": -74.36894351933465,
+      "auc_tail": 0.477
+    },
+    "rv_bps": {
+      "tail_med": 17.711926068628593,
+      "non_med": 16.120673251681573,
+      "auc_tail": 0.549
+    },
+    "sync_k": {
+      "tail_med": 220516.45405,
+      "non_med": 221402.97419,
+      "auc_tail": 0.417
+    },
+    "rn": {
+      "tail_med": 280268.667215,
+      "non_med": 279381.026365,
+      "auc_tail": 0.503
+    },
+    "spread_pct": {
+      "tail_med": 5.79725112374922e-06,
+      "non_med": 5.926036519281744e-06,
+      "auc_tail": 0.392
+    },
+    "bid_depth_usd": {
+      "tail_med": 242193.30477,
+      "non_med": 151850.26776000002,
+      "auc_tail": 0.576
+    },
+    "vol_spike_30m": {
+      "tail_med": 0.7923469070091598,
+      "non_med": 0.8834295144597804,
+      "auc_tail": 0.445
+    }
+  },
+  "tail_hours": [
+    0,
+    0,
+    1,
+    2,
+    6,
+    6,
+    6,
+    13,
+    13,
+    14,
+    14,
+    15,
+    15,
+    16
+  ],
+  "tail_dows": [
+    1,
+    1,
+    1,
+    1,
+    3,
+    3,
+    3,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5,
+    6
+  ],
+  "clustering": {
+    "tail_ts_utc": [
+      "2026-02-28 06:15",
+      "2026-02-28 06:31",
+      "2026-03-13 15:53",
+      "2026-04-02 02:09",
+      "2026-04-19 16:53",
+      "2026-04-23 00:08",
+      "2026-06-09 14:04",
+      "2026-06-16 13:08",
+      "2026-06-18 14:53",
+      "2026-06-18 15:36",
+      "2026-06-23 06:07",
+      "2026-06-25 13:31",
+      "2026-06-30 00:28",
+      "2026-07-17 01:45"
+    ],
+    "inter_tail_gaps_h": [
+      0.3,
+      321.4,
+      466.3,
+      422.7,
+      79.3,
+      1141.9,
+      167.1,
+      49.7,
+      0.7,
+      110.5,
+      55.4,
+      106.9,
+      409.3
+    ],
+    "median_gap_h": 110.5,
+    "n_within_24h": 2,
+    "n_within_48h": 2
+  },
+  "post_tail_recovery": {
+    "net_4h_med": -144.5,
+    "net_6h_med": -131.4,
+    "net_8h_med": -123.05,
+    "n_worse_at8h": 4,
+    "n_better_at8h": 10
+  }
+}

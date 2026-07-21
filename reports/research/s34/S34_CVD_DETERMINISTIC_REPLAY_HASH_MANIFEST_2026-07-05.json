@@ -1,0 +1,217 @@
+{
+ "generated_utc": "2026-07-05T18:37:56Z",
+ "windows": [
+  {
+   "label": "W_A_BLACKOUT_JUN03",
+   "symbol": "ETHUSDT",
+   "start_ms": 1780444800000,
+   "end_ms": 1780445400000,
+   "source_regime_id": "R2",
+   "runs": [
+    {
+     "run": 1,
+     "disposable_db": "D:\\eclipse_scalper\\data\\ami\\cvd_rehearsal_disposable_20260705\\replay_W_A_BLACKOUT_JUN03_run1.sqlite",
+     "row_count": 22091,
+     "page_count": 23,
+     "page_overlap_rows": 0,
+     "first_agg_trade_id": 2963163535,
+     "last_agg_trade_id": 2963185625,
+     "earliest_trade_ts_ms": 1780444800034,
+     "latest_trade_ts_ms": 1780445399966,
+     "missing_id_ranges": [],
+     "request_errors": [],
+     "content_sha256": "bf989bce2918d9e674893ec92049b5d10f7dc6ea3274508a97a57e719204ecad",
+     "gap_manifest_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+     "duplicate_manifest_sha256": "6e71058e1c3243e23e574c027a451f92c11f468476388bb12a1462138ca0bb11",
+     "staged_rows": 22091,
+     "verdict": "EXACT_RECONSTRUCTED"
+    },
+    {
+     "run": 2,
+     "disposable_db": "D:\\eclipse_scalper\\data\\ami\\cvd_rehearsal_disposable_20260705\\replay_W_A_BLACKOUT_JUN03_run2.sqlite",
+     "row_count": 22091,
+     "page_count": 23,
+     "page_overlap_rows": 0,
+     "first_agg_trade_id": 2963163535,
+     "last_agg_trade_id": 2963185625,
+     "earliest_trade_ts_ms": 1780444800034,
+     "latest_trade_ts_ms": 1780445399966,
+     "missing_id_ranges": [],
+     "request_errors": [],
+     "content_sha256": "bf989bce2918d9e674893ec92049b5d10f7dc6ea3274508a97a57e719204ecad",
+     "gap_manifest_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+     "duplicate_manifest_sha256": "6e71058e1c3243e23e574c027a451f92c11f468476388bb12a1462138ca0bb11",
+     "staged_rows": 22091,
+     "verdict": "EXACT_RECONSTRUCTED"
+    }
+   ],
+   "rerun_identical": true,
+   "reconciliation": {
+    "rest_rows": 22091,
+    "legacy_rows": 0,
+    "distinct_fingerprints_rest": 22090,
+    "distinct_fingerprints_legacy": 0,
+    "exact_one_to_one": 0,
+    "unmatched_rest": 22091,
+    "unmatched_legacy": 0,
+    "one_to_many_collisions": 0,
+    "many_to_one_collisions": 0,
+    "many_to_many_collisions": 0,
+    "ambiguous_rest_rows": 0,
+    "ambiguous_legacy_rows": 0,
+    "conflicting_side_flag_rows": 0,
+    "duplicate_fingerprint_multiplicity_hist": {
+     "2": 1
+    },
+    "deterministic_supersession_feasible": false
+   },
+   "rest_identity": {
+    "distinct_agg_trade_ids": 22091,
+    "rows": 22091,
+    "duplicate_ids": 0,
+    "id_contiguous": true
+   }
+  },
+  {
+   "label": "W_B_HEALTHY_R3_JUN20",
+   "symbol": "ETHUSDT",
+   "start_ms": 1781956800000,
+   "end_ms": 1781957400000,
+   "source_regime_id": "R3",
+   "runs": [
+    {
+     "run": 1,
+     "disposable_db": "D:\\eclipse_scalper\\data\\ami\\cvd_rehearsal_disposable_20260705\\replay_W_B_HEALTHY_R3_JUN20_run1.sqlite",
+     "row_count": 3050,
+     "page_count": 4,
+     "page_overlap_rows": 0,
+     "first_agg_trade_id": 2992732160,
+     "last_agg_trade_id": 2992735209,
+     "earliest_trade_ts_ms": 1781956800204,
+     "latest_trade_ts_ms": 1781957399772,
+     "missing_id_ranges": [],
+     "request_errors": [],
+     "content_sha256": "ebf83ff6f6198123f94e4c21a5ff6ece23b978880db67dfc5f064e3427ea0462",
+     "gap_manifest_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+     "duplicate_manifest_sha256": "6e71058e1c3243e23e574c027a451f92c11f468476388bb12a1462138ca0bb11",
+     "staged_rows": 3050,
+     "verdict": "EXACT_RECONSTRUCTED"
+    },
+    {
+     "run": 2,
+     "disposable_db": "D:\\eclipse_scalper\\data\\ami\\cvd_rehearsal_disposable_20260705\\replay_W_B_HEALTHY_R3_JUN20_run2.sqlite",
+     "row_count": 3050,
+     "page_count": 4,
+     "page_overlap_rows": 0,
+     "first_agg_trade_id": 2992732160,
+     "last_agg_trade_id": 2992735209,
+     "earliest_trade_ts_ms": 1781956800204,
+     "latest_trade_ts_ms": 1781957399772,
+     "missing_id_ranges": [],
+     "request_errors": [],
+     "content_sha256": "ebf83ff6f6198123f94e4c21a5ff6ece23b978880db67dfc5f064e3427ea0462",
+     "gap_manifest_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+     "duplicate_manifest_sha256": "6e71058e1c3243e23e574c027a451f92c11f468476388bb12a1462138ca0bb11",
+     "staged_rows": 3050,
+     "verdict": "EXACT_RECONSTRUCTED"
+    }
+   ],
+   "rerun_identical": true,
+   "reconciliation": {
+    "rest_rows": 3050,
+    "legacy_rows": 3050,
+    "distinct_fingerprints_rest": 3050,
+    "distinct_fingerprints_legacy": 3050,
+    "exact_one_to_one": 3050,
+    "unmatched_rest": 0,
+    "unmatched_legacy": 0,
+    "one_to_many_collisions": 0,
+    "many_to_one_collisions": 0,
+    "many_to_many_collisions": 0,
+    "ambiguous_rest_rows": 0,
+    "ambiguous_legacy_rows": 0,
+    "conflicting_side_flag_rows": 0,
+    "duplicate_fingerprint_multiplicity_hist": {},
+    "deterministic_supersession_feasible": true
+   },
+   "rest_identity": {
+    "distinct_agg_trade_ids": 3050,
+    "rows": 3050,
+    "duplicate_ids": 0,
+    "id_contiguous": true
+   }
+  },
+  {
+   "label": "W_C_HEALTHY_R0_MAR10",
+   "symbol": "ETHUSDT",
+   "start_ms": 1773144000000,
+   "end_ms": 1773144600000,
+   "source_regime_id": "R0",
+   "runs": [
+    {
+     "run": 1,
+     "disposable_db": "D:\\eclipse_scalper\\data\\ami\\cvd_rehearsal_disposable_20260705\\replay_W_C_HEALTHY_R0_MAR10_run1.sqlite",
+     "row_count": 12259,
+     "page_count": 13,
+     "page_overlap_rows": 0,
+     "first_agg_trade_id": 2856489651,
+     "last_agg_trade_id": 2856501909,
+     "earliest_trade_ts_ms": 1773144000048,
+     "latest_trade_ts_ms": 1773144599812,
+     "missing_id_ranges": [],
+     "request_errors": [],
+     "content_sha256": "37f5fba9b4592c4387358f2a9e22457eb308715e6ff7b411d686c67e97a1b0e9",
+     "gap_manifest_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+     "duplicate_manifest_sha256": "6e71058e1c3243e23e574c027a451f92c11f468476388bb12a1462138ca0bb11",
+     "staged_rows": 12259,
+     "verdict": "EXACT_RECONSTRUCTED"
+    },
+    {
+     "run": 2,
+     "disposable_db": "D:\\eclipse_scalper\\data\\ami\\cvd_rehearsal_disposable_20260705\\replay_W_C_HEALTHY_R0_MAR10_run2.sqlite",
+     "row_count": 12259,
+     "page_count": 13,
+     "page_overlap_rows": 0,
+     "first_agg_trade_id": 2856489651,
+     "last_agg_trade_id": 2856501909,
+     "earliest_trade_ts_ms": 1773144000048,
+     "latest_trade_ts_ms": 1773144599812,
+     "missing_id_ranges": [],
+     "request_errors": [],
+     "content_sha256": "37f5fba9b4592c4387358f2a9e22457eb308715e6ff7b411d686c67e97a1b0e9",
+     "gap_manifest_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+     "duplicate_manifest_sha256": "6e71058e1c3243e23e574c027a451f92c11f468476388bb12a1462138ca0bb11",
+     "staged_rows": 12259,
+     "verdict": "EXACT_RECONSTRUCTED"
+    }
+   ],
+   "rerun_identical": true,
+   "reconciliation": {
+    "rest_rows": 12259,
+    "legacy_rows": 12259,
+    "distinct_fingerprints_rest": 12258,
+    "distinct_fingerprints_legacy": 12258,
+    "exact_one_to_one": 12257,
+    "unmatched_rest": 0,
+    "unmatched_legacy": 0,
+    "one_to_many_collisions": 0,
+    "many_to_one_collisions": 0,
+    "many_to_many_collisions": 1,
+    "ambiguous_rest_rows": 2,
+    "ambiguous_legacy_rows": 2,
+    "conflicting_side_flag_rows": 0,
+    "duplicate_fingerprint_multiplicity_hist": {
+     "2": 1
+    },
+    "deterministic_supersession_feasible": false
+   },
+   "rest_identity": {
+    "distinct_agg_trade_ids": 12259,
+    "rows": 12259,
+    "duplicate_ids": 0,
+    "id_contiguous": true
+   }
+  }
+ ],
+ "hard_stop_rerun_mismatch": false
+}

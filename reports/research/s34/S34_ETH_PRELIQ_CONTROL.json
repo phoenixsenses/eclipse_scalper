@@ -1,0 +1,198 @@
+{
+  "generated_at": "2026-06-27T13:25:05.038620+00:00",
+  "pressure": {
+    "name": "lead5_lb10_down5",
+    "lead_sec": 5,
+    "lookback_sec": 10,
+    "move_bps": 5.0,
+    "max_spread_bps": 1.0
+  },
+  "control_multiple": 5,
+  "exclude_near_liq_sec": 900,
+  "preliq_sample_counts": {
+    "500000": 41,
+    "1000000": 26
+  },
+  "control_count": 335,
+  "results": [
+    {
+      "sample": "control",
+      "route": {
+        "name": "TP15_SL20_BE10_H60",
+        "tp": 15.0,
+        "sl": 20.0,
+        "be": 10.0,
+        "hold": 60
+      },
+      "raw_samples": 335,
+      "closed": 335,
+      "summary": {
+        "n": 335,
+        "median": -8.595913311638709,
+        "mean": -9.494801744132428,
+        "cum": -3180.7585842843628,
+        "wr": 0.1253731343283582,
+        "top3_removed_cum": -3204.2172701047775,
+        "positive_days": 2,
+        "total_days": 61,
+        "avg_hold_sec": 53.94073134328358,
+        "mean_pre_move_bps": 7.3315302994103755,
+        "mean_book_imbalance": -0.10635729463181251,
+        "exit_counts": {
+          "TP": 24,
+          "TIME": 277,
+          "BE": 13,
+          "SL": 21
+        }
+      }
+    },
+    {
+      "sample": "preliq_500K",
+      "route": {
+        "name": "TP15_SL20_BE10_H60",
+        "tp": 15.0,
+        "sl": 20.0,
+        "be": 10.0,
+        "hold": 60
+      },
+      "raw_samples": 41,
+      "closed": 41,
+      "summary": {
+        "n": 41,
+        "median": 6.965078039574326,
+        "mean": 2.95838291327495,
+        "cum": 121.29369944427296,
+        "wr": 0.7804878048780488,
+        "top3_removed_cum": 79.59222552339219,
+        "positive_days": 15,
+        "total_days": 19,
+        "avg_hold_sec": 30.099390243902437,
+        "mean_pre_move_bps": 10.245668025546257,
+        "mean_book_imbalance": -0.4453050431792107,
+        "exit_counts": {
+          "TP": 29,
+          "TIME": 12
+        }
+      }
+    },
+    {
+      "sample": "preliq_1000K",
+      "route": {
+        "name": "TP15_SL20_BE10_H60",
+        "tp": 15.0,
+        "sl": 20.0,
+        "be": 10.0,
+        "hold": 60
+      },
+      "raw_samples": 26,
+      "closed": 26,
+      "summary": {
+        "n": 26,
+        "median": 6.899133156935842,
+        "mean": 1.9904316831360807,
+        "cum": 51.7512237615381,
+        "wr": 0.7307692307692307,
+        "top3_removed_cum": 14.006797554831149,
+        "positive_days": 9,
+        "total_days": 13,
+        "avg_hold_sec": 31.66503846153846,
+        "mean_pre_move_bps": 10.269541760729611,
+        "mean_book_imbalance": -0.4473541968272898,
+        "exit_counts": {
+          "TP": 18,
+          "TIME": 8
+        }
+      }
+    },
+    {
+      "sample": "control",
+      "route": {
+        "name": "TP20_SL20_BE10_H60",
+        "tp": 20.0,
+        "sl": 20.0,
+        "be": 10.0,
+        "hold": 60
+      },
+      "raw_samples": 335,
+      "closed": 335,
+      "summary": {
+        "n": 335,
+        "median": -8.595913311638709,
+        "mean": -9.327777119423846,
+        "cum": -3124.8053350069886,
+        "wr": 0.11940298507462686,
+        "top3_removed_cum": -3162.584084933346,
+        "positive_days": 3,
+        "total_days": 61,
+        "avg_hold_sec": 54.79143880597015,
+        "mean_pre_move_bps": 7.3315302994103755,
+        "mean_book_imbalance": -0.10635729463181251,
+        "exit_counts": {
+          "TIME": 285,
+          "TP": 16,
+          "BE": 13,
+          "SL": 21
+        }
+      }
+    },
+    {
+      "sample": "preliq_500K",
+      "route": {
+        "name": "TP20_SL20_BE10_H60",
+        "tp": 20.0,
+        "sl": 20.0,
+        "be": 10.0,
+        "hold": 60
+      },
+      "raw_samples": 41,
+      "closed": 41,
+      "summary": {
+        "n": 41,
+        "median": 11.633970730106615,
+        "mean": 5.619069808038102,
+        "cum": 230.3818621295622,
+        "wr": 0.7560975609756098,
+        "top3_removed_cum": 175.5597315627667,
+        "positive_days": 16,
+        "total_days": 19,
+        "avg_hold_sec": 33.54256097560975,
+        "mean_pre_move_bps": 10.245668025546257,
+        "mean_book_imbalance": -0.4453050431792107,
+        "exit_counts": {
+          "TP": 27,
+          "TIME": 13,
+          "BE": 1
+        }
+      }
+    },
+    {
+      "sample": "preliq_1000K",
+      "route": {
+        "name": "TP20_SL20_BE10_H60",
+        "tp": 20.0,
+        "sl": 20.0,
+        "be": 10.0,
+        "hold": 60
+      },
+      "raw_samples": 26,
+      "closed": 26,
+      "summary": {
+        "n": 26,
+        "median": 12.01348624029422,
+        "mean": 5.1702571365117445,
+        "cum": 134.42668554930538,
+        "wr": 0.7307692307692307,
+        "top3_removed_cum": 85.97367297682123,
+        "positive_days": 10,
+        "total_days": 13,
+        "avg_hold_sec": 34.75038461538462,
+        "mean_pre_move_bps": 10.269541760729611,
+        "mean_book_imbalance": -0.4473541968272898,
+        "exit_counts": {
+          "TP": 17,
+          "TIME": 9
+        }
+      }
+    }
+  ]
+}

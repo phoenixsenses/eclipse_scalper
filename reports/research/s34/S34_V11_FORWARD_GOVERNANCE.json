@@ -1,0 +1,143 @@
+{
+  "execution_truth_ledger": {
+    "latest_order_cards": [],
+    "missing_fields_to_instrument": [
+      "local_send_ts",
+      "exchange_ack_ts",
+      "fill_ts",
+      "stop_send_ts",
+      "stop_ack_ts",
+      "realized_fee_bps",
+      "realized_stop_slippage_bps"
+    ],
+    "s34_order_event_n": 0,
+    "scanned_tail_rows": 5000,
+    "status": "NO_S34_REAL_ORDER_TELEMETRY_FOUND"
+  },
+  "fee_tier_verification": {
+    "assumed_maker_fee_bps": 2.0,
+    "assumed_taker_fee_bps": 3.05,
+    "fee_samples": [],
+    "read": "No S34 real order fee samples in telemetry; provision pocket cannot be promoted until actual fee tier is verified.",
+    "status": "ACTUAL_FEE_TIER_UNKNOWN"
+  },
+  "final_read": "Forward validation is decision-ready only after valid_forward_N reaches the frozen gate and operator risk decisions are journaled.",
+  "forward_sample_integrity": {
+    "data_freshness_sec": {
+      "book": 0.7,
+      "liquidations": 174.1,
+      "mark": 3.7
+    },
+    "extra_management_n": 0,
+    "forward_n": 0,
+    "frozen_start_utc": "2026-06-29T06:44:41.536000+00:00",
+    "latest_cards": [
+      {
+        "quality": "VALID",
+        "reasons": [],
+        "sample_type": "PRE_FORWARD_REFERENCE",
+        "signal_utc": "2026-04-18T03:54:36.116000+00:00",
+        "source_observation_id": "59ab07a9737bf59f321be5c7"
+      },
+      {
+        "quality": "VALID",
+        "reasons": [],
+        "sample_type": "PRE_FORWARD_REFERENCE",
+        "signal_utc": "2026-04-20T14:08:39.155000+00:00",
+        "source_observation_id": "6af7c4aab495fedd0e257602"
+      },
+      {
+        "quality": "VALID",
+        "reasons": [],
+        "sample_type": "PRE_FORWARD_REFERENCE",
+        "signal_utc": "2026-04-20T14:41:11.191000+00:00",
+        "source_observation_id": "90a517a624845c47f9bfa9ae"
+      },
+      {
+        "quality": "VALID",
+        "reasons": [],
+        "sample_type": "PRE_FORWARD_REFERENCE",
+        "signal_utc": "2026-06-16T04:31:11.525000+00:00",
+        "source_observation_id": "21ed308e4f9a76948b9619c5"
+      },
+      {
+        "quality": "VALID",
+        "reasons": [],
+        "sample_type": "PRE_FORWARD_REFERENCE",
+        "signal_utc": "2026-06-17T01:17:01.753000+00:00",
+        "source_observation_id": "2beb5c5e1cb24dcad06174ce"
+      },
+      {
+        "quality": "VALID",
+        "reasons": [],
+        "sample_type": "PRE_FORWARD_REFERENCE",
+        "signal_utc": "2026-06-20T14:08:51.159000+00:00",
+        "source_observation_id": "e83d39ece763678cc3d07855"
+      },
+      {
+        "quality": "VALID",
+        "reasons": [],
+        "sample_type": "PRE_FORWARD_REFERENCE",
+        "signal_utc": "2026-06-21T23:33:42.690000+00:00",
+        "source_observation_id": "aa8857f754bb2f7c45c3e745"
+      },
+      {
+        "quality": "VALID",
+        "reasons": [],
+        "sample_type": "PRE_FORWARD_REFERENCE",
+        "signal_utc": "2026-06-26T02:48:30.475000+00:00",
+        "source_observation_id": "9c51e8438c9f4ba61bfb8a07"
+      },
+      {
+        "quality": "VALID",
+        "reasons": [],
+        "sample_type": "PRE_FORWARD_REFERENCE",
+        "signal_utc": "2026-06-26T10:39:33.530000+00:00",
+        "source_observation_id": "0b4c2340a7b04cb90c9556c9"
+      },
+      {
+        "quality": "VALID",
+        "reasons": [],
+        "sample_type": "PRE_FORWARD_REFERENCE",
+        "signal_utc": "2026-06-26T13:18:54.877000+00:00",
+        "source_observation_id": "1db4a7587a6dd0a216620ca2"
+      }
+    ],
+    "management_n": 11,
+    "missing_in_management_n": 0,
+    "quality_counts_all": {
+      "INVALID": 0,
+      "PARTIAL": 0,
+      "VALID": 11
+    },
+    "source_shadow_n": 11,
+    "status": "NO_FORWARD_OOS_YET",
+    "valid_forward_n": 0,
+    "valid_forward_ratio": null
+  },
+  "generated_at_utc": "2026-06-29T07:33:35.737941+00:00",
+  "kill_switch_drill": {
+    "active_position_in_state": false,
+    "exists_now": false,
+    "operator_commands": {
+      "clear": "Remove-Item D:\\eclipse_scalper\\runtime\\KILL_SWITCH",
+      "create": "New-Item D:\\eclipse_scalper\\runtime\\KILL_SWITCH -ItemType File"
+    },
+    "path": "D:\\eclipse_scalper\\runtime\\KILL_SWITCH",
+    "status": "DRY_RUN_CONTRACT_ONLY",
+    "would_auto_close_active_position": false,
+    "would_block_new_entries_if_created": true
+  },
+  "mode": "OBSERVATION_GOVERNANCE_ONLY_NO_LIVE_CHANGE",
+  "operator_governance": {
+    "balanced_notional": 16.3,
+    "current_notional": 1190.0,
+    "journal_rows": 1,
+    "latest_decision": null,
+    "latest_decision_age_hours": null,
+    "oversize_vs_balanced": 73.0,
+    "real_decision_rows": 0,
+    "required_action": "operator must log REDUCE_MARGIN / DISARM / ARMED_KEEP_SIZE rationale",
+    "status": "DECISION_REQUIRED"
+  }
+}

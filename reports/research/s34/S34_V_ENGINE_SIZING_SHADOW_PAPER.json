@@ -1,0 +1,68 @@
+{
+  "generated_at_utc": "2026-07-21T08:12:48.400584+00:00",
+  "status": "SHADOW_PAPER_SIZING_ONLY_NO_ORDER",
+  "rule_id": "S34_V_ENGINE_V0_2_ETH_SELL_MAKER_LONG_H2_O20_W300_O5_DEEPBID",
+  "source_shadow_mirror_ledger": "D:\\eclipse_scalper\\reports\\research\\s34\\S34_V_ENGINE_V0_2_SHADOW_MIRROR_LEDGER.jsonl",
+  "source_shadow_rows": 17,
+  "source_risk_suite": "D:\\eclipse_scalper\\reports\\research\\s34\\S34_V10_OPERATIONAL_RISK_SUITE.json",
+  "equity_assumption_usdt": 35.0,
+  "modes": {
+    "BALANCED": {
+      "n": 13,
+      "notional_usdt": 16.3,
+      "margin_usdt": 0.4,
+      "leverage": 40.0,
+      "sum_bps": 1089.6,
+      "median_bps": 46.3,
+      "win_rate": 0.923,
+      "sum_pnl_usdt": 1.776,
+      "ending_equity_usdt": 36.776,
+      "max_drawdown_pct_equity": 0.335,
+      "max_loss_usdt": -0.117,
+      "max_win_usdt": 0.489
+    },
+    "CURRENT_ENV": {
+      "n": 13,
+      "notional_usdt": 1190.0,
+      "margin_usdt": 29.75,
+      "leverage": 40.0,
+      "sum_bps": 1089.6,
+      "median_bps": 46.3,
+      "win_rate": 0.923,
+      "sum_pnl_usdt": 129.663,
+      "ending_equity_usdt": 164.662,
+      "max_drawdown_pct_equity": 24.446,
+      "max_loss_usdt": -8.556,
+      "max_win_usdt": 35.664
+    },
+    "STOP_ASSISTED": {
+      "n": 13,
+      "notional_usdt": 39.8,
+      "margin_usdt": 1.0,
+      "leverage": 40.0,
+      "sum_bps": 1089.6,
+      "median_bps": 46.3,
+      "win_rate": 0.923,
+      "sum_pnl_usdt": 4.336,
+      "ending_equity_usdt": 39.337,
+      "max_drawdown_pct_equity": 0.818,
+      "max_loss_usdt": -0.286,
+      "max_win_usdt": 1.193
+    },
+    "SURVIVAL": {
+      "n": 13,
+      "notional_usdt": 11.0,
+      "margin_usdt": 0.3,
+      "leverage": 40.0,
+      "sum_bps": 1089.6,
+      "median_bps": 46.3,
+      "win_rate": 0.923,
+      "sum_pnl_usdt": 1.201,
+      "ending_equity_usdt": 36.199,
+      "max_drawdown_pct_equity": 0.226,
+      "max_loss_usdt": -0.079,
+      "max_win_usdt": 0.33
+    }
+  },
+  "read": "Separate sizing shadow-paper for the same v0.2 alpha fills. CURRENT_ENV mirrors configured live sizing for comparison; BALANCED/SURVIVAL are system risk recommendations. No order is sent and no live config is changed."
+}

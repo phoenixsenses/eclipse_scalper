@@ -1,0 +1,3494 @@
+{
+  "generated_at": "2026-06-27T12:31:09.516574+00:00",
+  "lookback_days": 120,
+  "scope": "liquidation alarm + bookTicker impulse fast scalp scan, real fills",
+  "results": [
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "SOL_SELL_200K",
+      "symbol": "SOLUSDT",
+      "threshold": 200000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 58,
+        "filtered": 58,
+        "no_fill": 0,
+        "closed": 0
+      },
+      "summary": {
+        "n": 0,
+        "median": null,
+        "mean": null,
+        "cum": 0.0,
+        "wr": null
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 190,
+        "no_fill": 0,
+        "closed": 10
+      },
+      "summary": {
+        "n": 10,
+        "median": -7.097904933770568,
+        "mean": -8.111478410331106,
+        "cum": -81.11478410331105,
+        "wr": 0.2,
+        "top3_removed_cum": -82.52438095736534,
+        "positive_days": 2,
+        "total_days": 9,
+        "avg_hold_sec": 13.7575,
+        "median_hold_sec": 11.5705,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 1.1436535966372698,
+        "exit_counts": {
+          "TIME": 2,
+          "TP": 4,
+          "SL": 3,
+          "BE": 1
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 190,
+        "no_fill": 0,
+        "closed": 10
+      },
+      "summary": {
+        "n": 10,
+        "median": -8.277884611898255,
+        "mean": -8.347474345956643,
+        "cum": -83.47474345956643,
+        "wr": 0.2,
+        "top3_removed_cum": -84.88434031362071,
+        "positive_days": 2,
+        "total_days": 9,
+        "avg_hold_sec": 17.1653,
+        "median_hold_sec": 11.5705,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 1.1436535966372698,
+        "exit_counts": {
+          "TIME": 1,
+          "TP": 4,
+          "BE": 2,
+          "SL": 3
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 190,
+        "no_fill": 0,
+        "closed": 10
+      },
+      "summary": {
+        "n": 10,
+        "median": -5.3625692316562255,
+        "mean": -7.764411269908237,
+        "cum": -77.64411269908237,
+        "wr": 0.2,
+        "top3_removed_cum": -79.05370955313666,
+        "positive_days": 2,
+        "total_days": 9,
+        "avg_hold_sec": 15.6284,
+        "median_hold_sec": 12.5185,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 1.106671032493826,
+        "exit_counts": {
+          "TIME": 3,
+          "TP": 4,
+          "SL": 3
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 190,
+        "no_fill": 0,
+        "closed": 10
+      },
+      "summary": {
+        "n": 10,
+        "median": -3.4921876866383865,
+        "mean": -6.929108215580341,
+        "cum": -69.29108215580341,
+        "wr": 0.3,
+        "top3_removed_cum": -73.37865608042063,
+        "positive_days": 3,
+        "total_days": 9,
+        "avg_hold_sec": 22.0926,
+        "median_hold_sec": 12.5185,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 1.1066710324940248,
+        "exit_counts": {
+          "TIME": 2,
+          "TP": 5,
+          "SL": 3
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 190,
+        "no_fill": 0,
+        "closed": 10
+      },
+      "summary": {
+        "n": 10,
+        "median": -7.097904933770568,
+        "mean": -8.894062697440711,
+        "cum": -88.94062697440711,
+        "wr": 0.2,
+        "top3_removed_cum": -90.35022382846138,
+        "positive_days": 2,
+        "total_days": 9,
+        "avg_hold_sec": 16.3433,
+        "median_hold_sec": 12.235,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.9728085225102749,
+        "exit_counts": {
+          "TIME": 4,
+          "TP": 4,
+          "BE": 1,
+          "SL": 1
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 190,
+        "no_fill": 0,
+        "closed": 10
+      },
+      "summary": {
+        "n": 10,
+        "median": -8.277884611898255,
+        "mean": -8.425621089358863,
+        "cum": -84.25621089358863,
+        "wr": 0.2,
+        "top3_removed_cum": -85.66580774764292,
+        "positive_days": 2,
+        "total_days": 9,
+        "avg_hold_sec": 25.2307,
+        "median_hold_sec": 12.235,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 1.0567492603494217,
+        "exit_counts": {
+          "TIME": 2,
+          "TP": 4,
+          "BE": 3,
+          "SL": 1
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 190,
+        "no_fill": 0,
+        "closed": 10
+      },
+      "summary": {
+        "n": 10,
+        "median": -5.3625692316562255,
+        "mean": -8.546995557017842,
+        "cum": -85.46995557017843,
+        "wr": 0.2,
+        "top3_removed_cum": -86.8795524242327,
+        "positive_days": 2,
+        "total_days": 9,
+        "avg_hold_sec": 18.214199999999998,
+        "median_hold_sec": 21.5805,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.9358259583668312,
+        "exit_counts": {
+          "TIME": 5,
+          "TP": 4,
+          "SL": 1
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 190,
+        "no_fill": 0,
+        "closed": 10
+      },
+      "summary": {
+        "n": 10,
+        "median": -3.4921876866383865,
+        "mean": -7.024043106550364,
+        "cum": -70.24043106550363,
+        "wr": 0.3,
+        "top3_removed_cum": -74.32800499012085,
+        "positive_days": 3,
+        "total_days": 9,
+        "avg_hold_sec": 30.680500000000002,
+        "median_hold_sec": 23.9615,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.9358259583670403,
+        "exit_counts": {
+          "TIME": 4,
+          "TP": 5,
+          "SL": 1
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 190,
+        "no_fill": 0,
+        "closed": 10
+      },
+      "summary": {
+        "n": 10,
+        "median": -8.42098920857571,
+        "mean": -7.058829163291549,
+        "cum": -70.5882916329155,
+        "wr": 0.3,
+        "top3_removed_cum": -88.19886984097496,
+        "positive_days": 3,
+        "total_days": 9,
+        "avg_hold_sec": 19.1413,
+        "median_hold_sec": 20.4895,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.10565366814880568,
+        "exit_counts": {
+          "TIME": 4,
+          "TP": 1,
+          "SL": 3,
+          "BE": 2
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 190,
+        "no_fill": 0,
+        "closed": 10
+      },
+      "summary": {
+        "n": 10,
+        "median": -8.42098920857571,
+        "mean": -7.169337537922755,
+        "cum": -71.69337537922755,
+        "wr": 0.2,
+        "top3_removed_cum": -90.55882919723034,
+        "positive_days": 2,
+        "total_days": 9,
+        "avg_hold_sec": 28.5486,
+        "median_hold_sec": 20.4895,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.10565366814868139,
+        "exit_counts": {
+          "TIME": 3,
+          "TP": 1,
+          "BE": 3,
+          "SL": 3
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 190,
+        "no_fill": 0,
+        "closed": 10
+      },
+      "summary": {
+        "n": 10,
+        "median": -7.006827869590506,
+        "mean": -6.711762022868681,
+        "cum": -67.11762022868682,
+        "wr": 0.3,
+        "top3_removed_cum": -84.72819843674628,
+        "positive_days": 3,
+        "total_days": 9,
+        "avg_hold_sec": 21.0122,
+        "median_hold_sec": 27.0535,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.06867110400536194,
+        "exit_counts": {
+          "TIME": 5,
+          "TP": 1,
+          "SL": 3,
+          "BE": 1
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 190,
+        "no_fill": 0,
+        "closed": 10
+      },
+      "summary": {
+        "n": 10,
+        "median": -6.329432128443203,
+        "mean": -5.0511475014480185,
+        "cum": -50.51147501448018,
+        "wr": 0.3,
+        "top3_removed_cum": -81.57626350650008,
+        "positive_days": 3,
+        "total_days": 9,
+        "avg_hold_sec": 36.0018,
+        "median_hold_sec": 42.005,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.0686711040054364,
+        "exit_counts": {
+          "TIME": 5,
+          "TP": 1,
+          "SL": 3,
+          "BE": 1
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 190,
+        "no_fill": 0,
+        "closed": 10
+      },
+      "summary": {
+        "n": 10,
+        "median": -8.42098920857571,
+        "mean": -7.841413450401155,
+        "cum": -78.41413450401154,
+        "wr": 0.3,
+        "top3_removed_cum": -96.02471271207102,
+        "positive_days": 3,
+        "total_days": 9,
+        "avg_hold_sec": 21.7271,
+        "median_hold_sec": 29.985,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": -0.06519140597818923,
+        "exit_counts": {
+          "TIME": 6,
+          "TP": 1,
+          "BE": 2,
+          "SL": 1
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 190,
+        "no_fill": 0,
+        "closed": 10
+      },
+      "summary": {
+        "n": 10,
+        "median": -8.42098920857571,
+        "mean": -7.247484281324975,
+        "cum": -72.47484281324975,
+        "wr": 0.2,
+        "top3_removed_cum": -91.34029663125254,
+        "positive_days": 2,
+        "total_days": 9,
+        "avg_hold_sec": 36.614,
+        "median_hold_sec": 44.4775,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.01874933186083335,
+        "exit_counts": {
+          "TIME": 4,
+          "TP": 1,
+          "BE": 4,
+          "SL": 1
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 190,
+        "no_fill": 0,
+        "closed": 10
+      },
+      "summary": {
+        "n": 10,
+        "median": -7.006827869590506,
+        "mean": -7.494346309978287,
+        "cum": -74.94346309978286,
+        "wr": 0.3,
+        "top3_removed_cum": -92.55404130784234,
+        "positive_days": 3,
+        "total_days": 9,
+        "avg_hold_sec": 23.598,
+        "median_hold_sec": 29.994,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": -0.10217397012163298,
+        "exit_counts": {
+          "TIME": 7,
+          "TP": 1,
+          "BE": 1,
+          "SL": 1
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book1s_down2_imbNeg",
+        "wait_sec": 1,
+        "move_bps": 2.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 190,
+        "no_fill": 0,
+        "closed": 10
+      },
+      "summary": {
+        "n": 10,
+        "median": -6.329432128443203,
+        "mean": -5.146082392418041,
+        "cum": -51.4608239241804,
+        "wr": 0.3,
+        "top3_removed_cum": -82.5256124162003,
+        "positive_days": 3,
+        "total_days": 9,
+        "avg_hold_sec": 44.5897,
+        "median_hold_sec": 59.9935,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": -0.10217397012154816,
+        "exit_counts": {
+          "TIME": 7,
+          "TP": 1,
+          "BE": 1,
+          "SL": 1
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 187,
+        "no_fill": 0,
+        "closed": 13
+      },
+      "summary": {
+        "n": 13,
+        "median": -8.428434591809944,
+        "mean": -8.001002726813976,
+        "cum": -104.01303544858169,
+        "wr": 0.38461538461538464,
+        "top3_removed_cum": -110.7811145562919,
+        "positive_days": 3,
+        "total_days": 9,
+        "avg_hold_sec": 10.180923076923078,
+        "median_hold_sec": 9.202,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.3058012605136488,
+        "exit_counts": {
+          "SL": 4,
+          "TP": 5,
+          "BE": 3,
+          "TIME": 1
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 187,
+        "no_fill": 0,
+        "closed": 13
+      },
+      "summary": {
+        "n": 13,
+        "median": -8.171206980679136,
+        "mean": -6.932422893499268,
+        "cum": -90.12149761549048,
+        "wr": 0.46153846153846156,
+        "top3_removed_cum": -96.88957672320069,
+        "positive_days": 3,
+        "total_days": 9,
+        "avg_hold_sec": 11.917846153846154,
+        "median_hold_sec": 9.202,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.33426752656508846,
+        "exit_counts": {
+          "SL": 4,
+          "TP": 6,
+          "BE": 3
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 187,
+        "no_fill": 0,
+        "closed": 13
+      },
+      "summary": {
+        "n": 13,
+        "median": -11.917116267968087,
+        "mean": -8.713382431888226,
+        "cum": -113.27397161454694,
+        "wr": 0.38461538461538464,
+        "top3_removed_cum": -120.04205072225713,
+        "positive_days": 3,
+        "total_days": 9,
+        "avg_hold_sec": 12.529615384615385,
+        "median_hold_sec": 11.03,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.2368953934459297,
+        "exit_counts": {
+          "SL": 5,
+          "TP": 5,
+          "TIME": 3
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 187,
+        "no_fill": 0,
+        "closed": 13
+      },
+      "summary": {
+        "n": 13,
+        "median": -5.748599369029964,
+        "mean": -7.3418813224005515,
+        "cum": -95.44445719120716,
+        "wr": 0.46153846153846156,
+        "top3_removed_cum": -102.21253629891737,
+        "positive_days": 3,
+        "total_days": 9,
+        "avg_hold_sec": 18.87976923076923,
+        "median_hold_sec": 11.03,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.2653616594974764,
+        "exit_counts": {
+          "SL": 5,
+          "TP": 6,
+          "TIME": 2
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 187,
+        "no_fill": 0,
+        "closed": 13
+      },
+      "summary": {
+        "n": 13,
+        "median": -8.061126002084341,
+        "mean": -5.865283829305318,
+        "cum": -76.24868978096914,
+        "wr": 0.38461538461538464,
+        "top3_removed_cum": -83.01676888867934,
+        "positive_days": 3,
+        "total_days": 9,
+        "avg_hold_sec": 17.001923076923077,
+        "median_hold_sec": 12.024,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.1396994612778636,
+        "exit_counts": {
+          "TIME": 5,
+          "TP": 5,
+          "BE": 3
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 187,
+        "no_fill": 0,
+        "closed": 13
+      },
+      "summary": {
+        "n": 13,
+        "median": 1.5666315890175042,
+        "mean": -5.985279625705644,
+        "cum": -77.80863513417337,
+        "wr": 0.5384615384615384,
+        "top3_removed_cum": -84.57671424188356,
+        "positive_days": 4,
+        "total_days": 9,
+        "avg_hold_sec": 23.691153846153846,
+        "median_hold_sec": 12.024,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.28305374274634143,
+        "exit_counts": {
+          "TIME": 2,
+          "TP": 7,
+          "SL": 1,
+          "BE": 3
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 187,
+        "no_fill": 0,
+        "closed": 13
+      },
+      "summary": {
+        "n": 13,
+        "median": -5.402230041188824,
+        "mean": -5.906005379406972,
+        "cum": -76.77806993229063,
+        "wr": 0.38461538461538464,
+        "top3_removed_cum": -83.54614904000083,
+        "positive_days": 3,
+        "total_days": 9,
+        "avg_hold_sec": 20.820923076923076,
+        "median_hold_sec": 29.984,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.06201374904721165,
+        "exit_counts": {
+          "TIME": 8,
+          "TP": 5
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 187,
+        "no_fill": 0,
+        "closed": 13
+      },
+      "summary": {
+        "n": 13,
+        "median": 1.679315551918009,
+        "mean": -4.814365925259653,
+        "cum": -62.586757028375494,
+        "wr": 0.6153846153846154,
+        "top3_removed_cum": -69.6518173288174,
+        "positive_days": 5,
+        "total_days": 9,
+        "avg_hold_sec": 32.49523076923077,
+        "median_hold_sec": 33.283,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.1790284950265988,
+        "exit_counts": {
+          "TIME": 4,
+          "TP": 8,
+          "SL": 1
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 187,
+        "no_fill": 0,
+        "closed": 13
+      },
+      "summary": {
+        "n": 13,
+        "median": -8.428434591809944,
+        "mean": -8.018112778653279,
+        "cum": -104.23546612249262,
+        "wr": 0.23076923076923078,
+        "top3_removed_cum": -130.62023872740647,
+        "positive_days": 2,
+        "total_days": 9,
+        "avg_hold_sec": 12.07576923076923,
+        "median_hold_sec": 9.202,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.3016774274322395,
+        "exit_counts": {
+          "SL": 4,
+          "BE": 5,
+          "TIME": 2,
+          "TP": 2
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 187,
+        "no_fill": 0,
+        "closed": 13
+      },
+      "summary": {
+        "n": 13,
+        "median": -8.17947360391954,
+        "mean": -7.458351592490725,
+        "cum": -96.95857070237943,
+        "wr": 0.23076923076923078,
+        "top3_removed_cum": -122.63751124829241,
+        "positive_days": 2,
+        "total_days": 9,
+        "avg_hold_sec": 16.690384615384616,
+        "median_hold_sec": 9.202,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.3016774274322395,
+        "exit_counts": {
+          "SL": 4,
+          "BE": 5,
+          "TIME": 2,
+          "TP": 2
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 187,
+        "no_fill": 0,
+        "closed": 13
+      },
+      "summary": {
+        "n": 13,
+        "median": -11.917116267968087,
+        "mean": -8.730492483727527,
+        "cum": -113.49640228845786,
+        "wr": 0.23076923076923078,
+        "top3_removed_cum": -139.8811748933717,
+        "positive_days": 2,
+        "total_days": 9,
+        "avg_hold_sec": 14.42446153846154,
+        "median_hold_sec": 11.03,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.23277156036452043,
+        "exit_counts": {
+          "SL": 5,
+          "BE": 2,
+          "TIME": 4,
+          "TP": 2
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 187,
+        "no_fill": 0,
+        "closed": 13
+      },
+      "summary": {
+        "n": 13,
+        "median": -8.066003333168265,
+        "mean": -7.867810021392009,
+        "cum": -102.28153027809611,
+        "wr": 0.23076923076923078,
+        "top3_removed_cum": -127.96047082400909,
+        "positive_days": 1,
+        "total_days": 9,
+        "avg_hold_sec": 23.652307692307694,
+        "median_hold_sec": 11.03,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.23277156036462748,
+        "exit_counts": {
+          "SL": 5,
+          "BE": 2,
+          "TIME": 4,
+          "TP": 2
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 187,
+        "no_fill": 0,
+        "closed": 13
+      },
+      "summary": {
+        "n": 13,
+        "median": -8.171206980679136,
+        "mean": -5.882393881144621,
+        "cum": -76.47112045488007,
+        "wr": 0.23076923076923078,
+        "top3_removed_cum": -102.85589305979391,
+        "positive_days": 2,
+        "total_days": 9,
+        "avg_hold_sec": 18.89676923076923,
+        "median_hold_sec": 22.334,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.13557562819645433,
+        "exit_counts": {
+          "TIME": 6,
+          "BE": 5,
+          "TP": 2
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 187,
+        "no_fill": 0,
+        "closed": 13
+      },
+      "summary": {
+        "n": 13,
+        "median": -8.171206980679136,
+        "mean": -5.715516818448211,
+        "cum": -74.30171863982673,
+        "wr": 0.3076923076923077,
+        "top3_removed_cum": -110.2685013293089,
+        "positive_days": 3,
+        "total_days": 9,
+        "avg_hold_sec": 28.66823076923077,
+        "median_hold_sec": 22.334,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.22010593554382255,
+        "exit_counts": {
+          "TIME": 4,
+          "TP": 3,
+          "SL": 1,
+          "BE": 5
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 187,
+        "no_fill": 0,
+        "closed": 13
+      },
+      "summary": {
+        "n": 13,
+        "median": -8.066003333168265,
+        "mean": -5.9231154312462735,
+        "cum": -77.00050060620156,
+        "wr": 0.23076923076923078,
+        "top3_removed_cum": -103.3852732111154,
+        "positive_days": 2,
+        "total_days": 9,
+        "avg_hold_sec": 22.71576923076923,
+        "median_hold_sec": 29.997,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.05788991596580239,
+        "exit_counts": {
+          "TIME": 9,
+          "BE": 2,
+          "TP": 2
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book3s_down3_imbNeg",
+        "wait_sec": 3,
+        "move_bps": 3.0,
+        "imbalance_max": -0.2,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 187,
+        "no_fill": 0,
+        "closed": 13
+      },
+      "summary": {
+        "n": 13,
+        "median": -7.632770349878383,
+        "mean": -5.343569027838889,
+        "cum": -69.46639736190556,
+        "wr": 0.3076923076923077,
+        "top3_removed_cum": -105.43318005138772,
+        "positive_days": 3,
+        "total_days": 9,
+        "avg_hold_sec": 37.51430769230769,
+        "median_hold_sec": 35.942,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.14242022331327767,
+        "exit_counts": {
+          "TIME": 6,
+          "TP": 3,
+          "SL": 1,
+          "BE": 3
+        }
+      },
+      "verdict": "thin"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 175,
+        "no_fill": 0,
+        "closed": 25
+      },
+      "summary": {
+        "n": 25,
+        "median": -1.0788621888093441,
+        "mean": -5.775839259583412,
+        "cum": -144.3959814895853,
+        "wr": 0.4,
+        "top3_removed_cum": -151.14480497492983,
+        "positive_days": 4,
+        "total_days": 15,
+        "avg_hold_sec": 13.77304,
+        "median_hold_sec": 12.674,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.7500085907922267,
+        "exit_counts": {
+          "TP": 13,
+          "SL": 6,
+          "TIME": 3,
+          "BE": 3
+        }
+      },
+      "verdict": "reject_negative_median"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 175,
+        "no_fill": 0,
+        "closed": 25
+      },
+      "summary": {
+        "n": 25,
+        "median": -1.0042931201186267,
+        "mean": -5.909652781742451,
+        "cum": -147.74131954356127,
+        "wr": 0.44,
+        "top3_removed_cum": -154.4901430289058,
+        "positive_days": 4,
+        "total_days": 15,
+        "avg_hold_sec": 16.6062,
+        "median_hold_sec": 12.674,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.7534229487364646,
+        "exit_counts": {
+          "TP": 14,
+          "SL": 6,
+          "TIME": 2,
+          "BE": 3
+        }
+      },
+      "verdict": "reject_negative_median"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 175,
+        "no_fill": 0,
+        "closed": 25
+      },
+      "summary": {
+        "n": 25,
+        "median": -1.0788621888093441,
+        "mean": -6.512537736508031,
+        "cum": -162.81344341270076,
+        "wr": 0.4,
+        "top3_removed_cum": -169.56226689804532,
+        "positive_days": 4,
+        "total_days": 15,
+        "avg_hold_sec": 14.68248,
+        "median_hold_sec": 12.846,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.7624503087054634,
+        "exit_counts": {
+          "TP": 13,
+          "SL": 8,
+          "TIME": 4
+        }
+      },
+      "verdict": "reject_negative_median"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 175,
+        "no_fill": 0,
+        "closed": 25
+      },
+      "summary": {
+        "n": 25,
+        "median": -1.0042931201186267,
+        "mean": -6.694848003900397,
+        "cum": -167.37120009750993,
+        "wr": 0.44,
+        "top3_removed_cum": -174.12002358285446,
+        "positive_days": 4,
+        "total_days": 15,
+        "avg_hold_sec": 18.71528,
+        "median_hold_sec": 12.846,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.7658646666497012,
+        "exit_counts": {
+          "TP": 14,
+          "SL": 8,
+          "TIME": 3
+        }
+      },
+      "verdict": "reject_negative_median"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 175,
+        "no_fill": 0,
+        "closed": 25
+      },
+      "summary": {
+        "n": 25,
+        "median": -0.4962966636560635,
+        "mean": -3.7506905681480767,
+        "cum": -93.76726420370191,
+        "wr": 0.48,
+        "top3_removed_cum": -100.51608768904646,
+        "positive_days": 6,
+        "total_days": 15,
+        "avg_hold_sec": 17.881520000000002,
+        "median_hold_sec": 14.454,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.6811594314759172,
+        "exit_counts": {
+          "TP": 14,
+          "TIME": 7,
+          "BE": 3,
+          "SL": 1
+        }
+      },
+      "verdict": "reject_negative_median"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 175,
+        "no_fill": 0,
+        "closed": 25
+      },
+      "summary": {
+        "n": 25,
+        "median": 0.9463648224344166,
+        "mean": -3.398051356883315,
+        "cum": -84.95128392208288,
+        "wr": 0.56,
+        "top3_removed_cum": -91.70010740742742,
+        "positive_days": 6,
+        "total_days": 15,
+        "avg_hold_sec": 23.72908,
+        "median_hold_sec": 14.454,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.6795894382060694,
+        "exit_counts": {
+          "TP": 17,
+          "TIME": 4,
+          "BE": 3,
+          "SL": 1
+        }
+      },
+      "verdict": "reject_outlier_dependent"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 175,
+        "no_fill": 0,
+        "closed": 25
+      },
+      "summary": {
+        "n": 25,
+        "median": -0.4962966636560635,
+        "mean": -4.25751905509437,
+        "cum": -106.43797637735925,
+        "wr": 0.48,
+        "top3_removed_cum": -113.1867998627038,
+        "positive_days": 6,
+        "total_days": 15,
+        "avg_hold_sec": 20.22852,
+        "median_hold_sec": 17.571,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.6787659202847042,
+        "exit_counts": {
+          "TP": 14,
+          "TIME": 10,
+          "SL": 1
+        }
+      },
+      "verdict": "reject_negative_median"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 10.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 175,
+        "no_fill": 0,
+        "closed": 25
+      },
+      "summary": {
+        "n": 25,
+        "median": 1.349699202645434,
+        "mean": -3.771449375897907,
+        "cum": -94.28623439744767,
+        "wr": 0.6,
+        "top3_removed_cum": -101.04880816906115,
+        "positive_days": 7,
+        "total_days": 15,
+        "avg_hold_sec": 27.50796,
+        "median_hold_sec": 17.571,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.6771959270149108,
+        "exit_counts": {
+          "TP": 18,
+          "TIME": 5,
+          "SL": 2
+        }
+      },
+      "verdict": "reject_outlier_dependent"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 175,
+        "no_fill": 0,
+        "closed": 25
+      },
+      "summary": {
+        "n": 25,
+        "median": -8.171175720435658,
+        "mean": -6.367900783362277,
+        "cum": -159.19751958405692,
+        "wr": 0.24,
+        "top3_removed_cum": -194.88932622646323,
+        "positive_days": 3,
+        "total_days": 15,
+        "avg_hold_sec": 18.12304,
+        "median_hold_sec": 17.817,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.35056991199553367,
+        "exit_counts": {
+          "TIME": 7,
+          "BE": 8,
+          "SL": 6,
+          "TP": 4
+        }
+      },
+      "verdict": "reject_negative_median"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 175,
+        "no_fill": 0,
+        "closed": 25
+      },
+      "summary": {
+        "n": 25,
+        "median": -8.341435794421198,
+        "mean": -6.800655640193932,
+        "cum": -170.0163910048483,
+        "wr": 0.24,
+        "top3_removed_cum": -206.46068098257112,
+        "positive_days": 4,
+        "total_days": 15,
+        "avg_hold_sec": 22.97964,
+        "median_hold_sec": 17.817,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.34625775952642956,
+        "exit_counts": {
+          "TP": 5,
+          "BE": 11,
+          "SL": 6,
+          "TIME": 3
+        }
+      },
+      "verdict": "reject_negative_median"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 175,
+        "no_fill": 0,
+        "closed": 25
+      },
+      "summary": {
+        "n": 25,
+        "median": -8.243138184547739,
+        "mean": -7.1045992602868955,
+        "cum": -177.6149815071724,
+        "wr": 0.24,
+        "top3_removed_cum": -213.30678814957872,
+        "positive_days": 3,
+        "total_days": 15,
+        "avg_hold_sec": 19.03248,
+        "median_hold_sec": 17.888,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.3630116299087703,
+        "exit_counts": {
+          "TIME": 8,
+          "BE": 5,
+          "SL": 8,
+          "TP": 4
+        }
+      },
+      "verdict": "reject_negative_median"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 10.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 175,
+        "no_fill": 0,
+        "closed": 25
+      },
+      "summary": {
+        "n": 25,
+        "median": -8.452221213696724,
+        "mean": -7.585850862351878,
+        "cum": -189.64627155879694,
+        "wr": 0.24,
+        "top3_removed_cum": -226.09056153651977,
+        "positive_days": 4,
+        "total_days": 15,
+        "avg_hold_sec": 25.08872,
+        "median_hold_sec": 17.888,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.3586994774396661,
+        "exit_counts": {
+          "TP": 5,
+          "BE": 8,
+          "SL": 8,
+          "TIME": 4
+        }
+      },
+      "verdict": "reject_negative_median"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 175,
+        "no_fill": 0,
+        "closed": 25
+      },
+      "summary": {
+        "n": 25,
+        "median": -8.127714192666225,
+        "mean": -4.752597518854683,
+        "cum": -118.81493797136707,
+        "wr": 0.28,
+        "top3_removed_cum": -154.5067446137734,
+        "positive_days": 4,
+        "total_days": 15,
+        "avg_hold_sec": 22.28428,
+        "median_hold_sec": 21.97,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.28563647331868736,
+        "exit_counts": {
+          "TIME": 11,
+          "BE": 9,
+          "TP": 4,
+          "SL": 1
+        }
+      },
+      "verdict": "reject_negative_median"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 6.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 175,
+        "no_fill": 0,
+        "closed": 25
+      },
+      "summary": {
+        "n": 25,
+        "median": -8.171175720435658,
+        "mean": -4.537924516822238,
+        "cum": -113.44811292055593,
+        "wr": 0.28,
+        "top3_removed_cum": -150.00617636492584,
+        "positive_days": 5,
+        "total_days": 15,
+        "avg_hold_sec": 30.8898,
+        "median_hold_sec": 21.97,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.2854779468612659,
+        "exit_counts": {
+          "TP": 6,
+          "BE": 12,
+          "TIME": 6,
+          "SL": 1
+        }
+      },
+      "verdict": "reject_negative_median"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 30,
+      "counts": {
+        "raw": 200,
+        "filtered": 175,
+        "no_fill": 0,
+        "closed": 25
+      },
+      "summary": {
+        "n": 25,
+        "median": -6.3834418255562095,
+        "mean": -5.259426005800977,
+        "cum": -131.4856501450244,
+        "wr": 0.28,
+        "top3_removed_cum": -167.17745678743074,
+        "positive_days": 4,
+        "total_days": 15,
+        "avg_hold_sec": 24.63128,
+        "median_hold_sec": 29.969,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.28324296212747435,
+        "exit_counts": {
+          "TIME": 14,
+          "BE": 6,
+          "TP": 4,
+          "SL": 1
+        }
+      },
+      "verdict": "reject_negative_median"
+    },
+    {
+      "bucket": "ETH_SELL_500K",
+      "symbol": "ETHUSDT",
+      "threshold": 500000.0,
+      "impulse": {
+        "name": "book5s_down3_imbAny",
+        "wait_sec": 5,
+        "move_bps": 3.0,
+        "imbalance_max": null,
+        "max_spread_bps": 1.0
+      },
+      "tp_bps": 20.0,
+      "sl_bps": 20.0,
+      "be_bps": 10.0,
+      "max_hold_sec": 60,
+      "counts": {
+        "raw": 200,
+        "filtered": 175,
+        "no_fill": 0,
+        "closed": 25
+      },
+      "summary": {
+        "n": 25,
+        "median": -8.129374195455085,
+        "mean": -5.3198619219436285,
+        "cum": -132.9965480485907,
+        "wr": 0.28,
+        "top3_removed_cum": -169.55461149296062,
+        "positive_days": 5,
+        "total_days": 15,
+        "avg_hold_sec": 34.77388,
+        "median_hold_sec": 32.99,
+        "mean_book_move_bps": null,
+        "mean_mark_to_fill_cost_bps": 0.28308443567010727,
+        "exit_counts": {
+          "TP": 6,
+          "BE": 10,
+          "TIME": 7,
+          "SL": 2
+        }
+      },
+      "verdict": "reject_negative_median"
+    }
+  ]
+}

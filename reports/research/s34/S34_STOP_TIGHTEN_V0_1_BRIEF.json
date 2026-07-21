@@ -1,0 +1,64 @@
+{
+  "generated_at_utc": "2026-06-28T21:14:07.330606+00:00",
+  "source_db": {
+    "path": "D:\\eclipse_scalper\\data\\microstructure.db",
+    "exists": true,
+    "size_bytes": 650646540288,
+    "mtime_ns": 1782681244548865600
+  },
+  "protocol_id": "S34_STOP_TIGHTEN_V0_1_ETH_SELL_MAKER_LONG_5M_BTC_DOWN_TRIGSL80",
+  "parent_rule": "S34_V_ENGINE_V0_1_ETH_SELL_MAKER_LONG_H2_O20_W300_O5",
+  "config": {
+    "delay_min": 5,
+    "condition": "no_reclaim_btc_down",
+    "stop_reference": "trigger",
+    "stop_bps": 80.0
+  },
+  "counts": {
+    "rows": 22,
+    "closed": 22,
+    "triggered": 6
+  },
+  "baseline": {
+    "n": 22,
+    "sum_bps": 1120.9,
+    "mean_bps": 51.0,
+    "median_bps": 39.4,
+    "p10_bps": -33.6,
+    "p90_bps": 152.1,
+    "win_rate": 0.818,
+    "profit_factor": 5.622,
+    "max_win_bps": 299.7,
+    "max_loss_bps": -144.4,
+    "top3_winner_removed_sum_bps": 441.9,
+    "bottom3_loser_removed_sum_bps": 1335.4
+  },
+  "managed": {
+    "n": 22,
+    "sum_bps": 1162.4,
+    "mean_bps": 52.8,
+    "median_bps": 39.4,
+    "p10_bps": -33.6,
+    "p90_bps": 152.1,
+    "win_rate": 0.818,
+    "profit_factor": 6.783,
+    "max_win_bps": 299.7,
+    "max_loss_bps": -102.9,
+    "top3_winner_removed_sum_bps": 483.4,
+    "bottom3_loser_removed_sum_bps": 1335.4
+  },
+  "delta": {
+    "n": 22,
+    "sum_bps": 41.5,
+    "mean_bps": 1.9,
+    "median_bps": 0.0,
+    "p10_bps": 0.0,
+    "p90_bps": 0.0,
+    "win_rate": 0.045,
+    "profit_factor": null,
+    "max_win_bps": 41.5,
+    "max_loss_bps": -0.0,
+    "top3_winner_removed_sum_bps": 0.0,
+    "bottom3_loser_removed_sum_bps": 41.5
+  }
+}

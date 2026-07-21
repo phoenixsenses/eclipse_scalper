@@ -1,0 +1,191 @@
+{
+  "generated_at_utc": "2026-06-24T12:09:26.133378+00:00",
+  "guardrail_name": "guardrail_v4_50k_warning_lt200k",
+  "definition": "rule=50K/TP120 AND model_guardrail=warning AND cluster_notional < 200K",
+  "baseline": {
+    "n": 74,
+    "cum_net_bps": 1167.85,
+    "mean_net_bps": 15.78,
+    "median_net_bps": 20.75,
+    "win_rate_pct": 51.35
+  },
+  "would_block_signals": 175,
+  "would_block_closed": {
+    "n": 15,
+    "cum_net_bps": -397.96,
+    "mean_net_bps": -26.53,
+    "median_net_bps": -46.3,
+    "win_rate_pct": 13.33
+  },
+  "kept_after_shadow_block": {
+    "n": 59,
+    "cum_net_bps": 1565.82,
+    "mean_net_bps": 26.54,
+    "median_net_bps": 49.35,
+    "win_rate_pct": 61.02,
+    "blocked_closed_n": 15,
+    "delta_cum_vs_baseline_bps": 397.97
+  },
+  "blocked_by_rule": {
+    "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30": {
+      "n": 15,
+      "cum_net_bps": -397.96,
+      "mean_net_bps": -26.53,
+      "median_net_bps": -46.3,
+      "win_rate_pct": 13.33
+    }
+  },
+  "blocked_examples": [
+    {
+      "trade_id": "P150",
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "signal_ts_utc": "2026-06-15T13:32:04.231000+00:00",
+      "exit_reason": "SL",
+      "net_bps": -55.59,
+      "cluster_notional": 76855.88327,
+      "cluster_liq_count": 3,
+      "definition": "rule=50K/TP120 AND model_guardrail=warning AND cluster_notional < 200K"
+    },
+    {
+      "trade_id": "P056",
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "signal_ts_utc": "2026-06-11T13:45:22.120000+00:00",
+      "exit_reason": "SL",
+      "net_bps": -53.45,
+      "cluster_notional": 146467.59219,
+      "cluster_liq_count": 5,
+      "definition": "rule=50K/TP120 AND model_guardrail=warning AND cluster_notional < 200K"
+    },
+    {
+      "trade_id": "P418",
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "signal_ts_utc": "2026-06-22T16:10:22.356000+00:00",
+      "exit_reason": "SL",
+      "net_bps": -53.37,
+      "cluster_notional": 90925.93219,
+      "cluster_liq_count": 5,
+      "definition": "rule=50K/TP120 AND model_guardrail=warning AND cluster_notional < 200K"
+    },
+    {
+      "trade_id": "P169",
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "signal_ts_utc": "2026-06-15T22:35:35.460000+00:00",
+      "exit_reason": "SL",
+      "net_bps": -51.87,
+      "cluster_notional": 101877.84641999999,
+      "cluster_liq_count": 2,
+      "definition": "rule=50K/TP120 AND model_guardrail=warning AND cluster_notional < 200K"
+    },
+    {
+      "trade_id": "P419",
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "signal_ts_utc": "2026-06-22T23:36:41.186000+00:00",
+      "exit_reason": "SL",
+      "net_bps": -49.36,
+      "cluster_notional": 151053.74545,
+      "cluster_liq_count": 5,
+      "definition": "rule=50K/TP120 AND model_guardrail=warning AND cluster_notional < 200K"
+    },
+    {
+      "trade_id": "P416",
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "signal_ts_utc": "2026-06-22T13:44:10.354000+00:00",
+      "exit_reason": "SL",
+      "net_bps": -48.03,
+      "cluster_notional": 154940.24541,
+      "cluster_liq_count": 2,
+      "definition": "rule=50K/TP120 AND model_guardrail=warning AND cluster_notional < 200K"
+    },
+    {
+      "trade_id": "P063",
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "signal_ts_utc": "2026-06-11T18:00:24.402000+00:00",
+      "exit_reason": "SL",
+      "net_bps": -47.76,
+      "cluster_notional": 153126.29447,
+      "cluster_liq_count": 17,
+      "definition": "rule=50K/TP120 AND model_guardrail=warning AND cluster_notional < 200K"
+    },
+    {
+      "trade_id": "P149",
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "signal_ts_utc": "2026-06-15T13:25:20.594000+00:00",
+      "exit_reason": "SL",
+      "net_bps": -46.3,
+      "cluster_notional": 185562.30116,
+      "cluster_liq_count": 14,
+      "definition": "rule=50K/TP120 AND model_guardrail=warning AND cluster_notional < 200K"
+    },
+    {
+      "trade_id": "P116",
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "signal_ts_utc": "2026-06-14T22:44:24.574000+00:00",
+      "exit_reason": "SL",
+      "net_bps": -45.82,
+      "cluster_notional": 58150.63109000001,
+      "cluster_liq_count": 2,
+      "definition": "rule=50K/TP120 AND model_guardrail=warning AND cluster_notional < 200K"
+    },
+    {
+      "trade_id": "P361",
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "signal_ts_utc": "2026-06-20T23:18:48.431000+00:00",
+      "exit_reason": "TIME",
+      "net_bps": -43.52,
+      "cluster_notional": 57157.49274000001,
+      "cluster_liq_count": 1,
+      "definition": "rule=50K/TP120 AND model_guardrail=warning AND cluster_notional < 200K"
+    },
+    {
+      "trade_id": "P394",
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "signal_ts_utc": "2026-06-22T11:05:18.417000+00:00",
+      "exit_reason": "BE",
+      "net_bps": -11.77,
+      "cluster_notional": 177012.83802,
+      "cluster_liq_count": 11,
+      "definition": "rule=50K/TP120 AND model_guardrail=warning AND cluster_notional < 200K"
+    },
+    {
+      "trade_id": "P058",
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "signal_ts_utc": "2026-06-11T15:07:45.145000+00:00",
+      "exit_reason": "BE",
+      "net_bps": -9.83,
+      "cluster_notional": 135373.59625,
+      "cluster_liq_count": 5,
+      "definition": "rule=50K/TP120 AND model_guardrail=warning AND cluster_notional < 200K"
+    },
+    {
+      "trade_id": "P391",
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "signal_ts_utc": "2026-06-22T07:11:07.643000+00:00",
+      "exit_reason": "BE",
+      "net_bps": -7.71,
+      "cluster_notional": 55976.46575999999,
+      "cluster_liq_count": 7,
+      "definition": "rule=50K/TP120 AND model_guardrail=warning AND cluster_notional < 200K"
+    },
+    {
+      "trade_id": "P353",
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "signal_ts_utc": "2026-06-20T22:12:43.788000+00:00",
+      "exit_reason": "TIME",
+      "net_bps": 10.4,
+      "cluster_notional": 92406.31391,
+      "cluster_liq_count": 5,
+      "definition": "rule=50K/TP120 AND model_guardrail=warning AND cluster_notional < 200K"
+    },
+    {
+      "trade_id": "P111",
+      "rule_name": "ETH_BUY_LIQ_LONG_50K_TP120_SL40_BE30",
+      "signal_ts_utc": "2026-06-14T21:35:16.845000+00:00",
+      "exit_reason": "TP",
+      "net_bps": 116.02,
+      "cluster_notional": 55220.24833,
+      "cluster_liq_count": 4,
+      "definition": "rule=50K/TP120 AND model_guardrail=warning AND cluster_notional < 200K"
+    }
+  ],
+  "verdict": "Strong in-sample shadow reject candidate for 50K weak clusters. Still shadow-only; promotion requires forward confirmation."
+}

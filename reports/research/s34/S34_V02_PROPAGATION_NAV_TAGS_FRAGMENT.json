@@ -1,0 +1,3744 @@
+{
+  "count": 1142,
+  "generated_at_utc": "2026-06-30T08:26:09.938340+00:00",
+  "latest": [
+    {
+      "anchor_ts_ms": 1782331294155,
+      "anchor_utc": "2026-06-24T20:01:34.155000+00:00",
+      "event_id": "ETHUSDT:BUY:5941104:200000",
+      "fade_h4_bps": -211.1,
+      "momentum_h1_bps": 139.4,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782335522319,
+      "anchor_utc": "2026-06-24T21:12:02.319000+00:00",
+      "event_id": "ETHUSDT:SELL:5941118:200000",
+      "fade_h4_bps": 58.6,
+      "momentum_h1_bps": -115.1,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782338411757,
+      "anchor_utc": "2026-06-24T22:00:11.757000+00:00",
+      "event_id": "ETHUSDT:BUY:5941128:200000",
+      "fade_h4_bps": 10.2,
+      "momentum_h1_bps": -59.3,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "BUY_SILENCE_RECLAIM",
+        "BUY_SHORT_FADE_NAV_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782363191412,
+      "anchor_utc": "2026-06-25T04:53:11.412000+00:00",
+      "event_id": "ETHUSDT:BUY:5941210:200000",
+      "fade_h4_bps": -154.8,
+      "momentum_h1_bps": 93.6,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782365066109,
+      "anchor_utc": "2026-06-25T05:24:26.109000+00:00",
+      "event_id": "ETHUSDT:BUY:5941216:200000",
+      "fade_h4_bps": 10.4,
+      "momentum_h1_bps": -34.4,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782369718219,
+      "anchor_utc": "2026-06-25T06:41:58.219000+00:00",
+      "event_id": "ETHUSDT:BUY:5941232:200000",
+      "fade_h4_bps": 79.0,
+      "momentum_h1_bps": 15.6,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "BUY_SILENCE_RECLAIM",
+        "BUY_SHORT_FADE_NAV_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782379329489,
+      "anchor_utc": "2026-06-25T09:22:09.489000+00:00",
+      "event_id": "ETHUSDT:SELL:5941264:200000",
+      "fade_h4_bps": -95.2,
+      "momentum_h1_bps": 17.5,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782384295048,
+      "anchor_utc": "2026-06-25T10:44:55.048000+00:00",
+      "event_id": "ETHUSDT:SELL:5941280:200000",
+      "fade_h4_bps": -438.0,
+      "momentum_h1_bps": 23.8,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_HIGH",
+        "MOMENTUM_MODE",
+        "SELL_PROPAGATION",
+        "SELL_FADE_DANGER",
+        "SELL_SHORT_MOMENTUM_WATCH"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782385441132,
+      "anchor_utc": "2026-06-25T11:04:01.132000+00:00",
+      "event_id": "ETHUSDT:SELL:5941284:200000",
+      "fade_h4_bps": -455.3,
+      "momentum_h1_bps": 5.1,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782390626498,
+      "anchor_utc": "2026-06-25T12:30:26.498000+00:00",
+      "event_id": "ETHUSDT:BUY:5941302:200000",
+      "fade_h4_bps": 419.1,
+      "momentum_h1_bps": -50.4,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782392426281,
+      "anchor_utc": "2026-06-25T13:00:26.281000+00:00",
+      "event_id": "ETHUSDT:SELL:5941308:200000",
+      "fade_h4_bps": -469.4,
+      "momentum_h1_bps": 516.1,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782394305283,
+      "anchor_utc": "2026-06-25T13:31:45.283000+00:00",
+      "event_id": "ETHUSDT:SELL:5941314:200000",
+      "fade_h4_bps": -342.2,
+      "momentum_h1_bps": 380.6,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_HIGH",
+        "MOMENTUM_MODE",
+        "SELL_PROPAGATION",
+        "SELL_FADE_DANGER",
+        "SELL_SHORT_MOMENTUM_WATCH"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782395476217,
+      "anchor_utc": "2026-06-25T13:51:16.217000+00:00",
+      "event_id": "ETHUSDT:SELL:5941318:200000",
+      "fade_h4_bps": -7.2,
+      "momentum_h1_bps": -20.0,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_HIGH",
+        "MOMENTUM_MODE",
+        "SELL_PROPAGATION",
+        "SELL_FADE_DANGER",
+        "SELL_SHORT_MOMENTUM_WATCH"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782396010467,
+      "anchor_utc": "2026-06-25T14:00:10.467000+00:00",
+      "event_id": "ETHUSDT:BUY:5941320:200000",
+      "fade_h4_bps": -177.8,
+      "momentum_h1_bps": 113.8,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_HIGH",
+        "MOMENTUM_MODE",
+        "BUY_PROPAGATION",
+        "BUY_SHORT_FADE_DANGER",
+        "BUY_LONG_MOMENTUM_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782396979081,
+      "anchor_utc": "2026-06-25T14:16:19.081000+00:00",
+      "event_id": "ETHUSDT:SELL:5941323:200000",
+      "fade_h4_bps": 58.8,
+      "momentum_h1_bps": 56.7,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_HIGH",
+        "MOMENTUM_MODE",
+        "SELL_PROPAGATION",
+        "SELL_FADE_DANGER",
+        "SELL_SHORT_MOMENTUM_WATCH"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782397222079,
+      "anchor_utc": "2026-06-25T14:20:22.079000+00:00",
+      "event_id": "ETHUSDT:BUY:5941324:200000",
+      "fade_h4_bps": -61.0,
+      "momentum_h1_bps": -58.8,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782398263517,
+      "anchor_utc": "2026-06-25T14:37:43.517000+00:00",
+      "event_id": "ETHUSDT:SELL:5941327:200000",
+      "fade_h4_bps": -51.3,
+      "momentum_h1_bps": 26.2,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_HIGH",
+        "MOMENTUM_MODE",
+        "SELL_PROPAGATION",
+        "SELL_FADE_DANGER",
+        "SELL_SHORT_MOMENTUM_WATCH"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782399803104,
+      "anchor_utc": "2026-06-25T15:03:23.104000+00:00",
+      "event_id": "ETHUSDT:SELL:5941332:200000",
+      "fade_h4_bps": 15.5,
+      "momentum_h1_bps": -72.0,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782400716362,
+      "anchor_utc": "2026-06-25T15:18:36.362000+00:00",
+      "event_id": "ETHUSDT:BUY:5941335:200000",
+      "fade_h4_bps": -14.6,
+      "momentum_h1_bps": 121.0,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782402999109,
+      "anchor_utc": "2026-06-25T15:56:39.109000+00:00",
+      "event_id": "ETHUSDT:BUY:5941343:200000",
+      "fade_h4_bps": 67.2,
+      "momentum_h1_bps": -89.8,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782405123169,
+      "anchor_utc": "2026-06-25T16:32:03.169000+00:00",
+      "event_id": "ETHUSDT:SELL:5941350:200000",
+      "fade_h4_bps": -35.9,
+      "momentum_h1_bps": -34.8,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782407418243,
+      "anchor_utc": "2026-06-25T17:10:18.243000+00:00",
+      "event_id": "ETHUSDT:BUY:5941358:200000",
+      "fade_h4_bps": -9.7,
+      "momentum_h1_bps": 48.6,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_LOW"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_LOW"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_LOW"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_LOW"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_LOW"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782409551114,
+      "anchor_utc": "2026-06-25T17:45:51.114000+00:00",
+      "event_id": "ETHUSDT:SELL:5941365:200000",
+      "fade_h4_bps": 46.9,
+      "momentum_h1_bps": 18.2,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_HIGH",
+        "MOMENTUM_MODE",
+        "SELL_PROPAGATION",
+        "SELL_FADE_DANGER",
+        "SELL_SHORT_MOMENTUM_WATCH"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782410570197,
+      "anchor_utc": "2026-06-25T18:02:50.197000+00:00",
+      "event_id": "ETHUSDT:SELL:5941368:200000",
+      "fade_h4_bps": 61.0,
+      "momentum_h1_bps": 33.3,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782414824302,
+      "anchor_utc": "2026-06-25T19:13:44.302000+00:00",
+      "event_id": "ETHUSDT:SELL:5941382:200000",
+      "fade_h4_bps": 73.7,
+      "momentum_h1_bps": -65.1,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782423154200,
+      "anchor_utc": "2026-06-25T21:32:34.200000+00:00",
+      "event_id": "ETHUSDT:BUY:5941410:200000",
+      "fade_h4_bps": 88.9,
+      "momentum_h1_bps": -14.8,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_HIGH",
+        "MOMENTUM_MODE",
+        "BUY_PROPAGATION",
+        "BUY_SHORT_FADE_DANGER",
+        "BUY_LONG_MOMENTUM_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782424487503,
+      "anchor_utc": "2026-06-25T21:54:47.503000+00:00",
+      "event_id": "ETHUSDT:BUY:5941414:200000",
+      "fade_h4_bps": 122.6,
+      "momentum_h1_bps": -63.1,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "BUY_SILENCE_RECLAIM",
+        "BUY_SHORT_FADE_NAV_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782425428210,
+      "anchor_utc": "2026-06-25T22:10:28.210000+00:00",
+      "event_id": "ETHUSDT:SELL:5941418:200000",
+      "fade_h4_bps": -114.9,
+      "momentum_h1_bps": 21.3,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782435961792,
+      "anchor_utc": "2026-06-26T01:06:01.792000+00:00",
+      "event_id": "ETHUSDT:SELL:5941453:200000",
+      "fade_h4_bps": -79.2,
+      "momentum_h1_bps": 1.7,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_HIGH",
+        "MOMENTUM_MODE",
+        "SELL_PROPAGATION",
+        "SELL_FADE_DANGER",
+        "SELL_SHORT_MOMENTUM_WATCH"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782437004070,
+      "anchor_utc": "2026-06-26T01:23:24.070000+00:00",
+      "event_id": "ETHUSDT:SELL:5941456:200000",
+      "fade_h4_bps": -70.2,
+      "momentum_h1_bps": 228.5,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782439900211,
+      "anchor_utc": "2026-06-26T02:11:40.211000+00:00",
+      "event_id": "ETHUSDT:SELL:5941466:200000",
+      "fade_h4_bps": -55.3,
+      "momentum_h1_bps": 124.0,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782440275208,
+      "anchor_utc": "2026-06-26T02:17:55.208000+00:00",
+      "event_id": "ETHUSDT:BUY:5941467:200000",
+      "fade_h4_bps": -77.4,
+      "momentum_h1_bps": -37.8,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782442110475,
+      "anchor_utc": "2026-06-26T02:48:30.475000+00:00",
+      "event_id": "ETHUSDT:SELL:5941473:200000",
+      "fade_h4_bps": 268.2,
+      "momentum_h1_bps": -142.6,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782443013098,
+      "anchor_utc": "2026-06-26T03:03:33.098000+00:00",
+      "event_id": "ETHUSDT:BUY:5941476:200000",
+      "fade_h4_bps": -353.5,
+      "momentum_h1_bps": 216.8,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "BUY_SILENCE_RECLAIM",
+        "BUY_SHORT_FADE_NAV_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782444185117,
+      "anchor_utc": "2026-06-26T03:23:05.117000+00:00",
+      "event_id": "ETHUSDT:SELL:5941480:200000",
+      "fade_h4_bps": 326.9,
+      "momentum_h1_bps": -184.3,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782445153111,
+      "anchor_utc": "2026-06-26T03:39:13.111000+00:00",
+      "event_id": "ETHUSDT:BUY:5941483:200000",
+      "fade_h4_bps": -300.2,
+      "momentum_h1_bps": 64.5,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_HIGH",
+        "MOMENTUM_MODE",
+        "BUY_PROPAGATION",
+        "BUY_SHORT_FADE_DANGER",
+        "BUY_LONG_MOMENTUM_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782446173321,
+      "anchor_utc": "2026-06-26T03:56:13.321000+00:00",
+      "event_id": "ETHUSDT:BUY:5941487:200000",
+      "fade_h4_bps": -156.8,
+      "momentum_h1_bps": -73.5,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782452740508,
+      "anchor_utc": "2026-06-26T05:45:40.508000+00:00",
+      "event_id": "ETHUSDT:SELL:5941509:200000",
+      "fade_h4_bps": 55.4,
+      "momentum_h1_bps": -120.1,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782454940187,
+      "anchor_utc": "2026-06-26T06:22:20.187000+00:00",
+      "event_id": "ETHUSDT:BUY:5941516:200000",
+      "fade_h4_bps": 14.2,
+      "momentum_h1_bps": 121.5,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_HIGH",
+        "MOMENTUM_MODE",
+        "BUY_PROPAGATION",
+        "BUY_SHORT_FADE_DANGER",
+        "BUY_LONG_MOMENTUM_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_LOW"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_LOW"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782455953177,
+      "anchor_utc": "2026-06-26T06:39:13.177000+00:00",
+      "event_id": "ETHUSDT:BUY:5941519:200000",
+      "fade_h4_bps": 96.3,
+      "momentum_h1_bps": 101.6,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_HIGH",
+        "MOMENTUM_MODE",
+        "BUY_PROPAGATION",
+        "BUY_SHORT_FADE_DANGER",
+        "BUY_LONG_MOMENTUM_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782457607155,
+      "anchor_utc": "2026-06-26T07:06:47.155000+00:00",
+      "event_id": "ETHUSDT:BUY:5941525:200000",
+      "fade_h4_bps": 117.1,
+      "momentum_h1_bps": -6.2,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_HIGH",
+        "MOMENTUM_MODE",
+        "BUY_PROPAGATION",
+        "BUY_SHORT_FADE_DANGER",
+        "BUY_LONG_MOMENTUM_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782459144085,
+      "anchor_utc": "2026-06-26T07:32:24.085000+00:00",
+      "event_id": "ETHUSDT:BUY:5941530:200000",
+      "fade_h4_bps": 224.9,
+      "momentum_h1_bps": -83.3,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "BUY_SILENCE_RECLAIM",
+        "BUY_SHORT_FADE_NAV_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782467295082,
+      "anchor_utc": "2026-06-26T09:48:15.082000+00:00",
+      "event_id": "ETHUSDT:SELL:5941557:200000",
+      "fade_h4_bps": -75.0,
+      "momentum_h1_bps": 66.5,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782470373530,
+      "anchor_utc": "2026-06-26T10:39:33.530000+00:00",
+      "event_id": "ETHUSDT:SELL:5941567:200000",
+      "fade_h4_bps": 71.0,
+      "momentum_h1_bps": -19.5,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782474819124,
+      "anchor_utc": "2026-06-26T11:53:39.124000+00:00",
+      "event_id": "ETHUSDT:SELL:5941582:200000",
+      "fade_h4_bps": 227.4,
+      "momentum_h1_bps": 8.0,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782477190207,
+      "anchor_utc": "2026-06-26T12:33:10.207000+00:00",
+      "event_id": "ETHUSDT:BUY:5941590:200000",
+      "fade_h4_bps": -183.1,
+      "momentum_h1_bps": -115.3,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "BUY_SILENCE_RECLAIM",
+        "BUY_SHORT_FADE_NAV_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782477597361,
+      "anchor_utc": "2026-06-26T12:39:57.361000+00:00",
+      "event_id": "ETHUSDT:SELL:5941591:200000",
+      "fade_h4_bps": 294.6,
+      "momentum_h1_bps": -29.0,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782479934877,
+      "anchor_utc": "2026-06-26T13:18:54.877000+00:00",
+      "event_id": "ETHUSDT:SELL:5941599:200000",
+      "fade_h4_bps": 367.0,
+      "momentum_h1_bps": -250.1,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782480939424,
+      "anchor_utc": "2026-06-26T13:35:39.424000+00:00",
+      "event_id": "ETHUSDT:BUY:5941603:200000",
+      "fade_h4_bps": -259.7,
+      "momentum_h1_bps": 129.3,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_HIGH",
+        "MOMENTUM_MODE",
+        "BUY_PROPAGATION",
+        "BUY_SHORT_FADE_DANGER",
+        "BUY_LONG_MOMENTUM_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782482017603,
+      "anchor_utc": "2026-06-26T13:53:37.603000+00:00",
+      "event_id": "ETHUSDT:BUY:5941606:200000",
+      "fade_h4_bps": -192.3,
+      "momentum_h1_bps": 54.2,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782484098156,
+      "anchor_utc": "2026-06-26T14:28:18.156000+00:00",
+      "event_id": "ETHUSDT:BUY:5941613:200000",
+      "fade_h4_bps": -29.9,
+      "momentum_h1_bps": 26.6,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "BUY_SILENCE_RECLAIM",
+        "BUY_SHORT_FADE_NAV_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782484584881,
+      "anchor_utc": "2026-06-26T14:36:24.881000+00:00",
+      "event_id": "ETHUSDT:SELL:5941615:200000",
+      "fade_h4_bps": 84.3,
+      "momentum_h1_bps": -162.2,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782486452533,
+      "anchor_utc": "2026-06-26T15:07:32.533000+00:00",
+      "event_id": "ETHUSDT:BUY:5941621:200000",
+      "fade_h4_bps": -65.2,
+      "momentum_h1_bps": 107.1,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_HIGH",
+        "MOMENTUM_MODE",
+        "BUY_PROPAGATION",
+        "BUY_SHORT_FADE_DANGER",
+        "BUY_LONG_MOMENTUM_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782487483432,
+      "anchor_utc": "2026-06-26T15:24:43.432000+00:00",
+      "event_id": "ETHUSDT:BUY:5941624:200000",
+      "fade_h4_bps": -9.1,
+      "momentum_h1_bps": -26.0,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782489084338,
+      "anchor_utc": "2026-06-26T15:51:24.338000+00:00",
+      "event_id": "ETHUSDT:SELL:5941630:200000",
+      "fade_h4_bps": 23.4,
+      "momentum_h1_bps": -43.3,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782489657107,
+      "anchor_utc": "2026-06-26T16:00:57.107000+00:00",
+      "event_id": "ETHUSDT:BUY:5941632:200000",
+      "fade_h4_bps": 66.2,
+      "momentum_h1_bps": -97.2,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "BUY_SILENCE_RECLAIM",
+        "BUY_SHORT_FADE_NAV_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782506638651,
+      "anchor_utc": "2026-06-26T20:43:58.651000+00:00",
+      "event_id": "ETHUSDT:SELL:5941688:200000",
+      "fade_h4_bps": 16.5,
+      "momentum_h1_bps": -66.4,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782520453408,
+      "anchor_utc": "2026-06-27T00:34:13.408000+00:00",
+      "event_id": "ETHUSDT:SELL:5941734:200000",
+      "fade_h4_bps": 65.9,
+      "momentum_h1_bps": -30.3,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782551716375,
+      "anchor_utc": "2026-06-27T09:15:16.375000+00:00",
+      "event_id": "ETHUSDT:SELL:5941839:200000",
+      "fade_h4_bps": 35.9,
+      "momentum_h1_bps": -35.0,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782567584350,
+      "anchor_utc": "2026-06-27T13:39:44.350000+00:00",
+      "event_id": "ETHUSDT:BUY:5941891:200000",
+      "fade_h4_bps": -32.3,
+      "momentum_h1_bps": 9.9,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "BUY_SILENCE_RECLAIM",
+        "BUY_SHORT_FADE_NAV_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782569590150,
+      "anchor_utc": "2026-06-27T14:13:10.150000+00:00",
+      "event_id": "ETHUSDT:BUY:5941898:200000",
+      "fade_h4_bps": 0.7,
+      "momentum_h1_bps": 73.4,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "BUY_SILENCE_RECLAIM",
+        "BUY_SHORT_FADE_NAV_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782572949089,
+      "anchor_utc": "2026-06-27T15:09:09.089000+00:00",
+      "event_id": "ETHUSDT:BUY:5941909:200000",
+      "fade_h4_bps": 22.1,
+      "momentum_h1_bps": 24.4,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_HIGH",
+        "MOMENTUM_MODE",
+        "BUY_PROPAGATION",
+        "BUY_SHORT_FADE_DANGER",
+        "BUY_LONG_MOMENTUM_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782574682523,
+      "anchor_utc": "2026-06-27T15:38:02.523000+00:00",
+      "event_id": "ETHUSDT:BUY:5941915:200000",
+      "fade_h4_bps": 210.8,
+      "momentum_h1_bps": -47.5,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "BUY_SILENCE_RECLAIM",
+        "BUY_SHORT_FADE_NAV_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782579737194,
+      "anchor_utc": "2026-06-27T17:02:17.194000+00:00",
+      "event_id": "ETHUSDT:SELL:5941932:200000",
+      "fade_h4_bps": -94.5,
+      "momentum_h1_bps": 30.2,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782588303495,
+      "anchor_utc": "2026-06-27T19:25:03.495000+00:00",
+      "event_id": "ETHUSDT:SELL:5941961:200000",
+      "fade_h4_bps": -59.3,
+      "momentum_h1_bps": -6.8,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782598555168,
+      "anchor_utc": "2026-06-27T22:15:55.168000+00:00",
+      "event_id": "ETHUSDT:SELL:5941995:200000",
+      "fade_h4_bps": 48.3,
+      "momentum_h1_bps": -37.6,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782598949335,
+      "anchor_utc": "2026-06-27T22:22:29.335000+00:00",
+      "event_id": "ETHUSDT:BUY:5941996:200000",
+      "fade_h4_bps": 2.8,
+      "momentum_h1_bps": -20.3,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "BUY_SILENCE_RECLAIM",
+        "BUY_SHORT_FADE_NAV_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782601578414,
+      "anchor_utc": "2026-06-27T23:06:18.414000+00:00",
+      "event_id": "ETHUSDT:BUY:5942005:200000",
+      "fade_h4_bps": 40.0,
+      "momentum_h1_bps": -49.8,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "BUY_SILENCE_RECLAIM",
+        "BUY_SHORT_FADE_NAV_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782624347125,
+      "anchor_utc": "2026-06-28T05:25:47.125000+00:00",
+      "event_id": "ETHUSDT:SELL:5942081:200000",
+      "fade_h4_bps": 87.7,
+      "momentum_h1_bps": -0.5,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782627293080,
+      "anchor_utc": "2026-06-28T06:14:53.080000+00:00",
+      "event_id": "ETHUSDT:SELL:5942090:200000",
+      "fade_h4_bps": 103.5,
+      "momentum_h1_bps": -65.6,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782635895374,
+      "anchor_utc": "2026-06-28T08:38:15.374000+00:00",
+      "event_id": "ETHUSDT:BUY:5942119:200000",
+      "fade_h4_bps": 3.9,
+      "momentum_h1_bps": -16.7,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782647667330,
+      "anchor_utc": "2026-06-28T11:54:27.330000+00:00",
+      "event_id": "ETHUSDT:BUY:5942158:200000",
+      "fade_h4_bps": 31.4,
+      "momentum_h1_bps": -11.4,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782649839078,
+      "anchor_utc": "2026-06-28T12:30:39.078000+00:00",
+      "event_id": "ETHUSDT:BUY:5942166:200000",
+      "fade_h4_bps": 73.3,
+      "momentum_h1_bps": -52.5,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "BUY_SILENCE_RECLAIM",
+        "BUY_SHORT_FADE_NAV_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782664454359,
+      "anchor_utc": "2026-06-28T16:34:14.359000+00:00",
+      "event_id": "ETHUSDT:SELL:5942214:200000",
+      "fade_h4_bps": 13.5,
+      "momentum_h1_bps": -3.3,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782668119166,
+      "anchor_utc": "2026-06-28T17:35:19.166000+00:00",
+      "event_id": "ETHUSDT:SELL:5942227:200000",
+      "fade_h4_bps": 30.8,
+      "momentum_h1_bps": -32.6,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782676024317,
+      "anchor_utc": "2026-06-28T19:47:04.317000+00:00",
+      "event_id": "ETHUSDT:SELL:5942253:200000",
+      "fade_h4_bps": 71.0,
+      "momentum_h1_bps": -66.1,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782683393158,
+      "anchor_utc": "2026-06-28T21:49:53.158000+00:00",
+      "event_id": "ETHUSDT:SELL:5942277:200000",
+      "fade_h4_bps": 48.4,
+      "momentum_h1_bps": -16.0,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_HIGH",
+        "MOMENTUM_MODE",
+        "SELL_PROPAGATION",
+        "SELL_FADE_DANGER",
+        "SELL_SHORT_MOMENTUM_WATCH"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782684193286,
+      "anchor_utc": "2026-06-28T22:03:13.286000+00:00",
+      "event_id": "ETHUSDT:BUY:5942280:200000",
+      "fade_h4_bps": 52.6,
+      "momentum_h1_bps": -128.3,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "BUY_SILENCE_RECLAIM",
+        "BUY_SHORT_FADE_NAV_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782685158381,
+      "anchor_utc": "2026-06-28T22:19:18.381000+00:00",
+      "event_id": "ETHUSDT:SELL:5942283:200000",
+      "fade_h4_bps": -28.2,
+      "momentum_h1_bps": -22.9,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782687136625,
+      "anchor_utc": "2026-06-28T22:52:16.625000+00:00",
+      "event_id": "ETHUSDT:SELL:5942290:200000",
+      "fade_h4_bps": 113.9,
+      "momentum_h1_bps": -107.8,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782693153117,
+      "anchor_utc": "2026-06-29T00:32:33.117000+00:00",
+      "event_id": "ETHUSDT:SELL:5942310:200000",
+      "fade_h4_bps": 170.7,
+      "momentum_h1_bps": -80.5,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782699234143,
+      "anchor_utc": "2026-06-29T02:13:54.143000+00:00",
+      "event_id": "ETHUSDT:SELL:5942330:200000",
+      "fade_h4_bps": 203.9,
+      "momentum_h1_bps": -214.7,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782702333706,
+      "anchor_utc": "2026-06-29T03:05:33.706000+00:00",
+      "event_id": "ETHUSDT:BUY:5942341:200000",
+      "fade_h4_bps": 30.3,
+      "momentum_h1_bps": -30.7,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "BUY_SILENCE_RECLAIM",
+        "BUY_SHORT_FADE_NAV_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782704240291,
+      "anchor_utc": "2026-06-29T03:37:20.291000+00:00",
+      "event_id": "ETHUSDT:SELL:5942347:200000",
+      "fade_h4_bps": 10.1,
+      "momentum_h1_bps": -5.2,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782709515091,
+      "anchor_utc": "2026-06-29T05:05:15.091000+00:00",
+      "event_id": "ETHUSDT:SELL:5942365:200000",
+      "fade_h4_bps": 45.5,
+      "momentum_h1_bps": -134.3,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782711860227,
+      "anchor_utc": "2026-06-29T05:44:20.227000+00:00",
+      "event_id": "ETHUSDT:BUY:5942372:200000",
+      "fade_h4_bps": 9.9,
+      "momentum_h1_bps": 14.8,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_LOW"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_LOW"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_LOW"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_LOW"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782713852817,
+      "anchor_utc": "2026-06-29T06:17:32.817000+00:00",
+      "event_id": "ETHUSDT:BUY:5942379:200000",
+      "fade_h4_bps": 24.7,
+      "momentum_h1_bps": -46.8,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782734713079,
+      "anchor_utc": "2026-06-29T12:05:13.079000+00:00",
+      "event_id": "ETHUSDT:BUY:5942449:200000",
+      "fade_h4_bps": 6.2,
+      "momentum_h1_bps": -22.0,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782736758434,
+      "anchor_utc": "2026-06-29T12:39:18.434000+00:00",
+      "event_id": "ETHUSDT:SELL:5942455:200000",
+      "fade_h4_bps": 27.0,
+      "momentum_h1_bps": -17.3,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782739834080,
+      "anchor_utc": "2026-06-29T13:30:34.080000+00:00",
+      "event_id": "ETHUSDT:SELL:5942466:200000",
+      "fade_h4_bps": 350.4,
+      "momentum_h1_bps": -13.5,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "SELL_PROPAGATION",
+          "SELL_FADE_DANGER",
+          "SELL_SHORT_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782742087077,
+      "anchor_utc": "2026-06-29T14:08:07.077000+00:00",
+      "event_id": "ETHUSDT:SELL:5942473:200000",
+      "fade_h4_bps": 405.7,
+      "momentum_h1_bps": -27.0,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782747518067,
+      "anchor_utc": "2026-06-29T15:38:38.067000+00:00",
+      "event_id": "ETHUSDT:BUY:5942491:200000",
+      "fade_h4_bps": -270.1,
+      "momentum_h1_bps": -28.9,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "BUY_SILENCE_RECLAIM",
+        "BUY_SHORT_FADE_NAV_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782752708286,
+      "anchor_utc": "2026-06-29T17:05:08.286000+00:00",
+      "event_id": "ETHUSDT:BUY:5942509:200000",
+      "fade_h4_bps": -149.4,
+      "momentum_h1_bps": 214.2,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_HIGH",
+        "MOMENTUM_MODE",
+        "BUY_PROPAGATION",
+        "BUY_SHORT_FADE_DANGER",
+        "BUY_LONG_MOMENTUM_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_LOW"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_HIGH",
+          "MOMENTUM_MODE",
+          "BUY_PROPAGATION",
+          "BUY_SHORT_FADE_DANGER",
+          "BUY_LONG_MOMENTUM_WATCH"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_LOW"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782754263656,
+      "anchor_utc": "2026-06-29T17:31:03.656000+00:00",
+      "event_id": "ETHUSDT:BUY:5942514:200000",
+      "fade_h4_bps": 81.8,
+      "momentum_h1_bps": -83.1,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "BUY_SILENCE_RECLAIM",
+        "BUY_SHORT_FADE_NAV_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782767078145,
+      "anchor_utc": "2026-06-29T21:04:38.145000+00:00",
+      "event_id": "ETHUSDT:SELL:5942556:200000",
+      "fade_h4_bps": -111.0,
+      "momentum_h1_bps": -57.3,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782775457820,
+      "anchor_utc": "2026-06-29T23:24:17.820000+00:00",
+      "event_id": "ETHUSDT:SELL:5942584:200000",
+      "fade_h4_bps": -108.2,
+      "momentum_h1_bps": -6.1,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "SELL_SILENCE_RECLAIM",
+        "SELL_LONG_FADE_NAV_OK"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "SELL_SILENCE_RECLAIM",
+          "SELL_LONG_FADE_NAV_OK"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782779292532,
+      "anchor_utc": "2026-06-30T00:28:12.532000+00:00",
+      "event_id": "ETHUSDT:SELL:5942597:200000",
+      "fade_h4_bps": -124.8,
+      "momentum_h1_bps": 38.6,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782786352629,
+      "anchor_utc": "2026-06-30T02:25:52.629000+00:00",
+      "event_id": "ETHUSDT:BUY:5942621:200000",
+      "fade_h4_bps": 6.5,
+      "momentum_h1_bps": -7.7,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "BUY_SILENCE_RECLAIM",
+        "BUY_SHORT_FADE_NAV_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782792042513,
+      "anchor_utc": "2026-06-30T04:00:42.513000+00:00",
+      "event_id": "ETHUSDT:SELL:5942640:200000",
+      "fade_h4_bps": 33.5,
+      "momentum_h1_bps": -22.1,
+      "month": "2026-06",
+      "primary_tags": [
+        "PROPAGATION_PRESSURE_MID"
+      ],
+      "side": "SELL",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "300": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "3600": [
+          "PROPAGATION_PRESSURE_MID"
+        ],
+        "900": [
+          "PROPAGATION_PRESSURE_MID"
+        ]
+      }
+    },
+    {
+      "anchor_ts_ms": 1782793835355,
+      "anchor_utc": "2026-06-30T04:30:35.355000+00:00",
+      "event_id": "ETHUSDT:BUY:5942646:200000",
+      "fade_h4_bps": null,
+      "momentum_h1_bps": -30.4,
+      "month": "2026-06",
+      "primary_tags": [
+        "SILENCE_AFTER_SHOCK",
+        "FADE_MODE",
+        "BUY_SILENCE_RECLAIM",
+        "BUY_SHORT_FADE_NAV_WATCH"
+      ],
+      "side": "BUY",
+      "symbol": "ETHUSDT",
+      "tags_by_tau": {
+        "1800": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "300": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "3600": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ],
+        "900": [
+          "SILENCE_AFTER_SHOCK",
+          "FADE_MODE",
+          "BUY_SILENCE_RECLAIM",
+          "BUY_SHORT_FADE_NAV_WATCH"
+        ]
+      }
+    }
+  ]
+}

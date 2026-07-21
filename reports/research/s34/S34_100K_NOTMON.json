@@ -1,0 +1,140 @@
+{
+  "results": {
+    "all_s3": {
+      "label": "all_s3",
+      "n": 119,
+      "wr": 68.1,
+      "avg": 62.0,
+      "total": 7373.0,
+      "per_month": 26.2,
+      "worst": -206.3,
+      "mdd": -595.3,
+      "mc_p": 0.0
+    },
+    "all_s3_TEST": {
+      "label": "all_s3 TEST",
+      "n": 44,
+      "wr": 72.7,
+      "avg": 61.6,
+      "total": 2710.0,
+      "per_month": 32.3,
+      "worst": -190.4,
+      "mdd": -544.7,
+      "mc_p": 0.002
+    },
+    "all_s3_noov": {
+      "label": "all_s3 noov",
+      "n": 53,
+      "wr": 66.0,
+      "avg": 62.6,
+      "total": 3317.0,
+      "per_month": 11.7,
+      "worst": -206.3,
+      "mdd": -329.7,
+      "mc_p": 0.0
+    },
+    "notMon_s3": {
+      "label": "notMon_s3",
+      "n": 100,
+      "wr": 74.0,
+      "avg": 81.6,
+      "total": 8159.0,
+      "per_month": 22.0,
+      "worst": -206.3,
+      "mdd": -595.3,
+      "mc_p": 0.0
+    },
+    "notMon_s3_TEST": {
+      "label": "notMon_s3 TEST",
+      "n": 36,
+      "wr": 86.1,
+      "avg": 95.9,
+      "total": 3452.0,
+      "per_month": 26.4,
+      "worst": -150.8,
+      "mdd": -264.7,
+      "mc_p": 0.0
+    },
+    "notMon_s3_noov": {
+      "label": "notMon_s3 noov",
+      "n": 45,
+      "wr": 71.1,
+      "avg": 79.7,
+      "total": 3587.0,
+      "per_month": 9.9,
+      "worst": -206.3,
+      "mdd": -244.8,
+      "mc_p": 0.0
+    },
+    "notMon_s2": {
+      "label": "notMon_s2",
+      "n": 137,
+      "wr": 74.5,
+      "avg": 75.0,
+      "total": 10279.0,
+      "per_month": 30.2,
+      "worst": -206.3,
+      "mdd": -672.8,
+      "mc_p": 0.0
+    },
+    "notMon_s2_TEST": {
+      "label": "notMon_s2 TEST",
+      "n": 46,
+      "wr": 84.8,
+      "avg": 85.3,
+      "total": 3922.0,
+      "per_month": 33.8,
+      "worst": -150.8,
+      "mdd": -264.7,
+      "mc_p": 0.0
+    },
+    "notMon_s2_noov": {
+      "label": "notMon_s2 noov",
+      "n": 53,
+      "wr": 71.7,
+      "avg": 68.4,
+      "total": 3623.0,
+      "per_month": 11.7,
+      "worst": -206.3,
+      "mdd": -293.7,
+      "mc_p": 0.0
+    },
+    "mon_only_s2": {
+      "label": "mon_only_s2",
+      "n": 27,
+      "wr": 37.0,
+      "avg": -42.4,
+      "total": -1145.0,
+      "per_month": 5.9,
+      "worst": -197.6,
+      "mdd": -1345.1,
+      "mc_p": 0.982
+    },
+    "mon_only_s2_TEST": {
+      "label": "mon_only_s2 TEST",
+      "n": 11,
+      "wr": 18.2,
+      "avg": -89.1,
+      "total": -980.0,
+      "per_month": 8.1,
+      "worst": -197.6,
+      "mdd": -980.0,
+      "mc_p": 1.0
+    },
+    "mon_only_s2_noov": {
+      "label": "mon_only_s2 noov",
+      "n": 10,
+      "wr": 20.0,
+      "avg": -59.0,
+      "total": -590.0,
+      "per_month": 2.2,
+      "worst": -197.6,
+      "mdd": -712.2,
+      "mc_p": 0.954
+    }
+  },
+  "meta": {
+    "n": 217,
+    "months": 4.54
+  }
+}

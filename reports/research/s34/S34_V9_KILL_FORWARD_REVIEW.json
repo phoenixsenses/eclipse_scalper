@@ -1,0 +1,953 @@
+{
+  "final_read": "Kill rules cannot prevent the first tail; use weighted/tail sizing for first-loss survival, then FIRST_TAIL_OR_10PCT_DD_PAUSE for repeat-risk control.",
+  "forward_review_decision_gate": {
+    "checkpoints": [
+      {
+        "actions": [
+          "if sum_bps < 0 or any tail-budget breach -> recommend disarm",
+          "if N < 10 -> continue observation, no promotion",
+          "if positive -> no resize yet; wait for 60D"
+        ],
+        "minimum": ">=30 calendar days AND >=10 independent closed forward fills",
+        "name": "30D_INTERIM"
+      },
+      {
+        "disarm_recommendation_if": [
+          "sum_bps < 0",
+          "T3R < 0",
+          "tail-budget breach",
+          "operator keeps size > weighted budget"
+        ],
+        "minimum": ">=60 calendar days AND >=20 independent closed forward fills across >=2 UTC weeks",
+        "name": "60D_DECISION",
+        "promote_to_operator_review_only_if": [
+          "sum_bps > 0",
+          "T3R > 0",
+          "median_bps > 0",
+          "win_rate >= 0.55",
+          "max realized loss does not breach accepted budget",
+          "no permutation/artifact gate failure on forward sample"
+        ]
+      }
+    ],
+    "non_negotiable": "Passing this gate authorizes only operator review, not automatic live scaling.",
+    "status": "FROZEN_DECISION_GATE"
+  },
+  "generated_at_utc": "2026-06-29T07:15:29.146404+00:00",
+  "kill_criteria_redesign": {
+    "current_env": {
+      "curve": {
+        "curve": [
+          {
+            "bps": -34.2,
+            "cum_usdt": -4.1,
+            "drawdown_usdt": -4.1,
+            "i": 1
+          },
+          {
+            "bps": 81.1,
+            "cum_usdt": 5.6,
+            "drawdown_usdt": 0.0,
+            "i": 2
+          },
+          {
+            "bps": 26.1,
+            "cum_usdt": 8.7,
+            "drawdown_usdt": 0.0,
+            "i": 3
+          },
+          {
+            "bps": 30.4,
+            "cum_usdt": 12.3,
+            "drawdown_usdt": 0.0,
+            "i": 4
+          },
+          {
+            "bps": 27.0,
+            "cum_usdt": 15.5,
+            "drawdown_usdt": 0.0,
+            "i": 5
+          },
+          {
+            "bps": 13.3,
+            "cum_usdt": 17.1,
+            "drawdown_usdt": 0.0,
+            "i": 6
+          },
+          {
+            "bps": 44.6,
+            "cum_usdt": 22.4,
+            "drawdown_usdt": 0.0,
+            "i": 7
+          },
+          {
+            "bps": 53.2,
+            "cum_usdt": 28.7,
+            "drawdown_usdt": 0.0,
+            "i": 8
+          },
+          {
+            "bps": -35.9,
+            "cum_usdt": 24.5,
+            "drawdown_usdt": -4.3,
+            "i": 9
+          },
+          {
+            "bps": 46.3,
+            "cum_usdt": 30.0,
+            "drawdown_usdt": 0.0,
+            "i": 10
+          },
+          {
+            "bps": 41.7,
+            "cum_usdt": 34.9,
+            "drawdown_usdt": 0.0,
+            "i": 11
+          },
+          {
+            "bps": 59.6,
+            "cum_usdt": 42.0,
+            "drawdown_usdt": 0.0,
+            "i": 12
+          },
+          {
+            "bps": 152.3,
+            "cum_usdt": 60.2,
+            "drawdown_usdt": 0.0,
+            "i": 13
+          },
+          {
+            "bps": 37.0,
+            "cum_usdt": 64.6,
+            "drawdown_usdt": 0.0,
+            "i": 14
+          },
+          {
+            "bps": 227.0,
+            "cum_usdt": 91.6,
+            "drawdown_usdt": 0.0,
+            "i": 15
+          },
+          {
+            "bps": -144.4,
+            "cum_usdt": 74.4,
+            "drawdown_usdt": -17.2,
+            "i": 16
+          },
+          {
+            "bps": 52.6,
+            "cum_usdt": 80.6,
+            "drawdown_usdt": -10.9,
+            "i": 17
+          },
+          {
+            "bps": -28.0,
+            "cum_usdt": 77.3,
+            "drawdown_usdt": -14.3,
+            "i": 18
+          },
+          {
+            "bps": 149.9,
+            "cum_usdt": 95.2,
+            "drawdown_usdt": 0.0,
+            "i": 19
+          },
+          {
+            "bps": 17.2,
+            "cum_usdt": 97.2,
+            "drawdown_usdt": 0.0,
+            "i": 20
+          },
+          {
+            "bps": 299.7,
+            "cum_usdt": 132.9,
+            "drawdown_usdt": 0.0,
+            "i": 21
+          },
+          {
+            "bps": 4.4,
+            "cum_usdt": 133.4,
+            "drawdown_usdt": 0.0,
+            "i": 22
+          },
+          {
+            "bps": -8.3,
+            "cum_usdt": 132.4,
+            "drawdown_usdt": -1.0,
+            "i": 23
+          }
+        ],
+        "final_pnl_usdt": 132.4,
+        "max_drawdown_pct_equity": 49.1,
+        "max_drawdown_usdt": -17.2
+      },
+      "notional_usdt": 1190.0,
+      "rules": [
+        {
+          "max_dd_until_pause_pct_equity": 11.6,
+          "max_dd_until_pause_usdt": -4.1,
+          "pnl_until_pause_usdt": -4.1,
+          "rule": "ANY_LOSS_PAUSE",
+          "trades_before_pause_including_trigger": 1,
+          "trigger": {
+            "drawdown_pct_equity_at_trigger": 11.6,
+            "signal_utc": "2026-04-16T07:54:07.129000+00:00",
+            "trade_index": 1,
+            "trigger_after_bps": -34.2
+          },
+          "triggered": true,
+          "unnecessary_cut_score": 0
+        },
+        {
+          "max_dd_until_pause_pct_equity": 11.6,
+          "max_dd_until_pause_usdt": -4.1,
+          "pnl_until_pause_usdt": -4.1,
+          "rule": "DRAWDOWN_10PCT",
+          "trades_before_pause_including_trigger": 1,
+          "trigger": {
+            "drawdown_pct_equity_at_trigger": 11.6,
+            "signal_utc": "2026-04-16T07:54:07.129000+00:00",
+            "trade_index": 1,
+            "trigger_after_bps": -34.2
+          },
+          "triggered": true,
+          "unnecessary_cut_score": 0
+        },
+        {
+          "max_dd_until_pause_pct_equity": 49.1,
+          "max_dd_until_pause_usdt": -17.2,
+          "pnl_until_pause_usdt": 74.4,
+          "rule": "FIRST_TAIL_PAUSE",
+          "trades_before_pause_including_trigger": 16,
+          "trigger": {
+            "drawdown_pct_equity_at_trigger": 49.1,
+            "signal_utc": "2026-06-23T07:59:44.477000+00:00",
+            "trade_index": 16,
+            "trigger_after_bps": -144.4
+          },
+          "triggered": true,
+          "unnecessary_cut_score": 13
+        },
+        {
+          "max_dd_until_pause_pct_equity": 49.1,
+          "max_dd_until_pause_usdt": -17.2,
+          "pnl_until_pause_usdt": 74.4,
+          "rule": "DRAWDOWN_20PCT",
+          "trades_before_pause_including_trigger": 16,
+          "trigger": {
+            "drawdown_pct_equity_at_trigger": 49.1,
+            "signal_utc": "2026-06-23T07:59:44.477000+00:00",
+            "trade_index": 16,
+            "trigger_after_bps": -144.4
+          },
+          "triggered": true,
+          "unnecessary_cut_score": 13
+        },
+        {
+          "max_dd_until_pause_pct_equity": 49.1,
+          "max_dd_until_pause_usdt": -17.2,
+          "pnl_until_pause_usdt": 74.4,
+          "rule": "DRAWDOWN_40PCT",
+          "trades_before_pause_including_trigger": 16,
+          "trigger": {
+            "drawdown_pct_equity_at_trigger": 49.1,
+            "signal_utc": "2026-06-23T07:59:44.477000+00:00",
+            "trade_index": 16,
+            "trigger_after_bps": -144.4
+          },
+          "triggered": true,
+          "unnecessary_cut_score": 13
+        },
+        {
+          "max_dd_until_pause_pct_equity": 49.1,
+          "max_dd_until_pause_usdt": -17.2,
+          "pnl_until_pause_usdt": 80.6,
+          "rule": "ROLLING_2_NEGATIVE",
+          "trades_before_pause_including_trigger": 17,
+          "trigger": {
+            "drawdown_pct_equity_at_trigger": 31.2,
+            "signal_utc": "2026-06-25T15:03:23.104000+00:00",
+            "trade_index": 17,
+            "trigger_after_bps": 52.6
+          },
+          "triggered": true,
+          "unnecessary_cut_score": 14
+        },
+        {
+          "max_dd_until_pause_pct_equity": 49.1,
+          "max_dd_until_pause_usdt": -17.2,
+          "pnl_until_pause_usdt": 77.3,
+          "rule": "ROLLING_3_NEGATIVE",
+          "trades_before_pause_including_trigger": 18,
+          "trigger": {
+            "drawdown_pct_equity_at_trigger": 40.7,
+            "signal_utc": "2026-06-25T16:32:03.169000+00:00",
+            "trade_index": 18,
+            "trigger_after_bps": -28.0
+          },
+          "triggered": true,
+          "unnecessary_cut_score": 14
+        },
+        {
+          "max_dd_until_pause_pct_equity": 49.1,
+          "max_dd_until_pause_usdt": -17.2,
+          "pnl_until_pause_usdt": 132.4,
+          "rule": "ROLLING_5_NEGATIVE",
+          "trades_before_pause_including_trigger": 23,
+          "trigger": null,
+          "triggered": false,
+          "unnecessary_cut_score": 0
+        }
+      ]
+    },
+    "hard_truth": "No realized-PnL kill rule can fire before the first tail; only sizing/stop can bound first-tail loss.",
+    "recommended_kill_rule": {
+      "logic": "pause after any closed trade <= -100 bps OR realized equity drawdown >= 10%; operator review required to resume",
+      "name": "FIRST_TAIL_OR_10PCT_DD_PAUSE",
+      "reason": "FIRST_TAIL stops repeat-tail exposure; DD threshold catches non-tail loss clusters. It still cannot protect the first tail."
+    },
+    "sequence_summary_bps": {
+      "max_loss_bps": -144.4,
+      "mean_bps": 48.4,
+      "median_bps": 37.0,
+      "n": 23,
+      "sum_bps": 1112.6,
+      "t3r_bps": 433.6,
+      "win_rate": 0.783
+    },
+    "tail_size": {
+      "curve": {
+        "curve": [
+          {
+            "bps": -34.2,
+            "cum_usdt": -0.0,
+            "drawdown_usdt": -0.0,
+            "i": 1
+          },
+          {
+            "bps": 81.1,
+            "cum_usdt": 0.1,
+            "drawdown_usdt": 0.0,
+            "i": 2
+          },
+          {
+            "bps": 26.1,
+            "cum_usdt": 0.1,
+            "drawdown_usdt": 0.0,
+            "i": 3
+          },
+          {
+            "bps": 30.4,
+            "cum_usdt": 0.1,
+            "drawdown_usdt": 0.0,
+            "i": 4
+          },
+          {
+            "bps": 27.0,
+            "cum_usdt": 0.1,
+            "drawdown_usdt": 0.0,
+            "i": 5
+          },
+          {
+            "bps": 13.3,
+            "cum_usdt": 0.2,
+            "drawdown_usdt": 0.0,
+            "i": 6
+          },
+          {
+            "bps": 44.6,
+            "cum_usdt": 0.2,
+            "drawdown_usdt": 0.0,
+            "i": 7
+          },
+          {
+            "bps": 53.2,
+            "cum_usdt": 0.3,
+            "drawdown_usdt": 0.0,
+            "i": 8
+          },
+          {
+            "bps": -35.9,
+            "cum_usdt": 0.2,
+            "drawdown_usdt": -0.0,
+            "i": 9
+          },
+          {
+            "bps": 46.3,
+            "cum_usdt": 0.3,
+            "drawdown_usdt": 0.0,
+            "i": 10
+          },
+          {
+            "bps": 41.7,
+            "cum_usdt": 0.3,
+            "drawdown_usdt": 0.0,
+            "i": 11
+          },
+          {
+            "bps": 59.6,
+            "cum_usdt": 0.4,
+            "drawdown_usdt": 0.0,
+            "i": 12
+          },
+          {
+            "bps": 152.3,
+            "cum_usdt": 0.6,
+            "drawdown_usdt": 0.0,
+            "i": 13
+          },
+          {
+            "bps": 37.0,
+            "cum_usdt": 0.6,
+            "drawdown_usdt": 0.0,
+            "i": 14
+          },
+          {
+            "bps": 227.0,
+            "cum_usdt": 0.8,
+            "drawdown_usdt": 0.0,
+            "i": 15
+          },
+          {
+            "bps": -144.4,
+            "cum_usdt": 0.7,
+            "drawdown_usdt": -0.2,
+            "i": 16
+          },
+          {
+            "bps": 52.6,
+            "cum_usdt": 0.7,
+            "drawdown_usdt": -0.1,
+            "i": 17
+          },
+          {
+            "bps": -28.0,
+            "cum_usdt": 0.7,
+            "drawdown_usdt": -0.1,
+            "i": 18
+          },
+          {
+            "bps": 149.9,
+            "cum_usdt": 0.9,
+            "drawdown_usdt": 0.0,
+            "i": 19
+          },
+          {
+            "bps": 17.2,
+            "cum_usdt": 0.9,
+            "drawdown_usdt": 0.0,
+            "i": 20
+          },
+          {
+            "bps": 299.7,
+            "cum_usdt": 1.2,
+            "drawdown_usdt": 0.0,
+            "i": 21
+          },
+          {
+            "bps": 4.4,
+            "cum_usdt": 1.2,
+            "drawdown_usdt": 0.0,
+            "i": 22
+          },
+          {
+            "bps": -8.3,
+            "cum_usdt": 1.2,
+            "drawdown_usdt": -0.0,
+            "i": 23
+          }
+        ],
+        "final_pnl_usdt": 1.2,
+        "max_drawdown_pct_equity": 0.5,
+        "max_drawdown_usdt": -0.2
+      },
+      "notional_usdt": 11.0,
+      "rules": [
+        {
+          "max_dd_until_pause_pct_equity": 0.1,
+          "max_dd_until_pause_usdt": -0.0,
+          "pnl_until_pause_usdt": -0.0,
+          "rule": "ANY_LOSS_PAUSE",
+          "trades_before_pause_including_trigger": 1,
+          "trigger": {
+            "drawdown_pct_equity_at_trigger": 0.1,
+            "signal_utc": "2026-04-16T07:54:07.129000+00:00",
+            "trade_index": 1,
+            "trigger_after_bps": -34.2
+          },
+          "triggered": true,
+          "unnecessary_cut_score": 0
+        },
+        {
+          "max_dd_until_pause_pct_equity": 0.5,
+          "max_dd_until_pause_usdt": -0.2,
+          "pnl_until_pause_usdt": 0.7,
+          "rule": "FIRST_TAIL_PAUSE",
+          "trades_before_pause_including_trigger": 16,
+          "trigger": {
+            "drawdown_pct_equity_at_trigger": 0.5,
+            "signal_utc": "2026-06-23T07:59:44.477000+00:00",
+            "trade_index": 16,
+            "trigger_after_bps": -144.4
+          },
+          "triggered": true,
+          "unnecessary_cut_score": 13
+        },
+        {
+          "max_dd_until_pause_pct_equity": 0.5,
+          "max_dd_until_pause_usdt": -0.2,
+          "pnl_until_pause_usdt": 0.7,
+          "rule": "ROLLING_2_NEGATIVE",
+          "trades_before_pause_including_trigger": 17,
+          "trigger": {
+            "drawdown_pct_equity_at_trigger": 0.3,
+            "signal_utc": "2026-06-25T15:03:23.104000+00:00",
+            "trade_index": 17,
+            "trigger_after_bps": 52.6
+          },
+          "triggered": true,
+          "unnecessary_cut_score": 14
+        },
+        {
+          "max_dd_until_pause_pct_equity": 0.5,
+          "max_dd_until_pause_usdt": -0.2,
+          "pnl_until_pause_usdt": 0.7,
+          "rule": "ROLLING_3_NEGATIVE",
+          "trades_before_pause_including_trigger": 18,
+          "trigger": {
+            "drawdown_pct_equity_at_trigger": 0.4,
+            "signal_utc": "2026-06-25T16:32:03.169000+00:00",
+            "trade_index": 18,
+            "trigger_after_bps": -28.0
+          },
+          "triggered": true,
+          "unnecessary_cut_score": 14
+        },
+        {
+          "max_dd_until_pause_pct_equity": 0.5,
+          "max_dd_until_pause_usdt": -0.2,
+          "pnl_until_pause_usdt": 1.2,
+          "rule": "ROLLING_5_NEGATIVE",
+          "trades_before_pause_including_trigger": 23,
+          "trigger": null,
+          "triggered": false,
+          "unnecessary_cut_score": 0
+        },
+        {
+          "max_dd_until_pause_pct_equity": 0.5,
+          "max_dd_until_pause_usdt": -0.2,
+          "pnl_until_pause_usdt": 1.2,
+          "rule": "DRAWDOWN_10PCT",
+          "trades_before_pause_including_trigger": 23,
+          "trigger": null,
+          "triggered": false,
+          "unnecessary_cut_score": 0
+        },
+        {
+          "max_dd_until_pause_pct_equity": 0.5,
+          "max_dd_until_pause_usdt": -0.2,
+          "pnl_until_pause_usdt": 1.2,
+          "rule": "DRAWDOWN_20PCT",
+          "trades_before_pause_including_trigger": 23,
+          "trigger": null,
+          "triggered": false,
+          "unnecessary_cut_score": 0
+        },
+        {
+          "max_dd_until_pause_pct_equity": 0.5,
+          "max_dd_until_pause_usdt": -0.2,
+          "pnl_until_pause_usdt": 1.2,
+          "rule": "DRAWDOWN_40PCT",
+          "trades_before_pause_including_trigger": 23,
+          "trigger": null,
+          "triggered": false,
+          "unnecessary_cut_score": 0
+        }
+      ]
+    },
+    "weighted_size": {
+      "curve": {
+        "curve": [
+          {
+            "bps": -34.2,
+            "cum_usdt": -0.1,
+            "drawdown_usdt": -0.1,
+            "i": 1
+          },
+          {
+            "bps": 81.1,
+            "cum_usdt": 0.1,
+            "drawdown_usdt": 0.0,
+            "i": 2
+          },
+          {
+            "bps": 26.1,
+            "cum_usdt": 0.1,
+            "drawdown_usdt": 0.0,
+            "i": 3
+          },
+          {
+            "bps": 30.4,
+            "cum_usdt": 0.2,
+            "drawdown_usdt": 0.0,
+            "i": 4
+          },
+          {
+            "bps": 27.0,
+            "cum_usdt": 0.2,
+            "drawdown_usdt": 0.0,
+            "i": 5
+          },
+          {
+            "bps": 13.3,
+            "cum_usdt": 0.2,
+            "drawdown_usdt": 0.0,
+            "i": 6
+          },
+          {
+            "bps": 44.6,
+            "cum_usdt": 0.3,
+            "drawdown_usdt": 0.0,
+            "i": 7
+          },
+          {
+            "bps": 53.2,
+            "cum_usdt": 0.4,
+            "drawdown_usdt": 0.0,
+            "i": 8
+          },
+          {
+            "bps": -35.9,
+            "cum_usdt": 0.3,
+            "drawdown_usdt": -0.1,
+            "i": 9
+          },
+          {
+            "bps": 46.3,
+            "cum_usdt": 0.4,
+            "drawdown_usdt": 0.0,
+            "i": 10
+          },
+          {
+            "bps": 41.7,
+            "cum_usdt": 0.5,
+            "drawdown_usdt": 0.0,
+            "i": 11
+          },
+          {
+            "bps": 59.6,
+            "cum_usdt": 0.6,
+            "drawdown_usdt": 0.0,
+            "i": 12
+          },
+          {
+            "bps": 152.3,
+            "cum_usdt": 0.8,
+            "drawdown_usdt": 0.0,
+            "i": 13
+          },
+          {
+            "bps": 37.0,
+            "cum_usdt": 0.9,
+            "drawdown_usdt": 0.0,
+            "i": 14
+          },
+          {
+            "bps": 227.0,
+            "cum_usdt": 1.3,
+            "drawdown_usdt": 0.0,
+            "i": 15
+          },
+          {
+            "bps": -144.4,
+            "cum_usdt": 1.0,
+            "drawdown_usdt": -0.2,
+            "i": 16
+          },
+          {
+            "bps": 52.6,
+            "cum_usdt": 1.1,
+            "drawdown_usdt": -0.1,
+            "i": 17
+          },
+          {
+            "bps": -28.0,
+            "cum_usdt": 1.1,
+            "drawdown_usdt": -0.2,
+            "i": 18
+          },
+          {
+            "bps": 149.9,
+            "cum_usdt": 1.3,
+            "drawdown_usdt": 0.0,
+            "i": 19
+          },
+          {
+            "bps": 17.2,
+            "cum_usdt": 1.3,
+            "drawdown_usdt": 0.0,
+            "i": 20
+          },
+          {
+            "bps": 299.7,
+            "cum_usdt": 1.8,
+            "drawdown_usdt": 0.0,
+            "i": 21
+          },
+          {
+            "bps": 4.4,
+            "cum_usdt": 1.8,
+            "drawdown_usdt": 0.0,
+            "i": 22
+          },
+          {
+            "bps": -8.3,
+            "cum_usdt": 1.8,
+            "drawdown_usdt": -0.0,
+            "i": 23
+          }
+        ],
+        "final_pnl_usdt": 1.8,
+        "max_drawdown_pct_equity": 0.7,
+        "max_drawdown_usdt": -0.2
+      },
+      "notional_usdt": 16.3,
+      "rules": [
+        {
+          "max_dd_until_pause_pct_equity": 0.2,
+          "max_dd_until_pause_usdt": -0.1,
+          "pnl_until_pause_usdt": -0.1,
+          "rule": "ANY_LOSS_PAUSE",
+          "trades_before_pause_including_trigger": 1,
+          "trigger": {
+            "drawdown_pct_equity_at_trigger": 0.2,
+            "signal_utc": "2026-04-16T07:54:07.129000+00:00",
+            "trade_index": 1,
+            "trigger_after_bps": -34.2
+          },
+          "triggered": true,
+          "unnecessary_cut_score": 0
+        },
+        {
+          "max_dd_until_pause_pct_equity": 0.7,
+          "max_dd_until_pause_usdt": -0.2,
+          "pnl_until_pause_usdt": 1.0,
+          "rule": "FIRST_TAIL_PAUSE",
+          "trades_before_pause_including_trigger": 16,
+          "trigger": {
+            "drawdown_pct_equity_at_trigger": 0.7,
+            "signal_utc": "2026-06-23T07:59:44.477000+00:00",
+            "trade_index": 16,
+            "trigger_after_bps": -144.4
+          },
+          "triggered": true,
+          "unnecessary_cut_score": 13
+        },
+        {
+          "max_dd_until_pause_pct_equity": 0.7,
+          "max_dd_until_pause_usdt": -0.2,
+          "pnl_until_pause_usdt": 1.1,
+          "rule": "ROLLING_2_NEGATIVE",
+          "trades_before_pause_including_trigger": 17,
+          "trigger": {
+            "drawdown_pct_equity_at_trigger": 0.4,
+            "signal_utc": "2026-06-25T15:03:23.104000+00:00",
+            "trade_index": 17,
+            "trigger_after_bps": 52.6
+          },
+          "triggered": true,
+          "unnecessary_cut_score": 14
+        },
+        {
+          "max_dd_until_pause_pct_equity": 0.7,
+          "max_dd_until_pause_usdt": -0.2,
+          "pnl_until_pause_usdt": 1.1,
+          "rule": "ROLLING_3_NEGATIVE",
+          "trades_before_pause_including_trigger": 18,
+          "trigger": {
+            "drawdown_pct_equity_at_trigger": 0.6,
+            "signal_utc": "2026-06-25T16:32:03.169000+00:00",
+            "trade_index": 18,
+            "trigger_after_bps": -28.0
+          },
+          "triggered": true,
+          "unnecessary_cut_score": 14
+        },
+        {
+          "max_dd_until_pause_pct_equity": 0.7,
+          "max_dd_until_pause_usdt": -0.2,
+          "pnl_until_pause_usdt": 1.8,
+          "rule": "ROLLING_5_NEGATIVE",
+          "trades_before_pause_including_trigger": 23,
+          "trigger": null,
+          "triggered": false,
+          "unnecessary_cut_score": 0
+        },
+        {
+          "max_dd_until_pause_pct_equity": 0.7,
+          "max_dd_until_pause_usdt": -0.2,
+          "pnl_until_pause_usdt": 1.8,
+          "rule": "DRAWDOWN_10PCT",
+          "trades_before_pause_including_trigger": 23,
+          "trigger": null,
+          "triggered": false,
+          "unnecessary_cut_score": 0
+        },
+        {
+          "max_dd_until_pause_pct_equity": 0.7,
+          "max_dd_until_pause_usdt": -0.2,
+          "pnl_until_pause_usdt": 1.8,
+          "rule": "DRAWDOWN_20PCT",
+          "trades_before_pause_including_trigger": 23,
+          "trigger": null,
+          "triggered": false,
+          "unnecessary_cut_score": 0
+        },
+        {
+          "max_dd_until_pause_pct_equity": 0.7,
+          "max_dd_until_pause_usdt": -0.2,
+          "pnl_until_pause_usdt": 1.8,
+          "rule": "DRAWDOWN_40PCT",
+          "trades_before_pause_including_trigger": 23,
+          "trigger": null,
+          "triggered": false,
+          "unnecessary_cut_score": 0
+        }
+      ]
+    }
+  },
+  "mode": "RESEARCH_RISK_ONLY_NO_LIVE_CHANGE",
+  "tick_level_atomicity_scan": {
+    "covered_n": 23,
+    "filled_n": 23,
+    "gap_sec": 2.0,
+    "lte_150bps_n": 0,
+    "lte_25bps_n": 0,
+    "lte_5bps_n": 10,
+    "read": "Bounded by filled lifecycle rows; uses agg_trades and book_ticker inside the unprotected 2s window.",
+    "status": "NO_TICK_CATASTROPHIC_GAP_FOUND",
+    "worst_cards": [
+      {
+        "baseline_net_bps": 17.2,
+        "book_bid_adverse_bps": -22.7,
+        "catastrophic": false,
+        "entry_price": 1544.335357034505,
+        "event_id": "5941567:1782470373530",
+        "fill_utc": "2026-06-26T11:50:58.530000+00:00",
+        "gap_end_utc": "2026-06-26T11:51:00.530000+00:00",
+        "signal_utc": "2026-06-26T10:39:33.530000+00:00",
+        "trade_adverse_bps": -22.7,
+        "worst_tick_adverse_bps": -22.7
+      },
+      {
+        "baseline_net_bps": 299.7,
+        "book_bid_adverse_bps": -22.1,
+        "catastrophic": false,
+        "entry_price": 1523.6910883649598,
+        "event_id": "5941599:1782479934877",
+        "fill_utc": "2026-06-26T13:19:31.877000+00:00",
+        "gap_end_utc": "2026-06-26T13:19:33.877000+00:00",
+        "signal_utc": "2026-06-26T13:18:54.877000+00:00",
+        "trade_adverse_bps": -22.0,
+        "worst_tick_adverse_bps": -22.1
+      },
+      {
+        "baseline_net_bps": -144.4,
+        "book_bid_adverse_bps": -13.5,
+        "catastrophic": false,
+        "entry_price": 1681.0129223153801,
+        "event_id": "5940671:1782201584477",
+        "fill_utc": "2026-06-23T08:04:45.477000+00:00",
+        "gap_end_utc": "2026-06-23T08:04:47.477000+00:00",
+        "signal_utc": "2026-06-23T07:59:44.477000+00:00",
+        "trade_adverse_bps": -13.5,
+        "worst_tick_adverse_bps": -13.5
+      },
+      {
+        "baseline_net_bps": 44.6,
+        "book_bid_adverse_bps": -13.0,
+        "catastrophic": false,
+        "entry_price": 2296.29152345984,
+        "event_id": "5922611:1776783451255",
+        "fill_utc": "2026-04-21T14:58:27.255000+00:00",
+        "gap_end_utc": "2026-04-21T14:58:29.255000+00:00",
+        "signal_utc": "2026-04-21T14:57:31.255000+00:00",
+        "trade_adverse_bps": -13.0,
+        "worst_tick_adverse_bps": -13.0
+      },
+      {
+        "baseline_net_bps": 52.6,
+        "book_bid_adverse_bps": -11.4,
+        "catastrophic": false,
+        "entry_price": 1558.24992713907,
+        "event_id": "5941332:1782399803104",
+        "fill_utc": "2026-06-25T15:11:28.104000+00:00",
+        "gap_end_utc": "2026-06-25T15:11:30.104000+00:00",
+        "signal_utc": "2026-06-25T15:03:23.104000+00:00",
+        "trade_adverse_bps": -11.4,
+        "worst_tick_adverse_bps": -11.4
+      },
+      {
+        "baseline_net_bps": 37.0,
+        "book_bid_adverse_bps": -9.6,
+        "catastrophic": false,
+        "entry_price": 1718.84769451186,
+        "event_id": "5940135:1782040706629",
+        "fill_utc": "2026-06-21T11:18:39.629000+00:00",
+        "gap_end_utc": "2026-06-21T11:18:41.629000+00:00",
+        "signal_utc": "2026-06-21T11:18:26.629000+00:00",
+        "trade_adverse_bps": -9.6,
+        "worst_tick_adverse_bps": -9.6
+      },
+      {
+        "baseline_net_bps": -34.2,
+        "book_bid_adverse_bps": -8.0,
+        "catastrophic": false,
+        "entry_price": 2335.36723612806,
+        "event_id": "5921086:1776326047129",
+        "fill_utc": "2026-04-16T08:06:29.129000+00:00",
+        "gap_end_utc": "2026-04-16T08:06:31.129000+00:00",
+        "signal_utc": "2026-04-16T07:54:07.129000+00:00",
+        "trade_adverse_bps": -8.0,
+        "worst_tick_adverse_bps": -8.0
+      },
+      {
+        "baseline_net_bps": 81.1,
+        "book_bid_adverse_bps": -7.3,
+        "catastrophic": false,
+        "entry_price": 2318.30042252968,
+        "event_id": "5921158:1776347534594",
+        "fill_utc": "2026-04-16T13:52:51.594000+00:00",
+        "gap_end_utc": "2026-04-16T13:52:53.594000+00:00",
+        "signal_utc": "2026-04-16T13:52:14.594000+00:00",
+        "trade_adverse_bps": -7.3,
+        "worst_tick_adverse_bps": -7.3
+      },
+      {
+        "baseline_net_bps": 13.3,
+        "book_bid_adverse_bps": -0.8,
+        "catastrophic": false,
+        "entry_price": 2295.0718899999997,
+        "event_id": "5922320:1776696071191",
+        "fill_utc": "2026-04-20T14:51:08.191000+00:00",
+        "gap_end_utc": "2026-04-20T14:51:10.191000+00:00",
+        "signal_utc": "2026-04-20T14:41:11.191000+00:00",
+        "trade_adverse_bps": -5.6,
+        "worst_tick_adverse_bps": -5.6
+      },
+      {
+        "baseline_net_bps": 46.3,
+        "book_bid_adverse_bps": -5.1,
+        "catastrophic": false,
+        "entry_price": 1761.202252922715,
+        "event_id": "5938614:1781584271525",
+        "fill_utc": "2026-06-16T04:44:35.525000+00:00",
+        "gap_end_utc": "2026-06-16T04:44:37.525000+00:00",
+        "signal_utc": "2026-06-16T04:31:11.525000+00:00",
+        "trade_adverse_bps": -5.1,
+        "worst_tick_adverse_bps": -5.1
+      }
+    ],
+    "worst_tick_adverse_bps": -22.7
+  }
+}

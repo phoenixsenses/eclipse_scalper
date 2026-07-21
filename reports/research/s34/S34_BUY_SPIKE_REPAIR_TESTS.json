@@ -1,0 +1,635 @@
+{
+  "generated_at_utc": "2026-06-29T18:24:22.119288+00:00",
+  "scope": {
+    "symbol": "ETHUSDT",
+    "days": 30,
+    "start_utc": "2026-05-30T18:22:20+00:00",
+    "end_utc": "2026-06-29T18:22:20+00:00",
+    "closed_buy_spikes": 149,
+    "running_60s_events": 54,
+    "run60_threshold": 1349717.4,
+    "note": "Research-only. No live executor/config/order logic touched."
+  },
+  "pre_spike_build_up": {
+    "buy_liq_pre60": {
+      "spike_avg": 37587.643,
+      "control_avg": 895.6035
+    },
+    "buy_liq_pre30": {
+      "spike_avg": 18764.0667,
+      "control_avg": 396.0458
+    },
+    "buy_liq_pre10": {
+      "spike_avg": 7445.0286,
+      "control_avg": 241.1709
+    },
+    "sell_liq_pre60": {
+      "spike_avg": 133739.8497,
+      "control_avg": 6523.1967
+    },
+    "flow_pre60": {
+      "spike_avg": 0.149,
+      "control_avg": 0.0028
+    },
+    "spread_bps": {
+      "spike_avg": 0.0471,
+      "control_avg": 0.0481
+    },
+    "bid_depth_usd": {
+      "spike_avg": 165851.8859,
+      "control_avg": 177119.4339
+    },
+    "book_imbalance": {
+      "spike_avg": 0.1418,
+      "control_avg": 0.0488
+    }
+  },
+  "acceleration_anchor": {
+    "ratio_2.0": {
+      "n": 461,
+      "15m_fee_net": {
+        "n": 461,
+        "sum": -766.5,
+        "mean": -1.66,
+        "median": -9.91,
+        "win_rate": 0.38,
+        "t3r": -1676.5,
+        "min": -161.09,
+        "max": 414.32
+      },
+      "executable_15m_fee_net": {
+        "n": 461,
+        "sum": -875.9,
+        "mean": -1.9,
+        "median": -6.16,
+        "win_rate": 0.282,
+        "t3r": -1497.1,
+        "min": -133.66,
+        "max": 250.52
+      }
+    },
+    "ratio_3.0": {
+      "n": 460,
+      "15m_fee_net": {
+        "n": 460,
+        "sum": -721.4,
+        "mean": -1.57,
+        "median": -9.78,
+        "win_rate": 0.38,
+        "t3r": -1631.4,
+        "min": -161.09,
+        "max": 414.32
+      },
+      "executable_15m_fee_net": {
+        "n": 460,
+        "sum": -869.8,
+        "mean": -1.89,
+        "median": -6.16,
+        "win_rate": 0.283,
+        "t3r": -1490.9,
+        "min": -133.66,
+        "max": 250.52
+      }
+    },
+    "ratio_5.0": {
+      "n": 459,
+      "15m_fee_net": {
+        "n": 459,
+        "sum": -738.2,
+        "mean": -1.61,
+        "median": -9.91,
+        "win_rate": 0.379,
+        "t3r": -1648.3,
+        "min": -161.09,
+        "max": 414.32
+      },
+      "executable_15m_fee_net": {
+        "n": 459,
+        "sum": -858.1,
+        "mean": -1.87,
+        "median": -6.16,
+        "win_rate": 0.283,
+        "t3r": -1479.2,
+        "min": -133.66,
+        "max": 250.52
+      }
+    }
+  },
+  "passive_pullback": {
+    "offset_5bps_wait5m_hold15m": {
+      "fills": 44,
+      "fill_rate": 0.815,
+      "filled_fee_net": {
+        "n": 44,
+        "sum": -365.3,
+        "mean": -8.3,
+        "median": -28.98,
+        "win_rate": 0.341,
+        "t3r": -883.1,
+        "min": -120.49,
+        "max": 203.02
+      },
+      "nofill_counterfactual": {
+        "n": 10,
+        "sum": 510.0,
+        "mean": 51.0,
+        "median": 15.04,
+        "win_rate": 0.6,
+        "t3r": 58.6,
+        "min": -20.79,
+        "max": 205.79
+      }
+    },
+    "offset_10bps_wait5m_hold15m": {
+      "fills": 38,
+      "fill_rate": 0.704,
+      "filled_fee_net": {
+        "n": 38,
+        "sum": -594.0,
+        "mean": -15.63,
+        "median": -26.86,
+        "win_rate": 0.316,
+        "t3r": -1009.7,
+        "min": -115.54,
+        "max": 180.1
+      },
+      "nofill_counterfactual": {
+        "n": 16,
+        "sum": 790.4,
+        "mean": 49.4,
+        "median": 38.41,
+        "win_rate": 0.625,
+        "t3r": 317.2,
+        "min": -26.09,
+        "max": 205.79
+      }
+    },
+    "offset_20bps_wait5m_hold15m": {
+      "fills": 30,
+      "fill_rate": 0.556,
+      "filled_fee_net": {
+        "n": 30,
+        "sum": -255.5,
+        "mean": -8.52,
+        "median": -20.77,
+        "win_rate": 0.3,
+        "t3r": -632.1,
+        "min": -86.0,
+        "max": 190.31
+      },
+      "nofill_counterfactual": {
+        "n": 24,
+        "sum": 791.5,
+        "mean": 32.98,
+        "median": 10.43,
+        "win_rate": 0.583,
+        "t3r": 297.0,
+        "min": -136.91,
+        "max": 205.79
+      }
+    },
+    "offset_30bps_wait5m_hold15m": {
+      "fills": 23,
+      "fill_rate": 0.426,
+      "filled_fee_net": {
+        "n": 23,
+        "sum": -288.2,
+        "mean": -12.53,
+        "median": -21.85,
+        "win_rate": 0.261,
+        "t3r": -552.1,
+        "min": -76.05,
+        "max": 111.84
+      },
+      "nofill_counterfactual": {
+        "n": 31,
+        "sum": 1009.5,
+        "mean": 32.57,
+        "median": 7.14,
+        "win_rate": 0.581,
+        "t3r": 445.6,
+        "min": -136.91,
+        "max": 210.7
+      }
+    }
+  },
+  "second_leg_confirmation": {
+    "n": 15,
+    "15m_fee_net": {
+      "n": 15,
+      "sum": 216.9,
+      "mean": 14.46,
+      "median": 15.97,
+      "win_rate": 0.6,
+      "t3r": -66.8,
+      "min": -78.13,
+      "max": 188.4
+    },
+    "60m_fee_net": {
+      "n": 14,
+      "sum": 193.0,
+      "mean": 13.79,
+      "median": 10.34,
+      "win_rate": 0.5,
+      "t3r": -279.6,
+      "min": -132.24,
+      "max": 219.07
+    }
+  },
+  "execution_filters": {
+    "all": {
+      "n": 54,
+      "executable_15m_fee_net": {
+        "n": 54,
+        "sum": 10.4,
+        "mean": 0.19,
+        "median": -6.16,
+        "win_rate": 0.333,
+        "t3r": -494.4,
+        "min": -137.96,
+        "max": 211.77
+      }
+    },
+    "spread_le_0p10": {
+      "n": 43,
+      "executable_15m_fee_net": {
+        "n": 43,
+        "sum": 185.3,
+        "mean": 4.31,
+        "median": -18.12,
+        "win_rate": 0.419,
+        "t3r": -319.5,
+        "min": -137.96,
+        "max": 211.77
+      }
+    },
+    "spread_le_0p15": {
+      "n": 44,
+      "executable_15m_fee_net": {
+        "n": 44,
+        "sum": 72.0,
+        "mean": 1.64,
+        "median": -18.45,
+        "win_rate": 0.409,
+        "t3r": -432.8,
+        "min": -137.96,
+        "max": 211.77
+      }
+    },
+    "ask_depth_ge_100k": {
+      "n": 27,
+      "executable_15m_fee_net": {
+        "n": 27,
+        "sum": -250.6,
+        "mean": -9.28,
+        "median": -21.73,
+        "win_rate": 0.407,
+        "t3r": -601.3,
+        "min": -137.96,
+        "max": 147.78
+      }
+    },
+    "bid_imbalance_ge_0": {
+      "n": 15,
+      "executable_15m_fee_net": {
+        "n": 15,
+        "sum": 220.7,
+        "mean": 14.71,
+        "median": -18.79,
+        "win_rate": 0.333,
+        "t3r": -254.8,
+        "min": -113.3,
+        "max": 211.77
+      }
+    }
+  },
+  "swing_marker": {
+    "15m_fee_net": {
+      "n": 149,
+      "sum": 4800.3,
+      "mean": 32.22,
+      "median": 17.55,
+      "win_rate": 0.664,
+      "t3r": 4131.8,
+      "min": -120.82,
+      "max": 236.25
+    },
+    "60m_fee_net": {
+      "n": 148,
+      "sum": 3712.3,
+      "mean": 25.08,
+      "median": 13.93,
+      "win_rate": 0.601,
+      "t3r": 2884.7,
+      "min": -252.77,
+      "max": 283.27
+    },
+    "120m_fee_net": {
+      "n": 145,
+      "sum": 4565.5,
+      "mean": 31.49,
+      "median": 21.65,
+      "win_rate": 0.593,
+      "t3r": 3533.5,
+      "min": -395.75,
+      "max": 364.89
+    },
+    "240m_fee_net": {
+      "n": 145,
+      "sum": 4557.3,
+      "mean": 31.43,
+      "median": 11.7,
+      "win_rate": 0.51,
+      "t3r": 3235.0,
+      "min": -500.36,
+      "max": 489.34
+    },
+    "480m_fee_net": {
+      "n": 143,
+      "sum": 2907.9,
+      "mean": 20.33,
+      "median": 1.4,
+      "win_rate": 0.503,
+      "t3r": 1455.5,
+      "min": -547.24,
+      "max": 576.83
+    }
+  },
+  "extreme_fade": {
+    "threshold": 1847540.9,
+    "n": 24,
+    "short_15m_fee_net": {
+      "n": 24,
+      "sum": -889.6,
+      "mean": -37.07,
+      "median": -23.76,
+      "win_rate": 0.25,
+      "t3r": -1060.2,
+      "min": -248.45,
+      "max": 108.62
+    },
+    "short_60m_fee_net": {
+      "n": 24,
+      "sum": -945.4,
+      "mean": -39.39,
+      "median": -17.64,
+      "win_rate": 0.292,
+      "t3r": -1227.4,
+      "min": -295.47,
+      "max": 149.75
+    },
+    "long_15m_fee_net": {
+      "n": 24,
+      "sum": 596.8,
+      "mean": 24.87,
+      "median": 11.56,
+      "win_rate": 0.625,
+      "t3r": 104.8,
+      "min": -120.82,
+      "max": 236.25
+    }
+  },
+  "cross_asset_lead": {
+    "BTC": {
+      "symbol": "BTCUSDT",
+      "lead_threshold": 819813.9,
+      "lead_events": 70,
+      "eth_subset_n": 16,
+      "eth_subset_15m_fee_net": {
+        "n": 16,
+        "sum": 293.2,
+        "mean": 18.32,
+        "median": -8.3,
+        "win_rate": 0.5,
+        "t3r": -184.9,
+        "min": -112.88,
+        "max": 210.7
+      },
+      "eth_without_lead_15m_fee_net": {
+        "n": 38,
+        "sum": -209.9,
+        "mean": -5.52,
+        "median": -16.58,
+        "win_rate": 0.342,
+        "t3r": -682.7,
+        "min": -136.91,
+        "max": 205.79
+      }
+    },
+    "SOL": {
+      "symbol": "SOLUSDT",
+      "lead_threshold": 296978.8,
+      "lead_events": 47,
+      "eth_subset_n": 6,
+      "eth_subset_15m_fee_net": {
+        "n": 6,
+        "sum": 423.1,
+        "mean": 70.51,
+        "median": 54.17,
+        "win_rate": 0.667,
+        "t3r": -80.9,
+        "min": -58.77,
+        "max": 210.7
+      },
+      "eth_without_lead_15m_fee_net": {
+        "n": 48,
+        "sum": -339.8,
+        "mean": -7.08,
+        "median": -17.71,
+        "win_rate": 0.354,
+        "t3r": -754.5,
+        "min": -136.91,
+        "max": 147.41
+      }
+    }
+  },
+  "nav_transitions": {
+    "low_to_high": {
+      "n": 4743,
+      "15m_fee_net": {
+        "n": 4742,
+        "sum": -30370.7,
+        "mean": -6.4,
+        "median": -6.05,
+        "win_rate": 0.377,
+        "t3r": -31039.8,
+        "min": -360.56,
+        "max": 244.16
+      },
+      "60m_fee_net": {
+        "n": 4732,
+        "sum": -46618.4,
+        "mean": -9.85,
+        "median": -8.6,
+        "win_rate": 0.413,
+        "t3r": -47657.6,
+        "min": -532.28,
+        "max": 372.01
+      }
+    },
+    "high_to_low": {
+      "n": 4747,
+      "15m_fee_net": {
+        "n": 4746,
+        "sum": -40996.9,
+        "mean": -8.64,
+        "median": -7.81,
+        "win_rate": 0.345,
+        "t3r": -41688.6,
+        "min": -352.47,
+        "max": 266.17
+      },
+      "60m_fee_net": {
+        "n": 4737,
+        "sum": -55723.5,
+        "mean": -11.76,
+        "median": -9.63,
+        "win_rate": 0.402,
+        "t3r": -56690.7,
+        "min": -610.78,
+        "max": 340.33
+      }
+    }
+  },
+  "state_labels": {
+    "MOMENTUM_BUILDING": {
+      "n": 32,
+      "15m_fee_net": {
+        "n": 32,
+        "sum": 38.0,
+        "mean": 1.19,
+        "median": -19.16,
+        "win_rate": 0.406,
+        "t3r": -446.2,
+        "min": -136.91,
+        "max": 210.7
+      },
+      "60m_fee_net": {
+        "n": 32,
+        "sum": -33.1,
+        "mean": -1.04,
+        "median": -25.7,
+        "win_rate": 0.375,
+        "t3r": -592.2,
+        "min": -146.15,
+        "max": 225.85
+      }
+    },
+    "SQUEEZE_ACTIVE": {
+      "n": 54,
+      "15m_fee_net": {
+        "n": 54,
+        "sum": 83.3,
+        "mean": 1.54,
+        "median": -16.58,
+        "win_rate": 0.389,
+        "t3r": -480.6,
+        "min": -136.91,
+        "max": 210.7
+      },
+      "60m_fee_net": {
+        "n": 54,
+        "sum": -568.4,
+        "mean": -10.53,
+        "median": -32.97,
+        "win_rate": 0.333,
+        "t3r": -1213.4,
+        "min": -171.73,
+        "max": 225.85
+      }
+    },
+    "EXHAUSTION_RISK": {
+      "n": 31,
+      "15m_fee_net": {
+        "n": 31,
+        "sum": -528.9,
+        "mean": -17.06,
+        "median": -23.17,
+        "win_rate": 0.258,
+        "t3r": -833.1,
+        "min": -112.88,
+        "max": 126.06
+      },
+      "60m_fee_net": {
+        "n": 31,
+        "sum": -878.6,
+        "mean": -28.34,
+        "median": -44.16,
+        "win_rate": 0.226,
+        "t3r": -1353.3,
+        "min": -171.73,
+        "max": 225.85
+      }
+    },
+    "PULLBACK_ENTRY_OK": {
+      "n": 14,
+      "15m_fee_net": {
+        "n": 14,
+        "sum": 346.4,
+        "mean": 24.74,
+        "median": -12.0,
+        "win_rate": 0.357,
+        "t3r": -131.3,
+        "min": -50.14,
+        "max": 210.7
+      },
+      "60m_fee_net": {
+        "n": 14,
+        "sum": 208.1,
+        "mean": 14.86,
+        "median": -13.2,
+        "win_rate": 0.429,
+        "t3r": -230.0,
+        "min": -161.96,
+        "max": 198.78
+      }
+    },
+    "NO_TRADE_LIQUIDITY_THIN": {
+      "n": 23,
+      "15m_fee_net": {
+        "n": 23,
+        "sum": -549.1,
+        "mean": -23.87,
+        "median": -29.14,
+        "win_rate": 0.304,
+        "t3r": -776.0,
+        "min": -136.91,
+        "max": 126.06
+      },
+      "60m_fee_net": {
+        "n": 23,
+        "sum": -448.5,
+        "mean": -19.5,
+        "median": -43.79,
+        "win_rate": 0.348,
+        "t3r": -873.3,
+        "min": -146.15,
+        "max": 225.85
+      }
+    },
+    "SECOND_LEG_PROBABLE": {
+      "n": 15,
+      "15m_fee_net": {
+        "n": 15,
+        "sum": 216.9,
+        "mean": 14.46,
+        "median": 15.97,
+        "win_rate": 0.6,
+        "t3r": -66.8,
+        "min": -78.13,
+        "max": 188.4
+      },
+      "60m_fee_net": {
+        "n": 14,
+        "sum": 193.0,
+        "mean": 13.79,
+        "median": 10.34,
+        "win_rate": 0.5,
+        "t3r": -279.6,
+        "min": -132.24,
+        "max": 219.07
+      }
+    }
+  },
+  "verdict": "RESEARCH_ONLY: possible_leads=[]; failed_or_weak=['acceleration anchors do not survive executable/T3R', 'passive pullback not robust enough', 'second-leg confirmation does not produce robust sample', 'extreme fade short does not survive']"
+}
