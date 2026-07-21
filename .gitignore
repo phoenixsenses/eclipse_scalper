@@ -93,3 +93,17 @@ data/ami/*.jsonl
 data/ami/*.npz
 data/ami/backups/
 data/ami/candle_repair_source_package/
+
+# Live shadow/paper/forward runtime state, status dashboards & ledgers
+# (continuously rewritten by the running Eclipse stack; live on disk, monitored
+#  via dashboard :8771; latest snapshot archived to D:/eclipse_evidence_archive)
+reports/shadow/
+reports/WATCHDOG_STATUS.json
+reports/LANE_SHADOW_EMITTER_STATE.json
+reports/stream_health_state.json
+reports/research/s34/LIQ_ANOMALY_MONITOR.json
+reports/research/s34/S34_DAILY_EXECUTION_REPORT.md
+reports/research/s34/S34_SHADOW_PAPER_*
+reports/research/s34/S34_V_ENGINE_SIZING_SHADOW_PAPER*
+reports/research/s34/S34_V_ENGINE_V0_2_SHADOW_MIRROR_BRIEF.*
+reports/research/s34/S34_V_ENGINE_V0_2_SHADOW_MIRROR_LEDGER.jsonl
