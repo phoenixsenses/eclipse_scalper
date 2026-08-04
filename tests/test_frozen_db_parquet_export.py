@@ -324,6 +324,45 @@ def test_null_slot_contents_cannot_leak_into_the_digest() -> None:
     assert fx.digest_batch(left, cols) == fx.digest_batch(right, cols)
 
 
+def test_bytes_under_a_null_cannot_change_the_digest() -> None:
+    """The real defect: identical values, different garbage physically under the null.
+
+    detector_heartbeat hit exactly this — an int64 column read back from Parquet
+    carried different bytes in its null slots than the same column built from SQLite
+    rows, while every logical value and the validity bitmap matched. fill_null() did
+    not rewrite them, so the gate rejected identical data. Constructed here from raw
+    buffers because that is the only way to pin the physical layout.
+    """
+    import numpy as np
+    import pyarrow as pa
+
+    cols = [("x", "INTEGER")]
+    bitmap = pa.array([True, False, True]).buffers()[1]  # null at index 1
+    left = pa.Array.from_buffers(
+        pa.int64(), 3, [bitmap, pa.py_buffer(np.array([5, 111111, 7], dtype="<i8").tobytes())]
+    )
+    right = pa.Array.from_buffers(
+        pa.int64(), 3, [bitmap, pa.py_buffer(np.array([5, 999999, 7], dtype="<i8").tobytes())]
+    )
+    assert left.to_pylist() == right.to_pylist() == [5, None, 7]
+
+    schema = fx.arrow_schema(cols)
+    a = fx.digest_batch(pa.Table.from_arrays([left], schema=schema), cols)
+    b = fx.digest_batch(pa.Table.from_arrays([right], schema=schema), cols)
+    assert a == b
+
+
+def test_digest_does_not_mutate_the_array_it_hashes() -> None:
+    """Masking null slots must copy; writing into Arrow's buffer would corrupt data."""
+    import pyarrow as pa
+
+    cols = [("x", "REAL")]
+    arr = pa.array([1.5, None, 2.5], type=pa.float64())
+    table = pa.Table.from_arrays([arr], schema=fx.arrow_schema(cols))
+    fx.digest_batch(table, cols)
+    assert table.column("x").to_pylist() == [1.5, None, 2.5]
+
+
 def test_text_values_are_distinguished_by_content_and_order() -> None:
     cols = [("a", "TEXT"), ("b", "TEXT")]
     assert _digest([("AB", "C")], cols) != _digest([("A", "BC")], cols)
@@ -385,6 +424,116 @@ def test_empty_partition_records_zero_rows_and_no_file(source_db: Path, tmp_path
     assert record["path"] is None
     assert record["digest"] == fx.EMPTY_DIGEST
     assert not fx.partition_path(out_root, "mark_prices", "BTCUSDT", record["dt"]).exists()
+
+
+def _build_symbolless(path: Path, n: int) -> None:
+    """Mirrors detector_heartbeat: no symbol column, and no index at all."""
+    con = sqlite3.connect(path)
+    con.execute(
+        """
+        CREATE TABLE detector_heartbeat (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ts_ms INTEGER,
+            state TEXT,
+            btc_watch_active INTEGER,
+            last_btc_liq_ts_ms INTEGER
+        )
+        """
+    )
+    con.executemany(
+        "INSERT INTO detector_heartbeat (ts_ms, state, btc_watch_active, last_btc_liq_ts_ms)"
+        " VALUES (?, ?, ?, ?)",
+        [(DAY0 + i * 1000, "IDLE" if i % 3 else "ARMED", i % 2, None if i % 5 else DAY0) for i in range(n)],
+    )
+    con.commit()
+    con.close()
+
+
+def _hb(source: Path, out_root: Path, *flags: str) -> int:
+    return fx.main(
+        [
+            "--table",
+            "detector_heartbeat",
+            "--db",
+            str(source),
+            "--out-root",
+            str(out_root),
+            "--id-rows",
+            "40",
+            "--batch-rows",
+            "25",
+            *flags,
+        ]
+    )
+
+
+def test_symbolless_table_is_partitioned_by_id_range(tmp_path: Path) -> None:
+    source = tmp_path / "frozen.db"
+    _build_symbolless(source, 100)
+    out_root = tmp_path / "parquet"
+    assert _hb(source, out_root) == 0
+    assert _hb(source, out_root, "--verify", "--expect-rows", "100") == 0
+
+    manifest = fx.read_manifest(fx.manifest_path(out_root, "detector_heartbeat"))
+    assert sum(rec["rows"] for rec in manifest.values()) == 100
+    assert all(rec["kind"] == "id_range" for rec in manifest.values())
+    assert any("idrange=" in (rec["path"] or "") for rec in manifest.values())
+
+
+def test_symbolless_gate_still_catches_tampering(tmp_path: Path) -> None:
+    source = tmp_path / "frozen.db"
+    _build_symbolless(source, 100)
+    out_root = tmp_path / "parquet"
+    assert _hb(source, out_root) == 0
+    assert _hb(source, out_root, "--verify") == 0
+
+    manifest = fx.read_manifest(fx.manifest_path(out_root, "detector_heartbeat"))
+    target = out_root / next(r["path"] for r in manifest.values() if r["path"])
+    import pyarrow as pa
+
+    table = pq.read_table(target)
+    states = table.column("state").to_pylist()
+    states[0] = "TAMPERED"
+    mutated = table.set_column(
+        table.schema.get_field_index("state"), "state", pa.array(states, pa.string())
+    )
+    pq.write_table(mutated, target, compression="zstd")
+    assert _hb(source, out_root, "--verify") == 2
+
+
+def test_id_gaps_do_not_drop_rows(tmp_path: Path) -> None:
+    """Deleted ids leave holes; contiguous ranges must still cover every surviving row."""
+    source = tmp_path / "frozen.db"
+    _build_symbolless(source, 100)
+    con = sqlite3.connect(source)
+    con.execute("DELETE FROM detector_heartbeat WHERE id % 3 = 0")
+    con.commit()
+    remaining = con.execute("SELECT COUNT(*) FROM detector_heartbeat").fetchone()[0]
+    con.close()
+
+    out_root = tmp_path / "parquet"
+    assert _hb(source, out_root) == 0
+    assert _hb(source, out_root, "--verify", "--expect-rows", str(remaining)) == 0
+
+
+def test_symbols_flag_is_refused_on_a_symbolless_table(tmp_path: Path) -> None:
+    source = tmp_path / "frozen.db"
+    _build_symbolless(source, 10)
+    assert (
+        fx.main(
+            [
+                "--table",
+                "detector_heartbeat",
+                "--db",
+                str(source),
+                "--out-root",
+                str(tmp_path / "parquet"),
+                "--symbols",
+                "BTCUSDT",
+            ]
+        )
+        == 2
+    )
 
 
 def test_verification_resumes_instead_of_starting_over(

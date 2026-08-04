@@ -59,6 +59,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Iterator, Sequence
 
+import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
 
@@ -221,26 +222,43 @@ def digest_batch(table: pa.Table, cols: Sequence[tuple[str, str]]) -> bytes:
         arr = _as_array(table.column(index))
         hasher.update(_KIND_TAG[kind])
         hasher.update(struct.pack("<Q", len(arr)))
+        valid = None
         if arr.null_count == 0:
             hasher.update(b"\x00")
         else:
+            valid = arr.is_valid().to_numpy(zero_copy_only=False)
             hasher.update(b"\x01")
-            hasher.update(arr.is_valid().to_numpy(zero_copy_only=False).tobytes())
+            hasher.update(valid.tobytes())
+
+        def canonical(values: "np.ndarray", sentinel: Any) -> bytes:
+            """Overwrite null slots so only real values can reach the hash.
+
+            fill_null() does NOT reliably rewrite the bytes physically sitting under
+            a null -- measured on detector_heartbeat, an int64 column read back from
+            Parquet carried different garbage there than the same column built from
+            SQLite rows, while every logical value and the validity bitmap matched.
+            Trusting fill_null made the gate report a mismatch on identical data.
+            """
+            if valid is not None:
+                values[~valid] = sentinel
+            return values.tobytes()
+
         if kind == "INTEGER":
-            filled = arr.fill_null(0).to_numpy(zero_copy_only=False)
-            hasher.update(filled.astype("<i8", copy=False).tobytes())
+            arrow_values = arr.fill_null(0).to_numpy(zero_copy_only=False)
+            hasher.update(canonical(arrow_values.astype("<i8", copy=True), 0))
         elif kind == "REAL":
-            filled = arr.fill_null(0.0).to_numpy(zero_copy_only=False)
-            hasher.update(filled.astype("<f8", copy=False).tobytes())
+            arrow_values = arr.fill_null(0.0).to_numpy(zero_copy_only=False)
+            hasher.update(canonical(arrow_values.astype("<f8", copy=True), 0.0))
         elif kind == "TEXT":
             encoded = arr.fill_null("").dictionary_encode()
-            # dictionary ids follow first-appearance order, so this is deterministic
+            # dictionary ids follow first-appearance order over the filled values,
+            # which are logically identical on both sides, so this is deterministic
             for value in encoded.dictionary.to_pylist():
                 raw = value.encode("utf-8")
                 hasher.update(struct.pack("<I", len(raw)) + raw)
             hasher.update(b"\xff")
-            indices = _as_array(encoded.indices).fill_null(0).to_numpy(zero_copy_only=False)
-            hasher.update(indices.astype("<i4", copy=False).tobytes())
+            idx = _as_array(encoded.indices).fill_null(0).to_numpy(zero_copy_only=False)
+            hasher.update(canonical(idx.astype("<i4", copy=True), -1))
         else:
             for value in arr.to_pylist():
                 raw = b"" if value is None else bytes(value)
@@ -341,6 +359,88 @@ def plan_partitions(
     return plan
 
 
+DEFAULT_ID_ROWS_PER_PARTITION = 10_000_000
+
+
+def has_symbol_column(cols: Sequence[tuple[str, str]]) -> bool:
+    return any(name == "symbol" for name, _ in cols)
+
+
+def plan_partitions_by_id(
+    con: sqlite3.Connection, table: str, cols: Sequence[tuple[str, str]], rows_per_partition: int
+) -> list[dict[str, Any]]:
+    """Partition a symbol-less table by rowid range.
+
+    Some frozen tables (detector_heartbeat) have no symbol column and no index at
+    all -- not even on ts_ms. Slicing those by day would make every partition a full
+    scan of half a billion rows. `id` is INTEGER PRIMARY KEY, i.e. the rowid, so an
+    id range is a B-tree range scan: sequential, and the only cheap slicing available.
+    Ranges are contiguous by construction, so gaps in id simply yield empty
+    partitions rather than skipped rows.
+    """
+    if not any(name == "id" for name, _ in cols):
+        raise ExportError(
+            f"{table} has neither a symbol column nor an id column; cannot partition it"
+        )
+    lo_row = con.execute(f"SELECT MIN(id) FROM {table}").fetchone()
+    if lo_row is None or lo_row[0] is None:
+        return []
+    hi_row = con.execute(f"SELECT MAX(id) FROM {table}").fetchone()
+    lo, hi = int(lo_row[0]), int(hi_row[0])
+    parts: list[dict[str, Any]] = []
+    cursor = lo
+    while cursor <= hi:
+        end = cursor + rows_per_partition
+        parts.append({"kind": "id_range", "lo": cursor, "hi": end, "label": f"{cursor:015d}"})
+        cursor = end
+    return parts
+
+
+def partition_where(part: dict[str, Any]) -> tuple[str, tuple[Any, ...]]:
+    if part.get("kind") == "id_range":
+        return "id >= ? AND id < ?", (part["lo"], part["hi"])
+    return (
+        "symbol = ? AND ts_ms >= ? AND ts_ms < ?",
+        (part["symbol"], part["start_ms"], part["end_ms"]),
+    )
+
+
+def part_key(table: str, part: dict[str, Any]) -> str:
+    if part.get("kind") == "id_range":
+        return f"{table}|idrange|{part['label']}"
+    return partition_key(table, part["symbol"], part["dt"])
+
+
+def part_path(out_root: Path, table: str, part: dict[str, Any]) -> Path:
+    if part.get("kind") == "id_range":
+        return out_root / table / f"idrange={part['label']}" / "part-0000.parquet"
+    return partition_path(out_root, table, part["symbol"], part["dt"])
+
+
+def part_label(part: dict[str, Any]) -> str:
+    if part.get("kind") == "id_range":
+        return f"id {part['lo']:,}-{part['hi']:,}"
+    return f"{part['symbol']} {part['dt']}"
+
+
+def part_from_record(record: dict[str, Any]) -> dict[str, Any]:
+    """Rebuild the partition selector from a manifest row, for --verify."""
+    if record.get("kind") == "id_range":
+        return {
+            "kind": "id_range",
+            "lo": int(record["lo"]),
+            "hi": int(record["hi"]),
+            "label": record["label"],
+        }
+    return {
+        "kind": "symbol_day",
+        "symbol": record["symbol"],
+        "dt": record["dt"],
+        "start_ms": int(record["start_ms"]),
+        "end_ms": int(record["end_ms"]),
+    }
+
+
 def partition_key(table: str, symbol: str, dt: str) -> str:
     return f"{table}|{symbol}|{dt}"
 
@@ -371,7 +471,30 @@ def verified_path(out_root: Path, table: str) -> Path:
     return out_root / table / "_verified.jsonl"
 
 
-def verification_carries(record: dict[str, Any], checkpoint: dict[str, Any], want_source: bool) -> bool:
+def source_fingerprint(db_path: Path) -> str:
+    """Cheap observable identity of the source, including its WAL sidecars.
+
+    Carrying a past verification forward silently assumes the source has not moved.
+    The frozen segment is supposed to be immutable -- but "supposed to be" is exactly
+    what this gate exists to check, so the assumption is turned into a comparison.
+    """
+    parts: list[str] = []
+    for suffix in ("", "-wal", "-shm"):
+        probe = Path(str(db_path) + suffix)
+        try:
+            stat = probe.stat()
+            parts.append(f"{suffix or 'db'}:{stat.st_size}:{stat.st_mtime_ns}")
+        except OSError:
+            parts.append(f"{suffix or 'db'}:absent")
+    return "|".join(parts)
+
+
+def verification_carries(
+    record: dict[str, Any],
+    checkpoint: dict[str, Any],
+    want_source: bool,
+    source_fp: str,
+) -> bool:
     """Whether a past verification of this partition can stand in for redoing it.
 
     A full pass over book_ticker takes hours and has already died once at 246/305,
@@ -383,6 +506,9 @@ def verification_carries(record: dict[str, Any], checkpoint: dict[str, Any], wan
     if checkpoint.get("digest") != record.get("digest"):
         return False
     if want_source and checkpoint.get("mode") != "parquet+sqlite":
+        return False
+    if want_source and checkpoint.get("source_fp") != source_fp:
+        # The source drifted since that pass agreed with it, so the agreement is void.
         return False
     if checkpoint.get("file_bytes") != record.get("file_bytes"):
         return False
@@ -500,17 +626,12 @@ def iter_batches(
     con: sqlite3.Connection,
     table: str,
     cols: Sequence[tuple[str, str]],
-    symbol: str,
-    start_ms: int,
-    end_ms: int,
+    part: dict[str, Any],
     batch_rows: int,
 ) -> Iterator[list[tuple[Any, ...]]]:
     col_sql = ", ".join(name for name, _ in cols)
-    sql = (
-        f"SELECT {col_sql} FROM {table} "
-        "WHERE symbol = ? AND ts_ms >= ? AND ts_ms < ?"
-    )
-    cur = con.execute(sql, (symbol, start_ms, end_ms))
+    where, params = partition_where(part)
+    cur = con.execute(f"SELECT {col_sql} FROM {table} WHERE {where}", params)
     try:
         while True:
             rows = cur.fetchmany(batch_rows)
@@ -531,10 +652,8 @@ def export_partition(
     batch_rows: int,
     compression: str,
 ) -> dict[str, Any]:
-    """Write one (symbol, day) partition and return its manifest record."""
-    symbol = part["symbol"]
-    dt = part["dt"]
-    target = partition_path(out_root, table, symbol, dt)
+    """Write one partition (symbol-day or id-range) and return its manifest record."""
+    target = part_path(out_root, table, part)
     tmp = target.with_suffix(".parquet.tmp")
     target.parent.mkdir(parents=True, exist_ok=True)
     if tmp.exists():
@@ -547,9 +666,7 @@ def export_partition(
     writer: pq.ParquetWriter | None = None
 
     try:
-        for rows in iter_batches(
-            con, table, cols, symbol, part["start_ms"], part["end_ms"], batch_rows
-        ):
+        for rows in iter_batches(con, table, cols, part, batch_rows):
             arrow_table = rows_to_arrow(rows, cols, schema)
             digest = chain_digest(digest, digest_batch(arrow_table, cols))
             if writer is None:
@@ -573,14 +690,11 @@ def export_partition(
         os.replace(tmp, target)
         file_bytes = target.stat().st_size
 
-    return {
+    record = {
         "manifest_version": MANIFEST_VERSION,
-        "key": partition_key(table, symbol, dt),
+        "key": part_key(table, part),
         "table": table,
-        "symbol": symbol,
-        "dt": dt,
-        "start_ms": part["start_ms"],
-        "end_ms": part["end_ms"],
+        "kind": part.get("kind", "symbol_day"),
         "rows": rows_total,
         "batches": batches,
         "batch_rows": batch_rows,
@@ -591,6 +705,19 @@ def export_partition(
         "elapsed_sec": round(time.time() - started, 3),
         "columns": [{"name": name, "type": kind} for name, kind in cols],
     }
+    # Carry the selector itself, so --verify can rebuild the exact same query.
+    if part.get("kind") == "id_range":
+        record.update({"lo": part["lo"], "hi": part["hi"], "label": part["label"]})
+    else:
+        record.update(
+            {
+                "symbol": part["symbol"],
+                "dt": part["dt"],
+                "start_ms": part["start_ms"],
+                "end_ms": part["end_ms"],
+            }
+        )
+    return record
 
 
 def run_status(db_path: Path, table: str, out_root: Path, expect_rows: int | None) -> int:
@@ -620,7 +747,13 @@ def run_status(db_path: Path, table: str, out_root: Path, expect_rows: int | Non
     try:
         con = open_source_ro(db_path)
         try:
-            total = len(plan_partitions(con, table, discover_symbols(con, table)))
+            cols = declared_types(con, table)
+            if has_symbol_column(cols):
+                total = len(plan_partitions(con, table, discover_symbols(con, table)))
+            else:
+                total = len(
+                    plan_partitions_by_id(con, table, cols, DEFAULT_ID_ROWS_PER_PARTITION)
+                )
         finally:
             con.close()
     except ExportError:
@@ -650,6 +783,7 @@ def run_export(
     compression: str,
     max_partitions: int | None,
     plan_only: bool,
+    id_rows: int = DEFAULT_ID_ROWS_PER_PARTITION,
 ) -> int:
     con = open_source_ro(db_path)
     try:
@@ -657,19 +791,25 @@ def run_export(
         schema = arrow_schema(cols)
         # Always enumerate the truth, even when the caller named symbols: an omitted
         # symbol must be an explicit, printed decision rather than a silent gap.
-        present = discover_symbols(con, table)
-        if not present:
-            raise ExportError(f"no symbols found for {table}")
-        if symbols:
-            unknown = sorted(set(symbols) - set(present))
-            if unknown:
-                raise ExportError(f"--symbols names symbols absent from {table}: {unknown}")
-            excluded = sorted(set(present) - set(symbols))
-            syms = [s for s in present if s in set(symbols)]
+        if has_symbol_column(cols):
+            present = discover_symbols(con, table)
+            if not present:
+                raise ExportError(f"no symbols found for {table}")
+            if symbols:
+                unknown = sorted(set(symbols) - set(present))
+                if unknown:
+                    raise ExportError(f"--symbols names symbols absent from {table}: {unknown}")
+                excluded = sorted(set(present) - set(symbols))
+                syms = [s for s in present if s in set(symbols)]
+            else:
+                excluded = []
+                syms = present
+            plan = plan_partitions(con, table, syms)
         else:
-            excluded = []
-            syms = present
-        plan = plan_partitions(con, table, syms)
+            if symbols:
+                raise ExportError(f"{table} has no symbol column; --symbols does not apply")
+            present, syms, excluded = [], [], []
+            plan = plan_partitions_by_id(con, table, cols, id_rows)
 
         mpath = manifest_path(out_root, table)
         done = {
@@ -677,17 +817,20 @@ def run_export(
             for key, rec in read_manifest(mpath).items()
             if rec.get("manifest_version") == MANIFEST_VERSION
         }
-        pending = [p for p in plan if partition_key(table, p["symbol"], p["dt"]) not in done]
+        pending = [p for p in plan if part_key(table, p) not in done]
 
         print(f"table={table} source={db_path}")
-        print(f"symbols_in_table={','.join(present)}")
-        print(f"symbols_exported={','.join(syms)}")
+        if has_symbol_column(cols):
+            print(f"symbols_in_table={','.join(present)}")
+            print(f"symbols_exported={','.join(syms)}")
+        else:
+            print(f"partition_mode=id_range rows_per_partition={id_rows:,}")
         if excluded:
             print(f"SYMBOLS_EXCLUDED={','.join(excluded)} <- these rows will NOT be archived")
         print(f"partitions_total={len(plan)} done={len(plan) - len(pending)} pending={len(pending)}")
         if plan_only:
             for part in pending[:20]:
-                print(f"  PENDING {part['symbol']} {part['dt']}")
+                print(f"  PENDING {part_label(part)}")
             if len(pending) > 20:
                 print(f"  ... {len(pending) - 20} more")
             return 0
@@ -709,7 +852,7 @@ def run_export(
                 bytes_written += record["file_bytes"]
                 rate = record["rows"] / record["elapsed_sec"] if record["elapsed_sec"] > 0 else 0.0
                 print(
-                    f"[{index}/{len(pending)}] {record['symbol']} {record['dt']} "
+                    f"[{index}/{len(pending)}] {part_label(part)} "
                     f"rows={record['rows']:,} bytes={record['file_bytes']:,} "
                     f"{record['elapsed_sec']:.1f}s ({rate:,.0f} rows/s)"
                 )
@@ -748,15 +891,13 @@ def digest_sqlite(
     con: sqlite3.Connection,
     table: str,
     cols: Sequence[tuple[str, str]],
-    symbol: str,
-    start_ms: int,
-    end_ms: int,
+    part: dict[str, Any],
     batch_rows: int,
 ) -> tuple[str, int]:
     schema = arrow_schema(cols)
     digest = EMPTY_DIGEST
     rows_total = 0
-    for rows in iter_batches(con, table, cols, symbol, start_ms, end_ms, batch_rows):
+    for rows in iter_batches(con, table, cols, part, batch_rows):
         digest = chain_digest(digest, digest_batch(rows_to_arrow(rows, cols, schema), cols))
         rows_total += len(rows)
     return digest, rows_total
@@ -795,12 +936,13 @@ def run_verify(
         )
         return 2
 
-    records = sorted(done.values(), key=lambda r: (r["symbol"], r["dt"]))
+    records = sorted(done.values(), key=lambda r: (r.get("symbol", ""), r.get("dt", r.get("label", ""))))
     if max_partitions is not None:
         records = records[:max_partitions]
 
     vpath = verified_path(out_root, table)
     checkpoint = {} if reverify else read_manifest(vpath)
+    source_fp = source_fingerprint(db_path)
 
     con = open_source_ro(db_path)
     try:
@@ -811,13 +953,13 @@ def run_verify(
         carried = 0
 
         for index, record in enumerate(records, start=1):
-            label = f"{record['symbol']} {record['dt']}"
+            label = part_label(part_from_record(record))
             expected = record["digest"]
             batch_rows = int(record.get("batch_rows", DEFAULT_BATCH_ROWS))
             record["_file_mtime_ns"] = parquet_stat(out_root, record)
 
             prior = checkpoint.get(record["key"])
-            if prior and verification_carries(record, prior, not skip_source):
+            if prior and verification_carries(record, prior, not skip_source, source_fp):
                 rows_checked += record["rows"]
                 carried += 1
                 continue
@@ -842,13 +984,7 @@ def run_verify(
 
             if not skip_source:
                 src_digest, src_rows = digest_sqlite(
-                    con,
-                    table,
-                    cols,
-                    record["symbol"],
-                    int(record["start_ms"]),
-                    int(record["end_ms"]),
-                    batch_rows,
+                    con, table, cols, part_from_record(record), batch_rows
                 )
                 if src_rows != record["rows"]:
                     failures.append(
@@ -872,6 +1008,7 @@ def run_verify(
                         "file_bytes": record["file_bytes"],
                         "file_mtime_ns": record["_file_mtime_ns"],
                         "mode": "parquet-only" if skip_source else "parquet+sqlite",
+                        "source_fp": source_fp,
                         "verified_utc": datetime.now(timezone.utc).isoformat(),
                     },
                 )
@@ -923,6 +1060,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--out-root", default=str(DEFAULT_OUT_ROOT))
     parser.add_argument("--symbols", default="", help="comma separated; avoids a DISTINCT scan")
     parser.add_argument("--batch-rows", type=int, default=DEFAULT_BATCH_ROWS)
+    parser.add_argument(
+        "--id-rows",
+        type=int,
+        default=DEFAULT_ID_ROWS_PER_PARTITION,
+        help="rows per partition for tables with no symbol column (id-range mode)",
+    )
     parser.add_argument("--compression", default="zstd")
     parser.add_argument("--max-partitions", type=int, default=None)
     parser.add_argument("--plan", action="store_true", help="show pending partitions, write nothing")
@@ -977,6 +1120,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.compression,
             args.max_partitions,
             args.plan,
+            args.id_rows,
         )
     except ExportError as exc:
         print(f"EXPORT_ERROR {exc}")
