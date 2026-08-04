@@ -367,6 +367,40 @@ def lock_path(out_root: Path, table: str) -> Path:
     return out_root / table / "_export.lock"
 
 
+def verified_path(out_root: Path, table: str) -> Path:
+    return out_root / table / "_verified.jsonl"
+
+
+def verification_carries(record: dict[str, Any], checkpoint: dict[str, Any], want_source: bool) -> bool:
+    """Whether a past verification of this partition can stand in for redoing it.
+
+    A full pass over book_ticker takes hours and has already died once at 246/305,
+    so the result of each partition is checkpointed. Carrying a result forward is
+    only sound while nothing it depended on has moved, hence all four conditions:
+    the digest it agreed with, the file it read (size and mtime), and the mode --
+    a parquet-only pass must never satisfy a request that includes the source.
+    """
+    if checkpoint.get("digest") != record.get("digest"):
+        return False
+    if want_source and checkpoint.get("mode") != "parquet+sqlite":
+        return False
+    if checkpoint.get("file_bytes") != record.get("file_bytes"):
+        return False
+    if checkpoint.get("file_mtime_ns") != record.get("_file_mtime_ns"):
+        return False
+    return True
+
+
+def parquet_stat(out_root: Path, record: dict[str, Any]) -> int | None:
+    if not record.get("path"):
+        return None
+    target = out_root / record["path"]
+    try:
+        return target.stat().st_mtime_ns
+    except OSError:
+        return None
+
+
 class ExportLock:
     """Single-writer lock over one table's archive directory.
 
@@ -735,6 +769,7 @@ def run_verify(
     max_partitions: int | None,
     skip_source: bool,
     expect_rows: int | None = None,
+    reverify: bool = False,
 ) -> int:
     """Close the §225 proof gate: Parquet == manifest == live re-query of SQLite."""
     mpath = manifest_path(out_root, table)
@@ -764,16 +799,28 @@ def run_verify(
     if max_partitions is not None:
         records = records[:max_partitions]
 
+    vpath = verified_path(out_root, table)
+    checkpoint = {} if reverify else read_manifest(vpath)
+
     con = open_source_ro(db_path)
     try:
         cols = declared_types(con, table)
         failures: list[str] = []
         rows_checked = 0
+        checked_now = 0
+        carried = 0
 
         for index, record in enumerate(records, start=1):
             label = f"{record['symbol']} {record['dt']}"
             expected = record["digest"]
             batch_rows = int(record.get("batch_rows", DEFAULT_BATCH_ROWS))
+            record["_file_mtime_ns"] = parquet_stat(out_root, record)
+
+            prior = checkpoint.get(record["key"])
+            if prior and verification_carries(record, prior, not skip_source):
+                rows_checked += record["rows"]
+                carried += 1
+                continue
 
             if record["rows"] == 0:
                 if record.get("path"):
@@ -811,8 +858,27 @@ def run_verify(
                     failures.append(f"{label}: sqlite digest mismatch")
 
             rows_checked += record["rows"]
-            status = "OK" if not failures or not failures[-1].startswith(label) else "FAIL"
-            print(f"[{index}/{len(records)}] {label} rows={record['rows']:,} {status}")
+            checked_now += 1
+            passed = not failures or not failures[-1].startswith(label)
+            if passed:
+                # Checkpoint only what actually passed, so an interrupted run never
+                # carries forward a partition it had not finished agreeing with.
+                append_manifest(
+                    vpath,
+                    {
+                        "key": record["key"],
+                        "digest": expected,
+                        "rows": record["rows"],
+                        "file_bytes": record["file_bytes"],
+                        "file_mtime_ns": record["_file_mtime_ns"],
+                        "mode": "parquet-only" if skip_source else "parquet+sqlite",
+                        "verified_utc": datetime.now(timezone.utc).isoformat(),
+                    },
+                )
+            print(
+                f"[{index}/{len(records)}] {label} rows={record['rows']:,} "
+                f"{'OK' if passed else 'FAIL'}"
+            )
 
         if failures:
             print(f"VERIFY_FAIL partitions={len(records)} failures={len(failures)}")
@@ -834,8 +900,11 @@ def run_verify(
             print(f"COVERAGE_OK rows={rows_checked:,} == source table count")
 
         mode = "parquet-only" if skip_source else "parquet+sqlite"
+        # checked_now vs carried is stated explicitly: a 30-second VERIFY_OK that was
+        # almost entirely carried forward must not read like a full pass.
         print(
-            f"VERIFY_OK table={table} partitions={len(records)} rows={rows_checked:,} mode={mode}"
+            f"VERIFY_OK table={table} partitions={len(records)} rows={rows_checked:,} "
+            f"mode={mode} checked_now={checked_now} carried={carried}"
         )
         return 0
     finally:
@@ -872,6 +941,11 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="source table row count; verify fails unless the archive matches it exactly",
     )
+    parser.add_argument(
+        "--reverify",
+        action="store_true",
+        help="ignore the verification checkpoint and re-check every partition",
+    )
     return parser
 
 
@@ -892,6 +966,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.max_partitions,
                 args.skip_source_check,
                 args.expect_rows,
+                args.reverify,
             )
         return run_export(
             db_path,

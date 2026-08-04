@@ -387,6 +387,77 @@ def test_empty_partition_records_zero_rows_and_no_file(source_db: Path, tmp_path
     assert not fx.partition_path(out_root, "mark_prices", "BTCUSDT", record["dt"]).exists()
 
 
+def test_verification_resumes_instead_of_starting_over(
+    source_db: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """A full pass takes hours and has died at 80% once; the second pass must carry."""
+    out_root = tmp_path / "parquet"
+    assert _export(source_db, out_root) == 0
+    assert _verify(source_db, out_root) == 0
+    first = capsys.readouterr().out
+    assert "checked_now=3 carried=0" in first
+
+    assert _verify(source_db, out_root) == 0
+    second = capsys.readouterr().out
+    assert "checked_now=0 carried=3" in second
+
+
+def test_reverify_ignores_the_checkpoint(
+    source_db: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    out_root = tmp_path / "parquet"
+    assert _export(source_db, out_root) == 0
+    assert _verify(source_db, out_root) == 0
+    capsys.readouterr()
+    assert _verify(source_db, out_root, reverify=True) == 0
+    assert "checked_now=3 carried=0" in capsys.readouterr().out
+
+
+def test_a_carried_result_cannot_hide_a_parquet_changed_afterwards(
+    source_db: Path, tmp_path: Path
+) -> None:
+    """The dangerous failure: pass once, tamper, then have the pass carried forward."""
+    out_root = tmp_path / "parquet"
+    assert _export(source_db, out_root) == 0
+    assert _verify(source_db, out_root) == 0
+
+    path = fx.partition_path(out_root, "mark_prices", "ETHUSDT", fx.day_label(DAY0))
+    table = pq.read_table(path)
+    prices = table.column("mark_price").to_pylist()
+    prices[0] += 0.01
+    import pyarrow as pa
+
+    mutated = table.set_column(
+        table.schema.get_field_index("mark_price"), "mark_price", pa.array(prices, pa.float64())
+    )
+    pq.write_table(mutated, path, compression="zstd")
+
+    assert _verify(source_db, out_root) == 2
+
+
+def test_parquet_only_checkpoint_does_not_satisfy_a_full_pass(
+    source_db: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    out_root = tmp_path / "parquet"
+    assert _export(source_db, out_root) == 0
+    assert _verify(source_db, out_root, skip_source_check=True) == 0
+    capsys.readouterr()
+    # the weaker pass must not let the stronger one skip the source re-query
+    assert _verify(source_db, out_root) == 0
+    assert "checked_now=3 carried=0" in capsys.readouterr().out
+
+
+def test_failed_partition_is_not_checkpointed(source_db: Path, tmp_path: Path) -> None:
+    out_root = tmp_path / "parquet"
+    assert _export(source_db, out_root) == 0
+    fx.partition_path(out_root, "mark_prices", "ETHUSDT", fx.day_label(DAY0)).unlink()
+    assert _verify(source_db, out_root) == 2
+
+    vpath = fx.verified_path(out_root, "mark_prices")
+    carried = fx.read_manifest(vpath) if vpath.exists() else {}
+    assert fx.partition_key("mark_prices", "ETHUSDT", fx.day_label(DAY0)) not in carried
+
+
 def test_second_exporter_is_refused_while_one_is_running(
     source_db: Path, tmp_path: Path
 ) -> None:
