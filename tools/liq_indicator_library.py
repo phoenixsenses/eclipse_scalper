@@ -26,6 +26,8 @@ import sqlite3
 from dataclasses import dataclass, field, asdict
 from typing import Any
 
+from ami.storage.union_reader import history_floor_ms
+
 SYMBOL = "ETHUSDT"
 # freshness ceilings (ms): beyond these the source is considered stale -> indicator invalid
 FRESH_MARK_MS = 30_000        # mark ~6s cadence
@@ -33,6 +35,13 @@ FRESH_SPOT_MS = 20_000        # spot: honor 156 -> only ~60s live regime is usab
 FRESH_BOOK_MS = 10_000        # book ~sub-second when live
 FRESH_FUND_MS = 15 * 60_000   # funding updates slowly
 FRESH_OI_MS = 5 * 60_000      # OI poller ~60s public endpoint
+
+# How far BACK this module reaches. Named rather than inlined so that an audit of
+# "how much history does a standing role need?" can find it: section 265 measured that
+# question by grepping each role's own *_LOOKBACK_MS constants, and missed this one
+# entirely because it lived two imports away inside an expression. The answer it
+# produced (7 days) was wrong; the true figure is this constant (14 days).
+FUNDING_PCTILE_WINDOW_MS = 14 * 86_400_000
 
 
 def _one(cur, sql, args=()):
@@ -98,13 +107,26 @@ def compute_indicators(conn: sqlite3.Connection, as_of_ms: int, symbol: str = SY
     fund_fresh = bool(f) and (as_of_ms - f[0] <= FRESH_FUND_MS)
     ind.set("funding_rate", f[1] if f else None, fund_fresh)
     # extremity: percentile of current funding within trailing 14d sample (bounded query)
+    #
+    # The window must be BACKED BY DATA, not merely requested. SQL does not error when a
+    # range predicate reaches before the earliest stored row - it quietly returns the
+    # shorter sample, so after the frozen segment is deleted this becomes a 12-day
+    # percentile still labelled 14d. That is the same class of defect as the stale-feed
+    # artifact this module was built around (see the header): an indicator computed on a
+    # source that cannot support it is invalid, not approximately right.
     if f and f[1] is not None:
-        lo = as_of_ms - 14 * 86_400_000
-        row = _one(cur, "SELECT AVG(funding_rate), "
-                        "AVG(CASE WHEN funding_rate<=? THEN 1.0 ELSE 0.0 END) "
-                        "FROM mark_prices WHERE symbol=? AND ts_ms BETWEEN ? AND ? "
-                        "AND funding_rate IS NOT NULL", (f[1], symbol, lo, as_of_ms))
-        ind.set("funding_pctile_14d", row[1] if row else None, fund_fresh)
+        lo = as_of_ms - FUNDING_PCTILE_WINDOW_MS
+        floor = history_floor_ms(conn, "mark_prices")
+        if floor is not None and floor <= lo:
+            row = _one(cur, "SELECT AVG(funding_rate), "
+                            "AVG(CASE WHEN funding_rate<=? THEN 1.0 ELSE 0.0 END) "
+                            "FROM mark_prices WHERE symbol=? AND ts_ms BETWEEN ? AND ? "
+                            "AND funding_rate IS NOT NULL", (f[1], symbol, lo, as_of_ms))
+            ind.set("funding_pctile_14d", row[1] if row else None, fund_fresh)
+        else:
+            # marked invalid rather than raising: these run in unsupervised 30s loops,
+            # and section 189 hardened them precisely so a missing segment cannot kill them
+            ind.set("funding_pctile_14d", None, False)
     else:
         ind.set("funding_pctile_14d", None, False)
 
