@@ -28,7 +28,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from tools.research_s34_knowable_anchor_continuation import reconstruct_anchors, load_liquidations  # noqa: E402
-from ami.storage.union_reader import open_union_ro, open_live_ro, RotationStateError  # noqa: E402
+from ami.storage.union_reader import (  # noqa: E402
+    open_union_ro, open_live_ro, RotationStateError, InsufficientHistoryError)
+
+# What a Phase-4 delete can actually throw at the connection factory. RotationStateError
+# alone is too narrow: open_union_ro checks os.path.exists and only THEN attaches, and a
+# segment that is truncated, mid-replace, or a leftover directory fails inside the ATTACH
+# as a plain sqlite3 error. InsufficientHistoryError is included ahead of the coverage
+# assertions being wired in, so landing those cannot silently start killing this role.
+SURVIVABLE_ESTATE_ERRORS = (RotationStateError, InsufficientHistoryError, sqlite3.Error)
 
 DB_URI = f"file:{ROOT / 'data' / 'microstructure.db'}?mode=ro"
 LEDGER = ROOT / "reports" / "shadow" / "echo_forward_ledger.jsonl"
@@ -340,8 +348,9 @@ def main():
             conn = open_union_ro()  # live+frozen union post-rotation (sets query_only)
             o, cl, p = run_once(conn, st)
             print(f"{dt.datetime.now(dt.timezone.utc).isoformat()} opened={o} closed={cl} pending={p}")
-        except RotationStateError as exc:
-            print(f"{dt.datetime.now(dt.timezone.utc).isoformat()} ROTATION_STATE_ERROR {exc} (retrying next cycle)")
+        except SURVIVABLE_ESTATE_ERRORS as exc:
+            print(f"{dt.datetime.now(dt.timezone.utc).isoformat()} "
+                  f"ROTATION_STATE_ERROR {type(exc).__name__}: {exc} (retrying next cycle)")
         finally:
             if conn is not None:
                 conn.close()

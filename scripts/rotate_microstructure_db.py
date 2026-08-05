@@ -353,23 +353,120 @@ PARQUET_TABLES = {
 KEEPER_DB = REPO_ROOT / "data" / "keeper_frozen_smalltables.db"
 PARQUET_ROOT = REPO_ROOT / "data" / "archives" / "parquet_v1"
 
+# The exporter owns the archive's evidence format; reuse it rather than re-parsing.
+# `read_manifest` de-duplicates by partition key (the exporter is resumable, so a
+# re-written partition appears twice on disk), which naive line-summing would not.
+from tools import frozen_db_parquet_export as FX  # noqa: E402
 
-def _parquet_rows(table: str) -> int | None:
-    """Rows recorded in the archive manifest for `table`, or None if unusable."""
-    manifest = PARQUET_ROOT / table / "_manifest.jsonl"
-    if not manifest.exists():
-        return None
-    total = 0
+
+def _archive_blockers(table: str, expected: int, segment_fp: str) -> list[str]:
+    """Why `table`'s Parquet archive does NOT yet authorise deleting the segment.
+
+    A row count is what the writer said it wrote; it is not evidence that the bytes
+    are there or that they match the source. The exporter already produces that
+    evidence -- `_verified.jsonl`, one record per partition, written only after the
+    partition's digest agreed with BOTH the Parquet file and a live re-query of
+    SQLite. This is the decision that evidence exists for, so it is consulted here.
+    """
+    out: list[str] = []
+    root = PARQUET_ROOT / table
+    manifest = FX.read_manifest(FX.manifest_path(PARQUET_ROOT, table))
+    if not manifest:
+        return [f"{table}: no readable Parquet manifest under {root}"]
+
+    rows = sum(int(r.get("rows", 0)) for r in manifest.values())
+    if rows != expected:
+        out.append(f"{table}: archive holds {rows:,} rows, census says {expected:,} "
+                   f"({expected - rows:+,})")
+
+    # the archive must physically exist, not just be described
+    missing = 0
+    resized = 0
+    for rec in manifest.values():
+        if not rec.get("path"):
+            continue
+        part = PARQUET_ROOT / rec["path"]
+        try:
+            if part.stat().st_size != rec.get("file_bytes"):
+                resized += 1
+        except OSError:
+            missing += 1
+    if missing:
+        out.append(f"{table}: {missing} Parquet part file(s) named in the manifest are absent")
+    if resized:
+        out.append(f"{table}: {resized} Parquet part file(s) changed size since export")
+
+    verified = FX.read_manifest(FX.verified_path(PARQUET_ROOT, table))
+    if not verified:
+        out.append(f"{table}: never passed the proof gate (no {root.name}/_verified.jsonl) -- "
+                   f"run `--table {table} --verify --expect-rows {expected}`")
+        return out
+    unproven = sorted(set(manifest) - set(verified))
+    if unproven:
+        out.append(f"{table}: {len(unproven)} partition(s) have no proof-gate record "
+                   f"(e.g. {unproven[0]})")
+    weak = [k for k, v in verified.items() if v.get("mode") != "parquet+sqlite"]
+    if weak:
+        out.append(f"{table}: {len(weak)} partition(s) were verified against Parquet only, "
+                   f"never re-queried from SQLite")
+    drifted = [k for k, v in verified.items() if v.get("source_fp") not in (None, segment_fp)]
+    if drifted:
+        out.append(f"{table}: {len(drifted)} partition(s) were verified against a DIFFERENT "
+                   f"state of the source file than the one about to be deleted")
+    stale_digest = [k for k, v in verified.items()
+                    if k in manifest and v.get("digest") != manifest[k].get("digest")]
+    if stale_digest:
+        out.append(f"{table}: {len(stale_digest)} partition(s) carry a proof-gate record for a "
+                   f"digest the manifest no longer claims")
+    return out
+
+
+# Union tables the keeper actually carries (the big three live in Parquet).
+KEEPER_UNION_TABLES = ("liquidations", "open_interest", "spot_prices")
+
+
+def keeper_segment_blockers(state) -> list[str]:
+    """Why the keeper is NOT safe to install as a frozen segment.
+
+    `open_union_ro` enforces two things the reclaim would otherwise discover only
+    afterwards, when the frozen file is already gone and the failure is unfixable:
+
+      * a segment missing any column the live table has raises at EVERY open, which
+        would brick every reader in the estate permanently;
+      * the union's no-double-count guarantee rests on frozen.ts_ms < cutoff <= live,
+        so an overlapping keeper would silently duplicate rows in every query.
+    """
+    out: list[str] = []
+    live_path = Path(state.live_db_path)
+    if not live_path.exists():
+        return [f"live DB not found at {live_path}"]
+
+    live = _ro(live_path)
+    keep = _ro(KEEPER_DB)
     try:
-        with manifest.open(encoding="utf-8") as fh:
-            for line in fh:
-                line = line.strip()
-                if not line:
-                    continue
-                total += int(json.loads(line).get("rows", 0))
-    except (OSError, ValueError):
-        return None
-    return total
+        for table in KEEPER_UNION_TABLES:
+            live_cols = {r[1] for r in live.execute(f"PRAGMA table_info({table})")}
+            keep_cols = {r[1] for r in keep.execute(f"PRAGMA table_info({table})")}
+            if not keep_cols:
+                out.append(f"{table}: absent from the keeper")
+                continue
+            missing = sorted(live_cols - keep_cols)
+            if missing:
+                out.append(f"{table}: keeper is missing column(s) {missing} that the live "
+                           f"table has -- open_union_ro would refuse every open")
+
+            k_hi = keep.execute(f"SELECT MAX(ts_ms) FROM {table}").fetchone()[0]
+            l_lo = live.execute(f"SELECT MIN(ts_ms) FROM {table}").fetchone()[0]
+            if k_hi is not None and l_lo is not None and k_hi >= l_lo:
+                out.append(f"{table}: keeper reaches {k_hi} but live starts at {l_lo} -- "
+                           f"overlapping segments would double-count every query")
+            if state.cutoff_ms is not None and k_hi is not None and k_hi >= state.cutoff_ms:
+                out.append(f"{table}: keeper reaches {k_hi}, past the rotation cutoff "
+                           f"{state.cutoff_ms}")
+    finally:
+        live.close()
+        keep.close()
+    return out
 
 
 def reclaim_preflight(seg_path: Path) -> list[str]:
@@ -382,14 +479,21 @@ def reclaim_preflight(seg_path: Path) -> list[str]:
     """
     blockers: list[str] = []
 
+    # After --attach-keeper the keeper IS frozen_segments[0], so a second --reclaim
+    # would compare the keeper against itself: every count matches trivially, the
+    # preflight returns clean, and the only surviving copy of the twelve small tables
+    # is deleted by its own approval.
+    try:
+        same = seg_path.resolve() == KEEPER_DB.resolve()
+    except OSError:
+        same = str(seg_path).lower() == str(KEEPER_DB).lower()
+    if same:
+        return ["the segment IS the keeper DB: it is the only remaining copy of the "
+                "small tables and nothing reproduces it. Refusing."]
+
+    segment_fp = FX.source_fingerprint(seg_path)
     for table, expected in PARQUET_TABLES.items():
-        rows = _parquet_rows(table)
-        if rows is None:
-            blockers.append(f"{table}: no readable Parquet manifest at {PARQUET_ROOT / table}")
-        elif rows != expected:
-            blockers.append(
-                f"{table}: archive holds {rows:,} rows, census says {expected:,} "
-                f"({expected - rows:+,})")
+        blockers.extend(_archive_blockers(table, expected, segment_fp))
 
     if not KEEPER_DB.exists():
         blockers.append(f"keeper DB missing at {KEEPER_DB}")
@@ -459,10 +563,19 @@ def do_reclaim(args) -> int:
               "the union reader loses when the frozen segment goes away).")
 
     if args.attach_keeper:
+        problems = keeper_segment_blockers(state)
+        if problems:
+            print(f"  [BLOCKED] the keeper cannot be installed as a frozen segment:")
+            for p in problems:
+                print(f"    - {p}")
+            _fail("refusing: an incompatible segment bricks EVERY reader on every open, "
+                  "and by then the frozen file would already be gone.")
         ro = _ro(KEEPER_DB)
         try:
-            lo = ro.execute("SELECT MIN(ts_ms) FROM liquidations").fetchone()[0]
-            hi = ro.execute("SELECT MAX(ts_ms) FROM liquidations").fetchone()[0]
+            lo = min(v for v in (ro.execute(f"SELECT MIN(ts_ms) FROM {t}").fetchone()[0]
+                                 for t in KEEPER_UNION_TABLES) if v is not None)
+            hi = max(v for v in (ro.execute(f"SELECT MAX(ts_ms) FROM {t}").fetchone()[0]
+                                 for t in KEEPER_UNION_TABLES) if v is not None)
         finally:
             ro.close()
         new_segments = [{"path": str(KEEPER_DB), "start_ms": lo, "end_ms": hi}]
@@ -475,33 +588,54 @@ def do_reclaim(args) -> int:
         print("\n  (dry-run: nothing mutated. Re-run with --confirm to act.)")
         return 0
 
+    prior = STATE_PATH.read_text(encoding="utf-8")
+    backup = STATE_PATH.with_suffix(".json.bak")
+    backup.write_text(prior, encoding="utf-8")
+
     doc = {
         "live_db_path": state.live_db_path,
         "cutoff_ms": state.cutoff_ms,
         "frozen_segments": new_segments,
-        "rotated_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+        # the cutover timestamp is governance provenance, and this is the operation
+        # that destroys the only other evidence of it -- carry it through, don't stamp over
+        "rotated_utc": json.loads(prior).get("rotated_utc"),
         "reclaimed_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
         "reclaimed_segment": str(seg_path),
     }
     tmp = STATE_PATH.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(doc, indent=2), encoding="utf-8")
     tmp.replace(STATE_PATH)
-    ns = load_rotation_state(STATE_PATH)  # re-load through the real loader (fail-closed)
+    try:
+        # re-load through the real loader (fail-closed). A truncated write here would
+        # otherwise leave the ONLY copy of rotation_state.json corrupt, which fails every
+        # open_union_ro in the estate forever -- including both hardened ledgers, which
+        # would then loop printing the error and accumulate nothing.
+        ns = load_rotation_state(STATE_PATH)
+    except Exception as exc:
+        STATE_PATH.write_text(prior, encoding="utf-8")
+        _fail(f"rotation_state.json did not survive the write ({exc}); restored the previous "
+              f"state from backup. NOTHING was deleted.")
     if any(str(Path(s.path)) == str(seg_path) for s in ns.frozen_segments):
-        _fail("rotation_state.json still lists the segment after the write - NOT deleting.")
+        STATE_PATH.write_text(prior, encoding="utf-8")
+        _fail("rotation_state.json still lists the segment after the write - restored, NOT deleting.")
     print(f"  [OK] rotation_state.json updated: segment dropped, "
-          f"{len(ns.frozen_segments)} segment(s) remain.")
+          f"{len(ns.frozen_segments)} segment(s) remain (backup: {backup.name}).")
 
     print("  unlinking ...")
     subprocess.run(["attrib", "-R", str(seg_path)], capture_output=True, text=True)
     try:
         seg_path.unlink()
     except OSError as exc:
+        # Restore the read-only attribute do_cutover set: leaving an 836 GiB master
+        # writable and no longer referenced by rotation_state is strictly worse than
+        # leaving it frozen until the operator can act.
+        subprocess.run(["attrib", "+R", str(seg_path)], capture_output=True, text=True)
         print(f"  [WARN] unlink failed: {exc}")
         print("  State is ALREADY updated, so readers are consistent (live-only) and this is SAFE.")
+        print("  The file was re-frozen (+R) and NO space was reclaimed.")
         print("  A running role almost certainly still holds the file open: stop_eclipse.ps1, "
-              "delete the file manually, then start_eclipse.ps1.")
-        return 0
+              "re-run this with --confirm, then start_eclipse.ps1.")
+        return 3  # distinct non-zero: a caller chaining on exit status must not read this as done
     print(f"  [OK] deleted {seg_path.name} - {size_gib:,.2f} GiB reclaimed.")
     print("\n  NEXT: restart the stack so every reader reopens against the new state.")
     return 0

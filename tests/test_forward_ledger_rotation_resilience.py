@@ -13,11 +13,12 @@ and the connection factory raises before any write path is reached.
 from __future__ import annotations
 
 import importlib
+import sqlite3
 import sys
 
 import pytest
 
-from ami.storage.union_reader import RotationStateError
+from ami.storage.union_reader import InsufficientHistoryError, RotationStateError
 
 
 LEDGER_MODULES = [
@@ -97,3 +98,24 @@ _ARITY = {
     "tools.research_s34_echo_forward_ledger": 3,
     "tools.research_s34_hold_horizon_forward_ledger": 4,
 }
+
+
+# ---------------------------------------------------------------------------
+# what a delete can ACTUALLY throw: RotationStateError alone is too narrow
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("modname", LEDGER_MODULES)
+@pytest.mark.parametrize("exc", [
+    sqlite3.DatabaseError("file is not a database"),      # truncated / mid-replace segment
+    sqlite3.OperationalError("unable to open database"),  # path is a directory
+    InsufficientHistoryError("needs 14 days, estate holds 12"),  # coverage assertions, once wired
+])
+def test_survives_every_failure_a_delete_can_produce(modname, exc, monkeypatch, tmp_path, capsys):
+    mod = importlib.import_module(modname)
+    _isolate(mod, monkeypatch, tmp_path)
+    monkeypatch.setattr(mod, "open_union_ro",
+                        lambda *a, **k: (_ for _ in ()).throw(exc))
+    mod.main()  # must return, not propagate
+    out = capsys.readouterr().out
+    assert type(exc).__name__ in out, "the operator must see WHICH failure occurred"

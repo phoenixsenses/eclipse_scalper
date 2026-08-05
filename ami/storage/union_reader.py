@@ -171,9 +171,23 @@ def open_union_ro(state: RotationState | None = None, *,
 
     # Multi-file: attach frozen segments, then shadow each base table with a
     # union view. Views are created BEFORE query_only=ON (temp-schema DDL).
+    #
+    # Everything below runs under a close-on-failure guard. The explicit raises used
+    # to close the handle themselves, but an error from the ATTACH or the view DDL --
+    # a truncated or mid-replace segment fails there as a plain sqlite3 error --
+    # propagated with the connection still open. That was harmless only while such a
+    # failure killed the process; callers now survive it in a 30s loop, which would
+    # otherwise leak a handle per cycle.
+    try:
+        return _build_union(conn, state)
+    except BaseException:
+        conn.close()
+        raise
+
+
+def _build_union(conn: sqlite3.Connection, state: RotationState) -> sqlite3.Connection:
     for i, seg in enumerate(state.frozen_segments):
         if not os.path.exists(seg.path):
-            conn.close()
             raise RotationStateError(f"frozen segment file does not exist: {seg.path!r}")
         conn.execute(f"ATTACH DATABASE ? AS frozen{i}", (_ro_uri(seg.path),))
 
@@ -196,7 +210,6 @@ def open_union_ro(state: RotationState | None = None, *,
                 continue  # table absent in this frozen segment; nothing to union
             missing = [c for c in main_cols if c not in frozen_cols]
             if missing:
-                conn.close()
                 raise RotationStateError(
                     f"schema drift: frozen segment {i} table {table!r} is missing "
                     f"column(s) {missing} present in the live DB; refusing to build "

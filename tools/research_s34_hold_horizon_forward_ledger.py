@@ -30,7 +30,12 @@ if str(ROOT) not in sys.path:
 from tools.research_s34_echo_forward_ledger import (  # noqa: E402
     _mark_at, _mark_bps, _echo_check, _session, _detect_fresh_anchors, _min_mark,
 )
-from ami.storage.union_reader import open_union_ro, open_live_ro, RotationStateError  # noqa: E402
+from ami.storage.union_reader import (  # noqa: E402
+    open_union_ro, open_live_ro, RotationStateError, InsufficientHistoryError)
+
+# See the identical note in research_s34_echo_forward_ledger: RotationStateError alone
+# is too narrow for what a Phase-4 delete can throw at the connection factory.
+SURVIVABLE_ESTATE_ERRORS = (RotationStateError, InsufficientHistoryError, sqlite3.Error)
 
 DB_URI = f"file:{ROOT / 'data' / 'microstructure.db'}?mode=ro"
 LEDGER = ROOT / "reports" / "shadow" / "hold_horizon_forward_ledger.jsonl"
@@ -651,8 +656,9 @@ def main():
             o, r, p, q = run_once(conn, st)
             print(f"{dt.datetime.now(dt.timezone.utc).isoformat()} opened={o} resolved={r} "
                   f"pending={p} quarantined={q}")
-        except RotationStateError as exc:
-            print(f"{dt.datetime.now(dt.timezone.utc).isoformat()} ROTATION_STATE_ERROR {exc} (retrying next cycle)")
+        except SURVIVABLE_ESTATE_ERRORS as exc:
+            print(f"{dt.datetime.now(dt.timezone.utc).isoformat()} "
+                  f"ROTATION_STATE_ERROR {type(exc).__name__}: {exc} (retrying next cycle)")
         finally:
             if conn is not None:
                 conn.close()

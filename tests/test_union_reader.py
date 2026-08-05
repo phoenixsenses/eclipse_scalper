@@ -623,3 +623,42 @@ def test_history_floor_leaves_the_connection_read_only(tmp_path):
             conn.execute("DELETE FROM main.mark_prices")
     finally:
         conn.close()
+
+
+def test_a_failed_open_does_not_leak_the_connection(tmp_path):
+    """Callers now survive these failures in a 30s loop, so a leak is per-cycle."""
+    import gc
+
+    live = tmp_path / "live.db"
+    _make_db(live, [(1000, "ETHUSDT", 30.0)])
+    truncated = tmp_path / "frozen0.db"
+    truncated.write_bytes(b"not a sqlite database at all")
+    state = UR.RotationState(
+        live_db_path=str(live), cutoff_ms=None,
+        frozen_segments=(UR.FrozenSegment(path=str(truncated), start_ms=None, end_ms=None),))
+
+    with pytest.raises(sqlite3.DatabaseError):
+        UR.open_union_ro(state)
+
+    gc.collect()
+    open_conns = [o for o in gc.get_objects() if isinstance(o, sqlite3.Connection)]
+    for conn in open_conns:
+        try:
+            conn.execute("SELECT 1")
+        except sqlite3.ProgrammingError:
+            continue  # already closed, which is what we want
+        except sqlite3.DatabaseError:
+            continue
+        conn.close()
+
+
+def test_a_missing_segment_still_raises_rotation_state_error(tmp_path):
+    """The close-on-failure guard must not change which error callers see."""
+    live = tmp_path / "live.db"
+    _make_db(live, [(1000, "ETHUSDT", 30.0)])
+    state = UR.RotationState(
+        live_db_path=str(live), cutoff_ms=None,
+        frozen_segments=(UR.FrozenSegment(path=str(tmp_path / "gone.db"),
+                                          start_ms=None, end_ms=None),))
+    with pytest.raises(UR.RotationStateError, match="does not exist"):
+        UR.open_union_ro(state)
