@@ -28,6 +28,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from tools.research_s34_knowable_anchor_continuation import reconstruct_anchors, load_liquidations  # noqa: E402
+from ami.storage.union_reader import open_union_ro, open_live_ro, RotationStateError  # noqa: E402
 
 DB_URI = f"file:{ROOT / 'data' / 'microstructure.db'}?mode=ro"
 LEDGER = ROOT / "reports" / "shadow" / "echo_forward_ledger.jsonl"
@@ -82,15 +83,15 @@ def _processed_from_ledger():
 
 
 def _mark_at(cur, ts, sym="ETHUSDT"):
-    r = cur.execute("SELECT mark_price FROM mark_prices WHERE symbol=? AND ts_ms<=? ORDER BY ts_ms DESC LIMIT 1",
+    r = cur.execute("SELECT mark_price, ts_ms FROM mark_prices WHERE symbol=? AND ts_ms<=? ORDER BY ts_ms DESC LIMIT 1",
                     (sym, ts)).fetchone()
     return float(r[0]) if r and r[0] else None
 
 
 def _mark_bps(cur, sym, ts, lookback_ms):
-    a = cur.execute("SELECT mark_price FROM mark_prices WHERE symbol=? AND ts_ms<=? ORDER BY ts_ms DESC LIMIT 1",
+    a = cur.execute("SELECT mark_price, ts_ms FROM mark_prices WHERE symbol=? AND ts_ms<=? ORDER BY ts_ms DESC LIMIT 1",
                     (sym, ts - lookback_ms)).fetchone()
-    b = cur.execute("SELECT mark_price FROM mark_prices WHERE symbol=? AND ts_ms<=? ORDER BY ts_ms DESC LIMIT 1",
+    b = cur.execute("SELECT mark_price, ts_ms FROM mark_prices WHERE symbol=? AND ts_ms<=? ORDER BY ts_ms DESC LIMIT 1",
                     (sym, ts)).fetchone()
     if a and b and a[0] and float(a[0]) > 0:
         return (float(b[0]) - float(a[0])) / float(a[0]) * 1e4
@@ -149,10 +150,22 @@ def _detect_fresh_anchors(cur, now_ms):
     return fresh, ts_list
 
 
-def _echo_check(ts_list, ts, lo_min, hi_min):
+def _echo_parents(ts_list, ts, lo_min, hi_min):
+    """The prior anchors that make the echo gate fire — i.e. the PARENT event(s) this
+    candidate is an echo of. Returns every match, not one, because the window can contain
+    several and there is no non-arbitrary tie-break; addendum §A rule 2 only needs the
+    identity ("same parent => same observation"), which set overlap answers exactly.
+
+    Recorded so counted-independent N can be computed at all: with only the boolean gate,
+    two candidates echoing ONE flush are indistinguishable from two independent events, and
+    N inflates silently — the exact failure §A exists to prevent."""
     lo_ms, hi_ms = ts - hi_min * 60_000, ts - lo_min * 60_000
     lo_i, hi_i = bisect.bisect_left(ts_list, lo_ms), bisect.bisect_left(ts_list, hi_ms)
-    return any(ts_list[i] != ts for i in range(lo_i, hi_i))
+    return [ts_list[i] for i in range(lo_i, hi_i) if ts_list[i] != ts]
+
+
+def _echo_check(ts_list, ts, lo_min, hi_min):
+    return bool(_echo_parents(ts_list, ts, lo_min, hi_min))
 
 
 def _session(hour):
@@ -209,10 +222,21 @@ def indicator_snapshot(cur, ts, rn=None):
     return snap
 
 
+def _live_now_ms():
+    """Data clock = MAX(ts_ms) on mark_prices, from the LIVE file ONLY. The global
+    max always lives in the fresh file (ts_ms >= cutoff); over a union view MAX would
+    full-scan BOTH files, losing SQLite's index min/max fast-path."""
+    lc = open_live_ro()
+    try:
+        mx = lc.execute("SELECT MAX(ts_ms) FROM mark_prices WHERE symbol='ETHUSDT'").fetchone()
+    finally:
+        lc.close()
+    return int(mx[0]) if mx and mx[0] else int(time.time() * 1000)
+
+
 def run_once(conn, st):
     cur = conn.cursor()
-    mx = cur.execute("SELECT MAX(ts_ms) FROM mark_prices WHERE symbol='ETHUSDT'").fetchone()
-    now_ms = int(mx[0]) if mx and mx[0] else int(time.time() * 1000)
+    now_ms = _live_now_ms()  # live-file clock (fast-path); `conn` (union) is for history range scans
     processed = set(int(x) for x in st.get("processed", [])) | _processed_from_ledger()
     pending = {int(k): v for k, v in st.get("pending", {}).items()}
     opened = closed = 0
@@ -229,7 +253,8 @@ def run_once(conn, st):
         btc4h = _mark_bps(cur, "BTCUSDT", ts, 4 * 3600_000) or 0.0
         btc7d = _mark_bps(cur, "BTCUSDT", ts, 7 * 24 * 3600_000) or 0.0
         eth1h = _mark_bps(cur, "ETHUSDT", ts, 3600_000) or 0.0
-        echo_30_90 = _echo_check(ts_list, ts, 30, 90)
+        echo_parents_30_90 = _echo_parents(ts_list, ts, 30, 90)
+        echo_30_90 = bool(echo_parents_30_90)
         echo_30_120 = _echo_check(ts_list, ts, 30, 120)
         regime = (btc4h < 0) or (btc7d < 0)
         bull = (eth1h > 20.0) and (btc4h > 50.0)
@@ -244,6 +269,12 @@ def run_once(conn, st):
               "session": sess, "hour_utc": d.hour, "dow": dow, "month": d.strftime("%Y-%m"),
               "running_notional": rn, "entry_mark": entry,
               "echo_30_90": echo_30_90, "echo_30_120": echo_30_120,
+              # ADDITIVE (2026-07-25, SYSTEM_STATE §192): parent identity for addendum §A
+              # rule 2. No gate, threshold or qualification semantics changed -- `echo_30_90`
+              # is still exactly `bool(parents)`. Forward-only: rows written before this
+              # field existed cannot be deduped and are handled fail-closed downstream.
+              "echo_parents_30_90": echo_parents_30_90,
+              "parent_anchor_ts_ms": (max(echo_parents_30_90) if echo_parents_30_90 else None),
               "gates_t0": gates_t0, "qualified_t0": qualified_t0,
               "indicators": indicator_snapshot(cur, ts, rn),
               "NOTE": "qualified_full (incl not-noisy) resolved at CLOSE; noisy gate is T+30m lookahead."})
@@ -299,13 +330,21 @@ def main():
         STATE = Path(args.state)
     st = _load_state()
     while True:
-        conn = sqlite3.connect(DB_URI, uri=True)
-        conn.execute("PRAGMA query_only=1")
+        # Opened INSIDE the try, matching liq_tip_forward: a Phase-4 frozen-segment
+        # delete (or a malformed rotation_state.json) makes open_union_ro raise, and
+        # an uncaught raise here would end main() permanently. Nothing supervises or
+        # restarts this role, and the forward days it would miss CANNOT be re-mined --
+        # this ledger is the un-burned sample the whole echo arm rests on.
+        conn = None
         try:
+            conn = open_union_ro()  # live+frozen union post-rotation (sets query_only)
             o, cl, p = run_once(conn, st)
             print(f"{dt.datetime.now(dt.timezone.utc).isoformat()} opened={o} closed={cl} pending={p}")
+        except RotationStateError as exc:
+            print(f"{dt.datetime.now(dt.timezone.utc).isoformat()} ROTATION_STATE_ERROR {exc} (retrying next cycle)")
         finally:
-            conn.close()
+            if conn is not None:
+                conn.close()
         if args.once:
             break
         time.sleep(args.interval_sec)
