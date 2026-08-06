@@ -32,6 +32,7 @@ FRESHNESS = {
     "v02_mirror_bucket": 540.0,
     "shadow_paper_activity": 60.0,
     "paper_bucket_ledger": 120.0,
+    "liq_anomaly": 120.0,
 }
 
 
@@ -71,7 +72,21 @@ class DashboardContext:
 
     @property
     def microstructure_db(self) -> Path:
-        return self.p("data", "microstructure.db")
+        """The db the collectors are writing NOW, resolved through rotation state.
+
+        Hard-coding `data/microstructure.db` made the storage-health panel report the
+        FROZEN segment: since the 2026-07-23 cutover it showed 836 GiB of history
+        instead of the live file, and once that segment is reclaimed it would have
+        gone permanently MISSING/MEDIUM -- the panel meant to report on storage,
+        broken by the storage operation it exists to report on.
+        """
+        try:
+            from ami.storage.union_reader import current_live_db_path
+            return Path(current_live_db_path())
+        except Exception:
+            # fail back to the historical path rather than taking the dashboard down;
+            # a wrong-but-present path degrades one panel, an exception degrades the page
+            return self.p("data", "microstructure.db")
 
     def threshold(self, key: str) -> float | None:
         return FRESHNESS.get(key)
