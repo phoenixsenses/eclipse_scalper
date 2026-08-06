@@ -239,15 +239,20 @@ def history_floor_ms(conn: sqlite3.Connection, table: str) -> int | None:
     the same query against the compound view materialises it. Same reasoning as the
     as-of caveat in this module's docstring.
 
+    Scoped to `union_schemas()` -- the schemas the union view actually spans -- NOT
+    every schema on the connection. Those differ the moment anything else is
+    ATTACHed (which SQLite still permits under `query_only=ON`), and then the floor
+    would be read off a database the caller's `FROM <table>` cannot see: the guard
+    would report deep history while the query returned shallow, which is the exact
+    inversion of what it exists to prevent.
+
     Returns None when the table holds no rows anywhere, which callers must treat as
     "no history at all", not as "no limit".
     """
-    if not _IDENT_RE.match(table):
+    if not _IDENT_RE.fullmatch(table):
         raise ValueError(f"unsafe table identifier: {table!r}")
     floors: list[int] = []
-    for _seq, schema, _file in conn.execute("PRAGMA database_list").fetchall():
-        if schema == "temp":
-            continue  # the union views live here; querying them defeats the point
+    for schema in union_schemas(conn):
         if not _table_columns(conn, schema, table):
             continue
         row = conn.execute(f"SELECT MIN(ts_ms) FROM {schema}.{table}").fetchone()
@@ -267,19 +272,39 @@ def assert_history_covers(conn: sqlite3.Connection, table: str, earliest_ms: int
     that fires on healthy roles is worse than no guard, so coverage is asserted
     where the required depth is actually known -- next to the lookback constant.
 
+    SCOPE -- LEFT EDGE ONLY. This proves a row exists at or before `earliest_ms`. It
+    says nothing about holes INSIDE the window (this estate has documented ones: a
+    39-day `liquidations` outage in 2026-04/06 and a ~5.3-day `book_ticker` gap) or
+    about the data being current. A window landing inside an outage passes this check
+    and is still computed on a fraction of the rows. Gap and freshness coverage are
+    separate guards and are not built.
+
     Returns the measured floor so callers can report it.
     """
+    if not isinstance(earliest_ms, int) or isinstance(earliest_ms, bool):
+        raise InsufficientHistoryError(
+            f"{what or table}: earliest_ms must be an int epoch-ms, got {earliest_ms!r}")
+    known = set(UNION_TABLES)
+    if table not in known:
+        # a typo would otherwise surface as "holds no rows", sending the operator to
+        # hunt for missing data that was never missing
+        raise InsufficientHistoryError(
+            f"{what or table}: {table!r} is not a union table {sorted(known)}")
+
     floor = history_floor_ms(conn, table)
     label = what or table
     if floor is None:
         raise InsufficientHistoryError(
             f"{label}: {table!r} holds no rows in any attached segment")
     if floor > earliest_ms:
-        short_days = (floor - earliest_ms) / 86_400_000.0
+        short = floor - earliest_ms
+        amount = (f"{short / 86_400_000.0:.2f} days" if short >= 86_400_000
+                  else f"{short / 3_600_000.0:.2f} hours" if short >= 3_600_000
+                  else f"{short:,} ms")
         raise InsufficientHistoryError(
             f"{label}: needs {table!r} back to {earliest_ms} but the estate starts "
-            f"at {floor} -- {short_days:.2f} days short; the answer would be "
-            f"silently computed on partial history")
+            f"at {floor} -- {amount} short; the answer would be silently computed "
+            f"on a shorter window than it claims")
     return floor
 
 

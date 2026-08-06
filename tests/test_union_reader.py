@@ -591,15 +591,60 @@ def test_assert_history_covers_refuses_an_empty_table(tmp_path):
         conn.close()
 
 
-def test_history_floor_ignores_the_union_view_and_seeks_each_schema(tmp_path):
-    """Going through the temp view would materialise the compound; assert the plan."""
+def test_history_floor_queries_each_schema_and_never_the_union_view(tmp_path):
+    """Observes the SQL the FUNCTION issues, not SQL the test wrote itself.
+
+    The earlier version of this test ran a hand-written EXPLAIN QUERY PLAN and so
+    asserted nothing about the implementation: a mutant that queried the temp union
+    view instead passed it, along with every other test in this file. Going through
+    the view materialises the whole compound rather than seeking per branch.
+    """
     state = _state(tmp_path, [(9000, "ETHUSDT", 31.0)], [[(1000, "ETHUSDT", 30.0)]], 5000)
     conn = UR.open_union_ro(state)
+    seen: list[str] = []
     try:
-        plan = " ".join(r[3] for r in conn.execute(
-            "EXPLAIN QUERY PLAN SELECT MIN(ts_ms) FROM main.mark_prices"))
-        assert "SCAN" not in plan.upper() or "INDEX" in plan.upper()
+        conn.set_trace_callback(seen.append)
         assert UR.history_floor_ms(conn, "mark_prices") == 1000
+    finally:
+        conn.set_trace_callback(None)
+        conn.close()
+
+    selects = [s for s in seen if "MIN(TS_MS)" in s.upper()]
+    assert selects, "the function issued no MIN(ts_ms) query at all"
+    qualified = {"main.mark_prices", "frozen0.mark_prices"}
+    for sql in selects:
+        assert any(q in sql for q in qualified), f"unqualified read of the union view: {sql!r}"
+    assert len(selects) == 2, f"expected one seek per schema, got {len(selects)}: {selects}"
+
+
+def test_history_floor_ignores_databases_the_union_view_cannot_see(tmp_path):
+    """An extra ATTACH must not move the floor: the caller's SQL cannot read it.
+
+    SQLite still allows ATTACH after query_only=ON, so this is reachable. Reading the
+    floor off a database the union view does not span would report deep history while
+    the query returns shallow -- the inversion of the guard's purpose.
+    """
+    state = _state(tmp_path, [(9000, "ETHUSDT", 31.0)], [], None)
+    other = tmp_path / "unrelated.db"
+    _make_db(other, [(1000, "ETHUSDT", 30.0)])
+
+    conn = UR.open_union_ro(state)
+    try:
+        conn.execute("ATTACH DATABASE ? AS extra", (str(other),))
+        assert UR.union_schemas(conn) == ["main"]
+        assert UR.history_floor_ms(conn, "mark_prices") == 9000, (
+            "the floor came from a database the caller's FROM mark_prices cannot read")
+    finally:
+        conn.close()
+
+
+def test_identifier_check_rejects_a_trailing_newline(tmp_path):
+    """`$` matches before a trailing newline; a guardrail regex must not."""
+    state = _state(tmp_path, [(9000, "ETHUSDT", 31.0)], [], None)
+    conn = UR.open_union_ro(state)
+    try:
+        with pytest.raises(ValueError, match="unsafe table identifier"):
+            UR.history_floor_ms(conn, "mark_prices\n")
     finally:
         conn.close()
 
@@ -662,3 +707,38 @@ def test_a_missing_segment_still_raises_rotation_state_error(tmp_path):
                                           start_ms=None, end_ms=None),))
     with pytest.raises(UR.RotationStateError, match="does not exist"):
         UR.open_union_ro(state)
+
+
+def test_a_misspelled_table_is_not_reported_as_missing_data(tmp_path):
+    """"holds no rows" would send an operator hunting for data that was never gone."""
+    state = _state(tmp_path, [(9000, "ETHUSDT", 31.0)], [], None)
+    conn = UR.open_union_ro(state)
+    try:
+        with pytest.raises(UR.InsufficientHistoryError, match="not a union table"):
+            UR.assert_history_covers(conn, "mark_price", 1000)   # missing the 's'
+    finally:
+        conn.close()
+
+
+def test_a_non_timestamp_argument_fails_as_a_history_error(tmp_path):
+    """Callers catch InsufficientHistoryError; a TypeError would escape that handler."""
+    state = _state(tmp_path, [(9000, "ETHUSDT", 31.0)], [], None)
+    conn = UR.open_union_ro(state)
+    try:
+        with pytest.raises(UR.InsufficientHistoryError, match="epoch-ms"):
+            UR.assert_history_covers(conn, "mark_prices", None)
+    finally:
+        conn.close()
+
+
+def test_a_sub_day_shortfall_is_not_reported_as_zero_days(tmp_path):
+    """"0.00 days short" reads like a no-op for a real refusal."""
+    state = _state(tmp_path, [(9_000_000, "ETHUSDT", 31.0)], [], None)
+    conn = UR.open_union_ro(state)
+    try:
+        with pytest.raises(UR.InsufficientHistoryError, match="hours short"):
+            UR.assert_history_covers(conn, "mark_prices", 9_000_000 - 2 * 3_600_000)
+        with pytest.raises(UR.InsufficientHistoryError, match="ms short"):
+            UR.assert_history_covers(conn, "mark_prices", 9_000_000 - 50)
+    finally:
+        conn.close()
