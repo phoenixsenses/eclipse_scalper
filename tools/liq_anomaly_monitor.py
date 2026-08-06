@@ -20,12 +20,25 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from tools.liq_indicator_library import compute_indicators, SYMBOL, FRESH_SPOT_MS  # noqa: E402
+from ami.storage.union_reader import (  # noqa: E402
+    open_union_ro, open_live_ro, RotationStateError, InsufficientHistoryError)
 
-DB_URI = f"file:{ROOT / 'data' / 'microstructure.db'}?mode=ro"
+SURVIVABLE_ESTATE_ERRORS = (RotationStateError, InsufficientHistoryError, sqlite3.Error)
+MAX_CONSECUTIVE_ESTATE_FAILURES = 20  # retrying a dead estate forever is itself the failure
+
 OUT = ROOT / "reports" / "research" / "s34" / "LIQ_ANOMALY_MONITOR.json"
 SEV_RANK = {"ok": 0, "info": 1, "low": 2, "medium": 3, "high": 4}
 FRESH_OI_MS = 5 * 60_000
 FRESH_FUND_MS = 20 * 60_000
+# Bounded lookback for the funding probes below. funding_rate is SPARSE in mark_prices
+# (populated ~every 8h; the rest NULL), so an unbounded `... IS NOT NULL ORDER BY ts_ms
+# DESC LIMIT 1` walks backwards over every NULL row. On a single file the index makes that
+# walk exit early; across the rotation UNION view the compound query cannot push LIMIT 1
+# into each branch and the walk explodes (measured: 19.3s of a 20.4s cycle, on a 30s loop).
+# 24h >> the 8h funding cadence, so a live feed is always found; if nothing is found the
+# feed is broken and emitting NO funding flag is the correct outcome (never a stale one).
+FUNDING_LOOKBACK_MS = 24 * 3_600_000
+LIQ_FLIP_LOOKBACK_MS = 7 * 24 * 3_600_000   # same class of bound for the sparse big-liq probe
 
 
 def _one(cur, sql, args=()):
@@ -57,16 +70,24 @@ def compute_flags(conn, as_of_ms):
     if fp is not None and ind.get("funding_rate") is not None:
         sev = "high" if (fp >= 0.98 or fp <= 0.02) else ("medium" if (fp >= 0.9 or fp <= 0.1) else "ok")
         flags.append(_flag("funding_extremity", round(fp, 3), sev, note="14d percentile of funding"))
-    f0 = _one(cur, "SELECT funding_rate FROM mark_prices WHERE symbol=? AND ts_ms<=? AND funding_rate IS NOT NULL ORDER BY ts_ms DESC LIMIT 1", (SYMBOL, as_of_ms))
-    f1 = _one(cur, "SELECT funding_rate FROM mark_prices WHERE symbol=? AND ts_ms<=? AND funding_rate IS NOT NULL ORDER BY ts_ms DESC LIMIT 1", (SYMBOL, as_of_ms - 3_600_000))
-    f2 = _one(cur, "SELECT funding_rate FROM mark_prices WHERE symbol=? AND ts_ms<=? AND funding_rate IS NOT NULL ORDER BY ts_ms DESC LIMIT 1", (SYMBOL, as_of_ms - 2 * 3_600_000))
+    # `ts_ms` is in the select list because it is the ORDER BY term: without it the union view
+    # plans as CO-ROUTINE + COMPOUND and sorts the whole estate (§258). It is LAST so `f0[0]`
+    # still means the funding rate. My first scan missed this site because the query is built
+    # from two concatenated literals -- a single-line-literal scan cannot see it, which is why
+    # the guard in tests/test_union_asof_query_shape.py checks the assembled shapes it can see
+    # AND asserts the scan is finding a plausible number of sites.
+    _FUND_SQL = ("SELECT funding_rate, ts_ms FROM mark_prices WHERE symbol=? AND ts_ms<=? "
+                 "AND ts_ms>=? AND funding_rate IS NOT NULL ORDER BY ts_ms DESC LIMIT 1")
+    f0 = _one(cur, _FUND_SQL, (SYMBOL, as_of_ms, as_of_ms - FUNDING_LOOKBACK_MS))
+    f1 = _one(cur, _FUND_SQL, (SYMBOL, as_of_ms - 3_600_000, as_of_ms - 3_600_000 - FUNDING_LOOKBACK_MS))
+    f2 = _one(cur, _FUND_SQL, (SYMBOL, as_of_ms - 2 * 3_600_000, as_of_ms - 2 * 3_600_000 - FUNDING_LOOKBACK_MS))
     if f0 and f1 and f2:
         accel = (f0[0] - f1[0]) - (f1[0] - f2[0])
         flags.append(_flag("funding_acceleration", round(accel * 1e6, 2), "info", note="2nd derivative (x1e6)"))
 
     # ---- OI change + funding<->OI divergence ----
     oi = _one(cur, "SELECT ts_ms,open_interest_usd FROM open_interest WHERE symbol=? AND ts_ms<=? ORDER BY ts_ms DESC LIMIT 1", (SYMBOL, as_of_ms))
-    oi1 = _one(cur, "SELECT open_interest_usd FROM open_interest WHERE symbol=? AND ts_ms<=? ORDER BY ts_ms DESC LIMIT 1", (SYMBOL, as_of_ms - 3_600_000))
+    oi1 = _one(cur, "SELECT open_interest_usd, ts_ms FROM open_interest WHERE symbol=? AND ts_ms<=? ORDER BY ts_ms DESC LIMIT 1", (SYMBOL, as_of_ms - 3_600_000))
     oi_fresh = bool(oi) and (as_of_ms - oi[0] <= FRESH_OI_MS)
     if oi and oi1 and oi1[0]:
         chg = (oi[1] - oi1[0]) / oi1[0] * 100
@@ -113,7 +134,14 @@ def compute_flags(conn, as_of_ms):
         if recent and recent >= 5:
             flags.append(_flag("cascade_accelerating", recent, "medium", note="liqs firing fast (last 60s)"))
     # side-flip: was the last cluster the opposite side?
-    lastflip = cur.execute("SELECT side FROM liquidations WHERE symbol=? AND notional>=200000 AND ts_ms<=? ORDER BY ts_ms DESC LIMIT 6", (SYMBOL, as_of_ms)).fetchall()
+    # Bounded like the funding probes above and for the same reason: a sparse predicate
+    # (notional>=200K) + ORDER BY ts_ms DESC LIMIT loses its index early-exit on the union
+    # view (measured 1.35s of a 2.41s cycle). The flag only describes a RECENT side flip,
+    # so a window bound is the honest semantics anyway -- no big liq in the window => no flag.
+    lastflip = cur.execute(
+        "SELECT side FROM liquidations WHERE symbol=? AND notional>=200000 "
+        "AND ts_ms<=? AND ts_ms>=? ORDER BY ts_ms DESC LIMIT 6",
+        (SYMBOL, as_of_ms, as_of_ms - LIQ_FLIP_LOOKBACK_MS)).fetchall()
     sides = [s[0] for s in lastflip]
     if len(sides) >= 4 and len(set(sides[:4])) == 2:
         flags.append(_flag("liq_side_flip", True, "info", note="recent SELL<->BUY liq transition"))
@@ -137,8 +165,12 @@ def compute_flags(conn, as_of_ms):
     return flags
 
 
-def run_once(conn):
-    mx = _one(conn.cursor(), "SELECT MAX(ts_ms) FROM mark_prices WHERE symbol=?", (SYMBOL,))
+def run_once(conn, clock_conn=None):
+    # Phase-1b SPLIT rule: a latest-clock probe (MAX(ts_ms)) must hit the LIVE file's index
+    # fast path, never the union view -- on the union it degrades to a CO-ROUTINE COMPOUND
+    # scan (measured 0.00s -> 2.16s). History-spanning reads keep using `conn` (the union).
+    mx = _one((clock_conn or conn).cursor(),
+              "SELECT MAX(ts_ms) FROM mark_prices WHERE symbol=?", (SYMBOL,))
     as_of = int(mx[0]) if mx and mx[0] else int(time.time() * 1000)
     flags = compute_flags(conn, as_of)
     overall = "ok"
@@ -166,14 +198,49 @@ def main():
     ap.add_argument("--once", action="store_true")
     ap.add_argument("--interval-sec", type=float, default=30.0)
     args = ap.parse_args()
+    consecutive_failures = 0
     while True:
-        conn = sqlite3.connect(DB_URI, uri=True)
-        conn.execute("PRAGMA query_only=1")
+        # Union reader (live + frozen segments) for history-spanning reads, never a
+        # hard-coded single file: post-rotation data/microstructure.db is the FROZEN file,
+        # which published cutover-old market state under a fresh generated_utc. The
+        # latest-clock probe gets a separate LIVE-only connection (Phase-1b split rule).
+        # Pre-rotation both are the same file (no-op).
+        # Opening is INSIDE the try: after a Phase-4 frozen-segment delete (or a malformed
+        # rotation_state.json) open_union_ro raises, and an uncaught raise here would kill
+        # this loop permanently -- nothing supervises/restarts this role.
+        # RotationStateError alone is too narrow: open_union_ro checks os.path.exists and
+        # only THEN attaches, so a truncated or mid-replace segment fails inside the
+        # ATTACH as a plain sqlite3 error. This role also reaches 14 days back through
+        # liq_indicator_library, so it is the one that can raise InsufficientHistoryError
+        # once coverage assertions are wired -- it was hardened for neither.
+        # run_once stays OUTSIDE the catch: swallowing a persistent error inside the cycle
+        # would republish nothing while the process looks healthy.
+        conn = clock_conn = None
         try:
-            doc = run_once(conn)
+            conn = open_union_ro()
+            clock_conn = open_live_ro()
+        except SURVIVABLE_ESTATE_ERRORS as exc:
+            for c in (conn, clock_conn):
+                if c is not None:
+                    c.close()
+            consecutive_failures += 1
+            print(f"{dt.datetime.now(dt.timezone.utc).isoformat()} ESTATE_UNAVAILABLE "
+                  f"{type(exc).__name__}: {exc} "
+                  f"(attempt {consecutive_failures}/{MAX_CONSECUTIVE_ESTATE_FAILURES})")
+            if consecutive_failures >= MAX_CONSECUTIVE_ESTATE_FAILURES:
+                raise
+            if args.once:
+                break
+            time.sleep(args.interval_sec)
+            continue
+        consecutive_failures = 0
+        try:
+            doc = run_once(conn, clock_conn=clock_conn)
             print(f"{doc['generated_utc']} overall={doc['overall_severity']} flags={len(doc['flags'])} -> {OUT.name}")
         finally:
-            conn.close()
+            for c in (conn, clock_conn):
+                if c is not None:
+                    c.close()
         if args.once:
             break
         time.sleep(args.interval_sec)

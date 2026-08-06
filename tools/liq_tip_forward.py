@@ -21,8 +21,12 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from tools.liq_signal_system import signal_readout  # noqa: E402
 from tools.liq_anomaly_monitor import compute_flags  # noqa: E402
+from ami.storage.union_reader import (  # noqa: E402
+    open_union_ro, RotationStateError, InsufficientHistoryError)
 
-DB_URI = f"file:{ROOT / 'data' / 'microstructure.db'}?mode=ro"
+SURVIVABLE_ESTATE_ERRORS = (RotationStateError, InsufficientHistoryError, sqlite3.Error)
+MAX_CONSECUTIVE_ESTATE_FAILURES = 20  # retrying a dead estate forever is itself the failure
+
 LEDGER = ROOT / "reports" / "shadow" / "liq_tip_forward.jsonl"
 STATE = ROOT / "reports" / "shadow" / "liq_tip_forward_state.json"
 
@@ -71,7 +75,7 @@ def _processed_from_ledger():
 
 
 def _mark(cur, ts):
-    r = cur.execute("SELECT mark_price FROM mark_prices WHERE symbol='ETHUSDT' AND ts_ms<=? ORDER BY ts_ms DESC LIMIT 1", (ts,)).fetchone()
+    r = cur.execute("SELECT mark_price, ts_ms FROM mark_prices WHERE symbol='ETHUSDT' AND ts_ms<=? ORDER BY ts_ms DESC LIMIT 1", (ts,)).fetchone()
     return r[0] if r else None
 
 
@@ -144,9 +148,37 @@ def main():
     ap.add_argument("--interval-sec", type=float, default=30.0)
     args = ap.parse_args()
     st = _load_state()
+    consecutive_failures = 0
     while True:
-        conn = sqlite3.connect(DB_URI, uri=True)
-        conn.execute("PRAGMA query_only=1")
+        # Union reader (live + frozen segments), never a hard-coded single file: the tip
+        # fingerprint carries history-spanning context (14d funding percentile, prior 4h
+        # trend) and outcome backfill must find marks on BOTH sides of a rotation cutover.
+        # Post-rotation the old hard-coded data/microstructure.db was the FROZEN file, so
+        # this ledger silently stopped accumulating at the cutover (no new anchor is ever
+        # "<=2 min old" in a frozen file). Pre-rotation this is the same file (no-op).
+        # Opened INSIDE the try: a Phase-4 frozen-segment delete (or malformed
+        # rotation_state.json) makes open_union_ro raise, and an uncaught raise would kill
+        # this ledger permanently -- nothing supervises/restarts this role.
+        # Only the CONNECTION is retried, and the catch is wider than RotationStateError:
+        # a truncated or mid-replace segment fails inside the ATTACH as a plain sqlite3
+        # error, and this role reaches 14 days back through liq_indicator_library so it is
+        # one of the two that can see InsufficientHistoryError. run_once stays outside --
+        # swallowing a persistent error there would accumulate nothing while looking alive.
+        conn = None
+        try:
+            conn = open_union_ro()
+        except SURVIVABLE_ESTATE_ERRORS as exc:
+            consecutive_failures += 1
+            print(f"{dt.datetime.now(dt.timezone.utc).isoformat()} ESTATE_UNAVAILABLE "
+                  f"{type(exc).__name__}: {exc} "
+                  f"(attempt {consecutive_failures}/{MAX_CONSECUTIVE_ESTATE_FAILURES})")
+            if consecutive_failures >= MAX_CONSECUTIVE_ESTATE_FAILURES:
+                raise
+            if args.once:
+                break
+            time.sleep(args.interval_sec)
+            continue
+        consecutive_failures = 0
         try:
             o, cl, p = run_once(conn, st)
             print(f"{dt.datetime.now(dt.timezone.utc).isoformat()} opened={o} closed={cl} pending={p}")

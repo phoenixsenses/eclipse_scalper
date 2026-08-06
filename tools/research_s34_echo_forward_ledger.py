@@ -37,6 +37,9 @@ from ami.storage.union_reader import (  # noqa: E402
 # as a plain sqlite3 error. InsufficientHistoryError is included ahead of the coverage
 # assertions being wired in, so landing those cannot silently start killing this role.
 SURVIVABLE_ESTATE_ERRORS = (RotationStateError, InsufficientHistoryError, sqlite3.Error)
+# Retrying a broken estate forever, printing a line each time, IS the silent-standstill
+# failure -- the role looks alive while accumulating nothing. Surface it instead.
+MAX_CONSECUTIVE_ESTATE_FAILURES = 20  # ~10 min at the 30s default interval
 
 DB_URI = f"file:{ROOT / 'data' / 'microstructure.db'}?mode=ro"
 LEDGER = ROOT / "reports" / "shadow" / "echo_forward_ledger.jsonl"
@@ -337,23 +340,39 @@ def main():
     if args.state:
         STATE = Path(args.state)
     st = _load_state()
+    consecutive_failures = 0
     while True:
-        # Opened INSIDE the try, matching liq_tip_forward: a Phase-4 frozen-segment
-        # delete (or a malformed rotation_state.json) makes open_union_ro raise, and
-        # an uncaught raise here would end main() permanently. Nothing supervises or
-        # restarts this role, and the forward days it would miss CANNOT be re-mined --
-        # this ledger is the un-burned sample the whole echo arm rests on.
+        # Only the CONNECTION is retried. A Phase-4 frozen-segment delete or a
+        # malformed rotation_state.json makes open_union_ro raise, and an uncaught
+        # raise would end main() permanently -- nothing supervises this role and the
+        # forward days it would miss CANNOT be re-mined.
+        #
+        # run_once is deliberately OUTSIDE that catch. Wrapping it too meant any
+        # persistent sqlite error inside the cycle was swallowed and retried forever:
+        # _save_state() is the last statement, so the ledger accumulated NOTHING while
+        # printing a line every 30s and staying up. A visible death beats a silent
+        # standstill on the un-burned sample.
         conn = None
         try:
             conn = open_union_ro()  # live+frozen union post-rotation (sets query_only)
+        except SURVIVABLE_ESTATE_ERRORS as exc:
+            consecutive_failures += 1
+            print(f"{dt.datetime.now(dt.timezone.utc).isoformat()} "
+                  f"ESTATE_UNAVAILABLE {type(exc).__name__}: {exc} "
+                  f"(attempt {consecutive_failures}/{MAX_CONSECUTIVE_ESTATE_FAILURES})")
+            if consecutive_failures >= MAX_CONSECUTIVE_ESTATE_FAILURES:
+                # retrying forever IS the silent-standstill failure; surface it
+                raise
+            if args.once:
+                break
+            time.sleep(args.interval_sec)
+            continue
+        consecutive_failures = 0
+        try:
             o, cl, p = run_once(conn, st)
             print(f"{dt.datetime.now(dt.timezone.utc).isoformat()} opened={o} closed={cl} pending={p}")
-        except SURVIVABLE_ESTATE_ERRORS as exc:
-            print(f"{dt.datetime.now(dt.timezone.utc).isoformat()} "
-                  f"ROTATION_STATE_ERROR {type(exc).__name__}: {exc} (retrying next cycle)")
         finally:
-            if conn is not None:
-                conn.close()
+            conn.close()
         if args.once:
             break
         time.sleep(args.interval_sec)

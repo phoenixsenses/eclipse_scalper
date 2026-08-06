@@ -36,6 +36,7 @@ from ami.storage.union_reader import (  # noqa: E402
 # See the identical note in research_s34_echo_forward_ledger: RotationStateError alone
 # is too narrow for what a Phase-4 delete can throw at the connection factory.
 SURVIVABLE_ESTATE_ERRORS = (RotationStateError, InsufficientHistoryError, sqlite3.Error)
+MAX_CONSECUTIVE_ESTATE_FAILURES = 20  # ~10 min at the 30s default interval
 
 DB_URI = f"file:{ROOT / 'data' / 'microstructure.db'}?mode=ro"
 LEDGER = ROOT / "reports" / "shadow" / "hold_horizon_forward_ledger.jsonl"
@@ -645,23 +646,33 @@ def main():
     if args.state:
         STATE = Path(args.state)
     st = _load_state()
+    consecutive_failures = 0
     while True:
-        # Opened INSIDE the try, matching liq_tip_forward: a Phase-4 frozen-segment
-        # delete (or a malformed rotation_state.json) makes open_union_ro raise, and
-        # an uncaught raise here would end main() permanently. Nothing supervises or
-        # restarts this role, and the forward days it would miss CANNOT be re-mined.
+        # See the identical note in research_s34_echo_forward_ledger: only the
+        # CONNECTION is retried. run_once stays outside the catch, because wrapping it
+        # meant a persistent sqlite error inside the cycle was swallowed and retried
+        # forever while the ledger accumulated nothing and the process stayed up.
         conn = None
         try:
             conn = open_union_ro()  # live+frozen union post-rotation (sets query_only)
+        except SURVIVABLE_ESTATE_ERRORS as exc:
+            consecutive_failures += 1
+            print(f"{dt.datetime.now(dt.timezone.utc).isoformat()} "
+                  f"ESTATE_UNAVAILABLE {type(exc).__name__}: {exc} "
+                  f"(attempt {consecutive_failures}/{MAX_CONSECUTIVE_ESTATE_FAILURES})")
+            if consecutive_failures >= MAX_CONSECUTIVE_ESTATE_FAILURES:
+                raise
+            if args.once:
+                break
+            time.sleep(args.interval_sec)
+            continue
+        consecutive_failures = 0
+        try:
             o, r, p, q = run_once(conn, st)
             print(f"{dt.datetime.now(dt.timezone.utc).isoformat()} opened={o} resolved={r} "
                   f"pending={p} quarantined={q}")
-        except SURVIVABLE_ESTATE_ERRORS as exc:
-            print(f"{dt.datetime.now(dt.timezone.utc).isoformat()} "
-                  f"ROTATION_STATE_ERROR {type(exc).__name__}: {exc} (retrying next cycle)")
         finally:
-            if conn is not None:
-                conn.close()
+            conn.close()
         if args.once:
             break
         time.sleep(args.interval_sec)

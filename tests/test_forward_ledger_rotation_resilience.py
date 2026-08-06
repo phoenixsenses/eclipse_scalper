@@ -47,7 +47,9 @@ def test_ledger_survives_a_missing_frozen_segment(modname, monkeypatch, tmp_path
     mod.main()  # must return, not propagate
 
     out = capsys.readouterr().out
-    assert "ROTATION_STATE_ERROR" in out
+    # label is ESTATE_UNAVAILABLE, not ROTATION_STATE_ERROR: the same catch now
+    # covers sqlite errors that have nothing to do with rotation_state.json
+    assert "ESTATE_UNAVAILABLE" in out
     assert "microstructure.db" in out
 
 
@@ -118,4 +120,61 @@ def test_survives_every_failure_a_delete_can_produce(modname, exc, monkeypatch, 
                         lambda *a, **k: (_ for _ in ()).throw(exc))
     mod.main()  # must return, not propagate
     out = capsys.readouterr().out
+    assert "ESTATE_UNAVAILABLE" in out
     assert type(exc).__name__ in out, "the operator must see WHICH failure occurred"
+
+
+# ---------------------------------------------------------------------------
+# the catch must cover the CONNECTION only, and must not retry forever
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("modname", LEDGER_MODULES)
+def test_an_error_inside_the_cycle_is_not_swallowed(modname, monkeypatch, tmp_path):
+    """A persistent sqlite error inside run_once used to be caught and retried
+    forever: _save_state() is the last statement, so the ledger accumulated NOTHING
+    while printing a line every 30s and staying up. On the un-burned sample, a
+    visible death beats a silent standstill."""
+    mod = importlib.import_module(modname)
+    _isolate(mod, monkeypatch, tmp_path)
+
+    class _Conn:
+        def close(self):
+            pass
+
+    monkeypatch.setattr(mod, "open_union_ro", lambda *a, **k: _Conn())
+    monkeypatch.setattr(mod, "run_once", lambda conn, st: (_ for _ in ()).throw(
+        sqlite3.OperationalError("no such table: mark_prices")))
+    with pytest.raises(sqlite3.OperationalError, match="no such table"):
+        mod.main()
+
+
+@pytest.mark.parametrize("modname", LEDGER_MODULES)
+def test_a_permanently_broken_estate_eventually_surfaces(modname, monkeypatch, tmp_path):
+    """Retrying a dead estate forever IS the silent-standstill failure."""
+    mod = importlib.import_module(modname)
+    _isolate(mod, monkeypatch, tmp_path)
+    monkeypatch.setattr(sys, "argv", [modname, "--interval-sec", "0"])
+    monkeypatch.setattr(mod, "LEDGER", tmp_path / "ledger.jsonl", raising=False)
+    monkeypatch.setattr(mod, "STATE", tmp_path / "state.json", raising=False)
+    monkeypatch.setattr(mod, "open_union_ro", lambda *a, **k: (_ for _ in ()).throw(
+        RotationStateError("frozen segment file does not exist")))
+    with pytest.raises(RotationStateError):
+        mod.main()
+
+
+@pytest.mark.parametrize("modname", LEDGER_MODULES)
+def test_a_transient_connection_failure_is_survived(modname, monkeypatch, tmp_path, capsys):
+    """One bad cycle must not kill the role -- only a persistent one."""
+    mod = importlib.import_module(modname)
+    _isolate(mod, monkeypatch, tmp_path)
+    calls = {"n": 0}
+
+    def _flaky(*a, **k):
+        calls["n"] += 1
+        raise RotationStateError("transient")
+
+    monkeypatch.setattr(mod, "open_union_ro", _flaky)
+    mod.main()  # --once: one failed attempt, then break, no raise
+    assert calls["n"] == 1
+    assert "ESTATE_UNAVAILABLE" in capsys.readouterr().out
