@@ -260,6 +260,21 @@ def build_canonical_overall(
     }
 
 
+def _liq_silence_deliberately_disabled(pid_path: Path | None = None) -> bool:
+    """True when the liquidation-silence scheduler is switched OFF on purpose.
+
+    start_eclipse.ps1 writes 0 to the pid file for a role that was not requested
+    (the same convention -EnableLive uses). That is the one signal that separates
+    "the producer is stuck" from "the producer will never write again because we
+    turned it off" -- and only the first is a fault worth a YELLOW.
+    """
+    path = pid_path or (ROOT / "logs" / "pids" / "liquidation_silence_scheduler.pid")
+    try:
+        return int(path.read_text(encoding="utf-8").strip() or -1) == 0
+    except (OSError, ValueError):
+        return False
+
+
 def evaluate(
     max_age_sec: int = 180,
     expect_bookticker: bool = True,
@@ -272,6 +287,17 @@ def evaluate(
     # tests that monkeypatch ROOT for isolation don't fall through to the real
     # production database.
     resolved_db_path = db_path if db_path is not None else (ROOT / "data" / "microstructure.db")
+    # Post-rotation the original file is frozen; freshness must follow the fresh LIVE file
+    # (rotation plan catch b). Redirect ONLY the default path, ONLY when a rotation_state.json
+    # exists next to the (possibly monkeypatched) ROOT -- so test isolation is preserved when it
+    # does not. Fail-soft: keep the ROOT-relative default on any error.
+    _rs = ROOT / "data" / "rotation_state.json"
+    if db_path is None and _rs.exists():
+        try:
+            from ami.storage.union_reader import current_live_db_path
+            resolved_db_path = Path(current_live_db_path(rotation_state_path=_rs))
+        except Exception:
+            pass
     collector = read_json(LOG_HEALTH / "collector.json")
     collector_heartbeat = read_json(ROOT / "logs" / "collector_heartbeat.json")
     bookticker = read_json(LOG_HEALTH / "bookticker.json")
@@ -379,12 +405,24 @@ def evaluate(
     # issues/reasons and errors_last_5m) exactly like native_ws.
     liq_silence = read_json(LOG_HEALTH / "liquidation_silence.json")
     liq_silence_stale = False
+    liq_silence_disabled = False
     if not liq_silence:
         # Detector has never run (disabled-by-default, not yet activated):
         # the accepted "absent" no-op case, distinct from "present but
         # stale" below. Preserved exactly as before this correction --
         # defaults to GREEN, compose is a pure no-op.
         liq_silence_severity = SEVERITY_GREEN
+    elif _liq_silence_deliberately_disabled():
+        # Stale because nobody is producing it, and nobody is SUPPOSED to be: the
+        # scheduler is behind -EnableLiquidationSilenceScheduler (default OFF) and
+        # start_eclipse writes 0 to its pid file to say so. Left as UNKNOWN this
+        # pinned the top-level signal to YELLOW forever, since no new artifact can
+        # ever arrive -- and a health light stuck on YELLOW is how a real YELLOW
+        # gets missed. This is the "absent" case with a leftover file, not a fault.
+        # A non-zero pid means the scheduler WAS requested, so a stale artifact
+        # there is still a stuck producer and still raises UNKNOWN below.
+        liq_silence_severity = SEVERITY_GREEN
+        liq_silence_disabled = True
     elif not component_fresh(liq_silence, LIQUIDATION_SILENCE_MAX_AGE_SEC, now):
         # Present but stale -- or its ts_utc is missing/unparseable, which
         # component_fresh already treats as not-fresh via age_sec's None
@@ -422,6 +460,9 @@ def evaluate(
     out = {
         "ts_utc": utc_now_z(),
         "overall": overall,
+        # surfaced, not silently swallowed: an operator must be able to see that this
+        # component is GREEN because it is switched off, not because it was checked
+        "liquidation_silence_disabled": liq_silence_disabled,
         "collector_healthy": collector_healthy,
         "collector_alive": collector_process,
         "collector_status": collector.get("status"),
@@ -514,7 +555,13 @@ def main() -> int:
     parser.add_argument("--expect-detector", action="store_true")
     parser.add_argument("--expect-runtime", action="store_true")
     parser.add_argument("--once", action="store_true")
-    parser.add_argument("--db-path", type=str, default=str(DEFAULT_DB_PATH))
+    # Default DELIBERATELY None, not DEFAULT_DB_PATH: evaluate() applies its
+    # rotation-aware redirect (current_live_db_path) ONLY when db_path is None, so a
+    # concrete default here silently pinned freshness reads to data/microstructure.db --
+    # which AFTER a rotation is the FROZEN file, making every source look permanently
+    # stale and the whole policy permanently RED while the live collectors are healthy
+    # (rotation plan catch b). An explicit --db-path still wins and is passed verbatim.
+    parser.add_argument("--db-path", type=str, default=None)
     args = parser.parse_args()
     while True:
         report = run_once(
@@ -522,7 +569,9 @@ def main() -> int:
             expect_bookticker=bool(args.expect_bookticker),
             expect_detector=bool(args.expect_detector),
             expect_runtime=bool(args.expect_runtime),
-            db_path=Path(str(args.db_path)),
+            # An explicitly-passed empty string is operator error, not "use the default":
+            # strip first so `--db-path ""` cannot silently become the rotation redirect.
+            db_path=(Path(args.db_path.strip()) if (args.db_path or "").strip() else None),
         )
         print(json.dumps(report, ensure_ascii=True, separators=(",", ":")), flush=True)
         if args.once:

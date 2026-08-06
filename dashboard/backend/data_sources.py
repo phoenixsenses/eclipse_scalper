@@ -87,8 +87,22 @@ _db_size_history: deque[tuple[float, int]] = deque(maxlen=360)  # 1 s × 360 s >
 # ─────────────────────────────────────────────
 
 def _get_db_path() -> Path:
-    """Effective path to microstructure.db — overridable via MICROSTRUCTURE_DB_PATH."""
-    return _env_path("MICROSTRUCTURE_DB_PATH", DATA_DIR / "microstructure.db")
+    """Effective path to the LIVE microstructure db — overridable via MICROSTRUCTURE_DB_PATH.
+
+    The literal `data/microstructure.db` was the frozen segment after the 2026-07-23
+    rotation and does not exist at all after the Phase-4 reclaim, so every caller here
+    silently degraded to a zeroed/STALE result behind its `.exists()` guard. This is
+    the legacy dashboard surface (not the :8770 one, fixed separately in sources.py),
+    which is why it was missed. Resolution failure falls back to the historical path
+    rather than raising through a request.
+    """
+    if os.environ.get("MICROSTRUCTURE_DB_PATH", "").strip():
+        return _env_path("MICROSTRUCTURE_DB_PATH", DATA_DIR / "microstructure.db")
+    try:
+        from ami.storage.union_reader import current_live_db_path
+        return Path(current_live_db_path())
+    except Exception:
+        return DATA_DIR / "microstructure.db"
 
 
 def _get_collector_log() -> Path:

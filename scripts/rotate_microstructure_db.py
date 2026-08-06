@@ -646,7 +646,12 @@ def do_reclaim(args) -> int:
         print("  A running role almost certainly still holds the file open: stop_eclipse.ps1, "
               "re-run this with --confirm, then start_eclipse.ps1.")
         return 3  # distinct non-zero: a caller chaining on exit status must not read this as done
-    print(f"  [OK] deleted {seg_path.name} - {size_gib:,.2f} GiB reclaimed.")
+    # The backup exists to undo a bad state WRITE. Once the segment is actually gone,
+    # restoring it would point every open_union_ro at a file that no longer exists and
+    # brick the estate -- the backup has become a trap, so it goes with the segment.
+    backup.unlink(missing_ok=True)
+    print(f"  [OK] deleted {seg_path.name} - {size_gib:,.2f} GiB reclaimed "
+          f"(state backup removed: restoring it would now name a deleted segment).")
     print("\n  NEXT: restart the stack so every reader reopens against the new state.")
     return 0
 
