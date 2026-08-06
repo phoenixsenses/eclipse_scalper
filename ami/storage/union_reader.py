@@ -321,6 +321,43 @@ def current_live_db_path(state: RotationState | None = None, *,
     return state.live_db_path
 
 
+class WriterTargetError(Exception):
+    """Raised when a writer is about to create a database nothing will ever read."""
+
+
+def resolve_writer_db_path(explicit: str | Path | None = None, *,
+                           rotation_state_path: str | Path = DEFAULT_ROTATION_STATE_PATH) -> Path:
+    """The path a COLLECTOR may open for writing, refusing to invent an estate.
+
+    Every collector defaults to a hardcoded `data/microstructure.db`. While that
+    file existed and carried `attrib +R` from the rotation cutover, a hand-launch
+    without `--db-path` failed loudly with "attempt to write a readonly database".
+    Phase-4 deleted the file, so the same mistake now silently CREATES an empty
+    database and writes a live feed into it -- while every reader goes on reading
+    the file named in rotation_state.json. A split-brain feed, on the only asset
+    that cannot be re-collected, with no error anywhere.
+
+    The rule is not "the file must exist" (a first-ever run has to create it) but
+    "you may only create the file the readers are pointed at":
+
+      * target == the rotation-resolved live path -> allowed, may create it
+      * target already exists                     -> allowed, someone meant it
+      * anything else                             -> refused
+    """
+    live = Path(current_live_db_path(rotation_state_path=rotation_state_path))
+    target = Path(explicit) if explicit else live
+    try:
+        same = target.resolve() == live.resolve()
+    except OSError:
+        same = str(target).lower() == str(live).lower()
+    if same or target.exists():
+        return target
+    raise WriterTargetError(
+        f"refusing to write to {str(target)!r}: it does not exist and is not the live "
+        f"database ({str(live)!r}). Creating it would start a second, unread feed. "
+        f"Pass --db-path explicitly if you really mean a different file.")
+
+
 _IDENT_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 

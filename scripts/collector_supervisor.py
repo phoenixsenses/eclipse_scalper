@@ -240,22 +240,32 @@ class ManagedProcess:
 # Main loop
 # ---------------------------------------------------------------------------
 
-def _with_symbols(symbols: str) -> List[Dict]:
+def _configure(symbols: str, db_path: Optional[str] = None) -> List[Dict]:
+    """Substitute the runtime symbols (MicroCollector) and, when the launcher passes one, the
+    rotation-resolved --db-path into BOTH writer procs (MicroCollector + EventDiary).
+
+    db_path=None used to be "a strict no-op": each proc fell back to data/microstructure.db,
+    which existed and was attrib +R, so a stray launch failed loudly. Phase-4 deleted that
+    file, so the fallback is no longer harmless -- the writers now refuse it via
+    resolve_writer_db_path rather than create a second, unread database."""
     configured = []
     for cfg in PROCS:
         row = dict(cfg)
-        if row.get("module") == "data.microstructure_collector":
-            args = list(row.get("args") or [])
-            if "--symbols" in args:
-                idx = args.index("--symbols")
-                if idx + 1 < len(args):
-                    args[idx + 1] = symbols
-            row["args"] = args
+        args = list(row.get("args") or [])
+        if row.get("module") == "data.microstructure_collector" and "--symbols" in args:
+            idx = args.index("--symbols")
+            if idx + 1 < len(args):
+                args[idx + 1] = symbols
+        if db_path and "--db-path" in args:
+            idx = args.index("--db-path")
+            if idx + 1 < len(args):
+                args[idx + 1] = str(db_path)
+        row["args"] = args
         configured.append(row)
     return configured
 
 
-async def run(cwd: Path, symbols: str) -> None:
+async def run(cwd: Path, symbols: str, db_path: Optional[str] = None) -> None:
     venv_py = cwd / ".venv" / "Scripts" / "python.exe"
     python = str(venv_py) if venv_py.exists() else sys.executable
 
@@ -284,7 +294,7 @@ async def run(cwd: Path, symbols: str) -> None:
                 k, _, v = line.partition("=")
                 os.environ.setdefault(k.strip(), v.strip())
 
-    procs = [ManagedProcess(cfg, python, cwd, log) for cfg in _with_symbols(symbols)]
+    procs = [ManagedProcess(cfg, python, cwd, log) for cfg in _configure(symbols, db_path)]
 
     # Start all
     for mp in procs:
@@ -336,13 +346,19 @@ def main() -> None:
         default=os.getenv("ECLIPSE_DATA_SYMBOLS", "BTCUSDT,ETHUSDT"),
         help="Comma-separated symbols for data.microstructure_collector.",
     )
+    p.add_argument(
+        "--db-path",
+        default=None,
+        help="Rotation-resolved live DB path applied to MicroCollector + EventDiary. "
+             "Omitted -> each proc uses its default data/microstructure.db (pre-rotation no-op).",
+    )
     args = p.parse_args()
     cwd = Path(args.cwd).resolve()
     # Add cwd to sys.path so project modules are importable
     if str(cwd) not in sys.path:
         sys.path.insert(0, str(cwd))
     try:
-        asyncio.run(run(cwd, symbols=str(args.symbols)))
+        asyncio.run(run(cwd, symbols=str(args.symbols), db_path=args.db_path))
     except KeyboardInterrupt:
         print("Collector supervisor stopped.")
 

@@ -17,6 +17,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+from ami.storage.union_reader import resolve_writer_db_path
+
 DB = ROOT / "data" / "microstructure.db"
 PID_PATH = ROOT / "logs" / "pids" / "oi_spot_poller.pid"
 SYMBOLS = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
@@ -70,6 +72,9 @@ def main() -> None:
     ap.add_argument("--once", action="store_true")
     ap.add_argument("--db", default=str(DB))
     args = ap.parse_args()
+    # DB above is the PRE-ROTATION path, deleted in Phase-4; opening it would
+    # silently create an empty database and write a feed nobody reads.
+    args.db = str(resolve_writer_db_path(args.db))
     try:
         PID_PATH.parent.mkdir(parents=True, exist_ok=True)
         PID_PATH.write_text(str(__import__("os").getpid()), encoding="ascii")

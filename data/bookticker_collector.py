@@ -23,6 +23,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from tools.health_state import write_component_health, utc_now_iso  # noqa: E402
+from ami.storage.union_reader import resolve_writer_db_path  # noqa: E402
 
 try:
     import websockets
@@ -321,8 +322,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     args = parse_args(argv)
+    # The default below is the PRE-ROTATION path, which Phase-4 deleted. Opening it
+    # would silently create an empty database and write a live feed nobody reads.
+    db_path = resolve_writer_db_path(args.db_path)
     symbols = [item.strip().upper() for item in str(args.symbols).split(",") if item.strip()]
-    asyncio.run(collect(Path(args.db_path), symbols, float(args.heartbeat_interval), args.max_seconds))
+    asyncio.run(collect(db_path, symbols, float(args.heartbeat_interval), args.max_seconds))
     return 0
 
 

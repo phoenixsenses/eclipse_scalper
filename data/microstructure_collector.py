@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import argparse
+from ami.storage.union_reader import resolve_writer_db_path
 import asyncio
 import json
 import os
@@ -1195,7 +1196,9 @@ def main():
 
     collector = MicrostructureCollector(
         symbols=symbols,
-        db_path=args.db_path,
+        # the argparse default is the PRE-ROTATION path, deleted in Phase-4;
+        # opening it would silently create a second, unread feed
+        db_path=str(resolve_writer_db_path(args.db_path)),
         flush_interval=args.flush_interval,
         stats_interval=args.stats_interval,
         flush_fail_threshold=int(args.flush_fail_threshold),
