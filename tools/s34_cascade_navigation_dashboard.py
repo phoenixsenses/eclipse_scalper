@@ -126,10 +126,15 @@ def prior_return_bps(marks: MarkIndex, ts_ms: int, window_sec: int) -> float | N
 
 
 def latest_liq_ts(conn: sqlite3.Connection, symbol: str) -> int | None:
-    row = conn.execute(
-        "SELECT MAX(ts_ms) FROM liquidations WHERE symbol=?", (symbol,)
-    ).fetchone()
-    return int(row[0]) if row and row[0] is not None else None
+    """Newest liquidation ts for a symbol, asked per schema rather than through the view.
+
+    `MAX(ts_ms) ... WHERE symbol=?` over the union plans as CO-ROUTINE + COMPOUND and
+    scans; measured on the live estate at 26.8 ms vs 0.1 ms for the per-schema form,
+    268x, in a default-ON standing poller whose cost grows with the frozen segment.
+    The 44ea6ac2 sweep fixed funding_rate_at and missed the function above it.
+    """
+    row = as_of_row(conn, "liquidations", "symbol", where="symbol=?", params=(symbol,))
+    return int(row[0]) if row else None
 
 
 def day_start_ms(ts_ms: int) -> int:

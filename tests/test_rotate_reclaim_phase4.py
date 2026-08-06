@@ -75,7 +75,7 @@ def estate(tmp_path, monkeypatch):
     monkeypatch.setattr(RC, "KEEPER_DB", keeper)
     monkeypatch.setattr(RC, "PARQUET_ROOT", parquet)
     monkeypatch.setattr(RC, "PARQUET_TABLES", {"book_ticker": 3})
-    monkeypatch.setattr(RC, "KEEPER_UNION_TABLES", ("liquidations", "spot_prices"))
+    # keeper_union_tables() derives the list from the keeper itself, so nothing to stub
     return {"frozen": frozen, "keeper": keeper, "parquet": parquet,
             "state": state, "live": live}
 

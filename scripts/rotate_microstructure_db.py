@@ -421,8 +421,17 @@ def _archive_blockers(table: str, expected: int, segment_fp: str) -> list[str]:
     return out
 
 
-# Union tables the keeper actually carries (the big three live in Parquet).
-KEEPER_UNION_TABLES = ("liquidations", "open_interest", "spot_prices")
+def keeper_union_tables(keeper: sqlite3.Connection) -> list[str]:
+    """Union tables the keeper actually carries.
+
+    Derived, not hardcoded: `_build_union` iterates all six UNION_TABLES, so a fixed
+    three-name list checked column compatibility and disjointness for half of what
+    the union would actually build. The list happens to be right today only because
+    the keeper holds none of the big three.
+    """
+    present = {r[0] for r in keeper.execute(
+        "SELECT name FROM sqlite_master WHERE type='table'")}
+    return [t for t in UNION_TABLES if t in present]
 
 
 def keeper_segment_blockers(state) -> list[str]:
@@ -444,7 +453,7 @@ def keeper_segment_blockers(state) -> list[str]:
     live = _ro(live_path)
     keep = _ro(KEEPER_DB)
     try:
-        for table in KEEPER_UNION_TABLES:
+        for table in keeper_union_tables(keep):
             live_cols = {r[1] for r in live.execute(f"PRAGMA table_info({table})")}
             keep_cols = {r[1] for r in keep.execute(f"PRAGMA table_info({table})")}
             if not keep_cols:
@@ -572,10 +581,11 @@ def do_reclaim(args) -> int:
                   "and by then the frozen file would already be gone.")
         ro = _ro(KEEPER_DB)
         try:
+            tables = keeper_union_tables(ro)
             lo = min(v for v in (ro.execute(f"SELECT MIN(ts_ms) FROM {t}").fetchone()[0]
-                                 for t in KEEPER_UNION_TABLES) if v is not None)
+                                 for t in tables) if v is not None)
             hi = max(v for v in (ro.execute(f"SELECT MAX(ts_ms) FROM {t}").fetchone()[0]
-                                 for t in KEEPER_UNION_TABLES) if v is not None)
+                                 for t in tables) if v is not None)
         finally:
             ro.close()
         new_segments = [{"path": str(KEEPER_DB), "start_ms": lo, "end_ms": hi}]
