@@ -52,6 +52,7 @@ from tools.s34_feature_availability import (
     FeatureValue,
     assert_feature_set_available,
 )
+from ami.storage.union_reader import open_union_ro, as_of_row  # noqa: E402
 
 DEFAULT_DB = ROOT / "data" / "microstructure.db"
 OUT_DIR = ROOT / "reports" / "research" / "s34"
@@ -137,16 +138,31 @@ def day_start_ms(ts_ms: int) -> int:
     return int(start.timestamp() * 1000)
 
 
+# Funding prints roughly every 8h, so nothing within a day means the source is dead,
+# not that funding is unchanged. Bounded for the same reason section 189 bounded the
+# monitor's copy: an unbounded as-of silently returns a months-old value as current.
+FUNDING_LOOKBACK_MS = 24 * 3_600_000
+
+
 def funding_rate_at(conn: sqlite3.Connection, symbol: str, ts_ms: int) -> float | None:
+    """Funding at-or-before `ts_ms`, or None if the source has gone quiet.
+
+    Uses `as_of_row` rather than a plain `ORDER BY ts_ms DESC LIMIT 1`. Through the
+    union view that form is the failure the union_reader docstring measures at 7560x:
+    SQLite can only merge an ordered compound when the ORDER BY term is a RESULT
+    column, and this query selects only `funding_rate`, so the whole compound gets
+    materialised and sorted to return one row. The section 258/259 sweep fixed the
+    shadow runner's copy of this probe and missed this one.
+    """
     try:
-        row = conn.execute(
-            "SELECT funding_rate FROM mark_prices WHERE symbol=? AND ts_ms<=? AND funding_rate IS NOT NULL "
-            "ORDER BY ts_ms DESC LIMIT 1",
-            (symbol, int(ts_ms)),
-        ).fetchone()
-    except sqlite3.OperationalError:
+        row = as_of_row(
+            conn, "mark_prices", "funding_rate",
+            where="symbol=? AND ts_ms<=? AND ts_ms>=? AND funding_rate IS NOT NULL",
+            params=(symbol, int(ts_ms), int(ts_ms) - FUNDING_LOOKBACK_MS),
+        )
+    except (sqlite3.OperationalError, ValueError):
         return None
-    return float(row[0]) if row and row[0] is not None else None
+    return float(row[1]) if row and row[1] is not None else None
 
 
 def load_management_fragment(path: Path = MANAGEMENT_FRAGMENT) -> dict[str, Any]:
@@ -1468,7 +1484,10 @@ def main(argv: list[str] | None = None) -> int:
         return _run_serve_mode(args)
     confidence = load_rule_confidence(resolve_recheck_json(args.recheck_json))
     validated_registry = load_validated_signals()
-    with sqlite3.connect(f"file:{args.db}?mode=ro", uri=True) as conn:
+    # default path -> union (spans live+frozen post-rotation); explicit --db override -> that file verbatim
+    _db_conn = (open_union_ro() if str(args.db) == str(DEFAULT_DB)
+                else sqlite3.connect(f"file:{args.db}?mode=ro", uri=True))
+    with _db_conn as conn:
         if args.as_of_utc:
             text = args.as_of_utc.strip()
             if text.endswith("Z"):
