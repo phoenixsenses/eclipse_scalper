@@ -70,6 +70,15 @@ def compute_flags(conn, as_of_ms):
     if fp is not None and ind.get("funding_rate") is not None:
         sev = "high" if (fp >= 0.98 or fp <= 0.02) else ("medium" if (fp >= 0.9 or fp <= 0.1) else "ok")
         flags.append(_flag("funding_extremity", round(fp, 3), sev, note="14d percentile of funding"))
+    else:
+        # Emitted-but-invalid, not omitted. Dropping the row entirely made the flag
+        # VANISH from the artifact, so an operator could not tell "funding is not
+        # extreme" from "we can no longer compute whether it is" -- and the :8770
+        # stale-source count only counts flags that are present, so the disappearance
+        # was invisible there too. Same treatment basis_dislocation_bps already gets.
+        flags.append(_flag("funding_extremity", None, "info", fresh=False,
+                           note="14d percentile unavailable: estate holds less than 14d "
+                                "of mark_prices, or funding is missing"))
     # `ts_ms` is in the select list because it is the ORDER BY term: without it the union view
     # plans as CO-ROUTINE + COMPOUND and sorts the whole estate (§258). It is LAST so `f0[0]`
     # still means the funding rate. My first scan missed this site because the query is built

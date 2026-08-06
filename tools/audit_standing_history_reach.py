@@ -41,8 +41,28 @@ START_SCRIPT = REPO_ROOT / "start_eclipse.ps1"
 LOCAL_ROOTS = {"tools", "ami", "data", "scripts", "dashboard", "src"}
 
 DAY_MS = 86_400_000
-_DAYS = re.compile(r"(\d+)\s*\*\s*86_?400_?000")
-_HOURS = re.compile(r"(\d+)\s*\*\s*3_?600_?000")
+HOUR_MS = 3_600_000
+
+# A MAXIMAL chain of integer literals multiplied together, evaluated as a product.
+#
+# Matching `N * 86_400_000` and `N * 3_600_000` separately was wrong on the repo's
+# dominant idiom: in `7 * 24 * 3600_000` the days pattern does not match at all and
+# the hours pattern matches the INNER `24 * 3600_000`, reporting 1 day for a window
+# named BTC_7D_LOOKBACK_MS. The audit that replaced a per-file grep was blind to the
+# very constant the per-file grep would have found.
+_CHAIN = re.compile(r"(?<![\w.])\d[\d_]*(?:\s*\*\s*\d[\d_]*)+(?![\w.])")
+
+
+def _chain_ms(text: str) -> list[int]:
+    """Every literal product on a line, in ms, keeping only plausible durations."""
+    out: list[int] = []
+    for match in _CHAIN.finditer(text):
+        product = 1
+        for part in match.group(0).split("*"):
+            product *= int(part.strip().replace("_", ""))
+        if HOUR_MS <= product <= 3650 * DAY_MS:  # an hour to ten years
+            out.append(product)
+    return out
 # an aggregate over a table with no ts_ms lower bound anywhere in the statement
 _AGG = re.compile(r"SELECT\s+(?:MIN|MAX|COUNT|SUM|AVG)\s*\(", re.I)
 
@@ -91,14 +111,19 @@ def scan_module(dotted: str) -> tuple[list[tuple[int, int, str]], list[tuple[int
         stripped = line.strip()
         if stripped.startswith("#"):
             continue
-        for m in _DAYS.finditer(line):
-            windows.append((int(m.group(1)) * DAY_MS, lineno, stripped[:100]))
-        for m in _HOURS.finditer(line):
-            ms = int(m.group(1)) * 3_600_000
+        for ms in _chain_ms(line):
             if ms >= DAY_MS:
                 windows.append((ms, lineno, stripped[:100]))
-        if _AGG.search(line) and "ts_ms" not in line.split("WHERE")[-1]:
-            if " FROM " in line.upper():
+        if _AGG.search(line) and " FROM " in line.upper():
+            upper = line.upper()
+            if "WHERE" not in upper:
+                # No predicate at all -- the most unbounded case there is. The previous
+                # form did `line.split("WHERE")[-1]`, which without a WHERE returns the
+                # WHOLE line, so any aggregate that merely SELECTED ts_ms was skipped --
+                # including `SELECT MIN(ts_ms) FROM {schema}.{table}`, the query this
+                # very audit's sibling added to a 30s loop.
+                unbounded.append((lineno, stripped[:100]))
+            elif "TS_MS" not in upper.split("WHERE", 1)[1]:
                 unbounded.append((lineno, stripped[:100]))
     return windows, unbounded
 
