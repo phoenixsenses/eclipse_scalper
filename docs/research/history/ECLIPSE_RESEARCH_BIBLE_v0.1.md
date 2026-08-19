@@ -1,7 +1,7 @@
 # ECLIPSE RESEARCH BIBLE
 ## E-DER / Eclipse Scalper — Research Charter, Knowledge Base, Decision Log, and AI Operating Protocol
 
-**Version:** 0.2
+**Version:** 0.1  
 **Last updated:** 2026-08-19  
 **Status:** Living document  
 **Purpose:** Give any future ChatGPT/Codex/research assistant enough context to continue the project intelligently without requiring the user to restate prior work.
@@ -867,11 +867,11 @@ Do not over-weight recent SSRN/preprint work relative to canonical literature.
 
 The broad literature-review phase is considered largely mature.
 
-Data Feasibility Audit V1 is complete. The current stage is:
+The next correct stage is:
 
-# MEASUREMENT SENSITIVITY CONTRACT V1 + PROSPECTIVE COLLECTOR CONTRACT V1
+# DATA FEASIBILITY AUDIT V1
 
-The historical proxy diagnostic must not begin until Measurement Sensitivity Contract V1 is independently reviewed and frozen. The prospective collector contract is specification-only; implementation requires separate authorization. Dynamic exit remains `STOP / NOT AUTHORIZED`.
+Do not start Flow Surprise / Impact Surprise model fitting before this audit.
 
 ---
 
@@ -1030,13 +1030,18 @@ Every new idea should be logged with:
 
 # 32. WHAT THE ASSISTANT SHOULD DO NEXT
 
-1. Independently review `contracts/E_DER_MEASUREMENT_SENSITIVITY_CONTRACT_V1.md`.
-2. Resolve only genuine specification ambiguities without consulting E-DER returns.
-3. Record a dated freeze decision if the contract passes review.
-4. Separately review the prospective collector contract; do not implement it without authorization.
-5. Only after the measurement contract is frozen may a separately authorized historical Track A descriptive proxy diagnostic begin.
+1. Inspect the actual Eclipse repository/database.
+2. Build a factual data inventory.
+3. Build a feed-semantics timeline.
+4. Build an event-by-event E-DER observability matrix.
+5. Classify candidate variables as:
+   - VALID,
+   - PROXY ONLY,
+   - UNSUPPORTED,
+   - NOT IDENTIFIABLE.
+6. Only then design Flow Surprise / Impact Surprise V1.
 
-Do not begin model refitting, matching repair, collector implementation, or dynamic-exit research at this stage.
+If the audit reveals a specific unresolved Binance/API/statistics issue, return to targeted research for that issue.
 
 ---
 
@@ -1080,151 +1085,4 @@ It is the most defensible one.
 
 ---
 
-# 35. DATA FEASIBILITY AUDIT V1 UPDATE — 2026-08-19
-
-**Factual authority:** `docs/research/audits/data_feasibility_v1/DATA_FEASIBILITY_AUDIT_V1.md`
-**Audit status:** `COMPLETE — STOPPED BEFORE MODELING`
-**Checkpoint commit:** `2198eaa3`
-
-Where this update corrects a factual data assumption in earlier sections, this dated update governs. The older narrative remains preserved as research history rather than being silently erased.
-
-## 35.1 Frozen population and exact price support
-
-`VERIFIED FROM CODE/DATA`:
-
-- 25 unchanged E-DER events across 12 event symbols;
-- all 25 have 241/241 event-symbol one-minute OHLCV bars from event base through fixed boundary;
-- all 25 have 241/241 BTCUSDT one-minute OHLCV bars over the same support;
-- all 25 have observed forceOrder rows in event support;
-- entry remains `base+31m` exact OPEN and fixed boundary remains `base+240m` exact OPEN.
-
-## 35.2 Liquidation semantics
-
-Historical liquidation storage retains top-level event time `E` as `ts_ms`, order trade time `o.T`, symbol, side, order price `o.p`, original quantity `o.q`, and `notional=o.p*o.q`. It does not retain `ap`, `l`, `z`, `X`, raw payload, or local receive time.
-
-The historical variable is therefore an `OBSERVED FORCED-LIQUIDATION PRESSURE PROXY`. It is not complete executed liquidation volume, true forced SELL volume, or an exact liquidation tape. `q_parent` and `q_echo` are normalized observed pressure proxies, not executed-liquidation shares.
-
-All 25 events occur after the measured 2026-06-06 transition to the all-market forceOrder regime. This consistency does not make the throttled/snapshot-like feed complete.
-
-## 35.3 Historical event-symbol trade and book boundary
-
-The retained aggTrade and bookTicker archives contain BTCUSDT, ETHUSDT and SOLUSDT only. None of the 12 frozen event symbols is covered.
-
-For the frozen 25, aggressive buy/sell notional, minute signed aggressive flow, raw trades and aggTrade-only event-symbol flow are `UNSUPPORTED`.
-
-Where bookTicker exists generally it is Level C top-of-book only. There is no partial/diff depth, multi-level book, `U/u/pu` continuity, snapshot/bootstrap reconstruction, or exact add/cancel decomposition. For the frozen 25, quote mid, spread, L1 depth, multi-level depth, classical OFI, MLOFI and displayed-depth recovery are `UNSUPPORTED`; exact add/cancel, exact replenishment and hidden liquidity are `NOT IDENTIFIABLE`.
-
-Historical price response is a `ONE-MINUTE-OHLCV RESPONSE / IMPACT SURPRISE PROXY`, never quote-mid impact. BTC/common-market OHLCV adjustment is `VALID` for all 25.
-
-## 35.4 Metadata and clocks
-
-Historical tick-size, step-size, precision and filter-change history cannot be recovered from the frozen archive. Historical tick-regime conditioning is `NOT IDENTIFIABLE`.
-
-forceOrder `E` and `o.T` are materially distinct clocks: almost all keeper rows have `E != T`, with observed differences reaching multiple seconds. No receive timestamp exists. Clock assignment is therefore a mandatory measurement-sensitivity dimension and may never be selected by E-DER return performance.
-
-## 35.5 Existing derived-name aliases
-
-Do not silently rename stored columns, but apply these scientific aliases:
-
-- `fl_*_ofi` = aggressive aggTrade imbalance `(BUY notional−SELL notional)/(BUY+SELL)` where available; it is not classical OFI;
-- `bk_pull` = sampled L1 bid-quantity ratio; it is not exact cancellation;
-- `bk_refill` = sampled L1 bid-quantity ratio; it is not exact replenishment.
-
-## 35.6 Gross/net reconciliation
-
-`VERIFIED FROM CODE/DATA`: the earlier and latest files contain the same 25 events, same entry OPEN and same fixed-boundary OPEN. Every event differs by exactly 10 bps:
-
-- earlier hypothetical-cost net mean `305.0963027350` bps and median `124.3599546530` bps;
-- latest gross mean `315.0963027350` bps and median `134.3599546530` bps.
-
-The earlier build subtracts `COST_BPS=10`; the latest exporter reports gross. Neither supersedes the other. They are distinct gross and hypothetical 10-bps-cost net contracts.
-
-# 36. TWO-TRACK E-DER RESEARCH ARCHITECTURE
-
-## Track A — Historical proxy research
-
-**Purpose:** scientifically characterize the frozen historical 25 using only archive-supported variables.
-
-Permitted core observables:
-
-- observed forceOrder pressure proxy;
-- exact one-minute event-symbol OHLCV;
-- exact BTC one-minute OHLCV;
-- the previously frozen chronological generic OOS benchmark only while its contract and provenance remain intact;
-- BTC/common-market adjustment.
-
-Track A tests conditional OHLCV response anomalies under an observed liquidation-pressure proxy. It is exploratory/post-hoc for the post-Channel-A mechanism theory.
-
-Track A does not claim true executed liquidation volume, aggressive-trade Flow Surprise, quote-mid impact, OFI, MLOFI, displayed-book resilience, exact replenishment, hidden-liquidity absorption, market-maker absorption, actor identity, or causality.
-
-## Track B — Forward rich-microstructure confirmation
-
-**Purpose:** prospectively collect data capable of testing stronger mechanisms under a preregistered contract.
-
-Validated future data may potentially support aggressive-flow surprise, quote-mid response, OFI, MLOFI, displayed LOB resilience, sequence-valid depth reconstruction, reaction turnover, displayed add/remove dynamics, feed-timing analysis, and tick/microstructure-regime analysis.
-
-Even Level-A displayed L2 does not automatically identify hidden liquidity, participant identity, market-maker behavior, or causality. True confirmation of the post-Channel-A mechanism belongs in forward Track B.
-
-# 37. EXISTING HISTORICAL EMPIRICAL RESULTS — PROVENANCE STATUS
-
-Unless explicitly noted as Audit V1 verified, the following are `EXISTING HISTORICAL EMPIRICAL RESULT — NOT REVALIDATED BY DATA FEASIBILITY AUDIT V1`.
-
-The frozen raw-export report and JSON provide repository provenance for 25 events/12 symbols, gross mean/median, trimmed mean, quartiles, win rate, minimum/maximum, 3,534,890 generic chronological OOS rows, 30,125 event-path predictions, 55 fits and outcome-firewall attestations. Audit V1 independently verified event identities, path coverage and gross/net reconciliation, but did not rerun or revalidate the model or all statistics.
-
-Preserved reported results:
-
-- 16W/9L, 64% win rate, +7,877.41 bps gross simple total;
-- +315.10 bps/event gross mean, +134.36 bps gross median, PF approximately 3.62;
-- 10% trimmed mean approximately +195.86 bps, min approximately −630.80 bps, max approximately +2,561.90 bps;
-- REUSDT materially contributes to the upper tail; removing it reportedly leaves +3,283.99 bps, +164.20 bps/event, 60% WR and PF approximately 2.32;
-- mean MFE approximately +817.8 bps, median MFE approximately +374.45 bps, mean time-to-MFE approximately 104.5 minutes;
-- all 9 losing events reportedly became profitable before the fixed boundary; their mean MFE approximately +293.95 bps;
-- historical exit work found substantial giveback and reported that simple TP attempts damaged the winner tail; this does not authorize TP optimization;
-- previously reported 60m generic expected response approximately −20.25 bps, actual E-DER response approximately +114.41 bps, and mean OHLCV Impact Surprise approximately +134.66 bps;
-- previously reported rarity: 6/25 events reached at least the 95th percentile of prior genuine-OOS residuals at 15/30/60m;
-- post-hoc 60m Impact Surprise ≥90th-percentile subset reportedly averaged approximately +681.7 bps/event and 85.7% WR at +240m.
-
-The tail/MFE/exit/60m rarity and subset-association figures above remain `USER-SUPPLIED / PRIOR-REPORT RESULT — PROVENANCE NOT REVERIFIED IN THIS GOVERNANCE TASK` unless their exact sealed artifact is cited by a later provenance audit. The 90th/95th percentiles are descriptive and post-hoc, not p-values or trading thresholds.
-
-Matching remains 25/25 `POOR_OVERLAP` because the liquidation coordinate’s candidate-pool MAD is zero. This establishes an invalid current normalization on that coordinate, not absence of economically comparable controls.
-
-# 38. DECISIONS APPENDED — 2026-08-19
-
-The complete append-only records and evidence links are in `DECISION_LOG.md`.
-
-- **D15 — ACTIVE:** Historical mechanism work is limited to liquidation-pressure-proxy plus OHLCV response analysis.
-- **D16 — ACTIVE:** Historical event-symbol aggressive-trade and LOB mechanisms are unsupported because the archives are absent.
-- **D17 — ACTIVE:** Exact historical replenishment, hidden-liquidity and executed-liquidation claims are not identifiable.
-- **D18 — ACTIVE:** `q_parent` / `q_echo` are normalized observed pressure proxies, not executed-liquidation shares.
-- **D19 — ACTIVE:** E-time and T-time are distinct; clock assignment is measurement sensitivity.
-- **D20 — RESOLVED:** Gross versus net discrepancy is exactly 10 bps/event cost treatment.
-- **D21 — ACTIVE:** `fl_*_ofi`, `bk_pull`, and `bk_refill` receive no stronger semantics than provenance supports.
-- **D22 — ACTIVE:** Historical proxy and forward rich-microstructure research are separate tracks.
-- **D23 — ACTIVE STAGE GATE:** The authorized object is contract review/freeze, not alpha, model or exit search.
-
-# 39. GOVERNANCE AND BIBLE UPDATE PROTOCOL
-
-Future assistants should proactively propose a Bible update when a materially verified finding changes data feasibility, the stage gate, frozen terminology, accepted/rejected hypothesis, major methodology, or confirmed result.
-
-Every authorized update must:
-
-1. preserve the current canonical file byte-for-byte under `docs/research/history/`;
-2. increment the Bible version;
-3. add a dated changelog entry;
-4. add or update a Decision Log item;
-5. update the Hypothesis Ledger when scientific status changes;
-6. mark superseded statements rather than deleting their existence;
-7. keep claim language weaker than or equal to what the data identifies.
-
-Never silently rewrite a frozen rule or historical conclusion.
-
-# 40. V0.2 CHANGELOG — 2026-08-19
-
-- Archived byte-identical V0.1 with SHA-256 `6BA44FEB5942018AD413ECF22DC9C361E17AA459D3F84061A9106E73B475182D`.
-- Incorporated Audit V1 factual boundaries and corrected pre-audit data assumptions.
-- Added historical Track A and prospective Track B architecture.
-- Reconciled gross and hypothetical-cost net contracts without replacing either.
-- Replaced the completed Audit V1 stage gate with contract review/freeze.
-- Added D15–D23 and formal governance/update rules.
-
-# END OF V0.2
+# END OF V0.1
