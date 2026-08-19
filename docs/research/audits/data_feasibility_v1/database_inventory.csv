@@ -1,0 +1,20 @@
+asset,table_or_stream,row_count_value,row_count_semantics,coverage_start_ms,coverage_end_ms,symbols,finding_status,notes
+data/microstructure_02.db,liquidations,892810,sqlite_sequence maximum assigned id; NOT an exact row count,,,launcher default BTCUSDT|ETHUSDT|SOLUSDT for aggTrade/mark/book; forceOrder all-market,INFERRED,Exact full-table count/coverage scan intentionally not run against the active ~157GB database.
+data/microstructure_02.db,agg_trades,39927828,sqlite_sequence maximum assigned id; NOT an exact row count,,,launcher default BTCUSDT|ETHUSDT|SOLUSDT for aggTrade/mark/book; forceOrder all-market,INFERRED,Exact full-table count/coverage scan intentionally not run against the active ~157GB database.
+data/microstructure_02.db,mark_prices,6772928,sqlite_sequence maximum assigned id; NOT an exact row count,,,launcher default BTCUSDT|ETHUSDT|SOLUSDT for aggTrade/mark/book; forceOrder all-market,INFERRED,Exact full-table count/coverage scan intentionally not run against the active ~157GB database.
+data/microstructure_02.db,book_ticker,1076276755,sqlite_sequence maximum assigned id; NOT an exact row count,,,launcher default BTCUSDT|ETHUSDT|SOLUSDT for aggTrade/mark/book; forceOrder all-market,INFERRED,Exact full-table count/coverage scan intentionally not run against the active ~157GB database.
+data/keeper_frozen_smalltables.db,basis_reversion_candidates,1430,exact SELECT COUNT(*),,,1,VERIFIED FROM CODE/DATA,Frozen small-table segment retained after rotation.
+data/keeper_frozen_smalltables.db,detector_log,260811,exact SELECT COUNT(*),1771200432570,1780675064006,3,VERIFIED FROM CODE/DATA,Frozen small-table segment retained after rotation.
+data/keeper_frozen_smalltables.db,detector_signals,73,exact SELECT COUNT(*),,,1,VERIFIED FROM CODE/DATA,Frozen small-table segment retained after rotation.
+data/keeper_frozen_smalltables.db,event_diary,133999,exact SELECT COUNT(*),1773447906058,1780674783004,2,VERIFIED FROM CODE/DATA,Frozen small-table segment retained after rotation.
+data/keeper_frozen_smalltables.db,funding_rates,178,exact SELECT COUNT(*),1771171200000,1776096000000,1,VERIFIED FROM CODE/DATA,Frozen small-table segment retained after rotation.
+data/keeper_frozen_smalltables.db,gaps,812,exact SELECT COUNT(*),,,,VERIFIED FROM CODE/DATA,Frozen small-table segment retained after rotation.
+data/keeper_frozen_smalltables.db,liq_heatmap,133,exact SELECT COUNT(*),,,1,VERIFIED FROM CODE/DATA,Frozen small-table segment retained after rotation.
+data/keeper_frozen_smalltables.db,liquidations,1722645,exact SELECT COUNT(*),1771165818195,1784839238819,761,VERIFIED FROM CODE/DATA,Frozen small-table segment retained after rotation.
+data/keeper_frozen_smalltables.db,open_interest,75117,exact SELECT COUNT(*),1774699200000,1784839215638,3,VERIFIED FROM CODE/DATA,Frozen small-table segment retained after rotation.
+data/keeper_frozen_smalltables.db,sol_s35_candidates,25,exact SELECT COUNT(*),,,,VERIFIED FROM CODE/DATA,Frozen small-table segment retained after rotation.
+data/keeper_frozen_smalltables.db,spot_prices,247451,exact SELECT COUNT(*),1772899200000,1784839215638,3,VERIFIED FROM CODE/DATA,Frozen small-table segment retained after rotation.
+data/keeper_frozen_smalltables.db,vol_state,53648,exact SELECT COUNT(*),1771165799004,1780675203000,3,VERIFIED FROM CODE/DATA,Frozen small-table segment retained after rotation.
+data/xsec_klines.db,klines,11790940,exact SELECT COUNT(*),1777593600000,1784937540000,109,VERIFIED FROM CODE/DATA,"1-minute kline store; (symbol,open_time) composite primary key."
+data/xsec_klines.db,ingest_log,2769,exact SELECT COUNT(*),,,,VERIFIED FROM CODE/DATA,"1-minute kline store; (symbol,open_time) composite primary key."
+data/xsec_klines.db,price_supplement_ingest,992,exact SELECT COUNT(*),,,,VERIFIED FROM CODE/DATA,"1-minute kline store; (symbol,open_time) composite primary key."

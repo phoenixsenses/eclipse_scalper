@@ -1,0 +1,15 @@
+date_or_range,change,evidence,status
+2026-02-15,Earliest retained liquidation/aggTrade/mark-price history begins,keeper coverage and archive manifests,VERIFIED FROM CODE/DATA
+2026-02-20,microstructure_collector first visible in Git history,git commit 575d40da,VERIFIED FROM CODE/DATA
+2026-04-11,Earliest bookTicker archive date for BTC/ETH,Parquet manifest,VERIFIED FROM CODE/DATA
+2026-04-18,SOL aggTrade/bookTicker/mark archive begins,Parquet manifests,VERIFIED FROM CODE/DATA
+2026-04-28..2026-06-05,No liquidation rows (39 full UTC days),keeper daily row census,VERIFIED FROM CODE/DATA
+2026-06-06T17:43:52.123Z,Measured transition from 2–3-symbol per-symbol forceOrder regime to all-market !forceOrder@arr,liquidation_source_quality_contract_v2: first post-blackout row + 171 symbols in following hour,VERIFIED FROM CODE/DATA
+2026-06-06..2026-06-10,All BTC/ETH/SOL bookTicker partitions contain zero rows,Parquet manifests,VERIFIED FROM CODE/DATA
+2026-07-06T10:06:39Z..2026-07-10T11:24:38Z,Second all-market liquidation outage; includes three full no-row UTC days,keeper census + LIQUIDATION_SILENCE_DETECTOR_2026-07-11.md,VERIFIED FROM CODE/DATA
+2026-07-03,collector websocket fallback URL correction appears,git commit 5cda3122,VERIFIED FROM CODE/DATA
+2026-07-10,routed market websocket/health changes appear,"git commits bd7feb32,b0ac3b89,00ef49ad",VERIFIED FROM CODE/DATA
+2026-07-21,bookticker_collector first visible in Git history,git commit 968adb70,VERIFIED FROM CODE/DATA
+2026-07-23T20:40:46.344Z,SQLite rotation cutoff; live becomes microstructure_02.db,rotation_state.json,VERIFIED FROM CODE/DATA
+2026-08-06,large frozen SQLite reclaimed; small tables retained; collectors made rotation-aware,rotation_state.json and git commit 552ca970,VERIFIED FROM CODE/DATA
+historical exact Binance semantics,No field-level collector version persisted per row; current docs/code cannot prove all prior upstream semantics,schemas lack source/version/receive fields,UNKNOWN / NOT RECOVERABLE

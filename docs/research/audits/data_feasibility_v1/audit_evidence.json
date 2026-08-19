@@ -1,0 +1,142 @@
+{
+  "status": "READ_ONLY_AUDIT_EVIDENCE_EXPORTED",
+  "outcome_blind_classification": true,
+  "bible_sha256": "6ba44feb5942018ad413ecf22dc9c361e17aa459d3f84061a9106e73b475182d",
+  "manifest_sha256": "c24f83f0bbf294da6a7717b8ad45f4eec0ea3ed337c9f32fd5d6cc6f0a5cf28a",
+  "event_count": 25,
+  "symbols": [
+    "AAOIUSDT",
+    "BANKUSDT",
+    "ESPORTSUSDT",
+    "KORUUSDT",
+    "NEARUSDT",
+    "REUSDT",
+    "SKHYNIXUSDT",
+    "SPCXUSDT",
+    "VELVETUSDT",
+    "XAGUSDT",
+    "XRPUSDT",
+    "ZECUSDT"
+  ],
+  "classification_counts_by_field": {
+    "liquidation_pressure": {
+      "VALID": 0,
+      "PROXY ONLY": 25,
+      "UNSUPPORTED": 0,
+      "NOT IDENTIFIABLE": 0
+    },
+    "aggressive_buy_sell_notional": {
+      "VALID": 0,
+      "PROXY ONLY": 0,
+      "UNSUPPORTED": 25,
+      "NOT IDENTIFIABLE": 0
+    },
+    "minute_signed_flow_imbalance": {
+      "VALID": 0,
+      "PROXY ONLY": 0,
+      "UNSUPPORTED": 25,
+      "NOT IDENTIFIABLE": 0
+    },
+    "raw_trades": {
+      "VALID": 0,
+      "PROXY ONLY": 0,
+      "UNSUPPORTED": 25,
+      "NOT IDENTIFIABLE": 0
+    },
+    "aggTrade_only_flow": {
+      "VALID": 0,
+      "PROXY ONLY": 0,
+      "UNSUPPORTED": 25,
+      "NOT IDENTIFIABLE": 0
+    },
+    "midquote": {
+      "VALID": 0,
+      "PROXY ONLY": 0,
+      "UNSUPPORTED": 25,
+      "NOT IDENTIFIABLE": 0
+    },
+    "spread": {
+      "VALID": 0,
+      "PROXY ONLY": 0,
+      "UNSUPPORTED": 25,
+      "NOT IDENTIFIABLE": 0
+    },
+    "top_level_depth": {
+      "VALID": 0,
+      "PROXY ONLY": 0,
+      "UNSUPPORTED": 25,
+      "NOT IDENTIFIABLE": 0
+    },
+    "multi_level_depth": {
+      "VALID": 0,
+      "PROXY ONLY": 0,
+      "UNSUPPORTED": 25,
+      "NOT IDENTIFIABLE": 0
+    },
+    "OFI": {
+      "VALID": 0,
+      "PROXY ONLY": 0,
+      "UNSUPPORTED": 25,
+      "NOT IDENTIFIABLE": 0
+    },
+    "MLOFI": {
+      "VALID": 0,
+      "PROXY ONLY": 0,
+      "UNSUPPORTED": 25,
+      "NOT IDENTIFIABLE": 0
+    },
+    "exact_add_cancel_decomposition": {
+      "VALID": 0,
+      "PROXY ONLY": 0,
+      "UNSUPPORTED": 0,
+      "NOT IDENTIFIABLE": 25
+    },
+    "displayed_depth_recovery": {
+      "VALID": 0,
+      "PROXY ONLY": 0,
+      "UNSUPPORTED": 25,
+      "NOT IDENTIFIABLE": 0
+    },
+    "Flow_Surprise_feasibility": {
+      "VALID": 0,
+      "PROXY ONLY": 25,
+      "UNSUPPORTED": 0,
+      "NOT IDENTIFIABLE": 0
+    },
+    "Impact_Surprise_feasibility": {
+      "VALID": 0,
+      "PROXY ONLY": 25,
+      "UNSUPPORTED": 0,
+      "NOT IDENTIFIABLE": 0
+    },
+    "BTC_common_market_adjustment": {
+      "VALID": 25,
+      "PROXY ONLY": 0,
+      "UNSUPPORTED": 0,
+      "NOT IDENTIFIABLE": 0
+    },
+    "tick_regime_conditioning": {
+      "VALID": 0,
+      "PROXY ONLY": 0,
+      "UNSUPPORTED": 0,
+      "NOT IDENTIFIABLE": 25
+    },
+    "measurement_sensitivity_analysis": {
+      "VALID": 0,
+      "PROXY ONLY": 25,
+      "UNSUPPORTED": 0,
+      "NOT IDENTIFIABLE": 0
+    }
+  },
+  "result_reconciliation": {
+    "event_count": 25,
+    "same_event_id_set": true,
+    "every_event_difference_exactly_10bps": true,
+    "earlier_mean_net_bps": 305.09630273500994,
+    "earlier_median_net_bps": 124.35995465298146,
+    "latest_mean_gross_bps": 315.09630273500994,
+    "latest_median_gross_bps": 134.35995465298146,
+    "verified_reason": "Earlier build_event subtracts COST_BPS=10 from the same entry/fixed OPEN log return; latest frozen exporter reports the gross log return without a cost subtraction.",
+    "finding_status": "VERIFIED FROM CODE/DATA"
+  }
+}

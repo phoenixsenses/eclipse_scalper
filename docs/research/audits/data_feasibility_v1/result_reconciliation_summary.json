@@ -1,0 +1,11 @@
+{
+  "event_count": 25,
+  "same_event_id_set": true,
+  "every_event_difference_exactly_10bps": true,
+  "earlier_mean_net_bps": 305.09630273500994,
+  "earlier_median_net_bps": 124.35995465298146,
+  "latest_mean_gross_bps": 315.09630273500994,
+  "latest_median_gross_bps": 134.35995465298146,
+  "verified_reason": "Earlier build_event subtracts COST_BPS=10 from the same entry/fixed OPEN log return; latest frozen exporter reports the gross log return without a cost subtraction.",
+  "finding_status": "VERIFIED FROM CODE/DATA"
+}

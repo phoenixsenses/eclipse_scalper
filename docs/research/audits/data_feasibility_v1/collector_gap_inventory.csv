@@ -1,0 +1,4 @@
+stream,logged_gap_count,resolved_count,unresolved_count,first_logged_start_ms,last_logged_end_or_start_ms,max_duration_sec,sum_duration_sec,finding_status,limitation
+agg_trades,20,18,2,1775980020482,1777026446426,9600.093566417694,22889.44079750824,VERIFIED FROM CODE/DATA,Collector gap log is not proof that every outage was detected.
+liquidations,741,720,21,1775152718989,1777300044680,431543.306907177,1209714.9906127206,VERIFIED FROM CODE/DATA,Collector gap log is not proof that every outage was detected.
+mark_prices,51,48,3,1775980019862,1780002210356,9595.034487485886,26951.314492082594,VERIFIED FROM CODE/DATA,Collector gap log is not proof that every outage was detected.

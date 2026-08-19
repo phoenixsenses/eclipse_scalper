@@ -1,0 +1,13 @@
+field_family,source,transformation,semantic_class,status
+liquidations.quantity,forceOrder o.q,float(q),original order quantity proxy,VERIFIED FROM CODE/DATA
+liquidations.notional,"forceOrder o.p,o.q",float(p)*float(q),nominal forced-order pressure proxy; not executed volume,VERIFIED FROM CODE/DATA
+q_parent/q_echo,reconstructed anchor running_notional + 1m kline quote_volume,anchor running p*q proxy / trailing 15|30|60m quote volume,normalized observed forced-liquidation pressure proxy,VERIFIED FROM CODE/DATA
+agg_trades.notional,"aggTrade p,q",float(p)*float(q),aggregate-trade notional; not one taker order,VERIFIED FROM CODE/DATA
+fl_*_ofi,"agg_trades.notional,is_buyer_maker",(taker-buy notional - taker-sell notional)/(sum),aggressive aggTrade imbalance; NOT classical book OFI,VERIFIED FROM CODE/DATA
+book_ticker.mid_price,"best bid b, best ask a",(b+a)/2,top-of-book mid,VERIFIED FROM CODE/DATA
+book_ticker.spread_pct,best bid/ask and derived mid,(ask-bid)/mid,relative L1 spread,VERIFIED FROM CODE/DATA
+book_ticker.book_imbalance,"best bid/ask quantities B,A",(B-A)/(B+A),L1 displayed-quantity imbalance,VERIFIED FROM CODE/DATA
+book_ticker.bid_depth_usd,best bid price and quantity,bid_price*bid_qty,L1 displayed bid notional only,VERIFIED FROM CODE/DATA
+bk_pull,bookTicker L1 bid_qty snapshots,minimum pre-1m bid_qty / average pre-10m bid_qty,sampled L1 quantity-ratio proxy; not cancellations,VERIFIED FROM CODE/DATA
+bk_refill,bookTicker L1 bid_qty snapshots,average post-5m bid_qty / average pre-10m bid_qty,sampled L1 quantity-ratio proxy; not exact replenishment,VERIFIED FROM CODE/DATA
+fl_*_impact,mark-price return + aggTrade total notional,absolute window return bps / (total aggTrade notional / 1e6),derived price-per-flow proxy,VERIFIED FROM CODE/DATA

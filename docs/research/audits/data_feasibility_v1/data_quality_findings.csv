@@ -1,0 +1,10 @@
+check,value,secondary_value,status,interpretation
+keeper liquidation economic-key duplicates,186,186,VERIFIED FROM CODE/DATA,186 duplicate groups / 186 excess rows over the full keeper extent; frozen E support preflight separately rejects duplicates in its analysis interval
+keeper liquidation notional != price*quantity,0,,VERIFIED FROM CODE/DATA,stored notional is internally consistent with p*q
+keeper liquidation event time differs from trade time,1722630,delta_ms=1..10825,VERIFIED FROM CODE/DATA,E and T are distinct clocks; receive time is absent
+keeper liquidation full UTC-day no-row runs,42,2026-04-28..2026-06-05 (39d); 2026-07-07..2026-07-09 (3d),VERIFIED FROM CODE/DATA,absence cannot be interpreted as calm market
+price supplement COMPLETE partitions,977,rows=3823200;expected=3823200;missing=0,VERIFIED FROM CODE/DATA,partition receipt
+price supplement INCOMPLETE partitions,15,rows=406015;expected=658080;missing=252065,VERIFIED FROM CODE/DATA,"incompleteness is explicit, not silently filled"
+xsec kline duplicate symbol/open_time,0,composite PRIMARY KEY,VERIFIED FROM CODE/DATA,schema prevents duplicate identities
+Parquet archive physical ordering/identity violations,0,"6,726,613,400 rows / 1,191 partitions accepted",VERIFIED FROM CODE/DATA,physical identity only; does not prove semantic feed completeness
+live database exact book_ticker row count,,"sqlite_sequence max id 1,074,737,334",UNKNOWN / NOT RECOVERABLE,active 157GB DB was not subjected to a disruptive full scan; max assigned id is not a row count

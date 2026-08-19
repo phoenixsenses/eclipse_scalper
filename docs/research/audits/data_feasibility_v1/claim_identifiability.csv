@@ -1,0 +1,9 @@
+claim,class,basis
+Observed forced-liquidation pressure proxy exists around all 25 events,POTENTIALLY SUPPORTED/TESTABLE,"forceOrder E,S,p,q,T rows retained"
+Complete executed liquidation volume,NOT IDENTIFIABLE,"throttled/snapshot-like source; ap,l,z,X discarded"
+OHLCV response anomaly relative to a chronological generic benchmark,POTENTIALLY SUPPORTED/TESTABLE,exact 1m bars and prior-OOS framework; price proxy only
+Quote-mid marginal impact for historical E-DER,TESTABLE BUT CURRENTLY NOT SUPPORTED,no event-symbol quote archive
+Aggressive-flow absorption for historical E-DER,TESTABLE BUT CURRENTLY NOT SUPPORTED,no event-symbol aggTrade archive
+Displayed LOB resilience/OFI/MLOFI for historical E-DER,TESTABLE BUT CURRENTLY NOT SUPPORTED,no event-symbol LOB archive
+Exact add/cancel/replenishment or hidden-liquidity mechanism,NOT IDENTIFIABLE,no incremental L2 sequence and hidden orders are not displayed
+Historical tick-regime conditioning,NOT IDENTIFIABLE,no historical filter-change archive; current exchangeInfo is not historical evidence

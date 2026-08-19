@@ -1,0 +1,11 @@
+item,decision,qualification
+Flow Surprise V1 — forceOrder pressure-proxy version,GO,"PROXY ONLY; freeze p*q/q/count and E/T sensitivity semantically, never by return"
+Flow Surprise V1 — aggressive-trade version for historical E-DER,STOP,event-symbol aggTrades absent
+Impact Surprise V1 — 1m OHLCV version,GO,PROXY ONLY; do not call OHLC4/OPEN a quote mid
+Impact Surprise V1 — true quote-mid version,STOP,event-symbol quotes absent
+OFI,STOP,no event-symbol book updates; existing fl_ofi is aggTrade imbalance
+MLOFI,STOP,no multi-level event-symbol book
+displayed-book resilience,STOP,no event-symbol bookTicker/depth history
+exact replenishment,STOP,snapshot feed cannot identify adds/cancels; event feed absent
+hidden-liquidity claims,STOP,NOT IDENTIFIABLE from stored data
+dynamic exit research,STOP,"audit provides measurement feasibility, not forward-confirmed mechanism evidence"
