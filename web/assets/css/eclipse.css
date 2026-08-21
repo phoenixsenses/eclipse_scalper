@@ -159,6 +159,15 @@ a { color: inherit; }
 
 .hdr-live:hover { color: var(--ink); }
 
+/* Deliberately not green: nothing is running, so the header must not imply it. */
+.hdr-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1px solid var(--faint);
+  flex: none;
+}
+
 .hdr-burger {
   display: none;
   background: none;
@@ -408,7 +417,7 @@ a { color: inherit; }
 .creed span { display: inline-flex; align-items: center; gap: 8px; }
 .creed b { color: var(--ink); font-weight: 400; }
 
-.creed-dot { width: 5px; height: 5px; border-radius: 50%; flex: none; }
+.creed-dot { width: 5px; height: 5px; border-radius: 50%; flex: none; background: var(--faint); }
 
 /* ============================================================
    CONTROLS
@@ -558,6 +567,9 @@ a { color: inherit; }
 .tag[data-s="building"] { color: var(--blue); border-color: rgba(77, 124, 255, .35); }
 .tag[data-s="design"]   { color: var(--dim); }
 .tag[data-s="planned"]  { color: var(--faint); }
+/* a label that is not a status at all (lifetime, scope) — never green */
+.tag[data-s="neutral"]  { color: var(--dim); }
+.tag[data-s="neutral"]::before { background: none; border: 1px solid var(--faint); }
 
 /* ---------- key/value list ---------------------------------- */
 .kv { font-family: var(--mono); font-size: 12.5px; }
@@ -814,6 +826,8 @@ a.bulb:hover { background: var(--bg-panel); }
 .bulb[data-s="building"] .bulb-l { background: var(--blue); border-color: var(--blue); box-shadow: 0 0 10px rgba(77, 124, 255, .4); }
 .bulb[data-s="design"]   .bulb-l { background: #1B2432; border-color: #35405233; }
 .bulb[data-s="planned"]  .bulb-l { background: transparent; border-color: #2A313D; }
+/* conceptual: a role on the bus, deliberately carrying no health meaning */
+.bulb[data-s="concept"]  .bulb-l { background: #141A24; border-color: #2E3A4C; }
 
 .bulb-n {
   font-family: var(--display);

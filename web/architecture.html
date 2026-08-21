@@ -35,7 +35,7 @@
     <a href="infrastructure.html">Infrastructure</a>
   </nav>
   <div class="hdr-end">
-    <a class="hdr-live" href="status.html"><span class="creed-dot" style="background:var(--green);box-shadow:0 0 8px rgba(52,211,153,.6)"></span>Status</a>
+    <a class="hdr-live" href="status.html"><span class="hdr-dot"></span>Demo console</a>
   </div>
 </div>
 </header>
@@ -78,17 +78,22 @@
           </div>
         </div>
         <div class="rv">
-          <div class="rule" data-live="1"><span>eclipse.* · NATS + JetStream</span></div>
+          <div class="rule"><span>eclipse.* · NATS + JetStream</span></div>
           <div class="bulbs">
-            <a class="bulb" href="agents.html#alpha" data-s="agents"><span class="bulb-l"></span><span class="bulb-n">Alpha</span><span class="bulb-s">Proposes</span></a>
-            <a class="bulb" href="agents.html#market" data-s="active"><span class="bulb-l"></span><span class="bulb-n">Market</span><span class="bulb-s">Context</span></a>
-            <a class="bulb" href="agents.html#research" data-s="research"><span class="bulb-l"></span><span class="bulb-n">Research</span><span class="bulb-s">Proves</span></a>
-            <a class="bulb" href="agents.html#risk" data-s="warning"><span class="bulb-l"></span><span class="bulb-n">Risk</span><span class="bulb-s">Authorizes</span></a>
-            <a class="bulb" href="agents.html#execution" data-s="idle"><span class="bulb-l"></span><span class="bulb-n">Execution</span><span class="bulb-s">Acts</span></a>
-            <a class="bulb" href="agents.html#security" data-s="active"><span class="bulb-l"></span><span class="bulb-n">Security</span><span class="bulb-s">Controls</span></a>
-            <a class="bulb" href="agents.html#data" data-s="active"><span class="bulb-l"></span><span class="bulb-n">Data</span><span class="bulb-s">Guards</span></a>
-            <a class="bulb" href="agents.html#observability" data-s="system"><span class="bulb-l"></span><span class="bulb-n">Telemetry</span><span class="bulb-s">Measures</span></a>
+            <a class="bulb" href="agents.html#alpha" data-s="concept"><span class="bulb-l"></span><span class="bulb-n">Alpha</span><span class="bulb-s">Proposes</span></a>
+            <a class="bulb" href="agents.html#market" data-s="concept"><span class="bulb-l"></span><span class="bulb-n">Market</span><span class="bulb-s">Context</span></a>
+            <a class="bulb" href="agents.html#research" data-s="concept"><span class="bulb-l"></span><span class="bulb-n">Research</span><span class="bulb-s">Proves</span></a>
+            <a class="bulb" href="agents.html#risk" data-s="concept"><span class="bulb-l"></span><span class="bulb-n">Risk</span><span class="bulb-s">Authorizes</span></a>
+            <a class="bulb" href="agents.html#execution" data-s="concept"><span class="bulb-l"></span><span class="bulb-n">Execution</span><span class="bulb-s">Acts</span></a>
+            <a class="bulb" href="agents.html#security" data-s="concept"><span class="bulb-l"></span><span class="bulb-n">Security</span><span class="bulb-s">Controls</span></a>
+            <a class="bulb" href="agents.html#data" data-s="concept"><span class="bulb-l"></span><span class="bulb-n">Data</span><span class="bulb-s">Guards</span></a>
+            <a class="bulb" href="agents.html#observability" data-s="concept"><span class="bulb-l"></span><span class="bulb-n">Telemetry</span><span class="bulb-s">Measures</span></a>
           </div>
+          <p class="mono-note" style="margin-top:12px">
+            Conceptual: these are <b>roles on the bus</b>, not runtime state. The lamps here carry
+            no health meaning — see <a href="changelog.html" style="color:var(--dim)">the
+            changelog</a> for what is actually implemented.
+          </p>
         </div>
       </div>
     </div>
@@ -290,7 +295,7 @@ fix/orderbook-timestamp</pre>
     <p class="ft-mark" translate="no">ECLIPSE</p>
     <p class="ft-fine">Agents propose. Research proves. Risk authorizes. Execution acts. Security controls.</p>
   </div>
-  <div><p class="ft-h">System</p><div class="ft-l"><a href="architecture.html">Architecture</a><a href="agents.html">Agents</a><a href="infrastructure.html">Infrastructure</a><a href="status.html">Status</a></div></div>
+  <div><p class="ft-h">System</p><div class="ft-l"><a href="architecture.html">Architecture</a><a href="agents.html">Agents</a><a href="infrastructure.html">Infrastructure</a><a href="status.html">Demo console</a></div></div>
   <div><p class="ft-h">Research</p><div class="ft-l"><a href="research.html">Programme</a><a href="research-e-der.html">E-DER</a><a href="changelog.html">Changelog</a></div></div>
   <div><p class="ft-h">Governance</p><div class="ft-l"><a href="security.html">Security architecture</a><a href="security.html#secrets">Secret management</a><a href="architecture.html#principles">Principles</a></div></div>
 </footer>

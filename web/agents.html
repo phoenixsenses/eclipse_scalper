@@ -35,7 +35,7 @@
     <a href="infrastructure.html">Infrastructure</a>
   </nav>
   <div class="hdr-end">
-    <a class="hdr-live" href="status.html"><span class="creed-dot" style="background:var(--green);box-shadow:0 0 8px rgba(52,211,153,.6)"></span>Status</a>
+    <a class="hdr-live" href="status.html"><span class="hdr-dot"></span>Demo console</a>
   </div>
 </div>
 </header>
@@ -50,25 +50,29 @@
       Every agent is defined by three lists: what it publishes, what it may read, and what it is
       permanently denied. The third list is the one that keeps the system honest.
     </p>
+    <p class="lede" style="max-width:64ch">
+      This page describes the <b>designed contract</b>. The lamps below show implementation status,
+      not runtime health — only the Master Center exists as code today.
+    </p>
     <div class="rule" data-live="1" style="margin-top:34px"><span>eclipse.* · global event bus</span></div>
     <div class="bulbs">
-      <a class="bulb" href="#master" data-s="system"><span class="bulb-l"></span><span class="bulb-n">Master Center</span><span class="bulb-s">Coordinates</span></a>
-      <a class="bulb" href="#alpha" data-s="agents"><span class="bulb-l"></span><span class="bulb-n">Alpha</span><span class="bulb-s">Proposes</span></a>
-      <a class="bulb" href="#market" data-s="active"><span class="bulb-l"></span><span class="bulb-n">Market</span><span class="bulb-s">Contextualises</span></a>
-      <a class="bulb" href="#research" data-s="research"><span class="bulb-l"></span><span class="bulb-n">Research</span><span class="bulb-s">Proves</span></a>
-      <a class="bulb" href="#risk" data-s="warning"><span class="bulb-l"></span><span class="bulb-n">Risk</span><span class="bulb-s">Authorizes</span></a>
-      <a class="bulb" href="#execution" data-s="idle"><span class="bulb-l"></span><span class="bulb-n">Execution</span><span class="bulb-s">Acts</span></a>
-      <a class="bulb" href="#security" data-s="active"><span class="bulb-l"></span><span class="bulb-n">Security</span><span class="bulb-s">Controls</span></a>
-      <a class="bulb" href="#data" data-s="active"><span class="bulb-l"></span><span class="bulb-n">Data</span><span class="bulb-s">Guards</span></a>
-      <a class="bulb" href="#observability" data-s="system"><span class="bulb-l"></span><span class="bulb-n">Telemetry</span><span class="bulb-s">Measures</span></a>
-      <a class="bulb" href="#pr" data-s="active"><span class="bulb-l"></span><span class="bulb-n">PR Guardian</span><span class="bulb-s">Reviews</span></a>
+      <a class="bulb" href="#master" data-s="building"><span class="bulb-l"></span><span class="bulb-n">Master Center</span><span class="bulb-s">Building</span></a>
+      <a class="bulb" href="#alpha" data-s="design"><span class="bulb-l"></span><span class="bulb-n">Alpha</span><span class="bulb-s">Design</span></a>
+      <a class="bulb" href="#market" data-s="planned"><span class="bulb-l"></span><span class="bulb-n">Market</span><span class="bulb-s">Planned</span></a>
+      <a class="bulb" href="#research" data-s="planned"><span class="bulb-l"></span><span class="bulb-n">Research</span><span class="bulb-s">Planned</span></a>
+      <a class="bulb" href="#risk" data-s="planned"><span class="bulb-l"></span><span class="bulb-n">Risk</span><span class="bulb-s">Planned</span></a>
+      <a class="bulb" href="#execution" data-s="planned"><span class="bulb-l"></span><span class="bulb-n">Execution</span><span class="bulb-s">Planned</span></a>
+      <a class="bulb" href="#security" data-s="planned"><span class="bulb-l"></span><span class="bulb-n">Security</span><span class="bulb-s">Planned</span></a>
+      <a class="bulb" href="#data" data-s="planned"><span class="bulb-l"></span><span class="bulb-n">Data</span><span class="bulb-s">Planned</span></a>
+      <a class="bulb" href="#observability" data-s="planned"><span class="bulb-l"></span><span class="bulb-n">Telemetry</span><span class="bulb-s">Planned</span></a>
+      <a class="bulb" href="#pr" data-s="planned"><span class="bulb-l"></span><span class="bulb-n">PR Guardian</span><span class="bulb-s">Planned</span></a>
     </div>
   </section>
 
   <!-- MASTER -->
   <section class="tap" id="master">
     <span class="lamp" data-state="system"></span>
-    <p class="eyebrow"><span class="eyebrow-idx">01</span> <b>Master Center</b> <span class="tag" data-s="active">Persistent</span></p>
+    <p class="eyebrow"><span class="eyebrow-idx">01</span> <b>Master Center</b> <span class="tag" data-s="neutral">Persistent</span> <span class="tag" data-s="building">Building</span></p>
     <div class="split">
       <div>
         <h2 class="h-sec">Coordinates. Does not participate.</h2>
@@ -91,7 +95,7 @@
   <!-- ALPHA -->
   <section class="tap" id="alpha">
     <span class="lamp" data-state="agents"></span>
-    <p class="eyebrow"><span class="eyebrow-idx">02</span> <b>Alpha Engine</b> <span class="tag" data-s="active">Persistent</span></p>
+    <p class="eyebrow"><span class="eyebrow-idx">02</span> <b>Alpha Engine</b> <span class="tag" data-s="neutral">Persistent</span> <span class="tag" data-s="planned">Not implemented</span></p>
     <div class="split">
       <div>
         <h2 class="h-sec">Proposes candidates from market structure.</h2>
@@ -116,7 +120,7 @@
   <!-- MARKET -->
   <section class="tap" id="market">
     <span class="lamp" data-state="active"></span>
-    <p class="eyebrow"><span class="eyebrow-idx">03</span> <b>Market Intelligence</b> <span class="tag" data-s="active">Persistent</span></p>
+    <p class="eyebrow"><span class="eyebrow-idx">03</span> <b>Market Intelligence</b> <span class="tag" data-s="neutral">Persistent</span> <span class="tag" data-s="planned">Not implemented</span></p>
     <div class="split">
       <div>
         <h2 class="h-sec">Turns the world into state.</h2>
@@ -139,7 +143,7 @@
   <!-- RESEARCH -->
   <section class="tap" id="research">
     <span class="lamp" data-state="research"></span>
-    <p class="eyebrow"><span class="eyebrow-idx">04</span> <b>Research Engine</b> <span class="tag" data-s="research">Persistent</span></p>
+    <p class="eyebrow"><span class="eyebrow-idx">04</span> <b>Research Engine</b> <span class="tag" data-s="neutral">Persistent</span> <span class="tag" data-s="planned">Not implemented</span></p>
     <div class="split">
       <div>
         <h2 class="h-sec">Proves, or fails to.</h2>
@@ -162,7 +166,7 @@
   <!-- RISK -->
   <section class="tap" id="risk">
     <span class="lamp" data-state="warning"></span>
-    <p class="eyebrow"><span class="eyebrow-idx">05</span> <b>Risk Governor</b> <span class="tag" data-s="active">Persistent</span></p>
+    <p class="eyebrow"><span class="eyebrow-idx">05</span> <b>Risk Governor</b> <span class="tag" data-s="neutral">Persistent</span> <span class="tag" data-s="planned">Not implemented</span></p>
     <div class="split">
       <div>
         <h2 class="h-sec">The only path from candidate to order.</h2>
@@ -185,7 +189,7 @@
   <!-- EXECUTION -->
   <section class="tap" id="execution">
     <span class="lamp" data-state="idle"></span>
-    <p class="eyebrow"><span class="eyebrow-idx">06</span> <b>Execution Gateway</b> <span class="tag" data-s="idle">Persistent</span></p>
+    <p class="eyebrow"><span class="eyebrow-idx">06</span> <b>Execution Gateway</b> <span class="tag" data-s="neutral">Persistent</span> <span class="tag" data-s="planned">Not implemented</span></p>
     <div class="split">
       <div>
         <h2 class="h-sec">Holds the keys. Accepts approved orders only.</h2>
@@ -209,7 +213,7 @@
   <!-- SECURITY -->
   <section class="tap" id="security">
     <span class="lamp" data-state="active"></span>
-    <p class="eyebrow"><span class="eyebrow-idx">07</span> <b>Security Guardian</b> <span class="tag" data-s="active">Persistent</span></p>
+    <p class="eyebrow"><span class="eyebrow-idx">07</span> <b>Security Guardian</b> <span class="tag" data-s="neutral">Persistent</span> <span class="tag" data-s="planned">Not implemented</span></p>
     <div class="split">
       <div>
         <h2 class="h-sec">Issues identity. Denies everything else.</h2>
@@ -232,7 +236,7 @@
   <!-- DATA -->
   <section class="tap" id="data">
     <span class="lamp" data-state="active"></span>
-    <p class="eyebrow"><span class="eyebrow-idx">08</span> <b>Data Guardian</b> <span class="tag" data-s="active">Persistent</span></p>
+    <p class="eyebrow"><span class="eyebrow-idx">08</span> <b>Data Guardian</b> <span class="tag" data-s="neutral">Persistent</span> <span class="tag" data-s="planned">Not implemented</span></p>
     <div class="split">
       <div>
         <h2 class="h-sec">Decides what counts as data.</h2>
@@ -255,7 +259,7 @@
   <!-- OBSERVABILITY -->
   <section class="tap" id="observability">
     <span class="lamp" data-state="system"></span>
-    <p class="eyebrow"><span class="eyebrow-idx">09</span> <b>Observability</b> <span class="tag" data-s="active">Persistent</span></p>
+    <p class="eyebrow"><span class="eyebrow-idx">09</span> <b>Observability</b> <span class="tag" data-s="neutral">Persistent</span> <span class="tag" data-s="planned">Not implemented</span></p>
     <div class="split">
       <div>
         <h2 class="h-sec">Measures everything, changes nothing.</h2>
@@ -278,7 +282,7 @@
   <!-- PR -->
   <section class="tap" id="pr">
     <span class="lamp" data-state="active"></span>
-    <p class="eyebrow"><span class="eyebrow-idx">10</span> <b>PR Guardian</b> <span class="tag" data-s="active">Org-level</span></p>
+    <p class="eyebrow"><span class="eyebrow-idx">10</span> <b>PR Guardian</b> <span class="tag" data-s="neutral">Org-level</span> <span class="tag" data-s="planned">Not implemented</span></p>
     <div class="split">
       <div>
         <h2 class="h-sec">Lives outside the trading system.</h2>
@@ -301,7 +305,7 @@
   <!-- DYNAMIC -->
   <section class="tap">
     <span class="lamp" data-state="agents"></span>
-    <p class="eyebrow"><span class="eyebrow-idx">11</span> <b>Event-spawned</b> <span class="tag" data-s="research">Temporary</span></p>
+    <p class="eyebrow"><span class="eyebrow-idx">11</span> <b>Event-spawned</b> <span class="tag" data-s="neutral">Temporary</span> <span class="tag" data-s="planned">Not implemented</span></p>
     <div class="split">
       <div>
         <h2 class="h-sec">Registered on demand, retired on close.</h2>
@@ -324,7 +328,7 @@
     <p class="ft-mark" translate="no">ECLIPSE</p>
     <p class="ft-fine">Agents propose. Research proves. Risk authorizes. Execution acts. Security controls.</p>
   </div>
-  <div><p class="ft-h">System</p><div class="ft-l"><a href="architecture.html">Architecture</a><a href="agents.html">Agents</a><a href="infrastructure.html">Infrastructure</a><a href="status.html">Status</a></div></div>
+  <div><p class="ft-h">System</p><div class="ft-l"><a href="architecture.html">Architecture</a><a href="agents.html">Agents</a><a href="infrastructure.html">Infrastructure</a><a href="status.html">Demo console</a></div></div>
   <div><p class="ft-h">Research</p><div class="ft-l"><a href="research.html">Programme</a><a href="research-e-der.html">E-DER</a><a href="changelog.html">Changelog</a></div></div>
   <div><p class="ft-h">Governance</p><div class="ft-l"><a href="security.html">Security architecture</a><a href="security.html#secrets">Secret management</a><a href="architecture.html#principles">Principles</a></div></div>
 </footer>
