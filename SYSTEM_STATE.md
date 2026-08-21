@@ -12862,3 +12862,98 @@ packages + `MANIFEST_THIRD_PASS.md` in `D:\eclipse_review_packages` (passes 1 an
 unrelated refactor; re-entrancy and strict P11 left exactly as accepted; no guarded path touched.
 
 **Verdict token: `REVIEW_2_ACCEPTED_P1_P11_AND_W1 · Q1_Q4_CLOSED_REGRESSION_FIRST · W2_REMAINDER_CLOSED · Q_BASELINE_11_FAILED_THEN_110_OF_110 · WEAKENED_TEST_RESTORED · SYSTEM_SCHEMA_V2 · MANIFEST_SELF_CORRECTED · NOT_SELF_MARKED_PASS · PHASE_03_BLOCKED · AWAITING_INDEPENDENT_REVIEW_THIRD_PASS`**
+
+
+## 196. OPERASYONEL OLAY — PYTHON TOPLU-ÖLDÜRME; 24 PROSES, ~24 dk COLLECTOR KESİNTİSİ, forward-only KAYIP (2026-08-21, Opus 5 [1M])
+
+**Olay:** Claude, tek bir S37 araştırma prosesini temizlemek isterken
+`Get-Process python | Where-Object { $_.Id -ne 13224 } | Stop-Process -Force` çalıştırdı.
+Filtre **13224 hariç makinedeki TÜM python proseslerini** eşledi ve **24 prosesi** zorla öldürdü.
+Hata yapısaldır: temizlik *"korunan PID hariç her şey"* olarak yazılmıştı; doğrusu
+*"yalnız bu işin sahip olduğu PID"*dir. Yıkıcı komut onay alınmadan çalıştırıldı.
+
+**E-DER Phase 1 (PID 13224): ETKİLENMEDİ — varsayılmadı, DOĞRULANDI.** Aynı PID, aynı
+`StartTime` 2026-08-21 16:27:12, CPU olay boyunca monoton ilerledi (5 763 → 7 744 → 7 814 s).
+
+**ÖLÇÜLEN KESİNTİ (fabrikasyon/forward-fill/backfill YOK):**
+· `microstructure_02.db` — **kanonik collector kesintisi `2026-08-21T15:27:35Z → 15:51:36Z` (~24.0 dk)**:
+  agg_trades 1 405.3 s · book_ticker 1 433.9 s · liquidations 1 440.8 s · mark_prices 1 437.0 s.
+· `metric_snapshot_log.jsonl` 15:17:19.424Z → 15:54:10.631Z (2 211.2 s; **normal kadans ~900 s**,
+  artımsal kayıp ≈ 1 snapshot).
+· `echo_forward_ledger.jsonl` son kayıt 14:39:22.065Z — **KESİNTİ SONU AÇIK** (olay-tetikli ledger,
+  restart sonrası kayıt henüz yok; varsayımla KAPATILMAZ).
+· `hold_horizon_forward_ledger.jsonl` son kayıt 15:18:10.828Z — **KESİNTİ SONU AÇIK**.
+· E-DER forward V2 rolleri son heartbeat 15:26:17–15:27:33Z — **hâlâ KAPALI** (opt-in bayrak).
+
+**BİLİMSEL SINIR:** Frozen kaynaklar (`keeper_frozen_smalltables.db`, `xsec_klines.db`)
+DEĞİŞMEDİ; S36/S37 popülasyonları 2026-07-23'te bitiyor ⟹ **etkilenmedi**. Phase 1 hesap
+bütünlüğü ile forward veri sürekliliği AYRI: Phase 1 kesintisiz, forward toplama kesildi.
+**2026-08-21 kapsayan her ileri çalışma `15:27:35Z → 15:51:36Z` penceresini deterministik
+DIŞLAMALIDIR.** Forward-only ledger kaybı tasarım gereği geri getirilemez — backfill YASAK.
+
+**KURTARMA:** `start_eclipse.ps1` güvenli varsayılanlarla (`-EnableLive` YOK) → **16 rol geri geldi**.
+Açık kalanlar: (a) 4 E-DER forward V2 rolü — `-EnableEDerForwardV2` opt-in olduğu için güvenli
+varsayılan koşu bunları doğru şekilde atladı; (b) `s34_v_engine_v02_shadow_mirror` — zorla
+öldürmenin bıraktığı **bayat lock** (`runtime/s34_v_engine_v02_shadow_mirror.lock` = 10744, ölü).
+İkisi de **operatör kararına bırakıldı, çalıştırılmadı**. `echo_multilane_forward` geri geldi ama
+`HALTED_DATA_QUALITY` durumunda — operatör incelemesi gerekir.
+
+**KANIT KAYBI (itiraf):** `start_eclipse.ps1` kurtarma sırasında `logs/pids/*.json` dosyalarını
+ÜZERİNE YAZDI ⟹ 15 rolün olay-öncesi PID↔rol haritası yok oldu. Snapshot kurtarmadan ÖNCE
+alınmalıydı. Kanıtla ispatlı: 6 rol. Muhtemel: 15 rol. **3 PID atfedilemedi.**
+
+**GUARDRAIL:** `docs/OPERATOR_PROCESS_SAFETY.md` + CLAUDE.md kuralı eklendi.
+**Olay kaydı:** `reports/governance/incidents/2026-08-21_python_mass_kill_incident/`
+(INCIDENT_REPORT_V1.md · GAP_MEASUREMENT_V1.json · SEAL_V1.json).
+
+**Verdict token: `INCIDENT_RECORDED · PHASE1_UNAFFECTED_VERIFIED · COLLECTOR_GAP_MEASURED_24MIN · TWO_FORWARD_LEDGER_WINDOWS_OPEN · 5_ROLES_STILL_DOWN_OPERATOR_DECISION · GUARDRAIL_ADOPTED · NO_BACKFILL`**
+
+**§294 §291 PLATFORM = PASS (third independent pass). §290 WEBSITE: Rail lamp semantics fixed, fourth pass pending (2026-08-21).**
+
+**§291 → PASS.** The third independent reviewer reproduced Q1–Q4 against the third-pass package,
+confirmed the fixes, and independently ran the suite at **110/110**. P1–P11 remain closed,
+re-entrancy semantics accepted, **P11 stays strict fail-closed with no diagnostic exemption**.
+Reviewer instruction: **do not modify the platform and produce no further platform remediation
+package** — honoured; `92aeab11` is the accepted platform checkpoint and nothing in
+`D:\eclipse_platform` was touched in this round.
+
+**§290 → FAIL on one W2 remainder, now fixed.** The bulb strips were corrected in §293 but the
+**Rail tap-point lamps were not** — and `web/README.md` defined *exactly those lamps* as status
+lamps with green=healthy/amber=warning/red=blocked. So `agents.html` was lighting **green lamps
+beside Market Intelligence, Security Guardian, Data Guardian and PR Guardian**, none of which
+exist, with Research/Risk carrying runtime-state colours for the same reason.
+
+**Fixed the semantics, not the four lamps named.** All **63 Rail lamps across all ten pages** were
+reassigned to four non-health states matching the bulb-strip vocabulary: `building` 4 · `design` 2 ·
+`planned` 18 · `concept` 39 (a section describing an idea, rule or method rather than a component).
+**The health-coloured lamp rules were deleted from the stylesheet**, so a stray old value now
+renders unlit rather than green — *the failure mode is fail-safe by construction, not by vigilance.*
+
+**The site-wide sweep found two more of the same fault class** that the reviewer had not named: the
+roadmap `Planned` chips and the E-DER `Not deployed` chip were still on the runtime `idle` and
+`blocked` states. Both neutral now. Final sweep across ten pages: **zero** lamps with a
+runtime/health state, **zero** undefined lamp states, **zero** component tags reading
+active/warning/blocked/idle, **zero** labels reading Active/Healthy/Running. `research`/`frozen`
+survive only on **research-arm tags** (never an agent) — arm state, no health meaning.
+
+**ROOT CAUSE, recorded because this recurred three times (W2 → W2 remainder → Rail lamps):** the
+palette makes green the easiest colour to reach for, and the fix each round addressed *the surface
+the reviewer named* rather than *the rule*. `web/README.md` now (a) defines Rail lamps as
+implementation state, (b) **reserves green/amber/red so they may never label a component**, naming
+the only two accepted exceptions (verdict legend, completed E-DER pipeline steps), and (c) carries a
+new **"Never claim health"** content-policy rule. The landing caption was extended to cover the rail
+because visitors do not read the README.
+
+**Untouched as instructed:** W1 and all research disclosure content · the verdict legend · the E-DER
+pipeline steps · platform code, schemas and tests.
+
+**Verification.** Ten pages structurally valid, zero undefined classes, zero broken links; W1 sweep
+still **zero**. Website-only package `eclipse_website_review_348dc4ad.zip` + 
+`MANIFEST_WEBSITE_FOURTH_PASS.md` in `D:\eclipse_review_packages`. **Every manifest claim was
+cross-checked programmatically against the ZIP contents** (not the working tree) before publication
+— the §293 lesson applied.
+
+**Phase 03 remains BLOCKED** until §290 receives its final independent PASS. §290 stays
+`AWAITING_INDEPENDENT_REVIEW`; **not self-marked PASS**.
+
+**Verdict token: `PLATFORM_291_PASS_ACCEPTED_AT_92aeab11 · PLATFORM_UNTOUCHED_THIS_ROUND · RAIL_LAMP_SEMANTICS_FIXED_63_OF_63 · HEALTH_LAMP_RULES_DELETED_FAIL_SAFE · SWEEP_FOUND_2_MORE_UNNAMED · README_RULE_ADDED_NEVER_CLAIM_HEALTH · MANIFEST_VERIFIED_FROM_ZIP · WEBSITE_290_AWAITING_INDEPENDENT_REVIEW_FOURTH_PASS · PHASE_03_BLOCKED`**
