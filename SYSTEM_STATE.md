@@ -12910,14 +12910,14 @@ alınmalıydı. Kanıtla ispatlı: 6 rol. Muhtemel: 15 rol. **3 PID atfedilemedi
 
 **§294 §291 PLATFORM = PASS (third independent pass). §290 WEBSITE: Rail lamp semantics fixed, fourth pass pending (2026-08-21).**
 
-**§291 → PASS.** The third independent reviewer reproduced Q1–Q4 against the third-pass package,
+**PLATFORM (§291) → PASS.** The third independent reviewer reproduced Q1–Q4 against the third-pass package,
 confirmed the fixes, and independently ran the suite at **110/110**. P1–P11 remain closed,
 re-entrancy semantics accepted, **P11 stays strict fail-closed with no diagnostic exemption**.
 Reviewer instruction: **do not modify the platform and produce no further platform remediation
 package** — honoured; `92aeab11` is the accepted platform checkpoint and nothing in
 `D:\eclipse_platform` was touched in this round.
 
-**§290 → FAIL on one W2 remainder, now fixed.** The bulb strips were corrected in §293 but the
+**WEBSITE (§290) → FAIL on one W2 remainder, now fixed.** The bulb strips were corrected in §293 but the
 **Rail tap-point lamps were not** — and `web/README.md` defined *exactly those lamps* as status
 lamps with green=healthy/amber=warning/red=blocked. So `agents.html` was lighting **green lamps
 beside Market Intelligence, Security Guardian, Data Guardian and PR Guardian**, none of which
