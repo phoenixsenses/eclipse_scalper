@@ -137,7 +137,7 @@
       <table class="tbl">
         <thead><tr><th>Subject family</th><th>Schema</th><th>Compatibility</th></tr></thead>
         <tbody>
-          <tr><td>eclipse.system.*</td><td>v1</td><td>additive only</td></tr>
+          <tr><td>eclipse.system.*</td><td>v2</td><td>additive only</td></tr>
           <tr><td>eclipse.market.*</td><td>v1</td><td>additive only</td></tr>
           <tr><td>eclipse.macro.*</td><td>v1</td><td>additive only</td></tr>
           <tr><td>eclipse.alpha.*</td><td>v2</td><td>additive only</td></tr>
@@ -154,6 +154,12 @@
       means publishing a new major and running both until every subscriber has moved. These
       schemas ship with <b>eclipse-shared</b> and are enforced at the bus boundary; the agents that
       will publish most of them do not exist yet.
+    </p>
+    <p class="mono-note" style="margin-top:12px">
+      <b>eclipse.system.*</b> moved to v2 because <code>agent_registered</code> reported an agent's
+      declaration under field names that said <i>granted</i>. It now carries declaration and grant
+      separately. Renaming a field is breaking, so the family version moved rather than the change
+      being slipped in as additive.
     </p>
   </section>
 </main>
