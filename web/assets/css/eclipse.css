@@ -555,6 +555,9 @@ a { color: inherit; }
 .tag[data-s="warning"]  { color: var(--amber);  border-color: rgba(245, 181, 68, .32); }
 .tag[data-s="blocked"]  { color: var(--red);    border-color: rgba(242, 84, 91, .32); }
 .tag[data-s="idle"]     { color: var(--faint); }
+.tag[data-s="building"] { color: var(--blue); border-color: rgba(77, 124, 255, .35); }
+.tag[data-s="design"]   { color: var(--dim); }
+.tag[data-s="planned"]  { color: var(--faint); }
 
 /* ---------- key/value list ---------------------------------- */
 .kv { font-family: var(--mono); font-size: 12.5px; }
@@ -807,6 +810,10 @@ a.bulb:hover { background: var(--bg-panel); }
 .bulb[data-s="warning"]  .bulb-l { background: var(--amber);  border-color: var(--amber);  box-shadow: 0 0 12px rgba(245, 181, 68, .45); }
 .bulb[data-s="blocked"]  .bulb-l { background: var(--red);    border-color: var(--red);    box-shadow: 0 0 12px rgba(242, 84, 91, .45); }
 .bulb[data-s="idle"]     .bulb-l { background: #2A313D; }
+/* implementation status, deliberately unlit: nothing here is running (W2) */
+.bulb[data-s="building"] .bulb-l { background: var(--blue); border-color: var(--blue); box-shadow: 0 0 10px rgba(77, 124, 255, .4); }
+.bulb[data-s="design"]   .bulb-l { background: #1B2432; border-color: #35405233; }
+.bulb[data-s="planned"]  .bulb-l { background: transparent; border-color: #2A313D; }
 
 .bulb-n {
   font-family: var(--display);

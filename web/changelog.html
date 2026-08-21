@@ -86,23 +86,25 @@
     <p class="eyebrow"><span class="eyebrow-idx">02</span> <b>Agents</b></p>
     <div class="tbl-wrap rv">
       <table class="tbl">
-        <thead><tr><th>Agent</th><th>Repository</th><th>Version</th><th>State</th></tr></thead>
+        <thead><tr><th>Component</th><th>Repository</th><th>Version</th><th>State</th></tr></thead>
         <tbody>
-          <tr><td>Master Center</td><td>eclipse-master-center</td><td>0.1.0</td><td><span class="tag" data-s="active">Building</span></td></tr>
-          <tr><td>Alpha Engine</td><td>eclipse-scalper</td><td>0.9.4</td><td><span class="tag" data-s="active">Running</span></td></tr>
-          <tr><td>Market Intelligence</td><td>eclipse-market-intel</td><td>0.2.1</td><td><span class="tag" data-s="research">Early</span></td></tr>
-          <tr><td>Research Engine</td><td>eclipse-research</td><td>0.6.0</td><td><span class="tag" data-s="research">Running</span></td></tr>
-          <tr><td>Risk Governor</td><td>eclipse-risk</td><td>0.4.2</td><td><span class="tag" data-s="warning">In design</span></td></tr>
-          <tr><td>Execution Gateway</td><td>eclipse-execution</td><td>0.2.0</td><td><span class="tag" data-s="idle">Idle</span></td></tr>
-          <tr><td>Security Guardian</td><td>eclipse-security</td><td>0.3.0</td><td><span class="tag" data-s="active">Building</span></td></tr>
-          <tr><td>Data Guardian</td><td>eclipse-data</td><td>0.5.1</td><td><span class="tag" data-s="active">Running</span></td></tr>
-          <tr><td>PR Guardian</td><td>eclipse-infra</td><td>0.1.4</td><td><span class="tag" data-s="active">Running</span></td></tr>
-          <tr><td>Shared SDK</td><td>eclipse-shared</td><td>0.4.0</td><td><span class="tag" data-s="frozen">Stable</span></td></tr>
+          <tr><td>Shared SDK</td><td>eclipse-shared</td><td>0.1.0</td><td><span class="tag" data-s="building">Building</span></td></tr>
+          <tr><td>Master Center</td><td>eclipse-master-center</td><td>0.1.0</td><td><span class="tag" data-s="building">Building</span></td></tr>
+          <tr><td>Alpha Engine</td><td>eclipse-scalper</td><td>&mdash;</td><td><span class="tag" data-s="design">Design</span></td></tr>
+          <tr><td>Market Intelligence</td><td>eclipse-market-intel</td><td>&mdash;</td><td><span class="tag" data-s="planned">Not implemented</span></td></tr>
+          <tr><td>Research Engine</td><td>eclipse-research</td><td>&mdash;</td><td><span class="tag" data-s="planned">Not implemented</span></td></tr>
+          <tr><td>Risk Governor</td><td>eclipse-risk</td><td>&mdash;</td><td><span class="tag" data-s="planned">Not implemented</span></td></tr>
+          <tr><td>Execution Gateway</td><td>eclipse-execution</td><td>&mdash;</td><td><span class="tag" data-s="planned">Not implemented</span></td></tr>
+          <tr><td>Security Guardian</td><td>eclipse-security</td><td>&mdash;</td><td><span class="tag" data-s="planned">Not implemented</span></td></tr>
+          <tr><td>Data Guardian</td><td>eclipse-data</td><td>&mdash;</td><td><span class="tag" data-s="planned">Not implemented</span></td></tr>
+          <tr><td>PR Guardian</td><td>eclipse-infra</td><td>&mdash;</td><td><span class="tag" data-s="planned">Not implemented</span></td></tr>
         </tbody>
       </table>
     </div>
     <p class="mono-note" style="margin-top:14px">
-      Every agent is below 1.0. Nothing here claims a stable public interface yet.
+      Only the two <b>Building</b> rows exist as code today; a repository named for a planned
+      component may not have been created yet. Everything is below 1.0 and nothing claims a stable
+      public interface.
     </p>
   </section>
 
@@ -115,8 +117,8 @@
         <thead><tr><th>Arm</th><th>Relation</th><th class="num">Cascades</th><th>State</th></tr></thead>
         <tbody>
           <tr><td>E-DER V1</td><td>original definition</td><td class="num">6</td><td><span class="tag" data-s="frozen">Frozen</span></td></tr>
-          <tr><td>E-DER V2 · A2</td><td>V1 minus prior stress</td><td class="num">8</td><td><span class="tag" data-s="frozen">Frozen</span></td></tr>
-          <tr><td>E-DER V3</td><td>A2 plus near-Q recovery</td><td class="num">10</td><td><span class="tag" data-s="research">Research</span></td></tr>
+          <tr><td>E-DER V2 · A2</td><td>controlled relaxation of V1</td><td class="num">8</td><td><span class="tag" data-s="frozen">Frozen</span></td></tr>
+          <tr><td>E-DER V3</td><td>recovery variant of V2</td><td class="num">10</td><td><span class="tag" data-s="research">Research</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -149,7 +151,9 @@
     </div>
     <p class="mono-note" style="margin-top:14px">
       Additive only: a publisher may add a field, never remove or re-type one. Breaking a subject
-      means publishing a new major and running both until every subscriber has moved.
+      means publishing a new major and running both until every subscriber has moved. These
+      schemas ship with <b>eclipse-shared</b> and are enforced at the bus boundary; the agents that
+      will publish most of them do not exist yet.
     </p>
   </section>
 </main>

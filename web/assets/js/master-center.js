@@ -7,11 +7,14 @@
 (function () {
   "use strict";
 
+  /* A PROJECTION, not a report. None of the agents below exist yet; only the
+     Master Center and the event bus are under construction. Every status,
+     version and number in this file is invented to show the console's shape. */
   var AGENTS = [
     { n: "Master Center",       id: "mc-core",    s: "system",   v: "0.1.0", note: "registry, policy, journal" },
     { n: "Alpha Engine",        id: "alpha-s34",  s: "active",   v: "0.9.4", note: "candidate generation" },
     { n: "Market Intelligence", id: "intel-glb",  s: "active",   v: "0.2.1", note: "context only" },
-    { n: "Research Engine",     id: "res-lab",    s: "research", v: "0.6.0", note: "14 experiments running" },
+    { n: "Research Engine",     id: "res-lab",    s: "research", v: "0.6.0", note: "experiments running" },
     { n: "Risk Governor",       id: "risk-gov",   s: "active",   v: "0.4.2", note: "authorising" },
     { n: "Security Guardian",   id: "sec-grd",    s: "active",   v: "0.3.0", note: "deny by default" },
     { n: "Data Guardian",       id: "data-grd",   s: "warning",  v: "0.5.1", note: "1 feed gap quarantined" },
@@ -41,15 +44,15 @@
   ];
 
   var ARMS = [
-    { n: "E-DER V1",     st: "frozen",   pop: "25 events / 6 cascades",   note: "strictest definition; prior-stress required" },
-    { n: "E-DER V2 (A2)", st: "frozen",  pop: "83 events / 8 cascades",   note: "prior-stress condition removed" },
-    { n: "E-DER V3",     st: "research", pop: "198 events / 10 cascades", note: "A2 + near-Q recovery" }
+    { n: "E-DER V1",     st: "frozen",   pop: "25 events / 6 cascades",   note: "strict original definition" },
+    { n: "E-DER V2 (A2)", st: "frozen",  pop: "83 events / 8 cascades",   note: "controlled relaxation arm" },
+    { n: "E-DER V3",     st: "research", pop: "198 events / 10 cascades", note: "recovery variant" }
   ];
 
   var DECISION = [
     ["Trade id",     "ETH-20260821-001"],
     ["Alpha arm",    "E-DER V1 (frozen)"],
-    ["Entry rule",   "fixed offset from anchor, no dynamic timing"],
+    ["Timing",       "frozen in advance; specifics not published"],
     ["Market context", "risk-neutral; DXY flat; no regime change"],
     ["Risk verdict", "REJECTED — macro event within 8 minutes"],
     ["Position",     "none opened"],
@@ -61,10 +64,13 @@
   function render(host) {
     var h = [];
 
-    h.push('<div class="note" data-k="info"><div class="note-t">Demo view</div>' +
-      'Sample data, written by hand for illustration. This page is not connected to a database, ' +
-      'a ledger, an exchange or any running process, and it never will be — the real Master Center ' +
-      'runs on the private network only.</div>');
+    h.push('<div class="note"><div class="note-t">Projection — none of this is running</div>' +
+      '<b>Every agent, version, status and number below is invented</b> to show the shape of the ' +
+      'console. None of these agents has been built: today only the Master Center and the event ' +
+      'bus exist, and both are under construction. See the ' +
+      '<a href="changelog.html" style="color:var(--dim)">changelog</a> for what is actually ' +
+      'implemented. This page reads no database, ledger, exchange or running process, and the real ' +
+      'console will live on the private network only.</div>');
 
     h.push('<div class="dash-bar" style="margin-top:24px">');
     STATS.forEach(function (s) {
@@ -76,7 +82,7 @@
     h.push('<div class="split-even" style="margin-top:24px">');
 
     /* agents */
-    h.push('<div class="panel"><div class="panel-hd">Agent registry</div><div class="kv">');
+    h.push('<div class="panel"><div class="panel-hd">Agent registry — projected</div><div class="kv">');
     AGENTS.forEach(function (a) {
       h.push('<div class="kv-row"><div class="kv-k">' +
         '<span class="tag" data-s="' + a.s + '">' + esc(a.s) + "</span></div>" +
@@ -86,7 +92,7 @@
     h.push("</div></div>");
 
     /* event log */
-    h.push('<div class="panel"><div class="panel-hd">Event log</div><div class="log">');
+    h.push('<div class="panel"><div class="panel-hd">Event log — projected</div><div class="log">');
     LOG.forEach(function (e) {
       h.push('<div class="log-r" data-k="' + e.k + '"><div class="log-t">' + esc(e.t) +
         '</div><div class="log-d"></div><div class="log-m">' + e.m + "</div></div>");
@@ -97,7 +103,7 @@
 
     /* decision journal */
     h.push('<div class="split-even" style="margin-top:24px">');
-    h.push('<div class="panel"><div class="panel-hd">Decision journal — why this trade did not happen</div><div class="kv">');
+    h.push('<div class="panel"><div class="panel-hd">Decision journal — projected example</div><div class="kv">');
     DECISION.forEach(function (r) {
       h.push('<div class="kv-row"><div class="kv-k">' + esc(r[0]) + '</div><div class="kv-v">' + esc(r[1]) + "</div></div>");
     });

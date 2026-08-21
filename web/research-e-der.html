@@ -69,13 +69,12 @@
           positions are being closed for them. That supply is large, price-insensitive and
           <strong>finite</strong>.</p>
           <p>The interesting moment is not the cascade. It is the <em>second</em> one — the echo —
-          arriving while the market is still stressed from the first. If the echo is at least as
-          large as the parent and the market absorbs it anyway, the population of forced sellers
-          has plausibly been exhausted rather than paused.</p>
+          arriving while the market is still stressed from the first. If the market absorbs that
+          second wave anyway, the population of forced sellers has plausibly been exhausted rather
+          than paused. The conditions that decide "absorbed" are not published.</p>
           <p>What follows is a rebound, and the claim E-DER actually makes is about its
-          <strong>timing</strong>: the recovery is delayed. It does not begin when the selling
-          stops. That delay is the whole hypothesis, and it is also the part most likely to be an
-          artifact.</p>
+          <strong>timing</strong>: the recovery is delayed rather than immediate. That delay is the
+          whole hypothesis, and it is also the part most likely to be an artifact.</p>
         </div>
       </div>
       <div class="flow rv">
@@ -83,13 +82,13 @@
         <div class="flow-j"></div>
         <div class="flow-n" data-accent="red">Parent cascade <small>anchor</small></div>
         <div class="flow-j"></div>
-        <div class="flow-n" data-accent="amber">Echo cascade <small>≥ parent</small></div>
+        <div class="flow-n" data-accent="amber">Echo event</div>
         <div class="flow-j"></div>
         <div class="flow-n" data-accent="amber">Market stays stressed <small>no relief</small></div>
         <div class="flow-j"></div>
         <div class="flow-n" data-accent="cyan">Supply exhausts <small>sellers run out</small></div>
         <div class="flow-j"></div>
-        <div class="flow-n" data-accent="cyan">Delay <small>fixed, not chosen per event</small></div>
+        <div class="flow-n" data-accent="cyan">Delay</div>
         <div class="flow-j"></div>
         <div class="flow-n" data-accent="green">Rebound candidate <small>long</small></div>
       </div>
@@ -105,22 +104,21 @@
         <h2 class="h-sec">Every degree of freedom removed on purpose.</h2>
         <div class="prose">
           <p>The easiest way to make a rebound study look profitable is to let the exit float.
-          E-DER cannot: entry and exit are both at fixed offsets from the anchor, both at exact
-          bar opens, with no stop, no target and no discretionary timing.</p>
+          E-DER cannot: every timing decision is frozen in advance, and none of it responds to how
+          the trade is going.</p>
           <p>That makes the arms worse on paper than a tuned version would look, and it is the
           only way the result means anything.</p>
         </div>
       </div>
       <div class="panel rv">
         <div class="panel-hd">Frozen by construction</div>
-        <div class="kv">
-          <div class="kv-row"><div class="kv-k">Entry</div><div class="kv-v">fixed offset from the anchor, at an exact bar open</div></div>
-          <div class="kv-row"><div class="kv-k">Exit</div><div class="kv-v">fixed horizon, at an exact bar open</div></div>
-          <div class="kv-row"><div class="kv-k">Stop loss</div><div class="kv-v" style="color:var(--faint)">none</div></div>
-          <div class="kv-row"><div class="kv-k">Take profit</div><div class="kv-v" style="color:var(--faint)">none</div></div>
-          <div class="kv-row"><div class="kv-k">Dynamic timing</div><div class="kv-v" style="color:var(--faint)">none</div></div>
-          <div class="kv-row"><div class="kv-k">Cost</div><div class="kv-v">a conservative round-trip assumption, applied everywhere</div></div>
-          <div class="kv-row"><div class="kv-k">After start</div><div class="kv-v">no retrospective modification once prospective tracking begins</div></div>
+        <div class="prose" style="margin:0">
+          <p>Entry, exit, holding period and every other timing decision are fixed in advance and
+          recorded before prospective tracking begins. Nothing is chosen per event, nothing adapts,
+          and nothing is revised once the arm is running.</p>
+          <p>The specific values are not published. What matters publicly is that there are no
+          discretionary knobs left to turn — which is what makes a forward result mean anything,
+          and what makes it impossible to rescue a failing arm by adjusting it.</p>
         </div>
       </div>
     </div>
@@ -132,9 +130,9 @@
     <p class="eyebrow"><span class="eyebrow-idx">03</span> <b>The three arms</b></p>
     <h2 class="h-sec" style="max-width:26ch">Each arm relaxes exactly one thing.</h2>
     <p class="lede" style="max-width:66ch">
-      The arms are a controlled experiment on the definition itself. V2 removes a condition from
-      V1; V3 adds a recovery condition to V2. Because only one thing moves at a time, a difference
-      between arms is attributable.
+      The arms are a controlled experiment on the definition itself. Each one differs from its
+      neighbour by exactly one condition. Because only one thing moves at a time, a difference
+      between arms is attributable — which is the entire reason for running three.
     </p>
     <div class="tbl-wrap rv" style="margin-top:8px">
       <table class="tbl">
@@ -142,19 +140,19 @@
         <tbody>
           <tr>
             <td>E-DER V1</td>
-            <td>Full definition: parent, echo, normalised flow, multiscale direction, prior stress, delayed rebound</td>
+            <td>The strict original definition — every condition required</td>
             <td class="num">25</td><td class="num">6</td>
             <td><span class="tag" data-s="frozen">Frozen</span></td>
           </tr>
           <tr>
             <td>E-DER V2 · A2</td>
-            <td>V1 with the prior-stress condition removed</td>
+            <td>A controlled relaxation of V1 — one condition dropped</td>
             <td class="num">83</td><td class="num">8</td>
             <td><span class="tag" data-s="frozen">Frozen</span></td>
           </tr>
           <tr>
             <td>E-DER V3</td>
-            <td>A2 plus a near-queue recovery condition</td>
+            <td>A recovery variant — one condition added to V2</td>
             <td class="num">198</td><td class="num">10</td>
             <td><span class="tag" data-s="research">Research</span></td>
           </tr>
@@ -187,7 +185,7 @@
           <div class="panel-hd">Refutation conditions</div>
           <div class="kv">
             <div class="kv-row"><div class="kv-k">Placebo</div><div class="kv-v">matched non-event anchors perform indistinguishably from event anchors</div></div>
-            <div class="kv-row"><div class="kv-k">Delay</div><div class="kv-v">the delayed entry adds nothing over entering immediately</div></div>
+            <div class="kv-row"><div class="kv-k">Timing</div><div class="kv-v">the delay adds nothing over acting immediately</div></div>
             <div class="kv-row"><div class="kv-k">Direction</div><div class="kv-v">the effect survives with the sign reversed, meaning it is volatility, not direction</div></div>
             <div class="kv-row"><div class="kv-k">Cost</div><div class="kv-v">the effect does not survive a realistic round-trip cost</div></div>
             <div class="kv-row"><div class="kv-k">Clustering</div><div class="kv-v">it disappears once cascades are treated as the unit of observation</div></div>

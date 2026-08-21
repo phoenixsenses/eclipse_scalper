@@ -121,17 +121,22 @@
         <div class="rv">
           <div class="rule" data-live="1"><span>Global event bus</span></div>
           <div class="bulbs">
-            <div class="bulb" data-s="active"><span class="bulb-l"></span><span class="bulb-n">Alpha</span><span class="bulb-s">Active</span></div>
-            <div class="bulb" data-s="active"><span class="bulb-l"></span><span class="bulb-n">Market</span><span class="bulb-s">Active</span></div>
-            <div class="bulb" data-s="research"><span class="bulb-l"></span><span class="bulb-n">Research</span><span class="bulb-s">Running</span></div>
-            <div class="bulb" data-s="active"><span class="bulb-l"></span><span class="bulb-n">Risk</span><span class="bulb-s">Healthy</span></div>
-            <div class="bulb" data-s="active"><span class="bulb-l"></span><span class="bulb-n">Security</span><span class="bulb-s">Healthy</span></div>
-            <div class="bulb" data-s="idle"><span class="bulb-l"></span><span class="bulb-n">Execution</span><span class="bulb-s">Idle</span></div>
-            <div class="bulb" data-s="warning"><span class="bulb-l"></span><span class="bulb-n">Data</span><span class="bulb-s">Feed gap</span></div>
-            <div class="bulb" data-s="active"><span class="bulb-l"></span><span class="bulb-n">PR Guardian</span><span class="bulb-s">Active</span></div>
+            <div class="bulb" data-s="building"><span class="bulb-l"></span><span class="bulb-n">Master Center</span><span class="bulb-s">Building</span></div>
+            <div class="bulb" data-s="building"><span class="bulb-l"></span><span class="bulb-n">Event bus</span><span class="bulb-s">Building</span></div>
+            <div class="bulb" data-s="design"><span class="bulb-l"></span><span class="bulb-n">Alpha</span><span class="bulb-s">Design</span></div>
+            <div class="bulb" data-s="planned"><span class="bulb-l"></span><span class="bulb-n">Market</span><span class="bulb-s">Planned</span></div>
+            <div class="bulb" data-s="planned"><span class="bulb-l"></span><span class="bulb-n">Research</span><span class="bulb-s">Planned</span></div>
+            <div class="bulb" data-s="planned"><span class="bulb-l"></span><span class="bulb-n">Risk</span><span class="bulb-s">Planned</span></div>
+            <div class="bulb" data-s="planned"><span class="bulb-l"></span><span class="bulb-n">Execution</span><span class="bulb-s">Planned</span></div>
+            <div class="bulb" data-s="planned"><span class="bulb-l"></span><span class="bulb-n">Security</span><span class="bulb-s">Planned</span></div>
+            <div class="bulb" data-s="planned"><span class="bulb-l"></span><span class="bulb-n">Data</span><span class="bulb-s">Planned</span></div>
+            <div class="bulb" data-s="planned"><span class="bulb-l"></span><span class="bulb-n">PR Guardian</span><span class="bulb-s">Planned</span></div>
           </div>
           <p class="mono-note" style="margin-top:12px">
-            The lamps are a simplification for reading. No agent is wired to the one beside it —
+            These lamps show <b>implementation status, not runtime health</b>. Nothing here is
+            running: phases 01 and 02 are under construction and the rest are designed but not
+            built. See the <a href="changelog.html" style="color:var(--dim)">changelog</a> for
+            versions. The row is also a simplification — no agent is wired to the one beside it;
             they all talk to the bus.
           </p>
         </div>
@@ -538,7 +543,7 @@ changed   src/alpha/eder.py
           src/risk/config.py
 
 summary   E-DER filter updated
-          near-Q recovery added
+          new arm condition added
           <b>risk threshold modified</b>
           4 tests added
 
