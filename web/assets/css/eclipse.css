@@ -278,14 +278,14 @@ a { color: inherit; }
 
 .tap:first-of-type .lamp { top: 0; }
 
-/* lamp states */
-.is-lit .lamp[data-state="active"]    { background: var(--green);  border-color: var(--green);  box-shadow: 0 0 14px rgba(52, 211, 153, .55); }
-.is-lit .lamp[data-state="research"]  { background: var(--cyan);   border-color: var(--cyan);   box-shadow: 0 0 14px rgba(34, 211, 238, .5); }
-.is-lit .lamp[data-state="system"]    { background: var(--blue);   border-color: var(--blue);   box-shadow: 0 0 14px rgba(77, 124, 255, .55); }
-.is-lit .lamp[data-state="agents"]    { background: var(--violet); border-color: var(--violet); box-shadow: 0 0 14px rgba(167, 139, 250, .5); }
-.is-lit .lamp[data-state="warning"]   { background: var(--amber);  border-color: var(--amber);  box-shadow: 0 0 14px rgba(245, 181, 68, .5); }
-.is-lit .lamp[data-state="blocked"]   { background: var(--red);    border-color: var(--red);    box-shadow: 0 0 14px rgba(242, 84, 91, .5); }
-.is-lit .lamp[data-state="idle"]      { background: #2A313D;       border-color: var(--faint); }
+/* ---------- lamp states ---------------------------------------
+   Rail tap points show IMPLEMENTATION STATE, never runtime health.
+   green / amber / red are deliberately absent here: the site reserves
+   them for genuine health, and no component on this site is running.  */
+.is-lit .lamp[data-state="building"] { background: var(--blue);  border-color: var(--blue);  box-shadow: 0 0 14px rgba(77, 124, 255, .45); }
+.is-lit .lamp[data-state="design"]   { background: #3A4459;      border-color: #4A5670; }
+.is-lit .lamp[data-state="planned"]  { background: transparent;  border-color: #333C4C; }
+.is-lit .lamp[data-state="concept"]  { background: #1E2634;      border-color: #39435A; }
 
 /* ============================================================
    TYPE

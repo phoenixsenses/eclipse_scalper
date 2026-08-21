@@ -56,13 +56,24 @@ there is no backend, no API and no build.
 `assets/css/eclipse.css` — one file, tokens at the top.
 
 - **The Rail.** A hairline down the left gutter of every page is the global event bus.
-  Each section is a tap point with a status lamp; slow packets travel it. The metaphor
-  is the information architecture, not decoration.
+  Each section is a tap point with a lamp; slow packets travel it. The metaphor is the
+  information architecture, not decoration.
+- **Rail lamps show IMPLEMENTATION STATE, never runtime health.** Four states, none of
+  them a health colour: `building` (exists as code, under construction) · `design`
+  (specified, not built) · `planned` (neither) · `concept` (the section describes an
+  idea, rule or method rather than a component). The bulb strips use the same
+  vocabulary. A section that is concept-only must not claim health of any kind.
 - **Type.** Display face `Bahnschrift` → `DIN Alternate` → `Arial Narrow` (condensed
   DIN-descended grotesque, ships on Windows and macOS — no downloaded fonts). Body is
   system-ui. All labels, states and numbers are monospace.
-- **Colour is semantic only.** Blue = system, cyan = data/research, violet = agents,
-  green = healthy, amber = warning, red = blocked. Never used decoratively.
+- **Colour is semantic only, and health colours are reserved.** `green`, `amber` and
+  `red` mean healthy / warning / blocked and may **never** label a component, a lamp,
+  an agent or a section — nothing on this site is running, so any such use is a false
+  claim. They appear in exactly two places, both independently reviewed and accepted as
+  non-health semantics: the approve / reduce / reject verdict legend, and the completed
+  steps in the E-DER pipeline position. Everything structural uses the implementation
+  states above; cyan and violet remain available for category accents that carry no
+  status meaning.
 - Single dark theme, 2px radius, hairlines at 9% white.
 - Responsive to 360px, keyboard focus visible, `prefers-reduced-motion` honoured
   (packets and corona freeze, reveals become instant).
@@ -70,6 +81,14 @@ there is no backend, no API and no build.
 ## Content policy — read before adding anything
 
 This site is written to be **public**. Two rules govern what may appear:
+
+**Never claim health**
+
+Nothing in Eclipse is running. No lamp, chip, tag or label anywhere on this site may
+read `Active`, `Healthy`, `Running` or carry a green/amber/red status colour for a
+component. Use `Building` / `Design` / `Planned` / `Not implemented`. This was the
+subject of review finding W2 and its two follow-ups; it keeps regressing because the
+palette makes green easy to reach for.
 
 **Never publish**
 
@@ -83,7 +102,7 @@ This site is written to be **public**. Two rules govern what may appear:
 
 - Architecture, agent roles, permission model, security philosophy
 - Concept-level descriptions of research ideas
-- Population sizes (event and cascade counts) and status labels
+- Population sizes (event and cascade counts) and implementation-state labels
 - Component choices and logical topology
 
 `changelog.html` deliberately has no results column, and `status.html` states that the
