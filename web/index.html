@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eclipse — An Agent-Driven Quantitative Trading Intelligence System</title>
+<meta name="description" content="Eclipse runs alpha research, market context, backtesting, risk authorization and secure execution as separate agents on one event bus, coordinated by a Master Center.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://eclipse.example/index.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Eclipse">
+<meta property="og:title" content="Eclipse — An Agent-Driven Quantitative Trading Intelligence System">
+<meta property="og:description" content="Eclipse runs alpha research, market context, backtesting, risk authorization and secure execution as separate agents on one event bus, coordinated by a Master Center.">
+<meta property="og:url" content="https://eclipse.example/index.html">
+<meta property="og:image" content="https://eclipse.example/assets/og-eclipse.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="assets/css/eclipse.css">
+<script>document.documentElement.className+=" js";</script>
+</head>
+<body>
+<div class="ground"></div>
+
+<header class="hdr">
+<div class="hdr-in">
+  <a class="hdr-mark" href="index.html" translate="no"><span class="hdr-disc"></span>ECLIPSE</a>
+  <button class="hdr-burger" aria-expanded="false" aria-controls="nav">Menu</button>
+  <nav class="hdr-nav" id="nav">
+    <a href="architecture.html">Architecture</a>
+    <a href="research.html">Research</a>
+    <a href="agents.html">Agents</a>
+    <a href="security.html">Security</a>
+    <a href="infrastructure.html">Infrastructure</a>
+  </nav>
+  <div class="hdr-end">
+    <a class="hdr-live" href="status.html"><span class="creed-dot" style="background:var(--green);box-shadow:0 0 8px rgba(52,211,153,.6)"></span>Status</a>
+  </div>
+</div>
+</header>
+
+<main class="page">
+  <div class="rail-flow" aria-hidden="true"><i></i><i></i></div>
+
+  <!-- ══════════════════════════ HERO ══════════════════════════ -->
+  <section class="hero">
+    <div class="hero-grid">
+
+      <div>
+        <h1>ECLIPSE</h1>
+        <p class="hero-tag">An agent-driven quantitative trading <em>intelligence</em> system.</p>
+        <p class="hero-desc">
+          Alpha research, global market context, continuous backtesting, risk authorization and
+          secure execution run as separate agents on one event bus. A Master Center keeps the
+          registry, enforces the policy, and records why every decision was made — including the
+          decisions that ended in no.
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-key" href="architecture.html">Explore architecture</a>
+          <a class="btn" href="research.html">View research</a>
+          <a class="btn" href="status.html">System status</a>
+        </div>
+      </div>
+      <svg viewBox="0 0 220 220" class="eclipse-fig" role="img" aria-label="An eclipse: a dark disc ringed by a thin corona">
+        <defs>
+          <radialGradient id="cor">
+            <stop offset="60%" stop-color="#4D7CFF" stop-opacity="0"/>
+            <stop offset="70%" stop-color="#4D7CFF" stop-opacity=".5"/>
+            <stop offset="79%" stop-color="#22D3EE" stop-opacity=".18"/>
+            <stop offset="100%" stop-color="#4D7CFF" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="110" cy="110" r="108" fill="url(#cor)"/>
+        <g class="eclipse-corona">
+          <circle cx="110" cy="110" r="86" fill="none" stroke="#4D7CFF" stroke-opacity=".4" stroke-width="1" stroke-dasharray="1 7"/>
+          <circle cx="110" cy="110" r="97" fill="none" stroke="#22D3EE" stroke-opacity=".18" stroke-width="1" stroke-dasharray="2 24"/>
+        </g>
+        <circle cx="110" cy="110" r="70" fill="#07090D" stroke="#4D7CFF" stroke-opacity=".55" stroke-width="1"/>
+        <circle cx="110" cy="110" r="70" fill="none" stroke="#E8ECF2" stroke-opacity=".85" stroke-width="1.6" stroke-dasharray="46 400" stroke-dashoffset="-155" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <div class="creed">
+      <span><i class="creed-dot" style="background:var(--violet)"></i><b>Agents</b> propose</span>
+      <span><i class="creed-dot" style="background:var(--cyan)"></i><b>Research</b> proves</span>
+      <span><i class="creed-dot" style="background:var(--amber)"></i><b>Risk</b> authorizes</span>
+      <span><i class="creed-dot" style="background:var(--green)"></i><b>Execution</b> acts</span>
+      <span><i class="creed-dot" style="background:var(--blue)"></i><b>Security</b> controls</span>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ 01 MASTER CENTER ═══════════════════════ -->
+  <section class="tap">
+    <span class="lamp" data-state="system"></span>
+    <p class="eyebrow"><span class="eyebrow-idx">01</span> <b>Master Center</b></p>
+    <div class="split">
+      <div>
+        <h2 class="h-sec">The Master Center never places a trade.</h2>
+        <p class="lede">
+          It knows which agents are running, what each one is allowed to touch, and why every
+          decision was made. Coordination is its only job.
+        </p>
+        <p class="prose">
+          Agents come and go. Strategies are frozen, re-opened and retired. The registry is the one
+          place where that history stays legible, so a question asked six months from now still has
+          an answer.
+        </p>
+      </div>
+      <div class="stack-24">
+        <div class="hub rv">
+          <p class="hub-t">Eclipse Master Center</p>
+          <p class="hub-s">orchestration · policy · record</p>
+          <div class="hub-3">
+            <div class="hub-c"><b>Agent registry</b><span>Identity, version, owner, health, dependencies, last heartbeat.</span></div>
+            <div class="hub-c"><b>Policy engine</b><span>Permissions, event access, and the rules an agent cannot talk its way around.</span></div>
+            <div class="hub-c"><b>Decision journal</b><span>Every candidate, verdict and outcome, written down at the time.</span></div>
+          </div>
+        </div>
+
+        <div class="rv">
+          <div class="rule" data-live="1"><span>Global event bus</span></div>
+          <div class="bulbs">
+            <div class="bulb" data-s="active"><span class="bulb-l"></span><span class="bulb-n">Alpha</span><span class="bulb-s">Active</span></div>
+            <div class="bulb" data-s="active"><span class="bulb-l"></span><span class="bulb-n">Market</span><span class="bulb-s">Active</span></div>
+            <div class="bulb" data-s="research"><span class="bulb-l"></span><span class="bulb-n">Research</span><span class="bulb-s">Running</span></div>
+            <div class="bulb" data-s="active"><span class="bulb-l"></span><span class="bulb-n">Risk</span><span class="bulb-s">Healthy</span></div>
+            <div class="bulb" data-s="active"><span class="bulb-l"></span><span class="bulb-n">Security</span><span class="bulb-s">Healthy</span></div>
+            <div class="bulb" data-s="idle"><span class="bulb-l"></span><span class="bulb-n">Execution</span><span class="bulb-s">Idle</span></div>
+            <div class="bulb" data-s="warning"><span class="bulb-l"></span><span class="bulb-n">Data</span><span class="bulb-s">Feed gap</span></div>
+            <div class="bulb" data-s="active"><span class="bulb-l"></span><span class="bulb-n">PR Guardian</span><span class="bulb-s">Active</span></div>
+          </div>
+          <p class="mono-note" style="margin-top:12px">
+            The lamps are a simplification for reading. No agent is wired to the one beside it —
+            they all talk to the bus.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ 02 EVENT BUS ═══════════════════════ -->
+  <section class="tap">
+    <span class="lamp" data-state="system"></span>
+    <p class="eyebrow"><span class="eyebrow-idx">02</span> <b>Global event bus</b></p>
+    <div class="split">
+      <div>
+        <h2 class="h-sec">Agents publish. They do not call each other.</h2>
+        <div class="prose">
+          <p>Direct calls between agents look convenient and then quietly become the architecture.
+          Once Alpha imports Risk, you cannot replace either one without touching the other.</p>
+          <p>Eclipse routes everything through a subject-addressed bus. An agent declares what it
+          publishes and what it subscribes to; the Master Center grants or denies that access.
+          Adding an agent means adding a subscriber, not editing a caller.</p>
+        </div>
+      </div>
+      <div class="stack-16">
+        <div class="split-even rv" style="gap:16px">
+          <div>
+            <div class="panel-hd">Wrong</div>
+            <pre class="code" translate="no" style="border-left-color:var(--red)"><b>Alpha</b>    --&gt; <b>Market</b>
+<b>Market</b>   --&gt; <b>Research</b>
+<b>Research</b> --&gt; <b>Alpha</b>
+<b>Risk</b>     --&gt; <b>Alpha</b>
+
+<i>every arrow is a dependency
+you can never remove</i></pre>
+          </div>
+          <div>
+            <div class="panel-hd">Eclipse</div>
+            <pre class="code" translate="no"> <b>Alpha</b>   <b>Market</b>   <b>Research</b>
+    <i>\</i>       <i>|</i>        <i>/</i>
+  +---------------------+
+  |      <b>EVENT BUS</b>      |
+  +---------------------+
+    <i>/</i>       <i>|</i>        <i>\</i>
+  <b>Risk</b>   <b>Security</b>    <b>Data</b></pre>
+          </div>
+        </div>
+        <div class="panel rv">
+          <div class="panel-hd">Subject namespace</div>
+          <pre class="code" translate="no"><b>eclipse.market.</b>regime_changed
+<b>eclipse.macro.</b>high_impact
+<b>eclipse.alpha.</b>trade_candidate
+<b>eclipse.research.</b>completed
+<b>eclipse.risk.</b>rejected
+<b>eclipse.execution.</b>filled
+<b>eclipse.security.</b>blocked
+<b>eclipse.data.</b>quality_degraded
+<b>eclipse.system.</b>agent_registered</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ 03 PATH OF A TRADE ═══════════════════════ -->
+  <section class="tap">
+    <span class="lamp" data-state="active"></span>
+    <p class="eyebrow"><span class="eyebrow-idx">03</span> <b>The path of a trade</b></p>
+    <div class="split">
+      <div>
+        <h2 class="h-sec">Five separations, one direction.</h2>
+        <div class="prose">
+          <p>A signal cannot become an order by itself. Between the idea and the money there are
+          four independent parties, each able to stop it, none able to skip the one in front.</p>
+          <p>Most paths end early. That is the design working, not the design failing.</p>
+        </div>
+        <div class="note" data-k="info" style="margin-top:22px">
+          <div class="note-t">Read the arrows literally</div>
+          Research cannot reach Execution. Alpha cannot reach the exchange. There is no override
+          that lets a good-looking signal take a shortcut.
+        </div>
+      </div>
+
+      <div class="flow rv">
+        <div class="flow-n" data-accent="cyan">World <small>markets · macro · news</small></div>
+        <div class="flow-j"></div>
+        <div class="flow-n" data-accent="cyan">Market Intelligence <small>context</small></div>
+        <div class="flow-j"></div>
+        <div class="flow-n" data-accent="blue">Event bus <small>subject-addressed</small></div>
+        <div class="flow-j"></div>
+        <div class="flow-n" data-accent="violet">Alpha Engine <small>proposes</small></div>
+        <div class="flow-j"></div>
+        <div class="flow-n" data-accent="violet">Trade candidate <small>not an order</small></div>
+        <div class="flow-j"></div>
+        <div class="flow-n" data-accent="amber">Risk Governor <small>authorizes</small></div>
+        <div class="flow-j"></div>
+        <div class="flow-fork">
+          <div class="flow-n" data-accent="red" style="justify-content:center">Reject</div>
+          <div class="flow-n" data-accent="amber" style="justify-content:center">Reduce</div>
+          <div class="flow-n" data-accent="green" style="justify-content:center">Approve</div>
+        </div>
+        <div class="flow-j"></div>
+        <div class="flow-n" data-accent="green">Execution Gateway <small>the only party with keys</small></div>
+        <div class="flow-j"></div>
+        <div class="flow-n" data-accent="green">Market <small>fill · result</small></div>
+        <div class="flow-j"></div>
+        <div class="flow-n" data-accent="cyan">Data Platform <small>outcome recorded</small></div>
+        <div class="flow-j"></div>
+        <div class="flow-n" data-accent="cyan">Research Engine <small>new knowledge</small></div>
+        <div class="flow-j"></div>
+        <div class="flow-n" data-accent="blue">Master Center <small>journal closed</small></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ 04 ALPHA ═══════════════════════ -->
+  <section class="tap">
+    <span class="lamp" data-state="agents"></span>
+    <p class="eyebrow"><span class="eyebrow-idx">04</span> <b>Alpha Engine</b></p>
+    <div class="split">
+      <div>
+        <h2 class="h-sec">Reads the tape. Proposes. Stops there.</h2>
+        <div class="prose">
+          <p>The Alpha Engine is where Eclipse looks at market microstructure — forced
+          liquidations, order book state, trade flow, event detection — and produces a single
+          artifact: a <strong>trade candidate</strong>.</p>
+          <p>A candidate carries the arm that produced it, the anchor it fired from, and the
+          context at that moment. It carries no order, no size and no route. Sizing belongs to
+          Risk; routing belongs to Execution.</p>
+        </div>
+      </div>
+      <div class="stack-16">
+        <div class="grid g-2 rv">
+          <div class="card"><h3 class="card-t">Microstructure</h3><p class="card-d">Liquidation pressure, book state, trade flow, and the shape of a cascade as it happens.</p></div>
+          <div class="card"><h3 class="card-t">Event detection</h3><p class="card-d">Anchors are identified from observed flow, never from what the market did afterwards.</p></div>
+          <div class="card"><h3 class="card-t">Arms, not settings</h3><p class="card-d">Each hypothesis is a named, versioned, frozen arm. Changing one creates a new arm.</p></div>
+          <div class="card"><h3 class="card-t">No keys</h3><p class="card-d">The Alpha Engine has never held an exchange credential and is not permitted to.</p></div>
+        </div>
+        <div class="panel rv">
+          <div class="panel-hd">What a candidate contains</div>
+          <div class="kv">
+            <div class="kv-row"><div class="kv-k">arm</div><div class="kv-v">named, versioned, frozen</div></div>
+            <div class="kv-row"><div class="kv-k">anchor</div><div class="kv-v">the observed event it fired from</div></div>
+            <div class="kv-row"><div class="kv-k">direction</div><div class="kv-v">long or short</div></div>
+            <div class="kv-row"><div class="kv-k">horizon</div><div class="kv-v">fixed at publication, not adjusted later</div></div>
+            <div class="kv-row"><div class="kv-k">context</div><div class="kv-v">market state as known at that instant</div></div>
+            <div class="kv-row"><div class="kv-k">size</div><div class="kv-v" style="color:var(--faint)">absent — Risk decides</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ 05 MARKET INTELLIGENCE ═══════════════════════ -->
+  <section class="tap">
+    <span class="lamp" data-state="active"></span>
+    <p class="eyebrow"><span class="eyebrow-idx">05</span> <b>Global Market Intelligence</b></p>
+    <div class="split">
+      <div>
+        <h2 class="h-sec">Context, not signals.</h2>
+        <div class="prose">
+          <p>Market Intelligence watches the world outside the order book: rates, currencies,
+          indices, commodities, central banks, the economic calendar, volatility and the news
+          cycle. It publishes one thing — <strong>state</strong>.</p>
+          <p>It is deliberately barred from changing an alpha rule. A regime read that has not been
+          researched is an opinion, and opinions do not get to move thresholds.</p>
+        </div>
+        <div class="chips" style="margin-top:22px">
+          <span class="chip">BTC</span><span class="chip">ETH</span><span class="chip">DXY</span>
+          <span class="chip">EURUSD</span><span class="chip">USDJPY</span><span class="chip">US2Y</span>
+          <span class="chip">US10Y</span><span class="chip">S&amp;P 500</span><span class="chip">NASDAQ</span>
+          <span class="chip">VIX</span><span class="chip">Gold</span><span class="chip">Oil</span>
+          <span class="chip">Fed</span><span class="chip">ECB</span>
+        </div>
+      </div>
+      <div class="stack-16">
+        <div class="panel rv">
+          <div class="panel-hd">Observation becomes state</div>
+          <pre class="code" translate="no">Fed hawkish
+US10Y   <b>↑</b>
+DXY     <b>↑</b>
+NASDAQ  <b>↓</b>
+VIX     <b>↑</b>
+        <i>│</i>
+        <i>↓</i>
+<b>eclipse.market.regime_changed</b>
+   state: <b>GLOBAL RISK-OFF</b></pre>
+        </div>
+        <div class="panel rv">
+          <div class="panel-hd">How Alpha may use it</div>
+          <p class="prose" style="margin:0">
+            Context can confirm a candidate or flag it for Risk. It cannot generate one, and it
+            cannot loosen a rule. Anything stronger has to survive the research pipeline first —
+            observe, store, research, validate, and only then consider production.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ 06 RESEARCH ═══════════════════════ -->
+  <section class="tap">
+    <span class="lamp" data-state="research"></span>
+    <p class="eyebrow"><span class="eyebrow-idx">06</span> <b>Research &amp; backtest</b></p>
+    <h2 class="h-sec" style="max-width:22ch">A laboratory that is allowed to say no to itself.</h2>
+    <div class="split">
+      <div>
+        <div class="prose">
+          <p>The Research Engine runs continuously: validate the data, snapshot the dataset,
+          backtest, walk forward, test out of sample, stress it, compare against what was claimed
+          before, and write a report whether the answer is good or not.</p>
+          <p>Win rate is the least interesting output. An arm has to survive tail risk, cost
+          sensitivity, regime change and sample size before anyone talks about promoting it.</p>
+        </div>
+      </div>
+      <div>
+        <div class="panel rv">
+          <div class="panel-hd">Optimised against</div>
+          <div class="chips">
+            <span class="chip">Expected value</span><span class="chip">Profit factor</span>
+            <span class="chip">Drawdown</span><span class="chip">Tail risk</span>
+            <span class="chip">Stability</span><span class="chip">Sample size</span>
+            <span class="chip">Out-of-sample</span><span class="chip">Regime stability</span>
+            <span class="chip">Cost sensitivity</span><span class="chip">Slippage sensitivity</span>
+            <span class="chip">Win rate</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule" style="margin-top:38px"><span>Promotion pipeline</span></div>
+    <div class="stepper rv">
+      <div class="step"><span class="step-i">01</span><span class="step-n">Idea</span></div>
+      <div class="step"><span class="step-i">02</span><span class="step-n">Research</span></div>
+      <div class="step"><span class="step-i">03</span><span class="step-n">Backtested</span></div>
+      <div class="step"><span class="step-i">04</span><span class="step-n">OOS passed</span></div>
+      <div class="step"><span class="step-i">05</span><span class="step-n">Shadow</span></div>
+      <div class="step"><span class="step-i">06</span><span class="step-n">Paper</span></div>
+      <div class="step" data-gate="human"><span class="step-i">07</span><span class="step-n">Human review</span></div>
+      <div class="step" data-gate="human"><span class="step-i">08</span><span class="step-n">Approved</span></div>
+      <div class="step" data-gate="live"><span class="step-i">09</span><span class="step-n">Live</span></div>
+    </div>
+    <p class="mono-note" style="margin-top:14px">
+      Steps 07 and 08 are people. The Research Engine can advance an arm to <b>paper</b> and no
+      further — it cannot promote its own work into production.
+    </p>
+  </section>
+
+  <!-- ═══════════════════════ 07 RISK ═══════════════════════ -->
+  <section class="tap">
+    <span class="lamp" data-state="warning"></span>
+    <p class="eyebrow"><span class="eyebrow-idx">07</span> <b>Risk Governor</b></p>
+    <div class="split">
+      <div>
+        <h2 class="h-sec">The mandatory layer between an idea and real money.</h2>
+        <p class="prose">
+          Every candidate passes through the Risk Governor, which returns one of three verdicts and
+          records why. There is no fourth path, and no agent can construct one.
+        </p>
+        <div class="grid g-3" style="margin-top:22px">
+          <div class="panel panel-tight" style="border-left:2px solid var(--green)"><b class="h-sub" style="margin:0;color:var(--green)">Approve</b></div>
+          <div class="panel panel-tight" style="border-left:2px solid var(--amber)"><b class="h-sub" style="margin:0;color:var(--amber)">Reduce</b></div>
+          <div class="panel panel-tight" style="border-left:2px solid var(--red)"><b class="h-sub" style="margin:0;color:var(--red)">Reject</b></div>
+        </div>
+      </div>
+      <div class="panel rv">
+        <div class="panel-hd">Checked on every candidate</div>
+        <div class="kv">
+          <div class="kv-row"><div class="kv-k">Sizing</div><div class="kv-v">position size, leverage, notional</div></div>
+          <div class="kv-row"><div class="kv-k">Loss limits</div><div class="kv-v">daily loss, drawdown, kill switch</div></div>
+          <div class="kv-row"><div class="kv-k">Exposure</div><div class="kv-v">current, correlated, maximum open positions</div></div>
+          <div class="kv-row"><div class="kv-k">Conditions</div><div class="kv-v">volatility, liquidity, spread</div></div>
+          <div class="kv-row"><div class="kv-k">Calendar</div><div class="kv-v">proximity to scheduled high-impact events</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ 08 EXECUTION ═══════════════════════ -->
+  <section class="tap">
+    <span class="lamp" data-state="idle"></span>
+    <p class="eyebrow"><span class="eyebrow-idx">08</span> <b>Execution Gateway</b></p>
+    <div class="split">
+      <div>
+        <h2 class="h-sec">The only component that talks to an exchange.</h2>
+        <div class="prose">
+          <p>The gateway accepts approved orders and nothing else. It holds the trading
+          credentials, and it is the single place in Eclipse where they exist.</p>
+          <p>Venues sit behind adapters, so adding one is an adapter and a set of tests — not a
+          change to any strategy.</p>
+        </div>
+      </div>
+      <div class="stack-16">
+        <div class="panel rv">
+          <div class="panel-hd">Venue adapters</div>
+          <div class="chips">
+            <span class="chip">Binance</span><span class="chip">Bybit</span><span class="chip">OKX</span>
+            <span class="chip" style="color:var(--faint)">+ future venues</span>
+          </div>
+        </div>
+        <div class="note" data-k="seal" style="margin:0">
+          <div class="note-t">Credential isolation</div>
+          Alpha, Research and Market Intelligence run in a network that cannot reach the exchange
+          endpoints and cannot read the secret store. This is enforced by the network and the
+          secret manager, not by convention.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ 09 SECURITY ═══════════════════════ -->
+  <section class="tap">
+    <span class="lamp" data-state="active"></span>
+    <p class="eyebrow"><span class="eyebrow-idx">09</span> <b>Security Guardian</b></p>
+    <div class="split">
+      <div>
+        <h2 class="h-sec">Deny by default.</h2>
+        <div class="prose">
+          <p>Security is not a phase at the end. Every new agent is born with no permissions and
+          earns each one explicitly: an identity, a secret policy, a network policy, the subjects
+          it may read, the subjects it may write, and its logging obligations.</p>
+          <p>An agent that has not been granted a subject cannot see it on the bus at all.</p>
+        </div>
+      </div>
+      <div class="layers rv">
+        <div class="layer"><span class="layer-i">01</span> Private source control <span class="layer-d">no public repositories</span></div>
+        <div class="layer"><span class="layer-i">02</span> Private network <span class="layer-d">no service on the open internet</span></div>
+        <div class="layer"><span class="layer-i">03</span> Service identity <span class="layer-d">every agent is named</span></div>
+        <div class="layer"><span class="layer-i">04</span> Least privilege <span class="layer-d">grants are explicit</span></div>
+        <div class="layer"><span class="layer-i">05</span> Secrets isolation <span class="layer-d">one holder, one purpose</span></div>
+        <div class="layer"><span class="layer-i">06</span> Environment separation <span class="layer-d">research ≠ production</span></div>
+        <div class="layer"><span class="layer-i">07</span> Automated PR security <span class="layer-d">checked before merge</span></div>
+        <div class="layer"><span class="layer-i">08</span> Audit logging <span class="layer-d">append-only</span></div>
+        <div class="layer"><span class="layer-i">09</span> Risk governor <span class="layer-d">authorization in the path</span></div>
+        <div class="layer"><span class="layer-i">10</span> Execution isolation <span class="layer-d">keys reachable from one place</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ 10 DATA ═══════════════════════ -->
+  <section class="tap">
+    <span class="lamp" data-state="warning"></span>
+    <p class="eyebrow"><span class="eyebrow-idx">10</span> <b>Data Guardian</b></p>
+    <div class="split">
+      <div>
+        <h2 class="h-sec">A backtest is only as honest as its clock.</h2>
+        <div class="prose">
+          <p>The Data Guardian looks for the failures that quietly invalidate research: gaps in a
+          websocket stream, out-of-order events, timestamp drift, revised history, duplicate
+          fills, stale symbols — and above all, information that could not have been known yet.</p>
+          <p>Feeds do die. Eclipse marks those windows and refuses to draw conclusions across
+          them rather than pretending the market was quiet.</p>
+        </div>
+      </div>
+      <div class="stack-16">
+        <div class="panel rv">
+          <div class="panel-hd">Recorded with every row</div>
+          <div class="chips">
+            <span class="chip">source</span><span class="chip">event_time</span><span class="chip">received_time</span>
+            <span class="chip">schema_version</span><span class="chip">revision</span><span class="chip">checksum</span>
+            <span class="chip">quality_score</span>
+          </div>
+        </div>
+        <div class="panel rv">
+          <div class="panel-hd">Rejected on sight</div>
+          <div class="chips">
+            <span class="chip chip-off">lookahead</span><span class="chip chip-off">future leakage</span>
+            <span class="chip chip-off">revision contamination</span><span class="chip chip-off">missing candles</span>
+            <span class="chip chip-off">timestamp drift</span><span class="chip chip-off">duplicate trades</span>
+            <span class="chip chip-off">stale symbols</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ 11 PR GUARDIAN ═══════════════════════ -->
+  <section class="tap">
+    <span class="lamp" data-state="system"></span>
+    <p class="eyebrow"><span class="eyebrow-idx">11</span> <b>PR Guardian</b></p>
+    <div class="split">
+      <div>
+        <h2 class="h-sec">One reviewer, every repository.</h2>
+        <div class="prose">
+          <p>PR Guardian runs at the organization level rather than being copied into each repo.
+          When anyone opens a pull request it reads the diff, runs the tests, and reports what
+          changed in terms of system behaviour — so two people working in different repositories
+          still see each other's work.</p>
+          <p>Alongside the usual checks it looks for the mistakes specific to a trading system.</p>
+        </div>
+      </div>
+      <div class="stack-16">
+        <div class="panel rv">
+          <div class="panel-hd">Trading-specific checks</div>
+          <div class="chips">
+            <span class="chip">Lookahead bias</span><span class="chip">Data leakage</span>
+            <span class="chip">Risk-limit bypass</span><span class="chip">Accidental live execution</span>
+            <span class="chip">Credential exposure</span><span class="chip">Frozen arm modified</span>
+            <span class="chip">Backtest rule changed</span><span class="chip">Production config changed</span>
+          </div>
+        </div>
+        <div class="panel rv">
+          <div class="panel-hd">Sample report</div>
+          <pre class="code" translate="no"><b>#42 — eclipse-scalper</b>
+
+changed   src/alpha/eder.py
+          src/risk/config.py
+
+summary   E-DER filter updated
+          near-Q recovery added
+          <b>risk threshold modified</b>
+          4 tests added
+
+flags     production behaviour affected
+tests     24 / 24 passed</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ 12 OBSERVABILITY ═══════════════════════ -->
+  <section class="tap">
+    <span class="lamp" data-state="active"></span>
+    <p class="eyebrow"><span class="eyebrow-idx">12</span> <b>Observability</b></p>
+    <div class="split">
+      <div>
+        <h2 class="h-sec">Health is a measurement, not a feeling.</h2>
+        <p class="prose">
+          Traces, metrics and logs come out of every agent on the same schema. A green light has to
+          be earned by a fresh heartbeat and fresh data — a stale process shows as stale, never as
+          healthy.
+        </p>
+      </div>
+      <div class="panel rv">
+        <div class="panel-hd">Collected everywhere</div>
+        <div class="grid g-2">
+          <div class="kv">
+            <div class="kv-row"><div class="kv-k">Agent count</div><div class="kv-v">registered vs responding</div></div>
+            <div class="kv-row"><div class="kv-k">Event latency</div><div class="kv-v">publish to handled</div></div>
+            <div class="kv-row"><div class="kv-k">Queue depth</div><div class="kv-v">per subject</div></div>
+            <div class="kv-row"><div class="kv-k">Stream age</div><div class="kv-v">seconds since last tick</div></div>
+          </div>
+          <div class="kv">
+            <div class="kv-row"><div class="kv-k">Dropped events</div><div class="kv-v">by subject and cause</div></div>
+            <div class="kv-row"><div class="kv-k">Research jobs</div><div class="kv-v">queued, running, failed</div></div>
+            <div class="kv-row"><div class="kv-k">Candidates</div><div class="kv-v">published vs authorized</div></div>
+            <div class="kv-row"><div class="kv-k">Security</div><div class="kv-v">denials and alerts</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ 13 DYNAMIC AGENTS ═══════════════════════ -->
+  <section class="tap">
+    <span class="lamp" data-state="agents"></span>
+    <p class="eyebrow"><span class="eyebrow-idx">13</span> <b>Dynamic agents</b></p>
+    <div class="split">
+      <div>
+        <h2 class="h-sec">Some agents exist only while the event does.</h2>
+        <div class="prose">
+          <p>Persistent agents are always running. Event-spawned agents are registered on demand,
+          given a narrow scope and a lifetime, and retired when the event closes — with the same
+          identity, permission and logging requirements as anything permanent.</p>
+          <p>A central bank meeting or a liquidation cascade is a temporary problem that deserves
+          temporary specialists, not a permanent subsystem.</p>
+        </div>
+      </div>
+      <div class="stack-16">
+        <div class="panel rv">
+          <div class="panel-hd">Persistent</div>
+          <div class="chips">
+            <span class="chip">Alpha</span><span class="chip">Market</span><span class="chip">Research</span>
+            <span class="chip">Risk</span><span class="chip">Security</span><span class="chip">Execution</span>
+            <span class="chip">Data</span><span class="chip">Observability</span>
+          </div>
+        </div>
+        <div class="panel rv">
+          <div class="panel-hd">Spawned, then retired</div>
+          <pre class="code" translate="no"><b>eclipse.macro.high_impact</b>  <i>(FOMC in 30m)</i>
+   <i>↓ spawn</i>
+   Rates · Speech analysis · Volatility
+   Cross-asset
+
+<b>eclipse.market.cascade</b>  <i>(BTC liquidation)</i>
+   <i>↓ spawn</i>
+   Liquidation · Book resilience
+   Cross-exchange
+
+   <i>↓ event closes → agents retired</i></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ 14 INFRASTRUCTURE ═══════════════════════ -->
+  <section class="tap">
+    <span class="lamp" data-state="system"></span>
+    <p class="eyebrow"><span class="eyebrow-idx">14</span> <b>Infrastructure</b></p>
+    <div class="split">
+      <div>
+        <h2 class="h-sec">Boring on purpose.</h2>
+        <p class="prose">
+          Python, Postgres, NATS, Docker Compose, a private mesh. No Kubernetes until something
+          actually requires it. The interesting parts of Eclipse should be the research and the
+          governance, not the deployment.
+        </p>
+        <a class="btn" href="infrastructure.html" style="margin-top:22px">Full stack and topology</a>
+      </div>
+      <div class="grid g-4 rv">
+        <div class="panel panel-tight"><div class="stat-k">Core</div><div class="mono-note" style="color:var(--ink)">Python<br>FastAPI<br>Pydantic</div></div>
+        <div class="panel panel-tight"><div class="stat-k">Messaging</div><div class="mono-note" style="color:var(--ink)">NATS<br>JetStream<br>Temporal</div></div>
+        <div class="panel panel-tight"><div class="stat-k">Storage</div><div class="mono-note" style="color:var(--ink)">PostgreSQL<br>TimescaleDB<br>ClickHouse<br>Redis</div></div>
+        <div class="panel panel-tight"><div class="stat-k">Platform</div><div class="mono-note" style="color:var(--ink)">Docker<br>Vault<br>Tailscale<br>OpenTelemetry</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ 15 ROADMAP ═══════════════════════ -->
+  <section class="tap">
+    <span class="lamp" data-state="research"></span>
+    <p class="eyebrow"><span class="eyebrow-idx">15</span> <b>Roadmap</b></p>
+    <div class="split">
+      <div>
+        <h2 class="h-sec">Twelve phases, in order.</h2>
+        <p class="prose">
+          The order is not arbitrary. The registry and the bus come before any agent moves onto
+          them, and Security lands before Eclipse starts consuming the outside world.
+        </p>
+      </div>
+      <div class="road rv">
+        <div class="road-r" data-now="1"><span class="road-i">Phase 01</span><span class="road-n">Master Center foundation</span><span class="tag" data-s="active">Building</span></div>
+        <div class="road-r" data-now="1"><span class="road-i">Phase 02</span><span class="road-n">Event bus &amp; agent registry</span><span class="tag" data-s="active">Building</span></div>
+        <div class="road-r" data-now="1"><span class="road-i">Phase 03</span><span class="road-n">Scalper becomes the Alpha Agent</span><span class="tag" data-s="research">Next</span></div>
+        <div class="road-r" data-now="0"><span class="road-i">Phase 04</span><span class="road-n">Security Guardian</span><span class="tag" data-s="idle">Planned</span></div>
+        <div class="road-r" data-now="0"><span class="road-i">Phase 05</span><span class="road-n">Global Market Intelligence</span><span class="tag" data-s="idle">Planned</span></div>
+        <div class="road-r" data-now="0"><span class="road-i">Phase 06</span><span class="road-n">Continuous research engine</span><span class="tag" data-s="idle">Planned</span></div>
+        <div class="road-r" data-now="0"><span class="road-i">Phase 07</span><span class="road-n">Risk Governor</span><span class="tag" data-s="idle">Planned</span></div>
+        <div class="road-r" data-now="0"><span class="road-i">Phase 08</span><span class="road-n">Execution Gateway</span><span class="tag" data-s="idle">Planned</span></div>
+        <div class="road-r" data-now="0"><span class="road-i">Phase 09</span><span class="road-n">Organization-wide PR Guardian</span><span class="tag" data-s="idle">Planned</span></div>
+        <div class="road-r" data-now="0"><span class="road-i">Phase 10</span><span class="road-n">Observability</span><span class="tag" data-s="idle">Planned</span></div>
+        <div class="road-r" data-now="0"><span class="road-i">Phase 11</span><span class="road-n">Dynamic agent spawning</span><span class="tag" data-s="idle">Planned</span></div>
+        <div class="road-r" data-now="0"><span class="road-i">Phase 12</span><span class="road-n">Cross-market intelligence</span><span class="tag" data-s="idle">Planned</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ CLOSE ═══════════════════════ -->
+  <section class="tap">
+    <span class="lamp" data-state="system"></span>
+    <p class="eyebrow"><b>Eclipse is not a trading bot</b></p>
+    <h2 class="h-sec" style="max-width:26ch">A modular operating system for quantitative research, market intelligence and automated execution.</h2>
+    <p class="lede" style="max-width:70ch">
+      Today it is two developers and one alpha engine. The architecture is built so that becoming
+      dozens of agents, several research nodes and more than one venue does not require rewriting
+      any of it.
+    </p>
+    <div class="hero-cta" style="margin-top:8px">
+      <a class="btn btn-key" href="architecture.html">Read the architecture</a>
+      <a class="btn" href="research.html">Research programme</a>
+      <a class="btn" href="status.html">Master Center demo</a>
+    </div>
+  </section>
+</main>
+
+<footer class="ft">
+  <div>
+    <p class="ft-mark" translate="no">ECLIPSE</p>
+    <p class="ft-fine">
+      Agents propose. Research proves. Risk authorizes. Execution acts. Security controls.
+    </p>
+  </div>
+  <div>
+    <p class="ft-h">System</p>
+    <div class="ft-l">
+      <a href="architecture.html">Architecture</a>
+      <a href="agents.html">Agents</a>
+      <a href="infrastructure.html">Infrastructure</a>
+      <a href="status.html">Status</a>
+    </div>
+  </div>
+  <div>
+    <p class="ft-h">Research</p>
+    <div class="ft-l">
+      <a href="research.html">Programme</a>
+      <a href="research-e-der.html">E-DER</a>
+      <a href="changelog.html">Changelog</a>
+    </div>
+  </div>
+  <div>
+    <p class="ft-h">Governance</p>
+    <div class="ft-l">
+      <a href="security.html">Security architecture</a>
+      <a href="security.html#secrets">Secret management</a>
+      <a href="architecture.html#principles">Principles</a>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/eclipse.js"></script>
+</body>
+</html>
