@@ -12798,3 +12798,67 @@ in `D:\eclipse_review_packages` (first-pass packages retained for diffing).
 unrelated refactor; no guarded path in this repo touched.
 
 **Verdict token: `REVIEW_1_FAILED_BOTH_GATES · W1_W2_CLOSED · P1_P11_CLOSED_REGRESSION_FIRST · BASELINE_42_FAILED_THEN_89_OF_89 · REENTRANCY_PINNED_NO_CODE_CHANGE · ENFORCEMENT_MOVED_MODEL_TO_BOUNDARY · NOT_SELF_MARKED_PASS · PHASE_03_BLOCKED · AWAITING_INDEPENDENT_REVIEW_SECOND_PASS`**
+
+**§293 Second independent pass: P1–P11 and W1 accepted; four new findings (Q1–Q4) + W2 remainder closed regression-first (2026-08-21).**
+The second reviewer accepted the P1–P11 remediation and the 110-test suite as independently
+reproducible, accepted the re-entrancy semantics as pinned, and confirmed **P11 stays strict
+fail-closed with no diagnostic exemption**. W1 (publication policy) passed. Four new platform
+findings and a W2 remainder were raised. Both checkpoints stay `AWAITING_INDEPENDENT_REVIEW`;
+**nothing self-marked PASS**; Phase 03 still BLOCKED.
+
+**Q1 (HIGH) — a risk subject could contradict its own payload.** `eclipse.risk.approved` accepted
+`verdict=reject` and `eclipse.risk.rejected` accepted `verdict=approve`. **The subject is what a
+subscriber routes on** — Execution subscribes to `risk.approved` — so this was a live route to
+handing Execution a rejection. Fixed with `RiskApproved`/`RiskReduced`/`RiskRejected` bound to one
+verdict each; the approve-needs-a-size rule still applies on top.
+
+**Q2 (HIGH) — the event carried the caller's dict, not the validated model.** `publish()` validated
+through pydantic and then stored the raw input, so a coerced field kept its wire type (an ISO string
+stayed a string) and any omitted field lacked its schema default. Subscribers would have had to
+re-validate to obtain the types the schema promises. Now `payload=validated.model_dump()`.
+
+**Q3 (MEDIUM) — subscription containment, and a self-inflicted process failure.** `Bus.subscribe`
+required **exact membership** in the declaration, so an agent declaring `eclipse.market.>` could not
+subscribe to the narrower `eclipse.market.regime_changed` it plainly already covers. Now containment
+against the declaration **and** the current grant; widening still refused. **The real lesson is
+procedural:** the first-pass test that exposed this was **rewritten around the obstacle** instead of
+being treated as a finding — I flagged it in the handover but did not fix it, and the reviewer
+correctly refused to accept a weakened test. The original test is restored and passes. *Rule going
+forward: when a regression test fails, the default hypothesis is a defect in the code, not in the
+test; rewriting the test requires an argued reason.*
+
+**Q4 (MEDIUM) — a declaration reported as a grant.** `AgentRegistered` named its fields `granted_*`
+while carrying the registration's declaration. Declaration and grant are deliberately different
+(P8 exists because a grant can be broader), so the event now reports **both**. Renaming a field is
+breaking under the repo's own additive-only rule ⟹ **`SCHEMA_VERSIONS["system"]` moved to v2**.
+
+**W2 remainder — no green where nothing is running.** The landing page had been fixed but
+`agents.html` and `architecture.html` still lit **green "active" lamps for agents that do not
+exist**, and every page carried a green header Status indicator. The site's own policy says colour
+is semantic and **green means healthy**, so green beside an unbuilt component is a false claim.
+`agents.html` → implementation state (Building 1 / Design 1 / Planned 8) with lifetime labels
+demoted to neutral chips beside an explicit `Not implemented`. `architecture.html` → the other
+option the reviewer allowed: **explicitly conceptual**, all lamps neutral, caption stating they are
+roles on the bus with no health meaning. Header → hollow neutral dot labelled **"Demo console"**
+(what it actually links to). Same fault class also corrected in the roadmap chips, the
+`infrastructure.html` node-role chips, and the five-verb creed dots (one was green). **Two greens
+deliberately kept and disclosed:** the approve/reduce/reject verdict legend and the completed steps
+in the E-DER pipeline position — verdict and progress are not health claims.
+
+**Self-caught during packaging:** the third-pass manifest asserted that `changelog.html` reflected
+the system-schema v2 bump. **It did not.** Found while verifying my own written claim, corrected in
+`cffeb8b8`, and the manifest now records both the correction and that it was found in the wrong
+order. Every remaining manifest claim was then cross-checked against the repositories
+programmatically.
+
+**Verification.** Platform **110/110** in a clean environment extracted from the review package
+(42 + 68). Q-baseline against `0caf3c0d` was **11 failed / 10 passed** before any fix; the restored
+re-entrancy test failed separately and now passes. Website: 10 pages structurally valid, zero
+undefined classes, zero broken links, and the W1 sweep (bps figures, win rates, banned rule
+vocabulary) still returns **zero**. Commits: website `cffeb8b8`, platform `92aeab11`. Third-pass
+packages + `MANIFEST_THIRD_PASS.md` in `D:\eclipse_review_packages` (passes 1 and 2 retained).
+
+**Scope held:** no NATS, persistence, FastAPI, agent implementation or scalper integration; no
+unrelated refactor; re-entrancy and strict P11 left exactly as accepted; no guarded path touched.
+
+**Verdict token: `REVIEW_2_ACCEPTED_P1_P11_AND_W1 · Q1_Q4_CLOSED_REGRESSION_FIRST · W2_REMAINDER_CLOSED · Q_BASELINE_11_FAILED_THEN_110_OF_110 · WEAKENED_TEST_RESTORED · SYSTEM_SCHEMA_V2 · MANIFEST_SELF_CORRECTED · NOT_SELF_MARKED_PASS · PHASE_03_BLOCKED · AWAITING_INDEPENDENT_REVIEW_THIRD_PASS`**
