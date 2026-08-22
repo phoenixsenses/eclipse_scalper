@@ -13318,3 +13318,491 @@ platform code, frozen detection logic and ledger semantics untouched. No wiring,
 Execution, no NATS, no persistence.
 
 **Verdict token: `B1_B4_CLOSED_REGRESSION_FIRST · DEMONSTRATED_AGAINST_REVIEWED_COMMIT · EPOCH_REPLACES_STATIC_BOUNDARY_NO_PERSISTENCE · PRODUCER_IDENTITY_ENFORCED · MUTATION_BEFORE_ELIGIBILITY · REFUSE_NOT_FILTER · OWN_TEST_INCOHERENCE_CORRECTED · PROVENANCE_BASELINE_COMMITTED_BYTE_IDENTICAL · 55_OF_55 · NOT_WIRED · AWAITING_INDEPENDENT_REVIEW`**
+
+
+**§300 S38 STAGE-2 PRE-OUTCOME AMENDMENT A2/A3/A4 KAPANDI — final prereg DONDURULMAYA HAZIR, evaluator MÜHÜRLÜ (2026-08-22, Opus 5 [1M]).**
+
+**Durum: `READY_TO_FREEZE_STAGE2`.** Stage-2 ÇALIŞTIRILMADI; hiçbir getiri okunmadı/hesaplanmadı,
+hiçbir fiyat DEĞERİ herhangi bir S38 artefaktına girmedi (fiyat yalnız *bar var mı* kapsam sorusu
+olarak kullanıldı), 18-sembol donmuş rota ve forward ledger'lar dokunulmadı, hiçbir şey execution
+path'ine bağlanmadı.
+
+**Kimlikler.** contract_id `S38_STAGE2_FINAL_PREREGISTRATION_V1` · prereg sha256
+`c813f93eae7fcb0940e0b88fa253c62c3df06460dfd06c23f8fd404d009e92b8` · amendment
+`403884dd110d972231e0bc80b86bb6efee62eecfd2d451796bbffbfb4ba3be6c` · evaluator
+`7a6afb7d58e07f28cf9f1c9b8b8a5099e79bc3044fa68cd7c532ce1a265ca948` · evaluator seal (iç digest)
+`1209b8bf3a81d0351202f6bbe433dcfd1b03a1529c6ca30e87a3594071c6a91a` · Stage-1 mühür
+`2aef91b1…` **33/33 dosya byte-özdeş yeniden doğrulandı (drift YOK)**.
+
+**A2 — UFUK AİLESİ (kabul).** `60dk BİRİNCİL + 240dk EŞ-BİRİNCİL`, başka ufuk YOK. Ön-ilan edilen
+baskı-çürüme kuralı **BAŞARISIZ** oldu (fazla baskı 24 saatte hâlâ tepenin %22'si) ve bu böyle
+kaydedildi. 60dk = **ölçülen fazla-yoğunluk yarı-ömrü** (excess/peak 60dk'da tam 0.50);
+240dk = **yapısal olarak zaten devrede olan** E-DER sembol kilidi — getiriden SEÇİLMEDİ.
+1440dk dışarıda kalıyor: C1 kontrolü 24 saatlik ufukta bir UTC günü içinde yapısal olarak
+imkânsız (ölçülen uygunluk **%0.00**; 60dk %99.62, 240dk %96.25). Aile **3 hipotez × 2 ufuk = 6**.
+
+**A3 — BİRİNCİL KOL (kabul).** **Prospektif FORWARD kol birincil doğrulayıcı koldur.** Tarihsel
+fiyat-kapsamlı veri yalnız **`IMPLEMENTATION_SCREEN_NOT_EVIDENCE`** (futility/uygulama/betimleyici
+tarama): scorer'ın bar join'ini, kontrol oluşumunu ve kaba işaret/birim/off-by-one hatalarını
+doğrulayabilir; **H1/H2/H3'e katkı veremez, alfa kanıtı olarak raporlanamaz, hiçbir donmuş
+parametreyi etkileyemez.** Gerekçe: birincil örtüşmesiz H=60dk olaylarının yalnız **%25.1'i**
+(856/3 413; 71/463 sembol; 45/118 gün) tam 1-dk fiyat kapsamına sahip ve tarihsel MDE ~72 bps
+(çokluk sonrası ~89). **Bu amendment'ta yeni tarihsel fiyat verisi ALINMADI**; alınacaksa ayrıca
+gerekçelendirilip outcome'dan ÖNCE kayda geçmeli. Forward kol `data/forward_v2/kline_1m`'den
+beslenir (527 sembolün tamamı zaten kapsanıyor); 28.92 olay/gün ile N=10 000 ≈ **346 gün (11.4 ay)**,
+MDE ≈ **20.8 bps** (Holm sonrası ≈25.8).
+
+**A4 — EVALUATOR (kuruldu, doğrulandı, mühürlendi).**
+`tools/research_s38_stage2_evaluator_v1.py` — Stage-2 getirisini okumaya yetkili **TEK** kod.
+Operatörün listelediği her şey **modül sabiti**, komut satırı seçeneği DEĞİL: olay kimliği
+`S38V1:{symbol}:{bucket_index}` · ufuklar (60,240) · C1 eşleşmiş kontrol (kontrol ortalaması olayın
+kendi getirisini DIŞLAR) · `Δ_e → LS_d → θ` · **çıkarım birimi = GÜN** · 100 000 permütasyon
+(sembol-gün İÇİNDE etiket değişimi, seed 38202602/3/4) · Holm–Bonferroni α=0.05, aile 6 ·
+H3 **LONG** a priori + 10.0 bps round-trip · TRADIFI ayrı alt-grup (**alfa taşımaz**) ·
+N=10 000 veya 14 ay **tek-okuma**.
+**Mekanik korumalar:** `--read-outcome` bayrağı olmadan yalnız kuru yapısal kontrol; parametre
+kimlik guard'ı (drift'li header reddedilir); durdurma-koşulu guard'ı; **okuma makbuzu** yazıldıktan
+sonra ikinci çalıştırma reddedilir; getirinin işaretine/büyüklüğüne bağlı hiçbir dal yok.
+**A4 açıklaması (outcome öncesi, açıkça kayıtlı):** V1 H3 için two-way symbol+day demişti;
+evaluator **tüm aile için birimi GÜN'e sabitliyor** — tek tutarlı birim, ve bağlayıcı boyut zaten
+gün (S37 düz-ortalama deff'ini gün-baskın ölçtü). Muhafazakâr yönde bir sıkılaştırma.
+
+**Doğrulama: 24/24 test geçti — 12 fixture + 7 mutasyon + 5 guard/sabit testi.** Tasarımın dayandığı
+iki yapısal özellik doğrudan test edildi: olaylara VE kontrollere uygulanan ortak gün şoku ve
+sembol şoku `θ`'yı **<1e-8** değiştirmiyor. **7/7 mutant öldürüldü** (kontrol-ortalaması sızıntısı,
+olay-ağırlıklı θ, ölü permütasyon, Holm'suz düzeltme, maliyet düşürme, stratum karışması, ufuk
+karışması) — fixture takımının tespit gücü kanıtlandı, hayatta kalan mutant yok.
+**Doğrulama sırasında iki HARNESS kusuru bulundu ve düzeltildi** (evaluator değil): (1)
+`day_shock_cancels` — üreteç `day_shock=0` iken RNG'yi hiç çağırmıyordu, iki koşu farklı rastgele
+akış tüketiyordu; (2) `holm_stepdown` — beklenen değerler aritmetik olarak yanlış bir yorumu
+kodluyordu (Holm 2. eşiği 0.05/5=0.010 ve 0.008 ≤ 0.010 ⟹ o test REDDETMELİ). Her ikisinde de
+evaluator doğruydu.
+
+**Hiçbir Stage-1 parametresi değişmedi** (`p=0.01`, `n_prior>=50`, normalizasyon, shrinkage,
+gruplar, güncelleme, cold-start). Bilinen kusurlar **görünür bırakıldı**, ayar hedefi yapılmadı:
+%27 sembol 2× dışında, en kötü 4.0×, ~1.5× volatilite eğimi, üç stresli hafta 3.4×'e kadar,
+~50 birim cold-start tabanı.
+
+**Verdict token: `S38_STAGE2_READY_TO_FREEZE · A2_ADOPTED_60M_PRIMARY_240M_COPRIMARY_NO_OTHER · A3_FORWARD_ARM_PRIMARY_RETROSPECTIVE_IS_IMPLEMENTATION_SCREEN_NOT_EVIDENCE · NO_NEW_HISTORICAL_PRICE_ACQUIRED · A4_EVALUATOR_BUILT_FIXTURE_AND_MUTATION_PROVEN_24_OF_24 · 7_OF_7_MUTANTS_KILLED · TWO_HARNESS_DEFECTS_CORRECTED_EVALUATOR_WAS_RIGHT · INFERENCE_UNIT_DAY_WHOLE_FAMILY · READ_ONCE_MECHANICALLY_ENFORCED_RECEIPT_ABSENT · PREREG_SHA256_c813f93e · EVALUATOR_SHA256_7a6afb7d · STAGE1_SEAL_33_OF_33_BYTE_IDENTICAL · NOT_EXECUTED · 18_SYMBOL_ROUTE_UNTOUCHED · NO_PRICE_VALUE_READ · STAGE2_TRADING_OUTCOME_NOT_READ`**
+
+
+**§301 S40 BASINÇ-TEPKİ AYRIŞTIRMASI — AYRIŞMA YOK (`C`), ve KENDİ İÇİMDEN ÇIKAN BİR LOOKAHEAD YAKALANDI (2026-08-22, Opus 5 [1M]).**
+
+**Verdict: `C — NO_SEPARATION`.** Yeni discovery şeridi
+`reports/research/s40_pressure_response_decomposition_v1/` — S37'nin DONMUŞ 37 332 olay kimliği
+(86 sembol, 43 gün) discovery popülasyonu olarak kullanıldı. Prereg **fiyat sonucu okunmadan
+ÖNCE** donduruldu (`e83dac94`), koşu sonunda değişmediği doğrulandı. **S38'e DOKUNULMADI**
+(39/39 dosya bayt-aynı, teste bağlandı). **Gerçek emir YOK.**
+
+**Asıl bulgu ilk sonuç değil, ikinci sonuç.** İlk koşu H1'in TAM TERSİ yönde çarpıcı bir sonuç
+verdi: `b1 = +8.38 (t = 9.36)`, %97.2 gün-işaret tutarlılığı, LODO/LOSO'da sıfır işaret dönmesi,
+ve işareti çevrilmiş kol 10 bps sonrası pozitif. **Tek bir feature'ın eseriydi ve o feature'ı
+basınç bloğuna ben koydum:** S37'nin `duration_min`'i cluster'ın SON satırına kadar ölçülür,
+cluster ise ancak ≥15 dk boşlukta kapanır ⟹ olayların **%35.15**'inde o son satır anchor'dan
+SONRA (p99 = **75.5 dk** sonra). Prereg'de "anchor'a kadar cluster süresi" yazmıştım — **o tanım
+yanlıştı**, değişken +5m giriş sınırında bilinemez. Post-hoc mekanizma denetimi yakaladı:
+`PRESSURE_COMPONENT` ile `log1p(duration_min)` korelasyonu **0.82**, donmuş `SEV_D` ile yalnız
+−0.09; tek tek regresyonda **sadece** `duration_min` bir şey öngörüyor (t = 6.18), `SEV_D` düz
+(t = 0.40). O tek sütun çıkarılınca: `b1 = +0.75 (t = 0.59)`, ayrışma `t = 0.55`, incremental
+OOS R² **0.01745 → 0.00027**, keşif kolu net@10bps **+0.92 → −11.64 bps**. Sızıntılı koşu
+`S40_DECOMPOSITION_RESULTS_LEAKED_V1.json` olarak **kanıt olarak** saklandı — sonuç olarak değil.
+Yeni leakage testi (`10_every_feature_knowable_at_the_entry_boundary`) + regresyon testi kilitledi.
+
+**Düzeltilmiş sonuçlar (tamamı null).** Birincil tahminci gün-düzeyi Fama-MacBeth, DN
+market-neutral `[T+5, T+65]`, **df = 35**: H1 `b1 = +0.75 (t = 0.59)` — işaret bile ters;
+H2 `b2 = +1.76 (t = 0.99)`; H3a `b4 = −1.74 (t = −1.58)` ve H3b `b5 = −1.05 (t = −0.50)` — ikisi
+de **öngörülenin ters işaretinde**; ayrışma `b2 − b1 = +1.01 (t = 0.55)`. Gün-işaret tutarlılığı
+her katsayıda ~%50. 240m, 15m tepki penceresi ve dört getiri varyantının **hiçbirinde |t| = 2'ye
+ulaşan yok**. Bağımlılığa saygılı her kesitte null: iki-yönlü kümelenmiş OLS `t = 0.98`,
+(sembol×gün) içi demean `t = −0.11`, cascade-collapsed (2 894 gözlem) `t = −0.50`. **Naive
+event-level t = 2.27** — doğru olanın geçemediği barajı geçiyor, sadece karşı-örnek olarak
+raporlandı. LODO (36) `b1 ∈ [−0.01, +1.14]`, LOSO (85) `b1 ∈ [+0.12, +1.00]` — kırılgan bir
+pozitif değil, **kararlı ve iyi tanımlanmış bir sıfır**.
+
+**Daha keskin bir söz: basınç-açıklamalı bileşen neredeyse YOK.** Eşzamanlı piyasa durumu
+kontrol edildiğinde tüm basınç bloğunun immediate response'a kattığı OOS R² **0.00027**
+(0.2364 → 0.2366); bileşenin SD'si **0.98 bps**, 35 bps'lik bir tepkiye karşı. Hipotez
+*dinamik* aşamasında değil, ondan bir önceki aşamada düşüyor: tersine dönecek bir "geçici
+basınç yer değiştirmesi" pratikte oluşmuyor. Residual (SD 30.65) tepkinin neredeyse tamamını
+taşıyor ve 60m/240m'de hiçbir şey öngörmüyor. Renewal seyrek (olayların %79.1'inde `(T,T+5]`
+içinde aynı yönde SIFIR forced satır) ve hiçbir şeyi kapılamıyor.
+
+**Portföyler (eşikler prereg'de donmuş prior-p80, tek çeyreklik, karşılaştırma yok):**
+REVERSAL_ARM N=3 317 gross +3.51 bps (gün-dengeli t = 1.73) · CONTINUATION_ARM N=5 769 gross
+−1.70 bps. **10 bps kanonik maliyette ikisi de negatif** (−6.49 / −11.70). İkincil teşhisler
+(30 dk yol-sürekliliği, saat-fazı) yapısal; **PnL ile hiçbir faz seçilmedi, saat-fazı filtresi
+ÜRETİLMEDİ**. OI/funding teşhisi Step 0'da **kullanılamaz ilan edildi** (OI 86 sembolün 3'ünde
+ve pencere içinde başlıyor; funding 0 satır) — birincil çalışmayı bloklamadı. bookTicker/L2/
+microprice/OFI/aggTrade **hiç kullanılmadı** (kaynakta o tablolar yok).
+
+**S37 sonuç yüzeyi artık `BURNED_FOR_S40_CONFIRMATION`** — burn notice S40 dizininde
+(`S37_OUTCOME_SURFACE_BURN_NOTICE.md`); S37'nin mühürlü baytlarına dokunulmadı, 19/19 doğrulandı.
+S37'nin kendi `outcome_read_performed: false` kaydı hâlâ doğru (o, S37 şeridinin kendi davranışını
+anlatır). Bu popülasyon bundan sonra hiçbir basınç/tepki hipotezi için doğrulayıcı örneklem
+DEĞİL. Bu koşudan çıkan hiçbir şey aday/route/lead değil. 12 guard testi geçiyor.
+
+**Verdict token: `S40_NO_SEPARATION_C · PREREG_FROZEN_BEFORE_OUTCOME_e83dac94 · SELF_INFLICTED_LOOKAHEAD_FOUND_AND_REMOVED_duration_min_POST_ANCHOR_35_15_PCT · LEAKED_RUN_RETAINED_AS_EVIDENCE_NOT_RESULT · PRESSURE_BLOCK_INCREMENTAL_OOS_R2_0_00027 · H1_FAIL_WRONG_SIGN · H2_FAIL · H3_FAIL_BOTH_INTERACTIONS_WRONG_SIGN · SEPARATION_t_0_55 · NULL_UNDER_EVERY_DEPENDENCE_RESPECTING_ESTIMATOR · NAIVE_EVENT_t_2_27_REPORTED_ONLY_AS_FOIL · BOTH_ARMS_NEGATIVE_AT_10BPS · RAW_N_37332 · DAY_N_36 · EFFECTIVE_N_13997_5 · REVERSAL_ARM_N_3317 · CONTINUATION_ARM_N_5769 · S37_BURNED_FOR_S40_CONFIRMATION · S38_UNTOUCHED_39_OF_39_BYTE_IDENTICAL · S37_SEAL_19_OF_19_BYTE_IDENTICAL · NO_REAL_ORDERS · 12_GUARD_TESTS_PASS`**
+
+
+**§302 S40-B YÜKSEK-N MEKANİZMA KEŞİF BACKTEST'İ — 11 MEKANİZMA, HİÇBİRİ AYAKTA KALMADI (`C`); TEK "ANLAMLI" SONUÇ KENDİ ELİMLE GERİ ÇEKİLDİ (2026-08-22, Opus 5 [1M]).**
+
+**Verdict: `C — MECHANISTIC_STRUCTURE_EXISTS_BUT_NOT_YET_ECONOMIC_ALPHA`.** Yeni şerit
+`reports/research/s40_high_n_mechanism_discovery_v1/` (§301'in `s40_pressure_response_decomposition_v1`
+şeridinden AYRI; ikisi aynı gün, aynı popülasyon üzerinde koştu — bkz. CT-014). Pre-outcome
+mühür `634ee71a…4bce06` (19 artefakt), bağımsız doğrulama **25/25 `VALIDATION_PASS`**,
+mutasyon testleri **18/18** (sonuç okunmadan ÖNCE koşturuldu). **S38'e DOKUNULMADI · hiçbir
+forward ledger okunmadı · gerçek emir YOK · canlı runtime değiştirilmedi.**
+
+**Kurulum.** S37'nin donmuş 37 332 olayı (86 sembol, 43 gün, 2 802 sembol-gün, 17 265 cascade
+cluster) — S37 mührü 19/19 bayt-aynı, `outcome_read_performed=false` doğrulandı. Üç karar saati
+(A: `open[T+1]`, B: `open[T+6]`, C: `open[T+31]`), donmuş ufuk ailesi, açıktan-açığa
+(open-to-open), DN market-neutral birincil sonuç. **Birincil tahminci gün-içi kesitsel kısmi
+eğim, 43 güne agregat** — çıkarım birimi GÜN, asla 37 332 olay değil (S37 bunu sonuç okunmadan
+ölçmüştü).
+
+**Sonuç: 9 birincil testin hiçbiri bağımlılığa-duyarlı FWER'i geçmiyor.** Romano-Wolf düzeltilmiş
+en küçük p = **0.136** (M11). 108 hücrelik ikincil ızgarada BH-FDR min q = **0.238, 0.05 altında
+SIFIR hücre**. White Reality Check ve Hansen SPA sıfır benchmark'a karşı **p = 1.000**. Dokuz
+portföyün **hepsi** negatif takvim-günü Sharpe (−0.63 … −1.77 @10bps); çalışmadaki en iyi brüt
+kenar **+1.07 bps**, kanonik maliyet **10 bps** ⟹ cost/edge **9.35**. Brüt profit factor
+0.945–1.034, WR 0.490–0.503 — olay düzeyinde yazı-tura. Hiçbir mekanizmada monoton doz-tepki YOK.
+
+**TEK ANLAMLI SONUCU KENDİM GERİ ÇEKTİM.** M7 (clock × basınç) `DAY_POSITIVE_SHARE = 1.0000`,
+t = +6.03, RW p = 0.0000 ile FWER'i geçen TEK üyeydi. Donmuş istatistik *in-sample* incremental
+R² idi: OLS'e 4 sütun eklemek in-sample R²'yi koşulsuz yükseltir. Teşhis kesin: **aynı istatistik
+SAF GÜRÜLTÜ sonucunda da aynı güçle reddediyor** (gain +0.00556, gün-pozitif payı 1.000, t = +5.82);
+dürüst *out-of-sample* versiyonda ise **−0.01251, gün-pozitif payı 0.256, t = −2.83** — clock
+etkileşimleri OOS'ta ZARARLI. `M7 = INVALID_BY_CONSTRUCTION`, aileden çıkarıldı; çıkarılınca
+çalışmanın tek reddi kalmıyor. Her iki aile (M7'li ve M7'siz) raporlandı.
+
+**Bu çalışmada üç ayrı ARTEFAKT yakalandı — üçü de "bulgu" gibi görünüyordu.**
+(1) M7 dejenerasyonu (yukarıda). (2) **Eşleştirilmiş kontrol kolu kendi dışlama kuralıyla
+konfound:** event−control = +12.81 bps, t = 11.66, p = 0.000 görünüyordu; forced-SELL satırları
+fiyat DÜŞERKEN gelir, ±60 dk temiz pencere şartı tam da fiyatın YÜKSELDİĞİ dönemleri seçiyor
+(kontrol kolunun yerleşik sürüklenmesi DN −16.07 bps/saat). `NOT_INFORMATIVE_AS_A_COUNTERFACTUAL`
+— §191'deki `mechanism_store is_event=0` kirli-kontrol kusurunun aynısı; S37 constructor'ından
+sorgulanmadan miras alındığı için tekrarladı. (3) **Arm D'nin +28 bps'i pencere-örtüşmesi
+artefaktı:** D `[T+1,T+31]` üzerinde TANIMLI, `[T+1,T+60]` ile ölçülünce kendi tanımını geri
+okuyor (+28.25, t = +24.82); Clock-C girişiyle (`C_31→60`, koşullama penceresinden STRICTLY sonra)
+**−2.01 (t = −2.90)**. **30 bps'lik salınım.** Arm E: −10.13 → −0.68 (p = 0.408).
+
+**ASIL BULGU — basınç olayının tepkisi neredeyse TAMAMEN SİSTEMATİK.** Sembolün KENDİ 60 dk
+tepkisi **−1.47 bps, t = −0.81, p = 0.43** (sıfırdan ayırt edilemez). Market-neutral tepki
+**−3.32 bps, t = −4.17** ve TAM olarak ayrışıyor: `−3.322 = −1.470 (kendi hareketi) − 1.852
+(beta 1.52 × piyasa eş-hareketi +1.404 bps)`. Nötralizasyon iyi kalibre (artığın benchmark'a
+betası yalnız +0.037). Yani: piyasa basınçla BİRLİKTE hareket ediyor, semboller yüksek betalı,
+ve "market-neutral geri dönüş" gibi görünen şey **sembolün betasının ima ettiği devamı
+getirememesi**. Ticaret edilecek sembole-özgü devam ya da dönüş YOK. **M6'nın öngörülenin TERSİ
+işaretle dönmesinin sebebi bu** — ödüllendirilecek idiosenkratik bileşen kalmamış.
+Varlık sınıfı: CRYPTO −4.41 (t −4.30) vs RWA_TOKENIZED −0.38 (t −0.12), ort. beta 1.72 vs 0.70.
+
+**M11 (multiscale) — tek önemsiz-olmayan ilişki, yine de bulgu DEĞİL.** +1.93 bps/SD, rank IC
++0.020, IC-IR 0.388, doz farkı +4.03 bps; `BROADLY_STABLE`, latency-dayanıklı (+1 dk 0.95, +2 dk
+0.86), parametre-kararlı, görülmemiş sembole transfer ediyor (+2.31 vs +1.46), permütasyon
+null'ının 1000/1000 üstünde. **Dört bağımsız sebeple düşüyor:** (a) işaret ÖNGÖRÜLENİN TERSİ
+(pred −1, gözlenen +1.93) ⟹ §77 `OPPOSITE_SIGN`, geriye dönük zafer değil gelecek hipotezi;
+(b) FWER'i geçmiyor (RW p = 0.136 — permütasyon plasebosu 1.000 diyor ama günler-arası
+değişkenliği yok sayıyor; gün-kümelenmiş SE naive'in **2.45×**'i ve doğru olan o);
+(c) 240m'de işaret **DÖNÜYOR** (−1.94, p = 0.41); (d) ekonomik olarak ölü (4.03 bps vs 20 bps
+long-short bariyeri) ve çalışmanın EN KÖTÜ Sharpe'ı (−1.77). RWA'da işaret ters (−1.13).
+
+**Bağımlılık şişmesi ölçüldü ve gerekliydi:** gün-kümelenmiş SE / naive SE = **1.0× … 2.45×**
+(M11 2.45×, M10 2.22×, M5 2.08×). Olay-N çıkarımı tam da en ilginç görünen mekanizmalarda aşırı
+güvenli olurdu. **MCS: 9 adayın 8'i üye** — veri sekizini birbirinden ayıramıyor; tek elenen M11
+ve o da EN KÖTÜ olduğu için; §42 gereği kazanan İLAN EDİLMEDİ. **PBO = 0.0 ama
+`COMPUTED_BUT_NOT_INFORMATIVE`** (her konfigürasyon negatif Sharpe; sıralamayı alfa değil
+neredeyse deterministik maliyet/devir yapısı sürüyor — PBO=0'ı güven verici diye okumak yanlış
+okuma olur). **Sepet değeri YOK:** M1 tabanına eklenen her mekanizma Sharpe'ı DÜŞÜRÜYOR
+(Δ −0.02 … −0.74). **Beta ticareti değil:** portföy R² 0.014–0.149, net yönsel maruziyet tam 0
+(7 432 long / 7 432 short).
+
+**Kapsama kapıları (sonuç okunmadan ÖNCE ilan edildi):** **M8 `NOT_IDENTIFIABLE`** (OI 86
+sembolün 3'ünde = %3.5, 43 günün 21.2'sinde); **M9 `NOT_IDENTIFIABLE`** (pencere içinde hiçbir
+popülasyon sembolü için SIFIR funding satırı) ⟹ `FUNDING_CARRY = NOT_IDENTIFIABLE`, funding
+UYDURULMADI, `TOTAL_COST = TRADING_FEE_COST` bu sınırlama AÇIKÇA yazılarak. **Kapasite
+`CAPACITY_NOT_IDENTIFIABLE`** (bu evren için defter/derinlik/slipaj verisi yok).
+
+**Sonuç okunmadan önce kaydedilen yapısal olgular.** 86 sembolün **34'ü tokenize gerçek-dünya
+varlığı** (ABD hisseleri, endeks ETF'leri, metaller, enerji), 52'si kripto — ticker semantiğiyle
+sınıflandı, hiçbir veri istatistiğiyle değil. Kline'lar boşluksuz: gözlemlenemezlik **`trades=0`
+düz bar** olarak görünür, eksik satır olarak DEĞİL ⟹ düz barı ticarete açık fiyat saymak sahte
+giriş/çıkış üretirdi; tradeability kapısıyla gözlemlenebilirlik her hücrede %99.70–99.83.
+**Brief'in M6 etiketleri bu veride dejenere:** `BREADTH_15` medyanı 30, `share(breadth ≤ 1) =
+0.0000`, `share(breadth ≥ 5) = 0.9991` — bu evrende "yalnız bir sembolde forced-sell olayı"
+pratikte YOK; etiketler sonuç okunmadan girdi-terzillerine göre yeniden tanımlandı (≤23/24–39/≥40).
+
+**Kaynak profili (canary + tam koşu):** tam panel **25.9 s, tepe RSS 2.32 GiB**; tek akışlı
+kline geçişi + tek basınç düzlemi geçişi + tek O(S·T log S) LOO medyan + olay başına O(1)
+prefix-stat sorgu; pozisyon zaman çizelgesi fark-dizileriyle O(N + S·T). Tekrarlı tam-tablo
+taraması / olay-başına tarih yeniden taraması / sınırsız geçici DB / devasa JSON staging YOK.
+
+**Lineage düzeltmesi (rapor §1b).** Pre-outcome sözleşmenin §0a'sı kardeş şeridi "donmuş, hiç
+koşturulmamış" sayıyordu ve bu koşunun onu tali hasarla yakacağını ilan ediyordu — **YANLIŞTI**:
+o şerit §301 olarak tamamlandı, S37 bu çalışma sonuçları açmadan ÖNCE zaten
+`BURNED_FOR_S40_CONFIRMATION` idi. **Mühürlü sözleşme DÜZELTİLMEDİ** (mühürlü artefakt sonuç
+okunduktan sonra yeniden yazılmaz); düzeltme raporda ve burada. İki yönde önemli: (a) bu
+popülasyon üzerindeki gerçek çokluk her iki şeridin tek başına raporladığından YÜKSEK;
+(b) §301 **tamamen farklı bir yolla aynı verdict harfine (C) vardı** — basınç bloğunun
+incremental OOS R²'si **0.00027**, bileşen SD'si 0.98 bps — ki bu, bu çalışmanın "tepki
+sistematik, geriye sembole-özgü bir şey kalmıyor" bulgusunun öteki yüzü. İki bağımsız tasarım,
+iki bağımsız tahminci, tek sonuç.
+
+**§301'in yakaladığı sızıntı BU çalışmayı ETKİLEMİYOR — varsayılmadı, DOĞRULANDI.** S37'nin
+`duration_min` / `q_total` / `rows_total` sütunları cluster'ın SON satırına kadar ölçülür ve
+olayların %35.15'inde o satır anchor'dan SONRADIR (p99 = 75.5 dk). Bu şerit üçünü de
+**KULLANMIYOR**: panelde yoklar ve hiçbir analiz betiği onlara referans vermiyor (AST kontrolü).
+Kullanılan basınç girdileri `q_formation` ve `SEV_D`, ikisi de yalnız `[cluster_start, anchor]`.
+Özellik yeni **eklemeli** guard süitiyle kilitlendi: `tests/test_s40_hnmd_postanchor_columns.py`
+(5 test; non-vacuity kontrolü + `q_formation ≤ q_total` prefix kontrolü dahil) — **yeni dosya**,
+hiçbir mühürlü artefakt değiştirilmedi.
+
+**Sonuç okunduktan sonra tek dosya düzenlendi** ve gizlenmedi: `research_s40_hnmd_validator_v1.py`
+(check 13 hatalıydı — kendi yasak-token listesine ve `"s38_paths_touched": False` gibi NEGATİF
+iddialara takılıyordu; AST tabanlı, yalnız gerçek yol-literal'lerini işaretleyen bir kontrolle
+değiştirildi ve sentetik `reports/shadow/echo_forward_ledger.jsonl` literal'iyle non-vacuous
+olduğu kanıtlandı). Her iki hash `S40_POSTOUTCOME_AMENDMENT_SEAL_V1.json`'da; **tahmin yolundaki
+18 artefaktın tamamı bayt-aynı** (`estimation_path_hashes_intact` ayrı ve katı kontrol olarak
+eklendi). Validator hiçbir tahminciye dokunmaz, hiçbir sayıyı değiştirmez.
+
+**Güç.** Gün-içi kesitsel tahminci için tespit edilebilir net kenar bu örneklemde ≈ **9.4 bps**;
+2× takvimde ≈ 6.6, 3× takvimde ≈ 5.4. Gözlenen en büyük çeyreklik farkı **4.03 bps**. **Takvimi
+üçe katlamak bile en iyi gözlenen etkiyi kendi tespit eşiğinin üstüne çıkarmaz**, 20 bps maliyet
+bariyerinin ise çok altında kalır. Aynı pencereye daha çok olay eklemek hiçbir şey satın almıyor
+— yalnız takvim uzunluğu alır, o da yetmez.
+
+**Sıradaki şerit önerileri (KURULMADI, yalnız önerildi):** LANE-1 `S41_SYSTEMATIC_DOMINANCE_FORWARD_V1`,
+LANE-2 `S41_MULTISCALE_SIGN_REPLICATION_V1` (N tüketir, ekonomisi zaten ölü — yalnız işaret
+bilimsel olarak isteniyorsa), **LANE-3 `S41_POSITIONING_COVERAGE_REPAIR_V1` = TAVSİYE EDİLEN**
+(hipotez tüketmeyen VERİ şeridi; OI+funding kapsamasını onarır, M8/M9'u ~6 ayda test edilebilir
+kılar, paydayı büyütür — CLAUDE.md'nin "N tüketmeyen iş sınıfı (d)" kuralı).
+
+**Bu koşudan çıkan hiçbir şey aday/route/lead DEĞİL.** S37 yüzeyi `BURNED_FOR_CONFIRMATION`
+olarak kalır. 23 guard testi geçiyor (18 mutasyon + 5 post-anchor). Final artefakt mührü
+`S40_FINAL_ARTIFACT_SEAL_V1.json`.
+
+**Verdict token: `S40B_C_MECHANISTIC_STRUCTURE_NOT_ECONOMIC_ALPHA · PREOUTCOME_SEAL_634ee71a · VALIDATION_PASS_25_OF_25 · MUTATIONS_18_OF_18_BEFORE_OUTCOME · POSTANCHOR_GUARD_5_OF_5 · ELEVEN_MECHANISMS_ZERO_SURVIVE_FWER · MIN_ROMANO_WOLF_P_0_136 · SECONDARY_BH_MIN_Q_0_238_ZERO_CELLS · SPA_P_1_000 · REALITY_CHECK_P_1_000 · M7_WITHDRAWN_INVALID_BY_CONSTRUCTION_REJECTS_ON_PURE_NOISE · M7_WAS_THE_ONLY_REJECTION · M11_OPPOSITE_SIGN_FAILS_FWER_SIGN_FLIPS_AT_240M · CONTROL_ARM_CONFOUNDED_BY_ITS_OWN_EXCLUSION_RULE · ARM_D_PLUS_28BPS_WAS_WINDOW_OVERLAP_CLEAN_MINUS_2_01 · RESPONSE_IS_ENTIRELY_SYSTEMATIC_OWN_MOVE_t_MINUS_0_81 · DECOMPOSITION_MINUS_3_322_EQUALS_MINUS_1_470_MINUS_1_852 · BEST_GROSS_EDGE_1_07BPS_VS_10BPS_COST · ALL_NINE_SHARPES_NEGATIVE · MCS_8_OF_9_NO_WINNER_DECLARED · PBO_0_0_NOT_INFORMATIVE · M8_NOT_IDENTIFIABLE · M9_NOT_IDENTIFIABLE · FUNDING_NEVER_IMPUTED · CAPACITY_NOT_IDENTIFIABLE · RAW_N_37332 · DAY_N_43 · SYMBOL_N_86_52CRYPTO_34RWA · CASCADE_CLUSTER_N_17265 · EFFECTIVE_N_43_DAYS · EFFECTIVE_TRIAL_N_4_045 · DSR_TRIAL_COUNT_476 · DEPENDENCE_INFLATION_1_0_TO_2_45X · S37_ALREADY_BURNED_BY_S301_LINEAGE_CORRECTED_IN_REPORT · S301_INDEPENDENTLY_REACHED_SAME_VERDICT_C · S301_LOOKAHEAD_COLUMNS_VERIFIED_UNUSED_HERE · ONE_POSTOUTCOME_FILE_EDIT_DECLARED_VALIDATOR_ONLY · ESTIMATION_PATH_18_OF_18_BYTE_IDENTICAL · S38_UNTOUCHED · FORWARD_LEDGERS_UNREAD · NO_REAL_ORDERS · NO_RUNTIME_MODIFIED`**
+
+
+**§303 S44 CONTROL EPİZOT & GATE ATIFI — CONTROL'ÜN KENDİ EDGE'İ EPİZOT ÇÖKÜŞÜNDE ÖLÜYOR; AYAKTA KALAN TEK ŞEY EŞLEŞTİRİLMİŞ `echo−control` (2026-08-22, Opus 5 [1M]).**
+
+**Verdict: `B — CONTROL_IS_USEFUL_EVENT_GENERATOR_AND_ONE_OR_MORE_GATES_ADD_VALUE`.**
+Şerit `reports/research/s44_control_episode_attribution_v1/`, mühür `6e173abc`. Sınıf:
+**DISCOVERY, yanmış yüzeylerde** — hiçbiri confirmatory değil. **Exit araması YAPILMADI**
+(hiçbir TP/SL/trailing/dakika ızgarası). **DOKUNULMADI:** S38, E-DER forward, A2/V3 forward,
+canlı Control runner. Gerçek emir YOK. Mühürler CT-015 ile operatör tarafından kaldırılmıştı.
+
+**İKİ AYRI "CONTROL" VAR, KARIŞTIRILMAMALI.** **S1** = `hold_horizon_forward_ledger`:
+**tek enstrüman (ETHUSDT**, `mark_prices` ile doğrulandı — ledger'da symbol alanı YOK),
+188 anchor, ufuklar 2/4/6/12/24/48h, kollar tek anchor akışı üzerinde BAYRAK
+(`qualified_echo` 26, `qualified_hour17` 35, ikisi 6, residual 133) ⟹ doğal olarak eşleşmeli.
+**S2** = `s34_echo_multilane_forward`: **31 sembol**, 99 farklı `anchor_identity`, 142 bacak,
+kollar A 5 · **B (Operational Control) 89** · C 29 · D 17 · E 2 — ve **iç içe DEĞİL**
+(C ve D, B olmadan da oluşuyor) ⟹ hiyerarşi zorlanmadı, Jaccard matrisi raporlandı.
+
+**Epizot kuralı sonuçlar hesaplanmadan ÖNCE donduruldu.** PRIMARY `EP_HOLD(H)`: aynı
+enstrümanda `[t, t+H]` tutuş pencereleri örtüşen anchor'lar tek epizot (bağlı bileşenler).
+Seçim gerekçesi: birden çok anchor'ın tek piyasa hareketini örneklemesine yol açan MEKANİZMA
+tam olarak budur. Duyarlılık ailesi `EP_30M` 146 · `EP_60M` 118 · `EP_120M` 87 · `EP_DAY` 31.
+Primary sonuca bakılarak yeniden seçilmedi.
+
+**DUPLİKASYON UFUKLA BİRLİKTE PATLIYOR (S1).** EPISODE_N / şişme: 2h **87 / 2.16** · 4h 54 / 3.48
+· **6h 36 / 5.22** · 12h 16 / 11.75 · **24h 6 / 31.33** · **48h 2 / 94.00** (bir epizotta en çok
+135 anchor). Parmak izleri: `SAME_PEAK_TIMESTAMP_SHARE` **0.516** (en büyük ortak-tepe grubu 17),
+`SAME_FINAL_GIVEBACK_SHARE` **0.846** (55 anchor tek bir give-back değerini paylaşıyor).
+**§302'de ve S42'de raporlanan 48h hücresi (N=10, +69.8, %80 WR) İKİ bağımsız epizota,
+24h hücresi ALTI epizota dayanıyor ⟹ bu iki hücre bundan sonra HİÇ ALINTILANMAYACAK.**
+**S2 tam tersi:** 99 anchor → 92 epizot, şişme **1.076** — duplikasyonu yenen şey ufuk değil,
+**sembol genişliği**.
+
+**CONTROL'ÜN KENDİ EDGE'İ ÇÖKÜYOR.** RAW→EPISODE (total, p): 6h **+6.360 (p=0.008) → +342
+(p=0.826)** · 12h +7.398 (0.002) → +641 (0.540) · 24h +9.399 (0.006) → +902 (0.533) ·
+48h −3.488 (0.035) → tek epizot. **Altı ufkun DÖRDÜ `SHARED_PATH_DUPLICATION`.** 6h'te görünen
+PnL'in **%95'i tek yolun tekrar sayılmasıymış** (PnL oranı 18.6×). Hiçbir ufukta epizot-düzeyi
+p 0.53'ün altına inmiyor.
+
+**BETA AYRIŞTIRMASI (ETH-on-BTC, kesin-önceki 7g beta).** Medyan **β = 1.2**, stabil. Ama
+sistematik pay ufuktan ufuğa **işaret değiştiriyor** (+1.20 / +0.84 / −1.43 / −0.13 / +0.77)
+çünkü epizot ortalamalarının kendisi gürültü. **Hiçbir ufukta residual edge yok** (tüm p ≥ 0.30).
+`SYSTEMATIC_BETA_SHARE` bu yüzden bir sayı olarak değil, **epizot düzeyinde
+NOT_IDENTIFIABLE** olarak raporlanır.
+
+**★ AYAKTA KALAN TEK SONUÇ: AYNI EPİZOT İÇİNDE `echo − control`.** Eşleştirme ortak piyasa
+yolunu iptal ediyor (iki kol da AYNI hareketi biniyor), geriye Echo'nun ZAMANLAMASININ kattığı
+şey kalıyor. 2h **+80.5, %90 pozitif, p=0.0081** (N=10) · **6h +66.2, %91 pozitif, p=0.0027,
+CI95 [+37.0, +98.3]** (N=11) · 12h **+88.4, %100 pozitif, p=0.0081** (N=8) · 4h +47.9 (p=0.17) ·
+24h +50.1 (p=0.31). **8 karşılaştırmalık birincil ailede Holm sonrası tek ayakta kalan
+`echo−control @6h`, Holm p = 0.0216.** Bu, §302'nin "Control'ün kendi edge'i yok" bulgusuyla
+ÇELİŞMİYOR: Control'ün *tek başına* edge'i duplikasyon, Echo'nun *aynı epizot içindeki artımı*
+değil.
+
+**C VE D — İKİSİ DE BEKLENENİN TERSİ (S2).** **C, B ile BİREBİR AYNI:** aynı anchor'da fark
+tam **0.0**, CI **[0.0, 0.0]**, p=1.000 (n=21) ⟹ C hiçbir şey eklemiyor, aynı trade'in başka
+etiketi (Jaccard C–D 0.586, B–C 0.216). **D, Control'den ANLAMLI ÖLÇÜDE KÖTÜ:** aynı anchor'da
+**−52.5 bps, 11/11 negatif, p=0.0008**; epizotta −36.7, p=0.0083. **S41'de bulunan "D'nin daha
+iyi yol geometrisi" (MFE/|MAE| 1.00, capture 0.68, 26 dk tepe platosu — B'de 6 dk) getiriye
+DÖNÜŞMÜYOR**; +31dk giriş gecikmesi geometrinin kazandırdığından fazlasını götürüyor.
+**Daha iyi şekilli yol ≠ daha iyi sonuç** — bu, exit tasarımına girmeden önce bilinmesi gereken
+bir olgu. A (n=3/5) ve E (n=2) analiz edilemeyecek kadar küçük.
+
+**GATE DEĞERİ vs N MALİYETİ (epizot düzeyi, tanımlar DEĞİŞTİRİLMEDİ).** ECHO@6h: taban 35 epizot
+→ 11 (tutma %31), taban μ +9.8 → pass μ **+42.0**, fail μ −5.0, **EDGE_GAIN_PER_EVENT_LOST 1.34**.
+HOUR17@6h: → 15 (%43), pass μ +23.3, gain/lost 0.68. **Echo, hour17'nin iki katı verim satın
+alıyor.** AMA eşleşmemiş `pass_boot` p'leri 0.77/0.85 — **N=11'de eşleşmemiş gating güçsüz;
+sinyal yalnızca EŞLEŞTİRİLMİŞ tasarımda görünüyor.** 24h'te iki gate de **boş**: altı epizodun
+hepsi her iki kolu da içeriyor.
+
+**E-DER N-KILLER ATIFI** (forward yüzeylerinde E-DER bayrağı YOK, multilane E n=2 ⟹ donmuş
+yanmış tarihsel AFRF tanımından, temiz Clock-C `[T+31,T+60]` DN market-neutral, gün-kümelenmiş):
+taban 37.332 → −1.49 bps (t −2.85, p 0.007); `high_severity` (SEV_D ≥ prior p85) **5.278,
+tutma %14.1**, −1.77 (p 0.302); AFRF üçlü konjonksiyon **2.589, tutma %6.9**, −1.48 (p 0.380).
+S37 donmuş sayıları (41.423 taban): continued_pressure 14.393 · high_severity 5.278 ·
+weak_response 21.278. **`high_severity` EN BÜYÜK N KATİLİ ve HİÇBİR ayrışma satın almıyor** —
+ortalama tabanla istatistiksel olarak aynı, ama N kaybı anlamlılığı yok ediyor.
+`EDER_MOST_INFORMATIVE_GATE = NONE IDENTIFIED`.
+
+**EPİZOT ORANI.** Epizot içeren 23 takvim günü · **Control 1.52 bağımsız epizot/gün @6h** ·
+Echo 0.48/gün · S2 92 epizot / 31 sembol. **S1 TEK ENSTRÜMAN** — bu oranlar bir evrene
+genellenemez.
+
+**Bağlayıcı kayıt:** ayakta kalan sonuç **tek enstrümanda, 23 günde, 11 ortak epizot**, ve
+mühür ilk sequential boundary'sine (N=40) varmadan CT-015 ile açılmıştı. Tasarımı alışılmadık
+derecede temiz bir **HİPOTEZ**, kanıt değil; confirmatory olması için **yeni bir N=0 sınırı**
+gerekiyor. Geliştirme notları: `docs/research/EPISODE_AND_PATH_QUALITY_DEVELOPMENT_NOTES_V1.md`.
+
+**Verdict token: `S44_B_CONTROL_USEFUL_GENERATOR_ECHO_ADDS_VALUE · SEAL_6e173abc · TWO_SURFACES_NEVER_CONFLATED · S1_ETHUSDT_SINGLE_INSTRUMENT_188_ANCHORS · S2_31_SYMBOLS_99_ANCHORS_92_EPISODES · EPISODE_RULE_EP_HOLD_H_FROZEN_BEFORE_OUTCOMES · DUPLICATION_2_16_AT_2H_TO_94_00_AT_48H · SAME_PEAK_TS_SHARE_0_516 · SAME_FINAL_GIVEBACK_SHARE_0_846 · CONTROL_6H_RAW_p_0_008_TO_EPISODE_p_0_826 · 95PCT_OF_CONTROL_PNL_WAS_SHARED_PATH · FOUR_OF_SIX_HORIZONS_SHARED_PATH_DUPLICATION · 24H_SIX_EPISODES_48H_TWO_EPISODES_NEVER_QUOTE_AGAIN · ECHO_MINUS_CONTROL_6H_PLUS_66_2_BPS_11_EPISODES_91PCT_POSITIVE_perm_0_0027_HOLM_0_0216 · ECHO_12H_100PCT_POSITIVE · C_IDENTICAL_TO_B_DIFF_EXACTLY_ZERO_CI_0_0 · D_WORSE_THAN_CONTROL_MINUS_52_5_ELEVEN_OF_ELEVEN_p_0_0008 · D_BETTER_GEOMETRY_DID_NOT_SURVIVE · ECHO_GAIN_PER_EVENT_LOST_1_34_VS_HOUR17_0_68 · UNPAIRED_GATING_POWERLESS_AT_N11 · EDER_HIGH_SEVERITY_LARGEST_N_KILLER_14_1PCT_RETENTION_NO_SEPARATION · EDER_MOST_INFORMATIVE_GATE_NONE · BETA_ETH_ON_BTC_1_2_SYSTEMATIC_SHARE_NOT_IDENTIFIABLE · RESIDUAL_p_GE_0_30_ALL_HORIZONS · CONTROL_1_52_EPISODES_PER_DAY_ONE_INSTRUMENT · BREADTH_NOT_HORIZON_DEFEATS_DUPLICATION · NO_EXIT_SEARCH · NO_NEW_FORWARD_OUTCOME_READ · S38_UNTOUCHED · NO_REAL_ORDERS`**
+
+
+**§304 S45 PHASE 0 — ve §303'ÜN MANŞETİNİN DÜZELTİLMESİ: `echo−control @6h` YENİDEN ÜRETİLMİYOR (2026-08-22, Opus 5 [1M]).**
+
+**Bu bölüm §303'ü DÜZELTİR.** S45 tam çalışması yerine önce ucuz bir Phase 0 ön-koşusu yapıldı
+(`reports/research/s45_phase0_feasibility_v1/`, 16.2 s, salt-okunur, emir yok). İlk iş S44'ün
+manşetini aynı kodla yeniden üretmekti — **üretilemedi.**
+
+**§303'te kayıtlı: eşleştirilmiş `echo − control @6h` = +66.15 bps, 11 epizot, %91 pozitif,
+perm p 0.0027, Holm 0.0216 — 8 testlik ailede ayakta kalan TEK üye. 46 dakika sonra AYNI KOD:
++39.87 bps, perm p 0.2177.** Hiçbir şey değiştirilmedi.
+
+**Sebep: `hold_horizon_forward_ledger` CANLI ve oturum sırasında büyüdü.** S44 anında OPEN 188 /
+skorlanmış 6h RESOLVE 171 / ENV 237.065; şimdi OPEN 189 / **172** / 237.565. **Tek bir ek
+skorlanmış 6 saatlik gözlem** geldi ve 35 anchor + 31 control bacağı taşıyan canlı ETH rallisine
+(epizot 35) düştü; o epizodun eşleştirilmiş farkını **−215.1**'e taşıdı ve aile ortalamasını
++66.15 → +39.87 yaptı.
+
+**Leave-one-episode-out: sonuç hiçbir zaman kararlı değildi.** −215 epizodu düşülünce +65.3
+(p=0.0057); tam örneklemde +39.9 (p=0.2177); LOO perm-p aralığı **[0.0057, 0.3905]**. Ortalama
+her durumda pozitif kalıyor (+28.4 … +65.3) — **yön kararlı** — ama **anlamlılığı tek bir epizot
+taşıyor.** S44, o epizodun control bacağı ters gözlemi biriktirmeden ÖNCE koşmuştu.
+
+**Bu bir S44 implementasyon hatası DEĞİL** — kod doğru ve temiz yeniden koşuyor. n=11 ve
+epizot-başı sd 60–100 bps'nin anlamı tam olarak budur. Phase 0 bunu bağımsız olarak önceden de
+söyledi: **bu N'de MDE = 84.85 bps**, iddia edilen etki 40–66 bps ⟹ **çalışmanın kendi tespit
+tabanının ALTINDA**. Bir sonucun kendi MDE'sinin altında olması, tam da "tek gözlemle buharlaşır"
+demektir ve gerçek zamanlı olarak buharlaştığı gözlendi.
+
+**§303'ün verdict token'ındaki `ECHO_MINUS_CONTROL_6H_PLUS_66_2_BPS_11_EPISODES_91PCT_POSITIVE_perm_0_0027_HOLM_0_0216`
+bileşeni GEÇERSİZDİR.** Doğrusu: `+39.87 bps, n=11, perm p 0.2177, LOO p aralığı [0.0057, 0.3905],
+anlamlılık tek epizoda bağımlı`. §303'ün verdict harfi (**B**) de bu düzeltmeyle birlikte
+**savunulamaz** hale gelir — Holm'u geçen tek üye kalmadığı için doğru harf **C —
+CONTROL_IS_USEFUL_EVENT_GENERATOR_BUT_EXISTING_GATES_DO_NOT_SEPARATE_EDGE**'dir. §303'ün geri
+kalanı (duplikasyon merdiveni, epizot çöküşü, C=B özdeşliği, D'nin 11/11 negatifliği, E-DER
+N-killer sıralaması, beta ayrıştırması) **DEĞİŞMEDEN GEÇERLİ** — hiçbiri bu tek gözleme bağlı değil.
+
+**Phase 0'ın kendi bulguları.** **0.1 Çözünürlük sayımı:** 128 epizodun **36'sı TICK_QUALITY**
+(33'ü S1/ETH, 3'ü S2), 22 MINUTE_ONLY, **70'i LEDGER_PATH_ONLY**. Store'da tick taşıyan sembol
+sayısı **3** (BTC/ETH/SOL); multilane'in 31 sembolünün 70 epizodunda ledger'ın kendi 1 dakikalık
+`mtm_history`'si DIŞINDA hiç yerel fiyat verisi yok (§286'nın "sıfır ham fiyat satırı" ifadesiyle
+tutarlı). Yerel 1m kline 109 sembolü kapsıyor ama **2026-07-25'te bitiyor**, multilane ise
+2026-08-13→08-22 arası; `forward_v2` yalnız **2 gün**. ⟹ **saniye-düzeyi giriş/çıkış forensiği
+ETH-ONLY bir çalışmadır** ve semboller arası doğrulanamaz. *(I/O notu: `agg_trades` üzerinde
+sınırsız `count(*)` iki kez 240 s'yi aştı ve iptal edildi; covering index seek'leri 0.00 s —
+tüm problar indeksli, sınırlı ve 50.000 satır kapaklı.)*
+
+**0.2 Hard stop'lar:** hiçbiri tetiklenmedi (tick+second 36≥10 · ortak echo/control 11≥8 ·
+en büyük kol 89≥15). **0.3 Güç:** MDE **84.85 bps**; 66 bps için **19**, 50 için 32, 30 için 88,
+20 için 198 epizot gerekiyor. Tek enstrümanda 0.48 echo-epizot/gün ⟹ 19 epizot ≈ **40 gün daha**;
+on enstrümanda ≈ 4 gün. **Çok-sembollü olmanın sayısal gerekçesi budur.**
+
+**7b DOA taban oranı (multilane, 142 kapanmış):** `never_favourable` **14 (%9.86)**,
+`never_clears_cost` 19 (%13.4), `monotone_adverse` 8 (%5.6). B kolunda 7/89. `DOA_POWERED=false`
+— ilan edilen 15 pozitif tabanına **bir gözlem uzakta**. Etiket aileleri birbirini tutmuyor
+(14/19/8) ve bu §7b.1 gereği başlı başına bir bulgu.
+
+**S45 PHASE 0 VERDICT: `PROCEED — DESCRIPTIVE ONLY, NO INFERENTIAL RECOMMENDATION AT THIS N`.**
+`G` değil (hard stop'lar tetiklenmedi, 36 tick-kalite epizot gerçek ve kullanılabilir veri), ama
+sıralama/öneri ruhsatı da değil. Bu N'de dürüstçe verilebilecekler: 11 ortak ETH epizodunda
+Control→Echo geçişinin saniye-saniye **betimlemesi**, çözünürlük sayımı, oracle tavanı, ve DOA
+ön-karar durum tablosu. Verilemeyecekler: sıralanmış giriş adayı, sıralanmış çıkış adayı,
+savunulabilir düzeltilmiş p taşıyan birleşik sistem.
+
+**⟨YENİ KURAL⟩ LEDGER CANLI — ÜZERİNDE HESAPLANAN HER SONUÇ ZAMAN DAMGALIDIR.** S44'ün sayısı
+kendi snapshot'ı için DOĞRUYDU, 46 dakika sonra yanlıştı. `reports/shadow/*.jsonl` üzerinde
+hesaplanan her istatistik `LEDGER_MTIME · LEDGER_ROW_COUNTS_BY_EVENT · SCORED_N_AT_HORIZON`
+kaydetmek ve **SYSTEM_STATE'e yazılmadan önce yeniden doğrulanmak** zorundadır. Tek gözlemle bu
+kadar oynayan bir sonuç, nokta tahminiyle değil **baştan leave-one-out aralığıyla** raporlanır.
+Geliştirme notlarına R7 olarak eklendi.
+
+**Verdict token: `S45_PHASE0_PROCEED_DESCRIPTIVE_ONLY · CORRECTS_S303_HEADLINE · ECHO_MINUS_CONTROL_6H_DID_NOT_REPRODUCE_66_15_TO_39_87 · perm_p_0_0027_TO_0_2177 · CAUSE_LIVE_LEDGER_GREW_ONE_SCORED_6H_OBSERVATION · OPEN_188_TO_189_SCORED6H_171_TO_172 · LOO_perm_p_RANGE_0_0057_TO_0_3905 · SIGNIFICANCE_CARRIED_BY_ONE_EPISODE_MINUS_215 · DIRECTION_STABLE_MEAN_28_TO_65 · NOT_AN_IMPLEMENTATION_BUG · MDE_84_85_BPS_EXCEEDS_CLAIMED_EFFECT · S303_VERDICT_B_REVISED_TO_C · S303_REMAINDER_UNCHANGED_AND_VALID · TICK_QUALITY_36_OF_128_EPISODES · 33_OF_36_ARE_ETH · 70_OF_92_MULTILANE_LEDGER_PATH_ONLY · TICK_SYMBOLS_ONLY_BTC_ETH_SOL · SECOND_LEVEL_FORENSICS_IS_ETH_ONLY · LOCAL_KLINES_END_2026_07_25 · HARD_STOPS_NONE_FIRE · N_REQUIRED_19_FOR_66BPS_32_FOR_50BPS · 40_MORE_DAYS_ONE_INSTRUMENT_OR_4_DAYS_TEN · DOA_BASE_RATE_9_86PCT_14_OF_142 · DOA_POWERED_FALSE_ONE_SHORT_OF_15 · DOA_LABELS_DISAGREE_14_19_8 · NEW_RULE_LEDGER_IS_LIVE_TIMESTAMP_EVERY_RESULT · NO_EXIT_SEARCH · NO_REAL_ORDERS · S38_UNTOUCHED`**
+
+**§299 Website: `arms.html` + `methodology.html` added; `refuted`/`parked` state vocabulary extended (2026-08-22).**
+Website-only task. **No research, no ledger read, no collector, no running process, no runtime file
+touched.** Two public pages added under `web/`, plus nav/footer propagation, a changelog entry, two
+new neutral state words, and two new content-policy rules.
+
+**`arms.html` — "Arms & Lanes".** Five tap sections: Forward Arms (8) · E-DER (4) · Research Lanes
+(13) · Refuted and Parked (9 refuted + 4 parked) · Population census. Each row is
+*name · concept description · implementation-state chip*. **No results column anywhere.** The census
+block is the only numeric content and is explicitly permitted by policy (population sizes):
+37,332 events · 86 symbols · 43 days · 2,802 symbol-days · 17,265 cascade clusters — captioned
+"Population size only." A note explains why the cluster count governs what can be concluded, so the
+event count is not mistaken for a measure.
+
+**`methodology.html` — nine concept sections**, all `concept` lamps: episode collapse · duplicate
+inflation · path duplication fingerprints · paired-within-episode design · oracle/causal separation ·
+reversal lifecycle · reaction window · resolution tiers · live ledger timestamping. No formula, no
+threshold, no parameter name, no measured value.
+
+**THREE TRAPS HANDLED.** (1) *Horizon suffixes are thresholds* — arms published without them
+(`Operational Control`, never the internal `…4H`); zero `4H`/`6H`/`+31m`/`30m` on either page.
+(2) *Ranking is a performance comparison* — no arm is called stronger, leading or promising; the
+given order is preserved and each entry is described on its own terms. (3) *"Refuted" is safe,
+"works" is not* — the graveyard section is prominent; there is no "current leader" section.
+
+**ONE ITEM THE BRIEF'S OWN COPY WOULD HAVE FAILED:** the supplied S34 description read "The
+**long-running** mechanism programme…", which trips the `running` check. Rephrased to "The original
+mechanism programme that the later lanes descend from." Content unchanged in meaning.
+
+**ONE SELF-CAUGHT NEAR-MISS:** the census callout initially used the default `.note`, which the
+stylesheet renders **amber**. It is a callout, not a lamp/chip/tag, so it passed check 3 literally —
+but amber is a reserved health colour and this is the exact rule that has failed review three times.
+Switched to `data-k="info"`. **Every `.note` on both new pages now declares an explicit non-health
+kind.**
+
+**New state words `refuted` / `parked`** added for lamps, tags and bulbs. **Neutral by
+construction** — `refuted` is deliberately *not* red: a closed idea is not a failure state of a
+running thing. **Zero new colour values**: the first implementation introduced two new hexes, which
+were then replaced with values already present in the stylesheet (`#2A313D`, `#141A24`, `#2E3A4C`),
+and **no new `--token` was added**.
+
+**`web/README.md` updated:** state vocabulary 4 → 6 states with the reasoning; content policy gains
+**"Horizon suffixes in arm names"** and **"Any ranking or comparison between arms"** as explicit
+never-publish rules.
+
+**THE FIVE REQUIRED CHECKS — all run, results verbatim:**
+1. `grep -riE "\b(bps|win rate|profit factor|sharpe|drawdown|p-value|4H|6H|\+31m|30m)\b"` on the two
+new pages → **nothing**. (Site-wide it also matches pre-existing `index.html` lines — metric *names*
+in a list of what research optimises against, plus `30m` inside an example event in a code block.
+**Not introduced here**; they are names, not figures, and have survived four independent reviews.)
+2. `grep -riE "active|healthy|running"` on the two new pages → **nothing**.
+3. No green/amber/red on any lamp, chip or tag in the new pages → **nothing**; states used are
+`building`/`concept`/`refuted` (lamps) and `building`/`design`/`refuted`/`parked` (chips).
+4. Structure/classes/links clean on **12/12** pages; **zero horizontal overflow at 360 px** on both
+new pages (measured in-browser: scrollWidth 345); burger menu engages; `:focus-visible` outline rule
+present; `prefers-reduced-motion` block present and freezes the rail.
+5. No new fonts, **no new colour values**, no new palette token, no external request (only the
+existing `og:`/`canonical` placeholder metadata, which fetches nothing).
+
+**Scope held:** `changelog.html` gained a Site-pages entry **without a results column** and its
+structure is otherwise unchanged; no S38, E-DER forward, A2/V3 forward, collector or process was
+touched; no orders, scheduler or runtime file.
+
+**Verdict token: `WEBSITE_ARMS_AND_METHODOLOGY_ADDED · NO_RESULTS_COLUMN · CENSUS_ONLY_NUMBERS · HORIZON_SUFFIXES_STRIPPED · NO_RANKING · REFUTED_PARKED_STATES_NEUTRAL · ZERO_NEW_COLOUR_VALUES · AMBER_CALLOUT_SELF_CAUGHT · BRIEF_COPY_RUNNING_WORD_CORRECTED · 5_OF_5_CHECKS_RUN · 360PX_CLEAN_12_OF_12 · AWAITING_INDEPENDENT_REVIEW`**
