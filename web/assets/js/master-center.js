@@ -64,6 +64,10 @@
   function render(host) {
     var h = [];
 
+    /* rides with the reader: the colours below belong to components that do
+       not exist, so the disclaimer must never scroll away from them */
+    h.push('<div class="proj-bar"><i></i>Projected — nothing here is running</div>');
+
     h.push('<div class="note"><div class="note-t">Projection — none of this is running</div>' +
       '<b>Every agent, version, status and number below is invented</b> to show the shape of the ' +
       'console. None of these agents has been built: today only the Master Center and the event ' +

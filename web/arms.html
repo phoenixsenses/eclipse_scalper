@@ -21,6 +21,7 @@
 <script>document.documentElement.className+=" js";</script>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <div class="ground"></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
   <g id="i-repeat"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 3v5h-5"/></g>
@@ -62,7 +63,7 @@
 </div>
 </header>
 
-<main class="page">
+<main class="page" id="main">
   <div class="rail-flow" aria-hidden="true"><i></i><i></i></div>
 
   <section class="hero">
@@ -331,6 +332,7 @@
               <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-x"/></svg></span>
               <span class="acard-n">Buy-Side Fade</span>
             </div>
+            <p class="acard-d">Fading a pressure episode instead of following it.</p>
             <div class="acard-ft"><span class="tag" data-s="refuted">Refuted</span></div>
           </div>
           <div class="acard" data-s="refuted">
@@ -338,6 +340,7 @@
               <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-x"/></svg></span>
               <span class="acard-n">Liquidation Silence</span>
             </div>
+            <p class="acard-d">Treating an unusually quiet stretch in the forced-flow feed as informative in itself.</p>
             <div class="acard-ft"><span class="tag" data-s="refuted">Refuted</span></div>
           </div>
           <div class="acard" data-s="refuted">
@@ -345,6 +348,7 @@
               <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-x"/></svg></span>
               <span class="acard-n">Reversal Transfer</span>
             </div>
+            <p class="acard-d">Carrying a reversal pattern found in one setting across to a neighbouring one.</p>
             <div class="acard-ft"><span class="tag" data-s="refuted">Refuted</span></div>
           </div>
           <div class="acard" data-s="refuted">
@@ -352,6 +356,7 @@
               <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-x"/></svg></span>
               <span class="acard-n">Cross-Asset Transfer</span>
             </div>
+            <p class="acard-d">Reusing a rule discovered on one instrument on a different instrument.</p>
             <div class="acard-ft"><span class="tag" data-s="refuted">Refuted</span></div>
           </div>
           <div class="acard" data-s="refuted">
@@ -359,6 +364,7 @@
               <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-x"/></svg></span>
               <span class="acard-n">Gentleness</span>
             </div>
+            <p class="acard-d">Selecting episodes by how mildly, rather than how violently, they arrive.</p>
             <div class="acard-ft"><span class="tag" data-s="refuted">Refuted</span></div>
           </div>
           <div class="acard" data-s="refuted">
@@ -366,6 +372,7 @@
               <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-x"/></svg></span>
               <span class="acard-n">Micro-Timing</span>
             </div>
+            <p class="acard-d">Nudging the moment of entry very slightly around the event.</p>
             <div class="acard-ft"><span class="tag" data-s="refuted">Refuted</span></div>
           </div>
           <div class="acard" data-s="refuted">
@@ -373,6 +380,7 @@
               <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-x"/></svg></span>
               <span class="acard-n">Tight Stop</span>
             </div>
+            <p class="acard-d">Leaving a position at the first sign of adverse movement.</p>
             <div class="acard-ft"><span class="tag" data-s="refuted">Refuted</span></div>
           </div>
           <div class="acard" data-s="refuted">
@@ -380,6 +388,7 @@
               <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-x"/></svg></span>
               <span class="acard-n">Partial Exit</span>
             </div>
+            <p class="acard-d">Closing part of a position before the remainder.</p>
             <div class="acard-ft"><span class="tag" data-s="refuted">Refuted</span></div>
           </div>
           <div class="acard" data-s="refuted">
@@ -387,6 +396,7 @@
               <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-x"/></svg></span>
               <span class="acard-n">Limit-Entry</span>
             </div>
+            <p class="acard-d">Waiting passively at a resting price rather than crossing the book.</p>
             <div class="acard-ft"><span class="tag" data-s="refuted">Refuted</span></div>
           </div>
           <div class="acard" data-s="parked">
@@ -394,6 +404,7 @@
               <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pause"/></svg></span>
               <span class="acard-n">Book-State Depletion / Refill</span>
             </div>
+            <p class="acard-d">How resting size at the front of the book empties and comes back.</p>
             <div class="acard-ft"><span class="tag" data-s="parked">Parked</span></div>
           </div>
           <div class="acard" data-s="parked">
@@ -401,6 +412,7 @@
               <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pause"/></svg></span>
               <span class="acard-n">Trade-Flow Shock</span>
             </div>
+            <p class="acard-d">A sudden change in the composition of trade flow.</p>
             <div class="acard-ft"><span class="tag" data-s="parked">Parked</span></div>
           </div>
           <div class="acard" data-s="parked">
@@ -408,6 +420,7 @@
               <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pause"/></svg></span>
               <span class="acard-n">Quote Suppression</span>
             </div>
+            <p class="acard-d">Whether forced flow suppresses quoting on the opposite side.</p>
             <div class="acard-ft"><span class="tag" data-s="parked">Parked</span></div>
           </div>
           <div class="acard" data-s="parked">
@@ -415,6 +428,7 @@
               <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pause"/></svg></span>
               <span class="acard-n">Maker / Quote-Quality Family</span>
             </div>
+            <p class="acard-d">The whole family of passive-placement ideas that depend on quote quality.</p>
             <div class="acard-ft"><span class="tag" data-s="parked">Parked</span></div>
           </div>
     </div>

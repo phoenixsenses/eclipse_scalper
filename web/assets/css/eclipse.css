@@ -61,6 +61,26 @@ a { color: inherit; }
   border-radius: var(--r);
 }
 
+/* keyboard users reach the page without walking the whole nav */
+.skip {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 100;
+  padding: 8px 14px;
+  background: var(--bg-panel);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: top .12s ease;
+}
+.skip:focus { top: 12px; }
+
 /* ---------- ambient ground ---------------------------------- */
 /* one very soft cool wash behind the fold; nothing else glows   */
 .ground {
@@ -296,8 +316,9 @@ a { color: inherit; }
    ============================================================ */
 .eyebrow {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 14px;
+  gap: 6px 14px;
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: .18em;
@@ -922,6 +943,38 @@ a.bulb:hover { background: var(--bg-panel); }
 .note[data-k="info"] { border-left-color: var(--blue); background: rgba(77, 124, 255, .04); }
 .note[data-k="info"] .note-t { color: var(--blue); }
 
+/* ---------- projected-console banner ------------------------ */
+/* the demo console shows health colours for components that do  */
+/* not exist; this rides with the reader so the disclaimer can   */
+/* never scroll away from the thing it disclaims                 */
+.proj-bar {
+  position: sticky;
+  /* clears the sticky header: .hdr-in height 58px + its 1px bottom hairline */
+  top: 59px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 9px 14px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r);
+  background: rgba(7, 9, 13, .94);
+  backdrop-filter: blur(10px);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.proj-bar i {
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--faint);
+  border-radius: 50%;
+  flex: none;
+}
+
 /* ============================================================
    MASTER CENTER DEMO
    ============================================================ */
@@ -982,7 +1035,13 @@ a.bulb:hover { background: var(--bg-panel); }
 
 .log-r:last-child { border-bottom: 0; }
 .log-t { color: var(--faint); font-variant-numeric: tabular-nums; }
-.log-m { color: var(--dim); }
+.log-m {
+  color: var(--dim);
+  /* grid children default to min-width:auto; an unbreakable subject name
+     (eclipse.alpha.trade_candidate) pushed the page 11px wide at 360px */
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .log-m b { color: var(--ink); font-weight: 400; }
 
 .log-d { width: 6px; height: 6px; border-radius: 50%; margin-top: 7px; background: var(--faint); }

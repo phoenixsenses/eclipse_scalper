@@ -21,6 +21,8 @@ Then open <http://127.0.0.1:8799>.
 | `architecture.html` | Topology, agent contract, event model, environments, repositories, workflow, the 8 principles |
 | `research.html` | Standard of evidence, frozen arms, open hypotheses, burned-sample discipline, graveyard |
 | `research-e-der.html` | E-DER concept, design constraints, the three arms, refutation conditions, pipeline position |
+| `arms.html` | Arms & lanes — every arm, lane and closed idea as a card: name, concept description, implementation state. No results column |
+| `methodology.html` | Nine concept sections on how the evidence is handled — no formula, threshold or measured value |
 | `agents.html` | Registry — role plus publish / read / denied for each agent |
 | `security.html` | Onboarding sequence, ten layers, permission matrix, secrets, research↔execution border, CI checks |
 | `infrastructure.html` | Stack, node roles, private mesh, storage model, source-control decision |
@@ -72,14 +74,25 @@ there is no backend, no API and no build.
 - **Colour is semantic only, and health colours are reserved.** `green`, `amber` and
   `red` mean healthy / warning / blocked and may **never** label a component, a lamp,
   an agent or a section — nothing on this site is running, so any such use is a false
-  claim. They appear in exactly two places, both independently reviewed and accepted as
-  non-health semantics: the approve / reduce / reject verdict legend, and the completed
-  steps in the E-DER pipeline position. Everything structural uses the implementation
-  states above; cyan and violet remain available for category accents that carry no
+  claim. They appear in exactly three places, each independently reviewed and disclosed:
+  the approve / reduce / reject verdict legend, and the completed steps in the E-DER
+  pipeline position — verdict and progress are not health claims — and, as a deliberate
+  exception, the **projected demo console** in `status.html`. That console is a mockup of
+  a future operator screen: its `active` / `warning` / `idle` chips and its green count
+  belong to agents that do not exist. It is allowed only because it is fenced three ways —
+  the demo gate, panel headings that all read *projected*, and a sticky `Projected —
+  nothing here is running` bar that cannot scroll away from the colours it disclaims.
+  **No page outside that console may use this exception.** Everything structural uses the
+  implementation states above; cyan and violet remain available for category accents that carry no
   status meaning.
 - Single dark theme, 2px radius, hairlines at 9% white.
 - Responsive to 360px, keyboard focus visible, `prefers-reduced-motion` honoured
-  (packets and corona freeze, reveals become instant).
+  (packets and corona freeze, reveals become instant). Every page opens with a
+  `Skip to content` link that stays off-screen until it takes focus, jumping to
+  `<main id="main">` so a keyboard user need not walk the nav on every page.
+  **Check 360px after adding any chip or tag:** a `.tag` is `white-space: nowrap`, and
+  before `.eyebrow` was given `flex-wrap`, one `Not implemented` tag pushed
+  `agents.html` 98px wider than the viewport.
 
 ## Content policy — read before adding anything
 
@@ -92,6 +105,11 @@ read `Active`, `Healthy`, `Running` or carry a green/amber/red status colour for
 component. Use `Building` / `Design` / `Planned` / `Not implemented`. This was the
 subject of review finding W2 and its two follow-ups; it keeps regressing because the
 palette makes green easy to reach for.
+
+The **one** exception is the projected demo console described under *Design system*, and
+it holds only inside `#console` on `status.html`, only behind the demo gate, and only
+while the sticky `Projected — nothing here is running` bar renders above it. If that bar
+is ever removed, the console's colours and `active` chips must go with it.
 
 **Never publish**
 
@@ -124,3 +142,9 @@ console withholds sealed aggregates from operators too. Keep both.
 that file is written by hand. There is no authentication, no fetch, and no database —
 the gate is a button and says so. If a real console is ever wired up it belongs on the
 private mesh, not here.
+
+The console is the site's only sanctioned use of health colour, so it carries a sticky
+`Projected — nothing here is running` bar (`.proj-bar`, rendered first by
+`master-center.js`). It is sticky on purpose: the earlier disclaimer was a note at the
+top that scrolled away, leaving a reader looking at green `active` chips with no visible
+statement that none of those agents exist.
