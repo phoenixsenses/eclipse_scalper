@@ -12996,3 +12996,57 @@ frozen research arms** preserved. Plan artifact:
 `docs/PHASE_03_ALPHA_AGENT_INTEGRATION_PLAN.md`.
 
 **Verdict token: `GATES_CLOSED · WEBSITE_290_PASS_348dc4ad · PLATFORM_291_PASS_92aeab11 · PHASE_01_02_INVARIANTS_FROZEN · PHASE_03_UNBLOCKED_PLANNING_ONLY · NO_SCALPER_CODE_CHANGED_YET`**
+
+**§296 PHASE 03B — E-DER V1 candidate adapter + contract mapping + tests. Live path NOT wired (2026-08-22).**
+Operator froze the 03B decisions (V1 only · hard source-side seal · fail-closed with local ledger
+unchanged · producer-owned `arm_version` · editable install, no `sys.path` · P2 absolute). Commit
+`9a26e73b`. Mapping: `docs/PHASE_03B_V1_CONTRACT_MAPPING.md`.
+
+**THE FINDING — the seal hazard is concrete, not theoretical.** In
+`tools/e_der_v1_forward_shadow.py::run_cycle`:
+```
+event = make_event(...)
+state["pending"][event["event_id"]] = event   # stored BY REFERENCE
+mature(state, cache, now)                      # mutates that same dict in place
+```
+`mature()` writes `gross_return_bps` / `net_return_bps` **into the object an adapter would be
+holding**, and `make_event` already emits those keys up front as `None`. **Any adapter that keeps
+a reference, queues, or publishes lazily publishes a sealed arm's realised outcome — one `await`
+away.** Hence the adapter is a **pure synchronous snapshot**: copies at call time, holds no
+reference, and **refuses rather than filters** (a populated outcome ⟹ `OutcomeLeak`, because a
+populated outcome means the caller holds a mutated object and dropping the field would hide that).
+Only `event=="DETECTED"` + `status=="AWAITING_ENTRY"` is eligible; context is a **closed T0-only
+whitelist**.
+
+**Mapping decisions.** `candidate_id`←`event_id` (already unique, none minted) · `arm_version`←the
+runner's own frozen `PROTOCOL` constant · `direction`=LONG **declared in the manifest, never
+inferred** (the event carries no direction field) · `horizon_minutes` computed from the event's own
+frozen timing. **`code_sha` (git) deliberately excluded** per the operator's bar on Git-derived
+identity. The manifest **restates** `PROTOCOL` instead of importing the runner — importing drags in
+the entire runtime tree and its import-time side effects — and a test **parses the runner's source
+with `ast`** so the two cannot diverge silently.
+
+**TWO OF MY OWN TESTS WERE WRONG; both fixed, neither loosened** (the §293 lesson applied):
+· one **grepped prose** and tripped on the manifest docstring explaining what it does *not* derive
+identity from → replaced with an AST check of **code**, not text.
+· one asserted `TradeCandidate.context` is immutable. **It is not.**
+
+**RESIDUAL RECORDED, NOT HIDDEN:** `TradeCandidate.context` is `dict[str,str]` — the model is
+frozen, the dict is not, so an in-process caller can mutate it after the adapter returns. This is a
+property of the **frozen Phase 01–02 contract, which this phase must not change (§295)**. It does
+**not** reach the bus: `Event.payload` is deep-frozen by platform P3. A test now pins **both
+halves** so the gap cannot widen unnoticed. *If a future phase wants it closed, that re-opens the
+platform gate.*
+
+**Environment.** New `.venv` at the Scalper root; `eclipse-shared` **editable-installed**, resolving
+to `D:\eclipse_platform\eclipse-shared` — no code copied, no `sys.path` mutation, no global install,
+boundary intact. **The 27 live roles still run on the system interpreter and are untouched;
+repointing them is a separate gated decision that would modify `start_eclipse.ps1`.**
+
+**Scope held.** Added: `integrations/eclipse_alpha/{__init__,manifest,candidate_adapter}.py`,
+`tests/test_eclipse_alpha_adapter.py`, the mapping doc, and **one `.gitignore` line**. **No existing
+Scalper file modified.** Nothing imports the adapter — **wiring is not in 03B**. No frozen arm
+logic, ledger semantics, role behaviour, Execution, NATS, persistence, or A2/V3 touched.
+**26/26 tests pass.**
+
+**Verdict token: `PHASE_03B_ADAPTER_IMPLEMENTED_NOT_WIRED · SEAL_HAZARD_ALIASING_IDENTIFIED_AND_CLOSED · REFUSES_NOT_FILTERS · ARM_VERSION_FROM_RUNNER_PROTOCOL_AST_VERIFIED · P2_INTEGRATION_BOUNDARY_ENFORCED · EDITABLE_INSTALL_BOUNDARY_INTACT · RESIDUAL_CONTEXT_MUTABILITY_RECORDED · 26_OF_26 · NO_EXISTING_FILE_MODIFIED · AWAITING_INDEPENDENT_REVIEW`**
