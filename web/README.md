@@ -58,11 +58,14 @@ there is no backend, no API and no build.
 - **The Rail.** A hairline down the left gutter of every page is the global event bus.
   Each section is a tap point with a lamp; slow packets travel it. The metaphor is the
   information architecture, not decoration.
-- **Rail lamps show IMPLEMENTATION STATE, never runtime health.** Four states, none of
+- **Rail lamps show IMPLEMENTATION STATE, never runtime health.** Six states, none of
   them a health colour: `building` (exists as code, under construction) · `design`
   (specified, not built) · `planned` (neither) · `concept` (the section describes an
-  idea, rule or method rather than a component). The bulb strips use the same
-  vocabulary. A section that is concept-only must not claim health of any kind.
+  idea, rule or method rather than a component) · `refuted` (closed by a test, kept on
+  the record so it is not rediscovered) · `parked` (not refuted, but blocked on
+  something that does not exist yet). The bulb strips and tags use the same vocabulary.
+  A section that is concept-only must not claim health of any kind. `refuted` is
+  deliberately **not** red: a closed idea is not a failure state of a running thing.
 - **Type.** Display face `Bahnschrift` → `DIN Alternate` → `Arial Narrow` (condensed
   DIN-descended grotesque, ships on Windows and macOS — no downloaded fonts). Body is
   system-ui. All labels, states and numbers are monospace.
@@ -93,6 +96,13 @@ palette makes green easy to reach for.
 **Never publish**
 
 - Entry/exit rules, offsets, horizons, thresholds, feature definitions, formulas
+- **Horizon suffixes in arm names.** An internal name like `Operational Control 4H`
+  publishes as `Operational Control`. The suffix is a horizon, and a horizon is a
+  threshold. Strip every `4H` / `6H` / `+31m` / `30m` from names and descriptions
+- **Any ranking or comparison between arms** — "strongest", "most promising", "leading",
+  "best". A ranking is a performance comparison with the number removed. List arms in a
+  given order and describe each on its own terms. Saying an idea was *refuted* is safe;
+  saying one is *promising* leaks the edge
 - Any performance figure — bps, win rate, profit factor, drawdown, totals, or a
   comparison that implies one
 - Anything derived from a sealed forward arm, in any aggregated form

@@ -286,6 +286,10 @@ a { color: inherit; }
 .is-lit .lamp[data-state="design"]   { background: #3A4459;      border-color: #4A5670; }
 .is-lit .lamp[data-state="planned"]  { background: transparent;  border-color: #333C4C; }
 .is-lit .lamp[data-state="concept"]  { background: #1E2634;      border-color: #39435A; }
+/* closed work. Neutral by construction — a refuted idea is not a failure state
+   of a running thing, and red here would be a health claim. */
+.is-lit .lamp[data-state="refuted"]  { background: transparent;  border-color: #2A313D; }
+.is-lit .lamp[data-state="parked"]   { background: #141A24;      border-color: #2E3A4C; }
 
 /* ============================================================
    TYPE
@@ -570,6 +574,11 @@ a { color: inherit; }
 /* a label that is not a status at all (lifetime, scope) — never green */
 .tag[data-s="neutral"]  { color: var(--dim); }
 .tag[data-s="neutral"]::before { background: none; border: 1px solid var(--faint); }
+/* closed work — neutral, never a health colour */
+.tag[data-s="refuted"]  { color: var(--faint); }
+.tag[data-s="refuted"]::before { background: none; border: 1px solid var(--faint); }
+.tag[data-s="parked"]   { color: var(--dim); }
+.tag[data-s="parked"]::before { background: #333C4C; }
 
 /* ---------- key/value list ---------------------------------- */
 .kv { font-family: var(--mono); font-size: 12.5px; }
@@ -828,6 +837,8 @@ a.bulb:hover { background: var(--bg-panel); }
 .bulb[data-s="planned"]  .bulb-l { background: transparent; border-color: #2A313D; }
 /* conceptual: a role on the bus, deliberately carrying no health meaning */
 .bulb[data-s="concept"]  .bulb-l { background: #141A24; border-color: #2E3A4C; }
+.bulb[data-s="refuted"]  .bulb-l { background: transparent; border-color: #2A313D; }
+.bulb[data-s="parked"]   .bulb-l { background: #141A24; border-color: #2E3A4C; }
 
 .bulb-n {
   font-family: var(--display);
