@@ -13806,3 +13806,1190 @@ structure is otherwise unchanged; no S38, E-DER forward, A2/V3 forward, collecto
 touched; no orders, scheduler or runtime file.
 
 **Verdict token: `WEBSITE_ARMS_AND_METHODOLOGY_ADDED · NO_RESULTS_COLUMN · CENSUS_ONLY_NUMBERS · HORIZON_SUFFIXES_STRIPPED · NO_RANKING · REFUTED_PARKED_STATES_NEUTRAL · ZERO_NEW_COLOUR_VALUES · AMBER_CALLOUT_SELF_CAUGHT · BRIEF_COPY_RUNNING_WORD_CORRECTED · 5_OF_5_CHECKS_RUN · 360PX_CLEAN_12_OF_12 · AWAITING_INDEPENDENT_REVIEW`**
+
+**§305 "KARTALIN UÇUŞU" — LİKİDASYON BESLEMESİNİN INCREMENTAL İÇERİĞİ ARANDI; BULUNAN ŞEY ÖLÇÜLEMEZLİK. DÖRT ÖZ-DÜZELTME VE KAYITLI BİR OUTAGE'IN TEKRARI (2026-08-22, Opus 5 [1M]).**
+
+**Adlandırma (operatör):** bu inceleme hattının adı **"The Flight of the Eagle"**. Kapsam:
+`data/keeper_frozen_smalltables.db.liquidations` × `data/xsec_klines.db` (109 sembol, 1dk).
+Salt-okunur. Gerçek emir yok, proses yok; S38'e, E-DER/A2/V3 forward'ına, koşan hiçbir runtime'a
+dokunulmadı. Mühürler CT-015 ile zaten kalkmıştı; bu çalışma yine de hiçbir mühürlü ledger'dan
+satır okumadı — tamamen tarihsel klines + liquidations üzerinde yürüdü.
+
+**BAŞLANGIÇ SORUSU (operatör):** *675 sembolün basınç verisine hiç bakılmadı; 687.556 BUY-side
+satır duruyor; bütün kollar SELL tarafından türetilmiş.* Doğrulandı: fiyat verisi olan 109 sembolde
+**BUY kümesi 45.590 · SELL kümesi 59.956**, aynı kural (15dk boşluk, anchor = start+5dk), aynı 45
+gün. BUY tarafı bir kez bile bir kol tanımına girmemişti.
+
+---
+
+**1 - AYAKTA KALAN ÖLÇÜMLER**
+
+**(a) Eclipse'in olay evreni, rastgele bir dakikadan ayırt edilemiyor.** Aynı sembol-günden çekilen
+plasebo dakikalara karşı (6 saat ileri):
+
+| | 60dk medyan | 60dk WR | 360dk medyan | 360dk WR |
+|---|---|---|---|---|
+| PLASEBO rastgele dakika | +0.00 | 48.8% | -1.26 | 49.2% |
+| SELL anchor (**tüm kollar buradan**) | +0.00 | 49.9% | -2.60 | **49.1%** |
+| BUY anchor (hiç bakılmamış) | -4.48 | 47.0% | -9.38 | 47.6% |
+
+6 saatte SELL kolu plasebonun 0.1 WR puanı içinde. **%47 kazanma oranı bir sinyal değildir** —
+plasebo da 48.3-49.2%; sub-50, kripto dakika getirilerinin koşulsuz sağ-çarpıklık özelliği. Anlamlı
+olan yalnız plaseboya olan FARK ve o fark 1-2 puan.
+
+**(b) Ortalamaya dönüş likidasyonun değil, FİYATIN özelliği.** 5 dakikalık yer değiştirmeye göre 6
+saatlik terminal (medyan bps):
+
+| 5dk itiş | LİKİDASYON | SIRADAN DAKİKA | fark |
+|---|---|---|---|
+| < -60 | -4.1 | -8.5 | **+4.5** |
+| -60..-25 | -2.6 | -6.4 | +3.8 |
+| -25..-10 | +0.0 | -2.5 | +2.5 |
+| +10..+25 | -6.0 | -1.2 | -4.8 |
+| +25..+60 | -22.2 | -18.8 | -3.4 |
+
+Plasebo sütunu tek başına 60dk'da +4.8 -> -18.3 monoton eğim taşıyor. **26 bps'lik salınımın 23'ü
+sıradan fiyat davranışı.** Likidasyonun kattığı: aşağı yönde **+3...+4.5 bps**, yukarı yönde
+**-3...-4.8 bps**. 10 bps round-trip'e karşı ikisi de aritmetik olarak ölü.
+
+**(c) Yol geometrisi sürüklenmesiz yürüyüş imzası veriyor.** >+60 bps zorla-yukarı hücresi, epizot
+çöküşü sonrası ilk-anchor (n=2.755, 107 sembol, 45 gün, şişme yalnız **3.8x**):
+
+```
+SHORT terminal   medyan +23.1   ort  -0.1   kazanan %53.3
+ALEYHTE (MAE)    medyan  206.4  p90  780.9  tepe dk 118
+LEHTE   (MFE)    medyan  209.6  p90  713.9  dip  dk 148
+MFE/MAE 1.05 . MFE>MAE %51.3 . önce-dip %46.9
+```
+
+Yansıma ilkesinin sürüklenmesiz yürüyüş için öngördüğü şey aynen bu: MFE ve MAE dağılımları
+**özdeş**. Terminal 23 bps, salınım 206 bps — birde dokuz. Her stop seviyesi durumu kötüleştiriyor
+(50bps -> %85.1 vurulma, 150 -> %60.5, 300 -> %36.2); ayrılacak sinyal olmadığı için stop yalnız
+salınımı örnekliyor. **§162/§163'ün "kuyruk indirgenemez" bulgusu, defterin diğer tarafında aynı
+ölçüm.**
+
+Yön geniş ve dayanıklı: **45 günün 36'sı (%80)** ve **92 sembolün 77'si (%84)** negatif medyan.
+Buna rağmen ortalama tam olarak sıfır — gövde sola kayıyor, aynı ağırlıkta bir sağ kuyruk doğuyor.
+Ezici çoğunluk sönümleniyor, azınlık trend oluyor. Naif SHORT: medyan +23.1, ortalama -0.1 →
+maliyet sonrası negatif.
+
+**(d) İçerik GÜN çözünürlüğünde, mimari DAKİKA çözünürlüğünde.**
+
+```
+gün İÇİ      (aynı sembol, aynı gün)               menzil oranı 0.990   >1 payı %47.9
+günler ARASI (aynı sembol+saat, farklı gün)        menzil oranı 1.267   >1 payı %64.5
+                                                   36/45 gün . 101/109 sembol
+```
+
+Likidasyon günü %27 daha oynak; ama o günün *hangi dakikası* olduğu hiçbir şey eklemiyor. Eclipse'in
+her kolu dakikaya çapa atıyor.
+
+**(e) Öldüreceğini sandığım şey öldürmedi.** Tick kuantizasyonunun hareketi yiyeceğini öngörmüştüm
+(§219/§220 analojisi). Ölçüldü: `|medyan| / tick` = **79x . 26x . 14x**. Yanlış öngörü — devralınmış
+bir hükmü ölçmeden benzeterek taşımıştım.
+
+---
+
+**2 - YIKILAN ÖLÇÜMLER, VE NEDENİ KAYITLI BİR OUTAGE**
+
+Son iş kolu "likidasyonsuz büyük hareket" karşı-grubu kurmaya dayanıyordu: >60 bps'lik 5-dakikalık
+hareketleri, ±60 dk içinde likidasyon **olmayanlar** ve ±5 dk içinde **olanlar** diye ayırmak.
+Kurulan sonuç: 400+ bps kovasında sembol-içi ortalaması çıkarılmış fark **-178 / -231 bps** — günün
+çökmeyen tek bulgusu.
+
+**Geçersiz.** Kullandığım pencere 2026-05-01'de başlıyor; `liquidations` tablosundaki ilk satır
+**2026-06-06 17:43**. Pencerenin **ilk 36,7 günü** likidasyon verisi taşımıyor (ayrıca 07-07/08/09
+eksik). "Temiz" popülasyonum büyük ölçüde **beslemenin ölü olduğu Mayıs penceresi** — likidasyon
+yoktu değil, kaydedilmiyordu. Ölçtüğüm şey mekanizma değil takvimdi.
+
+Bu, **CLAUDE.md guardrail'ında §191 olarak zaten yazılıydı** ve oturum açılışında yüklenmişti:
+*"`liquidations` 2026-04-28 -> 06-05 TAM ÖLÜ (39 gün, tüm semboller) -> o pencerede anchor
+doğamaz."* Yedi ölçüm boyunca açılmadı.
+
+**ONARIM — yalnız besleme canlı günler (41 gün, 109 sembol, 559.543 büyük hareket):**
+
+```
+±60 dk içinde likidasyon YOK     33.149    %5.9    [önce %43.1 raporlanmıştı]
+± 5 dk içinde likidasyon VAR    355.537   %63.5
+400+ kovasında "temiz" olay: 205 (tüm semboller toplamı)
+400+ hücre bazlı fark: -275.3 -> +440.6 (4 hücre, negatif payı %0) = gürültü
+```
+
+**YENİ VE GERÇEK BULGU:** besleme canlıyken **>60 bps'lik 5-dakikalık hareketlerin %94,1'inde bir
+saat içinde likidasyon var, %63,5'inde beş dakika içinde.** Büyük hareket ile likidasyon bu eşikte
+**ayrılabilir iki olay değil**. "Likidasyonsuz büyük hareket" diye anlamlı bir popülasyon yok.
+
+**Geriye dönük etkisi:** yer-değiştirme-eşleştirilmiş uç-kova karşılaştırması (PLASEBO |itiş|>60
+menzil 878.8 vs LİKİDASYON 858.3) da **likidasyonu likidasyonla** kıyaslamıştı — o plasebo
+dakikalarının ~%94'ü likidasyon komşusu. Dolayısıyla *"yer değiştirmenin üstüne likidasyon sıfır
+katıyor"* cümlesi **yanlış değil, ÖLÇÜLEMEZ**: bu veride kurulacak karşı-grup yok. Yokluğu
+gözlenemeyen bir şeyin katkısı ölçülemez.
+
+Geçersiz kılınan diğer başlıklar: *"972.787 hareketin 4'te 3'ü likidasyonsuz"* (-> %5,9); B1'in "sağ
+kalan" bulgusu; temiz/kirli yön tablosunun tamamı.
+
+---
+
+**3 - DÖRT ÖZ-DÜZELTME (kaydın en tekrar edilebilir kısmı)**
+
+1. **`eta_parent -> MFE rho +0.303`** — bir saat içinde ÜÇ pozisyon: öldür -> dirilt ("volatilite
+   tek öngörülebilir para birimiydi, yanlış sebeple attım") -> tekrar öldür. Nihai ölçüm: kısmi
+   rho(eta, MFE | vol) = **+0.086 (p=0.29)**, rho(eta, MFE/|MAE|) = +0.098 (p=0.23), rho(eta, net) =
+   -0.004. Bir **ölçek proxy'si**. Bölüm 0'ın yedi maskesine sekizinci olarak eklenmeli.
+   **Yapısal gözlem:** aparat (Holm, kısmi korelasyon, plasebo) isteği hiçbir aşamada yakalamadı;
+   yalnız ona yeni kılık sağladı. İstek, ölçümün başladığı yerin YUKARISINDA çalışıyor.
+2. **Dejenere plasebo.** Saat-eşleştirilmiş plaseboyu aynı saatin içinden çektim; ölçtüğüm pencere 6
+   saat -> iki pencere %98 örtüştü. `p25 0.99 . p75 1.01` ve `ort 3.6 milyon` bunu ele verdi. **Bir
+   testle değil, dağılımın imkânsız darlığına BAKARAK yakalandı.** Bu, kendi hafıza dosyamdaki
+   `feedback_degenerate_statistic_and_window_overlap` kuralının ihlaliydi.
+3. **Devralınmış hüküm ithali.** §219/§220'nin "tick fırsatı yiyor" verdict'ini ölçmeden benzeterek
+   taşıdım; ölçünce 14-79x çıktı.
+4. **§191'in uygulanmaması** (yukarıda). Günün en pahalı hatası ve tek "sağ kalan" bulguyu yok eden
+   şey.
+
+---
+
+**4 - METODOLOJİK HÜKÜM: KOMPOZİSYON YANILSAMASI GÜNDE ÜÇ KEZ**
+
+Havuzlanmış her etki sembol-içi eşleştirmede çöktü:
+
+| ölçüm | havuzlanmış | sembol-içi |
+|---|---|---|
+| menzil oranı | 1.30x | 0.990 |
+| 400+ yön farkı | -116 / -207 bps | -2.9 / +7.0 bps |
+| gün oranı | 1.267x | (gün içi) 0.990 |
+
+**R8 (yeni kural):** likidasyon-koşullu hiçbir etki, sembol-içi eşleştirilmiş hali raporlanmadan
+yazılmaz. Havuzlanmış rakam varsayılan olarak "hangi semboller likide oluyor"u ölçer.
+
+**R9 (yeni kural):** likidasyon verisi kullanan her çalışma, ilk ölçümden ÖNCE besleme kapsamını
+gün-gün doğrular ve kapsanmayan günleri pencereden düşer. §191 metin olarak vardı ve yetmedi;
+kontrol **ölçümün ön koşulu** olmalı, okunacak bir not değil.
+
+---
+
+**5 - AÇIK KALANLAR**
+
+- **Likidasyonun yer değiştirmenin üstüne kattığı, bu veride ÖLÇÜLEMEZ** (karşı-grup yok). Kapatmak
+  için ya daha düşük bir hareket eşiği (karşı-grubun var olduğu bölge) ya da likidasyonun gerçekten
+  yokken de büyük hareket üreten bir rejim gerekir.
+- 675 sembolün basınç verisi hâlâ incelenmedi; bu sonuçtan sonra beklenti düşük (aynı girdi, aynı
+  sıfır), ama ölçülmedi.
+- İçerik gün ölçeğinde ise, gün ölçekli bir ifadenin eyleme dönüşebilir bir hali var mı — sorulmadı.
+- Site oturumu kendi girdisini **§299** diye numaralamış; mevcut §299 ile çakışıyor. O bölüme
+  dokunulmadı, yalnız kayda geçiriliyor.
+
+**Verdict token: `FLIGHT_OF_THE_EAGLE_V1 · BUY_SIDE_EXAMINED_FIRST_TIME_45590_CLUSTERS · SELL_POPULATION_INDISTINGUISHABLE_FROM_RANDOM_MINUTE_49_1_VS_49_2 · SUB50_WR_IS_UNCONDITIONAL_SKEW_NOT_SIGNAL · REVERSION_IS_PRICE_PROPERTY_23_OF_26_BPS_IN_PLACEBO · LIQ_INCREMENT_PLUS3_TO_MINUS5_BPS_DEAD_AT_10BPS · EPISODE_INFLATION_3_8X_NOT_94X · DRIFTLESS_WALK_SIGNATURE_MFE_MAE_1_05_51_3PCT · TERMINAL_23_VS_EXCURSION_206 · ALL_STOPS_WORSE · BREADTH_80PCT_DAYS_84PCT_SYMBOLS_BUT_MEAN_ZERO · TICK_KILLER_PREDICTION_WRONG_14_TO_79X · WITHIN_DAY_0_990 · BETWEEN_DAY_1_267 · CONTENT_AT_DAY_RESOLUTION_ARCHITECTURE_AT_MINUTE · CLEAN_VS_DIRTY_ARM_INVALIDATED_BY_S191_OUTAGE · FIRST_LIQ_2026_06_06_WINDOW_STARTED_05_01_36_7_DAYS_UNCOVERED · REPAIRED_CLEAN_SHARE_43_1PCT_TO_5_9PCT · B1_MINUS178_MINUS231_TO_PLUS440_ON_4_CELLS_NOISE · NEW_FINDING_94_1PCT_OF_BIG_MOVES_CARRY_LIQ_WITHIN_60MIN_63_5PCT_WITHIN_5MIN · LIQ_AND_LARGE_MOVE_NOT_SEPARABLE · DISPLACEMENT_MATCHED_CLAIM_DOWNGRADED_TO_UNMEASURABLE · FOUR_SELF_CORRECTIONS · ETA_PARENT_THREE_POSITIONS_IN_ONE_HOUR_FINAL_KILL_SCALE_PROXY · DEGENERATE_HOUR_PLACEBO_CAUGHT_BY_LOOKING_NOT_TESTING · INHERITED_VERDICT_IMPORTED_WITHOUT_MEASURING · R8_WITHIN_SYMBOL_MANDATORY · R9_COVERAGE_CHECK_BEFORE_FIRST_MEASUREMENT · NO_REAL_ORDERS · NO_PROCESS_CONTROL · S38_UNTOUCHED · NO_SEALED_LEDGER_READ`**
+
+**§306 KARTALIN UÇUŞU, KAPANIŞ — PİYASA-GENELİ GENİŞLİK BEŞİNCİ KAPIYDI VE O DA NULL; ÖNCEDEN BAĞLANMIŞ DURMA KURALI UYGULANDI (2026-08-22, Opus 5 [1M]).**
+
+**Bu bölüm §305'i KAPATIR.** Salt-okunur, gerçek emir yok, proses yok, S38/E-DER/A2/V3 forward'ına
+ve hiçbir mühürlü ledger'a dokunulmadı.
+
+**HİPOTEZ (sonuç görülmeden yazıldı):** *Birim sembol-olayı değil, piyasa-hâlidir. Çok sayıda
+sembolün aynı anda likide olduğu an, bir sembolün özelliği değil piyasanın bir durumudur; ve o
+durumdan sonraki davranış, aynı toplam yer değiştirmeye sahip sıradan bir andan farklı olabilir.*
+
+**DURMA KURALI (bağlayıcı, sonuç görülmeden yazıldı):** *Genişliğin etkisi eşleştirilmiş plasebo
+bandının içinde çıkarsa besleme kapanır; beşinci kapı açılmaz.* Gerekçe: §305'te dört kapı arka
+arkaya açıldı ve **ne zaman durulacağına dair hiçbir ölçüt yoktu** — her ölüm bir sonrakini
+meşrulaştırdı. Kural sonuç görüldükten sonra konamaz (emsal: `eta_parent`, bir saatte üç pozisyon).
+
+**TASARIM.** Genişlik = trailing 5 dk'da en az bir likidasyonu olan **farklı sembol sayısı**,
+`liquidations` tablosunun **761 sembolünün tamamından** okundu (fiyat verisi olmayan 652 dahil —
+`CLAUDE.md`'nin "kullanılmayan varlık" notu ilk kez fiyat indirmeden karşılık buldu). İleri bakış
+fiyatı olan 109 sembolde, eşit ağırlıklı kesitsel ortalama log getiri. Plasebo havuzu = penceredeki
+**tüm geçerli dakikalar** (119.155), yer değiştirme kovası içinde eşleştirildi (piyasa-geneli 5dk
+kesitsel ortalama getirinin desilleri). Birim = **an**; 6h örtüşen anlar epizota çökertildi.
+R9 uygulandı (yalnız besleme kapsanan günler). Pencere 2026-05-01 → 2026-07-23; 1.525.334
+likidasyon satırı, 760 sembol.
+
+**GENİŞLİK DAĞILIMI:** medyan **0**, p90 57, p99 192, **max 677 / 761**. Dakika ölçeğinde besleme
+seyrek: geçerli dakikaların yarısında trailing 5 dk'da hiç likidasyon yok.
+
+**SONUÇ — YÖN: NULL.**
+
+| eşik | epizot | Δ60m | Δ360m |
+|---|---|---|---|
+| p99.5 (>=270 sembol) | 48 | +2.5 | +17.8 |
+| p99 (>=192) | 73 | +0.3 | -10.7 |
+| p97.5 (>=116) | 107 | -1.2 | +3.4 |
+| p95 (>=80) | 137 | +0.2 | +0.6 |
+| p90 (>=57) | 150 | -3.1 | +0.0 |
+
+İşaretler dönüşümlü, büyüklük N arttıkça sıfıra gidiyor. Ham p99 hücreleri
+(`+33.8 −63.6 −28.9 −65.1 +70.8 −28.7`) gürültü: kesitsel 6h getirinin SD'si **111.8 bps**,
+hücre n'leri 6–25 ⟹ SE 22–46 bps. **761 sembolün 677'sinin aynı anda likide olduğu anlar dahil,
+piyasa-geneli kaskad sıradan bir andan ayırt edilemiyor.**
+
+**NULL OLMAYAN TEK SAYI — kayda geçer, GEREKÇE OLARAK KULLANILMAZ.** Kesitsel dağılım oranı
+(olay/havuz, yer değiştirme eşleştirilmiş): **1.115 · 1.155 · 1.139 · 1.128 · 1.179** (beş eşikte,
+işaret dönmeden). Genişlik olayından sonra semboller arası dağılım %13–18 yüksek. **Neden
+kovalanmadı:** (1) eşikler iç içe — beş satır değil tek ölçüm; (2) hipotez getiri para biriminde
+kuruldu, dağılımın permütasyon bandı hesaplanmadı; (3) 1.13, zaten ölçülmüş ailenin içinde
+(gün içi 0.990, günler arası 1.267 — volatilite kümelenmesi, fiyattan bedava) ve dağılımın yönü
+yok. Bunu "yeni kapı" saymak, §305'te dört kez düzeltilen hatanın beşincisi olurdu.
+**AÇIK VE KOVALANMADI olarak bırakılıyor.**
+
+**HÜKÜM — BEŞ BAĞIMSIZ KAPI, TEK ODA.**
+
+| kapı | ölçülen | sonuç |
+|---|---|---|
+| yön | yer değiştirme eşleştirilmiş terminal | +3 … −5 bps |
+| menzil | gün içi / günler arası | 0.990 / 1.267 (fiyatın) |
+| temiz-kirli | likidasyonlu vs likidasyonsuz hareket | **ölçülemez** (%94.1 ayrılamaz) |
+| sıra | iki salınımın hangisi önce | taban 50.0/50.0; AUC 0.536 (p=0.0001) ama eğimin %87'si plasebonun |
+| genişlik | piyasa-geneli kaskad anı | null |
+
+`liquidations` beslemesi, fiyatın zaten söylediğinin üstüne ölçülebilir bir alfa içeriği
+taşımıyor. Bu bir "bulamadık" değil; beş farklı tasarımla, plasebo kontrollü, epizot çökertilmiş,
+kapsam doğrulanmış bir **yokluk ölçümü**.
+
+**BUNUN DEĞİŞTİRMEDİĞİ ŞEYLER.** Besleme operasyonel olarak değerli kalır: feed sağlığı, outage
+tespiti, olay üretimi, dashboard güvenlik yüzeyleri, `mechanism_store` üretimi. Kapanan şey
+**alfa kaynağı** olarak kullanımı. Mevcut forward ledger'lar durur, hiçbir kural/eşik/gate
+değiştirilmedi, hiçbir satır silinmedi.
+
+**AÇIK KALANLAR.** (a) kesitsel dağılım 1.13 — kovalanmadı; (b) `open_interest` / `liq_heatmap`
+(boşalmamış konumlanma) hiçbir şeritte **nesne** olmadı, yalnız kapı oldu ve kapı olarak zararlı
+ölçüldü (§264) — bu çalışma onu test etmedi; (c) sıra sinyalinin zaman sönümü (ilk yarı 0.536 →
+ikinci yarı 0.516) açıklanmadı.
+
+**Verdict token: `FLIGHT_OF_THE_EAGLE_CLOSED · HYPOTHESIS_AND_STOPPING_RULE_WRITTEN_BEFORE_OUTCOME · BREADTH_FROM_ALL_761_SYMBOLS_FIRST_TIME · UNUSED_ASSET_USED_WITHOUT_PRICE_DOWNLOAD · BREADTH_MEDIAN_0_P99_192_MAX_677_OF_761 · DIRECTION_NULL_AT_ALL_FIVE_THRESHOLDS · SIGNS_ALTERNATE_MAGNITUDE_SHRINKS_WITH_N · XSEC_SD_111_8_BPS_CELL_SE_22_TO_46 · MARKET_WIDE_CASCADE_INDISTINGUISHABLE_FROM_ORDINARY_MINUTE · DISPERSION_RATIO_1_115_TO_1_179_RECORDED_NOT_PURSUED · NESTED_THRESHOLDS_ONE_MEASUREMENT_NOT_FIVE · NO_NULL_COMPUTED_FOR_DISPERSION · SAME_FAMILY_AS_0_990_AND_1_267 · STOPPING_RULE_FIRED_AS_WRITTEN · FIVE_DOORS_ONE_ROOM · LIQUIDATION_FEED_CLOSED_AS_ALPHA_SOURCE · OPERATIONAL_USE_UNCHANGED · NO_RULE_OR_GATE_CHANGED · NO_LEDGER_ROW_TOUCHED · OI_AND_HEATMAP_NEVER_AN_OBJECT_NOT_TESTED_HERE · ORDER_SIGNAL_TIME_DECAY_UNEXPLAINED · NO_REAL_ORDERS · S38_UNTOUCHED`**
+
+**§307 BOŞALMAMIŞ HAFIZA (open_interest) — FİYAT SORUSU GÜÇSÜZ (`INCONCLUSIVE_BY_DESIGN_POWER`), AMA SQUEEZE SIRASINDA KALDIRAÇ EKLENİYOR: 6'DA 5, VE ÖLÇÜM KUSURUNA KARŞI MUHAFAZAKÂR (2026-08-22, Opus 5 [1M]).**
+
+**Bağlam.** §306 `liquidations` beslemesini alfa kaynağı olarak kapattı. Operatörün çerçevesi:
+*likidasyon boşalmış hafızadır — geçmiştir, o yüzden %94'ünde zaten hareketin içindedir.* Henüz
+boşalmamış olanın karşılığı `open_interest`. Beş ay boyunca hiçbir şeritte **nesne** olmadı, yalnız
+kapı oldu ve kapı olarak zararlı ölçüldü (§264). Bu bölüm onu nesne olarak inceler.
+Salt-okunur; hiçbir emir, proses, mühürlü ledger, S38/E-DER/A2/V3 forward'ı yok.
+
+---
+
+**1 - ALETİN KİTABI ÖLÇÜMDEN ÖNCE AÇILDI (R9 uygulandı, ve yetmedi)**
+
+| tablo | durum |
+|---|---|
+| `open_interest` | 3 sembol (ETH/BTC/SOL), 75.117 satır, 60 sn, **%100 farklı değer** |
+| `liq_heatmap` | 133 satır, 1 sembol, **ZAMAN DAMGASI YOK** -> nokta-anında kullanımı tanım gereği lookahead. **ÖLÜ.** |
+| `vol_state` | 2026-06-05'te bitiyor; `liquidations` 06-06'da başlıyor. Neredeyse hiç örtüşme yok. |
+| `funding_rates` | 178 satır, 1 sembol, 04-13'te bitiyor. **ÖLÜ.** |
+
+`liq_heatmap`'in zamansızlığı ölçümden **önce** yakalandı — sonra yakalansaydı lookahead'li bir
+sonuç üretilmiş olurdu.
+
+**ÜÇLÜ KESİŞİM (OI ∩ likidasyon ∩ fiyat): 16 gün, 2026-07-02 → 07-23, 3 sembol.** Kesit yok;
+R8 (sembol-içi eşleştirme) 3 sembolde anlamsız; kümelenme birimi gün.
+
+**R9 KÜRESEL UYGULANDI VE YETMEDİ — YENİ KURAL R10.** Serinin canlı olup olmadığını **genel**
+istatistikle kontrol ettim (%100 farklı değer, medyan 60 sn güncelleme) ve "temiz" dedim. Doğruydu
+ama **yanlış soruydu.** Olay anlarındaki kapsam bambaşka:
+
+```
+07-02 → 07-23 penceresinde OI kapsaması: %81.4
+>2 dk boşluk: 11-14 adet · toplam kayıp 94.7 saat · EN UZUN TEK BOŞLUK 88.7 SAAT
+17 uç likidasyon olayının 7'sinde OI kapsaması TAM SIFIR (0/211 dakika)
+  — penceredeki EN BÜYÜK olay dahil (07-15 12:39 ETH, 29.4M)
+```
+
+**R10: kapsam, kullanıldığı NOKTADA doğrulanır — küresel özet değil.** Serinin genel sağlığı,
+ilgilenilen anlardaki varlığını garanti etmez; kayıp rastgele değildi, tam da en büyük olayların
+üstündeydi.
+
+---
+
+**2 - GERİ ÇEKME: "6/6 işaret tutarlılığı" YANLIŞTI**
+
+Bir önceki turda toplulaştırılmış tablodan *"üç sembol × iki kol = 6/6 aynı işaret"* dedim
+(SELL-ağırlıklı OI -0.402/-0.398/-0.533; BUY-ağırlıklı +0.114/+0.466/+0.231). O ortalamalar
+**88.7 saatlik karanlığın üstünden forward-fill ile taşınan** değerlerle hesaplanmıştı.
+
+Forward-fill kaldırılıp kapsam olay bazında kapı yapılınca doğrusu:
+
+```
++30 dakikada  : 10 olayın 9'u beklenen yönde   (SELL 4/4 negatif · BUY 5/6 pozitif)
++3 saatte     : 10 olayın 5'i                  (SELL 3/4 · BUY 2/6)  -> etki kısa ömürlü
+```
+
+Yön tesadüfen ayakta kaldı; **kanıt söylediğim şey değildi.** 9/10 olay düzeyinde p=0.021, ama
+olaylar kümeleniyor (07-03'te iki, 07-13'te iki, 07-20'de iki) -> **~7 bağımsız piyasa anı**, an
+düzeyinde **p≈0.13**. Düşündürücü, kanıtlanmış değil.
+
+**Bu turda iki ayrı hata daha yapıldı ve kayda geçer:** (a) işaretli ve simetrik bir büyüklüğün
+**medyanını** yazdırdım, her kovada `+0.000%` çıktı ve bir an veri bozuk sandım — istatistik seçimi
+yanlıştı, veri değil; (b) bir doğrulama betiğinde zaman damgalarını **elle türetip yanlış yazdım**,
+çıkan tablo olaylarla hizalı değildi ve o kontrol geçersizdi. İkisi de sonuç yorumlanmadan önce
+yakalandı.
+
+---
+
+**3 - ON OLAY, ORTALAMA ALINMADAN (asıl gözlem)**
+
+Ortalama, N=10'da arzunun saklanma yeriydi: 155 örtüşen gözlemin ortalaması temiz ve mekanistik
+bir yapı verdi, on satır bir bakışta yıktı. Ölçeksiz büyüklük = `liq$ / OI` (depodaki hafızanın
+boşalan payı) ve ona karşı gerçek OI değişimi:
+
+| zaman | sem | OI (M$) | liq/OI % | ΔOI+30 % | kat | kol |
+|---|---|---|---|---|---|---|
+| 07-10 14:19 | SOL | 727 | 0.245 | **-3.802** | 15.5x | SELL |
+| 07-13 03:05 | BTC | 6.354 | 0.158 | -1.858 | 11.7x | SELL |
+| 07-12 00:17 | SOL | 672 | 0.262 | -1.091 | 4.2x | SELL |
+| 07-13 17:45 | SOL | 684 | 0.402 | -1.329 | 3.3x | SELL |
+| 07-05 22:16 | BTC | 6.595 | 0.138 | **+1.974** | -14.3x | BUY |
+| 07-04 04:27 | SOL | 853 | 0.213 | +1.237 | -5.8x | BUY |
+| 07-20 15:41 | SOL | 677 | 0.356 | +1.687 | -4.7x | BUY |
+| 07-20 17:58 | BTC | 6.839 | 0.238 | +0.598 | -2.5x | BUY |
+| 07-03 20:21 | ETH | 4.054 | 0.533 | +0.420 | -0.8x | BUY |
+| 07-03 19:24 | SOL | 865 | 0.237 | -1.109 | +4.7x | BUY (tek istisna) |
+
+**Boşalma oranı iki tarafta da neredeyse aynı: depodaki hafızanın ~%0.24'ü** (SELL medyan 0.254,
+BUY 0.238; aralık 0.138-0.533). "Uç" olaylar mutlak olarak uç, depoya oranla çeyrek yüzde.
+**Ama OI bunun 3-15 KATI oynuyor.**
+
+**SELL tarafı yorumlanamaz.** Binance public `forceOrder` akışı sembol başına **saniyede en fazla
+1 emir** yayınlar; yoğun kaskadda raporlanan hacim gerçeğin çok altındadır. OI'nin boşalmanın 8
+katı düşmesi tamamen bu eksik saymayla açıklanabilir. **Tanımlanamaz.**
+
+**BUY tarafı AÇIKLANAMAZ VE ASIL BULGU BUDUR.** Eksik sayma gerçek zorunlu akışı *büyütür*, bu da
+OI'yi daha da **aşağı** iter — yukarı değil. Dolayısıyla ölçüm kusuru bu ifadeyi zayıflatmaz,
+**muhafazakâr kılar**:
+
+> **Squeeze sırasında, kısalar zorla kapatılırken açık pozisyon ARTIYOR — 6 olayın 5'inde.
+> Kaldıraç, boşalmanın içine doğru ekleniyor.**
+
+Fiyat da o pencerede likidasyon yönünde devam ediyor (BUY kolu +34/+93/+53/+67/+91/-4 bps;
+SELL kolu -14/-56/-81/-49). Ani pencerede dönüş değil, **devam**.
+
+Bu bir alfa iddiası DEĞİLDİR: tanımlayıcı, çağdaş (öngörücü değil), n=10, ~7 bağımsız an.
+
+---
+
+**4 - ASIL SORUYA CEVAP: HAYIR**
+
+```
+saklanan hafıza   -> sonraki boşalma:   rho(dOI_6h, sonraki 6h liq$)  = 0.043 / 0.086 / 0.163
+boşalmanın kendisi -> sonraki boşalma:  rho(önceki liq$, sonraki liq$) = 0.525 / 0.501 / 0.525
+```
+
+**Boşalmamış hafıza, gelecekteki boşalmayı, boşalmanın kendisinden BEŞ KAT KÖTÜ öngörüyor.** Ve o
+ikincisi §306'da kapatıldı. Depo ölçüsü, akış ölçüsünün eklediğinin üstüne bir şey eklemiyor.
+
+**FİYAT TESTİ AÇILMADI — GÜÇ YOK.**
+
+```
+MDE (16 gün, gün kümelenme birimi, %80 güç, alfa .05):  BTC 26.5 · SOL 34.1 · ETH 38.6 bps
+bugüne kadar ölçülen etki büyüklüğü:                     +3 … -5 bps
+güç açığı:                                               ~7-10x
+```
+
+§217 emsali (`INCONCLUSIVE_BY_DESIGN_POWER`) birebir geçerli. Test edilseydi çıkacak "null"
+hiçbir şey ifade etmezdi. **Ve bu bir toplama sorunu da değil:** §36'nın ölçtüğü kesitsel MDE
+13-20 bps; kovalanan etki 3-5 bps. Bu veri sınıfı, bu büyüklükteki bir etkiyi hiçbir toplama
+süresiyle çözemez.
+
+---
+
+**5 - AÇIK KALANLAR**
+
+- **BUY-kolu OI artışı (5/6)** — tanımlayıcı, n=10, ~7 bağımsız an. Doğrulanması için OI'nin daha
+  çok sembolde ve **boşluksuz** toplanması gerekir; mevcut 88.7 saatlik karanlık en büyük olayları
+  yuttu. `data/oi_spot_poller.py` çalışıyor ve kusursuz veri üretiyor — sorun kapsam.
+- SELL-kolu büyüklüğü `forceOrder` throttle'ı yüzünden **tanımlanamaz**; gerçek tasfiye hacmi
+  ölçülemeden ayrıştırılamaz.
+- §306'nın kapanışı **değişmez**: bu bölüm fiyat öngörüsü hakkında bir iddia içermez.
+
+**Verdict token: `OI_AS_OBJECT_FIRST_TIME · LIQ_HEATMAP_NO_TIMESTAMP_DEAD_CAUGHT_BEFORE_USE · VOL_STATE_AND_FUNDING_DEAD · TRIPLE_INTERSECTION_16_DAYS_3_SYMBOLS_NO_CROSS_SECTION · R9_APPLIED_GLOBALLY_AND_INSUFFICIENT · NEW_RULE_R10_VERIFY_COVERAGE_AT_POINT_OF_USE · OI_COVERAGE_81_4PCT_SINGLE_88_7H_BLACKOUT · 7_OF_17_EXTREME_EVENTS_ZERO_OI_INCLUDING_LARGEST_29_4M_ETH · RETRACTED_6_OF_6_SIGN_CLAIM · FORWARD_FILL_ACROSS_BLACKOUT_WAS_THE_CAUSE · CORRECTED_9_OF_10_AT_30MIN_5_OF_10_AT_3H · EVENT_LEVEL_p_0_021_MOMENT_LEVEL_p_0_13 · SEVEN_INDEPENDENT_MOMENTS · TWO_FURTHER_SELF_CAUGHT_ERRORS_SIGNED_MEDIAN_AND_HAND_TYPED_TIMESTAMPS · DISCHARGE_FRACTION_0_24PCT_OF_OI_BOTH_SIDES · OI_MOVES_3_TO_15X_THE_DISCHARGE · SELL_SIDE_UNIDENTIFIABLE_FORCEORDER_1_PER_SEC_THROTTLE · BUY_SIDE_OI_RISES_5_OF_6_ROBUST_TO_THROTTLE_CONSERVATIVELY · LEVERAGE_ADDED_INTO_THE_SQUEEZE · PRICE_CONTINUES_NOT_REVERSES_IN_30MIN_WINDOW · DESCRIPTIVE_NOT_ALPHA · STORED_MEMORY_PREDICTS_DISCHARGE_5X_WORSE_THAN_DISCHARGE_ITSELF · MDE_26_5_TO_38_6_BPS_VS_3_TO_5_BPS_EFFECT · PRICE_TEST_NOT_OPENED · INCONCLUSIVE_BY_DESIGN_POWER · NOT_A_COLLECTION_PROBLEM_XSEC_MDE_13_20_BPS_ALSO_TOO_COARSE · S306_CLOSURE_UNCHANGED · NO_REAL_ORDERS · S38_UNTOUCHED`**
+
+**§308 KOLLARIN ALTINA İLK KEZ ZEMİN KONDU — 6 SAATTE FARK SIFIR (−0.03 SE); KOLLAR GETİRİ DEĞİL VARYANS EKLİYOR (risk-ayarlı 1/3). AYRICA: PATH_TERMINAL ŞİŞMESİ, KESİŞMEYEN SKOR ŞEMALARI, VE UFKA BAĞLI MNAR KARANTİNA (2026-08-22, Opus 5 [1M]).**
+
+Salt-okunur analiz + `data/research_geometry.db`'ye tek bayrak sütunu. Gerçek emir yok, proses yok,
+S38/E-DER/A2/V3 forward'ına dokunulmadı, hiçbir ledger satırı değiştirilmedi. Mühürler CT-015 ile
+kalkmıştı.
+
+---
+
+**1 - KENDİ TABLOMDAKİ ŞİŞME: `PATH_TERMINAL` (geri çekme)**
+
+`positions` tablosunda (bu sabah kuruldu) bitmemiş pozisyonları son zarf kaydıyla skorluyordum.
+
+```
+PATH_TERMINAL satiri 64 -> 48h ufkuna ULASAN: 0  (hold_min max 2879 / 2880)
+terminal == MFE olan:  PATH_TERMINAL %46.9  ·  RESOLVE_48h %0.0
+control toplaminin %78.3'u 8 satirdan; 5'i ayni gun 3 saat icinde; 7'sinde terminal == MFE
+```
+
+Zarf kaydı yeni zirvelerde yazıldığı için **son satır orantısız sıklıkla zirve**. Yani "control
++16.970 bps" manşeti, **bitmemiş pozisyonları kendi tepelerinde işaretlemekti**.
+
+**Paneller ETKİLENMEDİ — doğrulandı, varsayılmadı:** `tools/s34_leads_monitor_dashboard.py` yalnız
+`event=="RESOLVE"` + `net_bps` okuyor; canonical dashboard'da bu desen hiç yok. Şişme **yalnız benim
+tablomdaydı**.
+
+**Düzeltme:** `positions`'a `unfinished` sütunu eklendi (`PATH_TERMINAL` ∧ `hold_min<2880` -> 1).
+98 satır bayraklandı, taşıdıkları **+23.328 bps** artık hiçbir agregata giremiyor. Bayrak
+konduktan sonra, **yalnız bitmiş pozisyonlar:**
+
+| surface | arm | n | epizot | ort | medyan | WR% | toplam |
+|---|---|---|---|---|---|---|---|
+| S2_multilane | B (RADAR Op. Control) | 100 | **7** | -0.10 | -10.00 | 48.0 | -10.3 |
+| S1_hold_horizon | control | 61 | 22 | -47.90 | -44.68 | 34.4 | -2921.7 |
+| S2_multilane | C | 30 | 4 | -11.19 | +41.43 | 60.0 | -335.7 |
+| S1_hold_horizon | hour17 | 22 | 10 | -57.48 | -19.67 | 31.8 | -1264.6 |
+| S2_multilane | D | 17 | 3 | +19.97 | +25.40 | 64.7 | +339.6 |
+| S1_hold_horizon | echo | 10 | 5 | +69.83 | +78.52 | 80.0 | +698.3 |
+| S2_multilane | A | 5 | 3 | -176.06 | -133.61 | 0.0 | -880.3 |
+| S2_multilane | E | 2 | 2 | +48.27 | +281.87 | 50.0 | +96.5 |
+
+**Panelde `n=100` görünen arm B, istatistiksel olarak 7 epizot** (şişme 14×). Skorlanmış tüm forward
+kaydı `net_bps` üzerinden **7 epizot**; epizot-bazlı SD 231 -> **MDE ≈ 245 bps**. 10 bps'lik bir
+etkiyi görmek için ~4.180 epizot, yani ~2 yıl gerekir.
+
+**Zirveler SAHTE DEĞİL.** O 98 pozisyon gerçekten o tepelere değdi (operatörün haftalar önceki
+tespiti doğruydu). Sahte olan tek şey **zirveyi sonuç saymak** — ki bu §305'in ana bulgusunun
+aynısı: MFE ≈ MAE, terminal ≈ 0. Zirveler gerçek *ve* terminaller sıfır.
+
+---
+
+**2 - İKİ YÜZEY, KESİŞMEYEN SKOR ŞEMALARI**
+
+```
+                 net_bps    ret_4h/6h/24h    terminal_all_bps
+S2_multilane     100/100        0/100            100/100
+S1_hold_horizon    0/111      110/111            111/111
+```
+
+**Ortak skor sütunu YOK.** `net_bps` okuyan her araç S1 kollarını (`control`/`echo`/`hour17`)
+**sıfır** görür — ki `positions` üzerinden alınan ilk kol tablosu tam olarak bunu gösterdi
+(`+0.00 / %0.0`), ve bu bir NULL-işleme artefaktıydı, gerçek sıfır değil.
+**Kural:** iki yüzey hiçbir tek sütun üzerinden havuzlanamaz; her agregat `score_source` ile
+ayrılmadan raporlanamaz.
+
+---
+
+**3 - KARANTİNA UFKA BAĞLI VE MNAR (yeni, ölçüldü)**
+
+Karantina (`quarantine_reasons: ['in_window_gap']`) penceresinde besleme boşluğu olan gözlemi
+düşürür. Pencere uzadıkça boşluk yakalama olasılığı artar:
+
+```
+48h'i gecmis + net_bps NULL: 66 anchor, HEPSI karantinali
+  2h: 65/66 hayatta    12h: 53/66
+  4h: 63/66            24h: 44/66
+  6h: 62/66            48h:  0/66
+```
+
+**Ve düşenler rastgele değil.** Boşluklar volatiliteyle korele (§191/§208) -> düşenler büyük
+hareketli olanlar:
+
+```
+COZULMUS  (test edilen)  n=93  MFE medyan 132  max  409  MFE>1000: 0
+KARANTINALI              n=66  MFE medyan 278  max 2377  MFE>1000: 18
+```
+
+**Çözülmüş kümede MFE>500 olan tek bir anchor yok.** 1000 bps üstü 22 zirvenin 18'i karantinada.
+
+**Sonuç:** ufuk uzadıkça örneklem sistematik olarak **sakinleşiyor**. "Hangi ufuk daha iyi"
+sorusunun cevabı kısmen örnekleme artefaktıdır. Bu, `S34_HOLD_HORIZON_SWEEP`'in tamamını, §184
+exit-sweep zincirini ve §208'in %62.2 karantina rakamını doğrudan etkiler.
+
+**Önemli ayrım (kurtarılabilir olan):** boşluk **yolu** güvenilmez kılar (`path_max/min_bid` — gizli
+zirve/dip), ama **giriş/çıkış kotalarını** değil (örnek kayıtta çıkış kotası 50 ms taze). `net_bps`
+NULL'lanmış ama **`net_bps_measured` DOLU**. Yani yol-bağımlı istatistikler karantinaya tabi
+kalmalı; tut-ve-bırak terminali kurtarılabilir.
+
+---
+
+**4 - 48 SAAT BU YÜZEYDE ÖLÇÜLEMEZ**
+
+| ufuk | karantinasız (net_bps) | tümü (net_bps_measured) | fark |
+|---|---|---|---|
+| 2h | -2.6 (105 epizot) | -1.6 (107) | +1.0 |
+| 4h | +14.5 (76) | +17.7 (77) | +3.2 |
+| 6h | +29.4 (60) | +32.8 (63) | +3.4 |
+| 12h | +45.1 (37) | +64.9 (41) | +19.8 |
+| 24h | +68.1 (20) | +92.0 (26) | +23.9 |
+| **48h** | **-37.5 (10)** | **+138.6 (13)** | **+176.1** |
+
+İki okuma kısa ufuklarda üst üste düşüyor, uzun ufuklarda ayrışıyor ve **48 saatte işaret
+değiştiriyor**. Karantinalı 66'nın kendisi +386.7 ort / %78.8 WR — ama **6 epizot**, hepsi LONG,
+hepsi ETHUSDT, ve karantina sebebi tam da volatilite. **Bu sayı bulgu değil, kırmızı bayraktır ve
+alıntılanmamalıdır.** §303'ün 48h hücresini (N=10) alıntılanamaz ilan etmesi, bağımsız bir yoldan
+tekrar doğrulandı.
+
+**Güvenilir tek hücre 6h:** 60 epizot **ve** karantinaya duyarsız (fark 3.4 bps). Tablodaki başka
+hiçbir hücre bu iki özelliği birlikte taşımıyor.
+
+---
+
+**5 - VE O HÜCRE PLASEBOYA EŞİT (asıl sonuç)**
+
+`market_mark` ETH 1-dk gridi (2026-07-23 20:40 -> 08-22 10:41, %100 dolu). Kol ve plasebo **aynı
+enstrüman, aynı dönem, aynı formül**; plasebo havuzu = her anchor'ın ±6h penceresinden UZAK tüm
+dakikalar (9.057), saat-eşleşmiş. Pencere örtüşmesi yapısal olarak dışlandı.
+
+| arm | n | epizot | ort | medyan | WR% | plasebo ort | plasebo WR% | fark (ort) |
+|---|---|---|---|---|---|---|---|---|
+| control | 117 | 48 | +37.2 | +14.8 | 57.3 | +35.0 | 75.8 | +2.2 |
+| echo | 21 | 13 | +43.8 | +54.6 | 71.4 | +27.6 | 67.6 | +16.2 |
+| hour17 | 26 | 15 | +1.0 | -4.3 | 46.2 | +15.2 | 48.9 | **-14.2** |
+| **TÜM** | 164 | 55 | +32.3 | +18.8 | 57.3 | +30.9 | 70.5 | +1.4 |
+
+**EPİZOT bazında: kol +28.5 (SE 17.1) vs plasebo +29.0 -> uzaklık −0.03 SE.** Sıfır.
+
+**Ve altındaki yapı daha keskin:**
+
+```
+plasebo  ort +29.0  SD  54.8  ->  ort/SD = 0.529
+kol      ort +32.3  SD 191.2  ->  ort/SD = 0.169     ->  risk-ayarli 3.1 KAT KOTU
+plasebo WR %68.8   ·   kol WR %57.3
+```
+
+**Kollar rastgele bir dakikadan DAHA SEYREK kazanıyor ve ortalamayı ancak 3.5 kat büyük salınımla
+yakalıyor.** Getiri eklemiyorlar — **varyans ekliyorlar.** Mekanizma §305/§306 ile birebir örtüşüyor:
+gün **içi** menzil oranı 0.990 (olay dakikası bir şey eklemez), günler **arası** 1.267 (likidasyon
+günleri %27 oynak). Kol oynak **günleri** seçiyor, varyansını alıyor, getirisini almıyor.
+
+`echo` plasebonun +16.2 ort / +40.6 medyan üstünde — **13 epizot, ~0.3 SE**. Ayakta duran tek şey,
+ve hiçbir şey ifade etmiyor. `hour17` plasebonun ALTINDA (−14.2), §142 ile tutarlı.
+
+**S44 tasarımına etkisi:** orada `control` ebeveyn popülasyon/taban olarak kullanılmıştı. Control'ün
+kendisi plaseboya eşit (+2.2) çıktı -> **o tasarımdaki taban, taban değilmiş.**
+
+**İKİ UYARI, saklanmadan:** (a) plasebo WR %68.8 — ETH bu dönemde güçlü yükselişteydi; **kıyas
+geçerli, seviye döneme özgü**. (b) Kendi mark-gridimin hesabı ledger'ın `net_bps_mark`'ından medyan
+**−10.5 bps** sapıyor (164'ün 88'inde >10 bps), muhtemelen anchor'ın dakika-sınırına yuvarlanması.
+İki taraf da aynı konvansiyonu kullandığı için **kıyas etkilenmiyor**, ama mutlak seviye ledger'la
+birebir değil ve kapatılmadan alıntılanmamalı.
+
+---
+
+**6 - AÇIK KALANLAR**
+
+- `research_geometry.db` **BAYAT** (provenance 10:42, multilane ledger 13:34 / hold_horizon 16:03;
+  DB'de 100 CLOSE, ledger'da 154). R7 gereği yeniden kurulmalı.
+- **Plasebo tablosu DB'de yok** — bu bölümün kıyası tek seferlik betikle yapıldı. Kalıcı hale
+  gelmesi için `placebo` tablosu (pos_id × K eş, aynı sembol/yön/ufuk/saat, farklı gün, R10 kapılı)
+  + `positions`'a `pre5_bps/pre60_bps/rv60_bps/pos60` sütunları gerekir. **N'i büyütmez, zemin verir.**
+- Mark-grid ile ledger arasındaki −10.5 bps sapma kapatılmadı.
+- Trailing çıkış ızgarası (Z=25..600) yalnız karantinasız 93 üzerinde koştu; **o kümede büyük zirve
+  yok**, dolayısıyla büyük-zirveli rejim hakkında hiçbir şey söylemiyor. Kayıt için: baseline
+  −37.5, en sıkı eşik Z=25 -> −4.8 (baseline'a göre +32.7), **hiçbir hücre sıfırı geçmiyor**, WR
+  38.7% -> 29.0%. Yani trailing **kayıp azaltıcı**, alfa değil (§168/§169 ile aynı hüküm) — ve
+  fill OPTIMISTIK (tetik anındaki bid, gap-through yok).
+
+**Verdict token: `ARM_FLOOR_ESTABLISHED_FIRST_TIME · 6H_ARM_MINUS_PLACEBO_0_03_SE · ARMS_ADD_VARIANCE_NOT_RETURN · RET_OVER_SD_0_169_VS_0_529_3_1X_WORSE · ARM_WR_57_3_VS_PLACEBO_68_8 · MECHANISM_MATCHES_S305_WITHIN_DAY_0_990_BETWEEN_DAY_1_267 · ECHO_PLUS_16_2_ON_13_EPISODES_0_3_SE_NOTHING · HOUR17_BELOW_PLACEBO_MINUS_14_2 · S44_CONTROL_BASELINE_WAS_NOT_A_BASELINE · PATH_TERMINAL_INFLATION_SELF_INFLICTED · 0_OF_64_REACHED_HORIZON · TERMINAL_EQ_MFE_46_9PCT_VS_0PCT · 78_3PCT_OF_CONTROL_TOTAL_FROM_8_ROWS · DASHBOARDS_VERIFIED_UNAFFECTED · UNFINISHED_FLAG_ADDED_98_ROWS_23328_BPS_EXCLUDED · ARM_B_N100_IS_7_EPISODES · ALL_SCORED_FORWARD_IS_7_EPISODES_MDE_245_BPS · DISJOINT_SCORING_SCHEMAS_NO_SHARED_COLUMN · QUARANTINE_IS_HORIZON_DEPENDENT_MNAR_65_OF_66_AT_2H_TO_0_OF_66_AT_48H · QUARANTINED_MFE_MEDIAN_278_VS_132 · ZERO_ANCHORS_ABOVE_MFE_500_IN_RESOLVED_SET · 18_OF_22_BIG_PEAKS_QUARANTINED · NET_BPS_MEASURED_SURVIVES_QUARANTINE · PATH_STATS_MUST_STAY_QUARANTINED_TERMINAL_RECOVERABLE · 48H_UNMEASURABLE_MINUS_37_5_VS_PLUS_138_6 · QUARANTINED_48H_PLUS_386_7_IS_6_EPISODES_RED_FLAG_NOT_FINDING · CONFIRMS_S303_48H_UNQUOTABLE_INDEPENDENTLY · 6H_ONLY_CELL_WITH_60_EPISODES_AND_QUARANTINE_INSENSITIVE · PLACEBO_LEVEL_IS_PERIOD_SPECIFIC_ETH_BULL_WR_68_8 · MARK_GRID_MINUS_10_5_BPS_VS_LEDGER_UNRESOLVED · TRAILING_REDUCES_LOSS_NEVER_POSITIVE_MINUS_37_5_TO_MINUS_4_8 · TRAILING_TESTED_ONLY_ON_SMALL_PEAK_SUBSET · GEOMETRY_DB_STALE_R7 · PLACEBO_TABLE_NOT_PERSISTED · NO_REAL_ORDERS · NO_LEDGER_ROW_TOUCHED · S38_UNTOUCHED`**
+
+**§309 CONTROL KURALININ ÇAPRAZ-KESİT REPLİKASYONU — 109 SEMBOL, 3.451 EPİZOT: PLASEBONUN 114 bps ALTINDA (t=−8.43). ETH'İN KENDİ TARİHİNDE DE NEGATİF (t=−3.42). `NOT_REPLICATED_AND_NEGATIVE` (2026-08-22, Opus 5 [1M]).**
+
+Salt-okunur tarihsel replikasyon. Gerçek emir yok, proses yok, S38/E-DER/A2/V3 forward'ına ve
+hiçbir ledger satırına dokunulmadı. Bu, CLAUDE.md'nin **"N tüketmeyen iş sınıfı" maddesi (a)**:
+donmuş bir kuralın, keşfinde kullanılmamış sembollerde replikasyonu.
+
+---
+
+**1 - DONMUŞ KURAL (kaynak koddan, değiştirilmeden)**
+
+`tools/research_s34_echo_forward_ledger.py::_detect_fresh_anchors` ->
+`reconstruct_anchors` (`tools/research_s34_knowable_anchor_continuation.py:251`):
+
+```
+bucket_sec = 300      5 dk kova icinde SELL notional'i zaman sirasiyla birikir
+threshold  = 200_000  ilk asildigi AN = anchor ts
+min_gap_sec= 900      son tutulan anchor'dan 15 dk gecmediyse bastir
+accel_window_sec = 30
+yon = LONG ; control = niteliksiz (echo DEGIL, hour17 DEGIL) tum anchor'lar
+```
+
+**Eşiğin ölçeksiz portu — bakmadan ÖNCE bağlandı.** Sembol başına eşik seçmek §200'ün suçudur.
+Tek global kural: canlı eşiğin ETH'teki persentili hesaplandı ve **aynı persentil** her sembole
+uygulandı.
+
+```
+ETH 5dk SELL notional kovalari: n=12.930  medyan 4.355  p90 135.577  p99 1.511.886
+canli esik 200.000  =  ETH'in %92.63 PERSENTILI
+port dogrulamasi: %92.63 -> ETH esigi 199.857 (~200.000) ; iki ETH kosusu SATIR SATIR AYNI
+ornek esikler: BTC 256.829 · SOL 83.030 · XRP 64.917 · DOGE 68.167
+```
+
+*(Ön koşuda p99 kullanılmıştı = ETH için 1.511.886, yani canlının 7.6 katı. O koşu geçerliydi ama
+canlı kuralın portu değildi; bu bölüm onu düzeltir ve sonuç aynı yönde, daha güçlü çıkar.)*
+
+**Disiplin:** R9/R10 kapsam kapısı (yalnız besleme-kapsanan günler, kenar günler atıldı) · epizot
+çöküşü (her sembolde ufuk boyu örtüşmeyen ilk-anchor) · plasebo = **aynı sembol, aynı gün, her
+anchor'ın ±ufuk penceresinin DIŞI, saat-eşleşmiş** · FEE 10 bps **iki tarafa da** (fee-nötr) ·
+**tüm ufuklar raporlanır, hiçbiri seçilmez** · havuzlanmış test + semboller-arası işaret testi;
+sembol seçimi YOK.
+
+---
+
+**2 - SONUÇ: HER UFUKTA NEGATİF, HER UFUKTA PLASEBONUN ALTINDA**
+
+Pencere 2026-02-16 -> 07-23 (111 kapsanan gün), 7.766 anchor, 109 sembol:
+
+| ufuk | epizot | ort | medyan | WR% | plasebo ort | fark | fark/SE |
+|---|---|---|---|---|---|---|---|
+| 2h | 4.890 | -83.8 | -34.5 | 39.7 | +19.1 | **-102.9** | **-13.15** |
+| 4h | 3.955 | -65.9 | -31.9 | 42.7 | +37.3 | -103.2 | -9.33 |
+| 6h | 3.451 | -58.5 | -26.3 | 44.8 | +55.7 | **-114.1** | **-8.43** |
+| 12h | 2.618 | -57.2 | -31.7 | 45.1 | +78.3 | -135.5 | -6.88 |
+| 24h | 1.834 | -34.2 | -72.6 | 42.7 | +91.4 | -125.5 | -3.85 |
+| 48h | 1.198 | +10.3 | -61.2 | 45.2 | +37.5 | -27.2 | -0.42 |
+
+**ETH TEK BAŞINA, BİREBİR CANLI EŞİKLE (200.000) — kolun kendi enstrümanı, kendi tarihi:**
+
+| ufuk | epizot | ort | plasebo | fark | fark/SE |
+|---|---|---|---|---|---|
+| 2h | 175 | -16.6 | +12.0 | -28.6 | -3.86 |
+| 4h | 123 | -14.5 | +32.9 | -47.5 | -4.20 |
+| 6h | 98 | -5.3 | +48.4 | -53.7 | -3.42 |
+| 12h | 61 | -14.5 | +72.8 | -87.2 | -4.35 |
+
+Semboller-arası işaret testi (ön koşu, p99 eşik, 6h): **77 sembolün yalnız 27'sinde (%35.1)**
+kol > plasebo; medyan fark −34.7 bps.
+
+**Yorum.** Yükselen bir piyasada rastgele bir 6 saatlik LONG **+55.7 bps** getirirken control
+kuralı **−58.5** getiriyor: kural girişi **114 bps kötüleştiriyor**. Bu "edge yok" değil,
+**negatif edge**. Mekanizma basit ve mekanik: zorunlu satış eşiği aştığı ANDA LONG girmek =
+düşen bıçağı tutmak; kesitte düşüş devam ediyor.
+
+**Eclipse'in temel tezi — "zorunlu satışı fade et, LONG gir" — kesitte VE ETH'in kendi tarihinde
+sistematik olarak kaybettiriyor.** Bu, tez hakkında ilk kez büyük-N ve plasebo-kontrollü bir hüküm.
+
+---
+
+**3 - §308 İLE GERÇEK BİR GERİLİM (uydurulmuyor, kaydediliyor)**
+
+```
+§309 tarihsel  ETH 6h  2026-02-16 -> 07-23   98 epizot   plasebonun 53.7 bps ALTINDA (t=-3.42)
+§308 forward   ETH 6h  2026-07-23 -> 08-22   48 epizot   plaseboya ESIT (+2.2, -0.03 SE)
+```
+
+İkisi de ölçüldü, ikisi de plasebo-kontrollü, ve **ayrışıyorlar** (~56 bps). Tarihsel olanın epizot
+sayısı iki katı ve penceresi beş kat uzun; forward bir aylık. Muhtemel açıklamalar: rejim farkı,
+forward'ın küçük N'i, ya da anchor evreninin farklılığı (forward `_detect_fresh_anchors` canlı
+book/mark akışıyla, tarihsel rekonstrüksiyon `liquidations` tablosuyla). **Hangisi olduğu
+bilinmiyor ve bu bölüm bir açıklama uydurmuyor.**
+
+---
+
+**4 - UYARILAR**
+
+- **48h anlamlı DEĞİL** (t=−0.42) ve kolun ortalaması orada +10.3'e dönüyor — 24 saatten sonra
+  piyasaya yakınsıyor. 48h hücresi bu bölümde de hüküm taşımaz.
+- **Plasebo pozitif ve ufukla büyüyor** (+19.1 -> +91.4): dönem yükselişti. Ama kol **mutlak olarak
+  da negatif** (−83.8 … −34.2), yani yalnızca geride kalmıyor, para kaybediyor.
+- FEE 10 bps **her iki tarafa** uygulandı; fark fee-nötr.
+- Plasebo minimum örnekleme adımı 7 dk; havuz her sembol×saat için ayrı.
+- Bu bölüm **fiyat = klines open** kullanır (mark/book değil). Canlı kol measured-cost ile ölçülür;
+  seviyeler birebir kıyaslanamaz, **fark** kıyaslanabilir (iki taraf da aynı tabanda).
+
+---
+
+**5 - HÜKÜM**
+
+`CONTROL_RULE_NOT_REPLICATED_AND_NEGATIVE`. Donmuş kural, keşfinde kullanılmamış 108 sembolde
+**replike olmadı** — ve olmamakla kalmayıp plasebonun anlamlı biçimde altında çıktı; ETH'in kendi
+tarihinde de öyle. Bu, bir kolun "kapatılması" değil, **kuralın yönünün ölçülmesi**: LONG kolu,
+2h-24h aralığında rastgele girişten kötü.
+
+**AÇIK:** (a) §308 ile gerilim çözülmedi. (b) SHORT aynası bu bölümde ölçülmedi — kural negatifse
+tersi otomatik pozitif DEĞİLDİR (maliyet iki yönde de ödenir; §305'te ölçüldü: −2.16 net ->
+−19.90 ters çevrilince). (c) `research_geometry.db` bayat (R7) ve plasebo tablosu kalıcı değil.
+
+**Verdict token: `CONTROL_RULE_CROSS_SECTION_REPLICATION · N_NON_CONSUMING_CLASS_A · FROZEN_RULE_FROM_SOURCE_bucket300_gap900_accel30 · THRESHOLD_PORT_PRECOMMITTED_BEFORE_LOOKING · LIVE_200K_EQUALS_ETH_92_63_PERCENTILE · PORT_VERIFIED_ETH_199857_IDENTICAL_ROWS · 109_SYMBOLS_7766_ANCHORS_3451_EPISODES_AT_6H · NEGATIVE_AT_EVERY_HORIZON_2H_TO_24H · BELOW_PLACEBO_AT_EVERY_HORIZON · 6H_MINUS_114_1_BPS_t_MINUS_8_43 · 2H_t_MINUS_13_15 · ETH_ALONE_LIVE_THRESHOLD_6H_MINUS_53_7_t_MINUS_3_42 · CROSS_SYMBOL_SIGN_27_OF_77_ABOVE_PLACEBO · PLACEBO_POSITIVE_AND_GROWS_WITH_HORIZON_BULL_PERIOD · ARM_ABSOLUTELY_NEGATIVE_NOT_MERELY_LAGGING · FEE_10BPS_BOTH_SIDES_FEE_NEUTRAL · 48H_NOT_SIGNIFICANT_t_MINUS_0_42 · TENSION_WITH_S308_FORWARD_UNEXPLAINED_NOT_FABRICATED · ECLIPSE_CORE_THESIS_FADE_FORCED_SELLING_MEASURED_NEGATIVE · SHORT_MIRROR_NOT_TESTED_COST_PAID_BOTH_WAYS · NOT_REPLICATED_AND_NEGATIVE · NO_REAL_ORDERS · S38_UNTOUCHED`**
+
+**§310 SHORT AYNASI: POZİTİF AMA TAM OLARAK İŞLEM YAPILAMAYACAK YERDE (likiditeyle monoton sönüyor). VE §308↔§309 GERİLİMİ ÇÖZÜLDÜ — YÖNTEM DEĞİL, DÖNEM + KENDİ BRÜT/NET KARIŞTIRMAM (2026-08-22, Opus 5 [1M]).**
+
+Salt-okunur. Gerçek emir yok, proses yok, S38/E-DER/A2/V3 forward'ına ve hiçbir ledger satırına
+dokunulmadı.
+
+---
+
+**1 - SHORT AYNASI: ARİTMETİK, YENİ TEST DEĞİL**
+
+§309 LONG'u plasebonun 114 bps altında ölçtü. SHORT o ölçümün **aritmetik tersidir** — aynı t, aynı
+epizotlar. **Tek serbest parametre yönün seçimi (1 bit), ve o biti sonucu GÖRDÜKTEN sonra seçtim.**
+Bu kayda geçer: SHORT önceden kaydedilmiş bir hipotez değildir.
+
+| ufuk | epizot | SHORT ort | medyan | WR% | plasebo SHORT | fark | fark/SE |
+|---|---|---|---|---|---|---|---|
+| 2h | 4.890 | +63.8 | +14.5 | 54.5 | -39.1 | +102.9 | 13.15 |
+| 4h | 3.955 | +45.9 | +11.9 | 52.3 | -57.3 | +103.2 | 9.33 |
+| 6h | 3.451 | +38.5 | +6.3 | 51.4 | -75.7 | +114.1 | 8.43 |
+| 12h | 2.618 | +37.2 | +11.7 | 52.1 | -98.3 | +135.5 | 6.88 |
+| 24h | 1.834 | +14.2 | +52.6 | 55.3 | -111.4 | +125.5 | 3.85 |
+
+FEE 10 bps her iki tarafa. Havuzlanmış SHORT neti her ufukta **pozitif**.
+
+**AMA — ilk uyarı, kompozisyon (bugünün dördüncü tekrarı):**
+```
+6h: havuzlanmis ort +38.5   ·   MEDYAN SEMBOL +3.9
+109 sembolun 90'i (%82.6) plasebonun USTUNDE  ·  ama neti POZITIF olan yalniz 57 (%52.3)
+```
+
+**2 - VE İKİNCİ UYARI GERÇEK ÖLDÜRÜCÜ: ETKİ LİKİDİTEYLE MONOTON SÖNÜYOR**
+
+| 1dk $hacim | sembol | epizot | ort net | **medyan net** | pozitif sembol |
+|---|---|---|---|---|---|
+| $0–10k | 45 | 820 | +36.6 | +11.7 | 31/45 |
+| $10k–100k | 49 | 1.828 | +30.1 | +7.8 | 22/49 |
+| $100k–1M | 13 | 612 | +15.4 | **−7.1** | **4/13** |
+
+`$100k–1M` kademesinde **medyan zaten negatif**. BTC/ETH tabloya girmiyor (kendi kademelerinde
+3 sembol yok) ama ETH ayrıca ölçüldü: **SHORT −12.2 (Haziran) / −27.0 (Temmuz)** — ETH'in anchor
+sonrası brüt hareketi hafif POZİTİF (+2.2 / +17.0), yani **her iki yön de fee'ye yeniliyor.**
+
+En büyük katkı verenler ve dakikalık dolar hacimleri:
+```
+DEXE  +532 bps / $12.196   SIREN +431 / $8.078    LAB  +354 / $154.721
+CLO   +327 bps /  $4.089   GWEI  +306 / $4.399    SKYAI +273 / $17.371
+HOME  +235 bps /  $5.637   SYN   +240 / $3.111    BEAT +187 / $22.363
+```
+
+**Dakikada 3–12 bin dolar işlem gören tokenler.** 6 saatlik bir SHORT için o defterde anlamlı
+büyüklük yok; borç bulunabilirliği ayrı mesele; ve `$0–10k` kademesinin medyan neti **+11.7 bps**
+— o kademedeki tipik spread'in İÇİNDE. §219/§220'nin hükmü (*"fırsat inşa edilebilir değil"*)
+tamamen başka bir kapıdan tekrar geliyor — ve bu sefer **doğru büyüklük üzerinde** ölçülmüş:
+tick değil, **likidite**.
+
+**Hüküm: `SHORT_MIRROR_POSITIVE_BUT_NOT_CONSTRUCTIBLE`.** Etki veride gerçek ve tam olarak
+uygulanamayacağı yerde oturuyor; likit uçta işareti bile dönüyor.
+
+---
+
+**3 - §308↔§309 GERİLİMİ: YÖNTEM DEĞİL**
+
+Hipotezim yöntemdi (canlı `_detect_fresh_anchors` vs tarihsel rekonstrüksiyon). **Yanlıştı.**
+Aynı pencerede (07-29 → 08-23) iki anchor kümesi yan yana konuldu:
+
+```
+canli anchor 140  ·  tarihsel rekonstruksiyon 144
+ORTAK 140  ·  yalniz CANLI 0  ·  yalniz TARIHSEL 4
+yalniz-tarihsel 4'un en yakin canli anchor'a uzakligi: medyan 49 dk (hicbiri <15 dk)
+```
+
+**Anchor tespiti kusursuz sadık.** `FRESH_MS` seçilimi yok; tanım farkı yok. Canlı kırılım:
+control 107 · hour17 16 · echo 17.
+
+**Gerçek sebep iki parçalı, ve birincisi benim hatam:**
+
+**(a) BRÜT/NET KARIŞTIRMASI.** §308'de fee çıkarmamıştım (iki tarafa da çıkarmadığım için o kıyas
+*kendi içinde* geçerli), §309'da 10 bps çıkardım. Seviyeleri yan yana koyarken elma-armut yaptım.
+Brüte normalize edilince:
+
+```
+              kol brut   plasebo brut    fark
+§309 tarihsel    +4.7        +58.4      -53.7
+§308 forward    +37.2        +35.0       +2.2
+```
+
+Kol **+32 yükselmiş**, plasebo **−23 düşmüş**; işareti çeviren ikisinin toplamı. **Yani dönem —
+ama iki taraflı, büyük bir dönem etkisi.**
+
+**(b) VE FORWARD SAYISI KARARLI DEĞİL.** Aynı forward penceresi 07-29'dan başlatılınca kol brüt
+**+19.9** (42 epizot), 07-23'ten başlatılınca **+37.2** (48 epizot). **Altı gün ve altı epizot
+ortalamayı 17 bps oynatıyor.** R7'nin aynısı, yeni bir yüzeyde: forward sayısı, herhangi bir şeyle
+kıyaslanacak kadar kararlı değil.
+
+**Sonuç: §309'un hükmü (tarihsel kesitte kural plasebonun altında) DEĞİŞMEZ.** Değişen, §308 ile
+kurduğum "gerilim"in kendisi: yöntem farkı yoktu, dönem farkı + kendi ölçüm tabanı hatam vardı.
+
+---
+
+**4 - AÇIK KALANLAR**
+
+- SHORT'un likit uçtaki işareti (`$100k–1M` medyan −7.1, ETH negatif) ile illikit uçtaki
+  büyüklüğü arasındaki geçişin nerede olduğu ölçülmedi (kademe sınırları kaba).
+- Gerçek spread/borç maliyeti ölçülmedi — likidite bir **proxy**; `$0–10k` kademesinin spread'i
+  varsayıldı, ölçülmedi. Öldürücü argüman bu ölçümle kesinleşir.
+- §308'in tüm seviyeleri **brüt**tür; o bölümdeki karşılaştırmalar geçerli, mutlak sayıları
+  net sanılmamalı.
+- `research_geometry.db` hâlâ bayat (R7); plasebo tablosu hâlâ kalıcı değil.
+
+**Verdict token: `SHORT_MIRROR_IS_ARITHMETIC_COMPLEMENT_NOT_NEW_TEST · DIRECTION_CHOSEN_AFTER_SEEING_RESULT_1_BIT_DISCLOSED · SHORT_POSITIVE_EVERY_HORIZON_6H_PLUS_38_5 · POOLED_38_5_VS_MEDIAN_SYMBOL_3_9_COMPOSITION · 90_OF_109_ABOVE_PLACEBO_BUT_ONLY_57_NET_POSITIVE · EFFECT_DECAYS_MONOTONICALLY_WITH_LIQUIDITY · MEDIAN_NEGATIVE_AT_100K_TO_1M_TIER_4_OF_13 · ETH_SHORT_NEGATIVE_MINUS_12_2_AND_MINUS_27_0 · ETH_GROSS_POST_ANCHOR_IS_POSITIVE_BOTH_DIRECTIONS_LOSE_TO_FEES · TOP_CONTRIBUTORS_TRADE_3K_TO_12K_PER_MINUTE · MEDIAN_NET_11_7_INSIDE_PLAUSIBLE_SPREAD · S219_S220_VERDICT_ARRIVES_VIA_LIQUIDITY_NOT_TICK · SHORT_MIRROR_POSITIVE_BUT_NOT_CONSTRUCTIBLE · ANCHOR_DETECTION_FAITHFUL_140_OF_140_COMMON_ZERO_LIVE_ONLY · FRESH_MS_SELECTION_HYPOTHESIS_REFUTED · METHOD_WAS_NOT_THE_CAUSE · MY_OWN_GROSS_VS_NET_MIXUP_S308_GROSS_S309_NET · NORMALIZED_ARM_PLUS_4_7_TO_PLUS_37_2_PLACEBO_PLUS_58_4_TO_PLUS_35_0 · TWO_SIDED_PERIOD_EFFECT · FORWARD_NUMBER_UNSTABLE_6_EPISODES_MOVE_17_BPS · S309_VERDICT_UNCHANGED · SPREAD_AND_BORROW_COST_NOT_MEASURED_LIQUIDITY_IS_A_PROXY · S308_LEVELS_ARE_GROSS · GEOMETRY_DB_STALE · NO_REAL_ORDERS · S38_UNTOUCHED`**
+
+**§311 ZORUNLU AKIŞ DEVAM EDİYOR — İKİ TARAFTA SİMETRİK, ÖNCEDEN SÖYLENMİŞ YÖNLE DOĞRULANDI. BETA-NÖTR, 5.439 EPİZOT, %84–85 SEMBOL UYUMU. MALİYET VARSAYIMI KAPATILAMADI (2026-08-22, Opus 5 [1M]).**
+
+Salt-okunur. Gerçek emir yok, proses yok, S38/E-DER/A2/V3 forward'ına ve hiçbir ledger satırına
+dokunulmadı. Bu bölüm §309/§310'un üstüne kurulur ve **onların hükmünü değiştirmez** — onlar
+*yönsel* kolu ölçtü, bu bölüm *beta-nötr* olanı.
+
+---
+
+**1 - BAKMADAN ÖNCE YAZILAN TAHMİN**
+
+§309 SELL anchor'larını ölçtü: sembol, plasebonun 114 bps altında. İki rakip açıklama vardı ve
+birbirini dışlıyordu:
+
+```
+(A) MEKANIZMA: "zorunlu akis fiyati iter ve itis surer"  -> BUY anchor'lari AYNA verir (pozitif)
+(B) ARTEFAKT : "alt-coin'ler stresten sonra duser"       -> BUY tarafi da negatif ya da sifir
+```
+
+Tahmin (A) yönünde, **sonuç görülmeden** yazıldı: *"mekanizma doğruysa BUY tarafı pozitif kalıntı
+verecek, ve likiditeyle aynı şekilde sönecek."*
+
+**Kurulum.** Donmuş anchor kuralı (`bucket=300s · eşik = sembolün %92.63 persentili · min_gap=900s`),
+yalnız besleme-kapsanan günler (R9/R10), epizot çöküşü, plasebo = her anchor'ın ±6h penceresinin
+DIŞINDAKİ dakikalar (aynı sembol), **BTC-beta-nötr kalıntı** (beta: 7 gün, 5 dk bar, **nedensel**
+kayan pencere, `0.05<β<5`), ufuk 6h, maliyet 2 bacak × 10 bps. BTC hedge enstrümanı olduğu için
+evrenden **çıkarıldı** (kendine karşı kalıntısı tanım gereği 0 — ön koşuda bu satır `+0.0` çıkarak
+hatayı ele verdi).
+
+---
+
+**2 - SONUÇ: AYNA DOĞRULANDI**
+
+| | SELL → sembolü SHORT | BUY → sembolü LONG |
+|---|---|---|
+| kol kalıntısı − plasebo | **−136.9** | **+123.7** |
+| fark/SE | **−10.65** | **+6.62** |
+| epizot | 3.097 | 2.342 |
+| sembol | 93 | 74 |
+| işaret doğru olan sembol | 79/93 (**%85**) | 62/74 (**%84**) |
+
+**Zıt işaret, neredeyse eşit büyüklük, aynı sembol genişliği.** Açıklama (B) — *"alt-coin'ler
+stresten sonra düşer"* — bununla **ölür**: BUY tarafı da negatif olması gerekirdi, tam tersi çıktı.
+Ayakta kalan tek açıklama: **zorunlu akış fiyatı iter ve itiş 6 saat sürer; yönü akışın yönü
+belirler.**
+
+**Likidite gradyanı iki tarafta da aynı ve monoton:**
+
+```
+kademe        SELL fark    BUY fark
+>$1M            -17.8       +24.6
+$100k-1M       -143.7       +91.8
+$10k-100k      -117.4       +98.5
+<$10k          -195.6      +308.6
+```
+
+---
+
+**3 - YOĞUNLAŞMA: BEKLENENDEN ÇOK DAHA İYİ (ve bir önceki iddiam DÜZELTİLİYOR)**
+
+Ön koşuda *"tek sembol toplamın %66'sı"* demiştim. **O yalnız `$100k-1M` kademesinin içindeydi**
+(13 sembol, LAB baskın). Tüm popülasyonda:
+
+```
+                          BUY      SELL
+en buyuk  1 sembol       9.6%     13.0%
+en buyuk  3            27.1%     33.0%
+en buyuk  5            42.5%     45.7%
+en buyuk 10            67.6%     67.2%
+en buyuk 5 CIKARILINCA  +66.4    +74.2   bps  (net pozitif 52/69 · 64/88)
+```
+
+**Yoğunlaşma bu ölçekte sonucu taşımıyor.** En büyük 5 sembol çıkarıldığında etki %40 azalıyor ama
+işaret ve genişlik korunuyor.
+
+**İŞLEM YAPILABİLİR KADEME ($100k+/dk medyan hacim, en büyük 3 aykırı çıkarılmış):**
+
+```
+BUY :  14 sembol · 679 epizot · +59.2 bps · net pozitif 12/14
+SELL:  13 sembol · 624 epizot · +41.0 bps · net pozitif  9/13
+
+  sembol     1dk hacim   BUY ep / net      SELL ep / net
+  ETHUSDT    3.016.426    94 /   +4.6       96 /   -2.2
+  SOLUSDT      673.403    68 /  +17.9       67 /  -27.0
+  ZECUSDT      386.902    80 /  +92.0       75 /  +30.9
+  HYPEUSDT     369.840    66 / +117.9       64 /  +26.1
+  XAUUSDT      361.325    34 /   +5.1       31 /  +16.3
+  XAGUSDT      256.438    34 /  +50.1       35 /   +4.6
+  XRPUSDT      241.104    49 /   +3.5       61 /  +12.6
+  DOGEUSDT     151.204    37 /  -26.2       49 /   -1.8
+```
+
+**ETH (tek >$1M sembol): BUY +4.6 net, SELL −2.2 net.** En likit isimde BUY tarafı maliyet sonrası
+pozitif, SELL tarafı değil.
+
+---
+
+**4 - SİMETRİ ORTALAMADA VAR, DAĞILIMDA YOK (yeni)**
+
+```
+          Haziran                          Temmuz
+SELL   net +107.9  medyan +27.0  poz%55.8   net +155.3  medyan +58.9  poz%63.2
+BUY    net +127.8  medyan  +8.8  poz%51.7   net  +76.4  medyan  -1.8  poz%49.8
+```
+
+**SELL'in medyanı sağlam pozitif ve GÜÇLENİYOR. BUY'un medyanı sıfır ve SÖNÜYOR** — BUY'un
+ortalamasını sağ kuyruk taşıyor, poz% yazı-tura. Fiziksel olarak tutarlı: düşen bir alt-coin'de
+zorunlu satış sonrası SHORT **sık ve küçük** kazandırır; squeeze sonrası LONG **seyrek ve büyük**.
+Aynı mekanizma, iki farklı dağılım. **Bir SHORT stratejisi için BUY tarafının kuyruğu düşmandır;
+bu, SELL tarafını dağılımsal olarak daha iyi aday yapar.**
+
+---
+
+**5 - KAPATILAMAYAN VARSAYIM: MALİYET**
+
+Net rakamların tamamı **2 bacak × 10 bps = 20 bps** varsayımına dayanıyor ve **spread sayılmadı**.
+Kapatma denendi ve **kendi doğrulamasında kaldı**:
+
+```
+Roll etkin-spread tahmincisi (1dk kapanislar) vs GERCEK book_ticker spread'i:
+  BTCUSDT  Roll 1.35 bps  vs gercek ~0.00   -> 8756x
+  ETHUSDT  Roll 1.51      vs 0.05 (ledger)  ->   30x
+  SOLUSDT  Roll 2.26      vs ~0.01          ->  167x
+```
+
+Roll, 1-dakikalık kapanışlarda spread'i değil **her türlü kısa vadeli negatif otokorelasyonu**
+ölçüyor; likit kriptoda o gürültü spread'in 1-2 mertebe üstünde. Tahminci ayrıca dört sembolde
+`0.00` verdi (pozitif otokovaryans) — yani en büyük katkı verenlere hiç maliyet eklemedi.
+**Sayılar kullanılmadı, atıldı.**
+
+`book_ticker` yalnız BTC/ETH/SOL'da; etkinin bulunduğu 106 sembolde spread verisi **yok**.
+**Maliyet sorusu yerel veriyle cevaplanamaz.** Duyarlılık ölçüldü: mütevazı bir spread eklenince
+bir çekirdek grup +9.9 → +3.5'e düşüyor. **Yani sonuç maliyet varsayımına ÇOK duyarlı.**
+
+---
+
+**6 - SAKLANMAYAN ÜÇ ŞEY**
+
+1. **BUY popülasyonu tamamen pristine değil.** Oturumun ilk ölçümünde ham BUY kümelerine bakılmıştı
+   (yönsel, beta-nötrsüz, donmuş kuralsız; 6h medyan −9.38, WR %47.6). Oradan hiçbir şey inşa
+   edilmedi ve bu test onu kullanmıyor — ama "hiç bakılmamış" da değildir.
+2. **Aynı pencere, aynı veri.** Bu bir forward testi değil; SELL tarafında keşfedilen bir yönün,
+   dokunulmamış BUY yarısında **yön-önceden-söylenerek** sınanmasıdır. Değeri buradadır ve
+   sınırı da buradadır.
+3. **Ufuk seçilmedi ama tek ufuk raporlandı** (6h). Diğer ufuklar bu bölümde koşulmadı;
+   6h §308'de "hem kalabalık hem karantinaya duyarsız" tek hücre olduğu için seçilmişti —
+   yani seçim daha önce ve başka bir gerekçeyle yapılmıştı, burada tekrarlanmadı.
+
+---
+
+**7 - HÜKÜM VE SIRADAKI**
+
+`FORCED_FLOW_CONTINUATION_CONFIRMED_BOTH_SIDES`. Mekanizma kuruldu: iki taraf, zıt işaret, eşit
+büyüklük, %84–85 sembol uyumu, monoton likidite gradyanı, beta-nötr, plasebo-kontrollü,
+5.439 epizot, ve **yön önceden söylenmişti**.
+
+**Bu bir deploy adayı DEĞİLDİR** ve nedeni tek cümle: net rakamların tamamı ölçülemeyen bir maliyet
+varsayımının üstünde duruyor, ve etki likiditeyle söndüğü için en güvenilir spread'e sahip
+enstrümanda (ETH) yalnız **+4.6 bps**.
+
+**Sıradaki tek meşru adım, CLAUDE.md'nin kuralı:** yanmış yüzeyden seçilen her şey discovery'dir;
+confirmatory olması için **yeni bir N=0 sınırı** gerekir. Ön-kayıt şu an tam yazılabilir:
+donmuş anchor parametreleri + %92.63 persentil + `$100k+/dk` evren (aykırılar adıyla dışlanmış) +
+BTC-beta-nötr + 6h + **maliyet ölçülür, varsayılmaz**.
+
+**Verdict token: `FORCED_FLOW_CONTINUATION_CONFIRMED_BOTH_SIDES · DIRECTION_PREDICTED_BEFORE_LOOKING_AND_PASSED · SELL_MINUS_136_9_t_MINUS_10_65 · BUY_PLUS_123_7_t_PLUS_6_62 · NEAR_SYMMETRIC_MAGNITUDE · SYMBOL_AGREEMENT_85PCT_AND_84PCT · ALT_DECLINE_ARTEFACT_HYPOTHESIS_KILLED · MONOTONE_LIQUIDITY_GRADIENT_BOTH_SIDES · BETA_NEUTRAL_CAUSAL_7D_5MIN_WINDOW · BTC_EXCLUDED_AS_HEDGE_INSTRUMENT · SELF_CAUGHT_BTC_ZERO_RESIDUAL_DESIGN_FLAW · CONCENTRATION_TOP1_9_6PCT_BUY_13_0PCT_SELL · EARLIER_66PCT_CLAIM_CORRECTED_WAS_TIER_ONLY · SURVIVES_TOP5_REMOVAL_PLUS_66_4_AND_PLUS_74_2 · TRADEABLE_TIER_BUY_PLUS_59_2_12_OF_14 · TRADEABLE_TIER_SELL_PLUS_41_0_9_OF_13 · ETH_BUY_PLUS_4_6_SELL_MINUS_2_2 · SYMMETRY_IN_MEAN_NOT_IN_DISTRIBUTION · SELL_MEDIAN_POSITIVE_AND_STRENGTHENING · BUY_MEDIAN_ZERO_AND_DECAYING_TAIL_DRIVEN · COST_ASSUMPTION_NOT_CLOSED · ROLL_ESTIMATOR_FAILED_ITS_OWN_VALIDATION_30X_TO_8756X · ROLL_NUMBERS_DISCARDED · SPREAD_UNMEASURABLE_LOCALLY_BOOK_TICKER_ONLY_3_SYMBOLS · RESULT_HIGHLY_COST_SENSITIVE_9_9_TO_3_5 · BUY_POPULATION_NOT_FULLY_PRISTINE_DISCLOSED · SAME_WINDOW_NOT_A_FORWARD_TEST · SINGLE_HORIZON_6H_INHERITED_FROM_S308 · NOT_A_DEPLOY_CANDIDATE · REQUIRES_PREREG_AND_N_ZERO · NO_REAL_ORDERS · S38_UNTOUCHED`**
+
+**§312 S50 ÖN-KAYIT V1 DONDURULDU — ZORUNLU-AKIŞ DEVAMLILIĞI, BETA-NÖTR; TEK SORU: MEKANİZMA ÖLÇÜLEN MALİYETİ TAŞIYOR MU (2026-08-22, Opus 5 [1M]).**
+
+`reports/research/S50_FORCED_FLOW_CONTINUATION_PREREG_V1.md` yazıldı ve **sonuç görülmeden
+donduruldu**. Durum: `FROZEN_PENDING_OPERATOR_SIGNOFF`. Counted-N imza anında **0**'dan başlar;
+backfill yok, re-mine yok. Paper-only; `-EnableLive`, sizing, kaldıraç, korumalı yolların hiçbiri
+kapsamda değil.
+
+**Sorulan soru §311'in sorusu DEĞİL.** §311 mekanizmanın var olduğunu kurdu (SELL −136.9 t=−10.65 ·
+BUY +123.7 t=+6.62, %84–85 sembol uyumu, 5.439 epizot). Bu çalışmanın tek sorusu:
+**mekanizma ÖLÇÜLEN işlem maliyetini, ileriye doğru, gerçekten işlem yapılabilir enstrümanlarda
+taşıyor mu?** MaT maliyet, tahmin edicinin ana belirsizliğidir ve yerel veriyle kapatılamadı
+(Roll tahmincisi kendi doğrulamasında 30×–8756× kaldı; `book_ticker` yalnız BTC/ETH/SOL'da).
+Forward ölçüm bunu yapısal olarak cevaplar: simülasyonda **varsayım** olan şey, gerçek dolumda
+**ölçüm** olur.
+
+**Donmuş kural (serbest parametre yok):** `bucket=300s · min_gap=900s · accel=30s`, kaynak koddan
+değiştirilmeden. **Eşik tek global kural:** canlı 200.000 = ETH'in **%92.63 persentili**; aynı
+persentil her sembol ve her tarafa, **trailing 90 gün, haftalık yeniden hesap**, yalnız geçmiş
+veriyle. **Evren ADIYLA donduruldu, 14 sembol, AYKIRI DIŞLAMASI YOK** (BNB · DOGE · ETH · HYPE ·
+KORU · LAB · MU · SKHYNIX · SOL · SOXL · XAG · XAU · XRP · ZEC). §311'de aykırılar *sonradan*
+çıkarılmıştı — bunu *önceden* yapmak serbest parametre olurdu, o yüzden LAB/SOXL/KORU/MU **içeride
+kalıyor**; sonucu onlar taşıyorsa forward veri bunu söyleyecek. **BTCUSDT hedge enstrümanıdır ve
+evrende DEĞİLDİR** (kendine karşı beta-nötr kalıntısı tanım gereği 0 — §311'de `+0.0` çıkarak
+tasarım hatasını ele verdi, burada düzeltildi). Evren **büyüyemez**; yalnız delisting veya
+7 gün üst üste $50k altı hacimle küçülür.
+
+**Birincil/ikincil ŞİMDİ ilan edildi ki sonradan seçilemesin.** Güç, tarihsel epizot dağılımından
+(bir varyans, sonuç değil):
+
+```
+SELL  14 sembol · ~17.2 epizot/gun · epizot SD 416 bps · tarihsel ort +82.1 brut, medyan +17.1
+      gozlenen etki 82.1 -> N=  201 (~12 gun)   ·   ETKININ YARISI 41.0 -> N=806 (~47 gun)  <- tasarim noktasi
+BUY   14 sembol · ~16.6 epizot/gun · epizot SD 365 bps · tarihsel ort +25.1 brut, medyan  +2.9
+      gozlenen etki 25.1 -> N=1.662 (~100 gun) ·   yarisi 12.5 -> N=6.648 (~401 gun)
+```
+
+**BUY kolu makul hiçbir sürede karara bağlanamaz ve GÖZLEMSEL ilan edildi** — kaydedilir, PASS için
+asla kullanılmaz, sonradan birincile terfi ettirilemez. Bu asimetri §311'in dağılım bulgusuyla
+birebir örtüşüyor: SELL medyanı pozitif ve güçleniyor (+27.0 → +58.9), BUY medyanı sıfır ve sönüyor
+(+8.8 → −1.8).
+
+**Değerlendirme: TEK BAKIŞ, sınır şimdi sabit.** `N_MIN = 800 sayılmış SELL epizodu`. N_MIN'den önce
+estimand'ın **hiçbir agregatı** okunmaz; serbest olan yalnız fire sayısı, kapsam/sağlık, karantina
+sayısı ve tekil debug satırları. **PASS DÖRT ŞARTIN HEPSİNİ ister:** (1) ölçülen-maliyetli net
+ortalama > 0, iki taraflı p<0.05, **gün-kümeli** (epizot-başına SE kabul edilmez); (2) 2 test
+üzerinde Holm; (3) gün-düzeyi işaret testi uyumlu; (4) **sembol genişliği ≥ %60**. Kısmi geçiş,
+"umut verici", N_MIN uzatması, kademe/ay/sembol-grubu yeniden dilimlemesi **yok**. Erken FAIL:
+N≥400'de gün-kümeli p<0.01 ile negatifse, ya da medyan çift-bacak ölçülen maliyet **>60 bps** ise.
+
+**Maliyet protokolü — çalışmanın asıl amacı.** Her bacakta giriş ve çıkışta: kote bid/ask, kota yaşı,
+spread_bps, alınan taraftaki top-of-book notional, komisyon (**BINANCE_BASE, §197**: taker 5.0
+bps/taraf; VIP kademesi ancak operatörün **yazılı** teyidiyle), gerçekleşen fiyat, karar anındaki
+kotaya karşı kayma. Üç rakam yan yana, asla karıştırılmadan: `GROSS` · `NET_ASSUMED` (2×10 bps,
+yalnız §311 ile kıyaslanabilirlik için) · **`NET_MEASURED` (BİRİNCİL)**. İkisi maddi olarak
+ayrışırsa, o ayrışma çalışmanın **en değerli çıktısıdır**.
+
+**Kaydedilen zaaflar:** (a) BUY popülasyonu tam pristine değil — aynı oturumun ilk ölçümünde ham BUY
+kümelerine bakıldı (yönsel, beta-nötrsüz, donmuş kuralsız); ondan hiçbir şey inşa edilmedi ama
+görüldü. (b) §309–§311'in tamamı **aynı pencerede** (2026-02-16 → 07-23); bu ön-kayıt ilk
+pencere-dışı testtir. (c) §311'e giden arama yolunda ~5 çatal vardı, her biri bir öncekinin sonucunu
+görerek; çokluk maliyeti formel hesaplanmadı, **çaresi N=0 sınırıdır**. (d) 14 sembolün 12'sinde
+spread yerel olarak ölçülemedi — ölçtüğü şey tam olarak budur. (e) 6h ufku §308'den **devralındı**
+("hem kalabalık hem karantinaya duyarsız" tek hücre), burada yeniden seçilmedi ve sonradan
+değiştirilemez.
+
+**AÇIKÇA İDDİA EDİLMEYENLER:** mekanizmanın yeni/büyük/Eclipse'e özgü olduğu; §308'deki ~23.000
+bps'lik gerçekleşmemiş **zirve** toplamıyla herhangi bir ilişki (onlar simetrik salınımın üst
+zarfıdır — MFE ≈ MAE, terminal ≈ 0 — ve dört bağımsız ölçüm geri alınamaz olduklarını söyledi; bu
+çalışmanın epizot-başına büyüklüğü iki mertebe küçüktür); ve §306'nın
+(`LIQUIDATION_FEED_CLOSED_AS_ALPHA_SOURCE`) geçersiz kılınması — o kapanış **dakika çözünürlüğünde
+olaydan yönsel fiyat öngörüsü** hakkındaydı, bu ise beta-nötr, kesitsel, 6 saatlik başka bir nesne.
+**§306 ayakta kalır.**
+
+**Verdict token: `S50_PREREG_V1_FROZEN_PENDING_OPERATOR_SIGNOFF · WRITTEN_BEFORE_ANY_FORWARD_OBSERVATION · COUNTED_N_STARTS_AT_ZERO_ON_SIGNATURE · NO_BACKFILL_NO_REMINE · PAPER_ONLY · QUESTION_IS_COST_NOT_EXISTENCE · RULE_VERBATIM_FROM_SOURCE_bucket300_gap900_accel30 · THRESHOLD_P92_63_TRAILING_90D_WEEKLY_RECOMPUTE · UNIVERSE_FROZEN_BY_NAME_14_SYMBOLS · NO_OUTLIER_EXCLUSION_LAB_SOXL_KORU_MU_STAY_IN · BTC_IS_HEDGE_NOT_IN_UNIVERSE · UNIVERSE_CANNOT_GROW · BETA_7D_5MIN_CAUSAL_0_05_TO_5_0 · HORIZON_6H_INHERITED_FROM_S308_NOT_RESELECTED · NO_STOP_NO_TRAILING_NO_EARLY_EXIT · PRIMARY_SELL_SECONDARY_BUY_DECLARED_UNDERPOWERED · BUY_CANNOT_BE_DECIDED_401_DAYS_AT_HALF_EFFECT · N_MIN_800_COUNTED_SELL_EPISODES · SINGLE_LOOK_NO_INTERIM_ESTIMAND_READS · PASS_REQUIRES_ALL_FOUR_DAY_CLUSTERED_HOLM_SIGN_BREADTH_60PCT · EARLY_FAIL_RULES_FIXED · COST_MEASURED_NOT_ASSUMED · GROSS_VS_NET_ASSUMED_VS_NET_MEASURED_NEVER_CONFLATED · NET_MEASURED_IS_PRIMARY · R7_R8_R9_R10_BINDING · BUY_POPULATION_NOT_FULLY_PRISTINE_DISCLOSED · SAME_WINDOW_BASIS_DISCLOSED · FIVE_FORK_SEARCH_PATH_DISCLOSED · NO_CLAIM_ON_23K_PEAKS · S306_STANDS · NO_LIVE_EXECUTOR_NO_SIZING_NO_LEVERAGE · S38_UNTOUCHED`**
+
+**§312 EK — MÜHÜR.** Donmuş dosyanın bütünlük özeti (dosya yazıldığı haliyle, bu satır eklenmeden
+önce hesaplandı):
+`reports/research/S50_FORCED_FLOW_CONTINUATION_PREREG_V1.md`
+**SHA256 = `30fd02fd320f33c0e4a11acc688b2e6aa0385d71a99f05e4962a9b3ceb17bb0a`** · 11.408 bayt.
+Dosyanın herhangi bir alanı değişirse bu özet tutmaz ve belge **geçersizdir**; değişiklik
+V2 gerektirir ve **counted-N sıfırlanır**.
+
+---
+
+**§313 OPERASYONEL OLAY — E-DER FORWARD CORE COLLECTOR 5s22dk SESSİZ ÖLDÜ; KÖK SEBEP BUGÜN
+OLUŞAN BİR `.venv`'İN ÇALIŞAN YORUMLAYICIYI GÖLGELEMESİ; SAĞLIK BAYRAĞI BOŞLUK BOYUNCA GREEN
+DEDİ (2026-08-22, Opus 5 [1M]).**
+
+**SEMPTOM.** Rutin bir "her şey taze mi" kontrolünde `status_eclipse.ps1`:
+`core_market_data_collector alive=false`, `data_plane_status=DATA_PLANE_STALE`,
+`ws_connection_state=WS_DISCONNECTED`, `subscription_state=SUBSCRIPTION_NOT_ACKNOWLEDGED`,
+`restart_count=2`. Proses tablosunda `tools.e_der_forward_core_collector` **yok**;
+`logs/e_der_forward_core_collector.{stdout,stderr}.log` **0 bayt** — sessiz ölüm.
+Diğer 20 rol (21 Ağu 19:09 başlangıcı) etkilenmedi, uptime ~24,6 sa.
+
+**ÖLÇÜLEN BOŞLUK (dosyalardan, tahmin değil; `local_receive_wall_ms`).** Veri düzleminin
+dört akışı da birlikte düştü — tek proses:
+| akış | son satır (önce) | ilk satır (sonra) | boşluk |
+|---|---|---|---|
+| `forceorder_raw` | 2026-08-22T11:31:54Z | 2026-08-22T16:54:37Z | **322,7 dk** |
+| `kline_1m` | 11:32:38Z | 16:54:13Z | 321,6 dk |
+| `mark_index_funding` | 11:32:09Z | 16:54:14Z | 322,1 dk |
+| `open_interest` | 11:32:36Z | 16:54:13Z | 321,6 dk |
+⟹ **2026-08-22 11:32 → 16:54 UTC ≈ 5 sa 22 dk, `data/forward_v2/` altına sıfır satır.**
+
+**KÖK SEBEP — YORUMLAYICI GÖLGELEMESİ.** `start_eclipse.ps1::Pick-Python` ve
+`start_e_der_forward.ps1` kuralı *"var olan ilk `.venv` kazanır"* idi. **2026-08-22 06:53'te**
+repo kökünde bir `.venv` oluştu (yalnız editable `eclipse_shared` + pytest + ~18 paket;
+`requirements.txt` 120 paket). Bu venv'de **`websockets` yok**. Ayakta olan yığın ise
+global `Python313` ile başlatılmıştı (venv'den önce), o yüzden **koşan hiçbir şey etkilenmedi** —
+ama *yeniden başlatan her şey* ölmeye mahkûmdu. Kanıt: rolü resmî scriptle ayağa kaldırma
+denemesi anında `ModuleNotFoundError: No module named 'websockets'` ile öldü.
+**Ölümün kendi nedeni ayrı ve AÇIK KALDI** (11:32'deki orijinal çöküş; stdout/stderr boş,
+`restart_count=2`) — venv yalnızca *kurtarmayı* engelledi, çöküşü açıklamıyor.
+
+**ASIL RİSK (olaydan büyük).** Bu venv, bir sonraki tam `start_eclipse.ps1` çağrısında
+**tüm yığına** verilecekti; `websockets` olmadan collector/bookticker/event_diary dahil
+her WS rolü aynı anda ölürdü. Olay bunu tesadüfen erken ortaya çıkardı.
+
+**SAĞLIK BAYRAĞI YALANI (R9/R10'un üçüncü tekrarı).** `e_der_v1_forward_runner` boşluk
+boyunca **ayakta** kaldı ve `data_quality_state=GREEN` yayınladı; oysa beslendiği
+`last_source_timestamp` 11:31:54Z'de donmuştu. Küresel sağlık göstergesi yine
+*kullanım noktasında* değil, kendi canlılığında ölçüyordu. `scientific_forward_valid_since_ms`
+= 2026-08-21T06:04:28Z hâlâ kesintisiz bir pencere ima ediyor; **bu boşluk tescil edilene
+kadar o alan yanlıştır.**
+
+**YAPILAN.**
+1. Rol, kardeşleriyle **aynı** yorumlayıcıyla (global Python313) tek-PID hedefli olarak
+   yeniden başlatıldı (`pid=17572`); önce "hiç eşleşme yok" doğrulandı, hiçbir proses
+   durdurulmadı/öldürülmedi. Dört akış da 16:54'ten itibaren yazıyor, stderr 0 bayt.
+2. `Pick-Python` **fail-closed prob**a çevrildi: bir `.venv`'in *var olması* artık yeterli
+   değil — aday yorumlayıcı `websockets, aiohttp, numpy, pandas` import edebilmeli. Edemezse
+   `SKIPPED_INTERPRETER_MISSING_RUNTIME_DEPS` uyarısıyla atlanır; hiçbir aday geçemezse
+   `NO_USABLE_INTERPRETER ... No role was started` fırlatılır (yığını sakat yorumlayıcıyla
+   başlatmaktansa hiç başlatmamak). Aynı düzeltme `start_e_der_forward.ps1`'e de uygulandı.
+   `status_eclipse.ps1` / `stop_eclipse.ps1` python'u venv'den seçmiyor — dokunulmadı.
+3. Doğrulama: iki script `PARSE_OK`; izole koşumda `Pick-Python` bozuk venv'i atlayıp
+   Python313'ü seçiyor; sahte modül adıyla prob fail-closed `throw` yolunu veriyor.
+
+**AÇIK KALANLAR (kapatılmadı).**
+- **A1.** 11:32'deki orijinal çöküşün nedeni bilinmiyor (log yok). Yeni proses aynı sessiz
+  ölümü tekrarlarsa tek kanıt yine olmayacak — collector'a crash-log/`faulthandler` eklemek
+  ayrı bir iş olarak durur.
+- **A2.** Bu boşluk **süreksizlik kaydına geçmedi**. Emsal `tools/e_der_a2v3_discontinuity_registry.py`
+  (§196 olayı için) sabit-kodlu tek olay sabitleri taşıyor; iki olaylı hale getirmek gerçek bir
+  implementasyondur ⟹ kademeli bağımsız inceleme zincirine tabidir, bu geçişte YAPILMADI.
+  O kayıt açılana kadar **11:32–16:54 penceresini kapsayan hiçbir E-DER forward istatistiği
+  kesintisiz sayılmamalıdır.**
+- **A3.** Diğer 12 `.ps1` (scheduled task'lar dahil: `run_daily_research_pipeline_scheduled.ps1`,
+  `install_collector_supervisor_task.ps1`, `run_dashboard_backend_supervisor.ps1` …) hâlâ
+  `.venv`'i koşulsuz seçiyor. Aynı prob oraya da taşınmalı; bu geçişte yalnız başlatma-kritik
+  iki script düzeltildi.
+- **A4.** `.venv`'in kendisine dokunulmadı (silinmedi/yeniden adlandırılmadı) — onu oluşturan
+  `eclipse_shared` işine ait; kaderi operatör kararı.
+- **A5.** `s34_bucket_live_harness` üç kolu da 21 Ağu 16:11 UTC'den beri `HALTED_DATA_QUALITY`
+  (`source_scorecard quarantine_rate=0.44 > 0.30`, `n_anchors_forward=193`). Bu olayla ilgisiz,
+  §208'deki mekanizmanın aynısı, operatör incelemesi bekliyor. `candidate_rich_collector`
+  (21 Ağu 05:23'ten beri), `generic_oos_phase1`, `collection_watchdog` ölü.
+
+**Verdict token: `S313_EDER_CORE_COLLECTOR_OUTAGE_2026-08-22_1132_TO_1654_UTC_322MIN_MEASURED_NOT_ESTIMATED · ROOT_CAUSE_INTERPRETER_SHADOWING_BY_TODAY_VENV_LACKING_WEBSOCKETS · ORIGINAL_CRASH_CAUSE_UNKNOWN_NO_LOG · ROLE_RESTARTED_SINGLE_PID_17572_NOTHING_KILLED · PICK_PYTHON_NOW_FAIL_CLOSED_IMPORT_PROBE · IMPLEMENTATION_ONLY_AWAITING_INDEPENDENT_REVIEW · DISCONTINUITY_REGISTRY_NOT_YET_EXTENDED_A2_OPEN · NO_STATISTIC_MAY_TREAT_1132_1654_AS_CONTINUOUS · 12_OTHER_PS1_STILL_UNPROBED_A3_OPEN · VENV_UNTOUCHED_OPERATOR_CALL · BUCKET_HARNESS_HALT_UNRELATED_PREEXISTING · NO_LIVE_EXECUTOR_NO_ORDERS`**
+
+**§314 WEBSITE — §299'UN BAĞIMSIZ REVIEW'Ü YAPILDI VE B1–B5 REGRESYON-ÖNCE KAPATILDI; İKİ TAŞMA BUG'I, BİR YANLIŞ POLİTİKA İDDİASI (2026-08-22, Opus 5 [1M]).**
+Yalnız website işi. **Araştırma yok, ledger okuması yok, collector yok, çalışan proses yok,
+runtime dosyası yok.** §299 `AWAITING_INDEPENDENT_REVIEW` durumundaydı ve üstüne `1de079b7`
+(arms kart-ızgarası) §299'un beş kontrolünden SONRA inmişti ⟹ o revizyonu hiçbir kontrol
+kapsamıyordu. Bu geçiş: önce salt-okunur review, sonra ayrı bir correction fazı.
+
+**B1 (BUG, ölçüldü) — `agents.html` 360 px'te 98 px taşıyor.** `.eyebrow` `display:flex` ve
+`flex-wrap` YOK; `.tag` ise `white-space:nowrap`. W2 düzeltmesinde eklenen 10 `Not implemented`
+etiketi sarmalanamıyor. **§299'un "360 px temiz 12/12" iddiası yalnız iki YENİ sayfada
+ölçülmüştü** — etiketlerin eklendiği sayfa hiç yeniden ölçülmemişti. `.eyebrow` artık
+`flex-wrap:wrap` + `gap:6px 14px`.
+
+**B5 (BUG, review'ın kendi doğrulaması sırasında çıktı) — `status.html` 360 px'te 11 px taşıyor,
+AMA yalnız demo konsolu AÇIKKEN.** Dört bağımsız geçişin kaçırma sebebi yapısal: taşan öğe
+**kapının arkasında**, kapalıyken DOM'da yok. Kırılamayan bir olay-konusu adı `.log-m` içinde,
+ve grid çocuğu varsayılan `min-width:auto`. `.log-m { min-width:0; overflow-wrap:anywhere }`.
+**Ders: gate'li içerik açık haliyle ölçülmedikçe ölçülmemiş sayılır.**
+
+**B2 (YANLIŞ İDDİA) — README kendi sitesi hakkında yanlış yazıyordu.** *"green/amber/red tam
+olarak iki yerde görünür"* deniyordu; demo konsolu **var olmayan 10 bileşen için** 6 yeşil
+`active` çipi + amber `warning` + kırmızı log noktası + yeşil "Agents online" sayacı basıyor.
+Konsol §292'de "projection" etiketiyle kabul edilmişti, ama README metni bunu saymıyordu ⟹
+yazılı kural artefaktla çelişiyordu. **Operatör kararı: hibrit.** Konsol maketi korunur, ama
+üç yönden çitlenir: demo kapısı · tüm panel başlıklarında *projected* · **sticky
+`Projected — nothing here is running` şeridi** (`.proj-bar`, `master-center.js`'in ilk render
+ettiği öğe, `top:59px` ile header'ı temizler, `#console` bitene kadar okuyucuyla birlikte gider).
+Eski uyarı sayfanın tepesinde kalan ve kaydırılınca kaybolan bir not'tu. README artık üçüncü
+istisnayı **açıkça beyan ediyor** + "bu konsolun dışındaki hiçbir sayfa bu istisnayı kullanamaz"
+maddesi + şerit kaldırılırsa renklerin de kaldırılması şartı.
+
+**B3 (İÇERİK) — 38 karttan 13'ü gövdesiz.** Refuted/parked kartlarında açıklama yoktu; ekranda
+"yüklenememiş kart" gibi duruyordu. Her birine tek satırlık **kavram** açıklaması eklendi.
+Politika korundu: yön yok, figür yok, sıralama yok, eşik yok — *çürütüldü demek güvenli*.
+Glif↔durum tutarlılığı programatik doğrulandı (13/13).
+
+**B4 (a11y) — 12 sayfanın hiçbirinde skip-to-content yoktu.** Klavye kullanıcısı her sayfada 8
+nav linkini yürüyordu. 12/12 sayfaya eklendi (`<main id="main">`), fokus alana kadar ekran dışı.
+
+**Küçükler:** `index.html` canonical/og:url `/index.html` yerine origin köküne; `404.html`'e
+`noindex`; README'nin sayfa tablosu iki sayfa geridydi (arms, methodology) ve artık 360 px
+tuzağını da kayda geçiriyor.
+
+**DÜZELTME SONRASI ÖLÇÜMLER (hepsi tarayıcıda, verbatim):** 360 px'te yatay taşma **12/12 sayfada 0**
+· `status.html` **konsol açıkken de 0** · skip link 12/12'de fokusa kadar gizli, fokusta `top:12px`
+· kapanmamış etiket 0 · çift id 0 · kırık link/fragment 0 · markup'ta ve konsol render'ında
+tanımsız CSS sınıfı 0 · harici istek 0 · konsol hatası 0. **Bilinen ve kapsam dışı:** belgelenen
+360 px tabanının ALTINDA (320 px) header hâlâ taşıyor — düzeltilmedi, kayda geçti.
+
+**DEFTER KUSURU (ayrıca kayda geçiyor):** `SYSTEM_STATE.md` **iki §298 ve iki §299** taşıyor
+(biri research lane'i, biri website'ı); website §299 satır ~13746'da, §304 ile §305 arasında
+duruyor. Numaralar bu geçişte YENİDEN NUMARALANDIRILMADI — geçmiş verdict token'ları ve
+memory girdileri o numaralara atıf yapıyor; düzeltme ayrı ve bağımsız incelenmesi gereken bir iş.
+
+**Kapsam korundu:** S38, E-DER forward, A2/V3 forward, collector, scheduler, order, runtime
+dosyası — hiçbirine dokunulmadı. Commit `03a9933a`.
+
+**Verdict token: `WEBSITE_S299_REVIEWED_AND_B1_B5_CLOSED_REGRESSION_FIRST · TWO_360PX_OVERFLOW_BUGS_MEASURED_98PX_AND_11PX · GATED_CONTENT_UNMEASURED_UNTIL_OPENED · README_HEALTH_COLOUR_CLAIM_WAS_FALSE_NOW_THIRD_EXCEPTION_DISCLOSED_AND_FENCED · STICKY_PROJECTED_BAR_CANNOT_SCROLL_AWAY · 13_EMPTY_CARDS_GIVEN_CONCEPT_DESCRIPTIONS_NO_DIRECTION_NO_FIGURE · SKIP_LINK_12_OF_12 · 360PX_CLEAN_12_OF_12_INCLUDING_CONSOLE_OPEN · 320PX_HEADER_OVERFLOW_KNOWN_OUT_OF_SCOPE · DUPLICATE_SECTION_NUMBERS_298_AND_299_RECORDED_NOT_RENUMBERED · NO_RESEARCH_NO_LEDGER_NO_RUNTIME · AWAITING_INDEPENDENT_REVIEW`**
