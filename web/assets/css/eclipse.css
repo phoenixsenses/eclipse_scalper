@@ -1094,6 +1094,83 @@ a.bulb:hover { background: var(--bg-panel); }
 }
 
 /* ============================================================
+   ARM CARDS — one card per arm, with an identifying glyph
+   Deliberately has no direction and no figure: a card that showed
+   an arm rising or falling would be a performance claim with the
+   number removed. The glyph says what the arm looks at.
+   ============================================================ */
+.acards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 14px;
+}
+
+.acard {
+  background: var(--bg-raise);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color .2s, background .2s;
+}
+
+.acard:hover { border-color: var(--line-2); background: var(--bg-panel); }
+
+.acard-hd { display: flex; align-items: flex-start; gap: 13px; }
+
+.acard-ico {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--bg-inset);
+  display: grid;
+  place-items: center;
+  color: var(--faint);
+}
+
+.acard-ico svg { width: 19px; height: 19px; display: block; }
+
+/* the glyph takes the state's colour — none of which is a health colour */
+.acard[data-s="building"] .acard-ico { color: var(--blue); border-color: rgba(77, 124, 255, .3); }
+.acard[data-s="design"]   .acard-ico { color: var(--dim); }
+.acard[data-s="planned"]  .acard-ico,
+.acard[data-s="refuted"]  .acard-ico,
+.acard[data-s="parked"]   .acard-ico { color: var(--faint); }
+
+.acard-n {
+  font-family: var(--display);
+  font-stretch: 82%;
+  font-weight: 600;
+  font-size: 1.02rem;
+  letter-spacing: .03em;
+  line-height: 1.25;
+  align-self: center;
+}
+
+.acard-d { color: var(--dim); font-size: .89rem; line-height: 1.58; margin: 0; }
+
+.acard-ft {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.acards-tight { grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); }
+.acards-tight .acard { padding: 14px 16px; gap: 10px; }
+.acards-tight .acard-ico { width: 30px; height: 30px; }
+.acards-tight .acard-ico svg { width: 16px; height: 16px; }
+.acards-tight .acard-n { font-size: .95rem; }
+
+@media (max-width: 560px) { .acards { grid-template-columns: 1fr; } }
+
+/* ============================================================
    LABELLED RULE — used as the bus band
    ============================================================ */
 .rule {

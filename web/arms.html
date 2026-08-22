@@ -22,6 +22,26 @@
 </head>
 <body>
 <div class="ground"></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <g id="i-repeat"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 3v5h-5"/></g>
+  <g id="i-funnel"><path d="M3 5h18l-7 8.5V20l-4 1.5v-8z"/></g>
+  <g id="i-pulse"><path d="M2 12h3.5l2-5.5 2.5 11 2.5-8 2 5 1.5-2.5H22"/></g>
+  <g id="i-check"><circle cx="12" cy="12" r="9"/><path d="M8 12.2l2.8 2.8L16.5 9.3"/></g>
+  <g id="i-hourglass"><path d="M7 3h10M7 21h10M7 3v3l5 6-5 6v3M17 3v3l-5 6 5 6v3"/></g>
+  <g id="i-echo"><path d="M9 13.5a3 3 0 0 1 6 0M6 13.5a6 6 0 0 1 12 0M3 13.5a9 9 0 0 1 18 0"/></g>
+  <g id="i-clock"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></g>
+  <g id="i-dots"><circle cx="6" cy="6" r="1.3"/><circle cx="12" cy="6" r="1.3"/><circle cx="18" cy="6" r="1.3"/><circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/><circle cx="6" cy="18" r="1.3"/><circle cx="12" cy="18" r="1.3"/><circle cx="18" cy="18" r="1.3"/></g>
+  <g id="i-layers"><path d="M12 3l9 4.5-9 4.5-9-4.5z"/><path d="M3 12l9 4.5 9-4.5"/><path d="M3 16.5L12 21l9-4.5"/></g>
+  <g id="i-cross"><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></g>
+  <g id="i-ruler"><rect x="2.5" y="8.5" width="19" height="7" rx="1"/><path d="M7 8.5v3M11 8.5v4.5M15 8.5v3M19 8.5v4.5"/></g>
+  <g id="i-split"><path d="M3 12h5"/><path d="M8 12l6-6h7M8 12h13M8 12l6 6h7"/></g>
+  <g id="i-path"><path d="M2 18l4-4 4 5 4-11 4 6 4-3"/><circle cx="14" cy="8" r="1.6"/></g>
+  <g id="i-gate"><path d="M5 21V6M19 21V6M3 6h18"/><path d="M9 21v-6h6v6"/></g>
+  <g id="i-compress"><path d="M4 4l5 5M9 4H4v5M20 4l-5 5M15 4h5v5M4 20l5-5M9 20H4v-5M20 20l-5-5M15 20h5v-5"/></g>
+  <g id="i-shield"><path d="M12 3l7.5 3v6c0 4.5-3.2 8-7.5 9.5C7.7 20 4.5 16.5 4.5 12V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></g>
+  <g id="i-x"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></g>
+  <g id="i-pause"><circle cx="12" cy="12" r="9"/><path d="M10 9v6M14 9v6"/></g>
+</defs></svg>
 
 <header class="hdr">
 <div class="hdr-in">
@@ -69,53 +89,72 @@
       Several arms observe the same underlying market events. One event may carry more than one
       arm label, so the arms are views on a shared population rather than independent samples.
     </p>
-    <div class="tbl-wrap rv" style="margin-top:8px">
-      <table class="tbl">
-        <thead><tr><th>Arm</th><th>What it observes</th><th>State</th></tr></thead>
-        <tbody>
-          <tr>
-            <td>Scientific Replication</td>
-            <td>Re-runs a previously recorded hypothesis unchanged on new events, as a replication control.</td>
-            <td><span class="tag" data-s="building">Building</span></td>
-          </tr>
-          <tr>
-            <td>Operational Control (RADAR)</td>
-            <td>Broad, high-recall event sampler. Takes the widest admissible set and acts as the parent population the other arms are drawn from.</td>
-            <td><span class="tag" data-s="building">Building</span></td>
-          </tr>
-          <tr>
-            <td>Reset + Flow Escalation</td>
-            <td>Selects events where pressure resets and then escalates rather than decaying.</td>
-            <td><span class="tag" data-s="building">Building</span></td>
-          </tr>
-          <tr>
-            <td>Price Acknowledgement</td>
-            <td>Waits for price to acknowledge the event before acting, rather than reacting to the event itself.</td>
-            <td><span class="tag" data-s="building">Building</span></td>
-          </tr>
-          <tr>
-            <td>Delayed Exhaustion Rebound</td>
-            <td>Targets the late phase of a pressure episode, after exhaustion rather than during it.</td>
-            <td><span class="tag" data-s="building">Building</span></td>
-          </tr>
-          <tr>
-            <td>Echo Regime Lead</td>
-            <td>Selects repeat pressure events that arrive while a regime condition holds.</td>
-            <td><span class="tag" data-s="building">Building</span></td>
-          </tr>
-          <tr>
-            <td>Clock-Phase Lead</td>
-            <td>Conditions on the time-of-day phase of an event.</td>
-            <td><span class="tag" data-s="building">Building</span></td>
-          </tr>
-          <tr>
-            <td>Broad Pressure Sampler</td>
-            <td>The unfiltered residual of the sampler — every admissible event that no other arm claims.</td>
-            <td><span class="tag" data-s="building">Building</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <div class="acards rv" style="margin-top:8px">
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-repeat"/></svg></span>
+              <span class="acard-n">Scientific Replication</span>
+            </div>
+            <p class="acard-d">Re-runs a previously recorded hypothesis unchanged on new events, as a replication control.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-funnel"/></svg></span>
+              <span class="acard-n">Operational Control (RADAR)</span>
+            </div>
+            <p class="acard-d">Broad, high-recall event sampler. Takes the widest admissible set and acts as the parent population the other arms are drawn from.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pulse"/></svg></span>
+              <span class="acard-n">Reset + Flow Escalation</span>
+            </div>
+            <p class="acard-d">Selects events where pressure resets and then escalates rather than decaying.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check"/></svg></span>
+              <span class="acard-n">Price Acknowledgement</span>
+            </div>
+            <p class="acard-d">Waits for price to acknowledge the event before acting, rather than reacting to the event itself.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-hourglass"/></svg></span>
+              <span class="acard-n">Delayed Exhaustion Rebound</span>
+            </div>
+            <p class="acard-d">Targets the late phase of a pressure episode, after exhaustion rather than during it.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-echo"/></svg></span>
+              <span class="acard-n">Echo Regime Lead</span>
+            </div>
+            <p class="acard-d">Selects repeat pressure events that arrive while a regime condition holds.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-clock"/></svg></span>
+              <span class="acard-n">Clock-Phase Lead</span>
+            </div>
+            <p class="acard-d">Conditions on the time-of-day phase of an event.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-dots"/></svg></span>
+              <span class="acard-n">Broad Pressure Sampler</span>
+            </div>
+            <p class="acard-d">The unfiltered residual of the sampler &mdash; every admissible event that no other arm claims.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+        </div>
   </section>
 
   <!-- ═══════════════════════ E-DER ═══════════════════════ -->
@@ -128,33 +167,40 @@
       governance that decides when any of it may be looked at.
       <a href="research-e-der.html" style="color:var(--dim)">The concept is described here</a>.
     </p>
-    <div class="tbl-wrap rv" style="margin-top:8px">
-      <table class="tbl">
-        <thead><tr><th>Arm</th><th>What it is</th><th>State</th></tr></thead>
-        <tbody>
-          <tr>
-            <td>E-DER V1</td>
-            <td>The first fully specified delayed-exhaustion arm, with a frozen implementation and an attested code closure.</td>
-            <td><span class="tag" data-s="building">Building</span></td>
-          </tr>
-          <tr>
-            <td>A2 Challenger</td>
-            <td>A challenger variant, specified and shadow-registered, not promotable without its own preregistration.</td>
-            <td><span class="tag" data-s="design">Design</span></td>
-          </tr>
-          <tr>
-            <td>V3 Cascade Independence</td>
-            <td>Investigates whether cascade episodes are independent enough to support the arm's inference unit.</td>
-            <td><span class="tag" data-s="design">Design</span></td>
-          </tr>
-          <tr>
-            <td>Confirmatory Epoch Governance</td>
-            <td>The declaration machinery that fixes an epoch baseline, admits only observations after it, and forbids backfill.</td>
-            <td><span class="tag" data-s="design">Design</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <div class="acards rv" style="margin-top:8px">
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-hourglass"/></svg></span>
+              <span class="acard-n">E-DER V1</span>
+            </div>
+            <p class="acard-d">The first fully specified delayed-exhaustion arm, with a frozen implementation and an attested code closure.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+          <div class="acard" data-s="design">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-split"/></svg></span>
+              <span class="acard-n">A2 Challenger</span>
+            </div>
+            <p class="acard-d">A challenger variant, specified and shadow-registered, not promotable without its own preregistration.</p>
+            <div class="acard-ft"><span class="tag" data-s="design">Design</span></div>
+          </div>
+          <div class="acard" data-s="design">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-layers"/></svg></span>
+              <span class="acard-n">V3 Cascade Independence</span>
+            </div>
+            <p class="acard-d">Investigates whether cascade episodes are independent enough to support the arm&rsquo;s inference unit.</p>
+            <div class="acard-ft"><span class="tag" data-s="design">Design</span></div>
+          </div>
+          <div class="acard" data-s="design">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-shield"/></svg></span>
+              <span class="acard-n">Confirmatory Epoch Governance</span>
+            </div>
+            <p class="acard-d">The declaration machinery that fixes an epoch baseline, admits only observations after it, and forbids backfill.</p>
+            <div class="acard-ft"><span class="tag" data-s="design">Design</span></div>
+          </div>
+        </div>
   </section>
 
   <!-- ═══════════════════════ RESEARCH LANES ═══════════════════════ -->
@@ -162,26 +208,112 @@
     <span class="lamp" data-state="building"></span>
     <p class="eyebrow"><span class="eyebrow-idx">03</span> <b>Research lanes</b></p>
     <h2 class="h-sec" style="max-width:26ch">Separate surfaces, each with its own question.</h2>
-    <div class="tbl-wrap rv" style="margin-top:8px">
-      <table class="tbl">
-        <thead><tr><th>Lane</th><th>What it asks</th><th>State</th></tr></thead>
-        <tbody>
-          <tr><td>S34 Mechanism Research Programme</td><td>The original mechanism programme that the later lanes descend from.</td><td><span class="tag" data-s="building">Building</span></td></tr>
-          <tr><td>S36 Cross-Section New-Alpha Lane</td><td>Opens the cross-sectional dimension as a separate search surface.</td><td><span class="tag" data-s="building">Building</span></td></tr>
-          <tr><td>S37 High-N Response Curve</td><td>Establishes a frozen high-count event population and the estimators it can support.</td><td><span class="tag" data-s="building">Building</span></td></tr>
-          <tr><td>S38 Universal Threshold Generator</td><td>Asks whether a single threshold rule can be derived rather than fitted per case.</td><td><span class="tag" data-s="building">Building</span></td></tr>
-          <tr><td>S40 High-N Mechanism Discovery</td><td>Tests a preregistered family of mechanisms against the frozen population.</td><td><span class="tag" data-s="building">Building</span></td></tr>
-          <tr><td>S40 Pressure-Response Decomposition</td><td>Separates a response into market, pressure-explained and residual components.</td><td><span class="tag" data-s="building">Building</span></td></tr>
-          <tr><td>S41 Excursion &amp; Path Atlas</td><td>Full per-trade path census: favourable and adverse excursion, path shape, give-back geometry.</td><td><span class="tag" data-s="building">Building</span></td></tr>
-          <tr><td>S42 Hold-Horizon Atlas</td><td>The same census across a family of holding horizons.</td><td><span class="tag" data-s="building">Building</span></td></tr>
-          <tr><td>S44 Control Episode Attribution</td><td>Attributes what each arm adds relative to the shared episodes of the parent sampler.</td><td><span class="tag" data-s="building">Building</span></td></tr>
-          <tr><td>S45 Feasibility &amp; Power Gate</td><td>A pre-flight that measures data resolution and detectable effect size before a study is allowed to run.</td><td><span class="tag" data-s="building">Building</span></td></tr>
-          <tr><td>S46 Peak Tick Reduction</td><td>Reduces raw market tape around excursion peaks to a per-second state table.</td><td><span class="tag" data-s="building">Building</span></td></tr>
-          <tr><td>Cross-Sectional Capitulation</td><td>Concept lane on capitulation across the cross-section.</td><td><span class="tag" data-s="design">Design</span></td></tr>
-          <tr><td>Dataset Provenance Audit</td><td>Verifies that every input carries a hash-attested lineage.</td><td><span class="tag" data-s="building">Building</span></td></tr>
-        </tbody>
-      </table>
-    </div>
+    <div class="acards rv" style="margin-top:8px">
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-layers"/></svg></span>
+              <span class="acard-n">S34 Mechanism Research Programme</span>
+            </div>
+            <p class="acard-d">The original mechanism programme that the later lanes descend from.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-cross"/></svg></span>
+              <span class="acard-n">S36 Cross-Section New-Alpha Lane</span>
+            </div>
+            <p class="acard-d">Opens the cross-sectional dimension as a separate search surface.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pulse"/></svg></span>
+              <span class="acard-n">S37 High-N Response Curve</span>
+            </div>
+            <p class="acard-d">Establishes a frozen high-count event population and the estimators it can support.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-ruler"/></svg></span>
+              <span class="acard-n">S38 Universal Threshold Generator</span>
+            </div>
+            <p class="acard-d">Asks whether a single threshold rule can be derived rather than fitted per case.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-dots"/></svg></span>
+              <span class="acard-n">S40 High-N Mechanism Discovery</span>
+            </div>
+            <p class="acard-d">Tests a preregistered family of mechanisms against the frozen population.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-split"/></svg></span>
+              <span class="acard-n">S40 Pressure-Response Decomposition</span>
+            </div>
+            <p class="acard-d">Separates a response into market, pressure-explained and residual components.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-path"/></svg></span>
+              <span class="acard-n">S41 Excursion &amp; Path Atlas</span>
+            </div>
+            <p class="acard-d">Full per-trade path census: favourable and adverse excursion, path shape, give-back geometry.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-clock"/></svg></span>
+              <span class="acard-n">S42 Hold-Horizon Atlas</span>
+            </div>
+            <p class="acard-d">The same census across a family of holding horizons.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-funnel"/></svg></span>
+              <span class="acard-n">S44 Control Episode Attribution</span>
+            </div>
+            <p class="acard-d">Attributes what each arm adds relative to the shared episodes of the parent sampler.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-gate"/></svg></span>
+              <span class="acard-n">S45 Feasibility &amp; Power Gate</span>
+            </div>
+            <p class="acard-d">A pre-flight that measures data resolution and detectable effect size before a study is allowed to run.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-compress"/></svg></span>
+              <span class="acard-n">S46 Peak Tick Reduction</span>
+            </div>
+            <p class="acard-d">Reduces raw market tape around excursion peaks to a per-second state table.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+          <div class="acard" data-s="design">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-cross"/></svg></span>
+              <span class="acard-n">Cross-Sectional Capitulation</span>
+            </div>
+            <p class="acard-d">Concept lane on capitulation across the cross-section.</p>
+            <div class="acard-ft"><span class="tag" data-s="design">Design</span></div>
+          </div>
+          <div class="acard" data-s="building">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-shield"/></svg></span>
+              <span class="acard-n">Dataset Provenance Audit</span>
+            </div>
+            <p class="acard-d">Verifies that every input carries a hash-attested lineage.</p>
+            <div class="acard-ft"><span class="tag" data-s="building">Building</span></div>
+          </div>
+        </div>
   </section>
 
   <!-- ═══════════════════════ REFUTED AND PARKED ═══════════════════════ -->
@@ -193,44 +325,105 @@
       Recording what does not work is the cheaper half of the programme. These are kept so they
       are not retested.
     </p>
-    <div class="split" style="margin-top:8px">
-      <div>
-        <div class="tbl-wrap rv">
-          <table class="tbl" style="min-width:320px">
-            <thead><tr><th>Idea</th><th>State</th></tr></thead>
-            <tbody>
-              <tr><td>Buy-Side Fade</td><td><span class="tag" data-s="refuted">Refuted</span></td></tr>
-              <tr><td>Liquidation Silence</td><td><span class="tag" data-s="refuted">Refuted</span></td></tr>
-              <tr><td>Reversal Transfer</td><td><span class="tag" data-s="refuted">Refuted</span></td></tr>
-              <tr><td>Cross-Asset Transfer</td><td><span class="tag" data-s="refuted">Refuted</span></td></tr>
-              <tr><td>Gentleness</td><td><span class="tag" data-s="refuted">Refuted</span></td></tr>
-              <tr><td>Micro-Timing</td><td><span class="tag" data-s="refuted">Refuted</span></td></tr>
-              <tr><td>Tight Stop</td><td><span class="tag" data-s="refuted">Refuted</span></td></tr>
-              <tr><td>Partial Exit</td><td><span class="tag" data-s="refuted">Refuted</span></td></tr>
-              <tr><td>Limit-Entry</td><td><span class="tag" data-s="refuted">Refuted</span></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div>
-        <div class="tbl-wrap rv">
-          <table class="tbl" style="min-width:320px">
-            <thead><tr><th>Family</th><th>State</th></tr></thead>
-            <tbody>
-              <tr><td>Book-State Depletion / Refill</td><td><span class="tag" data-s="parked">Parked</span></td></tr>
-              <tr><td>Trade-Flow Shock</td><td><span class="tag" data-s="parked">Parked</span></td></tr>
-              <tr><td>Quote Suppression</td><td><span class="tag" data-s="parked">Parked</span></td></tr>
-              <tr><td>Maker / Quote-Quality Family</td><td><span class="tag" data-s="parked">Parked</span></td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="mono-note" style="margin-top:16px">
-          <b>Refuted</b> — closed by a test, kept on the record so the idea is not rediscovered
-          under a new name. <b>Parked</b> — not refuted, but blocked on something that does not
-          exist yet.
-        </p>
-      </div>
+    <div class="acards acards-tight rv" style="margin-top:8px">
+          <div class="acard" data-s="refuted">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-x"/></svg></span>
+              <span class="acard-n">Buy-Side Fade</span>
+            </div>
+            <div class="acard-ft"><span class="tag" data-s="refuted">Refuted</span></div>
+          </div>
+          <div class="acard" data-s="refuted">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-x"/></svg></span>
+              <span class="acard-n">Liquidation Silence</span>
+            </div>
+            <div class="acard-ft"><span class="tag" data-s="refuted">Refuted</span></div>
+          </div>
+          <div class="acard" data-s="refuted">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-x"/></svg></span>
+              <span class="acard-n">Reversal Transfer</span>
+            </div>
+            <div class="acard-ft"><span class="tag" data-s="refuted">Refuted</span></div>
+          </div>
+          <div class="acard" data-s="refuted">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-x"/></svg></span>
+              <span class="acard-n">Cross-Asset Transfer</span>
+            </div>
+            <div class="acard-ft"><span class="tag" data-s="refuted">Refuted</span></div>
+          </div>
+          <div class="acard" data-s="refuted">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-x"/></svg></span>
+              <span class="acard-n">Gentleness</span>
+            </div>
+            <div class="acard-ft"><span class="tag" data-s="refuted">Refuted</span></div>
+          </div>
+          <div class="acard" data-s="refuted">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-x"/></svg></span>
+              <span class="acard-n">Micro-Timing</span>
+            </div>
+            <div class="acard-ft"><span class="tag" data-s="refuted">Refuted</span></div>
+          </div>
+          <div class="acard" data-s="refuted">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-x"/></svg></span>
+              <span class="acard-n">Tight Stop</span>
+            </div>
+            <div class="acard-ft"><span class="tag" data-s="refuted">Refuted</span></div>
+          </div>
+          <div class="acard" data-s="refuted">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-x"/></svg></span>
+              <span class="acard-n">Partial Exit</span>
+            </div>
+            <div class="acard-ft"><span class="tag" data-s="refuted">Refuted</span></div>
+          </div>
+          <div class="acard" data-s="refuted">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-x"/></svg></span>
+              <span class="acard-n">Limit-Entry</span>
+            </div>
+            <div class="acard-ft"><span class="tag" data-s="refuted">Refuted</span></div>
+          </div>
+          <div class="acard" data-s="parked">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pause"/></svg></span>
+              <span class="acard-n">Book-State Depletion / Refill</span>
+            </div>
+            <div class="acard-ft"><span class="tag" data-s="parked">Parked</span></div>
+          </div>
+          <div class="acard" data-s="parked">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pause"/></svg></span>
+              <span class="acard-n">Trade-Flow Shock</span>
+            </div>
+            <div class="acard-ft"><span class="tag" data-s="parked">Parked</span></div>
+          </div>
+          <div class="acard" data-s="parked">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pause"/></svg></span>
+              <span class="acard-n">Quote Suppression</span>
+            </div>
+            <div class="acard-ft"><span class="tag" data-s="parked">Parked</span></div>
+          </div>
+          <div class="acard" data-s="parked">
+            <div class="acard-hd">
+              <span class="acard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pause"/></svg></span>
+              <span class="acard-n">Maker / Quote-Quality Family</span>
+            </div>
+            <div class="acard-ft"><span class="tag" data-s="parked">Parked</span></div>
+          </div>
     </div>
+    <p class="mono-note" style="margin-top:18px;max-width:78ch">
+      <b>Refuted</b> &mdash; closed by a test, kept on the record so the idea is not rediscovered
+      under a new name. <b>Parked</b> &mdash; not refuted, but blocked on something that does not
+      exist yet. Neither carries a direction: a closed idea is not a failing one, it is a
+      finished one.
+    </p>
   </section>
 
   <!-- ═══════════════════════ POPULATION CENSUS ═══════════════════════ -->
