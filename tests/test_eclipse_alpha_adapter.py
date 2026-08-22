@@ -24,7 +24,7 @@ import pathlib
 import pytest
 from pydantic import ValidationError
 
-from integrations.eclipse_alpha import manifest
+from integrations.eclipse_alpha import manifest, publication_epoch
 from integrations.eclipse_alpha.candidate_adapter import (
     OutcomeLeak,
     NotEligible,
@@ -32,7 +32,18 @@ from integrations.eclipse_alpha.candidate_adapter import (
 )
 
 MINUTE_MS = 60_000
-ANCHOR = 1_790_000_000_000  # after the integration boundary used in tests
+EPOCH = 1_789_000_000_000   # this process's publication epoch (review B1)
+ANCHOR = 1_790_000_000_000  # comfortably after it
+
+
+@pytest.fixture(autouse=True)
+def _process_epoch():
+    """Every test runs as a started publisher. Without an epoch the adapter
+    fails closed, which is covered in the B-findings suite."""
+    publication_epoch.reset_for_tests()
+    publication_epoch.start(EPOCH)
+    yield
+    publication_epoch.reset_for_tests()
 
 
 def detected_event(**overrides) -> dict:
@@ -256,16 +267,15 @@ def test_the_adapter_does_not_touch_the_ledger():
 # ==========================================================================
 # Criterion 8 — P2, no backfill
 # ==========================================================================
-def test_refuses_an_anchor_before_the_integration_boundary():
-    stale = manifest.INTEGRATION_BOUNDARY_MS - MINUTE_MS
-    with pytest.raises(NotEligible, match="boundary"):
+def test_refuses_an_anchor_before_the_publication_epoch():
+    stale = EPOCH - MINUTE_MS
+    with pytest.raises(NotEligible, match="epoch"):
         to_trade_candidate(detected_event(anchor_ts=stale, event_id=f"E:ETHUSDT:{stale}"))
 
 
-def test_accepts_an_anchor_on_the_boundary():
-    at = manifest.INTEGRATION_BOUNDARY_MS
-    c = to_trade_candidate(detected_event(anchor_ts=at, event_id=f"E:ETHUSDT:{at}"))
-    assert c.anchor_id == str(at)
+def test_accepts_an_anchor_on_the_publication_epoch():
+    c = to_trade_candidate(detected_event(anchor_ts=EPOCH, event_id=f"E:ETHUSDT:{EPOCH}"))
+    assert c.anchor_id == str(EPOCH)
 
 
 # ==========================================================================

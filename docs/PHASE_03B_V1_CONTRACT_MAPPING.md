@@ -78,10 +78,39 @@ horizon_minutes, context` — and `extra="forbid"`.
 The whitelist is **closed**: any key not on it is dropped, and the adapter fails if a forbidden key
 appears at all.
 
+### Producer identity — checked, not assumed (review B2)
+
+Shape is not provenance. Before this check, any dict carrying the right `event` and `status` was
+labelled E-DER V1 — including one classified `RETROSPECTIVE` with `paper_only=False`. All of these
+must match the frozen V1 paper-shadow producer or the adapter raises `ProducerMismatch`:
+
+`protocol == ARM_VERSION` · `classification == "PROSPECTIVE_FORWARD"` · `paper_only is True` ·
+`real_order_sent is False`
+
+And the four T0 outcome markers must be **present and None**, because `make_event` always emits
+them; absence means the object is not the real T0 shape.
+
+`data_quality_status` is deliberately *not* in this list. It is a lifecycle marker that `mature()`
+moves, so a non-T0 value is an eligibility failure rather than a provenance one.
+
+### Order of refusals (review B3)
+
+Mutation is detected **before** ordinary eligibility, so a real matured event reports the leak that
+actually happened rather than a generic "wrong status". The order is:
+
+1. any of the four outcome fields populated → `OutcomeLeak`
+2. any mutation-only marker present (`updated_at_utc`) → `OutcomeLeak`
+3. producer identity, and the T0 markers present → `ProducerMismatch`
+4. lifecycle: `event`, `status`, `data_quality_status` → `NotEligible`
+5. publication epoch → `NoPublicationEpoch` / `NotEligible`
+
 ### Forbidden — hard failure, not filtering
 
-`entry_open` · `boundary_open` · `gross_return_bps` · `net_return_bps` · `updated_at_utc` ·
-any `status` other than `AWAITING_ENTRY` · any `event` other than `DETECTED`.
+`entry_open` · `boundary_open` · `gross_return_bps` · `net_return_bps` populated → `OutcomeLeak`.
+`updated_at_utc` present at all → `OutcomeLeak`; it is written only by `mature()`, so its presence
+is evidence of mutation and is **hard-failed rather than filtered** (review B4).
+Any `status` other than `AWAITING_ENTRY`, `event` other than `DETECTED`, or non-T0
+`data_quality_status` → `NotEligible`.
 
 Also deliberately excluded, though harmless: `code_sha` (Git SHA — explicitly barred from identity),
 `contract_sha`, `cost_bps`, `data_quality_status`, `real_order_sent`, `listing_age_days`,
@@ -98,9 +127,14 @@ Also deliberately excluded, though harmless: `code_sha` (Git SHA — explicitly 
   healthy (P11, strict, no diagnostic exemption). When not, the adapter's caller suppresses the
   publish. **The local ledger path is untouched either way** — `append_jsonl(LEDGER, event)` and
   `mature()` continue exactly as today. Research behaviour does not depend on the bus.
-* **P2.** Only events detected after the integration boundary timestamp are eligible. The adapter
-  refuses an event whose `anchor_ts` precedes the boundary recorded in the manifest, so a restart
-  that replays state cannot backfill onto the bus.
+* **P2 (revised — review B1).** The no-backfill gate is a **per-process publication epoch**
+  captured at publisher startup (`publication_epoch.start()`), not a constant. The original static
+  constant resolved to an instant *before* Phase 03B existed, so it gated nothing, and a fixed
+  value cannot survive a restart — the boundary never moved, so a restarted process would happily
+  republish. Nothing persists: on restart the module is fresh, a new epoch is captured, and older
+  anchors become unpublishable. With no epoch established the adapter **fails closed**
+  (`NoPublicationEpoch`), because without a boundary there is no guarantee to make. The 03C caller
+  may supply its own boundary per call.
 
 ---
 
@@ -110,10 +144,12 @@ Also deliberately excluded, though harmless: `code_sha` (Git SHA — explicitly 
 
 ```
 integrations/eclipse_alpha/__init__.py
-integrations/eclipse_alpha/manifest.py          immutable integration manifest
-integrations/eclipse_alpha/candidate_adapter.py the pure mapping function
-tests/test_eclipse_alpha_adapter.py             acceptance tests
-.gitignore                                       one line: .venv/
+integrations/eclipse_alpha/manifest.py            immutable integration manifest
+integrations/eclipse_alpha/publication_epoch.py   per-process no-backfill boundary (B1)
+integrations/eclipse_alpha/candidate_adapter.py   the pure mapping function
+tests/test_eclipse_alpha_adapter.py               acceptance tests
+tests/test_eclipse_alpha_adapter_b_findings.py    review findings B1-B4
+.gitignore                                         one line: .venv/
 ```
 
 **Read but never modified:** `tools/e_der_v1_forward_shadow.py`, `tools/e_der_v1_frozen.py`.
@@ -139,7 +175,12 @@ separate, gated decision that touches `start_eclipse.ps1`.**
 | 5 | No transport, socket, broker or persistence | `test_adapter_imports_nothing_forbidden` |
 | 6 | Does not import `eclipse_master_center` | same test |
 | 7 | Snapshot isolation — later mutation cannot reach the candidate | `test_mutating_the_source_event_afterwards_cannot_change_the_candidate` |
-| 8 | P2 — pre-boundary anchors refused | `test_refuses_an_anchor_before_the_integration_boundary` |
+| 8 | P2 — anchors before this process's epoch refused | `test_refuses_an_anchor_before_the_publication_epoch`, `test_b1_*` |
+| 9 | Fails closed with no epoch established | `test_b1_refuses_when_no_publication_epoch_has_been_established` |
+| 10 | A restart makes earlier anchors unpublishable | `test_b1_a_restart_makes_previously_publishable_anchors_unpublishable` |
+| 11 | Only the frozen V1 producer is accepted | `test_b2_refuses_a_foreign_producer`, `test_b2_refuses_a_dict_that_merely_has_the_right_event_and_status` |
+| 12 | A real ENTRY/CLOSE shape raises `OutcomeLeak`, not `NotEligible` | `test_b3_a_real_close_shape_raises_outcome_leak_not_not_eligible`, `test_b3_a_real_entry_shape_raises_outcome_leak` |
+| 13 | Mutation markers hard-fail; missing T0 markers refused | `test_b4_a_mutation_marker_hard_fails_instead_of_being_filtered`, `test_b4_a_missing_t0_outcome_marker_is_refused` |
 
 ---
 

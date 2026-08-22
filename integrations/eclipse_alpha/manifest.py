@@ -39,13 +39,47 @@ from guessing per event.
 
 # --------------------------------------------------------------------------
 # P2 — no backfill through the live path
+#
+# Review B1: this used to be a static constant, which resolved to an instant
+# before Phase 03B existed and could not survive a restart. The boundary now
+# lives in `publication_epoch`, captured per process at publisher startup. The
+# constant is deliberately gone rather than deprecated — a dead constant that
+# once looked like the gate is an invitation to re-use it.
 # --------------------------------------------------------------------------
-INTEGRATION_BOUNDARY_MS = 1_787_000_000_000
-"""Only anchors at or after this instant are eligible for the bus.
 
-A restart replays persisted state; without this, replayed history would be
-published as if it were live. The local ledger is unaffected either way.
+# --------------------------------------------------------------------------
+# Producer identity (review B2)
+#
+# Shape is not provenance. A dict with the right `event` and `status` was being
+# labelled E-DER V1, including one whose classification was RETROSPECTIVE and
+# whose paper_only was False. These are the immutable traits of the frozen V1
+# paper-shadow producer, and all of them must match.
+# --------------------------------------------------------------------------
+PRODUCER_IDENTITY = MappingProxyType({
+    "protocol": ARM_VERSION,
+    "classification": "PROSPECTIVE_FORWARD",
+    "paper_only": True,
+    "real_order_sent": False,
+})
+"""Who produced it. Checked with `is`-like equality, never coerced."""
+
+T0_DATA_QUALITY = "PENDING_EXACT_OPENS"
+"""The only `data_quality_status` a T0 event carries.
+
+A lifecycle marker rather than a producer trait: `mature()` moves it to
+ENTRY_EXACT_OPEN / COMPLETE_EXACT_OPENS / ..._UNAVAILABLE. Anything else means
+the event has moved on, so it is an eligibility failure, not a provenance one.
 """
+
+MUTATION_MARKERS = frozenset({"updated_at_utc"})
+"""Written only by `mature()`. Presence is evidence of mutation, so it is a hard
+failure rather than something to filter out (review B4)."""
+
+REQUIRED_T0_MARKERS = frozenset({
+    "entry_open", "boundary_open", "gross_return_bps", "net_return_bps",
+})
+"""`make_event` emits all four, present and None. Absence means the object is
+not the real T0 shape — refused rather than tolerated (review B4)."""
 
 # --------------------------------------------------------------------------
 # Adapter contract version
@@ -79,7 +113,7 @@ SUBJECT = "eclipse.alpha.trade_candidate"
 _FROZEN = MappingProxyType({
     "arm": ARM, "arm_version": ARM_VERSION, "direction": DIRECTION,
     "integration_contract": INTEGRATION_CONTRACT,
-    "integration_boundary_ms": INTEGRATION_BOUNDARY_MS, "subject": SUBJECT,
+    "subject": SUBJECT,
 })
 
 
