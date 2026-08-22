@@ -12957,3 +12957,42 @@ cross-checked programmatically against the ZIP contents** (not the working tree)
 `AWAITING_INDEPENDENT_REVIEW`; **not self-marked PASS**.
 
 **Verdict token: `PLATFORM_291_PASS_ACCEPTED_AT_92aeab11 · PLATFORM_UNTOUCHED_THIS_ROUND · RAIL_LAMP_SEMANTICS_FIXED_63_OF_63 · HEALTH_LAMP_RULES_DELETED_FAIL_SAFE · SWEEP_FOUND_2_MORE_UNNAMED · README_RULE_ADDED_NEVER_CLAIM_HEALTH · MANIFEST_VERIFIED_FROM_ZIP · WEBSITE_290_AWAITING_INDEPENDENT_REVIEW_FOURTH_PASS · PHASE_03_BLOCKED`**
+
+**§295 BOTH INDEPENDENT GATES CLOSED — §290 PASS (`348dc4ad`) · §291 PASS (`92aeab11`). PHASE 03 UNBLOCKED (2026-08-22).**
+Operator recorded the final verdicts after four website passes and three platform passes.
+**WEBSITE §290 = PASS at `348dc4ad`. PLATFORM §291 = PASS at `92aeab11`.** The staged independent
+review chain (implementation → review → correction → re-review → acceptance, CLAUDE.md) is
+**CLOSED** for Phases 01–02. **Phase 03 is unblocked.**
+
+**Standing constraint from the acceptance:** *do not reopen or refactor the passed Phase 01–02
+platform invariants.* The 13 executable invariants (P1–P11 + Q1–Q4 lineage), the re-entrancy
+semantics, and **P11 strict fail-closed with no diagnostic exemption** are now FROZEN. Any future
+change touching them re-opens the gate and requires a fresh independent pass.
+
+**Review-chain scoreboard, for the record.** Pass 1: FAIL/FAIL — 2 website + 11 platform findings,
+of which **9 were not in the author's own handover hints** (the reviewer explicitly declined to
+promote the third hinted item without a failing invariant). Pass 2: P1–P11 and W1 accepted; 4 new
+platform findings (Q1–Q4) + W2 remainder. Pass 3: platform PASS; one website remainder (Rail lamp
+semantics). Pass 4: website PASS. **The chain earned its cost:** the single most important finding
+(P1) showed that §291's own README claim — "invariants are executable, not documentary" — was
+false for three of them, because enforcement sat at the model layer that any caller bypasses with a
+raw dict. No amount of self-review had surfaced that.
+
+**Three recurrence lessons carried forward (all mine):**
+· **W2 recurred three times** because each round fixed *the surface the reviewer named* rather than
+*the rule*. Now closed by a `web/README.md` reservation ("Never claim health") plus deletion of the
+health-coloured lamp rules so the failure mode is fail-safe.
+· **Q3 was a weakened test.** A failing regression test was rewritten around the obstacle instead of
+being read as a defect; the reviewer refused it. **Rule: when a regression test fails, the default
+hypothesis is a defect in the code, not the test.**
+· **A manifest claim was published before verification** (§293, `changelog.html` v2). Manifest
+claims are now cross-checked programmatically **against the archive contents**, not the working
+tree.
+
+**Phase 03 begins: integrate `D:\eclipse_scalper` as the Alpha Agent.** Operator scope for this
+step: **plan and contract mapping FIRST, before any Scalper code changes.** Explicitly out of
+scope for now: live execution, NATS, persistence, unrelated agents. Repository boundary and **all
+frozen research arms** preserved. Plan artifact:
+`docs/PHASE_03_ALPHA_AGENT_INTEGRATION_PLAN.md`.
+
+**Verdict token: `GATES_CLOSED · WEBSITE_290_PASS_348dc4ad · PLATFORM_291_PASS_92aeab11 · PHASE_01_02_INVARIANTS_FROZEN · PHASE_03_UNBLOCKED_PLANNING_ONLY · NO_SCALPER_CODE_CHANGED_YET`**
