@@ -13086,3 +13086,235 @@ it stays a documented residual, and the trusted bus boundary still canonicalises
 `Event` payloads.
 
 **Verdict token: `PHASE_03B_REVIEW_PACKAGE_BUILT · NO_CODE_MODIFIED_DURING_PACKAGING · TRACKED_BYTES_FROM_GIT_OBJECTS_VERIFIED · CLEAN_ENV_26_OF_26_ON_DIFFERENT_DEPS · UNTRACKED_REFERENCE_FILES_DISCLOSED · PHASE_03C_CONSTRAINTS_FROZEN_NOT_IMPLEMENTED · AWAITING_INDEPENDENT_REVIEW`**
+
+
+**§298 S38 LANE OPENED — universal threshold generator, Stage 1 CALIBRATION-ONLY: `GO` with binding scope conditions (2026-08-22, Opus 5 [1M]).**
+
+**Neden.** E-DER forward'da 527 aktif USDT-perp'ten yalnız **18**'i değerlendirilebilir; 509'unda
+donmuş eşik yok. Elle eşik atamak post-hoc fitting olurdu. S38'in hedefi kârlı eşik bulmak DEĞİL:
+**görülmemiş/yeni sembollere, onların gelecekteki getirilerini hiç kullanmadan, tek bir donmuş
+nedensel eşik-üretme algoritması** kurulabilir mi? Aşama 1 yalnız **kalibrasyonu** ölçer; alfa
+doğrulaması AYRI bir donmuş S38 ALPHA VALIDATION CONTRACT gerektirir.
+
+**İzolasyon.** Yazım yalnız `reports/research/s38_universal_threshold_generator_v1/` ve
+`data/s38_threshold_generator_v1/`. Donmuş eşikler, 18-sembol rota, mevcut kontratlar, mühürlü
+araştırma, S36, S37 ve ledger'lar **DEĞİŞTİRİLMEDİ**; hiçbir servis restart edilmedi; tüm kaynak
+DB'ler `mode=ro` + `query_only=1`. Kod: `tools/research_s38_{state_audit,build,calibrate,reference}_v1.py`.
+Tasarım **herhangi bir kalibrasyon sayısı hesaplanmadan ÖNCE donduruldu** (`S38_DESIGN_V1.md`);
+tek değişiklik (A1) yine sayı görülmeden, salt veri-erişilebilirliği ölçümüyle yapıldı.
+
+**Durum denetimi (runner state ile birebir uyuşuyor).** 527 evren / 56 donmuş kontrat / 18
+değerlendirilebilir / 509 eşiksiz. Eksik 38 kontrat sembolünün TAMAMI `contractType=TRADIFI_PERPETUAL`
+(29 EQUITY + 8 COMMODITY + 1 KR_EQUITY), hepsi `TRADING` ve hâlâ likidasyon basıyor — **delist DEĞİL**,
+evren filtresi (`contractType=PERPETUAL`) dışlıyor. Kontrat türetimi `THRESH_s = 200000 ×
+(SELL notional_s / SELL notional_ETH)`, `PROP = THRESH/4` (56/56 doğrulandı).
+
+**Olay grameri (aranmadı, devrededen devralındı).** `reconstruct_anchors(bucket_sec=300)` içinde
+kümülatif toplam monoton olduğu için *"bucket içinde koşan toplam ≥ θ"* ⟺ *"bucket toplamı ≥ θ"*.
+Birim = `(sembol, 300 s epoch bucket)`, `Q` = bucket SELL notional. `min_gap_sec=900` yalnız anchor
+oranı raporlamasında kullanıldı, kalibrasyonda değil. **`Q` throttled forceOrder proxy'sidir;
+likidasyon hacmi/metaorder DEĞİLDİR.**
+
+**Veri.** 1 619 292 SELL satırı → **652 689 birim** → outage sonrası **645 309**, **789 sembol**,
+187.6 gün takvim / **144 aktif gün**. Outage'lar ölçüldü (48 pencere, 51.71 gün); en büyüğü
+**2026-04-27 14:20 → 06-06 17:40 (40.14 gün)** — CLAUDE.md'deki 04-28→06-05 penceresinin tarih-keskin
+karşılığı; ayrıca **2026-07-06 → 07-10 (4.05 gün)**. Fiyat paneli yalnız 109 sembol (mevcut 527'nin
+**70**'i) → hacimle normalizasyon bu ortamda taşınabilir DEĞİL (temsil B'nin %77.9'u tanımsız).
+
+**Ana bulgular (hepsi outcome-blind).**
+· **Tek dolar eşiği taşınamaz:** ham `log Q` + global kesim, p=0.01'de sembollerin **%84.8'i HİÇ
+  ateşlemiyor**, en kötüsü **88×** fazla ateşliyor. 509 sembolün bir sayıyı miras alamamasının
+  nicel ifadesi budur.
+· **Strictly-prior ECDF'in sert bir çözünürlük tabanı var:** `u=ECDF_prior(logQ)`'nun `u=1`'de
+  `1/(n+1)` kütleli bir atomu var; n<10'da p=0.05 / 0.01 / 0.005 **aynı** gerçekleşen orana
+  (0.2276) düşüyor. Uzun geçmişte ise 4× fazla sıkı (0.0012 vs 0.005). ⟹ **z-skor ağır kuyruk
+  yüzünden değil, ampirik yüzdelik AYRIKLIK yüzünden eleniyor.**
+· **SEV_D (`prior log-z Q`) tek monoton iyileşen temsil.** Gauss NATIVE kesimi (`Φ⁻¹`) **2.4–2.8×
+  fazla sıkı** — asla kullanılmamalı; POOLED ampirik kesim çalışıyor.
+· **Kısmi havuzlama (SHRINK) dispersiyonu düzelten şey:** p=0.01'de sembol-arası sd 0.0103→**0.0059**,
+  2× içinde kalan sembol %49.0→**%72.7**, hiç ateşlemeyen %8.8→**%2.4**, en kötü oran 7.2×→**4.0×**.
+  Empirical-Bayes `κ≈4–7`, olgun sembollerde ortalama `w_s≈0.95` — yerel bilgi ağırlığını veri kendisi
+  buluyor.
+· **GENELLEME (birincil test):** p=0.01 hedefinde in-sample **0.009106** → **LOSO 0.009111** →
+  **5-fold grouped holdout 0.008879**; dispersiyon sd 0.00590 → 0.00590 → 0.00592.
+  **Görülmemiş sembol, görülmüş sembolden ayırt edilemez şekilde kalibre.** Sebebi yapısal:
+  *generator* (kesim seviyesi, tercile sınırları, κ) başka sembollerde fitleniyor; *temsil* ise
+  sembolün kendi nedensel geçmişinin içsel fonksiyonu.
+· **Likidite heterojenliği nötralize:** fiyat-tabanlı likidite tercile'ları arası yayılım
+  GLOBAL 2.4× → SHRINK_LOSO **1.2×**. Volatilite tercile'ında **1.5× artık eğim** modellenmedi.
+· **Kronolojik yürüyüş:** 22 haftanın **19'u** hedefin 2× içinde (cv 0.63); üç stresli hafta
+  1.5–3.4× nominal. Adaptasyon kuralları (EXPANDING / EWMA-30g / ROLLING-30g) her seviyede
+  ≤0.0005 fark; **EXPANDING sadelik+istikrar gerekçesiyle seçildi**, performansla değil.
+· **Cold-start tabanı temsilin kendisinde:** SHRINK ile n_prior 1–9 → **7.0×**, 10–24 → 2.0×,
+  25–49 → 1.6×, **50–99 → 0.74×**, 250+ → 0.79–0.80×. Hiçbir havuzlama bunu onarmıyor çünkü
+  eşiklenen DEĞER yanlış. Yerel geçmiş gerektirmeyen tek temsil A; grup kesimi n<25'te toplamda
+  ~2× sıkı (güvenli yön).
+
+**Eski 56 eşiğin ima ettiği yüzdelik (referans, hedef DEĞİL).** Kendi destek penceresinde ima edilen
+kuyruk olasılığı **0.155 – 0.796**, medyan **0.372** ⟹ **~62.8'inci yüzdelik**, sembol başına
+**~3.9 anchor/gün**. ⟹ (1) Eski eşikler kuyruk eşiği DEĞİL, **anchor dedektörü**; seçimi aşağı
+akıştaki E-DER gate'leri yapıyor. (2) **Tek bir ortak şiddeti temsil ETMİYORLAR** — max/min **5.1×**;
+en gevşek altılı ASML/PLTR/AMAT/XPD/COIN/QCOM (tokenize hisse/emtia), en sıkı HYPE/ZEC/SOL/WLD.
+ETH-oransal ölçekleme tokenize perp'leri sistematik olarak gevşetiyor. S38 bu değerlere **fitlenmedi**.
+
+**527 uygunluk şelalesi.** 527 gözlenen → 527 likidasyon geçmişli → 527 son 7 günde aktif →
+**527 global-kalibre edilebilir (≥25 prior birim)** → 527 grup → **527 yerel/shrinkage (≥30)** →
+70 fiyat panelli → 18 mevcut kontratla değerlendirilebilir. Sembol başına birim medyanı **705**
+(p05=213). ⟹ **509'luk boşluk bir VERİ boşluğu değil, bir YÖNETİŞİM boşluğudur.**
+
+**Drift/rejim durum makinesi (outcome-independent).** 527 üzerinde bugün: CALIBRATED 525 ·
+WARMING_UP 2 · DRIFT_WARNING 0 · DATA_QUALITY_BLOCKED 0. Sistem sessizce eşik üretmez, **durum** üretir.
+
+**Kaynak kanaryası.** C1(3 sembol) → C3(789): 263× sembol / 18.3× birim, build 1.7→17.4 s
+(RSS 81→224 MB), kalibrasyon 1.9→125 s (RSS 50→312 MB) — sembolde **alt-lineer**, `O(N²)` yok,
+per-event geçmiş taraması yok. Tüm lane disk ayak izi **9.9 MB**.
+
+**Sızıntı denetimi `clean=true`** — `tokenize` ile yorum ve string literal'leri atılıp yalnız
+ÇALIŞTIRILABİLİR kod tarandı (`reports/shadow`, `*_forward_ledger`, `net_bps`, `pnl`, `win_rate`,
+`sharpe`, `mfe`, `mae`, `qualified_t0/full`, mühürlü scorecard'lar, `forward_return`): dört S38
+dosyasında **sıfır isabet**. Çoklu-test ailesi (4 temsil × 2 kesim × 3 yapı × 4 seviye + 3 adaptasyon)
+sayı görülmeden ilan edildi, aynen çalıştırıldı, **hiçbir hücre sonradan eklenmedi**; Aşama 1'de
+hiçbir p-değeri hesaplanmadı.
+
+**ÖNERİLEN DONMUŞ ÜRETİCİ:** `D_PRIOR_LOGZ_Q` + **POOLED** ampirik kesim + **SHRINK**
+(`θ_s = w_s·θ_local + (1−w_s)·θ_group`, `w_s = n_s/(n_s+κ)`, κ empirical-Bayes), günlük 00:00 UTC,
+**EXPANDING** pencere, birincil `p=0.01` (ikincil 0.005). Cold-start: n<10 → `WARMING_UP`;
+10≤n<25 → grup-koşullu ham-dolar eşiği; 25≤n<50 → güçlü shrinkage (κ tabanı 30); n≥50 → tam üretici.
+Fiyat verisi GEREKMEZ — bu yüzden 70 değil **527** sembole uygulanır.
+
+**Sınırlar.** 145 aktif gün / tek rejim · p=0.01'de sembollerin **%27'si hâlâ 2× dışında**, en kötü
+4.0× · volatilite eğimi modellenmedi · `Q` throttled proxy · fiyat-tabanlı gruplama 70/527 ile
+test edilemez · üç stresli hafta 3.4×'e kadar · **kalibrasyon alfa DEĞİLDİR** · eski 56 eşik tamamen
+başka bir işletim noktasında (~63'üncü yüzdelik), dolayısıyla 18-sembol rotasından hiçbir sonuç
+S38 olaylarına taşınmaz.
+
+**Verdict token: `S38_STAGE1_GO_GENERATOR_CALIBRATES_AND_GENERALIZES · SCOPE_D_LOGZ_POOLED_SHRINK_P001_NPRIOR_GE_50 · LOSO_AND_5FOLD_MATCH_IN_SAMPLE_TO_4TH_DECIMAL · RAW_DOLLAR_THRESHOLD_NOT_TRANSFERABLE_88X · PRIOR_ECDF_REJECTED_BY_DISCRETENESS · GAUSSIAN_NATIVE_CUT_REJECTED · OLD_56_ARE_ANCHOR_DETECTORS_NOT_TAIL_SELECTORS_5P1X_DISPERSION · 527_OF_527_CALIBRATABLE_GAP_IS_GOVERNANCE_NOT_DATA · RESIDUAL_27PCT_OUTSIDE_2X_MEASURED_NOT_SOLVED · NOT_ROUTED_18_SYMBOL_CONTRACT_UNCHANGED · NO_BACKFILL · STAGE2_REQUIRES_SEPARATE_FROZEN_ALPHA_CONTRACT · TRADING_OUTCOME_NOT_READ`**
+
+
+**§299 S38 STAGE-2 ALPHA VALIDATION CONTRACT — DRAFTED + STAGE-1 SEALED; verdict `NEEDS_PREOUTCOME_AMENDMENT` (2026-08-22, Opus 5 [1M]).**
+
+**Ne yapıldı.** Stage-1 tamamen mühürlendi ve Stage-2 önkayıt sözleşmesi TASARLANDI. **Stage-2
+ÇALIŞTIRILMADI**; hiçbir forward getiri hesaplanmadı, hiçbir ledger açılmadı, S38 eşiği hiçbir
+rotaya bağlanmadı, 18-sembol donmuş kontrat değişmedi.
+
+**MÜHÜR.** `S38_STAGE1_SEAL_V1.json` · iç gövde digest'i
+`2aef91b191a69506a05b6cd8ff8724f0d4351ada7f846cd830bde3228ec49675`, dosya sha256
+`781aeb02885d526b18b257edf5aa8556bf361bd0f4e3a58c5a0d43609c6a45c1`. İçerik: generator_id
+`S38_GEN_D_LOGZ_POOLED_SHRINK_P001_V1`, 5 S38 aracı + 3 devralınan araç + 2 S34 kontratı +
+10 Stage-1 artefaktı + 13 türetilmiş dosya için byte hash'leri; üç kaynak tablo için satır
+parmak izi (keeper 1 722 645/761 · live 1 051 720/779 · klines 11 790 940/109). Çok-GB canlı
+store'lar byte-hash'lenmez (fingerprint), **türetilmiş store kayıt-altındaki analiz girdisidir**
+ve tam hash'lenir. `p=0.01`, `n_prior>=50`, normalizasyon, shrinkage, gruplar, güncelleme ve
+cold-start kuralı **DEĞİŞTİRİLEMEZ**; değişirse mühür geçersiz ve forward N sıfırlanır.
+
+**Aday olay evreni (outcome-blind ölçüldü).** Stage-C 4 891 olay → `PRIMARY_CRYPTO_PERP` **4 537**
+· TRADIFI alt-grup 332 · delist 21 · diğer 1. Örtüşme kuralı (sembol içi first-event-wins) sonrası
+**H=60m: 3 413** (463 sembol, 118 gün, 28.92/gün), H=240m: 2 904, H=1440m: 2 156. Yoğunlaşma
+DÜŞÜK: max sembol payı %4.48, top-10 %17.67, max gün payı %7.24; etkin sembol 132.8, etkin gün
+49.4. **Şiddet varyansının %95.03'ü gün-İÇİ** ⟹ gün-soğuran tasarım tanımlayıcı varyasyonun
+%5'inden azını atıyor.
+
+**ÖN-İLAN EDİLEN UFUK KURALI BAŞARISIZ OLDU — ve öyle raporlandı.** Kural (ölçümden önce ilan
+edildi): *"olay sonrası fazla-baskı yoğunluğunun ilk 15 dk'daki tepesinin %20'sinin altına indiği
+en küçük ızgara ufku"*. Ölçülen çürüme (excess/peak): 5dk 1.00 · 10dk 0.79 · 15dk 0.72 · 30dk 0.64
+· **60dk 0.50** · 90dk 0.44 · 180dk 0.37 · 240dk 0.37 · 360dk 0.31 · 720dk 0.26 · **1440dk 0.22**.
+24 saatte bile %22 → kural ızgarada HİÇBİR ŞEY seçmedi. Görev §5'in kendi contingency'si
+çağrıldı: **iki-ufuklu aile {60dk BİRİNCİL, 240dk EŞ-BİRİNCİL}** — 60dk ölçülen fazla-yoğunluk
+yarı-ömrü, 240dk devrede olan E-DER sembol-kilidi. **1440dk DÜŞÜRÜLDÜ** — getiri gerekçesiyle
+değil: C1 kontrolü 24 saatlik ufukta bir UTC günü içinde **yapısal olarak imkânsız** (ölçülen
+uygunluk **%0.00**).
+
+**Kontrol tasarımı — dal C1 (ölçülen uygunluk %99.62).** C1 = aynı sembol, aynı UTC gün,
+o gün o sembolün her olayından >=H dk uzakta ateşlemeyen birim, `n_prior>=50`, aynı filtreler,
+4-saat bloğunda coarsened-exact eşleme. Olay başına medyan **32** kontrol (ort 45.3); 240dk'da
+%96.25 / medyan 15. Kontrol aynı sembol-aynı gün olduğu için **sembol etkisi ve günün ortak
+getirisi her olayın KENDİ farkının içinde sadeleşiyor**: `Δ_e = r_e − ort(r_c)`,
+`LS_d = ort(Δ_e | gün d)`, `θ = ort(LS_d)`, **çıkarım birimi = GÜN**.
+
+**Estimand (donmuş).** `r = 10000·ln(OPEN_çıkış/OPEN_giriş)`; giriş = bucket kapanışından **tam
+bir dakika sonraki** barın OPEN'ı (yapısal karar gecikmesi); TP/SL/kısmi çıkış YOK. Maliyet
+**10.0 bps round-trip** (taker 5.0/taraf, CLAUDE.md kanonik `BINANCE_BASE` §197) ve **yalnız
+H3'te** uygulanır.
+
+**Hipotez ailesi KAPALI: 3 hipotez × 2 ufuk = 6 test, Holm–Bonferroni FWER α=0.05.**
+H1 eşleşmiş fazla getiri (iki-yanlı) · H2 şiddet-yanıt (birincil biçim **Spearman sıra ilişkisi**,
+ikincil biçim monoton tercile kontrastı — biçim grafik görülmeden ilan edildi) · H3 maliyet sonrası
+ekonomik net (tek-yanlı, **LONG a priori**, kökeni echo ailesi olduğu açıkça yazıldı ve bağımsız
+kanıt SAYILMAZ). **H1 negatif çıkarsa post-hoc SHORT testi YASAK** — yeni sözleşme gerekir.
+Birincil çıkarım **randomizasyon testi** (sembol-gün içinde etiket permütasyonu, 100 000 tekrar,
+seed 38202602); asimptotik gün-kümelenmiş t çapraz-kontrol, uyuşmazlıkta permütasyon yönetir.
+
+**TRADIFI KARARI — (C) birincil estimand'dan DIŞLA + (B) ön-ilanlı alt-grup olarak ayrı raporla.**
+332 olay (%6.8): EQUITY 251 · COMMODITY 60 · KR 11 · HK 8 · PREMARKET 2. Gerekçe **yalnız piyasa
+yapısı**: dayanak varlıklar seans borsalarında işlem görüyor, geceleri/hafta sonu KAPALI; olay
+sonrası fiyat yolu sürekli kripto mikroyapısı değil **seans-gap riski ve süreksiz arbitraj
+çıpası** tarafından yönetiliyor; ayrıca devredeki E-DER evren filtresinin dışındalar. Getiriye
+BAKILMADI. exchangeInfo'da artık olmayan 21 olay delist olarak tamamen dışlandı.
+
+**GÜÇ (sentetik Gauss çıktı; σ=244.5 bps S36-ölçülü çıpa; hiçbir Stage-2 çıktısı varyans
+kestirmiyor).** Tasarım B (gün-içi diferansiyel, BİRİNCİL), ICC .10, σ=244.5:
+N=1 000 (35g) **67.4 bps** · N=5 000 (173g, 5.7 ay) **33.9** · N=10 000 (346g, 11.4 ay) **20.8**
+· N=25 000 (865g, 28.4 ay) **12.8**. Bonferroni-düzeltilmiş: 42.2 / 25.8 / 15.9.
+Tasarım A (düz ortalama, H3 kolu) **takvimde DOYUYOR**: 82.9 → 64.0 → 60.6 → **56.0**;
+deff 15.3 → 184.4, n_eff 65 → **136**. **Nominal N'i 25× artırmak düz-ortalama MDE'sini yalnız
+%32 oynatıyor** — S36/§37 bulgusunun birebir tekrarı ve birincil estimand'ın neden diferansiyel
+olduğunun kanıtı. 10 bps maliyet eşiğinde bir etkiyi görmek için N ≫ 25 000 (>28 ay) gerekir;
+maliyetin 2–3 katı (25–30 bps) bir etki için N ≈ 10 000 (~11.4 ay).
+
+**BAĞLAYICI KISIT FİYAT VERİSİ, BASKI VERİSİ DEĞİL.** Birincil örtüşmesiz H=60dk olaylarının
+yalnız **%25.1'i** (856/3 413; 71/463 sembol; 45/118 gün) tam 1-dk fiyat kapsamına sahip.
+Tarihsel kol MDE ~72 bps (çokluk sonrası ~89) ⟹ **test değil, futility taraması**.
+
+**Verdict token: `S38_STAGE2_NEEDS_PREOUTCOME_AMENDMENT · STAGE1_SEALED_2aef91b1 · PREREG_SHA256_63dc4824 · HORIZON_RULE_FAILED_ON_GRID_CONTINGENCY_INVOKED · FAMILY_60M_240M_1440M_DROPPED_C1_STRUCTURALLY_IMPOSSIBLE · CONTROL_BRANCH_C1_99P62 · PLAIN_MEAN_SATURATES_NEFF_136_AT_25K · WITHIN_DAY_DIFF_MDE_20P8BPS_AT_N10K_11P4_MONTHS · PRICE_COVERAGE_25P1PCT_BINDS_HISTORICAL_ARM_IS_FUTILITY_SCREEN · TRADIFI_EXCLUDED_FROM_PRIMARY_SUBGROUP_RETAINED · A2_A3_A4_AWAITING_OPERATOR_SIGNOFF · NOT_EXECUTED · 18_SYMBOL_ROUTE_UNTOUCHED · STAGE2_TRADING_OUTCOME_NOT_READ`**
+
+**§298 Phase 03B review FAIL → B1–B4 closed regression-first; provenance baseline committed (2026-08-22).**
+Independent pass accepted the snapshot/seal architecture and the 26-test suite but failed the gate on
+four boundary findings. All four were **first demonstrated against the reviewed adapter extracted
+from `47677f52`**, not merely asserted:
+```
+B1  static boundary = 1787000000000 -> 2026-08-17T20:53:20Z   (before 03B existed)
+B2  foreign producer ACCEPTED and labelled: E-DER-V1
+B3  real CLOSE shape raised NotEligible - should be OutcomeLeak
+B4a updated_at_utc silently filtered, candidate produced
+B4b all four T0 markers MISSING, still accepted
+```
+
+**B1 — the boundary was a constant, not a boundary.** Replaced by a **per-process publication epoch**
+captured at publisher startup (`publication_epoch.start()`). **Nothing persists** — that is what makes
+the guarantee hold: on restart the module is fresh, a new epoch is captured, and older anchors become
+unpublishable. No epoch ⟹ **fails closed** (`NoPublicationEpoch`). The dead constant was **removed,
+not deprecated** — a constant that once looked like the gate invites re-use.
+
+**B2 — shape is not provenance.** `protocol` / `classification` / `paper_only` / `real_order_sent`
+must all match the frozen V1 paper-shadow producer, and the four T0 markers must be present, or
+`ProducerMismatch`. *Before this, a dict classified `RETROSPECTIVE` with `paper_only=False` was
+accepted and **labelled E-DER V1**.*
+
+**B3 — refusal order.** Mutation detection now precedes ordinary eligibility, so a real ENTRY/CLOSE
+shape reports the leak that actually happened rather than a generic wrong-status; the message names
+**every** field that leaked.
+
+**B4 — refuse, don't filter.** `updated_at_utc` is written only by `mature()`, so its presence is
+evidence of mutation and hard-fails. Missing T0 markers are refused (`make_event` emits all four
+present-and-None, so absence ⟹ not the real T0 shape).
+
+**One incoherence in my OWN new tests, found and fixed before implementing:** `data_quality_status`
+was written into the B2 producer-identity list while another test expected an UNAVAILABLE shape to be
+`NotEligible`. Both cannot hold. It is a **lifecycle** marker (`mature()` moves it), not an immutable
+producer trait, so it belongs in eligibility. **The reasoning is recorded in the test itself rather
+than silently resolved.**
+
+**PROVENANCE GAP CLOSED (`487f06dd`).** `tools/e_der_v1_forward_shadow.py` and `e_der_v1_frozen.py`
+were untracked; the reviewed bytes are now committed **byte-identical** (verified against the reviewed
+archive before committing, not asserted): `2f70c813…9754` and `32c99575…e4b8`. Provenance-only — no
+logic, threshold, arm definition or role changed. The 03C wiring diff is now reviewable against a
+commit-backed source.
+
+**Verification.** `py_compile` clean. **55/55** across two files. No randomness, no `uuid4`, no
+wall-clock in any decision path (`time.time` appears once, in `publication_epoch.start`, as the
+trusted startup clock by design). **No execution-risk file touched** — `git diff 47677f52..HEAD --
+execution/ risk/ brain/ exchanges/ bot/` is empty. Snapshot architecture, mutable-context residual,
+platform code, frozen detection logic and ledger semantics untouched. No wiring, no A2/V3, no
+Execution, no NATS, no persistence.
+
+**Verdict token: `B1_B4_CLOSED_REGRESSION_FIRST · DEMONSTRATED_AGAINST_REVIEWED_COMMIT · EPOCH_REPLACES_STATIC_BOUNDARY_NO_PERSISTENCE · PRODUCER_IDENTITY_ENFORCED · MUTATION_BEFORE_ELIGIBILITY · REFUSE_NOT_FILTER · OWN_TEST_INCOHERENCE_CORRECTED · PROVENANCE_BASELINE_COMMITTED_BYTE_IDENTICAL · 55_OF_55 · NOT_WIRED · AWAITING_INDEPENDENT_REVIEW`**
