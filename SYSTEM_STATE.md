@@ -13050,3 +13050,39 @@ logic, ledger semantics, role behaviour, Execution, NATS, persistence, or A2/V3 
 **26/26 tests pass.**
 
 **Verdict token: `PHASE_03B_ADAPTER_IMPLEMENTED_NOT_WIRED · SEAL_HAZARD_ALIASING_IDENTIFIED_AND_CLOSED · REFUSES_NOT_FILTERS · ARM_VERSION_FROM_RUNNER_PROTOCOL_AST_VERIFIED · P2_INTEGRATION_BOUNDARY_ENFORCED · EDITABLE_INSTALL_BOUNDARY_INTACT · RESIDUAL_CONTEXT_MUTABILITY_RECORDED · 26_OF_26 · NO_EXISTING_FILE_MODIFIED · AWAITING_INDEPENDENT_REVIEW`**
+
+**§297 Phase 03B review package built (packaging only, no code changed). Phase 03C constraints frozen (2026-08-22).**
+Package `eclipse_phase03b_review_47677f52.zip` · sha256
+`11f887c520d8c34c15907c3418f8e35246a3ed2488d4cb1256ffd3e050963500` · 41 473 bytes / 11 files ·
+manifest `MANIFEST_PHASE03B.md` in `D:\eclipse_review_packages`. Tracked bytes taken **from the git
+objects at `47677f52`**, never the working tree; verified byte-for-byte after the fact. Clean-env
+run from the ZIP: **26/26**, on **pydantic 2.13.4 / pytest 9.1.1** — deliberately different from the
+platform review's 2.12.5 / 9.0.2, so the result is not pinned to one dependency set. `eclipse-shared`
+is referenced by the PASSED platform package's sha256 rather than duplicated, so there is no
+ambiguity about which platform version was used.
+
+**⚠️ PROVENANCE GAP, DISCLOSED NOT IMPLIED.** `tools/e_der_v1_forward_shadow.py` and
+`tools/e_der_v1_frozen.py` are **UNTRACKED in this repo — no commit backs them.** They are in the
+package because the suite genuinely needs the first (`test_arm_version_...` parses it with `ast`)
+and because the central `mature()`-aliasing claim cannot be verified without reading it. Their bytes
+are pinned by sha256 in the manifest and README, but **version control does not corroborate them.**
+A reviewer wanting commit-backed provenance should require those files to be committed first.
+*(This is the general E-DER working-set state, not something this phase created.)*
+
+**PHASE 03C — REDEFINED AND FROZEN BY THE OPERATOR (not yet implemented):**
+· **E-DER V1 live shadow wiring ONLY.** No A2/V3.
+· **Launcher:** smallest possible **role-level interpreter override**; the current interpreter stays
+the default. **Only** `e_der_v1_forward_runner` uses `D:\eclipse_scalper\.venv\Scripts\python.exe`.
+The other 26 roles do not move.
+· **Call site:** synchronously, **immediately after the T0 event is created and BEFORE it is stored
+in `state["pending"]` or passed to `mature()`.** **No queue, no deferred publication, no raw-event
+retention, no retry cache** — this is the structural answer to the aliasing hazard (§296): publish
+before the object can ever be mutated.
+· **Side-effect discipline:** platform publication must **never** change research/ledger semantics.
+A bus/adapter failure **suppresses the notification only**; `pending`/`mature`/ledger continue
+unchanged. **`OutcomeLeak` must be surfaced loudly and never silently filtered.**
+· **Residual closed:** the mutable `TradeCandidate.context` **does not reopen the Phase 01–02 gate**;
+it stays a documented residual, and the trusted bus boundary still canonicalises and deep-freezes
+`Event` payloads.
+
+**Verdict token: `PHASE_03B_REVIEW_PACKAGE_BUILT · NO_CODE_MODIFIED_DURING_PACKAGING · TRACKED_BYTES_FROM_GIT_OBJECTS_VERIFIED · CLEAN_ENV_26_OF_26_ON_DIFFERENT_DEPS · UNTRACKED_REFERENCE_FILES_DISCLOSED · PHASE_03C_CONSTRAINTS_FROZEN_NOT_IMPLEMENTED · AWAITING_INDEPENDENT_REVIEW`**
