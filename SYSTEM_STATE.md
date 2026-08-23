@@ -15366,3 +15366,37 @@ artık **6 kategoride 44 bildirim** + çitli konsol · 11 bileşen için 58 duru
 Commit `c2f677a9`.
 
 **Verdict token: `S317_FINDINGS_CLOSED_REGRESSION_FIRST · HEALTH_COLOURED_ATTRIBUTES_DERIVED_FROM_STYLESHEET_NOT_LISTED · THREE_COMPONENT_NODES_REPAINTED_MARKET_NODE_IS_NARRATIVE_AGENT_NODE_IS_A_CLAIM · FIGURE_IS_METRIC_PLUS_NUMBER_EITHER_ORDER_DIGITS_OR_WORDS · METRIC_NAMES_STILL_ALLOWED_TESTED · SCRIPTS_NOW_SCANNED · ROADMAP_PHASES_ALIASED · I_SILENTLY_KILLED_A_RULE_WITH_A_LITERAL_BACKSPACE_AND_THE_MUTANTS_CAUGHT_IT · GATE_AND_STAGE_WERE_TOO_GENEROUS_NOW_TIED_TO_MARKUP · 21_OF_21_MUTANTS_KILLED · AWAITING_INDEPENDENT_REVIEW`**
+
+**§319 WEBSITE — `data.html` (VERİ & BÜTÜNLÜK) EKLENDİ; VE HEADER EŞİĞİ ARTIK ÖLÇÜMLE BELİRLENİYOR (2026-08-23, Opus 5 [1M]).**
+Website işi. **Araştırma yok, ledger yok, collector yok, runtime yok.** Site 14 sayfa.
+
+**BOŞLUK:** `infrastructure.html` verinin NEREDE durduğunu anlatıyordu; **hiçbir sayfa ona neden
+GÜVENİLDİĞİNİ anlatmıyordu** — oysa bu repodaki her sonucu yöneten şey tam olarak o disiplin.
+Yeni sayfanın altı bölümü: (1) *dört bağımsız kayıt* — ayrı gelir, ayrı bozulur, iki kaydı okuyan
+çalışma o anki zayıf olan kadar sağlamdır. (2) **sessizlik belirsizdir** — outage ile sakin saat
+aynı görünür, **ve sakinlik zaten burada birkaç hipotezin KONUSU** ⟹ bir outage gürültü eklemez,
+**sinyali imal eder**; pencere kullanılmadan önce yargılanır, ölçüt *yoğunluk değil yapısal
+tamlıktır*, kısmi kredi yoktur. (3) **hiçbir şey backfill edilmez** — ileri kaydın tek değeri
+sonucu bilinmeden yazılmış olmasıdır; kurtarılan kopya ayrı store'da, adıyla istenerek okunur,
+donmuşa asla karışmaz; **ucu bilinmeyen pencere AÇIK bırakılır**. (4) **kapsam okunduğu yerde
+doğrulanır** — dönem geneli sağlık bir ortalamadır ve tam da en büyük olayların üzerindeki körlüğü
+gizler; sıra: tanımla → kapsa → ölç, ilk ikisini ters çevirmek çalışmanın kendi kör noktasını
+ölçüp bulgu ilan etmesidir. (5) **veri setleri dondurulur ve adıyla atıf alır**; düzeltme snapshot'ı
+düzenlemez, yenisini üretir. (6) **Data Guardian `Not implemented`** — ve sayfa açıkça şunu yazar:
+*"bunların hepsi bugün bir DİSİPLİN, bir bileşen değil; o yüzden bu sitedeki her bütünlük iddiasını
+uygulama değil pratik olarak okuyun."*
+
+**HEADER — AYNI SINIF BUG İKİNCİ KEZ.** Dokuzuncu nav öğesi yatay header'ı **1097 px**'e çıkardı,
+burger ise §315'te 1080'e alınmıştı ⟹ **1081–1097 arasında taşma bandı**. Bu sefer header kuralları
+layout eşiğine yamanmak yerine **kendi bloğuna (`max-width: 1120px`)** alındı ve başına şu yazıldı:
+*eşik zevkle değil ÖLÇÜMLE belirlenir, her yeni nav öğesinde yeniden ölçülür.*
+
+**DOĞRULAMA:** checker **14 sayfada temiz** · yeni sayfaya 6 taze mutant, **6/6 yakalandı** ·
+yatay taşma **360/768/1090/1100/1119/1121/1200/1440**'ta 0 — **yeni eşiğin iki yanındaki dört
+genişlik dahil** — ve 1120 altındaki her genişlikte burger menünün gerçekten açıldığı doğrulandı ·
+`changelog.html` sayfayı sonuç sütunsuz kaydetti · README sayfa tablosu güncellendi.
+
+**Kapsam korundu:** S38, E-DER forward, A2/V3, collector, scheduler, order, runtime — dokunulmadı.
+Commit `f5ac80f2`.
+
+**Verdict token: `WEBSITE_DATA_INTEGRITY_PAGE_ADDED_14_PAGES · OUTAGE_MANUFACTURES_THE_SIGNAL_NOT_JUST_NOISE · NO_BACKFILL_OPEN_WINDOW_STAYS_OPEN · COVERAGE_AT_POINT_OF_USE_DEFINE_COVER_MEASURE · PAGE_STATES_PLAINLY_THAT_INTEGRITY_IS_PRACTICE_NOT_ENFORCEMENT_YET · HEADER_BREAKPOINT_NOW_MEASURED_AND_SEPARATE_1120 · SAME_OVERFLOW_CLASS_CAUGHT_A_SECOND_TIME · 6_OF_6_NEW_MUTANTS_KILLED · CHECKER_CLEAN_14_PAGES · AWAITING_INDEPENDENT_REVIEW`**
