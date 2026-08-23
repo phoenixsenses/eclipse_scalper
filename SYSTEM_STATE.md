@@ -15214,3 +15214,155 @@ tek durum" kuralı eklendi.
 hiçbirine dokunulmadı. Commit `a55b52ec`. **§314, §315 ve bu bölüm bağımsız review bekliyor.**
 
 **Verdict token: `WEBSITE_POLICY_NOW_MACHINE_CHECKED · README_COLOUR_RULE_WAS_WRONG_A_THIRD_TIME_COUNT_REPLACED_BY_TAXONOMY · STATE_DRIFT_FOUND_ALPHA_IN_THREE_STATES_AGENTS_PAGE_CONTRADICTED_ITSELF · ONE_COMPONENT_ONE_STATE_ENFORCED_56_CLAIMS_11_COMPONENTS_ZERO_DISAGREEMENT · CONSOLE_FENCE_FAIL_CLOSED_IF_STICKY_BAR_REMOVED · CHECKER_MUTATION_TESTED_12_OF_12_KILLED · FIRST_CLASSIFIER_ATTEMPT_MISCLASSIFIED_VERDICT_LEGEND_AND_WAS_REPLACED · 52_OF_52_WIDTH_COMBINATIONS_NO_OVERFLOW · NO_RESEARCH_NO_LEDGER_NO_RUNTIME · AWAITING_INDEPENDENT_REVIEW`**
+
+**§317 E-DER'E ZEMİN KONDU — PLASEBO FLOOR SPEC V1 DONDURULDU, KOLA/KONTRATA/MÜHÜRE DOKUNULMADAN. VE İNDİRMENİN KENDİ GEREKÇESİ ÖLÇÜLÜP REDDEDİLDİ (2026-08-23, Opus 5 [1M]).**
+
+**1 — E-DER PLASEBO ZEMİNİ.** Operatör §305–§315'te kurulan aparatın E-DER şeritlerine
+uygulanabilirliğini sordu. İncelendi:
+
+E-DER'in **zaten sahip olduğu** şey epizot disiplini — `EVENT N IS NOT INDEPENDENT CASCADE N`,
+kaskad-düzeyi eşit ağırlık (`EQUAL-CASCADE AVG`). Bu doğru ve eklenecek bir şey yok.
+
+**Eksik olan tek şey zemin.** Scoreboard `AVG NET · MEDIAN NET · PF · EQUAL-CASCADE AVG`
+raporlayacak; **hiçbirinin altında karşılaştırma yok.** V3 hedefine ulaşıp `AVG NET = X` dediğinde
+X'in iyi mi kötü mü olduğunu söyleyecek hiçbir şey tasarımda yok. Bu varsayımsal değil: §308'de
+`control` kolu 6h'de **+37.2 brüt** gösterip çalışıyor görünüyordu; eşleştirilmiş plasebo **+35.0**
+çıktı, fark **+2.2**, epizot düzeyinde **−0.03 SE** — kol tüm ömrü boyunca zeminin tam üstünde
+oturuyormuş, ve zemin olmadan bu görünmüyordu.
+
+**ZAMANLAMA — bir kola zemin eklemenin tek temiz anı N=0'dır.** A2/V3 **2026-08-28**'de başlıyor ve
+**0/40 kaskad**da. V1'in **1** kapanmış kaskadı var. Bu durum bir daha oluşmayacak.
+
+`reports/research/E_DER_PLACEBO_FLOOR_SPEC_V1.md` yazıldı ve donduruldu.
+**SHA256 = `ef6b4d6b212ed9893b78e90dbd8d569f69e3babebaeba01a0804c67ec68e0e38`** · 7.340 bayt.
+
+**KOLA HİÇBİR ŞEY YAPILMADI:** `PROSPECTIVE_A2_V3_START_CONTRACT.json`, mührü, hiçbir kol tanımı,
+eşiği veya kolun yazdığı hiçbir defter **değiştirilmedi**. Spec bir *yoldaş ölçüm* ekler, ikame
+değil; kolun kendi rakamları birincil kalır.
+
+**Donmuş seçim kuralı:** olay başına **K=20** çekiliş · aynı sembol · aynı gün · aynı UTC saat ·
+saat içinde düzgün rastgele dakika · **her arm base'inden >=240 dk uzak** (pencere örtüşmesi
+*inşa yoluyla* dışlanır — §305'te aynı saatten çekilen plasebo 6 saatlik pencerede %98 örtüşmüş ve
+`p25 0.99 · p75 1.01` gibi imkânsız bir darlıkla ele vermişti) · giriş `drawn+31m`, çıkış
+`drawn+240m`, kesin kline open'lari · kolun kendi `cost_bps`'i · seed = `SHA256(symbol|base_ms|k)`.
+**Kapsam kapısı (R10):** her iki bacakta gerçek open yoksa çekiliş düşer ve **sayılır**; 20'nin
+10'undan azı sağ kalırsa o olay `placebo_unavailable` olarak raporlanır. Forward-fill yok.
+
+**Raporlama kapısı kolun kendi kapısıdır** (V3: 40 bağımsız kaskad). Zemin, kolu kendi
+kontratının izin verdiğinden **erken** okumak için kullanılamaz.
+
+**Maliyet nötrlüğü:** zemin kolun kendi `cost_bps=10.0` sabitini kullanır, böylece gerçek maliyet
+ne olursa olsun **farkta sadeleşir**. Fark sağlam, seviye hâlâ doğrulanmamış — §315'te ölçülen
+ayrımın aynısı (spread ucuz ~0.4 bps, bağlayıcı maliyet **derinlik**: bazı isimlerde en iyi
+fiyatta $116).
+
+**AÇIKLANAN KİRLİLİK:** spec yazılırken V1'in kapanmış tek kaskadının (`CASCADE:1787338814301`,
+ENAUSDT) `net_return_bps = +281.87` değeri **görülmüştü** — kaydın alan yapısına bakarken. Bir
+gözlem. Dışlamak yerine **açıklanıyor**; gördükten sonra dışlamak beyan etmekten kötü bir eylem
+olurdu. **A2/V3 tamamen temiz** (başlamadı, 0 kapanmış olay).
+
+**VERİ ÖN KOŞULU KARŞILANMIYOR:** plasebo, kolun sembollerinde kolun zamanlarında 1-dk open ister.
+`xsec_klines` **07-24**'te bitiyor, olaylar **08-21**'de başlıyor; `xsec_klines_ext` V1'in
+sembollerini içermiyor; `book_ticker` yalnız BTC/ETH/SOL; `quotes_1s` bugün başladı ve 12 sembol.
+Yani zemin **bugün hesaplanamaz** — S50'nin beta'sını engelleyen **aynı 2026-07-25 -> bugün
+boşluğu** (§316). Günlük-arşiv köprüsü artık **iki şeridin de** ortak ön koşulu ve E-DER evrenini
+de kapsamalı. **Bu speci zayıflatmaz:** plasebo canlı yakalanan değil, fiyat geçmişinden hesaplanan
+bir karşı-olgudur; sonuçlardan önce dondurulması gereken şey **kuraldır**, ve donduruldu.
+
+**2 — DL-001: İNDİRMENİN GEREKÇESİ ÖLÇÜLDÜ VE REDDEDİLDİ.** Stage 1 tamamlandı: 573 sembol,
+24.1M satır, 635 MB, 40 arşiv yok, 3 geçici hata. Medyan 1-dk kote hacim dağılımı (570 sembol,
+bağımsız numpy hesabıyla doğrulandı):
+
+```
+p10 $212 · p25 $354 · p50 $737 · p75 $1.794 · p90 $5.531 · p95 $9.129 · p99 $27.885
+>= $1.000: 232 · >= $10.000: 25 · >= $20.000: 9 · >= $100.000: 3
+```
+
+**$100k üstündeki üç sembol `BTCUSDC` · `ETHUSDC` · `SOLUSDC`** — USDT'de zaten sahip olduğumuz
+enstrümanların USDC kopyaları, yeni enstrüman değil. Gerçekten yeni olanların tavanı
+BTW $40k · INTC $32k · DRAM $26k · EWY $22k, hepsi S50 evreninin **$100k** eşiğinin altında.
+
+**Hüküm: fiyatı olmayan 652 sembol esasen tamamen küçük. İndirme konuşlanabilir kapasiteyi
+BÜYÜTMÜYOR. S50'nin evreni 14'te kalıyor.** Bu, indirmenin tek gerekçesiydi (operatör sorusu,
+2026-08-22) ve cevap **hayır**. İki aşamalı tasarım bu cevabı **4.35 GB yerine 635 MB'a** aldı.
+
+**Ama indirme replikasyon için hâlâ değerli** — o soru *büyüklük* değil *genişlik* ister. Eşik
+`$20k -> $1.000`'e indirildi (232 sembol), `DOWNLOADS_REGISTRY.md`'ye **AMENDMENT 1** olarak
+kaydedildi. **Ayarlanmış eşik değildir:** hiçbir getiri/net/sonuç hesaplanmadı; yalnızca "hangi
+sembolün fiyatı insin" kararı ve gerekçesi kapasiteden genişliğe kaydı. Stage 2 (232 × 5 ay)
+koşuyor. Birleşik replikasyon evreni **232 + 109 = 341 sembol**.
+
+**3 — S50 RUNNER YAZILDI, counted-N BAŞLAMADI.** `tools/research_s50_forced_flow_forward.py`.
+Donmuş sabitler kodda sabit; ön-kaydın SHA256'sı dosya başlığında. **İçinde hiçbir ortalama, WR
+veya PnL toplamı yoktur** — `--status` yalnız fire sayısı, kapsam ve düşme sebebi basar;
+değerlendirme N_MIN=800'de ayrı evaluator ile tek bakışta. Üç kapı sebebiyle ledger'a yazılır:
+`episode_collapse` · `beta_*` · `no_entry_quote`/`no_exit_quote`. Kuru geçiş: **28 eşik hücresi**
+(14 sembol × 2 taraf) 1.25 sn'de hesaplandı.
+
+**Kendi kodumda sessiz bir boşluk yakalandı:** `series_5m` yalnız klines ve `quotes_1s` okuyordu;
+BTC/ETH/SOL ise `book_ticker`'da (tam tick) ve `quotes_1s`'e **bilerek** konmamıştı. BTC hedge
+enstrümanı olduğu için onun barları boşsa **her sembol** engellenir — tek eksik kaynak 14 sembolü
+birden durduruyordu. Beta probe'u koşulmasa görülmezdi. `bookticker_5m` eklendi; doğrulandı:
+6 saatte **73/72 bar**.
+
+**Beta engeli ampirik olarak doğrulandı:** bugün itibarıyla **14/14 sembolde** beta hesaplanamıyor
+(ortak bar sayısı 0). Ön-kaydın `0.05<beta<5.0` kapısı her anchor'ı reddederdi. **counted-N bu
+yüzden başlatılmadı** — boş bir saat çalıştırmak, ön-kaydın sınırını anlamsız kılardı.
+
+**Verdict token: `E_DER_PLACEBO_FLOOR_SPEC_V1_FROZEN_SHA256_ef6b4d6b · ARM_CONTRACT_SEAL_UNTOUCHED · COMPANION_MEASUREMENT_NOT_REPLACEMENT · E_DER_ALREADY_HAS_EPISODE_DISCIPLINE_CASCADE_LEVEL · WHAT_WAS_MISSING_IS_THE_FLOOR · A2_V3_STARTS_2026_08_28_AT_0_OF_40_CLEAN · V1_HAS_1_CLOSED_CASCADE_NET_281_87_SEEN_DISCLOSED_NOT_EXCLUDED · K_20_DRAWS_SAME_SYMBOL_DAY_HOUR · OVERLAP_EXCLUDED_BY_CONSTRUCTION_240MIN · R10_COVERAGE_GATE_10_OF_20_MINIMUM · REPORTING_GATE_IS_THE_ARMS_OWN_GATE · COST_NEUTRAL_BY_USING_ARMS_OWN_10BPS · DATA_PREREQ_UNMET_SAME_30_DAY_GAP_AS_S50_BETA · BRIDGE_IS_SHARED_PREREQ_OF_BOTH_LANES · DL001_STAGE1_573_SYMBOLS_24_1M_ROWS_635MB · MEDIAN_1MIN_VOLUME_737_USD · ONLY_3_ABOVE_100K_AND_ALL_THREE_ARE_USDC_DUPLICATES · CAPACITY_ANSWER_IS_NO · S50_UNIVERSE_STAYS_AT_14 · TWO_STAGE_DESIGN_SAVED_4_35GB_TO_635MB · CUT_LOWERED_20K_TO_1K_FOR_BREADTH_NOT_TUNED · REGISTERED_AS_AMENDMENT_1 · REPLICATION_UNIVERSE_341_SYMBOLS · S50_RUNNER_WRITTEN_NO_AGGREGATE_INSIDE · 28_THRESHOLD_CELLS_IN_1_25S · SELF_CAUGHT_MISSING_BOOKTICKER_SOURCE_BLOCKED_ALL_14 · BETA_UNAVAILABLE_14_OF_14_VERIFIED_EMPIRICALLY · COUNTED_N_NOT_STARTED · NO_REAL_ORDERS · S38_UNTOUCHED`**
+
+**§317 WEBSITE — §314/§315/§316'NIN BAĞIMSIZ REVIEW'Ü: `FAIL`, ALTI BULGU; DENETLEYİCİ KENDİ BAŞLIK VAKASINI KAÇIRIYORDU (2026-08-23, Opus 5 [1M]).**
+**Salt-okunur faz.** Repo'daki hiçbir dosya bu fazda DEĞİŞTİRİLMEDİ; tüm sondalar scratchpad'e
+alınan kopya üzerinde koşturuldu. Yöntem: kuralları tekrar okumak değil, **denetleyiciyi kırmaya
+çalışmak** — çünkü §316'nın iddiası "artık makine denetliyor"du ve sınanması gereken şey o iddiaydı.
+
+**R1 (YÜKSEK) — checker, var olma sebebi olan hatayı kaçırıyordu.** `data-s="active"` + zararsız
+metin ("Live") tertemiz geçti. Sebep yapısal: renk taraması yalnız satır-içi `var(--green)` arıyordu,
+oysa `data-s` / `data-accent` / `data-k` / `data-gate` **stylesheet tarafından** boyanıyor. Yani W2
+sınıfı ihlal, sınıf API'si üzerinden serbestçe geçiyordu.
+**R7 (YÜKSEK, R1'in altından çıktı) — GERÇEK BİR İHLAL vardı:** landing'deki *path of a trade*
+akışı **üç BİLEŞEN düğümünü** sağlık rengiyle boyuyordu — `Risk Governor` amber, `Execution Gateway`
+yeşil, `Market` yeşil. **Dört bağımsız review geçişi ve benim bu oturumdaki tüm taramalarım bunun
+üzerinden geçti.**
+**R3/R6 (YÜKSEK) — mühürlü agregat düzyazı olarak sızabiliyordu.** "74.6% win rate" (sayı ÖNDE) ve
+"forty-one basis points" (sayı KELİMEYLE) yakalanmıyordu; eski kural sayının metrikten SONRA ve
+rakamla gelmesini şart koşuyordu. Sitenin verebileceği en pahalı zarar tam olarak budur.
+**R2 (ORTA)** yalnız `*.html` taranıyordu; `assets/js/eclipse.js` hiç denetlenmiyordu.
+**R5 (ORTA)** roadmap faz satırları "tek bileşen tek durum" kıyasına girmiyordu ⟹ **bayatlamaya en
+yatkın sayfa, en az kapsanan sayfaydı**.
+**R4 (KAYIT DÜZELTMESİ)** §316, mutant #1'i *renk taksonomisinin çalıştığının kanıtı* diye gösteriyor;
+çıktı, onun **banned-label kuralıyla** öldüğünü gösteriyor. İddia doğruydu ama **gösterilen kanıt
+yanlıştı** (Q3 "zayıflatılmış test" sınıfı). Taksonomiyi gerçekten kanıtlayan sonda artık pakette.
+
+**Verdict token: `REVIEW_OF_314_315_316_FAIL_SIX_FINDINGS · CHECKER_MISSED_ITS_OWN_HEADLINE_CASE_ATTRIBUTE_DRIVEN_COLOUR · REAL_VIOLATION_FOUND_THREE_COMPONENT_NODES_PAINTED_HEALTH_COLOUR_SURVIVED_FOUR_PASSES · SEALED_AGGREGATE_COULD_LEAK_AS_PROSE_NUMBER_FIRST_OR_SPELLED · SCRIPTS_UNSCANNED · ROADMAP_PHASES_UNCOMPARED · EVIDENCE_CITED_IN_316_WAS_THE_WRONG_MUTANT · READ_ONLY_NOTHING_EDITED`**
+
+**§318 §317'NİN DÜZELTMESİ — ALTI BULGU + BİRİ ÜZERİNDEN ÇIKAN GERÇEK İHLAL KAPATILDI; VE DÜZELTİRKEN KURALIN BİRİNİ SESSİZCE ÖLDÜRDÜM (2026-08-23, Opus 5 [1M]).**
+Website işi. **Araştırma yok, ledger yok, collector yok, runtime yok.**
+
+**Kapatılanlar:** · **R1** sağlık rengiyle boyanan attribute kümesi artık **stylesheet'ten TÜRETİLİYOR**
+(elle liste değil) ⟹ yeni bir sağlık-renkli durum checker'ın arkasından eklenemez. · **R7** üç bileşen
+düğümü, aynı akışın zaten kullandığı kategori aksanlarına boyandı (`violet` ajan, `blue` mekân);
+`Reject/Reduce/Approve` çatalı verdict olarak kaldı. **Yeni kural: piyasa-durumu düğümünde renk
+anlatıdır, AJAN düğümünde iddiadır** — ve bu ayrım artık alias tablosuyla makine tarafından
+uygulanıyor. · **R3/R6** figür tanımı yeniden yazıldı: *metrik kelimesi + yakınında sayı*, **iki yönde
+ve rakam ya da kelime**. Metrik ADLARI ("Win rate is the least interesting output") hâlâ serbest —
+test edildi. · **R2** script'ler de taranıyor. · **R5** faz başlıkları alias'landı. · **R4** kayıt
+düzeltmesi bu bölümde.
+
+**DÜZELTİRKEN YAPTIĞIM HATA (kendim yakaladım, mutantlar sayesinde):** kuralları genişletirken iki
+pattern'deki `\b` dosyaya **literal backspace (0x08)** olarak yazıldı ⟹ **performans-figürü kuralı
+HİÇBİR ŞEYLE eşleşmez oldu ve siteyi tertemiz raporladı.** Daha önce ölen `M2 bps figure` mutantının
+diriltmesiyle ortaya çıktı. **Hiç ateşlemeyen bir kural, geçen bir kuraldan ayırt edilemez.**
+Ayrıca `gate` ve `stage` kategorileri ilk denemede fazla cömertti — **`stage`, tam da reddetmesi
+gereken `data-s="active"` çipini yutuyordu**; ikisi de artık kendilerini hak eden markup'a bağlı
+(`data-gate` / `flow-n`).
+
+**DOĞRULAMA:** **21 mutant, 21 yakalama, temiz ağaç geçiyor** (12 → 21'e çıkarıldı: R1, R1b, R3, R6,
+R7, R7b, harici istek, script etiketi, bayat roadmap fazı eklendi) · checker temiz · sağlık rengi
+artık **6 kategoride 44 bildirim** + çitli konsol · 11 bileşen için 58 durum iddiası, sıfır ayrışma ·
+`README.md` kategoriler, attribute yolu ve **backspace dersi** ile güncellendi.
+
+**Kapsam korundu:** S38, E-DER forward, A2/V3, collector, scheduler, order, runtime — dokunulmadı.
+Commit `c2f677a9`.
+
+**Verdict token: `S317_FINDINGS_CLOSED_REGRESSION_FIRST · HEALTH_COLOURED_ATTRIBUTES_DERIVED_FROM_STYLESHEET_NOT_LISTED · THREE_COMPONENT_NODES_REPAINTED_MARKET_NODE_IS_NARRATIVE_AGENT_NODE_IS_A_CLAIM · FIGURE_IS_METRIC_PLUS_NUMBER_EITHER_ORDER_DIGITS_OR_WORDS · METRIC_NAMES_STILL_ALLOWED_TESTED · SCRIPTS_NOW_SCANNED · ROADMAP_PHASES_ALIASED · I_SILENTLY_KILLED_A_RULE_WITH_A_LITERAL_BACKSPACE_AND_THE_MUTANTS_CAUGHT_IT · GATE_AND_STAGE_WERE_TOO_GENEROUS_NOW_TIED_TO_MARKUP · 21_OF_21_MUTANTS_KILLED · AWAITING_INDEPENDENT_REVIEW`**
