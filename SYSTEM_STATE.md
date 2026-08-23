@@ -15817,3 +15817,43 @@ değişmedi. **Ağır hiçbir şey başlatılmadı; 22 python prosesi ve iki ağ
 değmeden çalışmaya devam ediyor.** Commit `07625dac`.
 
 **Verdict token: `DIRTY_STREAM_PROBE_THREE_DEFECTS_ALL_FOUND_BY_RUNNING_IT · REPLAY_FABRICATED_ATTENTION_0_00_TO_0_17_NOW_REFUSED_BEFORE_ANY_ENGINE · OUT_OF_ORDER_REWROTE_FIRST_SOURCE_NOW_REFUSED · UNBOUNDED_MEMORY_AND_QUADRATIC_SCAN_NOW_PRUNED_EVERY_CALL · PREMATURE_SIZE_GUARD_REMOVED_MADE_THE_BOUND_UNTESTABLE · THREE_ENTRY_POINTS_STRICT_COLLECTOR_BATCH · MY_OWN_WEAKENED_ASSERTION_FOUND_AND_REPLACED · REGRESSION_FIRST_TESTS_WERE_RED · 78_OF_78 · NOTHING_HEAVY_STARTED · AWAITING_INDEPENDENT_REVIEW`**
+
+**§322 NEWS INTELLIGENCE — BAĞIMSIZ SONDA GEÇİŞİ: BEŞ BYPASS + N'İ BELİRLEYEN PARAMETRENİN UÇURUMDA OTURDUĞU (2026-08-23, Opus 5 [1M]).**
+§320/§321 katmanının salt-okunur sonda geçişi. Kuralları tekrar okumak değil, **katmanı kırmaya
+çalışmak.** Beş sonda da geçti — hepsi aynı biçimde: **muhafızlar constructor'da, ama constructor'ı
+atlayan yollar vardı.**
+
+**S1/S2 — OUTCOME, FEATURE UZAYINA GİREBİLİYORDU.** Snapshot yalnız `context`'in **üst düzey
+anahtarlarını** denetliyordu ⟹ `{"market": {"pnl": …}}` içeri giriyordu. Ve yalnız gözlemin
+**ADINI** denetliyordu ⟹ bir dict DEĞERİ, hiçbir ad kontrolünün bakmayacağı bir saklanma yeriydi.
+Bus zaten iç içe yürüyordu: **üç muhafız, üç farklı derinlik ve EN SIĞ OLANI en önemli olandı.**
+Artık **tek yürüyücü** (`outcome_key_in`) üçünde de kullanılıyor.
+**S3 — TANINMAYAN SUBJECT TÜM KONTROLÜ ATLIYORDU.** `assert_no_outcome` bilmediği subject için erken
+dönüyordu ⟹ yazım hatası ya da "experimental" bir ad, outcome kontrolünü **tamamen** baypas ediyordu —
+baypasın en pahalı olduğu noktada. Bir namespace'e sahip olmak, ona ait olmayanı reddetmektir:
+`UnknownSubject`.
+**S4/S5 — EN KÖTÜSÜ, ANNOTATION YOLUNDAN.** `dataclasses.replace` tip denetimi yapmaz ⟹ bir model
+`{"polarity": 9.0}`'ı `Sentiment`'in yerine yazıp sınır kontrolünü atlayabiliyordu; ve **bu paketin
+manşet invariant'ı** — `{"BTC": -0.9}`'u `asset_relevance`'a yazıp **ilgi grafiğinden yönü uzak tutan
+reddin önünden geçebiliyordu.** Yani "ilgi yön değildir" kuralının **yan kapısı** vardı. Artık her
+annotate edilebilir alan geleceği TİPİ beyan ediyor.
+
+**KALİBRASYON — KANIT OLMAYAN ÜÇ SAYI ÖLÇÜLDÜ** (`tools/news_intelligence_calibration.py`).
+Kümeleme eşiği / kümeleme penceresi / novelty hafızası. Bulgu: **seçilen 0.32, hedeflenen gruplamayı
+üreten aralığın TAM ÜST KENARINDA** — 0.10–0.32 arası doğru, **0.40'ta hikâye bölünüyor**. Ve bölünme
+**tehlikeli yön**: bağımsız-olay sayısını, yani aşağıdaki her anlamlılık testinin PAYDASINI şişirir.
+Pencere (0.5–24 sa) ve hafıza (0.25–7 gün) bu fixture'larda **duyarsız**.
+
+**SAYIYI DEĞİŞTİRMEDİM.** Yedi sentetik öğe bir parametreyi taşımak için çok az, ve onu bir sonuca
+göre ayarlamak **paketin var olma sebebi olan günahın bir üst seviyede işlenmesi** olurdu. Onun
+yerine **kırılganlık ÖLÇÜLÜYOR**: eşiğe `margin` kadar yakın karar verilen her gruplama satırda
+işaretleniyor ve sayılıyor (`near_threshold_count`), özel panele yazılıyor. Gerçek öğeler akmaya
+başlayınca *"örneklem büyüklüğü ne kadar bir hüküm kararına bağlı"* sorusu **keşif değil gözlem**
+olacak. Fixture'larda: 7'de 1 (agregatörün kısa özeti). Kalibrasyon aracı kendi docstring'inde
+**asla bir değer seçmek için genişletilmemesi gerektiğini** yazıyor.
+
+**DOĞRULAMA: 90/90 test** (çağrı başına 2 dosya) · beş sonda yeniden koşturuldu, **beşi de reddediliyor**
+· `py_compile` temiz · demo çıktısı değişmedi · site politika checker'ı temiz. Ağır hiçbir şey
+başlatılmadı. Commit `10c55549`.
+
+**Verdict token: `FIVE_BYPASSES_FOUND_BY_PROBING_NOT_READING · GUARDS_WERE_AT_CONSTRUCTORS_AND_PATHS_WROTE_PAST_THEM · SNAPSHOT_CHECKED_ONLY_TOP_LEVEL_KEYS_AND_ONLY_OBSERVATION_NAMES · THREE_GUARDS_THREE_DEPTHS_SHALLOWEST_WAS_THE_MOST_IMPORTANT_NOW_ONE_WALKER · UNKNOWN_SUBJECT_SKIPPED_THE_OUTCOME_CHECK_ENTIRELY_NOW_FAIL_CLOSED · ANNOTATION_PATH_LET_A_MODEL_WRITE_A_SIGNED_RELEVANCE_HEADLINE_INVARIANT_HAD_A_SIDE_DOOR · CLUSTER_THRESHOLD_0_32_SITS_ON_THE_EDGE_0_40_SPLITS_AND_SPLITTING_INFLATES_N · NUMBER_NOT_CHANGED_ON_SEVEN_SYNTHETIC_ITEMS_FRAGILITY_MEASURED_INSTEAD · CALIBRATION_TOOL_FORBIDDEN_FROM_SELECTING_A_VALUE · 90_OF_90 · NOTHING_HEAVY_STARTED · AWAITING_INDEPENDENT_REVIEW`**
