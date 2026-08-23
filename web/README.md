@@ -24,6 +24,7 @@ Then open <http://127.0.0.1:8799>.
 | `roadmap.html` | Twelve phases in order — what each must deliver, the five-step review gate that closes one, and the current state of each. No dates, ever |
 | `arms.html` | Arms & lanes — every arm, lane and closed idea as a card: name, concept description, implementation state. No results column |
 | `methodology.html` | Nine concept sections on how the evidence is handled — no formula, threshold or measured value |
+| `data.html` | Data & integrity — what is observed, why a gap is not a quiet market, why nothing is backfilled, and coverage checked at the point of use |
 | `agents.html` | Registry — role plus publish / read / denied for each agent |
 | `security.html` | Onboarding sequence, ten layers, permission matrix, secrets, research↔execution border, CI checks |
 | `infrastructure.html` | Stack, node roles, private mesh, storage model, source-control decision |

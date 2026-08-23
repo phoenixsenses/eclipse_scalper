@@ -1135,16 +1135,12 @@ a.bulb:hover { background: var(--bg-panel); }
 /* ============================================================
    RESPONSIVE
    ============================================================ */
-@media (max-width: 1080px) {
-  .split, .split-even { grid-template-columns: 1fr; gap: 30px; }
-  .g-4 { grid-template-columns: repeat(2, 1fr); }
-  .stepper { grid-auto-flow: row; grid-template-columns: repeat(3, 1fr); }
-  .step { border-bottom: 1px solid var(--line); }
-  .ft { grid-template-columns: 1fr 1fr; }
-
-  /* the horizontal nav needs ~1043px once Roadmap is in it, so the burger
-     starts here rather than at 860px — below that the eight items and the
-     console link pushed the header past the viewport */
+/* ---------- the header has its own breakpoint --------------------------- */
+/* It is set by measurement, not by taste: the horizontal nav plus the mark and
+   the console link need ~1097px with nine items. Every time a nav item is
+   added this must be re-measured — twice now a new item has quietly pushed the
+   header past the viewport in a narrow band above the old breakpoint. */
+@media (max-width: 1120px) {
   .hdr-nav { display: none; }
   .hdr-nav.is-open {
     display: flex;
@@ -1160,6 +1156,14 @@ a.bulb:hover { background: var(--bg-panel); }
   }
   .hdr-nav.is-open a { padding: 11px 0; border-bottom: 1px solid var(--line); }
   .hdr-burger { display: block; }
+}
+
+@media (max-width: 1080px) {
+  .split, .split-even { grid-template-columns: 1fr; gap: 30px; }
+  .g-4 { grid-template-columns: repeat(2, 1fr); }
+  .stepper { grid-auto-flow: row; grid-template-columns: repeat(3, 1fr); }
+  .step { border-bottom: 1px solid var(--line); }
+  .ft { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 860px) {
