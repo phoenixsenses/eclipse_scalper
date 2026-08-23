@@ -15400,3 +15400,380 @@ genişlik dahil** — ve 1120 altındaki her genişlikte burger menünün gerçe
 Commit `f5ac80f2`.
 
 **Verdict token: `WEBSITE_DATA_INTEGRITY_PAGE_ADDED_14_PAGES · OUTAGE_MANUFACTURES_THE_SIGNAL_NOT_JUST_NOISE · NO_BACKFILL_OPEN_WINDOW_STAYS_OPEN · COVERAGE_AT_POINT_OF_USE_DEFINE_COVER_MEASURE · PAGE_STATES_PLAINLY_THAT_INTEGRITY_IS_PRACTICE_NOT_ENFORCEMENT_YET · HEADER_BREAKPOINT_NOW_MEASURED_AND_SEPARATE_1120 · SAME_OVERFLOW_CLASS_CAUGHT_A_SECOND_TIME · 6_OF_6_NEW_MUTANTS_KILLED · CHECKER_CLEAN_14_PAGES · AWAITING_INDEPENDENT_REVIEW`**
+
+**§320 §309/§310/§311'İN BÜYÜKLÜKLERİ BİR ZAMANLAMA ARTEFAKTIYDI — KAYBIN TAMAMI ANCHOR'IN İLK İKİ DAKİKASINDA VE O GİRİŞ ULAŞILABİLİR DEĞİL. İKİ BAĞIMSIZ AJAN AYNI KOLU AYRI YOLLARDAN ÇÖKERTTİ (2026-08-23, Opus 5 [1M]).**
+
+**Bu bölüm §309, §310 ve §311'i DÜZELTİR.** O bölümlerin işaretleri ve genişlik ölçümleri kalır;
+**büyüklükleri ve "negatif edge" hükmü geçersizdir.**
+
+---
+
+**1 — GİRİŞ GECİKMESİ EĞRİSİ (yeni ölçüm, 109 sembol, tutuş 6h sabit, FEE 10 bps kanonik)**
+
+Aynı donmuş anchor kuralı; tek değişen giriş anı:
+
+```
+gecikme  epizot     kol   plasebo     FARK  fark/SE     delta
+   -5     3471   -126.3     +5.3   -131.6    -9.82
+   -2     3457   -104.6     +4.4   -108.9    -8.12     +22.7
+   +0     3451    -58.4     +3.9    -62.3    -4.60     +46.7
+   +2     3444    +10.1     +4.2     +5.9     0.44     +68.2   <-- ucurum
+   +5     3429     +7.7     +4.2     +3.5     0.26
+  +10     3413     +6.4     +4.4     +2.1     0.15
+  +15     3396     +9.2     +4.3     +5.0     0.36
+  +20     3380    +10.2     +4.5     +5.7     0.41
+  +31     3345     +4.6     +4.2     +0.3     0.03
+  +45     3305     -2.7     +4.0     -6.7    -0.52
+  +60     3247    -11.0     +3.9    -14.9    -1.16
+  +90     3157     -8.7     +2.7    -11.4    -0.91
+```
+
+**Kaybın tamamı ilk iki dakikada: −5'ten +2'ye +137.5 bps.** +2'den +31'e kadar her hücre
+**|t| < 0.5**, yani plasebonun üstünde oturuyor.
+
+**VE O GİRİŞ ULAŞILABİLİR DEĞİL.** `+0` hücresi anchor **dakikasının açılış fiyatını** kullanır.
+Anchor ise kümülatif notional'ın eşiği geçtiği **an** — dakikanın içinde. Yani `+0`'ın giriş
+fiyatı, **sinyal henüz doğmamışken var olan** bir fiyattır; kaskad sırasında fiyat düşerken o
+açılış daha yüksektir ve LONG'u haksız yere yüksekten işaretler. Gerçekte sinyalden **sonra**,
+yani **daha ucuza** girilir. **Bu, kolu cezalandıran yönde bir lookahead'dir.**
+
+**Sonuç: §309'un `−114 bps · t=−8.43 · NEGATIF EDGE` hükmü GEÇERSİZDİR.** Gerçekçi bir girişte
+(+1…+2 dk: tespit + emir) etki **+5.9, t=0.44** — yani **sıfır**. Kural plasebonun altında değil,
+**üstünde** oturuyor.
+
+**§310 aynı sebeple düşer:** SHORT aynasının `+38.5`'i, `−114`'ün aritmetik tersiydi; taban
+artefakt olunca ayna da artefakttır. **§311'in `−136.9 / +123.7` simetrisi de** aynı iki dakikadan
+gelir. §311'in *işaret simetrisi* ve *sembol uyumu* (%84-85) ayakta kalır — **büyüklükleri kalmaz.**
+
+**§311 ile bugünkü ölçüm arasındaki 2 katlık fark da böylece kapandı.** Hipotezim indeks-hizalama
+hatasıydı; **denetlendi ve yanlış çıktı: 108 sembolün 108'inde kayma yok.** Gerçek sebep giriş
+zamanlamasıydı: §311 anchor'ı 5-dk ızgaraya **aşağı** yuvarlıyordu, yani ortalama ~2.5 dk **erken**
+giriyordu. O hücre bugün ayrıca ölçüldü: **−106.9**, tam olarak `−5` (−131.6) ile `+0` (−62.3)
+arasında. Kalan fark §311'in beta-nötr olmasından.
+
+---
+
+**2 — İKİ BAĞIMSIZ AJAN, AYNI KOL, AYRI YOLLAR**
+
+Operatör talebiyle iki ajan `control` kolunu bağımsız replay etti; birine **kurmak**, diğerine
+**saldırmak** görevi verildi. İkisine de bulgularım söylenmedi.
+
+**DOĞRULANANLAR (benim sayılarım tuttu):** `h=48 · n=61 · −47.90` birebir · `h=6` net +33.04
+(benim +37.2 brütümle 5 bps fee farkıyla tutarlı) · epizot çöküşü farklı yöntemle (açgözlü
+örtüşmeyen zincir) 6h'de 54 vs benim 48'im · **hiçbir ufuk bağımsız gözlemlerde |t| ≥ 2'ye
+ulaşmıyor** — naif t'ler (h=12: 2.01, h=48: −2.12) örtüşme artefaktı.
+
+**BENİ VURAN BULGULAR:**
+
+**(a) Control'ün tüm pozitifi TEK bir 2.7 saatlik pencereden.** 08-19 15:28/16:12/16:41/17:03/18:09:
+
+```
+4h  toplamin %94.5'i   ort +15.22 -> bu bes cikinca +0.87
+6h  toplamin %97.6'si  ort +33.04 ->                +0.84
+24h toplamin %91.1'i   ort +61.31 ->                +5.73
+```
+
+**Beşi de `path_max_bid = 2336.45` taşıyor — bayt bayt aynı tepe.** Girişler %0.35'lik bantta.
+Beş gözlem değil, **tek bir ETH hareketi beş kez örneklenmiş**. §308'de *"tek güvenilir hücre"*
+dediğim 6h, **%97.6 oranında o öğleden sonra**.
+
+**(b) Ufuk merdiveni bir karantina artefaktı.** Aynı beş anchor **yalnız 48h'de** karantinaya
+giriyor. 48h'in tek negatif ufuk olması, o kümeyi düşüren tek ufuk olmasından. §308'in
+"24h→48h işaret dönüşü" gözlemi doğruydu ama mekanizması budur: **tek bir olayın örnekleme girip
+çıkması.**
+
+**(c) FEE YARIM.** Ledger'ın `COMMISSION_BPS = 5.0` değeri **round-trip**; CLAUDE.md §197 kanonik
+`BINANCE_BASE` **5.0/taraf = 10.0 round-trip**. Ajan 806 control satırında yeniden kurup doğruladı:
+tam 5.000 bps (aralık 4.995–5.005). **Bu defterdeki her net 5 bps iyimser.** Fee düzeltilip 08-19
+kümesi de çıkarılınca: 4h **−4.13**, 6h **−4.16**, 24h **+0.73**.
+
+**(d) KENDİ `research_geometry.db`'M İKİNCİ BİR TABAN HATASI TAŞIYOR.** §308'de eklediğim
+`unfinished=0` filtresi S1 control'de **yalnız `RESOLVE_48h`'i seçiyor** (n=61). Yani "yalnız
+bitmiş pozisyonlar" diye sunduğum temiz tablo, altı ufuklu bir paneli **karantinanın en çok hasar
+verdiği tek hücreye** indirmiş. Ayrıca `hold_min` sütunu ledger'ın gerçek tutuş süresiyle
+çelişiyor (337–2877 dk, oysa üretici `exit_ts = ats + h*3600_000` ile tam) ve DB **~23 saat
+bayat**.
+
+**(e) SATIR ORTALAMASINI EPİZOT SAYISININ YANINA YAZDIM.** §308'deki kol tablosunda
+`control · 117 satır · 48 epizot · +37.2` — `+37.2` **satır** ortalamasıdır. Epizot sayısının
+yanında epizot ortalaması gibi okunur. **Nihai hükmüm (epizot bazında +28.5 vs plasebo +29.0,
+−0.03 SE) epizot düzeyindeydi ve ayakta kalır**, ama kol tablosu yanıltıcıydı.
+
+**BAŞARISIZ SALDIRILAR — ham defter sağlam çıktı:** ham ledger'da `terminal == en-iyi-değer`
+oranı **%0.0** (altı ufkun hepsinde) ⟹ §308'in `PATH_TERMINAL` şişmesi **yalnız benim türetilmiş
+tablomdaydı, ham defteri kirletmemiş** · mükerrer satır yok (198 OPEN = 198 farklı anchor) ·
+kol etiketi kayması yok · üretici-kesintisi seçilimi çürütüldü (ENV satırları boyunca yazılmış) ·
+`net_bps` ile `net_bps_measured` **aynı büyüklük, farklı örneklem** (nerede ikisi de varsa kuruşuna
+aynı; fark yalnız karantinanın `net_bps`'i NULL'laması).
+
+**Karantina MNAR'ı ajan tarafından niceleştirildi:** h=48'de düşen 60 satırın medyan
+`net_bps_measured`'ı **+201.49**, kalan 61'in **−44.68**; düşenlerin medyan MFE'si 347.4, kalanların
+133.9, ve kalan kümede MFE>405 olan tek anchor yok, düşenlerde 2334'e çıkıyor. Ajan uçları tek tek
+kontrol etti: çıkış kotası yaşı **2–6 ms**, yani bunlar §166'daki bayat-kota uydurması **değil**,
+**gerçek ETH hareketleri** (Ağustos ortası rallisi). **Karantina, örneklemdeki en büyük boğa
+koşusunu kesip atıyor** ve takvim-kümeli (07-23, 07-24, 08-05, 08-06, 08-10, 08-11, 08-17→08-21
+günlerinin **her** 48h satırı düşüyor). Ajanın hükmü: *"veri hangisinin doğru olduğunu çözmüyor;
+istatistiksel değil, besleme-bütünlüğü hükmü gerekiyor."* Katılıyorum.
+
+**Ajanın netleştirdiği bir ayrım:** `s34_echo_multilane_forward` **başka bir protokol** —
+56 sembollü kesit, **SHORT**, forward epoch 08-13, A/B/C kolları, `qualified_*` alanı yok;
+`control` ise **LONG ETH**. §308'deki tabloda ikisini yan yana koymuştum ve yön/evren farkını
+yeterince belirtmemiştim.
+
+---
+
+**3 — DL-001 TAMAMLANDI**
+
+`data/xsec_klines_ext.db`: **70.300.862 satır · 573 sembol · 6.84 GB · dosya OK=1651 ABSENT=122**;
+**201 sembolde tam 6 ay** kapsama. Kapasite hükmü değişmedi (§317): bu sembollerin medyan 1-dk
+hacmi $737 ve $100k üstündeki üçü USDC kopyası. Veri **replikasyon** için değerli, **kapasite**
+için değil.
+
+---
+
+**4 — HÜKÜM**
+
+Bugün dört bağımsız yol aynı yere çıktı ve **hiçbiri "negatif edge" demiyor**:
+
+```
+giris gecikmesi egrisi   +2..+31 dk araligi  |t| < 0.5      -> plaseboda
+E-DER zamanlamasi        +31dk / +240dk       t = +0.02     -> plaseboda
+iki ajan, gun kumelemesi hicbir ufuk |t| >= 1.4            -> plaseboda
+dun, epizot bazinda      -0.03 SE                          -> plaseboda
+```
+
+**Kural plasebonun altında değil, ÜSTÜNDE — yani sıfırda.** §309'un "negatif edge" hükmü, §310'un
+SHORT aynası ve §311'in büyüklükleri **geri çekilmiştir**. §311'in *işaret simetrisi* ve *sembol
+genişliği* ayakta kalır; **onlardan alfa çıkmaz.**
+
+**S50 ÖN-KAYDINA ETKİSİ.** S50 (§312) *"mekanizma ölçülen maliyeti taşıyor mu"* diye soruyordu ve
+tarihsel dayanağı §311'di. **Dayanağın büyüklüğü çöktü.** Ön-kayıt mühürlü kalır ve
+DEĞİŞTİRİLMEZ — ama artık bilinmesi gereken şudur: beklenen etki, ön-kaydın güç hesabında
+kullanılan tarihsel değerin **çok altındadır**, ve N_MIN=800 muhtemelen yetersizdir. Bu, ön-kayıt
+imzalanmadan önce operatörün bilmesi gereken bir olgudur. **counted-N hâlâ başlatılmadı.**
+
+**Verdict token: `ENTRY_DELAY_CURVE_MEASURED_12_CELLS · ENTIRE_EFFECT_LIVES_IN_FIRST_TWO_MINUTES · MINUS_5_TO_PLUS_2_IS_PLUS_137_5_BPS · PLUS_2_TO_PLUS_31_ALL_ABS_T_UNDER_0_5 · PLUS_0_CELL_MARKS_ENTRY_AT_A_PRE_SIGNAL_PRICE · LOOKAHEAD_THAT_PENALISES_THE_ARM · S309_NEGATIVE_EDGE_VERDICT_RETRACTED · S310_SHORT_MIRROR_RETRACTED_ARITHMETIC_COMPLEMENT_OF_ARTEFACT · S311_MAGNITUDES_RETRACTED_SIGN_AND_BREADTH_SURVIVE · S311_DISCREPANCY_RESOLVED_NOT_ALIGNMENT · ALIGNMENT_AUDIT_0_OF_108_MISALIGNED · MY_ALIGNMENT_HYPOTHESIS_WAS_WRONG · 5MIN_FLOOR_CELL_MINUS_106_9_SITS_BETWEEN_MINUS5_AND_ZERO · TWO_INDEPENDENT_AGENTS_CONSTRUCTOR_AND_ADVERSARY · AGENTS_CONFIRMED_MY_NUMBERS_H48_MINUS_47_90_N_61_EXACT · CONTROL_6H_IS_97_6PCT_ONE_2_7_HOUR_WINDOW · FIVE_ANCHORS_SHARE_BYTE_IDENTICAL_PATH_MAX_BID_2336_45 · EXCLUDING_THEM_6H_GOES_33_04_TO_0_84 · HORIZON_LADDER_IS_QUARANTINE_ARTEFACT · LEDGER_FEE_IS_5_0_ROUNDTRIP_NOT_CANONICAL_10_0 · EVERY_NET_IN_LEDGER_IS_5BPS_OPTIMISTIC · MY_UNFINISHED_FILTER_SELECTED_ONLY_RESOLVE_48H · I_REPORTED_ROW_MEANS_BESIDE_EPISODE_COUNTS · RAW_LEDGER_HELD_UP_TERMINAL_EQ_MFE_0_0PCT · PATH_TERMINAL_INFLATION_WAS_MINE_ALONE · NO_DUPLICATES_NO_LABEL_DRIFT_NO_DOWNTIME_SELECTION · QUARANTINE_DROPS_MEDIAN_PLUS_201_49_KEEPS_MINUS_44_68 · DROPPED_ROWS_ARE_REAL_MOVES_EXIT_QUOTE_AGE_2_TO_6_MS · NEEDS_FEED_INTEGRITY_RULING_NOT_STATISTICS · MULTILANE_IS_A_DIFFERENT_PROTOCOL_SHORT_CROSS_SECTION · DL001_COMPLETE_70_3M_ROWS_573_SYMBOLS_6_84GB_201_FULL_COVERAGE · CAPACITY_VERDICT_UNCHANGED · FOUR_INDEPENDENT_ROUTES_ALL_SAY_AT_PLACEBO · S50_HISTORICAL_BASIS_MAGNITUDE_COLLAPSED · S50_PREREG_SEAL_UNCHANGED_BUT_N_MIN_800_LIKELY_INSUFFICIENT · COUNTED_N_STILL_NOT_STARTED · NO_REAL_ORDERS · S38_UNTOUCHED`**
+
+**§321 S51 — GEÇİŞ SANİYE ÇÖZÜNÜRLÜĞÜNDE BULUNDU (dip medyan +16s, %71 sinyalden SONRA), AMA MİKROYAPININ HİÇBİR KANALI ONU FİYATIN KENDİSİNDEN İYİ İŞARETLEMİYOR. §305 BAŞKA BİR ÖLÇEKTE TEKRARLANDI (2026-08-23, Opus 5 [1M]).**
+
+**Neden yapıldı.** §320 tüm etkiyi anchor'ın ±2 dakikasına yerleştirdi ve `+0` girişinin
+**sinyalden önceki bir fiyatla** işaretlendiğini gösterdi. Operatör hipotezi (Hasbrouck event-time,
+Harris execution/time-priority, López de Prado implementation shortfall çerçevesinde):
+*SIGNAL_TS ±120s'de, ilk gerçekten executable anda oluşan forceOrder exhaustion/renewal +
+taker-flow reversal + BBO/spread/imbalance + residual-price state değişimi, sinyal-öncesi düşüşün
+bittiği event-time geçişini nedensel olarak tanımlar; 30s/1m/2m/5m displacement, MAE ve
+reversal/continuation ayrımını öngörür mü — 6h yalnız ikincil.*
+
+**Araç:** `tools/research_s51_signal_transition_state.py` (çıkarım) +
+`tools/research_s51_transition_analysis.py` (analiz). `data/s51_signal_state.db`:
+**230.671 saniye-satırı · 321 anchor**, BTC 123 / ETH 129 / SOL 74, 2026-07-29 → 08-23.
+Tam tick state **yalnız bu üç sembolde** var (book_ticker + agg_trades); liquidations 761 sembolde
+ama BBO/taker bacakları değil. **N=321, üç sembol: mekanistik bir soru, istatistiksel hüküm değil.**
+
+---
+
+**1 — GEÇİŞ VAR VE YERİ ÖLÇÜLDÜ (doğrulandı)**
+
+```
+mid yolunun dibi:  medyan +16 sn   p25 -1   p75 +67
+dip SIGNAL_TS'ten SONRA:  226/317  (%71)
+sinyal oncesi dusus (-120s -> 0):  medyan -18.1 bps
+dipten +120s'ye yukselis:          medyan  +9.0 bps
+```
+
+**Sinyal öncesi düşüş SIGNAL_TS'te bitmiyor; medyan 16 saniye sonra bitiyor.** §320'nin dakika
+ölçeğindeki 2-dakikalık uçurumunun saniye ölçeğindeki karşılığı budur.
+
+**Executable an gecikmeye toleranslı:** +1/+2/+5/+10 sn hepsi aynı (d30s medyan +0.9…+1.4,
+poz %56–59); +30/+60'ta sönüyor (+0.5/+0.4). Yani "ilk executable an" kavramı işliyor.
+**Ama ele geçen büyüklük +1.1 bps** — kanonik 10 bps round-trip'in onda biri.
+
+---
+
+**2 — HİPOTEZİN BACAKLARI (sembol-içi Spearman, executable an = sinyal+2s)**
+
+```
+ongorucu        d30s     d60s    d120s    d300s      MAE   sembol-isaret
+fo_decay       0.028    0.020    0.036   -0.006    0.085      2/3    <- HICBIR SEY
+imb10          0.072    0.077    0.003   -0.011   -0.070      2/3    <- HICBIR SEY
+spread_rel     0.228    0.202    0.214    0.114   -0.267      3/3    <- en guclu
+stk10         -0.142   -0.074   -0.121   -0.047    0.169      0/3
+predrop       -0.202   -0.171   -0.198   -0.133    0.249      0/3
+resid_pre     -0.097   -0.093   -0.143   -0.048    0.114      0/2
+```
+
+**`forceOrder exhaustion/renewal` geçişi işaretlemiyor** (ρ=0.028). **BBO imbalance da**
+(ρ=0.072). Hipotezin nedensel işaretçi olarak öne sürdüğü iki kanal boş çıktı.
+
+**VE `spread_rel` İLE `predrop` AYNI ŞEY:**
+
+```
+rho(spread_rel, predrop) = -0.879
+
+                              d30s      d120s
+ham   spread_rel            +0.211     +0.193
+ham   predrop               -0.202     -0.198
+KISMI spread_rel | predrop  +0.073     +0.054     <- coktu
+KISMI predrop | spread_rel  -0.027     -0.049     <- coktu
+```
+
+Kaskad sırasında fiyat düşerken spread açılıyor. İki değişken değil, **bir** değişken:
+*fiyat ne kadar düştü*. **Executable anda sonrasını öngören tek şey budur.**
+
+**Bu, §305'in birebir tekrarıdır — bambaşka bir çözünürlükte.** Orada dakika ölçeğinde
+*"likidasyon olayı, ona eşlik eden fiyat yer değiştirmesinin üstüne hiçbir bilgi taşımıyor"*
+ölçülmüştü. Burada saniye çözünürlüğünde, tam order-book state'i, taker tape'i ve forceOrder
+akışıyla **aynı cevap**.
+
+---
+
+**3 — İKİNCİ HİPOTEZ: IMPACT COLLAPSE (aynı gün, operatör)**
+
+*Reversal'ı başlatan şey seviyeler değil, adverse akış sürerken marjinal price impact'in çökmesi
+(Δprice/signed flow → 0, sonra ters işaret) — liquidity/impact resilience.*
+
+**OLGU OLARAK VAR:**
+
+```
+lambda son 15s     medyan +1.416 bps/$1M        adverse taker yogunlugu  medyan 3.2x
+lambda onceki 60s  medyan +1.976                forceOrder yogunlugu     medyan 7.6x
+lambda ORANI       medyan +0.572  <- etki %57'ye cokuyor
+lambda isaret degistirmis: 13/316 (%4)          dipten gecen sn medyan 4
+```
+
+Tarif edilen an gerçekten var: zorunlu akış 7.6 kat, taker satışı 3.2 kat sürerken **birim akış
+başına etki yarıya iniyor** ve fiyat dibini 4 saniye önce görmüş.
+
+**AMA ÖNGÖRMÜYOR** — ve bu sefer ham korelasyonlar da zaten sıfır (predrop *yemiyor*, değişken
+baştan boş):
+
+```
+KISMI (predrop sabit)      d30s     d60s    d120s    d300s      MAE
+lambda orani             -0.069   -0.103   -0.076   -0.081   -0.097
+lambda flip              +0.055   +0.073   -0.021   +0.024   +0.023
+resilience               +0.058   +0.027   +0.069   +0.036   -0.040   (3/3 ayni isaret)
+dipten gecen sn          +0.095   +0.053   +0.044   +0.041   +0.019   (3/3 ayni isaret)
+adverse akis suruyor     +0.015   +0.004   +0.054   -0.058   +0.008
+forceOrder suruyor       +0.052   +0.077   +0.061   -0.026   +0.055
+```
+
+**GÜÇ SINIRI AÇIKÇA BEYAN EDİLİR — "çürütüldü" DEĞİL, "bu veriyle görülemez":**
+
+```
+sembol basina n ~= 105  ->  tek sembolde Spearman SE ~= 0.098
+3 sembol ortalamasi     ->  SE ~= 0.057
+en guclu sinyal (lambda orani -0.103) ~= 1.7 SE
+|rho| < 0.17 bu N'de ayirt edilemez; olculen HER SEY o esigin altinda
+gercek bir rho=0.10 icin ~780 gozlem/sembol gerekir, elde 105 var
+```
+
+Gücü artırmanın tek yolu daha çok sembolde tick verisi. `quotes_1s` (§315) bugün 12 sembolde
+başladı; birkaç hafta sonra aynı test **dört kat** güçlü koşulabilir — **state değiştirilmeden.**
+
+---
+
+**4 — S52 BİRİNCİL HİPOTEZİ: ÖLÇÜMDEN ÖNCE BEYAN (cross-asset lead–lag)**
+
+Operatör, Hasbrouck (*Multiple Securities and Multiple Prices*), Cont–Cucuringu–Zhang
+(cross-impact of OFI, arXiv 2112.13213) ve Cont–Kukanov–Stoikov (OFI→price impact, depth'e bağlı,
+arXiv 1011.6402) çerçevesinde şunu öne sürdü: **lokal state reversal'ı yalnız EŞZAMANLI tarif
+ediyor; öngörücü bilgi BTC–ETH–SOL arasındaki lead/lag order-flow senkronizasyonunda olabilir.**
+
+**BİRİNCİL HİPOTEZ (tek, ve sonuç görülmeden dondurulmuştur):**
+
+> `SIGNAL_TS` anında, yalnız geçmiş bilgiyle: **diğer piyasaların dibi kendi dibimden ÖNCE geldiyse**
+> (yani diğerleri adverse akışını çoktan tüketmişse), sonraki 30s/60s/120s/300s displacement daha
+> yüksek ve MAE daha sığ olur; diğerleri hâlâ adverse baskı taşıyorsa reversal başarısız olur.
+> **Birincil değişken:** `others_lead_sec` = diğer iki sembolün dip saniyesinin medyanı,
+> kendi dip saniyeme göre (pozitif = diğerleri önce döndü).
+> **Kontrol:** kendi `predrop`'um VE kendi lokal state'im sabit tutulur.
+
+**Yöntem, önceden bağlanmıştır:** her anchor için `−120s → SIGNAL_TS` aralığında üç sembolden de
+OFI (Cont–Kukanov–Stoikov formu, book_ticker'dan), taker imbalance, getiri ve impact-decay
+çıkarılır; `LEAD_LAG_STATE` kurulur; test sembol-içi ve own-predrop kontrollüdür.
+**TEK BİRİNCİL HİPOTEZ. THRESHOLD SWEEP YAPILMAYACAK.** Diğer türetilmiş değişkenler
+raporlanırsa **açıkça ikincil/keşifsel** etiketiyle raporlanır. `quotes_1s` yeterli N ürettiğinde
+**aynı state değiştirilmeden** forward genişlikte tekrar test edilir.
+
+**Verdict token: `S51_TRANSITION_LOCATED_TROUGH_MEDIAN_PLUS_16S · 226_OF_317_AFTER_SIGNAL_71PCT · PRE_SIGNAL_DROP_MINUS_18_1_BPS · BOUNCE_TO_PLUS_120S_PLUS_9_0 · EXECUTABLE_MOMENT_LATENCY_INSENSITIVE_1_TO_10S · CAPTURED_MAGNITUDE_ONLY_PLUS_1_1_BPS · FO_DECAY_RHO_0_028_NOTHING · BBO_IMBALANCE_RHO_0_072_NOTHING · SPREAD_REL_AND_PREDROP_ARE_THE_SAME_RHO_MINUS_0_879 · BOTH_PARTIAL_TO_UNDER_0_08 · ONLY_PREDICTOR_IS_HOW_FAR_PRICE_ALREADY_FELL · S305_REPRODUCED_AT_SECOND_RESOLUTION_WITH_FULL_BOOK_STATE · IMPACT_COLLAPSE_EXISTS_LAMBDA_RATIO_MEDIAN_0_572 · ADVERSE_FLOW_STILL_3_2X_FORCEORDER_7_6X · SIGN_FLIP_ONLY_4PCT · IMPACT_COLLAPSE_PREDICTS_NOTHING_RAW_OR_PARTIAL · NOT_REFUTED_BUT_UNDERPOWERED · ABS_RHO_UNDER_0_17_INDISTINGUISHABLE_AT_THIS_N · NEED_780_PER_SYMBOL_HAVE_105 · QUOTES_1S_WILL_QUADRUPLE_POWER · S52_PRIMARY_HYPOTHESIS_DECLARED_BEFORE_MEASUREMENT · CROSS_ASSET_LEAD_LAG_OTHERS_LEAD_SEC · CONTROLS_OWN_PREDROP_AND_OWN_LOCAL_STATE · ONE_PRIMARY_NO_THRESHOLD_SWEEP · SECONDARY_LABELLED_EXPLORATORY · NO_REAL_ORDERS · S38_UNTOUCHED`**
+
+**§320 YENİ BİLEŞEN — ECLIPSE NEWS INTELLIGENCE ARAŞTIRMA KATMANI (2026-08-23, Opus 5 [1M]).**
+Global Market Intelligence altında yeni bir **araştırma VERİ katmanı**. Dünyanın yapılandırılmamış
+bilgisini yapılandırılmış, zaman damgalı, denetlenebilir olaylara çevirir ki **sonraki** bir araştırma
+programı "bunlar bir şey öngörüyor mu?" diye sorabilsin. **Bu soruyu CEVAPLAMAZ.**
+
+**GÜVENLİK — ÖNCE BU.** Operatörün verdiği **PID 24372 makinede YOK**; ölçüldü, varsayılmadı. Ama 22
+python prosesi çalışıyor, ikisi **~22 saatlik CPU** ile (4992, 27732). Hiçbirine dokunulmadı, hiçbiri
+öldürülmedi, ağır iş başlatılmadı. **Ağ yok, DB yok, indirme yok, koleksiyoncu yok, backtest yok.**
+V1/A2/V3, forward runner'lar, ledger'lar, mühürlü spec'ler, mevcut collector ve araştırma artefaktları
+— **hiçbiri okunmadı bile**. Gerçek emir yönlendirme KAPALI kalmaya devam ediyor.
+
+**ÜÇ INVARIANT — her modül birini korumak için var.**
+· **Feature = bilinebilen, outcome = olan.** `FeatureSnapshot` ve `ResearchLabel` AYRI nesneler,
+yalnız `event_id` ile birleşir; **birleşik constructor yok, `include_future` bayrağı yok** (öyle bir
+bayrak bir kez aceleyle True yapılır ve aşağı akışta kimse anlamaz). **İki bağımsız muhafız**, çünkü
+biri yetmez: (a) her `Observation` kendi `as_of`'unu taşır, karar zamanından sonrası **inşa anında**
+`LookaheadError` atar; (b) gerçekleşmiş getirinin kendi saati YOKTUR ⟹ zaman damgası kontrolü onu
+göremez, bu yüzden alan ADLARI `OUTCOME_FIELDS`'a karşı **yapısal** olarak denetlenir — serbest
+`context` sözlüğünün anahtarları dahil, ki bir outcome tam oradan başka bir adla girer.
+· **Karar zamanı = BİZİM bilebildiğimiz an.** 13:44'te söylenip 13:51'de alınan bir şey 13:51'de
+uygulanabilir; her şey `first_seen_at`'e çapalanır, `published_at` yanında durur ⟹ **gecikmenin
+kendisi ölçülebilir bir özellik** olur.
+· **İlgi (relevance) YÖN DEĞİLDİR.** `Edge` negatif ağırlığı reddeder ve işaret koyacak yer yoktur.
+"Trump → BTC bearish" kodlayan bir graf, her çalışmanın sonucu **varsayım olarak miras almasına** ve
+sonra "keşfetmesine" yol açar; çalışma kanıt gibi görünür, totolojidir. Her kenar kanalını **kelimeyle**
+taşır ve kanal mekanizma değil ANLATI ise bunu söyler.
+
+**NOVELTY ≠ AMPLIFICATION (katmanın döndüğü eksen).** Fixture'larda orijinal tarife açıklaması
+novelty **1.00** / amplification **0.00**; üç yeniden basımı **0.32–0.42** / **0.44–0.71**. Piyasa
+bilgiyi bir kez fiyatlar; ellinci haber elli kat haber değildir ama çok daha fazla dikkattir. Tek bir
+"impact" skoruna eritmek *"kimse fark etmedi"* ile *"herkes zaten biliyordu"*yu ayırt edilemez kılar.
+**7 ham öğe → 4 BAĞIMSIZ olay**; store her ikisini de + oranı (**1.75**) yayınlar ki biri diğeri
+yerine kullanılamasın. Kümeleme **yapısal olarak outcome-kör**: `ClusterInput` bir reaksiyon taşıyamaz
+— çünkü gruplama sonuca bağlı olabilseydi **örneklem büyüklüğü sonucun fonksiyonu** olurdu.
+`one_per_cluster` **ilkini** seçer, en iyi skorlusunu değil.
+
+**TERS NEDENSELLİK.** `classify_causality` standart hatayı reddeder: haber gelmeden ÖNCE başlamış bir
+hareket, olay-sonrası getiri ne kadar büyük olursa olsun **`PRICE_LEADS_NEWS`** olarak raporlanır.
+Eksik pencere **`UNDETERMINED`**, asla sıfır.
+
+**LLM POLİTİKASI UYGULANIR, RİCA EDİLMEZ.** `apply_annotation` zaman damgası, kaynak kimliği, özet ve
+id yazmayı reddeder; `buy/sell/long/short/size/order` tamamen yasak. Her annotation `model_id`,
+`prompt_version`, `confidence`, `produced_at` taşır ve **yeni nesne döner** (orijinal korunur).
+**BUS: aday yayınla, sonuç asla** — platformun mevcut kuralı burada uygulanıyor; iç içe payload'lar da
+yürünüyor, çünkü gerçekçi hata üst düzey `return_bps` değil, birinin kolaylık olsun diye kurduğu
+düzenli `{event, label}` zarfıdır.
+
+**E-DER.** `NewsContext` adayın YANINDA üretilir; **bir kolun kural setini alan fonksiyon YOKTUR.**
+Gerekçe nezaket değil aritmetik: donmuş bir kolun forward kaydı, tanımı örneklem birikirken
+kımıldamadığı için kanıttır; haber durumu hangi adayların sayılacağını süzdüğü an test edilen kol
+**örneklemi SIFIR olan başka bir koldur**. `proposed_arm_name` donmuş bir kolun adını geri vermeyi
+reddeder. Bağlam yalnız `first_seen_at ≤ candidate_time` olan olaylardan kurulur.
+
+**ERTELENENLER (`deferred.py`), çağrılınca RAISE eder:** live collectors · historical backfill ·
+embedding index · LLM batch · market reaction measurement · cross-market backtest · continuous jobs.
+Sessizce dönen bir collector, sakin bir günde çalışan collector'dan ayırt edilemez.
+
+**ÇALIŞTIRARAK BULUNAN İKİ BUG (yazarak değil):** (1) `AssetRelevance.relevant` **kesin büyük**
+karşılaştırıyordu ⟹ `SECONDARY` seviyesini isteyen o seviyeyi HİÇ alamıyordu; demo'nun ilk koşusunda
+her tarife satırının ilgi sütunu boş çıktı. Kapsayıcı yapıldı + testle çivilendi. (2) Demo konsolunun
+**kendi uyarı metni bayattı** — Master Center ve event bus "under construction" diyordu, oysa ikisi de
+`Accepted`. Bu tam olarak §316'nın checker'ının kurulduğu **state-drift sınıfı**, ama checker'ın
+**çitli** saydığı bir dosyada.
+
+**TESTLER: 68/68 geçiyor**, ağ yok, DB yok, saniyenin altında (4 dosya, çağrı başına 2 dosya
+kuralına uyularak). `tests/news_intelligence/conftest.py` kök izolasyon fixture'ını **yalnız bu alt
+ağaç için** geçersiz kılıyor — kök fixture her oturumda **213 MB**'lık SQLite'ı kopyalayıp hash'liyor
+ve burada hiçbir şey satın almıyor. Geçersiz kılma **fail-closed**: oturum boyunca her
+`sqlite3.connect` çağrısı sayılıyor ve sıfır olduğu doğrulanıyor. *(İlk sürümü modül import'una
+bakıyordu ve asla geçemezdi — o modülleri kök conftest'in kendisi import ediyor; kaydedildi.)*
+
+**SİTE:** projected demo konsoluna **News Intelligence paneli** eklendi (uydurma satırlar, mevcut çitin
+içinde) + sayaç paneli. Politika checker'ı **14 sayfada temiz**.
+
+**DOSYALAR:** `src/eclipse/news_intelligence/` (14 alt paket, 22 modül) · `tests/news_intelligence/`
+(4 dosya) · `docs/news_intelligence/NEWS_INTELLIGENCE_ARCHITECTURE.md` ·
+`tools/news_intelligence_demo.py` · `reports/news_intelligence/demo_payload.json`.
+Commit `2ddbb0bf`.
+
+**Verdict token: `NEWS_INTELLIGENCE_LAYER_BUILT_RESEARCH_ONLY · PID_24372_NOT_FOUND_MEASURED_NOT_ASSUMED_22_PYTHON_PROCS_UNTOUCHED · NO_COLLECTOR_NO_BACKFILL_NO_BACKTEST_NO_NETWORK_NO_DB · V1_A2_V3_AND_LEDGERS_NOT_EVEN_READ · REAL_ORDERS_REMAIN_DISABLED · FEATURE_OUTCOME_SEPARATION_ENFORCED_TWICE_TIMESTAMP_AND_STRUCTURE · DECISION_TIME_IS_FIRST_SEEN_NOT_PUBLISHED · RELEVANCE_REFUSES_A_SIGN · NOVELTY_AND_AMPLIFICATION_MOVE_OPPOSITE_1_00_TO_0_32_AND_0_00_TO_0_71 · 7_RAW_TO_4_INDEPENDENT_RATIO_PUBLISHED · CLUSTERING_STRUCTURALLY_OUTCOME_BLIND · PRICE_LEADS_NEWS_NEVER_REPORTED_AS_PREDICTIVE · LLM_CANNOT_WRITE_PROVENANCE_OR_EMIT_A_TRADE · BUS_PUBLISHES_CANDIDATES_NEVER_OUTCOMES · EDER_CONTEXT_BESIDE_NEVER_INSIDE_NEW_ARM_STARTS_AT_ZERO · 7_HEAVY_CAPABILITIES_DEFERRED_AND_RAISE · 68_OF_68_TESTS · TWO_BUGS_FOUND_BY_RUNNING_IT · SITE_CHECKER_CLEAN_14_PAGES · AWAITING_INDEPENDENT_REVIEW`**
