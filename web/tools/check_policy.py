@@ -65,30 +65,73 @@ COLOUR_CATEGORIES = [
         "a completed step in a pipeline is progress, not health",
         re.compile(r"^(complete|completed)$"),
     ),
+    (
+        "gate",
+        "a promotion step that needs a person, and the live end of that pipeline",
+        re.compile(r"^\s*\d*\s*(human review|approved|live)\s*$"),
+    ),
+    (
+        "stage",
+        "a stage in a drawn sequence of market events - never an Eclipse component",
+        re.compile(r".+"),
+    ),
 ]
 
 # The single fenced exception: the projected demo console renders component
 # status colours for agents that do not exist. It is allowed only while it is
 # gated, labelled projected, and carries the sticky bar.
 FENCED_FILES = {os.path.join("assets", "js", "master-center.js")}
+# every other script is ordinary site text and is checked like a page
+SCRIPTS = [os.path.join("assets", "js", "eclipse.js")]
 FENCE_REQUIREMENTS = [
     ("proj-bar", "the sticky Projected bar"),
     ("Projected — nothing here is running", "the sticky bar's text"),
     ("projected", "panel headings that say projected"),
 ]
 
+def health_mapped_states(css: str) -> set:
+    """Attribute values the stylesheet paints with a health colour.
+
+    The first version of this checker only looked for inline `var(--green)`.
+    That misses the exact failure it was written for: `data-s="active"` carries
+    no colour of its own, the stylesheet gives it one. Derive the set from the
+    stylesheet so a new health-coloured state cannot be added without the
+    checker noticing.
+    """
+    mapped = set()
+    for selector, block in re.findall(r"([^{}]+)\{([^{}]*)\}", css):
+        if not re.search(r"var\(--(green|amber|red)\)", block):
+            continue
+        for attr, value in re.findall(r'\[(data-[\w-]+)="([^"]+)"\]', selector):
+            mapped.add((attr, value))
+    return mapped
+
+
 HEALTH_COLOUR = re.compile(
     r'(?:color|border-left-color|border-left)\s*:\s*(?:2px\s+solid\s+)?var\(--(green|amber|red)\)'
 )
 
 BANNED_LABEL = re.compile(r'>\s*(Active|Healthy|Running|Online)\s*<', re.I)
-PERF_FIGURE = re.compile(
-    # a figure, not a metric's name: the site is allowed to say what research
-    # optimises against, it is not allowed to say what any of it measured
-    r"\b\d+(?:\.\d+)?\s?bps\b|\bwin[- ]rate\s+(?:of\s+)?\d|\bprofit factor\s+\d"
-    r"|\bdrawdown\s+(?:of\s+)?\d|\bp-value\b|\bsharpe\s+(?:ratio\s+)?(?:of\s+)?\d",
+BANNED_LABEL_TEXT = re.compile(
+    r"""["'>]\s*(Active|Healthy|Running|Online)\s*["'<]""", re.I
+)
+# A figure is a metric word standing next to a number — in either order, and
+# whether the number is written in digits or in words. The old pattern required
+# the number to follow the metric, so "74.6% win rate" walked straight through,
+# and "forty-one basis points" was not covered at all.
+METRIC_WORD = re.compile(
+    r"\b(bps|basis points?|win[- ]rate|profit factor|drawdown|tail rate|sharpe"
+    r"|expectancy|net (?:per|of)|p-value)\b",
     re.I,
 )
+NUMBER_NEAR = re.compile(
+    r"\d|\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty"
+    r"|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|half|double"
+    r"|triple)\b",
+    re.I,
+)
+FIGURE_WINDOW = 44
+
 HORIZON_SUFFIX = re.compile(r"\b\d+\s?[Hh]\b(?!\w)|\+\d+\s?m\b")
 RANKING = re.compile(
     r"\b(strongest|most promising|best[- ]performing|leading arm|outperform\w*)\b", re.I
@@ -101,6 +144,9 @@ RANKING = re.compile(
 # the Shared SDK is a library, not an agent, and is deliberately absent.
 COMPONENT_ALIASES = {
     "master center": "master-center",
+    # phase titles are the same claim in different words; the roadmap is the
+    # page most likely to go stale, so it must be compared like the others
+    "master center foundation": "master-center",
     "event bus": "event-bus",
     "event bus & agent registry": "event-bus",
     "alpha": "alpha",
@@ -244,22 +290,66 @@ def line_of(src: str, pos: int) -> int:
     return src.count(chr(10), 0, pos) + 1
 
 
+def inner_html(src: str, pos: int) -> str:
+    """Raw inner markup of the element whose start tag contains pos."""
+    tag_end = src.find(">", pos)
+    close = src.find("</", tag_end)
+    return src[tag_end + 1: close] if tag_end >= 0 and close > 0 else ""
+
+
+def names_a_component(text: str) -> bool:
+    return strip_tags(text).lower().strip() in COMPONENT_ALIASES
+
+
+def classify_colour(src: str, pos: int) -> str:
+    """Which declared non-health category this coloured element falls into.
+
+    Returns "" when none applies. The `stage` category is deliberately last and
+    deliberately refuses anything that names an Eclipse component: colour on a
+    market-state node in a diagram is a narrative, colour on an agent is a claim
+    about that agent.
+    """
+    own = element_scope(src, pos)
+    label = nearby_label(src, pos)
+    # a flow node is "Execution Gateway <small>the only party with keys</small>":
+    # the name is what comes before the aside, and the name is what matters
+    head = strip_tags(inner_html(src, pos).split("<small")[0]).strip()
+    for name, _why, pattern in COLOUR_CATEGORIES:
+        if name == "stage":
+            # only a node in a drawn flow may claim this; otherwise the category
+            # becomes a catch-all and swallows exactly what it should refuse —
+            # a `data-s="active"` chip reading "Live" was classified as a stage
+            # until this line existed
+            tag_start = src.rfind("<", 0, pos)
+            if "flow-n" not in src[tag_start: src.find(">", pos) + 1]:
+                return ""
+            if not own.strip() or names_a_component(head):
+                return ""
+            return "stage"
+        if name == "gate" and "data-gate=" not in src[max(0, pos - 200): pos + 60]:
+            # "Live" is only a pipeline gate inside a step that declares itself
+            # one; anywhere else it is a claim that something is running
+            continue
+        subject = own if name in ("verdict", "progress", "gate") else f"{label} | {own}"
+        if pattern.search(subject.lower().strip()):
+            return name
+    return ""
+
+
 def check_colour(path: str, src: str, problems: list[str]) -> list[tuple[str, str]]:
     classified = []
     for m in HEALTH_COLOUR.finditer(src):
+        name = classify_colour(src, m.start())
+        if name:
+            classified.append((name, f"{path}:{line_of(src, m.start())}"))
+            continue
         own = element_scope(src, m.start())
         label = nearby_label(src, m.start())
-        for name, _why, pattern in COLOUR_CATEGORIES:
-            subject = own if name in ("verdict", "progress") else f"{label} | {own}"
-            if pattern.search(subject.lower()):
-                classified.append((name, f"{path}:{line_of(src, m.start())}"))
-                break
-        else:
-            problems.append(
-                f"{path}:{line_of(src, m.start())} health colour --{m.group(1)} on "
-                f"{(label + ': ' if label else '') + own[:60]!r} matches no declared "
-                f"non-health category"
-            )
+        problems.append(
+            f"{path}:{line_of(src, m.start())} health colour --{m.group(1)} on "
+            f"{(label + ': ' if label else '') + own[:60]!r} matches no declared "
+            f"non-health category"
+        )
     return classified
 
 
@@ -335,6 +425,7 @@ def main() -> int:
 
     css = open(os.path.join(root, "assets", "css", "eclipse.css"), encoding="utf-8").read()
     defined = set(re.findall(r"\.([A-Za-z][-\w]*)", css))
+    health_states = sorted(health_mapped_states(css))
 
     pages = sorted(
         f for f in os.listdir(root) if f.endswith(".html")
@@ -388,8 +479,15 @@ def main() -> int:
                 f"{page}:{line_of(src, m.start())} label reads {m.group(1)!r} — "
                 f"nothing here is running"
             )
+        for m in METRIC_WORD.finditer(text):
+            near = text[max(0, m.start() - FIGURE_WINDOW): m.end() + FIGURE_WINDOW]
+            if NUMBER_NEAR.search(near.replace(m.group(0), " ")):
+                problems.append(
+                    f"{page}:{line_of(text, m.start())} performance figure: "
+                    f"{re.sub(r'@@ws@@', ' ', near.strip())[:70]!r}"
+                )
+
         for pattern, what in (
-            (PERF_FIGURE, "performance figure"),
             (HORIZON_SUFFIX, "horizon suffix"),
             (RANKING, "ranking between arms"),
         ):
@@ -397,6 +495,35 @@ def main() -> int:
                 problems.append(
                     f"{page}:{line_of(text, m.start())} {what}: {m.group(0)!r}"
                 )
+
+        for attr, value in health_states:
+            for m in re.finditer(rf'{attr}="{re.escape(value)}"', src):
+                name = classify_colour(src, m.start())
+                if name:
+                    tally[name] = tally.get(name, 0) + 1
+                    continue
+                problems.append(
+                    f"{page}:{line_of(src, m.start())} {attr}=\"{value}\" is painted with "
+                    f"a health colour by the stylesheet, on "
+                    f"{element_scope(src, m.start())[:50]!r} - that names a component, "
+                    f"and nothing here is running"
+                )
+
+    for script in SCRIPTS:
+        path = os.path.join(root, script)
+        if not os.path.exists(path):
+            problems.append(f"{script}: declared as a checked script but missing")
+            continue
+        body = open(path, encoding="utf-8").read()
+        for m in BANNED_LABEL_TEXT.finditer(body):
+            problems.append(
+                f"{script}:{line_of(body, m.start())} says {m.group(0)!r} — "
+                f"only the fenced console may"
+            )
+        for m in METRIC_WORD.finditer(body):
+            near = body[max(0, m.start() - FIGURE_WINDOW): m.end() + FIGURE_WINDOW]
+            if NUMBER_NEAR.search(near.replace(m.group(0), " ")):
+                problems.append(f"{script}:{line_of(body, m.start())} performance figure")
 
     check_consistency(claims, problems)
     check_fence(root, problems)

@@ -86,7 +86,15 @@ there is no backend, no API and no build.
   · **prohibition** — red on something forbidden or wrong (`Denied`, `Never versioned in
   place`, the deliberately wrong example) · **custody** — amber on what an agent holds ·
   **verdict** — the approve / reduce / reject legend · **progress** — a completed step in
-  the E-DER pipeline position. None of those says a component is well.
+  the E-DER pipeline position · **gate** — a promotion step that needs a person, and only
+  inside a step that declares `data-gate` · **stage** — a node in a drawn flow, and only
+  when that node names a *market state* rather than an Eclipse component. None of those
+  says a component is well.
+  Colour also arrives through attributes, not just inline styles: `data-s`, `data-accent`,
+  `data-k` and `data-gate` are painted by the stylesheet, and the checker derives that set
+  *from the stylesheet* so a new health-coloured state cannot be added behind its back.
+  That is how three component nodes in the landing page's path-of-a-trade flow were found
+  wearing amber and green after four review passes had read straight past them.
   The **one** genuine exception is the **projected demo console** in `status.html`: a
   mockup of a future operator screen whose `active` / `warning` / `idle` chips and green
   count belong to agents that do not exist. It is allowed only while it is fenced three
@@ -124,12 +132,19 @@ exactly that — `Alpha` was claimed in three different states at once, and `age
 contradicted *itself*, its bulb strip saying `Design` while the section it links to said
 `Not implemented`.
 
-It is deliberately mutation-tested: twelve deliberate violations — a green `Active` chip,
-a bps figure, a `4H` suffix, a ranking word, the console fence removed, a dead link, a
-duplicate id, an unclosed tag, an undefined class, a missing skip link, one page
-disagreeing about a state, and one page left to go stale — were injected into a scratch
-copy and **all twelve were caught**. A checker that never fails is worth nothing; if you
-extend it, mutate it again.
+It is deliberately mutation-tested: **twenty-one** deliberate violations are injected into
+a scratch copy and all twenty-one must be caught — a green `Active` chip, a health state
+carried by `data-s` with innocuous text, a health colour on a component node in a flow, a
+bps figure, a win rate with the number written first, a figure spelled out in words, a
+`4H` suffix, a ranking word, the console fence removed, a banned label hidden in a script,
+a dead link, a duplicate id, an unclosed tag, an undefined class, a missing skip link, an
+external request, a stale roadmap phase, and two pages disagreeing about a state.
+
+**Extend the checker and you must mutate it again.** When these rules were widened, one
+of them was silently broken: the `` in two patterns was written as a literal backspace
+character, so the performance-figure rule matched nothing at all and reported a clean
+site. It was caught only because the mutants were re-run afterwards. A rule that never
+fires reads exactly like a rule that passes.
 
 ## Content policy — read before adding anything
 
