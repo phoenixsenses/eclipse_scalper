@@ -21,6 +21,7 @@ Then open <http://127.0.0.1:8799>.
 | `architecture.html` | Topology, agent contract, event model, environments, repositories, workflow, the 8 principles |
 | `research.html` | Standard of evidence, frozen arms, open hypotheses, burned-sample discipline, graveyard |
 | `research-e-der.html` | E-DER concept, design constraints, the three arms, refutation conditions, pipeline position |
+| `roadmap.html` | Twelve phases in order — what each must deliver, the five-step review gate that closes one, and the current state of each. No dates, ever |
 | `arms.html` | Arms & lanes — every arm, lane and closed idea as a card: name, concept description, implementation state. No results column |
 | `methodology.html` | Nine concept sections on how the evidence is handled — no formula, threshold or measured value |
 | `agents.html` | Registry — role plus publish / read / denied for each agent |
@@ -60,12 +61,15 @@ there is no backend, no API and no build.
 - **The Rail.** A hairline down the left gutter of every page is the global event bus.
   Each section is a tap point with a lamp; slow packets travel it. The metaphor is the
   information architecture, not decoration.
-- **Rail lamps show IMPLEMENTATION STATE, never runtime health.** Six states, none of
-  them a health colour: `building` (exists as code, under construction) · `design`
-  (specified, not built) · `planned` (neither) · `concept` (the section describes an
-  idea, rule or method rather than a component) · `refuted` (closed by a test, kept on
-  the record so it is not rediscovered) · `parked` (not refuted, but blocked on
-  something that does not exist yet). The bulb strips and tags use the same vocabulary.
+- **Rail lamps show IMPLEMENTATION STATE, never runtime health.** Seven states, none of
+  them a health colour: `accepted` (built **and** passed an independent review gate) ·
+  `building` (exists as code, under construction) · `design` (specified, not built) ·
+  `planned` (neither) · `concept` (the section describes an idea, rule or method rather
+  than a component) · `refuted` (closed by a test, kept on the record so it is not
+  rediscovered) · `parked` (not refuted, but blocked on something that does not exist
+  yet). **`accepted` is ink, never green:** it describes the review state of the code and
+  says nothing about a running thing or a market result — write that sentence next to it
+  wherever it appears. The bulb strips and tags use the same vocabulary.
   A section that is concept-only must not claim health of any kind. `refuted` is
   deliberately **not** red: a closed idea is not a failure state of a running thing.
 - **Type.** Display face `Bahnschrift` → `DIN Alternate` → `Arial Narrow` (condensed

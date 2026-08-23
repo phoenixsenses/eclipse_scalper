@@ -310,6 +310,8 @@ a { color: inherit; }
    of a running thing, and red here would be a health claim. */
 .is-lit .lamp[data-state="refuted"]  { background: transparent;  border-color: #2A313D; }
 .is-lit .lamp[data-state="parked"]   { background: #141A24;      border-color: #2E3A4C; }
+/* built and closed by an independent review — a governance state, not health */
+.is-lit .lamp[data-state="accepted"] { background: var(--dim);    border-color: var(--ink); }
 
 /* ============================================================
    TYPE
@@ -600,6 +602,11 @@ a { color: inherit; }
 .tag[data-s="refuted"]::before { background: none; border: 1px solid var(--faint); }
 .tag[data-s="parked"]   { color: var(--dim); }
 .tag[data-s="parked"]::before { background: #333C4C; }
+/* accepted = implemented AND passed an independent review gate.
+   Deliberately ink, never green: it describes the code's review state,
+   never the behaviour of a running thing and never a research outcome. */
+.tag[data-s="accepted"] { color: var(--ink); border-color: var(--line-2); }
+.tag[data-s="accepted"]::before { background: var(--dim); }
 
 /* ---------- key/value list ---------------------------------- */
 .kv { font-family: var(--mono); font-size: 12.5px; }
@@ -715,7 +722,12 @@ a { color: inherit; }
    ============================================================ */
 .stepper {
   display: grid;
-  grid-template-columns: repeat(9, 1fr);
+  /* was a hard repeat(9,1fr), which clipped any stepper that did not have
+     exactly nine steps. column flow gives one equal track per child, whatever
+     the count. auto-fit was tried first and rejected: it invents empty tracks
+     when there is room, which shrank the nine-step row on the landing page. */
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   gap: 0;
   border: 1px solid var(--line);
   border-radius: var(--r);
@@ -812,6 +824,20 @@ a { color: inherit; }
 .road-r[data-now="1"] .road-n { color: var(--ink); }
 .road-r[data-now="0"] .road-n { color: var(--faint); }
 
+/* the roadmap page carries a line of description under each phase name */
+.road-b { display: flex; flex-direction: column; gap: 6px; }
+.road-d {
+  color: var(--faint);
+  font-family: var(--body);
+  font-size: .92rem;
+  line-height: 1.55;
+  letter-spacing: 0;
+  text-transform: none;
+  max-width: 62ch;
+}
+.road-r.has-body { align-items: start; }
+.road-r.has-body .tag { margin-top: 2px; }
+
 /* ============================================================
    AGENT RAIL (the lamps, shown as a set)
    ============================================================ */
@@ -860,6 +886,7 @@ a.bulb:hover { background: var(--bg-panel); }
 .bulb[data-s="concept"]  .bulb-l { background: #141A24; border-color: #2E3A4C; }
 .bulb[data-s="refuted"]  .bulb-l { background: transparent; border-color: #2A313D; }
 .bulb[data-s="parked"]   .bulb-l { background: #141A24; border-color: #2E3A4C; }
+.bulb[data-s="accepted"] .bulb-l { background: var(--dim); border-color: var(--ink); }
 
 .bulb-n {
   font-family: var(--display);
@@ -1111,13 +1138,13 @@ a.bulb:hover { background: var(--bg-panel); }
 @media (max-width: 1080px) {
   .split, .split-even { grid-template-columns: 1fr; gap: 30px; }
   .g-4 { grid-template-columns: repeat(2, 1fr); }
-  .stepper { grid-template-columns: repeat(3, 1fr); }
+  .stepper { grid-auto-flow: row; grid-template-columns: repeat(3, 1fr); }
   .step { border-bottom: 1px solid var(--line); }
   .ft { grid-template-columns: 1fr 1fr; }
-}
 
-@media (max-width: 860px) {
-  :root { --gutter: 34px; }
+  /* the horizontal nav needs ~1043px once Roadmap is in it, so the burger
+     starts here rather than at 860px — below that the eight items and the
+     console link pushed the header past the viewport */
   .hdr-nav { display: none; }
   .hdr-nav.is-open {
     display: flex;
@@ -1133,6 +1160,10 @@ a.bulb:hover { background: var(--bg-panel); }
   }
   .hdr-nav.is-open a { padding: 11px 0; border-bottom: 1px solid var(--line); }
   .hdr-burger { display: block; }
+}
+
+@media (max-width: 860px) {
+  :root { --gutter: 34px; }
   .hero-grid { grid-template-columns: 1fr; gap: 32px; }
   .eclipse-fig { max-width: 150px; }
   .g-2, .g-3, .g-4 { grid-template-columns: 1fr; }
@@ -1147,7 +1178,7 @@ a.bulb:hover { background: var(--bg-panel); }
 }
 
 @media (max-width: 560px) {
-  .stepper { grid-template-columns: repeat(2, 1fr); }
+  .stepper { grid-auto-flow: row; grid-template-columns: repeat(2, 1fr); }
   .layer { flex-wrap: wrap; gap: 6px 14px; }
   .layer-d { margin-left: 0; text-align: left; width: 100%; }
 }
