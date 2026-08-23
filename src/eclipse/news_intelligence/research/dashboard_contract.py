@@ -117,8 +117,12 @@ def cross_asset_panel(
     )
 
 
-def research_counters_panel(counters: ResearchCounters) -> dict[str, Any]:
+def research_counters_panel(
+    counters: ResearchCounters, near_threshold: int | None = None
+) -> dict[str, Any]:
     payload = counters.as_dict()
+    if near_threshold is not None:
+        payload["groupings_decided_near_the_threshold"] = near_threshold
     payload["note"] = (
         "raw items and independent clusters are different sample sizes; "
         "the ratio between them is published so neither can be quoted as the other"
@@ -132,6 +136,7 @@ def dashboard_payload(
     market_state: Mapping[str, str],
     as_of: datetime,
     complete_assets: Iterable[str] = (),
+    near_threshold: int | None = None,
 ) -> dict[str, Any]:
     return {
         "panel": "NEWS_INTELLIGENCE",
@@ -139,7 +144,7 @@ def dashboard_payload(
         "generated_at": as_of.isoformat(),
         "recent_events": recent_events_panel(processed),
         "cross_asset_context": cross_asset_panel(market_state, as_of, complete_assets),
-        "research_counters": research_counters_panel(counters),
+        "research_counters": research_counters_panel(counters, near_threshold),
     }
 
 

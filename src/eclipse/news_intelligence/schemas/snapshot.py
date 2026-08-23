@@ -27,7 +27,7 @@ from typing import Any, Mapping
 
 from ..errors import LookaheadError, OutcomeInFeatureSpace
 from ..version import SCHEMA_VERSION
-from .reaction import OUTCOME_FIELDS, CrossAssetContext, MarketReaction
+from .reaction import OUTCOME_FIELDS, CrossAssetContext, MarketReaction, outcome_key_in
 from .relevance import AssetRelevance
 
 
@@ -103,10 +103,22 @@ class FeatureSnapshot:
                     f"{self.decision_time.isoformat()}"
                 )
 
-        for key in self.context:
-            if key in OUTCOME_FIELDS:
+        # Nested, because the realistic mistake is not a top-level `pnl` — it is
+        # a tidy `{"market": {...}}` blob assembled by someone joining two
+        # objects for convenience.
+        found = outcome_key_in(self.context)
+        if found:
+            raise OutcomeInFeatureSpace(
+                f"context carries {found!r}, which names an outcome; put it on the "
+                "ResearchLabel"
+            )
+        for observation in self.observations:
+            found = outcome_key_in(observation.value)
+            if found:
                 raise OutcomeInFeatureSpace(
-                    f"context key {key!r} names an outcome; put it on the ResearchLabel"
+                    f"observation {observation.name!r} carries {found!r} in its value. "
+                    "Checking only the name leaves a dict as a place to hide a "
+                    "realised return"
                 )
 
         for f in fields(self):

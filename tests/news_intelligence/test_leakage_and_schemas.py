@@ -26,6 +26,7 @@ from eclipse.news_intelligence.publishing.bus import (
     SUBJECTS,
     Envelope,
     InMemoryPublisher,
+    UnknownSubject,
 )
 from eclipse.news_intelligence.relevance.graph import Edge, default_graph
 from eclipse.news_intelligence.schemas.normalized import NormalizedEvent, Sentiment
@@ -103,6 +104,42 @@ def test_snapshot_row_contains_no_outcome_columns():
     assert row["obs_vol_regime"] == "high"
 
 
+def test_an_outcome_nested_inside_a_context_value_is_refused():
+    """The first version checked only the top-level keys of `context`. The bus
+    already walked nested payloads; the snapshot — the more important of the two
+    — did not, so `{"market": {"pnl": ...}}` walked straight in."""
+    with pytest.raises(OutcomeInFeatureSpace):
+        FeatureSnapshot(
+            event_id="e", decision_time=T0,
+            context={"market": {"pnl": 42.0, "return_bps": 91.0}},
+        )
+
+
+def test_an_outcome_carried_as_an_observation_value_is_refused():
+    """Only the observation's *name* was checked. A dict value is a place to
+    hide a realised return where no name check would ever look."""
+    with pytest.raises(OutcomeInFeatureSpace):
+        FeatureSnapshot(
+            event_id="e", decision_time=T0,
+            observations=(
+                Observation("state", {"return_bps": 91.0}, T0 - timedelta(minutes=5)),
+            ),
+        )
+
+
+def test_a_subject_this_layer_does_not_own_is_refused_outright():
+    """`assert_no_outcome` returned early for an unrecognised subject, so a
+    typo'd or "experimental" subject bypassed the rule entirely. Fail-closed:
+    the publisher refuses subjects it does not own."""
+    publisher = InMemoryPublisher()
+    with pytest.raises(UnknownSubject):
+        publisher.publish(
+            Envelope(subject="eclipse.news.experimental",
+                     payload={"return_bps": 91.0}, published_at=T0, producer="x")
+        )
+    assert publisher.published == []
+
+
 def test_a_label_cannot_carry_its_own_features():
     label = ResearchLabel(event_id="evt_1")
     assert not hasattr(label, "features")
@@ -167,6 +204,43 @@ def test_model_cannot_emit_a_trading_decision():
             model_id="m", prompt_version="p", produced_at=T0,
             values={"buy": True}, confidences={"buy": 0.9},
         )
+
+
+def test_a_model_cannot_write_a_raw_dict_into_a_validated_field():
+    """`replace()` does no type checking, so an annotation could put
+    `{"polarity": 9.0}` where a `Sentiment` belongs and skip its bounds check
+    entirely."""
+    with pytest.raises(DeterministicFieldOverwrite):
+        ModelAnnotation(
+            model_id="m", prompt_version="p", produced_at=T0,
+            values={"sentiment": {"polarity": 9.0}}, confidences={"sentiment": 0.5},
+        )
+
+
+def test_a_model_cannot_write_a_signed_relevance_through_the_annotation_path():
+    """The headline invariant had a side door: `Edge` and `AssetRelevance` refuse
+    a negative weight, but a plain dict written by a model reached the field
+    without passing either."""
+    with pytest.raises(DeterministicFieldOverwrite):
+        ModelAnnotation(
+            model_id="m", prompt_version="p", produced_at=T0,
+            values={"asset_relevance": {"BTC": -0.9}},
+            confidences={"asset_relevance": 0.9},
+        )
+
+
+def test_a_model_may_still_write_a_properly_typed_value():
+    event = _event()
+    annotated = apply_annotation(
+        event,
+        ModelAnnotation(
+            model_id="m", prompt_version="p", produced_at=T0,
+            values={"sentiment": Sentiment(polarity=-0.4, strength=0.8)},
+            confidences={"sentiment": 0.66},
+        ),
+    )
+    assert annotated.sentiment.polarity == -0.4
+    assert annotated.confidence_in("sentiment") == 0.66
 
 
 def test_annotation_without_confidence_is_refused():

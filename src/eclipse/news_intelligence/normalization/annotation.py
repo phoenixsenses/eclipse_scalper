@@ -24,7 +24,9 @@ from datetime import datetime, timezone
 from typing import Any, Mapping
 
 from ..errors import DeterministicFieldOverwrite
-from ..schemas.normalized import Judgement, NormalizedEvent
+from ..schemas.normalized import Judgement, NormalizedEvent, Sentiment
+from ..schemas.relevance import AssetRelevance
+from ..taxonomy.events import EventType
 
 #: Fields that come from the wire or the clock. A model may read them; it may
 #: never write them.
@@ -60,6 +62,27 @@ ANNOTATABLE_FIELDS = frozenset(
         "asset_relevance",
     }
 )
+
+#: The type each annotatable field must arrive as. `dataclasses.replace` does no
+#: type checking, so without this a model could write `{"polarity": 9.0}` where a
+#: `Sentiment` belongs and skip its bounds check — and, worse, write
+#: `{"BTC": -0.9}` into `asset_relevance`, walking straight past the refusal that
+#: keeps direction out of the relevance graph. The headline invariant had a side
+#: door, and this is the door.
+ANNOTATION_TYPES: dict[str, type | tuple[type, ...]] = {
+    "entity": str,
+    "secondary_entities": tuple,
+    "event_type": EventType,
+    "topic": str,
+    "subtopic": str,
+    "sentiment": Sentiment,
+    "surprise": (int, float),
+    "credibility": (int, float),
+    "expected_vs_unexpected": str,
+    "country_relevance": tuple,
+    "sector_relevance": tuple,
+    "asset_relevance": AssetRelevance,
+}
 
 #: Things a model must never produce in this system at all, under any field name.
 FORBIDDEN_OUTPUTS = frozenset({"buy", "sell", "long", "short", "position_size", "order"})
@@ -98,6 +121,20 @@ class ModelAnnotation:
                     f"{key!r} was annotated without a confidence; a label whose "
                     "uncertainty is unknown cannot be filtered later"
                 )
+            expected = ANNOTATION_TYPES[key]
+            if not isinstance(self.values[key], expected):
+                names = (
+                    expected.__name__
+                    if isinstance(expected, type)
+                    else " or ".join(t.__name__ for t in expected)
+                )
+                raise DeterministicFieldOverwrite(
+                    f"{key!r} must be annotated as {names}, not "
+                    f"{type(self.values[key]).__name__}. Passing a raw mapping would "
+                    "reach the field without running that type's own validation — "
+                    "which is where the bounds and the refusal of a signed relevance "
+                    "live."
+                )
 
 
 def apply_annotation(event: NormalizedEvent, annotation: ModelAnnotation) -> NormalizedEvent:
@@ -130,4 +167,5 @@ __all__ = [
     "PROTECTED_FIELDS",
     "ANNOTATABLE_FIELDS",
     "FORBIDDEN_OUTPUTS",
+    "ANNOTATION_TYPES",
 ]

@@ -1,0 +1,187 @@
+{
+  "fixture_items": 7,
+  "fixture_real_events": 4,
+  "note": "sensitivity only; no parameter is selected here",
+  "rows": [
+    {
+      "threshold": 0.1,
+      "window_hours": 6,
+      "memory_days": 3,
+      "items": 7,
+      "independent": 4,
+      "matches_intent": true,
+      "min_novelty": 0.3182,
+      "max_novelty": 1.0
+    },
+    {
+      "threshold": 0.2,
+      "window_hours": 6,
+      "memory_days": 3,
+      "items": 7,
+      "independent": 4,
+      "matches_intent": true,
+      "min_novelty": 0.3182,
+      "max_novelty": 1.0
+    },
+    {
+      "threshold": 0.26,
+      "window_hours": 6,
+      "memory_days": 3,
+      "items": 7,
+      "independent": 4,
+      "matches_intent": true,
+      "min_novelty": 0.3182,
+      "max_novelty": 1.0
+    },
+    {
+      "threshold": 0.32,
+      "window_hours": 6,
+      "memory_days": 3,
+      "items": 7,
+      "independent": 4,
+      "matches_intent": true,
+      "min_novelty": 0.3182,
+      "max_novelty": 1.0
+    },
+    {
+      "threshold": 0.4,
+      "window_hours": 6,
+      "memory_days": 3,
+      "items": 7,
+      "independent": 5,
+      "matches_intent": false,
+      "min_novelty": 0.3182,
+      "max_novelty": 1.0
+    },
+    {
+      "threshold": 0.5,
+      "window_hours": 6,
+      "memory_days": 3,
+      "items": 7,
+      "independent": 5,
+      "matches_intent": false,
+      "min_novelty": 0.3182,
+      "max_novelty": 1.0
+    },
+    {
+      "threshold": 0.6,
+      "window_hours": 6,
+      "memory_days": 3,
+      "items": 7,
+      "independent": 6,
+      "matches_intent": false,
+      "min_novelty": 0.3182,
+      "max_novelty": 1.0
+    },
+    {
+      "threshold": 0.75,
+      "window_hours": 6,
+      "memory_days": 3,
+      "items": 7,
+      "independent": 7,
+      "matches_intent": false,
+      "min_novelty": 0.3182,
+      "max_novelty": 1.0
+    },
+    {
+      "threshold": 0.32,
+      "window_hours": 0.5,
+      "memory_days": 3,
+      "items": 7,
+      "independent": 4,
+      "matches_intent": true,
+      "min_novelty": 0.3182,
+      "max_novelty": 1.0
+    },
+    {
+      "threshold": 0.32,
+      "window_hours": 1,
+      "memory_days": 3,
+      "items": 7,
+      "independent": 4,
+      "matches_intent": true,
+      "min_novelty": 0.3182,
+      "max_novelty": 1.0
+    },
+    {
+      "threshold": 0.32,
+      "window_hours": 3,
+      "memory_days": 3,
+      "items": 7,
+      "independent": 4,
+      "matches_intent": true,
+      "min_novelty": 0.3182,
+      "max_novelty": 1.0
+    },
+    {
+      "threshold": 0.32,
+      "window_hours": 6,
+      "memory_days": 3,
+      "items": 7,
+      "independent": 4,
+      "matches_intent": true,
+      "min_novelty": 0.3182,
+      "max_novelty": 1.0
+    },
+    {
+      "threshold": 0.32,
+      "window_hours": 12,
+      "memory_days": 3,
+      "items": 7,
+      "independent": 4,
+      "matches_intent": true,
+      "min_novelty": 0.3182,
+      "max_novelty": 1.0
+    },
+    {
+      "threshold": 0.32,
+      "window_hours": 24,
+      "memory_days": 3,
+      "items": 7,
+      "independent": 4,
+      "matches_intent": true,
+      "min_novelty": 0.3182,
+      "max_novelty": 1.0
+    },
+    {
+      "threshold": 0.32,
+      "window_hours": 6,
+      "memory_days": 0.25,
+      "items": 7,
+      "independent": 4,
+      "matches_intent": true,
+      "min_novelty": 0.3182,
+      "max_novelty": 1.0
+    },
+    {
+      "threshold": 0.32,
+      "window_hours": 6,
+      "memory_days": 1,
+      "items": 7,
+      "independent": 4,
+      "matches_intent": true,
+      "min_novelty": 0.3182,
+      "max_novelty": 1.0
+    },
+    {
+      "threshold": 0.32,
+      "window_hours": 6,
+      "memory_days": 3,
+      "items": 7,
+      "independent": 4,
+      "matches_intent": true,
+      "min_novelty": 0.3182,
+      "max_novelty": 1.0
+    },
+    {
+      "threshold": 0.32,
+      "window_hours": 6,
+      "memory_days": 7,
+      "items": 7,
+      "independent": 4,
+      "matches_intent": true,
+      "min_novelty": 0.3182,
+      "max_novelty": 1.0
+    }
+  ]
+}

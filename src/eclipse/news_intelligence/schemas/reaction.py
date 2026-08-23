@@ -51,6 +51,29 @@ OUTCOME_FIELDS = frozenset(
 )
 
 
+def outcome_key_in(node: object, path: str = "") -> str | None:
+    """Find an outcome-shaped key anywhere inside a nested structure.
+
+    One walker, used by the snapshot, the bus and the operator panel. The three
+    of them had three different depths of checking, and the shallowest was the
+    snapshot — the one that matters most. A guard that is only as deep as
+    whoever wrote it that day is not a guard.
+    """
+    if isinstance(node, Mapping):
+        for key, value in node.items():
+            if key in OUTCOME_FIELDS:
+                return f"{path}{key}"
+            found = outcome_key_in(value, f"{path}{key}.")
+            if found:
+                return found
+    elif isinstance(node, (list, tuple, set, frozenset)):
+        for item in node:
+            found = outcome_key_in(item, path)
+            if found:
+                return found
+    return None
+
+
 @dataclass(frozen=True, slots=True)
 class HorizonMeasurement:
     """One asset, one horizon, one set of measured quantities.
@@ -173,4 +196,5 @@ __all__ = [
     "POST_EVENT_HORIZONS",
     "ALL_HORIZONS",
     "OUTCOME_FIELDS",
+    "outcome_key_in",
 ]

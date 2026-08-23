@@ -20,8 +20,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Mapping, Protocol, runtime_checkable
 
-from ..errors import OutcomeInFeatureSpace
-from ..schemas.reaction import OUTCOME_FIELDS
+from ..errors import NewsIntelligenceError, OutcomeInFeatureSpace
+from ..schemas.reaction import OUTCOME_FIELDS, outcome_key_in
 from ..version import SCHEMA_VERSION
 
 #: Subjects this layer owns. Every one is additive to the existing namespaces.
@@ -41,6 +41,16 @@ SUBJECTS = {
 #: publishes, in other words — listed explicitly so that adding one forces a
 #: decision rather than inheriting a default.
 OUTCOME_FORBIDDEN = frozenset(SUBJECTS.values())
+
+
+class UnknownSubject(NewsIntelligenceError):
+    """A subject this layer does not own.
+
+    The outcome check used to return early for an unrecognised subject, so a
+    typo or an "experimental" name bypassed the rule entirely — the one place
+    where a bypass costs the most. Owning a namespace means refusing what is
+    not in it.
+    """
 
 
 @dataclass(frozen=True, slots=True)
@@ -72,22 +82,18 @@ def assert_no_outcome(subject: str, payload: Mapping[str, Any]) -> None:
     by someone joining two objects for convenience.
     """
     if subject not in OUTCOME_FORBIDDEN:
-        return
+        raise UnknownSubject(
+            f"{subject!r} is not a subject this layer owns. Add it to SUBJECTS "
+            "deliberately — an unrecognised subject used to skip the outcome check "
+            "entirely."
+        )
 
-    def walk(node: Any, path: str) -> None:
-        if isinstance(node, Mapping):
-            for key, value in node.items():
-                if key in OUTCOME_FIELDS:
-                    raise OutcomeInFeatureSpace(
-                        f"{path}{key!r} is an outcome and may not cross {subject}. "
-                        "The bus publishes candidates; results stay in the ledger"
-                    )
-                walk(value, f"{path}{key}.")
-        elif isinstance(node, (list, tuple)):
-            for item in node:
-                walk(item, path)
-
-    walk(payload, "")
+    found = outcome_key_in(payload)
+    if found:
+        raise OutcomeInFeatureSpace(
+            f"{found!r} is an outcome and may not cross {subject}. The bus publishes "
+            "candidates; results stay in the ledger"
+        )
 
 
 class InMemoryPublisher:
@@ -113,5 +119,6 @@ __all__ = [
     "Publisher",
     "InMemoryPublisher",
     "assert_no_outcome",
+    "UnknownSubject",
     "OUTCOME_FORBIDDEN",
 ]

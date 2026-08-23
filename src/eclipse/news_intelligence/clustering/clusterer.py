@@ -82,6 +82,14 @@ class ClusterAssignment:
     update_count: int
     first_source_id: str
     first_seen_at: datetime
+    #: True when the decision was close enough to the threshold that a slightly
+    #: different threshold would have decided the other way. Not an error — a
+    #: gauge. The sensitivity sweep showed the chosen threshold sits on the edge
+    #: of the range that reproduces the intended grouping on the fixtures, and
+    #: seven synthetic items are far too few to move it on. So instead of
+    #: guessing a better number, count how often the number actually mattered
+    #: once real items flow.
+    near_threshold: bool = False
 
 
 @runtime_checkable
@@ -105,10 +113,17 @@ class LexicalClusterer:
     signal about novelty — becomes invisible.
     """
 
-    def __init__(self, threshold: float = 0.32, window: timedelta = timedelta(hours=6)) -> None:
+    def __init__(
+        self,
+        threshold: float = 0.32,
+        window: timedelta = timedelta(hours=6),
+        margin: float = 0.10,
+    ) -> None:
         self.threshold = threshold
         self.window = window
+        self.margin = margin
         self._clusters: dict[str, dict] = {}
+        self._near_threshold_count = 0
 
     def assign(self, item: ClusterInput) -> ClusterAssignment:
         for field_name in ("reaction", "label", "outcome"):
@@ -130,6 +145,10 @@ class LexicalClusterer:
             if similarity > best_similarity:
                 best_id, best_similarity, best_event = cluster_id, similarity, cluster["first_event_id"]
 
+        near = abs(best_similarity - self.threshold) <= self.margin
+        if near:
+            self._near_threshold_count += 1
+
         if best_id is not None and best_similarity >= self.threshold:
             cluster = self._clusters[best_id]
             cluster["update_count"] += 1
@@ -145,6 +164,7 @@ class LexicalClusterer:
                 update_count=cluster["update_count"],
                 first_source_id=cluster["first_source_id"],
                 first_seen_at=cluster["first_seen_at"],
+                near_threshold=near,
             )
 
         cluster_id = "cl_" + hashlib.sha256(
@@ -169,6 +189,7 @@ class LexicalClusterer:
             update_count=1,
             first_source_id=item.source_id,
             first_seen_at=item.first_seen_at,
+            near_threshold=near,
         )
 
     def _forget_unreachable(self, now) -> None:
@@ -189,6 +210,16 @@ class LexicalClusterer:
 
     def cluster_count(self) -> int:
         return len(self._clusters)
+
+    def near_threshold_count(self) -> int:
+        """How many groupings were decided within `margin` of the threshold.
+
+        The fragility gauge. A high count means the independent-event count —
+        and therefore the sample size of everything downstream — is largely a
+        consequence of a number chosen by judgement, and says so out loud
+        instead of leaving it to be discovered in a result.
+        """
+        return self._near_threshold_count
 
     def state_of(self, cluster_id: str) -> dict:
         cluster = self._clusters[cluster_id]

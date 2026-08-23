@@ -190,3 +190,33 @@ def test_the_clusterer_forgets_clusters_that_can_no_longer_match():
     assert pipeline.clusterer.cluster_count() <= 2, (
         "clusters outside the matching window are unreachable and must not be retained"
     )
+
+
+# --- parameter fragility ---------------------------------------------------
+
+def test_a_grouping_decided_close_to_the_threshold_is_flagged():
+    """The sensitivity sweep put the chosen similarity threshold on the edge of
+    the range that reproduces the intended grouping on the fixtures. Seven
+    synthetic items are far too few to move the number on, so the fragility is
+    measured instead: how often the threshold actually decided the answer."""
+    pipeline = NewsIntelligencePipeline()
+    processed = pipeline.process_batch(fixture_events())
+
+    assert pipeline.clusterer.near_threshold_count() >= 1, (
+        "on these fixtures at least one grouping sits within the margin"
+    )
+    flagged = [p for p in processed if p.cluster.near_threshold]
+    assert flagged, "the row itself must carry the flag, not just the counter"
+    assert all(p.event.entity == "donald trump" for p in flagged), (
+        "the borderline case is the aggregator's short roundup of the tariff story"
+    )
+
+
+def test_the_gauge_stays_quiet_when_nothing_is_borderline():
+    """A gauge that always reads high is not a gauge."""
+    from eclipse.news_intelligence.clustering.clusterer import LexicalClusterer
+
+    pipeline = NewsIntelligencePipeline()
+    pipeline.clusterer = LexicalClusterer(threshold=0.32, margin=0.0)
+    pipeline.process_batch(fixture_events())
+    assert pipeline.clusterer.near_threshold_count() == 0
