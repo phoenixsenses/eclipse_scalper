@@ -15166,3 +15166,51 @@ nav 13/13 sayfada 8 link. `changelog.html` **sonuç sütunu olmadan** yeni sayfa
 — hiçbirine dokunulmadı. Commit `a2fbd3b8`. **§314 hâlâ bağımsız review bekliyor; bu bölüm de.**
 
 **Verdict token: `WEBSITE_ROADMAP_PAGE_ADDED_13_PAGES · ACCEPTED_STATE_INTRODUCED_INK_NEVER_GREEN_CODE_NOT_MARKET · SITE_REALIGNED_TO_PHASE_TRUTH_01_02_ACCEPTED_03_BUILDING · STEPPER_HARD_9_COLUMN_CLIPPING_FIXED_AT_THE_RULE · AUTOFIT_TRIED_AND_REJECTED_INVENTS_EMPTY_TRACKS · BURGER_BREAKPOINT_860_TO_1080_WITH_ITS_DROPDOWN_RULES · 52_OF_52_WIDTH_COMBINATIONS_NO_OVERFLOW · NO_DATES_ON_ROADMAP · NO_RESULTS_COLUMN · ZERO_NEW_COLOUR_VALUES · NO_RESEARCH_NO_LEDGER_NO_RUNTIME · AWAITING_INDEPENDENT_REVIEW`**
+
+**§316 WEBSITE — POLİTİKA ARTIK GÖZLE DEĞİL MAKİNEYLE DENETLENİYOR; VE SİTE KENDİ HAKKINDA İKİ FARKLI HİKÂYE ANLATIYORDU (2026-08-23, Opus 5 [1M]).**
+Yalnız website işi. **Araştırma yok, ledger okuması yok, collector yok, çalışan proses yok,
+runtime dosyası yok.** İki bulgu; ikisi de kuralları tekrar OKUYARAK değil, artefakta BAKARAK çıktı.
+
+**BULGU 1 — README kendi kuralını ÜÇÜNCÜ kez yanlış ifade ediyordu.** Önce *"tam olarak iki yer"*
+yazıyordu (§314'te yanlış olduğunu bulup *"tam olarak üç yer"* yaptım). **O da yanlıştı:** sitede
+**8 sayfada 25 renkli bildirim** var. Yani düzeltmemin kendisi de sayı tutturmaya çalışıyordu ve aynı
+sınıf hataya düştü. **Kural artık sayı değil TAKSONOMİ:** `prohibition` (yasak/yanlış olan şey) ·
+`custody` (bir ajanın neyi tuttuğu) · `verdict` (approve/reduce/reject) · `progress` (tamamlanmış
+adım) + **tek çitli istisna** projected demo konsolu. Sağlık rengi hiçbir zaman bir bileşenin
+durumunu iddia edemez.
+
+**BULGU 2 — SİTE KENDİ İÇİNDE ÇELİŞİYORDU (state drift).** §295'te Phase 01–02 PASS aldı, §296/§298'de
+Alpha adaptörü yazıldı; ama site yalnız BAKTIĞIM yerlerde güncellenmişti. Ölçülen: **`Alpha` aynı anda
+ÜÇ farklı durumda** — landing `Design`, agents bulb `Design`, agents'ın kendi bölüm çipi
+`Not implemented`, changelog+roadmap `Building`. **`agents.html` KENDİ İÇİNDE çelişiyordu**: bulb
+şeridi ile o şeridin link verdiği bölüm farklı şey söylüyordu. `master-center` ve `event-bus` ise iki
+yüzeyde `Accepted`, üç yüzeyde `Building`.
+
+**ÇÖZÜM: `web/tools/check_policy.py`** (bağımlılıksız, ihlalde exit 1). Denetlediği:
+· her sağlık rengi ya bir kategoriye ya çitli konsola düşmeli — **konsolun sticky `Projected` şeridi
+kaldırılırsa checker patlar** (renkler kalıp uyarı giderse fail-closed) · konsol dışında
+`Active/Healthy/Running/Online` etiketi yok · performans figürü, ufuk soneki, sıralama sözcüğü yok
+· **tek bileşen, tek durum** — durum iddiası eden HER sayfa karşılaştırılır · kapanmamış etiket,
+çift id, kırık link/fragment, tanımsız CSS sınıfı, eksik skip link/`#main`, harici istek.
+
+**CHECKER'IN KENDİSİ MUTASYONLA SINANDI (kritik — hiç patlamayan denetleyici değersizdir).**
+Scratch kopyaya **12 kasıtlı ihlal** enjekte edildi: yeşil `Active` çipi · bps figürü · `4H` soneki ·
+sıralama sözcüğü · konsol çitinin kaldırılması · kırık link · çift id · kapanmamış etiket · tanımsız
+sınıf · silinmiş skip link · **bir sayfanın durum konusunda ayrışması** · **bir sayfanın sessizce
+bayatlaması**. **12/12 YAKALANDI**, temiz ağaç geçti. İlk sınıflandırıcı denemesi (metin penceresi)
+verdict legend'ı yanlışlıkla `prohibition`'a yazıyordu — pencere komşu cümledeki "not"u yutuyordu;
+element kapsamını gerçekten yürüyen sürümle değiştirildi.
+
+**DURUM HİZALAMASI (checker-doğrulamalı): 11 bileşen için 56 durum iddiası, SIFIR ayrışma.**
+`master-center` + `event-bus` her yerde `Accepted`; `alpha` her yerde `Building`. Eski durumu iddia
+eden **üç ayrı düzyazı** da yeniden yazıldı (yanındaki çiple çelişmesin diye) — landing lamba
+altyazısı, agents giriş paragrafı, changelog ajan tablosu notu.
+
+**DOĞRULAMA:** checker temiz · **13 sayfa × 4 genişlik (360/768/1100/1440) yatay taşma 0** ·
+`changelog.html` hâlâ sonuç sütunsuz · README'ye "Check it, do not eyeball it" bölümü + "tek bileşen,
+tek durum" kuralı eklendi.
+
+**Kapsam korundu:** S38, E-DER forward, A2/V3 forward, collector, scheduler, order, runtime dosyası —
+hiçbirine dokunulmadı. Commit `a55b52ec`. **§314, §315 ve bu bölüm bağımsız review bekliyor.**
+
+**Verdict token: `WEBSITE_POLICY_NOW_MACHINE_CHECKED · README_COLOUR_RULE_WAS_WRONG_A_THIRD_TIME_COUNT_REPLACED_BY_TAXONOMY · STATE_DRIFT_FOUND_ALPHA_IN_THREE_STATES_AGENTS_PAGE_CONTRADICTED_ITSELF · ONE_COMPONENT_ONE_STATE_ENFORCED_56_CLAIMS_11_COMPONENTS_ZERO_DISAGREEMENT · CONSOLE_FENCE_FAIL_CLOSED_IF_STICKY_BAR_REMOVED · CHECKER_MUTATION_TESTED_12_OF_12_KILLED · FIRST_CLASSIFIER_ATTEMPT_MISCLASSIFIED_VERDICT_LEGEND_AND_WAS_REPLACED · 52_OF_52_WIDTH_COMBINATIONS_NO_OVERFLOW · NO_RESEARCH_NO_LEDGER_NO_RUNTIME · AWAITING_INDEPENDENT_REVIEW`**
