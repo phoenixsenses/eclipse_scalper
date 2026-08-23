@@ -15777,3 +15777,43 @@ içinde) + sayaç paneli. Politika checker'ı **14 sayfada temiz**.
 Commit `2ddbb0bf`.
 
 **Verdict token: `NEWS_INTELLIGENCE_LAYER_BUILT_RESEARCH_ONLY · PID_24372_NOT_FOUND_MEASURED_NOT_ASSUMED_22_PYTHON_PROCS_UNTOUCHED · NO_COLLECTOR_NO_BACKFILL_NO_BACKTEST_NO_NETWORK_NO_DB · V1_A2_V3_AND_LEDGERS_NOT_EVEN_READ · REAL_ORDERS_REMAIN_DISABLED · FEATURE_OUTCOME_SEPARATION_ENFORCED_TWICE_TIMESTAMP_AND_STRUCTURE · DECISION_TIME_IS_FIRST_SEEN_NOT_PUBLISHED · RELEVANCE_REFUSES_A_SIGN · NOVELTY_AND_AMPLIFICATION_MOVE_OPPOSITE_1_00_TO_0_32_AND_0_00_TO_0_71 · 7_RAW_TO_4_INDEPENDENT_RATIO_PUBLISHED · CLUSTERING_STRUCTURALLY_OUTCOME_BLIND · PRICE_LEADS_NEWS_NEVER_REPORTED_AS_PREDICTIVE · LLM_CANNOT_WRITE_PROVENANCE_OR_EMIT_A_TRADE · BUS_PUBLISHES_CANDIDATES_NEVER_OUTCOMES · EDER_CONTEXT_BESIDE_NEVER_INSIDE_NEW_ARM_STARTS_AT_ZERO · 7_HEAVY_CAPABILITIES_DEFERRED_AND_RAISE · 68_OF_68_TESTS · TWO_BUGS_FOUND_BY_RUNNING_IT · SITE_CHECKER_CLEAN_14_PAGES · AWAITING_INDEPENDENT_REVIEW`**
+
+**§321 NEWS INTELLIGENCE — KİRLİ AKIŞ SONDASI: ÜÇ KUSUR, ÜÇÜ DE ÇALIŞTIRARAK BULUNDU (2026-08-23, Opus 5 [1M]).**
+Website/araştırma değil, §320 katmanının kendi denetimi. **Kod okuyarak değil, boru hattına TEMİZ
+OLMAYAN bir akış vererek** bulundu. Regresyon-önce: testler ölçülen davranışa göre yazıldı ve
+düzeltmeden önce KIRMIZIYDI.
+
+**K1 — YENİDEN TESLİM DİKKAT UYDURUYORDU.** Aynı öğe iki kez işlendiğinde `update_count` 1→2 ve
+**amplification 0.00 → 0.17**. Bir retry, restart sonrası yeniden anket, ya da aynı payload'ı tekrar
+yayan bir kaynak, **hiç var olmamış bir izleyici kitlesi imal ediyordu.** Dikkat bu katmanın YAYINLADIĞI
+bir özellik ⟹ bu yuvarlama hatası değil, veri bütünlüğü kusuru. `process` artık `DuplicateDelivery`
+atıyor — **hiçbir motor öğeyi görmeden ÖNCE**; sonrasında atılan bir ret, zaten bozulmuş bir kayıt
+hakkında mesaj olurdu. **Revizyon düpedüz farklı**: id revizyon numarasını taşıyor.
+
+**K2 — SIRASIZ GELİŞ "KİM ÖNCEYDİ"Yİ YENİDEN YAZIYORDU.** Ajans kopyası orijinalden önce işlenince
+**kümenin ilk kaynağı ajans oluyordu** ve orijinal, kendi kopyasının tekrarı olarak kaydediliyordu.
+Hangi kaynağın önce olduğu, bu katmanın ölçmek için var olduğu şeylerden biri ⟹ son işlenenden eski
+gelen öğe **reddediliyor**, teslim şansına bırakılmıyor.
+
+**K3 — BELLEK SINIRSIZ BÜYÜYORDU.** Novelty motorunun görülenler listesi hiç budanmıyordu ve her öğe
+onun tamamını tarıyordu — **bitmeyen bir akışta kuadratik**. Novelty ve clusterer artık kendi
+pencerelerinin dışını **her çağrıda** düşürüyor. *(İlk yazdığım sürüm 256/128 sayaç eşiği
+koyuyordu — tarama zaten doğrusal olduğu için hiçbir şey kazandırmayan ve sınırı test edilemez kılan
+erken optimizasyondu; kaldırıldı.)*
+
+**Üç giriş noktası** (yaygın yollar try bloğu istemesin diye): `process` katı · `process_if_new`
+canlı collector için (yeniden teslimde `None`) · `process_batch` backfill/çok-kaynak anketi için
+(**önce sıralar**, sonra işler).
+
+**KENDİ TESTİMDE ZAYIFLATILMIŞ SATIR (itiraf).** Yeni pakete yazdığım bir assertion string'i `None`
+ile karşılaştırıyordu ⟹ **asla başarısız olamazdı**, üstelik yan etkiliydi. Yapması gereken kontrolle
+değiştirildi. Zayıflatılmış test, testin kusurudur (Q3 emsali).
+
+**Ayrıca:** `event_id_for` artık paketin sözleşmesinin parçası (modüller arası `_event_id` erişimi
+yerine).
+
+**DOĞRULAMA: 78/78 test** (çağrı başına 2 dosya), ağ yok, DB yok, saniyenin altında. Demo çıktısı
+değişmedi. **Ağır hiçbir şey başlatılmadı; 22 python prosesi ve iki ağır iş (PID 4992/27732) el
+değmeden çalışmaya devam ediyor.** Commit `07625dac`.
+
+**Verdict token: `DIRTY_STREAM_PROBE_THREE_DEFECTS_ALL_FOUND_BY_RUNNING_IT · REPLAY_FABRICATED_ATTENTION_0_00_TO_0_17_NOW_REFUSED_BEFORE_ANY_ENGINE · OUT_OF_ORDER_REWROTE_FIRST_SOURCE_NOW_REFUSED · UNBOUNDED_MEMORY_AND_QUADRATIC_SCAN_NOW_PRUNED_EVERY_CALL · PREMATURE_SIZE_GUARD_REMOVED_MADE_THE_BOUND_UNTESTABLE · THREE_ENTRY_POINTS_STRICT_COLLECTOR_BATCH · MY_OWN_WEAKENED_ASSERTION_FOUND_AND_REPLACED · REGRESSION_FIRST_TESTS_WERE_RED · 78_OF_78 · NOTHING_HEAVY_STARTED · AWAITING_INDEPENDENT_REVIEW`**
