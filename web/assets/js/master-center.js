@@ -49,6 +49,29 @@
     { n: "E-DER V3",     st: "research", pop: "198 events / 10 cascades", note: "recovery variant" }
   ];
 
+  /* News Intelligence — the same projection rule as everything else here. The
+     rows below are invented; the layer that would fill them exists and its
+     collectors are deliberately not running. Novelty and amplification are
+     shown as separate columns because they are separate things: the repeats of
+     one announcement are less novel and much louder. */
+  var NEWS = [
+    { t: "13:44", src: "TIER_1_OFFICIAL",    ent: "Donald Trump",    ty: "TARIFF",           nov: "1.00", amp: "0.00", rel: "DXY · NDX · SPX",  st: "INDEPENDENT" },
+    { t: "13:48", src: "TIER_2_PROFESSIONAL", ent: "Donald Trump",   ty: "TARIFF",           nov: "0.32", amp: "0.44", rel: "DXY · NDX · SPX",  st: "repeat" },
+    { t: "13:51", src: "TIER_2_PROFESSIONAL", ent: "Donald Trump",   ty: "TARIFF",           nov: "0.38", amp: "0.62", rel: "DXY · NDX · SPX",  st: "repeat" },
+    { t: "13:59", src: "TIER_1_OFFICIAL",    ent: "Federal Reserve", ty: "RATE_POLICY",      nov: "1.00", amp: "0.00", rel: "US2Y · DXY · GOLD", st: "INDEPENDENT" },
+    { t: "14:09", src: "TIER_3_VERIFIED",    ent: "Elon Musk",       ty: "SOCIAL_POST",      nov: "1.00", amp: "0.00", rel: "TSLA · DOGE",      st: "INDEPENDENT" },
+    { t: "14:19", src: "TIER_1_OFFICIAL",    ent: "NVIDIA",          ty: "COMPANY_EARNINGS", nov: "1.00", amp: "0.00", rel: "NVDA · NDX · SPX", st: "INDEPENDENT" }
+  ];
+
+  var NEWS_COUNTERS = [
+    ["Raw news items", "7"],
+    ["Independent clusters", "4"],
+    ["Duplication ratio", "1.75"],
+    ["High impact", "3"],
+    ["Complete market labels", "0 — measurement deferred"],
+    ["Matched to an arm", "0"]
+  ];
+
   var DECISION = [
     ["Trade id",     "ETH-20260821-001"],
     ["Alpha arm",    "E-DER V1 (frozen)"],
@@ -70,8 +93,9 @@
 
     h.push('<div class="note"><div class="note-t">Projection — none of this is running</div>' +
       '<b>Every agent, version, status and number below is invented</b> to show the shape of the ' +
-      'console. None of these agents has been built: today only the Master Center and the event ' +
-      'bus exist, and both are under construction. See the ' +
+      'console. None of these agents has been built: today the Master Center and the event bus ' +
+      'are built and have passed an independent review, and the Alpha adapter is under ' +
+      'construction and wired to nothing. See the ' +
       '<a href="changelog.html" style="color:var(--dim)">changelog</a> for what is actually ' +
       'implemented. This page reads no database, ledger, exchange or running process, and the real ' +
       'console will live on the private network only.</div>');
@@ -122,6 +146,29 @@
     });
     h.push('</div><p class="mono-note" style="margin:16px 0 0">Arms are tracked side by side. ' +
       'None supersedes another, and none is promoted by this view.</p></div>');
+    h.push("</div>");
+
+    /* news intelligence */
+    h.push('<div class="split-even" style="margin-top:24px">');
+    h.push('<div class="panel"><div class="panel-hd">News intelligence &mdash; projected</div>');
+    h.push('<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Time</th><th>Entity</th>' +
+      '<th>Type</th><th class="num">Nov</th><th class="num">Ampl</th><th>Relevance</th><th>Kind</th></tr></thead><tbody>');
+    NEWS.forEach(function (n) {
+      h.push("<tr><td>" + esc(n.t) + "</td><td>" + esc(n.ent) + "</td><td>" + esc(n.ty) +
+        '</td><td class="num">' + esc(n.nov) + '</td><td class="num">' + esc(n.amp) + "</td><td>" +
+        esc(n.rel) + "</td><td>" + esc(n.st) + "</td></tr>");
+    });
+    h.push("</tbody></table></div>");
+    h.push('<p class="mono-note" style="margin:16px 0 0">Relevance says which assets are worth ' +
+      'measuring, never which way they move. Three of these rows are one announcement.</p></div>');
+
+    h.push('<div class="panel"><div class="panel-hd">News research counters</div><div class="kv">');
+    NEWS_COUNTERS.forEach(function (r) {
+      h.push('<div class="kv-row"><div class="kv-k">' + esc(r[0]) + '</div><div class="kv-v">' + esc(r[1]) + "</div></div>");
+    });
+    h.push('</div><p class="mono-note" style="margin:16px 0 0">Raw items and independent clusters ' +
+      'are different sample sizes. The ratio between them is published so neither can be quoted ' +
+      'as the other.</p></div>');
     h.push("</div>");
 
     host.innerHTML = h.join("");

@@ -1,0 +1,166 @@
+{
+  "panel": "NEWS_INTELLIGENCE",
+  "visibility": "PRIVATE_MESH_ONLY",
+  "generated_at": "2026-08-23T07:09:20.582065+00:00",
+  "recent_events": {
+    "columns": [
+      "time",
+      "source",
+      "entity",
+      "type",
+      "topic",
+      "novelty",
+      "surprise",
+      "relevance",
+      "status"
+    ],
+    "rows": [
+      {
+        "time": "14:19",
+        "source": "TIER_1_OFFICIAL",
+        "entity": "nvidia",
+        "type": "COMPANY_EARNINGS",
+        "topic": "earnings",
+        "novelty": 1.0,
+        "surprise": null,
+        "relevance": [
+          "NVDA",
+          "NDX"
+        ],
+        "status": "INDEPENDENT",
+        "cluster": "cl_27c40859d6b6596d5fda"
+      },
+      {
+        "time": "14:09",
+        "source": "TIER_3_VERIFIED_INDIVIDUAL",
+        "entity": "elon musk",
+        "type": "SOCIAL_POST",
+        "topic": "social",
+        "novelty": 1.0,
+        "surprise": null,
+        "relevance": [
+          "TSLA",
+          "DOGE"
+        ],
+        "status": "INDEPENDENT",
+        "cluster": "cl_1149f5abfd06b2f69307"
+      },
+      {
+        "time": "13:59",
+        "source": "TIER_1_OFFICIAL",
+        "entity": "federal reserve",
+        "type": "RATE_POLICY",
+        "topic": "rates",
+        "novelty": 1.0,
+        "surprise": null,
+        "relevance": [
+          "DXY",
+          "US10Y",
+          "US2Y"
+        ],
+        "status": "INDEPENDENT",
+        "cluster": "cl_f07ea2763ce031029670"
+      },
+      {
+        "time": "13:54",
+        "source": "TIER_4_AGGREGATOR",
+        "entity": "donald trump",
+        "type": "TARIFF",
+        "topic": "tariffs",
+        "novelty": 0.42,
+        "surprise": null,
+        "relevance": [],
+        "status": "REPEAT",
+        "cluster": "cl_820b11393633c1b87494"
+      },
+      {
+        "time": "13:51",
+        "source": "TIER_2_PROFESSIONAL",
+        "entity": "donald trump",
+        "type": "TARIFF",
+        "topic": "tariffs",
+        "novelty": 0.38,
+        "surprise": null,
+        "relevance": [],
+        "status": "REPEAT",
+        "cluster": "cl_820b11393633c1b87494"
+      },
+      {
+        "time": "13:48",
+        "source": "TIER_2_PROFESSIONAL",
+        "entity": "donald trump",
+        "type": "TARIFF",
+        "topic": "tariffs",
+        "novelty": 0.32,
+        "surprise": null,
+        "relevance": [],
+        "status": "REPEAT",
+        "cluster": "cl_820b11393633c1b87494"
+      },
+      {
+        "time": "13:44",
+        "source": "TIER_1_OFFICIAL",
+        "entity": "donald trump",
+        "type": "TARIFF",
+        "topic": "tariffs",
+        "novelty": 1.0,
+        "surprise": null,
+        "relevance": [],
+        "status": "INDEPENDENT",
+        "cluster": "cl_820b11393633c1b87494"
+      }
+    ]
+  },
+  "cross_asset_context": {
+    "as_of": "2026-08-23T07:09:20.582065+00:00",
+    "rows": [
+      {
+        "asset": "BTC",
+        "state": "—",
+        "known": false
+      },
+      {
+        "asset": "ETH",
+        "state": "—",
+        "known": false
+      },
+      {
+        "asset": "NDX",
+        "state": "—",
+        "known": false
+      },
+      {
+        "asset": "DXY",
+        "state": "—",
+        "known": false
+      },
+      {
+        "asset": "US10Y",
+        "state": "—",
+        "known": false
+      },
+      {
+        "asset": "VIX",
+        "state": "—",
+        "known": false
+      }
+    ],
+    "incomplete": [
+      "BTC",
+      "ETH",
+      "NDX",
+      "DXY",
+      "US10Y",
+      "VIX"
+    ]
+  },
+  "research_counters": {
+    "raw_news_items": 7,
+    "independent_news_clusters": 4,
+    "high_impact_events": 3,
+    "events_with_complete_market_labels": 0,
+    "events_matched_to_eder": 0,
+    "duplication_ratio": 1.75,
+    "note": "raw items and independent clusters are different sample sizes; the ratio between them is published so neither can be quoted as the other"
+  }
+}
