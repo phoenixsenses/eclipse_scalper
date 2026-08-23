@@ -39,7 +39,7 @@ _POSITIVE = ("beat", "beats", "surge", "record", "approve", "approved", "boost",
 _NEGATIVE = ("miss", "misses", "fall", "plunge", "ban", "halt", "reject", "weak", "tariff", "sanction")
 
 
-def _event_id(raw: RawEvent) -> str:
+def event_id_for(raw: RawEvent) -> str:
     """Stable id derived from provenance, not from a counter or a clock.
 
     Two runs over the same raw item must produce the same event id, or every
@@ -106,7 +106,7 @@ class Normalizer:
         }
 
         return NormalizedEvent(
-            event_id=_event_id(raw),
+            event_id=event_id_for(raw),
             raw_event_id=raw.raw_event_id,
             published_at=raw.published_at,
             first_seen_at=raw.first_seen_at,
@@ -127,4 +127,4 @@ class Normalizer:
         )
 
 
-__all__ = ["Normalizer", "CREDIBILITY_BY_AUTHORITY"]
+__all__ = ["Normalizer", "event_id_for", "CREDIBILITY_BY_AUTHORITY"]

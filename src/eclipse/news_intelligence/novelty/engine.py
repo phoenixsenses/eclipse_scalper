@@ -76,6 +76,13 @@ class LexicalNoveltyEngine:
                 best_similarity, best_id, best_time = similarity, event_id, seen_at
 
         self._seen.append((item.first_seen_at, item.event_id, tokens, item.entity))
+        # Anything older than the memory window can no longer be the nearest
+        # match, so keeping it only makes the scan longer. Left unpruned this
+        # list grew for the life of the process and the comparison went
+        # quadratic in a stream that never ends. Pruned on every call rather
+        # than past some count: the scan above is already linear in `_seen`, so
+        # a size guard saves nothing and only makes the bound untestable.
+        self._seen = [entry for entry in self._seen if entry[0] >= cutoff]
 
         return NoveltyResult(
             novelty_score=round(1.0 - best_similarity, 6),

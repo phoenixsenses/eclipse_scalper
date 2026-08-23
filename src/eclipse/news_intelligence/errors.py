@@ -58,6 +58,28 @@ class RelevanceIsNotDirection(NewsIntelligenceError):
     """
 
 
+class DuplicateDelivery(NewsIntelligenceError):
+    """The same item, byte for byte, arrived twice.
+
+    Normal life for a feed: a retry, a re-poll after a restart, a source that
+    re-emits. Refused rather than absorbed because the second copy is not a
+    second observation — counting it fabricates attention, and attention is a
+    feature this layer publishes. Measured before this existed: one item
+    processed twice moved amplification from 0.00 to 0.17.
+    """
+
+
+class OutOfOrderDelivery(NewsIntelligenceError):
+    """An item arrived that is older than one already processed.
+
+    The cluster record depends on arrival order: first source, first seen, and
+    which item is the independent observation. Processing a reprint before the
+    original made the wire service the first source and recorded the original
+    as a repeat of its own copy. Sort the batch — `process_batch` does — rather
+    than letting the record be decided by delivery luck.
+    """
+
+
 class DeferredUntilPhase1Complete(NewsIntelligenceError):
     """A capability that would compete for CPU, RAM, disk or network.
 

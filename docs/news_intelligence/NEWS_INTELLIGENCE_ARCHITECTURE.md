@@ -40,7 +40,7 @@ src/eclipse/news_intelligence/
     deferred.py     everything that must not start while the machine is busy
     pipeline.py     the order the stages run in
 
-tests/news_intelligence/     68 tests, no database, no network
+tests/news_intelligence/     78 tests, no database, no network
 tools/news_intelligence_demo.py
 reports/news_intelligence/
 ```
@@ -134,6 +134,42 @@ leading, however large the post-event return.
 A missing window is `UNDETERMINED`, never zero. An absent measurement and a calm
 market are different things, and this repository has already paid once for
 confusing them.
+
+## When the stream is not clean
+
+A collector retries. A process restarts and re-polls. A slow source delivers
+something older than what already arrived. All three are the normal life of a
+feed, and each corrupts a different part of the record if the pipeline just
+processes whatever it is handed. Found by feeding the pipeline a dirty stream,
+not by reading the code:
+
+- **Re-delivery fabricated attention.** The identical item processed twice moved
+  amplification from 0.00 to 0.17 and `update_count` from 1 to 2. Attention is a
+  published feature, so inventing it from a retry is a data-integrity defect.
+  `process` now refuses a `DuplicateDelivery`, *before* any engine sees the item
+  — a refusal raised afterwards would be a message about a record that is
+  already wrong. A revision is not a duplicate: the id carries the revision
+  number.
+
+- **Out-of-order arrival rewrote who was first.** Processing the wire reprint
+  before the original made the wire service the cluster's first source and
+  recorded the original as a repeat of its own copy. "Who was first" is one of
+  the things this layer exists to measure, so the pipeline refuses an
+  `OutOfOrderDelivery` rather than letting delivery luck decide the record.
+
+- **Memory grew without bound.** The novelty engine's seen-list was never pruned
+  and every item scanned all of it — quadratic in a stream that never ends.
+  Both it and the clusterer now drop what is older than their own windows, on
+  every call: the scan is already linear, so a size guard saved nothing and only
+  made the bound untestable.
+
+Three calls, so the common paths do not require a try block:
+
+| call | for |
+|---|---|
+| `process(raw)` | one item, strict — raises on duplicate or out-of-order |
+| `process_if_new(raw)` | a live collector; returns `None` for a re-delivery |
+| `process_batch(raws)` | a backfill or multi-source poll; sorts, then processes |
 
 ## Source authority ≠ impact
 
@@ -274,6 +310,6 @@ three.
 ## Status
 
 Architecture, schemas, engines, contracts, tests and mock validation are
-complete and passing. No collector has been started, no historical data has been
+complete and passing (78 tests). No collector has been started, no historical data has been
 downloaded, no backtest has been run, and no existing arm, ledger, collector or
 research artifact has been touched.

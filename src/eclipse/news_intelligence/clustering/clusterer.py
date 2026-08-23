@@ -119,6 +119,7 @@ class LexicalClusterer:
                 )
 
         tokens = item.tokens()
+        self._forget_unreachable(item.first_seen_at)
         best_id, best_similarity, best_event = None, 0.0, None
         for cluster_id, cluster in self._clusters.items():
             if cluster["entity"] != item.entity:
@@ -169,6 +170,22 @@ class LexicalClusterer:
             first_source_id=item.source_id,
             first_seen_at=item.first_seen_at,
         )
+
+    def _forget_unreachable(self, now) -> None:
+        """Drop clusters no future item can join.
+
+        A cluster outside the matching window is unreachable by definition, so
+        holding it grows the process without changing any answer. The retained
+        count is still the number of clusters *matchable now*, not the number
+        ever created — a study wanting the historical count reads the store, not
+        the live clusterer.
+        """
+        horizon = now - self.window
+        self._clusters = {
+            cluster_id: cluster
+            for cluster_id, cluster in self._clusters.items()
+            if cluster["last_seen_at"] >= horizon
+        }
 
     def cluster_count(self) -> int:
         return len(self._clusters)

@@ -29,7 +29,8 @@ from typing import Iterable
 from .adapters.base import SourceRegistry, default_registry
 from .amplification.engine import AmplificationEngine, AmplificationResult
 from .clustering.clusterer import ClusterAssignment, ClusterInput, LexicalClusterer
-from .normalization.normalizer import Normalizer
+from .errors import DuplicateDelivery, OutOfOrderDelivery
+from .normalization.normalizer import Normalizer, event_id_for
 from .novelty.engine import LexicalNoveltyEngine, NoveltyResult
 from .publishing.bus import SUBJECTS, Envelope, InMemoryPublisher, Publisher
 from .reaction.contracts import build_request
@@ -83,12 +84,40 @@ class NewsIntelligencePipeline:
         self.novelty = LexicalNoveltyEngine()
         self.amplification = AmplificationEngine()
         self.publisher = publisher or InMemoryPublisher()
+        #: Ids already processed. The stream is a stream, so this is bounded by
+        #: the same memory the novelty engine keeps: an item older than that can
+        #: no longer influence any score, so remembering it buys nothing.
+        self._seen_event_ids: dict[str, datetime] = {}
+        self._last_first_seen: datetime | None = None
 
     def process(
         self,
         raw: RawEvent,
         observations: Iterable[Observation] = (),
     ) -> ProcessedEvent:
+        """Process one item. Refuses a re-delivery and refuses to go backwards.
+
+        Both checks run *before* any engine sees the item. A refusal raised
+        after clustering and amplification have already counted it would be a
+        message about a record that is already wrong.
+        """
+        event_id = event_id_for(raw)
+        if event_id in self._seen_event_ids:
+            raise DuplicateDelivery(
+                f"{event_id} has already been processed "
+                f"(source {raw.source_id!r}, ref {raw.source_ref!r}, revision {raw.revision}). "
+                "A re-delivery is not a second observation; counting it would invent "
+                "attention that did not happen. Use process_if_new() if re-delivery is "
+                "expected."
+            )
+        if self._last_first_seen is not None and raw.first_seen_at < self._last_first_seen:
+            raise OutOfOrderDelivery(
+                f"{raw.source_id} item is from {raw.first_seen_at.isoformat()}, before the "
+                f"last processed item at {self._last_first_seen.isoformat()}. Cluster "
+                "identity depends on arrival order — sort the batch first, or use "
+                "process_batch(), which sorts for you."
+            )
+
         event = self.normalizer.normalize(raw)
 
         cluster_input = ClusterInput.of(event, raw.raw_title, raw.raw_text, raw.source_id)
@@ -107,6 +136,10 @@ class NewsIntelligencePipeline:
         snapshot = build_snapshot(event, observations)
         request = build_request(event)
 
+        self._seen_event_ids[event.event_id] = event.first_seen_at
+        self._last_first_seen = event.first_seen_at
+        self._forget_old(event.first_seen_at)
+
         self._publish(event, snapshot, raw)
 
         return ProcessedEvent(
@@ -117,6 +150,51 @@ class NewsIntelligencePipeline:
             novelty=novelty,
             amplification=amplification,
         )
+
+    def process_if_new(
+        self,
+        raw: RawEvent,
+        observations: Iterable[Observation] = (),
+    ) -> ProcessedEvent | None:
+        """Collector-facing call: returns None for a re-delivery.
+
+        Re-delivery is ordinary operation, so the common path should not require
+        every caller to wrap `process` in a try block — a try block that would,
+        soon enough, be written to swallow the ordering refusal too.
+        """
+        try:
+            return self.process(raw, observations)
+        except DuplicateDelivery:
+            return None
+
+    def process_batch(
+        self,
+        raws: Iterable[RawEvent],
+        observations: Iterable[Observation] = (),
+    ) -> list[ProcessedEvent]:
+        """Sort by arrival, then process. The correct path for a backfill or a
+        multi-source poll, where delivery order says nothing about event order."""
+        ordered = sorted(raws, key=lambda r: (r.first_seen_at, r.source_id, r.raw_event_id))
+        processed = []
+        for raw in ordered:
+            result = self.process_if_new(raw, observations)
+            if result is not None:
+                processed.append(result)
+        return processed
+
+    def _forget_old(self, now: datetime) -> None:
+        """Drop ids that can no longer be reached by any comparison.
+
+        Bounded by the novelty engine's own memory: past it, an item cannot
+        affect a score, so holding its id only grows the process.
+        """
+        horizon = now - self.novelty.memory
+        if len(self._seen_event_ids) > 64:
+            self._seen_event_ids = {
+                event_id: seen
+                for event_id, seen in self._seen_event_ids.items()
+                if seen >= horizon
+            }
 
     def _publish(self, event: NormalizedEvent, snapshot: FeatureSnapshot, raw: RawEvent) -> None:
         now = datetime.now(timezone.utc)
