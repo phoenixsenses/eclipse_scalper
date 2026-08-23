@@ -125,9 +125,9 @@
         <div class="rv">
           <div class="rule" data-live="1"><span>Global event bus</span></div>
           <div class="bulbs">
-            <div class="bulb" data-s="building"><span class="bulb-l"></span><span class="bulb-n">Master Center</span><span class="bulb-s">Building</span></div>
-            <div class="bulb" data-s="building"><span class="bulb-l"></span><span class="bulb-n">Event bus</span><span class="bulb-s">Building</span></div>
-            <div class="bulb" data-s="design"><span class="bulb-l"></span><span class="bulb-n">Alpha</span><span class="bulb-s">Design</span></div>
+            <div class="bulb" data-s="accepted"><span class="bulb-l"></span><span class="bulb-n">Master Center</span><span class="bulb-s">Accepted</span></div>
+            <div class="bulb" data-s="accepted"><span class="bulb-l"></span><span class="bulb-n">Event bus</span><span class="bulb-s">Accepted</span></div>
+            <div class="bulb" data-s="building"><span class="bulb-l"></span><span class="bulb-n">Alpha</span><span class="bulb-s">Building</span></div>
             <div class="bulb" data-s="planned"><span class="bulb-l"></span><span class="bulb-n">Market</span><span class="bulb-s">Planned</span></div>
             <div class="bulb" data-s="planned"><span class="bulb-l"></span><span class="bulb-n">Research</span><span class="bulb-s">Planned</span></div>
             <div class="bulb" data-s="planned"><span class="bulb-l"></span><span class="bulb-n">Risk</span><span class="bulb-s">Planned</span></div>
@@ -139,7 +139,9 @@
           <p class="mono-note" style="margin-top:12px">
             These lamps — and the lamps on the rail down the left of every page — show
             <b>implementation status, not runtime health</b>. Nothing here is running: phases 01
-            and 02 are under construction and the rest are designed but not built. See the <a href="changelog.html" style="color:var(--dim)">changelog</a> for
+            and 02 are built and have passed an independent review, the Alpha adapter is under
+            construction, and the rest are not built at all. <b>Accepted</b> describes the code and
+            its review, never a market. See the <a href="changelog.html" style="color:var(--dim)">changelog</a> for
             versions. The row is also a simplification — no agent is wired to the one beside it;
             they all talk to the bus.
           </p>

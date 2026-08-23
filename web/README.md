@@ -78,16 +78,22 @@ there is no backend, no API and no build.
 - **Colour is semantic only, and health colours are reserved.** `green`, `amber` and
   `red` mean healthy / warning / blocked and may **never** label a component, a lamp,
   an agent or a section — nothing on this site is running, so any such use is a false
-  claim. They appear in exactly three places, each independently reviewed and disclosed:
-  the approve / reduce / reject verdict legend, and the completed steps in the E-DER
-  pipeline position — verdict and progress are not health claims — and, as a deliberate
-  exception, the **projected demo console** in `status.html`. That console is a mockup of
-  a future operator screen: its `active` / `warning` / `idle` chips and its green count
-  belong to agents that do not exist. It is allowed only because it is fenced three ways —
-  the demo gate, panel headings that all read *projected*, and a sticky `Projected —
-  nothing here is running` bar that cannot scroll away from the colours it disclaims.
-  **No page outside that console may use this exception.** Everything structural uses the
-  implementation states above; cyan and violet remain available for category accents that carry no
+  claim. **Do not try to state this as a count.** It has been written as "exactly two
+  places" and then as "exactly three", and both were false the day they were written —
+  the site actually carries around twenty-five coloured declarations. What holds is the
+  *kind* of thing being coloured, and it is now machine-checked by
+  `tools/check_policy.py`, which refuses any occurrence it cannot place in one of these:
+  · **prohibition** — red on something forbidden or wrong (`Denied`, `Never versioned in
+  place`, the deliberately wrong example) · **custody** — amber on what an agent holds ·
+  **verdict** — the approve / reduce / reject legend · **progress** — a completed step in
+  the E-DER pipeline position. None of those says a component is well.
+  The **one** genuine exception is the **projected demo console** in `status.html`: a
+  mockup of a future operator screen whose `active` / `warning` / `idle` chips and green
+  count belong to agents that do not exist. It is allowed only while it is fenced three
+  ways — the demo gate, panel headings that all read *projected*, and a sticky `Projected
+  — nothing here is running` bar that cannot scroll away from the colours it disclaims.
+  The checker fails if that bar disappears. **No page outside that console may use this
+  exception.** Everything structural uses the implementation states above; cyan and violet remain available for category accents that carry no
   status meaning.
 - Single dark theme, 2px radius, hairlines at 9% white.
 - Responsive to 360px, keyboard focus visible, `prefers-reduced-motion` honoured
@@ -97,6 +103,33 @@ there is no backend, no API and no build.
   **Check 360px after adding any chip or tag:** a `.tag` is `white-space: nowrap`, and
   before `.eyebrow` was given `flex-wrap`, one `Not implemented` tag pushed
   `agents.html` 98px wider than the viewport.
+
+## Check it, do not eyeball it
+
+```powershell
+python web/tools/check_policy.py     # 0 = clean, 1 = at least one violation
+```
+
+Run it after touching any page. It enforces the content policy below plus the structural
+invariants — health colour by category, banned labels, performance figures, horizon
+suffixes, ranking vocabulary, unclosed tags, duplicate ids, dead links and fragments,
+undefined CSS classes, the skip link, and external requests. It exists because this
+policy has failed independent review four times while being read carefully every time;
+the two rules it would have caught immediately are W2 (`Active` under a green chip) and
+the README's own false count of where colour appears.
+
+It also enforces **one component, one state**: the same component may not be `Building`
+on one page and `Accepted` on another. That rule exists because the site had drifted into
+exactly that — `Alpha` was claimed in three different states at once, and `agents.html`
+contradicted *itself*, its bulb strip saying `Design` while the section it links to said
+`Not implemented`.
+
+It is deliberately mutation-tested: twelve deliberate violations — a green `Active` chip,
+a bps figure, a `4H` suffix, a ranking word, the console fence removed, a dead link, a
+duplicate id, an unclosed tag, an undefined class, a missing skip link, one page
+disagreeing about a state, and one page left to go stale — were injected into a scratch
+copy and **all twelve were caught**. A checker that never fails is worth nothing; if you
+extend it, mutate it again.
 
 ## Content policy — read before adding anything
 
@@ -113,7 +146,8 @@ palette makes green easy to reach for.
 The **one** exception is the projected demo console described under *Design system*, and
 it holds only inside `#console` on `status.html`, only behind the demo gate, and only
 while the sticky `Projected — nothing here is running` bar renders above it. If that bar
-is ever removed, the console's colours and `active` chips must go with it.
+is ever removed, the console's colours and `active` chips must go with it — and
+`tools/check_policy.py` will fail until one of the two is put back.
 
 **Never publish**
 
@@ -129,6 +163,14 @@ is ever removed, the console's colours and `active` chips must go with it.
   comparison that implies one
 - Anything derived from a sealed forward arm, in any aggregated form
 - Hostnames, IPs, ports, credentials, real network layout, live positions
+
+**Keep one state per component**
+
+A component's implementation state appears on several surfaces — the landing bulb strip,
+`agents.html`, `roadmap.html`, `changelog.html`. They must agree. When a phase closes,
+grep for the component and change every surface in the same pass, then run the checker;
+it compares them for you. Updating one page and not the others is how the site ends up
+telling two stories about itself.
 
 **Safe to publish**
 
