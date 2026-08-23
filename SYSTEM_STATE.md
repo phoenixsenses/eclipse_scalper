@@ -14993,3 +14993,176 @@ memory girdileri o numaralara atıf yapıyor; düzeltme ayrı ve bağımsız inc
 dosyası — hiçbirine dokunulmadı. Commit `03a9933a`.
 
 **Verdict token: `WEBSITE_S299_REVIEWED_AND_B1_B5_CLOSED_REGRESSION_FIRST · TWO_360PX_OVERFLOW_BUGS_MEASURED_98PX_AND_11PX · GATED_CONTENT_UNMEASURED_UNTIL_OPENED · README_HEALTH_COLOUR_CLAIM_WAS_FALSE_NOW_THIRD_EXCEPTION_DISCLOSED_AND_FENCED · STICKY_PROJECTED_BAR_CANNOT_SCROLL_AWAY · 13_EMPTY_CARDS_GIVEN_CONCEPT_DESCRIPTIONS_NO_DIRECTION_NO_FIGURE · SKIP_LINK_12_OF_12 · 360PX_CLEAN_12_OF_12_INCLUDING_CONSOLE_OPEN · 320PX_HEADER_OVERFLOW_KNOWN_OUT_OF_SCOPE · DUPLICATE_SECTION_NUMBERS_298_AND_299_RECORDED_NOT_RENUMBERED · NO_RESEARCH_NO_LEDGER_NO_RUNTIME · AWAITING_INDEPENDENT_REVIEW`**
+
+**§315 SANİYELİK KOTA TOPLAYICI (opt-in) — S50'NİN ÖN KOŞULU KURULDU; VE 90 SANİYEDE MALİYET SORUSUNUN İKİ YARISI AYRIŞTI: SPREAD UCUZ, DERİNLİK İNCE (2026-08-22, Opus 5 [1M]).**
+
+**Neden.** §311'in tek açık ucu maliyetti; §312 (S50 ön-kayıt) tek estimand'ı `NET_MEASURED` ilan
+etti. Ama maliyeti ölçmek giriş ve çıkış anında bir kotaya bakmayı gerektirir, ve
+`data/bookticker_collector.py` yalnız **BTC/ETH/SOL** taşıyor. S50'nin 14 sembolünün 12'sinde kota
+kaydı **hiç yoktu** — yani runner yazılsa bile yine `NET_ASSUMED` üretirdi, ki kaçılmak istenen tam
+oydu.
+
+**Ölçüm önce (dar pencere, 5 dk):** mevcut collector 3 sembol için **50.1M satır/gün ≈ 4.5 GB/gün**
+yazıyor (BTC 21.4M · ETH 18.9M · SOL 9.9M). 12 sembol daha **tam tick** eklemek diski kabaca
+ikiye katlardı (~9 GB/gün, **~280 GB/ay**); D:'de 1.1 TB boş, yani ~4 ayda dolardı.
+
+**Çözüm: sembol-saniye başına TEK satır.** 6 saatlik bir tutuş için saniyelik çözünürlük fazlasıyla
+yeterli. `data/quote_1s_collector.py` yazıldı — **mevcut collector'a hiç dokunulmadan**, ayrı
+websocket, ayrı proses, **ayrı veritabanı** (`data/quotes_1s.db`). `n_updates` sütunu bir saniyeye
+kaç ham güncellemenin katlandığını tutar (bedava, ve kendi başına bir defter-aktivite ölçüsü).
+
+**90 saniyelik canlı deneme (12 sembol):** 51.901 ham tick → **1.337 satır**, sıkıştırma **38.8×**,
+günlük tahmin ~924k satır ve **0.1 GB/gün'ün çok altında**.
+
+**VE O 90 SANİYE, GÜNLERDİR KAPATILAMAYAN SORUYU İKİYE AYIRDI.**
+
+**(a) Spread ucuz — §311'in 20 bps varsayımı yaklaşık DOĞRUYMUŞ.**
+
+```
+XAU 0.02 · SKHYNIX 0.08 · MU 0.10 · HYPE 0.13 · ZEC 0.14 · BNB 0.14
+XRP 0.68 · SOXL 0.85 · DOGE 1.09 · XAG 1.45 · LAB 1.69 · KORU 4.99      medyan ~0.4 bps
+```
+
+Gerçek çift-bacak maliyet ≈ `20 (komisyon) + ~0.4 (sembol spread) + ~0.01 (BTC)` ≈ **20.4 bps**.
+Yani §311'in `+16.9 / +41.0 / +59.2` net rakamları **ayakta kalıyor**. Roll tahmincisi bu
+sembollerde de 5–30× şişirmiş (§311'de BTC/ETH/SOL'da 30–8756× şişirdiği ölçülmüştü) — **atılması
+doğru karardı.**
+
+**(b) Asıl maliyet spread DEĞİL, DERİNLİK — ve bu ilk kez ölçüldü.**
+
+```
+top-of-book bid tutari:
+  LAB      $116     MU     $335     ZEC   $1.419    HYPE  $4.186    SKHYNIX $4.888   BNB  $6.442
+  SOXL   $8.088     XRP  $8.618     KORU $18.422    DOGE $18.452    XAG    $64.258   XAU $85.750
+```
+
+**LABUSDT'de en iyi fiyatta $116 var.** $10k'lık bir emir defteri yürütür ve 1.69 bps'lik spread'i
+onlarca bps'e çevirir. Gerçekçi pozisyon **$1–3k** (yalnız XAU/XAG/DOGE/KORU'da $10k+).
+4.3 eşzamanlı slot (§ operatör kapasite hesabı) → **~$9k konuşlanan sermaye** → günde **~$75**.
+**Kapasite sorusunun cevabı budur ve tahmin değil, ölçümdür.** *(90 saniye tek bir anın
+fotoğrafıdır; derinlik gün içinde değişir — sürekli toplama bunu düzeltecek.)*
+
+**Bu, S50'nin erken-FAIL kuralını da devreye sokabilecek ilk somut veridir:** ön-kayıt "medyan
+çift-bacak ölçülen maliyet > 60 bps ⟹ yapısal olarak işlem yapılamaz, FAIL" diyor. Spread tarafı
+o eşiğin çok altında; **derinlik tarafı ise pozisyon büyüklüğüne bağlı ve henüz ölçülmedi**
+(top-of-book ötesi defter yürüyüşü bu toplayıcıda yok).
+
+**Kurulum.** `start_eclipse.ps1`: `-EnableQuote1s` anahtarı (**varsayılan KAPALI**, §262'nin leads
+monitör emsali) + `-Quote1sSymbols` (varsayılan: S50 evreninin BTC dışındaki 12 sembolü).
+`stop_eclipse.ps1`: `data.quote_1s_collector` durdurma listesine **eklendi** — §190 re-review'ünün
+kaydettiği sebeple: listelenmemiş bir rol "stop"tan sağ çıkar, sonraki "start" onu **evlat edinir**,
+ve restart sessizce ESKİ kodu çalıştırmaya devam eder. Üç script de parser'dan temiz geçti.
+**Hiçbir proses öldürülmedi/yeniden başlatılmadı — restart operatörün kararı.**
+
+**Ayrıca kayda geçer (aynı oturum, DL-001):** `DOWNLOADS_REGISTRY.md` oluşturuldu ve
+`tools/fetch_binance_klines_ext.py` yazıldı — fiyatı olmayan **616 perpetual** için Binance klines.
+HEAD ile **ölçüldü** (40 sembol × 6 ay = 240 istek): mevcut olma **%91.7**, ortalama **1.31 MB**,
+tam iş **4.35 GB** zip, 0.78 MB/s'de ~95 dk transfer, SQLite izdüşümü **15.7 GB**. CLAUDE.md'deki
+"~1 GB" notu **2 ay** içindi. İki aşamalı plan (%70 tasarruf): önce 616 sembol × 2026-06 → medyan
+hacim → **$20k/dk** (bilerek gevşek; S50 evreni $100k, indirme setini oraya ayarlamak evreni tek
+aya kalibre etmek olurdu) → sonra kalan 5 ay. **Ayrı DB** (`data/xsec_klines_ext.db`), SHA256 +
+satır sayısı `ingest_log`'da, yeniden başlatılabilir. 3 sembolde kuru deneme geçti. **Operatör
+kendi penceresinde detach koşacak** (çok saatlik iş bu oturuma sahiplendirilmez).
+
+**Bir hata daha kayda geçer:** bu bölümü hazırlarken 212 GB'lık `microstructure_02.db` üzerinde
+**üçüncü kez** sınırsız `count(*)` çalıştırdım ve iş arka plana düştü. Dar pencere + indeksli
+sorgu 0.1 saniyede döndü. Kural aynı: **büyük tabloda sınırsız agregat YOK.**
+
+**Verdict token: `QUOTE_1S_COLLECTOR_ADDED_OPT_IN · SEPARATE_DB_SEPARATE_PROCESS_EXISTING_COLLECTOR_UNTOUCHED · MEASURED_FULL_TICK_3_SYMBOLS_50_1M_ROWS_PER_DAY_4_5_GB · 12_MORE_AT_FULL_TICK_WOULD_DOUBLE_DISK_280GB_MONTH · 1S_DOWNSAMPLE_38_8X_COMPRESSION_MEASURED · UNDER_0_1_GB_PER_DAY · 90S_LIVE_TEST_PASSED · SPREAD_MEASURED_MEDIAN_0_4_BPS · S311_20BPS_ASSUMPTION_APPROXIMATELY_CORRECT · S311_NET_FIGURES_SURVIVE · ROLL_ESTIMATOR_OVERSTATED_5X_TO_30X_HERE_TOO · REAL_COST_IS_DEPTH_NOT_SPREAD · TOP_OF_BOOK_116_USD_TO_85750_USD · LAB_116_USD_AT_BEST_BID · REALISTIC_POSITION_1K_TO_3K · DEPLOYED_CAPITAL_ABOUT_9K · ABOUT_75_USD_PER_DAY · CAPACITY_ANSWER_IS_MEASURED_NOT_ESTIMATED · 90S_IS_ONE_SNAPSHOT_DEPTH_VARIES · BOOK_WALK_BEYOND_TOP_OF_BOOK_NOT_YET_MEASURED · S50_EARLY_FAIL_RULE_60BPS_NOT_TRIGGERED_BY_SPREAD · ENABLE_QUOTE1S_DEFAULT_OFF · ADDED_TO_STOP_LIST_PER_S190_RULE · ALL_THREE_PS1_PARSE_CLEAN · NO_PROCESS_KILLED_NO_RESTART · DL_001_REGISTERED_HEAD_MEASURED_4_35GB_91_7PCT · TWO_STAGE_PLAN_20K_LOOSE_CUT · SEPARATE_EXT_DB_RESUMABLE_SHA256 · DRY_RUN_PASSED · OPERATOR_RUNS_DETACHED · THIRD_UNBOUNDED_COUNT_ON_212GB_DB_SELF_LOGGED · NO_REAL_ORDERS · S38_UNTOUCHED`**
+
+**§316 S50 — OPERATÖR YETKİLENDİRDİ, AMA COUNTED-N BUGÜN BAŞLAMIYOR: RUNNER YOK VE BETA İÇİN FİYAT GEÇMİŞİNDE 30 GÜNLÜK BOŞLUK VAR (2026-08-23, Opus 5 [1M]).**
+
+**Yetkilendirme.** Operatör 2026-08-23 oturumunda S50 ön-kaydının uygulanmasını açıkça istedi
+("tamam yap bunları"). **Mühürlü dosya DEĞİŞTİRİLMEDİ** — §312 "herhangi bir alan değişirse özet
+tutmaz ve belge geçersizdir" diyor, dolayısıyla imza satırı dosyaya yazılmadı; yetkilendirme
+buraya kaydediliyor. Mühür doğrulandı: SHA256 `30fd02fd…` **SAĞLAM**.
+
+**AMA COUNTED-N BUGÜN BAŞLAMIYOR, ve bu bir gecikme değil bir gereklilik.** Sayacı şimdi
+başlatmak **boş bir saati çalıştırmak** olurdu: S50'yi koşacak runner yazılmadı, ve yazılsa bile
+bugün anlamlı bir gözlem üretemezdi. Sebep ölçüldü:
+
+**BETA HESAPLANAMIYOR — 30 günlük fiyat boşluğu.** Ön-kayıt beta'yı `7 gün / 5 dk bar, nedensel`
+olarak donduruyor. 14 sembolün 12'si için elimizdeki fiyat geçmişi:
+
+```
+xsec_klines / klines_ext   ...  2026-07-24'te bitiyor   (aylik arsiv, DL-001 kapsami)
+quotes_1s                       2026-08-23'te BASLADI   (bugun, §315)
+BOSLUK                          2026-07-25 -> 2026-08-23   ~30 gun
+```
+
+Yani bugün bir anchor tetiklense beta yok; ön-kaydın `0.05<β<5.0` kapısı onu **reddeder**.
+quotes_1s birikmesini beklemek **7 gün** alır ve o zaman bile beta yalnız son 7 günü görür.
+
+**Çözüm ve maliyeti (henüz yapılmadı):** Binance **günlük** klines arşivi boşluğu kapatır —
+`data/futures/um/daily/klines/{SYM}/1m/{SYM}-1m-{YYYY-MM-DD}.zip`, 12 sembol × ~30 gün = **~360
+dosya**, aylık dosyaların yanında önemsiz. Bu indirilmeden runner'ın beta bacağı çalışmaz.
+
+**RUNNER'IN YAPMASI GEREKENLER (yazılmadı, kapsam kaydı):** 14 sembolde canlı anchor tespiti
+(5 dk kova, P92.63 eşik, 15 dk bastırma, iki taraf bağımsız) · eşiğin haftalık yeniden hesabı
+(trailing 90 gün, yalnız geçmiş veri) · nedensel beta · kağıt pozisyon aç/6h sonra kapat ·
+**ve asıl amaç: giriş ve çıkışta GERÇEK kota kaydı** (bid, ask, kota yaşı, spread, top-of-book
+notional, komisyon, kayma) — çünkü ön-kaydın tek estimand'ı `NET_MEASURED`.
+
+**Bu oturumda fiilen yapılanlar:**
+- `data.quote_1s_collector` **başlatıldı** (PID 1904, 12 sembol). **Tam restart YAPILMADI** —
+  `-EnableQuote1s` ile restart 21 prosesi öldürürdü ve buna gerek yok; toplayıcı bağımsız,
+  aynı komut satırıyla başlatıldığı için bir sonraki planlı `start_eclipse -EnableQuote1s` onu
+  `CommandNeedle` ile **evlat edinir**. Ölçüldü: **938.880 satır/gün**, disk maliyeti ihmal
+  edilebilir. Koşan proses sayısı 21 → 22, hiçbiri düşmedi.
+- **DL-001 Stage 1 başlatıldı** (616 sembol × 2026-06).
+
+**SIRA (bağlayıcı, çünkü her biri bir öncekini gerektirir):**
+```
+1. DL-001 Stage 1 + Stage 2            (fiyat geçmişi, tarihsel replikasyon icin)
+2. gunluk klines koprusu 07-25 -> 08-23 (beta'nin ON KOSULU)
+3. S50 runner                          (yazilmadi)
+4. counted-N = 0 -> runner canliya alindigi AN
+```
+
+**Verdict token: `S50_OPERATOR_AUTHORIZED_2026_08_23 · SEAL_NOT_BROKEN_FILE_UNMODIFIED · SHA256_VERIFIED_INTACT · AUTHORIZATION_RECORDED_OUTSIDE_THE_SEALED_FILE · COUNTED_N_DOES_NOT_START_TODAY · STARTING_IT_NOW_WOULD_RUN_A_CLOCK_ON_NOTHING · RUNNER_NOT_WRITTEN · BETA_BLOCKED_BY_30_DAY_PRICE_GAP_2026_07_25_TO_08_23 · MONTHLY_ARCHIVE_ENDS_07_24 · QUOTES_1S_STARTED_TODAY · PREREG_BETA_GATE_WOULD_REJECT_EVERY_ANCHOR · FIX_IS_DAILY_KLINES_360_FILES_NOT_YET_DONE · QUOTE_1S_COLLECTOR_STARTED_PID_1904 · NO_FULL_RESTART_NOTHING_KILLED_21_TO_22_PROCESSES · ADOPTABLE_BY_NEXT_START_ECLIPSE_VIA_COMMANDNEEDLE · MEASURED_938880_ROWS_PER_DAY · DL_001_STAGE_1_LAUNCHED · SEQUENCE_IS_BINDING_EACH_STEP_REQUIRES_THE_PREVIOUS · NO_REAL_ORDERS · S38_UNTOUCHED`**
+
+**§315 WEBSITE — ROADMAP SAYFASI + `accepted` DURUM KELİMESİ; SİTE FAZ GERÇEĞİNE HİZALANDI, İKİ GİZLİ LAYOUT BUG'I ÇIKTI (2026-08-23, Opus 5 [1M]).**
+Yalnız website işi. **Araştırma yok, ledger okuması yok, collector yok, çalışan proses yok,
+runtime dosyası yok.** Site 13 sayfa oldu.
+
+**TETİKLEYİCİ: SİTE GERÇEĞİN GERİSİNDEYDİ.** Landing'deki roadmap Phase 01/02'yi `Building`,
+Phase 03'ü `Next` gösteriyordu. Oysa §295: **01–02 bağımsız review'den PASS almış ve invariant'lar
+DONMUŞ**; §296/§298: **03B adaptörü yazılmış, review edilmiş, B1–B4 kapatılmış** (canlı yola bağlı
+değil). Sitenin bunu söyleyecek **kelimesi yoktu** — durum sözlüğü `building`'de bitiyordu, yani
+*bitmiş ve bağımsız kabul edilmiş* iş ile *devam eden* iş ayırt edilemiyordu.
+
+**YENİ DURUM: `accepted` = inşa edilmiş VE bağımsız review kapısından geçmiş.** Lamp/tag/bulb için
+eklendi. **Mürekkep rengi, asla yeşil** — ve göründüğü her yerde yanında *"kodun review durumunu
+anlatır; çalışan bir şeyi ya da bir piyasa sonucunu DEĞİL"* cümlesi yazılı. **Sıfır yeni renk
+değeri, sıfır yeni token** (§299 disiplini korundu; ilk denemede giren bir hex fark edilip
+kaldırıldı, `--faint` zaten o rolü taşıyor).
+
+**YENİ SAYFA `roadmap.html` — beş bölüm.** (1) *Bir faz nasıl kapanır*: beş adımlı kapı ve adımların
+neden birleştirilmediği — "bir aktör hem üretip hem onaylarsa onay hiçbir bilgi taşımaz", review
+salt-okunur, düzeltme ayrı adım, aralarda insan kapısı, **başarısız test önce kodun kusurudur**.
+(2) *İş nerede*: 12 faz, her biri için ne teslim edeceği + durum çipi. (3) *01–02'yi ne kapattı*:
+kuralların convenience katmanında durduğu, dolayısıyla nesneyi doğrudan kuran her çağıranın onları
+atladığı bulgusu — **"çağıranın etrafından dolaşabildiği kural, dokümantasyondur"**. (4) *Phase 03*:
+**aday yayınlanır, sonuç asla** + şekil-provenance ayrımı, mutasyon reddi, geç yayın reddi.
+(5) *Bu roadmap'te olmayanlar*: **hiçbir fazda tarih yok**.
+
+**İKİ LAYOUT BUG'I — ikisi de ÖNCEDEN VARDI, ikisi de kural düzeyinde düzeltildi:**
+· **`.stepper` sabit `repeat(9, 1fr)`** idi ⟹ dokuz adımı olmayan her stepper'ın etiketleri
+`overflow:hidden` tarafından KESİLİYORDU (yeni sayfada "Impleme…", "Correcti…"). Artık çocuk başına
+bir eşit kolon (column flow). **`auto-fit` önce denendi ve REDDEDİLDİ:** yer olduğunda boş track
+uyduruyor ve landing'deki dokuz adımlık şeridi büzüyordu. `≤1080px`'te üçe düşüren kurala
+`grid-auto-flow: row` eklendi, yoksa medya kuralı auto-flow tarafından etkisizleşiyordu.
+· **Nav'a Roadmap eklenince yatay header ~1043 px istiyor** ⟹ 861–1080 px arasında header
+viewport'u aşıyordu. Burger eşiği 860 → **1080**'e taşındı **ve dropdown kuralları da birlikte
+taşındı** — 860 bloğunda bırakılsalardı *hiçbir şey açmayan bir burger* kalırdı.
+
+**DOĞRULAMA (tarayıcıda, verbatim):** **13 sayfa × 4 genişlik (360/768/1100/1440) = 52 kombinasyon,
+yatay taşma 0.** 1080'in altındaki her genişlikte burger menüyü gerçekten açıyor · kapanmamış etiket
+0 · çift id 0 · kırık link/fragment 0 · tanımsız CSS sınıfı 0 · yeni renk değeri 0 · harici istek 0 ·
+nav 13/13 sayfada 8 link. `changelog.html` **sonuç sütunu olmadan** yeni sayfayı kaydediyor;
+`README.md` sayfa tablosu + durum sözlüğü (6 → 7 durum) güncellendi.
+
+**Kapsam korundu:** S38, E-DER forward, A2/V3 forward, collector, scheduler, order, runtime dosyası
+— hiçbirine dokunulmadı. Commit `a2fbd3b8`. **§314 hâlâ bağımsız review bekliyor; bu bölüm de.**
+
+**Verdict token: `WEBSITE_ROADMAP_PAGE_ADDED_13_PAGES · ACCEPTED_STATE_INTRODUCED_INK_NEVER_GREEN_CODE_NOT_MARKET · SITE_REALIGNED_TO_PHASE_TRUTH_01_02_ACCEPTED_03_BUILDING · STEPPER_HARD_9_COLUMN_CLIPPING_FIXED_AT_THE_RULE · AUTOFIT_TRIED_AND_REJECTED_INVENTS_EMPTY_TRACKS · BURGER_BREAKPOINT_860_TO_1080_WITH_ITS_DROPDOWN_RULES · 52_OF_52_WIDTH_COMBINATIONS_NO_OVERFLOW · NO_DATES_ON_ROADMAP · NO_RESULTS_COLUMN · ZERO_NEW_COLOUR_VALUES · NO_RESEARCH_NO_LEDGER_NO_RUNTIME · AWAITING_INDEPENDENT_REVIEW`**
