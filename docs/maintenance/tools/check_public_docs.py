@@ -43,7 +43,7 @@ What it enforces
 Adding a genuine new exception means adding a category here **with its reason**,
 which is the point: the justification lives next to the check.
 
-It is deliberately mutation-tested. ``--self-test`` injects 28 violations into a
+It is deliberately mutation-tested. ``--self-test`` injects 29 violations into a
 scratch copy — one at a time — and every one must be caught. Each is compared
 against that copy's own baseline, so a mutant cannot pass on noise it did not
 cause; the scratch copy holds only the public surface, so its links out to
@@ -247,6 +247,13 @@ def check_content(root: Path, path: Path) -> list[Violation]:
             continue
         line = strip_inline_code(raw)
 
+        # Inline code hides a *word*, not a *value*. Stripping backticks lets a
+        # document write `Active` while naming the ban — the reason the strip
+        # exists — but it also let a threshold triple ride into a published
+        # document inside a code span, in the very page explaining that
+        # thresholds must not be published. Only the health rule, which is
+        # about labels, reads the stripped line; the value rules read the raw
+        # one.
         for rule, pat in (
             ("performance-figure", PERF_FIGURE),
             ("threshold-rule", THRESHOLD_RULE),
@@ -254,9 +261,12 @@ def check_content(root: Path, path: Path) -> list[Violation]:
             ("formula", FORMULA),
             ("health-claim", HEALTH_LABEL),
         ):
-            # a fenced block is where a formula or a threshold would actually hide
-            probe = raw if rule in ("formula", "threshold-rule") and in_fence else line
-            m = pat.search(probe)
+            if rule != "health-claim":
+                m = pat.search(raw if in_fence else raw)
+                if m:
+                    v.append(Violation(rel, i, rule, m.group(0)))
+                continue
+            m = pat.search(line)
             if m:
                 v.append(Violation(rel, i, rule, m.group(0)))
 
@@ -454,6 +464,8 @@ MUTANTS: list[tuple[str, str, str, str, str]] = [
      "## 1. The ladder\n\nIt cleared p = 0.001 on permutation.", "performance-figure"),
     ("drawdown", "docs/public/REPRODUCIBILITY.md", "## 1. Determinism is a tested contract",
      "## 1. Determinism is a tested contract\n\nWorst drawdown was 18.4% there.", "performance-figure"),
+    ("threshold inside a code span", "docs/public/REPRODUCIBILITY.md", "## 5. Frozen artifacts and content hashes",
+     "## 5. Frozen artifacts and content hashes\n\nThe gate was `min_intensity >= 2500` at the time.", "threshold-rule"),
     ("threshold rule", "README.md", "## Module map",
      "## Module map\n\nThe gate fires when imbalance >= 0.5 holds.", "threshold-rule"),
     ("threshold, named", "README.md", "## Quick start",

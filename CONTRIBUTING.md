@@ -104,7 +104,7 @@ Check it rather than eyeballing it:
 
 ```bash
 python docs/maintenance/tools/check_public_docs.py             # README + docs/public + docs/assets
-python docs/maintenance/tools/check_public_docs.py --self-test  # 28 mutants, all must be caught
+python docs/maintenance/tools/check_public_docs.py --self-test  # 29 mutants, all must be caught
 ```
 
 **If you extend the checker, add mutants for the new rule and re-run the self-test.** A

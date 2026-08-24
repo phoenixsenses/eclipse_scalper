@@ -378,9 +378,21 @@ def build(root: Path, target: Path, published: list[str], rules: dict) -> dict:
     one that fails to apply is an error rather than a silent no-op — otherwise a
     leaked line could survive a rename of the text around it.
     """
+    # Clear the target, but never `.git`. Once the mirror is a live repository,
+    # deleting its git directory to rebuild the tree would destroy the published
+    # history — and on Windows it does not even fail loudly: git's objects are
+    # read-only, so the delete throws part-way and leaves a half-erased
+    # repository behind.
     if target.exists():
-        shutil.rmtree(target)
-    target.mkdir(parents=True)
+        for child in target.iterdir():
+            if child.name == ".git":
+                continue
+            if child.is_dir():
+                shutil.rmtree(child)
+            else:
+                child.unlink()
+    else:
+        target.mkdir(parents=True)
 
     # One sanitizer, used by both the copy and the veto. An earlier version had
     # the logic written out twice; the copy then silently ignored a rule kind

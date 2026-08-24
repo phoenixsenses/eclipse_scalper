@@ -12,7 +12,7 @@ stranger would meet it rather than as the operator who built it.
 | Visual quality | **PASS**, after one substantive fix |
 | First screen | **PASS** |
 | Technical credibility | **PASS** |
-| Publication safety | **PASS**, after two findings closed in this pass |
+| Publication safety | **PASS**, after three findings closed in this pass |
 | README coherence | **PASS** |
 | Repository-root coherence | **PASS**, after a structural split |
 
@@ -91,7 +91,9 @@ could be published whole.
 
 ## 4. Publication safety
 
-Two findings were closed during this pass, both from reading rather than scanning.
+Three findings were closed during this pass. All three came from reading rather
+than from scanning, and the third was caught on the pushed repository while it was
+still private — which is what the private-first step is for.
 
 **Exact leak paths in the maintenance documents.** Two of them tabulated the specific
 files in the old public history that carry an executable rule, with the dates they
@@ -102,11 +104,25 @@ were reduced to categories.
 **The classifier's fixtures.** Its self-test table named individual internal artifacts by
 path. It also has nothing to classify in this tree. Excluded, with the reason recorded.
 
+**A threshold triple inside a code span** — found on the fresh clone of the pushed
+repository, while it was still private. `SOURCE_PUBLICATION_REVIEW.md` quoted a test
+fixture verbatim to illustrate that a fixture can be shaped like a real rule, and in doing
+so printed a horizon and three thresholds in the very page arguing they must not be
+printed. The checker had passed it: inline code was being stripped before the content
+rules ran, so a value inside backticks was invisible to them.
+
+The strip exists so a document can *name* a banned label — write `Active` while stating
+the ban. It was never meant to hide a *value*. The rule now applies to the raw line for
+every value rule and to the stripped line only for the health rule, and a mutant covers
+it. This is the fourth time in this work that a check passed something a person then
+caught by reading, and the pattern is consistent: the checks catch classes, and reading
+catches the instance that does not look like its class.
+
 Standing checks, all green in the mirror:
 
 ```
-publication checker      clean, 25 files
-mutation self-test       28/28 caught
+publication checker      clean, 27 files
+mutation self-test       29/29 caught
 secret scan              no .env, no key material
 absolute-path scan       none
 DB / runtime / lock scan none beyond synthetic test fixtures

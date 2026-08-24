@@ -16,7 +16,7 @@ machinery caught. A policy nobody can check is a claim.
 |---|---|
 | [`public_allowlist.json`](public_allowlist.json) | the allowlist this repository is assembled from — every include, exclusion, named exception, declared boundary and sanitization, each with its reason |
 | [`tools/build_public_mirror.py`](tools/build_public_mirror.py) | assembles the tree from that allowlist; refuses to build on an undeclared boundary, on research provenance in any file, or on a file that does not parse |
-| [`tools/check_public_docs.py`](tools/check_public_docs.py) | checks the documentation against the publication policy; mutation-tested against 28 deliberate violations |
+| [`tools/check_public_docs.py`](tools/check_public_docs.py) | checks the documentation against the publication policy; mutation-tested against 29 deliberate violations |
 
 A third tool, the classifier that decided each file's disposition in the first place,
 runs against the source repository and is not shipped here: it has nothing to classify in

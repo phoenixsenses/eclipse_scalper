@@ -30,10 +30,10 @@ allowlist should fail towards silence.
 **A test follows its subject.**
 
 Reading a test's fixtures to decide whether it may be published is the wrong question.
-`{"n": 50, "delta_vs_baseline": 0.10}` is obviously invented; `{"horizon_sec": 60,
-"min_imbalance": 0.5, "min_trade_intensity": 2500.0, "max_spread": 0.00025}` is obviously
-shaped like a real rule — and whether its numbers *are* the real ones cannot be settled
-by looking at them. But the module a test imports is not ambiguous at all.
+A fixture of two round numbers is obviously invented; a fixture carrying a horizon, a
+minimum imbalance, a minimum intensity and a maximum spread is obviously shaped like a
+real rule — and whether its values *are* the real ones cannot be settled by looking at
+them. But the module a test imports is not ambiguous at all.
 
 So the test suite is resolved by import closure: a test is published only if everything
 it imports, transitively, is also published. That rule is implemented in the mirror
