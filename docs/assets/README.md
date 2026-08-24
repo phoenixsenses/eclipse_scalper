@@ -1,6 +1,6 @@
 # Eclipse — visual system
 
-Seven hand-authored SVGs. No build step, no external font, no remote reference — each
+Seven hand-authored SVGs, plus one rasterised card. No build step, no external font, no remote reference — each
 file renders identically from disk, from GitHub, and from any static host.
 
 ## Files
@@ -13,7 +13,8 @@ file renders identically from disk, from GitHub, and from any static host.
 | `04_safety_stack.svg` | 1200 × 576 | `README.md`, `docs/public/ARCHITECTURE_OVERVIEW.md` |
 | `05_microstructure_concept.svg` | 1200 × 580 | `README.md` (inside a `<details>`) |
 | `06_governance.svg` | 1200 × 540 | `docs/public/RESEARCH_METHOD.md` |
-| `07_social_preview.svg` | 1280 × 640 | social preview source — see below |
+| `07_social_preview.svg` | 1280 × 640 | social preview source |
+| `07_social_preview.png` | 1568 × 784 | the rasterised card GitHub is given |
 
 ## Tokens
 
@@ -67,31 +68,33 @@ Eclipse is running for a public reader. These assets keep that rule:
 python docs/maintenance/tools/check_public_docs.py
 ```
 
-## Regenerating the social preview
+## The social preview
 
 GitHub's social preview accepts PNG, JPG or GIF — **not SVG** — at a recommended
-1280 × 640, uploaded manually under *Settings → General → Social preview*.
+1280 × 640. Both files are here:
 
-`07_social_preview.svg` is the authored source at exactly that size. To rasterise it,
-in order of least effort:
+| File | Role |
+|---|---|
+| `07_social_preview.svg` | the authored source, 1280 × 640 |
+| `07_social_preview.png` | the rasterised card, 1568 × 784, exactly 2:1 — **this is the file to upload** |
 
-1. **Browser** — open the SVG, set the window to 1280 × 640, screenshot. Fonts render
-   exactly as a viewer would see them.
-2. **`make_social_preview.py`** — draws the card directly with Pillow, mirroring
-   `web/tools/make_og.py`:
+**Uploading it is a manual step, and it has to be.** Settings → General → Social preview
+→ Edit → *Upload an image…*, then pick `docs/assets/07_social_preview.png`.
 
-   ```bash
-   pip install Pillow
-   python docs/assets/make_social_preview.py
-   ```
+That is not a preference. GitHub's uploader runs in the browser: the form records the
+image's metadata immediately, but the binary itself is sent separately by JavaScript that
+only runs on a genuine, user-initiated file selection. Setting the file input any other
+way produces a repository whose `og:image` points at an asset that was never stored —
+every social card renders broken, which is worse than the default GitHub generates for
+you. If you try to automate it, check `og:image` afterwards and confirm the URL actually
+returns the image.
 
-   Neither Pillow nor cairosvg is installed in this repository's interpreter, which is
-   why this is a manual step rather than part of a build.
-3. **Any SVG converter** — `rsvg-convert`, Inkscape, `cairosvg` — at 1280 × 640.
-
-**Interim option needing no work:** `web/assets/og-eclipse.png` already exists at
-1200 × 630, is Eclipse-branded, and carries no numbers under the same policy. GitHub
-accepts it; it is 80 px narrower than the recommendation and letterboxes slightly.
+**Re-rasterising after an edit to the SVG.** Open the SVG in a browser at a 2:1 viewport
+with no margin and screenshot it — that renders the real file, gradients and all. Pillow
+and cairosvg are not installed in this repository's interpreter, so
+`make_social_preview.py` (which redraws the card rather than rasterising the SVG) is a
+fallback, not the reference. Whatever you use, keep the aspect at exactly 2:1 and stay at
+or above 1280 × 640.
 
 ## On branding
 
