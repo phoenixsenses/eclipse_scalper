@@ -20,7 +20,7 @@ stranger would meet it rather than as the operator who built it.
 
 | | |
 |---|---:|
-| Files | **390** |
+| Files | **391** |
 | Size | **4.3 MB** |
 | Root items | **29** (11 files, 18 directories) |
 | Largest file | 126 KB (`execution/entry_loop.py`) |
@@ -164,6 +164,32 @@ surface audit, a tree plan and a source-publication review — the repository re
 internal release-engineering workspace rather than as a product. The machinery is still
 public, because a policy nobody can check is a claim; it is just no longer in the path of
 someone trying to understand what Eclipse does.
+
+## 6b. Found during publication itself
+
+Two defects surfaced only because the repository was pushed private and audited from a
+fresh clone before it was made public. Both are recorded here because the second is the
+most instructive finding of the whole exercise.
+
+**A value inside a code span.** Covered in §4 — a threshold triple quoted verbatim in the
+page arguing thresholds must not be quoted, invisible to the checker because inline code
+was being stripped before the content rules ran.
+
+**Uncommitted work-in-progress shipped with the release.** The mirror was assembled from
+the source repository's *working tree*. That tree is a working laboratory and is usually
+dirty, so seven files of unrelated local edits travelled into the first public commit —
+among them a dependency bump that pinned a numeric library above what a compiled
+dependency accepts. CI failed on its first run here while the identical workflows had
+been green upstream all week, which is what made it visible.
+
+The fix is a rule rather than a patch: a **tracked** file is published from `HEAD`;
+untracked files have no committed version and necessarily come from the working tree; and
+a tracked file whose working copy *is* the thing being published must be declared. Exactly
+one is — this README. The other six now ship as committed, and CI is green.
+
+The general lesson: a mirror built from a working directory publishes whatever happens to
+be in that directory, including things nobody decided to publish. The unit of publication
+has to be a commit.
 
 ## 7. Outstanding defects
 
