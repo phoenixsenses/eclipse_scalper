@@ -367,6 +367,10 @@
     {
       "pattern": "docs/maintenance/tools/classify_public_surface.py",
       "why": "classifies the internal repository, so it has nothing to run against here — and its self-test table names individual internal artifacts by path. Category-level naming is the standard the rest of this subtree holds to; a path list is a lookup for someone else's search"
+    },
+    {
+      "pattern": "docs/maintenance/X_ARTICLE_SOURCE_PACK.md",
+      "why": "a writer's fact pack for a launch article. Publication-safe by construction, but it is working material for a piece that has not been written, not documentation of the system"
     }
   ],
   "excluded_subsystems": [
