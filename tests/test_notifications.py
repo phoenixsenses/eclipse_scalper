@@ -31,17 +31,6 @@ class _DummyNotifier:
         self.sent.append({"text": text, "priority": priority, "silent": bool(silent)})
 
 
-class _DummyWebhook:
-    def __init__(self, enabled: bool = True, ok: bool = True) -> None:
-        self.enabled = enabled
-        self.ok = ok
-        self.sent: list[dict] = []
-
-    async def send(self, text: str, severity: str = "info", title: str = "") -> bool:
-        self.sent.append({"text": text, "severity": severity, "title": title})
-        return self.ok
-
-
 def test_event_formatting() -> None:
     e1 = build_entry_event(
         symbol="ETHUSDT",
@@ -163,29 +152,6 @@ def test_manager_without_telegram_still_initializes_from_bot() -> None:
 
     nm = get_notification_manager_from_bot(bot)
     assert nm is not None
-
-
-def test_webhook_can_deliver_when_telegram_missing() -> None:
-    async def _run() -> None:
-        webhook = _DummyWebhook()
-        nm = NotificationManager(None, NotificationConfig(enabled=True), webhook_sender=webhook)  # type: ignore[arg-type]
-        ok = await nm.send(NotificationEvent(NotificationSeverity.CRITICAL, "crash", "CRASH", "boom"))
-        assert ok is True
-        assert len(webhook.sent) == 1
-        assert webhook.sent[0]["severity"] == "critical"
-
-    asyncio.run(_run())
-
-
-def test_disabled_webhook_does_not_change_no_notifier_fallback() -> None:
-    async def _run() -> None:
-        webhook = _DummyWebhook(enabled=False)
-        nm = NotificationManager(None, NotificationConfig(enabled=True), webhook_sender=webhook)  # type: ignore[arg-type]
-        ok = await nm.send(NotificationEvent(NotificationSeverity.INFO, "x", "OFF", "off"))
-        assert ok is False
-        assert webhook.sent == []
-
-    asyncio.run(_run())
 
 
 def test_scratch_pause_maps_to_circuit_breaker_payload() -> None:

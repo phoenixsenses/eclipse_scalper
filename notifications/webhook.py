@@ -131,12 +131,10 @@ class WebhookSender:
         url: str = "",
         platform: str = "slack",
         timeout: float = 5.0,
-        enabled: bool = True,
     ):
         self.url = url or _WEBHOOK_URL
         self.platform = (platform or _WEBHOOK_PLATFORM).lower()
         self.timeout = timeout or _WEBHOOK_TIMEOUT_SEC
-        self._enabled = bool(enabled)
         self._formatter = _FORMATTERS.get(self.platform, _generic_payload)
         self._consecutive_failures = 0
         self._circuit_open = False
@@ -146,7 +144,7 @@ class WebhookSender:
 
     @property
     def enabled(self) -> bool:
-        return bool(self._enabled and self.url)
+        return bool(self.url)
 
     async def send(
         self,
@@ -158,7 +156,7 @@ class WebhookSender:
         Send a webhook message. Returns True on success, False on failure.
         Never raises.
         """
-        if not self.enabled:
+        if not self.url:
             return False
 
         if aiohttp is None:
@@ -208,7 +206,6 @@ class WebhookSender:
     def stats(self) -> Dict[str, Any]:
         return {
             "url_set": bool(self.url),
-            "enabled": bool(self._enabled),
             "platform": self.platform,
             "total_sent": self._total_sent,
             "total_failed": self._total_failed,
@@ -231,7 +228,6 @@ def get_sender() -> WebhookSender:
             url=_WEBHOOK_URL,
             platform=_WEBHOOK_PLATFORM,
             timeout=_WEBHOOK_TIMEOUT_SEC,
-            enabled=_WEBHOOK_ENABLED,
         )
     return _default_sender
 

@@ -163,7 +163,7 @@ class SQLiteMicroReader:
         self.mappings = discover_mappings(self.db_path)
 
     def _query_rows(self, mp: TableMapping, symbol: str, start_ts: float, end_ts: float) -> List[sqlite3.Row]:
-        conn = sqlite3.connect(f"file:{self.db_path.as_posix()}?mode=ro", uri=True)
+        conn = sqlite3.connect(str(self.db_path))
         conn.row_factory = sqlite3.Row
         try:
             select_cols = [mp.ts_col, mp.symbol_col]
@@ -206,7 +206,7 @@ class SQLiteMicroReader:
         mp = self.mappings.get(kind)
         if mp is None:
             return None, None
-        conn = sqlite3.connect(f"file:{self.db_path.as_posix()}?mode=ro", uri=True)
+        conn = sqlite3.connect(str(self.db_path))
         try:
             mn, mx = conn.execute(
                 f"SELECT MIN({mp.ts_col}), MAX({mp.ts_col}) FROM {mp.table} WHERE {mp.symbol_col}=?",

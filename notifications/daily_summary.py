@@ -12,7 +12,6 @@ _log = logging.getLogger("notifications.daily_summary")
 from notifications.events import NotificationEvent, NotificationSeverity
 from tools.collection_health import analyze_collection_health
 from tools.paper_trade_summary import generate_summary
-from ami.storage.union_reader import open_live_ro
 
 
 def compose_daily_summary(
@@ -31,7 +30,7 @@ def compose_daily_summary(
         h = analyze_collection_health(Path(micro_db), symbols=[], gap_threshold_sec=60, alert_threshold_sec=300)
         gaps_today = int(h.get("gap_count", 0) or 0)
         uptime = float(h.get("uptime_pct", 0.0) or 0.0)
-        conn = open_live_ro()  # ro (was RW guardrail-violating) live-file count; fast, no frozen scan
+        conn = sqlite3.connect(str(micro_db))
         try:
             row = conn.execute("SELECT COUNT(*) FROM mark_prices").fetchone()
             db_rows = int((row or [0])[0] or 0)

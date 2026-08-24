@@ -405,19 +405,46 @@ def build(root: Path, target: Path, published: list[str], rules: dict) -> dict:
                      if s.get("kind") == "reference_redaction"), None)
     touched_paths |= set(ref_rule["applies_to"]) if ref_rule else set()
 
+    # Publish COMMITTED content, not the working copy.
+    #
+    # The source repository is a working laboratory and its tree is usually
+    # dirty. Copying the working copy shipped seven files of unrelated
+    # work-in-progress into the public repository, one of which was an
+    # uncommitted dependency bump that broke CI on the first run. Untracked
+    # files have no committed version and necessarily come from the working
+    # tree; a tracked file comes from HEAD unless its divergence is declared.
+    declared_overrides = set(rules.get("working_tree_overrides", {}).get("paths", []))
+    tracked_now = set(subprocess.run(
+        ["git", "ls-files"], cwd=root, capture_output=True, text=True, check=True, timeout=300,
+    ).stdout.splitlines())
+    dirty = set(subprocess.run(
+        ["git", "diff", "--name-only", "HEAD"], cwd=root,
+        capture_output=True, text=True, check=True, timeout=300,
+    ).stdout.splitlines())
+    undeclared = sorted((dirty & set(published)) - declared_overrides)
+
+    def source_bytes(rel: str) -> bytes:
+        if rel in tracked_now and rel not in declared_overrides:
+            r = subprocess.run(["git", "show", f"HEAD:{rel}"], cwd=root,
+                               capture_output=True, timeout=120)
+            if r.returncode == 0:
+                return r.stdout
+        return (root / rel).read_bytes()
+
     stats = Counter()
     sanitized: list[str] = []
     failed: list[str] = []
+    from_head: list[str] = undeclared
 
     for rel in published:
         src, dst = root / rel, target / rel
         dst.parent.mkdir(parents=True, exist_ok=True)
         if rel not in touched_paths:
-            shutil.copy2(src, dst)
+            dst.write_bytes(source_bytes(rel))
             stats["copied"] += 1
             continue
 
-        original = src.read_text(encoding="utf-8-sig", errors="replace")
+        original = source_bytes(rel).decode("utf-8-sig", errors="replace")
         text = sanitized_text(rel, original, rules)
         if text == original:
             failed.append(f"{rel}: sanitization declared but nothing changed")
@@ -425,7 +452,8 @@ def build(root: Path, target: Path, published: list[str], rules: dict) -> dict:
         sanitized.append(rel)
         stats["sanitized"] += 1
 
-    return {"stats": dict(stats), "sanitized": sanitized, "failed": failed}
+    return {"stats": dict(stats), "sanitized": sanitized, "failed": failed,
+            "from_head": from_head}
 
 
 def main() -> int:
@@ -530,6 +558,11 @@ def main() -> int:
         print(f"  sanitized {out['stats'].get('sanitized', 0)}")
         for s in out["sanitized"]:
             print(f"      {s}")
+        if out["from_head"]:
+            print(f"\n  published from HEAD, not the working tree ({len(out['from_head'])}):")
+            for f in out["from_head"]:
+                print(f"      {f}")
+            print("  (uncommitted local work in the source repository does not reach the mirror)")
         if out["failed"]:
             print("\nSANITIZATION PROBLEMS:")
             for f in out["failed"]:

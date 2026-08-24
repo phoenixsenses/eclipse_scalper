@@ -549,5 +549,11 @@
       "docs/public/RESEARCH_METHOD.md"
     ]
   },
-  "target_note": "Relative to the internal repository root. Override with --target; the path is a build destination, not a property of the published tree."
+  "target_note": "Relative to the internal repository root. Override with --target; the path is a build destination, not a property of the published tree.",
+  "working_tree_overrides": {
+    "why": "Tracked files whose UNCOMMITTED working-tree content is the thing being published. Everything else tracked comes from HEAD, so an unrelated local experiment in the source repository cannot reach the public one — which is exactly how a dependency bump that broke CI got shipped on the first push.",
+    "paths": [
+      "README.md"
+    ]
+  }
 }

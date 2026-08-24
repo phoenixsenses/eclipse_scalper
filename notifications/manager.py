@@ -14,7 +14,6 @@ from notifications.events import NotificationEvent, NotificationSeverity
 from notifications.health_alerts import build_heartbeat_event
 from notifications.pentest_publisher import PentestPublisher
 from notifications.telegram import Notifier
-from notifications.webhook import WebhookSender, get_sender as get_webhook_sender
 
 _FALLBACK_LOG = Path(os.environ.get("NOTIFY_FALLBACK_LOG", "logs/notifications_fallback.jsonl"))
 
@@ -95,12 +94,10 @@ class NotificationManager:
         notifier: Notifier | None,
         config: NotificationConfig,
         pentest_publisher: PentestPublisher | None = None,
-        webhook_sender: WebhookSender | None = None,
     ):
         self.notifier = notifier
         self.config = config
         self._pentest_publisher = pentest_publisher if pentest_publisher is not None else PentestPublisher()
-        self._webhook_sender = webhook_sender
         self._last_by_key: Dict[str, float] = {}
         self._sent_ts: Deque[float] = deque()
         self._pending: Deque[NotificationEvent] = deque(maxlen=200)
@@ -181,14 +178,12 @@ class NotificationManager:
         return event
 
     async def _send_now(self, event: NotificationEvent, now: float) -> bool:
-        webhook_ok = await self._send_webhook(event)
-
         # Telegram circuit breaker: skip sends during cooldown
         if self._tg_circuit_open:
             if (now - self._tg_circuit_open_ts) < self._TG_CIRCUIT_COOLDOWN_SEC:
                 _fallback_log_event(event, "telegram_circuit_open")
                 self._publish_to_pentest(event)
-                return webhook_ok
+                return False
             # Cooldown expired, try again (half-open state)
             self._tg_circuit_open = False
             self._tg_dead_logged = False
@@ -196,9 +191,7 @@ class NotificationManager:
         if self.notifier is None:
             _fallback_log_event(event, "no_notifier")
             self._publish_to_pentest(event)
-            if webhook_ok:
-                self._record_delivery_success(event, now)
-            return webhook_ok
+            return False
 
         try:
             coro = self.notifier.speak(
@@ -215,50 +208,25 @@ class NotificationManager:
             if sent_ok is False:
                 self._record_tg_failure("telegram_returned_false", event)
                 self._publish_to_pentest(event)
-                if webhook_ok:
-                    self._record_delivery_success(event, now)
-                return webhook_ok
+                return False
             # Success: reset failure counter
             self._consecutive_failures = 0
-            self._record_delivery_success(event, now)
+            self._sent_ts.append(now)
+            if event.throttle_key:
+                self._last_by_key[event.throttle_key] = now
+                if len(self._last_by_key) > 500:
+                    oldest_k = min(self._last_by_key, key=self._last_by_key.get)  # type: ignore[arg-type]
+                    self._last_by_key.pop(oldest_k, None)
             self._publish_to_pentest(event)
             return True
         except asyncio.TimeoutError:
             self._record_tg_failure("telegram_timeout", event)
             self._publish_to_pentest(event)
-            if webhook_ok:
-                self._record_delivery_success(event, now)
-            return webhook_ok
+            return False
         except Exception as exc:
             self._record_tg_failure(f"telegram_error:{type(exc).__name__}", event)
             self._publish_to_pentest(event)
-            if webhook_ok:
-                self._record_delivery_success(event, now)
-            return webhook_ok
-
-    async def _send_webhook(self, event: NotificationEvent) -> bool:
-        sender = self._webhook_sender
-        if sender is None:
             return False
-        try:
-            if not sender.enabled:
-                return False
-            severity = event.severity.name.lower()
-            if severity == "success":
-                severity = "info"
-            elif severity == "daily":
-                severity = "info"
-            return bool(await sender.send(event.render(), severity=severity, title=event.title))
-        except Exception:
-            return False
-
-    def _record_delivery_success(self, event: NotificationEvent, now: float) -> None:
-        self._sent_ts.append(now)
-        if event.throttle_key:
-            self._last_by_key[event.throttle_key] = now
-            if len(self._last_by_key) > 500:
-                oldest_k = min(self._last_by_key, key=self._last_by_key.get)  # type: ignore[arg-type]
-                self._last_by_key.pop(oldest_k, None)
 
     def _publish_to_pentest(self, event: NotificationEvent) -> None:
         if self._pentest_publisher is None:
@@ -369,7 +337,6 @@ def get_notification_manager_from_bot(bot: Any) -> Optional[NotificationManager]
     if isinstance(nm, NotificationManager):
         return nm
     notifier = build_notifier_from_env()
-    webhook_sender = get_webhook_sender()
-    nm = NotificationManager(notifier=notifier, config=load_config_from_env(), webhook_sender=webhook_sender)
+    nm = NotificationManager(notifier=notifier, config=load_config_from_env())
     rc["notification_manager"] = nm
     return nm
