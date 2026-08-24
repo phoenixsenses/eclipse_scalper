@@ -1,0 +1,2680 @@
+# execution/entry_loop.py  -- SCALPER ETERNAL  -- ENTRY LOOP  -- 2026 v1.6 (PENDING-LOCK + COOLDOWN + OPEN-ORDERS ADOPT)
+# Patch vs v1.5:
+# - âœ… FIX: Per-symbol "pending entry" lock so you cannot machine-gun entries (even if reconcile is lagging)
+# - âœ… FIX: Cooldown after ANY submitted entry attempt (success OR fail) to avoid rapid re-fire loops
+# - âœ… HARDEN: Optional open-orders / open-position probe (best-effort) to detect real exposure even if brain-state is stale
+# - âœ… SAFETY: backoff on margin-insufficient (-2019) retained
+# - âœ… Keeps: ENV-first overrides, sizing resolver, tuple adapter, throttled logs, guardian-safe (never raises)
+
+from __future__ import annotations
+
+import asyncio
+import json
+import os
+import time
+import datetime as _dt
+from pathlib import Path
+from typing import Any, Dict, Optional, Callable, Tuple
+
+from utils.logging import log_entry, log_core
+from execution.shutdown_control import ensure_traced_shutdown_event
+from execution.order_router import create_order, cancel_order
+from execution.anomaly_guard import should_pause as anomaly_should_pause
+from execution.runtime_helpers import (
+    cfg_env_bool as _cfg_env_bool,
+    cfg_env_float as _cfg_env_float,
+    cfg_value as _cfg,
+    env_get as _env_get,
+    parse_group_kv as _parse_group_kv,
+    safe_float as _safe_float,
+    symkey as _symkey,
+    truthy as _truthy,
+)
+from execution.entry_signals import (
+    _load_signal_fn,
+    _parse_micro_pockets,
+    _micro_signal_to_entry_sig,
+    _parse_action,
+    _parse_order_type,
+    _parse_amount,
+    _parse_price,
+    _order_filled,
+)
+from execution.entry_sizing import (
+    _env_float,
+    _cfg_float,
+    _resolve_sizing,
+    _resolve_symbol_sizing,
+    _confidence_notional_scale,
+    _get_price,
+)
+from execution.entry_gates import (
+    _adaptive_guard_enabled,
+    _effective_min_conf,
+    _get_guard_knobs,
+    _guard_block_reason_code,
+    _resolve_symbol_guard,
+    _record_reconcile_first_gate,
+    _estimate_open_exposure_usdt,
+    _entry_budget_snapshot,
+    _entry_budget_symbol_cap,
+    _parse_regime_mode,
+    _should_block_regime,
+    _parse_groups,
+    _get_corr_groups,
+    _check_corr_group,
+    _corr_group_scale,
+    _corr_group_exposure_scale,
+)
+try:
+    from core.regime import RegimeClassifier  # type: ignore
+except Exception:  # pragma: no cover - optional wiring
+    RegimeClassifier = None  # type: ignore
+try:
+    from core.regime_risk import RegimeRiskConfig, RegimeRiskManager  # type: ignore
+except Exception:  # pragma: no cover
+    RegimeRiskConfig = None  # type: ignore
+    RegimeRiskManager = None  # type: ignore
+try:
+    from core.trade_logger import TradeLogger  # type: ignore
+except Exception:  # pragma: no cover
+    TradeLogger = None  # type: ignore
+try:
+    from notifications.manager import get_notification_manager_from_bot  # type: ignore
+    from notifications.health_alerts import build_startup_event, build_crash_event  # type: ignore
+    from notifications.risk_alerts import build_entry_blocked_event, build_regime_change_event  # type: ignore
+    from notifications.trade_alerts import build_entry_event  # type: ignore
+except Exception:  # pragma: no cover
+    get_notification_manager_from_bot = None  # type: ignore
+    build_startup_event = None  # type: ignore
+    build_crash_event = None  # type: ignore
+    build_entry_blocked_event = None  # type: ignore
+    build_regime_change_event = None  # type: ignore
+    build_entry_event = None  # type: ignore
+try:
+    from execution.health_gate import GateState, evaluate_health_gate, load_overall_health, write_paper_trader_health  # type: ignore
+except Exception:  # pragma: no cover
+    GateState = None  # type: ignore
+    evaluate_health_gate = None  # type: ignore
+    load_overall_health = None  # type: ignore
+    write_paper_trader_health = None  # type: ignore
+try:
+    from execution.alpha_gate import evaluate_alpha_gate_from_env  # type: ignore
+except Exception:  # pragma: no cover
+    evaluate_alpha_gate_from_env = None  # type: ignore
+try:
+    from core.micro_features import MicroFeatureEngine  # type: ignore
+    from core.micro_signal import MicroSignalConfig, MicroSignalProvider, PocketFilter  # type: ignore
+except Exception:  # pragma: no cover
+    MicroFeatureEngine = None  # type: ignore
+    MicroSignalConfig = None  # type: ignore
+    MicroSignalProvider = None  # type: ignore
+    PocketFilter = None  # type: ignore
+try:
+    from tools.ingestion_check import run_ingestion_check as _run_ingestion_check  # type: ignore
+except Exception:  # pragma: no cover
+    _run_ingestion_check = None  # type: ignore
+try:
+    from execution import event_lane_gate  # type: ignore
+except Exception:  # pragma: no cover
+    event_lane_gate = None  # type: ignore
+
+# Optional telemetry (never fatal)
+try:
+    from execution.telemetry import emit, emit_throttled, count_recent  # type: ignore
+except Exception:
+    emit = None
+    emit_throttled = None
+    count_recent = None
+
+try:
+    from execution.data_quality import staleness_check, update_quality_state  # type: ignore
+    from execution.error_codes import (
+        ERR_STALE_DATA,
+        ERR_DATA_QUALITY,
+        ERR_ROUTER_BLOCK,
+        ERR_RISK,
+        ERR_RELIABILITY_GATE,
+        ERR_PARTIAL_FILL,
+        ERR_UNKNOWN,
+        map_reason,
+    )  # type: ignore
+except Exception:
+    staleness_check = None
+    update_quality_state = None
+    ERR_STALE_DATA = "ERR_STALE_DATA"
+    ERR_DATA_QUALITY = "ERR_DATA_QUALITY"
+    ERR_ROUTER_BLOCK = "ERR_ROUTER_BLOCK"
+    ERR_RISK = "ERR_RISK"
+    ERR_RELIABILITY_GATE = "ERR_RELIABILITY_GATE"
+    ERR_PARTIAL_FILL = "ERR_PARTIAL_FILL"
+    ERR_UNKNOWN = "ERR_UNKNOWN"
+    map_reason = None
+
+# Optional entry_watch (never fatal)
+try:
+    from execution.entry_watch import register_entry_watch  # type: ignore
+except Exception:
+    register_entry_watch = None
+
+# Optional kill-switch gate (never fatal)
+try:
+    from risk.kill_switch import trade_allowed  # type: ignore
+except Exception:
+    trade_allowed = None
+
+try:
+    from execution.adaptive_guard import refresh_state as refresh_adaptive_guard, get_override as get_adaptive_override  # type: ignore
+except Exception:
+    refresh_adaptive_guard = None
+    get_adaptive_override = None
+
+try:
+    from execution.adaptive_guard import get_notional_scale as get_adaptive_notional_scale  # type: ignore
+except Exception:
+    get_adaptive_notional_scale = None
+
+try:
+    from execution.regime_sizer import regime_size_scale as _regime_size_scale  # type: ignore
+except Exception:
+    _regime_size_scale = None
+
+try:
+    from execution.pocket_scheduler import PocketScheduler as _PocketScheduler  # type: ignore
+except Exception:
+    _PocketScheduler = None
+
+
+# ----------------------------
+# Helpers
+# ----------------------------
+
+def _now() -> float:
+    return time.time()
+
+
+
+# _adaptive_guard_enabled, _effective_min_conf, _parse_groups, _get_corr_groups → entry_gates.py
+
+
+
+# _check_corr_group, _corr_group_scale, _corr_group_exposure_scale → entry_gates.py
+
+
+_SIGNAL_FEEDBACK_STATE: Dict[str, float] = {"offset": 0.0, "last_ts": 0.0}
+_SIGNAL_FEEDBACK_LOG_THROTTLE_SEC = 120.0
+
+
+def _signal_feedback_path() -> Path:
+    path_str = _env_get("TELEMETRY_PATH")
+    if not path_str:
+        path_str = "logs/telemetry.jsonl"
+    return Path(path_str)
+
+
+def _collect_signal_feedback_events() -> list[dict[str, Any]]:
+    path = _signal_feedback_path()
+    if not path.exists():
+        return []
+
+    state = _SIGNAL_FEEDBACK_STATE
+    try:
+        size = path.stat().st_size
+    except Exception:
+        return []
+
+    if size < float(state.get("offset") or 0.0):
+        state["offset"] = 0.0
+
+    out: list[dict[str, Any]] = []
+    try:
+        with path.open("r", encoding="utf-8") as fh:
+            fh.seek(float(state.get("offset") or 0.0))
+            for line in fh:
+                state["offset"] = fh.tell()
+                raw = line.strip()
+                if not raw:
+                    continue
+                try:
+                    ev = json.loads(raw)
+                except Exception:
+                    continue
+                if str(ev.get("event")) != "exit.signal_issue":
+                    continue
+                ts = float(ev.get("ts") or 0.0)
+                if ts <= 0 or ts <= float(state.get("last_ts") or 0.0):
+                    continue
+                state["last_ts"] = ts
+                data = ev.get("data") or {}
+                out.append({"ts": ts, "data": data})
+    except Exception:
+        return out
+    return out
+
+
+def _ensure_shutdown_event(bot) -> asyncio.Event:
+    ev = getattr(bot, "_shutdown", None)
+    if isinstance(ev, asyncio.Event):
+        return ev
+    ev = ensure_traced_shutdown_event(bot)
+    try:
+        bot._shutdown = ev  # type: ignore[attr-defined]
+    except Exception:
+        pass
+    return ev
+
+
+def _ensure_data_ready_event(bot) -> asyncio.Event:
+    ev = getattr(bot, "data_ready", None)
+    if isinstance(ev, asyncio.Event):
+        return ev
+    ev = asyncio.Event()
+    try:
+        bot.data_ready = ev  # type: ignore[attr-defined]
+    except Exception:
+        pass
+    return ev
+
+
+async def _safe_speak(bot, text: str, priority: str = "info") -> None:
+    notify = getattr(bot, "notify", None)
+    if notify is None:
+        return
+    try:
+        await notify.speak(text, priority)
+    except Exception:
+        pass
+
+
+async def _safe_notify_event(bot, event) -> None:
+    if event is None or not callable(get_notification_manager_from_bot):
+        return
+    try:
+        nm = get_notification_manager_from_bot(bot)
+        if nm is None:
+            return
+        if str(getattr(event, "category", "")).startswith("trade_"):
+            await nm.send_trade_event(event)
+        else:
+            await nm.send(event)
+    except Exception:
+        pass
+
+
+def _pick_symbols(bot) -> list[str]:
+    """
+    Best-effort symbol universe:
+    1) bot.active_symbols (set/list)
+    2) cfg.ACTIVE_SYMBOLS (list)
+    3) fallback ["BTCUSDT"]
+    """
+    try:
+        s = getattr(bot, "active_symbols", None)
+        if isinstance(s, set) and s:
+            return sorted(list(s))
+        if isinstance(s, (list, tuple)) and s:
+            return [str(x) for x in s if str(x).strip()]
+    except Exception:
+        pass
+
+    try:
+        s2 = getattr(getattr(bot, "cfg", None), "ACTIVE_SYMBOLS", None)
+        if isinstance(s2, (list, tuple)) and s2:
+            return [str(x) for x in s2 if str(x).strip()]
+    except Exception:
+        pass
+
+    return ["BTCUSDT"]
+
+
+def _in_position_brain(bot, k: str) -> bool:
+    """
+    Cheap check: state.positions contains k with nonzero size.
+    Note: if reconcile never adopts exchange positions, this may remain false.
+    """
+    try:
+        st = getattr(bot, "state", None)
+        posd = getattr(st, "positions", None)
+        if not isinstance(posd, dict):
+            return False
+        p = posd.get(k)
+        if p is None:
+            return False
+        sz = getattr(p, "size", 0.0)
+        return abs(float(sz)) > 0.0
+    except Exception:
+        return False
+
+
+def _resolve_raw_symbol(bot, k: str, fallback: str) -> str:
+    try:
+        data = getattr(bot, "data", None)
+        raw_map = getattr(data, "raw_symbol", {}) if data is not None else {}
+        if isinstance(raw_map, dict) and raw_map.get(k):
+            return str(raw_map[k])
+    except Exception:
+        pass
+    return fallback
+
+
+
+# _order_filled → entry_signals.py
+
+
+def _recent_router_blocks(bot, k: str, window_sec: float, *, now_ts: Optional[float] = None) -> int:
+    try:
+        st = getattr(bot, "state", None)
+        tel = getattr(st, "telemetry", None) if st is not None else None
+        recent = getattr(tel, "recent", None)
+        if recent is None:
+            return 0
+        now = _now() if now_ts is None else float(now_ts)
+        kk = _symkey(k)
+        count = 0
+        for ev in list(recent):
+            try:
+                if str(ev.get("event")) != "order.blocked":
+                    continue
+                ts = float(ev.get("ts") or 0.0)
+                if ts <= 0 or (now - ts) > window_sec:
+                    continue
+                sym = _symkey(ev.get("symbol") or ev.get("data", {}).get("k") or "")
+                if sym and sym == kk:
+                    count += 1
+            except Exception:
+                continue
+        return count
+    except Exception:
+        return 0
+
+
+
+
+# ----------------------------
+# ENV + CFG sizing resolver
+# ----------------------------
+
+
+# _env_float, _cfg_float, _resolve_sizing, _resolve_symbol_sizing → entry_sizing.py
+
+
+
+# _get_guard_knobs, _guard_block_reason_code, _resolve_symbol_guard,
+# _record_reconcile_first_gate, _estimate_open_exposure_usdt,
+# _entry_budget_snapshot, _entry_budget_symbol_cap → entry_gates.py
+
+
+# ----------------------------
+# Throttled logging (no-trade spam killer)
+# ----------------------------
+
+_LAST_LOG_TS: Dict[str, float] = {}
+
+
+
+# _parse_regime_mode, _should_block_regime → entry_gates.py
+
+
+class _RegimeRuntime:
+    def __init__(self, lookback_sec: int, debounce_sec: int):
+        self.lookback_sec = int(max(1, lookback_sec))
+        self.debounce_sec = int(max(0, debounce_sec))
+        self._by_symbol: Dict[str, Any] = {}
+        self._last_confirmed: Dict[str, str] = {}
+
+    def update(self, symbol: str, ts: float, price: float) -> Dict[str, Any]:
+        k = _symkey(symbol)
+        cls = self._by_symbol.get(k)
+        if cls is None and callable(RegimeClassifier):
+            cls = RegimeClassifier(lookback_sec=self.lookback_sec, debounce_sec=self.debounce_sec)
+            self._by_symbol[k] = cls
+        if cls is None:
+            return {
+                "current_regime": "UNKNOWN",
+                "rolling_return": 0.0,
+                "regime_age_sec": 0.0,
+                "regime_changed": False,
+                "old_regime": "",
+            }
+        try:
+            old_regime = str(self._last_confirmed.get(k, ""))
+            cls.update(float(ts), float(price))
+            cur_regime = str(cls.current_regime)
+            changed = False
+            if cur_regime in ("UP", "DOWN") and old_regime and cur_regime != old_regime:
+                changed = True
+            if cur_regime in ("UP", "DOWN"):
+                self._last_confirmed[k] = cur_regime
+            return {
+                "current_regime": cur_regime,
+                "rolling_return": float(cls.rolling_return),
+                "regime_age_sec": float(cls.regime_age_sec),
+                "regime_changed": bool(changed),
+                "old_regime": old_regime,
+            }
+        except Exception:
+            return {
+                "current_regime": "UNKNOWN",
+                "rolling_return": 0.0,
+                "regime_age_sec": 0.0,
+                "regime_changed": False,
+                "old_regime": "",
+            }
+
+
+def _get_regime_risk_manager(bot):
+    if not callable(RegimeRiskManager) or not callable(RegimeRiskConfig):
+        return None
+    try:
+        st = getattr(bot, "state", None)
+        rc = getattr(st, "run_context", None) if st is not None else None
+        if not isinstance(rc, dict):
+            if st is None:
+                return None
+            st.run_context = {}
+            rc = st.run_context
+        mgr = rc.get("regime_risk_manager")
+        if mgr is not None:
+            return mgr
+        cfg = RegimeRiskConfig(
+            max_concurrent_positions=int(_cfg_env_float(bot, "RISK_MAX_CONCURRENT_POSITIONS", 1) or 1),
+            max_daily_loss_bps=float(_cfg_env_float(bot, "RISK_MAX_DAILY_LOSS_BPS", 50.0) or 50.0),
+            max_daily_trades=int(_cfg_env_float(bot, "RISK_MAX_DAILY_TRADES", 100) or 100),
+            regime_change_policy=str((_env_get("RISK_REGIME_CHANGE_POLICY") or "hold")).strip().lower() or "hold",
+            cooldown_after_regime_change_sec=float(_cfg_env_float(bot, "RISK_REGIME_COOLDOWN_SEC", 300.0) or 300.0),
+            max_consecutive_scratches=int(_cfg_env_float(bot, "RISK_MAX_CONSECUTIVE_SCRATCHES", 3) or 3),
+            scratch_pause_sec=float(_cfg_env_float(bot, "RISK_SCRATCH_PAUSE_SEC", 600.0) or 600.0),
+            max_drawdown_bps=float(_cfg_env_float(bot, "RISK_MAX_DRAWDOWN_BPS", 100.0) or 100.0),
+        )
+        mgr = RegimeRiskManager(cfg)
+        rc["regime_risk_manager"] = mgr
+        return mgr
+    except Exception:
+        return None
+
+
+def _get_trade_logger(bot):
+    if TradeLogger is None:
+        return None
+    try:
+        if not _cfg_env_bool(bot, "ENTRY_TRADE_LOGGER_ENABLED", False):
+            return None
+        st = getattr(bot, "state", None)
+        rc = getattr(st, "run_context", None) if st is not None else None
+        if not isinstance(rc, dict):
+            if st is None:
+                return None
+            st.run_context = {}
+            rc = st.run_context
+        lg = rc.get("trade_logger")
+        if lg is not None:
+            return lg
+        db_path = str(_env_get("ENTRY_TRADE_LOG_DB") or "data/paper_trades.db")
+        lg = TradeLogger(db_path=db_path)
+        rc["trade_logger"] = lg
+        return lg
+    except Exception:
+        return None
+
+
+def _throttled_log(key: str, every_sec: float, fn: Callable[[str], None], msg: str) -> None:
+    """
+    Log msg at most once per `every_sec` per key.
+    `fn` is e.g. log_entry.info / log_entry.warning.
+    """
+    try:
+        every_sec = float(every_sec)
+        if every_sec <= 0:
+            fn(msg)
+            return
+        now = _now()
+        last = float(_LAST_LOG_TS.get(key, 0.0) or 0.0)
+        if (now - last) >= every_sec:
+            _LAST_LOG_TS[key] = now
+            fn(msg)
+    except Exception:
+        pass
+
+
+# ----------------------------
+# Strategy signal adapter
+# ----------------------------
+
+
+# _load_signal_fn, _parse_micro_pockets → entry_signals.py
+
+
+def _build_micro_signal_provider(bot):
+    if not callable(MicroFeatureEngine) or not callable(MicroSignalProvider) or not callable(MicroSignalConfig):
+        return None, None
+    if not _cfg_env_bool(bot, "ENTRY_MICRO_SIGNAL_ENABLED", False):
+        return None, None
+    env_sym = _symkey(_env_get("MICRO_SIGNAL_SYMBOL") or "")
+    pick = _pick_symbols(bot)
+    symbol = env_sym or (_symkey(pick[0]) if pick else "BTCUSDT")
+    db_path = _env_get("MICRO_SIGNAL_DB") or "data/microstructure.db"
+    lookback_sec = int(_cfg_env_float(bot, "MICRO_SIGNAL_LOOKBACK_SEC", 60.0) or 60.0)
+    update_interval = float(_cfg_env_float(bot, "MICRO_SIGNAL_UPDATE_INTERVAL_SEC", 1.0) or 1.0)
+    max_age = float(_cfg_env_float(bot, "MICRO_SIGNAL_MAX_FEATURE_AGE_SEC", 5.0) or 5.0)
+    cooldown_sec = float(_cfg_env_float(bot, "MICRO_SIGNAL_COOLDOWN_SEC", 120.0) or 120.0)
+    req_regime = str(_env_get("MICRO_SIGNAL_REQUIRED_REGIME") or "up").strip().lower()
+    sides = [s.strip().lower() for s in str(_env_get("MICRO_SIGNAL_SIDES") or "sell,buy").split(",") if s.strip()]
+    pockets = _parse_micro_pockets(
+        _env_get("MICRO_SIGNAL_POCKETS") or "0.50,3500,0.000300;0.40,2500,0.000500;0.40,2500,0.000300"
+    )
+    if not pockets:
+        return None, None
+    engine = MicroFeatureEngine(
+        db_path=str(db_path),
+        symbol=symbol,
+        lookback_sec=max(10, lookback_sec),
+        update_interval_sec=max(0.1, update_interval),
+        bucket_sec=int(_cfg_env_float(bot, "MICRO_SIGNAL_BUCKET_SEC", 5.0) or 5.0),
+    )
+    cfg = MicroSignalConfig(
+        pockets=pockets,
+        active_sides=sides,
+        required_regime=req_regime,
+        max_feature_age_sec=max(0.1, max_age),
+        signal_cooldown_sec=max(0.0, cooldown_sec),
+        order_type=str(_env_get("MICRO_SIGNAL_ORDER_TYPE") or "limit").strip().lower() or "limit",
+        fill_timeout_sec=float(_cfg_env_float(bot, "MICRO_SIGNAL_FILL_TIMEOUT_SEC", 10.0) or 10.0),
+    )
+    provider = MicroSignalProvider(engine, None, cfg)
+    return engine, provider
+
+
+
+# _micro_signal_to_entry_sig → entry_signals.py
+
+
+def _tuple_to_sig_dict(
+    sym: str,
+    out: Any,
+    diag: bool = False,
+    no_trade_log_every: float = 5.0,
+) -> Optional[Dict[str, Any]]:
+    """
+    Accepts tuple/list like (long_bool, short_bool, confidence)
+    Returns a dict compatible with the rest of this entry loop.
+    """
+    try:
+        if not isinstance(out, (tuple, list)) or len(out) < 3:
+            return None
+
+        long_sig = bool(out[0])
+        short_sig = bool(out[1])
+        conf = float(out[2]) if out[2] is not None else 0.0
+
+        if long_sig and not short_sig:
+            return {"action": "buy", "confidence": conf, "type": "market", "symbol": sym}
+        if short_sig and not long_sig:
+            return {"action": "sell", "confidence": conf, "type": "market", "symbol": sym}
+
+        if diag:
+            _throttled_log(
+                key=f"tuple_no_trade:{sym}",
+                every_sec=no_trade_log_every,
+                fn=log_entry.info,
+                msg=f"ENTRY_LOOP tuple no-trade {sym}: long={long_sig} short={short_sig} conf={conf}",
+            )
+        return None
+    except Exception:
+        return None
+
+
+async def _maybe_call_signal(fn: Callable, bot, symbol: str, diag: bool = False) -> Optional[Dict[str, Any]]:
+    """
+    Supports:
+    - dict-returning strategies
+    - tuple-returning scalper_signal() -> (long, short, confidence)
+    Tries multiple signatures, including canonical: fn(sym, data=bot.data, cfg=bot.cfg)
+    """
+    no_trade_log_every = float(_cfg_env_float(bot, "ENTRY_NO_TRADE_LOG_EVERY_SEC", 5.0) or 5.0)
+
+    # 1) Preferred: fn(symbol, data=bot.data, cfg=bot.cfg)
+    try:
+        out = fn(symbol, data=getattr(bot, "data", None), cfg=getattr(bot, "cfg", None))
+        if asyncio.iscoroutine(out):
+            out = await out
+        if isinstance(out, dict):
+            return out
+        t = _tuple_to_sig_dict(symbol, out, diag=diag, no_trade_log_every=no_trade_log_every)
+        if t:
+            return t
+    except TypeError:
+        pass
+    except Exception as e:
+        log_entry.warning(f"ENTRY_LOOP signal failed {symbol}: {e}")
+        return None
+
+    # 2) fn(bot, symbol)
+    try:
+        out = fn(bot, symbol)
+        if asyncio.iscoroutine(out):
+            out = await out
+        if isinstance(out, dict):
+            return out
+        t = _tuple_to_sig_dict(symbol, out, diag=diag, no_trade_log_every=no_trade_log_every)
+        if t:
+            return t
+    except TypeError:
+        pass
+    except Exception as e:
+        log_entry.warning(f"ENTRY_LOOP signal failed {symbol}: {e}")
+        return None
+
+    # 3) fn(symbol, bot=bot)
+    try:
+        out = fn(symbol, bot=bot)
+        if asyncio.iscoroutine(out):
+            out = await out
+        if isinstance(out, dict):
+            return out
+        t = _tuple_to_sig_dict(symbol, out, diag=diag, no_trade_log_every=no_trade_log_every)
+        if t:
+            return t
+    except Exception as e:
+        log_entry.warning(f"ENTRY_LOOP signal failed {symbol}: {e}")
+        return None
+
+    return None
+
+
+
+# _parse_action, _parse_order_type, _parse_amount, _parse_price → entry_signals.py
+
+
+
+# _confidence_notional_scale, _get_price → entry_sizing.py
+
+
+def _sizing_fallback_amount(bot, symbol: str) -> Optional[float]:
+    """
+    Minimal fallback sizing:
+    - If (ENV/CFG) FIXED_QTY is set => use that
+    - Else if (ENV/CFG) FIXED_NOTIONAL_USDT and we can get price => qty = notional/price
+    - Else None (skip)
+    """
+    fixed_qty, notional = _resolve_symbol_sizing(bot, symbol)
+    base_notional = notional
+    base_qty = fixed_qty
+    if notional > 0 and callable(get_adaptive_notional_scale) and _cfg_env_bool(
+        bot, "ADAPTIVE_GUARD_NOTIONAL_SCALE", True
+    ):
+        try:
+            scale, reason = get_adaptive_notional_scale(symbol)
+            if scale and scale < 1.0:
+                notional = float(notional) * float(scale)
+                if callable(emit_throttled):
+                    try:
+                        asyncio.create_task(
+                            emit_throttled(
+                                bot,
+                                "entry.notional_scaled",
+                                key=f"{_symkey(symbol)}:{reason or 'guard_history'}",
+                                cooldown_sec=120.0,
+                                data={
+                                    "symbol": _symkey(symbol),
+                                    "base_notional": base_notional,
+                                    "scaled_notional": notional,
+                                    "scale": scale,
+                                    "reason": reason or "guard_history",
+                                },
+                                symbol=_symkey(symbol),
+                                level="warning",
+                            )
+                        )
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+
+    try:
+        if fixed_qty > 0 and callable(get_adaptive_notional_scale) and _cfg_env_bool(
+            bot, "ADAPTIVE_GUARD_QTY_SCALE", True
+        ):
+            try:
+                scale, reason = get_adaptive_notional_scale(symbol)
+                if scale and scale < 1.0:
+                    fixed_qty = float(fixed_qty) * float(scale)
+                    if callable(emit_throttled):
+                        try:
+                            asyncio.create_task(
+                                emit_throttled(
+                                    bot,
+                                    "entry.qty_scaled",
+                                    key=f"{_symkey(symbol)}:{reason or 'guard_history'}",
+                                    cooldown_sec=120.0,
+                                    data={
+                                        "symbol": _symkey(symbol),
+                                        "base_qty": base_qty,
+                                        "scaled_qty": fixed_qty,
+                                        "scale": scale,
+                                        "reason": reason or "guard_history",
+                                    },
+                                    symbol=_symkey(symbol),
+                                    level="warning",
+                                )
+                            )
+                        except Exception:
+                            pass
+            except Exception:
+                pass
+        if fixed_qty > 0:
+            return float(fixed_qty)
+    except Exception:
+        pass
+
+    if notional <= 0:
+        return None
+
+    px = _get_price(bot, symbol)
+    if px <= 0:
+        return None
+
+    qty = float(notional) / float(px)
+
+    try:
+        min_qty = float(_cfg(bot, "MIN_ENTRY_QTY", 0.0) or 0.0)
+        if min_qty > 0 and qty < min_qty:
+            qty = min_qty
+    except Exception:
+        pass
+
+    return qty if qty > 0 else None
+
+
+# ----------------------------
+# Anti-spam: pending entry tracking (locks + cooldown)
+# ----------------------------
+
+_ENTRY_LOCKS: Dict[str, asyncio.Lock] = {}
+_PENDING_UNTIL: Dict[str, float] = {}          # k -> ts until which entries are blocked
+_PENDING_ORDER_ID: Dict[str, str] = {}         # k -> last submitted order id (best-effort)
+_QUALITY_LOW_START: Dict[str, float] = {}
+_QUALITY_LOW_LAST: Dict[str, float] = {}
+_PARTIAL_FILL_STREAK: Dict[str, dict[str, float]] = {}
+
+
+def _record_partial_fill_hit(bot, symbol: str) -> float:
+    window = max(1.0, float(_cfg_env_float(bot, "ENTRY_PARTIAL_ESCALATE_WINDOW_SEC", 600.0) or 600.0))
+    threshold = max(1, int(_cfg_env_float(bot, "ENTRY_PARTIAL_ESCALATE_COUNT", 3) or 3))
+    penalty = float(_cfg_env_float(bot, "ENTRY_PARTIAL_ESCALATE_BACKOFF_SEC", 120.0) or 120.0)
+    entry = _PARTIAL_FILL_STREAK.setdefault(symbol, {"count": 0, "last_ts": 0.0})
+    now = _now()
+    if (now - float(entry.get("last_ts") or 0.0)) > window:
+        entry["count"] = 0
+    entry["count"] = int(entry.get("count", 0) or 0) + 1
+    entry["last_ts"] = now
+    if threshold > 0 and int(entry.get("count", 0) or 0) >= threshold:
+        entry["count"] = 0
+        return penalty
+    return 0.0
+
+
+def _reset_partial_fill_hits(symbol: str) -> None:
+    _PARTIAL_FILL_STREAK.pop(symbol, None)
+
+
+async def _resolve_partial_fill_state(
+    bot,
+    *,
+    symbol: str,
+    sym_raw: str,
+    action: str,
+    otype: str,
+    order_id: Optional[str],
+    requested: float,
+    filled: float,
+    min_ratio: float,
+    hedge_side_hint: Optional[str],
+) -> Dict[str, Any]:
+    """
+    Resolve a below-threshold partial fill.
+    Returns metadata with a concrete outcome:
+      - partial_forced_flatten
+      - partial_stuck
+    """
+    ratio = (filled / requested) if (requested > 0 and filled > 0) else 0.0
+    out: Dict[str, Any] = {
+        "requested": float(requested),
+        "filled": float(filled),
+        "ratio": float(ratio),
+        "min_ratio": float(min_ratio),
+        "cancel_attempted": False,
+        "cancel_ok": False,
+        "flatten_attempted": False,
+        "flatten_ok": False,
+        "outcome": "partial_stuck",
+    }
+
+    cancel_enabled = _cfg_env_bool(bot, "ENTRY_PARTIAL_CANCEL", True)
+    if cancel_enabled and order_id and str(otype).lower().strip() == "limit":
+        out["cancel_attempted"] = True
+        cancel_retries = max(1, int(_cfg_env_float(bot, "ENTRY_PARTIAL_CANCEL_RETRIES", 2) or 2))
+        cancel_delay = max(0.0, float(_cfg_env_float(bot, "ENTRY_PARTIAL_CANCEL_DELAY_SEC", 0.25) or 0.25))
+        for _ in range(cancel_retries):
+            try:
+                ok = await cancel_order(bot, str(order_id), sym_raw)
+                if ok is not False:
+                    out["cancel_ok"] = True
+                    break
+            except Exception:
+                pass
+            if cancel_delay > 0:
+                await asyncio.sleep(cancel_delay)
+
+    force_flatten = _cfg_env_bool(bot, "ENTRY_PARTIAL_FORCE_FLATTEN", True)
+    if force_flatten and filled > 0:
+        out["flatten_attempted"] = True
+        flatten_side = "sell" if str(action).lower().strip() == "buy" else "buy"
+        flatten_retries = max(1, int(_cfg_env_float(bot, "ENTRY_PARTIAL_FLATTEN_RETRIES", 2) or 2))
+        for _ in range(flatten_retries):
+            try:
+                res = await create_order(
+                    bot,
+                    symbol=sym_raw,
+                    type="MARKET",
+                    side=flatten_side,
+                    amount=float(filled),
+                    price=None,
+                    params={},
+                    intent_reduce_only=True,
+                    intent_close_position=False,
+                    hedge_side_hint=hedge_side_hint,
+                    retries=int(_cfg_env_float(bot, "ENTRY_ROUTER_RETRIES", 4) or 4),
+                )
+                if isinstance(res, dict):
+                    if res.get("id") or _order_filled(res) > 0:
+                        out["flatten_ok"] = True
+                        break
+            except Exception:
+                pass
+        if out["flatten_ok"]:
+            out["outcome"] = "partial_forced_flatten"
+
+    if callable(emit):
+        try:
+            await emit(
+                bot,
+                "entry.partial_fill_state",
+                data={"symbol": symbol, **out, "code": ERR_PARTIAL_FILL},
+                symbol=symbol,
+                level=("warning" if out.get("flatten_ok") else "critical"),
+            )
+        except Exception:
+            pass
+    return out
+
+
+async def _emit_latency(
+    bot,
+    *,
+    symbol: str,
+    stage: str,
+    duration_ms: float,
+    result: str = "success",
+) -> None:
+    if duration_ms <= 0:
+        return
+    if not callable(emit):
+        return
+    data = {
+        "symbol": symbol,
+        "stage": stage,
+        "duration_ms": round(duration_ms, 2),
+        "result": result,
+    }
+    try:
+        await emit(bot, "telemetry.latency", data=data, symbol=symbol, level="info")
+    except Exception:
+        pass
+
+
+async def _emit_entry_blocked(
+    bot,
+    symbol: str,
+    reason: str,
+    *,
+    level: str = "warning",
+    data: Optional[Dict[str, Any]] = None,
+    throttle_sec: float = 0.0,
+    throttle_key: Optional[str] = None,
+) -> None:
+    if not callable(emit):
+        return
+    data_payload: Dict[str, Any] = dict(data or {})
+    data_payload.setdefault("symbol", symbol)
+    data_payload.setdefault("reason", reason)
+    if "code" not in data_payload:
+        try:
+            code = map_reason(reason) if callable(map_reason) else ERR_UNKNOWN
+        except Exception:
+            code = ERR_UNKNOWN
+        data_payload["code"] = code
+    try:
+        if throttle_sec > 0 and callable(emit_throttled):
+            key = throttle_key or f"{symbol}:{reason}"
+            await emit_throttled(
+                bot,
+                "entry.blocked",
+                key=key,
+                cooldown_sec=throttle_sec,
+                data=data_payload,
+                symbol=symbol,
+                level=level,
+            )
+        else:
+            await emit(bot, "entry.blocked", data=data_payload, symbol=symbol, level=level)
+    except Exception:
+        pass
+
+
+async def _report_signal_feedback(bot) -> None:
+    events = _collect_signal_feedback_events()
+    if not events:
+        return
+    for ev in events:
+        data = ev.get("data") or {}
+        ratio = float(data.get("low_confidence_ratio") or 0.0)
+        count = int(data.get("low_confidence_exits") or 0)
+        guard_hits = int(data.get("guard_hits") or 0)
+        severity = str(data.get("severity") or "warning")
+        min_conf = float(data.get("min_confidence_threshold") or 0.0)
+        reason = str(data.get("reason") or "telemetry_signal_feedback")
+        msg = (
+            f"Telemetry signal feedback: ratio={ratio:.1%}, count={count}, "
+            f"guard_hits={guard_hits}, min_conf={min_conf:.2f}, reason={reason}"
+        )
+        _throttled_log("signal_feedback", _SIGNAL_FEEDBACK_LOG_THROTTLE_SEC, log_entry.warning, msg)
+        await _emit_entry_blocked(
+            bot,
+            "exit_signal_feedback",
+            "signal_feedback",
+            data={
+                "ratio": ratio,
+                "low_confidence_count": count,
+                "guard_hits": guard_hits,
+                "min_confidence_threshold": min_conf,
+            },
+            level=severity,
+            throttle_sec=60.0,
+        )
+
+
+def _schedule_micro_timeout_cancel(
+    bot,
+    *,
+    symbol: str,
+    order_id: Optional[str],
+    timeout_sec: float,
+    pending_tasks: Optional[set] = None,
+) -> None:
+    if not order_id:
+        return
+    to_sec = float(timeout_sec or 0.0)
+    if to_sec <= 0:
+        return
+
+    async def _cancel_later() -> None:
+        await asyncio.sleep(max(0.1, to_sec))
+        try:
+            await cancel_order(bot, str(order_id), str(symbol))
+            log_entry.info(f"ENTRY_LOOP: micro timeout cancel attempted symbol={symbol} order_id={order_id}")
+        except Exception:
+            return
+
+    try:
+        task = asyncio.create_task(_cancel_later())
+    except Exception:
+        return
+    if pending_tasks is not None:
+        pending_tasks.add(task)
+        task.add_done_callback(pending_tasks.discard)
+
+
+def _get_entry_lock(k: str) -> asyncio.Lock:
+    lk = _ENTRY_LOCKS.get(k)
+    if isinstance(lk, asyncio.Lock):
+        return lk
+    lk = asyncio.Lock()
+    _ENTRY_LOCKS[k] = lk
+    return lk
+
+
+def _set_pending(k: str, *, sec: float, order_id: Optional[str] = None) -> None:
+    try:
+        _PENDING_UNTIL[k] = _now() + max(0.0, float(sec))
+        if order_id:
+            _PENDING_ORDER_ID[k] = str(order_id)
+    except Exception:
+        pass
+
+
+def _pending_active(k: str) -> bool:
+    try:
+        until = float(_PENDING_UNTIL.get(k, 0.0) or 0.0)
+        return _now() < until
+    except Exception:
+        return False
+
+
+_PENDING_MAX_AGE_SEC = 300.0  # 5 minutes max lock age
+_PENDING_LAST_EVICTION_TS: float = 0.0
+
+
+def _evict_stale_pending() -> None:
+    """Phase 2.2: Auto-clear stale pending entries older than 5 minutes.
+    Prevents permanent lockout if a pending entry is never cleared."""
+    global _PENDING_LAST_EVICTION_TS
+    now = _now()
+    if (now - _PENDING_LAST_EVICTION_TS) < 60.0:  # evict at most once per minute
+        return
+    _PENDING_LAST_EVICTION_TS = now
+    stale = [k for k, until in _PENDING_UNTIL.items()
+             if (now - until) > _PENDING_MAX_AGE_SEC]
+    for k in stale:
+        _PENDING_UNTIL.pop(k, None)
+        _PENDING_ORDER_ID.pop(k, None)
+
+
+async def _has_open_entry_order(bot, k: str, sym_raw: str, *, max_open: int = 1) -> bool:
+    """
+    Best-effort: detect open orders from exchange to avoid stacking while reconcile lags.
+    This is intentionally conservative and never fatal.
+    """
+    try:
+        enabled = _cfg_env_bool(bot, "ENTRY_PROBE_OPEN_ORDERS", True)
+        if not enabled:
+            return False
+
+        ex = getattr(bot, "ex", None)
+        if ex is None:
+            return False
+
+        fn = getattr(ex, "fetch_open_orders", None)
+        if not callable(fn):
+            return False
+
+        # Some exchanges want raw symbol; we try sym_raw first, then k.
+        try:
+            orders = await fn(sym_raw)
+        except Exception:
+            try:
+                orders = await fn(k)
+            except Exception:
+                return False
+
+        if not isinstance(orders, (list, tuple)) or not orders:
+            return False
+
+        # Ignore reduceOnly/closePosition orders (exits); entry loop only cares about entry-ish orders.
+        open_count = 0
+        for o in orders:
+            if not isinstance(o, dict):
+                continue
+            info = o.get("info") or {}
+            params = o.get("params") or {}
+
+            ro = info.get("reduceOnly", params.get("reduceOnly"))
+            cp = info.get("closePosition", params.get("closePosition"))
+            if _truthy(ro) or _truthy(cp):
+                continue
+
+            status = str(o.get("status") or "").lower()
+            if status in ("open", "new", "partially_filled", ""):
+                open_count += 1
+                if open_count >= max(1, int(max_open or 1)):
+                    return True
+
+        return False
+    except Exception:
+        return False
+
+
+async def _has_open_position_exchange(bot, k: str, sym_raw: str) -> bool:
+    """
+    Best-effort: detect if exchange reports an open position.
+    This helps when brain-state isn't adopted yet.
+    """
+    try:
+        enabled = _cfg_env_bool(bot, "ENTRY_PROBE_EXCHANGE_POSITIONS", False)
+        if not enabled:
+            return False
+
+        ex = getattr(bot, "ex", None)
+        if ex is None:
+            return False
+
+        fn = getattr(ex, "fetch_positions", None)
+        if not callable(fn):
+            return False
+
+        try:
+            poss = await fn([sym_raw])
+        except Exception:
+            try:
+                poss = await fn([k])
+            except Exception:
+                return False
+
+        if not isinstance(poss, (list, tuple)) or not poss:
+            return False
+
+        for p in poss:
+            if not isinstance(p, dict):
+                continue
+            # ccxt position formats vary; try common fields:
+            sz = p.get("contracts")
+            if sz is None:
+                sz = p.get("contractSize")
+            if sz is None:
+                sz = p.get("size")
+            if sz is None:
+                sz = p.get("positionAmt")
+            try:
+                if sz is not None and abs(float(sz)) > 0.0:
+                    return True
+            except Exception:
+                continue
+
+        return False
+    except Exception:
+        return False
+
+
+# ----------------------------
+# Entry loop
+# ----------------------------
+
+async def entry_loop(bot) -> None:
+    """
+    Main entry loop.
+    Places NEW entries only. Exits/stop management handled elsewhere (exit/posmgr).
+    """
+    shutdown_ev = _ensure_shutdown_event(bot)
+    data_ready_ev = _ensure_data_ready_event(bot)
+
+    # ENV overrides for safety knobs
+    poll_sec = _cfg_env_float(bot, "ENTRY_POLL_SEC", 1.0)
+    wait_data_sec = _cfg_env_float(bot, "ENTRY_WAIT_FOR_DATA_READY_SEC", 8.0)
+    per_symbol_gap_sec = _cfg_env_float(bot, "ENTRY_PER_SYMBOL_GAP_SEC", 2.5)
+    base_local_cooldown_sec = _cfg_env_float(bot, "ENTRY_LOCAL_COOLDOWN_SEC", 8.0)
+    # MIN_CONF resolution order:
+    # 1) process env ENTRY_MIN_CONFIDENCE (dotenv-loaded .env.paper/.env if not pre-set)
+    # 2) cfg ENTRY_MIN_CONFIDENCE / settings MIN_CONFIDENCE
+    # 3) fallback default (0.0 here)
+    base_min_conf = _cfg_env_float(bot, "ENTRY_MIN_CONFIDENCE", 0.0)
+    adaptive_guard_enabled = _adaptive_guard_enabled(bot)
+
+    # NEW: pending-block window after submit to stop stacking while reconcile adopts
+    pending_block_sec = _cfg_env_float(bot, "ENTRY_PENDING_BLOCK_SEC", 30.0)
+
+    respect_kill = bool(_cfg_env_bool(bot, "ENTRY_RESPECT_KILL_SWITCH", True))
+
+    # Hedge hint mode can be set via ENV too
+    hedge_hint_mode = bool(
+        _cfg_env_bool(bot, "HEDGE_MODE", False)
+        or _cfg_env_bool(bot, "HEDGE_SAFE", False)
+        or _truthy(_cfg(bot, "HEDGE_MODE", False) or _cfg(bot, "HEDGE_SAFE", False))
+    )
+
+    # diag can be controlled via ENV, else cfg
+    diag = _cfg_env_bool(bot, "SCALPER_SIGNAL_DIAG", _cfg(bot, "SCALPER_SIGNAL_DIAG", "0"))
+    health_gate_enabled = _cfg_env_bool(bot, "ENTRY_HEALTH_GATE_ENABLED", True)
+    health_path = _env_get("HEALTH_OVERALL_PATH") or "logs/health/overall.json"
+    health_max_stale = int(_cfg_env_float(bot, "ENTRY_HEALTH_MAX_STALENESS_SEC", 15.0) or 15.0)
+    health_max_lag = int(_cfg_env_float(bot, "ENTRY_HEALTH_MAX_LAG_SEC", 30.0) or 30.0)
+    health_max_reconnects = int(_cfg_env_float(bot, "ENTRY_HEALTH_MAX_RECONNECTS_5M", 10.0) or 10.0)
+    health_max_errors = int(_cfg_env_float(bot, "ENTRY_HEALTH_MAX_ERRORS_5M", 10.0) or 10.0)
+    health_max_degraded = int(_cfg_env_float(bot, "ENTRY_HEALTH_MAX_DEGRADED_SEC", 120.0) or 120.0)
+    health_halt_cooldown = int(_cfg_env_float(bot, "GATE_HALT_COOLDOWN_SEC", 60.0) or 60.0)
+    health_block_sleep = float(_cfg_env_float(bot, "ENTRY_HEALTH_BLOCK_SLEEP_SEC", 1.0) or 1.0)
+    gate_use_ingestion = _cfg_env_bool(bot, "GATE_USE_INGESTION_CHECK", False)
+    gate_ingestion_window = int(_cfg_env_float(bot, "GATE_INGESTION_WINDOW_SEC", 10.0) or 10.0)
+    gate_ingestion_lag = int(_cfg_env_float(bot, "GATE_INGESTION_MAX_LAG_SEC", 5.0) or 5.0)
+    gate_ingestion_cooldown = int(_cfg_env_float(bot, "GATE_INGESTION_CHECK_COOLDOWN_SEC", 10.0) or 10.0)
+    gate_ingestion_db = _env_get("GATE_INGESTION_DB_PATH") or "data/microstructure.db"
+    alpha_gate_enabled = _cfg_env_bool(bot, "ALPHA_GATE_ENABLED", False)
+    alpha_block_sleep = float(_cfg_env_float(bot, "ENTRY_ALPHA_BLOCK_SLEEP_SEC", health_block_sleep) or health_block_sleep)
+    gate_state = GateState() if callable(evaluate_health_gate) and GateState is not None else None
+    gate_blocked_prev = False
+    gate_last_reason = ""
+    gate_last_cooldown_until = 0.0
+    alpha_blocked_prev = False
+    alpha_last_reason = ""
+    regime_mode = _parse_regime_mode(_env_get("ENTRY_REGIME") or _cfg(bot, "ENTRY_REGIME", "none"))
+    regime_lookback_sec = int(_cfg_env_float(bot, "ENTRY_REGIME_LOOKBACK_SEC", 3600) or 3600)
+    regime_debounce_sec = int(_cfg_env_float(bot, "ENTRY_REGIME_DEBOUNCE_SEC", 60) or 60)
+    regime_block_transition = _cfg_env_bool(bot, "ENTRY_REGIME_BLOCK_TRANSITION", True)
+    regime_block_unknown = _cfg_env_bool(bot, "ENTRY_REGIME_BLOCK_UNKNOWN", True)
+    regime_allow_unknown = _cfg_env_bool(bot, "ENTRY_ALLOW_UNKNOWN_REGIME", False)
+    regime_warmup_sec = max(0.0, _cfg_env_float(bot, "ENTRY_REGIME_WARMUP_SEC", 0.0))
+    regime_runtime = None
+    risk_mgr_enabled = _cfg_env_bool(bot, "ENTRY_REGIME_RISK_ENABLED", False)
+    risk_mgr = _get_regime_risk_manager(bot) if risk_mgr_enabled else None
+    trade_logger = _get_trade_logger(bot)
+    notify_started_ts = _now()
+    bot_start_ts = float(getattr(bot, "_start_ts", 0.0) or 0.0)
+    if bot_start_ts <= 0.0:
+        bot_start_ts = _now()
+        try:
+            bot._start_ts = bot_start_ts  # type: ignore[attr-defined]
+        except Exception:
+            pass
+    notify_startup_sent = False
+    if regime_mode != "none" and not callable(RegimeClassifier):
+        log_entry.warning("ENTRY_LOOP: ENTRY_REGIME enabled but core.regime.RegimeClassifier unavailable; continuing without regime gate.")
+    elif callable(RegimeClassifier):
+        regime_runtime = _RegimeRuntime(lookback_sec=regime_lookback_sec, debounce_sec=regime_debounce_sec)
+
+    # Pocket scheduler init (per-pocket cooldowns + daily quotas)
+    _pocket_scheduler = None
+    if callable(_PocketScheduler):
+        try:
+            st = getattr(bot, "state", None)
+            rc = getattr(st, "run_context", None) if st is not None else None
+            if isinstance(rc, dict):
+                _pocket_scheduler = rc.get("pocket_scheduler")
+            if _pocket_scheduler is None:
+                _pocket_scheduler = _PocketScheduler.from_env()
+                if isinstance(rc, dict):
+                    rc["pocket_scheduler"] = _pocket_scheduler
+        except Exception:
+            _pocket_scheduler = None
+
+    sizing_warn_every = _cfg_env_float(bot, "ENTRY_SIZING_WARN_EVERY_SEC", 30.0)
+    last_sizing_warn_ts = 0.0
+
+    # Backoff on margin insufficient to prevent spam
+    margin_backoff_sec = _cfg_env_float(bot, "ENTRY_MARGIN_INSUFFICIENT_BACKOFF_SEC", 900.0)  # 15m default
+    backoff_until_by_sym: Dict[str, float] = {}
+
+    # Local cooldown memory
+    last_attempt_by_sym: Dict[str, float] = {}
+    last_symbol_tick = 0.0
+    last_risk_day = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%d")
+
+    sig_fn = _load_signal_fn()
+    micro_engine = None
+    micro_provider = None
+    # Fire-and-forget _schedule_micro_timeout_cancel() background tasks are
+    # tracked here so the shutdown path below can drain them instead of
+    # letting asyncio.run() silently discard a pending limit-order cancel.
+    _pending_micro_cancel_tasks: set = set()
+    micro_enabled = _cfg_env_bool(bot, "ENTRY_MICRO_SIGNAL_ENABLED", False)
+    _picked = _pick_symbols(bot)
+    micro_symbol = _symkey(_env_get("MICRO_SIGNAL_SYMBOL") or (_picked[0] if _picked else "BTCUSDT"))
+    if micro_enabled:
+        try:
+            micro_engine, micro_provider = _build_micro_signal_provider(bot)
+            if micro_engine is not None:
+                await micro_engine.start()
+                log_core.info(f"ENTRY_LOOP: micro signal provider enabled symbol={micro_symbol}")
+        except Exception as e:
+            micro_engine = None
+            micro_provider = None
+            log_entry.warning(f"ENTRY_LOOP: micro signal init failed: {type(e).__name__}: {e}")
+    if not callable(sig_fn):
+        if micro_provider is None:
+            log_core.warning("ENTRY_LOOP: strategy signal missing (strategies.eclipse_scalper.scalper_signal). Loop will idle.")
+        else:
+            log_core.info("ENTRY_LOOP: strategy signal missing; using micro signal path only.")
+
+    log_core.info("ENTRY_LOOP ONLINE  -- scanning for new entries")
+
+    # initial data-ready wait (best-effort)
+    if wait_data_sec > 0 and not data_ready_ev.is_set():
+        try:
+            await asyncio.wait_for(data_ready_ev.wait(), timeout=wait_data_sec)
+        except Exception:
+            pass
+
+    while not shutdown_ev.is_set():
+        try:
+            _evict_stale_pending()  # Phase 2.2: clean up stale pending locks
+            now = _now()
+            if health_gate_enabled and gate_state is not None and callable(evaluate_health_gate):
+                health_obj = load_overall_health(health_path) if callable(load_overall_health) else None
+                syms_for_ing = _pick_symbols(bot)
+                def _ing_probe() -> tuple[bool, str]:
+                    if not callable(_run_ingestion_check):
+                        return True, "probe_unavailable"
+                    try:
+                        res = _run_ingestion_check(
+                            db=Path(str(gate_ingestion_db)),
+                            symbols=[_symkey(x) for x in syms_for_ing if _symkey(x)],
+                            window_sec=max(1, int(gate_ingestion_window)),
+                            max_lag_sec=max(0, int(gate_ingestion_lag)),
+                        )
+                        ok = str(res.verdict).upper() == "OK"
+                        return ok, ("" if ok else str(res.reason or "ingestion_stalled"))
+                    except Exception as e:
+                        return False, f"probe_error:{type(e).__name__}"
+                dec = evaluate_health_gate(
+                    health_obj,
+                    gate_state,
+                    now_ts=now,
+                    max_health_staleness_sec=health_max_stale,
+                    max_collector_lag_sec=health_max_lag,
+                    max_reconnects_5m=health_max_reconnects,
+                    max_errors_5m=health_max_errors,
+                    max_degraded_sec=health_max_degraded,
+                    halt_cooldown_sec=health_halt_cooldown,
+                    use_ingestion_check=bool(gate_use_ingestion),
+                    ingestion_probe=_ing_probe if gate_use_ingestion else None,
+                    ingestion_check_cooldown_sec=gate_ingestion_cooldown,
+                )
+                if not dec.allow:
+                    reason = dec.reason or "health_gate"
+                    if (not gate_blocked_prev) or (reason != gate_last_reason):
+                        log_core.critical(
+                            f"[GATE] paper_trader halted reason={reason} lag_sec={dec.collector_lag_sec} "
+                            f"reconnects_5m={dec.reconnects_last_5m} errors_5m={dec.errors_last_5m}"
+                        )
+                    if reason == "reconnect_escalation" and float(dec.halt_until_ts or 0.0) > 0:
+                        hu = _dt.datetime.utcfromtimestamp(float(dec.halt_until_ts)).strftime("%Y-%m-%d %H:%M:%S UTC")
+                        if abs(float(dec.halt_until_ts) - float(gate_last_cooldown_until)) > 0.1:
+                            log_core.critical(f"[GATE] reconnect escalation cooldown until={hu}")
+                            gate_last_cooldown_until = float(dec.halt_until_ts)
+                    if reason == "reconnect_escalation_cooldown" and gate_last_reason != "reconnect_escalation_cooldown":
+                        hu = _dt.datetime.utcfromtimestamp(float(dec.halt_until_ts or 0.0)).strftime("%Y-%m-%d %H:%M:%S UTC")
+                        log_core.warning(f"[GATE] cooldown active until={hu}")
+                    gate_blocked_prev = True
+                    gate_last_reason = reason
+                    if callable(write_paper_trader_health):
+                        write_paper_trader_health(dec, reason)
+                    await asyncio.sleep(max(0.01, health_block_sleep))
+                    continue
+                if gate_blocked_prev:
+                    if gate_last_reason == "reconnect_escalation_cooldown":
+                        log_core.info("[GATE] cooldown expired; re-evaluating health")
+                    log_core.info("[GATE] paper_trader resumed")
+                    gate_blocked_prev = False
+                    gate_last_reason = ""
+                    gate_last_cooldown_until = 0.0
+                if callable(write_paper_trader_health):
+                    write_paper_trader_health(dec, "")
+            if alpha_gate_enabled and callable(evaluate_alpha_gate_from_env):
+                alpha_dec = evaluate_alpha_gate_from_env(now_ts=now)
+                if alpha_dec.blocked:
+                    reason = str(alpha_dec.reason or "alpha_gate")
+                    if (not alpha_blocked_prev) or (reason != alpha_last_reason):
+                        d = alpha_dec.details if isinstance(alpha_dec.details, dict) else {}
+                        log_core.critical(
+                            f"[GATE] alpha halted reason={reason} "
+                            f"pnl_net_per_fill={float(d.get('pnl_net_per_fill', 0.0)):.6e} "
+                            f"fill_rate={float(d.get('decision_to_fill_rate', 0.0)):.4f}"
+                        )
+                    alpha_blocked_prev = True
+                    alpha_last_reason = reason
+                    if callable(write_paper_trader_health):
+                        try:
+                            write_paper_trader_health(
+                                type(
+                                    "_D",
+                                    (),
+                                    {
+                                        "allow": False,
+                                        "state": "degraded",
+                                        "collector_lag_sec": None,
+                                        "reconnects_last_5m": 0,
+                                        "errors_last_5m": 0,
+                                    },
+                                )(),
+                                reason,
+                            )
+                        except Exception:
+                            pass
+                    await asyncio.sleep(max(0.01, alpha_block_sleep))
+                    continue
+                if alpha_blocked_prev:
+                    log_core.info("[GATE] alpha resumed")
+                    alpha_blocked_prev = False
+                    alpha_last_reason = ""
+            if callable(get_notification_manager_from_bot):
+                try:
+                    nm = get_notification_manager_from_bot(bot)
+                    if nm is not None:
+                        if (not notify_startup_sent) and callable(build_startup_event):
+                            await nm.send(
+                                build_startup_event(
+                                    symbols=",".join(_pick_symbols(bot)),
+                                    horizon_sec=int(_cfg_env_float(bot, "EXIT_HARD_HORIZON_SEC", 120.0) or 120.0),
+                                    scratch_enabled=bool(_cfg_env_bool(bot, "EXIT_SCRATCH_ENABLED", False)),
+                                    watchdog_active=not bool(_cfg_env_bool(bot, "ENTRY_NO_WATCHDOG", False)),
+                                )
+                            )
+                            notify_startup_sent = True
+                        await nm.maybe_emit_periodics(bot, started_ts=notify_started_ts)
+                except Exception:
+                    pass
+            if risk_mgr is not None:
+                day_now = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%d")
+                if day_now != last_risk_day:
+                    try:
+                        risk_mgr.reset_daily()
+                    except Exception:
+                        pass
+                    if _pocket_scheduler is not None:
+                        try:
+                            _pocket_scheduler.reset_daily()
+                        except Exception:
+                            pass
+                    last_risk_day = day_now
+
+            if wait_data_sec > 0 and not data_ready_ev.is_set():
+                await asyncio.sleep(max(0.25, poll_sec))
+                continue
+
+            # optional kill-switch gate
+            if respect_kill and callable(trade_allowed):
+                try:
+                    ok = await trade_allowed(bot)
+                    if not ok:
+                        await asyncio.sleep(max(0.25, poll_sec))
+                        continue
+                except Exception:
+                    await asyncio.sleep(max(0.25, poll_sec))
+                    continue
+
+            # Check exchange degraded mode — block new entries only
+            try:
+                from execution.guardian import is_exchange_degraded
+                if is_exchange_degraded(bot):
+                    await _emit_entry_blocked(bot, "EXCHANGE_DEGRADED", "exchange_degraded", throttle_sec=60.0)
+                    await asyncio.sleep(max(0.25, poll_sec))
+                    continue
+            except Exception:
+                pass
+
+            paused, remaining = anomaly_should_pause()
+            if paused:
+                await _emit_entry_blocked(bot, "ANOMALY", "anomaly_pause", throttle_sec=60.0)
+                wait = remaining if remaining > 0 else poll_sec
+                await asyncio.sleep(max(poll_sec, wait))
+                continue
+
+            if _cfg_env_bool(bot, "ENTRY_SIGNAL_FEEDBACK_ENABLED", True):
+                await _report_signal_feedback(bot)
+
+            if callable(refresh_adaptive_guard):
+                try:
+                    refresh_adaptive_guard()
+                except Exception:
+                    pass
+
+            # avoid super tight spin if poll_sec tiny
+            if poll_sec > 0 and (now - last_symbol_tick) < poll_sec:
+                await asyncio.sleep(max(0.05, poll_sec - (now - last_symbol_tick)))
+            last_symbol_tick = _now()
+
+            syms = _pick_symbols(bot)
+            if not syms:
+                await asyncio.sleep(max(0.25, poll_sec))
+                continue
+            global_guard_knobs = _get_guard_knobs(bot)
+            budget_enabled, budget_total, budget_remaining, budget_reason = _entry_budget_snapshot(bot, global_guard_knobs)
+            budget_spent = 0.0
+
+            for sym in syms:
+                if shutdown_ev.is_set():
+                    break
+
+                k = _symkey(sym)
+                if not k:
+                    continue
+                regime_state = None
+                if regime_runtime is not None:
+                    px_now = _get_price(bot, k)
+                    if px_now and px_now > 0.0:
+                        regime_state = regime_runtime.update(k, _now(), float(px_now))
+                        _throttled_log(
+                            key=f"regime_status:{k}",
+                            every_sec=60.0,
+                            fn=log_core.info,
+                            msg=(
+                                f"[REGIME] {k} regime={str(regime_state.get('current_regime') or 'UNKNOWN')} "
+                                f"return_1h={float(regime_state.get('rolling_return') or 0.0)*100.0:+.2f}% "
+                                f"age={int(float(regime_state.get('regime_age_sec') or 0.0))}s"
+                            ),
+                        )
+                        if risk_mgr is not None and bool(regime_state.get("regime_changed")):
+                            try:
+                                if callable(build_regime_change_event):
+                                    await _safe_notify_event(
+                                        bot,
+                                        build_regime_change_event(
+                                            str(regime_state.get("old_regime") or ""),
+                                            str(regime_state.get("current_regime") or ""),
+                                            float((risk_mgr.state_dict().get("config") or {}).get("cooldown_after_regime_change_sec", 0.0) or 0.0),
+                                            len(list((getattr(getattr(bot, "state", None), "positions", {}) or {}).values())),
+                                        ),
+                                    )
+                                actions = risk_mgr.on_regime_change(
+                                    str(regime_state.get("old_regime") or ""),
+                                    str(regime_state.get("current_regime") or ""),
+                                    list((getattr(getattr(bot, "state", None), "positions", {}) or {}).values()),
+                                )
+                                for act in list(actions or []):
+                                    await _emit_entry_blocked(
+                                        bot,
+                                        k,
+                                        "risk_regime_action",
+                                        data={
+                                            "action": str(getattr(act, "action", "") or ""),
+                                            "target_position_id": str(getattr(act, "target_position_id", "") or ""),
+                                            "reason": str(getattr(act, "reason", "") or ""),
+                                        },
+                                        throttle_sec=5.0,
+                                    )
+                                    if trade_logger is not None:
+                                        try:
+                                            trade_logger.log_risk_event(
+                                                {
+                                                    "event_id": f"entry:{k}:risk_regime_action:{int(_now()*1000)}",
+                                                    "timestamp": float(_now()),
+                                                    "event_type": "regime_change",
+                                                    "details": {
+                                                        "symbol": k,
+                                                        "action": str(getattr(act, "action", "") or ""),
+                                                        "target_position_id": str(getattr(act, "target_position_id", "") or ""),
+                                                        "reason": str(getattr(act, "reason", "") or ""),
+                                                    },
+                                                    "risk_state": (risk_mgr.state_dict() if risk_mgr is not None else {}),
+                                                }
+                                            )
+                                        except Exception:
+                                            pass
+                            except Exception:
+                                pass
+                        blocked, block_reason = _should_block_regime(
+                            mode=regime_mode,
+                            current_regime=str(regime_state.get("current_regime") or "UNKNOWN"),
+                            block_transition=bool(regime_block_transition),
+                            block_unknown=bool(regime_block_unknown),
+                            allow_unknown=bool(regime_allow_unknown),
+                            warmup_active=((_now() - bot_start_ts) < regime_warmup_sec if regime_warmup_sec > 0 else False),
+                        )
+                        cur_regime = str(regime_state.get("current_regime") or "UNKNOWN").strip().upper()
+                        if not blocked and cur_regime == "UNKNOWN" and (regime_allow_unknown or regime_warmup_sec > 0):
+                            warmup_active = (_now() - bot_start_ts) < regime_warmup_sec if regime_warmup_sec > 0 else False
+                            if regime_allow_unknown or warmup_active:
+                                why = "allow_unknown" if regime_allow_unknown else "warmup"
+                                _throttled_log(
+                                    key=f"regime_unknown_allowed:{k}:{why}",
+                                    every_sec=60.0,
+                                    fn=log_entry.info,
+                                    msg=f"[REGIME_GATE] allowing UNKNOWN due to {why} {k}",
+                                )
+                        if blocked:
+                            await _emit_entry_blocked(
+                                bot,
+                                k,
+                                block_reason,
+                                data={
+                                    "regime_mode": regime_mode,
+                                    "current_regime": str(regime_state.get("current_regime") or "UNKNOWN"),
+                                    "regime_age_sec": float(regime_state.get("regime_age_sec") or 0.0),
+                                    "rolling_return": float(regime_state.get("rolling_return") or 0.0),
+                                },
+                                throttle_sec=5.0,
+                            )
+                            continue
+
+                guard_knobs = _resolve_symbol_guard(global_guard_knobs, k)
+                guard_mode = str(guard_knobs.get("mode") or "").upper()
+                allow_entries = bool(guard_knobs.get("allow_entries", True))
+                guard_min_conf = float(guard_knobs.get("min_entry_conf", 0.0) or 0.0)
+                guard_cooldown = float(guard_knobs.get("entry_cooldown_seconds", 0.0) or 0.0)
+                guard_max_notional = float(guard_knobs.get("max_notional_usdt", 0.0) or 0.0)
+                guard_max_open = int(guard_knobs.get("max_open_orders_per_symbol", 1) or 1)
+                runtime_gate_degraded = bool(guard_knobs.get("runtime_gate_degraded", False))
+                reconcile_first_gate_degraded = bool(guard_knobs.get("reconcile_first_gate_degraded", False))
+                runtime_gate_reason = str(guard_knobs.get("runtime_gate_reason") or "")
+                runtime_gate_degrade_score = float(guard_knobs.get("runtime_gate_degrade_score", 0.0) or 0.0)
+                symbol_debt_score = float(guard_knobs.get("debt_score", 0.0) or 0.0)
+                symbol_severity = max(0.0, min(1.0, symbol_debt_score))
+                reconcile_first_severity = max(float(runtime_gate_degrade_score), float(symbol_severity))
+                local_cooldown_sec = max(float(base_local_cooldown_sec), max(0.0, guard_cooldown))
+                current_min_conf = _effective_min_conf(base_min_conf, guard_min_conf, adaptive_guard_enabled)
+
+                if not allow_entries:
+                    block_reason, block_code = _guard_block_reason_code(guard_knobs)
+                    _record_reconcile_first_gate(
+                        bot,
+                        k,
+                        reconcile_first_severity,
+                        runtime_gate_reason or str(guard_knobs.get("reason") or ""),
+                    )
+                    await _emit_entry_blocked(
+                        bot,
+                        k,
+                        block_reason,
+                        data={
+                            "mode": guard_mode or "UNKNOWN",
+                            "reason": str(guard_knobs.get("reason") or ""),
+                            "debt_score": float(guard_knobs.get("debt_score", 0.0) or 0.0),
+                            "debt_growth_per_min": float(guard_knobs.get("debt_growth_per_min", 0.0) or 0.0),
+                            "runtime_gate_degraded": runtime_gate_degraded,
+                            "runtime_gate_reason": runtime_gate_reason,
+                            "runtime_gate_degrade_score": runtime_gate_degrade_score,
+                            "symbol_debt_score": symbol_debt_score,
+                            "symbol_severity": symbol_severity,
+                            "reconcile_first_severity": reconcile_first_severity,
+                            "code": block_code,
+                        },
+                        throttle_sec=15.0,
+                    )
+                    if (runtime_gate_degraded or reconcile_first_gate_degraded) and callable(emit_throttled):
+                        try:
+                            await emit_throttled(
+                                bot,
+                                "entry.reconcile_first_gate",
+                                key=f"{k}:reconcile_first_gate",
+                                cooldown_sec=15.0,
+                                data={
+                                    "symbol": k,
+                                    "mode": guard_mode or "UNKNOWN",
+                                    "reason": runtime_gate_reason or str(guard_knobs.get("reason") or ""),
+                                    "runtime_gate_degrade_score": runtime_gate_degrade_score,
+                                    "reconcile_first_gate_degraded": reconcile_first_gate_degraded,
+                                    "reconcile_first_gate_count": int(
+                                        guard_knobs.get("reconcile_first_gate_count", 0) or 0
+                                    ),
+                                    "reconcile_first_gate_max_severity": float(
+                                        guard_knobs.get("reconcile_first_gate_max_severity", 0.0) or 0.0
+                                    ),
+                                    "reconcile_first_gate_max_streak": int(
+                                        guard_knobs.get("reconcile_first_gate_max_streak", 0) or 0
+                                    ),
+                                    "symbol_debt_score": symbol_debt_score,
+                                    "symbol_severity": symbol_severity,
+                                    "reconcile_first_severity": reconcile_first_severity,
+                                    "code": ERR_RELIABILITY_GATE,
+                                },
+                                symbol=k,
+                                level="warning",
+                            )
+                        except Exception:
+                            pass
+                    continue
+                if budget_enabled:
+                    rem = max(0.0, float(budget_remaining) - float(budget_spent))
+                    if rem <= 0:
+                        await _emit_entry_blocked(
+                            bot,
+                            k,
+                            "entry_budget_depleted",
+                            data={
+                                "reason": budget_reason,
+                                "budget_total_usdt": float(budget_total),
+                                "budget_remaining_usdt": float(rem),
+                                "code": ERR_RISK,
+                            },
+                            throttle_sec=15.0,
+                        )
+                        continue
+
+                guard_reason = ""
+                if adaptive_guard_enabled and callable(get_adaptive_override):
+                    try:
+                        current_min_conf, guard_reason = get_adaptive_override(k, current_min_conf)
+                    except Exception:
+                        current_min_conf = current_min_conf
+                        guard_reason = ""
+                if guard_reason and diag:
+                    _throttled_log(
+                        key=f"adaptive_guard:{k}:{guard_reason}",
+                        every_sec=60.0,
+                        fn=log_entry.info,
+                        msg=f"ENTRY_LOOP adaptive guard {k} raised min_conf to {current_min_conf:.2f} ({guard_reason})",
+                    )
+
+                # margin-insufficient backoff gate
+                bo = float(backoff_until_by_sym.get(k, 0.0) or 0.0)
+                if bo > 0 and _now() < bo:
+                    continue
+
+                # hard pending gate (prevents stacking during adopt/reconcile lag)
+                if _pending_active(k):
+                    continue
+
+                # Phase 1.3: Reconcile staleness gate — block entries if reconcile
+                # hasn't succeeded recently. Prevents duplicate entries during desync.
+                # Disable with RECONCILE_STALENESS_GATE=0 env var.
+                if _truthy(os.environ.get("RECONCILE_STALENESS_GATE", "1")):
+                    _recon_max_age = float(_cfg_env_float(bot, "RECONCILE_STALENESS_MAX_SEC", 120.0) or 120.0)
+                    _rc = getattr(getattr(bot, "state", None), "run_context", None)
+                    _last_recon = float((_rc or {}).get("last_reconcile_success_ts", 0.0) or 0.0)
+                    if _last_recon > 0 and (_now() - _last_recon) > _recon_max_age:
+                        await _emit_entry_blocked(bot, k, "reconcile_stale", throttle_sec=30.0)
+                        continue
+
+                # skip if already in position (brain-state)
+                if _in_position_brain(bot, k):
+                    continue
+
+                # local cooldown
+                la = float(last_attempt_by_sym.get(k, 0.0) or 0.0)
+                if local_cooldown_sec > 0 and (_now() - la) < local_cooldown_sec:
+                    await _emit_entry_blocked(bot, k, "cooldown_local", throttle_sec=5.0)
+                    continue
+
+                # must have at least one signal source enabled
+                if (not callable(sig_fn)) and micro_provider is None:
+                    await _emit_entry_blocked(bot, k, "signal_missing", throttle_sec=60.0)
+                    continue
+
+                # resolve raw symbol once (needed for exchange probes)
+                sym_raw = _resolve_raw_symbol(bot, k, k)
+
+                # best-effort exchange probes (optional)
+                try:
+                    if await _has_open_entry_order(bot, k, sym_raw, max_open=max(1, guard_max_open)):
+                        _set_pending(k, sec=max(5.0, pending_block_sec * 0.5))
+                        await _emit_entry_blocked(bot, k, "router_open_order", throttle_sec=15.0)
+                        continue
+                except Exception:
+                    pass
+
+                try:
+                    if await _has_open_position_exchange(bot, k, sym_raw):
+                        _set_pending(k, sec=max(5.0, pending_block_sec * 0.5))
+                        await _emit_entry_blocked(bot, k, "risk_exchange_position", throttle_sec=15.0)
+                        continue
+                except Exception:
+                    pass
+
+                # Acquire per-symbol entry lock to prevent concurrent submit storms
+                lk = _get_entry_lock(k)
+                if lk.locked():
+                    continue
+
+                async with lk:
+                    # re-check gates after lock (race-safe)
+                    if shutdown_ev.is_set():
+                        break
+                    if _pending_active(k):
+                        await _emit_entry_blocked(bot, k, "cooldown_pending", throttle_sec=10.0)
+                        continue
+                    if _in_position_brain(bot, k):
+                        await _emit_entry_blocked(bot, k, "risk_in_position", throttle_sec=10.0)
+                        continue
+                    bo = float(backoff_until_by_sym.get(k, 0.0) or 0.0)
+                    if bo > 0 and _now() < bo:
+                        continue
+
+                    # mark attempt NOW to enforce cooldown even if we error later
+                    last_attempt_by_sym[k] = _now()
+
+                    # Unified staleness + data-quality guard
+                    if callable(staleness_check):
+                        max_sec = float(_cfg_env_float(bot, "ENTRY_DATA_MAX_STALE_SEC", 180.0) or 180.0)
+                        ok, age_sec, _src = staleness_check(bot, k, tf="1m", max_sec=max_sec)
+                        if not ok:
+                            if callable(emit):
+                                try:
+                                    await emit(
+                                        bot,
+                                        "entry.blocked",
+                                        data={"symbol": k, "reason": "stale_data", "age_sec": age_sec, "max_sec": max_sec, "code": ERR_STALE_DATA},
+                                        symbol=k,
+                                        level="warning",
+                                    )
+                                except Exception:
+                                    pass
+                            await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                            continue
+
+                    if callable(update_quality_state):
+                        q_min = float(_cfg_env_float(bot, "ENTRY_DATA_QUALITY_MIN", 60.0) or 60.0)
+                        q_tf = str(_cfg(bot, "ENTRY_DATA_QUALITY_TF", os.getenv("ENTRY_DATA_QUALITY_TF", "1m")) or "1m")
+                        q_window = int(_cfg_env_float(bot, "ENTRY_DATA_QUALITY_WINDOW", 120) or 120)
+                        q_emit = float(_cfg_env_float(bot, "ENTRY_DATA_QUALITY_EMIT_SEC", 60.0) or 60.0)
+                        roll_min = float(_cfg_env_float(bot, "ENTRY_DATA_QUALITY_ROLL_MIN", q_min) or q_min)
+                        kill_sec = float(_cfg_env_float(bot, "ENTRY_DATA_QUALITY_KILL_SEC", 120.0) or 120.0)
+                        score = update_quality_state(bot, k, tf=q_tf, max_sec=float(_cfg_env_float(bot, "ENTRY_DATA_MAX_STALE_SEC", 180.0) or 180.0), window=q_window, emit_sec=q_emit)
+                        dq = getattr(getattr(bot, "state", None), "data_quality", {}) or {}
+                        info = dq.get(k) or {}
+                        roll_score = float(info.get("roll", score))
+                        now_ts = _now()
+                        if roll_score < roll_min and kill_sec > 0:
+                            last = float(_QUALITY_LOW_START.get(k, 0.0) or 0.0)
+                            if last == 0:
+                                _QUALITY_LOW_START[k] = now_ts
+                            elif (now_ts - last) >= kill_sec:
+                                _QUALITY_LOW_LAST[k] = now_ts
+                        if callable(emit):
+                            try:
+                                await emit(
+                                    bot,
+                                    "entry.blocked",
+                                    data={
+                                        "symbol": k,
+                                        "reason": "data_quality_roll",
+                                        "roll": roll_score,
+                                        "min": roll_min,
+                                        "history_n": int(info.get("n", 0) or 0),
+                                        "code": ERR_DATA_QUALITY,
+                                    },
+                                    symbol=k,
+                                    level="warning",
+                                )
+                            except Exception:
+                                pass
+                        if callable(emit_throttled):
+                            try:
+                                await emit_throttled(
+                                    bot,
+                                    "data.quality.roll_alert",
+                                    key=f"{k}:quality_roll",
+                                    cooldown_sec=max(15.0, kill_sec),
+                                    data={
+                                        "symbol": k,
+                                        "roll": roll_score,
+                                        "min": roll_min,
+                                        "history_n": int(info.get("n", 0) or 0),
+                                    },
+                                    symbol=k,
+                                    level="warning",
+                                )
+                            except Exception:
+                                pass
+                                await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                                continue
+                        else:
+                            _QUALITY_LOW_START.pop(k, None)
+                            _QUALITY_LOW_LAST.pop(k, None)
+                        if q_min > 0 and score < q_min:
+                            if callable(emit):
+                                try:
+                                    await emit(
+                                        bot,
+                                        "entry.blocked",
+                                        data={"symbol": k, "reason": "data_quality", "score": score, "min": q_min, "code": ERR_DATA_QUALITY},
+                                        symbol=k,
+                                        level="warning",
+                                    )
+                                except Exception:
+                                    pass
+                            await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                            continue
+                    sig_start = _now()
+                    sig = None
+                    if micro_provider is not None and _symkey(k) == _symkey(micro_symbol):
+                        try:
+                            msig = micro_provider.evaluate(regime_override=regime_state if isinstance(regime_state, dict) else None)
+                            sig = _micro_signal_to_entry_sig(msig)
+                        except Exception:
+                            sig = None
+                    if sig is None and callable(sig_fn):
+                        sig = await _maybe_call_signal(sig_fn, bot, k, diag=diag)
+                    if isinstance(sig, dict) and isinstance(regime_state, dict):
+                        try:
+                            sig.setdefault("regime", str(regime_state.get("current_regime") or "UNKNOWN"))
+                            sig.setdefault("regime_age_sec", float(regime_state.get("regime_age_sec") or 0.0))
+                            sig.setdefault("rolling_return", float(regime_state.get("rolling_return") or 0.0))
+                        except Exception:
+                            pass
+                    sig_duration_ms = (_now() - sig_start) * 1000.0
+                    await _emit_latency(bot, symbol=k, stage="signal", duration_ms=sig_duration_ms, result="success" if sig else "no_signal")
+                    if not isinstance(sig, dict) or not sig:
+                        await _emit_entry_blocked(bot, k, "signal_missing", throttle_sec=30.0)
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
+
+                    action = _parse_action(sig)
+                    if action not in ("buy", "sell"):
+                        await _emit_entry_blocked(bot, k, "signal_action", throttle_sec=30.0)
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
+
+                    # Pocket scheduler gate (per-pocket cooldown + daily quota)
+                    if _pocket_scheduler is not None:
+                        _pn = str(sig.get("pocket_name", "") or "default")
+                        _ps_ok, _ps_reason = _pocket_scheduler.can_fire(_pn, _now())
+                        if not _ps_ok:
+                            await _emit_entry_blocked(bot, k, f"pocket_scheduler:{_ps_reason}", throttle_sec=30.0)
+                            await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                            continue
+
+                    # Event lane gate (shadow mode — logs only, does not block orders)
+                    # Placed after kill-switch, after signal validation, never on reduce-only intents.
+                    if event_lane_gate is not None and sig.get("source") == "micro_signal":
+                        _gate_rule = "micro_edge_v3_passive_alpha"
+                        _gate_horizon = int(os.getenv("MICRO_SIGNAL_LOOKBACK_SEC", "60") or "60")
+                        if event_lane_gate.applies_to_live_event_gate(k, _gate_rule, _gate_horizon, signal=sig):
+                            _gate_db = os.getenv(
+                                "ENTRY_EVENT_LANE_GATE_DB",
+                                os.getenv("MICRO_SIGNAL_DB", str(getattr(getattr(bot, "cfg", None), "DB_PATH", "") or "")),
+                            )
+                            if _gate_db:
+                                _gate = event_lane_gate.load_current_event_gate(db=_gate_db, symbol=k)
+                                _blocked, _gate_reason, _gate_details = event_lane_gate.should_block_event_gate(
+                                    _gate, symbol=k, rule_name=_gate_rule, horizon_sec=_gate_horizon, signal=sig
+                                )
+                                _gate_shadow = os.getenv("ENTRY_EVENT_LANE_GATE_SHADOW", "1") == "1"
+                                if _blocked:
+                                    if callable(emit_throttled):
+                                        await emit_throttled(
+                                            bot,
+                                            "entry.event_lane_gate",
+                                            key=f"{k}:blocked",
+                                            cooldown_sec=5.0,
+                                            data={
+                                                "symbol": k,
+                                                "rule_name": _gate_rule,
+                                                "horizon_sec": _gate_horizon,
+                                                "shadow": _gate_shadow,
+                                                "decision": "would_block" if _gate_shadow else "blocked",
+                                                "gate_reason": _gate_reason,
+                                                "gate_status": str(_gate.get("gate") or "unknown"),
+                                                "blocking_lanes": list(_gate.get("blocked_lanes", [])),
+                                                "latest_abs_imbalance": _gate.get("latest_abs_imbalance"),
+                                                "latest_ts_ms": _gate.get("latest_ts_ms"),
+                                            },
+                                            symbol=k,
+                                            level="warning",
+                                        )
+                                    log_entry.warning(
+                                        f"[event_lane_gate] symbol={k} rule={_gate_rule} h={_gate_horizon}"
+                                        f" gate_status=blocked reason={_gate_reason}"
+                                        f" lanes={_gate.get('blocked_lanes', [])} shadow={_gate_shadow}"
+                                        f" imb={_gate.get('latest_abs_imbalance')} ts={_gate.get('latest_ts_ms')}"
+                                    )
+                                    if _gate_shadow:
+                                        await _emit_entry_blocked(
+                                            bot,
+                                            k,
+                                            "event_lane_gate_shadow",
+                                            data={
+                                                "gate_reason": _gate_reason,
+                                                "gate_status": str(_gate.get("gate") or "unknown"),
+                                                "blocking_lanes": list(_gate.get("blocked_lanes", [])),
+                                                "latest_abs_imbalance": _gate.get("latest_abs_imbalance"),
+                                                "latest_ts_ms": _gate.get("latest_ts_ms"),
+                                            },
+                                            throttle_sec=5.0,
+                                            throttle_key=f"{k}:event_lane_gate_shadow",
+                                        )
+                                    else:
+                                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                                        continue  # actual block — only when SHADOW=0
+                                else:
+                                    if callable(emit_throttled):
+                                        await emit_throttled(
+                                            bot,
+                                            "entry.event_lane_gate",
+                                            key=f"{k}:{str(_gate.get('gate') or 'allowed')}",
+                                            cooldown_sec=5.0,
+                                            data={
+                                                "symbol": k,
+                                                "rule_name": _gate_rule,
+                                                "horizon_sec": _gate_horizon,
+                                                "shadow": _gate_shadow,
+                                                "decision": "allowed",
+                                                "gate_reason": _gate_reason,
+                                                "gate_status": str(_gate.get("gate") or "unknown"),
+                                                "blocking_lanes": list(_gate.get("blocked_lanes", [])),
+                                                "latest_abs_imbalance": _gate.get("latest_abs_imbalance"),
+                                                "latest_ts_ms": _gate.get("latest_ts_ms"),
+                                            },
+                                            symbol=k,
+                                            level="info",
+                                        )
+                                    log_entry.info(
+                                        f"[event_lane_gate] symbol={k} rule={_gate_rule} h={_gate_horizon}"
+                                        f" gate_status={_gate.get('gate', 'unknown')} shadow={_gate_shadow}"
+                                    )
+
+                    if risk_mgr is not None:
+                        try:
+                            rd = risk_mgr.check_entry(
+                                side=action,
+                                regime=str((regime_state or {}).get("current_regime") or "UNKNOWN"),
+                                current_positions=list((getattr(getattr(bot, "state", None), "positions", {}) or {}).values()),
+                            )
+                            if not bool(getattr(rd, "allowed", False)):
+                                if callable(build_entry_blocked_event):
+                                    await _safe_notify_event(
+                                        bot,
+                                        build_entry_blocked_event(
+                                            str(getattr(rd, "reason", "") or "risk_block"),
+                                            dict(getattr(rd, "risk_state", {}) or {}),
+                                        ),
+                                    )
+                                await _emit_entry_blocked(
+                                    bot,
+                                    k,
+                                    "risk_regime_block",
+                                    data={
+                                        "risk_reason": str(getattr(rd, "reason", "") or ""),
+                                        "risk_state": dict(getattr(rd, "risk_state", {}) or {}),
+                                    },
+                                    throttle_sec=5.0,
+                                )
+                                if trade_logger is not None:
+                                    try:
+                                        trade_logger.log_risk_event(
+                                            {
+                                                "event_id": f"entry:{k}:risk_regime_block:{int(_now()*1000)}",
+                                                "timestamp": float(_now()),
+                                                "event_type": "entry_blocked",
+                                                "details": {
+                                                    "symbol": k,
+                                                    "risk_reason": str(getattr(rd, "reason", "") or ""),
+                                                },
+                                                "risk_state": dict(getattr(rd, "risk_state", {}) or {}),
+                                            }
+                                        )
+                                    except Exception:
+                                        pass
+                                await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                                continue
+                        except Exception:
+                            pass
+
+                    # confidence gate
+                    try:
+                        conf = float(sig.get("confidence", sig.get("conf", 0.0)) or 0.0)
+                    except Exception:
+                        conf = 0.0
+                    if current_min_conf > 0 and conf < current_min_conf:
+                        await _emit_entry_blocked(bot, k, "confidence_low", throttle_sec=30.0)
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
+
+                    otype = _parse_order_type(sig)
+                    price = _parse_price(sig) if otype == "limit" else None
+                    amt = _parse_amount(sig)
+                    if amt is None:
+                        amt = _sizing_fallback_amount(bot, k)
+
+                    if amt is None or amt <= 0:
+                        if sizing_warn_every > 0 and (_now() - last_sizing_warn_ts) >= sizing_warn_every:
+                            last_sizing_warn_ts = _now()
+                            fixed_qty, fixed_notional = _resolve_symbol_sizing(bot, k)
+                            log_entry.warning(
+                                "ENTRY_LOOP: sizing missing; set FIXED_QTY or FIXED_NOTIONAL_USDT. "
+                                f"(FIXED_QTY={fixed_qty}, FIXED_NOTIONAL_USDT={fixed_notional})"
+                            )
+                        await _emit_entry_blocked(bot, k, "sizing_missing", throttle_sec=60.0)
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
+
+                    # Hedge hint: router accepts "long"/"short" for entries
+                    hedge_side_hint = None
+                    if hedge_hint_mode:
+                        hedge_side_hint = "long" if action == "buy" else "short"
+
+                    conf_scale, conf_reason = _confidence_notional_scale(bot, float(conf or 0.0))
+                    if conf_scale and conf_scale < 1.0 and amt is not None and amt > 0:
+                        try:
+                            base_amt = float(amt)
+                            amt = float(amt) * float(conf_scale)
+                            if callable(emit_throttled):
+                                asyncio.create_task(
+                                    emit_throttled(
+                                        bot,
+                                        "entry.notional_scaled",
+                                        key=f"{k}:{conf_reason or 'confidence'}",
+                                        cooldown_sec=120.0,
+                                        data={
+                                            "symbol": k,
+                                            "base_qty": base_amt,
+                                            "scaled_qty": amt,
+                                            "scale": conf_scale,
+                                            "reason": conf_reason or "confidence",
+                                            "confidence": float(conf or 0.0),
+                                        },
+                                        symbol=k,
+                                        level="info",
+                                    )
+                                )
+                        except Exception:
+                            pass
+
+                    # Regime-aware sizing (applied after confidence scale)
+                    if callable(_regime_size_scale) and amt is not None and amt > 0:
+                        try:
+                            _rlabel = str(sig.get("_regime_label", "") or sig.get("regime", "") or "")
+                            _rscale = _regime_size_scale(_rlabel, action)
+                            if _rscale != 1.0:
+                                amt = float(amt) * _rscale
+                            log_entry.debug(
+                                f"[regime_sizer] regime={_rlabel} side={action} scale={_rscale:.3f} amt={amt:.6f}"
+                            )
+                        except Exception:
+                            pass
+
+                    planned_notional = 0.0
+                    try:
+                        ref_px = float(price or 0.0)
+                        if ref_px <= 0:
+                            ref_px = float(_get_price(bot, k) or 0.0)
+                        if ref_px > 0:
+                            planned_notional = float(amt) * ref_px
+                    except Exception:
+                        planned_notional = 0.0
+                    corr_reason, corr_meta = _check_corr_group(bot, k, planned_notional)
+                    scale, scale_reason = _corr_group_scale(bot, corr_meta or {})
+                    if scale and scale < 1.0 and planned_notional > 0:
+                        try:
+                            amt = float(amt) * float(scale)
+                            planned_notional = float(planned_notional) * float(scale)
+                            if callable(emit_throttled):
+                                asyncio.create_task(
+                                    emit_throttled(
+                                        bot,
+                                        "entry.notional_scaled",
+                                        key=f"{k}:{scale_reason or 'corr_group'}",
+                                        cooldown_sec=120.0,
+                                        data={
+                                            "symbol": k,
+                                            "planned_notional": planned_notional,
+                                            "scale": scale,
+                                            "reason": scale_reason or "corr_group",
+                                            **(corr_meta or {}),
+                                        },
+                                        symbol=k,
+                                        level="warning",
+                                    )
+                                )
+                        except Exception:
+                            pass
+                    exp_scale, exp_reason = _corr_group_exposure_scale(bot, corr_meta or {}, planned_notional)
+                    if exp_scale and exp_scale < 1.0 and planned_notional > 0:
+                        try:
+                            amt = float(amt) * float(exp_scale)
+                            planned_notional = float(planned_notional) * float(exp_scale)
+                            if callable(emit_throttled):
+                                asyncio.create_task(
+                                    emit_throttled(
+                                        bot,
+                                        "entry.notional_scaled",
+                                        key=f"{k}:{exp_reason or 'corr_group_exposure'}",
+                                        cooldown_sec=120.0,
+                                        data={
+                                            "symbol": k,
+                                            "planned_notional": planned_notional,
+                                            "scale": exp_scale,
+                                            "reason": exp_reason or "corr_group_exposure",
+                                            **(corr_meta or {}),
+                                        },
+                                        symbol=k,
+                                        level="warning",
+                                    )
+                                )
+                        except Exception:
+                            pass
+                    if corr_reason:
+                        await _emit_entry_blocked(
+                            bot,
+                            k,
+                            "corr_group_cap",
+                            data={
+                                "reason": corr_reason,
+                                "planned_notional": planned_notional,
+                                **(corr_meta or {}),
+                            },
+                            throttle_sec=30.0,
+                        )
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
+
+                    if guard_max_notional > 0 and planned_notional > guard_max_notional:
+                        try:
+                            scale = float(guard_max_notional) / max(1e-9, float(planned_notional))
+                            if scale <= 0:
+                                await _emit_entry_blocked(
+                                    bot,
+                                    k,
+                                    "belief_notional_cap",
+                                    data={"cap": guard_max_notional, "planned_notional": planned_notional, "mode": guard_mode},
+                                    throttle_sec=15.0,
+                                )
+                                await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                                continue
+                            amt = float(amt) * float(scale)
+                            planned_notional = float(planned_notional) * float(scale)
+                            if callable(emit_throttled):
+                                asyncio.create_task(
+                                    emit_throttled(
+                                        bot,
+                                        "entry.notional_scaled",
+                                        key=f"{k}:belief_cap",
+                                        cooldown_sec=60.0,
+                                        data={
+                                            "symbol": k,
+                                            "scale": scale,
+                                            "planned_notional": planned_notional,
+                                            "cap": guard_max_notional,
+                                            "reason": "belief_controller_cap",
+                                            "mode": guard_mode,
+                                        },
+                                        symbol=k,
+                                        level="warning",
+                                    )
+                                )
+                        except Exception:
+                            pass
+
+                    if budget_enabled and planned_notional > 0:
+                        rem_budget = max(0.0, float(budget_remaining) - float(budget_spent))
+                        sym_budget_cap = _entry_budget_symbol_cap(bot, conf, current_min_conf, rem_budget)
+                        if sym_budget_cap <= 0:
+                            await _emit_entry_blocked(
+                                bot,
+                                k,
+                                "entry_budget_symbol_cap",
+                                data={
+                                    "budget_total_usdt": float(budget_total),
+                                    "budget_remaining_usdt": float(rem_budget),
+                                    "planned_notional": float(planned_notional),
+                                    "code": ERR_RISK,
+                                },
+                                throttle_sec=15.0,
+                            )
+                            await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                            continue
+                        if planned_notional > sym_budget_cap:
+                            try:
+                                bscale = float(sym_budget_cap) / max(1e-9, float(planned_notional))
+                                amt = float(amt) * float(bscale)
+                                planned_notional = float(planned_notional) * float(bscale)
+                                if callable(emit_throttled):
+                                    asyncio.create_task(
+                                        emit_throttled(
+                                            bot,
+                                            "entry.notional_scaled",
+                                            key=f"{k}:entry_budget_allocator",
+                                            cooldown_sec=60.0,
+                                            data={
+                                                "symbol": k,
+                                                "scale": bscale,
+                                                "planned_notional": planned_notional,
+                                                "cap": sym_budget_cap,
+                                                "budget_total_usdt": float(budget_total),
+                                                "budget_remaining_usdt": float(rem_budget),
+                                                "reason": "entry_budget_allocator",
+                                            },
+                                            symbol=k,
+                                            level="warning",
+                                        )
+                                    )
+                            except Exception:
+                                pass
+
+                    # Safety: block entries after recent router blocks
+                    if _cfg_env_bool(bot, "ENTRY_BLOCK_ON_ROUTER_BLOCK", True):
+                        window_sec = float(_cfg_env_float(bot, "ENTRY_BLOCK_ROUTER_WINDOW_SEC", 60.0) or 60.0)
+                        threshold = int(_cfg_env_float(bot, "ENTRY_BLOCK_ROUTER_THRESHOLD", 1) or 1)
+                        backoff_sec = float(_cfg_env_float(bot, "ENTRY_BLOCK_ROUTER_BACKOFF_SEC", 10.0) or 10.0)
+                        if window_sec > 0 and threshold > 0:
+                            if callable(count_recent):
+                                blocked = int(
+                                    count_recent(bot, event="order.blocked", symbol=k, window_sec=window_sec)
+                                )
+                            else:
+                                blocked = _recent_router_blocks(bot, k, window_sec)
+                            if blocked >= threshold:
+                                log_entry.warning(
+                                    f"ENTRY_LOOP: router blocks={blocked} within {window_sec:.0f}s â†' backoff {k}"
+                                )
+                                await _emit_entry_blocked(
+                                    bot,
+                                    k,
+                                    "router_block",
+                                    data={"count": blocked, "window_sec": window_sec},
+                                    throttle_sec=5.0,
+                                )
+                                _set_pending(k, sec=max(3.0, backoff_sec))
+                                await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                                continue
+
+                    # Unified safety throttle: recent entry.blocked events
+                    if _cfg_env_bool(bot, "ENTRY_BLOCK_ON_ERRORS", False) and callable(count_recent):
+                        err_window = float(_cfg_env_float(bot, "ENTRY_BLOCK_ERRORS_WINDOW_SEC", 60.0) or 60.0)
+                        err_thresh = int(_cfg_env_float(bot, "ENTRY_BLOCK_ERRORS_THRESHOLD", 3) or 3)
+                        err_backoff = float(_cfg_env_float(bot, "ENTRY_BLOCK_ERRORS_BACKOFF_SEC", 15.0) or 15.0)
+                        if err_window > 0 and err_thresh > 0:
+                            err_count = int(count_recent(bot, event="entry.blocked", symbol=k, window_sec=err_window))
+                            if err_count >= err_thresh:
+                                log_entry.warning(
+                                    f"ENTRY_LOOP: entry.blocked={err_count} within {err_window:.0f}s â†' backoff {k}"
+                                )
+                                await _emit_entry_blocked(
+                                    bot,
+                                    k,
+                                    "error_flood",
+                                    data={"count": err_count, "window_sec": err_window},
+                                    throttle_sec=30.0,
+                                )
+                                _set_pending(k, sec=max(3.0, err_backoff))
+                                await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                                continue
+
+                    # Post-scaling size validation: multiple scaling factors
+                    # (confidence, correlation, exposure, notional, budget) can
+                    # reduce amt to near-zero. Block before hitting the exchange.
+                    if amt is None or amt <= 0:
+                        log_entry.warning(f"ENTRY_LOOP: size scaled to zero for {k} after adjustments")
+                        await _emit_entry_blocked(bot, k, "size_scaled_to_zero", throttle_sec=30.0)
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
+
+                    # Submit order
+                    order_start = _now()
+                    order_result = "success"
+                    try:
+                        if otype == "limit":
+                            if price is None or price <= 0:
+                                log_entry.warning(f"ENTRY_LOOP: limit signal missing price for {k}")
+                                await _emit_entry_blocked(bot, k, "signal_limit_price", throttle_sec=30.0)
+                                await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                                continue
+
+                            res = await create_order(
+                                bot,
+                                symbol=sym_raw,
+                                type="LIMIT",
+                                side=action,
+                                amount=float(amt),
+                                price=float(price),
+                                params={},
+                                intent_reduce_only=False,
+                                intent_close_position=False,
+                                hedge_side_hint=hedge_side_hint,
+                                retries=int(_cfg_env_float(bot, "ENTRY_ROUTER_RETRIES", 6) or 6),
+                            )
+                        else:
+                            res = await create_order(
+                                bot,
+                                symbol=sym_raw,
+                                type="MARKET",
+                                side=action,
+                                amount=float(amt),
+                                price=None,
+                                params={},
+                                intent_reduce_only=False,
+                                intent_close_position=False,
+                                hedge_side_hint=hedge_side_hint,
+                                retries=int(_cfg_env_float(bot, "ENTRY_ROUTER_RETRIES", 4) or 4),
+                            )
+                    except asyncio.CancelledError:
+                        raise
+                    except Exception as e:
+                        order_result = "error"
+                        # try to detect margin insufficient and backoff
+                        msg = str(e)
+                        if "Margin is insufficient" in msg or '"code":-2019' in msg or "code': -2019" in msg:
+                            until = _now() + max(60.0, float(margin_backoff_sec))
+                            backoff_until_by_sym[k] = until
+                            log_entry.critical(f"ENTRY_LOOP: margin insufficient â†' backing off {k} for {int(margin_backoff_sec)}s")
+                            await _emit_entry_blocked(
+                                bot,
+                                k,
+                                "margin_insufficient",
+                                level="critical",
+                                throttle_sec=30.0,
+                            )
+                            _set_pending(k, sec=max(10.0, pending_block_sec * 0.5))
+                        else:
+                            log_entry.error(f"ENTRY_LOOP: order submit failed {k}: {e}")
+                            _set_pending(k, sec=max(3.0, pending_block_sec * 0.25))
+
+                        if callable(emit):
+                            try:
+                                await emit(
+                                    bot,
+                                    "entry.exception",
+                                    data={"symbol": k, "err": repr(e)[:300]},
+                                    symbol=k,
+                                    level="critical",
+                                )
+                            except Exception:
+                                pass
+                        await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                        continue
+                    finally:
+                        duration_ms = (_now() - order_start) * 1000.0
+                        await _emit_latency(bot, symbol=k, stage="order_router", duration_ms=duration_ms, result=order_result)
+
+                        oid = None
+                        if isinstance(res, dict):
+                            oid = res.get("id") or (res.get("info") or {}).get("orderId")
+
+                        # Partial fill handling (optional)
+                        if isinstance(res, dict):
+                            min_ratio = float(_cfg_env_float(bot, "ENTRY_PARTIAL_MIN_FILL_RATIO", 0.5) or 0.5)
+                            if min_ratio > 0:
+                                filled = _order_filled(res)
+                                req_amt = float(amt or 0.0)
+                                ratio = (filled / req_amt) if (req_amt > 0 and filled > 0) else 0.0
+                                if ratio > 0 and ratio < min_ratio:
+                                    pf = await _resolve_partial_fill_state(
+                                        bot,
+                                        symbol=k,
+                                        sym_raw=sym_raw,
+                                        action=action,
+                                        otype=otype,
+                                        order_id=str(oid) if oid else None,
+                                        requested=req_amt,
+                                        filled=filled,
+                                        min_ratio=min_ratio,
+                                        hedge_side_hint=hedge_side_hint,
+                                    )
+                                    await _emit_entry_blocked(
+                                        bot,
+                                        k,
+                                        "partial_fill",
+                                        data={
+                                            "filled": filled,
+                                            "requested": req_amt,
+                                            "ratio": ratio,
+                                            "min_ratio": min_ratio,
+                                            "outcome": pf.get("outcome"),
+                                            "cancel_ok": bool(pf.get("cancel_ok")),
+                                            "flatten_ok": bool(pf.get("flatten_ok")),
+                                            "code": ERR_PARTIAL_FILL,
+                                        },
+                                        level=("warning" if str(pf.get("outcome")) == "partial_forced_flatten" else "critical"),
+                                        throttle_sec=20.0,
+                                    )
+                                    base_backoff = max(3.0, float(_cfg_env_float(bot, "ENTRY_PARTIAL_BACKOFF_SEC", 10.0) or 10.0))
+                                    extra_backoff = _record_partial_fill_hit(bot, k)
+                                    total_backoff = base_backoff if extra_backoff <= 0 else max(base_backoff, extra_backoff)
+                                    if str(pf.get("outcome")) == "partial_stuck":
+                                        total_backoff = max(total_backoff, base_backoff * 2.0)
+                                    _set_pending(k, sec=total_backoff)
+                                    if extra_backoff > 0 and callable(emit_throttled):
+                                        try:
+                                            cooldown = max(30.0, float(_cfg_env_float(bot, "ENTRY_PARTIAL_ESCALATE_TELEM_CD_SEC", 300.0) or 300.0))
+                                            await emit_throttled(
+                                                bot,
+                                                "entry.partial_fill_escalation",
+                                                key=f"{k}:partial_fill",
+                                                cooldown_sec=cooldown,
+                                                data={
+                                                    "ratio": ratio,
+                                                    "requested": req_amt,
+                                                    "filled": filled,
+                                                    "backoff": extra_backoff,
+                                                    "min_ratio": min_ratio,
+                                                },
+                                                symbol=k,
+                                                level="warning",
+                                            )
+                                        except Exception:
+                                            pass
+                                    await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                                    continue
+
+                        if res is None:
+                            log_entry.warning(f"ENTRY_LOOP: create_order returned None for {k}")
+                            if callable(emit):
+                                try:
+                                    await emit(
+                                        bot,
+                                        "entry.order_failed",
+                                        data={"symbol": k, "action": action, "type": otype},
+                                        symbol=k,
+                                        level="critical",
+                                    )
+                                except Exception:
+                                    pass
+                            # even if failed, block briefly to prevent rapid spam while exchange is angry
+                            _set_pending(k, sec=max(3.0, pending_block_sec * 0.25))
+                            await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+                            continue
+
+                        if budget_enabled and planned_notional > 0:
+                            budget_spent += max(0.0, float(planned_notional))
+
+                        # âœ… key anti-stack: once we submitted ANY entry, block more entries for a while
+                        _set_pending(k, sec=max(5.0, pending_block_sec), order_id=str(oid) if oid else None)
+
+                        # Phase 3.4: Record handoff verification hint for reconcile.
+                        # If position doesn't appear within 30s, reconcile should prioritize this symbol.
+                        try:
+                            _rc = getattr(getattr(bot, "state", None), "run_context", None)
+                            if isinstance(_rc, dict):
+                                _pending_verifications = _rc.setdefault("entry_handoff_verify", {})
+                                _pending_verifications[k] = {
+                                    "submit_ts": _now(),
+                                    "order_id": str(oid or ""),
+                                    "side": action,
+                                    "deadline_ts": _now() + 30.0,
+                                }
+                        except Exception:
+                            pass
+
+                        if (
+                            isinstance(sig, dict)
+                            and str(sig.get("source") or "") == "micro_signal"
+                            and str(otype).lower().strip() == "limit"
+                            and oid
+                        ):
+                            _schedule_micro_timeout_cancel(
+                                bot,
+                                symbol=sym_raw,
+                                order_id=str(oid),
+                                timeout_sec=float(sig.get("fill_timeout_sec", 10.0) or 10.0),
+                                pending_tasks=_pending_micro_cancel_tasks,
+                            )
+
+                        log_core.critical(f"ENTRY_LOOP: ORDER SUBMITTED {k} {action.upper()} type={otype} amt={amt} id={oid}")
+                        if risk_mgr is not None:
+                            try:
+                                risk_mgr.on_entry_submitted()
+                            except Exception:
+                                pass
+                        if _pocket_scheduler is not None:
+                            try:
+                                _pn_submitted = str(sig.get("pocket_name", "") or "default")
+                                _pocket_scheduler.record_fire(_pn_submitted, _now())
+                            except Exception:
+                                pass
+                        if callable(build_entry_event):
+                            try:
+                                rs = (risk_mgr.state_dict() if risk_mgr is not None else {})
+                            except Exception:
+                                rs = {}
+                            try:
+                                rs = dict(rs or {})
+                                rs["open_positions"] = len(list((getattr(getattr(bot, "state", None), "positions", {}) or {}).values()))
+                            except Exception:
+                                pass
+                            await _safe_notify_event(
+                                bot,
+                                build_entry_event(
+                                    symbol=k,
+                                    side=action,
+                                    entry_price=float(price or _get_price(bot, k) or 0.0),
+                                    regime=str((regime_state or {}).get("current_regime") or "UNKNOWN"),
+                                    regime_age_sec=float((regime_state or {}).get("regime_age_sec") or 0.0),
+                                    rolling_return=float((regime_state or {}).get("rolling_return") or 0.0),
+                                    pocket={
+                                        "min_imbalance": float(sig.get("min_imbalance", 0.0) or 0.0) if isinstance(sig, dict) else 0.0,
+                                        "min_trade_intensity": float(sig.get("min_trade_intensity", 0.0) or 0.0) if isinstance(sig, dict) else 0.0,
+                                        "max_spread": float(sig.get("max_spread", 0.0) or 0.0) if isinstance(sig, dict) else 0.0,
+                                    },
+                                    risk_state=rs,
+                                ),
+                            )
+                        _reset_partial_fill_hits(k)
+
+                        # Register watch for limit/pending orders (optional)
+                        if otype == "limit" and callable(register_entry_watch) and oid:
+                            try:
+                                await register_entry_watch(
+                                    bot,
+                                    symbol=sym_raw,
+                                    order_id=str(oid),
+                                    side=("long" if action == "buy" else "short"),
+                                    amount=float(amt),
+                                    price=float(price or 0.0),
+                                    meta={"confidence": conf, "signal": {kk: vv for kk, vv in sig.items() if kk not in ("raw",)}},
+                                )
+                            except Exception:
+                                pass
+
+                        # Telemetry (optional)
+                        if callable(emit):
+                            try:
+                                await emit(
+                                    bot,
+                                    "entry.submitted",
+                                    data={
+                                        "symbol": k,
+                                        "action": action,
+                                        "type": otype,
+                                        "amount": float(amt),
+                                        "price": float(price) if price is not None else None,
+                                        "confidence": conf,
+                                        "order_id": oid,
+                                        "pending_block_sec": float(pending_block_sec),
+                                    },
+                                    symbol=k,
+                                    level="info",
+                                )
+                            except Exception:
+                                pass
+
+                        if _truthy(_cfg(bot, "ENTRY_NOTIFY", False)):
+                            await _safe_speak(bot, f"ENTRY {k} {action.upper()} {otype} amt={amt}", "info")
+
+                await asyncio.sleep(max(0.01, per_symbol_gap_sec))
+
+        except asyncio.CancelledError:
+            raise
+        except Exception as e:
+            log_entry.error(f"ENTRY_LOOP outer error: {e}")
+            if callable(build_crash_event):
+                await _safe_notify_event(bot, build_crash_event(str(e), max(0.0, _now() - float(notify_started_ts))))
+            await asyncio.sleep(1.0)
+    if _pending_micro_cancel_tasks:
+        _drain = [t for t in list(_pending_micro_cancel_tasks) if not t.done()]
+        if _drain:
+            _drain_timeout = float(_cfg_env_float(bot, "ENTRY_MICRO_CANCEL_DRAIN_TIMEOUT_SEC", 5.0) or 5.0)
+            _done, _still_pending = await asyncio.wait(_drain, timeout=max(0.0, _drain_timeout))
+            if _still_pending:
+                log_entry.warning(
+                    f"ENTRY_LOOP: {len(_still_pending)} micro timeout-cancel task(s) still pending after "
+                    f"{_drain_timeout}s drain; cancelling."
+                )
+                for t in _still_pending:
+                    t.cancel()
+                await asyncio.wait(_still_pending)
+    if micro_engine is not None:
+        try:
+            await micro_engine.stop()
+        except Exception:
+            pass
+    log_core.critical("ENTRY_LOOP OFFLINE — shutdown flag set")
+
+
+
+

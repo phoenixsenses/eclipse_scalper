@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="576" viewBox="0 0 1200 576"
+     role="img" aria-labelledby="t d">
+  <title id="t">Eclipse execution safety stack</title>
+  <desc id="d">Six layers in dominance order from kill switch down to the exchange adapter,
+  with a separate reduce-only exit lane that joins at the order router.</desc>
+
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#5C6675"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="576" fill="#07090D"/>
+
+  <text x="40" y="34" fill="#5C6675" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="11" letter-spacing="3.4">EXECUTION SAFETY</text>
+  <line x1="40" y1="46" x2="1160" y2="46" stroke="#FFFFFF" stroke-opacity=".09"/>
+  <text x="1160" y="34" text-anchor="end" fill="#5C6675" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="10" letter-spacing="1.8">NO LAYER MAY BYPASS THE ONE ABOVE IT</text>
+
+  <!-- dominance spine -->
+  <line x1="152" y1="74" x2="152" y2="500" stroke="#5C6675" stroke-opacity=".5" marker-end="url(#ar)"/>
+  <text transform="translate(126,392) rotate(-90)" fill="#5C6675"
+        font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="10" letter-spacing="2.6">DOMINATES DOWNWARD</text>
+
+  <g font-family="ui-monospace, 'Cascadia Mono', Consolas, 'SF Mono', Menlo, monospace">
+    <text x="40" y="107" fill="#3A424F" font-size="12">01</text>
+    <rect x="180" y="74" width="460" height="54" rx="2" fill="#0C0F14" stroke="#FFFFFF" stroke-opacity=".16"/>
+    <text x="204" y="100" fill="#E8ECF2" font-size="14" letter-spacing="1.2">KILL SWITCH</text>
+    <text x="204" y="118" fill="#5C6675" font-size="10.5">risk/kill_switch.py</text>
+
+    <text x="40" y="183" fill="#3A424F" font-size="12">02</text>
+    <rect x="180" y="150" width="460" height="54" rx="2" fill="#0C0F14" stroke="#FFFFFF" stroke-opacity=".16"/>
+    <text x="204" y="176" fill="#E8ECF2" font-size="14" letter-spacing="1.2">CIRCUIT BREAKER</text>
+    <text x="204" y="194" fill="#5C6675" font-size="10.5">execution/circuit_breaker.py</text>
+
+    <text x="40" y="259" fill="#3A424F" font-size="12">03</text>
+    <rect x="180" y="226" width="460" height="54" rx="2" fill="#0C0F14" stroke="#FFFFFF" stroke-opacity=".16"/>
+    <text x="204" y="252" fill="#E8ECF2" font-size="14" letter-spacing="1.2">RISK BOUNDS AND SIZING</text>
+    <text x="204" y="270" fill="#5C6675" font-size="10.5">execution/entry_sizing.py · execution/regime_sizer.py</text>
+
+    <text x="40" y="335" fill="#3A424F" font-size="12">04</text>
+    <rect x="180" y="302" width="460" height="54" rx="2" fill="#0C0F14" stroke="#FFFFFF" stroke-opacity=".16"/>
+    <text x="204" y="328" fill="#E8ECF2" font-size="14" letter-spacing="1.2">ENTRY GATE</text>
+    <text x="204" y="346" fill="#5C6675" font-size="10.5">execution/entry_gates.py · execution/entry_loop.py</text>
+
+    <text x="40" y="411" fill="#3A424F" font-size="12">05</text>
+    <rect x="180" y="378" width="460" height="54" rx="2" fill="#0C0F14" stroke="#A78BFA" stroke-opacity=".5"/>
+    <text x="204" y="404" fill="#E8ECF2" font-size="14" letter-spacing="1.2">ORDER ROUTER AND VERIFIER</text>
+    <text x="204" y="422" fill="#5C6675" font-size="10.5">one intent, at most one live order</text>
+
+    <text x="40" y="487" fill="#3A424F" font-size="12">06</text>
+    <rect x="180" y="454" width="460" height="54" rx="2" fill="#0C0F14" stroke="#FFFFFF" stroke-opacity=".16"/>
+    <text x="204" y="480" fill="#E8ECF2" font-size="14" letter-spacing="1.2">EXCHANGE ADAPTER</text>
+    <text x="204" y="498" fill="#5C6675" font-size="10.5">exchanges/binance.py · exchanges/mock.py</text>
+  </g>
+
+  <!-- the one exemption -->
+  <rect x="720" y="352" width="440" height="106" rx="2" fill="#0C0F14" stroke="#A78BFA" stroke-opacity=".5"/>
+  <text x="744" y="382" fill="#A78BFA" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="11" letter-spacing="2.2">THE ONE EXEMPTION</text>
+  <text x="744" y="408" fill="#E8ECF2" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13">Protective exits (reduce-only)</text>
+  <text x="744" y="430" fill="#98A2B3" font-family="system-ui, 'Segoe UI', sans-serif" font-size="12.5">route regardless of gate state. A stack that can</text>
+  <text x="744" y="448" fill="#98A2B3" font-family="system-ui, 'Segoe UI', sans-serif" font-size="12.5">block its own exit is not a safety stack.</text>
+  <line x1="716" y1="405" x2="644" y2="405" stroke="#A78BFA" stroke-opacity=".55" marker-end="url(#ar)"/>
+
+  <!-- restart lane -->
+  <rect x="720" y="74" width="440" height="106" rx="2" fill="#0C0F14" stroke="#FFFFFF" stroke-opacity=".09"/>
+  <text x="744" y="104" fill="#4D7CFF" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="11" letter-spacing="2.2">ACROSS RESTARTS</text>
+  <text x="744" y="130" fill="#E8ECF2" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13">bootstrap → restore → reconcile</text>
+  <text x="744" y="152" fill="#98A2B3" font-family="system-ui, 'Segoe UI', sans-serif" font-size="12.5">Internal belief converges toward exchange truth.</text>
+  <text x="744" y="170" fill="#98A2B3" font-family="system-ui, 'Segoe UI', sans-serif" font-size="12.5">A crash is normal. Stale partial state is not.</text>
+
+  <line x1="40" y1="540" x2="1160" y2="540" stroke="#FFFFFF" stroke-opacity=".09"/>
+  <text x="40" y="562" fill="#5C6675" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="10" letter-spacing="1.4">LIVE EXECUTION IS OFF BY DEFAULT AND IS ENABLED BY AN EXPLICIT LAUNCHER FLAG.</text>
+</svg>

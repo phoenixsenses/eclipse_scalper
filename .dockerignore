@@ -1,0 +1,24 @@
+# Eclipse Scalper — Docker ignore
+.git
+.github
+__pycache__
+*.pyc
+*.pyo
+.env
+.env.*
+logs/
+state/
+data/*.db
+reports/
+runs/
+tmp/
+tmp_*
+*.egg-info
+.venv
+venv
+node_modules
+dashboard/frontend/node_modules
+dashboard/frontend/dist
+*.db-journal
+*.db-wal
+localtests/

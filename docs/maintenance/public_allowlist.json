@@ -1,0 +1,553 @@
+{
+  "version": "1",
+  "generated": "2026-08-24",
+  "target": "../eclipse_scalper_public",
+  "policy": "ALLOWLIST. A file enters the public mirror only if an `include` pattern matches it AND no `exclude` pattern does. There is no blacklist fallback: an unlisted path is excluded by default, so forgetting to exclude something cannot publish it.",
+  "include": [
+    {
+      "pattern": "execution/**/*.py",
+      "why": "the execution engine: intent lifecycle, gates, router, verifier, reconcile, position and protection management. Scanned: no rule spec, no threshold constant, no result"
+    },
+    {
+      "pattern": "risk/**/*.py",
+      "why": "the kill switch — the top of the safety hierarchy"
+    },
+    {
+      "pattern": "brain/**/*.py",
+      "why": "persistent state and its LZ4 persistence"
+    },
+    {
+      "pattern": "exchanges/**/*.py",
+      "why": "exchange abstractions and the non-live adapter"
+    },
+    {
+      "pattern": "strategies/**/*.py",
+      "why": "strategy interfaces and signal scaffolding"
+    },
+    {
+      "pattern": "core/**/*.py",
+      "why": "fee model, micro features, regime and latency profiling primitives"
+    },
+    {
+      "pattern": "bot/**/*.py",
+      "why": "the async orchestration loop"
+    },
+    {
+      "pattern": "config/**",
+      "why": "static configuration helpers and contracts"
+    },
+    {
+      "pattern": "utils/**/*.py",
+      "why": "shared utilities including logging redaction"
+    },
+    {
+      "pattern": "monitoring/**",
+      "why": "alert rules, log rotation, Prometheus surface"
+    },
+    {
+      "pattern": "integrations/**/*.py",
+      "why": "operator control surface"
+    },
+    {
+      "pattern": "notifications/**/*.py",
+      "why": "alert spooling and notifier chain"
+    },
+    {
+      "pattern": "src/eclipse/**/*.py",
+      "why": "shared library code"
+    },
+    {
+      "pattern": "data/*.py",
+      "why": "collectors and data-layer code"
+    },
+    {
+      "pattern": "data/features/**/*.py",
+      "why": "feature registry and snapshot plumbing"
+    },
+    {
+      "pattern": "data/labels/**/*.py",
+      "why": "label plumbing"
+    },
+    {
+      "pattern": "tests/**/*.py",
+      "why": "the test suite — filtered by import closure, see `closure_rule`"
+    },
+    {
+      "pattern": "tests/fixtures/**",
+      "why": "synthetic fixtures for the surviving tests"
+    },
+    {
+      "pattern": ".github/**",
+      "why": "CI workflows, issue and PR templates"
+    },
+    {
+      "pattern": "docs/public/**",
+      "why": "the visitor-facing documentation set"
+    },
+    {
+      "pattern": "docs/maintenance/**",
+      "why": "release-engineering tooling and its record — kept in a clearly labelled subtree so it does not sit in the visitor's path"
+    },
+    {
+      "pattern": "docs/assets/**",
+      "why": "the public visual system"
+    },
+    {
+      "pattern": "docs/ARCHITECTURE.md",
+      "why": "subsystem map"
+    },
+    {
+      "pattern": "docs/INVARIANTS.md",
+      "why": "the hard contracts, with detection and enforcement per invariant"
+    },
+    {
+      "pattern": "docs/EXECUTION_CONTRACTS.md",
+      "why": "execution-layer contracts"
+    },
+    {
+      "pattern": "docs/OPS_RUNBOOK.md",
+      "why": "operating procedures"
+    },
+    {
+      "pattern": "docs/ENV_REFERENCE.md",
+      "why": "environment variables under their real code names"
+    },
+    {
+      "pattern": "docs/MICROSTRUCTURE_DATA_CONTRACT.md",
+      "why": "what the data promises"
+    },
+    {
+      "pattern": "docs/DEBUG_OPERATIONS.md",
+      "why": "debugging surfaces"
+    },
+    {
+      "pattern": "docs/PAPER_TRADING_ARCHITECTURE.md",
+      "why": "paper-mode architecture"
+    },
+    {
+      "pattern": "README.md",
+      "why": "the front page"
+    },
+    {
+      "pattern": "CONTRIBUTING.md",
+      "why": "contribution contract"
+    },
+    {
+      "pattern": "SECURITY.md",
+      "why": "vulnerability reporting"
+    },
+    {
+      "pattern": "requirements.txt",
+      "why": "dependencies"
+    },
+    {
+      "pattern": "pytest.ini",
+      "why": "test configuration"
+    },
+    {
+      "pattern": "Dockerfile",
+      "why": "container build"
+    },
+    {
+      "pattern": "docker-compose.yml",
+      "why": "container composition"
+    },
+    {
+      "pattern": ".gitignore",
+      "why": "ignore rules"
+    },
+    {
+      "pattern": ".dockerignore",
+      "why": "build ignore rules"
+    },
+    {
+      "pattern": "main.py",
+      "why": "the authoritative launcher; decides live vs dry-run"
+    },
+    {
+      "pattern": "settings.py",
+      "why": "settings entry point"
+    }
+  ],
+  "named_tools": {
+    "why": "tools/ is 701 files of research and operational tooling and is excluded by default. Only the modules CI actually invokes are published, plus their first-party import closure. Starting from what must work, rather than from what looks safe, is what makes this an allowlist.",
+    "paths": [
+      "tools/__init__.py",
+      "tools/check_data_ready.py",
+      "tools/collection_health.py",
+      "tools/collection_watchdog.py",
+      "tools/core_health.py",
+      "tools/daily_report.py",
+      "tools/db_maintenance.py",
+      "tools/defense_system.py",
+      "tools/health_state.py",
+      "tools/ingestion_check.py",
+      "tools/paper_trade_summary.py",
+      "tools/reliability_gate.py",
+      "tools/replay_trade.py",
+      "tools/research_fitness_report.py",
+      "tools/run_full_sweep.py",
+      "tools/run_summary.py",
+      "tools/signal_data_health.py",
+      "tools/telemetry_alert_summary.py",
+      "tools/telemetry_anomaly.py",
+      "tools/telemetry_classifier.py",
+      "tools/telemetry_dashboard.py",
+      "tools/telemetry_dashboard_notify.py",
+      "tools/telemetry_dashboard_page.py",
+      "tools/telemetry_drift_detection.py",
+      "tools/telemetry_guard_history.py",
+      "tools/telemetry_guard_history_alerts.py",
+      "tools/telemetry_guard_timeline.py",
+      "tools/telemetry_signal_exit_notify.py",
+      "tools/telemetry_smoke_assert.py",
+      "tools/validate_data_research_fitness.py",
+      "tools/validate_microstructure_contract.py"
+    ],
+    "closure_note": "The nine modules after the CI seventeen were added because the engine itself imports them: execution/health_gate imports health_state, execution/entry_loop imports ingestion_check, execution/guardian imports collection_watchdog and (via dashboard_aggregator) watch_regime_recovery, the collectors import health_state, and notifications/monitoring import the paper and collection summarisers. Each was read before being named. Two of them needed redaction first — see `sanitize`. `daily_report`, `db_maintenance` and `run_full_sweep` were added after checking the mirror against every `python -m tools.X` line in the workflows: ops-smoke invokes all three. `replay_latest_summary` was removed — it is referenced by a workflow but does not exist in the repository at all, and that workflow already guards the call with a file test."
+  },
+  "named_exceptions": {
+    "why": "Modules the blanket rules put on the internal side, individually read and found to be infrastructure rather than research. Each is required by an included module's import closure, and each was checked for rule specifications, thresholds, formulas and results before being named here.",
+    "paths": [
+      {
+        "path": "ami/__init__.py",
+        "why": "package marker only"
+      },
+      {
+        "path": "ami/host_health/__init__.py",
+        "why": "package marker only"
+      },
+      {
+        "path": "ami/host_health/evaluator.py",
+        "why": "pure restart-readiness state machine; performs no I/O and classifies only"
+      },
+      {
+        "path": "ami/host_health/observation.py",
+        "why": "read-only, fail-closed host observation collector; no research content"
+      },
+      {
+        "path": "ami/storage/__init__.py",
+        "why": "package marker only"
+      },
+      {
+        "path": "ami/storage/union_reader.py",
+        "why": "read-only SQLite union connection factory for the DB rotation; no query rewriting, no research semantics"
+      },
+      {
+        "path": "src/microphys/__init__.py",
+        "why": "package marker only"
+      },
+      {
+        "path": "src/microphys/schemas.py",
+        "why": "plain event dataclasses"
+      },
+      {
+        "path": "src/microphys/execution/__init__.py",
+        "why": "package marker only"
+      },
+      {
+        "path": "src/microphys/execution/latency.py",
+        "why": "latency model plumbing required by the deterministic passive simulator; no calibrated values"
+      },
+      {
+        "path": "src/microphys/io/__init__.py",
+        "why": "package marker only"
+      },
+      {
+        "path": "src/microphys/io/sqlite_reader.py",
+        "why": "generic read-only SQLite reader"
+      },
+      {
+        "path": "ami/storage/policy.py",
+        "why": "typed, immutable archive-policy object; every field mirrors an operator ruling about retention, not about a market"
+      },
+      {
+        "path": "ami/storage/registry.py",
+        "why": "an allowlist of the three archive-eligible raw tables; table names, no research semantics"
+      }
+    ]
+  },
+  "exclude": [
+    {
+      "pattern": "**/__pycache__/**",
+      "why": "build artifacts"
+    },
+    {
+      "pattern": "**/*.pyc",
+      "why": "build artifacts"
+    },
+    {
+      "pattern": "**/node_modules/**",
+      "why": "dependency tree"
+    },
+    {
+      "pattern": "data/derived/**",
+      "why": "derived alpha candidates, calibration and selection manifests — rule specifications in JSONL"
+    },
+    {
+      "pattern": "data/live/**",
+      "why": "a live plan artifact"
+    },
+    {
+      "pattern": "config/alert_rules.json",
+      "why": "operator alert thresholds"
+    },
+    {
+      "pattern": "docs/maintenance/tools/__pycache__/**",
+      "why": "build artifacts"
+    },
+    {
+      "pattern": "execution/dashboard_aggregator.py",
+      "why": "the dashboard export path; the mirror has no dashboard, and execution/guardian.py already imports it lazily behind an explicit `we_dont_have_this` fallback"
+    },
+    {
+      "pattern": "config/*.json",
+      "why": "lane configuration; e_der_forward_v2.json carries frozen research window parameters"
+    },
+    {
+      "pattern": "data/quote_1s_collector.py",
+      "why": "docstring states the study it was built for, its preregistration and its estimand"
+    },
+    {
+      "pattern": "data/trade_1s_collector.py",
+      "why": "docstring cites a study id and a master-state section"
+    },
+    {
+      "pattern": "integrations/eclipse_alpha/**",
+      "why": "candidate adapter for a sealed arm"
+    },
+    {
+      "pattern": "src/eclipse/news_intelligence/**",
+      "why": "an unpublished research layer, including its publishing bus"
+    },
+    {
+      "pattern": "tests/test_echo_*.py",
+      "why": "tests of a sealed forward arm"
+    },
+    {
+      "pattern": "tests/test_eclipse_alpha_adapter.py",
+      "why": "tests the sealed-arm candidate adapter"
+    },
+    {
+      "pattern": "tests/test_executor_parity_probe.py",
+      "why": "references a preregistration and a sealed arm"
+    },
+    {
+      "pattern": "tests/test_s40_*.py",
+      "why": "study-specific research tests"
+    },
+    {
+      "pattern": "tests/test_xsec_*.py",
+      "why": "cross-sectional research tests"
+    },
+    {
+      "pattern": "tests/test_union_asof_query_shape.py",
+      "why": "cites a master-state section"
+    },
+    {
+      "pattern": "tests/test_s34_*.py",
+      "why": "study-specific tests; admitted by the softened closure rule and caught by the content veto"
+    },
+    {
+      "pattern": "tests/test_research_*.py",
+      "why": "tests of research scripts; the one that reached the mirror named a study, a signal count and internal batch tokens in its docstring"
+    },
+    {
+      "pattern": "tests/test_forward_ledger_*.py",
+      "why": "names the sealed forward ledgers, the arms resting on them and the un-burned sample; it references the research modules as strings, so the import closure could not see them and only the content veto caught it"
+    },
+    {
+      "pattern": "tests/legacy_tools/test_entry_qty_scale_unit.py",
+      "why": "does not parse — an IndentationError at a try block, pre-existing in the internal repository. Excluded rather than silently fixed here: tests are not this work's to edit, and a public repository must not ship a file Python cannot read. Reported for the owner; the fix is one line of indentation"
+    },
+    {
+      "pattern": "docs/maintenance/GITHUB_RELEASE_PLAN.md",
+      "why": "a one-time migration runbook for the owner. It is operational rather than documentary, it goes stale the moment it is executed, and it names account-level actions that belong to whoever holds the account"
+    },
+    {
+      "pattern": "docs/maintenance/tools/classify_public_surface.py",
+      "why": "classifies the internal repository, so it has nothing to run against here — and its self-test table names individual internal artifacts by path. Category-level naming is the standard the rest of this subtree holds to; a path list is a lookup for someone else's search"
+    }
+  ],
+  "excluded_subsystems": [
+    {
+      "path": "dashboard/**",
+      "decision": "EXCLUDED — boundary documented, not fabricated",
+      "why": "The backend aggregator imports every adapter, and nine of the fifteen adapters read internal research artifacts (shadow ledgers, S34 state, paper bucket ledgers, execution-management stop protection). One of them, `execmgmt_stopprot.py`, hardcodes a real historical worst-fill figure as a module constant. Publishing a stripped dashboard would mean deleting nine adapters and leaving an aggregator that imports nothing — placeholder functionality created to make a check pass. The dashboard is an operator surface over the private research estate; that is what it is, and the honest move is to say so."
+    },
+    {
+      "path": "web/**",
+      "decision": "EXCLUDED from this mirror — owner decision, publication-ready",
+      "why": "The static site is already independently reviewed and machine-checked, and it carries no numbers. It is excluded only because the target tree the owner drew does not include it. It is a self-contained artifact with its own deployment story and can be published as its own repository or Pages site, or added here by one allowlist line."
+    },
+    {
+      "path": "tools/** (except named_tools)",
+      "decision": "EXCLUDED by default",
+      "why": "701 files of research and operational tooling. Roughly 380 encode frozen rules, thresholds or cost constants directly in code; many of the rest are report generators whose output is a results table. Only the modules CI invokes are published."
+    },
+    {
+      "path": "scripts/**",
+      "decision": "EXCLUDED",
+      "why": "supervisors and installers written against the operator's own machine layout, including absolute paths and role names"
+    },
+    {
+      "path": "start_eclipse.ps1, stop_eclipse.ps1, status_eclipse.ps1",
+      "decision": "EXCLUDED",
+      "why": "the launcher enumerates every runtime role, the traded symbol list and the operator's ports. It is an operator artifact, not a public one"
+    },
+    {
+      "path": "run-bot*.ps1",
+      "decision": "EXCLUDED",
+      "why": "legacy run helpers carrying absolute local paths"
+    },
+    {
+      "path": "tools/check_event_lanes.py, tools/watch_regime_recovery.py",
+      "decision": "EXCLUDED",
+      "why": "check_event_lanes states a complete pocket rule twice — a horizon and three thresholds — in a live tool. watch_regime_recovery's docstring states the same rule and imports it. Redacting a rule out of two files that exist to evaluate that rule would leave modules whose purpose had been removed; excluding them is the honest cut, and the only caller imports them lazily behind a fallback."
+    }
+  ],
+  "closure_rule": {
+    "why": "A test is published only if everything it imports is also published. This resolves the test suite by its subject rather than by scanning its fixtures for numbers: a test for an internal module is internal, whatever its numbers look like.",
+    "rule": "include a tests/ file iff its transitive first-party import closure is a subset of the published set"
+  },
+  "sanitize": [
+    {
+      "path": "data/setup_scheduled_tasks.ps1",
+      "kind": "absolute_path",
+      "why": "publishes the operator's own install root"
+    },
+    {
+      "path": "data/start_collector.bat",
+      "kind": "absolute_path",
+      "why": "publishes the operator's own install root"
+    },
+    {
+      "path": "data/start_diary.bat",
+      "kind": "absolute_path",
+      "why": "publishes the operator's own install root"
+    },
+    {
+      "path": "tools/collection_watchdog.py",
+      "kind": "replace",
+      "why": "the docstring cites an internal research report that does not exist in the public tree",
+      "replacements": [
+        {
+          "find": "DEPRECATED. Retired as an always-on process -- see the canonical topology\ndecision in reports/research/s34/CANONICAL_OPERATIONAL_HEALTH_2026-07-10.md.",
+          "replace": "DEPRECATED. Retired as an always-on process by a canonical operational-topology\ndecision; kept as an importable module for the health surfaces that still call it."
+        }
+      ]
+    },
+    {
+      "path": "*",
+      "kind": "reference_redaction",
+      "applies_to": [
+        "ami/storage/policy.py",
+        "data/microstructure_collector.py",
+        "execution/health_gate.py",
+        "tools/check_data_ready.py",
+        "tools/collection_watchdog.py",
+        "tools/health_state.py",
+        "tools/research_fitness_report.py",
+        "tools/validate_data_research_fitness.py"
+      ],
+      "why": "These cite internal research reports in comments and docstrings. The citation is not a leak of content, but it is a dangling reference in the public tree and it advertises the internal layout. One declared rule replaces the path with a neutral phrase; no behaviour changes."
+    },
+    {
+      "path": ".github/workflows/ci-tests.yml",
+      "kind": "drop_jobs",
+      "jobs": [
+        "dashboard-frontend",
+        "dashboard-backend-smoke"
+      ],
+      "why": "the mirror has no dashboard. CI must reference only files that exist, and a job that installs from a missing requirements file fails for a reason that has nothing to do with the code"
+    },
+    {
+      "path": ".github/workflows/ops-smoke.yml",
+      "kind": "replace",
+      "why": "the same reason, one line: the ops smoke installs the dashboard backend's dependencies",
+      "replacements": [
+        {
+          "find": "          pip install -r dashboard/backend/requirements.txt\n",
+          "replace": ""
+        }
+      ]
+    }
+  ],
+  "never": [
+    "SYSTEM_STATE.md",
+    "CLAUDE.md",
+    "AGENTS.md",
+    "docs/CLAUDE.md",
+    "docs/AGENTS.md",
+    "docs/protocols/**",
+    "docs/research/**",
+    "docs/ami/**",
+    "docs/knowledge_os/**",
+    "docs/news_intelligence/**",
+    "reports/**",
+    "research/**",
+    "deep_discovery/**",
+    "runs/**",
+    "runtime/**",
+    "state/**",
+    "tmp/**",
+    "localtests/**",
+    "eclipse_scalper/**",
+    "pine/**",
+    "ami/** (except named_exceptions)",
+    "src/microphys/** (except named_exceptions)",
+    "data/derived/**",
+    ".env*",
+    "**/*.db",
+    "**/*.sqlite",
+    "**/*.parquet",
+    ".agents/**",
+    ".claude/**"
+  ],
+  "documented_boundaries": {
+    "why": "Three places where the public tree reaches the edge of the private estate. In every case the existing code already handles the absence — these are the codebase's own fail-closed paths, not stubs written to make a check pass.",
+    "boundaries": [
+      {
+        "where": "execution/guardian.py -> execution/dashboard_aggregator.py",
+        "behaviour": "guardian imports it lazily inside a try block and calls `we_dont_have_this(...)` when it is missing",
+        "effect": "no dashboard export tick in the public tree; every other guardian duty is unaffected"
+      },
+      {
+        "where": "ami/host_health/observation.py -> ami/governance/storage_rotation_retention_readiness_v1",
+        "behaviour": "lazy import inside `try/except Exception` returning `STORAGE_STATE_UNKNOWN`",
+        "effect": "host observation reports storage state as unknown rather than fabricating a healthy one — which is the module's stated fail-closed contract"
+      },
+      {
+        "where": "the research estate as a whole",
+        "behaviour": "not imported by anything published",
+        "effect": "the public tree is an engineering framework. The research lane that consumes it is not part of this repository, and the documentation says so rather than implying the framework is the whole system"
+      }
+    ]
+  },
+  "veto_exempt": {
+    "why": "The public documentation that DESCRIBES this policy necessarily quotes its own vocabulary — a page explaining why preregistration matters must be allowed to write the word. Each exemption is a document written to be public, reviewed as public writing, and machine-checked by docs/maintenance/tools/check_public_docs.py.",
+    "paths": [
+      "CONTRIBUTING.md",
+      "README.md",
+      "SECURITY.md",
+      "docs/maintenance/GIT_HISTORY_LEAKAGE.md",
+      "docs/maintenance/PUBLICATION_RISK_REGISTER.md",
+      "docs/maintenance/PUBLIC_SURFACE_AUDIT.md",
+      "docs/maintenance/PUBLIC_TREE_PLAN.md",
+      "docs/maintenance/REPOSITORY_METADATA_RECOMMENDATIONS.md",
+      "docs/maintenance/SOURCE_PUBLICATION_REVIEW.md",
+      "docs/maintenance/public_allowlist.json",
+      "docs/maintenance/tools/build_public_mirror.py",
+      "docs/maintenance/tools/check_public_docs.py",
+      "docs/maintenance/tools/classify_public_surface.py",
+      "docs/public/ARCHITECTURE_OVERVIEW.md",
+      "docs/public/HISTORICAL_RESEARCH_CONTEXT.md",
+      "docs/public/PROJECT_STATUS.md",
+      "docs/public/PUBLIC_REPOSITORY_PROVENANCE.md",
+      "docs/public/README.md",
+      "docs/public/REPRODUCIBILITY.md",
+      "docs/public/RESEARCH_METHOD.md"
+    ]
+  },
+  "target_note": "Relative to the internal repository root. Override with --target; the path is a build destination, not a property of the published tree."
+}

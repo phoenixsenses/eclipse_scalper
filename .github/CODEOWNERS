@@ -1,0 +1,29 @@
+# Team ownership map for parallel work.
+
+# Person 1: data + research + signal
+/data/ @phoenixsenses
+/features/ @phoenixsenses
+/strategies/ @phoenixsenses
+/tools/ @phoenixsenses
+/tests/ @phoenixsenses
+/docs/ROADMAP_PARALLEL_LAYERS.md @phoenixsenses
+
+# Person 2: execution + risk + operations
+/execution/ @emresavaser
+/risk/ @emresavaser
+/bot/ @emresavaser
+/exchanges/ @emresavaser
+/notifications/ @emresavaser
+/dashboard/ @emresavaser
+/monitoring/ @emresavaser
+
+# Shared surfaces
+/config/ @phoenixsenses @emresavaser
+/docs/ @phoenixsenses @emresavaser
+/README.md @phoenixsenses @emresavaser
+/.github/ @phoenixsenses @emresavaser
+/scripts/ @phoenixsenses @emresavaser
+
+# Protected operational files
+/tools/apply_branch_protection.ps1 @phoenixsenses @emresavaser
+/docs/branch_protection.md @phoenixsenses @emresavaser

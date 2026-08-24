@@ -1,0 +1,110 @@
+# Secrets
+.env
+.env.*
+
+# Python
+__pycache__/
+*.pyc
+**/__pycache__/
+**/*.pyc
+
+# Runtime & logs
+logs/
+*.log
+**/*.log
+runlog.txt
+*.csv
+eclipse_notify_fallback_*/
+eclipse_test_*/
+
+# Brain / state / data
+data/**/*.db
+data/**/*.db-shm
+data/**/*.db-wal
+data/**/*.sqlite
+data/**/*.sqlite-wal
+data/**/*.sqlite-shm
+data/**/*.csv
+data/**/*.parquet
+data/canonical/
+data/backtest_cache/
+data/ami/cvd_rehearsal_disposable_20260705/
+localtests/
+eclipse_scalper/localtests/
+tmp/
+tmp_tests/
+.runtime_temp/
+.pytest_temp/
+runtime/daily_research_pipeline_status.json
+runtime/chrome_user_data_copy/
+runtime/x_unfollow_browser/
+
+# Generated reports / audits
+reports/*_REAL.json
+reports/*_REAL.md
+reports/DAILY_20*.json
+reports/DAILY_20*.md
+reports/DAILY_RESEARCH_PIPELINE.json
+reports/DAILY_RESEARCH_PIPELINE.md
+reports/PAPER_TRADE_SUMMARY.json
+reports/PAPER_TRADE_SUMMARY.md
+reports/test_cmp_*
+reports/test_daily_execution_calibration/
+reports/test_generate_liq_reversal_candidates/
+reports/test_liq_alerts/
+reports/test_liquidation_regime_tagger/
+
+# IDE
+.vscode/
+
+# OS
+Thumbs.db
+.DS_Store
+**/.DS_Store
+
+# Node / frontend artifacts
+**/node_modules/
+**/dist/
+**/.vite/
+dashboard/**/node_modules/
+dashboard/**/dist/
+
+# Production archive data (generated, never committed)
+data/archives/
+
+# Generated meta-DBs under reports (regenerable, binary)
+reports/**/*.db
+reports/**/*.sqlite
+reports/**/*.sqlite-shm
+reports/**/*.sqlite-wal
+
+# Runtime state / locks / checkpoints (transient)
+runtime/*_state.json
+runtime/*.lock
+runtime/*_checkpoint.json
+
+# Event diary runtime store (transient, regenerated at runtime)
+data/event_diary.state.json
+data/event_diary.store.jsonl
+
+# AMI runtime data stores & generated artifacts (data, not source; code lives in ami/)
+data/ami/*.json
+data/ami/*.jsonl
+data/ami/*.npz
+data/ami/backups/
+data/ami/candle_repair_source_package/
+
+# Live shadow/paper/forward runtime state, status dashboards & ledgers
+# (continuously rewritten by the running Eclipse stack; live on disk, monitored
+#  via dashboard :8771; latest snapshot archived to D:/eclipse_evidence_archive)
+reports/shadow/
+reports/WATCHDOG_STATUS.json
+reports/LANE_SHADOW_EMITTER_STATE.json
+reports/stream_health_state.json
+reports/research/s34/LIQ_ANOMALY_MONITOR.json
+reports/research/s34/S34_DAILY_EXECUTION_REPORT.md
+reports/research/s34/S34_SHADOW_PAPER_*
+reports/research/s34/S34_V_ENGINE_SIZING_SHADOW_PAPER*
+reports/research/s34/S34_V_ENGINE_V0_2_SHADOW_MIRROR_BRIEF.*
+reports/research/s34/S34_V_ENGINE_V0_2_SHADOW_MIRROR_LEDGER.jsonl
+.venv/

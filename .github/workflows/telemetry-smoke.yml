@@ -1,0 +1,124 @@
+name: Telemetry Smoke Assertions
+
+on:
+  schedule:
+    - cron: "30 3 * * *"
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    name: Notifier smoke chain
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install runtime dependency
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install python-telegram-bot==22.5
+
+      - name: Run chained smoke assertions
+        run: |
+          mkdir -p logs
+          rm -f logs/telemetry.jsonl logs/telemetry_dashboard_notify_state.json logs/telemetry_smoke_result.txt
+
+          echo "telemetry smoke chain started" > logs/telemetry_smoke_result.txt
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          state = {"recovery_red_lock_streak": 1, "level": "normal"}
+          p = Path("logs/telemetry_dashboard_notify_state.json")
+          p.write_text(json.dumps(state, ensure_ascii=True, indent=2) + "\n", encoding="utf-8")
+          print("seeded state for escalation")
+          PY
+
+          python - <<'PY'
+          import json, time
+          from pathlib import Path
+          p = Path("logs/telemetry.jsonl")
+          event = {
+              "event": "execution.belief_state",
+              "ts": float(time.time()),
+              "data": {
+                  "guard_recovery_stage": "RED_LOCK",
+                  "guard_unlock_conditions": "smoke: escalation path",
+                  "guard_next_unlock_sec": 300.0,
+              },
+          }
+          with p.open("a", encoding="utf-8") as fh:
+              fh.write(json.dumps(event, ensure_ascii=True) + "\n")
+          print("injected RED_LOCK event")
+          PY
+
+          python tools/telemetry_dashboard_notify.py \
+            --path logs/telemetry.jsonl \
+            --state-path logs/telemetry_dashboard_notify_state.json \
+            --recovery-red-lock-critical-streak 2 \
+            --no-notify
+
+          python tools/telemetry_smoke_assert.py \
+            --state logs/telemetry_dashboard_notify_state.json \
+            --expected-level critical \
+            --expected-stage RED_LOCK \
+            --expected-red-lock-streak 2
+
+          echo "phase1=PASS escalation" >> logs/telemetry_smoke_result.txt
+
+          python - <<'PY'
+          import json, time
+          from pathlib import Path
+          p = Path("logs/telemetry.jsonl")
+          event = {
+              "event": "execution.belief_state",
+              "ts": float(time.time()),
+              "data": {
+                  "guard_recovery_stage": "POST_RED_WARMUP",
+                  "guard_unlock_conditions": "smoke: reset path",
+                  "guard_next_unlock_sec": 120.0,
+              },
+          }
+          with p.open("a", encoding="utf-8") as fh:
+              fh.write(json.dumps(event, ensure_ascii=True) + "\n")
+          print("injected POST_RED_WARMUP event")
+          PY
+
+          python tools/telemetry_dashboard_notify.py \
+            --path logs/telemetry.jsonl \
+            --state-path logs/telemetry_dashboard_notify_state.json \
+            --recovery-red-lock-critical-streak 2 \
+            --no-notify
+
+          python tools/telemetry_smoke_assert.py \
+            --state logs/telemetry_dashboard_notify_state.json \
+            --expected-level normal \
+            --expected-stage POST_RED_WARMUP \
+            --expected-red-lock-streak 0
+
+          echo "phase2=PASS reset" >> logs/telemetry_smoke_result.txt
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          state = json.loads(Path("logs/telemetry_dashboard_notify_state.json").read_text(encoding="utf-8"))
+          with Path("logs/telemetry_smoke_result.txt").open("a", encoding="utf-8") as fh:
+              fh.write(f"level={state.get('level')}\n")
+              fh.write(f"recovery_stage_latest={state.get('recovery_stage_latest')}\n")
+              fh.write(f"recovery_red_lock_streak={state.get('recovery_red_lock_streak')}\n")
+              fh.write(f"last_decision_reason={state.get('last_decision_reason')}\n")
+          print("wrote telemetry_smoke_result.txt")
+          PY
+
+      - name: Upload smoke artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: telemetry-smoke
+          path: |
+            logs/telemetry_smoke_result.txt
+            logs/telemetry_dashboard_notify_state.json
+            logs/telemetry.jsonl

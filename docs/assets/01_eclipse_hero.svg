@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320"
+     role="img" aria-labelledby="t d">
+  <title id="t">Eclipse</title>
+  <desc id="d">The Eclipse wordmark beside an occulted disc: a dark body with a thin bright
+  corona escaping around it, and the sequence Observe, Measure, Falsify, Replicate, Execute.</desc>
+
+  <defs>
+    <radialGradient id="wash" cx="16%" cy="10%" r="86%">
+      <stop offset="0%" stop-color="#4D7CFF" stop-opacity=".10"/>
+      <stop offset="55%" stop-color="#4D7CFF" stop-opacity=".03"/>
+      <stop offset="100%" stop-color="#4D7CFF" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="corona" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#4D7CFF"/>
+      <stop offset="40%"  stop-color="#A78BFA"/>
+      <stop offset="76%"  stop-color="#E9A23B"/>
+      <stop offset="100%" stop-color="#FBF3E2"/>
+    </linearGradient>
+
+    <radialGradient id="halo">
+      <stop offset="0%"   stop-color="#A78BFA" stop-opacity="0"/>
+      <stop offset="54%"  stop-color="#A78BFA" stop-opacity="0"/>
+      <stop offset="63%"  stop-color="#CDBBFF" stop-opacity=".20"/>
+      <stop offset="70%"  stop-color="#8B7BE8" stop-opacity=".085"/>
+      <stop offset="86%"  stop-color="#4D7CFF" stop-opacity=".025"/>
+      <stop offset="100%" stop-color="#4D7CFF" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="body" cx="40%" cy="34%" r="76%">
+      <stop offset="0%" stop-color="#080A0F"/>
+      <stop offset="70%" stop-color="#04060A"/>
+      <stop offset="100%" stop-color="#020407"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="320" fill="#07090D"/>
+  <rect width="1200" height="320" fill="url(#wash)"/>
+
+  <line x1="48" y1="0" x2="48" y2="320" stroke="#FFFFFF" stroke-opacity=".09"/>
+  <circle cx="48" cy="160" r="2.6" fill="#4D7CFF"/>
+  <circle cx="48" cy="160" r="7" fill="none" stroke="#4D7CFF" stroke-opacity=".26"/>
+
+  <text x="86" y="88" fill="#5C6675"
+        font-family="ui-monospace, 'Cascadia Mono', Consolas, 'SF Mono', Menlo, monospace"
+        font-size="12" letter-spacing="7.5">SΞNSE</text>
+
+  <text x="82" y="184" fill="#E8ECF2"
+        font-family="Bahnschrift, 'DIN Alternate', 'Arial Narrow', system-ui, sans-serif"
+        font-size="98" font-weight="700" letter-spacing="5">ECLIPSE</text>
+
+  <line x1="84" y1="216" x2="672" y2="216" stroke="#FFFFFF" stroke-opacity=".09"/>
+
+  <text x="86" y="246" fill="#98A2B3"
+        font-family="system-ui, -apple-system, 'Segoe UI', Inter, sans-serif"
+        font-size="19">Mechanism-first market microstructure research and execution.</text>
+
+  <text x="86" y="286" fill="#6E7889"
+        font-family="ui-monospace, 'Cascadia Mono', Consolas, 'SF Mono', Menlo, monospace"
+        font-size="11.5" letter-spacing="4.6">OBSERVE<tspan fill="#2E3542">   ·   </tspan>MEASURE<tspan fill="#2E3542">   ·   </tspan>FALSIFY<tspan fill="#2E3542">   ·   </tspan>REPLICATE<tspan fill="#2E3542">   ·   </tspan>EXECUTE</text>
+
+  <circle cx="962" cy="160" r="190" fill="url(#halo)"/>
+  <circle cx="962" cy="160" r="120" fill="none" stroke="url(#corona)" stroke-width="2.4" stroke-opacity=".95"/>
+  <circle cx="962" cy="160" r="107" fill="url(#body)"/>
+  <circle cx="962" cy="160" r="107" fill="none" stroke="#FFFFFF" stroke-opacity=".05"/>
+  <path d="M 921.0 47.2 A 120 120 0 0 1 1053.9 82.9"
+        fill="none" stroke="#FDF8EE" stroke-width="3.6" stroke-linecap="round"/>
+  <circle cx="1053.9" cy="82.9" r="5" fill="#FFFFFF" fill-opacity=".95"/>
+  <circle cx="1053.9" cy="82.9" r="11" fill="#FFFFFF" fill-opacity=".07"/>
+</svg>

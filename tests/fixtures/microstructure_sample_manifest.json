@@ -1,0 +1,32 @@
+{
+  "db": "tests/fixtures/microstructure_sample.db",
+  "schema": "collector_baseline_v1",
+  "symbols": {
+    "BTCUSDT": {
+      "agg_trade_rows": 24,
+      "liquidation_rows": 4,
+      "mark_price_rows": 24,
+      "max_ts_ms": 1700000023000,
+      "min_ts_ms": 1700000000000
+    },
+    "ETHUSDT": {
+      "agg_trade_rows": 24,
+      "liquidation_rows": 4,
+      "mark_price_rows": 24,
+      "max_ts_ms": 1700000123000,
+      "min_ts_ms": 1700000100000
+    }
+  },
+  "tables": {
+    "agg_trades": {
+      "rows": 48
+    },
+    "liquidations": {
+      "rows": 8
+    },
+    "mark_prices": {
+      "rows": 48
+    }
+  },
+  "true_top_of_book": false
+}
