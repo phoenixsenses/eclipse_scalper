@@ -60032,3 +60032,45 @@ SAME_SUBSTITUTION_S119_CORRECTED_ONE_PARAGRAPH_EARLIER_FOR_GAP_TIME
 THE_SUBSTANCE_STANDS_ONLY_THE_LABEL_IS_THE_LANES_OWN_COINAGE
 REPORTED_TO_LANE_C_NOT_EDITED
 ```
+
+## §564 [D-E31] PUSH GEREKMİYOR — ölçüldü: **1 645 dosya, 1 548 944 satır**; ve kendi prob'um dolduğu bir guardrail'i *"düzeltmeme"* ramak kaldı (2026-08-27, Opus 5 [1M])
+
+### ÖLÇÜM — BİR PUSH NEYİ AÇAR
+`origin/main..HEAD` = **1 645 dosya**, **1 548 944 ekleme**. Bunların **968'i `reports/` altında**.
+**`SYSTEM_STATE.md` · `CONTRADICTION_REGISTER.md` · `reports/atlas/_SHARED_LOG.md` — ÜÇÜ DE
+diff'in içinde.** Bir push, iç araştırma kaydının **tamamını PUBLIC bir depoya, geri
+alınamaz biçimde** yayımlar.
+
+**Dayanıklılık zaten çözülmüş:** yerelde **540 commit** var ve bugün her tur bir commit'le kapandı.
+**İkinci bir remote TANIMLI DEĞİL** — `git remote -v` yalnız `origin` gösteriyor ⇒ CLAUDE.md'nin
+andığı private remote **henüz yok**; kurmak ayrı ve kasıtlı bir eylem.
+
+### KENDİ SAYIM — VE ONU KURTARAN PROMPT MADDESİ
+`SYSTEM_STATE.md`'yi **197 KB** okudum ve D-E19'un guardrail'inin **22 kat abarttığını** rapor
+etmek üzereydim. `os.path.getsize` diyor ki: **4 553 604 bayt = 4.34 MB**.
+**GUARDRAIL DOĞRU**; benim `ls -lh | awk` okumam yanlış alanı almış.
+
+Bugün **üçüncü kez** kendi yazdığım bir prob yanlış sayı üretti — ve **ilk kez hedefi veri değil
+BİR KURALDI**. Standing cümlenin *"kendi eski sayını da doğrula"* maddesi tam da bunu durdurdu;
+doğrulama **eski sayıyı akladı, yeni prob'u suçladı**. Kötü bir prob üzerine *"düzeltilen"* bir
+güvenlik kuralı, bir kuralın sessizce ölme biçimidir.
+
+### KÜLLİYAT: **SESSİZ** — ve 27 hit bir TUZAK
+`--who "information leakage"` 3 kaynakta **27 hit**, 19'u Kissell. Sayarak değil **okuyarak**:
+Kissell'in kastettiği, **aracı kurumun icra sırasında yatırımcının emir niyetini öğrenmesi** —
+*"information leakage is minimized since the broker does not receive any information about the
+order"*. Bu, bir deponun araştırmasını yayımlamasından **bambaşka bir nesne**. **Sayım
+ÖNGÖRÜYOR derdi; pasaj SESSİZ diyor.** A-S66'nın `saturat` homonim uyarısıyla aynı şekil.
+
+```verdict
+PUSH_IS_NOT_NEEDED_AND_REMAINS_FORBIDDEN
+IT_WOULD_PUBLISH_1645_FILES_AND_1_548_944_INSERTIONS_968_UNDER_REPORTS
+SYSTEM_STATE_CONTRADICTION_REGISTER_AND_SHARED_LOG_ARE_ALL_THREE_IN_THE_DIFF
+DURABILITY_IS_ALREADY_HANDLED_540_LOCAL_COMMITS
+NO_SECOND_REMOTE_EXISTS_THE_PRIVATE_ONE_NAMED_IN_CLAUDE_MD_IS_NOT_CONFIGURED
+D_E19_GUARDRAIL_FIGURE_IS_CORRECT_4_553_604_BYTES_MY_NEW_PROBE_READ_THE_WRONG_FIELD
+THIRD_SELF_WRITTEN_PROBE_TO_GIVE_A_WRONG_NUMBER_TODAY_AND_THE_FIRST_AIMED_AT_A_RULE
+A_GUARDRAIL_CORRECTED_ON_A_BAD_PROBE_IS_HOW_A_SAFETY_RULE_DIES_QUIETLY
+CORPUS_SILENT_THE_27_HITS_ARE_A_HOMONYM_KISSELL_MEANS_BROKER_ORDER_INTENTION_LEAKAGE
+A_COUNT_WOULD_HAVE_SAID_PREDICTS_THE_PASSAGE_SAYS_SILENT
+```
