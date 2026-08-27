@@ -478,6 +478,28 @@ def brief(lane, bl):
                 [c for b in since for c in citations(b["body"])])}
 
 
+def inbox(lane, bl):
+    """EVERY message addressed to `lane`, over the WHOLE record, IGNORING the cursor.
+
+    `--brief` is cursor-based: it shows what arrived since the lane's own last block.  That is
+    right for a running lane and WRONG after a reader repair.  D-E25 recovered 13 blocks the
+    parser had been dropping, 7 of them addressed to lane D -- and every one sits BEFORE the
+    current cursor, so `--brief` will never surface them.  A repair that restores the record but
+    not the delivery is half a repair.
+
+    Run once per lane after any parser change.  Cheap, and it cannot go stale: it derives from
+    the record every time and writes nothing.
+    """
+    out = []
+    for b in bl:
+        if b["lane"] == lane:
+            continue
+        v = b["fields"].get("to %s" % lane, "").strip()
+        if v and v != "-":
+            out.append({"from": b["lane"], "id": b["stable_id"], "line": b["line"], "text": v})
+    return out
+
+
 def check(bl):
     """Format invariants of the RECORD, so the record stays parseable."""
     required = ("what", "verdict", "stands", "withdraws", "next")
@@ -520,6 +542,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--brief", metavar="LANE", help="what LANE missed since its own last block")
     ap.add_argument("--who", nargs="+", metavar="TERM", help="who has touched these terms before?")
+    ap.add_argument("--inbox", metavar="LANE",
+                    help="EVERY message addressed to LANE, ignoring the cursor")
     ap.add_argument("--owed", action="store_true", help="the obligation matrix + per-lane inbox")
     ap.add_argument("--ct", action="store_true", help="open contradictions")
     ap.add_argument("--check", action="store_true", help="record format invariants")
@@ -528,7 +552,7 @@ def main():
     ap.add_argument("--no-corpus", action="store_true",
                     help="--who: skip the corpus half (estate only)")
     a = ap.parse_args()
-    if not any([a.brief, a.who, a.owed, a.ct, a.check]):
+    if not any([a.brief, a.who, a.owed, a.ct, a.check, a.inbox]):
         ap.print_help()
         return 0
 
@@ -574,6 +598,21 @@ def main():
     if a.ct:
         cs = contradictions()
         out["contradictions"] = {"total": len(cs), "open": [c for c in cs if c["open"]]}
+    if a.inbox:
+        lane = a.inbox.upper()
+        msgs = inbox(lane, bl)
+        print("INBOX for lane %s   %d messages, WHOLE record, cursor ignored" % (lane, len(msgs)))
+        print("  --brief only shows what arrived since your own last block.  this shows all of it,")
+        print("  which is what you need after a reader repair (D-E25 recovered 13 dropped blocks).")
+        for m in msgs:
+            print("")
+            print("  [%s] %s   line %d" % (m["from"], m["id"], m["line"]))
+            for ln2 in re.sub(r"\s+", " ", m["text"]).strip().split(". "):
+                if ln2.strip():
+                    print("     %s" % ln2.strip())
+        if not msgs:
+            print("  none -- and an empty inbox is a CLAIM, not a default.")
+    
     if a.check:
         out["check"] = check(bl)
 

@@ -59481,3 +59481,50 @@ C_T48_CLOSED_NUL_STRIPPED_NINE_CONTROL_TERMS_BYTE_IDENTICAL
 SECTION_550_WITHDRAWN_A_PASSING_TEST_IS_NOT_COVERAGE
 BOTH_NEW_GUARDS_FAILED_ON_THEIR_FIRST_RUN_WHICH_IS_HOW_THE_SECOND_CAUSE_WAS_FOUND
 ```
+
+## §554 [D-E26] *"ARTIK HER ŞEYİ BULACAK MI"* — **YARISI**: KAYIT GERİ GELDİ AMA **TESLİMAT** GELMEDİ; `--inbox` EKLENDİ (2026-08-27, Opus 5 [1M])
+
+### İLERİ YÖNDE: EVET
+`--brief`, `--ct` ve `--who` artık **121 bloğun 121'ini** okuyor — bu sabah 120'nin 103'ünü
+okuyordu. Self-test'in yeni **parser-completeness** guard'ı bunu sabitliyor.
+
+### GERİ YÖNDE: HAYIR — VE PROMPT BUNU ÇÖZEMEZ
+`--brief` tasarım gereği **İMLEÇ TABANLI**: hattın **kendi son bloğundan sonra** geleni gösterir.
+D-E25'in kurtardığı **13 bloğun tamamı** her hattın mevcut imlecinden **ÖNCE** duruyor.
+Az önce ölçüldü: **`--brief D` “0 blok, 0 sana yazılmış” diyor**, oysa dosyada lane D'ye
+yazılmış **yedi** mesaj duruyor.
+
+**Kaydı geri getirip teslimatı getirmeyen bir onarım, yarım onarımdır** — ve soru sorulmasaydı
+bunu tam diye teslim edecektim.
+
+### `--inbox <HAT>` — İMLEÇTEN BAĞIMSIZ
+Tüm kayıt boyunca o hatta yazılmış **her dolu `to <HAT>` satırını** metniyle basar.
+
+| hat | mesaj |
+|---|--:|
+| A | **84** |
+| B | **117** |
+| C | **66** |
+| D | **57** |
+
+Her seferinde kayıttan türetilir ve **hiçbir şey yazmaz**, dolayısıyla bayatlayamaz.
+**Herhangi bir parser değişikliğinden sonra BİR KEZ koşulur.**
+
+### HÂLÂ YAPMADIĞI ŞEYLER — kimse beklemesin diye
+Hiçbir şeyi **doğrulamaz**; kayıttaki her satır yazan hattın **kendi beyanı**dır ve
+**hatırlama, inceleme değildir**. Külliyat bir **KAYNAK**tır, otorite değil. İki başlık hâlâ
+ayrıştırılamıyor (`B (18 sections)`, `LANE D OPENED`) — **işaretli ve raporlanıyor**, sessizce
+değiştirilmiyor. Ve çok kelimeli terim hâlâ **TIRNAKLANMALI**; o bir kabuk özelliği, okuyucu
+düzeltmesinin uzanabileceği bir yer değil.
+
+```verdict
+FORWARD_YES_121_OF_121_BLOCKS_WHERE_IT_WAS_103_OF_120_THIS_MORNING
+BACKWARD_NO_BRIEF_IS_CURSOR_BASED_AND_THE_RECOVERED_BLOCKS_PREDATE_EVERY_CURSOR
+MEASURED_BRIEF_D_SAYS_ZERO_WHILE_SEVEN_MESSAGES_TO_D_SIT_IN_THE_FILE
+A_REPAIR_THAT_RESTORES_THE_RECORD_BUT_NOT_THE_DELIVERY_IS_HALF_A_REPAIR
+INBOX_ADDED_CURSOR_INDEPENDENT_A_84_B_117_C_66_D_57
+RUN_IT_ONCE_PER_LANE_AFTER_ANY_PARSER_CHANGE
+RECALL_IS_NOT_REVIEW_THE_RECORD_IS_SELF_REPORTED_AND_THE_CORPUS_IS_A_SOURCE_NOT_AN_AUTHORITY
+TWO_HEADERS_STILL_UNPARSEABLE_MARKED_AND_SURFACED_NEVER_SILENTLY_REPLACED
+A_MULTI_WORD_TERM_MUST_STILL_BE_QUOTED_THAT_IS_A_SHELL_PROPERTY
+```

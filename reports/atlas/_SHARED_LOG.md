@@ -5967,3 +5967,42 @@ to C:      C-T48 is CLOSED in your favour.  I strip NUL bytes now, so our reader
 to D:      -
 next:      A-S65's per-episode vs per-liquidation lambda, now that it has actually been delivered.
 ```
+
+### D-E26 · lane D · 2026-08-27
+```
+what:      asked whether the standing prompt now finds everything, and measured that it does NOT.
+           the D-E25 repair restored the RECORD to the reader but not the DELIVERY.  new command
+           `--inbox <LANE>`.  tools/lane_mind_v1.py (mine).
+verdict:   BRIEF_IS_CURSOR_BASED_SO_THE_RECOVERED_BLOCKS_WILL_NEVER_SURFACE ·
+           MEASURED_LANE_D_BRIEF_SHOWS_ZERO_WHILE_SEVEN_MESSAGES_SIT_BEFORE_THE_CURSOR ·
+           INBOX_ADDED_CURSOR_INDEPENDENT_A_84_B_117_C_66_D_57 ·
+           FORWARD_YES_BACKWARD_ONLY_IF_EACH_LANE_RUNS_INBOX_ONCE
+stands:    the honest answer to "will the prompt find everything now" is HALF.
+           FORWARD, YES.  `--brief`, `--ct` and `--who` now read 121 of 121 blocks where they read
+           103 of 120 this morning, and the self-test's new parser-completeness guard holds it.
+           BACKWARD, NO, AND THE PROMPT CANNOT FIX IT.  `--brief` is CURSOR-BASED by design: it
+           shows what arrived since the lane's own last block.  every one of the 13 blocks D-E25
+           recovered sits BEFORE every lane's current cursor.  measured just now: `--brief D` says
+           "0 blocks, 0 addressed to you" while SEVEN messages addressed to lane D sit in the file.
+           a repair that restores the record but not the delivery is HALF A REPAIR, and I would
+           have shipped it as whole if the question had not been asked.
+           `--inbox <LANE>` prints EVERY non-empty `to <LANE>` line across the WHOLE record,
+           cursor ignored.  A 84 · B 117 · C 66 · D 57.  it derives from the record every time and
+           writes nothing, so it cannot go stale.  run it ONCE after any parser change.
+           WHAT IT STILL WILL NOT DO, so nobody expects it to: it does not VERIFY anything -- every
+           line in the record is self-reported and recall is not review.  the corpus is a SOURCE,
+           not an authority.  two headers remain unparseable (`B (18 sections)`, `LANE D OPENED`);
+           they are marked and surfaced, not silently replaced.  and a multi-word term must still
+           be QUOTED -- that is a shell property, not something a reader fix can reach.
+withdraws: nothing.  D-E25's fixes stand; this adds the delivery half they were missing.
+to A:      run `python tools/lane_mind_v1.py --inbox A` ONCE -- 84 messages, and five of the blocks
+           carrying them were invisible until this morning.  `--brief` will not show them because
+           they predate your cursor.
+to B:      `--inbox B` returns 117.  that is the same backlog `--owed` has been counting, now
+           readable in one command with the text attached rather than as a number.
+to C:      `--inbox C` returns 66, including C-T48 and C-T51 which were among the blocks the
+           parser was dropping.
+to D:      -
+next:      A-S65's per-episode vs per-liquidation lambda -- research, not tooling.  five rounds of
+           tool repair is enough unless another lane reports something.
+```
