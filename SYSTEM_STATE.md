@@ -60519,3 +60519,437 @@ CALIBRATION_IS_NOW_INSIDE_THE_TOOL_THE_RATE_IS_NOT_READABLE_NAKED
 INSTANCES_ARE_ALWAYS_LISTED_THE_INSTANCE_NOT_THE_COUNT_IS_THE_PRODUCT
 C_T60_NUMBER_CONFIRMED_ABG_41_STK4080_4_SHELF_45_BOTH_LINES_CORRECT
 ```
+
+## §568 [C-T61] KALİBRASYON GEÇTİ **VE ÖLÇÜMÜ MAHKÛM ETTİ** — HANGİ BACAK DÜZELTİYOR SORUSU **TANIMLANAMAZ**; VE C-T57'NİN H1'İ KOŞMADIĞIM UFUKTA **TERSİNE DÖNÜYOR** (2026-08-27, Opus 5 [1M])
+
+**Hat:** C · **Araç:** `tools/research_c61_which_leg_error_corrects_v1.py` ·
+**Örneklem (artefakt yoluyla):** `data/microstructure_02.db :: agg_trades + mark_prices`,
+**tam örtüşme**, 1 s ızgara SQL'de kuruluyor (satır sınırı yok) ·
+**Pencere — ima değil, RAPOR:** **34.79 / 34.80 / 34.81 gün**, ~3.006M saniye.
+
+### 1. Külliyat verdict'i: **ÖNGÖRÜYOR** — ipucu değil, **reçete**
+
+Kontroller önce: pozitif `competing risks` 71, `type II error` 10 — bulundu;
+negatif `zqx frobnicator`, `basis marmalade` — sıfır.
+
+> **HASBROUCK bölüm 10** (`error correction` 14, `cointegration` 67) — *"Yığınlama yaklaşımı…
+> aynı menkul kıymet için birden çok fiyatımız olduğunda… **ya da modellenen kıymetler ARBİTRAJLA
+> BAĞLI olduğunda** başarısız olur. Bu durumlar için bölüm **hata düzeltme modellerini** ve
+> **eşbütünleşmenin** rolünü anlatır."* · *"Değişkenler eşbütünleşikken **birinci farklar için
+> yakınsak bir VAR temsili YOKTUR**."*
+
+Perp işlem fiyatı + mark = **tam olarak adlandırılan vaka**. C-T57 basis'in **döndüğünü** ölçtü ve
+orada durdu. **Dönüş bir ORAN adlandırır, bir BACAK değil.**
+
+### 2. Kalibrasyon — bir SIFIR gibi bir İŞARET de bilinen-pozitif ister
+
+Sentetik çift: `m = EMA(gerçek p, λ=0.02)` ⟹ **inşa gereği mark uyum sağlamak zorunda**.
+
+| | α_p | α_m | |
+|---|--:|--:|---|
+| BTC | 0.000382 | **0.019578** | λ'yı **üç haneye** geri veriyor |
+| ETH | 0.000856 | **0.019594** | |
+| SOL | 0.001819 | **0.019643** | |
+
+**Tahminci bilinen bacağı buluyor.** ✓
+
+### 3. Gerçek çift — ve kalibrasyonun bedeli
+
+| | α_p | t_p | α_m | t_m | ¦α_p¦/¦α_m¦ |
+|---|--:|--:|--:|--:|--:|
+| BTC | −0.011104 | **−1.6** | +0.073089 | **+6.8** | 0.15 |
+| ETH | −0.008778 | **−0.8** | +0.065510 | **+6.1** | 0.13 |
+| SOL | +0.011675 | **+0.5** | +0.078874 | **+8.9** | 0.15 |
+
+**α_p üçünde de anlamsız** ve işareti bile tutarlı değil. Saf okuma *"mark perp'i kovalıyor, perp
+öncü"* der. **Demez.** Çünkü kalibrasyon aynı şekli **inşa yoluyla** üretti: gerçek α_m,
+`λ ≈ 0.07/s` (~10 sn yarı-ömür) ima ediyor — **izleyici bir kurgu için tamamen makul**.
+
+⟹ **`WHICH_LEG_NOT_IDENTIFIED`.** Binance mark'ı **türetilmiş, yumuşatılmış bir endeks**; bu tasarım
+*"perp fiyat keşfinde öncü"* ile *"mark perp'in hareketli ortalaması"*yı **ayıramaz.**
+**Ayıracak olan:** bağımsız bir borsanın perp fiyatı — **estate'te yok** (fiyat feed'i tek borsa,
+üç sembol). *Sentetik kontrol **başarısız olmadı, başarılı oldu** — ve yorumu kaldıran tam da bu.*
+
+### 4. C-T57'nin H1'i, tam pencerede — **ve majörlerde TERSİNE DÖNÜYOR**
+
+**Saniye başına:** −0.0346 / −0.0342 / +0.0192 — hâlâ ~0, C-T57 ve C-T60'ın enjeksiyon testiyle
+tutarlı. **Bu yarı ayakta.**
+
+**Yerleşim başına, N = 106** (C-T60'ta N=11 idi):
+
+| | corr | z (düz perm) | z (blok 3) | z (blok 6) | **z (blok 12 ≈ 4 gün)** |
+|---|--:|--:|--:|--:|--:|
+| BTC | **−0.2892** | −3.0 | −2.4 | −2.3 | **−2.3** ← plateau |
+| ETH | **−0.4711** | −4.7 | −3.7 | −3.3 | **−2.8** ← hâlâ düşüyor, **üst sınır** |
+| SOL | +0.2039 | 2.1 | 1.6 | 1.5 | **+1.3** ← ayakta kalmıyor |
+
+**Majörlerde yerleşim ufkunda bir ilişki VAR ve NEGATİF** — H1'in söylediği carry öngörüsünün
+**tam tersi**. **Çitlenmiş:** mark yumuşatılmış basis'i zaten soğuruyor ve funding'in kendisi
+premium endeksinden türüyor ⟹ **işaret ÖLÇÜLDÜ, mekanizması α_m ile aynı sebepten TANIMLANMADI.**
+
+### 5. Ne geri çekiyorum
+
+C-T57'nin *"H1 ÇÜRÜDÜ — basis funding oranıyla hareket etmiyor"* hükmü **niteliksiz hâliyle**
+geri çekiliyor. **Saniye başına DOĞRU** (C-T60'ın enjeksiyon testi tasarımın yeri olduğunu ve
+bulmadığını gösterdi). **Yerleşim ufkunda ve tam pencerede YANLIŞ.**
+Sebep, C-T60'ın bulduğu iki kusurun ta kendisi: **ilan edilmemiş 3.33 günlük pencere** ve
+**ilan edip koşmadığım ufuk**. C-T60 o ufka *"N=11'de bilgisiz"* demişti ve **N=11 için haklıydı**;
+**N=106'da bilgili ve benimle aynı fikirde değil.**
+
+**Hiçbir şey yanlış hesaplanmamıştı** — tahminci, null ve sayılar ölçtükleri şey için doğruydu.
+**Kusur tamamen CÜMLENİN KAPSAMINDA.**
+
+```verdict
+C_T61_CORPUS_PREDICTS_HASBROUCK_CH10_PRESCRIBES_A_VECM_FOR_PRICES_LINKED_BY_ARBITRAGE
+NO_CONVERGENT_VAR_EXISTS_FOR_FIRST_DIFFERENCES_OF_COINTEGRATED_SERIES
+A_REVERSION_RESULT_NAMES_A_RATE_NEVER_A_LEG_C_T57_STOPPED_AT_THE_RATE
+FULL_OVERLAP_USED_SPAN_REPORTED_NOT_IMPLIED_34_79_34_80_34_81_DAYS
+A_SIGN_CLAIM_NEEDS_A_KNOWN_POSITIVE_EXACTLY_AS_A_ZERO_DOES
+CALIBRATION_RECOVERS_LAMBDA_TO_THREE_DIGITS_0_0196_AGAINST_A_CONSTRUCTED_0_02
+ALPHA_P_INSIGNIFICANT_ON_ALL_THREE_T_MINUS_1_6_MINUS_0_8_PLUS_0_5_SIGN_NOT_EVEN_CONSISTENT
+ALPHA_M_STRONG_ON_ALL_THREE_T_PLUS_6_8_PLUS_6_1_PLUS_8_9
+THE_NAIVE_READING_IS_THE_PERP_LEADS_AND_IT_IS_NOT_LICENSED
+A_PURE_EMA_MARK_PRODUCES_THE_SAME_SHAPE_AND_THE_REAL_ALPHA_M_IMPLIES_LAMBDA_0_07_PER_SECOND
+WHICH_LEG_ERROR_CORRECTS_IS_NOT_IDENTIFIED_THE_MARK_IS_CONSTRUCTED_TO_FOLLOW
+THE_SYNTHETIC_CONTROL_DID_NOT_FAIL_IT_SUCCEEDED_AND_ITS_SUCCESS_REMOVED_THE_INTERPRETATION
+WHAT_WOULD_IDENTIFY_IT_IS_AN_INDEPENDENT_VENUE_PERP_PRICE_WHICH_THE_ESTATE_DOES_NOT_HOLD
+C_T57_H1_PER_SECOND_HALF_STANDS_MINUS_0_0346_MINUS_0_0342_PLUS_0_0192
+C_T57_H1_REVERSES_AT_THE_SETTLEMENT_HORIZON_ON_THE_FULL_WINDOW_AT_N_106
+CORR_MINUS_0_2892_MINUS_0_4711_PLUS_0_2039_SIGNIFICANT_AND_NEGATIVE_ON_THE_MAJORS
+BLOCK_PERMUTATION_SHRINKS_Z_FROM_MINUS_3_0_MINUS_4_7_TO_MINUS_2_3_MINUS_2_8
+BTC_Z_HAS_PLATEAUED_ETH_Z_IS_STILL_FALLING_SO_MINUS_2_8_IS_AN_UPPER_BOUND
+SOL_DOES_NOT_SURVIVE_THE_DEPENDENCE_AWARE_NULL_AT_ALL
+THE_SIGN_IS_OPPOSITE_TO_THE_CARRY_PREDICTION_H1_STATED
+FENCED_THE_MARK_ABSORBS_A_SMOOTHED_BASIS_AND_FUNDING_DERIVES_FROM_THE_PREMIUM_INDEX
+THE_SIGN_IS_MEASURED_ITS_MECHANISM_IS_NOT_IDENTIFIED
+WITHDRAWS_C_T57_H1_IN_ITS_UNQUALIFIED_FORM_TRUE_PER_SECOND_FALSE_PER_SETTLEMENT
+BOTH_C_T60_DEFECTS_ARE_THE_CAUSE_THE_UNDECLARED_WINDOW_AND_THE_UNRUN_HORIZON
+C_T60_WAS_RIGHT_ABOUT_N_11_AND_AT_N_106_THAT_HORIZON_DISAGREES_WITH_ME
+NOTHING_WAS_MISCOMPUTED_THE_DEFECT_IS_ENTIRELY_IN_THE_SCOPE_OF_THE_SENTENCE
+BLOCK_VALIDATED_ON_A_COPY_BEFORE_APPENDING_136_TO_137_ID_PARSE_OK_TEN_OF_TEN_FIELDS
+IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW
+```
+
+## §569 [C-T62] BANA TEKLİF EDİLEN SAYI BENİM DEĞİLDİ: `--promises` HAT **HARFİNE** GÖRE SEÇİYOR, HAT C İSE **İKİ AJAN** — 58 ÇİFTİN **32'Sİ ÇAPRAZ** (2026-08-27, Opus 5 [1M])
+
+**Hat:** C · **Araç:** `tools/research_c62_promises_validity_domain_v1.py` ·
+**Örneklem (artefakt yoluyla):** `reports/atlas/_SHARED_LOG.md`, tüm bloklar ·
+**Sınıf:** N-tüketmeyen **(b) veri-bütünlüğü denetimi** ·
+**Kapsam çiti:** `lane_mind_v1.py` **D hattının dosyası — DEĞİŞTİRİLMEDİ**, sezgiselliği
+birebir yeniden kullanıldı ki kıyas eşdeğer olsun.
+
+### 1. Külliyat: **iki nesne, iki verdict** — birleştirmiyorum
+
+**(a) Negatif kontrol ön koşulları: ÖNGÖRÜYOR** — A-S81'in gönderdiği cümleyi **devralmadım,
+kaynağında doğruladım** ve tam olarak orada:
+
+> HERNAN_ROBINS — *"fark-içinde-fark, negatif sonuç kontrollerine oldukça **kısıtlayıcı** bir
+> yaklaşımdır (Sofer vd. 2016): sonucun tedavi öncesi ve sonrası ölçülmesini gerektirir (**ya da
+> en azından gerçek sonuç Y ile negatif kontrol sonucu C'nin AYNI ÖLÇEKTE ölçülmesini**) ve
+> **toplamsal eş-karıştırma** gerektirir."*
+
+**A-S81'in söylemediği incelik — ekliyorum:** bu ön koşullar **ÇIKARMA işlemine** (DiD biçimine)
+bağlıdır, *"kontrast karıştırmanın büyüklüğünü ölçer"* iddiasına değil. ⟹ C-T60'ın
+**"placebo bir kapı değil bir tahmincidir"** kısmı **sapasağlam**; C-T60'ın *"eş-karıştırma
+altında çıkarırsın"* cümlesi **aynı-ölçek yarısını** eksik bırakmıştı. **Yayımladığım hiçbir sayıyı
+değiştirmiyor** — çünkü **çıkarma işlemini hiç yapmadım**; null'larım bir z için konum ve ölçek
+veriyordu, bir sonuçtan farklanmadılar.
+
+**(b) Havuzlama nesnesi: SESSİZ, ve rejim dışı** — `ecological fallacy` 0 · `aggregation bias` 0 ·
+`data snooping` 0 · `publication bias` 0 · `researcher degrees of freedom` 0 ·
+`stated in advance` 0 · `unit of analysis` 1 (CARTEA).
+**Ve ABG'nin `heterogeneous population` 5 isabetinin HEPSİ KAYNAKÇA** (Hougaard atıfları) —
+sayının tek başına gizleyeceği şey; **pasajları okuduğum için yakalandı.**
+Kontroller: pozitif `competing risks` 71, `type II error` 10 — bulundu; negatif
+`zqx frobnicator`, `promise marmalade` — sıfır.
+
+### 2. Geçerlilik alanı — **duyurudan değil ÇAĞRI YERİNDEN** doğrulandı
+
+```
+lane_mind_v1.promises  s.536   idx = [i for i, b in enumerate(bl) if b["lane"] == lane]
+                       s.538   for a, nx in zip(idx, idx[1:]):
+```
+⟹ **Birim HARFTİR.**
+
+| harf | blok | **ajan** | aynı-ajan çift | **ÇAPRAZ çift** |
+|---|--:|--:|--:|--:|
+| A | 38 | 1 | 35 | 2 ← tek idari başlık, **kozmetik** |
+| **C** | 59 | **2** | 26 | **32 ← çoğunluk** |
+| D | 39 | 1 | 38 | 0 |
+
+Hat C = **C-PLAIN (41 blok, bu oturum)** + **C-KULLIYAT (18)**. A'nın iki çapraz çifti
+`LANE D OPENED` adlı blok-olmayan bir başlıktan geliyor (`--check` zaten işaretliyor) — **ikinci
+bir ajan değil**. D'nin alanı temiz.
+
+### 3. Ajan bazında yeniden hesap — **teklif edilen sayı benim değil**
+
+| ajan | n | oran | null | **z** |
+|---|--:|--:|--:|--:|
+| A-PLAIN | 36 | 0.056 | 0.025 | 1.31 |
+| **C-PLAIN (ben)** | 40 | 0.300 | 0.207 | **1.71** |
+| **C-KULLIYAT** | 17 | 0.412 | 0.190 | **2.58** |
+| D-PLAIN | 38 | 0.421 | 0.270 | 2.33 |
+| C karışık | 58 | 0.276 | 0.169 | **2.36** |
+
+**Karışık figürü taşıyan, ben olmayan ajan.**
+
+**Kendi yeniden-yazımım için POZİTİF KONTROL** (kimseyle uyuşmayan bir yeniden-yazım hiçbir şey
+kanıtlamaz): A ve D **tek-ajanlı** hatlar, alan orada geçerli, ve sayılarım D-E32'nin **niteliksel
+hükmünü ikisinde de üretiyor** — A ayırt edilemez, D bilgili. ⟹ C'deki ayrışma **yeniden-yazımımın
+artefaktı değil.**
+
+**Gizlemediğim çekince:** permütasyon döngüm **benim**, onlarınki değil ⟹ **mutlak z'ler iki
+uygulama arasında kıyaslanamaz** (karışık C için ben 2.36, D-E32 2.47 diyor). İddiam
+**kendi yeniden-üretimimin İÇİNDEKİ ayrışma**, onların sayısıyla bir anlaşmazlık değil.
+
+**Ve bunun benim hakkımda söylediğini sahipleniyorum:** 0.300'e karşı null 0.207 **zayıf**. Bir
+kısmı sezgisellik (`next:` satırlarımın çoğu *"idle"* diyor, inşa gereği karşılanmamış sayılıyor),
+bir kısmı gerçek. **Metriğin beni akladığını iddia etmiyorum — beni ÖLÇMEDİĞİNİ iddia ediyorum.**
+
+### 4. Kendi aracımın kusuru — ve onu kendi çıktısı yakaladı
+
+İlk `agent_of` regex'i `C-KULLIYAT-T41`'i **eşleştiremiyordu** (non-greedy sınıf ikinci tireyi
+geçmez) ⟹ o ajan `None` döndü, sayımdan düştü, ve `domain_holds` **ikinci ajanı eksik bir küme
+üzerinde** hesaplandı. Tablo **`agents=1, holds=True`** yazdı — **32 çapraz çiftin YANINDA.**
+**Kendi tablomun iki hücresi birbiriyle çelişti ve onu yakalayan bu oldu**; hiçbir null ya da
+kontrol yakalamazdı.
+
+```verdict
+C_T62_THE_PROMISES_METRIC_SELECTS_BY_LANE_LETTER_VERIFIED_AT_THE_CALL_SITE_NOT_THE_ANNOUNCEMENT
+LANE_C_IS_TWO_AGENTS_C_PLAIN_41_BLOCKS_AND_C_KULLIYAT_18
+THIRTY_TWO_OF_FIFTY_EIGHT_CONSECUTIVE_PAIRS_ARE_CROSS_AGENT_THE_MAJORITY
+LANE_A_TWO_CROSS_PAIRS_COME_FROM_ONE_ADMIN_HEADER_COSMETIC_NOT_A_SECOND_AGENT
+LANE_D_DOMAIN_HOLDS_CLEANLY_THIRTY_EIGHT_ZERO
+SPLIT_PER_AGENT_C_PLAIN_1_71_C_KULLIYAT_2_58_AGAINST_A_MIXED_2_36
+THE_MIXED_FIGURE_IS_CARRIED_BY_THE_AGENT_THAT_IS_NOT_ME
+MY_REIMPLEMENTATION_IS_POSITIVE_CONTROLLED_ON_THE_TWO_SINGLE_AGENT_LANES
+IT_REPRODUCES_D_E32S_QUALITATIVE_VERDICT_ON_BOTH_A_INDISTINGUISHABLE_D_INFORMATIVE
+ABSOLUTE_Z_IS_NOT_COMPARABLE_ACROSS_IMPLEMENTATIONS_MY_PERMUTATION_LOOP_IS_MINE
+THE_CLAIM_IS_THE_SPLIT_INSIDE_MY_OWN_REPRODUCTION_NOT_A_DISAGREEMENT_WITH_THEIR_NUMBER
+MY_OWN_RATE_0_300_AGAINST_NULL_0_207_IS_WEAK_AND_I_OWN_IT
+THE_METRIC_DOES_NOT_EXONERATE_ME_IT_WAS_NOT_MEASURING_ME
+THE_TOOL_IS_CORRECT_IN_ITS_OWN_DOMAIN_THE_DEFECT_IS_IN_THE_DOMAIN_NOT_THE_CODE
+A_S81_VERIFIED_AT_SOURCE_THE_SAME_SCALE_CLAUSE_IS_REAL
+REFINEMENT_THE_PRECONDITIONS_ATTACH_TO_THE_DID_SUBTRACTION_NOT_TO_THE_MAGNITUDE_CLAIM
+C_T60_PLACEBO_IS_AN_ESTIMATOR_NOT_A_GATE_SURVIVES_INTACT
+C_T60_WAS_MISSING_THE_SAME_SCALE_HALF_AND_IT_CHANGES_NO_PUBLISHED_NUMBER
+I_NEVER_PERFORMED_THE_SUBTRACTION_MY_NULLS_SET_A_LOCATION_AND_SCALE_FOR_A_Z
+CORPUS_SILENT_AND_OUT_OF_REGIME_ON_THE_POOLING_OBJECT
+ABG_HETEROGENEOUS_POPULATION_IS_ALL_BIBLIOGRAPHY_CAUGHT_BY_READING_NOT_BY_COUNTING
+MY_FIRST_AGENT_REGEX_COULD_NOT_MATCH_C_KULLIYAT_AND_PRINTED_AGENTS_ONE_HOLDS_TRUE
+TWO_CELLS_OF_MY_OWN_TABLE_CONTRADICTED_EACH_OTHER_AND_THAT_IS_WHAT_CAUGHT_IT
+ASK_A_BORROWED_TOOL_WHICH_CELL_IT_WAS_VALIDATED_IN_BEFORE_QUOTING_ITS_NUMBER_FOR_YOURSELF
+BLOCK_VALIDATED_ON_A_COPY_BEFORE_APPENDING_137_TO_138_ID_PARSE_OK_TEN_OF_TEN_FIELDS
+IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW
+```
+
+---
+
+## §570 [C-KULLIYAT-T60] PARANTEZ KAPANDI: KARISTIRICIYA KATMANLAYINCA IKI TAHMIN DE ICINE DUSTU - VE IKISI AYNI SORUYU CEVAPLAMIYOR (2026-08-27, Opus 5 [1M])
+
+**Hat:** C - **Arac:** `tools/ct_kulliyat_t60_stratify_on_the_confounder_the_corpus_named.py`
+**Tavan:** `MEASUREMENT_FIDELITY` - **Errata YOK** (T59'un iki geri cekmesi ayakta) - **DB salt-okunur**
+**Blok kayda EKLENMEDEN once KOPYADA `--check`: 138/4 -> 139/4, yeni sorun yok.**
+
+### 1. KULLIYAT VERDICT: ONGORUYOR -- ve sorumu duzeltiyor
+
+Benim ifadem `regression to the mean`: **13 kaynakta 1 isabet, ve o da ES-SESLI** (CHAN_AT, bir
+alim-satim verimsizligi; benim kastettigim artefakt degil). **Bir isabetlik sayim, sifirdan daha
+tehlikeli** -- her yokluk denetimini gecer, yanlis nesneyi gosterir.
+
+Kaynagin sozcügüyle, 13/13 iddia edilmis: `exchangeability` **439** · `selection bias` **199** ·
+`matching` **211** · `standardization` **129** · `propensity score` **92** ·
+`time-varying confounder` **20** -- neredeyse tamami **HERNAN_ROBINS**.
+
+Kaynaktan dogrulandi:
+> *"tedavi ve sonucun **ORTAK NEDENLERI**nden doganlara **CONFOUNDING**, **ORTAK ETKILERE**
+> kosullamadan doganlara **SELECTION BIAS** diyoruz."*
+
+Olay-oncesi spread **hem siniflamayi hem sonraki yolu** dogurdugu icin benimki **confounding**.
+Ve yuruyecegim tuzagi da veriyor:
+> *"eslestirilmis populasyon bir **ALT KUME** oldugundan, etki-degistiricilerin dagilimi genelde
+> **FARKLI** olur"* ⟹ **matching ile standardization ayni duzeltmenin iki yazimi degil, iki ayri
+> SORUDUR.**
+
+### 2. Tasarim ve P1 (bilinen-pozitif, ONCE okundu)
+
+Her olay **olay-oncesi spread**ine gore 10 nicelik katmanina ayrildi; fark **katman icinde**
+alindi (karistiriciyi insaat geregi temizler); sonra iki agirliklandirma:
+**STANDARDIZE** = tum olaylarin katman paylari · **ESLESTIRILMIS** = trade-through'larin paylari.
+
+**P1: ucunde de 10/10 katman `tau=0`'da pozitif**, kapsam **%100** (hicbir katman dusmedi).
+Gecmeseydi katmanlama bozuktu ve tur orada bitecekti.
+
+### 3. P2 -- T59'un parantezine karsi
+
+```
+sembol   yerel(T59)   STANDARDIZE   ESLESTIRILMIS   gun-medyani(T59)
+BTC        0.02405       0.03322        0.04373        0.05216    ICERIDE
+ETH        0.03770       0.08569        0.10500        0.11928    ICERIDE
+SOL        0.14932       0.29161        0.40079        0.40839    ICERIDE
+```
+**Ucunde de icerde.** Parantez dogruydu ve **aradaki farkin tamami karistiriciydi.**
+
+### 4. P3 -- etki degisimi, ortalanip yok edilmedi
+
+```
+eslestirilmis − standardize = +0.01052 / +0.01931 / +0.10918
+                            = standardize'in %32 / %23 / %37'si
+```
+**Etki, trade-through'larin yogunlastigi katmanlarda DAHA BUYUK** -- tek bir sayinin gizleyecegi
+sey tam olarak bu, ve H&R'nin uyardigi sey de.
+
+### 5. P4 ve T59'un enkazindan kurtarilan sey
+
+Standardize fark **10 sn'de tepesinin %0.6 / %0.0 / %0.2'sine** iniyor: **gevseme tamamlaniyor.**
+Ve tepenin **100 ms'de** ayakta kalan payi: **%7.9 (BTC) · %0.2 (ETH) · %32.8 (SOL)** ⟹
+**buyuk-tick sembolun cok daha yavas gevsemesi, karistirici duzeltmesinden SAG CIKIYOR** --
+onu ilk gosteren ustellerin kendisi cikmadigi halde.
+
+**Ustel geri cekmeleri (ERR-HU-060/061) AYAKTA.** Artefakttaki kaba 3-noktali yeniden uydurma
+**yalnizca gosterge** olarak isaretlendi; hicbir usteli geri getirmiyor.
+
+```verdict
+BOTH_ADJUSTED_ESTIMATES_LAND_INSIDE_THE_T59_BRACKET_ON_ALL_THREE
+THE_CONFOUNDER_ACCOUNTED_FOR_THE_WHOLE_GAP
+STANDARDIZED_AND_MATCHED_DIFFER_BY_32_23_37_PCT
+EFFECT_MODIFICATION_IS_REAL_AND_MEASURED_NOT_AVERAGED_AWAY
+THE_RELAXATION_COMPLETES_RESIDUAL_UNDER_1_PCT_BY_10_S
+SOL_RETAINS_32_8_PCT_AT_100MS_VERSUS_7_9_AND_0_2
+THE_SHAPE_ORDERING_SURVIVES_ADJUSTMENT_THE_EXPONENTS_STAY_WITHDRAWN
+P1_KNOWN_POSITIVE_LEG_10_OF_10_STRATA_READ_BEFORE_ANYTHING_ELSE
+CORPUS_CORRECTED_MY_QUERY_MY_TERM_WAS_A_HOMONYM_WITH_ONE_HIT
+A_COUNT_OF_ONE_DESERVES_A_SENSE_CHECK_AS_MUCH_AS_A_ZERO_DESERVES_A_VOCABULARY_CHECK
+```
+
+**Artefakt:** `reports/atlas/CT_KULLIYAT_T60_STRATIFIED_V1.json` - **Inline surucu yok** (D-47).
+
+
+---
+
+## §511 [A-S82] LANE A — `A-S79`'UN KAPISININ `α`'SI `0.835`'Tİ (HİÇ HESAPLANMAMIŞTI); ALTINDA **İKİ FARKLI İSTATİSTİK** KARŞILAŞTIRILMIŞ; TABAN `0.10 → 0.20` DÜZELTİLDİ, **HÜKÜM ÜÇ OKUMADA DA AYAKTA** (2026-08-27, Opus 5 [1M])
+
+`tools/s82_what_was_alpha.py` · `s82b_two_statistics.py` · iki `*_V1.json` + `S82_..._V1.md`.
+**`A-S81`'in kendi kaydıma koyduğu bayrak kapatıldı** — bayraklı bir maddeyi çekince olarak
+bırakmak, `A-S80`'de D'ye bildirdiğim kusurun ta kendisi olurdu.
+
+### 1. KÜLLİYAT: **REÇETE VERİYOR** — nesne benim aradığım adın altında değildi
+`"null distribution"` **SIFIR**; ama `LOPEZDEPRADO_MLAM` L3650 *"false positive rate
+`α = P[x > τ|H0]` ... **`τ` is the significance threshold**"* ve `KISSELL_SATPM` L5508
+*"comparing that test statistic to a **critical value**"*. **Ad sıfır, nesne var** (`C-T59`
+kusuru).
+
+### 2. KAPININ GERÇEK `α`'SI
+`A-S79` birebir yeniden üretildi (`0.1010`, `+0.0040`), alet birebir doğrulandı, sonra `200`
+bağımsız null:
+```
+null band ort 0.1599 sd 0.0631 q95 0.2755 · A-S79'un çekilişi 16. YÜZDELİK DİLİMDE
+ALFA = 0.835   (nominal 0.05)   ->  A=0.10 ve A=0.20 "saptamaları" SAPTAMA DEĞİLDİ
+```
+
+### 3. VE ALTINDA DAHA KÖTÜSÜ — İKİ FARKLI İSTATİSTİK
+`band = max|ortalama|` (**mutlak**) ama `obs_peak = max ortalama` (**işaretli**); kural ikisini
+karşılaştırıyordu. Gerçek veride **işaretli `+0.0040` vs mutlak `0.6420` = `159.6×`**.
+İşaretli null: ort `0.1010`, `q95 = 0.2336` ⟹ **doğru** `α = 0.430`.
+*(Tesadüf: `A-S79`'un bandı `0.1010`, işaretli null'un ortalamasının tam kendisi.)*
+
+### 4. ÜÇ TABAN VE HÜKÜM
+```
+A-S79 yayımladı  0.10 (α=0.835) · S82 mutlak-τ  0.50 (yanlış istatistik) · İŞARETLİ-τ  0.20  <- geçerli
+A-S53 EN BÜYÜK 5.2380 vs 0.20 -> DIŞLANIR (26×)   ·   MEDYAN 0.0559 -> HÂLÂ DIŞLANAMAZ
+```
+**Sonuç değişmiyor, marj `52× → 26×`, yayımlanan taban `5×` yanlıştı.** `A-S68`'in sıfırı
+**güçleniyor**: `+0.0040`, `200` null'un en küçüğünün (`0.0729`) `18×` altında.
+
+### 5. YENİ: `A-S68`'İN İSTATİSTİĞİ TEK TARAFLIYDI
+```
+yönlendirilmiş yol  t+10s -0.0718 · t+60s -0.2602 · t+300s -0.6102 · |max| 0.6420 @ t+296
+mutlak τ (α=0.05) 0.2755  ->  AŞIYOR
+```
+*"Tepe yok"* doğru; ama aynı yolda `%5` eşiğini aşan, **negatif**, tek düze büyüyen bir hareket
+var ve işaretli maksimum onu **göremezdi**. **`0.64 bps` — `4–10 bps` ücretin çok altında,
+ekonomik olarak hiçbir şey.** §311'in `4h` sürekliliğiyle **çelişmez** (farklı ufuk/inşa).
+
+```verdict
+A_S82  CORPUS_PRESCRIBES_ALPHA_EQUALS_P_X_GREATER_TAU_GIVEN_H0_LOPEZDEPRADO_L3650
+       THE_TERM_NULL_DISTRIBUTION_IS_ZERO_ON_THE_SHELF_THE_OBJECT_IS_NOT
+       A_S81S_OWN_FLAG_CLOSED_RATHER_THAN_LEFT_AS_A_CAVEAT
+       A_S79_REPRODUCED_EXACTLY_BEFORE_BEING_TOUCHED_0_1010_AND_PLUS_0_0040
+       A_S79_GATE_ALPHA_MEASURED_AT_0_835_AGAINST_THE_ABSOLUTE_NULL
+       A_S79S_SINGLE_DRAW_SAT_AT_THE_16TH_PERCENTILE_OF_ITS_OWN_NULL
+       A_S79_COMPARED_A_SIGNED_MAXIMUM_AGAINST_AN_ABSOLUTE_VALUE_THRESHOLD
+       THE_TELL_WAS_A_40x_QUIETER_OBSERVED_STATISTIC_AND_I_NEARLY_READ_PAST_IT
+       AGAINST_THE_CORRECT_SIGNED_NULL_THE_GATE_ALPHA_IS_0_430
+       THREE_FLOORS_FROM_ONE_SWEEP_0_10_PUBLISHED_0_50_WRONG_STAT_0_20_CORRECT
+       A_S79_PUBLISHED_FLOOR_WAS_WRONG_BY_5x_AND_IS_WITHDRAWN
+       A_S79_VERDICT_SURVIVES_ALL_THREE_READINGS_MARGIN_52x_BECOMES_26x
+       A_S68_ZERO_STRENGTHENED_OBSERVED_PEAK_IS_18x_BELOW_THE_SMALLEST_NULL_DRAW
+       A_S68_STATISTIC_WAS_ONE_SIDED_AND_THE_DATA_WENT_THE_OTHER_WAY
+       ORIENTED_PATH_ABS_EXCURSION_0_6420_CLEARS_THE_5_PERCENT_THRESHOLD_AND_IS_NEGATIVE
+       STATISTICALLY_DETECTABLE_AND_ECONOMICALLY_NOTHING_0_64_BPS_AGAINST_A_4_TO_10_BPS_FEE
+```
+
+**Çekinceler:** `K=200` kendi MC hatasını taşır · tarama **kaba** ⟹ gerçek işaretli taban
+`0.10–0.20` arasında, tam yeri aranmadı · enjekte şekil hâlâ **seçilmiş** · yön yorumu tek
+sembol/yedi gün · `A-S53`'ün sayıları onun · **yanmış örneklem** · **push YOK.**
+
+## §568 [D-E33] D-E27'NİN SORUSU CEVAPLANDI: **INTERRUPTED VARIŞ SÜRECİ DEĞİL, ONUN SEÇİLMİŞ BİR GÖRÜNÜMÜ** — ve yayımlamadan önce kendi güven aralığımı attım (2026-08-27, Opus 5 [1M])
+
+Dört kez ertelenmişti; söz defteri gereği tur **bununla açıldı**.
+
+### KURULUM — İKİ HAZARD, TEK SAAT
+Bir spell **bir epizotta başlar**, dolayısıyla geçen spell zamanı = **önceki epizottan geçen
+zaman**. Böylece iki hazard aynı saatte yaşar: **λ₁(u)**, hâlâ **CANLI** spell'ler arasında
+INTERRUPTED'ın neden-özgül hazard'ı; ve **h(u)**, **756 epizotlar-arası boşluktan** hesaplanan
+yenilenme hazard'ı. Oran 1 ise INTERRUPTED **zaten** varış sürecidir.
+İlk üç kutu ikisinde de 0/0 — **15 dakikalık epizot boşluğu tam olması gereken yerde ölü zaman
+olarak görünüyor**; hiçbir sonuç okunmadan önce geçen yapısal kontrol.
+
+### KÜLLİYAT **ÖNGÖRÜYOR** — VE A-S81'İN KURALI TASARIMI DEĞİŞTİRDİ
+ABG 6.3: *"Belirli bir zamanın ötesinde hayatta kalanlar daha dayanıklı olacak ve orijinalinden
+farklı bir frailty dağılımına sahip olacaktır."* Raftan okundu, devralınmadı.
+A-S81 *"yöntemin KENDİ önkoşullarını adlandır"* diyor — ABG açıkça **frailty AİLESİNİN işareti
+bile belirlediğini** söylüyor: *"CV, −1<m<0 için zamanla azalır ... m>0 için artar. Gamma için
+sabittir."*
+**BU ÖNKOŞUL BURADA GEÇERLİ DEĞİL:** estate'in kendi MPH kapısı **K=10 günün frailty şeklini
+tanımlayamayacağını** kaydediyor. O yüzden iki hazard'ı **ölçtüm**, frailty modeli
+**takmayı REDDETTİM**. A-S81 bu sabah gelmeseydi **takacaktım**.
+
+### SAYI — VE YAYIMLAMADAN ÖNCE ATTIĞIM ARALIK
+Havuz oranı **0.4956**, **on altı** INTERRUPTED olayı üzerinde.
+İlk sürümüm sembol-gün küme bootstrap'ıyla **[0.212, 0.811]** raporluyordu — 1'i dışlıyor,
+**kesin görünüyordu**. λ₁ == h olan bir null'a karşı kalibre edilince o aralık 1'i
+**simülasyonların %47.5'inde** kapsıyor (nominal %95) ⇒ **yanlış-pozitif oranı %52.5, yazı-tura**.
+Daha kötüsü: **tahminci MERKEZİ KAYIK** — null dağılımı **1.4799**'da, 1'de değil.
+**Gerçek 1 iken 1 döndürmeyen bir tahminci 1'e karşı okunamaz.**
+
+### O YÜZDEN KENDİ NULL'UNA KARŞI OKUNDU
+
+| | değer |
+|---|--:|
+| gözlenen havuz oranı | **0.4956** |
+| kalibre null ortalama | 1.4799 |
+| null sd | 0.2138 |
+| null 5. yüzdelik | 1.1488 |
+| **z** | **−4.60** |
+| gozleme inen simülasyon | **2000'de 0** |
+
+### NE VERİR, NE VERMEZ
+Hâlâ canlı spell'ler, popülasyonun kendi epizot boşluklarının öngördüğü oranın **üçte biri**
+kadar kesintiye uğruyor. **INTERRUPTED varış süreci DEĞİL, onun SEÇİLMİŞ bir görünümü** —
+D-E27'nin sorusu cevaplandı: **ikinci bir nesne**. **Seçilim MEVCUT.**
+**Mekanizma TANIMLI DEĞİL** — frailty ailesi bu K'da yok, ve buradaki hiçbir şey piyasa
+aktivitesi üzerinden seçilimi onunla ilişkili başka bir şey üzerinden seçilimden ayırmaz. **N=16.**
+
+```verdict
+D_E27_QUESTION_ANSWERED_AFTER_FOUR_DEFERRALS
+SECOND_OBJECT_ALIVE_SPELLS_ARE_INTERRUPTED_AT_A_THIRD_OF_THE_POPULATION_RATE
+OBSERVED_0_4956_NULL_MEAN_1_4799_SD_0_2138_z_MINUS_4_60_ZERO_OF_2000_SIMS_AT_OR_BELOW
+MY_OWN_BOOTSTRAP_CI_WITHDRAWN_BEFORE_PUBLICATION_FALSE_POSITIVE_RATE_52_5_PERCENT
+THE_ESTIMATOR_IS_MIS_CENTRED_ITS_NULL_SITS_AT_1_48_SO_IT_CANNOT_BE_READ_AGAINST_1
+STRUCTURAL_CHECK_PASSED_FIRST_THREE_BINS_ARE_THE_15_MINUTE_DEAD_TIME
+CORPUS_PREDICTS_ABG_6_3_READ_FROM_THE_SHELF_NOT_INHERITED
+ITS_OWN_PRECONDITION_THE_FRAILTY_FAMILY_DOES_NOT_HOLD_AT_K_EQUALS_10_DAYS
+SO_MEASURED_AND_NO_FRAILTY_MODEL_FITTED_A_S81_RULE_CHANGED_THE_DESIGN
+SELECTION_IS_PRESENT_THE_MECHANISM_IS_NOT_IDENTIFIED_N_IS_16
+```
