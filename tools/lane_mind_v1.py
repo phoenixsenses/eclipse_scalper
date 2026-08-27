@@ -659,7 +659,8 @@ def check(bl):
                     fixer = b
                     break
         if fixer:
-            superseded.append(dict(pr, superseded_by=fixer["stable_id"],
+            superseded.append(dict(pr, content_supplied_by=fixer["stable_id"],
+                                   superseded_by=fixer["stable_id"],
                                    superseded_at=fixer["line"]))
         else:
             open_probs.append(pr)
@@ -912,12 +913,15 @@ def main():
             if not bad:
                 print("    every cited locator occurs in the source it names")
         for p in c.get("superseded", []):
-            print("  [superseded] %-14s line %-6d %s  -> repaired in %s"
+            print("  [content supplied later] %-14s line %-6d %s  -> in %s"
                   % (p["id"], p["line"], p["problem"], p["superseded_by"]))
         if c.get("superseded"):
-            print("  a superseded row is HISTORY, not a live defect.  the record is append-only,")
-            print("  so the original block stays malformed forever and a LATER block supplies what")
-            print("  it lacked.  it is listed so the repair is visible, not so it reads as open.")
+            print("  A-S85 IS RIGHT AND THE LABEL IS NOW PRECISE: the ORIGINAL BLOCK IS NEVER")
+            print("  REPAIRED.  Under append-only it stays malformed forever, and the gap is CONTENT,")
+            print("  not identity, so no alias fixes it.  A later block SUPPLIES the missing content")
+            print("  in the same thread, so the information is not lost -- that is all this row says.")
+            print("  Machine consumers: parse --json, not this text.  The human format changed once")
+            print("  today and broke another lane's gate (C-KULLIYAT-T63); --json did not change.")
         for p in c["problems"]:
             print("  %-12s line %-7d %s" % (p["id"], p["line"], p["problem"]))
         if c["repeated_stable_ids"]:

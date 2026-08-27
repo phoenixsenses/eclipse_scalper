@@ -88,12 +88,36 @@ def survivor_means(t, cov, grid):
 
 
 def rank(a):
-    return np.argsort(np.argsort(a)).astype(float)
+    """AVERAGE ranks.  Ties must share a rank; index order is not a tie-break, it is a fabrication.
+
+    The first version was `argsort(argsort(a))`, which gives ties the ORDER THEY APPEAR IN THE
+    ARRAY.  Measured D-E37 with known answers: `rho(x, x)` = +1 and `rho(x, -x)` = -1 both passed,
+    which is why it survived -- but `rho(x, constant)` returned +0.5238 instead of undefined, and
+    a BINARY vector ranked to [0,1,2,...,n-1], i.e. to pure index.  Both anomalies in D-E37's
+    decomposition came from that: a within-arm correlation of +0.6502 against a `t` that is
+    CONSTANT at tau for all 63 rows, and a +0.1134 whose direct means ran the other way.
+    """
+    a = np.asarray(a, float)
+    order = np.argsort(a, kind="mergesort")
+    r = np.empty(len(a), float)
+    sa = a[order]
+    i = 0
+    while i < len(a):
+        j = i
+        while j + 1 < len(a) and sa[j + 1] == sa[i]:
+            j += 1
+        r[order[i:j + 1]] = (i + j) / 2.0
+        i = j + 1
+    return r
 
 
 def rho(a, b):
-    """Spearman rank correlation -- GRID-FREE, so the at-risk set cannot deform it."""
-    return float(np.corrcoef(rank(a), rank(b))[0, 1])
+    """Spearman on average ranks.  Returns nan when either side is constant -- a correlation with
+    a constant is UNDEFINED, and the old code returned 0.5238 for it."""
+    ra, rb = rank(a), rank(b)
+    if ra.std() == 0 or rb.std() == 0:
+        return float("nan")
+    return float(np.corrcoef(ra, rb)[0, 1])
 
 
 def ladder(t, cov, rng, reps=600):

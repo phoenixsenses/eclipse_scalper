@@ -6,60 +6,60 @@
   "sigma_1s": {
    "kind": "pre-anchor volatility on [t0-60m, t0) -- predictable, verified in code",
    "mean": 0.0,
-   "spearman_rho": -0.15016,
+   "spearman_rho": -0.15042,
    "known_positive_ladder": [
     {
      "strength": 0.0,
-     "rho": -0.1502,
+     "rho": -0.1504,
      "p_low": 0.0
     },
     {
      "strength": 0.25,
-     "rho": -0.2054,
+     "rho": -0.2029,
      "p_low": 0.0
     },
     {
      "strength": 0.5,
-     "rho": -0.2632,
+     "rho": -0.2614,
      "p_low": 0.0
     },
     {
      "strength": 0.75,
-     "rho": -0.3454,
+     "rho": -0.3434,
      "p_low": 0.0
     },
     {
      "strength": 1.0,
-     "rho": -0.4819,
+     "rho": -0.4792,
      "p_low": 0.0
     }
    ],
    "ladder_monotone": true,
-   "null_mean": -6e-05,
-   "null_sd": 0.0401,
-   "z": -3.74,
+   "null_mean": -0.00016,
+   "null_sd": 0.04005,
+   "z": -3.75,
    "one_sided_p_low": 0.0,
    "reading": "SELECTION_SURVIVORS_ARE_QUIETER"
   },
   "qv": {
    "kind": "the episode's own notional at t0 -- known at the anchor",
    "mean": 2478318.891,
-   "spearman_rho": 0.15317,
+   "spearman_rho": 0.15313,
    "known_positive_ladder": [
     {
      "strength": 0.0,
-     "rho": 0.1532,
+     "rho": 0.1531,
      "p_low": 1.0
     },
     {
      "strength": 0.25,
-     "rho": 0.0926,
+     "rho": 0.0929,
      "p_low": 0.9933
     },
     {
      "strength": 0.5,
-     "rho": 0.0195,
-     "p_low": 0.65
+     "rho": 0.0194,
+     "p_low": 0.6517
     },
     {
      "strength": 0.75,
@@ -68,14 +68,14 @@
     },
     {
      "strength": 1.0,
-     "rho": -0.3011,
+     "rho": -0.3015,
      "p_low": 0.0
     }
    ],
    "ladder_monotone": true,
-   "null_mean": -0.00065,
-   "null_sd": 0.03994,
-   "z": 3.85,
+   "null_mean": -0.00061,
+   "null_sd": 0.04,
+   "z": 3.84,
    "one_sided_p_low": 1.0,
    "reading": "SELECTION_SURVIVORS_ARE_BUSIER"
   }
