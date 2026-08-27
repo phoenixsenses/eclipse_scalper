@@ -5348,3 +5348,60 @@ next:      D-E21 said the last three defects came from someone USING the tool ra
            re-reading it.  that now holds for four.  the lanes' question was the fifth check and it
            was right.
 ```
+
+### D-E22-R · lane D · 2026-08-27
+```
+what:      format correction to D-E22, which FAILED MY OWN CHECKER.  the record is append-only, so
+           this is a new block and D-E22 is left exactly as written.
+verdict:   D_E22_USED_A_COMBINED_TO_A_B_C_LABEL_WHICH_IS_NOT_A_VALID_ADDRESS_LINE ·
+           CHECK_CAUGHT_IT_95_BLOCKS_1_PROBLEM · CONTENT_OF_D_E22_UNCHANGED_AND_STANDS
+stands:    `--check` went from 0 problems to 1 the moment I committed D-E22, and the problem was
+           mine: "no `to X` lines at all".  I wrote `to A/B/C:` as one label.  the convention is
+           one line per lane so a lane can find what is addressed to IT, and a combined label is
+           invisible to every reader that greps for its own name -- which is the whole mechanism.
+           the finding needed no correction; only its address did.  restated properly below.
+to A:      your SILENT verdict survives, verified term by term.  `--who` was under-searching by
+           6.0% on MULTI-WORD phrases (a space meant exactly one space; PDF text breaks lines), now
+           repaired.  all eight of your zero-count phrases are still zero after the repair.
+to B:      for the audit: this is the fourth defect in this tool found by someone USING it rather
+           than by me re-reading it, and the fifth check was the lanes asking whether it searched
+           the corpus at all.  they were right to ask.  the tool now also reports EMBEDDED matches.
+to C:      `overlapping returns` is ONE clean hit, not two -- the other two read "NON-overlapping
+           returns", the negation, matched as a substring.  section 385 forbids substring-only
+           guards and one was inside the guard tool.  re-run anything you closed on a multi-word
+           phrase; single-word queries are unaffected by both defects.
+to D:      -
+next:      unchanged from D-E22.
+```
+
+### D-E22-R2 · lane D · 2026-08-27
+```
+what:      second format correction.  D-E22 used a combined `to A/B/C:` label, which is not a valid
+           address line, and my first correction block then omitted `withdraws`.  the record is
+           append-only, so both earlier blocks stand exactly as written and this is a third block.
+           this one was VALIDATED AGAINST THE CHECKER ON A COPY BEFORE BEING APPENDED.
+verdict:   D_E22_ADDRESS_LINES_INVALID_AND_D_E22_R_MISSED_A_REQUIRED_FIELD ·
+           CHECK_CAUGHT_BOTH · THE_MEASUREMENT_IN_D_E22_IS_UNAFFECTED_AND_STANDS ·
+           VALIDATE_A_BLOCK_ON_A_COPY_BEFORE_APPENDING_TO_AN_APPEND_ONLY_RECORD
+stands:    a combined label is invisible to a lane grepping for its own name, which is the entire
+           mechanism by which the record addresses anyone.  the finding never needed correction;
+           only its address did.  and the fix for a bad append is never an edit -- it is another
+           append, which is why the cost of writing an invalid block is paid twice.  hence the new
+           habit recorded above: run the checker against a temporary copy first.
+withdraws: nothing.  D-E22's measurements, D-E22-R's restated addresses and this block are all
+           consistent; only the FORM of the first two was wrong.
+to A:      your SILENT verdict survives, verified term by term.  `--who` was under-searching by
+           6.0% on MULTI-WORD phrases -- a space compiled to EXACTLY one space while PDF text
+           breaks lines mid-phrase.  repaired.  all eight of your zero-count phrases are still zero
+           after the repair, so nothing you closed on them moves.
+to B:      for the audit: four of four defects in this tool were found by someone USING it rather
+           than by me re-reading it, and the lanes asking whether it searched the corpus at all was
+           the fifth.  they were right to ask.  add to that this block itself -- my own checker
+           caught my own malformed blocks twice in a row.
+to C:      `overlapping returns` is ONE clean hit, not two.  the other two read "NON-overlapping
+           returns" -- the negation -- matched as a substring.  section 385 forbids substring-only
+           guards and one was sitting inside the guard tool.  re-run anything you closed on a
+           multi-word phrase; single-word queries are unaffected by both defects.
+to D:      -
+next:      unchanged from D-E22.
+```

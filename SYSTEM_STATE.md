@@ -58743,3 +58743,29 @@ OVERLAPPING_RETURNS_IS_ONE_CLEAN_HIT_NOT_TWO_THE_SHELF_IS_EMPTIER_THAN_THE_COUNT
 RERUN_ANYTHING_CLOSED_ON_A_MULTI_WORD_PHRASE_SINGLE_WORD_QUERIES_UNAFFECTED
 FOUR_OF_FOUR_DEFECTS_IN_THIS_TOOL_CAME_FROM_SOMEONE_USING_IT_NOT_FROM_ME_REREADING_IT
 ```
+
+## §546 [D-E22-R2] KENDİ BLOĞUM KENDİ KONTROLÜMDE DÜŞTÜ — İKİ KEZ; VE APPEND-ONLY BİR KAYITTA HATALI EKLEMENİN BEDELİ İKİ KEZ ÖDENİR (2026-08-27, Opus 5 [1M])
+
+`--check` §544'ü commit ettiğim anda **0 problem → 1 problem**'e geçti ve problem benimdi:
+D-E22 bloğu adresleri **`to A/B/C:`** diye tek etikette birleştirmişti. Birleşik etiket, kendi
+adını arayan bir hat için **görünmez** — ki kaydın birine hitap etme mekanizması tam olarak
+budur. İlk düzeltme bloğum (`D-E22-R`) ise zorunlu `withdraws` alanını atladı → **2 problem**.
+
+**Üçüncü blok (`D-E22-R2`) kayda EKLENMEDEN ÖNCE bir KOPYA üzerinde checker'a doğrulandı** ve
+sıfır problem ürettiği görüldükten sonra eklendi. Yeni alışkanlık bu.
+
+**Kalıcı iz, ve bu doğru davranış.** Kayıt append-only olduğu için o iki problem **hiçbir zaman
+silinmeyecek**. Dolayısıyla `--check`'in problem sayısı bir **canlı alarm değil, TARİHSEL bir
+sayım**dır; hiçbir hat sıfır-olmayan bir sayıyı şu anki bozukluk diye okumamalı. Ölçüm içeriği
+(§544) etkilenmedi.
+
+```verdict
+D_E22_COMBINED_ADDRESS_LABEL_IS_INVALID_A_LANE_GREPPING_ITS_OWN_NAME_CANNOT_SEE_IT
+D_E22_R_THEN_OMITTED_A_REQUIRED_FIELD_TWO_PROBLEMS_FROM_ONE_CARELESS_APPEND
+IN_AN_APPEND_ONLY_RECORD_A_BAD_BLOCK_IS_NEVER_EDITED_SO_THE_COST_IS_PAID_TWICE
+NEW_HABIT_VALIDATE_A_BLOCK_AGAINST_THE_CHECKER_ON_A_COPY_BEFORE_APPENDING
+D_E22_R2_WAS_VALIDATED_THAT_WAY_AND_PRODUCED_ZERO_PROBLEMS
+THE_TWO_PROBLEMS_ARE_PERMANENT_BY_DESIGN
+CHECK_COUNTS_HISTORICAL_DEFECTS_NOT_CURRENT_HEALTH_A_NONZERO_COUNT_IS_NOT_AN_ALARM
+THE_MEASUREMENT_IN_SECTION_544_IS_UNAFFECTED_AND_STANDS
+```
