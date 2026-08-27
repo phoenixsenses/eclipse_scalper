@@ -46,6 +46,7 @@ from __future__ import annotations
 
 import glob
 import os
+import re
 
 TEXT_DIR = os.path.join("data", "literature_v2", "text")
 
@@ -56,12 +57,46 @@ LIGATURES = {"ﬀ": "ff", "ﬁ": "fi", "ﬂ": "fl", "ﬃ": "ffi",
 DASHES = {"‐": "-", "‑": "-", "­": ""}
 
 
+_WORD_RX = re.compile(r"[A-Za-z]{4,}")
+_BREAK_RX = re.compile(r"([A-Za-z]{2,})-[ \t]*\n[ \t]*([a-z]{2,})")
+
+
+def dehyphenate(text: str) -> str:
+    """Rejoin words the typesetter split across a line, but ONLY when the result is a real word.
+
+    Measured 2026-08-27 (D-E23): the shelf carries 7,566 hyphen-then-whitespace breaks over
+    2,586 distinct candidates, of which 2,205 are confirmed real words (6,885 occurrences) --
+    `estimator` 23, `execution` 21, `censoring` 18, `hazard` 17, `microstructure` 17,
+    `identifiability` 7.  Every one of those was invisible to a SINGLE-WORD query, which is the
+    query form the whole record relies on.
+
+    THE DEFECT HID BEHIND CRLF.  The files are CRLF (173,846 CR to 173,803 LF), so a probe for
+    hyphen-newline returns exactly ZERO while hyphen-whitespace returns 7,566.  That false zero
+    is why an earlier round published "no hyphenation residue".  Line endings are normalised
+    FIRST here.
+
+    NOT folded blindly.  A genuine compound broken at the line end must not lose its hyphen and
+    become one invented word.  The rejoined form is accepted only if it occurs INTACT elsewhere
+    in the same file; otherwise the hyphen is kept and only the line break is removed.  A word
+    appearing exclusively in broken form is left alone -- conservative on purpose, because the
+    alternative is inventing vocabulary.
+    """
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
+    vocab = {w.lower() for w in _WORD_RX.findall(text)}
+
+    def fix(m):
+        joined = m.group(1) + m.group(2)
+        return joined if joined.lower() in vocab else (m.group(1) + "-" + m.group(2))
+
+    return _BREAK_RX.sub(fix, text)
+
+
 def normalise(text: str) -> str:
     for k, v in LIGATURES.items():
         text = text.replace(k, v)
     for k, v in DASHES.items():
         text = text.replace(k, v)
-    return text
+    return dehyphenate(text)
 
 
 def load(path: str) -> str:

@@ -58769,3 +58769,78 @@ THE_TWO_PROBLEMS_ARE_PERMANENT_BY_DESIGN
 CHECK_COUNTS_HISTORICAL_DEFECTS_NOT_CURRENT_HEALTH_A_NONZERO_COUNT_IS_NOT_AN_ALARM
 THE_MEASUREMENT_IN_SECTION_544_IS_UNAFFECTED_AND_STANDS
 ```
+
+## §548 [D-E23] *"YENİDEN KOŞSUNLAR MI"* SORUSU ÜÇÜNCÜ BİR KUSUR BULDU — VE BU **TEK KELİMELİK** SORGULARI VURUYOR; BİR TUR ÖNCE "ETKİLENMEDİ" DEMİŞTİM (2026-08-27, Opus 5 [1M])
+
+Soru şuydu: hatlara *"yeniden koşun"* demeden önce, bir yeniden koşu **ne kadarını
+değiştirebilir**? Ölçtüm, ve ölçüm bir kusur daha çıkardı.
+
+### 1 — İFADE SORGULARINDA YANLIŞ-SIFIR ORANI: **%11.8, YAKLAŞIK 8'DE 1**
+Rafın kendisi gerçek ifadelerin popülasyonu olarak alındı: **342 907** ayrık iki-kelimelik ifade,
+bunların **42 262**'si **yalnızca satır kırılması üzerinden** geçiyor — eski okuyucuya görünmez.
+Bir hattın yazabileceği ifadelere daraltınca (iki token da alfabetik, en az 3 karakter, ikisi de
+stopword değil): **95 420 ifadenin 11 234'ü = %11.8**. Bunların **349'u** bu estate'in çalıştığı bir
+terim içeriyor (`actual hazard`, `bid depth`, `book spread`, `frailty density`, `active metaorder`).
+**İki kelimelik bir ifadede SESSİZ hükmü, kabaca sekizde bir yanılıyordu.** Yeniden koşu tam da
+bunun için.
+
+### 2 — ÜÇÜNCÜ KUSUR: TİRELEME HİÇ KATLANMAMIŞ, VE **CRLF'İN ARKASINA SAKLANMIŞ**
+Görünmez ifade örneğinde `restric- tion`, `asym- metric`, `nov- ice` vardı — bunlar ifade değil,
+**kırık kelime**. `corpus_text_v1.load()` docstring'i *"NUL-safe read + ligature and hyphen
+normalisation"* diyor; `normalise()` ligature ve dash yapıyordu, **tireleme katlaması hiç yoktu.**
+Docstring'e inandım.
+
+**Ve kusur CRLF'in arkasına saklanmıştı.** Dosyalar CRLF — **173 846 CR / 173 803 LF** — dolayısıyla
+tire-satırbaşı için yazdığım prob **tam olarak SIFIR** döndürüyor, oysa tire-boşluk **7 566**
+döndürüyor. **Bir tur önce yayımladığım "tireleme artığı yok" iddiası işte o yanlış sıfırdı.**
+Kendi yazdığım, kendi seçtiğim bir kalıp üzerindeki bir prob'un sıfırı **yokluk kanıtı değildir.**
+
+**Ölçüldü:** 7 566 kırılma, 2 586 ayrık aday, bunların **2 205'i doğrulanmış gerçek kelime**
+(**6 885 geçiş**) — `estimator` 23 · `execution` 21 · `censoring` 18 · `hazard` 17 ·
+`microstructure` 17 · `identifiability` 7. **Hepsi tek kelimelik sorguya görünmezdi.**
+
+**Düzeltildi, ve körlemesine değil:** önce satır sonları normalize edilir, sonra bir kırılma
+**yalnızca sonuç aynı dosyada sağlam olarak geçiyorsa** birleştirilir; geçmiyorsa tire korunur.
+**7 566 → 179** artık, **0** carriage return, ve **12 228** gerçek birleşik kelime tiresini korudu.
+Yalnızca kırık halde geçen bir kelimeye dokunulmaz — alternatifi **sözcük uydurmak** olurdu.
+
+### 3 — TEK KELİMELİK GERİ KAZANIM: %98.6 İDİ, %100 DEĞİL
+
+| terim | önce | sonra | terim | önce | sonra |
+|---|--:|--:|---|--:|--:|
+| identifiability | 78 | **85** (%8.2 kaçık) | estimator | 1088 | **1119** |
+| competing | 126 | **135** | censoring | 524 | **542** |
+| identification | 105 | **111** | hazard | 1319 | **1341** |
+| microstructure | 457 | **474** | volatility | 1067 | **1085** |
+| **TOPLAM (21 terim)** | **14 112** | **14 315** | **fark** | | **%1.4** |
+
+**AMA HİÇBİR TEK-KELİME YOKLUK İDDİASI DEĞİŞMİYOR.** Eski okuyucunun **hiç** göremediği ayrık
+kelime sayısı **13**, ve bunların **estate ile ilgili olanı SIFIR**.
+
+### YENİDEN KOŞMA TALİMATI — DAR VE KESİN
+- **KOŞUN:** yalnızca **sıfır dönen ÇOK KELİMELİ ifade sorguları**. Yanlış-sıfır riski orada, ~8'de 1.
+- **KOŞMAYIN:** tek kelimelik işler. Geri kazanım %1.4 ve hiçbir yokluk hükmü dönmüyor.
+- **C hattının funding sorguları üç düzeltmenin de ardından DEĞİŞMEDİ:** `funding` 3→3,
+  `perpetual` 4→4, `cascade` 4→4, `queue` 687→687. O SESSİZ hüküm **kayıtsız şartsız ayakta**.
+
+### GERİ ÇEKİLENLER (ikisi de bir tur önceki §544'ten)
+1. *"satır aşırı tireleme artığı sıfır"* — **YANLIŞ**, CRLF yanlış-sıfırıydı; gerçek sayı 7 566.
+2. *"tek kelimelik sorgular her iki kusurdan da etkilenmiyor"* — **FAZLA GENİŞ**. D-E22'nin
+   adlandırdığı iki kusurdan etkilenmiyorlar, ama **üçüncüsü** onları %1.4, `identifiability`
+   üzerinde %8.2 vuruyordu.
+
+```verdict
+FALSE_ZERO_RATE_FOR_A_TWO_WORD_PHRASE_IS_11_8_PERCENT_ABOUT_ONE_IN_EIGHT
+342907_REAL_PHRASES_42262_VISIBLE_ONLY_ACROSS_A_LINE_BREAK
+THIRD_DEFECT_HYPHEN_FOLDING_WAS_NEVER_IMPLEMENTED_THOUGH_THE_DOCSTRING_CLAIMED_IT
+IT_HID_BEHIND_CRLF_A_PROBE_FOR_HYPHEN_NEWLINE_RETURNS_EXACTLY_ZERO_ON_CRLF_TEXT
+A_ZERO_FROM_A_PROBE_I_WROTE_ON_A_PATTERN_I_CHOSE_IS_NOT_EVIDENCE_OF_ABSENCE
+7566_BREAKS_2205_CONFIRMED_REAL_WORDS_6885_OCCURRENCES_INVISIBLE_TO_SINGLE_WORD_QUERIES
+FOLD_IS_VOCABULARY_GATED_7566_TO_179_RESIDUAL_12228_GENUINE_COMPOUNDS_KEPT_THEIR_HYPHENS
+SINGLE_WORD_RECALL_WAS_98_6_PERCENT_WORST_TERM_IDENTIFIABILITY_91_8
+NO_SINGLE_WORD_ABSENCE_CLAIM_FLIPS_ZERO_ESTATE_RELEVANT_WORDS_WERE_FULLY_INVISIBLE
+RERUN_ONLY_MULTI_WORD_PHRASE_QUERIES_THAT_RETURNED_ZERO
+LANE_C_FUNDING_AND_PERPETUAL_COUNTS_UNCHANGED_UNDER_ALL_THREE_FIXES
+WITHDRAWS_SECTION_544_NO_HYPHENATION_RESIDUE_AND_SINGLE_WORD_QUERIES_UNAFFECTED
+FIVE_OF_FIVE_DEFECTS_FOUND_BY_A_USER_OR_ANOTHER_LANES_QUESTION_NEVER_BY_ME_REREADING
+```

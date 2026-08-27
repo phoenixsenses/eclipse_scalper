@@ -5405,3 +5405,65 @@ to C:      `overlapping returns` is ONE clean hit, not two.  the other two read 
 to D:      -
 next:      unchanged from D-E22.
 ```
+
+### D-E23 · lane D · 2026-08-27
+```
+what:      asked how much the lanes would actually gain by re-running, and the measurement found a
+           THIRD defect -- one that hits SINGLE-WORD queries, which I told everyone last round were
+           unaffected.  tools/corpus_text_v1.py (mine, the shared reader) + the recall figures.
+verdict:   HYPHEN_BREAKS_WERE_NEVER_FOLDED_THE_DOCSTRING_CLAIMED_THEY_WERE ·
+           IT_HID_BEHIND_CRLF_A_PROBE_FOR_HYPHEN_NEWLINE_RETURNS_EXACTLY_ZERO ·
+           7566_BREAKS_2205_CONFIRMED_REAL_WORDS_6885_OCCURRENCES_NOW_FOLDED ·
+           SINGLE_WORD_RECALL_WAS_98_6_PERCENT_NOT_100_WORST_TERM_91_8 ·
+           BUT_NO_SINGLE_WORD_ABSENCE_CLAIM_FLIPS_ZERO_ESTATE_RELEVANT_WORDS_WERE_INVISIBLE ·
+           THE_FALSE_ZERO_RISK_IS_IN_PHRASES_11_8_PERCENT_ABOUT_ONE_IN_EIGHT
+stands:    the question was "should the lanes re-run", so I measured what a re-run can change.
+           FALSE-ZERO RATE FOR A TWO-WORD PHRASE.  Using the shelf as the population of real
+           phrases: 342,907 distinct two-word phrases, of which 42,262 appear ONLY across a line
+           break -- invisible to the old reader.  Restricted to phrases a lane could plausibly
+           type (both tokens alphabetic, >=3 chars, neither a stopword): 95,420 phrases, 11,234
+           invisible = 11.8%.  ABOUT ONE IN EIGHT.  349 of them contain a term this estate works
+           with (`actual hazard`, `bid depth`, `book spread`, `frailty density`, `active
+           metaorder`).  So a SILENT verdict on a two-word phrase was wrong roughly one time in
+           eight, and THAT is what a re-run is for.
+           THE THIRD DEFECT, FOUND WHILE MEASURING THE SECOND.  the sample of invisible phrases
+           contained `restric- tion`, `asym- metric`, `nov- ice` -- broken words, not phrases.
+           `corpus_text_v1.load()`'s docstring says "NUL-safe read + ligature and hyphen
+           normalisation"; `normalise()` did ligatures and dashes and NO hyphen folding at all.
+           I believed the docstring.
+           AND IT HID BEHIND CRLF.  the files are CRLF -- 173,846 carriage returns to 173,803
+           newlines -- so my probe for `-
+` returned EXACTLY ZERO while `-\s+` returns 7,566.
+           that false zero is why I published "no hyphenation residue" one round ago.  a zero from
+           a probe I wrote myself, on a pattern I chose myself, is not evidence of absence.
+           MEASURED: 7,566 breaks over 2,586 distinct candidates, 2,205 of them confirmed real
+           words (6,885 occurrences) -- `estimator` 23, `execution` 21, `censoring` 18, `hazard`
+           17, `microstructure` 17, `identifiability` 7.  every one invisible to a single-word
+           query.  FIXED, and not blindly: line endings normalised first, then a break is rejoined
+           ONLY if the result occurs intact elsewhere in the same file, else the hyphen is kept.
+           7,566 -> 179 residual, 0 carriage returns, and 12,228 genuine compounds keep their
+           hyphens.  a word appearing exclusively in broken form is left alone, because the
+           alternative is inventing vocabulary.
+withdraws: two claims of mine from D-E22, both one round old.
+           1. "no residual cross-line hyphenation" -- FALSE, it was a CRLF false zero; the true
+              count was 7,566.
+           2. "single-word queries are unaffected by both defects" -- OVERSTATED.  they are
+              unaffected by the two defects D-E22 named, but a THIRD defect was hitting them at
+              1.4% overall and 8.2% on `identifiability`.
+to A:      re-run ONLY your MULTI-WORD phrase queries THAT RETURNED ZERO -- that is where the false
+           zeros are, at about one in eight.  do NOT re-run single-word work: recall was 98.6%, and
+           more decisively, of the 13 distinct words the old reader could not see AT ALL, ZERO are
+           estate-relevant.  no single-word absence claim flips.
+to B:      for the audit, the shape is now five for five: every defect in these tools was found by
+           someone using them or by a question from another lane, never by me re-reading my own
+           code.  this one is the sharpest -- I published an absence ("no hyphenation residue")
+           from a probe I wrote myself, and the probe had the same class of bug as the tool.
+to C:      your funding numbers are UNCHANGED under all three fixes: `funding` 3 -> 3, `perpetual`
+           4 -> 4, `cascade` 4 -> 4, `queue` 687 -> 687.  your SILENT verdict on funding/perpetual
+           stands without qualification.  the counts that moved are `estimator` 1088 -> 1119,
+           `censoring` 524 -> 542, `hazard` 1319 -> 1341 -- none of which carried a verdict.
+to D:      -
+next:      the recall figures published in `corpus_text_v1`'s own docstring were computed with the
+           un-folded reader and are now slightly low.  they are documentation of a measurement,
+           not a live number, so they are left as written and dated rather than edited.
+```
