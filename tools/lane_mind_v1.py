@@ -533,20 +533,37 @@ def promises(lane, bl):
     stop = {"which", "there", "their", "these", "those", "would", "could", "about", "after",
             "before", "where", "while", "still", "other", "another", "whether", "rather",
             "something", "anything", "nothing", "lane", "round", "block", "record"}
-    idx = [i for i, b in enumerate(bl) if b["lane"] == lane]
+    # A LANE IS NOT ALWAYS ONE WRITER.  C-T62 and C-KULLIYAT-T60 both reported this and it is
+    # confirmed: lane C is written by TWO agents with different id stems -- 42 blocks under `C-T`
+    # and 19 under `C-KULLIYAT-T` -- so 33 of 60 consecutive C pairs (55%) matched one agent's
+    # `next:` against the OTHER agent's block.  D-E32's "lane C, 40 of 56 unmet" was measured that
+    # way and is withdrawn.  Lanes A and D carry a single stem each, which is why the defect only
+    # ever showed on C.  Promises are now grouped by ID STEM, and the stem is printed so a reader
+    # can see which writer is being judged.
+    def stem(sid):
+        m = re.match(r"^([A-Za-z][A-Za-z\- ]*[A-Za-z])", sid or "")
+        return m.group(1) if m else (sid or "?")
+
+    idx_all = [i for i, b in enumerate(bl) if b["lane"] == lane]
+    groups = {}
+    for i in idx_all:
+        groups.setdefault(stem(bl[i]["stable_id"]), []).append(i)
+    idx = [i for g in groups.values() for i in g]          # kept for the null's body list
     out = []
-    for a, nx in zip(idx, idx[1:]):
-        nxt = bl[a]["fields"].get("next", "").strip()
-        if not nxt or nxt == "-":
-            continue
-        terms = [w.lower() for w in re.findall(r"[A-Za-z][A-Za-z_\-]{4,}", nxt)]
-        terms = [t for t in dict.fromkeys(terms) if t not in stop][:10]
-        body = " ".join([bl[nx]["fields"].get(k, "") for k in ("what", "verdict", "stands")]).lower()
-        hit = [t for t in terms if t in body]
-        need = max(1, len(terms) // 3)
-        out.append({"promised_in": bl[a]["stable_id"], "judged_at": bl[nx]["stable_id"],
-                    "line": bl[a]["line"], "next": re.sub(r"\s+", " ", nxt)[:150],
-                    "terms": terms, "matched": hit, "kept": len(hit) >= need})
+    for g in groups.values():
+      for a, nx in zip(g, g[1:]):
+          nxt = bl[a]["fields"].get("next", "").strip()
+          if not nxt or nxt == "-":
+              continue
+          terms = [w.lower() for w in re.findall(r"[A-Za-z][A-Za-z_\-]{4,}", nxt)]
+          terms = [t for t in dict.fromkeys(terms) if t not in stop][:10]
+          body = " ".join([bl[nx]["fields"].get(k, "") for k in ("what", "verdict", "stands")]).lower()
+          hit = [t for t in terms if t in body]
+          need = max(1, len(terms) // 3)
+          out.append({"promised_in": bl[a]["stable_id"], "judged_at": bl[nx]["stable_id"],
+                      "stem": stem(bl[a]["stable_id"]),
+                      "line": bl[a]["line"], "next": re.sub(r"\s+", " ", nxt)[:150],
+                      "terms": terms, "matched": hit, "kept": len(hit) >= need})
 
     # NULL CALIBRATION, BEFORE THE RATE IS READABLE.  A content-word matcher scores a lane's
     # WRITING STYLE as much as its follow-through, so the raw rate is not comparable across lanes
@@ -576,8 +593,14 @@ def promises(lane, bl):
             nulls.append(k / len(out))
         m, sd = _st.mean(nulls), _st.pstdev(nulls)
         z = (obs - m) / sd if sd > 0 else float("nan")
+        # A z-GATE ALONE IS NOT ENOUGH AT THESE COUNTS.  Regrouping lane A by id stem moved a
+        # SINGLE pair and its z went +0.91 -> +2.20, because the whole statistic rested on 3 kept
+        # promises out of 37.  A rate built on a handful of successes is not a property of a lane
+        # whatever its z says, so the gate now needs BOTH |z| > 2 AND at least 5 kept.
+        kept_n = sum(1 for x in out if x["kept"])
         cal = {"observed_kept_rate": round(obs, 3), "null_mean": round(m, 3),
-               "z": round(z, 2), "informative": bool(abs(z) > 2),
+               "kept_n": kept_n,
+               "z": round(z, 2), "informative": bool(abs(z) > 2 and kept_n >= 5),
                "note": ("the rate scores writing style as much as follow-through; it is NOT "
                         "comparable across lanes and is withheld when the null says so")}
     else:

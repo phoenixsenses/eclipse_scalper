@@ -1,0 +1,83 @@
+{
+ "prereg_sha256": "e7968ac4e933610e281b15709da3245b6d76662b2e963d1d9e30722a47332c4c",
+ "n": 628,
+ "answers": "D-E33 mechanism",
+ "covariates": {
+  "sigma_1s": {
+   "kind": "pre-anchor volatility on [t0-60m, t0) -- predictable, verified in code",
+   "mean": 0.0,
+   "spearman_rho": -0.15016,
+   "known_positive_ladder": [
+    {
+     "strength": 0.0,
+     "rho": -0.1502,
+     "p_low": 0.0
+    },
+    {
+     "strength": 0.25,
+     "rho": -0.2054,
+     "p_low": 0.0
+    },
+    {
+     "strength": 0.5,
+     "rho": -0.2632,
+     "p_low": 0.0
+    },
+    {
+     "strength": 0.75,
+     "rho": -0.3454,
+     "p_low": 0.0
+    },
+    {
+     "strength": 1.0,
+     "rho": -0.4819,
+     "p_low": 0.0
+    }
+   ],
+   "ladder_monotone": true,
+   "null_mean": -6e-05,
+   "null_sd": 0.0401,
+   "z": -3.74,
+   "one_sided_p_low": 0.0,
+   "reading": "SELECTION_SURVIVORS_ARE_QUIETER"
+  },
+  "qv": {
+   "kind": "the episode's own notional at t0 -- known at the anchor",
+   "mean": 2478318.891,
+   "spearman_rho": 0.15317,
+   "known_positive_ladder": [
+    {
+     "strength": 0.0,
+     "rho": 0.1532,
+     "p_low": 1.0
+    },
+    {
+     "strength": 0.25,
+     "rho": 0.0926,
+     "p_low": 0.9933
+    },
+    {
+     "strength": 0.5,
+     "rho": 0.0195,
+     "p_low": 0.65
+    },
+    {
+     "strength": 0.75,
+     "rho": -0.0925,
+     "p_low": 0.01
+    },
+    {
+     "strength": 1.0,
+     "rho": -0.3011,
+     "p_low": 0.0
+    }
+   ],
+   "ladder_monotone": true,
+   "null_mean": -0.00065,
+   "null_sd": 0.03994,
+   "z": 3.85,
+   "one_sided_p_low": 1.0,
+   "reading": "SELECTION_SURVIVORS_ARE_BUSIER"
+  }
+ }
+}

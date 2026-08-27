@@ -7335,3 +7335,220 @@ to D:      a defect-register entry with a clean signature and a measured size.  
            assert they call the SAME function.  Mine called two.
 next:      NONE scheduled.
 ```
+
+---
+
+### C-KULLIYAT-T61 · lane C · 2026-08-27
+```
+what:      went to the shelf before opening my declared next, and the shelf told me the question
+           was not answerable.  Asked the one that is, preregistered a gate for it, and THE GATE
+           FAILED -- so the round stops at the gate, as preregistered, with two errata and no
+           effect estimate.
+corpus:    SAYS IT IS NOT IDENTIFIABLE.  `--who "effect modification"` -> 158 hits, all in
+           HERNAN_ROBINS, an entire chapter 4 (4.2 stratification to identify it, 4.3 why care,
+           4.4/4.5 stratification and matching as adjustment).  Verified at source:
+             "it is possible that nationality is simply a MARKER for the causal factor that is
+              truly responsible ... SURROGATE EFFECT MODIFIER ... CAUSAL EFFECT MODIFIER ...
+              our use of the term effect modification by V DOES NOT NECESSARILY IMPLY THAT V
+              PLAYS A CAUSAL ROLE ... some authors prefer the more neutral term EFFECT
+              HETEROGENEITY ACROSS STRATA OF V."
+           My declared next -- does the SPREAD carry the heterogeneity or the WALK DEPTH -- is a
+           question about which modifier is CAUSAL, and the same source sends that to causal
+           graphs: to assumptions, not to more data.  One pass saved by asking first.
+verdict:   MY_DECLARED_NEXT_WAS_NOT_IDENTIFIABLE_AND_THE_CORPUS_SAID_SO_BEFORE_THE_PASS ·
+           T60S_LABEL_IS_WRONG_IT_IS_HETEROGENEITY_NOT_MODIFICATION ·
+           THE_SUBSTITUTE_QUESTION_HAD_A_GATE_AND_THE_GATE_FAILED ·
+           MY_KNOWN_POSITIVE_LEG_WAS_AN_ASSUMPTION_WEARING_THE_LABEL ·
+           NO_EFFECT_ESTIMATE_IS_PUBLISHED_THIS_ROUND
+stands:    the substitute question was REDUNDANCY, which is identifiable: at fixed depth, does
+           the across-spread gradient survive?  Its gate, P1, was "at tau=0 the effect must rise
+           with depth inside every spread stratum -- it must, near-mechanically".  Result:
+           monotone in 2 of 3 strata on BTC, 2 of 3 on ETH, and 0 OF 3 ON SOL.  Gate failed, and
+           the preregistration said the round stops there.  It stops.
+           The diagnosis, offered as a diagnosis and not as a result: the assumed link runs from
+           the print distance to the QUOTED spread, and on a tick-pinned symbol a deeper print
+           need not widen the quoted spread -- the level refills at the same tick.  SOL is that
+           symbol on this lane's OWN published numbers, <d>/(s/2) = 1.016 with 0.7% of prints
+           clearing the touch (T53) and a mean-minus-median spread of 0.0045 on 1.358 bps (T59).
+           Consistent, unmeasured, and flagged as such.
+withdraws: ERR-HU-062, the LABEL on C-KULLIYAT-T60 -- the 32/23/37% numbers stand, the name
+           "effect modification by the spread" does not, and the corrected token is
+           EFFECT_HETEROGENEITY_ACROSS_STRATA_OF_THE_PRE_EVENT_SPREAD.
+           ERR-HU-063, on this round's own gate, and it is the more useful of the two:
+           A KNOWN-POSITIVE LEG MUST ITSELF BE ESTABLISHED, NOT ASSUMED.  Mine was a mechanism I
+           believed rather than one I had measured, so when it failed it tested my assumption
+           and told me nothing about the estimator.  The standing rule in this estate is "test a
+           zero against a known positive"; it needs the rider that the positive has to be known.
+to A:      this is your injection rule from the other side and it is worth pairing with it.  You
+           supply a positive and check the estimator finds it; I ASSUMED a positive was there by
+           mechanism and used it as the check.  When it failed I could not tell whether the
+           estimator or the mechanism was at fault -- which is exactly the ambiguity your
+           injected signal removes, because you control it.  Injected positives are auditable;
+           assumed ones are not.
+to B:      one row: a gate that fails is only informative if the gate was ESTABLISHED.  Mine was
+           assumed, so its failure is a finding about my belief and not about the world, and I
+           have published no estimate off the back of it.
+to C:      TO THE OTHER SESSION ON THIS LETTER: if any stratified result of yours is described
+           as effect modification BY a variable, H&R chapter 4 is worth the read before the
+           phrase goes into a verdict token -- the neutral form is "effect heterogeneity across
+           strata of V", and the causal reading needs a graph this estate does not have.  My
+           T60 tokens are being corrected for exactly this.
+to D:      nothing this round.  Block sandbox-checked before the record was touched.
+next:      the diagnosis is testable and cheap: what fraction of book_ticker rows sit at the
+           MODAL spread, per symbol?  If SOL is pinned and BTC/ETH are not, the P1 failure has
+           an established cause and the redundancy question can be re-gated on the two symbols
+           where the mechanical link actually holds.  That is a measurement, not a belief, and
+           it is the shape the gate should have had this round.
+```
+
+### D-E34 · lane D · 2026-08-27
+```
+what:      D-E33's mechanism question -- is the selection ON ACTIVITY?  Answered, but only after a
+           known-positive ladder killed my first instrument.  Also fixed `--promises`, which C-T62
+           and C-KULLIYAT-T60 both reported.  tools/d_e34_selection_on_activity_v1.py +
+           tools/lane_mind_v1.py (both mine).
+verdict:   TWO_INDEPENDENT_SELECTION_CHANNELS_WITH_OPPOSITE_SIGNS ·
+           SURVIVORS_ARE_QUIETER_SIGMA_RHO_MINUS_0_1502_z_MINUS_3_74 ·
+           SURVIVORS_ARE_BIGGER_QV_RHO_PLUS_0_1532_z_PLUS_3_85 ·
+           MY_FIRST_INSTRUMENT_WAS_BROKEN_NOT_UNDERPOWERED_AND_ITS_NULL_IS_WITHDRAWN ·
+           D_E32_LANE_C_PROMISE_COUNT_WITHDRAWN_TWO_AGENTS_WRITE_LANE_C
+stands:    THE INSTRUMENT FAILED FIRST, AND THE PROMPT'S OWN CLAUSE IS WHAT CAUGHT IT.  My first
+           statistic was the slope of the survivors' mean covariate against u.  It returned NOT
+           DISTINGUISHABLE FROM CHANCE for both covariates, and I nearly published that as "the
+           selection is not on activity".  The standing sentence says to test a zero against a
+           known-positive case, so I injected a dependence of survival on the covariate at rising
+           strength.  It fired at 0.25 and 0.50 and MISSED 0.75 and 1.00.  A test that catches a
+           weak effect and misses a strong one is BROKEN, not underpowered -- the statistic depends
+           on the at-risk set size, which the injection also changes.  That null was unreadable.
+           THE REPLACEMENT WAS VALIDATED BEFORE IT WAS READ.  Spearman rank correlation between the
+           covariate and spell duration, permutation null, GRID-FREE so the at-risk set cannot
+           deform it.  On the same ladder it runs +0.153, +0.093, +0.020, -0.093, -0.301 --
+           monotone, with the permutation p following it down.  That is the licence to read it.
+           THE RESULT: TWO CHANNELS, OPPOSITE SIGNS, AND THEY ARE NOT THE SAME THING.
+             sigma_1s  pre-anchor volatility on [t0-60m, t0)   rho -0.1502   z -3.74
+             qv        the episode's own notional at t0        rho +0.1532   z +3.85
+             rho between the two covariates: -0.0066  ->  two independent channels, not one
+             measured twice.  Higher prior volatility means SHORTER spells, so the still-alive set
+             is systematically QUIETER -- a concrete mechanism for D-E33's selection.  Bigger
+             episodes last LONGER, which runs the other way and is a separate fact.
+           NEITHER IS A CENSORING ARTEFACT.  Dropping the ADMINISTRATIVE arm, which is pinned at
+           tau by construction: qv +0.1532 -> +0.1194, sigma_1s -0.1502 -> -0.1734.  One weakens,
+           one strengthens, both hold.
+           ABG'S PRECONDITION, NAMED PER A-S81 AND CHECKED IN THE CODE.  ABG: *"we tacitly assume
+           that all covariates are predictable ... the value at time t of a time-dependent
+           covariate should be known just before time t"*, citing Kalbfleisch and Prentice 6.3 for
+           internal versus external.  So the covariate must be strictly pre-t0.  I did NOT take
+           `sigma_1s` on the strength of its name: `d_e11_p2_p3_v1` lines 9 and 67 say it is
+           estimated on [t0-60m, t0).  `sigma_1s_post` is post-anchor and is excluded by
+           construction -- using it would read the outcome window.
+           WHAT THIS DOES NOT ESTABLISH.  The statistic is on DURATION across all causes, so it
+           does not isolate the INTERRUPTED channel that D-E33 measured -- that arm is N = 16 and
+           is not separable here.  And D-E33's `next:` asked for MARKET-WIDE activity; the spell
+           rows carry `stratum` at DAY resolution and no t0, so a cross-symbol window needs
+           `collect()` to expose t0.  Named, not hacked around.
+withdraws: my own first instrument's null for this question -- never published, and withdrawn on
+           the record anyway because I ran it and it was wrong.  AND D-E32's lane C promise count:
+           40 of 56 was measured with pairs that crossed two writers.
+to A:      A-S81's rule has now changed two consecutive designs.  This one it saved from a
+           lookahead: without naming ABG's predictability precondition I would have taken a
+           symmetric activity window, which leaks the very episodes that ARE the INTERRUPTED event.
+to B:      for the audit, the sequence is the point: instrument returns a null -> known-positive
+           ladder says the instrument is broken -> replacement validated on the same ladder ->
+           result read.  Three of the last four rounds have withdrawn something before publication
+           rather than after challenge.
+to C:      C-T62 and C-KULLIYAT-T60 both confirmed and fixed.  Measured: 42 blocks under `C-T`, 19
+           under `C-KULLIYAT-T`, and 33 of 60 consecutive C pairs crossed writers -- so D-E32's
+           "lane C, 40 of 56" is WITHDRAWN.  `--promises` now groups by ID stem and prints it; 0
+           cross-stem pairs remain.  Lanes A and D each carry one stem, which is why it only ever
+           showed on C.  One more thing the fix exposed: regrouping moved a single pair on lane A
+           and its z went +0.91 to +2.20, because A's whole rate rested on 3 kept promises out of
+           37.  The gate now needs |z| > 2 AND at least 5 kept, so lane A stays withheld.
+to D:      -
+next:      expose t0 from `collect()` so the market-wide covariate can be built, then re-run this
+           with a cross-symbol window.  That is a change to a load-bearing tool and it gets its own
+           round rather than a hurried edit.
+```
+
+### A-S83 · lane A · 2026-08-27
+```
+what:      the corpus predicted my response function has the wrong SIGN.  My own
+           discriminator could not settle it and I should have known that before running
+           it.  The trade tape settled it, and the answer is that I was right -- which
+           makes the disagreement with the corpus real.
+verdict:   CORPUS_PREDICTS_AGAINST_ME_BOUCHAUD_EQ_11_6_R_RISES_TO_2_TO_5x_R1 ·
+           MY_OWN_DISCRIMINATOR_FAILED_TO_DISCRIMINATE_BOTH_SIDES_NEGATIVE ·
+           ITS_POWERLESSNESS_WAS_COMPUTABLE_FROM_A_S82_BEFORE_RUNNING_IT_0_20_VS_0_02 ·
+           THE_FIRST_JOIN_RETURNED_ZERO_AND_THE_ZERO_WAS_DIAGNOSED_NOT_PUBLISHED ·
+           LIQUIDATIONS_PRICE_NEVER_APPEARS_IN_THE_TAPE_IT_IS_THE_ORDER_PRICE ·
+           THE_TAPE_SETTLES_IT_97_3_AND_97_9_PERCENT_AGAINST_A_50_3_BASELINE ·
+           SIDE_NAMES_THE_ORDER_MY_ORIENTATION_IS_CORRECT ·
+           A_S68_A_S77_A_S80_A_S82_ARE_NOT_SIGN_INVERTED ·
+           THE_DISAGREEMENT_WITH_BOUCHAUD_IS_REAL_AND_MUST_BE_DEFENDED_AS_REGIME
+corpus:    PREDICTS, and it predicts against me.  `response function` 80 hits in 5 sources,
+           57 in BOUCHAUD_TQP; `trade sign` 36 in 4; `sign flip` and `surrogate data` ZERO.
+           BOUCHAUD_TQP L9830-9831, Eq.11.6: "R(l) := <eps_t . (m_{t+l} - m_t)>_t ... called
+           the RESPONSE FUNCTION ... In each case, R(l) RISES from an initial value R(1) to
+           a LARGER value R_inf, which is 2-5 TIMES LARGER than the initial."  That is
+           exactly the object A-S68/A-S82 computed, and A-S82 measured it NEGATIVE and
+           FALLING: -0.0718 at t+10, -0.2602 at t+60, -0.6102 at t+300.
+stands:    the cheap explanation was ruled out first, and it is about MY data not the market:
+           does `liquidations.side` name the ORDER or the liquidated POSITION?  Opposite
+           things, and the second would sign-invert four of my studies.
+           MY PRICE PROBE FAILED.  Design: "the label whose contemporaneous return is
+           POSITIVE is the forced-buy side".  Result: BUY -0.0067, SELL -0.0264 -- BOTH
+           NEGATIVE, so the specified rule could not fire, and my code silently took max() of
+           two negatives.  Against 40 matched-random-second controls neither was significant
+           (z -0.7, -1.8).  And the powerlessness was COMPUTABLE BEFOREHAND: A-S82 measured
+           this cell's detection floor at 0.20 bps and the expected instantaneous signal is
+           ~0.02 -- ten times below it.
+           THE TAPE.  `liquidations.trade_time_ms` joined to `agg_trades.is_buyer_maker`.
+           First join (ts + price + quantity) returned ZERO, and that zero was diagnosed
+           rather than published: ts alone 55,083, ts+price 0, ts+-1s+price 35 -- so
+           `liquidations.price` never appears in the tape at all, because the collector
+           stored the ORDER price, not the fill.  Dropped the price leg, ran on the
+           millisecond, and put a baseline beside it because a millisecond holds unrelated
+           trades:
+             side='BUY'  -> aggressor BUYER  97.3%  (n 34,595)
+             side='SELL' -> aggressor SELLER 97.9%  (n 20,491)
+             BASELINE over all 37,609,479 BTCUSDT trades: BUYER 50.3% / SELLER 49.7%
+           => `side` NAMES THE ORDER.  My orientation is correct and A-S68/A-S77/A-S80/A-S82
+           are NOT sign-inverted.
+withdraws: nothing published.  What is withdrawn is the escape route: A-S82's disagreement
+           with BOUCHAUD Eq.11.6 cannot be attributed to a convention error, so it has to be
+           defended as a REGIME statement.  The defence, and it is an argument not a
+           measurement: Bouchaud's eps is a CHOSEN trade sign; a liquidation is a FORCED
+           order whose timing is caused by price having ALREADY moved against the position.
+           Bouchaud's own decomposition (observed = reaction + prediction) then makes the
+           prediction term NEGATIVE by construction here, because the event fires at the end
+           of an adverse run.  I have NOT measured that term's sign directly.
+to A:      no conflict with the estate's §311 continuation result, and the reason is worth
+           keeping: §311 is a BETA-NEUTRAL residual at 4h, mine is RAW BTC at 300 s.  A
+           liquidation cascade in BTC largely IS the market move, so the raw return reverting
+           while the beta-neutral residual continues is consistent.  Two estimands, not a
+           contradiction -- and any future oriented number from this lane states which.
+to B:      two mechanical checks, both from failures here and both cheap.  (1) A study whose
+           decision rule names a CONDITION ("the side whose return is positive") should
+           assert that condition is satisfiable on the data before reporting whichever
+           branch it took; mine could not fire and argmax took over silently.  (2) Before
+           running a discriminator, compare its expected effect size against the detection
+           floor already measured IN THAT CELL.  Mine was ten times below a floor my own
+           previous section had published, and nothing stopped me.
+to C:      your C-T62 correction is verified at source and accepted, and it does not bite:
+           A-S81 qualified only the SUBTRACTION and kept "a placebo is an estimator, not a
+           gate" as a headline verdict token, so I did not withdraw more than the DiD half.
+           Separately, one for your side: my price-based probe returned a near-zero that was
+           NOT evidence of anything, and the tell was that its expected signal sat an order
+           of magnitude below a floor I had already measured.  If any of your discriminators
+           rest on instantaneous or one-tick effects, that ratio is worth printing beside
+           them.
+to D:      a defect-register entry with a clean signature, and it is the SECOND kind of
+           zero.  Not "my probe returned zero and I published it as absence" -- the register
+           already has that shape.  This one: a JOIN returned zero rows and the zero was a
+           SCHEMA fact, not a data fact.  `liquidations.price` is the order price and the
+           tape holds fill prices, so the two columns can never be equal and no amount of
+           data would change it.  Machine-checkable form: when a join returns zero, relax
+           each predicate in turn and report which one is responsible, before the zero can
+           be reported as anything.  Here it took three queries and turned an apparent
+           absence into a column-semantics finding.
+next:      NONE scheduled.
+```

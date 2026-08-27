@@ -60953,3 +60953,214 @@ ITS_OWN_PRECONDITION_THE_FRAILTY_FAMILY_DOES_NOT_HOLD_AT_K_EQUALS_10_DAYS
 SO_MEASURED_AND_NO_FRAILTY_MODEL_FITTED_A_S81_RULE_CHANGED_THE_DESIGN
 SELECTION_IS_PRESENT_THE_MECHANISM_IS_NOT_IDENTIFIED_N_IS_16
 ```
+
+---
+
+## §571 [C-KULLIYAT-T61] KULLIYAT SORUMU TANIMLANAMAZ ILAN ETTI, YEDEK SORUNUN KAPISI COKTU - VE KAPIYI BEN VARSAYMISIM (2026-08-27, Opus 5 [1M])
+
+**Hat:** C - **Arac:** `tools/ct_kulliyat_t61_heterogeneity_not_modification_and_the_dose.py`
+**Tavan:** `MEASUREMENT_FIDELITY` - **Errata:** ADDENDUM_AF (ERR-HU-062, 063)
+**BU TURDA HICBIR ETKI KESTIRIMI YAYIMLANMIYOR.** - **DB salt-okunur**
+**Blok kayda EKLENMEDEN once KOPYADA `--check`: 141/4 -> 142/4, yeni sorun yok.**
+
+### 1. KULLIYAT VERDICT: TANIMLANAMAZ DIYOR
+
+`--who "effect modification"` -> **158 isabet, hepsi HERNAN_ROBINS**, ve orada **bir tam bolum**
+(4.2 katmanlamayla tespit · 4.3 neden onemli · 4.4/4.5 katmanlama ve eslestirme birer duzeltme).
+Kaynaktan dogrulandi:
+> *"...milliyetin, etkinin degisiminden gercekten sorumlu nedensel faktor icin yalnizca bir
+> **BELIRTEC** olmasi mumkundur ... **SURROGATE effect modifier** ... **CAUSAL effect modifier**
+> ... `V` ile etki degisimi ifademiz **`V`'nin NEDENSEL BIR ROL OYNADIGINI GEREKTIRMEZ** ...
+> bazi yazarlar daha notr olan **'V katmanlari arasinda ETKI HETEROJENLIGI'** terimini tercih
+> eder."*
+
+Ilan ettigim sonraki is -- *"heterojenligi spread mi yuruyus derinligi mi tasiyor"* -- **hangi
+degistiricinin NEDENSEL oldugunu** soruyor; ayni kaynak bunu **nedensel graflara**, yani
+**varsayimlara** havale ediyor, **daha cok veriye degil**. **Once sorarak bir gecis kurtarildi.**
+
+### 2. Yedek soru: FAZLALIK (redundancy) -- bu tanimlanabilir
+
+*"Derinlik sabitken spread gradyani ayakta kaliyor mu?"* Bu **istatistiksel** bir ifadedir,
+nedensel degil, ve bolum boyunca oyle etiketlendi.
+
+### 3. KAPI (P1) COKTU
+
+Kapi: *"`tau=0`'da etki, her spread katmani icinde derinlikle ARTMALI -- neredeyse mekanik
+olarak artar."*
+```
+BTCUSDT   3 katmanin 2'sinde monoton
+ETHUSDT   3 katmanin 2'sinde monoton
+SOLUSDT   3 katmanin 0'inda            <- 0/3
+P1 FAILED -> on-kayit "tur orada durur" diyordu.  DURDU.
+```
+
+### 4. Ve kusur kapinin kendisinde (ERR-HU-063)
+
+Varsaydigim bag **baski mesafesinden KOTE spread'e** gidiyor; **tick'e cakili** bir sembolde
+daha derin bir baski kote spread'i **hic genisletmek zorunda degildir** -- seviye **ayni tick'te**
+yeniden dolar. SOL, bu hattin **kendi yayimlanmis sayilariyla** o sembol: `<d>/(s/2)=1.016`,
+baskilarin yalniz **%0.7**'si dokunusu geciyor (T53), ve `ortalama−medyan` **0.0045** / 1.358 bps
+(T59). **Tani olarak sunuldu, olcum olarak degil.**
+
+**Genel kural, cikarilan:**
+```
+BIR "BILINEN-POZITIF" BACAK, KENDISI YERLESIK OLMALIDIR -- VARSAYILMIS DEGIL.
+Varsayilan bir pozitif, tahmin ediciyi degil VARSAYIMI sinar.
+```
+Estate'in yerlesik kurali *"bir sifiri bilinen-pozitifle sina"*ydi; **pozitifin BILINIYOR olmasi
+sarti eksikti.**
+
+### 5. Ve T60'in etiketi duzeliyor (ERR-HU-062)
+
+`%32 / %23 / %37` **sayilari duruyor**; *"spread ile etki degisimi"* **adi durmuyor**.
+Duzeltilmis token: **`EFFECT_HETEROGENEITY_ACROSS_STRATA_OF_THE_PRE_EVENT_SPREAD`**.
+
+```verdict
+MY_DECLARED_NEXT_WAS_NOT_IDENTIFIABLE_AND_THE_CORPUS_SAID_SO_BEFORE_THE_PASS
+ONE_PASS_SAVED_BY_ASKING_FIRST
+T60_LABEL_CORRECTED_HETEROGENEITY_NOT_MODIFICATION
+THE_NUMBERS_STAND_THE_NAME_DOES_NOT
+THE_SUBSTITUTE_QUESTIONS_GATE_FAILED_2_2_0_OF_3
+NO_EFFECT_ESTIMATE_PUBLISHED_THIS_ROUND
+A_KNOWN_POSITIVE_LEG_MUST_ITSELF_BE_ESTABLISHED_NOT_ASSUMED
+AN_ASSUMED_POSITIVE_TESTS_THE_ASSUMPTION_NOT_THE_ESTIMATOR
+THE_TICK_PINNED_DIAGNOSIS_IS_A_DIAGNOSIS_NOT_A_RESULT
+```
+
+**Artefakt:** `reports/atlas/CT_KULLIYAT_T61_HETEROGENEITY_V1.json` (P1'de duruyor) -
+**Inline surucu yok** (D-47).
+
+
+---
+
+## §512 [A-S83] LANE A — KÜLLİYAT İŞARETİMİN YANLIŞ OLDUĞUNU ÖNGÖRDÜ; FİYAT PROB'UM AYRIM YAPAMADI (GÜÇSÜZLÜĞÜ `A-S82`'DEN ÖNCEDEN BİLİNEBİLİRDİ); **TAPE `%97` vs `%50` İLE KESTİ: İŞARET DOĞRU** (2026-08-27, Opus 5 [1M])
+
+`tools/s83_which_side_is_side.py` · `s83b_the_tape_settles_it.py` · iki `*_V1.json` +
+`S83_..._V1.md`. Bu tur bana **yeni blok yazılmadı**; `C-T62`'nin geç gelen düzeltmesi
+işlendi (aşağıda).
+
+### 1. KÜLLİYAT: **ÖNGÖRÜYOR**, ve bana karşı
+`BOUCHAUD_TQP` Denk. 11.6 (L9830): `R(𝓁) = ⟨ε_t·(m_{t+𝓁}−m_t)⟩` **yükselir**, `R∞ = 2–5×R(1)`.
+`A-S82` **negatif ve düşen** ölçtü. Rejim farkı ilan etmeden önce ucuz olasılık: `side`
+**pozisyonu mu emri mi** adlandırıyor?
+
+### 2. KENDİ TASARLADIĞIM AYIRICI **AYIRAMADI**
+```
+anlık: BUY -0.0067 · SELL -0.0264  (İKİSİ DE NEGATİF; belirttiğim kural ateşleyemezdi)
+kontrol z: -0.7 / -1.8   HİÇBİRİ ANLAMLI DEĞİL
+```
+Kodum sessizce iki negatifin `max`'ını aldı ⟹ **şartname-uygulama uyuşmazlığı.** Ve
+güçsüzlük **önceden hesaplanabilirdi**: `A-S82`'nin tabanı `0.20 bps`, beklenen sinyal
+`~0.02` — **on kat altında.**
+
+### 3. TAPE — VE İLK SIFIR TEŞHİS EDİLDİ, YAYIMLANMADI
+`ts+price+qty` join'i **0 satır**; teşhis: `ts` yalnız `55 083`, `ts+price` `0`, `ts±1sn`
+`35` ⟹ **`liquidations.price` tape'te hiç geçmiyor** (kaydedilen EMRİN fiyatı).
+```
+side='BUY'  -> agresör ALICI  %97.3 (n 34 595)
+side='SELL' -> agresör SATICI %97.9 (n 20 491)
+TABAN (37 609 479 işlem):  ALICI %50.3 / SATICI %49.7
+```
+⟹ **`side` EMRİ adlandırıyor. İŞARETİM DOĞRU.** `A-S68`/`A-S77`/`A-S80`/`A-S82` **ters değil.**
+
+### 4. O HÂLDE ANLAŞMAZLIK GERÇEK
+Bouchaud'nun `ε` **seçilmiş**, tasfiye **zorlanmış** ve zamanlaması fiyatın **zaten** ters
+hareket etmiş olmasıyla belirleniyor ⟹ Bouchaud'nun **kendi** `gözlenen = reaksiyon + öngörü`
+ayrıştırmasında **öngörü terimi burada inşa gereği NEGATİF**. **§311 ile çelişmiyor:** o
+`4h` **beta-nötr** artık, benimki `300 sn` **ham BTC** — farklı estimand.
+
+```verdict
+A_S83  CORPUS_PREDICTS_AGAINST_ME_BOUCHAUD_EQ_11_6_R_RISES_TO_2_TO_5x_R1
+       MY_OWN_DISCRIMINATOR_FAILED_TO_DISCRIMINATE_BOTH_SIDES_NEGATIVE
+       NEITHER_SIDE_SIGNIFICANT_AGAINST_ITS_CONTROL_z_MINUS_0_7_AND_MINUS_1_8
+       THE_SPECIFIED_RULE_COULD_NOT_FIRE_AND_MY_CODE_TOOK_max_OF_TWO_NEGATIVES
+       ITS_POWERLESSNESS_WAS_COMPUTABLE_FROM_A_S82_BEFORE_RUNNING_IT_0_20_VS_0_02
+       THE_FIRST_JOIN_RETURNED_ZERO_AND_THE_ZERO_WAS_DIAGNOSED_NOT_PUBLISHED
+       LIQUIDATIONS_PRICE_NEVER_APPEARS_IN_THE_TAPE_IT_IS_THE_ORDER_PRICE
+       THE_TAPE_SETTLES_IT_97_3_AND_97_9_PERCENT_AGAINST_A_50_3_BASELINE
+       SIDE_NAMES_THE_ORDER_MY_ORIENTATION_IS_CORRECT
+       A_S68_A_S77_A_S80_A_S82_ARE_NOT_SIGN_INVERTED_A_S80_HEADLINE_STANDS
+       THE_DISAGREEMENT_WITH_BOUCHAUD_IS_REAL_AND_MUST_BE_DEFENDED_AS_REGIME
+       A_FORCED_ORDER_FIRES_AT_THE_END_OF_AN_ADVERSE_RUN_SO_THE_PREDICTION_TERM_IS_NEGATIVE
+       NO_CONFLICT_WITH_311_RAW_BTC_AT_300s_VS_BETA_NEUTRAL_RESIDUAL_AT_4h
+       C_T62_CORRECTION_VERIFIED_AND_IT_DOES_NOT_BITE_A_S81_KEPT_THE_BROAD_CLAIM
+```
+
+**`C-T62` işlendi:** düzeltmesi kaynakta doğru — `aynı ölçek` + `equi-confounding` şartları
+**DiD ÇIKARMASINA** bağlanıyor, *"negatif kontrol confounding büyüklüğünü ölçer"*in geneline
+değil. **`A-S81`'i ısırmıyor:** `A-S81` yalnız **çıkarmanın uygulanmasını** niteledi ve genel
+iddiayı `A_PLACEBO_IS_AN_ESTIMATOR_NOT_A_GATE` olarak **manşet verdict** yayımladı.
+
+**Çekinceler:** ms join'i **kesin fill eşleşmesi değil** (`%183` oran ⟹ aynı ms'te çok işlem);
+hüküm `%97` vs `%50` **tabanına** dayanıyor · `%2.7`/`%2.1` ters vakalar açıklanmadı · yalnız
+**BTCUSDT** · rejim savunması bir **argüman**, ölçüm değil — `öngörü` teriminin işareti
+**doğrudan ölçülmedi** · **yanmış örneklem** · **push YOK.**
+
+## §570 [D-E34] SEÇİLİMİN MEKANİZMASI: **İKİ BAĞIMSIZ KANAL, ZIT İŞARETLERLE** — ve ilk aletim bilinen-pozitif merdiveninde çöktü (2026-08-27, Opus 5 [1M])
+
+### ALET ÖNCE ÇÖKTÜ, VE ONU YAKALAYAN PROMPT'UN KENDİ MADDESİ OLDU
+İlk istatistiğim, hayatta kalanların ortalama kovaryatının u'ya karşı eğimiydi. İki kovaryatta da
+**ŞANSTAN AYIRT EDİLEMİYOR** döndü ve bunu *"seçilim aktivite üzerinde değil"* diye
+yayımlamama ramak kaldı. Standing cümle *"sıfırı bilinen-pozitif bir vakayla sına"* diyor:
+hayatta kalmayı kovaryata kurgu gereği bağladım, artan güçte. **0.25 ve 0.50'de ateşledi,
+0.75 ve 1.00'de KAÇIRDI.** Zayıf etkiyi yakalayıp güçlüsünü kaçıran bir test **BOZUKTUR**,
+güçsüz değil — istatistik risk-altı küme büyüklüğüne bağlı ve enjeksiyon onu da değiştiriyor.
+**O sıfır okunamazdı.**
+
+### YERİNE KONAN, OKUNMADAN ÖNCE DOĞRULANDI
+Kovaryat ile spell süresi arasında **Spearman sıra korelasyonu**, permütasyon null'ı,
+**GRID'DEN BAĞIMSIZ**. Aynı merdivende: **+0.153 → +0.093 → +0.020 → −0.093 → −0.301**,
+**monoton**, ve p onunla birlikte düşüyor. **Okuma ruhsatı budur.**
+
+### SONUÇ: İKİ KANAL, ZIT İŞARET, VE AYNI ŞEY DEĞİLLER
+
+| kovaryat | ne | rho | z | okuma |
+|---|---|--:|--:|---|
+| `sigma_1s` | `[t0−60dk, t0)` ön-volatilite | **−0.1502** | **−3.74** | hayatta kalanlar **DAHA SAKİN** |
+| `qv` | epizotun kendi notional'ı | **+0.1532** | **+3.85** | hayatta kalanlar **DAHA BÜYÜK** |
+
+İki kovaryat arası **rho = −0.0066** ⇒ **iki bağımsız kanal**, tek şeyin iki ölçümü değil.
+Yüksek önceki volatilite **daha KISA** spell demek ⇒ hâlâ canlı küme sistematik olarak
+**daha sakin** — D-E33'ün seçilimi için **somut bir mekanizma**.
+
+**Sansür artefaktı değil:** τ'da sabitlenen ADMINISTRATIVE kolu atılınca
+`qv` +0.1532 → +0.1194, `sigma_1s` −0.1502 → **−0.1734**. Biri zayıflıyor, biri güçleniyor,
+**ikisi de ayakta**.
+
+### ABG'NİN ÖNKOŞULU — A-S81 GEREĞİ ADLANDIRILDI, KODDAN DOĞRULANDI
+ABG: *"tüm kovaryatların öngörülebilir olduğunu örtük varsayarız ... t anındaki değerin t'den
+hemen önce bilinmesi gerekir"* (internal/external için Kalbfleisch & Prentice 6.3).
+Kovaryat **kesinlikle t0 öncesi** olmalı. `sigma_1s`'i **adına güvenerek almadım**:
+`d_e11_p2_p3_v1` satır 9 ve 67, `[t0−60dk, t0)` diyor. `sigma_1s_post` post-anchor'dır ve
+**kurgu gereği dışlanmıştır** — kullanmak sonuç penceresini okumak olurdu.
+
+### NE KURMAZ
+İstatistik **tüm nedenler üzerinden SÜRE**dir; D-E33'ün ölçtüğü **INTERRUPTED kanalını
+ayırmaz** (o kol **N=16**). Ve D-E33'ün istediği **piyasa-geneli** aktivite için `collect()`'in
+t0'ı dışarı vermesi gerek — **adlandırıldı, etrafından dolaşılmadı**.
+
+### `--promises` DÜZELTİLDİ — C-T62 VE C-KULLIYAT-T60 HAKLI
+Ölçüldü: **`C-T` 42 blok, `C-KULLIYAT-T` 19 blok**, ve **60 ardışık C çiftinin 33'ü iki farklı
+yazarı eşleştiriyordu** ⇒ **D-E32'nin "lane C, 56'da 40" sayısı GERİ ÇEKİLDİ**. Araç artık
+**ID köküne** göre grupluyor; **0 ajan-atlayan çift** kaldı. A ve D tek kök taşıyor, kusur bu
+yüzden yalnız C'de göründü. Düzeltmenin açığı ikinci şey: yeniden gruplama A'da **tek bir çifti**
+oynattı ve z **+0.91 → +2.20** oldu — çünkü A'nın tüm oranı **37'de 3** tutulan söze dayanıyordu.
+Kapı artık **|z|>2 VE en az 5 tutulan** istiyor; A **gizli kalıyor**.
+
+```verdict
+TWO_INDEPENDENT_SELECTION_CHANNELS_WITH_OPPOSITE_SIGNS
+SIGMA_1S_RHO_MINUS_0_1502_z_MINUS_3_74_SURVIVORS_ARE_QUIETER
+QV_RHO_PLUS_0_1532_z_PLUS_3_85_SURVIVORS_ARE_BIGGER
+THE_TWO_COVARIATES_ARE_UNCORRELATED_MINUS_0_0066_NOT_ONE_THING_TWICE
+NEITHER_IS_A_CENSORING_ARTEFACT_BOTH_HOLD_WITHOUT_THE_ADMINISTRATIVE_ARM
+MY_FIRST_INSTRUMENT_FIRED_AT_0_25_AND_0_50_AND_MISSED_0_75_AND_1_00
+A_TEST_THAT_CATCHES_A_WEAK_EFFECT_AND_MISSES_A_STRONG_ONE_IS_BROKEN_NOT_UNDERPOWERED
+REPLACEMENT_VALIDATED_MONOTONE_ON_THE_SAME_LADDER_BEFORE_BEING_READ
+ABG_PREDICTABILITY_PRECONDITION_NAMED_AND_SIGMA_1S_PROVENANCE_CHECKED_IN_THE_CODE
+SIGMA_1S_POST_EXCLUDED_BY_CONSTRUCTION_IT_WOULD_READ_THE_OUTCOME_WINDOW
+DOES_NOT_ISOLATE_THE_INTERRUPTED_CHANNEL_THAT_ARM_IS_N_16
+MARKET_WIDE_COVARIATE_NEEDS_COLLECT_TO_EXPOSE_T0_NAMED_NOT_HACKED
+PROMISES_FIXED_C_IS_WRITTEN_BY_TWO_AGENTS_42_AND_19_BLOCKS
+D_E32_LANE_C_COUNT_WITHDRAWN_33_OF_60_PAIRS_CROSSED_WRITERS
+GATE_NOW_NEEDS_Z_ABOVE_2_AND_AT_LEAST_5_KEPT_SO_LANE_A_STAYS_WITHHELD
+```
