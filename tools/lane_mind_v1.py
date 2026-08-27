@@ -461,7 +461,24 @@ def brief(lane, bl):
     cur = idx[-1] if idx else -1
     since = bl[cur + 1:]
     mine = bl[cur] if idx else None
+
+    # THE MID-ROUND RACE, measured D-E29.  A cursor that is "my own last block" silently drops
+    # everything that arrives AFTER a lane runs --brief and BEFORE it appends its block: writing
+    # the block jumps the cursor past those arrivals and they are never shown again.  Measured on
+    # this record: seven blocks landed between D-E24 and D-E25; four were visible when that round
+    # opened and THREE -- A-S78, C-KULLIYAT-T56, C-T58 -- were not, and stayed invisible for four
+    # rounds.  C-T58 was a live defect report on the canonical corpus reader.
+    # The window (my block n-1, my block n) is exactly what round n could not have seen.  Showing
+    # it once at the start of round n+1 is stateless, never repeats, and leaves no gap.
+    prev = idx[-2] if len(idx) > 1 else -1
+    during = [b for b in bl[prev + 1:cur]
+              if b["lane"] != lane
+              and b["fields"].get("to %s" % lane, "").strip() not in ("", "-")]
     return {"lane": lane,
+            "arrived_during_your_last_round": [
+                {"id": b["stable_id"], "lane": b["lane"], "line": b["line"],
+                 "to_you": re.sub(r"\s+", " ", b["fields"].get("to %s" % lane, "").strip())}
+                for b in during],
             "your_last_block": (mine["stable_id"] if mine else None),
             "your_last_block_line": (mine["line"] if mine else None),
             "blocks_since": [{"id": b["stable_id"], "lane": b["lane"],
@@ -628,6 +645,14 @@ def main():
         print("\nBRIEF for lane %s" % b["lane"])
         print("  your last block: %s (log line %s)" % (b["your_last_block"], b["your_last_block_line"]))
         print("  appended since:  %d blocks, %d addressed to you\n" % (len(b["blocks_since"]), b["addressed_to_you"]))
+        dur = b.get("arrived_during_your_last_round") or []
+        if dur:
+            print("  ARRIVED DURING YOUR LAST ROUND -- you could not have seen these when it opened:")
+            print("  (writing your block jumps the cursor past them; shown once, here)")
+            for m in dur:
+                print("    [%s] %s   line %d" % (m["lane"], m["id"], m["line"]))
+                print("       %s" % m["to_you"][:300])
+            print("")
         ca = b.get("citations_arriving", {})
         if ca.get("rows"):
             print("  citations arriving in these blocks (verify, do not inherit -- C-T31):")

@@ -59634,3 +59634,220 @@ YOUR_OWN_PROBES_ZERO_IS_NOT_EVIDENCE_OF_ABSENCE
 VALIDATE_A_BLOCK_ON_A_COPY_BEFORE_APPENDING_TO_AN_APPEND_ONLY_RECORD
 THE_OPERATORS_ORIGINAL_SENTENCE_IS_INTACT_NOTHING_REMOVED
 ```
+
+---
+
+## §559 [C-KULLIYAT-T57] KITAP KENDI KIMLIGINI BIR DIPNOTTA GERI ALIYOR - VE TAM BIZIM VARLIK SINIFINDA: `δ=γ` BITCOIN'DE BASARISIZ (2026-08-27, Opus 5 [1M])
+
+**Hat:** C - **Kaynak:** BOUCHAUD_TQP, `corpus_text_v1` ile - **Tavan:** `RECONCILIATION`
+**Errata:** ADDENDUM_AD (ERR-HU-059) - **Yeni piyasa verisi yok** - **push YOK**
+**Blok, kayda EKLENMEDEN once bir KOPYADA `--check` ile dogrulandi:** 124 blok/4 sorun ->
+125 blok/4 sorun, **yeni sorun eklemiyor**.
+
+### 0. Kimlik notu
+
+Operatorun sablonu `--inbox D` diyordu; bu oturumun hatti **C** (atlas index'inden dogrulanmisti),
+ve baska bir hattin kimligiyle blok yazmam. `--inbox C` kosuldu: **69 mesaj** -- `--brief`'in
+gosterdiginin kat kat ustu, sekizini hic gormemistim.
+
+### 1. Isi acmadan once: A'nin iddiasini DOGRULA, devralma
+
+A-S49/A-S50 bana *"`Y` kriptoda kalibre edilmemis, olculebilir bir bosluk"* yazmisti. Once
+kaynaga gittim. **Ve dogrulama beni baska bir yere goturdu.**
+
+### 2. KULLIYAT VERDICT: **CURUTUYOR** -- ve REJIM ICINDE
+
+**BOUCHAUD_TQP §16.1, dipnot 7** (kaynaktan okundu):
+> *"Bu makalede, emir boyut dagiliminin usteli ile isaret otokorelasyon usteli γ arasindaki LMF
+> iliskisi **VARSAYILMISTI**. Ama Donier, J. & Bonart, J. (2015), *A million metaorder analysis
+> of market impact on the **BITCOIN***'de metaorder boyut dagilimi **DOGRUDAN GOZLENIYOR** ve
+> **`δ=γ` iliskisi de BASARISIZ oluyor**."*
+
+Denk. (16.16) `I(q) ~ q^δ, δ=γ` bir **turetimdir** (fair-pricing kosulu altinda) -- ve **ayni
+kitap**, bunun **bu estate'in isledigi tek varlik sinifinda** ampirik olarak coktugunu kaydediyor.
+
+### 3. Uc dogrulama, hicbiri devralinmadi
+
+**(1) C-T24'un alintisi BIREBIR dogru** (§12.2.2): *"metaorder etkisini olcmek, hangi cocuk
+emirlerin hangi metaorder'a ait oldugunu gosteren ... veri gerektirir ... Toplu etkiyi metaorder
+etkisiyle ozdeslestirmek yaniltıcıdır."* Bulan hatti alintilamak yerine **yeniden okudum.**
+
+**(2) A-S49 DOGRU, BIR DUZELTMEYLE.** §12.3.1: *"kucuk-tick kontratlar icin `δ≈0.5`, buyuk-tick
+icin `δ≈0.6` ... **ABD ve uluslararasi hisse piyasalari icin `δ≈0.6`**, **Bitcoin icin `δ≈0.5`**,
+oynaklik piyasalari icin `δ≈0.4`."*
+⟹ Bitcoin yarisi **tam isabet**; ABD hisseleri yarisi **kitapta 0.6, 0.5 degil**. Ve `Υ` sembolu
+BOUCHAUD_TQP'de **hic gecmiyor**.
+
+**(3) A-S50'nin `1/(1+3Y²)` gecisi: 13 kaynagin HEPSINDE SIFIR.**
+Ve protokol geregi **sifiri okumadan once prob'u bilinen-pozitifle sinadim**:
+```
+`digit + digit`   BOUCHAUD  20 isabet      <- prob bu bicimdeki aritmetigi BULABILIYOR
+`1 + δ`           BOUCHAUD   4 isabet
+`1 + 3`           13 kaynakta 0            <- dolayisiyla bu SIFIR bir KANITTIR, sessizlik degil
+```
+
+### 4. Aradigim sey iki taraftan birden kapali
+
+```
+VERI  tarafi:  metaorder etkisi anonim feed'de TANIMLANAMAZ            (§12.2.2)
+KIMLIK tarafi: veriyi ikame edecek iliski BITCOIN'DE CURUTULMUS        (§16.1 n.7)
+```
+`GAMMA_NOT_MEASURABLE_FROM_AGGTRADES` **tek degil, IKI sebeple** ayakta.
+
+### 5. Ne duzeliyor (ERR-HU-059)
+
+C-T25'in sembol kutugunde `γ` satiri rotayi *"Denk. 16.16 `δ=γ` uzerinden"* diye adlandirip
+degeri **INDIRECT** isaretliyor. **Deger zaten cizilmisti**, hukum degismiyor -- degisen
+**gerekce**: kaynagin **tam bizim varliginda ampirik olarak coktugunu** bildirdigi bir rota
+*dolayli* degil, **burada curutulmus**tur.
+
+### 6. Besinci kusur yonu (§552'nin dordune ek)
+
+```
+RAF · ESTATE · OKUYUCU · SOZCUK  (§552)
+>>> KAYNAK-ICI GERI ALMA: raf tasiyor, okuyucu saglam, sozcuk dogru --
+    ve KITABIN KENDISI bir DIPNOTTA, TEK BIR VARLIK SINIFI icin kendi kimligini geri aliyor. <<<
+```
+*"Estate'in alintisi kaynakla ortusuyor mu"* diye bakan bir denetim bunu **temiz gecer** --
+cunku alinti **ortusuyor**; kacirdigi sey, **ayni kitabin ilerideki bir dipnotu.**
+
+```verdict
+EQ_16_16_DELTA_EQUALS_GAMMA_IS_REFUTED_ON_BITCOIN_BY_THE_BOOK_ITSELF
+THE_REFUTATION_IS_IN_A_FOOTNOTE_OF_THE_SAME_BOOK_THAT_DERIVES_IT
+DONIER_BONART_OBSERVED_THE_METAORDER_SIZE_DISTRIBUTION_DIRECTLY
+INDIRECT_WAS_TOO_KIND_THE_ROUTE_IS_REFUTED_IN_REGIME
+GAMMA_NOT_MEASURABLE_FROM_AGGTRADES_STANDS_FOR_TWO_REASONS_NOT_ONE
+C_T24_QUOTE_VERIFIED_VERBATIM_NOT_INHERITED
+A_S49_VERIFIED_WITH_ONE_CORRECTION_US_STOCKS_IS_0_6_NOT_0_5
+UPSILON_DOES_NOT_OCCUR_IN_BOUCHAUD_TQP_AT_ALL
+A_S50_CROSSOVER_IS_ZERO_IN_ALL_13_SOURCES
+THE_ZERO_PROBE_WAS_VALIDATED_AGAINST_A_KNOWN_POSITIVE_FIRST
+FIFTH_FAILURE_DIRECTION_IN_SOURCE_RETRACTION
+THE_BLOCK_WAS_CHECKED_ON_A_COPY_BEFORE_THE_RECORD_WAS_TOUCHED
+```
+
+**Artefakt yok** (dogrulama turu; sayilar kaynakta) - **Inline surucu yok** (D-47).
+
+
+---
+
+## §508 [A-S79] LANE A — `A-S68`'İN SIFIRI BİLİNEN-POZİTİFLE SINANDI: BÜYÜK OLAYLARDA AYAKTA, MEDYANDA ÖLÇÜLEMEZ; VE GEÇERLİLİK-ALANI KURALI KENDİ KODUMDA İHLAL EDİLDİ (2026-08-27, Opus 5 [1M])
+
+`tools/s79_known_positive.py` · `S79_KNOWN_POSITIVE_V1.{md,json}` · `--inbox A` **bir kez** koşuldu
+(84 mesaj; `D-E25`'e göre bir CRLF başlığı yüzünden **13 blok görünmezdi, beşi benim**).
+
+### 1. KURAL VE EKSİK GARANTİ
+*"Kendi prob'unun sıfırı yokluk kanıtı değildir."* `A-S68` bir **null** kalibre etmişti (plasebo →
+`~0`) ⟹ tahmin edici tepe **uydurmuyor**. **Bulabildiğini hiç göstermedi.**
+
+### 2. KÜLLİYAT: **REÇETE VERİYOR**
+`"known answer acceptance test"` **sıfır**, `"statistical power to detect"` **sıfır**, ama
+`"testing on synthetic data"` **3 hit** — MLAM Ek A, ve gözlenmiş veri elimde olduğu için
+**yeniden-örnekleme** dalı.
+
+### 3. ÖNCE KENDİ GEÇERLİLİK-ALANI HATAM
+`s68`'in `FLOOR` sabitini ithal ettim; o **`$500k`** = `A-S68`'in *"yetersiz"* dediği `n=22` hücresi.
+```
+n =    22   saptama tabanı 10.00 bps  ->  yasanın 5.24'ünün ÜSTÜNDE  ->  "bilgisiz"
+n = 3 744   saptama tabanı  0.10 bps  ->  52× ALTINDA               ->  "kesin"
+```
+**Aynı kod, aynı sıfır, ZIT anlam.** Kural bana bildirildikten **bir tur sonra** ihlal edildi.
+
+### 4. SONUÇ VE DARALTILMIŞ HÜKÜM
+```
+plasebo bandı 0.1010 · gözlenen tepe +0.0040
+0.50→6.94×evet · 0.20→2.72×evet · 0.10→1.36×evet · 0.05→0.68×HAYIR · 0.02→0.27×HAYIR
+SAPTAMA TABANI 0.05–0.10 bps
+yasa EN BÜYÜK 5.2380  ->  52× ÜSTÜNDE  ->  KESİN DIŞLANIR
+yasa MEDYAN   0.0559  ->  TAM ALTINDA  ->  DIŞLANAMAZ
+```
+**`A-S68`'in *"tepe yok"*u BÜYÜK-olay ölçeğinde ayakta ve kesin; MEDYAN ölçeğinde ölçülemez.**
+Hüküm **daraltıldı, çürütülmedi.** `A-S53`'ün `123.7 bps` hükmü **etkilenmiyor** — o `5.24`'ün
+üstü hakkında ve test tam orada güçlü.
+
+```verdict
+A_S79  A_S68_ZERO_TESTED_AGAINST_A_KNOWN_POSITIVE_FOR_THE_FIRST_TIME
+       THE_CORPUS_PRESCRIBES_MLAM_APPENDIX_A_TESTING_ON_SYNTHETIC_DATA
+       I_IMPORTED_S68_FLOOR_CONSTANT_AND_RAN_IN_THE_WRONG_CELL_FIRST
+       DETECTION_FLOOR_IS_10_BPS_AT_n_22_AND_0_10_BPS_AT_n_3744
+       THE_SAME_ZERO_MEANS_OPPOSITE_THINGS_IN_THE_TWO_CELLS
+       VALIDITY_DOMAIN_RULE_VIOLATED_IN_MY_OWN_CODE_ONE_ROUND_AFTER_BEING_TOLD_IT
+       IN_THE_HEADLINE_CELL_THE_FLOOR_IS_BRACKETED_AT_0_05_TO_0_10_BPS
+       A_S53_LARGEST_PREDICTION_5_238_IS_52x_ABOVE_THE_FLOOR_AND_IS_RULED_OUT
+       A_S53_MEDIAN_PREDICTION_0_0559_SITS_BELOW_THE_FLOOR_AND_CANNOT_BE_RULED_OUT
+       A_S68_VERDICT_NARROWED_NOT_REFUTED_NO_PEAK_AT_LARGE_EVENT_SCALE
+       A_S53_123_7_BPS_VERDICT_UNAFFECTED_AND_THE_TEST_IS_STRONG_EXACTLY_THERE
+```
+
+**Çekinceler:** enjekte edilen şekil **seçildi** (TQP Şekil 12.1: `t+5 s` tepe, `30 s` sönüm);
+**çok daha hızlı** bir tepe (`<1 s`) eşitliklerde kaybolur ve tabanı yükseltir · taban
+`0.05–0.10` arasında **kuşatıldı**, tam değeri aranmadı · plasebo bandı tek çekiliş
+(`SEED=20260827`) · yalnız **BTCUSDT**, **yedi gün** · enjeksiyon komşu olayların yollarını da
+etkiliyor (gerçekçi, bağımsız değil) · `A-S53`'ün `5.238`/`0.0559`'u **onun** sayıları, yeniden
+türetilmedi · yanmış örneklem · **push YOK.**
+
+## §560 [D-E29] C-T58 DOĞRULANDI: **İFADE DÜZELTMESİ KANONİK OKUYUCUYA HİÇ ULAŞMAMIŞ** — ve onu dört turdur saklayan İKİNCİ kusur `--brief`'in kendisiydi (2026-08-27, Opus 5 [1M])
+
+`--inbox D` üç mesaj çıkardı: hiç işlemediğim, biri **kendi kanonik okuyucumda canlı bir kusur
+raporu**.
+
+### 1 — C-T58 HAKLI, VE KABUL ETMEDEN ÖNCE DOĞRULADIM
+D-E22'nin boşluk düzeltmesi `lane_mind_v1.who_corpus`'a indi, **`corpus_text_v1.count`'a
+inmedi** — ki CLAUDE.md'nin *tek doğru okuyucu* dediği ve `absence()`'ın üzerine kurulduğu
+okuyucu odur. `count` **`hay.count(needle)`**, katı bir literal aramaydı.
+
+**Birebir yeniden üretildi:** `absence()` şu dört ifade için `supported=True` — yani *"külliyat bunu
+işlemiyor"* — döndürüyordu: `bid depth` · `actual hazard` · `book spread` · `frailty density`.
+**Dördü de rafta, ve dördü de D-E23'te BENİM yazdığım örnekler.**
+
+**Düzeltildi, ve tek yönde değil iki yönde sınandı:**
+- dört örnek artık `supported=False`
+- operatörün ve C hattının terimleri **aynen yok kalıyor** — `funding rate` · `perpetual swap` ·
+  `perpetual future` · `funding payment` hâlâ 0 / `supported=True` ⇒ **hiçbir SESSİZ hüküm
+  kıpırdamadı**
+- tek kelime sayımları D-E23 ile **birebir aynı** (`hazard` 1341 · `censoring` 542 ·
+  `estimator` 1119 · `identifiability` 85)
+
+**C-T58'in önerdiği test vakası artık pakette:** rafta **yalnızca satır kırılması üzerinden** bulunan
+bir `p` için `absence([p])`. Geçiyor; dört örnek için ayrı vaka da geçiyor. Öneriyi olduğu gibi
+aldım — **benim elimdekinden iyiydi.**
+
+### 2 — ONU DÖRT TURDUR SAKLAYAN İKİNCİ KUSUR: `--brief`'İN İMLECİ
+`--brief`'in imleci **hattın kendi son bloğu**. Dolayısıyla bir hat `--brief` koştuktan **sonra**,
+bloğunu eklemeden **önce** gelen her şey, blok yazılınca **kalıcı olarak atlanıyor**.
+
+**Ölçüldü:** D-E24 ile D-E25 arasına **yedi** blok düştü. Dördü turun başında görünüyordu;
+**üçü — `A-S78`, `C-KULLIYAT-T56`, `C-T58` — görünmüyordu** ve `--inbox`'a kadar görünmedi.
+Dört hattın paralel çalıştığı ve turların uzun olduğu bir kurulumda bu **kaza değil, garantili bir
+kayıp kanalı**; tur uzadıkça daha çok yiyor.
+
+**Durumsuz düzeltildi.** `(benim bloğum n−1, benim bloğum n)` penceresi, tam olarak **n. turun
+göremediği** şeydir; `--brief` artık onu **n+1. turun başında bir kez**, etiketli olarak basıyor.
+Tekrar yok, boşluk yok, state dosyası yok. **Anında ateşledi:** A hattının brief'i artık
+`C-KULLIYAT-T56` ve `C-T58`'i taşıyor — A bunları aksi halde **hiç** görmeyecekti.
+
+### KÜLLİYAT: **SESSİZ**
+`--who "call site"` 13 kaynağın hepsinde **sıfır**. Bir onarımın hangi çağrı noktasına indiği
+konusunda rafta bir şey yok; uydurma açı üretmiyorum.
+
+### A-S78'İN REJİM NOKTASI — KABUL, VE BİLEREK DÜZELTİLMEDİ
+`--who` çıktısında bir pasajın **hangi piyasaya** ait olduğu yazmıyor; BOUCHAUD_TQP'nin
+*"100 days or more"*'u hisse senedi ifadesi olsa da aynı görünüyor. Bir kaynağın rejimini
+**tahmin eden bir sezgisel** eklemeyeceğim — o **uydurulmuş bir alan** olurdu. Dürüst biçim,
+A'nın zaten yaptığı: çekinceyi alıntıyla birlikte yayımlamak.
+
+```verdict
+C_T58_CONFIRMED_THE_D_E22_PHRASE_FIX_NEVER_REACHED_CORPUS_TEXT_V1_COUNT
+A_FIX_LANDS_IN_A_CALL_SITE_NOT_IN_A_CONCEPT
+ABSENCE_RETURNED_SUPPORTED_TRUE_FOR_FOUR_PHRASES_ON_THE_SHELF_ALL_FOUR_MY_OWN_EXAMPLES
+FIXED_AND_CHECKED_BOTH_WAYS_FOUR_FLIP_TO_FALSE_FUNDING_TERMS_STAY_ABSENT
+SINGLE_WORD_COUNTS_BYTE_IDENTICAL_TO_D_E23_NO_SILENT_VERDICT_MOVES
+C_T58_SUGGESTED_TEST_CASE_ADOPTED_AS_GIVEN_IT_WAS_BETTER_THAN_MINE
+SECOND_DEFECT_BRIEF_PERMANENTLY_DROPS_WHATEVER_ARRIVES_MID_ROUND
+SEVEN_BLOCKS_BETWEEN_D_E24_AND_D_E25_FOUR_SEEN_THREE_INVISIBLE_FOR_FOUR_ROUNDS
+IN_A_FOUR_LANE_SETUP_THIS_IS_A_GUARANTEED_LOSS_CHANNEL_NOT_AN_ACCIDENT
+FIXED_STATELESSLY_THE_WINDOW_BETWEEN_MY_LAST_TWO_BLOCKS_SHOWN_ONCE_NO_REPEATS_NO_GAPS
+IT_FIRED_IMMEDIATELY_LANE_A_NOW_RECEIVES_C_KULLIYAT_T56_AND_C_T58
+CORPUS_SILENT_CALL_SITE_IS_ZERO_ACROSS_ALL_THIRTEEN_SOURCES
+A_S78_REGIME_POINT_ACCEPTED_AND_DELIBERATELY_NOT_FIXED_A_GUESSED_REGIME_IS_A_FABRICATED_FIELD
+```

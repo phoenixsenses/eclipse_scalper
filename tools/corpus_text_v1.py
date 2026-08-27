@@ -118,12 +118,31 @@ def bodies(text_dir: str = TEXT_DIR) -> dict:
 
 
 def count(term: str, text_dir: str = TEXT_DIR, case_sensitive: bool = False) -> dict:
-    """Per-source occurrence count of `term`, on normalised text."""
+    """Per-source occurrence count of `term`, on normalised text.
+
+    WHITESPACE IS NOT LITERAL.  This used `hay.count(needle)`, a rigid substring search, so a
+    two-word phrase was found only where the source happened to put exactly one space between the
+    words -- and PDF text carries a NEWLINE wherever a phrase straddles a line break.
+
+    C-T58 measured the consequence and it was not cosmetic: `absence()` is built on this function
+    and CLAUDE.md names this reader as the only correct one, so `absence()` was returning
+    supported=True -- "the corpus does not treat X" -- for `bid depth`, `actual hazard`,
+    `book spread` and `frailty density`, four phrases that are on the shelf and four of lane D's
+    own worked examples.  48,348 of 289,819 shelf phrases (16.68%) sat behind it, 2,321 of them
+    estate-relevant.
+
+    The same repair was made in `lane_mind_v1.who_corpus` (D-E22) and did NOT reach here.  A fix
+    lands in a CALL SITE, not in a concept; verify which one it landed in.  `dehyphenate` does not
+    close this gap -- it rejoins a word the typesetter SPLIT, not the newline BETWEEN two whole
+    words.
+
+    Single-word terms are unaffected: there is no whitespace in them to flex.
+    """
+    flags = 0 if case_sensitive else re.IGNORECASE
+    rx = re.compile(r"\s+".join(re.escape(w) for w in term.split()), flags)
     out = {}
     for name, body in bodies(text_dir).items():
-        hay = body if case_sensitive else body.lower()
-        needle = term if case_sensitive else term.lower()
-        n = hay.count(needle)
+        n = len(rx.findall(body))
         if n:
             out[name] = n
     return out

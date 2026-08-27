@@ -215,6 +215,32 @@ def main():
         failures.append("estate_liveness")
 
     # ------------------------------------------------------------ parser completeness
+    # ------------------------------------------------------- the CANONICAL reader, not just --who
+    # C-T58: the D-E22 phrase fix landed in lane_mind_v1.who_corpus and NOT in
+    # corpus_text_v1.count(), the reader CLAUDE.md names as canonical and absence() is built on.
+    # This suite passed honestly while absence() returned supported=True for four phrases that
+    # are on the shelf.  A fix lands in a CALL SITE, not in a concept.  The case C-T58 named:
+    # absence([p]) for a p that is on the shelf ONLY across a line break.
+    print("")
+    print("CANONICAL READER   (a fix lands in a call site -- C-T58)")
+    lb = sample_linebreak_phrases(raw, 12, random.Random(SEED + 1))
+    only_across = []
+    for ph2 in lb:
+        import re as _re
+        strict = _re.compile(_re.escape(ph2), _re.I)
+        if not any(strict.search(b) for b in C.bodies().values()):
+            only_across.append(ph2)
+    bad_abs = [ph2 for ph2 in only_across if C.absence([ph2])["supported"]]
+    if not case("absence() sees phrases split across a line", not bad_abs,
+                "%d such phrases, %d wrongly absent" % (len(only_across), len(bad_abs))):
+        failures.append("canonical_reader_absence")
+
+    worked = ["bid depth", "actual hazard", "book spread", "frailty density"]
+    wrong = [w for w in worked if C.absence([w])["supported"]]
+    if not case("C-T58 four worked examples are not absent", not wrong,
+                "wrongly absent: %s" % (wrong if wrong else "none")):
+        failures.append("ct58_examples")
+
     # ADDED D-E25.  The suite passed while the block parser was silently dropping 13 of 116
     # blocks -- 7 of them messages addressed to this lane -- because every case tested the
     # CORPUS half and nothing counted the RECORD.  A passing test is not coverage.
