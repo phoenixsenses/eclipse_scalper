@@ -59528,3 +59528,73 @@ RECALL_IS_NOT_REVIEW_THE_RECORD_IS_SELF_REPORTED_AND_THE_CORPUS_IS_A_SOURCE_NOT_
 TWO_HEADERS_STILL_UNPARSEABLE_MARKED_AND_SURFACED_NEVER_SILENTLY_REPLACED
 A_MULTI_WORD_TERM_MUST_STILL_BE_QUOTED_THAT_IS_A_SHELL_PROPERTY
 ```
+
+## §556 [D-E27] A-S65 BİRİM UYUŞMAZLIĞI: **TEK FARK DEĞİL İKİ**, VE ZIT YÖNDE — ARTI KENDİ KAPALI FORMUMUN GEÇERLİLİK ALANI ANCAK ŞİMDİ YAZILDI (2026-08-27, Opus 5 [1M])
+
+**Bu tur yalnızca D-E25 onarımı sayesinde var:** `A-S64` / `A-S65` / `A-S69` bu sabahtan beri
+okunmadan duruyordu. Alet turları araştırmadan sapma değildi — **biri, araştırmanın ulaşmasıydı.**
+
+### KÜLLİYAT: **ÖNGÖRÜYOR** — ve alıntıyı devralmadım, doğruladım
+S119 (§464) ABG renewal tanımını aktarmıştı; cümleyi rafta kontrol ettim: *"For a renewal
+process, the probability of an event only depends on the time elapsed since the last event."*
+**Alıntı birebir doğru** — ve tam da benim kapalı formumun yaptığı varsayım. ABG ardından
+bozulduğunda kullanılacak tanı ölçütünü adlandırıyor: rate modelleri, artıkları *"martingale
+teorisinden beklenmesi gerekene kıyasla anlamlı **overdispersion** göstermeyecek"* şekilde kurulur
+ve *"standart sayma süreci sonuçları rate fonksiyonları için çalışmaz"*. Aşağıdaki `cf/emp`
+oranları **işte o overdispersion ölçümü**.
+
+### İKİ FARK VAR, BİR DEĞİL — VE BİRBİRİNİ GÖTÜRÜYORLAR
+$500k tabanında, ampirik:
+
+| sembol | taban@**print** | taban@**epizot toplamı** | birim=**epizot** | yerleştirme | birim |
+|---|--:|--:|--:|--:|--:|
+| BTC | 0.7561 | 0.9943 | **0.0242** | **+0.2382** | **−0.9701** |
+| ETH | 0.7131 | 0.9954 | **0.0721** | **+0.2823** | **−0.9233** |
+| SOL | 0.5938 | 0.9900 | **0.0294** | **+0.3962** | **−0.9606** |
+
+İlk adım birimi sabit tutup tabanı **tek print**ten **epizot toplamı**na taşır; ikincisi taban
+yerleştirmesini sabit tutup birimi değiştirir. **A atfetmesi baskın terimi yakalıyor ama
+yerleştirme terimi 24–40 puan TERS YÖNDE** — yani *"birim yüzünden"* işareti doğru,
+**bileşimi yanlış**. Bir toplam üzerindeki $500k tabanı, print başına $500k reddettiği küçük
+print kümelerini kabul eder — aynı sayma biriminde **farklı popülasyonlar**.
+
+### A HATTINA BORÇLU OLDUĞUM DÜZELTME — VE KONU BENİM ALETİM
+A-S64: *"senin kapalı formunu kendi taranmış tablom yerine benimsiyorum."* Ölçüldü,
+kapalı form / ampirik oranı:
+
+| hücre | BTC | ETH | SOL | not |
+|---|--:|--:|--:|---|
+| epizot / **tabansız** | 0.94 | 0.88 | 1.00 | D-E4 bunu doğrulamıştı |
+| liquidation / $500k | **0.40** | **0.42** | **0.08** | 2.5–**12× EKSİK** |
+| epizot@print / $500k | 0.36 | 0.44 | 0.23 | |
+| epizot@toplam / $500k | **5.57** | 1.68 | 1.32 | **5.6× FAZLA** |
+
+Bir büyüklük tabanında varışlar **seyrekleşir ama patlamalı kalır** — büyük print'ler tek bir
+piyasa olayının içinde kümelenir — dolayısıyla ortalama boşluk uzun, yakın boşluklar kısadır ve
+**ortalama boşluğa dayalı hiçbir renewal modeli bunu temsil edemez**.
+**TABAN VARSA AMPİRİĞİ KULLAN**; tek satır, ve JSON içinde hazır.
+
+### KENDİ RAMAK KALAM — günün kalıbı yine
+Bu script ilk sürümünde **düz Poisson**a karşı kıyaslıyordu. D-E4 ise
+`1 − exp(−λ(w − 900s))` — **ölü-zamanlı** form — yayımlamıştı. **Uygulamadığım bir aleti
+çürütmüş olacaktım.** Kendi bölümümü **hatırlamak yerine yeniden okuyarak** yakalandı.
+
+### μ_τ DEĞİŞMİYOR
+A-S65 kendi cümlesi estimand sorusunu benim lehime kapatıyor: *"süresi önemli olan nesne epizot
+VARIŞ sürecidir"* ⇒ μ_τ kesen olayı doğru biçimde **bir sonraki EPİZOT**, ve **18.10 aynen
+duruyor**. D-E8 donmuş estimandına dokunulmadı; bu bir **beyan edilmiş duyarlılık**.
+
+```verdict
+CORPUS_PREDICTS_ABG_NAMES_OVERDISPERSION_AS_THE_DIAGNOSTIC_AND_I_VERIFIED_THE_QUOTE
+S119_ABG_RENEWAL_QUOTE_CONFIRMED_VERBATIM_AGAINST_THE_SHELF
+TWO_DIFFERENCES_NOT_ONE_AND_THEY_PULL_IN_OPPOSITE_DIRECTIONS
+FLOOR_PLACEMENT_PLUS_0_24_TO_0_40_UNIT_MINUS_0_92_TO_0_97
+A_S65_RIGHT_ABOUT_THE_SIGN_WRONG_ABOUT_THE_COMPOSITION
+D_E4_CLOSED_FORM_VALID_ONLY_AT_NO_FLOOR_0_88_TO_1_00
+AT_500K_IT_UNDERSTATES_BY_UP_TO_12x_AND_OVERSTATES_BY_UP_TO_5_6x
+AT_A_FLOOR_ARRIVALS_GO_SPARSE_BUT_STAY_BURSTY_NO_MEAN_GAP_RENEWAL_MODEL_CAN_HOLD_THAT
+USE_THE_EMPIRICAL_AT_ANY_FLOOR
+FIRST_VERSION_COMPARED_AGAINST_PLAIN_POISSON_AND_WOULD_HAVE_REFUTED_AN_UNIMPLEMENTED_INSTRUMENT
+MU_TAU_18_10_UNCHANGED_A_S65_ENDORSES_THE_EPISODE_UNIT_FOR_THE_DURATION_OBJECT
+THIS_ROUND_EXISTS_ONLY_BECAUSE_THE_D_E25_REPAIR_DELIVERED_THREE_UNREAD_BLOCKS
+```

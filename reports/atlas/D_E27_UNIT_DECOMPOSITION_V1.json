@@ -1,0 +1,216 @@
+{
+ "study": "D-E27",
+ "lane": "D",
+ "window_min": 60,
+ "episode_gap_min": 15.0,
+ "answers": "A-S65 unit mismatch",
+ "class": "unit_sensitivity_outcome_blind",
+ "cells": {
+  "BTCUSDT|liquidation|individual|0": {
+   "n": 18936,
+   "empirical": 0.9986,
+   "closed_form": 1.0,
+   "closed_over_empirical": 1.001,
+   "dead_ms": 0,
+   "lambda_per_min": 0.46763,
+   "mean_gap_min": 2.14,
+   "median_gap_min": 0.12
+  },
+  "ETHUSDT|liquidation|individual|0": {
+   "n": 20016,
+   "empirical": 0.9991,
+   "closed_form": 1.0,
+   "closed_over_empirical": 1.001,
+   "dead_ms": 0,
+   "lambda_per_min": 0.49431,
+   "mean_gap_min": 2.02,
+   "median_gap_min": 0.13
+  },
+  "SOLUSDT|liquidation|individual|0": {
+   "n": 8152,
+   "empirical": 0.9894,
+   "closed_form": 1.0,
+   "closed_over_empirical": 1.011,
+   "dead_ms": 0,
+   "lambda_per_min": 0.2014,
+   "mean_gap_min": 4.97,
+   "median_gap_min": 0.24
+  },
+  "BTCUSDT|episode|individual|0": {
+   "n": 672,
+   "empirical": 0.6692,
+   "closed_form": 0.63,
+   "closed_over_empirical": 0.942,
+   "dead_ms": 900000,
+   "lambda_per_min": 0.0221,
+   "mean_gap_min": 60.25,
+   "median_gap_min": 45.25
+  },
+  "ETHUSDT|episode|individual|0": {
+   "n": 629,
+   "empirical": 0.6768,
+   "closed_form": 0.5978,
+   "closed_over_empirical": 0.883,
+   "dead_ms": 900000,
+   "lambda_per_min": 0.02024,
+   "mean_gap_min": 64.4,
+   "median_gap_min": 44.58
+  },
+  "SOLUSDT|episode|individual|0": {
+   "n": 832,
+   "empirical": 0.7401,
+   "closed_form": 0.7371,
+   "closed_over_empirical": 0.996,
+   "dead_ms": 900000,
+   "lambda_per_min": 0.02969,
+   "mean_gap_min": 48.69,
+   "median_gap_min": 41.01
+  },
+  "BTCUSDT|liquidation|individual|500000": {
+   "n": 247,
+   "empirical": 0.7561,
+   "closed_form": 0.3056,
+   "closed_over_empirical": 0.404,
+   "dead_ms": 0,
+   "lambda_per_min": 0.00608,
+   "mean_gap_min": 164.49,
+   "median_gap_min": 0.44
+  },
+  "ETHUSDT|liquidation|individual|500000": {
+   "n": 238,
+   "empirical": 0.7131,
+   "closed_form": 0.3001,
+   "closed_over_empirical": 0.421,
+   "dead_ms": 0,
+   "lambda_per_min": 0.00595,
+   "mean_gap_min": 168.15,
+   "median_gap_min": 0.82
+  },
+  "SOLUSDT|liquidation|individual|500000": {
+   "n": 33,
+   "empirical": 0.5938,
+   "closed_form": 0.0483,
+   "closed_over_empirical": 0.081,
+   "dead_ms": 0,
+   "lambda_per_min": 0.00083,
+   "mean_gap_min": 1212.07,
+   "median_gap_min": 8.45
+  },
+  "BTCUSDT|liquidation|episode_sum|500000": {
+   "n": 14033,
+   "empirical": 0.9943,
+   "closed_form": 1.0,
+   "closed_over_empirical": 1.006,
+   "dead_ms": 0,
+   "lambda_per_min": 0.34654,
+   "mean_gap_min": 2.89,
+   "median_gap_min": 0.07
+  },
+  "ETHUSDT|liquidation|episode_sum|500000": {
+   "n": 15020,
+   "empirical": 0.9954,
+   "closed_form": 1.0,
+   "closed_over_empirical": 1.005,
+   "dead_ms": 0,
+   "lambda_per_min": 0.37157,
+   "mean_gap_min": 2.69,
+   "median_gap_min": 0.08
+  },
+  "SOLUSDT|liquidation|episode_sum|500000": {
+   "n": 2709,
+   "empirical": 0.99,
+   "closed_form": 0.9841,
+   "closed_over_empirical": 0.994,
+   "dead_ms": 0,
+   "lambda_per_min": 0.06902,
+   "mean_gap_min": 14.49,
+   "median_gap_min": 0.05
+  },
+  "BTCUSDT|episode|individual|500000": {
+   "n": 82,
+   "empirical": 0.2469,
+   "closed_form": 0.0887,
+   "closed_over_empirical": 0.359,
+   "dead_ms": 900000,
+   "lambda_per_min": 0.00206,
+   "mean_gap_min": 499.54,
+   "median_gap_min": 184.23
+  },
+  "ETHUSDT|episode|individual|500000": {
+   "n": 92,
+   "empirical": 0.2308,
+   "closed_form": 0.1009,
+   "closed_over_empirical": 0.437,
+   "dead_ms": 900000,
+   "lambda_per_min": 0.00236,
+   "mean_gap_min": 437.89,
+   "median_gap_min": 180.28
+  },
+  "SOLUSDT|episode|individual|500000": {
+   "n": 15,
+   "empirical": 0.0714,
+   "closed_form": 0.0162,
+   "closed_over_empirical": 0.227,
+   "dead_ms": 900000,
+   "lambda_per_min": 0.00036,
+   "mean_gap_min": 2770.46,
+   "median_gap_min": 1888.14
+  },
+  "BTCUSDT|episode|episode_sum|500000": {
+   "n": 125,
+   "empirical": 0.0242,
+   "closed_form": 0.1347,
+   "closed_over_empirical": 5.567,
+   "dead_ms": 900000,
+   "lambda_per_min": 0.00321,
+   "mean_gap_min": 326.06,
+   "median_gap_min": 236.18
+  },
+  "ETHUSDT|episode|episode_sum|500000": {
+   "n": 112,
+   "empirical": 0.0721,
+   "closed_form": 0.1211,
+   "closed_over_empirical": 1.68,
+   "dead_ms": 900000,
+   "lambda_per_min": 0.00287,
+   "mean_gap_min": 363.74,
+   "median_gap_min": 215.06
+  },
+  "SOLUSDT|episode|episode_sum|500000": {
+   "n": 35,
+   "empirical": 0.0294,
+   "closed_form": 0.0388,
+   "closed_over_empirical": 1.32,
+   "dead_ms": 900000,
+   "lambda_per_min": 0.00088,
+   "mean_gap_min": 1151.8,
+   "median_gap_min": 761.89
+  }
+ },
+ "decomposition_500k": {
+  "BTCUSDT": {
+   "liq_individual": 0.7561,
+   "liq_episode_sum": 0.9943,
+   "epi_episode_sum": 0.0242,
+   "floor_placement_effect": 0.2382,
+   "unit_effect": -0.9701,
+   "total": -0.7319
+  },
+  "ETHUSDT": {
+   "liq_individual": 0.7131,
+   "liq_episode_sum": 0.9954,
+   "epi_episode_sum": 0.0721,
+   "floor_placement_effect": 0.2823,
+   "unit_effect": -0.9233,
+   "total": -0.641
+  },
+  "SOLUSDT": {
+   "liq_individual": 0.5938,
+   "liq_episode_sum": 0.99,
+   "epi_episode_sum": 0.0294,
+   "floor_placement_effect": 0.3962,
+   "unit_effect": -0.9606,
+   "total": -0.5644
+  }
+ }
+}

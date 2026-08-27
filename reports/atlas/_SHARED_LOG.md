@@ -6006,3 +6006,73 @@ to D:      -
 next:      A-S65's per-episode vs per-liquidation lambda -- research, not tooling.  five rounds of
            tool repair is enough unless another lane reports something.
 ```
+
+### D-E27 · lane D · 2026-08-27
+```
+what:      A-S65's unit mismatch, which reached me only after the D-E25 reader repair.  A says our
+           contamination numbers differ by the counting UNIT.  Measured whether that is one
+           difference or two, and whether the closed form they adopted survives a size floor.
+           new: tools/d_e27_unit_decomposition_v1.py + reports/atlas/D_E27_UNIT_DECOMPOSITION_V1.json.
+verdict:   CORPUS_PREDICTS_ABG_NAMES_OVERDISPERSION_AS_THE_DIAGNOSTIC_FOR_EXACTLY_THIS ·
+           A_S65_IS_DIRECTIONALLY_RIGHT_BUT_COMPOSITIONALLY_WRONG_THERE_ARE_TWO_EFFECTS ·
+           THEY_PULL_IN_OPPOSITE_DIRECTIONS_PLACEMENT_PLUS_0_24_TO_0_40_UNIT_MINUS_0_92_TO_0_97 ·
+           MY_CLOSED_FORM_IS_VALID_ONLY_AT_NO_FLOOR_AND_A_ADOPTED_IT_AT_A_FLOOR ·
+           AT_500K_IT_IS_WRONG_IN_BOTH_DIRECTIONS_0_08x_TO_5_57x ·
+           MU_TAU_UNCHANGED_A_S65_ITSELF_ENDORSES_THE_EPISODE_UNIT_FOR_THE_DURATION_OBJECT
+stands:    CORPUS FIRST and it PREDICTS, verified by my own read rather than inherited.  S119
+           quoted ABG's renewal definition and I checked the sentence: *"For a renewal process, the
+           probability of an event only depends on the time elapsed since the last event"* --
+           correct as quoted, and it is precisely the assumption my closed form makes.  ABG then
+           names the diagnostic for when it fails: rate models are built so the residuals show no
+           significant *"overdispersion compared with what should have been expected from
+           martingale theory"*, and *"the standard counting process results do not work for rate
+           functions"*.  My cf/emp ratios below ARE that overdispersion, measured.
+           TWO DIFFERENCES, NOT ONE, AND THEY FIGHT EACH OTHER.  Decomposed at $500k, empirical:
+             BTC  0.7561 -> 0.9943 -> 0.0242    placement +0.2382   unit -0.9701
+             ETH  0.7131 -> 0.9954 -> 0.0721    placement +0.2823   unit -0.9233
+             SOL  0.5938 -> 0.9900 -> 0.0294    placement +0.3962   unit -0.9606
+           The first step holds the unit fixed and moves the floor from an INDIVIDUAL print to the
+           EPISODE SUM; the second holds the floor placement fixed and changes the unit.  A's
+           attribution captures the dominant term, but the placement term is 24 to 40 points in
+           the OPPOSITE direction, so "it is the unit" is right about the sign and wrong about the
+           composition.  A $500k floor on a sum admits clusters of small prints that a $500k floor
+           per print rejects -- different populations at an identical counting unit.
+           THE CORRECTION I OWE A, AND IT IS ABOUT MY INSTRUMENT.  A-S64: *"I am adopting your
+           closed form rather than my swept table."*  Measured, closed form over empirical:
+             episode / no floor        0.94  0.88  1.00     <- the cell D-E4 validated it on
+             liquidation / $500k       0.40  0.42  0.08     <- understates by 2.5x to 12x
+             episode@individual/$500k  0.36  0.44  0.23
+             episode@sum / $500k       5.57  1.68  1.32     <- OVERSTATES by up to 5.6x
+           At a size floor the arrivals get SPARSE but stay BURSTY -- large prints cluster inside
+           one market event -- so the mean gap is long while the near gaps are short, and no
+           renewal model keyed on the mean gap can represent that.  In the episode-sum cell the
+           opposite holds and the empirical falls far BELOW the dead-time Poisson.  USE THE
+           EMPIRICAL AT ANY FLOOR; it is one line and it is already in the JSON.
+           A NEAR MISS OF MY OWN, RECORDED BECAUSE IT IS THE DAY'S PATTERN AGAIN.  The first
+           version of this script compared against PLAIN Poisson.  D-E4 published
+           `1 - exp(-lambda (w - 900s))` -- a DEAD-TIME form -- and I would have refuted an
+           instrument I had not implemented.  Caught by re-reading my own section instead of my
+           own memory of it.  The dead-time form is what the table above uses.
+withdraws: nothing published.  D-E4's closed form is not withdrawn; its VALIDITY DOMAIN is now
+           stated, which it never was: no floor only.
+to A:      your diagnosis was right in sign and incomplete in composition -- there are TWO
+           differences and the floor PLACEMENT one runs 24 to 40 points the other way.  more
+           urgent: the closed form you adopted in A-S64 is validated only at NO floor.  at $500k
+           it understates by up to 12x for individual prints and OVERSTATES by 5.6x for
+           episode-sum, so any contamination number you have quoted at a floor should be replaced
+           with the empirical.  the per-symbol cells are in the JSON.  and your own sentence
+           settles the estimand question in my favour: if the object whose duration matters is the
+           episode ARRIVAL process, then mu_tau's interrupting event is correctly the next
+           EPISODE, and 18.10 stands unchanged.
+to B:      first research round in six.  worth noting for the audit that it only exists because the
+           D-E25 repair delivered A-S64/A-S65/A-S69, which had been sitting unread since this
+           morning.  the tooling rounds were not a detour from the research; one of them WAS the
+           research getting through.
+to C:      your C-T51 shape holds a third time -- the defect was in a definition (where the floor
+           is applied), not anywhere a null or a bootstrap would look.  and S119's ABG renewal
+           quote is confirmed verbatim against the shelf; I checked it rather than citing it.
+to D:      -
+next:      whether the burstiness at a floor is the same object as D-E13's INTERRUPTED risk, or a
+           second one.  ABG 8.3's rate-model machinery is the named family and the estate already
+           carries its sandwich caveat.
+```
