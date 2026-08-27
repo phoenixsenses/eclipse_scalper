@@ -625,16 +625,52 @@ def check(bl):
             problems.append({"id": b["stable_id"], "line": b["line"],
                              "problem": "lane not parseable from header"})
         ids.setdefault(b["stable_id"], []).append(b["line"])
-    dupes = {k: v for k, v in ids.items() if len(v) > 1}
-    cites = resolve_citations([c for b in bl for c in citations(b["body"])])
-    # A-S77: a silent fallback reports success over a wrong selection.  An id the parser could
-    # not read is a PROBLEM, not a detail -- D-E25 measured 13 blocks lost to exactly that shape.
     for b in bl:
         if b.get("id_parse") == "UNPARSEABLE":
             problems.append({"id": b["stable_id"], "line": b["line"],
                              "problem": "header is not a stable ID; not silently replaced"})
 
-    return {"blocks": len(bl), "problems": problems,
+    # A REPAIRED DEFECT MUST NOT READ LIKE A LIVE ONE.  The record is append-only, so a malformed
+    # block is corrected by a LATER block in the same thread and the original stays malformed
+    # forever.  Reporting both identically made every reader -- the operator included -- conclude
+    # the defect was never fixed.  D-E22 lacked `to X` lines and D-E22-R lacked `withdraws`;
+    # D-E22-R2 supplies BOTH, and section 546 records that.  So a problem whose thread later
+    # supplies what it lacked is moved to SUPERSEDED, naming the block that supplied it.  It is
+    # never deleted: the history is the point of an append-only record.
+    def thread_of(sid):
+        return re.sub(r"(-R\d*)+$", "", sid or "")
+
+    by_thread = {}
+    for b in bl:
+        by_thread.setdefault(thread_of(b["stable_id"]), []).append(b)
+
+    open_probs, superseded = [], []
+    for pr in problems:
+        later = [b for b in by_thread.get(thread_of(pr["id"]), []) if b["line"] > pr["line"]]
+        fixer = None
+        for b in later:
+            if "missing fields:" in pr["problem"]:
+                missing = pr["problem"].split(":", 1)[1].strip().split(",")
+                if all(m.strip() in b["fields"] for m in missing):
+                    fixer = b
+                    break
+            elif "no `to X`" in pr["problem"]:
+                if any(k.startswith("to ") for k in b["fields"]):
+                    fixer = b
+                    break
+        if fixer:
+            superseded.append(dict(pr, superseded_by=fixer["stable_id"],
+                                   superseded_at=fixer["line"]))
+        else:
+            open_probs.append(pr)
+
+    dupes = {k: v for k, v in ids.items() if len(v) > 1}
+    cites = resolve_citations([c for b in bl for c in citations(b["body"])])
+    # A-S77: a silent fallback reports success over a wrong selection.  An id the parser could
+    # not read is a PROBLEM, not a detail -- D-E25 measured 13 blocks lost to exactly that shape.
+
+    return {"blocks": len(bl), "problems": open_probs,
+            "superseded": superseded,
             "citation_resolution": cites,
             "repeated_stable_ids": dupes,
             "note": "a repeated stable id is legal (a correction block reuses it); "
@@ -861,7 +897,9 @@ def main():
             print("  %-10s %s" % (x["id"], x["summary"]))
     if "check" in out:
         c = out["check"]
-        print("\nRECORD CHECK  %d blocks, %d problems" % (c["blocks"], len(c["problems"])))
+        print("")
+        print("RECORD CHECK  %d blocks, %d OPEN, %d superseded"
+              % (c["blocks"], len(c["problems"]), len(c.get("superseded", []))))
         cc = c.get("citation_resolution", {})
         if cc.get("error"):
             print("  citations: %s" % cc["error"])
@@ -873,6 +911,13 @@ def main():
                       % (r["status"], r["source"], r["locator"], r["as_written"]))
             if not bad:
                 print("    every cited locator occurs in the source it names")
+        for p in c.get("superseded", []):
+            print("  [superseded] %-14s line %-6d %s  -> repaired in %s"
+                  % (p["id"], p["line"], p["problem"], p["superseded_by"]))
+        if c.get("superseded"):
+            print("  a superseded row is HISTORY, not a live defect.  the record is append-only,")
+            print("  so the original block stays malformed forever and a LATER block supplies what")
+            print("  it lacked.  it is listed so the repair is visible, not so it reads as open.")
         for p in c["problems"]:
             print("  %-12s line %-7d %s" % (p["id"], p["line"], p["problem"]))
         if c["repeated_stable_ids"]:

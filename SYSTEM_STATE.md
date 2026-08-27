@@ -61477,3 +61477,325 @@ IDENTIFIABILITY_RESTS_ON_STAGGERED_SPELLS_A_PROPERTY_OF_THIS_SAMPLE_NOT_THE_METH
 BOTH_LADDERS_MONOTONE_NEITHER_INSTRUMENT_IS_BROKEN
 A_S82_RULE_SELF_APPLIED_OBSERVED_AND_NULL_SHARE_ONE_FUNCTION_IN_ALL_THREE_STUDIES
 ```
+
+
+---
+
+## §514 [A-S85] LANE A — `--check`'İN DÖRT SORUNUNA BAKILDI: BİRİ BENİM VE TAKMA-AD KAYDIYLA KAPATILDI; ÜÇÜ BAŞKA HATLARIN VE **DÜZELTİLEMEZ, YALNIZ BİLDİRİLİR** (2026-08-27, Opus 5 [1M])
+
+Operatör sordu: *"`4` eski sorun nedir, `146` blok nedir, sorunlar başka lane'in mi?"* — ve
+ben bu satırı turlarca **içine bakmadan** rapor etmiştim.
+
+### 1. SAYILAR NE DEMEK
+`146` = atlas açıldığından beri **dört hattın** `_SHARED_LOG.md`'ye yazdığı **toplam giriş**;
+bir sağlık göstergesi değil, kaydın boyu. `4` = ayrıştırıcının **biçim/eksiklik** işaretleri.
+**İçerik kontrolü temiz:** `45` ayrı alıntı, **`0` çözümsüz** — her alıntılanan satır, adını
+verdiği kaynakta gerçekten var.
+
+### 2. DÖRDÜ NEDİR, KİMİN
+| # | ne | kimin | durum |
+|---|---|---|---|
+| 1 | `D-E22` — hiç `to X:` satırı yok (doğrulandı: `0`) | lane D | **bildirilir** |
+| 2 | `D-E22-R` — `withdraws:` alanı yok (`next:`e atlıyor) | lane D | **bildirilir** |
+| 3 | `B (18 sections)` — başlık kararlı ID değil | lane B | **bildirilir** |
+| 4 | **`LANE D OPENED`** — başlık kararlı ID değil | **lane A (ben)** | **kapatıldı** |
+
+`3` ve `4` **iyi biçimlenmiş, dolu bloklar** — iddiaları ve verdict'leri var; eksik olan tek
+şey kararlı ID, ve bu yüzden `--who`/`--brief`/thread makinesi onları **adresleyemiyor**.
+
+### 3. NEDEN "ÇÖZÜLEMEZ"
+Kayıt **append-only ve asla düzenlenmez** (CLAUDE.md). Başlık satırı yerinde kalır ⟹
+**sayaç `4`'te kalır, kalıcı olarak.** Bunlar bir yapılacaklar listesi değil, kaydın
+**kalıcı izleri**. Ve fence: **başka hattın bloğu bir DÜZELTME değil, o hatta yazılmış bir
+BULGUDUR** ⟹ `1`, `2`, `3` bana kapalı.
+
+### 4. BENİMKİ NASIL KAPANDI
+Estate'in kendi §398 kararı: **kimlik eklenir, yeniden numaralandırma YOK.** `LANE D OPENED`
+bloğuna geriye dönük kararlı ID **`A-S50B`** atandı (`A-S50` var, `A-S50B` boştu; içerik zaten
+*"`A-S50` süreyi bağlayıcı kısıt olarak gösterdi"* diyerek oradan türüyor). Blok artık
+alıntılanabilir; başlığın kendisi **değiştirilmedi**.
+
+### 5. ARAÇ NOTU (lane D'nin aleti, bende değiştirilmez)
+`--check` *"işaretli"* ile *"işaretli-ve-takma-ad-verilmiş"* durumunu ayırmıyor ⟹ `4` sayısı
+kapatılan bir kalemden sonra da `4` kalıyor. Bu bir **araç sorusu** ve D'ye bildirildi.
+
+```verdict
+A_S85  THE_FOUR_CHECK_PROBLEMS_ARE_FORMAT_NOT_CONTENT_45_CITATIONS_0_UNRESOLVED
+       146_IS_THE_RECORD_LENGTH_ACROSS_FOUR_LANES_NOT_A_HEALTH_NUMBER
+       TWO_ARE_LANE_D_CONTENT_GAPS_ONE_IS_LANE_B_AND_ONE_IS_MINE
+       BOTH_HEADERLESS_ENTRIES_ARE_WELL_FORMED_BLOCKS_MISSING_ONLY_A_STABLE_ID
+       NONE_OF_THE_FOUR_CAN_BE_REPAIRED_THE_RECORD_IS_APPEND_ONLY_AND_NEVER_EDITED
+       ANOTHER_LANES_BLOCK_IS_A_FINDING_ADDRESSED_TO_THEM_NEVER_A_FIX
+       MY_ONE_IS_CLOSED_THE_ONLY_LEGAL_WAY_BY_AN_ALIAS_RECORD_PER_398
+       LANE_D_OPENED_IS_NOW_CITABLE_AS_A_S50B_WITH_NO_RENUMBERING
+       THE_COUNT_WILL_STAY_AT_FOUR_AND_THAT_IS_CORRECT_NOT_A_FAILURE
+       I_REPORTED_THIS_LINE_FOR_MANY_ROUNDS_WITHOUT_LOOKING_INSIDE_IT
+```
+
+## §574 [C-T64] KÜLLİYAT *"REFERANS ENSTRÜMANIN YANLIŞ"* DEDİ — DEĞİŞTİRDİM VE **ÜÇ KEZ YAYIMLADIĞIM İŞARET TERSİNE DÖNDÜ**: MARK-FREE BASIS'TE H1 **DOĞRULANIYOR** (2026-08-27, Opus 5 [1M])
+
+**Hat:** C · **Araç:** `tools/research_c64_mark_free_basis_v1.py` ·
+**Örneklem (artefakt yoluyla):** `data/microstructure_02.db :: agg_trades + spot_prices +
+mark_prices`, **tam örtüşme**, 60 s bar · **Sınıf:** N-tüketmeyen **(d) örneklem/mekân ekleyen iş**.
+
+### 1. Külliyat: **ÖNGÖRÜYOR** — ve bu turun süsü değil, **sebebi**
+
+Kontroller: pozitif `competing risks` 71, `type II error` 10 bulundu; negatif `zqx frobnicator`,
+`basis marmalade` sıfır.
+
+> **HASBROUCK 10.3.3** (kaynağında) — *"Eşbütünleşme vektörlerini biliyoruz… **endeks arbitrajı**
+> uygulamalarında bileşen fiyatlarının ağırlıkları **endeksin TANIMIYLA belirlenir ve hem
+> uygulayıcıya hem ekonometriciye BİLİNİR**."*
+
+**C-T61 perp'i MARK'a karşı regresledi** — ağırlıklarını Binance'in koyduğu, benim tutmadığım bir
+endeks. Hasbrouck tam bu vaka için *"tahmin etme, BAK"* diyor. **Spot'a karşı eşbütünleşme vektörü
+`(1, −1)`** ve inşa gereği bilinir.
+**HARRIS** nesneyi veriyor (`hedge portfolio` 20 · `carrying cost` 6 · `fair value of the basis` 2 ·
+`arbitrage bounds` 3): *"hedge portföydeki enstrümanlar arasındaki fiyat farkı **BASIS**'tir"* —
+enstrümanlar **perp ve spot**, asla perp ve kendisinin yumuşatılmış endeksi.
+`index arbitrage` 17 (CHAN, HARRIS, HASBROUCK, KISSELL).
+
+### 2. Join health — guardrail gereği, hiçbir sonuç okunmadan ÖNCE
+
+| | gün | bar | perp | spot | mark | **ORTAK** | FULL |
+|---|--:|--:|--:|--:|--:|--:|---|
+| BTC | 34.85 | 50 189 | 49 628 | 49 677 | 49 721 | **%98.71** | ✓ |
+| ETH | 34.86 | 50 193 | 49 633 | 49 681 | 49 723 | **%98.71** | ✓ |
+| SOL | 34.86 | 50 196 | 49 636 | 49 684 | 49 725 | **%98.71** | ✓ |
+
+### 3. İki basis AYNI NESNE DEĞİL — mark basis'i soğuruyor
+
+| | `b_spot` ort. | sd | | `b_mark` ort. | sd |
+|---|--:|--:|---|--:|--:|
+| BTC | **−4.051** | 3.212 | | −0.195 | 0.999 |
+| ETH | **−4.330** | 3.871 | | −0.269 | 1.275 |
+| SOL | **−4.260** | 4.825 | | −0.366 | 1.695 |
+
+**Mark, ortalamanın ~20 katını ve dağılımın ~3 katını soğuruyor** ⟹ `b_mark`, mark izledikten
+**sonra kalan artıktır**. Yorumlanamamasının sebebi buydu.
+
+### 4. MANŞET — funding ilişkisi mark-free basis'te **İŞARET DEĞİŞTİRİYOR**
+
+C-T63b'de doğrulanmış **aynı-fonksiyon** null'ı, 106 yerleşim:
+
+| | **z, SPOT basis** | z, MARK basis | ampirik α (¦z¦≥2) |
+|---|--:|--:|--:|
+| BTC | **+4.74** | −2.77 | 0.025 |
+| ETH | **+5.45** | −3.81 | 0.035 |
+| SOL | **+6.02** | +0.68 | 0.035 |
+
+**Üçünde de güçlü POZİTİF.** Kapı **muhafazakâr** çıktı (α 0.025–0.035 < 0.05) ⟹ bu z'ler
+**olsa olsa olduğundan küçük**.
+
+⟹ **H1 — Harris'in *"basis taşıma-maliyeti tazminatıyla BİRLİKTE hareket eder"* öngörüsü —
+referans hedge portföydeki ÖTEKİ enstrüman olunca DOĞRULANIYOR.**
+**Ve üç kez rapor ettiğim majör-negatif işaret, basis'in değil MARK'ın özelliği.**
+
+### 5. Hangi bacak (60 s'de) — gerçek piyasaya karşı **hiçbiri baskın değil**
+
+| | α_perp ¦SPOT | α_spot | ¦p¦/¦s¦ | | α_perp ¦MARK | α_mark | ¦p¦/¦m¦ |
+|---|--:|--:|--:|---|--:|--:|--:|
+| BTC | −0.0062 | −0.0137 | **0.45** | | −0.2619 | −0.2797 | 0.94 |
+| ETH | +0.0488 | +0.0669 | **0.73** | | −0.2659 | −0.2228 | 1.19 |
+| SOL | +0.0233 | +0.0277 | **0.84** | | −0.4665 | −0.4847 | 0.96 |
+
+*C-T61'in 0.13–0.15'i **1 s** barındaydı; bunlar **60 s**. Yüklemeler ufka bağlı ve barlar arası
+alıntı yapmıyorum.*
+
+**Kalibrasyon:** EMA bilinen-pozitifi λ=0.02'yi üçünde de geri veriyor (0.0196 / 0.0197 / 0.0194).
+**Ama benim keyfî 5× oran kapım SOL'da FAIL veriyor** — tahminci değil, **kapı** yanlış; C-T59'un
+plateau bayrağıyla aynı ders.
+
+### 6. Geri çektiğim iki kendi iddiam — ikisi de diske dair **ölçüm değil beyan**
+
+- **C-T61:** *"bunu tanımlayacak şey bağımsız bir borsanın fiyatı, ve estate bunu tutmuyor."*
+- **C-T47 (§521):** Hasbrouck'un iki-mekân talebi `BLOCKED — iki venue gerekir, estate'te bir tane var`.
+
+**`spot_prices` baştan beri aynı veritabanındaydı** (49 679 satır/sembol). Bu, oturumda
+**dördüncü** kez bir *"estate'te X yok"* iddiamın **diske değil kendi aramama** dair çıkışı.
+
+**Çitler:** üç sembolde de sabit **~−4 bps** kayma, ekonomiden çok **yoklama zamanlaması/kaynak
+farkı**yla tutarlı ⟹ **DEĞİŞİMİ yorumluyorum, DÜZEYİ açıkça yorumlamıyorum.** Spot 60 s'lik
+kamusal endpoint yoklaması — gerçek ama **kaba** bir ikinci piyasa; **60 s altında lead-lag iddiası
+yok**, perp bacağı işlem fiyatı.
+
+```verdict
+C_T64_THE_ESTATE_HOLDS_AN_INDEPENDENT_VENUE_AND_I_TWICE_PUBLISHED_THAT_IT_DID_NOT
+SPOT_PRICES_49679_ROWS_PER_SYMBOL_SAME_34_85_DAY_WINDOW_98_71_PERCENT_COMMON
+WITHDRAWS_C_T61S_NO_INDEPENDENT_VENUE_AND_C_T47S_BLOCKED_TWO_VENUES_NEEDED
+FOURTH_TIME_THIS_SESSION_AN_ESTATE_DOES_NOT_HAVE_X_CLAIM_WAS_ABOUT_MY_OWN_SEARCH
+CORPUS_PREDICTS_HASBROUCK_10_3_3_INDEX_WEIGHTS_ARE_KNOWN_LOOK_THEM_UP_DO_NOT_ESTIMATE
+THAT_IS_EXACTLY_WHY_PERP_MINUS_MARK_WAS_NOT_IDENTIFIED_IN_C_T61
+AGAINST_SPOT_THE_COINTEGRATING_VECTOR_IS_ONE_MINUS_ONE_AND_KNOWN_BY_CONSTRUCTION
+HARRIS_THE_BASIS_IS_BETWEEN_THE_INSTRUMENTS_IN_THE_HEDGE_PORTFOLIO_PERP_AND_SPOT
+JOIN_HEALTH_PUBLISHED_FIRST_98_71_PERCENT_COMMON_FULL_ON_ALL_THREE
+THE_MARK_ABSORBS_TWENTY_X_OF_THE_MEAN_AND_THREE_X_OF_THE_DISPERSION
+B_MARK_IS_THE_RESIDUAL_AFTER_THE_MARK_HAS_TRACKED_WHICH_IS_WHY_IT_DID_NOT_INTERPRET
+H1_CONFIRMED_ON_A_MARK_FREE_BASIS_Z_PLUS_4_74_PLUS_5_45_PLUS_6_02_ALL_THREE
+THE_GATE_CAME_OUT_CONSERVATIVE_0_025_TO_0_035_SO_THESE_Z_ARE_IF_ANYTHING_UNDERSTATED
+THE_MAJORS_NEGATIVE_SIGN_IS_A_PROPERTY_OF_THE_MARK_NOT_OF_THE_BASIS
+THREE_NEGATIVE_SIGHTINGS_STAND_AS_MEASUREMENTS_OF_B_MARK_THEY_WERE_NEVER_OF_THE_BASIS
+C_T57S_H1_VERDICT_IS_REVERSED_NOT_MERELY_QUALIFIED
+AGAINST_A_REAL_MARKET_NEITHER_LEG_DOMINATES_RATIO_0_45_0_73_0_84
+C_T61S_RATIO_WAS_AT_ONE_SECOND_THESE_ARE_AT_SIXTY_NOT_QUOTED_ACROSS_BARS
+EMA_CALIBRATION_RECOVERS_LAMBDA_ON_ALL_THREE_0_0196_0_0197_0_0194
+MY_ARBITRARY_FIVE_X_RATIO_GATE_FAILS_SOL_THE_GATE_IS_WRONG_NOT_THE_ESTIMATOR
+SAME_LESSON_AS_C_T59S_PLATEAU_FLAG_A_GATE_I_INVENTED_MISREAD_A_SOUND_ESTIMATOR
+FENCE_THE_CONSTANT_MINUS_FOUR_BPS_LEVEL_IS_LIKELY_A_POLLING_ARTEFACT_VARIATION_ONLY
+FENCE_SPOT_IS_A_SIXTY_SECOND_POLL_NO_SUB_MINUTE_LEAD_LAG_CLAIM_IS_MADE
+AGREEMENT_BETWEEN_MY_OWN_ROUNDS_IS_NOT_EVIDENCE_IT_IS_ONE_CHOICE_MADE_THREE_TIMES
+WHEN_A_RESULT_WILL_NOT_INTERPRET_SUSPECT_THE_REFERENCE_BEFORE_THE_ESTIMATOR
+PRIOR_ESTATE_WORK_NOT_INHERITED_446_448_CONCLUDED_SPOT_LEADS_ON_ANCHOR_CONDITIONED_EVENTS
+THAT_IS_A_DIFFERENT_CELL_FROM_THIS_UNCONDITIONAL_CONTINUOUS_SERIES
+BLOCK_VALIDATED_ON_A_COPY_BEFORE_APPENDING_149_TO_150_ID_PARSE_OK_TEN_OF_TEN_FIELDS
+IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW
+```
+
+---
+
+## §575 [C-KULLIYAT-T63] BOLUM 6 HEM BIR ONGORU HEM KENDI GECERLILIK KOSULUNU VERIYOR: KOSUL TUTMUYOR, ONGORU DE TUTMUYOR (2026-08-27, Opus 5 [1M])
+
+**Hat:** C - **Arac:** `tools/ct_kulliyat_t63_which_regime_and_is_the_queue_exponential.py`
+**Tavan:** `MEASUREMENT_FIDELITY` - **Errata yok** (yayimlanmis hicbir sey degismiyor) - **DB salt-okunur**
+**Blok kayda EKLENMEDEN once KOPYADA `--check`: 151/2 -> 152/2, yeni sorun yok.**
+**Kulliyatin KENDI protokolu izlendi** (§6.4.1: *"her gunun ilk ve son saatini atiyoruz"*).
+
+### 1. KULLIYAT VERDICT: KOSULLU OLARAK ONGORUYOR -- ve kosul isin ta kendisi
+
+> **§6.3 (iii):** *"buyuk piyasa emirleri o kadar sik geliyor ki kuyruk aralarinda **dengeye
+> gelemiyor** ... **butun Fokker–Planck yaklasimi coker.** ... cunku **tipik kuyruk boyu tipik
+> piyasa emri boyuna benzer**."*
+> **§6.3.2:** *"supurucu piyasa emirlerinin gelisi, buyuk kuyruk olasiligini **USTEL** olarak
+> kucultur"* -- `P(V) ~ |a₋| e^{−|a₋|V}`.
+
+### 2. Prob'un IKI bacagi da, veriden ONCE (ERR-HU-063'un kurali)
+
+```
+bilinen POZITIF  sentetik Ustel      cv 1.004  p90/ort 2.297  -> USTEL        ✓
+bilinen NEGATIF  sentetik Lognormal  cv 1.296  p90/ort 2.181  -> USTEL DEGIL  ✓
+PROB KULLANILABILIR -- hem dogrulayabiliyor hem REDDEDEBILIYOR
+```
+**Borcum olan sinirlama:** lognormal'i **yalniz cv** reddetti; onun `p90/ort`'u tolerans
+**icindeydi** ⟹ iki tanilayicim bagimsiz ayirici degil, **reddi cv tasiyor**.
+
+### 3. Q1 -- KOSUL, ve benim beklentim CURUDU
+
+```
+medyan piyasa emri / medyan en-iyi-kote hacmi
+BTC 0.002   ETH 0.003   SOL 0.0004
+```
+**Tipik emir, tipik kuyrugun binde iki-uçu.** Rejim (iii)'ten cok uzak ⟹ **makine burada GECERLI**
+-- %11.7 / %14.2 trade-through'lu bir mekandan bekledigimin **tam tersi**.
+
+**Uzlasma, ve celiski degil:** medyan emir medyan kuyrugun yaninda kucucuk **ve** baskilarin
+%11.7'si yine de yuruyor, cunku **trade-through'lar iki dagilimin da KUYRUGUNDAN** cekiliyor --
+olagandisi buyuk bir emir, olagandisi ince bir kuyrukla bulusuyor. Bouchaud'nun olcutu
+**TIPIK** boyutlar hakkinda; benim oranim **ortak kuyruk** hakkinda. **Ayni yasanin govdesi ve
+kuyrugu.**
+
+### 4. Q2 -- ONGORU, 6 hucrenin 5'inde REDDEDILDI
+
+```
+(zaman-agirlikli = kulliyatin duragan nesnesi)   ustel referansi: cv 1.000, p90/ort 2.303
+BTC bid 1.235 / 2.092   ask 1.338 / 2.113
+ETH bid 1.015 / 2.056   ask 1.160 / 2.070
+SOL bid 1.018 / 1.645   ask 0.728 / 1.755
+```
+**Her bir `p90/ort` 2.303'un ALTINDA** ⟹ sapma, ustelden **DAHA INCE** bir ust kuyruga dogru,
+daha kalin degil; en cok SOL'da.
+
+Tek reddedilmeyen hucre (**ETH bid**) **agirliklandirmayla YER DEGISTIRIYOR** -- olay-agirlikli
+reddediyor (cv 1.181, p90 2.506), zaman-agirlikli geciyor. **Destek olarak okumuyorum.**
+
+### 5. Ve bu ICSEL OLARAK TUTARLI
+
+§6.3.2'nin usteli **supurucu emirler baskin oldugunda** dogar. Q1 baskin olmadiklarini soyluyor
+⟹ **oncul tutmuyorsa sonucun tutmasi gerekmez.**
+```
+KULLIYAT BIR KOSULLU OLARAK DOGRULANDI, KOSULSUZ BIR YASA OLARAK REDDEDILDI.
+```
+
+### 6. Geri cekilen: yayimlanmamis bir onyargim
+
+Spread cakili + trade-through sik ⟹ rejim (iii) diye bekliyordum. **Yanlisti, ve yanlisligin
+bicimi kayda deger:** bir **KUYRUK OLAYININ ORANINDAN**, **TIPIK boyutlar** hakkinda bir sonuc
+cikarmisim.
+
+```verdict
+THE_CORPUS_GAVE_A_PREDICTION_AND_ITS_OWN_VALIDITY_CONDITION_IN_ONE_SECTION
+MY_SANDBOX_GATE_PARSER_BROKE_ON_A_TOOL_OUTPUT_FORMAT_CHANGE_AND_FAILED_CLOSED
+ASKING_A_TOOLS_VALIDITY_DOMAIN_MUST_INCLUDE_ITS_OUTPUT_SHAPE
+THE_CONDITION_FAILS_TYPICAL_ORDER_IS_0_002_OF_TYPICAL_QUEUE
+FOKKER_PLANCK_MACHINERY_IS_AVAILABLE_HERE_MY_EXPECTATION_WAS_WRONG
+THE_EXPONENTIAL_QUEUE_LAW_IS_REFUTED_ON_5_OF_6_CELLS
+EVERY_P90_OVER_MEAN_IS_BELOW_THE_EXPONENTIAL_VALUE_THINNER_UPPER_TAIL
+THE_ONE_NON_REJECTION_FLIPS_WITH_THE_WEIGHTING_AND_IS_NOT_READ_AS_SUPPORT
+CONFIRMED_AS_A_CONDITIONAL_REFUTED_AS_AN_UNCONDITIONAL
+BOTH_PROBE_LEGS_RUN_BEFORE_THE_DATA_AND_THE_CV_CARRIES_THE_REJECTION
+MEDIAN_ORDER_TINY_AND_TRADE_THROUGHS_FREQUENT_ARE_THE_BULK_AND_THE_TAIL_OF_ONE_LAW
+I_INFERRED_TYPICAL_SIZES_FROM_A_TAIL_EVENT_RATE
+```
+
+**Artefakt:** `reports/atlas/CT_KULLIYAT_T63_QUEUE_LAW_V1.json` - **Inline surucu yok** (D-47).
+
+## §574 [D-E36] *"BUNLARI DÜZELTMEDİN Mİ?"* — DÜZELTMİŞTİM; **ARAÇ ONARILMIŞ KUSURU CANLIYMIŞ GİBİ GÖSTERİYORDU** (2026-08-27, Opus 5 [1M])
+
+### SEMPTOM OPERATÖRÜN, SEBEP BİR KATMAN AŞAĞIDA
+Hafızadan değil **kayda karşı** doğrulandı: `D-E22`'de **0** adet `to X` satırı var,
+`D-E22-R`'de `withdraws` yok — ama **`D-E22-R2` dört `to` satırı VE `withdraws` taşıyor**.
+İçerik, append-only bir kaydın izin verdiği **tek yolla** onarılmış, ve §546 bunu yazıyor.
+
+**Bozuk olan şuydu:** `--check` iki tarihsel izi **canlı problemle aynı biçimde** basıyordu.
+Bu kozmetik bir şikâyet değil — araç, **her koştuğunda** her okuyucuya kayıt hakkında
+**yanlış bir olgu** öğretiyordu.
+
+### KAYDA DOKUNMADAN DÜZELTİLDİ
+Bir problemin **AYNI THREAD'İ** sonradan eksiği sağlıyorsa artık **SUPERSEDED** olarak,
+**sağlayan bloğun adıyla**, kendi bölümünde raporlanıyor:
+**`150 blok, 2 OPEN, 2 superseded`**. Asla silinmiyor — tarih, append-only bir kaydın **varlık
+sebebi**. Gerçekten açık iki satır (`B (18 sections)`, `LANE D OPENED`, ikisi de meşru
+ID-olmayan başlık) görünür kalıyor.
+
+### KENDİ DÜZELTMEM REGRESYON YAPTI, ÇIKTIYI OKUYARAK YAKALADIM
+İlk sürüm **`0 OPEN`** dedi — çünkü ayrıştırılamaz-başlık kontrolü, yeni bölünmemden **SONRA**
+listeye ekleniyordu ve o iki satır **sessizce düşüyordu**. **Sıfır problem raporlayan bir araç,
+onları düşürdüğü için raporluyorsa, yerine geçtiği kusurdan beterdir.** Sıra değiştirildi.
+
+### BORÇLU OLDUĞUM SORU ÖDENDİ: N=16 KOLU BİR TEST TAŞIYABİLİR Mİ?
+INTERRUPTED kolu **628'de 16**. Gozlenen sigma-sıra ortalaması **0.4571**, permütasyon null'ı
+**0.4989 ± 0.0710** ⇒ **z −0.59, iki yönlü p 0.56** — **saptanabilir ilişki YOK**.
+
+**Ve gücü varsayılmadı, ölçüldü** — gücü olmayan bir null hiçbir şey değmez:
+
+| kesinti kümesinin en-yüksek-sigma'dan gelme olasılığı | saptama |
+|---|--:|
+| 0.00 | **%6** ← yanlış-pozitif oranı, nominal %5'e yakın |
+| 0.25 | %41 |
+| 0.50 | **%89** |
+| 0.75 | %100 |
+
+⇒ Kol bir test **taşıyor**, ama yalnız **kaba** bir etkiye karşı: kesintilerin **yarısının**
+en-yüksek-sigma spell'lerinden gelmesi gerekiyor. D-E34'ün süre düzeyinde ölçtüğü etki
+(**rho −0.1502**) bunun çok altında. **Dolayısıyla bu kol, süre-düzeyi seçilimin kesinti
+üzerinden işleyip işlemediğini NE DOĞRULAR NE ÇÜRÜTÜR** — dürüst hüküm bu, "null sonuç" değil.
+
+### KÜLLİYAT: **SESSİZ**, VE BİR TUZAK ADLANDIRILDI
+`erratum` 1 hit, `amendment` 1, **`correction` 9 kaynakta 77** — ama o 77, *"sonlu-örneklem
+düzeltmesi"*, *"yanlılık düzeltmesi"* anlamında; kayıt tashihi değil. Kendi ayrıt-edicilik
+eşiğim **500** ve 77'yi **ayrıt edici** diye geçirirdi:
+**EŞİK FREKANSI YAKALAR, ÇOK-ANLAMLILIĞI YAKALAMAZ.** Bu aracın bir sınırıdır ve
+**yamanmadı, yazıldı** — anlam tahmin eden bir dedektör **uydurulmuş bir alan** olurdu.
+
+```verdict
+THE_REPAIR_WAS_REAL_D_E22_R2_SUPPLIES_BOTH_MISSING_THINGS_VERIFIED_AGAINST_THE_RECORD
+THE_TOOL_WAS_PRINTING_HISTORY_AS_IF_IT_WERE_LIVE_AND_TAUGHT_EVERY_READER_A_FALSE_FACT
+NOW_150_BLOCKS_2_OPEN_2_SUPERSEDED_EACH_NAMING_THE_BLOCK_THAT_REPAIRED_IT
+NOTHING_IS_DELETED_HISTORY_IS_THE_POINT_OF_AN_APPEND_ONLY_RECORD
+MY_OWN_FIX_REGRESSED_TO_ZERO_OPEN_BY_DROPPING_TWO_ROWS_CAUGHT_BY_READING_THE_OUTPUT
+INTERRUPTED_ARM_16_OF_628_SHOWS_NO_SIGMA_ASSOCIATION_z_MINUS_0_59_p_0_56
+POWER_MEASURED_6_PERCENT_AT_NULL_41_AT_A_QUARTER_89_AT_A_HALF_100_AT_THREE_QUARTERS
+THE_ARM_RESOLVES_ONLY_A_GROSS_EFFECT_SO_IT_NEITHER_CONFIRMS_NOR_REFUTES_D_E34
+CORPUS_SILENT_ERRATUM_1_AMENDMENT_1
+THE_77_CORRECTION_HITS_ARE_FINITE_SAMPLE_CORRECTION_A_POLYSEMY_TRAP
+MY_DISCRIMINATING_THRESHOLD_CATCHES_FREQUENCY_NOT_POLYSEMY_STATED_NOT_PATCHED
+```
