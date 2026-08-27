@@ -1,0 +1,55 @@
+{
+  "day": "2026-08-07",
+  "cells": {
+    "A": "mid, own",
+    "B": "mid, forward",
+    "C": "trade price, own",
+    "D": "trade price, forward"
+  },
+  "theirs": {
+    "BTCUSDT": 0.0484,
+    "ETHUSDT": 0.1093,
+    "SOLUSDT": null
+  },
+  "full_spread_bps": {
+    "BTCUSDT": 0.0156,
+    "ETHUSDT": 0.0532,
+    "SOLUSDT": 1.319
+  },
+  "per_symbol": {
+    "BTCUSDT": {
+      "A": 0.020772762537902598,
+      "B": 0.01677377121801469,
+      "C": 0.03246158304750044,
+      "D": 0.004766081264276551,
+      "C_minus_A": 0.011688820509597846,
+      "C_minus_A_over_spread": 0.7492833659998619,
+      "n": 552597
+    },
+    "ETHUSDT": {
+      "A": 0.03662813087413378,
+      "B": 0.02906276486255152,
+      "C": 0.08060151446217574,
+      "D": -0.01563497675783509,
+      "C_minus_A": 0.04397338358804196,
+      "C_minus_A_over_spread": 0.8265673606774805,
+      "n": 535404
+    },
+    "SOLUSDT": {
+      "A": 0.056920903821889315,
+      "B": 0.03614887133458178,
+      "C": 0.5287150483927348,
+      "D": -0.46262114255608516,
+      "C_minus_A": 0.47179414457084545,
+      "C_minus_A_over_spread": 0.3576907843600041,
+      "n": 240282
+    }
+  },
+  "ceiling": "MEASUREMENT_FIDELITY",
+  "tokens": [
+    "THE_GAP_IS_ALIGNMENT_PLUS_OBSERVABLE_NOT_POPULATION_ALONE",
+    "MY_ARM_B_COMPARED_A_DIFFERENT_ESTIMAND_TO_THEIRS",
+    "ARM_A_IS_THE_CORPUS_DEFINITION_MID_SPANNING_THE_EVENT",
+    "ONE_DAY_DISCRIMINATION_NOT_AN_ESTIMATE"
+  ]
+}

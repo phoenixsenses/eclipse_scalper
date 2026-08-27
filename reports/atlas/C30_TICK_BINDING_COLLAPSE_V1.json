@@ -1,0 +1,1287 @@
+{
+  "study": "C-T30",
+  "lane": "C",
+  "utc": "2026-08-27T04:52:39Z",
+  "block_trades": 50000,
+  "prediction": "Bouchaud Sec. 7.5 -- a refill at a vacated best quote reverts the mid, so the more binding the tick the more mechanical reversion, the lower H and the higher the cancellation. Directional and stated before measurement.",
+  "per_symbol": {
+    "BTCUSDT": {
+      "tick_measured": 0.09999999999126885,
+      "n_blocks": 40,
+      "k_range": [
+        0.7969,
+        4.7275
+      ],
+      "relative_tick_bps_median": 0.0155,
+      "H_median": 0.6688,
+      "cancelled_median": 0.4047,
+      "slope_H_on_log_k": -0.1319,
+      "se": 0.0128,
+      "t_H": -10.3,
+      "slope_cancelled_on_log_k": 0.4162,
+      "se_c": 0.0425,
+      "t_cancelled": 9.79
+    },
+    "ETHUSDT": {
+      "tick_measured": 0.009999999999990905,
+      "n_blocks": 40,
+      "k_range": [
+        0.7203,
+        3.6057
+      ],
+      "relative_tick_bps_median": 0.0531,
+      "H_median": 0.5882,
+      "cancelled_median": 0.5454,
+      "slope_H_on_log_k": -0.1013,
+      "se": 0.0162,
+      "t_H": -6.24,
+      "slope_cancelled_on_log_k": 0.4755,
+      "se_c": 0.0651,
+      "t_cancelled": 7.31
+    },
+    "SOLUSDT": {
+      "tick_measured": 0.009999999999990905,
+      "n_blocks": 40,
+      "k_range": [
+        0.2394,
+        0.6788
+      ],
+      "relative_tick_bps_median": 1.3533,
+      "H_median": 0.4755,
+      "cancelled_median": 1.0704,
+      "slope_H_on_log_k": 0.0727,
+      "se": 0.0205,
+      "t_H": 3.54,
+      "slope_cancelled_on_log_k": -0.2073,
+      "se_c": 0.0575,
+      "t_cancelled": -3.61
+    }
+  },
+  "within_symbol_slopes_H_on_log_k": {
+    "BTCUSDT": -0.1319,
+    "ETHUSDT": -0.1013,
+    "SOLUSDT": 0.0727
+  },
+  "within_symbol_t": {
+    "BTCUSDT": -10.3,
+    "ETHUSDT": -6.24,
+    "SOLUSDT": 3.54
+  },
+  "all_three_same_sign": false,
+  "pooled": {
+    "n": 120,
+    "slope_H_on_log_k": 0.0559,
+    "t": 4.43,
+    "slope_cancelled_on_log_k": -0.1854,
+    "t_cancelled": -4.15
+  },
+  "reading_rule": "within-symbol and pooled slopes agreeing in sign is a collapse; disagreeing is Simpson's paradox and the cross-symbol reading fails",
+  "blocks": {
+    "BTCUSDT": [
+      {
+        "block": 0,
+        "k_ticks_per_trade": 1.1899,
+        "zero_return_fraction": 0.3254,
+        "H": 0.6631,
+        "chi": 0.8252,
+        "cancelled": 0.4984,
+        "mean_price": 65087.0361,
+        "relative_tick_bps": 0.0154
+      },
+      {
+        "block": 1,
+        "k_ticks_per_trade": 1.2161,
+        "zero_return_fraction": 0.1866,
+        "H": 0.6952,
+        "chi": 0.7792,
+        "cancelled": 0.3008,
+        "mean_price": 65086.6689,
+        "relative_tick_bps": 0.0154
+      },
+      {
+        "block": 2,
+        "k_ticks_per_trade": 1.5444,
+        "zero_return_fraction": 0.137,
+        "H": 0.6812,
+        "chi": 0.7953,
+        "cancelled": 0.3865,
+        "mean_price": 64950.5523,
+        "relative_tick_bps": 0.0154
+      },
+      {
+        "block": 3,
+        "k_ticks_per_trade": 1.9379,
+        "zero_return_fraction": 0.1514,
+        "H": 0.6623,
+        "chi": 0.7905,
+        "cancelled": 0.4414,
+        "mean_price": 65098.1949,
+        "relative_tick_bps": 0.0154
+      },
+      {
+        "block": 4,
+        "k_ticks_per_trade": 1.3037,
+        "zero_return_fraction": 0.1765,
+        "H": 0.7041,
+        "chi": 0.7711,
+        "cancelled": 0.2471,
+        "mean_price": 65349.1988,
+        "relative_tick_bps": 0.0153
+      },
+      {
+        "block": 5,
+        "k_ticks_per_trade": 1.6142,
+        "zero_return_fraction": 0.2035,
+        "H": 0.7161,
+        "chi": 0.805,
+        "cancelled": 0.2917,
+        "mean_price": 65358.2414,
+        "relative_tick_bps": 0.0153
+      },
+      {
+        "block": 6,
+        "k_ticks_per_trade": 1.5904,
+        "zero_return_fraction": 0.142,
+        "H": 0.6858,
+        "chi": 0.7956,
+        "cancelled": 0.3712,
+        "mean_price": 65579.5995,
+        "relative_tick_bps": 0.0152
+      },
+      {
+        "block": 7,
+        "k_ticks_per_trade": 1.5762,
+        "zero_return_fraction": 0.1854,
+        "H": 0.6613,
+        "chi": 0.803,
+        "cancelled": 0.4677,
+        "mean_price": 65190.6586,
+        "relative_tick_bps": 0.0153
+      },
+      {
+        "block": 8,
+        "k_ticks_per_trade": 1.098,
+        "zero_return_fraction": 0.2072,
+        "H": 0.7031,
+        "chi": 0.7754,
+        "cancelled": 0.2626,
+        "mean_price": 65000.0504,
+        "relative_tick_bps": 0.0154
+      },
+      {
+        "block": 9,
+        "k_ticks_per_trade": 1.3989,
+        "zero_return_fraction": 0.1486,
+        "H": 0.7244,
+        "chi": 0.7895,
+        "cancelled": 0.2249,
+        "mean_price": 64972.2929,
+        "relative_tick_bps": 0.0154
+      },
+      {
+        "block": 10,
+        "k_ticks_per_trade": 4.7275,
+        "zero_return_fraction": 0.0774,
+        "H": 0.525,
+        "chi": 0.766,
+        "cancelled": 0.9061,
+        "mean_price": 64528.8975,
+        "relative_tick_bps": 0.0155
+      },
+      {
+        "block": 11,
+        "k_ticks_per_trade": 2.0635,
+        "zero_return_fraction": 0.0945,
+        "H": 0.6478,
+        "chi": 0.7594,
+        "cancelled": 0.4302,
+        "mean_price": 64320.4176,
+        "relative_tick_bps": 0.0155
+      },
+      {
+        "block": 12,
+        "k_ticks_per_trade": 2.4011,
+        "zero_return_fraction": 0.0636,
+        "H": 0.6254,
+        "chi": 0.7635,
+        "cancelled": 0.5241,
+        "mean_price": 64054.9229,
+        "relative_tick_bps": 0.0156
+      },
+      {
+        "block": 13,
+        "k_ticks_per_trade": 4.0798,
+        "zero_return_fraction": 0.0789,
+        "H": 0.4837,
+        "chi": 0.7516,
+        "cancelled": 1.065,
+        "mean_price": 63827.4356,
+        "relative_tick_bps": 0.0157
+      },
+      {
+        "block": 14,
+        "k_ticks_per_trade": 1.5182,
+        "zero_return_fraction": 0.0953,
+        "H": 0.6365,
+        "chi": 0.7739,
+        "cancelled": 0.5017,
+        "mean_price": 63926.9091,
+        "relative_tick_bps": 0.0156
+      },
+      {
+        "block": 15,
+        "k_ticks_per_trade": 1.9593,
+        "zero_return_fraction": 0.0636,
+        "H": 0.6243,
+        "chi": 0.7598,
+        "cancelled": 0.5218,
+        "mean_price": 64133.2603,
+        "relative_tick_bps": 0.0156
+      },
+      {
+        "block": 16,
+        "k_ticks_per_trade": 1.4244,
+        "zero_return_fraction": 0.1256,
+        "H": 0.6722,
+        "chi": 0.758,
+        "cancelled": 0.3325,
+        "mean_price": 64074.843,
+        "relative_tick_bps": 0.0156
+      },
+      {
+        "block": 17,
+        "k_ticks_per_trade": 1.2485,
+        "zero_return_fraction": 0.1793,
+        "H": 0.6657,
+        "chi": 0.7569,
+        "cancelled": 0.3549,
+        "mean_price": 64041.6104,
+        "relative_tick_bps": 0.0156
+      },
+      {
+        "block": 18,
+        "k_ticks_per_trade": 1.224,
+        "zero_return_fraction": 0.1866,
+        "H": 0.6691,
+        "chi": 0.7842,
+        "cancelled": 0.4051,
+        "mean_price": 64178.872,
+        "relative_tick_bps": 0.0156
+      },
+      {
+        "block": 19,
+        "k_ticks_per_trade": 0.9717,
+        "zero_return_fraction": 0.3261,
+        "H": 0.6167,
+        "chi": 0.7504,
+        "cancelled": 0.5339,
+        "mean_price": 64128.0132,
+        "relative_tick_bps": 0.0156
+      },
+      {
+        "block": 20,
+        "k_ticks_per_trade": 0.9718,
+        "zero_return_fraction": 0.3174,
+        "H": 0.7445,
+        "chi": 0.8307,
+        "cancelled": 0.2609,
+        "mean_price": 64047.175,
+        "relative_tick_bps": 0.0156
+      },
+      {
+        "block": 21,
+        "k_ticks_per_trade": 0.837,
+        "zero_return_fraction": 0.325,
+        "H": 0.724,
+        "chi": 0.8256,
+        "cancelled": 0.3118,
+        "mean_price": 64009.4529,
+        "relative_tick_bps": 0.0156
+      },
+      {
+        "block": 22,
+        "k_ticks_per_trade": 1.1711,
+        "zero_return_fraction": 0.2736,
+        "H": 0.7107,
+        "chi": 0.8344,
+        "cancelled": 0.3701,
+        "mean_price": 63932.3075,
+        "relative_tick_bps": 0.0156
+      },
+      {
+        "block": 23,
+        "k_ticks_per_trade": 1.2792,
+        "zero_return_fraction": 0.284,
+        "H": 0.6941,
+        "chi": 0.8139,
+        "cancelled": 0.3816,
+        "mean_price": 64123.4733,
+        "relative_tick_bps": 0.0156
+      },
+      {
+        "block": 24,
+        "k_ticks_per_trade": 1.17,
+        "zero_return_fraction": 0.287,
+        "H": 0.7038,
+        "chi": 0.8415,
+        "cancelled": 0.4033,
+        "mean_price": 64218.5051,
+        "relative_tick_bps": 0.0156
+      },
+      {
+        "block": 25,
+        "k_ticks_per_trade": 1.1209,
+        "zero_return_fraction": 0.2805,
+        "H": 0.6884,
+        "chi": 0.8244,
+        "cancelled": 0.4191,
+        "mean_price": 64341.8977,
+        "relative_tick_bps": 0.0155
+      },
+      {
+        "block": 26,
+        "k_ticks_per_trade": 1.0761,
+        "zero_return_fraction": 0.293,
+        "H": 0.7176,
+        "chi": 0.8084,
+        "cancelled": 0.2945,
+        "mean_price": 64413.76,
+        "relative_tick_bps": 0.0155
+      },
+      {
+        "block": 27,
+        "k_ticks_per_trade": 1.1366,
+        "zero_return_fraction": 0.2879,
+        "H": 0.6693,
+        "chi": 0.8111,
+        "cancelled": 0.4557,
+        "mean_price": 64450.5438,
+        "relative_tick_bps": 0.0155
+      },
+      {
+        "block": 28,
+        "k_ticks_per_trade": 0.7969,
+        "zero_return_fraction": 0.3568,
+        "H": 0.7357,
+        "chi": 0.857,
+        "cancelled": 0.3399,
+        "mean_price": 64424.848,
+        "relative_tick_bps": 0.0155
+      },
+      {
+        "block": 29,
+        "k_ticks_per_trade": 2.327,
+        "zero_return_fraction": 0.437,
+        "H": 0.6247,
+        "chi": 0.9021,
+        "cancelled": 0.6899,
+        "mean_price": 64518.4694,
+        "relative_tick_bps": 0.0155
+      },
+      {
+        "block": 30,
+        "k_ticks_per_trade": 4.1533,
+        "zero_return_fraction": 0.3075,
+        "H": 0.4188,
+        "chi": 0.8918,
+        "cancelled": 1.2071,
+        "mean_price": 64557.5552,
+        "relative_tick_bps": 0.0155
+      },
+      {
+        "block": 31,
+        "k_ticks_per_trade": 1.2317,
+        "zero_return_fraction": 0.333,
+        "H": 0.7417,
+        "chi": 0.855,
+        "cancelled": 0.3192,
+        "mean_price": 64662.8072,
+        "relative_tick_bps": 0.0155
+      },
+      {
+        "block": 32,
+        "k_ticks_per_trade": 2.2197,
+        "zero_return_fraction": 0.3363,
+        "H": 0.5882,
+        "chi": 0.8285,
+        "cancelled": 0.7315,
+        "mean_price": 64735.908,
+        "relative_tick_bps": 0.0154
+      },
+      {
+        "block": 33,
+        "k_ticks_per_trade": 1.4268,
+        "zero_return_fraction": 0.2288,
+        "H": 0.6686,
+        "chi": 0.8005,
+        "cancelled": 0.4389,
+        "mean_price": 64736.452,
+        "relative_tick_bps": 0.0154
+      },
+      {
+        "block": 34,
+        "k_ticks_per_trade": 3.132,
+        "zero_return_fraction": 0.243,
+        "H": 0.6323,
+        "chi": 0.8426,
+        "cancelled": 0.6138,
+        "mean_price": 64746.3743,
+        "relative_tick_bps": 0.0154
+      },
+      {
+        "block": 35,
+        "k_ticks_per_trade": 4.5723,
+        "zero_return_fraction": 0.096,
+        "H": 0.516,
+        "chi": 0.784,
+        "cancelled": 0.9438,
+        "mean_price": 65224.3177,
+        "relative_tick_bps": 0.0153
+      },
+      {
+        "block": 36,
+        "k_ticks_per_trade": 2.8018,
+        "zero_return_fraction": 0.1408,
+        "H": 0.6119,
+        "chi": 0.7802,
+        "cancelled": 0.6006,
+        "mean_price": 65397.6373,
+        "relative_tick_bps": 0.0153
+      },
+      {
+        "block": 37,
+        "k_ticks_per_trade": 1.4018,
+        "zero_return_fraction": 0.1393,
+        "H": 0.6667,
+        "chi": 0.7363,
+        "cancelled": 0.2944,
+        "mean_price": 65169.4803,
+        "relative_tick_bps": 0.0153
+      },
+      {
+        "block": 38,
+        "k_ticks_per_trade": 1.4059,
+        "zero_return_fraction": 0.1386,
+        "H": 0.6589,
+        "chi": 0.7668,
+        "cancelled": 0.4044,
+        "mean_price": 65081.1654,
+        "relative_tick_bps": 0.0154
+      },
+      {
+        "block": 39,
+        "k_ticks_per_trade": 1.2118,
+        "zero_return_fraction": 0.1764,
+        "H": 0.7108,
+        "chi": 0.8111,
+        "cancelled": 0.3225,
+        "mean_price": 65253.5866,
+        "relative_tick_bps": 0.0153
+      }
+    ],
+    "ETHUSDT": [
+      {
+        "block": 0,
+        "k_ticks_per_trade": 0.9681,
+        "zero_return_fraction": 0.3148,
+        "H": 0.6369,
+        "chi": 0.747,
+        "cancelled": 0.4456,
+        "mean_price": 1882.1265,
+        "relative_tick_bps": 0.0531
+      },
+      {
+        "block": 1,
+        "k_ticks_per_trade": 1.0263,
+        "zero_return_fraction": 0.1873,
+        "H": 0.614,
+        "chi": 0.6673,
+        "cancelled": 0.3185,
+        "mean_price": 1877.2088,
+        "relative_tick_bps": 0.0533
+      },
+      {
+        "block": 2,
+        "k_ticks_per_trade": 3.6057,
+        "zero_return_fraction": 0.123,
+        "H": 0.4019,
+        "chi": 0.7173,
+        "cancelled": 1.4514,
+        "mean_price": 1868.6429,
+        "relative_tick_bps": 0.0535
+      },
+      {
+        "block": 3,
+        "k_ticks_per_trade": 0.9314,
+        "zero_return_fraction": 0.1614,
+        "H": 0.6004,
+        "chi": 0.6907,
+        "cancelled": 0.4737,
+        "mean_price": 1871.5415,
+        "relative_tick_bps": 0.0534
+      },
+      {
+        "block": 4,
+        "k_ticks_per_trade": 0.8861,
+        "zero_return_fraction": 0.2221,
+        "H": 0.6016,
+        "chi": 0.6778,
+        "cancelled": 0.4285,
+        "mean_price": 1877.7995,
+        "relative_tick_bps": 0.0533
+      },
+      {
+        "block": 5,
+        "k_ticks_per_trade": 1.7239,
+        "zero_return_fraction": 0.1789,
+        "H": 0.5693,
+        "chi": 0.6889,
+        "cancelled": 0.6334,
+        "mean_price": 1887.3168,
+        "relative_tick_bps": 0.053
+      },
+      {
+        "block": 6,
+        "k_ticks_per_trade": 1.126,
+        "zero_return_fraction": 0.1483,
+        "H": 0.6316,
+        "chi": 0.7297,
+        "cancelled": 0.4272,
+        "mean_price": 1897.9782,
+        "relative_tick_bps": 0.0527
+      },
+      {
+        "block": 7,
+        "k_ticks_per_trade": 1.0091,
+        "zero_return_fraction": 0.2075,
+        "H": 0.5935,
+        "chi": 0.7147,
+        "cancelled": 0.5643,
+        "mean_price": 1885.5556,
+        "relative_tick_bps": 0.053
+      },
+      {
+        "block": 8,
+        "k_ticks_per_trade": 0.8635,
+        "zero_return_fraction": 0.2016,
+        "H": 0.607,
+        "chi": 0.6871,
+        "cancelled": 0.4278,
+        "mean_price": 1881.4291,
+        "relative_tick_bps": 0.0532
+      },
+      {
+        "block": 9,
+        "k_ticks_per_trade": 1.5711,
+        "zero_return_fraction": 0.1418,
+        "H": 0.5705,
+        "chi": 0.6842,
+        "cancelled": 0.6173,
+        "mean_price": 1872.6762,
+        "relative_tick_bps": 0.0534
+      },
+      {
+        "block": 10,
+        "k_ticks_per_trade": 0.9774,
+        "zero_return_fraction": 0.1067,
+        "H": 0.5556,
+        "chi": 0.6103,
+        "cancelled": 0.496,
+        "mean_price": 1863.2293,
+        "relative_tick_bps": 0.0537
+      },
+      {
+        "block": 11,
+        "k_ticks_per_trade": 1.0879,
+        "zero_return_fraction": 0.0841,
+        "H": 0.6077,
+        "chi": 0.6752,
+        "cancelled": 0.385,
+        "mean_price": 1856.0585,
+        "relative_tick_bps": 0.0539
+      },
+      {
+        "block": 12,
+        "k_ticks_per_trade": 1.0818,
+        "zero_return_fraction": 0.1106,
+        "H": 0.5756,
+        "chi": 0.6578,
+        "cancelled": 0.5209,
+        "mean_price": 1854.2258,
+        "relative_tick_bps": 0.0539
+      },
+      {
+        "block": 13,
+        "k_ticks_per_trade": 1.0343,
+        "zero_return_fraction": 0.125,
+        "H": 0.5858,
+        "chi": 0.6835,
+        "cancelled": 0.5323,
+        "mean_price": 1862.2363,
+        "relative_tick_bps": 0.0537
+      },
+      {
+        "block": 14,
+        "k_ticks_per_trade": 0.879,
+        "zero_return_fraction": 0.1936,
+        "H": 0.5885,
+        "chi": 0.6855,
+        "cancelled": 0.5228,
+        "mean_price": 1859.1603,
+        "relative_tick_bps": 0.0538
+      },
+      {
+        "block": 15,
+        "k_ticks_per_trade": 0.836,
+        "zero_return_fraction": 0.2148,
+        "H": 0.5879,
+        "chi": 0.666,
+        "cancelled": 0.4704,
+        "mean_price": 1861.3543,
+        "relative_tick_bps": 0.0537
+      },
+      {
+        "block": 16,
+        "k_ticks_per_trade": 0.8334,
+        "zero_return_fraction": 0.2622,
+        "H": 0.5851,
+        "chi": 0.7185,
+        "cancelled": 0.6107,
+        "mean_price": 1859.4877,
+        "relative_tick_bps": 0.0538
+      },
+      {
+        "block": 17,
+        "k_ticks_per_trade": 0.7207,
+        "zero_return_fraction": 0.3077,
+        "H": 0.6248,
+        "chi": 0.7067,
+        "cancelled": 0.3963,
+        "mean_price": 1858.8404,
+        "relative_tick_bps": 0.0538
+      },
+      {
+        "block": 18,
+        "k_ticks_per_trade": 0.7297,
+        "zero_return_fraction": 0.3207,
+        "H": 0.5934,
+        "chi": 0.7224,
+        "cancelled": 0.5802,
+        "mean_price": 1855.1011,
+        "relative_tick_bps": 0.0539
+      },
+      {
+        "block": 19,
+        "k_ticks_per_trade": 0.832,
+        "zero_return_fraction": 0.2937,
+        "H": 0.6293,
+        "chi": 0.7545,
+        "cancelled": 0.4919,
+        "mean_price": 1862.598,
+        "relative_tick_bps": 0.0537
+      },
+      {
+        "block": 20,
+        "k_ticks_per_trade": 0.8919,
+        "zero_return_fraction": 0.2636,
+        "H": 0.6044,
+        "chi": 0.7422,
+        "cancelled": 0.569,
+        "mean_price": 1868.217,
+        "relative_tick_bps": 0.0535
+      },
+      {
+        "block": 21,
+        "k_ticks_per_trade": 0.8996,
+        "zero_return_fraction": 0.3164,
+        "H": 0.6016,
+        "chi": 0.73,
+        "cancelled": 0.5584,
+        "mean_price": 1872.8645,
+        "relative_tick_bps": 0.0534
+      },
+      {
+        "block": 22,
+        "k_ticks_per_trade": 1.1416,
+        "zero_return_fraction": 0.293,
+        "H": 0.5275,
+        "chi": 0.7009,
+        "cancelled": 0.8633,
+        "mean_price": 1875.5711,
+        "relative_tick_bps": 0.0533
+      },
+      {
+        "block": 23,
+        "k_ticks_per_trade": 1.1669,
+        "zero_return_fraction": 0.2807,
+        "H": 0.5755,
+        "chi": 0.7371,
+        "cancelled": 0.6816,
+        "mean_price": 1882.1558,
+        "relative_tick_bps": 0.0531
+      },
+      {
+        "block": 24,
+        "k_ticks_per_trade": 0.7203,
+        "zero_return_fraction": 0.33,
+        "H": 0.6165,
+        "chi": 0.7682,
+        "cancelled": 0.5655,
+        "mean_price": 1881.6332,
+        "relative_tick_bps": 0.0531
+      },
+      {
+        "block": 25,
+        "k_ticks_per_trade": 1.7487,
+        "zero_return_fraction": 0.3772,
+        "H": 0.5129,
+        "chi": 0.8091,
+        "cancelled": 0.9581,
+        "mean_price": 1887.4007,
+        "relative_tick_bps": 0.053
+      },
+      {
+        "block": 26,
+        "k_ticks_per_trade": 1.9377,
+        "zero_return_fraction": 0.3992,
+        "H": 0.3446,
+        "chi": 0.8323,
+        "cancelled": 1.4677,
+        "mean_price": 1886.5975,
+        "relative_tick_bps": 0.053
+      },
+      {
+        "block": 27,
+        "k_ticks_per_trade": 1.0191,
+        "zero_return_fraction": 0.2956,
+        "H": 0.6415,
+        "chi": 0.7653,
+        "cancelled": 0.4667,
+        "mean_price": 1894.2074,
+        "relative_tick_bps": 0.0528
+      },
+      {
+        "block": 28,
+        "k_ticks_per_trade": 2.2284,
+        "zero_return_fraction": 0.2985,
+        "H": 0.5635,
+        "chi": 0.7797,
+        "cancelled": 0.773,
+        "mean_price": 1900.2971,
+        "relative_tick_bps": 0.0526
+      },
+      {
+        "block": 29,
+        "k_ticks_per_trade": 2.0435,
+        "zero_return_fraction": 0.171,
+        "H": 0.5595,
+        "chi": 0.7199,
+        "cancelled": 0.7295,
+        "mean_price": 1911.0008,
+        "relative_tick_bps": 0.0523
+      },
+      {
+        "block": 30,
+        "k_ticks_per_trade": 1.2605,
+        "zero_return_fraction": 0.1556,
+        "H": 0.6125,
+        "chi": 0.7015,
+        "cancelled": 0.4416,
+        "mean_price": 1917.9123,
+        "relative_tick_bps": 0.0521
+      },
+      {
+        "block": 31,
+        "k_ticks_per_trade": 0.7627,
+        "zero_return_fraction": 0.2897,
+        "H": 0.6344,
+        "chi": 0.7363,
+        "cancelled": 0.4313,
+        "mean_price": 1913.1241,
+        "relative_tick_bps": 0.0523
+      },
+      {
+        "block": 32,
+        "k_ticks_per_trade": 2.3537,
+        "zero_return_fraction": 0.0979,
+        "H": 0.549,
+        "chi": 0.7065,
+        "cancelled": 0.7627,
+        "mean_price": 1930.2734,
+        "relative_tick_bps": 0.0518
+      },
+      {
+        "block": 33,
+        "k_ticks_per_trade": 2.4349,
+        "zero_return_fraction": 0.1308,
+        "H": 0.4974,
+        "chi": 0.6805,
+        "cancelled": 1.0143,
+        "mean_price": 1945.0177,
+        "relative_tick_bps": 0.0514
+      },
+      {
+        "block": 34,
+        "k_ticks_per_trade": 2.2892,
+        "zero_return_fraction": 0.1051,
+        "H": 0.5794,
+        "chi": 0.7291,
+        "cancelled": 0.6535,
+        "mean_price": 1956.3185,
+        "relative_tick_bps": 0.0511
+      },
+      {
+        "block": 35,
+        "k_ticks_per_trade": 0.9314,
+        "zero_return_fraction": 0.1637,
+        "H": 0.5851,
+        "chi": 0.6504,
+        "cancelled": 0.434,
+        "mean_price": 1945.7625,
+        "relative_tick_bps": 0.0514
+      },
+      {
+        "block": 36,
+        "k_ticks_per_trade": 0.9182,
+        "zero_return_fraction": 0.1685,
+        "H": 0.6265,
+        "chi": 0.6958,
+        "cancelled": 0.3536,
+        "mean_price": 1943.6789,
+        "relative_tick_bps": 0.0514
+      },
+      {
+        "block": 37,
+        "k_ticks_per_trade": 1.1905,
+        "zero_return_fraction": 0.1869,
+        "H": 0.6108,
+        "chi": 0.7199,
+        "cancelled": 0.4959,
+        "mean_price": 1947.5762,
+        "relative_tick_bps": 0.0513
+      },
+      {
+        "block": 38,
+        "k_ticks_per_trade": 1.3335,
+        "zero_return_fraction": 0.1777,
+        "H": 0.5741,
+        "chi": 0.7171,
+        "cancelled": 0.6589,
+        "mean_price": 1957.1167,
+        "relative_tick_bps": 0.0511
+      },
+      {
+        "block": 39,
+        "k_ticks_per_trade": 2.9167,
+        "zero_return_fraction": 0.0959,
+        "H": 0.4873,
+        "chi": 0.6989,
+        "cancelled": 1.0637,
+        "mean_price": 1969.7779,
+        "relative_tick_bps": 0.0508
+      }
+    ],
+    "SOLUSDT": [
+      {
+        "block": 0,
+        "k_ticks_per_trade": 0.3252,
+        "zero_return_fraction": 0.6752,
+        "H": 0.4618,
+        "chi": 0.9026,
+        "cancelled": 1.0948,
+        "mean_price": 75.9976,
+        "relative_tick_bps": 1.3158
+      },
+      {
+        "block": 1,
+        "k_ticks_per_trade": 0.5215,
+        "zero_return_fraction": 0.4811,
+        "H": 0.498,
+        "chi": 0.8467,
+        "cancelled": 1.0056,
+        "mean_price": 75.8032,
+        "relative_tick_bps": 1.3192
+      },
+      {
+        "block": 2,
+        "k_ticks_per_trade": 0.5496,
+        "zero_return_fraction": 0.4681,
+        "H": 0.4373,
+        "chi": 0.851,
+        "cancelled": 1.1786,
+        "mean_price": 75.4644,
+        "relative_tick_bps": 1.3251
+      },
+      {
+        "block": 3,
+        "k_ticks_per_trade": 0.6088,
+        "zero_return_fraction": 0.3965,
+        "H": 0.4637,
+        "chi": 0.8666,
+        "cancelled": 1.0989,
+        "mean_price": 74.2465,
+        "relative_tick_bps": 1.3469
+      },
+      {
+        "block": 4,
+        "k_ticks_per_trade": 0.5113,
+        "zero_return_fraction": 0.5035,
+        "H": 0.454,
+        "chi": 0.8894,
+        "cancelled": 1.1182,
+        "mean_price": 73.8909,
+        "relative_tick_bps": 1.3533
+      },
+      {
+        "block": 5,
+        "k_ticks_per_trade": 0.4486,
+        "zero_return_fraction": 0.5525,
+        "H": 0.4529,
+        "chi": 0.908,
+        "cancelled": 1.1153,
+        "mean_price": 74.0158,
+        "relative_tick_bps": 1.3511
+      },
+      {
+        "block": 6,
+        "k_ticks_per_trade": 0.5019,
+        "zero_return_fraction": 0.4994,
+        "H": 0.4427,
+        "chi": 0.8762,
+        "cancelled": 1.1522,
+        "mean_price": 73.8872,
+        "relative_tick_bps": 1.3534
+      },
+      {
+        "block": 7,
+        "k_ticks_per_trade": 0.4582,
+        "zero_return_fraction": 0.544,
+        "H": 0.4529,
+        "chi": 0.7968,
+        "cancelled": 1.1587,
+        "mean_price": 74.3297,
+        "relative_tick_bps": 1.3454
+      },
+      {
+        "block": 8,
+        "k_ticks_per_trade": 0.498,
+        "zero_return_fraction": 0.5038,
+        "H": 0.4498,
+        "chi": 0.8599,
+        "cancelled": 1.1395,
+        "mean_price": 74.7775,
+        "relative_tick_bps": 1.3373
+      },
+      {
+        "block": 9,
+        "k_ticks_per_trade": 0.3653,
+        "zero_return_fraction": 0.6357,
+        "H": 0.458,
+        "chi": 0.826,
+        "cancelled": 1.1289,
+        "mean_price": 74.9463,
+        "relative_tick_bps": 1.3343
+      },
+      {
+        "block": 10,
+        "k_ticks_per_trade": 0.308,
+        "zero_return_fraction": 0.6969,
+        "H": 0.4523,
+        "chi": 0.8195,
+        "cancelled": 1.1493,
+        "mean_price": 75.2608,
+        "relative_tick_bps": 1.3287
+      },
+      {
+        "block": 11,
+        "k_ticks_per_trade": 0.2394,
+        "zero_return_fraction": 0.7609,
+        "H": 0.4423,
+        "chi": 0.8764,
+        "cancelled": 1.1532,
+        "mean_price": 75.3754,
+        "relative_tick_bps": 1.3267
+      },
+      {
+        "block": 12,
+        "k_ticks_per_trade": 0.4464,
+        "zero_return_fraction": 0.6588,
+        "H": 0.465,
+        "chi": 0.7665,
+        "cancelled": 1.1313,
+        "mean_price": 76.3632,
+        "relative_tick_bps": 1.3095
+      },
+      {
+        "block": 13,
+        "k_ticks_per_trade": 0.4627,
+        "zero_return_fraction": 0.5394,
+        "H": 0.4993,
+        "chi": 0.8435,
+        "cancelled": 1.002,
+        "mean_price": 76.4728,
+        "relative_tick_bps": 1.3077
+      },
+      {
+        "block": 14,
+        "k_ticks_per_trade": 0.4911,
+        "zero_return_fraction": 0.5109,
+        "H": 0.4957,
+        "chi": 0.8908,
+        "cancelled": 1.0109,
+        "mean_price": 76.4557,
+        "relative_tick_bps": 1.3079
+      },
+      {
+        "block": 15,
+        "k_ticks_per_trade": 0.5627,
+        "zero_return_fraction": 0.4468,
+        "H": 0.5026,
+        "chi": 0.8665,
+        "cancelled": 0.993,
+        "mean_price": 76.6469,
+        "relative_tick_bps": 1.3047
+      },
+      {
+        "block": 16,
+        "k_ticks_per_trade": 0.5499,
+        "zero_return_fraction": 0.4537,
+        "H": 0.5019,
+        "chi": 0.8575,
+        "cancelled": 0.9947,
+        "mean_price": 75.5843,
+        "relative_tick_bps": 1.323
+      },
+      {
+        "block": 17,
+        "k_ticks_per_trade": 0.6381,
+        "zero_return_fraction": 0.4154,
+        "H": 0.5215,
+        "chi": 0.8536,
+        "cancelled": 0.9391,
+        "mean_price": 74.2923,
+        "relative_tick_bps": 1.346
+      },
+      {
+        "block": 18,
+        "k_ticks_per_trade": 0.5138,
+        "zero_return_fraction": 0.487,
+        "H": 0.4379,
+        "chi": 0.8518,
+        "cancelled": 1.1766,
+        "mean_price": 73.2532,
+        "relative_tick_bps": 1.3651
+      },
+      {
+        "block": 19,
+        "k_ticks_per_trade": 0.548,
+        "zero_return_fraction": 0.4646,
+        "H": 0.5248,
+        "chi": 0.8454,
+        "cancelled": 0.9281,
+        "mean_price": 73.1512,
+        "relative_tick_bps": 1.367
+      },
+      {
+        "block": 20,
+        "k_ticks_per_trade": 0.5876,
+        "zero_return_fraction": 0.4229,
+        "H": 0.5072,
+        "chi": 0.8339,
+        "cancelled": 0.9784,
+        "mean_price": 73.6752,
+        "relative_tick_bps": 1.3573
+      },
+      {
+        "block": 21,
+        "k_ticks_per_trade": 0.5134,
+        "zero_return_fraction": 0.489,
+        "H": 0.4644,
+        "chi": 0.8264,
+        "cancelled": 1.109,
+        "mean_price": 73.8973,
+        "relative_tick_bps": 1.3532
+      },
+      {
+        "block": 22,
+        "k_ticks_per_trade": 0.527,
+        "zero_return_fraction": 0.4771,
+        "H": 0.5248,
+        "chi": 0.8214,
+        "cancelled": 0.923,
+        "mean_price": 73.5039,
+        "relative_tick_bps": 1.3605
+      },
+      {
+        "block": 23,
+        "k_ticks_per_trade": 0.5202,
+        "zero_return_fraction": 0.4816,
+        "H": 0.499,
+        "chi": 0.8295,
+        "cancelled": 1.003,
+        "mean_price": 73.7473,
+        "relative_tick_bps": 1.356
+      },
+      {
+        "block": 24,
+        "k_ticks_per_trade": 0.6045,
+        "zero_return_fraction": 0.4331,
+        "H": 0.5025,
+        "chi": 0.813,
+        "cancelled": 0.9921,
+        "mean_price": 73.5455,
+        "relative_tick_bps": 1.3597
+      },
+      {
+        "block": 25,
+        "k_ticks_per_trade": 0.5405,
+        "zero_return_fraction": 0.466,
+        "H": 0.5037,
+        "chi": 0.8077,
+        "cancelled": 0.9879,
+        "mean_price": 73.3196,
+        "relative_tick_bps": 1.3639
+      },
+      {
+        "block": 26,
+        "k_ticks_per_trade": 0.5096,
+        "zero_return_fraction": 0.491,
+        "H": 0.5137,
+        "chi": 0.8747,
+        "cancelled": 0.9635,
+        "mean_price": 73.7281,
+        "relative_tick_bps": 1.3563
+      },
+      {
+        "block": 27,
+        "k_ticks_per_trade": 0.5585,
+        "zero_return_fraction": 0.4449,
+        "H": 0.4896,
+        "chi": 0.792,
+        "cancelled": 1.0357,
+        "mean_price": 74.4352,
+        "relative_tick_bps": 1.3435
+      },
+      {
+        "block": 28,
+        "k_ticks_per_trade": 0.508,
+        "zero_return_fraction": 0.4925,
+        "H": 0.4349,
+        "chi": 0.8938,
+        "cancelled": 1.1653,
+        "mean_price": 74.6197,
+        "relative_tick_bps": 1.3401
+      },
+      {
+        "block": 29,
+        "k_ticks_per_trade": 0.5553,
+        "zero_return_fraction": 0.4537,
+        "H": 0.5108,
+        "chi": 0.8316,
+        "cancelled": 0.9673,
+        "mean_price": 74.3411,
+        "relative_tick_bps": 1.3452
+      },
+      {
+        "block": 30,
+        "k_ticks_per_trade": 0.5085,
+        "zero_return_fraction": 0.493,
+        "H": 0.4731,
+        "chi": 0.8516,
+        "cancelled": 1.0766,
+        "mean_price": 73.6918,
+        "relative_tick_bps": 1.357
+      },
+      {
+        "block": 31,
+        "k_ticks_per_trade": 0.556,
+        "zero_return_fraction": 0.4481,
+        "H": 0.4931,
+        "chi": 0.832,
+        "cancelled": 1.0206,
+        "mean_price": 73.1968,
+        "relative_tick_bps": 1.3662
+      },
+      {
+        "block": 32,
+        "k_ticks_per_trade": 0.5177,
+        "zero_return_fraction": 0.4857,
+        "H": 0.4493,
+        "chi": 0.8886,
+        "cancelled": 1.1305,
+        "mean_price": 73.0078,
+        "relative_tick_bps": 1.3697
+      },
+      {
+        "block": 33,
+        "k_ticks_per_trade": 0.4525,
+        "zero_return_fraction": 0.5475,
+        "H": 0.4377,
+        "chi": 0.8753,
+        "cancelled": 1.1661,
+        "mean_price": 72.9978,
+        "relative_tick_bps": 1.3699
+      },
+      {
+        "block": 34,
+        "k_ticks_per_trade": 0.4919,
+        "zero_return_fraction": 0.51,
+        "H": 0.469,
+        "chi": 0.8883,
+        "cancelled": 1.0798,
+        "mean_price": 72.8563,
+        "relative_tick_bps": 1.3726
+      },
+      {
+        "block": 35,
+        "k_ticks_per_trade": 0.6788,
+        "zero_return_fraction": 0.3812,
+        "H": 0.5175,
+        "chi": 0.8376,
+        "cancelled": 0.948,
+        "mean_price": 71.5369,
+        "relative_tick_bps": 1.3979
+      },
+      {
+        "block": 36,
+        "k_ticks_per_trade": 0.5376,
+        "zero_return_fraction": 0.4672,
+        "H": 0.4828,
+        "chi": 0.8358,
+        "cancelled": 1.0511,
+        "mean_price": 72.2881,
+        "relative_tick_bps": 1.3834
+      },
+      {
+        "block": 37,
+        "k_ticks_per_trade": 0.5158,
+        "zero_return_fraction": 0.4923,
+        "H": 0.4778,
+        "chi": 0.8464,
+        "cancelled": 1.0642,
+        "mean_price": 73.3673,
+        "relative_tick_bps": 1.363
+      },
+      {
+        "block": 38,
+        "k_ticks_per_trade": 0.48,
+        "zero_return_fraction": 0.5203,
+        "H": 0.4648,
+        "chi": 0.8536,
+        "cancelled": 1.0995,
+        "mean_price": 73.0739,
+        "relative_tick_bps": 1.3685
+      },
+      {
+        "block": 39,
+        "k_ticks_per_trade": 0.5099,
+        "zero_return_fraction": 0.4973,
+        "H": 0.5058,
+        "chi": 0.868,
+        "cancelled": 0.9842,
+        "mean_price": 73.6448,
+        "relative_tick_bps": 1.3579
+      }
+    ]
+  }
+}

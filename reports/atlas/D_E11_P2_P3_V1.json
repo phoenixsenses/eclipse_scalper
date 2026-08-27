@@ -1,0 +1,95 @@
+{
+ "prereg_sha256": "e7968ac4e933610e281b15709da3245b6d76662b2e963d1d9e30722a47332c4c",
+ "n_rows": 628,
+ "P2": {
+  "test": "P2_vs_driftless_null",
+  "reps": 200,
+  "vol_source": "sigma_1s",
+  "null": "driftless walk at each episode's own PRE-ANCHOR 60m volatility, same barrier, same tau, same interruption times",
+  "observed_mu_tau_min": 18.1041,
+  "null_mu_tau_mean": 10.7647,
+  "null_mu_tau_sd": 0.5837,
+  "null_mu_tau_p05_p95": [
+   9.8597,
+   11.7221
+  ],
+  "z_mu_tau": 12.57,
+  "observed_CIF1_tau": 0.8742,
+  "null_CIF1_mean": 0.9696,
+  "null_CIF1_sd": 0.0063,
+  "z_CIF1": -15.15,
+  "observed_never_alive": 0.0892,
+  "null_never_alive_mean": 0.4247
+ },
+ "P2_harder_null_post_anchor_vol": {
+  "test": "P2_vs_driftless_null",
+  "reps": 200,
+  "vol_source": "sigma_1s_post",
+  "null": "driftless walk at each episode's own PRE-ANCHOR 60m volatility, same barrier, same tau, same interruption times",
+  "observed_mu_tau_min": 18.1041,
+  "null_mu_tau_mean": 10.6973,
+  "null_mu_tau_sd": 0.5995,
+  "null_mu_tau_p05_p95": [
+   9.8863,
+   11.6741
+  ],
+  "z_mu_tau": 12.35,
+  "observed_CIF1_tau": 0.8742,
+  "null_CIF1_mean": 0.9703,
+  "null_CIF1_sd": 0.0062,
+  "z_CIF1": -15.39,
+  "observed_never_alive": 0.0892,
+  "null_never_alive_mean": 0.3807
+ },
+ "P3": {
+  "test": "P3_size_contrast",
+  "cumulative_usable": {
+   "tercile_0": {
+    "n": 209,
+    "median_q_usd": 89487.0,
+    "mu_tau_min": 14.1411,
+    "ci95": [
+     11.8552,
+     16.3051
+    ],
+    "CIF1_tau": 0.8995,
+    "never_alive": 0.1435
+   },
+   "tercile_1": {
+    "n": 210,
+    "median_q_usd": 302283.0,
+    "mu_tau_min": 19.3518,
+    "ci95": [
+     16.8779,
+     21.9228
+    ],
+    "CIF1_tau": 0.8714,
+    "never_alive": 0.0857
+   },
+   "tercile_2": {
+    "n": 209,
+    "median_q_usd": 1620794.0,
+    "mu_tau_min": 20.8134,
+    "ci95": [
+     17.8701,
+     24.3097
+    ],
+    "CIF1_tau": 0.8517,
+    "never_alive": 0.0383
+   }
+  },
+  "hazard_ratio_DESCRIPTIVE_ONLY": {
+   "tercile_0": {
+    "early_events": 141.0,
+    "late_events": 17.0,
+    "late_over_early": 0.1206
+   },
+   "tercile_2": {
+    "early_events": 145.0,
+    "late_events": 25.0,
+    "late_over_early": 0.1724
+   }
+  },
+  "why_descriptive": "H&R Technical Point 8.1: conditioning on survival to t is conditioning on a collider; the ratio is biased even under randomisation and its sign can invert with elapsed time.  In the same passage RISK-type quantities stay unbiased, which is why the cumulative block above is the usable one."
+ }
+}

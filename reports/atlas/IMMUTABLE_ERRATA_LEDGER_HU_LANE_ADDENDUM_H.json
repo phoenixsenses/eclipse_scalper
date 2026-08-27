@@ -1,0 +1,43 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_H",
+  "append_only": true,
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "found_by": "tools/ct27_kappa_minus_chi_null_at_the_real_noise.py",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-023",
+      "source_file": "tools/ct26_ask_every_estimator_what_it_returns_on_nothing.py",
+      "source_section_or_line": "N2 -- kappa-chi null on hand-built synthetic data",
+      "error_class": "NUMERIC_ERROR",
+      "old_statement": "the kappa-chi estimator returns mean -0.093 sd 0.872, 90% interval [-1.52, +0.92], on constant-lambda data -- an interval containing every value both lanes published (ERR-HU-021)",
+      "corrected_statement": "That null's noise level was chosen by hand and is 27x TOO WIDE.  Rebuilt on the REAL (dV, dP) pairs with per-T residual resampling -- real tails, real per-T scatter, real counts, identical binning -- the constant-lambda null gives sd 0.029-0.032 and a 95% interval of about [-0.06, +0.06] on all three symbols.  The real values 0.2245 / 0.3786 / 0.2032 sit 7 to 13 sigma OUTSIDE it.  A recovery test on the same construction returns a known 0.25 with bias +0.003 to +0.004.  Verdict 3/3 SUPPORTED.  ERR-HU-021's reading is SUPERSEDED: the concern was legitimate to raise, the answer is that kappa-chi survives.  GENERAL LESSON, recorded because it nearly cost a correct result: AN UNCALIBRATED NULL IS AS DANGEROUS AS NO NULL -- it can kill a true finding as easily as rescue a false one.",
+      "numeric_outputs_affected": true,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "SYSTEM_STATE 491 (C-T26 N2)",
+        "ERR-HU-021"
+      ],
+      "source_sha256": "a0d486d984d4f049e50f2c795370b62cc0e83ebc5ba5b57e30330a47ff659e78",
+      "source_exists": true,
+      "errata_sha256": "f4decc07db39971a9547b422da5956e707beb89a9a654f766630f0ed5907eec0"
+    },
+    {
+      "errata_id": "ERR-HU-024",
+      "source_file": "tools/ct26_ask_every_estimator_what_it_returns_on_nothing.py",
+      "source_section_or_line": "N1 -- gamma null on i.i.d. signs",
+      "error_class": "PROSE_OVERCLAIM",
+      "old_statement": "gamma's null sd is 0.544, so the precision of gamma = 0.373 / 0.369 is void (ERR-HU-022)",
+      "corrected_statement": "The same miscalibration risk applies: that null was run where C(l) is PURE NOISE, whereas the real C(100) = 0.083 sits about 145 standard errors from zero with fit r2 0.98-0.99.  A null built where the signal is absent does not measure the estimator's precision where the signal is strong -- C-T27 has just demonstrated exactly that failure mode for kappa-chi, 27x over.  ERR-HU-022's claim that gamma's PRECISION is void is therefore SUSPENDED, not withdrawn: it stands only until gamma gets the same real-data null-plus-recovery treatment kappa-chi just received.  Its other content -- that the null is n-independent, and that the levels are not void -- is unaffected.",
+      "numeric_outputs_affected": false,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "SYSTEM_STATE 491 (C-T26 N1)",
+        "ERR-HU-022"
+      ],
+      "source_sha256": "a0d486d984d4f049e50f2c795370b62cc0e83ebc5ba5b57e30330a47ff659e78",
+      "source_exists": true,
+      "errata_sha256": "4dc0fab75a2c218e4eeb5bb5a4c4012f3c074d60f356ffd90a9dffe3ce306234"
+    }
+  ]
+}

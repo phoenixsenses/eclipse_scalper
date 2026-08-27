@@ -1,0 +1,881 @@
+{
+  "study": "C-T36",
+  "lane": "C",
+  "utc": "2026-08-27T07:03:16Z",
+  "structure_tested": "Kissell Eq. (4.7): temporary impact scales with the trading RATE, permanent impact does not. Held dV fixed and varied T.",
+  "old_cell_closed": "C-T20's PERMANENT_FRACTION_0_595_DERIVED_NOT_MEASURED",
+  "per_symbol": {
+    "BTCUSDT": {
+      "targets_notional": [
+        46926.7,
+        93853.4,
+        187707.0
+      ],
+      "by_T": {
+        "5": {
+          "rows": [
+            {
+              "target_dV": 46926.7,
+              "n": 13535,
+              "R_bps": 0.0464
+            },
+            {
+              "target_dV": 93853.4,
+              "n": 10279,
+              "R_bps": 0.0462
+            },
+            {
+              "target_dV": 187707.0,
+              "n": 7139,
+              "R_bps": 0.0508
+            }
+          ],
+          "mean_gross_volume": 46950.8,
+          "pov_at_targets": [
+            0.99949,
+            1.99897,
+            3.99795
+          ]
+        },
+        "10": {
+          "rows": [
+            {
+              "target_dV": 46926.7,
+              "n": 10159,
+              "R_bps": 0.0886
+            },
+            {
+              "target_dV": 93853.4,
+              "n": 8769,
+              "R_bps": 0.0952
+            },
+            {
+              "target_dV": 187707.0,
+              "n": 6841,
+              "R_bps": 0.0991
+            }
+          ],
+          "mean_gross_volume": 93900.7,
+          "pov_at_targets": [
+            0.49975,
+            0.9995,
+            1.99899
+          ]
+        },
+        "20": {
+          "rows": [
+            {
+              "target_dV": 46926.7,
+              "n": 6078,
+              "R_bps": 0.1898
+            },
+            {
+              "target_dV": 93853.4,
+              "n": 6403,
+              "R_bps": 0.1894
+            },
+            {
+              "target_dV": 187707.0,
+              "n": 5628,
+              "R_bps": 0.1941
+            }
+          ],
+          "mean_gross_volume": 187803.0,
+          "pov_at_targets": [
+            0.24987,
+            0.49974,
+            0.99949
+          ]
+        },
+        "50": {
+          "rows": [
+            {
+              "target_dV": 46926.7,
+              "n": 1582,
+              "R_bps": 0.3911
+            },
+            {
+              "target_dV": 93853.4,
+              "n": 2660,
+              "R_bps": 0.4193
+            },
+            {
+              "target_dV": 187707.0,
+              "n": 3255,
+              "R_bps": 0.4424
+            }
+          ],
+          "mean_gross_volume": 469511.0,
+          "pov_at_targets": [
+            0.09995,
+            0.1999,
+            0.39979
+          ]
+        },
+        "100": {
+          "rows": [
+            {
+              "target_dV": 46926.7,
+              "n": 375,
+              "R_bps": 0.2299
+            },
+            {
+              "target_dV": 93853.4,
+              "n": 774,
+              "R_bps": 0.4386
+            },
+            {
+              "target_dV": 187707.0,
+              "n": 1372,
+              "R_bps": 0.6421
+            }
+          ],
+          "mean_gross_volume": 939043.0,
+          "pov_at_targets": [
+            0.04997,
+            0.09995,
+            0.19989
+          ]
+        },
+        "200": {
+          "rows": [
+            {
+              "target_dV": 46926.7,
+              "n": 117,
+              "R_bps": 0.0933
+            },
+            {
+              "target_dV": 93853.4,
+              "n": 238,
+              "R_bps": 0.1474
+            },
+            {
+              "target_dV": 187707.0,
+              "n": 413,
+              "R_bps": 0.4395
+            }
+          ],
+          "mean_gross_volume": 1877980.0,
+          "pov_at_targets": [
+            0.02499,
+            0.04998,
+            0.09995
+          ]
+        },
+        "500": {
+          "rows": [
+            {
+              "target_dV": 46926.7,
+              "n": 23,
+              "R_bps": null
+            },
+            {
+              "target_dV": 93853.4,
+              "n": 47,
+              "R_bps": null
+            },
+            {
+              "target_dV": 187707.0,
+              "n": 92,
+              "R_bps": 0.3838
+            }
+          ],
+          "mean_gross_volume": 4695340.0,
+          "pov_at_targets": [
+            0.00999,
+            0.01999,
+            0.03998
+          ]
+        }
+      },
+      "permanent_fraction": [
+        {
+          "target_dV": 46926.7,
+          "R_at_smallest_T": 0.0464,
+          "R_plateau_large_T": 0.1616,
+          "ratio_plateau_over_small": 3.483,
+          "profile": [
+            [
+              5,
+              0.0464
+            ],
+            [
+              10,
+              0.0886
+            ],
+            [
+              20,
+              0.1898
+            ],
+            [
+              50,
+              0.3911
+            ],
+            [
+              100,
+              0.2299
+            ],
+            [
+              200,
+              0.0933
+            ]
+          ]
+        },
+        {
+          "target_dV": 93853.4,
+          "R_at_smallest_T": 0.0462,
+          "R_plateau_large_T": 0.293,
+          "ratio_plateau_over_small": 6.342,
+          "profile": [
+            [
+              5,
+              0.0462
+            ],
+            [
+              10,
+              0.0952
+            ],
+            [
+              20,
+              0.1894
+            ],
+            [
+              50,
+              0.4193
+            ],
+            [
+              100,
+              0.4386
+            ],
+            [
+              200,
+              0.1474
+            ]
+          ]
+        },
+        {
+          "target_dV": 187707.0,
+          "R_at_smallest_T": 0.0508,
+          "R_plateau_large_T": 0.4116,
+          "ratio_plateau_over_small": 8.103,
+          "profile": [
+            [
+              5,
+              0.0508
+            ],
+            [
+              10,
+              0.0991
+            ],
+            [
+              20,
+              0.1941
+            ],
+            [
+              50,
+              0.4424
+            ],
+            [
+              100,
+              0.6421
+            ],
+            [
+              200,
+              0.4395
+            ],
+            [
+              500,
+              0.3838
+            ]
+          ]
+        }
+      ],
+      "ratio_boot_sd_mid_target": 3.347,
+      "ratio_boot_n": 9
+    },
+    "ETHUSDT": {
+      "targets_notional": [
+        41994.1,
+        83988.1,
+        167976.0
+      ],
+      "by_T": {
+        "5": {
+          "rows": [
+            {
+              "target_dV": 41994.1,
+              "n": 15781,
+              "R_bps": 0.1196
+            },
+            {
+              "target_dV": 83988.1,
+              "n": 12476,
+              "R_bps": 0.1268
+            },
+            {
+              "target_dV": 167976.0,
+              "n": 7825,
+              "R_bps": 0.1209
+            }
+          ],
+          "mean_gross_volume": 41138.5,
+          "pov_at_targets": [
+            1.0208,
+            2.04159,
+            4.08318
+          ]
+        },
+        "10": {
+          "rows": [
+            {
+              "target_dV": 41994.1,
+              "n": 11554,
+              "R_bps": 0.2221
+            },
+            {
+              "target_dV": 83988.1,
+              "n": 9772,
+              "R_bps": 0.2196
+            },
+            {
+              "target_dV": 167976.0,
+              "n": 7122,
+              "R_bps": 0.2126
+            }
+          ],
+          "mean_gross_volume": 82277.5,
+          "pov_at_targets": [
+            0.5104,
+            1.02079,
+            2.04158
+          ]
+        },
+        "20": {
+          "rows": [
+            {
+              "target_dV": 41994.1,
+              "n": 6771,
+              "R_bps": 0.4057
+            },
+            {
+              "target_dV": 83988.1,
+              "n": 6933,
+              "R_bps": 0.4106
+            },
+            {
+              "target_dV": 167976.0,
+              "n": 5904,
+              "R_bps": 0.4105
+            }
+          ],
+          "mean_gross_volume": 164555.0,
+          "pov_at_targets": [
+            0.2552,
+            0.5104,
+            1.02079
+          ]
+        },
+        "50": {
+          "rows": [
+            {
+              "target_dV": 41994.1,
+              "n": 1691,
+              "R_bps": 0.4932
+            },
+            {
+              "target_dV": 83988.1,
+              "n": 2867,
+              "R_bps": 0.701
+            },
+            {
+              "target_dV": 167976.0,
+              "n": 3405,
+              "R_bps": 0.8044
+            }
+          ],
+          "mean_gross_volume": 411365.0,
+          "pov_at_targets": [
+            0.10208,
+            0.20417,
+            0.40834
+          ]
+        },
+        "100": {
+          "rows": [
+            {
+              "target_dV": 41994.1,
+              "n": 499,
+              "R_bps": 0.4199
+            },
+            {
+              "target_dV": 83988.1,
+              "n": 914,
+              "R_bps": 0.5745
+            },
+            {
+              "target_dV": 167976.0,
+              "n": 1550,
+              "R_bps": 0.9803
+            }
+          ],
+          "mean_gross_volume": 822762.0,
+          "pov_at_targets": [
+            0.05104,
+            0.10208,
+            0.20416
+          ]
+        },
+        "200": {
+          "rows": [
+            {
+              "target_dV": 41994.1,
+              "n": 157,
+              "R_bps": 0.2012
+            },
+            {
+              "target_dV": 83988.1,
+              "n": 300,
+              "R_bps": 0.3781
+            },
+            {
+              "target_dV": 167976.0,
+              "n": 517,
+              "R_bps": 0.7931
+            }
+          ],
+          "mean_gross_volume": 1645550.0,
+          "pov_at_targets": [
+            0.02552,
+            0.05104,
+            0.10208
+          ]
+        },
+        "500": {
+          "rows": [
+            {
+              "target_dV": 41994.1,
+              "n": 28,
+              "R_bps": null
+            },
+            {
+              "target_dV": 83988.1,
+              "n": 70,
+              "R_bps": 1.3511
+            },
+            {
+              "target_dV": 167976.0,
+              "n": 116,
+              "R_bps": 0.7177
+            }
+          ],
+          "mean_gross_volume": 4113570.0,
+          "pov_at_targets": [
+            0.01021,
+            0.02042,
+            0.04083
+          ]
+        }
+      },
+      "permanent_fraction": [
+        {
+          "target_dV": 41994.1,
+          "R_at_smallest_T": 0.1196,
+          "R_plateau_large_T": 0.3105,
+          "ratio_plateau_over_small": 2.597,
+          "profile": [
+            [
+              5,
+              0.1196
+            ],
+            [
+              10,
+              0.2221
+            ],
+            [
+              20,
+              0.4057
+            ],
+            [
+              50,
+              0.4932
+            ],
+            [
+              100,
+              0.4199
+            ],
+            [
+              200,
+              0.2012
+            ]
+          ]
+        },
+        {
+          "target_dV": 83988.1,
+          "R_at_smallest_T": 0.1268,
+          "R_plateau_large_T": 0.8646,
+          "ratio_plateau_over_small": 6.819,
+          "profile": [
+            [
+              5,
+              0.1268
+            ],
+            [
+              10,
+              0.2196
+            ],
+            [
+              20,
+              0.4106
+            ],
+            [
+              50,
+              0.701
+            ],
+            [
+              100,
+              0.5745
+            ],
+            [
+              200,
+              0.3781
+            ],
+            [
+              500,
+              1.3511
+            ]
+          ]
+        },
+        {
+          "target_dV": 167976.0,
+          "R_at_smallest_T": 0.1209,
+          "R_plateau_large_T": 0.7554,
+          "ratio_plateau_over_small": 6.248,
+          "profile": [
+            [
+              5,
+              0.1209
+            ],
+            [
+              10,
+              0.2126
+            ],
+            [
+              20,
+              0.4105
+            ],
+            [
+              50,
+              0.8044
+            ],
+            [
+              100,
+              0.9803
+            ],
+            [
+              200,
+              0.7931
+            ],
+            [
+              500,
+              0.7177
+            ]
+          ]
+        }
+      ],
+      "ratio_boot_sd_mid_target": 9.037,
+      "ratio_boot_n": 34
+    },
+    "SOLUSDT": {
+      "targets_notional": [
+        24599.1,
+        49198.2,
+        98396.4
+      ],
+      "by_T": {
+        "5": {
+          "rows": [
+            {
+              "target_dV": 24599.1,
+              "n": 14539,
+              "R_bps": 0.7875
+            },
+            {
+              "target_dV": 49198.2,
+              "n": 11352,
+              "R_bps": 0.9894
+            },
+            {
+              "target_dV": 98396.4,
+              "n": 6853,
+              "R_bps": 1.1989
+            }
+          ],
+          "mean_gross_volume": 25450.5,
+          "pov_at_targets": [
+            0.96655,
+            1.93309,
+            3.86618
+          ]
+        },
+        "10": {
+          "rows": [
+            {
+              "target_dV": 24599.1,
+              "n": 10470,
+              "R_bps": 0.8245
+            },
+            {
+              "target_dV": 49198.2,
+              "n": 9255,
+              "R_bps": 1.1214
+            },
+            {
+              "target_dV": 98396.4,
+              "n": 6367,
+              "R_bps": 1.4242
+            }
+          ],
+          "mean_gross_volume": 50901.3,
+          "pov_at_targets": [
+            0.48327,
+            0.96654,
+            1.93308
+          ]
+        },
+        "20": {
+          "rows": [
+            {
+              "target_dV": 24599.1,
+              "n": 6049,
+              "R_bps": 0.7436
+            },
+            {
+              "target_dV": 49198.2,
+              "n": 6636,
+              "R_bps": 1.2018
+            },
+            {
+              "target_dV": 98396.4,
+              "n": 5262,
+              "R_bps": 1.6405
+            }
+          ],
+          "mean_gross_volume": 101803.0,
+          "pov_at_targets": [
+            0.24163,
+            0.48327,
+            0.96653
+          ]
+        },
+        "50": {
+          "rows": [
+            {
+              "target_dV": 24599.1,
+              "n": 1855,
+              "R_bps": 0.589
+            },
+            {
+              "target_dV": 49198.2,
+              "n": 2869,
+              "R_bps": 1.1503
+            },
+            {
+              "target_dV": 98396.4,
+              "n": 3220,
+              "R_bps": 1.8015
+            }
+          ],
+          "mean_gross_volume": 254504.0,
+          "pov_at_targets": [
+            0.09665,
+            0.19331,
+            0.38662
+          ]
+        },
+        "100": {
+          "rows": [
+            {
+              "target_dV": 24599.1,
+              "n": 582,
+              "R_bps": 0.2922
+            },
+            {
+              "target_dV": 49198.2,
+              "n": 1049,
+              "R_bps": 0.7723
+            },
+            {
+              "target_dV": 98396.4,
+              "n": 1635,
+              "R_bps": 1.6862
+            }
+          ],
+          "mean_gross_volume": 509018.0,
+          "pov_at_targets": [
+            0.04833,
+            0.09665,
+            0.19331
+          ]
+        },
+        "200": {
+          "rows": [
+            {
+              "target_dV": 24599.1,
+              "n": 168,
+              "R_bps": 0.1917
+            },
+            {
+              "target_dV": 49198.2,
+              "n": 326,
+              "R_bps": 0.2577
+            },
+            {
+              "target_dV": 98396.4,
+              "n": 613,
+              "R_bps": 1.1493
+            }
+          ],
+          "mean_gross_volume": 1018110.0,
+          "pov_at_targets": [
+            0.02416,
+            0.04832,
+            0.09665
+          ]
+        },
+        "500": {
+          "rows": [
+            {
+              "target_dV": 24599.1,
+              "n": 33,
+              "R_bps": null
+            },
+            {
+              "target_dV": 49198.2,
+              "n": 64,
+              "R_bps": 0.516
+            },
+            {
+              "target_dV": 98396.4,
+              "n": 146,
+              "R_bps": 0.635
+            }
+          ],
+          "mean_gross_volume": 2545540.0,
+          "pov_at_targets": [
+            0.00966,
+            0.01933,
+            0.03865
+          ]
+        }
+      },
+      "permanent_fraction": [
+        {
+          "target_dV": 24599.1,
+          "R_at_smallest_T": 0.7875,
+          "R_plateau_large_T": 0.2419,
+          "ratio_plateau_over_small": 0.307,
+          "profile": [
+            [
+              5,
+              0.7875
+            ],
+            [
+              10,
+              0.8245
+            ],
+            [
+              20,
+              0.7436
+            ],
+            [
+              50,
+              0.589
+            ],
+            [
+              100,
+              0.2922
+            ],
+            [
+              200,
+              0.1917
+            ]
+          ]
+        },
+        {
+          "target_dV": 49198.2,
+          "R_at_smallest_T": 0.9894,
+          "R_plateau_large_T": 0.3869,
+          "ratio_plateau_over_small": 0.391,
+          "profile": [
+            [
+              5,
+              0.9894
+            ],
+            [
+              10,
+              1.1214
+            ],
+            [
+              20,
+              1.2018
+            ],
+            [
+              50,
+              1.1503
+            ],
+            [
+              100,
+              0.7723
+            ],
+            [
+              200,
+              0.2577
+            ],
+            [
+              500,
+              0.516
+            ]
+          ]
+        },
+        {
+          "target_dV": 98396.4,
+          "R_at_smallest_T": 1.1989,
+          "R_plateau_large_T": 0.8921,
+          "ratio_plateau_over_small": 0.744,
+          "profile": [
+            [
+              5,
+              1.1989
+            ],
+            [
+              10,
+              1.4242
+            ],
+            [
+              20,
+              1.6405
+            ],
+            [
+              50,
+              1.8015
+            ],
+            [
+              100,
+              1.6862
+            ],
+            [
+              200,
+              1.1493
+            ],
+            [
+              500,
+              0.635
+            ]
+          ]
+        }
+      ],
+      "ratio_boot_sd_mid_target": 0.952,
+      "ratio_boot_n": 40
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_Z",
+  "append_only": true,
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "found_by": "reading the other session's response() line by line after my own arm failed",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-051",
+      "source_file": "tools/ct_kulliyat_t52_reconcile_r1_with_the_other_session.py",
+      "source_section_or_line": "arm B, described as 'the trade price observable, as C-T52'",
+      "error_class": "METHOD_DEFECT",
+      "affected_tokens": [
+        "THE_OBSERVABLE_DOES_NOT_EXPLAIN_THE_GAP"
+      ],
+      "old_statement": "arm B measured R(1) on the trade price, came back NEGATIVE on all three (-0.0024 / -0.0134 / -0.4701), and was read as refuting the hypothesis that the observable explains the gap with C-T52",
+      "corrected_statement": "Arm B varied the observable but ALSO changed the alignment, so it was never the same estimand as theirs. Their response() computes R(1) = cum[0] = <eps_t (lp_t - lp_{t-1})>, the event's OWN move; my arm B computed <eps_t (p_{t+1} - p_t)>, the NEXT event's move. On a trade-price series those two differ by the whole bid-ask bounce, which is why one is positive and the other negative. The 2x2 in C-KULLIYAT-T52b separates them: trade price with the OWN alignment gives +0.0325 / +0.0806 / +0.5287, the same order and sign as C-T52. So the observable DOES largely explain the gap and the refutation was mine, not the hypothesis's. Also supersedes the note in C-KULLIYAT-T51's log block calling it a POPULATION difference: the populations are indeed disjoint (theirs 2026-07-23..27, mine 08-07..13) but that is a residual, not the mechanism.",
+      "numeric_outputs_affected": true,
+      "primary_verdict_affected": false,
+      "downstream_artifacts_affected": [
+        "reports/atlas/CT_KULLIYAT_T52_R1_RECONCILE_V1.json"
+      ],
+      "source_sha256": "06586e50f4c318d2608a4a2bc8ba7157ee4edd9ddbe49ce8fa1694e169e3f824",
+      "source_exists": true,
+      "errata_sha256": "4bb08cf1fd57dbe84b852536844361d68cecc8f11e0e377c625f63ecca5f0736"
+    }
+  ]
+}

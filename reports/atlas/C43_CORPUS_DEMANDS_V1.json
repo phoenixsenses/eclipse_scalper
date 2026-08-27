@@ -1,0 +1,351 @@
+{
+  "study": "C-T43",
+  "lane": "C",
+  "utc": "2026-08-27T09:36:16Z",
+  "demand_1": "Chan's Heisenberg principle IS Hernan & Robins' INTERFERENCE (Fine Point 1.1): under interference the counterfactual is NOT WELL DEFINED. Fourth member of this lane's family of blocked measurements, and the widest -- it applies to every backtest that places orders.",
+  "demand_2": "Chan: a backtest's predictive power rests on the statistical properties of the series being unchanging. Tested here property by property.",
+  "per_symbol": {
+    "BTCUSDT": {
+      "blocks": 10,
+      "properties": {
+        "edge_bps": [
+          0.2839,
+          0.2796,
+          0.3017,
+          0.3133,
+          0.2641,
+          0.2213,
+          0.2395,
+          0.1793,
+          0.2413,
+          0.3134
+        ],
+        "edge_se": [
+          0.0112,
+          0.0102,
+          0.0122,
+          0.0151,
+          0.011,
+          0.0078,
+          0.0082,
+          0.0085,
+          0.0119,
+          0.0122
+        ],
+        "chi_sign": [
+          0.7766,
+          0.7673,
+          0.7464,
+          0.7331,
+          0.748,
+          0.8162,
+          0.7939,
+          0.8607,
+          0.7797,
+          0.751
+        ],
+        "R1_bps": [
+          0.01914,
+          0.02182,
+          0.03394,
+          0.03385,
+          0.01718,
+          0.01555,
+          0.01545,
+          0.02419,
+          0.03736,
+          0.02402
+        ],
+        "realised_vol_bps": [
+          0.1078,
+          0.1134,
+          0.2359,
+          0.3007,
+          0.0564,
+          0.0824,
+          0.0771,
+          0.2376,
+          0.3176,
+          0.1677
+        ],
+        "mean_notional": [
+          7789.31,
+          11514.0,
+          10899.7,
+          11129.7,
+          8836.88,
+          8552.97,
+          8434.86,
+          9794.26,
+          8799.8,
+          8151.15
+        ]
+      },
+      "spread": {
+        "edge_bps": {
+          "min": 0.1793,
+          "max": 0.3134,
+          "ratio_max_over_min": 1.75,
+          "cv": 0.165
+        },
+        "chi_sign": {
+          "min": 0.7331,
+          "max": 0.8607,
+          "ratio_max_over_min": 1.17,
+          "cv": 0.0495
+        },
+        "R1_bps": {
+          "min": 0.0155,
+          "max": 0.0374,
+          "ratio_max_over_min": 2.42,
+          "cv": 0.3348
+        },
+        "realised_vol_bps": {
+          "min": 0.0564,
+          "max": 0.3176,
+          "ratio_max_over_min": 5.63,
+          "cv": 0.5697
+        },
+        "mean_notional": {
+          "min": 7789.31,
+          "max": 11514.0,
+          "ratio_max_over_min": 1.48,
+          "cv": 0.1435
+        }
+      },
+      "edge_homogeneity_chi2": 183.3,
+      "dof": 9,
+      "chi2_over_dof": 20.36,
+      "edge_is_stationary_at_its_own_error": false,
+      "blocks_with_positive_edge": 10
+    },
+    "ETHUSDT": {
+      "blocks": 10,
+      "properties": {
+        "edge_bps": [
+          0.2998,
+          0.2854,
+          0.2505,
+          0.2692,
+          0.2812,
+          0.2962,
+          0.2604,
+          0.3111,
+          0.36,
+          0.2904
+        ],
+        "edge_se": [
+          0.0263,
+          0.0217,
+          0.0234,
+          0.024,
+          0.0181,
+          0.0185,
+          0.017,
+          0.0195,
+          0.0256,
+          0.0236
+        ],
+        "chi_sign": [
+          0.6978,
+          0.6973,
+          0.6566,
+          0.661,
+          0.7041,
+          0.7053,
+          0.7785,
+          0.7173,
+          0.6723,
+          0.7028
+        ],
+        "R1_bps": [
+          0.07403,
+          0.05807,
+          0.05601,
+          0.04749,
+          0.03922,
+          0.05054,
+          0.05293,
+          0.07102,
+          0.09435,
+          0.07377
+        ],
+        "realised_vol_bps": [
+          0.756,
+          0.2489,
+          0.2024,
+          0.1499,
+          0.0959,
+          0.2475,
+          0.4576,
+          0.4294,
+          0.5371,
+          0.4628
+        ],
+        "mean_notional": [
+          6705.84,
+          10420.0,
+          7631.86,
+          7086.46,
+          6903.08,
+          6920.72,
+          9914.0,
+          9008.61,
+          9431.4,
+          8254.82
+        ]
+      },
+      "spread": {
+        "edge_bps": {
+          "min": 0.2505,
+          "max": 0.36,
+          "ratio_max_over_min": 1.44,
+          "cv": 0.1055
+        },
+        "chi_sign": {
+          "min": 0.6566,
+          "max": 0.7785,
+          "ratio_max_over_min": 1.19,
+          "cv": 0.0493
+        },
+        "R1_bps": {
+          "min": 0.0392,
+          "max": 0.0944,
+          "ratio_max_over_min": 2.41,
+          "cv": 0.2648
+        },
+        "realised_vol_bps": {
+          "min": 0.0959,
+          "max": 0.756,
+          "ratio_max_over_min": 7.88,
+          "cv": 0.5704
+        },
+        "mean_notional": {
+          "min": 6705.84,
+          "max": 10420.0,
+          "ratio_max_over_min": 1.55,
+          "cv": 0.1678
+        }
+      },
+      "edge_homogeneity_chi2": 15.9,
+      "dof": 9,
+      "chi2_over_dof": 1.76,
+      "edge_is_stationary_at_its_own_error": true,
+      "blocks_with_positive_edge": 10
+    },
+    "SOLUSDT": {
+      "blocks": 10,
+      "properties": {
+        "edge_bps": [
+          0.0748,
+          0.0696,
+          0.0604,
+          0.155,
+          0.1208,
+          0.0975,
+          0.1506,
+          -0.0201,
+          0.1499,
+          0.0628
+        ],
+        "edge_se": [
+          0.0486,
+          0.0411,
+          0.0365,
+          0.0508,
+          0.0624,
+          0.0659,
+          0.0697,
+          0.0561,
+          0.0452,
+          0.0436
+        ],
+        "chi_sign": [
+          0.9016,
+          0.9,
+          0.8594,
+          0.8496,
+          0.863,
+          0.8393,
+          0.8274,
+          0.8714,
+          0.8894,
+          0.8844
+        ],
+        "R1_bps": [
+          0.66198,
+          0.64558,
+          0.46725,
+          0.6346,
+          0.75206,
+          0.72417,
+          0.74348,
+          0.71618,
+          0.73401,
+          0.69619
+        ],
+        "realised_vol_bps": [
+          0.983,
+          0.9673,
+          0.7977,
+          1.1901,
+          1.115,
+          1.0197,
+          1.0785,
+          0.9998,
+          1.1335,
+          1.0022
+        ],
+        "mean_notional": [
+          4559.21,
+          3879.2,
+          4124.45,
+          5554.04,
+          5856.35,
+          5675.08,
+          6284.28,
+          5910.0,
+          4636.95,
+          4421.25
+        ]
+      },
+      "spread": {
+        "edge_bps": {
+          "min": -0.0201,
+          "max": 0.155,
+          "ratio_max_over_min": null,
+          "cv": 0.5926
+        },
+        "chi_sign": {
+          "min": 0.8274,
+          "max": 0.9016,
+          "ratio_max_over_min": 1.09,
+          "cv": 0.0292
+        },
+        "R1_bps": {
+          "min": 0.4672,
+          "max": 0.7521,
+          "ratio_max_over_min": 1.61,
+          "cv": 0.1249
+        },
+        "realised_vol_bps": {
+          "min": 0.7977,
+          "max": 1.1901,
+          "ratio_max_over_min": 1.49,
+          "cv": 0.1064
+        },
+        "mean_notional": {
+          "min": 3879.2,
+          "max": 6284.28,
+          "ratio_max_over_min": 1.62,
+          "cv": 0.1679
+        }
+      },
+      "edge_homogeneity_chi2": 9.7,
+      "dof": 9,
+      "chi2_over_dof": 1.08,
+      "edge_is_stationary_at_its_own_error": true,
+      "blocks_with_positive_edge": 9
+    }
+  }
+}

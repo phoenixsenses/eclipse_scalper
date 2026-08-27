@@ -1,0 +1,90 @@
+{
+  "study": "C-T38-part2",
+  "what": "each exponent re-measured INSIDE its own scaling regime, with a block bootstrap SE and the shuffle null",
+  "per_symbol": {
+    "BTCUSDT": {
+      "returns_H": {
+        "published": 0.6175,
+        "plateau_range": [
+          362,
+          4910
+        ],
+        "plateau_fit": 0.5137,
+        "boot_sd": 0.0106,
+        "shuffle_null": 0.4971,
+        "null_sd": 0.0111,
+        "z": 1.1,
+        "shift_from_published": -0.1038
+      },
+      "order_signs_chi": {
+        "published": 0.7776,
+        "plateau_range": [
+          459,
+          4910
+        ],
+        "plateau_fit": 0.6606,
+        "boot_sd": 0.0118,
+        "shuffle_null": 0.5036,
+        "null_sd": 0.0127,
+        "z": 9.1,
+        "shift_from_published": -0.117
+      }
+    },
+    "ETHUSDT": {
+      "returns_H": {
+        "published": 0.5512,
+        "plateau_range": [
+          69,
+          3056
+        ],
+        "plateau_fit": 0.5172,
+        "boot_sd": 0.0065,
+        "shuffle_null": 0.5,
+        "null_sd": 0.0054,
+        "z": 2.0,
+        "shift_from_published": -0.034
+      },
+      "order_signs_chi": {
+        "published": 0.7043,
+        "plateau_range": [
+          87,
+          3056
+        ],
+        "plateau_fit": 0.6576,
+        "boot_sd": 0.0091,
+        "shuffle_null": 0.4985,
+        "null_sd": 0.0056,
+        "z": 14.8,
+        "shift_from_published": -0.0467
+      }
+    },
+    "SOLUSDT": {
+      "returns_H": {
+        "published": 0.4911,
+        "plateau_range": [
+          17,
+          1501
+        ],
+        "plateau_fit": 0.4932,
+        "boot_sd": 0.0051,
+        "shuffle_null": 0.5001,
+        "null_sd": 0.0033,
+        "z": -1.1,
+        "shift_from_published": 0.0021
+      },
+      "order_signs_chi": {
+        "published": 0.8918,
+        "plateau_range": [
+          17,
+          4910
+        ],
+        "plateau_fit": 0.8847,
+        "boot_sd": 0.0088,
+        "shuffle_null": 0.5001,
+        "null_sd": 0.0055,
+        "z": 37.1,
+        "shift_from_published": -0.0071
+      }
+    }
+  }
+}

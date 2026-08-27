@@ -1,0 +1,25 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_J",
+  "append_only": true,
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "found_by": "the driver's own null and recovery legs disagreeing at theta = 0",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-026",
+      "source_file": "tools/ct30_which_leg_failed_diffusivity_route.py",
+      "source_section_or_line": "RECOVERY block, psi = concat([1.0], k**(d_h-1))",
+      "error_class": "CODE_ERROR",
+      "old_statement": "recovery at a true theta of 0.0 / 0.1 / 0.2 returned 0.3405 / 0.3839 / 0.4284, printed as bias +0.34 / +0.28 / +0.23",
+      "corrected_statement": "The generator is defective at small d, and its own output proves it: the NULL leg -- a plain cumsum of white noise, true theta = 0 -- returns +0.0030 with sd 0.0150, while the RECOVERY leg at true theta = 0 returns +0.3405.  Two constructions of the same theta = 0 process disagree by 0.34, so one of them is wrong, and it is the recovery generator: correct ARFIMA(0,d,0) coefficients are psi_k = Gamma(k+d) / (Gamma(k+1) Gamma(d)), which at d -> 0 collapse to a delta (psi_0 = 1, rest 0).  Dropping the 1/Gamma(d) normalisation leaves psi_k = k^(d-1), which at d = 0 is the harmonic filter 1, 1/2, 1/3, ... -- a long-memory process, not white noise.  The omission is a pure SCALE factor wherever d is away from zero, and correlation is scale-invariant, so C-T28's gamma recovery (d = (1-gamma)/2 in [0.2, 0.4]) is UNAFFECTED and its results stand.  Here d_h = theta/2 in [0, 0.1], where the error dominates.  CONSEQUENCE: C-T30's recovery leg is VOID, so theta cannot be converted to beta - beta_c, and the printed beta - beta_c values of -0.0437 / -0.0239 / -0.0185 are WITHDRAWN.  The NULL leg is correct and unaffected, so the SIGN result survives on its own.",
+      "numeric_outputs_affected": true,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "reports/atlas/CT30_DIFFUSIVITY_ROUTE_V1.json"
+      ],
+      "source_sha256": "8b0ba5bd985dc45af8241bf075660534523be12e4d0e7752b77f2d7a55153301",
+      "source_exists": true,
+      "errata_sha256": "6ded84c8214b2b449a2cbc46ac02c24f82a58dcc701c40aa70304d7d79db36b4"
+    }
+  ]
+}

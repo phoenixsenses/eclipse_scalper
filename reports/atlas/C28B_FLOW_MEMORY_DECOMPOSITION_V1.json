@@ -1,0 +1,98 @@
+{
+  "study": "C-T28-part2",
+  "lane": "C",
+  "utc": "2026-08-27T04:14:26Z",
+  "reps": 60,
+  "seed": 20260827,
+  "question": "chi survived part 1's null at z = 23 to 49. Is its excess above 0.5 sign memory (order splitting) or size memory (volume clustering)?",
+  "identity": "for C(l) ~ l^-gamma, Var(sum_T) ~ T^(2-gamma), so chi = 1 - gamma/2",
+  "per_symbol": {
+    "BTCUSDT": {
+      "observed_chi": 0.6498,
+      "sign_shuffle": {
+        "mean": 0.5012,
+        "sd": 0.0273,
+        "z_of_observed": 5.45,
+        "reps": 60
+      },
+      "size_shuffle": {
+        "mean": 0.5791,
+        "sd": 0.0032,
+        "z_of_observed": 21.95,
+        "reps": 60
+      },
+      "joint_shuffle": {
+        "mean": 0.4998,
+        "sd": 0.0036,
+        "z_of_observed": 41.61,
+        "reps": 60
+      },
+      "excess_above_half": 0.1498,
+      "excess_surviving_sign_shuffle": 0.0012,
+      "excess_surviving_size_shuffle": 0.0791,
+      "share_of_excess_from_sign_memory": 0.992,
+      "share_of_excess_from_size_memory": 0.472,
+      "gamma_c_t24_direct_lmf_fit": 0.7746,
+      "gamma_from_identity_2_times_1_minus_chi_VOID": 0.7004,
+      "void_reason": "Hill(notional) < 2 on all three (verified 1.608/1.819/1.915 at the 1% tail) so a volume-weighted sd(sum) has no population target; the identity route must use the unweighted sign series. See SYSTEM_STATE 490-A. Never quoted in any section."
+    },
+    "ETHUSDT": {
+      "observed_chi": 0.6817,
+      "sign_shuffle": {
+        "mean": 0.4992,
+        "sd": 0.0089,
+        "z_of_observed": 20.39,
+        "reps": 60
+      },
+      "size_shuffle": {
+        "mean": 0.5731,
+        "sd": 0.0032,
+        "z_of_observed": 33.72,
+        "reps": 60
+      },
+      "joint_shuffle": {
+        "mean": 0.5,
+        "sd": 0.0036,
+        "z_of_observed": 50.56,
+        "reps": 60
+      },
+      "excess_above_half": 0.1817,
+      "excess_surviving_sign_shuffle": -0.0008,
+      "excess_surviving_size_shuffle": 0.0731,
+      "share_of_excess_from_sign_memory": 1.004,
+      "share_of_excess_from_size_memory": 0.598,
+      "gamma_c_t24_direct_lmf_fit": 0.7892,
+      "gamma_from_identity_2_times_1_minus_chi_VOID": 0.6366,
+      "void_reason": "Hill(notional) < 2 on all three (verified 1.608/1.819/1.915 at the 1% tail) so a volume-weighted sd(sum) has no population target; the identity route must use the unweighted sign series. See SYSTEM_STATE 490-A. Never quoted in any section."
+    },
+    "SOLUSDT": {
+      "observed_chi": 0.5902,
+      "sign_shuffle": {
+        "mean": 0.5019,
+        "sd": 0.0049,
+        "z_of_observed": 18.19,
+        "reps": 60
+      },
+      "size_shuffle": {
+        "mean": 0.6311,
+        "sd": 0.003,
+        "z_of_observed": -13.5,
+        "reps": 60
+      },
+      "joint_shuffle": {
+        "mean": 0.5001,
+        "sd": 0.0041,
+        "z_of_observed": 21.81,
+        "reps": 60
+      },
+      "excess_above_half": 0.0902,
+      "excess_surviving_sign_shuffle": 0.0019,
+      "excess_surviving_size_shuffle": 0.1311,
+      "share_of_excess_from_sign_memory": 0.979,
+      "share_of_excess_from_size_memory": -0.453,
+      "gamma_c_t24_direct_lmf_fit": 0.2092,
+      "gamma_from_identity_2_times_1_minus_chi_VOID": 0.8195,
+      "void_reason": "Hill(notional) < 2 on all three (verified 1.608/1.819/1.915 at the 1% tail) so a volume-weighted sd(sum) has no population target; the identity route must use the unweighted sign series. See SYSTEM_STATE 490-A. Never quoted in any section."
+    }
+  }
+}

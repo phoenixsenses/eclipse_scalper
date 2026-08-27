@@ -1,0 +1,117 @@
+{
+ "prereg_sha256": "e7968ac4e933610e281b15709da3245b6d76662b2e963d1d9e30722a47332c4c",
+ "n": 628,
+ "answers": "A-S72",
+ "M1_structural_self_check": {
+  "pinned": true,
+  "n": 493,
+  "median": 9.67,
+  "abs_dev_from_k_p90": 1.161
+ },
+ "M2_marks_by_transition": {
+  "EDGE_GONE": {
+   "n": 493,
+   "share": 0.785,
+   "mark_mean": 9.494,
+   "mark_median": 9.67,
+   "mark_q": {
+    "p5": 8.53,
+    "p25": 9.311,
+    "p50": 9.67,
+    "p75": 9.871,
+    "p95": 9.984
+   },
+   "fixed_by_construction": true
+  },
+  "INTERRUPTED": {
+   "n": 16,
+   "share": 0.0255,
+   "mark_mean": 15.999,
+   "mark_median": 8.523,
+   "mark_q": {
+    "p5": -6.45,
+    "p25": -0.169,
+    "p50": 8.523,
+    "p75": 24.644,
+    "p95": 62.25
+   },
+   "fixed_by_construction": false
+  },
+  "ADMINISTRATIVE": {
+   "n": 63,
+   "share": 0.1003,
+   "mark_mean": 43.389,
+   "mark_median": 35.783,
+   "mark_q": {
+    "p5": 14.72,
+    "p25": 24.031,
+    "p50": 35.783,
+    "p75": 62.078,
+    "p95": 93.42
+   },
+   "fixed_by_construction": false
+  },
+  "NEVER_ALIVE": {
+   "n": 56,
+   "share": 0.0892,
+   "mark_mean": 0.135,
+   "mark_median": 0.0,
+   "mark_q": {
+    "p5": -0.17,
+    "p25": -0.0,
+    "p50": -0.0,
+    "p75": 0.112,
+    "p95": 1.013
+   },
+   "fixed_by_construction": true
+  }
+ },
+ "M3_mfe_vs_exit_mark": {
+  "EDGE_GONE": {
+   "n": 493,
+   "mfe_median": 11.901,
+   "mark_median": 9.67,
+   "giveback_median": 2.488,
+   "giveback_q": {
+    "p5": 0.329,
+    "p25": 1.165,
+    "p50": 2.488,
+    "p75": 6.564,
+    "p95": 25.396
+   },
+   "t_min_median": 9.909,
+   "mfe_per_minute_median": 1.436
+  },
+  "INTERRUPTED": {
+   "n": 16,
+   "mfe_median": 8.523,
+   "mark_median": 8.523,
+   "giveback_median": 4.607,
+   "giveback_q": {
+    "p5": 0.0,
+    "p25": 0.0,
+    "p50": 4.607,
+    "p75": 8.966,
+    "p95": 16.605
+   },
+   "t_min_median": 32.784,
+   "mfe_per_minute_median": 0.366
+  },
+  "ADMINISTRATIVE": {
+   "n": 63,
+   "mfe_median": 52.853,
+   "mark_median": 35.783,
+   "giveback_median": 17.916,
+   "giveback_q": {
+    "p5": 1.412,
+    "p25": 9.68,
+    "p50": 17.916,
+    "p75": 25.179,
+    "p95": 45.116
+   },
+   "t_min_median": 60.0,
+   "mfe_per_minute_median": 0.881
+  }
+ },
+ "scope": "DESCRIPTIVE marking of a frozen decomposition; no exit rule, no threshold, no horizon selected; spends no alpha"
+}

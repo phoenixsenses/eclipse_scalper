@@ -1,0 +1,242 @@
+{
+  "study": "C-T35",
+  "lane": "C",
+  "utc": "2026-08-27T06:42:36Z",
+  "threat": "truncating the Toeplitz system at L means the inversion can only see decay inside L trades; C-T34's recovery check built its synthetic propagator on the same range it inverted, so it could not detect this by construction",
+  "fft_validation": {
+    "max_abs_diff": 2.0816681711721685e-17,
+    "scale": 0.02425097439971003,
+    "symbol": "BTCUSDT"
+  },
+  "L_sweep": [
+    64,
+    128,
+    256,
+    512,
+    1024
+  ],
+  "per_symbol": {
+    "BTCUSDT": {
+      "adversarial_recovery": {
+        "true_0.1": {
+          "true": 0.1,
+          "recovered_by_L": {
+            "64": 0.107,
+            "128": 0.1049,
+            "256": 0.1044,
+            "512": 0.1043,
+            "1024": 0.1035
+          },
+          "worst_error": 0.007
+        },
+        "true_0.25": {
+          "true": 0.25,
+          "recovered_by_L": {
+            "64": 0.2647,
+            "128": 0.261,
+            "256": 0.2597,
+            "512": 0.2588,
+            "1024": 0.2572
+          },
+          "worst_error": 0.0147
+        },
+        "true_0.4": {
+          "true": 0.4,
+          "recovered_by_L": {
+            "64": 0.4198,
+            "128": 0.4151,
+            "256": 0.4134,
+            "512": 0.4134,
+            "1024": 0.4123
+          },
+          "worst_error": 0.0198
+        }
+      },
+      "real_by_L": {
+        "64": {
+          "beta": 0.0044,
+          "cond": 62.8,
+          "G_at_1": 0.02892,
+          "G_at_L_over_2": 0.01938,
+          "G_ratio_L2_over_4": 1.244
+        },
+        "128": {
+          "beta": 0.0505,
+          "cond": 98.8,
+          "G_at_1": 0.02893,
+          "G_at_L_over_2": 0.01801,
+          "G_ratio_L2_over_4": 1.153
+        },
+        "256": {
+          "beta": 0.0903,
+          "cond": 143.0,
+          "G_at_1": 0.02894,
+          "G_at_L_over_2": 0.01653,
+          "G_ratio_L2_over_4": 1.056
+        },
+        "512": {
+          "beta": 0.1178,
+          "cond": 193.7,
+          "G_at_1": 0.02895,
+          "G_at_L_over_2": 0.01506,
+          "G_ratio_L2_over_4": 0.961
+        },
+        "1024": {
+          "beta": 0.1375,
+          "cond": 251.3,
+          "G_at_1": 0.02895,
+          "G_at_L_over_2": 0.01324,
+          "G_ratio_L2_over_4": 0.845
+        }
+      }
+    },
+    "ETHUSDT": {
+      "adversarial_recovery": {
+        "true_0.1": {
+          "true": 0.1,
+          "recovered_by_L": {
+            "64": 0.1063,
+            "128": 0.1053,
+            "256": 0.1048,
+            "512": 0.1038,
+            "1024": 0.102
+          },
+          "worst_error": 0.0063
+        },
+        "true_0.25": {
+          "true": 0.25,
+          "recovered_by_L": {
+            "64": 0.261,
+            "128": 0.2618,
+            "256": 0.2609,
+            "512": 0.2603,
+            "1024": 0.2606
+          },
+          "worst_error": 0.0118
+        },
+        "true_0.4": {
+          "true": 0.4,
+          "recovered_by_L": {
+            "64": 0.4158,
+            "128": 0.4148,
+            "256": 0.4112,
+            "512": 0.4061,
+            "1024": 0.4067
+          },
+          "worst_error": 0.0158
+        }
+      },
+      "real_by_L": {
+        "64": {
+          "beta": 0.0077,
+          "cond": 38.1,
+          "G_at_1": 0.07523,
+          "G_at_L_over_2": 0.04378,
+          "G_ratio_L2_over_4": 1.156
+        },
+        "128": {
+          "beta": 0.0535,
+          "cond": 51.3,
+          "G_at_1": 0.07526,
+          "G_at_L_over_2": 0.04135,
+          "G_ratio_L2_over_4": 1.09
+        },
+        "256": {
+          "beta": 0.0872,
+          "cond": 65.4,
+          "G_at_1": 0.07528,
+          "G_at_L_over_2": 0.03749,
+          "G_ratio_L2_over_4": 0.986
+        },
+        "512": {
+          "beta": 0.1172,
+          "cond": 82.1,
+          "G_at_1": 0.0753,
+          "G_at_L_over_2": 0.03426,
+          "G_ratio_L2_over_4": 0.901
+        },
+        "1024": {
+          "beta": 0.1431,
+          "cond": 104.6,
+          "G_at_1": 0.0753,
+          "G_at_L_over_2": 0.02988,
+          "G_ratio_L2_over_4": 0.785
+        }
+      }
+    },
+    "SOLUSDT": {
+      "adversarial_recovery": {
+        "true_0.1": {
+          "true": 0.1,
+          "recovered_by_L": {
+            "64": 0.1494,
+            "128": 0.1363,
+            "256": 0.1245,
+            "512": 0.1127,
+            "1024": 0.1051
+          },
+          "worst_error": 0.0494
+        },
+        "true_0.25": {
+          "true": 0.25,
+          "recovered_by_L": {
+            "64": 0.345,
+            "128": 0.3244,
+            "256": 0.3008,
+            "512": 0.2817,
+            "1024": 0.2697
+          },
+          "worst_error": 0.095
+        },
+        "true_0.4": {
+          "true": 0.4,
+          "recovered_by_L": {
+            "64": 0.5134,
+            "128": 0.5129,
+            "256": 0.4687,
+            "512": 0.4579,
+            "1024": 0.4299
+          },
+          "worst_error": 0.1134
+        }
+      },
+      "real_by_L": {
+        "64": {
+          "beta": 0.3699,
+          "cond": 7.8,
+          "G_at_1": 0.68984,
+          "G_at_L_over_2": 0.07631,
+          "G_ratio_L2_over_4": 0.664
+        },
+        "128": {
+          "beta": 0.4451,
+          "cond": 13.7,
+          "G_at_1": 0.69016,
+          "G_at_L_over_2": 0.05532,
+          "G_ratio_L2_over_4": 0.476
+        },
+        "256": {
+          "beta": 0.5154,
+          "cond": 24.4,
+          "G_at_1": 0.69027,
+          "G_at_L_over_2": 0.03691,
+          "G_ratio_L2_over_4": 0.317
+        },
+        "512": {
+          "beta": 0.5302,
+          "cond": 43.4,
+          "G_at_1": 0.69032,
+          "G_at_L_over_2": 0.02781,
+          "G_ratio_L2_over_4": 0.238
+        },
+        "1024": {
+          "beta": 0.5288,
+          "cond": 76.2,
+          "G_at_1": 0.69033,
+          "G_at_L_over_2": 0.01921,
+          "G_ratio_L2_over_4": 0.164
+        }
+      }
+    }
+  }
+}

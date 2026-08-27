@@ -1,0 +1,51 @@
+{
+ "prereg_sha256": "e7968ac4e933610e281b15709da3245b6d76662b2e963d1d9e30722a47332c4c",
+ "n": 628,
+ "point_mu_tau_min": 18.1041,
+ "clusterings": {
+  "symbol_day_PUBLISHED": {
+   "n_clusters": 72,
+   "se": 0.777,
+   "ci95": [
+    16.6109,
+    19.6787
+   ],
+   "width": 3.0677
+  },
+  "day": {
+   "n_clusters": 24,
+   "se": 0.8994,
+   "ci95": [
+    16.3397,
+    19.8761
+   ],
+   "width": 3.5364
+  },
+  "symbol_UNINTERPRETED": {
+   "n_clusters": 3,
+   "se": 1.3603,
+   "ci95": [
+    14.0692,
+    20.1007
+   ],
+   "width": 6.0314
+  }
+ },
+ "day_over_symbolday_se_ratio": 1.158,
+ "symbol_se_is_smaller_than_day": false,
+ "within_day_cross_symbol_corr_of_mean_alive_time": {
+  "BTCUSDT|ETHUSDT": {
+   "n_days": 24,
+   "corr": 0.2189
+  },
+  "BTCUSDT|SOLUSDT": {
+   "n_days": 24,
+   "corr": 0.3375
+  },
+  "ETHUSDT|SOLUSDT": {
+   "n_days": 24,
+   "corr": -0.1585
+  }
+ },
+ "verdict": "PUBLISHED_INTERVAL_TOO_NARROW_SYMBOLS_ARE_DEPENDENT_WITHIN_DAY"
+}

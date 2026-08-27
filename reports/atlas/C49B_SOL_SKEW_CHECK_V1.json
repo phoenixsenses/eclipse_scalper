@@ -1,0 +1,66 @@
+{
+  "study": "C-T49-part2",
+  "question": "SOL's hit rate is below 0.5 at every threshold yet its mean edge is positive. Is the edge a skew effect rather than a directional one?",
+  "per_symbol": {
+    "BTCUSDT": {
+      "pct_0": {
+        "edge_bps": 0.2636,
+        "hit_rate": 0.6553,
+        "skew": -0.582,
+        "median_bps": 0.3218,
+        "mean_win": 0.6287,
+        "mean_loss": -0.5507,
+        "win_loss_ratio": 1.142
+      },
+      "pct_95": {
+        "edge_bps": 0.3525,
+        "hit_rate": 0.76,
+        "skew": -3.662,
+        "median_bps": 0.5654,
+        "mean_win": 0.7111,
+        "mean_loss": -0.9234,
+        "win_loss_ratio": 0.77
+      }
+    },
+    "ETHUSDT": {
+      "pct_0": {
+        "edge_bps": 0.2903,
+        "hit_rate": 0.5809,
+        "skew": -0.468,
+        "median_bps": 0.3132,
+        "mean_win": 1.1882,
+        "mean_loss": -1.0592,
+        "win_loss_ratio": 1.122
+      },
+      "pct_95": {
+        "edge_bps": 0.4286,
+        "hit_rate": 0.64,
+        "skew": -2.932,
+        "median_bps": 0.584,
+        "mean_win": 1.4839,
+        "mean_loss": -1.5303,
+        "win_loss_ratio": 0.97
+      }
+    },
+    "SOLUSDT": {
+      "pct_0": {
+        "edge_bps": 0.0924,
+        "hit_rate": 0.3982,
+        "skew": 0.155,
+        "median_bps": 0.0,
+        "mean_win": 3.0772,
+        "mean_loss": -3.0715,
+        "win_loss_ratio": 1.002
+      },
+      "pct_95": {
+        "edge_bps": 0.1969,
+        "hit_rate": 0.4215,
+        "skew": 0.142,
+        "median_bps": 0.0,
+        "mean_win": 3.7073,
+        "mean_loss": -3.4974,
+        "win_loss_ratio": 1.06
+      }
+    }
+  }
+}

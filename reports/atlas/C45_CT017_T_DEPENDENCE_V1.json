@@ -1,0 +1,213 @@
+{
+  "study": "C-T45",
+  "lane": "C",
+  "utc": "2026-08-27T10:19:33Z",
+  "contradiction": "CT-017",
+  "sample": "data/microstructure_02.db :: agg_trades, first 2,000,000 rows by ts_ms per symbol",
+  "prediction_kissell": "R(Q,T) at fixed Q DECREASES in T",
+  "prediction_bouchaud": "R(Q,T) at fixed Q is FLAT in T (T cancels, TQP 12.3.2)",
+  "shared_weaker_prediction": "R(Q,T) at fixed Q is NON-INCREASING in T",
+  "calibration": "a size-only impact world built from the real trades: each trade kicks the price permanently by a fitted c*v^p, plus iid noise; nothing depends on T by construction",
+  "threshold_swept": [
+    100,
+    200,
+    500
+  ],
+  "per_symbol": {
+    "BTCUSDT": {
+      "min_cell_100": {
+        "positivity_bins": [
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "real_profile_bps": {
+          "5": 0.0318,
+          "10": 0.0782,
+          "20": 0.1869,
+          "50": 0.4506,
+          "100": 0.8063,
+          "200": 1.0835,
+          "500": 1.1366
+        },
+        "size_only_null_profile_bps": {
+          "5": 0.1763,
+          "10": 0.2291,
+          "20": 0.3094,
+          "50": 0.5204,
+          "100": 0.7247,
+          "200": 0.9113,
+          "500": 0.9682
+        },
+        "real_T500_over_T5": 35.733,
+        "null_T500_over_T5": 5.493
+      },
+      "min_cell_200": {
+        "positivity_bins": [
+          13,
+          14,
+          15
+        ],
+        "real_profile_bps": {
+          "5": 0.0262,
+          "10": 0.0642,
+          "20": 0.1833,
+          "50": 0.45,
+          "100": 0.8599,
+          "200": 1.352,
+          "500": 1.4939
+        },
+        "size_only_null_profile_bps": {
+          "5": 0.2106,
+          "10": 0.2676,
+          "20": 0.36,
+          "50": 0.6327,
+          "100": 0.9105,
+          "200": 1.2229,
+          "500": 1.4313
+        },
+        "real_T500_over_T5": 57.125,
+        "null_T500_over_T5": 6.797
+      },
+      "min_cell_500": {
+        "positivity_bins": [],
+        "real_profile_bps": null,
+        "size_only_null_profile_bps": null,
+        "real_T500_over_T5": null,
+        "null_T500_over_T5": null
+      }
+    },
+    "ETHUSDT": {
+      "min_cell_100": {
+        "positivity_bins": [
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "real_profile_bps": {
+          "5": 0.0467,
+          "10": 0.2017,
+          "20": 0.4686,
+          "50": 1.0042,
+          "100": 1.3836,
+          "200": 1.7265,
+          "500": 1.8202
+        },
+        "size_only_null_profile_bps": {
+          "5": 0.3592,
+          "10": 0.5988,
+          "20": 1.0287,
+          "50": 1.7443,
+          "100": 2.2406,
+          "200": 2.7676,
+          "500": 3.3437
+        },
+        "real_T500_over_T5": 38.945,
+        "null_T500_over_T5": 9.309
+      },
+      "min_cell_200": {
+        "positivity_bins": [
+          13,
+          14
+        ],
+        "real_profile_bps": {
+          "5": 0.12,
+          "10": 0.2397,
+          "20": 0.5062,
+          "50": 0.9764,
+          "100": 1.4923,
+          "200": 1.8775,
+          "500": 2.0459
+        },
+        "size_only_null_profile_bps": {
+          "5": 0.3795,
+          "10": 0.5954,
+          "20": 1.1829,
+          "50": 1.7955,
+          "100": 2.2421,
+          "200": 3.1037,
+          "500": 3.1245
+        },
+        "real_T500_over_T5": 17.051,
+        "null_T500_over_T5": 8.233
+      },
+      "min_cell_500": {
+        "positivity_bins": [],
+        "real_profile_bps": null,
+        "size_only_null_profile_bps": null,
+        "real_T500_over_T5": null,
+        "null_T500_over_T5": null
+      }
+    },
+    "SOLUSDT": {
+      "min_cell_100": {
+        "positivity_bins": [
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "real_profile_bps": {
+          "5": 1.6146,
+          "10": 1.9189,
+          "20": 2.2889,
+          "50": 2.6708,
+          "100": 2.865,
+          "200": 2.9045,
+          "500": 2.5571
+        },
+        "size_only_null_profile_bps": {
+          "5": 0.3683,
+          "10": 0.5893,
+          "20": 1.053,
+          "50": 2.8239,
+          "100": 5.6777,
+          "200": 10.3137,
+          "500": 19.2055
+        },
+        "real_T500_over_T5": 1.584,
+        "null_T500_over_T5": 52.141
+      },
+      "min_cell_200": {
+        "positivity_bins": [
+          12,
+          13,
+          14,
+          15
+        ],
+        "real_profile_bps": {
+          "5": 1.7407,
+          "10": 2.0736,
+          "20": 2.4969,
+          "50": 2.974,
+          "100": 3.2802,
+          "200": 3.4263,
+          "500": 3.1304
+        },
+        "size_only_null_profile_bps": {
+          "5": 0.3764,
+          "10": 0.6019,
+          "20": 1.054,
+          "50": 2.9066,
+          "100": 5.9924,
+          "200": 11.2223,
+          "500": 22.3221
+        },
+        "real_T500_over_T5": 1.798,
+        "null_T500_over_T5": 59.307
+      },
+      "min_cell_500": {
+        "positivity_bins": [],
+        "real_profile_bps": null,
+        "size_only_null_profile_bps": null,
+        "real_T500_over_T5": null,
+        "null_T500_over_T5": null
+      }
+    }
+  }
+}

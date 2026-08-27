@@ -1,0 +1,94 @@
+{
+  "study": "C-T35-part2",
+  "question": "does beta converge in L, and does the efficiency verdict change?",
+  "band_source": "(1-gamma)/2 from C-T28's two gamma routes",
+  "per_symbol": {
+    "BTCUSDT": {
+      "1024": {
+        "beta": 0.1375,
+        "cond": 251.3,
+        "inside_band": true,
+        "shortfall": 0.1402,
+        "H_minus_half": 0.11750000000000005,
+        "ratio": 0.838,
+        "signs_agree": true
+      },
+      "2048": {
+        "beta": 0.1428,
+        "cond": 322.6,
+        "inside_band": true,
+        "shortfall": 0.1349,
+        "H_minus_half": 0.11750000000000005,
+        "ratio": 0.871,
+        "signs_agree": true
+      },
+      "4096": {
+        "beta": 0.1511,
+        "cond": 409.5,
+        "inside_band": true,
+        "shortfall": 0.1266,
+        "H_minus_half": 0.11750000000000005,
+        "ratio": 0.928,
+        "signs_agree": true
+      }
+    },
+    "ETHUSDT": {
+      "1024": {
+        "beta": 0.1431,
+        "cond": 104.6,
+        "inside_band": true,
+        "shortfall": 0.0612,
+        "H_minus_half": 0.05120000000000002,
+        "ratio": 0.836,
+        "signs_agree": true
+      },
+      "2048": {
+        "beta": 0.1573,
+        "cond": 134.2,
+        "inside_band": true,
+        "shortfall": 0.047,
+        "H_minus_half": 0.05120000000000002,
+        "ratio": 1.089,
+        "signs_agree": true
+      },
+      "4096": {
+        "beta": 0.1603,
+        "cond": 170.5,
+        "inside_band": true,
+        "shortfall": 0.044,
+        "H_minus_half": 0.05120000000000002,
+        "ratio": 1.164,
+        "signs_agree": true
+      }
+    },
+    "SOLUSDT": {
+      "1024": {
+        "beta": 0.5288,
+        "cond": 76.2,
+        "inside_band": false,
+        "shortfall": -0.1334,
+        "H_minus_half": -0.008900000000000019,
+        "ratio": 0.067,
+        "signs_agree": true
+      },
+      "2048": {
+        "beta": 0.6052,
+        "cond": 132.4,
+        "inside_band": false,
+        "shortfall": -0.2098,
+        "H_minus_half": -0.008900000000000019,
+        "ratio": 0.042,
+        "signs_agree": true
+      },
+      "4096": {
+        "beta": 0.4861,
+        "cond": 222.4,
+        "inside_band": false,
+        "shortfall": -0.0907,
+        "H_minus_half": -0.008900000000000019,
+        "ratio": 0.098,
+        "signs_agree": true
+      }
+    }
+  }
+}

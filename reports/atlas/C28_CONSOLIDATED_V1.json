@@ -1,0 +1,282 @@
+{
+  "study": "C-T28",
+  "lane": "C",
+  "parts": [
+    "null calibration",
+    "sign-vs-size decomposition",
+    "gamma_LMF variance route"
+  ],
+  "bias_correction_caveat": "the null uses the REAL marginals with dependence destroyed, so the bias it measures is the bias of a dependence-free process. Applying it to the observed value assumes the bias is dependence-invariant. That is first-order and NOT verified here.",
+  "per_symbol": {
+    "BTCUSDT": {
+      "exponents": {
+        "kappa": {
+          "observed": 0.6507,
+          "null_mean": 0.2951,
+          "null_sd": 0.2087,
+          "theory_null": 0.5,
+          "null_bias": -0.2049,
+          "z": 1.7,
+          "p": 0.07,
+          "bias_corrected": 0.8556,
+          "survives": false
+        },
+        "alpha_E_abs_r": {
+          "observed": 0.6765,
+          "null_mean": 0.7264,
+          "null_sd": 0.0037,
+          "theory_null": 0.5,
+          "null_bias": 0.2264,
+          "z": -13.46,
+          "p": 0.0,
+          "bias_corrected": 0.4501,
+          "survives": true
+        },
+        "chi": {
+          "observed": 0.6498,
+          "null_mean": 0.4997,
+          "null_sd": 0.0036,
+          "theory_null": 0.5,
+          "null_bias": -0.0003,
+          "z": 42.15,
+          "p": 0.0,
+          "bias_corrected": 0.6501,
+          "survives": true
+        },
+        "p_direct": {
+          "observed": -0.0258,
+          "null_mean": -0.4578,
+          "null_sd": 0.2404,
+          "theory_null": 0.0,
+          "null_bias": -0.4578,
+          "z": 1.8,
+          "p": 0.06,
+          "bias_corrected": 0.432,
+          "survives": false
+        },
+        "kappa_minus_chi": {
+          "observed": 0.0009,
+          "null_mean": -0.2046,
+          "null_sd": 0.2086,
+          "theory_null": 0.0,
+          "null_bias": -0.2046,
+          "z": 0.99,
+          "p": 0.295,
+          "bias_corrected": 0.2055,
+          "survives": false
+        },
+        "chi_minus_alpha": {
+          "observed": -0.0267,
+          "null_mean": -0.2267,
+          "null_sd": 0.0053,
+          "theory_null": 0.0,
+          "null_bias": -0.2267,
+          "z": 37.95,
+          "p": 0.0,
+          "bias_corrected": 0.2,
+          "survives": true
+        }
+      },
+      "flow_memory": {
+        "observed_chi": 0.6498,
+        "excess_above_half": 0.1498,
+        "excess_surviving_sign_shuffle": 0.0012,
+        "excess_surviving_size_shuffle": 0.0791,
+        "share_of_excess_from_sign_memory": 0.992,
+        "share_of_excess_from_size_memory": 0.472
+      },
+      "gamma_lmf": {
+        "chi_pure_sign": 0.7776,
+        "r2": 0.9967,
+        "null_mean": 0.4998,
+        "null_sd": 0.0032,
+        "z": 87.3,
+        "gamma_LMF_from_variance": 0.4447,
+        "gamma_LMF_C_T24_direct": 0.7746,
+        "ratio": 0.574,
+        "alpha_metaorder_size": 1.445,
+        "buy_share": 0.499
+      }
+    },
+    "ETHUSDT": {
+      "exponents": {
+        "kappa": {
+          "observed": 0.5782,
+          "null_mean": 0.3168,
+          "null_sd": 0.2011,
+          "theory_null": 0.5,
+          "null_bias": -0.1832,
+          "z": 1.3,
+          "p": 0.13,
+          "bias_corrected": 0.7614,
+          "survives": false
+        },
+        "alpha_E_abs_r": {
+          "observed": 0.5924,
+          "null_mean": 0.7023,
+          "null_sd": 0.0036,
+          "theory_null": 0.5,
+          "null_bias": 0.2023,
+          "z": -30.16,
+          "p": 0.0,
+          "bias_corrected": 0.3901,
+          "survives": true
+        },
+        "chi": {
+          "observed": 0.6817,
+          "null_mean": 0.5002,
+          "null_sd": 0.0037,
+          "theory_null": 0.5,
+          "null_bias": 0.0002,
+          "z": 49.22,
+          "p": 0.0,
+          "bias_corrected": 0.6815,
+          "survives": true
+        },
+        "p_direct": {
+          "observed": -0.0141,
+          "null_mean": -0.398,
+          "null_sd": 0.2223,
+          "theory_null": 0.0,
+          "null_bias": -0.398,
+          "z": 1.73,
+          "p": 0.06,
+          "bias_corrected": 0.3839,
+          "survives": false
+        },
+        "kappa_minus_chi": {
+          "observed": -0.1035,
+          "null_mean": -0.1834,
+          "null_sd": 0.2008,
+          "theory_null": 0.0,
+          "null_bias": -0.1834,
+          "z": 0.4,
+          "p": 0.665,
+          "bias_corrected": 0.0799,
+          "survives": false
+        },
+        "chi_minus_alpha": {
+          "observed": 0.0893,
+          "null_mean": -0.2021,
+          "null_sd": 0.0048,
+          "theory_null": 0.0,
+          "null_bias": -0.2021,
+          "z": 61.11,
+          "p": 0.0,
+          "bias_corrected": 0.2914,
+          "survives": true
+        }
+      },
+      "flow_memory": {
+        "observed_chi": 0.6817,
+        "excess_above_half": 0.1817,
+        "excess_surviving_sign_shuffle": -0.0008,
+        "excess_surviving_size_shuffle": 0.0731,
+        "share_of_excess_from_sign_memory": 1.004,
+        "share_of_excess_from_size_memory": 0.598
+      },
+      "gamma_lmf": {
+        "chi_pure_sign": 0.7043,
+        "r2": 0.9981,
+        "null_mean": 0.5003,
+        "null_sd": 0.004,
+        "z": 50.5,
+        "gamma_LMF_from_variance": 0.5914,
+        "gamma_LMF_C_T24_direct": 0.7892,
+        "ratio": 0.749,
+        "alpha_metaorder_size": 1.591,
+        "buy_share": 0.506
+      }
+    },
+    "SOLUSDT": {
+      "exponents": {
+        "kappa": {
+          "observed": 0.5209,
+          "null_mean": 0.398,
+          "null_sd": 0.0351,
+          "theory_null": 0.5,
+          "null_bias": -0.102,
+          "z": 3.5,
+          "p": 0.0,
+          "bias_corrected": 0.6229,
+          "survives": true
+        },
+        "alpha_E_abs_r": {
+          "observed": 0.5206,
+          "null_mean": 0.5148,
+          "null_sd": 0.0039,
+          "theory_null": 0.5,
+          "null_bias": 0.0148,
+          "z": 1.5,
+          "p": 0.11,
+          "bias_corrected": 0.5058,
+          "survives": false
+        },
+        "chi": {
+          "observed": 0.5902,
+          "null_mean": 0.4997,
+          "null_sd": 0.0039,
+          "theory_null": 0.5,
+          "null_bias": -0.0003,
+          "z": 23.3,
+          "p": 0.0,
+          "bias_corrected": 0.5905,
+          "survives": true
+        },
+        "p_direct": {
+          "observed": 0.0003,
+          "null_mean": -0.1168,
+          "null_sd": 0.0343,
+          "theory_null": 0.0,
+          "null_bias": -0.1168,
+          "z": 3.42,
+          "p": 0.0,
+          "bias_corrected": 0.1171,
+          "survives": true
+        },
+        "kappa_minus_chi": {
+          "observed": -0.0693,
+          "null_mean": -0.1018,
+          "null_sd": 0.0346,
+          "theory_null": 0.0,
+          "null_bias": -0.1018,
+          "z": 0.94,
+          "p": 0.37,
+          "bias_corrected": 0.0325,
+          "survives": false
+        },
+        "chi_minus_alpha": {
+          "observed": 0.0696,
+          "null_mean": -0.015,
+          "null_sd": 0.0055,
+          "theory_null": 0.0,
+          "null_bias": -0.015,
+          "z": 15.46,
+          "p": 0.0,
+          "bias_corrected": 0.0846,
+          "survives": true
+        }
+      },
+      "flow_memory": {
+        "observed_chi": 0.5902,
+        "excess_above_half": 0.0902,
+        "excess_surviving_sign_shuffle": 0.0019,
+        "excess_surviving_size_shuffle": 0.1311,
+        "share_of_excess_from_sign_memory": 0.979,
+        "share_of_excess_from_size_memory": -0.453
+      },
+      "gamma_lmf": {
+        "chi_pure_sign": 0.8918,
+        "r2": 0.9999,
+        "null_mean": 0.4997,
+        "null_sd": 0.0045,
+        "z": 87.7,
+        "gamma_LMF_from_variance": 0.2164,
+        "gamma_LMF_C_T24_direct": 0.2092,
+        "ratio": 1.034,
+        "alpha_metaorder_size": 1.216,
+        "buy_share": 0.518
+      }
+    }
+  }
+}

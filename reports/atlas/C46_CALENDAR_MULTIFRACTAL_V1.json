@@ -1,0 +1,286 @@
+{
+  "study": "C-T46",
+  "lane": "C",
+  "utc": "2026-08-27T10:38:05Z",
+  "corpus_reader": "tools/corpus_text_v1.py (NUL-safe, ligature/hyphen normalised)",
+  "corpus_absence_measured": {
+    "multifractal": "2, both bibliography",
+    "monofractal": 0,
+    "scaling exponent": 0,
+    "structure function": 0,
+    "multiscaling": "2, ECONOPHYS_ODM only",
+    "anomalous scaling": "5, ECONOPHYS_ODM only"
+  },
+  "corpus_one_relevant_measurement": "ECONOPHYS_ODM: m_zeta(t) ~ t^D on EUR/USD at tens of minutes, D ~ 0.364 'essentially independent of zeta' -- the MONOFRACTAL answer, in CALENDAR time",
+  "what_changed_from_C_T41": "the clock and the scale only; estimator and q grid identical",
+  "monofractal_fall_floor": 0.0067,
+  "floor_calibration": {
+    "fgn_H_0.5": {
+      "h_of_q": {
+        "0.5": 0.5006,
+        "1.0": 0.4999,
+        "1.5": 0.5001,
+        "2.0": 0.5007,
+        "2.5": 0.5014,
+        "3.0": 0.5022
+      },
+      "total_fall": -0.0017,
+      "h_range": [
+        0.4999,
+        0.5022
+      ]
+    },
+    "fgn_H_0.6": {
+      "h_of_q": {
+        "0.5": 0.5902,
+        "1.0": 0.5923,
+        "1.5": 0.5938,
+        "2.0": 0.595,
+        "2.5": 0.596,
+        "3.0": 0.5969
+      },
+      "total_fall": -0.0067,
+      "h_range": [
+        0.5902,
+        0.5969
+      ]
+    },
+    "fgn_H_0.75": {
+      "h_of_q": {
+        "0.5": 0.7451,
+        "1.0": 0.7457,
+        "1.5": 0.7459,
+        "2.0": 0.7459,
+        "2.5": 0.7456,
+        "3.0": 0.7451
+      },
+      "total_fall": 0.0001,
+      "h_range": [
+        0.7451,
+        0.7459
+      ]
+    }
+  },
+  "threshold_swept": "calendar bar width 1 s / 5 s / 30 s",
+  "per_symbol": {
+    "BTCUSDT": {
+      "span_hours": 79.8,
+      "calendar": {
+        "bar_1s": {
+          "h_of_q": {
+            "0.5": 0.7789,
+            "1.0": 0.6119,
+            "1.5": 0.5492,
+            "2.0": 0.5152,
+            "2.5": 0.4889,
+            "3.0": 0.4625
+          },
+          "total_fall": 0.3164,
+          "h_range": [
+            0.4625,
+            0.7789
+          ],
+          "n_bars": 287326,
+          "empty_bar_share": 0.1116,
+          "scale_range_minutes": [
+            0.067,
+            15.9
+          ],
+          "fall_over_monofractal_floor": 47.22
+        },
+        "bar_5s": {
+          "h_of_q": {
+            "0.5": 0.6582,
+            "1.0": 0.5633,
+            "1.5": 0.5313,
+            "2.0": 0.5155,
+            "2.5": 0.5039,
+            "3.0": 0.492
+          },
+          "total_fall": 0.1662,
+          "h_range": [
+            0.492,
+            0.6582
+          ],
+          "n_bars": 57466,
+          "empty_bar_share": 0.0344,
+          "scale_range_minutes": [
+            0.333,
+            15.9
+          ],
+          "fall_over_monofractal_floor": 24.81
+        },
+        "bar_30s": {
+          "h_of_q": {
+            "0.5": 0.5221,
+            "1.0": 0.4964,
+            "1.5": 0.4873,
+            "2.0": 0.4822,
+            "2.5": 0.4777,
+            "3.0": 0.4727
+          },
+          "total_fall": 0.0494,
+          "h_range": [
+            0.4727,
+            0.5221
+          ],
+          "n_bars": 9578,
+          "empty_bar_share": 0.0241,
+          "scale_range_minutes": [
+            2.0,
+            15.5
+          ],
+          "fall_over_monofractal_floor": 7.37
+        }
+      },
+      "c_t41_trade_clock_fall": 0.2232,
+      "c_t41_volume_clock_fall": 0.3674
+    },
+    "ETHUSDT": {
+      "span_hours": 81.9,
+      "calendar": {
+        "bar_1s": {
+          "h_of_q": {
+            "0.5": 0.6633,
+            "1.0": 0.5608,
+            "1.5": 0.5187,
+            "2.0": 0.4921,
+            "2.5": 0.4676,
+            "3.0": 0.44
+          },
+          "total_fall": 0.2232,
+          "h_range": [
+            0.44,
+            0.6633
+          ],
+          "n_bars": 294845,
+          "empty_bar_share": 0.137,
+          "scale_range_minutes": [
+            0.067,
+            16.4
+          ],
+          "fall_over_monofractal_floor": 33.31
+        },
+        "bar_5s": {
+          "h_of_q": {
+            "0.5": 0.5734,
+            "1.0": 0.522,
+            "1.5": 0.4993,
+            "2.0": 0.4812,
+            "2.5": 0.4606,
+            "3.0": 0.4364
+          },
+          "total_fall": 0.1371,
+          "h_range": [
+            0.4364,
+            0.5734
+          ],
+          "n_bars": 58969,
+          "empty_bar_share": 0.0354,
+          "scale_range_minutes": [
+            0.333,
+            16.3
+          ],
+          "fall_over_monofractal_floor": 20.46
+        },
+        "bar_30s": {
+          "h_of_q": {
+            "0.5": 0.4899,
+            "1.0": 0.4728,
+            "1.5": 0.461,
+            "2.0": 0.4482,
+            "2.5": 0.4328,
+            "3.0": 0.4155
+          },
+          "total_fall": 0.0744,
+          "h_range": [
+            0.4155,
+            0.4899
+          ],
+          "n_bars": 9829,
+          "empty_bar_share": 0.024,
+          "scale_range_minutes": [
+            2.0,
+            16.0
+          ],
+          "fall_over_monofractal_floor": 11.1
+        }
+      },
+      "c_t41_trade_clock_fall": 0.1798,
+      "c_t41_volume_clock_fall": 0.2975
+    },
+    "SOLUSDT": {
+      "span_hours": 242.7,
+      "calendar": {
+        "bar_1s": {
+          "h_of_q": {
+            "0.5": 0.5714,
+            "1.0": 0.5034,
+            "1.5": 0.4889,
+            "2.0": 0.4827,
+            "2.5": 0.4762,
+            "3.0": 0.4668
+          },
+          "total_fall": 0.1045,
+          "h_range": [
+            0.4668,
+            0.5714
+          ],
+          "n_bars": 873718,
+          "empty_bar_share": 0.1814,
+          "scale_range_minutes": [
+            0.067,
+            48.5
+          ],
+          "fall_over_monofractal_floor": 15.6
+        },
+        "bar_5s": {
+          "h_of_q": {
+            "0.5": 0.5472,
+            "1.0": 0.5097,
+            "1.5": 0.5039,
+            "2.0": 0.5021,
+            "2.5": 0.4995,
+            "3.0": 0.4948
+          },
+          "total_fall": 0.0524,
+          "h_range": [
+            0.4948,
+            0.5472
+          ],
+          "n_bars": 174744,
+          "empty_bar_share": 0.0322,
+          "scale_range_minutes": [
+            0.333,
+            48.5
+          ],
+          "fall_over_monofractal_floor": 7.82
+        },
+        "bar_30s": {
+          "h_of_q": {
+            "0.5": 0.5064,
+            "1.0": 0.4956,
+            "1.5": 0.4964,
+            "2.0": 0.496,
+            "2.5": 0.4921,
+            "3.0": 0.4845
+          },
+          "total_fall": 0.0219,
+          "h_range": [
+            0.4845,
+            0.5064
+          ],
+          "n_bars": 29124,
+          "empty_bar_share": 0.0205,
+          "scale_range_minutes": [
+            2.0,
+            48.5
+          ],
+          "fall_over_monofractal_floor": 3.27
+        }
+      },
+      "c_t41_trade_clock_fall": 0.098,
+      "c_t41_volume_clock_fall": 0.2043
+    }
+  }
+}

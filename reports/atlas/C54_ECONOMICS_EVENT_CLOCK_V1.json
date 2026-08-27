@@ -1,0 +1,403 @@
+{
+  "study": "C-T54",
+  "lane": "C",
+  "utc": "2026-08-27T12:17:43Z",
+  "corrects": "C-T53's `next:` claim that C-T52 had corrected the only load-bearing level; two more were in the aggTrade clock",
+  "sample": "data/microstructure_02.db :: agg_trades, first 2,000,000 rows by ts_ms per symbol",
+  "fee_rt_bps": 10.0,
+  "per_symbol": {
+    "BTCUSDT": {
+      "n_aggtrades": 2000000,
+      "n_events": 1002021,
+      "economics": {
+        "aggTrade": {
+          "grid": {
+            "5": {
+              "n": 399996,
+              "bps": 0.0502,
+              "se": 0.0003,
+              "t": 147.54,
+              "null_mean": -0.0001,
+              "null_sd": 0.0004
+            },
+            "10": {
+              "n": 199997,
+              "bps": 0.093,
+              "se": 0.0006,
+              "t": 157.07,
+              "null_mean": -0.0001,
+              "null_sd": 0.0007
+            },
+            "20": {
+              "n": 99997,
+              "bps": 0.1592,
+              "se": 0.0012,
+              "t": 133.4,
+              "null_mean": 0.0003,
+              "null_sd": 0.0018
+            },
+            "50": {
+              "n": 39997,
+              "bps": 0.2636,
+              "se": 0.0035,
+              "t": 75.39,
+              "null_mean": 0.0005,
+              "null_sd": 0.0042
+            },
+            "100": {
+              "n": 19997,
+              "bps": 0.2879,
+              "se": 0.0082,
+              "t": 35.08,
+              "null_mean": 0.0038,
+              "null_sd": 0.0106
+            },
+            "200": {
+              "n": 9997,
+              "bps": 0.2185,
+              "se": 0.0184,
+              "t": 11.86,
+              "null_mean": 0.0066,
+              "null_sd": 0.0242
+            }
+          },
+          "best_T": 100,
+          "best_bps": 0.2879
+        },
+        "market_order": {
+          "grid": {
+            "5": {
+              "n": 200402,
+              "bps": 0.0673,
+              "se": 0.0009,
+              "t": 78.85,
+              "null_mean": -0.0002,
+              "null_sd": 0.0008
+            },
+            "10": {
+              "n": 100200,
+              "bps": 0.1135,
+              "se": 0.0015,
+              "t": 75.26,
+              "null_mean": -0.0004,
+              "null_sd": 0.0015
+            },
+            "20": {
+              "n": 50099,
+              "bps": 0.1558,
+              "se": 0.0033,
+              "t": 46.53,
+              "null_mean": 0.0005,
+              "null_sd": 0.0032
+            },
+            "50": {
+              "n": 20038,
+              "bps": 0.1622,
+              "se": 0.0094,
+              "t": 17.34,
+              "null_mean": -0.0004,
+              "null_sd": 0.0084
+            },
+            "100": {
+              "n": 10018,
+              "bps": 0.1176,
+              "se": 0.0196,
+              "t": 6.01,
+              "null_mean": 0.0061,
+              "null_sd": 0.0212
+            },
+            "200": {
+              "n": 5008,
+              "bps": 0.0694,
+              "se": 0.0403,
+              "t": 1.72,
+              "null_mean": -0.0025,
+              "null_sd": 0.0451
+            }
+          },
+          "best_T": 50,
+          "best_bps": 0.1622
+        }
+      },
+      "impact_level": {
+        "aggTrade": {
+          "impact_bps_at_C_T42_notional": 0.5593,
+          "n_windows": 6504,
+          "fee_over_impact": 17.9
+        },
+        "market_order": {
+          "impact_bps_at_C_T42_notional": 0.718,
+          "n_windows": 2923,
+          "fee_over_impact": 13.9
+        }
+      },
+      "C_T42_published": {
+        "impact_bps": 0.439,
+        "edge_bps_T50": 0.2636,
+        "notional": 194102.0
+      }
+    },
+    "ETHUSDT": {
+      "n_aggtrades": 2000000,
+      "n_events": 1129418,
+      "economics": {
+        "aggTrade": {
+          "grid": {
+            "5": {
+              "n": 399997,
+              "bps": 0.1017,
+              "se": 0.0007,
+              "t": 138.93,
+              "null_mean": -0.0,
+              "null_sd": 0.0013
+            },
+            "10": {
+              "n": 199997,
+              "bps": 0.1771,
+              "se": 0.0013,
+              "t": 141.31,
+              "null_mean": 0.0006,
+              "null_sd": 0.0028
+            },
+            "20": {
+              "n": 99997,
+              "bps": 0.2636,
+              "se": 0.0025,
+              "t": 106.91,
+              "null_mean": -0.0013,
+              "null_sd": 0.0049
+            },
+            "50": {
+              "n": 39997,
+              "bps": 0.2903,
+              "se": 0.007,
+              "t": 41.73,
+              "null_mean": 0.0,
+              "null_sd": 0.0143
+            },
+            "100": {
+              "n": 19997,
+              "bps": 0.2126,
+              "se": 0.015,
+              "t": 14.15,
+              "null_mean": -0.0039,
+              "null_sd": 0.0198
+            },
+            "200": {
+              "n": 9997,
+              "bps": 0.129,
+              "se": 0.031,
+              "t": 4.16,
+              "null_mean": 0.0043,
+              "null_sd": 0.0513
+            }
+          },
+          "best_T": 50,
+          "best_bps": 0.2903
+        },
+        "market_order": {
+          "grid": {
+            "5": {
+              "n": 225881,
+              "bps": 0.1155,
+              "se": 0.0014,
+              "t": 79.89,
+              "null_mean": 0.0003,
+              "null_sd": 0.002
+            },
+            "10": {
+              "n": 112939,
+              "bps": 0.1758,
+              "se": 0.0024,
+              "t": 74.66,
+              "null_mean": -0.0003,
+              "null_sd": 0.0048
+            },
+            "20": {
+              "n": 56468,
+              "bps": 0.1932,
+              "se": 0.005,
+              "t": 38.32,
+              "null_mean": -0.0009,
+              "null_sd": 0.0098
+            },
+            "50": {
+              "n": 22586,
+              "bps": 0.1441,
+              "se": 0.0136,
+              "t": 10.6,
+              "null_mean": -0.0008,
+              "null_sd": 0.0231
+            },
+            "100": {
+              "n": 11292,
+              "bps": 0.0682,
+              "se": 0.0279,
+              "t": 2.45,
+              "null_mean": 0.0015,
+              "null_sd": 0.0456
+            },
+            "200": {
+              "n": 5645,
+              "bps": -0.0182,
+              "se": 0.0564,
+              "t": -0.32,
+              "null_mean": -0.0089,
+              "null_sd": 0.0763
+            }
+          },
+          "best_T": 20,
+          "best_bps": 0.1932
+        }
+      },
+      "impact_level": {
+        "aggTrade": {
+          "impact_bps_at_C_T42_notional": 1.0639,
+          "n_windows": 6744,
+          "fee_over_impact": 9.4
+        },
+        "market_order": {
+          "impact_bps_at_C_T42_notional": 1.2751,
+          "n_windows": 3399,
+          "fee_over_impact": 7.8
+        }
+      },
+      "C_T42_published": {
+        "impact_bps": 0.7717,
+        "edge_bps_T50": 0.2903,
+        "notional": 134504.0
+      }
+    },
+    "SOLUSDT": {
+      "n_aggtrades": 2000000,
+      "n_events": 1871110,
+      "economics": {
+        "aggTrade": {
+          "grid": {
+            "5": {
+              "n": 399997,
+              "bps": 0.0131,
+              "se": 0.002,
+              "t": 6.47,
+              "null_mean": -0.0003,
+              "null_sd": 0.002
+            },
+            "10": {
+              "n": 199997,
+              "bps": 0.0875,
+              "se": 0.0036,
+              "t": 24.36,
+              "null_mean": -0.0001,
+              "null_sd": 0.0043
+            },
+            "20": {
+              "n": 99997,
+              "bps": 0.104,
+              "se": 0.0069,
+              "t": 15.11,
+              "null_mean": 0.0011,
+              "null_sd": 0.0055
+            },
+            "50": {
+              "n": 39997,
+              "bps": 0.0924,
+              "se": 0.0168,
+              "t": 5.51,
+              "null_mean": 0.0016,
+              "null_sd": 0.0203
+            },
+            "100": {
+              "n": 19997,
+              "bps": 0.0315,
+              "se": 0.0333,
+              "t": 0.95,
+              "null_mean": 0.0014,
+              "null_sd": 0.0321
+            },
+            "200": {
+              "n": 9997,
+              "bps": 0.081,
+              "se": 0.0665,
+              "t": 1.22,
+              "null_mean": 0.0026,
+              "null_sd": 0.0787
+            }
+          },
+          "best_T": 20,
+          "best_bps": 0.104
+        },
+        "market_order": {
+          "grid": {
+            "5": {
+              "n": 374219,
+              "bps": 0.022,
+              "se": 0.0022,
+              "t": 10.15,
+              "null_mean": 0.0001,
+              "null_sd": 0.0026
+            },
+            "10": {
+              "n": 187108,
+              "bps": 0.0942,
+              "se": 0.0038,
+              "t": 24.87,
+              "null_mean": 0.0014,
+              "null_sd": 0.0042
+            },
+            "20": {
+              "n": 93553,
+              "bps": 0.1052,
+              "se": 0.0073,
+              "t": 14.37,
+              "null_mean": 0.0011,
+              "null_sd": 0.0079
+            },
+            "50": {
+              "n": 37420,
+              "bps": 0.0673,
+              "se": 0.0179,
+              "t": 3.76,
+              "null_mean": -0.0049,
+              "null_sd": 0.0174
+            },
+            "100": {
+              "n": 18709,
+              "bps": 0.034,
+              "se": 0.0357,
+              "t": 0.95,
+              "null_mean": -0.005,
+              "null_sd": 0.044
+            },
+            "200": {
+              "n": 9353,
+              "bps": -0.1184,
+              "se": 0.071,
+              "t": -1.67,
+              "null_mean": -0.0129,
+              "null_sd": 0.0562
+            }
+          },
+          "best_T": 20,
+          "best_bps": 0.1052
+        }
+      },
+      "impact_level": {
+        "aggTrade": {
+          "impact_bps_at_C_T42_notional": 2.1787,
+          "n_windows": 6118,
+          "fee_over_impact": 4.6
+        },
+        "market_order": {
+          "impact_bps_at_C_T42_notional": 2.2125,
+          "n_windows": 5756,
+          "fee_over_impact": 4.5
+        }
+      },
+      "C_T42_published": {
+        "impact_bps": 1.3298,
+        "edge_bps_T50": 0.0924,
+        "notional": 64676.1
+      }
+    }
+  }
+}

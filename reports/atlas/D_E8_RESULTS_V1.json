@@ -1,0 +1,102 @@
+{
+ "prereg_sha256": "e7968ac4e933610e281b15709da3245b6d76662b2e963d1d9e30722a47332c4c",
+ "selftest": "PASS",
+ "arms": [
+  {
+   "label": "PRIMARY floor=$50000 k=10.0bps",
+   "n": 628,
+   "cause_counts": {
+    "EDGE_GONE": 493,
+    "NEVER_ALIVE": 56,
+    "ADMINISTRATIVE": 63,
+    "INTERRUPTED": 16
+   },
+   "never_alive_share": 0.0892,
+   "mu_tau_minutes": 18.1041,
+   "ci95_symbol_day_cluster": [
+    16.677,
+    19.6825
+   ],
+   "n_strata": 72,
+   "P00_at_tau": 0.1003,
+   "CIF_edge_gone_at_tau": 0.8742,
+   "CIF_interrupted_at_tau": 0.0255,
+   "defective_distribution": true,
+   "dropped": {
+    "SLIP_DROPPED": 1
+   }
+  },
+  {
+   "label": "PRIMARY floor=$50000 k=4.0bps",
+   "n": 628,
+   "cause_counts": {
+    "EDGE_GONE": 526,
+    "ADMINISTRATIVE": 64,
+    "INTERRUPTED": 25,
+    "NEVER_ALIVE": 13
+   },
+   "never_alive_share": 0.0207,
+   "mu_tau_minutes": 15.3191,
+   "ci95_symbol_day_cluster": [
+    13.7477,
+    16.9597
+   ],
+   "n_strata": 72,
+   "P00_at_tau": 0.1019,
+   "CIF_edge_gone_at_tau": 0.8583,
+   "CIF_interrupted_at_tau": 0.0398,
+   "defective_distribution": true,
+   "dropped": {
+    "SLIP_DROPPED": 1
+   }
+  },
+  {
+   "label": "PRIMARY floor=$50000 k=0.0bps",
+   "n": 628,
+   "cause_counts": {
+    "EDGE_GONE": 556,
+    "ADMINISTRATIVE": 56,
+    "INTERRUPTED": 15,
+    "NEVER_ALIVE": 1
+   },
+   "never_alive_share": 0.0016,
+   "mu_tau_minutes": 9.1674,
+   "ci95_symbol_day_cluster": [
+    7.8183,
+    10.5217
+   ],
+   "n_strata": 72,
+   "P00_at_tau": 0.0892,
+   "CIF_edge_gone_at_tau": 0.8869,
+   "CIF_interrupted_at_tau": 0.0239,
+   "defective_distribution": true,
+   "dropped": {
+    "SLIP_DROPPED": 1
+   }
+  },
+  {
+   "label": "SENSITIVITY_floor0 floor=$0 k=10.0bps",
+   "n": 1269,
+   "cause_counts": {
+    "EDGE_GONE": 815,
+    "NEVER_ALIVE": 279,
+    "ADMINISTRATIVE": 60,
+    "INTERRUPTED": 115
+   },
+   "never_alive_share": 0.2199,
+   "mu_tau_minutes": 14.2746,
+   "ci95_symbol_day_cluster": [
+    13.2535,
+    15.3057
+   ],
+   "n_strata": 72,
+   "P00_at_tau": 0.0473,
+   "CIF_edge_gone_at_tau": 0.8621,
+   "CIF_interrupted_at_tau": 0.0906,
+   "defective_distribution": false,
+   "dropped": {
+    "SLIP_DROPPED": 2
+   }
+  }
+ ]
+}

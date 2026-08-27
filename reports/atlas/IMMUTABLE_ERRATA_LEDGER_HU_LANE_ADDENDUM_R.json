@@ -1,0 +1,28 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_R",
+  "append_only": true,
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "found_by": "nan in the driver's own output",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-039",
+      "source_file": "tools/ct39_three_corpus_questions_one_pass.py",
+      "source_section_or_line": "CA_s sign construction",
+      "error_class": "CODE_ERROR",
+      "affected_tokens": [
+        "SEPARATE_CA_SERIES_LONG_RANGE_SOL"
+      ],
+      "old_statement": "SOL's CA autocorrelation printed as nan",
+      "corrected_statement": "CA_s assigns -1 to every index not matching (da > 0) & (db == 0), including indices that are not CA events at all; the mask then selects a sub-series that can be constant, giving a zero denominator and nan. On SOL it did. The SOL CA row is VOID; BTC and ETH rows are unaffected because their masked series are not degenerate, but the construction is fragile and should assign signs only within the mask.",
+      "numeric_outputs_affected": true,
+      "primary_verdict_affected": false,
+      "downstream_artifacts_affected": [
+        "reports/atlas/CT39_THREE_QUESTIONS_V1.json"
+      ],
+      "source_sha256": "17dd133157ecf2367bb22d863ae074ba709d9773f35dd49aadfb5cf23a1f9c45",
+      "source_exists": true,
+      "errata_sha256": "aaf889cc4f772792fcfe18de599ea7e5e527c142e04f807cd91dfe89651f4128"
+    }
+  ]
+}

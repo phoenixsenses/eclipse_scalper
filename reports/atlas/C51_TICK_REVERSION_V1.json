@@ -1,0 +1,71 @@
+{
+  "study": "C-T51",
+  "lane": "C",
+  "utc": "2026-08-27T11:37:39Z",
+  "corpus_mechanism": "Bouchaud sec. 7.5: after a queue race, with probability rho_0 the vacated level is refilled and the MID-PRICE REVERTS",
+  "prediction_stated_before_measurement": "P(next non-zero move reverses) > 1/2, and LARGER on the large-tick symbol",
+  "sample": "data/microstructure_02.db :: agg_trades, first 2,000,000 rows by ts_ms per symbol",
+  "thresholds_declared": "any non-zero move; and both moves exactly one tick",
+  "null": "non-zero moves shuffled: ordering destroyed, marginal sizes kept, must give 0.5",
+  "predicted_order_most_reverting_first": [
+    "SOLUSDT",
+    "ETHUSDT",
+    "BTCUSDT"
+  ],
+  "observed_order_most_reverting_first": [
+    "SOLUSDT",
+    "ETHUSDT",
+    "BTCUSDT"
+  ],
+  "prediction_holds": true,
+  "per_symbol": {
+    "BTCUSDT": {
+      "tick": 0.09999999999126885,
+      "n_nonzero_moves": 1578177,
+      "zero_move_share_of_trades": 0.2109,
+      "share_of_moves_that_are_one_tick": 0.7778,
+      "P_reverse_any": 0.3072,
+      "P_reverse_one_tick": 0.4404,
+      "n_one_tick_pairs": 1002960,
+      "null_any_mean": 0.4999,
+      "null_any_sd": 0.00037,
+      "null_one_mean": 0.4999,
+      "z_any": -526.1,
+      "z_one": -114.6,
+      "excess_over_half_any": -0.1928,
+      "excess_over_half_one_tick": -0.0596
+    },
+    "ETHUSDT": {
+      "tick": 0.009999999999990905,
+      "n_nonzero_moves": 1574852,
+      "zero_move_share_of_trades": 0.2126,
+      "share_of_moves_that_are_one_tick": 0.9493,
+      "P_reverse_any": 0.3263,
+      "P_reverse_one_tick": 0.3229,
+      "n_one_tick_pairs": 1445579,
+      "null_any_mean": 0.5,
+      "null_any_sd": 0.00037,
+      "null_one_mean": 0.5,
+      "z_any": -465.0,
+      "z_one": -455.4,
+      "excess_over_half_any": -0.1737,
+      "excess_over_half_one_tick": -0.1771
+    },
+    "SOLUSDT": {
+      "tick": 0.009999999999990905,
+      "n_nonzero_moves": 990556,
+      "zero_move_share_of_trades": 0.5047,
+      "share_of_moves_that_are_one_tick": 0.9932,
+      "P_reverse_any": 0.8808,
+      "P_reverse_one_tick": 0.8808,
+      "n_one_tick_pairs": 981719,
+      "null_any_mean": 0.5,
+      "null_any_sd": 0.0006,
+      "null_one_mean": 0.5,
+      "z_any": 638.6,
+      "z_one": 641.2,
+      "excess_over_half_any": 0.3808,
+      "excess_over_half_one_tick": 0.3808
+    }
+  }
+}

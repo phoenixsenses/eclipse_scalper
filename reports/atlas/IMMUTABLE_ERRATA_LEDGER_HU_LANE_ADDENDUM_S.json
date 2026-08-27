@@ -1,0 +1,28 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_S",
+  "append_only": true,
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "found_by": "hand-checking the crosswalk's own keyword hits",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-040",
+      "source_file": "tools/ct41_misconceptions_crosswalk_and_the_haircut.py",
+      "source_section_or_line": "MISCONCEPTIONS keyword matching",
+      "error_class": "PROSE_OVERCLAIM",
+      "affected_tokens": [
+        "SEC_12_3_5_ENUMERATES_ERRORS_THIS_LANE_MADE"
+      ],
+      "old_statement": "12 of 39 errata touch a named misconception; M5 matched 2, M6 matched 6",
+      "corrected_statement": "Keyword matching, hand-checked. M5 ('an unsigned sqrt(V) is diffusion, not impact') matched ERR-HU-010 and ERR-HU-035 on the word 'diffus', but this lane measured the SIGNED response throughout, so no such error was made -- those hits are spurious. M6 ('the square-root law is insensitive to tick size') matched six errata on the bare word 'tick', none of which is about that claim -- also spurious. The verified count is FOUR misconceptions (M1-M4) instantiated by TWO errata (ERR-HU-012 and ERR-HU-013), not twelve errata across six. The headline is unaffected and is about kind, not count: a section titled 'Common Misconceptions' enumerated in advance an error this lane then discovered by measurement.",
+      "numeric_outputs_affected": true,
+      "primary_verdict_affected": false,
+      "downstream_artifacts_affected": [
+        "reports/atlas/CT41_MISCONCEPTIONS_AND_HAIRCUT_V1.json"
+      ],
+      "source_sha256": "3d0622b22c38cdab25b3308ed879cf63353a7f1ce48ca70d0eb7542c2002083a",
+      "source_exists": true,
+      "errata_sha256": "069f6d0a90ea3594b3eae21ea3c891c3544022ac02b17fc9fdd42302fdbb5263"
+    }
+  ]
+}

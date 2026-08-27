@@ -1,0 +1,25 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_L",
+  "append_only": true,
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "found_by": "tools/ct32_the_outer_region_is_not_a_percentile.py",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-028",
+      "source_file": "tools/ct31_part_six_or_part_eight.py",
+      "source_section_or_line": "OUTER_PCT = 75.0, declared but never swept",
+      "error_class": "PROSE_OVERCLAIM",
+      "old_statement": "zeta_outer = 0.3691 / 0.4270 / 0.3935, reported with a declared cut rule as though declaring it made the value cut-independent",
+      "corrected_statement": "Declaring a free parameter is not the same as showing what it does. Sweeping the outer cut from 50 to 95 percent moves zeta by 0.123 (BTC), 0.040 (ETH) and 0.091 (SOL) -- 6 to 17 times the estimator's own standard error of 0.007 -- and the profile is non-monotone (BTC falls to 0.365 at 70 percent then rises to 0.488 at 95).  Every zeta_outer, in either lane, must carry that span.  A parameter-FREE alternative exists and was run: the asymptotic local slope of the full curve, which passes the same linear null (1.001-1.007) and recovery (bias -0.014 to -0.024, stable across psi).  It gives 0.3726 / 0.4401 / 0.4077 de-biased, agreeing with the 75 percent cut to within 0.008 -- so C-T31's NUMBERS happen to be fine, but its claim to them was not earned.  A-S30's 0.416 and 0.439 are reachable inside the sweep; its SOL value of 0.495 is NOT (the sweep's maximum is 0.475), so that one gap is not explained by the cut.",
+      "numeric_outputs_affected": false,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "SYSTEM_STATE 498 (C-T31)"
+      ],
+      "source_sha256": "75ce59a59849398a94174a9051923fe6e0a8ea401f9b43be4de6a2af2c4f9421",
+      "source_exists": true,
+      "errata_sha256": "a2b839e2b5cf6944ab679e006945e4044ded2fac6e0f6ca58a4c0c82bf1dbb57"
+    }
+  ]
+}

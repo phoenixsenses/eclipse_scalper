@@ -1,0 +1,70 @@
+{
+  "days": [
+    "2026-08-07",
+    "2026-08-08",
+    "2026-08-09",
+    "2026-08-10",
+    "2026-08-11",
+    "2026-08-12",
+    "2026-08-13"
+  ],
+  "db": "data/microstructure_02.db",
+  "arm_A": "book_ticker MID at the event (C-KULLIYAT-T51, and Bouchaud Eq 16.22/17.10)",
+  "arm_B": "aggTrade TRADE PRICE at the event (C-T52)",
+  "theirs": {
+    "BTCUSDT": 0.0484,
+    "ETHUSDT": 0.1093,
+    "SOLUSDT": null
+  },
+  "mine_published": {
+    "BTCUSDT": 0.0158,
+    "ETHUSDT": 0.0302,
+    "SOLUSDT": 0.05
+  },
+  "per_symbol": {
+    "BTCUSDT": {
+      "R1_mid": 0.01576725308064284,
+      "R1_trade_price": -0.002419553206904868,
+      "ratio_B_over_A": -0.1534543267955347,
+      "n": 3105232,
+      "theirs": 0.0484,
+      "closer_to_theirs": "MID"
+    },
+    "ETHUSDT": {
+      "R1_mid": 0.030173223016374713,
+      "R1_trade_price": -0.013350706765741887,
+      "ratio_B_over_A": -0.4424687000953325,
+      "n": 3122926,
+      "theirs": 0.1093,
+      "closer_to_theirs": "MID"
+    },
+    "SOLUSDT": {
+      "R1_mid": 0.05004099301049529,
+      "R1_trade_price": -0.470076369117149,
+      "ratio_B_over_A": -9.393825758384892,
+      "n": 1651618,
+      "theirs": null
+    }
+  },
+  "ceiling": "MEASUREMENT_FIDELITY",
+  "their_span": {
+    "BTCUSDT": {
+      "from": "2026-07-23 20:40",
+      "to": "2026-07-27 04:29"
+    },
+    "ETHUSDT": {
+      "from": "2026-07-23 20:40",
+      "to": "2026-07-27 06:34"
+    },
+    "SOLUSDT": {
+      "from": "2026-07-23 20:40",
+      "to": "2026-08-02 23:22"
+    }
+  },
+  "tokens": [
+    "THE_OBSERVABLE_DOES_NOT_EXPLAIN_THE_GAP",
+    "THE_CORPUS_DEFINES_R_ON_THE_MID_EQ_16_22_AND_17_10",
+    "SAME_DB_MICROSTRUCTURE_02_SO_POPULATION_IS_ROWS_NOT_SOURCE",
+    "MY_POPULATION_DIFFERENCE_NOTE_IS_TESTED_NOT_ASSUMED"
+  ]
+}

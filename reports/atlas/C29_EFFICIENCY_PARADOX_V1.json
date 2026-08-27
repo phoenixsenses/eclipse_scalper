@@ -1,0 +1,236 @@
+{
+  "study": "C-T29",
+  "lane": "C",
+  "utc": "2026-08-27T04:34:15Z",
+  "reps": 40,
+  "seed": 20260827,
+  "source": "Bouchaud, Trades Quotes and Prices: Eq. (8.7) for R(l); Sec. 10.4 for the efficiency paradox and its stated resolution",
+  "counterfactual": "if impact were permanent at G bps per trade, price dispersion over T trades would be G * sd(sum_T eps); the ratio of actual to that is the surviving fraction and goes as T^(H - chi)",
+  "per_symbol": {
+    "BTCUSDT": {
+      "n_trades": 2000000,
+      "H_price": 0.6175,
+      "r2_H": 0.998,
+      "H_null_mean": 0.5006,
+      "H_null_sd": 0.0037,
+      "H_z": 31.4,
+      "chi_flow": 0.7776,
+      "r2_chi": 0.9967,
+      "chi_null_mean": 0.4995,
+      "chi_z": 81.3,
+      "chi_minus_H": 0.1601,
+      "G_lag1_impact_bps": 0.02425,
+      "response_function_bps": {
+        "1": 0.0243,
+        "2": 0.0238,
+        "4": 0.0459,
+        "8": 0.0844,
+        "16": 0.1481,
+        "32": 0.2419,
+        "64": 0.3535,
+        "128": 0.4425,
+        "256": 0.478,
+        "512": 0.4768,
+        "1024": 0.5002,
+        "2048": 0.4873
+      },
+      "response_ratio_2048_over_1": 20.096,
+      "counterfactual": [
+        {
+          "T": 20,
+          "actual_bps": 0.41,
+          "permanent_impact_bps": 0.35,
+          "surviving_fraction": 1.1836,
+          "cancelled_fraction": -0.1836
+        },
+        {
+          "T": 50,
+          "actual_bps": 0.75,
+          "permanent_impact_bps": 0.79,
+          "surviving_fraction": 0.9498,
+          "cancelled_fraction": 0.0502
+        },
+        {
+          "T": 100,
+          "actual_bps": 1.2,
+          "permanent_impact_bps": 1.41,
+          "surviving_fraction": 0.8501,
+          "cancelled_fraction": 0.1499
+        },
+        {
+          "T": 200,
+          "actual_bps": 1.85,
+          "permanent_impact_bps": 2.4,
+          "surviving_fraction": 0.7715,
+          "cancelled_fraction": 0.2285
+        },
+        {
+          "T": 500,
+          "actual_bps": 3.14,
+          "permanent_impact_bps": 4.6,
+          "surviving_fraction": 0.6816,
+          "cancelled_fraction": 0.3184
+        },
+        {
+          "T": 1000,
+          "actual_bps": 4.54,
+          "permanent_impact_bps": 7.35,
+          "surviving_fraction": 0.6184,
+          "cancelled_fraction": 0.3816
+        }
+      ],
+      "surviving_fraction_exponent": -0.1601,
+      "predicted_exponent_H_minus_chi": -0.1601
+    },
+    "ETHUSDT": {
+      "n_trades": 2000000,
+      "H_price": 0.5512,
+      "r2_H": 0.9988,
+      "H_null_mean": 0.5,
+      "H_null_sd": 0.0042,
+      "H_z": 12.2,
+      "chi_flow": 0.7043,
+      "r2_chi": 0.9981,
+      "chi_null_mean": 0.5004,
+      "chi_z": 52.5,
+      "chi_minus_H": 0.1531,
+      "G_lag1_impact_bps": 0.06174,
+      "response_function_bps": {
+        "1": 0.0617,
+        "2": 0.0552,
+        "4": 0.1018,
+        "8": 0.1772,
+        "16": 0.2843,
+        "32": 0.4007,
+        "64": 0.4792,
+        "128": 0.5007,
+        "256": 0.5008,
+        "512": 0.4696,
+        "1024": 0.465,
+        "2048": 0.494
+      },
+      "response_ratio_2048_over_1": 8.001,
+      "counterfactual": [
+        {
+          "T": 20,
+          "actual_bps": 0.82,
+          "permanent_impact_bps": 0.8,
+          "surviving_fraction": 1.0302,
+          "cancelled_fraction": -0.0302
+        },
+        {
+          "T": 50,
+          "actual_bps": 1.42,
+          "permanent_impact_bps": 1.67,
+          "surviving_fraction": 0.8491,
+          "cancelled_fraction": 0.1509
+        },
+        {
+          "T": 100,
+          "actual_bps": 2.14,
+          "permanent_impact_bps": 2.77,
+          "surviving_fraction": 0.7697,
+          "cancelled_fraction": 0.2303
+        },
+        {
+          "T": 200,
+          "actual_bps": 3.11,
+          "permanent_impact_bps": 4.44,
+          "surviving_fraction": 0.6991,
+          "cancelled_fraction": 0.3009
+        },
+        {
+          "T": 500,
+          "actual_bps": 5.02,
+          "permanent_impact_bps": 8.15,
+          "surviving_fraction": 0.6168,
+          "cancelled_fraction": 0.3832
+        },
+        {
+          "T": 1000,
+          "actual_bps": 7.14,
+          "permanent_impact_bps": 12.88,
+          "surviving_fraction": 0.5546,
+          "cancelled_fraction": 0.4454
+        }
+      ],
+      "surviving_fraction_exponent": -0.1531,
+      "predicted_exponent_H_minus_chi": -0.1531
+    },
+    "SOLUSDT": {
+      "n_trades": 2000000,
+      "H_price": 0.4911,
+      "r2_H": 0.9999,
+      "H_null_mean": 0.5,
+      "H_null_sd": 0.0037,
+      "H_z": -2.4,
+      "chi_flow": 0.8918,
+      "r2_chi": 0.9999,
+      "chi_null_mean": 0.5007,
+      "chi_z": 100.2,
+      "chi_minus_H": 0.4007,
+      "G_lag1_impact_bps": 0.67755,
+      "response_function_bps": {
+        "1": 0.6776,
+        "2": 0.0859,
+        "4": 0.1455,
+        "8": 0.173,
+        "16": 0.1849,
+        "32": 0.191,
+        "64": 0.1889,
+        "128": 0.1822,
+        "256": 0.1688,
+        "512": 0.1534,
+        "1024": 0.0859,
+        "2048": 0.0605
+      },
+      "response_ratio_2048_over_1": 0.089,
+      "counterfactual": [
+        {
+          "T": 20,
+          "actual_bps": 2.18,
+          "permanent_impact_bps": 4.89,
+          "surviving_fraction": 0.4457,
+          "cancelled_fraction": 0.5543
+        },
+        {
+          "T": 50,
+          "actual_bps": 3.36,
+          "permanent_impact_bps": 10.73,
+          "surviving_fraction": 0.3127,
+          "cancelled_fraction": 0.6873
+        },
+        {
+          "T": 100,
+          "actual_bps": 4.71,
+          "permanent_impact_bps": 19.94,
+          "surviving_fraction": 0.2362,
+          "cancelled_fraction": 0.7638
+        },
+        {
+          "T": 200,
+          "actual_bps": 6.65,
+          "permanent_impact_bps": 37.28,
+          "surviving_fraction": 0.1784,
+          "cancelled_fraction": 0.8216
+        },
+        {
+          "T": 500,
+          "actual_bps": 10.52,
+          "permanent_impact_bps": 85.26,
+          "surviving_fraction": 0.1233,
+          "cancelled_fraction": 0.8767
+        },
+        {
+          "T": 1000,
+          "actual_bps": 14.78,
+          "permanent_impact_bps": 158.2,
+          "surviving_fraction": 0.0934,
+          "cancelled_fraction": 0.9066
+        }
+      ],
+      "surviving_fraction_exponent": -0.4007,
+      "predicted_exponent_H_minus_chi": -0.4007
+    }
+  }
+}

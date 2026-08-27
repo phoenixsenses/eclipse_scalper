@@ -1,0 +1,39 @@
+{
+  "study": "C-T29-part4",
+  "why": "the t of 140 assumed independent windows; the flow's long memory makes adjacent windows dependent",
+  "per_cell": {
+    "BTCUSDT_T50": {
+      "gain_bps": 0.2471,
+      "lag1_autocorr_of_gain": 0.0041,
+      "se_naive": 0.0036,
+      "se_newey_west_L100": 0.0044,
+      "se_block_bootstrap_L200": 0.005,
+      "t_naive": 69.5,
+      "t_block": 49.6,
+      "fee_rt": 10.0,
+      "shortfall_x": 40.5
+    },
+    "ETHUSDT_T20": {
+      "gain_bps": 0.2645,
+      "lag1_autocorr_of_gain": -0.0525,
+      "se_naive": 0.0025,
+      "se_newey_west_L100": 0.003,
+      "se_block_bootstrap_L200": 0.0034,
+      "t_naive": 104.4,
+      "t_block": 77.9,
+      "fee_rt": 10.0,
+      "shortfall_x": 37.8
+    },
+    "BTCUSDT_T20": {
+      "gain_bps": 0.1679,
+      "lag1_autocorr_of_gain": -0.0005,
+      "se_naive": 0.0012,
+      "se_newey_west_L100": 0.0021,
+      "se_block_bootstrap_L200": 0.0026,
+      "t_naive": 140.1,
+      "t_block": 63.4,
+      "fee_rt": 10.0,
+      "shortfall_x": 59.6
+    }
+  }
+}

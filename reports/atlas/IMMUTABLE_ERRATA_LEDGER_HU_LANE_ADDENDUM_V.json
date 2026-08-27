@@ -1,0 +1,28 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_V",
+  "append_only": true,
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "found_by": "the driver's own count table disagreeing with its own sampler",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-044",
+      "source_file": "tools/ct_kulliyat_t47_what_i_never_surfaced_in_bouchaud.py",
+      "source_section_or_line": "the ligature-only PASSAGE SAMPLER (window comparison)",
+      "error_class": "CODE_ERROR",
+      "affected_tokens": [
+        "LIGATURE_ONLY_PASSAGE_SAMPLE"
+      ],
+      "old_statement": "the sampler reported 76 ligature-only hits for `market-making`, 27 for `compensat` and 5 for `offset`",
+      "corrected_statement": "Offset drift. `normalise` expands one ligature glyph into two characters, so every offset AFTER the first ligature differs between the raw and normalised strings; the sampler compared a normalised offset against a raw window at the same index and drifted. The driver's own count table contradicts it and the count table is right: `market-making`, `compensat` and `offset` contain no ff/fi/fl and have ZERO ligature-only hits (85=85, 28=28, 5=5). The passages printed are genuine passages containing the term; their CLASSIFICATION as ligature-only is void. The whole-text counts -- which carry this round's finding -- are unaffected, being computed on each string independently rather than by index.",
+      "numeric_outputs_affected": true,
+      "primary_verdict_affected": false,
+      "downstream_artifacts_affected": [
+        "reports/atlas/CT_KULLIYAT_T47_UNSURFACED_V1.json"
+      ],
+      "source_sha256": "c3c750276e58f8ac7c85302e3d582bcd394413d1c9768d6a0b8d7e771d69d7e6",
+      "source_exists": true,
+      "errata_sha256": "d9bbfe200070fede03cb74924d9b9238adbdc091fa530bac8790f6c5f37bc558"
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "days": [
+    "2026-08-07",
+    "2026-08-08",
+    "2026-08-09",
+    "2026-08-10",
+    "2026-08-11",
+    "2026-08-12",
+    "2026-08-13"
+  ],
+  "T_list": [
+    1,
+    2,
+    5,
+    10,
+    20,
+    50,
+    100,
+    200
+  ],
+  "T_fit_min": 20,
+  "n_sim": 120,
+  "true_kx_for_recovery": 0.25,
+  "closes": "ERR-HU-021",
+  "verdict_rule": "SUPPORTED iff real outside null A's 95% interval AND null B recovers 0.25 with |bias| < 0.05",
+  "per_symbol": {
+    "BTCUSDT": {
+      "kappa_minus_chi_real": 0.22446080760472956,
+      "ct24_published": 0.2245,
+      "lambda_0": 0.14079495389774715,
+      "null_A_constant_lambda": {
+        "mean": 0.0006093082599990713,
+        "sd": 0.03192292494867285,
+        "p2.5": -0.05734657857747764,
+        "p97.5": 0.06268140100790483,
+        "n": 120
+      },
+      "null_B_recovery_of_0.25": {
+        "mean": 0.25376669740711555,
+        "sd": 0.036695295887125945,
+        "bias": 0.003766697407115549,
+        "n": 120
+      },
+      "real_outside_null_A": true,
+      "recovers_within_0.05": true,
+      "verdict": "SUPPORTED"
+    },
+    "ETHUSDT": {
+      "kappa_minus_chi_real": 0.37861662616532227,
+      "ct24_published": 0.3786,
+      "lambda_0": 0.010178027725245264,
+      "null_A_constant_lambda": {
+        "mean": -0.00043471919133493593,
+        "sd": 0.028562697257245532,
+        "p2.5": -0.05993362239642489,
+        "p97.5": 0.052649007063567614,
+        "n": 120
+      },
+      "null_B_recovery_of_0.25": {
+        "mean": 0.25304750188152286,
+        "sd": 0.03599725625075212,
+        "bias": 0.0030475018815228627,
+        "n": 120
+      },
+      "real_outside_null_A": true,
+      "recovers_within_0.05": true,
+      "verdict": "SUPPORTED"
+    },
+    "SOLUSDT": {
+      "kappa_minus_chi_real": 0.20319466644840076,
+      "ct24_published": 0.2032,
+      "lambda_0": 0.0013360683646441865,
+      "null_A_constant_lambda": {
+        "mean": -0.001719262313899318,
+        "sd": 0.031804657608807754,
+        "p2.5": -0.057270632855596394,
+        "p97.5": 0.05632380807415635,
+        "n": 120
+      },
+      "null_B_recovery_of_0.25": {
+        "mean": 0.25377957040589927,
+        "sd": 0.04010849965625469,
+        "bias": 0.0037795704058992685,
+        "n": 120
+      },
+      "real_outside_null_A": true,
+      "recovers_within_0.05": true,
+      "verdict": "SUPPORTED"
+    }
+  },
+  "ceiling": "MEASUREMENT_FIDELITY"
+}

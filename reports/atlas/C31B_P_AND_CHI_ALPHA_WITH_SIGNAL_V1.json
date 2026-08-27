@@ -1,0 +1,103 @@
+{
+  "study": "C-T31-part2",
+  "why": "p_direct and chi_minus_alpha were read against the same too-wide shuffle null",
+  "method": "same moving-block bootstrap, 50,000-trade blocks, 120 reps",
+  "per_symbol": {
+    "BTCUSDT": {
+      "kappa": {
+        "observed": 0.6507,
+        "boot_mean": 0.6503,
+        "boot_sd": 0.0118,
+        "z_vs_zero": 54.95
+      },
+      "alpha": {
+        "observed": 0.6765,
+        "boot_mean": 0.6749,
+        "boot_sd": 0.0072,
+        "z_vs_zero": 93.47
+      },
+      "chi": {
+        "observed": 0.6498,
+        "boot_mean": 0.6522,
+        "boot_sd": 0.0189,
+        "z_vs_zero": 34.41
+      },
+      "p_direct": {
+        "observed": -0.0258,
+        "boot_mean": -0.0246,
+        "boot_sd": 0.0073,
+        "z_vs_zero": -3.55
+      },
+      "chi_minus_alpha": {
+        "observed": -0.0267,
+        "boot_mean": -0.0228,
+        "boot_sd": 0.022,
+        "z_vs_zero": -1.21
+      }
+    },
+    "ETHUSDT": {
+      "kappa": {
+        "observed": 0.5782,
+        "boot_mean": 0.5705,
+        "boot_sd": 0.0103,
+        "z_vs_zero": 56.24
+      },
+      "alpha": {
+        "observed": 0.5924,
+        "boot_mean": 0.5887,
+        "boot_sd": 0.0051,
+        "z_vs_zero": 116.55
+      },
+      "chi": {
+        "observed": 0.6817,
+        "boot_mean": 0.6817,
+        "boot_sd": 0.0112,
+        "z_vs_zero": 61.07
+      },
+      "p_direct": {
+        "observed": -0.0141,
+        "boot_mean": -0.0182,
+        "boot_sd": 0.0079,
+        "z_vs_zero": -1.78
+      },
+      "chi_minus_alpha": {
+        "observed": 0.0893,
+        "boot_mean": 0.093,
+        "boot_sd": 0.0122,
+        "z_vs_zero": 7.35
+      }
+    },
+    "SOLUSDT": {
+      "kappa": {
+        "observed": 0.5209,
+        "boot_mean": 0.5233,
+        "boot_sd": 0.0098,
+        "z_vs_zero": 53.14
+      },
+      "alpha": {
+        "observed": 0.5206,
+        "boot_mean": 0.5205,
+        "boot_sd": 0.0043,
+        "z_vs_zero": 121.49
+      },
+      "chi": {
+        "observed": 0.5902,
+        "boot_mean": 0.5929,
+        "boot_sd": 0.0086,
+        "z_vs_zero": 68.99
+      },
+      "p_direct": {
+        "observed": 0.0003,
+        "boot_mean": 0.0028,
+        "boot_sd": 0.0083,
+        "z_vs_zero": 0.04
+      },
+      "chi_minus_alpha": {
+        "observed": 0.0696,
+        "boot_mean": 0.0724,
+        "boot_sd": 0.0086,
+        "z_vs_zero": 8.11
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_F",
+  "append_only": true,
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "found_by": "reading the driver's own jackknife line",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-019",
+      "source_file": "tools/ct25_which_gamma_does_the_identity_want.py",
+      "source_section_or_line": "res['hypothesis'] = SUPPORTED_BY_AT_LEAST_ONE_VARIANT",
+      "error_class": "CODE_ERROR",
+      "old_statement": "the driver printed SUPPORTED_BY_AT_LEAST_ONE_VARIANT",
+      "corrected_statement": "The only variant clearing both direction and size is `raw`, which the driver's OWN preregistered jackknife had STRUCK one line earlier (gamma 0.6199 -> 0.7315 when the top 0.1 percent of |v| is zeroed, a move of 0.11 against a declared 0.05 tolerance).  The verdict counted a struck estimator.  Same defect class as ERR-HU-011: a driver publishing a threshold verdict its own design already invalidated.  Correct reading: NO SURVIVING VARIANT PRODUCES THE WANTED GAP.",
+      "numeric_outputs_affected": false,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "reports/atlas/CT25_WHICH_GAMMA_V1.json"
+      ],
+      "source_sha256": "2c35aab1ddd5cc0315beaa153e1a15587fcc83ed6994957f05194ea3e52f8c8a",
+      "source_exists": true,
+      "errata_sha256": "497d79cbad651fcd418d4dcb5b653a160d2139331649faababb15ecb24b362b8"
+    }
+  ]
+}

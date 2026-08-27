@@ -1,0 +1,28 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_Y",
+  "append_only": true,
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "found_by": "reading H-U6's own horizon table while auditing an input C-T52 flagged",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-050",
+      "source_file": "reports/atlas/CT_KULLIYAT_T48_SEC_17_2_V1.json",
+      "source_section_or_line": "the zero-fee slow-maker row and its reading in SYSTEM_STATE 527",
+      "error_class": "PROSE_OVERCLAIM",
+      "affected_tokens": [
+        "EQ_17_13_REPRODUCES_MY_PHI_TO_ZERO_ROW_IN_STRUCTURE_AND_SIGN"
+      ],
+      "old_statement": "the zero-fee slow-maker gain was reported as -0.262 / -0.273 / +0.373 and read as 'only SOL is positive before fees'",
+      "corrected_statement": "R at phi=0 is NOT a plateau, so calling the 600 s value R_inf is a CHOICE and the zero-fee SIGN inherits it. H-U6's own table: R rises to 600 s then falls to 0.0182 / -0.1494 / -0.4682 at 3600 s, giving zero-fee gains of -0.0104 / +0.1760 / +1.1277. ETH is NEGATIVE at 60 s and 600 s and POSITIVE at 3600 s, so 'only SOL is positive before fees' is horizon-conditional and should have been stated as a range. AT THE CANONICAL 2.0 bps MAKER FEE EVERY HORIZON ON EVERY SYMBOL STAYS NEGATIVE, so the economic verdict is unaffected -- what is corrected is a zero-fee descriptive claim, not the conclusion.",
+      "numeric_outputs_affected": false,
+      "primary_verdict_affected": false,
+      "downstream_artifacts_affected": [
+        "SYSTEM_STATE 527"
+      ],
+      "source_sha256": "47efb8ff06c6921cb8fa736bbe6364a697cd2649b41d4267c77206073441b83d",
+      "source_exists": true,
+      "errata_sha256": "7c7fc3f6aa4fa587e5d0bf4b2026fc28719509fe9de3ad98be6d9499779202e2"
+    }
+  ]
+}

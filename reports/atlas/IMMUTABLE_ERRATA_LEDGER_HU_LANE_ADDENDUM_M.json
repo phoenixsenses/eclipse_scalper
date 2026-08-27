@@ -1,0 +1,25 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_M",
+  "append_only": true,
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "found_by": "the driver's own null (sd 6.6) against its own verdict spread (0.17)",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-029",
+      "source_file": "tools/ct33_the_negative_lag_response.py",
+      "source_section_or_line": "res['supports'] and ratio_median",
+      "error_class": "CODE_ERROR",
+      "old_statement": "small-tick mean 0.118 vs large-tick mean 0.072 => supports CT30_non_trade_share",
+      "corrected_statement": "The driver's own null makes the verdict void: the sign-shuffled ratio has sd 6.6 while the entire spread between symbols is 0.17 -- the statistic is noise at the summary level, and the difference is two orders of magnitude inside its own null.  The MEDIAN across lags is also the wrong summary: R(-l) is NEGATIVE at short lags, so the ratio changes sign and the median lands on a near-zero denominator.  At a fixed long lag (l = 100) the ordering INVERTS to SOL 2.737 > BTC 2.523 > ETH 1.940, which points the other way -- toward the corpus footnote, not toward C-T30.  Neither ordering has a valid per-lag null.  THE TEST DOES NOT DISCRIMINATE and its verdict is withdrawn.  Fourth instance in this lane of a driver printing a threshold verdict its own numbers do not license (ERR-HU-011, 019, 027).",
+      "numeric_outputs_affected": false,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "reports/atlas/CT33_NEGATIVE_LAG_V1.json"
+      ],
+      "source_sha256": "7621bd826e526edf09f1b1501a4223af8f21cfd735c90922272305b50395a59f",
+      "source_exists": true,
+      "errata_sha256": "e91898719ef39af88c07970f18d018a23e87da26809c6e5831c32c294fca2204"
+    }
+  ]
+}

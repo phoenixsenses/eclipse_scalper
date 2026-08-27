@@ -1,0 +1,42 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_N",
+  "append_only": true,
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "found_by": "tools/ct34_does_a_price_improving_quote_attract_the_other_side.py",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-030",
+      "source_file": "tools/ct34_does_a_price_improving_quote_attract_the_other_side.py",
+      "source_section_or_line": "out['prediction_holds'] -- 'CROSS > SAME at every tau'",
+      "error_class": "CODE_ERROR",
+      "old_statement": "prediction_holds is True on 1 of 3 symbols; SUMMARY prints 'CROSS > SAME on 1 of 3'",
+      "corrected_statement": "Wrong criterion, and it was flagged before the numbers were read.  Sec 14.4 says LO1 events 'RAPIDLY trigger' the opposite flow, so the claim lives at the SHORT lag.  At tau = 0.5 s CROSS exceeds SAME in 6 of 6 individual cells and on 3 of 3 symbols; the all-tau flag reads False on BTC and ETH only because SAME overtakes at tau = 5 s, which is the effect DECAYING, not the claim failing.  The JSON's prediction_holds field and the SUMMARY line must not be read as the verdict.",
+      "numeric_outputs_affected": false,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "reports/atlas/CT34_QUOTE_ATTRACTS_V1.json"
+      ],
+      "source_sha256": "16d74dcdd3955496f23d8f373aa57b7446e61c85d3a8c3d9d523464993c231f8",
+      "source_exists": true,
+      "errata_sha256": "371498d1a7c9002943042bbaab18ea2bb6a56fac16a89f6f3d538665b25beee0"
+    },
+    {
+      "errata_id": "ERR-HU-031",
+      "source_file": "tools/ht6_abergel_four_way.py",
+      "source_section_or_line": "AL class definition and the AL->AM cell",
+      "error_class": "DENOMINATOR_MISLABEL",
+      "old_statement": "AL->AM measured 0.97/1.17 (BTC), 0.87/1.06 (ETH), read as the corpus's 'LO1 attracts MO1' not holding on the small-tick symbols",
+      "corrected_statement": "The AL class pooled bid-improving and ask-improving events into one series, AM pooled buys and sells, and the pooled series was THEN merged at 200 ms -- so an ask-improve and a bid-improve within 200 ms of each other collapsed into a single event.  A cross-side claim cannot be seen through that.  Measured directionally over 7 days with spread-based definitions (C-T34), all four cells are elevated at tau = 0.5 s (1.51 to 2.78) and CROSS exceeds SAME 6 of 6.  H-T6's AL->AM cell is SUPERSEDED.  Note that direction-blindness alone does not arithmetically explain 0.97 when every sub-cell is above 1.5; the pooled-then-merged construction and the 1-day vs 7-day sample are the remaining candidates, and this entry does NOT claim to have separated them.",
+      "numeric_outputs_affected": true,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "SYSTEM_STATE 463 (C-T9)",
+        "reports/research/hb4_liquidation_specialness_v1/HT6_ABERGEL_FOUR_WAY_V1.json"
+      ],
+      "source_sha256": "34b4afb57694face1332419f8b7d7358731408bb86346f24477f46bfa885507c",
+      "source_exists": true,
+      "errata_sha256": "8abce0af87e405295201b8357b0cf397afc8f3ef6e8b550a83098f6986238047"
+    }
+  ]
+}

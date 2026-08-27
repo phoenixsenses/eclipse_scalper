@@ -1,0 +1,72 @@
+{
+  "study": "C-T32-part2",
+  "point": "the cancellation fraction depends entirely on which permanent-impact counterfactual is posited; two natural ones bracket the observation with opposite signs",
+  "per_symbol": {
+    "BTCUSDT": {
+      "H_observed": 0.6175,
+      "chi": 0.7776,
+      "benchmark_notional_weighted": {
+        "H_sim": 0.4998,
+        "implied_cancellation": 1.0008
+      },
+      "benchmark_flat_per_trade_R1": {
+        "H_sim": 0.5986,
+        "implied_cancellation": 0.6447
+      },
+      "benchmark_flat_no_noise": {
+        "H_sim": 0.7776,
+        "implied_cancellation": -0.0001
+      },
+      "observed_cancellation": 0.5767,
+      "bracket": [
+        0.4998,
+        0.7776
+      ],
+      "observation_inside_bracket": true
+    },
+    "ETHUSDT": {
+      "H_observed": 0.5512,
+      "chi": 0.7043,
+      "benchmark_notional_weighted": {
+        "H_sim": 0.5009,
+        "implied_cancellation": 0.9956
+      },
+      "benchmark_flat_per_trade_R1": {
+        "H_sim": 0.5661,
+        "implied_cancellation": 0.6767
+      },
+      "benchmark_flat_no_noise": {
+        "H_sim": 0.7043,
+        "implied_cancellation": -0.0001
+      },
+      "observed_cancellation": 0.7494,
+      "bracket": [
+        0.5009,
+        0.7043
+      ],
+      "observation_inside_bracket": true
+    },
+    "SOLUSDT": {
+      "H_observed": 0.4911,
+      "chi": 0.8918,
+      "benchmark_notional_weighted": {
+        "H_sim": 0.506,
+        "implied_cancellation": 0.9848
+      },
+      "benchmark_flat_per_trade_R1": {
+        "H_sim": 0.8442,
+        "implied_cancellation": 0.1214
+      },
+      "benchmark_flat_no_noise": {
+        "H_sim": 0.8918,
+        "implied_cancellation": -0.0
+      },
+      "observed_cancellation": 1.0227,
+      "bracket": [
+        0.506,
+        0.8918
+      ],
+      "observation_inside_bracket": false
+    }
+  }
+}

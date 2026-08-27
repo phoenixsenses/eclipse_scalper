@@ -1,0 +1,87 @@
+{
+  "days": [
+    "2026-08-07",
+    "2026-08-08",
+    "2026-08-09",
+    "2026-08-10",
+    "2026-08-11",
+    "2026-08-12",
+    "2026-08-13"
+  ],
+  "half_spread_bps": {
+    "BTCUSDT": 0.0078,
+    "ETHUSDT": 0.0266,
+    "SOLUSDT": 0.6595
+  },
+  "fee_bps": 2.0,
+  "eq_17_13": "E[G]/v0T = (s+2w)/2 - R_inf",
+  "eq_17_14": "E[G]/v0T = ((s+2w)/2)(1 - C(1)) - R(1)",
+  "per_symbol": {
+    "BTCUSDT": {
+      "R1_bps": 0.01576725308064284,
+      "R1_se": 4.778489610489327e-05,
+      "n": 3105232,
+      "C1": 0.25929836591722916,
+      "R_inf_600s": 0.26955213790581567,
+      "fast_zero_fee": -0.00998978033479723,
+      "fast_at_fee": -1.4913930485003386,
+      "slow_zero_fee": -0.2617521379058157,
+      "slow_at_fee": -2.2617521379058156,
+      "speed_changes_sign_at_zero_fee": false,
+      "speed_changes_sign_at_fee": false,
+      "slow_zero_fee_by_horizon": {
+        "60000": -0.22452834703255806,
+        "600000": -0.2617521379058157,
+        "3600000": -0.010408777169244847
+      }
+    },
+    "ETHUSDT": {
+      "R1_bps": 0.030173223016374713,
+      "R1_se": 7.212104277788824e-05,
+      "n": 3122926,
+      "C1": 0.2800758734664157,
+      "R_inf_600s": 0.2992380204612916,
+      "fast_zero_fee": -0.011023241250581371,
+      "fast_at_fee": -1.4508714943177499,
+      "slow_zero_fee": -0.2726380204612916,
+      "slow_at_fee": -2.2726380204612915,
+      "speed_changes_sign_at_zero_fee": false,
+      "speed_changes_sign_at_fee": false,
+      "slow_zero_fee_by_horizon": {
+        "60000": -0.2868485190168026,
+        "600000": -0.2726380204612916,
+        "3600000": 0.17601879123101394
+      }
+    },
+    "SOLUSDT": {
+      "R1_bps": 0.05004099301049529,
+      "R1_se": 0.00020968963239487067,
+      "n": 1651618,
+      "C1": 0.21858735958784078,
+      "R_inf_600s": 0.28609570974563187,
+      "fast_zero_fee": 0.46530064334132365,
+      "fast_at_fee": -1.0975246374829946,
+      "slow_zero_fee": 0.3734042902543681,
+      "slow_at_fee": -1.6265957097456318,
+      "speed_changes_sign_at_zero_fee": false,
+      "speed_changes_sign_at_fee": false,
+      "slow_zero_fee_by_horizon": {
+        "60000": 0.4531174833686081,
+        "600000": 0.3734042902543681,
+        "3600000": 1.1277372065290017
+      }
+    }
+  },
+  "ceiling": "MEASUREMENT_FIDELITY",
+  "speed_sign_flips_zero_fee": [],
+  "speed_sign_flips_at_fee": [],
+  "zero_fee_sign_horizon_unstable": [
+    "ETHUSDT"
+  ],
+  "tokens": [
+    "EQ_17_14_IS_NOW_COMPUTABLE_THE_CONVENTION_QUESTION_HAS_AN_ANSWER",
+    "MY_R_INF_WAS_ALREADY_PER_EVENT_C_T52_WARNING_DOES_NOT_BITE_THIS_LANE",
+    "R_AT_PHI_ZERO_IS_NOT_A_PLATEAU_AND_R_INF_IS_A_CHOICE",
+    "AT_THE_CANONICAL_FEE_EVERY_HORIZON_AND_BOTH_SPEEDS_STAY_NEGATIVE"
+  ]
+}

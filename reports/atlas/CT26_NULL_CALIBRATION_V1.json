@@ -1,0 +1,81 @@
+{
+  "n_sim": 200,
+  "real_values_under_audit": {
+    "gamma_sign_BTC": 0.3734,
+    "gamma_sign_ETH": 0.3686,
+    "kappa_minus_chi_BTC": 0.2245,
+    "kappa_minus_chi_ETH": 0.3786,
+    "hill_v_BTC": 1.563,
+    "signature_ratio_BTC_0ms": 2.045,
+    "signature_ratio_BTC_200ms": 1.44,
+    "zeta_BTC_600s": 0.166
+  },
+  "corpus": {
+    "eta_noise": "Sec 2.1.3 -- uncorrelated microstructure noise makes the signature plot DECREASE like 1/tau",
+    "flat_scale": "Sec 2.1.4 -- the E-mini 'only decreases by about 20%'"
+  },
+  "nulls": {
+    "N1_gamma": {
+      "n_per_sim": 400000,
+      "gamma_positive_lags_only": {
+        "mean": -0.02329198355105571,
+        "sd": 0.5437611721675293,
+        "p05": -0.699577519297727,
+        "p95": 0.562109022718034,
+        "n_ok": 21
+      },
+      "gamma_all_lags_abs": {
+        "mean": -0.030356748487031827,
+        "sd": 0.24046315362137288
+      },
+      "should_be": "no power law exists; the fit is on noise"
+    },
+    "N2_kappa_minus_chi": {
+      "mean": -0.09310330200712405,
+      "sd": 0.8722294939731965,
+      "p05": -1.5232818492392917,
+      "p95": 0.9195899336238613,
+      "should_be": 0.0
+    },
+    "N3_hill": {
+      "0.005": {
+        "mean": 6.1544994061084255,
+        "sd": 0.11899581900476652
+      },
+      "0.01": {
+        "mean": 5.478613628044131,
+        "sd": 0.056924064010500916
+      },
+      "0.02": {
+        "mean": 4.756561357400057,
+        "sd": 0.039232918021189
+      },
+      "0.05": {
+        "mean": 3.807823751734404,
+        "sd": 0.02041419606094408
+      },
+      "should_be": "large / divergent -- an exponential has no power-law tail"
+    },
+    "N4_fill_form": {
+      "power_law_wins_on_exponential_data": 0.0,
+      "should_be": "near 0"
+    },
+    "N5_signature_ratio": {
+      "iid_random_walk": {
+        "mean": 0.99634749877729,
+        "sd": 0.03210364191353502
+      },
+      "with_eta_microstructure_noise": {
+        "mean": 0.5757373073918539,
+        "sd": 0.018555054536844095
+      },
+      "should_be": "1.0 for a pure walk; BELOW 1 with eta noise (Sec 2.1.3)"
+    },
+    "N6_binned_slope": {
+      "mean": 0.25582891419797765,
+      "sd": 0.13741552337840146,
+      "should_be": 1.0
+    }
+  },
+  "ceiling": "MEASUREMENT_FIDELITY"
+}

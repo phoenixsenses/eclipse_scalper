@@ -1,0 +1,38 @@
+{
+  "eq": "E[s] = 2R(1)/(1-C(1))",
+  "per_symbol": {
+    "BTCUSDT": {
+      "E_s_actual": 0.0156,
+      "E_s_break_even": 0.0426623464290536,
+      "ratio": 0.36566202531645564
+    },
+    "ETHUSDT": {
+      "E_s_actual": 0.0532,
+      "E_s_break_even": 0.0839005417419086,
+      "ratio": 0.6340841059602649
+    },
+    "SOLUSDT": {
+      "E_s_actual": 1.319,
+      "E_s_break_even": 0.12797542871768622,
+      "ratio": 10.306665999999998
+    }
+  },
+  "inputs": {
+    "half_spread": {
+      "BTCUSDT": 0.0078,
+      "ETHUSDT": 0.0266,
+      "SOLUSDT": 0.6595
+    },
+    "R1_bps": {
+      "BTCUSDT": 0.0158,
+      "ETHUSDT": 0.0302,
+      "SOLUSDT": 0.05
+    },
+    "C1": {
+      "BTCUSDT": 0.2593,
+      "ETHUSDT": 0.2801,
+      "SOLUSDT": 0.2186
+    }
+  },
+  "note": "derived from CT_KULLIYAT_T51_FAST_MAKER_V1.json, no new data pass"
+}

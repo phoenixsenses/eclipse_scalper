@@ -1,0 +1,133 @@
+{
+  "study": "C-T28-part4",
+  "why": "Hill(notional) < 2 on all three (verified 1.608/1.819/1.915 at the 1% tail), so sd(sum) may have no population target. Does the chi finding survive removing the driver?",
+  "reps": 30,
+  "per_symbol": {
+    "BTCUSDT": {
+      "raw": {
+        "observed_chi": 0.6498,
+        "joint_null_mean": 0.4999,
+        "joint_null_sd": 0.0041,
+        "z": 36.7,
+        "sign_shuffle_mean": 0.5048,
+        "excess": 0.1498,
+        "excess_surviving_sign_shuffle": 0.0048,
+        "share_from_sign_memory": 0.968
+      },
+      "winsor_99.9": {
+        "observed_chi": 0.7287,
+        "joint_null_mean": 0.4994,
+        "joint_null_sd": 0.0036,
+        "z": 64.2,
+        "sign_shuffle_mean": 0.4999,
+        "excess": 0.2287,
+        "excess_surviving_sign_shuffle": -0.0001,
+        "share_from_sign_memory": 1.001
+      },
+      "rank_uniform": {
+        "observed_chi": 0.8099,
+        "joint_null_mean": 0.5001,
+        "joint_null_sd": 0.0036,
+        "z": 86.2,
+        "sign_shuffle_mean": 0.5006,
+        "excess": 0.3099,
+        "excess_surviving_sign_shuffle": 0.0006,
+        "share_from_sign_memory": 0.998
+      },
+      "unweighted_sign": {
+        "observed_chi": 0.7776,
+        "joint_null_mean": 0.4991,
+        "joint_null_sd": 0.0041,
+        "z": 67.4,
+        "sign_shuffle_mean": 0.4993,
+        "excess": 0.2776,
+        "excess_surviving_sign_shuffle": -0.0007,
+        "share_from_sign_memory": 1.003
+      }
+    },
+    "ETHUSDT": {
+      "raw": {
+        "observed_chi": 0.6817,
+        "joint_null_mean": 0.5003,
+        "joint_null_sd": 0.0042,
+        "z": 43.3,
+        "sign_shuffle_mean": 0.4998,
+        "excess": 0.1817,
+        "excess_surviving_sign_shuffle": -0.0002,
+        "share_from_sign_memory": 1.001
+      },
+      "winsor_99.9": {
+        "observed_chi": 0.7297,
+        "joint_null_mean": 0.5012,
+        "joint_null_sd": 0.0035,
+        "z": 64.4,
+        "sign_shuffle_mean": 0.501,
+        "excess": 0.2297,
+        "excess_surviving_sign_shuffle": 0.001,
+        "share_from_sign_memory": 0.996
+      },
+      "rank_uniform": {
+        "observed_chi": 0.7568,
+        "joint_null_mean": 0.5002,
+        "joint_null_sd": 0.0029,
+        "z": 87.0,
+        "sign_shuffle_mean": 0.4996,
+        "excess": 0.2568,
+        "excess_surviving_sign_shuffle": -0.0004,
+        "share_from_sign_memory": 1.002
+      },
+      "unweighted_sign": {
+        "observed_chi": 0.7043,
+        "joint_null_mean": 0.5003,
+        "joint_null_sd": 0.004,
+        "z": 50.6,
+        "sign_shuffle_mean": 0.4995,
+        "excess": 0.2043,
+        "excess_surviving_sign_shuffle": -0.0005,
+        "share_from_sign_memory": 1.003
+      }
+    },
+    "SOLUSDT": {
+      "raw": {
+        "observed_chi": 0.5902,
+        "joint_null_mean": 0.4999,
+        "joint_null_sd": 0.005,
+        "z": 18.1,
+        "sign_shuffle_mean": 0.5009,
+        "excess": 0.0902,
+        "excess_surviving_sign_shuffle": 0.0009,
+        "share_from_sign_memory": 0.99
+      },
+      "winsor_99.9": {
+        "observed_chi": 0.6096,
+        "joint_null_mean": 0.4997,
+        "joint_null_sd": 0.003,
+        "z": 36.9,
+        "sign_shuffle_mean": 0.5008,
+        "excess": 0.1096,
+        "excess_surviving_sign_shuffle": 0.0008,
+        "share_from_sign_memory": 0.993
+      },
+      "rank_uniform": {
+        "observed_chi": 0.8382,
+        "joint_null_mean": 0.5004,
+        "joint_null_sd": 0.0038,
+        "z": 88.0,
+        "sign_shuffle_mean": 0.5019,
+        "excess": 0.3382,
+        "excess_surviving_sign_shuffle": 0.0019,
+        "share_from_sign_memory": 0.994
+      },
+      "unweighted_sign": {
+        "observed_chi": 0.8918,
+        "joint_null_mean": 0.4995,
+        "joint_null_sd": 0.0043,
+        "z": 91.2,
+        "sign_shuffle_mean": 0.4998,
+        "excess": 0.3918,
+        "excess_surviving_sign_shuffle": -0.0002,
+        "share_from_sign_memory": 1.0
+      }
+    }
+  }
+}

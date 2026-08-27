@@ -1,0 +1,724 @@
+{
+ "study": "D-E4",
+ "lane": "D",
+ "class": "accounting_integrity_outcome_blind",
+ "reads": [
+  "sym",
+  "t0",
+  "q"
+ ],
+ "never_reads": [
+  "imp_1",
+  "imp_5",
+  "imp_15",
+  "imp_30",
+  "imp_60",
+  "imp_360",
+  "pre_bps"
+ ],
+ "source": "data/pve_01_v1/_s97_extended.pkl",
+ "dead_time_ms": 900000,
+ "no_threshold_selected": true,
+ "corpus_questions_answered": [
+  "ABG 1.5.4 -- Independent or dependent data?",
+  "STK4080 Slides 1 -- Can it be modeled as a renewal process?"
+ ],
+ "populations": [
+  {
+   "floor_usd": 0.0,
+   "n_episodes": 1271,
+   "per_symbol_n": {
+    "BTCUSDT": 458,
+    "ETHUSDT": 417,
+    "SOLUSDT": 396
+   },
+   "span_days": 23.71,
+   "family": "T1..T6, Holm over 6",
+   "tests": [
+    {
+     "test": "T1_dead_time_corrected_exponentiality",
+     "null": "gap - 900s is exponential => CV = 1",
+     "pooled_within_symbol": {
+      "n_gaps": 1268,
+      "cv": 1.0357,
+      "z": 1.27
+     },
+     "pooled_raw_MIXTURE_DO_NOT_READ": {
+      "cv": 1.0406,
+      "mean_min": 64.71,
+      "note": "scale mixture across symbols; reported only to show the trap"
+     },
+     "per_symbol": {
+      "BTCUSDT": {
+       "n_gaps": 457,
+       "cv": 1.0403,
+       "mean_min": 58.39,
+       "z_vs_1": 0.86
+      },
+      "ETHUSDT": {
+       "n_gaps": 416,
+       "cv": 1.0565,
+       "mean_min": 65.24,
+       "z_vs_1": 1.15
+      },
+      "SOLUSDT": {
+       "n_gaps": 395,
+       "cv": 1.0105,
+       "mean_min": 71.45,
+       "z_vs_1": 0.21
+      }
+     },
+     "p": 0.204,
+     "p_holm6": 0.815,
+     "reject_at_0_05": false
+    },
+    {
+     "test": "T2_index_of_dispersion",
+     "window_min": 60,
+     "null": "scored against the CALIBRATED dead-time null (T2b), not against Poisson = 1; the Poisson z is kept only to show how far an uncalibrated null was out",
+     "per_symbol": {
+      "BTCUSDT": {
+       "n_windows": 560,
+       "mean_count": 0.818,
+       "index_of_dispersion": 0.6068,
+       "boot_se_day_blocked": 0.0391,
+       "z_vs_POISSON_1_UNCALIBRATED": -10.05,
+       "n_days": 24,
+       "null_dead_time_mean": 0.6773,
+       "null_dead_time_sd": 0.0357,
+       "z_vs_CALIBRATED_dead_time_null": -1.97
+      },
+      "ETHUSDT": {
+       "n_windows": 557,
+       "mean_count": 0.749,
+       "index_of_dispersion": 0.5977,
+       "boot_se_day_blocked": 0.0324,
+       "z_vs_POISSON_1_UNCALIBRATED": -12.4,
+       "n_days": 24,
+       "null_dead_time_mean": 0.6979,
+       "null_dead_time_sd": 0.0366,
+       "z_vs_CALIBRATED_dead_time_null": -2.74
+      },
+      "SOLUSDT": {
+       "n_windows": 570,
+       "mean_count": 0.695,
+       "index_of_dispersion": 0.579,
+       "boot_se_day_blocked": 0.0327,
+       "z_vs_POISSON_1_UNCALIBRATED": -12.86,
+       "n_days": 24,
+       "null_dead_time_mean": 0.7192,
+       "null_dead_time_sd": 0.036,
+       "z_vs_CALIBRATED_dead_time_null": -3.89
+      }
+     },
+     "mean_z": -2.87,
+     "p": 0.00412,
+     "p_holm6": 0.0206,
+     "reject_at_0_05": true
+    },
+    {
+     "test": "T3_laplace_trend",
+     "null": "constant rate => U ~ N(0,1)",
+     "per_symbol": {
+      "BTCUSDT": {
+       "n": 458,
+       "laplace_U": 0.861
+      },
+      "ETHUSDT": {
+       "n": 417,
+       "laplace_U": 0.646
+      },
+      "SOLUSDT": {
+       "n": 396,
+       "laplace_U": -2.192
+      }
+     },
+     "mean_U": -0.228,
+     "p": 0.82,
+     "p_holm6": 1.0,
+     "reject_at_0_05": false
+    },
+    {
+     "test": "T4_intraday_seasonality",
+     "null": "uniform over 24 UTC hours",
+     "per_symbol": {
+      "BTCUSDT": {
+       "n": 458,
+       "chi2_23df": 24.1,
+       "max_hour": 11,
+       "min_hour": 15,
+       "peak_over_trough": 3.38
+      },
+      "ETHUSDT": {
+       "n": 417,
+       "chi2_23df": 21.0,
+       "max_hour": 4,
+       "min_hour": 15,
+       "peak_over_trough": 3.14
+      },
+      "SOLUSDT": {
+       "n": 396,
+       "chi2_23df": 14.4,
+       "max_hour": 1,
+       "min_hour": 4,
+       "peak_over_trough": 2.09
+      }
+     },
+     "chi2_total": 59.6,
+     "df": 69,
+     "z_wilson_hilferty": -0.79,
+     "p": 0.432,
+     "p_holm6": 1.0,
+     "reject_at_0_05": false
+    },
+    {
+     "test": "T5_lagged_duration_dependence",
+     "null": "renewal / Honore Thm 1 premise => beta = 0",
+     "beta": 0.0204,
+     "se": 0.0281,
+     "z": 0.73,
+     "n_pairs": 1265,
+     "mde_80pct": 0.0787,
+     "p": 0.468,
+     "p_holm6": 1.0,
+     "reject_at_0_05": false
+    },
+    {
+     "test": "T6_cross_symbol_dependence",
+     "tolerance_min": 5,
+     "null": "whole-day rotation: preserves each symbol's own clustering and its intraday seasonality, destroys cross-symbol alignment",
+     "pairs": {
+      "BTCUSDT|ETHUSDT": {
+       "n_a": 458,
+       "observed_coincidences": 146,
+       "share_of_a": 0.3188,
+       "null_mean": 57.96,
+       "null_sd": 5.95,
+       "n_rotations": 23,
+       "z": 14.8,
+       "excess_ratio": 2.52
+      },
+      "BTCUSDT|SOLUSDT": {
+       "n_a": 458,
+       "observed_coincidences": 98,
+       "share_of_a": 0.214,
+       "null_mean": 51.13,
+       "null_sd": 5.66,
+       "n_rotations": 23,
+       "z": 8.28,
+       "excess_ratio": 1.92
+      },
+      "ETHUSDT|SOLUSDT": {
+       "n_a": 417,
+       "observed_coincidences": 88,
+       "share_of_a": 0.211,
+       "null_mean": 46.87,
+       "null_sd": 5.39,
+       "n_rotations": 23,
+       "z": 7.63,
+       "excess_ratio": 1.88
+      }
+     },
+     "mean_z": 10.24,
+     "p": 1.35e-24,
+     "p_holm6": 8.09e-24,
+     "reject_at_0_05": true
+    }
+   ],
+   "null_calibrations": [
+    {
+     "test": "T2b_dead_time_null_calibration",
+     "model": "gap = 900s + Exp(mean-900s) at each symbol's own rate and span",
+     "why": "a dead time regularises counts; index of dispersion < 1 may be the detector rather than the market, and T2's null value was never computed",
+     "per_symbol": {
+      "BTCUSDT": {
+       "n_sims": 400,
+       "null_index_of_dispersion_mean": 0.6773,
+       "null_sd": 0.0357,
+       "null_p05_p95": [
+        0.618,
+        0.7342
+       ],
+       "sim_mean_count_per_window": 0.818
+      },
+      "ETHUSDT": {
+       "n_sims": 400,
+       "null_index_of_dispersion_mean": 0.6979,
+       "null_sd": 0.0366,
+       "null_p05_p95": [
+        0.6436,
+        0.7607
+       ],
+       "sim_mean_count_per_window": 0.748
+      },
+      "SOLUSDT": {
+       "n_sims": 400,
+       "null_index_of_dispersion_mean": 0.7192,
+       "null_sd": 0.036,
+       "null_p05_p95": [
+        0.6606,
+        0.7838
+       ],
+       "sim_mean_count_per_window": 0.694
+      }
+     }
+    },
+    {
+     "test": "T4b_seasonality_null_value",
+     "why": "an eyeballed 3.4x peak/trough is not evidence unless the uniform null produces less than that at this N",
+     "per_symbol": {
+      "BTCUSDT": {
+       "n": 458,
+       "null_peak_over_trough_p50": 2.46,
+       "null_peak_over_trough_p95": 3.57
+      },
+      "ETHUSDT": {
+       "n": 417,
+       "null_peak_over_trough_p50": 2.6,
+       "null_peak_over_trough_p95": 4.0
+      },
+      "SOLUSDT": {
+       "n": 396,
+       "null_peak_over_trough_p50": 2.67,
+       "null_peak_over_trough_p95": 4.01
+      }
+     }
+    }
+   ],
+   "T6_tolerance_family_not_in_holm": [
+    {
+     "tolerance_min": 1,
+     "mean_z": 12.64,
+     "pairs": {
+      "BTCUSDT|ETHUSDT": {
+       "share_of_a": 0.1681,
+       "excess_ratio": 6.21,
+       "z": 17.4
+      },
+      "BTCUSDT|SOLUSDT": {
+       "share_of_a": 0.1048,
+       "excess_ratio": 5.23,
+       "z": 10.07
+      },
+      "ETHUSDT|SOLUSDT": {
+       "share_of_a": 0.1055,
+       "excess_ratio": 4.48,
+       "z": 10.45
+      }
+     }
+    },
+    {
+     "tolerance_min": 15,
+     "mean_z": 5.05,
+     "pairs": {
+      "BTCUSDT|ETHUSDT": {
+       "share_of_a": 0.5459,
+       "excess_ratio": 1.53,
+       "z": 9.92
+      },
+      "BTCUSDT|SOLUSDT": {
+       "share_of_a": 0.3799,
+       "excess_ratio": 1.17,
+       "z": 2.42
+      },
+      "ETHUSDT|SOLUSDT": {
+       "share_of_a": 0.3813,
+       "excess_ratio": 1.15,
+       "z": 2.8
+      }
+     }
+    },
+    {
+     "tolerance_min": 30,
+     "mean_z": 3.35,
+     "pairs": {
+      "BTCUSDT|ETHUSDT": {
+       "share_of_a": 0.7314,
+       "excess_ratio": 1.21,
+       "z": 5.85
+      },
+      "BTCUSDT|SOLUSDT": {
+       "share_of_a": 0.6157,
+       "excess_ratio": 1.06,
+       "z": 1.51
+      },
+      "ETHUSDT|SOLUSDT": {
+       "share_of_a": 0.6379,
+       "excess_ratio": 1.08,
+       "z": 2.69
+      }
+     }
+    },
+    {
+     "tolerance_min": 60,
+     "mean_z": 3.45,
+     "pairs": {
+      "BTCUSDT|ETHUSDT": {
+       "share_of_a": 0.9214,
+       "excess_ratio": 1.12,
+       "z": 6.85
+      },
+      "BTCUSDT|SOLUSDT": {
+       "share_of_a": 0.8537,
+       "excess_ratio": 1.04,
+       "z": 1.74
+      },
+      "ETHUSDT|SOLUSDT": {
+       "share_of_a": 0.8489,
+       "excess_ratio": 1.03,
+       "z": 1.74
+      }
+     }
+    }
+   ]
+  },
+  {
+   "floor_usd": 50000.0,
+   "n_episodes": 629,
+   "per_symbol_n": {
+    "BTCUSDT": 257,
+    "ETHUSDT": 233,
+    "SOLUSDT": 139
+   },
+   "span_days": 23.71,
+   "family": "T1..T6, Holm over 6",
+   "tests": [
+    {
+     "test": "T1_dead_time_corrected_exponentiality",
+     "null": "gap - 900s is exponential => CV = 1",
+     "pooled_within_symbol": {
+      "n_gaps": 626,
+      "cv": 1.1068,
+      "z": 2.67
+     },
+     "pooled_raw_MIXTURE_DO_NOT_READ": {
+      "cv": 1.2393,
+      "mean_min": 146.45,
+      "note": "scale mixture across symbols; reported only to show the trap"
+     },
+     "per_symbol": {
+      "BTCUSDT": {
+       "n_gaps": 256,
+       "cv": 1.1577,
+       "mean_min": 116.02,
+       "z_vs_1": 2.52
+      },
+      "ETHUSDT": {
+       "n_gaps": 232,
+       "cv": 0.9763,
+       "mean_min": 128.87,
+       "z_vs_1": -0.36
+      },
+      "SOLUSDT": {
+       "n_gaps": 138,
+       "cv": 1.2191,
+       "mean_min": 232.46,
+       "z_vs_1": 2.57
+      }
+     },
+     "p": 0.00756,
+     "p_holm6": 0.0378,
+     "reject_at_0_05": true
+    },
+    {
+     "test": "T2_index_of_dispersion",
+     "window_min": 60,
+     "null": "scored against the CALIBRATED dead-time null (T2b), not against Poisson = 1; the Poisson z is kept only to show how far an uncalibrated null was out",
+     "per_symbol": {
+      "BTCUSDT": {
+       "n_windows": 560,
+       "mean_count": 0.459,
+       "index_of_dispersion": 0.7291,
+       "boot_se_day_blocked": 0.0346,
+       "z_vs_POISSON_1_UNCALIBRATED": -7.83,
+       "n_days": 24,
+       "null_dead_time_mean": 0.8143,
+       "null_dead_time_sd": 0.0389,
+       "z_vs_CALIBRATED_dead_time_null": -2.19
+      },
+      "ETHUSDT": {
+       "n_windows": 557,
+       "mean_count": 0.418,
+       "index_of_dispersion": 0.6945,
+       "boot_se_day_blocked": 0.0284,
+       "z_vs_POISSON_1_UNCALIBRATED": -10.76,
+       "n_days": 24,
+       "null_dead_time_mean": 0.8251,
+       "null_dead_time_sd": 0.0412,
+       "z_vs_CALIBRATED_dead_time_null": -3.17
+      },
+      "SOLUSDT": {
+       "n_windows": 570,
+       "mean_count": 0.244,
+       "index_of_dispersion": 0.8295,
+       "boot_se_day_blocked": 0.0388,
+       "z_vs_POISSON_1_UNCALIBRATED": -4.4,
+       "n_days": 24,
+       "null_dead_time_mean": 0.8979,
+       "null_dead_time_sd": 0.0453,
+       "z_vs_CALIBRATED_dead_time_null": -1.51
+      }
+     },
+     "mean_z": -2.29,
+     "p": 0.0221,
+     "p_holm6": 0.0883,
+     "reject_at_0_05": false
+    },
+    {
+     "test": "T3_laplace_trend",
+     "null": "constant rate => U ~ N(0,1)",
+     "per_symbol": {
+      "BTCUSDT": {
+       "n": 257,
+       "laplace_U": -0.166
+      },
+      "ETHUSDT": {
+       "n": 233,
+       "laplace_U": -0.982
+      },
+      "SOLUSDT": {
+       "n": 139,
+       "laplace_U": -0.142
+      }
+     },
+     "mean_U": -0.43,
+     "p": 0.667,
+     "p_holm6": 1.0,
+     "reject_at_0_05": false
+    },
+    {
+     "test": "T4_intraday_seasonality",
+     "null": "uniform over 24 UTC hours",
+     "per_symbol": {
+      "BTCUSDT": {
+       "n": 257,
+       "chi2_23df": 15.0,
+       "max_hour": 11,
+       "min_hour": 3,
+       "peak_over_trough": 3.0
+      },
+      "ETHUSDT": {
+       "n": 233,
+       "chi2_23df": 19.1,
+       "max_hour": 9,
+       "min_hour": 15,
+       "peak_over_trough": 5.0
+      },
+      "SOLUSDT": {
+       "n": 139,
+       "chi2_23df": 29.3,
+       "max_hour": 13,
+       "min_hour": 4,
+       "peak_over_trough": 12.0
+      }
+     },
+     "chi2_total": 63.4,
+     "df": 69,
+     "z_wilson_hilferty": -0.43,
+     "p": 0.667,
+     "p_holm6": 1.0,
+     "reject_at_0_05": false
+    },
+    {
+     "test": "T5_lagged_duration_dependence",
+     "null": "renewal / Honore Thm 1 premise => beta = 0",
+     "beta": 0.0734,
+     "se": 0.04,
+     "z": 1.84,
+     "n_pairs": 623,
+     "mde_80pct": 0.112,
+     "p": 0.0663,
+     "p_holm6": 0.199,
+     "reject_at_0_05": false
+    },
+    {
+     "test": "T6_cross_symbol_dependence",
+     "tolerance_min": 5,
+     "null": "whole-day rotation: preserves each symbol's own clustering and its intraday seasonality, destroys cross-symbol alignment",
+     "pairs": {
+      "BTCUSDT|ETHUSDT": {
+       "n_a": 257,
+       "observed_coincidences": 73,
+       "share_of_a": 0.284,
+       "null_mean": 18.0,
+       "null_sd": 3.72,
+       "n_rotations": 23,
+       "z": 14.8,
+       "excess_ratio": 4.06
+      },
+      "BTCUSDT|SOLUSDT": {
+       "n_a": 257,
+       "observed_coincidences": 27,
+       "share_of_a": 0.1051,
+       "null_mean": 9.7,
+       "null_sd": 2.99,
+       "n_rotations": 23,
+       "z": 5.78,
+       "excess_ratio": 2.78
+      },
+      "ETHUSDT|SOLUSDT": {
+       "n_a": 233,
+       "observed_coincidences": 24,
+       "share_of_a": 0.103,
+       "null_mean": 8.74,
+       "null_sd": 3.39,
+       "n_rotations": 23,
+       "z": 4.51,
+       "excess_ratio": 2.75
+      }
+     },
+     "mean_z": 8.36,
+     "p": 6.17e-17,
+     "p_holm6": 3.7e-16,
+     "reject_at_0_05": true
+    }
+   ],
+   "null_calibrations": [
+    {
+     "test": "T2b_dead_time_null_calibration",
+     "model": "gap = 900s + Exp(mean-900s) at each symbol's own rate and span",
+     "why": "a dead time regularises counts; index of dispersion < 1 may be the detector rather than the market, and T2's null value was never computed",
+     "per_symbol": {
+      "BTCUSDT": {
+       "n_sims": 400,
+       "null_index_of_dispersion_mean": 0.8143,
+       "null_sd": 0.0389,
+       "null_p05_p95": [
+        0.7498,
+        0.8787
+       ],
+       "sim_mean_count_per_window": 0.458
+      },
+      "ETHUSDT": {
+       "n_sims": 400,
+       "null_index_of_dispersion_mean": 0.8251,
+       "null_sd": 0.0412,
+       "null_p05_p95": [
+        0.7584,
+        0.8939
+       ],
+       "sim_mean_count_per_window": 0.417
+      },
+      "SOLUSDT": {
+       "n_sims": 400,
+       "null_index_of_dispersion_mean": 0.8979,
+       "null_sd": 0.0453,
+       "null_p05_p95": [
+        0.8279,
+        0.9786
+       ],
+       "sim_mean_count_per_window": 0.242
+      }
+     }
+    },
+    {
+     "test": "T4b_seasonality_null_value",
+     "why": "an eyeballed 3.4x peak/trough is not evidence unless the uniform null produces less than that at this N",
+     "per_symbol": {
+      "BTCUSDT": {
+       "n": 257,
+       "null_peak_over_trough_p50": 3.6,
+       "null_peak_over_trough_p95": 6.67
+      },
+      "ETHUSDT": {
+       "n": 233,
+       "null_peak_over_trough_p50": 3.75,
+       "null_peak_over_trough_p95": 9.0
+      },
+      "SOLUSDT": {
+       "n": 139,
+       "null_peak_over_trough_p50": 6.0,
+       "null_peak_over_trough_p95": 13.0
+      }
+     }
+    }
+   ],
+   "T6_tolerance_family_not_in_holm": [
+    {
+     "tolerance_min": 1,
+     "mean_z": 11.0,
+     "pairs": {
+      "BTCUSDT|ETHUSDT": {
+       "share_of_a": 0.1401,
+       "excess_ratio": 9.1,
+       "z": 16.91
+      },
+      "BTCUSDT|SOLUSDT": {
+       "share_of_a": 0.0428,
+       "excess_ratio": 6.84,
+       "z": 6.68
+      },
+      "ETHUSDT|SOLUSDT": {
+       "share_of_a": 0.0515,
+       "excess_ratio": 6.73,
+       "z": 9.41
+      }
+     }
+    },
+    {
+     "tolerance_min": 15,
+     "mean_z": 7.52,
+     "pairs": {
+      "BTCUSDT|ETHUSDT": {
+       "share_of_a": 0.4864,
+       "excess_ratio": 2.37,
+       "z": 13.67
+      },
+      "BTCUSDT|SOLUSDT": {
+       "share_of_a": 0.2218,
+       "excess_ratio": 1.96,
+       "z": 5.24
+      },
+      "ETHUSDT|SOLUSDT": {
+       "share_of_a": 0.1888,
+       "excess_ratio": 1.6,
+       "z": 3.66
+      }
+     }
+    },
+    {
+     "tolerance_min": 30,
+     "mean_z": 6.18,
+     "pairs": {
+      "BTCUSDT|ETHUSDT": {
+       "share_of_a": 0.6459,
+       "excess_ratio": 1.66,
+       "z": 10.96
+      },
+      "BTCUSDT|SOLUSDT": {
+       "share_of_a": 0.3268,
+       "excess_ratio": 1.44,
+       "z": 4.2
+      },
+      "ETHUSDT|SOLUSDT": {
+       "share_of_a": 0.3133,
+       "excess_ratio": 1.36,
+       "z": 3.38
+      }
+     }
+    },
+    {
+     "tolerance_min": 60,
+     "mean_z": 5.42,
+     "pairs": {
+      "BTCUSDT|ETHUSDT": {
+       "share_of_a": 0.8366,
+       "excess_ratio": 1.32,
+       "z": 9.4
+      },
+      "BTCUSDT|SOLUSDT": {
+       "share_of_a": 0.4747,
+       "excess_ratio": 1.19,
+       "z": 3.48
+      },
+      "ETHUSDT|SOLUSDT": {
+       "share_of_a": 0.4721,
+       "excess_ratio": 1.19,
+       "z": 3.37
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

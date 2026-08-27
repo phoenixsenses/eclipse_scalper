@@ -1,0 +1,25 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_K",
+  "append_only": true,
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "found_by": "reading the driver's own z-scores against its own label",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-027",
+      "source_file": "tools/ct31_part_six_or_part_eight.py",
+      "source_section_or_line": "out['closer_to'] -- the binary PART_VI / PART_VIII label",
+      "error_class": "CODE_ERROR",
+      "old_statement": "each symbol was labelled PART_VI_gamma or PART_VIII_sqrt by whichever z was smaller",
+      "corrected_statement": "The label forces a binary choice where two of three symbols reject BOTH candidates.  BTC lands on gamma at z = 0.11; ETH rejects the sqrt law at z = 12.07 AND gamma at z = 15.93; SOL rejects the sqrt law at z = 16.50 AND gamma at z = 4.64.  'Closer to' is not 'consistent with'.  Correct reading: 1 of 3 consistent with one candidate, 2 of 3 consistent with NEITHER.  Third time this lane has printed a threshold verdict its own numbers did not license (ERR-HU-011, ERR-HU-019).",
+      "numeric_outputs_affected": false,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "reports/atlas/CT31_PART_VI_OR_VIII_V1.json"
+      ],
+      "source_sha256": "75ce59a59849398a94174a9051923fe6e0a8ea401f9b43be4de6a2af2c4f9421",
+      "source_exists": true,
+      "errata_sha256": "c83492b540a2a5423ea68ae06fa1f6903a998b150088602a4f2aecd63761ec9d"
+    }
+  ]
+}

@@ -1,0 +1,473 @@
+{
+ "study": "D-E13",
+ "lane": "D",
+ "class": "accounting_integrity_outcome_blind",
+ "inherits": "section 430 Q10 LEAD_LAG_IS_ACTIVITY_RATE_ARTIFACT (STANDING)",
+ "scope_fence": "characterises the dependence structure of the competing risk INTERRUPTED; NOT a trading signal; no lead proposed as one",
+ "populations": [
+  {
+   "floor_usd": 50000.0,
+   "n": {
+    "BTCUSDT": 312,
+    "ETHUSDT": 280,
+    "SOLUSDT": 167
+   },
+   "span_days": 28.1,
+   "rate_per_hour": {
+    "BTCUSDT": 0.463,
+    "ETHUSDT": 0.415,
+    "SOLUSDT": 0.248
+   },
+   "pairs": {
+    "BTCUSDT->ETHUSDT": {
+     "w_1s": {
+      "n_pos": 8,
+      "n_neg": 7,
+      "asymmetry": 0.0667,
+      "N1_poisson_mean": -0.1176,
+      "N1_sd": 0.9926,
+      "z_vs_N1": 0.19,
+      "N2_dayrot_mean": -0.3333,
+      "N2_sd": 1.1547,
+      "z_vs_N2": 0.35,
+      "N3_freerot_mean": 0.0,
+      "N3_sd": 1.0,
+      "z_vs_N3": 0.07
+     },
+     "w_5s": {
+      "n_pos": 12,
+      "n_neg": 10,
+      "asymmetry": 0.0909,
+      "N1_poisson_mean": -0.1932,
+      "N1_sd": 0.9572,
+      "z_vs_N1": 0.3,
+      "N2_dayrot_mean": 0.2,
+      "N2_sd": 1.0328,
+      "z_vs_N2": -0.11,
+      "N3_freerot_mean": -0.0623,
+      "N3_sd": 0.9596,
+      "z_vs_N3": 0.16
+     },
+     "w_30s": {
+      "n_pos": 18,
+      "n_neg": 17,
+      "asymmetry": 0.0286,
+      "N1_poisson_mean": -0.0695,
+      "N1_sd": 0.7303,
+      "z_vs_N1": 0.13,
+      "N2_dayrot_mean": 0.292,
+      "N2_sd": 0.6177,
+      "z_vs_N2": -0.43,
+      "N3_freerot_mean": -0.0604,
+      "N3_sd": 0.7433,
+      "z_vs_N3": 0.12
+     },
+     "w_60s": {
+      "n_pos": 21,
+      "n_neg": 27,
+      "asymmetry": -0.125,
+      "N1_poisson_mean": 0.0181,
+      "N1_sd": 0.5773,
+      "z_vs_N1": -0.25,
+      "N2_dayrot_mean": 0.0622,
+      "N2_sd": 0.4837,
+      "z_vs_N2": -0.39,
+      "N3_freerot_mean": 0.0018,
+      "N3_sd": 0.5864,
+      "z_vs_N3": -0.22
+     },
+     "w_300s": {
+      "n_pos": 42,
+      "n_neg": 47,
+      "asymmetry": -0.0562,
+      "N1_poisson_mean": -0.0016,
+      "N1_sd": 0.2092,
+      "z_vs_N1": -0.26,
+      "N2_dayrot_mean": -0.0252,
+      "N2_sd": 0.2106,
+      "z_vs_N2": -0.15,
+      "N3_freerot_mean": -0.0027,
+      "N3_sd": 0.221,
+      "z_vs_N3": -0.24
+     }
+    },
+    "BTCUSDT->SOLUSDT": {
+     "w_1s": {
+      "n_pos": 5,
+      "n_neg": 2,
+      "asymmetry": 0.4286,
+      "N1_poisson_mean": 0.2857,
+      "N1_sd": 0.9945,
+      "z_vs_N1": 0.14,
+      "N2_dayrot_mean": -1.0,
+      "N2_sd": 0.0,
+      "z_vs_N2": null,
+      "N3_freerot_mean": -0.3846,
+      "N3_sd": 0.9608,
+      "z_vs_N3": 0.85
+     },
+     "w_5s": {
+      "n_pos": 6,
+      "n_neg": 3,
+      "asymmetry": 0.3333,
+      "N1_poisson_mean": 0.2938,
+      "N1_sd": 0.947,
+      "z_vs_N1": 0.04,
+      "N2_dayrot_mean": 0.1852,
+      "N2_sd": 0.9876,
+      "z_vs_N2": 0.15,
+      "N3_freerot_mean": 0.1385,
+      "N3_sd": 0.9823,
+      "z_vs_N3": 0.2
+     },
+     "w_30s": {
+      "n_pos": 8,
+      "n_neg": 3,
+      "asymmetry": 0.4545,
+      "N1_poisson_mean": 0.0447,
+      "N1_sd": 0.8482,
+      "z_vs_N1": 0.48,
+      "N2_dayrot_mean": 0.2333,
+      "N2_sd": 0.8591,
+      "z_vs_N2": 0.26,
+      "N3_freerot_mean": -0.1127,
+      "N3_sd": 0.8341,
+      "z_vs_N3": 0.68
+     },
+     "w_60s": {
+      "n_pos": 9,
+      "n_neg": 4,
+      "asymmetry": 0.3846,
+      "N1_poisson_mean": -0.0369,
+      "N1_sd": 0.703,
+      "z_vs_N1": 0.6,
+      "N2_dayrot_mean": 0.38,
+      "N2_sd": 0.6482,
+      "z_vs_N2": 0.01,
+      "N3_freerot_mean": -0.0013,
+      "N3_sd": 0.7082,
+      "z_vs_N3": 0.54
+     },
+     "w_300s": {
+      "n_pos": 25,
+      "n_neg": 10,
+      "asymmetry": 0.4286,
+      "N1_poisson_mean": 0.0026,
+      "N1_sd": 0.2888,
+      "z_vs_N1": 1.48,
+      "N2_dayrot_mean": 0.0262,
+      "N2_sd": 0.3093,
+      "z_vs_N2": 1.3,
+      "N3_freerot_mean": -0.0128,
+      "N3_sd": 0.2828,
+      "z_vs_N3": 1.56
+     }
+    },
+    "ETHUSDT->SOLUSDT": {
+     "w_1s": {
+      "n_pos": 6,
+      "n_neg": 5,
+      "asymmetry": 0.0909,
+      "N1_poisson_mean": 0.2,
+      "N1_sd": 1.0328,
+      "z_vs_N1": -0.11,
+      "N2_dayrot_mean": 1.0,
+      "N2_sd": NaN,
+      "z_vs_N2": null,
+      "N3_freerot_mean": 0.125,
+      "N3_sd": 0.991,
+      "z_vs_N3": -0.03
+     },
+     "w_5s": {
+      "n_pos": 7,
+      "n_neg": 5,
+      "asymmetry": 0.1667,
+      "N1_poisson_mean": -0.0727,
+      "N1_sd": 0.9786,
+      "z_vs_N1": 0.24,
+      "N2_dayrot_mean": 0.2,
+      "N2_sd": 1.0954,
+      "z_vs_N2": -0.03,
+      "N3_freerot_mean": -0.1634,
+      "N3_sd": 0.9669,
+      "z_vs_N3": 0.34
+     },
+     "w_30s": {
+      "n_pos": 9,
+      "n_neg": 5,
+      "asymmetry": 0.2857,
+      "N1_poisson_mean": -0.0052,
+      "N1_sd": 0.8765,
+      "z_vs_N1": 0.33,
+      "N2_dayrot_mean": 0.2353,
+      "N2_sd": 0.9034,
+      "z_vs_N2": 0.06,
+      "N3_freerot_mean": 0.1166,
+      "N3_sd": 0.8471,
+      "z_vs_N3": 0.2
+     },
+     "w_60s": {
+      "n_pos": 11,
+      "n_neg": 6,
+      "asymmetry": 0.2941,
+      "N1_poisson_mean": 0.0584,
+      "N1_sd": 0.7308,
+      "z_vs_N1": 0.32,
+      "N2_dayrot_mean": 0.1153,
+      "N2_sd": 0.7649,
+      "z_vs_N2": 0.23,
+      "N3_freerot_mean": 0.0087,
+      "N3_sd": 0.7069,
+      "z_vs_N3": 0.4
+     },
+     "w_300s": {
+      "n_pos": 22,
+      "n_neg": 11,
+      "asymmetry": 0.3333,
+      "N1_poisson_mean": 0.0041,
+      "N1_sd": 0.3117,
+      "z_vs_N1": 1.06,
+      "N2_dayrot_mean": 0.0662,
+      "N2_sd": 0.297,
+      "z_vs_N2": 0.9,
+      "N3_freerot_mean": -0.0001,
+      "N3_sd": 0.2771,
+      "z_vs_N3": 1.2
+     }
+    }
+   }
+  },
+  {
+   "floor_usd": 0.0,
+   "n": {
+    "BTCUSDT": 672,
+    "ETHUSDT": 629,
+    "SOLUSDT": 832
+   },
+   "span_days": 28.1,
+   "rate_per_hour": {
+    "BTCUSDT": 0.997,
+    "ETHUSDT": 0.933,
+    "SOLUSDT": 1.234
+   },
+   "pairs": {
+    "BTCUSDT->ETHUSDT": {
+     "w_1s": {
+      "n_pos": 38,
+      "n_neg": 34,
+      "asymmetry": 0.0556,
+      "N1_poisson_mean": -0.1174,
+      "N1_sd": 0.9523,
+      "z_vs_N1": 0.18,
+      "N2_dayrot_mean": 0.0,
+      "N2_sd": 1.0541,
+      "z_vs_N2": 0.05,
+      "N3_freerot_mean": -0.0139,
+      "N3_sd": 0.9684,
+      "z_vs_N3": 0.07
+     },
+     "w_5s": {
+      "n_pos": 49,
+      "n_neg": 42,
+      "asymmetry": 0.0769,
+      "N1_poisson_mean": 0.0301,
+      "N1_sd": 0.7841,
+      "z_vs_N1": 0.06,
+      "N2_dayrot_mean": 0.129,
+      "N2_sd": 0.734,
+      "z_vs_N2": -0.07,
+      "N3_freerot_mean": 0.1258,
+      "N3_sd": 0.8196,
+      "z_vs_N3": -0.06
+     },
+     "w_30s": {
+      "n_pos": 70,
+      "n_neg": 59,
+      "asymmetry": 0.0853,
+      "N1_poisson_mean": 0.0324,
+      "N1_sd": 0.3466,
+      "z_vs_N1": 0.15,
+      "N2_dayrot_mean": 0.0884,
+      "N2_sd": 0.3044,
+      "z_vs_N2": -0.01,
+      "N3_freerot_mean": -0.0109,
+      "N3_sd": 0.3306,
+      "z_vs_N3": 0.29
+     },
+     "w_60s": {
+      "n_pos": 80,
+      "n_neg": 80,
+      "asymmetry": 0.0,
+      "N1_poisson_mean": 0.0045,
+      "N1_sd": 0.2183,
+      "z_vs_N1": -0.02,
+      "N2_dayrot_mean": 0.0382,
+      "N2_sd": 0.2208,
+      "z_vs_N2": -0.17,
+      "N3_freerot_mean": 0.0045,
+      "N3_sd": 0.2212,
+      "z_vs_N3": -0.02
+     },
+     "w_300s": {
+      "n_pos": 136,
+      "n_neg": 139,
+      "asymmetry": -0.0109,
+      "N1_poisson_mean": -0.0012,
+      "N1_sd": 0.0992,
+      "z_vs_N1": -0.1,
+      "N2_dayrot_mean": -0.0099,
+      "N2_sd": 0.1118,
+      "z_vs_N2": -0.01,
+      "N3_freerot_mean": -0.0009,
+      "N3_sd": 0.1038,
+      "z_vs_N3": -0.1
+     }
+    },
+    "BTCUSDT->SOLUSDT": {
+     "w_1s": {
+      "n_pos": 32,
+      "n_neg": 29,
+      "asymmetry": 0.0492,
+      "N1_poisson_mean": -0.0157,
+      "N1_sd": 0.9665,
+      "z_vs_N1": 0.07,
+      "N2_dayrot_mean": -0.1111,
+      "N2_sd": 1.0541,
+      "z_vs_N2": 0.15,
+      "N3_freerot_mean": 0.0032,
+      "N3_sd": 0.9559,
+      "z_vs_N3": 0.05
+     },
+     "w_5s": {
+      "n_pos": 39,
+      "n_neg": 33,
+      "asymmetry": 0.0833,
+      "N1_poisson_mean": -0.0417,
+      "N1_sd": 0.7382,
+      "z_vs_N1": 0.17,
+      "N2_dayrot_mean": 0.0372,
+      "N2_sd": 0.7357,
+      "z_vs_N2": 0.06,
+      "N3_freerot_mean": -0.0529,
+      "N3_sd": 0.7056,
+      "z_vs_N3": 0.19
+     },
+     "w_30s": {
+      "n_pos": 64,
+      "n_neg": 42,
+      "asymmetry": 0.2075,
+      "N1_poisson_mean": 0.0059,
+      "N1_sd": 0.2884,
+      "z_vs_N1": 0.7,
+      "N2_dayrot_mean": 0.0346,
+      "N2_sd": 0.2902,
+      "z_vs_N2": 0.6,
+      "N3_freerot_mean": -0.0203,
+      "N3_sd": 0.2759,
+      "z_vs_N3": 0.83
+     },
+     "w_60s": {
+      "n_pos": 75,
+      "n_neg": 52,
+      "asymmetry": 0.1811,
+      "N1_poisson_mean": 0.0024,
+      "N1_sd": 0.1894,
+      "z_vs_N1": 0.94,
+      "N2_dayrot_mean": 0.0332,
+      "N2_sd": 0.2173,
+      "z_vs_N2": 0.68,
+      "N3_freerot_mean": -0.0104,
+      "N3_sd": 0.1964,
+      "z_vs_N3": 0.98
+     },
+     "w_300s": {
+      "n_pos": 153,
+      "n_neg": 102,
+      "asymmetry": 0.2,
+      "N1_poisson_mean": 0.0054,
+      "N1_sd": 0.0874,
+      "z_vs_N1": 2.23,
+      "N2_dayrot_mean": 0.0148,
+      "N2_sd": 0.0939,
+      "z_vs_N2": 1.97,
+      "N3_freerot_mean": -0.0022,
+      "N3_sd": 0.0892,
+      "z_vs_N3": 2.27
+     }
+    },
+    "ETHUSDT->SOLUSDT": {
+     "w_1s": {
+      "n_pos": 35,
+      "n_neg": 33,
+      "asymmetry": 0.0294,
+      "N1_poisson_mean": -0.019,
+      "N1_sd": 0.9266,
+      "z_vs_N1": 0.05,
+      "N2_dayrot_mean": -0.4286,
+      "N2_sd": 0.9759,
+      "z_vs_N2": 0.47,
+      "N3_freerot_mean": 0.1438,
+      "N3_sd": 0.9518,
+      "z_vs_N3": -0.12
+     },
+     "w_5s": {
+      "n_pos": 41,
+      "n_neg": 34,
+      "asymmetry": 0.0933,
+      "N1_poisson_mean": 0.0858,
+      "N1_sd": 0.7499,
+      "z_vs_N1": 0.01,
+      "N2_dayrot_mean": 0.0,
+      "N2_sd": 0.8063,
+      "z_vs_N2": 0.12,
+      "N3_freerot_mean": 0.0328,
+      "N3_sd": 0.7717,
+      "z_vs_N3": 0.08
+     },
+     "w_30s": {
+      "n_pos": 62,
+      "n_neg": 41,
+      "asymmetry": 0.2039,
+      "N1_poisson_mean": 0.0218,
+      "N1_sd": 0.287,
+      "z_vs_N1": 0.63,
+      "N2_dayrot_mean": -0.0381,
+      "N2_sd": 0.3009,
+      "z_vs_N2": 0.8,
+      "N3_freerot_mean": -0.0002,
+      "N3_sd": 0.304,
+      "z_vs_N3": 0.67
+     },
+     "w_60s": {
+      "n_pos": 75,
+      "n_neg": 52,
+      "asymmetry": 0.1811,
+      "N1_poisson_mean": 0.0049,
+      "N1_sd": 0.1923,
+      "z_vs_N1": 0.92,
+      "N2_dayrot_mean": 0.0422,
+      "N2_sd": 0.1911,
+      "z_vs_N2": 0.73,
+      "N3_freerot_mean": 0.003,
+      "N3_sd": 0.2016,
+      "z_vs_N3": 0.88
+     },
+     "w_300s": {
+      "n_pos": 155,
+      "n_neg": 96,
+      "asymmetry": 0.2351,
+      "N1_poisson_mean": -0.0007,
+      "N1_sd": 0.0849,
+      "z_vs_N1": 2.78,
+      "N2_dayrot_mean": -0.0053,
+      "N2_sd": 0.0908,
+      "z_vs_N2": 2.65,
+      "N3_freerot_mean": 0.0017,
+      "N3_sd": 0.0831,
+      "z_vs_N3": 2.81
+     }
+    }
+   }
+  }
+ ]
+}

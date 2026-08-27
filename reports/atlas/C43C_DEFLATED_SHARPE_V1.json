@@ -1,0 +1,36 @@
+{
+  "study": "C-T43-part3",
+  "source": "Lopez de Prado 8.4/8.5: deflate for skew, kurtosis, sample length and the expected maximum over trials",
+  "per_symbol": {
+    "BTCUSDT": {
+      "n": 1000,
+      "SR_per_trade": 0.296874,
+      "skew": -1.538,
+      "kurtosis": 24.07,
+      "SR_star_from_E_max": 0.018389,
+      "DSR": 1.0,
+      "pass_at_0_95": true,
+      "annualisation_refused": "no calendar mapping is claimed; SR is per trade"
+    },
+    "ETHUSDT": {
+      "n": 1999,
+      "SR_per_trade": 0.207909,
+      "skew": -1.948,
+      "kurtosis": 33.57,
+      "SR_star_from_E_max": 0.038107,
+      "DSR": 1.0,
+      "pass_at_0_95": true,
+      "annualisation_refused": "no calendar mapping is claimed; SR is per trade"
+    },
+    "SOLUSDT": {
+      "n": 20000,
+      "SR_per_trade": 0.23504,
+      "skew": -0.967,
+      "kurtosis": 23.13,
+      "SR_star_from_E_max": 0.05491,
+      "DSR": 1.0,
+      "pass_at_0_95": true,
+      "annualisation_refused": "no calendar mapping is claimed; SR is per trade"
+    }
+  }
+}

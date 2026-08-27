@@ -1,0 +1,4471 @@
+{
+  "lane": "C",
+  "independent": false,
+  "note": "self-audit; CLAUDE.md's chain says a lane reviewing itself is worth little.  Published as a mechanical index, not a review.",
+  "lane_c_sections_scanned": 48,
+  "ledgers": [
+    "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_E.json",
+    "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_F.json",
+    "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_G.json",
+    "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_H.json",
+    "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_I.json",
+    "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_J.json",
+    "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_K.json",
+    "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_L.json",
+    "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_M.json",
+    "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_N.json",
+    "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_O.json",
+    "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_A.json",
+    "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_B.json",
+    "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_C.json",
+    "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_D.json",
+    "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1.json"
+  ],
+  "n_errata_entries": 34,
+  "n_tokens": 476,
+  "status_counts": {
+    "STANDING": 460,
+    "TOUCHED": 16
+  },
+  "tokens": [
+    {
+      "token": "ACTIVITY_INSIDE_A_CASCADE_IS_2",
+      "status": "STANDING",
+      "sections": [
+        479
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ACTIVITY_WEIGHTED_CLOCKS_READ_MORE_ADVERSE",
+      "status": "STANDING",
+      "sections": [
+        474
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ADDING_REAL_NOISE_MOVES_SOL_FROM_102_3_TO_12_1_PERCENT",
+      "status": "STANDING",
+      "sections": [
+        496
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ADJACENT_HORIZONS_DO_OVERLAP_0_73_AT_A_2X_STEP",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ADVERSARIAL_RECOVERY_WITH_DECAY_TO_LAG_8192_ADDED",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ADVERSE_SELECTION_IS_MONOTONE_IN_QUEUE_POSITION",
+      "status": "STANDING",
+      "sections": [
+        473
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ADVERSE_SELECTION_IS_NOT_ZERO_IT_IS_SECONDS_SCALE",
+      "status": "STANDING",
+      "sections": [
+        469
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "AGGREGATE_FOR_METAORDER_SUBSTITUTION_UNDERESTIMATES_KNOWN_SIGN",
+      "status": "STANDING",
+      "sections": [
+        486
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "AGGREGATE_IMBALANCE_RULE_WORTH_0_2471_AND_0_2645_BPS",
+      "status": "STANDING",
+      "sections": [
+        492
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ALL_C_T29_DIRECT_MEASUREMENTS_STAND",
+      "status": "STANDING",
+      "sections": [
+        496
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ALL_THREE_ARE_SUPER_DIFFUSIVE_IN_TRADE_TIME",
+      "status": "TOUCHED",
+      "sections": [
+        479
+      ],
+      "n_sections": 1,
+      "errata": [
+        {
+          "errata": "ERR-HU-010",
+          "ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_B.json",
+          "class": "TOUCHED",
+          "verdict_affected": true
+        }
+      ]
+    },
+    {
+      "token": "AND_REPRODUCES_THE_RANK_ORDER_EXACTLY",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "AN_UNCALIBRATED_NULL_IS_AS_DANGEROUS_AS_NO_NULL",
+      "status": "STANDING",
+      "sections": [
+        493,
+        494
+      ],
+      "n_sections": 3,
+      "errata": []
+    },
+    {
+      "token": "ASYMMETRIC_DYNAMICAL_LIQUIDITY_SUPPORTED_ON_ONE_SYMBOL_OF_THREE",
+      "status": "STANDING",
+      "sections": [
+        468
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ATTENUATION_IS_AN_ALTERNATIVE_MECHANISM_FOR_RISING_PSI_T",
+      "status": "STANDING",
+      "sections": [
+        491
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "AT_FIXED_POV_DV_GROWS_WITH_T_SO_IT_IS_A_BIGGER_ORDER_NOT_A_SLOWER_ONE",
+      "status": "STANDING",
+      "sections": [
+        500
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "AT_L_1024_AND_ABOVE_BTC_AND_ETH_ARE_INSIDE_THEIR_REQUIRED_BANDS",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "AVAILABLE_POV_LEVER_IS_2X_NOT_THE_100X_THE_CONTRAST_NEEDS",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "AVERAGE_CAUSAL_EFFECTS_ARE_IDENTIFIABLE_WITHOUT_OBSERVING_COUNTERFACTUALS",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "A_K_IMPLIES_NU_3_765_AGREEING_WITH_C_HILL_2_33_TO_3_83",
+      "status": "STANDING",
+      "sections": [
+        488
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "A_RATIO_OF_MEANS_IS_NOT_A_SLOPE",
+      "status": "STANDING",
+      "sections": [
+        455
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "A_RATIO_WITHOUT_A_MEASURED_DENOMINATOR_IS_NOT_A_MEASUREMENT",
+      "status": "STANDING",
+      "sections": [
+        452
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "A_S30_BTC_AND_ETH_REACHABLE_IN_THE_SWEEP_SOL_IS_NOT",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "A_S30_ESTIMATOR_VINDICATED_MINE_WAS_THE_BROKEN_ONE",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "A_S45_FORM_TEST_DISCRIMINATES",
+      "status": "STANDING",
+      "sections": [
+        484
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "A_S45_KAPPA_REPRODUCED",
+      "status": "STANDING",
+      "sections": [
+        484
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BETA_0_0505_AND_0_0535_AGAINST_REQUIRED_0_11_TO_0_28",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BETA_0_05_IS_NOT_AN_EXPONENT_IT_IS_NO_APPRECIABLE_DECAY",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BETA_IS_A_PROPERTY_OF_THE_FIT_WINDOW_NOT_OF_THE_DATA",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BETA_MINUS_BETA_C_WITHDRAWN",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BETA_RUNS_0_0044_TO_0_1511_ON_BTC_ACROSS_L_64_TO_4096",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BIAS_CORRECTED_CHI_MINUS_ALPHA_POSITIVE_ON_ALL_THREE",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BIAS_CORRECTION_ASSUMES_DEPENDENCE_INVARIANCE_NOT_VERIFIED",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BID_ASK_BOUNCE_AT_THE_FRONT_CONFIRMED",
+      "status": "TOUCHED",
+      "sections": [
+        473
+      ],
+      "n_sections": 1,
+      "errata": [
+        {
+          "errata": "ERR-HU-006",
+          "ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_A.json",
+          "class": "TOUCHED",
+          "verdict_affected": true
+        }
+      ]
+    },
+    {
+      "token": "BOOK_CHI_0_95_REPLICATES_ACROSS_ASSET_CLASS_WITHIN_0_11",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BOOK_EQ_21_24_CONFIRMED_AND_EXCEEDED",
+      "status": "STANDING",
+      "sections": [
+        471
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BOOK_INEQUALITY_R1_BELOW_G1_CONFIRMED_RATIOS_1_193_1_219_1_019",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BOOK_INEQUALITY_R1_BELOW_G1_STANDS_1_193_1_219_1_019",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BOOK_PREDICTION_1_AND_2_BOTH_CONFIRMED",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BOOK_REPRICINGS_ARE_NOT_SELF_EXCITING_ONCE_DEFRAGMENTED",
+      "status": "STANDING",
+      "sections": [
+        462
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BOOK_SELF_EXCITATION_WAS_EVENT_FRAGMENTATION",
+      "status": "STANDING",
+      "sections": [
+        462
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BOOK_ZETA_RANGE_HOLDS_ONCE_THE_MECHANICAL_PART_IS_REMOVED",
+      "status": "STANDING",
+      "sections": [
+        482
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "BOOTSTRAP_USABLE_IN_ONLY_NINE_OF_FORTY_REPLICATES_ON_BTC",
+      "status": "STANDING",
+      "sections": [
+        500
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BOTH_GAMMA_ROUTES_INHERIT_THE_SAME_AGGREGATION_BIAS",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BOTH_NOW_WELL_MEASURED_SO_THEY_ARE_DEFINITIVELY_DIFFERENT_OBJECTS",
+      "status": "STANDING",
+      "sections": [
+        495
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BOTH_SAME_DIRECTION",
+      "status": "STANDING",
+      "sections": [
+        462
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BOUCHAUD_EQ_11_1_SAYS_THE_COUNTERFACTUAL_CANNOT_BE_IMPLEMENTED",
+      "status": "STANDING",
+      "sections": [
+        496
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BTC_AND_ETH_GAMMAS_ARE_STATISTICALLY_IDENTICAL",
+      "status": "STANDING",
+      "sections": [
+        494
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BTC_ETH_ALPHA_ARE_UPPER_BOUNDS_1_775_AND_1_789",
+      "status": "STANDING",
+      "sections": [
+        486
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BTC_ETH_KAPPA_MINUS_CHI_DIFFERENCE_IS_REAL",
+      "status": "STANDING",
+      "sections": [
+        493
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BTC_INDISTINGUISHABLE_ETH_Z_MINUS_8_7_SOL_Z_MINUS_7_1",
+      "status": "STANDING",
+      "sections": [
+        495
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BTC_MINUS_0_1423_T_MINUS_11_01_ETH_MINUS_0_1229_T_MINUS_4_19",
+      "status": "STANDING",
+      "sections": [
+        493
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BTC_ZETA_EQUALS_GAMMA_SURVIVES_THE_PARAMETER_FREE_ESTIMATOR",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BTC_ZETA_EQUALS_GAMMA_TO_0_001_BUT_UNREADABLE",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "BUT_EXCHANGEABILITY_FAILS_A_BURST_IS_A_DIFFERENT_MARKET_STATE_FROM_A_REGIME",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C1_IS_DEFINITION_DEPENDENT",
+      "status": "STANDING",
+      "sections": [
+        465
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C28B_GAMMA_FIELD_VOID_NEVER_QUOTED_IN_ANY_SECTION",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CANCELLATION_GROWS_WITH_HORIZON_38_45_91_PERCENT_AT_T_1000",
+      "status": "STANDING",
+      "sections": [
+        492
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CANCELLATION_OF_MEMORY_EXPONENT_57_7_74_9_102_3_PERCENT",
+      "status": "STANDING",
+      "sections": [
+        492
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CARTEA_EXPONENTIAL_HOLDS_ONLY_ON_THE_LARGE_TICK_SYMBOL",
+      "status": "TOUCHED",
+      "sections": [
+        471,
+        484
+      ],
+      "n_sections": 2,
+      "errata": [
+        {
+          "errata": "ERR-HU-009",
+          "ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_B.json",
+          "class": "TOUCHED",
+          "verdict_affected": true
+        },
+        {
+          "errata": "ERR-HU-015",
+          "ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_D.json",
+          "class": "TOUCHED",
+          "verdict_affected": true
+        }
+      ]
+    },
+    {
+      "token": "CASCADE_ANCHOR_ADDS_NOTHING_TO_THE_MAKER_COST_BEYOND_BEING_BUSY",
+      "status": "STANDING",
+      "sections": [
+        479
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "CASCADE_EXHAUSTION_NOT_SUPPORTED_ON_THE_ARRIVAL_CLOCK",
+      "status": "STANDING",
+      "sections": [
+        442,
+        452
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "CASCADE_FILL_EFFECT_IS_MOSTLY_SYMMETRIC_VOLATILITY_NOT_DIRECTION",
+      "status": "STANDING",
+      "sections": [
+        442
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CASCADE_IS_AN_ASSET_REPRICING_NOT_A_PERP_DISLOCATION",
+      "status": "STANDING",
+      "sections": [
+        446,
+        448
+      ],
+      "n_sections": 3,
+      "errata": []
+    },
+    {
+      "token": "CASCADE_IS_THE_MAJORITY_STATE_NOT_AN_EVENT",
+      "status": "STANDING",
+      "sections": [
+        442,
+        452
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "CASCADE_Q_IS_DOMINATED_BY_ITS_LARGEST_ORDER",
+      "status": "STANDING",
+      "sections": [
+        442
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CASCADE_REGIME_IS_MOSTLY_MORE_CORRELATED_FLOW",
+      "status": "STANDING",
+      "sections": [
+        455
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CASCADE_WINDOW_DRIFT_RATIO_IS_2",
+      "status": "STANDING",
+      "sections": [
+        452
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CASCADE_WINDOW_IS_A_DISTINCT_REGIME",
+      "status": "STANDING",
+      "sections": [
+        452
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CAUGHT_BY_CHECKING_WHICH_SYMBOL_POPULATES_EACH_BIN",
+      "status": "STANDING",
+      "sections": [
+        493
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CAUSE_IS_HEAVY_TAILED_DV_A_FIXED_NOTIONAL_SITS_AT_DIFFERENT_QUANTILES_ACROSS_T",
+      "status": "STANDING",
+      "sections": [
+        500
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CHARTERS_NAMED_QUANTITY_CARRIES_NO_INFORMATION_AT_THIS_SAMPLE",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CHI_IS_NOT_A_SINGLE_NUMBER_EVEN_WITHIN_ONE_FAMILY",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CHI_IS_THE_ONLY_COLUMN_THAT_SURVIVES_Z_42_49_23",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CHI_MINUS_ALPHA_BIAS_CORRECTION_WITHDRAWN_NOT_MERELY_CAVEATED",
+      "status": "STANDING",
+      "sections": [
+        495
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CHI_MINUS_ALPHA_NOT_DISTINGUISHABLE_ON_BTC_Z_MINUS_1_21",
+      "status": "STANDING",
+      "sections": [
+        495
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CHI_NULL_IS_0_5_IN_BOTH_MOMENT_REGIMES_CONCERN_RESOLVED",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CHI_UNDEFINED_UNTIL_THE_DISPERSION_MEASURE_IS_NAMED",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CLAUDE_MD_DECISIVE_PASSAGE_ONE_ALREADY_FORBADE_THIS_READING",
+      "status": "STANDING",
+      "sections": [
+        496
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CLOSER_IN_SIGN_TO_THIS_LANES_UNCONDITIONAL_THAN_TO_THE_OTHER_LANES",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "COLLAPSE_HOLDS_RELATIVE_ERROR_3_TO_7_PERCENT_NOT_AT_GRID_EDGE",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "COLLAPSE_PREDICTS_THE_FIXED_POV_CUT_AND_THE_RANK_ORDER_MATCHES_KAPPA_EXACTLY",
+      "status": "STANDING",
+      "sections": [
+        500
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "COLLAPSE_QUALITY_NOT_TESTED_AGAINST_A_NULL",
+      "status": "STANDING",
+      "sections": [
+        483
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "COMPOSITE_REJECTED_ON_2_OF_3",
+      "status": "STANDING",
+      "sections": [
+        494
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CONDITIONING_ON_V_IS_THE_FIX_AND_IT_IS_UNAVAILABLE",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CONDITION_NUMBERS_98_8_51_3_13_7_INVERSION_IS_SOUND",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CONSISTENT_WITH_C_T33_SINGLE_TRADE_IMPACT_NEARLY_SIZE_INDEPENDENT",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CONTEMPORANEOUS_AND_LAGGED_F_ARE_DIFFERENT_OBJECTS",
+      "status": "STANDING",
+      "sections": [
+        485
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CORPUS_FOOTNOTE_VS_CT30_ORDERING_UNSETTLED",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CORRELATION_0_457_IS_WORTH_0_17_BPS",
+      "status": "STANDING",
+      "sections": [
+        492
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "COST_IS_FEE_DOMINATED_EXCEPT_ON_THE_LARGE_TICK_SYMBOL",
+      "status": "STANDING",
+      "sections": [
+        488
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CRITICAL_QUEUE_POSITION_EXISTS_ONLY_ON_THE_LARGE_TICK_SYMBOL",
+      "status": "STANDING",
+      "sections": [
+        472
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CROSS_CHECK_WITHDRAWN_TOO_SHORTFALL_HAS_NO_DETERMINATE_SIGN",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CROSS_LANE_GAP_WAS_ESTIMATOR_DRIVEN",
+      "status": "STANDING",
+      "sections": [
+        489
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CT28_UNAFFECTED_SCALE_INVARIANCE",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CT29_REJECTION_STANDS_ITS_DIRECTION_DOES_NOT",
+      "status": "STANDING",
+      "sections": [
+        503
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CT_016_CLOSED_BY_C_T22_NOT_BY_THIS_ROUND",
+      "status": "STANDING",
+      "sections": [
+        485
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CT_016_DISSOLVED_DIFFERENT_RANDOM_VARIABLES",
+      "status": "STANDING",
+      "sections": [
+        484
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "CT_016_WAS_A_SYMBOL_COLLISION_AND_IT_COST_A_DAY",
+      "status": "STANDING",
+      "sections": [
+        487
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_LEVEL_IS_NOT_IDENTIFIED_BUT_ITS_DECAY_EXPONENT_IS",
+      "status": "STANDING",
+      "sections": [
+        481
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "C_S_LABEL_WITHDRAWN",
+      "status": "STANDING",
+      "sections": [
+        484
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T20_PERMANENT_FRACTION_0_595_STAYS_UNMEASURED_NOW_WITH_A_REASON",
+      "status": "STANDING",
+      "sections": [
+        500
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T21_KAPPA_MINUS_CHI_SUPERSEDED",
+      "status": "STANDING",
+      "sections": [
+        489
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T23_GROUND_HOLDS_ON_ETH_AND_SOL_FALLS_ON_BTC",
+      "status": "STANDING",
+      "sections": [
+        495
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T23_PUBLISHED_CHI_MINUS_ALPHA_SIGNS_WERE_ESTIMATOR_BIAS",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T23_VERDICT_SURVIVES_AND_STRENGTHENS_GAP_2_2X_TO_7_5X_LARGER",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T24_IS_UPSTREAM_THE_TREATMENT_ITSELF_IS_UNOBSERVED",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T24_NOT_IDENTIFIABLE_VERDICT_UNTOUCHED_DIFFERENT_OBJECT",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T28_ADDENDUM_CROSS_LANE",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T28_EXPONENT_TABLE_NULL_CALIBRATED",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T29_CANCELLATION_SPREAD_REMAINS_UNEXPLAINED",
+      "status": "STANDING",
+      "sections": [
+        493
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T29_EFFICIENCY_PARADOX_MEASURED_ON_THIS_ESTATE",
+      "status": "STANDING",
+      "sections": [
+        492
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T29_IMPLICITLY_ASSUMED_A_NOISE_FREE_PRICE",
+      "status": "STANDING",
+      "sections": [
+        496
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T30_TICK_BINDING_EXPLANATION_NOT_SUPPORTED",
+      "status": "STANDING",
+      "sections": [
+        493
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T31_PERMUTATION_NULL_IS_A_TEST_NOT_A_STANDARD_ERROR",
+      "status": "STANDING",
+      "sections": [
+        495
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T32_CANCELLATION_FRACTION_NOT_IDENTIFIED",
+      "status": "STANDING",
+      "sections": [
+        496
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T32_REASON_CORRECTED_IT_IS_EXCHANGEABILITY_NOT_COUNTERFACTUAL_UNOBSERVABILITY",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T32_VERDICT_STANDS_ONLY_ITS_STATED_REASON_FALLS",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T33_AGGREGATE_IMPACT_MEASURED_BY_THE_BOOKS_OWN_DEFINITION",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T34_PROPAGATOR_INVERTED_BY_THE_BOOKS_RECOMMENDED_ROUTE",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T34_RECOVERY_CHECK_COULD_NOT_SEE_THIS_MODE_BY_CONSTRUCTION",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T35_C_T34_EFFICIENCY_VERDICT_WITHDRAWN",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T36_BLANKET_VERDICT_NARROWS_TO_A_QUANTITATIVE_LIMIT",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T36_IS_POSITIVITY_AND_POSITIVITY_IS_EMPIRICALLY_CHECKABLE",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T36_TEMPORARY_PERMANENT_SPLIT_NOT_IDENTIFIABLE_FROM_ANONYMISED_AGGREGATE_DATA",
+      "status": "STANDING",
+      "sections": [
+        500
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "C_T37_THREE_NON_IDENTIFIABILITIES_CLASSIFIED_BY_HERNAN_ROBINS",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "DECLARING_A_FREE_PARAMETER_IS_NOT_SHOWING_WHAT_IT_DOES",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "DELTA_AT_T_ONE_MAY_BE_TICK_BOUNDED_FLATTEST_ON_THE_LARGE_TICK_SYMBOL",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "DELTA_IS_NOT_MEASURABLE_ON_PUBLIC_DATA",
+      "status": "STANDING",
+      "sections": [
+        486
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "DELTA_NE_GAMMA_IS_A_TARGET_SEMANTICS_GAP_NOT_A_REFUTATION",
+      "status": "STANDING",
+      "sections": [
+        482
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "DELTA_RISES_MONOTONICALLY_WITH_T_TO_0_58_AND_0_62",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "DEPTH_IS_CHEAP_QUEUE_IS_EXPENSIVE",
+      "status": "STANDING",
+      "sections": [
+        484
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "DESIGN_FAMILY_ADDED_AND_A_K_IS_C_TAIL_INDEX",
+      "status": "STANDING",
+      "sections": [
+        488
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "DESIGN_MOVES_1_33X_ACROSS_NU_3_TO_5_AND_1_39X_ACROSS_3_TO_6",
+      "status": "STANDING",
+      "sections": [
+        489
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "DIRECTIONAL_NOT_VOLATILITY_CLUSTERING_STANDS",
+      "status": "STANDING",
+      "sections": [
+        496
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "DIRECTION_RANDOMISED_H_COLLAPSES_TO_0_495_0_489_0_497",
+      "status": "STANDING",
+      "sections": [
+        492
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "DISPERSION_EXPONENT_OF_THE_SAME_DV_SPANS_0_57_TO_1_30",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "DRIVER_COUNTED_ITS_OWN_STRUCK_ESTIMATOR",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ECONOMICS_UNCHANGED_0_2471_AND_0_2645_BPS_37_8X_TO_40_5X_SHORT",
+      "status": "STANDING",
+      "sections": [
+        496
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ECONOMIC_FEASIBILITY_GATE_V1_FAILED_BY_37_8X_TO_40_5X",
+      "status": "STANDING",
+      "sections": [
+        492
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "EFFICIENCY_CONDITION_FAILS_ON_BTC_AND_ETH",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "EFFICIENCY_CONDITION_IS_NOT_VIOLATED_ON_BTC_OR_ETH",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "EFFICIENCY_PARADOX_MEASURED_FLOW_FASTER_PRICE_SLOWER_THAN_NULL",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ENTIRE_CHI_EXCESS_IS_SIGN_MEMORY_99_2_TO_100_4_PERCENT",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "EQ_11_7_AMPLITUDE_HOLDS_ON_SMALL_TICK_AND_FAILS_ON_LARGE_TICK",
+      "status": "STANDING",
+      "sections": [
+        482
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "ERR_HU_021_SUPERSEDED",
+      "status": "STANDING",
+      "sections": [
+        493
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ERR_HU_022_SUSPENDED",
+      "status": "STANDING",
+      "sections": [
+        493
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ESTIMATOR_REPRODUCES_C_T23_EXACTLY_WORST_DIFF_0_0000",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ETH_IN_THE_BINDING_REGIME_HAS_THE_OPPOSITE_SIGN_T_MINUS_1_26",
+      "status": "STANDING",
+      "sections": [
+        493
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "EVENT_SPECIFIC_EXCESS_TRAVEL_IS_LARGELY_IN_THE_FINAL_HOUR",
+      "status": "STANDING",
+      "sections": [
+        452
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "EVERY_MODEL_IN_THIS_LANE_IS_DRIVEN_BY_THE_37_PERCENT",
+      "status": "STANDING",
+      "sections": [
+        462
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "EXPONENTS_ARE_UNIVERSAL_AMPLITUDES_ARE_NOT",
+      "status": "STANDING",
+      "sections": [
+        463
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "EXPONENTS_RECONCILED_P_IS_NOT_KAPPA_MINUS_CHI",
+      "status": "STANDING",
+      "sections": [
+        485
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "EXPONENT_TABLE_COMPLETE_EVERY_CELL_PLACED_OR_DECLARED_UNIDENTIFIABLE",
+      "status": "STANDING",
+      "sections": [
+        486
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "EXPONENT_TABLE_NOW_CARRIES_PROPER_STANDARD_ERRORS",
+      "status": "STANDING",
+      "sections": [
+        495
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "FAR_MORE_CONCAVE_THAN_THE_SQUARE_ROOT_LAW",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "FFT_CROSS_CORRELATION_VALIDATED_AGAINST_DIRECT_LOOP_2E_MINUS_17",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "FILL_CURVE_IS_A_POWER_LAW_ON_SMALL_TICK",
+      "status": "STANDING",
+      "sections": [
+        471,
+        472
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "FILL_FORM_TEST_PASSES_ITS_NULL",
+      "status": "STANDING",
+      "sections": [
+        491
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "FINDING_SURVIVES_ALL_FOUR_WEIGHTINGS_TWELVE_OF_TWELVE_CELLS",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "FINE_BALANCE_CLOSED_WITHOUT_MEASURING_G_OF_L",
+      "status": "TOUCHED",
+      "sections": [
+        486,
+        489
+      ],
+      "n_sections": 2,
+      "errata": [
+        {
+          "errata": "ERR-HU-017",
+          "ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_E.json",
+          "class": "TOUCHED",
+          "verdict_affected": true
+        }
+      ]
+    },
+    {
+      "token": "FINE_BALANCE_CONSISTENT_NOT_CONFIRMED",
+      "status": "STANDING",
+      "sections": [
+        486
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "FINE_BALANCE_IS_NOW_TESTABLE_BOTH_INPUTS_CALIBRATED",
+      "status": "STANDING",
+      "sections": [
+        494
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "FINE_BALANCE_NOT_EVALUABLE_GAMMA_IS_NOT_A_SINGLE_NUMBER",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "FINE_BALANCE_REMAINS_OPEN",
+      "status": "STANDING",
+      "sections": [
+        481
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "FINE_BALANCE_REOPENED_SAME_GAMMA_DIFFERENT_KAPPA_MINUS_CHI",
+      "status": "TOUCHED",
+      "sections": [
+        489
+      ],
+      "n_sections": 2,
+      "errata": [
+        {
+          "errata": "ERR-HU-017",
+          "ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_E.json",
+          "class": "TOUCHED",
+          "verdict_affected": true
+        }
+      ]
+    },
+    {
+      "token": "FIRST_DESIGN_FAILED_AND_ITS_OWN_OUTPUT_GAVE_IT_AWAY",
+      "status": "STANDING",
+      "sections": [
+        500
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "FLOW_SHARE_AT_TRADE_LEVEL_IS_0_0003_TO_0_024_SO_THE_CROSSOVER_NEVER_STARTS",
+      "status": "STANDING",
+      "sections": [
+        496
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "FLOW_SHARE_OF_PRICE_VARIANCE_IS_THE_COUNTERFACTUAL_FREE_REPLACEMENT",
+      "status": "STANDING",
+      "sections": [
+        496
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "FORCED_FLOW_RESPONSE_IS_97",
+      "status": "STANDING",
+      "sections": [
+        446,
+        452
+      ],
+      "n_sections": 3,
+      "errata": []
+    },
+    {
+      "token": "FORCED_FLOW_SIGN_PERSISTENCE_IS_6",
+      "status": "STANDING",
+      "sections": [
+        442
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "FORCED_FLOW_SIZE_TAIL_HEAVIER_THAN_VOLUNTARY",
+      "status": "STANDING",
+      "sections": [
+        442
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "FORM_TEST_IS_BIASED_TOWARD_POWER",
+      "status": "STANDING",
+      "sections": [
+        503
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "FOURTH_INSTANCE_OF_THE_WINDOW_RULE_NOW_ABOUT_DIRECTION_OF_CUT",
+      "status": "STANDING",
+      "sections": [
+        500
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "FOUR_POINTS_TWO_PARAMETERS_R2_IS_NOT_POWER",
+      "status": "STANDING",
+      "sections": [
+        489
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "FREEZE_DATE_K_HAS_A_PREDICTED_BAND_0_6366_TO_0_7351",
+      "status": "STANDING",
+      "sections": [
+        488
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "F_IS_NOT_A_COLLISION_VERIFIED_CONSISTENT",
+      "status": "STANDING",
+      "sections": [
+        488
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "F_RATIO_NOT_IDENTIFIED_WITHOUT_AN_ORDER_ID",
+      "status": "STANDING",
+      "sections": [
+        465
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "G1_OVER_R1_STABLE_TO_ONE_PART_IN_A_THOUSAND_ACROSS_L",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "GAMMA_AND_DELTA_ARE_CONSISTENT_WITH_ONE_SCALING_FUNCTION",
+      "status": "STANDING",
+      "sections": [
+        483
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "GAMMA_DEPENDS_ON_THE_FIT_RANGE",
+      "status": "STANDING",
+      "sections": [
+        503
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "GAMMA_EPSILON_MEASURABLE_BUT_NOT_PINNED_ON_THIS_ESTATE",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "GAMMA_EPSILON_SPREAD_ACROSS_ALL_KNOWN_ROUTES_IS_3_65X",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "GAMMA_ESTIMATOR_SHRINKS_TOWARD_0_45_AND_MUST_BE_DEBIASED",
+      "status": "STANDING",
+      "sections": [
+        494
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "GAMMA_IS_NOT_A_SINGLE_NUMBER",
+      "status": "TOUCHED",
+      "sections": [
+        503
+      ],
+      "n_sections": 1,
+      "errata": [
+        {
+          "errata": "ERR-HU-032",
+          "ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_O.json",
+          "class": "TOUCHED",
+          "verdict_affected": true
+        }
+      ]
+    },
+    {
+      "token": "GAMMA_IS_NOT_IDENTIFIABLE_ON_THIS_ESTATES_DATA",
+      "status": "STANDING",
+      "sections": [
+        486
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "GAMMA_IS_NOW_THE_BOTTLENECK",
+      "status": "STANDING",
+      "sections": [
+        493
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "GAMMA_IS_THE_THIRD_SYMBOL_COLLISION_FOUND_IN_TWO_ROUNDS",
+      "status": "STANDING",
+      "sections": [
+        486
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "GAMMA_LEVELS_SURVIVE_GAMMA_PRECISION_DOES_NOT",
+      "status": "STANDING",
+      "sections": [
+        491
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "GAMMA_LMF_MEASURABLE_BUT_NOT_PINNED_ROUTES_DIFFER_1_35X_TO_1_74X",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "GAMMA_NOT_IDENTIFIABLE_LMF_ROUTE_MEASURES_A_DIFFERENT_OBJECT",
+      "status": "STANDING",
+      "sections": [
+        486
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "GAMMA_NOT_MEASURABLE_UPGRADES_TO_NOT_IDENTIFIABLE_ON_THE_BOOKS_OWN_STATEMENT",
+      "status": "STANDING",
+      "sections": [
+        486
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "GAMMA_PRECISION_IS_FINE_SD_0_02_TO_0_03",
+      "status": "STANDING",
+      "sections": [
+        494
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "GAMMA_SPANS_2X_WITHIN_A_SYMBOL",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "GATE_NULL_IS_1_071_ALTERNATIVE_IS_1_183_SEPARATION_0_112",
+      "status": "STANDING",
+      "sections": [
+        489
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "GAUSSIAN_CONTROL_RETURNS_THEORY_MACHINERY_SOUND",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "GAUSSIAN_RATIO_CONTROL_IS_DEGENERATE_NEAR_ZERO_LEVEL",
+      "status": "STANDING",
+      "sections": [
+        489
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "GROWTH_TEST_LACKS_POWER_AND_THE_DESIGN_MOVES_1_33X_TO_1_39X_WITH_NU",
+      "status": "STANDING",
+      "sections": [
+        489
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "G_IS_NEARLY_FLAT_OVER_LAGS_4_TO_128_ON_BTC_AND_ETH",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "G_IS_NOT_A_POWER_LAW_LOCAL_DECAY_EXPONENT_GROWS_WITH_LAG",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "HEAVY_TAILS_NOT_MACHINERY_DISPLACE_EVERY_NULL_EXCEPT_CHI",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "HERNAN_ROBINS_NUL_POISONED_158_POSITIVITY_HITS_NOT_1",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "HILL_IS_THRESHOLD_SENSITIVE_REACHES_2_0_AT_THE_0_1_PERCENT_TAIL",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "HILL_OF_NOTIONAL_BELOW_TWO_INDEPENDENTLY_VERIFIED_1_608_1_819_1_915",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "HILL_TAIL_CLAIM_PASSES_ITS_NULL",
+      "status": "STANDING",
+      "sections": [
+        491
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "HONORE_MULTISPELL_IDENTIFICATION_UNAVAILABLE_HERE",
+      "status": "STANDING",
+      "sections": [
+        442
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "HT6_AL_TO_AM_CELL_SUPERSEDED",
+      "status": "STANDING",
+      "sections": [
+        502
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "H_AND_CHI_AND_THEIR_NULLS_STAND",
+      "status": "STANDING",
+      "sections": [
+        496
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "H_B4_GAP_IS_ROUGHLY_HALF_POSITION_IN_THE_MOVE",
+      "status": "STANDING",
+      "sections": [
+        452
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "H_DECLINES_WITH_K_ABOVE_ONE_TICK_REPLICATED_ON_BOTH_SYMBOLS",
+      "status": "STANDING",
+      "sections": [
+        493
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "H_IS_USED_WITH_THREE_DIFFERENT_UNITS_ACROSS_LANES",
+      "status": "STANDING",
+      "sections": [
+        488
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "IDENTITY_CLOSES_EXACTLY",
+      "status": "STANDING",
+      "sections": [
+        469
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "IMPACT_BECOMES_MORE_LINEAR_WITH_AGGREGATION",
+      "status": "TOUCHED",
+      "sections": [
+        482
+      ],
+      "n_sections": 2,
+      "errata": [
+        {
+          "errata": "ERR-HU-012",
+          "ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_C.json",
+          "class": "TOUCHED",
+          "verdict_affected": true
+        }
+      ]
+    },
+    {
+      "token": "IMPACT_CURVE_MEASURED",
+      "status": "STANDING",
+      "sections": [
+        455
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "IMPACT_IS_A_SURFACE_NOT_AN_EXPONENT",
+      "status": "STANDING",
+      "sections": [
+        500
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "IMPACT_IS_NEAR_PERMANENT_THERE_NOT_MERELY_SLOWLY_DECAYING",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "IMPACT_SLOPE_IDENTICAL_LIQUIDATION_VS_ORDINARY",
+      "status": "STANDING",
+      "sections": [
+        455
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW",
+      "status": "STANDING",
+      "sections": [
+        490,
+        492,
+        493,
+        495,
+        496,
+        497,
+        498,
+        499,
+        500,
+        501
+      ],
+      "n_sections": 11,
+      "errata": []
+    },
+    {
+      "token": "INHERITED_CORROBORATION_IS_ONLY_AS_GOOD_AS_ITS_SOURCES_CURRENT_STATE",
+      "status": "STANDING",
+      "sections": [
+        495
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "INSIDE_IT_R_RISES_WITH_T_AT_FIXED_Q_57X_17X_1_8X",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "INSTRUMENT_L_BIASED_ON_SOL_0_149_TO_0_105",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "INSTRUMENT_RECOVERS_FOUR_KNOWN_BETAS_WITHIN_0_0069",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "INSTRUMENT_SOUND_ON_BTC_AND_ETH_EVEN_AT_L_64",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "IQR_EXPONENT_EXCEEDS_ONE_AND_IS_UNEXPLAINED",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "IT_AGREES_WITH_THE_75_PCT_CUT_TO_0_008",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "IT_DECAYS_BY_FIVE_SECONDS",
+      "status": "STANDING",
+      "sections": [
+        502
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "IT_REQUIRES_Q_AND_V_VARIED_INDEPENDENTLY_WHICH_OBSERVATIONAL_DATA_DOES_NOT_PROVIDE",
+      "status": "STANDING",
+      "sections": [
+        500
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "IT_WAS_THREE_OF_THREE_ONLY_BECAUSE_BETA_SAT_BELOW_THE_WHOLE_BAND",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "IT_WOULD_DISPLAY_98_5_TO_100_1_PERCENT_CANCELLATION",
+      "status": "STANDING",
+      "sections": [
+        496
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "I_HAD_THE_RULE_IN_HAND_AND_DID_NOT_APPLY_IT",
+      "status": "STANDING",
+      "sections": [
+        496
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "KAPPA_AGREES_WITH_C_T29_H_WITHIN_0_033_ON_ALL_THREE",
+      "status": "STANDING",
+      "sections": [
+        495
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "KAPPA_IS_MORE_VARIABLE_1_00_0_90_0_54_VERSUS_0_65",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "KAPPA_IS_NOT_DIMENSIONALLY_CONSISTENT_ACROSS_ITS_USES",
+      "status": "STANDING",
+      "sections": [
+        487
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "KAPPA_ITSELF_IS_PRECISE_SD_0_010_TO_0_012_NOT_0_21",
+      "status": "STANDING",
+      "sections": [
+        495
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "KAPPA_MINUS_CHI_BY_THE_BOOKS_DEFINITION_IS_PLUS_0_08_MINUS_0_16_MINUS_0_42",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "KAPPA_MINUS_CHI_CENTRE_REPLICATES_TIGHTNESS_DOES_NOT",
+      "status": "STANDING",
+      "sections": [
+        486
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "KAPPA_MINUS_CHI_CONFIRMED_A_THIRD_TIME",
+      "status": "TOUCHED",
+      "sections": [
+        483
+      ],
+      "n_sections": 1,
+      "errata": [
+        {
+          "errata": "ERR-HU-016",
+          "ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_E.json",
+          "class": "TOUCHED",
+          "verdict_affected": true
+        },
+        {
+          "errata": "ERR-HU-021",
+          "ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_G.json",
+          "class": "TOUCHED",
+          "verdict_affected": true
+        }
+      ]
+    },
+    {
+      "token": "KAPPA_MINUS_CHI_EQUALS_BETA_BY_THE_BOOK",
+      "status": "STANDING",
+      "sections": [
+        486
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "KAPPA_MINUS_CHI_INDISTINGUISHABLE_FROM_NULL_ON_ALL_THREE_SYMBOLS",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "KAPPA_MINUS_CHI_NULL_WAS_NEVER_MEASURED",
+      "status": "STANDING",
+      "sections": [
+        491
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "KAPPA_MINUS_CHI_SUPPORTED_AT_THE_REAL_NOISE",
+      "status": "STANDING",
+      "sections": [
+        493
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "K_IS_NOT_A_FREE_CONSTANT_IT_IS_A_FUNCTION_OF_THE_TAIL_INDEX",
+      "status": "STANDING",
+      "sections": [
+        488
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "LADDER_MIXED_ESTIMANDS",
+      "status": "TOUCHED",
+      "sections": [
+        483
+      ],
+      "n_sections": 2,
+      "errata": [
+        {
+          "errata": "ERR-HU-013",
+          "ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_C.json",
+          "class": "TOUCHED",
+          "verdict_affected": true
+        }
+      ]
+    },
+    {
+      "token": "LAG_2_DIP_IS_BOUNCE_AND_IS_OUTSIDE_THE_FIT_RANGE",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "LANE_C_SPREAD_TABLE_REPRODUCED_TO_FOUR_FIGURES",
+      "status": "STANDING",
+      "sections": [
+        485
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "LARGE_TICK_IS_CLOSEST_TO_THE_BOOK_ON_REFILL",
+      "status": "STANDING",
+      "sections": [
+        468
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "LEG_II_NOT_SEPARATED_ROUTE_IS_BLOCKED_BY_MISSPECIFICATION",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "LIKELY_THE_DISCRETENESS_FLOOR_A_S30_FOUND_INDEPENDENTLY",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "LIMIT_CANCEL_MARKET_DECOMPOSITION_REQUIRES_ORDER_BY_ORDER_DEPTH_DATA_NOT_ON_DISK",
+      "status": "STANDING",
+      "sections": [
+        462
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "LIQUIDATION_FEED_IS_THROTTLED_AT_1_PER_SECOND_PER_SYMBOL",
+      "status": "STANDING",
+      "sections": [
+        442
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "LIQUIDATION_LOSS_RATE_NOT_IDENTIFIABLE_FROM_THIS_FEED",
+      "status": "STANDING",
+      "sections": [
+        442
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "LIQUIDATION_ORDERS_ARE_MECHANICALLY_IMPACTFUL_BUT_INFORMATIONALLY_EMPTY",
+      "status": "STANDING",
+      "sections": [
+        448,
+        452
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "LIQUIDATION_PRICE_IS_THE_IOC_LIMIT_NOT_A_TRADED_PRICE",
+      "status": "STANDING",
+      "sections": [
+        446
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "LIQUIDITY_REFILLS_BUT_THE_PRICE_DOES_NOT",
+      "status": "STANDING",
+      "sections": [
+        468
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "LIQUIDITY_TERCILES_ARE_A_SYMBOL_PROXY_IN_THIS_ESTATE",
+      "status": "STANDING",
+      "sections": [
+        442
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "LIQUIDITY_WITHDRAWAL_IS_NOT_THE_MECHANISM",
+      "status": "STANDING",
+      "sections": [
+        442,
+        452
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "LMF_ROUTE_MEASURES_SIGN_MEMORY_NOT_IMPACT_CONCAVITY",
+      "status": "STANDING",
+      "sections": [
+        486
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "LOCAL_SLOPE_EXCEEDS_1_AT_SMALL_IMBALANCE",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "LOG_SPECIFICATIONS_IN_THE_LANE_ARE_TAIL_ROBUST",
+      "status": "STANDING",
+      "sections": [
+        442
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "MAKER_BENEFIT_IS_3_BPS_MINUS_AN_UNMEASURED_ORDER_1_BPS_TERM",
+      "status": "STANDING",
+      "sections": [
+        469
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "MARKET_MAKERS_HERE_SURVIVE_BY_CANCELLING_NOT_BY_THE_SPREAD",
+      "status": "STANDING",
+      "sections": [
+        459
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "MEASURED_RESPONSE_TO_REALISED_FLOW_IS_NOT_A_VALIDATED_EXECUTION_COST_MODEL",
+      "status": "STANDING",
+      "sections": [
+        455
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "MECHANISM_ESTABLISHED_ECONOMICS_CLOSED_NEGATIVE",
+      "status": "STANDING",
+      "sections": [
+        492
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "MEDIAN_LIQUIDATION_IS_RETAIL_SIZED",
+      "status": "STANDING",
+      "sections": [
+        442
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "MOST_FORCED_FLOW_CLUSTERING_IS_BACKGROUND_RATE_VARIATION",
+      "status": "STANDING",
+      "sections": [
+        442,
+        452
+      ],
+      "n_sections": 3,
+      "errata": []
+    },
+    {
+      "token": "MRR_WYART_CROSS_SECTIONAL_RELATION_DOES_NOT_TRANSFER_TO_CRYPTO_PERPETUALS",
+      "status": "STANDING",
+      "sections": [
+        459
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "MULTI_TRADE_EXTENSION_BLOCKED_BY_C_T24_NOT_IDENTIFIABLE",
+      "status": "STANDING",
+      "sections": [
+        492
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "MY_FIRST_CRITERION_CALLED_A_522X_CLIMB_CONVERGED",
+      "status": "STANDING",
+      "sections": [
+        489
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "MY_SHUFFLE_NULL_WAS_3_6X_TO_16_9X_TOO_WIDE",
+      "status": "STANDING",
+      "sections": [
+        495
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "MY_STATED_REASON_FOR_THE_UNWEIGHTED_ROUTE_WAS_WEAKER_THAN_THE_REAL_ONE",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "MY_STRATIFICATION_HYPOTHESIS_WAS_WRONG_AND_WAS_NOT_PUBLISHED",
+      "status": "STANDING",
+      "sections": [
+        485
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "M_1_409_1_307_0_967_AGAINST_KAPPA_1_00_0_90_0_54_R2_0_95_TO_0_99",
+      "status": "STANDING",
+      "sections": [
+        500
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "NAIVE_T_ASSUMED_INDEPENDENT_WINDOWS_BLOCK_BOOTSTRAP_INFLATES_SE_1_4X_TO_2_2X",
+      "status": "STANDING",
+      "sections": [
+        492
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "NEAR_ZERO_DECAY_OVER_THE_FIRST_FIFTY_LAGS_STANDS_AS_DESCRIPTION",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "NEGATIVE_LAG_TEST_DOES_NOT_DISCRIMINATE",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "NEGATIVE_ON_SOL_AT_EVERY_HORIZON",
+      "status": "STANDING",
+      "sections": [
+        492
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "NEITHER_CONFIRMED_NOR_REFUTED_THE_INSTRUMENT_LACKS_POWER",
+      "status": "STANDING",
+      "sections": [
+        489
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "NEITHER_IDENTIFIER_DEPENDENT_NOR_COUNTERFACTUAL",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "NEITHER_MEASUREMENT_IS_WITHDRAWN",
+      "status": "STANDING",
+      "sections": [
+        484
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "NO_DEFECT_THE_FILE_RESOLVES_ITS_OWN_CONVENTION",
+      "status": "STANDING",
+      "sections": [
+        488
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "NO_EXCESS_IMPACT_AT_MATCHED_SIZE_BEYOND_10_SECONDS",
+      "status": "STANDING",
+      "sections": [
+        448
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "NO_MISUSE_OF_AN_EXPONENT_IN_LANE_A_PREREG",
+      "status": "STANDING",
+      "sections": [
+        487
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "NO_PROFITABLE_QUEUE_POSITION_AT_THE_ACTUAL_MAKER_FEE",
+      "status": "TOUCHED",
+      "sections": [
+        472
+      ],
+      "n_sections": 1,
+      "errata": [
+        {
+          "errata": "ERR-HU-008",
+          "ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_A.json",
+          "class": "TOUCHED",
+          "verdict_affected": true
+        },
+        {
+          "errata": "ERR-HU-003",
+          "ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1.json",
+          "class": "TOUCHED",
+          "verdict_affected": true
+        }
+      ]
+    },
+    {
+      "token": "NO_PROFITABLE_QUEUE_POSITION_AT_THE_ACTUAL_MAKER_FEE_BY_ARITHMETIC",
+      "status": "TOUCHED",
+      "sections": [
+        474
+      ],
+      "n_sections": 1,
+      "errata": [
+        {
+          "errata": "ERR-HU-008",
+          "ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_A.json",
+          "class": "TOUCHED",
+          "verdict_affected": true
+        }
+      ]
+    },
+    {
+      "token": "NO_PROFITABLE_QUEUE_POSITION_EXISTS",
+      "status": "TOUCHED",
+      "sections": [
+        471
+      ],
+      "n_sections": 1,
+      "errata": [
+        {
+          "errata": "ERR-HU-003",
+          "ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1.json",
+          "class": "TOUCHED",
+          "verdict_affected": true
+        }
+      ]
+    },
+    {
+      "token": "NO_PROFITABLE_QUEUE_POSITION_EXISTS_AT_ANY_FEE_SCENARIO",
+      "status": "TOUCHED",
+      "sections": [
+        471
+      ],
+      "n_sections": 1,
+      "errata": [
+        {
+          "errata": "ERR-HU-003",
+          "ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1.json",
+          "class": "TOUCHED",
+          "verdict_affected": true
+        }
+      ]
+    },
+    {
+      "token": "NO_PROFITABLE_QUEUE_POSITION_EXISTS_ON_THE_COMPLETE_G",
+      "status": "STANDING",
+      "sections": [
+        473
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "NO_TYPICAL_SCALE_EXISTS_BECAUSE_HILL_IS_BELOW_TWO",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "NULL_AS_TEST_USAGE_UNAFFECTED_CHI_DECOMPOSITION_C_T29_C_T30_ALL_STAND",
+      "status": "STANDING",
+      "sections": [
+        495
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "NULL_IS_WRONG_IN_BOTH_DIRECTIONS_33X_TOO_WIDE_AND_4X_TOO_NARROW",
+      "status": "STANDING",
+      "sections": [
+        495
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "N_EQUALS_3_COHERENCE_CHECK_NOT_A_TEST",
+      "status": "STANDING",
+      "sections": [
+        479
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ONLY_A_IS_ON_CARTEA_S_DEPTH_AXIS",
+      "status": "STANDING",
+      "sections": [
+        484
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ONLY_SUM_BASED_STATISTICS_ARE_IDENTIFIED_WHEN_THE_EVENT_BOUNDARY_IS_NOT",
+      "status": "STANDING",
+      "sections": [
+        465
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ONLY_THE_CAUSAL_INTERPRETATION_FALLS",
+      "status": "STANDING",
+      "sections": [
+        496
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ONLY_THE_LARGE_TICK_SYMBOL_IS_IN_THE_BOOK_S_REGIME",
+      "status": "STANDING",
+      "sections": [
+        469
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "OPPORTUNITY_COST_IS_ONE_TICK_ONLY_ON_THE_LARGE_TICK_SYMBOL",
+      "status": "STANDING",
+      "sections": [
+        473
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ORDER_FLOW_MEMORY_IS_LONGER_THAN_THE_BOOK_S_EQUITIES",
+      "status": "STANDING",
+      "sections": [
+        481,
+        494
+      ],
+      "n_sections": 3,
+      "errata": []
+    },
+    {
+      "token": "ORDER_SIZE_IS_DECOUPLED_FROM_BOOK_STATE_EXCEPT_AT_THE_TOUCH",
+      "status": "STANDING",
+      "sections": [
+        465
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ORDER_SIZE_TAIL_TRANSFERS",
+      "status": "STANDING",
+      "sections": [
+        481
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "OTHER_LANES_SECTION_NOT_MODIFIED_CHARTER_RULE_5_OBSERVED",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "OTHER_LANES_VALUE_MAY_BE_A_THIRD_OBJECT_NOT_AN_ERROR",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "OUTER_REGION_ESTIMATOR_PASSES_NULL_AND_RECOVERY",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "PARAMETER_FREE_ASYMPTOTE_EXISTS_AND_PASSES_ITS_NULL",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "PART_VIII_REFRAMING_NOT_SUPPORTED",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "PERMANENT_FRACTION_0",
+      "status": "STANDING",
+      "sections": [
+        482
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "PERMANENT_MEANS_INFORMATION_NOT_LIQUIDITY",
+      "status": "STANDING",
+      "sections": [
+        471
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "PERP_LOCAL_FOOTPRINT_IS_A_FRACTION_OF_A_BASIS_POINT",
+      "status": "STANDING",
+      "sections": [
+        452
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "PERP_LOCAL_FOOTPRINT_OF_A_CASCADE_IS_A_FRACTION_OF_A_BASIS_POINT",
+      "status": "STANDING",
+      "sections": [
+        448
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "POOLED_SUPPORT_T_PLUS_10_80_IS_ENTIRELY_BETWEEN_SYMBOL",
+      "status": "STANDING",
+      "sections": [
+        493
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "POSITIVITY_REGION_IS_NOT_EMPTY_TOP_TWO_TO_FOUR_SIZE_BINS",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "POST_LIQUIDATION_FLOW_IS_ABSORBED_WITHOUT_REPRICING",
+      "status": "STANDING",
+      "sections": [
+        455
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "POV_CONDITIONED_REPAIR_IS_COHERENT_BUT_ANSWERS_A_DIFFERENT_QUESTION",
+      "status": "STANDING",
+      "sections": [
+        500
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "PREDICTION_HOLDS_ON_SOL_ONLY_AND_FAILS_ITS_ONE_INDEPENDENT_REPLICATION",
+      "status": "STANDING",
+      "sections": [
+        493
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "PRE_ANCHOR_MOVE_EXCEEDS_POST_ANCHOR_MOVE_ON_THE_CAUSAL_DIRECTION",
+      "status": "STANDING",
+      "sections": [
+        448
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "PRICES_ARE_SUPER_DIFFUSIVE_IN_TRADE_TIME",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "PRICE_FORMATION_IS_DOMINATED_BY_BOOK_REPRICINGS_NOT_TRADES",
+      "status": "STANDING",
+      "sections": [
+        462
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "PRICE_IMPROVING_QUOTE_ATTRACTS_THE_OPPOSITE_SIDE",
+      "status": "STANDING",
+      "sections": [
+        502
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "PRICE_INHERITS_PART_OF_THE_FLOW_MEMORY_NOT_ALL_AND_NOT_NONE",
+      "status": "STANDING",
+      "sections": [
+        492
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "PRICE_SUPERDIFFUSION_IS_DIRECTIONAL_NOT_VOLATILITY_CLUSTERING",
+      "status": "STANDING",
+      "sections": [
+        492
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "PSI_RISES_WITH_T_AS_SEC_11_4_DESCRIBES",
+      "status": "STANDING",
+      "sections": [
+        483
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "PUBLISHED_PAIR_IMPLIES_AN_UNAVAILABLE_GAP_OF_MINUS_0_66_TO_MINUS_0_86",
+      "status": "STANDING",
+      "sections": [
+        485
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "P_DIRECT_IS_REAL_AND_NEGATIVE_ON_BTC_Z_MINUS_3_55",
+      "status": "STANDING",
+      "sections": [
+        495
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "P_IS_A_TRANSITION_NOT_A_LAW_CONFIRMED_ON_INDEPENDENT_WINDOWS",
+      "status": "STANDING",
+      "sections": [
+        485
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "P_IS_NOT_A_CONSTANT_WITHIN_ORDER_FLOW_EITHER",
+      "status": "STANDING",
+      "sections": [
+        487
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "P_IS_NOT_KAPPA_MINUS_CHI",
+      "status": "STANDING",
+      "sections": [
+        485,
+        486
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "P_MINUS_KAPPA_MINUS_CHI_EQUALS_CHI_MINUS_ALPHA_EXACT_IDENTITY",
+      "status": "STANDING",
+      "sections": [
+        485
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "P_UNMEASURED_EXCEPT_ORDER_FLOW_IS_SUPERSEDED",
+      "status": "STANDING",
+      "sections": [
+        487
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "QUEUE_POSITION_ADVERSE_SELECTION_IS_PERMANENT",
+      "status": "STANDING",
+      "sections": [
+        471,
+        472
+      ],
+      "n_sections": 3,
+      "errata": []
+    },
+    {
+      "token": "QUEUE_POSITION_FILL_CURVE_IS_A_POWER_LAW",
+      "status": "TOUCHED",
+      "sections": [
+        484
+      ],
+      "n_sections": 1,
+      "errata": [
+        {
+          "errata": "ERR-HU-015",
+          "ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_D.json",
+          "class": "TOUCHED",
+          "verdict_affected": true
+        }
+      ]
+    },
+    {
+      "token": "QUEUE_POSITION_FILL_CURVE_MEASURED",
+      "status": "STANDING",
+      "sections": [
+        469
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "QUEUE_TAIL_IS_NOT_ESTIMABLE_BY_HILL_ON_THIS_FEED",
+      "status": "STANDING",
+      "sections": [
+        481
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "QUOTE_REVISION_CARRIES_MORE_VARIANCE_THAN_TRADES",
+      "status": "STANDING",
+      "sections": [
+        459
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "RANK_TRANSFORM_STRENGTHENS_IT_BTC_Z_36_7_TO_86_2",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "RATIO_IS_NOT_CONSTANT_SO_NO_QUANTITATIVE_LAW_IS_CLAIMED",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "RATIO_SD_3_347_AND_9_037_NOTHING_WAS_DETERMINED",
+      "status": "STANDING",
+      "sections": [
+        500
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "RATIO_TAIL_DEPENDENCE_NOT_IDENTIFIED_WITHOUT_AN_ORDER_ID",
+      "status": "STANDING",
+      "sections": [
+        473
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "RAW_VOLUME_WEIGHTING_UNDERSTATES_SIGN_MEMORY",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "REACTION_VS_PREDICTION_IMPACT_PERMANENTLY_UNIDENTIFIED",
+      "status": "STANDING",
+      "sections": [
+        442
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "REAL_C_OF_L_IS_NOT_A_PURE_POWER_LAW",
+      "status": "STANDING",
+      "sections": [
+        503
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "REJECTION_DOES_NOT_IDENTIFY_WHICH_LEG_FAILED",
+      "status": "STANDING",
+      "sections": [
+        494
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "REPORTED_POV_OF_1_0_AND_2_0_AND_4_0_IS_STRUCTURALLY_IMPOSSIBLE",
+      "status": "STANDING",
+      "sections": [
+        500
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "RESIDUAL_CANCELLATION_IS_NEGATIVE_ON_BTC_AND_ETH",
+      "status": "STANDING",
+      "sections": [
+        496
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "RESIDUAL_INFORMATIONAL_GAP_DOES_NOT_CLEAR_THE_SESSION_MULTIPLICITY_BAR",
+      "status": "STANDING",
+      "sections": [
+        452
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "RESPONSE_FUNCTION_SATURATES_AT_0_487_AND_0_494_BPS",
+      "status": "STANDING",
+      "sections": [
+        492
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "RESPONSE_FUNCTION_SATURATION_AT_0_49_BPS_STANDS",
+      "status": "STANDING",
+      "sections": [
+        496
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "RESPONSE_IS_LIQUIDITY_CONDITIONED",
+      "status": "STANDING",
+      "sections": [
+        442
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "RISING_LIMB_IS_ETH_TO_BTC_COMPOSITION_NOT_A_K_EFFECT",
+      "status": "STANDING",
+      "sections": [
+        493
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "R_INFINITY_IS_A_ONE_TRADE_RESPONSE_NOT_A_STRATEGY_CEILING",
+      "status": "STANDING",
+      "sections": [
+        492
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "R_MINUS_1_IS_NEGATIVE_ON_ALL_THREE",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "R_PHI_IS_INCREASING_IN_PHI",
+      "status": "STANDING",
+      "sections": [
+        469
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "R_PLUS_VS_R_MINUS_NOT_IDENTIFIED_WITHOUT_AN_ORDER_ID",
+      "status": "STANDING",
+      "sections": [
+        465
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SAME_OFF_BY_ONE_I_HAD_ALREADY_NOTED_IN_C_T29",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SECOND_LANE_CORROBORATION_WITHDRAWN_THEY_SUPERSEDED_IT_THEMSELVES",
+      "status": "STANDING",
+      "sections": [
+        495
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SECOND_LANE_DIFFERENT_ESTIMATOR_SAME_VERDICT_ON_KAPPA_MINUS_CHI",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SECTION_478_HEAVY_TAIL_CONCLUSION_UNTOUCHED",
+      "status": "STANDING",
+      "sections": [
+        489
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SECTION_478_KURTOSIS_NUMBER_IS_NOT_SAFELY_INTERPRETABLE",
+      "status": "STANDING",
+      "sections": [
+        489
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SECTION_490_CALL_ON_P_WAS_WRONG_ON_BTC_AND_I_TOLD_LANE_A_SO",
+      "status": "STANDING",
+      "sections": [
+        495
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SECTION_490_IS_DUPLICATED_AND_PER_398_IS_NOT_RENUMBERED",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SECTION_490_KAPPA_MINUS_CHI_VERDICT_WITHDRAWN_WRONG_ON_TWO_OF_THREE",
+      "status": "STANDING",
+      "sections": [
+        495
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SECTION_492_CANCELLATION_INTERPRETATION_WITHDRAWN",
+      "status": "STANDING",
+      "sections": [
+        496
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SEC_14_4_TIT_FOR_TAT_MECHANISM_REFUTED_ON_BTC_ETH",
+      "status": "STANDING",
+      "sections": [
+        503
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "SELECTIVE_LIQUIDITY_TAKING_NOT_PRESENT_ON_THIS_ESTATE",
+      "status": "STANDING",
+      "sections": [
+        473
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "SESSION_WIDE_MULTIPLICITY_MUST_BE_AUDITED_BEFORE_ANY_LABEL_IS_PUBLISHED",
+      "status": "STANDING",
+      "sections": [
+        446
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "SEVEN_LETTERS_CARRY_FIFTEEN_OBJECTS_FIVE_ARE_OVERLOADED",
+      "status": "STANDING",
+      "sections": [
+        487
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SHARE_GROWS_WITH_HORIZON_AND_ORDERS_SOL_ABOVE_ETH_ABOVE_BTC",
+      "status": "STANDING",
+      "sections": [
+        496
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SHARE_READING_IS_A_NOTE_NOT_TESTED_THIS_ROUND",
+      "status": "STANDING",
+      "sections": [
+        493
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SIGMA2_DOMINATES_ON_SMALL_TICK_PERPS",
+      "status": "STANDING",
+      "sections": [
+        479
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SIGMA_SQUARED_IS_NOT_CONSTANT_IT_IS_AUTOCORRELATED",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "SIGMA_TILDE_1_DIFFERS_TWOFOLD_BETWEEN_LANES",
+      "status": "STANDING",
+      "sections": [
+        489
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SIGNAL_LIVES_ENTIRELY_BELOW_200_TRADES",
+      "status": "STANDING",
+      "sections": [
+        492
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SIGN_SHARE_0_968_TO_1_003_AND_Z_18_TO_91",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SIGN_SIZE_INTERACTION_PRESENT_SHARES_EXCEED_UNITY",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SIMPSONS_PARADOX_AT_TWO_SEPARATE_LEVELS",
+      "status": "STANDING",
+      "sections": [
+        493
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SINGLE_TRADE_IMPACT_IS_NEARLY_SIZE_INDEPENDENT_DELTA_0_04_TO_0_13",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SIZE_DEPENDENCE_OF_IMPACT_DECAYS_WITH_HORIZON",
+      "status": "STANDING",
+      "sections": [
+        482
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "SIZE_MEMORY_ALONE_WORTH_ZERO_AND_NEGATIVE_ON_SOL",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SIZE_PREDICTS_PATH",
+      "status": "STANDING",
+      "sections": [
+        446
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SIZE_WEIGHTING_MONOTONICALLY_RAISES_GAMMA",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SOL_DECAYS_GENUINELY_SIX_FOLD_OVER_THE_SAME_RANGE",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SOL_GAMMA_LMF_IS_AN_AGGREGATION_ARTEFACT_NOT_ORDER_FLOW",
+      "status": "STANDING",
+      "sections": [
+        486
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SOL_IS_OVER_RELAXED_BY_2_5_SIGMA_AND_NEARLY_SATISFIES_IT",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SOL_IS_UNSTABLE_IN_L_AND_THE_INSTRUMENT_IS_BIASED_THERE_UNDETERMINED",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SOL_KAPPA_MINUS_CHI_OUTSIDE_THE_BOOK_BAND",
+      "status": "STANDING",
+      "sections": [
+        483
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SOL_KAPPA_MINUS_CHI_UNSUPPORTED_IN_BOTH_LANES",
+      "status": "STANDING",
+      "sections": [
+        489
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SOL_KURTOSIS_GROWTH_IS_THE_AGGREGATION_MECHANISM_A_THIRD_TIME",
+      "status": "STANDING",
+      "sections": [
+        489
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SOL_LAG1_IMPACT_IS_TICK_DISCRETENESS_NOT_INFORMATION",
+      "status": "STANDING",
+      "sections": [
+        492
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SOL_PASS_IS_SPURIOUS_NEITHER_FORM_FITS",
+      "status": "STANDING",
+      "sections": [
+        503
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SOL_RESPONSE_PEAKS_THEN_DECAYS_CONSISTENT_WITH_H_BELOW_HALF",
+      "status": "STANDING",
+      "sections": [
+        492
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SOL_RESPONSE_TURNS_NEGATIVE_AT_LONG_H_CONFIRMING_A_S40",
+      "status": "STANDING",
+      "sections": [
+        485
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SPLITTING_OF_A_SINGLE_POSITION_REFUTED",
+      "status": "STANDING",
+      "sections": [
+        442
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SPOT_LEADS_THE_PERP_INTO_THE_LIQUIDATION",
+      "status": "STANDING",
+      "sections": [
+        448,
+        452
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "SPREAD_EQUALS_ONE_TICK_ON_ALL_THREE_MAJORS_SO_IT_CANNOT_SPLIT_TICK_REGIME",
+      "status": "STANDING",
+      "sections": [
+        485
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SPREAD_IS_ONE_TICK_ON_THREE_OF_THREE_MAJORS",
+      "status": "STANDING",
+      "sections": [
+        488
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SQRT_LAW_REJECTED_ON_ALL_THREE",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "STABLE_ID_ITSELF_COLLIDED_TWO_STUDIES_NAMED_C_T25",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "STATISTICALLY_INEFFICIENT_AND_ECONOMICALLY_INACCESSIBLE",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SUB_SECOND_CLUSTERING_IS_ENTIRELY_BACKGROUND_RATE",
+      "status": "STANDING",
+      "sections": [
+        446
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SUPER_DIFFUSION_DIRECTION_IS_ABOVE_EVERY_NULL",
+      "status": "STANDING",
+      "sections": [
+        491
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SUPER_DIFFUSION_NOT_IDENTIFIED_BY_A_MERGE_SCAN",
+      "status": "TOUCHED",
+      "sections": [
+        481
+      ],
+      "n_sections": 1,
+      "errata": [
+        {
+          "errata": "ERR-HU-010",
+          "ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_B.json",
+          "class": "TOUCHED",
+          "verdict_affected": true
+        }
+      ]
+    },
+    {
+      "token": "SURVIVING_RELATION_IS_A_SHARE_EFFECT_NOT_A_TICK_EFFECT",
+      "status": "STANDING",
+      "sections": [
+        493
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SWEEPING_BEYOND_THE_TOUCH_BUYS_NOTHING_AT_ONE_SECOND",
+      "status": "STANDING",
+      "sections": [
+        467
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SWEEPING_BEYOND_THE_TOUCH_BUYS_NOTHING_AT_TEN_SECONDS",
+      "status": "STANDING",
+      "sections": [
+        468
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SYMBOL_COLLISION_IS_INVISIBLE_TO_A_TOKEN_INDEX",
+      "status": "STANDING",
+      "sections": [
+        487
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "SYMBOL_RANK_INVERTS_WITH_WEIGHTING_AGGREGATION_SIGNATURE",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "S_MEASURED_DIRECTLY_NOT_DIFFERENCED_OUT_OF_R",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "TAIL_INDEX_EXPOSURE_IS_INSIDE_AS_OWN_2X_COST_TRIGGER",
+      "status": "STANDING",
+      "sections": [
+        489
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THAT_INTERNAL_CHECK_SHOULD_HAVE_CAUGHT_IT_AND_I_MISSED_IT",
+      "status": "STANDING",
+      "sections": [
+        495
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THAT_IS_THE_OPPOSITE_OF_KISSELLS_DIRECTION",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THESE_BRACKET_THE_BOOKS_MINUS_0_30",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THETA_IS_THEREFORE_NOT_READABLE_AS_1_MINUS_2BETA_MINUS_GAMMA",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THEY_FALL_ON_THREE_DIFFERENT_CONDITIONS_NOT_ONE",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THE_0_26_BPS_DEVIATION_SITS_BELOW_THE_10_BPS_FRICTION",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THE_BOUND_IS_VACUOUS_EXACTLY_WHERE_THE_BOOK_HOLDS",
+      "status": "STANDING",
+      "sections": [
+        479
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THE_CATCH_UP_IS_NOT_BOUGHT_BY_TRADES",
+      "status": "STANDING",
+      "sections": [
+        468,
+        469
+      ],
+      "n_sections": 3,
+      "errata": []
+    },
+    {
+      "token": "THE_CATCH_UP_IS_THE_AGGRESSED_SIDE_CONTINUING_TO_WITHDRAW",
+      "status": "STANDING",
+      "sections": [
+        469
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THE_CLOCK_IS_PART_OF_THE_ESTIMAND",
+      "status": "STANDING",
+      "sections": [
+        474
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THE_FEE_KILLS_TOP_PRIORITY",
+      "status": "STANDING",
+      "sections": [
+        473
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THE_FEE_NOT_THE_ADVERSE_SELECTION_IS_WHAT_BINDS_AT_THE_FRONT",
+      "status": "STANDING",
+      "sections": [
+        472
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THE_HORIZON_WAS_THE_PROBLEM_NOT_THE_SAMPLE",
+      "status": "STANDING",
+      "sections": [
+        479
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "THE_HUMP_IS_A_BIN_COMPOSITION_ARTEFACT",
+      "status": "STANDING",
+      "sections": [
+        493
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THE_NEWS_TERM_CARRIES_76_TO_83_PCT_OF_D",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "THE_NUMBER_THAT_AGREED_WITH_THE_CORPUS_WAS_THE_BROKEN_ONE",
+      "status": "STANDING",
+      "sections": [
+        486
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THE_OUTER_CUT_IS_A_REAL_DEGREE_OF_FREEDOM",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THE_PASSIVE_SIDE_CHASES",
+      "status": "STANDING",
+      "sections": [
+        469
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THE_PROCESS_CARRYING_63",
+      "status": "STANDING",
+      "sections": [
+        462
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THE_RATIOS_LOOKED_BETTER_AT_LARGE_L_AND_I_NEARLY_KEPT_IT",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THE_REMEDY_CHANGES_FROM_REPLAY_HISTORY_TO_MEASURE_OR_BLOCK_F_T",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THE_RESIDUAL_NEEDS_G_WHICH_NEEDS_C_LEVEL",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THE_SIZE_DEPENDENT_PART_OF_IMPACT_IS_MORE_TRANSIENT_THAN_THE_BASE_PART",
+      "status": "STANDING",
+      "sections": [
+        467
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THE_SWEEP_DOES_NOT_COME_BACK",
+      "status": "STANDING",
+      "sections": [
+        468
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THE_SWEEP_PREPAYS_THE_BOOK_S_OWN_RETREAT",
+      "status": "STANDING",
+      "sections": [
+        469
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "THE_TOUCH_MATCHER_CATCHES_UP",
+      "status": "STANDING",
+      "sections": [
+        468
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THE_T_CUTOFF_IS_A_REAL_DEGREE_OF_FREEDOM",
+      "status": "STANDING",
+      "sections": [
+        489
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THIRD_INSTANCE_A_FITTED_EXPONENT_BELONGS_TO_ITS_WINDOW",
+      "status": "STANDING",
+      "sections": [
+        499
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THIRD_MEMBER_OF_THE_FAMILY_WITH_C_T24_AND_C_T32",
+      "status": "STANDING",
+      "sections": [
+        500
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THIRTEEN_LETTERS_TWENTY_FIVE_OBJECTS_EIGHT_OVERLOADED",
+      "status": "STANDING",
+      "sections": [
+        488
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THIS_IS_THE_MECHANISM_FOR_R_MINUS_1_NEGATIVE",
+      "status": "STANDING",
+      "sections": [
+        502
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THIS_IS_THE_N_NON_CONSUMING_REPLICATION_CLASS",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THIS_LANE_IS_IMPLICATED_ZETA_HAS_THREE_OBJECTS",
+      "status": "STANDING",
+      "sections": [
+        487
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THREE_DEFENSIBLE_BENCHMARKS_SPAN_12_PERCENT_TO_100_PERCENT",
+      "status": "STANDING",
+      "sections": [
+        496
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THREE_IMPACT_EXPONENTS_MEASURE_THREE_DIFFERENT_OBJECTS",
+      "status": "STANDING",
+      "sections": [
+        455
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THREE_OF_FOUR_ROUTES_CLUSTER_0_22_TO_0_59",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "THREE_POINT_MONOTONE_TABLE_LOOKED_PERFECT_AND_FAILED_WITHIN_SYMBOL",
+      "status": "STANDING",
+      "sections": [
+        493
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "TICK_MEASURED_NOT_ASSUMED",
+      "status": "STANDING",
+      "sections": [
+        493
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "TICK_RENT_EXISTS_ON_SOL",
+      "status": "STANDING",
+      "sections": [
+        459
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "TOP_PRIORITY_IS_BARELY_PROFITABLE_AT_ZERO_FEE",
+      "status": "TOUCHED",
+      "sections": [
+        473
+      ],
+      "n_sections": 1,
+      "errata": [
+        {
+          "errata": "ERR-HU-008",
+          "ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_A.json",
+          "class": "TOUCHED",
+          "verdict_affected": true
+        }
+      ]
+    },
+    {
+      "token": "TOUCH_MATCHERS_ARE_RIGHT",
+      "status": "STANDING",
+      "sections": [
+        467
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "TOUCH_MATCHING_IS_THE_FIRST_BEHAVIOURAL_SIGNATURE_FOUND_IN_THIS_LANE",
+      "status": "STANDING",
+      "sections": [
+        465
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "TRADES_ARRIVE_AFTER_A_DIP",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "TRAVEL_TO_TRIGGER_SHARE_WAS_INFLATED_BY_A_RANDOM_WALK_BASELINE",
+      "status": "STANDING",
+      "sections": [
+        452
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "TRIGGER_LADDER_IS_PRESENT_BUT_NOT_THE_DOMINANT_DETERMINANT",
+      "status": "STANDING",
+      "sections": [
+        442
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "TWO_ESTIMATORS_NAMED_KAPPA_MINUS_CHI_HAVE_OPPOSITE_SIGNS",
+      "status": "STANDING",
+      "sections": [
+        495
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "TWO_ESTIMATORS_SHARE_NO_MACHINERY",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "TWO_INDEPENDENT_DECOMPOSITIONS_AGREE_IN_ORDERING",
+      "status": "STANDING",
+      "sections": [
+        479
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "TWO_LANES_TWO_STATISTICS_ONE_PREDICTION",
+      "status": "STANDING",
+      "sections": [
+        486
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "TWO_OF_THREE_REJECT_BOTH_CANDIDATES",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "TWO_ROUTES_AGREE_ONLY_ON_THE_SYMBOL_C_T24_CALLED_BROKEN",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "T_140_BECOMES_T_63_ECONOMICS_UNCHANGED",
+      "status": "STANDING",
+      "sections": [
+        492
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "UNDER_RELAXATION_PLUS_0_227_AND_PLUS_0_151",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "UNDER_RELAXATION_PREDICTS_C_T29_H_THREE_OF_THREE_IN_SIGN",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "VAR_OF_SIGNED_VOLUME_IS_INFINITE",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "VOLATILITY_CLUSTERING_SHARE_IS_ZERO_MINUS_0_04_TO_PLUS_0_29",
+      "status": "STANDING",
+      "sections": [
+        492
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "VOLUME_WEIGHTED_GAMMA_IDENTITY_HAS_NO_POPULATION_TARGET",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "V_AND_T_OVERLAP_IS_0_000_AT_T5_VERSUS_T500_ON_ALL_THREE",
+      "status": "STANDING",
+      "sections": [
+        501
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "WINDOW_SPAN_BUG_ZEROED_T_EQUALS_ONE_AND_WAS_FIXED",
+      "status": "STANDING",
+      "sections": [
+        497
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "WRONG_GAMMA_HYPOTHESIS_REFUTED_STRUCTURALLY_FOR_ETH",
+      "status": "STANDING",
+      "sections": [
+        490
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "X_RATIO_HAS_AN_INFINITE_MEAN_ON_BTC_ETH",
+      "status": "STANDING",
+      "sections": [
+        481
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ZERO_CANCELLATION_WORLD_RETURNS_H_EXACTLY_ONE_HALF",
+      "status": "STANDING",
+      "sections": [
+        496
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ZETA_AT_LAG1_IS_MECHANICAL",
+      "status": "STANDING",
+      "sections": [
+        482
+      ],
+      "n_sections": 2,
+      "errata": []
+    },
+    {
+      "token": "ZETA_A_AND_ZETA_C_ARE_THE_SAME_LETTER_ON_DIFFERENT_OBJECTS",
+      "status": "STANDING",
+      "sections": [
+        485
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ZETA_IS_INDISTINGUISHABLE_FROM_LINEAR_IMPACT",
+      "status": "STANDING",
+      "sections": [
+        491
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ZETA_IS_NOT_DELTA",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ZETA_IS_NOT_DELTA_PAID_FOR_TWICE",
+      "status": "STANDING",
+      "sections": [
+        486
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ZETA_KAPPA_AND_P_EACH_CARRY_THREE_OBJECTS",
+      "status": "STANDING",
+      "sections": [
+        487
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ZETA_OUTER_DEBIASED",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    },
+    {
+      "token": "ZETA_OUTER_DIFFERS_FROM_A_S30",
+      "status": "STANDING",
+      "sections": [
+        498
+      ],
+      "n_sections": 1,
+      "errata": []
+    }
+  ]
+}

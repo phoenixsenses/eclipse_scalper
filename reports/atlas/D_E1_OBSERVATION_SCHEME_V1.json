@@ -1,0 +1,313 @@
+{
+ "study": "D-E1",
+ "lane": "D",
+ "class": "accounting_integrity_outcome_blind",
+ "reads": [
+  "liquidations.ts_ms",
+  "mark_prices.ts_ms",
+  "agg_trades day index"
+ ],
+ "reads_no_outcome": true,
+ "attrition": {
+  "raw_episodes": 759,
+  "coverage": 6,
+  "adv_history": 124,
+  "complete_case": 629
+ },
+ "coverage_refusal_reasons": {
+  "price_series_starts_after_required_window_start": 2,
+  "required_window_crosses_lawful_cutoff": 4
+ },
+ "left_truncation_delayed_entry": {
+  "rule": "at least 5 prior UTC days of daily notional strictly before the episode's day (ADV window 30)",
+  "n_excluded": 124,
+  "share_of_raw": 0.1634,
+  "by_symbol": {
+   "BTCUSDT": {
+    "n": 52,
+    "utc_days": [
+     20657,
+     20658,
+     20659,
+     20660,
+     20661
+    ]
+   },
+   "ETHUSDT": {
+    "n": 45,
+    "utc_days": [
+     20657,
+     20658,
+     20659,
+     20660,
+     20661
+    ]
+   },
+   "SOLUSDT": {
+    "n": 27,
+    "utc_days": [
+     20658,
+     20659,
+     20660,
+     20661
+    ]
+   }
+  }
+ },
+ "right_censoring_data_edge": {
+  "rule": "required window [t0-60m, t0+360m] must lie inside the symbol's price span AND end before the lawful cutoff; plus row-count margins 1900 prior / 22000 future",
+  "n_excluded": 6,
+  "share_of_raw": 0.0079,
+  "by_symbol": {
+   "BTCUSDT": {
+    "n": 3,
+    "utc_days": [
+     20657,
+     20685
+    ]
+   },
+   "ETHUSDT": {
+    "n": 2,
+    "utc_days": [
+     20685
+    ]
+   },
+   "SOLUSDT": {
+    "n": 1,
+    "utc_days": [
+     20685
+    ]
+   }
+  }
+ },
+ "horizon_slip_ms": {
+  "1m": {
+   "p0": 19.0,
+   "p50": 604.0,
+   "p75": 764.0,
+   "p90": 862.0,
+   "p95": 904.0,
+   "p99": 935.0800000000004,
+   "p100": 24731.0
+  },
+  "5m": {
+   "p0": 22.0,
+   "p50": 603.0,
+   "p75": 763.0,
+   "p90": 862.2,
+   "p95": 904.0,
+   "p99": 943.3200000000002,
+   "p100": 41804.0
+  },
+  "15m": {
+   "p0": 19.0,
+   "p50": 603.0,
+   "p75": 763.0,
+   "p90": 861.0,
+   "p95": 903.6,
+   "p99": 935.0800000000004,
+   "p100": 62910.0
+  },
+  "30m": {
+   "p0": 22.0,
+   "p50": 605.0,
+   "p75": 766.0,
+   "p90": 865.4000000000001,
+   "p95": 906.8000000000001,
+   "p99": 6709.1200000000135,
+   "p100": 178192.0
+  },
+  "60m": {
+   "p0": 19.0,
+   "p50": 604.0,
+   "p75": 771.0,
+   "p90": 865.4000000000001,
+   "p95": 907.6,
+   "p99": 11719.560000000263,
+   "p100": 18634249.0
+  },
+  "120m": {
+   "p0": 20.0,
+   "p50": 606.0,
+   "p75": 768.0,
+   "p90": 864.2,
+   "p95": 904.6,
+   "p99": 1932.4400000000355,
+   "p100": 15034249.0
+  },
+  "240m": {
+   "p0": 19.0,
+   "p50": 615.0,
+   "p75": 779.0,
+   "p90": 881.2,
+   "p95": 912.0,
+   "p99": 250036.4800000057,
+   "p100": 17266879.0
+  },
+  "360m": {
+   "p0": 19.0,
+   "p50": 605.0,
+   "p75": 773.0,
+   "p90": 871.2,
+   "p95": 910.0,
+   "p99": 39767.16000000028,
+   "p100": 14496541.0
+  }
+ },
+ "horizon_slip_over_60s": {
+  "1m": 0,
+  "5m": 0,
+  "15m": 1,
+  "30m": 2,
+  "60m": 1,
+  "120m": 1,
+  "240m": 9,
+  "360m": 5
+ },
+ "horizon_unresolved": {
+  "1m": 0,
+  "5m": 0,
+  "15m": 0,
+  "30m": 0,
+  "60m": 0,
+  "120m": 0,
+  "240m": 0,
+  "360m": 0
+ },
+ "mark_series_gaps": {
+  "BTCUSDT": {
+   "n_marks": 2378470,
+   "span_days": 28.14,
+   "gap_ms": {
+    "p0": 0.0,
+    "p50": 1000.0,
+    "p75": 1001.0,
+    "p90": 1003.0,
+    "p95": 1005.0,
+    "p99": 1008.0,
+    "p100": 19537996.0
+   },
+   "n_gaps_over_60s": 104,
+   "n_gaps_over_600s": 4,
+   "max_gap_minutes": 325.6
+  },
+  "ETHUSDT": {
+   "n_marks": 2378464,
+   "span_days": 28.14,
+   "gap_ms": {
+    "p0": 0.0,
+    "p50": 1000.0,
+    "p75": 1001.0,
+    "p90": 1003.0,
+    "p95": 1005.0,
+    "p99": 1008.0,
+    "p100": 19539000.0
+   },
+   "n_gaps_over_60s": 106,
+   "n_gaps_over_600s": 4,
+   "max_gap_minutes": 325.6
+  },
+  "SOLUSDT": {
+   "n_marks": 2378454,
+   "span_days": 28.14,
+   "gap_ms": {
+    "p0": 0.0,
+    "p50": 1000.0,
+    "p75": 1001.0,
+    "p90": 1003.0,
+    "p95": 1005.0,
+    "p99": 1008.0,
+    "p100": 19539000.0
+   },
+   "n_gaps_over_60s": 111,
+   "n_gaps_over_600s": 4,
+   "max_gap_minutes": 325.6
+  }
+ },
+ "competing_event_next_episode_in_window": {
+  "1m": {
+   "n_with_next_episode_inside_window": 0,
+   "share": 0.0
+  },
+  "5m": {
+   "n_with_next_episode_inside_window": 0,
+   "share": 0.0
+  },
+  "15m": {
+   "n_with_next_episode_inside_window": 0,
+   "share": 0.0
+  },
+  "30m": {
+   "n_with_next_episode_inside_window": 25,
+   "share": 0.0397
+  },
+  "60m": {
+   "n_with_next_episode_inside_window": 140,
+   "share": 0.2226
+  },
+  "120m": {
+   "n_with_next_episode_inside_window": 347,
+   "share": 0.5517
+  },
+  "240m": {
+   "n_with_next_episode_inside_window": 510,
+   "share": 0.8108
+  },
+  "360m": {
+   "n_with_next_episode_inside_window": 569,
+   "share": 0.9046
+  }
+ },
+ "inter_episode_gap_minutes_same_symbol": {
+  "p5": 31.331408333333336,
+  "p10": 41.016241666666666,
+  "p25": 63.494816666666665,
+  "p50": 109.544625,
+  "p75": 197.5559,
+  "p90": 336.5047583333333,
+  "p95": 457.92489166666667,
+  "n_gaps": 626
+ },
+ "risk_set_vs_cluster": {
+  "1m": {
+   "CLUSTERS_for_standard_errors": 573,
+   "RISK_SET_episodes_still_observed": 629,
+   "cluster_verdict": "SUPPORTED"
+  },
+  "5m": {
+   "CLUSTERS_for_standard_errors": 513,
+   "RISK_SET_episodes_still_observed": 629,
+   "cluster_verdict": "SUPPORTED"
+  },
+  "15m": {
+   "CLUSTERS_for_standard_errors": 429,
+   "RISK_SET_episodes_still_observed": 629,
+   "cluster_verdict": "SUPPORTED"
+  },
+  "30m": {
+   "CLUSTERS_for_standard_errors": 346,
+   "RISK_SET_episodes_still_observed": 629,
+   "cluster_verdict": "SUPPORTED"
+  },
+  "60m": {
+   "CLUSTERS_for_standard_errors": 205,
+   "RISK_SET_episodes_still_observed": 629,
+   "cluster_verdict": "SUPPORTED"
+  },
+  "120m": {
+   "CLUSTERS_for_standard_errors": 66,
+   "RISK_SET_episodes_still_observed": 629,
+   "cluster_verdict": "SUPPORTED"
+  },
+  "240m": {
+   "CLUSTERS_for_standard_errors": 15,
+   "RISK_SET_episodes_still_observed": 629,
+   "cluster_verdict": "SUPPORT_INADEQUATE"
+  },
+  "360m": {
+   "CLUSTERS_for_standard_errors": 7,
+   "RISK_SET_episodes_still_observed": 629,
+   "cluster_verdict": "SUPPORT_INADEQUATE"
+  }
+ }
+}

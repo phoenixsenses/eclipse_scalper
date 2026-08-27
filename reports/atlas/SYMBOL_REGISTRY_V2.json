@@ -1,0 +1,504 @@
+{
+ "study": "C26_DESIGN_FAMILY_REGISTRY_V1",
+ "lane": "C",
+ "stable_id": "C-T26",
+ "generated_utc": "2026-08-27T03:37:10Z",
+ "supersedes": {
+  "file": "EXPONENT_SYMBOL_REGISTRY_V1",
+  "how": "contained verbatim; V1 is not withdrawn"
+ },
+ "non_finding_recorded": {
+  "checked": "whether the frozen prereg leaves the fee convention ambiguous, since h* goes as c^2 and A's own S5 trigger says a 2x cost change moves h* by 4x",
+  "result": "line 56 states it -- 'section 460's frontier is single-leg at c = 10 bps' -- and line 45 contrasts the two-leg pairs case at 20 bps",
+  "verdict": "NO_DEFECT_THE_FILE_RESOLVES_ITS_OWN_CONVENTION",
+  "why_recorded": "the check was run and came back clean, which is worth as much as a finding and is usually not written down"
+ },
+ "the_bridge": {
+  "label": "A_K_IS_C_TAIL_INDEX",
+  "A_k": 0.6966,
+  "gaussian_k": 0.7979,
+  "below_gaussian_pct": -12.69,
+  "implied_nu": 3.765,
+  "C_hill_range": [
+   2.33,
+   3.83
+  ],
+  "book_zeta": 3.0,
+  "agree": true,
+  "why_it_matters": "k is not a free constant. It is a function of the tail index, and the tail index is the quantity Bouchaud reports as near-universal.",
+  "independence": "the two statistics share no machinery: a mean-absolute-to-sigma ratio computed over a whole distribution, and an order-statistic estimator using only the largest observations",
+  "free_check_for_As_freeze": {
+   "predicted_band": "nu in [3, 5]  <->  k in [0.6366, 0.7351]",
+   "inside": "tail regime unchanged, nothing to revisit",
+   "outside": "either the tail regime moved or the estimator broke; since N_required goes as k^-2, the cost of not noticing is a mis-sized sample",
+   "cost": "zero -- A already plans to re-measure k at freeze"
+  }
+ },
+ "cost_basis": {
+  "A_assumption": "Spread = one tick (section 452, 12 of 15 symbols)",
+  "C_measurement": "holds on 3 of 3 majors at 97.7% / 98.8% / 99.9% of quotes -- the assumption is stronger than A recorded, not weaker",
+  "fee_bps_single_leg": 10.0,
+  "rows": [
+   {
+    "symbol": "BTCUSDT",
+    "spread_bps": 0.0154,
+    "c_bps": 10.0154,
+    "spread_share_of_c": 0.00154,
+    "h_star_factor": 1.0031
+   },
+   {
+    "symbol": "ETHUSDT",
+    "spread_bps": 0.053,
+    "c_bps": 10.053,
+    "spread_share_of_c": 0.00527,
+    "h_star_factor": 1.0106
+   },
+   {
+    "symbol": "SOLUSDT",
+    "spread_bps": 1.3148,
+    "c_bps": 11.3148,
+    "spread_share_of_c": 0.1162,
+    "h_star_factor": 1.2802
+   }
+  ],
+  "reading": "c is FEE-DOMINATED on the small-tick majors: the spread moves the design horizon by 0.3% and 1.1%. On SOL it is 11.6% of cost and lifts h* by 28%. Cross-symbol variation in h* comes from sigma_d, not the spread -- except on the large-tick symbol."
+ },
+ "registry": [
+  {
+   "object_id": "ZETA_WINDOW_IMBALANCE",
+   "letter": "zeta",
+   "definition": "outer-region exponent of R against |dV| over windows of T trades",
+   "conditions_on": "net imbalance of ALL participants in a window",
+   "measured": "0.416 / 0.439 / 0.495",
+   "owner": "A-S30",
+   "note": "A itself holds ZETA_IS_NOT_DELTA",
+   "shares_its_letter_with": [
+    "ZETA_SINGLE_ORDER_SIZE",
+    "ZETA_RETURN_TAIL"
+   ],
+   "family": "exponent"
+  },
+  {
+   "object_id": "ZETA_SINGLE_ORDER_SIZE",
+   "letter": "zeta",
+   "definition": "R(v,1) = A (v/V_best)^zeta <s>, Bouchaud Eq. 11.7",
+   "conditions_on": "ONE market order's size",
+   "measured": "0.166 / 0.230 / 0.262 at 600 s; 0.63-0.72 at lag-1 and mechanical",
+   "owner": "C-T20",
+   "note": "book range 0-0.3",
+   "shares_its_letter_with": [
+    "ZETA_WINDOW_IMBALANCE",
+    "ZETA_RETURN_TAIL"
+   ],
+   "family": "exponent"
+  },
+  {
+   "object_id": "ZETA_RETURN_TAIL",
+   "letter": "zeta",
+   "definition": "tail exponent of the unconditional return distribution, P(|r|>x) ~ x^-zeta",
+   "conditions_on": "nothing -- an unconditional distributional exponent",
+   "measured": "Hill 2.33-3.83 across k on 60-minute moves; Bouchaud reports ~3 universally",
+   "owner": "section 478",
+   "note": "Bouchaud's own usage; the lane writing this registry used the letter for a third object",
+   "shares_its_letter_with": [
+    "ZETA_WINDOW_IMBALANCE",
+    "ZETA_SINGLE_ORDER_SIZE"
+   ],
+   "family": "exponent"
+  },
+  {
+   "object_id": "GAMMA_METAORDER_IMPACT",
+   "letter": "gamma",
+   "definition": "concavity of price response in metaorder size, I ~ Q^gamma",
+   "conditions_on": "a metaorder, requiring child-to-parent identity",
+   "measured": "NOT IDENTIFIABLE on anonymised data (Bouchaud 12.2)",
+   "owner": "C-T24",
+   "note": "C-T20's 0.373/0.369 was indirect via Eq. 16.16 and withdrawn by C-T21; its bias sign is known (aggregate substitution underestimates)",
+   "shares_its_letter_with": [
+    "GAMMA_LMF_SIGN_MEMORY"
+   ],
+   "family": "exponent"
+  },
+  {
+   "object_id": "GAMMA_LMF_SIGN_MEMORY",
+   "letter": "gamma",
+   "definition": "decay of the order-sign autocorrelation, C(l) ~ l^-gamma_LMF",
+   "conditions_on": "trade signs only -- no identity needed",
+   "measured": "0.7746 / 0.7892 / 0.2092 (SOL an aggregation artefact)",
+   "owner": "C-T24",
+   "note": "alpha_metaorder_size = gamma_LMF + 1 under the LMF model",
+   "shares_its_letter_with": [
+    "GAMMA_METAORDER_IMPACT"
+   ],
+   "family": "exponent"
+  },
+  {
+   "object_id": "DELTA_CASCADE_IMPACT",
+   "letter": "delta",
+   "definition": "dP = k Q^delta on cascade episodes",
+   "conditions_on": "a whole cascade episode, simultaneous aggregate",
+   "measured": "0.684 / 0.666 / 0.696",
+   "owner": "C-T20",
+   "note": "A holds DELTA_IS_ASSUMED_NOT_MEASURED and DELTA_IS_NOT_MEASURABLE_ON_PUBLIC_DATA for its own delta",
+   "shares_its_letter_with": [
+    "DELTA_QUOTE_DEPTH"
+   ],
+   "family": "exponent"
+  },
+  {
+   "object_id": "DELTA_QUOTE_DEPTH",
+   "letter": "delta",
+   "definition": "depth in bps from the mid, the abscissa of Cartea Eq. (8.1) exp(-kappa*delta)",
+   "conditions_on": "a price level, not a quantity",
+   "measured": "A-S45 fitted kappa ~ 0.0097/bps over an hour",
+   "owner": "A-S45",
+   "note": "THIS COLLISION COST A DAY: CT-016 pitted A's exponential against C's power law until C-T22 showed A's abscissa is DEPTH and C's is QUEUE POSITION",
+   "shares_its_letter_with": [
+    "DELTA_CASCADE_IMPACT"
+   ],
+   "family": "exponent"
+  },
+  {
+   "object_id": "KAPPA_RESPONSE_T_EXPONENT",
+   "letter": "kappa",
+   "definition": "R(dV,T) = R(1) T^kappa F(dV/(V_D T^chi)) -- prefactor exponent in the collapsed scaling form",
+   "conditions_on": "a scaled imbalance argument held fixed",
+   "measured": "not reported alone; enters as kappa-chi = 0.25-0.30",
+   "owner": "A-S30, C-T21",
+   "note": "confirmed three times as the DIFFERENCE kappa-chi",
+   "shares_its_letter_with": [
+    "KAPPA_UNCONDITIONAL_RESPONSE",
+    "KAPPA_FILL_DECAY_RATE"
+   ],
+   "family": "exponent"
+  },
+  {
+   "object_id": "KAPPA_UNCONDITIONAL_RESPONSE",
+   "letter": "kappa",
+   "definition": "d log R / d log T with no scaling collapse",
+   "conditions_on": "nothing held fixed",
+   "measured": "0.6507 / 0.5782 / 0.5209",
+   "owner": "C-T23",
+   "note": "NOT the collapsed-scaling kappa; this is why C-T23's kappa-chi differs from A-S30's and C-T21's",
+   "shares_its_letter_with": [
+    "KAPPA_RESPONSE_T_EXPONENT",
+    "KAPPA_FILL_DECAY_RATE"
+   ],
+   "family": "exponent"
+  },
+  {
+   "object_id": "KAPPA_FILL_DECAY_RATE",
+   "letter": "kappa",
+   "definition": "rate constant in Cartea Eq. (8.1), P(fill) = exp(-kappa*delta)",
+   "conditions_on": "depth in bps",
+   "measured": "0.0097/bps (A-S45); 0.00956 re-derived (C-T22)",
+   "owner": "A-S45",
+   "note": "a RATE with units 1/bps, not a dimensionless exponent",
+   "shares_its_letter_with": [
+    "KAPPA_RESPONSE_T_EXPONENT",
+    "KAPPA_UNCONDITIONAL_RESPONSE"
+   ],
+   "family": "exponent"
+  },
+  {
+   "object_id": "CHI_VOLUME_SCALE",
+   "letter": "chi",
+   "definition": "exponent of the volume normaliser inside F(dV/(V_D T^chi))",
+   "conditions_on": "aggregation window length",
+   "measured": "0.6498 / 0.6817 / 0.5902 as sd(dV) ~ T^chi",
+   "owner": "C-T23",
+   "note": "p - (kappa-chi) = chi - alpha_E|r| exactly",
+   "shares_its_letter_with": [],
+   "family": "exponent"
+  },
+  {
+   "object_id": "P_PREDICTOR_CAPTURE_DECAY",
+   "letter": "p",
+   "definition": "f(h) = R(h)/E|r|(h) ~ h^p for a real predictor",
+   "conditions_on": "a forecast formed before the horizon",
+   "measured": "-0.409 / -0.495 / -0.508",
+   "owner": "A-S40",
+   "note": "A-S40 itself: a single fitted p ~ -0.5 is the AVERAGE OF A TRANSITION",
+   "shares_its_letter_with": [
+    "P_CONTEMPORANEOUS_FLOW_RATIO",
+    "P_LAGGED_FLOW_RATIO"
+   ],
+   "family": "exponent"
+  },
+  {
+   "object_id": "P_CONTEMPORANEOUS_FLOW_RATIO",
+   "letter": "p",
+   "definition": "same formula, flow and return measured over the SAME window",
+   "conditions_on": "nothing lagged",
+   "measured": "-0.026 / -0.014 / +0.000",
+   "owner": "C-T23",
+   "note": "shares A's formula and is not A's object",
+   "shares_its_letter_with": [
+    "P_PREDICTOR_CAPTURE_DECAY",
+    "P_LAGGED_FLOW_RATIO"
+   ],
+   "family": "exponent"
+  },
+  {
+   "object_id": "P_LAGGED_FLOW_RATIO",
+   "letter": "p",
+   "definition": "same formula, signal from a prior window, response measured forward",
+   "conditions_on": "a lag",
+   "measured": "+0.215/+0.009 at h<=16; -0.721/-0.785 at h>=256",
+   "owner": "C-T23",
+   "note": "reproduces A-S40's transition on independent windows",
+   "shares_its_letter_with": [
+    "P_PREDICTOR_CAPTURE_DECAY",
+    "P_CONTEMPORANEOUS_FLOW_RATIO"
+   ],
+   "family": "exponent"
+  },
+  {
+   "object_id": "ALPHA_METAORDER_SIZE_TAIL",
+   "letter": "alpha",
+   "definition": "Pareto tail exponent of the metaorder size distribution",
+   "conditions_on": "metaorder sizes",
+   "measured": "1.775 / 1.789 as UPPER BOUNDS via LMF; book: equities ~1.5, Bitcoin ~1.10",
+   "owner": "C-T24",
+   "note": "SOL's 1.209 is an aggregation artefact and must not be compared with the book",
+   "shares_its_letter_with": [],
+   "family": "exponent"
+  },
+  {
+   "object_id": "K_MEAN_ABS_OVER_SIGMA",
+   "letter": "k",
+   "family": "design",
+   "definition": "k = E|r|/sigma, the mean-absolute-to-sigma ratio of returns",
+   "conditions_on": "the return distribution's shape",
+   "measured": "0.6966 (A-S45 freeze block, from section 467)",
+   "owner": "A-S45",
+   "note": "Gaussian value sqrt(2/pi) = 0.7979; A sits 12.69% below it, a fat-tail signature",
+   "shares_its_letter_with": [
+    "K_IMPACT_PREFACTOR"
+   ]
+  },
+  {
+   "object_id": "K_IMPACT_PREFACTOR",
+   "letter": "k",
+   "family": "design",
+   "definition": "prefactor in dP = k Q^delta",
+   "conditions_on": "traded quantity",
+   "measured": "not reported separately from delta",
+   "owner": "C-T6",
+   "note": "Kissell/Bouchaud usage; dimensional, unlike A's dimensionless ratio",
+   "shares_its_letter_with": [
+    "K_MEAN_ABS_OVER_SIGMA"
+   ]
+  },
+  {
+   "object_id": "F_CAPTURE",
+   "letter": "f",
+   "family": "design",
+   "definition": "the capture fraction, f = R/E|r| evaluated at the design horizon",
+   "conditions_on": "a predictor and a horizon",
+   "measured": "the estimand -- NOT preregistered; f_design = 0.010 enters only through power",
+   "owner": "A prereg section 3",
+   "note": "VERIFIED CONSISTENT with A-S40's f(h): same object, the scalar being the function at one h. Not a collision.",
+   "shares_its_letter_with": []
+  },
+  {
+   "object_id": "C_SINGLE_LEG_COST",
+   "letter": "c",
+   "family": "design",
+   "definition": "c = spread + fee, single-leg round trip",
+   "conditions_on": "a symbol and a fee tier",
+   "measured": "10 bps (prereg line 56); two-leg pairs case is 20 bps (line 45)",
+   "owner": "A prereg",
+   "note": "convention IS stated -- the check for ambiguity came back clean",
+   "shares_its_letter_with": []
+  },
+  {
+   "object_id": "H_HORIZON_DAYS",
+   "letter": "h",
+   "family": "design",
+   "definition": "design horizon h* = [2c/(k f sigma_d)]^2",
+   "conditions_on": "cost, capture and daily volatility",
+   "measured": "derived per symbol",
+   "owner": "A prereg",
+   "note": "units: DAYS",
+   "shares_its_letter_with": [
+    "H_LAG_IN_TRADES",
+    "H_HORIZON_MINUTES"
+   ]
+  },
+  {
+   "object_id": "H_LAG_IN_TRADES",
+   "letter": "h",
+   "family": "design",
+   "definition": "lag in trades in the lagged capture curve f(h)",
+   "conditions_on": "a trade count",
+   "measured": "grid 1..4096",
+   "owner": "C-T23",
+   "note": "units: TRADES. A-S40's own h grid could not be placed on either scale from its text, and that ambiguity cost C-T23 an inference.",
+   "shares_its_letter_with": [
+    "H_HORIZON_DAYS",
+    "H_HORIZON_MINUTES"
+   ]
+  },
+  {
+   "object_id": "H_HORIZON_MINUTES",
+   "letter": "h",
+   "family": "design",
+   "definition": "holding horizon of the episode outcome imp_H",
+   "conditions_on": "wall-clock time",
+   "measured": "grid 1..360",
+   "owner": "episode work",
+   "note": "units: MINUTES",
+   "shares_its_letter_with": [
+    "H_HORIZON_DAYS",
+    "H_LAG_IN_TRADES"
+   ]
+  },
+  {
+   "object_id": "SIGMA_DAILY",
+   "letter": "sigma",
+   "family": "design",
+   "definition": "daily volatility entering h*",
+   "conditions_on": "a day",
+   "measured": "per symbol at freeze",
+   "owner": "A prereg",
+   "note": "units: bps/day",
+   "shares_its_letter_with": [
+    "SIGMA_REALISED_30MIN"
+   ]
+  },
+  {
+   "object_id": "SIGMA_REALISED_30MIN",
+   "letter": "sigma",
+   "family": "design",
+   "definition": "realised volatility over the prior 30 minutes",
+   "conditions_on": "a 30-minute window",
+   "measured": "4.64 vs 3.36 bps, tail vs rest",
+   "owner": "C episode work",
+   "note": "same KIND of object at a different scale -- an ambiguity, not a collision",
+   "shares_its_letter_with": [
+    "SIGMA_DAILY"
+   ]
+  },
+  {
+   "object_id": "N_EFF_EFFECTIVE_BETS",
+   "letter": "N_eff",
+   "family": "design",
+   "definition": "effective independent observation count",
+   "conditions_on": "the dependence structure",
+   "measured": "3.27, not the 8 first assumed",
+   "owner": "A prereg section 8b",
+   "note": "three sections got this wrong before it was measured (A-S35, A-S41, A-S43)",
+   "shares_its_letter_with": []
+  }
+ ],
+ "letters": {
+  "zeta": [
+   "ZETA_WINDOW_IMBALANCE",
+   "ZETA_SINGLE_ORDER_SIZE",
+   "ZETA_RETURN_TAIL"
+  ],
+  "gamma": [
+   "GAMMA_METAORDER_IMPACT",
+   "GAMMA_LMF_SIGN_MEMORY"
+  ],
+  "delta": [
+   "DELTA_CASCADE_IMPACT",
+   "DELTA_QUOTE_DEPTH"
+  ],
+  "kappa": [
+   "KAPPA_RESPONSE_T_EXPONENT",
+   "KAPPA_UNCONDITIONAL_RESPONSE",
+   "KAPPA_FILL_DECAY_RATE"
+  ],
+  "chi": [
+   "CHI_VOLUME_SCALE"
+  ],
+  "p": [
+   "P_PREDICTOR_CAPTURE_DECAY",
+   "P_CONTEMPORANEOUS_FLOW_RATIO",
+   "P_LAGGED_FLOW_RATIO"
+  ],
+  "alpha": [
+   "ALPHA_METAORDER_SIZE_TAIL"
+  ],
+  "k": [
+   "K_MEAN_ABS_OVER_SIGMA",
+   "K_IMPACT_PREFACTOR"
+  ],
+  "f": [
+   "F_CAPTURE"
+  ],
+  "c": [
+   "C_SINGLE_LEG_COST"
+  ],
+  "h": [
+   "H_HORIZON_DAYS",
+   "H_LAG_IN_TRADES",
+   "H_HORIZON_MINUTES"
+  ],
+  "sigma": [
+   "SIGMA_DAILY",
+   "SIGMA_REALISED_30MIN"
+  ],
+  "N_eff": [
+   "N_EFF_EFFECTIVE_BETS"
+  ]
+ },
+ "collisions": {
+  "zeta": [
+   "ZETA_WINDOW_IMBALANCE",
+   "ZETA_SINGLE_ORDER_SIZE",
+   "ZETA_RETURN_TAIL"
+  ],
+  "gamma": [
+   "GAMMA_METAORDER_IMPACT",
+   "GAMMA_LMF_SIGN_MEMORY"
+  ],
+  "delta": [
+   "DELTA_CASCADE_IMPACT",
+   "DELTA_QUOTE_DEPTH"
+  ],
+  "kappa": [
+   "KAPPA_RESPONSE_T_EXPONENT",
+   "KAPPA_UNCONDITIONAL_RESPONSE",
+   "KAPPA_FILL_DECAY_RATE"
+  ],
+  "p": [
+   "P_PREDICTOR_CAPTURE_DECAY",
+   "P_CONTEMPORANEOUS_FLOW_RATIO",
+   "P_LAGGED_FLOW_RATIO"
+  ],
+  "k": [
+   "K_MEAN_ABS_OVER_SIGMA",
+   "K_IMPACT_PREFACTOR"
+  ],
+  "h": [
+   "H_HORIZON_DAYS",
+   "H_LAG_IN_TRADES",
+   "H_HORIZON_MINUTES"
+  ],
+  "sigma": [
+   "SIGMA_DAILY",
+   "SIGMA_REALISED_30MIN"
+  ]
+ },
+ "counts": {
+  "letters": 13,
+  "objects": 25,
+  "overloaded_letters": 8,
+  "exponent_family": 15,
+  "design_family": 10
+ },
+ "design_family_collisions": {
+  "k": "two objects -- a dimensionless distribution ratio and a dimensional impact prefactor",
+  "h": "THREE units across lanes: days (A's frontier), trades (C-T23's lag grid), minutes (the episode work). This already cost C-T23 an inference, where A-S40's h grid could not be placed on either scale from its text.",
+  "f": "NOT a collision -- A's capture scalar and A-S40's f(h) are the same object at one horizon, verified consistent"
+ },
+ "verdict": "DESIGN_FAMILY_ADDED_AND_A_K_IS_C_TAIL_INDEX",
+ "what_is_NOT_claimed": [
+  "That A's k is wrong. It is measured; this only shows what it implies and gives a band to check it against at freeze.",
+  "That the Student-t inversion identifies the true distribution. It is one parametric family; the agreement with an independent order-statistic estimator is the evidence, not the model.",
+  "That the spread finding changes the design. It does not: A pools symbols and the spread is negligible on two of three. It is recorded so the third is not read as the same case."
+ ]
+}

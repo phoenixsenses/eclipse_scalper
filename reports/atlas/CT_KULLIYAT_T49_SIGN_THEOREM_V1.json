@@ -1,0 +1,56 @@
+{
+  "source": "BOUCHAUD_TQP Sec 17.1, via corpus_text_v1",
+  "sign_theorem": "E[G] ~ T v0 E[theta] ( E[s]/2 + w - R_inf ); E[theta] multiplicative",
+  "theta_regimes": {
+    "small_tick": "theta ~ 1, adverse selection neglected",
+    "large_tick": "theta ~ 0 except at front, adverse selection -> Sec 17.3"
+  },
+  "h_c_prediction_vs_measurement": {
+    "BTCUSDT": {
+      "tick": "small",
+      "book_predicts_h_c": false,
+      "lane_measured_h_c": false
+    },
+    "ETHUSDT": {
+      "tick": "small",
+      "book_predicts_h_c": false,
+      "lane_measured_h_c": false
+    },
+    "SOLUSDT": {
+      "tick": "large",
+      "book_predicts_h_c": true,
+      "lane_measured_h_c": true
+    }
+  },
+  "h_c_agreement": "3/3",
+  "fine_balance_sides": {
+    "BTCUSDT": {
+      "difference": -0.08505102909696546,
+      "z": -2.509365935763975,
+      "side": "TRENDING_HARD",
+      "rejects": true
+    },
+    "ETHUSDT": {
+      "difference": 0.05193004759172437,
+      "z": 1.6642121294349799,
+      "side": "MEANREVERT_BOON",
+      "rejects": false
+    },
+    "SOLUSDT": {
+      "difference": -0.10998816411909915,
+      "z": -3.1530982147283884,
+      "side": "TRENDING_HARD",
+      "rejects": true
+    }
+  },
+  "rejecting_symbols_share_a_side": true,
+  "limitation": "gamma fit-range dependent => direction suggestive not established; composite rejection does not identify the failing leg",
+  "tokens": [
+    "EQ_17_3_IS_A_SIGN_THEOREM_FILL_PROBABILITY_CANNOT_FLIP_MAKER_PNL",
+    "H_C_EXISTS_ONLY_WHERE_THETA_INDEPENDENCE_BREAKS_I_E_LARGE_TICK",
+    "THE_CORPUS_PREDICTS_THE_SYMBOL_PATTERN_THIS_LANE_MEASURED",
+    "SEC_17_1_TIES_MAKER_PNL_SIGN_TO_THE_FINE_BALANCE_SIDE",
+    "THE_DIRECTION_REMAINS_UNESTABLISHED_BECAUSE_GAMMA_IS_FIT_RANGE_DEPENDENT"
+  ],
+  "ceiling": "RECONCILIATION"
+}

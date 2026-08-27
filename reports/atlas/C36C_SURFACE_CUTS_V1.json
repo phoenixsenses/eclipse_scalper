@@ -1,0 +1,66 @@
+{
+  "study": "C-T36-part3",
+  "point": "R(dV,T) is a SURFACE; its apparent exponent depends on the direction of the cut",
+  "per_symbol": {
+    "BTCUSDT": {
+      "pov_0.10": {
+        "m_fixed_pov": 0.778,
+        "r2": 0.539,
+        "kappa": 1.0,
+        "chi": 0.92
+      },
+      "pov_0.20": {
+        "m_fixed_pov": 1.425,
+        "r2": 0.945,
+        "kappa": 1.0,
+        "chi": 0.92
+      },
+      "pov_0.40": {
+        "m_fixed_pov": 1.409,
+        "r2": 0.958,
+        "kappa": 1.0,
+        "chi": 0.92
+      }
+    },
+    "ETHUSDT": {
+      "pov_0.10": {
+        "m_fixed_pov": 1.37,
+        "r2": 0.953,
+        "kappa": 0.9,
+        "chi": 1.06
+      },
+      "pov_0.20": {
+        "m_fixed_pov": 0.991,
+        "r2": 0.979,
+        "kappa": 0.9,
+        "chi": 1.06
+      },
+      "pov_0.40": {
+        "m_fixed_pov": 1.307,
+        "r2": 0.949,
+        "kappa": 0.9,
+        "chi": 1.06
+      }
+    },
+    "SOLUSDT": {
+      "pov_0.10": {
+        "m_fixed_pov": 0.362,
+        "r2": 0.409,
+        "kappa": 0.54,
+        "chi": 0.96
+      },
+      "pov_0.20": {
+        "m_fixed_pov": 0.858,
+        "r2": 0.929,
+        "kappa": 0.54,
+        "chi": 0.96
+      },
+      "pov_0.40": {
+        "m_fixed_pov": 0.967,
+        "r2": 0.994,
+        "kappa": 0.54,
+        "chi": 0.96
+      }
+    }
+  }
+}

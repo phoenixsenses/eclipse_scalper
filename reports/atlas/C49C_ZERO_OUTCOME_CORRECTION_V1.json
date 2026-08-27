@@ -1,0 +1,54 @@
+{
+  "study": "C-T49-part3",
+  "defect": "the hit-rate metric in part 1 counted exact-zero forward moves as misses; on a large-tick instrument that is ~a fifth of the sample",
+  "per_symbol": {
+    "BTCUSDT": {
+      "pct_0": {
+        "win": 0.6553,
+        "loss": 0.2694,
+        "zero": 0.0752,
+        "hit_my_definition": 0.6553,
+        "hit_given_nonzero": 0.7087
+      },
+      "pct_95": {
+        "win": 0.76,
+        "loss": 0.2035,
+        "zero": 0.0365,
+        "hit_my_definition": 0.76,
+        "hit_given_nonzero": 0.7888
+      }
+    },
+    "ETHUSDT": {
+      "pct_0": {
+        "win": 0.5809,
+        "loss": 0.3776,
+        "zero": 0.0415,
+        "hit_my_definition": 0.5809,
+        "hit_given_nonzero": 0.6061
+      },
+      "pct_95": {
+        "win": 0.64,
+        "loss": 0.3405,
+        "zero": 0.0195,
+        "hit_my_definition": 0.64,
+        "hit_given_nonzero": 0.6527
+      }
+    },
+    "SOLUSDT": {
+      "pct_0": {
+        "win": 0.3982,
+        "loss": 0.3689,
+        "zero": 0.2329,
+        "hit_my_definition": 0.3982,
+        "hit_given_nonzero": 0.5191
+      },
+      "pct_95": {
+        "win": 0.4215,
+        "loss": 0.3905,
+        "zero": 0.188,
+        "hit_my_definition": 0.4215,
+        "hit_given_nonzero": 0.5191
+      }
+    }
+  }
+}

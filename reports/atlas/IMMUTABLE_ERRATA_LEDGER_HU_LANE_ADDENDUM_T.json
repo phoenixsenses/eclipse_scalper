@@ -1,0 +1,49 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_T",
+  "append_only": true,
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "found_by": "reading ABERGEL_LOB via tools/corpus_text_v1.py for the first time",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-041",
+      "source_file": "reports/atlas/IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_N.json",
+      "source_section_or_line": "ERR-HU-031, the H-T6 AL->AM cell",
+      "error_class": "PROSE_OVERCLAIM",
+      "affected_tokens": [
+        "HT6_AL_TO_AM_CELL_SUPERSEDED"
+      ],
+      "old_statement": "H-T6's AL class pooled bid-improving and ask-improving events and AM pooled buys and sells; 'a cross-side claim cannot be seen through that', recorded as a construction defect in H-T6",
+      "corrected_statement": "Abergel Sec 9.4, now readable for the first time via corpus_text_v1, states the pooling as its OWN method: 'Since the empirical results in Chapter 4, Section 4.4.1 has exhibited, as expected, a certain symmetry between the bid and ask sides, WE DO NOT DISTINGUISH THE BUY AND SELL SIDES and merge all events of the same type from both the bid and ask sides of the book.' H-T6's direction-blindness was therefore FAITHFUL to the source it cites, not a defect against it. The real defect is one level up and this entry names it: an Abergel-faithful merged design was used to test a BOUCHAUD Sec 14.4 claim (LO1 attracts the OPPOSITE side) that is inherently directional. Two books, two constructions, one applied to the other's claim. C-T34's directional re-run stands; what changes is where the fault lies.",
+      "numeric_outputs_affected": false,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "SYSTEM_STATE 502",
+        "SYSTEM_STATE 463"
+      ],
+      "source_sha256": "4f3186b6c89f0dfac40d7a143922d007e8a6e880023651546566f115bafa80f9",
+      "source_exists": true,
+      "errata_sha256": "5fca3393921db0c814062884f8751683f8c999ff0423cfbea307ea70f74c82d2"
+    },
+    {
+      "errata_id": "ERR-HU-042",
+      "source_file": "tools/ht6_abergel_four_way.py",
+      "source_section_or_line": "PREDICTIONS dict -- four patterns tested",
+      "error_class": "PROSE_OVERCLAIM",
+      "affected_tokens": [
+        "ABERGEL_FOUR_PATTERNS_TESTED"
+      ],
+      "old_statement": "Abergel Sec 9.4 'reports four patterns, all of which are directional predictions'",
+      "corrected_statement": "The four quoted patterns are VERBATIM-FAITHFUL to the source -- verified word for word now that the file is readable (AM->AL market making with a short half-life; AM excited by PM and AM, clustering and rush to decreasing liquidity; AL->AL weaker with a longer half-life; PL negligible). But Sec 9.4 makes TWO further statements H-T6 did not carry. (i) 'We also observe A CLEAR INFLUENCE OF AGGRESSIVE LIMIT ORDERS ON AGGRESSIVE MARKET ORDERS, which corresponds to a market taking effect' -- that is AL->AM, the cell H-T6 measured at 0.97/1.17 and read as absent, and which C-T34 later confirmed directionally at 6 of 6 cells. (ii) 'the strength and length of this effect VARIES ACROSS THE STOCKS studied ... the patterns are LESS CLEARLY DEFINED for the influence on aggressive market orders' -- the source predicts cross-instrument variability on exactly the cell where this lane's three symbols disagreed most (SOL 1.40/1.49 against BTC 0.97/1.17). Neither statement was available to this lane while grep skipped the file.",
+      "numeric_outputs_affected": false,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "SYSTEM_STATE 463",
+        "SYSTEM_STATE 502"
+      ],
+      "source_sha256": "34b4afb57694face1332419f8b7d7358731408bb86346f24477f46bfa885507c",
+      "source_exists": true,
+      "errata_sha256": "e5187a01a12bb684eefc88f95266ae80e00960dd0869829cc6b3ad2086357f4b"
+    }
+  ]
+}

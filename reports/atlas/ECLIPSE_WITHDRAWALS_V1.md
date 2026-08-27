@@ -1,0 +1,56 @@
+# ECLIPSE WITHDRAWALS V1 — what today took back
+
+**Generated from `_ATLAS_INDEX.json`. Do not hand-edit.**
+
+`ECLIPSE_NEGATIVE_RESULT_MASTER_REGISTRY_V1.md` records **dead ideas**.
+Nothing recorded **our own retracted claims** until this file. Today produced
+**25 sections carrying a withdrawal or correction token** — more than a quarter of
+the day's output — and every one of them is a claim that was published and then
+taken back, usually by the same lane that made it.
+
+---
+
+| id | § | lane | withdrawal tokens | § referenced in the section | title |
+|---|---|---|---|---|---|
+| **A-L35411** | §425 | A | `FORCED_FLOW_SQUARE_ROOT_LAW_REJECTED`, `H1_ESTIMATE_NOT_WITHDRAWN` | — | H2-PRE-FINAL — D-47 ÇÖZÜLDÜ (ARTEFAKT BİREBİR ÜRETİLDİ), p92.63 ÖLÇÜLEMİYOR, H2 V2 DONDURULDU (2026- |
+| **C-L36112** | §430 | C | `PROPAGATOR_IDENTITY_NOT_REJECTED` | — | D-52 ÇÖZÜLDÜ — VE CEVAP TÜM BAŞARISIZLIK KAYDINI AÇIKLIYOR (2026-08-26, Opus 5 [1M]) |
+| **A-S4** | §433 | A | `MRR_SIGMA0_PREDICTOR_REJECTED` | — | S4 SPREAD TARAMASI — ECLIPSE KENDİ EVRENİNİN EN KÖTÜ ÇEYREĞİNDE ÇALIŞMIŞ (2026-08-26, Opus 5 [1M]) |
+| **C-RV1** | §439 | C | `CORRECTION_PHASE_NOT_STARTED` | §431, §438 | REVIEW ROUND 1 (§431–§438) — BEŞ BULGU, BİRİ YAYIMLANMIŞ BİR HÜKMÜ VURUYOR; KABUL VERİLMEDİ (2026-08 |
+| **A-S9** | §436 | A | `H1_REJECTION_DOES_NOT_TRANSFER_TO_METAORDERS` | §311 | S9 KAPASİTE — §311'İN "$9k"'SI MAJÖRLER İÇİN BİR KISIT DEĞİLMİŞ, VE GENİŞLİK KAPASİTE SATIN ALMIYOR  |
+| **C-CR1** | §441 | C | `CORRECTION_ROUND_1_COMPLETE` | §439 | CORRECTION ROUND 1 — §439'UN BEŞ BULGUSU KAPANDI; HİÇBİR HÜKÜM DEVRİLMEDİ, İKİSİ SIKILAŞTI (2026-08- |
+| **C-T2** | §442 | C | `LIQUIDITY_WITHDRAWAL_IS_NOT_THE_MECHANISM` | — | KÜLLİYAT TURU 2 — BİR FEED KUSURU BULUNDU (`liquidations` SANİYEDE 1'E KISILMIŞ), LİKİDİTE ÇEKİLMESİ |
+| **C-RV2** | §445 | C | `CORRECTION_ROUND_2_NOT_STARTED` | §441, §442, §444 | REVIEW ROUND 2 — §441'İN DÜZELTMELERİ AYAKTA (BİRİ ÇEKİNCELİ), §442–§444'TE DÖRT YENİ BULGU (2026-08 |
+| **C-CR2** | §447 | C | `CORRECTION_ROUND_2_COMPLETE` | §445 | CORRECTION ROUND 2 — §445'İN BEŞ BULGUSU KAPANDI; BİRİ YAYIMLANMIŞ BİR SONUCU KÖTÜLEŞTİRDİ (2026-08- |
+| **A-S13** | §440 | A | `S12_FLIPPERS_WITHDRAWN` | — | S13 — KENDİ HATTIMIN ÇOKLUK DENETİMİ: S12'NİN BAŞLIĞI GERİ ÇEKİLDİ (2026-08-26, Opus 5 [1M]) |
+| **C-RV3** | §449 | C | `ONE_CORRECTION_INVALIDATED`, `ONE_PUBLISHED_REVERSAL_WITHDRAWN`, `CORRECTION_ROUND_3_NOT_STARTED` | §447 | REVIEW ROUND 3 — §447'NİN RR-5 DÜZELTMESİ YANLIŞ; SÜRÜCÜNÜN KENDİ FİLTRESİNİ ÖLÇMÜŞ (2026-08-26, Opu |
+| **C-T5** | §452 | C | `LIQUIDITY_WITHDRAWAL_IS_NOT_THE_MECHANISM` | §448 | KÜLLİYAT TURU 5 — ADVERSARIAL ÖZ-DENETİM: §448'İN ÜÇ MANŞETİ DÜŞTÜ, BİRİ TERSİNE DÖNDÜ; VE DÜŞENLERİ |
+| **A-S15** | §443 | A | `THE_FIVE_REJECTIONS_ARE_ONE_IDENTITY`, `GATES_NOW_RETURN_A_REMEDY_NOT_ONLY_A_REJECTION` | — | S15 — BEŞ REDDİN HEPSİ TEK BİR ÖZDEŞLİK; VE O ÖZDEŞLİKTE BECERİ TERİMİ YOK (2026-08-26, Opus 5 [1M]) |
+| **C-CR3** | §455 | C | `CORRECTION_ROUND_3_COMPLETE`, `ONE_CLAIM_WITHDRAWN` | — | CORRECTION ROUND 3 — KAYITTAKİ DÖRT TUTARSIZLIK KAPANDI (2026-08-26, Opus 5 [1M]) |
+| **A-S17** | §445 | A | `SIX_MONTH_FORWARD_LANE_IS_CORRECTLY_SIZED` | — | S17 — BAŞABAŞ, BAR DEĞİL. SHARPE BAR. VE S16'YI DÜZELTİYOR (2026-08-26, Opus 5 [1M]) |
+| **A-S22** | §450 | A | `MRR_SATURATION_REJECTED` | — | S22 — BOŞLUĞU YARATAN ŞEY: AKIŞIN KENDİ HAFIZASI ~130× TREND ÜRETİRDİ, TAMAMI KALDIRILMIŞ — BEDELİ T |
+| **A-S23** | §451 | A | `MRR_REJECTED_ON_SMALL_TICK`, `CORRECTS_450_ESSENTIALLY_COMPLETE` | — | S23 — SÜRPRİZ Mİ BEKLENEN Mİ: MRR KÜÇÜK-TICK'TE REDDEDİLDİ, BÜYÜK-TICK'TE GEÇERLİ; KALINTI GERÇEK VE |
+| **C-T13** | §469 | C | `THE_CATCH_UP_IS_THE_AGGRESSED_SIDE_CONTINUING_TO_WITHDRAW` | — | KÜLLİYAT TURU 13 — YAKALAMAYI DEFTER TAŞIYOR; VE `x` MEĞER MAKER'IN KUYRUK POZİSYONUYMUŞ (2026-08-26 |
+| **A-S25** | §453 | A | `CLEANEST_REJECTION_AT_FINE_TICK`, `MRR_REJECTION_WIDER_AT_L500`, `WITHDRAWN_452_TICK_IS_THE_FREE_PARAMETER` | — | S25 — ALTTA YATAN: ÜÇ TERSİNE ÇEVİRME, İKİSİ KENDİ YAYINLADIĞIM İDDİALARIMIN (2026-08-26, Opus 5 [1M |
+| **A-S26** | §454 | A | `FIRST_RUN_VOID_ON_THE_CUTOFF` | — | S26 — DOĞRUSU: NOTIONAL. TICK, TEST EDİLEBİLDİĞİ YERDE SIFIR; SAĞ KALDIĞI YERDE TANIMLANAMAZ (2026-0 |
+| **A-S27** | §455 | A | `WITHDRAWN_453_MAKER_RANKING`, `RETIRES_453_FEE_TIER_IS_THE_ANSWER` | §453 | S27 — KARANLIĞI ÖLÇTÜM: KUYRUK ESTATE'TEYDİ, VE §453'ÜN TERSİNE ÇEVİRMESİ ÇÜRÜDÜ (2026-08-26, Opus 5 |
+| **A-S31** | §459 | A | `CORRECTS_457_BTC_IS_NOT_IMPOSSIBLE` | §457 | S31 — KOŞULLAMA YANLILIKLARI YARDIM EDİYOR: BTC 4 096 OLAYDA %117.3 → %87.0, VE BU §457'NİN KENDİ MA |
+| **A-S33** | §461 | A | `LANE_HORIZONS_WERE_TUNED_CORRECTLY` | — | S33 — İKİ DEĞİŞMEZ VE KİMSENİN KOŞMADIĞI BEDAVA BİR TANI ÖLÇÜTÜ (2026-08-26, Opus 5 [1M]) |
+| **A-S38** | §466 | A | `CORRECTS_457_ON_CH5` | — | S38 — ARALARINDAKİ DURUM: BU BİR ZAMAN DEĞİL, BİR MESAFE (2026-08-26, Opus 5 [1M]) |
+| **A-S41** | §469 | A | `REFUSED_AND_SIZED_BEFORE_SPENDING` | — | S41 — 167 393 EPİZOTLUK BLOK: FİYATLANDI VE REDDEDİLDİ (2026-08-26, Opus 5 [1M]) |
+
+---
+
+## Failure modes, counted
+
+Token families across every section today, not just the withdrawing ones —
+this is what the day kept getting wrong:
+
+- **12×** — an explicit correction
+- **9×** — an explicit withdrawal
+- **8×** — not identified / identification failure
+- **3×** — multiplicity
+- **3×** — sample drift mistaken for signal
+- **1×** — a row count mistaken for an N
+
+The counts are of *tokens*, not of distinct incidents: one section can carry
+several. They are a shape, not a tally.

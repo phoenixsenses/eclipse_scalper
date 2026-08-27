@@ -1,0 +1,29 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_I",
+  "append_only": true,
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "found_by": "tools/ct28_gamma_recovery_at_the_real_n.py",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-025",
+      "source_file": "tools/hu12_what_the_exponents_say_to_each_other.py",
+      "source_section_or_line": "fit_gamma -- precision claim in ERR-HU-022, suspended by ERR-HU-024",
+      "error_class": "NUMERIC_ERROR",
+      "old_statement": "gamma's precision is void because the estimator returns sd 0.544 on pure noise (ERR-HU-022)",
+      "corrected_statement": "REFUTED by a recovery test at the real n (C-T28).  Feeding the estimator ARFIMA sign series with a KNOWN gamma, at the real per-day counts and through the identical pipeline, it returns sd 0.019-0.033 -- typical 0.023-0.029, some twenty times tighter than the pure-noise null suggested.  ERR-HU-022's precision claim is WITHDRAWN; ERR-HU-024's suspension resolves in that direction.  Two further findings come out of the same run and neither was visible before: (1) the estimator carries a systematic SHRINKAGE toward about 0.45 -- true 0.20 returns 0.282, true 0.60 returns 0.559 -- so every published gamma must be de-biased by inverting that curve; de-biased values are 0.381 / 0.347 / 0.374, and they are distinguishable from the book's 0.5 at z 2.9-4.4.  (2) BTC and ETH's gammas are NOT distinguishable from each other (z 0.83), so C-T25's premise that they agree is CONFIRMED rather than undermined -- which sharpens Sec 489's tension instead of dissolving it.  ERR-HU-022's other content (the pure-noise null is n-independent; the levels were never void) is unaffected.",
+      "numeric_outputs_affected": true,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "SYSTEM_STATE 481",
+        "SYSTEM_STATE 490",
+        "SYSTEM_STATE 491",
+        "ERR-HU-022",
+        "ERR-HU-024"
+      ],
+      "source_sha256": "2f33a97615570eb3b40661fc317c0c00d89e9f39c2b262e896a8818644fecd56",
+      "source_exists": true,
+      "errata_sha256": "b1981a799ff4c07778db348700e295ba7833c09eaab9175e341220f635118c64"
+    }
+  ]
+}

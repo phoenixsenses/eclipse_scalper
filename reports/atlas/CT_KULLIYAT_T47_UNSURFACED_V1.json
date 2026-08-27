@@ -1,0 +1,93 @@
+{
+  "source": "data\\literature_v2\\text\\BOUCHAUD_TQP.txt",
+  "terms": {
+    "profitab": {
+      "true": 57,
+      "raw_grep": 0,
+      "ligature_only": 57,
+      "pct_invisible": 100.0
+    },
+    "profit": {
+      "true": 112,
+      "raw_grep": 0,
+      "ligature_only": 112,
+      "pct_invisible": 100.0
+    },
+    "market-making": {
+      "true": 85,
+      "raw_grep": 85,
+      "ligature_only": 0,
+      "pct_invisible": 0.0
+    },
+    "market making": {
+      "true": 0,
+      "raw_grep": 0,
+      "ligature_only": 0,
+      "pct_invisible": null
+    },
+    "efficient": {
+      "true": 75,
+      "raw_grep": 0,
+      "ligature_only": 75,
+      "pct_invisible": 100.0
+    },
+    "efficiency": {
+      "true": 37,
+      "raw_grep": 0,
+      "ligature_only": 37,
+      "pct_invisible": 100.0
+    },
+    "benefit": {
+      "true": 20,
+      "raw_grep": 0,
+      "ligature_only": 20,
+      "pct_invisible": 100.0
+    },
+    "compensat": {
+      "true": 28,
+      "raw_grep": 28,
+      "ligature_only": 0,
+      "pct_invisible": 0.0
+    },
+    "sufficient": {
+      "true": 36,
+      "raw_grep": 0,
+      "ligature_only": 36,
+      "pct_invisible": 100.0
+    },
+    "offset": {
+      "true": 5,
+      "raw_grep": 5,
+      "ligature_only": 0,
+      "pct_invisible": 0.0
+    }
+  },
+  "sampled_passages": {
+    "profitab": [
+      ".3 Discussion 293 15.4 Some Extensions 294 15.5 Conclusion 295 15.6 Further Reading 297 16 The Determinants of the Bid–Ask Spread 298 16.1 The Market-Maker’s Problem 299 16.2 The MRR Model 308 16.3 Empirical Analysis of the MRR Model 312 16.4 Conclusion 315 16.5 Further Reading 317 17 The Profitability of Market-Making 319 17.1 An Infinitesimal Market-Maker 321 17.2 Inventory Control for Small-Tick Stocks 323 17.3 Large-Tick Stocks 327 17.4 Conclusion 329 17.5 Further Reading 331 Contents xi PART VIII MARKET DYNAMICS AT THE MESO-SCALE 18 Latent Liquidity and Walrasian Auct",
+      "des triggered by a need for immediate cash, a need to reduce portfolio risk or a need to offload an inventory imbalance). These trades are often called noise trades, because from an outside perspective they seem to occur at random: they do not correlate with future price changes and they are not profitable on average. In some cases, classifying a trade as informed is relatively straightforward. One clear example is insider trading. For example, consider a company with a stock price of $95 at some time t. If an insider hears that a large corporation seeks to make a takeover bid by offer",
+      "t prices followed a simple symmetric random 3 See, e.g., Odean, T. (1999). Do investors trade too much?American Economic Review, 89, 1279–1298. 1.2 The Ecology of Financial Markets 13 walk, then in the absence of trading costs, any trade initiated at time t would have a 50% chance of being profitable at time t+ T,w h a t e v e rT! Using numbers from real markets illustrates that evaluating real trading strategies is very difficult. Given a stock with an annual volatility of 15% and a reported annual return of 5%, it would take almost T= 9 years to test whether the actual return wa"
+    ],
+    "market-making": [
+      "quencies – is a useful first step towards understanding the basic ecology of financial markets. As we will illustrate throughout the book, considering the interactions and tensions between these two groups provides useful insights into the origins of many interesting phenomena. 1.3 The Risks of Market-Making Throughout this chapter, we have gradually built up a picture of the basic ecology of modern financial markets: market-makers offer opportunities to buy and/or sell, with the aim of profiting from round-trip trades, while speculators buy or sell assets, with the aim of profiting fr",
+      "binding quotes, which can be “picked off” by more informed traders who see an opportunity to buy low or to sell high. This informational asymmetry is a fundamental concern for market-makers and is the final piece of the financial ecosystem that we consider in this chapter. 1.3 The Risks of Market-Making 15 For a market-maker, the core question (to which we will return in Chapter 16) is how to choose the values of b and a. If the values of b and a remain constant at all times, then the market-maker always earns a profit of s for each round-trip (buy and sell) trade. All else being",
+      "hen he or she will accumulate a large net position in a short time, with a high probability of being on the wrong side of the trade. As we will discuss at several times throughout the book, market-makers compensate for this potential loss by charging a non-zero spread – even in situations where market-making is fiercely competitive (see Chapter 17). 1.3.2 Price Impact To mitigate the risk of being adversely selected, market-makers must update their values of b and a to respond to their observations of order-flow imbalance. If a market-maker receives many more buy orders than sell order"
+    ],
+    "compensat": [
+      "d temporarily outstrips supply, or vice-versa). If the market-maker is satisfied with p∗ and the corresponding volume Q(p∗), then the relevant transactions occur at this price. If p∗ > a, this signals that the buy pressure was strong and that the market-maker chose not to add more sell volume to compensate. Note that p∗ > a can only happen if one or more buyers posted a limit price above the ask, and therefore have a strong urge to buy. In this case, it is likely that the market-maker will increase the quoted prices for the next auction, in an attempt to rebalance supply and demand. By",
+      "er flow. If a market-maker holds b and a constant in the face of an imbalanced order flow, then he or she will accumulate a large net position in a short time, with a high probability of being on the wrong side of the trade. As we will discuss at several times throughout the book, market-makers compensate for this potential loss by charging a non-zero spread – even in situations where market-making is fiercely competitive (see Chapter 17). 1.3.2 Price Impact To mitigate the risk of being adversely selected, market-makers must update their values of b and a to respond to their observati",
+      "ing b, 16 The Ecology of Financial Markets decreasing a, or both. An important consequence of this fact is that trades have price impact: on average, the arrival of a buy trade causes prices to rise and the arrival of a sell trade causes prices to fall. This is precisely what the spread s compensates for. More formally, let m := a+ b 2 (1.8) denote the mid-price,a n dl e tE[m∞] denote the expected future value of m.S i n c e a (possibly small) fraction of trades are informed, then if we observe a buy trade, we should expect the future value of m to be greater than the current v"
+    ],
+    "offset": [
+      "by the transient impact contribution, resulting in sub-diffusive prices at short lags. Based on the calculations we have performed throughout this section, we can now reach an important conclusion: provided that the impact of single trades is transient (i.e. β>0) and with a decay that precisely offsets the long-range autocorrelations in market order signs (i.e.β=βc := (1−γ)/2), then the long-range autocorrelation of market order signs is compatible with a random-walk behaviour of the mid-price, and thus with statistical efficiency. 13.2.3 A Fine Balance When the “fine balance” conditi",
+      "ncluding all future correlated trades) is non-zero, even though the impact of each individual trade G(𝓁) decays to zero! Figure 13.3 summarises this rather peculiar situation. Interestingly, we see that financial markets operate in a fragile regime where liquidity providers and liquidity takers offset each other, such that most of the predictable patterns that would other- wise be created by their predictable actions are removed from the price trajectory. Only an unpredictable contribution remains, even at the highest frequencies. We will return to the question of how this occurs in Cha",
+      "cumulative observed impact R∞ of that trade and all of its correlated kinship can be non-zero, as a result of the subtle compensation between trade correlations and impact decay (see Equation (13.18)). Intuitively, this compensation reflects the way that liquidity providers and liquidity takers offset each other, to remove most of the linearly predictable patterns that their (predictable) actions would otherwise create. Despite the fact that it only deals with market orders, we have argued that the propagator model is actually an effective reduced-form description of the full interplay"
+    ]
+  },
+  "why": "ligature loss is same word same book (C-KULLIYAT-T46), so every ligature-only hit is a passage this lane could have used and did not",
+  "tokens": [
+    "BOUCHAUD_IS_READABLE_BUT_NOT_FULLY_SEARCHABLE_BY_GREP",
+    "THE_FAILURE_IS_PASSAGES_NEVER_SURFACED_NOT_PASSAGES_MISQUOTED"
+  ],
+  "ceiling": "MEASUREMENT_FIDELITY"
+}

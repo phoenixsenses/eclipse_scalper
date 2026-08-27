@@ -1,0 +1,114 @@
+{
+  "part1_crosswalk": {
+    "M1": {
+      "text": "metaorder impact is not aggregate dV impact; dV impact is LINEAR for small Q; metaorder impact needs trade-to-investor attribution",
+      "errata": [
+        "ERR-HU-020",
+        "ERR-HU-035",
+        "ERR-HU-013"
+      ],
+      "n": 3
+    },
+    "M2": {
+      "text": "the square-root law applies to slow metaorders, not to individual trades",
+      "errata": [
+        "ERR-HU-035",
+        "ERR-HU-013"
+      ],
+      "n": 2
+    },
+    "M3": {
+      "text": "R(v,1) concavity has NO relation to metaorder square-root concavity",
+      "errata": [
+        "ERR-HU-016",
+        "ERR-HU-020",
+        "ERR-HU-035",
+        "ERR-HU-012",
+        "ERR-HU-013"
+      ],
+      "n": 5
+    },
+    "M4": {
+      "text": "dV = Q + noise is not warranted; dV superposes overlapping metaorders",
+      "errata": [
+        "ERR-HU-013"
+      ],
+      "n": 1
+    },
+    "M5": {
+      "text": "unsigned price change ~ sqrt(V) is diffusion, not impact",
+      "errata": [
+        "ERR-HU-035",
+        "ERR-HU-010"
+      ],
+      "n": 2
+    },
+    "M6": {
+      "text": "the square-root law is insensitive to tick size",
+      "errata": [
+        "ERR-HU-018",
+        "ERR-HU-029",
+        "ERR-HU-031",
+        "ERR-HU-009",
+        "ERR-HU-015",
+        "ERR-HU-004"
+      ],
+      "n": 6
+    }
+  },
+  "n_errata_total": 39,
+  "n_errata_touching_a_misconception": 12,
+  "part2_haircut": {
+    "delta_measured": 0.68,
+    "book_delta": 0.5,
+    "impact_equals_fee_at_usd": 3400000.0,
+    "eclipse_notional_usd": 8970.976253298153,
+    "fee_round_trip_bps": 10.0,
+    "rows": [
+      {
+        "notional_usd": 8970.976253298153,
+        "impact_bps_delta_0_68": 0.17641086815311297,
+        "impact_bps_delta_0_50": 0.5136654969375141,
+        "impact_over_fee": 0.017641086815311298
+      },
+      {
+        "notional_usd": 100000.0,
+        "impact_bps_delta_0_68": 0.9090637422780918,
+        "impact_bps_delta_0_50": 1.7149858514250884,
+        "impact_over_fee": 0.09090637422780919
+      },
+      {
+        "notional_usd": 1000000.0,
+        "impact_bps_delta_0_68": 4.351052628937263,
+        "impact_bps_delta_0_50": 5.423261445466404,
+        "impact_over_fee": 0.4351052628937263
+      },
+      {
+        "notional_usd": 3400000.0,
+        "impact_bps_delta_0_68": 10.0,
+        "impact_bps_delta_0_50": 10.0,
+        "impact_over_fee": 1.0
+      },
+      {
+        "notional_usd": 10000000.0,
+        "impact_bps_delta_0_68": 20.82544721488901,
+        "impact_bps_delta_0_50": 17.149858514250884,
+        "impact_over_fee": 2.082544721488901
+      },
+      {
+        "notional_usd": 100000000.0,
+        "impact_bps_delta_0_68": 99.67685723122558,
+        "impact_bps_delta_0_50": 54.232614454664045,
+        "impact_over_fee": 9.967685723122559
+      }
+    ]
+  },
+  "tokens": [
+    "SEC_12_3_5_ENUMERATES_ERRORS_THIS_LANE_MADE",
+    "THE_CORPUS_WAS_READ_FOR_CLAIMS_NEVER_FOR_ERRORS",
+    "AT_ECLIPSE_SIZE_IMPACT_IS_UNDER_TWO_PERCENT_OF_THE_FEE",
+    "THE_HAIRCUT_WARNING_DOES_NOT_BIND_HERE",
+    "THE_FEE_IS_THE_BINDING_CONSTRAINT"
+  ],
+  "ceiling": "RECONCILIATION"
+}

@@ -1,0 +1,246 @@
+{
+  "study": "C-T47",
+  "lane": "C",
+  "utc": "2026-08-27T10:57:43Z",
+  "corpus_demand": "Hasbrouck EMM: information shares are BOUNDS over causal permutations, and time aggregation WIDENS them",
+  "status_correction": "C-T43 recorded this demand as BLOCKED for want of a second price series. mark_prices was always in the same database; the block was an assumption, not a measurement.",
+  "sample": "data/microstructure_02.db :: agg_trades + mark_prices, first 1,500,000 rows each by ts_ms per symbol, common calendar grid",
+  "threshold_swept": "bar width 1 / 5 / 30 / 60 / 300 seconds",
+  "calibration_true_IS1_is_1": {
+    "thin_by_1": {
+      "IS1_lower": 1.0,
+      "IS1_upper": 1.0,
+      "bound_width": 0.0,
+      "IS1_midpoint": 1.0,
+      "omega_offdiag_corr": 0.0049,
+      "alpha_trade": -0.007085,
+      "alpha_mark": 1.003453,
+      "n_obs": 199997
+    },
+    "thin_by_5": {
+      "IS1_lower": 0.2141,
+      "IS1_upper": 0.9999,
+      "bound_width": 0.7858,
+      "IS1_midpoint": 0.607,
+      "omega_offdiag_corr": 0.8909,
+      "alpha_trade": 0.023606,
+      "alpha_mark": 1.0227,
+      "n_obs": 39997
+    },
+    "thin_by_30": {
+      "IS1_lower": 0.035,
+      "IS1_upper": 1.0,
+      "bound_width": 0.965,
+      "IS1_midpoint": 0.5175,
+      "omega_offdiag_corr": 0.9826,
+      "alpha_trade": 0.00758,
+      "alpha_mark": 1.012351,
+      "n_obs": 6664
+    },
+    "thin_by_60": {
+      "IS1_lower": 0.0183,
+      "IS1_upper": 1.0,
+      "bound_width": 0.9817,
+      "IS1_midpoint": 0.5091,
+      "omega_offdiag_corr": 0.9915,
+      "alpha_trade": 0.035841,
+      "alpha_mark": 1.013858,
+      "n_obs": 3331
+    },
+    "thin_by_300": {
+      "IS1_lower": 0.0003,
+      "IS1_upper": 0.9982,
+      "bound_width": 0.9978,
+      "IS1_midpoint": 0.4993,
+      "omega_offdiag_corr": 0.9981,
+      "alpha_trade": -0.585106,
+      "alpha_mark": 0.257224,
+      "n_obs": 664
+    }
+  },
+  "per_symbol": {
+    "BTCUSDT": {
+      "overlap_hours": 64.4,
+      "by_bar": {
+        "bar_1s": {
+          "IS1_lower": 0.9737,
+          "IS1_upper": 0.9801,
+          "bound_width": 0.0064,
+          "IS1_midpoint": 0.9769,
+          "omega_offdiag_corr": 0.0215,
+          "alpha_trade": -0.021548,
+          "alpha_mark": 0.097095,
+          "n_obs": 231796,
+          "bar_seconds": 1,
+          "empty_bar_share_trade": 0.1141,
+          "empty_bar_share_mark": 0.0361
+        },
+        "bar_5s": {
+          "IS1_lower": 0.3454,
+          "IS1_upper": 0.9602,
+          "bound_width": 0.6149,
+          "IS1_midpoint": 0.6528,
+          "omega_offdiag_corr": 0.6757,
+          "alpha_trade": -0.122106,
+          "alpha_mark": 0.274456,
+          "n_obs": 46357,
+          "bar_seconds": 5,
+          "empty_bar_share_trade": 0.0351,
+          "empty_bar_share_mark": 0.0302
+        },
+        "bar_30s": {
+          "IS1_lower": 0.0755,
+          "IS1_upper": 0.9979,
+          "bound_width": 0.9224,
+          "IS1_midpoint": 0.5367,
+          "omega_offdiag_corr": 0.948,
+          "alpha_trade": -0.155013,
+          "alpha_mark": 0.911501,
+          "n_obs": 7724,
+          "bar_seconds": 30,
+          "empty_bar_share_trade": 0.0263,
+          "empty_bar_share_mark": 0.0194
+        },
+        "bar_60s": {
+          "IS1_lower": 0.0208,
+          "IS1_upper": 0.9934,
+          "bound_width": 0.9726,
+          "IS1_midpoint": 0.5071,
+          "omega_offdiag_corr": 0.9746,
+          "alpha_trade": -0.341249,
+          "alpha_mark": 0.606813,
+          "n_obs": 3861,
+          "bar_seconds": 60,
+          "empty_bar_share_trade": 0.016,
+          "empty_bar_share_mark": 0.0119
+        }
+      },
+      "width_1s": 0.0064,
+      "width_300s": null,
+      "width_widens_with_interval": true,
+      "rho_rises_with_interval": true
+    },
+    "ETHUSDT": {
+      "overlap_hours": 67.4,
+      "by_bar": {
+        "bar_1s": {
+          "IS1_lower": 0.9868,
+          "IS1_upper": 0.9909,
+          "bound_width": 0.0042,
+          "IS1_midpoint": 0.9889,
+          "omega_offdiag_corr": 0.0199,
+          "alpha_trade": -0.018866,
+          "alpha_mark": 0.122834,
+          "n_obs": 242752,
+          "bar_seconds": 1,
+          "empty_bar_share_trade": 0.144,
+          "empty_bar_share_mark": 0.0371
+        },
+        "bar_5s": {
+          "IS1_lower": 0.33,
+          "IS1_upper": 0.9685,
+          "bound_width": 0.6386,
+          "IS1_midpoint": 0.6492,
+          "omega_offdiag_corr": 0.7037,
+          "alpha_trade": -0.121734,
+          "alpha_mark": 0.299595,
+          "n_obs": 48548,
+          "bar_seconds": 5,
+          "empty_bar_share_trade": 0.0343,
+          "empty_bar_share_mark": 0.031
+        },
+        "bar_30s": {
+          "IS1_lower": 0.0616,
+          "IS1_upper": 0.9964,
+          "bound_width": 0.9348,
+          "IS1_midpoint": 0.529,
+          "omega_offdiag_corr": 0.9522,
+          "alpha_trade": -0.209824,
+          "alpha_mark": 0.831491,
+          "n_obs": 8089,
+          "bar_seconds": 30,
+          "empty_bar_share_trade": 0.0255,
+          "empty_bar_share_mark": 0.0193
+        },
+        "bar_60s": {
+          "IS1_lower": 0.0126,
+          "IS1_upper": 0.9892,
+          "bound_width": 0.9766,
+          "IS1_midpoint": 0.5009,
+          "omega_offdiag_corr": 0.9766,
+          "alpha_trade": -0.484409,
+          "alpha_mark": 0.516016,
+          "n_obs": 4043,
+          "bar_seconds": 60,
+          "empty_bar_share_trade": 0.0153,
+          "empty_bar_share_mark": 0.0114
+        }
+      },
+      "width_1s": 0.0042,
+      "width_300s": null,
+      "width_widens_with_interval": true,
+      "rho_rises_with_interval": true
+    },
+    "SOLUSDT": {
+      "overlap_hours": 176.8,
+      "by_bar": {
+        "bar_1s": {
+          "IS1_lower": 0.933,
+          "IS1_upper": 0.9633,
+          "bound_width": 0.0303,
+          "IS1_midpoint": 0.9482,
+          "omega_offdiag_corr": 0.0689,
+          "alpha_trade": -0.054399,
+          "alpha_mark": 0.170201,
+          "n_obs": 636357,
+          "bar_seconds": 1,
+          "empty_bar_share_trade": 0.1887,
+          "empty_bar_share_mark": 0.0428
+        },
+        "bar_5s": {
+          "IS1_lower": 0.2938,
+          "IS1_upper": 0.9092,
+          "bound_width": 0.6154,
+          "IS1_midpoint": 0.6015,
+          "omega_offdiag_corr": 0.638,
+          "alpha_trade": -0.214918,
+          "alpha_mark": 0.29914,
+          "n_obs": 127269,
+          "bar_seconds": 5,
+          "empty_bar_share_trade": 0.0408,
+          "empty_bar_share_mark": 0.0342
+        },
+        "bar_30s": {
+          "IS1_lower": 0.0486,
+          "IS1_upper": 0.9808,
+          "bound_width": 0.9322,
+          "IS1_midpoint": 0.5147,
+          "omega_offdiag_corr": 0.9355,
+          "alpha_trade": -0.387747,
+          "alpha_mark": 0.612337,
+          "n_obs": 21209,
+          "bar_seconds": 30,
+          "empty_bar_share_trade": 0.0264,
+          "empty_bar_share_mark": 0.0173
+        },
+        "bar_60s": {
+          "IS1_lower": 0.0272,
+          "IS1_upper": 0.9926,
+          "bound_width": 0.9654,
+          "IS1_midpoint": 0.5099,
+          "omega_offdiag_corr": 0.9685,
+          "alpha_trade": -0.338114,
+          "alpha_mark": 0.649494,
+          "n_obs": 10603,
+          "bar_seconds": 60,
+          "empty_bar_share_trade": 0.0111,
+          "empty_bar_share_mark": 0.005
+        }
+      },
+      "width_1s": 0.0303,
+      "width_300s": null,
+      "width_widens_with_interval": true,
+      "rho_rises_with_interval": true
+    }
+  }
+}

@@ -1,0 +1,315 @@
+{
+  "study": "C-T44",
+  "lane": "C",
+  "utc": "2026-08-27T09:48:35Z",
+  "challenge_1_from": "A-S62 (saturation lag 40-60 min, size-dependent)",
+  "challenge_2_from": "D-E3 (a declining relative effect has three textbook nulls)",
+  "challenge_3_from": "D-E4 (symbols co-fire; effective count nearer 1 than 3)",
+  "ch1_saturation": {
+    "BTCUSDT": {
+      "trades_per_minute": 417.64,
+      "span_minutes": 4788.8,
+      "A_S62_lag_40_60_min_in_trades": [
+        16705,
+        25058
+      ],
+      "saturation_lag_trades_all": 256,
+      "saturation_lag_minutes_all": 0.6,
+      "saturation_lag_trades_large": 128,
+      "saturation_lag_minutes_large": 0.3,
+      "saturation_lag_trades_small": 256,
+      "saturation_lag_minutes_small": 0.6,
+      "large_saturates_faster": true,
+      "R_curve_bps": {
+        "1": 0.02425,
+        "2": 0.0238,
+        "4": 0.04592,
+        "8": 0.08441,
+        "16": 0.14812,
+        "32": 0.24186,
+        "64": 0.35352,
+        "128": 0.44251,
+        "256": 0.47799,
+        "512": 0.4767,
+        "1024": 0.5,
+        "2048": 0.4891,
+        "4096": 0.44623,
+        "8192": 0.47699
+      }
+    },
+    "ETHUSDT": {
+      "trades_per_minute": 406.99,
+      "span_minutes": 4914.1,
+      "A_S62_lag_40_60_min_in_trades": [
+        16279,
+        24419
+      ],
+      "saturation_lag_trades_all": 64,
+      "saturation_lag_minutes_all": 0.2,
+      "saturation_lag_trades_large": 64,
+      "saturation_lag_minutes_large": 0.2,
+      "saturation_lag_trades_small": 128,
+      "saturation_lag_minutes_small": 0.3,
+      "large_saturates_faster": true,
+      "R_curve_bps": {
+        "1": 0.06174,
+        "2": 0.05522,
+        "4": 0.10179,
+        "8": 0.17723,
+        "16": 0.28428,
+        "32": 0.40066,
+        "64": 0.47919,
+        "128": 0.50069,
+        "256": 0.50081,
+        "512": 0.4697,
+        "1024": 0.46492,
+        "2048": 0.49433,
+        "4096": 0.47241,
+        "8192": 0.41419
+      }
+    },
+    "SOLUSDT": {
+      "trades_per_minute": 137.34,
+      "span_minutes": 14562.0,
+      "A_S62_lag_40_60_min_in_trades": [
+        5493,
+        8240
+      ],
+      "saturation_lag_trades_all": 1,
+      "saturation_lag_minutes_all": 0.0,
+      "saturation_lag_trades_large": 8,
+      "saturation_lag_minutes_large": 0.1,
+      "saturation_lag_trades_small": 1,
+      "saturation_lag_minutes_small": 0.0,
+      "large_saturates_faster": false,
+      "R_curve_bps": {
+        "1": 0.67755,
+        "2": 0.0859,
+        "4": 0.14551,
+        "8": 0.17304,
+        "16": 0.18488,
+        "32": 0.19102,
+        "64": 0.18884,
+        "128": 0.18224,
+        "256": 0.16878,
+        "512": 0.15281,
+        "1024": 0.08555,
+        "2048": 0.06055,
+        "4096": -0.03355,
+        "8192": -0.00932
+      }
+    }
+  },
+  "ch2_latency_strata": {
+    "BTCUSDT": {
+      "aggregate_profile": {
+        "0": 0.2636,
+        "1": 0.2581,
+        "5": 0.2362,
+        "10": 0.2128,
+        "20": 0.1746,
+        "50": 0.0983
+      },
+      "aggregate_retained_at_d50": 0.373,
+      "by_d0_stratum": {
+        "q1_worst": {
+          "n": 10003,
+          "profile": {
+            "0": -0.5921,
+            "1": -0.5782,
+            "5": -0.6046,
+            "10": -0.6159,
+            "20": -0.5857,
+            "50": -0.2977
+          },
+          "retained_at_d50": 0.503
+        },
+        "q2": {
+          "n": 9996,
+          "profile": {
+            "0": 0.0877,
+            "1": 0.083,
+            "5": 0.0722,
+            "10": 0.0623,
+            "20": 0.0498,
+            "50": 0.0556
+          },
+          "retained_at_d50": 0.634
+        },
+        "q3": {
+          "n": 9999,
+          "profile": {
+            "0": 0.5549,
+            "1": 0.547,
+            "5": 0.5232,
+            "10": 0.4928,
+            "20": 0.4282,
+            "50": 0.2329
+          },
+          "retained_at_d50": 0.42
+        },
+        "q4_best": {
+          "n": 9999,
+          "profile": {
+            "0": 1.0042,
+            "1": 0.9809,
+            "5": 0.9542,
+            "10": 0.9123,
+            "20": 0.8062,
+            "50": 0.4024
+          },
+          "retained_at_d50": 0.401
+        }
+      },
+      "note": "the event SET is identical at every delay, so composition cannot change; only within-set heterogeneity could produce the shape without individual decay"
+    },
+    "ETHUSDT": {
+      "aggregate_profile": {
+        "0": 0.2903,
+        "1": 0.2773,
+        "5": 0.2306,
+        "10": 0.183,
+        "20": 0.1179,
+        "50": 0.0318
+      },
+      "aggregate_retained_at_d50": 0.11,
+      "by_d0_stratum": {
+        "q1_worst": {
+          "n": 10000,
+          "profile": {
+            "0": -1.4545,
+            "1": -1.4099,
+            "5": -1.4319,
+            "10": -1.4005,
+            "20": -1.1935,
+            "50": -0.3167
+          },
+          "retained_at_d50": 0.218
+        },
+        "q2": {
+          "n": 9999,
+          "profile": {
+            "0": -0.0981,
+            "1": -0.1087,
+            "5": -0.1515,
+            "10": -0.1865,
+            "20": -0.2193,
+            "50": -0.0845
+          },
+          "retained_at_d50": 0.861
+        },
+        "q3": {
+          "n": 9999,
+          "profile": {
+            "0": 0.7773,
+            "1": 0.7549,
+            "5": 0.702,
+            "10": 0.6354,
+            "20": 0.4805,
+            "50": 0.1625
+          },
+          "retained_at_d50": 0.209
+        },
+        "q4_best": {
+          "n": 9999,
+          "profile": {
+            "0": 1.9367,
+            "1": 1.873,
+            "5": 1.8039,
+            "10": 1.6837,
+            "20": 1.4041,
+            "50": 0.366
+          },
+          "retained_at_d50": 0.189
+        }
+      },
+      "note": "the event SET is identical at every delay, so composition cannot change; only within-set heterogeneity could produce the shape without individual decay"
+    },
+    "SOLUSDT": {
+      "aggregate_profile": {
+        "0": 0.0924,
+        "1": 0.0821,
+        "5": 0.0581,
+        "10": 0.0545,
+        "20": 0.0312,
+        "50": 0.0142
+      },
+      "aggregate_retained_at_d50": 0.153,
+      "by_d0_stratum": {
+        "q1_worst": {
+          "n": 10002,
+          "profile": {
+            "0": -3.8947,
+            "1": -3.5017,
+            "5": -3.3571,
+            "10": -3.0282,
+            "20": -2.2527,
+            "50": 0.0883
+          },
+          "retained_at_d50": -0.023
+        },
+        "q2": {
+          "n": 14067,
+          "profile": {
+            "0": -0.4523,
+            "1": -0.33,
+            "5": -0.3235,
+            "10": -0.2705,
+            "20": -0.2461,
+            "50": 0.0716
+          },
+          "retained_at_d50": -0.158
+        },
+        "q3": {
+          "n": 5964,
+          "profile": {
+            "0": 1.3432,
+            "1": 1.0175,
+            "5": 0.95,
+            "10": 0.8701,
+            "20": 0.6761,
+            "50": -0.0992
+          },
+          "retained_at_d50": -0.074
+        },
+        "q4_best": {
+          "n": 9964,
+          "profile": {
+            "0": 4.1151,
+            "1": 3.7014,
+            "5": 3.4911,
+            "10": 3.1196,
+            "20": 2.3292,
+            "50": -0.0734
+          },
+          "retained_at_d50": -0.018
+        }
+      },
+      "note": "the event SET is identical at every delay, so composition cannot change; only within-set heterogeneity could produce the shape without individual decay"
+    }
+  },
+  "ch3_effective_symbol_count": {
+    "edge": {
+      "pairwise_correlations": {
+        "BTC-ETH": -0.4206,
+        "BTC-SOL": 0.343,
+        "ETH-SOL": -0.2315
+      },
+      "mean_r": -0.1031,
+      "n_eff_kish": 3.779,
+      "n_eff_entropy": 2.686,
+      "blocks": 20
+    },
+    "chi": {
+      "pairwise_correlations": {
+        "BTC-ETH": 0.4644,
+        "BTC-SOL": -0.085,
+        "ETH-SOL": -0.3343
+      },
+      "mean_r": 0.015,
+      "n_eff_kish": 2.912,
+      "n_eff_entropy": 2.678,
+      "blocks": 20
+    }
+  }
+}

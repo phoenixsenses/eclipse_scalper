@@ -1,0 +1,3748 @@
+{
+ "study": "D-E3",
+ "lane": "D",
+ "method": "mechanical extraction; SELECTION into the ledger is a lane-D judgement and is not mechanical",
+ "reader": "corpus_text_v1 (NUL-safe, ligature-normalised)",
+ "totals": {
+  "unique_questions": 914,
+  "design_relevant": 43
+ },
+ "per_source": {
+  "AALEN_BORGAN_GJESSING": {
+   "unique_questions": 34,
+   "design_relevant": 5
+  },
+  "ABERGEL_LOB": {
+   "unique_questions": 12,
+   "design_relevant": 0
+  },
+  "BOUCHAUD_TQP": {
+   "unique_questions": 159,
+   "design_relevant": 5
+  },
+  "CARTEA_AHFT": {
+   "unique_questions": 33,
+   "design_relevant": 0
+  },
+  "CHAN_AT": {
+   "unique_questions": 114,
+   "design_relevant": 4
+  },
+  "ECONOPHYS_ODM": {
+   "unique_questions": 44,
+   "design_relevant": 0
+  },
+  "HARRIS_TE": {
+   "unique_questions": 22,
+   "design_relevant": 0
+  },
+  "HASBROUCK_EMM": {
+   "unique_questions": 67,
+   "design_relevant": 1
+  },
+  "HERNAN_ROBINS_WHATIF": {
+   "unique_questions": 117,
+   "design_relevant": 1
+  },
+  "HONORE_1993": {
+   "unique_questions": 1,
+   "design_relevant": 0
+  },
+  "KISSELL_SATPM": {
+   "unique_questions": 133,
+   "design_relevant": 4
+  },
+  "LOPEZDEPRADO_MLAM": {
+   "unique_questions": 78,
+   "design_relevant": 0
+  },
+  "SURVIVAL_STK4080": {
+   "unique_questions": 100,
+   "design_relevant": 23
+  }
+ },
+ "questions": {
+  "AALEN_BORGAN_GJESSING": [
+   {
+    "q": "What is a counting process?",
+    "design_relevant": false
+   },
+   {
+    "q": "Independent or dependent data?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is randomness in survival models?",
+    "design_relevant": false
+   },
+   {
+    "q": "Are dynamic models well defined?",
+    "design_relevant": false
+   },
+   {
+    "q": "The great theory still missing?",
+    "design_relevant": false
+   },
+   {
+    "q": "So, why not use ordinary linear regression and other standard statis- tical methods?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the estimate of this probability for a woman whose first child died within one year?",
+    "design_relevant": false
+   },
+   {
+    "q": "What can you learn from the plots?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why then do we propose such a model?",
+    "design_relevant": false
+   },
+   {
+    "q": "A(t | x0) con- sisting of the elements ˆAgh(t | x0), what will be the properties of the corresponding estimator of the transition matrix?",
+    "design_relevant": false
+   },
+   {
+    "q": "How would the model change in this case when the covariate Xp is dropped?",
+    "design_relevant": false
+   },
+   {
+    "q": "Do the observed and expected informa- tion matrices coincide?",
+    "design_relevant": false
+   },
+   {
+    "q": "Do they coincide?",
+    "design_relevant": false
+   },
+   {
+    "q": "To what extent do such differences exist as regards for instance disease risk?",
+    "design_relevant": false
+   },
+   {
+    "q": "What sort of shapes might one expect for actual frailty distributions?",
+    "design_relevant": true
+   },
+   {
+    "q": "If we assume proportional- ity to hold at the level of the individual hazard, what would then be observed at the population level?",
+    "design_relevant": false
+   },
+   {
+    "q": "How wise is this approach?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is it possible to conclude anything about the present treatment effect at time t by comparing µ1(t) andµ2(t)?",
+    "design_relevant": false
+   },
+   {
+    "q": "One of those is: “Why is the incidence of testicular cancer highest among young adults, with little risk among older men, even though spermatogenesis is a lifelong process?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the observable intensity process of an individual counting process if the Zi are unknown (which one would usually assume)?",
+    "design_relevant": true
+   },
+   {
+    "q": "What kind of differences do you find?",
+    "design_relevant": false
+   },
+   {
+    "q": "If individual i has had Di• = 5 events with a total cumulative hazard Vi = 10, then what is the conditional distribution of the frailty?",
+    "design_relevant": true
+   },
+   {
+    "q": "Why is this not an intensity process but merely a rate function?",
+    "design_relevant": true
+   },
+   {
+    "q": "We will also address another question: to what extent is the effect of treatment working directly and to what extent is it working indirectly through N(t−)?",
+    "design_relevant": false
+   },
+   {
+    "q": "When is such estimation possible?",
+    "design_relevant": false
+   },
+   {
+    "q": "What would then be the observed difference between the active treatment and the control?",
+    "design_relevant": false
+   },
+   {
+    "q": "The probabilities typically tend to zero, but conditionally on not yet having reached the absorbing state zero, what is the “balance” between the other states?",
+    "design_relevant": false
+   },
+   {
+    "q": "What can statistics contribute to a causal understanding?",
+    "design_relevant": false
+   },
+   {
+    "q": "Gene-environment interaction and aetiology of cancer: what does it mean and how can we measure it?",
+    "design_relevant": false
+   },
+   {
+    "q": "Biometrical modelling in genetics: Are com- plex traits too complex?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can familial aggregation of disease be explained by familial aggregation of environmental risk factors?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why is the rate of testicular cancer increasing?",
+    "design_relevant": false
+   },
+   {
+    "q": "Wei, Lin and Weissfeld’s marginal anal- ysis of multivariate failure time data: should it be applied to a recurrent events outcome?",
+    "design_relevant": true
+   },
+   {
+    "q": "Perceived stress and risk of ischemic heart disease: Cau- sation or bias?",
+    "design_relevant": false
+   }
+  ],
+  "ABERGEL_LOB": [
+   {
+    "q": "A reciprocal e ffect?",
+    "design_relevant": false
+   },
+   {
+    "q": "William Feather , American publisher and author (1889–1981) What is a limit order book ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why study limit order books?",
+    "design_relevant": false
+   },
+   {
+    "q": "How to model limit order books?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is in this book?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is not in this book?",
+    "design_relevant": false
+   },
+   {
+    "q": "Third, the structural question is clearly asked in the conclusion of the paper: “Does the auction-market model imply the characteristic leptokurtosis seen in empirical security price changes?",
+    "design_relevant": false
+   },
+   {
+    "q": "Ergodicity and Diffusive Limit In this section, our interest lies in the following questions: (i) Is the order book model defined above stable?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the stochastic-process limit of the price at large time scales?",
+    "design_relevant": false
+   },
+   {
+    "q": "Market e fficiency and the longmemory of supply and demand: Is price impact variable and permanent or fixed and temporary?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is the Electronic Open Limit Order Book Inevitable?",
+    "design_relevant": false
+   },
+   {
+    "q": "Whom or What Does the Representative Individual Represent?",
+    "design_relevant": false
+   }
+  ],
+  "BOUCHAUD_TQP": [
+   {
+    "q": "Robert Almgren, New York University and Quantitative Brokers Contents Preface page xiii Acknowledgements xvii P A R TI H O WA N DW H YD OP R I C E SM O V E ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why Do Prices Move?",
+    "design_relevant": false
+   },
+   {
+    "q": "What Happens After a Race Ends?",
+    "design_relevant": false
+   },
+   {
+    "q": "What Is Price Impact?",
+    "design_relevant": false
+   },
+   {
+    "q": "Market Orders or Limit Orders?",
+    "design_relevant": false
+   },
+   {
+    "q": "Should I Stay or Should I Go?",
+    "design_relevant": false
+   },
+   {
+    "q": "Conclusion: In Prices We Trust?",
+    "design_relevant": false
+   },
+   {
+    "q": "Preface What is Market Microstructure?",
+    "design_relevant": false
+   },
+   {
+    "q": "Before we embark on our journey, we pause for a moment to ask the question: What is market microstructure?",
+    "design_relevant": false
+   },
+   {
+    "q": "PART I How and Why Do Prices Move?",
+    "design_relevant": false
+   },
+   {
+    "q": "How and Why Do Prices Move?",
+    "design_relevant": false
+   },
+   {
+    "q": "How do modern markets operate?",
+    "design_relevant": false
+   },
+   {
+    "q": "Who is playing the game?",
+    "design_relevant": false
+   },
+   {
+    "q": "What are their motivations?",
+    "design_relevant": false
+   },
+   {
+    "q": "What challenges do they face?",
+    "design_relevant": false
+   },
+   {
+    "q": "How do they act and interact?",
+    "design_relevant": false
+   },
+   {
+    "q": "And how does all of this affect liquidity and volatility?",
+    "design_relevant": false
+   },
+   {
+    "q": "How does market liquidity look at a zoomed-in and zoomed-out scale?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why is it so thin?",
+    "design_relevant": false
+   },
+   {
+    "q": "And how do market participants’ actions affect liquidity, and therefore prices?",
+    "design_relevant": false
+   },
+   {
+    "q": "How should we make sense of all these concepts, ideas and facts?",
+    "design_relevant": false
+   },
+   {
+    "q": "The Ecology of Financial Markets Buyer: How much is it?",
+    "design_relevant": false
+   },
+   {
+    "q": "Seller: A hundred?",
+    "design_relevant": false
+   },
+   {
+    "q": "You want it or not?",
+    "design_relevant": false
+   },
+   {
+    "q": "Given these opposing objectives, how do market participants ever agree on a price at which to trade?",
+    "design_relevant": false
+   },
+   {
+    "q": "Given the tremendous impact of the digital revolution on society as a whole, why has the advent of computerised trading not solved these age-old problems once and for all?",
+    "design_relevant": false
+   },
+   {
+    "q": "So why do traders trade at all?",
+    "design_relevant": false
+   },
+   {
+    "q": "For example, is an observation of another trade itself information?",
+    "design_relevant": false
+   },
+   {
+    "q": "And how strongly might this impact subsequent market activity?",
+    "design_relevant": false
+   },
+   {
+    "q": "Given that insider trading is prohibited by law, can a significant fraction of this vast market activity really be attributed to informed trades of the type described above?",
+    "design_relevant": false
+   },
+   {
+    "q": "T o Trade, or Not T o Trade?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why do traders behave in this way?",
+    "design_relevant": false
+   },
+   {
+    "q": "Do investors trade too much?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is it really the case that market-makers can earn risk-free profits?",
+    "design_relevant": false
+   },
+   {
+    "q": "But why does this competition not simply drives to zero?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why is there so little total volume offered for purchase or sale at any point in time?",
+    "design_relevant": false
+   },
+   {
+    "q": "What do we know about high-frequency trading?",
+    "design_relevant": false
+   },
+   {
+    "q": "Correlated Returns How can we extend Bachelier’s first law to the case where price changes are not independent?",
+    "design_relevant": false
+   },
+   {
+    "q": "How does this affect Bachelier’s first law?",
+    "design_relevant": false
+   },
+   {
+    "q": "How does this noise on pt affect the observed volatility?",
+    "design_relevant": false
+   },
+   {
+    "q": "V olatility Signature Plots for Real Price Series How well does Bachelier’s first law hold for real price series?",
+    "design_relevant": false
+   },
+   {
+    "q": "Delayed Convergence T owards the Gaussian Why do returns remain substantially non-Gaussian on time scales up to weeks or even months?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the relationship between the clustering of market activity and the clustering of volatility?",
+    "design_relevant": false
+   },
+   {
+    "q": "The Excess V olatility Puzzle Why do prices behave like random walks?",
+    "design_relevant": false
+   },
+   {
+    "q": "This idea resides at the very heart of efficient-market theory, but is this picture correct?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can it account for the volatility observed in real markets?",
+    "design_relevant": false
+   },
+   {
+    "q": "What moves stock prices?",
+    "design_relevant": false
+   },
+   {
+    "q": "How Relevant is Fundamental V alue?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does the stock market overreact?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does the stock market rationally reflect fundamental values?",
+    "design_relevant": false
+   },
+   {
+    "q": "Do stock prices move too much to be justified by subsequent changes in dividends?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is the electronic open limit order book inevitable?",
+    "design_relevant": false
+   },
+   {
+    "q": "What do you do, sir?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why should this be so?",
+    "design_relevant": false
+   },
+   {
+    "q": "To what extent are these average relative volume profiles representative of a typical volume profile snapshot?",
+    "design_relevant": false
+   },
+   {
+    "q": "What really causes large price changes?",
+    "design_relevant": false
+   },
+   {
+    "q": "How might we choose the function ϱ?",
+    "design_relevant": false
+   },
+   {
+    "q": "More precisely, we consider the question: given that the total volume in the queue is currently V, what is the probability Φ(τ,V) that the first-hitting time is T1=τ?",
+    "design_relevant": false
+   },
+   {
+    "q": "How might we change the model to address this problem?",
+    "design_relevant": false
+   },
+   {
+    "q": "Effective Potential Barriers How can one estimate the mean first-hitting time using the Fokker–Planck formalism?",
+    "design_relevant": false
+   },
+   {
+    "q": "How can we implement these modelling assumptions into our Fokker–Planck framework?",
+    "design_relevant": false
+   },
+   {
+    "q": "Joint-Queue Dynamics for Large-Tick Stocks What is the logic of all this?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why is the smoke of this pipe going to the right rather than to the left?",
+    "design_relevant": false
+   },
+   {
+    "q": "Empirical Results 119 • What is the joint probability P(Vb,Va) that the ask volume is Va(t)= Va and the bid volume is Vb(t)= Vb?",
+    "design_relevant": false
+   },
+   {
+    "q": "Having observed the two volumes ( Vb(t),Va(t)), what is the probability p± that the next mid-price move is upwards?",
+    "design_relevant": false
+   },
+   {
+    "q": "Having observed the two volumes (Vb(t),Va(t)), what is the rateΦ(τ)f o rt h en e x t mid-price move (up or down) to take place at time t+τ?",
+    "design_relevant": false
+   },
+   {
+    "q": "How might we extend our models of joint-queue dynamics to reflect this empirical behaviour?",
+    "design_relevant": false
+   },
+   {
+    "q": "To what extent do past events influence future events?",
+    "design_relevant": false
+   },
+   {
+    "q": "What part of market activity is triggered by exogenous events, like the arrival of news?",
+    "design_relevant": false
+   },
+   {
+    "q": "And what part is triggered endogenously by past activity?",
+    "design_relevant": false
+   },
+   {
+    "q": "Where do such autocorrelations come from?",
+    "design_relevant": false
+   },
+   {
+    "q": "Do traders exhibit herding behaviour, such that they all buy or sell aggressively at the same time?",
+    "design_relevant": false
+   },
+   {
+    "q": "Or do these regularities emerge from the behaviour of individual agents?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is this power-law Hawkes process for prices a simple way to reconcile these empirical observations in a parsimonious theoretical framework?",
+    "design_relevant": false
+   },
+   {
+    "q": "Where does this long-range predictability come from?",
+    "design_relevant": false
+   },
+   {
+    "q": "Herding versus Splitting What causes the autocorrelations in market order signs?",
+    "design_relevant": false
+   },
+   {
+    "q": "Given that trade t belongs to a metaorder with termination rate κ, what is the probability that trade t+𝓁belongs to the same metaorder?",
+    "design_relevant": false
+   },
+   {
+    "q": "Herding or Order-Splitting?",
+    "design_relevant": false
+   },
+   {
+    "q": "Which is more likely to be the main reason for the observed phenomena?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is there any empirical evidence to suggest that the size of metaorders is power-law distributed, as assumed by the LMF model?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why is this the case?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why is equity order flow so persistent?",
+    "design_relevant": false
+   },
+   {
+    "q": "How should you proceed?",
+    "design_relevant": false
+   },
+   {
+    "q": "Long-Range Persistence of Order Flow Rather than removing liquidity, how about instead contributing to liquidity by posting a very large limit order at or close to the bid-price?",
+    "design_relevant": false
+   },
+   {
+    "q": "Persistence of Order Flow one can make good predictions of the sign of a market order far in the future without being able to predict that the price will increase or decrease over the same time horizon?",
+    "design_relevant": true
+   },
+   {
+    "q": "In particular, how can the predictable order flow elicited in the previous chapter produce unpredictable prices?",
+    "design_relevant": true
+   },
+   {
+    "q": "We are immediately faced with a difficulty: since history cannot be replayed, how can we know how an actionreally affected the market?",
+    "design_relevant": false
+   },
+   {
+    "q": "Put another way, how can we know that what we observed was not going to happen anyway?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does such impact remain forever imprinted on the market and the price?",
+    "design_relevant": false
+   },
+   {
+    "q": "What does it mean for investors’ trading strategies?",
+    "design_relevant": false
+   },
+   {
+    "q": "And how does it relate to the idea of market efficiency?",
+    "design_relevant": false
+   },
+   {
+    "q": "The first is how volume creates impact: how much more impact does a larger trade cause?",
+    "design_relevant": false
+   },
+   {
+    "q": "The second is the temporal behaviour of impact: how much of a trade’s impact is permanent, how much decays over time, and how does this transient behaviour unfold?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is a transaction not a fair deal between a buyer and a seller?",
+    "design_relevant": false
+   },
+   {
+    "q": "If so, which of the two is really impacting the price?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is market impact a measure of the information value of trades?",
+    "design_relevant": false
+   },
+   {
+    "q": "How should we understand this empirical result?",
+    "design_relevant": false
+   },
+   {
+    "q": "How does the behaviour ofR(ΔV,T) change for larger values ofT?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does this phenomenon occur because information is revealed?",
+    "design_relevant": false
+   },
+   {
+    "q": "Or does the very occurrence of a trade itself impact prices?",
+    "design_relevant": false
+   },
+   {
+    "q": "Market efficiency and the long-memory of supply and demand: Is price impact variable and permanent or fixed and temporary?",
+    "design_relevant": false
+   },
+   {
+    "q": "Do supply and demand drive stock prices?",
+    "design_relevant": false
+   },
+   {
+    "q": "From a fundamental point of view, how does a metaorder of size Q contribute to price formation?",
+    "design_relevant": false
+   },
+   {
+    "q": "From the point of view of investors, what is the true cost of performing such a trade?",
+    "design_relevant": false
+   },
+   {
+    "q": "How does it depend on market conditions, execution strategies, time horizons, and so on?",
+    "design_relevant": false
+   },
+   {
+    "q": "From the point of view of regulators, can large metaorders destabilise markets?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is marked-to-market accounting wise when, as emphasised above, the market price is (at best) only meaningful for infinitesimal volumes?",
+    "design_relevant": false
+   },
+   {
+    "q": "The Square-Root Law At the heart of most empirical and theoretical studies of metaorder impact lies a very simple question: how does the impact of a metaorder depend on its size Q?",
+    "design_relevant": false
+   },
+   {
+    "q": "How is this possible when the order flow itself is so predictable?",
+    "design_relevant": true
+   },
+   {
+    "q": "How might we resolve this conundrum?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why should this be the case?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why does this discrepancy occur?",
+    "design_relevant": false
+   },
+   {
+    "q": "How does this correlation matrix behave for real stocks?",
+    "design_relevant": false
+   },
+   {
+    "q": "How does the market react to your order flow?",
+    "design_relevant": false
+   },
+   {
+    "q": "Are we missing something?",
+    "design_relevant": false
+   },
+   {
+    "q": "Bob will act in a given situation), how should she chooseQ to maximise her expected profitE[G] at time t= 1?",
+    "design_relevant": false
+   },
+   {
+    "q": "Linear Impact What are Alice’s and Bob’s optimal actions in this market?",
+    "design_relevant": false
+   },
+   {
+    "q": "Given this seemingly unfavourable position, why do any market participants provide liquidity at all?",
+    "design_relevant": false
+   },
+   {
+    "q": "In this case, what is the third momentς of the distribution of pF− a?",
+    "design_relevant": false
+   },
+   {
+    "q": "What happens after the first trade has occurred?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is the exponential spread decay (in time) predicted by Glosten–Milgrom also observable in empirical data?",
+    "design_relevant": false
+   },
+   {
+    "q": "In this market, how should Bob set his quotes so as to have no ex-post regrets?",
+    "design_relevant": false
+   },
+   {
+    "q": "Glosten–Milgrom arguments would have it, or is volatility also influenced by the spread, in the sense that the last transaction price shifts the expectations of the rest of the market?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why do security prices change?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the optimal tick size?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the Profit & Loss (P&L) balance of this market-maker?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why do such traders not simply submit very large limit orders to the LOB?",
+    "design_relevant": false
+   },
+   {
+    "q": "How do these results change ifν is not infinitesimal?",
+    "design_relevant": false
+   },
+   {
+    "q": "Specifically, how does the price behave for times t> T, after the metaorder has been fully executed?",
+    "design_relevant": false
+   },
+   {
+    "q": "Should we be fully satisfied by this model, or is there room for further improvements?",
+    "design_relevant": false
+   },
+   {
+    "q": "The excess-trading puzzle: If prices really reflect value and are unpredictable, why are there still so many people obstinately trying to eke out profits from trading?",
+    "design_relevant": false
+   },
+   {
+    "q": "How can prices be so precise when there is so much uncertainty?",
+    "design_relevant": false
+   },
+   {
+    "q": "How can such substantial mispricings remain for so long?",
+    "design_relevant": false
+   },
+   {
+    "q": "In other words, why does the aggregation process that financial markets are supposed to realise fail so badly?",
+    "design_relevant": false
+   },
+   {
+    "q": "Within this framework, an important question arises: why does some kind of law of large numbers not remove mispricings, as the classical arbitrage argument would predict?",
+    "design_relevant": false
+   },
+   {
+    "q": "Given an investment decision with a given direction, volume and time horizon, how should a market participant execute it in practice?",
+    "design_relevant": true
+   },
+   {
+    "q": "Q of an asset, how is this decision implemented in the market such that the desired quantity gets executed at the best possible price?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the optimal horizon T?",
+    "design_relevant": true
+   },
+   {
+    "q": "What is the corresponding trading schedule?",
+    "design_relevant": false
+   },
+   {
+    "q": "Should one trade at a uniform rate during the time interval [0 ,T], or should one front- or back-load the execution?",
+    "design_relevant": false
+   },
+   {
+    "q": "Should one use market orders or limit orders?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is it wise to join a long bid- or ask-queue?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the optimal trading profile in this case?",
+    "design_relevant": false
+   },
+   {
+    "q": "So what orders do informed traders use?",
+    "design_relevant": false
+   },
+   {
+    "q": "But how has the corresponding “collectivisation” of adverse selection influenced market stability?",
+    "design_relevant": false
+   },
+   {
+    "q": "Has the advent of electronic markets also made markets more stable – or has the decrease in economic rents available to liquidity providers made them more fragile?",
+    "design_relevant": false
+   },
+   {
+    "q": "May 2010 is still fresh in our memory – but who remembers that a nearly identical event with a similar speed and amplitude occurred on 28 May 1962, long before algorithms and HFT existed?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why do markets have such a persistent propensity to crash, in spite of many changes in market microstructure and regulation?",
+    "design_relevant": false
+   },
+   {
+    "q": "This task is of utmost importance not only from a theoretical point of view (why is the distribution of extreme events so universal?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can one change the micro-organisation of markets so as to curb excess volatility and reduce the number of spurious price jumps, as has been argued by the proponents of a financial transaction tax (FTT)?",
+    "design_relevant": false
+   },
+   {
+    "q": "How might this runaway trajectory be prevented?",
+    "design_relevant": false
+   },
+   {
+    "q": "How should liquidity provision be rewarded such that markets are maximally resilient while ensuring an even playing field?",
+    "design_relevant": false
+   },
+   {
+    "q": "So why do we put such blind faith in them?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does algorithmic trading improve liquidity?",
+    "design_relevant": false
+   },
+   {
+    "q": "Want to hurt HFT?",
+    "design_relevant": false
+   },
+   {
+    "q": "What happened to the quants in August 2007?",
+    "design_relevant": false
+   },
+   {
+    "q": "Would a financial transaction tax affect financial market activity?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the small-z behaviour of the Laplace transform ˆΦ(z) in that case?",
+    "design_relevant": false
+   },
+   {
+    "q": "A Propagator Model with Volume Fluctuations How can volume fluctuations be included in the formalism developed in Chapter 13?",
+    "design_relevant": false
+   }
+  ],
+  "CARTEA_AHFT": [
+   {
+    "q": "Available Depth Ask Side =?",
+    "design_relevant": false
+   },
+   {
+    "q": "The difference between the ask and the bid price, the quoted spread is Quoted Spreadt = P?",
+    "design_relevant": false
+   },
+   {
+    "q": "The midprice is the arithmetic average of the bid and the ask: Midpricet = ½(P?",
+    "design_relevant": false
+   },
+   {
+    "q": "This gives us the following equation: µ - S1 2 i 't=(n+l)-- {==?",
+    "design_relevant": false
+   },
+   {
+    "q": "But what drives n?",
+    "design_relevant": false
+   },
+   {
+    "q": "So, how do MJVIs set their prices?",
+    "design_relevant": false
+   },
+   {
+    "q": "Qt-1,j) + /32,j SPYt + /33,j VIXt + /34,j Tt,j + /35,j OFt + Ej, while Model 2 (M2) is log(l + Qt,j) =a+ /31,1 log(l + Qt-1,1) + /32,1 SPYt + /33,j VIXt + /34,j rt,1 + /35,j OFt + /36,j (SPYt)2 + /3?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why would agents provide liquidity in this way?",
+    "design_relevant": false
+   },
+   {
+    "q": "So what determines market quality?",
+    "design_relevant": false
+   },
+   {
+    "q": "What determines the effectiveness of the market in facilitating trade?",
+    "design_relevant": false
+   },
+   {
+    "q": "How does one choose between them?",
+    "design_relevant": false
+   },
+   {
+    "q": "Then we have that H(t,x) ?",
+    "design_relevant": false
+   },
+   {
+    "q": "H\"'(t,x) = lEt,x [ H\"' (T, x� c) + l r F(s, x�'' v\\) ds l =lEt,x [ H\"(T,X�) + l7 F(s,X�,us)dsl ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Et,x [ H(T,X�)+ 17 F(s,X�,u8)ds]-c, Taking the limit as c \\I 0, we have H(t, x)?",
+    "design_relevant": false
+   },
+   {
+    "q": "Moreover, since the above holds true for every u E A we have that H(t, x)?",
+    "design_relevant": false
+   },
+   {
+    "q": "CTf = (ut -% ) so that dX;\" = ( ?",
+    "design_relevant": false
+   },
+   {
+    "q": "From Ito's lemma, and the fact that X 1/i is bounded due to stopping the first time X exits the ball Bh, we have lEt0 ,x0 [cpc(?",
+    "design_relevant": false
+   },
+   {
+    "q": "Et0 ,x0 [H('1/;, X¢) - H(to, Xo)] :::; lEt0 ,x0 [(H - 4Je:)(?",
+    "design_relevant": false
+   },
+   {
+    "q": "By rearranging to isolate H(to, xo), we have H(to,xo) 2: (lP'(T 2: 0) +lEt0 ,x0 [H(?",
+    "design_relevant": false
+   },
+   {
+    "q": "ODEs for €i(t) o = EM1 + ½ ( h2 + ½b) €1 - 2 cp p, 0 = Ot€2 + (½ (h2 + ½b) - K) €2 + €1 , O = 8t€o + ?",
+    "design_relevant": false
+   },
+   {
+    "q": "And how can we profit from the mean-reverting to zero value of this portfolio?",
+    "design_relevant": false
+   },
+   {
+    "q": "Pairs Trading and Statistical Arbitrage Strategies Model Setup Suppose that we have a collection of risky assets whose vector of prices Y (Y?",
+    "design_relevant": false
+   },
+   {
+    "q": "Applying the dynamic programming principle leads to the DPE which the value function should satisfy: 8tH + ab1'Dy H + ½V�Y H + s�p { ( 7r 1 8) a 8xH + ½ ( ?",
+    "design_relevant": false
+   },
+   {
+    "q": "H {( In ) 2 ,(frn8xH +n'Dxy H)}2 :rx 7Ti�L7r + 7T a H xx 1 {( -1 )' ( -1 ) £'Hn-1 £H}28xxH 7rt + D £H D ?",
+    "design_relevant": false
+   },
+   {
+    "q": "K}, has a generator matrix B which produces transition probabilities lP'(Zt = j I Zs= i) = [exp{B (t - s)}];j , t ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Also recall that the generator matrix must satisfy the conditions B;J ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Daily Features 305 10·2 i?",
+    "design_relevant": false
+   },
+   {
+    "q": "Cartea, Alvaro & Jose Penalva (2012), 'Where is the value in high frequency trading?",
+    "design_relevant": false
+   },
+   {
+    "q": "Ding, Shengwei, John Hanna & Terrence Hendershott (2014), 'How slow is the NEBO?",
+    "design_relevant": false
+   },
+   {
+    "q": "Menkveld (2011), 'Does algorith mic trading improve liquidity?",
+    "design_relevant": false
+   },
+   {
+    "q": "Hirschey, Nicholas (2013), 'Do high-frequency traders anticipate buying and selling pressure?",
+    "design_relevant": false
+   },
+   {
+    "q": "Horst, Ulrich & Felix Naujokat (2014), 'When to cross the spread?",
+    "design_relevant": false
+   },
+   {
+    "q": "Pascual, Roberto & David Veredas (2009), 'What pieces of limit order book information matter in explaining order choice by patient and impatient traders?",
+    "design_relevant": false
+   }
+  ],
+  "CHAN_AT": [
+   {
+    "q": "The Motive Books written by traders for other traders need to answer one basic ques- tion: Why are they doing it?",
+    "design_relevant": false
+   },
+   {
+    "q": "More specifi cally, if the strategies described are any good, why would the trader publicize them, which would surely render them less profi table in the future?",
+    "design_relevant": false
+   },
+   {
+    "q": "What about the basic motive question?",
+    "design_relevant": false
+   },
+   {
+    "q": "For example, are the stock orders supposed to be sent as market-on-open orders or as market orders just after the open?",
+    "design_relevant": false
+   },
+   {
+    "q": "Are we supposed to use the bid or ask price to trigger a trade, or are we supposed to use the last price?",
+    "design_relevant": false
+   },
+   {
+    "q": "In backtesting an intermarket pair-trading strategy in futures, have we made sure that the closing prices of the two markets occur at the same time?",
+    "design_relevant": false
+   },
+   {
+    "q": "Are we really willing to give up on possibly weeks of work and toss out the model completely?",
+    "design_relevant": false
+   },
+   {
+    "q": "Should it be a Student’s t-distribution that allows us to capture the skew and kurtosis of the returns, or should it be a Pareto distribution that dispenses with a fi nite second moment completely?",
+    "design_relevant": false
+   },
+   {
+    "q": "Where can we fi nd historical prices from the primary exchanges?",
+    "design_relevant": false
+   },
+   {
+    "q": "What’s the P&L (in points, not dollars) and return of this strategy on T + 1?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is our problem solved?",
+    "design_relevant": false
+   },
+   {
+    "q": "Which price should we use to backtest our strategies?",
+    "design_relevant": false
+   },
+   {
+    "q": "How do we determine the probability distribution under the null hypothesis?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why would we rec- ommend against backtesting some strategies?",
+    "design_relevant": false
+   },
+   {
+    "q": "The fi rst question that should come to mind upon reading this strategy is: Was the strategy backtested using a survivorship-bias-free stock database?",
+    "design_relevant": false
+   },
+   {
+    "q": "In other words, does the stock database include those stocks that have since been delisted?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can we really backtest a high-frequency trading strategy?",
+    "design_relevant": false
+   },
+   {
+    "q": "Will a Backtest Be Predictive of Future Returns?",
+    "design_relevant": false
+   },
+   {
+    "q": "How Good Is Y our Programming Skill?",
+    "design_relevant": false
+   },
+   {
+    "q": "ALGORITHMIC TRADING Can Backtesting and Execution Use the Same Program?",
+    "design_relevant": false
+   },
+   {
+    "q": "Otherwise, see the discussion later in this chapter in the section “What Type of Asset Classes or Strategies Does the Platform Support?",
+    "design_relevant": false
+   },
+   {
+    "q": "What T ype of Asset Classes or Strategies Does the Platform Support?",
+    "design_relevant": false
+   },
+   {
+    "q": "Comparisons of Open-Source Integrated Development Environments (IDEs) for Backtesting and Automated Execution IDE Language(s) Asset class(es) Broker(s) Tick based?",
+    "design_relevant": false
+   },
+   {
+    "q": "NET (C#, VB) Various Various, FIX ?",
+    "design_relevant": false
+   },
+   {
+    "q": "What about high(er)-frequency trading?",
+    "design_relevant": false
+   },
+   {
+    "q": "What kind of platforms can sup- port this demanding trading strategy?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does the Platform Have Complex Event Processing?",
+    "design_relevant": false
+   },
+   {
+    "q": "What if the rule involves many clauses like during, between, afterwards, in parallel when applied to the sequence of events?",
+    "design_relevant": false
+   },
+   {
+    "q": "But what about the argument that trading rules should be simple to avoid data-snooping bias?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why did my model generate a ‘short’ signal for THQI on 2012/7/9?",
+    "design_relevant": false
+   },
+   {
+    "q": "Did your model just buy the stock CMC?",
+    "design_relevant": false
+   },
+   {
+    "q": "Are you sure it didn’t forget to adjust its historical prices because today is its ex-date for dividends?",
+    "design_relevant": false
+   },
+   {
+    "q": "Did you make sure your data don’t have survivorship bias?",
+    "design_relevant": false
+   },
+   {
+    "q": "But did it short a lot of fi nancial stocks back then?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why are you back-adjusting your prices using returns gap?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why is it that my mean-reverting intraday futures spread performed so well in backtest but so poorly in live trading?",
+    "design_relevant": false
+   },
+   {
+    "q": "Statistical signifi cance of backtests: • “What do you mean by saying that the expected APR of this strategy is 10 percent and is statistically signifi cant to within 1 percent?",
+    "design_relevant": false
+   },
+   {
+    "q": "KEY POINTS (Continued ) 38 ALGORITHMIC TRADING • “What do you mean by saying that the expected APR of this strategy is 10 percent and is statistically signifi cant to within 1 percent?",
+    "design_relevant": false
+   },
+   {
+    "q": "Which backtest platform to pick?",
+    "design_relevant": false
+   },
+   {
+    "q": "What trading platform should I use?",
+    "design_relevant": false
+   },
+   {
+    "q": "But how should I implement these strategies and go ‘live’?",
+    "design_relevant": false
+   },
+   {
+    "q": "Are you sure your broker has an order confi rmation latency shorter than 10 ms?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is mean reversion also prevalent in fi nancial price series?",
+    "design_relevant": false
+   },
+   {
+    "q": "If a price series is stationary, shouldn’t its mean and standard deviation be fi xed forever?",
+    "design_relevant": false
+   },
+   {
+    "q": "Sharpe ratio of a mean-reverting trading strategy is good enough, why do we bother to go through the stationarity tests (ADF or Vari- ance Ratio) and the calculation of half-life at all?",
+    "design_relevant": true
+   },
+   {
+    "q": "Can’t we just run a backtest on the trading strategy directly and be done with it?",
+    "design_relevant": false
+   },
+   {
+    "q": "Test An inquisitive reader may ask: Why do we need any new tests for the sta- tionarity of the portfolio price series, when we already have the trusty ADF and Variance Ratio tests for stationarity?",
+    "design_relevant": false
+   },
+   {
+    "q": "If we switch the roles of EWA and EWC, will the result for the CADF test diff er?",
+    "design_relevant": false
+   },
+   {
+    "q": "Let’s denote the rank (remember this 55THE BASICS OF MEAN REVERSION quaint linear algebraic term?",
+    "design_relevant": false
+   },
+   {
+    "q": "What does it mean to have two cointegrating relations when we have only two price series?",
+    "design_relevant": false
+   },
+   {
+    "q": "Isn’t there just one hedge ratio that will allocate capital between EWA and EWC to form a stationary portfolio?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why does EWA cointegrate with EWC?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why does GDX cointegrate with GLD?",
+    "design_relevant": false
+   },
+   {
+    "q": "How do we interpret this equation, since q (for “query”) is just a name given to a stationary time series that may or may not be the market value of a portfolio?",
+    "design_relevant": false
+   },
+   {
+    "q": "But what about the ratio of prices y1/y2 that many traders favor as the signal for a pair?",
+    "design_relevant": false
+   },
+   {
+    "q": "But does a ratio work bet- ter than an adaptive hedge ratio with price (or log price) spreads?",
+    "design_relevant": false
+   },
+   {
+    "q": "Cumulative Returns of Bollinger Band Strategy on GLD-USO ■Does Scaling-in Work?",
+    "design_relevant": false
+   },
+   {
+    "q": "What are the expected profi ts of each alternative?",
+    "design_relevant": false
+   },
+   {
+    "q": "So does that mean the whole idea of scaling-in/averaging-in has been debunked?",
+    "design_relevant": false
+   },
+   {
+    "q": "So how best to 75IMPLEMENTING MEAN REVERSION STRATEGIES estimate the current hedge ratio for a pair of real price series when it can vary with time?",
+    "design_relevant": false
+   },
+   {
+    "q": "But what about Vw and Ve?",
+    "design_relevant": false
+   },
+   {
+    "q": "How negative or positive?",
+    "design_relevant": false
+   },
+   {
+    "q": "IMPLEMENTING MEAN REVERSION STRATEGIES Why are these equations worth highlighting?",
+    "design_relevant": false
+   },
+   {
+    "q": "But how can there be uncertainty in the observed transaction price?",
+    "design_relevant": false
+   },
+   {
+    "q": "But what should Tmax be?",
+    "design_relevant": false
+   },
+   {
+    "q": "IMPLEMENTING MEAN REVERSION STRATEGIES • Do you want to construct a mean-reverting portfolio with a fi xed number of shares during the duration of a trade?",
+    "design_relevant": true
+   },
+   {
+    "q": "Do you want to construct a mean-reverting portfolio with fi xed market values for each constituent during the duration of a trade?",
+    "design_relevant": true
+   },
+   {
+    "q": "Afraid that the hedge ratio, mean, and standard deviation of a spread may vary in the future?",
+    "design_relevant": false
+   },
+   {
+    "q": "Do you want to dynamically update the expected price of an instrument based on its latest trade (price and size)?",
+    "design_relevant": false
+   },
+   {
+    "q": "What if we trade a large number of pairs of stocks, so that occasional de- railment of some pairs would not aff ect the profi tability of the entire port- folio?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why was pair trading stocks so profi table in the past?",
+    "design_relevant": false
+   },
+   {
+    "q": "What happened on July 14, 2008?",
+    "design_relevant": false
+   },
+   {
+    "q": "What has oil price got to do with the cointegration between gold price and gold miners’ share prices?",
+    "design_relevant": false
+   },
+   {
+    "q": "What about the mirror image of this strategy?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can we short stocks that gap up a standard deviation but are still lower than their 20-day mov- ing average?",
+    "design_relevant": false
+   },
+   {
+    "q": "Where can we get this true, instantaneous market value of the stocks?",
+    "design_relevant": false
+   },
+   {
+    "q": "What strategy can be simpler than this?",
+    "design_relevant": false
+   },
+   {
+    "q": "ALGORITHMIC TRADING • Are you tempted to trade pairs of stocks because of the enormous number of choices?",
+    "design_relevant": false
+   },
+   {
+    "q": "Are you pair trading ETFs that hold futures?",
+    "design_relevant": false
+   },
+   {
+    "q": "Do you think that index arbitrage between stocks and futures is no longer profi table?",
+    "design_relevant": false
+   },
+   {
+    "q": "The question is: Should the slope be positive or negative?",
+    "design_relevant": false
+   },
+   {
+    "q": "VIX Index versus Back-Adjusted VX Front Contract Prices 123MEAN REVERSION OF CURRENCIES AND FUTURES Do Calendar Spreads Mean-Revert?",
+    "design_relevant": false
+   },
+   {
+    "q": "Based on our previous experience with spreads in general, calendar spreads would seem to be great candidates for mean reversion: Aren’t both legs tracking the exact same underlying as- set?",
+    "design_relevant": false
+   },
+   {
+    "q": "In computing the returns of a portfolio with two currency cross-rates, did you pay attention to whether they have the same quote currency, the same base currency, or neither?",
+    "design_relevant": false
+   },
+   {
+    "q": "How are these two confl icting results reconciled?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why do many futures returns exhibit serial correlations?",
+    "design_relevant": false
+   },
+   {
+    "q": "And why do these serial correlations occur only at a fairly long time scale?",
+    "design_relevant": true
+   },
+   {
+    "q": "Cumulative Returns of XLE-USO Arbitrage 143INTERDAY MOMENTUM STRATEGIES What about a future whose underlying is not a traded commodity?",
+    "design_relevant": false
+   },
+   {
+    "q": "What’s special about the overnight or weekend gap that sometimes trig- gers momentum?",
+    "design_relevant": false
+   },
+   {
+    "q": "Fe deral Open Market Committee’s rate decisions or the release of the latest con - sumer price index?",
+    "design_relevant": false
+   },
+   {
+    "q": "How do we know that the large buy order is due to fl ippers in the fi rst place?",
+    "design_relevant": false
+   },
+   {
+    "q": "Since most of us are not large market makers or operators of an exchange, how can we access such order fl ow information?",
+    "design_relevant": false
+   },
+   {
+    "q": "What should your portfolio market value be?",
+    "design_relevant": false
+   },
+   {
+    "q": "And what should you do to achieve that market value?",
+    "design_relevant": false
+   },
+   {
+    "q": "But what should we do if our broker has set a maximum levera ge FmaxF that is smaller than the total gross leveragex ∑ n i|FiF |?",
+    "design_relevant": false
+   },
+   {
+    "q": "But do these leverages really generate the maximum g under our maximum leverage constraint?",
+    "design_relevant": false
+   },
+   {
+    "q": "Which method should we use?",
+    "design_relevant": false
+   },
+   {
+    "q": "There is just one problem with this argument: What happens if the mean reversion model has permanently stopped workin g while we are in a posi - tion?",
+    "design_relevant": false
+   },
+   {
+    "q": "Maximization of long-term growth rate: • Is your goal the maximization of your net worth over the long term?",
+    "design_relevant": false
+   },
+   {
+    "q": "Are your strategy returns fat-tailed?",
+    "design_relevant": false
+   },
+   {
+    "q": "Do you want to ensure that your drawdown will not exceed a preset maximum, yet enjoy the highest possible growth rate?",
+    "design_relevant": false
+   },
+   {
+    "q": "Risk indicators: • Do you want to avoid risky periods?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why create all kinds of arbitrary rules when the ineffi ciency can be exploited by a simple model?",
+    "design_relevant": false
+   },
+   {
+    "q": "Or should we apply the Kelly formula to each strategy on its own, so that we quickly deleverage those strategies that perform poorly recently?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can one really say that such ex- pectations are unchanged given a recent period of severe drawdown?",
+    "design_relevant": false
+   },
+   {
+    "q": "Post-Earnings-Announcement Drift: Delayed Price Response or Risk Premium?",
+    "design_relevant": false
+   },
+   {
+    "q": "What Can W e Learn about Monetary Policy Transparency from Financial Market Data?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can Markov Switching Models Predict Excess Foreign Exchange Returns?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does the Open Limit Order Book Reveal Information About Short-run Stock Price Movements?",
+    "design_relevant": false
+   },
+   {
+    "q": "What Happened to the Quants in August 2007?",
+    "design_relevant": false
+   },
+   {
+    "q": "ActiveX vs Java API What’s the Diff erence?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does Averaging-in W ork?",
+    "design_relevant": false
+   },
+   {
+    "q": "Where Have All the Stat Arb Profi ts Gone?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does the LIBOR Refl ect Banks’ Borrowing Costs?",
+    "design_relevant": false
+   }
+  ],
+  "ECONOPHYS_ODM": [
+   {
+    "q": "Abergel Are the Trading Volume and the Number of Trades Distributions Universal?",
+    "design_relevant": false
+   },
+   {
+    "q": "So, we are interested in measuring the spread of the limit order book in order to know: • what level of spread is reached at the excited state (after the trade-through)?",
+    "design_relevant": false
+   },
+   {
+    "q": "Handbook of financial markets: dynamics and evolution Are the Trading Volume and the Number of Trades Distributions Universal?",
+    "design_relevant": false
+   },
+   {
+    "q": "Are Trading V olume and Frequency Distributions Universal?",
+    "design_relevant": false
+   },
+   {
+    "q": "V 2i/NULhVi2 and number of trades n D Nt;/c129t/NULhN ip hN 2i/NULhNi2 ,w h e r eh::: i represents time average, for all stocks that are traded Are Trading V olume and Frequency Distributions Universal?",
+    "design_relevant": false
+   },
+   {
+    "q": "One can also check whether the fluctuations from the mean values Are Trading V olume and Frequency Distributions Universal?",
+    "design_relevant": false
+   },
+   {
+    "q": "Here, we use the Lilliefors test and the Anderson– Are Trading V olume and Frequency Distributions Universal?",
+    "design_relevant": false
+   },
+   {
+    "q": "Normality tests for trading volume and number of trades fo r the entire NSE market at different scales of temporal aggregation Temporal Anderson–Darling test Lilliefors test Aggregation Reject H0?",
+    "design_relevant": false
+   },
+   {
+    "q": "Statistic ( A2) Reject H0?",
+    "design_relevant": false
+   },
+   {
+    "q": "Table 2 Lilliefors test for normality of trading volume distribution for representative individual stocks in NSE Stock 5-day aggregate 10-day aggregate Reject H0?",
+    "design_relevant": false
+   },
+   {
+    "q": "Table 3 Anderson–Darling test for normality of trading volume distribution for representative individual stocks in NSE Stock 5-day aggregate 10-day aggregate Reject H0?",
+    "design_relevant": false
+   },
+   {
+    "q": "Cumulative distribution of trade sizes for all transactions carried out at NSE during Decem- ber 2003 Are Trading V olume and Frequency Distributions Universal?",
+    "design_relevant": false
+   },
+   {
+    "q": "Farmer JD, Smith DE, Shubik M (2005) Is economics the next physical science?",
+    "design_relevant": false
+   },
+   {
+    "q": "Should sub-penny trading simply be banned?",
+    "design_relevant": false
+   },
+   {
+    "q": "Would a regulatory change in the minimum quoting in- crement be beneficial in some specific cases?",
+    "design_relevant": false
+   },
+   {
+    "q": "Since some market makers are able to reduce the spread by some 20%, why not encourage competition and authorize this practice to a larger proportion of actors?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can sub-penny pricing reduce trading costs?",
+    "design_relevant": false
+   },
+   {
+    "q": "A Reciprocal “Market Following Limit” Effect?",
+    "design_relevant": false
+   },
+   {
+    "q": "What Are the Effects of Algorithmic Trading?",
+    "design_relevant": false
+   },
+   {
+    "q": "How the present study is compatible with algorithmic trading and what can it tell us on its effects?",
+    "design_relevant": false
+   },
+   {
+    "q": "In particular, we will address the following three questions: can a market maker make money in a zero-intelligence market?",
+    "design_relevant": false
+   },
+   {
+    "q": "In a mar- ket with order flow autocorrelation?",
+    "design_relevant": false
+   },
+   {
+    "q": "In a market with informed traders?",
+    "design_relevant": false
+   },
+   {
+    "q": "The Nature of Price Returns During Periods of High Market Activity 163 compare the impacts of theith trade depending on the fact that it arrived right after or long after the previous trade?",
+    "design_relevant": false
+   },
+   {
+    "q": "Market efficiency and the long-memory of supply and demand: is price impact variable and permanent or fixed and temporary?",
+    "design_relevant": false
+   },
+   {
+    "q": "What really causes large price changes?",
+    "design_relevant": false
+   },
+   {
+    "q": "Farmer JD, Gillemot L, Lillo F, Mike S, Sen A (2004) What really causes large price changes?",
+    "design_relevant": false
+   },
+   {
+    "q": "Bollen NPB, Whaley RE (1998) Are “teenies” better?",
+    "design_relevant": false
+   },
+   {
+    "q": "Therefore, if the practitioner wants to use such model, the following questions arise: • What is the right sampling frequency to choose: 1 second?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the right price to choose?",
+    "design_relevant": false
+   },
+   {
+    "q": "Last traded price?",
+    "design_relevant": false
+   },
+   {
+    "q": "When is time continuous?",
+    "design_relevant": false
+   },
+   {
+    "q": "Are volatility estimators robust with respect to modelling as- sumptions?",
+    "design_relevant": false
+   },
+   {
+    "q": "When Are VWAP-equivalent Models Identical?",
+    "design_relevant": false
+   },
+   {
+    "q": "How much money he would like to give up to avoid the risk involved in the prospect?",
+    "design_relevant": false
+   },
+   {
+    "q": "How consistent is this with the data?",
+    "design_relevant": false
+   },
+   {
+    "q": "The question is what kind of restrictions do we need on the parameters to obtain a Pareto tail for the expen- diture distribution?",
+    "design_relevant": false
+   },
+   {
+    "q": "Pareto tail with respect to the magnitude of the Pareto tail in the income data?",
+    "design_relevant": false
+   },
+   {
+    "q": "Could it be bigger than the income data?",
+    "design_relevant": false
+   },
+   {
+    "q": "Assuming unknown types of the agent we ask the following question: can we find allocation rules for which we can find efficient, strategyproof and budget balanced mechanisms?",
+    "design_relevant": false
+   },
+   {
+    "q": "How can extremism prevail?",
+    "design_relevant": false
+   },
+   {
+    "q": "The question we are interested is that if such social dynamics continually take place, can any consensus be reached or polarity evolve after a long time?",
+    "design_relevant": false
+   },
+   {
+    "q": "What are then the emerging new areas of econophysics that can shake up conventional economists?",
+    "design_relevant": false
+   },
+   {
+    "q": "Sinha S (2010) Are large complex economic systems unstable?",
+    "design_relevant": false
+   }
+  ],
+  "HARRIS_TE": [
+   {
+    "q": "Who Are the Players?",
+    "design_relevant": false
+   },
+   {
+    "q": "What Are Orders, and Why Do People Use Them?",
+    "design_relevant": false
+   },
+   {
+    "q": "Throughout the world, people actively debate the following questions: • Should regulators consolidate all orders into a central limit order book?",
+    "design_relevant": false
+   },
+   {
+    "q": "Should markets use quote-driven or order-driven systems?",
+    "design_relevant": false
+   },
+   {
+    "q": "Should regulators allow internalization and preferencing?",
+    "design_relevant": false
+   },
+   {
+    "q": "Should regulators impose price limits or trading halts on trading?",
+    "design_relevant": false
+   },
+   {
+    "q": "Should trading use floor-based or screen-based systems?",
+    "design_relevant": false
+   },
+   {
+    "q": "Should dealers yield to their customers?",
+    "design_relevant": false
+   },
+   {
+    "q": "Should regulators require that markets be linked electronically?",
+    "design_relevant": false
+   },
+   {
+    "q": "How fast should those links be?",
+    "design_relevant": false
+   },
+   {
+    "q": "What trading hours should markets adopt?",
+    "design_relevant": false
+   },
+   {
+    "q": "Who should be able to see the limit order book?",
+    "design_relevant": false
+   },
+   {
+    "q": "Who owns market data?",
+    "design_relevant": false
+   },
+   {
+    "q": "What securities and contracts should regulators allow exchanges to trade?",
+    "design_relevant": false
+   },
+   {
+    "q": "Do Economists Disagree Much?",
+    "design_relevant": false
+   },
+   {
+    "q": "They foolishly ask themselves, \"Why else would the market have gone up?",
+    "design_relevant": false
+   },
+   {
+    "q": "Should Fred search more?",
+    "design_relevant": false
+   },
+   {
+    "q": "Where Is the Market for AOL?",
+    "design_relevant": false
+   },
+   {
+    "q": "What Would You Think?",
+    "design_relevant": false
+   },
+   {
+    "q": "What really happened?",
+    "design_relevant": false
+   },
+   {
+    "q": "The Futures Game: Who Wins?",
+    "design_relevant": false
+   },
+   {
+    "q": "Madhavan, Ananth, David Porter, and Daniel Weaver, 2000, Should Securities Markets Be Transparent?",
+    "design_relevant": false
+   }
+  ],
+  "HASBROUCK_EMM": [
+   {
+    "q": "The Questions Here is a partial list of significant outstanding questions in market microstructure: • What are optimal trading strategies for typical trading problems?",
+    "design_relevant": false
+   },
+   {
+    "q": "Exactly how is information impounded in prices?",
+    "design_relevant": false
+   },
+   {
+    "q": "How do we enhance the information aggregation process?",
+    "design_relevant": false
+   },
+   {
+    "q": "How do we avoid market failures?",
+    "design_relevant": false
+   },
+   {
+    "q": "What sort of trading arrangements maximize efficiency?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the trade-off between “fairness” and efficiency?",
+    "design_relevant": false
+   },
+   {
+    "q": "How is market structure related to the valuation of securities?",
+    "design_relevant": false
+   },
+   {
+    "q": "What can market/trading data tell us about the informational environment of the firm?",
+    "design_relevant": false
+   },
+   {
+    "q": "What can market/trading data tell us about long-term risk?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why bid early and give competitors a lengthy interval in which to contemplate their next moves?",
+    "design_relevant": false
+   },
+   {
+    "q": "So do we gain or not?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can safely we ignore this evidence?",
+    "design_relevant": false
+   },
+   {
+    "q": "After all, why should one be concerned about convergence failures in infinite samples?",
+    "design_relevant": false
+   },
+   {
+    "q": "If we believe that the {/Delta1 pt} are generated by the Roll model (a structural economic model), can we assert that a corresponding moving average model (a statistical model) exists?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is the existence of an MA(1) representation an important issue?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why can’t we simply limit the analysis to the structural model, and avoid questions of alternative representations?",
+    "design_relevant": false
+   },
+   {
+    "q": "How does ft evolve?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can we assert that ft = mt, that is, have we identified the true implicit efficient price?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why do broker b’s customers include more sheep and fewer wolves?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why can’t other brokers attract a similar customer base?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does this create a manipulation opportunity?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can he reverse his trade at a profit?",
+    "design_relevant": false
+   },
+   {
+    "q": "What sort of agent might have the information required to behave in this fashion?",
+    "design_relevant": false
+   },
+   {
+    "q": "How much of the private information is impounded in the price?",
+    "design_relevant": false
+   },
+   {
+    "q": "What happens in the Kyle model as we increase the number of auctions, ultimately converging to continuous trading?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does a similar result hold here?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is autocorrelation a consequence of the informed trader’s strategic behavior?",
+    "design_relevant": false
+   },
+   {
+    "q": "The Pricing Error: How Closely Does pt Track mt?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is it reasonable, then, to simply assert that ft is the efficient price?",
+    "design_relevant": false
+   },
+   {
+    "q": "What are the autocovariances of /Delta1 pt?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is its moving average representation?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the random-walk standard deviation per five-minute interval?",
+    "design_relevant": false
+   },
+   {
+    "q": "Assuming a six-hour trading day, what is the implied random- walk standard deviation over the day?",
+    "design_relevant": false
+   },
+   {
+    "q": "But if a random walk is rejected (and in microstructure data, it usually is), how should A GENERALIZED ROLL MODEL 75 we proceed?",
+    "design_relevant": false
+   },
+   {
+    "q": "We can still set εq,t according to our contemplated trade ( εq,t =+ 1), but how should we set ε/Delta1 p,t?",
+    "design_relevant": false
+   },
+   {
+    "q": "What if xt represents an information set that is in some respects finer than the true public information collection?",
+    "design_relevant": false
+   },
+   {
+    "q": "Event Time or Wall-Clock Time?",
+    "design_relevant": false
+   },
+   {
+    "q": "Trade Prices or Quote Midpoints?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does the model “get it right?",
+    "design_relevant": false
+   },
+   {
+    "q": "If the specification is to be estimated in wall-clock time, what interval should be used?",
+    "design_relevant": false
+   },
+   {
+    "q": "In particular, if It is covariance stationary, what does that imply about qt?",
+    "design_relevant": false
+   },
+   {
+    "q": "Stationarity In the first place, how do we decide whether a time series is a random walk or covariance stationary?",
+    "design_relevant": false
+   },
+   {
+    "q": "A somewhat better question is, how do we know if a time series contains a random-walk component?",
+    "design_relevant": false
+   },
+   {
+    "q": "For reasons that will shortly become clear, it’s more precise to ask, “Does the process contain a unit root?",
+    "design_relevant": false
+   },
+   {
+    "q": "To be on the safe side, shouldn’t we take the first difference anyway?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is the dealer raising the quotes on account of the possibility that the purchaser is informed?",
+    "design_relevant": false
+   },
+   {
+    "q": "If inventory management is not effected with publicly posted bid and offer quotes, though, how is it accomplished?",
+    "design_relevant": false
+   },
+   {
+    "q": "What are the underlying determinants of execution uncertainty?",
+    "design_relevant": false
+   },
+   {
+    "q": "At what point will the customer switch from a limit to a market order?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does the set of limit order market events have a natural ordering?",
+    "design_relevant": false
+   },
+   {
+    "q": "The Implementation Cost for Liquidity Suppliers Is implementation cost a useful criterion for liquidity suppliers?",
+    "design_relevant": false
+   },
+   {
+    "q": "It is in a sense the answer to the question, “How well did we do relative to the rep- resentative buyer or seller?",
+    "design_relevant": false
+   },
+   {
+    "q": "Assuming that for consistency with π 0 we use the BAM, how far into the future should we go, subsequent to commencement of the order strategy?",
+    "design_relevant": false
+   },
+   {
+    "q": "Should we use a market or limit order?",
+    "design_relevant": false
+   },
+   {
+    "q": "If a limit order, at what price?",
+    "design_relevant": false
+   },
+   {
+    "q": "Here, it might be thought that self-interest of sellers would ensure price priority: Why would anyone sell at 100 when they could sell at 101?",
+    "design_relevant": false
+   },
+   {
+    "q": "Warner, 1993, Stealth trading and volatil- ity: Which trades move prices?",
+    "design_relevant": false
+   },
+   {
+    "q": "Do competing specialists and preferenc- ing dealers affect market quality?",
+    "design_relevant": true
+   },
+   {
+    "q": "Third market broker-dealers: Cost competitors or cream skimmers?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does an electronic stock exchange need an upstairs market?",
+    "design_relevant": false
+   },
+   {
+    "q": "Schultz, 1994, Why did NASDAQ market makers stop avoiding odd-eighth quotes?",
+    "design_relevant": false
+   },
+   {
+    "q": "Schultz, 1994, Why do NASDAQ market makers avoid odd-eighth quotes?",
+    "design_relevant": false
+   },
+   {
+    "q": "Easley, David, Soeren Hvidkjaer, and Maureen O’Hara, 2002, Is infor- mation risk a determinant of asset returns?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is the electronic open limit order book inevitable?",
+    "design_relevant": false
+   },
+   {
+    "q": "Madhavan, Ananth, Matthew Richardson, and Mark Roomans, 1997, Why do security prices change?",
+    "design_relevant": false
+   },
+   {
+    "q": "Werner, 1998, Does risk-sharing motivate interdealer trading?",
+    "design_relevant": false
+   },
+   {
+    "q": "Information asymmetry about the firm and the permanent price impact of trades: Is there a connection?",
+    "design_relevant": false
+   }
+  ],
+  "HERNAN_ROBINS_WHATIF": [
+   {
+    "q": "Counterfactuals or sufficient-component causes?",
+    "design_relevant": false
+   },
+   {
+    "q": "Causal diagrams without mismeasured variables?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does it matter that many proposed diagrams include noncausal arrows?",
+    "design_relevant": false
+   },
+   {
+    "q": "II Causal inference with models 151 11 Why model?",
+    "design_relevant": false
+   },
+   {
+    "q": "IP weighting or standardization?",
+    "design_relevant": false
+   },
+   {
+    "q": "How seriously do we take our estimates?",
+    "design_relevant": false
+   },
+   {
+    "q": "That is, inferences about causation are concerned with what if questions in counterfac- tual worlds, such as “what would be the risk if everybody had been treated?",
+    "design_relevant": false
+   },
+   {
+    "q": "Chapter 2 RANDOMIZED EXPERIMENTS Does your looking up at the sky make other pedestrians look up too?",
+    "design_relevant": false
+   },
+   {
+    "q": "A Y Y 0 Y 1 Rheia 0 0 0 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "How does this reversal of treatment status affect our conclusions?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can we then conclude that our study is not a randomized experiment?",
+    "design_relevant": false
+   },
+   {
+    "q": "Did we win the prize for the worst acronym ever?",
+    "design_relevant": false
+   },
+   {
+    "q": "How many deaths would have occurred had the 8 individuals with L = 0 remained untreated?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why not finish this book here?",
+    "design_relevant": false
+   },
+   {
+    "q": "Randomized experiments Chapter 3 OBSERVATIONAL STUDIES Consider again the causal question “does one’s looking up at the sky make other pedestrians look up too?",
+    "design_relevant": false
+   },
+   {
+    "q": "How can they check that the distribution of smoking is equal in the treated and the untreated if they have not collected data on smoking?",
+    "design_relevant": false
+   },
+   {
+    "q": "What about all the other unmeasured outcome predictors U that may also be differentially distributed between the treated and the un- treated?",
+    "design_relevant": false
+   },
+   {
+    "q": "A key question is then, “How do we know that the counterfactuals are well defined?",
+    "design_relevant": false
+   },
+   {
+    "q": "Which begs the question “How do we know that an intervention is sufficiently well-defined for our purposes?",
+    "design_relevant": false
+   },
+   {
+    "q": "Or, equivalently “How do we know that no meaningful vagueness remains?",
+    "design_relevant": false
+   },
+   {
+    "q": "We now address the question “What fraction of the cases was attributable to consuming ambrosia?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can the target trial framework be used in this setting?",
+    "design_relevant": false
+   },
+   {
+    "q": "The effect of assignment Z (the so-called intention-to-treat effect) is well-defined because Z is an intervention, but what about the effect of A which is not an intervention?",
+    "design_relevant": false
+   },
+   {
+    "q": "Consider again the causal question “does one’s looking up at the sky make other pedestrians look up too?",
+    "design_relevant": false
+   },
+   {
+    "q": "We now consider two new causal questions: What is the average causal effect of A on Y in women?",
+    "design_relevant": false
+   },
+   {
+    "q": "How does the unavailability of the counter- factual outcomes affect the use of stratification to detect effect modification?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can we “transport” the effect from the study population to the target population?",
+    "design_relevant": false
+   },
+   {
+    "q": "Chapter 5 INTERACTION Consider again a randomized experiment to answer the causal question “does one’s looking up at the sky make other pedestrians look up too?",
+    "design_relevant": false
+   },
+   {
+    "q": "We can now ask questions like: what is the causal effect of your looking up if you are dressed?",
+    "design_relevant": false
+   },
+   {
+    "q": "And if you are naked?",
+    "design_relevant": false
+   },
+   {
+    "q": "What would have occurred if a particular factor were intervened upon and thus set to a different level than it in fact was?",
+    "design_relevant": false
+   },
+   {
+    "q": "The counterfactual approach addresses the question “what happens?",
+    "design_relevant": false
+   },
+   {
+    "q": "The sufficient-component-cause approach addresses the question “how does it hap- pen?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does this mean that a joint intervention on A and E could prevent 125% (75% + 50%) of the cases?",
+    "design_relevant": false
+   },
+   {
+    "q": "But then why is the sum of excess fractions for two single treatments greater than 100%?",
+    "design_relevant": false
+   },
+   {
+    "q": "That is, we know that Pr[ Ya=1 = 1] = Pr[Ya=0 = 1] but is it also true that Pr[Y = 1|A = 1] = Pr[Y = 1|A = 0]?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is he more or less likely to become a cigarette smoker ( Y = 1) than the average person?",
+    "design_relevant": false
+   },
+   {
+    "q": "Once a third variable is introduced in the causal diagram we can ask a new question: is there an association between A andY within levels of (conditional on) B?",
+    "design_relevant": false
+   },
+   {
+    "q": "Or, equivalently: when we already have information on B, does infor- mation about A improve our ability to predict Y ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why the discrepancy?",
+    "design_relevant": false
+   },
+   {
+    "q": "How about going in the opposite direction?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can we learn the causal structure by conducting data analyses without making assumptions about the causal structure?",
+    "design_relevant": false
+   },
+   {
+    "q": "A onY within levels of V ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Chapter 7 CONFOUNDING Suppose an investigator conducted an observational study to answer the causal question “does one’s looking up to the sky make other pedestrians look up too?",
+    "design_relevant": false
+   },
+   {
+    "q": "Thus it was unclear what was making the second pedestrian look up, the first pedestrian’s looking up or the thunderous noise?",
+    "design_relevant": false
+   },
+   {
+    "q": "In practice, if we believe confounding is likely, a key question arises: can we determine whether there exists a set of measured covariates L for which conditional exchangeability holds?",
+    "design_relevant": false
+   },
+   {
+    "q": "How does the causal DAG allow us to determine whether there exists a set of variables L for which conditional exchangeability holds?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does conditional exchangeability imply the backdoor criterion ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Should we adjust for the variable L?",
+    "design_relevant": false
+   },
+   {
+    "q": "Confounding Chapter 8 SELECTION BIAS Suppose an investigator conducted a randomized experiment to answer the causal question “does one’s looking up to the sky make other pedestrians look up too?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does this association reflect a causal effect?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why then are we talking about confounding for the causal effect ofC?",
+    "design_relevant": false
+   },
+   {
+    "q": "MEASUREMENT BIAS AND “NONCAUSAL” DIAGRAMS Suppose an investigator conducted a randomized experiment to answer the causal question “does one’s looking up to the sky make other pedestrians look up too?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does this weak association reflect a weak causal effect?",
+    "design_relevant": false
+   },
+   {
+    "q": "This statement needs a better explanation because, if we truly knew how to intervene on L to study its effect on A, then what would prevent us from using the same intervention to study its effect on Y ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Chapter 10 RANDOM VARIABILITY Suppose an investigator conducted a randomized experiment to answer the causal question “does one’s looking up to the sky make other pedestrians look up too?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why should we care about what would have happened in other samples that we did not see?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why then has the myth of the super-population endured?",
+    "design_relevant": false
+   },
+   {
+    "q": "Should they retract their article and correct the results?",
+    "design_relevant": false
+   },
+   {
+    "q": "Should they still retract their article and correct the results?",
+    "design_relevant": false
+   },
+   {
+    "q": "His argument goes as follows: “Okay, randomization went wrong for smoking, but why should we privilege the adjusted over the unadjusted estimator?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why should the various L-A associations in other hypothetical studies affect what I do in my study?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can the curse of dimensionality be reversed?",
+    "design_relevant": false
+   },
+   {
+    "q": "What should the investigators do?",
+    "design_relevant": false
+   },
+   {
+    "q": "Part II Causal inference with models Chapter 11 WHY MODEL?",
+    "design_relevant": false
+   },
+   {
+    "q": "This creates a problem: how can we estimate the mean of the outcome Y among individuals with treatment level A = 90 in the target population?",
+    "design_relevant": false
+   },
+   {
+    "q": "So what is a model?",
+    "design_relevant": false
+   },
+   {
+    "q": "A parametric conditional mean model 156 Why model?",
+    "design_relevant": false
+   },
+   {
+    "q": "Which one is better?",
+    "design_relevant": false
+   },
+   {
+    "q": "However, when the estimatebE[Y|A = 90] based on the 2-parameter model is biased, the standard (nominal) 95% confidence interval 160 Why model?",
+    "design_relevant": false
+   },
+   {
+    "q": "Chapter 12 IP WEIGHTING AND MARGINAL STRUCTURAL MODELS Part II is organized around the causal question “what is the average causal effect of smoking cessation on body weight gain?",
+    "design_relevant": false
+   },
+   {
+    "q": "To estimate the effect of smoking cessation on weight gain we will use real data from the NHEFS, an acronym that stands for (ready for a long name?",
+    "design_relevant": false
+   },
+   {
+    "q": "If nonstabilized and stabilized IP weights result in the same estimate, why use stabilized IP weights then?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why are we then bothering to estimate the standardized mean in this chap- ter if we had already estimated the IP weighted mean in the previous chapter?",
+    "design_relevant": false
+   },
+   {
+    "q": "How about a method that requires a correct model for either treatment A or outcome Y ?",
+    "design_relevant": false
+   },
+   {
+    "q": "If there is conditional exchangeability and the model is correctly specified, what estimate would you expect for the parameter α1?",
+    "design_relevant": false
+   },
+   {
+    "q": "He challenges you: “Can you identify the true value ψ1 among the 3 possible valuesψ†?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can you think of a way to choose the right H(ψ†)?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why didn’t we start with the simpler and widely used methods based on outcome regression and propensity scores?",
+    "design_relevant": false
+   },
+   {
+    "q": "One surely would not want to have biased estimates because of violations of positivity, right?",
+    "design_relevant": false
+   },
+   {
+    "q": "Who are these people?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can we now see the magic of IV estimation in action?",
+    "design_relevant": false
+   },
+   {
+    "q": "How can subject-matter experts provide arguments in support of a constant average causal effect within levels of the proposed instrument Z and the treatment A in any particular study?",
+    "design_relevant": false
+   },
+   {
+    "q": "What if treatment is not as beneficial in always-takers and never-takers, the majority of the population?",
+    "design_relevant": false
+   },
+   {
+    "q": "Are there any reasons to adjust for only a subset of X rather than simply adjust for all available variablesX?",
+    "design_relevant": false
+   },
+   {
+    "q": "Given that we always work with datasets in which some potential confounders are not recorded, how should we in- terpret confidence intervals in any observational analysis?",
+    "design_relevant": false
+   },
+   {
+    "q": "But the question “Are the measured covariates sufficient to ensure sequen- tial exchangeability?",
+    "design_relevant": false
+   },
+   {
+    "q": "What if we now treat the joint treatment ( A0,A 1) as a time-varying treatment and compare two treatment strategies?",
+    "design_relevant": false
+   },
+   {
+    "q": "But is this what we conclude from the data if we use conventional analytic methods?",
+    "design_relevant": false
+   },
+   {
+    "q": "How is it possible that the analysis adjusted for the confounder also gives a wrong answer?",
+    "design_relevant": false
+   },
+   {
+    "q": "But what about other traditional methods?",
+    "design_relevant": false
+   },
+   {
+    "q": "Would outcome regression succeed where plain stratification failed?",
+    "design_relevant": false
+   },
+   {
+    "q": "An interesting math question is then: can the big g-formula be reduced to a functional of the joint distribution of the observed data \u0000 A,L,Y \u0001 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "A,L,Y \u0001 , while making no assumptions other than the joint distribution of\u0000 A,L,Y,U \u0001 obeys the d-separation relations implied by the causal DAG?",
+    "design_relevant": false
+   },
+   {
+    "q": "Sec- ond, when the answer to the previous question is yes, can we explicitly display such an identifying formula?",
+    "design_relevant": false
+   },
+   {
+    "q": "If a woman meets these eligibility criteria continuously between age 51 and 65, when should her follow-up start?",
+    "design_relevant": true
+   },
+   {
+    "q": "Which strategy should we assign them to?",
+    "design_relevant": false
+   },
+   {
+    "q": "Had some of them died during those 2 months, to which strategy should we have assigned those deaths?",
+    "design_relevant": false
+   },
+   {
+    "q": "How do the data of randomized experiments and observational studies differ?",
+    "design_relevant": false
+   },
+   {
+    "q": "How can the observational and the randomized trial data be reconciled?",
+    "design_relevant": false
+   },
+   {
+    "q": "How would different people react?",
+    "design_relevant": false
+   },
+   {
+    "q": "E h Yn′=0,o′=1 i would equal E h Ya=1,M a=0 i and both would equal the mediation formula?",
+    "design_relevant": false
+   },
+   {
+    "q": "How should we interpret this observation?",
+    "design_relevant": false
+   },
+   {
+    "q": "Synergism and interaction: are they equivalent?",
+    "design_relevant": false
+   },
+   {
+    "q": "When to start treatment?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does nondifferential misclas- sification of exposure always bias a true effect toward the null value?",
+    "design_relevant": false
+   },
+   {
+    "q": "Causal inference in public health research-Do sex, race, and biologi- cal factors cause health outcomes?",
+    "design_relevant": false
+   },
+   {
+    "q": "The number needed to treat: a useful clinical measure or a case of the Emperor’s new clothes?",
+    "design_relevant": false
+   },
+   {
+    "q": "The target trial framework for causal inference from observational data: Why and when is it helpful?",
+    "design_relevant": false
+   },
+   {
+    "q": "Instruments for causal inference: An epi- demiologist’s dream?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does obesity shorten life?",
+    "design_relevant": false
+   },
+   {
+    "q": "Estimating the effect of bariatric surgery on cardiovascular events using observational data?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does more intensive treat- ment of acute myocardial infarction in the elderly reduce mortality?",
+    "design_relevant": false
+   },
+   {
+    "q": "Or is it the soda?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is to be done?",
+    "design_relevant": false
+   },
+   {
+    "q": "What do randomized studies of housing mobility demon- strate?",
+    "design_relevant": false
+   },
+   {
+    "q": "When will nondifferen- tial misclassification of an exposure preserve the direction of a trend?",
+    "design_relevant": false
+   }
+  ],
+  "HONORE_1993": [
+   {
+    "q": "Borjas (1980): “Does Unemployment Cause Future Unemployment?",
+    "design_relevant": false
+   }
+  ],
+  "KISSELL_SATPM": [
+   {
+    "q": "What Should Regulators Do to Safeguard Investors from Potential Future Flash Crashes?",
+    "design_relevant": false
+   },
+   {
+    "q": "What Are Transaction Costs?",
+    "design_relevant": false
+   },
+   {
+    "q": "What Is Best Execution?",
+    "design_relevant": false
+   },
+   {
+    "q": "What Is the Goal of Implementation?",
+    "design_relevant": false
+   },
+   {
+    "q": "How Often Should We Re-Optimize Our Tactics?",
+    "design_relevant": false
+   },
+   {
+    "q": "How Often Should We Re-Optimize?",
+    "design_relevant": false
+   },
+   {
+    "q": "When To Use These Values?",
+    "design_relevant": false
+   },
+   {
+    "q": "Are the Existing Models Useful Enough for Portfolio Construction?",
+    "design_relevant": false
+   },
+   {
+    "q": "How Expensive Is It To Trade?",
+    "design_relevant": false
+   },
+   {
+    "q": "Contents Preface If we knew what it was we were doing, it would not be called research, would it?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is behind this difference?",
+    "design_relevant": false
+   },
+   {
+    "q": "How exactly has market microstructure research evolved over time?",
+    "design_relevant": false
+   },
+   {
+    "q": "How could we value a company using a dis- counted dividend model if it had never paid out any dividends?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why would investors pay to provide liquidity when they could enter liquidity on another venue and receive a rebate for this service?",
+    "design_relevant": false
+   },
+   {
+    "q": "CHAPTER 2 Market Microstructure Do Stocks Trade Differently Across the Exchanges and Venues?",
+    "design_relevant": false
+   },
+   {
+    "q": "But what really was that perfect storm?",
+    "design_relevant": false
+   },
+   {
+    "q": "CHAPTER 3 Algorithmic Transaction Cost Analysis What Is the Goal of Implementation?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the index volume weighted price over a period?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can we conclude that A is better than B?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can we now conclude that A is better than B?",
+    "design_relevant": false
+   },
+   {
+    "q": "Finally, what if A has a lower average cost and also a lower standard deviation?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can we finally conclude that A is better than B?",
+    "design_relevant": false
+   },
+   {
+    "q": "Sort the data based on the absolute values of differences D1jj ; D2jj ; ?",
+    "design_relevant": false
+   },
+   {
+    "q": "First, can brokers still add value to the trading process?",
+    "design_relevant": false
+   },
+   {
+    "q": "Second, is there any need for third party post-trade services?",
+    "design_relevant": false
+   },
+   {
+    "q": "After shares transact, we face some uncertainty—what happens next?",
+    "design_relevant": false
+   },
+   {
+    "q": "But will the supply curve remain at S 0 or will it return to S?",
+    "design_relevant": false
+   },
+   {
+    "q": "Will equilibrium quantity return to its original pre-incremental investor level q new 5 q* or will equilibrium quantity decrease q new , q* due to higher market prices?",
+    "design_relevant": false
+   },
+   {
+    "q": "The question remains: Does excess market volume lead to more or less volume going forward?",
+    "design_relevant": false
+   },
+   {
+    "q": "But how long exactly does it take for the price to move from the higher levels to the new equilibrium levels?",
+    "design_relevant": true
+   },
+   {
+    "q": "P3 5 P0 1 fx 3ðÞ 1 fx 2ðÞ /C1 e2γ/C1 1 1 fx 1ðÞ /C1 e2γ/C1 2 Following, the price of the kth trade Pk is: Pk 5 P0 1 fx kðÞ 1 fx k21ðÞ /C1 e2γ/C1 1 1 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "C0/C1 /C1 e2γ/C1 j 1 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Where did this 1/2 or square root belief come from?",
+    "design_relevant": false
+   },
+   {
+    "q": "Since the parameters a1; a2; a3; b1 are estimated across a data set of stocks and are identical for all stocks, how do we differentiate trading cost across different stocks and the same order size?",
+    "design_relevant": false
+   },
+   {
+    "q": "A natural question is why do we not estimate these parameters at the stock level?",
+    "design_relevant": false
+   },
+   {
+    "q": "Comparison of Approaches How do the Almgren & Chriss and I-Star models compare?",
+    "design_relevant": false
+   },
+   {
+    "q": "Conclusions and Communication Step 1: Ask a Question A second grader may ask “Will my plant grow better using a white light bulb or a yellow light bulb?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the best mone- tary policy to stimulate GDP and hold back inflation in a new electronic economy with no country borders and minimal barriers to entry?",
+    "design_relevant": false
+   },
+   {
+    "q": "A Wall Street quant may simply ask “How much will my order move the market?",
+    "design_relevant": false
+   },
+   {
+    "q": "Quite simply, does the model work?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does it require modification or should it be thrown out?",
+    "design_relevant": false
+   },
+   {
+    "q": "SOLUTION TECHNIQUE The Question How much will my order cost me to trade?",
+    "design_relevant": false
+   },
+   {
+    "q": "In other words, how much premium is required to attract additional sell- ers so I can complete my order; how much do I need to discount my price to attract additional buyers so I can complete my order?",
+    "design_relevant": false
+   },
+   {
+    "q": "This is: r 5 1 n X rk ð6:4Þ The average can also be computed directly from the starting and ending price as follows: r 5 1 n /C1 ln pt p0 /C18/C19 ð6:5Þ How do percentage returns and log returns differ?",
+    "design_relevant": false
+   },
+   {
+    "q": "The HMA-VIX volatility model was presented at Curt Engler’s CQA/SQA Trading Seminar (February 2009), “Volatility: Is it safe to get back in the water?",
+    "design_relevant": false
+   },
+   {
+    "q": "How can stocks that move in the same direction have a negative covariance term?",
+    "design_relevant": false
+   },
+   {
+    "q": "A factor model has the form: rt 5 α0 1 f1t b1 1 f2t b2 1 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Matrix Notation In matrix notation our single stock factor model is: ri 5 αi 1 Fbi 1 ei ð6:33Þwhere, ri 5 ri1 ri2 ^ rin 2 664 3 775; αi 5 αi1 αi2 ^ αin 2 664 3 775; F 5 f11 f21 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Estimating Covariance Using a Factor Model A factor model across a universe of stocks can be written as: R 5 α 1 Fβ 1 ε ð6:35Þ where, R 5 r11 r21 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "F 2 FÞε 1 ε0ε/C138 5 β0E½ðF2FÞ2/C138 β 1 2β0E½ðF 2 FÞε/C138 1 E½ε0ε/C138 225Factor Models By property (4): E½2β0ðF 2 FÞε/C138 5 0 By property (2) and property (7) we have, E½ε0ε/C138 5 σ2 e1 0 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "By property (3) and property (5) the factor covariance matrix is: E½ðF2FÞ2/C138 5 σ2 f 1 0 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "A k-factor macroeconomic model has the form: ri 5 αi0 1 ^bi1f1 1 ^bi2f2 1 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Otherwise why would they be used?",
+    "design_relevant": false
+   },
+   {
+    "q": "The cross-sectional model is written as: rit 5 x/C3 i1 ^f 1t 1 x/C3 i2 ^f 2t 1 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "These matrices are as follows: D 5 λ1 0 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "How many factors should be selected?",
+    "design_relevant": false
+   },
+   {
+    "q": "Although, is the process really this simple and straightforward?",
+    "design_relevant": false
+   },
+   {
+    "q": "Will the model provide accurate cost forecasts?",
+    "design_relevant": false
+   },
+   {
+    "q": "What about the volume sta- tistics— ADV and Vt ?",
+    "design_relevant": false
+   },
+   {
+    "q": "How are these variables determined?",
+    "design_relevant": false
+   },
+   {
+    "q": "What about our forecasting needs?",
+    "design_relevant": false
+   },
+   {
+    "q": "Are the volume patterns expected to be exactly the same in the future as they were in the past?",
+    "design_relevant": false
+   },
+   {
+    "q": "This is: ℜ2ð1Þ 5 R0CR ð7:28Þ The total variance over n periods is an additive function: ℜ2ðnÞ 5 R0CR|ffl{zffl} 1 1 R0CR|ffl{zffl} 2 1 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "For example, should the measure be based on 66 days, 30 days, 20 days, 10 days, or 5 days of data?",
+    "design_relevant": false
+   },
+   {
+    "q": "Analysis Goal The goal of our daily volume forecasting analysis is to determine: G Which is better ADV or MDV?",
+    "design_relevant": false
+   },
+   {
+    "q": "G What is the appropriate number of historical days?",
+    "design_relevant": false
+   },
+   {
+    "q": "B@ 1 CA rk 5 r1k r2k ^ rmk 0 B@ 1 CA The covariance matrix C is an m 3 n matrix as follows: C 5 c11 c12 c21 c22 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "How long did it take to solve the portfolio objective problem?",
+    "design_relevant": true
+   },
+   {
+    "q": "How accurate was the solution for each optimization technique?",
+    "design_relevant": false
+   },
+   {
+    "q": "CHAPTER 9 Portfolio Algorithms How Often Should We Re-Optimize?",
+    "design_relevant": false
+   },
+   {
+    "q": "The next question that often arises is how often should we re-optimize the portfolio?",
+    "design_relevant": false
+   },
+   {
+    "q": "This is determined as follows: Let, R 5 ðr1; ?",
+    "design_relevant": false
+   },
+   {
+    "q": "M 5Pm i51 ri represents the total number of shares in the portfolio Y 5 ðy1; ?",
+    "design_relevant": false
+   },
+   {
+    "q": "R 2 Y 5 ðr1 2 y1; ?",
+    "design_relevant": false
+   },
+   {
+    "q": "C 5 one-sided covariance matrix scaled for a trading period and expressed in ($/share) 2 Next, let, Z 5 ðz1; ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Then, R 2 Y 1 Z 5 ðr1 2 y1 1 z1; ?",
+    "design_relevant": false
+   },
+   {
+    "q": "For a given number of shares S, where S 5 y1 1 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Min x Max y ðR 2 Y 1 ZÞ0CðR 2 Y 1 ZÞð 9:31Þ Subject to: 0 # zk # yk # rk for all k S 5 y1 1 y2 1 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "BBBBBBBBBBBBBB@ 1 CCCCCCCCCCCCCCA QmUðn11Þ 3 mUðn11Þ 5 ~MmUðn11Þ 3 mUðn11Þ 1 2λ/C3 U ~CmUðn11Þ 3 mUðn11Þ; where, ~M 5 M1 00 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Mm21 0 00 0 Mm 0 BBBB@ 1 CCCCA Mi 5 I0 i 2I0 i 0 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "I0 i 2I0 i 00 2I0 i I0 i 0 BBBB@ 1 CCCCA Ii 5 nUb1Ii XiVi 328 CHAPTER 9 Portfolio Algorithms ~C 5 C11 C12 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "C2m ^^ & ^ C1m C2m ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Cmm 0 BB@ 1 CCA Cij 5 σij 0 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "The equality constraint matrix ~A1 and vector ~b1 are: ~A1 5 10 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "BBBBBBBBBB@ 1 CCCCCCCCCCA ~b1 5 S1 S2 ^ Sm 0 0 ^ 0 0 BBBBBBBBBB@ 1 CCCCCCCCCCA The inequality constraint matrix ~A2 and vector ~b2 are: ~A2 5 A0 2 0 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "A0 2 2 664 3 775 Av2 0 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Av2 2 664 3 775 0 BBBBBBBBBB@ 1 CCCCCCCCCCA A0 2 5 211 0 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "BB@ 1 CCA Av2 5 1 210 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "This chapter builds on the findings from “Investing and Trading Consistency: Does VWAP Compromise the Stock Selection Process?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the appropriate optimal strategy to use?",
+    "design_relevant": false
+   },
+   {
+    "q": "Which execution strategy should the trader use?",
+    "design_relevant": false
+   },
+   {
+    "q": "But which strategy is most appropriate?",
+    "design_relevant": false
+   },
+   {
+    "q": "Since each of these strategies lie on the efficient trading frontier can they all be considered a best execution strategy?",
+    "design_relevant": false
+   },
+   {
+    "q": "But how should the trader specify the level of risk aver- sion to ensure the trading decision is consistent with the investment decision?",
+    "design_relevant": false
+   },
+   {
+    "q": "Markowitz efficient investment frontier, but after accounting for variable market impact cost and timing risk, the resulting cost-adjusted risk-return profile lies above the cost-adjusted frontier?",
+    "design_relevant": false
+   },
+   {
+    "q": "But what if the road is too bumpy or if no efficient road exists?",
+    "design_relevant": false
+   },
+   {
+    "q": "Then the total risk borne by the portfolio manager over the entire T-period horizon is: σ2 p 5 r0 1C/C3 r1 1 ?",
+    "design_relevant": true
+   },
+   {
+    "q": "C/C3 rn|fflfflfflfflfflfflfflfflfflfflfflfflfflfflfflfflffl{zfflfflfflfflfflfflfflfflfflfflfflfflfflfflfflfflffl} Trading Horizon 1 r0 n11C/C3 rn11 1 ?",
+    "design_relevant": true
+   },
+   {
+    "q": "Managers also 363Are the Existing Models Useful Enough for Portfolio Construction?",
+    "design_relevant": false
+   },
+   {
+    "q": "Managers are asked to send their portfolios or 365Are the Existing Models Useful Enough for Portfolio Construction?",
+    "design_relevant": false
+   },
+   {
+    "q": "If the vendor or broker will not provide the model to managers what are they to do?",
+    "design_relevant": false
+   },
+   {
+    "q": "For example, if volatility in the stock increased what would be its effect on cost?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the expected market impact cost for the same order with the new volatility estimate?",
+    "design_relevant": false
+   },
+   {
+    "q": "But how true is this statement?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is the underperformance really due to the transaction drag on the fund or is it due to inferior stock selection?",
+    "design_relevant": false
+   },
+   {
+    "q": "What does this have to do with trading costs?",
+    "design_relevant": false
+   },
+   {
+    "q": "So how can this be true?",
+    "design_relevant": false
+   },
+   {
+    "q": "First, why should the portfolio managers limit the order size to only 10% ADV for those stocks with very low trading costs?",
+    "design_relevant": false
+   },
+   {
+    "q": "And sec- ond, should the maximum size not be set lower for those very expen- sive to trade stocks?",
+    "design_relevant": false
+   },
+   {
+    "q": "Mathematically, this is found by solving for size in the following: 20 5 b1Uða1USizea2 Uσa3 ÞUPOVa4 1 ð1 2 b1ÞUða1USizea2 Uσa3 Þð 11:9Þ 381How Expensive Is It to Trade?",
+    "design_relevant": false
+   },
+   {
+    "q": "CHAPTER 11 Quantitative Portfolio Management Techniques Alpha capture programs provide managers with answers to many of their investment related questions: How much alpha will my investment achieve?",
+    "design_relevant": false
+   },
+   {
+    "q": "How much should I invest?",
+    "design_relevant": false
+   },
+   {
+    "q": "And most importantly, how is trans- action cost analysis being utilized to analyze profitability concerns?",
+    "design_relevant": false
+   },
+   {
+    "q": "How much alpha can a manager capture if the order size is 10% ADV?",
+    "design_relevant": false
+   },
+   {
+    "q": "How much can be invested in this stock before we begin to incur a loss?",
+    "design_relevant": false
+   },
+   {
+    "q": "How much should the manager invest in the stock?",
+    "design_relevant": false
+   },
+   {
+    "q": "How is the cost index constructed?",
+    "design_relevant": false
+   },
+   {
+    "q": "The question that often arises is, “Would it be better to construct stock specific market impact model?",
+    "design_relevant": false
+   },
+   {
+    "q": "The question that should be asked here is: what should the cost be given higher volatility, less volume, and adverse market movement?",
+    "design_relevant": false
+   },
+   {
+    "q": "CHAPTER 12 Cost Index & Multi-Asset Trading Costs How difficult is it to derive a stock specific market impact model?",
+    "design_relevant": false
+   },
+   {
+    "q": "How should the manager determine the best approach to acquire the exposure?",
+    "design_relevant": false
+   },
+   {
+    "q": "What causes these differences across investment vehicles?",
+    "design_relevant": false
+   },
+   {
+    "q": "How does this affect the ETF volumes in the market impact model?",
+    "design_relevant": false
+   },
+   {
+    "q": "How about ETF market impact price sensitivity?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why do trading costs vary across asset classes?",
+    "design_relevant": false
+   },
+   {
+    "q": "Test for unit roots: usually done using the augmented Dickey-Fuller (ADF) test of order q which is based on the regression: ΔSt 1 a 1 βSt/C0 1 1 γ1ΔSt/C0 1 1 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "The simplest measure uses the Engle-Granger regression which is an ordi- nary least squares (OLS) regression: S1 t 5 β1 1 β2S2 t 1 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "W 5 S1 2 ^β2S2 2 ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does Order Preferencing Matter?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is the nile outflow fractal?",
+    "design_relevant": false
+   },
+   {
+    "q": "Investing and trading consistency: does vwap compromise the stock selection process?",
+    "design_relevant": false
+   },
+   {
+    "q": "Do demand curves for stocks slope down?",
+    "design_relevant": false
+   },
+   {
+    "q": "What does it take to win the trading game?",
+    "design_relevant": false
+   }
+  ],
+  "LOPEZDEPRADO_MLAM": [
+   {
+    "q": "Elements in Quantitative Finance Machine Learning for Asset Managers is concerned with answering a differ- ent challenge: how can we use ML to build better financial theories?",
+    "design_relevant": false
+   },
+   {
+    "q": "Did they monitor for order flow imbalance?",
+    "design_relevant": false
+   },
+   {
+    "q": "Did market makers that monitor for order flow imbalance fare better?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can we find evidence of their earlier retreat in the FIX messages of that day?",
+    "design_relevant": false
+   },
+   {
+    "q": "How many tickets would you allow him to buy before concluding that his method is useless?",
+    "design_relevant": false
+   },
+   {
+    "q": "In Simple Terms, What Is ML?",
+    "design_relevant": false
+   },
+   {
+    "q": "How Is ML Di fferent from Econometric Regressions?",
+    "design_relevant": false
+   },
+   {
+    "q": "How Is ML Di fferent from Big Data?",
+    "design_relevant": false
+   },
+   {
+    "q": "Elements in Quantitative Finance How Is the Asset Management Industry Using ML?",
+    "design_relevant": false
+   },
+   {
+    "q": "And Quantitative Investors Speci fically?",
+    "design_relevant": false
+   },
+   {
+    "q": "What Are Some of the Ways That ML Can Be Applied to Investor Portfolios?",
+    "design_relevant": false
+   },
+   {
+    "q": "What Are the Risks?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is There Anything That Investors Should Be Aware of or Look Out For?",
+    "design_relevant": false
+   },
+   {
+    "q": "How Do You Expect ML to Impact the Asset Management Industry in the Next Decade?",
+    "design_relevant": false
+   },
+   {
+    "q": "How Do You Expect ML to Impact Financial Academia in the Next Decade?",
+    "design_relevant": false
+   },
+   {
+    "q": "Isn’t Financial ML All about Price Prediction?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why Don’t You Discuss a Wide Range of ML Algorithms?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why Don’t You Discuss a Speci fic Investment Strategy, Like Many Other Books Do?",
+    "design_relevant": false
+   },
+   {
+    "q": "Exercises 1 Can quantitative methods be used to predict events that never happened before?",
+    "design_relevant": false
+   },
+   {
+    "q": "How could quantitative methods predict a black swan?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why is theory particularly important in finance and economics?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the best use of ML in finance?",
+    "design_relevant": false
+   },
+   {
+    "q": "What are popular misconceptions about financial ML?",
+    "design_relevant": false
+   },
+   {
+    "q": "Are financial data sets large enough for ML applications?",
+    "design_relevant": false
+   },
+   {
+    "q": "How does ML control for over fitting?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is the signal-to-noise ratio too low in finance for allowing the use of ML?",
+    "design_relevant": false
+   },
+   {
+    "q": "How is ML different from a large regression?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the condition number of the correlation matrix?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the value of σ2 implied by the Marcenko –Pastur distribution?",
+    "design_relevant": false
+   },
+   {
+    "q": "How many eigenvalues are associated with random components?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is the variance of the errors signi ficantly higher or lower?",
+    "design_relevant": false
+   },
+   {
+    "q": "What happens if you drop the components whose eigenvalues fall below a given threshold?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can you still compute the ef ficient frontiers?",
+    "design_relevant": false
+   },
+   {
+    "q": "Are H½X /C138and H½Y /C138affected by ρ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Are H½X ; Y /C138, H½X jY /C138, I½X ; Y /C138, VI½X ; Y /C138, and eVI ½X ; Y /C138affected by ρ?",
+    "design_relevant": false
+   },
+   {
+    "q": "What variables are impacted by the different sample size?",
+    "design_relevant": false
+   },
+   {
+    "q": "How does this impact the results?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the main advantage of variation of information over mutual informa- tion?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can you think of a use case in finance where mutual information is more appropriate than variation of information?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can you think of a use case where those distance metrics would be preferable to the normalized variation of information?",
+    "design_relevant": false
+   },
+   {
+    "q": "NO YES Keep good (high- quality) clusters Redo instruments in bad (low-quality) clusters Return clustering from base clustering algo Return good + redone clusters New clustering higher quality?",
+    "design_relevant": false
+   },
+   {
+    "q": "Exercises 1 What is the main difference between outputs from hierarchical and partition- ing clustering algorithms?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why can ’t the output from the latter be converted into the output of the former?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is MSCI ’s GICS classi fication system an example of hierarchical or parti- tioning clustering?",
+    "design_relevant": false
+   },
+   {
+    "q": "Do you get fundamentally different results?",
+    "design_relevant": false
+   },
+   {
+    "q": "Do you recover the true number of clusters consistently?",
+    "design_relevant": false
+   },
+   {
+    "q": "Do you get better or worse results?",
+    "design_relevant": false
+   },
+   {
+    "q": "How different are the distributions in (b) relative to the distribution in (a)?",
+    "design_relevant": false
+   },
+   {
+    "q": "Do you reach a different conclusion?",
+    "design_relevant": false
+   },
+   {
+    "q": "How do results compare to the solutions from Exercises 1 and 2?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the probability that the patient truly has the condition?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is it 1 /C0 α ¼ P½x ≤ τjH0/C138(the confidence of the test)?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is it 1 /C0 β ¼ P½x > τjH1/C138(the power, or recall, of the test)?",
+    "design_relevant": false
+   },
+   {
+    "q": "Or is it P ½H1jx > τ/C138(the precision of the test)?",
+    "design_relevant": false
+   },
+   {
+    "q": "Of the above, what do p-values measure?",
+    "design_relevant": false
+   },
+   {
+    "q": "Do p-values tell us anything about the probability that the variable is relevant, given the observed evidence?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the probability that a positive-tested patient is actually sick?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why is it much lower than 1 /C0 α and 1 /C0 β?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the probability that a patient is actually sick after testing positive twice on independent tests?",
+    "design_relevant": false
+   },
+   {
+    "q": "What causes the difference, if there is one?",
+    "design_relevant": false
+   },
+   {
+    "q": "Are results materially different?",
+    "design_relevant": false
+   },
+   {
+    "q": "Are they more intuitive or easier to explain?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can you think of other ways to represent MDA outputs using probability-weighted accuracy?",
+    "design_relevant": false
+   },
+   {
+    "q": "Do you see an additional improvement in NCO’s performance?",
+    "design_relevant": false
+   },
+   {
+    "q": "D o you reach a qualitatively different conclusion?",
+    "design_relevant": false
+   },
+   {
+    "q": "How do NCO ’s results compare to Markowitz ’s as a function of the problem ’s size?",
+    "design_relevant": false
+   },
+   {
+    "q": "By how much does NCO ’s solution worsen?",
+    "design_relevant": false
+   },
+   {
+    "q": "How is it possible that, even with only two clusters (instead of ten), NCO performs signi ficantly better than Markowitz’s solution?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is this consistent with your intuition?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the overall effect of multiple testing on precision and recall?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the expected maximum Sharpe ratio?",
+    "design_relevant": false
+   },
+   {
+    "q": "After one trial, what is the probability of observing a maximum Sharpe ratio equal or higher than 2?",
+    "design_relevant": false
+   },
+   {
+    "q": "After ten trials, what is the probability of observing a maximum Sharpe ratio equal or higher than 2?",
+    "design_relevant": false
+   },
+   {
+    "q": "Williams (2002):“Modelling and Trading the Euro/US Dollar Exchange Rate: Do Neural Network Models Perform Better?",
+    "design_relevant": false
+   },
+   {
+    "q": "Laborda (2017):“Can Tree-Structured Classifiers Add V alue to the Investor?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is the Sharpe Ratio Useful in Asset Allocation?",
+    "design_relevant": false
+   },
+   {
+    "q": "Uppal (2009): “Optimal versus Naive Diversification: How Inef ficient Is the 1/N Portfolio Strategy?",
+    "design_relevant": false
+   },
+   {
+    "q": "Comparing Sharpe Ratios: So Where Are the p-V alues?",
+    "design_relevant": false
+   }
+  ],
+  "SURVIVAL_STK4080": [
+   {
+    "q": "What is the ’at risk’ indicator Yi(t) for the ith process?",
+    "design_relevant": true
+   },
+   {
+    "q": "How can you do this in R?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the interpretation of this quantity?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the connection with the quantity calculated in question (a)?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is there a significant difference between the discharge times for patients without and with pneumonia at admission?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the practical interpretation of this number in the current situation?",
+    "design_relevant": false
+   },
+   {
+    "q": "How does the conclusion of the logrank test fit with the conclusion of the corresponding problem in subpoint d)?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the transformation of x?",
+    "design_relevant": false
+   },
+   {
+    "q": "Assume that the true hazard rate is α(t|x) =eβ log(t)x =tβx a) Is the given model a proportional hazards model?",
+    "design_relevant": false
+   },
+   {
+    "q": "For which value of t is E(Z|T =t) = 1?",
+    "design_relevant": false
+   },
+   {
+    "q": "Martingale residuals for yearelect: plot(yearelect,martres) lines(lowess(yearelect,martres)) The plot for yeareelct looks fine, but there may be a slight problem with ageelect (?",
+    "design_relevant": true
+   },
+   {
+    "q": "Proof: Let X ∗ n = n∑ k=1 [E (Xk|Fk−1)− Xk−1] = sum of predictions for next state Mn = n∑ k=1 [Xk− E (Xk|Fk−1)] = sum of innovations The process X ∗ n is predictable since each term is in Fn−1 (why?",
+    "design_relevant": true
+   },
+   {
+    "q": "Special case of counting process martingales Suppose ˜M (n)(t) = ∫ t 0 H (n)(s)dM (n)(s) where M (n)(t) = N (n)(t)− ∫ t 0 λ(n)(s)ds Then ⟨ ˜M (n)(t) ⟩ (t) = ∫ t 0 (H (n)(s))2λ(n)(s)ds ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Times between successive failures of a machine Bo Lindqvist Slides 1: Introduction ()STK4080/9080 2021 3 / 20 WHY COLLECT AND ANALYZE LIFETIME/SURVIVAL/RELIABILITY DATA?",
+    "design_relevant": false
+   },
+   {
+    "q": "SPECTS OF SURVIVAL AND EVENT HISTORY ANALYSIS IN STATISTICS ▶ Censored data (how can we use data from individuals or units for which the event of interest has not occurred within the observation period?",
+    "design_relevant": false
+   },
+   {
+    "q": "Definition of starting time and failure time may be difficult ▶ Definition of time scale (in reliability: operation time, calendar time or number of cycles?",
+    "design_relevant": true
+   },
+   {
+    "q": "Effect of covariates (demographic, medical, environmental) ▶ What if an individual or unit dies or fails of another cause than the one we would like to study?",
+    "design_relevant": false
+   },
+   {
+    "q": "Recurrent events – what if the system can fail several times; how to analyze recurring stages of a disease?",
+    "design_relevant": true
+   },
+   {
+    "q": "COMPLETE SURVIVAL DATA: BALL BEARING FAILURE DATA Data: Millions of revolutions to fatigue failure for 23 units Question: How can we estimate the probability distribution of these data?",
+    "design_relevant": false
+   },
+   {
+    "q": "Introduction ()STK4080/9080 2021 7 / 20 HEA VILY CENSORED DATA: IC DATA (MEEKER, 1987) Questions of interest: ▶ How to estimate the distribution of the failure time when there are censored observations?",
+    "design_relevant": false
+   },
+   {
+    "q": "Probability of failure before 100 hours?",
+    "design_relevant": false
+   },
+   {
+    "q": "Failure rate by 100 hours?",
+    "design_relevant": false
+   },
+   {
+    "q": "Proportion failed after 10 5 hours?",
+    "design_relevant": false
+   },
+   {
+    "q": "Questions of interest: ▶ Does the replacement rate increase with age?",
+    "design_relevant": false
+   },
+   {
+    "q": "How many replacement valves will be needed in the future?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can valve life in these systems be modeled as a renewal process?",
+    "design_relevant": true
+   },
+   {
+    "q": "Bo Lindqvist Slides 12: Cox regression ()STK4080/9080 2021 6 / 40 Why stratified Cox-regression?",
+    "design_relevant": false
+   },
+   {
+    "q": "Bo Lindqvist Slides 12: Cox regression ()STK4080/9080 2021 10 / 40 How can the Cox-model fail?",
+    "design_relevant": false
+   },
+   {
+    "q": "Bo Lindqvist Slides 12: Cox regression ()STK4080/9080 2021 17 / 40 Should one use log(thickn) instead of thickn?",
+    "design_relevant": false
+   },
+   {
+    "q": "Parallelism seems to be OK?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the sufficient data for this analysis?",
+    "design_relevant": false
+   },
+   {
+    "q": "Thus the Zi can be expected to vary in 1 ± 2 √ ˆδ (why?",
+    "design_relevant": false
+   },
+   {
+    "q": "Or - is there a significant frailty effect?",
+    "design_relevant": true
+   },
+   {
+    "q": "Question: How can we fit a parametric lifetime model to these data?",
+    "design_relevant": false
+   },
+   {
+    "q": "BREAST CANCER DATA: KM PLOTS (Collett) Bo Lindqvist Slides 4: Intro to nonparam ()STK4080/9080 2021 13 / 19 NONPARAMETRIC ESTIMATION OF THE CUMULATIVE HAZARD A(t) Why is an estimate of A(t) useful?",
+    "design_relevant": false
+   },
+   {
+    "q": "What are the important assumptions here?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the probability of various outcomes in the future?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is this value?",
+    "design_relevant": false
+   },
+   {
+    "q": "Is {Sn} a martingale?",
+    "design_relevant": true
+   },
+   {
+    "q": "Can you find a simple transformation of Sn which is a martingale?",
+    "design_relevant": true
+   },
+   {
+    "q": "E (∆Mn|Fn−1) = 0 (3) (Hint: Why is E (Mn−1|Fn−1) = Mn−1?",
+    "design_relevant": false
+   },
+   {
+    "q": "Can you “beat the game”?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the clue here?",
+    "design_relevant": false
+   },
+   {
+    "q": "Use (a) and (b) to prove that Var(Mn) = E⟨M⟩n = E [M]n What is the intuitive essence of this result?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why doesn’t it follow from this that also [M] is the compensator of M 2?",
+    "design_relevant": true
+   },
+   {
+    "q": "ABG) Then prove that ⟨M⟩ (t) =λt What is [ M] (t)?",
+    "design_relevant": false
+   },
+   {
+    "q": "Then prove that ⟨M⟩ (t) =λt What is [M] (t)?",
+    "design_relevant": false
+   },
+   {
+    "q": "M⟩ (t) = Var(dM(t)|Ft−) = Var(dN(t)−λ(t)dt|Ft−) = Var(dN(t)|Ft−) because λ(t)dt is a ’constant’ in this variance (why?",
+    "design_relevant": false
+   },
+   {
+    "q": "M(s) 1 Y (s)dN(s) = α(s)ds + 1 Y (s)dM(s) ∫ t 0 1 Y (s)dN(s) = A(t) + ∫ t 0 1 Y (s)dM(s) This suggests the (Nelson-Aalen) estimator ˆA(t) = ∫ t 0 1 Y (s)dN(s) = ∑ Tj ≤t 1 Y (Tj) which is unbiased (?",
+    "design_relevant": true
+   },
+   {
+    "q": "Y (s)2 dN(s) = ∑ Tj ≤t 1 Y (Tj)2 WHY the (?",
+    "design_relevant": false
+   },
+   {
+    "q": "S(t) =− S′(t) S(t), A(t) = ∫ t 0 α(s)ds Also S(t) = e−A(t) (∗) Questions: ▶ How can we define α(t) and A(t) if T does not have a continuous distribution?",
+    "design_relevant": false
+   },
+   {
+    "q": "How can we in that case generalize ( ∗)?",
+    "design_relevant": false
+   },
+   {
+    "q": "Median time between first and second birth Bo Lindqvist Slides 8: Kaplan-Meier ()STK4080/9080 2021 23 / 25 Can we estimate mean survival time, E (T ), from KM?",
+    "design_relevant": true
+   },
+   {
+    "q": "E (T ) = ∫ ∞ 0 S(u)du So, can we estimate E (T ) by ˆE (T ) = ∫ ∞ 0 ˆS(u)du ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Estimated A(t) with 95% confidence limits: How can you do this in R?",
+    "design_relevant": false
+   },
+   {
+    "q": "A Bayesian Survival Analysis of a Historical Dataset: How Long Do Popes Live?",
+    "design_relevant": true
+   },
+   {
+    "q": "Is there a significant change ofyearelect as a function ofageelect?",
+    "design_relevant": false
+   },
+   {
+    "q": "What are the hazard ratios for each of the two covariates?",
+    "design_relevant": false
+   },
+   {
+    "q": "How are these interpreted?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the definition of amartingale residual in a Cox regression analysis?",
+    "design_relevant": false
+   },
+   {
+    "q": "How can they be used to check the proportional hazards assumption of Cox regression models?",
+    "design_relevant": true
+   },
+   {
+    "q": "What are the estimated median lengths of stay for the two groups of patients, < 45 and ≥ 45 years?",
+    "design_relevant": false
+   },
+   {
+    "q": "What are the corresponding estimated lower and upper quartiles?",
+    "design_relevant": false
+   },
+   {
+    "q": "How would you compute estimated restricted mean lengths of stay for the two groups when you consider the rst three weeks after admission to hospital?",
+    "design_relevant": true
+   },
+   {
+    "q": "What would you conclude from these analyses regarding the in uence of age on length of hospital stay?",
+    "design_relevant": false
+   },
+   {
+    "q": "Which covariates have a signi cant e\u001bect?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the estimated relative risk of a patient of age ≥ 45 with severe clinical grade compared to a patient of age < 45 with mild clinical grade, when the other covariates are the same for the two?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is in particular the interpretation of the Intercept plot to the left in Figure 1?",
+    "design_relevant": false
+   },
+   {
+    "q": "Looking at equation (1) and comparing to the corresponding expression for the log- rank test, how would you describe the practical di\u001berence between the two tests?",
+    "design_relevant": false
+   },
+   {
+    "q": "How are the martingales M1(t) and M2(t) de ned here?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is in general meant by the intensity of a counting process N(t)?",
+    "design_relevant": true
+   },
+   {
+    "q": "How would you next nd the maximum likelihood estimator for δ?",
+    "design_relevant": false
+   },
+   {
+    "q": "If you generate say a million such life-times, what can you say about their average ¯T ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Which preliminary conclusion can be drawn from this figure?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the estimated median survival time for the placebo patients?",
+    "design_relevant": true
+   },
+   {
+    "q": "Why can’tthe median survival timebeestimated fortheDES patients?",
+    "design_relevant": true
+   },
+   {
+    "q": "What is meant by therestricted mean survival time ?",
+    "design_relevant": true
+   },
+   {
+    "q": "To what extent does the output show a significant effect of using DES?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the estimated hazard ratio for the DES treatment?",
+    "design_relevant": false
+   },
+   {
+    "q": "How do you interpret this value in words?",
+    "design_relevant": false
+   },
+   {
+    "q": "Which of the explanatory variables have significant effect?",
+    "design_relevant": false
+   },
+   {
+    "q": "Does this output show a significant effect of using DES?",
+    "design_relevant": false
+   },
+   {
+    "q": "What are the characteristic properties of a counting processN(t)?",
+    "design_relevant": false
+   },
+   {
+    "q": "What are the main properties of the compensatorΛ(t)?",
+    "design_relevant": false
+   },
+   {
+    "q": "How can it be expressed in terms of the intensityλ(t)?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the defining property of the martingaleM(t)?",
+    "design_relevant": false
+   },
+   {
+    "q": "What are the clusters in this case?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is its distribution under the null hypothesis?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is the connection between the log-rank test and the Cox-model used in Problem 1 b) ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Y ( t ) (1) a) Under what assumptions on the functions ( t ) and Y ( t ) does (1) de ne a multiplicative intensity model ?",
+    "design_relevant": true
+   },
+   {
+    "q": "What is the compensator of N ( t ) in this case?",
+    "design_relevant": true
+   },
+   {
+    "q": "In what sense is the Nelson-Aalen estimator an approximately unbiased estimator of A ( t ) ?",
+    "design_relevant": true
+   },
+   {
+    "q": "Is the estimator unbiased?",
+    "design_relevant": true
+   },
+   {
+    "q": "How can the event f J ( t ) = 1 g be expressed by the R h ( t ) ?",
+    "design_relevant": false
+   },
+   {
+    "q": "How can you similarly characterize ^B 1 ( t ) ?",
+    "design_relevant": false
+   },
+   {
+    "q": "Why are these properties of the estimators ^B 0 ( t ) and ^B 1 ( t ) reasonable from the model description in the beginning of the Problem?",
+    "design_relevant": false
+   },
+   {
+    "q": "What is t \u0003 for these data?",
+    "design_relevant": false
+   },
+   {
+    "q": "What can you say about the di\u001berence in hazard between the Immunoperoxidase Negative and the Immunoperoxidase Positive group?",
+    "design_relevant": false
+   },
+   {
+    "q": "In the setting de ned above, what is meant by the population distribution for T ?",
+    "design_relevant": false
+   },
+   {
+    "q": "How do you interpret these results?",
+    "design_relevant": false
+   }
+  ]
+ }
+}

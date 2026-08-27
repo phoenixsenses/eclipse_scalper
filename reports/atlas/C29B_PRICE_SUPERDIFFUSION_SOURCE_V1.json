@@ -1,0 +1,41 @@
+{
+  "study": "C-T29-part2",
+  "question": "is the price's H>0.5 directional predictability or volatility clustering?",
+  "method": "randomise the SIGN of each return keeping |d| in place (vol clustering intact, direction gone); and separately shuffle |d| keeping sign(d) in place (direction intact, clustering gone)",
+  "reps": 40,
+  "per_symbol": {
+    "BTCUSDT": {
+      "observed_H": 0.6175,
+      "direction_randomised_keeps_vol_clustering": 0.4952,
+      "vol_clustering_destroyed_keeps_direction": 0.593,
+      "full_shuffle": 0.4995,
+      "sd_direction_randomised": 0.0365,
+      "excess_above_half": 0.1175,
+      "excess_surviving_direction_randomisation": -0.0048,
+      "share_of_excess_from_volatility_clustering": -0.041,
+      "share_of_excess_from_direction": 1.041
+    },
+    "ETHUSDT": {
+      "observed_H": 0.5512,
+      "direction_randomised_keeps_vol_clustering": 0.4887,
+      "vol_clustering_destroyed_keeps_direction": 0.5509,
+      "full_shuffle": 0.4983,
+      "sd_direction_randomised": 0.0376,
+      "excess_above_half": 0.0512,
+      "excess_surviving_direction_randomisation": -0.0113,
+      "share_of_excess_from_volatility_clustering": -0.22,
+      "share_of_excess_from_direction": 1.22
+    },
+    "SOLUSDT": {
+      "observed_H": 0.4911,
+      "direction_randomised_keeps_vol_clustering": 0.4974,
+      "vol_clustering_destroyed_keeps_direction": 0.5,
+      "full_shuffle": 0.4989,
+      "sd_direction_randomised": 0.0088,
+      "excess_above_half": -0.0089,
+      "excess_surviving_direction_randomisation": -0.0026,
+      "share_of_excess_from_volatility_clustering": 0.288,
+      "share_of_excess_from_direction": 0.712
+    }
+  }
+}

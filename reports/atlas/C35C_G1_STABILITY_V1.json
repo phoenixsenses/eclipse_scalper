@@ -1,0 +1,48 @@
+{
+  "study": "C-T35-part3",
+  "question": "is the G1/R(1) ratio quoted in C-T34 stable in L?",
+  "per_symbol": {
+    "BTCUSDT": {
+      "R1": 0.02425,
+      "G1_by_L": {
+        "128": 0.02893,
+        "1024": 0.02895,
+        "4096": 0.02897
+      },
+      "G1_over_R1_by_L": [
+        1.193,
+        1.194,
+        1.194
+      ],
+      "stable_within_5pct": true
+    },
+    "ETHUSDT": {
+      "R1": 0.06174,
+      "G1_by_L": {
+        "128": 0.07526,
+        "1024": 0.0753,
+        "4096": 0.07533
+      },
+      "G1_over_R1_by_L": [
+        1.219,
+        1.22,
+        1.22
+      ],
+      "stable_within_5pct": true
+    },
+    "SOLUSDT": {
+      "R1": 0.67755,
+      "G1_by_L": {
+        "128": 0.69016,
+        "1024": 0.69033,
+        "4096": 0.69034
+      },
+      "G1_over_R1_by_L": [
+        1.019,
+        1.019,
+        1.019
+      ],
+      "stable_within_5pct": true
+    }
+  }
+}

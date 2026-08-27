@@ -1,0 +1,148 @@
+{
+  "study": "C-T48",
+  "lane": "C",
+  "utc": "2026-08-27T11:06:07Z",
+  "what": "C-T43's demand census re-run through corpus_text_v1; the extractor is identical and reproduced verbatim, so the difference is the READER alone",
+  "debt_paid": "C-T46 recorded C-T43's 437 as a lower bound and did not re-run it",
+  "second_defect_fixed": "C-T43's sweep was an ad-hoc heredoc and was never saved; a census whose extractor is not on disk cannot be re-run",
+  "readers": {
+    "c_t43": "NUL-stripped, 4 ligatures, no hyphen normalisation",
+    "correct": "corpus_text_v1: 6 ligatures + hyphen/soft-hyphen"
+  },
+  "totals": {
+    "c_t43_reader": 437,
+    "correct_reader": 437,
+    "delta": 0,
+    "c_t43_recall": 1.0
+  },
+  "per_source": {
+    "AALEN_BORGAN_GJESSING": {
+      "c_t43_reader": 55,
+      "correct_reader": 55,
+      "delta": 0,
+      "unique_to_correct_reader": 0,
+      "recall_of_c_t43": 1.0
+    },
+    "ABERGEL_LOB": {
+      "c_t43_reader": 14,
+      "correct_reader": 14,
+      "delta": 0,
+      "unique_to_correct_reader": 1,
+      "recall_of_c_t43": 0.9286
+    },
+    "BOUCHAUD_TQP": {
+      "c_t43_reader": 77,
+      "correct_reader": 77,
+      "delta": 0,
+      "unique_to_correct_reader": 0,
+      "recall_of_c_t43": 1.0
+    },
+    "CARTEA_AHFT": {
+      "c_t43_reader": 30,
+      "correct_reader": 30,
+      "delta": 0,
+      "unique_to_correct_reader": 3,
+      "recall_of_c_t43": 0.9
+    },
+    "CHAN_AT": {
+      "c_t43_reader": 16,
+      "correct_reader": 16,
+      "delta": 0,
+      "unique_to_correct_reader": 0,
+      "recall_of_c_t43": 1.0
+    },
+    "ECONOPHYS_ODM": {
+      "c_t43_reader": 15,
+      "correct_reader": 15,
+      "delta": 0,
+      "unique_to_correct_reader": 0,
+      "recall_of_c_t43": 1.0
+    },
+    "HARRIS_TE": {
+      "c_t43_reader": 35,
+      "correct_reader": 35,
+      "delta": 0,
+      "unique_to_correct_reader": 0,
+      "recall_of_c_t43": 1.0
+    },
+    "HASBROUCK_EMM": {
+      "c_t43_reader": 31,
+      "correct_reader": 31,
+      "delta": 0,
+      "unique_to_correct_reader": 0,
+      "recall_of_c_t43": 1.0
+    },
+    "HERNAN_ROBINS_WHATIF": {
+      "c_t43_reader": 75,
+      "correct_reader": 75,
+      "delta": 0,
+      "unique_to_correct_reader": 2,
+      "recall_of_c_t43": 0.9733
+    },
+    "HONORE_1993": {
+      "c_t43_reader": 0,
+      "correct_reader": 0,
+      "delta": 0,
+      "unique_to_correct_reader": 0,
+      "recall_of_c_t43": null
+    },
+    "KISSELL_SATPM": {
+      "c_t43_reader": 71,
+      "correct_reader": 71,
+      "delta": 0,
+      "unique_to_correct_reader": 1,
+      "recall_of_c_t43": 0.9859
+    },
+    "LOPEZDEPRADO_MLAM": {
+      "c_t43_reader": 14,
+      "correct_reader": 14,
+      "delta": 0,
+      "unique_to_correct_reader": 0,
+      "recall_of_c_t43": 1.0
+    },
+    "SURVIVAL_STK4080": {
+      "c_t43_reader": 4,
+      "correct_reader": 4,
+      "delta": 0,
+      "unique_to_correct_reader": 0,
+      "recall_of_c_t43": 1.0
+    }
+  },
+  "examples_only_the_correct_reader_finds": [
+    {
+      "source": "ABERGEL_LOB",
+      "phrase": "it is important",
+      "passage": "Tweedie (2009) for further details. Appendices 185 Due to the topology of the state space, a Lyapunov function is often obtained under the form LV(x) \u0014 \u0000 V(x) + 1K, (Geometric drift condition), (C.35) where K is a compact set rather than a petite set. Hence, it is important to have criteria showing that compact sets are indeed petite sets. Such criteria are provided in Chapter 6 of Meyn and Tweedie (2009), and can be"
+    },
+    {
+      "source": "CARTEA_AHFT",
+      "phrase": "must be",
+      "passage": ") These messages record events that affect the limit order book (LOB), so essen tially, they capture what happens to limit orders (LOs). LOs are posted (B,S) and later on they are cancelled (C,D) or executed (E,F). So, market orders (MOs) are not recorded but must be deduced from observing how they are executed against standing LOs ( or against non-displayed/hidden orders, T). Consider the following example ( the row"
+    },
+    {
+      "source": "CARTEA_AHFT",
+      "phrase": "require that",
+      "passage": "mple SEC Release No. 34-71057 SEC (2013b), on the reporting of odd lots and changes in the definitions of \"market\" orders). There are many algorithms which are based on or linked to volume. For ex ample, some execution algorithms (see Chapters 6, 7 and 8) may require that MOs sent to the exchange do not exceed a percentage of what other market participants are trading at that point in time. In the same vein, some alg"
+    },
+    {
+      "source": "CARTEA_AHFT",
+      "phrase": "requires that",
+      "passage": "uidation rate finite. To solve this optimal control problem we use the dynamic programming prin ciple (DPP) which suggests that the value function satisfies the dynamic pro gramming equation (DPE) OtH + \u00bda2 BssH + sup {(S - k v) v - v8qH} = 0. (6.4) The agent requires that the optimal strategy liquidates all the inventory by time T, thus the value function reflects this by 'penalising' any terminal inventory which is"
+    },
+    {
+      "source": "HERNAN_ROBINS_WHATIF",
+      "phrase": "need to be estimated",
+      "passage": "however, the components of the g-formula cannot be directly computed if the data are high-dimensional, as is expected in observational stud- ies with multiple confounders or time points. The quantities E \u0002 Y| \u00afA = \u00afa, \u00afL = \u00afl \u0003 and f \u0000 lk|\u00afak\u22121, \u00aflk\u22121 \u0001 will need to be estimated. For example, we can fit a lin- ear regression model to estimate the conditional means E \u0002 Y| \u00afA = \u00afa, \u00afL = \u00afl \u0003 of the outcome variable at "
+    },
+    {
+      "source": "HERNAN_ROBINS_WHATIF",
+      "phrase": "need to be estimated",
+      "passage": "\u22121, \u00afLk \u0001 are known by design. Therefore we can use them to compute nonstabilized IP weights and the estimates of E [Y \u00afa] and E [Y \u00afa]\u2212 E h Y \u00afa\u2032 i are guaranteed to be unbiased. In contrast, in observational studies, the quantities f \u0000 Ak| \u00afAk\u22121, \u00afLk \u0001 will need to be estimated from the data. When the data are high-dimensional, we can, for example, fit a logistic regression model to estimate the condi- tional proba"
+    },
+    {
+      "source": "KISSELL_SATPM",
+      "phrase": "it is important",
+      "passage": "1 X sj /C16/C17 P0 2 Pd\u00f0\u00de |fflfflfflfflfflfflfflfflfflfflfflfflffl{zfflfflfflfflfflfflfflfflfflfflfflfflffl} Trading Related Delay Analysts may wish to include all unexecuted shares in the opportunity cost component as a full measure of missed profitability. It is important to point out that in many cases the analysts will not have the exact decision price of the manager since portfolio managers tend to keep their de"
+    }
+  ]
+}

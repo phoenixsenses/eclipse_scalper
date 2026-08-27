@@ -1,0 +1,143 @@
+{
+  "study": "C-T34",
+  "lane": "C",
+  "utc": "2026-08-27T06:17:58Z",
+  "L": 128,
+  "fit_lags": [
+    4,
+    96
+  ],
+  "recipe": "Bouchaud Eqs. (13.13)-(13.15): S measured directly, Toeplitz solve, cumulate",
+  "efficiency_condition": "G(l) ~ l^-beta with beta = (1 - gamma)/2",
+  "per_symbol": {
+    "BTCUSDT": {
+      "instrument_check": {
+        "beta_0.1": {
+          "true": 0.1,
+          "recovered": 0.0999
+        },
+        "beta_0.2": {
+          "true": 0.2,
+          "recovered": 0.2001
+        },
+        "beta_0.3": {
+          "true": 0.3,
+          "recovered": 0.3002
+        },
+        "beta_0.4": {
+          "true": 0.4,
+          "recovered": 0.4013
+        }
+      },
+      "worst_recovery_error": 0.0013,
+      "instrument_usable": true,
+      "cond_number_of_C_matrix": 98.8,
+      "G1_bare_impact_bps": 0.02893,
+      "R1_observed_impact_bps": 0.02425,
+      "G1_over_R1": 1.193,
+      "G_at_lags": {
+        "1": 0.02893,
+        "2": 0.01014,
+        "4": 0.01562,
+        "8": 0.01929,
+        "16": 0.02023,
+        "32": 0.01955,
+        "64": 0.01801,
+        "128": 0.01537
+      },
+      "beta_inverted": 0.0505,
+      "beta_boot_sd": 0.0062,
+      "beta_predicted_band_from_gamma": [
+        0.1127,
+        0.2777
+      ],
+      "inside_band": false
+    },
+    "ETHUSDT": {
+      "instrument_check": {
+        "beta_0.1": {
+          "true": 0.1,
+          "recovered": 0.0999
+        },
+        "beta_0.2": {
+          "true": 0.2,
+          "recovered": 0.199
+        },
+        "beta_0.3": {
+          "true": 0.3,
+          "recovered": 0.299
+        },
+        "beta_0.4": {
+          "true": 0.4,
+          "recovered": 0.4033
+        }
+      },
+      "worst_recovery_error": 0.0033,
+      "instrument_usable": true,
+      "cond_number_of_C_matrix": 51.3,
+      "G1_bare_impact_bps": 0.07526,
+      "R1_observed_impact_bps": 0.06174,
+      "G1_over_R1": 1.219,
+      "G_at_lags": {
+        "1": 0.07526,
+        "2": 0.02756,
+        "4": 0.03795,
+        "8": 0.04466,
+        "16": 0.04567,
+        "32": 0.04407,
+        "64": 0.04135,
+        "128": 0.03597
+      },
+      "beta_inverted": 0.0535,
+      "beta_boot_sd": 0.0049,
+      "beta_predicted_band_from_gamma": [
+        0.1054,
+        0.2043
+      ],
+      "inside_band": false
+    },
+    "SOLUSDT": {
+      "instrument_check": {
+        "beta_0.1": {
+          "true": 0.1,
+          "recovered": 0.0957
+        },
+        "beta_0.2": {
+          "true": 0.2,
+          "recovered": 0.1931
+        },
+        "beta_0.3": {
+          "true": 0.3,
+          "recovered": 0.3059
+        },
+        "beta_0.4": {
+          "true": 0.4,
+          "recovered": 0.4027
+        }
+      },
+      "worst_recovery_error": 0.0069,
+      "instrument_usable": true,
+      "cond_number_of_C_matrix": 13.7,
+      "G1_bare_impact_bps": 0.69016,
+      "R1_observed_impact_bps": 0.67755,
+      "G1_over_R1": 1.019,
+      "G_at_lags": {
+        "1": 0.69016,
+        "2": 0.09491,
+        "4": 0.11614,
+        "8": 0.12283,
+        "16": 0.11171,
+        "32": 0.08601,
+        "64": 0.05532,
+        "128": 0.0211
+      },
+      "beta_inverted": 0.4451,
+      "beta_boot_sd": 0.0202,
+      "beta_predicted_band_from_gamma": [
+        0.3918,
+        0.3954
+      ],
+      "inside_band": false
+    }
+  }
+}

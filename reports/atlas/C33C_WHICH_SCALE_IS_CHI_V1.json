@@ -1,0 +1,27 @@
+{
+  "study": "C-T33-part3",
+  "question": "the collapse chi (~0.95) is far from the sd-based chi (~0.65). With Hill(notional) < 2 the sd is not the typical scale; which dispersion measure does the collapse chi actually track?",
+  "exponent_of_each_dispersion_measure_vs_T": {
+    "BTCUSDT": {
+      "sd": 0.6046,
+      "iqr": 1.298,
+      "p5_95": 0.8276,
+      "p1_99": 0.6779,
+      "collapse_chi": 0.92
+    },
+    "ETHUSDT": {
+      "sd": 0.6476,
+      "iqr": 1.1353,
+      "p5_95": 0.7798,
+      "p1_99": 0.7551,
+      "collapse_chi": 1.06
+    },
+    "SOLUSDT": {
+      "sd": 0.566,
+      "iqr": 1.21,
+      "p5_95": 0.7383,
+      "p1_99": 0.5893,
+      "collapse_chi": 0.96
+    }
+  }
+}

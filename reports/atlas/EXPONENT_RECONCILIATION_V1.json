@@ -1,0 +1,92 @@
+{
+  "book": {
+    "kappa_minus_chi_band": [
+      0.25,
+      0.3
+    ],
+    "identity_1": "kappa - chi = beta            (Sec 13.4.3, explicit)",
+    "identity_2": "beta = (1 - gamma)/2          (Eq 13.17, the fine balance)",
+    "delta": "delta = gamma for a METAORDER      (Eq 16.16)"
+  },
+  "sources": {
+    "gamma": "C-T19 (SYSTEM_STATE 481); SOL struck as unstable 0.286 -> 0.740",
+    "kappa_minus_chi_A": "A-S30 (SYSTEM_STATE 458), trade time, T>=20, r2 0.974/0.988/0.785",
+    "kappa_minus_chi_C": "C-T21 (SYSTEM_STATE 483), market-order time, collapse grid search",
+    "zeta_A": "A-S30 section 4, OUTER-region exponent, flat over a 50x range in T",
+    "zeta_C": "C-T20 fitted the WHOLE binned range and got a rising psi(T); withdrawn by ERR-HU-012.  A's outer-region estimator is the correct one.",
+    "p": "A-S40 (SYSTEM_STATE 468), capture ratio on a holdout predictor"
+  },
+  "fine_balance_table": [
+    {
+      "symbol": "BTCUSDT",
+      "gamma_C": 0.373,
+      "beta_predicted": 0.3135,
+      "kappa_minus_chi_A": 0.255,
+      "kappa_minus_chi_C": 0.3,
+      "kappa_minus_chi_mean": 0.27749999999999997,
+      "abs_gap": 0.03600000000000003
+    },
+    {
+      "symbol": "ETHUSDT",
+      "gamma_C": 0.369,
+      "beta_predicted": 0.3155,
+      "kappa_minus_chi_A": 0.361,
+      "kappa_minus_chi_C": 0.25,
+      "kappa_minus_chi_mean": 0.3055,
+      "abs_gap": 0.010000000000000009
+    },
+    {
+      "symbol": "SOLUSDT",
+      "gamma_C": null,
+      "beta_predicted": null,
+      "kappa_minus_chi_A": 0.193,
+      "kappa_minus_chi_C": 0.1,
+      "kappa_minus_chi_mean": 0.14650000000000002,
+      "abs_gap": null
+    }
+  ],
+  "kappa_minus_chi_all_six": {
+    "min": 0.1,
+    "max": 0.361,
+    "mean": 0.24316666666666667
+  },
+  "p_table": [
+    {
+      "symbol": "BTCUSDT",
+      "p_all": -0.4085,
+      "p_long": -0.6719,
+      "implied_R_decay_a": 0.17190000000000005,
+      "beta_predicted": 0.3135
+    },
+    {
+      "symbol": "ETHUSDT",
+      "p_all": -0.4952,
+      "p_long": -0.9276,
+      "implied_R_decay_a": 0.4276,
+      "beta_predicted": 0.3155
+    },
+    {
+      "symbol": "SOLUSDT",
+      "p_all": -0.5075,
+      "p_long": null,
+      "implied_R_decay_a": null,
+      "beta_predicted": null
+    }
+  ],
+  "zeta_A_outer": {
+    "BTCUSDT": 0.416,
+    "ETHUSDT": 0.439,
+    "SOLUSDT": 0.495
+  },
+  "answer_to_charter": "p is NOT kappa - chi.  p's -1/2 comes from the diffusive denominator E|dm| ~ sqrt(h); kappa - chi is an impact-law exponent and equals beta by Sec 13.4.3.",
+  "tokens": [
+    "KAPPA_MINUS_CHI_EQUALS_BETA_BY_THE_BOOK",
+    "FINE_BALANCE_CLOSED_WITHOUT_MEASURING_G_OF_L",
+    "TWO_LANES_TWO_STATISTICS_ONE_PREDICTION",
+    "P_IS_NOT_KAPPA_MINUS_CHI",
+    "KAPPA_MINUS_CHI_CENTRE_REPLICATES_TIGHTNESS_DOES_NOT",
+    "ZETA_IS_NOT_DELTA_PAID_FOR_TWICE",
+    "DELTA_IS_NOT_MEASURABLE_ON_PUBLIC_DATA"
+  ],
+  "ceiling": "RECONCILIATION"
+}

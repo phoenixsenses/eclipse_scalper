@@ -1,0 +1,62 @@
+{
+  "study": "C-T50",
+  "lane": "C",
+  "utc": "2026-08-27T11:31:06Z",
+  "criterion": "Bouchaud sec. 4.1 (iv): trade-through market orders are 'a few percent' for small-tick stocks and 'a few per thousand' for large-tick",
+  "why": "large-tick instruments get their own chapters (6, 7) while the propagator and impact machinery this lane has fitted since C-T33 is the small-tick family",
+  "sample": "data/microstructure_02.db :: agg_trades, first 2,000,000 rows by ts_ms per symbol",
+  "thresholds_declared": "run = consecutive aggTrades with identical ts_ms and side; strict walk additionally requires monotone prices in the aggressor's direction. Both rates reported.",
+  "per_symbol": {
+    "BTCUSDT": {
+      "tick_measured": 0.09999999999126885,
+      "n_aggtrades": 2000000,
+      "n_market_order_events": 1002021,
+      "mean_aggtrades_per_event": 1.996,
+      "share_of_events_with_more_than_one_aggtrade": 0.17719,
+      "trade_through_rate_multi_price": 0.114359,
+      "trade_through_rate_strict_walk": 0.10752,
+      "strict_walk_share_of_multi_price": 0.9402,
+      "median_walk_depth_ticks": 7.0,
+      "classification_multi_price": "ABOVE the small-tick band",
+      "classification_strict_walk": "ABOVE the small-tick band",
+      "book_bands": {
+        "small_tick": "1% to 10%",
+        "large_tick": "0.1% to 1%"
+      }
+    },
+    "ETHUSDT": {
+      "tick_measured": 0.009999999999990905,
+      "n_aggtrades": 2000000,
+      "n_market_order_events": 1129418,
+      "mean_aggtrades_per_event": 1.7708,
+      "share_of_events_with_more_than_one_aggtrade": 0.20257,
+      "trade_through_rate_multi_price": 0.147625,
+      "trade_through_rate_strict_walk": 0.138145,
+      "strict_walk_share_of_multi_price": 0.9358,
+      "median_walk_depth_ticks": 3.0,
+      "classification_multi_price": "ABOVE the small-tick band",
+      "classification_strict_walk": "ABOVE the small-tick band",
+      "book_bands": {
+        "small_tick": "1% to 10%",
+        "large_tick": "0.1% to 1%"
+      }
+    },
+    "SOLUSDT": {
+      "tick_measured": 0.009999999999990905,
+      "n_aggtrades": 2000000,
+      "n_market_order_events": 1871110,
+      "mean_aggtrades_per_event": 1.0689,
+      "share_of_events_with_more_than_one_aggtrade": 0.06799,
+      "trade_through_rate_multi_price": 0.003252,
+      "trade_through_rate_strict_walk": 0.00297,
+      "strict_walk_share_of_multi_price": 0.9134,
+      "median_walk_depth_ticks": 1.0,
+      "classification_multi_price": "LARGE_TICK (a few per thousand)",
+      "classification_strict_walk": "LARGE_TICK (a few per thousand)",
+      "book_bands": {
+        "small_tick": "1% to 10%",
+        "large_tick": "0.1% to 1%"
+      }
+    }
+  }
+}

@@ -1,0 +1,184 @@
+{
+  "trigger": "A-S67: a raw recall statistic overstates loss on a polysemous term",
+  "corrects": "C-KULLIYAT-T43 recall table (SYSTEM_STATE 516)",
+  "nul_sources": [
+    "ABERGEL_LOB",
+    "HERNAN_ROBINS_WHATIF",
+    "SURVIVAL_STK4080"
+  ],
+  "terms": {
+    "refill": {
+      "true": 20,
+      "raw_grep": 0,
+      "ligature_loss": 20,
+      "nul_loss": 0,
+      "nul_by_source": {},
+      "decomposition_exact": true,
+      "pct_missed": 100.0,
+      "loss_channel": "LIGATURE_DOMINATED"
+    },
+    "fill probability": {
+      "true": 13,
+      "raw_grep": 11,
+      "ligature_loss": 2,
+      "nul_loss": 0,
+      "nul_by_source": {},
+      "decomposition_exact": true,
+      "pct_missed": 15.384615384615385,
+      "loss_channel": "LIGATURE_DOMINATED"
+    },
+    "signature plot": {
+      "true": 59,
+      "raw_grep": 45,
+      "ligature_loss": 0,
+      "nul_loss": 14,
+      "nul_by_source": {
+        "ABERGEL_LOB": 14
+      },
+      "decomposition_exact": true,
+      "pct_missed": 23.728813559322038,
+      "loss_channel": "NUL_DOMINATED"
+    },
+    "queue position": {
+      "true": 9,
+      "raw_grep": 9,
+      "ligature_loss": 0,
+      "nul_loss": 0,
+      "nul_by_source": {},
+      "decomposition_exact": true,
+      "pct_missed": 0.0,
+      "loss_channel": "NONE"
+    },
+    "open question": {
+      "true": 3,
+      "raw_grep": 3,
+      "ligature_loss": 0,
+      "nul_loss": 0,
+      "nul_by_source": {},
+      "decomposition_exact": true,
+      "pct_missed": 0.0,
+      "loss_channel": "NONE"
+    },
+    "deserves further": {
+      "true": 1,
+      "raw_grep": 1,
+      "ligature_loss": 0,
+      "nul_loss": 0,
+      "nul_by_source": {},
+      "decomposition_exact": true,
+      "pct_missed": 0.0,
+      "loss_channel": "NONE"
+    },
+    "remains unclear": {
+      "true": 2,
+      "raw_grep": 2,
+      "ligature_loss": 0,
+      "nul_loss": 0,
+      "nul_by_source": {},
+      "decomposition_exact": true,
+      "pct_missed": 0.0,
+      "loss_channel": "NONE"
+    },
+    "efficiency": {
+      "true": 113,
+      "raw_grep": 31,
+      "ligature_loss": 71,
+      "nul_loss": 11,
+      "nul_by_source": {
+        "ABERGEL_LOB": 2,
+        "HERNAN_ROBINS_WHATIF": 9
+      },
+      "decomposition_exact": true,
+      "pct_missed": 72.56637168141593,
+      "loss_channel": "LIGATURE_DOMINATED"
+    },
+    "identifiability": {
+      "true": 78,
+      "raw_grep": 0,
+      "ligature_loss": 15,
+      "nul_loss": 63,
+      "nul_by_source": {
+        "HERNAN_ROBINS_WHATIF": 62,
+        "SURVIVAL_STK4080": 1
+      },
+      "decomposition_exact": true,
+      "pct_missed": 100.0,
+      "loss_channel": "NUL_DOMINATED"
+    },
+    "different": {
+      "true": 1437,
+      "raw_grep": 1154,
+      "ligature_loss": 9,
+      "nul_loss": 274,
+      "nul_by_source": {
+        "ABERGEL_LOB": 25,
+        "HERNAN_ROBINS_WHATIF": 229,
+        "SURVIVAL_STK4080": 20
+      },
+      "decomposition_exact": true,
+      "pct_missed": 19.693806541405714,
+      "loss_channel": "NUL_DOMINATED"
+    },
+    "confirm": {
+      "true": 92,
+      "raw_grep": 18,
+      "ligature_loss": 42,
+      "nul_loss": 32,
+      "nul_by_source": {
+        "ABERGEL_LOB": 20,
+        "HERNAN_ROBINS_WHATIF": 11,
+        "SURVIVAL_STK4080": 1
+      },
+      "decomposition_exact": true,
+      "pct_missed": 80.43478260869566,
+      "loss_channel": "LIGATURE_DOMINATED"
+    },
+    "first": {
+      "true": 1730,
+      "raw_grep": 573,
+      "ligature_loss": 854,
+      "nul_loss": 303,
+      "nul_by_source": {
+        "ABERGEL_LOB": 74,
+        "HERNAN_ROBINS_WHATIF": 187,
+        "SURVIVAL_STK4080": 42
+      },
+      "decomposition_exact": true,
+      "pct_missed": 66.878612716763,
+      "loss_channel": "LIGATURE_DOMINATED"
+    },
+    "saturat": {
+      "true": 59,
+      "raw_grep": 14,
+      "ligature_loss": 0,
+      "nul_loss": 45,
+      "nul_by_source": {
+        "HERNAN_ROBINS_WHATIF": 45
+      },
+      "decomposition_exact": true,
+      "pct_missed": 76.27118644067797,
+      "loss_channel": "NUL_DOMINATED"
+    }
+  },
+  "ligature_dominated": [
+    "refill",
+    "fill probability",
+    "efficiency",
+    "confirm",
+    "first"
+  ],
+  "nul_dominated": [
+    "signature plot",
+    "identifiability",
+    "different",
+    "saturat"
+  ],
+  "all_decompositions_exact": true,
+  "tokens": [
+    "RECALL_LOSS_HAS_TWO_CHANNELS_AND_ONLY_ONE_IS_POLYSEMY_EXPOSED",
+    "LIGATURE_LOSS_IS_SAME_WORD_SAME_BOOK_AND_UNIMPEACHABLE",
+    "NUL_LOSS_COMES_FROM_A_DIFFERENT_BOOK_AND_NEEDS_A_SENSE_CHECK",
+    "THE_DECOMPOSITION_IS_EXACT_NOT_APPORTIONED"
+  ],
+  "ceiling": "MEASUREMENT_FIDELITY"
+}

@@ -1,0 +1,244 @@
+{
+  "study": "C-T41",
+  "lane": "C",
+  "utc": "2026-08-27T08:47:56Z",
+  "family_A": "all five clocks, BOTH metrics, no metric chosen over the other",
+  "family_B": "zeta(q)/q constant means monofractal; falling means multifractal",
+  "drift_floor_from_C_T38": 0.0686,
+  "monofractal_fall_floor": 0.0067,
+  "calibration": {
+    "fgn_H_0.5": {
+      "h_of_q": {
+        "0.5": 0.5009,
+        "1.0": 0.5009,
+        "1.5": 0.5009,
+        "2.0": 0.5009,
+        "2.5": 0.5009,
+        "3.0": 0.5011
+      },
+      "total_fall": -0.0001,
+      "slope_of_h_on_q": 0.0
+    },
+    "fgn_H_0.6": {
+      "h_of_q": {
+        "0.5": 0.6019,
+        "1.0": 0.5998,
+        "1.5": 0.5983,
+        "2.0": 0.5971,
+        "2.5": 0.5961,
+        "3.0": 0.5953
+      },
+      "total_fall": 0.0067,
+      "slope_of_h_on_q": -0.0026
+    },
+    "fgn_H_0.75": {
+      "h_of_q": {
+        "0.5": 0.7523,
+        "1.0": 0.7508,
+        "1.5": 0.7499,
+        "2.0": 0.7495,
+        "2.5": 0.7495,
+        "3.0": 0.7497
+      },
+      "total_fall": 0.0026,
+      "slope_of_h_on_q": -0.001
+    }
+  },
+  "per_symbol": {
+    "BTCUSDT": {
+      "clocks": {
+        "calendar": {
+          "n_steps": 2000000,
+          "drift": 0.1667,
+          "drift_over_floor": 2.43,
+          "cv_variance_per_unit_of_this_clock": 1.2803
+        },
+        "trade": {
+          "n_steps": 2000000,
+          "drift": 0.2817,
+          "drift_over_floor": 4.11,
+          "cv_variance_per_unit_of_this_clock": 1.439
+        },
+        "volume": {
+          "n_steps": 2000000,
+          "drift": 0.1315,
+          "drift_over_floor": 1.92,
+          "cv_variance_per_unit_of_this_clock": 1.0647
+        },
+        "sqrt_volume": {
+          "n_steps": 2000000,
+          "drift": 0.2585,
+          "drift_over_floor": 3.77,
+          "cv_variance_per_unit_of_this_clock": 1.439
+        },
+        "tick_event": {
+          "n_steps": 1578177,
+          "drift": 0.3088,
+          "drift_over_floor": 4.5,
+          "cv_variance_per_unit_of_this_clock": 1.3289
+        }
+      },
+      "best_by_drift": "volume",
+      "best_by_premise_cv": "volume",
+      "two_metrics_agree": true,
+      "multifractal": {
+        "trade": {
+          "h_of_q": {
+            "0.5": 0.693,
+            "1.0": 0.6584,
+            "1.5": 0.6345,
+            "2.0": 0.5923,
+            "2.5": 0.5322,
+            "3.0": 0.4698
+          },
+          "total_fall": 0.2232,
+          "slope_of_h_on_q": -0.0878,
+          "fall_over_monofractal_floor": 33.31
+        },
+        "volume": {
+          "h_of_q": {
+            "0.5": 0.8111,
+            "1.0": 0.657,
+            "1.5": 0.587,
+            "2.0": 0.5362,
+            "2.5": 0.4893,
+            "3.0": 0.4437
+          },
+          "total_fall": 0.3674,
+          "slope_of_h_on_q": -0.1366,
+          "fall_over_monofractal_floor": 54.84
+        }
+      }
+    },
+    "ETHUSDT": {
+      "clocks": {
+        "calendar": {
+          "n_steps": 2000000,
+          "drift": 0.1693,
+          "drift_over_floor": 2.47,
+          "cv_variance_per_unit_of_this_clock": 0.8665
+        },
+        "trade": {
+          "n_steps": 2000000,
+          "drift": 0.258,
+          "drift_over_floor": 3.76,
+          "cv_variance_per_unit_of_this_clock": 1.5417
+        },
+        "volume": {
+          "n_steps": 2000000,
+          "drift": 0.1061,
+          "drift_over_floor": 1.55,
+          "cv_variance_per_unit_of_this_clock": 1.3275
+        },
+        "sqrt_volume": {
+          "n_steps": 2000000,
+          "drift": 0.198,
+          "drift_over_floor": 2.89,
+          "cv_variance_per_unit_of_this_clock": 1.5613
+        },
+        "tick_event": {
+          "n_steps": 1574852,
+          "drift": 0.2503,
+          "drift_over_floor": 3.65,
+          "cv_variance_per_unit_of_this_clock": 1.3043
+        }
+      },
+      "best_by_drift": "volume",
+      "best_by_premise_cv": "calendar",
+      "two_metrics_agree": false,
+      "multifractal": {
+        "trade": {
+          "h_of_q": {
+            "0.5": 0.6096,
+            "1.0": 0.5868,
+            "1.5": 0.5689,
+            "2.0": 0.5351,
+            "2.5": 0.4846,
+            "3.0": 0.4298
+          },
+          "total_fall": 0.1798,
+          "slope_of_h_on_q": -0.0708,
+          "fall_over_monofractal_floor": 26.84
+        },
+        "volume": {
+          "h_of_q": {
+            "0.5": 0.7002,
+            "1.0": 0.5946,
+            "1.5": 0.5404,
+            "2.0": 0.495,
+            "2.5": 0.4489,
+            "3.0": 0.4027
+          },
+          "total_fall": 0.2975,
+          "slope_of_h_on_q": -0.1126,
+          "fall_over_monofractal_floor": 44.4
+        }
+      }
+    },
+    "SOLUSDT": {
+      "clocks": {
+        "calendar": {
+          "n_steps": 2000000,
+          "drift": 0.1597,
+          "drift_over_floor": 2.33,
+          "cv_variance_per_unit_of_this_clock": 0.1848
+        },
+        "trade": {
+          "n_steps": 2000000,
+          "drift": 0.1956,
+          "drift_over_floor": 2.85,
+          "cv_variance_per_unit_of_this_clock": 0.2928
+        },
+        "volume": {
+          "n_steps": 2000000,
+          "drift": 0.1189,
+          "drift_over_floor": 1.73,
+          "cv_variance_per_unit_of_this_clock": 0.2741
+        },
+        "sqrt_volume": {
+          "n_steps": 2000000,
+          "drift": 0.1661,
+          "drift_over_floor": 2.42,
+          "cv_variance_per_unit_of_this_clock": 0.3153
+        },
+        "tick_event": {
+          "n_steps": 990556,
+          "drift": 0.1834,
+          "drift_over_floor": 2.67,
+          "cv_variance_per_unit_of_this_clock": 0.2605
+        }
+      },
+      "best_by_drift": "volume",
+      "best_by_premise_cv": "calendar",
+      "two_metrics_agree": false,
+      "multifractal": {
+        "trade": {
+          "h_of_q": {
+            "0.5": 0.5709,
+            "1.0": 0.5082,
+            "1.5": 0.495,
+            "2.0": 0.4895,
+            "2.5": 0.4832,
+            "3.0": 0.4729
+          },
+          "total_fall": 0.098,
+          "slope_of_h_on_q": -0.0326,
+          "fall_over_monofractal_floor": 14.63
+        },
+        "volume": {
+          "h_of_q": {
+            "0.5": 0.678,
+            "1.0": 0.5676,
+            "1.5": 0.5342,
+            "2.0": 0.5147,
+            "2.5": 0.4962,
+            "3.0": 0.4737
+          },
+          "total_fall": 0.2043,
+          "slope_of_h_on_q": -0.0717,
+          "fall_over_monofractal_floor": 30.49
+        }
+      }
+    }
+  }
+}

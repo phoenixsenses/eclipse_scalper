@@ -1,0 +1,28 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_U",
+  "append_only": true,
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "found_by": "reading HERNAN_ROBINS_WHATIF via tools/corpus_text_v1.py",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-043",
+      "source_file": "reports/atlas/IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_M.json",
+      "source_section_or_line": "ERR-HU-029, C-T33's small-tick vs large-tick means",
+      "error_class": "PROSE_OVERCLAIM",
+      "affected_tokens": [
+        "NEGATIVE_LAG_TEST_DOES_NOT_DISCRIMINATE"
+      ],
+      "old_statement": "C-T33's verdict was withdrawn on ONE ground: the ratio statistic's null sd is 6.6 against a between-symbol spread of 0.17",
+      "corrected_statement": "There is a SECOND, independent ground and the corpus states it as a worked example. C-T33 formed a 'small-tick mean' of 0.118 from BTC 0.203 and ETH 0.033 -- units that disagree by a factor of six -- and compared it to a single large-tick value. Hernan & Robins Technical Point 4.2's neighbourhood gives the textbook case: 'the explanation of the differences is QUALITATIVE EFFECT MODIFICATION: Treatment DOUBLES the risk among individuals in noncritical condition (causal risk ratio 2.0) and HALVES the risk among individuals in critical condition (0.5). The average causal effect in the population (0.8) is BENEFICIAL.' A mean over disagreeing units is not a summary of them. Lane D's onboarding list carries the same rule from a measurement in this estate (a mean of -0.23 hiding +0.86 / +0.65 / -2.19); the textbook had it first, in a file grep could not read.",
+      "numeric_outputs_affected": false,
+      "primary_verdict_affected": false,
+      "downstream_artifacts_affected": [
+        "SYSTEM_STATE 501"
+      ],
+      "source_sha256": "54fc3fb920feb9e1b29787f56bf369997cd922ef4d477099abff9647c02537f7",
+      "source_exists": true,
+      "errata_sha256": "9cf5806937615709108ea189b70fa5404b5db4133d1907122660507d4adf8983"
+    }
+  ]
+}

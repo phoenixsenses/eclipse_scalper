@@ -1,0 +1,208 @@
+{
+  "study": "C-T39",
+  "lane": "C",
+  "utc": "2026-08-27T08:10:54Z",
+  "why": "three headlines fell to a fit range crossing a regime boundary; these are the surviving claims of the same lane, swept before anyone asks",
+  "part1_decomposition_by_band": {
+    "BTCUSDT": {
+      "4-40": {
+        "observed_chi": 0.5698,
+        "sign_shuffled": 0.5006,
+        "size_shuffled": 0.533,
+        "excess_above_half": 0.0698,
+        "share_from_sign_memory": 0.991,
+        "share_from_size_memory": 0.527
+      },
+      "40-400": {
+        "observed_chi": 0.6544,
+        "sign_shuffled": 0.4995,
+        "size_shuffled": 0.5849,
+        "excess_above_half": 0.1544,
+        "share_from_sign_memory": 1.003,
+        "share_from_size_memory": 0.45
+      },
+      "400-4000": {
+        "observed_chi": 0.6902,
+        "sign_shuffled": 0.5149,
+        "size_shuffled": 0.591,
+        "excess_above_half": 0.1902,
+        "share_from_sign_memory": 0.922,
+        "share_from_size_memory": 0.522
+      },
+      "20-1000": {
+        "observed_chi": 0.6488,
+        "sign_shuffled": 0.5082,
+        "size_shuffled": 0.58,
+        "excess_above_half": 0.1488,
+        "share_from_sign_memory": 0.945,
+        "share_from_size_memory": 0.463
+      }
+    },
+    "ETHUSDT": {
+      "4-40": {
+        "observed_chi": 0.6213,
+        "sign_shuffled": 0.4995,
+        "size_shuffled": 0.5529,
+        "excess_above_half": 0.1213,
+        "share_from_sign_memory": 1.004,
+        "share_from_size_memory": 0.564
+      },
+      "40-400": {
+        "observed_chi": 0.6849,
+        "sign_shuffled": 0.5009,
+        "size_shuffled": 0.5726,
+        "excess_above_half": 0.1849,
+        "share_from_sign_memory": 0.995,
+        "share_from_size_memory": 0.607
+      },
+      "400-4000": {
+        "observed_chi": 0.7013,
+        "sign_shuffled": 0.4993,
+        "size_shuffled": 0.5853,
+        "excess_above_half": 0.2013,
+        "share_from_sign_memory": 1.004,
+        "share_from_size_memory": 0.576
+      },
+      "20-1000": {
+        "observed_chi": 0.6816,
+        "sign_shuffled": 0.5007,
+        "size_shuffled": 0.5719,
+        "excess_above_half": 0.1816,
+        "share_from_sign_memory": 0.996,
+        "share_from_size_memory": 0.604
+      }
+    },
+    "SOLUSDT": {
+      "4-40": {
+        "observed_chi": 0.5663,
+        "sign_shuffled": 0.5003,
+        "size_shuffled": 0.5216,
+        "excess_above_half": 0.0663,
+        "share_from_sign_memory": 0.995,
+        "share_from_size_memory": 0.674
+      },
+      "40-400": {
+        "observed_chi": 0.5956,
+        "sign_shuffled": 0.4996,
+        "size_shuffled": 0.6158,
+        "excess_above_half": 0.0956,
+        "share_from_sign_memory": 1.005,
+        "share_from_size_memory": -0.211
+      },
+      "400-4000": {
+        "observed_chi": 0.6037,
+        "sign_shuffled": 0.5028,
+        "size_shuffled": 0.7624,
+        "excess_above_half": 0.1037,
+        "share_from_sign_memory": 0.973,
+        "share_from_size_memory": -1.53
+      },
+      "20-1000": {
+        "observed_chi": 0.5928,
+        "sign_shuffled": 0.5019,
+        "size_shuffled": 0.6272,
+        "excess_above_half": 0.0928,
+        "share_from_sign_memory": 0.98,
+        "share_from_size_memory": -0.37
+      }
+    }
+  },
+  "part2_collapse_by_subrange": {
+    "BTCUSDT": {
+      "T_5_10_20": {
+        "kappa": 1.04,
+        "chi": 0.86,
+        "kappa_minus_chi": 0.18,
+        "rel_err": 0.0168,
+        "at_grid_edge": false
+      },
+      "T_10_20_50": {
+        "kappa": 0.98,
+        "chi": 0.9,
+        "kappa_minus_chi": 0.08,
+        "rel_err": 0.0267,
+        "at_grid_edge": false
+      },
+      "T_20_50_100": {
+        "kappa": 0.94,
+        "chi": 1.36,
+        "kappa_minus_chi": -0.42,
+        "rel_err": 0.0449,
+        "at_grid_edge": false
+      },
+      "T_5_10_20_50_100": {
+        "kappa": 1.0,
+        "chi": 0.92,
+        "kappa_minus_chi": 0.08,
+        "rel_err": 0.0543,
+        "at_grid_edge": false
+      },
+      "chi_spread_across_subranges": 0.5,
+      "chi_stable_within_0_10": false
+    },
+    "ETHUSDT": {
+      "T_5_10_20": {
+        "kappa": 0.9,
+        "chi": 0.46,
+        "kappa_minus_chi": 0.44,
+        "rel_err": 0.0326,
+        "at_grid_edge": false
+      },
+      "T_10_20_50": {
+        "kappa": 0.9,
+        "chi": 0.64,
+        "kappa_minus_chi": 0.26,
+        "rel_err": 0.0532,
+        "at_grid_edge": false
+      },
+      "T_20_50_100": {
+        "kappa": 0.88,
+        "chi": 0.98,
+        "kappa_minus_chi": -0.1,
+        "rel_err": 0.0537,
+        "at_grid_edge": false
+      },
+      "T_5_10_20_50_100": {
+        "kappa": 0.9,
+        "chi": 1.06,
+        "kappa_minus_chi": -0.16,
+        "rel_err": 0.0661,
+        "at_grid_edge": false
+      },
+      "chi_spread_across_subranges": 0.6,
+      "chi_stable_within_0_10": false
+    },
+    "SOLUSDT": {
+      "T_5_10_20": {
+        "kappa": 0.44,
+        "chi": 0.6,
+        "kappa_minus_chi": -0.16,
+        "rel_err": 0.0148,
+        "at_grid_edge": false
+      },
+      "T_10_20_50": {
+        "kappa": 0.38,
+        "chi": 0.44,
+        "kappa_minus_chi": -0.06,
+        "rel_err": 0.0216,
+        "at_grid_edge": false
+      },
+      "T_20_50_100": {
+        "kappa": 0.42,
+        "chi": 0.5,
+        "kappa_minus_chi": -0.08,
+        "rel_err": 0.0258,
+        "at_grid_edge": false
+      },
+      "T_5_10_20_50_100": {
+        "kappa": 0.54,
+        "chi": 0.96,
+        "kappa_minus_chi": -0.42,
+        "rel_err": 0.0317,
+        "at_grid_edge": false
+      },
+      "chi_spread_across_subranges": 0.52,
+      "chi_stable_within_0_10": false
+    }
+  }
+}

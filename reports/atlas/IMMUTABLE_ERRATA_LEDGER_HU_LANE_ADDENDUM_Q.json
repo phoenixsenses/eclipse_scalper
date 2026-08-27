@@ -1,0 +1,48 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_Q",
+  "append_only": true,
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "schema_note": "first ledger carrying the structured affected_tokens field required by ERR-HU-036",
+  "found_by": "reading T(k) constant in k in the driver's own output",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-037",
+      "source_file": "tools/ct37_when_does_the_book_turn_against_the_trade.py",
+      "source_section_or_line": "ntr computed from the 200 ms MERGED order series",
+      "error_class": "CODE_ERROR",
+      "affected_tokens": [
+        "BOOK_CARRIED_ACCUMULATION_B_OF_K"
+      ],
+      "old_statement": "B(k) presented as the BOOK-CARRIED accumulation and T(k) as the TRADE-CARRIED one, comparable to C-T30 / H-U4",
+      "corrected_statement": "The trade indicator was built from the DE-FRAGMENTED order series (200 ms merge), so every trade that a merge removed leaves its interval labelled trade-free. H-U4 and C-T30 built the same indicator from the UNMERGED series. The split here is therefore not the same decomposition and is not comparable to theirs. The symptom is visible in the output: T(k) is CONSTANT in k to four decimals on all three symbols (BTC +0.4738 at every k from 1 to 60), which no real accumulation does -- all of it sits in the first interval and nothing accrues after.",
+      "numeric_outputs_affected": true,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "reports/atlas/CT37_BOOK_TURNS_V1.json"
+      ],
+      "source_sha256": "7413c60530d6c417e477824e8b6c0b9f3ffada14d7e10172c0a3036db2e10543",
+      "source_exists": true,
+      "errata_sha256": "b51ccc38bced00dba4c4aac8a33fe9a2f7ffa041b596664c6ac7d3c2b639183a"
+    },
+    {
+      "errata_id": "ERR-HU-038",
+      "source_file": "tools/ct37_when_does_the_book_turn_against_the_trade.py",
+      "source_section_or_line": "KMAX = 60, k counted in BOOK UPDATES",
+      "error_class": "DENOMINATOR_MISLABEL",
+      "affected_tokens": [
+        "SEC_14_4_TURNING_POINT_TESTED"
+      ],
+      "old_statement": "k = 1..60 compared directly against the corpus's 'about ten events'",
+      "corrected_statement": "Unit mismatch. The corpus's 'events' are LOB events in equity markets, a few per second; k here counts L1 book updates, which arrive at about 160 per second on BTC. So k = 60 is roughly 0.4 seconds, an order of magnitude short of the timescale the book is describing. The measurement cannot reach the claimed turning point, and the monotone rise to k = 60 is therefore NOT evidence against Sec 14.4. The test is VOID; a redesign must express k in time or in a matched event definition.",
+      "numeric_outputs_affected": false,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "reports/atlas/CT37_BOOK_TURNS_V1.json"
+      ],
+      "source_sha256": "7413c60530d6c417e477824e8b6c0b9f3ffada14d7e10172c0a3036db2e10543",
+      "source_exists": true,
+      "errata_sha256": "37375fc92979bdf0938d4dddff7d426e4b4956761def55ee59a8839154be6529"
+    }
+  ]
+}

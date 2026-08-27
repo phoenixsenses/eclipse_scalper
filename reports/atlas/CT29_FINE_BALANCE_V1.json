@@ -1,0 +1,69 @@
+{
+  "inputs": {
+    "gamma": "reports/atlas/CT28_GAMMA_RECOVERY_V1.json",
+    "kappa_minus_chi": "reports/atlas/CT27_KAPPA_CHI_NULL_V1.json"
+  },
+  "identity": "kappa - chi = beta = (1 - gamma)/2",
+  "composite_legs": [
+    "kappa-chi = beta (Sec 13.4.3, propagator difference)",
+    "beta = (1-gamma)/2 (Eq 13.17, the fine balance)"
+  ],
+  "caveat": "a rejection does not say which leg failed",
+  "per_symbol": {
+    "BTCUSDT": {
+      "gamma_fitted": 0.407,
+      "gamma_debiased": 0.38097632659660996,
+      "gamma_sd": 0.02277645635860953,
+      "beta_predicted": 0.309511836701695,
+      "beta_sd": 0.011388228179304766,
+      "kappa_minus_chi": 0.22446080760472956,
+      "kappa_minus_chi_sd": 0.03192292494867285,
+      "difference": -0.08505102909696546,
+      "sd_of_difference": 0.033893434147966035,
+      "z": -2.509365935763975,
+      "rejects_composite_at_2sigma": true
+    },
+    "ETHUSDT": {
+      "gamma_fitted": 0.379,
+      "gamma_debiased": 0.3466268428528042,
+      "gamma_sd": 0.025128541766030632,
+      "beta_predicted": 0.3266865785735979,
+      "beta_sd": 0.012564270883015316,
+      "kappa_minus_chi": 0.37861662616532227,
+      "kappa_minus_chi_sd": 0.028562697257245532,
+      "difference": 0.05193004759172437,
+      "sd_of_difference": 0.031203983358392688,
+      "z": 1.6642121294349799,
+      "rejects_composite_at_2sigma": false
+    },
+    "SOLUSDT": {
+      "gamma_fitted": 0.411,
+      "gamma_debiased": 0.3736343388650002,
+      "gamma_sd": 0.02865360933256762,
+      "beta_predicted": 0.3131828305674999,
+      "beta_sd": 0.01432680466628381,
+      "kappa_minus_chi": 0.20319466644840076,
+      "kappa_minus_chi_sd": 0.031804657608807754,
+      "difference": -0.10998816411909915,
+      "sd_of_difference": 0.03488256839109392,
+      "z": -3.1530982147283884,
+      "rejects_composite_at_2sigma": true
+    }
+  },
+  "ceiling": "RECONCILIATION",
+  "summary": {
+    "rejected": [
+      "BTCUSDT",
+      "SOLUSDT"
+    ],
+    "n_rejected": 2,
+    "n_total": 3
+  },
+  "tokens": [
+    "FINE_BALANCE_IS_NOW_TESTABLE_BOTH_INPUTS_CALIBRATED",
+    "GAMMA_ESTIMATOR_SHRINKS_TOWARD_0_45_AND_MUST_BE_DEBIASED",
+    "GAMMA_PRECISION_IS_FINE_SD_0_02_TO_0_03",
+    "COMPOSITE_REJECTED_ON_2_OF_3",
+    "REJECTION_DOES_NOT_IDENTIFY_WHICH_LEG_FAILED"
+  ]
+}

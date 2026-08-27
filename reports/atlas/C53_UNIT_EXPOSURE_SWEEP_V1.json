@@ -1,0 +1,98 @@
+{
+  "study": "C-T53",
+  "lane": "C",
+  "utc": "2026-08-27T11:57:39Z",
+  "corpus_specification": "Bouchaud sec. 11.4 and ch. 13 both state the clock advances by one unit FOR EACH MARKET ORDER ARRIVAL",
+  "defect": "this lane used the aggTrade clock; 10.75% of BTC and 13.81% of ETH market orders occupy several aggTrades (C-T50)",
+  "sample": "data/microstructure_02.db :: agg_trades, first 2,000,000 rows by ts_ms per symbol",
+  "prediction": "exponents of partial sums should be more robust than levels in bps; R_inf halved in C-T52",
+  "per_symbol": {
+    "BTCUSDT": {
+      "aggTrade": {
+        "clock": "aggTrade",
+        "n": 2000000,
+        "chi_sign": 0.7776,
+        "chi_null": 0.4992,
+        "H_price": 0.6175,
+        "H_null": 0.5008,
+        "hq_fall": 0.2232,
+        "delta_T100": 0.5793
+      },
+      "market_order": {
+        "clock": "market_order",
+        "n": 1002021,
+        "chi_sign": 0.8179,
+        "chi_null": 0.5019,
+        "H_price": 0.5482,
+        "H_null": 0.5029,
+        "hq_fall": 0.2469,
+        "delta_T100": 0.6426
+      },
+      "shift": {
+        "chi_sign": 0.0403,
+        "H_price": -0.0693,
+        "hq_fall": 0.0237,
+        "delta_T100": 0.0633
+      },
+      "n_ratio": 0.501
+    },
+    "ETHUSDT": {
+      "aggTrade": {
+        "clock": "aggTrade",
+        "n": 2000000,
+        "chi_sign": 0.7043,
+        "chi_null": 0.5011,
+        "H_price": 0.5512,
+        "H_null": 0.5,
+        "hq_fall": 0.1798,
+        "delta_T100": 0.6208
+      },
+      "market_order": {
+        "clock": "market_order",
+        "n": 1129418,
+        "chi_sign": 0.7512,
+        "chi_null": 0.4989,
+        "H_price": 0.5249,
+        "H_null": 0.5006,
+        "hq_fall": 0.1592,
+        "delta_T100": 0.4227
+      },
+      "shift": {
+        "chi_sign": 0.0469,
+        "H_price": -0.0263,
+        "hq_fall": -0.0206,
+        "delta_T100": -0.1981
+      },
+      "n_ratio": 0.5647
+    },
+    "SOLUSDT": {
+      "aggTrade": {
+        "clock": "aggTrade",
+        "n": 2000000,
+        "chi_sign": 0.8918,
+        "chi_null": 0.499,
+        "H_price": 0.4911,
+        "H_null": 0.5011,
+        "hq_fall": 0.098,
+        "delta_T100": 0.7356
+      },
+      "market_order": {
+        "clock": "market_order",
+        "n": 1871110,
+        "chi_sign": 0.8928,
+        "chi_null": 0.5005,
+        "H_price": 0.4933,
+        "H_null": 0.4997,
+        "hq_fall": 0.0923,
+        "delta_T100": 0.7337
+      },
+      "shift": {
+        "chi_sign": 0.001,
+        "H_price": 0.0022,
+        "hq_fall": -0.0057,
+        "delta_T100": -0.0019
+      },
+      "n_ratio": 0.9356
+    }
+  }
+}

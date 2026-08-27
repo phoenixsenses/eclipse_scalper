@@ -1,0 +1,74 @@
+{
+  "study": "C-T31",
+  "why": "another lane showed a null built where the signal is ABSENT does not measure precision where the signal is PRESENT (27x on their estimator). Testing whether that criticism lands on MINE.",
+  "method": "moving-block bootstrap of the real series, block 50,000 trades, dependence preserved",
+  "reps": 120,
+  "per_symbol": {
+    "BTCUSDT": {
+      "observed": {
+        "kappa": 0.6507,
+        "chi": 0.6498,
+        "kappa_minus_chi": 0.0009
+      },
+      "block_bootstrap_120x50k": {
+        "kappa": [
+          0.6503,
+          0.0118
+        ],
+        "chi": [
+          0.6522,
+          0.0189
+        ],
+        "kappa_minus_chi": [
+          -0.0019,
+          0.024
+        ]
+      },
+      "shuffle_null_sd_from_C_T28": 0.2086
+    },
+    "ETHUSDT": {
+      "observed": {
+        "kappa": 0.5782,
+        "chi": 0.6817,
+        "kappa_minus_chi": -0.1035
+      },
+      "block_bootstrap_120x50k": {
+        "kappa": [
+          0.5705,
+          0.0103
+        ],
+        "chi": [
+          0.6817,
+          0.0112
+        ],
+        "kappa_minus_chi": [
+          -0.1112,
+          0.0119
+        ]
+      },
+      "shuffle_null_sd_from_C_T28": 0.2008
+    },
+    "SOLUSDT": {
+      "observed": {
+        "kappa": 0.5209,
+        "chi": 0.5902,
+        "kappa_minus_chi": -0.0693
+      },
+      "block_bootstrap_120x50k": {
+        "kappa": [
+          0.5233,
+          0.0098
+        ],
+        "chi": [
+          0.5929,
+          0.0086
+        ],
+        "kappa_minus_chi": [
+          -0.0696,
+          0.0097
+        ]
+      },
+      "shuffle_null_sd_from_C_T28": 0.0346
+    }
+  }
+}

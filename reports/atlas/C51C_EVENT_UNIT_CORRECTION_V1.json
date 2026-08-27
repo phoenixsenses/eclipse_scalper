@@ -1,0 +1,37 @@
+{
+  "study": "C-T51-part3",
+  "defect": "part 1 measured reversion on the aggTrade sequence; on small-tick symbols 10-14% of orders walk the book with median depth 7 and 3, so consecutive aggTrades are INTRA-ORDER steps, not price-process moves",
+  "correction": "collapse each (ts_ms, side) run into one net move",
+  "per_symbol": {
+    "BTCUSDT": {
+      "n_aggtrades": 2000000,
+      "n_events": 1002021,
+      "P_reverse_raw_aggtrade": 0.3072,
+      "P_reverse_event_unit": 0.7214,
+      "null_mean": 0.4999,
+      "z": 330.5,
+      "excess_over_half": 0.2214,
+      "reverses_more_than_half": true
+    },
+    "ETHUSDT": {
+      "n_aggtrades": 2000000,
+      "n_events": 1129418,
+      "P_reverse_raw_aggtrade": 0.3263,
+      "P_reverse_event_unit": 0.6318,
+      "null_mean": 0.4999,
+      "z": 212.6,
+      "excess_over_half": 0.1318,
+      "reverses_more_than_half": true
+    },
+    "SOLUSDT": {
+      "n_aggtrades": 2000000,
+      "n_events": 1871110,
+      "P_reverse_raw_aggtrade": 0.8808,
+      "P_reverse_event_unit": 0.8849,
+      "null_mean": 0.5001,
+      "z": 888.6,
+      "excess_over_half": 0.3849,
+      "reverses_more_than_half": true
+    }
+  }
+}

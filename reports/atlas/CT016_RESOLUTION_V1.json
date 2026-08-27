@@ -1,0 +1,37 @@
+{
+  "different_random_variables": {
+    "A": "survival of the HOURLY PRICE EXCURSION (Sec 198 reachability over 1 h), axis = DEPTH in bps -- this is Cartea Eq (8.1)'s axis",
+    "C": "survival of RELATIVE ORDER SIZE per MARKET ORDER ARRIVAL, axis = QUEUE POSITION at the touch -- not Cartea's axis",
+    "conclusion": "the two tokens are not about the same quantity"
+  },
+  "A_discrimination_accuracy": 0.79725,
+  "A_drop_in_combined_SE": 2.4542403976457674,
+  "A_fits": {
+    "exponential": {
+      "kappa": 0.009558657916074938,
+      "r2": 0.9894846086374824
+    },
+    "power": {
+      "exponent": 0.05665645625248029,
+      "r2": 0.749876430920114
+    }
+  },
+  "C_fits_recomputed": {
+    "exponential": {
+      "kappa": 0.720616421753224,
+      "r2": 0.8499578462343087
+    },
+    "power": {
+      "exponent": 0.24942821521138706,
+      "r2": 0.9981752522383723
+    }
+  },
+  "C_range_drop_fraction": 0.5374149659863945,
+  "A_range_drop_fraction": 0.17119838872104742,
+  "tokens": [
+    "CT_016_DISSOLVED_DIFFERENT_RANDOM_VARIABLES",
+    "ONLY_A_IS_ON_CARTEA_S_DEPTH_AXIS",
+    "A_S45_FORM_TEST_DISCRIMINATES",
+    "NEITHER_MEASUREMENT_IS_WITHDRAWN"
+  ]
+}

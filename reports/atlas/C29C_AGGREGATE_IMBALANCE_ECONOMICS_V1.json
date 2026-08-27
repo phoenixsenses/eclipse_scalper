@@ -1,0 +1,224 @@
+{
+  "study": "C-T29-part3",
+  "rule": "trade in the direction of the past window's sign imbalance, hold one window",
+  "windows": "non-overlapping, so the windows are independent by construction",
+  "fee": "BINANCE_BASE round-trip taker 10.0 bps (CLAUDE.md canonical)",
+  "per_symbol": {
+    "BTCUSDT": [
+      {
+        "T": 20,
+        "n_windows": 95724,
+        "gain_bps": 0.1679,
+        "se_bps": 0.0012,
+        "t": 140.1,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": 59.6,
+        "corr_I_fwd": 0.4569
+      },
+      {
+        "T": 50,
+        "n_windows": 39453,
+        "gain_bps": 0.2471,
+        "se_bps": 0.0036,
+        "t": 69.51,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": 40.5,
+        "corr_I_fwd": 0.3755
+      },
+      {
+        "T": 100,
+        "n_windows": 19797,
+        "gain_bps": 0.2455,
+        "se_bps": 0.0083,
+        "t": 29.55,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": 40.7,
+        "corr_I_fwd": 0.243
+      },
+      {
+        "T": 200,
+        "n_windows": 9937,
+        "gain_bps": 0.1911,
+        "se_bps": 0.0185,
+        "t": 10.33,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": 52.3,
+        "corr_I_fwd": 0.1234
+      },
+      {
+        "T": 500,
+        "n_windows": 3981,
+        "gain_bps": 0.0395,
+        "se_bps": 0.0497,
+        "t": 0.8,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": 252.9,
+        "corr_I_fwd": 0.0541
+      },
+      {
+        "T": 1000,
+        "n_windows": 1987,
+        "gain_bps": 0.0366,
+        "se_bps": 0.1021,
+        "t": 0.36,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": 272.9,
+        "corr_I_fwd": 0.0203
+      },
+      {
+        "T": 2000,
+        "n_windows": 997,
+        "gain_bps": 0.1024,
+        "se_bps": 0.2056,
+        "t": 0.5,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": 97.7,
+        "corr_I_fwd": -0.0064
+      }
+    ],
+    "ETHUSDT": [
+      {
+        "T": 20,
+        "n_windows": 95341,
+        "gain_bps": 0.2645,
+        "se_bps": 0.0025,
+        "t": 104.42,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": 37.8,
+        "corr_I_fwd": 0.356
+      },
+      {
+        "T": 50,
+        "n_windows": 39118,
+        "gain_bps": 0.2541,
+        "se_bps": 0.0071,
+        "t": 35.9,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": 39.4,
+        "corr_I_fwd": 0.2091
+      },
+      {
+        "T": 100,
+        "n_windows": 19675,
+        "gain_bps": 0.1812,
+        "se_bps": 0.0152,
+        "t": 11.93,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": 55.2,
+        "corr_I_fwd": 0.103
+      },
+      {
+        "T": 200,
+        "n_windows": 9904,
+        "gain_bps": 0.1152,
+        "se_bps": 0.0312,
+        "t": 3.69,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": 86.8,
+        "corr_I_fwd": 0.0368
+      },
+      {
+        "T": 500,
+        "n_windows": 3973,
+        "gain_bps": 0.0106,
+        "se_bps": 0.0798,
+        "t": 0.13,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": 946.4,
+        "corr_I_fwd": -0.0073
+      },
+      {
+        "T": 1000,
+        "n_windows": 1993,
+        "gain_bps": -0.0095,
+        "se_bps": 0.1602,
+        "t": -0.06,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": null,
+        "corr_I_fwd": -0.0066
+      },
+      {
+        "T": 2000,
+        "n_windows": 997,
+        "gain_bps": 0.0182,
+        "se_bps": 0.3257,
+        "t": 0.06,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": 549.4,
+        "corr_I_fwd": -0.0195
+      }
+    ],
+    "SOLUSDT": [
+      {
+        "T": 20,
+        "n_windows": 88259,
+        "gain_bps": -0.0302,
+        "se_bps": 0.0073,
+        "t": -4.14,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": null,
+        "corr_I_fwd": -0.0123
+      },
+      {
+        "T": 50,
+        "n_windows": 38068,
+        "gain_bps": -0.035,
+        "se_bps": 0.0171,
+        "t": -2.05,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": null,
+        "corr_I_fwd": -0.0073
+      },
+      {
+        "T": 100,
+        "n_windows": 19424,
+        "gain_bps": -0.0615,
+        "se_bps": 0.0336,
+        "t": -1.83,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": null,
+        "corr_I_fwd": -0.0071
+      },
+      {
+        "T": 200,
+        "n_windows": 9856,
+        "gain_bps": -0.0853,
+        "se_bps": 0.0668,
+        "t": -1.28,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": null,
+        "corr_I_fwd": -0.0078
+      },
+      {
+        "T": 500,
+        "n_windows": 3979,
+        "gain_bps": -0.0946,
+        "se_bps": 0.1668,
+        "t": -0.57,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": null,
+        "corr_I_fwd": -0.0196
+      },
+      {
+        "T": 1000,
+        "n_windows": 1993,
+        "gain_bps": -0.0442,
+        "se_bps": 0.3314,
+        "t": -0.13,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": null,
+        "corr_I_fwd": -0.0234
+      },
+      {
+        "T": 2000,
+        "n_windows": 995,
+        "gain_bps": -0.5697,
+        "se_bps": 0.6569,
+        "t": -0.87,
+        "fee_rt_bps": 10.0,
+        "shortfall_x": null,
+        "corr_I_fwd": -0.0111
+      }
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "study": "C-T39-part3",
+  "gate": "C-T33 reported the collapse 'holds' at rel-err 3-7% but never measured what that gate returns when there is nothing to collapse",
+  "per_symbol": {
+    "BTCUSDT": {
+      "real_rel_err": 0.0543,
+      "null_shuffled_R_mean": 0.6618,
+      "null_sd": 0.0273,
+      "null_T_reversed": 0.7171,
+      "real_beats_null": true
+    },
+    "ETHUSDT": {
+      "real_rel_err": 0.0688,
+      "null_shuffled_R_mean": 0.6683,
+      "null_sd": 0.0426,
+      "null_T_reversed": 0.5558,
+      "real_beats_null": true
+    },
+    "SOLUSDT": {
+      "real_rel_err": 0.0322,
+      "null_shuffled_R_mean": 0.7778,
+      "null_sd": 0.0476,
+      "null_T_reversed": 0.2092,
+      "real_beats_null": true
+    }
+  }
+}

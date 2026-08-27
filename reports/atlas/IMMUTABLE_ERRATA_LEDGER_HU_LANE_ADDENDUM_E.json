@@ -1,0 +1,61 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_E",
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "append_only": true,
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "found_by": "tools/ct24_kyle_lambda_the_books_way.py",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-016",
+      "source_file": "tools/hu14_is_the_ladder_just_one_scaling_function.py",
+      "source_section_or_line": "collapse grid search producing kappa and chi separately",
+      "error_class": "CODE_ERROR",
+      "old_statement": "kappa - chi = 0.300 (BTC) / 0.250 (ETH) / 0.100 (SOL), published as KAPPA_MINUS_CHI_CONFIRMED_A_THIRD_TIME in C-T21",
+      "corrected_statement": "kappa - chi is defined by Sec 11.4 from the INNER region: Lambda(T) is the slope of R on dV as |dV| -> 0, and Lambda(T) ~ Lambda(1) T^-(kappa-chi).  A global collapse over the whole binned curve mixes F's linear and concave parts -- the defect ERR-HU-012 already recorded for zeta.  Re-run with the book's estimator on the SAME data (C-T24): 0.2245 / 0.3786 / 0.2032, which lands within 0.010-0.031 of A-S30's 0.255 / 0.361 / 0.193 on all three symbols.  C-T21's values are SUPERSEDED.  The cross-lane gap in Sec 486 was estimator-driven.",
+      "numeric_outputs_affected": true,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "SYSTEM_STATE 483 (C-T21)",
+        "SYSTEM_STATE 486 (C-T23)",
+        "reports/atlas/EXPONENT_RECONCILIATION_V1.json"
+      ],
+      "source_sha256": "e0bf86466927a3309e8437653c57d22604b0f821e005fab89457443d464cba3d",
+      "source_exists": true,
+      "errata_sha256": "eef86bd6722f4a559bd5cb5f4a59b5f9d40b67b5477bee9a4fb86cc9dde56883"
+    },
+    {
+      "errata_id": "ERR-HU-017",
+      "source_file": "tools/ct_reconcile_the_five_exponents.py",
+      "source_section_or_line": "fine_balance_table; token FINE_BALANCE_CLOSED_WITHOUT_MEASURING_G_OF_L",
+      "error_class": "PROSE_OVERCLAIM",
+      "old_statement": "the fine balance kappa-chi = (1-gamma)/2 is satisfied to within 0.010-0.036 by two lanes and two statistics; Sec 481's open item is closed",
+      "corrected_statement": "That table used C-T21's superseded kappa-chi (ERR-HU-016).  With C's corrected value the gaps GROW to 0.074 (BTC) and 0.054 (ETH), and a sharper tension appears: gamma agrees between BTC and ETH to 0.004, so (1-gamma)/2 predicts essentially the same beta for both, while the measured kappa-chi now differ by 0.13 (0.2398 vs 0.3698).  The earlier agreement was partly an artefact of the contaminated value pulling both symbols toward the prediction.  FINE_BALANCE_CLOSED... is WITHDRAWN; the item returns to OPEN, better specified than before: FINE_BALANCE_REOPENED_SAME_GAMMA_DIFFERENT_KAPPA_MINUS_CHI.",
+      "numeric_outputs_affected": true,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "SYSTEM_STATE 486 (C-T23)",
+        "SYSTEM_STATE 481"
+      ],
+      "source_sha256": "03def2e08bcfdbc618c77eaeca1b45b10f2dfc07653ee3c70b6adefd3e4be141",
+      "source_exists": true,
+      "errata_sha256": "0291276ba39df023121aed89df47eac41989650f3e15fc61baba6a120b11c544"
+    },
+    {
+      "errata_id": "ERR-HU-018",
+      "source_file": "SYSTEM_STATE.md",
+      "source_section_or_line": "A-S30 section 2 table vs C-T24 T_min table",
+      "error_class": "NUMERIC_ERROR",
+      "old_statement": "no single lane published a wrong number here; this entry RECORDS an unexplained cross-lane discrepancy rather than correcting one",
+      "corrected_statement": "sigma_tilde(1), the volatility per trade, differs about two-fold between lanes on the same instruments: A-S30 reports 0.2058 / 0.2559 / 0.4074, C-T24 measures 0.0991 / 0.1436 / 0.2870.  It matters because T_min = (tick/sigma_tilde)^2 is QUADRATIC in it: A's SOL T_min is 10.4, C's is 22.4, so A's T >= 20 cutoff sits ABOVE SOL's floor on A's numbers and BELOW it on C's.  SOL's kappa-chi is separately unstable in C-T24 across the inner-cut choice (+0.203 median vs -0.155 quartile).  Both SOL figures should be treated as UNSUPPORTED until sigma_tilde(1) is reconciled.  Neither lane's number is asserted to be the wrong one here.",
+      "numeric_outputs_affected": false,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "SYSTEM_STATE 458 (A-S30)",
+        "SYSTEM_STATE 486"
+      ],
+      "source_sha256": "e6012d129fbbf23c9539dca3e31cecb4d516330b2336726639671fcda507bdf4",
+      "source_exists": true,
+      "errata_sha256": "1b9c88220e87ac72247b57a7598be02d771625d74e2652b54980ba8b8e163626"
+    }
+  ]
+}

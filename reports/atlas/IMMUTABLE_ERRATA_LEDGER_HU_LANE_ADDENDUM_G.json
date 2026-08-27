@@ -1,0 +1,62 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_G",
+  "append_only": true,
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "found_by": "tools/ct26_ask_every_estimator_what_it_returns_on_nothing.py (operator instruction)",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-020",
+      "source_file": "tools/hu13_the_aggregation_ladder_of_concavity.py",
+      "source_section_or_line": "binned_loglog() -- the zeta estimator",
+      "error_class": "CODE_ERROR",
+      "old_statement": "zeta(600 s) = 0.166 / 0.230 / 0.262, read as strong concavity of single-order impact",
+      "corrected_statement": "Run on data where the relationship is EXACTLY LINEAR (true slope 1.0), with heavy-tailed x and additive noise matching the real setting, the same binned log-log estimator returns 0.2558 +- 0.1374.  The published zeta values are INDISTINGUISHABLE FROM LINEAR IMPACT.  Mechanism: in low-x bins signal is far below noise, so the bin mean is noise-dominated and the curve flattens -- classic attenuation.  This is a THIRD independent reason to withdraw those numbers (ERR-HU-012: one scaling function; ERR-HU-013: mixed estimands; now: estimator bias).  It ALSO supplies an alternative mechanism for C-T20's rising psi(T) that has nothing to do with F: at low T the signal-to-noise is worse, so attenuation is stronger and the slope is lower.  NOT extended to A-S30's zeta, which uses an OUTER-region fit -- a different estimator that this null does not test.",
+      "numeric_outputs_affected": true,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "SYSTEM_STATE 482 (C-T20)",
+        "SYSTEM_STATE 483"
+      ],
+      "source_sha256": "ab260ae1d60ca2f4995b17272763313eeb045ec538947a92806ddd05009589df",
+      "source_exists": true,
+      "errata_sha256": "2f4cdba02f244a172f93041a5e872c1aaceb6046b868cd6df0b4e20e8e5e4f9d"
+    },
+    {
+      "errata_id": "ERR-HU-021",
+      "source_file": "tools/ct24_kyle_lambda_the_books_way.py",
+      "source_section_or_line": "kappa-chi from the Lambda(T) exponent fit",
+      "error_class": "PROSE_OVERCLAIM",
+      "old_statement": "kappa-chi = 0.2245 / 0.3786 / 0.2032, agreeing with A-S30 to 0.010-0.031, read as a settled measurement; earlier as KAPPA_MINUS_CHI_CONFIRMED_A_THIRD_TIME",
+      "corrected_statement": "No null was ever run on this estimator.  On synthetic data with a CONSTANT lambda -- true exponent exactly 0 -- it returns mean -0.093 with sd 0.872 and a 90 percent interval of [-1.52, +0.92], which CONTAINS every value both lanes published.  The null's noise level was chosen by hand and not calibrated to the real scatter, so this does NOT establish that kappa-chi is zero; it establishes that the estimator's null distribution AT THE REAL SIGNAL-TO-NOISE HAS NEVER BEEN MEASURED, and until it is, 'agrees with the book's band' is not a supported reading.  Cross-lane agreement is not a substitute: two lanes running similar estimators on similar data agree under the null too.",
+      "numeric_outputs_affected": false,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "SYSTEM_STATE 483",
+        "SYSTEM_STATE 486",
+        "SYSTEM_STATE 489",
+        "reports/atlas/EXPONENT_RECONCILIATION_V1.json"
+      ],
+      "source_sha256": "1332f2a1bd75b90f2229cb14766d5bd1a3d5641554d7c6508d14d51e5e5f5e37",
+      "source_exists": true,
+      "errata_sha256": "9a0a55f097461cc11a5d8e171baba507d6f3e6b34f1201d141f8dcb2c9c97042"
+    },
+    {
+      "errata_id": "ERR-HU-022",
+      "source_file": "tools/hu12_what_the_exponents_say_to_each_other.py",
+      "source_section_or_line": "fit_gamma over lags with C(l) > 0",
+      "error_class": "NUMERIC_ERROR",
+      "old_statement": "gamma = 0.373 (BTC) and 0.369 (ETH), and C-T25 leaned on their agreeing to 0.004 to build a structural argument",
+      "corrected_statement": "On i.i.d. signs with NO memory the same fit returns mean -0.023 with sd 0.544 and a 90 percent interval of [-0.70, +0.56], and only 21 of 40 draws produced a fit at all because the positive-lag selection often left too few points.  The null is n-INDEPENDENT: C(l) = z_l/sqrt(n) under the null, so log|C| = log|z_l| - 0.5 log n and the sqrt(n) enters only the intercept.  The LEVELS are not void -- the real C(100) = 0.083 sits about 145 standard errors from zero and the fits have r2 0.98-0.99 -- but the PRECISION is: a 0.004 difference between BTC and ETH is two orders of magnitude inside the estimator's own noise, so C-T25's structural argument must not rest on that difference.  Its other leg -- size weighting raises gamma monotonically, 3/3 -- is unaffected.",
+      "numeric_outputs_affected": false,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "SYSTEM_STATE 481",
+        "SYSTEM_STATE 490"
+      ],
+      "source_sha256": "2f33a97615570eb3b40661fc317c0c00d89e9f39c2b262e896a8818644fecd56",
+      "source_exists": true,
+      "errata_sha256": "3a3d1f7c3bbcb9ae40e94894c74831fdf88d1320860447a3b48a2b8468687f51"
+    }
+  ]
+}

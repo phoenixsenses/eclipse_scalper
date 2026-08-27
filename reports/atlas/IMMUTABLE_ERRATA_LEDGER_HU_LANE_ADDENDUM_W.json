@@ -1,0 +1,30 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_W",
+  "append_only": true,
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "found_by": "reading Bouchaud Sec 17.2, invisible to grep because 'Profitability' is a ligature",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-045",
+      "source_file": "tools/hu7_critical_queue_position.py",
+      "source_section_or_line": "the whole framing: Sec 21.4 / Sec 17.3 applied to all three symbols",
+      "error_class": "PROSE_OVERCLAIM",
+      "affected_tokens": [
+        "NO_PROFITABLE_QUEUE_POSITION_AT_THE_ACTUAL_MAKER_FEE",
+        "CRITICAL_QUEUE_POSITION_EXISTS_ONLY_ON_THE_LARGE_TICK_SYMBOL"
+      ],
+      "old_statement": "the critical-queue-position framework of Sec 21.4 / Sec 17.3 was applied to BTC, ETH and SOL alike, justified by the measured fact that the spread is one tick on all three",
+      "corrected_statement": "Sec 17.3 is titled LARGE-TICK STOCKS and Chapter 17 contains a separate section for the other regime -- Sec 17.2, INVENTORY CONTROL FOR SMALL-TICK STOCKS -- which this lane never opened. BTC and ETH are its small-tick symbols. The spread-equals-one-tick justification licenses Sec 21.4's SETUP, not the choice of economic framework: for small-tick names the book's object is inventory control with no queue position in it at all. NOTHING NUMERICAL IS WITHDRAWN -- the arithmetic core (s/2 - fee = -1.99 / -1.97 / -1.34 before any adverse selection) is framework-free, and Sec 17.2's slow limit E[G]/v0T = s/2 - R_inf reproduces this lane's phi -> 0 row in structure and sign. What is corrected is the FRAMING: the phi-sweep answered a large-tick question on two small-tick instruments, and its informative endpoint was the small-tick answer all along.",
+      "numeric_outputs_affected": false,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "SYSTEM_STATE 472",
+        "SYSTEM_STATE 473"
+      ],
+      "source_sha256": "4c6ba5cec61cf47cf830b6001a6e10472f2e695d05e73ba543ff4f1febd9b448",
+      "source_exists": true,
+      "errata_sha256": "0fdbfd50b23dc9b5b9e149426a662b4f7624c11fbc208c8d9fa2af342973b82c"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "slow_limit": {
+    "BTCUSDT": {
+      "half_spread": 0.0078,
+      "R_inf": 0.2696,
+      "slow_gain_zero_fee": -0.26180000000000003,
+      "slow_gain_at_2bps": -2.2618
+    },
+    "ETHUSDT": {
+      "half_spread": 0.0266,
+      "R_inf": 0.2992,
+      "slow_gain_zero_fee": -0.2726,
+      "slow_gain_at_2bps": -2.2726
+    },
+    "SOLUSDT": {
+      "half_spread": 0.6595,
+      "R_inf": 0.2861,
+      "slow_gain_zero_fee": 0.37339999999999995,
+      "slow_gain_at_2bps": -1.6266
+    }
+  },
+  "fee_bps": 2.0,
+  "book_eq_17_13": "E[G]/v0T = s/2 - R_inf",
+  "book_eq_17_14": "E[G]/v0T = (s/2)(1 - C(1)) - R(1)",
+  "fee_rule": "for w != 0 replace s by s + 2w",
+  "note": "Eq 17.14 needs C(1), which H-T8 struck as not identified on this feed"
+}

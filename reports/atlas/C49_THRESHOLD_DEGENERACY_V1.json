@@ -1,0 +1,386 @@
+{
+  "study": "C-T49",
+  "lane": "C",
+  "utc": "2026-08-27T11:22:36Z",
+  "challenge_from": "D-E10 (threshold degeneracy)",
+  "sample": "data/microstructure_02.db :: agg_trades, first 2,000,000 rows by ts_ms per symbol",
+  "threshold_swept": [
+    0.0,
+    50.0,
+    75.0,
+    90.0,
+    95.0,
+    99.0,
+    99.5
+  ],
+  "factorisation": "edge_bps ~ (2*hit_rate - 1) x E|forward move|",
+  "null": "imbalance sign randomised; magnitude and the selection kept exactly. hit rate must be 0.5 and edge 0 at every threshold",
+  "per_symbol": {
+    "BTCUSDT": {
+      "real": {
+        "0.0": {
+          "n": 39997,
+          "cut_notional": 0.0,
+          "edge_bps": 0.2636,
+          "se": 0.0035,
+          "t": 75.39,
+          "hit_rate": 0.6553,
+          "mean_abs_forward_bps": 0.5604,
+          "direction_term_2h_minus_1": 0.3107,
+          "implied_edge_from_factorisation": 0.1741
+        },
+        "50.0": {
+          "n": 19999,
+          "cut_notional": 177508.0,
+          "edge_bps": 0.3236,
+          "se": 0.0051,
+          "t": 63.95,
+          "hit_rate": 0.709,
+          "mean_abs_forward_bps": 0.5931,
+          "direction_term_2h_minus_1": 0.418,
+          "implied_edge_from_factorisation": 0.2479
+        },
+        "75.0": {
+          "n": 10000,
+          "cut_notional": 394264.0,
+          "edge_bps": 0.3468,
+          "se": 0.0076,
+          "t": 45.55,
+          "hit_rate": 0.7323,
+          "mean_abs_forward_bps": 0.6257,
+          "direction_term_2h_minus_1": 0.4646,
+          "implied_edge_from_factorisation": 0.2907
+        },
+        "90.0": {
+          "n": 4000,
+          "cut_notional": 739602.0,
+          "edge_bps": 0.3489,
+          "se": 0.0143,
+          "t": 24.33,
+          "hit_rate": 0.745,
+          "mean_abs_forward_bps": 0.6724,
+          "direction_term_2h_minus_1": 0.49,
+          "implied_edge_from_factorisation": 0.3295
+        },
+        "95.0": {
+          "n": 2000,
+          "cut_notional": 1047540.0,
+          "edge_bps": 0.3525,
+          "se": 0.0242,
+          "t": 14.55,
+          "hit_rate": 0.76,
+          "mean_abs_forward_bps": 0.7284,
+          "direction_term_2h_minus_1": 0.52,
+          "implied_edge_from_factorisation": 0.3787
+        },
+        "99.0": {
+          "n": 400,
+          "cut_notional": 2036260.0,
+          "edge_bps": 0.3767,
+          "se": 0.0713,
+          "t": 5.28,
+          "hit_rate": 0.8225,
+          "mean_abs_forward_bps": 0.8194,
+          "direction_term_2h_minus_1": 0.645,
+          "implied_edge_from_factorisation": 0.5285
+        },
+        "99.5": {
+          "n": 200,
+          "cut_notional": 2872970.0,
+          "edge_bps": 0.356,
+          "se": 0.1157,
+          "t": 3.08,
+          "hit_rate": 0.83,
+          "mean_abs_forward_bps": 0.819,
+          "direction_term_2h_minus_1": 0.66,
+          "implied_edge_from_factorisation": 0.5405
+        }
+      },
+      "null_direction_destroyed": {
+        "0.0": {
+          "edge_mean": -0.0009,
+          "edge_sd": 0.0039,
+          "hit_mean": 0.4619
+        },
+        "50.0": {
+          "edge_mean": -0.0017,
+          "edge_sd": 0.0052,
+          "hit_mean": 0.4714
+        },
+        "75.0": {
+          "edge_mean": -0.0018,
+          "edge_sd": 0.0089,
+          "hit_mean": 0.4775
+        },
+        "90.0": {
+          "edge_mean": -0.0009,
+          "edge_sd": 0.0166,
+          "hit_mean": 0.4813
+        },
+        "95.0": {
+          "edge_mean": 0.0016,
+          "edge_sd": 0.0282,
+          "hit_mean": 0.4844
+        },
+        "99.0": {
+          "edge_mean": 0.0065,
+          "edge_sd": 0.0733,
+          "hit_mean": 0.4749
+        },
+        "99.5": {
+          "edge_mean": 0.0207,
+          "edge_sd": 0.122,
+          "hit_mean": 0.4659
+        }
+      },
+      "hit_rate_lift": 0.1747,
+      "magnitude_lift_x": 1.461,
+      "edge_lift_x": 1.351,
+      "direction_term_lift_x": 2.124
+    },
+    "ETHUSDT": {
+      "real": {
+        "0.0": {
+          "n": 39997,
+          "cut_notional": 0.0,
+          "edge_bps": 0.2903,
+          "se": 0.007,
+          "t": 41.73,
+          "hit_rate": 0.5809,
+          "mean_abs_forward_bps": 1.0902,
+          "direction_term_2h_minus_1": 0.1618,
+          "implied_edge_from_factorisation": 0.1764
+        },
+        "50.0": {
+          "n": 19999,
+          "cut_notional": 143404.0,
+          "edge_bps": 0.3747,
+          "se": 0.0104,
+          "t": 35.88,
+          "hit_rate": 0.6117,
+          "mean_abs_forward_bps": 1.142,
+          "direction_term_2h_minus_1": 0.2234,
+          "implied_edge_from_factorisation": 0.2551
+        },
+        "75.0": {
+          "n": 10000,
+          "cut_notional": 307126.0,
+          "edge_bps": 0.3992,
+          "se": 0.016,
+          "t": 24.91,
+          "hit_rate": 0.6184,
+          "mean_abs_forward_bps": 1.2106,
+          "direction_term_2h_minus_1": 0.2368,
+          "implied_edge_from_factorisation": 0.2867
+        },
+        "90.0": {
+          "n": 4000,
+          "cut_notional": 606532.0,
+          "edge_bps": 0.4238,
+          "se": 0.0293,
+          "t": 14.45,
+          "hit_rate": 0.633,
+          "mean_abs_forward_bps": 1.3485,
+          "direction_term_2h_minus_1": 0.266,
+          "implied_edge_from_factorisation": 0.3587
+        },
+        "95.0": {
+          "n": 2000,
+          "cut_notional": 948000.0,
+          "edge_bps": 0.4286,
+          "se": 0.0463,
+          "t": 9.26,
+          "hit_rate": 0.64,
+          "mean_abs_forward_bps": 1.4707,
+          "direction_term_2h_minus_1": 0.28,
+          "implied_edge_from_factorisation": 0.4118
+        },
+        "99.0": {
+          "n": 400,
+          "cut_notional": 1956890.0,
+          "edge_bps": 0.568,
+          "se": 0.1261,
+          "t": 4.5,
+          "hit_rate": 0.6925,
+          "mean_abs_forward_bps": 1.7825,
+          "direction_term_2h_minus_1": 0.385,
+          "implied_edge_from_factorisation": 0.6863
+        },
+        "99.5": {
+          "n": 200,
+          "cut_notional": 2539630.0,
+          "edge_bps": 0.7634,
+          "se": 0.189,
+          "t": 4.04,
+          "hit_rate": 0.755,
+          "mean_abs_forward_bps": 1.75,
+          "direction_term_2h_minus_1": 0.51,
+          "implied_edge_from_factorisation": 0.8925
+        }
+      },
+      "null_direction_destroyed": {
+        "0.0": {
+          "edge_mean": 0.0004,
+          "edge_sd": 0.0066,
+          "hit_mean": 0.4795
+        },
+        "50.0": {
+          "edge_mean": 0.0012,
+          "edge_sd": 0.0103,
+          "hit_mean": 0.4833
+        },
+        "75.0": {
+          "edge_mean": 0.0038,
+          "edge_sd": 0.0171,
+          "hit_mean": 0.4861
+        },
+        "90.0": {
+          "edge_mean": 0.0011,
+          "edge_sd": 0.0337,
+          "hit_mean": 0.4895
+        },
+        "95.0": {
+          "edge_mean": 0.0011,
+          "edge_sd": 0.0491,
+          "hit_mean": 0.491
+        },
+        "99.0": {
+          "edge_mean": 0.019,
+          "edge_sd": 0.1522,
+          "hit_mean": 0.4924
+        },
+        "99.5": {
+          "edge_mean": 0.0247,
+          "edge_sd": 0.1917,
+          "hit_mean": 0.4951
+        }
+      },
+      "hit_rate_lift": 0.1741,
+      "magnitude_lift_x": 1.605,
+      "edge_lift_x": 2.63,
+      "direction_term_lift_x": 3.152
+    },
+    "SOLUSDT": {
+      "real": {
+        "0.0": {
+          "n": 39997,
+          "cut_notional": 0.0,
+          "edge_bps": 0.0924,
+          "se": 0.0168,
+          "t": 5.51,
+          "hit_rate": 0.3982,
+          "mean_abs_forward_bps": 2.3585,
+          "direction_term_2h_minus_1": -0.2035,
+          "implied_edge_from_factorisation": -0.48
+        },
+        "50.0": {
+          "n": 19999,
+          "cut_notional": 69544.0,
+          "edge_bps": 0.1392,
+          "se": 0.0254,
+          "t": 5.49,
+          "hit_rate": 0.4139,
+          "mean_abs_forward_bps": 2.5603,
+          "direction_term_2h_minus_1": -0.1722,
+          "implied_edge_from_factorisation": -0.4408
+        },
+        "75.0": {
+          "n": 10000,
+          "cut_notional": 157985.0,
+          "edge_bps": 0.1192,
+          "se": 0.0374,
+          "t": 3.19,
+          "hit_rate": 0.4156,
+          "mean_abs_forward_bps": 2.6873,
+          "direction_term_2h_minus_1": -0.1688,
+          "implied_edge_from_factorisation": -0.4536
+        },
+        "90.0": {
+          "n": 4000,
+          "cut_notional": 316321.0,
+          "edge_bps": 0.179,
+          "se": 0.0622,
+          "t": 2.88,
+          "hit_rate": 0.42,
+          "mean_abs_forward_bps": 2.8444,
+          "direction_term_2h_minus_1": -0.16,
+          "implied_edge_from_factorisation": -0.4551
+        },
+        "95.0": {
+          "n": 2000,
+          "cut_notional": 474722.0,
+          "edge_bps": 0.1969,
+          "se": 0.0893,
+          "t": 2.21,
+          "hit_rate": 0.4215,
+          "mean_abs_forward_bps": 2.9283,
+          "direction_term_2h_minus_1": -0.157,
+          "implied_edge_from_factorisation": -0.4597
+        },
+        "99.0": {
+          "n": 400,
+          "cut_notional": 1018430.0,
+          "edge_bps": 0.1817,
+          "se": 0.218,
+          "t": 0.83,
+          "hit_rate": 0.4175,
+          "mean_abs_forward_bps": 3.2476,
+          "direction_term_2h_minus_1": -0.165,
+          "implied_edge_from_factorisation": -0.5358
+        },
+        "99.5": {
+          "n": 200,
+          "cut_notional": 1332200.0,
+          "edge_bps": 0.4544,
+          "se": 0.3167,
+          "t": 1.43,
+          "hit_rate": 0.435,
+          "mean_abs_forward_bps": 3.2551,
+          "direction_term_2h_minus_1": -0.13,
+          "implied_edge_from_factorisation": -0.4232
+        }
+      },
+      "null_direction_destroyed": {
+        "0.0": {
+          "edge_mean": 0.0046,
+          "edge_sd": 0.0154,
+          "hit_mean": 0.3838
+        },
+        "50.0": {
+          "edge_mean": 0.0055,
+          "edge_sd": 0.0222,
+          "hit_mean": 0.3957
+        },
+        "75.0": {
+          "edge_mean": 0.0112,
+          "edge_sd": 0.0412,
+          "hit_mean": 0.401
+        },
+        "90.0": {
+          "edge_mean": 0.0016,
+          "edge_sd": 0.0728,
+          "hit_mean": 0.4059
+        },
+        "95.0": {
+          "edge_mean": 0.0027,
+          "edge_sd": 0.1081,
+          "hit_mean": 0.4058
+        },
+        "99.0": {
+          "edge_mean": -0.0053,
+          "edge_sd": 0.2174,
+          "hit_mean": 0.4197
+        },
+        "99.5": {
+          "edge_mean": 0.0189,
+          "edge_sd": 0.3176,
+          "hit_mean": 0.4238
+        }
+      },
+      "hit_rate_lift": 0.0368,
+      "magnitude_lift_x": 1.38,
+      "edge_lift_x": 4.918,
+      "direction_term_lift_x": 0.639
+    }
+  }
+}

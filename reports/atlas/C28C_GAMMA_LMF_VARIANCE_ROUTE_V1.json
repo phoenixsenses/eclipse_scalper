@@ -1,0 +1,43 @@
+{
+  "study": "C-T28-part3",
+  "route": "chi on the UNWEIGHTED sign series; gamma = 2(1-chi)",
+  "why_unweighted": "the identity assumes iid sizes; the pure sign series removes volume weighting entirely",
+  "per_symbol": {
+    "BTCUSDT": {
+      "chi_pure_sign": 0.7776,
+      "r2": 0.9967,
+      "null_mean": 0.4998,
+      "null_sd": 0.0032,
+      "z": 87.3,
+      "gamma_LMF_from_variance": 0.4447,
+      "gamma_LMF_C_T24_direct": 0.7746,
+      "ratio": 0.574,
+      "alpha_metaorder_size": 1.445,
+      "buy_share": 0.499
+    },
+    "ETHUSDT": {
+      "chi_pure_sign": 0.7043,
+      "r2": 0.9981,
+      "null_mean": 0.5003,
+      "null_sd": 0.004,
+      "z": 50.5,
+      "gamma_LMF_from_variance": 0.5914,
+      "gamma_LMF_C_T24_direct": 0.7892,
+      "ratio": 0.749,
+      "alpha_metaorder_size": 1.591,
+      "buy_share": 0.506
+    },
+    "SOLUSDT": {
+      "chi_pure_sign": 0.8918,
+      "r2": 0.9999,
+      "null_mean": 0.4997,
+      "null_sd": 0.0045,
+      "z": 87.7,
+      "gamma_LMF_from_variance": 0.2164,
+      "gamma_LMF_C_T24_direct": 0.2092,
+      "ratio": 1.034,
+      "alpha_metaorder_size": 1.216,
+      "buy_share": 0.518
+    }
+  }
+}

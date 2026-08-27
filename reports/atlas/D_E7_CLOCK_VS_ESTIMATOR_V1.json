@@ -1,0 +1,346 @@
+{
+ "study": "D-E7",
+ "lane": "D",
+ "class": "accounting_integrity_outcome_blind",
+ "reads": [
+  "liquidations.ts_ms",
+  "liquidations.notional"
+ ],
+ "never_reads": [
+  "any price, any return, any outcome column"
+ ],
+ "reconciles": [
+  "D-E4 / section 512 (lane D)",
+  "S126 / section 472 (corpus branch)"
+ ],
+ "populations": [
+  {
+   "floor_usd": 0.0,
+   "reference_window_utc_ms": [
+    1785197461650,
+    1787246429377
+   ],
+   "rebuild_vs_published_population": {
+    "exact_reproduction": false,
+    "per_symbol": {
+     "BTCUSDT": {
+      "rebuilt": 571,
+      "published": 458,
+      "matched": 458,
+      "in_published_not_rebuilt": 0,
+      "in_rebuilt_not_published": 113
+     },
+     "ETHUSDT": {
+      "rebuilt": 538,
+      "published": 417,
+      "matched": 417,
+      "in_published_not_rebuilt": 0,
+      "in_rebuilt_not_published": 121
+     },
+     "SOLUSDT": {
+      "rebuilt": 699,
+      "published": 396,
+      "matched": 396,
+      "in_published_not_rebuilt": 0,
+      "in_rebuilt_not_published": 303
+     }
+    }
+   },
+   "n_episodes": {
+    "BTCUSDT": 571,
+    "ETHUSDT": 538,
+    "SOLUSDT": 699
+   },
+   "n_spells": {
+    "BTCUSDT": 570,
+    "ETHUSDT": 537,
+    "SOLUSDT": 698
+   },
+   "span_hours_p50": {
+    "BTCUSDT": 0.2449,
+    "ETHUSDT": 0.2398,
+    "SOLUSDT": 0.0758
+   },
+   "cell_A_CV_on_start_to_start": {
+    "estimator": "CV_of_dead_time_corrected_waits",
+    "pooled_within_symbol_cv": 1.1498,
+    "z_vs_1": 6.36,
+    "n": 1805,
+    "per_symbol": {
+     "BTCUSDT": {
+      "n": 570,
+      "cv": 1.2166,
+      "z_vs_1": 5.17
+     },
+     "ETHUSDT": {
+      "n": 537,
+      "cv": 1.3007,
+      "z_vs_1": 6.97
+     },
+     "SOLUSDT": {
+      "n": 698,
+      "cv": 0.955,
+      "z_vs_1": -1.19
+     }
+    }
+   },
+   "cell_B_CV_on_end_to_start": {
+    "estimator": "CV_of_dead_time_corrected_waits",
+    "pooled_within_symbol_cv": 1.459,
+    "z_vs_1": 19.5,
+    "n": 1805,
+    "per_symbol": {
+     "BTCUSDT": {
+      "n": 570,
+      "cv": 1.4975,
+      "z_vs_1": 11.88
+     },
+     "ETHUSDT": {
+      "n": 537,
+      "cv": 1.6519,
+      "z_vs_1": 15.11
+     },
+     "SOLUSDT": {
+      "n": 698,
+      "cv": 1.2571,
+      "z_vs_1": 6.79
+     }
+    }
+   },
+   "cell_C_NA_on_start_to_start_delayed_entry": {
+    "estimator": "nelson_aalen_late_over_early_with_delayed_entry",
+    "window_h": [
+     0.25,
+     1.66
+    ],
+    "midpoint_h": 0.955,
+    "pooled_late_over_early": 1.1019,
+    "per_symbol": {
+     "BTCUSDT": {
+      "n_events": 502,
+      "early_per_h": 2.7109,
+      "late_per_h": 3.063,
+      "late_over_early": 1.1299
+     },
+     "ETHUSDT": {
+      "n_events": 464,
+      "early_per_h": 2.9036,
+      "late_per_h": 2.7874,
+      "late_over_early": 0.96
+     },
+     "SOLUSDT": {
+      "n_events": 657,
+      "early_per_h": 2.1683,
+      "late_per_h": 2.7258,
+      "late_over_early": 1.2571
+     }
+    }
+   },
+   "cell_D_NA_on_end_to_start": {
+    "estimator": "nelson_aalen_late_over_early_with_delayed_entry",
+    "window_h": [
+     0.25,
+     1.66
+    ],
+    "midpoint_h": 0.955,
+    "pooled_late_over_early": 0.6054,
+    "per_symbol": {
+     "BTCUSDT": {
+      "n_events": 567,
+      "early_per_h": 4.3011,
+      "late_per_h": 2.9193,
+      "late_over_early": 0.6787
+     },
+     "ETHUSDT": {
+      "n_events": 533,
+      "early_per_h": 4.7788,
+      "late_per_h": 2.0025,
+      "late_over_early": 0.419
+     },
+     "SOLUSDT": {
+      "n_events": 681,
+      "early_per_h": 2.8987,
+      "late_per_h": 2.3305,
+      "late_over_early": 0.804
+     }
+    }
+   },
+   "null_calibration": {
+    "world": "constant individual hazard + built-in dead time + NO frailty; episode spans resampled from the data",
+    "reps": 300,
+    "null_cv_mean": 0.9982,
+    "null_cv_sd": 0.0221,
+    "null_late_over_early_mean": 0.9021,
+    "null_late_over_early_sd": 0.1151,
+    "null_late_over_early_p05_p95": [
+     0.7106,
+     1.0784
+    ]
+   }
+  },
+  {
+   "floor_usd": 50000.0,
+   "reference_window_utc_ms": [
+    1785197461650,
+    1787246429377
+   ],
+   "rebuild_vs_published_population": {
+    "exact_reproduction": false,
+    "per_symbol": {
+     "BTCUSDT": {
+      "rebuilt": 257,
+      "published": 458,
+      "matched": 257,
+      "in_published_not_rebuilt": 201,
+      "in_rebuilt_not_published": 0
+     },
+     "ETHUSDT": {
+      "rebuilt": 233,
+      "published": 417,
+      "matched": 233,
+      "in_published_not_rebuilt": 184,
+      "in_rebuilt_not_published": 0
+     },
+     "SOLUSDT": {
+      "rebuilt": 138,
+      "published": 396,
+      "matched": 138,
+      "in_published_not_rebuilt": 258,
+      "in_rebuilt_not_published": 0
+     }
+    }
+   },
+   "n_episodes": {
+    "BTCUSDT": 257,
+    "ETHUSDT": 233,
+    "SOLUSDT": 138
+   },
+   "n_spells": {
+    "BTCUSDT": 256,
+    "ETHUSDT": 232,
+    "SOLUSDT": 137
+   },
+   "span_hours_p50": {
+    "BTCUSDT": 0.6525,
+    "ETHUSDT": 0.7235,
+    "SOLUSDT": 0.5485
+   },
+   "cell_A_CV_on_start_to_start": {
+    "estimator": "CV_of_dead_time_corrected_waits",
+    "pooled_within_symbol_cv": 1.1059,
+    "z_vs_1": 2.65,
+    "n": 625,
+    "per_symbol": {
+     "BTCUSDT": {
+      "n": 256,
+      "cv": 1.1577,
+      "z_vs_1": 2.52
+     },
+     "ETHUSDT": {
+      "n": 232,
+      "cv": 0.9763,
+      "z_vs_1": -0.36
+     },
+     "SOLUSDT": {
+      "n": 137,
+      "cv": 1.2161,
+      "z_vs_1": 2.53
+     }
+    }
+   },
+   "cell_B_CV_on_end_to_start": {
+    "estimator": "CV_of_dead_time_corrected_waits",
+    "pooled_within_symbol_cv": 1.839,
+    "z_vs_1": 20.97,
+    "n": 625,
+    "per_symbol": {
+     "BTCUSDT": {
+      "n": 256,
+      "cv": 2.0701,
+      "z_vs_1": 17.12
+     },
+     "ETHUSDT": {
+      "n": 232,
+      "cv": 1.7616,
+      "z_vs_1": 11.6
+     },
+     "SOLUSDT": {
+      "n": 137,
+      "cv": 1.4867,
+      "z_vs_1": 5.7
+     }
+    }
+   },
+   "cell_C_NA_on_start_to_start_delayed_entry": {
+    "estimator": "nelson_aalen_late_over_early_with_delayed_entry",
+    "window_h": [
+     0.25,
+     1.66
+    ],
+    "midpoint_h": 0.955,
+    "pooled_late_over_early": 1.0385,
+    "per_symbol": {
+     "BTCUSDT": {
+      "n_events": 132,
+      "early_per_h": 1.0955,
+      "late_per_h": 0.9256,
+      "late_over_early": 0.8449
+     },
+     "ETHUSDT": {
+      "n_events": 107,
+      "early_per_h": 0.849,
+      "late_per_h": 0.9428,
+      "late_over_early": 1.1105
+     },
+     "SOLUSDT": {
+      "n_events": 47,
+      "early_per_h": 0.311,
+      "late_per_h": 0.4738,
+      "late_over_early": 1.5236
+     }
+    }
+   },
+   "cell_D_NA_on_end_to_start": {
+    "estimator": "nelson_aalen_late_over_early_with_delayed_entry",
+    "window_h": [
+     0.25,
+     1.66
+    ],
+    "midpoint_h": 0.955,
+    "pooled_late_over_early": 0.5419,
+    "per_symbol": {
+     "BTCUSDT": {
+      "n_events": 204,
+      "early_per_h": 1.5094,
+      "late_per_h": 0.7407,
+      "late_over_early": 0.4907
+     },
+     "ETHUSDT": {
+      "n_events": 183,
+      "early_per_h": 1.3228,
+      "late_per_h": 0.8714,
+      "late_over_early": 0.6588
+     },
+     "SOLUSDT": {
+      "n_events": 60,
+      "early_per_h": 0.5777,
+      "late_per_h": 0.2355,
+      "late_over_early": 0.4077
+     }
+    }
+   },
+   "null_calibration": {
+    "world": "constant individual hazard + built-in dead time + NO frailty; episode spans resampled from the data",
+    "reps": 300,
+    "null_cv_mean": 0.9986,
+    "null_cv_sd": 0.0387,
+    "null_late_over_early_mean": 0.9994,
+    "null_late_over_early_sd": 0.106,
+    "null_late_over_early_p05_p95": [
+     0.8361,
+     1.1746
+    ]
+   }
+  }
+ ]
+}

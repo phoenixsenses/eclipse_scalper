@@ -1,0 +1,158 @@
+{
+  "defect": "raw grep over data/literature_v2/text",
+  "named_by": "LANE_ONBOARDING_PROMPTS_V1 section 6",
+  "ceiling": "MEASUREMENT_FIDELITY",
+  "sources": {
+    "AALEN_BORGAN_GJESSING": {
+      "nul": 0,
+      "ligatures": 2014,
+      "bytes": 1289825
+    },
+    "ABERGEL_LOB": {
+      "nul": 1018,
+      "ligatures": 988,
+      "bytes": 384191
+    },
+    "BOUCHAUD_TQP": {
+      "nul": 0,
+      "ligatures": 2246,
+      "bytes": 1044511
+    },
+    "CARTEA_AHFT": {
+      "nul": 0,
+      "ligatures": 0,
+      "bytes": 764817
+    },
+    "CHAN_AT": {
+      "nul": 0,
+      "ligatures": 2,
+      "bytes": 447027
+    },
+    "ECONOPHYS_ODM": {
+      "nul": 0,
+      "ligatures": 1244,
+      "bytes": 696672
+    },
+    "HARRIS_TE": {
+      "nul": 0,
+      "ligatures": 0,
+      "bytes": 342611
+    },
+    "HASBROUCK_EMM": {
+      "nul": 0,
+      "ligatures": 968,
+      "bytes": 487222
+    },
+    "HERNAN_ROBINS_WHATIF": {
+      "nul": 240,
+      "ligatures": 0,
+      "bytes": 1277346
+    },
+    "HONORE_1993": {
+      "nul": 0,
+      "ligatures": 87,
+      "bytes": 20095
+    },
+    "KISSELL_SATPM": {
+      "nul": 0,
+      "ligatures": 3126,
+      "bytes": 1064611
+    },
+    "LOPEZDEPRADO_MLAM": {
+      "nul": 0,
+      "ligatures": 1948,
+      "bytes": 312224
+    },
+    "SURVIVAL_STK4080": {
+      "nul": 79,
+      "ligatures": 523,
+      "bytes": 515123
+    }
+  },
+  "recall_on_my_terms": {
+    "refill": {
+      "true": 20,
+      "raw_grep": 0,
+      "missed_pct": 100.0
+    },
+    "fill probability": {
+      "true": 13,
+      "raw_grep": 11,
+      "missed_pct": 15.384615384615385
+    },
+    "signature plot": {
+      "true": 59,
+      "raw_grep": 45,
+      "missed_pct": 23.728813559322038
+    },
+    "queue position": {
+      "true": 9,
+      "raw_grep": 9,
+      "missed_pct": 0.0
+    },
+    "open question": {
+      "true": 3,
+      "raw_grep": 3,
+      "missed_pct": 0.0
+    },
+    "deserves further": {
+      "true": 1,
+      "raw_grep": 1,
+      "missed_pct": 0.0
+    },
+    "remains unclear": {
+      "true": 2,
+      "raw_grep": 2,
+      "missed_pct": 0.0
+    },
+    "efficiency": {
+      "true": 113,
+      "raw_grep": 31,
+      "missed_pct": 72.56637168141593
+    },
+    "identifiability": {
+      "true": 78,
+      "raw_grep": 0,
+      "missed_pct": 100.0
+    },
+    "different": {
+      "true": 1437,
+      "raw_grep": 1154,
+      "missed_pct": 19.693806541405714
+    },
+    "confirm": {
+      "true": 92,
+      "raw_grep": 18,
+      "missed_pct": 80.43478260869566
+    },
+    "first": {
+      "true": 1730,
+      "raw_grep": 573,
+      "missed_pct": 66.878612716763
+    }
+  },
+  "ct40_resweep": {
+    "all_sources_passages": 20,
+    "by_source": {
+      "AALEN_BORGAN_GJESSING": 2,
+      "BOUCHAUD_TQP": 4,
+      "CARTEA_AHFT": 3,
+      "CHAN_AT": 1,
+      "ECONOPHYS_ODM": 2,
+      "HASBROUCK_EMM": 2,
+      "HERNAN_ROBINS_WHATIF": 3,
+      "KISSELL_SATPM": 2,
+      "SURVIVAL_STK4080": 1
+    },
+    "ct40_four_files_passages": 9,
+    "ct40_published_count": 3,
+    "other_lane_count": 15
+  },
+  "tokens": [
+    "EVERY_CORPUS_SEARCH_THIS_LANE_RAN_TODAY_WAS_A_RAW_GREP",
+    "ABERGEL_WAS_SILENTLY_EXCLUDED_FROM_EVERY_MULTI_FILE_SEARCH",
+    "THE_BINARY_FILE_MATCHES_LINE_APPEARED_IN_MY_OWN_OUTPUT_AND_I_READ_PAST_IT",
+    "CT40_OPEN_QUESTION_SWEEP_IS_AN_ABSENCE_CLAIM_FROM_A_RAW_READER",
+    "THREE_AGAINST_FIFTEEN"
+  ]
+}

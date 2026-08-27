@@ -1,0 +1,27 @@
+{
+  "study": "C-T46-part2",
+  "question": "at 1 s bars 11-18% are empty and forward-filled; zero returns are exactly what makes h(q) fall with q. Does dropping the filled bars remove the excess?",
+  "per_symbol": {
+    "BTCUSDT": {
+      "empty_bar_share": 0.1116,
+      "fall_forward_filled": 0.3164,
+      "fall_empty_dropped": 0.2868,
+      "zero_return_share_filled": 0.5575,
+      "reduction_factor": 1.1
+    },
+    "ETHUSDT": {
+      "empty_bar_share": 0.137,
+      "fall_forward_filled": 0.2232,
+      "fall_empty_dropped": 0.1948,
+      "zero_return_share_filled": 0.5183,
+      "reduction_factor": 1.15
+    },
+    "SOLUSDT": {
+      "empty_bar_share": 0.1814,
+      "fall_forward_filled": 0.1045,
+      "fall_empty_dropped": 0.0982,
+      "zero_return_share_filled": 0.6202,
+      "reduction_factor": 1.06
+    }
+  }
+}

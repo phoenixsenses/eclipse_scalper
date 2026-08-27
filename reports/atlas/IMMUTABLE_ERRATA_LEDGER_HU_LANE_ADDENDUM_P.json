@@ -1,0 +1,42 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_P",
+  "append_only": true,
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "found_by": "tools/ct36_lane_c_survivorship_audit.py",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-035",
+      "source_file": "tools/ct36_lane_c_survivorship_audit.py",
+      "source_section_or_line": "classify() -- verb-window inference, first version",
+      "error_class": "CODE_ERROR",
+      "old_statement": "the first pass labelled tokens WITHDRAWN / SUPERSEDED / SUSPENDED by looking for verbs within 260 characters of the token",
+      "corrected_statement": "It got it wrong in the direction that matters. A REPLACEMENT token introduced by an errata sits next to the word 'withdrawn', which applies to the token it REPLACES -- so SUPER_DIFFUSION_NOT_IDENTIFIED_BY_A_MERGE_SCAN, LADDER_MIXED_ESTIMANDS and NO_PROFITABLE_QUEUE_POSITION_AT_THE_ACTUAL_MAKER_FEE were all labelled WITHDRAWN when each is a replacement the errata INTRODUCED. Verb inference is dropped; the audit now reports TOUCHED plus the errata id and leaves classification to a reader.",
+      "numeric_outputs_affected": true,
+      "primary_verdict_affected": false,
+      "downstream_artifacts_affected": [
+        "reports/atlas/CT36_LANE_C_SURVIVORSHIP_V1.json"
+      ],
+      "source_sha256": "44850e46d981bf0e3ae52047ed38d5c3409fc5f8eaeebe26a4142a4ce9f20c9b",
+      "source_exists": true,
+      "errata_sha256": "717e880844588df01dd7fb0dc9cba75809b3853cefb1e83aebf50371ee6f6533"
+    },
+    {
+      "errata_id": "ERR-HU-036",
+      "source_file": "reports/atlas/IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1.json",
+      "source_section_or_line": "the errata schema itself, all ten ledgers",
+      "error_class": "PROSE_OVERCLAIM",
+      "old_statement": "34 errata entries across ten append-only ledgers, most marked primary_verdict_affected: true, presented as a complete correction record for Lane C",
+      "corrected_statement": "The record is NOT machine-auditable. Lane C published 476 distinct verdict tokens; a literal search of all 34 errata entries finds only 16 of them named. So roughly 97 percent of the tokens have never been linked to any correction, and the corrections that were written mostly do not name the token they invalidate -- they describe it in prose. Consequence: the audit's 460 'STANDING' is NOT a claim that 460 statements are true; it means 'not literally named in any errata', which given the naming gap is close to uninformative. The real standing count is UNKNOWN. Fix, for every errata from here on: an explicit structured `affected_tokens` list. This is the mirror of the atlas's finding that Lane B was invisible to mechanical indexes -- Lane C's tokens are visible but its CORRECTIONS are not linked to them.",
+      "numeric_outputs_affected": false,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "all Lane C SYSTEM_STATE sections",
+        "reports/atlas/CT36_LANE_C_SURVIVORSHIP_V1.json"
+      ],
+      "source_sha256": null,
+      "source_exists": false,
+      "errata_sha256": "bd91b05c34ae7e712902f00adf289033ac6baa87e37f9400e9e19c9362a8603c"
+    }
+  ]
+}

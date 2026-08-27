@@ -1,0 +1,60 @@
+{
+  "ledger_id": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_ADDENDUM_O",
+  "append_only": true,
+  "parent_ledger": "IMMUTABLE_ERRATA_LEDGER_HU_LANE_V1",
+  "rule": "published artifacts stay byte-identical; corrections are appended",
+  "found_by": "tools/ct35_the_intertwined_series.py",
+  "entries": [
+    {
+      "errata_id": "ERR-HU-032",
+      "source_file": "tools/hu12_what_the_exponents_say_to_each_other.py",
+      "source_section_or_line": "GAMMA_FIT = (10, 1000) -- the fit range, never swept",
+      "error_class": "NUMERIC_ERROR",
+      "old_statement": "gamma = 0.407 / 0.379 / 0.411 (200 ms merge), treated as the exponent",
+      "corrected_statement": "gamma depends strongly on the FIT RANGE, which no run in this lane ever swept. Fitting the same C(l) over [5, 200] instead of [10, 1000] gives 0.795 (BTC) and 0.729 (ETH) against 0.407 and 0.379 -- roughly DOUBLE -- while SOL barely moves (0.407 vs 0.411). A pure power law would give the same exponent on any range, so the real C(l) is not one. Second independent reason for GAMMA_IS_NOT_A_SINGLE_NUMBER (C-T25 found the first: it depends on which variable's autocorrelation is taken). C-T28's recovery calibrated at ONE fixed range, so it measured precision, not range-robustness.",
+      "numeric_outputs_affected": true,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "SYSTEM_STATE 481",
+        "SYSTEM_STATE 490",
+        "SYSTEM_STATE 494"
+      ],
+      "source_sha256": "2f33a97615570eb3b40661fc317c0c00d89e9f39c2b262e896a8818644fecd56",
+      "source_exists": true,
+      "errata_sha256": "a9924b1b5ff4fa1df9f2223cc62114363b677dc01a2f5d89d63ada7674c7baaa"
+    },
+    {
+      "errata_id": "ERR-HU-033",
+      "source_file": "tools/ct29_fine_balance_now_that_both_inputs_are_calibrated.py",
+      "source_section_or_line": "beta_predicted = (1 - gamma_debiased)/2",
+      "error_class": "PROSE_OVERCLAIM",
+      "old_statement": "the composite is rejected on BTC (z -2.51) and SOL (z -3.15), with the measured kappa-chi BELOW the prediction",
+      "corrected_statement": "The prediction used gamma from the [10, 1000] fit range. With [5, 200] gamma is 0.795 on BTC, so (1-gamma)/2 = 0.103 against a measured kappa-chi of 0.2245 -- a rejection in the OPPOSITE direction. The verdict's SIGN is range-dependent. The rejection is not withdrawn (both ranges reject) but its DIRECTION, and any story about beta being below or above beta_c, is NOT ESTABLISHED.",
+      "numeric_outputs_affected": false,
+      "primary_verdict_affected": true,
+      "downstream_artifacts_affected": [
+        "SYSTEM_STATE 494",
+        "SYSTEM_STATE 497"
+      ],
+      "source_sha256": "90a3ac2a09d097fd7da3dd4754460d810fef39a93d128d734619ccdef83354e8",
+      "source_exists": true,
+      "errata_sha256": "a616da96a8a2ff0dd8a4b7e220d2dcde506c4fb60e63c43f3c47eb07a359e97c"
+    },
+    {
+      "errata_id": "ERR-HU-034",
+      "source_file": "tools/ct35_the_intertwined_series.py",
+      "source_section_or_line": "the 'MO_only' series",
+      "error_class": "DENOMINATOR_MISLABEL",
+      "old_statement": "MO_only gamma reported as 0.795 / 0.729 / 0.407 alongside C-T19's 0.407 / 0.379 / 0.411",
+      "corrected_statement": "This run's MO_only contains only market orders that MOVED the mid, while C-T19's gamma was measured on ALL market orders. Two different populations printed side by side as if comparable. Part of the gap is the fit range (ERR-HU-032) and part is this; the run does not separate them.",
+      "numeric_outputs_affected": false,
+      "primary_verdict_affected": false,
+      "downstream_artifacts_affected": [
+        "reports/atlas/CT35_INTERTWINED_V1.json"
+      ],
+      "source_sha256": "4ca04f7cb0d72709dd1ddd06e06665c9a51ed3b3643881df4eab8a9919f3e120",
+      "source_exists": true,
+      "errata_sha256": "135ef2deef8f44f9305c1c260d2b1a04bd5665c0f680e232e9bcbbdfa21ad799"
+    }
+  ]
+}
