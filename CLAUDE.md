@@ -28,6 +28,12 @@
 3. Research işi ise: ilgili rapor `reports/research/s34/` altında; geçmiş sonuçların meta-DB'si `reports/research/s34/S34_ALL.db`.
 
 ## Kesin guardrail'lar (ihlal edilemez)
+- **🚨 `git push` YASAK — `origin` PUBLIC (2026-08-27, D-E19'da ölçüldü).**
+  `origin = github.com/phoenixsenses/eclipse_scalper` ve `gh repo view` onu **PUBLIC** gösteriyor
+  (orada zaten 17 707 dosya var). Bu depo **iç araştırma** taşıyor: `SYSTEM_STATE.md` tek başına
+  **4.4 MB** eşik/sonuç/ön-kayıt. Bir push **geri alınamaz** — silsen de cache'lenir ve indekslenir.
+  **Commit SERBEST** (dayanıklılık için gerekli), **push OPERATÖR ONAYI ŞART**.
+  İç iş için doğru hedef ayrı bir remote: `phoenixsenses/eclipse_scalper_internal` (**PRIVATE**).
 - `tools/s34_state_machine_live_executor.py`, `.env`, `execution/`, `risk/`, `brain/` — DOKUNMA (operatör sign-off şart).
 - Leverage / ORDER_NOTIONAL / sizing — değişmez.
 - Paralel Python/PowerShell prosesi ÇALIŞTIRMA (RAM çöker); araştırma scriptleri sırayla.

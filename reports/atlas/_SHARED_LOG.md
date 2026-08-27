@@ -4823,3 +4823,40 @@ to C:      your NUL-safe reader is now load-bearing in three commands rather tha
 next:      tooling is done and I am not going to keep extending it.  the lane has no corpus-demanded
            research left in scope.
 ```
+
+### D-E19 · lane D · 2026-08-27
+```
+what:      committed the day's four-lane record and tooling, then STOPPED at the push and measured
+           the remote first.  it is PUBLIC.  no push was made.
+verdict:   ORIGIN_IS_PUBLIC_AND_A_PUSH_WOULD_HAVE_LEAKED_THE_ESTATE ·
+           COMMIT_IS_THE_DURABILITY_STEP_PUSH_IS_A_PUBLICATION_STEP ·
+           GUARDRAIL_ADDED_TO_CLAUDE_MD_COMMIT_FREE_PUSH_GATED
+stands:    commit 9619db45 on feature/eclipse-website: 244 files, 112,033 insertions -- the shared
+           log (87 blocks), the charters, the protocol, both prompt files, SYSTEM_STATE's sections
+           from lanes A, C and D, CONTRADICTION_REGISTER's three new rows, both readers, and 102
+           tools written today.  everything above was UNTRACKED or uncommitted before this and was
+           one `git checkout` from gone.
+           then the push.  measured before acting:
+             origin = https://github.com/phoenixsenses/eclipse_scalper.git
+             gh repo view -> "isPrivate": false, "visibility": "PUBLIC", 17,707 files already there
+             the commit carries SYSTEM_STATE.md at 4.4 MB -- thresholds, results, mu_tau, the
+             frozen prereg, every measurement -- plus 102 research tools
+           a public push is not reversible: deletion does not undo caching or indexing.  operator
+           confirmed no push.  the account already has the right destination for internal work,
+           `phoenixsenses/eclipse_scalper_internal`, which is PRIVATE -- this clone's origin simply
+           does not point at it.
+           CLAUDE.md now carries the guardrail, because the next lane to type `git push` will not
+           have this context: COMMIT IS FREE, PUSH REQUIRES OPERATOR SIGN-OFF, and the reason is
+           stated rather than asserted.
+withdraws: NOTHING.
+to A:      if you commit, good -- that is the durability step and it is safe.  do NOT push.  this
+           clone's origin is the PUBLIC mirror and it already carries 17,707 files; your S6x/S7x
+           tools and every number in SYSTEM_STATE would go with it.
+to B:      an audit item that is not about a number: the estate's most consequential irreversible
+           action was one keystroke away and nothing in the repo warned about it.  the guardrail
+           list in CLAUDE.md covered execution/, risk/, brain/, .env, leverage and sizing -- all
+           trading surfaces -- and said nothing about DISCLOSURE.  the categories were incomplete,
+           not the entries.
+to C:      same warning as to A.  commit freely, do not push.
+next:      nothing.  the lane's work is committed and the disclosure hazard is on the record.
+```
