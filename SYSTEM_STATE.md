@@ -59598,3 +59598,39 @@ FIRST_VERSION_COMPARED_AGAINST_PLAIN_POISSON_AND_WOULD_HAVE_REFUTED_AN_UNIMPLEME
 MU_TAU_18_10_UNCHANGED_A_S65_ENDORSES_THE_EPISODE_UNIT_FOR_THE_DURATION_OBJECT
 THIS_ROUND_EXISTS_ONLY_BECAUSE_THE_D_E25_REPAIR_DELIVERED_THREE_UNREAD_BLOCKS
 ```
+
+## §558 [D-E28] STANDING PROMPT YENİDEN YAZILDI: **BİR KERELİK SATIR + HER-TUR CÜMLESİ** — ve eklenen üç madde bugün ödenen üç hata (2026-08-27, Opus 5 [1M])
+
+### AYRIM, İFADEDEN DAHA ÖNEMLİ
+`--inbox` **BİR KERELİKTİR** ve her-tur cümlesine konmamalı: temizlediği birikim **tam olarak
+bir kez** vardır — parser onarımından sonra. Standing cümleye koymak dört hatta **her tur 117
+mesajı yeniden okutmayı** öğretirdi.
+
+`--brief` **imleç tabanlı**: yalnız hattın kendi son bloğundan sonrasını gösterir. D-E25'in geri
+getirdiği 13 bloğun hepsi her hattın imlecinden **önce** duruyor. Bekleyen: **A 84 · B 117 ·
+C 66 · D 57**.
+
+### HER-TUR CÜMLESİNE EKLENEN ÜÇ MADDE — her biri tek cümle, paragraf değil
+
+| madde | eksik olduğunda neye mal oldu |
+|---|---|
+| **bir aracı da, kendi eski sayını da doğrula** | D-E27 az kalsın D-E4'ün kapalı formunu **düz Poisson**la çürütecekti; D-E4 **ölü-zamanlı** form yayımlamıştı. Hatırlamak yerine **yeniden okuyarak** yakalandı. |
+| **başka hattın aletinin GEÇERLİLİK ALANINI sor** | A-S64 o kapalı formu hatlar arası benimsedi. Tabansız doğru (ampiriğin 0.88–1.00'i), **$500k tabanında iki yönde birden yanlış** (0.08×–5.57×). Nerede geçerli olduğu **hiç yazılmamıştı**. |
+| **kendi prob'unun SIFIRI kanıt değil** | Bir günde **iki kez** kendi yazdığım prob'un sıfırından yokluk yayımladım. Dosyalar CRLF, tire-satırbaşı prob'u **tam sıfır** döndürüyor, gerçek sayı **7 566**'ydı — ve ikincisi bu log'un **%11'ini düşüren** kusuru saklıyordu. |
+
+Artı bir kapanış maddesi: bloğu **eklemeden önce bir KOPYADA `--check` ile doğrula** — append-only
+bir kayıtta bozuk blok **iki bloka** mal olur, iki kez ölçüldü.
+
+**Başka hiçbir şey eklenmedi.** Operatörün özgün cümlesi **olduğu gibi duruyor**; eklenen her
+madde, atlanabilecek bir madde daha demektir.
+
+```verdict
+STANDING_PROMPT_SPLIT_INTO_A_ONE_TIME_LINE_AND_A_STANDING_SENTENCE
+INBOX_IS_ONE_TIME_PUTTING_IT_IN_THE_STANDING_SENTENCE_WOULD_TRAIN_REREADING_117_MESSAGES
+THREE_CLAUSES_ADDED_EACH_ONE_A_FAILURE_THIS_LANE_PAID_FOR_TODAY
+VERIFY_AN_INSTRUMENT_NOT_JUST_A_CLAIM
+ASK_AN_INSTRUMENTS_VALIDITY_DOMAIN_BEFORE_ADOPTING_IT_ACROSS_LANES
+YOUR_OWN_PROBES_ZERO_IS_NOT_EVIDENCE_OF_ABSENCE
+VALIDATE_A_BLOCK_ON_A_COPY_BEFORE_APPENDING_TO_AN_APPEND_ONLY_RECORD
+THE_OPERATORS_ORIGINAL_SENTENCE_IS_INTACT_NOTHING_REMOVED
+```

@@ -6076,3 +6076,39 @@ next:      whether the burstiness at a floor is the same object as D-E13's INTER
            second one.  ABG 8.3's rate-model machinery is the named family and the estate already
            carries its sandwich caveat.
 ```
+
+### D-E28 · lane D · 2026-08-27
+```
+what:      rewrote the standing prompt so the other lanes run against the repaired tools, splitting
+           it into a ONE-TIME line and a STANDING sentence.  reports/atlas/LANE_ONBOARDING_PROMPTS_V1.md.
+verdict:   ONE_TIME_LINE_IS_INBOX_BECAUSE_BRIEF_IS_CURSOR_BASED_AND_CANNOT_REACH_THE_BACKLOG ·
+           THREE_CLAUSES_ADDED_TO_THE_STANDING_SENTENCE_EACH_PAID_FOR_TODAY ·
+           NOTHING_ELSE_ADDED_EVERY_CLAUSE_IS_ONE_MORE_THAT_CAN_BE_SKIMMED
+stands:    the split matters more than the wording.  `--inbox` is ONE-TIME and must not live in the
+           every-round sentence, because the backlog it clears exists exactly once -- after a
+           parser repair.  putting it in the standing sentence would train four lanes to re-read
+           117 messages every round.
+           the three new standing clauses are the three failure modes this lane paid for today, and
+           each is one clause, not a paragraph:
+             VERIFY AN INSTRUMENT, NOT JUST A CLAIM -- D-E27 nearly refuted D-E4's closed form
+               using PLAIN Poisson while D-E4 had published a DEAD-TIME form.
+             ASK AN INSTRUMENT'S VALIDITY DOMAIN -- A-S64 adopted that closed form across lanes; it
+               is accurate at no floor (0.88-1.00) and wrong at $500k in BOTH directions
+               (0.08x to 5.57x).  nobody had ever written down where it held.
+             YOUR OWN PROBE'S ZERO IS NOT EVIDENCE -- twice in one day.  the files are CRLF, a
+               probe for hyphen-newline returns EXACTLY zero, the true count was 7,566, and the
+               second occurrence was hiding a defect that dropped 11% of this log.
+           and one closing clause: validate a block against `--check` ON A COPY before appending,
+           because in an append-only record a malformed block costs two blocks, measured twice.
+withdraws: nothing.  the operator's original sentence is intact; this adds four clauses across two
+           pieces and removes none.
+to A:      the prompt the operator sends you now carries `--inbox A` as a ONE-TIME first line --
+           84 messages, and `--brief` cannot reach them.  the validity-domain clause exists because
+           of A-S64/A-S65; it is not a reprimand, it is the rule that would have caught it.
+to B:      `--inbox B` returns 117.  that is the backlog `--owed` has been counting as a number,
+           now readable with the text attached.
+to C:      `--inbox C` returns 66, including C-T48 and C-T51 which the parser was dropping until
+           this morning.
+to D:      -
+next:      research.  the tooling line is closed unless another lane reports something.
+```

@@ -224,30 +224,62 @@ THIRTEEN_OF_TWENTY_CANONICAL_RESULTS_WERE_TEXTBOOK_PREDICTED_ASSUME_YOURS_IS
 
 # THE STANDING SENTENCE — what the operator actually gives a lane
 
-Opening a session needs exactly two things: **"sen <A|B|C|D>'sin"** and this one sentence.
+Opening a session needs **"sen <A|B|C|D>'sin"**, one ONE-TIME line, and one STANDING sentence.
 Everything else is on disk and CLAUDE.md points at it.
+
+## A. ONE-TIME, first round of a session only
+
+```
+İlk turda bir kez: python tools/lane_mind_v1.py --inbox <HAT>
+```
+
+`--brief` is **cursor-based**: it shows only what arrived since the lane's own last block. On
+2026-08-27 the reader repair (D-E25) recovered **13 blocks the parser had been silently dropping**,
+and every one of them sits BEFORE every lane's current cursor — so `--brief` will never show them.
+Measured the same day: `--brief D` reported *"0 blocks, 0 addressed to you"* while **seven**
+messages addressed to lane D sat in the file. Waiting at the time of writing: **A 84 · B 117 ·
+C 66 · D 57**. Run it again after any parser change; it derives from the record and writes nothing.
+
+## B. STANDING, every round
 
 ```
 Önce `tools/lane_mind_v1.py --brief <HAT> --ct` ile ne geldiğine bak ve sana yazılanı işle; işi
 AÇMADAN ÖNCE `--who "<ayırt edici ifade>"` (çok kelimeliyi TIRNAKLA) ile hem diğer hatların hem
-külliyatın ne dediğini gör ve dördünden birini yaz -- öngörüyor / çürütüyor / tanımlanamaz diyor /
+külliyatın ne dediğini gör ve dördünden birini yaz — öngörüyor / çürütüyor / tanımlanamaz diyor /
 sessiz; külliyat bir KAYNAKTIR, otorite değil (rejim dışı olabilir ve yenilebilir); gelen
-alıntıları devralma, doğrula; sonra külliyatın açıkça istediği sıradaki işi kendi kapsamında ve
-çitli biçimde yap; turu shared log bloğu + SYSTEM_STATE verdict'iyle kapat.
+alıntıları devralma, DOĞRULA — bir iddiayı da, bir aracı da, kendi eski sayını da; başka hattın
+aletini kullanacaksan GEÇERLİLİK ALANINI sor (hangi hücrede doğrulandı, seninki o hücre mi);
+kendi yazdığın bir prob'un SIFIRI yokluk kanıtı değildir, sıfırı bilinen-pozitif bir vakayla sına;
+sonra külliyatın açıkça istediği sıradaki işi kendi kapsamında ve çitli biçimde yap; turu shared
+log bloğu + SYSTEM_STATE verdict'iyle kapat — bloğu EKLEMEDEN ÖNCE bir kopyada `--check` ile
+doğrula (kayıt append-only; hatalı ekleme iki kez ödenir).
 ```
 
+### Why each clause is there, and what it cost
+
 Four clauses were added to the operator's original on 2026-08-27, each because nothing on disk can
-enforce it: **sequence** (the corpus check goes BEFORE the work -- D-E1, D-E13 and D-E16 all closed
+enforce it: **sequence** (the corpus check goes BEFORE the work — D-E1, D-E13 and D-E16 all closed
 as *not identifiable* before any measurement, and a lane that measures first burns a round);
-**posture** (the corpus is a source, not an authority -- D-E12 rejected its own named
+**posture** (the corpus is a source, not an authority — D-E12 rejected its own named
 specification-to-beat, C-T36 sided with the source nobody was citing, A-S57 found a regime
-mismatch); **syntax** (an unquoted multi-word term is split by the shell -- measured, 29 hits in 7
+mismatch); **syntax** (an unquoted multi-word term is split by the shell — measured, 29 hits in 7
 sources against 5 in 1); and **verification** (`--brief` prints arriving citations; C-T31's rule is
 to check a source in the state it is in).
+
+Three more were added later the same day, after six rounds in which **every defect found in these
+tools was found by a lane USING them, never by the author re-reading the code**:
+
+| clause | what it cost when it was missing |
+|---|---|
+| **doğrula — bir aracı da, kendi eski sayını da** | D-E27 nearly refuted D-E4's closed form using **plain Poisson**, while D-E4 had published a **dead-time** form. Caught only by re-reading the section instead of trusting the memory of it. |
+| **geçerlilik alanını sor** | A-S64 adopted D-E4's closed form across lanes. It is accurate at no floor (0.88–1.00 of empirical) and wrong at a \$500k floor **in both directions** — 0.08× to 5.57×. Nobody had ever written down where it was valid. |
+| **kendi prob'unun sıfırı kanıt değil** | Twice in one day an absence was published from a self-written probe. The files are CRLF, a probe for `-
+` returns **exactly zero**, and the true count was **7,566**. The second time it hid a defect that was dropping **11% of the shared log**. |
 
 Deliberately NOT added, per this file's own rule that a prompt points at files and never duplicates
 them: the verdict vocabulary (`CORPUS_AUDIT_PROMPT_V1.md`), the evidence discipline (PROMPT A §6),
 and the guardrails (`CLAUDE.md`). Every clause added is one more that can be skimmed.
+
 
 English equivalent, if the session is being driven in English:
 
