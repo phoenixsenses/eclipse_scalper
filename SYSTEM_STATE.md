@@ -58844,3 +58844,55 @@ LANE_C_FUNDING_AND_PERPETUAL_COUNTS_UNCHANGED_UNDER_ALL_THREE_FIXES
 WITHDRAWS_SECTION_544_NO_HYPHENATION_RESIDUE_AND_SINGLE_WORD_QUERIES_UNAFFECTED
 FIVE_OF_FIVE_DEFECTS_FOUND_BY_A_USER_OR_ANOTHER_LANES_QUESTION_NEVER_BY_ME_REREADING
 ```
+
+## §550 [D-E24] ARAÇLAR ARTIK **TEST EDİLMİŞ**, SADECE DÜZELTİLMİŞ DEĞİL — DOĞRUSU RAFTAN ÖRNEKLENEN BİR KABUL TESTİ GEÇTİ (2026-08-27, Opus 5 [1M])
+
+Bugün burada **beş kusur** bulundu ve **hepsi** bu araçları **kullanan** bir hattan ya da bir
+sorudan çıktı — hiçbiri kendi kodumu yeniden okumamdan. İki kez, **kendi yazdığım** bir prob'un
+sıfırından **yokluk** yayımladım. Bu yüzden *"evet düzeldi"*yi incelemeye dayanarak söylemedim.
+
+**Yeni: `tools/lane_mind_selftest_v1.py`** — yeniden koşulabilir, deterministik (seed 20260827),
+her vaka geçmezse exit kodu 0 değil.
+
+### DOĞRU RAFTAN ÖRNEKLENİR, BENİM BEKLENTİMDEN DEĞİL
+| vaka | n | sonuç |
+|---|--:|---|
+| satır kırılmasını aşan gerçek iki-kelimelik ifade | 40 | **hepsi bulundu** |
+| dizgicinin böldüğü gerçek kelime | 30 | **hepsi bulundu** |
+| ligature taşıyan gerçek kelime | 15 | **hepsi bulundu** |
+| NUL bayt taşıyan dosya (ham okuyucu atlar) | 3 | **3/3 yüklü** |
+| **negatif kontrol** — rafta olması imkânsız dizi | 8 | **hepsi sıfır** |
+
+**Negatif kontrol olmadan recall kanıt değildir:** her şeyi eşleştiren bir "onarım", yerine
+geçtiği kusurdan daha kötüdür ve ilk koşudaki hiçbir vaka onu yakalamazdı.
+
+**Gömülü raporlama iki yönde de doğrulandı:** `overlapping returns` ifadesi ECONOPHYS_ODM'i
+**2/2 gömülü** (negasyon) işaretliyor; `identifiab` kökü **102/102 gömülü** raporluyor ve
+**hiçbir yerde filtrelenmiyor**. Bu asimetri tasarımın kendisi.
+
+### ESTATE YARISI İLK KOŞUDA **SKIP** GEÇTİ — VE SKIP PASS DEĞİLDİR
+Bağlandı: `frailty` sorgusu hâlâ **§437**'yi döndürüyor (aracın var olma sebebi olan ve ilk
+sürümünün kaçırdığı vaka) · **CT-016** 7 açık çelişki arasında **değil**, çünkü CT-016-R onu
+kapatıyor · kaydın kesinlikle taşıdığı bir terim **boş dönmüyor**, böylece boş bir estate sonucu
+ölü kod yolu değil **bir İDDİA** olarak kalıyor.
+
+### VARSAYMAK YERİNE ÖLÇTÜĞÜM BİR ŞEY
+Esnek boşluk kalıbı ilkece bir paragrafın son kelimesini sonrakinin ilkine bağlayabilirdi.
+12 ifade üzerinde **5 204** eşleşmede boş satır atlayan eşleşme: **SIFIR**.
+
+### HÜKÜM: HATLAR BAŞLAYABİLİR
+D-E23'ün yeniden koşma talimatı **değişmedi ve dar**: yalnız **sıfır dönen çok kelimeli ifade
+sorguları**. Tek kelimelik işler ve C hattının funding/perpetual SESSİZ hükmü dokunulmamış.
+
+```verdict
+SELF_TEST_PASSES_END_TO_END_TRUTH_SAMPLED_FROM_THE_SHELF_NOT_AUTHORED
+40_LINEBREAK_PHRASES_30_HYPHEN_BROKEN_WORDS_15_LIGATURE_WORDS_ALL_FOUND
+THREE_NUL_BYTE_FILES_ALL_LOADED
+EIGHT_NEGATIVE_CONTROLS_ALL_SILENT_RECALL_WITHOUT_THEM_IS_NOT_EVIDENCE
+EMBEDDED_REPORTING_VERIFIED_BOTH_WAYS_PHRASE_2_OF_2_STEM_102_OF_102_FILTERED_NOWHERE
+ESTATE_HALF_WAS_SKIPPED_ON_THE_FIRST_RUN_AND_A_SKIP_IS_NOT_A_PASS
+FRAILTY_STILL_RETURNS_437_CT_016_CLOSED_BY_ITS_RESOLUTION_ROW_ESTATE_HALF_ALIVE
+FLEXIBLE_WHITESPACE_JUMPS_NO_PARAGRAPH_BOUNDARY_ZERO_OF_5204_MATCHES
+FIRST_ARTEFACT_IN_THIS_CHAIN_VERIFIED_BEFORE_ANNOUNCEMENT_NOT_AFTER_CHALLENGE
+THE_LANES_CAN_START_RERUN_ONLY_MULTI_WORD_PHRASE_QUERIES_THAT_RETURNED_ZERO
+```

@@ -5467,3 +5467,48 @@ next:      the recall figures published in `corpus_text_v1`'s own docstring were
            un-folded reader and are now slightly low.  they are documentation of a measurement,
            not a live number, so they are left as written and dated rather than edited.
 ```
+
+### D-E24 · lane D · 2026-08-27
+```
+what:      before answering "are the tools fixed, can the lanes start", built a KNOWN-ANSWER
+           acceptance test whose truth is sampled FROM the shelf rather than authored by me.
+           new: tools/lane_mind_selftest_v1.py (re-runnable, exit code 0 only if every case passes).
+verdict:   SELF_TEST_PASSES_END_TO_END_ALL_THREE_DEFECT_CLASSES_PLUS_NEGATIVE_CONTROLS ·
+           ESTATE_HALF_WIRED_IN_A_SKIP_IS_NOT_A_PASS ·
+           FLEXIBLE_WHITESPACE_DOES_NOT_JUMP_PARAGRAPH_BOUNDARIES_MEASURED_ZERO_OF_5204 ·
+           THE_LANES_CAN_START
+stands:    five defects were found here today and every one was found by a lane USING these tools
+           or asking a question -- never by me re-reading my own code.  twice I published an
+           ABSENCE that came from a probe I wrote myself against a pattern I chose myself.  so
+           "yes it is fixed" is not something I am willing to assert from inspection.
+           TRUTH SAMPLED FROM THE SHELF, NOT AUTHORED.  40 real two-word phrases that straddle a
+           line break, 30 real words the typesetter split, 15 real ligature words -- all drawn by
+           regex from the raw files, then queried.  ALL FOUND, zero misses.
+           NEGATIVE CONTROLS, because recall without them is not evidence: 8 strings that cannot be
+           on the shelf.  ALL RETURN ZERO.  a repair that makes everything match would be worse
+           than the defect it replaced, and nothing in the first run would have caught it.
+           EMBEDDED REPORTING VERIFIED IN BOTH DIRECTIONS: the phrase `overlapping returns` flags
+           ECONOPHYS_ODM at 2/2 embedded (the negation), while the stem `identifiab` reports
+           102/102 embedded and is FILTERED NOWHERE.  that asymmetry is the whole design.
+           THE ESTATE HALF WAS SKIPPED ON THE FIRST RUN AND A SKIP IS NOT A PASS.  wired in: the
+           `frailty` query still returns section 437 (the one case the tool was built for, and the
+           one its first version missed); CT-016 is not listed among the 7 open contradictions
+           because CT-016-R closes it; and a term the record certainly carries comes back
+           non-empty, so an empty estate result stays a CLAIM rather than a dead code path.
+           ONE THING I EXPECTED TO BE A PROBLEM AND MEASURED INSTEAD OF ASSUMING: the flexible
+           whitespace pattern could in principle join the last word of one paragraph to the first
+           of the next.  across 5,204 matches on 12 phrases, matches that jump a blank line: ZERO.
+withdraws: nothing.
+to A:      the tools are tested, not merely fixed -- `python tools/lane_mind_selftest_v1.py` passes
+           end to end and you can re-run it yourself before trusting anything I say about them.
+           the re-run instruction from D-E23 is unchanged and narrow: only MULTI-WORD phrase
+           queries that returned ZERO.
+to B:      for the audit: this is the first thing in this tool chain that was verified BEFORE
+           being announced rather than after being challenged.  the test exists because the
+           previous five did not.
+to C:      your funding/perpetual SILENT verdict needs no re-run; it was already verified term by
+           term in D-E23 and the self-test does not disturb it.
+to D:      -
+next:      the self-test is cheap and deterministic (seed 20260827).  it should be run after any
+           change to `corpus_text_v1` or to `--who`, by whoever makes the change.
+```
