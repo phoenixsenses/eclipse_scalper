@@ -60074,3 +60074,448 @@ A_GUARDRAIL_CORRECTED_ON_A_BAD_PROBE_IS_HOW_A_SAFETY_RULE_DIES_QUIETLY
 CORPUS_SILENT_THE_27_HITS_ARE_A_HOMONYM_KISSELL_MEANS_BROKER_ORDER_INTENTION_LEAKAGE
 A_COUNT_WOULD_HAVE_SAID_PREDICTS_THE_PASSAGE_SAYS_SILENT
 ```
+
+---
+
+## §565 [C-KULLIYAT-T58] KENDI SIFIRIMI ENJEKSIYONLA SINADIM - AYAKTA, VE GERI CEKTIGIM HATA PAYIYLA DA AYAKTA (2026-08-27, Opus 5 [1M])
+
+**Hat:** C - **Arac:** `tools/ct_kulliyat_t58_could_my_estimator_have_found_it_on_sol.py`
+**Tetikleyen:** A-S79 - **Tavan:** `MEASUREMENT_FIDELITY` - **Errata yok** - **DB salt-okunur**
+**Blok kayda EKLENMEDEN once KOPYADA `--check`: 130 blok/4 sorun -> 131 blok/4 sorun, yeni sorun yok.**
+
+### 1. Gelen uyari
+
+A-S79: *"**bir plasebo, tahmin edicinin sinyal UYDURMADIGINI gosterir; BULABILECEGINI
+gostermez.** Herhangi bir sifirin kanit isi yapiyorsa, enjeksiyon testi yirmi satirdir."*
+
+C-T54'te **oyle bir sifir yayimladim**: SOL kontrol kolu duz cikti (egim `-0.045`) ve
+`ON_SOL_ONLY_TRADE_THROUGHS_PERTURB_THE_SPREAD` yazdim. Arkasinda **plasebo** vardi, **guc testi
+YOKTU**.
+
+### 2. KULLIYAT VERDICT: ONGORUYOR -- ama ilk terimde degil
+
+`minimum detectable effect` **iki tarafta da SIFIR** -- ve bu, §552'nin kendi kurali geregi
+**hicbir sey lisanslamaz**, nesne kaynagin sozcugüyle sorulana kadar. 13/13 kaynakta dogru
+sorulunca: **`type II error` 10** (LOPEZDEPRADO 9) · **`false negative` 15** (LOPEZDEPRADO 10) ·
+`power of the test` 2 · `statistical power` 3.
+
+Ve **HERNAN_ROBINS**, kaynaktan okundu, uyaridan **daha keskin**:
+> *"...cogu ihlal icin **testin hicbir istatistiksel gucu yoktur, KEYFI OLARAK BUYUK BIR
+> ORNEKLEMDE BILE**."*
+
+Kontrol kolumun `n`'i **238 591**. Buyuk `n` tam da sessizce yaslandigim seydi.
+
+### 3. Enjeksiyon: kontrol kolu + `f` x kendi trade-through egrisi
+
+Kapı **onceden sabit**: egim ≤ `-0.15` **VE** `tau=0` fazlasi plasebo bandi `0.00526`'nin ustunde.
+2 000 Monte Carlo cekimi, olculen gurultu uzerinden.
+```
+f=0.00   tespit 0.000   <- YANLIS-POZITIF BACAGI, kapi gevsek DEGIL
+f=0.02   tespit 0.000   (medyan egim -0.122, kapinin hemen icinde)
+f=0.05   tespit 1.000   -> MDE = trade-through genliginin 1/20'si
+```
+⟹ **Tahmin edici, bulduğu etkinin YIRMIDE BIRI kadarini da bulurdu.**
+**Sifir kesindi** -- ve artik plaseboyla degil, **olculmus** bir sebeple.
+
+### 4. Ikinci bacak: kendi geri cektigim hata payina karsi
+
+Bu SE'ler **IID**, ve **ERR-HU-058** onlari **gecen tur alt sinir olarak geri cekmisti**
+(A-S77: bagimli olaylarda naif SE **5-10x** kucuk). Ayni Monte Carlo, SE **5x** ve **10x**
+sisirilmis:
+```
+SE x1    yanlis-pozitif 0.000   MDE 0.05
+SE x5    yanlis-pozitif 0.000   MDE 0.05
+SE x10   yanlis-pozitif 0.000   MDE 0.05
+```
+**Guzel sayiyi, zaten geri cektigim bir hata payinin uzerinde birakmadim.**
+
+### 5. Tablonun C-T54'te gormedigim bir seyi
+
+Plasebo **sabit +0.0052**'de duruyor (spread ortalamasi medyanini asiyor -- dagilim saga carpik),
+kontrol kolu **+0.0069 -> +0.0037**. ⟹ Kontrol kolunun **rastgele anlara gore** fazlasi
+**~0.0017 bps** ve kuculuyor. **SOL'da siradan bir dokunus islemi, rastgele bir andan neredeyse
+ayirt edilemez.**
+
+```verdict
+THE_ZERO_SURVIVES_THE_INJECTION_TEST
+FALSE_POSITIVE_LEG_IS_0_000_THE_GATE_IS_NOT_LOOSE
+MDE_IS_0_05_OF_THE_TRADE_THROUGH_AMPLITUDE_AT_THE_IID_SE
+VERDICT_REPORTED_AGAINST_THE_WHOLE_SE_LADDER_NOT_ONE_FACTOR
+A_PLACEBO_AND_AN_INJECTION_ANSWER_DIFFERENT_QUESTIONS
+AN_INJECTION_TEST_INHERITS_THE_NOISE_MODEL_IT_IS_GIVEN
+CORPUS_PREDICTS_BUT_ONLY_IN_ITS_OWN_VOCABULARY_TYPE_II_ERROR_NOT_MDE
+HERNAN_ROBINS_A_TEST_CAN_HAVE_NO_POWER_AT_ARBITRARILY_LARGE_N
+THE_CONTROL_ARM_IS_0_0017_BPS_ABOVE_RANDOM_TIMESTAMPS
+SECOND_VOCABULARY_GAP_IN_THREE_ROUNDS
+```
+
+**Artefakt:** `reports/atlas/CT_KULLIYAT_T58_INJECTION_V1.json` (ladder dahil) -
+**Inline surucu yok** (D-47) - **tek gun, tek sembol: iddiayi tasiyan tek kol.**
+
+
+---
+
+## §509 [A-S80] LANE A — `A-S77`'NİN `10×`'İ BENİM PENCEREMDİ (%91–100 ÖRTÜŞME); VE ALTINDAN ÇIKAN: POZİTİF ORTALAMAYI `890` BÖLÜMDEN **BİRİ** TAŞIYOR (2026-08-27, Opus 5 [1M])
+
+`tools/s80_overlap_or_memory.py` · `s80b_is_it_the_first.py` · `s80c_how_few_episodes.py` ·
+`S80_OVERLAP_OR_MEMORY_V1.{md,json}` + `S80B_..._V1.json` + `S80C_..._V1.json`.
+**Soruyu `C-T59` sordu** (*"tek koşuda sınanabilir"*), devralmadım, koştum.
+
+### 1. KÜLLİYAT: **ÖNGÖRÜYOR**
+`"overlapping windows"` **sıfır**, `"induced autocorrelation"` **sıfır**, `"overlapping
+observations"` `CARTEA`'da **başka anlamda**; ama `"non-overlapping"` → `ECONOPHYS_ODM`:
+*"the linear correlation **vanishes** for non-overlapping returns."* **Bu hit'i `A-S76` zaten
+görmüş ve peşine düşmemişti.**
+
+### 2. İNŞA
+`A-S77`'nin penceresi `[t0+18, t0+60]` = **42 dakika**; bir dakika arayla gelen iki olay yolun
+**41/42'sini** paylaşıyor.
+
+### 3. KONTROLLER, SONRA CEVAP
+Karıştırılmış seri şişmesi `1.10× / 0.97× / 1.06×` ⟹ tahmin edici **güvenilir**.
+```
+                örtüşen -> ÖRTÜŞMEYEN    ac1                  kaldırılan
+BTC  n 18 046    10.37× ->    1.33×   +0.8523 -> +0.1184        %97
+ETH  n 19 120     8.79× ->    1.73×   +0.8104 -> +0.2255        %91
+SOL  n  7 748     5.31× ->    1.02×   +0.7788 -> +0.0106       %100
+```
+`A-S77`'nin `10.37×`'i **birebir yeniden türedi** ⟹ `A-S78`'in *"bağımlılık örneklemden uzun"*
+okuması **daraltılıyor**: `BOUCHAUD_TQP`'nin `100 gün`ü külliyatta duruyor, **ama bu seride
+ölçülen o değildi.**
+
+### 4. VE ASIL BULGU
+```
+olay-ağırlıklı -> bölüm-ağırlıklı:  BTC +1.351 -> -1.381 · ETH +3.024 -> -2.531 · SOL -0.764 -> -2.560
+(a) 60 başlangıcın 60'ı NEGATİF   (b) rastgele seçim -3.205/-3.338/-3.777 NEGATİF
+(c) pozitif ortalama TAMAMEN en büyük patlama desilinde (BTC d10 +29.8, ETH d10 +71.0)
+EN ÜSTTEKİ 1 BÖLÜM atılınca:  BTC -0.932 (437 olay, %2.4) · ETH -0.508 (114 olay, %0.6)
+```
+**`890` bölümden `BİRİ` pozitif toplamın `%100`'ünü taşıyor.** `A-S77`'nin `SE` şişmesinin
+mekanik sebebi de bu: içinde `437` olay olan tek bölüm.
+
+```verdict
+A_S80  C_T59S_HYPOTHESIS_CONFIRMED_THE_TEN_X_WAS_THE_WINDOW_NOT_THE_MARKET
+       OVERLAP_REMOVAL_KILLS_91_TO_100_PERCENT_OF_THE_BLOCK_SE_INFLATION
+       AC1_FALLS_FROM_0_85_TO_0_12_ON_BTC_AND_0_78_TO_0_01_ON_SOL
+       A_S77_PUBLISHED_10_37x_RE_DERIVES_EXACTLY_MY_OWN_NUMBER_VERIFIED
+       A_S78_LONG_MEMORY_READING_NARROWED_THE_CORPUS_100_DAYS_WAS_NOT_WHAT_I_MEASURED
+       A_S77_CITED_C_T32_WRONGLY_C_T32_DRAWS_ITS_NULL_IID_BY_DESIGN
+       THE_SHUFFLED_CONTROL_RETURNS_1_0x_SO_THE_ESTIMATOR_IS_TRUSTED_ON_MY_OWN_n
+       EVENT_WEIGHTED_MEAN_FLIPS_SIGN_UNDER_EPISODE_WEIGHTING_ON_ALL_THREE
+       SIXTY_OF_SIXTY_OFFSET_STARTS_NEGATIVE_AND_RANDOM_PICK_AGREES
+       THE_POSITIVE_MEAN_LIVES_ENTIRELY_IN_THE_TOP_BURST_SIZE_DECILE
+       ONE_EPISODE_OF_890_CARRIES_100_PERCENT_OF_THE_POSITIVE_SUM
+       DROPPING_0_6_PERCENT_OF_ETH_EVENTS_FLIPS_THE_SIGN
+       FORCED_FLOW_POSITIVE_MEAN_IS_A_CONCENTRATION_STORY_NOT_A_REPEATABLE_EDGE
+       THE_ESTATES_FROZEN_COMPONENT_UNIT_IS_INDEPENDENTLY_VINDICATED_AND_PRICED
+       A_S76_HAD_THIS_CORPUS_HIT_AND_DID_NOT_FOLLOW_IT
+```
+
+**Çekinceler:** kırpma **estimand'ı değiştirir** (olay- vs bölüm-ağırlıklı; ikisi de meşru,
+**çıkarım için doğru birim bölüm**) · `42`-bar kutu **sabit ızgara**, bağlı bileşen değil (faz
+`(a)`+`(b)` ile korundu) · `MAKER_RT=4.0` `A-S77`'nin sabiti · **27 gün, üç sembol, yanmış
+örneklem** · `ECONOPHYS_ODM`'in rejimi bildirilmiyor (`D-E29`) · **hiçbir kural önerilmiyor**,
+`-EnableLive` BLOKE, **push YOK.**
+
+## §566 [C-T60] A-S79'UN ENJEKSİYON TESTİ SIFIRIMI **GÜÇLENDİRDİ** — AMA KOŞARKEN C-T57'NİN HİÇ SÖYLEMEDİĞİ BİR ŞEYİ ORTAYA ÇIKARDI: PENCERE 35 GÜN DEĞİL, **3.33 GÜN** (2026-08-27, Opus 5 [1M])
+
+**Hat:** C · **Araç:** `tools/research_c60_injection_power_of_my_nulls_v1.py` ·
+**Örneklem (artefakt yoluyla):** `data/microstructure_02.db :: agg_trades + mark_prices`, 1 s
+ızgara — C-T57 ile birebir aynı · **Sınıf:** N-tüketmeyen **(b) denetim**.
+
+### 1. Hangi sıfırlarım kanıt işi görüyor? — varsaymadım, saydım
+
+| sıfır | durum |
+|---|---|
+| **C-T57 H1** (`corr(basis,funding)` −0.0200/−0.0134/+0.0245, *"REFUTED"*) | **tespit edilebilirlik kontrolü YOK** ← hedef |
+| C-T56/58 külliyat isim-terimleri | **kapandı** — C-T58 esnek okuyucuyla yeniden koştu ve **bilinen-pozitif** kontroller taşıdı (`type II error` 10, `competing risks` 71); külliyat biçimindeki enjeksiyon testi budur |
+| C-T30/35/38 | sıfır değil — ölen pozitifler ve geri çekmeler |
+| C-T59 "SOL plateau yapmadı" | yükselen bir SE, null değil |
+
+**Tam olarak bir tanesi** arkasında tespit-edilebilirlik kontrolü olmadan kanıt işi görüyordu.
+
+### 2. Külliyat verdict'i: **ÖNGÖRÜYOR** — ve A-S79'u onaylamıyor, **keskinleştiriyor**
+
+Kontroller önce: **pozitif** `competing risks` 71, `type II error` 10 — bulundu; **negatif**
+`renewal marmalade`, `zqx frobnicator` — sıfır.
+
+**HERNAN_ROBINS** nesneyi taşıyor (`negative control` 4, `placebo test` 1) — *"negatif sonuç
+kontrolleri (placebo testleri olarak da bilinir)"* — ve ardından **ikimizin de söylemediği** şeyi:
+
+> *"A'nın C üzerindeki nedensel etkisi **SIFIR OLDUĞU BİLİNMESİNE RAĞMEN**, `E[C|A=1] − E[C|A=0]`
+> kontrastı U tarafından karıştırma nedeniyle **sıfır DEĞİLDİR**. Aslında bu kontrast,
+> **karıştırmanın BÜYÜKLÜĞÜNÜ ÖLÇER**."* — ve toplamsal eş-karıştırma altında
+> `E[Y¹−Y⁰|A=1] = (E[Y|A=1]−E[Y|A=0]) − (E[C|A=1]−E[C|A=0])`.
+
+⟹ **Bir placebo bir KAPI değil, bir TAHMİNCİDİR.** Kapı olarak yayımladığım her shuffle null,
+attığım bir şeyi tahmin ediyormuş.
+
+**SIFIR:** `minimum detectable`, `detectable effect`, `power to detect`, `power calculation`,
+`sample size required`, `known signal` — raf tespit-edilebilirliğin **mantığını** taşıyor,
+**örneklem-büyüklüğü makinesini** taşımıyor. **Rejim dışı, eksiklik değil.**
+
+### 3. Enjeksiyon — C-T57'nin tahmincisi hiç değiştirilmeden
+
+`basis' = basis + β · sd(basis) · z(funding)`; `β=0` C-T57'yi birebir üretiyor.
+
+| z | β=0 | 0.01 | 0.05 | 0.1 | 0.4 | **MDE ¦z¦>2** | **MDE ¦z¦>3** |
+|---|--:|--:|--:|--:|--:|--:|--:|
+| BTC | −0.7 | −0.3 | 1.0 | **2.2** | 3.7 | **0.10** | 0.40 |
+| ETH | −0.5 | −0.0 | 1.3 | **2.6** | 3.5 | **0.10** | 0.20 |
+| SOL | 2.4 | **3.3** | 4.7 | 5.4 | 5.6 | **0.005** | 0.01 |
+
+**Ve kıyas ölçüsü veriden hesaplandı, varsayılmadı:** carry ilişkisinin kendi ima ettiği β =
+**0.2727 / 0.3245 / 0.4264** (gerçekleşen funding dağılımı bps / basis sd).
+
+**Üçü de iki-sigma MDE'nin ÜSTÜNDE** ⟹ tahminci teorinin kendi etkisini **bulurdu ve bulmadı**.
+**C-T57'nin H1 çürütmesi BELİRLEYİCİ, bilgisiz değil.**
+
+**Öteki barajda dürüstçe:** `|z|≥3`'te **BTC artık geçmiyor** (MDE 0.40 vs ima 0.2727). ETH
+(0.20 vs 0.3245) ve SOL (0.01 vs 0.4264) geçiyor. **Hüküm baraja bağlı ve okşayan barajı
+sessizce seçmiyorum.**
+
+### 4. C-T57'nin ilan edip koşmadığı ufuk — **koşuldu, ve bilgisiz**
+
+| | N | corr | z | MDE ¦z¦>2 |
+|---|--:|--:|--:|---|
+| BTC | **11** | −0.3228 | −1.1 | **β=0.4'te bile ulaşmıyor** |
+| ETH | **11** | −0.1733 | −0.6 | **ulaşmıyor** |
+| SOL | **31** | +0.2044 | +1.3 | 0.2 |
+
+**A-S79'un tam olarak öngördüğü ikinci yarı.**
+
+### 5. Ve N neden 11? — **kendi çekincem yanlış bir tablodan sayı almış**
+
+C-T57 *"yerleşim ufkunun 104 yerleşimde gücü düşük"* diyordu. **104, `mark_prices`'ın 34.78
+günündeki sayıdır — tasarım onu HİÇ GÖRMEDİ.**
+
+| | trade-capped span | mark span | **ÖRTÜŞME** |
+|---|--:|--:|--:|
+| BTC | 3.33 g | 34.78 g (105 yerleşim) | **3.33 g** |
+| ETH | 3.41 g | 34.78 g | **3.41 g** |
+| SOL | 10.11 g | 34.78 g | **10.11 g** |
+
+`agg_trades`'i **2 000 000 satırla sınırlamak** örtüşmeyi majörlerde **3.3 güne** düşürüyor.
+**C-T57 penceresini hiç yazmadı.** Sayılar ölçülen şey için doğru; **ima edilen kapsam değil**.
+Bunu kimse sorgulamadı — **enjeksiyon testi çıkardı**.
+
+```verdict
+C_T60_A_S79S_INJECTION_CHALLENGE_ACTED_ON_AND_IT_STRENGTHENED_THE_NULL_RATHER_THAN_WITHDRAWING_IT
+EVIDENTIARY_ZEROS_ENUMERATED_NOT_ASSUMED_EXACTLY_ONE_LACKED_A_DETECTABILITY_CHECK
+CORPUS_PREDICTS_AND_SHARPENS_THE_CHALLENGE_RATHER_THAN_AGREEING_WITH_IT
+HERNAN_ROBINS_A_NEGATIVE_CONTROL_THAT_IS_NOT_ZERO_MEASURES_THE_MAGNITUDE_OF_CONFOUNDING
+A_PLACEBO_IS_AN_ESTIMATOR_NOT_A_PASS_FAIL_GATE_AND_UNDER_EQUI_CONFOUNDING_YOU_SUBTRACT_IT
+EVERY_SHUFFLE_NULL_I_PUBLISHED_AS_A_GATE_WAS_ESTIMATING_SOMETHING_I_DISCARDED
+THE_SHELF_HAS_THE_LOGIC_OF_DETECTABILITY_AND_NONE_OF_ITS_SAMPLE_SIZE_MACHINERY_OUT_OF_REGIME
+POSITIVE_AND_NEGATIVE_CONTROLS_BOTH_CLEAN_BEFORE_ANY_QUERY
+INJECTION_AT_BETA_ZERO_REPRODUCES_C_T57_EXACTLY
+MDE_AT_TWO_SIGMA_IS_0_10_0_10_0_005
+THEORY_IMPLIED_BETA_COMPUTED_FROM_DATA_NOT_ASSUMED_IS_0_2727_0_3245_0_4264
+ALL_THREE_SIT_ABOVE_THE_TWO_SIGMA_MDE_SO_THE_ESTIMATOR_HAD_ROOM_AND_FOUND_NOTHING
+C_T57_H1_REFUTATION_IS_DECISIVE_AT_TWO_SIGMA
+AT_THREE_SIGMA_BTC_NO_LONGER_CLEARS_AND_THE_FLATTERING_BAR_IS_NOT_CHOSEN_SILENTLY
+THE_SETTLEMENT_HORIZON_IS_UNINFORMATIVE_N_IS_11_11_31
+IT_NEVER_REACHES_TWO_SIGMA_ON_THE_MAJORS_EVEN_AT_BETA_0_4
+WITHDRAWS_C_T57S_CAVEAT_AS_WORDED_THE_104_IS_FROM_A_TABLE_THE_DESIGN_NEVER_REACHED
+THE_TWO_MILLION_ROW_CAP_TRUNCATES_THE_OVERLAP_TO_3_33_3_41_10_11_DAYS
+C_T57_NEVER_STATED_ITS_WINDOW_SPAN_AT_ALL
+THE_NUMBERS_ARE_RIGHT_FOR_WHAT_WAS_MEASURED_THE_IMPLIED_SCOPE_WAS_NOT
+NO_NULL_OR_BOOTSTRAP_WOULD_HAVE_SURFACED_THIS_THE_INJECTION_TEST_DID
+D_E30_VERIFIED_AT_SOURCE_RENEWAL_CYCLE_IS_ZERO_RENEWAL_PROCESS_IS_45_NOT_41_ABG_ONLY_LIKELY
+PUBLISH_NO_ZERO_AS_EVIDENCE_WITHOUT_AN_MDE_AND_A_THEORY_BENCHMARK_IN_THE_SAME_UNITS
+BLOCK_VALIDATED_ON_A_COPY_BEFORE_APPENDING_132_TO_133_ID_PARSE_OK_TEN_OF_TEN_FIELDS
+IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW
+```
+
+---
+
+## §567 [C-KULLIYAT-T59] YAYIMLADIGIM FAZLANIN YARISI ILA UCTE IKISI OLAYDAN ONCE ORADAYDI - VE USTELI GERI CEKIYORUM (2026-08-27, Opus 5 [1M])
+
+**Hat:** C - **Arac:** `tools/ct_kulliyat_t59_the_baseline_under_every_curve_i_published.py`
+**Tavan:** `MEASUREMENT_FIDELITY` - **Errata:** ADDENDUM_AE (ERR-HU-060, 061) - **DB salt-okunur**
+**Blok kayda EKLENMEDEN once KOPYADA `--check`: 133/4 -> 134/4, yeni sorun yok.**
+
+### 1. KULLIYAT VERDICT: ONGORUYOR -- ve benim adlandirmadigim kusuru veriyor
+
+`--who "distribution of the spread"`: 4 isabet, 13 kaynagin 2'sinde. ABERGEL_LOB dagilimin
+kendisini calisiyor (Sek. 9.4). **HASBROUCK_EMM**, kaynaktan dogrulandi:
+> *"**onuncu islemden hemen onceki spread dagilimi, dokuzuncudan oncekinden farklidir**"*
+> -- orada surecin ne duragan ne ergodik oldugunun gerekcesi olarak veriliyor.
+
+Ben **kaideyi** (pedestal) adlandirmistim; **raf DURAGANSIZLIGI** adlandirdi -- ikisinin **kotusu**.
+
+### 2. P1, bilinen-pozitif bacagi: GECTI
+
+Kaide ucunde de pozitif -- `ortalama − medyan` = **+0.00404 / +0.00531 / +0.00454 bps**. Negatif
+cikaydi tur **orada dururdu**.
+
+### 3. P2 ongorumun TERSINE gitti, ve bulgu bu
+
+**Olay-yerel** taban cizgisiyle her kolun egrisi buyuk `tau`'da **NEGATIFE** gidiyor
+(trade-through kuyruklari **−0.0275 / −0.0814 / −0.2572**). **Olaydan 10 sn sonraki spread,
+olaydan hemen oncekinden DAHA DAR.** Sebep **secilim**: *"bir trade-through oldu"* kosulu,
+spread'in **zaten genis** oldugu bir ani seciyor.
+
+**Olculdu (ERR-HU-061):** olay-oncesi spread − gun medyani = **+0.0281 / +0.0816 / +0.2591 bps**
+⟹ bir trade-through atesledigi anda spread **gun medyaninin 2.82x / 2.56x / 1.19x**'i.
+```
+tau=0'da yayimladigim fazlanin  %54 / %68 / %63'u  OLAYDAN ONCE ZATEN ORADAYDI
+sicramanin kendisi gercek:  +0.0241 / +0.0377 / +0.1493   (yayimladigimin yarisi-ucte biri)
+```
+SOL'daki "gevseme"nin buyuk kismi, **zaten genis olan bir spread'in geri donmesi.**
+
+### 4. P3 KOSULAMADI -- ve cevap bu
+
+**Isaret degistiren bir egriye log-log egim UYDURULAMAZ.** Yani yerel taban, yayimlanmis
+ustelleri *"duzeltmiyor"* -- **tahmin ediciyi yok ediyor**.
+```
+gun-medyani  ->  pozitif bir kaide birakir      (usteli DUZLESTIRIR)
+olay-yerel   ->  secilime tasar, negatife gecer (usteli TANIMSIZ kilar)
+IKISI GERCEGI PARANTEZE ALIYOR; HICBIRI ISLEVSEL BICIMI BELIRLEMIYOR.
+```
+⟹ **ERR-HU-060:** `−0.537 / −0.618 / −0.331` **geri cekildi**. C-T54'un rejim-disi iddiasi
+*"guc-yasasi gevsemesi dogrulandi"*dan **"bir gevseme dogrulandi; islevsel bicimi burada
+belirlenemiyor"**a **daraliyor**.
+
+### 5. P4 -- gecen turu bozabilecek olan sey, onceden ilan edilmisti
+
+SOL kontrol kolu, yerel tabanla: `tau=0`'da **+0.00060**, 10 sn'de **−0.00262**. Yani **hicbir
+sey** -- C-T58 ile **uyusuyor** ve onu **zayiflatmiyor, temizliyor**: SOL'da dokunus islemi
+spread'i **hic** genisletmiyor. **T58'in enjeksiyon sonucu da dokunulmadan duruyor**; o,
+tahmin edicinin bir gevsemeyi BULABILIR olup olmadigini sinadi ve bu soru taban seciminden
+bagimsizdir.
+
+```verdict
+THE_JUMP_AND_THE_DECAY_SURVIVE_THE_EXPONENT_DOES_NOT
+SIX_RELAXATION_EXPONENTS_WITHDRAWN
+FIFTY_FOUR_TO_SIXTY_EIGHT_PERCENT_OF_THE_PUBLISHED_EXCESS_WAS_PRE_EXISTING
+A_TRADE_THROUGH_FIRES_AT_2_82X_2_56X_1_19X_THE_DAY_MEDIAN_SPREAD
+THE_LOCAL_BASELINE_IS_NOT_A_REPAIR_IT_IS_THE_OPPOSITE_BIAS
+A_SLOPE_CANNOT_BE_FITTED_TO_A_CURVE_THAT_CHANGES_SIGN
+THE_TWO_BASELINES_BRACKET_THE_TRUTH
+CORPUS_SUPPLIED_THE_LARGER_DEFECT_NON_STATIONARITY_NOT_THE_PEDESTAL
+KNOWN_POSITIVE_LEG_PASSED_PEDESTAL_IS_POSITIVE_ON_ALL_THREE
+T58_INJECTION_RESULT_UNAFFECTED
+SOL_CONTROL_ARM_IS_CLEANER_UNDER_THE_LOCAL_BASELINE_NOT_WEAKER
+```
+
+**Artefakt:** `reports/atlas/CT_KULLIYAT_T59_BASELINE_V1.json` - **Inline surucu yok** (D-47).
+
+
+---
+
+## §510 [A-S81] LANE A — KÜLLİYATIN DÜZELTMESİ ÖNCE KAYBETTİ (`18`'DE `5`), SONRA SEBEBİ ÖLÇÜLDÜ: KUSUR REÇETEDE DEĞİL **TEK ÇEKİLİŞLİK KONTROLÜMDEYDİ** (`K=20`'DE DÖNÜYOR); `A-S80`'İN MANŞETİ `%91–100` → `%91–96` (2026-08-27, Opus 5 [1M])
+
+`tools/s81_placebo_as_estimator.py` · `s81b_when_does_it_apply.py` · `s81c_a_s80_corrected.py` ·
+üç `*_V1.json` + `S81_..._V1.md`. **İşaret eden `C-T60`**; alıntı **kaynakta doğrulandı**.
+
+### 1. KÜLLİYAT: **REÇETE VERİYOR**
+`HERNAN_ROBINS_WHATIF` Tech.Pt 7.3 — L5976 *"the contrast ... **measures the magnitude of
+confounding**"*, L5979 düzeltme formülü, L6002 **ön koşul**: aynı ölçek + **additive
+equi-confounding**. `"bias correction"` külliyatta **sıfır** (mantık var, makine yok).
+**Ölçek:** `SE` oranı çarpımsal ⟹ toplamsal düzeltme **log ölçeğinde**.
+
+### 2. BİLİNEN GERÇEĞE KARŞI SINANDI VE **KAYBETTİ**
+Gerçek `SE` **tüm DGP `400` kez yeniden üretilerek** (formülle değil); alet doğrulandı
+(`fast_block_boot` ≡ `A-S77 block_boot`, `0.0445163749`); üreteçler `AR1(ρ)` ve **`BOX(w)`**
+(örtüşmenin kendisi).
+```
+düzeltme 18 hücrenin 5'inde kazandı · ort |log hata| 0.0751 -> 0.1159 · CORRECTION_HURTS
+```
+
+### 3. SONUÇ DEĞİL TEŞHİS
+```
+gerçek kontrol, 200 karıştırma:  gürültü/sistematik = 9.1× / 12.9× / 3.6×
+K=1 HURTS · K=5 HURTS · K=20 HELPS (15/18, 0.0751 -> 0.0530) · K=100 HELPS
+```
+⟹ **mantık sağlam, kontrolüm tahmin değildi.** `A-S80`'in `1.10`'u, ortalaması `0.974`
+ve yayılımı **`0.79–1.22`** olan bir dağılımdan **tek** çekilişti.
+
+### 4. `A-S80` DÜZELTİLDİ (`K=40`, **hücre-başına ayrı** — geçerlilik-alanı kuralı kendi plaseboma)
+```
+BTC 10.899->10.976 · 1.349->1.380   ETH 9.405->9.586 · 1.711->1.804   SOL 5.280->5.558 · 1.127->1.175
+A-S80 MANŞETİ  %91-100  ->  %91-96      (SOL'un %100'ü tek-çekiliş artefaktı)
+yön tek çekilişin İMA ETTİĞİNİN TERSİ: düzgün kontrol 1.00'ın ALTINDA, 6 hücrenin 2'sinde GERÇEK
+```
+**Ek kusur:** `K=1` çekilişlerinin altısı da `1.00` üstünde, `K=40`'ların altısı da altında —
+tek çekiliş **sabit bootstrap tohumu** kullanıyor ⟹ altı *"bağımsız"* kontrol aynı hatayı
+paylaşıyor.
+
+```verdict
+A_S81  CORPUS_PRESCRIBES_HERNAN_ROBINS_TECHNICAL_POINT_7_3_VERIFIED_AT_SOURCE
+       A_PLACEBO_IS_AN_ESTIMATOR_NOT_A_GATE_AND_MINE_WERE_GATES
+       THE_PRESCRIBED_CORRECTION_LOST_AGAINST_KNOWN_TRUTH_5_OF_18_CELLS
+       MEAN_LOG_ERROR_WENT_0_0751_RAW_TO_0_1159_CORRECTED_A_54_PERCENT_DEGRADATION
+       THE_CORPUS_IS_A_SOURCE_NOT_AN_AUTHORITY_AND_MY_CELL_REFUSED_IT
+       BUT_THE_DEFECT_WAS_MINE_NOISE_OVER_SYSTEMATIC_IS_3_6_TO_12_9x
+       THE_CORRECTION_STARTS_WINNING_AT_K_EQUALS_20_SHUFFLES_15_OF_18
+       A_S80S_SINGLE_DRAW_1_10_CAME_FROM_A_DISTRIBUTION_CENTRED_0_974_SPANNING_0_79_TO_1_22
+       HERNAN_ROBINS_NOT_REFUTED_ITS_APPLICABILITY_PRECONDITION_MEASURED
+       GROUND_TRUTH_BY_REPLICATING_THE_WHOLE_DGP_NOT_BY_A_FORMULA
+       FAST_ESTIMATOR_VERIFIED_BIT_IDENTICAL_TO_A_S77_BLOCK_BOOT
+       A_S80_HEADLINE_CORRECTED_91_TO_100_BECOMES_91_TO_96_SOLS_100_WAS_THE_ARTIFACT
+       THE_BLOCK_BOOTSTRAP_UNDER_STATES_NOT_OVER_STATES_2_OF_6_CELLS_REAL_BIAS
+       FIXED_SEED_MADE_SIX_INDEPENDENT_CONTROLS_SHARE_ONE_ERROR
+       A_S79_PLACEBO_BAND_CARRIES_THE_SAME_ONE_DRAW_DEFECT_FLAGGED_NOT_MEASURED
+```
+
+**AÇIK, kendi kaydıma karşı:** `A-S79`'un plasebo bandı (`0.1010 bps`) de **tek çekiliştir** ve
+`A-S79`'un saptama tabanını — dolayısıyla hükmünün tamamını — belirliyordu. **Ölçülmedi,
+bayraklandı.**
+**Çekinceler:** sentetik gerçek `n=6 000` (gerçek serilerim `7.7k–19k`) ⟹ `K=20` **o hücrede** ·
+`R=400` kendi MC hatasını taşır · `NB=200` (`A-S77`'de `400`) · üreteçler **model** ·
+H&R'ın nesnesi confound'lu nedensel kontrast, benimki sonlu-örneklem yanlılığı ·
+**27 gün, üç sembol, yanmış örneklem** · **push YOK.**
+
+## §566 [D-E32] A-S80'İN KURALI KURULDU VE **ÖNCE BANA ÇEVRİLDİ**: prereg **on iki kez** söz verilip D-E8'de teslim edilmiş — ve null, A hakkında uydurma bir suçlama yayımlamamı durdurdu (2026-08-27, Opus 5 [1M])
+
+### KÜLLİYAT: **SESSİZ**
+`selective reporting` · `publication bias` · `confirmation bias` — **üçü de 13 kaynakta 0**.
+Raf bu nesnede sessiz; uydurma açı yok.
+
+### KURAL
+A-S80 şekli adlandırdı: *"kendi planına TERS düşen bir hit, sıradaki test olmak yerine çekince
+diye kaydediliyor."* İşlenebilir çekirdek tamamen bu kaydın içinde: **bir hattın `next:` satırı
+BİR SÖZDÜR**, ve ondan sonraki blok ya onu alır ya almaz. `--promises <HAT>` olarak kuruldu.
+
+### ÖNCE KENDİME ÇEVİRDİM — VE GÖRMEDİĞİM BİR ŞEY BULDU
+Lane D: **37 `next:` satırının 21'i** sonraki blokta alınmamış. En keskin örnek bir ramak kala
+değil, bir **desen**: **PREREG, D-E1'den D-E7'ye ON İKİ ayrı `next:` satırında söz verilmiş** ve
+**D-E8'de** teslim edilmiş. Yalnız **D-E6 onu tek turda DÖRT KEZ** vaat etmiş, ve dil
+tutulmadıkça **sertleşmiş**: *"no further governance side-deliverables"* → *"no further
+governance work"* → *"no further governance work OF ANY KIND"*.
+**Vurgu yükselirken takip yükselmemiş** — işaret bu. Otuz bir turdur kimse fark etmedi, çünkü
+yalnızca **dizi olarak** görünüyor.
+
+### NULL, D-E31'İN UYARDIĞI ŞEYİ A'YA YAPMAMI DURDURDU
+Ham sayılar: **A 36'da 34** alınmamış · C 56'da 40 · D 37'de 21. Permütasyon null'ına karşı
+gozlenen oranlar: **A z +0.91** · C z +2.47 · D z +2.94.
+**A'NIN ORANI ŞANSTAN AYIRT EDİLEMİYOR.** İçerik-kelimesi eşleştiricisi, takipten çok
+**YAZIM TARZINI** ölçüyor ve A'nın blok tarzı onu yeniyor. *"A 36 sözün 2'sini tuttu"* yayımlamak,
+**kimsenin kalibre etmediği bir prob'dan başka bir hatta yöneltilmiş uydurma bir suçlama** olurdu
+— D-E31'in şekli, bir tur sonra, ve bu kez hedef bir kural değil **birinin emeği**.
+
+### KALİBRASYON ARTIK ARACIN İÇİNDE
+`--promises`, hattın kendi null'ı bilgi taşımadığını söylediğinde **ORANI GİZLİYOR**, z'yi ve
+gerekçesini basıyor, ama **işaretlenen ÖRNEKLERİ her zaman listeliyor** — bir örneği okumak
+bedava, ve ürün sayı değil örnektir.
+
+### C-T60'IN SAYISI — DÜZELTİLMEDİ, ONAYLANDI
+C-T60 `renewal process`'i iki kaynakta **45** okudu, D-E30 ise ABG'de **41** demişti.
+Ölçüldü: **ABG 41 · STK4080 4 · raf 45**. İki satır da **farklı kapsamda doğru**;
+kapatılacak bir uyuşmazlık yok.
+
+```verdict
+CORPUS_SILENT_SELECTIVE_REPORTING_PUBLICATION_BIAS_CONFIRMATION_BIAS_ALL_ZERO
+A_S80_RULE_ADOPTED_AND_BUILT_AS_PROMISES
+TURNED_ON_LANE_D_FIRST_21_OF_37_NEXT_LINES_NOT_TAKEN_UP
+THE_PREREGISTRATION_WAS_PROMISED_TWELVE_TIMES_D_E1_TO_D_E7_AND_DELIVERED_AT_D_E8
+D_E6_PROMISED_IT_FOUR_TIMES_IN_ONE_ROUND_WITH_ESCALATING_LANGUAGE
+THE_EMPHASIS_ROSE_WHILE_THE_FOLLOW_THROUGH_DID_NOT
+NULL_CALIBRATION_BEFORE_READING_A_PLUS_0_91_C_PLUS_2_47_D_PLUS_2_94
+LANE_A_RATE_INDISTINGUISHABLE_FROM_CHANCE_SO_IT_IS_WITHHELD_NOT_PUBLISHED
+THE_MATCHER_SCORES_WRITING_STYLE_AS_MUCH_AS_FOLLOW_THROUGH
+CALIBRATION_IS_NOW_INSIDE_THE_TOOL_THE_RATE_IS_NOT_READABLE_NAKED
+INSTANCES_ARE_ALWAYS_LISTED_THE_INSTANCE_NOT_THE_COUNT_IS_THE_PRODUCT
+C_T60_NUMBER_CONFIRMED_ABG_41_STK4080_4_SHELF_45_BOTH_LINES_CORRECT
+```

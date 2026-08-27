@@ -517,6 +517,74 @@ def inbox(lane, bl):
     return out
 
 
+def promises(lane, bl):
+    """Did the lane DO what its own `next:` line said, or did it just write it again?
+
+    A-S80 named the shape and proposed the machine-checkable form: a finding that runs against a
+    lane's own plan gets recorded as a caveat and never becomes the next test.  The tractable core
+    of that is narrower and entirely inside this record: a lane's `next:` line IS a promise, and
+    the block after it either takes it up or it does not.
+
+    HEURISTIC, AND SAID SO.  It matches content words from the promise against the following
+    block's `what` and `stands`.  A promise restated in different words reads as unmet; a promise
+    deliberately abandoned reads the same as one forgotten.  It FLAGS, it does not judge -- the
+    lane says which it was.  Reported for every lane; edited for none.
+    """
+    stop = {"which", "there", "their", "these", "those", "would", "could", "about", "after",
+            "before", "where", "while", "still", "other", "another", "whether", "rather",
+            "something", "anything", "nothing", "lane", "round", "block", "record"}
+    idx = [i for i, b in enumerate(bl) if b["lane"] == lane]
+    out = []
+    for a, nx in zip(idx, idx[1:]):
+        nxt = bl[a]["fields"].get("next", "").strip()
+        if not nxt or nxt == "-":
+            continue
+        terms = [w.lower() for w in re.findall(r"[A-Za-z][A-Za-z_\-]{4,}", nxt)]
+        terms = [t for t in dict.fromkeys(terms) if t not in stop][:10]
+        body = " ".join([bl[nx]["fields"].get(k, "") for k in ("what", "verdict", "stands")]).lower()
+        hit = [t for t in terms if t in body]
+        need = max(1, len(terms) // 3)
+        out.append({"promised_in": bl[a]["stable_id"], "judged_at": bl[nx]["stable_id"],
+                    "line": bl[a]["line"], "next": re.sub(r"\s+", " ", nxt)[:150],
+                    "terms": terms, "matched": hit, "kept": len(hit) >= need})
+
+    # NULL CALIBRATION, BEFORE THE RATE IS READABLE.  A content-word matcher scores a lane's
+    # WRITING STYLE as much as its follow-through, so the raw rate is not comparable across lanes
+    # and must not be quoted as one.  Measured D-E32: lane A's observed rate sits z = +0.91 from a
+    # permutation null -- INDISTINGUISHABLE FROM CHANCE -- while C is +2.47 and D is +2.94.
+    # Publishing A's "34 of 36 unmet" as a finding would have been a fabricated indictment of
+    # another lane from a probe nobody had calibrated.  So the rate is withheld unless the lane's
+    # own null says it carries information; the flagged INSTANCES are always listed, because a
+    # human reading one costs nothing and the instance is the product.
+    if len(out) >= 4:
+        import random as _r
+        import statistics as _st
+        rng = _r.Random(20260827)
+        bodies = [" ".join([bl[i]["fields"].get(k, "") for k in ("what", "verdict", "stands")])
+                  .lower() for i in idx]
+        obs = sum(1 for x in out if x["kept"]) / len(out)
+        nulls = []
+        for _ in range(400):
+            sh = bodies[:]
+            rng.shuffle(sh)
+            k = 0
+            for j, x in enumerate(out):
+                need2 = max(1, len(x["terms"]) // 3)
+                body = sh[min(j + 1, len(sh) - 1)]
+                if sum(1 for t in x["terms"] if t in body) >= need2:
+                    k += 1
+            nulls.append(k / len(out))
+        m, sd = _st.mean(nulls), _st.pstdev(nulls)
+        z = (obs - m) / sd if sd > 0 else float("nan")
+        cal = {"observed_kept_rate": round(obs, 3), "null_mean": round(m, 3),
+               "z": round(z, 2), "informative": bool(abs(z) > 2),
+               "note": ("the rate scores writing style as much as follow-through; it is NOT "
+                        "comparable across lanes and is withheld when the null says so")}
+    else:
+        cal = {"informative": False, "note": "too few blocks to calibrate"}
+    return {"items": out, "calibration": cal}
+
+
 def check(bl):
     """Format invariants of the RECORD, so the record stays parseable."""
     required = ("what", "verdict", "stands", "withdraws", "next")
@@ -559,6 +627,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--brief", metavar="LANE", help="what LANE missed since its own last block")
     ap.add_argument("--who", nargs="+", metavar="TERM", help="who has touched these terms before?")
+    ap.add_argument("--promises", metavar="LANE",
+                    help="did this lane do what its own next: line said?")
     ap.add_argument("--inbox", metavar="LANE",
                     help="EVERY message addressed to LANE, ignoring the cursor")
     ap.add_argument("--owed", action="store_true", help="the obligation matrix + per-lane inbox")
@@ -569,7 +639,7 @@ def main():
     ap.add_argument("--no-corpus", action="store_true",
                     help="--who: skip the corpus half (estate only)")
     a = ap.parse_args()
-    if not any([a.brief, a.who, a.owed, a.ct, a.check, a.inbox]):
+    if not any([a.brief, a.who, a.owed, a.ct, a.check, a.inbox, a.promises]):
         ap.print_help()
         return 0
 
@@ -615,6 +685,32 @@ def main():
     if a.ct:
         cs = contradictions()
         out["contradictions"] = {"total": len(cs), "open": [c for c in cs if c["open"]]}
+    if a.promises:
+        lane = a.promises.upper()
+        res = promises(lane, bl)
+        pr, cal = res["items"], res["calibration"]
+        unmet = [x for x in pr if not x["kept"]]
+        print("PROMISES for lane %s   %d `next:` lines" % (lane, len(pr)))
+        if cal.get("informative"):
+            print("  NULL-CALIBRATED: observed %.3f vs permutation null %.3f, z %+.2f -- informative"
+                  % (cal["observed_kept_rate"], cal["null_mean"], cal["z"]))
+            print("  %d not taken up by the following block" % len(unmet))
+        else:
+            print("  RATE WITHHELD: z %s against a permutation null -- NOT distinguishable from"
+                  % cal.get("z"))
+            print("  chance for this lane, so the count would score writing style, not follow-up.")
+            print("  the flagged instances are still listed; read them, do not count them.")
+        print("  heuristic: content-word overlap.  it FLAGS, it does not judge -- a promise")
+        print("  deliberately abandoned reads the same as one forgotten.  say which it was.")
+        for x in unmet:
+            print("")
+            print("  %s -> %s   line %d" % (x["promised_in"], x["judged_at"], x["line"]))
+            print("     promised: %s" % x["next"])
+            print("     matched : %s" % (x["matched"] or "nothing"))
+        if not unmet:
+            print("  none -- every `next:` was taken up by the block after it.")
+        print("")
+
     if a.inbox:
         lane = a.inbox.upper()
         msgs = inbox(lane, bl)
