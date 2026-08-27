@@ -58679,3 +58679,67 @@ CORPUS_IS_SILENT_ON_THIS_ROUND_NO_ANGLE_MANUFACTURED
 C_T55_CAUTION_LANDS_ON_TAU_AND_THE_PREREG_ALREADY_CARRIES_IT_AT_THE_DECLARED_FLOOR
 THREE_ROUNDS_RUNNING_THE_CORRECTION_CAME_FROM_A_USER_NOT_FROM_ME
 ```
+
+## §544 [D-E22] *"`--who` KÜLLİYATI TAM ARAMIYOR OLABİLİR Mİ"* — **EVET, VE İKİ YÖNDE BİRDEN**: %6 GÖRÜNMEZ İFADE, ARTI SORGUNUN **TERSİNİ** SAYAN ALT-DİZE (2026-08-27, Opus 5 [1M])
+
+**Soru hatlardan geldi.** Kendi aracım hakkında bir yokluk iddiası; hafıza kaydı net
+(*makine ile kontrol edilebilir; 3 test edildi, 3'ü çürütüldü*) ve üç turdur ilan ettiğim güç
+yanlış çıkıyor. Güvence değil, ölçüm.
+
+### KUSUR 1 — EKSİK ARAMA (%6)
+`re.escape("funding rate")` **tam olarak tek boşluk** dayatan bir kalıp üretiyor. PDF metni ifade
+satır sonuna denk geldiğinde **satırbaşı** taşır; sütun düzeni de boşluk yığar. Rafta bulunduğu
+kesin olan sekiz kontrol ifadesiyle ölçüldü:
+
+| ifade | katı | esnek | | ifade | katı | esnek |
+|---|--:|--:|---|---|--:|--:|
+| limit order | 1639 | **1744** | | order flow | 435 | **460** |
+| order book | 1143 | **1218** | | price impact | 262 | **279** |
+| market impact | 603 | **642** | | market maker | 179 | **189** |
+| implementation shortfall | 92 | **96** | | bid ask spread | 2 | 2 |
+
+**Gerçek ifade hitlerinin %6.0'ı GÖRÜNMEZDİ.** Her kelime sınırı artık `\s+`.
+
+### KUSUR 2 — FAZLA ARAMA, TERS YÖNDE, VE DÜZELTMENİN KENDİSİ BULDU
+Düzeltme `overlapping returns`'ü 2→3 yaptı; yeni hit **"NON-overlapping returns"** — sorulan
+kavramın **tersi**, alt-dize olarak eşleşmiş. **§385 zaten substring-only guard'ları YASAKLIYOR**;
+aynı sınıf kusur, tam da onları yakalaması gereken aracın içindeydi.
+
+**Kelime sınırı DAYATILARAK düzeltilmedi** — o, aracın aynı zamanda hizmet ettiği **kök
+aramalarını kırardı**: `D-E17` bilerek `identifiab` aradı ve o hitlerin **hepsi** kurgu gereği
+gömülü. Bunun yerine **raporlanıyor**: her kaynak `[n/m EMBEDDED in a longer word]` basıyor. Kök
+sorgusu meşru olarak ~%100, ifade sorgusu %0 olmalı. İkisinde de doğrulandı — `identifiab` 6 kaynak
+işaretliyor ve **hiçbiri filtrelenmiyor**; `"overlapping returns"` ECONOPHYS_ODM'i 2/2 işaretliyor.
+
+### RAF KAPSAMI — ÜÇÜNCÜ İHTİMAL, ELENDİ
+13 kaynağın **hepsi** yükleniyor, **8.5M karakter**, satır aşırı tireleme artığı **sıfır**.
+Hiçbir kaynak hiçbir zaman eksik değildi.
+
+### HATLARIN HÜKÜMLERİ AYAKTA — VE BİRLEŞİMLE DEĞİL, TERİM TERİM
+Sıfır sayılı sekiz ifadenin **hepsi** düzeltme sonrası hâlâ sıfır: `funding rate` ·
+`perpetual future` · `perpetual swap` · `funding payment` ·
+`overlapping observations effective sample size` · `overlapping returns autocorrelation` ·
+`sample size independent observations`.
+
+**TEK DÜZELTME, VE HÜKMÜ ZAYIFLATMIYOR GÜÇLENDİRİYOR.** `overlapping returns` sayısı 2 temiz hit
+değil, **1**. ECONOPHYS_ODM'in iki hiti de bir self-similar model süreçte *"non-overlapping
+returns"* — negasyon. Yani *"bir gözlem + bir veri-özellikleri listesi"* diye tarif edilen şey
+aslında **yalnız liste** (Kissell, bibliyografya-uyarısı vakası); gözlem bir alt-dize artefaktıydı.
+**Raf o soruda sayının söylediğinden daha boş.**
+
+**Çok kelimeli ifadeyle kapatılan her şey yeniden koşulmalı.** Tek kelimelik sorgular her iki
+kusurdan da etkilenmiyor, dolayısıyla kaydın çoğu el değmemiş.
+
+```verdict
+UNDER_SEARCH_CONFIRMED_SIX_PERCENT_OF_PHRASE_HITS_WERE_INVISIBLE
+CAUSE_RE_ESCAPE_MADE_A_SPACE_MEAN_EXACTLY_ONE_SPACE_BUT_PDF_TEXT_CARRIES_NEWLINES
+OVER_SEARCH_ALSO_CONFIRMED_SUBSTRING_MATCHED_THE_NEGATION_OF_THE_QUERY
+SECTION_385_FORBIDS_SUBSTRING_ONLY_GUARDS_AND_ONE_WAS_INSIDE_THE_GUARD_TOOL
+NOT_FIXED_BY_WORD_BOUNDARIES_THAT_WOULD_BREAK_THE_STEM_SEARCH_D_E17_RELIED_ON
+EMBEDDED_HITS_ARE_REPORTED_NOT_FILTERED_STEM_NEAR_100_PERCENT_PHRASE_SHOULD_BE_ZERO
+ALL_THIRTEEN_SOURCES_LOAD_8_5M_CHARS_NO_HYPHENATION_RESIDUE_NO_SHELF_WAS_MISSING
+THE_SILENT_VERDICTS_SURVIVE_VERIFIED_TERM_BY_TERM_NOT_AS_A_UNION
+OVERLAPPING_RETURNS_IS_ONE_CLEAN_HIT_NOT_TWO_THE_SHELF_IS_EMPTIER_THAN_THE_COUNT_SAID
+RERUN_ANYTHING_CLOSED_ON_A_MULTI_WORD_PHRASE_SINGLE_WORD_QUERIES_UNAFFECTED
+FOUR_OF_FOUR_DEFECTS_IN_THIS_TOOL_CAME_FROM_SOMEONE_USING_IT_NOT_FROM_ME_REREADING_IT
+```

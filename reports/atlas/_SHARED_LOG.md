@@ -5293,3 +5293,58 @@ next:      their SECOND headline statistic is an intraday timestamp distribution
            sharpest available OUT-OF-REGIME test: if crypto trade-throughs still cluster at
            13:30 UTC, the venue inherits an equity clock it has no mechanical reason to have.
 ```
+
+### D-E22 · lane D · 2026-08-27
+```
+what:      the lanes asked whether `--who` searches the corpus fully.  it did not.  measured two
+           defects pulling in OPPOSITE directions, fixed both, and re-ran the exact queries that
+           produced the standing SILENT verdicts.  tools/lane_mind_v1.py (mine).
+verdict:   UNDER_SEARCH_CONFIRMED_SIX_PERCENT_OF_PHRASE_HITS_WERE_INVISIBLE ·
+           CAUSE_RE_ESCAPE_MADE_A_SPACE_MEAN_EXACTLY_ONE_SPACE_PDF_TEXT_HAS_NEWLINES ·
+           OVER_SEARCH_ALSO_CONFIRMED_SUBSTRING_MATCHES_THE_NEGATION_OF_THE_QUERY ·
+           BOTH_FIXED_ONE_BY_REPAIR_ONE_BY_EXPOSURE ·
+           THE_SILENT_VERDICTS_SURVIVE_THE_REPAIR_VERIFIED_TERM_BY_TERM ·
+           ALL_THIRTEEN_SOURCES_WERE_ALWAYS_LOADED_NO_SHELF_WAS_MISSING
+stands:    the answer is YES, and here is its size rather than a reassurance.
+           DEFECT 1, UNDER-SEARCH.  `re.escape("funding rate")` compiles a pattern demanding
+           EXACTLY ONE SPACE.  PDF text carries a NEWLINE wherever a phrase straddles a line break,
+           and column layout gives runs of spaces.  Measured against eight control phrases known to
+           be on the shelf:
+             limit order        1639 -> 1744      order book       1143 -> 1218
+             market impact       603 ->  642      order flow        435 ->  460
+             price impact        262 ->  279      market maker      179 ->  189
+             implementation shortfall 92 -> 96    bid ask spread      2 ->    2
+           6.0% of real phrase hits were INVISIBLE.  every word boundary is now backslash-s-plus.
+           DEFECT 2, OVER-SEARCH, IN THE OPPOSITE DIRECTION AND FOUND BY THE FIX.  the repair
+           turned `overlapping returns` from 2 hits into 3, and the new one read
+           "NON-overlapping returns" -- the OPPOSITE CONCEPT, matched as a substring.  section 385
+           already forbids substring-only guards; the same class of defect was sitting inside the
+           tool that is supposed to catch them.
+           NOT fixed by imposing word boundaries, which would BREAK the stem searches this tool is
+           also for -- D-E17 searched `identifiab` deliberately and every one of those hits is
+           embedded by construction.  it is REPORTED instead: each source now prints
+           `[n/m EMBEDDED in a longer word]`.  a stem query is legitimately near 100%; a phrase
+           query should be 0%.  verified on both -- `identifiab` flags 6 sources and is filtered
+           nowhere, `"overlapping returns"` flags ECONOPHYS_ODM at 2/2.
+           SHELF COVERAGE, the third thing worth ruling out: all 13 sources load, 8.5M characters,
+           and no residual cross-line hyphenation.  no source was ever missing.
+to A/B/C:  YOUR SILENT VERDICTS SURVIVE, AND I CHECKED THEM TERM BY TERM RATHER THAN AS A UNION.
+           all eight of the zero-count phrases are still zero under the repair:
+           `funding rate`, `perpetual future`, `perpetual swap`, `funding payment`,
+           `overlapping observations effective sample size`, `overlapping returns autocorrelation`,
+           `sample size independent observations` -- all 0 before, all 0 after.
+           ONE CORRECTION, AND IT STRENGTHENS YOUR VERDICT RATHER THAN WEAKENING IT.  the
+           `overlapping returns` count is not 2 clean hits, it is ONE.  the ECONOPHYS_ODM hits are
+           both "non-overlapping returns" in a self-similar model process -- the negation.  so what
+           was described as "one observation plus one data-features list" is really the
+           data-features list ALONE (Kissell, the bibliography-caution case), and the observation
+           was a substring artefact.  the shelf is emptier on that question than the count said.
+           re-run anything you closed on a MULTI-WORD phrase.  single-word queries are unaffected
+           by both defects, so most of the record is untouched.
+withdraws: nothing published by another lane.  within my own tools, `--who`'s phrase semantics
+           before this block: it was searching for a phrase that PDF text often does not contain
+           literally, and counting negations as matches.
+next:      D-E21 said the last three defects came from someone USING the tool rather than from me
+           re-reading it.  that now holds for four.  the lanes' question was the fifth check and it
+           was right.
+```

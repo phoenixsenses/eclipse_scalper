@@ -373,7 +373,12 @@ def who_corpus(terms, window=1500, snip=170, max_per_source=3):
         from tools.corpus_text_v1 import bodies
     except Exception as e:                                  # corpus absent is not a crash
         return {"error": "corpus unreadable: %s" % e, "per_source": {}, "total": 0}
-    pats = [(t, re.compile(re.escape(t), re.I)) for t in terms]
+    # WHITESPACE IS NOT LITERAL.  `re.escape("funding rate")` demands EXACTLY one space, but PDF
+    # text carries a NEWLINE wherever the phrase straddles a line break, and column layout gives
+    # runs of spaces.  Measured on eight control phrases known to be in the shelf: `limit order`
+    # 1639 -> 1744, `order book` 1143 -> 1218, `market impact` 603 -> 642.  6.0% of real phrase
+    # hits were INVISIBLE to this function.  Every word boundary is now `\s+`.
+    pats = [(t, re.compile(r"\s+".join(re.escape(w) for w in t.split()), re.I)) for t in terms]
     # HOW DISCRIMINATING IS EACH TERM?  A term that occurs thousands of times carries no
     # selectivity, and a proximity search anchored beside it returns coincidence.  Measured:
     # `--who restricted mean` returns 29 hits in 7 sources; `--who "restricted mean"` returns 5 in
@@ -390,12 +395,22 @@ def who_corpus(terms, window=1500, snip=170, max_per_source=3):
             continue                                        # a term absent -> no match here
         anchor_t = min(counts, key=counts.get)
         ap = dict(pats)[anchor_t]
-        hits, snips = 0, []
+        hits, snips, embedded = 0, [], 0
         for m in ap.finditer(body):
             lo, hi = max(0, m.start() - window), m.start() + window
             seg = body[lo:hi]
             if all(p.search(seg) for _, p in pats):
                 hits += 1
+                # IS THE MATCH EMBEDDED IN A LONGER WORD?  `overlapping returns` matches
+                # `NON-overlapping returns` -- the OPPOSITE concept -- and that spurious hit was
+                # the only thing separating a 2-hit from a 3-hit result in a live query.  Word
+                # boundaries are NOT imposed, because D-E17 searched the stem `identifiab` on
+                # purpose and every one of those hits is embedded.  So this is REPORTED, not
+                # filtered: a stem query is legitimately near 100%, a phrase query should be 0%.
+                if ((m.start() > 0 and (body[m.start() - 1].isalnum()
+                                        or body[m.start() - 1] == "-"))
+                        or (m.end() < len(body) and body[m.end()].isalnum())):
+                    embedded += 1
                 if len(snips) < max_per_source:
                     a, b = max(0, m.start() - snip), m.start() + snip
                     nl = body.count(chr(10), 0, m.start()) + 1
@@ -403,7 +418,7 @@ def who_corpus(terms, window=1500, snip=170, max_per_source=3):
                                   "text": re.sub(r"\s+", " ", body[a:b]).strip()})
         if hits:
             total += hits
-            out[name] = {"hits": hits, "anchor_term": anchor_t,
+            out[name] = {"hits": hits, "anchor_term": anchor_t, "embedded_hits": embedded,
                          "term_counts": counts, "snippets": snips}
     return {"total": total, "n_sources": len(out), "per_source": out,
             "proximity_window_chars": window,
@@ -593,8 +608,11 @@ def main():
                 print("     measured: --who restricted mean -> 29 hits / 7 sources;")
                 print("               --who \"restricted mean\" -> 5 hits / 1 source.")
             for src, v in sorted(cw["per_source"].items(), key=lambda x: -x[1]["hits"]):
-                print("  %-26s %4d hits   anchor=%s   %s"
-                      % (src, v["hits"], v["anchor_term"], v["term_counts"]))
+                emb = v.get("embedded_hits", 0)
+                print("  %-26s %4d hits   anchor=%s   %s%s"
+                      % (src, v["hits"], v["anchor_term"], v["term_counts"],
+                         ("   [%d/%d EMBEDDED in a longer word -- normal for a STEM query, "
+                          "spurious for a PHRASE]" % (emb, v["hits"])) if emb else ""))
                 for sn in v["snippets"]:
                     print("      L%-7d %s" % (sn["line"], sn["text"]))
             if cw.get("never_mentioned_sources"):
