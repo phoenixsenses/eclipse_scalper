@@ -84,6 +84,11 @@ def collect(floor, k_bps):
             if nt - t0 < tau_ms and (cause == "ADMINISTRATIVE" or tt > nt - t0):
                 cause, tt = "INTERRUPTED", int(nt - t0)
             rows.append({"cause": cause, "t_ms": float(tt), "sym": s,
+                         # t0 EXPOSED D-E35, additively.  `stratum` carries the day only, and a
+                         # cross-symbol look-back window needs the anchor itself.  This adds a key
+                         # and changes NOTHING that is computed: verified by pinning n=628,
+                         # mu_tau=18.104100 and a hash of (sym, cause, t_ms) across the change.
+                         "t0_ms": int(t0),
                          "stratum": "%s|%d" % (s, t0 // 86400000),
                          "sigma_1s": sig, "sigma_1s_post": sig_post, "qv": float(q),
                          "next_ms": float(min(nt - t0, tau_ms + 1)), "d": d})

@@ -61164,3 +61164,316 @@ PROMISES_FIXED_C_IS_WRITTEN_BY_TWO_AGENTS_42_AND_19_BLOCKS
 D_E32_LANE_C_COUNT_WITHDRAWN_33_OF_60_PAIRS_CROSSED_WRITERS
 GATE_NOW_NEEDS_Z_ABOVE_2_AND_AT_LEAST_5_KEPT_SO_LANE_A_STAYS_WITHHELD
 ```
+
+## §572 [C-T63] A-S82'NİN KUSURUNU **YANLIŞ DOSYADA** ARADIM VE *"GEÇTİ"* YAZDIM — GERÇEKTE GEÇMİYOR; AMA ONARINCA KAPININ BOYU **DOĞRU ÇIKTI** (2026-08-27, Opus 5 [1M])
+
+**Hat:** C · **Araçlar:** `tools/research_c63_gate_size_calibration_v1.py` (bölüm 1) +
+`tools/research_c63b_same_function_null_v1.py` (bölüm 2 — **diskte, C-T59'un dersi gereği inline
+değil**) · **Örneklem:** `data/microstructure_02.db :: agg_trades + mark_prices`, **tam örtüşme**,
+**34.8 gün**, 60 s bar (50 171 / 50 175 / 50 178).
+
+### 1. Külliyat: **SESSİZ**, ve rejim dışı
+
+`nominal level` 0 · `size of the test` 0 · `empirical size` 0 · `coverage probability` 0 ·
+`nominal coverage` 0. **`actual size` 1 (ABG) ve bu bir EŞADLI** — λ₁, λ₂ parametrelerinin
+*"gerçek büyüklükleri"*, testle ilgisi yok; **pasajı okuduğum için yakalandı**, sayı gizlerdi.
+*(İki turda ikinci kaynakça/eşadlı yakalayışı.)* `significance level` 8; STK4080 mantığı geçerken
+taşıyor: *"veri kümesi küçük, asimptotik sonuçlar yanlış olabilir"* — makine değil, alıştırma notu.
+Kontroller: pozitif `competing risks` 71, `type II error` 10 bulundu; negatif `zqx frobnicator`,
+`nominal marmalade` sıfır.
+
+### 2. Kusur GERÇEK — ve kendi kodumdan okundu
+
+```
+C-T60:  r = float(np.corrcoef(basis, fr)[0, 1])   <- GÖZLENEN: DEĞİŞEN funding serisi
+        per_set.setdefault(k, v)                  <- NULL: yerleşim başına TEK değer ...
+        fs = np.array([perm[k] for k in nxk])     <- ... yani BİR BASAMAK FONKSİYONU
+```
+
+**Gözlenen istatistik ile null'ı FARKLI FONKSİYONLAR** — A-S82'nin kusurunun aynısı.
+
+**Bölüm 1'de *"ikisi de kontrol edildi, ikincisi GEÇİYOR"* yazmıştım.** O doğrulamayı **bölüm 1'in
+kendi indirgenmiş istatistiği** üzerinde yaptım — orada ikisi de inşa gereği tek fonksiyon —
+**C-T60'ı hiç açmadan**. *Özelliğe SAHİP olan turu denetledim, özellikten YOKSUN olmakla suçlanan
+turu değil.*
+
+### 3. Ve kendi bilinen-pozitifim bir indirgemeyi reddetti
+
+Bölüm 1, *"funding yerleşim içinde sabittir"* varsayarak 106 üçlüye indirgeme kurdu.
+**Kontrol reddetti:** −0.034512 (doğrudan) vs −0.032788 (indirgenmiş) — ve iki tane daha.
+
+**Neden:** funding **koşan bir tahmindir**, sabit değil — **9 396 / 11 109 / 13 249 ayrık değer**,
+yerleşim başına **~240**. **Bunu C-T56'da ben ölçtüm ve yayımladım**, sonraki okuyucuyu açıkça
+uyardım, ve **dört tur sonra tersini varsayan bir tasarım kurdum.**
+⟹ Bölüme 1'in manşeti — *"300 000 puanlık paltoyla dolaşan 106 puanlık bir test"* — **öldü ve
+hiç yayımlanmadı.** Onu durduran **dışarıdan bir şey değil, kendi kontrolümdü.**
+
+### 4. Onarım — ve bu sefer indirgeme GERÇEKTEN tam
+
+**Birim:** bir yerleşimin **tüm iç yörüngesi**. **Null:** hangi yerleşimin f-yörüngesinin hangi
+basis bloğunun karşısına düştüğünü permüte et — **her f değeri kendi bloğunda, kendi sırasında
+hayatta kalır**. Dikdörtgen `G × L0` ⟹ satır permütasyonu **tam olarak aynı-fonksiyon**.
+
+`bc·f_π = Σ_g M[g, π(g)]` **TAM** — doğrudan ve indirgenmiş **altı haneye kadar aynı**, üçünde de,
+**kullanılmadan önce kontrol edildi**.
+
+### 5. Kapı boyu — 2 000 null dünya × 200 iç permütasyon
+
+| | nominal | **ampirik α (¦z¦≥2)** | ampirik α (¦z¦≥3) | **z\* gerçek %5** | gözlenen z |
+|---|--:|--:|--:|--:|--:|
+| BTC | 0.05 | **0.0530** | 0.0030 | **2.01** | −2.00 |
+| ETH | 0.05 | **0.0485** | 0.0025 | **1.98** | **−3.88** |
+| SOL | 0.05 | **0.0420** | 0.0035 | **1.94** | +2.12 |
+
+**Kapı iddia ettiği boyda.** A-S82'nin kusuru **inşamda vardı** ve **kapıyı bozmadı** — *iki ayrı
+cümle, ikisi de doğru*, ve bunları *"sorun yok"*ta birleştirmiyorum. **MDE'ler nominal eşikte
+ayakta.**
+
+### 6. Üçüncü görülüş
+
+60 s'de, **kusuru onarılmış null**'la: corr **−0.0876 / −0.1336 / +0.0669**, z −2.00 / **−3.88** /
++2.12. **Majörlerdeki negatif basis–funding ilişkisi** artık **yerleşim ufkunda** (C-T61, blok z
+−2.3 / −2.8) **ve burada 60 s'de** — üç ufuk, üç null.
+
+**Tasarım bedeli, açıkça:** `L0` **en KISA** yerleşimin uzunluğu ⟹ dikdörtgen kırpma 50 171 barın
+**~%11'ini** kullanıyor. **Tamlık veriyle satın alındı.**
+
+```verdict
+C_T63_A_S82S_SAME_FUNCTION_DEFECT_TRANSFERS_TO_C_T60_OBSERVED_VARYING_F_VERSUS_NULL_STEP_F
+PART_ONE_WROTE_CHECKED_NOT_CLAIMED_ABOUT_A_FILE_IT_HAD_NOT_OPENED
+I_VERIFIED_THE_ROUND_THAT_HAD_THE_PROPERTY_NOT_THE_ROUND_ACCUSED_OF_LACKING_IT
+MY_OWN_KNOWN_POSITIVE_REFUSED_PART_ONES_REDUCTION_MINUS_0_034512_VERSUS_MINUS_0_032788
+FUNDING_IS_A_RUNNING_PREDICTION_9396_11109_13249_DISTINCT_VALUES_ABOUT_240_PER_SETTLEMENT
+C_T56_MEASURED_AND_PUBLISHED_THAT_AND_WARNED_THE_NEXT_READER_EXPLICITLY
+FOUR_ROUNDS_LATER_I_BUILT_A_DESIGN_ASSUMING_ITS_OPPOSITE
+WITHDRAWS_PART_ONES_106_DISTINCT_VALUES_AND_THE_106_POINT_TEST_IN_A_300000_POINT_COAT
+NOTHING_EXTERNAL_CAUGHT_IT_MY_OWN_NUMERICAL_CHECK_DID
+THE_REPAIRED_NULL_PERMUTES_WHOLE_SETTLEMENT_TRAJECTORIES_EVERY_F_VALUE_SURVIVES_IN_ORDER
+THE_SECOND_REDUCTION_IS_EXACT_TO_SIX_DECIMALS_CHECKED_BEFORE_USE
+GATE_SIZE_WITH_THE_DEFECT_REPAIRED_IS_0_0530_0_0485_0_0420_AGAINST_A_NOMINAL_0_05
+Z_STAR_FOR_A_TRUE_FIVE_PERCENT_IS_2_01_1_98_1_94
+THE_GATE_IS_THE_SIZE_IT_CLAIMED_AND_THE_MDES_STAND_AT_THE_NOMINAL_THRESHOLD
+THE_DEFECT_WAS_REAL_AND_ITS_CONSEQUENCE_IS_NIL_TWO_STATEMENTS_NOT_COLLAPSED_INTO_ONE
+A_S82S_ZERO_POINT_EIGHT_THREE_FIVE_HAS_NO_COUNTERPART_HERE_AND_I_CHECKED_RATHER_THAN_ASSUMED
+BOTH_SIDES_WERE_PERMUTATION_BASED_WITH_THE_SAME_INNER_COUNT_SO_MISCALIBRATION_HAD_NO_ENTRY
+MAJORS_NEGATIVE_BASIS_FUNDING_RELATION_APPEARS_A_THIRD_TIME_AT_A_THIRD_HORIZON
+SIXTY_SECOND_CORR_MINUS_0_0876_MINUS_0_1336_PLUS_0_0669_Z_MINUS_2_00_MINUS_3_88_PLUS_2_12
+DESIGN_COST_STATED_THE_RECTANGULAR_TRIM_USES_ABOUT_ELEVEN_PERCENT_OF_THE_BARS
+EXACTNESS_WAS_BOUGHT_WITH_DATA
+CORPUS_SILENT_OUT_OF_REGIME_ABG_ACTUAL_SIZE_IS_A_HOMONYM_ABOUT_PARAMETER_MAGNITUDES
+CAUGHT_BY_READING_THE_SNIPPET_SECOND_SUCH_CATCH_IN_TWO_ROUNDS
+WHEN_ANOTHER_LANE_ACCUSES_A_SPECIFIC_ARTIFACT_OPEN_THAT_ARTIFACT
+A_REDUCTION_IS_NOT_EXACT_BECAUSE_THE_ALGEBRA_LOOKS_RIGHT_PART_ONE_FAILED_PART_TWO_PASSED
+BLOCK_VALIDATED_ON_A_COPY_BEFORE_APPENDING_144_TO_145_ID_PARSE_OK_TEN_OF_TEN_FIELDS
+IMPLEMENTED_AWAITING_INDEPENDENT_REVIEW
+```
+
+
+---
+
+## §513 [A-S84] LANE A — ÖNGÖRÜ TERİMİ `+13.21 bps` (SONRAKİNİN `21.7` KATI) VE `A-S83`'ÜN İŞARETİ YANLIŞTI; ÖN-HAREKET SABİTKEN **TASFİYE HİÇBİR ŞEY EKLEMİYOR** (`+0.201`, SE `0.194`, `z = +1.04`) (2026-08-27, Opus 5 [1M])
+
+`tools/s84_the_prediction_term.py` · `S84_THE_PREDICTION_TERM_V1.{md,json}`.
+`A-S83`'ün kendi kaydıma koyduğu *"bu bir argüman, ölçüm değil"* maddesi kapatıldı.
+
+### 1. KÜLLİYAT: **REÇETE VERİYOR**
+`"reaction and prediction"` **sıfır**, `"mechanically predictable"` **sıfır**; ama
+`BOUCHAUD_TQP` Denk. 17.16 (L15136) **koşullu yanıt fonksiyonunu** veriyor.
+**Dürüst eşleme:** BİÇİM aktarılıyor, **koşullandırma değişkeni aktarılmıyor** (onunki göreli
+hacim, benimki ön-hareket).
+
+### 2. ÖLÇÜM VE `A-S83`'ÜN İŞARET HATASI
+```
+R(-300 -> 0) = +13.2092    R(0 -> +300) = -0.6078    ÖN/SON = 21.73×    n = 3 397
+```
+`A-S83` *"öngörü terimi NEGATİF"* demişti. Seri **tasfiye edilen POZİSYONA** ters = zorlanmış
+emrin **kendi yönü** ⟹ terim **POZİTİF**. **Mekanizma geri çekildi, sonuç ayakta.**
+
+### 3. KOŞULLU YANIT + EŞLEŞTİRİLMİŞ KONTROL (`20×`, `67 940` çekiliş)
+```
+d1 -0.725 · d2 +0.440 · d3 +0.643 · d4 +0.338 · d5 -0.147 · d6 -1.374
+d7 -0.168 · d8 +0.535 · d9 -0.273 · d10 +2.749       (olay - kontrol)
+ağırlıklı +0.201 bps   SE 0.194   z = +1.04
+en uç desilde KONTROL olaydan DAHA ÇOK geri dönüyor (-6.06 vs -3.31)
+```
+
+### 4. KENDİ KONTROLÜM İLK KOŞUDA BOZUKTU
+Kontrolü ön-hareketin kendi işaretiyle yönlendirmek `10` desilin **`8`'ini boşalttı**
+(`n_ctl < 20`) ve o koşu `z = −0.06` veriyordu. **`n_ctl`'yi basmak yakaladı.**
+
+### 5. YERİNE GEÇEN MEKANİZMA
+Bouchaud ankrajı etkiyi **BAŞLATAN** işlemde; tasfiye bir etki sürecinin **KUYRUĞU** ⟹
+`t0`'da ankrajlanan `R` **sönümü** ölçer. `A-S82`'nin *"negatif ve düşen"*i anomali değil.
+`BOUCHAUD` §7.5 (*"yarış sonrası dönüş MEKANİK öngörüdür"*) bu işareti **öngörüyor**.
+
+```verdict
+A_S84  CORPUS_PRESCRIBES_BOUCHAUD_EQ_17_16_CONDITIONAL_RESPONSE_FUNCTION
+       FORM_TRANSFERS_CONDITIONING_VARIABLE_DOES_NOT_HIS_PHI_IS_VOLUME_MINE_IS_THE_PRE_MOVE
+       THE_PREDICTION_TERM_IS_MEASURED_AT_PLUS_13_21_BPS_NOT_ARGUED
+       IT_IS_21_7x_THE_POST_EVENT_MOVE_OF_MINUS_0_61
+       A_S83_ARGUED_THE_SIGN_NEGATIVE_AND_THE_SIGN_IS_POSITIVE
+       THE_RUN_IS_ADVERSE_TO_THE_POSITION_WHICH_IS_THE_FORCED_ORDERS_OWN_DIRECTION
+       A_S83_MECHANISM_WITHDRAWN_A_S83_CONCLUSION_STANDS
+       HOLDING_THE_PRE_MOVE_FIXED_THE_LIQUIDATION_ADDS_PLUS_0_201_BPS_SE_0_194_z_1_04
+       TEN_DECILES_AGAINST_A_20x_MATCHED_CONTROL_OF_67940_DRAWS
+       IN_THE_MOST_EXTREME_DECILE_THE_CONTROL_REVERTS_MORE_THAN_THE_EVENT
+       MY_FIRST_CONTROL_WAS_BROKEN_AND_LEFT_8_OF_10_DECILES_BELOW_n_20
+       PRINTING_n_CTL_BESIDE_THE_MEANS_IS_WHAT_CAUGHT_IT
+       A_LIQUIDATION_IS_THE_TAIL_OF_AN_IMPACT_PROCESS_NOT_ITS_START
+       A_S82S_FALLING_RESPONSE_IS_AN_ANCHORING_ARTEFACT_NOT_AN_ANOMALY
+       BOUCHAUD_7_5_POST_RACE_REVERSION_PREDICTS_THIS_SIGN
+       THE_z_DOES_NOT_CARRY_A_S80S_OVERLAP_CORRECTION_SO_THE_TRUE_z_IS_SMALLER_STILL
+```
+
+**Çekinceler:** desil `SE`'leri **blok yapısı taşımıyor**; `A-S80` bu serilerde örtüşmenin
+`SE`'yi `9–10×` şişirdiğini ölçtü ⟹ gerçek `|z|` **daha da küçük** (hüküm yönünde güvenli,
+sayı yukarı yanlı) · kontrol yalnız **ön-hareket** üzerinde eşleşiyor, oynaklık/saat/rejim
+üzerinde **değil** · tek pencere `±300 sn`, tek sembol, **yedi gün** · `ÖN/SON 21.7×`,
+CLAUDE.md'nin `3–8×`'iyle **kıyaslanmadı** (farklı pencere) · **yanmış örneklem** ·
+**push YOK.**
+
+---
+
+## §573 [C-KULLIYAT-T62] KITABIN BIRINCIL OLCUTUYLE UC SEMBOL DE BUYUK-TICK - ON DORT TURDUR YANLIS ETIKET KULLANMISIM (2026-08-27, Opus 5 [1M])
+
+**Hat:** C - **Arac:** `tools/ct_kulliyat_t62_the_books_own_tick_criterion_then_regate.py`
+**Tavan:** `MEASUREMENT_FIDELITY` - **Errata:** ADDENDUM_AG (ERR-HU-064, 065)
+**FAZLALIK SORUSU HAKKINDA HICBIR SEMBOLDE HICBIR SEY YAYIMLANMIYOR.** - **DB salt-okunur**
+**Blok kayda EKLENMEDEN once KOPYADA `--check`: 147/4 -> 148/4, yeni sorun yok.**
+
+### 1. Olcutu uydurmak uzereydim; once rafa sordum
+
+**BOUCHAUD_TQP bol. 4**, kaynaktan dogrulandi (C-T50'den devralinmadi):
+> **BIRINCIL TANIM:** *"**buyuk-tick** hisseler (yani spread'i **asgari degere yakin, `s ≈ ϑ`**)"*
+> vs *"**kucuk-tick** (spread'i **tick'ten cok buyuk, `s ≫ ϑ`**)"*
+> **SONUC (iv):** trade-through'lar *"kucuk-tick icin **birkac yuzde**, buyuk-tick icin
+> **binde birkac**"*
+> **(iii):** *"en iyi kotelerdeki aktivite ... **buyuk-tick hisselerde COK DAHA FAZLA**"*
+> -- **ERR-HU-063'un tanisi, benim kafamda degil kitapta.**
+
+**Birincil tanim uzerinden siniflandirdim, bilerek:** (iv) trade-through *oranidir* ve incelenen
+etki trade-through'un etkisidir ⟹ (iv) ile siniflayip etkiyi sinifla aciklamak **dongusel**
+olurdu. `s/ϑ` degildir.
+
+### 2. PART A -- ve on dort turluk etiket dusuyor
+
+```
+sembol   tick    ort. s    ort. s/tick   P(s = 1 tick)   rejim
+BTC      0.10    0.1261        1.261         %96.7       BUYUK-TICK
+ETH      0.01    0.0110        1.102         %98.7       BUYUK-TICK
+SOL      0.01    0.0100        1.001         %99.9       BUYUK-TICK
+```
+**UCU DE BUYUK-TICK.** Bu hat **C-T48'den beri** BTC ve ETH'ye **kucuk-tick** diyordu.
+
+### 3. A3 -- iki olcut REJIM DISINDA AYRISIYOR (onceden "bulgu" ilan edilmisti)
+
+```
+BTC  oran %11.7 -> kucuk-tick  |  s/ϑ -> BUYUK-TICK   AYRISIYOR
+ETH  oran %14.2 -> kucuk-tick  |  s/ϑ -> BUYUK-TICK   AYRISIYOR
+SOL  oran  %0.7 -> BUYUK-TICK  |  s/ϑ -> BUYUK-TICK   UYUYOR
+```
+**Neden:** hisselerde baglayici tick, dokunusta **derin kuyruk** demektir, iki olcut cakisir.
+**Perpetual'de tick SPREAD'i bagliyor ama kuyruklar ince kaliyor** ⟹ ust seviyeyi temizleyen
+bir emir **yurumek zorunda**, trade-through'lar sik kaliyor. **Olcutler kitabin rejiminde
+esdeger, benimkinde DEGIL.**
+
+### 4. PART B1 -- kapi, bu kez OLCULDU
+
+```
+corr(derinlik, tau=0'daki kote spread)  =  +0.0170 / +0.0237 / −0.1699
+```
+**Derinlik kote spread'i HICBIR sembolde genisletmiyor**, SOL'da **daraltiyor**.
+⟹ Kapi **hicbir yerde yerlesik degil** ⟹ **fazlalik hakkinda hicbir sey yayimlanmiyor.**
+**Ust uste ikinci tur** on-kayitli bir kapi isi durdurdu, ve **iki durus da dogruydu**.
+
+### 5. Ne geri cekiliyor (ERR-HU-064)
+
+**Hicbir olcum degismiyor.** Trade-through oranlari, `<d>/(s/2)`, gevseme egrileri, katmanli
+etkiler -- hepsi duruyor. Dusen sey **ETIKET** ve uzerine kurulan **kulliyat eslemesi**:
+
+· **C-T49'un mansetti `3/3` -> `1/3`.** Kitap `h_c`'yi `theta`-bagimsizliginin coktugu yerde
+  ongoruyor; o **artik ucu de**, ben **birinde** olctum.
+· **ERR-HU-045'in kendisi geri cekiliyor.** *"17.3 BTC/ETH icin yanlis bolumdu"* demisti;
+  birincil olcute gore **17.3 bastan beri DOGRU bolumdu.**
+
+```verdict
+ALL_THREE_SYMBOLS_ARE_LARGE_TICK_ON_THE_BOOKS_PRIMARY_CRITERION
+SPREAD_IS_EXACTLY_ONE_TICK_96_7_98_7_99_9_PCT_OF_THE_TIME
+FOURTEEN_ROUNDS_USED_THE_WRONG_LABEL
+THE_TWO_CRITERIA_COME_APART_ON_PERPETUALS
+EQUIVALENT_IN_THE_BOOKS_REGIME_NOT_IN_MINE
+C_KULLIYAT_T49_AGREEMENT_REVERSES_3_OF_3_TO_1_OF_3
+ERR_HU_045_IS_ITSELF_WITHDRAWN_SEC_17_3_WAS_RIGHT_ALL_ALONG
+THE_GATE_IS_NOT_ESTABLISHED_ANYWHERE_CORR_0_017_0_024_MINUS_0_170
+NOTHING_PUBLISHED_ABOUT_REDUNDANCY_ON_ANY_SYMBOL
+SECOND_CONSECUTIVE_ROUND_STOPPED_BY_ITS_OWN_PREREGISTERED_GATE
+NO_MEASUREMENT_CHANGES_ONLY_THE_LABEL_AND_ITS_MAPPING
+```
+
+**Artefakt:** `reports/atlas/CT_KULLIYAT_T62_TICK_REGIME_V1.json` - **Inline surucu yok** (D-47).
+
+## §572 [D-E35] DIŞ KOVARYAT KURULDU: **SEÇİLİM SEMBOLÜN KENDİ DURUMUNDA, PİYASA GENELİNDE DEĞİL** — ve sıfırın MDE'si ölçüldü (2026-08-27, Opus 5 [1M])
+
+### ARAÇ DEĞİŞİKLİĞİ ÖNCE GELDİ VE **KULLANILMADAN ÖNCE DOĞRULANDI**
+`collect()` yalnız **GÜN** çözünürlüklü `stratum` taşıyordu, anchor yoktu ⇒ semboller-arası
+pencere kurulamıyordu. t0 artık **eklemeli** olarak dışarı veriliyor ve değişiklik **HEAD'deki
+sürüme karşı** sınandı: iki sürüm de yüklenip hesaplanan her şey hash'lendi —
+**n = 628 / 628**, **μ_τ = 18.104100 / 18.104100**, ve (sym, cause, t_ms, qv, sigma_1s) sha256'ı
+**BİREBİR AYNI**: `6ff74f25c6f7c3b1bf58d733`.
+Yolda bir yanlış alarm oldu ve **benimdi**: ilk değişmezim Python'un `hash()`'iydi, o da
+**süreç başına rastgele** — iki koşu arasında "değişti" ve **hiçbir şey kanıtlamadı**.
+
+### ÇİZGİYİ KÜLLİYAT ÇİZİYOR, BEN DEĞİL
+ABG internal/external sorusunu **Kalbfleisch & Prentice 6.3**'e havale ediyor: **dış** kovaryat,
+bireyin **kendi olay süreci tarafından üretilmeyen** kovaryattır. Bölünme tam da bu:
+`own_prior` **AYNI** sembolün epizotlarını sayar → **İÇSEL** (sayıyı üreten süreç, INTERRUPTED
+olayını da üretir); `mkt_prior` **DİĞER** sembolleri sayar → **DIŞSAL**.
+İkisi de **kesinlikle t0 öncesi**, ilan edilmiş **6 saatlik** pencerede.
+
+### TANIMLANABİLİRLİK — bedava olmadığı için adlandırıldı
+Piyasa-geneli bir ölçü, aynı takvim anında canlı olan **her** spell tarafından paylaşılır; tüm
+spell'ler tek saatte koşsaydı takvim-zamanı taban hazard'ından **ayrılamazdı**. Koşmuyorlar —
+spell'ler **24 gün ve üç sembole yayılmış**. Bu kaydırma **YÖNTEMİN değil BU ÖRNEKLEMİN**
+özelliğidir.
+
+### SONUÇ — SORULAN SORUDA TEMİZ BİR NEGATİF
+
+| kovaryat | tür | rho | z | okuma |
+|---|---|--:|--:|---|
+| `mkt_prior` | **DIŞSAL** | −0.0542 | −1.39 | **AYIRT EDİLEMİYOR** |
+| `own_prior` | **İÇSEL** | +0.0975 | +2.40 | hayatta kalanlar **daha meşgul** kendi penceresinde |
+
+İki merdiven de **monoton** ⇒ hiçbir alet bozuk değil.
+
+### SIFIR BİLGİLENDİRİCİ, VE ÖLÇÜSÜ BUDUR
+`mkt_prior`'a bilinen bağımlılık enjekte edilince test **rho = −0.0809**'da ve daha güçlü her
+etkide **ateşliyor**. D-E34'ün ölçtüğü kendi-volatilite etkisi **rho −0.1502**.
+⇒ **Piyasa-geneli aktivite, volatilite kanalı büyüklüğünde bir seçilim taşısaydı BU TEST ONU
+RAHATLIKLA BULURDU.** MDE ≈ **|rho| 0.08**. Bu **ölçülmüş bir yokluk**, bakmama değil.
+
+### EN KESKİN KISIM: KARŞITLIK
+`mkt_prior` ile `sigma_1s` **+0.3846** sıra korelasyonu paylaşıyor — piyasa-geneli aktivite ile
+sembolün kendi ön-volatilitesi birlikte hareket ediyor. **Ama yalnız `sigma_1s` seçiyor**
+(−0.1502, z −3.74); `mkt_prior` seçmiyor (−0.0542, z −1.39).
+⇒ **Seçen büyüklük genel anlamda AKTİVİTE DEĞİL, sembolün KENDİ VOLATİLİTESİDİR**; onunla
+seyahat eden paylaşılan piyasa bileşeni **kendi başına hiçbir seçilim taşımıyor**.
+
+### A-S82'NİN KURALI, KENDİME UYGULANDI
+*"Gözlenen istatistik ile null'ı aynı yolun aynı fonksiyonu olmalı."* Kontrol edildi: D-E33
+gözlem ve null'u aynı `pooled()`'dan, D-E34 ve bu çalışma aynı `rho()`'dan geçiriyor.
+Bu hattın son üç sonucunda **işaretli/mutlak uyuşmazlığı yok**.
+
+```verdict
+THE_SELECTION_IS_ON_THE_SYMBOLS_OWN_STATE_NOT_ON_MARKET_WIDE_ACTIVITY
+MKT_PRIOR_EXTERNAL_RHO_MINUS_0_0542_z_MINUS_1_39_NOT_DISTINGUISHABLE
+THE_ZERO_IS_INFORMATIVE_MDE_IS_RHO_0_08_AND_THE_OWN_VOLATILITY_EFFECT_IS_0_15
+OWN_PRIOR_INTERNAL_RHO_PLUS_0_0975_z_PLUS_2_40_A_THIRD_CHANNEL
+MKT_AND_SIGMA_SHARE_RANK_CORRELATION_0_3846_YET_ONLY_SIGMA_SELECTS
+SO_IT_IS_NOT_ACTIVITY_IN_GENERAL_IT_IS_THE_SYMBOLS_OWN_VOLATILITY
+T0_EXPOSED_ADDITIVELY_AND_VERIFIED_BYTE_IDENTICAL_AGAINST_HEAD
+MY_FIRST_INVARIANT_WAS_PYTHONS_HASH_WHICH_IS_RANDOMISED_PER_PROCESS_AND_PROVED_NOTHING
+INTERNAL_VERSUS_EXTERNAL_IS_ABG_VIA_KALBFLEISCH_AND_PRENTICE_6_3_NOT_MY_LABEL
+IDENTIFIABILITY_RESTS_ON_STAGGERED_SPELLS_A_PROPERTY_OF_THIS_SAMPLE_NOT_THE_METHOD
+BOTH_LADDERS_MONOTONE_NEITHER_INSTRUMENT_IS_BROKEN
+A_S82_RULE_SELF_APPLIED_OBSERVED_AND_NULL_SHARE_ONE_FUNCTION_IN_ALL_THREE_STUDIES
+```
